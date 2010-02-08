@@ -275,11 +275,14 @@ TrajectoryManager::reconstruct()
 	  PP.charge()!=0. &&                         // Consider only charged particles
 	  cyliter->sensitive() &&                    // Consider only sensitive layers
 	  PP.Perp2()>pTmin*pTmin;                    // Consider only pT > pTmin
-
+	
         // Material effects are simulated there
 	if ( theMaterialEffects ) 
           theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
-	
+
+	// There is a PP.setXYZT=(0,0,0,0) if bremss fails
+	saveHit &= PP.E()>1E-6;
+
 	if ( saveHit ) { 
 
 	  // Consider only active layers

@@ -40,12 +40,19 @@ kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     jetParametrisation = cms.uint32(1),
     lepParametrisation = cms.uint32(1),
     metParametrisation = cms.uint32(1),
+
     # ------------------------------------------------
     # set constraints
     # 1: Whad-mass, 2: Wlep-mass
     # 3: thad-mass, 4: tlep-mass, 5: nu-mass
     # ------------------------------------------------                                   
-    constraints = cms.vuint32(1, 2)
+    constraints = cms.vuint32(1, 2),
+
+    # ------------------------------------------------
+    # set mass values used in the constraints
+    # ------------------------------------------------    
+    mW   = cms.double(80.4),
+    mTop = cms.double(173.)                                      
 )
 
 

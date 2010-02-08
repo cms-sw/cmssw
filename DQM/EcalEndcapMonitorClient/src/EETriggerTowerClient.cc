@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.90 $
+ * $Date: 2009/08/27 15:41:04 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -226,11 +226,6 @@ void EETriggerTowerClient::analyze(void) {
     me = dqmStore_->get(histo);
     l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
     mel01_[ism-1] = me;
-
-    sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EETTT EmulFineGrainVetoError %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    l02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l02_[ism-1] );
-    mel02_[ism-1] = me;
 
     sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EETTT EmulMatch %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);

@@ -75,9 +75,7 @@ namespace cond {
 
     CondDB getDB(std::string const & db);
     GlobalTag const & globalTag(std::string const & connstr, 
-				std::string const & gname,
-				std::string const & prefix, 
-				std::string const & postfix) const;
+				std::string const & gname) const;
 
   private:
     boost::shared_ptr<DbConnection> connection;

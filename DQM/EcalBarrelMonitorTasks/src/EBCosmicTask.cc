@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.113 $
+ * $Date: 2009/08/23 20:59:51 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  *
 */
@@ -112,7 +112,6 @@ void EBCosmicTask::setup(void){
       meSelMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       meSelMap_[i]->setAxisTitle("ieta", 1);
       meSelMap_[i]->setAxisTitle("iphi", 2);
-      meSelMap_[i]->setAxisTitle("energy (GeV)", 3);
     }
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Spectrum");

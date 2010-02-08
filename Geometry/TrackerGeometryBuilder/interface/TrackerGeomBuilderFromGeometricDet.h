@@ -3,13 +3,16 @@
 
 #include<string>
 #include<vector>
+#include <map>
+#include <string>
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GeomDetTypeIdToEnum.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GeomTopologyBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 class TrackerGeometry;
-
+class PixelGeomDetType;
+class StripGeomDetType;
 
 class TrackerGeomBuilderFromGeometricDet {
 public:
@@ -33,6 +36,8 @@ private:
   GeomDetTypeIdToEnum theDetIdToEnum;
   GeomTopologyBuilder* theTopologyBuilder;
 
+  std::map<std::string,PixelGeomDetType*> thePixelDetTypeMap;
+  std::map<std::string,StripGeomDetType*> theStripDetTypeMap;
 };
 
 #endif

@@ -136,21 +136,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     pythia->setRndmEnginePtr(RP8);
     pythiaEvent = &pythia->event;
 
-    for(ParameterCollector::const_iterator line = parameters.begin();
-        line != parameters.end(); ++line) {
-        if (line->find("Random:") != std::string::npos)
-            throw cms::Exception("PythiaError")
-                << "Attempted to set random number "
-                   "using Pythia commands.  Please use "
-                   "the RandomNumberGeneratorService."
-                << std::endl;
-
-        if (!pythia->readString(*line))
-            throw cms::Exception("PythiaError")
-                << "Pythia 8 did not accept \""
-                << *line << "\"." << std::endl;
-    }
-
     if(LHEInputFileName != string()) {
 
       cout << endl;
@@ -165,7 +150,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
       pythia->init(lhaUP.get());
 
     }
-    cout << "end of init for external" << endl;
 
     return true;
 }
@@ -221,17 +205,11 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 bool Pythia8Hadronizer::hadronize()
 {
     if(LHEInputFileName == string()) {
-      //cout << "start loading event" << endl;
       lhaUP->loadEvent(lheEvent());
-      //cout << "finish loading event" << endl;
     }
 
     if (!pythia->next())
         return false;
-
-    // update LHE matching statistics
-    //
-    lheEvent()->count( lhef::LHERunInfo::kAccepted );
 
     event().reset(new HepMC::GenEvent);
     toHepMC.fill_next_event(*pythiaEvent, event().get());
@@ -272,10 +250,6 @@ void Pythia8Hadronizer::finalizeEvent()
 	event()->set_pdf_info(HepMC::PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2));
 
 	event()->weights().push_back(pythia->info.weight());
-
-    // now create the GenEventInfo product from the GenEvent and fill
-    // the missing pieces
-    eventInfo().reset( new GenEventInfoProduct( event().get() ) );
 
 	//******** Verbosity ********
 

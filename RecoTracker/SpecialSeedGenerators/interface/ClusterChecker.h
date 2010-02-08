@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,6 +21,8 @@ class ClusterChecker {
       if (doACheck_){
 	clusterCollectionInputTag_ = conf.getParameter<edm::InputTag>("ClusterCollectionLabel");
 	maxNrOfCosmicClusters_ = conf.getParameter<unsigned int>("MaxNumberOfCosmicClusters");
+	pixelClusterCollectionInputTag_ = conf.getParameter<edm::InputTag>("PixelClusterCollectionLabel");
+	maxNrOfPixelClusters_ = conf.getParameter<unsigned int>("MaxNumberOfPixelClusters");
         if (conf.existsAs<uint32_t>("DontCountDetsAboveNClusters")) {
             ignoreDetsAboveNClusters_ = conf.getParameter<uint32_t>("DontCountDetsAboveNClusters");
         } else {
@@ -61,13 +64,44 @@ class ClusterChecker {
         totalClusters = 999999;
       }
     }
-    return (totalClusters > maxNrOfCosmicClusters_) ? totalClusters : 0;
+    if (totalClusters > maxNrOfCosmicClusters_) return totalClusters;
+
+    // get special input for pixel cluster multiplicity filter
+    edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusterDSV;
+    e.getByLabel(pixelClusterCollectionInputTag_, pixelClusterDSV);
+    unsigned int totalPixelClusters = 0;
+    if (!pixelClusterDSV.failedToGet()) {
+      const edmNew::DetSetVector<SiPixelCluster> & input = *pixelClusterDSV;
+
+      if (ignoreDetsAboveNClusters_ == 0) {
+        totalPixelClusters = input.dataSize();
+      } else {
+          //loop over detectors
+          edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin(), DSViter_end=input.end();
+          for (; DSViter!=DSViter_end; DSViter++ ) {
+            size_t siz = DSViter->size();
+            if (siz > ignoreDetsAboveNClusters_) continue;
+            totalPixelClusters += siz; 
+          }
+      }
+    }
+    else{
+      //say something's wrong.
+      edm::LogError("ClusterChecker")<<"could not get any SiPixel cluster collections of type edm::DetSetVector<SiPixelCluster>  with label: "<<pixelClusterCollectionInputTag_;
+      totalPixelClusters = 999999;
+    }
+    if (totalPixelClusters > maxNrOfPixelClusters_) return totalPixelClusters;
+
+    return 0;
+
   }
 
  private: 
   bool doACheck_;
   edm::InputTag clusterCollectionInputTag_;
+  edm::InputTag pixelClusterCollectionInputTag_;
   uint32_t maxNrOfCosmicClusters_;
+  uint32_t maxNrOfPixelClusters_;
   uint32_t ignoreDetsAboveNClusters_;
 };
 

@@ -1,20 +1,11 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2009/10/12 10:16:42 $
- * $Revision: 1.21 $
+ * $Date: 2008/06/10 18:01:55 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
- * Revision 1.21  2009/10/12 10:16:42  nuno
- * bug fix; letting the package compile again
- *
- * Revision 1.20  2009/08/03 21:11:22  lorenzo
- * added dttf phi and theta
- *
- * Revision 1.19  2008/07/29 14:18:27  wteo
- * updated and added more MEs
- *
  * Revision 1.15  2008/06/10 18:01:55  lorenzo
  * reduced n histos
  *
@@ -48,15 +39,6 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
- * Revision 1.21  2009/10/12 10:16:42  nuno
- * bug fix; letting the package compile again
- *
- * Revision 1.20  2009/08/03 21:11:22  lorenzo
- * added dttf phi and theta
- *
- * Revision 1.19  2008/07/29 14:18:27  wteo
- * updated and added more MEs
- *
  * Revision 1.15  2008/06/10 18:01:55  lorenzo
  * reduced n histos
  *
@@ -182,7 +164,7 @@ L1TDTTF::~L1TDTTF()
 {
 }
 
-void L1TDTTF::beginJob(void)
+void L1TDTTF::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;
@@ -246,7 +228,6 @@ void L1TDTTF::beginJob(void)
       char mename[40];//ME name
 
       /*
-      
 
       dbe->setCurrentFolder(dttf_phi_folder);
     
@@ -890,7 +871,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 
 
 
-  /*  
+  /*
 ///
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
   e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);

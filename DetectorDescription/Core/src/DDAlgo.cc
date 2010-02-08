@@ -120,7 +120,7 @@ DDAlgo DDalgo(const DDName & n, AlgoPos * a)
 }
 
 
-// void DDAlgo::clear()
-// {
-//  StoreT::instance().clear();
-// }
+void DDAlgo::clear()
+{
+ StoreT::instance().clear();
+}

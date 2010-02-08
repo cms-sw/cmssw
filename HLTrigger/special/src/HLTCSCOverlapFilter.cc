@@ -9,7 +9,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 HLTCSCOverlapFilter::HLTCSCOverlapFilter(const edm::ParameterSet& iConfig)
    : m_input(iConfig.getParameter<edm::InputTag>("input"))

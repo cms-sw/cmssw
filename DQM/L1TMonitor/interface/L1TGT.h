@@ -4,8 +4,8 @@
 /*
  * \file L1TGT.h
  *
- * $Date: 2008/04/25 14:57:19 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.5 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -51,7 +51,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob();
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);
@@ -97,18 +97,6 @@ private:
 
   MonitorElement* gtfe_bx;
   MonitorElement* dbx_module;
-
-  MonitorElement* BST_MasterStatus;
-  MonitorElement* BST_turnCountNumber;
-  MonitorElement* BST_lhcFillNumber;
-  MonitorElement* BST_beamMode;
-  MonitorElement* BST_beamMomentum;
-  MonitorElement* BST_intensityBeam1;
-  MonitorElement* BST_intensityBeam2;
-  MonitorElement* gpsfreq;
-  MonitorElement* gpsfreqwide;
-  MonitorElement* gpsfreqlum;
-  
   
 
   int nev_; // Number of events processed
@@ -118,9 +106,6 @@ private:
   ofstream logFile_;
   edm::InputTag gtSource_;
   edm::InputTag gtEvmSource_;
-  
-  boost::uint64_t preGps_;
-  boost::uint64_t preOrb_;
 };
 
 #endif

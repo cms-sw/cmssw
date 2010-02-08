@@ -16,7 +16,7 @@
 //
 // Original Author:  Puljak Ivica
 //         Created:  Wed Apr 18 12:52:31 CEST 2007
-// $Id$
+// $Id: HZZ4lFilter.h,v 1.1 2007/07/13 14:34:21 fmoortga Exp $
 //
 //
 
@@ -44,7 +44,6 @@ class HZZ4lFilter : public edm::EDFilter {
 
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-	  // virtual void beginJob(const edm::EventSetup&) ;
       // virtual void endJob() ;
       
       // ----------member data ---------------------------

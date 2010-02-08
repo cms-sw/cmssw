@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/11/22 05:43:27 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/08 11:03:31 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -33,11 +33,8 @@
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
-#include "DataFormats/METReco/interface/BeamHaloSummary.h"
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
@@ -74,7 +71,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   void makeRatePlot(std::string, double);
 
   void validateMET(const reco::CaloMET&, edm::Handle<edm::View<Candidate> >);
-  void computeEmHaMET(edm::Handle<edm::View<Candidate> >);
 
   bool selectHighPtJetEvent(const edm::Event&);
   bool selectLowPtJetEvent(const edm::Event&);
@@ -89,7 +85,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::ParameterSet parameters;
   // Switch for verbosity
   int _verbose;
-  int _print;
 
   std::string metname;
   std::string _source; // HLT? FU?
@@ -100,7 +95,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::InputTag theJetCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
   edm::InputTag HcalNoiseSummaryTag;
-  edm::InputTag BeamHaloSummaryTag;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
@@ -139,21 +133,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   std::vector<std::string> _FolderNames;
 
   //
-  double _EmMEx;
-  double _EmMEy;
-  double _EmMET;
-  double _EmCaloEz;
-  double _EmSumEt;
-  double _EmMetPhi;
-  //
-  double _HaMEx;
-  double _HaMEy;
-  double _HaMET;
-  double _HaCaloEz;
-  double _HaSumEt;
-  double _HaMetPhi;
-
-  //
   DQMStore *_dbe;
 
   //the histos
@@ -176,9 +155,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* meCaloSumET;
   MonitorElement* meCaloMExLS;
   MonitorElement* meCaloMEyLS;
-
-  MonitorElement* meCaloMET_logx;
-  MonitorElement* meCaloSumET_logx;
 
   MonitorElement* meCaloMETIonFeedbck;
   MonitorElement* meCaloMETHPDNoise;
@@ -208,9 +184,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* meCaloEmEtInEB;
 
   MonitorElement* meCaloMETRate;
-
-  //
-  std::map<std::string, MonitorElement*> me;
 
 };
 #endif

@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2008/07/10 15:24:35 $
- * by         : $Author: ewidl $
+ * last update: $Date: 2009/09/15 16:21:55 $
+ * by         : $Author: ckleinw $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
  * stated.
@@ -67,18 +67,11 @@
  * Break Points are selected by TrajectoryFactory.MaterialEffects = "BreakPoints"
  *
  * 090909 C. Kleinwort: 'Broken Lines' introduced for description of multiple scattering
- *      (V. Blobel, Nuclear Instruments and Methods A, 566 (2006), pp. 14-17)
- * Fine Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BrokenLinesFine"
- *      (exact derivatives)
- * Coarse Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BrokenLines[Coarse]"
- *      (approximate derivatives, closeby hits (ds<1cm) combined)
  *
- * 091127 C. Kleinwort: 
- *   1) 'Broken Lines' extended to PCA,
- *      required for beamspot constraint and TwoBodyDecayTrajectory,
- *      selected with "BrokenLines[Coarse]Pca" or "BrokenLinesFinePca"
- *   2) For coarse Broken Lines linear interpolation is used for combined hits
- *   3) TwoBodyDecayTrajectory implemented for break points and Broken Lines
+ * Fine Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BreakPointsFine"
+ *      (exact derivatives)
+ * Coarse Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BreakPoints"
+ *      (approximate derivatives, closeby hits (ds<1cm) combined)
  */
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
@@ -98,7 +91,7 @@ public:
 
   typedef ReferenceCountingPointer<ReferenceTrajectoryBase> ReferenceTrajectoryPtr;
 
-  enum MaterialEffects { none, multipleScattering, energyLoss, combined, breakPoints, brokenLinesCoarse, brokenLinesFine, brokenLinesCoarsePca, brokenLinesFinePca };
+  enum MaterialEffects { none, multipleScattering, energyLoss, combined, breakPoints, brokenLinesCoarse, brokenLinesFine };
 
   virtual ~ReferenceTrajectoryBase() {}
 
@@ -126,16 +119,13 @@ public:
    */
   const AlgebraicMatrix& derivatives() const { return theDerivatives; }
 
-  /** Returns the transformation of tracjectory to curvilinear parameters
-   */
-  const AlgebraicMatrix& trajectoryToCurv() const { return theInnerTrajectoryToCurvilinear; }
-  /** Returns the transformation of local to tracjectory parameters
-   */
-  const AlgebraicMatrix& localToTrajectory() const { return theInnerLocalToTrajectory; }    
-  
   /** Returns the set of 'track'-parameters.
-   */  
+   */
+   
   const AlgebraicVector& parameters() const { return theParameters; }
+  /** Returns the set of global 'track'-parameters.
+   */
+  const AlgebraicVector6& globalPars() const { return theGlobalPars; }
 
   /** Returns true if the covariance matrix of the 'track'-parameters is set.
    */
@@ -144,7 +134,7 @@ public:
   /** Set the covariance matrix of the 'track'-parameters.
    */
   inline void setParameterErrors( const AlgebraicSymMatrix& error ) { theParameterCov = error; theParamCovFlag = true; }
-  
+
   /** Returns the covariance matrix of the 'track'-parameters.
    */
   inline const AlgebraicSymMatrix& parameterErrors() const { return theParameterCov; }
@@ -168,7 +158,8 @@ public:
 
 protected:
 
-  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0, unsigned int nMsPar = 0, unsigned int nMsMeas = 0 );
+  ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits, unsigned int nMsPar,
+			  unsigned int nMsMeas);
 
   unsigned int numberOfUsedRecHits(const TransientTrackingRecHit::ConstRecHitContainer &recHits) const;
   bool useRecHit(const TransientTrackingRecHit::ConstRecHitPointer& hitPtr) const;
@@ -194,12 +185,9 @@ protected:
   AlgebraicSymMatrix  theParameterCov;
 
   AlgebraicMatrix     theDerivatives;
-
-// CHK for beamspot   transformation trajectory parameter to curvilinear at refTSos
-  AlgebraicMatrix     theInnerTrajectoryToCurvilinear;  
-// CHK for TwoBodyD.  transformation local to trajectory parameter at refTsos
-  AlgebraicMatrix     theInnerLocalToTrajectory;  
-    
+// CHK for debug  
+  AlgebraicVector6    theGlobalPars;
+  
   static const unsigned int nMeasPerHit = 2;
 };
 

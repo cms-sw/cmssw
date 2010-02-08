@@ -85,10 +85,6 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   tkMapConfigName_ = "TkHistoMap";
   getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
 
-   getConfigForHistogram("FETimeDiffTIB",iConfig,pDebugStream);
-   getConfigForHistogram("FETimeDiffTOB",iConfig,pDebugStream);
-   getConfigForHistogram("FETimeDiffTECB",iConfig,pDebugStream);
-   getConfigForHistogram("FETimeDiffTECF",iConfig,pDebugStream);
 
 }
 
@@ -187,14 +183,6 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
   if (aFeLevelErrors.Overflow) fillHistogram(feOverflowDetailed_[aFedId],lFeId);
   else if (aFeLevelErrors.Missing) fillHistogram(feMissingDetailed_[aFedId],lFeId);
   else if (aFeLevelErrors.BadMajorityAddress) fillHistogram(badMajorityAddressDetailed_[aFedId],lFeId);
-  
-  if (aFeLevelErrors.TimeDifference != 0){
-    if (aFeLevelErrors.SubDetID == 3 || aFeLevelErrors.SubDetID == 4) fillHistogram(feTimeDiffTIB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 5)fillHistogram(feTimeDiffTOB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 6)fillHistogram(feTimeDiffTECB_,aFeLevelErrors.TimeDifference);
-    else if (aFeLevelErrors.SubDetID == 7)fillHistogram(feTimeDiffTECF_,aFeLevelErrors.TimeDifference);
-  }
-
 }
 
 //fill a histogram if the pointer is not NULL (ie if it has been booked)
@@ -319,27 +307,6 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
                              siStripFedIdMax-siStripFedIdMin+1,
                              siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
   
-
-  feTimeDiffTIB_ = bookHistogram("FETimeDiffTIB","FETimeDiffTIB",
-				 "(TimeLoc FE - TimeLoc APVe) for TIB/TID, when different",
-				 401,
-				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
-
-  feTimeDiffTOB_ = bookHistogram("FETimeDiffTOB","FETimeDiffTOB",
-				 "(TimeLoc FE - TimeLoc APVe) for TOB, when different",
-				 401,
-				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
-
-  feTimeDiffTECB_ = bookHistogram("FETimeDiffTECB","FETimeDiffTECB",
-				 "(TimeLoc FE - TimeLoc APVe) for TECB, when different",
-				 401,
-				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
-
-  feTimeDiffTECF_ = bookHistogram("FETimeDiffTECF","FETimeDiffTECF",
-				 "(TimeLoc FE - TimeLoc APVe) for TECF, when different",
-				 401,
-				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
-
   nFEDErrors_ = bookHistogram("nFEDErrors",
 			      "nFEDErrors",
                               "Number of FEDs with errors (exclusing channel status bits) per event",

@@ -130,7 +130,7 @@ L1TdeRCT::~L1TdeRCT()
 {
 }
 
-void L1TdeRCT::beginJob(void)
+void L1TdeRCT::beginJob(const EventSetup & c)
 {
 
   nev_ = 0;

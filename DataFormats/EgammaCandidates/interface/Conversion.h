@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.7 2009/03/11 13:04:47 nancy Exp $
+ * \version $Id: Conversion.h,v 1.6 2008/12/17 13:09:17 nancy Exp $
  *
  */
 
@@ -68,7 +68,7 @@ namespace reco {
       /// Super Cluster energy divided by track pair momentum if Standard seeing method. If a pointer to two (or more clusters)
       /// is stored in the conversion, this method returns the energy sum of clusters divided by the  track pair momentum
       double EoverP() const;
-      /// z coordinate of the photon origin calculated from the track-pair direction
+      /// set primary event vertex used to define photon direction
       double zOfPrimaryVertexFromTracks() const;
       // Dist of minimum approach between tracks
       double distOfMinimumApproach() const {return  theMinDistOfApproach_;}

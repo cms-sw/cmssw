@@ -12,7 +12,7 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
-    #firstRun = cms.untracked.uint32(121475)
+    #firstRun = cms.untracked.uint32(RUNNUMBERTEMPLATE)
     firstRun = cms.untracked.uint32(1)
 )
 
@@ -30,46 +30,18 @@ process.ttrigRef = cms.ESSource("PoolDBESSource",
         cms.PSet(
             record = cms.string('DTTtrigRcd'),
             tag = cms.string('ttrig'),
-            #connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/COMM09/ttrig/ttrig_ResidCorr_110958.db'), 
+            connect = cms.untracked.string('sqlite_file:REFTTRIGTEMPLATE'), 
             label = cms.untracked.string('ttrigRef')
-        )
-#         , 
-#         cms.PSet(
-#             record = cms.string('DTTtrigRcd'),
-#             tag = cms.string('ttrig'),
-#             connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/LHC/ttrig/ttrig_ResidCorr_121475.db'),
-#             label = cms.untracked.string('ttrigToValidate')
-#         )
-        ),
-    connect = cms.string('sqlite_file:REFTTRIGTEMPLATE'),
+        ), 
+        cms.PSet(
+            record = cms.string('DTTtrigRcd'),
+            tag = cms.string('ttrig'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/ttrig_ResidCorr_RUNNUMBERTEMPLATE.db'),
+            label = cms.untracked.string('ttrigToValidate')
+        )),
+    connect = cms.string(''),
     siteLocalConfig = cms.untracked.bool(False)
 )
-
-
-process.ttrigToValidate = cms.ESSource("PoolDBESSource",
-    DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0),
-        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
-    timetype = cms.string('runnumber'),
-    toGet = cms.VPSet(
-#         cms.PSet(
-#             record = cms.string('DTTtrigRcd'),
-#             tag = cms.string('ttrig'),
-#             #connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/COMM09/ttrig/ttrig_ResidCorr_110958.db'), 
-#             label = cms.untracked.string('ttrigRef')
-#         )
-         cms.PSet(
-    record = cms.string('DTTtrigRcd'),
-    tag = cms.string('ttrig'),
-#     connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/LHC/ttrig/ttrig_ResidCorr_121475.db'),
-    label = cms.untracked.string('ttrigToValidate')
-    )
-        ),
-    connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/ttrig_ResidCorr_RUNNUMBERTEMPLATE.db'),
-    siteLocalConfig = cms.untracked.bool(False)
-)
-
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('dtTTrigAnalyzer'),
@@ -102,5 +74,6 @@ process.qTester = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
+
 process.p = cms.Path(process.dtTTrigAnalyzer*process.qTester)
 process.DQM.collectorHost = ''

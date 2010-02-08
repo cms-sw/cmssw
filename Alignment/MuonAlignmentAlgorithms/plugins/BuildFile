@@ -4,7 +4,7 @@
 <use name=FWCore/ParameterSet>
 
 # on lib for CSCOverlap Algorithm
-<library name=CSCOverlapsAlignmentAlgorithm file=CSCOverlapsAlignmentAlgorithm.cc,CSCOverlapsTrackPreparation.cc,CSCOverlapsBeamSplashCut.cc>
+<library name=CSCOverlapsAlignmentAlgorithm file=CSCOverlapsAlignmentAlgorithm.cc,CSCOverlapsTrackPreparation.cc>
   <use name=Alignment/CommonAlignment>
   <use name=Alignment/CommonAlignmentAlgorithm>
   <use name=Alignment/MuonAlignment>
@@ -24,7 +24,6 @@
   <use name=TrackingTools/PatternTools>
   <use name=TrackingTools/TrackFitters>
   <use name=TrackingTools/TrajectoryState>
-  <use name=DataFormats/CSCRecHit>
   <use name=clhep>
   <use name=root>
   <flags EDM_PLUGIN=1>

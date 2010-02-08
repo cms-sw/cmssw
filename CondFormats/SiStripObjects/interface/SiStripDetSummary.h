@@ -50,10 +50,6 @@ public:
    */
   void print(stringstream& ss, const bool mean = true) const;
 
-  map<int, int> getCounts()
-  {
-    return countMap_;
-  }
 protected:
   // Maps to store the value and the counts
   map<int, double> meanMap_;

@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.82 2009/12/02 18:21:04 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.86 2009/12/07 09:38:07 amraktad Exp $
 //
 // hacks
 // #define private public
@@ -86,21 +86,21 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *appendData = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
-   loadConfig->disable();
+   loadConfig->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
    CSGAction *exportImage = new CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
    CSGAction *undo = new CSGAction(this, cmsshow::sUndo.c_str());
-   undo->disable();
+   undo->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *redo = new CSGAction(this, cmsshow::sRedo.c_str());
-   redo->disable();
+   redo->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *cut = new CSGAction(this, cmsshow::sCut.c_str());
-   cut->disable();
+   cut->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *copy = new CSGAction(this, cmsshow::sCopy.c_str());
-   copy->disable();
+   copy->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *paste = new CSGAction(this, cmsshow::sPaste.c_str());
-   paste->disable();
+   paste->disable(); //NOTE: All disables happen again later in this routine
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
@@ -387,7 +387,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterShowGUIBtn = new TGTextButton(filterFrame,"Event filtering is OFF");
    m_filterShowGUIBtn->SetBackgroundColor(backgroundColor);
    m_filterShowGUIBtn->SetTextColor(0xFFFFFF);
-   m_filterShowGUIBtn->SetToolTipText("Edit event selection");
+   m_filterShowGUIBtn->SetToolTipText("Edit filters");
    filterFrame->AddFrame(m_filterShowGUIBtn,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
 
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
@@ -449,6 +449,17 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    playEvents->disable();
    playEventsBack->disable();
    loop->disable();
+   
+   //NOTE: There appears to be a bug in ROOT such that creating a menu item and setting it as
+   // disabled immediately is ignored.  Therefore we have to wait till here to actually get ROOT
+   // to disable these menu items
+   loadConfig->disable();
+   undo->disable();
+   redo->disable();
+   cut->disable();
+   copy->disable();
+   paste->disable();
+   
    
    TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
    csArea->VSplit(200);
@@ -548,18 +559,14 @@ CmsShowMainFrame::enablePrevious(bool enable)
    if (m_previousEvent != 0) {
       if (enable) {
          m_previousEvent->enable();
+         m_goToFirst->enable();
          m_playEventsBack->enable();
       } else {
          m_previousEvent->disable();
+         m_goToFirst->disable();
          m_playEventsBack->disable();
          m_playEventsBack->stop();
       }
-   }
-   if (m_goToFirst != 0) {
-      if (enable)
-         m_goToFirst->enable();
-      else
-         m_goToFirst->disable();
    }
 }
 
@@ -569,12 +576,12 @@ CmsShowMainFrame::enableNext(bool enable)
    if (m_nextEvent != 0) {
       if (enable) {
          m_nextEvent->enable();
-         m_playEvents->enable();
          m_goToLast->enable();
+         m_playEvents->enable();
       } else {
          m_nextEvent->disable();
-         m_playEvents->disable();
          m_goToLast->disable();
+         m_playEvents->disable();
          m_playEvents->stop();
       }
    }

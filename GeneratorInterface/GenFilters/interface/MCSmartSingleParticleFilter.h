@@ -48,6 +48,7 @@ class MCSmartSingleParticleFilter : public edm::EDFilter {
       
        std::string label_;
        std::vector<int> particleID;  
+       std::vector<double> pMin;
        std::vector<double> ptMin;
        std::vector<double> etaMin;  
        std::vector<double> etaMax;

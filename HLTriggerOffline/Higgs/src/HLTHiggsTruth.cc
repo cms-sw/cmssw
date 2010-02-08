@@ -75,16 +75,13 @@ void HLTHiggsTruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
 //// HWW->2l selection
 
-void HLTHiggsTruth::analyzeHWW2l(const CandidateView& mctruth,const CaloMETCollection&
-caloMet, const TrackCollection& Tracks, const MuonCollection& muonHandle, 
+void HLTHiggsTruth::analyzeHWW2l(const CandidateView& mctruth,const MuonCollection& muonHandle, 
 const GsfElectronCollection& electronHandle, TTree* HltTree) {
   if (_Monte) {
   
    // if (&mctruth){
   
   
-           
- 
    //////////////////////
    ////    
    /////     //----  reco selection ---
@@ -175,8 +172,6 @@ const GsfElectronCollection& electronHandle, TTree* HltTree) {
 	       
 	          Electron1 = selected_electrons[0];
                   Electron2 = selected_electrons[1];
-		  
-		  met_hwwdiel_ = caloMet[0].pt();
 	       }
        }
        
@@ -190,8 +185,6 @@ const GsfElectronCollection& electronHandle, TTree* HltTree) {
 	          
 		   Muon1 = selected_muons[0];
                    Muon2 = selected_muons[1];
-		   
-		   met_hwwdimu_ =   caloMet[0].pt();
 	     
 	       }
        }
@@ -209,8 +202,6 @@ const GsfElectronCollection& electronHandle, TTree* HltTree) {
 	   
 		    Muon1     = selected_muons[0];
                     Electron1 = selected_electrons[0];
-		    
-		    met_hwwemu_ =  caloMet[0].pt();
 	     }
        }
        
@@ -578,7 +569,6 @@ void HLTHiggsTruth::analyzeHtaunu(const CandidateView& mctruth,TTree* HltTree) {
     
   
     isvisible= (ntaus>0);   
-    isTauDecay_acc = isvisible;
   
       
     }

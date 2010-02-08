@@ -9,6 +9,10 @@ from Vispa.Views.AbstractView import AbstractView
 from Vispa.Views.PropertyView import PropertyView,Property
 from Vispa.Share.ThreadChain import ThreadChain
 
+class TableWidgetItem(QTableWidgetItem):
+    def __lt__(self,other):
+        return str(self.text()).lower()<str(other.text()).lower()
+
 class TableView(AbstractView, QTableWidget):
     """ The TableView widget fills itself using a DataAccessor.
     """
@@ -29,6 +33,7 @@ class TableView(AbstractView, QTableWidget):
         self._filteredColumns=[]
         self._firstColumn=0
         self._updateCounter=0
+        self._autosizeColumns=True
 
         self.setSortingEnabled(False)
         self.verticalHeader().hide()
@@ -55,11 +60,6 @@ class TableView(AbstractView, QTableWidget):
             raise TypeError(__name__ + " requires data accessor of type BasicDataAccessor.")
         AbstractView.setDataAccessor(self, accessor)
 
-    def setDataObjects(self, objects):
-        if len(self._dataObjects)!=len(objects):
-            self._selection=None
-        AbstractView.setDataObjects(self, objects)
-    
     def cancel(self):
         """ Stop all running operations.
         """
@@ -129,8 +129,9 @@ class TableView(AbstractView, QTableWidget):
             if operationId != self._operationId:
                 break
             self._createItem(object,properties[object])
-        for i in range(len(self._columns)):
-            self.resizeColumnToContents(i)
+        if self._autosizeColumns:
+            for i in range(len(self._columns)):
+                self.resizeColumnToContents(i)
         self.setSortingEnabled(self._sortingFlag)
         self._updatingFlag-=1
         return self._operationId==operationId
@@ -152,7 +153,7 @@ class TableView(AbstractView, QTableWidget):
                     text=str(propertyWidget.value())
                 else:
                     text=str(property[2])
-                item=QTableWidgetItem(text)
+                item=TableWidgetItem(text)
                 item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
                 item.object=object
                 self.setItem(row,i,item)
@@ -170,7 +171,7 @@ class TableView(AbstractView, QTableWidget):
         """
         logging.debug(__name__ + ": itemSelectionChanged")
         if not self._updatingFlag:
-            self._selection = self.currentRow()
+            self._selection = self.item(self.currentRow(),self._firstColumn).text()
             if self.item(self.currentRow(),self._firstColumn)!=None:
                 self.emit(SIGNAL("selected"), self.item(self.currentRow(),self._firstColumn).object)
             else:
@@ -183,18 +184,19 @@ class TableView(AbstractView, QTableWidget):
         items = []
         for i in range(self.rowCount()):
             if self.item(i,self._firstColumn).object == object:
-                items += [(i)]
+                items += [self.item(i,self._firstColumn)]
         if len(items) > 0:
-            first=sorted(items)[0]
-            self._selection = first
+            item = items[0]
+            self._selection = item.text()
             self._updatingFlag +=1
-            self.setCurrentCell(first,0)
+            self.setCurrentItem(item)
             self._updatingFlag -=1
 
     def _selectedRow(self):
-        if self._selection<self.rowCount():
-            return self._selection
-        elif self.rowCount()>0:
+        for i in range(self.rowCount()):
+            if self.item(i,self._firstColumn).text() == self._selection:
+                return i
+        if self.rowCount()>0:
             return 0
         else:
             return None

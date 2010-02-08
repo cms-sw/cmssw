@@ -94,7 +94,7 @@ public:
   DDRotationMatrix * matrix() { return rotation(); }
   //DDRotationMatrix* unit();
   
-/*   static void clear(); */
+  static void clear();
 private:  
   DDRotation(DDRotationMatrix*); 
 };

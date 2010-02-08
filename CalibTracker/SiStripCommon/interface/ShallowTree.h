@@ -15,7 +15,7 @@
  *  See the file doc/README for more detailed documentation, including
  *  advantages, disadvantages, and use philosophy.
  *  
- *  $Date: 2009/09/30 22:20:37 $
+ *  $Date: 2008/08/23 16:46:29 $
  *  $Revision: 1.1 $
  *  \author Burt Betchart - University of Rochester <burton.andrew.betchart@cern.ch>
  */
@@ -67,8 +67,7 @@ public:
 		 SHORT,   SHORT_V,           U_SHORT, U_SHORT_V,       
 		 INT,     INT_V,             U_INT,   U_INT_V,
 		 FLOAT,   FLOAT_V,           DOUBLE,  DOUBLE_V,
-		 LONG,    LONG_V,	     U_LONG,  U_LONG_V, 
-		 CHAR,    CHAR_V,            U_CHAR,  U_CHAR_V};
+		 LONG,    LONG_V,	     U_LONG,  U_LONG_V   };
 };
 
 #endif

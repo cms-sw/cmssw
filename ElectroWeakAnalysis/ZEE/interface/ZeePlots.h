@@ -45,8 +45,15 @@ class ZeePlots : public edm::EDAnalyzer {
       bool CheckCutsInverse(const pat::Electron *ele);
       bool CheckCutInv( const pat::Electron *wenu, int i);
       bool CheckCutsNminusOne(const pat::Electron *ele, int jj);
+      // for the 2nd leg
+      bool CheckCuts2( const pat::Electron * ele);
+      bool CheckCut2( const pat::Electron *wenu, int i);
+      bool CheckCuts2Inverse(const pat::Electron *ele);
+      bool CheckCut2Inv( const pat::Electron *wenu, int i);
+      bool CheckCuts2NminusOne(const pat::Electron *ele, int jj);
+      //
       double ReturnCandVar(const pat::Electron *ele, int i);
-
+      bool   useDifferentSecondLegSelection_;
   std::string outputFile_;
   edm::InputTag zeeCollectionTag_;
   TFile *histofile;
@@ -94,11 +101,33 @@ class ZeePlots : public edm::EDAnalyzer {
   Double_t deta_EB_;
   Double_t dphi_EB_;
   Double_t hoe_EB_;
+  Double_t userIso_EB_;
   //
   Double_t sihih_EE_;
   Double_t deta_EE_;
   Double_t dphi_EE_;
   Double_t hoe_EE_;
+  Double_t userIso_EE_;
+  //
+  Double_t trackIso2_EB_;
+  Double_t ecalIso2_EB_;
+  Double_t hcalIso2_EB_;
+  //
+  Double_t trackIso2_EE_;
+  Double_t ecalIso2_EE_;
+  Double_t hcalIso2_EE_;
+  //
+  Double_t sihih2_EB_;
+  Double_t deta2_EB_;
+  Double_t dphi2_EB_;
+  Double_t hoe2_EB_;
+  Double_t userIso2_EB_;
+  //
+  Double_t sihih2_EE_;
+  Double_t deta2_EE_;
+  Double_t dphi2_EE_;
+  Double_t hoe2_EE_;
+  Double_t userIso2_EE_;
   //
   bool trackIso_EB_inv;
   bool ecalIso_EB_inv;
@@ -112,15 +141,18 @@ class ZeePlots : public edm::EDAnalyzer {
   bool deta_EB_inv;
   bool dphi_EB_inv;
   bool hoe_EB_inv;
+  bool userIso_EB_inv;
   //
   bool sihih_EE_inv;
   bool deta_EE_inv;
   bool dphi_EE_inv;
   bool hoe_EE_inv;
+  bool userIso_EE_inv;
   //
   int nBarrelVars_;
   //
   std::vector<Double_t> CutVars_;
+  std::vector<Double_t> CutVars2_;
   std::vector<Double_t> InvVars_;
 
 };

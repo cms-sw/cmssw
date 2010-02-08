@@ -490,22 +490,22 @@ bool CSCEfficiency::checkLocal(double yLocal, double yBoundary, int station, int
     }
     else if(1==ring){
       if(2==station){
-	deadZoneCenter[0]= -95.94 ;
+	deadZoneCenter[0]= -95.80 ;
 	deadZoneCenter[1] = -27.47;
 	deadZoneCenter[2] = 33.67;
-	deadZoneCenter[3] = 93.72;
+	deadZoneCenter[3] = 90.85;
       }
       else if(3==station){
-	deadZoneCenter[0]= -85.97 ;
-	deadZoneCenter[1] = -36.21;
-	deadZoneCenter[2] = 23.68;
-	deadZoneCenter[3] = 84.04;
+	deadZoneCenter[0]= -89.305 ;
+	deadZoneCenter[1] = -39.705;
+	deadZoneCenter[2] = 20.195;
+	deadZoneCenter[3] = 77.395;
       }
       else if(4==station){
-	deadZoneCenter[0]= -75.82;
-	deadZoneCenter[1] = -26.14;
-	deadZoneCenter[2] = 23.85;
-	deadZoneCenter[3] = 73.91;
+	deadZoneCenter[0]= -75.645;
+	deadZoneCenter[1] = -26.055;
+	deadZoneCenter[2] = 23.855;
+	deadZoneCenter[3] = 70.575;
       }
       if(yLocal >yBoundary &&
 	 ((yLocal> deadZoneCenter[0] + cutZone && yLocal< deadZoneCenter[1] - cutZone) ||
@@ -1249,7 +1249,6 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
       if(secondRing>-1){
 	secondCondition = allRechits[ec][st][secondRing][ch][iLayer].size() ? true : false;
       }
-      float stripAngle = 99999.;
       std::vector<float> posXY(2);
       bool oneSegment = false;
       if(1==allSegments[ec][st][rg][ch].size() + secondSize){
@@ -1257,23 +1256,19 @@ bool CSCEfficiency::recHitSegment_Efficiencies(CSCDetId & id, const CSCChamber* 
 	const BoundPlane bp = cscChamber->layer(iLayer+1)->surface();
 	linearExtrapolation(globalPos,globalDir, bp.position().z(), posXY);
         GlobalPoint gp_extrapol( posXY.at(0), posXY.at(1),bp.position().z());
-        const LocalPoint lp_extrapol = cscChamber->layer(iLayer+1)->toLocal(gp_extrapol);
+        LocalPoint lp_extrapol = cscChamber->layer(iLayer+1)->toLocal(gp_extrapol);
         posXY.at(0) = lp_extrapol.x();
         posXY.at(1) = lp_extrapol.y();
-        int nearestStrip = cscChamber->layer(iLayer+1)->geometry()->nearestStrip(lp_extrapol);
-        stripAngle = cscChamber->layer(iLayer+1)->geometry()->stripAngle(nearestStrip) - M_PI/2. ;
       }
       if(firstCondition || secondCondition){
 	ChHist[ec][st][rg][ch].EfficientRechits_inSegment->Fill(iLayer+1);
 	if(oneSegment){
 	  ChHist[ec][st][rg][ch].Y_EfficientRecHits_inSegment[iLayer]->Fill(posXY.at(1));
-	  ChHist[ec][st][rg][ch].Phi_EfficientRecHits_inSegment[iLayer]->Fill(stripAngle);
 	}
       }
       else{
 	if(oneSegment){
 	  ChHist[ec][st][rg][ch].Y_InefficientRecHits_inSegment[iLayer]->Fill(posXY.at(1));
-	  ChHist[ec][st][rg][ch].Phi_InefficientRecHits_inSegment[iLayer]->Fill(stripAngle);
 	}
       }
     }
@@ -1763,19 +1758,6 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 	    ChHist[ec][st][rg][iChamber-FirstCh].Y_EfficientRecHits_inSegment.push_back
 	      (new TH1F(SpecName,"Efficient (extrapolated from the segment) RecHit/layer in a segment (local system, whole chamber);Y, cm; entries",
 			nYbins,Ymin, Ymax));
-	    //
-            Chan = 200;
-            minChan = -0.2;
-            maxChan = 0.2;
-            sprintf(SpecName,"Phi_InefficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
-            ChHist[ec][st][rg][iChamber-FirstCh].Phi_InefficientRecHits_inSegment.push_back
-              (new TH1F(SpecName,"Missing RecHit/layer in a segment (local system, whole chamber);Phi, rad; entries",
-                        Chan, minChan, maxChan));
-            //
-            sprintf(SpecName,"Phi_EfficientRecHits_inSegment_Ch%d_L%d",iChamber,iLayer);
-            ChHist[ec][st][rg][iChamber-FirstCh].Phi_EfficientRecHits_inSegment.push_back
-              (new TH1F(SpecName,"Efficient (extrapolated from the segment) in a segment (local system, whole chamber);Phi, rad; entries",
-                        Chan, minChan, maxChan));
 	    
 	  }
 	  //
@@ -1872,8 +1854,6 @@ CSCEfficiency::~CSCEfficiency(){
 	  for(unsigned int iLayer = 0; iLayer< 6; iLayer++){
 	    ChHist[ec][st][rg][iChamber-FirstCh].Y_InefficientRecHits_inSegment[iLayer]->Write();
 	    ChHist[ec][st][rg][iChamber-FirstCh].Y_EfficientRecHits_inSegment[iLayer]->Write();
-            ChHist[ec][st][rg][iChamber-FirstCh].Phi_InefficientRecHits_inSegment[iLayer]->Write();
-            ChHist[ec][st][rg][iChamber-FirstCh].Phi_EfficientRecHits_inSegment[iLayer]->Write();
 	  }
 	  ChHist[ec][st][rg][iChamber-FirstCh].SimRechits->Write();
 	  ChHist[ec][st][rg][iChamber-FirstCh].SimSimhits->Write();

@@ -18,7 +18,7 @@
      <PARAM name="error">0.50</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">0.5</PARAM> 
-     <PARAM name="ymax">12</PARAM> 
+     <PARAM name="ymax">5</PARAM> 
 </QTEST>
 <!-- ncluster in PixelBarrel: -->
 <QTEST name="Yrange:Barrel:ncluster" activate="true"> 

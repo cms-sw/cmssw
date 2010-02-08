@@ -123,6 +123,7 @@ void testExpressionParser::checkAll() {
   edm::TestHandle<reco::TrackExtraCollection> h(&trkExtras, pid);
   reco::TrackExtraRef trkExtraRef(h, 0);
   trk.setExtra(trkExtraRef);
+  trk.setAlgorithm(reco::Track::iter2);
   {
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(reco::Track));
     o = ROOT::Reflex::Object(t, & trk);
@@ -136,6 +137,7 @@ void testExpressionParser::checkAll() {
     checkTrack("hitPattern.numberOfValidHits", trk.hitPattern().numberOfValidHits());
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
+    checkTrack("algo", reco::Track::iter2);
   }
   reco::Candidate::LorentzVector p1(1, 2, 3, 4);
   reco::Candidate::LorentzVector p2(1.1, 2.2, 3.3, 4.4);

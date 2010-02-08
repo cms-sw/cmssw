@@ -29,10 +29,6 @@ process.PoolDBESSource.DBParameters = cms.PSet(
     authenticationPath = cms.untracked.string('.')
     )
 
-XMLFromDBSource = cms.ESProducer("XMLIdealGeometryESProducer",
-                                 rootDDName = cms.string('cms:OCMS')
-                                 )
-
 process.pDB = cms.EDAnalyzer("PerfectGeometryAnalyzer"
                                ,dumpPosInfo = cms.untracked.bool(True)
                                ,label = cms.untracked.string("")

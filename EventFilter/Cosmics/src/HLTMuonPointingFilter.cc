@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/06/11 08:19:14 $
- * $Revision: 1.3 $
+ * $Date:  07/11/2007 15:14:20 CET $
+ * $Revision: 1.0 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -12,11 +12,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -34,7 +33,7 @@ using namespace edm;
 /* ====================================================================== */
 
 /// Constructor
-HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset): m_cacheRecordId(0) {
+HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) {
 
   // the name of the STA rec hits collection
   theSTAMuonLabel = pset.getParameter<string>("SALabel");
@@ -44,18 +43,6 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset): m_c
 
   theRadius = pset.getParameter<double>("radius"); // cyl's radius (cm)
   theMaxZ = pset.getParameter<double>("maxZ"); // cyl's half lenght (cm)
-
-
-  // Get a surface (here a cylinder of radius 1290mm) ECAL
-  Cylinder::PositionType pos0;
-  Cylinder::RotationType rot0;
-  theCyl = Cylinder::build(pos0, rot0, theRadius);
-    
-  Plane::PositionType posPos(0,0,theMaxZ);
-  Plane::PositionType posNeg(0,0,-theMaxZ);
-
-  thePosPlane = Plane::build(posPos,rot0);
-  theNegPlane = Plane::build(posNeg,rot0);
 
   LogDebug("HLTMuonPointing") << " SALabel : " << theSTAMuonLabel 
     << " Radius : " << theRadius
@@ -69,14 +56,11 @@ HLTMuonPointingFilter::~HLTMuonPointingFilter() {
 /* Operations */ 
 bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
   bool accept = false;
-
-  const TrackingComponentsRecord & tkRec = eventSetup.get<TrackingComponentsRecord>();
-  if (not thePropagator or tkRec.cacheIdentifier() != m_cacheRecordId) {
+  if (!thePropagator){
     ESHandle<Propagator> prop;
-    tkRec.get(thePropagatorName, prop);
+    eventSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
     thePropagator = prop->clone();
     thePropagator->setPropagationDirection(anyDirection);
-    m_cacheRecordId = tkRec.cacheIdentifier();
   }
 
   ESHandle<MagneticField> theMGField;
@@ -98,8 +82,13 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 
     LogDebug("HLTMuonPointing") << " InnerTSOS " << innerTSOS;
 
+    // Get a surface (here a cylinder of radius 1290mm) ECAL
+    Cylinder::PositionType pos0;
+    Cylinder::RotationType rot0;
+    const Cylinder::CylinderPointer cyl = Cylinder::build(pos0, rot0, theRadius);
+
     TrajectoryStateOnSurface tsosAtCyl =
-      thePropagator->propagate(*innerTSOS.freeState(), *theCyl);
+      thePropagator->propagate(*innerTSOS.freeState(), *cyl);
 
     if ( tsosAtCyl.isValid() ) {
       LogDebug("HLTMuonPointing") << " extrap TSOS " << tsosAtCyl;
@@ -109,20 +98,6 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
       }
       else { 
         LogDebug("HLTMuonPointing") << " extrap TSOS z too big " << tsosAtCyl.globalPosition().z();
-	TrajectoryStateOnSurface tsosAtPlane;
-	if (tsosAtCyl.globalPosition().z()>0)
-	  tsosAtPlane=thePropagator->propagate(*innerTSOS.freeState(), *thePosPlane);
-	else
-	  tsosAtPlane=thePropagator->propagate(*innerTSOS.freeState(), *theNegPlane);
-
-	if (tsosAtPlane.isValid()){
-	  if (tsosAtPlane.globalPosition().perp()< theRadius){
-	    accept=true;
-	    return accept;
-	  }
-	}
-	else
-	  LogDebug("HLTMuonPointing") << " extrap to plane failed ";
       }
     } else {
       LogDebug("HLTMuonPointing") << " extrap to cyl failed ";

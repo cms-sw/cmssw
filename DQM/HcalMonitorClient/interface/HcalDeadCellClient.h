@@ -25,21 +25,18 @@ class HcalDeadCellClient : public HcalBaseClient {
   void calculateProblems(void); // calculates problem histogram contents
 
   /// BeginJob
-  void beginJob();
+  void beginJob(const EventSetup& c);
   
   /// EndJob
-  void endJob();
+  void endJob(std::map<HcalDetId, unsigned int>& myqual); 
 
 
   /// BeginRun
-  void beginRun(const EventSetup& c);
-
-  /// EndRun
-  void endRun(std::map<HcalDetId, unsigned int>& myqual);
+  void beginRun(void);
   
-  /// Update Channel Status -- called by EndRun
-  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
-
+  /// EndRun
+  void endRun(void);
+  
   /// Setup
   void setup(void);
   
@@ -69,49 +66,49 @@ private:
   double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
   bool deadclient_makeDiagnostics_;
 
-  bool deadclient_test_digis_;
-  bool deadclient_test_rechits_;
+  bool deadclient_test_occupancy_;
+  bool deadclient_test_energy_;
   bool dump2database_;
 
   int deadclient_checkNevents_;
 
   // Histograms
 
-  TH2F* RecentMissingDigisByDepth[4];
+  TH2F* UnoccupiedDeadCellsByDepth[4];
   TH2F* DigiPresentByDepth[4];
   TH2F* RecHitsPresentByDepth[4];
-  TH2F* RecentMissingRecHitsByDepth[4];
+  TH2F* BelowEnergyThresholdCellsByDepth[4];
 
-  TProfile* ProblemsVsLB;
-  TProfile* ProblemsVsLB_HB;
-  TProfile* ProblemsVsLB_HE;
-  TProfile* ProblemsVsLB_HO;
-  TProfile* ProblemsVsLB_HF;
+  TProfile* NumberOfDeadCells;
+  TProfile* NumberOfDeadCellsHB;
+  TProfile* NumberOfDeadCellsHE;
+  TProfile* NumberOfDeadCellsHO;
+  TProfile* NumberOfDeadCellsHF;
 
-  TProfile* NumberOfNeverPresentDigis;
-  TProfile* NumberOfNeverPresentDigisHB;
-  TProfile* NumberOfNeverPresentDigisHE;
-  TProfile* NumberOfNeverPresentDigisHO;
-  TProfile* NumberOfNeverPresentDigisHF;
+  TProfile* NumberOfNeverPresentCells;
+  TProfile* NumberOfNeverPresentCellsHB;
+  TProfile* NumberOfNeverPresentCellsHE;
+  TProfile* NumberOfNeverPresentCellsHO;
+  TProfile* NumberOfNeverPresentCellsHF;
 
-  TProfile* NumberOfRecentMissingDigis;
-  TProfile* NumberOfRecentMissingDigisHB;
-  TProfile* NumberOfRecentMissingDigisHE;
-  TProfile* NumberOfRecentMissingDigisHO;
-  TProfile* NumberOfRecentMissingDigisHF;
+  TProfile* NumberOfUnoccupiedCells;
+  TProfile* NumberOfUnoccupiedCellsHB;
+  TProfile* NumberOfUnoccupiedCellsHE;
+  TProfile* NumberOfUnoccupiedCellsHO;
+  TProfile* NumberOfUnoccupiedCellsHF;
 
 
-  TProfile* NumberOfNeverPresentRecHits;
-  TProfile* NumberOfNeverPresentRecHitsHB;
-  TProfile* NumberOfNeverPresentRecHitsHE;
-  TProfile* NumberOfNeverPresentRecHitsHO;
-  TProfile* NumberOfNeverPresentRecHitsHF;
+  TProfile* NumberOfEnergyNeverPresentCells;
+  TProfile* NumberOfEnergyNeverPresentCellsHB;
+  TProfile* NumberOfEnergyNeverPresentCellsHE;
+  TProfile* NumberOfEnergyNeverPresentCellsHO;
+  TProfile* NumberOfEnergyNeverPresentCellsHF;
 
-  TProfile* NumberOfRecentMissingRecHits;
-  TProfile* NumberOfRecentMissingRecHitsHB;
-  TProfile* NumberOfRecentMissingRecHitsHE;
-  TProfile* NumberOfRecentMissingRecHitsHO;
-  TProfile* NumberOfRecentMissingRecHitsHF;
+  TProfile* NumberOfBelowEnergyCells;
+  TProfile* NumberOfBelowEnergyCellsHB;
+  TProfile* NumberOfBelowEnergyCellsHE;
+  TProfile* NumberOfBelowEnergyCellsHO;
+  TProfile* NumberOfBelowEnergyCellsHF;
 
 };
 

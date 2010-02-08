@@ -243,12 +243,14 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   LogDebug("VirtualJetProducer") << "Clear data\n";
   fjInputs_.clear();
   fjJets_.clear();
-  
+  inputs_.clear();  
   
   // get inputs and convert them to the fastjet format (fastjet::PeudoJet)
   edm::Handle<reco::CandidateView> inputsHandle;
   iEvent.getByLabel(src_,inputsHandle);
-  inputs_ = *inputsHandle;
+  for (size_t i = 0; i < inputsHandle->size(); ++i) {
+    inputs_.push_back(inputsHandle->ptrAt(i));
+  }
   LogDebug("VirtualJetProducer") << "Got inputs\n";
   
   // Convert candidates to fastjet::PseudoJets.
@@ -340,10 +342,10 @@ void VirtualJetProducer::setupGeometryMap(edm::Event& iEvent,const edm::EventSet
   
 void VirtualJetProducer::inputTowers( )
 {
-  reco::CandidateView::const_iterator inBegin = inputs_.begin(),
+  std::vector<edm::Ptr<reco::Candidate> >::const_iterator inBegin = inputs_.begin(),
     inEnd = inputs_.end(), i = inBegin;
   for (; i != inEnd; ++i ) {
-    reco::CandidatePtr input = inputs_.ptrAt( i - inBegin );
+    reco::CandidatePtr input = *i;
     if (isnan(input->pt()))           continue;
     if (input->et()    <inputEtMin_)  continue;
     if (input->energy()<inputEMin_)   continue;
@@ -388,14 +390,14 @@ bool VirtualJetProducer::isAnomalousTower(reco::CandidatePtr input)
 // This is pure virtual. 
 //______________________________________________________________________________
 // void VirtualJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iSetup,
-// 				       reco::CandidateView const & inputs_);
+// 				       std::vector<edm::Ptr<reco::Candidate> > const & inputs_);
 
 //______________________________________________________________________________
 void VirtualJetProducer::copyConstituents(const vector<fastjet::PseudoJet>& fjConstituents,
 					  reco::Jet* jet)
 {
   for (unsigned int i=0;i<fjConstituents.size();++i)
-    jet->addDaughter(inputs_.ptrAt(fjConstituents[i].user_index()));
+    jet->addDaughter(inputs_[fjConstituents[i].user_index()]);
 }
 
 
@@ -406,7 +408,7 @@ VirtualJetProducer::getConstituents(const vector<fastjet::PseudoJet>&fjConstitue
   vector<reco::CandidatePtr> result;
   for (unsigned int i=0;i<fjConstituents.size();i++) {
     int index = fjConstituents[i].user_index();
-    reco::CandidatePtr candidate = inputs_.ptrAt(index);
+    reco::CandidatePtr candidate = inputs_[index];
     result.push_back(candidate);
   }
   return result;
@@ -528,8 +530,9 @@ void VirtualJetProducer::calculatePedestal( vector<fastjet::PseudoJet> const & c
   for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin (),
 	 fjInputsEnd = coll.end();  
        input_object != fjInputsEnd; ++input_object) {
-    const reco::CandidatePtr & originalTower=inputs_.ptrAt( input_object->user_index());
-    ieta0 = ieta( originalTower );
+
+    const reco::CandidatePtr & originalTower=inputs_[input_object->user_index()];
+    ieta0 = ieta( inputs_[input_object->user_index()] );
     double Original_Et = originalTower->et();
 
     if( ieta0-ietaold != 0 )
@@ -584,7 +587,7 @@ void VirtualJetProducer::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 	 fjInputsEnd = coll.end(); 
        input_object != fjInputsEnd; ++input_object) {
     
-    reco::CandidatePtr const & itow =  inputs_.ptrAt( input_object->user_index() );
+    reco::CandidatePtr const & itow =  inputs_[input_object->user_index()];
     
     it = ieta( itow );
     ip = iphi( itow );
@@ -695,12 +698,11 @@ void VirtualJetProducer::offsetCorrectJets(vector<fastjet::PseudoJet> & orphanIn
 	++ito)
       {
 	  
-	 const reco::CandidatePtr& originalTower = inputs_.ptrAt(ito->user_index());
-
-	int it = ieta( originalTower );
+	const reco::CandidatePtr& originalTower = inputs_[ito->user_index()];
+	int it = ieta( inputs_[ito->user_index()] );
         double Original_Et = originalTower->et();
-
 	double etnew = Original_Et - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
+	  
 	  
 	if( etnew <0.) etnew = 0.;
 	offset = offset + etnew;

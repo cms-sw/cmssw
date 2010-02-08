@@ -586,7 +586,7 @@ int EcalEleCalibLooper::etaShifter (const int etaOld) const
    {
      if (etaOld < 0) return etaOld + 85;
      else if (etaOld > 0) return etaOld + 84;
-     assert(0);  // etaOld = 0, apparently not a foreseen value 
+     assert(0!=etaOld); // etaOld = 0, apparently not a foreseen value, so fail
      return 999; // dummy statement to silence compiler warning
    }
 

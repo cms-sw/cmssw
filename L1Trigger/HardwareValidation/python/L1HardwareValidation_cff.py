@@ -113,8 +113,6 @@ valGmtDigis.MipIsoData = 'gctDigis'
 #Emulator settings
 valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(12)
 EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
-#EcalTrigPrimESProducer.DatabaseFile = 'TPG_craft.txt.gz'
-
 HcalTPGCoderULUT.read_Ascii_LUTs = True
 HcalTPGCoderULUT.inputLUTs = 'L1Trigger/HardwareValidation/hwtest/globrun/HcalCRAFTPhysicsV2.dat'
 valGctDigis.preSamples = cms.uint32(0)

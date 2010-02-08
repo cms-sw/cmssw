@@ -119,10 +119,10 @@ double DDSolid::volume() const
   return rep().volume();
 }
 
-// void DDSolid::clear()
-// {
-//  StoreT::instance().clear();
-// }
+void DDSolid::clear()
+{
+ StoreT::instance().clear();
+}
 
 
 DDSolidShape DDSolid::shape() const

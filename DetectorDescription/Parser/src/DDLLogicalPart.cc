@@ -28,7 +28,7 @@
 
 
 // Default constructor
-DDLLogicalPart::DDLLogicalPart(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
+DDLLogicalPart::DDLLogicalPart()
 {
   // initialize category map
   catMap_["sensitive"]   = DDEnums::sensitive;
@@ -45,10 +45,10 @@ DDLLogicalPart::~DDLLogicalPart()
 }
 
 // upon initialization, we want to clear rMaterial and rSolid.
-void DDLLogicalPart::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLLogicalPart::preProcessElement (const std::string& type, const std::string& nmspace)
 {
-  myRegistry_->getElement("rMaterial")->clear();
-  myRegistry_->getElement("rSolid")->clear();
+  DDLElementRegistry::getElement("rMaterial")->clear();
+  DDLElementRegistry::getElement("rSolid")->clear();
 }
 
 // Upon encountering the end of the LogicalPart element, retrieve all 
@@ -63,13 +63,13 @@ void DDLLogicalPart::preProcessElement (const std::string& name, const std::stri
 // by retrieving the rMaterial and the rSolid it actually will be handling
 // Material and Solid subelements as well.
 
-void DDLLogicalPart::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLLogicalPart::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLLogicalPart::processElement started");
 
   // rMaterial and rSolid  
-  DDXMLElement* myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
+  DDXMLElement* myrMaterial = DDLElementRegistry::getElement("rMaterial"); // get Material reference child
+  DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid"); // get Solid reference child
 
   DDXMLAttribute atts = getAttributeSet();
 

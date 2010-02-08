@@ -44,8 +44,7 @@ process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder"
     record = cms.string('SiPixelGainCalibrationForHLTRcd'),
     secondRocRowGainOffset = cms.double(0.0),
     fromFile = cms.bool(False),
-    secondRocRowPedOffset = cms.double(0.0),
-    generateColumns = cms.untracked.bool(True)
+    secondRocRowPedOffset = cms.double(0.0)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

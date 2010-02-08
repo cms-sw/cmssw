@@ -20,9 +20,8 @@
 
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/include/classic.hpp"
-namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
-using namespace boost::spirit;
+namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
 struct VectorMakeDouble
 {
@@ -32,7 +31,7 @@ struct VectorMakeDouble
   }
   
   VectorMakeDouble() {
-    ddlVector_ = dynamic_cast < DDLVector* > (DDLGlobalRegistry::instance().getElement("Vector"));
+    ddlVector_ = dynamic_cast < DDLVector* > (DDLElementRegistry::instance()->getElement("Vector"));
   }
   
   DDLVector * ddlVector_;
@@ -46,7 +45,7 @@ struct VectorMakeString
   }
   
   VectorMakeString() {
-    ddlVector_ = dynamic_cast < DDLVector* > (DDLGlobalRegistry::instance().getElement("Vector"));
+    ddlVector_ = dynamic_cast < DDLVector* > (DDLElementRegistry::instance()->getElement("Vector"));
   }
   
   DDLVector * ddlVector_;
@@ -72,7 +71,7 @@ bool DDLVector::parse_strings(char const* str) const
 	       , space_p).full;
 }
 
-DDLVector::DDLVector(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
+DDLVector::DDLVector()
 {
 }
 
@@ -80,14 +79,14 @@ DDLVector::~DDLVector()
 {
 }
  
-void DDLVector::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLVector::preProcessElement (const std::string& name, const std::string& nmspace)
 {
   pVector.clear();
   pStrVector.clear();
   pNameSpace = nmspace;
 }
 
-void DDLVector::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLVector::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLVector::processElement started");
 

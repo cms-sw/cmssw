@@ -32,14 +32,14 @@ class HcalPedestalClient : public HcalBaseClient {
   void analyze(void);
   
   /// BeginJob
-  void beginJob();
+  void beginJob(const EventSetup& c);
   
   /// EndJob
   void endJob(void);
   
   /// BeginRun
-  void beginRun(const EventSetup& c);
-
+  void beginRun(void);
+  
   /// EndRun
   void endRun(void);
   

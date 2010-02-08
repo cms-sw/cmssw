@@ -13,15 +13,18 @@ class CmsMagField: public TEveMagField
   bool m_magnetIsOn;
   bool m_reverse;
   bool m_simpleModel;
+  double m_nominalField;
  public:
  CmsMagField():
     m_magnetIsOn(true),
     m_reverse(false),
-    m_simpleModel(false){}
+    m_simpleModel(false),
+    m_nominalField(3.8)
+ {}
 
   virtual ~CmsMagField(){}
   virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const;
-  virtual Float_t    GetMaxFieldMag() const { return m_magnetIsOn ? 3.8 : 0.0; }
+  virtual Float_t    GetMaxFieldMag() const { return m_magnetIsOn ? m_nominalField : 0.0; }
   void               setMagnetState( bool state )
   { 
     if ( state != m_magnetIsOn){
@@ -32,6 +35,7 @@ class CmsMagField: public TEveMagField
     }
     m_magnetIsOn = state; 
   }
+  void               setNominalFieldValue( double value ) { m_nominalField = value; }
   bool               isMagnetOn() const { return m_magnetIsOn;}
   void               setReverseState( bool state ){ m_reverse = state; }
   bool               isReverse() const { return m_reverse;}

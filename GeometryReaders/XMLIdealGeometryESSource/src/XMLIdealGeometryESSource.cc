@@ -58,8 +58,7 @@ XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &)
 std::auto_ptr<DDCompactView>
 XMLIdealGeometryESSource::produce() {
   
-  DDCompactView cpv;
-  DDLParser parser(cpv); //* parser = DDLParser::instance();
+  DDLParser * parser = DDLParser::instance();
   // 2009-07-09 memory patch
 
   // unlock before use because it can be used more than once!
@@ -69,12 +68,12 @@ XMLIdealGeometryESSource::produce() {
   DDSpecifics::StoreT::instance().setReadOnly(false);
   DDRotation::StoreT::instance().setReadOnly(false);
 
-  parser.clearFiles();
+  parser->clearFiles();
   DDName ddName(rootNodeName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
-  parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
-  int result2 = parser.parse(geoConfig_);
+  parser->getDDLSAX2FileHandler()->setUserNS(userNS_);
+  int result2 = parser->parse(geoConfig_);
 //   const std::vector<std::string> & whatsparsed = geoConfig_.getFileList();
 //   for (std::vector<std::string>::const_iterator it = whatsparsed.begin(); it != whatsparsed.end(); ++it ) {
 //     std::cout << *it << std::endl;

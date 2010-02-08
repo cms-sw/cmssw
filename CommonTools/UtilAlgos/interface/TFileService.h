@@ -5,7 +5,7 @@
  * \author Luca Lista, INFN
  *
  */
-#include "CommonTools/UtilAlgos/interface/TFileDirectory.h"
+#include "CommonTools/Utils/interface/TFileDirectory.h"
 
 namespace edm {
   class ActivityRegistry;

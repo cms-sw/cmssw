@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.13 2009/07/28 17:26:08 eperez Exp $
+// $Id: EcalDigiToRaw.cc,v 1.14 2009/08/31 00:29:48 franzoni Exp $
 //
 //
 
@@ -58,7 +58,7 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    doEndCap_ = iConfig.getUntrackedParameter<bool>("DoEndCap");
 
    listDCCId_ = iConfig.getUntrackedParameter< std::vector<int32_t> >("listDCCId");
-   dccFOV_ = iConfig.getParameter<int32_t>("dccFOV");
+   
    label_= iConfig.getParameter<string>("Label");
    instanceNameEB_ = iConfig.getParameter<string>("InstanceEB");
    instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");
@@ -117,9 +117,9 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   runnumber_ = iEvent.id().run();
 
-  // bx_ = (counter_ % BXMAX);
-  // orbit_number_ = counter_ / BXMAX;
-  // counter_ ++;
+  //bx_ = (counter_ % BXMAX);
+  //orbit_number_ = counter_ / BXMAX;
+  //counter_ ++;
 
   counter_ = iEvent.id().event();
   bx_ = iEvent.bunchCrossing();
@@ -147,7 +147,6 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // iEvent.getByType(ecalTrigPrim);
 	iEvent.getByLabel(labelTT_, ecalTrigPrim);
 
-     // loop on TP's and add one by one to the block
      for (EcalTrigPrimDigiCollection::const_iterator it = ecalTrigPrim -> begin();
 			   it != ecalTrigPrim -> end(); it++) {
 
@@ -161,8 +160,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            int FEDid = FEDNumbering::MINECALFEDID + iDCC;
 
            FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
-	   
-	   // adding the primitive to the block
+
 	   TCCblockformatter_ -> DigiToRaw(trigprim, rawdata, TheMapping);
 
      }   // end loop on ecalTrigPrim

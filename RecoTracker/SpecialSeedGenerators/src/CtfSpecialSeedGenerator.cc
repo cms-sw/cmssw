@@ -219,8 +219,8 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 	}
   }	 
   if ((theMaxSeeds > 0) && (output.size() > size_t(theMaxSeeds))) {
+    edm::LogWarning("TooManySeeds") << "Too many seeds ("<< output.size() <<"), bailing out.\n";
     output.clear(); 
-    edm::LogWarning("TooManySeeds") << "Too many seeds, bailing out.\n";
     return false;
   }
   return true;

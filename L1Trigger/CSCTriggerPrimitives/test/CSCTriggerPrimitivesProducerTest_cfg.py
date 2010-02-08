@@ -7,7 +7,7 @@ process = cms.Process("MuonCSCTriggerPrimitives")
 
 process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring("file:cscdigis.root"),
-    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_3_3_0.root"),
+    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_3_1_0_pre7.root"),
     debugVebosity = cms.untracked.uint32(10),
     debugFlag = cms.untracked.bool(True)
 )
@@ -49,8 +49,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 # ===========================
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 # magnetic field (do I need it?)
 # ==============================
@@ -84,7 +83,7 @@ process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 
 process.out = cms.OutputModule("PoolOutputModule",
     # fileName = cms.untracked.string("lcts.root"),
-    fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_3_0.root"),
+    fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_1_0_pre7.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )

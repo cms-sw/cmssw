@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 hltEgammaGenericFilter = cms.EDFilter("HLTEgammaGenericFilter",
+   SaveTag = cms.untracked.bool( False ),
+
    lessThan = cms.bool(True),			  
    useEt  = cms.bool(False),			  
    thrRegularEB = cms.double(0.0),

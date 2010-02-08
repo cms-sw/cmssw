@@ -27,7 +27,7 @@
 
 
 // Default constructor
-DDLPosPart::DDLPosPart(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
+DDLPosPart::DDLPosPart()
 {
 }
 
@@ -41,13 +41,13 @@ DDLPosPart::~DDLPosPart()
 // that it is cleared.  
 // I commented out the others because the last element
 // that made use of them should have cleared them.
-void DDLPosPart::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLPosPart::preProcessElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLPosPart::preProcessElement started");
 
   // Clear out child elements.
-  myRegistry_->getElement("Rotation")->clear();
-  myRegistry_->getElement("ReflectionRotation")->clear();
+  DDLElementRegistry::getElement("Rotation")->clear();
+  DDLElementRegistry::getElement("ReflectionRotation")->clear();
 
   DCOUT_V('P', "DDLPosPart::preProcessElement completed");
 }
@@ -55,18 +55,18 @@ void DDLPosPart::preProcessElement (const std::string& name, const std::string& 
 // Upon encountering the end tag of the PosPart we should have in the meantime
 // hit two rLogicalPart calls and one of Rotation or rRotation and a Translation.
 // So, retrieve them and make the call to DDCore.
-void DDLPosPart::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLPosPart::processElement (const std::string& type, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLPosPart::processElement started");
   
   // get all internal elements.
-  DDXMLElement* myParent     = myRegistry_->getElement("rParent");
-  DDXMLElement* myChild      = myRegistry_->getElement("rChild");
-  DDXMLElement* myTranslation= myRegistry_->getElement("Translation");
-  DDXMLElement* myDDLRotation= myRegistry_->getElement("Rotation");
-  DDXMLElement* myrRotation  = myRegistry_->getElement("rRotation");
-  DDXMLElement* myDDLRefl    = myRegistry_->getElement("ReflectionRotation");
-  DDXMLElement* myrRefl      = myRegistry_->getElement("rReflectionRotation");
+  DDXMLElement* myParent     = DDLElementRegistry::getElement("rParent");
+  DDXMLElement* myChild      = DDLElementRegistry::getElement("rChild");
+  DDXMLElement* myTranslation= DDLElementRegistry::getElement("Translation");
+  DDXMLElement* myDDLRotation= DDLElementRegistry::getElement("Rotation");
+  DDXMLElement* myrRotation  = DDLElementRegistry::getElement("rRotation");
+  DDXMLElement* myDDLRefl    = DDLElementRegistry::getElement("ReflectionRotation");
+  DDXMLElement* myrRefl      = DDLElementRegistry::getElement("rReflectionRotation");
   // FIXME!!! add in the new RotationByAxis element...
 
   // At this time, PosPart is becoming the most complex of the elements.
@@ -147,13 +147,12 @@ void DDLPosPart::processElement (const std::string& name, const std::string& nms
   if (atts.find("copyNumber") != atts.end())
     copyno = atts.find("copyNumber")->second;
     
-  //  cpv.posPart(DDLogicalPart(myChild->getDDName(nmspace))
   DDpos(DDLogicalPart(myChild->getDDName(nmspace))
-	       , DDLogicalPart(myParent->getDDName(nmspace))
-	       , copyno
-	       , myDDTranslation
-	       , *myDDRotation);
-  
+	, DDLogicalPart(myParent->getDDName(nmspace))
+	, copyno
+	, myDDTranslation
+	, *myDDRotation);
+
   // clear all "children" and attributes
   myParent->clear();
   myChild->clear();

@@ -1,20 +1,6 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                      //
-//                                    WMuNuValidator                                                                    //
-//                                                                                                                      //    
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                      //      
-//    Basic plots before & after cuts (without Candidate formalism)                                                     //
-//    Intended for a prompt validation of samples.                                                                      // 
-//                                                                                                                      //      
-//    Use in combination with WMuNuValidatorMacro (in bin/WMuNuValidatorMacro.cpp)                                      //
-//                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "TH1D.h"
 #include <map>
 
@@ -35,6 +21,7 @@ private:
   edm::InputTag jetTag_;
 
   const std::string muonTrig_;
+  bool useTrackerPt_;
   double ptCut_;
   double etaCut_;
   bool isRelativeIso_;
@@ -78,8 +65,6 @@ private:
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
@@ -107,6 +92,7 @@ WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
 
       // Main cuts 
       muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
+      useTrackerPt_(cfg.getUntrackedParameter<bool>("UseTrackerPt", true)),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
@@ -159,7 +145,11 @@ void WMuNuValidator::init_histograms() {
 
       for (int i=0; i<2; ++i) {
             snprintf(chname, 255, "PT%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "Muon transverse momentum [GeV]");
+            if (useTrackerPt_) {
+                  snprintf(chtitle, 255, "Muon transverse momentum (tracker) [GeV]");
+            } else {
+                  snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
+            }
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
 
             snprintf(chname, 255, "ETA%s", chsuffix[i].data());
@@ -176,10 +166,6 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "NHITS%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Number of hits, inner track");
-            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,40,-0.5,39.5);
-
-            snprintf(chname, 255, "ValidMuonHits%s", chsuffix[i].data());
-            snprintf(chtitle, 255, "number Of Valid Muon Hits");
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,40,-0.5,39.5);
 
             snprintf(chname, 255, "TKMU%s", chsuffix[i].data());
@@ -353,13 +339,13 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             return false;
       }
       trigNames.init(*triggerResults);
-    /* 
+      /*
       for (unsigned int i=0; i<triggerResults->size(); i++) {
             if (triggerResults->accept(i)) {
                   LogTrace("") << "Accept by: " << i << ", Trigger: " << trigNames.triggerName(i);
             }
       }
-    */  
+      */
       bool trigger_fired = false;
       int itrig1 = trigNames.triggerIndex(muonTrig_);
       if (triggerResults->accept(itrig1)) trigger_fired = true;
@@ -373,6 +359,11 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             const Muon& mu = muonCollection->at(i);
             if (!mu.isGlobalMuon()) continue;
             double pt = mu.pt();
+            if (useTrackerPt_) {
+                  reco::TrackRef tk = mu.innerTrack();
+                  if (mu.innerTrack().isNull()) continue;
+                  pt = tk->pt();
+            }
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
       }
@@ -400,7 +391,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       // Start counting, reject already events if possible (under FastOption flag)
       nall++;
       if (fastOption_ && !trigger_fired) return false;
-      if (fastOption_ && nmuonsForZ1>=1 && nmuonsForZ2>=2) return false;
+      if (fastOption_ && nmuonsForZ1>=0 && nmuonsForZ2>=2) return false;
       if (fastOption_ && njets>nJetMax_) return false;
 
       // Histograms per event shouldbe done only once, so keep track of them
@@ -425,10 +416,11 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
             LogTrace("") << "> Wsel: processing muon number " << i << "...";
             reco::TrackRef gm = mu.globalTrack();
-            //reco::TrackRef tk = mu.innerTrack();
+            reco::TrackRef tk = mu.innerTrack();
 
             // Pt,eta cuts
             double pt = mu.pt();
+            if (useTrackerPt_) pt = tk->pt();
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt>ptCut_) muon_sel[0] = true; 
@@ -437,15 +429,13 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             else if (fastOption_) continue;
 
             // d0, chi2, nhits quality cuts
-            double dxy = gm->dxy(beamSpotHandle->position());
+            double dxy = tk->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
-            double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
-            //double standalonehits=mu.outerTrack()->numberOfValidHits();
-            double trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
+            double trackerHits = tk->numberOfValidHits();
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
             else if (fastOption_) continue;
-            if (muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)) muon_sel[3] = true; 
+            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
             else if (fastOption_) continue;
             if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
             else if (fastOption_) continue;
@@ -457,7 +447,6 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             fill_histogram("DXY_BEFORECUTS",dxy);
             fill_histogram("CHI2_BEFORECUTS",normalizedChi2);
             fill_histogram("NHITS_BEFORECUTS",trackerHits);
-            fill_histogram("ValidMuonHits_BEFORECUTS",validmuonhits);
             fill_histogram("TKMU_BEFORECUTS",mu.isTrackerMuon());
 
             // Isolation cuts
@@ -477,9 +466,18 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             else if (fastOption_) continue;
 
             // MET/MT cuts
-            double w_et = met_et+ mu.pt();
-            double w_px = met_px+ mu.px();
-            double w_py = met_py+mu.py();
+            double w_et = met_et;
+            double w_px = met_px;
+            double w_py = met_py;
+            if (useTrackerPt_) {
+                  w_et += tk->pt();
+                  w_px += tk->px();
+                  w_py += tk->py();
+            } else {
+                  w_et += mu.pt();
+                  w_px += mu.px();
+                  w_py += mu.py();
+            }
             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
             massT = (massT>0) ? sqrt(massT) : 0;
 
@@ -547,7 +545,6 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         fill_histogram("DXY_LASTCUT",dxy);
                   if (!muon_sel[3] || flags_passed==NFLAGS) 
                         fill_histogram("CHI2_LASTCUT",normalizedChi2);
-                        fill_histogram("ValidMuonHits_LASTCUT",validmuonhits);
                   if (!muon_sel[4] || flags_passed==NFLAGS) 
                         fill_histogram("NHITS_LASTCUT",trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 

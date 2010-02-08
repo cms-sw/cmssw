@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTPG.h
  *
- * $Date: 2008/03/10 09:30:27 $
- * $Revision: 1.8 $
+ * $Date: 2007/08/15 18:56:25 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -44,7 +44,7 @@ class L1TDTTPG : public edm::EDAnalyzer {
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   // BeginJob
-  void beginJob(void);
+  void beginJob(const edm::EventSetup& c);
 
   // EndJob
   void endJob(void);

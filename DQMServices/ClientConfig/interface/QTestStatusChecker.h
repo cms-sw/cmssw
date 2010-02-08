@@ -4,11 +4,11 @@
 /** \class  QTestStatusChecker
  * *
  *  Class that checks the staus of Quality tests (takes a pointer to the
- *  DQMStore) and fills string maps containing the alarms
+ *  DQMOldReceiver) and fills string maps containing the alarms
  *
  * 
- *  $Date: 2008/02/22 23:52:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/02/21 03:26:44 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
   */
 

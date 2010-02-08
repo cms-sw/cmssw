@@ -75,29 +75,11 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-#
 # HCALNoise module
-#
 process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
 process.hcalnoise.refillRefVectors = cms.bool(True)
 process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise"
 process.hcalnoise.requirePedestals = cms.bool(False)
-
-#
-# BeamHaloData producer
-#
-process.load("Configuration/StandardSequences/Geometry_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
-process.load("L1Trigger/Configuration/L1RawToDigi_cff")
-process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-process.load("RecoMET/METProducers/BeamHaloSummary_cfi")
-process.load("RecoMET/METProducers/CSCHaloData_cfi")
-process.load("RecoMET/METProducers/EcalHaloData_cfi")
-process.load("RecoMET/METProducers/HcalHaloData_cfi")
-process.load("RecoMET/METProducers/GlobalHaloData_cfi")
-process.GlobalTag.globaltag ='STARTUP31X_V7::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
@@ -116,16 +98,13 @@ if allhist=="True":
   process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
   process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(True)
 
-#process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(1)
+process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(0)
 
 if allhist=="True":
   process.jetMETAnalyzer.caloMETAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETHOAnalysis.allSelection = cms.bool(True)
   process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.pfMETAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.tcMETAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.mucorrMETAnalysis.allSelection = cms.bool(True)
 
 # the task - JetMET trigger
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
@@ -192,14 +171,6 @@ process.options = cms.untracked.PSet(
 
 if iscosmics=="True":
   process.p = cms.Path(process.hcalnoise
-                     * process.gtDigis
-                     * process.l1GtRecord
-#                     * process.BeamHaloId
-                     * process.CSCHaloData
-                     * process.EcalHaloData
-                     * process.HcalHaloData
-                     * process.GlobalHaloData
-                     * process.BeamHaloSummary
                      * process.jetMETHLTOfflineSource
 #                    * process.jetMETDQMOfflineSource
                      * process.jetMETDQMOfflineSourceCosmic
@@ -207,14 +178,6 @@ if iscosmics=="True":
                      * process.dqmStoreStats)
 else:
   process.p = cms.Path(process.hcalnoise
-                     * process.gtDigis
-                     * process.l1GtRecord 
-#                     * process.BeamHaloId
-                     * process.CSCHaloData
-                     * process.EcalHaloData
-                     * process.HcalHaloData
-                     * process.GlobalHaloData
-                     * process.BeamHaloSummary
                      * process.jetMETHLTOfflineSource
                      * process.jetMETDQMOfflineSource
 #                    * process.jetMETDQMOfflineSourceCosmic
@@ -223,5 +186,4 @@ else:
 
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
-
 

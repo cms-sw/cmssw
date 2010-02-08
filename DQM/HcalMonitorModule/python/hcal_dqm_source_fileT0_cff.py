@@ -11,7 +11,7 @@ hcalOfflineDQMSource = cms.Sequence(hcalMonitor + dqmInfoHcal)
 # Loosen HF hot cell thresholds when using cosmic reconstruction
 hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
 hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
-hcalMonitor.ReferencePedestalMonitor        = False
+hcalMonitor.PedestalMonitor        = False
 hcalMonitor.DataFormatMonitor      = True
 hcalMonitor.DigiMonitor            = True
 hcalMonitor.RecHitMonitor          = True

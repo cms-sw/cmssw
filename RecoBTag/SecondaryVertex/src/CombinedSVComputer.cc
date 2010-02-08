@@ -170,21 +170,11 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		if (vtx < 0)
 			vtx = i;
 
-		const Vertex &vertex = svInfo.secondaryVertex(i);
-		bool hasRefittedTracks = vertex.hasRefittedTracks();
 		TrackRefVector tracks = svInfo.vertexTracks(i);
 		for(TrackRefVector::const_iterator track = tracks.begin();
 		    track != tracks.end(); track++) {
 			double w = svInfo.trackWeight(i, *track);
-			if (w < minTrackWeight)
-				continue;
-			if (hasRefittedTracks) {
-				Track actualTrack =
-						vertex.refittedTrack(*track);
-				vertexKinematics.add(actualTrack, w);
-				vars.insert(btau::trackEtaRel, etaRel(jetDir,
-						actualTrack.momentum()), true);
-			} else {
+			if (w >= minTrackWeight) {
 				vertexKinematics.add(**track, w);
 				vars.insert(btau::trackEtaRel, etaRel(jetDir,
 						(*track)->momentum()), true);

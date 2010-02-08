@@ -31,7 +31,7 @@ class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
  private:
   
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
 
   double DeltaPhi(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2);
   double DeltaR(math::XYZTLorentzVector v1, math::XYZTLorentzVector v2);

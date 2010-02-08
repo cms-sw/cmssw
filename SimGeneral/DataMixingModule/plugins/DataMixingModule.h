@@ -49,7 +49,7 @@ namespace edm
       /**Default destructor*/
       virtual ~DataMixingModule();
 
-      virtual void beginJob() {}
+      virtual void beginJob(edm::EventSetup const&iSetup);
 
       virtual void setBcrOffset();
       virtual void setSourceOffset(const unsigned int is);      

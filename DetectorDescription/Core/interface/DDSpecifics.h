@@ -82,7 +82,7 @@ public:
   //! Calculates the geometrical history of a fully specified PartSelector
   std::pair<bool,DDExpandedView> node() const;
   
-/*   static void clear(); */
+  static void clear();
 };
 
 #endif

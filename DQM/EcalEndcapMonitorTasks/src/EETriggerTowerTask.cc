@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.62 $
+ * $Date: 2009/10/14 08:23:01 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -485,7 +485,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     bool matchedAny=false;
 
     int compDigiEt = -1;
-    int compDigiInterest = -1;
 
     if ( validCompDigis ) {
 
@@ -515,7 +514,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       if ( compDigiItr != compDigis->end() ) {
         //        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
         compDigiEt = compDigiItr->compressedEt();
-        compDigiInterest = (compDigiItr->ttFlag() & 0x3);
         if ( ismt >= 1 && ismt <= 9 ) {
 
           if ( meEtSpectrumReal_[0] ) meEtSpectrumReal_[0]->Fill( compDigiEt );
@@ -579,10 +577,14 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       if ( validCompDigis ) {
 
-        //        if (readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower && compDigiEt > 0) {
-        if (readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower &&
-            (compDigiInterest == 1 || compDigiInterest == 3) ) {
-          
+        if (!good ) {
+          if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+        if (!goodVeto) {
+          if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+
+        if (readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower && compDigiEt > 0) {
           for (int j=0; j<6; j++) {
             if (matchSample[j]) {
 
@@ -606,14 +608,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
             }
           }
-
-          if (!good ) {
-            if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
-          }
-          if (!goodVeto) {
-            if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
-          }
-          
         }
 
       }

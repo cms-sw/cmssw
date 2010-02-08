@@ -3,30 +3,22 @@
 #include <TH1.h>
 #include <TProfile.h>
 #include <TH2.h>
-
-#include <vector>
-#include <map>
-
-class TFile;
-
 /* \class DijetMass
  *
  * \author Robert Harris
  *
- * Kalanand Mishra (November 22, 2009): 
-     Modified and cleaned up to work in 3.3.X
+ * \version 1
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+class TFile;
 
-template<class Jet>
 class DijetMass : public edm::EDAnalyzer {
 public:
   DijetMass( const edm::ParameterSet & );
 
 private:
-  typedef std::vector<Jet> JetCollection;
   //Framwework stuff
   void beginJob( const edm::EventSetup & );
   void analyze( const edm::Event& , const edm::EventSetup& );
@@ -34,27 +26,23 @@ private:
 
   // Parameters passed via the config file
   double PtHistMax;      // Maximum edge of Pt histograms
-  double EtaMax;  
-  std::string histogramFile;
-  std::string AKJets; 
-  std::string AKCorJets; 
-  std::string ICJets; 
-  std::string ICCorJets; 
-  std::string SCJets; 
-  std::string SCCorJets; 
-  std::string KTJets; 
-  std::string KTCorJets; 
-
-
+  std::string GenType;   // Type of Generated Process on Input to analysis
+    
+  // Root objects
+  
   //Simple Hists
-  TH1F ptAKunc, etaAKunc, phiAKunc, m2jAKunc;
-  TH1F ptAKcor, etaAKcor, phiAKcor, m2jAKcor;
-  TH1F ptICunc, etaICunc, phiICunc, m2jICunc;
-  TH1F ptICcor, etaICcor, phiICcor, m2jICcor;
-  TH1F ptKTunc, etaKTunc, phiKTunc, m2jKTunc;
-  TH1F ptKTcor, etaKTcor, phiKTcor, m2jKTcor;
-  TH1F ptSCunc, etaSCunc, phiSCunc, m2jSCunc;
-  TH1F ptSCcor, etaSCcor, phiSCcor, m2jSCcor;
+  TH1F ptMC5cal, etaMC5cal, phiMC5cal, m2jMC5cal;
+  TH1F ptMC5gen, etaMC5gen, phiMC5gen, m2jMC5gen;
+  TH1F ptMC5cor, etaMC5cor, phiMC5cor, m2jMC5cor;
+  TH1F ptIC5cal, etaIC5cal, phiIC5cal, m2jIC5cal;
+  TH1F ptIC5gen, etaIC5gen, phiIC5gen, m2jIC5gen;
+  TH1F ptIC5cor, etaIC5cor, phiIC5cor, m2jIC5cor;
+  TH1F ptKT10cal, etaKT10cal, phiKT10cal, m2jKT10cal;
+  TH1F ptKT10gen, etaKT10gen, phiKT10gen, m2jKT10gen;
+  
+  //Matched jets Analysis Histograms for MC5 CaloJets only
+  TH1F dR, dRcor;
+  TProfile respVsPt, corRespVsPt;
 
   //Histo File 
   TFile* m_file;

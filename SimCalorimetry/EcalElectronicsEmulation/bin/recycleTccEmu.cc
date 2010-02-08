@@ -1,11 +1,11 @@
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <sstream>
 #include <inttypes.h>
 #include <iomanip>
 #include <cstdlib>
-#include <stdio.h>
-#include <string.h>
+
 using namespace std;
 
 const int nChs = 68;
@@ -21,7 +21,7 @@ uint16_t mem[nChs][nEvts];
  */
 
 int main(int argc, char* argv[]){
-  if((argc>=2 && ( (strcmp(argv[1],"-h")==0) || (strcmp(argv[1],"--help")==0) ))
+  if((argc>=2 && (argv[1]=="-h" | argv[1]=="--help"))
       || argc!=3){
     cout << "Usage: recycleTccEmu infile outfile\n";
     return 1;

@@ -147,8 +147,7 @@ int main(){
   std::string serviceName("oracle://cms_omds_lb/CMS_GT_MON");
   std::string authName("/nfshome0/xiezhen/authentication.xml");
   //int run=110823;
-  //int run=121620;
-  int run=121998;
+  int run=110823;
   //two blocks of views in schema cms_gt_mon&cms_gt
   std::string gtmonschema("CMS_GT_MON");
   std::string algoviewname("GT_MON_TRIG_ALGO_VIEW");
@@ -228,7 +227,13 @@ int main(){
     Queryalgoview->addToOrderList("algobit");
     Queryalgoview->defineOutput(qalgoOutput);
     coral::ICursor& c=Queryalgoview->execute();
-    
+    if( !c.next() ){
+      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
+      c.close();
+      delete Queryalgoview;
+      transaction.commit();
+      return 0;
+    }
     unsigned int s=0;
     BITCOUNT mybitcount_algo; 
     mybitcount_algo.reserve(128);
@@ -238,20 +243,12 @@ int main(){
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      unsigned int algobit=row["algobit"].data<unsigned int>();
-      mybitcount_algo.push_back(count);
-      if(algobit==127){
+      if(s%128==0&&s!=0){
 	countresult_algo.push_back(mybitcount_algo);
 	mybitcount_algo.clear();
       }
+      mybitcount_algo.push_back(count);
       ++s;
-    }
-    if(s==0){
-      std::cout<<"requested run "<<run<<" doesn't exist for algocounts, do nothing"<<std::endl;
-      c.close();
-      delete Queryalgoview;
-      transaction.commit();
-      return 0;
     }
     delete Queryalgoview;
     //
@@ -274,27 +271,25 @@ int main(){
     Querytechview->addToOrderList("techbit");
     Querytechview->defineOutput(qtechOutput);
     coral::ICursor& techcursor=Queryalgoview->execute();
-    
+    if( !techcursor.next() ){
+      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
+      techcursor.close();
+      delete Querytechview;
+      transaction.commit();
+      return 0;
+    }
     s=0;
     while( techcursor.next() ){
       const coral::AttributeList& row = techcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      unsigned int techbit=row["techbit"].data<unsigned int>();
-      mybitcount_tech.push_back(count);
-      if(techbit==63){
+      if(s%64==0&&s!=0){
 	countresult_tech.push_back(mybitcount_tech);
 	mybitcount_tech.clear();
       }
+      mybitcount_tech.push_back(count);
       ++s;
-    }
-    if(s==0){
-      std::cout<<"requested run "<<run<<" doesn't exist for techcounts, do nothing"<<std::endl;
-      techcursor.close();
-      delete Querytechview;
-      transaction.commit();
-      return 0;
     }
     delete Querytechview;
 
@@ -318,14 +313,13 @@ int main(){
     Querydeadview->addToOrderList("lsnr");
     Querydeadview->defineOutput(qdeadOutput);
     coral::ICursor& deadcursor=Querydeadview->execute();
-    /*if( !deadcursor.next() ){
-      std::cout<<"requested run "<<run<<" doesn't exist for deadcount, do nothing"<<std::endl;
+    if( !deadcursor.next() ){
+      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
       deadcursor.close();
       delete Querydeadview;
       transaction.commit();
       return 0;
     }
-    */
     s=0;
     TriggerDeadCountResult deadtimeresult;
     while( deadcursor.next() ){
@@ -335,13 +329,6 @@ int main(){
       unsigned int count=row["counts"].data<unsigned int>();
       deadtimeresult.push_back(count);
       ++s;
-    }
-    if(s==0){
-      std::cout<<"requested run "<<run<<" doesn't exist for deadcount, do nothing"<<std::endl;
-      deadcursor.close();
-      delete Querydeadview;
-      transaction.commit();
-      return 0;
     }
     delete Querydeadview;
 
@@ -358,7 +345,13 @@ int main(){
     Querytimestamp->addToOrderList("lumisegmentnr");
     Querytimestamp->defineOutput(qtimestampOutput);
     coral::ICursor& tpcursor=Querytimestamp->execute();
-    
+    if( !tpcursor.next() ){
+      std::cout<<"requested run "<<run<<" doesn't exist, do nothing"<<std::endl;
+      tpcursor.close();
+      delete Querytimestamp;
+      transaction.commit();
+      return 0;
+    }
     s=0;
     LumiTimestampResult tpresult;
     while( tpcursor.next() ){
@@ -368,13 +361,6 @@ int main(){
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       ++s;
-    }
-    if(s==0){
-      std::cout<<"requested run "<<run<<" doesn't exist for timestamp, do nothing"<<std::endl;
-      tpcursor.close();
-      delete Querytimestamp;
-      transaction.commit();
-      return 0;
     }
     delete Querytimestamp;
     transaction.commit();
@@ -401,16 +387,16 @@ int main(){
       throw std::runtime_error(std::string("non-existing view ")+runpresctechviewname);
     }
     //
-    //select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
+    //select algo_index,name from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
     //
     std::map<unsigned int,std::string> triggernamemap;
     coral::IQuery* QueryName=gtschemaHandle.newQuery();
     QueryName->addToTableList(runalgoviewname);
     coral::AttributeList qAlgoNameOutput;
     qAlgoNameOutput.extend("algo_index",typeid(unsigned int));
-    qAlgoNameOutput.extend("alias",typeid(std::string));
+    qAlgoNameOutput.extend("name",typeid(std::string));
     QueryName->addToOutputList("algo_index");
-    QueryName->addToOutputList("alias");
+    QueryName->addToOutputList("name");
     QueryName->setCondition("runnumber =:runnumber",bindVariableList);
     QueryName->addToOrderList("algo_index");
     QueryName->defineOutput(qAlgoNameOutput);
@@ -419,7 +405,7 @@ int main(){
       const coral::AttributeList& row = algonamecursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
       unsigned int algo_index=row["algo_index"].data<unsigned int>();
-      std::string algo_name=row["alias"].data<std::string>();
+      std::string algo_name=row["name"].data<std::string>();
       triggernamemap.insert(std::make_pair(algo_index,algo_name));
     }
     delete QueryName;

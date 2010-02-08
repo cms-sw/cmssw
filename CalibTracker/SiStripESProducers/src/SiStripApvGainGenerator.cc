@@ -13,9 +13,11 @@ SiStripApvGainGenerator::SiStripApvGainGenerator(const edm::ParameterSet& iConfi
   edm::LogInfo("SiStripApvGainGenerator") <<  "[SiStripApvGainGenerator::SiStripApvGainGenerator]";
 }
 
+
 SiStripApvGainGenerator::~SiStripApvGainGenerator() { 
   edm::LogInfo("SiStripApvGainGenerator") <<  "[SiStripApvGainGenerator::~SiStripApvGainGenerator]";
 }
+
 
 void SiStripApvGainGenerator::createObject(){
     
@@ -41,7 +43,7 @@ void SiStripApvGainGenerator::createObject(){
     for(unsigned short j=0; j<it->second.nApvs; j++){
   
       if(genMode=="default")
-	gainValue=meanGain_;
+	gainValue=1.;
       else if ("gaussian") {
 	gainValue = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
 	if(gainValue<=minimumPosValue_) gainValue=minimumPosValue_;

@@ -15,6 +15,19 @@
 <use name=boost>
 <use name=root>
 <use name=Geometry/CaloTopology>
+<use name=Geometry/CaloEventSetup>
 <use name=DataFormats/DetId>
-<use name=CalibCalorimetry/EcalLaserCorrection>
+
 <flags EDM_PLUGIN=1>
+<export>
+   <lib name=EventFilterCosmics>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=HLTrigger/HLTcore>
+   <use name=RecoMuon/TrackingTools>
+   <use name=TrackingTools/TransientTrack>
+   <use name=Geometry/CaloTopology>
+   <use name=Geometry/CaloEventSetup>
+   <use name=DataFormats/DetId>
+</export>

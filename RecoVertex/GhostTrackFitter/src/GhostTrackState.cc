@@ -1,117 +1,68 @@
-#include <cmath>
-
-#include <Math/SMatrix.h>
-#include <Math/MatrixFunctions.h>
-
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h" 
+#include "DataFormats/GeometrySurface/interface/Line.h"
 
-#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackPrediction.h"
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackState.h"
-#include "RecoVertex/GhostTrackFitter/interface/TrackGhostTrackState.h"
-#include "RecoVertex/GhostTrackFitter/interface/VertexGhostTrackState.h"
 
 using namespace reco;
 
-namespace {
-	using namespace ROOT::Math;
+bool GhostTrackState::linearize(const GhostTrackPrediction &pred,
+                                bool initial, double lambda)
+{
+	AnalyticalTrajectoryExtrapolatorToLine extrap(track_.field());
 
-	typedef SVector<double, 3> Vector3;
+	GlobalPoint origin = pred.origin();
+	GlobalVector direction = pred.direction();
 
-	static inline Vector3 conv(const GlobalVector &vec)
-	{
-		Vector3 result;
-		result[0] = vec.x();
-		result[1] = vec.y();
-		result[2] = vec.z();
-		return result;
+	if (tsos_.isValid() && !initial) {
+		GlobalPoint pca = origin + lambda_ * direction;
+		Line line(pca, direction);
+		tsos_ = extrap.extrapolate(tsos_, line);
+	} else {
+		GlobalPoint pca = origin + lambda * direction;
+		Line line(pca, direction);
+		tsos_ = extrap.extrapolate(track_.impactPointState(), line);
 	}
+
+	if (!tsos_.isValid())
+		return false;
+
+	lambda_ = (tsos_.globalPosition() - origin) * direction / pred.rho2();
+
+	return true;
 }
 
-GhostTrackState::GhostTrackState(const TransientTrack &track) :
-	Base(new TrackGhostTrackState(track))
+bool GhostTrackState::linearize(const GhostTrackPrediction &pred,
+                                double lambda)
 {
-}
+	AnalyticalImpactPointExtrapolator extrap(track_.field());
 
-GhostTrackState::GhostTrackState(const GlobalPoint &pos,
-                                 const CovarianceMatrix &cov) :
-	Base(new VertexGhostTrackState(pos, cov))
-{
-}
+	GlobalPoint point = pred.origin() + lambda * pred.direction();
 
-GhostTrackState::GhostTrackState(const GlobalPoint &pos,
-                                 const GlobalError &error) :
-	Base(new VertexGhostTrackState(pos, error.matrix_new()))
-{
-}
+	tsos_ = extrap.extrapolate(track_.impactPointState(), point);
+	if (!tsos_.isValid())
+		return false;
 
-GhostTrackState::GhostTrackState(const VertexState &state) :
-	Base(new VertexGhostTrackState(state.position(),
-	                               state.error().matrix_new()))
-{
-}
+	lambda_ = lambda;
 
-bool GhostTrackState::isTrack() const
-{
-	return dynamic_cast<const TrackGhostTrackState*>(&data()) != 0;
-}
-
-bool GhostTrackState::isVertex() const
-{
-	return dynamic_cast<const VertexGhostTrackState*>(&data()) != 0;
-}
-
-static const TrackGhostTrackState *getTrack(const BasicGhostTrackState *basic)
-{
-	const TrackGhostTrackState *track =
-			dynamic_cast<const TrackGhostTrackState*>(basic);
-	if (!track)
-		throw cms::Exception("InvalidOperation")
-			<< "track requested on non non-track GhostTrackState";
-	return track;
-}
-
-const TransientTrack &GhostTrackState::track() const
-{
-	return getTrack(&data())->track();
-}
-
-const TrajectoryStateOnSurface &GhostTrackState::tsos() const
-{
-	return getTrack(&data())->tsos();
+	return true;
 }
 
 double GhostTrackState::flightDistance(const GlobalPoint &point,
                                        const GlobalVector &dir) const
 {
-	return (tsos().globalPosition() - point).dot(dir.unit());
+	return (tsos_.globalPosition() - point).dot(dir.unit());
 }
 
 double GhostTrackState::axisDistance(const GlobalPoint &point,
                                      const GlobalVector &dir) const
 {
-	return (tsos().globalPosition() - point).cross(dir.unit()).mag();
-}
-
-double GhostTrackState::axisDistance(const GhostTrackPrediction &pred) const
-{
-	return axisDistance(pred.origin(), pred.direction());
-}
-
-double GhostTrackState::lambdaError(const GhostTrackPrediction &pred,
-                                    const GlobalError &pvError) const
-{
-	if (!tsos().isValid())
-		return -1.;
-
-	return std::sqrt(
-	       	ROOT::Math::Similarity(
-	       		conv(pred.direction()),
-	       		(vertexStateOnGhostTrack(pred).second.matrix_new() +
-			 pvError.matrix_new()))
-	        / pred.rho2());
+	return (tsos_.globalPosition() - point).cross(dir.unit()).mag();
 }

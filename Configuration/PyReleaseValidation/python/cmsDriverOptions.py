@@ -191,6 +191,13 @@ expertSettings.add_option("--processName",
                           dest="name" 
                           )
 
+expertSettings.add_option("--triggerResultsProcess",
+                          help="for splitting jobs specify from which process to take edm::TriggerResults",
+                          default = None,
+                          dest="triggerResultsProcess"
+                          )
+
+
 expertSettings.add_option("--scenario",
                           help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
                           default='pp',
@@ -233,6 +240,12 @@ if options.conditions == None:
 if options.isData and options.isMC:
     print "ERROR: You may specify only --data or --mc, not both"
     sys.exit(1)
+
+# check in case of ALCAOUTPUT case for alca splitting
+if options.triggerResultsProcess == None and "ALCAOUTPUT" in options.step:
+    print "ERROR: If ALCA splitting is requested, the name of the process in which the alca producers ran needs to be specified. E.g. via --triggerResultsProcess RECO"
+    sys.exit(1)
+            
             
 options.evt_type=sys.argv[1]
 

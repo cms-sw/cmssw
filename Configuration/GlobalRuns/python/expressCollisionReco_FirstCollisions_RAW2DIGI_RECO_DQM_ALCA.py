@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.1 $
+# $Revision: 1.10 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,8 +9,7 @@ process = cms.Process('EXPRESS')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-#process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
 process.load('Configuration/StandardSequences/L1Reco_cff')
@@ -22,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.10 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -34,13 +33,20 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 # Input source
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-'/store/data/BeamCommissioning09/Calo/RAW/v1/000/120/347/FE9E4A7E-90CE-DE11-893E-001D09F2447F.root')
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring(
+#'/store/data/Commissioning08/Cosmics/RAW/v1/000/069/578/085EFED4-E5AB-DD11-9ACA-001617C3B6FE.root')
+#)
+
+process.source = cms.Source("NewEventStreamFileReader",
+    fileNames = cms.untracked.vstring('/store/streamer/Data/Express/000/124/009/Data.00124009.0023.Express.storageManager.08.0000.dat'),
+    cacheSize = cms.untracked.uint32(100000000)
 )
 
+#process.source.skipEvents = cms.untracked.uint32(290)
+
 # Other statements
-process.GlobalTag.globaltag = 'GR09_P_V6::All'
+process.GlobalTag.globaltag = 'GR09_P_V8_34X::All'
 
 
 #####################################################################################################
@@ -49,95 +55,97 @@ process.GlobalTag.globaltag = 'GR09_P_V6::All'
 ####
 
 ## TRACKING:
-process.globalPixelLessSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.5
-process.pixelLessCkfTrajectoryFilter = process.ckfBaseTrajectoryFilter.clone(
-    ComponentName = 'pixelLessCkfTrajectoryFilter',
-    filterPset = process.ckfBaseTrajectoryFilter.filterPset.clone(minPt = 0.5)
-    )
-process.pixelLessCkfTrajectoryBuilder = process.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'pixelLessCkfTrajectoryBuilder',
-    trajectoryFilterName = 'pixelLessCkfTrajectoryFilter',
-    )
-process.ckfTrackCandidatesPixelLess.TrajectoryBuilder = 'pixelLessCkfTrajectoryBuilder'
-process.globalPixelLessSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 40
-process.globalPixelLessSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 ## Skip events with HV off
-process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
+process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
-## Seeding: increase the region
-process.fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 100
-process.fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius     =  20
-## Seeding: add TOB3 to the list, allow unmatched hits
-process.fifthlayerpairs.TOB.useSimpleRphiHitsCleaner = cms.bool(False)
-process.fifthlayerpairs.TOB.rphiRecHits = cms.InputTag("fifthStripRecHits","rphiRecHitUnmatched")
-process.fifthlayerpairs.TOB.stereoRecHits = cms.InputTag("fifthStripRecHits","stereoRecHitUnmatched")
-process.fifthlayerpairs.layerList += [ 'TOB1+TOB3', 'TOB2+TOB3' ]
-#, 'TOB3+TOB4' ]
-## Pattern recognition: lower the cut on the number of hits
-process.fifthCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 5
-process.fifthCkfTrajectoryFilter.filterPset.maxLostHits = 3
-process.fifthCkfTrajectoryFilter.filterPset.maxConsecLostHits = 1
-process.fifthCkfInOutTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-process.fifthCkfInOutTrajectoryFilter.filterPset.maxLostHits = 3
-process.fifthCkfInOutTrajectoryFilter.filterPset.maxConsecLostHits = 1
-process.fifthCkfTrajectoryBuilder.minNrOfHitsForRebuild = 3
-## Pattern recognition: enlarge a lot the search window, as the true momentum is very small while the tracking assumes p=5 GeV if B=0
-process.Chi2MeasurementEstimator.MaxChi2 = 200
-process.Chi2MeasurementEstimator.nSigma  = 3
-## Fitter-smoother: lower the cut on the number of hits
-process.fifthRKTrajectorySmoother.minHits = 4
-process.fifthRKTrajectoryFitter.minHits = 4
-process.fifthFittingSmootherWithOutlierRejection.MinNumberOfHits = 5
-## Fitter-smoother: loosen outlier rejection
-process.fifthFittingSmootherWithOutlierRejection.BreakTrajWith2ConsecutiveMissing = False
-process.fifthFittingSmootherWithOutlierRejection.EstimateCut = 1000
-## Quality filter
-process.tobtecStepLoose.minNumberLayers = 3
-process.tobtecStepLoose.minNumber3DLayers = 0
-process.tobtecStepLoose.maxNumberLostLayers = 4
-process.tobtecStepLoose.dz_par1 = cms.vdouble(100.5, 4.0)
-process.tobtecStepLoose.dz_par2 = cms.vdouble(100.5, 4.0)
-process.tobtecStepLoose.d0_par1 = cms.vdouble(100.5, 4.0)
-process.tobtecStepLoose.d0_par2 = cms.vdouble(100.5, 4.0)
-process.tobtecStepLoose.chi2n_par = cms.double(10.0)
-process.tobtecStepLoose.keepAllTracks = False
-process.tobtecStepTight = process.tobtecStepLoose.clone(
-    keepAllTracks = True,
-    qualityBit = cms.string('tight'),
-    src = cms.InputTag("tobtecStepLoose"),
-    minNumberLayers = 5,
-    minNumber3DLayers = 0
-    )
-process.tobtecStep = process.tobtecStepLoose.clone(
-    keepAllTracks = True,
-    qualityBit = cms.string('highPurity'),
-    src = cms.InputTag("tobtecStepTight"),
-    minNumberLayers = 4,
-    minNumber3DLayers = 2,
-    )
+process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.dedxTruncated40.UsePixel = cms.bool(False)
+process.dedxMedian.UsePixel = cms.bool(False)
+process.dedxHarmonic2.UsePixel = cms.bool(False)
 
-## PV temporary fixes
-process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 10
-process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 500
-process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 5
+###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
+
+### pixelTracks
+#---- replaces ----
+process.pixelTracks.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06) # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
+process.pixelTracks.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+### 0th step of iterative tracking
+#---- replaces ----
+process.newSeedFromTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+### 2nd step of iterative tracking
+#---- replaces ----
+process.secTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
+process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
+#---- new parameters ----
+process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
+process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
+
+## Primary Vertex
+process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconHits = 6
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
+process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelHits = 1
+process.offlinePrimaryVerticesWithBS.TkClusParameters.zSeparation = 10
+process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
+process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
+process.offlinePrimaryVertices.TkFilterParameters.minSiliconHits = 6
 process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = -1
+process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
-## ECAL temporary fixes
-process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
-process.ecalLocalRecoSequence.replace(process.ecalGlobalUncalibRecHit,process.ecalFixedAlphaBetaFitUncalibRecHit)
-process.ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+## ECAL 
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapCosmicTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
-process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
-process.ecalEndcapTimingTask.EcalUncalibratedRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
+
+##Preshower
+process.ecalPreshowerRecHit.ESGain = 2
+process.ecalPreshowerRecHit.ESBaseline = 0
+process.ecalPreshowerRecHit.ESMIPADC = 55
+
+##only for 34X
+process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
 
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
+
+process.zdcreco.firstSample = 4
+process.zdcreco.samplesToAdd = 3
+
+## EGAMMA
+process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
+process.ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)
+process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.9)
+process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.9)
+process.ecalDrivenElectronSeeds.SeedConfiguration.r2MinF = cms.double(-1.5)
+process.ecalDrivenElectronSeeds.SeedConfiguration.r2MaxF = cms.double(1.5)
+process.ecalDrivenElectronSeeds.SeedConfiguration.rMinI = cms.double(-2.)
+process.ecalDrivenElectronSeeds.SeedConfiguration.rMaxI = cms.double(2.)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
+process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
+process.gsfElectrons.applyPreselection = cms.bool(False)
+process.photons.minSCEtBarrel = 1.
+process.photons.minSCEtEndcap =1.
+process.photonCore.minSCEt = 1.
+process.conversionTrackCandidates.minSCEt =1.
+process.conversions.minSCEt =1.
+process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
+process.trackerOnlyConversions.AllowRightBC = cms.bool(False)
+process.trackerOnlyConversions.MinApproach = cms.double(-.25)
+process.trackerOnlyConversions.DeltaCotTheta = cms.double(.07)
+process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
 
 ###
 ###  end of top level replacements

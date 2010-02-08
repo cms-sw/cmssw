@@ -14,6 +14,7 @@ TrackWithVertexSelector::TrackWithVertexSelector(const edm::ParameterSet& iConfi
   etaMax_(iConfig.getParameter<double>("etaMax")),
   dzMax_(iConfig.getParameter<double>("dzMax")),
   d0Max_(iConfig.getParameter<double>("d0Max")),
+  ptErrorCut_(iConfig.getParameter<double>("ptErrorCut")),
   nVertices_(iConfig.getParameter<bool>("useVtx") ? iConfig.getParameter<uint32_t>("nVertices") : 0),
   vertexTag_(iConfig.getParameter<edm::InputTag>("vertexTag")),
   vtxFallback_(iConfig.getParameter<bool>("vtxFallback")),
@@ -29,6 +30,7 @@ bool TrackWithVertexSelector::testTrack(const reco::Track &t) const {
       (static_cast<unsigned int>(t.hitPattern().numberOfValidPixelHits()) >= numberOfValidPixelHits_) &&
       (t.numberOfLostHits() <= numberOfLostHits_) &&
       (t.normalizedChi2()    <= normalizedChi2_) &&
+      (t.ptError()/t.pt()*std::max(1.,t.normalizedChi2()) <= ptErrorCut_) &&
       (t.pt()         >= ptMin_)      &&
       (t.pt()         <= ptMax_)      &&
       (abs(t.eta())   <= etaMax_)     &&

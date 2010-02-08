@@ -102,10 +102,8 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       std::cout << fileName << ":" << logicalPartName << " is the ROOT" << std::endl;
       DDLogicalPart root;
       DDRootDef::instance().set(DDName(logicalPartName, fileName));
-      /// bad, just testing...
-      DDCompactView cpv;
-      cpv.setRoot(DDName(logicalPartName, fileName));
-     DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
+
+      DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
 
     }
   else if (myelemname == "Schema")

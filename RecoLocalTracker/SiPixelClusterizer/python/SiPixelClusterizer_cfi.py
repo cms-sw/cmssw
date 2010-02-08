@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -18,7 +17,7 @@ siPixelClusters = cms.EDProducer("SiPixelClusterProducer",
     # **************************************
     payloadType = cms.string('Offline'),
     SeedThreshold = cms.int32(1000),
-    ClusterThreshold = cms.double(4000.0)
+    ClusterThreshold = cms.double(3000.0)
 )
 
 

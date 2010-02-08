@@ -7,12 +7,7 @@ from Validation.RecoMuon.muonValidationHLTFastSim_cff import *
 from DQM.HLTEvF.HLTMonMuonBits_cfi import *
 relvalMuonBits = hltMonMuBits.clone(
     directory = cms.untracked.string('HLT/Muon'),
-    HLTPaths = cms.vstring('HLT_L1Mu+',
-                           'HLT_L2Mu+',
-                           'HLT_Mu+',
-                           'HLT_IsoMu+',
-                           'HLT_DoubleMu+'
-                           )
+    HLTPaths = cms.vstring('HLT_[^_]*Mu[^l_]*$')
     )
 
 HLTMuonVal = cms.Sequence(

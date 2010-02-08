@@ -17,7 +17,7 @@ namespace evf{
     char *cfg = new char[size*nmemb+1];
     string *spt = (string *)pointer;
     strncpy(cfg,(const char*)ptr,size*nmemb);
-    sprintf(cfg+size*nmemb,"\0");
+    cfg[size*nmemb] = '\0';
     ostringstream output;
     output<<cfg;
     delete[] cfg;

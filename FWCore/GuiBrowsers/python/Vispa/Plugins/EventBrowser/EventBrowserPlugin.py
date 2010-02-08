@@ -5,18 +5,7 @@ from PyQt4.QtGui import QLabel
 
 from Vispa.Plugins.Browser.BrowserPlugin import BrowserPlugin
 
-from Vispa.Views.AbstractView import NoneView
-from Vispa.Views.WidgetView import WidgetView
-from Vispa.Views.BoxDecayView import BoxDecayView
-from Vispa.Views.LineDecayView import LineDecayView
-from Vispa.Views.TableView import TableView
 from Vispa.Main.Exceptions import NoCurrentTabControllerException
-
-try:
-  from Vispa.Views.RootCanvasView import RootCanvasView
-  RootCanvasViewEnable = True
-except:
-  RootCanvasViewEnable = False
 
 class EventBrowserPlugin(BrowserPlugin):
     """ The EventBrowserPlugin supports navigation in files.
@@ -29,12 +18,6 @@ class EventBrowserPlugin(BrowserPlugin):
     def startUp(self):
         BrowserPlugin.startUp(self)
         self._fillEventNavigatorMenu()
-        self.addCenterView(NoneView)
-        self.addCenterView(BoxDecayView)
-        self.addCenterView(LineDecayView, True)
-        if RootCanvasViewEnable:
-            self.addCenterView(RootCanvasView)
-        self.addCenterView(TableView)
 
     def _fillEventNavigatorMenu(self):
         """ Fill EventNavigator specific menu.

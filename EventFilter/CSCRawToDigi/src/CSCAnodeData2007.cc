@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string.h> // for bzero
 
+
 CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins())
 {
@@ -82,6 +83,7 @@ int CSCAnodeData2007::index(int tbin, int layer, int layerPart) const
 
 void CSCAnodeData2007::add(const CSCWireDigi & digi, int layer) 
 {
+
   int wireGroup = digi.getWireGroup();
   //           wireGroup = (layerPart*12+j)+1;
   unsigned layerPart = (wireGroup-1) / 12;
@@ -101,10 +103,7 @@ void CSCAnodeData2007::add(const CSCWireDigi & digi, int layer)
 
     if((*timeBinOn) >= 0 && (*timeBinOn) < nTimeBins_) 
       {
-        CSCAnodeDataFrame2007 frame = findFrame(*timeBinOn, layer, layerPart);
-        frame.addHit(wireInPart);
-        // FIXME doesn't carry over the (currently 0) leading bits
-        theDataFrames[index(*timeBinOn, layer, layerPart)]  = frame.data();
+        theDataFrames[index(*timeBinOn, layer, layerPart)] += (1<<wireInPart);
       } 
     else 
       {
@@ -116,10 +115,8 @@ void CSCAnodeData2007::add(const CSCWireDigi & digi, int layer)
 
 void CSCAnodeData2007::selfTest()
 {
-  int wireGroup = 12;
-  int timeBin = 6;
-  CSCWireDigi wireDigi(wireGroup, (1 << timeBin));
-  CSCALCTHeader header(1);
+  CSCWireDigi wireDigi(10, (1 << 4));
+  CSCALCTHeader header(7);
   CSCAnodeData2007 anodeData(header);
   anodeData.add(wireDigi, 1);
   anodeData.add(wireDigi, 6);
@@ -129,10 +126,7 @@ void CSCAnodeData2007::selfTest()
 
   assert(wires1.size() == 1);
   assert(wires6.size() == 1);
-  assert(wires1[0].getWireGroup() == wireGroup);
-  assert(wires6[0].getWireGroup() == wireGroup);
-  assert(wires1[0].getTimeBin() == timeBin);
-  assert(wires6[0].getTimeBin() == timeBin);
-
+  assert(wires1[0].getWireGroup() == 10);
+  assert(wires6[0].getWireGroup() == 10);
 }
 

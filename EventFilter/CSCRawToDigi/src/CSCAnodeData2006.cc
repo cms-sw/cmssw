@@ -4,15 +4,6 @@
 #include <string.h> // for bzero
 
 bool debug = false;
-#include <iostream>
-
-CSCAnodeDataFrame2006::CSCAnodeDataFrame2006(unsigned chip, unsigned tbin, unsigned data)
-: theFrame(0)
-{
-   // lowest bit, plus the OR of the next two.
-   unsigned packedChip = ( chip&1 + 2*(chip>1) );
-   theFrame = data + ((tbin&0x1F) << 8) + (packedChip<<13);
-}
 
 
 CSCAnodeData2006::CSCAnodeData2006(const CSCALCTHeader & header) ///for digi->raw packing
@@ -137,7 +128,7 @@ int CSCAnodeData2006::index(int afeb, int tbin, int layer) const {
   return result;
 }
 
-#include <iostream>
+
 void CSCAnodeData2006::selfTest()
 {
   CSCAnodeDataFrame2006 frame(2, 15, 32); 

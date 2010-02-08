@@ -114,7 +114,7 @@ L2TauNarrowConeIsolationProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 
 void 
-L2TauNarrowConeIsolationProducer::beginJob(const edm::EventSetup&)
+L2TauNarrowConeIsolationProducer::beginJob()
 {
 }
 

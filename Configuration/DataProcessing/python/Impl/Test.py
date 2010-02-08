@@ -21,7 +21,7 @@ class Test(Scenario):
     """
 
     
-    def promptReco(self, globalTag, writeTiers = ['RECO']):
+    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO','ALCA']):
         """
         _installPromptReco_
 
@@ -35,9 +35,9 @@ class Test(Scenario):
 
 
 
-    def alcaReco(self, *skims):
+    def alcaSkim(self, skims):
         """
-        _alcaReco_
+        _alcaSkim_
 
         Given a skeleton process install the alcareco sequences and
         skims.

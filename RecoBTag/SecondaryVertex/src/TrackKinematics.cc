@@ -37,15 +37,9 @@ TrackKinematics::TrackKinematics(const TrackRefVector &tracks) :
 TrackKinematics::TrackKinematics(const Vertex &vertex) :
 	n(0), sumWeights(0)
 {
-	bool hasRefittedTracks = vertex.hasRefittedTracks();
 	for(Vertex::trackRef_iterator iter = vertex.tracks_begin();
-	    iter != vertex.tracks_end(); ++iter) {
-		if (hasRefittedTracks)
-			add(vertex.refittedTrack(*iter),
-			    vertex.trackWeight(*iter));
-		else
-			add(**iter, vertex.trackWeight(*iter));
-	}
+	    iter != vertex.tracks_end(); iter++)
+		add(**iter, vertex.trackWeight(*iter));
 }
 
 void TrackKinematics::add(const Track &track, double weight)

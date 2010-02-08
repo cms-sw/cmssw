@@ -75,7 +75,6 @@ inline bool call_pygive(const std::string &line)
 ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset)
    : BaseHadronizer(pset),
      pythia6Service_(new Pythia6Service(pset)),
-     randomEngine_(&getEngineReference()),
      comEnergy_(pset.getParameter<double>("comEnergy")),
      myPSet_(pset),
      hepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
@@ -218,8 +217,7 @@ bool ExhumeHadronizer::initializeForInternalPartons()
    }
     
    pypars.msti[0] = sigID;
-   //exhumeEvent_ = new Exhume::Event(*exhumeProcess_,&getEngineReference());
-   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,randomEngine_);
+   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,&getEngineReference());
 
    double massRangeLow = processPSet.getParameter<double>("MassRangeLow");
    double massRangeHigh = processPSet.getParameter<double>("MassRangeHigh");

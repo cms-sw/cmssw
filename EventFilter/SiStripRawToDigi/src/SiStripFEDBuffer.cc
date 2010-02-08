@@ -14,7 +14,7 @@ namespace sistrip {
   {
     channels_.reserve(FEDCH_PER_FED);
     //build the correct type of FE header object
-    if ( (headerType() != HEADER_TYPE_INVALID) && (headerType() != HEADER_TYPE_NONE) ) {
+    if (headerType() != HEADER_TYPE_INVALID) {
       feHeader_ = FEDFEHeader::newFEHeader(headerType(),getPointerToDataAfterTrackerSpecialHeader());
       payloadPointer_ = getPointerToDataAfterTrackerSpecialHeader()+feHeader_->lengthInBytes();
     } else {
@@ -29,9 +29,6 @@ namespace sistrip {
 	ss << ". ";
 	throw cms::Exception("FEDBuffer") << ss.str();
       }
-    }
-    if (readoutMode() == READOUT_MODE_SPY) {
-      throw cms::Exception("FEDBuffer") << "Unpacking of spy channel data with FEDBuffer is not supported" << std::endl;
     }
     payloadLength_ = getPointerToByteAfterEndOfPayload()-payloadPointer_;
     //check if FE units are present in data
@@ -119,7 +116,7 @@ namespace sistrip {
   {
     return ( (internalFEDChannelNum < validChannels_) &&
              feGood(internalFEDChannelNum/FEDCH_PER_FEUNIT) &&
-             (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)) );
+             checkStatusBits(internalFEDChannelNum) );
   }
 
   bool FEDBuffer::doChecks() const
@@ -363,7 +360,6 @@ namespace sistrip {
       return PACKET_CODE_ZERO_SUPPRESSED;
       break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE:
-    case READOUT_MODE_SPY:
     case READOUT_MODE_INVALID:
     default:
       return 0;
@@ -388,6 +384,189 @@ namespace sistrip {
       dynamic_cast<const FEDFullDebugHeader*>(feHeader())->beStatusRegister().printFlags(os);
       os << std::endl;
     }
+  }
+
+
+
+
+  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
+    : channels_(FEDCH_PER_FED,FEDChannel(NULL,0,0)),
+      originalBuffer_(fedBuffer),
+      bufferSize_(fedBufferSize)
+  {
+    init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
+  }
+  
+  FEDBufferBase::FEDBufferBase(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat, const bool fillChannelVector)
+    : originalBuffer_(fedBuffer),
+      bufferSize_(fedBufferSize)
+  {
+    init(fedBuffer,fedBufferSize,allowUnrecognizedFormat);
+    if (fillChannelVector) channels_.assign(FEDCH_PER_FED,FEDChannel(NULL,0,0));
+  }
+  
+  void FEDBufferBase::init(const uint8_t* fedBuffer, const size_t fedBufferSize, const bool allowUnrecognizedFormat)
+  {
+    //min buffer length. DAQ header, DAQ trailer, tracker special header. 
+    static const size_t MIN_BUFFER_SIZE = 8+8+8;
+    //check size is non zero and data pointer is not NULL
+    if (!originalBuffer_) throw cms::Exception("FEDBuffer") << "Buffer pointer is NULL.";
+    if (bufferSize_ < MIN_BUFFER_SIZE) {
+      std::ostringstream ss;
+      ss << "Buffer is too small. "
+         << "Min size is " << MIN_BUFFER_SIZE << ". "
+         << "Buffer size is " << bufferSize_ << ". ";
+      throw cms::Exception("FEDBuffer") << ss.str();
+    }
+  
+    //construct tracker special header using second 64 bit word
+    specialHeader_ = TrackerSpecialHeader(originalBuffer_+8);
+  
+    //check the buffer format
+    const FEDBufferFormat bufferFormat = specialHeader_.bufferFormat();
+    if (bufferFormat == BUFFER_FORMAT_INVALID && !allowUnrecognizedFormat) {
+      std::ostringstream ss;
+      ss << "Buffer format not recognized. "
+         << "Tracker special header: " << specialHeader_;
+      throw cms::Exception("FEDBuffer") << ss.str();
+    }
+    //swap the buffer words so that the whole buffer is in slink ordering
+    if ( (bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW) ) {
+      uint8_t* newBuffer = new uint8_t[bufferSize_];
+      const uint32_t* originalU32 = reinterpret_cast<const uint32_t*>(originalBuffer_);
+      const size_t sizeU32 = bufferSize_/4;
+      uint32_t* newU32 = reinterpret_cast<uint32_t*>(newBuffer);
+      if (bufferFormat == BUFFER_FORMAT_OLD_VME) {
+	//swap whole buffer
+	for (size_t i = 0; i < sizeU32; i+=2) {
+	  newU32[i] = originalU32[i+1];
+	  newU32[i+1] = originalU32[i];
+	}
+      }
+      if (bufferFormat == BUFFER_FORMAT_NEW) {
+	//copy DAQ header
+	memcpy(newU32,originalU32,8);
+	//copy DAQ trailer
+	memcpy(newU32+sizeU32-2,originalU32+sizeU32-2,8);
+	//swap the payload
+	for (size_t i = 2; i < sizeU32-2; i+=2) {
+	  newU32[i] = originalU32[i+1];
+	  newU32[i+1] = originalU32[i];
+	}
+      }
+      orderedBuffer_ = newBuffer;
+    } //if ( (bufferFormat == BUFFER_FORMAT_OLD_VME) || (bufferFormat == BUFFER_FORMAT_NEW) )
+    else {
+      orderedBuffer_ = originalBuffer_;
+    }
+  
+    //construct header object at begining of buffer
+    daqHeader_ = FEDDAQHeader(orderedBuffer_);
+    //construct trailer object using last 64 bit word of buffer
+    daqTrailer_ = FEDDAQTrailer(orderedBuffer_+bufferSize_-8);
+  }
+
+  FEDBufferBase::~FEDBufferBase()
+  {
+    //if the buffer was coppied and swapped then delete the copy
+    if (orderedBuffer_ != originalBuffer_) delete[] orderedBuffer_;
+  }
+
+  void FEDBufferBase::print(std::ostream& os) const
+  {
+    os << "buffer format: " << bufferFormat() << std::endl;
+    os << "Buffer size: " << bufferSize() << " bytes" << std::endl;
+    os << "Event length from DAQ trailer: " << daqEventLengthInBytes() << " bytes" << std::endl;
+    os << "Source ID: " << daqSourceID() << std::endl;
+    os << "Header type: " << headerType() << std::endl;
+    os << "Readout mode: " << readoutMode() << std::endl;
+    os << "Data type: " << dataType() << std::endl;
+    os << "DAQ event type: " << daqEventType() << std::endl;
+    os << "TTS state: " << daqTTSState() << std::endl;
+    os << "L1 ID: " << daqLvl1ID() << std::endl;
+    os << "BX ID: " << daqBXID() << std::endl;
+    os << "FED status register flags: "; fedStatusRegister().printFlags(os); os << std::endl;
+    os << "APVe Address: " << uint16_t(apveAddress()) << std::endl;
+    os << "Enabled FE units: " << uint16_t(nFEUnitsEnabled()) << std::endl;
+  }
+
+  uint8_t FEDBufferBase::nFEUnitsEnabled() const
+  {
+    uint8_t result = 0;
+    for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+      if (feEnabled(iFE)) result++;
+    }
+    return result;
+  }
+
+  bool FEDBufferBase::checkSourceIDs() const
+  {
+    return ( (daqSourceID() >= FED_ID_MIN) &&
+	     (daqSourceID() <= FED_ID_MAX) );
+  }
+  
+  bool FEDBufferBase::checkMajorityAddresses() const
+  {
+    for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+      if (!feEnabled(iFE)) continue;
+      if (majorityAddressErrorForFEUnit(iFE)) return false;
+    }
+    return true;
+  }
+  
+  bool FEDBufferBase::channelGood(const uint8_t internalFEDChannelNum) const
+  {
+    const uint8_t feUnit = internalFEDChannelNum/FEDCH_PER_FEUNIT;
+    return ( !majorityAddressErrorForFEUnit(feUnit) && feEnabled(feUnit) && !feOverflow(feUnit) );
+  }
+  
+  bool FEDBufferBase::doChecks() const
+  {
+    return (doTrackerSpecialHeaderChecks() && doDAQHeaderAndTrailerChecks());
+  }
+
+  std::string FEDBufferBase::checkSummary() const
+  {
+    std::ostringstream summary;
+    summary << "Check buffer type valid: " << ( checkBufferFormat() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check header format valid: " << ( checkHeaderType() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check readout mode valid: " << ( checkReadoutMode() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check APVe address valid: " << ( checkAPVEAddressValid() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check FE unit majority addresses: " << ( checkMajorityAddresses() ? "passed" : "FAILED" ) << std::endl;
+    if (!checkMajorityAddresses()) {
+      summary << "FEs with majority address error: ";
+      unsigned int badFEs = 0;
+      for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+	if (!feEnabled(iFE)) continue;
+	if (majorityAddressErrorForFEUnit(iFE)) {
+	  summary << uint16_t(iFE) << " ";
+	  badFEs++;
+	}
+      }
+      summary << std::endl;
+      summary << "Number of FE Units with bad addresses: " << badFEs << std::endl;
+    }
+    summary << "Check for FE unit buffer overflows: " << ( checkNoFEOverflows() ? "passed" : "FAILED" ) << std::endl;
+    if (!checkNoFEOverflows()) {
+      summary << "FEs which overflowed: ";
+      unsigned int badFEs = 0;
+      for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
+	if (feOverflow(iFE)) {
+	  summary << uint16_t(iFE) << " ";
+	  badFEs++;
+	}
+      }
+      summary << std::endl;
+      summary << "Number of FE Units which overflowed: " << badFEs << std::endl;
+    }
+    summary << "Check for S-Link CRC errors: " << ( checkNoSlinkCRCError() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check for S-Link transmission error: " << ( checkNoSLinkTransmissionError() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check CRC: " << ( checkCRC() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check source ID is FED ID: " << ( checkSourceIDs() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check for unexpected source ID at FRL: " << ( checkNoUnexpectedSourceID() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check there are no extra headers or trailers: " << ( checkNoExtraHeadersOrTrailers() ? "passed" : "FAILED" ) << std::endl;
+    summary << "Check length from trailer: " << ( checkLengthFromTrailer() ? "passed" : "FAILED" ) << std::endl;
+    return summary.str();
   }
 
 
@@ -421,6 +600,32 @@ namespace sistrip {
        << "Cluster length is " << uint16_t(valuesLeftInCluster_) << "."
        << std::endl;
     throw cms::Exception("FEDBuffer") << ss.str();
+  }
+  
+
+
+
+  uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const
+  {
+    if (packetCode() != PACKET_CODE_ZERO_SUPPRESSED) {
+      std::ostringstream ss;
+      ss << "Request for CM median from channel with non-ZS packet code. "
+         << "Packet code is " << uint16_t(packetCode()) << "."
+         << std::endl;
+      throw cms::Exception("FEDBuffer") << ss.str();
+    }
+    if (apvIndex > 1) {
+      std::ostringstream ss;
+      ss << "Channel APV index out of range when requesting CM median for APV. "
+         << "Channel APV index is " << uint16_t(apvIndex) << "."
+         << std::endl;
+      throw cms::Exception("FEDBuffer") << ss.str();
+    }
+    uint16_t result = 0;
+    //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
+    result |= data_[(offset_+3+2*apvIndex)^7];
+    result |= ( ((data_[(offset_+4+2*apvIndex)^7]) << 8) & 0x300 );
+    return result;
   }
 
 }

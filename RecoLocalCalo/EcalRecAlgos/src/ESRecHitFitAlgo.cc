@@ -33,7 +33,7 @@ ESRecHitFitAlgo::~ESRecHitFitAlgo() {
 
 double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi) const {
   
-  double *fitresults = new double[2];
+  double *fitresults = new double[3];
   double adc[3];  
   double tx[3];
   tx[0] = -5.; 
@@ -43,13 +43,13 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi) const {
   for (int i=0; i<digi.size(); i++) 
     adc[i] = digi.sample(i).adc() - ped_;
 
-  int status = 0;
+  double status = 0;
   if (adc[0] > 20) status = 1;
   if (adc[1] < 0 || adc[2] < 0) status = 1;
   if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
   if (adc[2] > adc[1]) status = 1;  
 
-  if (status == 0) {
+  if (int(status) == 0) {
     double para[10];
     TGraph *gr = new TGraph(3, tx, adc);
     fit_->SetParameters(50, 10);
@@ -73,6 +73,7 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   results = EvalAmplitude(digi);
   double energy = results[0];
   double t0 = results[1];
+  int status = (int) results[2];
   delete results;
 
   energy *= MIPkeV_/MIPADC_;
@@ -82,6 +83,13 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
 
   LogDebug("ESRecHitFitAlgo") << "ESRecHitFitAlgo : reconstructed energy "<<energy<<" T0 "<<t0;
 
-  return EcalRecHit(digi.id(), energy, t0);
+  EcalRecHit rechit(digi.id(), energy, t0);
+
+  if (status == 0) 
+    rechit.setRecoFlag(EcalRecHit::kGood);
+  else 
+    rechit.setRecoFlag(EcalRecHit::kPoorReco);
+
+  return rechit;
 }
 

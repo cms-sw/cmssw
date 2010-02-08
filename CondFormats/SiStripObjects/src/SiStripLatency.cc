@@ -187,14 +187,6 @@ void SiStripLatency::allLatencies(vector<uint16_t> & allLatenciesVector) const
 //   return make_pair(-1, 0);
 // }
 
-vector<SiStripLatency::Latency> SiStripLatency::allUniqueLatencyAndModes()
-{
-  vector<Latency> latencyCopy(latencies_);
-  sort( latencyCopy.begin(), latencyCopy.end(), OrderByLatencyAndMode() );
-  latencyCopy.erase( unique( latencyCopy.begin(), latencyCopy.end(), SiStripLatency::EqualByLatencyAndMode() ), latencyCopy.end() );
-  return latencyCopy;
-}
-
 void SiStripLatency::printSummary(std::stringstream & ss) const
 {
   uint16_t lat = singleLatency();

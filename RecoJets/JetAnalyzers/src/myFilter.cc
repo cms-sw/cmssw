@@ -407,7 +407,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   if ( (filter_HLT) || (filter_NJets) )  {
     result = true;
-    //    _acceptedEvt++;
+    _acceptedEvt++;
   }
 
 
@@ -426,16 +426,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   if (filter_NRBX)         _passNRBX++;
   if (filter_HLT)          _passHLT++;
 
-  
-  if ((evt.id().run() == 120020) && (evt.id().event() == 457)) {
-    result = true;
-    _acceptedEvt++;
-  } else {
-    result = false;
-  }
-  //  result = true;
-  return result;
-
+  //  return result;
+  return false;
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(myFilter);

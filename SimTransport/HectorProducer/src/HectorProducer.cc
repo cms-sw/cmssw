@@ -50,6 +50,15 @@ HectorProducer::~HectorProducer(){
 
 }
 
+void HectorProducer::beginJob(const edm::EventSetup & es)
+{
+}
+
+void HectorProducer::endJob()
+{
+}
+
+
 void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
 
   using namespace edm;

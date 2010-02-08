@@ -74,25 +74,12 @@ class MomentumScaleCorrector : public BaseFunction
 
     // Loop on all the functions and apply them iteratively on the pt corrected by the previous function.
     double pt = track.pt();
-    for( int i=0; i<=iterationNum_; ++i ) {
+    for( int i=0; i<iterationNum_; ++i ) {
       // return ( scaleFunction_->scale( track.pt(), track.eta(), track.phi(), track.charge(), parScale_) );
       pt = ( scaleFunction_[i]->scale( pt, track.eta(), track.phi(), track.charge(), parArray_[i]) );
     }
     return pt;
   }
-
-  /// Alternative method that can be used with lorentzVectors.
-  template <class U>
-  double correct( const U & lorentzVector ) {
-
-    // Loop on all the functions and apply them iteratively on the pt corrected by the previous function.
-    double pt = lorentzVector.Pt();
-    for( int i=0; i<=iterationNum_; ++i ) {
-      pt = ( scaleFunction_[i]->scale( pt, lorentzVector.Eta(), lorentzVector.Phi(), 1, parArray_[i]) );
-    }
-    return pt;
-  }
-
  protected:
   /// Parser of the parameters file
   void readParameters( TString fileName );

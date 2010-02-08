@@ -13,7 +13,7 @@
 //
 // Original Author:  Puljak Ivica
 //         Created:  Wed Apr 18 12:52:31 CEST 2007
-// $Id: HZZ4lFilter.cc,v 1.3 2009/01/09 10:23:08 saout Exp $
+// $Id: HZZ4lFilter.cc,v 1.4 2009/02/17 13:57:44 saout Exp $
 //
 //
 
@@ -97,10 +97,6 @@ HZZ4lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 /*
 // ------------ method called once each job just before starting event loop  ------------
-void 
-HZZ4lFilter::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

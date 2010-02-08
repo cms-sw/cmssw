@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.19 2009/10/13 15:08:33 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.18 2009/09/18 15:17:16 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.19 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.18 $
+   * $Date: 2009/09/18 15:17:16 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -142,6 +142,9 @@ namespace stor {
     xdata::Vector<xdata::String> _diskPaths;   // list of disk paths
     xdata::Vector<xdata::UnsignedInteger32> _totalDiskSpace; // total disk space
     xdata::Vector<xdata::UnsignedInteger32> _usedDiskSpace;  // used disk space
+
+    // Unused status string from old SM
+    xdata::String _progressMarker;
 
   };
   

@@ -57,24 +57,6 @@ void L1TEventInfoClient::initialize(){
   
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   if(verbose_) cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
-    
-  thresholdLS_ = parameters_.getUntrackedParameter<int>("thresholdLS", 1);
-  if(verbose_) cout << "Minimum LS required to perform QTests = " << thresholdLS_ << " lumi section(s)"<< endl;
-
-  GCT_NonIsoEm_threshold_ = parameters_.getUntrackedParameter<double>("GCT_NonIsoEm_threshold",100000);
-  GCT_IsoEm_threshold_ = parameters_.getUntrackedParameter<double>("GCT_IsoEm_threshold",1000000);
-  GCT_TauJets_threshold_ = parameters_.getUntrackedParameter<double>("GCT_TauJets_threshold",100000);
-  GCT_AllJets_threshold_ = parameters_.getUntrackedParameter<double>("GCT_AllJets_threshold",100000);
-  GMT_Muons_threshold_ = parameters_.getUntrackedParameter<double>("GMT_Muons_threshold",100000);
-
-  if(verbose_){
-    cout << " Thresholds are as follows:" << endl;
-    cout << " \t GCT_NonIsoEm_threshold_: " << GCT_NonIsoEm_threshold_ << endl;
-    cout << " \t GCT_IsoEm_threshold_:    " << GCT_IsoEm_threshold_ << endl;
-    cout << " \t GCT_TauJets_threshold_:  " << GCT_TauJets_threshold_ << endl;
-    cout << " \t GCT_AllJets_threshold_:  " << GCT_AllJets_threshold_ << endl;
-    cout << " \t GMT_Muons_threshold_:    " << GMT_Muons_threshold_ << endl;
-  }
 
   std::vector<string> emptyMask;
 
@@ -108,7 +90,7 @@ void L1TEventInfoClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TEventInfoClient::beginJob(void){
+void L1TEventInfoClient::beginJob(const EventSetup& context){
 
   if(verbose_) cout <<"[TriggerDQM]: Begin Job" << endl;
   // get backendinterface  
@@ -202,8 +184,6 @@ void L1TEventInfoClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
 void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c){   
 
-
-  counterLS_++;
 
   MonitorElement *GMT_QHist = dbe_->get("L1T/L1TGMT/GMT_etaphi");
   MonitorElement *GCT_IsoEm_QHist = dbe_->get("L1T/L1TGCT/IsoEmRankEtaPhi");
@@ -306,10 +286,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_NonIsoEm total efficiency = " << 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh << std::endl;
 
-    double GCT_NonIsoEm_nentries = GCT_NonIsoEm_QHist->getEntries();
-    float nonisoResult = -1;
-    if( (counterLS_>=1000 && GCT_NonIsoEm_nentries==0) ) nonisoResult = 0;
-    if( (GCT_NonIsoEm_nentries>GCT_NonIsoEm_threshold_) ) nonisoResult = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
+    float nonisoResult = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
     summaryContent[1] = ( nonisoResult < (1.0+1e-10) ) ? nonisoResult : 1.0;
   }
 
@@ -347,10 +324,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_IsoEm total efficiency = " << 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh << std::endl;
 
-    double GCT_IsoEm_nentries = GCT_IsoEm_QHist->getEntries();
-    float isoResult = -1;
-    if( (counterLS_>=thresholdLS_ && GCT_IsoEm_nentries==0) ) isoResult = 0;
-    if( (GCT_IsoEm_nentries>GCT_IsoEm_threshold_) ) isoResult = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
+    float isoResult = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
     summaryContent[2] = ( isoResult < (1.0+1e-10) ) ? isoResult : 1.0;
   }
 
@@ -388,10 +362,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_TauJets total efficiency = " << 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh << std::endl;
 
-    double GCT_TauJets_nentries = GCT_TauJets_QHist->getEntries();
-    float taujetsResult = -1;
-    if( (counterLS_>=thresholdLS_ && GCT_TauJets_nentries==0) ) taujetsResult = 0;
-    if( (GCT_TauJets_nentries>GCT_TauJets_threshold_) ) taujetsResult = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
+    float taujetsResult = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
     summaryContent[3] = ( taujetsResult < (1.0+1e-10) ) ? taujetsResult : 1.0;
   }
 
@@ -429,10 +400,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_AllJets total efficiency = " << 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh << std::endl;
 
-    double GCT_AllJets_nentries = GCT_AllJets_QHist->getEntries();
-    float jetsResult = -1;
-    if( (counterLS_>=thresholdLS_ && GCT_AllJets_nentries==0) ) jetsResult = 0;
-    if( (GCT_AllJets_nentries>GCT_AllJets_threshold_) ) jetsResult = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
+    float jetsResult = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
     summaryContent[4] = ( jetsResult < (1.0+1e-10) ) ? jetsResult : 1.0;
   }
 
@@ -471,10 +439,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GMT total efficiency = " << 1 - (float)GMT_nBadCh/(float)GMT_nCh << std::endl;
 
-    double GMT_nentries = GMT_QHist->getEntries();
-    float muonResult = -1;
-    if( (counterLS_>=thresholdLS_ && GMT_nentries==0) ) muonResult = 0;
-    if( (GMT_nentries>GMT_Muons_threshold_) ) muonResult = 1.5*(1 - (float)GMT_nBadCh/(float)GMT_nCh);
+    float muonResult = 1.5*(1 - (float)GMT_nBadCh/(float)GMT_nCh);
     summaryContent[5] = ( muonResult < (1.0+1e-10) ) ? muonResult : 1.0;
   }
 
@@ -525,35 +490,35 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       case data_empty:
 	break;
       case data_all:
-	for( int m=0; m<7; m++ ) summaryContent[m] = -2;
+	for( int m=0; m<7; m++ ) summaryContent[m] = -1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       case data_gt:
-	summaryContent[6]=-2;
+	summaryContent[6]=-1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       case data_muons:
-	summaryContent[5]=-2;
+	summaryContent[5]=-1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       case data_jets:
-	summaryContent[4]=-2;
+	summaryContent[4]=-1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       case data_taujets:
-	summaryContent[3]=-2;
+	summaryContent[3]=-1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       case data_isoem:
-	summaryContent[2]=-2;
+	summaryContent[2]=-1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       case data_nonisoem:
-	summaryContent[1]=-2;
+	summaryContent[1]=-1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       case data_met:
-	summaryContent[0]=-2;
+	summaryContent[0]=-1;
 	maskedData.push_back(mask_sys_tmp);
 	break;
       default:
@@ -573,51 +538,51 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       case emul_empty:
 	break;
       case emul_all:
-	for( int m=7; m<18; m++ ) summaryContent[m] = -2;
+	for( int m=7; m<18; m++ ) summaryContent[m] = -1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_glt:
-	summaryContent[7]=-2;
+	summaryContent[7]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_gmt:
-	summaryContent[8]=-2;
+	summaryContent[8]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_rpc:
-	summaryContent[9]=-2;
+	summaryContent[9]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_ctp:
-	summaryContent[10]=-2;
+	summaryContent[10]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_ctf:
-	summaryContent[11]=-2;
+	summaryContent[11]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_dtp:
-	summaryContent[12]=-2;
+	summaryContent[12]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_dtf:
-	summaryContent[13]=-2;
+	summaryContent[13]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_htp:
-	summaryContent[14]=-2;
+	summaryContent[14]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_etp:
-	summaryContent[15]=-2;
+	summaryContent[15]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_gct:
-	summaryContent[16]=-2;
+	summaryContent[16]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       case emul_rct:
-	summaryContent[17]=-2;
+	summaryContent[17]=-1;
 	maskedEmul.push_back(mask_sys_tmp);
 	break;
       default:
@@ -629,7 +594,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   int numUnMaskedSystems = 0;
   for( int m=0; m<nsys_; m++ ){
-    if( summaryContent[m]>-1e-5){
+    if( summaryContent[m]!=-1){
       if( m<7 ){
 	summarySum += summaryContent[m];
 	numUnMaskedSystems++;

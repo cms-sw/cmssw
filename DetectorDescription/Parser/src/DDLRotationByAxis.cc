@@ -31,7 +31,7 @@
 
 
 // Default constructor
-DDLRotationByAxis::DDLRotationByAxis(  DDLElementRegistry* myreg ) : DDXMLElement(myreg) 
+DDLRotationByAxis::DDLRotationByAxis() 
 {
 }
 
@@ -40,13 +40,15 @@ DDLRotationByAxis::~DDLRotationByAxis()
 {
 }
 
-void DDLRotationByAxis::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLRotationByAxis::preProcessElement (const std::string& name
+					   , const std::string& nmspace)
 {
   pNameSpace = nmspace;
   pName = name;
 }
 
-void DDLRotationByAxis::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLRotationByAxis::processElement (const std::string& name
+					, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLRotationByAxis::processElement started " << name);
 
@@ -64,8 +66,7 @@ void DDLRotationByAxis::processElement (const std::string& name, const std::stri
       if (atts.find("name") == atts.end())
 	{
 	  //how do we make up a ddname! damn_it!
-	  //          DDXMLElement * myRealParent = DDLElementRegistry::instance()->getElement(parent());
-          DDXMLElement * myRealParent = myRegistry_->getElement(parent());
+          DDXMLElement * myRealParent = DDLElementRegistry::instance()->getElement(parent());
 	  DDName pName = myRealParent->getDDName(nmspace);
 	  std::string tn = pName.name() + std::string("Rotation");
 	  std::vector<std::string> names;
@@ -78,7 +79,7 @@ void DDLRotationByAxis::processElement (const std::string& name, const std::stri
 	  //no need, used already values.push_back(atts.find("axis")->second);
 	  //no need, used already values.push_back(atts.find("angle")->second);
 	  clear();
-	  loadAttributes(name, names, values, nmspace, cpv);
+	  loadAttributes(name, names, values, nmspace);
 	}
       DDRotation rot = DDrot(getDDName(nmspace), ddr);
       

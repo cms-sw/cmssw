@@ -80,11 +80,9 @@ public:
 
   struct FELevelErrors {
     unsigned short FeID;
-    unsigned short SubDetID;
     bool Overflow;
     bool Missing;
     bool BadMajorityAddress;
-    int TimeDifference;
   };
 
   struct ChannelLevelErrors {
@@ -207,7 +205,6 @@ private:
   unsigned int fedID_;
 
   bool connected_[sistrip::FEDCH_PER_FED];
-  unsigned short subDetId_[sistrip::FEUNITS_PER_FED];
 
   FECounters feCounter_;
   FEDLevelErrors fedErrors_;

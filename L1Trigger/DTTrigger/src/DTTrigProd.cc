@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2009/11/02 14:18:31 $
- *   $Revision: 1.14 $
+ *   $Date: 2008/09/05 16:06:35 $
+ *   $Revision: 1.12 $
  *
  *   \author C. Battilana
  *
@@ -53,8 +53,6 @@ DTTrigProd::DTTrigProd(const ParameterSet& pset) : my_trig(0) {
   my_DTTFnum = pset.getParameter<bool>("DTTFSectorNumbering");
   my_params = pset;
 
-  my_lut_dump_flag = pset.getUntrackedParameter<bool>("lut_dump_flag");
-  my_lut_btic = pset.getUntrackedParameter<int>("lut_btic");
 }
 
 DTTrigProd::~DTTrigProd(){
@@ -108,12 +106,6 @@ void DTTrigProd::beginRun(edm::Run& iRun, const edm::EventSetup& iEventSetup) {
     my_trig->createTUs(iEventSetup);
     if (my_debug)
       cout << "[DTTrigProd] TU's Created" << endl;
-
-    //SV 090903 check luts
-    if(my_lut_dump_flag) {
-    	cout << "Dumping luts...." << endl;
-    	my_trig->dumpLuts(my_lut_btic, dtConfig.product());
-    }	
   }
 
 }

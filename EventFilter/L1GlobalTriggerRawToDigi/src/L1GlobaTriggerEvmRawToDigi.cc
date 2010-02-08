@@ -541,6 +541,12 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
                     m_tcsWord->unpack(ptrGt);
 
+                    // add 1 to the GT luminosity number to use the same convention as
+                    // offline, where LS number starts with 1;
+                    // in GT hardware, LS starts with 0
+                    boost::uint16_t lsNr = m_tcsWord->luminositySegmentNr() + 1;
+                    m_tcsWord->setLuminositySegmentNr(lsNr);
+
                     // add TCS block to GT EVM readout record
                     gtReadoutRecord->setTcsWord(*m_tcsWord);
 
@@ -570,6 +576,12 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                         if ( ( iFdl >= m_lowSkipBxInEvent ) && ( iFdl < m_uppSkipBxInEvent )) {
 
                             m_gtFdlWord->unpack(ptrGt);
+
+                            // add 1 to the GT luminosity number to use the same convention as
+                            // offline, where LS number starts with 1;
+                            // in GT hardware, LS starts with 0
+                            boost::uint16_t lsNr = m_gtFdlWord->lumiSegmentNr() + 1;
+                            m_gtFdlWord->setLumiSegmentNr(lsNr);
 
                             // add FDL block to GT readout record
                             gtReadoutRecord->setGtFdlWord(*m_gtFdlWord);

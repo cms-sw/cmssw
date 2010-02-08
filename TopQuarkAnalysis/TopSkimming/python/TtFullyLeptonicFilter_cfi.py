@@ -23,11 +23,14 @@ ttFullyLeptonicFilter = cms.EDFilter("TtDecayChannelFilter",
       )
     ),
 
-    ## allow different types of tau decay channels
-    allowedTauDecays = cms.PSet(
-      leptonic   = cms.bool(False),
-      oneProng   = cms.bool(False),
-      threeProng = cms.bool(False)
+    ## add a restriction to the decay channel of taus
+    ## by redefining the following ParameterSet in
+    ## your cfg file; the following restrictions are
+    ## available:
+    restrictTauDecays = cms.PSet(
+    #  leptonic   = cms.bool(False),
+    #  oneProng   = cms.bool(False),
+    #  threeProng = cms.bool(False)
     )
 )
 

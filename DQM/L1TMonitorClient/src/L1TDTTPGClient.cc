@@ -57,7 +57,7 @@ void L1TDTTPGClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TDTTPGClient::beginJob(void){
+void L1TDTTPGClient::beginJob(const EventSetup& context){
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
 

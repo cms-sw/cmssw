@@ -17,22 +17,15 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_3_1
-setenv CMSSWver2 3_3_5
-setenv OLDRELEASE 331
-setenv NEWRELEASE 335
+setenv CMSSWver1 3_1_2
+setenv CMSSWver2 3_3_0
+setenv OLDRELEASE 312
+setenv NEWRELEASE 330
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv NEWPRERELEASE pre3
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
-
-#setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/slc5_ia32_gcc434/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
-
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -46,10 +39,14 @@ setenv SAMPLE QCD_Pt_80_120STARTUP
 #Input root trees for the two cases to be compared 
 
 
+
+#setenv OLDFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_3_1_1/src/Validation/RecoEgamma/test/results/${SAMPLE}_total.root
+#setenv NEWFILE /afs/cern.ch/user/n/nancy/scratch0/PreProductionValidation/CMSSW_3_1_1/src/Validation/RecoEgamma/test/results/${SAMPLE}_total.root
+
 if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 
 
 endif

@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/10/15 19:57:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/26 16:43:30 $
+ *  $Revision: 1.2 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -109,7 +109,8 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   std::vector<double> parametersPhi_;
   std::vector<double> parametersTurnOn_;
 
-  double       cutMinPt_;
+  std::map<std::string, double> cutsMinPt_;
+
   double       cutMaxEta_;
   unsigned int cutMotherId_;
   std::vector<double> cutsDr_;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.14 2009/06/25 09:05:50 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.13 2009/02/25 10:36:04 kaussen Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -213,7 +213,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
   //&&&&&&&&&&&&&&&&&&
 
   ss.str("");
-  ss << "\n-----------------\nNew IOV starting from run " <<   e.id().run() << " event " << e.id().event() << " lumiBlock " << e.luminosityBlock() << " time " << e.time().value() << " chacheID " << m_cacheID_ << "\n-----------------\n";
+  ss << "\n-----------------\nNew IOV starting from run " <<   e.id().run() << "\n-----------------\n";
   ss << "\n-----------------\nGlobal Info\n-----------------";
   ss << "\nBadComponent \t   Modules \tFibers \tApvs\tStrips\n----------------------------------------------------------------";
   ss << "\nTracker:\t\t"<<NTkBadComponent[0]<<"\t"<<NTkBadComponent[1]<<"\t"<<NTkBadComponent[2]<<"\t"<<NTkBadComponent[3];

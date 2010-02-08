@@ -12,8 +12,8 @@ typedef ObjectSelector<
           reco::TrackCollection,
           ::TrackWithVertexSelector,
           reco::TrackRefVector 
-          >
-  > TrackWithVertexRefSelector;
+          >,
+  reco::TrackRefVector > TrackWithVertexRefSelector;
 
 DEFINE_FWK_MODULE(TrackWithVertexRefSelector);
 

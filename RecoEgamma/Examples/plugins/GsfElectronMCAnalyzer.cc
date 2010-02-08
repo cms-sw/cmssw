@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.45 2009/11/10 16:36:44 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.42 2009/10/06 09:42:06 chamont Exp $
 //
 //
 
@@ -50,7 +50,7 @@
 using namespace reco;
 
 GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
- {
+{
   outputFile_ = conf.getParameter<std::string>("outputFile");
   histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
   electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
@@ -111,7 +111,8 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   nbinhoe= pset.getParameter<int>("Nbinhoe");
   hoemin=pset.getParameter<double>("Hoemin");
   hoemax=pset.getParameter<double>("Hoemax");
- }
+
+}
 
 void GsfElectronMCAnalyzer::beginJob(){
 
@@ -440,7 +441,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclE5x5_eg_endcaps_ =  new TH1F("h_scl_E5x5_eg_endcaps","ele supercluster energy in 5x5, ecal driven endcaps",nbinp,0.,pmax);
   histSclE5x5_eg_endcaps_->Sumw2();
 
-  histSclEoEtruePfVsEg = new TH2F("h_scl_EoEtruePfVsEg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4);
+  histSclEoEtruePfVsEg = new TH2F("h_scl_EoEtruePfVseg","ele supercluster energy / gen energy pflow vs eg",75,-0.1,1.4, 75, -0.1, 1.4);
 
   // matched electron, gsf tracks
   h_ele_ambiguousTracks      = new TH1F( "h_ele_ambiguousTracks", "ele # ambiguous tracks",  5,0.,5.);
@@ -1856,9 +1857,8 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  double mc_charge = mcIter->pdgId() == 11 ? -1. : 1. ;
 	  h_ele_ChargeMnChargeTrue  -> Fill( fabs(gsfIter->charge()-mc_charge));
 	  // require here a charge mismatch
-	  if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) ) ||
-	       ( (mcIter->pdgId() == -11) && (gsfIter->charge() < 0.) ) )
-	   {
+	  if ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) || (mcIter->pdgId() == -11) &&
+	  (gsfIter->charge() < 0.) ){
 	    double tmpGsfRatio = gsfIter->p()/mcIter->p();
 	    if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
 	      gsfOkRatio = tmpGsfRatio;
@@ -1870,8 +1870,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       } // loop over rec ele to look for the best one
 
       // analysis when the mc track is found
-      if (okGsfFound)
-       {
+      if (okGsfFound){
 
 	// generated distributions for matched electrons
 	h_ele_simPt_matched_qmisid      -> Fill( mcIter->pt() );
@@ -1880,7 +1879,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	h_ele_simEta_matched_qmisid     -> Fill( mcIter->eta() );
 	h_ele_simZ_matched_qmisid     -> Fill( mcIter->vz() );
 
-       }
+      }
       }
     }
 
@@ -1941,9 +1940,8 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
     	double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
-	  if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
-	       ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )
-	   {
+	  if ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) || (mcIter->pdgId() == -11) &&
+	  (gsfIter->charge() > 0.) ){
 	    double tmpGsfRatio = gsfIter->p()/mcIter->p();
 	    if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
 	      gsfOkRatio = tmpGsfRatio;

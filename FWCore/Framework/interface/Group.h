@@ -27,6 +27,7 @@ namespace edm {
   struct GroupData {
     explicit GroupData(boost::shared_ptr<ConstBranchDescription> bd) :
        branchDescription_(bd),
+       pid_(),
        product_(),
        prov_() {}
     ~GroupData() {}
@@ -36,6 +37,7 @@ namespace edm {
 
     void swap(GroupData& other) {
        branchDescription_.swap(other.branchDescription_);
+       edm::swap(pid_, other.pid_);
        product_.swap(other.product_);
        prov_.swap(other.prov_);
     }
@@ -43,6 +45,7 @@ namespace edm {
       branchDescription_.swap(bd);
     }
     void resetGroupData() {
+      pid_.reset();
       product_.reset();
       prov_.reset();
     }
@@ -51,6 +54,7 @@ namespace edm {
     boost::shared_ptr<ConstBranchDescription> branchDescription_;
 
     // "non-const data" (updated every event)
+    ProductID pid_;
     mutable boost::shared_ptr<EDProduct> product_;
     mutable boost::shared_ptr<Provenance> prov_;
   };
@@ -82,10 +86,10 @@ namespace edm {
     boost::shared_ptr<EDProduct> product() const { return groupData().product_; }
 
     // Retrieves shared pointer to the per event(lumi)(run) provenance. 
-    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenancePtr();}
+    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return provenance()->productProvenanceSharedPtr();}
 
     // Sets the pointer to the per event(lumi)(run) provenance. 
-    void setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const;
+    void setProvenance(boost::shared_ptr<ProductProvenance> prov) const;
 
     // Retrieves a reference to the event independent provenance.
     ConstBranchDescription const& branchDescription() const {return *groupData().branchDescription_;}
@@ -104,12 +108,6 @@ namespace edm {
 
     // Retrieves pointer to a class containing both the event independent and the per even provenance.
     Provenance* provenance() const;
-   
-    // Initializes the event independent portion of the provenance, plus the product ID and the mapper.
-    void setProvenance(boost::shared_ptr<BranchMapper> mapper, ProductID const& pid);
-
-    // Initializes the event independent portion of the provenance, plus the mapper.
-    void setProvenance(boost::shared_ptr<BranchMapper> mapper);
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
@@ -127,7 +125,10 @@ namespace edm {
     bool isMatchingSequence(Reflex::Type const& wanted) const;
 
     // Retrieves the product ID of the product.
-    ProductID const& productID() const {return groupData().prov_->productID();};
+    ProductID const& productID() const {return groupData().pid_;};
+
+    // Sets the product ID of the product.
+    void setProductID(ProductID const& pid) {groupData().pid_ = pid;};
 
     // Puts the product and its per event(lumi)(run) provenance into the Group.
     void putProduct(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) {
@@ -162,6 +163,11 @@ namespace edm {
     // Merges two instances of the product.
     void mergeTheProduct(std::auto_ptr<EDProduct> edp) const;
 
+    // Resolves the per event(lumi)(run) provenance (read from input).
+    void resolveProvenance(boost::shared_ptr<BranchMapper> store) const {
+      resolveProvenance_(store);
+    }
+ 
     // checks that the product is of the expected type.  Throws if not.
     void checkType(EDProduct const& prod) const {
       groupData().checkType(prod);
@@ -182,6 +188,7 @@ namespace edm {
     virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) = 0;
     virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const = 0;
     virtual bool putOrMergeProduct_() const = 0;
+    virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const = 0;
     virtual void resetStatus() = 0;
   };
 
@@ -193,14 +200,29 @@ namespace edm {
   }
 
   class InputGroup : public Group {
+    enum GroupStatus {
+      Present = 0,
+      NeverCreated = 1,
+      Dropped = 2,
+      NotRun = 3,
+      NotCompleted = 4,
+      NotPut = 5,
+      UnscheduledNotRun = 6,
+      Unknown = 0xfe,
+      Uninitialized = 0xff
+    };
     public:
       explicit InputGroup(boost::shared_ptr<ConstBranchDescription> bd) :
-	Group(), groupData_(bd), productIsUnavailable_(false) {}
+	Group(), groupData_(bd), theStatus_(Uninitialized), productIsUnavailable_(false) {}
       virtual ~InputGroup();
+      GroupStatus const& status() const {return theStatus_;}
 
-      // The following is const because we can add an EDProduct to the
+      // The following are const because we can add an EDProduct to the
       // cache after creation of the Group, without changing the meaning
       // of the Group.
+      void updateStatus() const;
+      void setStatus(ProductStatus const&) const;
+      // Sets the pointer to the product
       void setProduct(std::auto_ptr<EDProduct> prod) const;
       bool productIsUnavailable() const {return productIsUnavailable_;}
       void setProductUnavailable() const {productIsUnavailable_ = true;}
@@ -209,6 +231,7 @@ namespace edm {
       virtual void swap_(Group& rhs) {
 	InputGroup& other = dynamic_cast<InputGroup&>(rhs);
 	edm::swap(groupData_, other.groupData_);
+	std::swap(theStatus_, other.theStatus_);
         std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
       virtual void putProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
@@ -216,12 +239,14 @@ namespace edm {
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
-      virtual void resetStatus() {productIsUnavailable_ = false;}
+      virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const;
+      virtual void resetStatus() {theStatus_ = Uninitialized; productIsUnavailable_ = false;}
       virtual bool onDemand_() const {return false;}
       virtual bool productUnavailable_() const;
       virtual GroupData const& groupData() const {return groupData_;} 
       virtual GroupData& groupData() {return groupData_;} 
       GroupData groupData_;
+      mutable GroupStatus theStatus_;
       mutable bool productIsUnavailable_;
   };
 
@@ -253,6 +278,7 @@ namespace edm {
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
       virtual bool putOrMergeProduct_() const;
+      virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const;
       virtual GroupStatus const& status_() const = 0;
       virtual GroupStatus& status_() = 0;
       virtual bool productUnavailable_() const;

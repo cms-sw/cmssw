@@ -395,21 +395,6 @@ void TrackerHitAssociator::associateSiStripRecHit1D(const SiStripRecHit1D * simp
   associateSimpleRecHitCluster(clust,simtrackid);
 }
 
-void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust, std::vector<SimHitIdpr>& theSimtrackid, std::vector<PSimHit>& simhit)
-{
-// Caller needs to clear simhit before calling this function
-
-  //initialize vector
-  theSimtrackid.clear();
-  //initialize class vector
-  simhitCFPos.clear();
-
-  associateSimpleRecHitCluster(clust, theSimtrackid);
-
-  for(size_t i=0; i<simhitCFPos.size(); i++){
-    simhit.push_back(TrackerHits.getObject(simhitCFPos[i]));
-  }
-}
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust, std::vector<PSimHit>& simhit)
 {
@@ -455,8 +440,8 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
       int first  = clust->firstStrip();     
       int last   = first + clusiz;
       
-//       std::cout << "CLUSTERSIZE " << clusiz << " first strip = " << first << " last strip = " << last-1 << std::endl;
-//       std::cout << " detID = " << detID << " DETSET size = " << link_detset.data.size() << std::endl;
+      //    std::cout << "CLUSTERSIZE " << clusiz << " first strip = " << first << " last strip = " << last << std::endl;
+      //   std::cout << " DETSET size = " << link_detset.data.size() << std::endl;
       //use a vector
       std::vector<SimHitIdpr> idcachev;
       std::vector<int> CFposcachev;
@@ -466,8 +451,6 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 	if( (int)(linkiter->channel()) >= first  && (int)(linkiter->channel()) < last ){
 	  
 	  //check this digisimlink
-// 	  printf("%s%4d%s%8d%s%3d%s%8.4f\n", "CHANNEL = ", linkiter->channel(), " TrackID = ", linkiter->SimTrackId(),
-// 		 " Process = ", TrackerHits.getObject(linkiter->CFposition()-1).processType(), " fraction = ", linkiter->fraction());
 	  /*
 	    std::cout << "CHECKING CHANNEL  = " << linkiter->channel()   << std::endl;
 	    std::cout << "TrackID  = " << linkiter->SimTrackId()  << std::endl;

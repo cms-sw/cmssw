@@ -18,6 +18,7 @@ process.source = cms.Source("PoolSource",
      #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/r/rompotis/RedigiSummer08RootTrees/WenuRedigi_RECO_SAMPLE.root')
      fileNames = cms.untracked.vstring(
     'file:zee_Summer09-MC_31X_V3_AODSIM_v1_AODSIM.root'
+    #'file:/tmp/rompotis/Run123505_LS70-80_BscMinBiasInnerThreshold.root',
     )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -26,6 +27,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
+## >>>> to run with data
+# process.GlobalTag.globaltag = cms.string('GR09_P_V7::All')
+## >>>> to run MC summer09 production
 process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
 #process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -69,7 +73,7 @@ process.eidRobustHighEnergy.reducedEndcapRecHitCollection = cms.InputTag("reduce
 ##                                                                                             #%%
 ## if you don't specify anything the default MET is the raw Calo MET                           #%%
 process.layer1RawCaloMETs = process.layer1METs.clone(                                          #%%
-    metSource = cms.InputTag("met","","RECO"),
+    metSource = cms.InputTag("met"),
     addTrigMatch = cms.bool(False),
     addMuonCorrections = cms.bool(False),
     addGenMET = cms.bool(False),
@@ -77,8 +81,7 @@ process.layer1RawCaloMETs = process.layer1METs.clone(                           
 ## specify here what you want to have on the plots! <===== MET THAT YOU WANT ON THE PLOTS  %%%%%%%
 myDesiredMetCollection = 'layer1RawCaloMETs'
 ## modify the sequence of the MET creation:                                                    #%%
-process.makeLayer1METs = cms.Sequence(process.patMETCorrections * process.layer1METs *
-                                      process.layer1RawCaloMETs)
+process.makeLayer1METs = cms.Sequence(process.layer1RawCaloMETs)
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## modify the final pat sequence: keep only electrons + METS (muons are needed for met corrections)
 process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
@@ -108,6 +111,15 @@ process.allLayer1Electrons.userIsolation = cms.PSet(
 process.allLayer1Electrons.isoDeposits = cms.PSet()
 process.allLayer1Electrons.addElectronID = cms.bool(False)
 process.allLayer1Electrons.electronIDSources = cms.PSet()
+process.allLayer1Electrons.addGenMatch = cms.bool(False)
+process.allLayer1Electrons.embedGenMatch = cms.bool(False)
+process.allLayer1Electrons.embedHighLevelSelection = cms.bool(False)
+##
+process.allLayer1Muons.addGenMatch = cms.bool(False)
+process.allLayer1Muons.embedGenMatch = cms.bool(False)
+##
+process.makeAllLayer1Electrons = cms.Sequence(process.patElectronIsolation*process.allLayer1Electrons)
+process.makeAllLayer1Muons = cms.Sequence(process.allLayer1Muons)
 #
 process.allLayer1Objects = cms.Sequence(process.makeAllLayer1Electrons+process.makeAllLayer1Muons+process.makeLayer1METs)
 process.selectedLayer1Objects = cms.Sequence(process.selectedLayer1Electrons+process.selectedLayer1Muons)
@@ -123,7 +135,8 @@ process.patDefaultSequence = cms.Sequence(process.allLayer1Objects * process.sel
 ##  the filter to select the candidates from the data samples
 ##
 ## WARNING: you may want to modify this item:  T R I G G E R     S E L E C T I O N
-HLT_process_name = "HLT8E29"   # options: HLT or HLT8E29
+HLT_process_name = "HLT8E29"   # options: HLT or HLT8E29 >>>>>>> to run with summer09 samples
+# HLT_process_name = "HLT"   # >>>>>>> to run with data
 # trigger path selection
 HLT_path_name    = "HLT_Ele15_LW_L1R"
 # trigger filter name
@@ -133,6 +146,7 @@ process.zeeFilter = cms.EDFilter('ZeeCandidateFilter',
                                  # cuts
                                  ETCut = cms.untracked.double(20.),
                                  METCut = cms.untracked.double(0.),
+                                 useTriggerInfo = cms.untracked.bool(False),
                                  # trigger
                                  triggerCollectionTag = cms.untracked.InputTag("TriggerResults","",HLT_process_name),
                                  triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLT_process_name),
@@ -169,12 +183,33 @@ selection_inverse = cms.PSet (
     trackIso_EB_inv = cms.untracked.bool(True),
     trackIso_EE_inv = cms.untracked.bool(True)
     )
+selection_secondLeg = cms.PSet (
+    ## set this to true if you want to switch on diff 2nd leg selection
+    useDifferentSecondLegSelection = cms.untracked.bool(True),
+    ##
+    trackIso2_EB = cms.untracked.double(7.2),
+    ecalIso2_EB = cms.untracked.double(5.7),
+    hcalIso2_EB = cms.untracked.double(8.1),
+    sihih2_EB = cms.untracked.double(0.01),
+    dphi2_EB = cms.untracked.double(1000.),
+    deta2_EB = cms.untracked.double(0.0071),
+    hoe2_EB = cms.untracked.double(1000),
+    
+    trackIso2_EE = cms.untracked.double(5.1),
+    ecalIso2_EE = cms.untracked.double(5.0),
+    hcalIso2_EE = cms.untracked.double(3.4),
+    sihih2_EE = cms.untracked.double(0.028),
+    dphi2_EE = cms.untracked.double(1000.),
+    deta2_EE = cms.untracked.double(0.0066),
+    hoe2_EE = cms.untracked.double(1000.)
+    )
 
 ####################################################################################
 ##
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('ZeePlots',
                                  selection_a2,
+                                 selection_secondLeg,
                                  zeeCollectionTag = cms.untracked.InputTag("zeeFilter","selectedZeeCandidates","PAT")
                                  )
 

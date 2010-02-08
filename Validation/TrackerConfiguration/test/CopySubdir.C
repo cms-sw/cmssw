@@ -1,6 +1,6 @@
 void CopyDir(TDirectory *source) {
    //copy all objects and subdirs of directory source as a subdir of the current directory   
-  //   source->ls();
+   source->ls();
    TDirectory *savdir = gDirectory;
    TDirectory *adir = savdir->mkdir(source->GetName());
    adir->cd();
@@ -37,28 +37,25 @@ void CopyDir(TDirectory *source) {
 void CopySubdir(const char * oldfile, const char * newfile){
 
   TFile *oldf = TFile::Open(oldfile);
-  //  oldf->cd("DQMData/Run 1/Tracking");
-  //  TDirectory *dirtracking=gDirectory;
+  oldf->cd("DQMData/Run 1/Tracking");
+  TDirectory *dirtracking=gDirectory;
   oldf->cd("DQMData/Run 1/TrackerHitsV");
   TDirectory *dirsimhit=gDirectory;
   oldf->cd("DQMData/Run 1/TrackerRecHitsV");
   TDirectory *dirrechits=gDirectory;
   oldf->cd("DQMData/Run 1/TrackerDigisV");
   TDirectory *dirdigis=gDirectory;
-  oldf->cd("DQMData/Run 1/TrackingMCTruthV");
+  oldf->cd("DQMData/Run 1/Tracking");
   TDirectory *dirTP=gDirectory;
-  oldf->cd("DQMData/Run 1/RecoTrackV");
-  TDirectory *dirtrackingrechits=gDirectory;
   TFile *newf =new TFile(newfile,"RECREATE");
   TDirectory *dirnew=newf->mkdir("DQMData");
   dirnew=dirnew->mkdir("Run 1");
   dirnew->cd();
-  //  CopyDir(dirtracking);
+  CopyDir(dirtracking);
   CopyDir(dirsimhit);
   CopyDir(dirrechits);
   CopyDir(dirdigis);
   CopyDir(dirTP);
-  CopyDir(dirtrackingrechits);
   TList* new_list = oldf->GetListOfKeys() ;
   newf->cd();
   TIter     newkey_iter( new_list) ;

@@ -13,7 +13,7 @@ class testReader : public edm::EDAnalyzer {
  public:
   testReader(const edm::ParameterSet&);
   virtual ~testReader();
-  virtual void beginJob() {}  
+  virtual void beginJob( const edm::EventSetup& );  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
  private:

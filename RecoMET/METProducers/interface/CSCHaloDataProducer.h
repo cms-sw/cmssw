@@ -138,9 +138,17 @@ namespace reco
     virtual void produce(edm::Event&, const edm::EventSetup&);
     virtual void beginRun(edm::Run&, const edm::EventSetup&);
     virtual void endRun(edm::Run&, const edm::EventSetup&);
+
+    //CSCHaloAlgo
+    
+    CSCHaloAlgo CSCAlgo;
     
     //Digi Level
     edm::InputTag IT_L1MuGMTReadout;
+
+    //HLT
+    edm::InputTag IT_HLTResult;
+    std::vector< edm::InputTag > vIT_HLTBit  ;
 
     //RecHit Level
     edm::InputTag IT_CSCRecHit;

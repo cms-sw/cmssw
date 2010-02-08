@@ -1,4 +1,3 @@
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "Rtypes.h"
 #include "TROOT.h"
 #include "TEnv.h"
@@ -9,6 +8,7 @@
 #include "TApplication.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include <iostream>
+#include <fstream>
 #include <string.h>
 #include <memory>
 
@@ -69,7 +69,6 @@ void run_app(TApplication &app, int argc, char **argv)
    edm::MessageLoggerQ::setMLscribe_ptr(boost::shared_ptr<edm::service::AbstractMLscribe>(new SilentMLscribe));
    edm::MessageDrop::instance()->messageLoggerScribeIsRunning = edm::MLSCRIBE_RUNNING_INDICATOR;
    //---------------------
-   AutoLibraryLoader::enable();
    std::auto_ptr<CmsShowMain> pMain( new CmsShowMain(argc,argv) );
    app.Run();
    pMain.reset();
@@ -87,6 +86,15 @@ int main (int argc, char **argv)
    char** dummyArgv = const_cast<char**>(dummyArgvArray);
    int dummyArgc = 1;
    gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
+
+   // print version
+   TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
+   gSystem->ExpandPathName(infoFileName); 
+   ifstream infoFile(infoFileName);
+   TString infoText;
+   infoText.ReadLine(infoFile);
+   infoFile.close();
+   printf("Starting cmsShow, version %s\n", infoText.Data());
 
    // check root interactive promp
    bool isri = false;
@@ -111,7 +119,6 @@ int main (int argc, char **argv)
       TRint app("cmsShow", &dummyArgc, dummyArgv);
       run_app(app,argc, argv);
    } else {
-      std::cout <<"starting"<<std::endl;
       TApplication app("cmsShow", &dummyArgc, dummyArgv); 
       run_app(app, argc, argv);
    }

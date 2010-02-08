@@ -112,18 +112,11 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	}
     }
 
-  Handle<TriggerEventWithRefs> trigEv;
   //get The triggerEvent
-     bool gotTEV =true;
-     try {
-       gotTEV*=iEvent.getByLabel(triggerEventObject_,trigEv);
-     }
-     catch (cms::Exception& exception) {
-       gotTEV =false;
-     }
 
 
-  if(gotTEV)
+  Handle<TriggerEventWithRefs> trigEv;
+  if(iEvent.getByLabel(triggerEventObject_,trigEv))
     {
 
       if (trigEv.isValid()) 

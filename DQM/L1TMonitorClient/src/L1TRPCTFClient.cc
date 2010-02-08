@@ -59,7 +59,7 @@ void L1TRPCTFClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TRPCTFClient::beginJob(void){
+void L1TRPCTFClient::beginJob(const EventSetup& context){
 
   LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
 

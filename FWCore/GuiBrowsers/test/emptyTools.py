@@ -44,27 +44,20 @@ class ToolName(ConfigToolBase):
         ### the setParameter method provides checks about type and about values (if supported ones are specified in addParameter - Range )
         self.setParameter('parName',parName)
         self.setParameter('parName2',parName)
-        ### apply tool by calling method apply
+        ### apply tool by calling method apply defined in the base class. i calls toolCode method.
         self.apply(process) 
         
-    def apply(self, process):
+    def toolCode(self, process):
+        
         ### rename parameter names just to avoid change the old code        
         parName=self._parameters['parName'].value
         parName2=self._parameters['parName2'].value
-        ### put the following two line to make tool working even outside the ConfigEditor
-        ### disableRecording() does not allow to store in the history tools called by the main one
-        if hasattr(process, "addAction"):
-            process.disableRecording()
-
-
+     
+      
         ### PUT HERE THE TOOL CODE
 
-        ### enableRecording() restores the history recording
-        if hasattr(process, "addAction"):
-            process.enableRecording()
-            ### copy the tool and add it to the history
-            action=self.__copy__()
-            process.addAction(action)
+       
+       
 
 ### instance of the tool class
 ### it allows the user to run old configuration files without change anything, 

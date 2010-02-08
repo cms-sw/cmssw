@@ -25,9 +25,6 @@ namespace edm {
       addToProcessHistory();
     }
     mapper->processHistoryID() = processHistoryID();
-    for (const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
-      (*i)->setProvenance(mapper);
-    }
   }
 
   void 
@@ -54,6 +51,9 @@ namespace edm {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       Group const& g = **i;
       if (!g.branchDescription().produced()) {
+        if (g.provenanceAvailable()) {
+	  g.resolveProvenance(branchMapperPtr());
+        }
         if (!g.productUnavailable()) {
           resolveProductImmediate(g);
         }

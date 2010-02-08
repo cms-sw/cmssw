@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/11/09 10:19:49 $
- * $Revision: 1.79 $
+ * $Date: 2009/08/17 09:58:24 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -24,7 +24,6 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -83,7 +82,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   meEBLaserDigiOccupancy_ = 0;
   meEBPedestalDigiOccupancy_ = 0;
 
-  recHitEnergyMin_ = 0.300; // GeV
+  recHitEnergyMin_ = 0.150; // GeV
   trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
 
 }
@@ -184,11 +183,11 @@ void EBOccupancyTask::setup(void){
     meEBDigiOccupancy_->setAxisTitle("jphi", 1);
     meEBDigiOccupancy_->setAxisTitle("jeta", 2);
     sprintf(histo, "EBOT digi occupancy projection eta");
-    meEBDigiOccupancyProjEta_ = dqmStore_->book1DD(histo, histo, 34, -85., 85.);
+    meEBDigiOccupancyProjEta_ = dqmStore_->book1D(histo, histo, 34, -85., 85.);
     meEBDigiOccupancyProjEta_->setAxisTitle("jeta", 1);
     meEBDigiOccupancyProjEta_->setAxisTitle("number of digis", 2);
     sprintf(histo, "EBOT digi occupancy projection phi");
-    meEBDigiOccupancyProjPhi_ = dqmStore_->book1DD(histo, histo, 72, 0., 360.);
+    meEBDigiOccupancyProjPhi_ = dqmStore_->book1D(histo, histo, 72, 0., 360.);
     meEBDigiOccupancyProjPhi_->setAxisTitle("jphi", 1);
     meEBDigiOccupancyProjPhi_->setAxisTitle("number of digis", 2);
 
@@ -197,11 +196,11 @@ void EBOccupancyTask::setup(void){
     meEBRecHitOccupancy_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancy_->setAxisTitle("jeta", 2);
     sprintf(histo, "EBOT rec hit occupancy projection eta");
-    meEBRecHitOccupancyProjEta_ = dqmStore_->book1DD(histo, histo, 34, -85., 85.);
+    meEBRecHitOccupancyProjEta_ = dqmStore_->book1D(histo, histo, 34, -85., 85.);
     meEBRecHitOccupancyProjEta_->setAxisTitle("jeta", 1);
     meEBRecHitOccupancyProjEta_->setAxisTitle("number of hits", 2);
     sprintf(histo, "EBOT rec hit occupancy projection phi");
-    meEBRecHitOccupancyProjPhi_ = dqmStore_->book1DD(histo, histo, 72, 0., 360.);
+    meEBRecHitOccupancyProjPhi_ = dqmStore_->book1D(histo, histo, 72, 0., 360.);
     meEBRecHitOccupancyProjPhi_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancyProjPhi_->setAxisTitle("number of hits", 2);
 
@@ -210,11 +209,11 @@ void EBOccupancyTask::setup(void){
     meEBRecHitOccupancyThr_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancyThr_->setAxisTitle("jeta", 2);
     sprintf(histo, "EBOT rec hit thr occupancy projection eta");
-    meEBRecHitOccupancyProjEtaThr_ = dqmStore_->book1DD(histo, histo, 34, -85., 85.);
+    meEBRecHitOccupancyProjEtaThr_ = dqmStore_->book1D(histo, histo, 34, -85., 85.);
     meEBRecHitOccupancyProjEtaThr_->setAxisTitle("jeta", 1);
     meEBRecHitOccupancyProjEtaThr_->setAxisTitle("number of hits", 2);
     sprintf(histo, "EBOT rec hit thr occupancy projection phi");
-    meEBRecHitOccupancyProjPhiThr_ = dqmStore_->book1DD(histo, histo, 72, 0., 360.);
+    meEBRecHitOccupancyProjPhiThr_ = dqmStore_->book1D(histo, histo, 72, 0., 360.);
     meEBRecHitOccupancyProjPhiThr_->setAxisTitle("jphi", 1);
     meEBRecHitOccupancyProjPhiThr_->setAxisTitle("number of hits", 2);
 
@@ -223,11 +222,11 @@ void EBOccupancyTask::setup(void){
     meEBTrigPrimDigiOccupancy_->setAxisTitle("jphi'", 1);
     meEBTrigPrimDigiOccupancy_->setAxisTitle("jeta'", 2);
     sprintf(histo, "EBOT TP digi occupancy projection eta");
-    meEBTrigPrimDigiOccupancyProjEta_ = dqmStore_->book1DD(histo, histo, 34, -17., 17.);
+    meEBTrigPrimDigiOccupancyProjEta_ = dqmStore_->book1D(histo, histo, 34, -17., 17.);
     meEBTrigPrimDigiOccupancyProjEta_->setAxisTitle("jeta'", 1);
     meEBTrigPrimDigiOccupancyProjEta_->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EBOT TP digi occupancy projection phi");
-    meEBTrigPrimDigiOccupancyProjPhi_ = dqmStore_->book1DD(histo, histo, 72, 0., 72.);
+    meEBTrigPrimDigiOccupancyProjPhi_ = dqmStore_->book1D(histo, histo, 72, 0., 72.);
     meEBTrigPrimDigiOccupancyProjPhi_->setAxisTitle("jphi'", 1);
     meEBTrigPrimDigiOccupancyProjPhi_->setAxisTitle("number of TP digis", 2);
 
@@ -236,11 +235,11 @@ void EBOccupancyTask::setup(void){
     meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jphi'", 1);
     meEBTrigPrimDigiOccupancyThr_->setAxisTitle("jeta'", 2);
     sprintf(histo, "EBOT TP digi thr occupancy projection eta");
-    meEBTrigPrimDigiOccupancyProjEtaThr_ = dqmStore_->book1DD(histo, histo, 34, -17., 17.);
+    meEBTrigPrimDigiOccupancyProjEtaThr_ = dqmStore_->book1D(histo, histo, 34, -17., 17.);
     meEBTrigPrimDigiOccupancyProjEtaThr_->setAxisTitle("jeta'", 1);
     meEBTrigPrimDigiOccupancyProjEtaThr_->setAxisTitle("number of TP digis", 2);
     sprintf(histo, "EBOT TP digi thr occupancy projection phi");
-    meEBTrigPrimDigiOccupancyProjPhiThr_ = dqmStore_->book1DD(histo, histo, 72, 0., 72.);
+    meEBTrigPrimDigiOccupancyProjPhiThr_ = dqmStore_->book1D(histo, histo, 72, 0., 72.);
     meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("jphi'", 1);
     meEBTrigPrimDigiOccupancyProjPhiThr_->setAxisTitle("number of TP digis", 2);
 
@@ -514,7 +513,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
         if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
         
-        if ( rechitItr->energy() > recHitEnergyMin_ && rechitItr->recoFlag() == EcalRecHit::kGood ) {
+        if ( rechitItr->energy() > recHitEnergyMin_ ) {
           
           if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
           if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );

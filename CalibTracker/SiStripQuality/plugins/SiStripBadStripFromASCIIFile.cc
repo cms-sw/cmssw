@@ -90,14 +90,6 @@ SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
 						           << std::endl; 	    
 
 	  theSiStripVector.push_back(theBadStripRange);
-
-	  if (infile.eof()){ // Don't forget to save the last strip before eof!!!
-	    SiStripBadStrip::Range range(theSiStripVector.begin(),theSiStripVector.end());
-	    if ( ! SiStripBadStrip_->put(tempdetid,range) )
-	      edm::LogError("SiStripBadStripFromASCIIFile")<<"[SiStripBadStripFromASCIIFile::GetNewObject] detid already exists"<<std::endl;
-	    theSiStripVector.clear();
-	  }
-
 	  count=1;
 	  tempchannel=channel;
 	  tempflag=flag;
@@ -113,7 +105,7 @@ SiStripBadStrip *SiStripBadStripFromASCIIFile::getNewObject() {
 							   << " NconsecutiveBadStrips " << count  << "\t "
 	                                                   <<"flag " << tempflag << "\t"
 							   << " packed integer " << std::hex << theBadStripRange  << std::dec
-						           << std::endl; 	    
+							   << std::endl; 	    
 	  
 	  theSiStripVector.push_back(theBadStripRange);
 	  

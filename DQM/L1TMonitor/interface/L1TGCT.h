@@ -5,14 +5,11 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2009/11/02 17:00:04 $
- * $Revision: 1.21 $
+ * $Date: 2009/06/23 09:48:55 $
+ * $Revision: 1.20 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.21 2009/11/02 17:00:04 tapper Exp $
+ * $Id: L1TGCT.h,v 1.20 2009/06/23 09:48:55 tapper Exp $
  * $Log: L1TGCT.h,v $
- * Revision 1.21  2009/11/02 17:00:04  tapper
- * Changes to L1TdeGCT (to include energy sums), to L1TDEMON (should not make any difference now) and L1TGCT to add multiple BXs.
- *
  * Revision 1.20  2009/06/23 09:48:55  tapper
  * Added missing occupancy plot for central and forward jets.
  *
@@ -133,7 +130,7 @@ protected:
  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
- void beginJob(void);
+ void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

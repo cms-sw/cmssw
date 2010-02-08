@@ -65,9 +65,6 @@ bool GenLeadTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void GenLeadTrackFilter::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void GenLeadTrackFilter::endJob() 

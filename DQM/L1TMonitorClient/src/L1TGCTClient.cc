@@ -32,7 +32,7 @@ L1TGCTClient::L1TGCTClient(const edm::ParameterSet& ps):
 
 L1TGCTClient::~L1TGCTClient(){}
 
-void L1TGCTClient::beginJob(void)
+void L1TGCTClient::beginJob(const EventSetup& context)
 {
   // Get backendinterface  
   dbe_ = Service<DQMStore>().operator->();

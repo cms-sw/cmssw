@@ -42,7 +42,7 @@ void ReadMeFromFile::beginRun(const Run& r, const EventSetup& iSetup){
   LogVerbatim ("readfile") << "[ReadMeFromFile]: Begin run";
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
-  dbe_->load(myFile_);
+  dbe_->open(myFile_);
 }
 
 void ReadMeFromFile::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}

@@ -203,7 +203,7 @@ L2TauModularIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 
 void 
-L2TauModularIsolationProducer::beginJob(const edm::EventSetup&)
+L2TauModularIsolationProducer::beginJob()
 {
 }
 

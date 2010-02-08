@@ -25,7 +25,7 @@ electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
   readAOD = cms.bool(False),
   outputFile = cms.string(""),
   MaxPt = cms.double(100.0),
-  DeltaR = cms.double(0.3),
+  DeltaR = cms.double(0.05),
   MaxAbsEta = cms.double(2.5),
   histosCfg = cms.PSet(electronMcFakeHistosCfg)
 )

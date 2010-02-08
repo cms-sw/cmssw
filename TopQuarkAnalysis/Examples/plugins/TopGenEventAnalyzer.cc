@@ -45,7 +45,7 @@ TopGenEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   ttbarPhi_->Fill(p4.phi());
 }
 
-void TopGenEventAnalyzer::beginJob(const edm::EventSetup&)
+void TopGenEventAnalyzer::beginJob()
 {  
 } 
 

@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.9 2009/10/06 19:48:50 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.8 2009/10/06 17:15:42 xiezhen Exp $
  *
  ************************************************************/
  
@@ -77,10 +77,10 @@ class LumiSummary {
 
     // other inline have to be made to return 
     // the rate counter and scalers based on the label
-    L1 l1info(unsigned int idx)const;
-    L1 l1info(const std::string& name) const;
     
-    HLT hltinfo(unsigned int idx)const;
+    L1 l1info(int linenumber) const;
+    std::string triggerConfig(int linenumber) const;
+    HLT hltinfo(int idx)const;
     HLT hltinfo(const std::string& pathname) const;
     size_t nTriggerLine()const;
     size_t nHLTPath()const;

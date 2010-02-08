@@ -5,14 +5,11 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2008/11/08 08:45:42 $
- * $Revision: 1.6 $
+ * $Date: 2008/07/02 16:53:20 $
+ * $Revision: 1.5 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.6 2008/11/08 08:45:42 asavin Exp $
+ * $Id: L1TRCT.h,v 1.5 2008/07/02 16:53:20 asavin Exp $
  * $Log: L1TRCT.h,v $
- * Revision 1.6  2008/11/08 08:45:42  asavin
- * changing the fine grain to HfPlusTau
- *
  * Revision 1.5  2008/07/02 16:53:20  asavin
  * new L1TRCT.h
  *
@@ -82,7 +79,7 @@ protected:
  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
- void beginJob(void);
+ void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

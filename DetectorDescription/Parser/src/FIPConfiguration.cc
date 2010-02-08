@@ -44,9 +44,9 @@ FIPConfiguration::~FIPConfiguration()
   //  parser_->getXMLParser()->setContentHandler(0);  
 }
 
-FIPConfiguration::FIPConfiguration() : configHandler_() 
+FIPConfiguration::FIPConfiguration() : configHandler_()
 { 
-  //  parser_ = DDLParser::instance();
+  parser_ = DDLParser::instance();
   //  std::cout << "Making a FIPConfiguration with configHandler_ at " << &configHandler_ << std::endl;
 }
 
@@ -81,14 +81,12 @@ int FIPConfiguration::readConfig(const std::string& filename)
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
-  DDCompactView cpv;
-  DDLParser ddlp(cpv);
-  ddlp.getXMLParser()->setContentHandler(&configHandler_);
+  parser_->getXMLParser()->setContentHandler(&configHandler_);
   edm::FileInPath fp(filename);
   // config file
   std::string absoluteFileName (filename);
   absoluteFileName = fp.fullPath();
-  ddlp.getXMLParser()->parse(absoluteFileName.c_str());
+  parser_->getXMLParser()->parse(absoluteFileName.c_str());
   const std::vector<std::string>& vURLs = configHandler_.getURLs();
   const std::vector<std::string>& vFiles = configHandler_.getFileNames();
   size_t maxInd = vFiles.size();
@@ -96,7 +94,7 @@ int FIPConfiguration::readConfig(const std::string& filename)
   // ea. file listed in the config
   for(; ind < maxInd ; ++ind) {
     edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
-    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
+    //    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
     files_.push_back(fp.fullPath());
     urls_.push_back("");
   }

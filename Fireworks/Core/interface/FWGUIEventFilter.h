@@ -6,20 +6,22 @@
 #include "Fireworks/Core/interface/FWHLTValidator.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
-class FWGUIEventSelector;
+class TGLabel;
 class TGButtonGroup;
 class TGTextButton;
 class CSGAction;
 class FWCustomIconsButton;
+class FWGUIEventSelector;
 
 class FWGUIEventFilter: public TGTransientFrame,
                                CSGActionSupervisor
 {
 public:
    FWGUIEventFilter(const TGWindow* parent);
+   virtual ~FWGUIEventFilter();
    virtual void CloseWindow();
    
-   void show(std::list<FWEventSelector*>* sels,  fwlite::Event* event, int filterMode);
+   void show(std::list<FWEventSelector*>* sels, int filterMode, int state);
    
    CSGAction* m_applyAction;   
    CSGAction* m_filterDisableAction;     
@@ -35,6 +37,7 @@ public:
    void checkApplyButton();
    void changeFilterMode(Int_t);
    int  getFilterMode();
+   void updateFilterStateLabel(int);
    
 private:   
    static const int m_entryHeight = 20;
@@ -50,6 +53,7 @@ private:
    TGCompositeFrame*    m_selectionFrameParent;
    TGCompositeFrame*    m_selectionFrame;
    TGButtonGroup*       m_btnGroup;
+   TGLabel*             m_stateLabel;
    TGTextButton*        m_applyBtn;
    FWCustomIconsButton* m_addBtn;
 };

@@ -14,7 +14,6 @@ LorentzAngleOutputCommands =  [ 'keep *_*_clusterdetid_*',
                                 'keep *_*_tsoslocaltheta_*',
                                 'keep *_*_tsoslocalphi_*',
                                 'keep *_*_tsosBdotY_*',
-                                #'keep *_*_tsoslocaly_*',
                                 'keep *_*_tsosglobalZofunitlocalY_*']
 
 calibrationTree = cms.EDAnalyzer("ShallowTree", outputCommands = cms.untracked.vstring('drop *'))

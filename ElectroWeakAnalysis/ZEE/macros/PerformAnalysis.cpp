@@ -103,6 +103,11 @@ void PerformAnalysis(TString process, double eventweight, TString datapath)//, o
 	TH1F* h_ErsatzMEt_fail_EB = new TH1F("ErsatzMEt_fail_EB","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_ErsatzMEt_fail_EE = new TH1F("ErsatzMEt_fail_EE","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 
+	TH1F* h_ErsatzMEt_probept = new TH1F("ErsatzMEt_probept","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_ErsatzMEt_uncorr = new TH1F("ErsatzMEt_uncorr","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_ErsatzMEt_fetacorr = new TH1F("ErsatzMEt_fetacorr","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+	TH1F* h_ErsatzMEt_fbremcorr = new TH1F("ErsatzMEt_fbremcorr","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
+
 	TH1F* h_ErsatzMEt_pass_EB_peakfit = new TH1F("ErsatzMEt_pass_EB_peakfit","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_ErsatzMEt_pass_EE_peakfit = new TH1F("ErsatzMEt_pass_EE_peakfit","Ersatz MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
 	TH1F* h_WMEt_pass_EB_peakfit = new TH1F("WMEt_pass_EB_peakfit","W MET;#slash{E}_{T} (GeV);Arbitrary Units", 100, 0., 100.);
@@ -303,7 +308,7 @@ void PerformAnalysis(TString process, double eventweight, TString datapath)//, o
 
 	int nErNu;
 	double tag_pt[4], tag_eta[4], tag_phi[4], probe_pt[4], probe_eta[4], probe_phi[4];
-	double ErsatzV1bMEt[4];
+	double ErsatzV1MEt[4], ErsatzV1aMEt[4], ErsatzV1bMEt[4];
 	double elec_trkIso[4], elec_ECALIso[4], elec_HCALIso[4];
 	double elec_sigIhIh[4], elec_dPhi[4], elec_dEta[4];
 	double tag_rescPt[4], mesc[4];
@@ -369,6 +374,10 @@ void PerformAnalysis(TString process, double eventweight, TString datapath)//, o
 	TBranch* bProbe_HCALEt = t->GetBranch("probe_HcalEt015");
 	bProbe_HCALEt->SetAddress(&nu_HCALEt);
 	//Ersatz MEt results
+	TBranch* bErsatzV1_MEt = t->GetBranch("ErsatzV1CaloMEt");
+	bErsatzV1_MEt->SetAddress(&ErsatzV1MEt);
+	TBranch* bErsatzV1a_MEt = t->GetBranch("ErsatzV1aCaloMEt");
+	bErsatzV1a_MEt->SetAddress(&ErsatzV1aMEt);
 	TBranch* bErsatzV1b_MEt = t->GetBranch("ErsatzV1bCaloMEt");
 	bErsatzV1b_MEt->SetAddress(&ErsatzV1bMEt);
 	TBranch* bMesc = t->GetBranch("ErsatzV1_Mesc");
@@ -442,6 +451,10 @@ void PerformAnalysis(TString process, double eventweight, TString datapath)//, o
 									Weight_pass_EB.push_back(weight);
 									h_ErsatzMEt_pass_EB->Fill(ErsatzV1bMEt[j], weight);
 									h_ErsatzMEt_pass_EB_peakfit->Fill(ErsatzV1bMEt[j], weight);
+									h_ErsatzMEt_probept->Fill(probe_pt[j], weight);
+									h_ErsatzMEt_uncorr->Fill(ErsatzV1MEt[j], weight);
+									h_ErsatzMEt_fetacorr->Fill(ErsatzV1aMEt[j], weight);
+									h_ErsatzMEt_fbremcorr->Fill(ErsatzV1bMEt[j], weight);
 								}
 								if(inEndcap)
 								{
@@ -450,6 +463,10 @@ void PerformAnalysis(TString process, double eventweight, TString datapath)//, o
 									Weight_pass_EE.push_back(weight);
 									h_ErsatzMEt_pass_EE->Fill(ErsatzV1bMEt[j], weight);
 									h_ErsatzMEt_pass_EE_peakfit->Fill(ErsatzV1bMEt[j], weight);
+									h_ErsatzMEt_probept->Fill(probe_pt[j], weight);
+									h_ErsatzMEt_uncorr->Fill(ErsatzV1MEt[j], weight);
+									h_ErsatzMEt_fetacorr->Fill(ErsatzV1aMEt[j], weight);
+									h_ErsatzMEt_fbremcorr->Fill(ErsatzV1bMEt[j], weight);
 								}	
 							}else{
 								if(inBarrel)

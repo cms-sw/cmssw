@@ -26,14 +26,14 @@ class DDLPosPart : public DDXMLElement
  public:
 
   /// Constructor
-  DDLPosPart( DDLElementRegistry* myreg );
+  DDLPosPart();
 
   /// Destructor
   ~DDLPosPart();
 
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
+  void preProcessElement (const std::string& name, const std::string& nmspace); 
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
+  void processElement (const std::string& name, const std::string& nmspace); 
 
 };
 

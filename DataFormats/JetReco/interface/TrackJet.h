@@ -7,20 +7,20 @@
  * \short Jets made out of tracks
  *
  * TrackJet represents Jets with tracks as constituents.
- * The usual way of jets having candidates as constituents is preserved
- * through a caching mechanism with transient pointers, such that all
- * usual jet shape methods, which rely on the getJetConstituents() method,
- * are still functional.
+ * The consitutents are in this case RecoChargedRefCandidates, that
+ * preserve the Refs to the original tracks. Those Refs are used to
+ * provide transparent access to the tracks.
  *
  * \author Steven Lowette
  *
- * $Id$
+ * $Id: TrackJet.h,v 1.2 2009/12/09 09:06:51 srappocc Exp $
  *
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedRefCandidate.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 
 namespace reco {
@@ -41,26 +41,31 @@ namespace reco {
       virtual TrackJet * clone () const;
 
       /// Number of track daughters
-      virtual size_t numberOfTracks() const { return numberOfDaughters(); }
+      size_t numberOfTracks() const { return numberOfDaughters(); }
       /// Return Ptr to the track costituent
-      virtual edm::Ptr<reco::Track> track(unsigned int i) const;
+      virtual edm::Ptr<reco::Track> track(size_t i) const;
       /// Return pointers to all track costituents
-      virtual std::vector<edm::Ptr<reco::Track> > tracks() const;
+      std::vector<edm::Ptr<reco::Track> > tracks() const;
 
       /// calculate and set the charge by adding up the constituting track charges
       void resetCharge();
-      /// Associated PV
-      // to be implemented
+      /// get associated primary vertex
+      const reco::VertexRef primaryVertex() const;
+      /// set associated primary vertex
+      void setPrimaryVertex(const reco::VertexRef & vtx);
 
       /// Print object
       virtual std::string print () const;
 
-  private:
+    private:
+
       /// Polymorphic overlap
       virtual bool overlap(const Candidate & dummy) const;
 
     private:
 
+      /// Associated primary vertex
+      reco::VertexRef vtx_;
 
   };
 

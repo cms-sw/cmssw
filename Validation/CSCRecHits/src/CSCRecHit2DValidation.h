@@ -29,7 +29,6 @@ public:
   MonitorElement* theSimHitScatterPlots[10];
   MonitorElement* theRecHitPosInStrip[10];
   MonitorElement* theSimHitPosInStrip[10];
-  MonitorElement* theTPeaks[10];
 };
 
 #endif

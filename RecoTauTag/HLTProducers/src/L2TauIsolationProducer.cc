@@ -118,7 +118,7 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 void 
-L2TauIsolationProducer::beginJob(const edm::EventSetup&)
+L2TauIsolationProducer::beginJob()
 {
 }
 

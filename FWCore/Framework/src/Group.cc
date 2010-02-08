@@ -28,11 +28,11 @@ namespace edm {
     assert(branchDescription().produced());
     assert(edp.get() != 0);
     assert(!product());
-    assert(!provenance()->productProvenanceResolved());
+    assert(!productProvenancePtr());
     assert(status() != Present);
     assert(status() != Uninitialized);
-    setProductProvenance(productProvenance);
-    assert(provenance()->productProvenanceResolved());
+    setProvenance(productProvenance);
+    assert(productProvenancePtr());
     assert (!product());
     groupData().product_.reset(edp.release());  // Group takes ownership
     status_() = Present;
@@ -42,7 +42,7 @@ namespace edm {
   ProducedGroup::mergeProduct_(
 	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
-    assert(provenance()->productProvenanceResolved());
+    assert(productProvenancePtr());
     assert(status() == Present);
     assert (productProvenancePtr()->productStatus() == productProvenance->productStatus());
     productProvenancePtr() = productProvenance;
@@ -65,14 +65,20 @@ namespace edm {
   }
 
   void
+  ProducedGroup::resolveProvenance_(boost::shared_ptr<BranchMapper>) const {
+  }
+
+  void
   InputGroup::putProduct_(
 	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(!product());
-    assert(!provenance()->productProvenanceResolved());
-    setProductProvenance(productProvenance);
-    assert(provenance()->productProvenanceResolved());
+    assert(!productProvenancePtr());
+    assert(status() != Present);
+    setProvenance(productProvenance);
+    assert(productProvenancePtr());
     setProduct(edp);
+    updateStatus();
   }
 
   void
@@ -85,6 +91,7 @@ namespace edm {
   void
   InputGroup::mergeProduct_(std::auto_ptr<EDProduct> edp) const {
     mergeTheProduct(edp);
+    updateStatus();
   }
 
   bool
@@ -96,6 +103,16 @@ namespace edm {
   InputGroup::putProduct_(std::auto_ptr<EDProduct> edp) const {
     assert(!product());
     setProduct(edp);
+    updateStatus();
+  }
+
+  void
+  InputGroup::resolveProvenance_(boost::shared_ptr<BranchMapper> store) const {
+    if (!productProvenancePtr()) {
+      provenance()->setStore(store);
+      provenance()->resolve();
+      updateStatus();
+    }
   }
 
   void
@@ -149,8 +166,37 @@ namespace edm {
   }
 
   void
-  Group::setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const {
+  Group::setProvenance(boost::shared_ptr<ProductProvenance> prov) const {
     groupData().prov_->setProductProvenance(prov);
+  }
+
+  void
+  InputGroup::setStatus(ProductStatus const& status) const {
+    theStatus_ = static_cast<GroupStatus>(status);
+  }
+
+  void
+  InputGroup::updateStatus() const {
+    if (product()) {
+      if(product()->isPresent()) {
+        theStatus_ = Present;
+      } else {
+        ProductStatus provStatus = (provenance() && provenance()->productProvenancePtr()) ?
+				   provenance()->productProvenance().productStatus() :
+				   productstatus::uninitialized();
+        if (productstatus::dropped(provStatus)) {
+	  // fixes a backward compatibility problem
+	  provenance()->productProvenance().setStatus(productstatus::uninitialized());
+        }
+        if (productstatus::uninitialized(provStatus) || productstatus::unknown(provStatus)) {
+	  theStatus_ = NeverCreated;
+        } else {
+	  setStatus(provStatus);
+        }
+      }
+    } else if (provenance()->productProvenancePtr()) {
+      setStatus(provenance()->productProvenance().productStatus());
+    }
   }
 
   // This routine returns true if it is known that currently there is no real product.
@@ -164,6 +210,8 @@ namespace edm {
     // If there is a product, we know if it is real or a dummy.
     if (product()) {
       bool unavailable = !(product()->isPresent());
+      assert (!productstatus::presenceUnknown(status()));
+      assert(unavailable == productstatus::notPresent(status()));
       if (unavailable) {
 	setProductUnavailable();
       }
@@ -222,24 +270,11 @@ namespace edm {
       : false;
   }
 
-  void
-  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProductID const& pid) {
-    assert(!groupData().prov_);
-    groupData().prov_.reset(new Provenance(branchDescription(), pid));
-    groupData().prov_->setStore(mapper);
-  }
-
-  void
-  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper) {
-    if (!groupData().prov_) {
-      groupData().prov_.reset(new Provenance(branchDescription(), ProductID()));
-    }
-    groupData().prov_->setStore(mapper);
-  }
-
   Provenance*
   Group::provenance() const {
-    assert(groupData().prov_);
+    if (!groupData().prov_.get()) {
+      groupData().prov_.reset(new Provenance(branchDescription(), productID()));
+    }
     return groupData().prov_.get();
   }
 

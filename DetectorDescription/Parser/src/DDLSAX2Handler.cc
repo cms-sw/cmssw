@@ -30,13 +30,14 @@
 //  DDLSAX2Handler: Constructors and Destructor
 // ---------------------------------------------------------------------------
 DDLSAX2Handler::DDLSAX2Handler() :
+
   attrCount_(0)
   , characterCount_(0)
   , elementCount_(0)
   , spaceCount_(0)
   , sawErrors_(false)
-  , userNS_(false)
 {
+
 }
 
 DDLSAX2Handler::~DDLSAX2Handler()
@@ -141,10 +142,17 @@ void DDLSAX2Handler::warning(const SAXParseException& e)
     << "\n  Message: " << StrX(e.getMessage()) << std::endl;
 }
 
-void DDLSAX2Handler::setUserNS(bool userns) { 
-  userNS_ = userns; 
+std::string DDLSAX2Handler::getnmspace(const std::string& fname)
+{
+  size_t j = 0;
+  std::string ret="";
+  while (j < fname.size() && fname[j] != '.')
+    ++j;
+  if (j < fname.size() && fname[j] == '.')
+    ret = fname.substr(0, j);
+  return ret;
 }
 
-void DDLSAX2Handler::setNameSpace( const std::string& nms ) {
-  nmspace_ = nms;
+void DDLSAX2Handler::setUserNS(bool userns) { 
+  userNS_ = userns; 
 }

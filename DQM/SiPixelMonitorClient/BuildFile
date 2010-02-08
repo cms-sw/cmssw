@@ -14,25 +14,7 @@
 <use name=DQMServices/ClientConfig>
 <use name=CommonTools/TrackerMap>
 <use name=DQM/SiPixelCommon>
-<use name=DQM/SiStripCommon>
 <use name=DQM/TrackerCommon>
-<use name=DataFormats/SiPixelCluster>
-<use name=DataFormats/BeamSpot>
-<use name=DataFormats/Common>
-<use name=DataFormats/MuonReco>
-<use name=DataFormats/MuonSeed>
-<use name=DataFormats/RecoCandidate>
-<use name=DataFormats/TrackReco>
-<use name=DataFormats/TrajectorySeed>
-<use name=MagneticField/Records>
-<use name=MagneticField/Engine>
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/Records>
-<use name=RecoLocalTracker/ClusterParameterEstimator>
-<use name=RecoLocalTracker/Records>
-<use name=RecoTracker/TransientTrackingRecHit>
-<use name=CalibTracker/Records>
-<use name=rootcore>
 <use name=boost>
 <flags EDM_PLUGIN=1>
 <export>

@@ -335,6 +335,19 @@ namespace edm {
       assert(0 != aWorker);
       labelToWorkers_[aWorker->description().moduleLabel()] = aWorker;
     }
+    
+    template <class T>
+    void runNow(typename T::MyPrincipal& p, EventSetup const& es) {
+      //do nothing for event since we will run when requested
+      if(!T::isEvent_) {
+        for(std::map<std::string, Worker*>::iterator it = labelToWorkers_.begin(), itEnd=labelToWorkers_.end();
+            it != itEnd;
+            ++it) {
+          it->second->doWork<T>(p,es,0);
+        }
+      }
+    }
+
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
 			       EventPrincipal& event,
@@ -377,6 +390,8 @@ namespace edm {
       std::auto_ptr<ScheduleSignalSentry<T> > sentry;
       try {
  	sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep, &es));
+        //make sure the unscheduled items see this transition [Event will be a no-op]
+        unscheduled_->runNow<T>(ep,es);
         if (runTriggerPaths<T>(ep, es)) {
 	  if (T::isEvent_) ++total_passed_;
         }

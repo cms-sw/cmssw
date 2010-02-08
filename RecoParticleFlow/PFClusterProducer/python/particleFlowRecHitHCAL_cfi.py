@@ -14,7 +14,7 @@ particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
     # Navigation in HF: 
     # False = no real clustering in HF
     # True  = do clustering in HF
-    navigation_HF = cms.bool(False),
+    navigation_HF = cms.bool(True),
 #AUGUSTE: TO BE CHECKED:
     weight_HFem = cms.double(1.000),
     weight_HFhad = cms.double(1.000),
@@ -23,7 +23,13 @@ particleFlowRecHitHCAL = cms.EDFilter("PFRecHitProducerHCAL",
 
 # HCAL DPG RecHit calibration
     HCAL_Calib = cms.bool(True),
-    HF_Calib = cms.bool(False)
+    HF_Calib = cms.bool(False),
+
+# Cut short fibres if no long fibre energy
+    ShortFibre_Cut = cms.double(60.),
+    LongFibre_Fraction = cms.double(0.05)
+
+                                  
                                   
 )
 

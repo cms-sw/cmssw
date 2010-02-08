@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2009/07/22 19:40:29 $
- * $Revision: 1.17 $
+ * $Date: 2008/07/02 11:45:52 $
+ * $Revision: 1.15 $
  * \author P. Wittich
  *
  */
@@ -83,7 +83,7 @@ L1TRCT::~L1TRCT()
 {
 }
 
-void L1TRCT::beginJob(void)
+void L1TRCT::beginJob(const EventSetup & c)
 {
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Aruna Nayak
 //         Created:  Thu Aug 23 11:37:45 CEST 2007
-// $Id: Zto2lFilter.cc,v 1.3 2009/01/09 10:23:08 saout Exp $
+// $Id: Zto2lFilter.cc,v 1.4 2009/02/17 13:57:46 saout Exp $
 //
 //
 
@@ -94,10 +94,6 @@ Zto2lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-Zto2lFilter::beginJob(const edm::EventSetup&)
-{
-}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

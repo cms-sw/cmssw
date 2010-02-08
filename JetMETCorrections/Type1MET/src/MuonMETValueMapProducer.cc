@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonMETValueMapProducer.cc,v 1.2 2009/03/27 20:43:40 kalavase Exp $
+// $Id: MuonMETValueMapProducer.cc,v 1.1 2009/03/26 21:40:27 kalavase Exp $
 //
 //
 
@@ -55,8 +55,8 @@ namespace cms {
     maxNormChi2_ = iConfig.getParameter<double>("maxNormChi2" );
     maxd0_       = iConfig.getParameter<double>("maxd0"       );
     minnHits_    = iConfig.getParameter<int>   ("minnHits"    );
-    //qOverPErr_   = iConfig.getParameter<double>("qOverPErr"   );
-    //delPtOverPt_ = iConfig.getParameter<double>("delPtOverPt" );
+    qOverPErr_   = iConfig.getParameter<double>("qOverPErr"   );
+    delPtOverPt_ = iConfig.getParameter<double>("delPtOverPt" );
   
     beamSpotInputTag_            = iConfig.getParameter<InputTag>("beamSpotInputTag"         );
     muonInputTag_   = iConfig.getParameter<InputTag>("muonInputTag");
@@ -115,14 +115,13 @@ namespace cms {
     //make a ValueMap of ints => flags for 
     //met correction. The values and meanings of the flags are :
     // flag==0 --->    The muon is not used to correct the MET by default
-    // flag==1 --->    The muon is used to correct the MET. The Global pt is used. For backward compatibility only
-    // flag==2 --->    The muon is used to correct the MET. The tracker pt is used. For backward compatibility only
-    // flag==3 --->    The muon is used to correct the MET. The standalone pt is used. For backward compatibility only
+    // flag==1 --->    The muon is used to correct the MET. The Global pt is used.
+    // flag==2 --->    The muon is used to correct the MET. The tracker pt is used.
+    // flag==3 --->    The muon is used to correct the MET. The standalone pt is used.
     // In general, the flag should never be 3. You do not want to correct the MET using
     // the pt measurement from the standalone system (unless you really know what you're 
     // doing
-    //flag == 4 -->    The muon was treated as a Pion. This is used for the tcMET producer
-    //flag == 5 -->    The default fit is used, i.e, we get the pt from muon->pt
+    
     std::auto_ptr<ValueMap<MuonMETCorrectionData> > vm_muCorrData(new ValueMap<MuonMETCorrectionData>());
     
     uint nMuons = muons->size();
@@ -172,7 +171,7 @@ namespace cms {
       TrackRef globTk = mu->globalTrack();
       TrackRef siTk   = mu->innerTrack();
         
-      if(mu->pt() < minPt_ || fabs(mu->eta()) > maxEta_) {
+      if(globTk->pt() < minPt_ || fabs(globTk->eta()) > maxEta_) {
         v_muCorrData.push_back(muMETCorrData);
 	continue;
       }
@@ -190,7 +189,12 @@ namespace cms {
       }
 
       //if we've gotten here. the global muon has passed all the tests
-      v_muCorrData.push_back(MuonMETCorrectionData(MuonMETCorrectionData::MuonCandidateValuesUsed, deltax, deltay));
+      //all that remains is to see which pt we need to use to correct the MET
+      double delpt = fabs(globTk->pt() - siTk->pt());
+      if(delpt/(siTk->pt()) < delPtOverPt_ && globTk->qoverpError() < qOverPErr_)
+        v_muCorrData.push_back(MuonMETCorrectionData(MuonMETCorrectionData::GlobalTrackUsed, deltax, deltay));
+      else 
+        v_muCorrData.push_back(MuonMETCorrectionData(MuonMETCorrectionData::TrackUsed, deltax, deltay));
     }
     
     ValueMap<MuonMETCorrectionData>::Filler dataFiller(*vm_muCorrData);

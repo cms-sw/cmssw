@@ -37,7 +37,7 @@
 
 // TEST
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TFile.h"
 #include "TDirectory.h"

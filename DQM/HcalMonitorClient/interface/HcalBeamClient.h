@@ -20,18 +20,18 @@ class HcalBeamClient : public HcalBaseClient {
 
   void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
 
-  /// Analyze
+ /// Analyze
   void analyze(void);
 
   /// BeginJob
-  void beginJob(void);
+  //void beginJob(const EventSetup& c);
+  void beginJob();
 
   /// EndJob
   void endJob(void);
 
   /// BeginRun
-  //void beginRun(const EventSetup& c);
-  void beginRun();
+  void beginRun(void);
 
   /// EndRun
   void endRun(void);

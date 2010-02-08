@@ -8,13 +8,12 @@
   * electron did indeed come from a conversion
   * \author Puneeth Kalavase, University Of California, Santa Barbara
   *
-  * \version $Id: ConversionFinder.h,v 1.3 2009/11/16 08:10:46 kalavase Exp $
+  * \version $Id: BasicCluster.h,v 1.1 2009/10/9 09:53:06 kalavase Exp $
   *
   */
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -28,32 +27,19 @@ class ConversionFinder {
   ConversionFinder();
   ~ConversionFinder();
   //bField has to be supplied in Tesla
-  
-  static reco::TrackRef getConversionPartnerTrack(const reco::GsfElectron& gsfElectron, 
-						  const edm::Handle<reco::TrackCollection>& track_h,
-						  const float bFieldAtOrigin,
-						  const float maxAbsDist = 0.02,
-						  const float maxAbsDCot = 0.02,
-						  const float minFracSharedHits = 0.45);
-
-  //very simple function that calls getConversionPartnerTrack
-  //if such a conversion partner track is found, will return true, else false
   static bool isElFromConversion(const reco::GsfElectron& gsfElectron, 
-				 const edm::Handle<reco::TrackCollection>& track_h,
+				 const edm::View<reco::Track>& v_tracks, 
 				 const float bFieldAtOrigin,
 				 const float maxAbsDist = 0.02,
 				 const float maxAbsDCot = 0.02,
 				 const float minFracSharedHits = 0.45);
-
+  
   
   static std::pair<double, double> getConversionInfo(math::XYZTLorentzVector trk1_p4, 
 						     int trk1_q, float trk1_d0, 
 						     math::XYZTLorentzVector trk2_p4,
 						     int trk2_q, float trk2_d0,
 						     float bFieldAtOrigin);
-
-  //returns GSF track if associated CTF track does not have fraction of shared hits greater than minFracSharedHits
-  static const reco::Track* getElectronTrack(const reco::GsfElectron& gsfElectron, const float minFracSharedHits);
-
+  
 };
 #endif

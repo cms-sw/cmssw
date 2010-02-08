@@ -10,7 +10,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 struct CSCALCTTrailer2006 {
-  CSCALCTTrailer2006();
+  CSCALCTTrailer2006() {
+    bzero(this,  sizeInWords()*2); ///size of the trailer
+      e0dLine = 0xDE0D;
+      d_0=0xD;
+      d_1=0xD;
+      zero_0 = 0;
+      zero_1 = 0;
+      d_3 = 0xD;
+      reserved_3 = 1;
+  }
   void setSize(int size) {frameCount = size;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
@@ -22,14 +31,15 @@ struct CSCALCTTrailer2006 {
 };
 
 struct CSCALCTTrailer2007 {
-  CSCALCTTrailer2007();
-  void setSize(int size) {frameCount = size;}
+  CSCALCTTrailer2007() {
+    bzero(this,  sizeInWords()*2); ///size of the trailer
+  }
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
   unsigned e0dLine:16;
-  unsigned crc0:11, zero_0:1, reserved_0:4;
-  unsigned crc1:11, zero_1:1, reserved_1:4;
+  unsigned crc0:11, reserved_0:5;
+  unsigned crc1:11, reserved_1:5;
   unsigned frameCount:11, reserved_3:1, reserved_4:4;
 };
 

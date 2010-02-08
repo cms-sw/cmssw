@@ -300,20 +300,6 @@ void myJetAna::beginJob( const EventSetup & ) {
   st_iPhi          = fs->make<TH1F>( "st_iPhi", "iPhi", 80, 0, 80 );
   st_Frac          = fs->make<TH1F>( "st_Frac", "Frac", 100, 0, 1 );
 
-
-  EBvHB           = fs->make<TH2F>( "EBvHB", "EB vs HB",1000,0,6000000.,1000,0,1000000.);
-  EEvHE           = fs->make<TH2F>( "EEvHE", "EE vs HE",1000,0,6000000.,1000,0,200000.);
-
-  ECALvHCAL       = fs->make<TH2F>( "ECALvHCAL", "ECAL vs HCAL",100,0,20000000.,100,0,500000.);
-  ECALvHCALEta1   = fs->make<TH2F>( "ECALvHCALEta1", "ECAL vs HCALEta1",100,0,20000000.,100,0,500000.);
-  ECALvHCALEta2   = fs->make<TH2F>( "ECALvHCALEta2", "ECAL vs HCALEta2",100,0,20000000.,100,0,500000.);
-  ECALvHCALEta3   = fs->make<TH2F>( "ECALvHCALEta3", "ECAL vs HCALEta3",100,0,20000000.,100,0,500000.);
-
-  EMF_Eta   = fs->make<TProfile>("EMF_Eta","EMF Eta", 100, -50, 50, 0, 10);
-  EMF_Phi   = fs->make<TProfile>("EMF_Phi","EMF Phi", 100, 0, 100, 0, 10);
-  EMF_EtaX  = fs->make<TProfile>("EMF_EtaX","EMF EtaX", 100, -50, 50, 0, 10);
-  EMF_PhiX  = fs->make<TProfile>("EMF_PhiX","EMF PhiX", 100, 0, 100, 0, 10);
-
 }
 
 // ************************
@@ -363,66 +349,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     HPDColl[i].nTowers   = 0;
   }  
 
-  double ETotal, emFrac;
-  double HCALTotalCaloTowerE, ECALTotalCaloTowerE;
-  double HCALTotalCaloTowerE_Eta1, ECALTotalCaloTowerE_Eta1;
-  double HCALTotalCaloTowerE_Eta2, ECALTotalCaloTowerE_Eta2;
-  double HCALTotalCaloTowerE_Eta3, ECALTotalCaloTowerE_Eta3;
-
-
-  ETotal = 0.;
-  for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
-       tower != caloTowers->end(); tower++) {
-    ETotal += tower->hadEnergy();
-    ETotal += tower->emEnergy();
-  }
-
-  HCALTotalCaloTowerE = ECALTotalCaloTowerE = 0.;
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
        tower != caloTowers->end(); tower++) {
 
     // Raw tower energy without grouping or thresholds
     h_towerHadEn->Fill(tower->hadEnergy());
     h_towerEmEn->Fill(tower->emEnergy());
-    if ((tower->emEnergy()+tower->hadEnergy()) != 0) {
-      emFrac = tower->emEnergy()/(tower->emEnergy()+tower->hadEnergy());
-    } else {
-      emFrac = 0.;
-    }
-    h_towerEmFrac->Fill(emFrac);
-
-    HCALTotalCaloTowerE += tower->hadEnergy();
-    ECALTotalCaloTowerE += tower->emEnergy();
-
-    if (ETotal > 100.) {
-      /***
-      std::cout << "ETotal = " << ETotal 
-		<< " EMF = " << emFrac
-		<< " EM = " << tower->emEnergy()
-		<< " Tot = " << tower->emEnergy()+tower->hadEnergy()
-      		<< " ieta/iphi = " <<  tower->ieta() << " / "  << tower->iphi() 
-      		<< std::endl;
-      ***/
-      if (abs(tower->iphi()) < 100) EMF_Phi->Fill(tower->iphi(), emFrac);
-      if (abs(tower->ieta()) < 100) EMF_Eta->Fill(tower->ieta(), emFrac);
-      if ( (evt.id().run() == 120020) && (evt.id().event() == 457) ) {
-	if (abs(tower->iphi()) < 100) EMF_PhiX->Fill(tower->iphi(), emFrac);
-	if (abs(tower->ieta()) < 100) EMF_EtaX->Fill(tower->ieta(), emFrac);
-      }
-
-      if (fabs(tower->eta()) < 1.3) {
-	HCALTotalCaloTowerE_Eta1 += tower->hadEnergy();
-	ECALTotalCaloTowerE_Eta1 += tower->emEnergy();
-      }
-      if ((fabs(tower->eta()) >= 1.3) || (fabs(tower->eta()) < 2.5)) {
-	HCALTotalCaloTowerE_Eta2 += tower->hadEnergy();
-	ECALTotalCaloTowerE_Eta2 += tower->emEnergy();
-      }
-      if (fabs(tower->eta()) > 2.5) {
-	HCALTotalCaloTowerE_Eta3 += tower->hadEnergy();
-	ECALTotalCaloTowerE_Eta3 += tower->emEnergy();
-      }
-    }
+    h_towerEmFrac->Fill(tower->emEnergy()/(tower->emEnergy()+tower->hadEnergy()));
 
     if ((tower->hadEnergy() + tower->emEnergy()) > 2.0) {
 
@@ -467,18 +400,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     }
 
   }
-
-  if (HCALTotalCaloTowerE > 100.) {
-    ECALvHCAL->Fill(HCALTotalCaloTowerE, ECALTotalCaloTowerE);
-    ECALvHCALEta1->Fill(HCALTotalCaloTowerE_Eta1, ECALTotalCaloTowerE_Eta1);
-    ECALvHCALEta2->Fill(HCALTotalCaloTowerE_Eta2, ECALTotalCaloTowerE_Eta2);
-    ECALvHCALEta3->Fill(HCALTotalCaloTowerE_Eta3, ECALTotalCaloTowerE_Eta3);
-  }
-  std::cout << ">>> Total CaloTower Energy :  "
-	    << " ETotal= " << ETotal 
-	    << " HCAL= " << HCALTotalCaloTowerE 
-	    << " ECAL= " << ECALTotalCaloTowerE
-	    << std::endl;
 
 
   // Loop over the RBX Collection
@@ -765,12 +686,10 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   double sumTowerAllEx(0);
   double sumTowerAllEy(0);
 
-  double HCALTotalE, HBTotalE, HETotalE, HOTotalE, HFTotalE;
-  double ECALTotalE, EBTotalE, EETotalE;
-
   std::vector<CaloTowerPtr>   UsedTowerList;
   std::vector<CaloTower>      TowerUsedInJets;
   std::vector<CaloTower>      TowerNotUsedInJets;
+
 
   // *********************
   // *** Hcal recHits
@@ -778,7 +697,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   edm::Handle<HcalSourcePositionData> spd;
 
-  HCALTotalE = HBTotalE = HETotalE = HOTotalE = HFTotalE = 0.;
   try {
     std::vector<edm::Handle<HBHERecHitCollection> > colls;
     evt.getManyByType(colls);
@@ -790,13 +708,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  HBocc->Fill(j->id().ieta(),j->id().iphi());
 	  HBEne->Fill(j->energy()); 
 	  HBTime->Fill(j->time()); 
-	  HBTotalE += j->energy();
         }
         if (j->id().subdet() == HcalEndcap) {
 	  HEocc->Fill(j->id().ieta(),j->id().iphi());
 	  HEEne->Fill(j->energy()); 
 	  HETime->Fill(j->time()); 
-	  HETotalE += j->energy();
 	  // Fill +-HE separately
 	  if (j->id().ieta()<0) {
 	    HEnegEne->Fill(j->energy()); 
@@ -835,7 +751,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  HFocc->Fill(j->id().ieta(),j->id().iphi());
 	  HFEne->Fill(j->energy()); 
 	  HFTime->Fill(j->time()); 
-	  HFTotalE += j->energy();
 	  // Long and short fibers
 	  if (j->id().depth() == 1){
 	    HFLEne->Fill(j->energy()); 
@@ -859,10 +774,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         if (j->id().subdet() == HcalOuter) {
-	  HOocc->Fill(j->id().ieta(),j->id().iphi());
 	  HOEne->Fill(j->energy()); 
 	  HOTime->Fill(j->time());
-	  HOTotalE += j->energy();
+	  HOocc->Fill(j->id().ieta(),j->id().iphi());
 	  // Separate SiPMs and HPDs:
 	  if (((j->id().iphi()>=59 && j->id().iphi()<=70 && 
 		j->id().ieta()>=11 && j->id().ieta()<=15) || 
@@ -912,40 +826,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   } catch (...) {
     cout << "No HO RecHits." << endl;
   }
-  HCALTotalE = HBTotalE + HETotalE + HFTotalE + HOTotalE;
 
-  ECALTotalE = EBTotalE = EETotalE = 0.;
-
-
-
-  try {
-    std::vector<edm::Handle<EcalRecHitCollection> > colls;
-    evt.getManyByType(colls);
-    std::vector<edm::Handle<EcalRecHitCollection> >::iterator i;
-    for (i=colls.begin(); i!=colls.end(); i++) {
-      for (EcalRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	if (j->id().subdetId() == EcalBarrel) {
-	  EBEne->Fill(j->energy()); 
-	  EBTime->Fill(j->time()); 
-	  EBTotalE += j->energy();
-	}
-	if (j->id().subdetId() == EcalEndcap) {
-	  EEEne->Fill(j->energy()); 
-	  EETime->Fill(j->time());
-	  EETotalE += j->energy();
-	}
-	//	std::cout << *j << std::endl;
-	//	std::cout << "EB ID = " << j->id().subdetId() << "/" << EcalBarrel << std::endl;
-      }
-    }
-  } catch (...) {
-    cout << "No ECAL RecHits." << endl;
-  }
-
-  EBvHB->Fill(HBTotalE, EBTotalE);
-  EEvHE->Fill(HETotalE, EETotalE);
-
-  /*****
   try {
     std::vector<edm::Handle<EBRecHitCollection> > colls;
     evt.getManyByType(colls);
@@ -953,13 +834,12 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EBRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	//	if (j->id().subdetId() == EcalBarrel) {
+	if (j->id().subdetId() == EcalBarrel) {
 	  EBEne->Fill(j->energy()); 
 	  EBTime->Fill(j->time()); 
-	  //	  EBTotalE = j->energy();
-	  //	}
-	  //	std::cout << *j << std::endl;
-	  //	std::cout << "EB ID = " << j->id().subdetId() << "/" << EcalBarrel << std::endl;
+	}
+	//	std::cout << *j << std::endl;
+	//	std::cout << j->id() << std::endl;
       }
     }
   } catch (...) {
@@ -972,10 +852,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     std::vector<edm::Handle<EERecHitCollection> >::iterator i;
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (EERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	//	if (j->id().subdetId() == EcalEndcap) {
+	if (j->id().subdetId() == EcalEndcap) {
 	  EEEne->Fill(j->energy()); 
 	  EETime->Fill(j->time());
-	  //	  EETotalE = j->energy();
 	  // Separate +-EE;
 	  EEDetId EEid = EEDetId(j->id());
 	  if (!EEid.positiveZ()) 
@@ -986,22 +865,15 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	    EEposEne->Fill(j->energy()); 
 	    EEposTime->Fill(j->time()); 
 	  }
-	  //	}
+	}
 	//	std::cout << *j << std::endl;
       }
     }
   } catch (...) {
     cout << "No EE RecHits." << endl;
   }
-  ******/
 
-  ECALTotalE = EBTotalE + EETotalE;
 
-  std::cout << ">>> Total Energy :  " 
-	    << " HCAL= " << HCALTotalE 
-	    << " ECAL= " << ECALTotalE
-	    << std::endl;
-    
 
   // *********************
   // *** CaloTowers
@@ -1142,7 +1014,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	    st_iEta->Fill( tower->ieta() );
 	    st_iPhi->Fill( tower->iphi() );
 
-	    /****
 	    std::cout << ">>> Towers :  " 
 		      << " " << tower->energy() 
 		      << " " << tower->emEnergy()
@@ -1155,7 +1026,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 		      << " " << tower->eta() 
 		      << " " << tower->phi() 	    
 		      << std::endl;
-	    ****/
+	  
 	  }
 	}
 	st_Frac->Fill( maxEne / totEne );

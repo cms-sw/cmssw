@@ -9,7 +9,7 @@
  *   april 07 : SV DTConfigTrigUnit added
  *   april 07 : CB Removed DTGeometry dependecies
  *   september 08 : SV LUTs added
- *   091106 SV flags for DB/geometry lut or bti acceptance compute
+ *
  */
 //
 //--------------------------------------------------
@@ -124,21 +124,6 @@ class DTConfigManager {
   //! Get BX Offset
   int getBXOffset() const;
 
-  //! Lut from DB flag
-  inline bool lutFromDB() const { return m_lutfromdb; }
-
-  //! Use Bti acceptance parameters (LL,LH,CL,CH,RL,RH)
-  inline bool useAcceptParam() const { return m_acceptparam; }
-   
-  //! Set lut from DB flag
-  inline void setLutFromDB(bool lutFromDB) { m_lutfromdb = lutFromDB; }
-
-  //! Set the use of Bti acceptance parameters (LL,LH,CL,CH,RL,RH)
-  inline void setUseAcceptParam(bool acceptparam) { m_acceptparam = acceptparam; }
-
-  //! SV 091111 Dump luts string commands from configuration parameters
-  void dumpLUTParam(DTChamberId &chambid) const;
-
  private:
 
   // maps for the whole config structure
@@ -153,9 +138,6 @@ class DTConfigManager {
   
   int my_bxoffset;
   bool my_dttpgdebug;
-
-  bool m_lutfromdb;
-  bool m_acceptparam;
 };
 
 #endif

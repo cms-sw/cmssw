@@ -12,10 +12,10 @@ HcalHaloData = cms.EDProducer("HcalHaloDataProducer",
                               
                               HcalMinMatchingRadiusParam = cms.double(110.),
                               HcalMaxMatchingRadiusParam = cms.double(490.),
-                              HBRecHitEnergyThresholdParam = cms.double(0.8),
+                              HBRecHitEnergyThresholdParam = cms.double(0.5),
                               HERecHitEnergyThresholdParam = cms.double(0.5),
                               SumHcalEnergyThresholdParam = cms.double(18),
-                              NHitsHcalThresholdParam = cms.int32(6),
+                              NHitsHcalThresholdParam = cms.int32(4),
                               
                               )
 

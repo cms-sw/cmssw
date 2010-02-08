@@ -10,8 +10,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2009/11/09 18:47:58 $
-  * $Revision: 1.29 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.27 $
   * \author W. Fisher - FNAL
   */
 
@@ -22,11 +22,11 @@ public:
   ~HcalPedestalMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun();
+
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    int calibType,
+		    const ZDCDigiCollection& zdc,
 		    const HcalDbService& cond);
   void done();
   void reset();
@@ -115,6 +115,12 @@ private:
   float ADC_pedsum2[85][72][4];
   float fC_pedsum[85][72][4];
   float fC_pedsum2[85][72][4];
+
+  // ZDC pedestals
+  std::vector<MonitorElement*> zdc_pedestals;
+  float zdc_ADC_peds[2][2][5][26]; // zside, section, channel, 
+  float zdc_ADC_count[2][2][5];
+
 };
 
 #endif

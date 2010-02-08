@@ -13,7 +13,7 @@
 //
 // Original Author:  Vladimir Molchanov
 //         Created:  Wed Mar 25 19:43:12 CET 2009
-// $Id: ComphepSingletopFilter.cc,v 1.1 2009/03/25 21:08:15 mol4anov Exp $
+// $Id: ComphepSingletopFilter.cc,v 1.2 2009/03/26 23:03:28 yarba Exp $
 //
 //
 
@@ -39,7 +39,7 @@ ComphepSingletopFilter::ComphepSingletopFilter(const edm::ParameterSet& iConfig)
 ComphepSingletopFilter::~ComphepSingletopFilter() {}
 
 
-void ComphepSingletopFilter::beginJob(const edm::EventSetup&) {
+void ComphepSingletopFilter::beginJob() {
     read22 = read23 = 0;
     pass22 = pass23 = 0;
 }

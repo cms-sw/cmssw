@@ -13,7 +13,6 @@
   <use name=TrackingTools/Records>
   <use name=TrackingTools/TransientTrack>
   <use name=RecoVertex/ConfigurableVertexReco>
-  <use name=RecoVertex/GhostTrackFitter>
   <flags EDM_PLUGIN=1>
 </library>
 <library file="JetTagESProducers.cc" name="RecoBTagSecondaryVertexESProducers">

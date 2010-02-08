@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.33 2009/11/09 18:27:49 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.32 2009/11/09 17:37:05 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -251,10 +251,6 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   MonitorElement*  reportSummaryMap = dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
   MonitorElement*  CertificationSummaryMap = dbe_->book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
-  reportSummaryMap->getTH2F()->SetStats(kFALSE);
-  CertificationSummaryMap->getTH2F()->SetStats(kFALSE);
-  reportSummaryMap->getTH2F()->SetOption("colz");
-  CertificationSummaryMap->getTH2F()->SetOption("colz");
 
   reportSummaryMap->setBinLabel(1,"CaloTower");
   reportSummaryMap->setBinLabel(2,"MET");

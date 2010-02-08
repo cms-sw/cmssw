@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.16 2009/11/27 16:27:25 neadam Exp $
+// $Id: HLXMonitor.h,v 1.10 2008/10/24 20:15:02 neadam Exp $
 //
 //
 
@@ -27,7 +27,6 @@ Implementation:
 #include <memory>
 #include <iomanip>
 #include <cstdlib>
-#include <sys/time.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h" // Not included in example
@@ -73,14 +72,11 @@ class HLXMonitor : public edm::EDAnalyzer
 
       void FillHistograms(const LUMI_SECTION&);
       void FillHistoHFCompare(const LUMI_SECTION&);
-      void FillReportSummary();
-      void FillEventInfo(const LUMI_SECTION&, const edm::Event& e);
+      void FillEventInfo(const LUMI_SECTION&);
 
       void ResetAll();
 
       void EndRun( bool saveFile = true );
-
-      double getUTCtime(timeval* a, timeval* b = NULL);
 
       //  void FillHistoHistory(const LUMI_SECTION&);
 
@@ -125,7 +121,6 @@ class HLXMonitor : public edm::EDAnalyzer
       // Sanity Check for Occupancy
       MonitorElement * SumAllOccSet1;
       MonitorElement * SumAllOccSet2;
-      MonitorElement * MissingDQMDataCheck;
 
       // History plots - fill once per LS
       MonitorElement * HistAvgEtSumHFP;
@@ -151,9 +146,6 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * HistInstantLumiEtSum;
       MonitorElement * HistInstantLumiOccSet1;
       MonitorElement * HistInstantLumiOccSet2;
-      MonitorElement * HistInstantLumiEtSumError;
-      MonitorElement * HistInstantLumiOccSet1Error;
-      MonitorElement * HistInstantLumiOccSet2Error;
       MonitorElement * HistIntegratedLumiEtSum;
       MonitorElement * HistIntegratedLumiOccSet1;
       MonitorElement * HistIntegratedLumiOccSet2;
@@ -172,29 +164,7 @@ class HLXMonitor : public edm::EDAnalyzer
       ///   by the module
       //////////////////////////////////////////////////////////////////
       MonitorElement * runId_;
-      MonitorElement * runStartTimeStamp_;  ///UTC time of the run start
-      MonitorElement * eventId_;
       MonitorElement * lumisecId_;
-      MonitorElement * eventTimeStamp_;
-   
-      //////////////////////////////////////////////////////////////////
-      ///These MEs are either static or updated upon each analyze() call
-      //////////////////////////////////////////////////////////////////
-      MonitorElement * nUpdates_;          ///Number of collector updates (TBD)
-      MonitorElement * processId_;         ///The PID associated with this job
-      MonitorElement * processStartTimeStamp_; ///The UTC time of the first event processed
-      MonitorElement * processTimeStamp_;  ///The UTC time of the last event
-      MonitorElement * processLatency_;    ///Time elapsed since the last event
-      MonitorElement * processEventRate_;  ///Avg # of events in programmable window (default: 5 min)
-      MonitorElement * processEvents_;     ///# of event processed so far
-      MonitorElement * hostName_;          ///Hostname of the local machine
-      MonitorElement * processName_;       ///DQM "name" of the job (eg, Hcal or DT)
-      MonitorElement * workingDir_;        ///Current working directory of the job
-      MonitorElement * cmsswVer_;          ///CMSSW version run for this job
-      MonitorElement * dqmPatch_;          ///DQM patch version for this job
-      MonitorElement * errSummary_;        ///Subdetector-specific error summary (float)
-      MonitorElement * errSummaryEtaPhi_;     ///Subdetector-specific etaPhi summary (float)
-      MonitorElement * errSummarySegment_[10];
 
       // Report Summary
       MonitorElement * reportSummary_;
@@ -224,7 +194,6 @@ class HLXMonitor : public edm::EDAnalyzer
       unsigned int MAX_LS;
       unsigned int AquireMode;
       unsigned int TriggerBX;
-      unsigned int MinLSBeforeSave;
 
       std::string monitorName_;
       int prescaleEvt_;
@@ -243,7 +212,6 @@ class HLXMonitor : public edm::EDAnalyzer
       bool ResetAtNewRun;
       bool SaveAtEndJob;
 
-      std::string eventInfoFolderHLX_;
       std::string eventInfoFolder_;
       std::string subSystemName_;
 
@@ -263,7 +231,6 @@ class HLXMonitor : public edm::EDAnalyzer
 
       unsigned int HLXHFMap[36];
 
-      unsigned int previousSection;
       unsigned int lumiSectionCount;
       int lsBinOld;
       double sectionInstantSumEt;
@@ -273,13 +240,6 @@ class HLXMonitor : public edm::EDAnalyzer
       double sectionInstantSumOcc2;
       double sectionInstantErrSumOcc2;
       double sectionInstantNorm;
-
-      // EventInfo Parameters
-      timeval currentTime_, lastUpdateTime_, lastAvgTime_;
-      timeval runStartTime_;
-      float evtRateWindow_;
-      int evtRateCount_;
-      int pEvent_;
 
 };
 

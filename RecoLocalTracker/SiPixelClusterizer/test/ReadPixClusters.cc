@@ -34,7 +34,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
@@ -92,18 +92,11 @@ class ReadPixClusters : public edm::EDAnalyzer {
   TH1F *hclusPerDet1,*hclusPerDet2,*hclusPerDet3;
   TH1F *hclusPerLay1,*hclusPerLay2,*hclusPerLay3;
   TH1F *hdetsPerLay1,*hdetsPerLay2,*hdetsPerLay3;
-  TH1F *hclus, *hclusClean, *hdigis;
 
   TH1F *hdetr, *hdetz;
 //   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
 //   TH2F *htest, *htest2;
-   TH2F *hDetMap1, *hDetMap2, *hDetMap3;
-   TH2F *hpixDetMap1, *hpixDetMap2, *hpixDetMap3, *hpixDetMapNoise;
-   TH2F *hcluDetMap1, *hcluDetMap2, *hcluDetMap3;
-
-  TH1F *hncharge1,*hncharge2, *hncharge3;
-  TH1F *hnpixcharge1,*hnpixcharge2,*hnpixcharge3;
-
+ 
 };
 /////////////////////////////////////////////////////////////////
 // Contructor, empty.
@@ -122,43 +115,34 @@ void ReadPixClusters::beginJob(const edm::EventSetup& iSetup) {
  // NEW way to use root (from 2.0.0?)
   edm::Service<TFileService> fs;
 
+  // put here whatever you want to do at the beginning of the job
+  //hFile = new TFile ( "histo.root", "RECREATE" );
+
   //hdetunit = new TH1F( "hdetunit", "Det unit", 1000,
   //                            302000000.,302300000.);
-  //hpixid = new TH1F( "hpixid", "Pix det id", 10, 0., 10.);
-  //hpixsubid = new TH1F( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
-  //hlayerid = new TH1F( "hlayerid", "Pix layer id", 10, 0., 10.);
+//hpixid = new TH1F( "hpixid", "Pix det id", 10, 0., 10.);
+//hpixsubid = new TH1F( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
+//hlayerid = new TH1F( "hlayerid", "Pix layer id", 10, 0., 10.);
 
-  hladder1id = fs->make<TH1F>( "hladder1id", "Ladder L1 id", 23, -11.5, 11.5);
-  hladder2id = fs->make<TH1F>( "hladder2id", "Ladder L2 id", 35, -17.5, 17.5);
-  hladder3id = fs->make<TH1F>( "hladder3id", "Ladder L3 id", 47, -23.5, 23.5);
-  hz1id = fs->make<TH1F>( "hz1id", "Z-index id L1", 11, -5.5, 5.5);
-  hz2id = fs->make<TH1F>( "hz2id", "Z-index id L2", 11, -5.5, 5.5);
-  hz3id = fs->make<TH1F>( "hz3id", "Z-index id L3", 11, -5.5, 5.5);
-
-  int sizeH=200;
-  float lowH = -0.5;
-  float hightH = 199.5;
-
+  hladder1id = fs->make<TH1F>( "hladder1id", "Ladder L1 id", 50, 0., 50.);
+  hladder2id = fs->make<TH1F>( "hladder2id", "Ladder L2 id", 50, 0., 50.);
+  hladder3id = fs->make<TH1F>( "hladder3id", "Ladder L3 id", 50, 0., 50.);
+  hz1id = fs->make<TH1F>( "hz1id", "Z-index id L1", 10, 0., 10.);
+  hz2id = fs->make<TH1F>( "hz2id", "Z-index id L2", 10, 0., 10.);
+  hz3id = fs->make<TH1F>( "hz3id", "Z-index id L3", 10, 0., 10.);
+  
   hclusPerDet1 = fs->make<TH1F>( "hclusPerDet1", "Clus per det l1",
 			    200, -0.5, 199.5);
   hclusPerDet2 = fs->make<TH1F>( "hclusPerDet2", "Clus per det l2",
 			    200, -0.5, 199.5);
   hclusPerDet3 = fs->make<TH1F>( "hclusPerDet3", "Clus per det l3",
 			    200, -0.5, 199.5);
-
   hclusPerLay1 = fs->make<TH1F>( "hclusPerLay1", "Clus per layer l1",
 			    2000, -0.5, 1999.5);
   hclusPerLay2 = fs->make<TH1F>( "hclusPerLay2", "Clus per layer l2",
 			    2000, -0.5, 1999.5);
   hclusPerLay3 = fs->make<TH1F>( "hclusPerLay3", "Clus per layer l3",
 			    2000, -0.5, 1999.5);
-
-  hclus = fs->make<TH1F>( "hclus", "Clus per event",
-			    2000, -0.5, 1999.5);
-  hdigis = fs->make<TH1F>( "hdigis", "Digis in clus per event",
-			   2000, -0.5, 1999.5);
-  hclusClean = fs->make<TH1F>( "hclusClean", "Digis in clus per event",
-			   2000, -0.5, 1999.5);
 
   //hdetsPerLay1 = fs->make<TH1F>( "hdetsPerLay1", "Full dets per layer l1",
   //		   161, -0.5, 160.5);
@@ -167,25 +151,13 @@ void ReadPixClusters::beginJob(const edm::EventSetup& iSetup) {
   //hdetsPerLay2 = fs->make<TH1F>( "hdetsPerLay2", "Full dets per layer l2",
   //		   257, -0.5, 256.5);
  
-  sizeH=1000;
-  lowH = 0.;
-  hightH = 100.0; // charge limit in kelec
-  hcharge1 = fs->make<TH1F>( "hcharge1", "Clu charge l1", sizeH, 0.,hightH); //in ke
-  hcharge2 = fs->make<TH1F>( "hcharge2", "Clu charge l2", sizeH, 0.,hightH);
-  hcharge3 = fs->make<TH1F>( "hcharge3", "Clu charge l3", sizeH, 0.,hightH);
+  hcharge1 = fs->make<TH1F>( "hcharge1", "Clu charge l1", 200, 0.,100.); //in ke
+  hcharge2 = fs->make<TH1F>( "hcharge2", "Clu charge l2", 200, 0.,100.);
+  hcharge3 = fs->make<TH1F>( "hcharge3", "Clu charge l3", 200, 0.,100.);
  
-  hncharge1 = fs->make<TH1F>( "hncharge1", "Noise charge l1", sizeH, 0.,hightH);//in ke
-  hncharge2 = fs->make<TH1F>( "hncharge2", "Noise charge l2", sizeH, 0.,hightH);
-  hncharge3 = fs->make<TH1F>( "hncharge3", "Noise charge l3", sizeH, 0.,hightH);
-  sizeH=600;
-  hightH = 60.0; // charge limit in kelec
-  hpixcharge1 = fs->make<TH1F>( "hpixcharge1", "Pix charge l1",sizeH, 0.,hightH);//in ke
-  hpixcharge2 = fs->make<TH1F>( "hpixcharge2", "Pix charge l2",sizeH, 0.,hightH);
-  hpixcharge3 = fs->make<TH1F>( "hpixcharge3", "Pix charge l3",sizeH, 0.,hightH);
- 
-  hnpixcharge1 = fs->make<TH1F>( "hnpixcharge1", "Noise pix charge l1",sizeH, 0.,hightH); 
-  hnpixcharge2 = fs->make<TH1F>( "hnpixcharge2", "Noise pix charge l2",sizeH, 0.,hightH);
-  hnpixcharge3 = fs->make<TH1F>( "hnpixcharge3", "Noise pix charge l3",sizeH, 0.,hightH);
+  hpixcharge1 = fs->make<TH1F>( "hpixcharge1", "Pix charge l1", 100, 0.,50.); //in ke
+  hpixcharge2 = fs->make<TH1F>( "hpixcharge2", "Pix charge l2", 100, 0.,50.);
+  hpixcharge3 = fs->make<TH1F>( "hpixcharge3", "Pix charge l3", 100, 0.,50.);
  
   hcols1 = fs->make<TH1F>( "hcols1", "Layer 1 cols", 500,-0.5,499.5);
   hcols2 = fs->make<TH1F>( "hcols2", "Layer 2 cols", 500,-0.5,499.5);
@@ -211,28 +183,8 @@ void ReadPixClusters::beginJob(const edm::EventSetup& iSetup) {
   hsizey3 = fs->make<TH1F>( "hsizey3", "lay3 clu size in y",
 		      20,-0.5,19.5);
   
-  hDetMap1 = fs->make<TH2F>("hDetMap1"," ",9,-4.5,4.5,21,-10.5,10.5);
-  hDetMap1->SetOption("colz");
-  hDetMap2 = fs->make<TH2F>("hDetMap2"," ",9,-4.5,4.5,33,-16.5,16.5);
-  hDetMap2->SetOption("colz");
-  hDetMap3 = fs->make<TH2F>("hDetMap3"," ",9,-4.5,4.5,45,-22.5,22.5);
-  hDetMap3->SetOption("colz");
-  
-  hpixDetMap1 = fs->make<TH2F>( "hpixDetMap1", "pix det layer 1",
-		      416,0.,416.,160,0.,160.);
-  hpixDetMap2 = fs->make<TH2F>( "hpixDetMap2", "pix det layer 2",
-		      416,0.,416.,160,0.,160.);
-  hpixDetMap3 = fs->make<TH2F>( "hpixDetMap3", "pix det layer 3",
-		      416,0.,416.,160,0.,160.);
-  hcluDetMap1 = fs->make<TH2F>( "hcluDetMap1", "clu det layer 1",
-				416,0.,416.,160,0.,160.);
-  hcluDetMap2 = fs->make<TH2F>( "hcluDetMap2", "clu det layer 1",
-				416,0.,416.,160,0.,160.);
-  hcluDetMap3 = fs->make<TH2F>( "hcluDetMap3", "clu det layer 1",
-				416,0.,416.,160,0.,160.);
-
-  hpixDetMapNoise = fs->make<TH2F>( "hpixDetMapNoise", "pix noise",
-				    416,0.,416.,160,0.,160.);
+  //hdetr = fs->make<TH1F>("hdetr","det r",150,0.,15.);
+  //hdetz = fs->make<TH1F>("hdetz","det z",520,-26.,26.);
 
 #endif
 
@@ -251,8 +203,6 @@ void ReadPixClusters::analyze(const edm::Event& e,
 			      const edm::EventSetup& es) {
   using namespace edm;
 
-  const int MAX_CUT = 1000000;
-
   // Get event setup 
   edm::ESHandle<TrackerGeometry> geom;
   es.get<TrackerDigiGeometryRecord>().get( geom );
@@ -268,7 +218,6 @@ void ReadPixClusters::analyze(const edm::Event& e,
   
   int numberOfDetUnits = 0;
   int numberOfClusters = 0;
-  int numberOfPixels = 0;
   int numberOfDetUnits1 = 0;
   int numOfClustersPerDet1=0;        
   int numOfClustersPerLay1=0;        
@@ -279,15 +228,12 @@ void ReadPixClusters::analyze(const edm::Event& e,
   int numOfClustersPerDet3=0;        
   int numOfClustersPerLay3=0;        
   
-  static int module1[416][160] = {0};
-  static int module2[416][160] = {0};
-  static int module3[416][160] = {0};
-
   // get vector of detunit ids
   //--- Loop over detunits.
   edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin();
+
   for ( ; DSViter != input.end() ; DSViter++) {
-    bool valid = false;
+
     unsigned int detid = DSViter->detId();
     // Det id
     DetId detId = DetId(detid);       // Get the Detid object
@@ -328,17 +274,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
        dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 
     // barrel ids
-    unsigned int layerC=0;
-    unsigned int ladderC=0;
+    unsigned int layer=0;
+    unsigned int ladder=0;
     unsigned int zindex=0;
-
-    // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
-    int shell  = 0; // shell id 
-    int sector = 0; // 1-8
-    int ladder = 0; // 1-22
-    int layer  = 0; // 1-3
-    int module = 0; // 1-4
-    bool half  = false; // 
 
     // Subdet id, pix barrel=1, forward=2
     if(subid==2) {  // forward
@@ -354,8 +292,6 @@ void ReadPixClusters::analyze(const edm::Event& e,
  		    <<blade<<", module "<<zindex<<", side "<<side<<", panel "
  		    <<panel<<" pos = "<<detZ<<" "<<detR<<endl;
  
-      continue; // skip fpix
-
     } else if (subid==1) {  // barrel
 
 #ifdef HISTOS
@@ -370,57 +306,70 @@ void ReadPixClusters::analyze(const edm::Event& e,
       unsigned int detTypeP=pdetId.det();
       unsigned int subidP=pdetId.subdetId();
       // Barell layer = 1,2,3
-      layerC=pdetId.layer();
+      layer=pdetId.layer();
       // Barrel ladder id 1-20,32,44.
-      ladderC=pdetId.ladder();
+      ladder=pdetId.ladder();
       // Barrel Z-index=1,8
       zindex=pdetId.module();
+      if(PRINT)
+	cout<<"  barrel det "<<detTypeP<<" "<<subidP
+	    <<" layer, ladder. module "<<layer<<" "<<ladder<<" "<<zindex<<endl;
+      
 
-      // Convert to online 
-      PixelBarrelName pbn(pdetId);
-      // Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
-      PixelBarrelName::Shell sh = pbn.shell(); //enum
-      sector = pbn.sectorName();
-      ladder = pbn.ladderName();
-      layer  = pbn.layerName();
-      module = pbn.moduleName();
-      half  = pbn.isHalfModule();
-      shell = int(sh);
-      // change the module sign for z<0
-      if(shell==1 || shell==2) module = -module;
-      // change ladeer sign for Outer )x<0)
-      if(shell==1 || shell==3) ladder = -ladder;
-      
-      if(PRINT) { 
-	cout<<" Barrel layer, ladder, module "
-	    <<layerC<<" "<<ladderC<<" "<<zindex<<" "
-	    <<sh<<"("<<shell<<") "<<sector<<" "<<layer<<" "<<ladder<<" "
-	    <<module<<" "<<half<< endl;
-	//cout<<" Barrel det, thick "<<detThick<<" "
-	//  <<" layer, ladder, module "
-	//  <<layer<<" "<<ladder<<" "<<zindex<<endl;
-	//cout<<" col/row, pitch "<<cols<<" "<<rows<<" "
-	//  <<pitchX<<" "<<pitchY<<endl;
-      }      
-      
-    } // if subid
+#ifdef HISTOS
+      //hlayerid->Fill(float(layer));
+#endif // HISTOS
+
+      if(layer==1) {
+
+	if( (ladder==5 && zindex==4) ||  // skip noisy modules
+	    (ladder==4 && zindex==1) ) continue; 
+
+	hladder1id->Fill(float(ladder));
+	hz1id->Fill(float(zindex));
+	++numberOfDetUnits1;
+	numOfClustersPerDet1=0;        
+
+      } else if(layer==2) {
+
+	if( (ladder==2 && zindex==4) ||  // skip noisy modules
+	    (ladder==16 && zindex==5) || 
+	    (ladder==21 && zindex==7) || 
+	    (ladder==24 && zindex==4) ) continue; 
+
+	hladder2id->Fill(float(ladder));
+	hz2id->Fill(float(zindex));
+	++numberOfDetUnits2;
+	numOfClustersPerDet2=0;
+
+      } else if(layer==3) {
+
+	if( (ladder==37 && zindex==8) ) continue;  // skip noisy modules
+
+	hladder3id->Fill(float(ladder));
+	hz3id->Fill(float(zindex));
+	++numberOfDetUnits3;
+	numOfClustersPerDet3=0;
+      }
+
+    } // end barrel/forward
 
     if(PRINT) {
       cout<<"List clusters : "<<endl;
       cout<<"Num Charge Size SizeX SizeY X Y Xmin Xmax Ymin Ymax Edge"
 	  <<endl;
     }
+    numberOfClusters = 0;
 
-    // Loop over clusters
     edmNew::DetSet<SiPixelCluster>::const_iterator clustIt;
     for (clustIt = DSViter->begin(); clustIt != DSViter->end(); clustIt++) {
-      
+
       numberOfClusters++;
       float ch = float(clustIt->charge())/1000.; // convert ke to electrons
       int size = clustIt->size();
       int sizeX = clustIt->sizeX(); //x=row=rfi, 
       int sizeY = clustIt->sizeY(); //y=col=z_global
-      float x = clustIt->x(); // cluster position as float (int+0.5)
+      float x = clustIt->x(); // cluster position as float
       float y = clustIt->y(); // analog average
       // Returns int index of the cluster min/max  
       int minPixelRow = clustIt->minPixelRow(); //x
@@ -442,14 +391,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
 		    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
 		    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
 
-//       if(layer==2 && ladder==16 && module==5 ) 
-// 	cout<<numberOfClusters<<" "<<ch<<" "<<size<<" "<<sizeX<<" "<<sizeY<<" "
-// 	    <<x<<" "<<y<<" "<<minPixelRow<<" "<<maxPixelRow<<" "<<minPixelCol<<" "
-// 	    <<maxPixelCol<<" "<<edgeHitX<<" "<<edgeHitY<<endl;
-
-
-
       // Get the pixels in the Cluster
+      //const vector<Pixel>  = clustIt->pixels();
       const vector<SiPixelCluster::Pixel>& pixelsVec = clustIt->pixels();
       if(PRINT) cout<<" Pixels in this cluster "<<endl;
       bool bigInX=false, bigInY=false;
@@ -458,11 +401,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
       bool edgeInY = false; // to topologu class
       bool cluBigInX = false; // does this clu include a big pixel
       bool cluBigInY = false; // does this clu include a big pixel
-      int noisy = 0;
-
-      for (unsigned int i = 0;  i < pixelsVec.size(); ++i) { // loop over pixels
-	numberOfPixels++;
-	float pixx = pixelsVec[i].x; // index as float=iteger
+      
+      for (unsigned int i = 0;  i < pixelsVec.size(); ++i) {
+	float pixx = pixelsVec[i].x; // index as float=i+0.5
 	float pixy = pixelsVec[i].y; // same
 	float adc = (float(pixelsVec[i].adc)/1000.);
 	//int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
@@ -470,45 +411,13 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	//bool bigInY = (RectangularPixelTopology::isItBigPixelInY(int(pixy)));
 	
 #ifdef HISTOS
-	// Pixel histos
 	if (subid==1) {  // barrel
 	  if(layer==1) {
-
-	    valid = valid || true;
 	    hpixcharge1->Fill(adc);
-	    hpixDetMap1->Fill(pixy,pixx);
-	    module1[int(pixx)][int(pixy)]++;
-	    if(module1[int(pixx)][int(pixy)]>MAX_CUT) 
-	      cout<<" module "<<layer<<" "<<ladder<<" "<<module<<" "
-		  <<pixx<<" "<<pixy<<" "<<module1[int(pixx)][int(pixy)]<<endl;
-
 	  } else if(layer==2) {
-
-	    bool noise = (ladder==6) && (module==-2) && (pixy==364) && (pixx==1);
-	    if(noise) {
-	      cout<<" noise pixel "<<layer<<" "<<sector<<" "<<shell<<endl;
-	      hpixDetMapNoise->Fill(pixy,pixx);
- 	      hnpixcharge2->Fill(adc);
-	      noisy++;
-	    } else {                    
-	      valid = valid || true;
-	      hpixcharge2->Fill(adc);
-	      hpixDetMap2->Fill(pixy,pixx);
-	      module2[int(pixx)][int(pixy)]++;
-	      if(module2[int(pixx)][int(pixy)]>MAX_CUT) 
-		cout<<" module "<<layer<<" "<<ladder<<" "<<module<<" "
-		    <<pixx<<" "<<pixy<<" "<<module2[int(pixx)][int(pixy)]<<endl;
-	    } // noise
-
+	    hpixcharge2->Fill(adc);
 	  } else if(layer==3) {
-
-	    valid = valid || true;
 	    hpixcharge3->Fill(adc);
-	    hpixDetMap3->Fill(pixy,pixx);
-	    module3[int(pixx)][int(pixy)]++;
-	    if(module3[int(pixx)][int(pixy)]>MAX_CUT) 
-	      cout<<" module "<<layer<<" "<<ladder<<" "<<module<<" "
-		  <<pixx<<" "<<pixy<<" "<<module3[int(pixx)][int(pixy)]<<endl;
 	  }
 	} // if barrel
 #endif // HISTOS
@@ -523,19 +432,17 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	if(edgeInY) edgeHitY2=true; 
 	if(bigInX) cluBigInX=true;
 	if(bigInY) cluBigInY=true;
-
       } // pixel loop
-      
 
+      if(edgeHitX != edgeHitX2) 
+	cout<<" wrong egdeX "<<edgeHitX<<" "<<edgeHitX2<<endl;
+      if(edgeHitY != edgeHitY2) 
+	cout<<" wrong egdeY "<<edgeHitY<<" "<<edgeHitY2<<endl;
 
 #ifdef HISTOS
-      
-      // Cluster histos
+
       if (subid==1) {  // barrel
-	if(layer==1) {  // layer
-	  
-	  hDetMap1->Fill(float(module),float(ladder));
-	  hcluDetMap1->Fill(y,x);
+	if(layer==1) {
 	  hcharge1->Fill(ch);
 	  hcols1->Fill(y);
 	  hrows1->Fill(x);
@@ -545,17 +452,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  numOfClustersPerDet1++;
 	  numOfClustersPerLay1++;
 	  //htest2->Fill(float(zindex),float(adc));
-
 	} else if(layer==2) {
-
-	  // Skip noise 
-	  if(noisy>0) {
- 	    hncharge2->Fill(ch);
- 	    continue; // skip plotting noise cluster
- 	  }
-
-	  hDetMap2->Fill(float(module),float(ladder));
-	  hcluDetMap2->Fill(y,x);
 	  hcharge2->Fill(ch);
 	  hcols2->Fill(y);
 	  hrows2->Fill(x);
@@ -564,11 +461,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  hsizey2->Fill(float(sizeY));
 	  numOfClustersPerDet2++;
 	  numOfClustersPerLay2++;
-
 	} else if(layer==3) {
-
-	  hDetMap3->Fill(float(module),float(ladder));
-	  hcluDetMap3->Fill(y,x);
 	  hcharge3->Fill(ch);
 	  hcols3->Fill(y);
 	  hrows3->Fill(x);
@@ -577,66 +470,30 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	  hsizey3->Fill(float(sizeY));
 	  numOfClustersPerDet3++;
 	  numOfClustersPerLay3++;
-
 	} // end if layer
       } // end barrel/forward
 #endif // HISTOS
-
-
-      if(edgeHitX != edgeHitX2) 
-	cout<<" wrong egdeX "<<edgeHitX<<" "<<edgeHitX2<<endl;
-      if(edgeHitY != edgeHitY2) 
-	cout<<" wrong egdeY "<<edgeHitY<<" "<<edgeHitY2<<endl;
-
     } // clusters 
 
+
     
+    if (subid==1) {  // barrel
 #ifdef HISTOS
-    if (subid==1 && valid) {  // barrel
-
-      //hlayerid->Fill(float(layer));
-
-      // Det histos
       if(layer==1) {
-	
-	hladder1id->Fill(float(ladder));
-	hz1id->Fill(float(module));
-	++numberOfDetUnits1;
-	numOfClustersPerDet1=0;        
 	hclusPerDet1->Fill(float(numOfClustersPerDet1));
-
+	if(PRINT) cout<<"Lay1: number of clusters per det = "<<numOfClustersPerDet1<<endl;
       } else if(layer==2) {
-
-	hladder2id->Fill(float(ladder));
-	hz2id->Fill(float(module));
-	++numberOfDetUnits2;
-	numOfClustersPerDet2=0;
 	hclusPerDet2->Fill(float(numOfClustersPerDet2));
-
-      } else if(layer==3) {
-
-	hladder3id->Fill(float(ladder));
-	hz3id->Fill(float(module));
-	++numberOfDetUnits3;
-	numOfClustersPerDet3=0;
+	if(PRINT) cout<<"Lay2: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+      } else if(layer==3) { 
 	hclusPerDet3->Fill(float(numOfClustersPerDet3));
-      } // layer
-      
-    } // end barrel/forward
-
+	if(PRINT) cout<<"Lay3: number of clusters per det = "<<numOfClustersPerDet1<<endl;
+      }
 #endif // HISTOS
+    } // end barrel/endcaps
 
-    if(PRINT) {
-      if(layer==1) 
-	cout<<"Lay1: number of clusters per det = "<<numOfClustersPerDet1<<endl;
-      else if(layer==2) 
-	cout<<"Lay2: number of clusters per det = "<<numOfClustersPerDet1<<endl;
-      else if(layer==3) 
-	cout<<"Lay3: number of clusters per det = "<<numOfClustersPerDet1<<endl;
-    } // end if PRINT
-    
   } // detunits loop
-    
+  
 
   if(PRINT) {
     cout<<"Number of clusters per Lay1,2,3: "<<numOfClustersPerLay1<<" "
@@ -644,12 +501,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
     cout<<"Number of dets with clus in Lay1,2,3: "<<numberOfDetUnits1<<" "
 	<<numberOfDetUnits2<<" "<<numberOfDetUnits3<<endl;
   }
-  
 #ifdef HISTOS
-  hdigis->Fill(float(numberOfPixels));
-  hclus->Fill(float(numberOfClusters));
-  int tmp = numOfClustersPerLay1+numOfClustersPerLay2+numOfClustersPerLay3;
-  hclusClean->Fill(float(tmp));
   hclusPerLay1->Fill(float(numOfClustersPerLay1));
   hclusPerLay2->Fill(float(numOfClustersPerLay2));
   hclusPerLay3->Fill(float(numOfClustersPerLay3));

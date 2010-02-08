@@ -2,16 +2,11 @@
 // Description:  Some Basic validation plots for jets.
 // Author: Robert M. Harris
 // Date:  30 - August - 2006
-// Kalanand Mishra (November 22, 2009): 
-//          Modified and cleaned up to work in 3.3.X
 // 
 #include "RecoJets/JetAnalyzers/interface/DijetMass.h"
-
+#include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,28 +20,15 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-
-template<class Jet>
-DijetMass<Jet>::DijetMass( const edm::ParameterSet & cfg ) {
-  PtHistMax =  cfg.getUntrackedParameter<double>( "PtHistMax", 3000.0);
-  EtaMax    = cfg.getUntrackedParameter<double> ("EtaMax", 1.3);  
-  histogramFile    = cfg.getUntrackedParameter<std::string>("HistoFileName", 
-							    "DijetMassHistos.root");
-
-  AKJets =  cfg.getParameter<std::string> ("AKJets"); 
-  AKCorJets =  cfg.getParameter<std::string> ("AKCorrectedJets"); 
-  ICJets =  cfg.getParameter<std::string> ("ICJets"); 
-  ICCorJets =  cfg.getParameter<std::string> ("ICCorrectedJets"); 
-  SCJets =  cfg.getParameter<std::string> ("SCJets"); 
-  SCCorJets =  cfg.getParameter<std::string> ("SCCorrectedJets"); 
-  KTJets =  cfg.getParameter<std::string> ("KTJets"); 
-  KTCorJets =  cfg.getParameter<std::string> ("KTCorrectedJets"); 
+// Get the algorithm of the jet collections we will read from the .cfg file 
+// which defines the value of the strings CaloJetAlgorithm and GenJetAlgorithm.
+DijetMass::DijetMass( const ParameterSet & cfg ) :
+  PtHistMax( cfg.getParameter<double>( "PtHistMax" ) ),
+  GenType( cfg.getParameter<string>( "GenType" ) )
+  {
 }
 
-
-
-template<class Jet>
-void DijetMass<Jet>::beginJob( const EventSetup & ) {
+void DijetMass::beginJob( const EventSetup & ) {
   cout << "DijetMass: Maximum bin edge for Pt Hists = " << PtHistMax << endl;
   numJets=2;
 
@@ -54,254 +36,245 @@ void DijetMass<Jet>::beginJob( const EventSetup & ) {
   evtCount = 0;
 
   // Open the histogram file and book some associated histograms
-  m_file=new TFile( histogramFile.c_str(),"RECREATE" ); 
+  m_file=new TFile("DijetMassHistos.root","RECREATE"); 
   
   //Simple histos
   
-  //AK unc
-  ptAKunc  = TH1F("ptAKunc","p_{T} of leading Jets (AK)",50,0.0,PtHistMax);
-  etaAKunc = TH1F("etaAKunc","#eta of leading Jets (AK)",23,-1.0,1.0);
-  phiAKunc = TH1F("phiAKunc","#phi of leading Jets (AK)",72,-M_PI, M_PI);
-  m2jAKunc = TH1F("m2jAKunc","Dijet Mass of leading Jets (AK)",100,0.0,2*PtHistMax);
+  //MC5 cal
+  ptMC5cal  = TH1F("ptMC5cal","p_{T} of leading CaloJets (MC5)",50,0.0,PtHistMax);
+  etaMC5cal = TH1F("etaMC5cal","#eta of leading CaloJets (MC5)",23,-1.0,1.0);
+  phiMC5cal = TH1F("phiMC5cal","#phi of leading CaloJets (MC5)",72,-M_PI, M_PI);
+  m2jMC5cal = TH1F("m2jMC5cal","Dijet Mass of leading CaloJets (MC5)",100,0.0,2*PtHistMax);
+
+  //MC5 gen
+  ptMC5gen = TH1F("ptMC5gen","p_{T} of leading genJets (MC5)",50,0.0,PtHistMax);
+  etaMC5gen = TH1F("etaMC5gen","#eta of leading genJets (MC5)",23,-1.0,1.0);
+  phiMC5gen = TH1F("phiMC5gen","#phi of leading genJets (MC5)",72,-M_PI, M_PI);
+  m2jMC5gen = TH1F("m2jMC5gen","Dijet Mass of leading genJets (MC5)",100,0.0,2*PtHistMax);
+
+  //MC5 cor
+  ptMC5cor  = TH1F("ptMC5cor","p_{T} of leading Corrected CaloJets (MC5)",50,0.0,PtHistMax);
+  etaMC5cor = TH1F("etaMC5cor","#eta of leading Corrected CaloJets (MC5)",23,-1.0,1.0);
+  phiMC5cor = TH1F("phiMC5cor","#phi of leading Corrected CaloJets (MC5)",72,-M_PI, M_PI);
+  m2jMC5cor = TH1F("m2jMC5cor","Dijet Mass of leading Corrected CaloJets (MC5)",100,0.0,2*PtHistMax);
+
+  //IC5 cal
+  ptIC5cal  = TH1F("ptIC5cal","p_{T} of leading CaloJets (IC5)",50,0.0,PtHistMax);
+  etaIC5cal = TH1F("etaIC5cal","#eta of leading CaloJets (IC5)",23,-1.0,1.0);
+  phiIC5cal = TH1F("phiIC5cal","#phi of leading CaloJets (IC5)",72,-M_PI, M_PI);
+  m2jIC5cal = TH1F("m2jIC5cal","Dijet Mass of leading CaloJets (IC5)",100,0.0,2*PtHistMax);
+
+  //IC5 gen
+  ptIC5gen = TH1F("ptIC5gen","p_{T} of leading genJets (IC5)",50,0.0,PtHistMax);
+  etaIC5gen = TH1F("etaIC5gen","#eta of leading genJets (IC5)",23,-1.0,1.0);
+  phiIC5gen = TH1F("phiIC5gen","#phi of leading genJets (IC5)",72,-M_PI, M_PI);
+  m2jIC5gen = TH1F("m2jIC5gen","Dijet Mass of leading genJets (IC5)",100,0.0,2*PtHistMax);
+
+  //IC5 cor
+  ptIC5cor  = TH1F("ptIC5cor","p_{T} of leading Corrected CaloJets (IC5)",50,0.0,PtHistMax);
+  etaIC5cor = TH1F("etaIC5cor","#eta of leading Corrected CaloJets (IC5)",23,-1.0,1.0);
+  phiIC5cor = TH1F("phiIC5cor","#phi of leading Corrected CaloJets (IC5)",72,-M_PI, M_PI);
+  m2jIC5cor = TH1F("m2jIC5cor","Dijet Mass of leading Corrected CaloJets (IC5)",100,0.0,2*PtHistMax);
+
+  //KT10 cal
+  ptKT10cal  = TH1F("ptKT10cal","p_{T} of leading CaloJets (KT10)",50,0.0,PtHistMax);
+  etaKT10cal = TH1F("etaKT10cal","#eta of leading CaloJets (KT10)",23,-1.0,1.0);
+  phiKT10cal = TH1F("phiKT10cal","#phi of leading CaloJets (KT10)",72,-M_PI, M_PI);
+  m2jKT10cal = TH1F("m2jKT10cal","Dijet Mass of leading CaloJets (KT10)",100,0.0,2*PtHistMax);
+
+  //KT10 gen
+  ptKT10gen = TH1F("ptKT10gen","p_{T} of leading genJets (KT10)",50,0.0,PtHistMax);
+  etaKT10gen = TH1F("etaKT10gen","#eta of leading genJets (KT10)",23,-1.0,1.0);
+  phiKT10gen = TH1F("phiKT10gen","#phi of leading genJets (KT10)",72,-M_PI, M_PI);
+  m2jKT10gen = TH1F("m2jKT10gen","Dijet Mass of leading genJets (KT10)",100,0.0,2*PtHistMax);
 
 
-  //AK cor
-  ptAKcor  = TH1F("ptAKcor","p_{T} of leading Corrected Jets (AK)",50,0.0,PtHistMax);
-  etaAKcor = TH1F("etaAKcor","#eta of leading Corrected Jets (AK)",23,-1.0,1.0);
-  phiAKcor = TH1F("phiAKcor","#phi of leading Corrected Jets (AK)",72,-M_PI, M_PI);
-  m2jAKcor = TH1F("m2jAKcor","Dijet Mass of leading Corrected Jets (AK)",100,0.0,2*PtHistMax);
-
-  //IC unc
-  ptICunc  = TH1F("ptICunc","p_{T} of leading Jets (IC)",50,0.0,PtHistMax);
-  etaICunc = TH1F("etaICunc","#eta of leading Jets (IC)",23,-1.0,1.0);
-  phiICunc = TH1F("phiICunc","#phi of leading Jets (IC)",72,-M_PI, M_PI);
-  m2jICunc = TH1F("m2jICunc","Dijet Mass of leading Jets (IC)",100,0.0,2*PtHistMax);
-
-
-  //IC cor
-  ptICcor  = TH1F("ptICcor","p_{T} of leading Corrected Jets (IC)",50,0.0,PtHistMax);
-  etaICcor = TH1F("etaICcor","#eta of leading Corrected Jets (IC)",23,-1.0,1.0);
-  phiICcor = TH1F("phiICcor","#phi of leading Corrected Jets (IC)",72,-M_PI, M_PI);
-  m2jICcor = TH1F("m2jICcor","Dijet Mass of leading Corrected Jets (IC)",100,0.0,2*PtHistMax);
-
-  //KT unc
-  ptKTunc  = TH1F("ptKTunc","p_{T} of leading Jets (KT)",50,0.0,PtHistMax);
-  etaKTunc = TH1F("etaKTunc","#eta of leading Jets (KT)",23,-1.0,1.0);
-  phiKTunc = TH1F("phiKTunc","#phi of leading Jets (KT)",72,-M_PI, M_PI);
-  m2jKTunc = TH1F("m2jKTunc","Dijet Mass of leading Jets (KT)",100,0.0,2*PtHistMax);
-
-
-  //KT cor
-  ptKTcor  = TH1F("ptKTcor","p_{T} of leading Corrected Jets (KT)",50,0.0,PtHistMax);
-  etaKTcor = TH1F("etaKTcor","#eta of leading Corrected Jets (KT)",23,-1.0,1.0);
-  phiKTcor = TH1F("phiKTcor","#phi of leading Corrected Jets (KT)",72,-M_PI, M_PI);
-  m2jKTcor = TH1F("m2jKTcor","Dijet Mass of leading Corrected Jets (KT)",100,0.0,2*PtHistMax);
-
-  //SC unc
-  ptSCunc  = TH1F("ptSCunc","p_{T} of leading Jets (SC)",50,0.0,PtHistMax);
-  etaSCunc = TH1F("etaSCunc","#eta of leading Jets (SC)",23,-1.0,1.0);
-  phiSCunc = TH1F("phiSCunc","#phi of leading Jets (SC)",72,-M_PI, M_PI);
-  m2jSCunc = TH1F("m2jSCunc","Dijet Mass of leading Jets (SC)",100,0.0,2*PtHistMax);
-
-  //SC cor
-  ptSCcor  = TH1F("ptSCcor","p_{T} of leading Corrected Jets (SC)",50,0.0,PtHistMax);
-  etaSCcor = TH1F("etaSCcor","#eta of leading Corrected Jets (SC)",23,-1.0,1.0);
-  phiSCcor = TH1F("phiSCcor","#phi of leading Corrected Jets (SC)",72,-M_PI, M_PI);
-  m2jSCcor = TH1F("m2jSCcor","Dijet Mass of leading Corrected Jets (SC)",100,0.0,2*PtHistMax);
-
+  //Matched jets Analysis Histograms for MC5 CaloJets only
+  dR = TH1F("dR","Leading genJets dR with matched CaloJet",100,0,0.5);
+  respVsPt = TProfile("respVsPt","CaloJet Response of Leading genJets in Barrel",100,0.0,PtHistMax/2); 
+  dRcor = TH1F("dRcor","CorJets dR with matched CaloJet",100,0.0,0.01);
+  corRespVsPt = TProfile("corRespVsPt","Corrected CaloJet Response of Leading genJets in Barrel",100,0.0,PtHistMax/2); 
 }
 
-
-
-template<class Jet>
-void DijetMass<Jet>::analyze( const Event& evt, const EventSetup& es ) {
+void DijetMass::analyze( const Event& evt, const EventSetup& es ) {
 
   evtCount++;
-  math::XYZTLorentzVector p4jet[2];
+  math::XYZTLorentzVector p4jet[2], p4gen[2], p4cal[2], p4cor[2];
   int jetInd;
-  Handle<JetCollection> Jets;
-
+  Handle<CaloJetCollection> caloJets;
+  Handle<GenJetCollection> genJets;
 
   //Fill Simple Histos
-  typename JetCollection::const_iterator i_jet;
-
-  //AK unc
-  evt.getByLabel( AKJets, Jets );
+  
+  //MC5 cal
+  evt.getByLabel( "midPointCone5CaloJets", caloJets );
   jetInd = 0;
-  for( i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++ i_jet ) {
-    p4jet[jetInd] = i_jet->p4();
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<2; ++ cal ) {
+    p4jet[jetInd] = cal->p4();
     jetInd++;
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jAKunc.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptAKunc.Fill( p4jet[0].Pt() ); ptAKunc.Fill( p4jet[1].Pt() );  
-     etaAKunc.Fill( p4jet[0].eta() ); etaAKunc.Fill( p4jet[1].eta() );  
-     phiAKunc.Fill( p4jet[0].phi() ); phiAKunc.Fill( p4jet[1].phi() );  
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jMC5cal.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptMC5cal.Fill( p4jet[0].Pt() ); ptMC5cal.Fill( p4jet[1].Pt() );  
+     etaMC5cal.Fill( p4jet[0].eta() ); etaMC5cal.Fill( p4jet[1].eta() );  
+     phiMC5cal.Fill( p4jet[0].phi() ); phiMC5cal.Fill( p4jet[1].phi() );  
+   }
+
+  //MC5 gen
+  evt.getByLabel( "midPointCone5GenJets", genJets );
+  jetInd = 0;
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<2; ++ gen ) {
+    p4jet[jetInd] = gen->p4();
+    jetInd++;
+  }
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jMC5gen.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptMC5gen.Fill( p4jet[0].Pt() ); ptMC5gen.Fill( p4jet[1].Pt() );  
+     etaMC5gen.Fill( p4jet[0].eta() ); etaMC5gen.Fill( p4jet[1].eta() );  
+     phiMC5gen.Fill( p4jet[0].phi() ); phiMC5gen.Fill( p4jet[1].phi() );  
+   }
+
+  //MC5 cal
+  evt.getByLabel( "corJetMcone5", caloJets );
+  jetInd = 0;
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<2; ++ cal ) {
+    p4jet[jetInd] = cal->p4();
+    jetInd++;
+  }
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jMC5cor.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptMC5cor.Fill( p4jet[0].Pt() ); ptMC5cor.Fill( p4jet[1].Pt() );  
+     etaMC5cor.Fill( p4jet[0].eta() ); etaMC5cor.Fill( p4jet[1].eta() );  
+     phiMC5cor.Fill( p4jet[0].phi() ); phiMC5cor.Fill( p4jet[1].phi() );  
    }
 
 
-  //AK corrected
-  evt.getByLabel( AKCorJets, Jets );
+  //IC5 cal
+  evt.getByLabel( "iterativeCone5CaloJets", caloJets );
   jetInd = 0;
-  for( i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++ i_jet ) {
-    p4jet[jetInd] = i_jet->p4();
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<2; ++ cal ) {
+    p4jet[jetInd] = cal->p4();
     jetInd++;
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jAKcor.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptAKcor.Fill( p4jet[0].Pt() ); ptAKcor.Fill( p4jet[1].Pt() );  
-     etaAKcor.Fill( p4jet[0].eta() ); etaAKcor.Fill( p4jet[1].eta() );  
-     phiAKcor.Fill( p4jet[0].phi() ); phiAKcor.Fill( p4jet[1].phi() );  
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jIC5cal.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptIC5cal.Fill( p4jet[0].Pt() ); ptIC5cal.Fill( p4jet[1].Pt() );  
+     etaIC5cal.Fill( p4jet[0].eta() ); etaIC5cal.Fill( p4jet[1].eta() );  
+     phiIC5cal.Fill( p4jet[0].phi() ); phiIC5cal.Fill( p4jet[1].phi() );  
    }
 
 
-  //IC unc
-  evt.getByLabel( ICJets, Jets );
+  //IC5 gen
+  evt.getByLabel( "iterativeCone5GenJets", genJets );
   jetInd = 0;
-  for(  i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++ i_jet ) {
-    p4jet[jetInd] = i_jet->p4();
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<2; ++ gen ) {
+    p4jet[jetInd] = gen->p4();
     jetInd++;
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jICunc.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptICunc.Fill( p4jet[0].Pt() ); ptICunc.Fill( p4jet[1].Pt() );  
-     etaICunc.Fill( p4jet[0].eta() ); etaICunc.Fill( p4jet[1].eta() );  
-     phiICunc.Fill( p4jet[0].phi() ); phiICunc.Fill( p4jet[1].phi() );  
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jIC5gen.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptIC5gen.Fill( p4jet[0].Pt() ); ptIC5gen.Fill( p4jet[1].Pt() );  
+     etaIC5gen.Fill( p4jet[0].eta() ); etaIC5gen.Fill( p4jet[1].eta() );  
+     phiIC5gen.Fill( p4jet[0].phi() ); phiIC5gen.Fill( p4jet[1].phi() );  
    }
 
-
-  //IC corrected
-  evt.getByLabel( ICCorJets, Jets );
+  //IC5 cor
+  evt.getByLabel( "corJetIcone5", caloJets );
   jetInd = 0;
-  for( i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++ i_jet ) {
-    p4jet[jetInd] = i_jet->p4();
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<2; ++ cal ) {
+    p4jet[jetInd] = cal->p4();
     jetInd++;
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jICcor.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptICcor.Fill( p4jet[0].Pt() ); ptICcor.Fill( p4jet[1].Pt() );  
-     etaICcor.Fill( p4jet[0].eta() ); etaICcor.Fill( p4jet[1].eta() );  
-     phiICcor.Fill( p4jet[0].phi() ); phiICcor.Fill( p4jet[1].phi() );  
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jIC5cor.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptIC5cor.Fill( p4jet[0].Pt() ); ptIC5cor.Fill( p4jet[1].Pt() );  
+     etaIC5cor.Fill( p4jet[0].eta() ); etaIC5cor.Fill( p4jet[1].eta() );  
+     phiIC5cor.Fill( p4jet[0].phi() ); phiIC5cor.Fill( p4jet[1].phi() );  
    }
 
-  //KT unc
-  evt.getByLabel( KTJets, Jets );
+  //KT10 cal
+  evt.getByLabel( "ktCaloJets", caloJets );
   jetInd = 0;
-  for( i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++ i_jet ) {
-    p4jet[jetInd] = i_jet->p4();
+  for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end() && jetInd<2; ++ cal ) {
+    p4jet[jetInd] = cal->p4();
     jetInd++;
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jKTunc.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptKTunc.Fill( p4jet[0].Pt() ); ptKTunc.Fill( p4jet[1].Pt() );  
-     etaKTunc.Fill( p4jet[0].eta() ); etaKTunc.Fill( p4jet[1].eta() );  
-     phiKTunc.Fill( p4jet[0].phi() ); phiKTunc.Fill( p4jet[1].phi() );  
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jKT10cal.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptKT10cal.Fill( p4jet[0].Pt() ); ptKT10cal.Fill( p4jet[1].Pt() );  
+     etaKT10cal.Fill( p4jet[0].eta() ); etaKT10cal.Fill( p4jet[1].eta() );  
+     phiKT10cal.Fill( p4jet[0].phi() ); phiKT10cal.Fill( p4jet[1].phi() );  
    }
 
-
-  //KT corrected
-  evt.getByLabel( KTCorJets, Jets );
+  //KT10 gen
+  evt.getByLabel( "ktGenJets", genJets );
   jetInd = 0;
-  for( i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++i_jet ) {
-    p4jet[jetInd] = i_jet->p4();
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<2; ++ gen ) {
+    p4jet[jetInd] = gen->p4();
     jetInd++;
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jKTcor.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptKTcor.Fill( p4jet[0].Pt() ); ptKTcor.Fill( p4jet[1].Pt() );  
-     etaKTcor.Fill( p4jet[0].eta() ); etaKTcor.Fill( p4jet[1].eta() );  
-     phiKTcor.Fill( p4jet[0].phi() ); phiKTcor.Fill( p4jet[1].phi() );  
+  if(jetInd==2&&abs(p4jet[0].eta())<1.0&&abs(p4jet[1].eta())<1.0){
+     m2jKT10gen.Fill( (p4jet[0]+p4jet[1]).mass() ); 
+     ptKT10gen.Fill( p4jet[0].Pt() ); ptKT10gen.Fill( p4jet[1].Pt() );  
+     etaKT10gen.Fill( p4jet[0].eta() ); etaKT10gen.Fill( p4jet[1].eta() );  
+     phiKT10gen.Fill( p4jet[0].phi() ); phiKT10gen.Fill( p4jet[1].phi() );  
    }
 
-
-  //SC unc
-  evt.getByLabel( SCJets, Jets );
+  //Matching for MC5 Jets: leading genJets matched to any CaloJet
+  evt.getByLabel( "midPointCone5GenJets", genJets );
+  evt.getByLabel( "midPointCone5CaloJets", caloJets );
   jetInd = 0;
-  for( i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++i_jet  ) {
-    p4jet[jetInd] = i_jet->p4();
-    jetInd++;
+  double dRmin[2];
+  for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end() && jetInd<numJets; ++ gen ) { //leading genJets
+    p4gen[jetInd] = gen->p4();    //Gen 4-vector
+    dRmin[jetInd]=1000.0;
+    for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) { //all CaloJets
+       double delR = deltaR( cal->eta(), cal->phi(), gen->eta(), gen->phi() ); 
+       if(delR<dRmin[jetInd]){
+         dRmin[jetInd]=delR;           //delta R of match
+	 p4cal[jetInd] = cal->p4();  //Matched Cal 4-vector
+       }
+    }
+    dR.Fill(dRmin[jetInd]);
+    if(dRmin[jetInd]>0.5)cout << "MC5 Match Warning: dR=" <<dRmin[jetInd]<<", GenPt="<<p4gen[jetInd].Pt()<<", CalPt="<<p4cal[jetInd].Pt()<<endl;
+    jetInd++;    
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jSCunc.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptSCunc.Fill( p4jet[0].Pt() ); ptSCunc.Fill( p4jet[1].Pt() );  
-     etaSCunc.Fill( p4jet[0].eta() ); etaSCunc.Fill( p4jet[1].eta() );  
-     phiSCunc.Fill( p4jet[0].phi() ); phiSCunc.Fill( p4jet[1].phi() );  
-   }
-
-
-  //SC corrected
-  evt.getByLabel( SCCorJets, Jets );
-  jetInd = 0;
-  for( i_jet = Jets->begin(); i_jet != Jets->end() && jetInd<2; ++i_jet ) {
-    p4jet[jetInd] = i_jet->p4();
-    jetInd++;
+  //Fill Resp vs Pt profile histogram with response of two leading gen jets
+  for( jetInd=0; jetInd<numJets; ++jetInd ){
+    if(fabs(p4gen[jetInd].eta())<1.){
+      respVsPt.Fill(p4gen[jetInd].Pt(), p4cal[jetInd].Pt()/p4gen[jetInd].Pt() );
+    }
   }
-  if(jetInd==2&&abs(p4jet[0].eta())<EtaMax &&abs(p4jet[1].eta())<EtaMax ){
-     m2jSCcor.Fill( (p4jet[0]+p4jet[1]).mass() ); 
-     ptSCcor.Fill( p4jet[0].Pt() ); ptSCcor.Fill( p4jet[1].Pt() );  
-     etaSCcor.Fill( p4jet[0].eta() ); etaSCcor.Fill( p4jet[1].eta() );  
-     phiSCcor.Fill( p4jet[0].phi() ); phiSCcor.Fill( p4jet[1].phi() );  
-   }
 
+  //Find the Corrected CaloJets that match the two uncorrected CaloJets
+  evt.getByLabel( "corJetMcone5", caloJets );
+  for( jetInd=0; jetInd<numJets; ++jetInd ){
+    bool found=kFALSE;
+    for( CaloJetCollection::const_iterator cor = caloJets->begin(); cor != caloJets->end() && !found; ++ cor ) { //all corrected CaloJets
+       double delR = deltaR( cor->eta(), cor->phi(), p4cal[jetInd].eta(),  p4cal[jetInd].phi()); 
+       if(delR<0.01){
+         dRmin[jetInd]=delR;           //delta R of match
+	 p4cor[jetInd] = cor->p4();  //Matched Cal 4-vector
+	 found=kTRUE;
+         dRcor.Fill(dRmin[jetInd]);
+       }
+    }
+    if(!found)cout << "Warning: corrected jet not found. jetInd=" << jetInd << endl;
+  }
+  //Fill Resp vs Pt profile histogram with corrected response of two leading gen jets
+  for( jetInd=0; jetInd<numJets; ++jetInd ){
+    if(fabs(p4gen[jetInd].eta())<1.){
+     corRespVsPt.Fill(p4gen[jetInd].Pt(), p4cor[jetInd].Pt()/p4gen[jetInd].Pt() ); 
+    }
+  }
+   
 }
 
-template<class Jet>
-void DijetMass<Jet>::endJob() {
+void DijetMass::endJob() {
 
   //Write out the histogram file.
-  m_file->cd(); 
+  m_file->Write(); 
 
-  ptAKunc.Write();
-  etaAKunc.Write();
-  phiAKunc.Write();
-  m2jAKunc.Write();
-
-  ptAKcor.Write();
-  etaAKcor.Write();
-  phiAKcor.Write();
-  m2jAKcor.Write();
-
-  ptICunc.Write();
-  etaICunc.Write();
-  phiICunc.Write();
-  m2jICunc.Write();
-
-
-  ptICcor.Write();
-  etaICcor.Write();
-  phiICcor.Write();
-  m2jICcor.Write();
-
-  ptKTunc.Write();
-  etaKTunc.Write();
-  phiKTunc.Write();
-  m2jKTunc.Write();
-
-
-  ptKTcor.Write();
-  etaKTcor.Write();
-  phiKTcor.Write();
-  m2jKTcor.Write();
-
-  ptSCunc.Write();
-  etaSCunc.Write();
-  phiSCunc.Write();
-  m2jSCunc.Write();
-
-  ptSCcor.Write();
-  etaSCcor.Write();
-  phiSCcor.Write();
-  m2jSCcor.Write();
-
-  m_file->Close(); 
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
-/////////// Calo Jet Instance ////////
-typedef DijetMass<CaloJet> DijetMassCaloJets;
-DEFINE_FWK_MODULE(DijetMassCaloJets);
-/////////// Gen Jet Instance ////////
-typedef DijetMass<GenJet> DijetMassGenJets;
-DEFINE_ANOTHER_FWK_MODULE(DijetMassGenJets);
-/////////// PF Jet Instance ////////
-typedef DijetMass<PFJet> DijetMassPFJets;
-DEFINE_ANOTHER_FWK_MODULE(DijetMassPFJets);
+DEFINE_FWK_MODULE(DijetMass);

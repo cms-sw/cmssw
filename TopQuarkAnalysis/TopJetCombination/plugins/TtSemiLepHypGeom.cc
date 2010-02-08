@@ -57,7 +57,7 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   for(unsigned int idx=0; idx<maxNJets; ++idx){
     if(useBTagging_ && !isLJet[idx]) continue;
     for(unsigned int jdx=(idx+1); jdx<maxNJets; ++jdx){
-      if(useBTagging_ && !isLJet[idx]) continue;
+      if(useBTagging_ && !isLJet[jdx]) continue;
       double dist = distance((*jets)[idx].p4(), (*jets)[jdx].p4());
       if( minDist<0. || dist<minDist ){
 	minDist=dist;

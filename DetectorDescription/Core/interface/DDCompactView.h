@@ -3,8 +3,6 @@
 
 #include <vector>
 
-//#include <memory>
-
 #include "DetectorDescription/Base/interface/Ptr.h"
 
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
@@ -111,7 +109,7 @@ public:
   // ************************************************************************
   
   //! Prototypish cleaning up, WILL CLEAN THE COMPLETE DDD TRANSIENT STORE
-/*   void clear(); */
+  void clear();
   
   /*      
   std::pair<bool,DDPhysicalPart> goTo(const DDPartSelector & path) const 
@@ -157,8 +155,7 @@ public:
   void swap( DDCompactView& );
   
 protected:
-    DDCompactViewImpl* rep_;
-  //DDCompactViewImpl* global_;
+  Ptr<DDCompactViewImpl> rep_;
  // static DDCompactViewImpl*  global_; 
 
 };

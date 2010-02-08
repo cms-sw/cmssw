@@ -8,7 +8,6 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V9::All"
 
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
@@ -28,25 +27,24 @@ process.source = cms.Source("EmptyIOVSource",
 process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
-    deadFraction = cms.double(0.00),
-    noisyFraction = cms.double(0.00),
+    deadFraction = cms.double(0.0002),
+    noisyFraction = cms.double(0.0002),
     appendMode = cms.untracked.bool(False),
     rmsGain = cms.double(0.14),
     meanGain = cms.double(2.8),
     meanPed = cms.double(28.2),
     rmsPed = cms.double(2.75),
 # separate input for the FPIX. If not entered the default values are used.
-    rmsGainFPix = cms.untracked.double(0.34),
+    rmsGainFPix = cms.untracked.double(0.14),
     meanGainFPix = cms.untracked.double(2.8),
     meanPedFPix = cms.untracked.double(28.2),
-    rmsPedFPix = cms.untracked.double(5.75),
+    rmsPedFPix = cms.untracked.double(2.75),
                                                 
     fileName = cms.string('../macros/phCalibrationFit_C0.dat'),
     record = cms.string('SiPixelGainCalibrationOfflineRcd'),
     secondRocRowGainOffset = cms.double(0.0),
     fromFile = cms.bool(False),
-    secondRocRowPedOffset = cms.double(0.0),
-    generateColumns = cms.untracked.bool(True)
+    secondRocRowPedOffset = cms.double(0.0)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

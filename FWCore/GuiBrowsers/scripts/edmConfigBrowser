@@ -46,6 +46,12 @@ from Vispa.Main.Application import *
 from Vispa.Plugins.ConfigEditor.ConfigEditorPlugin import *
 
 if __name__ == "__main__":
+    if not os.path.isdir(preferencesDirectory):
+        print "Preferences Directory not found. Creating it under "+preferencesDirectory
+        try:
+            os.mkdir(preferencesDirectory)
+        except IOError:
+            print "Directory could not be created. No logging."
     app = Application(sys.argv)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigBrowser")

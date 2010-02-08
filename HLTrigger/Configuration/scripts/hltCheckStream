@@ -13,6 +13,7 @@ exec config in globals(), hlt.__dict__
 config.close()
 process = hlt.process
 
+# get streams, and drop _T0 suffix
 streams = process.streams._Parameterizable__parameterNames
 streams.sort()
 
@@ -22,9 +23,24 @@ for stream in streams:
   paths_in_stream[stream] = [ path for pd in process.streams.__dict__[stream] for path in process.datasets.__dict__[pd] ]
   paths_in_stream[stream].sort()
 
+# drop the _T0 stuff from stream names
+for stream in streams:
+  friendlyName = stream.split('_', 1)[0]
+  if (friendlyName != stream):
+    paths_in_stream[friendlyName] = paths_in_stream[stream]
+    del paths_in_stream[stream]
+
+streams = [ stream.split('_', 1)[0] for stream in streams ]
+
 #print 'Parsing Output Modules...'
 paths_in_output = dict()
 for stream in streams:
+  output = eval('process.hltOutput%s' % stream)
+  paths_in_output[stream] = [ path for path in output.SelectEvents.SelectEvents ]
+  paths_in_output[stream].sort()
+
+# add DQM and HLTDQM output modules
+for stream in 'DQM', 'HLTDQM':
   output = eval('process.hltOutput%s' % stream)
   paths_in_output[stream] = [ path for path in output.SelectEvents.SelectEvents ]
   paths_in_output[stream].sort()
@@ -54,6 +70,29 @@ for stream in paths_in_stream:
     for p in diff:
       print '\t', p
 
+# look for differences between stream A and DQM/HLTDQM
+for stream in 'DQM', 'HLTDQM':
+  s = set(paths_in_stream['A'])
+  o = set(paths_in_output[stream])
+
+  if s == o:
+    #print 'stream', stream, 'is consistent with its output module'
+    continue
+  success = False
+  
+  diff = [ x for x in (s - o) ]
+  diff.sort()
+  if diff:
+    print 'output', stream, 'has these missing paths vs. stream A:'
+    for p in diff:
+      print '\t', p
+
+  diff = [ x for x in (o - s) ]
+  diff.sort()
+  if diff:
+    print 'output', stream, 'has these extra paths vs. stream A:'
+    for p in diff:
+      print '\t', p
 if success:
   print 'no errors found'
   sys.exit(0)

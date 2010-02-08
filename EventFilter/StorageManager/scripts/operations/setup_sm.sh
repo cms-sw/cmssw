@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.42 2009/09/18 15:26:13 babar Exp $
+# $Id: setup_sm.sh,v 1.41 2009/08/17 13:30:08 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -81,24 +81,14 @@ checkSLCversion () {
 # Mounts a disk, looking for its label
 mountByLabel () {
     sn=`basename $1`
-    # First, trying to mount by label
-    mount -L $sn $1 >/dev/null
-    # If the previous mount failed, it's most likely because it found a disk
-    # inside the multipath, instead of the multipath one, so try manually
     if mount | grep -q $sn; then
-	echo "Mounted $1 using label"
-    else
         device=''
         for dev in /dev/mapper/mpath*; do
             xfs_admin -l $dev | grep -q 'label = "'$sn'"' && device=$dev
         done
         if [ -b "$device" ]; then
             echo "Attempting to mount $1 from $device"
-            if mount $device $1; then
-		echo "Mounted $1 manually from $device"
-	    else
-		echo "Could not mount $1 from $device!"
-	    fi
+            mount $device $1
         else
             echo "Could not mount $1: no device in /dev/mapper/mpath* with label $sn"
         fi
@@ -144,7 +134,7 @@ startinjectworker () {
     local reference_file="/nfshome0/smpro/configuration/db.conf"
 
     if test -f "$reference_file"; then
-        if test -s "$local_file"; then
+        if test -f "$local_file"; then
             local local_time=`stat -t $local_file 2>/dev/null | cut -f13 -d' '`
             local reference_time=`stat -t $reference_file 2>/dev/null | cut -f13 -d' '`
             if test $reference_time -gt $local_time; then
@@ -157,12 +147,7 @@ startinjectworker () {
                 chown smpro.smpro $local_file
             fi
         else
-            if [ -f "$local_file" ]; then
-                logger -s -t "SM INIT" "WARNING: $local_file is empty, copying from $reference_file"
-                rm -f "$local_file"
-            else
-                logger -s -t "SM INIT" "WARNING: $local_file doesn't exist, copying from $reference_file"
-            fi
+            logger -s -t "SM INIT" "WARNING: $local_file doesn't exist, copying from $reference_file"
             su - smpro -c "cp $reference_file $local_file"
             sed -i "1i# File copied from $reference_file on `date`" $local_file
             chmod 400 $local_file
@@ -219,8 +204,6 @@ start () {
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
                 if mount | grep -q $sn; then
-                    echo "$sn is already mounted"
-                else
                     echo "Attempting to mount $i"
                     mount -L $sn $i
                 fi

@@ -25,7 +25,7 @@ class BoxDecayView(WidgetView):
     LABEL = "&Box Decay View"
     UPDATE_EVERY = 20
     NO_SORTING_ABOVE = 10000
-    WARNING_ABOVE = 300
+    WARNING_ABOVE = 500
     
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
@@ -322,7 +322,6 @@ class BoxDecayView(WidgetView):
         for widget in self.widgets():
             if isinstance(widget,WidgetContainer) and not widget.collapsed():
                 widget.toggleCollapse()
-                print widget
 
     def expandToDepth(self,depth):
         for widget in self.widgets():

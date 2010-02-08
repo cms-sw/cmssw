@@ -53,6 +53,7 @@ Running the whole PAT sequence yourself
 
 Quick instruction: cmsRun pat_WenuPlots.py  or cmsRun pat_ZeePlots.py
 
+>>>>>CMSSW versions 3_1_X
 
 The software has been tested and run successfully with the following tags:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,6 +72,14 @@ V02-10-01      RecoJets/JetAlgorithms
 
 However,  it  can be run just with  CMSSW_3_1_2 without  any further  tags and
 should produce the same results.
+For 3_1_4 and above no extra tags are required.
+
+>>>>>CMSSW versions 3_X where X > 1
+The code should compile and run properly without any extra tags.
+Notice that any change that has been done in the header is backwards compatible
+i.e. it compiles, runs and produces the same results, if you use the recommended
+configuration files pat_WenuPlots.py and pat_ZeePlots.py.
+
 
 Instructions:
 ^^^^^^^^^^^^^
@@ -158,8 +167,14 @@ root [2] PlotCombiner()
 
 and you finally get the plots.
 
+Notes on Data Handling:
+^^^^^^^^^^^^^^^^^^^^^^^
 
-
+The code can also run with data. What you have to change is the Global Tag
+(refer to  the twiki page: 
+https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions )
+and remove references in the cfg with respect to generator level
+quantities that pat default may need.
 
 Contact
 

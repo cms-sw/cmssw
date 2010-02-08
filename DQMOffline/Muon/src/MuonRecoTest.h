@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the recostruction efficiency of Sta/Glb on eta, phi parameters
  *
- *  $Date: 2009/05/07 09:28:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/16 13:02:47 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -26,7 +26,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Run.h"
 
 #include <memory>
 #include <iostream>
@@ -57,12 +56,10 @@ protected:
   /// Endjob
   void endJob();
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// DQM Client Diagnostic
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
 
 private:

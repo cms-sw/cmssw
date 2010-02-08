@@ -26,7 +26,7 @@
 
 
 // Default constructor.
-DDLPolyGenerator::DDLPolyGenerator(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
+DDLPolyGenerator::DDLPolyGenerator()
 {
 }
 
@@ -35,21 +35,21 @@ DDLPolyGenerator::~DDLPolyGenerator()
 {
 }
 
-void DDLPolyGenerator::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLPolyGenerator::preProcessElement (const std::string& name, const std::string& nmspace)
 {
-  myRegistry_->getElement("RZPoint")->clear();
-  myRegistry_->getElement("ZSection")->clear();
+  DDLElementRegistry::getElement("RZPoint")->clear();
+  DDLElementRegistry::getElement("ZSection")->clear();
 }
 
 // Upon encountering an end Polycone or Polyhedra tag, process the RZPoints
 // element and extract the r and z std::vectors to feed into DDCore.  Then, clear
 // the RZPoints and clear this element.
-void DDLPolyGenerator::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLPolyGenerator::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLPolyGenerator::processElement started");
 
-  DDXMLElement* myRZPoints = myRegistry_->getElement("RZPoint");
-  DDXMLElement* myZSection = myRegistry_->getElement("ZSection");
+  DDXMLElement* myRZPoints = DDLElementRegistry::getElement("RZPoint");
+  DDXMLElement* myZSection = DDLElementRegistry::getElement("ZSection");
 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts;
@@ -129,7 +129,7 @@ void DDLPolyGenerator::processElement (const std::string& name, const std::strin
       std::string msg = "\nDDLPolyGenerator::processElement was called with incorrect name of solid: " + name;
       throwError(msg);
     }
-  DDLSolid::setReference(nmspace, cpv);
+  DDLSolid::setReference(nmspace);
 
   // clear out RZPoint element accumulator and ZSections
   myRZPoints->clear();

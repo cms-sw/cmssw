@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.48 2009/10/20 23:58:32 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.49 2009/11/13 15:48:15 slava77 Exp $
 //
 //
 
@@ -784,30 +784,35 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
                arbitrationPairs.push_back(std::make_pair(&(*chamberIter1), &(*segmentIter1)));
 
                // find identical segments with which to arbitrate
-               // muonIndex2
-               for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
-               {
-                  // chamberIter2
-                  for( std::vector<reco::MuonChamberMatch>::iterator chamberIter2 = pOutputMuons->at(muonIndex2).matches().begin();
-                        chamberIter2 != pOutputMuons->at(muonIndex2).matches().end(); ++chamberIter2 )
+               // tracker muons only
+               if (pOutputMuons->at(muonIndex1).isTrackerMuon()) {
+                  // muonIndex2
+                  for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
                   {
-                     // segmentIter2
-                     for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter2 = chamberIter2->segmentMatches.begin();
-                           segmentIter2 != chamberIter2->segmentMatches.end(); ++segmentIter2 )
+                     // tracker muons only
+                     if (! pOutputMuons->at(muonIndex2).isTrackerMuon()) continue;
+                     // chamberIter2
+                     for( std::vector<reco::MuonChamberMatch>::iterator chamberIter2 = pOutputMuons->at(muonIndex2).matches().begin();
+                           chamberIter2 != pOutputMuons->at(muonIndex2).matches().end(); ++chamberIter2 )
                      {
-                        if(segmentIter2->isMask()) continue; // has already been arbitrated
-                        if(fabs(segmentIter2->x       - segmentIter1->x      ) < 1E-3 &&
-                           fabs(segmentIter2->y       - segmentIter1->y      ) < 1E-3 &&
-                           fabs(segmentIter2->dXdZ    - segmentIter1->dXdZ   ) < 1E-3 &&
-                           fabs(segmentIter2->dYdZ    - segmentIter1->dYdZ   ) < 1E-3 &&
-                           fabs(segmentIter2->xErr    - segmentIter1->xErr   ) < 1E-3 &&
-                           fabs(segmentIter2->yErr    - segmentIter1->yErr   ) < 1E-3 &&
-                           fabs(segmentIter2->dXdZErr - segmentIter1->dXdZErr) < 1E-3 &&
-                           fabs(segmentIter2->dYdZErr - segmentIter1->dYdZErr) < 1E-3)
-                           arbitrationPairs.push_back(std::make_pair(&(*chamberIter2), &(*segmentIter2)));
-                     } // segmentIter2
-                  } // chamberIter2
-               } // muonIndex2
+                        // segmentIter2
+                        for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter2 = chamberIter2->segmentMatches.begin();
+                              segmentIter2 != chamberIter2->segmentMatches.end(); ++segmentIter2 )
+                        {
+                           if(segmentIter2->isMask()) continue; // has already been arbitrated
+                           if(fabs(segmentIter2->x       - segmentIter1->x      ) < 1E-3 &&
+                                 fabs(segmentIter2->y       - segmentIter1->y      ) < 1E-3 &&
+                                 fabs(segmentIter2->dXdZ    - segmentIter1->dXdZ   ) < 1E-3 &&
+                                 fabs(segmentIter2->dYdZ    - segmentIter1->dYdZ   ) < 1E-3 &&
+                                 fabs(segmentIter2->xErr    - segmentIter1->xErr   ) < 1E-3 &&
+                                 fabs(segmentIter2->yErr    - segmentIter1->yErr   ) < 1E-3 &&
+                                 fabs(segmentIter2->dXdZErr - segmentIter1->dXdZErr) < 1E-3 &&
+                                 fabs(segmentIter2->dYdZErr - segmentIter1->dYdZErr) < 1E-3)
+                              arbitrationPairs.push_back(std::make_pair(&(*chamberIter2), &(*segmentIter2)));
+                        } // segmentIter2
+                     } // chamberIter2
+                  } // muonIndex2
+               }
 
                // arbitration segment sort
                if(arbitrationPairs.empty()) continue; // this should never happen

@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.3 2009/06/16 15:40:56 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.5 2009/12/03 08:40:21 ptraczyk Exp $
 //
 //
 
@@ -191,7 +191,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	  else thisHit.timeCorr=0.;
 	  
 	// signal propagation along the wire correction for unmached theta or phi segment hits
-	if (doWireCorr_ && !bothProjections) {
+	if (doWireCorr_ && !bothProjections && tsos.first.isValid()) {
 	  const DTLayer* layer = theDTGeom->layer(hiti->wireId());
 	  float propgL = layer->toLocal( tsos.first.globalPosition() ).y();
 	  float wirePropCorr = propgL/24.4*0.00543; // signal propagation speed along the wire

@@ -14,10 +14,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 13:37:59 vadler Exp $
+  \version  $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 20:45:20 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 13:37:59 vadler Exp $
+// $Id: PATTriggerMatchSelector.h,v 1.3 2009/04/27 20:45:20 vadler Exp $
 //
 
 
@@ -28,9 +28,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-/*  */
-#include <iostream>        
-/*  */
 
 
 namespace pat {
@@ -76,6 +73,7 @@ namespace pat {
         filterIdsEnumMap.insert( std::make_pair( "TriggerL1TechTrig"    , trigger::TriggerL1TechTrig ) );
         filterIdsEnumMap.insert( std::make_pair( "TriggerL1Castor"      , trigger::TriggerL1Castor ) );
         filterIdsEnumMap.insert( std::make_pair( "TriggerL1BPTX"        , trigger::TriggerL1BPTX ) );
+        filterIdsEnumMap.insert( std::make_pair( "TriggerL1GtExternal"  , trigger::TriggerL1GtExternal ) );
         // HLT
         filterIdsEnumMap.insert( std::make_pair( "TriggerPhoton"  , trigger::TriggerPhoton ) );
         filterIdsEnumMap.insert( std::make_pair( "TriggerElectron", trigger::TriggerElectron ) );

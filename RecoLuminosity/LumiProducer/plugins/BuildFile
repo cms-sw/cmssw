@@ -1,7 +1,0 @@
-<use name=HLTrigger/HLTcore>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/Luminosity>
-<library file=LumiCalculator.cc name=RecoLuminosityLumiCalculator>
-   <flags EDM_PLUGIN=1>
-</library>

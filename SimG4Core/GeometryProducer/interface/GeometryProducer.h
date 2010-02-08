@@ -33,7 +33,7 @@ public:
     typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
     explicit GeometryProducer(edm::ParameterSet const & p);
     virtual ~GeometryProducer();
-    virtual void beginJob();
+    virtual void beginJob(const edm::EventSetup & c);
     virtual void endJob();
     virtual void produce(edm::Event & e, const edm::EventSetup & c);
     std::vector<boost::shared_ptr<SimProducer> > producers() const

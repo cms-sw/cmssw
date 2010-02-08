@@ -396,9 +396,7 @@ class OfflineValidation(GenericValidation):
                 "DMRMinimum":self.__DMRMinimum,
                 "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
-                "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
-                "TrackSelectionTemplate": configTemplates.TrackSelectionTemplate,
-                "LorentzAngleTemplate": configTemplates.LorentzAngleTemplate
+                "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap )
                 })
         repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )

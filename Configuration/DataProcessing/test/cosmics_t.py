@@ -49,7 +49,7 @@ class cosmicsScenarioTest(unittest.TestCase):
         
         scenario = getScenario("cosmics")
         try:
-            process = scenario.promptReco("GLOBALTAG::ALL", ['RECO'])
+            process = scenario.promptReco("GLOBALTAG::ALL", ['MuAlCalIsolatedMu'])
             writePSetFile("testPromptReco.py", process)
         except Exception, ex:
             msg = "Failed to create Prompt Reco configuration\n"
@@ -97,16 +97,16 @@ class cosmicsScenarioTest(unittest.TestCase):
             
 
             
-    def testAlcaReco(self):
-        """ test alcaReco method"""
-        scenario = getScenario("cosmics")
-        try:
-            process = scenario.alcaReco("ALCARECOStreamMuAlStandAloneCosmics")
+    def testAlcaSkim(self):
+            """ test alcaSkim method"""
+            scenario = getScenario("cosmics")
+#        try:
+            process = scenario.alcaSkim(["MuAlCalIsolatedMu"])
             writePSetFile("testAlcaReco.py", process)
-        except Exception, ex:
-            msg = "Error preparing Alca Reco configuration\n"
-            msg += str(ex)
-            self.fail(msg)
+#        except Exception, ex:
+#            msg = "Error preparing Alca Reco configuration\n"
+#            msg += str(ex)
+#            self.fail(msg)
                               
 
     

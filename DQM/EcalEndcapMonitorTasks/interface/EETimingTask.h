@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.11 $
+ * $Date: 2008/05/11 09:35:11 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -68,13 +68,8 @@ bool mergeRuns_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
-MonitorElement* meTime_[18];
 MonitorElement* meTimeMap_[18];
 MonitorElement* meTimeAmpli_[18];
-
-MonitorElement* meTimeSummary1D_[2];
-MonitorElement* meTimeSummaryMap_[2], *meTimeSummaryMapProjR_[2], *meTimeSummaryMapProjPhi_[2];
-MonitorElement* meTimeDelta_;
 
 bool init_;
 

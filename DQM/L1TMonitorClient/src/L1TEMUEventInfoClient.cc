@@ -115,7 +115,7 @@ void L1TEMUEventInfoClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TEMUEventInfoClient::beginJob(void){
+void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
 
   if(verbose_) cout <<"[TriggerDQM]: Begin Job" << endl;
   // get backendinterface  

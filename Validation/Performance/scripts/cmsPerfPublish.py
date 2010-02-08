@@ -38,7 +38,7 @@ DirName=( #These need to match the candle directory names ending (depending on t
           "IgProf_Perf",
           "IgProf_Mem",
           "Callgrind",
-          "Memcheck",
+         "Memcheck",
           #Adding the extra PU directories:
           "PU_TimeSize",
           "PU_IgProf",
@@ -195,10 +195,8 @@ class Table(object):
 #
 def main():
     global TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents
-    #Bad design... why is this function defined here?
-    #Either no function, or define somewhere else.
     def _copyReportsToStaging(repdir,LogFiles,cmsScimarkDir,stage):
-        """Use function syscp to copy LogFiles and cmsScimarkDir over to staging area"""
+
         if _verbose:
             print "Copying the logfiles to %s/." % stage
             print "Copying the cmsScimark2 results to the %s/." % stage  
@@ -206,9 +204,7 @@ def main():
         syscp(LogFiles     , stage + "/")
         syscp(cmsScimarkDir, stage + "/")
 
-    #Same comment as above about the opportunity of this function definition here.
     def _createLogFile(LogFile,date,LocalPath,ShowTagsResult):
-        """Creating a small logfile with basic publication script running information (never used really by other scripts in the suite)."""
         try:
             LOG = open(LogFile,"w")
             if _verbose:
@@ -225,7 +221,6 @@ def main():
     print_header()
 
     # Get environment variables
-    #FIXME: should check into this and make sure the proper variables for the tests being published are read from logfile (case of deprecated releases...)
     print "\n Getting Environment variables..."
     (LocalPath, ShowTagsResult) = get_environ()
 
@@ -234,23 +229,16 @@ def main():
 
     # Determine program parameters and input/staging locations
     print "\n Determining locations for input and staging..."
-    (drive,path,remote,stage,port,repdir,prevrev,igprof_remotedir) = getStageRepDirs(options,args)
+    (drive,path,remote,stage,port,repdir,prevrev) = getStageRepDirs(options,args)
 
     #Get the number of events for each test from logfile:
     print "\n Getting the number of events for each test..."
     #Let's do a quick implementation of something that looks at the logfile:
     cmsPerfSuiteLogfile="%s/cmsPerfSuite.log"%repdir
-
+    #print "AAAA %s"%cmsPerfSuiteLogfile
     if os.path.exists(cmsPerfSuiteLogfile):
-        try:
-            (TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents)=getNumOfEventsFromLog(cmsPerfSuiteLogfile)
-            #Get the CMSSW version and SCRAM architecture from log (need these for the IgProf new publishing with igprof-navigator)
-            (CMSSW_arch,CMSSW_version)=getArchVersionFromLog(cmsPerfSuiteLogfile)
-            #For now keep the dangerous default? Better set it to a negative number...
-        except:
-            print "There was an issue in reading out the number of events for the various tests or the architecture/CMSSW version using the standard logfile %s"%cmsPerfSuiteLogFile
-            print "Check that the format was not changed: this scripts relies on the initial perfsuite arguments to be dumped in the logfile one per line!"
-            print "For now taking the default values for all tests (0)!"
+        (TimeSizeNumOfEvents,IgProfNumOfEvents,CallgrindNumOfEvents,MemcheckNumOfEvents)=getNumOfEventsFromLog(cmsPerfSuiteLogfile)
+    #For now keep the dangerous default? Better set it to a negative number...
 
     print "\n Scan report directory..."
     # Retrieve some directories and information about them
@@ -264,13 +252,6 @@ def main():
     # Produce a small logfile with basic info on the Production area
     _createLogFile("%s/ProductionLog.txt" % stage,date,repdir,ShowTagsResult)
 
-    #Check if there are IgProf tests:
-    for dirname in os.listdir(repdir):
-        if "IgProf" in dirname:
-            print "\n Handling IgProf reports..."
-            # add a function to handle the IgProf reports
-            stageIgProfReports(igprof_remotedir,CMSSW_arch,CMSSW_version)
-    
     print "\n Creating HTML files..."
     # create HTML files
     createWebReports(stage,repdir,ExecutionDate,LogFiles,cmsScimarkResults,date,prevrev)
@@ -394,16 +375,7 @@ def optionparse():
         help='Use a particular port number to rsync material to a remote server',
         metavar='<PORT>'
         )
-    parser.add_option(
-        '--igprof',
-        type='string',
-        dest='ig_remotedir',
-        default='IgProfData', #Reverting to local default publication for now#'/afs/cern.ch/cms/sdt/web/qa/igprof-testbed/data', #For now going straight into AFS... later implement security via local disk on cmsperfvm and cron job there:
-        #default='cmsperfvm:/data/projects/conf/PerfSuiteDB/IgProfData', #This should not change often! In this virtual machine a cron job will run to move stuff to AFS.
-        help='Specify an AFS or host:mydir remote directory instead of default one',
-        metavar='<IGPROF REMOTE DIRECTORY>'
-        )
-    
+
     devel.add_option(
         '-d',
         '--debug',
@@ -449,9 +421,6 @@ def getNumOfEventsFromLog(logfile):
     CallgrindEvents=0
     MemcheckEvents=0
     for line in log:
-        #FIXME:
-        #For robustness could read this from the Launching the X tests (.....) with N events each and keep that format decent for parsing.
-        #One more place where XML would seem a better choice to extract information (Timing of the performance suite in general is also, but publishing and harvesting some other info as well).
         if 'TimeSizeEvents' in line and not TimeSizeEvents:
             lineitems=line.split()
             TimeSizeEvents=lineitems[lineitems.index('TimeSizeEvents')+1]
@@ -465,20 +434,6 @@ def getNumOfEventsFromLog(logfile):
             lineitems=line.split()
             MemcheckEvents=lineitems[lineitems.index('MemcheckEvents')+1]
     return (TimeSizeEvents,IgProfEvents,CallgrindEvents,MemcheckEvents)
-
-def getArchVersionFromLog(logfile):
-    '''Another very fragile function to get the architecture and the CMSSW version parsing the logfile...'''
-    log=open(logfile,"r")
-    arch=re.compile("^Current Architecture is")
-    version=re.compile("^Current CMSSW version is")
-    CMSSW_arch="UNKNOWN_ARCH"
-    CMSSW_version="UNKNOWN_VERSION"
-    for line in log:
-        if arch.search(line):
-            CMSSW_arch=line.split()[3]
-        if version.search(line):
-            CMSSW_version=line.split()[4]
-    return(CMSSW_arch,CMSSW_version)
 
 
 #####################
@@ -625,16 +580,14 @@ def getStageRepDirs(options,args):
             pass
         else:
             fail("ERROR: There was some problem (%s) when creating the staging directory" % detail)
-    
-    return (drive,path,remote,StagingArea,port,repdir,previousrev,options.ig_remotedir)
+
+    return (drive,path,remote,StagingArea,port,repdir,previousrev)
 
 ####################
 #
 # Scan report area for required things
 #
 def scanReportArea(repdir):
-    """Scans the working directory for cms*.logs (cmsPerfSuite.log and cmsScimark*.log, and cmsScimark results.
-    It returns Execution date (completion), current date, list of logfiles and cmsScimark results"""
     date=getDate()
     LogFiles  = glob.glob(repdir + "cms*.log")
     if _verbose:
@@ -648,10 +601,7 @@ def scanReportArea(repdir):
 
     cmsScimarkResults = []
     for adir in cmsScimarkDir:
-        htmlfiles = glob.glob(adir + "/*.html")
-        #FIXME:
-        #Really unnecessary use of map in my opinion
-        #Could do with cmsScimarkResults.extend(htmlfiles)
+        htmlfiles = glob.glob(adir + "/*.html") 
         map(cmsScimarkResults.append,htmlfiles)
 
     ExecutionDateLast = ""
@@ -1385,53 +1335,6 @@ def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
 
     INDEX.write("<br />")    
 
-def stageIgProfReports(remotedir,arch,version):
-    '''Publish all IgProf files into one remote directory (new naming convention). Can publish to AFS location or to a local directory on a remote (virtual) machine.'''
-    #FIXME: can eliminate this part if using tar pipes... was done with rsynch in mind
-    #Compose command to create remote dir:
-    if ":" in remotedir: #Remote host local directory case
-        (host,dir)=remotedir.split(":")
-        mkdir_cmd="ssh %s (mkdir %s;mkdir %s/%s)"%(host,dir,dir,arch)
-    else: #AFS or local case
-        mkdir_cmd="mkdir %s;mkdir %s/%s"%(remotedir,remotedir,arch)
-
-    #Create remote dir:
-    try:
-        print mkdir_cmd
-        os.system(mkdir_cmd)
-        print "Successfully created publication directory"
-    except:
-        print "Issues with publication directory existence/creation!"
-        
-    #Copy files over to remote dir
-    #replacing rsync with tar pipes since it can hang on AFS (Andreas' experience):
-    #rsync_cmd="rsync -avz *_IgProf_*/*.sql3 %s/%s/%s"%(remotedir,arch,version)
-    if ":" in remotedir:
-        tarpipe_cmd='tar cf - *_IgProf_*/*.sql3 | ssh %s "cd %s/%s; mkdir %s; cd %s; tar xf -; mv *_IgProf_*/*.sql3 .; rmdir *_IgProf_*"'%(host,dir,arch,version,version)
-    else:
-        tarpipe_cmd='tar cf - *_IgProf_*/*.sql3 | (cd %s/%s; mkdir %s; cd %s; tar xf -; mv *_IgProf_*/*.sql3 .; rmdir *_IgProf_*)'%(remotedir,arch,version,version)
-    try:
-    #    print rsync_cmd
-    #    os.system(rsync_cmd)
-        print tarpipe_cmd
-        os.system(tarpipe_cmd)
-        print "Successfully copied IgProf reports to %s"%remotedir
-    except:
-        print "Issues with rsyncing to the remote directory %s!"%remotedir
-
-    #Make sure permissions are set for group to be able to write:
-    if ":" in remotedir: #Remote host local directory case
-        chmod_cmd="ssh %s chmod -R 775 %s/%s"%(host,dir,arch)
-    else:
-        chmod_cmd="chmod -R 775 %s/%s"%(remotedir,arch)
-    try:
-        print chmod_cmd
-        os.system(chmod_cmd)
-        print "Successfully set permissions for IgProf reports directory %s"%remotedir
-    except:
-        print "(Potential) issues with chmoding the remote directory %s!"%remotedir
-    
-    return #Later, report here something like the web link to the reports in igprof-navigator...
 
 
 #####################
@@ -1831,7 +1734,6 @@ def syncToRemoteLoc(stage,drive,path,port):
         print              cmd + " --dry-run " + args 
         retval = os.system(cmd + " --dry-run " + args )
     else:
-        print cmd+" "+args
         retval = os.system(cmd + " " + args)
     return retval
 

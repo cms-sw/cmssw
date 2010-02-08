@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #ConeIsolation
-coneIsolationTauJetTags = cms.EDFilter("ConeIsolation",
+coneIsolationTauJetTags = cms.EDProducer("ConeIsolation",
     MinimumTransverseMomentumInIsolationRing = cms.double(0.0),
     MaximumTransverseImpactParameter = cms.double(0.03),
     VariableConeParameter = cms.double(3.5),

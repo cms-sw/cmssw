@@ -5,7 +5,19 @@
   <class name="std::vector<FedChannelConnection>"/>
   <class name="std::vector< std::vector<FedChannelConnection> >"/>
 
+  <!--commented out because they resolve to std::-->
+  <!--class name="SiStripFedCabling::Feds"/-->
+  <!--class name="SiStripFedCabling::FedsIter"/-->
+  <!--class name="SiStripFedCabling::FedsIterRange"/-->
+  <!--class name="SiStripFedCabling::FedsConstIter"/-->
+  <!--class name="SiStripFedCabling::FedsConstIterRange"/-->
   <class name="SiStripFedCabling::Conns"/>
+  <!--class name="SiStripFedCabling::ConnsPair"/-->
+  <class name="SiStripFedCabling::ConnsIter"/>
+  <class name="SiStripFedCabling::ConnsIterRange"/>
+  <class name="SiStripFedCabling::ConnsConstIter"/>
+  <class name="SiStripFedCabling::ConnsConstIterRange"/>
+  <!--class name="SiStripFedCabling::Registry"/-->
 
   <class name="SiStripPedestals" class_version="0"/>
   <class name="SiStripPedestals::DetRegistry"/>
@@ -48,5 +60,4 @@
   <class name="SiStripSummary::DetRegistry"/>
   <class name="std::vector<SiStripSummary::DetRegistry>"/>
 
-  <class name="SiStripConfObject" class_version="0"/>
 </lcgdict>   

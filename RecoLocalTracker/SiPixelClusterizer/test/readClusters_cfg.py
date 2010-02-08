@@ -24,7 +24,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("PoolSource",
 #    fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/digis.root')
-    fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/COSMIC/RECO/005102D1-ACD5-DE11-AD13-000423D98BC4.root')
+   fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/promptrecoCosmics_1.root')
 )
 
 
@@ -42,11 +42,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("SimTracker.Configuration.SimTracker_cff")
 
 # needed for global transformation
-# process.load("Configuration.StandardSequences.FakeConditions_cff")
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
-#process.GlobalTag.globaltag = 'MC_31X_V9::All'
-process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
+process.load("Configuration.StandardSequences.FakeConditions_cff")
 
 # Initialize magnetic field
 #  include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"

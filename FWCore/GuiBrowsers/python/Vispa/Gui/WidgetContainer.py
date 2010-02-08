@@ -159,6 +159,8 @@ class WidgetContainer(VispaWidget, ConnectableWidgetOwner):
         """ Call toggleCollapse().
         """
         self.toggleCollapse()
+        if isinstance(self.parent(), ConnectableWidgetOwner):
+            self.parent().widgetDoubleClicked(self)
         
     def mousePressEvent(self, event):
         """ Makes sure event is forwarded to both base classes.

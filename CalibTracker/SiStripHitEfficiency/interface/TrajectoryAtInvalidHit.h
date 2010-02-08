@@ -1,7 +1,7 @@
 #ifndef TrajectoryAtInvalidHit_H
 #define TrajectoryAtInvalidHit_H
 
-// Class to hold the trajectory information at a possibly invalid hit
+// Class to hold the trajectory information at an invalid hit
 // For matched layers, the invalid hit on the trajectory is located
 // on the matched surface. To compare with rechits propagate the 
 // information to the actual sensor surface for rphi or stereo 
@@ -40,7 +40,6 @@ public:
 
   uint monodet_id() const;
   bool withinAcceptance() const;
-  bool validHit() const;
 
   bool isDoubleSided(uint iidd) const;
   TrajectoryStateOnSurface tsos() const;
@@ -54,7 +53,6 @@ private:
   float globX, globY, globZ;
   uint iidd;
   bool acceptance;
-  bool hasValidHit;
 
   ConstReferenceCountingPointer<TransientTrackingRecHit> theHit;
 };

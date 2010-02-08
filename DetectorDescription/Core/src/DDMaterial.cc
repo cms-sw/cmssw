@@ -117,10 +117,10 @@ double DDMaterial::density() const
   return rep().density(); 
 }
 
-// void DDMaterial::clear()
-// {
-//   StoreT::instance().clear();
-// }
+void DDMaterial::clear()
+{
+  StoreT::instance().clear();
+}
 // private ctor for internal use
 //DDMaterial::DDMaterial(DDRedirect<DDMaterialImpl>* p, bool dummy)
 // : DDRegistered<DDMaterialImpl>(p,true)

@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.13 2009/09/29 15:29:59 dshpakov Exp $
+// $Id: I2OChain.cc,v 1.12 2009/09/29 15:12:47 dshpakov Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -10,11 +10,9 @@
 
 #include "EventFilter/StorageManager/src/ChainData.h"
 
-//#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
+#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
-
-#include "interface/evb/i2oEVBMsgs.h"
 
 namespace stor
 {

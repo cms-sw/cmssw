@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.10 2009/10/13 15:08:34 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.9 2009/09/17 11:03:19 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -54,7 +54,6 @@ void StreamHandler::writeEvent(const I2OChain& event)
   FileHandlerPtr handler = getFileHandler(event);
   handler->writeEvent(event);
   _streamRecord->addSizeInBytes(event.totalDataSize());
-  _statReporter->getThroughputMonitorCollection().addDiskWriteSample(event.totalDataSize());
 }
 
 

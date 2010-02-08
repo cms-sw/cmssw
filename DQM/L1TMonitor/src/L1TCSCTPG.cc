@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2008/03/21 19:52:23 $
- * $Revision: 1.11 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
  *
  */
@@ -52,7 +52,7 @@ L1TCSCTPG::~L1TCSCTPG()
 {
 }
 
-void L1TCSCTPG::beginJob(void)
+void L1TCSCTPG::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;

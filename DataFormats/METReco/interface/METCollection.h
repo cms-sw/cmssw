@@ -16,8 +16,9 @@
 #include <vector>
 #include "DataFormats/METReco/interface/METFwd.h" 
 
-#warning "This header file is obsolete.  Please use METFwd.h instead"
+//#warning "This header file is obsolete.  Please use METFwd.h instead"
 
+using namespace reco;
 namespace reco
 {
   typedef std::vector<reco::MET> METCollection;

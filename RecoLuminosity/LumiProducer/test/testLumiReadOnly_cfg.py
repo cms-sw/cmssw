@@ -8,15 +8,15 @@ process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True),
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
-process.maxLuminosityBlocks=cms.untracked.PSet(
-    input=cms.untracked.int32(3)
-)
+#process.maxLuminosityBlocks=cms.untracked.PSet(
+#    input=cms.untracked.int32(3)
+#)
 #process.maxEvents = cms.untracked.PSet(
 #  input = cms.untracked.int32(3)
 #)
 process.source= cms.Source("PoolSource",
               fileNames=cms.untracked.vstring('file:testLumiProd.root'),
-              firstRun=cms.untracked.uint32(120020),
+              firstRun=cms.untracked.uint32(1119985),
               firstLuminosityBlock = cms.untracked.uint32(1),                           
               firstEvent=cms.untracked.uint32(1),
              )

@@ -38,7 +38,7 @@ TopJetAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   }    
 }
 
-void TopJetAnalyzer::beginJob(const edm::EventSetup&)
+void TopJetAnalyzer::beginJob()
 {
 }
 

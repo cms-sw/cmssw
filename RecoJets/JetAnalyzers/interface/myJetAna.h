@@ -238,16 +238,6 @@ private:
   TH1F *st_iPhi;
   TH1F *st_Frac;
 
-  TH2F *EBvHB;
-  TH2F *EEvHE;
-  TH2F *ECALvHCAL;
-  TH2F *ECALvHCALEta1;
-  TH2F *ECALvHCALEta2;
-  TH2F *ECALvHCALEta3;
-  TProfile *EMF_Phi;
-  TProfile *EMF_Eta;
-  TProfile *EMF_PhiX;
-  TProfile *EMF_EtaX;
 };
 
 #endif

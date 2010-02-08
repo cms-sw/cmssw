@@ -4,8 +4,8 @@
 /*
  * \file L1TGMT.h
  *
- * $Date: 2009/01/30 14:08:11 $
- * $Revision: 1.8 $
+ * $Date: 2008/04/25 15:38:47 $
+ * $Revision: 1.7 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -118,7 +118,6 @@ private:
   int trsrc_old_; // code of trigger source ( bits: 0 DT, 1 bRPC, 2 CSC, 3 fRPC )
 
   static const double piconv_;
-  double phiconv(float phi);
 };
 
 #endif

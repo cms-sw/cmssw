@@ -2,8 +2,8 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/03 10:21:25 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/06/19 12:20:36 $
+ *  $Revision: 1.22 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -712,7 +712,7 @@ std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(long long since, long long t
   queryFTEMP2->addToTableList( "RPCFEB");
   queryFTEMP2->addToOutputList( "RPCFEB.DPID", "DPID" );
   queryFTEMP2->addToOutputList( "RPCFEB.CHANGE_DATE", "TSTAMP" );
-  queryFTEMP2->addToOutputList( "RPCFEB.TEMPERATURE2", "TEMP2" );
+  queryFTEMP2->addToOutputList( "RPCFEB.TEMPERATURE2", "TEMP1" );
 
   RPCObFebmap::Feb_Item Itemp;
   std::vector<RPCObFebmap::Feb_Item> febarray;
@@ -1269,95 +1269,6 @@ std::vector<RPCObFebmap::Feb_Item> RPCFw::createFEB(long long since, long long t
 
 
 
-//----------------------------- U X C ------------------------------------------------------------------------
-std::vector<RPCObUXC::Item> RPCFw::createUXC(long long since, long long till)
-{
-  tMIN = UTtoT(since);
-  std::cout <<">> Processing since: "<<tMIN.day()<<"/"<<tMIN.month()<<"/"<<tMIN.year()<<" "<<tMIN.hour()<<":"<<tMIN.minute()<<"."<<tMIN.second()<< std::endl;
-    
-  coral::ISession* session = this->connect( m_connectionString,
-                                            m_userName, m_password );
-  session->transaction().start( true );  
-  coral::ISchema& schema = session->nominalSchema();
-  std::cout << ">> creating UXC object..." << std::endl;
-  
-  // UXCT
-  coral::IQuery* queryUXCT = schema.newQuery();
-  queryUXCT->addToTableList( "RPCGASPARAMETERS");
-//  queryUXCT->addToOutputList( "RPCGASPARAMETERS.DP_NAME2ID", "DP_NAME2ID" );
-  queryUXCT->addToOutputList( "RPCGASPARAMETERS.DPID", "DPID" );
-  queryUXCT->addToOutputList( "RPCGASPARAMETERS.CHANGE_DATE", "TSTAMP" );
-  queryUXCT->addToOutputList( "RPCGASPARAMETERS.VALUE", "VALUE" );
-  RPCObUXC::Item Itemp;
-  std::vector<RPCObUXC::Item> uxcarray;
-  coral::TimeStamp tlast = tMIN;
-  if (till > since) {
-    tMAX = UTtoT(till);
-    std::cout <<">> Processing till: "<<tMAX.day()<<"/"<<tMAX.month()<<"/"<<tMAX.year()<<" "<<tMAX.hour()<<":"<<tMAX.minute()<<"."<<tMAX.second()<< std::endl;
-    std::cout << "Processing UXCT..." << std::endl;
-    coral::AttributeList conditionData;
-    conditionData.extend<coral::TimeStamp>( "tmin" );
-    conditionData.extend<coral::TimeStamp>( "tmax" );   
-    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
-    conditionData["tmax"].data<coral::TimeStamp>() = tMAX;
-    std::string conditionUXCT = "RPCGASPARAMETERS.VALUE IS NOT NULL AND RPCGASPARAMETERS.CHANGE_DATE >:tmin AND RPCGASPARAMETERS.CHANGE_DATE <:tmax";
-    queryUXCT->setCondition( conditionUXCT, conditionData );
-    coral::ICursor& cursorUXCT = queryUXCT->execute();
-    while ( cursorUXCT.next() ) {
-      Itemp.temperature=0;Itemp.pressure=0;Itemp.humidity=0;
-      const coral::AttributeList& row = cursorUXCT.currentRow();
-      float idoub = row["DPID"].data<float>();
-      int id = static_cast<int>(idoub);
-      float value = row["VALUE"].data<float>(); 
-      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      unsigned long long ut_time = TtoUT(ts);
-      if (id == 118016) {
-        Itemp.temperature = value;
-        Itemp.unixtime = ut_time;
-        uxcarray.push_back(Itemp);
-      }
-      if (id == 118015) {
-        Itemp.pressure = value;
-        Itemp.unixtime = ut_time;
-        uxcarray.push_back(Itemp);
-      }
-    }
-  }else {
-    std::cout << ">> Processing UXCT..." << std::endl;
-    coral::AttributeList conditionData;
-    conditionData.extend<coral::TimeStamp>( "tmin" );
-    conditionData["tmin"].data<coral::TimeStamp>() = tMIN;
-    std::string conditionUXCT = "RPCGASPARAMETERS.VALUE IS NOT NULL AND RPCGASPARAMETERS.CHANGE_DATE >:tmin";
-    queryUXCT->setCondition( conditionUXCT, conditionData );
-    coral::ICursor& cursorUXCT = queryUXCT->execute();
-    while ( cursorUXCT.next() ) {
-      Itemp.temperature=0;Itemp.pressure=0;Itemp.humidity=0;
-      const coral::AttributeList& row = cursorUXCT.currentRow();
-      float idoub = row["DPID"].data<float>();
-      int id = static_cast<int>(idoub);
-      float value = row["VALUE"].data<float>();
-      coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      unsigned long long ut_time = TtoUT(ts);
-      if (id == 118016) {
-        Itemp.temperature = value;
-        Itemp.unixtime = ut_time;
-        uxcarray.push_back(Itemp);
-      }
-      if (id == 118015) {
-        Itemp.pressure = value;  
-        Itemp.unixtime = ut_time;
-        uxcarray.push_back(Itemp);
-      }
-    }
-  }
-
-  std::cout << ">> UXC array --> size: " << uxcarray.size() << " >> done." << std::endl;
-  delete queryUXCT;
-  session->transaction().commit();
-  delete session;
-  return uxcarray;
-
-}
 
 //----------------------------------------------------------------------------------------------
 coral::TimeStamp RPCFw::UTtoT(long long utime) 

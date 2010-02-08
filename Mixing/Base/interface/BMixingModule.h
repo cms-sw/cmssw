@@ -73,7 +73,6 @@ namespace edm {
       // playback info
       bool playback_;
       std::vector<edm::EventID> eventIDs_;
-      std::vector<std::vector<edm::EventID> > vectorEventIDs_;
       std::vector<int> fileSeqNrs_;
       std::vector<unsigned int> nrEvents_;
       const static unsigned int maxNbSources_;

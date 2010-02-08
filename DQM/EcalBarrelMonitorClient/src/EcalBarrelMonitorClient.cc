@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/11/22 19:30:23 $
- * $Revision: 1.471 $
+ * $Date: 2009/10/28 08:18:22 $
+ * $Revision: 1.466 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -203,6 +203,14 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     }
   }
 
+  // DQM Client name
+
+  clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
+
+  if ( verbose_ ) {
+    cout << " Client '" << clientName_ << "' " << endl;
+  }
+
   // vector of selected Super Modules (Defaults to all 36).
 
   superModules_.reserve(36);
@@ -243,7 +251,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   runTypes_[EcalDCCHeaderBlock::COSMIC]               = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]               = "BEAM";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]               = "BEAM";
-  runTypes_[EcalDCCHeaderBlock::MTCC]                 = "MTCC";
+  runTypes_[EcalDCCHeaderBlock::MTCC]                 = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]            = "LASER";
   runTypes_[EcalDCCHeaderBlock::LED_STD]              = "LED";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]       = "TEST_PULSE";
@@ -373,7 +381,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
@@ -394,9 +401,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
@@ -440,9 +444,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-    clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
@@ -729,24 +730,6 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   }
 
-  if ( dbUpdateTime_ > 0 ) {
-
-    this->softReset(false);
-
-    for ( int i=0; i<int(clients_.size()); i++ ) {
-      bool done = false;
-      for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-        if ( runType_ != -1 && runType_ == (*j).second && !done ) {
-          done = true;
-          clients_[i]->analyze();
-        }
-      }
-    }
-
-    if ( summaryClient_ ) summaryClient_->analyze();
-
-  }
-
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool done = false;
     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
@@ -770,6 +753,8 @@ void EcalBarrelMonitorClient::endRun(void) {
   evtType_ = -1;
 
   subrun_ = -1;
+
+  this->softReset(false);
 
 }
 
@@ -1409,7 +1394,7 @@ void EcalBarrelMonitorClient::analyze(void) {
 
     if ( verbose_ ) {
       cout << " RUN status = \"" << status_ << "\"" << endl;
-      cout << "   CMS run/event number = " << run_ << "/" << evt_ << endl;
+      cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
       cout << "   EB run/event number = " << ecal_run << "/" << ecal_evt << endl;
       cout << "   EB location = " << location_ << endl;
       cout << "   EB run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
@@ -1477,7 +1462,6 @@ void EcalBarrelMonitorClient::analyze(void) {
       forced_update_ = false;
 
       if ( dbUpdateTime_ > 0 ) {
-
         if ( (current_time_ - last_time_db_) > 60 * dbUpdateTime_ ) {
           if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
                runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
@@ -1489,7 +1473,6 @@ void EcalBarrelMonitorClient::analyze(void) {
           this->softReset(true);
           last_time_db_ = current_time_;
         }
-
       }
 
     }
@@ -1640,8 +1623,7 @@ void EcalBarrelMonitorClient::softReset(bool flag) {
   vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
   vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
-    if ( !strncmp((*meitr)->getName().c_str(), "EB", 2)
-         && strncmp((*meitr)->getName().c_str(), "EBTrend", 7) ) {
+    if ( !strncmp((*meitr)->getName().c_str(), "EB", 2) ) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);
       } else {

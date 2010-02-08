@@ -40,6 +40,8 @@ class TtDecayChannelSelector {
 
   /// invert selection
   bool  invert_;  
+  /// restrict tau decays
+  bool restrictTauDecays_;
   /// allow leptonic tau decays
   bool allowLepton_;
   /// allow 1-prong tau decays

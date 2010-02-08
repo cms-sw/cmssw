@@ -26,23 +26,11 @@ class GhostTrackPrediction {
 	typedef ROOT::Math::SVector<double, 4> Vector;
 	typedef ROOT::Math::SMatrix<double, 4, 4,
 			ROOT::Math::MatRepSym<double, 4> > Error;
-	typedef ROOT::Math::SMatrix<double, 6, 6,
-			ROOT::Math::MatRepSym<double, 6> > CartesianError;
 
 	GhostTrackPrediction() {}
 	GhostTrackPrediction(const Vector &prediction, const Error &error) :
 		prediction_(prediction), covariance_(error)
 	{}
-
-	GhostTrackPrediction(const GlobalPoint &priorPosition, 
-	                     const GlobalError &priorError,
-	                     const GlobalVector &direction,
-	                     double coneRadius);
-	GhostTrackPrediction(const GlobalPoint &priorPosition, 
-	                     const GlobalError &priorError,
-	                     const GlobalVector &direction,
-	                     const GlobalError &directionError)
-	{ init(priorPosition, priorError, direction, directionError); }
 
 	GhostTrackPrediction(const CurvilinearTrajectoryParameters &trajectory,
 	                     const CurvilinearTrajectoryError &error);
@@ -76,8 +64,6 @@ class GhostTrackPrediction {
 	{ return origin() + lambda * direction(); }
 	GlobalError positionError(double lambda = 0.) const;
 
-	CartesianError cartesianError(double lambda = 0.) const;
-
 	CurvilinearTrajectoryParameters curvilinearTrajectory() const;
 	GlobalTrajectoryParameters globalTrajectory(
 				const MagneticField *fieldProvider) const;
@@ -88,11 +74,6 @@ class GhostTrackPrediction {
 	Track track(double ndof = 0., double chi2 = 0.) const;
 
     private:
-	void init(const GlobalPoint &priorPosition, 
-	          const GlobalError &priorError,
-	          const GlobalVector &direction,
-	          const GlobalError &directionError);
-
 	Vector	prediction_;
 	Error	covariance_;
 };

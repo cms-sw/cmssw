@@ -63,7 +63,6 @@ namespace edm {
     RootServiceChecker rootServiceChecker_;
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
     boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
-    boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
     boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
 
     //used when process has been forked

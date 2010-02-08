@@ -34,10 +34,6 @@ class GhostTrackFitter {
 	               const std::vector<TransientTrack> &tracks) const;
 
 	GhostTrack fit(const GhostTrackPrediction &prior,
-	               const GlobalPoint &origin,
-	               const std::vector<TransientTrack> &tracks) const;
-
-	GhostTrack fit(const GhostTrackPrediction &prior,
 	               const std::vector<TransientTrack> &tracks) const;
 
 	class PredictionUpdater {
@@ -54,8 +50,7 @@ class GhostTrackFitter {
 		virtual void contribution(
 				const GhostTrackPrediction &pred,
 				const GhostTrackState &state,
-				double &ndof, double &chi2,
-		                bool withPredError = false) const = 0;
+				double &ndof, double &chi2) const = 0;
 	};
 
 	class FitterImpl {

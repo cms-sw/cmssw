@@ -5,7 +5,7 @@
 
 #include "TMath.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 using namespace pat;
 using namespace pat::helper;
@@ -39,11 +39,11 @@ void PatTriggerAnalyzer::beginJob()
   histos2D_[ "ptTrigCand" ]->SetXTitle( "candidate p_{T} (GeV)" );
   histos2D_[ "ptTrigCand" ]->SetYTitle( "object p_{T} (GeV)" );
   histos2D_[ "etaTrigCand" ] = fileService->make< TH2D >( "etaTrigCand", "Object vs. candidate #eta", 50, -2.5, 2.5, 50, -2.5, 2.5 );
-  histos2D_[ "etaTrigCand" ]->SetXTitle( "candidate p_{T} (GeV)" );
-  histos2D_[ "etaTrigCand" ]->SetYTitle( "object p_{T} (GeV)" );
+  histos2D_[ "etaTrigCand" ]->SetXTitle( "candidate #eta" );
+  histos2D_[ "etaTrigCand" ]->SetYTitle( "object #eta" );
   histos2D_[ "phiTrigCand" ] = fileService->make< TH2D >( "phiTrigCand", "Object vs. candidate #phi", 60, -Pi(), Pi(), 60, -Pi(), Pi() );
-  histos2D_[ "phiTrigCand" ]->SetXTitle( "candidate p_{T} (GeV)" );
-  histos2D_[ "phiTrigCand" ]->SetYTitle( "object p_{T} (GeV)" );
+  histos2D_[ "phiTrigCand" ]->SetXTitle( "candidate #phi" );
+  histos2D_[ "phiTrigCand" ]->SetYTitle( "object #phi" );
   histos1D_[ "ptMean" ] = fileService->make< TH1D >( "ptMean", "Mean p_{T} (GeV) per filter ID", maxID_ - minID_ + 1, minID_ - 0.5, maxID_ + 0.5);
   histos1D_[ "ptMean" ]->SetXTitle( "filter ID" );
   histos1D_[ "ptMean" ]->SetYTitle( "mean p_{T} (GeV)" );
@@ -96,7 +96,7 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
       sumPt_[ id ] += ( *iRef )->pt();
     }
   }
-  
+
 }
 
 void PatTriggerAnalyzer::endJob()

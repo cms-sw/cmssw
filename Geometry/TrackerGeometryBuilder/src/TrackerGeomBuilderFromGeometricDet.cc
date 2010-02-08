@@ -27,6 +27,9 @@ using std::string;
 
 TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd){
 
+  thePixelDetTypeMap.clear();
+  theStripDetTypeMap.clear();
+   
   TrackerGeometry* tracker = new TrackerGeometry(gd);
   std::vector<const GeometricDet*> comp;
   gd->deepComponents(comp);
@@ -58,12 +61,10 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 						    GeomDetType::SubDetector det,
 						    const std::string& part){ 
 
-  static std::map<std::string,PixelGeomDetType*> detTypeMap;
-
   for(u_int32_t i=0; i<gdv.size(); i++){
 
     std::string const & detName = gdv[i]->name().fullname();
-    if (detTypeMap.find(detName) == detTypeMap.end()) {
+    if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
       std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
       PixelTopology* t = 
 	theTopologyBuilder->buildPixel(&*bounds,
@@ -73,12 +74,12 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 				       gdv[i]->pixROCy(),
 				       part);
       
-      detTypeMap[detName] = new PixelGeomDetType(t,detName,det);
-      tracker->addType(detTypeMap[detName]);
+      thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,det);
+      tracker->addType(thePixelDetTypeMap[detName]);
     }
 
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i]);
-    GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
+    GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),thePixelDetTypeMap[detName],gdv[i]);
 
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
@@ -90,27 +91,25 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						      GeomDetType::SubDetector det,
 						      const std::string& part)
 { 
-  static std::map<std::string,StripGeomDetType*> detTypeMap;
-  
   for(u_int32_t i=0;i<gdv.size();i++){
 
     std::string const & detName = gdv[i]->name().fullname();
-    if (detTypeMap.find(detName) == detTypeMap.end()) {
+    if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
        std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
        StripTopology* t =
 	theTopologyBuilder->buildStrip(&*bounds,
 				       gdv[i]->siliconAPVNum(),
 				       part);
-      detTypeMap[detName] = new  StripGeomDetType( t,detName,det,
+      theStripDetTypeMap[detName] = new  StripGeomDetType( t,detName,det,
 						   gdv[i]->stereo());
-      tracker->addType(detTypeMap[detName]);
+      tracker->addType(theStripDetTypeMap[detName]);
     }
      
     StripSubdetector sidet( gdv[i]->geographicalID());
     double scale  = (sidet.partnerDetId()) ? 0.5 : 1.0 ;	
 
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],scale);  
-    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
+    GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],gdv[i]);
     
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());

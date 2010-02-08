@@ -4,7 +4,7 @@
  * \author Andrea Gozzelino - Universita%Gï¿½%@ e INFN Torino
  * \author Stefano Argiro
  *        
- * $Date: 2009/10/15 11:31:29 $
+ * $Date: 2009/06/25 08:24:31 $
  * $Revision: 1.2 $
  *
  *
@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM include files
 
@@ -115,7 +114,7 @@ HLTAlCaMonEcalPhiSym::~HLTAlCaMonEcalPhiSym()
 
 
 //--------------------------------------------------------
-void HLTAlCaMonEcalPhiSym::beginJob(){
+void HLTAlCaMonEcalPhiSym::beginJob(const EventSetup& context){
 
 
   // create and cd into new folder
@@ -224,27 +223,13 @@ void HLTAlCaMonEcalPhiSym::analyze(const Event& iEvent,
   edm::Handle<EcalRecHitCollection> rhEB;
   edm::Handle<EcalRecHitCollection> rhEE;
  
- bool GetRecHitsCollectionEB = true;
-try { 
   iEvent.getByLabel(productMonitoredEB_, rhEB); 
-}catch( cms::Exception& exception ) {
-  LogDebug("HLTAlCaPhiSymDQMSource") << "no EcalRecHits EB, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-  GetRecHitsCollectionEB = false;
-}
-
- bool GetRecHitsCollectionEE = true;
-try { 
   iEvent.getByLabel(productMonitoredEE_, rhEE);
-}catch( cms::Exception& exception ) {
-  LogDebug("HLTAlCaPhiSymDQMSource") << "no EcalRecHits EE, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
-  GetRecHitsCollectionEE = false;
-}
-
 
   EcalRecHitCollection::const_iterator itb;
 
   // fill EB histos
-  if (rhEB.isValid() &&GetRecHitsCollectionEB ){
+  if (rhEB.isValid()){
     float etot =0;
     for(itb=rhEB->begin(); itb!=rhEB->end(); ++itb){
 
@@ -267,7 +252,7 @@ try {
 
   EcalRecHitCollection::const_iterator ite;
 
-  if (rhEE.isValid() && GetRecHitsCollectionEE){
+  if (rhEE.isValid()){
 
     float etot =0;
     for(ite=rhEE->begin(); ite!=rhEE->end(); ++ite){

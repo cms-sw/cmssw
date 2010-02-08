@@ -16,7 +16,6 @@
 <use name=DataFormats/L1Trigger>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=PhysicsTools/UtilAlgos>
-<use name=HLTrigger/HLTcore>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Framework>

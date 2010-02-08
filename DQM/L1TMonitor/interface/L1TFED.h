@@ -4,8 +4,8 @@
 /*
  * \file L1TFED.h
  *
- * $Date: 2009/06/26 13:53:19 $
- * $Revision: 1.4 $
+ * $Date: 2008/10/06 13:17:00 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
 */
@@ -56,7 +56,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(void);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

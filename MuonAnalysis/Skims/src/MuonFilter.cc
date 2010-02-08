@@ -17,6 +17,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 
+
+
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+
+
+
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -32,20 +39,28 @@ protected:
        
 private: 
 
-  edm::InputTag muonTag_;
-  edm::InputTag caloMuonTag_;
-  bool acceptMuon_;
-  bool acceptCalo_;
+  InputTag theMuonTag;
+  InputTag theCaloMuonTag;
+
+  bool selectOnDTHits;
+  bool selectOnRPCHits;
+
+  bool selectMuons;
+  bool selectCaloMuons;
 
 };
 
 
 MuonFilter::MuonFilter(const ParameterSet& pset){
   // input tags
-  muonTag_         =  pset.getParameter<edm::InputTag>("muonTag");
-  caloMuonTag_     =  pset.getParameter<edm::InputTag>("caloMuonTag");
-  acceptMuon_      =  pset.getUntrackedParameter<bool>("acceptMuon",true);
-  acceptCalo_      =  pset.getUntrackedParameter<bool>("acceptCalo",false);
+
+  theMuonTag         =  pset.getParameter<edm::InputTag>("muonsLabel");
+  theCaloMuonTag     =  pset.getParameter<edm::InputTag>("caloMuonsLabel");
+
+  selectOnDTHits = pset.getParameter<bool>("selectOnDTHits");
+
+  selectMuons      =  pset.getParameter<bool>("selectMuons");
+  selectCaloMuons  =  pset.getParameter<bool>("selectCaloMuons");
 }
 
 MuonFilter::~MuonFilter(){
@@ -53,18 +68,30 @@ MuonFilter::~MuonFilter(){
 
 bool MuonFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup){
 
-  Handle<reco::MuonCollection> muons;
-  event.getByLabel(muonTag_,muons);
+ const std::string metname = "Muon|MuonAnalysis|MuonFilter";
 
-  Handle<reco::CaloMuonCollection> caloMuons;
-  event.getByLabel(caloMuonTag_,caloMuons);
+ bool accept=false;
+    
+  // Check DT hits
+  if(selectOnDTHits){}
 
-  if (acceptMuon_ && acceptCalo_)  return ( (muons->size() > 0 ) || (caloMuons->size() > 0 ) );
-  if (acceptMuon_ && !acceptCalo_)  return ( (muons->size() > 0 ) );
-  if (!acceptMuon_ && acceptCalo_)  return ( (caloMuons->size() > 0 ) );
+  // Check muons
+  if(selectMuons){
+    Handle<reco::MuonCollection> muons;
+    event.getByLabel(theMuonTag,muons);
+    LogTrace(metname) << "Number of muons " << muons->size() << endl;
+    accept |= (muons->size()>0);
+  }
+    
+  // Check caloMuons
+  if(selectCaloMuons){
+    Handle<reco::CaloMuonCollection> caloMuons;
+    event.getByLabel(theCaloMuonTag,caloMuons);
+    LogTrace(metname) << "Number of caloMuons " << caloMuons->size() << endl;
+    accept |= (caloMuons->size()>0);
+  }
 
-  return false;
-
+  return accept;
 }
 
 DEFINE_FWK_MODULE(MuonFilter);

@@ -17,7 +17,7 @@ public:
 
 private:
 
-  virtual void beginJob() ;
+  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   void analyzeHits  (std::vector<PCaloHit> &,const std::vector<SimTrack> &);

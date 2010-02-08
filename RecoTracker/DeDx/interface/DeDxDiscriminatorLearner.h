@@ -13,6 +13,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
@@ -40,7 +41,7 @@ private:
   virtual void algoAnalyze(const edm::Event&, const edm::EventSetup&);
   virtual void algoEndJob();
 
-  void         Learn(const SiStripRecHit2D* sistripsimplehit, TrajectoryStateOnSurface trajState);
+  void         Learn(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState);
 
   PhysicsTools::Calibration::HistogramD3D * getNewObject();
 

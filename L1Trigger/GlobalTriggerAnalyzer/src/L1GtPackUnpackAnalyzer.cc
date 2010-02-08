@@ -64,7 +64,7 @@ L1GtPackUnpackAnalyzer::~L1GtPackUnpackAnalyzer()
 // member functions
 
 // method called once each job just before starting event loop
-void L1GtPackUnpackAnalyzer::beginJob(const edm::EventSetup&)
+void L1GtPackUnpackAnalyzer::beginJob()
 {
     // empty
 }

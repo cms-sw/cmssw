@@ -60,7 +60,7 @@ process.L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'CSCTF',
                                                           'GMT',
                                                           'GMTScales',
                                                           'RCT',
-#                                                          'GCT',
+                                                          'GCT',
                                                           'GT' )
 
 # Generate configuration data from OMDS
@@ -83,7 +83,6 @@ process.L1MuGMTParametersOnlineProducer.ignoreVersionMismatch = True
 
 process.load("L1TriggerConfig.RCTConfigProducers.L1RCTParametersOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1EmEtScaleConfigOnline_cfi")
-process.load("L1TriggerConfig.L1ScalesProducers.L1CaloEcalScaleConfigOnline_cfi")
 
 process.load("L1TriggerConfig.GctConfigProducers.L1GctJetFinderParamsOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
@@ -100,8 +99,7 @@ initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
-#initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
-initPayloadWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
 process.L1CondDBPayloadWriter.logTransactions = True
 
 if options.overwriteKeys == 0:

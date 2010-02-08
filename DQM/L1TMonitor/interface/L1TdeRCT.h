@@ -7,14 +7,11 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2009/10/11 21:12:58 $
- * $Revision: 1.10 $
+ * $Date: 2008/12/11 09:20:16 $
+ * $Revision: 1.9 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.10 2009/10/11 21:12:58 asavin Exp $
+ * $Id: L1TdeRCT.h,v 1.9 2008/12/11 09:20:16 asavin Exp $
  * $Log: L1TdeRCT.h,v $
- * Revision 1.10  2009/10/11 21:12:58  asavin
- * *** empty log message ***
- *
  * Revision 1.9  2008/12/11 09:20:16  asavin
  * efficiency curves in L1TdeRCT
  *
@@ -105,7 +102,7 @@ protected:
  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
- void beginJob(void);
+ void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

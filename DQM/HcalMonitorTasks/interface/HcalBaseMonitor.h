@@ -6,7 +6,6 @@
 #define PHIBINS 72
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -39,8 +38,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/11/10 21:03:13 $
-  * $Revision: 1.36 $
+  * $Date: 2009/10/13 11:13:55 $
+  * $Revision: 1.33 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -49,7 +48,6 @@ public:
   virtual ~HcalBaseMonitor(); 
 
   virtual void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  virtual void beginRun();
   virtual void done();
   virtual void clearME();
   virtual void periodicReset();
@@ -89,11 +87,10 @@ public:
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
 
   void processEvent();
-  void beginLuminosityBlock(int lb);
-  void endLuminosityBlock();
+  void LumiBlockUpdate(int lb);
 
 protected:
-  void LumiBlockUpdate(int lb);
+  
   int fVerbosity;
   bool showTiming; // controls whether to show timing diagnostic info
   bool dump2database; // controls whether output written to file for database (will eventually write db directly)
@@ -111,6 +108,7 @@ protected:
   edm::CPUTimer cpu_timer; // 
     
   bool makeDiagnostics; // controls whether to make diagnostic plots
+  bool fillUnphysical_; // controls whether to fill unphysical iphi bins in eta-phi histograms
   
   DQMStore* m_dbe;
   bool Online_; // tracks whether code is run online or offline 
@@ -118,15 +116,14 @@ protected:
   string rootFolder_;
   string baseFolder_;
 
-  vector<int> AllowedCalibTypes_;
-  // Eventually, remove these -- problem cells get processed in client
+  //static const int binmapd2[];
+  //static const int binmapd3[];
+
   MonitorElement* ProblemCells;
   EtaPhiHists ProblemCellsByDepth;
 
-  int ievt_; // number of events processed (can be reset periodically)
-  int levt_; // number of events in current luminosity block
+  int ievt_;
   int tevt_; // total # of events
-  bool LBprocessed_; // indicates that histograms have been filled for current LB
   MonitorElement* meEVT_;
   MonitorElement* meTOTALEVT_;
   int lumiblock;

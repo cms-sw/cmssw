@@ -4,7 +4,7 @@
 /*\class L1TdeGCT
  *\description GCT data|emulation comparison DQM interface 
                produces expert level DQM monitorable elements
- *\author N.Leonardo
+ *\authors N.Leonardo, A.Tapper, J.Brooke, J.Marrouche 
  *\date 08.09
  */
 
@@ -33,7 +33,7 @@ class L1TdeGCT : public edm::EDAnalyzer {
 
  protected:
 
-  virtual void beginJob(void) ;
+  virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -57,8 +57,8 @@ class L1TdeGCT : public edm::EDAnalyzer {
   DQMStore* dbe;
   bool monitorDaemon_;
  
-  // (em) iso, no-iso, (jets) cen, for, tau & energy sums.
-  static const int nGctColl_ = dedefs::GCThfbit-dedefs::GCTisolaem+1; 
+  // (em) iso, no-iso, (jets) cen, for, tau
+  static const int nGctColl_ = dedefs::GCTtaujets-dedefs::GCTisolaem+1; 
 
   // counters
   int colCount[nGctColl_];

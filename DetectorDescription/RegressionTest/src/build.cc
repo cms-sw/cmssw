@@ -228,9 +228,9 @@ void testParser()
   try {
     cout << "main:: initialize" << endl;
     AlgoInit();
-    DDCompactView cpv;
+
     cout << "main::initialize DDL parser" << endl;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLParser* myP = DDLParser::instance();
 
     cout << "main::about to set configuration" << endl;
     //    myP->SetConfig("configuration.xml");
@@ -239,7 +239,7 @@ void testParser()
 
     cout << "main::about to start parsing" << endl;
  
-    myP.parse(cf);
+    myP->parse(cf);
 
     cout << "main::completed Parser" << endl;
   

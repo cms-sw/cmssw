@@ -38,9 +38,8 @@ process.source = cms.Source("EmptyIOVSource",
 process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('rootsource'),
-      #lumiFileName = cms.string('/afs/cern.ch/user/x/xiezhen/w1/CMS_LUMI_RAW_20091110_000120020_0001_1.root'),
-      lumiFileName = cms.string('/nfshome0/xiezhen/CMS_LUMI_RAW_20091121_000121998_0001_1.root'),
-      allowForceFirstSince = cms.bool(False)
+      lumiFileName = cms.string('/afs/cern.ch/user/x/xiezhen/w1/CMS_LUMI_RAW_20091110_000120020_0001_1.root'),
+      allowForceFirstSince = cms.bool(True)
     ),                                          
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),

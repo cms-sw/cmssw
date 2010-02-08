@@ -30,7 +30,7 @@
 
 
 // Default constructor
-DDLRotationSequence::DDLRotationSequence(  DDLElementRegistry* myreg ) : DDLRotationByAxis(myreg) 
+DDLRotationSequence::DDLRotationSequence() 
 {
 }
 
@@ -39,13 +39,13 @@ DDLRotationSequence::~DDLRotationSequence()
 {
 }
 
-void DDLRotationSequence::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLRotationSequence::preProcessElement (const std::string& name, const std::string& nmspace)
 {
-  myRegistry_->getElement("RotationByAxis")->clear();
+  DDLElementRegistry::getElement("RotationByAxis")->clear();
 }
 
 
-void DDLRotationSequence::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLRotationSequence::processElement (const std::string& name, const std::string& nmspace)
 {
 
   DCOUT_V('P', "DDLRotationSequence::processElement started " << name);
@@ -54,7 +54,7 @@ void DDLRotationSequence::processElement (const std::string& name, const std::st
    */
 
   DDLRotationByAxis* myRotations = 
-    dynamic_cast <DDLRotationByAxis * > (myRegistry_->getElement("RotationByAxis"));
+    dynamic_cast <DDLRotationByAxis * > (DDLElementRegistry::getElement("RotationByAxis"));
   DDXMLAttribute atts;
 
   DDRotationMatrix R;

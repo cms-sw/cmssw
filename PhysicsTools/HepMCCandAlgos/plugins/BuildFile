@@ -4,12 +4,15 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/MessageLogger>
   <use name=DataFormats/HepMCCandidate>
+  <use name=DataFormats/WrappedStdDictionaries>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/PatCandidates>
   <use name=SimDataFormats/GeneratorProducts>
   <use name=SimGeneral/HepPDTRecord>
-  <use name=SimDataFormats/Track>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=CommonTools/CandAlgos>
   <use name=PhysicsTools/HepMCCandAlgos>
   <use name=PhysicsTools/JetMCUtils>
-  <use name=CommonTools/Utils>
 </library>
 
 

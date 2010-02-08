@@ -1,7 +1,6 @@
 #include <DetectorDescription/Base/interface/Singleton.h>
 #include <DetectorDescription/Base/interface/Singleton.icc>
 #include <DetectorDescription/Base/interface/Store.h>
-// #include <DetectorDescription/Base/interface/Store.icc>
 #include <DetectorDescription/Core/interface/DDName.h>
 #include <DetectorDescription/Core/interface/DDRoot.h>
 #include <DetectorDescription/Core/interface/DDAxes.h>
@@ -21,20 +20,6 @@
 #include <string>
 #include <map>
 #include <vector>
-
-// template class DDI::Store<DDName, std::vector<std::string>* >;
-// template class DDI::Store<DDName, std::string* >;
-// template class DDI::Store<DDName, DDI::Material*>;
-// template class DDI::Store<DDName, ReadMapType<double>* >;
-// template class DDI::Store<DDName, std::vector<double>* >;
-// template class DDI::Store<DDName, AlgoPos*>;
-// template class DDI::Store<DDName, DDI::Specific*>;
-// template class DDI::Store<DDName, DDI::LogicalPart*>;
-// template class DDI::Store<DDName, DDI::Solid*>;
-// template class DDI::Store<DDName, double*>;
-// template class DDI::Store<DDName, DDRotationMatrix*>;
-// template class DDI::Store<DDName, DDI::Division*, DDI::Division*>;
-
 
 template class DDI::Singleton<AxesNames>;
 template class DDI::Singleton<ClhepEvaluator>;

@@ -15,7 +15,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 
-DDLString::DDLString(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
+DDLString::DDLString()
 {
 }
 
@@ -23,11 +23,11 @@ DDLString::~DDLString()
 {
 }
  
-void DDLString::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLString::preProcessElement (const std::string& name, const std::string& nmspace)
 {
 }
 
-void DDLString::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLString::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLString::processElement started");
   if (parent() == "ConstantsSection" || parent() == "DDDefinition")

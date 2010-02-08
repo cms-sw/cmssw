@@ -20,7 +20,7 @@ ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
         ESRecHitWorkerBaseClass( ps )
 {
   //These should be taken from a DB
-  recoAlgo_ = ps.getParameter<int>("ESRecoAlgo");
+  recoAlgo_ = ps.getUntrackedParameter<int>("ESRecoAlgo", 0);
 
   int    ESGain     = ps.getParameter<int>("ESGain");
   int    ESBaseline = ps.getParameter<int>("ESBaseline");

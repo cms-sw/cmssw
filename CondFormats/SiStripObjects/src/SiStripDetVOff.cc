@@ -108,42 +108,6 @@ void SiStripDetVOff::printDebug(std::stringstream & ss) const
   }
 }
 
-int SiStripDetVOff::getLVoffCounts() const
-{
-  SiStripDetSummary summaryLV;
-  std::vector<uint32_t> detIds;
-  getDetIds(detIds);
-  constVoffIterator it = detIds.begin();
-  for( ; it!=detIds.end(); ++it ) {
-    if( IsModuleLVOff(*it)) summaryLV.add(*it);
-  }
-  int totalCount = 0;
-  map<int, int> counts = summaryLV.getCounts();
-  map<int, int>::const_iterator mapIt = counts.begin();
-  for( ; mapIt != counts.end(); ++mapIt ) {
-    totalCount += mapIt->second;
-  }
-  return totalCount;
-}
-
-int SiStripDetVOff::getHVoffCounts() const
-{
-  SiStripDetSummary summaryHV;
-  std::vector<uint32_t> detIds;
-  getDetIds(detIds);
-  constVoffIterator it = detIds.begin();
-  for( ; it!=detIds.end(); ++it ) {
-    if( IsModuleHVOff(*it)) summaryHV.add(*it);
-  }
-  int totalCount = 0;
-  map<int, int> counts = summaryHV.getCounts();
-  map<int, int>::const_iterator mapIt = counts.begin();
-  for( ; mapIt != counts.end(); ++mapIt ) {
-    totalCount += mapIt->second;
-  }
-  return totalCount;
-}
-
 void SiStripDetVOff::printSummary(std::stringstream & ss) const
 {
   SiStripDetSummary summaryHV;

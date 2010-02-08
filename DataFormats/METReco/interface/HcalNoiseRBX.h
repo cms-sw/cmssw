@@ -71,7 +71,7 @@ namespace reco {
     // total number of adc zeros in the RBX
     int totalZeros(void) const;
     
-    // largest number of zeros from an adc in the RBX
+    // largest number of adc zeros from a single channel in the RBX
     int maxZeros(void) const;
     
     // sum of the energy of rechits in the RBX with E>threshold

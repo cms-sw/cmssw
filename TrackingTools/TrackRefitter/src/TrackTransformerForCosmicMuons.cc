@@ -56,19 +56,21 @@ TrackTransformerForCosmicMuons::~TrackTransformerForCosmicMuons(){}
 void TrackTransformerForCosmicMuons::setServices(const EventSetup& setup){
   
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
-
-  setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitInsideOut",theFitterIO);
-  setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitInsideOut",theSmootherIO);  
-  setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitOutsideIn",theFitterOI);
-  setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitOutsideIn",theSmootherOI);
-
+  
   unsigned long long newCacheId_TC = setup.get<TrackingComponentsRecord>().cacheIdentifier();
 
   if ( newCacheId_TC != theCacheId_TC ){
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
+    
+    setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitInsideOut",theFitterIO);
+    setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitInsideOut",theSmootherIO);
     setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK",thePropagatorIO);
+
+    setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitOutsideIn",theFitterOI);
+    setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitOutsideIn",theSmootherOI);
     setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite",thePropagatorOI);
+
   }
 
   // Global Tracking Geometry

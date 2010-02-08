@@ -17,22 +17,15 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_3_1
-setenv CMSSWver2 3_3_5
-setenv OLDRELEASE 331
-setenv NEWRELEASE 335
+setenv CMSSWver1 3_1_2
+setenv CMSSWver2 3_3_0
+setenv OLDRELEASE 312
+setenv NEWRELEASE 330
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv NEWPRERELEASE pre3
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
-
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -44,9 +37,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt470
 
 #setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
@@ -64,31 +57,28 @@ setenv SAMPLE H130GGgluonfusionSTARTUP
 
 if ($SAMPLE == SingleGammaPt10IDEAL) then
 
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
-
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
-
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 
 else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
 
-setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
-
+setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
 setenv OLDFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
-#setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 
 
 endif
@@ -198,8 +188,6 @@ cat > scaledhistosForPhotonsLogScale <<EOF
   hcalTowerSumEtConeDR04Barrel
   hcalTowerSumEtConeDR04Endcap
 
-
-
 EOF
 
 
@@ -276,6 +264,9 @@ cat > scaledhistosForConvertedPhotons <<EOF
   convEResAll
   convEResBarrel
   convEResEndcap
+  EoverPtracksAll
+  EoverPtracksBarrel 
+  EoverPtracksEndcap
   PoverEtracksAll
   PoverEtracksBarrel 
   PoverEtracksEndcap
@@ -286,13 +277,7 @@ cat > scaledhistosForConvertedPhotons <<EOF
 EOF
 
 
-cat > scaledhistosForConvertedPhotonsLogScale <<EOF
-  EoverPtracksAll
-  EoverPtracksBarrel 
-  EoverPtracksEndcap
 
-
-EOF
 
 
 
@@ -638,39 +623,6 @@ EOF
 end
 
 
-foreach i (`cat scaledhistosForConvertedPhotonsLogScale`)
-  cat > temp$N.C <<EOF
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-c$i->SetLogy(1);
-file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
-Double_t mnew=$i->GetMaximum();
-file_old->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
-Double_t mold=$i->GetMaximum();
-$i->SetStats(0);
-$i->SetLineColor(kPink+8);
-$i->SetFillColor(kPink+8);
-$i->SetLineWidth(3);
-$i->Draw();
-Double_t nold=$i->GetEntries();
-file_new->cd("DQMData/EgammaV/PhotonValidator/ConversionInfo");
-Double_t nnew=$i->GetEntries();
-$i->SetStats(0);
-$i->SetLineColor(kBlack);
-$i->SetMarkerColor(kBlack);
-$i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
-$i->SetLineWidth(1);
-$i->Scale(nold/nnew);
-$i->Draw("e1same");
-c$i->SaveAs("gifs/$i.gif");
-
-EOF
-  setenv N `expr $N + 1`
-end
-
-
-
 
 
 foreach i (`cat unscaledhistosForConvertedPhotons`)
@@ -940,7 +892,6 @@ rm scaledhistosForPhotons
 rm unscaledhistosForPhotons
 rm 2dhistosForPhotons
 rm scaledhistosForConvertedPhotons
-rm scaledhistosForConvertedPhotonsLogScale
 rm unscaledhistosForConvertedPhotons
 rm efficiencyForPhotons
 rm efficiencyForConvertedPhotons
@@ -949,7 +900,7 @@ rm 2dhistosForConvertedPhotons
 rm projectionsForConvertedPhotons
 rm scaledhistosForTracks
 rm unscaledhistosForTracks
-rm scaledhistosForPhotonsLogScale
+
 
 #echo "Now paste the following into your terminal window:"
 #echo ""

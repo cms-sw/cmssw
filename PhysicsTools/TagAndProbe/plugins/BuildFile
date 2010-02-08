@@ -2,7 +2,6 @@
 <library name=PhysicsToolsTagAndProbe_plugins file=*.cc>
    <flags EDM_PLUGIN=1>
    <use name=roofit>
-   <use name=PhysicsTools/RooStatsCms>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
    <use name=FWCore/PluginManager>

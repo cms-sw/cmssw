@@ -5,9 +5,9 @@ iterativeSecondTrackMerging = cms.EDFilter("FastTrackMerger",
                                    cms.InputTag("iterativeSecondTracksWithTriplets")),
     RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("zeroStepFilter"), #prova
                                    cms.InputTag("firstfilter")),#prova
-    trackAlgo = cms.untracked.uint32(6)##,
-    ##MinNumberOfTrajHits = cms.untracked.uint32(3),
-    ##MaxLostTrajHits = cms.untracked.uint32(1)
+    trackAlgo = cms.untracked.uint32(6),
+    MinNumberOfTrajHits = cms.untracked.uint32(3),
+    MaxLostTrajHits = cms.untracked.uint32(1)
 )
 
 

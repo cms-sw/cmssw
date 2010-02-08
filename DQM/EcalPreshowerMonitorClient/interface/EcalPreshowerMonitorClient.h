@@ -26,6 +26,9 @@ class EcalPreshowerMonitorClient : public edm::EDAnalyzer {
   virtual void endJob();
   virtual void beginRun();
   virtual void endRun();
+
+  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
   
   void htmlOutput(int);
   

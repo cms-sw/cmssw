@@ -16,7 +16,7 @@
 //
 // Original Author:  Aruna Nayak
 //         Created:  Thu Aug 23 11:37:45 CEST 2007
-// $Id$
+// $Id: Zto2lFilter.h,v 1.1 2007/08/28 12:11:27 fmoortga Exp $
 //
 //
 
@@ -43,7 +43,6 @@ class Zto2lFilter : public edm::EDFilter {
       ~Zto2lFilter();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       

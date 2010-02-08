@@ -14,14 +14,13 @@
 class CSCStripDigiValidation;
 class CSCWireDigiValidation;
 class CSCComparatorDigiValidation;
-class CSCALCTDigiValidation;
-class CSCCLCTDigiValidation;
 
 class CSCDigiValidation : public edm::EDAnalyzer {
 public:
   explicit CSCDigiValidation(const edm::ParameterSet&);
   ~CSCDigiValidation();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginJob(const edm::EventSetup&){} 
   virtual void endJob() ;
  
 
@@ -34,8 +33,6 @@ public:
   CSCStripDigiValidation      * theStripDigiValidation;
   CSCWireDigiValidation       * theWireDigiValidation;
   CSCComparatorDigiValidation * theComparatorDigiValidation;
-  CSCALCTDigiValidation * theALCTDigiValidation;
-  CSCCLCTDigiValidation * theCLCTDigiValidation;
 
 };
 

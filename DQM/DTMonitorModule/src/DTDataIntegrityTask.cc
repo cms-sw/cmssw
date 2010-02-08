@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2009/10/19 15:51:39 $
- * $Revision: 1.61 $
+ * $Date: 2009/06/23 15:36:14 $
+ * $Revision: 1.60 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -117,21 +117,6 @@ void DTDataIntegrityTask::bookHistos(const int fedMin, const int fedMax) {
   hTTSSummary->setBinLabel(7,"ROS Error",2);	
   hTTSSummary->setBinLabel(8,"BX Mism.",2);	
   hTTSSummary->setBinLabel(9,"DDU Logic Err.",2);	
-
-  // bookkeeping of the 
-  
-  hCorruptionSummary =  dbe->book2D("DataCorruptionSummary", "Data Corruption Sources",
-				   nFED,fedMin,fedMax+1, 8, 1, 9);
-  hCorruptionSummary->setAxisTitle("FED",1);
-  hCorruptionSummary->setBinLabel(1,"Miss Ch.",2);	
-  hCorruptionSummary->setBinLabel(2,"ROS BX mism",2);	
-  hCorruptionSummary->setBinLabel(3,"DDU BX mism",2);	
-  hCorruptionSummary->setBinLabel(4,"ROS L1A mism",2);	
-  hCorruptionSummary->setBinLabel(5,"Miss Payload",2);	
-  hCorruptionSummary->setBinLabel(6,"FCRC bit",2);	
-  hCorruptionSummary->setBinLabel(7,"Header check",2);	
-  hCorruptionSummary->setBinLabel(8,"Triler Check",2);	
-  
 
 }
 
@@ -847,27 +832,9 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   FEDTrailer trailer = data.getDDUTrailer();
   FEDHeader header = data.getDDUHeader();
-
-  // check consistency of header and trailer
-  if(!header.check()) {
-    // error code 7
-    hFEDFatal->Fill(code.getDDUID());
-    hCorruptionSummary->Fill(code.getDDUID(), 7);
-  }
-
-  if(!trailer.check()) {
-    // error code 8
-    hFEDFatal->Fill(code.getDDUID());
-    hCorruptionSummary->Fill(code.getDDUID(), 8);
-  }
-
-  // check CRC error bit set by DAQ before sending data on SLink
-  if(data.crcErrorBit()) {
-    // error code 6
-    hFEDFatal->Fill(code.getDDUID());
-    hCorruptionSummary->Fill(code.getDDUID(), 6);
-  }
-
+  // FIXME: add a bin to the histo?  // FIXME: add a check on the header and trailer?
+  //   if(!trailer.check()) -> log in an histo
+  
   DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
 
   // Fill the status summary of the TTS
@@ -967,7 +934,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     if(rosList & 0x1) {
       rosPositions.insert(i);
       //9th BIN FROM LIST OF ROS in 2nd status word
-      if(mode < 2) hROSStatus->Fill(8,i,1);
+      if(mode < 0) hROSStatus->Fill(8,i,1);
     }
     rosList >>= 1;
   }
@@ -990,9 +957,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     if((*fsw_it).channelEnabled() == 1 &&
        rosPositions.find(channel) == rosPositions.end()) {
       if(mode < 2) hROSStatus->Fill(9,channel,1);
-      // error code 1
       hFEDFatal->Fill(code.getDDUID());
-      hCorruptionSummary->Fill(code.getDDUID(), 1);
     }
     channel++;
   }
@@ -1011,9 +976,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 	  int ros = (*rosControlData).getROSID();
 	  // fill the error bin
 	  if(mode < 2) hROSStatus->Fill(11,ros-1);
-	  // error code 2
 	  hFEDFatal->Fill(code.getDDUID());
-	  hCorruptionSummary->Fill(code.getDDUID(), 2);
 	}
       }
     }
@@ -1024,9 +987,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   if(fedBXIds.size() != 1) {
     LogWarning("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
       << "ERROR: FED " << ddu << " BX ID different from other feds: " << header.bxID() << endl;
-    // error code 3
     hFEDFatal->Fill(code.getDDUID());
-    hCorruptionSummary->Fill(code.getDDUID(), 3);
   }
 
 
@@ -1040,9 +1001,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
       if(ROSHeader_TTCCount != header.lvl1ID()-1) {
 	int ros = (*rosControlData).getROSID();
 	if(mode < 2) hROSStatus->Fill(10,ros-1);
-	// error code 4
 	hFEDFatal->Fill(code.getDDUID());
-	hCorruptionSummary->Fill(code.getDDUID(), 4);
       }
     }
   }

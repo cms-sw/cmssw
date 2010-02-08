@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.16 2009/10/28 21:53:55 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.15 2009/10/28 16:20:04 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -259,8 +259,6 @@ bool BeamFitter::runFitter() {
 }
 
 void BeamFitter::dumpTxtFile(){
-
-  fasciiFile << "type " << fbeamspot.type() << std::endl;
   fasciiFile << "X " << fbeamspot.x0() << std::endl;
   fasciiFile << "Y " << fbeamspot.y0() << std::endl;
   fasciiFile << "Z " << fbeamspot.z0() << std::endl;

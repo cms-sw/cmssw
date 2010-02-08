@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.28 2009/10/09 12:59:25 llista Exp $
+// $Id: TtGenEvent.cc,v 1.29 2009/11/16 14:06:51 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -143,10 +143,10 @@ TtGenEvent::singleNeutrino(bool excludeTauLeptons) const
 }
 
 const reco::GenParticle* 
-TtGenEvent::hadronicDecayQuark(bool invert) const 
+TtGenEvent::hadronicDecayQuark(bool invertFlavor) const 
 {
   const reco::GenParticle* cand=0;
-  // catch W boson and check its daughters for a quarks; 
+  // catch W boson and check its daughters for a quark; 
   // make sure the decay is semi-leptonic first; this 
   // only makes sense if taus are not excluded from the 
   // decision
@@ -157,25 +157,12 @@ TtGenEvent::hadronicDecayQuark(bool invert) const
 	for(reco::GenParticle::const_iterator wd=w->begin(); wd!=w->end(); ++wd){ 
 	  // make sure that the parton is a quark
 	  if( abs(wd->pdgId())<TopDecayID::tID ){
-	    if( invert ){ 
-	      //treat ~q case
-	      if( reco::flavour(*wd)<0 ){
-		cand = dynamic_cast<const reco::GenParticle* > (&(*wd));
-		if(cand == 0){
-		  throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
-		}
-		break;
+	    if( invertFlavor?reco::flavour(*wd)<0:reco::flavour(*wd)>0 ){
+	      cand = dynamic_cast<const reco::GenParticle* > (&(*wd));
+	      if(cand == 0){
+		throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
 	      }
-	    }
-	    else{         
-	      //treat q case
-	      if( reco::flavour(*wd)>0 ){
-		cand = dynamic_cast<const reco::GenParticle* > (&(*wd));
-		if(cand == 0){
-		  throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
-		}
-		break;
-	      }
+	      break;
 	    }
 	  }
 	}

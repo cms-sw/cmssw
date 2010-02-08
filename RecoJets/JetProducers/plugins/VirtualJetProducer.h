@@ -201,7 +201,7 @@ protected:
   unsigned int          maxRecoveredHcalCells_;	    // maximum number of recovered HCAL cells  
   unsigned int          maxProblematicHcalCells_;   // maximum number of problematic HCAL cells
 
-  reco::CandidateView             inputs_;          // input candidates
+  std::vector<edm::Ptr<reco::Candidate> > inputs_;  // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point           vertex_;          // Primary vertex 
   ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
   JetDefPtr                       fjJetDefinition_; // fastjet jet definition

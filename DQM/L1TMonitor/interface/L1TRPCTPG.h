@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTPG.h
  *
- * $Date: 2008/08/21 06:59:51 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
 */
@@ -70,7 +70,7 @@ protected:
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
-void beginJob(void);
+void beginJob(const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

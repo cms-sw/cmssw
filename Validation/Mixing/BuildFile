@@ -1,4 +1,11 @@
 <flags EDM_PLUGIN=1>
 <use name=FWCore/PluginManager>
 <use name=DQMServices/Core>
+<use name=SimGeneral/MixingModule>
 <use name=SimDataFormats/CrossingFrame>
+<export>
+  <lib name=ValidationMixing>
+  <use name=DQMServices/Core>
+  <use name=SimGeneral/MixingModule>
+  <use name=SimDataFormats/CrossingFrame>
+</export>

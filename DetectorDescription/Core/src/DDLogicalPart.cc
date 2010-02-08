@@ -13,20 +13,20 @@
 //LPNAMES::pointer_type LPNAMES::instance_ = 0;
 
 
-// void DD_NC(const DDName & n) {
-//  std::vector<DDName> & ns = LPNAMES::instance()[n.name()];
-//  typedef std::vector<DDName>::iterator IT;
-//  bool alreadyIn(false);
-//  for(IT p = ns.begin(); p != ns.end() ; ++p) {
-//    if ( p->ns() == n.ns()) {
-//      alreadyIn = true;
-//      break;
-//    } 
-//  }
-//  if (!alreadyIn) {
-//    ns.push_back(n);
-//  }  
-// }
+void DD_NC(const DDName & n) {
+ std::vector<DDName> & ns = LPNAMES::instance()[n.name()];
+ typedef std::vector<DDName>::iterator IT;
+ bool alreadyIn(false);
+ for(IT p = ns.begin(); p != ns.end() ; ++p) {
+   if ( p->ns() == n.ns()) {
+     alreadyIn = true;
+     break;
+   } 
+ }
+ if (!alreadyIn) {
+   ns.push_back(n);
+ }  
+}
     
     
 std::ostream & 
@@ -99,7 +99,7 @@ operator<<(std::ostream & os, const DDLogicalPart & part)
 DDLogicalPart::DDLogicalPart(const DDName & name) : DDBase<DDName,DDI::LogicalPart*>()
 { 
   prep_ = StoreT::instance().create(name);
-  //DD_NC(name);
+  DD_NC(name);
 }
 
 /** 
@@ -122,7 +122,7 @@ DDLogicalPart::DDLogicalPart(const DDName & ddname,
 { 
    DCOUT('C', "create LogicalPart ddname=" << ddname << " mat=" << material.name() << " sol=" << solid.name());
    prep_ = StoreT::instance().create(ddname, new DDI::LogicalPart(material,solid,cat));
-   //DD_NC(ddname);
+   DD_NC(ddname);
 }
 
 
@@ -257,10 +257,10 @@ const std::vector<DDSpecifics> & DDLogicalPart::specifics() const
   return rep().specifics();
 }
 */
-// void DDLogicalPart::clear()
-// {
-//    StoreT::instance().clear();
-// }
+void DDLogicalPart::clear()
+{
+   StoreT::instance().clear();
+}
 
 
 

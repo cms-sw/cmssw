@@ -38,11 +38,10 @@ SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterS
       secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
       fromFile_(conf_.getParameter<bool>("fromFile")),
-      fileName_(conf_.getParameter<std::string>("fileName")),
-      generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns",true))
+      fileName_(conf_.getParameter<std::string>("fileName"))
 {
-  ::putenv((char*)"CORAL_AUTH_USER=me");
-  ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
+  ::putenv("CORAL_AUTH_USER=me");
+  ::putenv("CORAL_AUTH_PASSWORD=test"); 
 }
 
 void
@@ -50,10 +49,10 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 {
    using namespace edm;
    unsigned int run=iEvent.id().run();
-   int nmodules = 0;
+   unsigned int nmodules = 0;
    uint32_t nchannels = 0;
-//    int mycol = 415;
-//    int myrow = 159;
+   int mycol = 415;
+   int myrow = 159;
 
    edm::LogInfo("SiPixelCondObjOfflineBuilder") << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
    //
@@ -119,7 +118,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 	     
 	     pIndexConverter.transformToROC( i , j ,chipIndex,colROC,rowROC);
 	     int chanROC = PixelIndices::pixelToChannelROC(rowROC,colROC); // use ROC coordinates
-	     //	     float pp0=0, pp1=0;
+	     float pp0=0, pp1=0;
 	     std::map<int,CalParameters,std::less<int> >::const_iterator it=calmap_.find(chanROC);
 	     CalParameters theCalParameters  = (*it).second;
 	     ped  = theCalParameters.p0;
@@ -185,7 +184,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
            }
 
            totalGain    += gain;
-	   
+
 	   if(!isDead && !isNoisy){
 	     SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
 	   }
@@ -198,11 +197,6 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
            if ((j + 1)  % 80 == 0) // fill the column average after ever ROC!
            {
               float averageGain      = totalGain/static_cast<float>(80);
-	      
-	      if(generateColumns_){
-	        averageGain=gain;
-	      }
-	      
               //std::cout << "Filling gain " << averageGain << " for col: " << i << " row: " << j << std::endl;
               SiPixelGainCalibration_->setDataGain( averageGain , 80, theSiPixelGainCalibration);
               totalGain = 0;
@@ -272,18 +266,20 @@ SiPixelCondObjOfflineBuilder::beginJob(const edm::EventSetup&) {
 					   <<calmap_.max_size() << " "
 					   <<calmap_.empty()<<std::endl;
     }
-  }  
+  }
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiPixelCondObjOfflineBuilder::endJob() {
+   
 }
 
 bool SiPixelCondObjOfflineBuilder::loadFromFile() {
   
-  float par0,par1;//,par2,par3;
-  int colid,rowid; //rocid
+  float par0,par1,par2,par3;
+  int rocid,colid,rowid;
   std::string name;
   
   std::ifstream in_file;  // data file pointer

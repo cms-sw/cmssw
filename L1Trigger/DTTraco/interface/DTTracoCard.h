@@ -4,8 +4,8 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2008/09/05 15:56:27 $
- *   $Revision: 1.9 $
+ *   $Date: 2008/06/30 13:42:21 $
+ *   $Revision: 1.8 $
  *
  *   \author C. Grandi, S. Vanini 
  *
@@ -35,7 +35,6 @@ class DTTrigGeom;
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigLUTs.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -106,15 +105,6 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
     /// Load BTIs triggers and run TRACOs algorithm
     virtual void reconstruct() { clearCache(); loadTRACO(); runTRACO(); }
 
-    /// Return LUTS config for this chamber (=minicrate)
-    DTConfigLUTs* config_luts() const { return _conf_luts; } 
-
-   /// Return acceptance flag
-   inline bool useAcceptParamFlag() { return _flag_acc; } 
-
-   /// Return lut computation option (DB/geometry)
-   inline bool lutFromDBFlag() { return _lut_from_db; }
-
   private:
 
     /// store BTI triggers in TRACO's
@@ -145,12 +135,7 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
     TRACOContainer _tracomap;
     ConfTracoMap _conf_traco_map;	//bti configuration map for this chamber
 
-    DTConfigLUTs* _conf_luts;
-    
     bool _debug;
-
-    bool _flag_acc;
-    bool _lut_from_db;
 };
 
 #endif

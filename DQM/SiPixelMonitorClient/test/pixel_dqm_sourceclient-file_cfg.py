@@ -62,10 +62,10 @@ process.qTester = cms.EDFilter("QualityTester",
 )
 
 ##----## Pixel DQM P5/OFFLINE:
-#process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff")
-#process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff")
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
-process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
+process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff")
+process.load("DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff")
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_source_cff")
+#process.load("DQM.SiPixelCommon.SiPixelP5DQM_client_cff")
 ## the following sequences are declared therein:
 ## siPixelOfflineDQM_source, siPixelOfflineDQM_cosmics_source, siPixelOfflineDQM_source_woTrack
 ## PixelOfflineDQMClient, PixelOfflineDQMClientWithDataCertification
@@ -235,18 +235,18 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(4200)
 )
 
 ##----## Sequences and Paths:
 #process.Reco = cms.Sequence(process.siPixelRecHits)
-process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
+#process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 #process.RecoStrips = cms.Sequence(process.siStripDigis*process.siStripClusters)
 #process.siPixelLocalReco = cms.Sequence(process.siPixelRecHits) 
 #process.siStripLocalReco = cms.Sequence(process.siStripMatchedRecHits)
 #process.trackerLocalReco = cms.Sequence(process.siPixelLocalReco*process.siStripLocalReco)
 #process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.ctftracksP5) #*process.rstracks *process.ctftracksP5
-#process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5)
+process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5)
 
 #put proces.dump in the path where you want to print all event content
 #process.dump=cms.EDAnalyzer('EventContentAnalyzer')
@@ -255,7 +255,7 @@ process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 #process.pathTrack = cms.Path(process.trackReconstruction*process.DQMmodules*process.monitors*process.sipixelEDAClient) 
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.siPixelOfflineDQM_source_woTrack*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.PixelP5DQMClient*process.dqmSaver)
-#process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
-process.p = cms.Path(process.Reco*process.dqmEnv*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
+process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.qTester*process.PixelOfflineDQMClientWithDataCertification*process.dqmSaver)
+#process.p = cms.Path(process.Reco*process.dqmEnv*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.SiPixelRecHitSource*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
 
 #process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)

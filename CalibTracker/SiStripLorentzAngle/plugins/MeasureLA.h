@@ -37,19 +37,18 @@ class MeasureLA : public edm::ESProducer {
   void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method ) const;
   void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
 
-  void calibrate(const std::pair<unsigned,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
-  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method);
-  static std::pair<unsigned,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method);
-
+  void calibrate(const std::pair<uint32_t,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
+  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(const std::string layer, const LA_Filler_Fitter::Method method) const;
+  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(const uint32_t detid, const LA_Filler_Fitter::Method method) const;
+  
   const std::vector<std::string> inputFiles;
   const std::string inFileLocation;
   const edm::FileInPath fp_;
+  const unsigned maxEvents;
   const edm::VParameterSet reports, measurementPreferences, calibrations;
   std::map<std::pair<uint32_t,LA_Filler_Fitter::Method>,float> slope, offset, error_scaling;
   int32_t methods;
   bool byModule, byLayer;
-  const float localybin;
-  const unsigned stripsperbin,maxEvents;
   Book book;
 
 };

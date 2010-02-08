@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.38 2009/11/24 13:53:07 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.41 2009/12/11 21:18:44 dmytro Exp $
 //
 
 // system include files
@@ -91,24 +91,16 @@ public:
       return m_numberOfFieldEstimates;
    }
    static void   guessFieldIsOn( bool guess );
+   static void   guessField( double estimate );
    static void   resetFieldEstimate();
-   static double getCaloScale() {
-      return m_caloScale;
-   }
-   static void   setCaloScale(double var) {
-      m_caloScale = var;
-   }
-
+   
    // ---------- member functions ---------------------------
    //  int draw(const fwlite::Event& );
 
    void registerPhysicsObject(const FWPhysicsObjectDesc&);
 
    void notified(TSocket*);
-
-   CmsShowNavigator* navigator(){
-      return m_navigator;
-   };
+   const fwlite::Event* getCurrentEvent() const;
 
 private:
    CmsShowMain(const CmsShowMain&); // stop default
@@ -153,6 +145,7 @@ private:
 
    void startAutoLoadTimer();
    void stopAutoLoadTimer();
+   void setupAutoLoad(float);
 
    // ---------- member data --------------------------------
    std::auto_ptr<FWConfigurationManager> m_configurationManager;
@@ -176,7 +169,10 @@ private:
    static double m_magneticField;
    static int    m_numberOfFieldEstimates;
    static int    m_numberOfFieldIsOnEstimates;
-   static double m_caloScale;
+
+   static double m_magneticFieldEstimateSum;
+   static double m_magneticFieldEstimateSum2;
+   static int m_numberOfFieldValueEstimates;
 
    std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
    std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;

@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/09/01 11:10:23 $ 
+ **  $Date: 2009/07/28 13:56:47 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -78,14 +78,7 @@ void PhotonOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
 void PhotonOfflineClient::runClient()
 {
 
-  if(!dbe_) return;
-
   if(batch_)  dbe_->open(inputFileName_);
-
-  if(!dbe_->dirExists("Egamma/PhotonAnalyzer")){
-    std::cout << "egamma directory doesn't exist..." << std::endl;
-    return;
-  }
 
   vector<string> types;
   types.push_back("All");

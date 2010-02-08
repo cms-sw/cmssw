@@ -3,7 +3,7 @@
 void SiStripDetSummary::add(const DetId & detid, const float & value)
 {
 
-  // std::cout << "value = " << value << std::endl;
+  std::cout << "value = " << value << std::endl;
 
   int layer = 0;
   int stereo = 0;

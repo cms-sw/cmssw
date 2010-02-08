@@ -1,16 +1,12 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.12 2008/09/03 13:59:05 wittich Exp $
+// $Id: HLTScalers.h,v 1.11 2008/09/03 02:13:47 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
-// Revision 1.12  2008/09/03 13:59:05  wittich
-// make HLT DQM path configurable via python parameter,
-// which defaults to HLT/HLTScalers_EvF
-//
 // Revision 1.11  2008/09/03 02:13:47  wittich
 // - bug fix in L1Scalers
 // - configurable dqm directory in L1SCalers
@@ -80,7 +76,7 @@ public:
   virtual ~HLTScalers() {};
   
   /// BeginJob
-  void beginJob(void);
+  void beginJob(const edm::EventSetup& c);
 
 //   /// Endjob
 //   void endJob(void);

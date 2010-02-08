@@ -14,7 +14,6 @@
 //   V/05 SV: NEWGEO
 //   9/V/05 SV: mt ports ing K units, bug fixed  
 //   30/III/07 SV : config with DTConfigManager every single chip 
-//   2/XI/09 SV : bti acceptance windows included
 //--------------------------------------------------
 
 //-----------------------
@@ -50,6 +49,11 @@ DTTracoCard::DTTracoCard(DTTrigGeom* geo, DTBtiCard* bticard,
   DTTSTheta* tstheta) : DTGeomSupplier(geo) , 
   _bticard(bticard), _tstheta(tstheta) { 
 
+  // get traco configuration map
+  // DTChamberId sid = geom()->statId();
+  // _debug = _conf_manager->getDTTPGDebug();
+  // _conf_traco_map = _conf_manager->getDTConfigTracoMap(sid);	
+
 }
 
 //--------------
@@ -76,19 +80,11 @@ DTTracoCard::clearCache(){
 
 void
 DTTracoCard::setConfig(const DTConfigManager *conf){
-  // get traco configuration map  
-  DTChamberId sid = ChamberId();
-  _conf_traco_map = conf->getDTConfigTracoMap(sid);	
-  _debug = conf->getDTTPGDebug();
+  
+	DTChamberId sid = ChamberId();
+	_conf_traco_map = conf->getDTConfigTracoMap(sid);	
+	_debug = conf->getDTTPGDebug();
 
-  // get lut configuration for this chamber
-  _conf_luts = conf->getDTConfigLUTs(sid);
-
-  // get bti acceptance flag
-  _flag_acc = conf->useAcceptParam();
-
-  // get lut computation flag
-  _lut_from_db = conf->lutFromDB();
 }
 
 void
@@ -121,102 +117,45 @@ DTTracoCard::loadTRACO() {
       std::cout << "Found bti trigger: ";
       (*p).print();
     }
+    // BTI number
+    int nbti = (*p).btiNumber();
+    int nsl  = (*p).btiSL(); 
+    int step = (*p).step();
 
-    // BTI data
-    int nbti 	= (*p).btiNumber();
-    int nsl  	= (*p).btiSL(); 
-    int step 	= (*p).step();
-    int K 	= (*p).K();
-    DTBtiId id_bti = (*p).parentId();
-
-    DTConfigBti* conf_bti = _bticard->config_bti( id_bti ); 
-    int LL 	= conf_bti->LL();
-    int LH 	= conf_bti->LH();
-    int CL 	= conf_bti->CL();
-    int CH 	= conf_bti->CH();
-    int RL 	= conf_bti->RL();
-    int RH 	= conf_bti->RH();
-/*
-    if(debug())
-      std::cout << "Bti trigger acceptances: \n" 
-		<< " LL " << LL << ", LH " << LH << "\n"
-		<< " CL " << CL << ", CH " << CH << "\n"
-		<< " RL " << RL << ", RH " << RH << std::endl;
-*/
-    // assign BTI to TRACO (central TRACO for sl=3); ntc=1,2...maxtc
+    // assign BTI to TRACO
     int ntc = static_cast<int>((nbti-1)/DTConfig::NBTITC)+1;
     if( ntc<1 || ntc>maxtc ) 
       continue;
-    
-    if(debug())
-      std::cout << "Bti trigger assigned to traco " << ntc << " (maxtc " << maxtc << ")" << std::endl;
 
-    // TRACO information
-    DTTracoId tracoid = DTTracoId(wheel(),station(),sector(),ntc);
-     
-    // position inside TRACO: 
+    // position inside cor.: 
     int pos = nbti-(ntc-1)*DTConfig::NBTITC;
 
     // store trigger in TRACO. Create TRACO if it doesn't exist
     // SV tb2003 : check if traco is connected!
 
-    // SV 091103 : add bti trigger filtering in acceptance windows
-    // if flag is useAcceptParam() = true
-
     // Load master TRACO plane
     if( nsl==1 ) {
-      if( !_flag_acc || (K>=CL && K<=CH) )
+      //FIX check traco maps !!!
+      if( /*config()->usedTraco(ntc)==1 &&*/ ( ntc>0 && ntc<=maxtc ) )
         activeGetTRACO(ntc)->add_btiT( step, pos, &(*p) );
-      else
+      else{
         if(debug())
-          std::cout 	<< "ATTENTION: in TRACO n. " << ntc 
-			<< " bti pos " << pos << " trigger K= " << K 
-			<< " outside acceptance " << CL << "<K<" << CH << std::endl;
+          std::cout << "ATTENTION: traco " << ntc << " is disconnected!" << std::endl;
+      }  
     } 
 
     // Load slave TRACO plane
     if( nsl==3 ) {
       // 3 TRACO's
-      //for(int tci=-1;tci<=1;tci++) {
-      //  if( (ntc+tci)>0 && (ntc+tci)<=maxtc )
-      //    activeGetTRACO(ntc+tci)->add_btiT( step, pos+8-4*tci, &(*p) );
-      //  else{
-      //    if(debug())
-      //      std::cout << "ATTENTION: traco " << ntc+tci << " is disconnected!" << std::endl;
-      //  }
-
-      // Left Traco
-       if( (ntc-1)>0 && (ntc-1)<=maxtc )
-	 if( !_flag_acc || (K>=LL && K<=LH) )
-	   activeGetTRACO(ntc-1)->add_btiT( step, pos+8-4*(-1), &(*p) );
-         else
-        if(debug())
-          std::cout 	<< "ATTENTION: in TRACO n. " << ntc-1
-			<< " bti pos " << pos+8-4*(-1) << " trigger K= " << K 
-			<< " outside acceptance " << LL << "<K<" << LH << std::endl;
- 
-      // Central Traco
-       if( (ntc)>0 && (ntc)<=maxtc )
-	 if( !_flag_acc || (K>=CL && K<=CH) )
-	   activeGetTRACO(ntc)->add_btiT( step, pos+8-4*(0), &(*p) );
-         else
-        if(debug())
-          std::cout 	<< "ATTENTION: in TRACO n. " << ntc 
-			<< " bti pos " << pos+8-4*(0) << " trigger K= " << K 
-			<< " outside acceptance " << CL << "<K<" << CH << std::endl;
- 
-      // Right Traco
-       if( (ntc+1)>0 && (ntc+1)<=maxtc )
-	 if( !_flag_acc || (K>=RL && K<=RH) )
-	   activeGetTRACO(ntc+1)->add_btiT( step, pos+8-4*(+1), &(*p) );
-         else
-       if(debug())
-          std::cout 	<< "ATTENTION: in TRACO n. " << ntc+1 
-			<< " bti pos " << pos+8-4*(+1) << " trigger K= " << K 
-			<< " outside acceptance " << RL << "<K<" << RH << std::endl;
-}
-
-    // Filter Theta BTIs -> this is done in DTBtiChip 
+      for(int tci=-1;tci<=1;tci++) {
+        if( /*config()->usedTraco(ntc+tci)==1 &&*/ ( (ntc+tci)>0 && (ntc+tci)<=maxtc ) )
+          activeGetTRACO(ntc+tci)->add_btiT( step, pos+8-4*tci, &(*p) );
+        else{
+          if(debug())
+            std::cout << "ATTENTION: traco " << ntc+tci << " is disconnected!" << std::endl;
+        }
+      } 
+    }
 
   }//end loop on bti trigs
 }
@@ -282,7 +221,7 @@ DTTracoCard::activeGetTRACO(int n) {
   DTChamberId sid = geom()->statId();
   DTTracoId _id = DTTracoId(sid,n);
  
-  DTTracoChip* traco = 0;
+  DTTracoChip* traco=0;
   TRACO_iter ptraco = _tracomap.find(n);
   if( ptraco!=_tracomap.end() ) {
     traco=(*ptraco).second;

@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.36 2009/12/03 00:14:46 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.37 2009/12/03 01:38:45 rekovic Exp $
 //
 //
 
@@ -117,13 +117,18 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void fillHLTMatrix(vector<std::string>);
-      void setupHLTMatrix(std::string name, vector<std::string> & paths);
+      void fillHltMatrix(vector<std::string>);
+      void setupHltMatrix(std::string label, vector<std::string>  paths);
+      void setupHltLsPlots();
+      void setupHltBxPlots();
 
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
+      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
 
       // ----------member data --------------------------- 
       int nev_;
       DQMStore * dbe_;
+      bool fLumiFlag;
 
       /*
       MonitorElement* total_;
@@ -137,6 +142,19 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized_;
       std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
       */
+
+      MonitorElement* ME_HLTAll_LS_;
+      MonitorElement* ME_HLT_bx_;
+      std::vector<MonitorElement*> v_ME_HLTAll_LS_;
+
+      std::string pathsSummaryFolder_;
+      std::string pathsSummaryHLTCorrelationsFolder_;
+      std::string pathsSummaryFilterEfficiencyFolder_;
+      std::string pathsSummaryFilterCountsFolder_;
+      std::string pathsSummaryHLTPathsPerLSFolder_;
+      std::string pathsIndividualHLTPathsPerLSFolder_;
+
+      unsigned int nLS_; 
 
       bool plotAll_;
       bool resetMe_;
@@ -179,6 +197,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       std::vector <std::vector <std::string> > triggerFilters_;
       std::vector <std::vector <uint> > triggerFilterIndices_;
+      std::vector <std::pair<std::string, int> > fPathTempCountPair;
 
       std::vector<std::string> specialPaths_;
 
@@ -746,7 +765,7 @@ void objMonData<T>::fillOff()
 
  } // end else if
 
- v_->getNOffHisto()->Fill(NOff);
+ if(NOff>0)v_->getNOffHisto()->Fill(NOff);
 
 }
 
@@ -866,8 +885,8 @@ void objMonData<T>::monitorL1(const trigger::Vids & idtype, const trigger::Keys 
 
  } // end for l1ki
 
- v_->getNL1Histo()->Fill(NL1);
- v_->getNL1OffUMHisto()->Fill(NL1OffUM);
+ if(NL1 > 0) v_->getNL1Histo()->Fill(NL1);
+ if(NL1OffUM > 0) v_->getNL1OffUMHisto()->Fill(NL1OffUM);
 
 }
 
@@ -1093,7 +1112,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
   }
 
-  v_->getNL1OffHisto()->Fill(NL1Off);
+  if(NL1Off > 0) v_->getNL1OffHisto()->Fill(NL1Off);
 
 }
 

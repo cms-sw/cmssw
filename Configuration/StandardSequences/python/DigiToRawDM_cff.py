@@ -13,14 +13,12 @@ ecalPacker.InstanceEB = 'EBDigiCollectionDM'
 ecalPacker.InstanceEE = 'EEDigiCollectionDM'
 ecalPacker.labelEBSRFlags = "DMEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "DMEcalDigis:eeSrFlags"
-ecalPacker.labelTT = cms.InputTag("DMEcalTriggerPrimitiveDigis")
-esDigiToRaw.InstanceES = cms.string('ESDigiCollectionDM')
-esDigiToRaw.Label = cms.string('mixData')
-
+ecalPacker.labelTT = cms.InputTag('DMEcalTriggerPrimitiveDigis')
+esDigiToRaw.Label = cms.string('DMEcalPreshowerDigis')
 #
-hcalRawData.HBHE = cms.untracked.InputTag("mixData")
-hcalRawData.HF = cms.untracked.InputTag("mixData")
-hcalRawData.HO = cms.untracked.InputTag("mixData")
+hcalRawData.HBHE = cms.untracked.InputTag("DMHcalDigis")
+hcalRawData.HF = cms.untracked.InputTag("DMHcalDigis")
+hcalRawData.HO = cms.untracked.InputTag("DMHcalDigis") 
 hcalRawData.ZDC = cms.untracked.InputTag("mixData")
 #
 cscpacker.wireDigiTag = cms.InputTag("mixData","MuonCSCWireDigisDM")

@@ -1,10 +1,6 @@
-// $Id: HLTScalers.cc,v 1.16 2008/09/03 13:59:06 wittich Exp $
+// $Id: HLTScalers.cc,v 1.15 2008/09/03 02:13:47 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
-// Revision 1.16  2008/09/03 13:59:06  wittich
-// make HLT DQM path configurable via python parameter,
-// which defaults to HLT/HLTScalers_EvF
-//
 // Revision 1.15  2008/09/03 02:13:47  wittich
 // - bug fix in L1Scalers
 // - configurable dqm directory in L1SCalers
@@ -80,7 +76,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
 
 
 
-void HLTScalers::beginJob(void)
+void HLTScalers::beginJob(const edm::EventSetup& c)
 {
   LogDebug("Status") << "HLTScalers::beginJob()..." << std::endl;
 

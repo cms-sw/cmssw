@@ -101,12 +101,12 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   // add jets
   // -----------------------------------------------------
   if( isValid(closestToWMassIndices[0], jets) ){
-    setCandidate(jets, closestToWMassIndices[0], lightQ_);
+    setCandidate(jets, closestToWMassIndices[0], lightQ_, jetCorrectionLevel("wQuarkMix"));
     match[TtSemiLepEvtPartons::LightQ] = closestToWMassIndices[0];
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
-    setCandidate(jets, closestToWMassIndices[1], lightQBar_);
+    setCandidate(jets, closestToWMassIndices[1], lightQBar_, jetCorrectionLevel("wQuarkMix"));
     match[TtSemiLepEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
 
@@ -115,7 +115,7 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
     if( std::find( closestToWMassIndices.begin(), closestToWMassIndices.end(), maxPtIndices[idx]) == closestToWMassIndices.end() ){
       // ...and if it is valid
       if( isValid(maxPtIndices[idx], jets) ){
-	setCandidate(jets, maxPtIndices[idx], hadronicB_);
+	setCandidate(jets, maxPtIndices[idx], hadronicB_, jetCorrectionLevel("bQuark"));
 	match[TtSemiLepEvtPartons::HadB] = maxPtIndices[idx];
 	break; // there should be no other cadidates!
       }
@@ -123,7 +123,7 @@ TtSemiLepHypMaxSumPtWMass::buildHypo(edm::Event& evt,
   }
 
   if( isValid(lepB, jets) ){
-    setCandidate(jets, lepB, leptonicB_);
+    setCandidate(jets, lepB, leptonicB_, jetCorrectionLevel("bQuark"));
     match[TtSemiLepEvtPartons::LepB] = lepB;
   }
 

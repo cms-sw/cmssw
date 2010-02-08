@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/10/10 09:48:58 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/09/04 08:07:26 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -73,6 +73,7 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   } else {
     LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Header, FED ID: "
 					    << dduID << endl;
+    if(performDataIntegrityMonitor) dataMonitor->fedFatal(dduID);
   }
 
   // DDU trailer
@@ -85,13 +86,11 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   } else {
     LogWarning("DTRawToDigi|DTDDUUnpacker") << "[DTDDUUnpacker] WARNING!, this is not a DDU Trailer, FED ID: "
 					    << dduID << endl;
+    if(performDataIntegrityMonitor) dataMonitor->fedFatal(dduID);
   }
-
 
   // Control DDU data
   DTDDUData controlData(dduHeader,dduTrailer);
-  // check the CRC set in the FED trailer (FCRC errors)
-  controlData.checkCRCBit(index8 + datasize - 1*wordSize_64);
 
   // Check Status Words 
   vector<DTDDUFirstStatusWord> rosStatusWords;

@@ -1,14 +1,11 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2009/11/02 22:30:27 $
- * $Revision: 1.45 $
+ * $Date: 2009/11/02 17:00:05 $
+ * $Revision: 1.44 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
- * Revision 1.45  2009/11/02 22:30:27  tapper
- * Err that'll teach me to test it properly.... fixed a bug in the HF ring histograms.
- *
  * Revision 1.44  2009/11/02 17:00:05  tapper
  * Changes to L1TdeGCT (to include energy sums), to L1TDEMON (should not make any difference now) and L1TGCT to add multiple BXs.
  *
@@ -159,9 +156,9 @@ const unsigned int JETETABINS = 22;
 const float JETETAMIN = -0.5;
 const float JETETAMAX = 21.5;
 
-const unsigned int EMETABINS = 22;
-const float EMETAMIN = -0.5;
-const float EMETAMAX = 21.5;
+const unsigned int EMETABINS = 14;
+const float EMETAMIN = 3.5;
+const float EMETAMAX = 17.5;
 
 const unsigned int METPHIBINS = 72;
 const float METPHIMIN = -0.5;
@@ -243,7 +240,7 @@ L1TGCT::~L1TGCT()
 {
 }
 
-void L1TGCT::beginJob(void)
+void L1TGCT::beginJob(const edm::EventSetup & c)
 {
 
   nev_ = 0;

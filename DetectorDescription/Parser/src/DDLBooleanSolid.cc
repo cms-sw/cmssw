@@ -28,7 +28,7 @@
 
 
 // default constructor
-DDLBooleanSolid::DDLBooleanSolid(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
+DDLBooleanSolid::DDLBooleanSolid()
 { 
 }
 
@@ -36,15 +36,15 @@ DDLBooleanSolid::DDLBooleanSolid(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
 DDLBooleanSolid::~DDLBooleanSolid() { }
 
 // Clear out rSolids.
-void DDLBooleanSolid::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLBooleanSolid::preProcessElement (const std::string& name, const std::string& nmspace)
 {
-  myRegistry_->getElement("rSolid")->clear();
+  DDLElementRegistry::getElement("rSolid")->clear();
 }
 
 // To process a BooleanSolid we should have in the meantime
 // hit two rSolid calls and possibly one rRotation and one Translation.
 // So, retrieve them and make the call to DDCore.
-void DDLBooleanSolid::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void DDLBooleanSolid::processElement (const std::string& name, const std::string& nmspace)
 {
   DCOUT_V('P', "DDLBooleanSolid::processElement started");
 
@@ -52,9 +52,9 @@ void DDLBooleanSolid::processElement (const std::string& name, const std::string
   // <UnionSolid name="bs" firstSolid="blah" secondSolid="argh"> <Translation...> <rRotation .../> </UnionSolid
   // AND <UnionSolid> <rSolid...> <rSolid...> <Translation...> <rRotation...> </UnionSolid>
 
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get rSolid children
-  DDXMLElement* myTranslation = myRegistry_->getElement("Translation"); // get Translation child
-  DDXMLElement* myrRotation  = myRegistry_->getElement("rRotation"); // get rRotation child
+  DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid"); // get rSolid children
+  DDXMLElement* myTranslation = DDLElementRegistry::getElement("Translation"); // get Translation child
+  DDXMLElement* myrRotation  = DDLElementRegistry::getElement("rRotation"); // get rRotation child
 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
@@ -132,7 +132,7 @@ void DDLBooleanSolid::processElement (const std::string& name, const std::string
     throw DDException("DDLBooleanSolid was asked to do something other than Union-, Subtraction- or IntersectionSolid?");
   }
   
-  DDLSolid::setReference(nmspace, cpv);
+  DDLSolid::setReference(nmspace);
 
   DCOUT_V('p', theSolid);
 
@@ -157,9 +157,9 @@ std::string DDLBooleanSolid::dumpBooleanSolid (const std::string& name, const st
   if (atts.find("secondSolid") != atts.end()) s+= " secondSolid=\"" + atts.find("secondSolid")->second + "\"";
   s +=  ">\n";
 
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get rSolid children
-  DDXMLElement* myTranslation = myRegistry_->getElement("Translation"); // get Translation child
-  DDXMLElement* myrRotation  = myRegistry_->getElement("rRotation"); // get rRotation child
+  DDXMLElement* myrSolid = DDLElementRegistry::getElement("rSolid"); // get rSolid children
+  DDXMLElement* myTranslation = DDLElementRegistry::getElement("Translation"); // get Translation child
+  DDXMLElement* myrRotation  = DDLElementRegistry::getElement("rRotation"); // get rRotation child
   if (myrSolid->size() > 0)
     {
       for (size_t i = 0; i < myrSolid->size(); ++i)

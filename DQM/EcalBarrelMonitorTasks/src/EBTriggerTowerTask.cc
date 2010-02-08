@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.94 $
+ * $Date: 2009/10/13 17:00:22 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -457,6 +457,10 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
         if ( meEtBxReal_ && compDigiItr->compressedEt() > 0 ) meEtBxReal_->Fill( bx, compDigiItr->compressedEt() );
 
+        if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
+          good = false;
+        }
+
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
         bool matchSample[6];
@@ -471,34 +475,27 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         }
         if (!matchedAny) matchSample[0]=true;
 
-        //        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
-
-        // check if the tower has been readout completely and if it is medium or high interest
-        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && 
-            ((compDigiItr->ttFlag() & 0x3) == 1 || (compDigiItr->ttFlag() & 0x3) == 3) ) {
-
+        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
           for (int j=0; j<6; j++) {
             if (matchSample[j]) {
-              
+
               meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
-              
+
               int index = ( j==0 ) ? -1 : j;
 
               meEmulMatchIndex1D_->Fill(index+0.5);
-              
+
               if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
-              
+
               if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );
-              
+
             }
           }
-
-          if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) good = false;
-          
-          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) goodVeto = false;
-
         }
 
+        if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+          goodVeto = false;
+        }
       }
       else {
         good = false;

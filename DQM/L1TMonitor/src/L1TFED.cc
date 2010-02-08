@@ -1,8 +1,8 @@
 /*
  * \file L1TFED.cc
  *
- * $Date: 2009/09/15 08:56:29 $
- * $Revision: 1.12 $
+ * $Date: 2009/06/26 13:52:39 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
  *
  */
@@ -56,7 +56,7 @@ L1TFED::~L1TFED()
 {
 }
 
-void L1TFED::beginJob(void)
+void L1TFED::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;

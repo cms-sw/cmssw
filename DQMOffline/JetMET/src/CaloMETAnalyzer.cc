@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/23 14:38:13 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/10/08 10:14:54 $
+ *  $Revision: 1.15 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -63,11 +63,9 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
   HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
-  BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
-  _print       = parameters.getParameter<int>("printOut");
   _etThreshold = parameters.getParameter<double>("etThreshold"); // MET threshold
   _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
   _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
@@ -92,30 +90,20 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   _FolderNames.push_back("All");
   _FolderNames.push_back("Cleanup");
-  _FolderNames.push_back("CleanupPV");
   _FolderNames.push_back("HcalNoiseFilter");
   _FolderNames.push_back("HcalNoiseFilterTight");
-  _FolderNames.push_back("JetIDMinimal");
-  _FolderNames.push_back("JetIDLoose");
+  _FolderNames.push_back("JetID");
   _FolderNames.push_back("JetIDTight");
-  _FolderNames.push_back("BeamHaloIDTightPass");
-  _FolderNames.push_back("BeamHaloIDLoosePass");
-  _FolderNames.push_back("PV");
 
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")             bookMESet(DirName+"/"+*ic);
     if (*ic=="Cleanup")         bookMESet(DirName+"/"+*ic);
-    if (*ic=="CleanupPV")       bookMESet(DirName+"/"+*ic);
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
     if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
-    if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
+    if (*ic=="JetID")                bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
-    if (*ic=="PV")                   bookMESet(DirName+"/"+*ic);
     }
   }
 
@@ -178,117 +166,44 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
  
   meNevents                = _dbe->book1D("METTask_Nevents",   "METTask_Nevents"   ,1,0,1);
   meCaloMEx                = _dbe->book1D("METTask_CaloMEx",   "METTask_CaloMEx"   ,500,-500,500);
-  meCaloMEx->setAxisTitle("MEx [GeV]",1);
   meCaloMEy                = _dbe->book1D("METTask_CaloMEy",   "METTask_CaloMEy"   ,500,-500,500);
-  meCaloMEy->setAxisTitle("MEy [GeV]",1);
   meCaloEz                 = _dbe->book1D("METTask_CaloEz",    "METTask_CaloEz"    ,500,-500,500);
-  meCaloEz->setAxisTitle("Ez [GeV]",1);
   meCaloMETSig             = _dbe->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
-  meCaloMETSig->setAxisTitle("METSig",1);
   meCaloMET                = _dbe->book1D("METTask_CaloMET",   "METTask_CaloMET"   ,500,0,1000);
-  meCaloMET->setAxisTitle("MET [GeV]",1);
-  //meCaloMET->getTH1F()->SetStats(111111);
-  //meCaloMET->getTH1F()->SetOption("logy");
   meCaloMETPhi             = _dbe->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-TMath::Pi(),TMath::Pi());
-  meCaloMETPhi->setAxisTitle("METPhi [rad]",1);
   meCaloSumET              = _dbe->book1D("METTask_CaloSumET", "METTask_CaloSumET" ,500,0,2000);
-  meCaloSumET->setAxisTitle("SumET [GeV]",1);
-
-  meCaloMET_logx           = _dbe->book1D("METTask_CaloMET_logx",   "METTask_CaloMET_logx"   ,40,-1.,7.);
-  meCaloMET_logx->setAxisTitle("log(MET) [GeV]",1);
-  meCaloSumET_logx         = _dbe->book1D("METTask_CaloSumET_logx", "METTask_CaloSumET_logx" ,40,-1.,7.);
-  meCaloSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
   meCaloMETIonFeedbck      = _dbe->book1D("METTask_CaloMETIonFeedbck", "METTask_CaloMETIonFeedbck" ,500,0,1000);
-  meCaloMETIonFeedbck->setAxisTitle("MET [GeV]",1);
   meCaloMETHPDNoise        = _dbe->book1D("METTask_CaloMETHPDNoise",   "METTask_CaloMETHPDNoise"   ,500,0,1000);
-  meCaloMETHPDNoise->setAxisTitle("MET [GeV]",1);
   meCaloMETRBXNoise        = _dbe->book1D("METTask_CaloMETRBXNoise",   "METTask_CaloMETRBXNoise"   ,500,0,1000);
-  meCaloMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   meCaloMETPhi002          = _dbe->book1D("METTask_CaloMETPhi002","METTask_CaloMETPhi002",72,-TMath::Pi(),TMath::Pi());
-  meCaloMETPhi002->setAxisTitle("METPhi [rad] (MET>2 GeV)",1);
   meCaloMETPhi010          = _dbe->book1D("METTask_CaloMETPhi010","METTask_CaloMETPhi010",72,-TMath::Pi(),TMath::Pi());
-  meCaloMETPhi010->setAxisTitle("METPhi [rad] (MET>10 GeV)",1);
   meCaloMETPhi020          = _dbe->book1D("METTask_CaloMETPhi020","METTask_CaloMETPhi020",72,-TMath::Pi(),TMath::Pi());
-  meCaloMETPhi020->setAxisTitle("METPhi [rad] (MET>20 GeV)",1);
 
   if (_allhist){
     if (bLumiSecPlot){
       meCaloMExLS              = _dbe->book2D("METTask_CaloMEx_LS","METTask_CaloMEx_LS",200,-200,200,50,0.,500.);
-      meCaloMExLS->setAxisTitle("MEx [GeV]",1);
-      meCaloMExLS->setAxisTitle("Lumi Section",2);
       meCaloMEyLS              = _dbe->book2D("METTask_CaloMEy_LS","METTask_CaloMEy_LS",200,-200,200,50,0.,500.);
-      meCaloMEyLS->setAxisTitle("MEy [GeV]",1);
-      meCaloMEyLS->setAxisTitle("Lumi Section",2);
     }
 
     meCaloMaxEtInEmTowers    = _dbe->book1D("METTask_CaloMaxEtInEmTowers",   "METTask_CaloMaxEtInEmTowers"   ,100,0,2000);
-    meCaloMaxEtInEmTowers->setAxisTitle("Et(Max) in EM Tower [GeV]",1);
     meCaloMaxEtInHadTowers   = _dbe->book1D("METTask_CaloMaxEtInHadTowers",  "METTask_CaloMaxEtInHadTowers"  ,100,0,2000);
-    meCaloMaxEtInHadTowers->setAxisTitle("Et(Max) in Had Tower [GeV]",1);
     meCaloEtFractionHadronic = _dbe->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
-    meCaloEtFractionHadronic->setAxisTitle("Hadronic Et Fraction",1);
     meCaloEmEtFraction       = _dbe->book1D("METTask_CaloEmEtFraction",      "METTask_CaloEmEtFraction"      ,100,0,1);
-    meCaloEmEtFraction->setAxisTitle("EM Et Fraction",1);
 
     meCaloEmEtFraction002    = _dbe->book1D("METTask_CaloEmEtFraction002",   "METTask_CaloEmEtFraction002"      ,100,0,1);
-    meCaloEmEtFraction002->setAxisTitle("EM Et Fraction (MET>2 GeV)",1);
     meCaloEmEtFraction010    = _dbe->book1D("METTask_CaloEmEtFraction010",   "METTask_CaloEmEtFraction010"      ,100,0,1);
-    meCaloEmEtFraction010->setAxisTitle("EM Et Fraction (MET>10 GeV)",1);
     meCaloEmEtFraction020    = _dbe->book1D("METTask_CaloEmEtFraction020",   "METTask_CaloEmEtFraction020"      ,100,0,1);
-    meCaloEmEtFraction020->setAxisTitle("EM Et Fraction (MET>20 GeV)",1);
 
     meCaloHadEtInHB          = _dbe->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",100,0,2000);
-    meCaloHadEtInHB->setAxisTitle("Had Et [GeV]",1);
     meCaloHadEtInHO          = _dbe->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",100,0,2000);
-    meCaloHadEtInHO->setAxisTitle("Had Et [GeV]",1);
     meCaloHadEtInHE          = _dbe->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",100,0,2000);
-    meCaloHadEtInHE->setAxisTitle("Had Et [GeV]",1);
     meCaloHadEtInHF          = _dbe->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",100,0,2000);
-    meCaloHadEtInHF->setAxisTitle("Had Et [GeV]",1);
     meCaloEmEtInHF           = _dbe->book1D("METTask_CaloEmEtInHF" ,"METTask_CaloEmEtInHF" ,100,0,2000);
-    meCaloEmEtInHF->setAxisTitle("EM Et [GeV]",1);
     meCaloEmEtInEE           = _dbe->book1D("METTask_CaloEmEtInEE" ,"METTask_CaloEmEtInEE" ,100,0,2000);
-    meCaloEmEtInEE->setAxisTitle("EM Et [GeV],1");
     meCaloEmEtInEB           = _dbe->book1D("METTask_CaloEmEtInEB" ,"METTask_CaloEmEtInEB" ,100,0,2000);
-    meCaloEmEtInEB->setAxisTitle("EM Et [GeV]",1);
-
-    me[DirName+"/CaloEmMEx"]= _dbe->book1D("METTask_CaloEmMEx","METTask_CaloEmMEx",500,-500,500);
-    me[DirName+"/CaloEmMEx"]->setAxisTitle("EM MEx [GeV]",1);
-    me[DirName+"/CaloEmMEy"]= _dbe->book1D("METTask_CaloEmMEy","METTask_CaloEmMEy",500,-500,500);
-    me[DirName+"/CaloEmMEy"]->setAxisTitle("EM MEy [GeV]",1);
-    me[DirName+"/CaloEmEz"]= _dbe->book1D("METTask_CaloEmEz","METTask_CaloEmEz",500,-500,500);
-    me[DirName+"/CaloEmEz"]->setAxisTitle("EM Ez [GeV]",1);
-    me[DirName+"/CaloEmMET"]= _dbe->book1D("METTask_CaloEmMET","METTask_CaloEmMET",500,0,1000);
-    me[DirName+"/CaloEmMET"]->setAxisTitle("EM MET [GeV]",1);
-    me[DirName+"/CaloEmMETPhi"]= _dbe->book1D("METTask_CaloEmMETPhi","METTask_CaloEmMETPhi",80,-TMath::Pi(),TMath::Pi());
-    me[DirName+"/CaloEmMETPhi"]->setAxisTitle("EM METPhi [rad]",1);
-    me[DirName+"/CaloEmSumET"]= _dbe->book1D("METTask_CaloEmSumET","METTask_CaloEmSumET",500,0,2000);
-    me[DirName+"/CaloEmSumET"]->setAxisTitle("EM SumET [GeV]",1);
-
-    me[DirName+"/CaloHaMEx"]= _dbe->book1D("METTask_CaloHaMEx","METTask_CaloHaMEx",500,-500,500);
-    me[DirName+"/CaloHaMEx"]->setAxisTitle("HA MEx [GeV]",1);
-    me[DirName+"/CaloHaMEy"]= _dbe->book1D("METTask_CaloHaMEy","METTask_CaloHaMEy",500,-500,500);
-    me[DirName+"/CaloHaMEy"]->setAxisTitle("HA MEy [GeV]",1);
-    me[DirName+"/CaloHaEz"]= _dbe->book1D("METTask_CaloHaEz","METTask_CaloHaEz",500,-500,500);
-    me[DirName+"/CaloHaEz"]->setAxisTitle("HA Ez [GeV]",1);
-    me[DirName+"/CaloHaMET"]= _dbe->book1D("METTask_CaloHaMET","METTask_CaloHaMET",500,0,1000);
-    me[DirName+"/CaloHaMET"]->setAxisTitle("HA MET [GeV]",1);
-    me[DirName+"/CaloHaMETPhi"]= _dbe->book1D("METTask_CaloHaMETPhi","METTask_CaloHaMETPhi",80,-TMath::Pi(),TMath::Pi());
-    me[DirName+"/CaloHaMETPhi"]->setAxisTitle("HA METPhi [rad]",1);
-    me[DirName+"/CaloHaSumET"]= _dbe->book1D("METTask_CaloHaSumET","METTask_CaloHaSumET",500,0,2000);
-    me[DirName+"/CaloHaSumET"]->setAxisTitle("HA SumET [GeV]",1);
-
   }
-
-  // Look at all MonitorElements
-  //   std::vector<std::string> MEs = _dbe->getMEs();
-  //   for(unsigned int i=0;i<MEs.size();i++) {
-  //     MonitorElement *me = _dbe->get(MEs[i]);
-  //     TH1F *tme     = me->getTH1F();
-  //     tme->SetOptStats(111111);
-  //   }
 
 }
 
@@ -388,10 +303,7 @@ void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
 	tCaloMETRate->SetBinContent(i+1,tCaloMETRate->GetBinContent(i+1)/double(totltime));
       }      
 
-      tCaloMETRate->SetName("METTask_CaloMETRate");
-      tCaloMETRate->SetTitle("METTask_CaloMETRate");
       meCaloMETRate      = _dbe->book1D("METTask_CaloMETRate",tCaloMETRate);
-      meCaloMETRate->setAxisTitle("MET Threshold [GeV]",1);
       
     }
 
@@ -403,11 +315,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 			      const edm::TriggerResults& triggerResults) {
 
   if (_verbose) std::cout << "CaloMETAnalyzer analyze" << std::endl;
-
-  if (_print){
-  std::cout << " " << std::endl;
-  std::cout << "Event = " << iEvent.id().event() << std::endl;
-  }
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Analyze CaloMET";
 
@@ -537,10 +444,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // CaloMET sanity check
 
   if (_source=="CaloMET") validateMET(*calomet,towers);
-
-  // ==========================================================
-
-  if (_allhist) computeEmHaMET(towers);
     
   // ==========================================================
   // JetID 
@@ -548,28 +451,9 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if (_verbose) std::cout << "JetID starts" << std::endl;
   
   //
-  // --- Minimal cuts
-  //
-  bool bJetIDMinimal=true;
-  int nj=0;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
-       cal!=caloJets->end(); ++cal){
-    jetID->calculate(iEvent, *cal);
-    if (_print && nj<=1) std::cout << "Jet pT = " << cal->pt() << " (GeV) "
-				   << " eta = " << cal->eta() << " "
-				   << " phi = " << cal->phi() << " "
-				   << " emf = " << cal->emEnergyFraction() << std::endl;
-    nj++;
-    if (cal->pt()>10.){
-      if (fabs(cal->eta())<=2.6 && 
-	  cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
-    }
-  }
-
-  //
   // --- Loose cuts
   //
-  bool bJetIDLoose=true;
+  bool bJetID=true;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
@@ -579,18 +463,19 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID->n90Hits()<2)  bJetIDLoose=false; 
-      if (jetID->fHPD()>=0.98) bJetIDLoose=false; 
+      if (jetID->n90Hits()<2)  bJetID=false; 
+      if (jetID->fHPD()>=0.98) bJetID=false; 
+      //if (jetID->restrictedEMF()<0.01) bJetID=false; 
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
-	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=0.01) bJetID=false; 
       }
       // for forward
       else {
-	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=-0.9) bJetID=false; 
 	if (cal->pt()>80.){
-	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()>= 1.0) bJetID=false; 
 	}
       } // forward vs non-forward
     }   // pt>10 GeV/c
@@ -600,7 +485,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // --- Tight cuts
   //
   bool bJetIDTight=true;
-  bJetIDTight=bJetIDLoose;
+  bJetIDTight=bJetID;
   for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
@@ -648,63 +533,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
   bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
 
-  if (_verbose) std::cout << "HcalNoiseFilter Summary ends" << std::endl;
-
-  // ==========================================================
-  // Get BeamHaloSummary
-  edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
-  iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
-
-  bool bBeamHaloIDTightPass = true;
-  bool bBeamHaloIDLoosePass = true;
-
-  if(TheBeamHaloSummary.isValid()) {
-
-  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
-
-//   std::cout << TheSummary.EcalLooseHaloId() << " "
-// 	    << TheSummary.HcalLooseHaloId() << " "
-// 	    << TheSummary.CSCLooseHaloId()  << " "
-// 	    << TheSummary.GlobalLooseHaloId() << std::endl;
-
-  if( TheSummary.EcalLooseHaloId()  || TheSummary.HcalLooseHaloId() || 
-      TheSummary.CSCLooseHaloId()   || TheSummary.GlobalLooseHaloId() )
-    bBeamHaloIDLoosePass = false;
-
-  if( TheSummary.EcalTightHaloId()  || TheSummary.HcalTightHaloId() || 
-      TheSummary.CSCTightHaloId()   || TheSummary.GlobalTightHaloId() )
-    bBeamHaloIDTightPass = false;
-
-  }
-
-  if (_verbose) std::cout << "BeamHaloSummary ends" << std::endl;
-
-  // ==========================================================
-  ////////////////////////////////////////////////////////////////////////////////
-  //Vertex information
-  
-  bool bPrimaryVertex = false;
-
-  Handle<VertexCollection> vertexHandle;
-  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
-  if ( vertexHandle.isValid() ){
-    VertexCollection vertexCollection = *(vertexHandle.product());
-    int vertex_number     = vertexCollection.size();
-    VertexCollection::const_iterator v = vertexCollection.begin();
-    double vertex_chi2    = v->normalizedChi2(); //v->chi2();
-    //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
-    double vertex_numTrks = v->tracksSize();
-    double vertex_sumTrks = 0.0;
-    double vertex_Z       = v->z();
-    for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
-      vertex_sumTrks += (*vertex_curTrack)->pt();
-    }
-    if (vertex_number>=1
-	&& vertex_numTrks>1
-	&& vertex_chi2 < 2.4
-	&& abs(vertex_Z) < 20 ) bPrimaryVertex = true;
-  }
-
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
@@ -712,90 +540,18 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
        ic != _FolderNames.end(); ic++){
-    if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="Cleanup"   && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass) 
-                                                                fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="CleanupPV" && bHcalNoiseFilter && bJetIDMinimal && bBeamHaloIDLoosePass && bPrimaryVertex) 
-                                                                fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="All")                                   fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="Cleanup" && bHcalNoiseFilter && bJetID) fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     if (_allSelection) {
     if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="JetIDMinimal" && bJetIDMinimal)                   fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="JetIDLoose"   && bJetIDLoose)                     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="JetIDTight"   && bJetIDTight)                     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="BeamHaloIDTightPass" && bBeamHaloIDTightPass)     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="BeamHaloIDLoosePass" && bBeamHaloIDLoosePass)     fillMESet(iEvent, DirName+"/"+*ic, *calomet);
-    if (*ic=="PV"           && bPrimaryVertex)                  fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="JetID"      && bJetID)                            fillMESet(iEvent, DirName+"/"+*ic, *calomet);
+    if (*ic=="JetIDTight" && bJetIDTight)                       fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     }
   }
 
 }
 
-// ***********************************************************
-void CaloMETAnalyzer::computeEmHaMET(edm::Handle<edm::View<Candidate> > towers)
-{
-
-  edm::View<Candidate>::const_iterator towerCand = towers->begin();
-  
-  double sum_em_et = 0.0;
-  double sum_em_ex = 0.0;
-  double sum_em_ey = 0.0;
-  double sum_em_ez = 0.0;
-  
-  double sum_ha_et = 0.0;
-  double sum_ha_ex = 0.0;
-  double sum_ha_ey = 0.0;
-  double sum_ha_ez = 0.0;
-  
-  for ( ; towerCand != towers->end(); towerCand++)
-    {
-      const Candidate* candidate = &(*towerCand);
-      if (candidate)
-	{
-	  const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
-	  if (calotower){
-	    double Tower_ET = calotower->et();
-	    if (Tower_ET>0.3) {
-	      
-	      double phi   = candidate->phi();
-	      double theta = candidate->theta();
-	      //double e     = candidate->energy();
-	      double e_em  = calotower->emEnergy();
-	      double e_ha  = calotower->hadEnergy();
-	      double et_em = e_em*sin(theta);
-	      double et_ha = e_ha*sin(theta);
-
-	      sum_em_ez += e_em*cos(theta);
-	      sum_em_et += et_em;
-	      sum_em_ex += et_em*cos(phi);
-	      sum_em_ey += et_em*sin(phi);
-
-	      sum_ha_ez += e_ha*cos(theta);
-	      sum_ha_et += et_ha;
-	      sum_ha_ex += et_ha*cos(phi);
-	      sum_ha_ey += et_ha*sin(phi);
-
-	    } // Et>0.5
-	  }   // calotower
-	}     // candidate
-    }         // loop
-  
-  //
-  _EmMEx = -sum_em_ex;
-  _EmMEy = -sum_em_ey;
-  _EmMET = pow(_EmMEx*_EmMEx+_EmMEy*_EmMEy,0.5);
-  _EmCaloEz = sum_em_ez;
-  _EmSumEt  = sum_em_et;
-  _HaMetPhi   = atan2( _EmMEy, _EmMEx ); 
-  //
-  _HaMEx = -sum_ha_ex;
-  _HaMEy = -sum_ha_ex;
-  _HaMET = pow(_HaMEx*_HaMEx+_HaMEy*_HaMEy,0.5);
-  _HaCaloEz = sum_ha_ez;
-  _HaSumEt  = sum_ha_et;
-  _HaMetPhi   = atan2( _HaMEy, _HaMEx ); 
-  
-}
 // ***********************************************************
 void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet, 
 				  edm::Handle<edm::View<Candidate> > towers)
@@ -816,7 +572,7 @@ void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
 	  const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
 	  if (calotower){
 	    double Tower_ET = calotower->et();
-	    if (Tower_ET>0.3) {
+	    if (Tower_ET>0.5) {
 	      
 	      double phi   = candidate->phi();
 	      double theta = candidate->theta();
@@ -848,13 +604,6 @@ void CaloMETAnalyzer::validateMET(const reco::CaloMET& calomet,
       std::cout << "MET"   << Met   << " METBlock" << calomet.pt()    << std::endl;
     }
   }  
-
-  if (_print){
-    std::cout << "SUMET = " << calomet.sumEt() << " (GeV) "
-	      << "MEX"   << calomet.px() << " (GeV) "
-	      << "MEY"   << calomet.py() << " (GeV) " 
-	      << "MET"   << calomet.pt() << " (GeV) " << std::endl;
-  }
 
 }
 
@@ -936,7 +685,7 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
   if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
-  if (caloSumET>_etThreshold){
+  if (caloMET>_etThreshold){
 
     meCaloMEx    = _dbe->get(DirName+"/"+"METTask_CaloMEx");    if (meCaloMEx    && meCaloMEx->getRootObject())    meCaloMEx->Fill(caloMEx);
     meCaloMEy    = _dbe->get(DirName+"/"+"METTask_CaloMEy");    if (meCaloMEy    && meCaloMEy->getRootObject())    meCaloMEy->Fill(caloMEy);
@@ -945,9 +694,6 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
     meCaloSumET  = _dbe->get(DirName+"/"+"METTask_CaloSumET");  if (meCaloSumET  && meCaloSumET->getRootObject())  meCaloSumET->Fill(caloSumET);
     meCaloMETSig = _dbe->get(DirName+"/"+"METTask_CaloMETSig"); if (meCaloMETSig && meCaloMETSig->getRootObject()) meCaloMETSig->Fill(caloMETSig);
     meCaloEz     = _dbe->get(DirName+"/"+"METTask_CaloEz");     if (meCaloEz     && meCaloEz->getRootObject())     meCaloEz->Fill(caloEz);
-
-    meCaloMET_logx    = _dbe->get(DirName+"/"+"METTask_CaloMET_logx");    if (meCaloMET_logx    && meCaloMET_logx->getRootObject())    meCaloMET_logx->Fill(log10(caloMET));
-    meCaloSumET_logx  = _dbe->get(DirName+"/"+"METTask_CaloSumET_logx");  if (meCaloSumET_logx  && meCaloSumET_logx->getRootObject())  meCaloSumET_logx->Fill(log10(caloSumET));
 
     meCaloMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_CaloMETIonFeedbck");  if (meCaloMETIonFeedbck && meCaloMETIonFeedbck->getRootObject()) meCaloMETIonFeedbck->Fill(caloMET);
     meCaloMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_CaloMETHPDNoise");    if (meCaloMETHPDNoise   && meCaloMETHPDNoise->getRootObject())   meCaloMETHPDNoise->Fill(caloMET);
@@ -985,21 +731,6 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
       meCaloEmEtInEB = _dbe->get(DirName+"/"+"METTask_CaloEmEtInEB"); if (meCaloEmEtInEB && meCaloEmEtInEB->getRootObject()) meCaloEmEtInEB->Fill(caloEmEtInEB);
       meCaloEmEtInEE = _dbe->get(DirName+"/"+"METTask_CaloEmEtInEE"); if (meCaloEmEtInEE && meCaloEmEtInEE->getRootObject()) meCaloEmEtInEE->Fill(caloEmEtInEE);
       meCaloEmEtInHF = _dbe->get(DirName+"/"+"METTask_CaloEmEtInHF"); if (meCaloEmEtInHF && meCaloEmEtInHF->getRootObject()) meCaloEmEtInHF->Fill(caloEmEtInHF);
-
-      me[DirName+"/CaloEmMEx"]->Fill(_EmMEx);
-      me[DirName+"/CaloEmMEy"]->Fill(_EmMEy);
-      me[DirName+"/CaloEmEz"]->Fill(_EmCaloEz);
-      me[DirName+"/CaloEmMET"]->Fill(_EmMET);
-      me[DirName+"/CaloEmMETPhi"]->Fill(_EmMetPhi);
-      me[DirName+"/CaloEmSumET"]->Fill(_EmSumEt);
-
-      me[DirName+"/CaloHaMEx"]->Fill(_HaMEx);
-      me[DirName+"/CaloHaMEy"]->Fill(_HaMEy);
-      me[DirName+"/CaloHaEz"]->Fill(_HaCaloEz);
-      me[DirName+"/CaloHaMET"]->Fill(_HaMET);
-      me[DirName+"/CaloHaMETPhi"]->Fill(_HaMetPhi);
-      me[DirName+"/CaloHaSumET"]->Fill(_HaSumEt);
-
     } // _allhist
 
   } // et threshold cut

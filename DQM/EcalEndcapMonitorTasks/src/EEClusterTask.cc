@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/11/25 10:27:55 $
- * $Revision: 1.69 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -73,13 +73,13 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meBCETFwdMap_ = 0;
   meBCSizFwdMap_ = 0;
 
-  meBCEneFwdMapProjEta_ = 0;
+  meBCEneFwdMapProjR_ = 0;
   meBCEneFwdMapProjPhi_ = 0;
-  meBCNumFwdMapProjEta_ = 0;
+  meBCNumFwdMapProjR_ = 0;
   meBCNumFwdMapProjPhi_ = 0;
-  meBCETFwdMapProjEta_ = 0;
+  meBCETFwdMapProjR_ = 0;
   meBCETFwdMapProjPhi_ = 0;
-  meBCSizFwdMapProjEta_ = 0;
+  meBCSizFwdMapProjR_ = 0;
   meBCSizFwdMapProjPhi_ = 0;
 
   meBCEneBwdMap_ = 0;
@@ -87,13 +87,13 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meBCETBwdMap_ = 0;
   meBCSizBwdMap_ = 0;
 
-  meBCEneBwdMapProjEta_ = 0;
+  meBCEneBwdMapProjR_ = 0;
   meBCEneBwdMapProjPhi_ = 0;
-  meBCNumBwdMapProjEta_ = 0;
+  meBCNumBwdMapProjR_ = 0;
   meBCNumBwdMapProjPhi_ = 0;
-  meBCETBwdMapProjEta_ = 0;
+  meBCETBwdMapProjR_ = 0;
   meBCETBwdMapProjPhi_ = 0;
-  meBCSizBwdMapProjEta_ = 0;
+  meBCSizBwdMapProjR_ = 0;
   meBCSizBwdMapProjPhi_ = 0;
 
   meSCEne_ = 0;
@@ -109,6 +109,11 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meSCSeedMapOcc_[1] = 0;
   meSCMapSingleCrystal_[0] = 0;
   meSCMapSingleCrystal_[1] = 0;
+  meSCSeedTimingSummary_ = 0;
+  meSCSeedTimingMap_[0] = 0;
+  meSCSeedTimingMap_[1] = 0;
+  for(int i=0;i<18;++i)
+    meSCSeedTiming_[i] = 0;
 
   mes1s9_ = 0;
   mes9s25_ = 0;
@@ -117,15 +122,6 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meInvMassJPsi_ = 0;
   meInvMassZ0_ = 0;
   meInvMassHigh_ = 0;
-
-  meInvMassPi0Sel_ = 0;
-  meInvMassJPsiSel_ = 0;
-  meInvMassZ0Sel_ = 0;
-  meInvMassHighSel_ = 0;
-
-  thrSigmaIeIe_ = 999.;
-  thrClusEt_ = 1.0;
-  thrCandEt_ = 1.5;
 
 }
 
@@ -172,19 +168,19 @@ void EEClusterTask::reset(void) {
 
   if ( meBCSizFwdMap_ ) meBCSizFwdMap_->Reset();
 
-  if ( meBCEneFwdMapProjEta_ ) meBCEneFwdMapProjEta_->Reset();
+  if ( meBCEneFwdMapProjR_ ) meBCEneFwdMapProjR_->Reset();
 
   if ( meBCEneFwdMapProjPhi_ ) meBCEneFwdMapProjPhi_->Reset();
 
-  if ( meBCNumFwdMapProjEta_ ) meBCNumFwdMapProjEta_->Reset();
+  if ( meBCNumFwdMapProjR_ ) meBCNumFwdMapProjR_->Reset();
 
   if ( meBCNumFwdMapProjPhi_ ) meBCNumFwdMapProjPhi_->Reset();
 
-  if ( meBCETFwdMapProjEta_ ) meBCETFwdMapProjEta_->Reset();
+  if ( meBCETFwdMapProjR_ ) meBCETFwdMapProjR_->Reset();
 
   if ( meBCETFwdMapProjPhi_ ) meBCETFwdMapProjPhi_->Reset();
 
-  if ( meBCSizFwdMapProjEta_ ) meBCSizFwdMapProjEta_->Reset();
+  if ( meBCSizFwdMapProjR_ ) meBCSizFwdMapProjR_->Reset();
 
   if ( meBCSizFwdMapProjPhi_ ) meBCSizFwdMapProjPhi_->Reset();
 
@@ -196,19 +192,19 @@ void EEClusterTask::reset(void) {
 
   if ( meBCSizBwdMap_ ) meBCSizBwdMap_->Reset();
 
-  if ( meBCEneBwdMapProjEta_ ) meBCEneBwdMapProjEta_->Reset();
+  if ( meBCEneBwdMapProjR_ ) meBCEneBwdMapProjR_->Reset();
 
   if ( meBCEneBwdMapProjPhi_ ) meBCEneBwdMapProjPhi_->Reset();
 
-  if ( meBCNumBwdMapProjEta_ ) meBCNumBwdMapProjEta_->Reset();
+  if ( meBCNumBwdMapProjR_ ) meBCNumBwdMapProjR_->Reset();
 
   if ( meBCNumBwdMapProjPhi_ ) meBCNumBwdMapProjPhi_->Reset();
 
-  if ( meBCETBwdMapProjEta_ ) meBCETBwdMapProjEta_->Reset();
+  if ( meBCETBwdMapProjR_ ) meBCETBwdMapProjR_->Reset();
 
   if ( meBCETBwdMapProjPhi_ ) meBCETBwdMapProjPhi_->Reset();
 
-  if ( meBCSizBwdMapProjEta_ ) meBCSizBwdMapProjEta_->Reset();
+  if ( meBCSizBwdMapProjR_ ) meBCSizBwdMapProjR_->Reset();
 
   if ( meBCSizBwdMapProjPhi_ ) meBCSizBwdMapProjPhi_->Reset();
 
@@ -236,6 +232,15 @@ void EEClusterTask::reset(void) {
 
   if ( meSCMapSingleCrystal_[1] ) meSCMapSingleCrystal_[1]->Reset();
 
+  if ( meSCSeedTimingSummary_ ) meSCSeedTimingSummary_->Reset();
+
+  if ( meSCSeedTimingMap_[0] ) meSCSeedTimingMap_[0]->Reset();
+
+  if ( meSCSeedTimingMap_[1] ) meSCSeedTimingMap_[1]->Reset();
+
+  for(int i=0; i<18; ++i)
+    if ( meSCSeedTiming_[i] ) meSCSeedTiming_[i]->Reset();
+
   if ( mes1s9_ ) mes1s9_->Reset();
 
   if ( mes9s25_ ) mes9s25_->Reset();
@@ -247,14 +252,6 @@ void EEClusterTask::reset(void) {
   if ( meInvMassZ0_ ) meInvMassZ0_->Reset();
 
   if ( meInvMassHigh_ ) meInvMassHigh_->Reset();
-
-  if ( meInvMassPi0Sel_ ) meInvMassPi0Sel_->Reset();
-
-  if ( meInvMassJPsiSel_ ) meInvMassJPsiSel_->Reset();
-
-  if ( meInvMassZ0Sel_ ) meInvMassZ0Sel_->Reset();
-
-  if ( meInvMassHighSel_ ) meInvMassHighSel_->Reset();
 
 }
 
@@ -299,40 +296,40 @@ void EEClusterTask::setup(void){
     meBCSizFwdMap_->setAxisTitle("x", 1);
     meBCSizFwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC energy projection eta EE +");
-    meBCEneFwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 100, 0., 500., "s");
-    meBCEneFwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCEneFwdMapProjEta_->setAxisTitle("energy (GeV)", 2);
+    sprintf(histo, "EECLT BC energy projection R EE +");
+    meBCEneFwdMapProjR_ = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
+    meBCEneFwdMapProjR_->setAxisTitle("r", 1);
+    meBCEneFwdMapProjR_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC energy projection phi EE +");
     meBCEneFwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCEneFwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCEneFwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC number projection eta EE +");
-    meBCNumFwdMapProjEta_ = dqmStore_->book1D(histo, histo, 20, 1.479, 3.0);
-    meBCNumFwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCNumFwdMapProjEta_->setAxisTitle("number of clusters", 2);
+    sprintf(histo, "EECLT BC number projection R EE +");
+    meBCNumFwdMapProjR_ = dqmStore_->book1D(histo, histo, 20, 0., 150.);
+    meBCNumFwdMapProjR_->setAxisTitle("r", 1);
+    meBCNumFwdMapProjR_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC number projection phi EE +");
     meBCNumFwdMapProjPhi_ = dqmStore_->book1D(histo, histo, 50, -M_PI, M_PI);
     meBCNumFwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCNumFwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EECLT BC ET projection eta EE +");
-    meBCETFwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 100, 0., 500., "s");
-    meBCETFwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCETFwdMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
+    sprintf(histo, "EECLT BC ET projection R EE +");
+    meBCETFwdMapProjR_ = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
+    meBCETFwdMapProjR_->setAxisTitle("r", 1);
+    meBCETFwdMapProjR_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC ET projection phi EE +");
     meBCETFwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCETFwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCETFwdMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC size projection eta EE +");
-    meBCSizFwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 100, 0., 100., "s");
-    meBCSizFwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCSizFwdMapProjEta_->setAxisTitle("cluster size", 2);
+    sprintf(histo, "EECLT BC size projection R EE +");
+    meBCSizFwdMapProjR_ = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
+    meBCSizFwdMapProjR_->setAxisTitle("r", 1);
+    meBCSizFwdMapProjR_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EECLT BC size projection phi EE +");
     meBCSizFwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
@@ -359,40 +356,40 @@ void EEClusterTask::setup(void){
     meBCSizBwdMap_->setAxisTitle("x", 1);
     meBCSizBwdMap_->setAxisTitle("y", 2);
 
-    sprintf(histo, "EECLT BC energy projection eta EE -");
-    meBCEneBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 100, 0., 500., "s");
-    meBCEneBwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCEneBwdMapProjEta_->setAxisTitle("energy (GeV)", 2);
+    sprintf(histo, "EECLT BC energy projection R EE -");
+    meBCEneBwdMapProjR_ = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
+    meBCEneBwdMapProjR_->setAxisTitle("r", 1);
+    meBCEneBwdMapProjR_->setAxisTitle("energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC energy projection phi EE -");
     meBCEneBwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCEneBwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCEneBwdMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC number projection eta EE -");
-    meBCNumBwdMapProjEta_ = dqmStore_->book1D(histo, histo, 20, -3.0, -1.479);
-    meBCNumBwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCNumBwdMapProjEta_->setAxisTitle("number of clusters", 2);
+    sprintf(histo, "EECLT BC number projection R EE -");
+    meBCNumBwdMapProjR_ = dqmStore_->book1D(histo, histo, 20, 0., 150.);
+    meBCNumBwdMapProjR_->setAxisTitle("r", 1);
+    meBCNumBwdMapProjR_->setAxisTitle("number of clusters", 2);
 
     sprintf(histo, "EECLT BC number projection phi EE -");
     meBCNumBwdMapProjPhi_ = dqmStore_->book1D(histo, histo, 50, -M_PI, M_PI);
     meBCNumBwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCNumBwdMapProjPhi_->setAxisTitle("number of clusters", 2);
 
-    sprintf(histo, "EECLT BC ET projection eta EE -");
-    meBCETBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 100, 0., 500., "s");
-    meBCETBwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCETBwdMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
+    sprintf(histo, "EECLT BC ET projection R EE -");
+    meBCETBwdMapProjR_ = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 500., "s");
+    meBCETBwdMapProjR_->setAxisTitle("r", 1);
+    meBCETBwdMapProjR_->setAxisTitle("transverse energy (GeV)", 2);
 
     sprintf(histo, "EECLT BC ET projection phi EE -");
     meBCETBwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 500., "s");
     meBCETBwdMapProjPhi_->setAxisTitle("phi", 1);
     meBCETBwdMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
-    sprintf(histo, "EECLT BC size projection eta EE -");
-    meBCSizBwdMapProjEta_ = dqmStore_->bookProfile(histo, histo, 20, -3.0, 1.479, 100, 0., 100., "s");
-    meBCSizBwdMapProjEta_->setAxisTitle("eta", 1);
-    meBCSizBwdMapProjEta_->setAxisTitle("cluster size", 2);
+    sprintf(histo, "EECLT BC size projection R EE -");
+    meBCSizBwdMapProjR_ = dqmStore_->bookProfile(histo, histo, 20, 0., 150., 100, 0., 100., "s");
+    meBCSizBwdMapProjR_->setAxisTitle("r", 1);
+    meBCSizBwdMapProjR_->setAxisTitle("cluster size", 2);
 
     sprintf(histo, "EECLT BC size projection phi EE -");
     meBCSizBwdMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 100, 0., 100., "s");
@@ -416,20 +413,20 @@ void EEClusterTask::setup(void){
     meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
 
     sprintf(histo, "EECLT SC seed crystal energy");
-    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    meSCSeedEne_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
     meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC e2");
-    meSCEne2_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    meSCEne2_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
     meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC energy vs seed crystal energy");
-    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 50, 0., 10., 50, 0., 10.);
+    meSCEneVsEMax_ = dqmStore_->book2D(histo, histo, 200, 0, 1.8, 200, 0, 1.8);
     meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
     meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
 
     sprintf(histo, "EECLT SC energy (low scale)");
-    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    meSCEneLowScale_ = dqmStore_->book1D(histo, histo, 200, 0, 1.8);
     meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
 
     sprintf(histo, "EECLT SC seed occupancy map EE -");
@@ -452,6 +449,27 @@ void EEClusterTask::setup(void){
     meSCMapSingleCrystal_[1]->setAxisTitle("jx", 1);
     meSCMapSingleCrystal_[1]->setAxisTitle("jy", 2);
 
+    sprintf(histo, "EECLT SC seed crystal timing");
+    meSCSeedTimingSummary_ = dqmStore_->book1D(histo, histo, 78, 0., 10.);
+    meSCSeedTimingSummary_->setAxisTitle("seed crystal timing", 1);
+
+    sprintf(histo, "EECLT SC seed crystal timing map EE -");
+    meSCSeedTimingMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 78, 0., 10., "s");
+    meSCSeedTimingMap_[0]->setAxisTitle("jx", 1);
+    meSCSeedTimingMap_[0]->setAxisTitle("jy", 2);
+
+    sprintf(histo, "EECLT SC seed crystal timing map EE +");
+    meSCSeedTimingMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 78, 0., 10., "s");
+    meSCSeedTimingMap_[1]->setAxisTitle("jx", 1);
+    meSCSeedTimingMap_[1]->setAxisTitle("jy", 2);
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
+    for(int i = 0; i < 18; i++) {
+      sprintf(histo, "EECLT timing %s", Numbers::sEE(i+1).c_str());
+      meSCSeedTiming_[i] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
+
     sprintf(histo, "EECLT s1s9");
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
@@ -461,7 +479,7 @@ void EEClusterTask::setup(void){
     mes9s25_->setAxisTitle("s9/s25", 1);
 
     sprintf(histo, "EECLT dicluster invariant mass Pi0");
-    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
+    meInvMassPi0_ = dqmStore_->book1D(histo, histo, 50, 0., 0.300);
     meInvMassPi0_->setAxisTitle("mass (GeV)", 1);
 
     sprintf(histo, "EECLT dicluster invariant mass JPsi");
@@ -475,22 +493,6 @@ void EEClusterTask::setup(void){
     sprintf(histo, "EECLT dicluster invariant mass high");
     meInvMassHigh_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
     meInvMassHigh_->setAxisTitle("mass (GeV)", 1);
-
-    sprintf(histo, "EECLT dicluster invariant mass Pi0 sel");
-    meInvMassPi0Sel_ = dqmStore_->book1D(histo, histo, 50, 0.06, 0.22);
-    meInvMassPi0Sel_->setAxisTitle("mass (GeV)", 1);
-
-    sprintf(histo, "EECLT dicluster invariant mass JPsi sel");
-    meInvMassJPsiSel_ = dqmStore_->book1D(histo, histo, 50, 2.9, 3.3);
-    meInvMassJPsiSel_->setAxisTitle("mass (GeV)", 1);
-
-    sprintf(histo, "EECLT dicluster invariant mass Z0 sel");
-    meInvMassZ0Sel_ = dqmStore_->book1D(histo, histo, 50, 40, 110);
-    meInvMassZ0Sel_->setAxisTitle("mass (GeV)", 1);
-
-    sprintf(histo, "EECLT dicluster invariant mass high sel");
-    meInvMassHighSel_ = dqmStore_->book1D(histo, histo, 500, 110, 3000);
-    meInvMassHighSel_->setAxisTitle("mass (GeV)", 1);
 
   }
 
@@ -524,26 +526,26 @@ void EEClusterTask::cleanup(void){
     if ( meBCSizFwdMap_ ) dqmStore_->removeElement( meBCSizFwdMap_->getName() );
     meBCSizFwdMap_ = 0;
 
-    if ( meBCEneFwdMapProjEta_ ) dqmStore_->removeElement( meBCEneFwdMapProjEta_->getName() );
-    meBCEneFwdMapProjEta_ = 0;
+    if ( meBCEneFwdMapProjR_ ) dqmStore_->removeElement( meBCEneFwdMapProjR_->getName() );
+    meBCEneFwdMapProjR_ = 0;
 
     if ( meBCEneFwdMapProjPhi_ ) dqmStore_->removeElement( meBCEneFwdMapProjPhi_->getName() );
     meBCEneFwdMapProjPhi_ = 0;
 
-    if ( meBCNumFwdMapProjEta_ ) dqmStore_->removeElement( meBCNumFwdMapProjEta_->getName() );
-    meBCNumFwdMapProjEta_ = 0;
+    if ( meBCNumFwdMapProjR_ ) dqmStore_->removeElement( meBCNumFwdMapProjR_->getName() );
+    meBCNumFwdMapProjR_ = 0;
 
     if ( meBCNumFwdMapProjPhi_ ) dqmStore_->removeElement( meBCNumFwdMapProjPhi_->getName() );
     meBCNumFwdMapProjPhi_ = 0;
 
-    if ( meBCETFwdMapProjEta_ ) dqmStore_->removeElement( meBCETFwdMapProjEta_->getName() );
-    meBCETFwdMapProjEta_ = 0;
+    if ( meBCETFwdMapProjR_ ) dqmStore_->removeElement( meBCETFwdMapProjR_->getName() );
+    meBCETFwdMapProjR_ = 0;
 
     if ( meBCETFwdMapProjPhi_ ) dqmStore_->removeElement( meBCETFwdMapProjPhi_->getName() );
     meBCETFwdMapProjPhi_ = 0;
 
-    if ( meBCSizFwdMapProjEta_ ) dqmStore_->removeElement( meBCSizFwdMapProjEta_->getName() );
-    meBCSizFwdMapProjEta_ = 0;
+    if ( meBCSizFwdMapProjR_ ) dqmStore_->removeElement( meBCSizFwdMapProjR_->getName() );
+    meBCSizFwdMapProjR_ = 0;
 
     if ( meBCSizFwdMapProjPhi_ ) dqmStore_->removeElement( meBCSizFwdMapProjPhi_->getName() );
     meBCSizFwdMapProjPhi_ = 0;
@@ -560,26 +562,26 @@ void EEClusterTask::cleanup(void){
     if ( meBCSizBwdMap_ ) dqmStore_->removeElement( meBCSizBwdMap_->getName() );
     meBCSizBwdMap_ = 0;
 
-    if ( meBCEneBwdMapProjEta_ ) dqmStore_->removeElement( meBCEneBwdMapProjEta_->getName() );
-    meBCEneBwdMapProjEta_ = 0;
+    if ( meBCEneBwdMapProjR_ ) dqmStore_->removeElement( meBCEneBwdMapProjR_->getName() );
+    meBCEneBwdMapProjR_ = 0;
 
     if ( meBCEneBwdMapProjPhi_ ) dqmStore_->removeElement( meBCEneBwdMapProjPhi_->getName() );
     meBCEneBwdMapProjPhi_ = 0;
 
-    if ( meBCNumBwdMapProjEta_ ) dqmStore_->removeElement( meBCNumBwdMapProjEta_->getName() );
-    meBCNumBwdMapProjEta_ = 0;
+    if ( meBCNumBwdMapProjR_ ) dqmStore_->removeElement( meBCNumBwdMapProjR_->getName() );
+    meBCNumBwdMapProjR_ = 0;
 
     if ( meBCNumBwdMapProjPhi_ ) dqmStore_->removeElement( meBCNumBwdMapProjPhi_->getName() );
     meBCNumBwdMapProjPhi_ = 0;
 
-    if ( meBCETBwdMapProjEta_ ) dqmStore_->removeElement( meBCETBwdMapProjEta_->getName() );
-    meBCETBwdMapProjEta_ = 0;
+    if ( meBCETBwdMapProjR_ ) dqmStore_->removeElement( meBCETBwdMapProjR_->getName() );
+    meBCETBwdMapProjR_ = 0;
 
     if ( meBCETBwdMapProjPhi_ ) dqmStore_->removeElement( meBCETBwdMapProjPhi_->getName() );
     meBCETBwdMapProjPhi_ = 0;
 
-    if ( meBCSizBwdMapProjEta_ ) dqmStore_->removeElement( meBCSizBwdMapProjEta_->getName() );
-    meBCSizBwdMapProjEta_ = 0;
+    if ( meBCSizBwdMapProjR_ ) dqmStore_->removeElement( meBCSizBwdMapProjR_->getName() );
+    meBCSizBwdMapProjR_ = 0;
 
     if ( meBCSizBwdMapProjPhi_ ) dqmStore_->removeElement( meBCSizBwdMapProjPhi_->getName() );
     meBCSizBwdMapProjPhi_ = 0;
@@ -620,6 +622,22 @@ void EEClusterTask::cleanup(void){
     if ( meSCMapSingleCrystal_[1] ) dqmStore_->removeElement( meSCMapSingleCrystal_[1]->getName() );
     meSCMapSingleCrystal_[1] = 0;
 
+    if ( meSCSeedTimingSummary_ ) dqmStore_->removeElement( meSCSeedTimingSummary_->getName() );
+    meSCSeedTimingSummary_ = 0;
+
+    if ( meSCSeedTimingMap_[0] ) dqmStore_->removeElement( meSCSeedTimingMap_[0]->getName() );
+    meSCSeedTimingMap_[0] = 0;
+
+    if ( meSCSeedTimingMap_[1] ) dqmStore_->removeElement( meSCSeedTimingMap_[1]->getName() );
+    meSCSeedTimingMap_[1] = 0;
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask/Timing");
+    for(int i=0;i<18;++i) {
+      if ( meSCSeedTiming_[i] ) dqmStore_->removeElement( meSCSeedTiming_[i]->getName() );
+      meSCSeedTiming_[i] = 0;
+    }
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
+
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
 
@@ -637,18 +655,6 @@ void EEClusterTask::cleanup(void){
 
     if ( meInvMassHigh_ ) dqmStore_->removeElement( meInvMassHigh_->getName() );
     meInvMassHigh_ = 0;
-
-    if ( meInvMassPi0Sel_ ) dqmStore_->removeElement( meInvMassPi0Sel_->getName() );
-    meInvMassPi0Sel_ = 0;
-
-    if ( meInvMassJPsiSel_ ) dqmStore_->removeElement( meInvMassJPsiSel_->getName() );
-    meInvMassJPsiSel_ = 0;
-
-    if ( meInvMassZ0Sel_ ) dqmStore_->removeElement( meInvMassZ0Sel_->getName() );
-    meInvMassZ0Sel_ = 0;
-
-    if ( meInvMassHighSel_ ) dqmStore_->removeElement( meInvMassHighSel_->getName() );
-    meInvMassHighSel_ = 0;
 
   }
 
@@ -719,35 +725,35 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
       if ( bCluster->eta() > 0 ) {
         meBCEneFwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
-        meBCEneFwdMapProjEta_->Fill( bCluster->eta(), bCluster->energy() );
+        meBCEneFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
         meBCEneFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
 
         meBCNumFwdMap_->Fill(bCluster->x(), bCluster->y());
-        meBCNumFwdMapProjEta_->Fill( bCluster->eta() );
+        meBCNumFwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
         meBCNumFwdMapProjPhi_->Fill( bCluster->phi() );
 
         meBCETFwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
-        meBCETFwdMapProjEta_->Fill( bCluster->eta(), bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
         meBCETFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
 
         meBCSizFwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->size()) );
-        meBCSizFwdMapProjEta_->Fill( bCluster->eta(), float(bCluster->size()) );
+        meBCSizFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->size()) );
         meBCSizFwdMapProjPhi_->Fill( bCluster->phi(), float(bCluster->size()) );
       } else {
         meBCEneBwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
-        meBCEneBwdMapProjEta_->Fill( bCluster->eta(), bCluster->energy() );
+        meBCEneBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
         meBCEneBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
 
         meBCNumBwdMap_->Fill(bCluster->x(), bCluster->y());
-        meBCNumBwdMapProjEta_->Fill( bCluster->eta() );
+        meBCNumBwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
         meBCNumBwdMapProjPhi_->Fill( bCluster->phi() );
 
         meBCETBwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
-        meBCETBwdMapProjEta_->Fill( bCluster->eta(), bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
         meBCETBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
 
         meBCSizBwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->size()) );
-        meBCSizBwdMapProjEta_->Fill( bCluster->eta(), float(bCluster->size()) );
+        meBCSizBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->size()) );
         meBCSizBwdMapProjPhi_->Fill( bCluster->phi(), float(bCluster->size()) );
       }
 
@@ -770,8 +776,6 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
-
-    SuperClusterCollection scSel;
 
     for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); sCluster++ ) {
 
@@ -825,8 +829,6 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
           float e3x3 = EcalClusterTools::e3x3( *theSeed, eeRecHits, topology );
           float e5x5 = EcalClusterTools::e5x5( *theSeed, eeRecHits, topology );
-          std::vector<float> localCov = EcalClusterTools::localCovariances( *theSeed, eeRecHits, topology );
-          float sigmaIEtaIEta = sqrt(localCov[0]);
 
           meSCCrystalSiz_->Fill(sIds.size());
           meSCSeedEne_->Fill(eMax);
@@ -848,16 +850,29 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
           meSCSeedMapOcc_[eeSide]->Fill(xeex, xeey);
 
-          if(sIds.size() == 1) meSCMapSingleCrystal_[eeSide]->Fill(xeex, xeey);
+          if(sIds.size() == 1)
+            meSCMapSingleCrystal_[eeSide]->Fill(xeex, xeey);
+
+          edm::ESHandle<EcalADCToGeVConstant> pAgc;
+          c.get<EcalADCToGeVConstantRcd>().get(pAgc);
+          const EcalADCToGeVConstant* agc = pAgc.product();
+
+          if(pAgc.isValid()) {
+            if(seedItr->energy() / agc->getEEValue() > 16) {
+
+              float time = seedItr->time() + 5.0;
+
+              meSCSeedTimingSummary_->Fill( time );
+              meSCSeedTiming_[ism-1]->Fill( time );
+              meSCSeedTimingMap_[eeSide]->Fill(xeex, xeey, time);
+
+            }
+          } else {
+            LogWarning("EEClusterTask") << "EcalADCToGeVConstant not valid";
+          }
 
           mes1s9_->Fill( eMax/e3x3 );
           mes9s25_->Fill( e3x3/e5x5 );
-
-          // fill the selected SC collection
-          float pt = fabs( sCluster->energy()*sin(sCluster->position().theta()) );
-          
-          if ( pt > thrClusEt_ && sigmaIEtaIEta < thrSigmaIeIe_ ) scSel.push_back(*sCluster);
-
         }
         else {
           LogWarning("EEClusterTask") << "CaloTopology not valid";
@@ -890,34 +905,6 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 	meInvMassZ0_->Fill( mass );
       } else if ( mass > 110 ) {
 	meInvMassHigh_->Fill( mass );
-      }
-    }
-
-    for ( SuperClusterCollection::const_iterator sc1 = scSel.begin(); sc1 != scSel.end(); ++sc1 ) {
-      TLorentzVector sc1P;
-      sc1P.SetPtEtaPhiE(fabs(sc1->energy()*sin(sc1->position().theta())),
-                         sc1->eta(), sc1->phi(), sc1->energy());
-      for ( SuperClusterCollection::const_iterator sc2 = sc1+1; sc2 != scSel.end(); ++sc2 ) {
-        TLorentzVector sc2P;
-        sc2P.SetPtEtaPhiE(fabs(sc2->energy()*sin(sc2->position().theta())),
-                          sc2->eta(), sc2->phi(), sc2->energy());
-
-        TLorentzVector candP = sc1P + sc2P;
-
-        if ( candP.Pt() > thrCandEt_ ) {
-          float mass = candP.M();
-          if ( mass < 0.3 ) {
-            meInvMassPi0Sel_->Fill( mass );
-          } else if ( mass > 2.9 && mass < 3.3 ) {
-            meInvMassJPsiSel_->Fill( mass );
-          } else if ( mass > 40 && mass < 110 ) {
-            meInvMassZ0Sel_->Fill( mass );
-          } else if ( mass > 110 ) {
-            meInvMassHighSel_->Fill( mass );
-          }          
-
-        }
-
       }
     }
 

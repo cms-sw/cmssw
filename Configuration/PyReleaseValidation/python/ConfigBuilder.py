@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.154 $"
+__version__ = "$Revision: 1.162 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -108,7 +108,7 @@ class ConfigBuilder(object):
             # use very strict settings
             from FWCore.Framework.test.cmsExceptionsFatalOption_cff import Rethrow
             self.process.options = cms.untracked.PSet( Rethrow = Rethrow )
-            
+	
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
         self.process.maxEvents=cms.untracked.PSet(input=cms.untracked.int32(int(self._options.number)))
@@ -137,6 +137,7 @@ class ConfigBuilder(object):
             evt_type = self._options.evt_type.rstrip(".py").replace(".","_")
             if "/" in evt_type:
                 evt_type = evt_type.replace("python/","")
+                evt_type = evt_type.replace("/",".")
             else:
                 evt_type = ('Configuration.Generator.'+evt_type).replace('/','.') 
             __import__(evt_type)
@@ -403,7 +404,7 @@ class ConfigBuilder(object):
 	if self._options.isMC==True:
 		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
-                
+                self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"                
 
         # now for #%#$#! different scenarios
 
@@ -456,32 +457,43 @@ class ConfigBuilder(object):
 	    self.eventcontent=self._options.eventcontent	
 
     # for alca, skims, etc
-    def addExtraStream(self,name,stream):
+    def addExtraStream(self,name,stream,workflow='full'):
     # define output module and go from there
         output = cms.OutputModule("PoolOutputModule")
 	output.SelectEvents = stream.selectEvents
 	output.outputCommands = stream.content
 	output.fileName = cms.untracked.string(stream.name+'.root')
 	output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier, 
-					      filterName = cms.untracked.string('Stream'+stream.name))
-	if isinstance(stream.paths,tuple):
-            for path in stream.paths:
-	        self.schedule.append(path)
-	else:		
-	    self.schedule.append(stream.paths)
+					      filterName = cms.untracked.string(stream.name))
+	if workflow in ("producers,full"):
+   	  if isinstance(stream.paths,tuple):
+              for path in stream.paths:
+	          self.schedule.append(path)
+	  else:		
+	      self.schedule.append(stream.paths)
                 # in case of relvals we don't want to have additional outputs  
-	if not self._options.relval: 
+	if (not self._options.relval) and workflow in ("full","output"): 
 	    self.additionalOutputs[name] = output
             setattr(self.process,name,output) 
-
-
+        if workflow == 'output':
+		# adjust the select events to the proper trigger results from previous process
+		filterList = output.SelectEvents.SelectEvents 
+		for i, filter in enumerate(filterList):
+			filterList[i] = filter+":"+self._options.triggerResultsProcess
+			
      
     #----------------------------------------------------------------------------
     # here the methods to create the steps. Of course we are doing magic here ;)
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def prepare_ALCA(self, sequence = None):
+    def prepare_ALCAPRODUCER(self, sequence = None):
+        self.prepare_ALCA(sequence, workflow = "producers")      
+
+    def prepare_ALCAOUTPUT(self, sequence = None):
+        self.prepare_ALCA(sequence, workflow = "output")
+
+    def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
         if ( len(sequence.split(','))==1 ):
             alcaConfig = self.loadAndRemember(self.ALCADefaultCFF)
@@ -494,7 +506,7 @@ class ConfigBuilder(object):
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
-		self.addExtraStream(name,alcastream)    
+		self.addExtraStream(name,alcastream, workflow = workflow)    
                 alcaList.remove(shortName)
             # DQM needs a special handling
             elif name == 'pathALCARECODQM' and 'DQM' in alcaList:
@@ -502,9 +514,7 @@ class ConfigBuilder(object):
 		    self.schedule.append(path)
                     alcaList.remove('DQM')
         if len(alcaList) != 0:
-            print "The following alcas could not be found", alcaList
-            raise
-        # TODO: blacklisting of al alca paths
+            raise Exception("The following alcas could not be found"+str(alcaList))
 
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """    
@@ -816,7 +826,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.154 $"),
+              (version=cms.untracked.string("$Revision: 1.162 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

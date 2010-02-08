@@ -15,17 +15,8 @@ process.source = cms.Source("DaqSource",
         firstEvent  = cms.untracked.int32(0),
         tfDDUnumber = cms.untracked.int32(0),
         FED760 = cms.untracked.vstring('RUI00'),
-        FED750 = cms.untracked.vstring('RUI01','RUI02','RUI03'),
-        RUI00  = cms.untracked.vstring('/tmp/csc_00099909_EmuRUI00_Monitor_000.raw','/tmp/csc_00099909_EmuRUI00_Monitor_001.raw'),
-        RUI01  = cms.untracked.vstring('/tmp/csc_00099909_EmuRUI01_Monitor_000.raw'),
-        RUI02  = cms.untracked.vstring('/tmp/csc_00099909_EmuRUI02_Monitor_000.raw'),
-        RUI03  = cms.untracked.vstring('/tmp/csc_00099909_EmuRUI03_Monitor_000.raw')
+        RUI00  = cms.untracked.vstring('/tmp/kkotov/qwe.raw')
   )
 )
 
-process.FEVT = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string("/tmp/test.root"),
-        outputCommands = cms.untracked.vstring("keep *")
-)
 
-process.outpath = cms.EndPath(process.FEVT)

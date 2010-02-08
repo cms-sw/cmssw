@@ -19,8 +19,8 @@
 
 
 //---------------------------------------------------------------------
-DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision& div, DDCompactView& cpv )
-  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision & div )
+  :  DDDividedGeometryObject::DDDividedGeometryObject (div)
 {
   checkParametersValidity();
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
@@ -161,8 +161,8 @@ DDLogicalPart DDDividedPolyconeRho::makeDDLogicalPart( const int copyNo ) const
 
 //=====================================================================
 //---------------------------------------------------------------------
-DDDividedPolyconePhi::DDDividedPolyconePhi( const DDDivision& div, DDCompactView& cpv )
-  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedPolyconePhi::DDDividedPolyconePhi( const DDDivision & div )
+  :  DDDividedGeometryObject::DDDividedGeometryObject (div)
 {
   checkParametersValidity();
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
@@ -270,8 +270,8 @@ DDLogicalPart DDDividedPolyconePhi::makeDDLogicalPart( const int copyNo ) const
 
 //=====================================================================
 //---------------------------------------------------------------------
-DDDividedPolyconeZ::DDDividedPolyconeZ( const DDDivision& div, DDCompactView& cpv )
-  :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedPolyconeZ::DDDividedPolyconeZ( const DDDivision & div )
+  :  DDDividedGeometryObject::DDDividedGeometryObject (div)
 {
   checkParametersValidity();
   DDPolycone msol = (DDPolycone)(div_.parent().solid());

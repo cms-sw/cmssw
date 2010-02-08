@@ -6,10 +6,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class CaloVShape;
@@ -42,10 +39,6 @@ private:
   /// make sure the digitizer has the correct list of all cells that
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
-  const CaloGeometry * theGeometry;
-  void updateGeometry();
-
-  void buildHOSiPMCells(const std::vector<DetId>& allCells);
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
@@ -55,18 +48,14 @@ private:
  
   HcalSimParameterMap * theParameterMap;
   CaloVShape * theHcalShape;
-  CaloVShape * theSiPMShape;
   CaloVShape * theHFShape;
   CaloVShape * theZDCShape;
   CaloVShape * theHcalIntegratedShape;
-  CaloVShape * theSiPMIntegratedShape;
   CaloVShape * theHFIntegratedShape;
   CaloVShape * theZDCIntegratedShape;
 
   CaloHitResponse * theHBHEResponse;
-  CaloHitResponse * theHBHESiPMResponse;
   CaloHitResponse * theHOResponse;
-  CaloHitResponse * theHOSiPMResponse;
   CaloHitResponse * theHFResponse;
   CaloHitResponse * theZDCResponse;
 
@@ -89,7 +78,6 @@ private:
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
   HOHitFilter   theHOHitFilter;
-  HcalHitFilter theHOSiPMHitFilter;
   ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
@@ -97,25 +85,17 @@ private:
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
 
   HBHEDigitizer * theHBHEDigitizer;
-  HBHEDigitizer * theHBHESiPMDigitizer;
   HODigitizer* theHODigitizer;
-  HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
-
-  // need to cache some DetIds for the digitizers,
-  // if they don't come straight from the geometry
-  std::vector<DetId> theHBHEDetIds;
-  std::vector<DetId> theHOHPDDetIds;
-  std::vector<DetId> theHOSiPMDetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
 
   std::string hitsProducer_;
 
-  int theHOSiPMCode;
+  std::vector<DetId> hbheCells_ ;
+
 };
 
 #endif
-
 

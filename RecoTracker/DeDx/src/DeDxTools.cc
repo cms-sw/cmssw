@@ -4,6 +4,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 
@@ -40,10 +41,14 @@ using namespace reco;
 	   stereo.angleCosine = cosine;
 	   const std::vector<uint8_t> &  amplitudes = matchedHit->monoHit()->cluster()->amplitudes(); 
 	   mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
        
 	   const std::vector<uint8_t> & amplitudesSt = matchedHit->stereoHit()->cluster()->amplitudes();
 	   stereo.charge = accumulate(amplitudesSt.begin(), amplitudesSt.end(), 0);
-	   
+           stereo.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)stereo.NSaturating++;}
+   
 	   mono.detId= matchedHit->monoHit()->geographicalId();
 	   stereo.detId= matchedHit->stereoHit()->geographicalId();
 
@@ -61,6 +66,9 @@ using namespace reco;
            mono.angleCosine = cosine; 
            const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
            mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
+
            mono.detId= singleHit->geographicalId();
            hits.push_back(mono);
       
@@ -74,8 +82,28 @@ using namespace reco;
            mono.angleCosine = cosine; 
            const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
            mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
+
            mono.detId= singleHit->geographicalId();
            hits.push_back(mono);
+
+        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
+           if(!useStrip) continue;
+
+           RawHits mono;
+
+           mono.trajectoryMeasurement = &(*it);
+
+           mono.angleCosine = cosine;
+           const std::vector<uint8_t> & amplitudes = single1DHit->cluster()->amplitudes();
+           mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
+           mono.NSaturating =0;
+           for(unsigned int i=0;i<amplitudes.size();i++){if(amplitudes[i]>=254)mono.NSaturating++;}
+
+           mono.detId= single1DHit->geographicalId();
+           hits.push_back(mono);
+
       
         }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
            if(!usePixel) continue;
@@ -85,7 +113,8 @@ using namespace reco;
            pixel.trajectoryMeasurement = &(*it);
 
            pixel.angleCosine = cosine; 
-           pixel.charge = pixelHit->cluster()->charge();;
+           pixel.charge = pixelHit->cluster()->charge();
+           pixel.NSaturating=-1;
            pixel.detId= pixelHit->geographicalId();
            hits.push_back(pixel);
        }

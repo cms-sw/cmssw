@@ -76,10 +76,6 @@ private:
   bool m_debugSC;
   bool m_debugLUTs;  
 
-  // general DB requests
-  bool m_TracoLutsFromDB;
-  bool m_UseBtiAcceptParam;
-
   std::string contact;
   std::string auth_path;
   std::string catalog;

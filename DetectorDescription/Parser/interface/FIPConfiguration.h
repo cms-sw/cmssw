@@ -57,6 +57,7 @@ class FIPConfiguration : public DDLDocumentProvider {
  protected:
 
  private:
+  DDLParser * parser_;
   DDLSAX2ConfigHandler configHandler_;
   std::vector<std::string> files_;
   std::vector<std::string> urls_;

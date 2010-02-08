@@ -1,7 +1,5 @@
-<use name=PhysicsTools/Utilities>
 <use name=DataFormats/Candidate>
+<use name=roothistmatrix>
 <export>
   <lib name=PhysicsToolsCandUtils>
-  <use name=PhysicsTools/Utilities>
-  <use name=DataFormats/Candidate>
 </export>

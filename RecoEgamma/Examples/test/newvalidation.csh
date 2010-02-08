@@ -152,9 +152,10 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
 if ( "${VAL_REF_FILE}" != "" && "${REF_ALREADY_STORED}" == "" ) then
 
-  if ( ! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data ) then
-    mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data
+  if ( ! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data ) then
+    mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data
   endif
+
   cp -f $VAL_REF_FILE $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data
   setenv VAL_REF_FILE "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data/${VAL_REF_FILE:t}"
   echo "VAL_REF_FILE = ${VAL_REF_FILE}"
@@ -241,7 +242,7 @@ h_ele_PhiMnPhiTrue_barrel 1 0 1 0 0 0 0 0
 h_ele_PhiMnPhiTrue_endcaps 1 0 1 0 0 0 1 0
 h_ele_PoPtrueVsEta_pfx 0 0 1 0 0 0 1 0
 h_ele_PoPtrueVsPhi_pfx 0 0 1 0 0 0 1 0
-h_scl_EoEtruePfVsEg_pfy 0 0 1 0 0 0 1 0
+h_scl_EoEtruePfVseg_pfy 0 0 1 0 0 0 1 0
 h_ele_EtaMnEtaTrueVsEta_pfx 0 0 1 0 0 0 1 0
 h_ele_PhiMnPhiTrueVsEta_pfx 0 0 1 0 0 0 1 1
 
@@ -332,8 +333,8 @@ Brem fraction and related distributions
 h_ele_PinMnPout_mode 1 0 1 0 0 0 1 0
 h_ele_fbrem 1 0 1 0 0 0 1 0
 h_ele_classes 1	0 1 0 0 0 1 0
-h_ele_eta_goldenFrac 0 0 0 1 h_ele_eta_golden h_ele_eta 1 0
-h_ele_eta_bbremFrac 0 0 0 1 h_ele_eta_bbrem h_ele_eta 1 0
+h_ele_eta_bbremFrac 0 0 0 1 h_ele_eta_golden h_ele_eta 1 0
+h_ele_eta_goldenFrac 0 0 0 1 h_ele_eta_bbrem h_ele_eta 1 0
 h_ele_eta_narrowFrac 0 0 0 1 h_ele_eta_narrow h_ele_eta 1 0
 h_ele_eta_showerFrac 0 0 0 1 h_ele_eta_show h_ele_eta 1 0
 h_ele_fbremvsEtamean 0 0 1 0 0 0 1 0
@@ -654,13 +655,13 @@ h_ele_mee_os 1	0 1 0 0 0 1 1
 
 Reconstruction efficiency
 
-h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_matchingObject_abseta 1 0
-h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_matchingObject_eta 1 0
-h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_matchingObject_Pt 1 0
-h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_matchingObject_phi 1 0
-h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_matchingObject_z 1 0
-h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_matchingObject_eta 1 0
-h_ele_ptEff_all 0 0 1 1 h_ele_vertexPt_all h_matchingObject_Pt 1 0
+h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_GenJet_abseta 1 0
+h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_GenJet_eta 1 0
+h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_GenJet_Pt 1 0
+h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_GenJet_phi 1 0
+h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_GenJet_z 1 0
+h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_GenJet_eta 1 0
+h_ele_ptEff_all 0 0 1 1 h_ele_vertexPt_all h_GenJet_Pt 1 0
 
 EOF
 

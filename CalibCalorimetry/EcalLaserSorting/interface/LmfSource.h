@@ -25,13 +25,10 @@ public:
   virtual ~LmfSource(){}
   
 private:
-  /** Called by the framework after setRunAndEventInfo()
-   */
   virtual bool produce(edm::Event &e);
 
   /** Callback funtion to set run and event information
    * (lumi block, run number, event number, timestamp)
-   * Called by the framework before produce()
    */
   virtual void setRunAndEventInfo();
 
@@ -173,21 +170,6 @@ private:
    * event index table
    */
   bool orderedRead_;
-
-  /** enable reading input file list from text file
-   *  and keep watching the text file for updates
-   */
-  bool watchFileList_;
-
-  /** name of the textfile with the input file list
-   */
-  std::string fileListName_;
-
-  std::ifstream fileList_;
-
-  /** seconds to sleep before checking fileList_ for updates
-   */
-  int nSecondsToSleep_;
 
   /** Debugging level
    */
