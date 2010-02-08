@@ -4,8 +4,8 @@
 /*
  * \file EBTrendTask.h
  *
- * $Date: 2009/11/10 18:31:57 $
- * $Revision: 1.1 $
+ * $Date: 2009/11/11 09:37:13 $
+ * $Revision: 1.2 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
@@ -58,11 +58,6 @@ class EBTrendTask: public edm::EDAnalyzer{
   // Update time check
   void updateTime(void);
 
-  // Shift bins of TProfile to the right
-  void shift2Right(TProfile* p, int bins=1);
-
-  // Shift bins of TProfile to the left
-  void shift2Left(TProfile* p, int bins=1);
 
 
  private:
@@ -76,6 +71,8 @@ class EBTrendTask: public edm::EDAnalyzer{
   bool enableCleanup_;
 
   bool mergeRuns_;
+
+  bool verbose_;
 
   edm::InputTag EBDigiCollection_;
   edm::InputTag EcalPnDiodeDigiCollection_;

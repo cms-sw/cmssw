@@ -27,6 +27,7 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
+#include "DQM/EcalCommon/interface/Numbers.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
@@ -38,7 +39,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
+
 #include "DQM/EcalBarrelMonitorTasks/interface/EBTrendTask.h"
+#include "DQM/EcalCommon/interface/UtilFunctions.h"
 
 #include "TLorentzVector.h"
 
@@ -54,10 +57,9 @@ EBTrendTask::EBTrendTask(const ParameterSet& ps){
   dqmStore_ = Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
-
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // parameters...
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -123,6 +125,8 @@ void EBTrendTask::beginJob(void){
 
 
 void EBTrendTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -374,33 +378,13 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
 
   updateTime();
 
-  long int diff_current_start = current_time_ - start_time_;
-  long int diff_last_start = last_time_ - start_time_;
-  LogInfo("EBTrendTask") << "time difference is negative in " << ievt_ << " events\n"
-			 << "\tcurrent - start time = " << diff_current_start
-			 << ", \tlast - start time = " << diff_last_start << endl;
+  long int minuteBinDiff = -1;
+  long int minuteDiff = -1;
+  ecaldqm::calcBins(5,60,start_time_,last_time_,current_time_,minuteBinDiff,minuteDiff);
 
-
-  // --------------------------------------------------
-  // Calculate time interval and bin width
-  // --------------------------------------------------
-
-  //  int minuteBinWidth = int(nBasicClusterMinutely_->getTProfile()->GetXaxis()->GetBinWidth(1));
-  int minuteBinWidth = 5;
-  long int minuteBinDiff = diff_current_start/60/minuteBinWidth - diff_last_start/60/minuteBinWidth;
-  long int minuteDiff = (current_time_ - last_time_)/60;
-
-  //  int hourBinWidth = int(nBasicClusterHourly_->getTProfile()->GetXaxis()->GetBinWidth(1));
-  int hourBinWidth = 1;
-  long int hourBinDiff = diff_current_start/3600/hourBinWidth - diff_last_start/3600/hourBinWidth;
-  long int hourDiff = (current_time_ - last_time_)/3600;
-
-  if(minuteDiff >= minuteBinWidth) {
-    while(minuteDiff >= minuteBinWidth) minuteDiff -= minuteBinWidth;
-  }
-  if(hourDiff >= hourBinWidth){
-    while(hourDiff >= hourBinWidth) hourDiff -= hourBinWidth;
-  }
+  long int hourBinDiff = -1;
+  long int hourDiff = -1;
+  ecaldqm::calcBins(1,3600,start_time_,last_time_,current_time_,hourBinDiff,hourDiff);
 
 
   // --------------------------------------------------
@@ -411,10 +395,10 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EBDigiCollection_, digis) ) ndc = digis->size();
   else LogWarning("EBTrendTask") << EBDigiCollection_ << " is not available";
 
-  shift2Right(nEBDigiMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nEBDigiMinutely_->getTProfile(), minuteBinDiff);
   nEBDigiMinutely_->Fill(minuteDiff,ndc);
   
-  shift2Right(nEBDigiHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nEBDigiHourly_->getTProfile(), hourBinDiff);
   nEBDigiHourly_->Fill(hourDiff,ndc);
 
 
@@ -426,10 +410,10 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) npdc = pns->size();
   else LogWarning("EBTrendTask") << EcalPnDiodeDigiCollection_ << " is not available";
 
-  shift2Right(nEcalPnDiodeDigiMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nEcalPnDiodeDigiMinutely_->getTProfile(), minuteBinDiff);
   nEcalPnDiodeDigiMinutely_->Fill(minuteDiff,npdc);
   
-  shift2Right(nEcalPnDiodeDigiHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nEcalPnDiodeDigiHourly_->getTProfile(), hourBinDiff);
   nEcalPnDiodeDigiHourly_->Fill(hourDiff,npdc);
 
 
@@ -441,10 +425,10 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) nrhc = hits->size();
   else LogWarning("EBTrendTask") << EcalRecHitCollection_ << " is not available";
 
-  shift2Right(nEcalRecHitMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nEcalRecHitMinutely_->getTProfile(), minuteBinDiff);
   nEcalRecHitMinutely_->Fill(minuteDiff,nrhc);
   
-  shift2Right(nEcalRecHitHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nEcalRecHitHourly_->getTProfile(), hourBinDiff);
   nEcalRecHitHourly_->Fill(hourDiff,nrhc);
 
   // --------------------------------------------------
@@ -455,10 +439,10 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) ntpdc = tpdigis->size();
   else LogWarning("EBTrendTask") << EcalTrigPrimDigiCollection_ << " is not available";
 
-  shift2Right(nEcalTrigPrimDigiMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nEcalTrigPrimDigiMinutely_->getTProfile(), minuteBinDiff);
   nEcalTrigPrimDigiMinutely_->Fill(minuteDiff,ntpdc);
   
-  shift2Right(nEcalTrigPrimDigiHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nEcalTrigPrimDigiHourly_->getTProfile(), hourBinDiff);
   nEcalTrigPrimDigiHourly_->Fill(hourDiff,ntpdc);
 
   // --------------------------------------------------
@@ -478,16 +462,16 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   }
   else LogWarning("EBTrendTask") << BasicClusterCollection_ << " is not available";
 
-  shift2Right(nBasicClusterMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nBasicClusterMinutely_->getTProfile(), minuteBinDiff);
   nBasicClusterMinutely_->Fill(minuteDiff,nbcc);
   
-  shift2Right(nBasicClusterHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nBasicClusterHourly_->getTProfile(), hourBinDiff);
   nBasicClusterHourly_->Fill(hourDiff,nbcc);
 
-  shift2Right(nBasicClusterSizeMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nBasicClusterSizeMinutely_->getTProfile(), minuteBinDiff);
   nBasicClusterSizeMinutely_->Fill(minuteDiff,nbcc);
   
-  shift2Right(nBasicClusterSizeHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nBasicClusterSizeHourly_->getTProfile(), hourBinDiff);
   nBasicClusterSizeHourly_->Fill(hourDiff,nbcc);
 
   // --------------------------------------------------
@@ -507,16 +491,16 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   }
   else LogWarning("EBTrendTask") << SuperClusterCollection_ << " is not available";
 
-  shift2Right(nSuperClusterMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nSuperClusterMinutely_->getTProfile(), minuteBinDiff);
   nSuperClusterMinutely_->Fill(minuteDiff,nscc);
   
-  shift2Right(nSuperClusterHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nSuperClusterHourly_->getTProfile(), hourBinDiff);
   nSuperClusterHourly_->Fill(hourDiff,nscc);
 
-  shift2Right(nSuperClusterSizeMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nSuperClusterSizeMinutely_->getTProfile(), minuteBinDiff);
   nSuperClusterSizeMinutely_->Fill(minuteDiff,nscc);
   
-  shift2Right(nSuperClusterSizeHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nSuperClusterSizeHourly_->getTProfile(), hourBinDiff);
   nSuperClusterSizeHourly_->Fill(hourDiff,nscc);
 
 
@@ -621,10 +605,10 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   double errorSum = ndic0 + ndic1 + ndic2 + ndic3 +
     neic1 + neic2 + neic3 + neic4 + neic5 + neic6;
 
-  shift2Right(nIntegrityErrorMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nIntegrityErrorMinutely_->getTProfile(), minuteBinDiff);
   nIntegrityErrorMinutely_->Fill(minuteDiff,errorSum);
   
-  shift2Right(nIntegrityErrorHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nIntegrityErrorHourly_->getTProfile(), hourBinDiff);
   nIntegrityErrorHourly_->Fill(hourDiff,errorSum);
 
   // --------------------------------------------------
@@ -647,10 +631,10 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   }
   else LogWarning("EBTrendTask") << FEDRawDataCollection_ << " is not available";
 
-  shift2Right(nFEDEBRawDataMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nFEDEBRawDataMinutely_->getTProfile(), minuteBinDiff);
   nFEDEBRawDataMinutely_->Fill(minuteDiff,nfedEB);
 
-  shift2Right(nFEDEBRawDataHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nFEDEBRawDataHourly_->getTProfile(), hourBinDiff);
   nFEDEBRawDataHourly_->Fill(hourDiff,nfedEB);
 
 
@@ -662,21 +646,22 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EBSRFlagCollection_,ebSrFlags) ) nsfc = ebSrFlags->size();
   else LogWarning("EBTrendTask") << EBSRFlagCollection_ << " is not available";
 
-  shift2Right(nEBSRFlagMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nEBSRFlagMinutely_->getTProfile(), minuteBinDiff);
   nEBSRFlagMinutely_->Fill(minuteDiff,nsfc);
   
-  shift2Right(nEBSRFlagHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nEBSRFlagHourly_->getTProfile(), hourBinDiff);
   nEBSRFlagHourly_->Fill(hourDiff,nsfc);
 
 
-//   printf("run(%d), event(%d), ndc(%d), npdc(%d), nrhc(%d), ntpdc(%d), nbcc(%d), ",
-// 	 e.id().run(),e.id().event(), ndc, npdc, nrhc, ntpdc, nbcc);
-//   printf("nscc(%d), ndic0(%d), ndic1(%d), ndic2(%d), ndic3(%d), neic1(%d), neic2(%d), neic3(%d), ",
-// 	 nscc, ndic0, ndic1, ndic2, ndic3, neic1, neic2, neic3);
-//   printf("neic4(%d), neic5(%d), neic6(%d), errorSum(%f), nsfc(%d), ",
-// 	 neic4, neic5, neic6, errorSum, nsfc);
-//   printf("nfedEB(%d), nfedEEminus(%d), nfedEEplus(%d)\n",
-// 	 nfedEB, nfedEEminus, nfedEEplus);
+  if(verbose_){
+    printf("run(%d), event(%d), ndc(%d), npdc(%d), nrhc(%d), ntpdc(%d), nbcc(%d), ",
+	   e.id().run(),e.id().event(), ndc, npdc, nrhc, ntpdc, nbcc);
+    printf("nscc(%d), ndic0(%d), ndic1(%d), ndic2(%d), ndic3(%d), neic1(%d), neic2(%d), neic3(%d), ",
+	   nscc, ndic0, ndic1, ndic2, ndic3, neic1, neic2, neic3);
+    printf("neic4(%d), neic5(%d), neic6(%d), errorSum(%f), nsfc(%d), ",
+	   neic4, neic5, neic6, errorSum, nsfc);
+  }
+
 
 }
 
@@ -689,57 +674,3 @@ void EBTrendTask::updateTime(){
 }
 
 
-void EBTrendTask::shift2Right(TProfile* p, int bins){
-
-  if(bins <= 0) return;
-
-  if(!p->GetSumw2()) p->Sumw2();
-  int nBins = p->GetXaxis()->GetNbins();
-
-  // by shifting n bin to the right, the number of entries are
-  // reduced by the number in n bins including the overflow bin.
-  double nentries = p->GetEntries();
-  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-  p->SetEntries(nentries);
-  
-  // the last bin goes to overflow
-  // each bin moves to the right
-
-  TArrayD* sumw2 = p->GetSumw2();
-
-  for(int i=nBins+1; i>bins; i--) {
-    // GetBinContent return binContent/binEntries
-    p->SetBinContent(i, p->GetBinContent(i-bins)*p->GetBinEntries(i-bins));
-    p->SetBinEntries(i,p->GetBinEntries(i-bins));
-    sumw2->SetAt(sumw2->GetAt(i-bins),i);
-  }
-
-}
-
-
-void EBTrendTask::shift2Left(TProfile* p, int bins){
-
-  if(bins <= 0) return;
-
-  if(!p->GetSumw2()) p->Sumw2();
-  int nBins = p->GetXaxis()->GetNbins();
-
-  // by shifting n bin to the left, the number of entries are
-  // reduced by the number in n bins including the underflow bin.
-  double nentries = p->GetEntries();
-  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-  p->SetEntries(nentries);
-  
-  // the first bin goes to underflow
-  // each bin moves to the right
-
-  TArrayD* sumw2 = p->GetSumw2();
-
-  for(int i=0; i<=nBins+1-bins; i++) {
-    // GetBinContent return binContent/binEntries
-    p->SetBinContent(i, p->GetBinContent(i+bins)*p->GetBinEntries(i+bins));
-    p->SetBinEntries(i,p->GetBinEntries(i+bins));
-    sumw2->SetAt(sumw2->GetAt(i+bins),i);
-  }
-
-}

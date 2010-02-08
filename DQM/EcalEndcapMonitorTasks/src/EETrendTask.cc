@@ -27,6 +27,7 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
+#include "DQM/EcalCommon/interface/Numbers.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
@@ -38,7 +39,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
+
 #include "DQM/EcalEndcapMonitorTasks/interface/EETrendTask.h"
+#include "DQM/EcalCommon/interface/UtilFunctions.h"
 
 #include "TLorentzVector.h"
 
@@ -54,10 +57,9 @@ EETrendTask::EETrendTask(const ParameterSet& ps){
   dqmStore_ = Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
-
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // parameters...
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
@@ -94,6 +96,8 @@ void EETrendTask::beginJob(void){
 
 
 void EETrendTask::beginRun(const Run& r, const EventSetup& c) {
+
+  Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -234,32 +238,13 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
 
   updateTime();
 
-  long int diff_current_start = current_time_ - start_time_;
-  long int diff_last_start = last_time_ - start_time_;
-  LogInfo("EETrendTask") << "time difference is negative in " << ievt_ << " events\n"
-			 << "\tcurrent - start time = " << diff_current_start
-			 << ", \tlast - start time = " << diff_last_start << endl;
+  long int minuteBinDiff = -1;
+  long int minuteDiff = -1;
+  ecaldqm::calcBins(5,60,start_time_,last_time_,current_time_,minuteBinDiff,minuteDiff);
 
-  // --------------------------------------------------
-  // Calculate time interval and bin width
-  // --------------------------------------------------
-
-  //  int minuteBinWidth = int(nBasicClusterMinutely_->getTProfile()->GetXaxis()->GetBinWidth(1));
-  int minuteBinWidth = 5;
-  long int minuteBinDiff = diff_current_start/60/minuteBinWidth - diff_last_start/60/minuteBinWidth;
-  long int minuteDiff = (current_time_ - last_time_)/60;
-
-  //  int hourBinWidth = int(nBasicClusterHourly_->getTProfile()->GetXaxis()->GetBinWidth(1));
-  int hourBinWidth = 1;
-  long int hourBinDiff = diff_current_start/3600/hourBinWidth - diff_last_start/3600/hourBinWidth;
-  long int hourDiff = (current_time_ - last_time_)/3600;
-
-  if(minuteDiff >= minuteBinWidth) {
-    while(minuteDiff >= minuteBinWidth) minuteDiff -= minuteBinWidth;
-  }
-  if(hourDiff >= hourBinWidth){
-    while(hourDiff >= hourBinWidth) hourDiff -= hourBinWidth;
-  }
+  long int hourBinDiff = -1;
+  long int hourDiff = -1;
+  ecaldqm::calcBins(1,3600,start_time_,last_time_,current_time_,hourBinDiff,hourDiff);
 
 
   // --------------------------------------------------
@@ -270,10 +255,10 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EEDigiCollection_, digis) ) ndc = digis->size();
   else LogWarning("EETrendTask") << EEDigiCollection_ << " is not available";
 
-  shift2Right(nEEDigiMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nEEDigiMinutely_->getTProfile(), minuteBinDiff);
   nEEDigiMinutely_->Fill(minuteDiff,ndc);
   
-  shift2Right(nEEDigiHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nEEDigiHourly_->getTProfile(), hourBinDiff);
   nEEDigiHourly_->Fill(hourDiff,ndc);
 
 
@@ -285,10 +270,10 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) nrhc = hits->size();
   else LogWarning("EETrendTask") << EcalRecHitCollection_ << " is not available";
 
-  shift2Right(nEcalRecHitMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nEcalRecHitMinutely_->getTProfile(), minuteBinDiff);
   nEcalRecHitMinutely_->Fill(minuteDiff,nrhc);
   
-  shift2Right(nEcalRecHitHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nEcalRecHitHourly_->getTProfile(), hourBinDiff);
   nEcalRecHitHourly_->Fill(hourDiff,nrhc);
 
 
@@ -316,16 +301,16 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
   }
   else LogWarning("EETrendTask") << FEDRawDataCollection_ << " is not available";
 
-  shift2Right(nFEDEEminusRawDataMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nFEDEEminusRawDataMinutely_->getTProfile(), minuteBinDiff);
   nFEDEEminusRawDataMinutely_->Fill(minuteDiff,nfedEEminus);
 
-  shift2Right(nFEDEEplusRawDataMinutely_->getTProfile(), minuteBinDiff);
+  ecaldqm::shift2Right(nFEDEEplusRawDataMinutely_->getTProfile(), minuteBinDiff);
   nFEDEEplusRawDataMinutely_->Fill(minuteDiff,nfedEEplus);
 
-  shift2Right(nFEDEEminusRawDataHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nFEDEEminusRawDataHourly_->getTProfile(), hourBinDiff);
   nFEDEEminusRawDataHourly_->Fill(hourDiff,nfedEEminus);
 
-  shift2Right(nFEDEEplusRawDataHourly_->getTProfile(), hourBinDiff);
+  ecaldqm::shift2Right(nFEDEEplusRawDataHourly_->getTProfile(), hourBinDiff);
   nFEDEEplusRawDataHourly_->Fill(hourDiff,nfedEEplus);
 
 }
@@ -339,57 +324,3 @@ void EETrendTask::updateTime(){
 }
 
 
-void EETrendTask::shift2Right(TProfile* p, int bins){
-
-  if(bins <= 0) return;
-
-  if(!p->GetSumw2()) p->Sumw2();
-  int nBins = p->GetXaxis()->GetNbins();
-
-  // by shifting n bin to the right, the number of entries are
-  // reduced by the number in n bins including the overflow bin.
-  double nentries = p->GetEntries();
-  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-  p->SetEntries(nentries);
-  
-  // the last bin goes to overflow
-  // each bin moves to the right
-
-  TArrayD* sumw2 = p->GetSumw2();
-
-  for(int i=nBins+1; i>bins; i--) {
-    // GetBinContent return binContent/binEntries
-    p->SetBinContent(i, p->GetBinContent(i-bins)*p->GetBinEntries(i-bins));
-    p->SetBinEntries(i,p->GetBinEntries(i-bins));
-    sumw2->SetAt(sumw2->GetAt(i-bins),i);
-  }
-
-}
-
-
-void EETrendTask::shift2Left(TProfile* p, int bins){
-
-  if(bins <= 0) return;
-
-  if(!p->GetSumw2()) p->Sumw2();
-  int nBins = p->GetXaxis()->GetNbins();
-
-  // by shifting n bin to the left, the number of entries are
-  // reduced by the number in n bins including the underflow bin.
-  double nentries = p->GetEntries();
-  for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-  p->SetEntries(nentries);
-  
-  // the first bin goes to underflow
-  // each bin moves to the right
-
-  TArrayD* sumw2 = p->GetSumw2();
-
-  for(int i=0; i<=nBins+1-bins; i++) {
-    // GetBinContent return binContent/binEntries
-    p->SetBinContent(i, p->GetBinContent(i+bins)*p->GetBinEntries(i+bins));
-    p->SetBinEntries(i,p->GetBinEntries(i+bins));
-    sumw2->SetAt(sumw2->GetAt(i+bins),i);
-  }
-
-}
