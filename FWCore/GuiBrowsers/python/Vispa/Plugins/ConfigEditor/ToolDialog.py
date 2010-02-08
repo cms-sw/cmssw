@@ -24,7 +24,6 @@ class ToolDialog(QDialog):
         self.setWindowFlags(Qt.Window)
         self.setWindowTitle("Apply tool...")
         self.fill()
-        self.updateToolList()
     
     def fill(self):
         logging.debug(__name__ +': fill')
@@ -61,8 +60,8 @@ class ToolDialog(QDialog):
             module=imp.load_source(pythonModule, toolsFile)
             for name in dir(module):
                 tool=getattr(module,name)
-                if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not tool._label in self._toolsDict.keys() and not tool==ConfigToolBase:
-                    self._toolsDict[tool._label]=tool
+                if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not self._toolDataAccessor.label(tool) in self._toolsDict.keys() and not tool==ConfigToolBase:
+                    self._toolsDict[self._toolDataAccessor.label(tool)]=tool
         # Show test tool
         #from FWCore.GuiBrowsers.editorTools import ChangeSource
         #self._toolsDict["ChangeSource"]=ChangeSource
@@ -92,6 +91,7 @@ class ToolDialog(QDialog):
         self._toolDataAccessor=accessor
         # save process copy to undo changes during the tool dialog
         self._processCopy=copy.deepcopy(self._toolDataAccessor.configDataAccessor().process())
+        self.updateToolList()
 
     def apply(self):
         parameterErrors=self._toolDataAccessor.parameterErrors(self._selectedTool)
