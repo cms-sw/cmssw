@@ -1,5 +1,9 @@
 
 #include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
 
@@ -50,5 +54,34 @@ Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const 
   }
 }
 
+  
+std::auto_ptr<Worker> Maker::makeWorker(WorkerParams const& p,
+                                                   sigc::signal<void, ModuleDescription const&>& pre,
+                                                   sigc::signal<void, ModuleDescription const&>& post) const {
+  try {
+    ConfigurationDescriptions descriptions(baseType());
+    fillDescriptions(descriptions);
+    descriptions.validate(*p.pset_, p.pset_->getParameter<std::string>("@module_label"));    
+    p.pset_->registerIt();
+  }
+  catch (cms::Exception& iException) {
+    throwValidationException(p, iException);
+  }
+  
+  ModuleDescription md = createModuleDescription(p);
+  
+  std::auto_ptr<Worker> worker;
+  try {
+    validateEDMType(baseType(), p);
+    pre(md);    
+    worker = makeWorker(p,md);
+
+    post(md);
+  } catch( cms::Exception& iException){
+    throwConfigurationException(md, post, iException);
+  }
+  return worker;
+}
+  
 
 } // end of edm::
