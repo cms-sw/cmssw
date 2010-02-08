@@ -198,7 +198,7 @@ void KalmanAlignmentAlgorithm::run( const edm::EventSetup & setup, const EventIn
 
       // Construct reference trajectories
       ReferenceTrajectoryCollection trajectories =
-	itMap->first->trajectoryFactory()->trajectories( setup, tracklets, external );
+	itMap->first->trajectoryFactory()->trajectories( setup, tracklets, external, eventInfo.beamSpot_ );
 
       ReferenceTrajectoryCollection::iterator itTrajectories;
 
