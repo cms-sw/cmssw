@@ -9,7 +9,7 @@ egHLTOffQTester = cms.EDFilter("QualityTester",
      verboseQT = cms.untracked.bool(False),
      qtestOnEndJob =cms.untracked.bool(False),
      qtestOnEndRun =cms.untracked.bool(True),
-     qTestOnEndLumi=cms.untracked.bool(False),
+     qtestOnEndLumi=cms.untracked.bool(False),
                                
  )
 
