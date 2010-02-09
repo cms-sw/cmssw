@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.22 2010/01/18 11:11:43 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.23 2010/01/22 14:20:04 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -30,8 +30,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.22 $
-   * $Date: 2010/01/18 11:11:43 $
+   * $Revision: 1.23 $
+   * $Date: 2010/01/22 14:20:04 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -80,6 +80,11 @@ namespace stor {
      * Configures the resources to be monitored
      */
     void configureResources(ResourceMonitorParams const&);
+
+    /**
+     * Configures the alarms
+     */
+    void configureAlarms(AlarmParams const&);
 
     /**
      * Write all our collected statistics into the given Stats struct.
@@ -138,6 +143,7 @@ namespace stor {
 
     DiskWritingParams _dwParams;
     ResourceMonitorParams _rmParams;
+    AlarmParams _alarmParams;
 
     int _numberOfCopyWorkers;
     int _numberOfInjectWorkers;
