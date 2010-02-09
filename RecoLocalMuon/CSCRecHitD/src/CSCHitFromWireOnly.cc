@@ -44,7 +44,9 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
     
     const CSCWireDigi wdigi = *it;
 
-
+    if(isDeadWG( id, wdigi.getWireGroup())){
+      continue;
+    }
     if ( any_digis ) {
       any_digis = false;
       makeWireCluster( wdigi );
@@ -54,7 +56,7 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
 	      // Make Wire Hit from cluster, delete old cluster and start new one
 	      float whit_pos = findWireHitPosition();
       	bool deadWG_left = isDeadWG( id, wire_in_cluster.at(0) -1 ); 
-	      bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1);
+        bool deadWG_right = isDeadWG( id, wire_in_cluster.at(wire_in_cluster.size()-1) + 1);
         bool isDeadWGAround = false;
 	      if(deadWG_left || deadWG_right){
 	        isDeadWGAround = true;
