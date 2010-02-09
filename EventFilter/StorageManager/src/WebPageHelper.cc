@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.40 2009/12/01 17:50:40 smorovic Exp $
+// $Id: WebPageHelper.cc,v 1.41 2010/02/08 11:57:59 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1477,19 +1477,23 @@ void WebPageHelper::addDOMforRunMonitor
   rmc.getEventIDsReceivedMQ().getStats(eventIDsReceivedStats);
   MonitoredQuantity::Stats errorEventIDsReceivedStats;
   rmc.getErrorEventIDsReceivedMQ().getStats(errorEventIDsReceivedStats);
+  MonitoredQuantity::Stats unwantedEventIDsReceivedStats;
+  rmc.getUnwantedEventIDsReceivedMQ().getStats(unwantedEventIDsReceivedStats);
   MonitoredQuantity::Stats runNumbersSeenStats;
   rmc.getRunNumbersSeenMQ().getStats(runNumbersSeenStats);
   MonitoredQuantity::Stats lumiSectionsSeenStats;
   rmc.getLumiSectionsSeenMQ().getStats(lumiSectionsSeenStats);
+  MonitoredQuantity::Stats eolsSeenStats;
+  rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
 
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "4";
+  colspanAttr[ "colspan" ] = "6";
   
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
-  tableLabelAttr[ "width" ] = "27%";
+  tableLabelAttr[ "width" ] = "18%";
 
   XHTMLMaker::AttrMap tableValueAttr = _tableValueAttr;
-  tableValueAttr[ "width" ] = "23%";
+  tableValueAttr[ "width" ] = "16%";
 
   XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
 
@@ -1504,9 +1508,13 @@ void WebPageHelper::addDOMforRunMonitor
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, runNumbersSeenStats.getLastSampleValue(), 0 );
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "Lumi section");
+  maker.addText(tableDiv, "Current lumi section");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, lumiSectionsSeenStats.getLastSampleValue(), 0 );
+  tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Last EoLS");
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addDouble( tableDiv, eolsSeenStats.getLastSampleValue(), 0 );
 
   // Total events received
   tableRow = maker.addNode("tr", table, _specialRowAttr);
@@ -1518,6 +1526,10 @@ void WebPageHelper::addDOMforRunMonitor
   maker.addText(tableDiv, "Error events received");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addInt( tableDiv, errorEventIDsReceivedStats.getSampleCount() );
+  tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Unwanted events received");
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addInt( tableDiv, unwantedEventIDsReceivedStats.getSampleCount() );
 
   // Last event IDs
   tableRow = maker.addNode("tr", table, _rowAttr);
@@ -1529,6 +1541,10 @@ void WebPageHelper::addDOMforRunMonitor
   maker.addText(tableDiv, "Last error event ID");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, errorEventIDsReceivedStats.getLastSampleValue(), 0 );
+  tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Last unwanted event ID");
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addDouble( tableDiv, unwantedEventIDsReceivedStats.getLastSampleValue(), 0 );
 
 }
 
