@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.14 2009/08/14 17:44:59 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.15 2009/12/17 23:43:58 wmtan Exp $
 //
 //
 
@@ -162,6 +162,8 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        L1TriggerKey::RecordToKey::const_iterator end =
 	 recordTypeToKeyMap.end() ;
 
+       bool throwException = false ;
+
        for( ; itr != end ; ++itr )
 	 {
 	   std::string recordType = itr->first ;
@@ -197,16 +199,25 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 							  objectKey ) ;
 	       if( payloadToken.empty() )
 		 {
-		   throw cond::Exception(
-		     "L1CondDBIOVWriter: empty payload token for " +
-		     recordType + ", key " + objectKey );
-		 }
+		   edm::LogVerbatim( "L1-O2O" )
+		     << "L1CondDBIOVWriter: empty payload token for " +
+		     recordType + ", key " + objectKey ;
 
-	       m_writer.updateIOV( recordName,
-				   payloadToken,
-				   run,
-				   m_logTransactions ) ;
+		   throwException = true ;
+		 }
+	       else
+		 {
+		   m_writer.updateIOV( recordName,
+				       payloadToken,
+				       run,
+				       m_logTransactions ) ;
+		 }
 	     }
+	 }
+
+       if( throwException )
+	 {
+	   throw cond::Exception( "L1CondDBIOVWriter: empty payload tokens" ) ;
 	 }
      }
 
