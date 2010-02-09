@@ -2490,6 +2490,7 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.globaltag         = 'GR10_H_V2::All'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 
+process.GlobalTag.pfnPrefix=cms.untracked.string('frontier://FrontierProd/')
 if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect  = 'frontier://FrontierProd/CMS_COND_31X_L1T'
 
