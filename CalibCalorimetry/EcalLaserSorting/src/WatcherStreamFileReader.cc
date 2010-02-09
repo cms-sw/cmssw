@@ -16,7 +16,7 @@
 #include <libgen.h>
 #include <fstream>
 
-using namespace edm;
+//using namespace edm;
 using namespace std;
 
 std::string WatcherStreamFileReader::fileName_;
@@ -84,13 +84,13 @@ WatcherStreamFileReader::~WatcherStreamFileReader(){
 }
 
 const bool WatcherStreamFileReader::newHeader() {
-  StreamerInputFile* inputFile = getInputFile();
+  edm::StreamerInputFile* inputFile = getInputFile();
   return inputFile?inputFile->newHeader():false;
 }
 
 const InitMsgView* WatcherStreamFileReader::getHeader(){
 
-  StreamerInputFile* inputFile = getInputFile();
+  edm::StreamerInputFile* inputFile = getInputFile();
 
   //TODO: shall better send an exception...
   if(inputFile==0){
@@ -110,7 +110,7 @@ const InitMsgView* WatcherStreamFileReader::getHeader(){
 const EventMsgView* WatcherStreamFileReader::getNextEvent(){
   if(end_){ closeFile(); return 0;}
   
-  StreamerInputFile* inputFile;
+  edm::StreamerInputFile* inputFile;
 
   //go to next input file, till no new event is found
   while((inputFile=getInputFile())!=0
@@ -121,7 +121,7 @@ const EventMsgView* WatcherStreamFileReader::getNextEvent(){
   return inputFile==0?0:inputFile->currentRecord();
 }
 
-StreamerInputFile* WatcherStreamFileReader::getInputFile(){
+edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
   char* lineptr = 0;
   size_t n = 0;
   static stringstream cmd;
@@ -296,7 +296,7 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	cout << "[WatcherSource " << now() << "]" 
 	     << " Opening file " << fileName_ << "\n" << flush;
 	streamerInputFile_
-	  = auto_ptr<StreamerInputFile>(new StreamerInputFile(fileName_));
+	  = auto_ptr<edm::StreamerInputFile>(new edm::StreamerInputFile(fileName_));
 
 	ofstream f(".watcherfile");
 	f << fileName_;	

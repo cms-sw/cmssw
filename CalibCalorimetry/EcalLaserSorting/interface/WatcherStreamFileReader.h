@@ -10,8 +10,6 @@
 #include <iostream>
 #include <deque>
 
-//using edm::StreamerInputFile;
-
 /** This module is an source module reading continously file 
  * as they are copied in the input directory.
  * The processed file is moved to directoryt inprocessDir before being
@@ -21,7 +19,9 @@
  * This protection is obviously not full proof, especially to transfer lag.
  */
 
-class StreamerInputFile;
+namespace edm{
+  class StreamerInputFile;
+}
 
 class WatcherStreamFileReader{
 public:
@@ -32,7 +32,7 @@ public:
   const EventMsgView* getNextEvent();
   const bool newHeader(); 
 
-  StreamerInputFile* getInputFile();
+  edm::StreamerInputFile* getInputFile();
 
   void closeFile();
   
@@ -60,7 +60,7 @@ private:
   
   /** Cached input file stream
    */
-  std::auto_ptr<StreamerInputFile> streamerInputFile_;
+  std::auto_ptr<edm::StreamerInputFile> streamerInputFile_;
 
   static std::string fileName_;
 
