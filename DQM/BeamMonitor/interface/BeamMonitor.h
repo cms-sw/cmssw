@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/12/08 04:59:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/01/17 13:57:33 $
+ *  $Revision: 1.11 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -59,11 +59,13 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   edm::ParameterSet parameters_;
   std::string monitorName_;
-  std::string bsSrc_; // beam spot
+  edm::InputTag bsSrc_; // beam spot
   edm::InputTag tracksLabel_;
+  edm::InputTag pvSrc_; // primary vertex
   
   int fitNLumi_;
   int resetFitNLumi_;
+  int resetPVNLumi_;
   bool debug_;
   
   DQMStore* dbe_;
@@ -76,6 +78,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   int nFits;
   double deltaSigCut_;
   unsigned int min_Ntrks_;
+  double maxZ_;
 
   bool resetHistos_;
   // ----------member data ---------------------------
@@ -102,6 +105,14 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_y0;
   MonitorElement * h_z0;
   MonitorElement * h_sigmaZ0;
+  MonitorElement * h_nVtx;
+  MonitorElement * h_PVx;
+  MonitorElement * h_PVy;
+  MonitorElement * h_PVz;
+  MonitorElement * h_PVx_lumi;
+  MonitorElement * h_PVy_lumi;
+  MonitorElement * h_PVz_lumi;
+  MonitorElement * pvResults;
 
   // Summary:
   Float_t reportSummary_;
