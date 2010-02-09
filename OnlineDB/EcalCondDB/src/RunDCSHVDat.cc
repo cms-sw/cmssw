@@ -68,7 +68,55 @@ ResultSet *RunDCSHVDat::getBarrelRset(Tm timeStart) {
     " FROM "+ getEBAccount()+".FWCAENCHANNEL d " 
     " JOIN "+ getEBAccount()+".HV_MAPPING h on h.DPID = d.DPID " 
     " join "+ getEBAccount()+".CHANNELVIEW cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name "
-    " AND d.change_date> :1 order by change_date " ;
+    " AND d.change_date> :1 AND d.actual_vmon is not null order by change_date " ;
+  try {
+    m_readStmt->setSQL(query);
+
+    m_readStmt->setDate(1, dh.tmToDate(timeStart));
+
+    rset = m_readStmt->executeQuery();
+  }
+  catch (SQLException e) {
+    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+  }
+  return rset;
+}
+
+ResultSet *RunDCSHVDat::getEndcapAnodeRset(Tm timeStart) {
+
+  DateHandler dh(m_env, m_conn);
+
+  ResultSet* rset = NULL;
+  string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
+    " d.actual_vmon, '600' nominal_value ,  d.change_date " 
+    " FROM "+ getEEAccount()+".FWCAENCHANNEL d " 
+    " JOIN "+ getEEAccount()+".EE_HVA_MAPPING h on h.DPID = d.DPID " 
+    " join "+ getEEAccount()+".CHANNELVIEW cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name "
+    " AND d.change_date> :1 AND d.actual_vmon is not null order by change_date " ;
+  try {
+    m_readStmt->setSQL(query);
+
+    m_readStmt->setDate(1, dh.tmToDate(timeStart));
+
+    rset = m_readStmt->executeQuery();
+  }
+  catch (SQLException e) {
+    throw(runtime_error("RunDCSHVDat::getBarrelRset():  " + e.getMessage() + " " + query));
+  }
+  return rset;
+}
+
+ResultSet *RunDCSHVDat::getEndcapDynodeRset(Tm timeStart) {
+
+  DateHandler dh(m_env, m_conn);
+
+  ResultSet* rset = NULL;
+  string query="SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, " 
+    " d.actual_vmon, '600' nominal_value ,  d.change_date " 
+    " FROM "+ getEEAccount()+".FWCAENCHANNEL d " 
+    " JOIN "+ getEEAccount()+".EE_HVD_MAPPING h on h.DPID = d.DPID " 
+    " join "+ getEEAccount()+".CHANNELVIEW cv on cv.logic_id=h.logic_id WHERE cv.maps_to = cv.name "
+    " AND d.change_date> :1 AND d.actual_vmon is not null order by change_date " ;
   try {
     m_readStmt->setSQL(query);
 
@@ -203,7 +251,7 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
       // Date sinceDate = rset->getDate(9);
       Timestamp  ora_timestamp = rset->getTimestamp(9);
       Tm sinceTm; // YYYY-MM-DD HH:MM:SS
-      sinceTm.setToString(ora_timestamp.toText("yyyy-mm-dd hh:mi:ss",0));
+      sinceTm.setToString(ora_timestamp.toText("yyyy-mm-dd hh24:mi:ss",0));
 
       dat.setStatus(0);
       if (ec.getName() == "EB_HV_channel") {
@@ -221,8 +269,10 @@ void RunDCSHVDat::fillTheMapByTime(ResultSet *rset,
       
       my_data_list.push_back(p);
       count++;
-      if(count<10) std::cout<<"time at dcs query is:"<<sinceTm.str()<<std::endl;
+      if(count<100) std::cout<<"DCS DB : size:"<< my_data_list.size()<<" Tm " <<sinceTm.str()<<" "<<ec.getID1()<<" "<<ec.getID2()<<" "<<dat.getHV()<<std::endl;
     }
+      std::cout<<"DCS DB : size:"<< my_data_list.size()<<std::endl;
+
     DataReducer<RunDCSHVDat> my_dr;
     my_dr.setDataList(my_data_list);
     my_dr.getReducedDataList(fillMap);
@@ -246,15 +296,17 @@ int  RunDCSHVDat::nowMicroseconds() {
 void RunDCSHVDat::setStatusForBarrel(RunDCSHVDat &dat, Tm sinceTm) {
   int t_now_gmt_micros = nowMicroseconds();
 
-  if (fabs(dat.getHV() - dat.getHVNominal())*1000 > maxHVDifferenceEB) {
+  float hv_diff=dat.getHV() - dat.getHVNominal();
+  if(hv_diff<0) hv_diff=-hv_diff; 
+  if (hv_diff*1000 > maxHVDifferenceEB) {
     dat.setStatus(HVNOTNOMINAL);
   }
   if (dat.getHV()*1000 < minHV) {
     dat.setStatus(HVOFF);
   }
 
-  int result=0; 
-  int d= ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) ;
+  int result=0;
+  long long d= (t_now_gmt_micros - sinceTm.microsTime()) ;
   if (d> maxDifference) {
     result= -d/1000000 ;
   } 
@@ -273,8 +325,8 @@ void  RunDCSHVDat::setStatusForEndcaps(RunDCSHVDat &dat, Tm sinceTm) {
     dat.setStatus(HVOFF);
   }
 
-  int result=0; 
-  int d= ((int)t_now_gmt_micros - (int)sinceTm.microsTime()) ;
+  int result=0;
+  long long d= (t_now_gmt_micros - sinceTm.microsTime()) ;
   if (d> maxDifference) {
     result= -d/1000000 ;
   } 
@@ -322,11 +374,13 @@ void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLog
     ResultSet* rset = getBarrelRset(timeStart);
     fillTheMapByTime(rset, fillMap);
 
-    //    rset = getEndcapAnodeRset();
-    //fillTheMap(rset, fillMap);
+    /*
+    rset = getEndcapAnodeRset(timeStart);
+    fillTheMapByTime(rset, fillMap);
 
-    //rset = getEndcapDynodeRset();
-    //fillTheMap(rset, fillMap);
+    rset = getEndcapDynodeRset(timeStart);
+    fillTheMapByTime(rset, fillMap);  */
+
   } 
   catch (SQLException &e) {
     throw(runtime_error("RunDCSHVDat::fetchData():  "+e.getMessage()));

@@ -49,6 +49,9 @@ class RunDCSHVDat : public IDataItem {
 
   ResultSet* getEndcapAnodeRset();
   ResultSet* getEndcapDynodeRset();
+
+  ResultSet* getEndcapAnodeRset(Tm timestart);
+  ResultSet* getEndcapDynodeRset(Tm timestart);
   int nowMicroseconds();
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSHVDat >* );
   void fillTheMapByTime(ResultSet *, std::list< std::pair< Tm, std::map< EcalLogicID, RunDCSHVDat > > >* ) ;
