@@ -11,6 +11,7 @@ HLT_Jet30U
 HLT_Jet50U
 HLT_DiJetAve15U_8E29
 HLT_DiJetAve30U_8E29
+HLT_DoubleJet15U_ForwardBackward
 HLT_L1SingleForJet
 HLT_FwdJet20U
 HLT_QuadJet15U
