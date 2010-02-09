@@ -263,7 +263,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
         if ( detid.subdetId()==EcalBarrel ) {
                 if ( uncalibRecHit.jitter()*25. > -5 ) {
                         EBDataFrame dt(*itdg);
-                        if ( dt.spikeEstimator() > ebSpikeThresh_ ) uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kFake );
+                        if ( dt.spikeEstimator() < ebSpikeThresh_ ) uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kFake );
                 }
         }
 
