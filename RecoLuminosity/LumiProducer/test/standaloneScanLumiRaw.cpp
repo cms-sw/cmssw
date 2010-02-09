@@ -39,14 +39,26 @@ int main(){
     std::cout<<"hlt runnumber "<<myHLT->runNumber<<std::endl;
     std::cout<<"hlt lsnumber "<<myHLT->sectionNumber<<std::endl;
   }
-  /*HCAL_HLX::LUMI_SECTION_HEADER *myLumiHeader = new HCAL_HLX::LUMI_SECTION_HEADER;
-  HCAL_HLX::LUMI_SUMMARY *myLumiSummary = new HCAL_HLX::LUMI_SUMMARY;
-  HCAL_HLX::LUMI_DETAIL *myLumiDetail = new HCAL_HLX::LUMI_DETAIL;
-
-  TTree *hlxTree = (TTree *) myfile->Get("HLXData");
-  if(!hlxTree) std::cout<<"no hlx data"<,std::endl;
+  HCAL_HLX::LUMI_SECTION *myLumiSection=new HCAL_HLX::LUMI_SECTION;
+  HCAL_HLX::LUMI_SECTION_HEADER *myLumiHeader = &(myLumiSection->hdr);
+  HCAL_HLX::LUMI_SUMMARY *myLumiSummary = &(myLumiSection->lumiSummary);
+  HCAL_HLX::LUMI_DETAIL *myLumiDetail = &(myLumiSection->lumiDetail);
   
-  hlxTree->SetBranchAddress("",&myLumiHeader);
-  */
+  TTree *hlxTree = (TTree *) myfile->Get("HLXData");
+  if(!hlxTree) std::cout<<"no hlx data"<<std::endl;
+  hlxTree->SetBranchAddress("Header.",&myLumiHeader);
+  hlxTree->SetBranchAddress("Summary.",&myLumiSummary);
+  hlxTree->SetBranchAddress("Detail.",&myLumiDetail);
+  size_t hlxentries=hlxTree->GetEntries();
+  std::cout<<"hlxentries "<<hlxentries<<std::endl;
+  for(size_t i=0;i<hlxentries;++i){
+
+    hlxTree->GetEntry(i);
+    std::cout<<"lumi header runnumber "<<myLumiHeader->runNumber<<std::endl;
+    std::cout<<"lumi header lsnumber "<<myLumiHeader->sectionNumber<<std::endl;
+    std::cout<<"lumi summary instantlumi "<<myLumiSummary->InstantLumi<<std::endl;
+    std::cout<<"lumi summary instantlumiErr "<<myLumiSummary->InstantLumiErr<<std::endl;
+    std::cout<<"lumi detail LHCLumi[0] "<<myLumiDetail->LHCLumi[0]<<std::endl;
+  }
 }
 

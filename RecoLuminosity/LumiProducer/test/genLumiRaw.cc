@@ -74,10 +74,13 @@ private:
   
   //hlx tree& data structures
   TTree* m_hlxTree;
-  HCAL_HLX::LUMI_SECTION_HEADER* m_lumiheader; 
+  //HCAL_HLX::LUMI_SECTION_HEADER* m_lumiheader; 
+  //HCAL_HLX::LUMI_SUMMARY* m_lumisummary;
+  //HCAL_HLX::LUMI_DETAIL*  m_lumidetail;
+  HCAL_HLX::LUMI_SECTION* m_lumisection;
+  HCAL_HLX::LUMI_SECTION_HEADER* m_lumiheader;
   HCAL_HLX::LUMI_SUMMARY* m_lumisummary;
-  HCAL_HLX::LUMI_DETAIL*  m_lumidetail;
-
+  HCAL_HLX::LUMI_DETAIL* m_lumidetail;
   //trg tree & data structures
   TTree* m_trgTree;
   HCAL_HLX::LEVEL1_TRIGGER* m_trg;
@@ -114,7 +117,7 @@ const std::string genLumiRaw::s_lumiDetailName="HCAL_HLX::LUMI_DETAIL";
 
 // -----------------------------------------------------------------
 
-genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_bsize(64000),m_splitlevel(2),m_runsummary(new HCAL_HLX::RUN_SUMMARY),m_lumiheader(new HCAL_HLX::LUMI_SECTION_HEADER),m_lumisummary(new HCAL_HLX::LUMI_SUMMARY),m_lumidetail(new HCAL_HLX::LUMI_DETAIL),m_trg(new HCAL_HLX::LEVEL1_TRIGGER),m_hlt(new HCAL_HLX::HLTRIGGER)
+genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_bsize(64000),m_splitlevel(2),m_runsummary(new HCAL_HLX::RUN_SUMMARY),m_lumiheader(0),m_lumisummary(0),m_lumidetail(0),m_lumisection(new  HCAL_HLX::LUMI_SECTION),m_trg(new HCAL_HLX::LEVEL1_TRIGGER),m_hlt(new HCAL_HLX::HLTRIGGER)
 {  
 }
 
@@ -122,9 +125,10 @@ genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_bsize(64000),m_splitl
 
 genLumiRaw::~genLumiRaw(){
   delete m_runsummary;
-  delete m_lumiheader;
-  delete m_lumisummary;
-  delete m_lumidetail;
+  delete m_lumisection;
+  //delete m_lumiheader;
+  //delete m_lumisummary;
+  //delete m_lumidetail;
   delete m_trg;
   delete m_hlt;
 }
@@ -160,8 +164,12 @@ void genLumiRaw::beginJob(){
 
   //book hlx tree
   m_hlxTree = new TTree(s_hlxTree.c_str(),s_hlxTree.c_str());
+  
+  m_lumiheader=&(m_lumisection->hdr);
   m_hlxTree->Branch(s_lumiHeaderBranch.c_str(),s_lumiHeaderName.c_str(),&m_lumiheader,m_bsize,m_splitlevel);
+  m_lumisummary=&(m_lumisection->lumiSummary);
   m_hlxTree->Branch(s_lumiSummaryBranch.c_str(),s_lumiSummaryName.c_str(),&m_lumisummary,m_bsize,m_splitlevel);
+  m_lumidetail=&(m_lumisection->lumiDetail);
   m_hlxTree->Branch(s_lumiDetailBranch.c_str(),s_lumiDetailName.c_str(),&m_lumidetail,m_bsize,m_splitlevel);
 
   //book trg tree
@@ -262,64 +270,65 @@ void genLumiRaw::generateTRG(unsigned int runnumber,
 }
 void genLumiRaw::generateHLX(unsigned int runnumber,
 			     unsigned int lsnumber){
-  HCAL_HLX::LUMI_SECTION_HEADER locallumiheader;
-  locallumiheader.timestamp=1;
-  locallumiheader.timestamp_micros=2;
-  locallumiheader.runNumber=runnumber;
-  locallumiheader.sectionNumber=lsnumber;
-  locallumiheader.startOrbit=3;
-  locallumiheader.numOrbits=4;
-  locallumiheader.numBunches=5;
-  locallumiheader.numHLXs=6;
-  locallumiheader.bCMSLive=true;
-  locallumiheader.bOC0=false;
+  HCAL_HLX::LUMI_SECTION locallumisection;
+  
+  locallumisection.hdr.timestamp=1;
+  locallumisection.hdr.timestamp_micros=2;
+  locallumisection.hdr.runNumber=runnumber;
+  locallumisection.hdr.sectionNumber=lsnumber;
+  locallumisection.hdr.startOrbit=3;
+  locallumisection.hdr.numOrbits=4;
+  locallumisection.hdr.numBunches=5;
+  locallumisection.hdr.numHLXs=6;
+  locallumisection.hdr.bCMSLive=true;
+  locallumisection.hdr.bOC0=false;
 
-  HCAL_HLX::LUMI_SUMMARY locallumisummary;
-  locallumisummary.DeadTimeNormalization = 1; 
-  locallumisummary.LHCNormalization = 2; 
-  locallumisummary.InstantLumi = 3;
-  locallumisummary.InstantLumiErr = 4;
-  locallumisummary.InstantLumiQlty = 5;
+  // HCAL_HLX::LUMI_SUMMARY locallumisummary;
+  locallumisection.lumiSummary.DeadTimeNormalization = 1; 
+  locallumisection.lumiSummary.LHCNormalization = 2; 
+  locallumisection.lumiSummary.InstantLumi = 3;
+  locallumisection.lumiSummary.InstantLumiErr = 4;
+  locallumisection.lumiSummary.InstantLumiQlty = 5;
 
-  locallumisummary.InstantETLumi = 6;
-  locallumisummary.InstantETLumiErr = 7;
-  locallumisummary.InstantETLumiQlty = 8;
-  locallumisummary.ETNormalization = 9; 
+  locallumisection.lumiSummary.InstantETLumi = 6;
+  locallumisection.lumiSummary.InstantETLumiErr = 7;
+  locallumisection.lumiSummary.InstantETLumiQlty = 8;
+  locallumisection.lumiSummary.ETNormalization = 9; 
   
-  locallumisummary.InstantOccLumi[0] = 10;
-  locallumisummary.InstantOccLumiErr[0] = 11;
-  locallumisummary.InstantOccLumiQlty[0] = 12;
-  locallumisummary.OccNormalization[0] = 13;
+  locallumisection.lumiSummary.InstantOccLumi[0] = 10;
+  locallumisection.lumiSummary.InstantOccLumiErr[0] = 11;
+  locallumisection.lumiSummary.InstantOccLumiQlty[0] = 12;
+  locallumisection.lumiSummary.OccNormalization[0] = 13;
   
-  locallumisummary.lumiNoise[0] = 14;
+  locallumisection.lumiSummary.lumiNoise[0] = 14;
   
-  locallumisummary.InstantOccLumi[1] = 10;
-  locallumisummary.InstantOccLumiErr[1] = 11;
-  locallumisummary.InstantOccLumiQlty[1] = 12;
-  locallumisummary.OccNormalization[1] = 13;
+  locallumisection.lumiSummary.InstantOccLumi[1] = 10;
+  locallumisection.lumiSummary.InstantOccLumiErr[1] = 11;
+  locallumisection.lumiSummary.InstantOccLumiQlty[1] = 12;
+  locallumisection.lumiSummary.OccNormalization[1] = 13;
   
-  locallumisummary.lumiNoise[1] = 14;
+  locallumisection.lumiSummary.lumiNoise[1] = 14;
   
-  HCAL_HLX::LUMI_DETAIL locallumidetail;  
+  //HCAL_HLX::LUMI_DETAIL localalumidetail;  
   for (unsigned int iBX = 0; iBX < HCAL_HLX_MAX_BUNCHES; ++iBX) {
-    locallumidetail.LHCLumi[iBX] = 143; 
-    locallumidetail.ETLumi[iBX] = 143;
-    locallumidetail.ETLumiErr[iBX] = 143;
-    locallumidetail.ETLumiQlty[iBX] = 143;
-    locallumidetail.ETBXNormalization[iBX] = 143; 
-    locallumidetail.OccLumi[0][iBX] = 143;
-    locallumidetail.OccLumiErr[0][iBX] = 143;
-    locallumidetail.OccLumiQlty[0][iBX] = 143;
-    locallumidetail.OccBXNormalization[0][iBX] = 143;
-    locallumidetail.OccLumi[1][iBX] = 143;
-    locallumidetail.OccLumiErr[1][iBX] = 143;
-    locallumidetail.OccLumiQlty[1][iBX] = 143;
-    locallumidetail.OccBXNormalization[1][iBX] = 143;
+    locallumisection.lumiDetail.LHCLumi[iBX] = 143; 
+    locallumisection.lumiDetail.ETLumi[iBX] = 143;
+    locallumisection.lumiDetail.ETLumiErr[iBX] = 143;
+    locallumisection.lumiDetail.ETLumiQlty[iBX] = 143;
+    locallumisection.lumiDetail.ETBXNormalization[iBX] = 143; 
+    locallumisection.lumiDetail.OccLumi[0][iBX] = 143;
+    locallumisection.lumiDetail.OccLumiErr[0][iBX] = 143;
+    locallumisection.lumiDetail.OccLumiQlty[0][iBX] = 143;
+    locallumisection.lumiDetail.OccBXNormalization[0][iBX] = 143;
+    locallumisection.lumiDetail.OccLumi[1][iBX] = 143;
+    locallumisection.lumiDetail.OccLumiErr[1][iBX] = 143;
+    locallumisection.lumiDetail.OccLumiQlty[1][iBX] = 143;
+    locallumisection.lumiDetail.OccBXNormalization[1][iBX] = 143;
   }
-
-  std::memmove(m_lumiheader,&locallumiheader,sizeof(HCAL_HLX::LUMI_SECTION_HEADER));
-  std::memmove(m_lumisummary,&locallumisummary,sizeof(HCAL_HLX::LUMI_SUMMARY));
-  std::memmove(m_lumidetail,&locallumidetail,sizeof(HCAL_HLX::LUMI_DETAIL));
+  std::memmove(m_lumisection,&locallumisection,sizeof(HCAL_HLX::LUMI_SECTION));
+  //std::memmove(&(m_lumisection->hdr),&(locallumisection.hdr),sizeof(HCAL_HLX::LUMI_SECTION_HEADER));
+  //std::memmove(&(m_lumisection->lumiSummary),&(locallumisection.lumiSummary),sizeof(HCAL_HLX::LUMI_SUMMARY));
+  //std::memmove(&(m_lumisection->lumiDetail),&(locallumisection.lumiDetail),sizeof(HCAL_HLX::LUMI_DETAIL));
   m_hlxTree->Fill();
 }
 
