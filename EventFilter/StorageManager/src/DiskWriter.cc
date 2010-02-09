@@ -1,5 +1,9 @@
-// $Id: DiskWriter.cc,v 1.16 2010/01/29 11:23:56 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.17 2010/02/08 11:57:59 mommsen Exp $
 /// @file: DiskWriter.cc
+
+#include <algorithm>
+
+#include <boost/bind.hpp>
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
