@@ -185,6 +185,8 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   unsigned int pxf_2x3_D[6] = { 0 };
   unsigned int pxf_2x4_D[6] = { 0 };
   unsigned int pxf_2x5_D[6] = { 0 };
+  double pxfpitchx[6] = { 0 };
+  double pxfpitchy[6] = { 0 };
   double psi_pxf_D[6]= { 0 };
   double psi_pxf[16] = { 0 };
   double pxfR_min_D[6] = { 9999.0 , 9999.0 , 9999.0 };
@@ -415,6 +417,16 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	unsigned int theModule = module.module();
         thepixROCRowsD[theDisk-1] = modules[i]->pixROCRows();
         thepixROCColsD[theDisk-1] = modules[i]->pixROCCols();
+        {
+          const DetId& detid =modules[i]->geographicalID();
+          DetId detIdObject( detid );
+          const GeomDetUnit * genericDet =  pDD->idToDetUnit( detIdObject );
+          const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
+          const RectangularPixelTopology * theTopol = dynamic_cast<const RectangularPixelTopology*>( & (pixDet->specificTopology()) );
+          std::pair<float,float> pitchxy = theTopol->pitch();
+        pxfpitchx[theDisk-1] = double(int(0.5+(10000*pitchxy.first )));
+        pxfpitchy[theDisk-1] = double(int(0.5+(10000*pitchxy.second)));
+        } // Discard some transitional variables.
 	if(theDisk > ndisksPXF) ndisksPXF=theDisk;
 	if(name == "PixelForwardSensor")    pxf_D[theDisk-1]++;
 	if(name == "PixelForwardActive1x2") pxf_1x2_D[theDisk-1]++;
@@ -957,6 +969,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
     GeometryOutput << "        Active Silicon surface in PXF disk no. " << i+1<< ": "<< activeSurface_pxf_D[i]<< " [cm^2]"<< std::endl;
     GeometryOutput << "        Number of PSI46s in PXF disk no. " << i+1<< ": "<< psi_pxf_D[i]<< std::endl;
     GeometryOutput << "        Number of pixel channels in PXF disk no. " << i+1<< ": "<< (int)psi_pxf_D[i]*chan_per_psiD[i]<< std::endl;
+    GeometryOutput << "        Pitch X & Y (microns) of PXF disk no. " << i+1<< ": "<< pxbpitchx[i] <<" & "<< pxbpitchy[i] <<std::endl;
     GeometryOutput << std::endl;
     GeometryXLS <<"PXF"<<i+1<<" "<<pxfR_min_D[i]<<" "<<pxfR_max_D[i]<<" "<<pxfZ_D[i]/(pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i])<<" "<<activeSurface_pxf_D[i]<<" "<<psi_pxf_D[i]<<" "<<(int)psi_pxf_D[i]*chan_per_psiD[i]<<" "<<pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i]<<" "<<pxf_D[i]<<" "<<pxf_1x2_D[i]<<" "<<pxf_1x5_D[i]<<" "<<pxf_2x3_D[i]<<" "<<pxf_2x4_D[i]<<" "<<pxf_2x5_D[i]<<std::endl;  
   }
