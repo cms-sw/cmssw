@@ -57,7 +57,11 @@ def loadPAT(process,JetMetCorrections):
     #-- Tuning of Monte Carlo matching --------------------------------------------
     # Also match with leptons of opposite charge
     process.electronMatch.checkCharge = False
+    process.electronMatch.maxDeltaR   = cms.double(0.2)
+    process.electronMatch.maxDPtRel   = cms.double(999999.)
     process.muonMatch.checkCharge     = False
+    process.muonMatch.maxDeltaR       = cms.double(0.2)
+    process.muonMatch.maxDPtRel       = cms.double(999999.)
     process.tauMatch.checkCharge      = False
     process.tauMatch.maxDeltaR        = cms.double(0.3)
     process.jetPartonMatch.maxDeltaR  = cms.double(0.25)
@@ -146,7 +150,8 @@ def addJetMET(process,theJetNames):
     process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
     process.load("JetMETCorrections.JetPlusTrack.matchJptAndCaloJets_cff")
     process.load("JetMETCorrections.JetPlusTrack.jptJetId_cff")
-    process.jpt = cms.Sequence( process.jptCaloJets * process.matchJptAndCaloJets * process.jptJetId)
+    process.jpt = cms.Sequence( process.jptCaloJets * process.matchJptAndCaloJets )
+    process.allLayer1Objects.replace(process.allLayer1Jets,  process.jptJetId * process.allLayer1Jets )
     
     #-- Track Jets ----------------------------------------------------------------
     process.load('RecoJets.Configuration.RecoTrackJets_cff')
@@ -253,6 +258,9 @@ def runSUSY33xOn31xMC(process):
    process.jetGenJetMatchAK5JPT.matched = "antikt5GenJets"
    process.jetGenJetMatchAK5Track.matched = "antikt5GenJets"
    process.jetGenJetMatchAK5PF.matched = "antikt5GenJets"
+   process.matchJptAndCaloJetsAK5.CaloJetCollection = "antikt5CaloJets"
+   process.ak5JPTJetID.CaloJetCollection = "antikt5CaloJets"
+   process.ak5JPTJetID.CaloJetIDValueMap = "antikt5JetID"
 
    process.jetTracksAssociatorAtVertexAK5PF.jets = "antikt5PFJets"
    process.jetGenJetMatchAK5Track.src = "antikt5GenJets"
