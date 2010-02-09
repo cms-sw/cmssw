@@ -84,6 +84,7 @@ HLT_HighMultiplicityBSC
 HLT_SplashBSC
 HLT_RPCBarrelCosmics
 HLT_TrackerCosmics
+HLT_TrackPointing
 HLT_L1Tech_RPC_TTU_RBst1_collisions
 HLT_StoppedHSCP_8E29
 HLT_IsoTrackHB_8E29
@@ -121,7 +122,6 @@ HLT_HighMult40
 HLTriggerFinalPath
 DQMOutput
 HLTOutput
-HLTOutputB
 ESOutput
 AlCaOutput
 MONOutput
