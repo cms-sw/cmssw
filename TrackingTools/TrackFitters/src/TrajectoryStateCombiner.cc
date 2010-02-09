@@ -1,5 +1,5 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 // #include <iostream>
 
 // using namespace std;
@@ -7,7 +7,6 @@
 TrajectoryStateOnSurface 
 TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
 
-  int ierr;
   double pzSign = Tsos1.localParameters().pzSign();
   AlgebraicVector5 x1(Tsos1.localParameters().vector());
   AlgebraicVector5 x2(Tsos2.localParameters().vector());
@@ -15,9 +14,10 @@ TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
   const AlgebraicSymMatrix55 &C2 = (Tsos2.localError().matrix());
 
   AlgebraicSymMatrix55 Csum = C1 + C2;
-  AlgebraicMatrix55 K = C1*(Csum.Inverse(ierr));
+  bool ok = invertPosDefMatrix(Csum);
+  AlgebraicMatrix55 K = C1*Csum;
 
-  if(ierr != 0) {
+  if(!ok) {
 //     if ( infoV )
 //       cout<<"KFTrajectorySmoother: inversion of Csum failed!"
 // 	  <<Tsos1.localError().matrix()<<endl;
