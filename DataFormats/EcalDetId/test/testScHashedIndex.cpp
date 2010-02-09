@@ -13,7 +13,8 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 int main(int argc, char* argv[]) {
-  std::ofstream out("sc.txt");
+  const char* filename = "sc.txt";
+  std::ofstream out(filename);
   try {
     out << "iX\tiY\tiZ\thashed\tERR\tERR\tiX\tiY\tiZ\n";
     for(int iZ = -1; iZ <= +1; iZ += 2){
@@ -23,14 +24,15 @@ int main(int argc, char* argv[]) {
 	  EcalScDetId sc1(iX,iY,iZ);
 	  int ih =  sc1.hashedIndex();
 	  out << iX << "\t" << iY << "\t" << iZ << "\t" << ih;
-	  //	  EcalScDetId sc2 = EcalScDetId::unhashIndex(ih);
-	  //out << "\t" << (sc1.rawId() == sc2.rawId() ? "OK" : "ERROR");
-	  //out << "\t" << (sc1 == sc2 ? "OK" : "ERROR");
-	  //out << "\t" << sc2.ix() << "\t" << sc2.iy()<< "\t" << sc2.zside();
+	  EcalScDetId sc2 = EcalScDetId::unhashIndex(ih);
+	  out << "\t" << (sc1.rawId() == sc2.rawId() ? "OK" : "ERROR");
+	  out << "\t" << (sc1 == sc2 ? "OK" : "ERROR");
+	  out << "\t" << sc2.ix() << "\t" << sc2.iy()<< "\t" << sc2.zside();
 	  out << "\n";
 	}
       }
     }
+    std::cout << "Supercystal indices have been dumped in file " << filename << std::endl;
   } catch (std::exception &e) {
 	  std::cerr << e.what();
   }
