@@ -71,7 +71,19 @@ process.MeasurementTracker.pixelClusterProducer = cms.string("")
 # Offline Beam Spot
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
+## Offline PrimaryVertices
+import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
+process.offlinePrimaryVertices = RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+## Input track for PrimaryVertex reconstruction, uncomment the following line to use pixelLess tracks
+#process.offlinePrimaryVertices.TrackLabel = cms.InputTag("ctfPixelLess")
+
 #### END OF TRACKING RECONSTRUCTION ####
+
+# Change Beam Monitor variables
+process.dqmBeamMonitor.BeamFitter.WriteAscii = True
+process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+process.dqmBeamMonitor.BeamFitter.SaveFitResults = True
+process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
 
 #--------------------------
 # Scheduling
@@ -82,7 +94,6 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctfTracksPixelLess)
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
-process.p = cms.Path(process.phystrigger*process.tracking*process.monitor*process.dqmSaver)
-#process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.monitor_pixelless*process.dqmSaver)
-#process.p = cms.Path(process.phystrigger*process.tracking*process.monitor+process.tracking_pixelless*process.monitor_pixelless+process.dqmSaver)
+process.p = cms.Path(process.phystrigger*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.offlinePrimaryVertices*process.monitor_pixelless*process.dqmSaver)
 
