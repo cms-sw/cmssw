@@ -66,11 +66,14 @@ private:
 
   std::string tokenFile_;
 
+  int timeOut_;
+  
+  std::deque<std::string> filesInQueue_;
+
   bool end_;
   
   int verbosity_;
 
-  std::deque<std::string> filesInQueue_;
 };
 
 #endif

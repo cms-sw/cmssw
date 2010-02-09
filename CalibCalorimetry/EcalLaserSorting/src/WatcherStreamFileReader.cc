@@ -44,6 +44,7 @@ WatcherStreamFileReader::WatcherStreamFileReader(edm::ParameterSet const& pset):
   corruptedDir_(pset.getParameter<std::string>("corruptedDir")),
   tokenFile_(pset.getUntrackedParameter<std::string>("tokenFile",
 						     "watcherSourceToken")),
+  timeOut_(pset.getParameter<int>("timeOutInSec")),
   end_(false),
   verbosity_(pset.getUntrackedParameter<int>("verbosity", 0)){
   struct stat buf;
@@ -140,9 +141,9 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
     
     for(unsigned i = 0 ; i < filePatterns_.size(); ++i){
       if(i>0) cmd << "|";
-//     if(filePatterns_[i].size()>0 && filePatterns_[0] != "/"){//relative path
-//       cmd << curDir << "/";
-//     }
+      //     if(filePatterns_[i].size()>0 && filePatterns_[0] != "/"){//relative path
+      //       cmd << curDir << "/";
+      //     }
       cmd << filePatterns_[i];
     }
     cmd << ")'";
@@ -156,10 +157,12 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
   struct stat buf;
   
   if(stat(tokenFile_.c_str(), &buf)!=0){ 
-      end_ = true; 
+    end_ = true; 
   }
   
-  bool waitMess = true;
+  bool waiting = false;
+  static bool firstWait = true;
+  timeval waitStart;
   //if no cached input file, look for new files until one is found:
   if(!end_ && streamerInputFile_.get()==0){
     fileName_.assign("");
@@ -200,15 +203,30 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
       while(!feof(s)) fgetc(s);
       pclose(s);
       if(filesInQueue_.size()==0){
-	if(waitMess){
+	if(!waiting){
 	  cout << "[WatcherSource " << now() << "]" 
 	       << " No file found. Waiting for new file...\n";
 	  cout << flush;
-	  waitMess = false;
+	  waiting = true;
+	  gettimeofday(&waitStart, 0);
+	} else if(!firstWait){
+	  timeval t;
+	  gettimeofday(&t, 0);
+	  float dt = (t.tv_sec-waitStart.tv_sec) * 1.
+	    + (t.tv_usec-waitStart.tv_usec) * 1.e-6;
+	  if((timeOut_ >= 0) && (dt > timeOut_)){
+	    cout << "[WatcherSource " << now() << "]"
+		 << " Having waited for new file for " << (int)dt << " sec. "
+		 << "Timeout exceeded. Exits.\n";
+	    //remove(tokenFile_.c_str()); //we do not delete the token, otherwise sorting process on the monitoring farm will not be restarted by the runloop.sh script.
+	    end_ = true;
+	    break;
+	  }
 	}
       }
       sleep(1);
     } //end of file queue update
+    firstWait = false;
     free(lineptr); lineptr=0;
     
     while(streamerInputFile_.get()==0 && !filesInQueue_.empty()){
@@ -268,9 +286,9 @@ StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 	
 	if(0!=rename(fileName_.c_str(), dest.c_str())){
 	  throw cms::Exception("WatcherSource")
-	  << "Failed to move file '" << fileName_ << "' "
-	  << "to processing directory " << inprocessDir_
-	  << ": " << strerror(errno);
+	    << "Failed to move file '" << fileName_ << "' "
+	    << "to processing directory " << inprocessDir_
+	    << ": " << strerror(errno);
 	}
 	
 	fileName_ = dest;
