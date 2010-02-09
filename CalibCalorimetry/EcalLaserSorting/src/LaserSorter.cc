@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.6 2010/01/26 14:14:19 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.7 2010/01/27 18:17:59 pgras Exp $
  */
 
 /***************************************************
@@ -516,9 +516,9 @@ bool LaserSorter::writeFedBlock(std::ofstream& out,
         << "for FED ID " <<  ((pData[0] >>8) & 0xFFF) << "!\n";
     }
     
-    if(verbosity_) cout << "[LaserSorter " << now() << "] " << "Event fragment size: "
-                        << data.size() << " Byte"
-                        << "\t From Dcc header: " << dccLen64*8 << " Byte\n";
+    if(verbosity_>3) cout << "[LaserSorter " << now() << "] " << "Event fragment size: "
+                          << data.size() << " Byte"
+                          << "\t From Dcc header: " << dccLen64*8 << " Byte\n";
     
     const size_t nBytes = data.size();
     //       cout << "[LaserSorter] " 
