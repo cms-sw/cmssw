@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.5 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -58,7 +58,7 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:PYTHIA6_MinBias_2360GeV_cff_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root')
+    fileNames = cms.untracked.vstring('file:step1.root')
 )
 
 # Output definition
@@ -72,6 +72,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     )
 )
 
+
 #####################################################################################################
 ####
 ####  Top level replaces for handling strange scenarios of early collisions
@@ -84,10 +85,6 @@ process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
-
-process.dedxTruncated40.UsePixel = cms.bool(False)
-process.dedxMedian.UsePixel = cms.bool(False)
-process.dedxHarmonic2.UsePixel = cms.bool(False)
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
@@ -115,7 +112,6 @@ process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = 
 process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
 process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
 
-
 ## Primary Vertex
 process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
 process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
@@ -130,12 +126,11 @@ process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
 process.offlinePrimaryVertices.TkFilterParameters.minPixelHits = 1
 process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 
-## ECAL
-process.load('RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi')
+## ECAL 
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
 ##only for 34X
-#process.ecalPreshowerRecHit.ESRecoAlgo = 1
+process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
 
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 1
@@ -178,7 +173,7 @@ process.trackerOnlyConversions.DeltaPhi = cms.double(.2)
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'STARTUP3X_V8K::All'
+process.GlobalTag.globaltag = 'START3X_V16C::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
