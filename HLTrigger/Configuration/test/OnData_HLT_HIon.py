@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/HIon/V16 (CMSSW_3_5_0)
+# /dev/CMSSW_3_5_0/HIon/V17 (CMSSW_3_5_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V16')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V17')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2372,7 +2372,10 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDoubleMu',
+  'HLT_HIJet35U',
+  'HLT_HIMinBiasCalo',
+  'HLT_HIPhoton15' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
