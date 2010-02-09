@@ -13,7 +13,7 @@
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.4 2010/01/25 15:51:37 fgolf Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.5 2010/02/03 00:10:46 fgolf Exp $
 //
 //
 
@@ -308,6 +308,7 @@ namespace cms {
 	  if( !( (quality & cut) == cut ) ) return false;
 
 	  bool isGoodAlgo = false;    
+	  if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
 	  for( unsigned int i = 0; i < trkAlgos_.size(); i++ ) {
 
 	       if( algo == trkAlgos_.at(i) ) isGoodAlgo = true;
