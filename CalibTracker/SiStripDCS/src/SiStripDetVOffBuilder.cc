@@ -9,6 +9,7 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
   whichTable(pset.getParameter<std::string>("queryType")),
   lastValueFileName(pset.getParameter<std::string>("lastValueFile")),
   fromFile(pset.getParameter<bool>("lastValueFromFile")),
+  psuDetIdMapFile_(pset.getParameter<std::string>("PsuDetIdMapFile")),
   debug_(pset.getParameter<bool>("debugModeOn")),
   tDefault(7,0),
   tmax_par(pset.getParameter< std::vector<int> >("Tmax")),
@@ -636,10 +637,15 @@ string SiStripDetVOffBuilder::timeToStream(coral::TimeStamp & coralTime, const s
 void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdListTimeAndStatus & detIdStruct)
 {
   SiStripPsuDetIdMap map_;
-  map_.BuildMap();
+  if( psuDetIdMapFile_ == "" ) {
+    map_.BuildMap();
+  }
+  else {
+    map_.BuildMap(psuDetIdMapFile_);
+  }
   LogTrace("SiStripDetVOffBuilder") <<"[SiStripDetVOffBuilder::BuildDetVOff] DCU-DET ID map built";
   map_.printMap();
-  
+
   // use map info to build input for list of objects
   // no need to check for duplicates, as put method for SiStripDetVOff checks for you!
   
@@ -657,13 +663,6 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues & psuStruct, DetIdLi
       std::vector<uint32_t> ids = map_.getDetID(psuStruct.dpname[dp]);
 
       if( debug_ ) cout << "dbname["<<dp<<"] = " << psuStruct.dpname[dp] << ", for time = " << timeToStream(psuStruct.changeDate[dp]) << endl;
-      //       if( psuStruct.dpname[dp] == "cms_trk_dcs_05:CAEN/CMS_TRACKER_SY1527_4/branchController07/easyCrate0/easyBoard06/channel002" ) {
-      // 	cout << "cms_trk_dcs_05:CAEN/CMS_TRACKER_SY1527_4/branchController07/easyCrate0/easyBoard06/channel000 for detId = 402664209" << endl;
-      // 	cout << "associated to detids = " << endl;
-      // 	BOOST_FOREACH(uint32_t detidValue, ids) {
-      // 	  cout << "detid = " << detidValue << endl;
-      // 	}
-      //       }
 
       if (!ids.empty()) {
 	// DCU-PSU maps only channel000 and channel000 and channel001 switch on and off together
@@ -753,23 +752,25 @@ pair<int, int> SiStripDetVOffBuilder::extractDetIdVector( const unsigned int i, 
     // TESTING WITHOUT THE FIX
     // -----------------------
 
-    // temporary fix to handle the fact that we don't know which HV channel the detIDs are associated to
-    if (i > 0) {
-      std::string iChannel = detIdStruct.psuName[i].substr( (detIdStruct.psuName[i].size()-3) );
-      std::string iPsu = detIdStruct.psuName[i].substr(0, (detIdStruct.psuName[i].size()-3) );
-      if (iChannel == "002" || iChannel == "003") {
-	bool lastStatusOfOtherChannel = true;
-	for (unsigned int j = 0; j < i; j++) {
-	  std::string jPsu = detIdStruct.psuName[j].substr(0, (detIdStruct.psuName[j].size()-3) );
-	  std::string jChannel = detIdStruct.psuName[j].substr( (detIdStruct.psuName[j].size()-3) );
-	  if (iPsu == jPsu && iChannel != jChannel && (jChannel == "002" || jChannel == "003")) {
-	    if( debug_ ) cout << "psu["<<i<<"] = " << detIdStruct.psuName[i] << " with status = " << detIdStruct.StatusGood[i] << " and psu["<<j<<"] = " << detIdStruct.psuName[j] << " with status " << detIdStruct.StatusGood[j] << endl;
-	    lastStatusOfOtherChannel = detIdStruct.StatusGood[j];
+    if( psuDetIdMapFile_ == "" ) {
+      // temporary fix to handle the fact that we don't know which HV channel the detIDs are associated to
+      if (i > 0) {
+	std::string iChannel = detIdStruct.psuName[i].substr( (detIdStruct.psuName[i].size()-3) );
+	std::string iPsu = detIdStruct.psuName[i].substr(0, (detIdStruct.psuName[i].size()-3) );
+	if (iChannel == "002" || iChannel == "003") {
+	  bool lastStatusOfOtherChannel = true;
+	  for (unsigned int j = 0; j < i; j++) {
+	    std::string jPsu = detIdStruct.psuName[j].substr(0, (detIdStruct.psuName[j].size()-3) );
+	    std::string jChannel = detIdStruct.psuName[j].substr( (detIdStruct.psuName[j].size()-3) );
+	    if (iPsu == jPsu && iChannel != jChannel && (jChannel == "002" || jChannel == "003")) {
+	      if( debug_ ) cout << "psu["<<i<<"] = " << detIdStruct.psuName[i] << " with status = " << detIdStruct.StatusGood[i] << " and psu["<<j<<"] = " << detIdStruct.psuName[j] << " with status " << detIdStruct.StatusGood[j] << endl;
+	      lastStatusOfOtherChannel = detIdStruct.StatusGood[j];
+	    }
 	  }
-	}
-	if (detIdStruct.StatusGood[i] != lastStatusOfOtherChannel) {
-	  if( debug_ ) cout << "turning off hv" << endl;
-	  hv_off = 1;
+	  if (detIdStruct.StatusGood[i] != lastStatusOfOtherChannel) {
+	    if( debug_ ) cout << "turning off hv" << endl;
+	    hv_off = 1;
+	  }
 	}
       }
     }

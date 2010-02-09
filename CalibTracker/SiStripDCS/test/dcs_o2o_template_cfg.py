@@ -132,7 +132,10 @@ process.SiStripDetVOffBuilder = cms.Service(
 
     # Threshold to consider an HV channel on
     HighVoltageOnThreshold = cms.double(0.97)
-    )
+
+    # Leave empty if you want to use the db
+    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat")
+)
 
 # -----------------------------------------------------------------------------
 # Service to write our data to the sqlite db (or Oracle).  This service is 
@@ -183,7 +186,7 @@ process.siStripPopConDetVOff = cms.EDAnalyzer("SiStripPopConDetVOff",
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source = cms.PSet(
-        DeltaTmin = cms.uint32(1),
+        DeltaTmin = cms.uint32(15),
         MaxIOVlength = cms.uint32(120)
     )                                        
 )

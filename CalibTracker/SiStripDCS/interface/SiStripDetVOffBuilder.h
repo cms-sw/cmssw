@@ -15,6 +15,7 @@
 
 #include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
 #include "CalibTracker/SiStripDCS/interface/SiStripPsuDetIdMap.h"
+// #include "CalibTracker/SiStripDCS/interface/SiStripPsuDetIdMapFromFile.h"
 
 #include "CoralBase/TimeStamp.h"
 #include "CondFormats/Common/interface/Time.h"
@@ -112,6 +113,7 @@ class SiStripDetVOffBuilder
   std::string whichTable;
   std::string lastValueFileName;
   bool fromFile;
+  std::string psuDetIdMapFile_;
   bool debug_;
   coral::TimeStamp tmax, tmin, tsetmin;
   std::vector<int> tDefault, tmax_par, tmin_par, tset_par;

@@ -79,6 +79,13 @@ class SiStripPsuDetIdMap
   void printControlMap();
   /** Main routine that accesses the DB and builds the PSU-DETID map. */
   void BuildMap();
+
+  /**
+   * Build the map from given file.
+   * ATTENTION: this will only build the pgMap, not the cgMap.
+   */
+  void BuildMap( const std::string & mapFile );
+
   /** Returns the DCU-PSU map as a vector. */
   std::vector< std::pair<uint32_t, std::string> > getDcuPsuMap();
   /** Returns 1 if the specified PSU channel is a HV channel, 0 if it is a LV channel.  -1 means error. */
