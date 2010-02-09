@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
@@ -10,7 +11,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.22 2010/02/04 17:09:27 heltsley Exp $
+ *  $Id: EEDetId.h,v 1.23 2010/02/08 15:23:02 pgras Exp $
  */
 class EEDetId : public DetId {
    public:
@@ -74,6 +75,15 @@ class EEDetId : public DetId {
        * @return y-index
        */
       int iy() const { return id_&0x7F; }
+      
+      /** Gets the DetId of the supercrystal the crystal belong to.
+       * @return the supercrystal det id
+       * @throw cms::Exception if the crystal det id is invalid 
+       */ 
+      EcalScDetId sc() const {
+	 const int scEdge = 5;
+	 return EcalScDetId(1+(ix()-1)/scEdge, 1+(iy()-1)/scEdge, zside());
+      }
       
       /** Gets the SuperCrystal number within the endcap. This number runs from 1 to 316,
        * numbers 70 149 228 307 are not used.
