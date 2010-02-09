@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.22 2010/01/22 14:20:45 mommsen Exp $
+// $Id: Configuration.cc,v 1.23 2010/01/29 15:42:57 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -30,6 +30,7 @@ namespace stor
     setQueueConfigurationDefaults();
     setWorkerThreadDefaults();
     setResourceMonitorDefaults();
+    setAlarmDefaults();
 
     setupDiskWritingInfoSpaceParams(infoSpace);
     setupDQMProcessingInfoSpaceParams(infoSpace);
@@ -37,6 +38,7 @@ namespace stor
     setupQueueConfigurationInfoSpaceParams(infoSpace);
     setupWorkerThreadInfoSpaceParams(infoSpace);
     setupResourceMonitorInfoSpaceParams(infoSpace);
+    setupAlarmInfoSpaceParams(infoSpace);
   }
 
   struct DiskWritingParams Configuration::getDiskWritingParams() const
@@ -76,6 +78,12 @@ namespace stor
     return _resourceMonitorParamCopy;
   }
 
+  struct AlarmParams Configuration::getAlarmParams() const
+  {
+    boost::mutex::scoped_lock sl(_generalMutex);
+    return _alarmParamCopy;
+  }
+
   void Configuration::updateAllParams()
   {
     boost::mutex::scoped_lock sl(_generalMutex);
@@ -85,7 +93,8 @@ namespace stor
     updateLocalQueueConfigurationData();
     updateLocalWorkerThreadData();
     updateLocalResourceMonitorData();
-    updateLocalRunNumber();
+    updateLocalAlarmData();
+    updateLocalRunNumberData();
   }
 
   unsigned int Configuration::getRunNumber() const
@@ -102,7 +111,7 @@ namespace stor
   void Configuration::updateRunParams()
   {
     boost::mutex::scoped_lock sl(_generalMutex);
-    updateLocalRunNumber();
+    updateLocalRunNumberData();
   }
 
   bool Configuration::streamConfigurationHasChanged() const
@@ -171,7 +180,7 @@ namespace stor
     _diskWriteParamCopy._lumiSectionTimeOut = 45.0;
     _diskWriteParamCopy._errorEventsTimeOut = 300.0;
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
-    _diskWriteParamCopy._fileSizeTolerance = 0.1;
+    _diskWriteParamCopy._fileSizeTolerance = 0.0;
     _diskWriteParamCopy._useIndexFiles = true;
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
@@ -247,7 +256,6 @@ namespace stor
   void Configuration::setResourceMonitorDefaults()
   {
     // set defaults
-    _resourceMonitorParamCopy._isProductionSystem = false;
     _resourceMonitorParamCopy._sataUser = "";
     _resourceMonitorParamCopy._injectWorkers._user = "smpro";
     _resourceMonitorParamCopy._injectWorkers._command = "/InjectWorker.pl /store/global";
@@ -255,6 +263,14 @@ namespace stor
     _resourceMonitorParamCopy._copyWorkers._user = "cmsprod";
     _resourceMonitorParamCopy._copyWorkers._command = "CopyManager/CopyWorker.pl";
     _resourceMonitorParamCopy._copyWorkers._expectedCount = -1;
+  }
+
+  void Configuration::setAlarmDefaults()
+  {
+    // set defaults
+    _alarmParamCopy._isProductionSystem = false;
+    _alarmParamCopy._errorEvents = 10;
+    _alarmParamCopy._unwantedEvents = 10000;
   }
 
   void Configuration::
@@ -389,7 +405,6 @@ namespace stor
   setupResourceMonitorInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
     // copy the initial defaults to the xdata variables
-    _isProductionSystem = _resourceMonitorParamCopy._isProductionSystem;
     _sataUser = _resourceMonitorParamCopy._sataUser;
     _injectWorkersUser = _resourceMonitorParamCopy._injectWorkers._user;
     _injectWorkersCommand = _resourceMonitorParamCopy._injectWorkers._command;
@@ -399,7 +414,6 @@ namespace stor
     _nCopyWorkers = _resourceMonitorParamCopy._copyWorkers._expectedCount;
  
     // bind the local xdata variables to the infospace
-    infoSpace->fireItemAvailable("isProductionSystem", &_isProductionSystem);
     infoSpace->fireItemAvailable("sataUser", &_sataUser);
     infoSpace->fireItemAvailable("injectWorkersUser", &_injectWorkersUser);
     infoSpace->fireItemAvailable("injectWorkersCommand", &_injectWorkersCommand);
@@ -407,6 +421,20 @@ namespace stor
     infoSpace->fireItemAvailable("copyWorkersUser", &_copyWorkersUser);
     infoSpace->fireItemAvailable("copyWorkersCommand", &_copyWorkersCommand);
     infoSpace->fireItemAvailable("nCopyWorkers", &_nCopyWorkers);
+  }
+
+  void Configuration::
+  setupAlarmInfoSpaceParams(xdata::InfoSpace* infoSpace)
+  {
+    // copy the initial defaults to the xdata variables
+    _isProductionSystem = _alarmParamCopy._isProductionSystem;
+    _errorEvents = _alarmParamCopy._errorEvents;
+    _unwantedEvents = _alarmParamCopy._unwantedEvents;
+ 
+    // bind the local xdata variables to the infospace
+    infoSpace->fireItemAvailable("isProductionSystem", &_isProductionSystem);
+    infoSpace->fireItemAvailable("errorEvents", &_errorEvents);
+    infoSpace->fireItemAvailable("unwantedEvents", &_unwantedEvents);
   }
 
   void Configuration::updateLocalDiskWritingData()
@@ -496,7 +524,6 @@ namespace stor
 
   void Configuration::updateLocalResourceMonitorData()
   {
-    _resourceMonitorParamCopy._isProductionSystem = _isProductionSystem;
     _resourceMonitorParamCopy._sataUser = _sataUser;
     _resourceMonitorParamCopy._injectWorkers._user = _injectWorkersUser;
     _resourceMonitorParamCopy._injectWorkers._command = _injectWorkersCommand;
@@ -506,7 +533,14 @@ namespace stor
     _resourceMonitorParamCopy._copyWorkers._expectedCount = _nCopyWorkers;
   }
 
-  void Configuration::updateLocalRunNumber()
+  void Configuration::updateLocalAlarmData()
+  {
+    _alarmParamCopy._isProductionSystem = _isProductionSystem;
+    _alarmParamCopy._errorEvents = _errorEvents;
+    _alarmParamCopy._unwantedEvents = _unwantedEvents;
+  }
+
+  void Configuration::updateLocalRunNumberData()
   {
     _localRunNumber = _infospaceRunNumber;
   }
