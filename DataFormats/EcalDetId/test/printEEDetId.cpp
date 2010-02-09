@@ -19,28 +19,20 @@ ostream& pcenter(unsigned w, string s){
 }
 
 int main(int argc, char* argv[]) {
-  EEDetId id2(1,41,-1);
-  EEDetId id3(id2.isc(), id2.ic(), id2.zside(), EEDetId::SCCRYSTALMODE);
-  cout << id2.ix() << "\t"<< id2.iy() << "\t"<< id2.zside() << "\n";
-  cout << id3.ix() << "\t"<< id3.iy() << "\t"<< id3.zside() << "\n";
-
-  cout << "----------------------------------------------------------------------\n\n";
-
-
-  
   const int colsize = 8;
 #define COL cout << setw(colsize)
-
+  
   cout << right;
   pcenter(3*(colsize+1)-1, "input") << "|";
   pcenter(11*(colsize+1), "detid") << "|";
-  pcenter(4*(colsize+1), "detid->(isc,ic,iz)->detid") << "\n";
+  pcenter(4*(colsize+1), "detid->(isc,ic,iz)->detid") << "|";
+  pcenter(3*(colsize+1), "sc_detid") << "\n";
   
   //input
   COL <<  "ix" << " ";
   COL <<  "iy" << " ";
   COL <<  "iz" << "|";
-
+  
   //detId
   COL <<  "ix" << " ";
   COL <<  "iy" << " ";
@@ -53,12 +45,18 @@ int main(int argc, char* argv[]) {
   COL <<  "dense_ind" <<  " ";
   COL <<  "isc" << " ";
   COL <<  "ic" << "|";
-  
+
   //detid->isc,ic->detid
   COL <<  "ix" << " ";
   COL <<  "iy" << " ";
   COL <<  "iz" << " ";
   COL <<  "iscic_chk" << "\n";
+
+  //sc det id
+  COL << "ix" << " ";
+  COL << "iy" << " ";
+  COL << "iz" << " ";
+  
 
   try {
     for(int iz = -1 ; iz <= 1; iz += 2){
@@ -105,6 +103,11 @@ int main(int argc, char* argv[]) {
 	  } else{
 	    COL << "OK" << " ";
 	  }
+
+	  //SC det id
+	  COL << id.sc().ix() << " ";
+	  COL << id.sc().iy() << " ";
+	  COL << id.sc().zside() << " ";
 	  COL << "\n";
 	} //next iy
       } //next ix
