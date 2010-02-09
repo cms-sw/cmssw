@@ -1,3 +1,15 @@
+V00-03-01:
+---------
+	
+2010-02-09  author  <author@lxplus314.cern.ch>
+
+	* src/WatcherStreamFileReader.cc, interface/WatcherStreamFileReader.h:
+	Fixed for 35X compilation: StreamerFile namespace changed.
+
+	* src/LaserSorter.cc: bug fix for empty lmf file
+
+	* ChangeLog: record of changes
+
 V00-03-00:
 ----------
 	
