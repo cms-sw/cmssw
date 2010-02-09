@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.15 2009/12/17 23:43:58 wmtan Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.14 2009/08/14 17:44:59 wsun Exp $
 //
 //
 
@@ -154,6 +154,8 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    // If L1TriggerKey IOV was already up to date, then so are all its
    // sub-records.
+   bool throwException = false ;
+
    if( triggerKeyIOVUpdated )
      {
        // Loop over record@type in L1TriggerKey
@@ -161,8 +163,6 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 recordTypeToKeyMap.begin() ;
        L1TriggerKey::RecordToKey::const_iterator end =
 	 recordTypeToKeyMap.end() ;
-
-       bool throwException = false ;
 
        for( ; itr != end ; ++itr )
 	 {
@@ -214,23 +214,23 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		 }
 	     }
 	 }
-
-       if( throwException )
-	 {
-	   throw cond::Exception( "L1CondDBIOVWriter: empty payload tokens" ) ;
-	 }
      }
 
    if( m_logKeys )
      {
        edm::LogVerbatim( "L1-O2O" ) << log ;
      }
+
+   if( throwException )
+     {
+       throw cond::Exception( "L1CondDBIOVWriter: empty payload tokens" ) ;
+     }
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1CondDBIOVWriter::beginJob()
+L1CondDBIOVWriter::beginJob(const edm::EventSetup&)
 {
 }
 
