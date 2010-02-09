@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.13 2009/09/18 09:10:25 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.14 2009/10/06 09:05:31 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -29,7 +29,7 @@ StatisticsReporter::StatisticsReporter
 _app(app),
 _alarmHandler(new AlarmHandler(app)),
 _monitoringSleepSec(monitoringSleepSec),
-_runMonCollection(_monitoringSleepSec),
+_runMonCollection(_monitoringSleepSec, _alarmHandler),
 _fragMonCollection(_monitoringSleepSec),
 _filesMonCollection(5*_monitoringSleepSec),
 _streamsMonCollection(_monitoringSleepSec),
