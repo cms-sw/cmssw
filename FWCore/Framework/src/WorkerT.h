@@ -35,6 +35,11 @@ namespace edm {
     return std::auto_ptr<T>(module.release());
   }
 
+  void setModule( std::auto_ptr<T>& iModule) {
+     module_ = iModule;
+     module_->setModuleDescription(description());
+     
+  }
 
   protected:
     T& module() {return *module_;}

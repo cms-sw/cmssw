@@ -53,11 +53,11 @@ Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const 
       << " is of type " << edmType << ", but declared in the configuration as " << expected;
   }
 }
-
   
-std::auto_ptr<Worker> Maker::makeWorker(WorkerParams const& p,
-                                                   sigc::signal<void, ModuleDescription const&>& pre,
-                                                   sigc::signal<void, ModuleDescription const&>& post) const {
+std::auto_ptr<Worker> 
+Maker::makeWorker(WorkerParams const& p,
+                  sigc::signal<void, ModuleDescription const&>& pre,
+                  sigc::signal<void, ModuleDescription const&>& post) const {
   try {
     ConfigurationDescriptions descriptions(baseType());
     fillDescriptions(descriptions);
@@ -83,5 +83,9 @@ std::auto_ptr<Worker> Maker::makeWorker(WorkerParams const& p,
   return worker;
 }
   
+void 
+Maker::swapModule(Worker* w, ParameterSet const& p) {
+   implSwapModule(w,p);
+}
 
 } // end of edm::

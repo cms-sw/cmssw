@@ -20,6 +20,7 @@ namespace edm {
     std::auto_ptr<Worker> makeWorker(WorkerParams const&,
                                      sigc::signal<void, ModuleDescription const&>& iPre,
                                      sigc::signal<void, ModuleDescription const&>& iPost) const;
+    void swapModule(Worker*, ParameterSet const&);
   protected:
     ModuleDescription createModuleDescription(WorkerParams const& p) const;
 
@@ -31,11 +32,13 @@ namespace edm {
 				  cms::Exception const& iException) const;
 
     void validateEDMType(std::string const& edmType, WorkerParams const& p) const;
+                                             
   private:
     virtual void fillDescriptions(ConfigurationDescriptions& iDesc) const = 0;
     virtual std::auto_ptr<Worker> makeWorker(WorkerParams const& p, 
                                              ModuleDescription const& md) const = 0;
     virtual const std::string& baseType() const =0;
+    virtual void implSwapModule(Worker*, ParameterSet const&)=0;
   };
 
   template <class T>
@@ -47,6 +50,7 @@ namespace edm {
     virtual void fillDescriptions(ConfigurationDescriptions& iDesc) const;
     virtual std::auto_ptr<Worker> makeWorker(WorkerParams const& p, ModuleDescription const& md) const;
     virtual const std::string& baseType() const;
+    virtual void implSwapModule(Worker*, ParameterSet const&);
   };
 
   template <class T>
@@ -68,11 +72,26 @@ namespace edm {
     return std::auto_ptr<Worker>(new WorkerType(module, md, p));
   }
   
+
+  template <class T>
+  void WorkerMaker<T>::implSwapModule(Worker* w, ParameterSet const& p) {
+    typedef T UserType;
+    typedef typename UserType::ModuleType ModuleType;
+    typedef typename UserType::WorkerType WorkerType;
+          
+    WorkerType* wt = dynamic_cast<WorkerType*>(w);
+    assert(0!=wt);
+
+    std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(w->description(), p));
+     
+    wt->setModule(module);
+  }
+  
   template<class T>
   const std::string& WorkerMaker<T>::baseType() const {
     return T::baseType();
   }
-
+  
 }
 
 #endif
