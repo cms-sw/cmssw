@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/01/17 13:57:33 $
- * $Revision: 1.17 $
+ * $Date: 2010/02/04 00:47:39 $
+ * $Revision: 1.18 $
  *
  */
 
@@ -11,6 +11,7 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -33,13 +34,16 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
 
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-  bsSrc_          = parameters_.getUntrackedParameter<string>("beamSpot","offlineBeamSpot");
+  bsSrc_          = parameters_.getUntrackedParameter<InputTag>("beamSpot");
+  pvSrc_          = parameters_.getUntrackedParameter<InputTag>("primaryVertex");
   fitNLumi_       = parameters_.getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
+  resetPVNLumi_   = parameters_.getUntrackedParameter<int>("resetPVEveryNLumi",-1);
   deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
   tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
   min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
+  maxZ_           = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
 
   dbe_            = Service<DQMStore>().operator->();
   
@@ -49,6 +53,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   theBeamFitter->resetTrkVector();
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits = 0;
+  maxZ_ = fabs(maxZ_);
 }
 
 
@@ -159,6 +164,50 @@ void BeamMonitor::beginJob() {
   fitResults->setBinLabel(2,"Error",2);
   fitResults->getTH1()->SetOption("text");
 
+  // Histos of PrimaryVertices:
+  dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+
+  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices in Event",20,-0.5,19.5);
+  h_nVtx->setAxisTitle("Num. of reco. vertices",1);
+
+  // Monitor only the PV with highest sum pt of assoc. trks:
+  h_PVx = dbe_->book1D("PVX","x coordinate of Primary Vtx",100,-0.01,0.01);
+  h_PVx->setAxisTitle("PVx (cm)",1);
+  h_PVx->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_PVy = dbe_->book1D("PVY","y coordinate of Primary Vtx",100,-0.01,0.01);
+  h_PVy->setAxisTitle("PVy (cm)",1);
+  h_PVy->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_PVz = dbe_->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
+  h_PVz->setAxisTitle("PVz (cm)",1);
+  h_PVz->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_PVx_lumi = dbe_->book1D("PVx_lumi","Avg. x position of primary vtx vs lumi",40,0.5,40.5);
+  h_PVx_lumi->setAxisTitle("Lumisection",1);
+  h_PVx_lumi->setAxisTitle("PVx #pm #sigma_{PVx} (cm)",2);
+  h_PVx_lumi->getTH1()->SetOption("E1");
+
+  h_PVy_lumi = dbe_->book1D("PVy_lumi","Avg. y position of primary vtx vs lumi",40,0.5,40.5);
+  h_PVy_lumi->setAxisTitle("Lumisection",1);
+  h_PVy_lumi->setAxisTitle("PVy #pm #sigma_{PVy} (cm)",2);
+  h_PVy_lumi->getTH1()->SetOption("E1");
+
+  h_PVz_lumi = dbe_->book1D("PVz_lumi","Avg. z position of primary vtx vs lumi",40,0.5,40.5);
+  h_PVz_lumi->setAxisTitle("Lumisection",1);
+  h_PVz_lumi->setAxisTitle("PVz #pm #sigma_{PVz} (cm)",2);
+  h_PVz_lumi->getTH1()->SetOption("E1");
+
+  // Results of previous good fit:
+  pvResults=dbe_->book2D("pvResults","Results of avg. PV positions",3,0,3,2,0,2);
+  pvResults->setAxisTitle("Fitted Beam Spot",1);
+  pvResults->setBinLabel(1,"PVx",1);
+  pvResults->setBinLabel(2,"PVy",1);
+  pvResults->setBinLabel(3,"PVz",1);
+  pvResults->setBinLabel(1,"Avg.",2);
+  pvResults->setBinLabel(2,"#sigma",2);
+  pvResults->getTH1()->SetOption("text");
+
   // Summary plots:
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
   reportSummary = dbe_->get(monitorName_+"EventInfo/reportSummary");
@@ -210,6 +259,7 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 				       const EventSetup& context) {
   countLumi_++;
   if (debug_) cout << "Lumi: " << countLumi_ << endl;
+
 }
 
 // ----------------------------------------------------------
@@ -231,13 +281,65 @@ void BeamMonitor::analyze(const Event& iEvent,
     h_trkPt->Fill(track->pt());
     h_trkVz->Fill(track->vz());
   }
+
+  edm::Handle< edm::View<reco::Vertex> > recVtxs;
+  iEvent.getByLabel(pvSrc_, recVtxs);
+  const edm::View<reco::Vertex> &pv = *recVtxs;
+
+  for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
+    
+    if (! pv[ipv].isFake())
+      h_nVtx->Fill(recVtxs->size()*1.);
+    if ( ipv==0 && !pv[0].isFake() ) { 
+      h_PVx->Fill(pv[0].x());
+      h_PVy->Fill(pv[0].y());
+      h_PVz->Fill(pv[0].z());
+    }
+
+  }
+
 }
 
 
 //--------------------------------------------------------
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
+  // Primary Vertex Fit:
+  if (h_PVx->getTH1()->GetEntries() >= 20) {
+    pvResults->Reset();
+    TF1 *fgaus = new TF1("fgaus","gaus");
+    double mean,width;
+    fgaus->SetLineColor(4);
+    h_PVx->getTH1()->Fit("fgaus","QLM");
+    mean = fgaus->GetParameter(1);
+    width = fgaus->GetParameter(2);
+    h_PVx_lumi->ShiftFillLast(mean,width);
+    pvResults->setBinContent(1,1,mean);
+    pvResults->setBinContent(1,2,width);
 
+    h_PVy->getTH1()->Fit("fgaus","QLM");
+    mean = fgaus->GetParameter(1);
+    width = fgaus->GetParameter(2);
+    h_PVy_lumi->ShiftFillLast(mean,width);
+    pvResults->setBinContent(2,1,mean);
+    pvResults->setBinContent(2,2,width);
+
+    h_PVz->getTH1()->Fit("fgaus","QLM");
+    mean = fgaus->GetParameter(1);
+    width = fgaus->GetParameter(2);
+    h_PVz_lumi->ShiftFillLast(mean,width);
+    pvResults->setBinContent(3,1,mean);
+    pvResults->setBinContent(3,2,width);
+
+  }
+
+  if (resetPVNLumi_ > 0 && countLumi_%resetPVNLumi_ == 0) {
+    h_PVx->Reset();
+    h_PVy->Reset();
+    h_PVz->Reset();
+  }
+
+  // Beam Spot Fit:
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
@@ -277,13 +379,15 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
   if (debug_ && fitted) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
 
-  TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
-  f1->SetLineColor(4);
-  h_d0_phi0->getTProfile()->Fit("f1","QR");
+  if (nthBSTrk_ >= min_Ntrks_) {
+    TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
+    f1->SetLineColor(4);
+    h_d0_phi0->getTProfile()->Fit("f1","QR");
 
-  TF1 *fgaus = new TF1("fgaus","gaus");
-  fgaus->SetLineColor(4);
-  h_trk_z0->getTH1()->Fit("fgaus","Q");
+    TF1 *fgaus = new TF1("fgaus","gaus");
+    fgaus->SetLineColor(4);
+    h_trk_z0->getTH1()->Fit("fgaus","QLRM","",-1*maxZ_,maxZ_);
+  }
 
   if (fitted && theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
