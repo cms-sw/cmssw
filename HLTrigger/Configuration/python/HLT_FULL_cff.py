@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/HLT/V40 (CMSSW_3_5_0)
+# /dev/CMSSW_3_5_0/HLT/V41 (CMSSW_3_5_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V40')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V41')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -2023,7 +2023,7 @@ hltL1sDoubleJet15UForwardBackward = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleForJet10_EtaOpp" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleForJet10U_EtaOpp" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
