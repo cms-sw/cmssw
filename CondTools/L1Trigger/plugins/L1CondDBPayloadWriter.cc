@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.15 2009/12/17 23:43:58 wmtan Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.16 2010/01/20 21:15:56 wsun Exp $
 //
 //
 
@@ -130,6 +130,8 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
      }
 
    // If L1TriggerKey is invalid, then all configuration data is already in DB
+   bool throwException = false ;
+
    if( !token.empty() || !m_writeL1TriggerKey )
    {
       // Record token in L1TriggerKeyList
@@ -196,6 +198,8 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 			    << ex.what()
 			    << " Skipping to next record." ;
 
+			  throwException = true ;
+
 			  continue ;
 			}
 
@@ -239,6 +243,11 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
       // Write L1TriggerKeyList to ORCON
       m_writer.writeKeyList( keyList, 0, m_logTransactions ) ;
    }
+
+   if( throwException )
+     {
+       throw l1t::DataInvalidException( "Payload problem found." ) ;
+     }
 }
 
 
