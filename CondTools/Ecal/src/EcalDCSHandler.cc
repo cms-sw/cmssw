@@ -39,7 +39,7 @@ void popcon::EcalDCSHandler::printHVDataSet( const map<EcalLogicID, RunDCSHVDat>
   
   int count = 0;
   typedef map< EcalLogicID, RunDCSHVDat >::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); p++) {
+  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
     count++;
     if (limit && count > limit) { return; }
     ecid = p->first;
@@ -67,7 +67,7 @@ void popcon::EcalDCSHandler::printLVDataSet( const map<EcalLogicID, RunDCSLVDat>
   
   int count = 0;
   typedef map< EcalLogicID, RunDCSLVDat >::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); p++) {
+  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
     count++;
     if (limit && count > limit) { return; }
     ecid = p->first;
@@ -96,15 +96,15 @@ uint16_t  popcon::EcalDCSHandler::updateHV( RunDCSHVDat* hv, uint16_t dbStatus) 
   uint16_t hv_time_on_dbstatus=0;
   if(  hv->getStatus()==RunDCSHVDat::HVNOTNOMINAL ) hv_nomi_on_dbstatus=1; 
   if(  hv->getStatus()==RunDCSHVDat::HVOFF ) hv_on_dbstatus=1; 
-  if(  hv->getTimeStatus()<0 ) hv_time_on_dbstatus=1; // information not updated 
+  //  if(  hv->getTimeStatus()<0 ) hv_time_on_dbstatus=1; // information not updated 
    
   
 
   uint16_t hv_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVSTATUS ) ) ;
-  uint16_t hv_time_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVTIMESTATUS ) ) ;
+  uint16_t hv_time_off_dbstatus = 0; // ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVTIMESTATUS ) ) ;
   uint16_t hv_nomi_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVNOMINALSTATUS ) ) ;
   if(hv_off_dbstatus>0) hv_off_dbstatus=1;
-  if(hv_time_off_dbstatus>0) hv_time_off_dbstatus=1;
+  //  if(hv_time_off_dbstatus>0) hv_time_off_dbstatus=1;
   if(hv_nomi_off_dbstatus>0) hv_nomi_off_dbstatus=1;
 
   
@@ -113,7 +113,7 @@ uint16_t  popcon::EcalDCSHandler::updateHV( RunDCSHVDat* hv, uint16_t dbStatus) 
     if( i!= EcalDCSTowerStatusHelper::HVSTATUS && i!= EcalDCSTowerStatusHelper::HVTIMESTATUS && i!=EcalDCSTowerStatusHelper::HVNOMINALSTATUS ) {
       temp = temp | (1<<i) ;  
     } else if( i== EcalDCSTowerStatusHelper::HVTIMESTATUS) {
-      temp = temp | ( 0 << EcalDCSTowerStatusHelper::HVTIMESTATUS );
+      //      temp = temp | ( 0 << EcalDCSTowerStatusHelper::HVTIMESTATUS );
     } else if( i== EcalDCSTowerStatusHelper::HVNOMINALSTATUS) {
       temp = temp | ( 0 << EcalDCSTowerStatusHelper::HVNOMINALSTATUS );
     } else if ( i== EcalDCSTowerStatusHelper::HVSTATUS) {
@@ -125,9 +125,9 @@ uint16_t  popcon::EcalDCSHandler::updateHV( RunDCSHVDat* hv, uint16_t dbStatus) 
    result=  dbStatus & temp  ;
    result= ( ( result | ( hv_time_on_dbstatus << EcalDCSTowerStatusHelper::HVTIMESTATUS )) |  (  hv_on_dbstatus << EcalDCSTowerStatusHelper::HVSTATUS ) )   | ( hv_nomi_on_dbstatus << EcalDCSTowerStatusHelper::HVNOMINALSTATUS );
 
-   std::cout << "HV status "<<hv_on_dbstatus<<"/"<<hv_time_on_dbstatus<<"/"<<hv_nomi_on_dbstatus<<
-     "HV before status "<<hv_off_dbstatus<<"/"<<hv_time_off_dbstatus<<"/"<<hv_nomi_off_dbstatus<<" res="<< result<< endl;
-  
+   //   std::cout << "HV status "<<hv_on_dbstatus<<"/"<<hv_time_on_dbstatus<<"/"<<hv_nomi_on_dbstatus<<
+   // "HV before status "<<hv_off_dbstatus<<"/"<<hv_time_off_dbstatus<<"/"<<hv_nomi_off_dbstatus<<" res="<< result<< endl;
+   
   return result; 
 }
 
@@ -186,7 +186,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const map<EcalLogicID, Ru
 
   typedef std::map< EcalLogicID, RunDCSHVDat >::const_iterator CI ;
 
-  for (CI p = dataset->begin(); p != dataset->end(); p++) {
+  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
 
 
     ecid = p->first;
@@ -218,7 +218,10 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const map<EcalLogicID, Ru
 
 	  dcs_temp->setValue( ebid, new_dbStatus );
 
-	  std::cout <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<< endl; 
+	  if(new_dbStatus != dbStatus) {
+	    std::cout <<"SM/chan:"<<sm<<"/"<<chan <<" new db status ="<< new_dbStatus << " old  "<<dbStatus<<" HV: "<< hv.getHV()<<"/"<<hv.getHVNominal()<<std::endl;
+	    
+	  } 
 	}
       }
 
@@ -256,8 +259,8 @@ int popcon::EcalDCSHandler::detIDToLogicID(int iz, int i, int j) {
   hv_chan=(j-1)*2+hv_chan;
   
   hv_chan=(sm-1)*34+hv_chan -1  ;
-  
-  return hv_chan; 
+
+  return hv_chan;
 
 }
 
@@ -376,7 +379,7 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const map<EcalLogicID, Ru
 
 
   typedef map< EcalLogicID, RunDCSLVDat >::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); p++) {
+  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
 
     ecid = p->first;
     lv  = p->second;
@@ -509,7 +512,11 @@ void popcon::EcalDCSHandler::getNewObjects()
 	
 
 	if(max_since<=1) { 
+
+
+
 	  // retrieve from last value data record 	
+	  // always call this method at first run
 
 	  map<EcalLogicID, RunDCSHVDat> dataset;
 	  RunIOV *r = NULL;
@@ -568,95 +575,100 @@ void popcon::EcalDCSHandler::getNewObjects()
 	  
 	  // here we fetch historical data 
 
-	  uint64_t t_max_val= ((max_since >> 32 ) +1)*1000000 ; // time in microseconds 
+	  uint64_t t_max_val= ((max_since >> 32 ) +2)*1000000 ; // time in microseconds  (2 seconds more than old data)
 	
 	  Tm t_test(t_max_val);
   
 	  std::list< std::pair< Tm, std::map<  EcalLogicID, RunDCSHVDat > > > dataset;
-
 	  econn->fetchDCSDataSet(&dataset, t_test);
 	  
 	  if (!dataset.size()) {
-	    throw(runtime_error("Zero rows read back"));
-	  }
+	    std::cout<< " DCS query retrieved zero lines  "<< std::endl;
+	  } else {
 
-	  std::list< std::pair< Tm, std::map<  EcalLogicID, RunDCSHVDat > > >::iterator it;
-	  for (it=dataset.begin(); it!=dataset.end(); it++){
-	    std::pair< Tm, std::map<  EcalLogicID, RunDCSHVDat > > a_pair =(*it);
-	    Tm t_pair=a_pair.first;
-	    std::map<  EcalLogicID, RunDCSHVDat > a_map = a_pair.second;
-	    bool somediff_hv= insertHVDataSetToOffline(&a_map, dcs_temp );
+	    int num_dcs=0; 
+	    std::list< std::pair< Tm, std::map<  EcalLogicID, RunDCSHVDat > > >::iterator it;
+	    for (it=dataset.begin(); it!=dataset.end(); ++it){
+	      std::pair< Tm, std::map<  EcalLogicID, RunDCSHVDat > > a_pair =(*it);
+	      Tm t_pair=a_pair.first;
+	      std::map<  EcalLogicID, RunDCSHVDat > a_map = a_pair.second;
+	      num_dcs=num_dcs+a_map.size();
 
-	    if(somediff_hv ) {
-	      // we have to copy this record to offline 
-	      // we copy dcs_temp to dcs_pop
-	      EcalDCSTowerStatus* dcs_pop = new EcalDCSTowerStatus();
+	      bool somediff_hv= insertHVDataSetToOffline(&a_map, dcs_temp );
 
-	      // barrel
-	      int iz=0;
-	      for(int k=0 ; k<2; k++ ) {
-		if(k==0) iz=-1;
-		if(k==1) iz= 1;
-		for(int i=1 ; i<73; i++) {
-		  for(int j=1 ; j<18; j++) {
-		    if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
-		      EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
-		      
-		      uint16_t dbStatus = 0;
-		      dbStatus =(dcs_temp->barrel( ebid.hashedIndex())).getStatusCode();
-		      
-		      EcalDCSTowerStatus::const_iterator it =dcs_temp->find(ebid.rawId());
-		      if ( it != dcs_temp->end() ) {
-		      } else {
-			std::cout<<"*** error channel not found: j/i="<<j<<"/"<<i << endl;
+
+	      if(somediff_hv ) {
+		std::cout << "some diff" << std::endl;
+		// we have to copy this record to offline 
+		// we copy dcs_temp to dcs_pop
+		EcalDCSTowerStatus* dcs_pop = new EcalDCSTowerStatus();
+		
+		// barrel
+		int iz=0;
+		for(int k=0 ; k<2; k++ ) {
+		  if(k==0) iz=-1;
+		  if(k==1) iz= 1;
+		  for(int i=1 ; i<73; i++) {
+		    for(int j=1 ; j<18; j++) {
+		      if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,j,i )){
+			EcalTrigTowerDetId ebid(iz,EcalBarrel,j,i);
+			
+			uint16_t dbStatus = 0;
+			dbStatus =(dcs_temp->barrel( ebid.hashedIndex())).getStatusCode();
+			
+			EcalDCSTowerStatus::const_iterator it =dcs_temp->find(ebid.rawId());
+			if ( it != dcs_temp->end() ) {
+			} else {
+			  std::cout<<"*** error channel not found: j/i="<<j<<"/"<<i << endl;
+			}
+			
+			dcs_pop->setValue( ebid, dbStatus );
 		      }
-		      
-		      dcs_pop->setValue( ebid, dbStatus );
 		    }
 		  }
 		}
-	      }
-	      
-	      // endcap
-	      for(int k=0 ; k<2; k++ ) {
-		if(k==0) iz=-1;
-		if(k==1) iz=+1;
-		for(int i=1 ; i<21; i++) {
-		  for(int j=1 ; j<21; j++) {
-		    if (EcalScDetId::validDetId(i,j,iz )){
-		      EcalScDetId eeid(i,j,iz);
-		      
-		      EcalDCSTowerStatus::const_iterator it =dcs_temp->find(eeid.rawId());
-		      
-		      uint16_t dbStatus = 0;
-		      if ( it != dcs_temp->end() ) {
-			dbStatus = it->getStatusCode();
-		      } 
-		      dcs_pop->setValue( eeid, dbStatus );
+		
+		// endcap
+		for(int k=0 ; k<2; k++ ) {
+		  if(k==0) iz=-1;
+		  if(k==1) iz=+1;
+		  for(int i=1 ; i<21; i++) {
+		    for(int j=1 ; j<21; j++) {
+		      if (EcalScDetId::validDetId(i,j,iz )){
+			EcalScDetId eeid(i,j,iz);
+			
+			EcalDCSTowerStatus::const_iterator it =dcs_temp->find(eeid.rawId());
+			
+			uint16_t dbStatus = 0;
+			if ( it != dcs_temp->end() ) {
+			  dbStatus = it->getStatusCode();
+			} 
+			dcs_pop->setValue( eeid, dbStatus );
+		      }
 		    }
 		  }
 		}
-	      }
-
-	      uint64_t tsincetemp= t_pair.microsTime()/1000000 ;
-
-	      uint64_t tsince = tsincetemp<< 32; 
-	      Tm tnew(t_pair.microsTime());
-
-	      cout << "Generating popcon record for time " << tsince << "HRF time " << tnew.str() << "..." << flush;
-    
-	      m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_pop,tsince));
-	    
-	      ss << "Time=" << tnew.str() << "_DCSchanged_"<<endl; 
-	      m_userTextLog = ss.str()+";";
-	      
-
+		
+		uint64_t tsincetemp= t_pair.microsTime()/1000000 ;
+		
+		uint64_t tsince = tsincetemp<< 32; 
+		Tm tnew(t_pair.microsTime());
+		
+		cout << "Generating popcon record for time " << tsince << "HRF time " << tnew.str() << "..." << flush;
+		
+		m_to_transfer.push_back(std::make_pair((EcalDCSTowerStatus*)dcs_pop,tsince));
+		
+		ss << "Time=" << tnew.str() << "_DCSchanged_"<<endl; 
+		m_userTextLog = ss.str()+";";
+		
+		
 
 
 	    }
 
 	  }
-
+	  std::cout << " num DCS = "<< num_dcs << std::endl; 
+	  }
 	  delete dcs_temp;
 	  
 	}
