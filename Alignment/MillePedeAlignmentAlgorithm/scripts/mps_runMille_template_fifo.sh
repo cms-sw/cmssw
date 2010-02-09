@@ -36,10 +36,14 @@ cp -p *.log.gz $RUNDIR
 # store  millePedeMonitor also in $RUNDIR, below is backup in $MSSDIR
 cp -p millePedeMonitor*root $RUNDIR
 
+# AP 08.02.2010 - Unique filename
+UUID=`uuidgen -r`
+fname=/tmp/milleBinaryISN-$UUID.dat.gz
+
 # AP 19.01.2010 - Create the fifo and start gzipping file
-rm -f /tmp/milleBinaryISN.dat.gz
-mkfifo /tmp/milleBinaryISN.dat.gz
-gzip -1 -c milleBinaryISN.dat >> /tmp/milleBinaryISN.dat.gz &
+# rm -f $fname
+mkfifo $fname
+gzip -1 -c milleBinaryISN.dat >> $fname &
 
 # Copy MillePede binary file to Castor
 # Must use different command for the cmscafuser pool
@@ -47,19 +51,19 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 # Not using cmscafuser pool => rfcp command must be used
   export STAGE_SVCCLASS=$MSSDIRPOOL
   nsrm -f $MSSDIR/milleBinaryISN.dat
-  echo "rfcp /tmp/milleBinaryISN.dat.gz $MSSDIR/"
-  rfcp /tmp/milleBinaryISN.dat.gz $MSSDIR/
+  echo "rfcp $fname $MSSDIR/milleBinaryISN.dat.gz"
+  rfcp $fname                     $MSSDIR/milleBinaryISN.dat.gz
   rfcp treeFile*root              $MSSDIR/treeFileISN.root
   rfcp millePedeMonitor*root      $MSSDIR/millePedeMonitorISN.root
 else
 # Using cmscafuser pool => cmsStageOut command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
-  echo "cmsStageOut /tmp/milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz"
-  cmsStageOut /tmp/milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz
+  echo "cmsStageOut $fname $MSSCAFDIR/milleBinaryISN.dat.gz"
+  cmsStageOut $fname                     $MSSCAFDIR/milleBinaryISN.dat.gz
   cmsStageOut treeFile*root              $MSSCAFDIR/treeFileISN.root
   cmsStageOut millePedeMonitor*root      $MSSCAFDIR/millePedeMonitorISN.root
 fi
 
 # AP 21.01.2010 - Delete the fifo
-rm -f /tmp/milleBinaryISN.dat.gz
+rm -f $fname

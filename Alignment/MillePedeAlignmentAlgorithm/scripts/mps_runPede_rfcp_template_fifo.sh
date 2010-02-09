@@ -16,9 +16,10 @@ MSSDIRPOOL=
 BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
-# AP 19.01.2010 - Create the fifo(s)
-rm -f /tmp/milleBinaryISN.dat.gz
-mkfifo /tmp/milleBinaryISN.dat.gz
+# AP 09.02.2010 - Create the fifo(s)
+UUID=`uuidgen -r`
+# rm -f /tmp/milleBinaryISN-$UUID.dat.gz
+mkfifo /tmp/milleBinaryISN-$UUID.dat.gz
 
 # stage and copy the binary file(s), first set castor pool for binary files in $MSSDIR area
 if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
@@ -26,22 +27,23 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   export STAGE_SVCCLASS=$MSSDIRPOOL
   stager_get -M $MSSDIR/milleBinaryISN.dat.gz
 # AP 26.01.2010 - rfcp and gunzip at the same time, using the fifo(s)
-  rfcp $MSSDIR/milleBinaryISN.dat.gz /tmp/milleBinaryISN.dat.gz &; cat /tmp/milleBinaryISN.dat.gz | gzip -d -c > milleBinaryISN.dat
+  echo "rfcp $MSSCAFDIR/milleBinaryISN.dat.gz /tmp/milleBinaryISN-$UUID.dat.gz"
+  rfcp $MSSDIR/milleBinaryISN.dat.gz /tmp/milleBinaryISN-$UUID.dat.gz &; cat /tmp/milleBinaryISN-$UUID.dat.gz | gzip -d -c > milleBinaryISN.dat
   stager_get -M $MSSDIR/treeFileISN.root
   rfcp $MSSDIR/treeFileISN.root $BATCH_DIR
 else
 # Using cmscafuser pool => cmsStageIn command must be used
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
-  echo "cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz /tmp/milleBinaryISN.dat.gz"
+  echo "cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz /tmp/milleBinaryISN-$UUID.dat.gz"
 # AP 26.01.2010 - rfcp and gunzip at the same time, using the fifo(s)
-  cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz /tmp/milleBinaryISN.dat.gz &; cat /tmp/milleBinaryISN.dat.gz | gzip -d -c > milleBinaryISN.dat
+  cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz /tmp/milleBinaryISN-$UUID.dat.gz &; cat /tmp/milleBinaryISN-$UUID.dat.gz | gzip -d -c > milleBinaryISN.dat
   echo "cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root"
   cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
 fi
 
 # AP 21.01.2010 - remove the fifo(s)
-rm -f /tmp/milleBinaryISN.dat.gz
+rm -f /tmp/milleBinaryISN-$UUID.dat.gz
 
 # set up the CMS environment
 cd $HOME/cms/CMSSW/CMSSW_3_4_0
