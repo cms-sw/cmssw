@@ -13,7 +13,6 @@
 #include "DetectorDescription/Core/interface/DDMap.h"
 // commented out to fix build, Stefano Argiro 16-Nov-05
 //#include "DetectorDescription/Core/interface/DDLParserI.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"

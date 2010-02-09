@@ -124,7 +124,7 @@ void DDCompactView::algoPosPart(const DDLogicalPart & self,
     throw DDException(e);
   }
   
-  LogDebug ("AlgoPos")  << "DDAlgoPositioner, algo=" << std::endl << algo << std::endl;
+  LogDebug ("AlgoPos")  << "DDCompactView, algo=" << std::endl << algo << std::endl;
   int inner=0;
   do { 
     ++inner;

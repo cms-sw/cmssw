@@ -10,7 +10,6 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 
 #include <Math/RotationZ.h>
 

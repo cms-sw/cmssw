@@ -9,7 +9,6 @@
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 #include "CLHEP/Geometry/Transform3D.h" 

@@ -2,7 +2,6 @@
 #define DDL_AlgoPosPart_H
 /***************************************************************************
  ***************************************************************************/
-#include <DetectorDescription/Core/interface/DDalgoPosPart.h>
 #include "DDXMLElement.h"
 
 #include <string>

@@ -11,7 +11,6 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 

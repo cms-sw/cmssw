@@ -18,7 +18,6 @@
 #include "DDLElementRegistry.h"
 
 // DDCore dependencies
-#include "DetectorDescription/Core/interface/DDalgoPosPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDAlgo.h"
