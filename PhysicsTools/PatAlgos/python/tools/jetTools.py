@@ -10,6 +10,10 @@ path = "PhysicsTools.PatAlgos.tools.jetTools"
 def patchJetCorrFactors_(jetCorrFactors, newAlgo):
     """
     ------------------------------------------------------------------
+    >>>>>>> not needed anymore with CondFormats/JetMETObjetcs <<<<<<<
+    >>>>>>> V01-08-10 (not that the existing files are still  <<<<<<<
+    >>>>>>> placeholders)                                     <<<<<<<
+    
     Patch to be called from:
        * switchJECSet_
        * switchJECParameters
@@ -71,8 +75,8 @@ def switchJECParameters(jetCorrFactors,
     corrLevels.L7Parton   = setCorrLevel(corrLevels.L7Parton  )
     ##
     ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
-    ##
-    patchJetCorrFactors_(jetCorrFactors, newAlgo)
+    ## not needed anymore see comments in function
+    ##patchJetCorrFactors_(jetCorrFactors, newAlgo)
     
 
 class SwitchJECSet(ConfigToolBase):
