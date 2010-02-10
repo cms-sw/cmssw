@@ -69,8 +69,8 @@ process.load("DQM.RPCMonitorClient.RPCDataCertification_cfi")
 
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
-process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest ")
-#process.rpcdqmclient.DiagnosticGlobalPrescale = cms.untracked.int32(5)
+process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest")
+process.rpcdqmclient.DiagnosticGlobalPrescale = cms.untracked.int32(1)
 process.rpcdqmclient.NumberOfEndcapDisks  = cms.untracked.int32(3)
 
 ################### FED ##################################
@@ -92,10 +92,42 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('RPCDQM.root')
 )
 
-                               
+
+############# Message Logger ####################
+process.MessageLogger = cms.Service("MessageLogger",
+     debugModules = cms.untracked.vstring('*'),
+     cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG')
+    ),
+     destinations = cms.untracked.vstring('cout')
+ )
+
+
+
+
+################ Memory check ##################
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+ #       ignoreTotal = cms.untracked.int32(1) ## default is one
+#) 
+
+#################Timing ###############
+#process.Timing = cms.Service("Timing")
+#process.options = cms.untracked.PSet(
+ #        wantSummary = cms.untracked.bool(True)
+#)
+
+
+#process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
+#process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
+
+
 ############# Path ########################
 
-process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
+
+process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.dqmSaver)
+
+###process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
+
 
 
 
