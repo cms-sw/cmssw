@@ -3,7 +3,12 @@
 #include "TBranch.h"
 #include "LumiRawDataStructures.h"
 #include <iostream>
-int main(){
+int main(int argc, char** argv){
+  const char* filename="test.root";
+  //default file to read. file name is taken from command argument
+  if(argc>1){
+    filename=argv[1];
+  }
   TFile *myfile=new TFile("test.root","READ");
 
   HCAL_HLX::RUN_SUMMARY *myRunSummary = new HCAL_HLX::RUN_SUMMARY;
