@@ -150,8 +150,9 @@ void genLumiRaw::beginJob(){
 
 void genLumiRaw::beginRun(const edm::Run& run, const edm::EventSetup& c){
   //generate file name
+  std::cout<<"in generate filename "<<run.run()<<std::endl;
   char runnumber[9];
-  ::snprintf(runnumber,9,"%09d",run.run());
+  ::sprintf(runnumber,"%09d",run.run());
   std::string filename=s_fileprefix+runnumber+"_0000"+"_0"+".root";
   //std::cout<<"filename "<<filename<<std::endl;
   //
