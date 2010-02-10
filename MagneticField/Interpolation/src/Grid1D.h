@@ -12,11 +12,11 @@ public:
 
   Grid1D( Scalar lower, Scalar upper, int nodes) : 
     lower_(lower), upper_(upper), nodes_(nodes) {
-    step_ = (upper - lower) / (nodes-1);
+    stepinv_ =  (nodes-1)/(upper - lower);
   }
 
 
-  Scalar step() const {return step_;}
+  Scalar step() const {return 1./step_;}
   Scalar lower() const {return lower_;}
   Scalar upper() const {return upper_;}
   int nodes() const {return nodes_;}
@@ -31,7 +31,7 @@ public:
   // return index and fractional part...
   int index(Scalar a, Scalar & f) const {
     Scalar b;
-    f = modf((a-lower())/step(), &b);
+    f = modf((a-lower())*stepinv_, &b);
     return b;
   }
 
@@ -58,7 +58,7 @@ public:
  
 private:
 
-  Scalar step_;
+  Scalar stepinv_;
   Scalar lower_;
   Scalar upper_;
   int    nodes_;
