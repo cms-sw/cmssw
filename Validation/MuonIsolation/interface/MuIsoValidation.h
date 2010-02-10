@@ -98,7 +98,7 @@ private:
   std::string subDirName;
 
   //Histogram parameters
-  static const int NUM_VARS = 13;
+  static const int NUM_VARS = 15;
   double L_BIN_WIDTH;//large bins
   double S_BIN_WIDTH;//small bins
   int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
@@ -129,7 +129,7 @@ private:
   MonitorElement* h_nMuons;
   std::vector<MonitorElement*> h_1D;//[NUM_VARS]
   std::vector<MonitorElement*> cd_plots;//[NUM_VARS]
-  std::vector< std::vector<MonitorElement*> > h_2D;//[NUM_VARS][NUM_VARS]
+  //  std::vector< std::vector<MonitorElement*> > h_2D;//[NUM_VARS][NUM_VARS]
   std::vector< std::vector<MonitorElement*> > p_2D;//[NUM_VARS][NUM_VARS]
   
   //Counters

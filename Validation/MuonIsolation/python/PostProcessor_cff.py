@@ -16,6 +16,8 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                           "hadVetoEt",
                                           "hoVetoEt",
                                           "muonPt",
+                                          "muonEta",
+                                          "muonPhi",
                                           "avgPt",
                                           "weightedEt",
                                           "sumPt_cd",
@@ -29,6 +31,8 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                           "hadVetoEt_cd",
                                           "hoVetoEt_cd",                                          
                                           "muonPt_cd",
+                                          "muonEta_cd",
+                                          "muonPhi_cd",
                                           "avgPt_cd",
                                           "weightedEt_cd"
                                           ),

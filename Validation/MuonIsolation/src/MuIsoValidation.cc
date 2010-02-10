@@ -98,7 +98,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   
   h_1D.resize    (NUM_VARS);
   cd_plots.resize(NUM_VARS);
-  h_2D.resize(NUM_VARS, vector<MonitorElement*>     (NUM_VARS));
+  //  h_2D.resize(NUM_VARS, vector<MonitorElement*>     (NUM_VARS));
   p_2D.resize(NUM_VARS, vector<MonitorElement*>(NUM_VARS));
   
   dbe->cd();
@@ -152,9 +152,11 @@ void MuIsoValidation::InitStatics(){
   main_titles[7 ] = "EM E_{T} within veto cone";
   main_titles[8 ] = "Had E_{T} within veto cone";
   main_titles[9 ] = "HO E_{T} within veto cone";
-  main_titles[10] = "Muon Momentum";
-  main_titles[11] = "Average Momentum per Track ";
-  main_titles[12] = "Weighted Energy";
+  main_titles[10] = "Muon p_{T}";
+  main_titles[11] = "Muon #eta";
+  main_titles[12] = "Muon #phi";
+  main_titles[13] = "Average Momentum per Track ";
+  main_titles[14] = "Weighted Energy";
 
   //------Titles on the X or Y axis------------
   axis_titles[0 ] = "#Sigma p_{T}   (GeV)";
@@ -167,9 +169,11 @@ void MuIsoValidation::InitStatics(){
   axis_titles[7 ] = "#Sigma E_{T,veto}^{EM}   (GeV)";
   axis_titles[8 ] = "#Sigma E_{T,veto}^{Had}   (GeV)";
   axis_titles[9 ] = "#Sigma E_{T,veto}^{HO}   (GeV)";
-  axis_titles[10] = "p_{T}^{#mu}";
-  axis_titles[11] = "#Sigma p_{T} / N_{Tracks} (GeV)";
-  axis_titles[12] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
+  axis_titles[10] = "p_{T,#mu} (GeV)";
+  axis_titles[11] = "#eta_{#mu}";
+  axis_titles[12] = "#phi_{#mu}";
+  axis_titles[13] = "#Sigma p_{T} / N_{Tracks} (GeV)";
+  axis_titles[14] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
 
   //-----------Names given for the root file----------
   names[0 ] = "sumPt";
@@ -183,8 +187,10 @@ void MuIsoValidation::InitStatics(){
   names[8 ] = "hadVetoEt";
   names[9 ] = "hoVetoEt";
   names[10] = "muonPt";
-  names[11] = "avgPt";
-  names[12] = "weightedEt";
+  names[11] = "muonEta";
+  names[12] = "muonPhi";
+  names[13] = "avgPt";
+  names[14] = "weightedEt";
 
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
@@ -205,8 +211,10 @@ void MuIsoValidation::InitStatics(){
   param[8 ][0]= (int)( 20.0/S_BIN_WIDTH); param[8 ][1]=  0.0; param[8 ][2]= param[8 ][0]*S_BIN_WIDTH;
   param[9 ][0]=                       20; param[9 ][1]=  0.0; param[9 ][2]=                      5.0;
   param[10][0]= (int)( 40.0/S_BIN_WIDTH); param[10][1]=  0.0; param[10][2]= param[10][0]*S_BIN_WIDTH;
-  param[11][0]= (int)( 15.0/S_BIN_WIDTH); param[11][1]=  0.0; param[11][2]= param[11][0]*S_BIN_WIDTH;
-  param[12][0]= (int)( 20.0/S_BIN_WIDTH); param[12][1]=  0.0; param[12][2]= param[12][0]*S_BIN_WIDTH;
+  param[11][0]=                       24; param[11][1]= -2.4; param[11][2]=                      2.4;
+  param[12][0]=                       32; param[12][1]= -3.2; param[12][2]=                      3.2;
+  param[13][0]= (int)( 15.0/S_BIN_WIDTH); param[13][1]=  0.0; param[13][2]= param[13][0]*S_BIN_WIDTH;
+  param[14][0]= (int)( 20.0/S_BIN_WIDTH); param[14][1]=  0.0; param[14][2]= param[14][0]*S_BIN_WIDTH;
 
   //--------------Is the variable continuous (i.e. non-integer)?-------------
   //---------(Log binning will only be used for continuous variables)--------
@@ -223,6 +231,8 @@ void MuIsoValidation::InitStatics(){
   isContinuous[10] = 1;
   isContinuous[11] = 1;
   isContinuous[12] = 1;
+  isContinuous[13] = 1;
+  isContinuous[14] = 1;
 
 }
 
@@ -275,11 +285,14 @@ void MuIsoValidation::RecordData(MuonIterator muon){
   theData[9] = muon->isolationR03().hoVetoEt;
   
   theData[10] = muon->pt();
-  // make sure nTracks != 0 before filling this one
-  if (theData[4] != 0) theData[11] = (double)theData[0] / (double)theData[4];
-  else theData[11] = -99;
+  theData[11] = muon->eta();
+  theData[12] = muon->phi();
 
-  theData[12] = 1.5 * theData[1] + theData[2];
+  // make sure nTracks != 0 before filling this one
+  if (theData[4] != 0) theData[13] = (double)theData[0] / (double)theData[4];
+  else theData[13] = -99;
+
+  theData[14] = 1.5 * theData[1] + theData[2];
 
 }
 
@@ -364,18 +377,18 @@ void MuIsoValidation::InitHistos(){
     for(int var2 = 0; var2 < NUM_VARS; var2++){
       if(var1 == var2) continue;
       
-      h_2D[var1][var2] = dbe->book2D(
-				     names[var1] + "_" + names[var2] + "_s",
-				     //title is in "y-var vs. x-var" format
-				     title_sam + main_titles[var2] + " <vs> " + main_titles[var1] + title_cone, 
-				     (int)param[var1][0],
-				     param[var1][1],
-				     param[var1][2],
-				     (int)param[var2][0],
-				     param[var2][1],
-				     param[var2][2]
-				     );
-      
+      /*      h_2D[var1][var2] = dbe->book2D(
+	      names[var1] + "_" + names[var2] + "_s",
+	      //title is in "y-var vs. x-var" format
+	      title_sam + main_titles[var2] + " <vs> " + main_titles[var1] + title_cone, 
+	      (int)param[var1][0],
+	      param[var1][1],
+	      param[var1][2],
+	      (int)param[var2][0],
+	      param[var2][1],
+	      param[var2][2]
+	      );
+      */
       //Monitor elements is weird and takes y axis parameters as well
       //as x axis parameters for a 1D profile plot
       p_2D[var1][var2] = dbe->bookProfile(
@@ -398,9 +411,10 @@ void MuIsoValidation::InitHistos(){
 	  SetBins(NUM_LOG_BINS, bin_edges);
 	delete[] bin_edges;
       }
-      h_2D[var1][var2]->setAxisTitle(axis_titles[var1],XAXIS);
-      h_2D[var1][var2]->setAxisTitle(axis_titles[var2],YAXIS);
-      GetTH2FromMonitorElement(h_2D[var1][var2])->Sumw2();
+      /*      h_2D[var1][var2]->setAxisTitle(axis_titles[var1],XAXIS);
+	      h_2D[var1][var2]->setAxisTitle(axis_titles[var2],YAXIS);
+	      GetTH2FromMonitorElement(h_2D[var1][var2])->Sumw2();
+      */
       
       p_2D[var1][var2]->setAxisTitle(axis_titles[var1],XAXIS);
       p_2D[var1][var2]->setAxisTitle(axis_titles[var2],YAXIS);
@@ -483,7 +497,7 @@ void MuIsoValidation::FillHistos() {
     for(int var2=0; var2<NUM_VARS; ++var2){
       if(var1 == var2) continue;
       //change below to regular int interating!
-      h_2D[var1][var2]->Fill(theData[var1], theData[var2]);
+      //      h_2D[var1][var2]->Fill(theData[var1], theData[var2]);
       p_2D[var1][var2]->Fill(theData[var1], theData[var2]);
     }
   }//Finish 2D
