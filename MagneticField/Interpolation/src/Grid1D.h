@@ -23,6 +23,16 @@ public:
 
   Scalar node( int i) const { return i*step() + lower();}
 
+  bool inRange(int i) const {
+    return i>=0 && i<cells();
+  }
+
+  // return index and fractional part...
+  int index(Scalar a, Scalar & f) const {
+    int ind = modf((a-lower())/step(), &f);
+  }
+
+
   Scalar closestNode( Scalar a) const {
     Scalar b = (a-lower())/step();
     Scalar c = floor(b);
@@ -42,6 +52,7 @@ public:
     return std::max(0, std::min( cells()-1, ind));
   }
 
+ 
 private:
 
   Scalar step_;

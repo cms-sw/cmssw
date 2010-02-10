@@ -5,8 +5,8 @@
  *
  *  Implementation of a 3D regular grid.
  *
- *  $Date: 2009/08/17 09:14:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/08/17 09:20:08 $
+ *  $Revision: 1.5 $
  *  \author T. Todorov
  */
 
@@ -28,11 +28,19 @@ public:
      data_.swap(data);
      stride1_ = gridb_.nodes() * gridc_.nodes();
      stride2_ = gridc_.nodes();
+
+     fillSub();
   }
 
+#ifdef SUBGRID
+  const ValueType& operator()( int i, int j, int k) const {
+    return m_newdata[newIndex(i,j,k)];
+  }
+#else
   const ValueType& operator()( int i, int j, int k) const {
     return data_[index(i,j,k)];
   }
+#endif
 
   const Grid1D& grida() const {return grida_;}
   const Grid1D& gridb() const {return gridb_;}
@@ -54,6 +62,25 @@ private:
   int stride2_;
 
   int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
+
+#ifdef SUBGRID
+  const int subSize = 4;
+  std::vector<ValueType> m_newdata;
+  int m_subStride1;
+  int m_subStride2;
+  void fillSub();
+
+  int newIndex(int i, int j, int k) const {
+    // find submatrix
+    int si = i/subSize;
+    int sj = j/subSize;
+    int sk = k/subSize;
+    // location in submatrix
+    int l =  (k -sk*subSize)  + subSize*( (j -sj*subSize) + subSize*(i -si*subSize) );
+    return l + si*m_subStride1+sj*sunStride2+sk;
+  }
+
+#endif
 
 };
 
