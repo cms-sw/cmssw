@@ -9,7 +9,7 @@ int main(int argc, char** argv){
   if(argc>1){
     filename=argv[1];
   }
-  TFile *myfile=new TFile("test.root","READ");
+  TFile *myfile=new TFile(filename,"READ");
 
   HCAL_HLX::RUN_SUMMARY *myRunSummary = new HCAL_HLX::RUN_SUMMARY;
   TTree *runsummaryTree = (TTree *) myfile->Get("RunSummary");
