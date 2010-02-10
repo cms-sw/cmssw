@@ -32,10 +32,10 @@ int main() {
   bool ok=true;
   Grid1D grid(-10.,10.,11);
 
-  print(7.2);
-  print(10.);
-  print(-10.2);
-  print(10.2);
+  print(grid, 7.2);
+  print(grid, 10.);
+  print(grid, -10.2);
+  print(grid, 10.2);
 
   ok &= testGrid1D(grid);
 
