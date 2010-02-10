@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/09 08:37:00 $
- * $Revision: 1.19 $
+ * $Date: 2010/02/10 07:17:18 $
+ * $Revision: 1.20 $
  *
  */
 
@@ -213,12 +213,12 @@ void BeamMonitor::beginJob() {
 
   // Results of previous good fit:
   pvResults=dbe_->book2D("pvResults","Results of avg. PV positions",3,0,3,2,0,2);
-  pvResults->setAxisTitle("Fitted Beam Spot",1);
+  pvResults->setAxisTitle("Fitted Primary Vertex",1);
   pvResults->setBinLabel(1,"PVx",1);
   pvResults->setBinLabel(2,"PVy",1);
   pvResults->setBinLabel(3,"PVz",1);
-  pvResults->setBinLabel(1,"Avg.",2);
-  pvResults->setBinLabel(2,"#sigma",2);
+  pvResults->setBinLabel(1,"Mean",2);
+  pvResults->setBinLabel(2,"Width",2);
   pvResults->getTH1()->SetOption("text");
 
   // Summary plots:
