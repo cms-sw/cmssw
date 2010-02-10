@@ -41,7 +41,8 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+    virtual void beginJob() ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     // Member data
@@ -171,11 +172,15 @@ void TrackHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSetu
 
 
 void
-TrackHistoryAnalyzer::beginJob(const edm::EventSetup& setup)
+TrackHistoryAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 {
     // Get the particles table.
     setup.getData( pdt_ );
+}
 
+void
+TrackHistoryAnalyzer::beginJob()
+{
     totalTracks_ = 0;
 }
 

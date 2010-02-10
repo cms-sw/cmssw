@@ -39,7 +39,8 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(const edm::Run&,const edm::EventSetup&);
+    virtual void beginJob() ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     // Member data
@@ -164,10 +165,16 @@ void VertexHistoryAnalyzer::analyze(const edm::Event& event, const edm::EventSet
 
 
 void
-VertexHistoryAnalyzer::beginJob(const edm::EventSetup& setup)
+VertexHistoryAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 {
     // Get the particles table.
     setup.getData( pdt_ );
+}
+
+void
+VertexHistoryAnalyzer::beginJob()
+{
+
 }
 
 
