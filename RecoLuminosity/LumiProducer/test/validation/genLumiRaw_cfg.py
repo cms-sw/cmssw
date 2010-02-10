@@ -12,17 +12,17 @@ process.options = cms.untracked.PSet(
 #keep maxEvents equal to numberEventsInRun so that we augment LS
 #
 process.maxEvents=cms.untracked.PSet(
-    input=cms.untracked.int32(10)
+    input=cms.untracked.int32(100)
 )
 process.maxLuminosityBlocks=cms.untracked.PSet(
     input=cms.untracked.int32(10)
 )
 
 process.source = cms.Source("EmptySource",                            
-     numberEventsInRun = cms.untracked.uint32(10),
+     numberEventsInRun = cms.untracked.uint32(100),
      firstRun = cms.untracked.uint32(122314),
-     numberEventsInLuminosityBlock = cms.untracked.uint32(1),
-     firstLuminosityBlock = cms.untracked.uint32(10)
+     numberEventsInLuminosityBlock = cms.untracked.uint32(10),
+     firstLuminosityBlock = cms.untracked.uint32(1)
 )
 
 process.genlumiraw = cms.EDAnalyzer("genLumiRaw")
