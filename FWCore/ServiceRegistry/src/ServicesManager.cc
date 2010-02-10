@@ -289,7 +289,6 @@ ServicesManager::createServices()
 
        try {
          descriptions.validate(*(itMaker->second.pset_), serviceType);
-         itMaker->second.pset_->registerIt();
        }
        catch (cms::Exception& iException) {
          edm::Exception toThrow(errors::Configuration, "Failed validating service configuration.");
