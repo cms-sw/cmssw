@@ -1,5 +1,5 @@
 // Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.19 2009/12/10 10:18:55 alinn Exp $
-// Latest tag:  $Name:  $
+// Latest tag:  $Name: V05-00-00 $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -290,11 +290,10 @@ bool SiStripCondObjBuilderFromDb::setValuesApvTiming(SiStripConfigDb* const db, 
 
 // -----------------------------------------------------------------------------
 /** */
-bool SiStripCondObjBuilderFromDb::setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr){
+bool SiStripCondObjBuilderFromDb::setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs  ){
 SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
  uint16_t nApvPairs;
  nApvPairs=fr->getNumberOfApvsAndStripLength(detid).first/2;
- SiStripConfigDb::DeviceDescriptionsRange apvs = db->getDeviceDescriptions( APV25 );
  
  SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv = apvs.begin();
  SiStripConfigDb::DeviceDescriptionsV::const_iterator japv = apvs.end();
@@ -302,26 +301,34 @@ SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator-
  for ( ; iapv != japv; ++iapv ) {
    apvDescription* apv = dynamic_cast<apvDescription*>( *iapv );
    if ( !apv ) { continue; }
+   if((apv->getCrateId()) != (ipair.fecCrate())) continue;
    if((apv->getFecSlot()) != (ipair.fecSlot())) continue;
    if((apv->getRingSlot()) != (ipair.fecRing())) continue;
    if((apv->getCcuAddress()) != (ipair.ccuAddr())) continue;
    if((apv->getChannel()) != (ipair.ccuChan())) continue;
-   // Insert latency values into latency object
+     // Insert latency values into latency object
    if((apv->getAddress()) == (ipair.i2cAddr(0))) {
      if(!latency_.put( ipair.detId(), apvnr, static_cast<uint16_t>(apv->getLatency()), static_cast<uint16_t>(apv->getApvMode()))){
-       std::cout << "UNABLE APVLatency Put: Detid "<< ipair.detId() << " APVNr.: " << apvnr << " Latency Value: " << apv->getLatency() << " APV Mode: " << apv->getApvMode()<< std::endl;
+       std::cout << "UNABLE APVLatency Put: Detid "<< dec<<ipair.detId() 
+                 << " APVNr.: " << apvnr 
+                 << " Latency Value: " << dec <<static_cast<uint16_t>(apv->getLatency()) 
+                 << " APV Mode: " << dec<< static_cast<uint16_t>(apv->getApvMode())
+                 << std::endl;
        return false;
-     }
-     apvnr++;
+     }else{++apvnr;}
    }
    if((apv->getAddress()) == (ipair.i2cAddr(1))) {
      if(!latency_.put( ipair.detId(), apvnr, static_cast<uint16_t>(apv->getLatency()), static_cast<uint16_t>(apv->getApvMode()))){
-       std::cout << "UNABLE APVLatency Put: Detid "<< ipair.detId() << " APVNr.: " << apvnr << " Latency Value: " << dec <<apv->getLatency() << " APV Mode: " << dec <<apv->getApvMode()<< std::endl;
+       std::cout << "UNABLE APVLatency Put: Detid "<<dec<< ipair.detId()
+                 << " APVNr.: " << apvnr
+                 << " Latency Value: " << dec <<static_cast<uint16_t>(apv->getLatency())
+                 << " APV Mode: " << dec <<static_cast<uint16_t>(apv->getApvMode())
+                 << std::endl;
+       continue;
        return false;
-     }
-     apvnr++;
+     }else{++apvnr;}
    }
- }
+  }
  return true;
 }
 
@@ -368,7 +375,7 @@ bool SiStripCondObjBuilderFromDb::setValuesCabling(SiStripConfigDb* const db, Fe
 /** */
 //store objects
 void SiStripCondObjBuilderFromDb::storePedestals(uint32_t det_id){
-   if ( !pedestals_->put(det_id, inputPedestals ) ) {
+  if ( !pedestals_->put(det_id, inputPedestals ) ) {
     std::cout
       << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
       << " Unable to insert values into SiStripPedestals object!"
@@ -485,14 +492,15 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     for ( ; ipair != conns.end(); ipair++ ){ 
       // Check if the ApvPair is connected
       if (ipair->fedId()!=sistrip::invalid_ && ipair->apvPairNumber()<3){
-	ipair->print(ssMessage);
-	ssMessage<< std::endl;
+	//ipair->print(ssMessage);
+	//edm::LogInfo(mlESSources_) << ssMessage.str();
+  
+	
 	listConns[ipair-conns.begin()]=ipair;
       } else {
 	std::cout
 	  << "\n impossible to assign connection position in listConns " << std::endl;
-	ipair->print(ssMessage);
-	ssMessage << std::endl;
+	//ipair->print(ssMessage);
       } 
     }
     
@@ -516,7 +524,6 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     p_detcon=std::make_pair(*det_id,v_apvpcon);
     v_trackercon.push_back(p_detcon);
     v_apvpcon.clear();
-    edm::LogInfo(mlESSources_) << ssMessage.str();
   } // det id loop
 }
 
@@ -550,8 +557,7 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* 
     for(i_apvpairconn connections=((*detids).second).begin();connections!=connections_end;connections++){
       uint32_t apvPair =(*connections).first;
       FedChannelConnection ipair =(*connections).second;
-      std::cout << "Detid: " << std::dec << detid << " ApvPair: " << apvPair << std::endl;
-      
+          
       //no connection for apvPair found
       if(apvPair>=100){
 	setDefaultValuesApvTiming();  
@@ -580,12 +586,17 @@ void SiStripCondObjBuilderFromDb::buildFECRelatedObjects( SiStripConfigDb* const
 
   i_trackercon detids_end=tc.end();
  
+  // get APV DeviceDescriptions
+  SiStripConfigDb::DeviceDescriptionsRange apvs= db->getDeviceDescriptions( APV25 );;
+
+
   //loop detids
   for(i_trackercon detids=tc.begin();detids!=detids_end;detids++){
     uint32_t detid = (*detids).first;
     uint16_t apvnr=1;
     i_apvpairconn connections_end=((*detids).second).end();
     
+
     //loop connections
     for(i_apvpairconn connections=((*detids).second).begin();connections!=connections_end;connections++){
       uint32_t apvPair =(*connections).first;
@@ -597,7 +608,7 @@ void SiStripCondObjBuilderFromDb::buildFECRelatedObjects( SiStripConfigDb* const
       }
       
       //fill data
-       if(!setValuesApvLatency((*latency_),db, ipair,detid, apvnr)){
+           if(!setValuesApvLatency((*latency_),db, ipair,detid, apvnr, apvs)){
  	std::cout
  	  << "\n "
  	  << " Unable to find FEC Description"
@@ -608,11 +619,14 @@ void SiStripCondObjBuilderFromDb::buildFECRelatedObjects( SiStripConfigDb* const
        apvnr+=2;
     }//connections
      // compact Latency Object
-    latency_->compress();
-    std::stringstream ss;
-    // latency debug output
-    latency_->printSummary(ss);
+  
   }//detids
+  latency_->compress();
+  std::stringstream ss;
+  // latency debug output
+  latency_->printSummary(ss);
+  latency_->printDebug(ss);
+  std::cout << ss.str() << std::endl;
 }
 
 // -----------------------------------------------------------------------------
