@@ -1,6 +1,7 @@
 #ifndef Grid1D_H
 #define Grid1D_H
-#include <algorithm>
+#include <cmath>
+
 
 class Grid1D {
 public:

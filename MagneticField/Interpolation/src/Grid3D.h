@@ -5,9 +5,7 @@
  *
  *  Implementation of a 3D regular grid.
  *
- *  $Date: 2009/08/17 09:20:08 $
- *  $Revision: 1.5 $
- *  \author T. Todorov
+*  \author T. Todorov
  */
 
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
@@ -62,6 +60,8 @@ private:
   int stride2_;
 
   int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
+
+  void fillSub();
 
 #ifdef SUBGRID
   const int subSize = 4;
