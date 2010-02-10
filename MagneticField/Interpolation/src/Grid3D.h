@@ -16,7 +16,8 @@ class Grid3D {
 public:
 
   typedef Basic3DVector<float>   ValueType;
-  typedef double   Scalar;
+  typedef float   Scalar;
+  // typedef double   Scalar;
 
   Grid3D() {}
 

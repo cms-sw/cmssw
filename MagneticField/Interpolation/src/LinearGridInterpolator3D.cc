@@ -13,6 +13,7 @@ LinearGridInterpolator3D::throwGridInterpolator3DException(void)
 LinearGridInterpolator3D::ValueType 
 LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c) 
 {
+  /*
   int i = grida.index(a);
   int j = gridb.index(b);
   int k = gridc.index(c);
@@ -22,9 +23,23 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
     throwGridInterpolator3DException();
   }
 
+
   Scalar s = (a - grida.node(i)) / grida.step();
   Scalar t = (b - gridb.node(j)) / gridb.step();
   Scalar u = (c - gridc.node(k)) / gridc.step();
+
+  */
+
+  Scalar s, t, u;
+  int i = grida.index(a,s);
+  int j = gridb.index(b,t);
+  int k = gridc.index(c,u);
+  
+  // test range??
+
+  grida.normalize(i,s);
+  gridb.normalize(j,t);
+  gridc.normalize(k,u);
 
 #ifdef DEBUG_LinearGridInterpolator3D
   if (InterpolationDebug::debug) {
@@ -55,13 +70,14 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
 
   //chances are this is more numerically precise this way
   ValueType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
-  result +=      (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
-  result +=      s    *(1-t)*u*(grid(i+1,j,  k+1) - grid(i+1,j,  k));
-  result +=      s    *   t *u*(grid(i+1,j+1,k+1) - grid(i+1,j+1,k)); 
-  result += (1-s)*t*(grid(i,  j+1,k)-grid(i,  j,  k));
-  result += s    *t*(grid(i+1,j+1,k)-grid(i+1,j,  k));
-  result += s*(grid(i+1,j,  k)-grid(i,  j,  k));
-  result += grid(i,  j,  k);
+  result +=          (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
+  result +=          s    *(1-t)*u*(grid(i+1,j,  k+1) - grid(i+1,j,  k));
+  result +=          s    *   t *u*(grid(i+1,j+1,k+1) - grid(i+1,j+1,k)); 
+  result +=                (1-s)*t*(grid(i,  j+1,k  ) - grid(i,  j,  k));
+  result +=                s    *t*(grid(i+1,j+1,k  ) - grid(i+1,j,  k));
+  result +=                      s*(grid(i+1,j,  k  ) - grid(i,  j,  k));
+  result +=                                             grid(i,  j,  k);
+
   //      (1-s)*(1-t)*(1-u)*grid(i,  j,  k) + (1-s)*(1-t)*u*grid(i,  j,  k+1) + 
   //      (1-s)*   t *(1-u)*grid(i,  j+1,k) + (1-s)*   t *u*grid(i,  j+1,k+1) +
   //      s    *(1-t)*(1-u)*grid(i+1,j,  k) + s    *(1-t)*u*grid(i+1,j,  k+1) + 

@@ -52,7 +52,7 @@ public:
   Scalar closestNode( Scalar a) const {
     Scalar b = (a-lower())/step();
     Scalar c = floor(b);
-    Scalar tmp = (b-c < 0.5) ? std::max(c,0.) : std::min(c+1.,static_cast<Scalar>(nodes()-1));
+    Scalar tmp = (b-c < 0.5) ? std::max(c,0.f) : std::min(c+1.f,static_cast<Scalar>(nodes()-1));
     return tmp*step()+lower();
   }
 

@@ -41,7 +41,7 @@ int main() {
 
   ok &= testGrid1D(grid);
 
-  assert(ok);
+  assert(ok? 0 : 1);
   return ok ? 0 : 1;
 
 }
