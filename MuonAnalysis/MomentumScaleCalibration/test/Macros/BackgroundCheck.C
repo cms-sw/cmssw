@@ -24,6 +24,30 @@
 
 using namespace std;
 
+// Linear function as in Functions.h.
+// Note that if the type1 background function in Functions.h changes this should be updated too.
+class Linear
+{
+ public:
+  Linear(const double & lowerLimit, const double & upperLimit) : lowerLimit_(lowerLimit), upperLimit_(upperLimit) {}
+
+  double operator()( const double * x, const double * parval ) const
+  {
+    double a = parval[1];
+    double b = parval[2];
+
+    double norm = -(a*lowerLimit_ + b*lowerLimit_*lowerLimit_/2.);
+
+    if( -a/b > upperLimit_ ) norm += a*upperLimit_ + b*upperLimit_*upperLimit_/2.;
+    else norm += -a*a/(2*b);
+
+    if( x[0] < -a/b && norm != 0 ) return (a + b*x[0])/norm;
+    else return 0;
+  }
+protected:
+  double lowerLimit_, upperLimit_;
+};
+
 TH1F * subRangeHisto( const double * resMass, const double * resHalfWidth,
                       const int iRes, TH1F * histo, const TString & name )
 {
@@ -206,7 +230,9 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
   else {
     // Linear
     // ------
-    backgroundFunction = new TF1("backgroundFunction", "[0]*([1]+[2]*x)", xMin, xMax );
+    Linear * linearFunction = new Linear(lowWindowValue, upWindowValue);
+    // backgroundFunction = new TF1("backgroundFunction", "[0]*([1]+[2]*x)");
+    backgroundFunction = new TF1("backgroundFunction", linearFunction, 0, 1, 3, "linearFunction");
     backgroundFunction->SetParameter(0, 1);
     backgroundFunction->SetParameter(1, a);
     backgroundFunction->SetParameter(2, b);
