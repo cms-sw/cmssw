@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/01/17 13:57:33 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/02/09 08:31:43 $
+ *  $Revision: 1.12 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -106,9 +106,9 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_z0;
   MonitorElement * h_sigmaZ0;
   MonitorElement * h_nVtx;
-  MonitorElement * h_PVx;
-  MonitorElement * h_PVy;
-  MonitorElement * h_PVz;
+  MonitorElement * h_PVx[2];
+  MonitorElement * h_PVy[2];
+  MonitorElement * h_PVz[2];
   MonitorElement * h_PVx_lumi;
   MonitorElement * h_PVy_lumi;
   MonitorElement * h_PVz_lumi;

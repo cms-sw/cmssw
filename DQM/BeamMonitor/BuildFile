@@ -1,5 +1,6 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
 <use name=CondFormats/BeamSpotObjects>
 <use name=RecoVertex/BeamSpotProducer>

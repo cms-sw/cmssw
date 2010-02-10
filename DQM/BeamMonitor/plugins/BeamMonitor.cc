@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/04 00:47:39 $
- * $Revision: 1.18 $
+ * $Date: 2010/02/09 08:37:00 $
+ * $Revision: 1.19 $
  *
  */
 
@@ -16,6 +16,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/View.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <numeric>
@@ -171,17 +172,29 @@ void BeamMonitor::beginJob() {
   h_nVtx->setAxisTitle("Num. of reco. vertices",1);
 
   // Monitor only the PV with highest sum pt of assoc. trks:
-  h_PVx = dbe_->book1D("PVX","x coordinate of Primary Vtx",100,-0.01,0.01);
-  h_PVx->setAxisTitle("PVx (cm)",1);
-  h_PVx->getTH1()->SetBit(TH1::kCanRebin);
+  h_PVx[0] = dbe_->book1D("PVX","x coordinate of Primary Vtx",100,-0.01,0.01);
+  h_PVx[0]->setAxisTitle("PVx (cm)",1);
+  h_PVx[0]->getTH1()->SetBit(TH1::kCanRebin);
 
-  h_PVy = dbe_->book1D("PVY","y coordinate of Primary Vtx",100,-0.01,0.01);
-  h_PVy->setAxisTitle("PVy (cm)",1);
-  h_PVy->getTH1()->SetBit(TH1::kCanRebin);
+  h_PVy[0] = dbe_->book1D("PVY","y coordinate of Primary Vtx",100,-0.01,0.01);
+  h_PVy[0]->setAxisTitle("PVy (cm)",1);
+  h_PVy[0]->getTH1()->SetBit(TH1::kCanRebin);
 
-  h_PVz = dbe_->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
-  h_PVz->setAxisTitle("PVz (cm)",1);
-  h_PVz->getTH1()->SetBit(TH1::kCanRebin);
+  h_PVz[0] = dbe_->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
+  h_PVz[0]->setAxisTitle("PVz (cm)",1);
+  h_PVz[0]->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_PVx[1] = dbe_->book1D("PVXFit","x coordinate of Primary Vtx (Last Fit)",100,-0.01,0.01);
+  h_PVx[1]->setAxisTitle("PVx (cm)",1);
+  h_PVx[1]->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_PVy[1] = dbe_->book1D("PVYFit","y coordinate of Primary Vtx (Last Fit)",100,-0.01,0.01);
+  h_PVy[1]->setAxisTitle("PVy (cm)",1);
+  h_PVy[1]->getTH1()->SetBit(TH1::kCanRebin);
+
+  h_PVz[1] = dbe_->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",100,-0.01,0.01);
+  h_PVz[1]->setAxisTitle("PVz (cm)",1);
+  h_PVz[1]->getTH1()->SetBit(TH1::kCanRebin);
 
   h_PVx_lumi = dbe_->book1D("PVx_lumi","Avg. x position of primary vtx vs lumi",40,0.5,40.5);
   h_PVx_lumi->setAxisTitle("Lumisection",1);
@@ -286,16 +299,36 @@ void BeamMonitor::analyze(const Event& iEvent,
   iEvent.getByLabel(pvSrc_, recVtxs);
   const edm::View<reco::Vertex> &pv = *recVtxs;
 
-  for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
-    
-    if (! pv[ipv].isFake())
-      h_nVtx->Fill(recVtxs->size()*1.);
-    if ( ipv==0 && !pv[0].isFake() ) { 
-      h_PVx->Fill(pv[0].x());
-      h_PVy->Fill(pv[0].y());
-      h_PVz->Fill(pv[0].z());
+  int nGoodPV=0;
+  int idx=0;
+  double sum=0.0;
+
+  for (size_t ipv = 0; ipv != pv.size(); ++ipv) {
+    double sum_ntracks=0.0;
+    int ntracks=0;
+
+    if (pv[ipv].isFake()) continue;
+    h_nVtx->Fill(recVtxs->size()*1.);
+    for (reco::Vertex::trackRef_iterator it = pv[ipv].tracks_begin(); it != pv[ipv].tracks_end(); it++) {
+      sum+= pv[ipv].trackWeight(*it);
+      ntracks++;
     }
 
+    if(ntracks>0){sum_ntracks=(sum/(float)ntracks);}
+    else{sum_ntracks=0.0;}
+    
+    if (sum_ntracks > 0.5 && pv[ipv].ndof() > 2) {
+      nGoodPV++;
+      idx=ipv;
+      if (debug_) std::cout << "Which PV passes selection? # " << idx << std::endl;
+    }
+  }
+
+  if (nGoodPV == 1) { // Temporary, select only events contain one good PV
+    if (debug_) std::cout << "Which PV is selected? # " << idx << std::endl;
+    h_PVx[0]->Fill(pv[idx].x());
+    h_PVy[0]->Fill(pv[idx].y());
+    h_PVz[0]->Fill(pv[idx].z());
   }
 
 }
@@ -305,38 +338,64 @@ void BeamMonitor::analyze(const Event& iEvent,
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
   // Primary Vertex Fit:
-  if (h_PVx->getTH1()->GetEntries() >= 20) {
+  if (h_PVx[0]->getTH1()->GetEntries() >= 20) {
     pvResults->Reset();
     TF1 *fgaus = new TF1("fgaus","gaus");
     double mean,width;
     fgaus->SetLineColor(4);
-    h_PVx->getTH1()->Fit("fgaus","QLM");
+    h_PVx[0]->getTH1()->Fit("fgaus","QLM");
     mean = fgaus->GetParameter(1);
     width = fgaus->GetParameter(2);
     h_PVx_lumi->ShiftFillLast(mean,width);
     pvResults->setBinContent(1,1,mean);
     pvResults->setBinContent(1,2,width);
+    
+    dbe_->setCurrentFolder(monitorName_+"PrimaryVertex/");
+    const char* tmpfile;
+    TH1D * tmphisto;
+    // snap shot of the fit
+    tmpfile= (h_PVx[1]->getName()).c_str();
+    tmphisto = static_cast<TH1D *>((h_PVx[0]->getTH1())->Clone("tmphisto"));
+    h_PVx[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+    h_PVx[1] = dbe_->book1D(tmpfile,h_PVx[0]->getTH1F());
+    h_PVx[1]->getTH1()->Fit("fgaus","QLM");
 
-    h_PVy->getTH1()->Fit("fgaus","QLM");
+
+    h_PVy[0]->getTH1()->Fit("fgaus","QLM");
     mean = fgaus->GetParameter(1);
     width = fgaus->GetParameter(2);
     h_PVy_lumi->ShiftFillLast(mean,width);
     pvResults->setBinContent(2,1,mean);
     pvResults->setBinContent(2,2,width);
+    // snap shot of the fit
+    tmpfile= (h_PVy[1]->getName()).c_str();
+    tmphisto = static_cast<TH1D *>((h_PVy[0]->getTH1())->Clone("tmphisto"));
+    h_PVy[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+    h_PVy[1]->update();
+    h_PVy[1] = dbe_->book1D(tmpfile,h_PVy[0]->getTH1F());
+    h_PVy[1]->getTH1()->Fit("fgaus","QLM");
 
-    h_PVz->getTH1()->Fit("fgaus","QLM");
+
+    h_PVz[0]->getTH1()->Fit("fgaus","QLM");
     mean = fgaus->GetParameter(1);
     width = fgaus->GetParameter(2);
     h_PVz_lumi->ShiftFillLast(mean,width);
     pvResults->setBinContent(3,1,mean);
     pvResults->setBinContent(3,2,width);
+    // snap shot of the fit
+    tmpfile= (h_PVz[1]->getName()).c_str();
+    tmphisto = static_cast<TH1D *>((h_PVz[0]->getTH1())->Clone("tmphisto"));
+    h_PVz[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+    h_PVz[1]->update();
+    h_PVz[1] = dbe_->book1D(tmpfile,h_PVz[0]->getTH1F());
+    h_PVz[1]->getTH1()->Fit("fgaus","QLM");
 
   }
 
   if (resetPVNLumi_ > 0 && countLumi_%resetPVNLumi_ == 0) {
-    h_PVx->Reset();
-    h_PVy->Reset();
-    h_PVz->Reset();
+    h_PVx[0]->Reset();
+    h_PVy[0]->Reset();
+    h_PVz[0]->Reset();
   }
 
   // Beam Spot Fit:
