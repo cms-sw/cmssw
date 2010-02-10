@@ -39,6 +39,8 @@ public:
         ( const std::vector < Cluster1D<T> > & ) const;
     virtual DivisiveClusterizer1D * clone() const;
 
+    void setBeamSpot(const math::XYZPoint & bs) {theMerger->setBeamSpot(bs); } 
+
 private:
     //methods
     void findCandidates( const std::vector < Cluster1D<T> >&,
