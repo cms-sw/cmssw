@@ -19,7 +19,7 @@ PixelTrackReconstructionBlock = cms.PSet (
         tipMax = cms.double(1.0)
     ),
     RegionFactoryPSet = cms.PSet(
-        RegionPSetBlock,
+        RegionPsetFomBeamSpotBlock,
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot')
     ),
     OrderedHitsFactoryPSet = cms.PSet(
