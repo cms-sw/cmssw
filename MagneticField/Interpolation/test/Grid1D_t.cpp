@@ -21,7 +21,7 @@ bool testGrid1D( Grid1D const & grid)  {
 #include<iostream>
 #include<cstdlib>
 
-void print( grid,  Grid1D::Scalar a) {
+void print(Grid1D grid,  Grid1D::Scalar a) {
   Grid1D::Scalar f;
   int i = grid.index(a,f); 
   ::printf("%i %f %a\n",i,f,f);
