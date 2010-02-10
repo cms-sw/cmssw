@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.14 2009/08/14 17:44:59 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.17 2010/02/09 21:52:18 wsun Exp $
 //
 //
 
@@ -230,7 +230,7 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1CondDBIOVWriter::beginJob(const edm::EventSetup&)
+L1CondDBIOVWriter::beginJob()
 {
 }
 
