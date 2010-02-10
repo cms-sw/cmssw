@@ -11,7 +11,7 @@
 #include <Reflex/Object.h>
 #include <Reflex/Type.h>
 #include <typeinfo>
-#include "DataFormats/Common/test/TestHandle.h"
+#include "DataFormats/Common/interface/TestHandle.h"
 
 class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionParser);
