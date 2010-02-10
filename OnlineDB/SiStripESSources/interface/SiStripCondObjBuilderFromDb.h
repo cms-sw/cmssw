@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.7 2009/07/02 13:55:44 alinn Exp $
-// Latest tag:  $Name: HEAD $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.8 2009/12/10 10:18:55 alinn Exp $
+// Latest tag:  $Name: V05-00-00 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -115,7 +115,7 @@ class SiStripCondObjBuilderFromDb {
 
  
   //methods used by BuildStripRelatedObjects
-  bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr);
+  bool setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs);
   bool setValuesApvTiming(SiStripConfigDb* const db, FedChannelConnection &ipair);
   bool setValuesCabling(SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid);
   bool retrieveFedDescriptions(SiStripConfigDb* const db);
