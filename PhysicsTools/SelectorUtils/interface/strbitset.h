@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.1 2009/12/21 19:27:08 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.2 2010/02/10 13:53:49 srappocc Exp $
 */
 
 
@@ -106,7 +106,6 @@ class strbitset {
     return *this;
   }
 
-
   //! flip method of all bits
   strbitset & flip() {
     for ( bit_vector::iterator ibegin = bits_.begin(),
@@ -141,7 +140,6 @@ class strbitset {
     }
     return ret;
   }
-
 
   //! bitwise and
   strbitset & operator&=( const strbitset & r) {
