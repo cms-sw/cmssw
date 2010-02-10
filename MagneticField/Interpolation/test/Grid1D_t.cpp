@@ -10,7 +10,7 @@ bool testGrid1D( Grid1D const & grid)  {
   int i = grid.index(7.2,f); 
   ok &= grid.inRange(i);
 
-  ok &=  (7==i);
+  ok &=  (8==i);
   ok &= (1.2==f);
 
   return ok;
@@ -18,11 +18,17 @@ bool testGrid1D( Grid1D const & grid)  {
 
 
 
+#include<iostream>
+#include<cstdlib>
 
 int main() {
 
   bool ok=true;
   Grid1D grid(-10.,10.,10);
+
+  Grid1D::Scalar f;
+  int i = grid.index(7.2,f); 
+  ::printf("%i %a",i,f);
 
   ok &= testGrid1D(grid);
 
