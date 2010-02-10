@@ -7,14 +7,30 @@
 // Its primary purpose is to provide a generic framework for doing
 // sideband subtraction.  It will also plug into current tag and probe
 // modules to prevent code duplication and redundancy.  Many of the
-// methods are taken directly from
-// or inspired heavily by current TagAndProbe code.
+// methods are  inspired heavily by current TagAndProbe code.
 //
 ///////////////////////////////////////////////////////////////////////
 
 #include "PhysicsTools/Utilities/interface/SideBandSubtraction.h"
-#include <cassert>
+// System includes
+#include <iostream>
+#include <sstream>
+
+// ROOT includes
+#include <TCanvas.h>
+#include <TFile.h>
+#include <TF1.h>
+#include <TH1F.h>
+#include <TString.h>
+#include <TKey.h>
+#include <TClass.h>
+
+// RooFit includes
 #include <RooFitResult.h>
+#include <RooRealVar.h>
+#include "RooAbsPdf.h"
+#include "RooDataSet.h"
+#include "RooPlot.h"
 
 using namespace RooFit;
 using std::cout;
@@ -33,7 +49,6 @@ inline std::string stringify(const T& t)
 Double_t SideBandSubtract::getYield(std::vector<SbsRegion> Regions, RooAbsPdf *PDF)
 {
   Double_t yield=0;
-  //integrate background region to obtain sideband-to-signal ratio
   RooAbsReal* intPDF;
   for(unsigned int i=0; i < Regions.size(); i++)
     {
@@ -59,19 +74,11 @@ static void setHistOptions(TH1F* histo, string name, string title, string axis_l
 }
 int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_t index) //stsratio -> signal to sideband ratio
 {
-  //Implementation idea: We have a switch for verbose/debug output,
-  //this way the user can turn on or off the internal histograms...
-
-
-  /*
-    The base histogram's binning assumes that the range of all of the
-    values fall into the default.  In the example, binning was fine
-    for mass, pt, and any other non-negative parameter, but in the
-    case of eta or phi it fails for negative values.  Therefore, the
-    user hands us a vector of pointers to base histograms that we can
-    clone and use for ourselves.  We need to be careful about pointer
-    logic here, but it looks like we're only using these histos for
-    style/binning purposes only.
+  /**
+    The user hands us a vector of pointers to base histograms that we
+    can clone and use for ourselves.  We need to be careful about
+    pointer logic here, but it looks like we're only using these
+    histos for style/binning purposes only.
    */
   TH1F* SideBandHist = (TH1F*)BaseHistos[index]->Clone();
   string newtitle;
@@ -89,8 +96,6 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
   //out how to do this in one shot to avoid a loop
   //O(N_vars*N_events)...
 
-  //Desperate attempt to get unique mass values to come out...
-  //Which works!
   TIterator* iter = (TIterator*) Data->get()->createIterator();
   RooAbsArg *var=NULL;
   RooRealVar *sep_var=NULL;
@@ -102,7 +107,6 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
 	  break;
 	}
     }
-  assert((string)var->GetName()==(string)SeparationVariable->GetName());
   for(int i=0; i < Data->numEntries(); i++)
     {
       Data->get(i);
@@ -127,15 +131,8 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
   //Save pre-subtracted histo
   SignalHist->Sumw2(); SideBandHist->Sumw2(); 
   RawHistos.push_back(*SignalHist);
-  // We just add the two histograms with the appropriate weight.  This
-  // is ultimately incorrect, but a good first order approximation.
-  // The issue is that we may end up with negative bins due to
-  // statistical flucuations...
 
   SignalHist->Add(SideBandHist, -stsratio);
-
-  //TFeldmanCousins interval;
-  //if(SignalHist->GetNbinsX() == 
 
   newtitle = oldtitle + " SBS Signal";  
   SignalHist->SetTitle(newtitle.c_str());
@@ -145,13 +142,11 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
   SideBandHistos.push_back(*SideBandHist);
 
   if(SideBandHist) delete SideBandHist;
-  //if(SignalHist) delete SignalHist;
   return 0;
 }
 static void print_histo(TH1F* plot, string outname)
 {
   TCanvas genericCanvas;
-  //plot->Sumw2();
   plot->Draw("E1P0");
   outname = outname + ".eps";
   genericCanvas.SaveAs(outname.c_str());
@@ -161,14 +156,9 @@ static void print_histo(TH1F* plot, string outname)
 void SideBandSubtract::printResults(string prefix)
 {//handles *all* printing
   //spool over vectors of histograms and print them, then print
-  //separation variable plots and the results tex file.  Aldo open an
-  //ostring and write the appropriate tex code to genereate a
-  //results.tex file.  This is used by the root macro to compile the
-  //results into a pdf file.  (May be able to do this here somehow?)
+  //separation variable plots and the results text file.
 
   string filename; //output file name
-  //declare date/time object for filenames
-  TDatime theTime;
   for(unsigned int i=0; i < RawHistos.size(); ++i)
     {
       filename=prefix + "Raw_" + (string)RawHistos[i].GetName();
@@ -184,19 +174,11 @@ void SideBandSubtract::printResults(string prefix)
       for(unsigned int i=0; i < SideBandHistos.size(); ++i)
 	{
 	  filename=prefix + "SideBand_" + (string)RawHistos[i].GetName();
-	  /*filename="SideBand_" + (string)RawHistos[i].GetName() +"_"+ stringify(theTime.GetMonth()) + "_"
-	    + stringify(theTime.GetDay()) + "_" + stringify(theTime.GetYear());
-	  */
 	  print_histo(&SideBandHistos[i], filename);
 	}
     }
 
- //This is core dumping, on-going investigation into the guts of RooFit...
-  //This bug has been isolated further investigation pending
   string outname = prefix + (string)SeparationVariable->GetName() + "_fitted.eps";
-    // + stringify(theTime.GetMonth()) + "_"
-    // + stringify(theTime.GetDay())   + "_" 
-    // + stringify(theTime.GetYear()) + ".eps";
   RooPlot *SepVarFrame = SeparationVariable->frame();
   Data->plotOn(SepVarFrame);
   ModelPDF->plotOn(SepVarFrame);
@@ -235,13 +217,11 @@ void SideBandSubtract::saveResults(string outname)
 					  //exist
   //Since keys are only available from files on disk, we need to write
   //out a new file.  If the file already existed, then we opened to
-  //update, and are writing nothing new.  This *should* kill the
-  //segfault that I'm getting... - Dave
+  //update, and are writing nothing new.  
   output.Write();
   TString dirname;
   TIter nextkey(output.GetListOfKeys());
   TKey *key;
-  //while((key=(TKey*)nextkey()))
   
   while((key=(TKey*)nextkey.Next()))
     {
@@ -273,7 +253,6 @@ void SideBandSubtract::saveResults(string outname)
 
   //these should all be the same size, but to be pedantic we'll loop
   //over each one individually...
-
   for(unsigned int i=0; i < SideBandHistos.size(); ++i)
       SideBandHistos[i].Write();
   for(unsigned int i=0; i < RawHistos.size(); ++i)
@@ -295,9 +274,9 @@ void SideBandSubtract::setDataSet(RooDataSet* newData)
   if(newData!=NULL)
     Data=newData;
 }
-void SideBandSubtract::print_plot(RooRealVar printVar,string outname)
+void SideBandSubtract::print_plot(RooRealVar* printVar,string outname)
 {
-  RooPlot *genericFrame = printVar.frame();
+  RooPlot *genericFrame = printVar->frame();
   Data->plotOn(genericFrame);
   ModelPDF->plotOn(genericFrame);
   TCanvas genericCanvas;
@@ -307,8 +286,6 @@ void SideBandSubtract::print_plot(RooRealVar printVar,string outname)
   outname.replace(outname.size()-3,3,"gif");
   genericCanvas.SaveAs(outname.c_str());
 }
-//|0|1|2|3|4|5|6|7|8|9|
-//|m|y|N|a|m|e|.|e|p|s|
 
 SideBandSubtract::SideBandSubtract(RooAbsPdf *model_shape, 
 				   RooAbsPdf *bkg_shape, 
@@ -341,25 +318,23 @@ SideBandSubtract::~SideBandSubtract()
   // pointers just hang out and get handled by other people :)
 
 }
-void SideBandSubtract::addSignalRegion(float min, float max)
+void SideBandSubtract::addSignalRegion(Double_t min, Double_t max)
 {
   SbsRegion signal;
   signal.min=min;
   signal.max=max;
   signal.RegionName="Signal" + stringify(SignalRegions.size());
   SeparationVariable->setRange(signal.RegionName.c_str(),signal.min,signal.max);
-  string sep_name =  (string)SeparationVariable->GetName();
   SignalRegions.push_back(signal);
   return;
 }
-void SideBandSubtract::addSideBandRegion(float min, float max)
+void SideBandSubtract::addSideBandRegion(Double_t min, Double_t max)
 {
   SbsRegion sideband;
   sideband.min=min;
   sideband.max=max;
   sideband.RegionName="SideBand" + stringify(SideBandRegions.size());
   SeparationVariable->setRange(sideband.RegionName.c_str(),sideband.min,sideband.max);
-  string sep_name =  (string)SeparationVariable->GetName();
   SideBandRegions.push_back(sideband);
   return;
 }
@@ -367,18 +342,13 @@ int SideBandSubtract::doGlobalFit()
 {
   if(verbose)
     cout <<"Beginning SideBand Subtraction\n";
-  /*
-  if(fit_result!=NULL)
-    delete fit_result;
-  */
 
   fit_result = ModelPDF->fitTo(*Data,"r");
 
   Double_t SideBandYield=getYield(SideBandRegions,BackgroundPDF);
   Double_t  BackgroundInSignal=getYield(SignalRegions,BackgroundPDF);
 
-  SignalSidebandRatio = BackgroundInSignal/SideBandYield; //careful, this won't puke if I have both lines uncommented...
-  //SignalSidebandRatio = 0;// 0.233724;  // 1.15249;
+  SignalSidebandRatio = BackgroundInSignal/SideBandYield;
   if(verbose)
     {
       cout <<"Finished fitting background!\n";
@@ -413,6 +383,43 @@ int SideBandSubtract::doGlobalFit()
   if(iter)          delete iter;
   return 0;
 }
+void SideBandSubtract::doFastSubtraction(TH1F &Total, TH1F &Result, TF1 &function, SbsRegion& leftRegion, SbsRegion& rightRegion)
+{
+  Int_t binMin = Total.FindBin(leftRegion.max,0.0,0.0);
+  Int_t binMax = Total.FindBin(leftRegion.min,0.0,0.0);
+  double numLeft = Total.Integral( binMin, binMax );
+
+  binMin = Total.FindBin(rightRegion.max,0.0,0.0);
+  binMax = Total.FindBin(rightRegion.min,0.0,0.0);
+  double numRight = Total.Integral( binMin, binMax );
+  
+  const unsigned int nbinsx = Total.GetNbinsX();
+  const double x1 = (leftRegion.max + leftRegion.min)/2.0;
+  const double x2 = (rightRegion.max + rightRegion.min)/2.0;
+
+  const double y1 = numLeft/(leftRegion.max - leftRegion.min);
+  const double y2 = numRight/(rightRegion.max - rightRegion.min);
+    
+  const double Slope = (y2 - y1)/(x2 - x1);
+  const double Intercept = y1 - Slope*x1;
+
+
+  for ( unsigned int binx = 1;  binx <= nbinsx; ++binx ) 
+    {
+      double binWidth = Total.GetBinWidth(binx);
+      function.SetParameter(0,Slope*binWidth);
+      function.SetParameter(1,Intercept*binWidth);
+
+      double xx = Total.GetBinCenter(binx);
+      double cu = Total.GetBinContent(binx) - function.Eval(xx);    
+      // TODO: Propogate the  error on the parameters in function.
+      double error1 = Total.GetBinError(binx);
+    
+      Result.SetBinContent(binx, cu);
+      Result.SetBinError(binx, error1);
+    }
+  Result.SetEntries(Result.Integral() );
+}
 RooFitResult* SideBandSubtract::getFitResult()
 {
   return fit_result;
@@ -433,18 +440,5 @@ void SideBandSubtract::resetSBSProducts()
 {
   SideBandHistos.erase(SideBandHistos.begin(),SideBandHistos.end());
   RawHistos.erase(RawHistos.begin(),RawHistos.end());
-  SBSHistos.erase(SBSHistos.begin(),SBSHistos.end());
-  //should erase fitresult here, but thats no the best way to handle
-  //it... should erase it right before we fit again?
+  SBSHistos.erase(SBSHistos.begin(),SBSHistos.end()); 
 }
-
-/*void SideBandSubtract::fitAndPlotSlice()
-{
-
-}
-*/
-
-
-/* Garbage!
-
-*/

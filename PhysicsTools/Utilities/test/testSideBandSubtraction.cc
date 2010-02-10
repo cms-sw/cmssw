@@ -10,6 +10,10 @@
 #include "RooGenericPdf.h"
 #include "RooPolynomial.h"
 #include "RooGaussian.h"
+#include "RooProdPdf.h"
+#include "RooPlot.h"
+#include "RooAddPdf.h"
+#include "RooDataSet.h"
 
 using std::vector;
 using std::cout;
