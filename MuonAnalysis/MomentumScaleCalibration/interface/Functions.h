@@ -304,15 +304,17 @@ public:
     }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
-    double thisStep[] = {0.001, 0.01, 0.01, 0.01};
+    double thisStep[] = {0.0001, 0.00001, 0.00001, 0.00001};
     TString thisParName[] = {"Pt offset", "Pt slope", "Eta slope", "Eta quadr"};
     if( muonType == 1 ) {
       double thisMini[] = {0.9, -0.3, -0.3, -0.3};
       double thisMaxi[] = {1.1, 0.3, 0.3, 0.3};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMini[] = {0.97, -0.1, -0.1, -0.1};
-      double thisMaxi[] = {1.03, 0.1, 0.1, 0.1};
+      // double thisMini[] = {0.985, -0.002, -0.005, -0.005};
+      // double thisMaxi[] = {1.015, 0.002, 0.005, 0.005};
+      double thisMini[] = {0.9, -0.002, -0.005, -0.005};
+      double thisMaxi[] = {1.1,  0.002,  0.005,  0.005};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
@@ -499,11 +501,11 @@ public:
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
       double thisMini[] = {0.97,
-                           -0.1, -0.1, -0.1,
-                           -0.1, -0.01, -0.001, -0.0001, -0.00001, -0.000001};
+                           -0.005, -0.001, -0.001,
+                           -0.005, -0.005, -0.001, -0.0001, -0.00001, -0.000001};
       double thisMaxi[] = {1.03,
-                           0.1, 0.1, 0.1,
-                           0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
+                           0.005, 0.001, 0.001,
+                           0.005, 0.005, 0.001, 0.0001, 0.00001, 0.000001};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
@@ -1106,25 +1108,16 @@ class resolutionFunctionType8 : public resolutionFunctionBase<T> {
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.", "Pt res. eta border",
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-//     double thisMini[] = {  -0.01, 0.00000001, 0.5,
-//                            -0.0004, 0.003, 0.000002, 0.0004,
-//                            0.0001, 0.001, -0.0000007, 0.00008 };
-    double thisMini[] = {  -0.03, -0.0000001, 1.0008, 0.01,
+    double thisMini[] = {  -0.03, -0.0000001, 0.1, 0.01,
                            -0.001, 0.002, -0.0001, -0.0001,
                            -0.0001, 0.0005, -0.0001, -0.00001 };
-//     double thisMini[] = {  -0.006, 0.00005, 0.8,
-//                            -0.0004, 0.003, 0.000002, 0.0004,
-//                            0.0001, 0.001, -0.0000007, 0.00008 };
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1., 1.,
                             1., 1., 1., 0.1,
                             1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-//      double thisMaxi[] = { 0.1, 0.0004, 1.2,
-//                            -0.0002, 0.005, 0.000004, 0.0007,
-//                            0.0003, 0.003, -0.0000011, 0.00012 };
-      double thisMaxi[] = { 0.03, 0.00001, 1.4, 0.6,
+      double thisMaxi[] = { 0.03, 0.1, 1.4, 0.6,
                             0.001, 0.005, 0.00004, 0.0007,
                             0.001, 0.01, -0.0000015, 0.0004 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
@@ -1822,6 +1815,62 @@ class resolutionFunctionType18 : public resolutionFunctionBase<T> {
   }
 };
 
+// Resolution Type 19
+// Same as type 8, but the sigmaPhi and sigmaCotgTh are not free. This way the function results as having less parameters.
+// This was done to verify if fixed parameters have an influence in the computation of errors by minuit.
+template <class T>
+class resolutionFunctionType19 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType19() { this->parNum_ = 4; }
+  // linear in pt and by points in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    return( parval[0]+parval[1]*pt + parval[2]*etaByPoints(eta, parval[3]) );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( 0.00043 + 0.0041/pt + (2.8e-06)*fabs(eta) + (7.7e-05)*eta*eta );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( 0.00011 + 0.0018/pt - (9.4e-07)*fabs(eta) + (2.2e-05)*eta*eta );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+
+    double thisStep[] = { 0.0000002, 0.0000001, 0.00001, 0.02 };
+    TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.", "Pt res. eta border"};
+    double thisMini[] = {  -0.03, -0.0000001, 0.1, 0.01};
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = { 0.03, 0.1, 1.4, 0.6};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+protected:
+  /**
+   * This is the pt vs eta resolution by points. It uses fabs(eta) assuming symmetry.
+   * The values are derived from 100k events of MuonGun with 5<pt<100 and |eta|<3.
+   */
+  double etaByPoints(const double & inEta, const double & border) {
+    Double_t eta = fabs(inEta);
+    if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
+    else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
+    else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
+    else if( 0.6 < eta && eta <= 0.8 ) return 0.0117338;
+    else if( 0.8 < eta && eta <= 1.0 ) return 0.0138142;
+    else if( 1.0 < eta && eta <= 1.2 ) return 0.0165826;
+    else if( 1.2 < eta && eta <= 1.4 ) return 0.0183663;
+    else if( 1.4 < eta && eta <= 1.6 ) return 0.0169904;
+    else if( 1.6 < eta && eta <= 1.8 ) return 0.0173289;
+    else if( 1.8 < eta && eta <= 2.0 ) return 0.0205821;
+    else if( 2.0 < eta && eta <= 2.2 ) return 0.0250032;
+    else if( 2.2 < eta && eta <= 2.4 ) return 0.0339477;
+    else if( 2.4 < eta && eta <= 2.6 ) return border;
+    return ( 0. );
+  }
+};
+
 
 // ------------ ATTENTION ----------- //
 // Other functions are not in for now //
@@ -1903,7 +1952,7 @@ protected:
     {
       parval_ = new double[function_->parNum()];
       for( int i=0; i < function_->parNum(); ++i ) {
-        parval_[i] = *(parBgrIt);
+        parval_[i] = *(parBgrIt+i);
       }
     }
     ~FunctionForIntegral()
