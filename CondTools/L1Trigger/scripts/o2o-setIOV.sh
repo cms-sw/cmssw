@@ -24,8 +24,8 @@ shift $(($OPTIND - 1))
 run=$1
 key=$2
 
-release=CMSSW_3_1_0
-version=006
+release=CMSSW_3_5_0
+version=007
 
 echo "`date` : o2o-setIOV.sh $run $key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
@@ -38,6 +38,7 @@ fi
 # set up environment variables
 cd /cmsnfshome0/nfshome0/popcondev/L1Job/${release}/o2o
 source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 # Check for semaphore file

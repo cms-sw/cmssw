@@ -33,6 +33,7 @@ fi
 ln -sf /nfshome0/centraltspro/secure/authentication.xml .
 
 source /nfshome0/cmssw2/scripts/setup.sh
+export SCRAM_ARCH=slc5_ia32_gcc434
 eval `scramv1 run -sh`
 
 echo "`date` : initializing sqlite file"

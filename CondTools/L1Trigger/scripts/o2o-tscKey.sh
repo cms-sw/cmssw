@@ -19,8 +19,8 @@ shift $(($OPTIND - 1))
 # get argument
 key=$1
 
-release=CMSSW_3_1_0
-version=006
+release=CMSSW_3_5_0
+version=007
 
 echo "`date` : o2o-tscKey.sh $key" | tee -a /nfshome0/popcondev/L1Job/o2o-tscKey-${version}.log
 
@@ -32,6 +32,7 @@ fi
 
 # set up environment variables
 cd /cmsnfshome0/nfshome0/popcondev/L1Job/${release}/o2o
+export SCRAM_ARCH=slc5_ia32_gcc434
 source /nfshome0/cmssw2/scripts/setup.sh
 eval `scramv1 run -sh`
 
