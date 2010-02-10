@@ -10,7 +10,6 @@
 #include "LumiRawDataStructures.h"
 #include "TFile.h"
 #include "TTree.h"
-//#include "TChain.h"
 #include "TBranch.h"
 #include <iostream>
 #include <cstring>
@@ -154,12 +153,12 @@ void genLumiRaw::beginRun(const edm::Run& run, const edm::EventSetup& c){
   char runnumber[9];
   ::snprintf(runnumber,9,"%09d",run.run());
   std::string filename=s_fileprefix+runnumber+"_0000"+"_0"+".root";
-  std::cout<<"filename "<<filename<<std::endl;
-  
+  //std::cout<<"filename "<<filename<<std::endl;
   //
   //prepare file name, open file,  book root trees
   //
   //const std::string filename="test.root";
+  //
   m_file=new TFile(filename.c_str(),"RECREATE");
 
   //book run summary tree
@@ -189,6 +188,8 @@ void genLumiRaw::beginRun(const edm::Run& run, const edm::EventSetup& c){
  
 // -----------------------------------------------------------------
 void genLumiRaw::endRun(edm::Run const& run, edm::EventSetup const& c){
+  std::cout<<"run number in endRun "<<run.run()<<" "<<m_nls<<std::endl;
+  //std::cout<<"nls "<<m_nls<<std::endl;
   generateRunSummary(run.run(),m_nls);
 }
 
@@ -206,18 +207,20 @@ void genLumiRaw::endJob(){
 // -----------------------------------------------------------------
 void genLumiRaw::generateRunSummary(unsigned int runnumber,
 				    unsigned int totalCMSls){
+  std::cout<<"inside generateRunSummary "<<runnumber<<" "<<totalCMSls<<std::endl;
   HCAL_HLX::RUN_SUMMARY localrunsummary;
   const char* runsequence="Fake Run Summary";
-  localrunsummary.runNumber=runnumber;
+  std::strncpy(localrunsummary.runSequenceName,runsequence,128);
+  localrunsummary.HLTConfigId=7792;
   localrunsummary.timestamp=2;
   localrunsummary.timestamp_micros=3;
   localrunsummary.startOrbitNumber=4;
   localrunsummary.endOrbitnumber=5;
+  localrunsummary.runNumber=runnumber;
   localrunsummary.fillNumber=6;
   localrunsummary.numberCMSLumiSections=totalCMSls;
   localrunsummary.numberLumiDAQLumiSections=totalCMSls+2;
-  localrunsummary.HLTConfigId=7792;
-  std::strncpy(localrunsummary.runSequenceName,runsequence,128);
+  std::memmove(m_runsummary,&localrunsummary,sizeof(HCAL_HLX::RUN_SUMMARY));
   m_runsummaryTree->Fill();
 }
 // -----------------------------------------------------------------
@@ -228,7 +231,9 @@ void genLumiRaw::generateHLT(unsigned int runnumber,
   localhlt.sectionNumber=lsnumber;
   const char* pathname="Fake Path";
   const char* modulename="Fake Module";
+  unsigned int npath=0;
   for (unsigned int iHLT=0; iHLT < 256; ++iHLT){
+    ++npath;
     std::strncpy(localhlt.HLTPaths[iHLT].PathName,pathname,128);
     localhlt.HLTPaths[iHLT].L1Pass = iHLT;
     localhlt.HLTPaths[iHLT].PSPass = iHLT*2;
@@ -238,7 +243,9 @@ void genLumiRaw::generateHLT(unsigned int runnumber,
     std::strncpy(localhlt.HLTPaths[iHLT].PrescalerModule,modulename,64);
     localhlt.HLTPaths[iHLT].PSIndex = iHLT;
     localhlt.HLTPaths[iHLT].Prescale = iHLT;
+    localhlt.HLTPaths[iHLT].HLTConfigId = 6785;
   }
+  localhlt.numPaths=npath;
   std::memmove(m_hlt,&localhlt,sizeof(HCAL_HLX::HLTRIGGER));
   m_hltTree->Fill();
 }
