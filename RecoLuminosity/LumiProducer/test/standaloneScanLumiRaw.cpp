@@ -7,13 +7,14 @@
 /** This programm scans a given lumi raw data file and print out the content
  **/
 int main(int argc, char** argv){
-  const char* filename="test.root";
+  const char* filename="file:test.root";
   //default file to read. file name is taken from command argument
   if(argc>1){
     filename=argv[1];
   }
-  TFile *myfile=new TFile(filename,"READ");
-
+  //TFile *myfile=new TFile(filename,"READ");
+  TFile * myfile=TFile::Open(filename);
+  //TFile * myfile=TFile::Open("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
   HCAL_HLX::RUN_SUMMARY *myRunSummary = new HCAL_HLX::RUN_SUMMARY;
   TTree *runsummaryTree = (TTree *) myfile->Get("RunSummary");
   if(!runsummaryTree) std::cout<<"no run summary data"<<std::endl;
