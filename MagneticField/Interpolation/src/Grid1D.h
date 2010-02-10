@@ -6,7 +6,8 @@
 class Grid1D {
 public:
 
-  typedef double Scalar;
+  typedef float   Scalar;
+  //  typedef double Scalar;
 
   Grid1D() {}
 
@@ -31,7 +32,7 @@ public:
   // return index and fractional part...
   int index(Scalar a, Scalar & f) const {
     Scalar b;
-    f = modf((a-lower())*stepinv_, &b);
+    f = modff((a-lower())*stepinv_, &b);
     return b;
   }
 
