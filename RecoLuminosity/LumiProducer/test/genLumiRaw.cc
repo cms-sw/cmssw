@@ -14,6 +14,7 @@
 #include "TBranch.h"
 #include <iostream>
 #include <cstring>
+#include <cstdio>
 /**
    this program is to generate fake lumi raw data samples with desired run/lumi section parameters controlled by EmptySource parameters.
    one job can generate data for at most 1 run and unlimited number of LS
@@ -62,8 +63,6 @@ private:
   static const std::string s_lumiDetailBranch;  
   static const std::string s_lumiDetailName;  
 
-  unsigned int m_run;
-  unsigned int m_firstls;
   unsigned int m_nls;
   int m_bsize;
   int m_splitlevel;
@@ -74,9 +73,6 @@ private:
   
   //hlx tree& data structures
   TTree* m_hlxTree;
-  //HCAL_HLX::LUMI_SECTION_HEADER* m_lumiheader; 
-  //HCAL_HLX::LUMI_SUMMARY* m_lumisummary;
-  //HCAL_HLX::LUMI_DETAIL*  m_lumidetail;
   HCAL_HLX::LUMI_SECTION* m_lumisection;
   HCAL_HLX::LUMI_SECTION_HEADER* m_lumiheader;
   HCAL_HLX::LUMI_SUMMARY* m_lumisummary;
@@ -92,8 +88,7 @@ private:
 
 };//end class
 
-const std::string genLumiRaw::s_filetype="LUMI";
-const std::string genLumiRaw::s_fileprefix="CMS_LUMI_";
+const std::string genLumiRaw::s_fileprefix="CMS_LUMI_RAW_00000000_";
   
 const std::string genLumiRaw::s_runsummaryTree="RunSummary";
 const std::string genLumiRaw::s_runsummaryBranch="RunSummary.";
@@ -117,7 +112,7 @@ const std::string genLumiRaw::s_lumiDetailName="HCAL_HLX::LUMI_DETAIL";
 
 // -----------------------------------------------------------------
 
-genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_bsize(64000),m_splitlevel(2),m_runsummary(new HCAL_HLX::RUN_SUMMARY),m_lumiheader(0),m_lumisummary(0),m_lumidetail(0),m_lumisection(new  HCAL_HLX::LUMI_SECTION),m_trg(new HCAL_HLX::LEVEL1_TRIGGER),m_hlt(new HCAL_HLX::HLTRIGGER)
+genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_nls(0),m_bsize(64000),m_splitlevel(2),m_file(0),m_runsummary(new HCAL_HLX::RUN_SUMMARY),m_lumisection(new  HCAL_HLX::LUMI_SECTION),m_lumiheader(0),m_lumisummary(0),m_lumidetail(0),m_trg(new HCAL_HLX::LEVEL1_TRIGGER),m_hlt(new HCAL_HLX::HLTRIGGER)
 {  
 }
 
@@ -126,9 +121,6 @@ genLumiRaw::genLumiRaw(edm::ParameterSet const& iConfig):m_bsize(64000),m_splitl
 genLumiRaw::~genLumiRaw(){
   delete m_runsummary;
   delete m_lumisection;
-  //delete m_lumiheader;
-  //delete m_lumisummary;
-  //delete m_lumidetail;
   delete m_trg;
   delete m_hlt;
 }
@@ -142,6 +134,7 @@ void genLumiRaw::analyze(edm::Event const& e,edm::EventSetup const&){
 // -----------------------------------------------------------------
 void genLumiRaw::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
 				    edm::EventSetup const& c){
+  ++m_nls;
   std::cout<<"I'm in run "<<lumiBlock.run()<<" lumi block "<<lumiBlock.id().luminosityBlock()<<std::endl;
   generateHLT(lumiBlock.run(),lumiBlock.id().luminosityBlock());
   generateTRG(lumiBlock.run(),lumiBlock.id().luminosityBlock());
@@ -151,10 +144,22 @@ void genLumiRaw::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
 // -----------------------------------------------------------------
 
 void genLumiRaw::beginJob(){
+
+}
+
+// -----------------------------------------------------------------
+
+void genLumiRaw::beginRun(const edm::Run& run, const edm::EventSetup& c){
+  //generate file name
+  char runnumber[9];
+  ::snprintf(runnumber,9,"%09d",run.run());
+  std::string filename=s_fileprefix+runnumber+"_0000"+"_0"+".root";
+  std::cout<<"filename "<<filename<<std::endl;
+  
   //
   //prepare file name, open file,  book root trees
   //
-  const std::string filename="test.root";
+  //const std::string filename="test.root";
   m_file=new TFile(filename.c_str(),"RECREATE");
 
   //book run summary tree
@@ -179,20 +184,12 @@ void genLumiRaw::beginJob(){
   //book hlt tree
   m_hltTree = new TTree(s_hltTree.c_str(),s_hltTree.c_str());
   m_hltTree->Branch(s_hltBranch.c_str(),s_hltName.c_str(),&m_hlt,m_bsize,m_splitlevel);
-
-}
-
-// -----------------------------------------------------------------
-
-void genLumiRaw::beginRun(const edm::Run& run, const edm::EventSetup& c){
-  //generateRunSummary(1,20);
   
 }
  
 // -----------------------------------------------------------------
 void genLumiRaw::endRun(edm::Run const& run, edm::EventSetup const& c){
-  std::cout<<"genLumiRaw::endRun filling runsummary tree"<<std::endl;
-  generateRunSummary(run.run(),20);
+  generateRunSummary(run.run(),m_nls);
 }
 
 // -----------------------------------------------------------------
@@ -220,9 +217,7 @@ void genLumiRaw::generateRunSummary(unsigned int runnumber,
   localrunsummary.numberCMSLumiSections=totalCMSls;
   localrunsummary.numberLumiDAQLumiSections=totalCMSls+2;
   localrunsummary.HLTConfigId=7792;
-  //std::strncpy(localrunsummary.runSequenceName,runsequence,128);
-  std::strcpy(localrunsummary.runSequenceName,runsequence);
-  std::cout<<"copied "<<std::memmove(m_runsummary,&localrunsummary,sizeof(HCAL_HLX::RUN_SUMMARY))<<std::endl;
+  std::strncpy(localrunsummary.runSequenceName,runsequence,128);
   m_runsummaryTree->Fill();
 }
 // -----------------------------------------------------------------
@@ -326,9 +321,6 @@ void genLumiRaw::generateHLX(unsigned int runnumber,
     locallumisection.lumiDetail.OccBXNormalization[1][iBX] = 143;
   }
   std::memmove(m_lumisection,&locallumisection,sizeof(HCAL_HLX::LUMI_SECTION));
-  //std::memmove(&(m_lumisection->hdr),&(locallumisection.hdr),sizeof(HCAL_HLX::LUMI_SECTION_HEADER));
-  //std::memmove(&(m_lumisection->lumiSummary),&(locallumisection.lumiSummary),sizeof(HCAL_HLX::LUMI_SUMMARY));
-  //std::memmove(&(m_lumisection->lumiDetail),&(locallumisection.lumiDetail),sizeof(HCAL_HLX::LUMI_DETAIL));
   m_hlxTree->Fill();
 }
 
