@@ -8,18 +8,21 @@ process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True),
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
+#
+#keep maxEvents equal to numberEventsInRun so that we augment LS
+#
 process.maxEvents=cms.untracked.PSet(
-    input=cms.untracked.int32(1)
+    input=cms.untracked.int32(10)
 )
 process.maxLuminosityBlocks=cms.untracked.PSet(
-    input=cms.untracked.int32(1)
+    input=cms.untracked.int32(10)
 )
 
-process.source = cms.Source("EmptySource",
-     numberEventsInRun = cms.untracked.uint32(1),
+process.source = cms.Source("EmptySource",                            
+     numberEventsInRun = cms.untracked.uint32(10),
      firstRun = cms.untracked.uint32(122314),
      numberEventsInLuminosityBlock = cms.untracked.uint32(1),
-     firstLuminosityBlock = cms.untracked.uint32(1)
+     firstLuminosityBlock = cms.untracked.uint32(10)
 )
 
 process.genlumiraw = cms.EDAnalyzer("genLumiRaw")
