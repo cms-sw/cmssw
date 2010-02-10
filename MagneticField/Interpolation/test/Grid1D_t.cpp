@@ -1,5 +1,5 @@
 #include "MagneticField/Interpolation/src/Grid1D.h"
-
+#include <cassert>
 
 
 bool testGrid1D( Grid1D const & grid)  {
@@ -11,7 +11,7 @@ bool testGrid1D( Grid1D const & grid)  {
   ok &= grid.inRange(i);
 
   ok &=  (7==i);
-  ok &= (0.2==f);
+  ok &= (1.2==f);
 
   return ok;
 }
@@ -26,7 +26,7 @@ int main() {
 
   ok &= testGrid1D(grid);
 
-
+  assert(ok);
   return ok ? 0 : 1;
 
 }

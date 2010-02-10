@@ -16,7 +16,7 @@ public:
   }
 
 
-  Scalar step() const {return 1./step_;}
+  Scalar step() const {return 1./stepinv_;}
   Scalar lower() const {return lower_;}
   Scalar upper() const {return upper_;}
   int nodes() const {return nodes_;}
