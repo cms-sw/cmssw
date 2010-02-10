@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctStaticParameters.h"
 
+using std::ios;
 
 const unsigned L1GctJetFinderParams::NUMBER_ETA_VALUES = 11;
 const unsigned L1GctJetFinderParams::N_CENTRAL_ETA_VALUES = 7;
@@ -72,21 +73,21 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
 
   }
 
-  // check number of coefficients
+  // check number of coefficients against expectation
+  unsigned expCoeffs = 0;
+  if (corrType_ == 2) expCoeffs=8;
+
+  // only correction type 1 can have a unknown number of parameters
   if (corrType_ != 1) {
-    std::vector< std::vector<double> >::const_iterator itr;
-    unsigned nCoeffs=0;
-    if (corrType_ == 2) nCoeffs=8;  // ORCA style corrections need 4 coefficients
-    if (corrType_ == 3) nCoeffs=11;  // piecewise-cubic corrections need 11 coefficients?!?
-      
+    std::vector< std::vector<double> >::const_iterator itr;      
     for (itr=jetCorrCoeffs_.begin(); itr!=jetCorrCoeffs_.end(); ++itr) {
-      if (itr->size() != nCoeffs) {
-	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " jet correction coefficients, when " << nCoeffs << " expected" << std::endl;
+      if (itr->size() != expCoeffs) {
+	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " jet correction coefficients, when " << expCoeffs << " expected" << std::endl;
       }
     }
     for (itr=tauCorrCoeffs_.begin(); itr!=tauCorrCoeffs_.end(); ++itr) {
-      if (itr->size() != nCoeffs) {
-	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " tau correction coefficients, when " << nCoeffs << " expected"<< std::endl;
+      if (itr->size() != expCoeffs) {
+	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " tau correction coefficients, when " << expCoeffs << " expected"<< std::endl;
       }
     }
   }
@@ -232,9 +233,6 @@ double L1GctJetFinderParams::correctionFunction(const double Et, const std::vect
   case 2:  // ORCA style correction
     result = orcaStyleCorrect(Et, coeffs);
     break;
-  case 3:  // piecwise cubic correction
-    result = piecewiseCubicCorrect(Et, coeffs);
-    break;
   default:
     result = Et;      
   }
@@ -270,38 +268,10 @@ double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector
 }
 
 
-double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::vector<double>& coeffs) const
-{
-  // The correction fuction is a set of 3rd order polynomials
-  //    Et_out = Et_in + (p0 + p1*Et_in + p2*Et_in^2 + p3*Et_in^3)
-  // with different coefficients for different energy ranges.
-  // The parameters are arranged in groups of five.
-  // The first in each group is a threshold value of input Et,
-  // followed by the four coefficients for the cubic function.
-  double etOut = Et;
-  std::vector<double>::const_iterator next_coeff=coeffs.begin();
-  while (next_coeff != coeffs.end()) {
-
-    // Read the coefficients from the vector
-    double threshold = *next_coeff++;
-    double A = *next_coeff++; //p0
-    double B = *next_coeff++; //p1
-    double C = *next_coeff++; //p2
-    double D = *next_coeff++; //p3
-
-    // Check we are in the right energy range and make correction
-    if (Et>threshold) {
-      etOut += (A + etOut*(B + etOut*(C + etOut*D))) ;
-      break;
-    }
-
-  }
-  return etOut;
-}
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
 {
-  os << std::setprecision(2);
+  //  os << std::setprecision(2);
 
   os << "=== Level-1 GCT : Jet Finder Parameters  ===" << std::endl;
   os << "RCT region LSB               : " << std::fixed << fn.getRgnEtLsbGeV() << " GeV" << std::endl;
@@ -316,6 +286,8 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
 
   os << std::endl;
 
+  os << std::setprecision(6);
+  os << ios::scientific;
 
   os << "=== Level-1 GCT : Jet Et Calibration Function  ===" << std::endl;
   if (fn.getCorrType() == 0) {
@@ -329,9 +301,6 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
       case 2:
         os << "ORCA-style energy correction for jets is enabled" << std::endl;
         break;
-      case 3:
-        os << "Piecewise 3rd-order polynomial energy correction for jets is enabled" << std::endl;
-        break;
       default:
         os << "Unrecognised calibration function type" << std::endl;
         break; 
@@ -343,11 +312,11 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
     for (unsigned i=0; i<jetCoeffs.size(); i++){
       os << "Eta =" << std::setw(2) << i;
       if (jetCoeffs.at(i).empty()) {
-        os << ", no non-linear correction.";
+        os << ", no coefficients";
       } else {
         os << " Coefficients = ";
         for (unsigned j=0; j<jetCoeffs.at(i).size();j++){
-          os << jetCoeffs.at(i).at(j) << " "; 
+          os << jetCoeffs.at(i).at(j) << ", "; 
         }
       }
       os << std::endl;
@@ -356,16 +325,19 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
     for (unsigned i=0; i<tauCoeffs.size(); i++){
       os << "Eta =" << std::setw(2) << i;
       if (tauCoeffs.at(i).empty()) {
-        os << ", no non-linear correction.";
+        os << ", no coefficients";
       } else {
         os << " Coefficients = ";
         for (unsigned j=0; j<tauCoeffs.at(i).size();j++){
-          os << tauCoeffs.at(i).at(j) << " "; 
+          os << tauCoeffs.at(i).at(j) << ", "; 
         }
       }
       os << std::endl;
     }
   }
+
+  os.unsetf(ios::fixed | ios::scientific);
+
   return os;
 }
 
