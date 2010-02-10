@@ -11,7 +11,7 @@ public:
   Grid1D() {}
 
   Grid1D( Scalar lower, Scalar upper, int nodes) : 
-    lower_(lower), upper_(upper), nodes_(nodes) {
+    lower_(lower), upper_(upper), edges_(nodes-2) {
     stepinv_ =  (nodes-1)/(upper - lower);
   }
 
@@ -19,13 +19,13 @@ public:
   Scalar step() const {return 1./stepinv_;}
   Scalar lower() const {return lower_;}
   Scalar upper() const {return upper_;}
-  int nodes() const {return nodes_;}
-  int cells() const {return nodes()-1;}
+  int nodes() const {return  edges_+2;}
+  int cells() const {return  edges_+1;}
 
   Scalar node( int i) const { return i*step() + lower();}
 
   bool inRange(int i) const {
-    return i>=0 && i<cells();
+    return i>=0 && i<=edges_;
   }
 
   // return index and fractional part...
@@ -33,6 +33,18 @@ public:
     Scalar b;
     f = modf((a-lower())*stepinv_, &b);
     return b;
+  }
+
+  // move index and fraction in range..
+  void normalize(int & ind,  Scalar & f) const {
+    if (ind<0) {
+      f -= ind;
+      ind = 0;
+    }
+    else if (ind>edges_) {
+      f += ind-edges_;
+      ind = edges_;
+    }
   }
 
 
@@ -61,7 +73,7 @@ private:
   Scalar stepinv_;
   Scalar lower_;
   Scalar upper_;
-  int    nodes_;
+  int    edges_; // number of lower edges = nodes-2...
 
 };
 

@@ -25,6 +25,8 @@ void print(Grid1D grid,  Grid1D::Scalar a) {
   Grid1D::Scalar f;
   int i = grid.index(a,f); 
   ::printf("%i %f %a\n",i,f,f);
+  grid.normalize(i,f);
+  ::printf("%i %f %a\n",i,f,f);
 }
 
 int main() {
