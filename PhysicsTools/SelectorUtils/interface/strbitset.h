@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.3 2009/12/15 19:40:43 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.1 2009/12/21 19:27:08 srappocc Exp $
 */
 
 
@@ -325,22 +325,10 @@ class strbitset {
   bit_vector        bits_;  //!< the actual bits, indexed by the index in "map_"
 };
 
- strbitset operator&(const strbitset& l, const strbitset& r) {
-   strbitset ret = r;
-   ret &= l;
-   return ret;
- }
+ strbitset operator&(const strbitset& l, const strbitset& r);
 
- strbitset operator|(const strbitset& l, const strbitset& r) {
-   strbitset ret = r;
-   ret |= l;
-   return ret;
- }
- strbitset operator^(const strbitset& l, const strbitset& r){
-   strbitset ret = r;
-   ret ^= l;
-   return ret;
- }
+ strbitset operator|(const strbitset& l, const strbitset& r);
+ strbitset operator^(const strbitset& l, const strbitset& r);
 
 
 
