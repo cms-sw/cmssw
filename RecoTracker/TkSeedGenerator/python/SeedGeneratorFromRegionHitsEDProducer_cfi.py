@@ -14,7 +14,7 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
         ComponentName = cms.string('none')
     ),
     RegionFactoryPSet = cms.PSet(
-        RegionPsetFomBeamSpotBlock,
+        RegionPsetFromBeamSpotBlock,
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot')
     ),
 # This works best ...
