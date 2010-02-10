@@ -15,7 +15,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Thu Mar  1 15:10:47 CET 2007
-// $Id: L1GctConfigProducers.h,v 1.8 2009/02/24 15:47:23 jbrooke Exp $
+// $Id: L1GctConfigProducers.h,v 1.9 2009/04/01 15:15:32 heath Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-class L1GctJfParamsConfigurer;
+class L1CaloGeometry;
 
 class L1GctJetFinderParams;
 class L1GctChannelMask;
@@ -49,20 +49,35 @@ class L1GctChannelMaskRcd;
 //
 
 class L1GctConfigProducers : public edm::ESProducer {
-   public:
-      L1GctConfigProducers(const edm::ParameterSet&);
-      ~L1GctConfigProducers();
+ public:
+  L1GctConfigProducers(const edm::ParameterSet&);
+  ~L1GctConfigProducers();
+  
+  typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
+  typedef boost::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
+  
+  JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
+  ChanMaskReturnType produceChanMask(const L1GctChannelMaskRcd&);
 
-      typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
-      typedef boost::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
+  std::vector<double> etToEnergyConversion(const L1CaloGeometry* geom) const;
+ 
+ private:
+  // ----------member data ---------------------------
+  double m_rgnEtLsb;
+  double m_htLsb;
+  double m_CenJetSeed;
+  double m_FwdJetSeed;
+  double m_TauJetSeed;
+  double m_tauIsoThresh;
+  double m_htJetThresh;
+  double m_mhtJetThresh;
+  unsigned m_EtaBoundry;
+  unsigned m_corrFunType;
+  bool m_convertToEnergy;
 
-      JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
-      ChanMaskReturnType produceChanMask(const L1GctChannelMaskRcd&);
+  std::vector< std::vector<double> > m_jetCalibFunc;
+  std::vector< std::vector<double> > m_tauCalibFunc;
 
-   private:
-      // ----------member data ---------------------------
-
-     L1GctJfParamsConfigurer* m_JfParamsConf;
 };
 
 #endif

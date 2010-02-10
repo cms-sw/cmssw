@@ -3,12 +3,12 @@
 
 #include "L1TriggerConfig/GctConfigProducers/interface/L1GctConfigProducers.h"
 
-#include "L1TriggerConfig/GctConfigProducers/interface/L1GctJfParamsConfigurer.h"
-
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 
 //
@@ -23,14 +23,74 @@
 // constructors and destructor
 //
 L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
-  m_JfParamsConf(new L1GctJfParamsConfigurer(iConfig))
+  m_rgnEtLsb(iConfig.getParameter<double>("RctRegionEtLSB")),
+  m_htLsb(iConfig.getParameter<double>("GctHtLSB")),
+  m_CenJetSeed(iConfig.getParameter<double>("JetFinderCentralJetSeed")),
+  m_FwdJetSeed(iConfig.getParameter<double>("JetFinderForwardJetSeed")),
+  m_TauJetSeed(iConfig.getParameter<double>("JetFinderCentralJetSeed")), // no separate tau jet seed yet
+  m_tauIsoThresh(iConfig.getParameter<double>("TauIsoEtThreshold")),
+  m_htJetThresh(iConfig.getParameter<double>("HtJetEtThreshold")),
+  m_mhtJetThresh(iConfig.getParameter<double>("MHtJetEtThreshold")),
+  m_EtaBoundry(7), // not programmable!
+  m_corrFunType(0),
+  m_convertToEnergy (iConfig.getParameter<bool>("ConvertEtValuesToEnergy")),
+  m_jetCalibFunc(),
+  m_tauCalibFunc()
 {
+
    //the following lines are needed to tell the framework what
    // data is being produced
    setWhatProduced(this,&L1GctConfigProducers::produceJfParams);
    setWhatProduced(this,&L1GctConfigProducers::produceChanMask);
 
    //now do what ever other initialization is needed
+   std::string CalibStyle = iConfig.getParameter<std::string>("CalibrationStyle");
+
+  edm::ParameterSet calibCoeffs;
+
+  if (CalibStyle == "PowerSeries") {
+    m_corrFunType = 1;
+    calibCoeffs = iConfig.getParameter<edm::ParameterSet>("PowerSeriesCoefficients");
+  }
+
+  if (CalibStyle == "ORCAStyle") {
+    m_corrFunType = 2;
+    calibCoeffs = iConfig.getParameter<edm::ParameterSet>("OrcaStyleCoefficients");
+  }
+  
+
+  // check 
+  if (CalibStyle != "None") {
+
+    // Read the coefficients from file
+    // coefficients for non-tau jet corrections
+    for (unsigned i=0; i<L1GctJetFinderParams::NUMBER_ETA_VALUES; ++i) {
+      std::stringstream ss;
+      std::string str;
+      ss << "nonTauJetCalib" << i;
+      ss >> str;
+      m_jetCalibFunc.push_back(calibCoeffs.getParameter< std::vector<double> >(str));
+    }
+    // coefficients for tau jet corrections
+    for (unsigned i=0; i<L1GctJetFinderParams::N_CENTRAL_ETA_VALUES; ++i) {
+      std::stringstream ss;
+      std::string str;
+      ss << "tauJetCalib" << i;
+      ss >> str;
+      m_tauCalibFunc.push_back(calibCoeffs.getParameter< std::vector<double> >(str));
+    }
+
+  } else {
+    // No corrections to be applied
+    m_corrFunType = 0;  // no correction
+    // Set the vector sizes to those expected by the CalibrationFunction
+    m_jetCalibFunc.resize(L1GctJetFinderParams::NUMBER_ETA_VALUES);
+    m_tauCalibFunc.resize(L1GctJetFinderParams::N_CENTRAL_ETA_VALUES);
+    if (CalibStyle != "None") {
+      edm::LogWarning("L1GctConfig") << "Unrecognised Calibration Style option " << CalibStyle
+                                      << "; no Level-1 jet corrections will be applied" << std::endl;
+    }
+  }
 
 }
 
@@ -41,26 +101,67 @@ L1GctConfigProducers::~L1GctConfigProducers()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
-  if (m_JfParamsConf != 0) { delete m_JfParamsConf; }
-
 }
 
 // The producer methods are handled by the "Configurer" objects
 
-L1GctConfigProducers::
-JfParamsReturnType L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd& aRcd)
-        {
-	  const L1CaloGeometryRecord& geomRcd = aRcd.getRecord< L1CaloGeometryRecord >() ;
-	  edm::ESHandle< L1CaloGeometry > geom ;
-	  geomRcd.get( geom ) ;
-	  return m_JfParamsConf->produceJfParams( geom.product() ); }
+L1GctConfigProducers::JfParamsReturnType 
+L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd& aRcd)
+{
+  // get geometry
+  const L1CaloGeometryRecord& geomRcd = aRcd.getRecord< L1CaloGeometryRecord >() ;
+  edm::ESHandle< L1CaloGeometry > geom ;
+  geomRcd.get( geom ) ;
+  
+  // construct jet finder params object
+  boost::shared_ptr<L1GctJetFinderParams> pL1GctJetFinderParams =
+    boost::shared_ptr<L1GctJetFinderParams> (new L1GctJetFinderParams(m_rgnEtLsb,
+								      m_htLsb,
+								      m_CenJetSeed,
+								      m_FwdJetSeed,
+								      m_TauJetSeed,
+								      m_tauIsoThresh,
+								      m_htJetThresh,
+								      m_mhtJetThresh,
+								      m_EtaBoundry,
+								      m_corrFunType,
+								      m_jetCalibFunc,
+								      m_tauCalibFunc,
+								      m_convertToEnergy,
+								      etToEnergyConversion(geom.product())) );
+  
+  return pL1GctJetFinderParams ;
 
-L1GctConfigProducers::
-ChanMaskReturnType L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {
+}
+
+L1GctConfigProducers::ChanMaskReturnType 
+L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {
   return boost::shared_ptr<L1GctChannelMask>(new L1GctChannelMask);
 }
 
 
+/// Legacy nonsense
+
+/// Calculate Et-to-energy conversion factors for eta bins
+std::vector<double> 
+L1GctConfigProducers::etToEnergyConversion(
+   const L1CaloGeometry* geom) const {
+  //  L1CaloGeometry* geom = new L1CaloGeometry();
+  std::vector<double> result;
+  // Factors for central eta bins
+  for (unsigned ieta=0; ieta<7; ieta++) {
+    double bineta = geom->etaBinCenter(ieta, true);
+    double factor = 0.5*(exp(bineta)+exp(-bineta)); // Conversion from eta to cosec(theta)
+    result.push_back(factor);
+  }
+  // Factors for forward eta bins
+  for (unsigned ieta=0; ieta<4; ieta++) {
+    double bineta = geom->etaBinCenter(ieta, false);
+    double factor = 0.5*(exp(bineta)+exp(-bineta)); // Conversion from eta to cosec(theta)
+    result.push_back(factor);
+  }
+  return result;
+}
 
 
 //define this as a plug-in
