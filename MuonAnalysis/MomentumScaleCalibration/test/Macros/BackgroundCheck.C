@@ -48,6 +48,25 @@ protected:
   double lowerLimit_, upperLimit_;
 };
 
+class Atan
+{
+public:
+  Atan(const double & lowerLimit, const double & upperLimit) : lowerLimit_(lowerLimit), upperLimit_(upperLimit) {}
+
+  double operator()( const double * x, const double * parval ) const
+  {
+    double value = atan(parval[1]*(x[0] + parval[2]));
+    double upperX = parval[1]*(upperLimit_ + parval[2]);
+    double lowerX = parval[1]*(lowerLimit_ + parval[2]);
+    double norm = (upperX*atan(upperX) - 0.5*log(1+upperX*upperX) - (lowerX*atan(lowerX) - 0.5*log(1+lowerX*lowerX)))/parval[1];
+
+    if( norm != 0 ) return value/norm;
+    return 0.;
+  }
+protected:
+  double lowerLimit_, upperLimit_;
+};
+
 TH1F * subRangeHisto( const double * resMass, const double * resHalfWidth,
                       const int iRes, TH1F * histo, const TString & name )
 {
@@ -92,8 +111,8 @@ void BackgroundCheck()
   // We multiply it by the integral to get the background value.
   int xBins = allHisto->GetNbinsX();
 
-  double OriginalResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
-  double ResMass[] = {91.1876, 0., 0., (10.3552 + 10.0233 + 9.4603)/3., 0., (3.68609+3.0969)/2.};
+  double OriginalResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 0.497614};
+  double ResMass[] = {91.1876, 0., 0., (10.3552 + 10.0233 + 9.4603)/3., 0., 0.497614};
   double ResHalfWidth[] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
   TString ResName[] = {"Z", "Upsilon3S", "Upsilon2S", "Upsilon1S", "Psi2S", "J/Psi"};
 
@@ -105,35 +124,21 @@ void BackgroundCheck()
 
   // IMPORTANT: parameters to change
   // -------------------------------
-  ires.push_back(3);
-
-  // Exponential
-  Bgrp1.push_back(0.648864);
-  a.push_back(0.0690135);
-  // Bgrp1.push_back(0.22022);
-  // a.push_back(1.07583);
-
-  // Linear
-  // Bgrp1.push_back(0.512332);
-  // a.push_back(140.06);
-  // a.push_back(-23.9593);
-
-  // leftWindowFactor.push_back(1. + 0.2946/0.2);
-  // rightWindowFactor.push_back(1. - 0.2946/0.2);
-  // leftWindowFactor.push_back(4. + 0.2946/0.2);
-  // rightWindowFactor.push_back(4. - 0.2946/0.2);
-  leftWindowFactor.push_back(8.);
-  rightWindowFactor.push_back(8.);
-  // leftWindowFactor.push_back(4.);
-  // rightWindowFactor.push_back(4.);
-
   ires.push_back(5);
 
-  // Exponential
-  Bgrp1.push_back(0.63582);
-  a.push_back(0.34012);
-  leftWindowFactor.push_back(3.5);
-  rightWindowFactor.push_back(3.5);
+  // Atan
+  Bgrp1.push_back(0.000547261);
+  a.push_back(10.0145);
+  a.push_back(-0.320232);
+  leftWindowFactor.push_back(1);
+  rightWindowFactor.push_back(1);
+
+  // // Linear
+  // Bgrp1.push_back(0.833);
+  // a.push_back(0.00016);
+  // a.push_back(-1.27329e-11);
+  // leftWindowFactor.push_back(1);
+  // rightWindowFactor.push_back(1);
 
   // -------------------------------
 
@@ -208,7 +213,9 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
   TF1 * backgroundFunction = 0;
   TH1F * backgroundFunctionHisto = 0;
 
-  bool exponential = true;
+  bool exponential = false;
+  bool atan = true;
+
   if( exponential ) {
     // Exponential
     // -----------
@@ -222,6 +229,30 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
     backgroundFunction = new TF1("backgroundFunction", functionString.c_str(), xMin, xMax );
     backgroundFunction->SetParameter(0, 1);
     backgroundFunction->SetParameter(1, a);
+    backgroundFunctionHisto = new TH1F("backgroundFunctionHisto", "backgroundFunctionHisto", xBins, xMin, xMax);
+    for( int xBin = 0; xBin < xBins; ++xBin ) {
+      backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Integral(xBin*xWidth, (xBin+1)*xWidth));
+    }
+  }
+  else if( atan ) {
+    // Exponential
+    // -----------
+    // backgroundFunction = new TF1("backgroundFunction", "[0]*([1]*exp(-[1]*x))", xMin, xMax );
+
+    stringstream ssUp;
+    stringstream ssDown;
+    ssUp << upWindowValue;
+    ssDown << lowWindowValue;
+
+    // string functionString("[0]*TMath::ATan([1]*(x + [2]))/( [1]*("+ssUp.str()+" + [2])*TMath::ATan([1]*("+ssUp.str()+" + [2])) - 0.5*TMath::Log(1+[1]*("+ssUp.str()+" + [2])*[1]*("+ssUp.str()+" + [2])) - ([1]*("+ssDown.str()+" + [2])*TMath::ATan([1]*("+ssDown.str()+" + [2])) - 0.5*TMath::Log(1+[1]*("+ssDown.str()+" + [2])*[1]*("+ssDown.str()+" + [2]))) )");
+    // backgroundFunction = new TF1("backgroundFunction", functionString.c_str(), xMin, xMax );
+
+    Atan * atanFunction = new Atan(lowWindowValue, upWindowValue);
+    backgroundFunction = new TF1("backgroundFunction", atanFunction, 0, 1, 3, "atanFunction");
+
+    backgroundFunction->SetParameter(0, 1);
+    backgroundFunction->SetParameter(1, a);
+    backgroundFunction->SetParameter(2, b);
     backgroundFunctionHisto = new TH1F("backgroundFunctionHisto", "backgroundFunctionHisto", xBins, xMin, xMax);
     for( int xBin = 0; xBin < xBins; ++xBin ) {
       backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Integral(xBin*xWidth, (xBin+1)*xWidth));
