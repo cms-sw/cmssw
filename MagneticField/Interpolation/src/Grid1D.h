@@ -29,7 +29,9 @@ public:
 
   // return index and fractional part...
   int index(Scalar a, Scalar & f) const {
-    int ind = modf((a-lower())/step(), &f);
+    Scalar b;
+    f = modf((a-lower())/step(), &b);
+    return b;
   }
 
 
