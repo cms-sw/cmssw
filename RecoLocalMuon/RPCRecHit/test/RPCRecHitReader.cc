@@ -94,7 +94,7 @@ RPCRecHitReader::RPCRecHitReader(const edm::ParameterSet& pset):_phi(0)
 
 }
 
-void RPCRecHitReader::beginJob( const edm::EventSetup& iSetup)
+void RPCRecHitReader::beginRun( const edm::EventSetup& iSetup)
 {
 
   edm::ESHandle<RPCGeometry> rpcGeo;
