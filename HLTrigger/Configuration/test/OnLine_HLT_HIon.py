@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/HIon/V19 (CMSSW_3_5_0)
+# /dev/CMSSW_3_5_0/HIon/V20 (CMSSW_3_5_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V19')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V20')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2407,7 +2407,10 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' ),
+      'keep triggerTriggerEvent_*_*_*',
+      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+      'keep *_hltAlCaEtaRegRecHits_*_*',
+      'keep *_hltAlCaPi0RegRecHits_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2418,7 +2421,8 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltGtDigis_*_*' ),
+      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+      'keep *_hltAlCaPhiSymStream_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
