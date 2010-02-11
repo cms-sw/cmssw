@@ -33,20 +33,17 @@ addpkg Geometry/CSCGeometry V01-05-06
 addpkg GeometryReaders/XMLIdealGeometryESSource V01-02-21-04
 addpkg DetectorDescription/Schema V02-01-01
 addpkg Validation/Geometry 
+#required:
 addpkg Configuration/StandardSequences
 
-#####
-scram b
-
 if ($loctag != '') then 
-    addpkg Configuration/StandardSequences
     cd Configuration/StandardSequences/python
     set escloctag = `(echo $loctag | sed '{s/\//\\\//g}')`
     sed -i "{s/frontier:\/\/FrontierProd\/CMS_COND_31X_GLOBALTAG/${escloctag}/g}" FrontierConditions_GlobalTag_cfi.py 
 endif
 
 cd $CMSSW_BASE/src
-scramv1 build
+scram build
 
 echo "Finish the setup of release working area"
 

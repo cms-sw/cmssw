@@ -26,8 +26,6 @@ echo "Check out and compile the needed packages"
 addpkg DetectorDescription/Schema
 addpkg GeometryReaders/XMLIdealGeometryESSource  
 addpkg Geometry/CaloEventSetup
-##### MAY NOT BE NEEDED
-scram b
 
 if ($loctag != '') then 
     addpkg Configuration/StandardSequences
@@ -37,7 +35,7 @@ if ($loctag != '') then
 endif
 
 cd $CMSSW_BASE/src
-scramv1 build
+scram build
 
 echo "Finish the setup of release working area"
 
