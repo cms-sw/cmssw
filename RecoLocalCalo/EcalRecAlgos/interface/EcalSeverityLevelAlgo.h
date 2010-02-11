@@ -11,10 +11,11 @@ class EcalSeverityLevelAlgo {
                 // Levels of severity:
                 // - 0 --> good
                 // - 1 --> problematic (e.g. noisy)
-                // - 2 --> recovered (e.g. dead or saturated)
-                // - 3 --> bad, not suitable to be used in the reconstruction
+                // - 2 --> recovered (e.g. an originally dead or saturated)
+                // - 3 --> weird (e.g. spike)
+                // - 4 --> bad, not suitable to be used in the reconstruction
 
-                enum EcalSeverityLevel { kGood, kProblematic, kRecovered, kBad, kWeird };
+                enum EcalSeverityLevel { kGood, kProblematic, kRecovered, kWeird, kBad };
                 
                 static int severityLevel( const DetId , const EcalRecHitCollection &, const EcalChannelStatus & );
                 static int severityLevel( uint32_t rhFlag, uint16_t dbStatus );
