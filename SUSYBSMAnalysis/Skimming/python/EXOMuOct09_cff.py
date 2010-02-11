@@ -3,13 +3,13 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 exoticaMuHLT = hltHighLevel
 #Define the HLT path to be used.
-exoticaMuHLT.HLTPaths =['HLT_Mu9']
-exoticaMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
+#exoticaMuHLT.HLTPaths =['HLT_L1MuOpen']
+exoticaMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 
 #Define the HLT quality cut 
 exoticaHLTMuonFilter = cms.EDFilter("HLTSummaryFilter",
-    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
-    member  = cms.InputTag("hltL3MuonCandidates","","HLT8E29"),      # filter or collection									
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT"), # trigger summary
+    member  = cms.InputTag("hltL2MuonCandidates","","HLT"),      # filter or collection									
     cut     = cms.string("pt>20"),                     # cut on trigger object
     minN    = cms.int32(1)                  # min. # of passing objects needed
  )
@@ -17,8 +17,8 @@ exoticaHLTMuonFilter = cms.EDFilter("HLTSummaryFilter",
 
 #Define the Reco quality cut
 exoticaRecoMuonFilter = cms.EDFilter("MuonRefSelector",
-	src = cms.InputTag("muons"),
-    cut = cms.string('pt > 20.0'),
+    src = cms.InputTag("muons"),
+    cut = cms.string('pt > 15.0'),
     filter = cms.bool(True)            
                                       
 )
