@@ -2,9 +2,12 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.8 2010/02/02 11:44:20 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.9 2010/02/11 00:11:09 wmtan Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.9  2010/02/11 00:11:09  wmtan
+// Adapt to moved framework header
+//
 // Revision 1.8  2010/02/02 11:44:20  wittich
 // more diagnostics for online scalers
 //
@@ -37,7 +40,7 @@
 // HARD CODE THE NUMBER OF HISTOGRAMS TO 200, LENGTH OF MONITOR to 2000 
 // segments
 #define MAX_PATHS 200
-#define MAX_LUMI_SEG_HLT 150
+#define MAX_LUMI_SEG_HLT 1200
 
 class HLTScalersClient: public edm::EDAnalyzer
 {
