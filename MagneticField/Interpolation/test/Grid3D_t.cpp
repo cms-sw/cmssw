@@ -35,6 +35,7 @@ int main() {
   LinearGridInterpolator3D inter(*grid);
   
   std::cout << inter.interpolate(7.5,7.2,-3.4) << std::endl;
+  std::cout << inter.interpolate(-0.5,10.2,-3.4) << std::endl;
 
 
   delete grid;
