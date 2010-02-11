@@ -12,10 +12,12 @@ shrinkingConeLeadTrackFinding = copy.deepcopy(requireLeadTrack)
 shrinkingConeLeadTrackFinding.leadTrack.Producer = cms.InputTag("shrinkingConePFTauDiscriminationByLeadingTrackFinding")
 
 
-shrinkingConePFTauDiscriminationByTaNC = cms.EDProducer("PFTauMVADiscriminator",
+shrinkingConePFTauDiscriminationByTaNC = cms.EDProducer(
+    "PFTauMVADiscriminator",
     PFTauProducer     = cms.InputTag("shrinkingConePFTauProducer"),
     pfTauDecayModeSrc = cms.InputTag("shrinkingConePFTauDecayModeProducer"),
     Prediscriminants  = shrinkingConeLeadTrackFinding,
+    dbLabel           = cms.string(""),      # Allow multiple record types
     RemapOutput       = cms.bool(True),
     computers         = TaNC,
     prefailValue      = cms.double(-2.0),    #specifies the value to set if one of the preDiscriminats fails (should be lower than minimum MVA output, -1)

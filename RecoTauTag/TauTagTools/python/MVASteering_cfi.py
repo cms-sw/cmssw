@@ -1,3 +1,13 @@
+"""
+        MVASteering.py
+        Author: Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
+
+        Define the MVA configurations (ie TaNC) to be used in training/testing
+                - which neural net 
+                - which algorithms (shrinkingConePFTauDecayModeProducer, etc)
+        Define locations of train/test ROOT files
+"""
+
 import sys
 import os
 # Get CMSSW base
@@ -13,15 +23,6 @@ import glob
 # Get defintions (w/ decay mode mapping) from the python defintion file
 from RecoTauTag.TauTagTools.TauMVAConfigurations_cfi import *
 
-"""
-        MVASteering.py
-        Author: Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
-
-        Define the MVA configurations (ie TaNC) to be used in training/testing
-                - which neural net 
-                - which algorithms (shrinkingConePFTauDecayModeProducer, etc)
-        Define locations of train/test ROOT files
-"""
 #######  USER PARAMETERS  #######################################
 #################################################################
 
@@ -38,7 +39,7 @@ MVACollections['TaNC'] = TaNC.value()  # <--- defined in TauMVAConfigurations_cf
 # MVACollections['SingleNet'] = SingleNetBasedTauID.value()       
 
 # isolation applied, neural net for each decay mode
-MVACollections['MultiNetIso'] = MultiNetIso.value()
+#MVACollections['MultiNetIso'] = MultiNetIso.value()
 
 # isolation applied, single neural net 
 #MVACollections['SingleNetIso'] = [SingleNetIso]
@@ -76,14 +77,15 @@ myTauAlgorithms = ["pfTauDecayModeHighEfficiency",
 
 # define locations of signal/background root files
 TauTagToolsWorkingDirectory = os.path.join(Project_Area, "src/RecoTauTag/TauTagTools")
-SignalRootDir               = os.path.join(TauTagToolsWorkingDirectory, "test", "finishedJobsSignal")
-BackgroundRootDir           = os.path.join(TauTagToolsWorkingDirectory, "test", "finishedJobsBackground")
+SignalRootDir               = os.path.join(TauTagToolsWorkingDirectory, "test", "ztt")
+BackgroundRootDir           = os.path.join(TauTagToolsWorkingDirectory, "test", "qcd")
 
 #Globs to get files for training and evaluation.  If you want to ensure different sets, you can do something like
 # add a requirement such as *[0123].root for training and *[4].root.  (files not ending in four used for trianing, ending in four used for testing)
 SignalFileTrainingGlob     = "%s/*[012356789].root" % SignalRootDir
-#BackgroundFileTrainingGlob = "%s/*82953*0.root" % BackgroundRootDir
 BackgroundFileTrainingGlob = "%s/*[012356789].root" % BackgroundRootDir
+#SignalFileTrainingGlob     = "%s/*[0].root" % SignalRootDir
+#BackgroundFileTrainingGlob = "%s/*[0].root" % BackgroundRootDir
 
 SignalFileTestingGlob     = "%s/*4.root" % SignalRootDir
 BackgroundFileTestingGlob = "%s/*4.root" % BackgroundRootDir
