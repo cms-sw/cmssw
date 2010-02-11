@@ -117,8 +117,7 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
 
   SignalHist->Add(SideBandHist, -stsratio);
 
-  newtitle = oldtitle + " SBS Signal";  
-  SignalHist->SetTitle(newtitle.c_str());
+  SignalHist->SetTitle(((string)BaseHistos[index]->GetTitle() + " SBS Signal").c_str());
   //Save subtracted histo
   SBSHistos.push_back(*SignalHist);
   //Save Sideband histo
