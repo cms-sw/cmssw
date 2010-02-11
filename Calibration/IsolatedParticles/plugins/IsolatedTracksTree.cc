@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Aug 10 15:30:40 CST 2009
-// $Id: IsolatedTracksTree.cc,v 1.1 2009/11/05 21:02:30 sunanda Exp $
+// $Id: IsolatedTracksTree.cc,v 1.2 2010/02/03 02:30:12 wmtan Exp $
 //
 //
 
@@ -480,9 +480,9 @@ void IsolatedTracksTree::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    }
 	    
 	    // bool includeHO=false, bool algoNew=true, bool debug=false
-	    h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, false);  
-	    h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, false);  
-	    h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, false);  
+	    h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, -100, -100, -100, -100, false);  
+	    h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, -100, -100, -100, -100, false);  
+	    h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, -100, -100, -100, -100, false);  
 	    
 	    hsimInfo3x3  = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1);
 	    hsimInfo5x5  = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2);
@@ -545,9 +545,9 @@ void IsolatedTracksTree::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	    
 	    // bool includeHO=false, bool algoNew=true, bool debug=false
-	    h3x3_1 = spr::eHCALmatrix(theHBHETopology, ClosestCell_1, hbhe,1,1, false, true, false);  
-	    h5x5_1 = spr::eHCALmatrix(theHBHETopology, ClosestCell_1, hbhe,2,2, false, true, false);  
-	    h7x7_1 = spr::eHCALmatrix(theHBHETopology, ClosestCell_1, hbhe,3,3, false, true, false);  
+	    h3x3_1 = spr::eHCALmatrix(theHBHETopology, ClosestCell_1, hbhe,1,1, false, true, -100, -100, -100, -100, false);  
+	    h5x5_1 = spr::eHCALmatrix(theHBHETopology, ClosestCell_1, hbhe,2,2, false, true, -100, -100, -100, -100, false);  
+	    h7x7_1 = spr::eHCALmatrix(theHBHETopology, ClosestCell_1, hbhe,3,3, false, true, -100, -100, -100, -100, false);  
 	    
 	    hsimInfo3x3_1 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell_1, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 1,1);
 	    hsimInfo5x5_1 = spr::eHCALSimInfo(iEvent, theHBHETopology, ClosestCell_1, geo,pcalohh, SimTk, SimVtx, pTrack, *associate, 2,2);

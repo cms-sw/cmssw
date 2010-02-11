@@ -164,7 +164,7 @@ namespace spr{
 
     if (debug) std::cout << (HcalDetId) ClosestCell << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi); //, debug);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, false, debug);
     std::vector<DetId>::iterator it;  
   
     if (debug) {
@@ -217,7 +217,7 @@ namespace spr{
 
     if (debug) std::cout << (HcalDetId) ClosestCell << std::endl;
 
-    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi); //, debug);
+    std::vector<DetId> vdets = spr::matrixHCALIds(dets, topology, ieta, iphi, false, debug);
     std::vector<DetId>::iterator it;  
   
     if (debug) {

@@ -9,7 +9,7 @@ namespace spr{
 
   std::vector<DetId> matrixHCALIds(std::vector<DetId>& dets, 
 				   const HcalTopology* topology, int ieta, 
-				   int iphi, bool debug) {
+				   int iphi, bool includeHO, bool debug) {
 
     if (debug) {
       std::cout << "matrixHCALIds::Add " << ieta << " rows and " << iphi 
@@ -31,20 +31,23 @@ namespace spr{
 	vdetN.push_back(vdetS[i1]);
     }
 
+    vdetS = spr::matrixHCALIdsDepth(vdetN, topology, includeHO, debug);
+
     if (debug) {
       std::cout << "matrixHCALIds::Total number of cells found is " 
-		<< vdetN.size() << std::endl;
-      for (unsigned int i1=0; i1<vdetN.size(); i1++) {
-	HcalDetId id = HcalDetId(vdetN[i1]());	
+		<< vdetS.size() << std::endl;
+      for (unsigned int i1=0; i1<vdetS.size(); i1++) {
+	HcalDetId id = HcalDetId(vdetS[i1]());	
 	std::cout << "matrixHCALIds::Cell " << i1 << " " << id << std::endl;
       }
     }
-    return vdetN;
+    return vdetS;
   }
 
   std::vector<DetId> matrixHCALIds(std::vector<DetId>& dets, 
 				   const HcalTopology* topology, int ietaE, 
-				   int ietaW,int iphiN,int iphiS, bool debug) {
+				   int ietaW,int iphiN,int iphiS, 
+				   bool includeHO, bool debug) {
 
     if (debug) {
       std::cout << "matrixHCALIds::Add " <<ietaE << "|" <<ietaW << " rows and "
@@ -66,15 +69,17 @@ namespace spr{
 	vdetN.push_back(vdetS[i1]);
     }
 
+    vdetS = spr::matrixHCALIdsDepth(vdetN, topology, includeHO, debug);
+
     if (debug) {
       std::cout << "matrixHCALIds::Total number of cells found is " 
-		<< vdetN.size() << std::endl;
-      for (unsigned int i1=0; i1<vdetN.size(); i1++) {
-	HcalDetId id = HcalDetId(vdetN[i1]());	
+		<< vdetS.size() << std::endl;
+      for (unsigned int i1=0; i1<vdetS.size(); i1++) {
+	HcalDetId id = HcalDetId(vdetS[i1]());	
 	std::cout << "matrixHCALIds::Cell " << i1 << " " << id << std::endl;
       }
     }
-    return vdetN;
+    return vdetS;
   }
 
   std::vector<DetId> newHCALIdNS(std::vector<DetId>& dets, unsigned int last,
@@ -375,6 +380,49 @@ namespace spr{
       }
       return vdets;
     }
+  }
+
+  std::vector<DetId> matrixHCALIdsDepth(std::vector<DetId>& dets, 
+					const HcalTopology* topology, 
+					bool includeHO, bool debug) {
+
+    if (debug) {
+      std::cout << "matrixHCALIdsDepth::Add cells with higher depths with HO" 
+		<< "Flag set to " << includeHO << " to existing "
+		<< dets.size() << " cells" << std::endl;
+      for (unsigned int i1=0; i1<dets.size(); i1++) {
+	HcalDetId id = HcalDetId(dets[i1]());	
+	std::cout << "matrixHCALIdsDepth::Cell " << i1 << " " <<id <<std::endl;
+      }
+    }
+ 
+    std::vector<DetId> vdets(dets);
+    for (unsigned int i1=0; i1<dets.size(); i1++) {
+      HcalDetId vdet = dets[i1];
+      for (int idepth = 0; idepth < 3; idepth++) {
+        std::vector<DetId> vUpDetId = topology->up(vdet);
+        if (vUpDetId.size() != 0) {
+          if (includeHO || vUpDetId[0].subdetId() != (int)(HcalOuter)) {
+            int n = std::count(vdets.begin(),vdets.end(),vUpDetId[0]);
+            if (n == 0) {
+	      if (debug) std::cout << "matrixHCALIdsDepth:: Depth " << idepth << " " << vdet << " " << (HcalDetId)vUpDetId[0] << std::endl;
+              vdets.push_back(vUpDetId[0]);
+	    }
+          }
+          vdet = vUpDetId[0];
+        }
+      }
+    }
+
+    if (debug) {
+      std::cout << "matrixHCALIdsDepth::Final list contains " << vdets.size() 
+		<< " cells" << std::endl;
+      for (unsigned int i1=0; i1<vdets.size(); i1++) {
+	HcalDetId id = HcalDetId(vdets[i1]());	
+	std::cout << "matrixHCALIdsDepth::Cell " << i1 << " " <<id <<std::endl;
+      }
+    }
+    return vdets;
   }
 
 }

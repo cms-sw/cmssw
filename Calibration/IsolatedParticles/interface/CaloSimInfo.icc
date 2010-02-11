@@ -2,6 +2,7 @@
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.h"
 #include "Calibration/IsolatedParticles/interface/eECALMatrix.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+
 #include<algorithm>
 #include<iostream>
 
@@ -146,7 +147,7 @@ namespace spr{
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
     // get the hits in Hcal in NxN around det
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixNew(topology,det,hits,ieta,iphi,false, debug);
+    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrix(topology,det,hits,ieta,iphi,includeHO,debug);
 
     return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
   }
@@ -161,7 +162,7 @@ namespace spr{
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
     // get the hits in Hcal in NxN around det
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,ietaE,ietaW,iphiN,iphiS,false,debug);
+    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,ietaE,ietaW,iphiN,iphiS,includeHO,debug);
 
     return spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
   }
@@ -184,10 +185,10 @@ namespace spr{
       simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
     } else {
       int itrym = 0;
-      std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrym],etaphi.ietaW[itrym],etaphi.iphiN[itrym],etaphi.iphiS[itrym],false, debug);
+      std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrym],etaphi.ietaW[itrym],etaphi.iphiN[itrym],etaphi.iphiS[itrym],includeHO,debug);
       simInfo = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
       for (int itrys = 1; itrys < etaphi.ntrys; ++itrys) {
-	hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrys],etaphi.ietaW[itrys],etaphi.iphiN[itrys],etaphi.iphiS[itrys],false, debug);
+	hit = spr::hitHCALmatrixTotal(topology,det,hits,etaphi.ietaE[itrys],etaphi.ietaW[itrys],etaphi.iphiN[itrys],etaphi.iphiS[itrys],includeHO,debug);
         std::map<std::string, double> simInfoX = spr::eCaloSimInfo(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
         if (simInfoX["eTotal"] > simInfo["eTotal"]) {
 	  simInfo = simInfoX;
@@ -208,7 +209,7 @@ namespace spr{
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
     // get the hits in Hcal in NxN around det
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixNew(topology,det,hits,ieta,iphi,false, debug);
+    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrix(topology,det,hits,ieta,iphi,includeHO,debug);
 
     return spr::caloSimInfoMatrix(geo, hits, SimTk, SimVtx, hit, trkInfo, timeCut, includeHO, debug);
   }
@@ -623,7 +624,7 @@ namespace spr{
 
     edm::SimTrackContainer::const_iterator trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack,associate, debug);
 
-    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrixNew(topology,det,hits,ieta,iphi,false, debug);
+    std::vector< typename T::const_iterator> hit = spr::hitHCALmatrix(topology,det,hits,ieta,iphi,includeHO,debug);
 
     std::vector<int> matchedId = spr::matchedSimTrackId(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 

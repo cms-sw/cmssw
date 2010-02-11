@@ -40,28 +40,28 @@ namespace spr{
   double eECALmatrix(CaloNavigator<DetId>& navigator,edm::Handle<T>& hits, int ieta, int iphi, bool debug=false);
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug=false);
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr=-100, double eeThr=-100, bool debug=false);
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, bool debug=false);
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr=-100, double eeThr=-100, bool debug=false);
 
   template< typename T>
-  std::vector<std::pair<DetId,double> > eECALmatrixCell(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug=false);
+  std::vector<std::pair<DetId,double> > eECALmatrixCell(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr=-100, double eeThr=-100, bool debug=false);
 
   // Energy in ietaXiphi crystal matrix
   template< typename T>
-  std::pair<double,int> eECALmatrixTotal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug=false);
+  std::pair<double,int> eECALmatrixTotal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr=-100, double eeThr=-100, bool debug=false);
   
   // returns vector of hits in NxN matrix 
   template <typename T>
-  std::vector<typename T::const_iterator> hitECALmatrix(CaloNavigator<DetId>& navigator,edm::Handle<T>& hits, int ieta, int iphi, bool debug=false);
+  std::vector<typename T::const_iterator> hitECALmatrix(CaloNavigator<DetId>& navigator, edm::Handle<T>& hits, int ieta, int iphi, bool debug=false);
   
   // returns energy deposited from the vector of hits
   template <typename T>
-  double energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, bool debug=false);
+  double energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, double ebThr=-100, double eeThr=-100, bool debug=false);
 
   template <typename T>
-  std::vector<std::pair<DetId,double> > energyECALCell(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, bool debug=false);
+  std::vector<std::pair<DetId,double> > energyECALCell(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, double ebThr=-100, double eeThr=-100, bool debug=false);
   
 }
 

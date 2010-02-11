@@ -13,7 +13,7 @@
 //
 // Original Author:  Seema Sharma
 //         Created:  Mon Aug 10 15:30:40 CST 2009
-// $Id: IsolatedTracksTreeRecoSimL1SeedsData.cc,v 1.1 2010/01/25 15:37:31 sunanda Exp $
+// $Id: IsolatedTracksTreeRecoSimL1SeedsData.cc,v 1.2 2010/02/03 02:30:12 wmtan Exp $
 //
 //
 
@@ -686,9 +686,9 @@ void IsolatedTracksTreeRecoSimL1SeedsData::analyze(const edm::Event& iEvent, con
 	//std::map<std::string, double> hsimInfo3x3, hsimInfo5x5, hsimInfo7x7;	    
 	
 	// bool includeHO=false, bool algoNew=true, bool debug=false
-	h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, false);  
-	h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, false);  
-	h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, false);  
+	h3x3 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,1,1, false, true, -100, -100, -100, -100, false);  
+	h5x5 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,2,2, false, true, -100, -100, -100, -100, false);  
+	h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, -100, -100, -100, -100, false);  
 
 	/* // debug the ecal and hcal matrix
 	std::cout<<"Run "<<iEvent.id().run()<<"  Event "<<iEvent.id().event()<<std::endl; 

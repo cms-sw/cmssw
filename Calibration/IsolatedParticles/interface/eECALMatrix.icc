@@ -7,7 +7,7 @@ namespace spr{
   template <typename T>
   double eECALmatrix(CaloNavigator<DetId>& navigator,edm::Handle<T>& hits, int ieta, int iphi, bool debug) {
 	
-    std::vector< typename T::const_iterator> hit = hitECALmatrix(navigator,hits,ieta,iphi,debug);
+    std::vector< typename T::const_iterator> hit = spr::hitECALmatrix(navigator,hits,ieta,iphi,debug);
  
     if (debug) {
       std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1 << std::endl;
@@ -25,7 +25,7 @@ namespace spr{
   }
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug) {
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr, double eeThr, bool debug) {
 
     std::vector<DetId> vdets = spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, debug);
 
@@ -34,11 +34,11 @@ namespace spr{
                 << " nXtals " << vdets.size() << std::endl;
    }
 
-   return spr::energyECAL(vdets, hitsEB, hitsEE, debug);
+   return spr::energyECAL(vdets, hitsEB, hitsEE, ebThr, eeThr, debug);
   }
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, bool debug) {
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr, double eeThr, bool debug) {
 
     std::vector<DetId> vdets = spr::matrixECALIds(detId, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, debug);
 
@@ -47,11 +47,11 @@ namespace spr{
         	<< iphiN+iphiS+1 << " nXtals " << vdets.size() << std::endl;
    }
 
-   return spr::energyECAL(vdets, hitsEB, hitsEE, debug);
+   return spr::energyECAL(vdets, hitsEB, hitsEE, ebThr, eeThr, debug);
   }
 
   template< typename T>
-  std::vector<std::pair<DetId,double> > eECALmatrixCell(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug) {
+  std::vector<std::pair<DetId,double> > eECALmatrixCell(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr, double eeThr, bool debug) {
 
     std::vector<DetId> vdets = spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, debug);
 
@@ -60,11 +60,11 @@ namespace spr{
                 << " nXtals " << vdets.size() << std::endl;
    }
 
-   return spr::energyECALCell(vdets, hitsEB, hitsEE, debug);
+   return spr::energyECALCell(vdets, hitsEB, hitsEE, ebThr, eeThr, debug);
   }
 
   template< typename T>
-  std::pair<double,int> eECALmatrixTotal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, bool debug) {
+  std::pair<double,int> eECALmatrixTotal(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr, double eeThr, bool debug) {
 
     spr::EtaPhi etaphi = spr::getEtaPhi(ieta,iphi,debug);
 
@@ -73,7 +73,7 @@ namespace spr{
     int    itrym = 0;
     for (int itry=0; itry<etaphi.ntrys; itry++) {
       std::vector<DetId> vdets = spr::matrixECALIds(detId, etaphi.ietaE[itry], etaphi.ietaW[itry], etaphi.iphiN[itry], etaphi.iphiS[itry], geo, caloTopology, debug);
-      double energy = spr::energyECAL(vdets, hitsEB, hitsEE, debug);
+      double energy = spr::energyECAL(vdets, hitsEB, hitsEE, ebThr, eeThr, debug);
       if (energy > energySum) {
 	energySum = energy;
 	itrym     = itry;
@@ -128,7 +128,7 @@ namespace spr{
   }
 
   template <typename T>
-  double energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, bool debug) {
+  double energyECAL(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, double ebThr, double eeThr, bool debug) {
 
     double energySum = 0.0;
     for (unsigned int i1=0; i1<vdets.size(); i1++) {
@@ -140,17 +140,21 @@ namespace spr{
           hit = spr::findHit(hitsEE,vdets[i1]);
         }
         if (debug) std::cout << "Xtal 0x" <<std::hex << vdets[i1]() <<std::dec;
+        double ener=0, ethr=ebThr;
   	for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
           double en=0;
           if (vdets[i1].subdetId()==EcalBarrel) {
             if (hit[ihit] != hitsEB->end()) en = hit[ihit]->energy();
           } else if (vdets[i1].subdetId()==EcalEndcap) {
-            if (hit[ihit] != hitsEE->end()) en = hit[ihit]->energy();
+            if (hit[ihit] != hitsEE->end()) {
+	      en = hit[ihit]->energy(); ethr=eeThr;
+            }
           }
-          energySum += en;
           if (debug) std::cout << " " << ihit << " " << en;
+          ener += en;
         }
         if (debug) std::cout << "\n";
+        if (ener > ethr) energySum += ener;
       }
     }
     if (debug) std::cout << "energyECAL: energySum = " <<energySum <<std::endl;
@@ -158,7 +162,7 @@ namespace spr{
   }
 
   template <typename T>
-  std::vector<std::pair<DetId,double> > energyECALCell(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB,  edm::Handle<T>& hitsEE, bool debug) {
+  std::vector<std::pair<DetId,double> > energyECALCell(std::vector<DetId>& vdets, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, double ebThr, double eeThr, bool debug) {
 
     std::vector<std::pair<DetId,double> > energyDets;
     for (unsigned int i1=0; i1<vdets.size(); i1++) {
@@ -171,23 +175,24 @@ namespace spr{
           hit = spr::findHit(hitsEE,vdets[i1]);
         }
         if (debug) std::cout << "Xtal 0x" <<std::hex << vdets[i1]() <<std::dec;
-	bool ok = false;
+	bool   ok=false;
+	double ethr=ebThr;
   	for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-          double en=0;
+	  double en = 0;
           if (vdets[i1].subdetId()==EcalBarrel) {
             if (hit[ihit] != hitsEB->end()) {
               en = hit[ihit]->energy(); ok = true;
             }
           } else if (vdets[i1].subdetId()==EcalEndcap) {
             if (hit[ihit] != hitsEE->end()) {
-              en = hit[ihit]->energy(); ok = true;
+              en = hit[ihit]->energy(); ok = true; ethr = eeThr;
             }
           }
-          energySum += en;
           if (debug) std::cout << " " << ihit << " " << en;
+  	  energySum += en;
         }
         if (debug) std::cout << "\nenergyECALCell: energySum = " <<energySum << "\n";
-	if (ok) energyDets.push_back(std::pair<DetId,double>(vdets[i1],energySum));
+	if (ok && energySum>ethr) energyDets.push_back(std::pair<DetId,double>(vdets[i1],energySum));
       }
     }
     return energyDets;
