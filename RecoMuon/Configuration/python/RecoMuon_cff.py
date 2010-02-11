@@ -74,4 +74,27 @@ muonsFromCosmics.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks'
 muonsFromCosmics.fillIsolation = False
 muonsFromCosmics.fillGlobalTrackQuality = False
 
-muoncosmicreco = cms.Sequence(CosmicMuonSeed*cosmicMuons*globalCosmicMuons*muonsFromCosmics)
+muoncosmicreco2legs = cms.Sequence(cosmicMuons*globalCosmicMuons*muonsFromCosmics)
+
+
+# 1 Leg type
+
+# Stand alone muon track producer
+cosmicMuons1Leg = cosmicMuons.clone()
+cosmicMuons1Leg.TrajectoryBuilderParameters.BuildTraversingMuon = True
+cosmicMuons1Leg.MuonSeedCollectionLabel = 'CosmicMuonSeed'
+
+# Global muon track producer
+globalCosmicMuons1Leg = globalCosmicMuons.clone()
+globalCosmicMuons1Leg.MuonCollectionLabel = 'cosmicMuons1Leg'
+
+# Muon Id producer
+ = muons.clone()
+muonsFromCosmics1Leg.inputCollectionLabels = ['generalTracks', 'globalCosmicMuons1Leg', 'cosmicMuons1Leg']
+muonsFromCosmics1Leg.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsFromCosmics1Leg.fillIsolation = False
+muonsFromCosmics1Leg.fillGlobalTrackQuality = False
+
+muoncosmicreco1leg = cms.Sequence(cosmicMuons1Leg*globalCosmicMuons1Leg*muonsFromCosmics1Leg)
+
+muoncosmicreco = cms.Sequence(CosmicMuonSeed*(muoncosmicreco2legs+muoncosmicreco1leg))
