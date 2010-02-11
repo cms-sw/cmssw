@@ -6,11 +6,3 @@ hltRPCFilter= cms.EDFilter("HLTRPCFilter",
   rpcDTPoints = cms.InputTag("rpcPointProducer","RPCDTExtrapolatedPoints"),
   rpcCSCPoints = cms.InputTag("rpcPointProducer","RPCCSCExtrapolatedPoints")
 )
-
-
-
-
-
-
-
-                        
