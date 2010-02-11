@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.19 2010/02/02 13:53:05 wittich Exp $
+// $Id: HLTScalers.cc,v 1.20 2010/02/11 00:11:08 wmtan Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.20  2010/02/11 00:11:08  wmtan
+// Adapt to moved framework header
+//
 // Revision 1.19  2010/02/02 13:53:05  wittich
 // fix duplicate histogram name
 //
@@ -102,8 +105,6 @@ void HLTScalers::beginJob(void)
     nLumiBlock_ = dbe_->bookInt("nLumiBlock");
     diagnostic_ = dbe_->book1D("hltMerge", "HLT merging diagnostic", 
 			       1, 0.5, 1.5);
-    diagnostic_->Fill(1); // this ME is never touched - 
-    // it just tells you how the merging is doing.
 
     // fill for ever accepted event 
     hltOverallScaler_ = dbe_->book1D("hltOverallScaler", "HLT Overall Scaler", 
@@ -119,11 +120,14 @@ void HLTScalers::beginJob(void)
 void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 {
   nProc_->Fill(++nev_);
+  diagnostic_->setBinContent(1,1); // this ME is never touched - 
+  // it just tells you how the merging is doing.
+
 
   edm::Handle<TriggerResults> hltResults;
   bool b = e.getByLabel(trigResultsSource_, hltResults);
   if ( !b ) {
-    edm::LogInfo("Product") << "getByLabel for TriggerResults failed"
+    edm::LogInfo("HLTScalers") << "getByLabel for TriggerResults failed"
 			   << " with label " << trigResultsSource_;
     return;
   }
