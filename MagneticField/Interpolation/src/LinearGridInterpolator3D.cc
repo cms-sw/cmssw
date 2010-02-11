@@ -69,9 +69,9 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
 #endif
 
   int ind = grid.index(i,j,k);
-  s1 = grid.stride1(); 
-  s2 = grid.stride2(); 
-  s3 = grid.stride3(); 
+  int s1 = grid.stride1(); 
+  int s2 = grid.stride2(); 
+  int s3 = grid.stride3(); 
   //chances are this is more numerically precise this way
   ValueType result = (1.f-s)*(1.f-t)*u*(grid(ind      +s3) - grid(ind      ));
   result +=          (1.f-s)*     t *u*(grid(ind   +s2+s3) - grid(ind   +s2));

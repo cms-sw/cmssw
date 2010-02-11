@@ -45,7 +45,7 @@ public:
   int stride1() const { return stride1_;}
   int stride2() const { return stride2_;}
   int stride3() const { return 1;}
-  const ValueType& operator()(int i) {
+  const ValueType& operator()(int i) const {
     return data_[i];
   }
 
