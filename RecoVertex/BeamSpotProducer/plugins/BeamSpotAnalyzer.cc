@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.14 2010/02/04 00:45:23 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.15 2010/02/11 00:38:28 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -35,6 +35,7 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
+  theBeamFitter->resetCutFlow();
 
   ftotalevents = 0;
   ftmprun0 = ftmprun = -1;
