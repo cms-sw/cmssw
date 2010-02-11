@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.13 2009/12/18 20:45:08 wmtan Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.14 2010/02/04 00:45:23 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -119,6 +119,7 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 		std::cout << "Reset track collection for beam fit" <<std::endl;
 		theBeamFitter->resetTrkVector();
 		theBeamFitter->resetLSRange();
+		theBeamFitter->resetCutFlow();
 		countLumi_=0;
 	}
 
