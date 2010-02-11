@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: PFTauMVADiscriminator.cc,v 1.1.2.1 2009/09/02 23:00:16 friis Exp $
+// $Id: PFTauMVADiscriminator.cc,v 1.2 2009/09/04 21:34:24 friis Exp $
 //
 //
 
@@ -61,6 +61,7 @@ class PFTauMVADiscriminator : public PFTauDiscriminationProducerBase {
                                                    // the cuts specified in the DecayMode VPSet specified in the cfg file 
       DecayModeToMVAMap         computerMap_;      //Maps decay mode to MVA implementation
       MVAList                   computers_;
+      string                    dbLabel_;
       DiscriminantList          myDiscriminants_;  // collection of functions to compute the discriminants
       PFTauDiscriminantManager  discriminantManager_;
 
@@ -75,6 +76,7 @@ PFTauMVADiscriminator::PFTauMVADiscriminator(const edm::ParameterSet& iConfig):P
    remapOutput_              = iConfig.getParameter<bool>("RemapOutput");
    applyCut_                 = iConfig.getParameter<bool>("MakeBinaryDecision");
    prediscriminantFailValue_ = iConfig.getParameter<double>("prefailValue"); //defined in base class
+   dbLabel_                  = iConfig.getParameter<string>("dbLabel");
 
    // build the decaymode->computer map
    vector<ParameterSet> decayModeMap = iConfig.getParameter<vector<ParameterSet> >("computers");
@@ -139,7 +141,7 @@ void PFTauMVADiscriminator::beginEvent(const Event& iEvent, const EventSetup& iS
                        ++iMVAComputer)
    {
       string nameToGet = iMVAComputer->computerName;
-      iMVAComputer->computer->update<TauMVAFrameworkDBRcd>(iSetup, nameToGet.c_str());
+      iMVAComputer->computer->update<TauMVAFrameworkDBRcd>(dbLabel_.c_str(), iSetup, nameToGet.c_str());
    } 
 }
 
