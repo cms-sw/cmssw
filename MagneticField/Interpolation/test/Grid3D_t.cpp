@@ -14,7 +14,7 @@ namespace {
     for (int i=0; i<ga.nodes(); ++i) 
       for (int j=0; j<gb.nodes(); ++j) 
 	for (int k=0; k<gc.nodes(); ++k) {
-	  data.push_back(Grid3D::ValueType(i,j,k));	  
+	  data.push_back(Grid3D::ValueType(ga.node(i),gb.node(j),gc.node(k)));	  
 	}
     
     return new Grid3D(ga,gb,gc,data);
