@@ -17,7 +17,9 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
 #	'file:/tmp/carrillo/outs/output.root'
-        '/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
+#      '/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
+# '/store/express/Commissioning10/StreamExpress/ALCARECO/v3/000/127/155/048E8F37-E215-DF11-A865-001D09F254CE.root'
+'/store/data/Commissioning09/RPCMonitor/RAW/v3/000/118/969/02D52EE0-09C6-DE11-A3FE-000423D996C8.root'
 )
 )
 
