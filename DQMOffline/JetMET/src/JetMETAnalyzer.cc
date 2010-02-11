@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/29 02:17:56 $
- *  $Revision: 1.43 $
+ *  $Date: 2010/02/07 22:07:36 $
+ *  $Revision: 1.44 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -304,14 +304,16 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
     dbe->setCurrentFolder("JetMET");
     hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
     physdecME = dbe->book1D("physdec", "physdec", 2,   0., 2.);
-    physdecME->setBinLabel(1,"All Events");
-
-    for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
-      hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
-      if(hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") physdecME->setBinLabel(2,"PhysicsDeclared");
-    }
   }
 
+  if (physdecME) physdecME->setBinLabel(1,"All Events");
+  
+  for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
+    if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
+    if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
+      if (physdecME) physdecME->setBinLabel(2,"PhysicsDeclared");
+  }
+  
   //
   //--- Jet
 
@@ -371,7 +373,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // *** Fill trigger results ME
   //if (&triggerResults){
-  physdecME->Fill(0.5);
+  if (physdecME) physdecME->Fill(0.5);
 
   bool bPhysicsDeclared = false;
   if(!_doHLTPhysicsOn) bPhysicsDeclared = true;
@@ -382,12 +384,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     if( triggerNames.triggerIndex("HLT_PhysicsDeclared") != triggerNames.size() )
       if (triggerResults->accept(triggerNames.triggerIndex("HLT_PhysicsDeclared"))) {
-	physdecME->Fill(1.5);
+	if (physdecME) physdecME->Fill(1.5);
 	if(_doHLTPhysicsOn) bPhysicsDeclared = true;
       }
     for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
       if (triggerResults->accept(j)){
-        hltpathME->Fill(j);
+        if (hltpathME) hltpathME->Fill(j);
       }
     }
   }
