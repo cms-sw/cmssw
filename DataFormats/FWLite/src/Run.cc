@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:     DataFormats/FWLite
-// Class  :     LuminosityBlock
+// Class  :     Run
 //
-/**\class LuminosityBlock LuminosityBlock.h DataFormats/FWLite/interface/LuminosityBlock.h
+/**\class Run Run.h DataFormats/FWLite/interface/Run.h
 
    Description: <one line class summary>
 
@@ -22,7 +22,7 @@
 #include "Reflex/Type.h"
 
 // user include files
-#include "DataFormats/FWLite/interface/LuminosityBlock.h"
+#include "DataFormats/FWLite/interface/Run.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -46,10 +46,10 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/FWLite/interface/LumiHistoryGetter.h"
+#include "DataFormats/FWLite/interface/RunHistoryGetter.h"
 
 //used for backwards compatability
-#include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
+#include "DataFormats/Provenance/interface/RunAux.h"
 
 //
 // constants, enums and typedefs
@@ -59,95 +59,96 @@ namespace fwlite {
 //
 // constructors and destructor
 //
-  LuminosityBlock::LuminosityBlock(TFile* iFile):
+  Run::Run(TFile* iFile):
     branchMap_(new BranchMapReader(iFile)),
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
     parameterSetRegistryFilled_(false),
-    dataHelper_(branchMap_->getLuminosityBlockTree(), boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)))
+    dataHelper_(branchMap_->getRunTree(), boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)))
   {
     if(0==iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
     }
 
-    if(0==branchMap_->getLuminosityBlockTree()) {
-      throw cms::Exception("NoLumiTree")<<"The TFile contains no TTree named " <<edm::poolNames::luminosityBlockTreeName();
+    if(0==branchMap_->getRunTree()) {
+      throw cms::Exception("NoRunTree")<<"The TFile contains no TTree named " <<edm::poolNames::runTreeName();
     }
     //need to know file version in order to determine how to read the basic product info
     fileVersion_ = branchMap_->getFileVersion(iFile);
 
     //got this logic from IOPool/Input/src/RootFile.cc
 
-    TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
+    TTree* runTree = branchMap_->getRunTree();
     if(fileVersion_ >= 3 ) {
-      auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
+      auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InRun).c_str());
       if(0==auxBranch_) {
-        throw cms::Exception("NoLuminosityBlockAuxilliary")<<"The TTree "
-        <<edm::poolNames::luminosityBlockTreeName()
-        <<" does not contain a branch named 'LuminosityBlockAuxiliary'";
+        throw cms::Exception("NoRunAuxilliary")<<"The TTree "
+        <<edm::poolNames::runTreeName()
+        <<" does not contain a branch named 'RunAuxiliary'";
       }
       auxBranch_->SetAddress(&pAux_);
     } else {
-      throw cms::Exception("OldFileVersion")<<"The FWLite Luminosity Block code des not support old file versions";
+      throw cms::Exception("OldFileVersion")<<"The FWLite Run code des not support old file versions";
 //       This code commented from fwlite::Event. May be portable if needed.
 //       pOldAux_ = new edm::EventAux();
-//       auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
+//       auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InRun).c_str());
 //       if(0==auxBranch_) {
-//         throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
-//           <<edm::poolNames::luminosityBlockTreeName()
-//           <<" does not contain a branch named 'LuminosityBlockAux'";
+//         throw cms::Exception("NoRunAux")<<"The TTree "
+//           <<edm::poolNames::runTreeName()
+//           <<" does not contain a branch named 'RunAux'";
 //       }
 //       auxBranch_->SetAddress(&pOldAux_);
     }
-    branchMap_->updateLuminosityBlock(0);
+    branchMap_->updateRun(0);
+//     getter_ = boost::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
 }
 
-  LuminosityBlock::LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap):
+  Run::Run(boost::shared_ptr<BranchMapReader> branchMap):
     branchMap_(branchMap),
     pAux_(&aux_),
     pOldAux_(0),
     fileVersion_(-1),
     parameterSetRegistryFilled_(false),
-    dataHelper_(branchMap_->getLuminosityBlockTree(), boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)))
+    dataHelper_(branchMap_->getRunTree(), boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)))
   {
-
-    if(0==branchMap_->getLuminosityBlockTree()) {
-      throw cms::Exception("NoLumiTree")<<"The TFile contains no TTree named " <<edm::poolNames::luminosityBlockTreeName();
+    if(0==branchMap_->getRunTree()) {
+      throw cms::Exception("NoRunTree")<<"The TFile contains no TTree named " <<edm::poolNames::runTreeName();
     }
     //need to know file version in order to determine how to read the basic event info
     fileVersion_ = branchMap_->getFileVersion();
     //got this logic from IOPool/Input/src/RootFile.cc
 
-    TTree* luminosityBlockTree = branchMap_->getLuminosityBlockTree();
+    TTree* runTree = branchMap_->getRunTree();
     if(fileVersion_ >= 3 ) {
-      auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InLumi).c_str());
+      auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InRun).c_str());
       if(0==auxBranch_) {
-        throw cms::Exception("NoLuminosityBlockAuxilliary")<<"The TTree "
-        <<edm::poolNames::luminosityBlockTreeName()
-        <<" does not contain a branch named 'LuminosityBlockAuxiliary'";
+        throw cms::Exception("NoRunAuxilliary")<<"The TTree "
+        <<edm::poolNames::runTreeName()
+        <<" does not contain a branch named 'RunAuxiliary'";
       }
       auxBranch_->SetAddress(&pAux_);
     } else {
-      throw cms::Exception("OldFileVersion")<<"The FWLite Luminosity Block code des not support old file versions";
+      throw cms::Exception("OldFileVersion")<<"The FWLite Run code des not support old file versions";
 /*      pOldAux_ = new edm::EventAux();
-      auxBranch_ = luminosityBlockTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InLuminosityBlock).c_str());
+      auxBranch_ = runTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InRun).c_str());
       if(0==auxBranch_) {
-        throw cms::Exception("NoLuminosityBlockAux")<<"The TTree "
-          <<edm::poolNames::luminosityBlockTreeName()
-          <<" does not contain a branch named 'LuminosityBlockAux'";
+        throw cms::Exception("NoRunAux")<<"The TTree "
+          <<edm::poolNames::runTreeName()
+          <<" does not contain a branch named 'RunAux'";
       }
       auxBranch_->SetAddress(&pOldAux_);*/
     }
-    branchMap_->updateLuminosityBlock(0);
+    branchMap_->updateRun(0);
 
 //     if(fileVersion_ >= 7 ) {
 //       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
 //     }
 
+//     getter_ = boost::shared_ptr<edm::EDProductGetter>(new ProductGetter(this));
 }
 
-LuminosityBlock::~LuminosityBlock()
+Run::~Run()
 {
   for(std::vector<const char*>::iterator it = labels_.begin(), itEnd=labels_.end();
       it != itEnd;
@@ -161,33 +162,33 @@ LuminosityBlock::~LuminosityBlock()
 // member functions
 //
 
-const LuminosityBlock&
-LuminosityBlock::operator++()
+const Run&
+Run::operator++()
 {
-   Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
-   if(luminosityBlockIndex < size())
+   Long_t runIndex = branchMap_->getRunEntry();
+   if(runIndex < size())
    {
-      branchMap_->updateLuminosityBlock(++luminosityBlockIndex);
+      branchMap_->updateRun(++runIndex);
    }
    return *this;
 }
 
 
 bool
-LuminosityBlock::to (edm::RunNumber_t run, edm::LuminosityBlockNumber_t luminosityBlock)
+Run::to (edm::RunNumber_t run)
 {
    fillFileIndex();
    edm::FileIndex::const_iterator i =
-      fileIndex_.findLumiPosition(run, luminosityBlock, true);
+      fileIndex_.findRunPosition(run, true);
    if (fileIndex_.end() != i)
    {
-      return branchMap_->updateLuminosityBlock(i->entry_);
+      return branchMap_->updateRun(i->entry_);
    }
    return false;
 }
 
 void
-LuminosityBlock::fillFileIndex() const
+Run::fillFileIndex() const
 {
   if (fileIndex_.empty()) {
     TTree* meta = dynamic_cast<TTree*>(branchMap_->getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
@@ -208,10 +209,10 @@ LuminosityBlock::fillFileIndex() const
   }
   assert(!fileIndex_.empty());
 }
-const LuminosityBlock&
-LuminosityBlock::toBegin()
+const Run&
+Run::toBegin()
 {
-   branchMap_->updateLuminosityBlock(0);
+   branchMap_->updateRun(0);
    return *this;
 }
 
@@ -219,58 +220,59 @@ LuminosityBlock::toBegin()
 // const member functions
 //
 Long64_t
-LuminosityBlock::size() const
+Run::size() const
 {
-  return branchMap_->getLuminosityBlockTree()->GetEntries();
+  return branchMap_->getRunTree()->GetEntries();
 }
 
 bool
-LuminosityBlock::isValid() const
+Run::isValid() const
 {
-  Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
-  return luminosityBlockIndex!=-1 and luminosityBlockIndex < size();
+  Long_t runIndex = branchMap_->getRunEntry();
+  return runIndex!=-1 and runIndex < size();
 }
 
 
-LuminosityBlock::operator bool() const
+Run::operator bool() const
 {
   return isValid();
 }
 
 bool
-LuminosityBlock::atEnd() const
+Run::atEnd() const
 {
-  Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
-  return luminosityBlockIndex==-1 or luminosityBlockIndex == size();
+  Long_t runIndex = branchMap_->getRunEntry();
+  return runIndex==-1 or runIndex == size();
 }
 
 
 bool
-LuminosityBlock::getByLabel(const std::type_info& iInfo,
+Run::getByLabel(const std::type_info& iInfo,
                   const char* iModuleLabel,
                   const char* iProductInstanceLabel,
                   const char* iProcessLabel,
-                  void* oData) const {
+                  void* oData) const
+{
     if(atEnd()) {
-        throw cms::Exception("OffEnd")<<"You have requested data past the last lumi";
+        throw cms::Exception("OffEnd")<<"You have requested data past the last run";
     }
-    Long_t lumiIndex = branchMap_->getLuminosityBlockEntry();
-    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, lumiIndex);
+    Long_t runIndex = branchMap_->getRunEntry();
+    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, runIndex);
 }
 
-edm::LuminosityBlockAuxiliary const&
-LuminosityBlock::luminosityBlockAuxiliary() const
+edm::RunAuxiliary const&
+Run::runAuxiliary() const
 {
-   Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
-   updateAux(luminosityBlockIndex);
+   Long_t runIndex = branchMap_->getRunEntry();
+   updateAux(runIndex);
    return aux_;
 }
 
 void
-LuminosityBlock::updateAux(Long_t luminosityBlockIndex) const
+Run::updateAux(Long_t runIndex) const
 {
-  if(auxBranch_->GetEntryNumber() != luminosityBlockIndex) {
-    auxBranch_->GetEntry(luminosityBlockIndex);
+  if(auxBranch_->GetEntryNumber() != runIndex) {
+    auxBranch_->GetEntry(runIndex);
     //handling dealing with old version
     if(0 != pOldAux_) {
       conversion(*pOldAux_,aux_);
@@ -278,16 +280,15 @@ LuminosityBlock::updateAux(Long_t luminosityBlockIndex) const
   }
 }
 
-
 const edm::ProcessHistory&
-LuminosityBlock::history() const
+Run::history() const
 {
   edm::ProcessHistoryID processHistoryID;
 
   bool newFormat = false;//(fileVersion_ >= 5);
 
-  Long_t lumiIndex = branchMap_->getLuminosityBlockEntry();
-  updateAux(lumiIndex);
+  Long_t runIndex = branchMap_->getRunEntry();
+  updateAux(runIndex);
   if (!newFormat) {
     processHistoryID = aux_.processHistoryID();
   }
@@ -326,7 +327,7 @@ LuminosityBlock::history() const
 //           throw edm::Exception(edm::errors::FatalRootError)
 //             << "Failed to find history branch in event history tree";
 //         eventHistoryBranch->SetAddress(&pHistory);
-//         eventHistoryTree_->GetEntry(lumiIndex);
+//         eventHistoryTree_->GetEntry(runIndex);
 //         processHistoryID = history.processHistoryID();
 //       } else {
 //         std::vector<edm::EventProcessHistoryID> *pEventProcessHistoryIDs = &eventProcessHistoryIDs_;
@@ -344,31 +345,22 @@ LuminosityBlock::history() const
 
 
 edm::EDProduct const*
-LuminosityBlock::getByProductID(edm::ProductID const& iID) const {
-  Long_t luminosityBlockIndex = branchMap_->getLuminosityBlockEntry();
-  return dataHelper_.getByProductID(iID, luminosityBlockIndex);
+Run::getByProductID(edm::ProductID const& iID) const
+{
+  Long_t runIndex = branchMap_->getRunEntry();
+  return dataHelper_.getByProductID(iID, runIndex);
 }
 
 
 //
 // static member functions
 //
-
-
-namespace {
-  struct NoDelete {
-    void operator()(void*){}
-  };
+void
+Run::throwProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iProduct, const char* iProcess)
+{
+    edm::TypeID type(iType);
+  throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule
+    <<"'\n  productInstance='"<<((0!=iProduct)?iProduct:"")<<"'\n  process='"<<((0!=iProcess)?iProcess:"")<<"'\n"
+    "but no data is available for this Run";
 }
-
-// fwlite::Run const& LuminosityBlock::getRun() {
-//   if (not run_) {
-//     // Branch map pointer not really being shared, owned by event, have to trick Run
-//     run_ = (boost::shared_ptr<fwlite::Run>) new fwlite::Run(boost::shared_ptr<BranchMapReader>(*branchMap_));
-//   }
-//   edm::RunNumber_t run = luminosityBlockAuxiliary().run();
-//   run_->to(run);
-//   return *run_;
-// }
-
 }

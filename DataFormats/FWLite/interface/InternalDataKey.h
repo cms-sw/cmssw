@@ -17,9 +17,13 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Jan 29 09:01:20 CDT 2009
-// $Id: Event.h,v 1.28 2010/01/28 15:36:40 ewv Exp $
+// $Id: InternalDataKey.h,v 1.1 2010/01/29 16:26:57 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
+
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "TBranch.h"
+#include "Reflex/Object.h"
 
 namespace fwlite {
    namespace internal {

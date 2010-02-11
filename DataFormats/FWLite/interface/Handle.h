@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.13 2009/07/20 20:51:33 cplager Exp $
+// $Id: Handle.h,v 1.14 2010/01/28 15:36:40 ewv Exp $
 //
 
 // system include files
@@ -89,13 +89,15 @@ class Handle
       }
    */
 
-      void getByLabel(const fwlite::EventBase& iEvent,
+      // P can be Run, Event, or LuminosityBlock
+
+      template <class P> void getByLabel(const P& iP,
                       const char* iModuleLabel,
                       const char* iProductInstanceLabel = 0,
                       const char* iProcessLabel = 0) {
         TempWrapT* temp;
         void* pTemp = &temp;
-        iEvent.getByLabel(TempWrapT::typeInfo(),
+        iP.getByLabel(TempWrapT::typeInfo(),
                           iModuleLabel,
                           iProductInstanceLabel,
                           iProcessLabel,
@@ -118,34 +120,7 @@ class Handle
         }
       }
 
-      void getByLabel(const fwlite::LuminosityBlockBase& iLumi,
-                      const char* iModuleLabel,
-                      const char* iProductInstanceLabel = 0,
-                      const char* iProcessLabel = 0) {
-        TempWrapT* temp = 0;
-        void* pTemp = &temp;
-        iLumi.getByLabel(TempWrapT::typeInfo(),
-                          iModuleLabel,
-                          iProductInstanceLabel,
-                          iProcessLabel,
-                          pTemp);
-        delete errorThrower_;
-        errorThrower_ = 0;
-        if(0==temp) {
-           errorThrower_=ErrorThrower::errorThrowerBranchNotFoundException(TempWrapT::typeInfo(),
-                                                                           iModuleLabel,
-                                                                           iProductInstanceLabel,
-                                                                           iProcessLabel);
-           return;
-        }
-        data_ = temp->product();
-        if(data_==0) {
-           errorThrower_=ErrorThrower::errorThrowerProductNotFoundException(TempWrapT::typeInfo(),
-                                                                            iModuleLabel,
-                                                                            iProductInstanceLabel,
-                                                                            iProcessLabel);
-        }
-      }
+
       // void getByLabel(const fwlite::Event& iEvent,
       //                 const char* iModuleLabel,
       //                 const char* iProductInstanceLabel = 0,

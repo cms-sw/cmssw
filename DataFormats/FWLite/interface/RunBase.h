@@ -1,11 +1,11 @@
-#ifndef DataFormats_FWLite_LuminosityBlockBase_h
-#define DataFormats_FWLite_LuminosityBlockBase_h
+#ifndef DataFormats_FWLite_RunBase_h
+#define DataFormats_FWLite_RunBase_h
 // -*- C++ -*-
 //
 // Package:     DataFormats/FWLite
-// Class  :     LuminosityBlockBase
+// Class  :     RunBase
 //
-/**\class LuminosityBlockBase LuminosityBlockBase.h DataFormats/FWLite/interface/LuminosityBlockBase.h
+/**\class RunBase RunBase.h DataFormats/FWLite/interface/RunBase.h
 
    Description: <one line class summary>
 
@@ -24,34 +24,39 @@
 #include <typeinfo>
 //
 // // user include files
-#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/Common/interface/LuminosityBlockBase.h"
+#include "FWCore/Common/interface/RunBase.h"
 
 #include "Rtypes.h"
 
 namespace fwlite
 {
-   class LuminosityBlockBase : public edm::LuminosityBlockBase
+   class RunBase : public edm::RunBase
    {
       public:
-         LuminosityBlockBase();
+         RunBase();
 
-         virtual ~LuminosityBlockBase();
+         virtual ~RunBase();
 
          virtual bool getByLabel (const std::type_info&,
                                   const char*,
                                   const char*,
                                   const char*,
                                   void*) const = 0;
-         using edm::LuminosityBlockBase::getByLabel;
+         using edm::RunBase::getByLabel;
+
+//          virtual const std::string getBranchNameFor (const std::type_info&,
+//                                                      const char*,
+//                                                      const char*,
+//                                                      const char*) const = 0;
 
          virtual bool atEnd() const = 0;
 
-         virtual const LuminosityBlockBase& operator++() = 0;
+         virtual const RunBase& operator++() = 0;
 
-         virtual const LuminosityBlockBase& toBegin() = 0;
+         virtual const RunBase& toBegin() = 0;
 
          virtual Long64_t fileIndex()          const { return -1; }
          virtual Long64_t secondaryFileIndex() const { return -1; }
