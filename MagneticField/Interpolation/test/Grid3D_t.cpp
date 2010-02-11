@@ -10,10 +10,10 @@ namespace {
     Grid1D gc(-10.,10.,11);
 
     std::vector< Grid3D::ValueType>  data;
-    data.reserve(grida().nodes()*gridb().nodes()*gridc().nodes());
-    for (int i=0; i<grida().nodes(); ++i) 
-      for (int j=0; j<gridb().nodes(); ++j) 
-	for (int k=0; k<gridc().nodes(); ++k) {
+    data.reserve(ga().nodes()*gb().nodes()*gc().nodes());
+    for (int i=0; i<ga().nodes(); ++i) 
+      for (int j=0; j<gb().nodes(); ++j) 
+	for (int k=0; k<gc().nodes(); ++k) {
 	  data.push_back(Grid3D::ValueType(i,j,k));	  
 	}
     
@@ -27,6 +27,7 @@ namespace {
 
 
 #include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
+#include <iostream>
 int main() {
 
   Grid3D const  * grid = factory();
@@ -37,4 +38,5 @@ int main() {
 
 
   delete grid;
+  return 0;
 };
