@@ -7,15 +7,16 @@ float EBDataFrame::spikeEstimator() const
         if ( size() != 10 ) {
                 edm::LogError("InvalidNumberOfSamples") << "This method only applies to signals sampled 10 times ("
                         << size() << " samples found)";
+                return 10.;
         }
         // skip faulty channels
         if ( sample(5).adc() == 0 ) return 10.;
         size_t imax = 0;
         int maxAdc = 0;
-        for ( size_t i = 0; i < size(); ++i ) {
+        for ( int i = 0; i < size(); ++i ) {
                 if ( sample(i).adc() > maxAdc ) {
                         imax = i;
-                        maxAdc = sample(i);
+                        maxAdc = sample(i).adc();
                 }
         }
         // skip early signals
