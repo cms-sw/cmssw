@@ -13,7 +13,10 @@ from RecoTauTag.RecoTau.CaloRecoTauTagInfoProducer_cfi import *
 caloRecoTauTagInfoProducer.CaloJetTracksAssociatorProducer = cms.InputTag('ZSPiterativeCone5JetTracksAssociatorAtVertex')
 
 jptRecoTauProducer = cms.Sequence(
-        ZSPJetCorrectionsIcone5*
-        JetPlusTrackCorrectionsIcone5*
+#        ZSPJetCorrectionsIcone5*
+#        JetPlusTrackCorrectionsIcone5*
+# in order to work with CMSSW_3_1_6: (to be deprecated)
+	ZSPJetCorrections*
+	JetPlusTrackCorrections*
         caloRecoTauProducer
 )
