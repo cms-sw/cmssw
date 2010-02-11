@@ -39,4 +39,4 @@ int main() {
 
   delete grid;
   return 0;
-};
+}
