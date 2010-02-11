@@ -23,21 +23,21 @@ echo geometry = ${geometry}
 set condlabel = `(echo $geometry | sed '{s/Geometry//g}')`
 echo ${condlabel} " geometry label from db"
 echo "Check out and compile the needed packages"
-#The following are examples which should be changed if you are testing new code
-#or scripts 
+
+#required:
 addpkg Geometry/TrackerGeometryBuilder
 addpkg Geometry/RPCGeometry
 addpkg Geometry/DTGeometry
 addpkg Geometry/CSCGeometry
-addpkg GeometryReaders/XMLIdealGeometryESSource
-addpkg DetectorDescription/Schema
-addpkg Validation/Geometry 
-
-#required:
-addpkg GeometryReaders/XMLIdealGeometryESSource 
 addpkg Geometry/CaloEventSetup
+addpkg GeometryReaders/XMLIdealGeometryESSource
+addpkg Validation/Geometry 
 addpkg DetectorDescription/Schema
 addpkg Configuration/StandardSequences
+
+#add cvs updates here for REAL LOCAL testing
+# e.g. cvs update -A Geometry/DTGeometry/test/*.py
+# e.g. cp -r /from/my/work/area/Geometry/* Geometry/.
 
 if ($loctag != '') then 
     cd Configuration/StandardSequences/python
