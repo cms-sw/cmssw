@@ -47,7 +47,7 @@ class SideBandSubtract
   void addSideBandRegion(Double_t min, Double_t max);
   int doGlobalFit();
   int doSubtraction(RooRealVar* variable,Double_t stsratio,Int_t index); //stsratio -> signal to sideband ratio
-  void doFastSubtraction(TH1F& Total, TH1F& Result, TF1& SBSFunction, SbsRegion& leftRegion, SbsRegion& rightRegion);
+  void doFastSubtraction(TH1F &Total, TH1F &Result, SbsRegion& leftRegion, SbsRegion& rightRegion);
   void printResults(std::string prefix="");
   void saveResults(std::string outname);
   //the user may want to change the dataset pointer so they can do

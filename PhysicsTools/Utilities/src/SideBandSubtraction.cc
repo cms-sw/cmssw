@@ -74,28 +74,15 @@ static void setHistOptions(TH1F* histo, string name, string title, string axis_l
 }
 int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_t index) //stsratio -> signal to sideband ratio
 {
-  /**
-    The user hands us a vector of pointers to base histograms that we
-    can clone and use for ourselves.  We need to be careful about
-    pointer logic here, but it looks like we're only using these
-    histos for style/binning purposes only.
-   */
   TH1F* SideBandHist = (TH1F*)BaseHistos[index]->Clone();
-  string newtitle;
-  string oldtitle = (string)SideBandHist->GetTitle();
-  newtitle = oldtitle + " Sideband";
-  setHistOptions(SideBandHist,(string)variable->GetName()+"Sideband",newtitle,(string)variable->getUnit());
+  setHistOptions(SideBandHist,(string)variable->GetName()+"Sideband",(string)SideBandHist->GetTitle() + " Sideband",(string)variable->getUnit());
 
   TH1F* SignalHist = (TH1F*)BaseHistos[index]->Clone();
-  newtitle = (string)SignalHist->GetTitle();
-  newtitle = oldtitle + " Raw Signal";
-
-  setHistOptions(SignalHist,(string)variable->GetName()+"SignalHist",newtitle,(string)variable->getUnit());
+  setHistOptions(SignalHist,(string)variable->GetName()+"SignalHist",(string)SignalHist->GetTitle() + " Raw Signal",(string)variable->getUnit());
 
   //Begin a loop over the data to fill our histograms. I should figure
   //out how to do this in one shot to avoid a loop
   //O(N_vars*N_events)...
-
   TIterator* iter = (TIterator*) Data->get()->createIterator();
   RooAbsArg *var=NULL;
   RooRealVar *sep_var=NULL;
@@ -116,16 +103,12 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
       for(unsigned int j=0; j < SideBandRegions.size(); j++) //UGLY!  Find better solution!
 	{
 	  if(cutval > SideBandRegions[j].min && cutval < SideBandRegions[j].max)
-	    {
-	      SideBandHist->Fill(value);
-	    }
+	    SideBandHist->Fill(value);
 	}
       for(unsigned int j=0; j < SignalRegions.size(); j++)
 	{
 	  if(cutval > SignalRegions[j].min && cutval < SignalRegions[j].max)
-	    {
-	      SignalHist->Fill(value);
-	    }
+	    SignalHist->Fill(value);
 	}
     }
   //Save pre-subtracted histo
@@ -354,14 +337,8 @@ int SideBandSubtract::doGlobalFit()
       cout <<"Finished fitting background!\n";
       cout <<"Attained a Signal to Sideband ratio of: " << SignalSidebandRatio<<endl;
     }
-  //Do subtraction... Ideally, this loops over the data once, rather than
-  //having the looping over the data for each variable... we'll have
-  //to do any printing there too since we have multiple variables in
-  //our dataset.
-
-  //In practice: I can't see a way around a double loop for each
-  //variable.  Maybe I can get a C++/RooFit guru to save me the
-  //trouble here?
+  //I can't see a way around a double loop for each variable.  Maybe I
+  //can get a C++/RooFit guru to save me the trouble here?
 
 
   //need to grab sbs objects after each global fit, because they get reset
@@ -383,7 +360,7 @@ int SideBandSubtract::doGlobalFit()
   if(iter)          delete iter;
   return 0;
 }
-void SideBandSubtract::doFastSubtraction(TH1F &Total, TH1F &Result, TF1 &function, SbsRegion& leftRegion, SbsRegion& rightRegion)
+void SideBandSubtract::doFastSubtraction(TH1F &Total, TH1F &Result, SbsRegion& leftRegion, SbsRegion& rightRegion)
 {
   Int_t binMin = Total.FindBin(leftRegion.max,0.0,0.0);
   Int_t binMax = Total.FindBin(leftRegion.min,0.0,0.0);
@@ -402,8 +379,9 @@ void SideBandSubtract::doFastSubtraction(TH1F &Total, TH1F &Result, TF1 &functio
     
   const double Slope = (y2 - y1)/(x2 - x1);
   const double Intercept = y1 - Slope*x1;
-
-
+  // Evantually we want to handle more complicated functions, but for
+  // now... just use a linear one
+  TF1 function("sbs_function_line", "[0]*x + [1]",Total.GetMinimum(), Total.GetMaximum());
   for ( unsigned int binx = 1;  binx <= nbinsx; ++binx ) 
     {
       double binWidth = Total.GetBinWidth(binx);
