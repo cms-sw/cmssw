@@ -255,7 +255,6 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   // Vector JK in the "cover" blade frame:
   
   CLHEP::Hep3Vector jkC = kC - jC;
-  std::cout << "about to new jkLength" << std::endl;
   double* jkLength = new double(jkC.mag());
   DDConstant JK(DDName("JK", "pixfwdNipple"), jkLength);
   LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: " << "JK Length " <<  *jkLength * CLHEP::mm;
