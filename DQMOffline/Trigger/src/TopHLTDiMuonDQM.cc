@@ -8,10 +8,12 @@
  *
  */
 
+//#include "DQM/Physics/src/TopHLTDiMuonDQM.h"
 #include "DQMOffline/Trigger/interface/TopHLTDiMuonDQM.h"
 
 using namespace std;
 using namespace edm;
+using namespace trigger;
 
 //
 // constructors and destructor
@@ -25,6 +27,9 @@ TopHLTDiMuonDQM::TopHLTDiMuonDQM( const ParameterSet& parameters_ ) : counterEvt
 
   level_          = parameters_.getUntrackedParameter<string>("Level", "L3");
   triggerResults_ = parameters_.getParameter<InputTag>("TriggerResults");
+  triggerEvent_   = parameters_.getParameter<InputTag>("TriggerEvent");
+  triggerFilter_  = parameters_.getParameter<InputTag>("TriggerFilter");
+
   hltPaths_L1_    = parameters_.getParameter<vector<string> >("hltPaths_L1");
   hltPaths_L3_    = parameters_.getParameter<vector<string> >("hltPaths_L3");
   hltPaths_sig_   = parameters_.getParameter<vector<string> >("hltPaths_sig");
@@ -34,13 +39,15 @@ TopHLTDiMuonDQM::TopHLTDiMuonDQM( const ParameterSet& parameters_ ) : counterEvt
   L3_Collection_  = parameters_.getUntrackedParameter<InputTag>("L3_Collection", InputTag("hltL3MuonCandidates"));
   L3_Isolation_   = parameters_.getUntrackedParameter<InputTag>("L3_Isolation",  InputTag("hltL3MuonIsolations"));
 
+  vertex_X_cut_   = parameters_.getParameter<double>("vertex_X_cut");
+  vertex_Y_cut_   = parameters_.getParameter<double>("vertex_Y_cut");
+  vertex_Z_cut_   = parameters_.getParameter<double>("vertex_Z_cut");
+
   muon_pT_cut_    = parameters_.getParameter<double>("muon_pT_cut");
   muon_eta_cut_   = parameters_.getParameter<double>("muon_eta_cut");
 
   MassWindow_up_   = parameters_.getParameter<double>("MassWindow_up");
   MassWindow_down_ = parameters_.getParameter<double>("MassWindow_down");
-
-  //  dbe_ = Service<DQMStore>().operator->();
 
   for(int i=0; i<100; ++i) {
     N_sig[i]  = 0;
@@ -57,7 +64,7 @@ TopHLTDiMuonDQM::~TopHLTDiMuonDQM() {
 
 
 //--------------------------------------------------------
-void TopHLTDiMuonDQM::beginJob(void) {
+void TopHLTDiMuonDQM::beginJob() {
 
   dbe_ = Service<DQMStore>().operator->();
 
@@ -180,9 +187,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
   vector<string> hltPaths;
 
-  if( level_ == "L1" )  hltPaths = hltPaths_L1_;
-
-  if( level_ == "L3" )  hltPaths = hltPaths_L3_;
+  if( level_ == "L1"  )  hltPaths = hltPaths_L1_;
+  if( level_ == "TEV" )  hltPaths = hltPaths_L1_;
+  if( level_ == "L3"  )  hltPaths = hltPaths_L3_;
 
   const int N_TriggerPaths = hltPaths.size();
   const int N_SignalPaths  = hltPaths_sig_.size();
@@ -228,8 +235,6 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 	    Trigs->Fill(i);
 	    Trigs->setBinLabel( i+1, hltPaths[i], 1);
 
-	    //	    cout << "Trigger: " << hltPaths[i] << " FIRED!!! " << endl;
-
 	  }
 
 	}
@@ -257,6 +262,106 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
   // -----------------------
   //  Analyze Trigger Muons
   // -----------------------
+
+  // -------------------
+  //  From TriggerEvent
+  // -------------------
+
+  if( level_ == "TEV" ) {
+
+    Handle<TriggerEvent> triggerEvent;
+    iEvent.getByLabel(triggerEvent_, triggerEvent);
+
+    if( triggerEvent.failedToGet() ) {
+
+      //      cout << endl << "---------------------------" << endl;
+      //      cout << "--- NO TRIGGER EVENT !! ---" << endl;
+      //      cout << "---------------------------" << endl << endl;
+
+    }
+
+    if( !triggerEvent.failedToGet() ) {
+
+      //      InputTag collectionTag  = InputTag( "hltL1MuOpenL1Filtered0",              "", "HLT" );
+      //      InputTag collectionTag  = InputTag( "hltDoubleMuLevel1PathL1OpenFiltered", "", "HLT" );
+      //      InputTag collectionTag  = InputTag( "hltDiMuonL3PreFiltered0",             "", "HLT" );
+
+      size_t   filterIndex    = triggerEvent->filterIndex( triggerFilter_ );
+      TriggerObjectCollection triggerObjects = triggerEvent->getObjects();
+      TriggerObjectCollection::const_iterator trig;
+
+      if( filterIndex < triggerEvent->sizeFilters() ) {
+
+	const Keys & keys = triggerEvent->filterKeys( filterIndex );
+
+	//	cout << "N_triggerObjects : " << keys.size() << endl;
+
+	NMuons->Fill(keys.size());
+
+	int N_mu = 0;
+
+	for( size_t j = 0; j < keys.size(); j++ ) {
+
+	  TriggerObject foundObject = triggerObjects[keys[j]];
+
+	  reco::Particle cand = foundObject.particle();
+
+	  float N_muons = keys.size();
+	  float Q_muon  = cand.charge();
+
+	  NMuons_charge->Fill(N_muons*Q_muon);
+
+	  if(     cand.pt()   < muon_pT_cut_  )  continue;
+	  if( abs(cand.eta()) > muon_eta_cut_ )  continue;
+	  //	  if( cand.isIsolated() )  ++N_iso_mu;
+
+	  ++N_mu;
+
+	}
+
+	if( N_mu > 1 ) {
+
+	  reco::Particle mu1 = triggerObjects[keys[0]].particle();
+	  reco::Particle mu2 = triggerObjects[keys[1]].particle();
+
+	  DilepMass = sqrt( (mu1.energy() + mu2.energy())*(mu1.energy() + mu2.energy())
+			    - (mu1.px() + mu2.px())*(mu1.px() + mu2.px())
+			    - (mu1.py() + mu2.py())*(mu1.py() + mu2.py())
+			    - (mu1.pz() + mu2.pz())*(mu1.pz() + mu2.pz()) );
+
+	  DiMuonMassRC_LOG10->Fill( log10(DilepMass) );
+	  DiMuonMassRC->Fill(             DilepMass  );
+	  DiMuonMassRC_LOGX->Fill(        DilepMass  );
+
+	  if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
+
+	    for( size_t j = 0; j < keys.size(); j++ ) {
+
+	      TriggerObject  foundObject = triggerObjects[keys[j]];
+	      reco::Particle        cand = foundObject.particle();
+
+	      PtMuons->Fill(  cand.pt()  );
+	      EtaMuons->Fill( cand.eta() );
+	      PhiMuons->Fill( cand.phi() );
+
+	    }
+
+	    DeltaEtaMuons->Fill( mu1.eta()-mu2.eta() );
+	    DeltaPhiMuons->Fill( mu1.phi()-mu2.phi() );
+
+	  }
+
+	}
+
+      }
+
+    }
+
+  }
+
+  // -------------------------
+  //  From L1 Muon Collection
+  // -------------------------
 
   if( level_ == "L1" ) {
 
@@ -290,6 +395,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
 	NMuons_charge->Fill(N_muons*Q_muon);
 
+	if(     cand->pt()   < muon_pT_cut_  )  continue;
+	if( abs(cand->eta()) > muon_eta_cut_ )  continue;
+
 	if( cand->isIsolated() )  ++N_iso_mu;
 
       }
@@ -298,8 +406,8 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
       NMuons_iso->Fill(N_iso_mu);
 
-
-      if( N_iso_mu > 1 && Fired_Control_Trigger[0] ) {
+      //      if( N_iso_mu > 1 && Fired_Control_Trigger[0] ) {
+      if( N_iso_mu > 1 ) {
 
 	l1extra::L1MuonParticleCollection::const_reference mu1 = mucands->at(0);
 	l1extra::L1MuonParticleCollection::const_reference mu2 = mucands->at(1);
@@ -320,9 +428,6 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 	  if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
 
 	    for( cand = mucands->begin(); cand != mucands->end(); ++cand ) {
-
-	      if(     cand->pt()   < muon_pT_cut_     )  continue;
-	      if( abs(cand->eta()) > muon_eta_cut_    )  continue;
 
 	      PtMuons->Fill(  cand->pt()  );
 	      EtaMuons->Fill( cand->eta() );
@@ -389,6 +494,10 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
   }
 
+  // -------------------------
+  //  From L3 Muon Collection
+  // -------------------------
+
   if( level_ == "L3" ) {
 
     Handle<reco::RecoChargedCandidateCollection> mucands;
@@ -432,12 +541,28 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
 	NMuons_charge->Fill(N_muons*Q_muon);
 
-	reco::TrackRef tk = cand->track();
+	double track_X = 100.;
+	double track_Y = 100.;
+	double track_Z = 100.;
+
+	reco::TrackRef track = cand->track();
+
+	track_X = track->vx();
+	track_Y = track->vy();
+	track_Z = track->vz();
+
+	// Vertex and kinematic cuts
+
+	if(          track_X > vertex_X_cut_ )  continue;
+	if(          track_Y > vertex_Y_cut_ )  continue;
+	if(          track_Z > vertex_Z_cut_ )  continue;
+	if(     cand->pt()   < muon_pT_cut_  )  continue;
+	if( abs(cand->eta()) > muon_eta_cut_ )  continue;
 
 	if( isoMap.isValid() ) {
 
 	  // Isolation flag (this is a bool value: true => isolated)
-	  ValueMap<bool>::value_type muonIsIsolated = (*isoMap)[tk];
+	  ValueMap<bool>::value_type muonIsIsolated = (*isoMap)[track];
 
 	  if( muonIsIsolated )  ++N_iso_mu;
 
@@ -449,8 +574,8 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
       NMuons_iso->Fill(N_iso_mu);
 
-
-      if( N_iso_mu > 1 && Fired_Control_Trigger[0] ) {
+      //      if( N_iso_mu > 1 && Fired_Control_Trigger[0] ) {
+      if( N_iso_mu > 1 ) {
 
 	reco::RecoChargedCandidateCollection::const_reference mu1 = mucands->at(0);
 	reco::RecoChargedCandidateCollection::const_reference mu2 = mucands->at(1);
@@ -471,9 +596,6 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 	  if( DilepMass > MassWindow_down_ && DilepMass < MassWindow_up_ ) {
 
 	    for( cand = mucands->begin(); cand != mucands->end(); ++cand ) {
-
-	      if(     cand->pt()   < muon_pT_cut_     )  continue;
-	      if( abs(cand->eta()) > muon_eta_cut_    )  continue;
 
 	      PtMuons->Fill(  cand->pt()  );
 	      EtaMuons->Fill( cand->eta() );
@@ -588,6 +710,3 @@ void TopHLTDiMuonDQM::endJob() {
   return;
 
 }
-
-// Declare this as an analyzer for the Framework
-DEFINE_FWK_MODULE(TopHLTDiMuonDQM);
