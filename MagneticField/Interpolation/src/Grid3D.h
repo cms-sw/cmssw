@@ -41,6 +41,14 @@ public:
   }
 #endif
 
+  int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
+  int stride1() const { return stride1_;}
+  int stride2() const { return stride2_;}
+  int stride3() const { return 1;}
+  const ValueType& operator()(int i) {
+    return data_[i];
+  }
+
   const Grid1D& grida() const {return grida_;}
   const Grid1D& gridb() const {return gridb_;}
   const Grid1D& gridc() const {return gridc_;}
@@ -60,7 +68,6 @@ private:
   int stride1_;
   int stride2_;
 
-  int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
 
   void fillSub();
 
