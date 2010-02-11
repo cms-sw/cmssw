@@ -25,10 +25,12 @@ twoBin = (os.environ["ALIGNMENT_TWOBIN"] == "True")
 weightAlignment = (os.environ["ALIGNMENT_WEIGHTALIGNMENT"] == "True")
 minAlignmentHits = int(os.environ["ALIGNMENT_MINALIGNMENTHITS"])
 combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
+maxEvents = int(os.environ["ALIGNMENT_MAXEVENTS"])
+skipEvents = int(os.environ["ALIGNMENT_SKIPEVENTS"])
 
 process = cms.Process("GATHER")
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputfiles))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputfiles), skipEvents = cms.untracked.uint32(skipEvents))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(maxEvents))
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring("cout"),

@@ -38,7 +38,6 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
 
 bool MuonResidualsPositionFitter::fit(Alignable *ali) {
   initialize_table();  // if not already initialized
-  m_goodfit = false;
 
   double sum_x = 0.;
   double sum_xx = 0.;

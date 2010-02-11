@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/10/26 02:06:13 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/01/06 15:38:44 $
+ *  $Revision: 1.13 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -43,7 +43,7 @@ public:
   };
 
   MuonResidualsFitter(int residualsModel, int minHits, bool weightAlignment=true)
-    : m_residualsModel(residualsModel), m_minHits(minHits), m_weightAlignment(weightAlignment), m_printLevel(0), m_strategy(2), m_goodfit(false), m_loglikelihood(0.) {
+    : m_residualsModel(residualsModel), m_minHits(minHits), m_weightAlignment(weightAlignment), m_printLevel(0), m_strategy(2), m_loglikelihood(0.) {
     if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  m_residualsModel != kROOTVoigt) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
   };
 
@@ -88,8 +88,8 @@ public:
   // this block of results is only valid if fit() returns true
   // also gamma is only valid if the model is kPowerLawTails or kROOTVoigt
   virtual bool fit(Alignable *ali) = 0;
-  double value(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_value[parNum]; };
-  double errorerror(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
+  double value(int parNum) { assert(0 <= parNum  &&  parNum < npar());  return m_value[parNum]; };
+  double errorerror(int parNum) { assert(0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
   double loglikelihood() { return m_loglikelihood; };
   long numsegments() {
     long num = 0;
@@ -127,7 +127,6 @@ protected:
 
   std::vector<double*> m_residuals;
 
-  bool m_goodfit;
   std::vector<double> m_value;
   std::vector<double> m_error;
   double m_loglikelihood;

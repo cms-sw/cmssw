@@ -91,11 +91,11 @@ Double_t MuonResidualsFitter_powerLawTails_TF1(Double_t *xvec, Double_t *par) {
 }
 
 double MuonResidualsFitter_logROOTVoigt(double residual, double center, double sigma, double gamma) {
-  return log(TMath::Voigt(residual - center, sigma, gamma*2.));
+  return log(TMath::Voigt(residual - center, fabs(sigma), fabs(gamma)*2.));
 }
 
 Double_t MuonResidualsFitter_ROOTVoigt_TF1(Double_t *xvec, Double_t *par) {
-  return par[0] * TMath::Voigt(xvec[0] - par[1], par[2], par[3]*2.);
+  return par[0] * TMath::Voigt(xvec[0] - par[1], fabs(par[2]), fabs(par[3])*2.);
 }
 
 double MuonResidualsFitter_integrate_pureGaussian(double low, double high, double center, double sigma) {
@@ -242,7 +242,6 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   }
 
   // read-out the results
-  m_goodfit = true;
   m_loglikelihood = -fmin;
 
   m_value.clear();

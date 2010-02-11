@@ -121,7 +121,6 @@ double MuonResiduals6DOFrphiFitter::sumofweights() {
 
 bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali) {
   initialize_table();  // if not already initialized
-  m_goodfit = false;
   sumofweights();
 
   MuonResiduals6DOFrphiFitter_R = sqrt(pow(ali->globalPosition().x(), 2) + pow(ali->globalPosition().y(), 2));
@@ -173,11 +172,6 @@ bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali) {
 	alpha_xy += weight * resslope * residual;
       }
     }
-  }
-
-  if (N <= m_minHits) {
-    if (m_printLevel > -1) std::cout << "Not enough hits: " << N << std::endl;
-    return false;
   }
 
   double resid_mean = resid_sum/resid_N;

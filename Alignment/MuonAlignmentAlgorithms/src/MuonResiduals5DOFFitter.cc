@@ -102,7 +102,6 @@ double MuonResiduals5DOFFitter::sumofweights() {
 
 bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
   initialize_table();  // if not already initialized
-  m_goodfit = false;
   sumofweights();
 
   double resid_sum = 0.;
@@ -150,11 +149,6 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
 	alpha_xy += weight * resslope * residual;
       }
     }
-  }
-
-  if (N <= m_minHits) {
-    if (m_printLevel > -1) std::cout << "Not enough hits: " << N << std::endl;
-    return false;
   }
 
   double resid_mean = resid_sum/resid_N;

@@ -234,6 +234,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      else if ((*ali)->alignableObjectId() == align::AlignableCSCChamber) {
        Alignable *thisali = *ali;
        CSCDetId id((*ali)->geomDetId().rawId());
+	
        if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {
 	 CSCDetId pairid(id.endcap(), 1, 1, id.chamber());
 	 
@@ -588,28 +589,28 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 }
 
 void MuonAlignmentFromReference::terminate() {
-   // one-time print-out
-   std::cout << "Counters:" << std::endl
-	     << "COUNT{ events: " << m_counter_events << " }" << std::endl
-	     << "COUNT{   tracks: " << m_counter_tracks << " }" << std::endl
-	     << "COUNT{     trackpt: " << m_counter_trackpt << " }" << std::endl
-	     << "COUNT{       trackerhits: " << m_counter_trackerhits << " }" << std::endl
-	     << "COUNT{         trackerchi2: " << m_counter_trackerchi2 << " }" << std::endl
-	     << "COUNT{           trackertidtec: " << m_counter_trackertidtec << " }" << std::endl
-	     << "COUNT{             station123: " << m_counter_station123 << " }" << std::endl
-	     << "COUNT{               station123valid: " << m_counter_station123valid << " }" << std::endl
-	     << "COUNT{                 station123dt13hits: " << m_counter_station123dt13hits << " }" << std::endl
-	     << "COUNT{                   station123dt2hits: " << m_counter_station123dt2hits << " }" << std::endl
-	     << "COUNT{                     station123aligning: " << m_counter_station123aligning << " }" << std::endl
-	     << "COUNT{             station4: " << m_counter_station4 << " }" << std::endl
-	     << "COUNT{               station4valid: " << m_counter_station4valid << " }" << std::endl
-	     << "COUNT{                 station4hits: " << m_counter_station4hits << " }" << std::endl
-	     << "COUNT{                   station4aligning: " << m_counter_station4aligning << " }" << std::endl
-	     << "COUNT{             csc: " << m_counter_csc << " }" << std::endl
-	     << "COUNT{               cscvalid: " << m_counter_cscvalid << " }" << std::endl
-	     << "COUNT{                 cschits: " << m_counter_cschits << " }" << std::endl
-	     << "COUNT{                   cscaligning: " << m_counter_cscaligning << " }" << std::endl
-	     << "That's all!" << std::endl;
+  // one-time print-out
+  std::cout << "Counters:" << std::endl
+	    << "COUNT{ events: " << m_counter_events << " }" << std::endl
+	    << "COUNT{   tracks: " << m_counter_tracks << " }" << std::endl
+	    << "COUNT{     trackpt: " << m_counter_trackpt << " }" << std::endl
+	    << "COUNT{       trackerhits: " << m_counter_trackerhits << " }" << std::endl
+	    << "COUNT{         trackerchi2: " << m_counter_trackerchi2 << " }" << std::endl
+	    << "COUNT{           trackertidtec: " << m_counter_trackertidtec << " }" << std::endl
+	    << "COUNT{             station123: " << m_counter_station123 << " }" << std::endl
+	    << "COUNT{               station123valid: " << m_counter_station123valid << " }" << std::endl
+	    << "COUNT{                 station123dt13hits: " << m_counter_station123dt13hits << " }" << std::endl
+	    << "COUNT{                   station123dt2hits: " << m_counter_station123dt2hits << " }" << std::endl
+	    << "COUNT{                     station123aligning: " << m_counter_station123aligning << " }" << std::endl
+	    << "COUNT{             station4: " << m_counter_station4 << " }" << std::endl
+	    << "COUNT{               station4valid: " << m_counter_station4valid << " }" << std::endl
+	    << "COUNT{                 station4hits: " << m_counter_station4hits << " }" << std::endl
+	    << "COUNT{                   station4aligning: " << m_counter_station4aligning << " }" << std::endl
+	    << "COUNT{             csc: " << m_counter_csc << " }" << std::endl
+	    << "COUNT{               cscvalid: " << m_counter_cscvalid << " }" << std::endl
+	    << "COUNT{                 cschits: " << m_counter_cschits << " }" << std::endl
+	    << "COUNT{                   cscaligning: " << m_counter_cscaligning << " }" << std::endl
+	    << "That's all!" << std::endl;
 
   // collect temporary files
   if (m_readTemporaryFiles.size() != 0) {
@@ -782,12 +783,14 @@ void MuonAlignmentFromReference::terminate() {
 	AlgebraicVector params(numParams);
 	AlgebraicSymMatrix cov(numParams);
 
-	if (fitter->second->fit(thisali)) {
+	if (fitter->second->numsegments() >= m_minAlignmentHits) {
+	  bool successful_fit = fitter->second->fit(thisali);
 
 	  double loglikelihood = fitter->second->loglikelihood();
 	  double numsegments = fitter->second->numsegments();
 	  double sumofweights = fitter->second->sumofweights();
 	  double redchi2 = fitter->second->plot(name.str(), &rootDirectory, thisali);
+
 	  if (fitter->second->type() == MuonResidualsFitter::k5DOF) {
 	    double deltax_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignX);
 	    double deltax_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kAlignX);
@@ -888,11 +891,13 @@ void MuonAlignmentFromReference::terminate() {
 	      fitter->second->plotweighted(nameweighted_dxdz.str(), &rootDirectory, MuonResiduals5DOFFitter::kResSlope, MuonResiduals5DOFFitter::kRedChi2, 1000.);
 	    }
 
-	    if (align_x)    params[paramIndex[0]] = deltax_value;
-	    if (align_z)    params[paramIndex[2]] = deltaz_value;
-	    if (align_phix) params[paramIndex[3]] = deltaphix_value;
-	    if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
-	    if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	    if (successful_fit) {
+	      if (align_x)    params[paramIndex[0]] = deltax_value;
+	      if (align_z)    params[paramIndex[2]] = deltaz_value;
+	      if (align_phix) params[paramIndex[3]] = deltaphix_value;
+	      if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
+	      if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	    }
 	  } // end if 5DOF
 
 	  else if (fitter->second->type() == MuonResidualsFitter::k6DOF) {
@@ -1027,12 +1032,14 @@ void MuonAlignmentFromReference::terminate() {
 	      fitter->second->plotweighted(nameweighted_dydz.str(), &rootDirectory, MuonResiduals6DOFFitter::kResSlopeY, MuonResiduals6DOFFitter::kRedChi2, 1000.);
 	    }
 
-	    if (align_x)    params[paramIndex[0]] = deltax_value;
-	    if (align_y)    params[paramIndex[1]] = deltay_value;
-	    if (align_z)    params[paramIndex[2]] = deltaz_value;
-	    if (align_phix) params[paramIndex[3]] = deltaphix_value;
-	    if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
-	    if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	    if (successful_fit) {
+	      if (align_x)    params[paramIndex[0]] = deltax_value;
+	      if (align_y)    params[paramIndex[1]] = deltay_value;
+	      if (align_z)    params[paramIndex[2]] = deltaz_value;
+	      if (align_phix) params[paramIndex[3]] = deltaphix_value;
+	      if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
+	      if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	    }
 	  } // end if 6DOF
 
 	  else if (fitter->second->type() == MuonResidualsFitter::k6DOFrphi) {
@@ -1139,25 +1146,42 @@ void MuonAlignmentFromReference::terminate() {
 	      fitter->second->plotweighted(nameweighted_dxdz.str(), &rootDirectory, MuonResiduals6DOFrphiFitter::kResSlope, MuonResiduals6DOFrphiFitter::kRedChi2, 1000.);
 	    }
 
-	    if (align_x)    params[paramIndex[0]] = deltax_value;
-	    if (align_y)    params[paramIndex[1]] = deltay_value;
-	    if (align_z)    params[paramIndex[2]] = deltaz_value;
-	    if (align_phix) params[paramIndex[3]] = deltaphix_value;
-	    if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
-	    if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	    if (successful_fit) {
+	      if (align_x)    params[paramIndex[0]] = deltax_value;
+	      if (align_y)    params[paramIndex[1]] = deltay_value;
+	      if (align_z)    params[paramIndex[2]] = deltaz_value;
+	      if (align_phix) params[paramIndex[3]] = deltaphix_value;
+	      if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
+	      if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+	    }
 	  } // end if 6DOFrphi
 
-	  std::vector<Alignable*> oneortwo;
-	  oneortwo.push_back(*ali);
-	  if (thisali != *ali) oneortwo.push_back(thisali);
-	  m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 0., 0.);
-	} // end if successful fit
-	
-	else {
-	  std::cout << "Fit failed!" << std::endl;
+	  if (successful_fit) {
+	    std::vector<Alignable*> oneortwo;
+	    oneortwo.push_back(*ali);
+	    if (thisali != *ali) oneortwo.push_back(thisali);
+	    m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 0., 0.);
+	  }
+	  else {
+	    std::cout << "MINUIT fit failed!" << std::endl;
+	    if (writeReport) {
+	      report << "reports[-1].status = \"MINUITFAIL\"" << std::endl;
+	    }
 
+	    for (int i = 0;  i < numParams;  i++) {
+	      cov[i][i] = 1000.;
+	    }
+
+	    std::vector<Alignable*> oneortwo;
+	    oneortwo.push_back(*ali);
+	    if (thisali != *ali) oneortwo.push_back(thisali);
+	    m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 1000., 0.);
+	  }
+        }
+	else { // too few hits
+	  std::cout << "Too few hits!" << std::endl;
 	  if (writeReport) {
-	    report << "reports[-1].status = \"FAIL\"" << std::endl;
+	    report << "reports[-1].status = \"TOOFEWHITS\"" << std::endl;
 	  }
 
 	  for (int i = 0;  i < numParams;  i++) {
@@ -1174,7 +1198,7 @@ void MuonAlignmentFromReference::terminate() {
 	(*ali)->setAlignmentParameters(parnew);
 	m_alignmentParameterStore->applyParameters(*ali);
 	(*ali)->alignmentParameters()->setValid(true);
-
+      
       } // end we have a fitter for this alignable
 
       if (writeReport) report << std::endl;

@@ -121,8 +121,8 @@ parser.add_option("--weightAlignment",
                   help="if invoked, segments will be weighted by ndf/chi^2 in the alignment",
                   action="store_true",
                   dest="weightAlignment")
-parser.add_option("--minAlignmentHits",
-                  help="minimum number of hits required to align a chamber",
+parser.add_option("--minAlignmentSegments",
+                  help="minimum number of segments required to align a chamber",
                   type="int",
                   default=30,
                   dest="minAlignmentHits")
@@ -130,6 +130,16 @@ parser.add_option("--combineME11",
                   help="treat ME1/1a and ME1/1b as the same objects",
                   action="store_true",
                   dest="combineME11")
+parser.add_option("--maxEvents",
+                  help="maximum number of events",
+                  type="int",
+                  default="-1",
+                  dest="maxEvents")
+parser.add_option("--skipEvents",
+                  help="number of events to be skipped",
+                  type="int",
+                  default="0",
+                  dest="skipEvents")
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -160,6 +170,8 @@ twoBin = str(options.twoBin)
 weightAlignment = str(options.weightAlignment)
 minAlignmentHits = str(options.minAlignmentHits)
 combineME11 = str(options.combineME11)
+maxEvents = options.maxEvents
+skipEvents = options.skipEvents
 
 execfile(INPUTFILES)
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
@@ -231,6 +243,8 @@ export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 export ALIGNMENT_COMBINEME11=%(combineME11)s
+export ALIGNMENT_MAXEVENTS=%(maxEvents)d
+export ALIGNMENT_SKIPEVENTS=%(skipEvents)d
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
@@ -247,7 +261,7 @@ cp -f *.tmp %(copyplots)s $ALIGNMENT_AFSDIR/%(directory)s
             if options.big: queue = "cmscaf1nd"
             else: queue = "cmscaf1nh"
 
-            bsubfile.append("bsub -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
+            bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
@@ -320,7 +334,7 @@ cmsRun %(directory)sconvert-db-to-xml_cfg.py
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
-    bsubfile.append("bsub -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
+    bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
     bsubfile.append("cd ..")
     bsubfile.append("")
     bsubnames = []
