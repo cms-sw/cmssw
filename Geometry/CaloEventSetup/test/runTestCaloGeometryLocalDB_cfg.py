@@ -9,7 +9,9 @@ process.load('Configuration/StandardSequences/GeometryDB_cff')
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_GEOM_ALLV4::All'
+process.XMLFromDBSource.label = cms.string('Extended')
+process.GlobalTag.globaltag = 'MC_3XY_MEC::All'
+process.XMLFromDBSource.label = cms.string('Extended')
 
 process.source = cms.Source("EmptySource")
 
