@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/10 07:17:18 $
- * $Revision: 1.20 $
+ * $Date: 2010/02/10 08:56:50 $
+ * $Revision: 1.21 $
  *
  */
 
@@ -154,6 +154,8 @@ void BeamMonitor::beginJob() {
   h_trkVz=dbe_->book1D("trkVz","Z coordinate of PCA of all reco'd tracks (no selection)",dzBin,dzMin,dzMax);
   h_trkVz->setAxisTitle("V_{Z} (cm)",1);
 
+  cutFlowTable = dbe_->book1D("cutFlowTable","Cut flow table of track selection", 9, 0, 9 );
+
   // Results of previous good fit:
   fitResults=dbe_->book2D("fitResults","Results of previous good fit",4,0,4,2,0,2);
   fitResults->setAxisTitle("Fitted Beam Spot",1);
@@ -283,9 +285,19 @@ void BeamMonitor::analyze(const Event& iEvent,
   Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
   refBS = *recoBeamSpotHandle;
-  
-  //if (countEvt_%10!=0) return;
 
+  dbe_->setCurrentFolder(monitorName_+"Fit/");
+  const char* tmpfile;
+  TH1F * tmphisto;
+  tmpfile = (cutFlowTable->getName()).c_str();
+  tmphisto = static_cast<TH1F *>((theBeamFitter->getCutFlow())->Clone("tmphisto"));
+  cutFlowTable->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+  if (countEvt_ == 1) // SetLabel just once
+    for(int n=0; n < tmphisto->GetNbinsX(); n++)
+      cutFlowTable->setBinLabel(n+1,tmphisto->GetXaxis()->GetBinLabel(n+1),1);
+
+  cutFlowTable = dbe_->book1D(tmpfile,tmphisto);
+  
   Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
   const reco::TrackCollection *tracks = TrackCollection.product();
@@ -416,6 +428,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_vx_dz->Reset();
     h_vy_dz->Reset();
     h_trk_z0->Reset();
+    theBeamFitter->resetCutFlow();
     resetHistos_ = false;
   }
   

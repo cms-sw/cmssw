@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/02/09 08:31:43 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/02/10 07:17:17 $
+ *  $Revision: 1.13 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -121,6 +121,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * reportSummary;
   MonitorElement * reportSummaryContents[3];
   MonitorElement * reportSummaryMap;
+  MonitorElement * cutFlowTable;
   // variables for beam fit
 
 };
