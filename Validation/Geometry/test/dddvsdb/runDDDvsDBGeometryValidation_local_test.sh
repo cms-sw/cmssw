@@ -25,15 +25,18 @@ echo ${condlabel} " geometry label from db"
 echo "Check out and compile the needed packages"
 #The following are examples which should be changed if you are testing new code
 #or scripts 
-addpkg Geometry/TrackerGeometryBuilder V05-00-11
-addpkg Geometry/RPCGeometry V01-01-24
-addpkg Geometry/DTGeometry V00-03-10
-addpkg Geometry/CaloEventSetup V03-09-11
-addpkg Geometry/CSCGeometry V01-05-06
-addpkg GeometryReaders/XMLIdealGeometryESSource V01-02-21-04
-addpkg DetectorDescription/Schema V02-01-01
+addpkg Geometry/TrackerGeometryBuilder
+addpkg Geometry/RPCGeometry
+addpkg Geometry/DTGeometry
+addpkg Geometry/CSCGeometry
+addpkg GeometryReaders/XMLIdealGeometryESSource
+addpkg DetectorDescription/Schema
 addpkg Validation/Geometry 
+
 #required:
+addpkg GeometryReaders/XMLIdealGeometryESSource 
+addpkg Geometry/CaloEventSetup
+addpkg DetectorDescription/Schema
 addpkg Configuration/StandardSequences
 
 if ($loctag != '') then 
