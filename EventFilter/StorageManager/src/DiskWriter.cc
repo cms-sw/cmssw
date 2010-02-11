@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.17 2010/02/08 11:57:59 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.18 2010/02/09 14:54:17 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -115,7 +115,7 @@ void DiskWriter::writeNextEvent()
 
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedEventSample(event.totalDataSize());
+    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedEventSample(event.memoryUsed());
 
     if( event.isEndOfLumiSectionMessage() )
       {

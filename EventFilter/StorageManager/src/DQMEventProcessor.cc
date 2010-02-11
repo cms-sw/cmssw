@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.8 2009/09/16 11:07:15 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.9 2009/09/29 07:59:43 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -104,7 +104,7 @@ void DQMEventProcessor::processNextDQMEvent()
   {
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDQMEventProcessorIdleSample(elapsedTime);
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedDQMEventSample(dqmEvent.totalDataSize());
+    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedDQMEventSample(dqmEvent.memoryUsed());
 
     _dqmEventStore.addDQMEvent(dqmEvent);
   }
