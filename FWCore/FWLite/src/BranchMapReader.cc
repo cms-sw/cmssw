@@ -8,7 +8,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.cc,v 1.10 2010/01/28 15:45:19 ewv Exp $
+// $Id: BranchMapReader.cc,v 1.11 2010/01/28 22:15:51 ewv Exp $
 //
 
 // system include files
@@ -37,7 +37,8 @@ namespace fwlite {
   namespace internal {
 
     BMRStrategy::BMRStrategy(TFile* file, int fileVersion)
-      : currentFile_(file), eventTree_(0), eventEntry_(-1), fileVersion_(fileVersion)
+      : currentFile_(file), eventTree_(0), luminosityBlockTree_(0), runTree_(0),
+        eventEntry_(-1), luminosityBlockEntry_(-1), runEntry_(-1), fileVersion_(fileVersion)
     {
       // do in derived obects
       // updateFile(file);
@@ -57,6 +58,10 @@ namespace fwlite {
       virtual bool updateEvent(Long_t eventEntry) { eventEntry_ = eventEntry; return true; }
       virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry) {
         luminosityBlockEntry_ = luminosityBlockEntry;
+        return true;
+      }
+      virtual bool updateRun(Long_t runEntry) {
+        runEntry_ = runEntry;
         return true;
       }
       virtual bool updateMap() { return true; }
@@ -91,6 +96,7 @@ namespace fwlite {
       currentFile_ = file;
       eventTree_ = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::eventTreeName().c_str()));
       luminosityBlockTree_ = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::luminosityBlockTreeName().c_str()));
+      runTree_ = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::runTreeName().c_str()));
       fileUUID_ = currentFile_->GetUUID();
       branchDescriptionMap_.clear();
       bDesc_.clear();
@@ -208,6 +214,7 @@ namespace fwlite {
       virtual bool updateFile(TFile* file);
       virtual bool updateEvent(Long_t eventEntry);
       virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry);
+      virtual bool updateRun(Long_t runEntry);
       virtual bool updateMap();
     private:
       TBranch* entryInfoBranch_;
@@ -232,10 +239,19 @@ namespace fwlite {
       return true;
     }
 
-    bool BranchMapReaderStrategyV8::updateLuminosityBlock(Long_t newlumi)
+    bool BranchMapReaderStrategyV8::updateLuminosityBlock(Long_t newLumi)
     {
-      if (newlumi != luminosityBlockEntry_) {
-        luminosityBlockEntry_ = newlumi;
+      if (newLumi != luminosityBlockEntry_) {
+        luminosityBlockEntry_ = newLumi;
+        mapperFilled_ = false;
+      }
+      return true;
+    }
+
+    bool BranchMapReaderStrategyV8::updateRun(Long_t newRun)
+    {
+      if (newRun != runEntry_) {
+        runEntry_ = newRun;
         mapperFilled_ = false;
       }
       return true;
@@ -302,6 +318,7 @@ namespace fwlite {
       virtual bool updateFile(TFile* file);
       virtual bool updateEvent(Long_t eventEntry);
       virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry);
+      virtual bool updateRun(Long_t runEntry);
       virtual bool updateMap();
       virtual edm::BranchID productToBranchID(const edm::ProductID& pid);
     private:
@@ -328,6 +345,15 @@ namespace fwlite {
     {
       if (newlumi != luminosityBlockEntry_) {
         luminosityBlockEntry_ = newlumi;
+        mapperFilled_ = false;
+      }
+      return true;
+    }
+
+    bool BranchMapReaderStrategyV11::updateRun(Long_t newRun)
+    {
+      if (newRun != runEntry_) {
+        runEntry_ = newRun;
         mapperFilled_ = false;
       }
       return true;
@@ -447,6 +473,11 @@ bool BranchMapReader::updateEvent(Long_t newevent)
 bool BranchMapReader::updateLuminosityBlock(Long_t newlumi)
 {
   return strategy_->updateLuminosityBlock(newlumi);
+}
+
+bool BranchMapReader::updateRun(Long_t newRun)
+{
+  return strategy_->updateRun(newRun);
 }
 
 bool BranchMapReader::updateFile(TFile* file)

@@ -22,20 +22,23 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Common/interface/RunBase.h"
 
 namespace edm {
 
-  class Run {
+  class Run : public RunBase {
   public:
     Run(RunPrincipal& rp, ModuleDescription const& md);
     ~Run();
 
     typedef PrincipalGetAdapter Base;
+    // AUX functions are defined in RunBase
+    RunAuxiliary const& runAuxiliary() const {return aux_;}
     // AUX functions.
-    RunID const& id() const {return aux_.id();}
-    RunNumber_t run() const {return aux_.run();}
-    Timestamp const& beginTime() const {return aux_.beginTime();}
-    Timestamp const& endTime() const {return aux_.endTime();}
+//     RunID const& id() const {return aux_.id();}
+//     RunNumber_t run() const {return aux_.run();}
+//     Timestamp const& beginTime() const {return aux_.beginTime();}
+//     Timestamp const& endTime() const {return aux_.endTime();}
 
     template <typename PROD>
     bool
@@ -104,10 +107,13 @@ namespace edm {
     RunPrincipal&
     runPrincipal();
 
+    // Override version from RunBase class
+    virtual BasicHandle getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const;
+
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
     ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
-  
+
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -120,10 +126,13 @@ namespace edm {
     friend class EDProducer;
 
     void commit_();
+    void addToGotBranchIDs(Provenance const& prov) const;
 
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
     RunAuxiliary const& aux_;
+    typedef std::set<BranchID> BranchIDSet;
+    mutable BranchIDSet gotBranchIDs_;
   };
 
   template <typename PROD>

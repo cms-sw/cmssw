@@ -119,6 +119,7 @@ namespace edm {
     friend class EDProducer;
 
     void commit_();
+    void addToGotBranchIDs(Provenance const& prov) const;
 
     PrincipalGetAdapter provRecorder_;
     ProductPtrVec putProducts_;
@@ -126,7 +127,6 @@ namespace edm {
     boost::shared_ptr<Run const> const run_;
     typedef std::set<BranchID> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
-    void addToGotBranchIDs(Provenance const& prov) const;
   };
 
   template <typename PROD>
