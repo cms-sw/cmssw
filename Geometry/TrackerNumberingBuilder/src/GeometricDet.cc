@@ -78,7 +78,7 @@ GeometricDet::~GeometricDet(){
 }
 
 // for use outside CMSSW framework only since it asks for a default DDCompactView...
-GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) : 
+GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
   _ddd(navtype.begin(),navtype.end()), _type(type){ 
   //
   // I need to find the params by myself :(
@@ -112,7 +112,7 @@ GeometricDet::GeometricDet(DDnav_type const & navtype, GeometricEnumType type) :
 
 }
 
-GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(type) {
+GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) :  _type(type) {
   //
   // Set by hand the _ddd
   //
@@ -152,11 +152,10 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _rho(_trans.Rho()),
   _rot(fv->rotation()),
   _shape(((fv->logicalPart()).solid()).shape()),
-  _ddd(fv->navPos().begin(),fv->navPos().end()),
   _ddname(((fv->logicalPart()).ddname()).name()),
   _type(type),
   _params(((fv->logicalPart()).solid()).parameters()),
-
+  //  want this :) _ddd(fv->navPos().begin(),fv->navPos().end()),
   _parents(fv->geoHistory().begin(),fv->geoHistory().end()),
   _volume(((fv->logicalPart()).solid()).volume()),
   _density(((fv->logicalPart()).material()).density()),
@@ -174,6 +173,9 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) :
   _siliconAPVNum(getDouble("SiliconAPVNumber",*fv)),
   _fromDD(true)
 {
+  //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
+  const DDFilteredView::nav_type& nt = fv->navPos();
+  _ddd = nav_type(nt.begin(), nt.end());
 }
 
 // PGeometricDet is persistent version... make it... then come back here and make the
