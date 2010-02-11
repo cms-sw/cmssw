@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/GRun/V18 (CMSSW_3_5_0)
+# /dev/CMSSW_3_5_0/GRun/V19 (CMSSW_3_5_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V18')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V19')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -3452,7 +3452,8 @@ process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       ),
       SeedingLayers = cms.string( "PixelLayerTriplets" )
     ),
@@ -5971,7 +5972,9 @@ process.hltBLifetimeRegionalPixelSeedGeneratorStartupU = cms.EDProducer( "SeedGe
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
       ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
-      doClusterCheck = cms.bool( False )
+      doClusterCheck = cms.bool( False ),
+      PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
+      MaxNumberOfPixelClusters = cms.uint32( 10000 )
     ),
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
@@ -6382,7 +6385,8 @@ process.hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       )
     ),
     FitterPSet = cms.PSet( 
@@ -6639,7 +6643,8 @@ process.hltHITPixelTracksHB = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       ),
       SeedingLayers = cms.string( "PixelLayerTripletsHITHB" )
     ),
@@ -6679,7 +6684,8 @@ process.hltHITPixelTracksHE = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       ),
       SeedingLayers = cms.string( "PixelLayerTripletsHITHE" )
     ),
@@ -6742,7 +6748,9 @@ process.hltHITPixelTripletSeedGeneratorHE8E29 = cms.EDProducer( "SeedGeneratorFr
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
       ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
-      doClusterCheck = cms.bool( False )
+      doClusterCheck = cms.bool( False ),
+      PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
+      MaxNumberOfPixelClusters = cms.uint32( 10000 )
     ),
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "HITRegionalPixelSeedGenerator" ),
@@ -6777,7 +6785,8 @@ process.hltHITPixelTripletSeedGeneratorHE8E29 = cms.EDProducer( "SeedGeneratorFr
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         phiPreFiltering = cms.double( 0.3 ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       ),
       SeedingLayers = cms.string( "PixelLayerTriplets" )
     ),
@@ -6878,7 +6887,9 @@ process.hltHITPixelTripletSeedGeneratorHB8E29 = cms.EDProducer( "SeedGeneratorFr
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
       ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
-      doClusterCheck = cms.bool( False )
+      doClusterCheck = cms.bool( False ),
+      PixelClusterCollectionLabel = cms.InputTag( "hltSiPixelClusters" ),
+      MaxNumberOfPixelClusters = cms.uint32( 10000 )
     ),
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "HITRegionalPixelSeedGenerator" ),
@@ -6913,7 +6924,8 @@ process.hltHITPixelTripletSeedGeneratorHB8E29 = cms.EDProducer( "SeedGeneratorFr
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         phiPreFiltering = cms.double( 0.3 ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       ),
       SeedingLayers = cms.string( "PixelLayerTriplets" )
     ),
@@ -7842,7 +7854,56 @@ process.hltPreHLTMON = cms.EDFilter( "HLTPrescaler" )
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DoubleLooseIsoTau15',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_IsoMu3',
+  'HLT_L2Mu9',
+  'HLT_L2Mu11',
+  'HLT_MinBiasBSC_NoBPTX',
+  'HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX',
+  'HLT_L1SingleEG1',
+  'HLT_DoubleJet15U_ForwardBackward',
+  'HLT_HighMult40',
+  'HLT_ZeroBias1kHz',
+  'HLT_TechTrigHCALNoise',
+  'HLT_GlobalRunHPDNoise',
+  'HLT_TrackerCosmics',
+  'HLT_RPCBarrelCosmics',
+  'HLT_CSCBeamHaloRing2or3',
+  'HLT_CSCBeamHaloOverlapRing2',
+  'HLT_CSCBeamHaloOverlapRing1',
+  'HLT_CSCBeamHalo',
+  'HLT_L1MuOpen_NoBPTX',
+  'HLT_Activity_DT',
+  'HLT_Random',
+  'HLT_EgammaSuperClusterOnly_L1R',
+  'HLT_HFThreshold10',
+  'HLT_HFThreshold3',
+  'HLT_L1Tech_HCAL_HF_coincidence_PM',
+  'HLT_L1_HFtech',
+  'HLT_IsoTrackHB_8E29',
+  'HLT_IsoTrackHE_8E29',
+  'HLT_L1Tech_RPC_TTU_RBst1_collisions',
+  'HLT_L1_BscMinBiasOR_BptxPlusORMinus',
+  'HLT_L1_BSC',
+  'HLT_SplashBSC',
+  'HLT_HighMultiplicityBSC',
+  'HLT_ForwardBSC',
+  'HLT_BackwardBSC',
+  'HLT_MinBiasPixel_DoubleIsoTrack5',
+  'HLT_MinBiasPixel_DoubleTrack',
+  'HLT_MinBiasPixel_SingleTrack',
+  'HLT_ZeroBiasPixel_SingleTrack',
+  'HLT_MinBiasEcal',
+  'HLT_MinBiasHcal',
+  'HLT_MinBiasBSC_OR',
+  'HLT_MinBiasBSC',
+  'HLT_MinBias',
+  'HLT_L1Mu14_L1ETM30',
+  'HLT_L1Mu14_L1SingleJet6U',
+  'HLT_L1Mu14_L1SingleEG10',
+  'HLT_StoppedHSCP_8E29',
+  'HLT_BTagIP_Jet50U',
+  'HLT_TrackPointing',
+  'HLT_DoubleLooseIsoTau15',
   'HLT_SingleLooseIsoTau20',
   'HLT_DoublePhoton10_L1R',
   'HLT_Photon30_L1R_8E29',
@@ -7902,56 +7963,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_DoubleMu3',
   'HLT_Mu3',
   'HLT_Mu5',
-  'HLT_Mu9',
-  'HLT_IsoMu3',
-  'HLT_L2Mu9',
-  'HLT_L2Mu11',
-  'HLT_MinBiasBSC_NoBPTX',
-  'HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX',
-  'HLT_L1SingleEG1',
-  'HLT_DoubleJet15U_ForwardBackward',
-  'HLT_HighMult40',
-  'HLT_ZeroBias1kHz',
-  'HLT_TechTrigHCALNoise',
-  'HLT_GlobalRunHPDNoise',
-  'HLT_TrackerCosmics',
-  'HLT_RPCBarrelCosmics',
-  'HLT_CSCBeamHaloRing2or3',
-  'HLT_CSCBeamHaloOverlapRing2',
-  'HLT_CSCBeamHaloOverlapRing1',
-  'HLT_CSCBeamHalo',
-  'HLT_L1MuOpen_NoBPTX',
-  'HLT_Activity_DT',
-  'HLT_Random',
-  'HLT_EgammaSuperClusterOnly_L1R',
-  'HLT_HFThreshold10',
-  'HLT_HFThreshold3',
-  'HLT_L1Tech_HCAL_HF_coincidence_PM',
-  'HLT_L1_HFtech',
-  'HLT_IsoTrackHB_8E29',
-  'HLT_IsoTrackHE_8E29',
-  'HLT_L1Tech_RPC_TTU_RBst1_collisions',
-  'HLT_L1_BscMinBiasOR_BptxPlusORMinus',
-  'HLT_L1_BSC',
-  'HLT_SplashBSC',
-  'HLT_HighMultiplicityBSC',
-  'HLT_ForwardBSC',
-  'HLT_BackwardBSC',
-  'HLT_MinBiasPixel_DoubleIsoTrack5',
-  'HLT_MinBiasPixel_DoubleTrack',
-  'HLT_MinBiasPixel_SingleTrack',
-  'HLT_ZeroBiasPixel_SingleTrack',
-  'HLT_MinBiasEcal',
-  'HLT_MinBiasHcal',
-  'HLT_MinBiasBSC_OR',
-  'HLT_MinBiasBSC',
-  'HLT_MinBias',
-  'HLT_L1Mu14_L1ETM30',
-  'HLT_L1Mu14_L1SingleJet6U',
-  'HLT_L1Mu14_L1SingleEG10',
-  'HLT_StoppedHSCP_8E29',
-  'HLT_BTagIP_Jet50U',
-  'HLT_TrackPointing' ) ),
+  'HLT_Mu9' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -8786,7 +8798,6 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix         = cms.untracked.string('frontier://FrontierProd/')
 
-process.GlobalTag.pfnPrefix=cms.untracked.string('frontier://FrontierProd/')
 if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect  = 'frontier://FrontierProd/CMS_COND_31X_L1T'
 

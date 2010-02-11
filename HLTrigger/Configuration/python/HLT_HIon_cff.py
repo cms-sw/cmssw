@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/HIon/V18 (CMSSW_3_5_0)
+# /dev/CMSSW_3_5_0/HIon/V19 (CMSSW_3_5_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V19')
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1641,7 +1641,8 @@ hltHIPixelTracks = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       )
     ),
     FitterPSet = cms.PSet( 
