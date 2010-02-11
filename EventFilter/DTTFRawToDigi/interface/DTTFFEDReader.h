@@ -5,8 +5,8 @@
  *   L1 DT Track Finder Raw-to-Digi
  *
  *
- *   $Date: 2008/10/13 07:43:52 $
- *   $Revision: 1.6 $
+ *   $Date: 2009/11/18 13:27:12 $
+ *   $Revision: 1.7 $
  *
  *   J. Troconiz  UAM Madrid
  *   E. Delmeire  UAM Madrid
@@ -22,7 +22,7 @@
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include <string>
 

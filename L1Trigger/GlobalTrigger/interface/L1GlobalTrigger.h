@@ -39,7 +39,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // forward classes
 class L1GlobalTriggerPSB;

@@ -4,14 +4,14 @@
 /** \class MuonProducer
  *  No description available.
  *
- *  $Date: 2007/05/04 18:14:34 $
+ *  $Date: 2007/05/12 22:14:39 $
  *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 namespace reco {class Track;}

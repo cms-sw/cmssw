@@ -4,14 +4,14 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2009/03/04 13:11:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/13 12:07:49 $
+ *  $Revision: 1.2 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class RecoTrackSelector {
  public:

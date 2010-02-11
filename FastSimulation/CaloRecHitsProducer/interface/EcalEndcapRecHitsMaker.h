@@ -3,7 +3,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 //#include <boost/cstdint.hpp>
 

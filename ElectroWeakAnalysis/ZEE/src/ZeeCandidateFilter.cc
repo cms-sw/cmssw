@@ -31,7 +31,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Feb 12 11:22:04 CET 2009
-// $Id: ZeeCandidateFilter.cc,v 1.2 2009/12/09 08:56:28 rompotis Exp $
+// $Id: ZeeCandidateFilter.cc,v 1.3 2010/01/07 13:51:09 hegner Exp $
 //
 //
 
@@ -51,11 +51,11 @@
 //
 #include <vector>
 #include <iostream>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 //
 #include "TString.h"
 #include "TMath.h"

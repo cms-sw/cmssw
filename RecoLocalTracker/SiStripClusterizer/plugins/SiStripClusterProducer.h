@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
 
 class SiStripClusterProducer : public edm::EDProducer {

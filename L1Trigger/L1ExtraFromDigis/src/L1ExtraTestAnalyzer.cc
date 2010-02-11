@@ -10,7 +10,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 28 14:22:31 EDT 2006
-// $Id: L1ExtraTestAnalyzer.cc,v 1.2 2009/03/26 03:58:28 wsun Exp $
+// $Id: L1ExtraTestAnalyzer.cc,v 1.3 2009/03/27 23:23:33 wsun Exp $
 //
 //
 
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"

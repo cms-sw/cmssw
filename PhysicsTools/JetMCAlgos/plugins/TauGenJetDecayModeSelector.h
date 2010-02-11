@@ -8,15 +8,15 @@
  *
  * \author Christian Veelken, UC Davis
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: TauGenJetDecayModeSelector.h,v 1.1 2009/01/21 15:31:19 veelken Exp $
+ * $Id: TauGenJetDecayModeSelector.h,v 1.2 2009/03/24 14:34:23 hegner Exp $
  *
  */
 
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"

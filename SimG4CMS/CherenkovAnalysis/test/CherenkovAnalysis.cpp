@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frederic Ronga
 //         Created:  Wed Mar 12 17:39:55 CET 2008
-// $Id: CherenkovAnalysis.cpp,v 1.4 2009/11/13 13:53:53 fambrogl Exp $
+// $Id: CherenkovAnalysis.cpp,v 1.5 2010/01/12 07:11:39 hegner Exp $
 //
 //
 
@@ -30,7 +30,7 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"

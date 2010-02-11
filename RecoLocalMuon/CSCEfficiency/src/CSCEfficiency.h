@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -72,7 +72,7 @@
 #include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 //#include "CLHEP/Matrix/DiagMatrix.h"

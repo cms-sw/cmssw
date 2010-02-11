@@ -2,7 +2,7 @@
 #define Alignment_CommonAlignmentAlgorithm_AlignmentTrackSelector_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 
 namespace edm {

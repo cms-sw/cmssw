@@ -5,7 +5,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class GlobalTrackingRegionProducerFromBeamSpot : public TrackingRegionProducer {
 

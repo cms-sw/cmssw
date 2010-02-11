@@ -6,8 +6,8 @@
  *   Description:  Build GMT Tree
 */
 //                
-//   $Date: 2008/09/13 12:53:49 $
-//   $Revision: 1.7 $
+//   $Date: 2009/12/18 20:44:58 $
+//   $Revision: 1.8 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -40,7 +40,7 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class TFile;
 class TTree;

@@ -1,8 +1,8 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/07/28 18:05:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/10/31 05:19:43 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"

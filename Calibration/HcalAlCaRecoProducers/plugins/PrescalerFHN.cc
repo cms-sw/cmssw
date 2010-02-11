@@ -13,7 +13,7 @@
 //
 // Original Author:  Kenneth Case Rossato
 //         Created:  Wed Mar 25 13:05:10 CET 2008
-// $Id: PrescalerFHN.cc,v 1.1 2009/03/27 22:44:41 safronov Exp $
+// $Id: PrescalerFHN.cc,v 1.2 2009/12/17 22:43:08 wmtan Exp $
 //
 //
 // modified to PrecalerFHN by Grigory Safronov 27/03/09
@@ -33,7 +33,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <string>

@@ -1,7 +1,7 @@
 #include <cassert>
 #include <boost/foreach.hpp>
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/TriggerResults.h"

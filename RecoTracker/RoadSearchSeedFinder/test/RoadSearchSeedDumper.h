@@ -11,8 +11,8 @@
 // Created:         Mon Feb  5 21:24:36 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:16:18 $
-// $Revision: 1.2 $
+// $Date: 2007/03/07 21:46:51 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class RoadSearchSeedDumper : public edm::EDAnalyzer {

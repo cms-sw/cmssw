@@ -1,5 +1,5 @@
 //
-// $Id: CaloMuonMerger.cc,v 1.2 2009/05/14 17:45:25 gpetrucc Exp $
+// $Id: CaloMuonMerger.cc,v 1.1 2009/09/06 23:13:18 dmytro Exp $
 //
 
 /**
@@ -7,14 +7,14 @@
   \brief    Merges reco::CaloMuons and reco::Muons in a single reco::Muon collection
             
   \author   Giovanni Petrucciani
-  \version  $Id: CaloMuonMerger.cc,v 1.2 2009/05/14 17:45:25 gpetrucc Exp $
+  \version  $Id: CaloMuonMerger.cc,v 1.1 2009/09/06 23:13:18 dmytro Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"

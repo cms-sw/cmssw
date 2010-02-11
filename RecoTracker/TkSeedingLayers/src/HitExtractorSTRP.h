@@ -2,7 +2,7 @@
 #define RecoTracker_TkSeedingLayers_HitExtractorSTRP_H
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "HitExtractor.h"
 
 #include <vector>

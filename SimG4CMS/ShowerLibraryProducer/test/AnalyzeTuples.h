@@ -14,7 +14,7 @@ Implementation:
 // 
 // Original Author: Taylan Yetkin
 // Created: Tue Feb 10 08:43:07 CST 2009
-// $Id: AnalyzeTuples.h,v 1.2 2009/11/13 13:55:23 fambrogl Exp $
+// $Id: AnalyzeTuples.h,v 1.3 2010/01/12 07:11:40 hegner Exp $
 // 
 // 
 
@@ -29,7 +29,7 @@ Implementation:
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"

@@ -15,7 +15,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"

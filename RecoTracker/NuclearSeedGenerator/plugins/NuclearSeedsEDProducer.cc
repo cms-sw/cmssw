@@ -1,7 +1,7 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearSeedsEDProducer.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"

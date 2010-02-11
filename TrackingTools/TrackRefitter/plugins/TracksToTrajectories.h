@@ -6,13 +6,13 @@
  *  strored in the reco::Tracks. The final result is a std::vector of Trajectories (objs of the type "Trajectory"), 
  *  which is loaded into the Event in a transient way
  *
- *  $Date: 2008/11/05 11:34:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/11/11 08:34:29 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 class TrackTransformerBase;

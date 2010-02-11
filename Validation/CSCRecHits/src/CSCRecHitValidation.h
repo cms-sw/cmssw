@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"

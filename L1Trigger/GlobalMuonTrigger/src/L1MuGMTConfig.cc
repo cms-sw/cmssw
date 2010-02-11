@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2008/04/21 17:21:09 $
-//   $Revision: 1.11 $
+//   $Date: 2008/11/05 17:24:58 $
+//   $Revision: 1.12 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -35,7 +35,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTReg.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTEtaLUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFCOUDeltaEtaLUT.h"

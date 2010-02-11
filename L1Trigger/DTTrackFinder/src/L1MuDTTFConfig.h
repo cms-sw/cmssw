@@ -5,8 +5,8 @@
  *   Configuration parameters for L1MuDTTrackFinder
  *
  *
- *   $Date: 2008/02/25 16:35:32 $
- *   $Revision: 1.3 $
+ *   $Date: 2008/05/09 15:02:00 $
+ *   $Revision: 1.4 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -30,7 +30,7 @@
 //------------------------------------
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 //              ---------------------
 //              -- Class Interface --

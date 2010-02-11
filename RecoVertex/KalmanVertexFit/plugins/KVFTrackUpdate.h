@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
   /**
    * This is a very simple test analyzer to test the update of a track with

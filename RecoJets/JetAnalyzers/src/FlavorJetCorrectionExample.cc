@@ -6,7 +6,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class FlavorJetCorrectionExample : public edm::EDAnalyzer {
  public:

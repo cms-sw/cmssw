@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Jul 16 16:11:05 CEST 2008
-// $Id: BSCTrigger.cc,v 1.6 2009/11/19 10:36:36 yjlee Exp $
+// $Id: BSCTrigger.cc,v 1.7 2009/12/14 22:23:20 wmtan Exp $
 //
 //
 
@@ -32,7 +32,7 @@ Implementation:
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 //
 // class declaration
 //

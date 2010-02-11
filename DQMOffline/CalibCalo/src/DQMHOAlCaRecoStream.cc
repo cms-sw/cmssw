@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id: DQMHOAlCaRecoStream.cc,v 1.6 2009/07/21 12:43:03 dellaric Exp $
+// $Id: DQMHOAlCaRecoStream.cc,v 1.7 2009/12/14 22:22:19 wmtan Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

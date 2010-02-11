@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.h,v 1.4 2009/06/22 15:53:59 kodolova Exp $
+// $Id: HITrackVertexMaker.h,v 1.2 2009/08/15 07:31:43 kodolova Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 
 // framework include files
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

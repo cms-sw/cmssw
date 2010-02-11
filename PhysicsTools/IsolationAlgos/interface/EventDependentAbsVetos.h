@@ -2,7 +2,7 @@
 #define PhysicsTools_IsolationAlgos_EventDependentAbsVetos_h
 
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace reco {
  namespace isodeposit {

@@ -11,13 +11,13 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.h,v 1.1 2008/10/15 15:51:15 uberthon Exp $
+// $Id: EcalTPCondAnalyzer.h,v 1.2 2009/10/28 00:09:30 ebecheva Exp $
 //
 //
 
 
 // system include files
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"

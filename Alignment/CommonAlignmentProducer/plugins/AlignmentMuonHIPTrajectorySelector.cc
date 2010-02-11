@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Feb 20 10:56:46 CST 2008
-// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.3 2010/01/05 11:22:37 mussgill Exp $
+// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.4 2010/01/06 15:26:10 mussgill Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

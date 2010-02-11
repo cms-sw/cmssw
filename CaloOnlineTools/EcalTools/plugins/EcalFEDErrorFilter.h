@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.h,v 1.1 2008/12/12 02:34:35 scooper Exp $
+// $Id: EcalFEDErrorFilter.h,v 1.2 2010/01/04 15:07:40 ferriff Exp $
 //
 //
 
@@ -29,7 +29,7 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 #include <iostream>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.h,v 1.8 2009/02/17 15:00:30 castello Exp $
+// $Id: TrackHitFilter.h,v 1.9 2009/12/14 22:21:48 wmtan Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/DetId/interface/DetId.h" 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h" 
 
 //

@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.18 2010/02/02 11:42:53 wittich Exp $
+// $Id: HLTScalers.cc,v 1.19 2010/02/02 13:53:05 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.19  2010/02/02 13:53:05  wittich
+// fix duplicate histogram name
+//
 // Revision 1.18  2010/02/02 11:42:53  wittich
 // new diagnostic histograms
 //
@@ -42,7 +45,7 @@
 // HLT
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/HLTenums.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 
 #include "DQM/TrigXMonitor/interface/HLTScalers.h"

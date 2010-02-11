@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremy Andrea
 //         Created:  Wed Mar  5 19:17:38 CEST 2008
-// $Id: SumHistoCalibration.cc,v 1.5 2010/01/22 08:56:41 arizzi Exp $
+// $Id: SumHistoCalibration.cc,v 1.7 2010/02/01 09:12:28 jandrea Exp $
 //
 //
 // system include files
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Utilities/General/interface/FileInPath.h"

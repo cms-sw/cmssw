@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.13 2009/11/20 00:39:21 lorenzo Exp $
+// $Id: HLTScalers.h,v 1.14 2010/02/02 11:42:53 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.14  2010/02/02 11:42:53  wittich
+// new diagnostic histograms
+//
 // Revision 1.13  2009/11/20 00:39:21  lorenzo
 // fixes
 //
@@ -45,7 +48,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class HLTScalers: public edm::EDAnalyzer
 {

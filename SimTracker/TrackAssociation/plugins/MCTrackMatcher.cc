@@ -2,11 +2,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.4 2007/12/13 21:42:02 llista Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.5 2007/12/18 16:15:33 cerati Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 

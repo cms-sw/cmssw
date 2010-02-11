@@ -30,7 +30,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 

@@ -4,7 +4,7 @@
  *	Please use this code for good, not evil
  */
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "HLTriggerOffline/special/src/HaloTrigger.h"
 

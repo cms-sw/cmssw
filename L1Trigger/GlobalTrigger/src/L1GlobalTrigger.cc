@@ -79,7 +79,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"

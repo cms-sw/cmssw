@@ -10,8 +10,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2006/11/13 13:49:44 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/03/23 20:55:23 $
+ *   $Revision: 1.5 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -21,7 +21,7 @@
 //--------------------------------------------------
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class MuonServiceProxy;
 class MeasurementEstimator;

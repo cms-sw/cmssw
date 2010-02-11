@@ -4,8 +4,8 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2007/04/18 14:33:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/31 05:19:43 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 //#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class TFile;
 class TH1F;

@@ -2,9 +2,12 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.7 2009/12/15 20:41:16 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.8 2010/02/02 11:44:20 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.8  2010/02/02 11:44:20  wittich
+// more diagnostics for online scalers
+//
 // Revision 1.7  2009/12/15 20:41:16  wittich
 // better hlt scalers client
 //
@@ -28,7 +31,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // HARD CODE THE NUMBER OF HISTOGRAMS TO 200, LENGTH OF MONITOR to 2000 

@@ -4,14 +4,14 @@
 /** \class TrackReader
  *  No description available.
  *
- *  $Date: 2008/10/22 21:32:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/31 05:19:46 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace edm {

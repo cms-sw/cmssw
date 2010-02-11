@@ -10,14 +10,14 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.8 2008/06/20 13:21:54 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.h,v 1.10 2008/06/24 13:03:14 uberthon Exp $
 //
 //
 
 
 // system include files
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"

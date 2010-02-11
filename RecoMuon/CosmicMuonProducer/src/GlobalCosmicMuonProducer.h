@@ -6,13 +6,13 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon 
  *  tracks
  *
- *  $Date: 2006/09/20 00:09:09 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/19 21:41:19 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class MuonTrackFinder;
 class MuonServiceProxy;

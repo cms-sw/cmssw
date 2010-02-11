@@ -4,12 +4,12 @@
  *
  * \author Yanyan Gao, FNAL
  *
- *  $Date: 2009/07/15 13:11:28 $
+ *  $Date: 2009/09/02 22:39:13 $
  *  $Revision: 1.1 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"

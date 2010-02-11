@@ -28,16 +28,16 @@
  *
  * \author Christian Veelken, UC Davis
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: EventShapeVarsProducer.h,v 1.1 2009/11/02 18:19:55 veelken Exp $
+ * $Id: EventShapeVarsProducer.h,v 1.2 2009/12/14 22:23:30 wmtan Exp $
  *
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EventShapeVarsProducer : public edm::EDProducer

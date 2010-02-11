@@ -17,7 +17,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 //UB added
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Tue Nov 11 16:47:29 GMT 2008
-// $Id: ErsatzMEt.h,v 1.3 2010/01/07 13:51:08 hegner Exp $
+// $Id: ErsatzMEt.h,v 1.4 2010/01/14 12:39:56 fabozzi Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"

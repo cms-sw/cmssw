@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.20 2009/12/15 10:43:27 fabiocos Exp $
+// $Id: HydjetAnalyzer.cc,v 1.21 2010/01/12 11:55:03 hegner Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

@@ -6,8 +6,8 @@
  *
  *  DQM muon alignment analysis monitoring
  *
- *  $Date: 2009/03/04 10:57:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/12/18 20:44:50 $
+ *  $Revision: 1.2 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"

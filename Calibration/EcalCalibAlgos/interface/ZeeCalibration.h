@@ -14,7 +14,7 @@
      <Notes on implementation>
 */
 //
-// $Id: ZeeCalibration.h,v 1.10 2009/03/31 13:45:39 argiro Exp $
+// $Id: ZeeCalibration.h,v 1.11 2010/01/18 21:31:47 argiro Exp $
 //
 //
 
@@ -64,7 +64,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include<vector>
 #include<string>
 

@@ -32,7 +32,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"

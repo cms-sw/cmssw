@@ -16,7 +16,7 @@ Extensions from Len Apanasevich.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"

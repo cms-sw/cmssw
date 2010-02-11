@@ -14,7 +14,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/Alignment/interface/TkAlCaRecoMonitor.h"
 

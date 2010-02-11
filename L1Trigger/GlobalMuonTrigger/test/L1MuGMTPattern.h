@@ -6,8 +6,8 @@
  *   Description:  Create GMT HW test patterns
 */
 //                
-//   $Date: 2008/02/05 10:31:02 $
-//   $Revision: 1.1 $
+//   $Date: 2009/12/18 20:44:58 $
+//   $Revision: 1.2 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -39,7 +39,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class L1MuRegionalCand;
 class L1MuGMTExtendedCand;

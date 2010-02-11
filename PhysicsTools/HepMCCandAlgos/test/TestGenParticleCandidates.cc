@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace std;

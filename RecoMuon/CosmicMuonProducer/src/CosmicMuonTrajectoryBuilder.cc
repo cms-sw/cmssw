@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2009/04/15 10:16:59 $
- *  $Revision: 1.48 $
+ *  $Date: 2009/04/16 20:58:21 $
+ *  $Revision: 1.49 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"

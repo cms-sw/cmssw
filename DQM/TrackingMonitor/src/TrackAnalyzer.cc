@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/17 20:00:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/19 10:06:00 $
+ *  $Revision: 1.10 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -14,7 +14,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
 #include <string>

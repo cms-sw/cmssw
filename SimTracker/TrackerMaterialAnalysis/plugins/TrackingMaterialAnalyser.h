@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
 #include "MaterialAccountingGroup.h"

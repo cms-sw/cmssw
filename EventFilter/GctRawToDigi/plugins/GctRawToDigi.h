@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.32 2009/11/16 20:57:13 tapper Exp $
+// $Id: GctRawToDigi.h,v 1.33 2009/12/24 17:48:08 jbrooke Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 

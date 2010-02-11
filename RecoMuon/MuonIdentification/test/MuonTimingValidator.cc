@@ -13,7 +13,7 @@
 //
 // Original Author:  Piotr Traczyk
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.3 2009/10/07 12:24:56 ptraczyk Exp $
+// $Id: MuonTimingValidator.cc,v 1.7 2010/01/15 14:07:32 ptraczyk Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/Common/interface/Ref.h"

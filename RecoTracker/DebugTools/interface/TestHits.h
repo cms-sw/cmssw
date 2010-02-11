@@ -17,7 +17,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestHits.h,v 1.4 2007/10/08 22:20:04 cerati Exp $
+// $Id: TestHits.h,v 1.5 2009/03/04 13:34:24 vlimant Exp $
 //
 //
 #include <memory>
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

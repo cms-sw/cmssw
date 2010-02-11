@@ -15,7 +15,7 @@
 
 
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "TH1D.h"
@@ -73,7 +73,7 @@ private:
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "DataFormats/Common/interface/View.h"

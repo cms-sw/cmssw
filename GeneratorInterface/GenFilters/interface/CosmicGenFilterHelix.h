@@ -13,7 +13,7 @@
 ///
 /// Original Author:  Gero FLUCKE
 ///     Created:  Mon Mar  5 16:32:01 CET 2007
-/// $Id: CosmicGenFilterHelix.h,v 1.5 2008/08/15 20:25:07 flucke Exp $
+/// $Id: CosmicGenFilterHelix.h,v 1.6 2009/12/15 10:29:32 fabiocos Exp $
 ///
 
 
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"

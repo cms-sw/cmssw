@@ -4,14 +4,14 @@
  *
  * \author Ian Tomalin, RAL
  *
- *  $Date: 2009/07/09 13:11:28 $
+ *  $Date: 2009/10/13 12:07:49 $
  *  $Revision: 1.1 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 
 class RecoTrackRefSelector : public RecoTrackSelector {

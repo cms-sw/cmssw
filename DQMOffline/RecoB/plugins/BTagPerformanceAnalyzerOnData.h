@@ -18,7 +18,7 @@
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 #include <vector>

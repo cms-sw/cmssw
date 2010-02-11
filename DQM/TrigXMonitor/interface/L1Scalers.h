@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.9 2008/09/17 20:56:02 lorenzo Exp $
+// $Id: L1Scalers.h,v 1.10 2009/11/20 00:39:21 lorenzo Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -9,7 +9,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class L1Scalers: public edm::EDAnalyzer
 {

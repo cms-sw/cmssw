@@ -14,8 +14,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/07 21:46:51 $
-// $Revision: 1.3 $
+// $Date: 2007/07/08 20:32:39 $
+// $Revision: 1.4 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -26,7 +26,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoTracker/RoadSearchTrackCandidateMaker/interface/RoadSearchTrackCandidateMakerAlgorithm.h"
 

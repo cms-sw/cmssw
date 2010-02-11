@@ -15,7 +15,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestTrackHits.h,v 1.6 2008/05/28 16:44:47 cerati Exp $
+// $Id: TestTrackHits.h,v 1.7 2009/03/04 13:34:24 vlimant Exp $
 //
 //
 
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"

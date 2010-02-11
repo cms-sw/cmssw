@@ -1,5 +1,5 @@
 //
-// $Id: TrackerIsolationPt.cc,v 1.4 2008/03/03 16:45:29 lowette Exp $
+// $Id: TrackerIsolationPt.cc,v 1.5 2009/05/26 08:54:22 fabiocos Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"

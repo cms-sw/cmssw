@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.11 2009/10/26 14:42:08 edwenger Exp $
+// $Id: CentralityProducer.cc,v 1.12 2009/12/14 22:23:45 wmtan Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 

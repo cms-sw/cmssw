@@ -3,11 +3,11 @@
 
 // Original Author:  Giovanni Petrucciani
 //         Created:  Fri May 25 10:06:02 CEST 2007
-// $Id: TrackWithVertexSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
+// $Id: TrackWithVertexSelector.h,v 1.2 2010/01/06 16:39:33 lowette Exp $
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

@@ -1,7 +1,7 @@
 #ifndef MCTruth_PSimHitMap_h
 #define MCTruth_PSimHitMap_h
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include <map>

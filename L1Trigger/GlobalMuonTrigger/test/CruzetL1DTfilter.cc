@@ -3,8 +3,8 @@
 *  
 *  This class is for use with Cosmic MC to simulate the L1 DT trigger in cruzet
 *
-*  $Date: $
-*  $Revision: $
+*  $Date: 2008/07/15 09:10:35 $
+*  $Revision: 1.1 $
 *
 *  \author Ivan Mikulec
 *
@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

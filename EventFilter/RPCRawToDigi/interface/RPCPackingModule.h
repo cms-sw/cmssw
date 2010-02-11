@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include <vector> 

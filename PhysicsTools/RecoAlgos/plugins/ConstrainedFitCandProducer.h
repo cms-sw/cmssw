@@ -6,7 +6,7 @@
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

@@ -1,11 +1,11 @@
 /*
- * $Id: CollHandle.h,v 1.4 2008/07/03 14:29:00 pgras Exp $
+ * $Id: CollHandle.h,v 1.5 2009/08/03 11:22:10 pgras Exp $
  */
 
 #ifndef EcalDigis_CollHandle_h
 #define EcalDigis_CollHandle_h
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

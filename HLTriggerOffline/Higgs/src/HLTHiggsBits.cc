@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/10/23 14:10:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/11/25 10:36:16 $
+ *  $Revision: 1.3 $
  *
  *  \author Mika Huhtinen
  *
@@ -13,7 +13,7 @@
 #include "HLTriggerOffline/Higgs/interface/HLTHiggsTruth.h"
 
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"

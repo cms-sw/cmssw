@@ -13,7 +13,7 @@
 // system include files
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
-#include "FWCore/ParameterSet/interface/InputTag.h" 
+#include "FWCore/Utilities/interface/InputTag.h" 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "TH1.h" 

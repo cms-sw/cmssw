@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"

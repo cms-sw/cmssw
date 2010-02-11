@@ -4,7 +4,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <map>
 #include <vector>
 

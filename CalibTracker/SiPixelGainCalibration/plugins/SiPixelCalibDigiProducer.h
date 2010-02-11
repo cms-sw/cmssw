@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.h,v 1.10 2008/08/26 15:13:31 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.h,v 1.11 2009/12/17 21:30:29 wmtan Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"

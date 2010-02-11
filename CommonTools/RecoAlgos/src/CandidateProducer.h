@@ -7,12 +7,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CandidateProducer.h,v 1.2 2010/01/14 22:49:48 wmtan Exp $
+ * $Id: CandidateProducer.h,v 1.3 2010/01/18 16:53:01 hegner Exp $
  *
  */
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"

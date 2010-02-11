@@ -5,7 +5,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 #include <vector>

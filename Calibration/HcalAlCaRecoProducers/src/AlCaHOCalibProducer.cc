@@ -53,7 +53,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.21 2009/12/17 22:43:09 wmtan Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.22 2010/01/12 08:35:49 hegner Exp $
 //
 //
 
@@ -73,7 +73,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -129,7 +129,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 
 #include "TFile.h"

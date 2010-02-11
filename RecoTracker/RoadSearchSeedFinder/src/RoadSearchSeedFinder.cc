@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2008/04/15 13:13:07 $
-// $Revision: 1.16 $
+// $Author: gpetrucc $
+// $Date: 2009/05/23 09:01:36 $
+// $Revision: 1.17 $
 //
 
 #include <iostream>
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 RoadSearchSeedFinder::RoadSearchSeedFinder(edm::ParameterSet const& conf) : 

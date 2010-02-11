@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2008/02/19 18:03:27 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/11/14 04:28:49 $
+ *  $Revision: 1.17 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -21,7 +21,7 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
 

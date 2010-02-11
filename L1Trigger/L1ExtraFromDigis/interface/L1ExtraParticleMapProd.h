@@ -12,7 +12,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.9 2007/09/27 23:08:00 ratnik Exp $
+// $Id: L1ExtraParticleMapProd.h,v 1.10 2009/03/26 03:58:27 wsun Exp $
 //
 
 // system include files
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.2 2009/07/08 11:47:23 scooper Exp $
+// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.3 2010/01/04 15:07:40 ferriff Exp $
 //
 //
 
@@ -28,7 +28,7 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include <string>

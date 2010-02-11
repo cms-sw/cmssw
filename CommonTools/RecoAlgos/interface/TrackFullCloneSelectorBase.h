@@ -6,9 +6,9 @@
  * 
  * \author Giovanni Petrucciani 
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: TrackFullCloneSelectorBase.h,v 1.1 2009/03/04 13:11:28 llista Exp $
+ * $Id: TrackFullCloneSelectorBase.h,v 1.2 2009/08/21 16:25:46 wmtan Exp $
  *
  */
 
@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"

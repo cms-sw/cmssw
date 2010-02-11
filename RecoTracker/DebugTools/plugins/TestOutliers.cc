@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.6 2009/03/08 01:57:25 dlange Exp $
+// $Id: TestOutliers.cc,v 1.7 2009/05/27 07:14:02 fabiocos Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"

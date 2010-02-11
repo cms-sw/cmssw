@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"

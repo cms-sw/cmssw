@@ -6,7 +6,7 @@
 //
 // Original Author:  Phillip Killewald
 //         Created:  Thu Jan 29 17:33:51 CET 2009
-// $Id: CSCSharesInputTest.h,v 1.2 2009/12/14 22:22:28 wmtan Exp $
+// $Id: CSCSharesInputTest.h,v 1.3 2010/01/12 06:41:44 hegner Exp $
 //
 
 
@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TNtuple.h"

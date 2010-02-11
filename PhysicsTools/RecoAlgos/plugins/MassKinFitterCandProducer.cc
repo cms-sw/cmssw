@@ -4,7 +4,7 @@
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "PhysicsTools/RecoUtils/interface/CandMassKinFitter.h"
 #include <vector>
 

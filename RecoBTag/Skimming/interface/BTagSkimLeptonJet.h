@@ -5,8 +5,8 @@
  *
  *
  *
- * $Date: 2007/07/25 00:00:15 $
- * $Revision: 1.1 $
+ * $Date: 2007/08/13 15:33:02 $
+ * $Revision: 1.2 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"    
+#include "FWCore/Utilities/interface/InputTag.h"    
 
 class BTagSkimLeptonJet : public edm::EDFilter {
 	
