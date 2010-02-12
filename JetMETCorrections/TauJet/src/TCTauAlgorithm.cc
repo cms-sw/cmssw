@@ -309,7 +309,7 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
                   if(!dropCaloJets) p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
                   algoComponentUsed = TCAlgoCaloJet;
                 }
-		if ( eHcalOverTrack  < etHcalOverTrackMax ) {
+		if ( eHcalOverTrack  > etHcalOverTrackMax ) {
 		  algoComponentUsed = TCAlgoHadronicJet; // reject
 		}
         }
