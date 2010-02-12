@@ -1,5 +1,5 @@
 import coral
-        
+from RecoLuminosity.LumiDB import nameDealer        
 class dbUtil(object):
     """Class wrap up all the database operations.\n
     """
@@ -16,22 +16,22 @@ class dbUtil(object):
             tablelist=self.__schema.listTables()
             for t in tablelist:
                 table = self.__schema.tableHandle(t)
-                print 'table : ',table.name()
-                n=table.numberOfColumns()
-                for i in n:
-                  columndesp=table.columnDescription(i)
+                print 'table : ',t
+                n=table.description().numberOfColumns()
+                for i in range(0,n):
+                  columndesp=table.description().columnDescription(i)
                   print columndesp.name(),columndesp.type()
-                if table.hasPrimaryKey():
+                if table.description().hasPrimaryKey():
                   print 'Primary Key : '
-                  print '\t',table.primaryKey().columnNames()
+                  print '\t',table.description().primaryKey().columnNames()
                   
             viewlist=self.__schema.listViews()
             for v in viewlist:
                 view = self.__schema.viewHandle(v)
-                print 'view : ', view.name()
+                print 'view : ', v
                 print 'definition : ',view.definition()
                 n=view.numberOfColumns()
-                for i in n:
+                for i in range(0,n):
                   columndesp=view.column(i)
                   print columndesp.name(),columndesp.type()                 
         except Exception, e:
