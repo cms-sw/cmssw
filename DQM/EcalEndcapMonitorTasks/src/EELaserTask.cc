@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2009/08/25 09:17:30 $
- * $Revision: 1.61 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */
@@ -692,9 +692,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
-      LogDebug("EELaserTask") << " det id = " << id;
-      LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       int ic = Numbers::icEE(ism, ix, iy);
 
       EEDataFrame dataframe = (*digiItr);
@@ -760,9 +757,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
-
-      LogDebug("EELaserTask") << " det id = " << pnItr->id();
-      LogDebug("EELaserTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
@@ -864,9 +858,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
-      LogDebug("EELaserTask") << " det id = " << id;
-      LogDebug("EELaserTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
@@ -907,10 +898,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
 
-      LogDebug("EELaserTask") << " hit amplitude " << xval;
-      LogDebug("EELaserTask") << " hit jitter " << yval;
-      LogDebug("EELaserTask") << " hit pedestal " << zval;
-
       if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
       if ( xval > 16. ) {
@@ -923,8 +910,6 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       int refPn = PNsInLM[0];
 
       if ( adcPN[refPn] != 0. ) wval = xval /  adcPN[refPn];
-
-      LogDebug("EELaserTask") << " hit amplitude over PN " << wval;
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 
