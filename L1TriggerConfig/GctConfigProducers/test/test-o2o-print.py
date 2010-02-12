@@ -37,6 +37,14 @@ process.load("L1TriggerConfig.L1ScalesProducers.L1JetEtScaleOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HfRingEtScaleOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
 
+process.load("L1TriggerConfig.GctConfigProducers.L1GctChannelMaskOnline_cfi")
+process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
+    record = cms.string('L1GctChannelMaskRcd'),
+        type = cms.string('L1GctChannelMask'),
+        key = cms.string('Default')
+    ))
+
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
@@ -47,15 +55,8 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
+process.load('L1TriggerConfig/GctConfigProducers.l1GctConfigDump_cfi')
 process.getter1 = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(cms.PSet(
-   record = cms.string('L1GctJetFinderParamsRcd'),
-   data = cms.vstring('L1GctJetFinderParams')
-   )),
-   verbose = cms.untracked.bool(True)
-)
-
-process.getter2 = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
    record = cms.string('L1GctChannelMaskRcd'),
    data = cms.vstring('L1GctChannelMask')
@@ -63,37 +64,7 @@ process.getter2 = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(True)
 )
 
-process.getter3 = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(cms.PSet(
-   record = cms.string('L1JetEtScaleRcd'),
-   data = cms.vstring('L1CaloEtScale')
-   )),
-   verbose = cms.untracked.bool(True)
-)
-
-process.getter4 = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(cms.PSet(
-   record = cms.string('L1HfRingEtScaleRcd'),
-   data = cms.vstring('L1CaloEtScale')
-   )),
-   verbose = cms.untracked.bool(True)
-)
-
-process.getter5 = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(cms.PSet(
-   record = cms.string('L1HtMissScaleRcd'),
-   data = cms.vstring('L1CaloEtScale')
-   )),
-   verbose = cms.untracked.bool(True)
-)
-
-process.load('L1TriggerConfig/GctConfigProducers.l1GctConfigDump_cfi')
-
 process.p = cms.Path(
-#    process.getter1 +
-#    process.getter2 +
-#    process.getter3 +
-#    process.getter4 +
-#    process.getter5 +
-    process.l1GctConfigDump
+    process.getter1
+    +process.l1GctConfigDump
 )

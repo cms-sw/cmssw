@@ -4,7 +4,7 @@ import sys
 import os
 
 # arguments
-if (len(sys.argv)>1) :
+if (len(sys.argv)>2) :
     key=str(sys.argv[2])
 else :
     key='Default'

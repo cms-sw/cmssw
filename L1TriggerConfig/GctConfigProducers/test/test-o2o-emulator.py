@@ -21,35 +21,39 @@ process = cms.Process('testGCTO2OEmulator')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(1000)
+process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+process.MessageLogger.debugModules = cms.untracked.vstring('l1GctConfigDump')
 
 # Configuration
-## process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
+process.load("CondTools.L1Trigger.L1TriggerKeyListDummy_cff")
 
-## # get 
-## process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
-## process.L1TriggerKeyDummy.objectKeys = cms.VPSet()
-## process.L1TriggerKeyDummy.label = cms.string('SubsystemKeysOnly')
+# get 
+process.load("CondTools.L1Trigger.L1TriggerKeyDummy_cff")
+process.L1TriggerKeyDummy.objectKeys = cms.VPSet()
+process.L1TriggerKeyDummy.label = cms.string('SubsystemKeysOnly')
 
-## # xxxKey = csctfKey, dttfKey, rpcKey, gmtKey, rctKey, gctKey, gtKey, or tsp0Key
-## process.L1TriggerKeyDummy.gctKey = cms.string(key)
+# xxxKey = csctfKey, dttfKey, rpcKey, gmtKey, rctKey, gctKey, gtKey, or tsp0Key
+process.L1TriggerKeyDummy.gctKey = cms.string(key)
 
-## # Subclass of L1ObjectKeysOnlineProdBase.
-## process.load("L1TriggerConfig.GctConfigProducers.L1GctTSCObjectKeysOnline_cfi")
-## process.L1GctTSCObjectKeysOnline.subsystemLabel = cms.string('')
+# Subclass of L1ObjectKeysOnlineProdBase.
+process.load("L1TriggerConfig.GctConfigProducers.L1GctTSCObjectKeysOnline_cfi")
+process.L1GctTSCObjectKeysOnline.subsystemLabel = cms.string('')
 
-## # Get configuration data from OMDS.  This is the subclass of L1ConfigOnlineProdBase.
-## process.load("L1TriggerConfig.GctConfigProducers.L1GctJetFinderParamsOnline_cfi")
-## process.load("L1TriggerConfig.L1ScalesProducers.L1JetEtScaleOnline_cfi")
-## process.load("L1TriggerConfig.L1ScalesProducers.L1HfRingEtScaleOnline_cfi")
-## process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
+# Get configuration data from OMDS.  This is the subclass of L1ConfigOnlineProdBase.
+process.load("L1TriggerConfig.GctConfigProducers.L1GctJetFinderParamsOnline_cfi")
+process.load("L1TriggerConfig.L1ScalesProducers.L1JetEtScaleOnline_cfi")
+process.load("L1TriggerConfig.L1ScalesProducers.L1HfRingEtScaleOnline_cfi")
+process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
 
-## # dummy producer for masks
-## process.load("L1TriggerConfig.GctConfigProducers.L1GctConfig_cff")
-## # but this produces masks *and* parameters, so set es_prefer for online params
-## process.es_prefer = cms.ESPrefer('L1GctJetFinderParamsOnlineProd', 'L1GctJetFinderParamsOnline')
+# dummy producer for masks
+process.load("L1TriggerConfig.GctConfigProducers.L1GctConfig_cff")
+# but this produces masks *and* parameters, so set es_prefer for online params
+process.es_prefer = cms.ESPrefer('L1GctJetFinderParamsOnlineProd', 'L1GctJetFinderParamsOnline')
 
-process.load('L1Trigger.Configuration.L1StartupConfig_cff')
- 
+# dump config
+process.load('L1TriggerConfig/GctConfigProducers.l1GctConfigDump_cfi')
+
+
 # GCT Unpacker
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 
@@ -84,13 +88,16 @@ process.l1demongct.DataEmulCompareSource = cms.InputTag("l1compare")
 process.l1demongct.disableROOToutput = cms.untracked.bool( False )
 process.l1demongct.HistFile = cms.untracked.string('test-o2o-emulator.root')
 
+
 process.path = cms.Path (
 process.gctDigis +
 process.valGctDigis + 
 process.l1compare +
 process.l1trct + 
 process.l1tgct + 
-process.l1demongct)
+process.l1demongct
+#process.l1GctConfigDump
+)
 
 
 
