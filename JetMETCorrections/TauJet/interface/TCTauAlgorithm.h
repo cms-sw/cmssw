@@ -98,6 +98,8 @@ class TCTauAlgorithm {
 
 	int prongs;
 
+	bool dropCaloJets;
+
 	const TransientTrackBuilder* transientTrackBuilder;
 
 	double signalCone;

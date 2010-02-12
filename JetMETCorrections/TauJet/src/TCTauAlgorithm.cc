@@ -63,6 +63,8 @@ void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
 
 	edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   	trackAssociatorParameters.loadParameters( pset );
+
+	dropCaloJets       = iConfig.getUntrackedParameter<bool>("DropCaloJets",false);
 }
 
 
@@ -304,7 +306,7 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
                   algoComponentUsed = TCAlgoMomentumECAL;
                 }
                 if ( eHcalOverTrack  < etHcalOverTrackMin ) {
-                  p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
+                  if(!dropCaloJets) p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
                   algoComponentUsed = TCAlgoCaloJet;
                 }
 		if ( eHcalOverTrack  < etHcalOverTrackMax ) {
