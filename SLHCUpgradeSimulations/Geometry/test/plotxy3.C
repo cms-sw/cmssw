@@ -6,8 +6,9 @@
   PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "abs(pixel_recHit.gz) < 30","same");
      htemp->SetYTitle("Y (cm)");htemp->SetXTitle("X (cm)");htemp->SetTitle("Tracker hits |z|<30 (cm)");
   MyCanvas_1->cd(2);
-  StripNtuple->Draw("strip_recHit.gy:strip_recHit.gx", "strip_recHit.gx < 30 && strip_recHit.gx>10 && strip_recHit.gy<30 && strip_recHit.gy>10");
-  PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "pixel_recHit.gx < 30 && pixel_recHit.gx>10 && pixel_recHit.gy<30 && pixel_recHit.gy>10","same");
+//  StripNtuple->Draw("strip_recHit.gy:strip_recHit.gx", "strip_recHit.gx < 30 && strip_recHit.gx>10 && strip_recHit.gy<30 && strip_recHit.gy>10");
+//  PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "pixel_recHit.gx < 30 && pixel_recHit.gx>10 && pixel_recHit.gy<30 && pixel_recHit.gy>10","same");
+  PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "pixel_recHit.gx < 30 && pixel_recHit.gx>10 && pixel_recHit.gy<30 && pixel_recHit.gy>10");
      // second use of htemp does not seem to work without getting it
      TH2D *htemp = (TH2D*)gPad->GetPrimitive("htemp");
      htemp->SetYTitle("Y (cm)");htemp->SetXTitle("X (cm)");htemp->SetTitle("");
