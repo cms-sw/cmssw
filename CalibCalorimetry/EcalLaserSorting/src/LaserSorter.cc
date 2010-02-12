@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.8 2010/02/09 07:05:38 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.9 2010/02/09 07:37:34 pgras Exp $
  */
 
 /***************************************************
@@ -1105,13 +1105,15 @@ void LaserSorter::restoreStreamsOfLumiBlock(int lumiBlock){
   string fileName;
   
   for(int fedId = ecalDccFedIdMin_-2; fedId <= ecalDccFedIdMax_; ++fedId){
-    if(fedId == ecalDccFedIdMin_-2) fedId = -1; //stream for event w/o ECAL data
-    streamFileName(fedId, lumiBlock, dummy, fileName);
+    int fedId_;
+    if(fedId == ecalDccFedIdMin_-2) fedId_ = -1; //stream for event w/o ECAL data
+    else fedId_ = fedId;
+    streamFileName(fedId_, lumiBlock, dummy, fileName);
     struct stat s;
     //TODO: could be optimized by adding an option to get stream
     //to open only existing file: would avoid double call to streamFileName.
     if(stat(fileName.c_str(), &s)==0){//file exists
-      getStream(fedId, lumiBlock);
+      getStream(fedId_, lumiBlock);
     }
   }
 }
