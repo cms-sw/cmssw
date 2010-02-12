@@ -66,22 +66,35 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       for (unsigned int i = 0; i<gensize; ++i) {
             const reco::GenParticle& lepton = (*genParticles)[i];
             if (lepton.status()!=3) continue;
-            int leptonId = abs(lepton.pdgId());
-            if (leptonId!=11 && leptonId!=13) continue;
+            int leptonId = lepton.pdgId();
+            if (abs(leptonId)!=11 && abs(leptonId)!=13) continue;
             if (lepton.numberOfMothers()!=1) continue;
             const reco::Candidate * boson = lepton.mother();
             int bosonId = abs(boson->pdgId());
             if (bosonId!=23  && bosonId!=24) continue;
             double bosonMass = boson->mass();
             double leptonMass = lepton.mass();
-            unsigned int nDaughters = lepton.numberOfDaughters();
-            if (nDaughters<=1) continue;
             double leptonEnergy = lepton.energy();
             double cosLeptonTheta = cos(lepton.theta());
             double sinLeptonTheta = sin(lepton.theta());
             double leptonPhi = lepton.phi();
+
+            int trueKey = i;
+            if (lepton.numberOfDaughters()==0) { 
+                  continue;
+            } else if (lepton.numberOfDaughters()==1) { 
+                  int otherleptonKey = lepton.daughterRef(0).key();
+                  const reco::GenParticle& otherlepton = (*genParticles)[otherleptonKey];
+                  if (otherlepton.pdgId()!=leptonId) continue;
+                  if (otherlepton.numberOfDaughters()<=1) continue;
+                  trueKey = otherleptonKey;
+            }
+
+            const reco::GenParticle& trueLepton = (*genParticles)[trueKey];
+            unsigned int nDaughters = trueLepton.numberOfDaughters();
+
             for (unsigned int j = 0; j<nDaughters; ++j) {
-                  const reco::Candidate * photon = lepton.daughter(j);
+                  const reco::Candidate * photon = trueLepton.daughter(j);
                   if (photon->pdgId()!=22) continue;
                   double photonEnergy = photon->energy();
                   double cosPhotonTheta = cos(photon->theta());
