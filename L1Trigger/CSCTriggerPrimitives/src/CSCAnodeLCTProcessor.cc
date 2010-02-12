@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2009/05/19 12:49:12 $
-//   $Revision: 1.36 $
+//   $Date: 2009/10/16 09:10:56 $
+//   $Revision: 1.37 $
 //
 //   Modifications: 
 //
@@ -1332,8 +1332,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
   // The number of LCT bins in the read-out is given by the
   // l1a_window_width parameter, but made even by setting the LSB of
   // l1a_window_width to 0.
-  static int lct_bins   = 
-    (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
+  // static int lct_bins   = 
+  //  (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
+  // Empirical correction to match 2009 collision data (firmware change?)
+  static int lct_bins   = l1a_window_width;
   static int late_tbins = early_tbins + lct_bins;
 
   static int ifois = 0;
