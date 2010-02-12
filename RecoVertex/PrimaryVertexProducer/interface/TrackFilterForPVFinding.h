@@ -19,8 +19,8 @@ public:
 
   bool operator() (const reco::TransientTrack & tk) const;
 
-  float minPt() const;
-  float maxD0Significance() const;
+/*   float minPt() const; */
+/*   float maxD0Significance() const; */
 
 private:
 
@@ -29,7 +29,7 @@ private:
   int minSiHits_, minPxHits_;  // deprecated
   int minSiLayers_, minPxLayers_;
   float maxNormChi2_;
-  //reco::TrackBase::TrackQuality quality_;
+  reco::TrackBase::TrackQuality quality_;
 };
 
 #endif

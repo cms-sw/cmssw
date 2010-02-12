@@ -38,7 +38,6 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   trackLabel = conf.getParameter<edm::InputTag>("TrackLabel");
   beamSpotLabel = conf.getParameter<edm::InputTag>("beamSpotLabel");
  
-  //  produces<VertexCollection>("PrimaryVertex");
   produces<reco::VertexCollection>();
 
 }
@@ -141,7 +140,6 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   if(fVerbose){
-    cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;
     int ivtx=0;
     for(reco::VertexCollection::const_iterator v=vColl.begin(); 
 	v!=vColl.end(); ++v){
