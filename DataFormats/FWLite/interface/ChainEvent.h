@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     ChainEvent
-// 
+//
 /**\class ChainEvent ChainEvent.h DataFormats/FWLite/interface/ChainEvent.h
 
  Description: <one line class summary>
@@ -60,17 +60,17 @@ namespace fwlite {
       bool to(edm::RunNumber_t run, edm::EventNumber_t event);
       bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
-      // Go to the very first Event.  
+      // Go to the very first Event.
       const ChainEvent& toBegin();
-      
+
       // ---------- const member functions ---------------------
-      virtual const std::string getBranchNameFor(const std::type_info&, 
-                                                 const char*, 
-                                                 const char*, 
+      virtual const std::string getBranchNameFor(const std::type_info&,
+                                                 const char*,
+                                                 const char*,
                                                  const char*) const;
 
       // This function should only be called by fwlite::Handle<>
-      virtual bool getByLabel(const std::type_info&, const char*, 
+      virtual bool getByLabel(const std::type_info&, const char*,
                               const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
@@ -107,6 +107,8 @@ namespace fwlite {
       // ---------- member functions ---------------------------
 
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
+      fwlite::LuminosityBlock const& getLuminosityBlock();
+      fwlite::Run             const& getRun();
 
    private:
 

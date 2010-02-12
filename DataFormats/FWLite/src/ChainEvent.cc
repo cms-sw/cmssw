@@ -2,7 +2,7 @@
 //
 // Package:     FWLite
 // Class  :     ChainEvent
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -57,8 +57,8 @@ namespace fwlite {
     }
     // total accumulated size (last enry + 1) at the end of last file
     accumulatedSize_.push_back(summedSize);
- 
-    if ( iFileNames.size() > 0 ) 
+
+    if ( iFileNames.size() > 0 )
       switchToFile(0);
 }
 
@@ -87,10 +87,10 @@ ChainEvent::~ChainEvent()
 // member functions
 //
 
-const ChainEvent& 
+const ChainEvent&
 ChainEvent::operator++()
 {
-   if(eventIndex_ != static_cast<Long64_t>(fileNames_.size())-1) 
+   if(eventIndex_ != static_cast<Long64_t>(fileNames_.size())-1)
    {
       ++(*event_);
       if(event_->atEnd()) {
@@ -100,15 +100,15 @@ ChainEvent::operator++()
       if(*event_) {
          ++(*event_);
       }
-   } 
+   }
    return *this;
 }
 
 ///Go to the event at index iIndex
 bool
-ChainEvent::to(Long64_t iIndex) 
+ChainEvent::to(Long64_t iIndex)
 {
-   if (iIndex >= accumulatedSize_.back()) 
+   if (iIndex >= accumulatedSize_.back())
    {
       // if we're here, then iIndex was not valid
       return false;
@@ -137,7 +137,7 @@ ChainEvent::to(Long64_t iIndex)
 
 ///Go to event with event id "id"
 bool
-ChainEvent::to(const edm::EventID &id) 
+ChainEvent::to(const edm::EventID &id)
 {
   return to(id.run(), id.luminosityBlock(), id.event());
 }
@@ -145,55 +145,55 @@ ChainEvent::to(const edm::EventID &id)
 ///If lumi is non-zero, go to event with given run, lumi, and event number
 ///If lumi is zero, go to event with given run and event number
 bool
-ChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event) 
+ChainEvent::to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
 
    // First try this file
-   if ( event_->to( run, lumi, event ) )  
+   if ( event_->to( run, lumi, event ) )
    {
       // found it, return
       return true;
-   } 
-   else 
+   }
+   else
    {
       // Did not find it, try the other files sequentially.
-      // Someday I can make this smarter. For now... we get something working. 
+      // Someday I can make this smarter. For now... we get something working.
       Long64_t thisFile = eventIndex_;
       std::vector<std::string>::const_iterator filesBegin = fileNames_.begin(),
          filesEnd = fileNames_.end(), ifile = filesBegin;
-      for ( ; ifile != filesEnd; ++ifile ) 
+      for ( ; ifile != filesEnd; ++ifile )
       {
          // skip the "first" file that we tried
-         if ( ifile - filesBegin != thisFile ) 
+         if ( ifile - filesBegin != thisFile )
          {
             // switch to the next file
             switchToFile( ifile - filesBegin );
             // check that tree for the desired event
-            if ( event_->to( run, lumi, event ) ) 
+            if ( event_->to( run, lumi, event ) )
             {
                // found it, return
                return true;
-            } 
+            }
          }// end ignore "first" file that we tried
       }// end loop over files
-    
+
       // did not find the event with id "id".
       return false;
    }// end if we did not find event id in "first" file
 }
 
 bool
-ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event) 
+ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event)
 {
   return to(run, 0U, event);
 }
 
 /** Go to the very first Event*/
 
-const ChainEvent& 
-ChainEvent::toBegin() 
+const ChainEvent&
+ChainEvent::toBegin()
 {
-   if (eventIndex_ != 0) 
+   if (eventIndex_ != 0)
    {
       switchToFile(0);
    }
@@ -210,14 +210,14 @@ ChainEvent::switchToFile(Long64_t iIndex)
   gROOT->GetListOfFiles()->Remove(tfilePtr);
   event_ = boost::shared_ptr<Event>( new Event(file_.get()));
 }
-  
+
 //
 // const member functions
 //
-const std::string 
-ChainEvent::getBranchNameFor(const std::type_info& iType, 
-                             const char* iModule, 
-                             const char* iInstance, 
+const std::string
+ChainEvent::getBranchNameFor(const std::type_info& iType,
+                             const char* iModule,
+                             const char* iInstance,
                              const char* iProcess) const
 {
   return event_->getBranchNameFor(iType,iModule,iInstance,iProcess);
@@ -235,19 +235,28 @@ ChainEvent::getProcessHistory() const
   return event_->getProcessHistory();
 }
 
-edm::EventAuxiliary const& 
+edm::EventAuxiliary const&
 ChainEvent::eventAuxiliary() const
 {
    return event_->eventAuxiliary();
 }
 
-   
-   
-bool 
-ChainEvent::getByLabel(const std::type_info& iType, 
-                       const char* iModule, 
-                       const char* iInstance, 
-                       const char* iProcess, 
+fwlite::LuminosityBlock const& ChainEvent::getLuminosityBlock()
+{
+   return event_->getLuminosityBlock();
+}
+
+fwlite::Run const& ChainEvent::getRun()
+{
+   return event_->getRun();
+}
+
+
+bool
+ChainEvent::getByLabel(const std::type_info& iType,
+                       const char* iModule,
+                       const char* iInstance,
+                       const char* iProcess,
                        void* iValue) const
 {
   return event_->getByLabel(iType,iModule,iInstance,iProcess,iValue);
@@ -258,7 +267,7 @@ edm::EDProduct const* ChainEvent::getByProductID(edm::ProductID const& iID) cons
   return event_->getByProductID( iID );
 }
 
-bool 
+bool
 ChainEvent::isValid() const
 {
   return event_->isValid();
@@ -268,8 +277,8 @@ ChainEvent::operator bool() const
   return *event_;
 }
 
-bool 
-ChainEvent::atEnd() const 
+bool
+ChainEvent::atEnd() const
 {
   if (eventIndex_ == static_cast<Long64_t>(fileNames_.size())-1) {
     return event_->atEnd();
@@ -277,7 +286,7 @@ ChainEvent::atEnd() const
   return false;
 }
 
-Long64_t 
+Long64_t
 ChainEvent::size() const
 {
   return accumulatedSize_.back();
@@ -303,8 +312,8 @@ ChainEvent::triggerResultsByName(std::string const& process) const {
 //
 // static member functions
 //
-void 
-ChainEvent::throwProductNotFoundException(const std::type_info& iType, 
+void
+ChainEvent::throwProductNotFoundException(const std::type_info& iType,
                                           const char* iModule,
                                           const char* iInstance,
                                           const char* iProcess) {
