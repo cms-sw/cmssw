@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWDoubleParameterSetter.h,v 1.2 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWDoubleParameterSetter.h,v 1.3 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -24,9 +24,10 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
+#include "Fireworks/Core/interface/FWDoubleParameter.h"
+
 
 // forward declarations
-class FWDoubleParameter;
 class TGNumberEntry;
 
 class FWDoubleParameterSetter : public FWParameterSetterBase

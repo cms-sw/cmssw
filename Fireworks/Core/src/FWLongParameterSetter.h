@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWLongParameterSetter.h,v 1.2 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWLongParameterSetter.h,v 1.3 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -24,9 +24,9 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
+#include "Fireworks/Core/interface/FWLongParameter.h"
 
 // forward declarations
-class FWLongParameter;
 class TGNumberEntry;
 
 class FWLongParameterSetter : public FWParameterSetterBase

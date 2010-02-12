@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWStringParameterSetter
-// $Id: FWStringParameterSetter.h,v 1.3 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWStringParameterSetter.h,v 1.1 2009/10/07 12:46:47 dmytro Exp $
 //
 
 // system include files
@@ -12,9 +12,9 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
+#include "Fireworks/Core/interface/FWStringParameter.h"
 
 // forward declarations
-class FWStringParameter;
 class TGTextEntry;
 
 class FWStringParameterSetter : public FWParameterSetterBase
