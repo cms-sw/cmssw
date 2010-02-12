@@ -24,6 +24,7 @@ process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 process.load("JetMETCorrections/TauJet/TCTauProducer_cff")
+#process.tcRecoTauProducer.DropCaloJets = cms.untracked.bool(True)
 
 process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauAnalysis",
 
