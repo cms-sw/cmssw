@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2009/12/08 10:35:46 $
- * $Revision: 1.52 $
+ * $Date: 2009/12/11 16:13:17 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -290,9 +290,6 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      LogDebug("EBTimingTask") << " det id = " << id;
-      LogDebug("EBTimingTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       MonitorElement* meTime = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meTimeAmpli = 0;
@@ -303,9 +300,6 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
       float xval = hitItr->energy();
       float yval = hitItr->time();
-
-      LogDebug("EBTimingTask") << " hit amplitude " << xval;
-      LogDebug("EBTimingTask") << " hit jitter " << yval;
 
       uint32_t flag = hitItr->recoFlag();      
       uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );

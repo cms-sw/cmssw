@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.62 $
+ * $Date: 2009/11/20 20:46:46 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -513,7 +513,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if ( compDigiItr != compDigis->end() ) {
-        //        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
         compDigiEt = compDigiItr->compressedEt();
         compDigiInterest = (compDigiItr->ttFlag() & 0x3);
         if ( ismt >= 1 && ismt <= 9 ) {
@@ -534,7 +533,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
         }
         if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
-          //          LogDebug("EETriggerTowerTask") << "but it is different...";
           good = false;
         }
 
@@ -548,7 +546,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         }
         if (!matchedAny) matchSample[0]=true;
         if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
-          //          LogDebug("EETriggerTowerTask") << "but fine grain veto is different...";
           goodVeto = false;
         }
       } else {

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.94 $
+ * $Date: 2009/11/20 20:46:45 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -493,14 +493,17 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
             }
           }
 
-          if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) good = false;
+          if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
+            good = false;
+          }
           
-          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) goodVeto = false;
+          if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+            goodVeto = false;
+          }
 
         }
 
-      }
-      else {
+      } else {
         good = false;
         goodVeto = false;
       }

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.110 $
+ * $Date: 2009/10/26 17:33:48 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -379,9 +379,6 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
-      LogDebug("EBTestPulseTask") << " det id = " << id;
-      LogDebug("EBTestPulseTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       EBDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
@@ -437,9 +434,6 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
-      LogDebug("EBTestPulseTask") << " det id = " << id;
-      LogDebug("EBTestPulseTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       MonitorElement* meAmplMap = 0;
 
       if ( mgpaGain[ism-1] == 3 ) meAmplMap = meAmplMapG01_[ism-1];
@@ -453,11 +447,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 //      if ( mgpaGain[ism-1] == 2 ) xval = xval * 1./ 2.;
 //      if ( mgpaGain[ism-1] == 1 ) xval = xval * 1./ 1.;
 
-      LogDebug("EBTestPulseTask") << " hit amplitude " << xval;
-
       if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
-
-      LogDebug("EBTestPulseTask") << "Crystal " << ie << " " << ip << " Amplitude = " << xval;
 
     }
 
@@ -484,9 +474,6 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
-
-      LogDebug("EBTestPulseTask") << " det id = " << pnItr->id();
-      LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
