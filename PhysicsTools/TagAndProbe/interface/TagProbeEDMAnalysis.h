@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.23 2009/11/23 00:58:41 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.24 2010/01/06 22:47:40 gpetrucc Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -21,11 +21,12 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/Utilities/interface/SideBandSubtraction.h"
 
 class FeldmanCousinsBinomialInterval;
 
 class EffTableLoader;
-class SideBandSubtraction;
+class SideBandSubtract;
 
 class ZLineShape;
 class CBLineShape;
@@ -151,7 +152,10 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       bool doTextDefinedBins_;         // Allow the 2-D bins to be read in from a text file into 1-D regions
       std::string textBinsFile_;       // This is the name of the file that holds the 2D bin information
       EffTableLoader* effBinsFromTxt_; // This holds the efficiency bins information
-      SideBandSubtraction* SBS_;
+      // New SideBandSubtract interface and required variables
+      SbsRegion leftRegion_;
+      SbsRegion rightRegion_;
+      SideBandSubtract* SBS_;
 
       ZLineShape* zLineShape_;
       CBLineShape* cbLineShape_;

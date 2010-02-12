@@ -19,9 +19,8 @@
 // TP Utilities
 #include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
 #include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
-#include "PhysicsTools/TagAndProbe/interface/SideBandSubtraction.hh"
+//#include "PhysicsTools/TagAndProbe/interface/SideBandSubtraction.hh"
 #include "PhysicsTools/TagAndProbe/interface/TPRooSimultaneousFitter.hh"
-
 // Line Shapes
 #include "PhysicsTools/TagAndProbe/interface/ZLineShape.hh"
 #include "PhysicsTools/TagAndProbe/interface/CBLineShape.hh"
@@ -65,7 +64,7 @@ namespace { inline void cd_(TFileDirectory &tf) { delete tf.make<TH1F>("dummy","
 
 TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig): 
 
-  effBinsFromTxt_(0),SBS_(0),
+  effBinsFromTxt_(0), leftRegion_(), rightRegion_(), SBS_(0),
   zLineShape_(0), cbLineShape_(0), gaussLineShape_(0),
   polyBkgLineShape_(0),cmsBkgLineShape_(0), signalShapePdf_(0),
   var1Pass_(0), var1All_(0),
@@ -92,8 +91,15 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig):
 
 
   if (calcEffsSB_) {
-    SBS_ = new SideBandSubtraction();
-    SBS_->Configure(iConfig);
+    Double_t stanDev = iConfig.getUntrackedParameter< double >("SBSStanDev");
+    Double_t peak = iConfig.getUntrackedParameter< double >("SBSPeak");
+    rightRegion_.min = peak + 10*stanDev;
+    rightRegion_.max = peak + 10*stanDev + 3*stanDev;
+    rightRegion_.RegionName="rightRegion";
+    leftRegion_.min = peak - 10*stanDev - 3*stanDev;
+    leftRegion_.max = peak - 10*stanDev;
+    leftRegion_.RegionName="leftRegion";
+    SBS_ = new SideBandSubtract();
   }
   
   // Type of fit
@@ -703,8 +709,8 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
     SBSFailProbes->Sumw2();
     
     // Perform side band subtraction
-    SBS_->Subtract(*PassProbes, *SBSPassProbes);
-    SBS_->Subtract(*FailProbes, *SBSFailProbes);
+    SBS_->doFastSubtraction(*PassProbes, *SBSPassProbes, leftRegion_, rightRegion_);
+    SBS_->doFastSubtraction(*FailProbes, *SBSFailProbes, leftRegion_, rightRegion_);
     
     // Count the number of passing and failing probes in the region
     double npassR = SBSPassProbes->Integral("");
@@ -865,8 +871,8 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 	 SBSFailProbes->Sumw2();
 
 	 // Perform side band subtraction
-	 SBS_->Subtract(*PassProbes, *SBSPassProbes);
-	 SBS_->Subtract(*FailProbes, *SBSFailProbes);
+	 SBS_->doFastSubtraction(*PassProbes, *SBSPassProbes, leftRegion_, rightRegion_);
+	 SBS_->doFastSubtraction(*FailProbes, *SBSFailProbes, leftRegion_, rightRegion_);
 
 	 // Count the number of passing and failing probes in the region
 	 double npassR = SBSPassProbes->Integral("");

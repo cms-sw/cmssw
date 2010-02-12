@@ -36,6 +36,7 @@ class SideBandSubtract
   RooFitResult *fit_result;
   Double_t SignalSidebandRatio;
  public:
+  SideBandSubtract();
   SideBandSubtract(RooAbsPdf *model_shape, 
 		   RooAbsPdf *bkg_shape, 
 		   RooDataSet* data, 

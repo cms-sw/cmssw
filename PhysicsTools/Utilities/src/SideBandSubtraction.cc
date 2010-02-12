@@ -6,8 +6,7 @@
 // This library is designed to be a tool which serves two purposes.
 // Its primary purpose is to provide a generic framework for doing
 // sideband subtraction.  It will also plug into current tag and probe
-// modules to prevent code duplication and redundancy.  Many of the
-// methods are  inspired heavily by current TagAndProbe code.
+// modules to prevent code duplication and redundancy.
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -34,6 +33,7 @@
 
 using namespace RooFit;
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
@@ -48,6 +48,9 @@ inline std::string stringify(const T& t)
 } 
 Double_t SideBandSubtract::getYield(std::vector<SbsRegion> Regions, RooAbsPdf *PDF)
 {
+  if(PDF==NULL || SeparationVariable==NULL)
+    return 0.0;
+
   Double_t yield=0;
   RooAbsReal* intPDF;
   for(unsigned int i=0; i < Regions.size(); i++)
@@ -74,6 +77,11 @@ static void setHistOptions(TH1F* histo, string name, string title, string axis_l
 }
 int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_t index) //stsratio -> signal to sideband ratio
 {
+  if(Data==NULL || SeparationVariable==NULL)
+    {
+      cerr << "ERROR: Data or SeparationVariable is NULL returning now!\n";
+      return -1;
+    }
   TH1F* SideBandHist = (TH1F*)BaseHistos[index]->Clone();
   setHistOptions(SideBandHist,(string)variable->GetName()+"Sideband",(string)SideBandHist->GetTitle() + " Sideband",(string)variable->getUnit());
 
@@ -83,6 +91,7 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
   //Begin a loop over the data to fill our histograms. I should figure
   //out how to do this in one shot to avoid a loop
   //O(N_vars*N_events)...
+
   TIterator* iter = (TIterator*) Data->get()->createIterator();
   RooAbsArg *var=NULL;
   RooRealVar *sep_var=NULL;
@@ -139,7 +148,11 @@ void SideBandSubtract::printResults(string prefix)
 {//handles *all* printing
   //spool over vectors of histograms and print them, then print
   //separation variable plots and the results text file.
-
+  if(SeparationVariable==NULL)
+    {
+      cerr << "ERROR: printResults, SeparationVariable is NULL!\n";
+      return;
+    }
   string filename; //output file name
   for(unsigned int i=0; i < RawHistos.size(); ++i)
     {
@@ -161,14 +174,19 @@ void SideBandSubtract::printResults(string prefix)
     }
 
   string outname = prefix + (string)SeparationVariable->GetName() + "_fitted.eps";
-  RooPlot *SepVarFrame = SeparationVariable->frame();
-  Data->plotOn(SepVarFrame);
-  ModelPDF->plotOn(SepVarFrame);
-  TCanvas Canvas;
-  SepVarFrame->Draw();
-  Canvas.SaveAs(outname.c_str());
-  outname.replace(outname.size()-3,3,"gif");
-  Canvas.SaveAs(outname.c_str());
+  if(Data!=NULL && ModelPDF!=NULL)
+    {
+      RooPlot *SepVarFrame = SeparationVariable->frame();
+      Data->plotOn(SepVarFrame);
+      ModelPDF->plotOn(SepVarFrame);
+      TCanvas Canvas;
+      SepVarFrame->Draw();
+      Canvas.SaveAs(outname.c_str());
+      outname.replace(outname.size()-3,3,"gif");
+      Canvas.SaveAs(outname.c_str());
+    }
+  else
+    cerr <<"ERROR: printResults, Data or ModelPDF is NULL!\n";
 
   string result_outname = prefix + "_fit_results.txt";
   ofstream output(result_outname.c_str(),ios::out);
@@ -242,12 +260,16 @@ void SideBandSubtract::saveResults(string outname)
   for(unsigned int i=0; i < SBSHistos.size(); ++i)
       SBSHistos[i].Write();
 
-  RooPlot *sep_varFrame = SeparationVariable->frame();
-  Data->plotOn(sep_varFrame);
-  ModelPDF->plotOn(sep_varFrame);
-  BackgroundPDF->plotOn(sep_varFrame);
-  sep_varFrame->Write();
-
+  if(Data!=NULL && ModelPDF!=NULL && BackgroundPDF!=NULL && SeparationVariable!=NULL)
+    {
+      RooPlot *sep_varFrame = SeparationVariable->frame();
+      Data->plotOn(sep_varFrame);
+      ModelPDF->plotOn(sep_varFrame);
+      BackgroundPDF->plotOn(sep_varFrame);
+      sep_varFrame->Write();
+    }
+  else
+    cerr <<"ERROR: saveResults, did not save RooPlot of data and fit\n";
   output.Write();
 
 }
@@ -258,6 +280,12 @@ void SideBandSubtract::setDataSet(RooDataSet* newData)
 }
 void SideBandSubtract::print_plot(RooRealVar* printVar,string outname)
 {
+  if(Data==NULL || ModelPDF==NULL)
+    {
+      cerr << "ERROR: print_plot, Data or ModelPDF are NULL\n";
+      return;
+    }
+
   RooPlot *genericFrame = printVar->frame();
   Data->plotOn(genericFrame);
   ModelPDF->plotOn(genericFrame);
@@ -268,7 +296,23 @@ void SideBandSubtract::print_plot(RooRealVar* printVar,string outname)
   outname.replace(outname.size()-3,3,"gif");
   genericCanvas.SaveAs(outname.c_str());
 }
-
+SideBandSubtract::SideBandSubtract()
+  : BackgroundPDF(0), 
+    ModelPDF(0), 
+    Data(0),
+    SeparationVariable(0),
+    verbose(0),
+    SignalRegions(),
+    SideBandRegions(),
+    SideBandHistos(0),
+    RawHistos(0),
+    SBSHistos(0),
+    BaseHistos(0),
+    fit_result(0),
+    SignalSidebandRatio(0)
+{
+  // Default constructor so we can do fast subtraction
+}
 SideBandSubtract::SideBandSubtract(RooAbsPdf *model_shape, 
 				   RooAbsPdf *bkg_shape, 
 				   RooDataSet* data,
@@ -306,7 +350,8 @@ void SideBandSubtract::addSignalRegion(Double_t min, Double_t max)
   signal.min=min;
   signal.max=max;
   signal.RegionName="Signal" + stringify(SignalRegions.size());
-  SeparationVariable->setRange(signal.RegionName.c_str(),signal.min,signal.max);
+  if(SeparationVariable!=NULL)
+    SeparationVariable->setRange(signal.RegionName.c_str(),signal.min,signal.max);
   SignalRegions.push_back(signal);
   return;
 }
@@ -316,7 +361,8 @@ void SideBandSubtract::addSideBandRegion(Double_t min, Double_t max)
   sideband.min=min;
   sideband.max=max;
   sideband.RegionName="SideBand" + stringify(SideBandRegions.size());
-  SeparationVariable->setRange(sideband.RegionName.c_str(),sideband.min,sideband.max);
+  if(SeparationVariable!=NULL)
+    SeparationVariable->setRange(sideband.RegionName.c_str(),sideband.min,sideband.max);
   SideBandRegions.push_back(sideband);
   return;
 }
@@ -325,7 +371,15 @@ int SideBandSubtract::doGlobalFit()
   if(verbose)
     cout <<"Beginning SideBand Subtraction\n";
 
-  fit_result = ModelPDF->fitTo(*Data,"r");
+  if(ModelPDF!=NULL && Data!=NULL && SeparationVariable!=NULL)
+    {
+      fit_result = ModelPDF->fitTo(*Data,"r");
+    }
+  else
+    {
+      cerr <<"ERROR: doGobalFit, no ModelPDF, SeparationVariable or Data specified\n";
+      return -1;
+    }
 
   Double_t SideBandYield=getYield(SideBandRegions,BackgroundPDF);
   Double_t  BackgroundInSignal=getYield(SignalRegions,BackgroundPDF);
