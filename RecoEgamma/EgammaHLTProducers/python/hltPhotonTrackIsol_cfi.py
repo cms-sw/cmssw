@@ -11,7 +11,8 @@ hltPhotonTrackIsol = cms.EDFilter("EgammaHLTPhotonTrackIsolationProducersRegiona
     recoEcalCandidateProducer = cms.InputTag("hltEgammaHcalIsolFilter"),
     #InputTag trackProducer       = hltSingleCtfWithMaterialTracks
     egTrkIsoPtMin = cms.double(1.5),
-    egTrkIsoZSpan = cms.double(999999.0)
+    egTrkIsoZSpan = cms.double(999999.0),
+    countTracks = cms.bool(False)
 )
 
 

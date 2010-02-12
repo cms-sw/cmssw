@@ -13,7 +13,7 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTIslandClusterProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTMulti5x5ClusterProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRemoveDuplicatedSC.h"
-#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRemoveSpikesSC.h"
+// #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRemoveSpikesSC.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9Producer.h"
 
@@ -44,7 +44,7 @@ DEFINE_ANOTHER_FWK_MODULE(EgammaHLTHcalIsolationProducersRegional);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTHcalIsolationDoubleConeProducers);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTPhotonTrackIsolationProducersRegional);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRemoveDuplicatedSC);
-DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRemoveSpikesSC);
+// DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRemoveSpikesSC);
 DEFINE_ANOTHER_FWK_MODULE(EcalListOfFEDSProducer);
 DEFINE_ANOTHER_FWK_MODULE(EcalRecHitsMerger);
 DEFINE_ANOTHER_FWK_MODULE(ESListOfFEDSProducer);
