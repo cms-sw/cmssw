@@ -1,12 +1,13 @@
 //
-//  VVIObj.cc  Version 1.1 
+//  VVIObj.cc  Version 1.2 
 //
 //  Port of CERNLIB G116 Functions vviden/vvidis
 //
 // Created by Morris Swartz on 1/14/2010.
 // Copyright 2010 __TheJohnsHopkinsUniversity__. All rights reserved.
 //
-// V1.1 (make dzero call both fcns with a switch)
+// V1.1 - make dzero call both fcns with a switch
+// V1.2 - remove inappriate initializers and add methods to return non-zero/normalized region
 //
 
 #include <math.h>
@@ -25,11 +26,9 @@
 //! \param kappa - (input) Vavilov kappa parameter [0.01 (Landau-like) < kappa < 10. (Gaussian-like)]
 //! \param beta2 - (input) Vavilov beta2 parameter (square of particle speed in v/c units)
 //! \param mode  - (input) set to 0 to calculate the density function and to 1 to calculate the distribution function
-//! \param xl    - (input) smallest value of the argument for the density and the beginning of the normalized region for the distribution
-//! \param xu    - (input) largest value of the argument for the density and the end of the normalized region for the distribution
 // *************************************************************************************************************************************** 
 
-VVIObj::VVIObj(double kappa, double beta2, double mode, double xl, double xu) : kappa_(kappa), beta2_(beta2), mode_(mode), xl_(xl), xu_(xu) {
+VVIObj::VVIObj(double kappa, double beta2, double mode) : kappa_(kappa), beta2_(beta2), mode_(mode) {
 	
 	const double xp[9] = { 9.29,2.47,.89,.36,.15,.07,.03,.02,0.0 };
 	const double xq[7] = { .012,.03,.08,.26,.87,3.83,11.0 };
@@ -105,16 +104,14 @@ VVIObj::VVIObj(double kappa, double beta2, double mode, double xl, double xu) : 
 		q = -q;
 		q2 = -q2;
 	}
-   xl_ = t0_;
-   xu_ = t1_;
 	 
 } // VVIObj
 
-// *******************************************************************************
+// *************************************************************************************************************************************
 //! Vavilov function method
 //! Returns density fcn (mode=0) or distribution fcn (mode=1)
-//! \param x - (input) Argument of function [typically defined as (Q-mpv)/sigma]
-// ******************************************************************************* 
+//! \param x  - (input) Argument of function [typically defined as (Q-mpv)/sigma]
+// ************************************************************************************************************************************* 
 
 
 double VVIObj::fcn(double x) {
@@ -156,6 +153,22 @@ double VVIObj::fcn(double x) {
 	}
 	return f;
 } // fcn
+
+
+
+// *************************************************************************************************************************************
+//! Vavilov limits method
+//! \param xl - (output) Smallest value of the argument for the density and the beginning of the normalized region for the distribution
+//! \param xu - (output) Largest value of the argument for the density and the end of the normalized region for the distribution
+// ************************************************************************************************************************************* 
+
+
+void VVIObj::limits(double& xl, double& xu) {
+	
+   xl = t0_;
+   xu = t1_;
+	return;
+} // limits
 
 
 double VVIObj::f1(double x) { return h_[0]+h_[1]*log(h_[2]*x)-h_[3]*x;}
