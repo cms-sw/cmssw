@@ -78,7 +78,7 @@ process.physdecl = cms.EDFilter("PhysDecl",
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('promptReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -151,7 +151,7 @@ process.source = cms.Source("EventStreamHttpReader",
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     maxSize = cms.untracked.int32(1000),
-    fileName = cms.untracked.string('EVDISPSM_SUFFIX.root'),
+    fileName = cms.untracked.string('EVDISPSM_DIR/EVDISPSM_SUFFIX.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),

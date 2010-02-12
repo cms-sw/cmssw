@@ -6,6 +6,7 @@ MODFILE="reco_skim_cfg_mod_350.py"
 
 # the output file is PREFIX_date.root
 PREFIX="SkimSM"
+AREA="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/EventDisplay/RootFileTempStorageArea"
 
 # it produces a file every NUEVENTS events
 NUMEVENTS="-1"
@@ -45,6 +46,7 @@ while True:
     text=text.replace("SOURCE",SOURCE)
     text=text.replace("NUMEVENTS",NUMEVENTS)
     text=text.replace("SELECTHLT",SELECTHLT)
+    text=text.replace("EVDISPSM_DIR",AREA)
     newfile=open(FILENAME,"w")
     newfile.write(text)
     newfile.close()
