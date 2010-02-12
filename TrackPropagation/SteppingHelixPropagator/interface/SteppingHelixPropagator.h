@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2009/09/08 19:20:24 $
- *  $Revision: 1.27.2.2 $
+ *  $Date: 2009/09/08 20:44:31 $
+ *  $Revision: 1.28 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.27.2.2 2009/09/08 19:20:24 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.28 2009/09/08 20:44:31 slava77 Exp $
 //
 //
 
@@ -267,7 +267,7 @@ class SteppingHelixPropagator : public Propagator {
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
   typedef std::pair<FreeTrajectoryState, double> FtsPP;
   static const int MAX_STEPS = 10000;
-  static const int MAX_POINTS = 50;
+  static const int MAX_POINTS = 7;
   mutable int nPoints_;
   mutable StateInfo svBuf_[MAX_POINTS+1];
 
