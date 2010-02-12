@@ -1,8 +1,8 @@
 /*
  * \file EBTrendClient.cc
  *
- * $Date: 2009/11/19 18:14:42 $
- * $Revision: 1.3 $
+ * $Date: 2010/02/08 21:32:48 $
+ * $Revision: 1.1 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -137,13 +137,13 @@ void EBTrendClient::setup(void){
 
       // minutely
 
-      histo = "Average Of " + histTitles_[i] + " Vs 5Minutes";
+      histo = "Average of " + histTitles_[i] + " Vs 5Minutes";
       meanMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
       meanMinutely_[i]->setAxisTitle("Minutes", 1);
       histo = "Average of " + histTitles_[i] + " / 5 minutes";
       meanMinutely_[i]->setAxisTitle(histo.c_str(), 2);
       
-      histo = "RMS Of " + histTitles_[i] + " Vs 5Minutes";
+      histo = "RMS of " + histTitles_[i] + " Vs 5Minutes";
       sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
       sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
       histo = "RMS of " + histTitles_[i] + " / 5 minutes";
@@ -152,13 +152,13 @@ void EBTrendClient::setup(void){
 
       // hourly
       
-      histo = "Average Of " + histTitles_[i] + " Vs 1Hour";
+      histo = "Average of " + histTitles_[i] + " Vs 1Hour";
       meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
       meanHourly_[i]->setAxisTitle("Hours", 1);
       histo = "Average of " + histTitles_[i] + " / hour";
       meanHourly_[i]->setAxisTitle(histo.c_str(), 2);
       
-      histo = "RMS Of " + histTitles_[i] + " Vs 1Hour";
+      histo = "RMS of " + histTitles_[i] + " Vs 1Hour";
       sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
       sigmaHourly_[i]->setAxisTitle("Hours", 1);
       histo = "RMS of " + histTitles_[i] + " / hour";
