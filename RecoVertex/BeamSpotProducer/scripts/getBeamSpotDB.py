@@ -20,18 +20,22 @@ import commands
 def main():
 
     if len(sys.argv) < 2:
-	print "\n [usage] getBeamSpotDB <tag name> <destDB=oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT>"
-	print " e.g. getBeamSpotDB BeamSpotObjects_2009_v1_express \n"
+	print "\n [usage] getBeamSpotDB <tag name> <run number = 1> <destDB = frontier://PromptProd/CMS_COND_31X_BEAMSPOT >\n"
+	print " e.g. getBeamSpotDB First900GeVCollision_3p9cm_v3_mc_STARTUP \n\n"
+        print "      destDB options \"oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT\""
+        print "                     \"sqlite_file:mysqlitefile.db\" \n"
 	sys.exit()
 
     
     tagname = sys.argv[1]
     iov_since = ''
     iov_till = ''
-    destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
+    destDB = 'frontier://PromptProd/CMS_COND_31X_BEAMSPOT'
+    run = '1'
+    if len(sys.argv) > 3:
+        destDB = sys.argv[3]
     if len(sys.argv) > 2:
-        destDB = sys.argv[2]
-    
+        run = sys.argv[2]
     
     #sqlite_file = "sqlite_file:"+ tagname +".db"
 
@@ -67,11 +71,16 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
     rnewfile.write('''
                                         )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+        numberEventsInRun = cms.untracked.uint32(1),
+''')
+    rnewfile.write('  firstRun = cms.untracked.uint32('+ run + ')\n')
+    rnewfile.write('''               
+)
 
 process.maxEvents = cms.untracked.PSet(
             input = cms.untracked.int32(1)
-                    )
+)
 process.beamspot = cms.EDFilter("BeamSpotFromDB")
 
 
