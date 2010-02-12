@@ -5,6 +5,7 @@ from HLTriggerOffline.Muon.HLTMuonQualityTester_cfi import *
 from HLTriggerOffline.Tau.Validation.HLTTauQualityTests_cff import *
 from HLTriggerOffline.Top.HLTTopQualityTester_cfi import *
 from HLTriggerOffline.Higgs.HLTHiggsQualityTester_cfi import *
+from HLTriggerOffline.JetMET.Validation.HLTJetMETQualityTester_cfi import *
 
 hltvalidationqt = cms.Sequence(
     #hltQTExample
@@ -12,4 +13,5 @@ hltvalidationqt = cms.Sequence(
     + hltTauRelvalQualityTests
     + hltHiggsQualityTester
     + hltTopQualityTester
+    + hltJetMetQualityTester
     )
