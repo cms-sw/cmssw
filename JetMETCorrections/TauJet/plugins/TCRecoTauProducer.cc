@@ -28,7 +28,8 @@ void TCRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
           for(iTau = caloTaus.begin(); iTau != caloTaus.end(); iTau++){
 		CaloTau theTCTau = *iTau;
 		theTCTau.setP4(tcTauCorrector->correctedP4(theTCTau));
-		if(theTCTau.pt() > 0) tcTauCollection->push_back(theTCTau);
+		//if(theTCTau.pt() > 0) 
+		tcTauCollection->push_back(theTCTau);
 	  }
 	}
 
