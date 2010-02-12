@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.28 2010/01/28 15:36:40 ewv Exp $
+// $Id: Event.h,v 1.29 2010/01/29 16:24:21 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -36,6 +36,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/LuminosityBlock.h"
+#include "DataFormats/FWLite/interface/Run.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
@@ -120,11 +121,13 @@ namespace fwlite {
          static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
          // ---------- member functions ---------------------------
-         fwlite::LuminosityBlock const& getLuminosityBlock();
+         fwlite::LuminosityBlock const& getLuminosityBlock() const;
+         fwlite::Run             const& getRun() const;
 
       private:
          friend class internal::ProductGetter;
          friend class ChainEvent;
+         friend class EventHistoryGetter;
 
          Event(const Event&); // stop default
 
@@ -141,7 +144,8 @@ namespace fwlite {
          // TTree* eventTree_;
          TTree* eventHistoryTree_;
          // Long64_t eventIndex_;
-         boost::shared_ptr<fwlite::LuminosityBlock>  lumi_;
+         mutable boost::shared_ptr<fwlite::LuminosityBlock>  lumi_;
+         mutable boost::shared_ptr<fwlite::Run>  run_;
          mutable fwlite::BranchMapReader branchMap_;
 
          typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
