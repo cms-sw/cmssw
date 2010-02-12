@@ -23,7 +23,7 @@ process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
 process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.9 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -145,17 +145,19 @@ process.zdcreco.firstSample = 4
 process.zdcreco.samplesToAdd = 3
 
 ## EGAMMA
-process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
-process.ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)
-process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.9)
-process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.9)
-process.ecalDrivenElectronSeeds.SeedConfiguration.r2MinF = cms.double(-1.5)
-process.ecalDrivenElectronSeeds.SeedConfiguration.r2MaxF = cms.double(1.5)
-process.ecalDrivenElectronSeeds.SeedConfiguration.rMinI = cms.double(-2.)
-process.ecalDrivenElectronSeeds.SeedConfiguration.rMaxI = cms.double(2.)
-process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
-process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
-process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
+#removed from upon Egamma request 12 Feb 2010
+#process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
+#process.ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.9)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.9)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.r2MinF = cms.double(-1.5)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.r2MaxF = cms.double(1.5)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.rMinI = cms.double(-2.)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.rMaxI = cms.double(2.)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
+#process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
+
 process.gsfElectrons.applyPreselection = cms.bool(False)
 process.photons.minSCEtBarrel = 1.
 process.photons.minSCEtEndcap =1.
