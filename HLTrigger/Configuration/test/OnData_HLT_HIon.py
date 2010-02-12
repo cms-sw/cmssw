@@ -11,6 +11,43 @@ process.HLTConfigVersion = cms.PSet(
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
+process.streams = cms.PSet( 
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  A = cms.vstring( 'MinimumBias',
+    'ZeroBias',
+    'Cosmics',
+    'HcalHPDNoise',
+    'RandomTriggers',
+    'HcalNZS' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressMuon' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  Calibration = cms.vstring( 'TestEnables' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
+  OnlineErrors = cms.vstring( 'LogMonitor',
+    'FEDMonitor' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  Offline = cms.vstring(  )
+)
+process.datasets = cms.PSet( 
+  OfflineMonitor = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  ZeroBias = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  HcalNZS = cms.vstring(  ),
+  ExpressMuon = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  EcalLaser = cms.vstring(  ),
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  )
+)
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring( 'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/ZeroBias/RAW/v1/000/123/734/D28203D4-AFE3-DE11-ADEE-001D09F2527B.root' )
