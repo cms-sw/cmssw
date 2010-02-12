@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2008/11/05 17:24:58 $
-//   $Revision: 1.12 $
+//   $Date: 2009/12/18 20:44:58 $
+//   $Revision: 1.13 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -71,6 +71,10 @@
 L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   produces<std::vector<L1MuGMTCand> >();
   produces<L1MuGMTReadoutCollection>();
+  m_sendMipIso = ps.getUntrackedParameter<bool>("SendMipIso",false);
+  if( m_sendMipIso ) {
+    produces<std::vector<unsigned> >();
+  }
   
   m_L1MuGMTScalesCacheID = 0ULL;
   m_L1MuTriggerScalesCacheID = 0ULL;
@@ -345,6 +349,14 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   std::auto_ptr<L1MuGMTReadoutCollection> GMTRRC(getReadoutCollection());
   e.put(GMTRRC);
+
+  if( m_sendMipIso ) {
+    std::auto_ptr<std::vector<unsigned> > mipiso(new std::vector<unsigned>);
+    for(int i=0; i<32; i++) {
+      mipiso->push_back(m_db->IsMIPISO(0,i));
+    }  
+    e.put(mipiso);
+  }
   
 // delete registers and LUTs
   m_config->clearLUTsRegs();

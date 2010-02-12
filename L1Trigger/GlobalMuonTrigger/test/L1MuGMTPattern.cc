@@ -42,6 +42,7 @@ using namespace std;
 //----------------
 L1MuGMTPattern::L1MuGMTPattern(const edm::ParameterSet& ps) {
   m_inputTag = ps.getUntrackedParameter<edm::InputTag>("GMTInputTag", edm::InputTag("gmt"));
+  m_inputCaloTag = ps.getUntrackedParameter<edm::InputTag>("GMTInputCaloTag", edm::InputTag("source"));
   m_outfilename = ps.getUntrackedParameter<string>("OutputFile","gmt_testfile.dat");
   m_outputType = ps.getUntrackedParameter<int>("OutputType",1);
 }
@@ -105,12 +106,29 @@ void L1MuGMTPattern::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //
   // MIP and ISO bits
   //
-  printMipIso();
+  edm::Handle<L1CaloRegionCollection> calocoll_h;
+  e.getByLabel(m_inputCaloTag,calocoll_h);
+  if(calocoll_h.isValid())
+  {
+    printMipIso(calocoll_h.product());
+  } else {
+    edm::LogVerbatim("GMT_PSB_info") << " Calorimeter MIP/QUIET bits not found in the Event ";
+  }
   
   // GMT Trigger
   printGMT("GMT", gmt_record.getGMTCands());
   printGMT("GMTB",gmt_record.getGMTBrlCands());
   printGMT("GMTF",gmt_record.getGMTFwdCands());
+
+  edm::Handle<vector<unsigned> > mi_h;
+  e.getByLabel(m_inputTag, mi_h);
+  if(mi_h.isValid()) {
+    printMI(mi_h.product());
+  } else {
+    edm::LogVerbatim("GMT_PSB_info") << " MI product invalid ";
+  }
+
+  printCANC();
   
 }
 
@@ -213,14 +231,65 @@ void L1MuGMTPattern::printGMT(string tag, const vector<L1MuGMTExtendedCand>& exc
   
 }
 
-void L1MuGMTPattern::printMipIso() {
-  // for the moment leave dummy
+void L1MuGMTPattern::printMipIso(L1CaloRegionCollection const* regions) {
+  int nmip=0;
+  int nnq=0;
+
   if(m_outputType==1) {
     ofstream of(m_outfilename.c_str(), ios::app);
-    of << "MIP  0 0" << endl;
-    of << "NQ   0 0" << endl;
+    L1CaloRegionCollection::const_iterator iter;
+
+    edm::LogVerbatim("GMT_PSB_info") << "MIP/QUIET bits rceived by the GMT :";
+
+    for ( iter = regions->begin(); iter != regions->end(); iter++ ) {
+      if ( (*iter).id().ieta() < 4 || (*iter).id().ieta() > 17 || (*iter).id().iphi() > 17 ) continue;
+      if((*iter).mip()) nmip++;
+      if(!(*iter).quiet()) nnq++;
+      /*
+            edm::LogVerbatim("GMT_PSB_info") << (*iter).id().ieta()-4 << " "
+                                             << (*iter).id().iphi() << " "
+                                             << (*iter).quiet() << " "
+                                             << (*iter).mip();
+       */
+    }
+
+    of << "MIP  " << nmip << " ";
+    for ( iter = regions->begin(); iter != regions->end(); iter++ ) {
+      if ( (*iter).id().ieta() < 4 || (*iter).id().ieta() > 17 || (*iter).id().iphi() > 17 ) continue;
+      if((*iter).mip()) of << (*iter).id().ieta()-4 << " " << (((*iter).id().iphi()+9)%18) << " ";
+    }
+    of << endl;
+
+    of << "NQ   " << nnq << " ";
+    for ( iter = regions->begin(); iter != regions->end(); iter++ ) {
+      if ( (*iter).id().ieta() < 4 || (*iter).id().ieta() > 17 || (*iter).id().iphi() > 17 ) continue;
+      if(!(*iter).quiet()) of << (*iter).id().ieta()-4 << " " << (((*iter).id().iphi()+9)%18) << " ";
+    }
+    of << endl;
+  }
+
+}
+
+void L1MuGMTPattern::printMI( const vector<unsigned>* mi ) {
+  if(m_outputType==1) {
+    ofstream of(m_outfilename.c_str(), ios::app);
+    of << "MI  ";
+    vector<unsigned>::const_iterator imi;
+    for(imi=mi->begin(); imi!=mi->end(); imi++) {
+      of << " " << *imi;
+    }
+    of << endl;
   } 
 }
+
+
+void L1MuGMTPattern::printCANC() {
+  if(m_outputType==1) {
+    ofstream of(m_outfilename.c_str(), ios::app);
+    of << "CANC 0 0 0 0" << endl;
+  }
+}
+
 
 unsigned L1MuGMTPattern::invertQPt(unsigned w) {
   unsigned qpt = (w>>8) & 0xff;

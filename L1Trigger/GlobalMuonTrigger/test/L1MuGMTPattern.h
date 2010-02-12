@@ -6,8 +6,8 @@
  *   Description:  Create GMT HW test patterns
 */
 //                
-//   $Date: 2009/12/18 20:44:58 $
-//   $Revision: 1.2 $
+//   $Date: 2008/02/05 10:31:02 $
+//   $Revision: 1.1 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -34,6 +34,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -61,7 +62,9 @@ class L1MuGMTPattern : public edm::EDAnalyzer {
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     void printRegional(std::string tag, const std::vector<L1MuRegionalCand>& rmc);
     void printGMT(std::string tag, const std::vector<L1MuGMTExtendedCand>& exc);
-    void printMipIso();
+    void printMipIso(L1CaloRegionCollection const* regions);
+    void printMI(const std::vector<unsigned>* mi);
+    void printCANC();
     unsigned invertQPt(unsigned);
 
     virtual void beginJob();
@@ -71,6 +74,7 @@ class L1MuGMTPattern : public edm::EDAnalyzer {
 
 
     edm::InputTag m_inputTag;
+    edm::InputTag m_inputCaloTag;
     std::string m_outfilename;
     int m_outputType;
       
