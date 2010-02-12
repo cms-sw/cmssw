@@ -104,7 +104,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     ),
 
     tmbParam = cms.PSet(
-        mpcBlockMe1a    = cms.uint32(1),
+        mpcBlockMe1a    = cms.uint32(0),
         alctTrigEnable  = cms.uint32(0),
         clctTrigEnable  = cms.uint32(0),
         matchTrigEnable = cms.uint32(1),
