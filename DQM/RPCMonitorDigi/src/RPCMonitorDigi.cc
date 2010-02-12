@@ -64,9 +64,9 @@ void RPCMonitorDigi::beginJob(){
   NumberOfClusters_for_EndcapPositive = dbe -> book1D("NumberOfClusters_for_EndcapPositive", "NumberOfClusters for Endcap Positive", 20, 0.5, 20.5);
   NumberOfClusters_for_EndcapNegative = dbe -> book1D("NumberOfClusters_for_EndcapNegative", "NumberOfClusters for Endcap Negative", 20, 0.5, 20.5);
   
-  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "Number Of Digis in Barrel", 50, 0.5, 50.5);
-  NumberOfDigis_for_EndcapPositive = dbe -> book1D("NumberOfDigi_for_EndcapPositive", "Number Of Digis in EndCapPositive", 50, 0.5, 50.5);
-  NumberOfDigis_for_EndcapNegative= dbe -> book1D("NumberOfDigi_for_EndcapNegative", "Number Of Digis in EndCapNegative", 50, 0.5, 50.5);
+  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "Multiplicity in Barrel", 50, 0.5, 50.5);
+  NumberOfDigis_for_EndcapPositive = dbe -> book1D("NumberOfDigi_for_EndcapPositive", "Multiplicity in EndCapPositive", 50, 0.5, 50.5);
+  NumberOfDigis_for_EndcapNegative= dbe -> book1D("NumberOfDigi_for_EndcapNegative", "Multiplicity in EndCapNegative", 50, 0.5, 50.5);
   
   SameBxDigisMeBarrel_ = dbe->book1D("SameBXDigis_Barrel", "Digis with same bx", 20, 0.5, 20.5);  
   SameBxDigisMeEndcapPositive_ = dbe->book1D("SameBXDigis_EndcapPositive", "Digis with same bx", 20, 0.5, 20.5);  
@@ -303,7 +303,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     if(numberOfDigi>50) numberOfDigi=50; //overflow
     
     os.str("");
-    os<<"NumberOfDigi_"<<nameRoll;
+    os<<"Multiplicity_"<<nameRoll;
     if(meMap[os.str()])   meMap[os.str()]->Fill(numberOfDigi);   
     
     if(detId.region()==0) NumberOfDigis_for_Barrel -> Fill(numberOfDigi);

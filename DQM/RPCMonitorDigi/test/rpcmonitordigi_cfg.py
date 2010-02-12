@@ -5,8 +5,6 @@ process = cms.Process("RPCDQM")
 
 ############# Source File ########################
 process.source = cms.Source("PoolSource",
-    moduleLogName = cms.untracked.string('source'),
- #   fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/659/50CD2EE7-79AF-DD11-918C-000423D9870C.root ')
      fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/664/1CE1633D-87AF-DD11-AD95-000423D98B08.root')
 )
 
@@ -89,7 +87,7 @@ process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
 
 ############### Output Module ######################
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('RPCDQM.root')
+   fileName = cms.untracked.string('RPCDQM.root')
 )
 
 
