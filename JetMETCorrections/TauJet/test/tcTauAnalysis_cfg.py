@@ -48,10 +48,10 @@ process.runEDAna = cms.Path(
 	process.tcTauCorrectorTest
 )
 
-process.TESTOUT = cms.OutputModule("PoolOutputModule",
-        outputCommands = cms.untracked.vstring(
-            "keep *"
-        ),
-        fileName = cms.untracked.string('file:testout.root')
-)
-process.outpath = cms.EndPath(process.TESTOUT)
+#process.TESTOUT = cms.OutputModule("PoolOutputModule",
+#        outputCommands = cms.untracked.vstring(
+#            "keep *"
+#        ),
+#        fileName = cms.untracked.string('file:testout.root')
+#)
+#process.outpath = cms.EndPath(process.TESTOUT)
