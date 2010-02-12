@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.191 $
+ * $Date: 2009/10/29 17:30:44 $
+ * $Revision: 1.192 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -479,9 +479,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       counter[ism-1]++;
 
-      LogDebug("EcalBarrelMonitorModule") << " det id = " << id;
-      LogDebug("EcalBarrelMonitorModule") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
     }
 
     for (int i = 0; i < 36; i++) {
@@ -526,12 +523,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      LogDebug("EcalBarrelMonitorModule") << " det id = " << id;
-      LogDebug("EcalBarrelMonitorModule") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       float xval = hit.energy();
-
-      LogDebug("EcalBarrelMonitorModule") << " hit energy " << xval;
 
       if ( enableEventDisplay_ ) {
 

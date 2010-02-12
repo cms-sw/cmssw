@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2009/10/26 17:33:50 $
- * $Revision: 1.68 $
+ * $Date: 2009/10/29 17:30:44 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -480,9 +480,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
-      LogDebug("EcalEndcapMonitorModule") << " det id = " << id;
-      LogDebug("EcalEndcapMonitorModule") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
     }
 
     for (int i = 0; i < 18; i++) {
@@ -529,12 +526,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
-      LogDebug("EcalEndcapMonitorModule") << " det id = " << id;
-      LogDebug("EcalEndcapMonitorModule") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       float xval = hit.energy();
-
-      LogDebug("EcalEndcapMonitorModule") << " hit energy " << xval;
 
       if ( enableEventDisplay_ ) {
 
