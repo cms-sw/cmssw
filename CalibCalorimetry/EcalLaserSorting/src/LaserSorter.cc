@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.9 2010/02/09 07:37:34 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.10 2010/02/12 14:01:27 pgras Exp $
  */
 
 /***************************************************
@@ -725,7 +725,7 @@ bool LaserSorter::writeEventHeader(std::ofstream& out,
   data[8] = nFeds;
   data[9] = 0; //reserved (to be aligned on 64-bits)
 
-  if(verbosity_){
+  if(verbosity_>1){
     cout << "[LaserSorter " << now() << "] " << "Write header of event: "
          << "Time: " << toString(evt.time().value())
          << ", LB: " << evt.luminosityBlock()
