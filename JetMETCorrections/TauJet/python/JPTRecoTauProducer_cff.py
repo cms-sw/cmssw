@@ -1,5 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
+from JetMETCorrections.Configuration.JetPlusTrackCorrections_cfi import *
+JPTZSPCorrectorICone5.ResponseMap =   'JetMETCorrections/Configuration/data/CMSSW_31X_resptowers.txt'
+JPTZSPCorrectorICone5.EfficiencyMap = 'JetMETCorrections/Configuration/data/CMSSW_167_TrackNonEff_one.txt'
+JPTZSPCorrectorICone5.LeakageMap =    'JetMETCorrections/Configuration/data/CMSSW_167_TrackLeakage_one.txt'
+#For CMSSW_3_1_6:
+#JPTZSPCorrectorICone5.NonEfficiencyFile     = 'CMSSW_167_TrackNonEff_one'
+#JPTZSPCorrectorICone5.NonEfficiencyFileResp = 'CMSSW_167_TrackLeakage_one'
+#JPTZSPCorrectorICone5.ResponseFile          = 'CMSSW_31X_resptowers'
+
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
 #from JetMETCorrections.Configuration.ZSPJetCorrections332_cff import *
 from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
