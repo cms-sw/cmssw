@@ -16,18 +16,13 @@ patFixedConePFTauDiscrimination = cms.Sequence(
     fixedConePFTauDiscriminationAgainstElectron +
     fixedConePFTauDiscriminationAgainstMuon
 )
-patFixedConeHighEffPFTauDiscrimination = cms.Sequence(
-    fixedConeHighEffPFTauDiscriminationByLeadingTrackFinding +
-    fixedConeHighEffPFTauDiscriminationByLeadingTrackPtCut +
-    fixedConeHighEffPFTauDiscriminationByLeadingPionPtCut +
-    fixedConeHighEffPFTauDiscriminationByIsolation +
-    fixedConeHighEffPFTauDiscriminationByTrackIsolation +
-    fixedConeHighEffPFTauDiscriminationByECALIsolation +
-    fixedConeHighEffPFTauDiscriminationByIsolationUsingLeadingPion +
-    fixedConeHighEffPFTauDiscriminationByTrackIsolationUsingLeadingPion +
-    fixedConeHighEffPFTauDiscriminationByECALIsolationUsingLeadingPion +
-    fixedConeHighEffPFTauDiscriminationAgainstElectron +
-    fixedConeHighEffPFTauDiscriminationAgainstMuon
+patHPSPFTauDiscrimination = cms.Sequence(
+    hpsPFTauDiscriminationByDecayModeFinding+
+    hpsPFTauDiscriminationByLooseIsolation+
+    hpsPFTauDiscriminationByMediumIsolation+
+    hpsPFTauDiscriminationByTightIsolation+
+    hpsPFTauDiscriminationAgainstElectron+
+    hpsPFTauDiscriminationAgainstMuon
 )
 patShrinkingConePFTauDiscrimination = cms.Sequence(
     shrinkingConePFTauDiscriminationByLeadingTrackFinding +
