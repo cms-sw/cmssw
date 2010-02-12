@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     MultiChainEvent
-// 
+//
 /**\class MultiChainEvent MultiChainEvent.h DataFormats/FWLite/interface/MultiChainEvent.h
 
  Description: FWLite chain event that is aware of two files at once
@@ -54,7 +54,7 @@ class MultiChainEvent: public EventBase
       typedef std::pair<edm::EventID, edm::EventID> event_id_range;
       typedef std::map<event_id_range, Long64_t>    sec_file_range_index_map;
 
-      MultiChainEvent(const std::vector<std::string>& iFileNames1, 
+      MultiChainEvent(const std::vector<std::string>& iFileNames1,
 		      const std::vector<std::string>& iFileNames2,
 		      bool useSecFileMapSorted = false );
       virtual ~MultiChainEvent();
@@ -70,24 +70,24 @@ class MultiChainEvent: public EventBase
       bool to(edm::RunNumber_t run, edm::EventNumber_t event);
       bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
-      // Go to the very first Event. 
+      // Go to the very first Event.
       const MultiChainEvent& toBegin();
-      
+
       // ---------- const member functions ---------------------
-      virtual const std::string getBranchNameFor(const std::type_info&, 
-                                                 const char*, 
-                                                 const char*, 
+      virtual const std::string getBranchNameFor(const std::type_info&,
+                                                 const char*,
+                                                 const char*,
                                                  const char*) const;
 
       /** This function should only be called by fwlite::Handle<>*/
-      virtual bool getByLabel(const std::type_info&, const char*, 
+      virtual bool getByLabel(const std::type_info&, const char*,
                               const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
       operator bool() const;
       bool atEnd() const;
-      
+
       Long64_t size() const;
 
       virtual edm::EventAuxiliary const& eventAuxiliary() const;
@@ -103,9 +103,19 @@ class MultiChainEvent: public EventBase
 
       Long64_t eventIndex()    const { return event1_->eventIndex(); }
       Long64_t eventIndexSec() const { return event2_->eventIndex(); }
-      virtual Long64_t fileIndex()          const 
+
+      fwlite::LuminosityBlock const& getLuminosityBlock() {
+        return event1_->getLuminosityBlock();
+      }
+
+      fwlite::Run const& getRun() {
+        return event1_->getRun();
+      }
+
+
+      virtual Long64_t fileIndex()          const
       { return event1_->eventIndex(); }
-      virtual Long64_t secondaryFileIndex() const 
+      virtual Long64_t secondaryFileIndex() const
       { return event2_->eventIndex(); }
 
       virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
@@ -144,10 +154,10 @@ class MultiChainEvent: public EventBase
       boost::shared_ptr<ChainEvent> event2_;  // secondary files
       boost::shared_ptr<internal::MultiProductGetter> getter_;
 
-      // speed up secondary file access with a (run range)_1 ---> index_2 map, 
+      // speed up secondary file access with a (run range)_1 ---> index_2 map,
       // when the files are sorted by run,event within the file.
       // in this case, it is sufficient to store only a run-range to index mapping.
-      // with this, the solution becomes more performant. 
+      // with this, the solution becomes more performant.
       bool                     useSecFileMapSorted_;
       sec_file_range_index_map secFileMapSorted_;
 };
