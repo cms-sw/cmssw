@@ -380,29 +380,37 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   } // end of loop on recotracks
 
   // now for strip rechits
-/*
-  edm::Handle<SiStripRecHit2DCollectionOld> rechitsrphi;
-  edm::Handle<SiStripRecHit2DCollectionOld> rechitsstereo;
-  edm::Handle<SiStripMatchedRecHit2DCollectionOld> rechitsmatched;
+  edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
+  edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
+  edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
   e.getByLabel(rphiRecHits_, rechitsrphi);
   e.getByLabel(stereoRecHits_, rechitsstereo);
   e.getByLabel(matchedRecHits_, rechitsmatched);
 
-  //std::cout << " Step A: Standard Strip RPHI RecHits found " << rechitsrphi->size() << std::endl;
-  //std::cout << " Step A: Standard Strip Stereo RecHits found " << rechitsstereo->size() << std::endl;
-  //std::cout << " Step A: Standard Strip Matched RecHits found " << rechitsmatched->size() << std::endl;
+  std::cout << " Step A: Standard Strip RPHI RecHits found " << rechitsrphi.product()->dataSize() << std::endl;
+  std::cout << " Step A: Standard Strip Stereo RecHits found " << rechitsstereo.product()->dataSize() << std::endl;
+  std::cout << " Step A: Standard Strip Matched RecHits found " << rechitsmatched.product()->dataSize() << std::endl;
   if(rechitsrphi->size() > 0) {
     //Loop over all rechits in RPHI collection (can also loop only over DetId)
-    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsrphi->begin();
-    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsrphi->end();
-    SiStripRecHit2DCollectionOld::const_iterator iterRecHit;
+//    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsrphi->begin();
+//    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsrphi->end();
+//    SiStripRecHit2DCollectionOld::const_iterator iterRecHit;
+    SiStripRecHit2DCollection::const_iterator recHitIdIterator      = (rechitsrphi.product())->begin();
+    SiStripRecHit2DCollection::const_iterator recHitIdIteratorEnd   = (rechitsrphi.product())->end();
+
 
     std::string detname ;
 
-    for ( iterRecHit = theRecHitRangeIteratorBegin; 
-          iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+//    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+//          iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+// Loop over Detector IDs
+    for ( ; recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
+      SiStripRecHit2DCollection::DetSet detset = *recHitIdIterator;
 
-      const DetId& detId =  iterRecHit->geographicalId();
+      if( detset.empty() ) continue;
+      DetId detId = DetId(detset.detId()); // Get the Detid object
+
+//      const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
 
       unsigned int subdetId = detId.subdetId();
@@ -442,39 +450,55 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	layerNumber = pxfid.disk();
 	stereo = 1;
       }
+      // Loop over rechits for this detid
+      SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
+      SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
+      SiStripRecHit2DCollection::DetSet::const_iterator iterRecHit;
+      for ( iterRecHit = rechitRangeIteratorBegin;
+           iterRecHit != rechitRangeIteratorEnd; ++iterRecHit) {
+
 /////comment out begin
-//      std::cout << "Found SiStripRPhiRecHit in " << detname << " from detid " << detId.rawId()
-//                << " subdet = " << subdetId
-//                << " layer = " << layerNumber
-//                << " Stereo = " << stereo
-//                << std::endl;
-//      std::cout << "Rechit global x/y/z/r : "
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
+      std::cout << "Found SiStripRPhiRecHit in " << detname << " from detid " << detId.rawId()
+                << " subdet = " << subdetId
+                << " layer = " << layerNumber
+                << " Stereo = " << stereo
+                << std::endl;
+      std::cout << "Rechit global x/y/z/r : "
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
 //comment out end
-      unsigned int subid = detId.subdetId();
-      fillSRecHit(subid, iterRecHit, geomDet);
-      fillEvt(e);
-      striptree_->Fill();
-      init();
-    } // end of rechit loop
+        unsigned int subid = detId.subdetId();
+        fillSRecHit(subid, iterRecHit, geomDet);
+        fillEvt(e);
+        striptree_->Fill();
+        init();
+      } // end of rechit loop
+    } // end of detid loop
   } // end of loop test on rechit size
 
   // now stereo hits
-  if(rechitsstereo->size() > 0) {
+  if(rechitsstereo.product()->dataSize() > 0) {
     //Loop over all rechits in RPHI collection (can also loop only over DetId)
-    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsstereo->begin();
-    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsstereo->end();
-    SiStripRecHit2DCollectionOld::const_iterator iterRecHit;
+//    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsstereo->begin();
+//    SiStripRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsstereo->end();
+//    SiStripRecHit2DCollectionOld::const_iterator iterRecHit;
+    SiStripRecHit2DCollection::const_iterator recHitIdIterator      = (rechitsstereo.product())->begin();
+    SiStripRecHit2DCollection::const_iterator recHitIdIteratorEnd   = (rechitsstereo.product())->end();
 
     std::string detname ;
 
-    for ( iterRecHit = theRecHitRangeIteratorBegin; 
-          iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+// Loop over Detector IDs
+    for ( ; recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
+      SiStripRecHit2DCollection::DetSet detset = *recHitIdIterator;
+//    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+//          iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
 
-      const DetId& detId =  iterRecHit->geographicalId();
+      if( detset.empty() ) continue;
+      DetId detId = DetId(detset.detId()); // Get the Detid object
+
+//      const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
 
       unsigned int subdetId = detId.subdetId();
@@ -514,39 +538,55 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	layerNumber = pxfid.disk();
 	stereo = 1;
       }
+      // Loop over rechits for this detid
+      SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
+      SiStripRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
+      SiStripRecHit2DCollection::DetSet::const_iterator iterRecHit;
+      for ( iterRecHit = rechitRangeIteratorBegin;
+           iterRecHit != rechitRangeIteratorEnd; ++iterRecHit) {
 /////comment out begin
-//      std::cout << "Found SiStripStereoRecHit in " << detname << " from detid " << detId.rawId()
-//                << " subdet = " << subdetId
-//                << " layer = " << layerNumber
-//                << " Stereo = " << stereo
-//                << std::endl;
-//      std::cout << "Rechit global x/y/z/r : "
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
+      std::cout << "Found SiStripStereoRecHit in " << detname << " from detid " << detId.rawId()
+                << " subdet = " << subdetId
+                << " layer = " << layerNumber
+                << " Stereo = " << stereo
+                << std::endl;
+      std::cout << "Rechit global x/y/z/r : "
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
 //comment out end
-      unsigned int subid = detId.subdetId();
-      fillSRecHit(subid, iterRecHit, geomDet);
-      fillEvt(e);
-      striptree_->Fill();
-      init();
-    } // end of rechit loop
+        unsigned int subid = detId.subdetId();
+        fillSRecHit(subid, iterRecHit, geomDet);
+        fillEvt(e);
+        striptree_->Fill();
+        init();
+      } // end of rechit loop
+    } // end of detid loop
   } // end of loop test on rechit size
-            
+
   // now matched hits
-  if(rechitsmatched->size() > 0) {
+  if(rechitsmatched.product()->dataSize() > 0) {
     //Loop over all rechits in RPHI collection (can also loop only over DetId)
-    SiStripMatchedRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsmatched->begin();
-    SiStripMatchedRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsmatched->end();
-    SiStripMatchedRecHit2DCollectionOld::const_iterator iterRecHit;
+    //SiStripMatchedRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorBegin = rechitsmatched->begin();
+    //SiStripMatchedRecHit2DCollectionOld::const_iterator theRecHitRangeIteratorEnd   = rechitsmatched->end();
+    //SiStripMatchedRecHit2DCollectionOld::const_iterator iterRecHit;
+    SiStripMatchedRecHit2DCollection::const_iterator recHitIdIterator      = (rechitsmatched.product())->begin();
+    SiStripMatchedRecHit2DCollection::const_iterator recHitIdIteratorEnd   = (rechitsmatched.product())->end();
 
     std::string detname ;
 
-    for ( iterRecHit = theRecHitRangeIteratorBegin; 
-          iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+// Loop over Detector IDs
+    for ( ; recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
+      SiStripMatchedRecHit2DCollection::DetSet detset = *recHitIdIterator;
 
-      const DetId& detId =  iterRecHit->geographicalId();
+      if( detset.empty() ) continue;
+      DetId detId = DetId(detset.detId()); // Get the Detid object
+
+//    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+//          iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+
+//      const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
 
       unsigned int subdetId = detId.subdetId();
@@ -586,31 +626,37 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	layerNumber = pxfid.disk();
 	stereo = 1;
       }
+      // Loop over rechits for this detid
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator iterRecHit;
+      for ( iterRecHit = rechitRangeIteratorBegin;
+           iterRecHit != rechitRangeIteratorEnd; ++iterRecHit) {
 /////comment out begin
-//      std::cout << "Found SiStripMatchedRecHit in " << detname << " from detid " << detId.rawId()
-//                << " subdet = " << subdetId
-//                << " layer = " << layerNumber
-//                << " Stereo = " << stereo
-//                << std::endl;
-//      std::cout << "Rechit global x/y/z/r : "
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
-//                << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
+      std::cout << "Found SiStripMatchedRecHit in " << detname << " from detid " << detId.rawId()
+                << " subdet = " << subdetId
+                << " layer = " << layerNumber
+                << " Stereo = " << stereo
+                << std::endl;
+      std::cout << "Rechit global x/y/z/r : "
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).x() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).y() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
+                << geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
 //comment out end
-      unsigned int subid = detId.subdetId();
-      fillSRecHit(subid, iterRecHit, geomDet);
-      fillEvt(e);
-      striptree_->Fill();
-      init();
-    } // end of rechit loop
+        unsigned int subid = detId.subdetId();
+        fillSRecHit(subid, iterRecHit, geomDet);
+        fillEvt(e);
+        striptree_->Fill();
+        init();
+      } // end of rechit loop
+    } // end of detidt loop
   } // end of loop test on rechit size
-*/
             
 } // end analyze function
 
 void StdHitNtuplizer::fillSRecHit(const int subid, 
-                                   SiStripRecHit2DCollectionOld::const_iterator pixeliter,
+                                   SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
                                    const GeomDet* theGeom)
 {
   LocalPoint lp = pixeliter->localPosition();
@@ -628,7 +674,7 @@ void StdHitNtuplizer::fillSRecHit(const int subid,
   striprecHit_.subid = subid;
 }
 void StdHitNtuplizer::fillSRecHit(const int subid, 
-                                   SiStripMatchedRecHit2DCollectionOld::const_iterator pixeliter,
+                                   SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
                                    const GeomDet* theGeom)
 {
   LocalPoint lp = pixeliter->localPosition();
