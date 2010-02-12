@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/12/08 10:34:44 $
- * $Revision: 1.81 $
+ * $Date: 2009/12/11 20:29:46 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -411,9 +411,6 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
-
-      LogDebug("EBOccupancyTask") << " det id = " << id;
-      LogDebug("EBOccupancyTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
         LogWarning("EBOccupancyTask") << " det id = " << id;

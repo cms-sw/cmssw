@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2009/08/02 15:46:41 $
- * $Revision: 1.49 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -414,9 +414,6 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
-      LogDebug("EEPedestalTask") << " det id = " << id;
-      LogDebug("EEPedestalTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       EEDataFrame dataframe = (*digiItr);
 
       for (int i = 0; i < 10; i++) {
@@ -544,9 +541,6 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
-
-      LogDebug("EEPedestalTask") << " det id = " << pnItr->id();
-      LogDebug("EEPedestalTask") << " sm, num " << ism << " " << num;
 
       for (int i = 0; i < 50; i++) {
 

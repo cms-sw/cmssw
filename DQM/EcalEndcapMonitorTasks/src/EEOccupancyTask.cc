@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2009/12/08 10:34:45 $
- * $Revision: 1.66 $
+ * $Date: 2009/12/11 20:31:15 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -614,9 +614,6 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
-
-      LogDebug("EEOccupancyTask") << " det id = " << id;
-      LogDebug("EEOccupancyTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
 
       if ( xix <= 0. || xix >= 100. || xiy <= 0. || xiy >= 100. ) {
         LogWarning("EEOccupancyTask") << " det id = " << id;
