@@ -1,3 +1,15 @@
+V00-03-02:
+---------
+
+2010-02-12  author  <author@srv-C2C04-22>
+
+	* src/LaserSorter.cc: verbosity change
+
+	* interface/LmfSource.h, python/LmfSource_cfi.py, src/LmfSource.cc:
+	add inputDir parameter and fix behaviour when watchFileList_ = true
+
+	* src/LaserSorter.cc: endless loop bug fix
+
 V00-03-01:
 ---------
 	
