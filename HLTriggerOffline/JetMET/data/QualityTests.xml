@@ -7,7 +7,7 @@
 	<PARAM name="warning">0.5</PARAM>
 </QTEST>
 
-<LINK name="HLT/HLTJETMET/Single*/*Turn-On*">
+<LINK name="HLT/HLTJETMET/*/*Turn-On*">
 	<TestName activate="true">KolmogorovQTest0.3</TestName>
 </LINK>
 

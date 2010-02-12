@@ -16,6 +16,7 @@ Extensions from Len Apanasevich.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+//#include "FWCore/Framework/interface/TriggerNames.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -45,10 +46,6 @@ Extensions from Len Apanasevich.
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-typedef math::XYZTLorentzVectorD   LV;
-typedef std::vector<LV>            LVColl;
-
-
 
 class HLTJetMETValidation : public edm::EDAnalyzer {
   
@@ -59,61 +56,35 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
  private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  //JL    
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
 
   void getHLTResults(const edm::TriggerResults&);
 
-//JoCa  //helper functions
-//JoCa  bool match(const LV&,const LVColl&,double);
-//JoCa  std::vector<double> calcEfficiency(int,int);
-//JoCa  
-//JoCa
-//JoCa
   /// InputTag of TriggerEventWithRefs to analyze
   edm::InputTag triggerEventObject_;
   edm::InputTag CaloJetAlgorithm, GenJetAlgorithm, CaloMETColl, GenMETColl, HLTriggerResults;
-//JoCa
-//JoCa  //reference Collection
-//JoCa  edm::InputTag refCollection_;
-//JoCa  edm::InputTag refLeptonCollection_;
-//JoCa    
+
   //Just a tag for better file organization
   std::string triggerTag_, MyTrigger;
-//JoCa
-  edm::InputTag _reffilter;
-  edm::InputTag _probefilter;
-  edm::InputTag _HLTPath;
-//JoCa  //Parameters
-  std::string outFile_;
-//JoCa  std::string logFile_;
-//JoCa  double matchDeltaRL1_;
-//JoCa  double matchDeltaRHLT_;
-//JoCa
-//JoCa  //MonitorElements
-//JoCa
-//JoCa  /*Trigger Bits for Tau and Reference Trigger*/
-  MonitorElement *test_histo;
-  MonitorElement *_meRecoJetEta, *_meRecoJetEtaRef, *_meRecoJetEtaProbe, *_meRecoJetEtaTrg;
-  MonitorElement *_meRecoJetPhi, *_meRecoJetPhiRef, *_meRecoJetPhiProbe, *_meRecoJetPhiTrg;
-  MonitorElement *_meRecoJetPt, *_meRecoJetPtRef, *_meRecoJetPtProbe, *_meRecoJetPtTrg;
-  MonitorElement *_meGenJetPt,  *_meGenJetPtRef , *_meGenJetPtProbe , *_meGenJetPtTrg;
-  MonitorElement *_meGenJetEta,  *_meGenJetEtaRef , *_meGenJetEtaProbe , *_meGenJetEtaTrg;
-  MonitorElement *_meGenJetPhi,  *_meGenJetPhiRef , *_meGenJetPhiProbe , *_meGenJetPhiTrg;
-  MonitorElement *_meRecoMET,   *_meRecoMETRef  , *_meRecoMETProbe  , *_meRecoMETTrg;
-  MonitorElement *_meGenMET,    *_meGenMETRef  ,  *_meGenMETProbe  ,  *_meGenMETTrg;
-  MonitorElement *_meRefPt;
-  MonitorElement *_meProbePt;
-  MonitorElement *_triggerResults;
 
-  //JL
-  //MonitorElement *_meTurnOnMET;
-  //MonitorElement *_meTurnOnJetPt;
+  edm::InputTag _HLTPath;
+  edm::InputTag _HLTLow;
+
+  std::string outFile_;
+
+  MonitorElement *_meRecoJetEta, *_meRecoJetEtaTrg, *_meRecoJetEtaTrgLow;
+  MonitorElement *_meRecoJetPhi, *_meRecoJetPhiTrg, *_meRecoJetPhiTrgLow;
+  MonitorElement *_meRecoJetPt, *_meRecoJetPtTrg, *_meRecoJetPtTrgLow;
+  MonitorElement *_meGenJetPt, *_meGenJetPtTrg,  *_meGenJetPtTrgLow;
+  MonitorElement *_meGenJetEta, *_meGenJetEtaTrg, *_meGenJetEtaTrgLow;
+  MonitorElement *_meGenJetPhi, *_meGenJetPhiTrg, *_meGenJetPhiTrgLow;
+  MonitorElement *_meRecoMET, *_meRecoMETTrg, *_meRecoMETTrgLow;
+  MonitorElement *_meGenMET, *_meGenMETTrg, *_meGenMETTrgLow;
+  MonitorElement *_meGenHT, *_meGenHTTrg, *_meGenHTTrgLow;
+  MonitorElement *_meRecoHT, *_meRecoHTTrg, *_meRecoHTTrgLow;
+  MonitorElement *_triggerResults;
 
 //Define Numbers 
 
-  int NRef;
-  int NProbe;
   int evtCnt;
 
 // store hlt information in a map
