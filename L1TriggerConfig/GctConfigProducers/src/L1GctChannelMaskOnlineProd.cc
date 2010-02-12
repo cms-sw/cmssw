@@ -51,6 +51,7 @@ L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
 
   std::vector< std::string > rgnMaskCols;
   rgnMaskCols.push_back("RCT_CRATE_0_RGN_MASK");
+  rgnMaskCols.push_back("RCT_CRATE_1_RGN_MASK");
   rgnMaskCols.push_back("RCT_CRATE_2_RGN_MASK");
   rgnMaskCols.push_back("RCT_CRATE_3_RGN_MASK");
   rgnMaskCols.push_back("RCT_CRATE_4_RGN_MASK");

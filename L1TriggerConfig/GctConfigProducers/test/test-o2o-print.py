@@ -37,12 +37,12 @@ process.load("L1TriggerConfig.L1ScalesProducers.L1JetEtScaleOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HfRingEtScaleOnline_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1HtMissScaleOnline_cfi")
 
-process.load("L1TriggerConfig.GctConfigProducers.L1GctChannelMaskOnline_cfi")
-process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
-    record = cms.string('L1GctChannelMaskRcd'),
-        type = cms.string('L1GctChannelMask'),
-        key = cms.string('Default')
-    ))
+#process.load("L1TriggerConfig.GctConfigProducers.L1GctChannelMaskOnline_cfi")
+#process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
+#    record = cms.string('L1GctChannelMaskRcd'),
+#        type = cms.string('L1GctChannelMask'),
+#        key = cms.string('Default')
+#    ))
 
 
 process.maxEvents = cms.untracked.PSet(
