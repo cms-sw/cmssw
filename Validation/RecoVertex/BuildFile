@@ -6,6 +6,7 @@
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=DQMServices/Core>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/TrackerDigiSimLink>
@@ -43,6 +44,7 @@
    <use name=DataFormats/RecoCandidate>
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/VertexReco>
+   <use name=DQMServices/Core>
    <use name=CommonTools/Statistics>
    <use name=clhep>
    <use name=boost>
