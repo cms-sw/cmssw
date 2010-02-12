@@ -246,6 +246,15 @@ Run::atEnd() const
 }
 
 
+const std::string
+Run::getBranchNameFor(const std::type_info& iInfo,
+                  const char* iModuleLabel,
+                  const char* iProductInstanceLabel,
+                  const char* iProcessLabel) const
+{
+    return dataHelper_.getBranchNameFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
+}
+
 bool
 Run::getByLabel(const std::type_info& iInfo,
                   const char* iModuleLabel,

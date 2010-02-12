@@ -245,6 +245,16 @@ LuminosityBlock::atEnd() const
 }
 
 
+const std::string
+LuminosityBlock::getBranchNameFor(const std::type_info& iInfo,
+                  const char* iModuleLabel,
+                  const char* iProductInstanceLabel,
+                  const char* iProcessLabel) const
+{
+    return dataHelper_.getBranchNameFor(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel);
+}
+
+
 bool
 LuminosityBlock::getByLabel(const std::type_info& iInfo,
                   const char* iModuleLabel,
@@ -361,14 +371,15 @@ namespace {
   };
 }
 
-// fwlite::Run const& LuminosityBlock::getRun() {
-//   if (not run_) {
-//     // Branch map pointer not really being shared, owned by event, have to trick Run
+fwlite::Run const& LuminosityBlock::getRun() const {
+  if (not run_) {
+    // Branch map pointer not really being shared, owned by event, have to trick Run
+    run_ = boost::shared_ptr<fwlite::Run> (new fwlite::Run(boost::shared_ptr<BranchMapReader>(&*branchMap_,NoDelete())));
 //     run_ = (boost::shared_ptr<fwlite::Run>) new fwlite::Run(boost::shared_ptr<BranchMapReader>(*branchMap_));
-//   }
-//   edm::RunNumber_t run = luminosityBlockAuxiliary().run();
-//   run_->to(run);
-//   return *run_;
-// }
+  }
+  edm::RunNumber_t run = luminosityBlockAuxiliary().run();
+  run_->to(run);
+  return *run_;
+}
 
 }

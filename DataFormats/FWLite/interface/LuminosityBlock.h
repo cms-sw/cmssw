@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: LuminosityBlock.h,v 1.3 2010/01/29 16:24:21 ewv Exp $
+// $Id: LuminosityBlock.h,v 1.4 2010/02/11 17:21:38 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -79,10 +79,10 @@ namespace fwlite {
          const LuminosityBlock& toBegin();
 
          // ---------- const member functions ---------------------
-//          virtual const std::string getBranchNameFor(const std::type_info&,
-//                                                     const char*,
-//                                                     const char*,
-//                                                     const char*) const;
+         virtual const std::string getBranchNameFor(const std::type_info&,
+                                                    const char*,
+                                                    const char*,
+                                                    const char*) const;
 
          // This function should only be called by fwlite::Handle<>
          virtual bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
@@ -106,7 +106,7 @@ namespace fwlite {
          static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
          // ---------- member functions ---------------------------
-//          fwlite::Run const& getRun();
+         fwlite::Run const& getRun() const;
 
       private:
          friend class internal::ProductGetter;
@@ -124,7 +124,7 @@ namespace fwlite {
          // ---------- member data --------------------------------
          mutable boost::shared_ptr<BranchMapReader> branchMap_;
 
-         boost::shared_ptr<fwlite::Run>  run_;
+         mutable boost::shared_ptr<fwlite::Run>  run_;
 
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<const char*> labels_;
