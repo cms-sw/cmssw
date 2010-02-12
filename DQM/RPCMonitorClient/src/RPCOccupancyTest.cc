@@ -315,7 +315,9 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
       else  BOccupancy+=myMe->getBinContent(strip);
     }
 	    
-    float asym =  fabs((FOccupancy - BOccupancy )/totEnt);
+
+    float asym = 0;
+    if(totEnt != 0 ) asym =  fabs((FOccupancy - BOccupancy )/totEnt);
     
     if(AsyMe)  AsyMe->setBinContent(xBin,yBin,asym );
 
