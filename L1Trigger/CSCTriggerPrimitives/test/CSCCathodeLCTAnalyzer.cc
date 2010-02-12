@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2009/03/26 15:38:07 $
- * $Revision: 1.13 $
+ * $Date: 2009/03/27 17:15:40 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -211,7 +211,7 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
   // Parameters defining time window for accepting hits; should come from
   // configuration file eventually.
   const int fifo_tbins  = 12;
-  const int hit_persist = 6;
+  const int hit_persist = 4;
   const int drift_delay = 2;
 
   // 'Staggering' for this layer.
