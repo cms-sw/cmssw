@@ -32,12 +32,12 @@ columns:
 table 3:  LUMIDETAIL (insert 3*3564 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
 columns: 
           lumidetail_id(uint64, PK)
-          lumisummary_id(FK refers to LUMISUMMARY),
+          lumisummary_id(FK refers to LUMISUMMARY.lumisummary_id),
 	  bxinfo(blob),
           algoname(string), //occ1,occ2,etsum,bran
           
 ======
-table 4:  TRGTABLE (insert 192 rows per run+cmsls/populate from GT-DB)
+table 4:  TRG (insert 192 rows per run+cmsls/populate from GT-DB)
 columns:  
           trg_id(uint64, PK),
           runnum(uint32),
@@ -50,7 +50,7 @@ columns:
           hltpath(string) //to be populated in 2nd phase
 
 ======
-table 5: HLTTABLE (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
+table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
          hlt_id(uint64, PK),
 	 runnum(uint32),
          cmsluminum(uint32),
@@ -80,12 +80,11 @@ table 8: INTLUMIHLT (insert 1 row per combinatorial of run+lumiversion+hltpath)
 	 hltpath(string),
          recordedlumi( float )
 
- ====== helper tables======
-table 9: IDTABLE (helper table keeping track of all the ids )
-         lumisummary_id (uint64),
-         lumidetail_id (uint64),
-         hlt_id (uint64),
-         trg_id (uint64)       
+ ====== other helper id tables======
+         lumisummary_id, NEXTID (uint64,PK)
+         lumidetail_id, NEXTID (uint64,PK),
+         hlt_id, NEXTID (uint64),
+         trg_id, NEXTID (uint64)       
  
 From LumiProducer, we query lumisummary,lumidetail,trg,hlt data in 100 LS(tunable parameter) batch into memory in one DB connection then close the connection. When a new LS is requested, we open a new DB connection asking for this LS+100 into memory.  
 
