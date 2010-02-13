@@ -163,6 +163,7 @@ HLTTauRefProducer::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
   iEvent.getByLabel(e_ctfTrackCollection_, pCtfTracks);
   if (!pCtfTracks.isValid()) {
   edm::LogInfo("")<< "Error! Can't get " << e_ctfTrackCollection_.label() << " by label. ";
+  iEvent.put(product_Electrons,"Electrons"); 
   return;
   }
   const reco::TrackCollection * ctfTracks = pCtfTracks.product();
