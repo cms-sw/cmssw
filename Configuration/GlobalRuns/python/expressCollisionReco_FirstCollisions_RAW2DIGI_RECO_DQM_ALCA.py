@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 import FWCore.ParameterSet.Config as cms
 
@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -167,6 +167,15 @@ process.pathALCARECOMuAlCalIsolatedMu = cms.Path(process.seqALCARECOMuAlCalIsola
 process.pathALCARECOTkAlMinBias = cms.Path(process.seqALCARECOTkAlMinBias*process.ALCARECOTkAlMinBiasDQM)
 process.pathALCARECODQM = cms.Path(process.MEtoEDMConverter)
 process.endjob_step = cms.Path(process.endOfProcess)
+
+# fix for DQMOffline/Trigger/src/HLTTauDQMOfflineSource.cc
+# GDR, 13/02/2010
+process.dqmoffline_step.remove(process.hltTauOfflineMonitor_PFTaus)
+process.dqmoffline_step.remove(process.hltTauOfflineMonitor_Photons)
+process.dqmoffline_step.remove(process.hltTauOfflineMonitor_HPD)
+process.dqmoffline_step.remove(process.hltTauOfflineMonitor_Inclusive)
+process.dqmoffline_step.remove(process.hltTauMonitor)
+process.dqmoffline_step.remove(process.hltTauElectronMonitor)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOSiStripCalZeroBias,process.pathALCARECORpcCalHLT,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlMinBias,process.pathALCARECODQM,process.endjob_step)
