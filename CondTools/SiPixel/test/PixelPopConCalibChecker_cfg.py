@@ -20,9 +20,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # firstRun and lastRun should both be set to the run number you want to check
 process.source = cms.Source('EmptyIOVSource',
                             timetype = cms.string('runnumber'),
-                            firstRun = cms.untracked.uint32(1),
-                            lastRun = cms.untracked.uint32(1),
-                            interval = cms.uint32(1)
+                            firstValue = cms.uint64(1),
+                            lastValue = cms.uint64(1),
+                            interval = cms.uint64(1)
 )
 
 from CondTools.SiPixel.SiPixelCalibConfiguration_cfi import *

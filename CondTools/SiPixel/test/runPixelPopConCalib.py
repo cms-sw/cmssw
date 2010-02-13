@@ -193,7 +193,8 @@ def main(argv):
     
             
     # write the cfg.py file
-    writePixelPopConCalibCfg(filename = writeFilename, 
+    writePixelPopConCalibCfg(filename = writeFilename,
+                             calibFilename = calibFilename,
                              cfgTemplate = cfgTemplate, 
                              runNumber = runNumber,
                              tagName = tagName,
@@ -205,7 +206,8 @@ def main(argv):
     # write the checker
     if writeChecker: 
         writePixelPopConCalibCheckerCfg(filename = writeCheckerFilename, 
-                                        cfgTemplate = writeCheckerTemplate, 
+                                        cfgTemplate = writeCheckerTemplate,
+                                        calibFilename = calibFilename,
                                         runNumber = runNumber,
                                         tagName = tagName,
                                         databaseConnect = databaseConnect,
@@ -246,7 +248,8 @@ def getTagNameFromFile(filename, debugMode = False):
             # otherwise, it is an unknown calibration type, return False
             return False
         
-def writePixelPopConCalibCfg(filename, cfgTemplate, runNumber = '', tagName = '', 
+def writePixelPopConCalibCfg(filename, cfgTemplate, calibFilename = '',
+                             runNumber = '', tagName = '', 
                              databaseConnect = '', logdbConnect = '', 
                              authenticationPath = '', debugMode = False):
     """
@@ -258,7 +261,9 @@ def writePixelPopConCalibCfg(filename, cfgTemplate, runNumber = '', tagName = ''
     # open the new cfg file and add the necessary lines
     f = open(filename, 'a')
     f.write('\n')
-    
+
+    if calibFilename:
+        f.write('process.PixelPopConCalibAnalyzer.Source.connectString = "file://' + calibFilename + '"\n')                
     if runNumber:
         f.write('process.PixelPopConCalibAnalyzer.Source.sinceIOV = ' + runNumber + '\n')
     if logdbConnect:
@@ -288,8 +293,8 @@ def writePixelPopConCalibCheckerCfg(filename, cfgTemplate, calibFilename = '', r
     if calibFilename:
         f.write('process.demo.filename = "' + calibFilename + '"\n')
     if runNumber:
-        f.write('process.source.firstRun = ' + runNumber + '\n')
-        f.write('process.source.lastRun = ' + runNumber + '\n')
+        f.write('process.source.firstValue = ' + runNumber + '\n')
+        f.write('process.source.lastValue = ' + runNumber + '\n')
     if tagName:
         f.write('process.sipixelcalib_essource.toGet[0].tag = "' + tagName + '"\n')
     if databaseConnect:

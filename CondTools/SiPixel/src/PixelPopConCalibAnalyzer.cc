@@ -14,7 +14,7 @@
 //
 // Original Author:  Michael Eads
 //         Created:  8 Feb 2008
-// $Id: PixelPopConCalibAnalyzer.cc,v 1.1 2008/02/29 19:13:22 meads Exp $
+// $Id: PixelPopConCalibAnalyzer.cc,v 1.3 2010/01/21 21:11:46 meads Exp $
 //
 //
 
@@ -27,4 +27,4 @@
 
 typedef popcon::PopConAnalyzer<PixelPopConCalibSourceHandler> PixelPopConCalibAnalyzer;
 
-DEFINE_FWK_MODULE(PixelPopConCalibAnalyzer);
+//DEFINE_FWK_MODULE(PixelPopConCalibAnalyzer);

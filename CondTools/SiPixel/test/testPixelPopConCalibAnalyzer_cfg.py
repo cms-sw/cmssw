@@ -15,9 +15,9 @@ process.load("CondTools.SiPixel.PixelPopConCalibAnalyzer_cfi")
 # define the source for the CMSSW process
 process.source = cms.Source('EmptyIOVSource',
                             timetype = cms.string('runnumber'),
-                            firstRun = cms.untracked.uint32(1),
-                            lastRun = cms.untracked.uint32(1),
-                            interval = cms.uint32(1)
+                            firstValue = cms.uint64(1),
+                            lastValue = cms.uint64(1),
+                            interval = cms.uint64(1)
                             )
 
 # change the location the calib.dat data is read from
