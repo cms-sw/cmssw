@@ -25,7 +25,7 @@ dtDigiMonitor = cms.EDAnalyzer("DTDigiTask",
     defaultTmax = cms.int32(500),
     performPerWireT0Calibration = cms.bool(True),
     # the     # of luminosity blocks to reset the histos
-    ResetCycle = cms.untracked.int32(100),
+    ResetCycle = cms.untracked.int32(400),
     doAllHitsOccupancies = cms.untracked.bool(True),
     doNoiseOccupancies = cms.untracked.bool(False),
     doInTimeOccupancies = cms.untracked.bool(False),                                
