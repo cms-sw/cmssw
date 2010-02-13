@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.5 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWParameterSetterBase.cc,v 1.6 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -103,8 +103,22 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
       assert(paramClass != ROOT::Reflex::Type() );
 
       //the corresponding setter has the same name but with 'Setter' at the end
-      std::string name = paramClass.Name(ROOT::Reflex::SCOPED);
-      name += "Setter";
+      std::string name = paramClass.Name();
+      // FIXME: there was a convention between parameter class names and associated
+      //        setters. The following works around the problem introduced by
+      //        the generic parameter class but it is clear that a better 
+      //        way of doing the binding is required. Notice that there are only 5 
+      //        different type of FW*Parameter.
+      if (name == "FWGenericParameter<bool>")
+         name = "FWBoolParameterSetter";
+      else if (name == "FWGenericParameter<std::string>")
+         name = "FWStringParameterSetter";
+      else if (name == "FWGenericParameterWithRange<double>")
+         name = "FWDoubleParameterSetter";
+      else if (name == "FWGenericParameterWithRange<long int>")
+         name = "FWLongParameterSetter";
+      else
+         name += "Setter";
 
       ROOT::Reflex::Type setterClass( ROOT::Reflex::Type::ByName( name ) );
       if(setterClass == ROOT::Reflex::Type() ) {

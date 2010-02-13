@@ -17,6 +17,10 @@
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
   <class name="FWDoubleParameter"/>
+  <class name="FWGenericParameterWithRange<double>"/>
+  <class name="FWGenericParameterWithRange<long>"/>
+  <class name="FWGenericParameter<std::string>"/>
+  <class name="FWGenericParameter<bool>"/>
   <class name="FWBoolParameterSetter"/>
   <class name="FWBoolParameter"/>
   <class name="FWStringParameterSetter"/>

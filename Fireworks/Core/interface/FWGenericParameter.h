@@ -15,7 +15,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWBoolParameter.h,v 1.3 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWGenericParameter.h,v 1.1 2010/02/12 15:36:46 eulisse Exp $
 //
 
 // system include files
@@ -31,9 +31,13 @@
 template <class T>
 class FWGenericParameter : public FWParameterBase
 {
-
 public:
    typedef T value_type;
+
+   FWGenericParameter()
+   : FWParameterBase(0, "invalid")
+   {}
+
    FWGenericParameter(FWParameterizable* iParent,
                       const std::string& iName,
                       const T &iDefault=T())
@@ -83,9 +87,9 @@ public:
    sigc::signal<void,T> changed_;
 
 private:
-   FWGenericParameter(const FWGenericParameter&) {}    // stop default
+   FWGenericParameter(const FWGenericParameter&);   // stop default
 
-   const FWGenericParameter& operator=(const FWGenericParameter&) {}    // stop default
+   const FWGenericParameter& operator=(const FWGenericParameter&);   // stop default
 
    // ---------- member data --------------------------------
    T m_value;

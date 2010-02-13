@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWLongParameter.h,v 1.3 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWGenericParameterWithRange.h,v 1.1 2010/02/12 15:36:46 eulisse Exp $
 //
 
 // user include files
@@ -29,6 +29,10 @@ class FWGenericParameterWithRange : public FWGenericParameter<T>
 {
 
 public:
+   FWGenericParameterWithRange(void)
+   :FWGenericParameter<T>()
+   {}
+
    FWGenericParameterWithRange(FWParameterizable* iParent,
                                const std::string& iName,
                                const T &iDefault=T(),
