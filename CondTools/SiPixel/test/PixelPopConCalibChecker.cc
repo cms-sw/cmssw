@@ -181,7 +181,8 @@ PixelPopConCalibChecker::analyze(const edm::Event& iEvent, const edm::EventSetup
 } // PixelPopConCalibChecker::analyze()
 
 void
-PixelPopConCalibChecker::beginJob(const edm::EventSetup&) 
+//PixelPopConCalibChecker::beginJob(const edm::EventSetup&) 
+PixelPopConCalibChecker::beginJob() 
 {
 	
 } // void PixelPopConCalibChecker::beginJob(const edm::EventSetup&)
