@@ -97,8 +97,8 @@ ecalHostEE    = 'srv-s2f19-27'.lower()
 cmsLiveHostEB = 'srv-c2c05-06'.lower()
 cmsLiveHostEE = 'srv-c2c05-07'.lower()
 
-cmsPlayHostEB = 'srv-c2d05-15'.lower()
-cmsPlayHostEE = 'srv-c2d05-11'.lower()
+cmsPlayHostEB = 'srv-c2d04-25'.lower()
+cmsPlayHostEE = 'srv-c2d04-26'.lower()
 
 host = socket.gethostname().split('.')[0].lower()
 
@@ -368,7 +368,7 @@ if (liveECAL == 1) :
     consumerName = cms.untracked.string('Ecal DQM Consumer'),
     SelectHLTOutput = cms.untracked.string('hltOutputDQM'),
     max_queue_depth = cms.int32(5),
-    maxEventRequestRate = cms.untracked.double(25.0),
+    maxEventRequestRate = cms.untracked.double(100.0),
     SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('*') ),
     headerRetryInterval = cms.untracked.int32(3)
   )
