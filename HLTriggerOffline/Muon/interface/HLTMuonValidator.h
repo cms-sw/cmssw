@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/01/21 20:40:54 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/22 21:39:37 $
+ *  $Revision: 1.5 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -28,8 +29,14 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
 
 #include <vector>
 #include <set>
@@ -94,7 +101,6 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   void analyzePath(const std::string &, const std::string &,
                    const std::vector<MatchStruct> &, 
                    edm::Handle<trigger::TriggerEventWithRefs>);
-  const reco::Candidate * findMother(const reco::Candidate *);
   bool identical(const reco::Candidate *, const reco::Candidate *);
   unsigned int findMatch(const reco::Candidate *, std::vector<MatchStruct> &, 
                          double, std::string);
@@ -103,8 +109,14 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   std::string  hltProcessName_;
 
   std::vector<std::string> hltPathsToCheck_;
-  std::set<std::string> hltPaths_;
-  std::map< std::string, std::vector<std::string> > filterLabels_;
+  std::set   <std::string> hltPaths_;
+  std::map   <std::string, std::vector<std::string> > filterLabels_;
+
+  std::string genParticleLabel_;
+  std::string     recMuonLabel_;
+  std::string      l1CandLabel_;
+  std::string      l2CandLabel_;
+  std::string      l3CandLabel_;
 
   std::vector<double> parametersEta_;
   std::vector<double> parametersPhi_;
@@ -115,6 +127,11 @@ class HLTMuonValidator : public edm::EDAnalyzer {
   double       cutMaxEta_;
   unsigned int cutMotherId_;
   std::vector<double> cutsDr_;
+  std::string genMuonCut_;
+  std::string recMuonCut_;
+
+  StringCutObjectSelector<reco::GenParticle> * genMuonSelector_;
+  StringCutObjectSelector<reco::Muon       > * recMuonSelector_;
 
   DQMStore* dbe_;
   std::map<std::string, MonitorElement *> elements_;
