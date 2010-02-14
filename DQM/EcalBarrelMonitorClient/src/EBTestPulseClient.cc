@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/01/25 21:12:24 $
- * $Revision: 1.217 $
+ * $Date: 2010/02/14 14:35:45 $
+ * $Revision: 1.218 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -155,12 +155,6 @@ void EBTestPulseClient::beginRun(void) {
   jevt_ = 0;
 
   this->setup();
-
-#ifdef WITH_ECAL_COND_DB
-  EcalErrorMask::fetchDataSet(&mask1_);
-  EcalErrorMask::fetchDataSet(&mask2_);
-  EcalErrorMask::fetchDataSet(&mask3_);
-#endif
 
 }
 
@@ -963,9 +957,9 @@ void EBTestPulseClient::analyze(void) {
         // masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask1_.size() != 0 ) {
+        if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1_.begin(); m != mask1_.end(); m++) {
+          for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 
@@ -990,9 +984,9 @@ void EBTestPulseClient::analyze(void) {
         // TT masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask3_.size() != 0 ) {
+        if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask3_.begin(); m != mask3_.end(); m++) {
+          for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 
@@ -1074,9 +1068,9 @@ void EBTestPulseClient::analyze(void) {
       // masking
 
 #ifdef WITH_ECAL_COND_DB
-      if ( mask2_.size() != 0 ) {
+      if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
         map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-        for (m = mask2_.begin(); m != mask2_.end(); m++) {
+        for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
 
           EcalLogicID ecid = m->first;
 

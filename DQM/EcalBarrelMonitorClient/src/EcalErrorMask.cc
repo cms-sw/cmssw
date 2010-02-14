@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.20 2010/01/25 21:12:25 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.21 2010/01/25 21:34:14 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.20 $
-  \date $Date: 2010/01/25 21:12:25 $
+  \version $Revision: 1.21 $
+  \date $Date: 2010/01/25 21:34:14 $
 */
 
 #ifdef WITH_ECAL_COND_DB
@@ -642,56 +642,6 @@ void EcalErrorMask::writeDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) {
       eConn->insertDataSet( &EcalErrorMask::mapMemTTErrors_,   runIOV );
 
   }
-
-}
-
-//----------------------------------------------------------------------------------
-
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap ) {
-
-  fillMap->clear();
-  *fillMap = EcalErrorMask::mapCrystalErrors_;
-  return;
-
-}
-
-//----------------------------------------------------------------------------------
-
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap ) {
-
-  fillMap->clear();
-  *fillMap = EcalErrorMask::mapTTErrors_;
-  return;
-
-}
-
-//----------------------------------------------------------------------------------
-
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunPNErrorsDat>* fillMap ) {
-
-  fillMap->clear();
-  *fillMap = EcalErrorMask::mapPNErrors_;
-  return;
-
-}
-
-//----------------------------------------------------------------------------------
-
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemChErrorsDat>* fillMap ) {
-
-  fillMap->clear();
-  *fillMap = EcalErrorMask::mapMemChErrors_;
-  return;
-
-}
-
-//----------------------------------------------------------------------------------
-
-void EcalErrorMask::fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap ) {
-
-  fillMap->clear();
-  *fillMap = EcalErrorMask::mapMemTTErrors_;
-  return;
 
 }
 #endif

@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/01/25 21:12:24 $
- * $Revision: 1.28 $
+ * $Date: 2010/02/14 14:35:45 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -98,10 +98,6 @@ void EBStatusFlagsClient::beginRun(void) {
   jevt_ = 0;
 
   this->setup();
-
-#ifdef WITH_ECAL_COND_DB
-  EcalErrorMask::fetchDataSet(&mask1_);
-#endif
 
 }
 
@@ -221,9 +217,9 @@ void EBStatusFlagsClient::analyze(void) {
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
         
-        if ( mask1_.size() != 0 ) {
+        if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask1_.begin(); m != mask1_.end(); m++) {
+          for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
       
             EcalLogicID ecid = m->first;
       

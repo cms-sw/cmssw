@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2010/01/25 21:12:25 $
- * $Revision: 1.28 $
+ * $Date: 2010/02/14 14:35:46 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -27,9 +27,6 @@ class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
-class EcalLogicID;
-class RunCrystalErrorsDat;
-class RunTTErrorsDat;
 #endif
 
 class EETimingClient : public EEClient {
@@ -111,11 +108,6 @@ MonitorElement* mer01_[18];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
-
-#ifdef WITH_ECAL_COND_DB
-map<EcalLogicID, RunCrystalErrorsDat> mask1_;
-map<EcalLogicID, RunTTErrorsDat> mask2_;
-#endif
 
 };
 
