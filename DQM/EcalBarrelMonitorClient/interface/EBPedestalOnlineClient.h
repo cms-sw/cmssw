@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineClient.h
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.53 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,6 +28,9 @@ class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+class EcalLogicID;
+class RunCrystalErrorsDat;
+class RunTTErrorsDat;
 #endif
 
 class EBPedestalOnlineClient : public EBClient {
@@ -103,6 +106,11 @@ MonitorElement* mer03_[36];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
+
+#ifdef WITH_ECAL_COND_DB
+map<EcalLogicID, RunCrystalErrorsDat> mask1_;
+map<EcalLogicID, RunTTErrorsDat> mask2_;
+#endif
 
 };
 

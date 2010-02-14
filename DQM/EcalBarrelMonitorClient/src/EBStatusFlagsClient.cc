@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.27 $
+ * $Date: 2010/01/25 21:12:24 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -99,6 +99,10 @@ void EBStatusFlagsClient::beginRun(void) {
 
   this->setup();
 
+#ifdef WITH_ECAL_COND_DB
+  EcalErrorMask::fetchDataSet(&mask1_);
+#endif
+
 }
 
 void EBStatusFlagsClient::endJob(void) {
@@ -188,12 +192,6 @@ void EBStatusFlagsClient::analyze(void) {
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
 
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunTTErrorsDat> mask1;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-#endif
-
   char histo[200];
 
   MonitorElement* me;
@@ -223,9 +221,9 @@ void EBStatusFlagsClient::analyze(void) {
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
         
-        if ( mask1.size() != 0 ) {
+        if ( mask1_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
+          for (m = mask1_.begin(); m != mask1_.end(); m++) {
       
             EcalLogicID ecid = m->first;
       

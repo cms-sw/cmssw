@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.82 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,6 +28,10 @@ class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+class EcalLogicID;
+class RunCrystalErrorsDat;
+class RunPNErrorsDat;
+class RunTTErrorsDat;
 #endif
 
 class EBTestPulseClient : public EBClient {
@@ -136,6 +140,12 @@ float amplitudeThresholdPnG16_;
 float pedPnExpectedMean_[2];
 float pedPnDiscrepancyMean_[2];
 float pedPnRMSThreshold_[2];
+
+#ifdef WITH_ECAL_COND_DB
+map<EcalLogicID, RunCrystalErrorsDat> mask1_;
+map<EcalLogicID, RunPNErrorsDat> mask2_;
+map<EcalLogicID, RunTTErrorsDat> mask3_;
+#endif
 
 };
 

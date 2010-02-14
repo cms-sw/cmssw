@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.116 $
+ * $Date: 2010/01/25 21:12:26 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -228,6 +228,12 @@ void EELaserClient::beginRun(void) {
   jevt_ = 0;
 
   this->setup();
+
+#ifdef WITH_ECAL_COND_DB
+  EcalErrorMask::fetchDataSet(&mask1_);
+  EcalErrorMask::fetchDataSet(&mask2_);
+  EcalErrorMask::fetchDataSet(&mask3_);
+#endif
 
 }
 
@@ -1612,16 +1618,6 @@ void EELaserClient::analyze(void) {
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
   bits04 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
 
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunPNErrorsDat> mask2;
-  map<EcalLogicID, RunTTErrorsDat> mask3;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-  EcalErrorMask::fetchDataSet(&mask3);
-#endif
-
   char histo[200];
 
   MonitorElement* me;
@@ -2277,9 +2273,9 @@ void EELaserClient::analyze(void) {
         // masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
+        if ( mask1_.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
+          for (m = mask1_.begin(); m != mask1_.end(); m++) {
 
             int jx = ix + Numbers::ix0EE(ism);
             int jy = iy + Numbers::iy0EE(ism);
@@ -2310,9 +2306,9 @@ void EELaserClient::analyze(void) {
         // TT masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask3.size() != 0 ) {
+        if ( mask3_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask3.begin(); m != mask3.end(); m++) {
+          for (m = mask3_.begin(); m != mask3_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 
@@ -2549,9 +2545,9 @@ void EELaserClient::analyze(void) {
       // masking
 
 #ifdef WITH_ECAL_COND_DB
-      if ( mask2.size() != 0 ) {
+      if ( mask2_.size() != 0 ) {
         map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-        for (m = mask2.begin(); m != mask2.end(); m++) {
+        for (m = mask2_.begin(); m != mask2_.end(); m++) {
 
           EcalLogicID ecid = m->first;
 

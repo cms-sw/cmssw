@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.27 $
+ * $Date: 2010/01/25 21:12:25 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -28,6 +28,11 @@ class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+class EcalLogicID;
+class RunCrystalErrorsDat;
+class RunTTErrorsDat;
+class RunMemChErrorsDat;
+class RunMemTTErrorsDat;
 #endif
 
 class EEIntegrityClient : public EEClient {
@@ -113,6 +118,13 @@ TH2F* hmem_[18];
 float threshCry_;
 
 const static int chNum [5][5];
+
+#ifdef WITH_ECAL_COND_DB
+map<EcalLogicID, RunCrystalErrorsDat> mask1_;
+map<EcalLogicID, RunTTErrorsDat> mask2_;
+map<EcalLogicID, RunMemChErrorsDat> mask3_;
+map<EcalLogicID, RunMemTTErrorsDat> mask4_;
+#endif
 
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2009/10/28 08:18:23 $
- * $Revision: 1.29 $
+ * $Date: 2010/01/25 21:12:26 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -99,6 +99,10 @@ void EEStatusFlagsClient::beginRun(void) {
 
   this->setup();
 
+#ifdef WITH_ECAL_COND_DB
+  EcalErrorMask::fetchDataSet(&mask1_);
+#endif
+
 }
 
 void EEStatusFlagsClient::endJob(void) {
@@ -188,12 +192,6 @@ void EEStatusFlagsClient::analyze(void) {
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
 
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunTTErrorsDat> mask1;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-#endif
-
   char histo[200];
 
   MonitorElement* me;
@@ -230,9 +228,9 @@ void EEStatusFlagsClient::analyze(void) {
 
         if ( ! Numbers::validEE(ism, jx, jy) ) continue;
 
-         if ( mask1.size() != 0 ) {
+         if ( mask1_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
+          for (m = mask1_.begin(); m != mask1_.end(); m++) {
 
             EcalLogicID ecid = m->first;
       

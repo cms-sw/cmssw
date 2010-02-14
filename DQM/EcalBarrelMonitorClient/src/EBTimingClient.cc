@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2009/12/11 16:13:17 $
- * $Revision: 1.96 $
+ * $Date: 2010/01/25 21:12:24 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  *
 */
@@ -113,6 +113,11 @@ void EBTimingClient::beginRun(void) {
   jevt_ = 0;
 
   this->setup();
+
+#ifdef WITH_ECAL_COND_DB
+  EcalErrorMask::fetchDataSet(&mask1_);
+  EcalErrorMask::fetchDataSet(&mask2_);
+#endif
 
 }
 
@@ -328,14 +333,6 @@ void EBTimingClient::analyze(void) {
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_MEAN_TIMING_WARNING");
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_RMS_TIMING_WARNING");
 
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunTTErrorsDat> mask2;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-#endif
-
   char histo[200];
 
   MonitorElement* me;
@@ -399,9 +396,9 @@ void EBTimingClient::analyze(void) {
         // masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
+        if ( mask1_.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
+          for (m = mask1_.begin(); m != mask1_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 
@@ -420,9 +417,9 @@ void EBTimingClient::analyze(void) {
         // TT masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask2.size() != 0 ) {
+        if ( mask2_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask2.begin(); m != mask2.end(); m++) {
+          for (m = mask2_.begin(); m != mask2_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 

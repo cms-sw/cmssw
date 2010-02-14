@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.30 $
+ * $Date: 2010/01/25 21:12:25 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,6 +28,10 @@ class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+class EcalLogicID;
+class RunCrystalErrorsDat;
+class RunPNErrorsDat;
+class RunTTErrorsDat;
 #endif
 
 class EEPedestalClient : public EEClient {
@@ -145,6 +149,12 @@ float RMSThresholdInner_[3];
 float expectedMeanPn_[2];
 float discrepancyMeanPn_[2];
 float RMSThresholdPn_[2];
+
+#ifdef WITH_ECAL_COND_DB
+map<EcalLogicID, RunCrystalErrorsDat> mask1_;
+map<EcalLogicID, RunPNErrorsDat> mask2_;
+map<EcalLogicID, RunTTErrorsDat> mask3_;
+#endif
 
 };
 

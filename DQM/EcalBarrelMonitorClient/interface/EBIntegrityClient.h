@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityClient.h
  *
- * $Date: 2009/10/28 08:18:20 $
- * $Revision: 1.73 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -28,6 +28,11 @@ class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+class EcalLogicID;
+class RunCrystalErrorsDat;
+class RunTTErrorsDat;
+class RunMemChErrorsDat;
+class RunMemTTErrorsDat;
 #endif
 
 class EBIntegrityClient : public EBClient {
@@ -114,6 +119,12 @@ float threshCry_;
 
 const static int chNum [5][5];
 
+#ifdef WITH_ECAL_COND_DB
+map<EcalLogicID, RunCrystalErrorsDat> mask1_;
+map<EcalLogicID, RunTTErrorsDat> mask2_;
+map<EcalLogicID, RunMemChErrorsDat> mask3_;
+map<EcalLogicID, RunMemTTErrorsDat> mask4_;
+#endif
 };
 
 #endif

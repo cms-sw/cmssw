@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2009/10/29 14:29:27 $
- * $Revision: 1.94 $
+ * $Date: 2010/01/25 21:12:26 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -125,6 +125,13 @@ void EEIntegrityClient::beginRun(void) {
   jevt_ = 0;
 
   this->setup();
+
+#ifdef WITH_ECAL_COND_DB
+  EcalErrorMask::fetchDataSet(&mask1_);
+  EcalErrorMask::fetchDataSet(&mask2_);
+  EcalErrorMask::fetchDataSet(&mask3_);
+  EcalErrorMask::fetchDataSet(&mask4_);
+#endif
 
 }
 
@@ -715,18 +722,6 @@ void EEIntegrityClient::analyze(void) {
   bits02 |= EcalErrorDictionary::getMask("TT_LV1_ERROR");
   bits02 |= EcalErrorDictionary::getMask("TT_BUNCH_X_ERROR");
 
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunTTErrorsDat> mask2;
-  map<EcalLogicID, RunMemChErrorsDat> mask3;
-  map<EcalLogicID, RunMemTTErrorsDat> mask4;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-  EcalErrorMask::fetchDataSet(&mask3);
-  EcalErrorMask::fetchDataSet(&mask4);
-#endif
-
   char histo[200];
 
   MonitorElement* me;
@@ -881,9 +876,9 @@ void EEIntegrityClient::analyze(void) {
         // masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
+        if ( mask1_.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
+          for (m = mask1_.begin(); m != mask1_.end(); m++) {
 
             int jx = ix + Numbers::ix0EE(ism);
             int jy = iy + Numbers::iy0EE(ism);
@@ -911,9 +906,9 @@ void EEIntegrityClient::analyze(void) {
         // TT masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask2.size() != 0 ) {
+        if ( mask2_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask2.begin(); m != mask2.end(); m++) {
+          for (m = mask2_.begin(); m != mask2_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 
@@ -1009,9 +1004,9 @@ void EEIntegrityClient::analyze(void) {
         // masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask3.size() != 0 ) {
+        if ( mask3_.size() != 0 ) {
           map<EcalLogicID, RunMemChErrorsDat>::const_iterator m;
-          for (m = mask3.begin(); m != mask3.end(); m++) {
+          for (m = mask3_.begin(); m != mask3_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 
@@ -1029,9 +1024,9 @@ void EEIntegrityClient::analyze(void) {
         // TT masking
 
 #ifdef WITH_ECAL_COND_DB
-        if ( mask4.size() != 0 ) {
+        if ( mask4_.size() != 0 ) {
           map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
-          for (m = mask4.begin(); m != mask4.end(); m++) {
+          for (m = mask4_.begin(); m != mask4_.end(); m++) {
 
             EcalLogicID ecid = m->first;
 

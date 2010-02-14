@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsClient.h
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.18 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -27,6 +27,8 @@ class DQMStore;
 class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
+class EcalLogicID;
+class RunTTErrorsDat;
 #endif
 
 class EBStatusFlagsClient : public EBClient {
@@ -100,6 +102,10 @@ TH1F* h02_[36];
 MonitorElement* meh03_[36];
 
 TH2F* h03_[36];
+
+#ifdef WITH_ECAL_COND_DB
+map<EcalLogicID, RunTTErrorsDat> mask1_;
+#endif
 
 };
 
