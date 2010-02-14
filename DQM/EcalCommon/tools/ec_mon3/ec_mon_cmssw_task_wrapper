@@ -482,9 +482,9 @@ process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 process.preScaler.prescaleFactor = 1
 
 if (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
-  process.dqmQTestEB.prescaleFactor = 4
+  process.dqmQTestEB.prescaleFactor = 16
   process.dqmQTestEB.qtestOnEndLumi = True
-  process.dqmQTestEE.prescaleFactor = 4
+  process.dqmQTestEE.prescaleFactor = 16
   process.dqmQTestEE.qtestOnEndLumi = True
 
 process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalDetIdToBeRecovered*process.ecalRecHit)
