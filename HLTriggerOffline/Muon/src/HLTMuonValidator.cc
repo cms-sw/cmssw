@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/01/22 21:40:43 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/02/14 15:36:59 $
+ *  $Revision: 1.15 $
  */
 
 
@@ -47,7 +47,6 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet & pset)
        l2CandLabel_ = pset.getParameter<string>(     "l2CandLabel");
        l3CandLabel_ = pset.getParameter<string>(     "l3CandLabel");
 
-  cutMotherId_ = pset.getParameter< unsigned int   >("cutMotherId");
   cutsDr_      = pset.getParameter< vector<double> >("cutsDr"     );
 
   parametersEta_    = pset.getParameter< vector<double> >("parametersEta");
