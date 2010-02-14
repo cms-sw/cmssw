@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.127 $
+ * $Date: 2010/02/12 21:45:19 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  *
 */
@@ -665,8 +665,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       EBDetId id = digiItr->id();
 
       int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
 
       int ism = Numbers::iSM( id );
 

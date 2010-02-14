@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.111 $
+ * $Date: 2010/02/12 21:57:30 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -371,8 +371,6 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       EBDetId id = digiItr->id();
 
       int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
 
       int ism = Numbers::iSM( id );
 
