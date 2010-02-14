@@ -21,9 +21,10 @@ hltMuonValidator = cms.EDAnalyzer("HLTMuonValidator",
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
 
-    # Set cuts placed on the generated muons and matching criteria
-    cutMotherId = cms.uint32(0),
+    # set criteria for matching
     cutsDr      = cms.vdouble(0.4, 0.4, 0.015),
+
+    # set cuts on generated and reconstructed muons
     genMuonCut  = cms.string("abs(pdgId) == 13 && status == 1"),
     recMuonCut  = cms.string("isGlobalMuon"),
 
