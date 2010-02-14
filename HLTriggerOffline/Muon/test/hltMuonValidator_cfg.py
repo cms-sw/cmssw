@@ -5,13 +5,13 @@ process = cms.Process("HLTMuonOfflineAnalysis")
 process.load("HLTriggerOffline.Muon.HLTMuonVal_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-##############################################################
-##### Templates to change parameters in hltMuonValidator #####
+##############################################################################
+##### Templates to change parameters in hltMuonValidator #####################
 # process.hltMuonValidator.hltPathsToCheck = ["HLT_IsoMu3"]
-# process.hltMuonValidator.processNameHlt  = "HLT"
-# process.hltMuonValidator.cutMotherId     = 24
-# process.hltMuonValidator.cutMaxEta       =  2.1
-##############################################################
+# process.hltMuonValidator.hltProcessName  = "HLT"
+# process.hltMuonValidator.genMuonCut = "abs(mother.pdgId) == 24"
+# process.hltMuonValidator.recMuonCut = "isGlobalMuon && eta < 1.2"
+##############################################################################
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
