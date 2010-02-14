@@ -1,11 +1,11 @@
-// $Id: UtilsClient.h,v 1.15 2008/08/11 07:24:14 dellaric Exp $
+// $Id: UtilsClient.h,v 1.16 2009/08/10 15:53:46 emanuele Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.15 $
-  \date $Date: 2008/08/11 07:24:14 $
+  \version $Revision: 1.16 $
+  \date $Date: 2009/08/10 15:53:46 $
 */
 
 #ifndef UtilsClient_H
@@ -38,24 +38,24 @@ class UtilsClient {
       // std::cout << "Found '" << me->getName() <<"'" << std::endl;
       TObject* ob = const_cast<MonitorElement*>(me)->getRootObject();
       if( ob ) { 
-	if( clone ) {
-	  if( ret ) {
-	    delete ret;
-	  }
-	  std::string s = "ME " + me->getName();
-	  ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
-	  if( ret ) {
-	    ret->SetDirectory(0);
-	  }
-	} else {
-	  ret = dynamic_cast<T>(ob); 
-	}
+        if( clone ) {
+          if( ret ) {
+            delete ret;
+          }
+          std::string s = "ME " + me->getName();
+          ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
+          if( ret ) {
+            ret->SetDirectory(0);
+          }
+        } else {
+          ret = dynamic_cast<T>(ob); 
+        }
       } else {
-	ret = 0;
+        ret = 0;
       }
     } else {
       if( !clone ) {
-	ret = 0;
+        ret = 0;
       }
     }
     return ret;
@@ -135,18 +135,15 @@ class UtilsClient {
    */
   template<class T> static bool getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms ) {
     num  = -1.; mean = -1.; rms  = -1.;
-    float percent = 0.01; float n_min_bin = 5.;
+    float n_min_bin = 1.;
 
     if ( histo ) {
-      float n_min_tot = percent * n_min_bin * histo->GetNbinsX() * histo->GetNbinsY();
-      if ( histo->GetEntries() >= n_min_tot ) {
-	num = histo->GetBinEntries(histo->GetBin(ix, iy));
-	if ( num >= n_min_bin ) {
-	  mean = histo->GetBinContent(ix, iy);
-	  rms  = histo->GetBinError(ix, iy);
-	  return true;
-	}
-      } 
+      num = histo->GetBinEntries(histo->GetBin(ix, iy));
+      if ( num >= n_min_bin ) {
+        mean = histo->GetBinContent(ix, iy);
+        rms  = histo->GetBinError(ix, iy);
+        return true;
+      }
     }
     return false;
   }
