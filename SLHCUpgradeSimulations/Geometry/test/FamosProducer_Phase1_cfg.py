@@ -46,14 +46,12 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 # Famos sequences (fake conditions)
-process.load("FastSimulation.Configuration.CommonInputsFake_cff")
+#process.load("FastSimulation.Configuration.CommonInputsFake_cff")
+process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 # replace with strawman geometry
 process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
-# does using an empty PixelSkimmedGeometry.txt file speeds up job with lots more channels?
 
-#process.SiPixelFakeGainOfflineESSource.file = 'SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt'
-#process.SiPixelFakeLorentzAngleESSource.file = 'SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt'
 process.siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
     file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt')
 )
@@ -63,6 +61,56 @@ process.siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleE
     file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt')
 )
 process.es_prefer_fake_lorentz = cms.ESPrefer("SiPixelFakeLorentzAngleESSource","siPixelFakeLorentzAngleESSource")
+
+process.load("CalibTracker.SiStripESProducers.fake.SiStripNoisesFakeESSource_cfi")
+process.SiStripNoisesGenerator.NoiseStripLengthSlope=51. #dec mode
+process.SiStripNoisesGenerator.NoiseStripLengthQuote=630.
+
+process.siStripNoisesFakeESSource  = cms.ESSource("SiStripNoisesFakeESSource")
+process.es_prefer_fake_strip_noise = cms.ESPrefer("SiStripNoisesFakeESSource",
+                                                  "siStripNoisesFakeESSource")
+
+process.load("CalibTracker.SiStripESProducers.fake.SiStripQualityFakeESSource_cfi")
+
+process.siStripQualityFakeESSource  = cms.ESSource("SiStripQualityFakeESSource")
+process.es_prefer_fake_strip_quality = cms.ESPrefer("SiStripQualityFakeESSource",
+                                                     "siStripQualityFakeESSource")
+
+process.load("CalibTracker.SiStripESProducers.fake.SiStripPedestalsFakeESSource_cfi")
+
+process.siStripPedestalsFakeESSource  = cms.ESSource("SiStripPedestalsFakeESSource")
+process.es_prefer_fake_strip_pedestal = cms.ESPrefer("SiStripPedestalsFakeESSource",
+                                                     "siStripPedestalsFakeESSource")
+
+process.load("CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSource_cfi")
+
+process.siStripLorentzAngleFakeESSource  = cms.ESSource("SiStripLorentzAngleFakeESSource")
+process.es_prefer_fake_strip_LA = cms.ESPrefer("SiStripLorentzAngleFakeESSource",
+                                               "siStripLorentzAngleFakeESSource")
+
+process.siStripLorentzAngleSimFakeESSource  = cms.ESSource("SiStripLorentzAngleSimFakeESSource")
+process.es_prefer_fake_strip_LA_sim = cms.ESPrefer("SiStripLorentzAngleSimFakeESSource",
+                                                   "siStripLorentzAngleSimFakeESSource")
+
+process.load("CalibTracker.SiStripESProducers.fake.SiStripApvGainFakeESSource_cfi")
+process.SiStripApvGainGenerator.MeanGain=1.0
+process.SiStripApvGainGenerator.SigmaGain=0.0
+process.SiStripApvGainGenerator.genMode = cms.string("default")
+
+process.myStripApvGainFakeESSource = cms.ESSource("SiStripApvGainFakeESSource")
+process.es_prefer_myStripApvGainFakeESSource  = cms.ESPrefer("SiStripApvGainFakeESSource",
+                                                  "myStripApvGainFakeESSource")
+
+process.myStripApvGainSimFakeESSource  = cms.ESSource("SiStripApvGainSimFakeESSource")
+process.es_prefer_myStripApvGainSimFakeESSource = cms.ESPrefer("SiStripApvGainSimFakeESSource",
+                                                               "myStripApvGainSimFakeESSource")
+
+process.load("CalibTracker.SiStripESProducers.fake.SiStripThresholdFakeESSource_cfi")
+
+process.siStripThresholdFakeESSource  = cms.ESSource("SiStripThresholdFakeESSource")
+process.es_prefer_fake_strip_threshold = cms.ESPrefer("SiStripThresholdFakeESSource",
+                                                     "siStripThresholdFakeESSource")
+
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
@@ -81,7 +129,6 @@ process.famosPileUp.VertexGenerator = cms.PSet( GaussSmearing.myVertexGenerator 
 # Make sure CoM energy is 14 TeV if we are using pythia for the signal source
 #process.PythiaSource.comEnergy = cms.untracked.double(14000.0)
 #process.PythiaSource.maxEventsToPrint = 1
-
 process.TrackerDigiGeometryESModule.applyAlignment = False
 
 # If you want to turn on/off pile-up
@@ -99,7 +146,6 @@ process.famosSimHits.TrackerSimHits.firstLoop = False
 process.load("SimTracker.Configuration.SimTracker_cff")
 process.simSiPixelDigis.ROUList =  ['famosSimHitsTrackerHits']
 process.simSiPixelDigis.MissCalibrate = False
-process.simSiPixelDigis.AddPixelInefficiency = -1
 process.simSiPixelDigis.LorentzAngle_DB = False
 process.simSiPixelDigis.killModules = False
 process.simSiPixelDigis.NumPixelBarrel = cms.int32(4)
@@ -126,10 +172,19 @@ process.simSiStripDigis.ROUList =  ['famosSimHitsTrackerHits']
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.siPixelClusters.src = 'simSiPixelDigis'
 process.siPixelClusters.MissCalibrate = False
-process.siStripZeroSuppression.RawDigiProducersList[0].RawDigiProducer = 'simSiStripDigis'
-process.siStripZeroSuppression.RawDigiProducersList[1].RawDigiProducer = 'simSiStripDigis'
-process.siStripZeroSuppression.RawDigiProducersList[2].RawDigiProducer = 'simSiStripDigis'
-process.siStripClusters.DigiProducersList[0].DigiProducer= 'simSiStripDigis'
+#process.siStripZeroSuppression.RawDigiProducersList[0].RawDigiProducer = 'simSiStripDigis'
+#process.siStripZeroSuppression.RawDigiProducersList[1].RawDigiProducer = 'simSiStripDigis'
+#process.siStripZeroSuppression.RawDigiProducersList[2].RawDigiProducer = 'simSiStripDigis'
+#process.siStripClusters.DigiProducersList[0].DigiProducer= 'simSiStripDigis'
+
+process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag(cms.InputTag('simSiStripDigis','VirginRaw'),
+                                                                    cms.InputTag('simSiStripDigis','ProcessedRaw'),
+                                                                    cms.InputTag('simSiStripDigis','ScopeMode'))
+process.siStripClusters.DigiProducersList = cms.VInputTag(cms.InputTag('simSiStripDigis','ZeroSuppressed'),
+                                                          cms.InputTag('siStripZeroSuppression','VirginRaw'),
+                                                          cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
+                                                          cms.InputTag('siStripZeroSuppression','ScopeMode'))
+
 
 # change from default of 8bit ADC (255) for stack layers (1=1 bit, 7=3 bits)
 # need to change both digitizer and clusterizer
@@ -172,27 +227,26 @@ process.multiTrackValidator.maxpT = cms.double(50.0)
 process.multiTrackValidator.skipHistoFit = False
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")
-process.pixellayertriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
-        'BPix1+BPix3+BPix4',
-        'BPix2+BPix3+BPix4',
-        'BPix1+BPix2+BPix4',
-        'BPix1+BPix2+FPix1_pos',
-        'BPix1+BPix2+FPix1_neg',
-        'BPix1+FPix1_pos+FPix2_pos',
-        'BPix1+FPix1_neg+FPix2_neg',
-        'BPix1+FPix2_pos+FPix3_pos',
-        'BPix1+FPix2_neg+FPix3_neg',
-        'FPix1_pos+FPix2_pos+FPix3_pos',
-        'FPix1_neg+FPix2_neg+FPix3_neg')
+#process.pixellayertriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
+#        'BPix1+BPix3+BPix4',
+#        'BPix2+BPix3+BPix4',
+#        'BPix1+BPix2+BPix4',
+#        'BPix1+BPix2+FPix1_pos',
+#        'BPix1+BPix2+FPix1_neg',
+#        'BPix1+FPix1_pos+FPix2_pos',
+#        'BPix1+FPix1_neg+FPix2_neg',
+#        'BPix1+FPix2_pos+FPix3_pos',
+#        'BPix1+FPix2_neg+FPix3_neg',
+#        'FPix1_pos+FPix2_pos+FPix3_pos',
+#        'FPix1_neg+FPix2_neg+FPix3_neg')
 # restrict vertex finding in trackingtruthprod to smaller volume (note: these numbers in mm) 
 process.mergedtruth.volumeRadius = cms.double(100.0)
 process.mergedtruth.volumeZ = cms.double(900.0)
 process.mergedtruth.discardOutVolume = cms.bool(True)
 
-#process.cutsTPEffic.ptMin = cms.double(2.5)
-#process.cutsTPFake.ptMin = cms.double(2.0)
 process.cutsTPFake.tip = cms.double(10.0)
 process.cutsTPFake.lip = cms.double(90.0)
+
 #NB: tracks are already filtered by the generalTracks sequence
 #for additional cuts use the cutsRecoTracks filter:
 process.load("Validation.RecoTrack.cutsRecoTracks_cfi")
@@ -213,8 +267,7 @@ process.pixellayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.pixellayertriplets.FPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.ctfWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
-## not sure if this is needed for fake strip conditions
-process.MeasurementTracker.stripClusterProducer=cms.string('')
+#process.MeasurementTracker.stripClusterProducer=cms.string('')
 process.MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
 process.MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
@@ -278,7 +331,7 @@ process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNo
 
 process.Timing =  cms.Service("Timing")
 process.load("FWCore/MessageService/MessageLogger_cfi")
-process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_phase1_mu50")
+#process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_phase1_mu50")
 ### to output debug messages for particular modules
 # process.MessageLogger.detailedInfo_strawb_mu50 = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG'))
 # process.MessageLogger.debugModules= cms.untracked.vstring("*")
