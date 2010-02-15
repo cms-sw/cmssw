@@ -2,6 +2,9 @@
 '''
 central place for all the table names
 '''
+def runsummaryTableName():
+	return 'RUNSUMMARY'
+
 def lumisummaryTableName():
 	return 'LUMISUMMARY'
 
