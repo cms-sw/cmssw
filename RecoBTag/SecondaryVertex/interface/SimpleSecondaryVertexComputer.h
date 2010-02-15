@@ -18,29 +18,34 @@ class SimpleSecondaryVertexComputer : public JetTagComputer {
 	SimpleSecondaryVertexComputer(const edm::ParameterSet &parameters) :
 		use2d(!parameters.getParameter<bool>("use3d")),
 		useSig(parameters.getParameter<bool>("useSignificance")),
-		unBoost(parameters.getParameter<bool>("unBoost"))
+		unBoost(parameters.getParameter<bool>("unBoost")),
+		minTracks(parameters.getParameter<unsigned int>("minTracks"))
 	{ uses("svTagInfos"); }
 
 	float discriminator(const TagInfoHelper &tagInfos) const
 	{
 		const reco::SecondaryVertexTagInfo &info =
 				tagInfos.get<reco::SecondaryVertexTagInfo>();
-		if (info.nVertices() == 0)
+		unsigned int idx = 0;
+		while(idx < info.nVertices())
+			if (info.nVertexTracks(idx) >= minTracks)
+				break;
+		if (idx >= info.nVertices())
 			return -1.0;
 
 		double gamma;
 		if (unBoost) {
 			reco::TrackKinematics kinematics(
-						info.secondaryVertex(0));
+						info.secondaryVertex(idx));
 			gamma = kinematics.vectorSum().Gamma();
 		} else
 			gamma = 1.0;
 
 		double value;
 		if (useSig)
-			value = info.flightDistance(0, use2d).significance();
+			value = info.flightDistance(idx, use2d).significance();
 		else
-			value = info.flightDistance(0, use2d).value();
+			value = info.flightDistance(idx, use2d).value();
 
 		value /= gamma;
 
@@ -52,9 +57,10 @@ class SimpleSecondaryVertexComputer : public JetTagComputer {
 	}
 
     private:
-	bool	use2d;
-	bool	useSig;
-	bool	unBoost;
+	bool		use2d;
+	bool		useSig;
+	bool		unBoost;
+	unsigned int	minTracks;
 };
 
 #endif // RecoBTag_SecondaryVertex_SimpleSecondaryVertexComputer_h
