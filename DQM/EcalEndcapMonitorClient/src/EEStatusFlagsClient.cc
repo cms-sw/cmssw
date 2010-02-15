@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/02/15 17:24:42 $
- * $Revision: 1.33 $
+ * $Date: 2010/02/15 22:31:22 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -225,7 +225,7 @@ void EEStatusFlagsClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
-        int idcc  = ecid.getID1() - 600;
+        int idcc = ecid.getID1() - 600;
         int itt = ecid.getID2();
 
         int ism = -1;

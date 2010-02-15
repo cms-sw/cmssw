@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/02/15 14:46:03 $
- * $Revision: 1.33 $
+ * $Date: 2010/02/15 17:15:17 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -24,7 +24,6 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
-
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
