@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/10 13:04:06 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/01/15 17:58:23 $
+ *  $Revision: 1.22 $
  *  \author G. Mila - INFN Torino
  *  updated: G. Hesketh, CERN
  */
@@ -314,7 +314,8 @@ void MuonRecoAnalyzer::GetRes( reco::TrackRef t1, reco::TrackRef t2, string par,
   }
 
   res = p1 - p2;
-  pull = res / sqrt(p1e*p1e + p2e*p2e);
+  if(p1e!=0 || p2e!=0) pull = res / sqrt(p1e*p1e + p2e*p2e);
+  else pull = -99;
   return;
 }
 
