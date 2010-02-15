@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.6 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWParameterSetterBase.cc,v 1.7 2010/02/13 14:01:33 eulisse Exp $
 //
 
 // system include files
@@ -116,6 +116,8 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
       else if (name == "FWGenericParameterWithRange<double>")
          name = "FWDoubleParameterSetter";
       else if (name == "FWGenericParameterWithRange<long int>")
+         name = "FWLongParameterSetter";
+      else if (name == "FWGenericParameterWithRange<long>")
          name = "FWLongParameterSetter";
       else
          name += "Setter";
