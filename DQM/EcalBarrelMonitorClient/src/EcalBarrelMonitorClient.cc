@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/01/26 07:12:01 $
- * $Revision: 1.474 $
+ * $Date: 2010/01/26 07:17:08 $
+ * $Revision: 1.475 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -94,7 +94,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( dbName_.size() != 0 ) {
-      cout << " Using Ecal Cond DB: " << endl;
+      cout << " Ecal Cond DB: " << endl;
       cout << "   dbName = '" << dbName_ << "'" << endl;
       cout << "   dbUserName = '" << dbUserName_ << "'" << endl;
       if ( dbHostName_.size() != 0 ) {
@@ -118,7 +118,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
-      cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+      cout << " maskFile = '" << maskFile_ << "'" << endl;
     }
   }
 

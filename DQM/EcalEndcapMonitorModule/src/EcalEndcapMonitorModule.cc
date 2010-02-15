@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2010/02/12 21:30:24 $
- * $Revision: 1.70 $
+ * $Date: 2010/02/14 11:11:10 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -63,7 +63,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   if ( fixedRunNumber_ ) {
     if ( verbose_ ) {
-      cout << " using fixed Run Number = " << runNumber_ << endl;
+      cout << " fixed Run Number = " << runNumber_ << endl;
     }
   }
 
@@ -79,7 +79,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   if ( fixedRunType_) {
     if ( verbose_ ) { 
-      cout << " using fixed Run Type = " << runType_ << endl;
+      cout << " fixed Run Type = " << runType_ << endl;
     }
   }
 
