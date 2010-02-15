@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.14 2009/08/28 13:47:07 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.15 2010/02/15 13:47:18 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -325,15 +325,15 @@ void ThroughputMonitorCollection::do_calculateStatistics()
 
   if (_fragmentQueue.get() != 0) {
     _entriesInFragmentQueueMQ.addSample(_fragmentQueue->size());
-    _memoryUsedInFragmentQueueMQ.addSample(static_cast<double>(_fragmentQueue->used()) / 1024 / 1024);
+    _memoryUsedInFragmentQueueMQ.addSample( static_cast<double>(_fragmentQueue->used()) / (1024*1024) );
   }
   if (_streamQueue.get() != 0) {
     _entriesInStreamQueueMQ.addSample(_streamQueue->size());
-    _memoryUsedInStreamQueueMQ.addSample(static_cast<double>(_streamQueue->used()) / 1024 / 1024);
+    _memoryUsedInStreamQueueMQ.addSample( static_cast<double>(_streamQueue->used()) / (1024*1024) );
   }
   if (_dqmEventQueue.get() != 0) {
     _entriesInDQMEventQueueMQ.addSample(_dqmEventQueue->size());
-    _memoryUsedInDQMEventQueueMQ.addSample(static_cast<double>(_dqmEventQueue->used()) / 1024 / 1024);
+    _memoryUsedInDQMEventQueueMQ.addSample( static_cast<double>(_dqmEventQueue->used()) / (1024*1024) );
   }
   _entriesInFragmentStoreMQ.addSample(_currentFragmentStoreSize);
   _memoryUsedInFragmentStoreMQ.addSample(_currentFragmentStoreMemoryUsedMB);

@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.12 2009/08/28 14:35:33 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.13 2010/02/15 13:45:21 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -23,8 +23,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/08/28 14:35:33 $
+   * $Revision: 1.13 $
+   * $Date: 2010/02/15 13:45:21 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -190,7 +190,7 @@ namespace stor {
      * Sets the current number of events in the fragment store.
      */
     inline void setFragmentStoreMemoryUsed(size_t memoryUsed) {
-      _currentFragmentStoreMemoryUsedMB = static_cast<double>(memoryUsed) / 1024 / 1024;
+      _currentFragmentStoreMemoryUsedMB = static_cast<double>(memoryUsed) / (1024*1024);
     }
 
     struct Stats
