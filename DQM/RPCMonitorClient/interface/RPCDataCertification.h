@@ -22,7 +22,8 @@ public:
 protected:
   
 private:
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
+  virtual void beginRun(const edm::Run& r, const edm::EventSetup& setup);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);

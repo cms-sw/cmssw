@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 # Some generic services and conditions data
-#process.Timing = cms.Service("Timing")
-#process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
+process.Timing = cms.Service("Timing")
+process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
+process.GlobalTag.globaltag = cms.string('STARTUP31X_V2::All')
 
 # Input files: RelVal QCD 80-120 GeV, STARTUP conditions, 9000 events, from CMSSW_3_1_2
 process.source = cms.Source(
@@ -22,7 +22,7 @@ process.source = cms.Source(
     '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/2247873A-B378-DE11-8F5B-001D09F24664.root',
     ),
     )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 # Identify GenParticles to be used to build GenJets (ie, no neutrinos or BSM)
 process.load("RecoJets.Configuration.GenJetParticles_cff")
@@ -55,7 +55,7 @@ ZSPrecoJetAssociations = cms.Sequence(
     )
 
 # ZSP and JPT corrections
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections31X_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
 # Analyzer module

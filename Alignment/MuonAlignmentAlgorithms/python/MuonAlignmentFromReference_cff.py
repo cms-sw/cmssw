@@ -2,14 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 ### General track re-fitting includes
 ### (don't load dtGeometry_cfi or cscGeometry_cfi because it's provided by AlignmentProducer)
-from Configuration.StandardSequences.Services_cff import *
-from Configuration.StandardSequences.GeometryExtended_cff import *
 from Configuration.StandardSequences.MagneticField_cff import *
-from RecoTracker.Configuration.RecoTracker_cff import *
-del DTGeometryESModule
-del CSCGeometryESModule
+from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
+from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
+from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
+from Geometry.RPCGeometry.rpcGeometry_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 
 ### Track refitter for global collisions muons
+from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
+from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import *
 from TrackingTools.TrackRefitter.globalMuonTrajectories_cff import *
 MuonAlignmentFromReferenceGlobalMuonRefit = globalMuons.clone()
 MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")

@@ -37,7 +37,7 @@ public:
   virtual ~LumiCalculator();
 
 private:  
-  virtual void beginJob(const edm::EventSetup& );
+  virtual void beginJob();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
@@ -76,7 +76,7 @@ void LumiCalculator::analyze(edm::Event const& e,edm::EventSetup const&){
 
 // -----------------------------------------------------------------
 
-void LumiCalculator::beginJob(const edm::EventSetup& c){
+void LumiCalculator::beginJob(){
   
 }
 
@@ -309,8 +309,8 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c){
   for(lumiIt=lumiItBeg;lumiIt!=lumiItEnd;++lumiIt){//loop over LS
     recorded += lumiIt->intglumi*lumiIt->livefraction;  
   }
-  *log_<<"  CMS Recorded Lumi (e+27cm^-2) : "<<recorded<<"\n";
-  *log_<<"  Effective Lumi (e+27cm^-2) per trigger path: "<<"\n\n";
+  *log_<<"  CMS Recorded Lumi (e+28cm^-2) : "<<recorded<<"\n";
+  *log_<<"  Effective Lumi (e+28cm^-2) per trigger path: "<<"\n\n";
   std::multimap<std::string,std::string>::iterator it;
   std::multimap<std::string,std::string>::iterator itBeg=trgpathMmap_.begin();
   std::multimap<std::string,std::string>::iterator itEnd=trgpathMmap_.end();

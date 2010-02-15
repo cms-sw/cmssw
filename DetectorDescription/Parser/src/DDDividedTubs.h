@@ -15,7 +15,7 @@ class DDDividedTubsRho : public DDDividedGeometryObject
 { 
  public:
 
-  DDDividedTubsRho( const DDDivision& div, DDCompactView* cpv);
+  DDDividedTubsRho( const DDDivision& div, DDCompactView& cpv);
 
   virtual ~DDDividedTubsRho();
   
@@ -33,7 +33,7 @@ class DDDividedTubsPhi : public DDDividedGeometryObject
 { 
  public:
 
-  DDDividedTubsPhi( const DDDivision& div, DDCompactView* cpv);
+  DDDividedTubsPhi( const DDDivision& div, DDCompactView& cpv);
 
   virtual ~DDDividedTubsPhi();
   
@@ -51,7 +51,7 @@ class DDDividedTubsZ : public DDDividedGeometryObject
 { 
  public:
 
-  DDDividedTubsZ( const DDDivision& div, DDCompactView* cpv);
+  DDDividedTubsZ( const DDDivision& div, DDCompactView& cpv);
 
   virtual ~DDDividedTubsZ();
   

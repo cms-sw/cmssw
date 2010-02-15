@@ -141,31 +141,9 @@ global_phi_data CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(unsigned short end
   unsigned short int cscid  = ((theadd >> 15)&0xf);
   unsigned short int lclPhi = (theadd & 0x3ff);
 
-  // 12/11/09
-  // GP et DA: how to identify the strip number and isolate and shift the localPhi value
-  const double binPhiL = static_cast<double>(maxPhiL)/(2*CSCConstants::MAX_NUM_STRIPS);
-
-  int strip = static_cast<int>(lclPhi/binPhiL);
-  //  edm::LogWarning("GP Input") << " CSCID " << cscid << " strip:" << strip << " lclPhi: " << lclPhi << "theadd: " << theadd; 
-  if (station == 1 && (cscid <= 3) && (strip >= 127 && strip < 160)){
-    //edm::LogWarning("GP Input") << " -> Matched Selection Criteria";
-
-    // in this case need to redefine lclPhi in order to
-    // place local phi in the middle of the 5th CFEB
-    // and not on the first third of the CFEB as default
-    lclPhi = (strip-127+31)*(4*binPhiL/3);
-  }
-  // end GP et DA
-
+  if(station == 1 && ((cscid <= 3) || (cscid >= 7))) 
+    maxPhiL = maxPhiL*(64./80); // currently a hack that is in place to handle the different number of strips in ME1/1 and ME1/3
   
-  if(station == 1 && ((cscid <= 3) || (cscid >= 7))) { 
-    if (strip >= 127 && strip < 160)
-      maxPhiL = maxPhiL*(48./80); // GP et DA: currently a hack that is in place to handle the different number of strips in ME1/1a and ME1/3
-    else
-      maxPhiL = maxPhiL*(64./80); // currently a hack that is in place to handle the different number of strips in ME1/1 and ME1/3
-  }
-  
-
   if((cscid > 0) && (cscid <= 9))
     {
       if((station == 1) && (lclPhi < maxPhiL))

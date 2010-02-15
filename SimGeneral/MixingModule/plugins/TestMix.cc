@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.18 2009/02/11 10:30:19 ebecheva Exp $
+// $Id: TestMix.cc,v 1.15 2009/01/09 10:45:19 saout Exp $
 //
 //
 
@@ -224,7 +224,7 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //we should have each line twice
   //------------------------------------
   edm::Handle<CrossingFrame<edm::HepMCProduct> > cf_hepmc;
-  got = iEvent.getByLabel("mix","generator",cf_hepmc);
+  got = iEvent.getByLabel("mix","source",cf_hepmc);
   if (!got) std::cout<<" Could not read HepMCProducts!!!!"<<std::endl;
   else {
     std::auto_ptr<MixCollection<edm::HepMCProduct> > colhepmc(new MixCollection<edm::HepMCProduct>(cf_hepmc.product()));

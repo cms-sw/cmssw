@@ -90,7 +90,7 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
     }
 
     theALCTs.resize(header2007.lctBins*2); ///2007 has LCTbins * 2 alct words
-    for (unsigned i=0; i<header2007.lctBins*2; ++i) {
+    for (int i=0; i<header2007.lctBins*2; ++i) {
       memcpy(&theALCTs[i], buf, theALCTs[i].sizeInWords()*2);
       buf += theALCTs[i].sizeInWords(); 
       sizeInWords2007_ += theALCTs[i].sizeInWords();
@@ -180,7 +180,7 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
         digi != digis.end(); ++digi)
     {
       int bx = digi->getBX();
-      if(bx < (int)header2007.lctBins) 
+      if(bx <= (int)header2007.lctBins) 
       {
         // 2 ALCTs per bx
         int i = bx*2;

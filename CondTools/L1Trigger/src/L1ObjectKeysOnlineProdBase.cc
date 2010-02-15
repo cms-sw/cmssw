@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: L1ObjectKeysOnlineProdBase.cc,v 1.1 2008/09/19 19:22:59 wsun Exp $
+// $Id$
 //
 //
 
@@ -28,6 +28,7 @@
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 
+#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //

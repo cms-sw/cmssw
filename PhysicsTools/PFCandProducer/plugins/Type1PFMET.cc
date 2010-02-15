@@ -3,12 +3,11 @@
 #include "PhysicsTools/PFCandProducer/plugins/Type1PFMET.h"
 
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 //using namespace std;
-
-using namespace reco;
 
 // PRODUCER CONSTRUCTORS ------------------------------------------
 Type1PFMET::Type1PFMET( const edm::ParameterSet& iConfig )

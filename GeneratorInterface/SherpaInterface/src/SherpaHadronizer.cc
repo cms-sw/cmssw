@@ -7,26 +7,15 @@
 
 #include "HepMC/GenEvent.h"
 
-// MM (18. Jan 2010) old style includes, fixed include path now
-//#include "SHERPA-MC/Sherpa.H"
-//#include "SHERPA-MC/Message.H"
-//#include "SHERPA-MC/prof.hh"
-//#include "SHERPA-MC/Random.H"
-//#include "SHERPA-MC/Exception.H"
-//#include "SHERPA-MC/Run_Parameter.H"
-//#include "SHERPA-MC/My_Root.H"
-//#include "SHERPA-MC/Input_Output_Handler.H"
-//#include "SHERPA-MC/HepMC2_Interface.H"
-
-#include "SHERPA/Main/Sherpa.H"
-#include "ATOOLS/Org/Message.H"
-//#include "SHERPA-MC/prof.hh" //??? still needed ???
-#include "ATOOLS/Math/Random.H"
-#include "ATOOLS/Org/Exception.H"
-#include "ATOOLS/Org/Run_Parameter.H"
-#include "ATOOLS/Org/My_Root.H"
-#include "SHERPA/Tools/Input_Output_Handler.H"
-#include "SHERPA/Tools/HepMC2_Interface.H"
+#include "SHERPA-MC/Sherpa.H"
+#include "SHERPA-MC/Message.H"
+#include "SHERPA-MC/prof.hh"
+#include "SHERPA-MC/Random.H"
+#include "SHERPA-MC/Exception.H"
+#include "SHERPA-MC/Run_Parameter.H"
+#include "SHERPA-MC/My_Root.H"
+#include "SHERPA-MC/Input_Output_Handler.H"
+#include "SHERPA-MC/HepMC2_Interface.H"
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
@@ -84,7 +73,14 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   runInfo().setFilterEfficiency(
 				params.getUntrackedParameter<double>("filterEfficiency", -1.0));
 */  
+}
 
+SherpaHadronizer::~SherpaHadronizer()
+{
+}
+
+bool SherpaHadronizer::initializeForInternalPartons()
+{
   // The ids (names) of parameter sets to be read (Analysis,Run) to create Analysis.dat, Run.dat
   //They are given as a vstring.  
   std::vector<std::string> setNames = SherpaParameter.getParameter<std::vector<std::string> >("parameterSets");
@@ -100,15 +96,14 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
       os<<(*itPar)<<std::endl;
     } 
   }
-
+  
   //To be conform to the default Sherpa usage create a command line:
   //name of executable  (only for demonstration, could also be empty)
   std::string shRun  = "./Sherpa";
   //Path where the Sherpa libraries are stored
   std::string shPath = "PATH=" + SherpaLibDir;
   //Path where results are stored 
-  // std::string shRes  = "RESULT_DIRECTORY=" + SherpaLibDir + "/" + SherpaResultDir; // for Sherpa <=1.1.3
-  std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
+  std::string shRes  = "RESULT_DIRECTORY=" + SherpaLibDir + "/" + SherpaResultDir;
   //Name of the external random number class
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
   
@@ -121,16 +116,6 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   
   //initialize Sherpa with the command line
   Generator.InitializeTheRun(4,argv);
-}
-
-SherpaHadronizer::~SherpaHadronizer()
-{
-}
-
-bool SherpaHadronizer::initializeForInternalPartons()
-{
-  
-  //initialize Sherpa
   Generator.InitializeTheEventHandler();
   
   return true;
@@ -182,10 +167,7 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
   //get the next event and check if it produced
   if (Generator.GenerateOneEvent()) { 
     //convert it to HepMC2
-    //    HepMC::GenEvent* evt = Generator.GetIOHandler()->GetHepMC2Interface()->GenEvent(); // expanded now...
-    SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
-    SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
-    HepMC::GenEvent* evt = hm2i->GenEvent();
+    HepMC::GenEvent* evt = Generator.GetIOHandler()->GetHepMC2Interface()->GenEvent();
     //ugly!! a hard copy, since sherpa delete the GenEvent internal
     resetEvent(new HepMC::GenEvent (*evt));         
     return true;

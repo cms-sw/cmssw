@@ -89,6 +89,7 @@ FWMagField::GetMaxFieldMag() const
             fwLog(fwlog::kDebug) << "FWMagField::GetMaxFieldMag(), get average "
                                 << m_guessValHist->GetMean() << " guessed value: RMS= "<< m_guessValHist->GetRMS()
                                 <<" samples "<< m_guessValHist->GetEntries() << std::endl;
+            //  m_guessedField.Draw("apl");
          }
          else if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 || m_numberOfFieldEstimates == 0 )
          {
@@ -124,8 +125,7 @@ void FWMagField::guessField(double val) const
 {
    fwLog(fwlog::kDebug) <<  "FWMagField::guessField "<< val << std::endl;
    m_guessValHist->Fill(val);
-   m_updateFieldEstimate = true; 
-   if (fwlog::presentLogLevel() == fwlog::kDebug) m_guessValHist->Draw("apl");  
+   m_updateFieldEstimate = true;   
 }
 
 void FWMagField::resetFieldEstimate() const

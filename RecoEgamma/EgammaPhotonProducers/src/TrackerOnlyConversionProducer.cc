@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.24 2010/01/22 16:59:36 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.12 2010/01/13 12:22:12 nancy Exp $
 //
 //
 
@@ -73,7 +73,6 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 
     allowTrackBC_ = iConfig.getParameter<bool>("AllowTrackBC");
     allowD0_ = iConfig.getParameter<bool>("AllowD0");
-    allowDeltaPhi_ = iConfig.getParameter<bool>("AllowDeltaPhi");
     allowDeltaCot_ = iConfig.getParameter<bool>("AllowDeltaCot");
     allowMinApproach_ = iConfig.getParameter<bool>("AllowMinApproach");
     allowOppCharge_ = iConfig.getParameter<bool>("AllowOppCharge");
@@ -104,6 +103,8 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 
     }
 
+
+  
     if (allowVertex_){
 	maxDistance_ = iConfig.getParameter<double>("maxDistance");
 	maxOfInitialValue_ = iConfig.getParameter<double>("maxOfInitialValue");
@@ -118,10 +119,9 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     minHitsRight_ = iConfig.getParameter<int>("MinHitsRight");
 
     //Track Open angle cut on delta cot(theta) and delta phi
+    deltaPhi_ = iConfig.getParameter<double>("DeltaPhi");
     if (allowDeltaCot_)
 	deltaCotTheta_ = iConfig.getParameter<double>("DeltaCotTheta");
-    if (allowDeltaPhi_)
-	deltaPhi_ = iConfig.getParameter<double>("DeltaPhi");
     if (allowMinApproach_)
 	minApproach_ = iConfig.getParameter<double>("MinApproach");
 
@@ -263,6 +263,8 @@ bool TrackerOnlyConversionProducer::getMatchedBC(const std::multimap<double, rec
 	return false;
 }
 
+
+
 bool TrackerOnlyConversionProducer::getMatchedBC(const reco::CaloClusterPtrVector& bcMap,
 	const math::XYZPoint& trackImpactPosition,
 	reco::CaloClusterPtr& closestBC){
@@ -306,16 +308,14 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     const reco::CaloClusterPtr& bc_r = rr.second;
     
     //DeltaPhi as preselection cut
-    if (allowDeltaPhi_){
-	const double phi_l = tk_l->innerMomentum().phi();
-	const double phi_r = tk_r->innerMomentum().phi();
-	double dPhi = phi_l - phi_r;
-	dPhi = fmod(dPhi, Geom::twoPi());//mod to +-twoPi
-	//if (dPhi<1.0*Geom::pi()) dPhi+=Geom::twoPi();
-	//if (dPhi>= Geom::pi()) dPhi-=Geom::twoPi();
+    const double phi_l = tk_l->innerMomentum().phi();
+    const double phi_r = tk_r->innerMomentum().phi();
+    double dPhi = phi_l - phi_r;
+    dPhi = fmod(dPhi, Geom::twoPi());//mod to +-twoPi
+    //if (dPhi<1.0*Geom::pi()) dPhi+=Geom::twoPi();
+    //if (dPhi>= Geom::pi()) dPhi-=Geom::twoPi();
 
-	if (fabs(dPhi) > deltaPhi_) return false;//Delta Phi cut for pair
-    }
+    if (fabs(dPhi) > deltaPhi_) return false;//Delta Phi cut for pair
 
     if (allowTrackBC_){
 	//check energy of BC
@@ -611,8 +611,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 	    if ( checkTrackPair(the_left, the_right, magField, app_distance) ){
 		reco::Vertex the_vertex;//by default it is invalid
 		//if allow vertex and there is a vertex, go vertex finding, otherwise
+		//		bool found_vertex = false;
 		if (allowVertex_) {
-		    const bool found_vertex = checkVertex((*ll), right, magField, the_vertex);
+		  checkVertex((*ll), right, magField, the_vertex);
 		}
 		right_candidates.push_back(rr->second);
 		right_candidate_theta.push_back(right->innerMomentum().Theta());
@@ -634,7 +635,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		std::vector<math::XYZVector> trackPin;
 		std::vector<math::XYZVector> trackPout;
 		std::vector<math::XYZPoint> trackInnPos;
-
+ 
 		if ((*ll)->extra().isNonnull() && right->extra().isNonnull()){//only available on TrackExtra
 		  trackInnPos.push_back(  (*ll)->innerPosition());
 		  trackInnPos.push_back(  right->innerPosition());
@@ -673,7 +674,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		const float minAppDist = min_approach;
 
 		reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
-		float dummy=0;
+                float dummy=0;
 		reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist,  trackInnPos, trackPin, trackPout, dummy, algo );
 		outputConvPhotonCollection.push_back(newCandidate);
 
@@ -748,10 +749,6 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
     }
 
     reco::Vertex the_pvtx;
-    //because the priamry vertex is sorted by quality, the first one is the best
-    if (!vertexCollection.empty())
-	the_pvtx = *(vertexCollection.begin());
-    /*
     double low_chi2 = 9999.;
     int low_chi2_index = -1;
     //taking the lowest chi2 primary vertex
@@ -763,7 +760,7 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
     }
     if (low_chi2_index>-1)
 	the_pvtx = vertexCollection[low_chi2_index];
-    */
+
     reco::TrackRefVector allTracks;
     int total_tracks = 0;
     for (unsigned int ii = 0; ii<trackCollectionHandles.size(); ++ii)

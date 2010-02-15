@@ -29,10 +29,10 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     DoJetAnalysis              = cms.untracked.bool(True),
     DoJetCleaning              = cms.untracked.bool(True),
-    DoIterativeCone            = cms.untracked.bool(False),
+    DoIterativeCone            = cms.untracked.bool(True),#False),
 
-    DoJetPtAnalysis            = cms.untracked.bool(False),                           
-    DoJetPtCleaning            = cms.untracked.bool(False),                           
+    DoJetPtAnalysis            = cms.untracked.bool(True),#False),                           
+    DoJetPtCleaning            = cms.untracked.bool(True),#False),                           
 
     PFJetsCollectionLabel      = cms.InputTag("iterativeCone5PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("ak5CaloJets"),
@@ -56,12 +56,10 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     LSBegin = cms.int32(0),
     LSEnd   = cms.int32(-1),                                
                                 
-    #Cleanup parameters
+    #
     HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
         
-    techTrigsAND    = cms.vuint32(0),
-    techTrigsOR     = cms.vuint32(40,41),
-    techTrigsNOT    = cms.vuint32(36,37,38,39),
+    techTrigs     = cms.vuint32(40,41),
     
     #Turn on extra checks
     doPrimaryVertexCheck   = cms.bool(False),
@@ -69,12 +67,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     
     #Vertex cleanup parameters
     nvtx_min       = cms.int32(1),
-    nvtxtrks_min   = cms.int32(3),
+    nvtxtrks_min   = cms.int32(2),
     vtxchi2_max    = cms.double(2.4),
-    vtxz_max       = cms.double(15.0),
+    vtxz_max       = cms.double(20.0),
     
     #Switch on  tight filters for BeamHalo, JetID, HCALnoise
     tightBHFiltering      = cms.bool(True),
+    tightJetIDFiltering   = cms.uint32(1),
     tightHcalFiltering    = cms.bool(True),
     
     #
@@ -101,9 +100,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         HLT_Muon      = cms.string("HLT_Mu9"),
         HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
             
-        techTrigsAND    = cms.vuint32(0),
-        techTrigsOR     = cms.vuint32(40,41),
-        techTrigsNOT    = cms.vuint32(36,37,38,39),
+        techTrigs     = cms.vuint32(40,41),
         
         #Turn on extra checks
         doPrimaryVertexCheck   = cms.bool(False),
@@ -111,13 +108,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(3),
+        nvtxtrks_min   = cms.int32(2),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(15.0),
+        vtxz_max       = cms.double(20.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
-        tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
+        tightJetIDFiltering   = cms.uint32(1),
         tightHcalFiltering    = cms.bool(True),
         
         #
@@ -162,9 +159,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         HLT_Muon      = cms.string("HLT_Mu9"),
         HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
             
-        techTrigsAND    = cms.vuint32(0),
-        techTrigsOR     = cms.vuint32(40,41),
-        techTrigsNOT    = cms.vuint32(36,37,38,39),
+        techTrigs     = cms.vuint32(40,41),
         
         #Turn on extra checks
         doPrimaryVertexCheck   = cms.bool(False),
@@ -172,13 +167,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(3),
+        nvtxtrks_min   = cms.int32(2),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(15.0),
+        vtxz_max       = cms.double(20.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
-        tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
+        tightJetIDFiltering   = cms.uint32(1),
         tightHcalFiltering    = cms.bool(True),
         
         #
@@ -223,9 +218,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         HLT_Muon      = cms.string("HLT_Mu9"),
         HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
             
-        techTrigsAND    = cms.vuint32(0),
-        techTrigsOR     = cms.vuint32(40,41),
-        techTrigsNOT    = cms.vuint32(36,37,38,39),
+        techTrigs     = cms.vuint32(40,41),
         
         #Turn on extra checks
         doPrimaryVertexCheck   = cms.bool(False),
@@ -233,13 +226,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(3),
+        nvtxtrks_min   = cms.int32(2),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(15.0),
+        vtxz_max       = cms.double(20.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
-        tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
+        tightJetIDFiltering   = cms.uint32(1),
         tightHcalFiltering    = cms.bool(True),
         
         #
@@ -284,9 +277,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         HLT_Muon      = cms.string("HLT_Mu9"),
         HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
             
-        techTrigsAND    = cms.vuint32(0),
-        techTrigsOR     = cms.vuint32(40,41),
-        techTrigsNOT    = cms.vuint32(36,37,38,39),
+        techTrigs     = cms.vuint32(40,41),
         
         #Turn on extra checks
         doPrimaryVertexCheck   = cms.bool(False),
@@ -294,13 +285,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(3),
+        nvtxtrks_min   = cms.int32(2),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(15.0),
+        vtxz_max       = cms.double(20.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
-        tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
+        tightJetIDFiltering   = cms.uint32(1),
         tightHcalFiltering    = cms.bool(True),
         
         #
@@ -349,9 +340,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         HLT_Muon      = cms.string("HLT_Mu9"),
         HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
             
-        techTrigsAND    = cms.vuint32(0),
-        techTrigsOR     = cms.vuint32(40,41),
-        techTrigsNOT    = cms.vuint32(36,37,38,39),
+        techTrigs     = cms.vuint32(40,41),
     
         #Turn on extra checks
         doPrimaryVertexCheck   = cms.bool(False),
@@ -359,13 +348,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(3),
+        nvtxtrks_min   = cms.int32(2),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(15.0),
+        vtxz_max       = cms.double(20.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
-        tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
+        tightJetIDFiltering   = cms.uint32(1),
         tightHcalFiltering    = cms.bool(True),
     
         #
@@ -423,9 +412,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         HLT_Muon      = cms.string("HLT_Mu9"),
         HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
             
-        techTrigsAND    = cms.vuint32(0),
-        techTrigsOR     = cms.vuint32(40,41),
-        techTrigsNOT    = cms.vuint32(36,37,38,39),
+        techTrigs     = cms.vuint32(40,41),
         
         #Turn on extra checks
         doPrimaryVertexCheck   = cms.bool(False),
@@ -433,13 +420,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(3),
+        nvtxtrks_min   = cms.int32(2),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(15.0),
+        vtxz_max       = cms.double(20.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
-        tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
+        tightJetIDFiltering   = cms.uint32(1),
         tightHcalFiltering    = cms.bool(True),
         
         #
@@ -474,9 +461,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         HLT_Muon      = cms.string("HLT_Mu9"),
         HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
             
-        techTrigsAND    = cms.vuint32(0),
-        techTrigsOR     = cms.vuint32(40,41),
-        techTrigsNOT    = cms.vuint32(36,37,38,39),
+        techTrigs     = cms.vuint32(40,41),
         
         #Turn on extra checks
         doPrimaryVertexCheck   = cms.bool(False),
@@ -484,13 +469,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         
         #Vertex cleanup parameters
         nvtx_min       = cms.int32(1),
-        nvtxtrks_min   = cms.int32(3),
+        nvtxtrks_min   = cms.int32(2),
         vtxchi2_max    = cms.double(2.4),
-        vtxz_max       = cms.double(15.0),
+        vtxz_max       = cms.double(20.0),
         
         #Switch on  tight filters for BeamHalo, JetID, HCALnoise
         tightBHFiltering      = cms.bool(True),
-        tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
+        tightJetIDFiltering   = cms.uint32(1),
         tightHcalFiltering    = cms.bool(True),
         
         #

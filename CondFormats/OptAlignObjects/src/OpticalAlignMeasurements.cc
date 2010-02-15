@@ -3,7 +3,7 @@
 std::ostream & operator<<(std::ostream & os, const OpticalAlignMeasurements & r)
 {
 
-  os << " There are " << r.oaMeasurements_.size() << " optical alignment measurements objects." << std::endl;
+  os << " There are " << r.oaMeasurements_.size() << " optical alignment objects." << std::endl;
   size_t max = r.oaMeasurements_.size();
   size_t xi = 0;
   while ( xi < max ) {

@@ -1,4 +1,4 @@
-# last update on $Date: 2009/10/21 08:26:32 $ by $Author: flucke $
+# last update on $Date: 2009/10/14 14:49:16 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -41,11 +41,11 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
 # geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 #del process.CaloTopologyBuilder etc. to speed up...???
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V14::All' # take your favourite
+process.GlobalTag.globaltag = 'MC_31X_V9::All' #'IDEAL_30X::All'  # take your favourite
 #    # if alignment constants not from global tag, add this
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 #process.trackerAlignment = cms.ESSource(
@@ -153,10 +153,20 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
          'TrackerTIDEndcap,ffffff' 
          ),
     endCapSS = cms.PSet(
-        rRanges = cms.vdouble(40.0, 60.0, 75.0, 999.0)
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(40.0, 60.0, 75.0, 999.0),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
     ),
     endCapDS = cms.PSet(
-        rRanges = cms.vdouble(0.0, 40.0, 60.0, 75.0)
+        phiRanges = cms.vdouble(),
+        rRanges = cms.vdouble(0.0, 40.0, 60.0, 75.0),
+        etaRanges = cms.vdouble(),
+        yRanges = cms.vdouble(),
+        xRanges = cms.vdouble(),
+        zRanges = cms.vdouble()
     )
 )
 #process.AlignmentProducer.doMuon = True # to align muon system
@@ -209,11 +219,6 @@ process.source = cms.Source("PoolSource",
 #    )
 
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter)
-
-# all fits/refits with 'StripCPEgeometric' - but take about TTRHBuilder used ibn (re)fit
-# (works until 'StripCPEgeometric' gets default...)
-#process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEgeometric_cfi")
-#process.TTRHBuilderAngleAndTemplate.StripCPE = 'StripCPEgeometric'
 
 #--- SAVE ALIGNMENT CONSTANTS TO DB --------------------------------
 # Default in MPS is saving as alignment_MP.db. Uncomment next line not to save them.

@@ -14,7 +14,6 @@ configurations for the various types of job
 """
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.Merge import mergeProcess
 
 class Scenario(object):
     """
@@ -24,8 +23,6 @@ class Scenario(object):
     def __init__(self):
         pass
 
-    def merge(self, *inputFiles, **options):
-        return mergeProcess(*inputFiles, **options)
 
     def dropOutputModule(self, processRef, moduleName):
         """

@@ -26,27 +26,18 @@ public:
   /// this FEB channel in LinkBoard
   int linkBoardInputNum() const { return theLinkBoardInputNum; }
 
-  /// add strip info
-  void addStrips(int algo) {
-    theAlgo = algo;
-  }
+  /// add strip
+  void add(const ChamberStripSpec & strip);
 
   /// strip info for input pin
-  const ChamberStripSpec strip(int pinNumber) const;
+  const ChamberStripSpec * strip(int pinNumber) const;
+  const std::vector<ChamberStripSpec> & strips() const { return theStrips; }
 
   /// DetUnit to which data belongs
   const uint32_t & rawId() const;
 
   const ChamberLocationSpec & chamber() const { return theChamber; }
   const FebLocationSpec     & feb()  const { return theFeb; }
-
-  const int nstrips() const { return theAlgo/10000; }
-
-  const int chamberStripNum(int istrip) const;
-
-  const int cmsStripNum(int istrip) const { return 0; }
-
-  const int cablePinNum(int istrip) const;
 
   /// debug
   std::string print(int depth=0) const;
@@ -57,7 +48,7 @@ private:
   ChamberLocationSpec theChamber; 
   FebLocationSpec     theFeb; 
 
-  int theAlgo;
+  std::vector<ChamberStripSpec> theStrips;
   mutable uint32_t theRawId;
 };
 

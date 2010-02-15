@@ -23,8 +23,4 @@ l1GtRsObjectKeysOnline.subsystemLabel = "GT"
 
 # Collate subsystem object keys
 from CondTools.L1Trigger.L1TriggerKeyOnline_cfi import *
-L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'DTTF',
-                                                  'RCT_',
-#                                                  'GCT',
-                                                  'L1MuGMT',
-                                                  'GT' )
+L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'DTTF', 'RCT_', 'GCT', 'L1MuGMT', 'GT' )

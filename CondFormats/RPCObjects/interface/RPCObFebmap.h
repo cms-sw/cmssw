@@ -1,12 +1,3 @@
-/*
- * Payload definition(s): Feb thresholds, temperatures, voltages and noises (RPCObFebmap)
- *
- *  $Date: 2009/11/16 12:57:56 $
- *  $Revision: 1.3 $
- *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
- */
-
-
 #ifndef RPCObFebmap_h
 #define RPCObFebmap_h
 #include <vector>

@@ -1,8 +1,0 @@
-SHELL=/bin/bash
-PATH=/bin:/usr/bin:/afs/cern.ch/cms/sw/bin:$PATH
-10 * * * *  /analysis/sw/CRAB/Analysis_cron.sh > /tmp/cmstac/cron/crab_`date +\%Y-\%m-\%d_\%H-\%M-\%S`.log 2>&1
-#15,35,55 * * * * $HOME/scripts/launch_RUtoEDM_even.sh >> /tmp/cron_RUtoEDM_even.log 2>&1
-#18,38,58 * * * * $HOME/scripts/launch_RUtoEDM_odd.sh >> /tmp/cron_RUtoEDM_odd.log 2>&1
-5,15,25,35,45,55 * * * * $HOME/scripts/launch_RUtoEDM_all.sh >> /tmp/cron_RUtoEDM_all.log 2>&1
-17 00 * * *   $HOME/scripts/backup_home.sh >> /tmp/cron_backup_home.log 2>&1
-

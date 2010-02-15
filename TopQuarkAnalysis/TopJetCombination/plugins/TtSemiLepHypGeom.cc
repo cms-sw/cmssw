@@ -36,12 +36,10 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
 
   std::vector<bool> isBJet;
   std::vector<bool> isLJet;
-  int cntBJets = 0;
   if(useBTagging_) {
     for(unsigned int idx=0; idx<maxNJets; ++idx) {
       isBJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    ) );
       isLJet.push_back( ((*jets)[idx].bDiscriminator(bTagAlgorithm_) < maxBDiscLightJets_) );
-      if((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    )cntBJets++;
     }
   }
 
@@ -57,9 +55,9 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   int lightQ   =-1;
   int lightQBar=-1;
   for(unsigned int idx=0; idx<maxNJets; ++idx){
-    if(useBTagging_ && (!isLJet[idx] || (cntBJets<=2 && isBJet[idx]))) continue;
+    if(useBTagging_ && !isLJet[idx]) continue;
     for(unsigned int jdx=(idx+1); jdx<maxNJets; ++jdx){
-      if(useBTagging_ && (!isLJet[jdx] || (cntBJets<=2 && isBJet[jdx]) || (cntBJets==3 && isBJet[idx] && isBJet[jdx]))) continue;
+      if(useBTagging_ && !isLJet[jdx]) continue;
       double dist = distance((*jets)[idx].p4(), (*jets)[jdx].p4());
       if( minDist<0. || dist<minDist ){
 	minDist=dist;

@@ -11,9 +11,7 @@
 
 void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector<float> tspureRate,
 			       vector<float> tspureRateErr,vector<float> tpureRate,
-			       vector<float> tpureRateErr,vector< vector<float> >tcoMa,
-			       vector < vector <float> > tRatePerLS,vector<int> tRunID,
-			       vector<int> tLumiSection, vector<float> tTotalRatePerLS) {
+			       vector<float> tpureRateErr,vector< vector<float> >tcoMa) {
   Rate = tRate;
   RateErr = tRateErr;
   spureRate = tspureRate;
@@ -21,13 +19,6 @@ void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector
   pureRate = tpureRate;
   pureRateErr = tpureRateErr;
   coMa = tcoMa;
-  RatePerLS = tRatePerLS;
-  runID = tRunID;
-  lumiSection = tLumiSection;
-  totalRatePerLS = tTotalRatePerLS;
-
-  ReorderRunLS(); // reorder messed up runids/LS
-
 }
 
 /* ********************************************** */
@@ -106,7 +97,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   float physCutThruErr = 0.; 
   float cuPhysRate = 0.; 
   float cuPhysRateErr = 0.; 
-
+    
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
     cumulRateErr += pow(spureRateErr[i],2.); 
@@ -120,34 +111,34 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
       physCutThruErr += pow(spureRateErr[i]*menu->GetEventsize(i),2.); 
     } 
 
-    TString tempTrigSeedPrescales; 
     TString tempTrigSeeds; 
+    TString tempTrigSeedPrescales; 
     std::map<TString, std::vector<TString> > 
       mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
 
-    vector<TString> vtmp; 
+    TString stmp; 
     vector<int> itmp; 
-
     typedef map< TString, vector<TString> >  mymap; 
-    for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) { 
+    //std::cout<<mapL1seeds.size()<<std::endl;
+    for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) {
+      //std::cout<<"# "<<it->first<<" | "<<menu->GetTriggerName(i)<<" #"<<std::endl;
+      //std::cout<<it->second.size()<<std::endl;
       if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
-        vtmp = it->second; 
-        //cout<<it->first<<endl; 
         for (unsigned int j=0;j<it->second.size();j++) { 
           itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
-          //cout<<"\t"<<(it->second)[j]<<endl; 
+	  //std::cout<<menu->GetL1Prescale((it->second)[j])<<std::endl;
         } 
       } 
-    } 
-    for (unsigned int j=0;j<vtmp.size();j++) { 
-      tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
+    }
+
+    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
+    for (unsigned int j=0;j<itmp.size();j++) { 
       tempTrigSeedPrescales += itmp[j]; 
-      if (j<(vtmp.size()-1)) { 
-	tempTrigSeeds = tempTrigSeeds + " or "; 
+      if (j<(itmp.size()-1)) { 
 	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
       } 
-    } 
-
+    }
+    
     outFile << "| !"<< menu->GetTriggerName(i)
 	    << " | !" << tempTrigSeeds
 	    << " | " << tempTrigSeedPrescales
@@ -217,21 +208,6 @@ void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 
 }
 
-int OHltRatePrinter::ivecMax(vector<int> ivec) {
-  int max = -999999;
-  for (unsigned int i=0;i<ivec.size();i++) {
-    if (ivec[i]>max) max = ivec[i];
-  }
-  return max;
-}
-
-int OHltRatePrinter::ivecMin(vector<int> ivec) {
-  int min = 999999999;
-  for (unsigned int i=0;i<ivec.size();i++) {
-    if (ivec[i]<min) min = ivec[i];
-  }
-  return min;
-}
 
 /* ********************************************** */
 // Fill histos
@@ -248,22 +224,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   TH1F *throughput = new TH1F("throughput","throughput",nTrig,1,nTrig+1);
   TH1F *eventsize = new TH1F("eventsize","eventsize",nTrig,1,nTrig+1);
   TH2F *overlap = new TH2F("overlap","overlap",nTrig,1,nTrig+1,nTrig,1,nTrig+1);
-
-  int RunLSn = RatePerLS.size();
-  
-  int RunMin = ivecMin(runID); 
-  int RunMax = ivecMax(runID);
-  int LSMin = ivecMin(lumiSection); 
-  int LSMax = ivecMax(lumiSection);
-  
-  int RunLSmin = RunMin*10000 + LSMin; 
-  int RunLSmax = RunMax*10000 + LSMax; 
-
-  //cout<<">>>>>>>> "<<RunLSn<<" "<<RunMin<<" "<<RunMax<<" "<<LSMin<<" "<<LSMax<<endl;
-  
-  TH2F *individualPerLS = new TH2F("individualPerLS","individualPerLS",nTrig,1,nTrig+1,
-				   RunLSn,RunLSmin,RunLSmax);
-  TH1F *totalPerLS = new TH1F("totalPerLS","totalPerLS",RunLSn,RunLSmin,RunLSmax);
 
 
   float cumulRate = 0.;
@@ -284,28 +244,14 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
     throughput->SetBinContent(i+1,cuThru);
     throughput->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i)); 
     eventsize->SetBinContent(i+1,menu->GetEventsize(i)); 
-    eventsize->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
-
-    for (int j=0;j<RunLSn;j++) {
-      individualPerLS->SetBinContent(i+1,j+1,RatePerLS[j][i]);
-      TString tstr = ""; tstr += runID[j]; tstr = tstr + " - "; tstr += lumiSection[j];
-      individualPerLS->GetYaxis()->SetBinLabel(j+1,tstr);
-      individualPerLS->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
-    }    
+    eventsize->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));      
   }
-  for (int j=0;j<RunLSn;j++) {
-    TString tstr = ""; tstr += runID[j]; tstr = tstr + " - "; tstr += lumiSection[j];
-    totalPerLS->SetBinContent(j+1,totalRatePerLS[j]);
-    totalPerLS->GetXaxis()->SetBinLabel(j+1,tstr);
-  }    
 
-  for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
-    for (unsigned int j=0;j<menu->GetTriggerSize();j++) { 
-      overlap->SetBinContent(i,j,coMa[i][j]);
-      overlap->GetXaxis()->SetBinLabel(i+1,menu->GetTriggerName(i));
-      overlap->GetYaxis()->SetBinLabel(j+1,menu->GetTriggerName(j));
-    }
-  }
+  for (unsigned int i=0;i<menu->GetTriggerSize();i++) {  
+    for (unsigned int j=0;j<menu->GetTriggerSize();j++) {  
+      overlap->SetBinContent(i,j,coMa[i][j]); 
+    } 
+  } 
 
   individual->SetStats(0); individual->SetYTitle("Rate (Hz)");
   individual->SetTitle("Individual trigger rate");
@@ -317,12 +263,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
   eventsize->Write();
   throughput->Write();
   overlap->Write();
-  individualPerLS->SetStats(0); individualPerLS->SetZTitle("Rate (Hz)");
-  individualPerLS->SetTitle("Individual trigger rate vs Run/LumiSection");
-  individualPerLS->Write();
-  totalPerLS->SetStats(0); totalPerLS->SetZTitle("Rate (Hz)");
-  totalPerLS->SetTitle("Total trigger rate vs Run/LumiSection");
-  totalPerLS->Write();
   fr->Close();
 }
 
@@ -526,36 +466,37 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
     TString tempTrigName = menu->GetTriggerName(i);
     tempTrigName.ReplaceAll("_","\\_");
 
-    TString tempTrigSeedPrescales;
-    TString tempTrigSeeds;
-    std::map<TString, std::vector<TString> >
-      mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds
 
-    vector<TString> vtmp;
-    vector<int> itmp;
-    typedef map< TString, vector<TString> >  mymap;
+
+    TString tempTrigSeeds; 
+    TString tempTrigSeedPrescales; 
+    std::map<TString, std::vector<TString> > 
+      mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
+
+    TString stmp; 
+    vector<int> itmp; 
+    typedef map< TString, vector<TString> >  mymap; 
+    //std::cout<<mapL1seeds.size()<<std::endl;
     for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) {
-      if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) {
-	vtmp = it->second;
-	//cout<<it->first<<endl;
-	for (unsigned int j=0;j<it->second.size();j++) {
-	  itmp.push_back(menu->GetL1Prescale((it->second)[j]));
-	  //cout<<"\t"<<(it->second)[j]<<endl;
-	}
-      }
+      //std::cout<<"# "<<it->first<<" | "<<menu->GetTriggerName(i)<<" #"<<std::endl;
+      //std::cout<<it->second.size()<<std::endl;
+      if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
+        for (unsigned int j=0;j<it->second.size();j++) { 
+          itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
+	  //std::cout<<menu->GetL1Prescale((it->second)[j])<<std::endl;
+        } 
+      } 
     }
-    // Faster, but crashes???:
-    //vector<TString> vtmp = mapL1seeds.find(TString(menu->GetTriggerName(i)))->second;
-    if (vtmp.size()>2) {
-      for (unsigned int j=0;j<vtmp.size();j++) {
-	tempTrigSeeds = tempTrigSeeds + vtmp[j];
-	tempTrigSeedPrescales += itmp[j];
-	if (j<(vtmp.size()-1)) {
-	  tempTrigSeeds = tempTrigSeeds + ", ";
-	  tempTrigSeedPrescales = tempTrigSeedPrescales + ", ";
-	}
-      }
 
+    tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
+    for (unsigned int j=0;j<itmp.size();j++) { 
+      tempTrigSeedPrescales += itmp[j]; 
+      if (j<(itmp.size()-1)) { 
+	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
+      } 
+    }
+
+    if (itmp.size()>2) {
       tempTrigSeeds.ReplaceAll("_","\\_");
       tempTrigSeedPrescales.ReplaceAll("_","\\_");
       footTrigSeedPrescales.push_back(tempTrigSeedPrescales);
@@ -567,16 +508,8 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
       
       tempTrigSeeds = "List Too Long";
       tempTrigSeedPrescales = "-";
-    } else {
-      for (unsigned int j=0;j<vtmp.size();j++) {
-	tempTrigSeeds = tempTrigSeeds + vtmp[j];
-	tempTrigSeedPrescales += itmp[j];
-	if (j<(vtmp.size()-1)) {
-	  tempTrigSeeds = tempTrigSeeds + ",";
-	  tempTrigSeedPrescales = tempTrigSeedPrescales + ",";
-	}
-      }
     }
+    
     tempTrigSeeds.ReplaceAll("_","\\_");
     tempTrigSeedPrescales.ReplaceAll("_","\\_");
     
@@ -658,112 +591,4 @@ void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu) {
   outFile << ")" << endl;
   
   outFile.close();
-}
-
-/* ********************************************** */
-// Print out HLTDataset report(s)
-/* ********************************************** */
-void OHltRatePrinter::printHLTDatasets(OHltConfig *cfg, OHltMenu *menu
-		, HLTDatasets &hltDatasets
-		, TString   &fullPathTableName       ///< Name for the output files. You can use this to put the output in your directory of choice (don't forget the trailing slash). Directories are automatically created as necessary.
-        , const Int_t     significantDigits = 3   ///< Number of significant digits to report percentages in.
-) {
-//  TString tableFileName = GetFileName(cfg,menu);
-  char sLumi[10];
-  sprintf(sLumi,"%1.1e",cfg->iLumi);
-// 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.report\n"); //RR
-  hltDatasets.report(sLumi, fullPathTableName+ "_PS_",significantDigits);   //SAK -- prints PDF tables
-// 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.write\n"); //RR
-  hltDatasets.write();
-
-	printf("**************************************************************************************************************************\n");
-	unsigned int HLTDSsize=hltDatasets.size();
-	for (unsigned int iHLTDS=0;iHLTDS< HLTDSsize; ++iHLTDS) {
-		unsigned int SampleDiasize=(hltDatasets.at(iHLTDS)).size();
-		for (unsigned int iDataset=0;iDataset< SampleDiasize; ++iDataset) {
-			unsigned int DSsize=hltDatasets.at(iHLTDS).at(iDataset).size();
-			printf("\n");
-			printf("%-60s\t%10.2lf\n", hltDatasets.at(iHLTDS).at(iDataset).name.Data(),
-						 hltDatasets.at(iHLTDS).at(iDataset).rate);
-			printf("\n");
-			for (unsigned int iTrigger=0; iTrigger< DSsize; ++iTrigger) {
-				TString DStriggerName(hltDatasets.at(iHLTDS).at(iDataset).at(iTrigger).name);
-				for (unsigned int i=0;i<menu->GetTriggerSize();i++) {
-
-					TString tempTrigSeedPrescales; 
-					TString tempTrigSeeds; 
-					std::map<TString, std::vector<TString> > 
-						mapL1seeds = menu->GetL1SeedsOfHLTPathMap(); // mapping to all seeds 
-
-					vector<TString> vtmp; 
-					vector<int> itmp; 
-
-					typedef map< TString, vector<TString> >  mymap; 
-					for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) { 
-						if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) { 
-							vtmp = it->second; 
-							//cout<<it->first<<endl; 
-							for (unsigned int j=0;j<it->second.size();j++) { 
-								itmp.push_back(menu->GetL1Prescale((it->second)[j])); 
-								//cout<<"\t"<<(it->second)[j]<<endl; 
-							} 
-						} 
-					} 
-					for (unsigned int j=0;j<vtmp.size();j++) { 
-						tempTrigSeeds = tempTrigSeeds + vtmp[j]; 
-						tempTrigSeedPrescales += itmp[j]; 
-						if (j<(vtmp.size()-1)) { 
-							tempTrigSeeds = tempTrigSeeds + " or "; 
-							tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
-						} 
-					} 
-
-					TString iMenuTriggerName(menu->GetTriggerName(i));
-					if (DStriggerName.CompareTo(iMenuTriggerName)==0) {
-						printf("%-40s\t%-30s\t%40s\t%10d\t%10.2lf\n",(menu->GetTriggerName(i)).Data(), tempTrigSeeds.Data(), tempTrigSeedPrescales.Data(), menu->GetPrescale(i), Rate[i]);
-					}
-				}
-			}
-		}
-	}
-	printf("**************************************************************************************************************************\n");
-
-}
-
-
-void OHltRatePrinter::ReorderRunLS() {
-  // apply bubblesort to reorder
-  int nLS = lumiSection.size();
-  //for (int i=0;i<nLS;i++) {
-  //  cout<<">>>>>>>>>> "<<RunID[i]<<" "<<lumiSection[i]<<" "<<endl;
-  //}
-  for (int i=nLS-1;i>0;i--) {
-    for (int j=0;j<i;j++) {
-      if ( (runID[j] > runID[j+1]) ||
-	   (runID[j] == runID[j+1] && lumiSection[j] > lumiSection[j+1]) ) {
-	//cout<<">>>>>>> "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
-	//cout<<">>>>>>> "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
-	int swap1 = runID[j]; 
-	runID[j] = runID[j+1];
-	runID[j+1] = swap1;
-
-	int swap2 = lumiSection[j]; 
-	lumiSection[j] = lumiSection[j+1];
-	lumiSection[j+1] = swap2;
-
-	vector<float> swap3 = RatePerLS[j]; 
-	RatePerLS[j] = RatePerLS[j+1];
-	RatePerLS[j+1] = swap3;
-
-	float swap4 = totalRatePerLS[j]; 
-	totalRatePerLS[j] = totalRatePerLS[j+1];
-	totalRatePerLS[j+1] = swap4;
-	//cout<<"<<<<<< "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
-	//cout<<"<<<<<< "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
-      }    
-    }
-  }
-  //for (int i=0;i<nLS;i++) {
-  //  cout<<"<<<< "<<runID[i]<<" "<<lumiSection[i]<<" "<<endl;
-  //}
 }
