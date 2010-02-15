@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.67 2009/08/21 11:52:29 dellaric Exp $
+// $Id: Numbers.cc,v 1.68 2009/08/21 14:20:27 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.67 $
-  \date $Date: 2009/08/21 11:52:29 $
+  \version $Revision: 1.68 $
+  \date $Date: 2009/08/21 14:20:27 $
 */
 
 #include <sstream>
@@ -697,37 +697,6 @@ int Numbers::iTCC( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId> Numbers::crystals( const EcalSubdetector subdet, int itcc, int itt ) throw( std::runtime_error ) {
-
-
-  if( Numbers::map ) {
-
-    EcalSubdetector sub = Numbers::map->subdet(itcc,1);
-
-    if( subdet == sub ) {
-      
-      return( Numbers::map->ttConstituents( itcc, itt ) );
-      
-    } else {
-
-      std::vector<DetId> empty;
-      empty.clear();
-      return empty;
-
-    }
-    
-  }  else {
-    
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-    
-  }
-
-}
-
-//-------------------------------------------------------------------------
-
 std::vector<DetId> Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
@@ -787,6 +756,24 @@ std::vector<DetId> Numbers::crystals( const EcalElectronicsId& id ) throw( std::
 
     int idcc = id.dccId();
     int itt = id.towerId();
+
+    return( Numbers::map->dccTowerConstituents( idcc, itt ) );
+
+  } else {
+
+    std::ostringstream s;
+    s << "ECAL Geometry not available";
+    throw( std::runtime_error( s.str() ) );
+
+  }
+
+}
+
+//-------------------------------------------------------------------------
+
+std::vector<DetId> Numbers::crystals( int idcc, int itt ) throw( std::runtime_error ) {
+
+  if( Numbers::map ) {
 
     return( Numbers::map->dccTowerConstituents( idcc, itt ) );
 
