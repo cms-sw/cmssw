@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.47 2010/02/01 11:09:51 babar Exp $
+# $Id: setup_sm.sh,v 1.48 2010/02/02 15:28:58 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -18,7 +18,7 @@ if test -n "$SM_LOOKAREA"; then
     lookarea=$SM_LOOKAREA
 fi
 
-cmhost=srv-C2C07-20
+cmhost=srv-C2C06-20
 
 hname=`hostname | cut -d. -f1`;
 nname="node"`echo $hname | cut -d- -f3` 
@@ -80,6 +80,10 @@ checkSLCversion () {
 
 # Mounts a disk, looking for its label
 mountByLabel () {
+    if [ ! -d $1 ]; then
+        echo "$1 is not a directory, not trying to mount it!"
+        return 1
+    fi
     sn=`basename $1`
     # First, trying to mount by label
     mount -L $sn $1 >/dev/null
