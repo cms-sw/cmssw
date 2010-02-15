@@ -65,6 +65,7 @@ void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
   	trackAssociatorParameters.loadParameters( pset );
 
 	dropCaloJets       = iConfig.getUntrackedParameter<bool>("DropCaloJets",false);
+	dropRejected       = iConfig.getUntrackedParameter<bool>("DropRejectedJets",true);
 }
 
 
@@ -311,11 +312,14 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
                 }
 		if ( eHcalOverTrack  > etHcalOverTrackMax ) {
 		  algoComponentUsed = TCAlgoHadronicJet; // reject
+		  if(!dropRejected) p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
 		}
         }
 	if( eCaloOverTrack  < etCaloOverTrackMin ) {
 	          algoComponentUsed = TCAlgoTrackProblem; // reject
+		  if(!dropRejected) p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
 	}
+
 	if(p4.Et() > 0) passed++;
 
 	return p4;

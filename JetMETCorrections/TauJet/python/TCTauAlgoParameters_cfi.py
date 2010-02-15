@@ -23,5 +23,7 @@ tcTauAlgoParameters = cms.PSet(
         HBHERecHitCollection  = cms.InputTag("hbhereco"),
         HORecHitCollection    = cms.InputTag("horeco"),
         HFRecHitCollection    = cms.InputTag("hfreco"),
-        TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
+        TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,
+        DropCaloJets          = cms.untracked.bool(False), 
+        DropRejectedJets      = cms.untracked.bool(True)
 )

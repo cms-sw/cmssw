@@ -99,6 +99,7 @@ class TCTauAlgorithm {
 	int prongs;
 
 	bool dropCaloJets;
+	bool dropRejected;
 
 	const TransientTrackBuilder* transientTrackBuilder;
 
