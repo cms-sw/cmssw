@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/02/14 20:56:24 $
- * $Revision: 1.32 $
+ * $Date: 2010/02/15 17:24:42 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -15,6 +15,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
@@ -214,7 +216,6 @@ void EEStatusFlagsClient::analyze(void) {
   }
 
 #ifdef WITH_ECAL_COND_DB
-/*
   if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
     map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
     for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
@@ -224,15 +225,12 @@ void EEStatusFlagsClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
-        int fed = ecid.getID1();
+        int idcc  = ecid.getID1() - 600;
         int itt = ecid.getID2();
 
         int ism = -1;
-        if ( fed >= 601 && fed <= 609 ) ism = fed - 601 + 9;
-        if ( fed >= 646 && fed <= 654 ) ism = fed - 646 + 1;
-
-        int ixt = (itt-1)/4 + 1;
-        int iyt = (itt-1)%4 + 1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
         if ( itt > 70 ) continue;
 
@@ -241,7 +239,16 @@ void EEStatusFlagsClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( ixt, iyt, 0.01 );
+          vector<DetId> crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals.size(); i++ ) {
+            EEDetId id = crystals[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( jx, jy, 0.01 );
+          }
         } else if ( itt == 69 || itt == 70 ) {
           if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
         }
@@ -250,7 +257,6 @@ void EEStatusFlagsClient::analyze(void) {
 
     }
   }
-*/
 #endif
 
 }
