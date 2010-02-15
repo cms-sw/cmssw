@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2010/02/14 14:35:45 $
- * $Revision: 1.211 $
+ * $Date: 2010/02/14 20:56:23 $
+ * $Revision: 1.212 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -911,60 +911,6 @@ void EBPedestalClient::analyze(void) {
 
         }
 
-        // masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int ic = Numbers::indexEB(ism, ie, ip);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits02 ) {
-                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-              }
-            }
-
-          }
-        }
-#endif
-
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits02 ) {
-                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-              }
-            }
-
-          }
-        }
-#endif
-
       }
     }
 
@@ -1017,28 +963,6 @@ void EBPedestalClient::analyze(void) {
 
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
       }
-
-      // masking
-
-#ifdef WITH_ECAL_COND_DB
-      if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
-        map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-        for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
-
-          EcalLogicID ecid = m->first;
-
-          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1).getLogicID() ) {
-            if ( (m->second).getErrorBits() & bits01 ) {
-              UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
-            }
-            if ( (m->second).getErrorBits() & bits03 ) {
-              UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-            }
-          }
-
-        }
-      }
-#endif
 
     }
 
@@ -1193,6 +1117,139 @@ void EBPedestalClient::analyze(void) {
 #endif
 
   }
+
+#ifdef WITH_ECAL_COND_DB
+  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
+    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int ic = ecid.getID2();
+
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+
+      }
+
+      if ( (m->second).getErrorBits() & bits02 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int ic = ecid.getID2();
+
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+
+      }
+
+      if ( (m->second).getErrorBits() & bits03 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int ic = ecid.getID2();
+
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int itt = ecid.getID2();
+
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
+          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
+            UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+          }
+        }
+
+      }
+
+      if ( (m->second).getErrorBits() & bits02 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int itt = ecid.getID2();
+
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
+          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
+            UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+          }
+        }
+
+      }
+
+      if ( (m->second).getErrorBits() & bits03 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int itt = ecid.getID2();
+
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
+          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
+            UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+          }
+        }
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
+    map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int i = ecid.getID2()-1;
+
+        UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
+
+      }
+
+      if ( (m->second).getErrorBits() & bits03 ) {
+        EcalLogicID ecid = m->first;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int i = ecid.getID2()-1;
+
+        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+
+      }
+
+    }
+  }
+#endif
 
 }
 
