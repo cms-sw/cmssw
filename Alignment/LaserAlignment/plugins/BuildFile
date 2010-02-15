@@ -8,6 +8,7 @@
 <library name=LaserAlignmentPlugins file=*cc>
 	<use name=Alignment/LaserAlignment>
 	<use name=Alignment/TrackerAlignment>
+	<use name=CommonTools/UtilAlgos>
 	<use name=CondCore/DBOutputService>
 	<use name=DataFormats/Common>
 	<use name=DataFormats/DetId>
