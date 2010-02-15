@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.4 2010/02/11 13:32:50 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -41,8 +41,8 @@ namespace stor
         not put onto the FIFO.
    
      $Author: mommsen $
-     $Revision: 1.3 $
-     $Date: 2009/07/20 13:06:10 $
+     $Revision: 1.4 $
+     $Date: 2010/02/11 13:32:50 $
    */
 
 
@@ -216,7 +216,7 @@ namespace stor
        absurdly large.
     */
     explicit ConcurrentQueue(size_type max_size = std::numeric_limits<size_type>::max(),
-                             detail::memory_type max_memory = std::numeric_limits<size_type>::max());
+                             detail::memory_type max_memory = std::numeric_limits<detail::memory_type>::max());
 
     /**
        Applications should arrange to make sure that the destructor of
