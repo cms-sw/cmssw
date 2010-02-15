@@ -11,12 +11,9 @@
 namespace triggerExpression {
 
 // define the result of the module from the HLT reults
-bool HLTReader::operator()(const Data & data) {
+bool HLTReader::operator()(const Data & data) const {
   if (not data.hasHLT())
     return false;
-
-  if (data.hltConfigurationUpdated())
-    init(data);
 
   typedef std::pair<std::string, unsigned int> value_type;
   BOOST_FOREACH(const value_type & trigger, m_triggers)
@@ -27,7 +24,6 @@ bool HLTReader::operator()(const Data & data) {
 }
 
 void HLTReader::dump(std::ostream & out) const {
-  //out << "[" << m_pattern << "=";
   if (m_triggers.size() == 0) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
@@ -38,18 +34,15 @@ void HLTReader::dump(std::ostream & out) const {
       out << " OR " << m_triggers[i].first;
     out << ")";
   }
-  //out << "]";
 }
 
 // (re)initialize the module
 void HLTReader::init(const Data & data) {
-
-  const edm::TriggerNames & hltMenu = data.hltMenu();
-
   // clear the previous configuration
   m_triggers.clear();
 
   // check if the pattern has is a glob expression, or a single trigger name
+  const edm::TriggerNames & hltMenu = data.hltMenu();
   if (not edm::is_glob(m_pattern)) {
     // no wildcard expression
     unsigned int index = hltMenu.triggerIndex(m_pattern);
