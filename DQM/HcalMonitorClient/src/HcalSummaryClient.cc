@@ -138,10 +138,10 @@ void HcalSummaryClient::beginJob(DQMStore* dqmStore)
   deadCellMon_.WriteThreshold( dqmStore_, rootFolder_);
   hotCellMon_.WriteThreshold( dqmStore_, rootFolder_);
   recHitMon_.WriteThreshold( dqmStore_, rootFolder_);
-  pedestalMon_.WriteThreshold( dqmStore_, rootFolder_);
-  ledMon_.WriteThreshold( dqmStore_, rootFolder_);
-  trigPrimMon_.WriteThreshold( dqmStore_, rootFolder_);
-  caloTowerMon_.WriteThreshold( dqmStore_, rootFolder_);
+  //pedestalMon_.WriteThreshold( dqmStore_, rootFolder_);
+  //ledMon_.WriteThreshold( dqmStore_, rootFolder_);
+  //trigPrimMon_.WriteThreshold( dqmStore_, rootFolder_);
+  //caloTowerMon_.WriteThreshold( dqmStore_, rootFolder_);
   beamMon_.WriteThreshold( dqmStore_, rootFolder_);
 } // void HcalSummaryClient::beginJob(DQMStore* dqmStore)
 
