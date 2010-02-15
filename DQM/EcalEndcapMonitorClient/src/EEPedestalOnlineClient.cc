@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/02/14 16:03:50 $
- * $Revision: 1.90 $
+ * $Date: 2010/02/15 09:14:09 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -393,13 +393,25 @@ void EEPedestalOnlineClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits03 ) {
         EcalLogicID ecid = m->first;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
-        int ic = ecid.getID2();
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
 
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
+        int iz = ecid.getID1();
+        int ix = ecid.getID2();
+        int iy = ecid.getID3();
 
-        UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+          int ism = superModules_[i];
+          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+          }
+          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+          }
+        }
 
       }
 
@@ -413,15 +425,23 @@ void EEPedestalOnlineClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits03 ) {
         EcalLogicID ecid = m->first;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
+
+        int fed = ecid.getID1();
         int itt = ecid.getID2();
 
-        int iet = (itt-1)/4 + 1;
-        int ipt = (itt-1)%4 + 1;
+        int ism = -1;
+        if ( fed >= 601 && fed <= 609 ) ism = fed - 601 + 9;
+        if ( fed >= 646 && fed <= 654 ) ism = fed - 646 + 1;
 
-        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
-          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
-            UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+        int ixt = (itt-1)/4 + 1;
+        int iyt = (itt-1)%4 + 1;
+
+        for ( int ix = 5*(ixt-1)+1; ix <= 5*ixt; ix++ ) {
+          for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
           }
         }
 
