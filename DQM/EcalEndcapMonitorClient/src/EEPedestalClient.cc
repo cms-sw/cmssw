@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/02/15 16:23:44 $
- * $Revision: 1.98 $
+ * $Date: 2010/02/15 16:46:47 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1264,7 +1264,7 @@ void EEPedestalClient::analyze(void) {
           for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
           }
         }
 
@@ -1289,7 +1289,7 @@ void EEPedestalClient::analyze(void) {
           for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
           }
         }
 
@@ -1314,7 +1314,7 @@ void EEPedestalClient::analyze(void) {
           for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
           }
         }
 

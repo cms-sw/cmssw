@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/02/15 16:07:38 $
- * $Revision: 1.93 $
+ * $Date: 2010/02/15 16:46:47 $
+ * $Revision: 1.94 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -441,7 +441,7 @@ void EEPedestalOnlineClient::analyze(void) {
           for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
           }
         }
 
