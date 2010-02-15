@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/02/15 17:24:42 $
- * $Revision: 1.98 $
+ * $Date: 2010/02/15 17:51:59 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -976,6 +976,9 @@ void EEIntegrityClient::analyze(void) {
         }
 
       }
+
+    }
+  }
 
 /*
   if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
