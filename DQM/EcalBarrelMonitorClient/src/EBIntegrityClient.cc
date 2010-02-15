@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2010/02/15 13:53:04 $
- * $Revision: 1.221 $
+ * $Date: 2010/02/15 14:14:14 $
+ * $Revision: 1.222 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -978,7 +978,6 @@ void EBIntegrityClient::analyze(void) {
 
     }
   }
-
 #endif
 
 }
