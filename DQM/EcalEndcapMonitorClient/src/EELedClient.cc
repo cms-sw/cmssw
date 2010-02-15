@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/02/14 20:56:24 $
- * $Revision: 1.105 $
+ * $Date: 2010/02/15 17:24:42 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -37,6 +37,8 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
 
@@ -1590,7 +1592,6 @@ void EELedClient::analyze(void) {
     }
   }
 
-/*
   if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
     map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
     for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
@@ -1600,24 +1601,30 @@ void EELedClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
-        int fed = ecid.getID1();
+        int idcc = ecid.getID1() - 600;
         int itt = ecid.getID2();
 
         int ism = -1;
-        if ( fed >= 601 && fed <= 609 ) ism = fed - 601 + 9;
-        if ( fed >= 646 && fed <= 654 ) ism = fed - 646 + 1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
-        int ixt = (itt-1)/4 + 1;
-        int iyt = (itt-1)%4 + 1;
+        if ( itt > 70 ) continue;
 
-        for ( int ix = 5*(ixt-1)+1; ix <= 5*ixt; ix++ ) {
-          for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
+        if ( itt >= 42 && itt <= 68 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          vector<DetId> crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals.size(); i++ ) {
+            EEDetId id = crystals[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) {
-              UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-              UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
-            }
+            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
           }
         }
 
@@ -1625,7 +1632,6 @@ void EELedClient::analyze(void) {
 
     }
   }
-*/
 
   if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
     map<EcalLogicID, RunPNErrorsDat>::const_iterator m;

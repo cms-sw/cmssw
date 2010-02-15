@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/02/15 22:31:22 $
- * $Revision: 1.34 $
+ * $Date: 2010/02/15 22:36:16 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -16,8 +16,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #endif
@@ -26,9 +24,10 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
-
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
 

@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/02/15 10:14:31 $
- * $Revision: 1.106 $
+ * $Date: 2010/02/15 17:24:42 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,6 +34,8 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
 
@@ -1155,7 +1157,6 @@ void EETestPulseClient::analyze(void) {
     }
   }
 
-/*
   if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
     map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
     for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
@@ -1165,17 +1166,29 @@ void EETestPulseClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        int idcc = ecid.getID1() - 600;
         int itt = ecid.getID2();
 
-        int ixt = (itt-1)/4 + 1;
-        int iyt = (itt-1)%4 + 1;
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
-        for ( int ix = 5*(ixt-1)+1; ix <= 5*ixt; ix++ ) {
-          for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 42 && itt <= 68 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          vector<DetId> crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals.size(); i++ ) {
+            EEDetId id = crystals[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
           }
         }
 
@@ -1186,17 +1199,29 @@ void EETestPulseClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        int idcc = ecid.getID1() - 600;
         int itt = ecid.getID2();
 
-        int ixt = (itt-1)/4 + 1;
-        int iyt = (itt-1)%4 + 1;
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
-        for ( int ix = 5*(ixt-1)+1; ix <= 5*ixt; ix++ ) {
-          for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 42 && itt <= 68 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          vector<DetId> crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals.size(); i++ ) {
+            EEDetId id = crystals[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
           }
         }
 
@@ -1207,17 +1232,29 @@ void EETestPulseClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        int idcc = ecid.getID1() - 600;
         int itt = ecid.getID2();
 
-        int ixt = (itt-1)/4 + 1;
-        int iyt = (itt-1)%4 + 1;
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
-        for ( int ix = 5*(ixt-1)+1; ix <= 5*ixt; ix++ ) {
-          for ( int iy = 5*(iyt-1)+1; iy <= 5*iyt; iy++ ) {
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 42 && itt <= 68 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          vector<DetId> crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals.size(); i++ ) {
+            EEDetId id = crystals[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
             int jx = ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
+            UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
           }
         }
 
@@ -1225,7 +1262,6 @@ void EETestPulseClient::analyze(void) {
 
     }
   }
-*/
 
   if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
     map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
