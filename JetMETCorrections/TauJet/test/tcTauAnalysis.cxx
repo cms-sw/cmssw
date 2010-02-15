@@ -166,20 +166,20 @@ void tcTauAnalysis(){
 //        tctau_dEtRatio->SetLogy();
         tctau_dEtRatio->cd();
 
-        h_PFTau_dEtRatio->SetLineWidth(3);
-        h_PFTau_dEtRatio->SetLineColor(3);
-        h_PFTau_dEtRatio->SetLineStyle(3);
-	h_PFTau_dEtRatio->SetStats(0);
-	h_PFTau_dEtRatio->GetXaxis()->SetTitle("pt(RECO)/pt(MC)");
-        h_PFTau_dEtRatio->DrawClone();
-
         h_TCTau_dEtRatio->SetLineWidth(3);
         h_TCTau_dEtRatio->SetLineColor(2);
         h_TCTau_dEtRatio->SetLineStyle(2);
-        h_TCTau_dEtRatio->DrawClone("same");
+	h_TCTau_dEtRatio->SetStats(0);
+	h_TCTau_dEtRatio->GetXaxis()->SetTitle("pt(RECO)/pt(MC)");
+        h_TCTau_dEtRatio->DrawClone();
 
         h_CaloTau_dEtRatio->SetLineWidth(3);
         h_CaloTau_dEtRatio->DrawClone("same");
+
+        h_PFTau_dEtRatio->SetLineWidth(3);
+        h_PFTau_dEtRatio->SetLineColor(3);
+        h_PFTau_dEtRatio->SetLineStyle(3);
+        h_PFTau_dEtRatio->DrawClone("same");
 
 	float tctau_dEtRatioFigureMax = h_PFTau_dEtRatio->GetMaximum();
 	TLatex* tex = new TLatex(1.4,0.8*tctau_dEtRatioFigureMax,"CaloTau");
