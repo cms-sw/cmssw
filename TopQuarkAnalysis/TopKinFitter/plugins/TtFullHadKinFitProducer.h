@@ -40,7 +40,7 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
 		  edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
 		  std::string& bTagAlgo_, double& minBTagValueBJets_, double& maxBTagValueNonBJets_);
   /// helper function to construct the proper corrected jet for its corresponding quarkType
-    pat::Jet corJet(const pat::Jet& jet,  const std::string& jetCorrectionLevel, const std::string& quarkType);
+    pat::Jet corJet(const pat::Jet& jet, const std::string& quarkType);
 
  private:
   /// input tag for jets

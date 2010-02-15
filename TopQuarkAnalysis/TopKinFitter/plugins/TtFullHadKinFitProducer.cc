@@ -96,7 +96,7 @@ TtFullHadKinFitProducer::doBTagging(unsigned int& bTags_, unsigned int& bJetCoun
 
 /// helper function to construct the proper corrected jet for its corresponding quarkType
 pat::Jet
-TtFullHadKinFitProducer::corJet(const pat::Jet& jet,  const std::string& jetCorrectionLevel, const std::string& quarkType)
+TtFullHadKinFitProducer::corJet(const pat::Jet& jet, const std::string& quarkType)
 {
   // jetCorrectionLevel was not configured
   if(jetCorrectionLevel_.empty())
@@ -112,8 +112,8 @@ TtFullHadKinFitProducer::corJet(const pat::Jet& jet,  const std::string& jetCorr
       << quarkType << " is unknown as a quarkType for the jetCorrectionLevel.\n";
 
   float corrFactor = 1.;
-  if(quarkType=="wMix") corrFactor = 0.75 * jet.corrFactor(jetCorrectionLevel, "uds") + 0.25 * jet.corrFactor(jetCorrectionLevel, "c");
-  else corrFactor = jet.corrFactor(jetCorrectionLevel, quarkType);
+  if(quarkType=="wMix") corrFactor = 0.75 * jet.corrFactor(jetCorrectionLevel_, "uds") + 0.25 * jet.corrFactor(jetCorrectionLevel_, "c");
+  else corrFactor = jet.corrFactor(jetCorrectionLevel_, quarkType);
 
   pat::Jet ret = jet;
   ret.setP4(ret.p4() * corrFactor);
@@ -243,12 +243,12 @@ TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& setup
 
 	std::vector<pat::Jet> jetCombi;
 	jetCombi.resize(nPartons);
-	jetCombi[TtFullHadEvtPartons::LightQ   ] = corJet((*jets)[combi[TtFullHadEvtPartons::LightQ   ]], jetCorrectionLevel_, "wMix");
-	jetCombi[TtFullHadEvtPartons::LightQBar] = corJet((*jets)[combi[TtFullHadEvtPartons::LightQBar]], jetCorrectionLevel_, "wMix");
-	jetCombi[TtFullHadEvtPartons::B        ] = corJet((*jets)[combi[TtFullHadEvtPartons::B        ]], jetCorrectionLevel_, "b");
-	jetCombi[TtFullHadEvtPartons::BBar     ] = corJet((*jets)[combi[TtFullHadEvtPartons::BBar     ]], jetCorrectionLevel_, "b");
-	jetCombi[TtFullHadEvtPartons::LightP   ] = corJet((*jets)[combi[TtFullHadEvtPartons::LightP   ]], jetCorrectionLevel_, "wMix");
-	jetCombi[TtFullHadEvtPartons::LightPBar] = corJet((*jets)[combi[TtFullHadEvtPartons::LightPBar]], jetCorrectionLevel_, "wMix");
+	jetCombi[TtFullHadEvtPartons::LightQ   ] = corJet((*jets)[combi[TtFullHadEvtPartons::LightQ   ]], "wMix");
+	jetCombi[TtFullHadEvtPartons::LightQBar] = corJet((*jets)[combi[TtFullHadEvtPartons::LightQBar]], "wMix");
+	jetCombi[TtFullHadEvtPartons::B        ] = corJet((*jets)[combi[TtFullHadEvtPartons::B        ]], "b");
+	jetCombi[TtFullHadEvtPartons::BBar     ] = corJet((*jets)[combi[TtFullHadEvtPartons::BBar     ]], "b");
+	jetCombi[TtFullHadEvtPartons::LightP   ] = corJet((*jets)[combi[TtFullHadEvtPartons::LightP   ]], "wMix");
+	jetCombi[TtFullHadEvtPartons::LightPBar] = corJet((*jets)[combi[TtFullHadEvtPartons::LightPBar]], "wMix");
 	  
 	// do the kinematic fit
 	int status = fitter->fit(jetCombi);
