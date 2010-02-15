@@ -8,8 +8,8 @@
  *    --- time of wire propagation
  *    --- time of fly
  *
- *  $Date: 2009/11/17 14:41:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/19 09:51:31 $
+ *  $Revision: 1.4 $
  *  \author Giorgia Mila - INFN Torino
  */
 
@@ -52,6 +52,8 @@ private:
   edm::ParameterSet ps;
 
   double smearing;
+
+  std::string dbLabel;
 
   /// tTrig from the DB
   float tTrigRef;

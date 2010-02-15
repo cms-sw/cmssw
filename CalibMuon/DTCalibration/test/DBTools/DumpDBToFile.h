@@ -6,8 +6,8 @@
  *  a txt file of the same format of ORCA MuBarDigiParameters
  *  (see DTCalibrationMap for details)
  *
- *  $Date: 2008/08/13 12:40:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/10/03 08:53:22 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -54,6 +54,7 @@ private:
   std::string theOutputFileName;
 
   std::string dbToDump;
+  std::string dbLabel;
 
 };
 #endif

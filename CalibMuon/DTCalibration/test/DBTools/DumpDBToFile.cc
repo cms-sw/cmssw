@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:11 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/01/20 09:57:11 $
+ *  $Revision: 1.12 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -40,6 +40,7 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
   theOutputFileName = pset.getUntrackedParameter<string>("outputFileName");
 
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
 
   if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" 
      && dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB")
@@ -58,7 +59,7 @@ void DumpDBToFile::beginRun(const edm::Run&, const EventSetup& setup) {
     cout << "[DumpDBToFile] MTime version: " << mTime->version() << endl;
   } else if(dbToDump == "TTrigDB") {
     ESHandle<DTTtrig> tTrig;
-    setup.get<DTTtrigRcd>().get(tTrig);
+    setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
     tTrigMap = &*tTrig;
     cout << "[DumpDBToFile] TTrig version: " << tTrig->version() << endl;
   } else if(dbToDump == "TZeroDB") {

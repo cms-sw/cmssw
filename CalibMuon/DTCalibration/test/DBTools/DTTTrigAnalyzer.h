@@ -4,8 +4,8 @@
 /** \class DTTTrigAnalyzer
  *  Plot the ttrig from the DB
  *
- *  $Date: 2008/10/03 08:53:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/17 09:15:48 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -48,6 +48,8 @@ private:
 
   //The t0 map
   const DTTtrig *tTrigMap;
+
+  std::string dbLabel;
  
   //The k factor
   //double kfactor;

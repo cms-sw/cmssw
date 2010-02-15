@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/19 09:51:31 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -32,6 +32,8 @@ ShiftTTrigDB::ShiftTTrigDB(const ParameterSet& pset) {
   shifts = pset.getParameter<vector<double> >("shifts");
   //Read the chambers to be shifted
   vector<ParameterSet> parameters =  pset.getParameter <vector<ParameterSet> > ("chambers");
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
+
   int counter=0;
   for(vector<ParameterSet>::iterator parameter = parameters.begin(); parameter != parameters.end(); ++parameter ) {
     vector<int> chAddress;
@@ -55,7 +57,7 @@ ShiftTTrigDB::~ShiftTTrigDB(){}
 
 void ShiftTTrigDB::beginRun(const edm::Run&, const EventSetup& setup) {
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(tTrig);
+  setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
   tTrigMap = &*tTrig;
   cout << "[ShiftTTrigDB]: TTrig version: " << tTrig->version() << endl;
 
