@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.96 $
+ * $Date: 2010/02/14 20:56:24 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -894,11 +894,7 @@ void EEIntegrityClient::analyze(void) {
 
           }
         }
-#endif
 
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
         if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
           map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
           for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
@@ -918,7 +914,7 @@ void EEIntegrityClient::analyze(void) {
 #endif
 
       }
-    }// end of loop on crystals to fill summary plot
+    } // end of loop on crystals to fill summary plot
 
     // summaries for mem channels
     float num06, num07, num08, num09;
@@ -967,7 +963,6 @@ void EEIntegrityClient::analyze(void) {
           update2 = true;
         }
 
-
         if ( update0 || update1 || update2 ) {
 
           float val;
@@ -994,51 +989,61 @@ void EEIntegrityClient::analyze(void) {
 
         }
 
-        // masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( EcalErrorMask::mapMemChErrors_.size() != 0 ) {
-          map<EcalLogicID, RunMemChErrorsDat>::const_iterator m;
-          for (m = EcalErrorMask::mapMemChErrors_.begin(); m != EcalErrorMask::mapMemChErrors_.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int ic = EEIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_channel", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-              }
-            }
-          }
-        }
-#endif
-
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( EcalErrorMask::mapMemTTErrors_.size() != 0 ) {
-          map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
-          for (m = EcalErrorMask::mapMemTTErrors_.begin(); m != EcalErrorMask::mapMemTTErrors_.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int iet = 1 + ((ie-1)/5);
-            int itt = 68 + iet;
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits02 ) {
-                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-              }
-            }
-          }
-        }
-#endif
-
       }
     }  // end loop on mem channels
 
-  }// end loop on supermodules
+  } // end loop on supermodules
+
+#ifdef WITH_ECAL_COND_DB
+
+// TO BE DONE
+
+  if ( EcalErrorMask::mapMemChErrors_.size() != 0 ) {
+    map<EcalLogicID, RunMemChErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapMemChErrors_.begin(); m != EcalErrorMask::mapMemChErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_channel") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        int ic = ecid.getID2();
+
+        int ie = (ic-1)/5;
+        int ip = (ic-1)%5;
+
+        UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapMemTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapMemTTErrors_.begin(); m != EcalErrorMask::mapMemTTErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits02 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_TT") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        int itt = ecid.getID2();
+
+        int ie = itt - 68;
+
+        for ( int ip = 1; ip <= 5; ip++ ) {
+          UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+        }
+
+      }
+
+    }
+  }
+
+#endif
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.31 $
+ * $Date: 2010/02/14 20:56:24 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -211,53 +211,47 @@ void EEStatusFlagsClient::analyze(void) {
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh03_[ism-1] = me;    
 
-    // TT masking
+  }
 
 #ifdef WITH_ECAL_COND_DB
-    for ( int ix = 1; ix <= 50; ix++ ) {
-      for ( int iy = 1; iy <= 50; iy++ ) {
-        
-        int jx = ix + Numbers::ix0EE(ism);
-        int jy = iy + Numbers::iy0EE(ism);
+/*
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
 
-        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
 
-        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
 
-         if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
+        int fed = ecid.getID1();
+        int itt = ecid.getID2();
 
-            EcalLogicID ecid = m->first;
-      
-            int itt = Numbers::iSC(ism, EcalEndcap, jx, jy);
+        int ism = -1;
+        if ( fed >= 601 && fed <= 609 ) ism = fed - 601 + 9;
+        if ( fed >= 646 && fed <= 654 ) ism = fed - 646 + 1;
 
-            if ( itt > 70 ) continue;
-            
-            if ( itt >= 42 && itt <= 68 ) continue;
+        int ixt = (itt-1)/4 + 1;
+        int iyt = (itt-1)%4 + 1;
 
-            if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+        if ( itt > 70 ) continue;
 
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
+        if ( itt >= 42 && itt <= 68 ) continue;
 
-                if ( itt >= 1 && itt <= 41 ) {
-                  if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( ix, iy, 0.01 );
-                } else if ( itt == 69 || itt == 70 ) {
-                  if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
-                }
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
-              }
-            }
-      
-          }
+        if ( itt >= 1 && itt <= 68 ) {
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( ixt, iyt, 0.01 );
+        } else if ( itt == 69 || itt == 70 ) {
+          if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
         }
 
       }
-    }
-#endif
 
+    }
   }
+*/
+#endif
 
 }
 

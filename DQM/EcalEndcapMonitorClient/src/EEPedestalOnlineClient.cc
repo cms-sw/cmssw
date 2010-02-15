@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/02/15 16:46:47 $
- * $Revision: 1.94 $
+ * $Date: 2010/02/15 16:56:48 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -418,6 +418,7 @@ void EEPedestalOnlineClient::analyze(void) {
     }
   }
 
+/*
   if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
     map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
     for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
@@ -449,6 +450,7 @@ void EEPedestalOnlineClient::analyze(void) {
 
     }
   }
+*/
 #endif
 
 }
