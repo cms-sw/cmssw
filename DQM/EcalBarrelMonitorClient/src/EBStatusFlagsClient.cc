@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/02/14 14:35:45 $
- * $Revision: 1.29 $
+ * $Date: 2010/02/14 20:56:23 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  *
 */
@@ -211,45 +211,35 @@ void EBStatusFlagsClient::analyze(void) {
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh03_[ism-1] = me;    
 
-    // TT masking
+  }
 
 #ifdef WITH_ECAL_COND_DB
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-        
-        if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-      
-            EcalLogicID ecid = m->first;
-      
-            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
 
-            int iet = (itt-1)/4 + 1;
-            int ipt = (itt-1)%4 + 1;
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
 
-            if ( itt > 70 ) continue;
-      
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                
-                if ( itt >= 1 && itt <= 68 ) {
-                  if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
-                } else if ( itt == 69 || itt == 70 ) {
-                  if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
-                }
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int itt = ecid.getID2();
 
-              }
-            }
-      
-          }
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
+        } else if ( itt == 69 || itt == 70 ) {
+          if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
         }
-        
-      }
-    }
-#endif
 
+      }
+
+    }
   }
+#endif
 
 }
 
