@@ -48,6 +48,7 @@ namespace evf{
     unsigned int nba;
     unsigned int Ms;
     unsigned int ms;
+    unsigned int dqm;
   };
   
 
