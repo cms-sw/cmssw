@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/02/15 10:14:31 $
- * $Revision: 1.97 $
+ * $Date: 2010/02/15 16:23:44 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1175,7 +1175,7 @@ void EEPedestalClient::analyze(void) {
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
+            int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
             if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
           }
@@ -1200,7 +1200,7 @@ void EEPedestalClient::analyze(void) {
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
+            int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
             if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg02_[ism-1], jx, jy );
           }
@@ -1225,7 +1225,7 @@ void EEPedestalClient::analyze(void) {
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
+            int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
             if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
           }

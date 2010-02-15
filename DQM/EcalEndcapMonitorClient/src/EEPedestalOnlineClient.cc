@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/02/15 09:14:09 $
- * $Revision: 1.92 $
+ * $Date: 2010/02/15 16:07:38 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -402,7 +402,7 @@ void EEPedestalOnlineClient::analyze(void) {
         for ( unsigned int i=0; i<superModules_.size(); i++ ) {
           int ism = superModules_[i];
           if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
+            int jx = 101 - ix - Numbers::ix0EE(ism);
             int jy = iy - Numbers::iy0EE(ism);
             if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg03_[ism-1], jx, jy );
           }
