@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2008/07/08 07:06:23 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/04/22 15:14:09 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -40,22 +40,17 @@
 // class declaration
 //
 
-struct TriggerInputTagComparison {
-  bool operator() (const edm::InputTag& lhs, const edm::InputTag& rhs) const {
-    return lhs.encode()<rhs.encode();
-  }
-};
-
-typedef std::set<edm::InputTag,TriggerInputTagComparison> InputTagSet;
-
 class TriggerSummaryProducerAOD : public edm::EDProducer {
   
+  typedef std::set<std::string> InputStringSet;
+
  public:
   explicit TriggerSummaryProducerAOD(const edm::ParameterSet&);
   ~TriggerSummaryProducerAOD();
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
+  void tokenizeTag(const std::string& tag, std::string& label, std::string& instance, std::string& process) const;
 
   // additional
 
@@ -70,7 +65,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   void fillTriggerObject(const reco::MET& );
 
   template <typename C>
-  void fillFilterObjectMembers(const edm::Event&, const edm::InputTag& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
+    void fillFilterObjectMembers(const edm::Event&, const std::string& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
 
   template <typename C>
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<C>&);
@@ -89,18 +84,16 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   /// the pointer to the current TriggerNamesService
   edm::service::TriggerNamesService* tns_;
 
-  /// lists of L3 collection labels
-  std::vector<edm::InputTag> collectionTags_;
   ///
-  InputTagSet                collectionTagsEvent_;
-  InputTagSet                collectionTagsGlobal_;
+  InputStringSet                collectionTagsEvent_;
+  InputStringSet                collectionTagsGlobal_;
   /// list of L3 filter labels
-  InputTagSet                filterTagsEvent_;
-  InputTagSet                filterTagsGlobal_;
+  InputStringSet                filterTagsEvent_;
+  InputStringSet                filterTagsGlobal_;
 
   /// trigger object collection
   trigger::TriggerObjectCollection toc_;
-  std::vector<edm::InputTag> tags_;
+  std::vector<std::string> tags_;
   /// global map for indices into toc_: offset per input L3 collection
   std::map<edm::ProductID,int> offset_;
 
