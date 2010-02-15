@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/01/22 16:59:35 $
- **  $Revision: 1.9 $
+ **  $Date: 2010/02/15 17:45:50 $
+ **  $Revision: 1.10 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -178,15 +178,5 @@ inline const BoundPlane & recHitSurface( const TrackingRecHit & hit, const Track
 inline LocalVector toLocal( const reco::Track::Vector & v, const Surface & s ) {
     return s.toLocal( GlobalVector( v.x(), v.y(), v.z() ) );
 }
-
-inline double map_phi2(double phi) {
-    // map phi to [-pi,pi]
-    double result = phi;
-    if ( result < 1.0*Geom::pi() ) result = result + Geom::twoPi();
-    if ( result >= Geom::pi())  result = result - Geom::twoPi();
-    return result;
-}
-
-
 
 #endif
