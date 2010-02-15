@@ -147,7 +147,7 @@ class dbUtil(object):
             else:
               return
           else:
-            description = coral.TableDescription();
+            description = coral.TableDescription()
             description.setName( idtableName )
             description.setPrimaryKey( self.__idTableColumnName )
             description.insertColumn(self.__idTableColumnName, self.__idTableColumnType)
