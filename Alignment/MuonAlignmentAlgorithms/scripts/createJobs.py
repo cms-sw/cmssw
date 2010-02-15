@@ -132,12 +132,12 @@ parser.add_option("--combineME11",
                   dest="combineME11")
 parser.add_option("--maxEvents",
                   help="maximum number of events",
-                  type="int",
+                  type="string",
                   default="-1",
                   dest="maxEvents")
 parser.add_option("--skipEvents",
                   help="number of events to be skipped",
-                  type="int",
+                  type="string",
                   default="0",
                   dest="skipEvents")
 
@@ -243,8 +243,8 @@ export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 export ALIGNMENT_COMBINEME11=%(combineME11)s
-export ALIGNMENT_MAXEVENTS=%(maxEvents)d
-export ALIGNMENT_SKIPEVENTS=%(skipEvents)d
+export ALIGNMENT_MAXEVENTS=%(maxEvents)s
+export ALIGNMENT_SKIPEVENTS=%(skipEvents)s
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s %(copytrackerdb)s $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
