@@ -6,8 +6,8 @@ class idDealer(object):
     """
     def __init__( self , schema  ):
         self.__schema = schema
-        self.__idTableColumnName = 'NEXTID'
-        self.__idTableColumnType = 'unsigned long long'
+        self.__idTableColumnName = nameDealer.idTableColumnDefinition()[0]
+        self.__idTableColumnType = nameDealer.idTableColumnDefinition()[1]
         
     def getIDColumnDefinition( self ):
         return (self.__idTableColumnName, self.__idTableColumnType)

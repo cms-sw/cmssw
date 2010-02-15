@@ -26,6 +26,9 @@ def lumihltresultTableName():
 def idTableName( dataTableName ):
 	return dataTableName+"_ID"
 
+def idTableColumnDefinition():
+	return ('NEXTID','unsigned long long')
+
 if __name__ == "__main__":
     pass
 
