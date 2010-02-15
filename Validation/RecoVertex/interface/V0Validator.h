@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.h,v 1.2 2009/05/19 00:47:59 drell Exp $
+// $Id: V0Validator.h,v 1.3 2009/07/21 00:33:40 drell Exp $
 //
 //
 
@@ -93,9 +93,9 @@ public:
 
 
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  //virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  //virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 

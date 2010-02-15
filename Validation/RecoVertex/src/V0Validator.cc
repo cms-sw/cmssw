@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.3 2009/05/21 23:16:29 drell Exp $
+// $Id: V0Validator.cc,v 1.4 2009/07/21 00:33:40 drell Exp $
 //
 //
 
@@ -47,8 +47,8 @@ V0Validator::~V0Validator() {
 }
 
 //void V0Validator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-void V0Validator::beginJob(const edm::EventSetup& iSetup) {
-}
+//void V0Validator::beginJob(const edm::EventSetup& iSetup) {
+//}
 
 //void V0Validator::beginJob(const edm::EventSetup& iSetup) {
 void V0Validator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
@@ -697,7 +697,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       ksFakeVsPt_denom->Fill(K0sCandpT);
     }
   }
-  //cout << "Outside loop, why the hell would it fail here?" << endl;
+  //cout << "Outside loop, why would it fail here?" << endl;
   //double numK0sFound = (double) realK0sFound;
   //cout << "numK0sFound: " << numK0sFound << endl;
   nKs->Fill( (float) numK0sFound );
@@ -1160,7 +1160,7 @@ void V0Validator::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 }
 
 
-void V0Validator::endJob() {
+//void V0Validator::endJob() {
   //std::cout << "In endJob()" << std::endl;
   /*ksEffVsRHist->Divide(ksEffVsRHist_denom);
   ksEffVsEtaHist->Divide(ksEffVsEtaHist_denom);
@@ -1284,7 +1284,7 @@ void V0Validator::endJob() {
 
   /*theDQMstore->showDirStructure();
     theDQMstore->save(theDQMRootFileName);*/
-}
+//}
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(V0Validator);

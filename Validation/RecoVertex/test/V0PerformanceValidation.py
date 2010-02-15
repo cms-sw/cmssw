@@ -32,11 +32,11 @@ Sequence = 'only_validation'
 #Sequence = 'harvesting'
 
 # GlobalTags
-IdealTag = 'IDEAL_31X'
-StartupTag = 'STARTUP_31X'
+IdealTag = 'DESIGN_3X_V21'
+StartupTag = 'START3X_V21'
 # This tag is the new replacement (as of 31X) for MC, IDEAL becomes DESIGN
 # MC_31X_V9 works for CMSSW_3_4_0_preX
-MCTag = 'MC_3XY_V10'
+MCTag = 'MC_3XY_V21'
 #MCTag = 'MC_3XY_V12'
 
 # PileUp: PU, No PileUp: noPU
@@ -44,14 +44,14 @@ PileUp = 'noPU'
 
 # Reference directory name
 ReferenceSelection = 'IDEAL_31X_test'+PileUp
-MCReferenceSelection = 'MC_31X_test'+PileUp
+MCReferenceSelection = 'MC_3XY_test'+PileUp
 StartupReferenceSelection = 'STARTUP_31X_test'+PileUp
 
 # This is where the reference samples are stored
 #RefRepository = '/afs/cern.ch/cms/performance/'
-RefRepository = '/nfs/data37/cms/drell/valTest'
+RefRepository = '/nfs/data35/cms/drell/val350_test2'
 # NewRepository contains the files for the new release to be tested
-NewRepository = '/nfs/data37/cms/drell/val340'
+NewRepository = '/nfs/data35/cms/drell/val350_test3'
 
 # Default number of events
 defaultNevents = '200'
@@ -99,7 +99,7 @@ def do_validation(samples, GlobalTag):
         newdir = NewRepository + '/' + NewRelease + '/' + NewSelection + '/' + sample
         cfgFileName = sample + GlobalTag
 
-        if(os.path.isfile(newdir + '/building.pdf') != True):
+        if(os.path.isfile(newdir + '/K0sEff.pdf') != True):
             # If the job is harvesting, check if the file is already harvested
             harvestedfile = './DQM_V0001_R000000001__' + GlobalTag + '__' + sample + '__Validation.root'
             if(( Sequence == "harvesting" and os.path.isfile(harvestedfile)) == False):
@@ -107,7 +107,8 @@ def do_validation(samples, GlobalTag):
 		cmd = 'dbsql "find dataset where dataset like *'
                 cmd += sample + '/' + NewRelease + '_' + GlobalTag + '*GEN-SIM-RECO*" '
                 cmd += '| grep ' + sample + ' | grep -v test | sort | tail -1 | cut -f2 '
-                print cmd
+                #print cmd
+                print 'Finding data set...\n'
                 dataset = os.popen(cmd).readline().strip()
                 print 'DataSet: ', dataset, '\n'
                 if dataset != "":
@@ -118,7 +119,8 @@ def do_validation(samples, GlobalTag):
                     filenames += 'source = cms.Source("PoolSource", fileNames = readFiles, secondaryFileNames = secFiles)\n'
                     filenames += 'readFiles.extend([\n'
                     first = True
-                    print cmd2
+                    #print cmd2
+                    print 'Getting file names for dataset ', dataset, '\n'
                     for line in os.popen(cmd2).readlines():
                         filename = line.strip()
                         if first == True:
@@ -134,7 +136,8 @@ def do_validation(samples, GlobalTag):
                     # if not harvesting, find secondary file names
                     if(Sequence != 'harvesting'):
                         cmd3 = 'dbsql "find dataset.parent where dataset like ' + dataset + '" | grep ' + sample
-			print cmd3
+			#print cmd3
+                        print 'Getting parent dataset...\n'
                         parentdataset = os.popen(cmd3).readline()
                         print 'Parent dataset: ', parentdataset, '\n'
                         if parentdataset != "":
