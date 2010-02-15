@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.13 2009/08/28 13:08:33 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.14 2009/08/28 13:47:07 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -11,17 +11,22 @@ ThroughputMonitorCollection::ThroughputMonitorCollection(const utils::duration_t
   _binCount(static_cast<int>(300/updateInterval)),
   _poolUsageMQ(updateInterval, _binCount),
   _entriesInFragmentQueueMQ(updateInterval, _binCount),
+  _memoryUsedInFragmentQueueMQ(updateInterval, _binCount),
   _poppedFragmentSizeMQ(updateInterval, _binCount),
   _fragmentProcessorIdleTimeMQ(updateInterval, _binCount),
   _entriesInFragmentStoreMQ(updateInterval, _binCount),
+  _memoryUsedInFragmentStoreMQ(updateInterval, _binCount),
   _entriesInStreamQueueMQ(updateInterval, _binCount),
+  _memoryUsedInStreamQueueMQ(updateInterval, _binCount),
   _poppedEventSizeMQ(updateInterval, _binCount),
   _diskWriterIdleTimeMQ(updateInterval, _binCount),
   _diskWriteSizeMQ(updateInterval, _binCount),
   _entriesInDQMEventQueueMQ(updateInterval, _binCount),
+  _memoryUsedInDQMEventQueueMQ(updateInterval, _binCount),
   _poppedDQMEventSizeMQ(updateInterval, _binCount),
   _dqmEventProcessorIdleTimeMQ(updateInterval, _binCount),
   _currentFragmentStoreSize(0),
+  _currentFragmentStoreMemoryUsedMB(0),
   _pool(0)
 {}
 
@@ -112,19 +117,24 @@ void ThroughputMonitorCollection::getStats(Stats& stats, const unsigned int samp
 
 void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int sampleCount) const
 {
-  MonitoredQuantity::Stats fqEntryCountMQ, fragSizeMQ, fpIdleMQ, fsEntryCountMQ;
-  MonitoredQuantity::Stats sqEntryCountMQ, eventSizeMQ, dwIdleMQ, diskWriteMQ;
-  MonitoredQuantity::Stats dqEntryCountMQ, dqmEventSizeMQ, dqmIdleMQ, poolUsageMQ;
+  MonitoredQuantity::Stats fqEntryCountMQ, fqMemoryUsedMQ, fragSizeMQ;
+  MonitoredQuantity::Stats fpIdleMQ, fsEntryCountMQ, fsMemoryUsedMQ;
+  MonitoredQuantity::Stats sqEntryCountMQ, sqMemoryUsedMQ, eventSizeMQ, dwIdleMQ, diskWriteMQ;
+  MonitoredQuantity::Stats dqEntryCountMQ, dqMemoryUsedMQ, dqmEventSizeMQ, dqmIdleMQ, poolUsageMQ;
   _poolUsageMQ.getStats(poolUsageMQ);
   _entriesInFragmentQueueMQ.getStats(fqEntryCountMQ);
+  _memoryUsedInFragmentQueueMQ.getStats(fqMemoryUsedMQ);
   _poppedFragmentSizeMQ.getStats(fragSizeMQ);
   _fragmentProcessorIdleTimeMQ.getStats(fpIdleMQ);
   _entriesInFragmentStoreMQ.getStats(fsEntryCountMQ);
+  _memoryUsedInFragmentStoreMQ.getStats(fsMemoryUsedMQ);
   _entriesInStreamQueueMQ.getStats(sqEntryCountMQ);
+  _memoryUsedInStreamQueueMQ.getStats(sqMemoryUsedMQ);
   _poppedEventSizeMQ.getStats(eventSizeMQ);
   _diskWriterIdleTimeMQ.getStats(dwIdleMQ);
   _diskWriteSizeMQ.getStats(diskWriteMQ);
   _entriesInDQMEventQueueMQ.getStats(dqEntryCountMQ);
+  _memoryUsedInDQMEventQueueMQ.getStats(dqMemoryUsedMQ);
   _poppedDQMEventSizeMQ.getStats(dqmEventSizeMQ);
   _dqmEventProcessorIdleTimeMQ.getStats(dqmIdleMQ);
 
@@ -152,14 +162,23 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
     // number of fragments in fragment queue
     snapshot.entriesInFragmentQueue = fqEntryCountMQ.recentBinnedValueSums[idx];
 
+    // memory usage in fragment queue
+    snapshot.memoryUsedInFragmentQueue = fqMemoryUsedMQ.recentBinnedValueSums[idx];
+
     // rate/bandwidth of fragments popped from fragment queue
     getRateAndBandwidth(fragSizeMQ, idx, snapshot.fragmentQueueRate, snapshot.fragmentQueueBandwidth);
 
     // number of events in fragment store
     snapshot.fragmentStoreSize = fsEntryCountMQ.recentBinnedValueSums[idx];
 
+    // memory usage in fragment store
+    snapshot.fragmentStoreMemoryUsed = fsMemoryUsedMQ.recentBinnedValueSums[idx];
+
     // number of events in stream queue
     snapshot.entriesInStreamQueue = sqEntryCountMQ.recentBinnedValueSums[idx];
+
+    // memory usage in stream queue
+    snapshot.memoryUsedInStreamQueue = sqMemoryUsedMQ.recentBinnedValueSums[idx];
 
     // rate/bandwidth of events popped from stream queue
     getRateAndBandwidth(eventSizeMQ, idx, snapshot.streamQueueRate, snapshot.streamQueueBandwidth);
@@ -169,6 +188,9 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
 
     // number of dqm events in DQMEvent queue
     snapshot.entriesInDQMQueue = dqEntryCountMQ.recentBinnedValueSums[idx];
+
+    // memory usage in DQMEvent queue
+    snapshot.memoryUsedInDQMQueue = dqMemoryUsedMQ.recentBinnedValueSums[idx];
 
     // rate/bandwidth of dqm events popped from DQMEvent queue
     getRateAndBandwidth(dqmEventSizeMQ, idx, snapshot.dqmQueueRate, snapshot.dqmQueueBandwidth);
@@ -303,24 +325,32 @@ void ThroughputMonitorCollection::do_calculateStatistics()
 
   if (_fragmentQueue.get() != 0) {
     _entriesInFragmentQueueMQ.addSample(_fragmentQueue->size());
+    _memoryUsedInFragmentQueueMQ.addSample(static_cast<double>(_fragmentQueue->used()) / 1024 / 1024);
   }
   if (_streamQueue.get() != 0) {
     _entriesInStreamQueueMQ.addSample(_streamQueue->size());
+    _memoryUsedInStreamQueueMQ.addSample(static_cast<double>(_streamQueue->used()) / 1024 / 1024);
   }
   if (_dqmEventQueue.get() != 0) {
     _entriesInDQMEventQueueMQ.addSample(_dqmEventQueue->size());
+    _memoryUsedInDQMEventQueueMQ.addSample(static_cast<double>(_dqmEventQueue->used()) / 1024 / 1024);
   }
-  _entriesInFragmentStoreMQ.addSample(getFragmentStoreSize());
+  _entriesInFragmentStoreMQ.addSample(_currentFragmentStoreSize);
+  _memoryUsedInFragmentStoreMQ.addSample(_currentFragmentStoreMemoryUsedMB);
 
   _entriesInFragmentQueueMQ.calculateStatistics();
+  _memoryUsedInFragmentQueueMQ.calculateStatistics();
   _poppedFragmentSizeMQ.calculateStatistics();
   _fragmentProcessorIdleTimeMQ.calculateStatistics();
   _entriesInFragmentStoreMQ.calculateStatistics();
+  _memoryUsedInFragmentStoreMQ.calculateStatistics();
   _entriesInStreamQueueMQ.calculateStatistics();
+  _memoryUsedInStreamQueueMQ.calculateStatistics();
   _poppedEventSizeMQ.calculateStatistics();
   _diskWriterIdleTimeMQ.calculateStatistics();
   _diskWriteSizeMQ.calculateStatistics();
   _entriesInDQMEventQueueMQ.calculateStatistics();
+  _memoryUsedInDQMEventQueueMQ.calculateStatistics();
   _poppedDQMEventSizeMQ.calculateStatistics();
   _dqmEventProcessorIdleTimeMQ.calculateStatistics();
 }
@@ -330,14 +360,18 @@ void ThroughputMonitorCollection::do_reset()
 {
   _poolUsageMQ.reset();
   _entriesInFragmentQueueMQ.reset();
+  _memoryUsedInFragmentQueueMQ.reset();
   _poppedFragmentSizeMQ.reset();
   _fragmentProcessorIdleTimeMQ.reset();
   _entriesInFragmentStoreMQ.reset();
+  _memoryUsedInFragmentStoreMQ.reset();
   _entriesInStreamQueueMQ.reset();
+  _memoryUsedInStreamQueueMQ.reset();
   _poppedEventSizeMQ.reset();
   _diskWriterIdleTimeMQ.reset();
   _diskWriteSizeMQ.reset();
   _entriesInDQMEventQueueMQ.reset();
+  _memoryUsedInDQMEventQueueMQ.reset();
   _poppedDQMEventSizeMQ.reset();
   _dqmEventProcessorIdleTimeMQ.reset();
 }
@@ -347,15 +381,19 @@ void ThroughputMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSp
 {
   infoSpaceItems.push_back(std::make_pair("poolUsage", &_poolUsage));
   infoSpaceItems.push_back(std::make_pair("entriesInFragmentQueue", &_entriesInFragmentQueue));
+  infoSpaceItems.push_back(std::make_pair("memoryUsedInFragmentQueue", &_memoryUsedInFragmentQueue));
   infoSpaceItems.push_back(std::make_pair("fragmentQueueRate", &_fragmentQueueRate));
   infoSpaceItems.push_back(std::make_pair("fragmentQueueBandwidth", &_fragmentQueueBandwidth));
   infoSpaceItems.push_back(std::make_pair("fragmentStoreSize", &_fragmentStoreSize));
+  infoSpaceItems.push_back(std::make_pair("fragmentStoreMemoryUsed", &_fragmentStoreMemoryUsed));
   infoSpaceItems.push_back(std::make_pair("entriesInStreamQueue", &_entriesInStreamQueue));
+  infoSpaceItems.push_back(std::make_pair("memoryUsedInStreamQueue", &_memoryUsedInStreamQueue));
   infoSpaceItems.push_back(std::make_pair("streamQueueRate", &_streamQueueRate));
   infoSpaceItems.push_back(std::make_pair("streamQueueBandwidth", &_streamQueueBandwidth));
   infoSpaceItems.push_back(std::make_pair("writtenEventsRate", &_writtenEventsRate));
   infoSpaceItems.push_back(std::make_pair("writtenEventsBandwidth", &_writtenEventsBandwidth));
   infoSpaceItems.push_back(std::make_pair("entriesInDQMQueue", &_entriesInDQMQueue));
+  infoSpaceItems.push_back(std::make_pair("memoryUsedInDQMQueue", &_memoryUsedInDQMQueue));
   infoSpaceItems.push_back(std::make_pair("dqmQueueRate", &_dqmQueueRate));
   infoSpaceItems.push_back(std::make_pair("dqmQueueBandwidth", &_dqmQueueBandwidth));
   infoSpaceItems.push_back(std::make_pair("fragmentProcessorBusy", &_fragmentProcessorBusy));
@@ -374,15 +412,19 @@ void ThroughputMonitorCollection::do_updateInfoSpaceItems()
 
   _poolUsage = static_cast<unsigned int>(it->poolUsage);
   _entriesInFragmentQueue = static_cast<unsigned int>(it->entriesInFragmentQueue);
+  _memoryUsedInFragmentQueue = it->memoryUsedInFragmentQueue;
   _fragmentQueueRate = it->fragmentQueueRate;
   _fragmentQueueBandwidth = it->fragmentQueueBandwidth;
   _fragmentStoreSize = static_cast<unsigned int>(it->fragmentStoreSize);
+  _fragmentStoreMemoryUsed = it->fragmentStoreMemoryUsed;
   _entriesInStreamQueue = static_cast<unsigned int>(it->entriesInStreamQueue);
+  _memoryUsedInStreamQueue = it->memoryUsedInStreamQueue;
   _streamQueueRate = it->streamQueueRate;
   _streamQueueBandwidth = it->streamQueueBandwidth;
   _writtenEventsRate = it->writtenEventsRate;
   _writtenEventsBandwidth = it->writtenEventsBandwidth;
   _entriesInDQMQueue = static_cast<unsigned int>(it->entriesInDQMQueue);
+  _memoryUsedInDQMQueue = it->memoryUsedInDQMQueue;
   _dqmQueueRate = it->dqmQueueRate;
   _dqmQueueBandwidth = it->dqmQueueBandwidth;
   _fragmentProcessorBusy = it->fragmentProcessorBusy;
@@ -395,15 +437,19 @@ ThroughputMonitorCollection::Stats::Snapshot::Snapshot() :
 relativeTime(0),
 poolUsage(0),
 entriesInFragmentQueue(0),
+memoryUsedInFragmentQueue(0),
 fragmentQueueRate(0),
 fragmentQueueBandwidth(0),
 fragmentStoreSize(0),
+fragmentStoreMemoryUsed(0),
 entriesInStreamQueue(0),
+memoryUsedInStreamQueue(0),
 streamQueueRate(0),
 streamQueueBandwidth(0),
 writtenEventsRate(0),
 writtenEventsBandwidth(0),
 entriesInDQMQueue(0),
+memoryUsedInDQMQueue(0),
 dqmQueueRate(0),
 dqmQueueBandwidth(0),
 fragmentProcessorBusy(0),
@@ -418,15 +464,19 @@ ThroughputMonitorCollection::Stats::Snapshot::operator=(const Snapshot& other)
   relativeTime = other.relativeTime;
   poolUsage = other.poolUsage;
   entriesInFragmentQueue = other.entriesInFragmentQueue;
+  memoryUsedInFragmentQueue = other.memoryUsedInFragmentQueue;
   fragmentQueueRate = other.fragmentQueueRate;
   fragmentQueueBandwidth = other.fragmentQueueBandwidth;
   fragmentStoreSize = other.fragmentStoreSize;
+  fragmentStoreMemoryUsed = other.fragmentStoreMemoryUsed;
   entriesInStreamQueue = other.entriesInStreamQueue;
+  memoryUsedInStreamQueue = other.memoryUsedInStreamQueue;
   streamQueueRate = other.streamQueueRate;
   streamQueueBandwidth = other.streamQueueBandwidth;
   writtenEventsRate = other.writtenEventsRate;
   writtenEventsBandwidth = other.writtenEventsBandwidth;
   entriesInDQMQueue = other.entriesInDQMQueue;
+  memoryUsedInDQMQueue = other.memoryUsedInDQMQueue;
   dqmQueueRate = other.dqmQueueRate;
   dqmQueueBandwidth = other.dqmQueueBandwidth;
   fragmentProcessorBusy = other.fragmentProcessorBusy;
@@ -443,15 +493,19 @@ ThroughputMonitorCollection::Stats::Snapshot::operator+=(const Snapshot& other)
   relativeTime = -1;
   poolUsage += other.poolUsage;
   entriesInFragmentQueue += other.entriesInFragmentQueue;
+  memoryUsedInFragmentQueue += other.memoryUsedInFragmentQueue;
   fragmentQueueRate += other.fragmentQueueRate;
   fragmentQueueBandwidth += other.fragmentQueueBandwidth;
   fragmentStoreSize += other.fragmentStoreSize;
+  fragmentStoreMemoryUsed += other.fragmentStoreMemoryUsed;
   entriesInStreamQueue += other.entriesInStreamQueue;
+  memoryUsedInStreamQueue += other.memoryUsedInStreamQueue;
   streamQueueRate += other.streamQueueRate;
   streamQueueBandwidth += other.streamQueueBandwidth;
   writtenEventsRate += other.writtenEventsRate;
   writtenEventsBandwidth += other.writtenEventsBandwidth;
   entriesInDQMQueue += other.entriesInDQMQueue;
+  memoryUsedInDQMQueue += other.memoryUsedInDQMQueue;
   dqmQueueRate += other.dqmQueueRate;
   dqmQueueBandwidth += other.dqmQueueBandwidth;
   fragmentProcessorBusy += other.fragmentProcessorBusy;
@@ -468,15 +522,19 @@ ThroughputMonitorCollection::Stats::Snapshot::operator/=(const double& value)
   relativeTime = -1;
   poolUsage /= value;
   entriesInFragmentQueue /= value;
+  memoryUsedInFragmentQueue /= value;
   fragmentQueueRate /= value;
   fragmentQueueBandwidth /= value;
   fragmentStoreSize /= value;
+  fragmentStoreMemoryUsed /= value;
   entriesInStreamQueue /= value;
+  memoryUsedInStreamQueue /= value;
   streamQueueRate /= value;
   streamQueueBandwidth /= value;
   writtenEventsRate /= value;
   writtenEventsBandwidth /= value;
   entriesInDQMQueue /= value;
+  memoryUsedInDQMQueue /= value;
   dqmQueueRate /= value;
   dqmQueueBandwidth /= value;
   fragmentProcessorBusy /= value;
