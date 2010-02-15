@@ -218,12 +218,13 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
 
   if (Pass) {
+    /***
   std::cout << ">>>> FIL: Run = "    << evt.id().run()
             << " Event = " << evt.id().event()
             << " Bunch Crossing = " << evt.bunchCrossing()
             << " Orbit Number = "  << evt.orbitNumber()
             <<  std::endl;
-
+    ***/
   // *********************************************************
   // --- Event Classification
   // *********************************************************
@@ -375,7 +376,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   evt.getByLabel("generalTracks", trackCollection);
   
   const reco::TrackCollection tC = *(trackCollection.product());
-  std::cout << "FIL: Reconstructed "<< tC.size() << " tracks" << std::endl ;
+  //  std::cout << "FIL: Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
   if (tC.size() > 3) filter_NTrks = true;
 
