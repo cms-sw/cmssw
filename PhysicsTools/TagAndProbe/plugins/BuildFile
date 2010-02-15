@@ -20,5 +20,11 @@
    <use name=PhysicsTools/TagAndProbe>
    <use name=DataFormats/BTauReco>
    <use name=DataFormats/PatCandidates>
+   <use name=DataFormats/HLTReco>
+   <use name=HLTrigger/HLTcore>
+   <use name=L1Trigger/GlobalTriggerAnalyzer>
+   <use name=DataFormats/HcalIsolatedTrack>
+   <use name=PhysicsTools/HepMCCandAlgos>
+   <use name=PhysicsTools/PatAlgos>
 </library>
  
