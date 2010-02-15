@@ -2,9 +2,13 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.9 2010/02/11 00:11:09 wmtan Exp $
+// $Id: HLTScalersClient.h,v 1.10 2010/02/11 23:55:18 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.10  2010/02/11 23:55:18  wittich
+// - adapt to shorter Lumi Section length
+// - fix bug in how history of counts was filled
+//
 // Revision 1.9  2010/02/11 00:11:09  wmtan
 // Adapt to moved framework header
 //
@@ -37,10 +41,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-// HARD CODE THE NUMBER OF HISTOGRAMS TO 200, LENGTH OF MONITOR to 2000 
+// HARD CODE THE NUMBER OF HISTOGRAMS TO 200, LENGTH OF MONITOR to 2400 
 // segments
 #define MAX_PATHS 200
-#define MAX_LUMI_SEG_HLT 1200
+#define MAX_LUMI_SEG_HLT 2400
 
 class HLTScalersClient: public edm::EDAnalyzer
 {
