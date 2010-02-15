@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
-    jets = cms.InputTag("selectedLayer1Jets"),
+    jets = cms.InputTag("selectedPatJets"),
 
     # ------------------------------------------------
     # maximum number of jets to be considered in the

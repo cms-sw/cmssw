@@ -5,11 +5,11 @@ import FWCore.ParameterSet.Config as cms
 #
 ttSemiLepHypGeom = cms.EDProducer("TtSemiLepHypGeom",
     ## met input 
-    mets  = cms.InputTag("layer1METs"),
+    mets  = cms.InputTag("patMETs"),
     ## jet input 
-    jets  = cms.InputTag("selectedLayer1Jets"),
+    jets  = cms.InputTag("selectedPatJets"),
     ## lepton input
-    leps  = cms.InputTag("selectedLayer1Muons"),
+    leps  = cms.InputTag("selectedPatMuons"),
     ## maximal number of jets to be considered
     maxNJets  = cms.int32(4),
     ## use deltaR or deltaTheta

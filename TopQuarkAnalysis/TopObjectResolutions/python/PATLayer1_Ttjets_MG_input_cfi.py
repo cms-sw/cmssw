@@ -201,6 +201,6 @@ readFiles = cms.untracked.vstring(
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",duplicateCheckMode = cms.untracked.string('noDuplicateCheck') ,fileNames = readFiles#,
     #inputCommands = cms.untracked.vstring(
-    #    "drop patJets_selectedLayer1Jets__SKIMsemilep"
+    #    "drop patJets_selectedPatJets__SKIMsemilep"
     #)
 )
