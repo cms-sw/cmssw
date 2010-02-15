@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.41 2010/02/08 11:57:59 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.42 2010/02/09 14:51:44 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1936,7 +1936,7 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
                                                   ThroughputMonitorCollection const& tmc)
 {
   XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "18";
+  colspanAttr[ "colspan" ] = "21";
 
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
@@ -1956,6 +1956,8 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Instantaneous Number of Fragments in Fragment Queue");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Memory used in Fragment Queue (MB)");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Number of Fragments Popped from Fragment Queue (Hz)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Data Rate Popped from Fragment Queue (MB/sec)");
@@ -1964,7 +1966,11 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Instantaneous Number of Events in Fragment Store");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Memory used in Fragment Store (MB)");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Instantaneous Number of Events in Stream Queue");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Memory used in Stream Queue (MB)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Number of Events Popped from Stream Queue (Hz)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -1977,6 +1983,8 @@ void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
   maker.addText(tableDiv, "Data  Rate to Disk (MB/sec)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Instantaneous Number of DQMEvents in DQMEvent Queue");
+  tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "Memory used in DQMEvent Queue (MB)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Number of DQMEvents Popped from DQMEvent Queue (Hz)");
   tableDiv = maker.addNode("th", tableRow, tableLabelAttr);
@@ -2033,6 +2041,10 @@ void WebPageHelper::addRowForThroughputStatistics
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, snapshot.entriesInFragmentQueue, 0 );
   
+  // memory used in fragment queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addDouble( tableDiv, snapshot.memoryUsedInFragmentQueue, 1 );
+  
   // number of fragments popped from fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, snapshot.fragmentQueueRate, 0 );
@@ -2049,9 +2061,17 @@ void WebPageHelper::addRowForThroughputStatistics
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, snapshot.fragmentStoreSize, 0 );
   
+  // memory used in fragment store
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addDouble( tableDiv, snapshot.fragmentStoreMemoryUsed, 1 );
+  
   // number of events in stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, snapshot.entriesInStreamQueue, 0 );
+  
+  // memory used in stream queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addDouble( tableDiv, snapshot.memoryUsedInStreamQueue, 1 );
   
   // number of events popped from stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2076,6 +2096,10 @@ void WebPageHelper::addRowForThroughputStatistics
   // number of dqm events in DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addDouble( tableDiv, snapshot.entriesInDQMQueue, 0 );
+  
+  // memory used in DQMEvent queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addDouble( tableDiv, snapshot.memoryUsedInDQMQueue, 1 );
   
   // number of dqm events popped from DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
