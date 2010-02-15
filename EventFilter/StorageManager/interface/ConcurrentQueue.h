@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.4 2010/02/11 13:32:50 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.5 2010/02/15 13:43:12 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -41,8 +41,8 @@ namespace stor
         not put onto the FIFO.
    
      $Author: mommsen $
-     $Revision: 1.4 $
-     $Date: 2010/02/11 13:32:50 $
+     $Revision: 1.5 $
+     $Date: 2010/02/15 13:43:12 $
    */
 
 
@@ -605,7 +605,7 @@ namespace stor
   {
     _elements.push_back(item);
     ++_size;
-    _used += size();
+    _used += detail::_memory_usage( item );
     _queue_not_empty.notify_one();
   }
 
