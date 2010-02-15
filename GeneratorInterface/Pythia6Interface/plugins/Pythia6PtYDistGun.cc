@@ -19,7 +19,7 @@ using namespace edm;
 using namespace gen;
 
 Pythia6PtYDistGun::Pythia6PtYDistGun( const ParameterSet& pset ) :
-   Pythia6Gun(pset), fPtYGenerator(0)
+   Pythia6ParticleGun(pset), fPtYGenerator(0)
 {
    
    ParameterSet pgun_params = 

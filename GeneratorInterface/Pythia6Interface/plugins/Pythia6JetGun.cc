@@ -16,7 +16,7 @@ using namespace edm;
 using namespace gen;
 
 Pythia6JetGun::Pythia6JetGun( const ParameterSet& pset ) :
-   Pythia6Gun(pset),
+   Pythia6ParticleGun(pset),
    fMinEta(0.), fMaxEta(0.),
    fMinE(0.), fMaxE(0.),
    fMinP(0.), fMaxP(0.)

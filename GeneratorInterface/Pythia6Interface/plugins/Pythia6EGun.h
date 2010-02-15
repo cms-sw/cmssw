@@ -1,11 +1,11 @@
 #ifndef gen_Pythia6EGun_h
 #define gen_Pythia6EGun_h
 
-#include "Pythia6Gun.h"
+#include "Pythia6ParticleGun.h"
 
 namespace gen {
 
-   class Pythia6EGun : public Pythia6Gun
+   class Pythia6EGun : public Pythia6ParticleGun
    {
    
       public:

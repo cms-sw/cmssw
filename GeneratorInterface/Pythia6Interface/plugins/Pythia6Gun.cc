@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/12/14 22:22:56 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/01/22 00:23:47 $
+ *  $Revision: 1.15 $
  *  \author Julia Yarba
  */
 
@@ -35,7 +35,6 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    // before trying to extract parameters - if it is empty,
    // the default values seem to be taken
    //
-   fPartIDs    = pgun_params.getParameter< std::vector<int> >("ParticleID");   
    fMinPhi     = pgun_params.getParameter<double>("MinPhi"); // ,-3.14159265358979323846);
    fMaxPhi     = pgun_params.getParameter<double>("MaxPhi"); // , 3.14159265358979323846);
    

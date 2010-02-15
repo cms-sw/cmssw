@@ -1,7 +1,7 @@
 #ifndef gen_Pythia6PtYDistGun_h
 #define gen_Pythia6PtYDistGun_h
 
-#include "Pythia6Gun.h"
+#include "Pythia6ParticleGun.h"
 // #include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
 
 
@@ -9,7 +9,7 @@ namespace gen {
 
 class PtYDistributor;
 
-   class Pythia6PtYDistGun : public Pythia6Gun
+   class Pythia6PtYDistGun : public Pythia6ParticleGun
    {
    
       public:

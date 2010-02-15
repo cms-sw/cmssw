@@ -16,7 +16,7 @@ using namespace edm;
 using namespace gen;
 
 Pythia6PtGun::Pythia6PtGun( const ParameterSet& pset ) :
-   Pythia6Gun(pset)
+   Pythia6ParticleGun(pset)
 {
    
    // ParameterSet defpset ;

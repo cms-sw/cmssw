@@ -1,20 +1,20 @@
 #ifndef gen_Pythia6PtGun_h
 #define gen_Pythia6PtGun_h
 
-#include "Pythia6ParticleGun.h"
+#include "Pythia6PartonGun.h"
 
 namespace gen {
 
-   class Pythia6PtGun : public Pythia6ParticleGun
+   class Pythia6PartonPtGun : public Pythia6PartonGun
    {
    
       public:
       
-      Pythia6PtGun( const edm::ParameterSet& );
-      virtual ~Pythia6PtGun();
-      // void produce( edm::Event&, const edm::EventSetup& ) ;
+      Pythia6PartonPtGun( const edm::ParameterSet& );
+      virtual ~Pythia6PartonPtGun();
       
       protected:
+
          void generateEvent() ;
       
       private:
@@ -23,7 +23,6 @@ namespace gen {
 	 double  fMaxEta;
 	 double  fMinPt ;
          double  fMaxPt ;
-	 bool    fAddAntiParticle;
    
    };
 
