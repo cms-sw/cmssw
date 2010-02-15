@@ -20,6 +20,8 @@ extern "C"
    void   pygive_(const char*, int );
    void   pydecy_( int& ip ) ;
    void   pyrobo_( int&, int&, double&, double&, double&, double&, double& );
+   void   pyjoin_(int& njoin, int ijoin[]);
+   void   pyshow_(int &i1, int&i2, double& );
    
    void   txgive_(const char*, int );
    void   txgive_init_(void);

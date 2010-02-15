@@ -84,28 +84,16 @@ void Pythia6PartonPtGun::generateEvent()
    Vtx->add_particle_out(Part);
 	 
    // now add anti-quark
-   ip = ip + 1;
-
-// Check if there's an "anti"
-   int pythiaCode = pycomp_(py6PID); // this is py6 internal validity check, it takes Pythia6 pid
-	                             // so actually I'll need to convert
-   int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-   int partonID2 = has_antipart ? -1 * fPartonID : fPartonID;
-   int py6PID2 = has_antipart ? -1 * py6PID : py6PID;	 // this py6 id, for py1ent    
-   the = 2.*atan(exp(eta));
-   phi  = phi + M_PI;
-   if (phi > 2.* M_PI) {phi = phi - 2.* M_PI;}  
-	    
-   // same trick as above
-   pyjets.p[4][ip-1] = mass;
-	           
-   py1ent_(ip, py6PID2, ee, the, phi);
-	    
-   HepMC::FourVector ap(-px,-py,-pz,ee) ;
-   HepMC::GenParticle* APart = new HepMC::GenParticle(ap,partonID2,1);
-   
-   APart->suggest_barcode( ip ) ;
-   Vtx->add_particle_out(APart) ;	    
+   ip = ip + 1;   
+   HepMC::GenParticle* APart = addAntiParticle( ip, fPartonID, ee, eta, phi );   
+   if ( APart ) 
+   {
+      Vtx->add_particle_out(APart) ;
+   }
+   else
+   {
+      // otherwise it should throw !
+   }	    
 
    // this should probably be configurable...
    //

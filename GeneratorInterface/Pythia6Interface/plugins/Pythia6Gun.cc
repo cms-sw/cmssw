@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/01/22 00:23:47 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/02/15 21:12:49 $
+ *  $Revision: 1.16 $
  *  \author Julia Yarba
  */
 
@@ -241,3 +241,38 @@ void Pythia6Gun::loadEvent( edm::Event& evt )
    return;
 
 }
+
+HepMC::GenParticle* Pythia6Gun::addAntiParticle( int& ip, int& particleID,
+                                                 double& ee, double& eta, double& phi )
+{
+
+   if ( ip < 2 ) return 0;
+
+// translate PDG to Py6
+   int py6PID = HepPID::translatePDTtoPythia( particleID );
+// Check if particle is its own anti-particle.
+   int pythiaCode = pycomp_(py6PID); // this is py6 internal validity check, it takes Pythia6 pid
+	                             // so actually I'll need to convert
+   int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
+   int particleID2 = has_antipart ? -1 * particleID : particleID; // this is PDG, for HepMC::GenEvent
+   int py6PID2 = has_antipart ? -1 * py6PID : py6PID;	 // this py6 id, for py1ent   
+   double the = 2.*atan(exp(eta));
+   phi  = phi + M_PI;
+   if (phi > 2.* M_PI) {phi = phi - 2.* M_PI;}         
+
+   // copy over mass of the previous one, because then py6 will pick it up
+   pyjets.p[4][ip-1] = pyjets.p[4][ip-2];
+
+   py1ent_(ip, py6PID2, ee, the, phi);
+
+   double px     = pyjets.p[0][ip-1]; // pt*cos(phi) ;
+   double py     = pyjets.p[1][ip-1]; // pt*sin(phi) ;
+   double pz     = pyjets.p[2][ip-1]; // mom*cos(the) ;
+   HepMC::FourVector ap(px,py,pz,ee) ;
+   HepMC::GenParticle* APart =
+	       new HepMC::GenParticle(ap,particleID2,1);
+   APart->suggest_barcode( ip ) ;
+
+   return APart;
+
+} 

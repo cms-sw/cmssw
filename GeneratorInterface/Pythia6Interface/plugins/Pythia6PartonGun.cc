@@ -8,10 +8,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-//#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-//#include "FWCore/Framework/interface/MakerMacros.h"
-
 using namespace edm;
 using namespace gen;
 
@@ -23,11 +19,6 @@ Pythia6PartonGun::Pythia6PartonGun( const ParameterSet& pset ) :
       pset.getParameter<ParameterSet>("PGunParameters"); 
    fPartonID = pgun_params.getParameter< int >("PartonID");
    
-   if ( fPartonID < 1 || fPartonID > 6 )
-   {
-      // throw here !!!
-   }
-
 }
 
 Pythia6PartonGun::~Pythia6PartonGun()

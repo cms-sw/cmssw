@@ -47,6 +47,7 @@ namespace gen
     void attachPy6DecaysToGenEvent();
     void loadEvent( edm::Event& );
     virtual void generateEvent() = 0;
+    HepMC::GenParticle* addAntiParticle( int&, int&, double&, double&, double& ); 
     
     Pythia6Service*  fPy6Service;
     

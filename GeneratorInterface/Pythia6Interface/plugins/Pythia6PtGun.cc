@@ -90,26 +90,8 @@ void Pythia6PtGun::generateEvent()
 	 if(fAddAntiParticle)
 	 {
 	    ip = ip + 1;
-// Check if particle is its own anti-particle.
-            int pythiaCode = pycomp_(py6PID); // this is py6 internal validity check, it takes Pythia6 pid
-	                                          // so actually I'll need to convert
-            int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-            int particleID2 = has_antipart ? -1 * particleID : particleID;
-	    int py6PID2 = has_antipart ? -1 * py6PID : py6PID;	 // this py6 id, for py1ent    
-	    the = 2.*atan(exp(eta));
-	    phi  = phi + M_PI;
-	    if (phi > 2.* M_PI) {phi = phi - 2.* M_PI;}  
-	    
-	    // same trick as above
-	    pyjets.p[4][ip-1] = mass;
-	           
-	    py1ent_(ip, py6PID2, ee, the, phi);
-	    
-            HepMC::FourVector ap(-px,-py,-pz,ee) ;
-	    HepMC::GenParticle* APart =
-	       new HepMC::GenParticle(ap,particleID2,1);
-	    APart->suggest_barcode( ip ) ;
-	    Vtx->add_particle_out(APart) ;	    
+	    HepMC::GenParticle* APart = addAntiParticle( ip, particleID, ee, eta, phi );
+	    if ( APart ) Vtx->add_particle_out(APart) ;	    
 	 }
 	 ip++;
    }
