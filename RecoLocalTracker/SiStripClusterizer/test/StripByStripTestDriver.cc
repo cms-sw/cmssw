@@ -1,14 +1,16 @@
 
 #include "RecoLocalTracker/SiStripClusterizer/test/StripByStripTestDriver.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Event.h"
 
 StripByStripTestDriver::
 StripByStripTestDriver(const edm::ParameterSet&conf)
   : inputTag( conf.getParameter<edm::InputTag>("DigiProducer") ),
-    hlt( conf.getParameter<bool>("HLT") ),
-    hltFactory(0) {
+    hlt( conf.getParameter<bool>("HLT") )//,
+  /*hltFactory(0)*/ {
 
-  if(hlt) hltFactory = new SiStripClusterizerFactory(conf);
+  if(hlt);// hltFactory = new SiStripClusterizerFactory(conf);
   else    algorithm  = StripClusterizerAlgorithmFactory::create(conf);
   
   produces<output_t>("");
@@ -16,7 +18,7 @@ StripByStripTestDriver(const edm::ParameterSet&conf)
 
 StripByStripTestDriver::
 ~StripByStripTestDriver() {
-  if(hltFactory) delete hltFactory;
+  //if(hltFactory) delete hltFactory;
 }
 
 void StripByStripTestDriver::
@@ -28,7 +30,7 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   edm::Handle< edm::DetSetVector<SiStripDigi> >  input;  
   event.getByLabel(inputTag, input);
 
-  if(hlt) hltFactory->eventSetup(es);  
+  if(hlt);// hltFactory->eventSetup(es);  
   else    algorithm->initialize(es);
 
   for(edm::DetSetVector<SiStripDigi>::const_iterator 
@@ -38,10 +40,10 @@ produce(edm::Event& event, const edm::EventSetup& es) {
     if( hlt || algorithm->stripByStripBegin( inputDetSet->detId() ) ) {
       for( edm::DetSet<SiStripDigi>::const_iterator
 	     digi = inputDetSet->begin(); digi != inputDetSet->end(); digi++ ) {
-	if(hlt) hltFactory->algorithm()->add(clusters, inputDetSet->detId(), digi->strip(), digi->adc());
+	if(hlt);// hltFactory->algorithm()->add(clusters, inputDetSet->detId(), digi->strip(), digi->adc());
 	else    algorithm->stripByStripAdd(digi->strip(), digi->adc(), clusters);
       }
-      if(hlt) hltFactory->algorithm()->endDet(clusters, inputDetSet->detId());
+      if(hlt);// hltFactory->algorithm()->endDet(clusters, inputDetSet->detId());
       else    algorithm->stripByStripEnd(clusters);
     }
 

@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
+//#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
 
 class StripByStripTestDriver : public edm::EDProducer {
   
@@ -23,7 +23,7 @@ private:
   const edm::InputTag inputTag;
   const bool hlt;
 
-  SiStripClusterizerFactory*               hltFactory;
+  //SiStripClusterizerFactory*               hltFactory;
   std::auto_ptr<StripClusterizerAlgorithm> algorithm;
 
 };
