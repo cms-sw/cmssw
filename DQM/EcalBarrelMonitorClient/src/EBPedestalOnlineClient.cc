@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2010/02/14 14:35:45 $
- * $Revision: 1.151 $
+ * $Date: 2010/02/15 09:14:08 $
+ * $Revision: 1.153 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -365,6 +365,8 @@ void EBPedestalOnlineClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits03 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
@@ -384,6 +386,8 @@ void EBPedestalOnlineClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits03 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();

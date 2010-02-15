@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/02/14 20:56:23 $
- * $Revision: 1.254 $
+ * $Date: 2010/02/15 11:03:51 $
+ * $Revision: 1.255 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2413,6 +2413,8 @@ void EBLaserClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
@@ -2435,6 +2437,8 @@ void EBLaserClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();
@@ -2463,6 +2467,8 @@ void EBLaserClient::analyze(void) {
       if ( (m->second).getErrorBits() & (bits01|bits02) ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int i = ecid.getID2()-1;
 
@@ -2475,6 +2481,8 @@ void EBLaserClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & (bits01|bits04) ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int i = ecid.getID2()-1;

@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/02/14 20:56:23 $
- * $Revision: 1.30 $
+ * $Date: 2010/02/15 13:27:04 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -220,6 +220,8 @@ void EBStatusFlagsClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/02/14 20:56:23 $
- * $Revision: 1.219 $
+ * $Date: 2010/02/15 10:14:30 $
+ * $Revision: 1.220 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1051,6 +1051,8 @@ void EBTestPulseClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
@@ -1064,6 +1066,8 @@ void EBTestPulseClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits02 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
@@ -1076,6 +1080,8 @@ void EBTestPulseClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits03 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
@@ -1097,6 +1103,8 @@ void EBTestPulseClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();
 
@@ -1114,6 +1122,8 @@ void EBTestPulseClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits02 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();
 
@@ -1130,6 +1140,8 @@ void EBTestPulseClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits03 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();
@@ -1155,6 +1167,8 @@ void EBTestPulseClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int i = ecid.getID2()-1;
 
@@ -1164,6 +1178,8 @@ void EBTestPulseClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits03 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int i = ecid.getID2()-1;

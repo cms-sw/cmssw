@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2010/02/14 20:56:23 $
- * $Revision: 1.220 $
+ * $Date: 2010/02/15 13:53:04 $
+ * $Revision: 1.221 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -893,6 +893,8 @@ void EBIntegrityClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
@@ -912,6 +914,8 @@ void EBIntegrityClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits02 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();
@@ -937,6 +941,8 @@ void EBIntegrityClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_mem_channel") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
@@ -956,6 +962,8 @@ void EBIntegrityClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits02 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_mem_TT") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel); 
         int itt = ecid.getID2();

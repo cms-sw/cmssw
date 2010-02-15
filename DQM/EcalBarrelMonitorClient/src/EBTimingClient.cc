@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2010/02/14 20:56:23 $
- * $Revision: 1.99 $
+ * $Date: 2010/02/15 11:08:47 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  *
 */
@@ -401,6 +401,8 @@ void EBTimingClient::analyze(void) {
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
 
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
@@ -420,6 +422,8 @@ void EBTimingClient::analyze(void) {
 
       if ( (m->second).getErrorBits() & bits01 ) {
         EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int itt = ecid.getID2();
