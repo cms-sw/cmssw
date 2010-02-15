@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/02/17 16:29:12 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/12 15:51:33 $
+ *  $Revision: 1.10 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -59,8 +59,8 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) 
   fedbyType_ = ps.getParameter<bool>("fedbyType"); // default was: true
   inputLabel = ps.getParameter<InputTag>("inputLabel"); // default was: source
   useStandardFEDid_ = ps.getParameter<bool>("useStandardFEDid"); // default was: true
-  minFEDid_ = ps.getParameter<int>("minFEDid"); // default: 770
-  maxFEDid_ = ps.getParameter<int>("maxFEDid"); // default 779
+  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
+  maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid",779); // default 779
   dqmOnly = ps.getParameter<bool>("dqmOnly"); // default: false
 
   if(!dqmOnly) {
