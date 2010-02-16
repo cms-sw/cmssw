@@ -10,8 +10,8 @@ JPTZSPCorrectorICone5.LeakageMap =    'JetMETCorrections/Configuration/data/CMSS
 #JPTZSPCorrectorICone5.ResponseFile          = 'CMSSW_31X_resptowers'
 
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
-#from JetMETCorrections.Configuration.ZSPJetCorrections332_cff import *
-from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
+from JetMETCorrections.Configuration.ZSPJetCorrections332_cff import *
+#from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
 JPTZSPCorrectorICone5.ResponseMap = cms.string("JetMETCorrections/Configuration/data/CMSSW_31X_resptowers.txt")
 JPTZSPCorrectorICone5.EfficiencyMap = cms.string("JetMETCorrections/Configuration/data/CMSSW_167_TrackNonEff_one.txt")
 JPTZSPCorrectorICone5.LeakageMap = cms.string("JetMETCorrections/Configuration/data/CMSSW_167_TrackLeakage_one.txt")
