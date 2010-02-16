@@ -42,6 +42,8 @@ private:
 
   bool useFit_;
 
+  std::string dbLabel;
+
   const DTTtrig *tTrigMap_;
   const DTMtime *mTimeMap_;
 };

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/27 10:54:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/19 09:51:31 $
+ *  $Revision: 1.2 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -33,13 +33,15 @@ DTTTrigCorrectionFirst::DTTTrigCorrectionFirst(const ParameterSet& pset) {
   ttrigMin = pset.getUntrackedParameter<double>("ttrigMin",0);
   ttrigMax = pset.getUntrackedParameter<double>("ttrigMax",5000);
   rmsLimit = pset.getUntrackedParameter<double>("rmsLimit",5.);
+
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
 }
 
 DTTTrigCorrectionFirst::~DTTTrigCorrectionFirst(){}
 
 void DTTTrigCorrectionFirst::beginRun( const edm::Run& run, const edm::EventSetup& setup ) {
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(tTrig);
+  setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
   tTrigMap = &*tTrig;
   cout << "[DTTTrigCorrection]: TTrig version: " << tTrig->version() << endl;
 

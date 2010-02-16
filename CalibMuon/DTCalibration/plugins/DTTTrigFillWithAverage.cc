@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 16:34:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/25 16:38:34 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -18,14 +18,16 @@
 using namespace std;
 using namespace edm;
 
-DTTTrigFillWithAverage::DTTTrigFillWithAverage(const ParameterSet& pset):foundAverage_(false) {}
+DTTTrigFillWithAverage::DTTTrigFillWithAverage(const ParameterSet& pset):foundAverage_(false) {
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
+}
 
 DTTTrigFillWithAverage::~DTTTrigFillWithAverage() {}
 
 void DTTTrigFillWithAverage::setES(const EventSetup& setup) {
   // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(tTrig);
+  setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
   tTrigMap_ = &*tTrig;
 
   // Get geometry from Event Setup

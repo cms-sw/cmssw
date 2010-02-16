@@ -5,11 +5,13 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Matches tTrig values for RPhi SL's
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
+
+#include <string>
 
 namespace edm {
   class ParameterSet;
@@ -30,5 +32,7 @@ public:
 
 private:
   const DTTtrig *tTrigMap_;
+
+  std::string dbLabel;
 };
 #endif

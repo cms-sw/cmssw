@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/01 13:05:46 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/10/07 15:08:10 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -71,6 +71,8 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
+  dbLabel  = ps.getUntrackedParameter<string>("dbLabel", "");
+
   parameters=ps;
 
 }
@@ -86,7 +88,7 @@ void DTNoiseCalibration::beginRun(const edm::Run& run, const edm::EventSetup& se
 
   // tTrig 
   if (parameters.getUntrackedParameter<bool>("readDB", true)) 
-    setup.get<DTTtrigRcd>().get(tTrigMap);
+    setup.get<DTTtrigRcd>().get(dbLabel,tTrigMap);
 
   // TDC time distribution
   int numBin = (TriggerWidth*(32/25))/50;

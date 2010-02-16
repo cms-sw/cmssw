@@ -4,8 +4,8 @@
 /** \class DTTTrigOffsetCalibration
  *  No description available.
  *
- *  $Date: 2008/08/04 16:27:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/11 16:34:34 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -73,6 +73,8 @@ private:
 
   // Choose the chamber you want to calibrate
   std::string theCalibChamber_;
+
+  std::string dbLabel;
 
 };
 #endif

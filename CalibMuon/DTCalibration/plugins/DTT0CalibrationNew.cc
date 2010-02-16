@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:34:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/09 22:44:10 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  *  06/08/2008 Mofified by Antonio.Vilela.Pereira@cern.ch
  */
@@ -41,6 +41,8 @@ DTT0CalibrationNew::DTT0CalibrationNew(const edm::ParameterSet& pset) {
 
   // Get the label to retrieve digis from the event
   digiLabel = pset.getUntrackedParameter<string>("digiLabel");
+
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
 
   // The root file which contain the histos per layer
   string rootFileName = pset.getUntrackedParameter<string>("rootFileName","DTT0PerLayer.root");
@@ -117,7 +119,7 @@ void DTT0CalibrationNew::analyze(const edm::Event & event, const edm::EventSetup
 
   // Get ttrig DB
   edm::ESHandle<DTTtrig> tTrigMap;
-  eventSetup.get<DTTtrigRcd>().get(tTrigMap);
+  eventSetup.get<DTTtrigRcd>().get(dbLabel,tTrigMap);
   
   // Iterate through all digi collections ordered by LayerId   
   DTDigiCollection::DigiRangeIterator dtLayerIt;

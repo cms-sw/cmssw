@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Computes t0-seg correction for tTrig
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -37,7 +37,9 @@ private:
   const TH1F* getHisto(const DTSuperLayerId&);
   std::string getHistoName(const DTSuperLayerId& slID);
 
-  TFile* rootFile_;  
+  TFile* rootFile_;
+
+  std::string dbLabel;
 
   const DTTtrig *tTrigMap_;
 };

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/25 16:38:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/19 13:12:00 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -32,6 +32,7 @@ DTTTrigResidualCorrection::DTTTrigResidualCorrection(const ParameterSet& pset) {
   string residualsRootFile = pset.getParameter<string>("residualsRootFile");
   rootFile_ = new TFile(residualsRootFile.c_str(),"READ");
   useFit_ = pset.getParameter<bool>("useFitToResiduals");
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
   //useConstantvDrift_ = pset.getParameter<bool>("useConstantDriftVelocity");
 }
 
@@ -42,7 +43,7 @@ DTTTrigResidualCorrection::~DTTTrigResidualCorrection() {
 void DTTTrigResidualCorrection::setES(const EventSetup& setup) {
   // Get tTrig record from DB
   ESHandle<DTTtrig> tTrig;
-  setup.get<DTTtrigRcd>().get(tTrig);
+  setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
   tTrigMap_ = &*tTrig;
 
   // Get vDrift record

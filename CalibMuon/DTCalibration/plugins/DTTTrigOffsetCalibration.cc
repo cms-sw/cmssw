@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/25 16:38:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/08/26 06:12:54 $
+ *  $Revision: 1.3 $
  *  \author A. Vilela Pereira
  */
 
@@ -47,6 +47,8 @@ DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset) {
   theFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   theFile_->cd();
 
+  dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
+
   // Do t0-seg correction to ttrig
   doTTrigCorrection_ = pset.getUntrackedParameter<bool>("doT0SegCorrection", false);
 
@@ -72,7 +74,7 @@ DTTTrigOffsetCalibration::DTTTrigOffsetCalibration(const ParameterSet& pset) {
 void DTTTrigOffsetCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
   if(doTTrigCorrection_){
     ESHandle<DTTtrig> tTrig;
-    setup.get<DTTtrigRcd>().get(tTrig);
+    setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
     tTrigMap = &*tTrig;
     LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration]: TTrig version: " << tTrig->version() << endl; 
   }

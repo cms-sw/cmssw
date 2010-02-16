@@ -5,8 +5,8 @@
  *  Class which read a ttrig DB and correct it with
  *  the near SL (or the global average)
  *
- *  $Date: 2009/03/27 10:54:32 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/19 09:51:31 $
+ *  $Revision: 1.2 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -40,6 +40,8 @@ protected:
 private:
   const DTTtrig *tTrigMap;
   edm::ESHandle<DTGeometry> muonGeom;
+
+  std::string dbLabel;
 
   bool debug;
   double ttrigMin,ttrigMax,rmsLimit; 

@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Fills missing tTrig values in DB 
  *
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -35,6 +35,8 @@ private:
 
   const DTTtrig *tTrigMap_;
   edm::ESHandle<DTGeometry> muonGeom_;
+
+  std::string dbLabel;
 
   struct {
     float aveMean;
