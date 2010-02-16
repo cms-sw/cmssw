@@ -34,9 +34,59 @@ EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
    const CaloGenericDetId gid ( id ) ;
 
    assert( gid.isES() ) ;
-   unsigned int index ( 0 ) ;
 
-   return index ;
+// plane 2 is split into 2 dees along x=0 for both signs of z
+
+// plane 1 at zsign=-1 is split into 2 dees between six=19 and six=20 for siy<=20,
+//                                             and six=21 and 22 for siy>=21
+
+// plane 1 at zsign=+1 is split into 2 dees between six=20 and six=21 for siy<=20,
+//                                             and six=19 and 20 for siy>=21
+
+   const ESDetId esid ( id ) ;
+   const int jx ( esid.six() - 1 ) ;
+   const int jy ( esid.siy() - 1 ) ;
+   const int jz ( esid.zside() + 1) ;
+   const bool second ( 2 == esid.plane() ) ;
+   const bool top   ( 19 < jy ) ;
+   const bool negz  ( 0 == jz ) ;
+
+   return ( second ? jx/20 + jz :  // 2nd plane split along middle
+	    ( negz && !top ? jx/19 :  // 1st plane at neg z and bottom half split at six=19&20
+	      ( negz && top ? jx/21 : // 1st plane at neg z and top half split at six=21&22
+		( !negz && !top ? jx/21 + jz : jx/19 + jz ) ) ) ) ; // opposite at positive z
+/* Ming's code
+
+   unsigned int index ( 0 ) ;
+   if (esid.zside() < 0) {
+     if (esid.plane() == 2) {
+       if (esid.six() <= 20) index = 0;
+       else index = 1;
+     } else if (esid.plane() == 1) {
+       if (esid.siy() <= 20) {
+	 if (esid.six() < 20) index = 0;
+	 else index = 1;
+       } else {
+	 if (esid.six() < 22) index = 0;
+	 else index = 1;
+       }
+     }
+   } else {
+     if (esid.plane() == 2) {
+       if (esid.six() <= 20) index = 2;
+       else index = 3;
+     } else if (esid.plane() == 1) {
+       if (esid.siy() <= 20) {
+	 if (esid.six() < 22) index = 2;
+	 else index = 3;
+       } else {
+	 if (esid.six() < 20) index = 2;
+	 else index = 3;
+       }
+     }
+   }
+
+   return index ;*/
 }
 
 unsigned int
