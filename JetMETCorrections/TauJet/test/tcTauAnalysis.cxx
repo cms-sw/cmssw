@@ -286,4 +286,31 @@ void tcTauAnalysis(){
         h_PFTau_dEt->DrawClone("same");
 
         tctau_dEtNormalized->Print("tctau_dEtNormalized.C");
+
+	//
+
+        TCanvas* tctau_dEtRatioNormalized = new TCanvas("tctau_dEtRatioNormalized","",500,500);
+        tctau_dEtRatioNormalized->SetFillColor(0);
+        tctau_dEtRatioNormalized->SetFrameFillColor(0);
+        tctau_dEtRatioNormalized->cd();
+
+        h_TCTau_dEtRatio->SetLineWidth(3);
+        h_TCTau_dEtRatio->SetLineColor(2);
+        h_TCTau_dEtRatio->SetLineStyle(2);
+        h_TCTau_dEtRatio->SetStats(0);
+        h_TCTau_dEtRatio->GetXaxis()->SetTitle("pt(RECO)/pt(MC)");
+        h_TCTau_dEtRatio->Scale(1/h_TCTau_dEtRatio->Integral());
+        h_TCTau_dEtRatio->DrawClone();
+
+        h_CaloTau_dEtRatio->SetLineWidth(3);
+        h_CaloTau_dEtRatio->Scale(1/h_CaloTau_dEtRatio->Integral());
+        h_CaloTau_dEtRatio->DrawClone("same");
+
+        h_PFTau_dEtRatio->SetLineWidth(3);
+        h_PFTau_dEtRatio->SetLineColor(3);
+        h_PFTau_dEtRatio->SetLineStyle(3);
+        h_PFTau_dEtRatio->Scale(1/h_PFTau_dEtRatio->Integral());
+        h_PFTau_dEtRatio->DrawClone("same");
+
+        tctau_dEtRatioNormalized->Print("tctau_dEtRatioNormalized.C");
 }
