@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.14 2009/10/06 09:05:31 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.15 2010/02/09 14:54:04 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -329,6 +329,8 @@ void StatisticsReporter::reset()
   _eventConsumerMonCollection.reset(now);
   _dqmConsumerMonCollection.reset(now);
   _throughputMonCollection.reset(now);
+
+  _alarmHandler->clearAllAlarms();
 }
 
 
