@@ -6,10 +6,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MuonCSCTriggerPrimitives")
 
 process.source = cms.Source("PoolSource",
-    # fileNames = cms.untracked.vstring("file:cscdigis.root"),
-    fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_3_3_0.root"),
-    debugVebosity = cms.untracked.uint32(10),
-    debugFlag = cms.untracked.bool(True)
+    #fileNames = cms.untracked.vstring("file:/data0/slava/test/muminus_pt50_CMSSW_3_3_0.root"),
+    fileNames = cms.untracked.vstring("file:muminus_pt50_CMSSW_3_5_0.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -50,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'DESIGN_31X_V8::All'
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'MC_3XY_V21::All'
 
 # magnetic field (do I need it?)
 # ==============================
@@ -61,6 +59,12 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff")
 #process.l1csctpconf.isMTCC = True
 #process.l1csctpconf.isTMB07 = True
+#process.l1csctpconf.alctParamMTCC2.alctNplanesHitPretrig = 3
+#process.l1csctpconf.alctParamMTCC2.alctNplanesHitAccelPretrig = 3
+#process.l1csctpconf.clctParam.clctNplanesHitPretrig = 3
+#process.l1csctpconf.clctParam.clctHitPersist = 4
+#process.load("L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesDBConfig_cff")
+#process.prefer("l1csctpdbconfsrc")
 
 # CSC Trigger Primitives
 # ======================
@@ -70,8 +74,8 @@ process.cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
 process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 
 #- For cosmic data
-# process.cscTriggerPrimitiveDigis.CSCComparatorDigiProducer = "cscunpacker:MuonCSCComparatorDigi"
-# process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "cscunpacker:MuonCSCWireDigi"
+# process.cscTriggerPrimitiveDigis.CSCComparatorDigiProducer = "muonCSCDigis:MuonCSCComparatorDigi"
+# process.cscTriggerPrimitiveDigis.CSCWireDigiProducer = "muonCSCDigis:MuonCSCWireDigi"
 # process.cscTriggerPrimitiveDigis.alctParam.alctTrigMode = 2
 
 # Auxiliary services
@@ -84,7 +88,8 @@ process.cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
 
 process.out = cms.OutputModule("PoolOutputModule",
     # fileName = cms.untracked.string("lcts.root"),
-    fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_3_0.root"),
+    # fileName = cms.untracked.string("/data0/slava/test/lcts_muminus_pt50_emul_CMSSW_3_3_0.root"),
+    fileName = cms.untracked.string("lcts_muminus_pt50_emul_CMSSW_3_5_0.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
