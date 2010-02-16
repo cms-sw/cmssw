@@ -66,7 +66,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 
       static std::string producerTag() { return "EcalPreshower" ; }
 
-      static unsigned int numberOfAlignments() { return 1 ; }
+      static unsigned int numberOfAlignments() { return 8 ; }
 
       static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 
