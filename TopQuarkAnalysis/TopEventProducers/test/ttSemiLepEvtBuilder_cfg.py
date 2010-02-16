@@ -55,6 +55,9 @@ addTtSemiLepHypotheses(process,
                        )
 #removeTtSemiLepHypGenMatch(process)
 
+#process.kinFitTtSemiLepEventHypothesis.match = "findTtSemiLepJetCombGeom"
+#process.kinFitTtSemiLepEventHypothesis.useOnlyMatch = True
+
 ## change maximum number of jets taken into account per event (default: 4)
 #setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
 
