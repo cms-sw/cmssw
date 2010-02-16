@@ -3,24 +3,25 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("DPGAnalysis/Skims/skim_detstatus_cfi")
+
 
 # DCS partitions
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
 # "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
 # "BPIX","FPIX","ESp","ESm"
 
+#adapt skimming
+process.dcsstatus.DetectorType =  cms.vstring('TOB','BPIX','TECp','TECm')
+process.dcsstatus.ApplyFilter =  cms.bool(True)
+process.dcsstatus.DebugOn =  cms.untracked.bool(True)
 
-process.skimming = cms.EDFilter("DetStatus",
-            DetectorType = cms.untracked.vstring('TOB','BPIX','TECp','TECm'),
-#            DetectorType = cms.untracked.vstring('CASTOR'),
-           ApplyFilter = cms.untracked.bool(True), # optional (default = true)
-           DebugOn      = cms.untracked.bool(False)  # optional (default = false)                                             
-)
+
 
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/skim_physdecl_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/skim_detstatus_cfg.py,v $'),
     annotation = cms.untracked.string('DCSStatus skim')
 )
 
@@ -39,7 +40,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 )
 
-process.p = cms.Path(process.skimming)
+process.p = cms.Path(process.dcsstatus)
 process.e = cms.EndPath(process.out)
 
 myfilelist = cms.untracked.vstring()

@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
  
 using namespace std;
@@ -11,8 +12,9 @@ using namespace std;
 //
 DetStatus::DetStatus( const edm::ParameterSet & pset ) {
    verbose_      = pset.getUntrackedParameter<bool>( "DebugOn", false );
-   applyfilter_      = pset.getUntrackedParameter<bool>( "ApplyFilter", true );
-   DetNames_ = pset.getUntrackedParameter<std::vector<std::string> >( "DetectorType" );
+   applyfilter_      = pset.getParameter<bool>( "ApplyFilter");
+   DetNames_ = pset.getParameter<std::vector<std::string> >( "DetectorType" );
+
   // build a map
   DetMap_=0;
   for (unsigned int detreq=0;detreq<DetNames_.size();detreq++)
@@ -62,6 +64,11 @@ bool DetStatus::filter( edm::Event & evt, edm::EventSetup const& es) {
 	  std::cout << std::endl ;
 	}
     }
+  else
+    {
+      edm::LogError("scalersRawToDigiError") << "Error! can't get the product: scalersRawToDigi" ;
+    }
+
   if (! applyfilter_) accepted=true;
   return accepted;
 }
