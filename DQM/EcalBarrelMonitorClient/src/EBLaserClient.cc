@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/02/15 11:03:51 $
- * $Revision: 1.255 $
+ * $Date: 2010/02/15 14:14:14 $
+ * $Revision: 1.256 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2470,7 +2470,7 @@ void EBLaserClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int i = ecid.getID2()-1;
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -2485,7 +2485,7 @@ void EBLaserClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int i = ecid.getID2()-1;
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );

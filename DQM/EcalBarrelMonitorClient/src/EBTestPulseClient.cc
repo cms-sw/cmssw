@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/02/15 10:14:30 $
- * $Revision: 1.220 $
+ * $Date: 2010/02/15 14:14:14 $
+ * $Revision: 1.221 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1170,7 +1170,7 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int i = ecid.getID2()-1;
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1182,7 +1182,7 @@ void EBTestPulseClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int i = ecid.getID2()-1;
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 

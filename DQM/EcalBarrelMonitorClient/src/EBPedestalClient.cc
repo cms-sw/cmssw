@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2010/02/15 10:14:30 $
- * $Revision: 1.213 $
+ * $Date: 2010/02/15 14:14:14 $
+ * $Revision: 1.214 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1245,7 +1245,7 @@ void EBPedestalClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int i = ecid.getID2()-1;
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
 
@@ -1257,7 +1257,7 @@ void EBPedestalClient::analyze(void) {
         if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
 
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        int i = ecid.getID2()-1;
+        int i = ecid.getID2() - 1;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 
