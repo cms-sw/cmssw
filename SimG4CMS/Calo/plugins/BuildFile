@@ -1,5 +1,0 @@
-<use name=FWCore/PluginManager>
-<library file="*.cc" name=SimG4CMSCaloPlugins>
-<use name=SimG4CMS/Calo>
-<flags EDM_PLUGIN=1>
-</library>

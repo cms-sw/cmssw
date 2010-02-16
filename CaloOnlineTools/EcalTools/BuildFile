@@ -1,9 +1,0 @@
-<use name=root>
-
-<export>
-
-<lib name=CaloOnlineToolsEcalTools>
-<use name=Geometry/EcalMapping>
-
-</export>
-
