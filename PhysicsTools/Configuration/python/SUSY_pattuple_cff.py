@@ -147,7 +147,20 @@ def addSUSYJetCollection(process,jets = 'IC5',doJTA=False,doType1MET=False,doJet
 def addJetMET(process,theJetNames):
     
     #-- Jet plus tracks -----------------------------------------------------------
-    process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
+    #process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
+    # Fiddle because of broken corrections in PAT
+    process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
+    process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
+    
+    process.jptCaloJets = cms.Sequence(
+    	process.ZSPJetCorrectionsIcone5 *
+    	process.ZSPJetCorrectionsSisCone5 *
+    	process.ZSPJetCorrectionsAntiKt5 *
+    	process.JetPlusTrackCorrectionsIcone5 *
+    	process.JetPlusTrackCorrectionsSisCone5 *
+    	process.JetPlusTrackCorrectionsAntiKt5
+    )
+
     process.load("JetMETCorrections.JetPlusTrack.matchJptAndCaloJets_cff")
     process.load("JetMETCorrections.JetPlusTrack.jptJetId_cff")
     process.jpt = cms.Sequence( process.jptCaloJets * process.matchJptAndCaloJets )
