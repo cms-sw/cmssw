@@ -120,45 +120,6 @@ class RemoveMCMatching(ConfigToolBase):
                 metProducer = getattr(process, 'patMETs')        
                 metProducer.addGenMET           = False
                 metProducer.genMETSource        = ''       
-            if( names[obj] == 'PFElectrons' or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF electrons"
-                _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons') 
-            if( names[obj] == 'PFMuons'     or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF muons"
-                _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons') 
-            if( names[obj] == 'PFTaus'      or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF taus"
-                _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
-                process.patDefaultSequence.remove(process.tauGenJetMatch)
-                process.patDefaultSequence.remove(process.tauGenJets)
-                ## remove mc extra configs for taus
-                tauProducer = getattr(process, 'patTaus')
-                tauProducer.addGenJetMatch      = False
-                tauProducer.embedGenJetMatch    = False
-                tauProducer.genJetMatch         = ''         
-            if( names[obj] == 'PFJets'      or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF jets"
-                ## remove mc extra modules for jets
-                process.patDefaultSequence.remove(process.patJetPartons)
-                process.patDefaultSequence.remove(process.pfPatJetPartonMatch)
-                process.patDefaultSequence.remove(process.pfPatJetGenJetMatch)
-                process.patDefaultSequence.remove(process.pfPatJetPartonAssociation)
-                process.patDefaultSequence.remove(process.pfPatJetFlavourAssociation)     
-                ## remove mc extra configs for jets
-                jetProducer = getattr(process, 'pfPatJets')
-                jetProducer.addGenPartonMatch   = False
-                jetProducer.embedGenPartonMatch = False
-                jetProducer.genPartonMatch      = ''
-                jetProducer.addGenJetMatch      = False
-                jetProducer.genJetMatch         = ''
-                jetProducer.getJetMCFlavour     = False
-                jetProducer.JetPartonMapSource  = ''       
-            if( names[obj] == 'PFMETs'      or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF MET"
-                ## remove mc extra configs for jets
-                metProducer = getattr(process, 'pfMET')        
-                metProducer.addGenMET           = cms.bool(False)
-                metProducer.genMETSource        = cms.InputTag('')
             
 removeMCMatching=RemoveMCMatching()
 
