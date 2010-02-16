@@ -53,7 +53,8 @@ process.load("FastSimulation.Configuration.FamosSequences_cff")
 process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
 
 process.siPixelFakeGainOfflineESSource = cms.ESSource("SiPixelFakeGainOfflineESSource",
-    file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt')
+#    file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt')
+    file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/EmptyPixelSkimmedGeometry_phase1.txt')
 )
 process.es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFakeGainOfflineESSource")
 
@@ -111,6 +112,7 @@ process.siStripThresholdFakeESSource  = cms.ESSource("SiStripThresholdFakeESSour
 process.es_prefer_fake_strip_threshold = cms.ESPrefer("SiStripThresholdFakeESSource",
                                                      "siStripThresholdFakeESSource")
 
+process.TrackerDigiGeometryESModule.applyAlignment = False
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
@@ -129,10 +131,9 @@ process.famosPileUp.VertexGenerator = cms.PSet( GaussSmearing.myVertexGenerator 
 # Make sure CoM energy is 14 TeV if we are using pythia for the signal source
 #process.PythiaSource.comEnergy = cms.untracked.double(14000.0)
 #process.PythiaSource.maxEventsToPrint = 1
-process.TrackerDigiGeometryESModule.applyAlignment = False
 
 # If you want to turn on/off pile-up
-process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+process.famosPileUp.PileUpSimulator.averageNumber = 5.0
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
@@ -148,6 +149,8 @@ process.simSiPixelDigis.ROUList =  ['famosSimHitsTrackerHits']
 process.simSiPixelDigis.MissCalibrate = False
 process.simSiPixelDigis.LorentzAngle_DB = False
 process.simSiPixelDigis.killModules = False
+process.simSiPixelDigis.useDB = False
+process.simSiPixelDigis.DeadModules_DB = False
 process.simSiPixelDigis.NumPixelBarrel = cms.int32(4)
 process.simSiPixelDigis.NumPixelEndcap = cms.int32(3)
 ## set pixel inefficiency if we want it
@@ -249,10 +252,10 @@ process.cutsTPFake.lip = cms.double(90.0)
 
 #NB: tracks are already filtered by the generalTracks sequence
 #for additional cuts use the cutsRecoTracks filter:
-process.load("Validation.RecoTrack.cutsRecoTracks_cfi")
-process.cutsRecoTracks.src = cms.InputTag("ctfWithMaterialTracks")
-process.cutsRecoTracks.quality = cms.string('')
-process.cutsRecoTracks.minHit = cms.int32(3)
+#process.load("Validation.RecoTrack.cutsRecoTracks_cfi")
+#process.cutsRecoTracks.src = cms.InputTag("ctfWithMaterialTracks")
+#process.cutsRecoTracks.quality = cms.string('')
+#process.cutsRecoTracks.minHit = cms.int32(3)
 #process.cutsRecoTracks.minHit = cms.int32(8)
 #process.cutsRecoTracks.minHit = cms.int32(6
 ############ end John's changes ###########################
@@ -345,11 +348,12 @@ process.p2 = cms.Path(process.trDigi*process.trackingParticles)
 process.p3 = cms.Path(process.trackerlocalreco)
 process.p6 = cms.Path(process.oldTracking_wtriplets)
 #process.p6 = cms.Path(process.offlineBeamSpot+process.recopixelvertexing*process.ckftracks)
+process.p7 = cms.Path(process.anal)
 #process.p8 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.cutsRecoTracks*process.multiTrackValidator)
 process.p8 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
 #process.p9 = cms.Path(process.ReadLocalMeasurement)
 process.p9 = cms.Path(process.ReadLocalMeasurement)
 #process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p6,process.p8,process.p9,process.outpath)
-process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p6,process.p8,process.p9)
+process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p6,process.p7,process.p8,process.p9)
 #process.schedule = cms.Schedule(process.p1,process.p2,process.p3,process.p6,process.p8)
 
