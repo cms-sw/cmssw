@@ -10,10 +10,6 @@ path = "PhysicsTools.PatAlgos.tools.jetTools"
 def patchJetCorrFactors_(jetCorrFactors, newAlgo):
     """
     ------------------------------------------------------------------
-    >>>>>>> not needed anymore with CondFormats/JetMETObjetcs <<<<<<<
-    >>>>>>> V01-08-10 (not that the existing files are still  <<<<<<<
-    >>>>>>> placeholders)                                     <<<<<<<
-    
     Patch to be called from:
        * switchJECSet_
        * switchJECParameters
@@ -75,8 +71,8 @@ def switchJECParameters(jetCorrFactors,
     corrLevels.L7Parton   = setCorrLevel(corrLevels.L7Parton  )
     ##
     ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
-    ## not needed anymore see comments in function
-    ##patchJetCorrFactors_(jetCorrFactors, newAlgo)
+    ##
+    patchJetCorrFactors_(jetCorrFactors, newAlgo)
     
 
 class SwitchJECSet(ConfigToolBase):
@@ -739,7 +735,7 @@ class AddJetID(ConfigToolBase):
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'jetSrc',self._defaultValue, "", Type=str)
+        self.addParameter(self._defaultParameters,'jetSrc',self._defaultValue, "", Type=cms.InputTag)
         self.addParameter(self._defaultParameters,'jetIdTag',self._defaultValue, "Tag to append to jet id map", Type=str)
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
