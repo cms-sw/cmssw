@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/02/15 22:36:16 $
- * $Revision: 1.35 $
+ * $Date: 2010/02/15 22:41:44 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -238,9 +238,9 @@ void EEStatusFlagsClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId> crystals = Numbers::crystals( idcc, itt );
-          for ( unsigned int i=0; i<crystals.size(); i++ ) {
-            EEDetId id = crystals[i];
+          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals->size(); i++ ) {
+            EEDetId id = (*crystals)[i];
             int ix = id.ix();
             int iy = id.iy();
             if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;

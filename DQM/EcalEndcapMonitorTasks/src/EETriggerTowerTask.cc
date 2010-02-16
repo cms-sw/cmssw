@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/11/20 20:46:46 $
- * $Revision: 1.63 $
+ * $Date: 2010/02/12 21:57:31 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -554,13 +554,13 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
     }
 
-    vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
+    vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
 
-    int crystalsInTower = crystals.size();
+    int crystalsInTower = crystals->size();
 
-    for ( unsigned int i=0; i<crystals.size(); i++ ) {
+    for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-      EEDetId id = crystals[i];
+      EEDetId id = (*crystals)[i];
 
       int ix = id.ix();
       int iy = id.iy();

@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.25 $
+ * $Date: 2010/02/16 07:23:26 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -250,11 +250,11 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
         if ( itt >= 1 && itt <= 41 ) {
 
-          vector<DetId> crystals = Numbers::crystals( dcchItr->id(), itt );
+          vector<DetId>* crystals = Numbers::crystals( dcchItr->id(), itt );
 
-          for ( unsigned int i=0; i<crystals.size(); i++ ) {
+          for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-          EEDetId id = crystals[i];
+          EEDetId id = (*crystals)[i];
 
           int ix = id.ix();
           int iy = id.iy();
