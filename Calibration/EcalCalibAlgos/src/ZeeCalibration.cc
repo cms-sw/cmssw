@@ -51,7 +51,6 @@
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include <FWCore/Common/interface/TriggerNames.h>
 #include <FWCore/Framework/interface/Selector.h>
 
 

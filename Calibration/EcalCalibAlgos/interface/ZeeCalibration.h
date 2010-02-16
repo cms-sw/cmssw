@@ -14,7 +14,7 @@
      <Notes on implementation>
 */
 //
-// $Id: ZeeCalibration.h,v 1.11 2010/01/18 21:31:47 argiro Exp $
+// $Id: ZeeCalibration.h,v 1.12 2010/02/11 00:10:35 wmtan Exp $
 //
 //
 
@@ -64,7 +64,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include<vector>
 #include<string>
 
@@ -346,7 +345,6 @@ class ZeeCalibration : public edm::ESProducerLooper {
 
 
   edm::InputTag hlTriggerResults_;
-  edm::TriggerNames triggerNames_;  // TriggerNames class
 
   unsigned int  nEvents_;           // number of events processed
 
