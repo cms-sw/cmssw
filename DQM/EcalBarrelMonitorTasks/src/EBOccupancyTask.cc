@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2009/12/11 20:29:46 $
- * $Revision: 1.82 $
+ * $Date: 2010/02/12 21:32:58 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -533,7 +533,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
         
         uint32_t flag = rechitItr->recoFlag();      
-        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*rechitItr), *chStatus );
+        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( id, *rechits, *chStatus );
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
           

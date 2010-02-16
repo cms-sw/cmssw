@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/11 20:31:39 $
- * $Revision: 1.55 $
+ * $Date: 2010/02/12 21:57:31 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -370,7 +370,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       float yval = hitItr->time();
 
       uint32_t flag = hitItr->recoFlag();      
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
 
       float theta = pGeometry_->getGeometry(id)->getPosition().theta();
       float eta = pGeometry_->getGeometry(id)->getPosition().eta();

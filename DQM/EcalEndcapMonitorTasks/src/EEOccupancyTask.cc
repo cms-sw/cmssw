@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/02/12 21:32:58 $
- * $Revision: 1.68 $
+ * $Date: 2010/02/16 10:53:19 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -768,7 +768,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
         }
 
         uint32_t flag = rechitItr->recoFlag();      
-        uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*rechitItr), *chStatus );
+        uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *rechits, *chStatus );
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
           
