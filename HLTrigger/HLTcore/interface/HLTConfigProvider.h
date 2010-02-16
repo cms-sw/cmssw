@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/02 18:17:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/02/02 18:26:01 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -29,19 +29,30 @@ class HLTConfigProvider {
   
  public:
 
-  /// init methods - use either one or the other but not both!
-  /// 1) simple and useable in beginRun() - but may fail when processing
-  /// file(s) containing events accepted by different HLT tables!
-  bool init(const std::string& processName);
-  /// 2) fail-safe init method to be called for each event - the parameter
-  /// "changed" indicates whether the config has actually changed
-  bool init(const edm::Event& iEvent, const std::string& processName, bool& changed);
+  /// init methods - use one and only one!
 
-  /// clear data members - called by init() methods, not by user!
+  /// old, deprecated, may fail when processing file(s) containing
+  /// events accepted by different HLT tables!
+  bool init(const std::string& processName);
+
+  /// new, revised, based on advice by Chris Jones (Feb.2010)
+  /// the parameter "changed" indicates whether the config has
+  /// actually changed
+
+  /// call from beginRun
+  bool init(const edm::Run& iRun,                const std::string& processName, bool& changed);
+  /// call from produce/filter/analyze method
+  bool init(const edm::Event& iEvent,            const std::string& processName, bool& changed);
+
+ private:
+  /// real init method 
+  bool init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed);
+  /// clear data members - called by init() method
   void clear();
-  /// extract information into data members - called by init() methods
+  /// extract information into data members - called by init() method
   void extract();
 
+ public:
   /// dump config aspects to cout
   void dump(const std::string& what) const;
 

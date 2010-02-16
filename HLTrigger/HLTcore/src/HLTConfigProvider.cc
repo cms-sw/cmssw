@@ -2,13 +2,14 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/03 09:03:14 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/02/13 18:45:50 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
  */
 
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
@@ -53,6 +54,7 @@ void HLTConfigProvider::clear()
 
 }
 
+/*
 bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& processName, bool& changed)
 {
    using namespace std;
@@ -83,13 +85,96 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
    }
 
 }
+*/
+
+bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed) {
+
+   using namespace std;
+   using namespace edm;
+
+   /// Check uniqueness (uniqueness should [soon] be enforced by Fw)
+   const ProcessHistory::const_iterator hb(iHistory.begin());
+   const ProcessHistory::const_iterator he(iHistory.end());
+   unsigned int n(0);
+   for (ProcessHistory::const_iterator hi=hb; hi!=he; ++hi) {
+     if (hi->processName()==processName) {n++;}
+   }
+   if (n>1) {
+     clear();
+     LogError("HLTConfigProvider") << " ProcessName '"<< processName
+				   << " found " << n
+				   << " times in history!" << endl;
+     changed=true;
+     return false;
+   }
+
+   ///
+   ProcessConfiguration processConfiguration;
+   if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
+     ParameterSet processPSet;
+     if (registry_->getMapped(processConfiguration.parameterSetID(),processPSet)) {
+       if (processPSet==ParameterSet()) {
+	 clear();
+	 LogError("HLTConfigProvider") << "ProcessPSet found is empty!";
+	 changed=true;
+	 return false;
+       } else if (processPSet==processPSet_) {
+	 changed=false;
+	 return true;
+       } else {
+	 clear();
+	 processName_=processName;
+	 processPSet_=processPSet;
+	 extract();
+	 changed=true;
+	 return true;
+       }
+     } else {
+       clear();
+       LogError("HLTConfigProvider") << "ProcessPSet not found in regsistry!";
+       changed=true;
+       return false;
+     }
+   } else {
+     clear();
+     LogError("HLTConfigProvider") << "ProcessName not found in history!";
+     changed=true;
+     return false;
+   }
+}
+
+bool HLTConfigProvider::init(const edm::Run& iRun, const std::string& processName, bool& changed)
+{
+   using namespace std;
+   using namespace edm;
+
+   LogInfo("HLTConfigProvider") << "Called (R) with processName '"
+				<< processName << "'." << endl;
+
+   const ProcessHistory& processHistory(iRun.processHistory());
+   init(processHistory,processName,changed);
+   return changed;
+}
+
+bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& processName, bool& changed)
+{
+   using namespace std;
+   using namespace edm;
+
+   LogInfo("HLTConfigProvider") << "Called (E) with processName '"
+				<< processName << "'." << endl;
+
+   const ProcessHistory& processHistory(iEvent.processHistory());
+   init(processHistory,processName,changed);
+   return changed;
+}
 
 bool HLTConfigProvider::init(const std::string& processName)
 {
    using namespace std;
    using namespace edm;
 
-   LogInfo("HLTConfigProvider") << "Called (R) with processName '"
+   LogInfo("HLTConfigProvider") << "Called (N) with processName '"
 				<< processName << "'." << endl;
 
    LogVerbatim("HLTConfigProvider")
