@@ -5,8 +5,8 @@
 //   Description:  A class to produce the L1 mu emulator scales record in the event setup
 //                 from the OMDS database.
 //
-//   $Date: 2008/04/17 23:33:41 $
-//   $Revision: 1.2 $
+//   $Date: 2008/11/24 18:59:59 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Thomas Themel
@@ -50,7 +50,7 @@ L1MuTriggerScalesOnlineProducer::L1MuTriggerScalesOnlineProducer(const edm::Para
 	      //ps.getParameter<int>("nbinsGMTEta"),
 	      0,
 	      //ps.getParameter<std::vector<double> >("scaleGMTEta"),
-	      std::vector<double>(),
+	      std::vector<double>(1),
 	      //ps.getParameter<int>("nbitPackingPhi"),
 	      0,
 	      //ps.getParameter<bool>("signedPackingPhi"),
