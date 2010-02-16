@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Default parameters for CSCTriggerPrimitives analyzer
 # =====================================================
-lctreader = cms.EDFilter("CSCTriggerPrimitivesReader",
+lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     # Switch on/off the verbosity and turn on/off histogram production
     debug = cms.untracked.bool(False),
     # Define which LCTs are present in the input file.  This will determine the
@@ -13,7 +13,7 @@ lctreader = cms.EDFilter("CSCTriggerPrimitivesReader",
     isMTCCData = cms.bool(False),
     # Labels to retrieve LCTs from the event (optional)
     #                                       produced by unpacker
-    CSCLCTProducerData = cms.untracked.string("cscunpacker"),
+    CSCLCTProducerData = cms.untracked.string("muonCSCDigis"),
     #                                       produced by emulator
     CSCLCTProducerEmul = cms.untracked.string("cscTriggerPrimitiveDigis"),
     # Labels to retrieve simHits, comparator and wire digis.

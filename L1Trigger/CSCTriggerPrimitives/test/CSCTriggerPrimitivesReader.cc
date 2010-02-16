@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/10/16 13:10:47 $
-//   $Revision: 1.35 $
+//   $Date: 2009/12/01 17:58:41 $
+//   $Revision: 1.36 $
 //
 //   Modifications:
 //
@@ -107,7 +107,7 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   plotME1A = false;
   plotME42 = true;
   lctProducerData_ = conf.getUntrackedParameter<string>("CSCLCTProducerData",
-							"cscunpacker");
+							"muonCSCDigis");
   lctProducerEmul_ = conf.getUntrackedParameter<string>("CSCLCTProducerEmul",
 							"cscTriggerPrimitiveDigis");
 
