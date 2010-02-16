@@ -65,7 +65,9 @@ namespace fwlite {
     pOldAux_(0),
     fileVersion_(-1),
     parameterSetRegistryFilled_(false),
-    dataHelper_(branchMap_->getRunTree(), boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)))
+    dataHelper_(branchMap_->getRunTree(),
+                boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
+                branchMap_)
   {
     if(0==iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
@@ -110,7 +112,9 @@ namespace fwlite {
     pOldAux_(0),
     fileVersion_(-1),
     parameterSetRegistryFilled_(false),
-    dataHelper_(branchMap_->getRunTree(), boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)))
+    dataHelper_(branchMap_->getRunTree(),
+                boost::shared_ptr<HistoryGetterBase>(new RunHistoryGetter(this)),
+                branchMap_)
   {
     if(0==branchMap_->getRunTree()) {
       throw cms::Exception("NoRunTree")<<"The TFile contains no TTree named " <<edm::poolNames::runTreeName();

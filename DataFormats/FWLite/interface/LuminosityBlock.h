@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: LuminosityBlock.h,v 1.4 2010/02/11 17:21:38 ewv Exp $
+// $Id: LuminosityBlock.h,v 1.5 2010/02/12 15:20:14 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -99,6 +99,8 @@ namespace fwlite {
          const std::vector<edm::BranchDescription>& getBranchDescriptions() const {
             return branchMap_->getBranchDescriptions();
          }
+
+//       void setGetter( //Copy from Event if needed
 
          edm::EDProduct const* getByProductID(edm::ProductID const&) const;
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: Run.h,v 1.1 2010/02/11 17:21:38 ewv Exp $
+// $Id: Run.h,v 1.2 2010/02/12 15:20:14 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -99,7 +99,7 @@ namespace fwlite {
             return branchMap_->getBranchDescriptions();
          }
 
-//          void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { std::cout << "resetting getter" << std::endl; getter_ = getter; }
+//       void setGetter( //Copy from Event if needed
 
          edm::EDProduct const* getByProductID(edm::ProductID const&) const;
 
@@ -120,14 +120,9 @@ namespace fwlite {
          void updateAux(Long_t runIndex) const;
          void fillFileIndex() const;
 
-//          internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
-
          // ---------- member data --------------------------------
          mutable boost::shared_ptr<BranchMapReader> branchMap_;
 
-
-/*         typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
-         mutable KeyToDataMap data_;*/
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<const char*> labels_;
          mutable edm::ProcessHistoryMap historyMap_;
@@ -139,9 +134,6 @@ namespace fwlite {
          TBranch* auxBranch_;
          int fileVersion_;
          mutable bool parameterSetRegistryFilled_;
-
-         //references data in data_;
-//          mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;
 
          fwlite::DataGetterHelper dataHelper_;
    };

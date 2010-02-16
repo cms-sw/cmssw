@@ -65,7 +65,9 @@ namespace fwlite {
     pOldAux_(0),
     fileVersion_(-1),
     parameterSetRegistryFilled_(false),
-    dataHelper_(branchMap_->getLuminosityBlockTree(), boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)))
+    dataHelper_(branchMap_->getLuminosityBlockTree(),
+                boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
+                branchMap_)
   {
     if(0==iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
@@ -109,7 +111,9 @@ namespace fwlite {
     pOldAux_(0),
     fileVersion_(-1),
     parameterSetRegistryFilled_(false),
-    dataHelper_(branchMap_->getLuminosityBlockTree(), boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)))
+    dataHelper_(branchMap_->getLuminosityBlockTree(),
+                boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
+                branchMap_)
   {
 
     if(0==branchMap_->getLuminosityBlockTree()) {

@@ -16,7 +16,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 12:45:17 CST 2010
-// $Id: DataGetterHelper.h,v 1.1 2010/02/11 17:21:38 ewv Exp $
+// $Id: DataGetterHelper.h,v 1.2 2010/02/12 15:20:13 ewv Exp $
 //
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -50,7 +50,10 @@ namespace fwlite {
 
         public:
 //            DataGetterHelper() {};
-            DataGetterHelper(TTree* tree, boost::shared_ptr<HistoryGetterBase> historyGetter);
+            DataGetterHelper(TTree* tree,
+                             boost::shared_ptr<HistoryGetterBase> historyGetter,
+                             boost::shared_ptr<BranchMapReader> branchMap = boost::shared_ptr<BranchMapReader>(),
+                             boost::shared_ptr<edm::EDProductGetter> getter = boost::shared_ptr<edm::EDProductGetter>());
             virtual ~DataGetterHelper();
 
             // ---------- const member functions ---------------------
@@ -90,8 +93,8 @@ namespace fwlite {
             const edm::ProcessHistory& history() const;
 
             mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;
-            boost::shared_ptr<edm::EDProductGetter> getter_;
             boost::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
+            boost::shared_ptr<edm::EDProductGetter> getter_;
     };
 
 }
