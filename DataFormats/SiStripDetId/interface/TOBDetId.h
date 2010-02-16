@@ -48,10 +48,12 @@ class TOBDetId : public SiStripDetId {
    */
   std::vector<unsigned int> rod() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>rod_fw_bwStartBit_) & rod_fw_bwMask_));
-    num.push_back(((id_>>rodStartBit_) & rodMask_));
-    return num ;}
+      num.push_back( side() );
+      num.push_back( rodNumber() );
+      return num ;}
   
+  unsigned int side() const
+  { return ((id_>>rod_fw_bwStartBit_) & rod_fw_bwMask_);}
   /// detector id
   unsigned int module() const 
     { return ((id_>>moduleStartBit_)& moduleMask_) ;}
@@ -65,7 +67,7 @@ class TOBDetId : public SiStripDetId {
   
   /** Returns true if the module is in TOB- (z<0 side) */
   bool isZMinusSide() const
-  { return (rod()[0] == 1);}
+  { return (side() == 1);}
   
   /** Returns the layer number */
   unsigned int layerNumber() const
@@ -73,7 +75,7 @@ class TOBDetId : public SiStripDetId {
   
   /** Returns the rod number */
   unsigned int rodNumber() const
-  { return rod()[1];}
+  { return ((id_>>rodStartBit_) & rodMask_);}
   
   /** Returns the module number */
   unsigned int moduleNumber() const

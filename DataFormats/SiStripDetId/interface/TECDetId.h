@@ -60,10 +60,13 @@ class TECDetId : public SiStripDetId {
    */
   std::vector<unsigned int> petal() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>petal_fw_bwStartBit_) & petal_fw_bwMask_));
-    num.push_back(((id_>>petalStartBit_) & petalMask_));
-    return num ;}
+      num.push_back(order());
+      num.push_back(petalNumber());
+      return num ;}
   
+  unsigned int order() const
+  { return ((id_>>petal_fw_bwStartBit_) & petal_fw_bwMask_);}
+
   /// ring id
   unsigned int ring() const
     { return ((id_>>ringStartBit_) & ringMask_) ;}
@@ -89,7 +92,7 @@ class TECDetId : public SiStripDetId {
   
   /** Returns the petal number */
   unsigned int petalNumber() const
-  { return petal()[1];}
+  { return ((id_>>petalStartBit_) & petalMask_);}
   
   /** Returns the ring number */
   unsigned int ringNumber() const
@@ -101,7 +104,7 @@ class TECDetId : public SiStripDetId {
   
   /** Returns true if the petal is mounted on the wheel back (not facing impact point) */
   bool isBackPetal() const
-  { return (petal()[0]==1);}
+  { return (order()==1);}
   
   /** Returns true if the petal is mounted on the wheel front (facing impact point) */
   bool isFrontPetal() const

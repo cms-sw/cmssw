@@ -63,10 +63,13 @@ class TIDDetId : public SiStripDetId {
    */
   std::vector<unsigned int> module() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>module_fw_bwStartBit_) & module_fw_bwMask_));
-    num.push_back(((id_>>moduleStartBit_) & moduleMask_));
-    return num ;}
+      num.push_back( order() );
+      num.push_back( moduleNumber() );
+      return num ;}
   
+  unsigned int order() const 
+  { return ((id_>>module_fw_bwStartBit_) & module_fw_bwMask_);}
+
   /** Returns true if the module is a double side = rphi + stereo */
   bool isDoubleSide() const;
   
@@ -80,7 +83,7 @@ class TIDDetId : public SiStripDetId {
   
   /** Returns true if the ring is mounted on the disk back (not facing impact point) */
   bool isBackRing() const
-  { return (module()[0]==1);}
+  { return (order()==1);}
   
   /** Returns true if the ring is mounted on the disk front (facing impact point) */
   bool isFrontRing() const
@@ -96,7 +99,7 @@ class TIDDetId : public SiStripDetId {
   
   /** Returns the module number */
   unsigned int moduleNumber() const
-  { return module()[1];}
+  { return ((id_>>moduleStartBit_) & moduleMask_);}
   
   /** Returns true if the module is rphi */
   bool isRPhi()

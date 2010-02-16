@@ -52,15 +52,22 @@ class TIBDetId : public SiStripDetId {
    */
   std::vector<unsigned int> string() const
     { std::vector<unsigned int> num;
-    num.push_back(((id_>>str_fw_bwStartBit_) & str_fw_bwMask_));
-    num.push_back(((id_>>str_int_extStartBit_) & str_int_extMask_));
-    num.push_back(((id_>>strStartBit_) & strMask_));
-    return num ;}
+      num.push_back( side() );
+      num.push_back( order() );
+      num.push_back(stringNumber());
+      return num ;}
   
   /// detector id
   unsigned int module() const 
     { return ((id_>>moduleStartBit_)& moduleMask_) ;}
   
+  unsigned int order()const
+  { return ((id_>>str_int_extStartBit_) & str_int_extMask_);}
+
+  unsigned int side() const
+  {return ((id_>>str_fw_bwStartBit_) & str_fw_bwMask_);}
+
+
   /** Returns true if the module is a double side = rphi + stereo */
   bool isDoubleSide() const;
   
@@ -70,7 +77,7 @@ class TIBDetId : public SiStripDetId {
   
   /** Returns true if the module is in TIB- (z<0 side) */
   bool isZMinusSide() const
-  { return (string()[0] == 1);}
+  { return (side() == 1);}
   
   /** Returns the layer number */
   unsigned int layerNumber() const
@@ -78,7 +85,7 @@ class TIBDetId : public SiStripDetId {
   
   /** Returns the string number */
   unsigned int stringNumber() const
-  { return string()[2];}
+  { return ((id_>>strStartBit_) & strMask_);}
   
   /** Returns the module number */
   unsigned int moduleNumber() const
@@ -86,7 +93,7 @@ class TIBDetId : public SiStripDetId {
   
   /** Returns true if the module is in internal part of the layer (smaller radius) */
   bool isInternalString() const
-  { return (string()[1] == 1);}
+  { return (order() == 1);}
   
   /** Returns true if the module is in external part of the layer (bigger radius) */
   bool isExternalString() const
