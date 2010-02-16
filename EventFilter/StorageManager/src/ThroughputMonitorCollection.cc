@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.15 2010/02/15 13:47:18 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.16 2010/02/15 15:11:37 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -306,7 +306,6 @@ double ThroughputMonitorCollection::calcBusyPercentage
     // the thread was busy while it was not idle during the whole reporting duration
     busyPercentage = 100.0 * (1.0 - (stats.recentBinnedValueSums[idx] /
         stats.recentBinnedDurations[idx]));
-    busyPercentage += 0.5;
   }
   else
   {
