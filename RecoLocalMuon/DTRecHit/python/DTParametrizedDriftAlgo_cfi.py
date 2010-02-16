@@ -19,8 +19,8 @@ DTParametrizedDriftAlgo = cms.PSet(
             doWirePropCorrection = cms.bool(True),
             # Switch on/off the TOF correction from pulses
             doT0Correction = cms.bool(True),
-            thetTrigLabel = cms.string("cosmics"),
-            debug = cms.untracked.bool(False)
+            debug = cms.untracked.bool(False),
+            tTrigLabel = cms.string('')
         ),
         maxTime = cms.double(415.0)
     ),

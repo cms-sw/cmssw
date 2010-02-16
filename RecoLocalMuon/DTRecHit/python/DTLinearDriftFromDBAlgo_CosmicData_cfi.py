@@ -18,8 +18,8 @@ DTLinearDriftFromDBAlgo_CosmicData = cms.PSet(
             doWirePropCorrection = cms.bool(False),
             # Switch on/off the TOF correction from pulses
             doT0Correction = cms.bool(True),
-            thetTrigLabel = cms.string("cosmics"),
-            debug = cms.untracked.bool(False)
+            debug = cms.untracked.bool(False),
+            tTrigLabel = cms.string('cosmics')
         ),
         maxTime = cms.double(420.0),
         # The module to be used for ttrig synchronization and its set parameter
