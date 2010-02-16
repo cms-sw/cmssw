@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.16 2009/08/18 09:45:41 mommsen Exp $
+   $Id: SMProxyServer.h,v 1.17 2009/12/01 14:25:25 mommsen Exp $
 */
 
 #include <string>
@@ -71,6 +71,8 @@ namespace stor {
     bool enabling(toolbox::task::WorkLoop* wl);
     bool stopping(toolbox::task::WorkLoop* wl);
     bool halting(toolbox::task::WorkLoop* wl);
+
+    bool createQueue();
 
     // *** FSM soap command callback
     xoap::MessageReference fsmCallback(xoap::MessageReference msg)
@@ -163,8 +165,12 @@ namespace stor {
     xdata::String esSelectedHLTOutputModule_;
     xdata::Vector<xdata::String> esSelectedEventSelection_;
     xdata::String TriggerSelector_;
+    xdata::Boolean selectionFromClient_;
     xdata::Boolean allowMissingSM_;
     xdata::Boolean dropOldLumisectionEvents_;
+
+    bool queueCreated_;
+    bool fsmEnabled_;
 
     std::map< std::string, bool > smsenders_;
     xdata::UnsignedInteger32 connectedSMs_;

@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.34 2009/12/01 14:25:25 mommsen Exp $
+// $Id: SMProxyServer.cc,v 1.35 2009/12/02 09:20:49 mommsen Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -151,10 +151,15 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
   TriggerSelector_ = xdata::String::String();
   ispace->fireItemAvailable("TriggerSelector",&TriggerSelector_);
+  selectionFromClient_=false;
+  ispace->fireItemAvailable("selectionFromClient",&selectionFromClient_);
   allowMissingSM_ = false;
   ispace->fireItemAvailable("allowMissingSM",&allowMissingSM_);
   dropOldLumisectionEvents_ = false;
   ispace->fireItemAvailable("dropOldLumisectionEvents",&dropOldLumisectionEvents_);
+
+  queueCreated_=false;
+  fsmEnabled_=false;
 
   // for performance measurements
   ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
@@ -1104,9 +1109,20 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   // stream-based selection request.  At some point, we should fix up the
   // tests on whether the dpm_ shared pointer is valid (can we even get here
   // without it being valid?)
-  if(dpm_.get() != NULL && dpm_->haveRegWithEventServer() &&
-     fsm_.stateName()->toString() == "Enabled")
-  { // what is the right place for this?
+
+  if (!selectionFromClient_) {
+
+    if (! (dpm_.get() != NULL 
+	   && dpm_->haveRegWithEventServer() 
+           && fsm_.stateName()->toString() == "Enabled"))
+    {
+      //write back response and finish
+      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+      out->write((char*) &mybuffer_[0],0);
+      return;
+    }
+  }
 
   std::string consumerName = "None provided";
   std::string consumerPriority = "normal";
@@ -1133,101 +1149,128 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
   // fetch the event server
   // (it and/or the job controller may not have been created yet)
-  boost::shared_ptr<EventServer> eventServer;
-  if (dpm_.get() != NULL)
-  {
-    eventServer = dpm_->getEventServer();
+
+  // fetch the event selection request from the consumer request
+  edm::ParameterSet requestParamSet(consumerRequest);
+
+  // 26-Jan-2009, KAB: an ugly hack to get ParameterSet to serialize
+  // the parameters that we need.  A better solution is in the works.
+  try {
+    double rate =
+      requestParamSet.getUntrackedParameter<double>("maxEventRequestRate",
+	  -999.0);
+    if (rate == -999.0) {
+      rate = requestParamSet.getParameter<double>("TrackedMaxRate");
+      requestParamSet.addUntrackedParameter<double>("maxEventRequestRate",
+	  rate);
+    }
   }
-
-  // if no event server, tell the consumer that we're not ready
-  if (eventServer.get() == NULL)
-  {
-    // build the registration response into the message buffer
-    ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
-                                   ConsRegResponseBuilder::ES_NOT_READY, 0);
-    // debug message so that compiler thinks respMsg is used
-    FDEBUG(20) << "Registration response size =  " <<
-      respMsg.size() << std::endl;
-  }
-  else
-  {
-    // fetch the event selection request from the consumer request
-    edm::ParameterSet requestParamSet(consumerRequest);
-
-    // 26-Jan-2009, KAB: an ugly hack to get ParameterSet to serialize
-    // the parameters that we need.  A better solution is in the works.
-    try {
-      double rate =
-        requestParamSet.getUntrackedParameter<double>("maxEventRequestRate",
-                                                      -999.0);
-      if (rate == -999.0) {
-        rate = requestParamSet.getParameter<double>("TrackedMaxRate");
-        requestParamSet.addUntrackedParameter<double>("maxEventRequestRate",
-                                                      rate);
-      }
-    }
-    catch (...) {}
-    try {
-      std::string hltOMLabel =
-        requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
-                                                           "NoneFound");
-      if (hltOMLabel == "NoneFound") {
-        hltOMLabel =
-          requestParamSet.getParameter<std::string>("TrackedHLTOutMod");
-        requestParamSet.addUntrackedParameter<std::string>("SelectHLTOutput",
-                                                           hltOMLabel);
-      }
-    }
-    catch (...) {}
-    try {
-      edm::ParameterSet tmpPSet1 =
-        requestParamSet.getUntrackedParameter<edm::ParameterSet>("SelectEvents",
-                                                                 edm::ParameterSet());
-      if (tmpPSet1.empty()) {
-        Strings path_specs = 
-          requestParamSet.getParameter<Strings>("TrackedEventSelection");
-        if (! path_specs.empty()) {
-          edm::ParameterSet tmpPSet2;
-          tmpPSet2.addParameter<Strings>("SelectEvents", path_specs);
-          requestParamSet.addUntrackedParameter<edm::ParameterSet>("SelectEvents",
-                                                                   tmpPSet2);
-        }
-      }
-    }
-    catch (...) {}
-
-    Strings selectionRequest =
-      EventSelector::getEventSelectionVString(requestParamSet);
-
-    // pull the rate request out of the consumer parameter set, too
-    double maxEventRequestRate =
-      requestParamSet.getUntrackedParameter<double>("maxEventRequestRate", 1.0);
-
-    // pull the HLT output module selection out of the PSet
-    // (default is empty string)
+  catch (...) {}
+  try {
     std::string hltOMLabel =
       requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
-                                                         std::string());
+	  "NoneFound");
+    if (hltOMLabel == "NoneFound") {
+      hltOMLabel =
+	requestParamSet.getParameter<std::string>("TrackedHLTOutMod");
+      requestParamSet.addUntrackedParameter<std::string>("SelectHLTOutput",
+	  hltOMLabel);
+    }
+  }
+  catch (...) {}
+  try {
+    edm::ParameterSet tmpPSet1 =
+      requestParamSet.getUntrackedParameter<edm::ParameterSet>("SelectEvents",
+	  edm::ParameterSet());
+    if (tmpPSet1.empty()) {
+      Strings path_specs = 
+	requestParamSet.getParameter<Strings>("TrackedEventSelection");
+      if (! path_specs.empty()) {
+	edm::ParameterSet tmpPSet2;
+	tmpPSet2.addParameter<Strings>("SelectEvents", path_specs);
+	requestParamSet.addUntrackedParameter<edm::ParameterSet>("SelectEvents",
+	    tmpPSet2);
+      }
+    }
+  }
+  catch (...) {}
 
-    edm::ParameterSet tmpPSet3;
-    std::string tTS_ = std::string();
-    try { tTS_ = requestParamSet.getParameter<std::string>("TriggerSelector"); } catch(...) {}
+  //read variables
+  Strings selectionRequest =
+    EventSelector::getEventSelectionVString(requestParamSet);
 
+
+  // pull the rate request out of the consumer parameter set, too
+  double maxEventRequestRate =
+    requestParamSet.getUntrackedParameter<double>("maxEventRequestRate", 1.0);
+
+  // pull the HLT output module selection out of the PSet
+  // (default is empty string)
+  std::string hltOMLabel =
+    requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput", std::string());
+
+  //get the optional TriggerSelector, which is tracked parameter
+  std::string tTS_ = std::string();
+  try { 
+    tTS_ = requestParamSet.getParameter<std::string>("TriggerSelector");
+  } 
+  catch(...) {}
+
+  if (selectionFromClient_) {
+
+    if (queueCreated_) {
+      LOG4CPLUS_WARN(getApplicationLogger(),"Queue already exists, new client will be connected to it\n");
+    }
+    else {
+      std::cout << "----Client parameters:----\n";
+      maxEventRequestRate_ = maxEventRequestRate; 
+      std::cout << "maxEventRequestRate: "<< maxEventRequestRate_ <<"\n";
+      esSelectedHLTOutputModule_=hltOMLabel;
+      std::cout << "hltOutputModule: " << esSelectedHLTOutputModule_.toString() <<"\n";
+
+      TriggerSelector_ = tTS_;
+      if (!TriggerSelector_.toString().empty()) 
+	std::cout << "TriggerSelection: " << TriggerSelector_.toString() << std::endl;
+      else {
+	esSelectedEventSelection_.clear();
+	for (size_t i=0;i<selectionRequest.size();i++) esSelectedEventSelection_.push_back(selectionRequest.at(i));
+	std::cout << "SelectEvents:" <<"\n";
+	for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
+	  cout << " " << esSelectedEventSelection_[i].toString();
+	cout << "." << std::endl;
+      }
+      std::cout << "----End Client Parameters----\n";
+
+      createQueue();
+      //start the Proxy
+      if (fsmEnabled_) dpm_->start();
+    }
+  }
+
+  boost::shared_ptr<EventServer> eventServer = dpm_->getEventServer();
+
+  // if no event server, tell the consumer that we're not ready
+  if (eventServer.get() == NULL) {
+    ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
+	ConsRegResponseBuilder::ES_NOT_READY, 0);
+    // debug message so that compiler thinks respMsg is used
+    FDEBUG(20) << "Registration response size =  " << respMsg.size() << std::endl;
+  }
+  else {
     // create the local consumer interface and add it to the event server
-
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
-                               activeConsumerTimeout_.value_,
-                               idleConsumerTimeout_.value_,
-				tTS_, selectionRequest,
-                               maxEventRequestRate,
-                               hltOMLabel,
-                               consumerHost, consumerQueueSize_));
+	    activeConsumerTimeout_.value_,
+	    idleConsumerTimeout_.value_,
+	    tTS_, selectionRequest,
+	    maxEventRequestRate,
+	    hltOMLabel,
+	    consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
 
     // build the registration response into the message buffer
     ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
-                                   0, consPtr->getConsumerId());
+	0, consPtr->getConsumerId());
     // debug message so that compiler thinks respMsg is used
     FDEBUG(20) << "Registration response size =  " <<
       respMsg.size() << std::endl;
@@ -1242,15 +1285,6 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
   out->write((char*) &mybuffer_[0],len);
-
-  } else { // is this the right thing to send?
-   // In wrong state for this message - return zero length stream, should return Msg NOTREADY
-   int len = 0;
-   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-   out->write((char*) &mybuffer_[0],len);
-  }
-
 }
 
 void SMProxyServer::consumerListWebPage(xgi::Input *in, xgi::Output *out)
@@ -1525,7 +1559,7 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         *out << "    Selected HLT output module is "
              << esSelectedHLTOutputModule_.toString()
              << "." << std::endl;
-        if ( ! esSelectedEventSelection_.empty() )
+        if ( ! esSelectedEventSelection_.empty() || !TriggerSelector_.toString().empty())
         {
             *out << "    <br/>" << std::endl;
             *out << "    Selected Event Selection is";
@@ -2822,6 +2856,8 @@ void SMProxyServer::receiveEventWebPage(xgi::Input *in, xgi::Output *out)
       in->read(&(*bufPtr)[0], contentLength);
       EventMsgView eventView(&(*bufPtr)[0]);
 
+     if (!runNumber_) runNumber_=eventView.run();
+      
      if (dropOldLumisectionEvents_) {
     
 	uint32 lumi = eventView.lumi();
@@ -2997,6 +3033,7 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
   is->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
   is->fireItemAvailable("TriggerSelector",&TriggerSelector_);
+  is->fireItemAvailable("selectionFromClient",&selectionFromClient_);
   is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
   is->fireItemAvailable("dropOldLumisectionEvents",       &dropOldLumisectionEvents_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
@@ -3047,6 +3084,7 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
   is->addItemRetrieveListener("esSelectedEventSelection",this);
   is->addItemRetrieveListener("TriggerSelector",this);
+  is->addItemRetrieveListener("selectionFromClient",this);
   is->addItemRetrieveListener("allowMissingSM",       this);
   is->addItemRetrieveListener("dropOldLumisectionEvents",       this);
   //is->addItemRetrieveListener("fairShareES",          this);
@@ -3128,86 +3166,13 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     std::string urn = getApplicationDescriptor()->getURN();
     consumerName_ = url + "/" + urn + "/pushEventData";
     DQMconsumerName_ = url + "/" + urn + "/pushDQMEventData";
-    // start a work loop that can process commands (do we need it in push mode?)
-    // TODO fixme: use a pushmode variable to decide to change consumer names
-    //             and not get events on push mode in work loop
-    try {
-      dpm_.reset(new stor::DataProcessManager());
-      dpm_->setHLTOutputModule(esSelectedHLTOutputModule_);
-      std::vector<std::string> tmpVector;
-      tmpVector.resize(esSelectedEventSelection_.elements());
-      for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
-          tmpVector[i] = static_cast<std::string>(esSelectedEventSelection_[i]);
-      dpm_->setEventSelection(tmpVector);
-      dpm_->setEventSelection(TriggerSelector_.toString());
-      dpm_->setAllowMissingSM(allowMissingSM_);
-      
-      boost::shared_ptr<EventServer>
-        eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
-                                    esSelectedHLTOutputModule_,
-                                    fairShareES_));
-      dpm_->setEventServer(eventServer);
-      boost::shared_ptr<DQMEventServer>
-        DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
-      dpm_->setDQMEventServer(DQMeventServer);
-      boost::shared_ptr<InitMsgCollection>
-        initMsgCollection(new InitMsgCollection());
-      dpm_->setInitMsgCollection(initMsgCollection);
-      dpm_->setMaxEventRequestRate(maxEventRequestRate_);
-      dpm_->setMaxDQMEventRequestRate(maxDQMEventRequestRate_);
 
-      dpm_->setCollateDQM(collateDQM_);
-      dpm_->setArchiveDQM(archiveDQM_);
-      dpm_->setArchiveIntervalDQM(archiveIntervalDQM_);
-      dpm_->setPurgeTimeDQM(purgeTimeDQM_);
-      dpm_->setReadyTimeDQM(readyTimeDQM_);
-      dpm_->setFilePrefixDQM(filePrefixDQM_);
-      dpm_->setUseCompressionDQM(useCompressionDQM_);
-      dpm_->setCompressionLevelDQM(compressionLevelDQM_);
-      dpm_->setSamples(samples_);
-      dpm_->setPeriod4Samples(period4samples_);
-
-      // If we are in pull mode, we need to know which Storage Managers to
-      // poll for events and DQM events
-      // Only add the StorageManager URLs at this configuration stage
-      dpm_->setConsumerName(consumerName_.toString());
-      dpm_->setDQMConsumerName(DQMconsumerName_.toString());
-      unsigned int rsize = (unsigned int)smRegList_.size();
-      for(unsigned int i = 0; i < rsize; ++i)
-      {
-        std::cout << "add to register list num = " << i << " url = " 
-                  << smRegList_.elementAt(i)->toString() << std::endl;
-        dpm_->addSM2Register(smRegList_.elementAt(i)->toString());
-        dpm_->addDQMSM2Register(smRegList_.elementAt(i)->toString());
-        smsenders_.insert(std::make_pair(smRegList_.elementAt(i)->toString(), false));
-      }
-    
-    }
-    catch(cms::Exception& e)
-      {
-	//XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
-        reasonForFailedState_ = e.explainSelf();
-        fsm_.fireFailed(reasonForFailedState_,this);
-        return false;
-      }
-    catch(std::exception& e)
-      {
-	//XCEPT_RAISE (toolbox::fsm::exception::Exception, e.what());
-        reasonForFailedState_  = e.what();
-        fsm_.fireFailed(reasonForFailedState_,this);
-        return false;
-      }
-    catch(...)
-      {
-	//XCEPT_RAISE (toolbox::fsm::exception::Exception, "Unknown Exception");
-        reasonForFailedState_  = "Unknown Exception while configuring";
-        fsm_.fireFailed(reasonForFailedState_,this);
-        return false;
-      }
-    
+    //create static queue with static configuration, else wait for consumer to connect
+    if (!selectionFromClient_) 
+      if (!createQueue()) return false;
     
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
-    
+   
     fsm_.fireEvent("ConfigureDone",this);
   }
   catch (xcept::Exception &e) {
@@ -3217,6 +3182,86 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
   }
 
   return false;
+}
+
+bool SMProxyServer::createQueue() {
+  // start a work loop that can process commands (do we need it in push mode?)
+  // TODO fixme: use a pushmode variable to decide to change consumer names
+  //             and not get events on push mode in work loop
+  //
+  try {
+    dpm_.reset(new stor::DataProcessManager());
+    dpm_->setHLTOutputModule(esSelectedHLTOutputModule_);
+    std::vector<std::string> tmpVector;
+    tmpVector.resize(esSelectedEventSelection_.elements());
+    for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
+      tmpVector[i] = static_cast<std::string>(esSelectedEventSelection_[i]);
+    dpm_->setEventSelection(tmpVector);
+    dpm_->setEventSelection(TriggerSelector_.toString());
+    dpm_->setAllowMissingSM(allowMissingSM_);
+
+    boost::shared_ptr<EventServer>
+      eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
+	    esSelectedHLTOutputModule_,
+	    fairShareES_));
+    dpm_->setEventServer(eventServer);
+    boost::shared_ptr<DQMEventServer>
+      DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
+    dpm_->setDQMEventServer(DQMeventServer);
+    boost::shared_ptr<InitMsgCollection>
+      initMsgCollection(new InitMsgCollection());
+    dpm_->setInitMsgCollection(initMsgCollection);
+    dpm_->setMaxEventRequestRate(maxEventRequestRate_);
+    dpm_->setMaxDQMEventRequestRate(maxDQMEventRequestRate_);
+    dpm_->setCollateDQM(collateDQM_);
+    dpm_->setArchiveDQM(archiveDQM_);
+    dpm_->setArchiveIntervalDQM(archiveIntervalDQM_);
+    dpm_->setPurgeTimeDQM(purgeTimeDQM_);
+    dpm_->setReadyTimeDQM(readyTimeDQM_);
+    dpm_->setFilePrefixDQM(filePrefixDQM_);
+    dpm_->setUseCompressionDQM(useCompressionDQM_);
+    dpm_->setCompressionLevelDQM(compressionLevelDQM_);
+    dpm_->setSamples(samples_);
+    dpm_->setPeriod4Samples(period4samples_);
+
+    // If we are in pull mode, we need to know which Storage Managers to
+    // poll for events and DQM events
+    // Only add the StorageManager URLs at this configuration stage
+    dpm_->setConsumerName(consumerName_.toString());
+    dpm_->setDQMConsumerName(DQMconsumerName_.toString());
+    unsigned int rsize = (unsigned int)smRegList_.size();
+    for(unsigned int i = 0; i < rsize; ++i)
+    {
+      std::cout << "add to register list num = " << i << " url = "
+	<< smRegList_.elementAt(i)->toString() << std::endl;
+      dpm_->addSM2Register(smRegList_.elementAt(i)->toString());
+      dpm_->addDQMSM2Register(smRegList_.elementAt(i)->toString());
+      smsenders_.insert(std::make_pair(smRegList_.elementAt(i)->toString(), false));
+    }
+  }
+  catch(cms::Exception& e)
+  {
+    //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.explainSelf());
+    reasonForFailedState_ = e.explainSelf();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(std::exception& e)
+  {
+    //XCEPT_RAISE (toolbox::fsm::exception::Exception, e.what());
+    reasonForFailedState_  = e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  catch(...)
+  {
+    //XCEPT_RAISE (toolbox::fsm::exception::Exception, "Unknown Exception");
+    reasonForFailedState_  = "Unknown Exception while configuring";
+    fsm_.fireFailed(reasonForFailedState_,this);
+    return false;
+  }
+  queueCreated_=true;
+  return true;
 }
 
 
@@ -3235,12 +3280,12 @@ bool SMProxyServer::enabling(toolbox::task::WorkLoop* wl)
     receivedDQMEvents_ = 0;
     currentLumiSection_ = 0;
 
-    //if (!TriggerSelector_.toString().empty()) std::cout << "Using Trigger Selection: " << TriggerSelector_.toString() << std::endl;
-    // need this to register, get header and if we pull (poll) for events
-    dpm_->start();
+    //TODO:add a mutex here and in consumerWebPage
+    fsmEnabled_=true;
+    if (queueCreated_) dpm_->start();
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-    
+
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
@@ -3280,14 +3325,15 @@ bool SMProxyServer::stopping(toolbox::task::WorkLoop* wl)
     // do not stop dpm_ as we don't want to register again and get the header again
     // need to redo if we switch to polling for events
     // switched to polling for events
-    dpm_->stop();
-    dpm_->join();
-
+    if (dpm_.get() != NULL) {
+      dpm_->stop();
+      dpm_->join();
+    }
     // should tell StorageManager applications we are stopping in which
     // case we need to register again
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
-    
+    fsmEnabled_=false; 
     fsm_.fireEvent("StopDone",this);
   }
   catch (xcept::Exception &e) {
