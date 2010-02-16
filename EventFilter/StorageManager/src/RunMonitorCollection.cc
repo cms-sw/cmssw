@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.7 2010/02/09 14:54:04 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -58,35 +58,42 @@ void RunMonitorCollection::do_reset()
   _lumiSectionsSeen.reset();
   _eolsSeen.reset();
 
-  _unwantedEvents.clear();
+  _unwantedEventsMap.clear();
 }
 
 
 void RunMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
   infoSpaceItems.push_back(std::make_pair("runNumber", &_runNumber));
+  infoSpaceItems.push_back(std::make_pair("unwantedEvents", &_unwantedEvents));
 }
 
 
 void RunMonitorCollection::do_updateInfoSpaceItems()
 {
-  MonitoredQuantity::Stats stats;
-  
-  _runNumbersSeen.getStats(stats);
-  _runNumber = static_cast<xdata::UnsignedInteger32>(static_cast<unsigned int>(stats.getLastSampleValue()));
+  MonitoredQuantity::Stats runNumberStats;
+  _runNumbersSeen.getStats(runNumberStats);
+  _runNumber = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>(runNumberStats.getLastSampleValue()));
+
+  MonitoredQuantity::Stats unwantedEventStats;
+  _unwantedEventIDsReceived.getStats(unwantedEventStats);
+  _unwantedEvents = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>(unwantedEventStats.getSampleCount()));
 }
 
 
 void RunMonitorCollection::addUnwantedEvent(const I2OChain& ioc)
 {
-  UnwantedEventKey key;
-  key.outputModuleId = ioc.outputModuleId();
-  key.hltTriggerCount = ioc.hltTriggerCount();
-  ioc.hltTriggerBits(key.bitList);
+  _unwantedEventIDsReceived.addSample(ioc.eventNumber());
 
-  UnwantedEventsMap::iterator pos = _unwantedEvents.lower_bound(key);
+  UnwantedEventKey key(ioc);
 
-  if(pos != _unwantedEvents.end() && !(_unwantedEvents.key_comp()(key, pos->first)))
+  boost::mutex::scoped_lock sl(_unwantedEventMapLock);
+
+  UnwantedEventsMap::iterator pos = _unwantedEventsMap.lower_bound(key);
+
+  if(pos != _unwantedEventsMap.end() && !(_unwantedEventsMap.key_comp()(key, pos->first)))
   {
     // key already exists
     ++(pos->second.count);
@@ -94,10 +101,8 @@ void RunMonitorCollection::addUnwantedEvent(const I2OChain& ioc)
   else
   {
     UnwantedEventValue newVal;
-    _unwantedEvents.insert(pos, UnwantedEventsMap::value_type(key, newVal));
+    _unwantedEventsMap.insert(pos, UnwantedEventsMap::value_type(key, newVal));
   }
-
-  _unwantedEventIDsReceived.addSample(ioc.eventNumber());
 }
 
 
@@ -105,7 +110,8 @@ void RunMonitorCollection::checkForBadEvents()
 {
   alarmErrorEvents();
 
-  std::for_each(_unwantedEvents.begin(), _unwantedEvents.end(),
+  boost::mutex::scoped_lock sl(_unwantedEventMapLock);
+  std::for_each(_unwantedEventsMap.begin(), _unwantedEventsMap.end(),
     boost::bind(&RunMonitorCollection::alarmUnwantedEvents, this, _1));
 }
 
@@ -113,6 +119,8 @@ void RunMonitorCollection::checkForBadEvents()
 void RunMonitorCollection::alarmErrorEvents()
 {
   if ( ! _alarmParams._isProductionSystem ) return;
+
+  const std::string alarmName("ErrorEvents");
 
   MonitoredQuantity::Stats stats;
   _errorEventIDsReceived.getStats(stats);
@@ -124,7 +132,11 @@ void RunMonitorCollection::alarmErrorEvents()
     msg << "Received " << count << " error events in the last "
       << stats.getDuration(MonitoredQuantity::RECENT) << "s.";
     XCEPT_DECLARE( stor::exception::ErrorEvents, xcept, msg.str() );
-    _alarmHandler->notifySentinel( AlarmHandler::ERROR, xcept );
+    _alarmHandler->raiseAlarm( alarmName, AlarmHandler::ERROR, xcept );
+  }
+  else
+  {
+    _alarmHandler->revokeAlarm( alarmName );
   }
 }
 
@@ -133,14 +145,15 @@ void RunMonitorCollection::alarmUnwantedEvents(UnwantedEventsMap::value_type& va
 {
   if ( ! _alarmParams._isProductionSystem ) return;
 
-  if ( !val.second.sentFirstAlarm || (val.second.count % _alarmParams._unwantedEvents) == 0 )
+  if ( (val.second.previousCount == 0)
+    || (val.second.count - val.second.previousCount > _alarmParams._unwantedEvents) )
   {
     std::ostringstream msg;
     msg << "Received " << val.second.count << " events"
       << " not tagged for any stream or consumer."
-      << " Output module id " << val.first.outputModuleId;
-    
-    msg << " HLT trigger bits: ";
+      << " Output module id " << val.first.outputModuleId
+      << " HLT trigger bits: ";
+
     // This code snipped taken from evm:EventSelector::acceptEvent
     int byteIndex = 0;
     int subIndex  = 0;
@@ -157,10 +170,23 @@ void RunMonitorCollection::alarmUnwantedEvents(UnwantedEventsMap::value_type& va
     }
     
     XCEPT_DECLARE( stor::exception::UnwantedEvents, xcept, msg.str() );
-    _alarmHandler->notifySentinel( AlarmHandler::ERROR, xcept );
+    _alarmHandler->raiseAlarm( val.second.alarmName, AlarmHandler::ERROR, xcept );
 
-    val.second.sentFirstAlarm = true;
+    val.second.previousCount = val.second.count;
   }
+  else if (val.second.count == val.second.previousCount)
+    // no more unwanted events arrived
+  {
+    _alarmHandler->revokeAlarm( val.second.alarmName );
+  }
+}
+
+
+RunMonitorCollection::UnwantedEventKey::UnwantedEventKey(const I2OChain& ioc)
+{
+  outputModuleId = ioc.outputModuleId();
+  hltTriggerCount = ioc.hltTriggerCount();
+  ioc.hltTriggerBits(bitList);
 }
 
 
@@ -176,6 +202,16 @@ bool RunMonitorCollection::UnwantedEventKey::operator<(UnwantedEventKey const& o
   return false;
 }
 
+
+RunMonitorCollection::UnwantedEventValue::UnwantedEventValue()
+  : count(1), previousCount(0)
+{
+  std::ostringstream str;
+  str << "UnwantedEvent_" << nextId++;
+  alarmName = str.str();
+}
+
+uint32 RunMonitorCollection::UnwantedEventValue::nextId(0);
 
 
 /// emacs configuration

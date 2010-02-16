@@ -1,8 +1,10 @@
-// $Id: RunMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.7 2010/02/09 14:56:18 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
 #define StorageManager_RunMonitorCollection_h
+
+#include <boost/thread/mutex.hpp>
 
 #include "xdata/UnsignedInteger32.h"
 
@@ -18,8 +20,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.7 $
+   * $Date: 2010/02/09 14:56:18 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -105,24 +107,29 @@ namespace stor {
       uint32 hltTriggerCount;
       std::vector<unsigned char> bitList;
 
+      UnwantedEventKey(const I2OChain&);
       bool operator<(UnwantedEventKey const& other) const;
     };
     struct UnwantedEventValue
     {
       uint32 count;
-      bool sentFirstAlarm;
+      uint32 previousCount;
+      std::string alarmName;
 
-      UnwantedEventValue() :
-      count(1), sentFirstAlarm(false) {};
+      UnwantedEventValue();
+
+      static uint32 nextId;
     };
     typedef std::map<UnwantedEventKey, UnwantedEventValue> UnwantedEventsMap;
-    UnwantedEventsMap _unwantedEvents;
+    UnwantedEventsMap _unwantedEventsMap;
+    mutable boost::mutex _unwantedEventMapLock;
 
     void checkForBadEvents();
     void alarmErrorEvents();
     void alarmUnwantedEvents(UnwantedEventsMap::value_type&);
 
-    xdata::UnsignedInteger32 _runNumber;           // The current run number
+    xdata::UnsignedInteger32 _runNumber;       // The current run number
+    xdata::UnsignedInteger32 _unwantedEvents;  // Number of events not consumed
 
     AlarmParams _alarmParams;
   };
