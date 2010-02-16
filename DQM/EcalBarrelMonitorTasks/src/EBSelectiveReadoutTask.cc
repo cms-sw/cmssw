@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 10:39:09 $
- * $Revision: 1.42 $
+ * $Date: 2009/11/15 11:00:17 $
+ * $Revision: 1.43 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -449,17 +449,12 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       nEvtAnyInterest[iptindex][ietindex]++;
 
-      vector<DetId> crystals = Numbers::crystals( TPdigi->id() );
-
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) nEvtLowInterest[iptindex][ietindex]++;
 
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[iptindex][ietindex]++;
 
       float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
       float xipt = iptindex + 0.5;
-
-//       if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
-//            && nCryTower[iptindex][ietindex] != (int)crystals.size() ) EBTTFMismatch_->Fill(xipt, xiet);
 
       if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
            && nCryTower[iptindex][ietindex] != 25 ) EBTTFMismatch_->Fill(xipt, xiet);
