@@ -1,6 +1,5 @@
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="root"/>
-<use   name="FWCore/Framework"/>
 <use   name="DataFormats/SiStripCluster"/>
 <export>
   <lib   name="1"/>

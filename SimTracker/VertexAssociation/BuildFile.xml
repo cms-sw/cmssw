@@ -1,5 +1,4 @@
 <use   name="SimDataFormats/Track"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
