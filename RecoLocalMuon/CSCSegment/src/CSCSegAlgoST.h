@@ -68,6 +68,12 @@ public:
    */
   std::vector< std::vector<const CSCRecHit2D*> > clusterHits(const CSCChamber* aChamber, ChamberHitContainer rechits);
 
+
+   /* Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
+   */
+     std::vector< std::vector<const CSCRecHit2D*> > chainHits(const CSCChamber* aChamber, ChamberHitContainer rechits);
+
+
   /**
    * Remove bad hits from found segments based not only on chi2, but also on charge and 
    * further "low level" chamber information.
@@ -92,15 +98,11 @@ private:
   //
   void fitSlopes(void);
   void fillChiSquared(void);
-  void doSlopesAndChi2(void);
   void fillLocalDirection(void);
-<<<<<<< CSCSegAlgoST.h
   void doSlopesAndChi2(void);
 
   bool isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain);
 
-=======
->>>>>>> 1.7
   CLHEP::HepMatrix derivativeMatrix(void) const;
   AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
@@ -170,6 +172,7 @@ private:
   double  dYclusBoxMax;
   int     maxRecHitsInCluster;
   bool    preClustering;
+  bool    preClustering_useChaining;
   bool    Pruning;
   bool    BrutePruning;
   double  BPMinImprovement;
@@ -188,7 +191,6 @@ private:
   double  curvePenaltyThreshold;
   double  curvePenalty;
   CSCSegAlgoShowering* showering_;
-<<<<<<< CSCSegAlgoST.h
   //
   /// Correct the Error Matrix
   bool correctCov_;              /// Allow to correct the error matrix
@@ -208,26 +210,6 @@ private:
   double covAnyNumber_;          /// The number to fource the Covariance
   bool passCondNumber;          /// Passage the condition number calculations
   bool passCondNumber_2;          /// Passage the condition number calculations
-=======
-  /// Correct the Error Matrix by Chi^2-X one dimentional method
-  bool correctCov_;              /// Allow to correct the error matrix
-  double protoChiUCorrection;
-  std::vector<double> e_Cxx;
-  double chi2Norm_2D_;               /// Chi^2 normalization for the corrected fit
-  double chi2Norm_3D_;               /// Chi^2 normalization for the initial fit
-  unsigned maxContrIndex;       /// The index of the worst x RecHit in Chi^2-X method
-  bool prePrun_;                 /// Allow to prun a segment in segment buld method
-                                /// once it passed through Chi^2-X and  protoChiUCorrection
-                                /// is big
-  double prePrunLimit_;          /// The upper limit of protoChiUCorrection to apply prePrun
-  /// Correct the error matrix for the condition number
-  double condSeed1_, condSeed2_;  /// The correction parameters
-  bool covToAnyNumber_;          /// Allow to use any number for covariance (by hand)
-  bool covToAnyNumberAll_;       /// Allow to use any number for covariance for all RecHits
-  double covAnyNumber_;          /// The number to fource the Covariance
-  bool passCondNumber;          /// Passage the condition number calculations
-  bool passCondNumber_2;          /// Passage the condition number calculations
->>>>>>> 1.7
 };
 
 #endif
