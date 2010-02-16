@@ -1,9 +1,11 @@
 //
-// $Id: TriggerHelper.cc,v 1.5 2010/02/02 22:17:52 vadler Exp $
+// $Id: TriggerHelper.cc,v 1.8 2010/02/04 22:16:20 vadler Exp $
 //
 
 
 #include "DQM/TrackerCommon/interface/TriggerHelper.h"
+
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,29 +19,31 @@ using namespace edm;
 TriggerHelper::TriggerHelper()
 {
 
+  gtReadoutRecord_.clear();
   hltTriggerResults_.clear();
   dcsStatus_.clear();
 
 }
 
 
-/// L1, HLT and DCS filters combined
-bool TriggerHelper::accept( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config )
+/// GT status, L1, HLT and DCS filters combined
+bool TriggerHelper::accept( const Event & event, const EventSetup & setup, const ParameterSet & config )
 {
 
   // Getting the and/or switch from the configuration
   // If it does not exist, the configuration is considered not to be present,
   // and the filter dos not have any effect.
   if ( ! config.exists( "andOr" ) ) return true;
+  andOr_ = config.getParameter< bool >( "andOr" );
 
   // Determine decision
-  if ( config.getParameter< bool >( "andOr" ) ) return ( acceptL1( event, setup, config ) || acceptHlt( event, config ) || acceptDcs( event, config ) );
-  return ( acceptL1( event, setup, config ) && acceptHlt( event, config ) && acceptDcs( event, config ) );
+  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) || acceptL1( event, setup, config ) || acceptHlt( event, config ) );
+  return ( acceptDcs( event, config ) && acceptGt( event, config ) && acceptL1( event, setup, config ) && acceptHlt( event, config ) );
 
 }
 
 
-/// HLT and DCS filters only
+/// GT status, HLT and DCS filters only
 bool TriggerHelper::accept( const Event & event, const ParameterSet & config )
 {
 
@@ -47,10 +51,169 @@ bool TriggerHelper::accept( const Event & event, const ParameterSet & config )
   // If it does not exist, the configuration is considered not to be present,
   // and the filter dos not have any effect.
   if ( ! config.exists( "andOr" ) ) return true;
+  andOr_ = config.getParameter< bool >( "andOr" );
 
   // Determine decision
-  if ( config.getParameter< bool >( "andOr" ) ) return ( acceptHlt( event, config ) || acceptDcs( event, config ) );
-  return ( acceptHlt( event, config ) && acceptDcs( event, config ) );
+  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) || acceptHlt( event, config ) );
+  return ( acceptDcs( event, config ) && acceptGt( event, config ) && acceptHlt( event, config ) );
+
+}
+
+
+bool TriggerHelper::acceptDcs( const edm::Event & event, const edm::ParameterSet & config )
+{
+
+  // Getting the and/or DCS switch from the configuration
+  // If it does not exist, the configuration is considered not to be present,
+  // and the filter dos not have any effect
+  if ( ! config.exists( "andOrDcs" ) ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
+
+  // Getting configuration parameters
+  const InputTag dcsInputTag( config.getParameter< InputTag >( "dcsInputTag" ) );
+  const vector< int > dcsPartitions( config.getParameter< vector< int > >( "dcsPartitions" ) );
+  errorReplyDcs_ = config.getParameter< bool >( "errorReplyDcs" );
+
+  // An empty DCS partitions list acts as switch.
+  if ( dcsPartitions.empty() ) return ( ! andOr_ );
+
+  // Accessing the DcsStatusCollection
+  event.getByLabel( dcsInputTag, dcsStatus_ );
+  if ( ! dcsStatus_.isValid() ) {
+    LogError( "dcsStatusValid" ) << "DcsStatusCollection product with InputTag " << dcsInputTag.encode() << " not in event ==> decision: " << errorReplyDcs_;
+    return errorReplyDcs_;
+  }
+
+  // Determine decision of DCS partition combination and return
+  if ( config.getParameter< bool >( "andOrDcs" ) ) { // OR combination
+    for ( vector< int >::const_iterator partitionNumber = dcsPartitions.begin(); partitionNumber != dcsPartitions.end(); ++partitionNumber ) {
+      if ( acceptDcsPartition( *partitionNumber ) ) return true;
+    }
+    return false;
+  }
+  for ( vector< int >::const_iterator partitionNumber = dcsPartitions.begin(); partitionNumber != dcsPartitions.end(); ++partitionNumber ) {
+    if ( ! acceptDcsPartition( *partitionNumber ) ) return false;
+  }
+  return true;
+
+}
+
+
+bool TriggerHelper::acceptDcsPartition( int dcsPartition ) const
+{
+
+  // Error checks
+  switch( dcsPartition ) {
+    case DcsStatus::EBp   :
+    case DcsStatus::EBm   :
+    case DcsStatus::EEp   :
+    case DcsStatus::EEm   :
+    case DcsStatus::HBHEa :
+    case DcsStatus::HBHEb :
+    case DcsStatus::HBHEc :
+    case DcsStatus::HF    :
+    case DcsStatus::HO    :
+    case DcsStatus::RPC   :
+    case DcsStatus::DT0   :
+    case DcsStatus::DTp   :
+    case DcsStatus::DTm   :
+    case DcsStatus::CSCp  :
+    case DcsStatus::CSCm  :
+    case DcsStatus::CASTOR:
+    case DcsStatus::TIBTID:
+    case DcsStatus::TOB   :
+    case DcsStatus::TECp  :
+    case DcsStatus::TECm  :
+    case DcsStatus::BPIX  :
+    case DcsStatus::FPIX  :
+    case DcsStatus::ESp   :
+    case DcsStatus::ESm   :
+      break;
+    default:
+      LogError( "dcsPartition" ) << "DCS partition number " << dcsPartition << " does not exist ==> decision: " << errorReplyDcs_;
+      return errorReplyDcs_;
+  }
+
+  // Determine decision
+  return dcsStatus_->at( 0 ).ready( dcsPartition );
+
+}
+
+
+/// Does this event fulfill the configured GT status logical expression combination?
+bool TriggerHelper::acceptGt( const Event & event, const ParameterSet & config )
+{
+
+  // Getting the and/or GT status bits switch from the configuration
+  // If it does not exist, the configuration is considered not to be present,
+  // and the filter dos not have any effect
+  if ( ! config.exists( "andOrGt" ) ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
+
+  // Getting configuration parameters
+  const InputTag gtInputTag( config.getParameter< InputTag >( "gtInputTag" ) );
+  const vector< string > gtLogicalExpressions( config.getParameter< vector< string > >( "gtStatusBits" ) );
+  errorReplyGt_ = config.getParameter< bool >( "errorReplyGt" );
+
+  // An empty GT status bits logical expressions list acts as switch.
+  if ( gtLogicalExpressions.empty() ) return ( ! andOr_ );
+
+  // Accessing the L1GlobalTriggerReadoutRecord
+  event.getByLabel( gtInputTag, gtReadoutRecord_ );
+  if ( ! gtReadoutRecord_.isValid() ) {
+    LogError( "gtReadoutRecordValid" ) << "L1GlobalTriggerReadoutRecord product with InputTag " << gtInputTag.encode() << " not in event ==> decision: " << errorReplyGt_;
+    return errorReplyGt_;
+  }
+
+  // Determine decision of GT status bits logical expression combination and return
+  if ( config.getParameter< bool >( "andOrGt" ) ) { // OR combination
+    for ( vector< string >::const_iterator gtLogicalExpression = gtLogicalExpressions.begin(); gtLogicalExpression != gtLogicalExpressions.end(); ++gtLogicalExpression ) {
+      if ( acceptGtLogicalExpression( *gtLogicalExpression ) ) return true;
+    }
+    return false;
+  }
+  for ( vector< string >::const_iterator gtLogicalExpression = gtLogicalExpressions.begin(); gtLogicalExpression != gtLogicalExpressions.end(); ++gtLogicalExpression ) {
+    if ( ! acceptGtLogicalExpression( *gtLogicalExpression ) ) return false;
+  }
+  return true;
+
+}
+
+
+/// Does this event fulfill this particular GT status bits' logical expression?
+bool TriggerHelper::acceptGtLogicalExpression( string gtLogicalExpression )
+{
+
+  // Check empty strings
+  if ( gtLogicalExpression.empty() ) {
+    LogError( "gtLogicalExpression" ) << "Empty logical expression ==> decision: " << errorReplyGt_;
+    return errorReplyGt_;
+  }
+
+  // Negated paths
+  bool negExpr( negate( gtLogicalExpression ) );
+  if ( negExpr && gtLogicalExpression.empty() ) {
+    LogError( "gtLogicalExpression" ) << "Empty (negated) logical expression ==> decision: " << errorReplyGt_;
+    return errorReplyGt_;
+  }
+
+  // Parse logical expression and determine GT status bit decision
+  L1GtLogicParser gtAlgoLogicParser( gtLogicalExpression );
+  // Loop over paths
+  for ( size_t iStatusBit = 0; iStatusBit < gtAlgoLogicParser.operandTokenVector().size(); ++iStatusBit ) {
+    const string gtStatusBit( gtAlgoLogicParser.operandTokenVector().at( iStatusBit ).tokenName );
+    // Manipulate status bit decision as stored in the parser
+    bool decision;
+    if ( gtStatusBit == "PhysDecl" || gtStatusBit == "PhysicsDeclared" ) {
+      decision = ( gtReadoutRecord_->gtFdlWord().physicsDeclared() == 1 );
+    } else {
+      LogError( "gtStatusBit" ) << "GT status bit " << gtStatusBit << " is not defined ==> decision: " << errorReplyGt_;
+      decision = errorReplyDcs_;
+    }
+    gtAlgoLogicParser.operandTokenVector().at( iStatusBit ).tokenResult = decision;
+  }
+
+  // Determine decision
+  const bool gtDecision( gtAlgoLogicParser.expressionResult() );
+  return negExpr ? ( ! gtDecision ) : gtDecision;
 
 }
 
@@ -59,12 +222,17 @@ bool TriggerHelper::accept( const Event & event, const ParameterSet & config )
 bool TriggerHelper::acceptL1( const Event & event, const EventSetup & setup, const ParameterSet & config )
 {
 
+  // Getting the and/or L1 switch from the configuration
+  // If it does not exist, the configuration is considered not to be present,
+  // and the filter dos not have any effect
+  if ( ! config.exists( "andOrL1" ) ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
+
   // Getting configuration parameters
   const vector< string > l1LogicalExpressions( config.getParameter< vector< string > >( "l1Algorithms" ) );
   errorReplyL1_ = config.getParameter< bool >( "errorReplyL1" );
 
   // An empty L1 logical expressions list acts as switch.
-  if ( l1LogicalExpressions.empty() ) return true;
+  if ( l1LogicalExpressions.empty() ) return ( ! andOr_ );
 
   // Getting the L1 event setup
   l1Gt_.retrieveL1EventSetup( setup );
@@ -87,7 +255,6 @@ bool TriggerHelper::acceptL1( const Event & event, const EventSetup & setup, con
 /// Was this event accepted by this particular L1 algorithms' logical expression?
 bool TriggerHelper::acceptL1LogicalExpression( const Event & event, string l1LogicalExpression )
 {
-
 
   // Check empty strings
   if ( l1LogicalExpression.empty() ) {
@@ -131,13 +298,18 @@ bool TriggerHelper::acceptL1LogicalExpression( const Event & event, string l1Log
 bool TriggerHelper::acceptHlt( const Event & event, const ParameterSet & config )
 {
 
+  // Getting the and/or HLT switch from the configuration
+  // If it does not exist, the configuration is considered not to be present,
+  // and the filter dos not have any effect
+  if ( ! config.exists( "andOrHlt" ) ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
+
   // Getting configuration parameters
   const vector< string > hltLogicalExpressions( config.getParameter< vector< string > >( "hltPaths" ) );
   hltInputTag_   = config.getParameter< InputTag >( "hltInputTag" );
   errorReplyHlt_ = config.getParameter< bool >( "errorReplyHlt" );
 
   // An empty HLT logical expressions list acts as switch.
-  if ( hltLogicalExpressions.empty() ) return true;
+  if ( hltLogicalExpressions.empty() ) return ( ! andOr_ );
 
   // Checking the TriggerResults InputTag
   // The process name has to be given.
@@ -221,80 +393,6 @@ bool TriggerHelper::acceptHltLogicalExpression( string hltLogicalExpression ) co
   // Determine decision
   const bool hltDecision( hltAlgoLogicParser.expressionResult() );
   return negExpr ? ( ! hltDecision ) : hltDecision;
-
-}
-
-
-bool TriggerHelper::acceptDcs( const edm::Event & event, const edm::ParameterSet & config )
-{
-
-  // Getting configuration parameters
-  const InputTag dcsInputTag( config.getParameter< InputTag >( "dcsInputTag" ) );
-  const vector< int > dcsPartitions( config.getParameter< vector< int > >( "dcsPartitions" ) );
-  errorReplyDcs_ = config.getParameter< bool >( "errorReplyDcs" );
-
-  // An empty DCS partitions list acts as switch.
-  if ( dcsPartitions.empty() ) return true;
-
-  // Accessing the DcsStatusCollection
-  event.getByLabel( dcsInputTag, dcsStatus_ );
-  if ( ! dcsStatus_.isValid() ) {
-    LogError( "dcsStatusValid" ) << "DcsStatusCollection product with InputTag " << dcsInputTag.encode() << " not in event ==> decision: " << errorReplyDcs_;
-    return errorReplyDcs_;
-  }
-
-  // Determine decision of DCS partition combination and return
-  if ( config.getParameter< bool >( "andOrDcs" ) ) { // OR combination
-    for ( vector< int >::const_iterator partitionNumber = dcsPartitions.begin(); partitionNumber != dcsPartitions.end(); ++partitionNumber ) {
-      if ( acceptDcsPartition( *partitionNumber ) ) return true;
-    }
-    return false;
-  }
-  for ( vector< int >::const_iterator partitionNumber = dcsPartitions.begin(); partitionNumber != dcsPartitions.end(); ++partitionNumber ) {
-    if ( ! acceptDcsPartition( *partitionNumber ) ) return false;
-  }
-  return true;
-
-}
-
-
-bool TriggerHelper::acceptDcsPartition( int dcsPartition ) const
-{
-
-  // Error checks
-  switch( dcsPartition ) {
-    case DcsStatus::EBp   :
-    case DcsStatus::EBm   :
-    case DcsStatus::EEp   :
-    case DcsStatus::EEm   :
-    case DcsStatus::HBHEa :
-    case DcsStatus::HBHEb :
-    case DcsStatus::HBHEc :
-    case DcsStatus::HF    :
-    case DcsStatus::HO    :
-    case DcsStatus::RPC   :
-    case DcsStatus::DT0   :
-    case DcsStatus::DTp   :
-    case DcsStatus::DTm   :
-    case DcsStatus::CSCp  :
-    case DcsStatus::CSCm  :
-    case DcsStatus::CASTOR:
-    case DcsStatus::TIBTID:
-    case DcsStatus::TOB   :
-    case DcsStatus::TECp  :
-    case DcsStatus::TECm  :
-    case DcsStatus::BPIX  :
-    case DcsStatus::FPIX  :
-    case DcsStatus::ESp   :
-    case DcsStatus::ESm   :
-      break;
-    default:
-      LogError( "dcsPartition" ) << "DCS partition number " << dcsPartition << " does not exist ==> decision: " << errorReplyDcs_;
-      return errorReplyDcs_;
-  }
-
-  // Determine decision
-  return dcsStatus_->at( 0 ).ready( dcsPartition );
 
 }
 
