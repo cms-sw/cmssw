@@ -1,4 +1,4 @@
-// $Id: AlarmHandler.h,v 1.5 2009/09/29 07:52:23 mommsen Exp $
+// $Id: AlarmHandler.h,v 1.6 2009/09/29 08:04:54 mommsen Exp $
 /// @file: AlarmHandler.h 
 
 #ifndef StorageManager_AlarmHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Helper class to handle sentinel alarming
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/09/29 07:52:23 $
+   * $Revision: 1.6 $
+   * $Date: 2009/09/29 08:04:54 $
    */
 
   class AlarmHandler
@@ -55,10 +55,15 @@ namespace stor {
     );
 
     /**
-      Revokes a sentinel alarm.
+      Revokes a sentinel alarm
     */
     virtual void revokeAlarm(const std::string name);
- 
+
+    /**
+      Revokes all sentinel alarms 
+    */
+    void clearAllAlarms();
+
 
   private:
 
