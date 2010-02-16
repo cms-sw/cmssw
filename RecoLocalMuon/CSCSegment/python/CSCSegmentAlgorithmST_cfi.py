@@ -33,6 +33,7 @@ ST_ME1234 = cms.PSet(
     CSCDebug = cms.untracked.bool(False),
     onlyBestSegment = cms.bool(False),
     Pruning = cms.bool(True),
+<<<<<<< CSCSegmentAlgorithmST_cfi.py
     dYclusBoxMax = cms.double(8.0),
     # Correction to improove fit
     CorrectTheErrors = cms.bool(True),
@@ -45,6 +46,21 @@ ST_ME1234 = cms.PSet(
     ForceCovariance = cms.bool(False),
     ForceCovarianceAll = cms.bool(False),
     Covariance = cms.double(0.0)
+
+=======
+    dYclusBoxMax = cms.double(8.0),
+    # Correction to improove fit
+    CorrectTheErrors = cms.bool(True),
+    NormChi2Cut2D = cms.double(20.0),
+    NormChi2Cut3D = cms.double(10.0),
+    prePrun = cms.bool(True),
+    prePrunLimit = cms.double(3.17),
+    SeedSmall = cms.double(0.000200),
+    SeedBig = cms.double(0.001500),
+    ForceCovariance = cms.bool(False),
+    ForceCovarianceAll = cms.bool(False),
+    Covariance = cms.double(0.0)
+>>>>>>> 1.8
 )
 ST_ME1A = cms.PSet(
 
@@ -75,6 +91,7 @@ ST_ME1A = cms.PSet(
     CSCDebug = cms.untracked.bool(False),
     onlyBestSegment = cms.bool(False),
     Pruning = cms.bool(True),
+<<<<<<< CSCSegmentAlgorithmST_cfi.py
     dYclusBoxMax = cms.double(8.0),
     # Correction to improove fit
     CorrectTheErrors = cms.bool(True),
@@ -87,6 +104,21 @@ ST_ME1A = cms.PSet(
     ForceCovariance = cms.bool(False),
     ForceCovarianceAll = cms.bool(False),
     Covariance = cms.double(0.0)
+
+=======
+    dYclusBoxMax = cms.double(8.0),
+    # Correction to improove fit
+    CorrectTheErrors = cms.bool(True),
+    NormChi2Cut2D = cms.double(20.0), 
+    NormChi2Cut3D = cms.double(10.0), 
+    prePrun = cms.bool(True),
+    prePrunLimit = cms.double(3.17),
+    SeedSmall = cms.double(0.000200),
+    SeedBig = cms.double(0.001500),
+    ForceCovariance = cms.bool(False),
+    ForceCovarianceAll = cms.bool(False),
+    Covariance = cms.double(0.0)
+>>>>>>> 1.8
 )
 CSCSegAlgoST = cms.PSet(
     algo_name = cms.string('CSCSegAlgoST'),
