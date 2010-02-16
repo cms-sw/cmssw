@@ -1,0 +1,12 @@
+<use   name="TrackingTools/Records"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DQMServices/Core"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="TrackingTools/DetLayers"/>
+<export>
+  <lib   name="1"/>
+</export>

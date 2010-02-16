@@ -1,0 +1,22 @@
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/FWLite"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/FWLite"/>
+<use   name="rootcintex"/>
+<use   name="root"/>
+<use   name="boost"/>
+<use   name="CommonTools/Utils"/>
+<use   name="PhysicsTools/Utilities"/>
+<use   name="PhysicsTools/PatUtils"/>
+<use   name="PhysicsTools/PatExamples"/>
+<use   name="PhysicsTools/FWLite"/>
+<environment>
+  <bin   file="PatBasicFWLiteAnalyzer.cc">
+  </bin>
+  <bin   file="JPsiFWLiteAnalyzer.cc">
+  </bin>
+  <bin   file="PatMcMatchFWLiteAnalyzer.cc">
+  </bin>
+  <bin   file="testSelection_wplusjets.C">
+  </bin>
+</environment>

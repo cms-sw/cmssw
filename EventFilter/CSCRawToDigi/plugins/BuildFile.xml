@@ -1,0 +1,4 @@
+<use   name="EventFilter/CSCRawToDigi"/>
+<library   file="*.cc" name="EventFilterCSCRawToDigiPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

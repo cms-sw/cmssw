@@ -1,0 +1,18 @@
+<flags   EDM_PLUGIN="1"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DQMServices/Core"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/CaloRecHit"/>
+<use   name="DataFormats/METReco"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="clhep"/>
+<use   name="hepmc"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -1,0 +1,4 @@
+<use   name="CondTools/SiPixel"/>
+<library   name="CondToolsSiPixelPlugins" file="*.cc">
+  <flags   EDM_PLUGIN="1"/>
+</library>

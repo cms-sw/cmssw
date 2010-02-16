@@ -1,0 +1,18 @@
+<use   name="RecoMuon/TrackingTools"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/TrackingRecHit"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="SimDataFormats/TrackingAnalysis"/>
+<use   name="SimTracker/Records"/>
+<use   name="SimTracker/TrackAssociation"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/TrajectoryParametrization"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<library   file="*.cc" name="RecoMuonTrackingToolsTest">
+  <flags   EDM_PLUGIN="1"/>
+</library>

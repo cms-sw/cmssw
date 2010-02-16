@@ -1,0 +1,13 @@
+<environment>
+  <use   name="CondCore/DBOutputService"/>
+  <library   file="SiPixelFedCablingMapTestWriter.cc" name="SiPixelFedCablingMapTestWriter">
+    <flags   EDM_PLUGIN="1"/>
+  </library>
+</environment>
+<environment>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/SiPixelObjects"/>
+  <library   file="SiPixelFedCablingMapAnalyzer.cc" name="SiPixelFedCablingMapAnalyzer">
+    <flags   EDM_PLUGIN="1"/>
+  </library>
+</environment>

@@ -1,0 +1,8 @@
+<use   name="rootgraphics"/>
+<use   name="rootcore"/>
+<bin   file="compareHists.cc">
+</bin>
+<bin   file="plotHists.cc">
+</bin>
+<bin   file="fixed_plotHists.cc">
+</bin>

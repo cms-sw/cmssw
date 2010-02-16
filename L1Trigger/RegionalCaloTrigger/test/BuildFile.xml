@@ -1,0 +1,31 @@
+<use   name="L1Trigger/RegionalCaloTrigger"/>
+<bin   file="testL1RCTRegion.cpp">
+</bin>
+<bin   file="testL1RCT.cpp">
+</bin>
+<bin   file="testL1RCTCrate.cpp">
+</bin>
+<bin   file="testL1RCTElectronIsolationCard.cpp">
+</bin>
+<bin   file="testL1RCTJetSummaryCard.cpp">
+</bin>
+<bin   file="testL1RCTLookupTables.cpp">
+</bin>
+<bin   file="testL1RCTNeighborMap.cpp">
+</bin>
+<bin   file="testL1RCTReceiverCard.cpp">
+</bin>
+<bin   file="testL1RCTORCAMap.cpp">
+</bin>
+<bin   file="testL1RCTORCAMapAux.cpp">
+</bin>
+<bin   file="cratePatterns.cpp">
+</bin>
+<bin   file="electronLoop.cpp">
+</bin>
+<bin   file="manyTimesLoop.cpp">
+</bin>
+<bin   file="runOrcaOutput.cpp">
+</bin>
+<bin   file="testMap.cc">
+</bin>

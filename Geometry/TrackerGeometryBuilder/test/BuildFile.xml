@@ -1,0 +1,21 @@
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/TrackerNumberingBuilder"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="CondFormats/Alignment"/>
+<use   name="FWCore/Framework"/>
+<library   file="TrackerDigiGeometryAnalyzer.cc" name="TrackerDigiGeometryAnalyzer">
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="TrackerMapTool.cc" name="TrackerMapTool">
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="ModuleInfo.cc" name="ModuleInfo">
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="GeoHierarchyTest.cc" name="GeoHierarchyTest">
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

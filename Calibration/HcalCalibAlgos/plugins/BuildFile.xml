@@ -1,0 +1,37 @@
+<use   name="SimDataFormats/Track"/>
+<use   name="DQMServices/Components"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/HLTReco"/>
+<use   name="DataFormats/HcalIsolatedTrack"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="Utilities/Timing"/>
+<use   name="rootphysics"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="DataFormats/CaloRecHit"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="clhep"/>
+<use   name="hepmc"/>
+<use   name="CondTools/Hcal"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="TrackingTools/TrackAssociator"/>
+<library   file="*.cc" name="CalibrationHcalCalibAlgosPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
