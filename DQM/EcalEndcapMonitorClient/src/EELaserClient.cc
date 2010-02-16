@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/02/15 17:24:42 $
- * $Revision: 1.120 $
+ * $Date: 2010/02/15 22:48:43 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2616,8 +2616,12 @@ void EELaserClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
-        int i = ecid.getID2()-1;
+        int idcc = ecid.getID1() - 600;
+        int i = ecid.getID2() - 1;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
         UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
@@ -2631,8 +2635,12 @@ void EELaserClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_LM_PN") != 0 ) continue;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
-        int i = ecid.getID2()-1;
+        int idcc = ecid.getID1() - 600;
+        int i = ecid.getID2() - 1;
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
         UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
         UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
