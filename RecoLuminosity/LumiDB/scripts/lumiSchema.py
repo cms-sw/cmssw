@@ -104,7 +104,14 @@ def dropLumi(dbsession):
     dbsession.transaction().start(False)
     schema=dbsession.nominalSchema()
     db=dbUtil.dbUtil(schema)
+    db.dropTable( nameDealer.runsummaryTableName() )
     db.dropTable( nameDealer.lumisummaryTableName() )
+    db.dropTable( nameDealer.lumidetailTableName() )
+    db.dropTable( nameDealer.trgTableName() )
+    db.dropTable( nameDealer.hltTableName() )
+    db.dropTable( nameDealer.trghltMapTableName() )
+    db.dropTable( nameDealer.lumiresultTableName() )
+    db.dropTable( nameDealer.lumihltresultTableName() )
     dbsession.transaction().commit()
     
 def describeLumi(dbsession):
