@@ -299,6 +299,7 @@ namespace sistrip {
                            const uint8_t feEnableRegister = 0xFF, const uint8_t feOverflowRegister = 0x00,
                            const FEDStatusRegister fedStatusRegister = FEDStatusRegister());
     private:
+      void setBufferFormatByte(const FEDBufferFormat newBufferFormat);
       void setHeaderTypeNibble(const uint8_t value);
       void setReadoutModeBits(const uint8_t value);
       void setDataTypeBit(const bool value);

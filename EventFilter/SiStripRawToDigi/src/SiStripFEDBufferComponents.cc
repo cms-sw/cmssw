@@ -683,6 +683,12 @@ namespace sistrip {
       wordSwapped_ = !wordSwapped_;
     }
     //set appropriate code
+    setBufferFormatByte(newBufferFormat);
+    return *this;
+  }
+  
+  void TrackerSpecialHeader::setBufferFormatByte(const FEDBufferFormat newBufferFormat)
+  {
     switch (newBufferFormat) {
     case BUFFER_FORMAT_OLD_VME:
     case BUFFER_FORMAT_OLD_SLINK:
@@ -697,7 +703,6 @@ namespace sistrip {
       printHex(&newBufferFormat,1,ss);
       throw cms::Exception("FEDBuffer") << ss.str();
     }
-    return *this;
   }
   
   TrackerSpecialHeader& TrackerSpecialHeader::setHeaderType(const FEDHeaderType headerType)
@@ -786,10 +791,11 @@ namespace sistrip {
                                              const uint8_t feEnableRegister, const uint8_t feOverflowRegister,
                                              const FEDStatusRegister fedStatusRegister)
   {
+    memset(specialHeader_,0x00,8);
     //determine if order is swapped in real buffer
     wordSwapped_ = (bufferFormat == BUFFER_FORMAT_OLD_VME);
     //set fields
-    setBufferFormat(bufferFormat);
+    setBufferFormatByte(bufferFormat);
     setReadoutMode(readoutMode);
     setHeaderType(headerType);
     setDataType(dataType);
