@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.16 2010/01/20 21:15:56 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.17 2010/02/09 21:52:35 wsun Exp $
 //
 //
 
@@ -78,18 +78,14 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
    using namespace edm;
 
    // Get L1TriggerKeyList and make a copy
-//    ESHandle< L1TriggerKeyList > oldKeyList ;
-//    iSetup.get< L1TriggerKeyListRcd >().get( oldKeyList ) ;
-
    L1TriggerKeyList oldKeyList ;
 
    if( !m_newL1TriggerKeyList )
      {
-       std::string keyListToken =
-	 m_writer.lastPayloadToken( "L1TriggerKeyListRcd" ) ;
-       if( !keyListToken.empty() )
+       if( !m_writer.fillLastTriggerKeyList( oldKeyList ) )
 	 {
-	   m_writer.readObject( keyListToken, oldKeyList ) ;
+	   edm::LogError( "L1-O2O" )
+	     << "Problem getting last L1TriggerKeyList" ;
 	 }
      }
 
@@ -110,7 +106,6 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 
        if( !m_overwriteKeys )
 	 {
-	   //	   triggerKeyOK = oldKeyList->token( key->tscKey() ) == "" ;
 	   triggerKeyOK = oldKeyList.token( key->tscKey() ) == "" ;
 	 }
      }
@@ -137,7 +132,6 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
       // Record token in L1TriggerKeyList
       if( m_writeL1TriggerKey )
 	{
-	  //	  keyList = new L1TriggerKeyList( *oldKeyList ) ;
 	  keyList = new L1TriggerKeyList( oldKeyList ) ;
 	  if( !( keyList->addKey( key->tscKey(),
 				  token,
@@ -169,12 +163,10 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 	      else
 		{
 		  // Check key is new before writing
-		  //		  if( oldKeyList->token( it->first, it->second ) == "" ||
 		  if( oldKeyList.token( it->first, it->second ) == "" ||
 		      m_overwriteKeys )
 		    {
 		      // Write data to ORCON with no IOV
-		      //		      if( oldKeyList->token( it->first, it->second ) != "" )
 		      if( oldKeyList.token( it->first, it->second ) != "" )
 			{
 			  edm::LogVerbatim( "L1-O2O" )
@@ -208,7 +200,6 @@ L1CondDBPayloadWriter::analyze(const edm::Event& iEvent,
 			  // Record token in L1TriggerKeyList
 			  if( !keyList )
 			    {
-			      //			      keyList = new L1TriggerKeyList( *oldKeyList ) ;
 			      keyList = new L1TriggerKeyList( oldKeyList ) ;
 			    }
 
