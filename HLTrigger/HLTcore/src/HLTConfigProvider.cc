@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/16 19:54:25 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/02/16 20:06:48 $
+ *  $Revision: 1.27 $
  *
  *  \author Martin Grunewald
  *
@@ -116,7 +116,7 @@ bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    ProcessConfiguration processConfiguration;
    if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
      ParameterSet processPSet;
-     if ((processPSet!=ParameterSet()) && (processConfiguration.parameterSetID() == processPSet_.id())) {
+     if ((processPSet_!=ParameterSet()) && (processConfiguration.parameterSetID() == processPSet_.id())) {
        changed=false;
        return true;
      } else if (pset::Registry::instance()->getMapped(processConfiguration.parameterSetID(),processPSet)) {
