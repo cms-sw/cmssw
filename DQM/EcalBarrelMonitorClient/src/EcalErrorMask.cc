@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.21 2010/01/25 21:34:14 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.22 2010/02/14 20:56:23 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.21 $
-  \date $Date: 2010/01/25 21:34:14 $
+  \version $Revision: 1.22 $
+  \date $Date: 2010/02/14 20:56:23 $
 */
 
 #ifdef WITH_ECAL_COND_DB
@@ -106,25 +106,26 @@ void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax
       if( sm == -99 ) sm = -1;
       if( sm == +99 ) sm = +1;
 
-      if( sm == 7 ) sm = 1;
-      if( sm == 8 ) sm = 2; 
-      if( sm == 9 ) sm = 3; 
-      if( sm == 1 ) sm = 4; 
-      if( sm == 2 ) sm = 5; 
-      if( sm == 3 ) sm = 6; 
-      if( sm == 4 ) sm = 7; 
-      if( sm == 5 ) sm = 8; 
-      if( sm == 6 ) sm = 9; 
-
-      if( sm == -7 ) sm = 10;
-      if( sm == -8 ) sm = 11; 
-      if( sm == -9 ) sm = 12; 
-      if( sm == -1 ) sm = 13; 
-      if( sm == -2 ) sm = 14; 
-      if( sm == -3 ) sm = 15; 
-      if( sm == -4 ) sm = 16; 
-      if( sm == -5 ) sm = 17; 
-      if( sm == -6 ) sm = 18; 
+      switch ( sm ) {
+        case +7: sm =  1; break;
+        case +8: sm =  2; break;
+        case +9: sm =  3; break;
+        case +1: sm =  4; break;
+        case +2: sm =  5; break;
+        case +3: sm =  6; break;
+        case +4: sm =  7; break;
+        case +5: sm =  8; break;
+        case +6: sm =  9; break;
+        case -7: sm = 10; break;
+        case -8: sm = 11; break;
+        case -9: sm = 12; break;
+        case -1: sm = 13; break;
+        case -2: sm = 14; break;
+        case -3: sm = 15; break;
+        case -4: sm = 16; break;
+        case -5: sm = 17; break;
+        case -6: sm = 18; break;
+      }
     }
     else {
       subdet = EcalBarrel;
