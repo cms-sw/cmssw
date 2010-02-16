@@ -46,24 +46,24 @@ EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
 
 // Desired numbering 
 //                LEFT    RIGHT (as one faces the Dee from the IP)
-//  ES-  pl=1     0       1
-//       pl=2     2       3
+//  ES-  pl=2     0       1
+//       pl=1     2       3    the reversal of pl=2 and pl=1 is intentional here (CM Kuo)
 //  ES+  pl=1     4       5
 //       pl=2     6       7
 
    const ESDetId esid ( id ) ;
    const int jx ( esid.six() - 1 ) ;
    const int jy ( esid.siy() - 1 ) ;
-   const int jz ( 2*( esid.zside() + 1 ) ) ;
+   const int jz ( esid.zside() + 1 ) ;
    const int pl ( esid.plane() - 1 ) ;
    const bool second ( 1 == pl ) ;
    const bool top   ( 19 < jy ) ;
    const bool negz  ( 0 == jz ) ;
 
-   return ( second ? jx/20 + jz + 2 :  // 2nd plane split along middle
-	    ( negz && !top ? jx/19 :  // 1st plane at neg z and bottom half split at six=19&20
-	      ( negz && top ? jx/21 : // 1st plane at neg z and top half split at six=21&22
-		( !negz && !top ? jx/21 + jz : jx/19 + jz ) ) ) ) ; // opposite at positive z
+   return ( second ? jx/20 + 3*jz :  // 2nd plane split along middle
+	    ( negz && !top ? jx/19 + 2 :  // 1st plane at neg z and bottom half split at six=19&20
+	      ( negz && top ? jx/21 + 2 : // 1st plane at neg z and top half split at six=21&22
+		( !negz && !top ? jx/21 + 4 : jx/19 + 4 ) ) ) ) ; // opposite at positive z
 }
 
 unsigned int
