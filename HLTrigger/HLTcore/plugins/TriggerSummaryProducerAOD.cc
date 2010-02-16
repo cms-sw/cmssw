@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/22 15:14:09 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/02/15 17:43:23 $
+ *  $Revision: 1.36 $
  *
  *  \author Martin Grunewald
  *
@@ -66,7 +66,8 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   fobs_(),
   keys_(),
   ids_(),
-  maskFilters_()
+  maskFilters_(),
+  collectionTokensEvent_()
 {
   if (pn_=="@") {
     // use tns
@@ -148,6 +149,8 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    const size_type nfob(fobs_.size());
    LogTrace("TriggerSummaryProducerAOD") << "Number of filter  objects found: " << nfob;
 
+   string tagLabel,tagInstance,tagProcess;
+
    ///
    /// check whether collection tags are recorded in filterobjects; if
    /// so, these are L3 collections to be packed up, and the
@@ -157,7 +160,6 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    maskFilters_.resize(nfob);
    filterTagsEvent_.clear();
    collectionTagsEvent_.clear();
-   string tag,tagLabel,tagInstance,tagProcess;
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
      maskFilters_[ifob]=false;
      const vector<string>& collectionTags_(fobs_[ifob]->getCollectionTagsAsStrings());
@@ -171,28 +173,29 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        for (size_type icol=0; icol!=ncol; ++icol) {
 	 // overwrite process name (usually not set)
 	 tokenizeTag(collectionTags_[icol],tagLabel,tagInstance,tagProcess);
-	 tag=tagLabel+":"+tagInstance+":"+pn_;
-	 collectionTagsEvent_.insert(tag);
+	 collectionTagsEvent_.insert(tagLabel+":"+tagInstance+":"+pn_);
        }
      }
    }
+   /// record for endJob printout
    collectionTagsGlobal_.insert(collectionTagsEvent_.begin(),collectionTagsEvent_.end());
    filterTagsGlobal_.insert(filterTagsEvent_.begin(),filterTagsEvent_.end());
 
    ///
    const size_type nc(collectionTagsEvent_.size());
+   collectionTokensEvent_.clear();
    LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << nc;
-   //   cout    << "Number of unique collections requested " << nc << endl;
    const InputStringSet::const_iterator cb(collectionTagsEvent_.begin());
    const InputStringSet::const_iterator ce(collectionTagsEvent_.end());
    for (InputStringSet::const_iterator ci=cb; ci!=ce; ++ci) {
+     tokenizeTag(*ci,tagLabel,tagInstance,tagProcess);
+     collectionTokensEvent_.push_back(InputTag(tagLabel,tagInstance,tagProcess));
      LogTrace("TriggerSummaryProducerAOD") << distance(cb,ci) << " " << *ci;
    }
 
    ///
    const size_type nf(filterTagsEvent_.size());
    LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << nf;
-   //   cout    << "Number of unique filters requested " << nf << endl;
    const InputStringSet::const_iterator fb(filterTagsEvent_.begin());
    const InputStringSet::const_iterator fe(filterTagsEvent_.end());
    for (InputStringSet::const_iterator fi=fb; fi!=fe; ++fi) {
@@ -281,33 +284,38 @@ void TriggerSummaryProducerAOD::fillTriggerObjectCollections(const edm::Event& i
   using namespace l1extra;
   using namespace trigger;
 
-  string tagLabel,tagInstance,tagProcess;
   vector<Handle<C> > collections;
   iEvent.getMany(selector_,collections);
-
   const size_type nc(collections.size());
-  for (size_type ic=0; ic!=nc; ++ic) {
-    const string& label    (collections[ic].provenance()->moduleLabel());
-    const string& instance (collections[ic].provenance()->productInstanceName());
-    const string& process  (collections[ic].provenance()->processName());
-    const string  collectionTag(label+":"+instance+":"+process);
 
-    const InputStringSet::const_iterator tb(collectionTagsEvent_.begin());
-    const InputStringSet::const_iterator te(collectionTagsEvent_.end());
-    for (InputStringSet::const_iterator ti=tb; ti!=te; ++ti) {
-      tokenizeTag(*ti,tagLabel,tagInstance,tagProcess);
+  const size_type nt(collectionTokensEvent_.size());
+
+  for (size_type ic=0; ic!=nc; ++ic) {
+    const Provenance& provenance(*(collections[ic].provenance()));
+    const string& label    (provenance.moduleLabel());
+    const string& instance (provenance.productInstanceName());
+    const string& process  (provenance.processName());
+
+    for (size_type it=0; it!=nt; ++it) {
+      const InputTag& Tag(collectionTokensEvent_[it]);
+      const string& tagLabel   (Tag.label());
+      const string& tagInstance(Tag.instance());
+      const string& tagProcess (Tag.process());
       if (
           (label   ==tagLabel   ) &&
           (instance==tagInstance) &&
           ((process ==tagProcess )||(tagProcess=="")||(pn_=="*"))
           ) {
 	const ProductID pid(collections[ic].provenance()->productID());
-	assert(offset_.find(pid)==offset_.end()); // else duplicate pid
+	if (offset_.find(pid)!=offset_.end()) {
+	  LogError("TriggerSummaryProducerAOD") << "Duplicate pid!";
+	}
 	offset_[pid]=toc_.size();
 	const size_type n(collections[ic]->size());
 	for (size_type i=0; i!=n; ++i) {
 	  fillTriggerObject( (*collections[ic])[i] );
 	}
+	const string collectionTag(label+":"+instance+":"+process);
 	tags_.push_back(collectionTag);
 	keys_.push_back(toc_.size());
 	break;
@@ -400,28 +408,29 @@ void TriggerSummaryProducerAOD::fillFilterObjectMembers(const edm::Event& iEvent
   using namespace l1extra;
   using namespace trigger;
 
-  assert(ids.size()==refs.size());
+  if (ids.size()!=refs.size()) {
+    LogError("TriggerSummaryProducerAOD") << "Vector length is different: "
+					  << ids.size() << " " << refs.size();
+  }
 
-  const size_type n(ids.size());
+  const size_type n(min(ids.size(),refs.size()));
   for (size_type i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
     if (offset_.find(pid)==offset_.end()) {
-      offset_[pid]=0;
       const string&    label(iEvent.getProvenance(pid).moduleLabel());
       const string& instance(iEvent.getProvenance(pid).productInstanceName());
       const string&  process(iEvent.getProvenance(pid).processName());
-      cout << "#### Error in TriggerSummaryProducerAOD::fillFilterObject (unknown pid):"
-	   << " FilterTag/Key: " << tag
-	   << "/" << i
-	   << " CollectionTag/Key: "
-	   << label+":"+instance+":"+process
-	   << "/" << refs[i].key()
-	   << " CollectionType: " << typeid(C).name()
-	   << endl;
+      LogError("TriggerSummaryProducerAOD")
+	<< "Uunknown pid:"
+	<< " FilterTag/Key: " << tag
+	<< "/" << i
+	<< " CollectionTag/Key: "
+	<< label+":"+instance+":"+process
+	<< "/" << refs[i].key()
+	<< " CollectionType: " << typeid(C).name();
+    } else {
+      fillFilterObjectMember(offset_[pid],ids[i],refs[i]);
     }
-    assert(offset_.find(pid)!=offset_.end()); // else unknown pid
-
-    fillFilterObjectMember(offset_[pid],ids[i],refs[i]);
   }
   return;
 

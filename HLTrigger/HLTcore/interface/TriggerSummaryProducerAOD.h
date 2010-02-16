@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2009/04/22 15:14:09 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/15 17:43:23 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -84,7 +84,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   /// the pointer to the current TriggerNamesService
   edm::service::TriggerNamesService* tns_;
 
-  ///
+  /// list of L3 collection labels
   InputStringSet                collectionTagsEvent_;
   InputStringSet                collectionTagsGlobal_;
   /// list of L3 filter labels
@@ -106,6 +106,9 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
 
   /// packing decision
   std::vector<bool> maskFilters_;
+
+  /// tokenized version using InputTag
+  std::vector<edm::InputTag> collectionTokensEvent_; 
 
 };
 #endif
