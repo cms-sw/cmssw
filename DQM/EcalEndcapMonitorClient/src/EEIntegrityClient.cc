@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/02/15 17:57:12 $
- * $Revision: 1.100 $
+ * $Date: 2010/02/15 22:51:25 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1031,11 +1031,15 @@ void EEIntegrityClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_channel") != 0 ) continue;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        int idcc = ecid.getID1() - 600;
         int ic = ecid.getID2();
 
-        int ie = (ic-1)/5;
-        int ip = (ic-1)%5;
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+
+        int ie = (ic-1)/5+1;
+        int ip = (ic-1)%5+1;
 
         UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
 
@@ -1053,13 +1057,17 @@ void EEIntegrityClient::analyze(void) {
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_TT") != 0 ) continue;
 
-        int ism = Numbers::iSM(ecid.getID1(), EcalEndcap);
+        int idcc = ecid.getID1() - 600;
         int itt = ecid.getID2();
 
-        int ie = itt - 68;
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
 
-        for ( int ip = 1; ip <= 5; ip++ ) {
-          UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+        for ( int ie = 5*(itt-68-1)+1; ie <= 5*(itt-68); ie++ ) {
+          for ( int ip = 1; ip <= 5; ip++ ) {
+            UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+          }
         }
 
       }
@@ -1070,7 +1078,7 @@ void EEIntegrityClient::analyze(void) {
 
 }
 
-const int  EEIntegrityClient::chNum [5][5] = {
+const int EEIntegrityClient::chNum[5][5] = {
   { 1,  2,  3,  4,  5},
   {10,  9,  8,  7,  6},
   {11, 12, 13, 14, 15},

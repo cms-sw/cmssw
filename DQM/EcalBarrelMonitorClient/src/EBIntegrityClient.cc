@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2010/02/15 14:14:14 $
- * $Revision: 1.222 $
+ * $Date: 2010/02/15 17:51:59 $
+ * $Revision: 1.223 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -946,8 +946,8 @@ void EBIntegrityClient::analyze(void) {
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
         int ic = ecid.getID2();
 
-        int ie = (ic-1)/5;
-        int ip = (ic-1)%5;
+        int ie = (ic-1)/5+1;
+        int ip = (ic-1)%5+1;
 
         UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
 
@@ -968,10 +968,10 @@ void EBIntegrityClient::analyze(void) {
         int ism = Numbers::iSM(ecid.getID1(), EcalBarrel); 
         int itt = ecid.getID2();
 
-        int ie = itt - 68;
-
-        for ( int ip = 1; ip <= 5; ip++ ) {
-          UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+        for ( int ie = 5*(itt-68-1)+1; ie <= 5*(itt-68); ie++ ) {
+          for ( int ip = 1; ip <= 5; ip++ ) {
+            UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+          }
         }
 
       }       
@@ -982,7 +982,7 @@ void EBIntegrityClient::analyze(void) {
 
 }
 
-const int  EBIntegrityClient::chNum [5][5] = {
+const int EBIntegrityClient::chNum[5][5] = {
   { 1,  2,  3,  4,  5},
   {10,  9,  8,  7,  6},
   {11, 12, 13, 14, 15},
