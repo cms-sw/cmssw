@@ -10,11 +10,14 @@ def initIOVWriter( process,
     from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
     initIOVWriter.outputDB = cms.Service("PoolDBOutputService",
                                          CondDBSetup,
-                                         BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#                                         BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                          connect = cms.string(outputDBConnect),
                                          toPut = cms.VPSet(cms.PSet(
         record = cms.string("L1TriggerKeyRcd"),
-        tag = cms.string("L1TriggerKey_" + tagBase))
+        tag = cms.string("L1TriggerKey_" + tagBase)),
+                                                           cms.PSet(
+        record = cms.string("L1TriggerKeyListRcd"),
+        tag = cms.string("L1TriggerKeyList_" + tagBase))
                                                            ))
     initIOVWriter.outputDB.DBParameters.authenticationPath = outputDBAuth
 
