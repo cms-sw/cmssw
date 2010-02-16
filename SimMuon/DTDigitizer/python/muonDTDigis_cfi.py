@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-simMuonDTDigis = cms.EDFilter("DTDigitizer",
+simMuonDTDigis = cms.EDProducer("DTDigitizer",
     # Velocity of signal propagation along the wire (cm/ns)
     # For the default value
     # cfr. CMS-IN 2000-021:   (2.56+-0.17)x1e8 m/s

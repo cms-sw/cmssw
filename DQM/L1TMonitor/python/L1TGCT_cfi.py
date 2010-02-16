@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tgct = cms.EDFilter("L1TGCT",
+l1tgct = cms.EDAnalyzer("L1TGCT",
     verbose = cms.untracked.bool(False),
     gctCentralJetsSource = cms.InputTag("l1GctHwDigis","cenJets","DQM"),
     gctNonIsoEmSource = cms.InputTag("l1GctHwDigis","nonIsoEm","DQM"),

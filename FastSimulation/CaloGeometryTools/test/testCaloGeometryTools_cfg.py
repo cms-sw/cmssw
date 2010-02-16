@@ -46,7 +46,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 process.source = cms.Source("EmptySource")
 
-process.prod = cms.EDFilter("testCaloGeometryTools")
+process.prod = cms.EDAnalyzer("testCaloGeometryTools")
 
 process.Timing = cms.Service("Timing")
 

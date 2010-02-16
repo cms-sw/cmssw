@@ -49,12 +49,12 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.prefer("PoolDBESSource")
-process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
+process.SiPixelCondObjOfflineReader = cms.EDAnalyzer("SiPixelCondObjOfflineReader",
     process.SiPixelGainCalibrationServiceParameters,
     fileName = cms.string('histos_Offline_startup.root')
 )
 
-process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
+process.SiPixelCondObjForHLTReader = cms.EDAnalyzer("SiPixelCondObjForHLTReader",
     process.SiPixelGainCalibrationServiceParameters
 )
 

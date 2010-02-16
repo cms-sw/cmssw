@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Energy scale correction for Hybrid SuperClusters
-correctedDynamicHybridSuperClusters = cms.EDFilter("EgammaSCCorrectionMaker",
+correctedDynamicHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
     corectedSuperClusterCollection = cms.string(''),
     sigmaElectronicNoise = cms.double(0.03),
     superClusterAlgo = cms.string('DynamicHybrid'),

@@ -8,7 +8,7 @@
 # 0=per channel, 1=triggerOR, 2=depthOR
 import FWCore.ParameterSet.Config as cms
 
-simHcalDigis = cms.EDFilter("HcalSimpleAmplitudeZS",
+simHcalDigis = cms.EDProducer("HcalSimpleAmplitudeZS",
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
     hbhe = cms.PSet(
         firstSample = cms.int32(4),

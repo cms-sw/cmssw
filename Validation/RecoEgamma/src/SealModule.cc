@@ -1,6 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 #include "Validation/RecoEgamma/interface/EgammaObjects.h"
 #include "Validation/RecoEgamma/interface/PhotonValidator.h"

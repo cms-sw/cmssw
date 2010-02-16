@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.test = cms.EDFilter("TestSuite",
+process.test = cms.EDAnalyzer("TestSuite",
     maxBunch = cms.int32(34567),
     BunchNr = cms.int32(12345),
     minBunch = cms.int32(23456),

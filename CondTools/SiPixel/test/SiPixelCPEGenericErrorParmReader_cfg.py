@@ -30,7 +30,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       connect = cms.string('sqlite_file:siPixelCPEGenericErrorParm.db')
                                       )
 
-process.reader = cms.EDFilter("SiPixelCPEGenericErrorParmReader")
+process.reader = cms.EDAnalyzer("SiPixelCPEGenericErrorParmReader")
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 

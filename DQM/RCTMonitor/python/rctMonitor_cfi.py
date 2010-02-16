@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rctmonitor = cms.EDFilter("RCTMonitor",
+rctmonitor = cms.EDAnalyzer("RCTMonitor",
     OutputFileName = cms.untracked.string('rctMonitor.root'), ## Name of root file for histograms
 
     #untracked InputTag rctSource  = l1RctEmulDigis // for MC file

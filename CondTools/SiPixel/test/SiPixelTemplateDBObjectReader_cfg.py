@@ -55,7 +55,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 process.PoolDBESSource.DBParameters.authenticationPath='.'
 process.PoolDBESSource.DBParameters.messageLevel=0
 
-process.reader = cms.EDFilter("SiPixelTemplateDBObjectReader",
+process.reader = cms.EDAnalyzer("SiPixelTemplateDBObjectReader",
                               siPixelTemplateCalibrationLocation = cms.string(
                              "CalibTracker/SiPixelESProducers"),
                               wantDetailedTemplateDBErrorOutput = cms.bool(wantDetailedOutput),

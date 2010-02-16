@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cosmicseedfinder = cms.EDFilter("CosmicSeedGenerator",
+cosmicseedfinder = cms.EDProducer("CosmicSeedGenerator",
     stereorecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
     originZPosition = cms.double(0.0),
     GeometricStructure = cms.untracked.string('STANDARD'), ##other choice: TIBD+

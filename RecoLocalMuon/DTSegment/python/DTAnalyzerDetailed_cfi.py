@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-DTAnalyzerDetailed = cms.EDFilter("DTAnalyzerDetailed",
+DTAnalyzerDetailed = cms.EDAnalyzer("DTAnalyzerDetailed",
     doHits = cms.bool(True),
     tTrigMode = cms.untracked.string('DTTTrigSyncFromDB'),
     recHits2DLabel = cms.string('dt2DSegments'),

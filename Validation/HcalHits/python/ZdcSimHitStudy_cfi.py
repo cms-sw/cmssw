@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-zdcSimHitStudy = cms.EDFilter("ZdcSimHitStudy",
+zdcSimHitStudy = cms.EDAnalyzer("ZdcSimHitStudy",
     ModuleLabel = cms.untracked.string('g4SimHits'),
     outputFile = cms.untracked.string(''),
     Verbose = cms.untracked.bool(False),

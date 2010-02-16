@@ -52,7 +52,7 @@ findSiElectrons = cms.EDProducer("SiStripElectronProducer",
 #  string TTRHBuilder       =   "WithTrackAngle"
 #  bool TrajectoryInEvent = false
 #} 
-associateSiElectronsWithTracks = cms.EDFilter("SiStripElectronAssociator",
+associateSiElectronsWithTracks = cms.EDProducer("SiStripElectronAssociator",
     siStripElectronCollection = cms.string('findSiElectronsInSiStrips'),
     trackCollection = cms.string(''),
     electronsLabel = cms.string('siStripElectrons'),

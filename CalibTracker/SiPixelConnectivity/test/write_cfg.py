@@ -32,7 +32,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.load("CalibTracker.SiPixelConnectivity.PixelToLNKAssociateFromAsciiESProducer_cfi")
 
-process.mapwriter = cms.EDFilter("SiPixelFedCablingMapWriter",
+process.mapwriter = cms.EDAnalyzer("SiPixelFedCablingMapWriter",
   record = cms.string('SiPixelFedCablingMapRcd'),
   associator = cms.untracked.string('PixelToLNKAssociateFromAscii')
 )

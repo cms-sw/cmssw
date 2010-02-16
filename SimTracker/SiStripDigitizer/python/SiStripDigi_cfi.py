@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from CalibTracker.SiStripESProducers.SiStripGainSimESProducer_cfi import *
 
-simSiStripDigis = cms.EDFilter("SiStripDigitizer",
+simSiStripDigis = cms.EDProducer("SiStripDigitizer",
                                #---SiLinearChargeDivider
                                DeltaProductionCut      = cms.double(0.120425),
                                APVpeakmode             = cms.bool(False), # also SiStripDigitizerAlgorithm

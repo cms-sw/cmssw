@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-esDigiToRaw = cms.EDFilter("ESDigiToRaw",
+esDigiToRaw = cms.EDProducer("ESDigiToRaw",
     debugMode = cms.untracked.bool(False),
     InstanceES = cms.string(''),
     Label = cms.string('simEcalPreshowerDigis'),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-siPixelRecHits = cms.EDFilter("SiPixelRecHitConverter",
+siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
     src = cms.InputTag("siPixelClusters"),
     # untracked string ClusterCollLabel   = "siPixelClusters"
     CPE = cms.string('PixelCPEGeneric'),

@@ -88,7 +88,7 @@ process.source = cms.Source("FlatRandomPtGunSource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.rctSave = cms.EDFilter("L1RCTSaveInput",
+process.rctSave = cms.EDAnalyzer("L1RCTSaveInput",
     hcalDigisLabel = cms.InputTag("hcalTriggerPrimitiveDigis"),
     useDebugTpgScales = cms.bool(False),
     rctTestInputFile = cms.untracked.string('rctSaveTest.txt'),

@@ -24,7 +24,7 @@ namespace edm {
 }
 
 /* Collaborating Class Declarations */
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 class DTSuperLayer;

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 

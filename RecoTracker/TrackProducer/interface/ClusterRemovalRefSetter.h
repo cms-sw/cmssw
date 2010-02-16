@@ -15,7 +15,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class ClusterRemovalRefSetter {
     public:

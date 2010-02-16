@@ -61,7 +61,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 
-process.testanalyzer = cms.EDFilter("testVertexAssociator",
+process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",
       cms.PSet(
 
               vertexCollection = cms.untracked.InputTag('offlinePrimaryVertices')

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import *
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
-pfRecoTauDiscriminationByTrackIsolation = cms.EDFilter("PFRecoTauDiscriminationByIsolation",
+pfRecoTauDiscriminationByTrackIsolation = cms.EDProducer("PFRecoTauDiscriminationByIsolation",
 
     PFTauProducer = cms.InputTag('pfRecoTauProducer'), #tau collection to discriminate
 

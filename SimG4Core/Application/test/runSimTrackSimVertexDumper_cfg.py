@@ -10,7 +10,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:myfile.root')
 )
 
-process.prod = cms.EDFilter("SimTrackSimVertexDumper",
+process.prod = cms.EDAnalyzer("SimTrackSimVertexDumper",
     moduleLabelTk = cms.untracked.string('g4SimHits'),
     moduleLabelVtx = cms.untracked.string('g4SimHits'),
     dumpHepMC = cms.untracked.bool(True),

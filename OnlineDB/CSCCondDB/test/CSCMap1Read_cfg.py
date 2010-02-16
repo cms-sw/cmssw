@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.read = cms.EDFilter("CSCMap1Read")
+process.read = cms.EDAnalyzer("CSCMap1Read")
 
 process.p = cms.Path(process.read)
 

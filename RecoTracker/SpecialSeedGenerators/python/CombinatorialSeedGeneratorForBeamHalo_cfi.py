@@ -67,7 +67,7 @@ layerList = cms.vstring(
     'TEC8_pos+TEC9_pos'
     )
 
-combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
+combinatorialbeamhaloseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(15.0), ##initial momentum in GeV !!!set to a lower value for slice test data
 
     ErrorRescaling = cms.double(50.0),

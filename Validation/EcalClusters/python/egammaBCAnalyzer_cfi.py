@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  Author: Michael A. Balazs, University of Virginia
-#  $Id: egammaBCAnalyzer_cfi.py,v 1.4 2008/06/17 12:27:24 ferriff Exp $
+#  $Id: egammaBCAnalyzer_cfi.py,v 1.5 2009/05/06 07:19:09 benigno Exp $
 #
 from Validation.EcalClusters.VerificationCommonParameters_cfi import *
-egammaBasicClusterAnalyzer = cms.EDFilter("EgammaBasicClusters",
+egammaBasicClusterAnalyzer = cms.EDAnalyzer("EgammaBasicClusters",
     VerificationCommonParameters,
     endcapBasicClusterCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     barrelBasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),

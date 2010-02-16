@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalRegionalEgammaFEDs = cms.EDFilter("EcalRawToRecHitRoI",
+ecalRegionalEgammaFEDs = cms.EDProducer("EcalRawToRecHitRoI",
     sourceTag = cms.InputTag("EcalRawToRecHitFacility"),
     EmJobPSet = cms.VPSet(cms.PSet(
         Source = cms.InputTag("l1extraParticles","Isolated"),

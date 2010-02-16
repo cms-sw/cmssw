@@ -26,7 +26,7 @@
 //
 // Original Author:  Devdatta MAJUMDER
 //         Created:  Thu Apr 10 19:55:14 CEST 2008
-// $Id: MCValidation.h,v 1.2 2010/01/06 12:39:47 fabstoec Exp $
+// $Id: MCValidation.h,v 1.3 2010/01/12 06:11:24 hegner Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

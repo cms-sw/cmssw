@@ -19,7 +19,7 @@ process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource")
 
 process.out = cms.OutputModule("AsciiOutputModule")
 
-process.prod = cms.EDFilter("ModuleInfo",
+process.prod = cms.EDAnalyzer("ModuleInfo",
     fromDDD = cms.bool(False)
 )
 

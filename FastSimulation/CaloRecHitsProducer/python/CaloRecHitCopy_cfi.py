@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-caloRecHitCopy = cms.EDFilter("CaloRecHitCopy",
+caloRecHitCopy = cms.EDProducer("CaloRecHitCopy",
     InputRecHitCollectionTypes = cms.vuint32(2, 3),
     OutputRecHitCollections = cms.vstring('EcalRecHitsEB', 
         'EcalRecHitsEE'),

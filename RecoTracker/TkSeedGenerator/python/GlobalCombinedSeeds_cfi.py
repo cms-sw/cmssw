@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-globalCombinedSeeds = cms.EDFilter("SeedCombiner",
+globalCombinedSeeds = cms.EDProducer("SeedCombiner",
     seedCollections = cms.VInputTag( 
         cms.InputTag("globalSeedsFromTripletsWithVertices"),
         cms.InputTag("globalSeedsFromPairsWithVertices"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-crackseedfinder = cms.EDFilter("CRackSeedGenerator",
+crackseedfinder = cms.EDProducer("CRackSeedGenerator",
                                matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                rphirecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                stereorecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),

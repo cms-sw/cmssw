@@ -24,7 +24,7 @@ import FWCore.ParameterSet.Config as cms
 # function:
 #
 # cleans rs Track list and put new list back in Event
-ctfTrackListCleaner = cms.EDFilter("RoadSearchTrackListCleaner",
+ctfTrackListCleaner = cms.EDProducer("RoadSearchTrackListCleaner",
     # minimum number of RecHits used in fit
     MinFound = cms.int32(8),
     # maximum chisq/dof

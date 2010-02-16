@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:myfile.root')
 )
 
-process.prod = cms.EDFilter("SimHitCaloHitDumper")
+process.prod = cms.EDAnalyzer("SimHitCaloHitDumper")
 
 process.p1 = cms.Path(process.prod)
 

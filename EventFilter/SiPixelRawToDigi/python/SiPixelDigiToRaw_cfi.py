@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-siPixelRawData = cms.EDFilter("SiPixelDigiToRaw",
+siPixelRawData = cms.EDProducer("SiPixelDigiToRaw",
     InputLabel = cms.InputTag("simSiPixelDigis")
 )
 

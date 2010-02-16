@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #values for correction
 from RecoMuon.TrackingTools.MuonErrorMatrixValues_cff import *
-muonErrorMatrixAdjuster = cms.EDFilter("MuonErrorMatrixAdjuster",
+muonErrorMatrixAdjuster = cms.EDProducer("MuonErrorMatrixAdjuster",
     #if replace is true this means error matrix from reco is replaced by new method of error matrix (reco minus sim of parameters to get the error)
     #if replace is false this means the error matrix from reco is rescaled by a factor
     rescale = cms.bool(True),

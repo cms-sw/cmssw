@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-calotowermaker = cms.EDFilter("CaloTowersCreator",
+calotowermaker = cms.EDProducer("CaloTowersCreator",
     # Energy threshold for EB 5x5 crystal inclusion [GeV]
     EBSumThreshold = cms.double(0.2),
     # Weighting factor for HF short-fiber readouts

@@ -106,7 +106,7 @@ process.source = cms.Source("PoolSource",
 process.dump = cms.EDFilter("EventContentAnalyzer")
 
 #    tracks = cms.string('RefitTracks'), 
-process.myanalysis = cms.EDFilter("SinglePionEfficiencyNew",
+process.myanalysis = cms.EDAnalyzer("SinglePionEfficiencyNew",
     HistOutFile = cms.untracked.string('SinglePionEfficiencyNew.root'),
     tracks = cms.string('selectHighPurity'), 
     pxltracks = cms.string('pixelTracks'),

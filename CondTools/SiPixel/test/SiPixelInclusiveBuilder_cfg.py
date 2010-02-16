@@ -165,7 +165,7 @@ process.SiPixelLorentzAngleSim = cms.EDFilter("SiPixelLorentzAngleDB",
 )
 
 ###### OFFLINE GAIN OBJECT ######
-process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
+process.SiPixelCondObjOfflineBuilder = cms.EDAnalyzer("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.00),
@@ -187,7 +187,7 @@ process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilde
     secondRocRowPedOffset = cms.double(0.0)
 )
 
-process.SiPixelCondObjOfflineBuilderSim = cms.EDFilter("SiPixelCondObjOfflineBuilder",
+process.SiPixelCondObjOfflineBuilderSim = cms.EDAnalyzer("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.00),
@@ -211,7 +211,7 @@ process.SiPixelCondObjOfflineBuilderSim = cms.EDFilter("SiPixelCondObjOfflineBui
 
 
 ##### HLT GAIN OBJECT #####
-process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
+process.SiPixelCondObjForHLTBuilder = cms.EDAnalyzer("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.00),
@@ -228,7 +228,7 @@ process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder"
     secondRocRowPedOffset = cms.double(0.0)
 )
 
-process.SiPixelCondObjForHLTBuilderSim = cms.EDFilter("SiPixelCondObjForHLTBuilder",
+process.SiPixelCondObjForHLTBuilderSim = cms.EDAnalyzer("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.00),

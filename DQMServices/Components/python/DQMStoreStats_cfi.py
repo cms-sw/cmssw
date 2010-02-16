@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-dqmStoreStats = cms.EDFilter("DQMStoreStats",
+dqmStoreStats = cms.EDAnalyzer("DQMStoreStats",
     statsDepth = cms.untracked.int32(1),
     pathNameMatch = cms.untracked.string('*'),
     dumpMemoryHistory = cms.untracked.bool( True ),                             

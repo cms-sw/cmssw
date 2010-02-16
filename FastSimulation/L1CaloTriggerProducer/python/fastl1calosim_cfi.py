@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-fastL1CaloSim = cms.EDFilter("FastL1CaloSim",
+fastL1CaloSim = cms.EDProducer("FastL1CaloSim",
     TowerEEScale = cms.double(1.0),
     HcalLUT = cms.FileInPath('CalibCalorimetry/CaloTPG/data/TPGcalcDecompress2.txt'),
     TowerEMLSB = cms.double(0.5),

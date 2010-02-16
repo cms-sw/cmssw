@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"

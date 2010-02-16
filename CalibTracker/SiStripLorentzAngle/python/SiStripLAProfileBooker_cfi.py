@@ -4,7 +4,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-sistripLAProfile = cms.EDFilter("SiStripLAProfileBooker",
+sistripLAProfile = cms.EDAnalyzer("SiStripLAProfileBooker",
 
     # input from trajectories
     Tracks = cms.InputTag("generalTracks"),

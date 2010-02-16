@@ -11,8 +11,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(SiStripRecHitMatcher);
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(SiStripRecHitMatcher);
 
 
 SiStripRecHitConverterAlgorithm::SiStripRecHitConverterAlgorithm(const edm::ParameterSet& conf) : 

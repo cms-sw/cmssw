@@ -8,7 +8,7 @@
 #include "TH1F.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Validation/RecoJets/plugins/CaloJetQualifier.h"
 

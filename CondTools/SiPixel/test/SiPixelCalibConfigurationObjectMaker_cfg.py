@@ -29,7 +29,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.SiPixelCalibConfigurationObjectMaker = cms.EDFilter("SiPixelCalibConfigurationObjectMaker",
+process.SiPixelCalibConfigurationObjectMaker = cms.EDAnalyzer("SiPixelCalibConfigurationObjectMaker",
     inputFileName = cms.untracked.string('/afs/cern.ch/cms/Tracker/Pixel/forward/FPIX/HC+Z1/calib_PixelAlive_281.dat')
 )
 

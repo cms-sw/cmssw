@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.tpgcheck = cms.EDFilter("TPGCheck",
+process.tpgcheck = cms.EDAnalyzer("TPGCheck",
     Producer = cms.string(''),
     Label = cms.string('simEcalTriggerPrimitiveDigis')
 )

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-trackerSeedValidator = cms.EDFilter("TrackerSeedValidator",
+trackerSeedValidator = cms.EDAnalyzer("TrackerSeedValidator",
     associators = cms.vstring('TrackAssociatorByHits'),
     useFabsEta = cms.bool(False),
     minpT = cms.double(-1),

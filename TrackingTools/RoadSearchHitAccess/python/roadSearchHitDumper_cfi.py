@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-roadSearchHitDumper = cms.EDFilter("RoadSearchHitDumper",
+roadSearchHitDumper = cms.EDAnalyzer("RoadSearchHitDumper",
     stereoStripRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
     rphiStripRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
     # rings service label

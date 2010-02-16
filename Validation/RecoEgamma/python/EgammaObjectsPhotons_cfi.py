@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EgammaObjectsProducerPhotons = cms.EDFilter("EgammaObjects",
+EgammaObjectsProducerPhotons = cms.EDAnalyzer("EgammaObjects",
     particleID = cms.int32(22),
     hist_min_EOverTruth = cms.double(0.5),
     hist_max_deltaEta = cms.double(0.05),

@@ -11,7 +11,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('/tmp/rougny/histos.root')
                                    )
-process.readfileOffline = cms.EDFilter("SiPixelGainCalibrationReadDQMFile",
+process.readfileOffline = cms.EDAnalyzer("SiPixelGainCalibrationReadDQMFile",
 #    supportedProtocols = cms.vstring('rfio'),
     inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
     record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),
@@ -19,7 +19,7 @@ process.readfileOffline = cms.EDFilter("SiPixelGainCalibrationReadDQMFile",
     badChi2Prob = cms.untracked.double(0.00001)                                       
 )
 
-process.readfileHLT = cms.EDFilter("SiPixelGainCalibrationReadDQMFile",
+process.readfileHLT = cms.EDAnalyzer("SiPixelGainCalibrationReadDQMFile",
 #    supportedProtocols = cms.vstring('rfio'),
     inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
     record = cms.untracked.string('SiPixelGainCalibrationForHLTRcd'),

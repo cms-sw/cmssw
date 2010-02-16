@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
-process.recalrechit = cms.EDFilter("HcalRecHitRecalib",
+process.recalrechit = cms.EDProducer("HcalRecHitRecalib",
     hbheInput = cms.InputTag("hbhereco"),
     RecalibHFHitCollection = cms.string('RecalibHF'),
     hfInput = cms.InputTag("hfreco"),

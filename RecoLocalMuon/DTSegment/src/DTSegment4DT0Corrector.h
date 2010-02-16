@@ -4,13 +4,13 @@
 /** \class DTSegment4DT0Corrector
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2009/03/09 13:19:54 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/03/09 15:32:04 $
+ *  $Revision: 1.1 $
  * \author Mario Pelliccioni - INFN Torino <pellicci@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 
 namespace edm {

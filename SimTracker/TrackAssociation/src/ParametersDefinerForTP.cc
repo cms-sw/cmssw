@@ -1,5 +1,5 @@
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -66,4 +66,4 @@ ParticleBase::Point ParametersDefinerForTP::vertex(const edm::Event& iEvent, con
 }
 
 
-EVENTSETUP_DATA_REG(ParametersDefinerForTP);
+TYPELOOKUP_DATA_REG(ParametersDefinerForTP);

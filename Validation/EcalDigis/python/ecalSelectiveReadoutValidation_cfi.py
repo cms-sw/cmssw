@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalSelectiveReadoutValidation = cms.EDFilter("EcalSelectiveReadoutValidation",
+ecalSelectiveReadoutValidation = cms.EDAnalyzer("EcalSelectiveReadoutValidation",
     #Input collection names:
     EbDigiCollection = cms.InputTag("simEcalDigis","ebDigis"),
     EeDigiCollection = cms.InputTag("simEcalDigis","eeDigis"),

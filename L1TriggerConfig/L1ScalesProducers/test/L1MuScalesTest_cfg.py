@@ -12,7 +12,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.l1muscalestest = cms.EDFilter("L1MuScalesTester")
+process.l1muscalestest = cms.EDAnalyzer("L1MuScalesTester")
 
 process.p = cms.Path(process.l1muscalestest)
 process.L1MuTriggerScalesRcdSource.iovIsRunNotTime = False

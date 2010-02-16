@@ -24,7 +24,7 @@ process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.siStripCablingTrackerMap = cms.EDFilter("SiStripCablingTrackerMap")
+process.siStripCablingTrackerMap = cms.EDAnalyzer("SiStripCablingTrackerMap")
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(50908),

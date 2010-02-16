@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-castorMonitor = cms.EDFilter("CastorMonitorModule",
+castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
 
                            ### GLOBAL VARIABLES
                            debug = cms.untracked.int32(1), # make debug an int so that different

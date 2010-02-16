@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltL3TrajectorySeedFromL1 = cms.EDFilter("TSGFromL1Muon",
+hltL3TrajectorySeedFromL1 = cms.EDProducer("TSGFromL1Muon",
     FilterPSet = cms.PSet(
         nSigmaInvPtTolerance = cms.double(2.0),
         nSigmaTipMaxTolerance = cms.double(3.0),

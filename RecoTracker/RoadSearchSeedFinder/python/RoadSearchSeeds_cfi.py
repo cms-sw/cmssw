@@ -13,7 +13,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # produces RoadSearchSeeds for seeding track reconstruction 
 #
-roadSearchSeeds = cms.EDFilter("RoadSearchSeedFinder",
+roadSearchSeeds = cms.EDProducer("RoadSearchSeedFinder",
     #***top-bottom
     AllPositiveOnly = cms.bool(False),
     AllNegativeOnly = cms.bool(False),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcpacker = cms.EDFilter("RPCPackingModule",
+rpcpacker = cms.EDProducer("RPCPackingModule",
   InputLabel = cms.InputTag("simMuonRPCDigis")
 )
 

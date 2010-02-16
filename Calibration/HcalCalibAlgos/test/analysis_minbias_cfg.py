@@ -45,7 +45,7 @@ process.source = cms.Source("PoolSource",
 )
 
 
-process.minbiasana = cms.EDFilter("Analyzer_minbias",
+process.minbiasana = cms.EDAnalyzer("Analyzer_minbias",
     HistOutFile = cms.untracked.string('analysis_minbias_Full.root'),
     hbheInputMB = cms.InputTag("hbherecoMB"),
     hoInputMB = cms.InputTag("horecoMB"),

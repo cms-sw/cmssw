@@ -59,7 +59,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.ipCalib = cms.EDFilter("ImpactParameterCalibration",
+process.ipCalib = cms.EDAnalyzer("ImpactParameterCalibration",
     writeToDB = cms.bool(False),
     writeToBinary = cms.bool(False),
     nBins = cms.int32(10000),

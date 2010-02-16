@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-roadSearchSeedDumper = cms.EDFilter("RoadSearchSeedDumper",
+roadSearchSeedDumper = cms.EDAnalyzer("RoadSearchSeedDumper",
     RingsLabel = cms.string(''),
     RoadSearchSeedInputTag = cms.InputTag("roadSearchSeeds")
 )

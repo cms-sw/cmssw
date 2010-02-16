@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # DQM Environment
-dqmEnv = cms.EDFilter("DQMEventInfo",
+dqmEnv = cms.EDAnalyzer("DQMEventInfo",
     # put your subsystem name here (this goes into the foldername)
     subSystemFolder = cms.untracked.string('YourSubsystem'),
     # set the window for eventrate calculation (in minutes)
@@ -11,7 +11,7 @@ dqmEnv = cms.EDFilter("DQMEventInfo",
 )
 
 # DQM file saver module
-dqmSaver = cms.EDFilter("DQMFileSaver",
+dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     # Possible conventions are "Online", "Offline" and "RelVal".
     convention = cms.untracked.string('Offline'),
     # Name of the producer.

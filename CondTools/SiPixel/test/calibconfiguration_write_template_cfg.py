@@ -25,7 +25,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.SiPixelCalibConfigurationObjectMaker = cms.EDFilter("SiPixelCalibConfigurationObjectMaker",
+process.SiPixelCalibConfigurationObjectMaker = cms.EDAnalyzer("SiPixelCalibConfigurationObjectMaker",
     inputFileName = cms.untracked.string('PIXELFILENAME')
 )
 

@@ -64,7 +64,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 
-process.testanalyzer = cms.EDFilter("testVertexAssociator",
+process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",
       process.vertexClassifier,                              
       cms.PSet(
 

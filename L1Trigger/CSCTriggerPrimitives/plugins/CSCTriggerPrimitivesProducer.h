@@ -17,8 +17,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2007/04/19 10:25:03 $
- * $Revision: 1.1 $
+ * $Date: 2009/03/24 14:11:36 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -26,7 +26,7 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 class CSCTriggerPrimitivesBuilder;
 

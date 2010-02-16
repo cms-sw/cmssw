@@ -46,7 +46,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.TrackReader = cms.EDFilter("TrackReader",
+process.TrackReader = cms.EDAnalyzer("TrackReader",
                                    InputLabel = cms.InputTag("generalTracks"),
                                    TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
                                    MuonRecHitBuilder = cms.string('MuonRecHitBuilder')

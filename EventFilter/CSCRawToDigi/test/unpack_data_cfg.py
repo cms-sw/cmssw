@@ -97,7 +97,7 @@ process.source = cms.Source("PoolSource",
 process.DQMStore = cms.Service("DQMStore")
 process.load("SimMuon.CSCDigitizer.cscDigiDump_cfi")
 
-process.muonCSCDigis = cms.EDFilter("CSCDCCUnpacker",
+process.muonCSCDigis = cms.EDProducer("CSCDCCUnpacker",
     PrintEventNumber = cms.untracked.bool(False),
     # Use CSC examiner for corrupt or semi-corrupt data to avoid unpacker crashes
     UseExaminer = cms.untracked.bool(True),

@@ -31,7 +31,7 @@ from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
-process.triplets = cms.EDFilter("HitTripletProducer",
+process.triplets = cms.EDProducer("HitTripletProducer",
   OrderedHitsFactoryPSet = cms.PSet(
     ComponentName = cms.string("StandardHitTripletGenerator"),
     SeedingLayers = cms.string("PixelLayerTriplets"),

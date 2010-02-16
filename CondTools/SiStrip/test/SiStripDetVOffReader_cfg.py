@@ -36,7 +36,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.TrackerDigiGeometryESModule.applyAlignment = False
 
-process.fedcablingreader = cms.EDFilter("SiStripDetVOffReader")
+process.fedcablingreader = cms.EDAnalyzer("SiStripDetVOffReader")
 
 process.p1 = cms.Path(process.fedcablingreader)
 

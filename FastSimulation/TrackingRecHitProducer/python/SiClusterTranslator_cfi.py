@@ -1,3 +1,3 @@
 import FWCore.ParameterSet.Config as cms
 
-siClusterTranslator = cms.EDFilter("SiClusterTranslator")
+siClusterTranslator = cms.EDProducer("SiClusterTranslator")

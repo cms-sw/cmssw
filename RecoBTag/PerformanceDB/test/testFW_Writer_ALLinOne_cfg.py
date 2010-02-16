@@ -26,7 +26,7 @@ cms.PSet(
                       
 )
 
-process.mywriter = cms.EDFilter("PhysicsPerformanceDBWriterFromFile_WPandPayload",
+process.mywriter = cms.EDAnalyzer("PhysicsPerformanceDBWriterFromFile_WPandPayload",
                                 inputTxtFile = cms.untracked.string('tableinput_ALL.txt'),
                                 RecordPayload = cms.untracked.string('pippo1'),
                                 RecordWP = cms.untracked.string('pippo2')

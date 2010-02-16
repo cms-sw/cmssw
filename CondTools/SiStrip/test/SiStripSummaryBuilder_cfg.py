@@ -43,7 +43,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 #      debug = cms.untracked.bool(False))
 #) 
 
-process.prod = cms.EDFilter("SiStripSummaryBuilder",
+process.prod = cms.EDAnalyzer("SiStripSummaryBuilder",
  
    histoList = cms.VPSet(
      

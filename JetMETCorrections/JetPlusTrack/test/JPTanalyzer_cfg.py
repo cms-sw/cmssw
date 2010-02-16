@@ -138,7 +138,7 @@ process.source = cms.Source("PoolSource",
 
 process.dump = cms.EDFilter("EventContentAnalyzer")
 
-process.myanalysis = cms.EDFilter("JPTAnalyzer",
+process.myanalysis = cms.EDAnalyzer("JPTAnalyzer",
     HistOutFile = cms.untracked.string('analysis.root'),
     calojets = cms.string('iterativeCone5CaloJets'),
     zspjets = cms.string('ZSPJetCorJetIcone5'),

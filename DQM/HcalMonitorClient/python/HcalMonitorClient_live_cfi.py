@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalClient = cms.EDFilter("HcalMonitorClient",
+hcalClient = cms.EDAnalyzer("HcalMonitorClient",
     runningStandalone = cms.untracked.bool(False),
     digiErrorFrac = cms.untracked.double(0.05),
     TrigPrimMonitor = cms.untracked.bool(True),

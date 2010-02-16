@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.33 2009/11/16 01:10:22 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.34 2009/11/18 08:47:24 hdyoo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -49,7 +49,7 @@ Implementation:
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"

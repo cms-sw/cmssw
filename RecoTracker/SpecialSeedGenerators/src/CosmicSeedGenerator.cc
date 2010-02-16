@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 

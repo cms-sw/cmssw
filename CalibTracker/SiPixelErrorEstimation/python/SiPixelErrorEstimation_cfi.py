@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-PixelErrorEstimation = cms.EDFilter("SiPixelErrorEstimation",
+PixelErrorEstimation = cms.EDAnalyzer("SiPixelErrorEstimation",
     # The type of particle that the simHit associated with recHits should be
     genType = cms.int32(13),
     # Replace  "ctfWithMaterialTracks" with "generalTracks"

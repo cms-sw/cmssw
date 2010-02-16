@@ -13,8 +13,8 @@ process.source = cms.Source("EmptySource")
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.test1 = cms.EDFilter("RPCGEO")
-process.test2 = cms.EDFilter("RPCGeometryAnalyzer")
+process.test1 = cms.EDAnalyzer("RPCGEO")
+process.test2 = cms.EDAnalyzer("RPCGeometryAnalyzer")
 
 process.p = cms.Path(process.test1+process.test2)
 

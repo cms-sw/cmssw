@@ -29,7 +29,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.dbCopy = cms.EDFilter("EcalTestDevDB",
+process.dbCopy = cms.EDAnalyzer("EcalTestDevDB",
     lastRun = cms.string('5'),
     timetype = cms.string('runnumber'),
     firstRun = cms.string('1'),

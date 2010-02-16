@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gctDigiToRaw = cms.EDFilter("GctDigiToRaw",
+gctDigiToRaw = cms.EDProducer("GctDigiToRaw",
     verbose = cms.untracked.bool(False),
     packRctCalo = cms.untracked.bool(True),
     gctFedId = cms.int32(745),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-globalhitsprodhist = cms.EDFilter("GlobalHitsProdHist",
+globalhitsprodhist = cms.EDProducer("GlobalHitsProdHist",
     MuonRpcSrc = cms.InputTag("g4SimHits","MuonRPCHits"),
     PxlBrlHighSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelHighTof"),
     SiTOBLowSrc = cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"),

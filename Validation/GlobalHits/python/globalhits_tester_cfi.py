@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-globalhitstest = cms.EDFilter("GlobalHitsTester",
+globalhitstest = cms.EDAnalyzer("GlobalHitsTester",
     # 1 provides basic output
     # 2 provides output of the fill step + 1
     # 3 provides output of the store step + 2

@@ -65,7 +65,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 
-process.prodPU = cms.EDFilter("producePileUpEvents",
+process.prodPU = cms.EDProducer("producePileUpEvents",
     PUParticleFilter = cms.PSet(
         # Protons with energy larger than EProton (GeV) are all kept
         EProton = cms.double(5000.0),

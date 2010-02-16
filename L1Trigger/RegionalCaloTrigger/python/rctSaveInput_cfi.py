@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rctSaveInput = cms.EDFilter("L1RCTSaveInput",
+rctSaveInput = cms.EDAnalyzer("L1RCTSaveInput",
     hcalDigisLabel = cms.InputTag("hcalTriggerPrimitiveDigis"),
     useDebugTpgScales = cms.bool(False),
     rctTestInputFile = cms.untracked.string('rctSaveTest.txt'),

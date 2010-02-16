@@ -8,7 +8,7 @@ process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "CRAFT_ALL_V5::All"
 
-process.insertNoisyandDead = cms.EDFilter("SiPixelGainCalibrationRejectNoisyAndDead",
+process.insertNoisyandDead = cms.EDAnalyzer("SiPixelGainCalibrationRejectNoisyAndDead",
     #record = cms.untracked.string('SiPixelGainCalibrationOfflineRcd'),                
     record = cms.untracked.string('SiPixelGainCalibrationForHLTRcd'),                  
     debug = cms.untracked.bool(False)              

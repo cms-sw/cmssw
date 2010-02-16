@@ -45,7 +45,7 @@ process.QualityReader = cms.ESSource("PoolDBESSource",
 
 process.es_prefer_QualityReader = cms.ESPrefer("PoolDBESSource","QualityReader")
 
-process.BadModuleReader = cms.EDFilter("SiPixelBadModuleReader",
+process.BadModuleReader = cms.EDAnalyzer("SiPixelBadModuleReader",
     printDebug = cms.untracked.uint32(1)
 )
 

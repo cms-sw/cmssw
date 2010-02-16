@@ -17,7 +17,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     read = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
 )
 
-process.readstruct =  cms.EDFilter("SiPixelFedCablingMapAnalyzer")
+process.readstruct =  cms.EDAnalyzer("SiPixelFedCablingMapAnalyzer")
 
 process.p = cms.Path(process.readstruct)
 

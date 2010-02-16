@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1bias = cms.EDFilter("L1EmulBias",
+l1bias = cms.EDProducer("L1EmulBias",
     ETPsource = cms.InputTag("ecalTriggerPrimitiveDigis"),
     HTPsource = cms.InputTag("hcalTriggerPrimitiveDigis"),
     RCTsource = cms.InputTag("rctDigis"),

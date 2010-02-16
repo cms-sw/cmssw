@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalDigiDisplay = cms.EDFilter("EcalDigiDisplay",
+ecalDigiDisplay = cms.EDAnalyzer("EcalDigiDisplay",
     # requested EBs 
     requestedEbs = cms.untracked.vstring('none'),
     eeDigiCollection = cms.string('eeDigis'),

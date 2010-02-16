@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-subdetFED = cms.EDFilter("SubdetFEDSelector",
+subdetFED = cms.EDProducer("SubdetFEDSelector",
     rawInputLabel = cms.InputTag("rawDataCollector"),
     getSiPixel = cms.bool(True),
     getHCAL = cms.bool(True),

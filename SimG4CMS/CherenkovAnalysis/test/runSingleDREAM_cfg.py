@@ -68,7 +68,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     sourceSeed = cms.untracked.uint32(135799753)
 )
 
-process.analyzer = cms.EDFilter("CherenkovAnalysis",
+process.analyzer = cms.EDAnalyzer("CherenkovAnalysis",
     maxEnergy = cms.double(2.0),
     caloHitSource = cms.InputTag("g4SimHits","EcalHitsEB"),
     nBinsEnergy = cms.uint32(50)

@@ -32,7 +32,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:dbfile.db')
 )
 
-process.prod = cms.EDFilter("SiStripBadComponentsDQMServiceReader",
+process.prod = cms.EDAnalyzer("SiStripBadComponentsDQMServiceReader",
                             printDebug = cms.untracked.bool(True)
 )
 

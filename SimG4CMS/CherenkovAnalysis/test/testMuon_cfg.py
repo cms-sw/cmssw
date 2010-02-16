@@ -91,7 +91,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     sourceSeed = cms.untracked.uint32(135799753)
 )
 
-process.analyzer = cms.EDFilter("XtalDedxAnalysis",
+process.analyzer = cms.EDAnalyzer("XtalDedxAnalysis",
     caloHitSource = cms.InputTag("g4SimHits","HcalHits"),
     EnergyMax = cms.double(200.0)
 )

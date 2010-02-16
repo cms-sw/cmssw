@@ -13,12 +13,12 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/14 22:00:00 $
-// $Revision: 1.1 $
+// $Date: 2006/01/15 01:01:25 $
+// $Revision: 1.2 $
 //
 
 #include "RecoTracker/RoadMapRecord/interface/Roads.h"
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(Roads);
+TYPELOOKUP_DATA_REG(Roads);

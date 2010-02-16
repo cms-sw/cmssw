@@ -22,7 +22,7 @@ process.Timing = cms.Service("Timing")
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
 
-process.ReadLocalMeasurement = cms.EDFilter("ReadRecHit",
+process.ReadLocalMeasurement = cms.EDAnalyzer("ReadRecHit",
     VerbosityLevel = cms.untracked.int32(1),
     RecHitProducer = cms.string('siStripMatchedRecHits')
 )

@@ -51,7 +51,7 @@ layerInfo = cms.PSet(
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     )
 )
-combinatorialcosmicseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
+combinatorialcosmicseedfinder = cms.EDProducer("CtfSpecialSeedGenerator",
     SeedMomentum = cms.double(5.0), ##initial momentum in GeV !!!set to a lower value for slice test data
 
     ErrorRescaling = cms.double(50.0),

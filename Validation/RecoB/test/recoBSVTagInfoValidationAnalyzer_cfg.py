@@ -29,7 +29,7 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 
-process.svTagInfoValidationAnalyzer = cms.EDFilter("recoBSVTagInfoValidationAnalyzer",
+process.svTagInfoValidationAnalyzer = cms.EDAnalyzer("recoBSVTagInfoValidationAnalyzer",
     process.vertexClassifier,
     svTagInfoProducer = cms.untracked.InputTag('secondaryVertexTagInfos')
 )

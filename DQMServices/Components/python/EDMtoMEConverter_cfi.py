@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EDMtoMEConverter = cms.EDFilter("EDMtoMEConverter",
+EDMtoMEConverter = cms.EDAnalyzer("EDMtoMEConverter",
     Name = cms.untracked.string('EDMtoMEConverter'),
     Verbosity = cms.untracked.int32(0), # 0 provides no output
                                         # 1 provides basic output

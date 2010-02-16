@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:myfile.root')
 )
 
-process.prod = cms.EDFilter("SimDigiDumper",
+process.prod = cms.EDAnalyzer("SimDigiDumper",
     MuCSCStripSrc = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
     MuDTSrc = cms.InputTag("simMuonDTDigis"),
     HCalDigi = cms.InputTag("simHcalDigis"),

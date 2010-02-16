@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackCorrector = cms.EDFilter("NuclearTrackCorrector",
+TrackCorrector = cms.EDProducer("NuclearTrackCorrector",
     InputTrajectory = cms.string('TrackRefitter'),
     KeepOnlyCorrectedTracks = cms.int32(0),
     InputNuclearSeed = cms.string('nuclearSeed'),

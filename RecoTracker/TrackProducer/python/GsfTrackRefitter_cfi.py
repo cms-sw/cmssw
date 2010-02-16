@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-GsfTrackRefitter = cms.EDFilter("GsfTrackRefitter",
+GsfTrackRefitter = cms.EDProducer("GsfTrackRefitter",
     src = cms.InputTag("pixelMatchGsfFit"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     Fitter = cms.string('GsfElectronFittingSmoother'),

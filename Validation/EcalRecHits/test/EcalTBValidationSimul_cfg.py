@@ -11,7 +11,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:./ECALH4TB_detsim_hits.root')
 )
 
-process.tbValidSimul = cms.EDFilter("EcalTBValidation",
+process.tbValidSimul = cms.EDAnalyzer("EcalTBValidation",
     rootfile = cms.untracked.string('EcalTBValidationSimul.root'),
     eventHeaderProducer = cms.string('SimEcalEventHeader'),
     hitProducer = cms.string('ecalTBSimWeightUncalibRecHit'),

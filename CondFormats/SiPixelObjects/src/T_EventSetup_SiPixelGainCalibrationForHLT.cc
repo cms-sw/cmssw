@@ -1,4 +1,4 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(SiPixelGainCalibrationForHLT);
+TYPELOOKUP_DATA_REG(SiPixelGainCalibrationForHLT);

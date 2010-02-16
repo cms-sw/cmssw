@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-dqmProvInfo = cms.EDFilter("DQMProvInfo",
+dqmProvInfo = cms.EDAnalyzer("DQMProvInfo",
     subSystemFolder = cms.untracked.string('Info'),
     provInfoFolder = cms.untracked.string('ProvInfo')
 )

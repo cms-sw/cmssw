@@ -15,7 +15,7 @@ from DQMOffline.RecoB.bTagSoftLeptonByPtAnalysis_cff import *
 from DQMOffline.RecoB.bTagSoftLeptonByIPAnalysis_cff import *
 
 from DQMOffline.RecoB.bTagCommon_cff import *
-bTagAnalysis = cms.EDFilter("BTagPerformanceAnalyzerOnData",
+bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
     bTagCommonBlock,
     finalizeOnly = cms.bool(False),
     finalizePlots = cms.bool(True),

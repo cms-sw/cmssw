@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tEventInfoClient = cms.EDFilter("L1TEventInfoClient",
+l1tEventInfoClient = cms.EDAnalyzer("L1TEventInfoClient",
     prescaleLS = cms.untracked.int32(-1),
     monitorDir = cms.untracked.string(''),
     prescaleEvt = cms.untracked.int32(1),

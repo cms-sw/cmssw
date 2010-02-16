@@ -28,7 +28,7 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.ipCalib = cms.EDFilter("ImpactParameterCalibration",
+process.ipCalib = cms.EDAnalyzer("ImpactParameterCalibration",
     writeToDB = cms.bool(True),
     writeToBinary = cms.bool(False),
     calibFile3d = cms.FileInPath('RecoBTag/ImpactParameterLearning/test/3d.xml.new'),

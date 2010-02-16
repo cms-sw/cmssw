@@ -31,7 +31,7 @@ process.source.Pmax = 100.
 
 
 
-process.test = cms.EDFilter("testEvent",
+process.test = cms.EDAnalyzer("testEvent",
     # necessary to access true particles 
     ParticleFilter = cms.PSet(
         # All protons with an energy larger with EProton (Gev) are kept

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # It is possible to merge collections from the current process only
 # This switch is needed in case a FEDRawDataCollection is already 
 # present but is not wanted 
-rawDataCollector = cms.EDFilter("RawDataCollectorModule",
+rawDataCollector = cms.EDProducer("RawDataCollectorModule",
     currentProcessOnly = cms.bool(True)
 )
 

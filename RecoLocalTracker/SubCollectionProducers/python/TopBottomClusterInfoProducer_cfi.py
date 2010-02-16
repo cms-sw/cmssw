@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-topBottomClusterInfoProducer = cms.EDFilter("TopBottomClusterInfoProducer",
+topBottomClusterInfoProducer = cms.EDProducer("TopBottomClusterInfoProducer",
     stripClustersOld = cms.InputTag("siStripClusters"),
     pixelClustersOld = cms.InputTag("siPixelClusters"),
     stripClustersNew = cms.InputTag("siStripClustersTop"),

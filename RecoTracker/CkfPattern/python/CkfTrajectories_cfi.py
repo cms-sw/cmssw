@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # This cfi should be included to run the CkfTrajectoryMaker 
 #
-ckfTrajectories = cms.EDFilter("CkfTrajectoryMaker",
+ckfTrajectories = cms.EDProducer("CkfTrajectoryMaker",
     # set it as "none" to avoid redundant seed cleaner
     RedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     TrajectoryCleaner = cms.string('TrajectoryCleanerBySharedHits'),

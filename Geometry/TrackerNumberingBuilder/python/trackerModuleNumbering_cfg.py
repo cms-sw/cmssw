@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 #process.print = cms.OutputModule("AsciiOutputModule")
 
-process.prod = cms.EDFilter("ModuleNumbering")
+process.prod = cms.EDAnalyzer("ModuleNumbering")
 
 process.p1 = cms.Path(process.prod)
 #process.ep = cms.EndPath(process.print)

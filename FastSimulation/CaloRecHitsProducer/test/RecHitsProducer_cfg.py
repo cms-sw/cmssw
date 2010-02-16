@@ -88,7 +88,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test-cfg.root')
 )
 
-process.digiCheck = cms.EDFilter("DigiCheck")
+process.digiCheck = cms.EDAnalyzer("DigiCheck")
 
 process.p1 = cms.Path(process.famosWithCaloHits*process.digiCheck)
 

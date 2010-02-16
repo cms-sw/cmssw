@@ -3,8 +3,8 @@
 
 /** \class TrackerSeedCleaner
  *  Seeds Cleaner based on direction
- *  $Date: 2008/03/21 14:48:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/09 05:14:39 $
+ *  $Revision: 1.3 $
     \author A. Grelli -  Purdue University, Pavia University
  */ 
 
@@ -14,7 +14,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"

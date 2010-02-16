@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.27 2009/12/06 18:22:21 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.28 2009/12/07 18:47:31 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -12,7 +12,7 @@
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"

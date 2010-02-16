@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-FamosRecHitAnalysis = cms.EDFilter("FamosRecHitAnalysis",
+FamosRecHitAnalysis = cms.EDAnalyzer("FamosRecHitAnalysis",
     RecHits = cms.InputTag("trackerGSRecHitTranslator"),
     ROUList = cms.VInputTag(cms.InputTag("mix","famosSimHitsTrackerHits")),
     RootFileName = cms.string('FamosRecHitAnalysis.root'),

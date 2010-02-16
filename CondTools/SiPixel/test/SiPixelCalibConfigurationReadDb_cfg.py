@@ -13,7 +13,7 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
-process.readcalib = cms.EDFilter("SiPixelCalibConfigurationReadDb",
+process.readcalib = cms.EDAnalyzer("SiPixelCalibConfigurationReadDb",
                                  verbosity=cms.bool(False)
                                  )
 

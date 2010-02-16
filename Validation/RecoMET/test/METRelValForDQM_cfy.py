@@ -41,7 +41,7 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
-process.fileSaver = cms.EDFilter("METFileSaver",
+process.fileSaver = cms.EDAnalyzer("METFileSaver",
                                  OutputFile = cms.untracked.string('METTester.root')
 ) 
 process.p = cms.Path(process.fileSaver*

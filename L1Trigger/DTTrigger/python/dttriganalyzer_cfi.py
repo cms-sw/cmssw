@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dttriganalyzer = cms.EDFilter("DTTrigTest",
+dttriganalyzer = cms.EDAnalyzer("DTTrigTest",
     debug = cms.untracked.bool(False),
     tTrigModeConfig = cms.PSet(
         debug = cms.untracked.bool(False),

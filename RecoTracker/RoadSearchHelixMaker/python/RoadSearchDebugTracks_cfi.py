@@ -24,7 +24,7 @@ import FWCore.ParameterSet.Config as cms
 # function:
 #
 # produces Debug Tracks using a simple Helix Fit from RoadSearchTrackCandidates
-RoadSearchDebugTracks = cms.EDFilter("RoadSearchHelixMaker",
+RoadSearchDebugTracks = cms.EDProducer("RoadSearchHelixMaker",
     # module laber of RoadSearchTrackCandidateMaker
     TrackCandidateProducer = cms.string('rsTrackCandidates')
 )

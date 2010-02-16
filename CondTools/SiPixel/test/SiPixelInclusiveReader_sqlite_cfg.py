@@ -102,22 +102,22 @@ process.esprefer_DBReaders = cms.ESPrefer("PoolDBESSource", "PoolDBESSourceForRe
 
 
 ####### GAIN READERS ######
-process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
+process.SiPixelCondObjOfflineReader = cms.EDAnalyzer("SiPixelCondObjOfflineReader",
                                                    process.SiPixelGainCalibrationServiceParameters,
                                                    useSimRcd = cms.bool(False)
 )
 
-process.SiPixelCondObjOfflineSimReader = cms.EDFilter("SiPixelCondObjOfflineReader",
+process.SiPixelCondObjOfflineSimReader = cms.EDAnalyzer("SiPixelCondObjOfflineReader",
                                                       process.SiPixelGainCalibrationServiceParameters,
                                                       useSimRcd = cms.bool(True)
 )
 
-process.SiPixelCondObjForHLTReader = cms.EDFilter("SiPixelCondObjForHLTReader",
+process.SiPixelCondObjForHLTReader = cms.EDAnalyzer("SiPixelCondObjForHLTReader",
                                                   process.SiPixelGainCalibrationServiceParameters,
                                                   useSimRcd = cms.bool(False)
 )
 
-process.SiPixelCondObjForHLTSimReader = cms.EDFilter("SiPixelCondObjForHLTReader",
+process.SiPixelCondObjForHLTSimReader = cms.EDAnalyzer("SiPixelCondObjForHLTReader",
                                                      process.SiPixelGainCalibrationServiceParameters,
                                                      useSimRcd = cms.bool(True)
 )
@@ -151,7 +151,7 @@ wantDetailedOutput = False
 #Change to True if you would like to output the full template database object
 wantFullOutput = False
 
-process.SiPixelTemplateDBObjectReader = cms.EDFilter("SiPixelTemplateDBObjectReader",
+process.SiPixelTemplateDBObjectReader = cms.EDAnalyzer("SiPixelTemplateDBObjectReader",
                               siPixelTemplateCalibrationLocation = cms.string(
                              "CalibTracker/SiPixelESProducers"),
                               wantDetailedTemplateDBErrorOutput = cms.bool(wantDetailedOutput),

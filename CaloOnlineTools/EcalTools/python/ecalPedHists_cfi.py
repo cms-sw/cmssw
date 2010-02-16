@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalPedHists = cms.EDFilter("EcalPedHists",
+ecalPedHists = cms.EDAnalyzer("EcalPedHists",
     # sepecify list of samples to use
     listSamples = cms.untracked.vint32(1, 2, 3),
     EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ckfTrackCandidates = cms.EDFilter("CkfTrackCandidateMaker",
+ckfTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
 # During tracking, eliminate seeds used by an already found track 
     RedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
 # Decide how to eliminate tracks sharing hits at end of tracking phase

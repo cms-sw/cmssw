@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-HITSiStripRoI = cms.EDFilter("HITSiStripRawToClustersRoI",
+HITSiStripRoI = cms.EDProducer("HITSiStripRawToClustersRoI",
     # layers of interest
     layers = cms.untracked.int32(10),
     ptrackEtaWindow = cms.untracked.double(0.3),

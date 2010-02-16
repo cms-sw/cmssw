@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-tccFlatToDigi = cms.EDFilter("EcalFEtoDigi",
+tccFlatToDigi = cms.EDProducer("EcalFEtoDigi",
     FileEventOffset = cms.untracked.int32(0),
     UseIdentityLUT = cms.untracked.bool(False),
     SuperModuleId = cms.untracked.int32(-1),

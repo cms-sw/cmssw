@@ -23,7 +23,7 @@ process.source = cms.Source("PoolSource",
        '/store/relval/CMSSW_2_1_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/04983078-9082-DD11-BB8C-0019DB2F3F9B.root')
 )
 
-process.simpleVertexAnalysis = cms.EDFilter("KVFTest",
+process.simpleVertexAnalysis = cms.EDAnalyzer("KVFTest",
     KVFParameters = cms.PSet(
         maxDistance = cms.double(0.01),
         maxNbrOfIterations = cms.int32(10)

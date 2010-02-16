@@ -1,5 +1,5 @@
 #include "SimTracker/TrackAssociation/interface/CosmicParametersDefinerForTP.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -127,4 +127,4 @@ ParticleBase::Point CosmicParametersDefinerForTP::vertex(const edm::Event& iEven
 }
 
 
-EVENTSETUP_DATA_REG(CosmicParametersDefinerForTP);
+TYPELOOKUP_DATA_REG(CosmicParametersDefinerForTP);

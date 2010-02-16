@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rsTrackCandidates = cms.EDFilter("RoadSearchTrackCandidateMaker",
+rsTrackCandidates = cms.EDProducer("RoadSearchTrackCandidateMaker",
     NumHitCut = cms.int32(5),
     # Initial Error on vertex in cm
     InitialVertexErrorXY = cms.double(0.2),

@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource")
 
-process.aux = cms.EDFilter("EventAuxiliaryHistoryProducer",
+process.aux = cms.EDProducer("EventAuxiliaryHistoryProducer",
     historyDepth = cms.uint32(5)
 )
 

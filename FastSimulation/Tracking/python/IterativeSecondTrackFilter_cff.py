@@ -44,7 +44,7 @@ dz_par2 = ( 0.9, 4.0 )
 ##secStep.TrackProducer1 = 'secStepVtx'
 ##secStep.TrackProducer2 = 'secStepTrk'
 
-secStep = cms.EDFilter("FastTrackMerger",
+secStep = cms.EDProducer("FastTrackMerger",
                        TrackProducers = cms.VInputTag(cms.InputTag("secStepVtx"),
                                                      cms.InputTag("secStepTrk"))
 )

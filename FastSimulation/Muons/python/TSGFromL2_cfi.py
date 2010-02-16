@@ -204,7 +204,7 @@ def makeIOHitCascadeSet():
 
 def l3seeds(tsg = "old"):
     if (tsg == "old"):
-        return cms.EDFilter("FastTSGFromL2Muon",
+        return cms.EDProducer("FastTSGFromL2Muon",
                             # ServiceParameters
                             MuonServiceProxy,
                             # The collection of Sim Tracks

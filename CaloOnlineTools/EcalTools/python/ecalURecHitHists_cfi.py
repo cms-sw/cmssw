@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalURecHitHists = cms.EDFilter("EcalURecHitHists",
+ecalURecHitHists = cms.EDAnalyzer("EcalURecHitHists",
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
     EBUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
     EEUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE"),

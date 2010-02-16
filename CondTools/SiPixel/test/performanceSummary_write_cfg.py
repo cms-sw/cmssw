@@ -33,7 +33,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.prod = cms.EDFilter("SiPixelPerformanceSummaryBuilder")
+process.prod = cms.EDAnalyzer("SiPixelPerformanceSummaryBuilder")
 
 #process.print = cms.OutputModule("AsciiOutputModule")
 

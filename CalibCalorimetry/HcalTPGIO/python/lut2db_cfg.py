@@ -20,7 +20,7 @@ process.HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     filename = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat')
 )
 
-process.sw2hw = cms.EDFilter("HcalLuttoDB",
+process.sw2hw = cms.EDAnalyzer("HcalLuttoDB",
     filePerCrate = cms.untracked.bool(True),
     filePrefix = cms.string('testLUT'),
     targetfirmware = cms.string('1.0.0'),

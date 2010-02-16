@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hexDump = cms.EDFilter("EcalHexDisplay",
+hexDump = cms.EDAnalyzer("EcalHexDisplay",
     verbosity = cms.untracked.int32(0),
     filename = cms.untracked.string('dump.bin'),
     # fed_id: EE- is 601-609,  EB is 610-645,  EE- is 646-654

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-EcalRawToRecHitRoI = cms.EDFilter("EcalRawToRecHitRoI",
+EcalRawToRecHitRoI = cms.EDProducer("EcalRawToRecHitRoI",
     JetJobPSet = cms.VPSet(),
     CandJobPSet = cms.VPSet(),
     sourceTag = cms.InputTag("EcalRawToRecHitFacility"),

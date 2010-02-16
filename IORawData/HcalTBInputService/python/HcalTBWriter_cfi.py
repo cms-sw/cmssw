@@ -10,7 +10,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-hcalTBWriter = cms.EDFilter("HcalTBWriter",
+hcalTBWriter = cms.EDAnalyzer("HcalTBWriter",
     # Pattern for output filenames (%d will be replaced by run number)
     FilenamePattern = cms.untracked.string('/data/spool/HTB_%06d.root'),
     # Map of FED-ids to Branch names for the writer

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # MonitorTrackResiduals
-MonitorTrackResiduals = cms.EDFilter("MonitorTrackResiduals",
+MonitorTrackResiduals = cms.EDAnalyzer("MonitorTrackResiduals",
     OutputMEsInRootFile = cms.bool(False),
     # should histogramms on module level be booked and filled?
     Mod_On = cms.bool(True),

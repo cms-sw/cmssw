@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalDigisValidation = cms.EDFilter("EcalDigisValidation",
+ecalDigisValidation = cms.EDAnalyzer("EcalDigisValidation",
     outputFile = cms.untracked.string(''),
     verbose = cms.untracked.bool(False),
     EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis"),

@@ -1,6 +1,6 @@
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(PixelDCSObject<bool>);
-EVENTSETUP_DATA_REG(PixelDCSObject<float>);
-EVENTSETUP_DATA_REG(PixelDCSObject<CaenChannel>);
+TYPELOOKUP_DATA_REG(PixelDCSObject<bool>);
+TYPELOOKUP_DATA_REG(PixelDCSObject<float>);
+TYPELOOKUP_DATA_REG(PixelDCSObject<CaenChannel>);

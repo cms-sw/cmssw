@@ -18,7 +18,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 	))
 )
 
-process.MakeCondDB = cms.EDFilter("testWriteMVAComputerCondDB",
+process.MakeCondDB = cms.EDAnalyzer("testWriteMVAComputerCondDB",
 	record = cms.untracked.string('BTauGenericMVAJetTagComputerRcd')
 )
 

@@ -4,15 +4,15 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2009/05/07 21:56:54 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/05/12 16:47:01 $
+ *  $Revision: 1.23 $
  * \author Alex Tumanov 
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class CSCMonitorInterface;
 

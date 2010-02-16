@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-trackingMaterialAnalyser = cms.EDFilter("TrackingMaterialAnalyser",
+trackingMaterialAnalyser = cms.EDAnalyzer("TrackingMaterialAnalyser",
     MaterialAccounting      = cms.InputTag("trackingMaterialProducer"),
     SplitMode               = cms.string("NearestLayer"),
     SkipBeforeFirstDetector = cms.bool(False),

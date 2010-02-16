@@ -44,7 +44,7 @@ rctEmulDigis.hcalDigis = cms.VInputTag(cms.InputTag("hcalDigis"))
 #rctEmulDigis.ecalDigis=cms.VInputTag(cms.InputTag("ecalEBunpacker"))
 rctEmulDigis.ecalDigis = cms.VInputTag(cms.InputTag("ecalDigis:EcalTriggerPrimitives"))
 
-l1tderct = cms.EDFilter("L1TdeRCT",
+l1tderct = cms.EDAnalyzer("L1TdeRCT",
     rctSourceData = cms.InputTag("l1GctHwDigis"),
     HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT/'),
     outputFile = cms.untracked.string('./L1TDQM.root'),
@@ -63,7 +63,7 @@ l1tderct.rctSourceEmul = 'rctEmulDigis'
 l1tderct.ecalTPGData = 'ecalDigis:EcalTriggerPrimitives'
 l1tderct.hcalTPGData = 'hcalDigis'
 
-l1trct = cms.EDFilter("L1TRCT",
+l1trct = cms.EDAnalyzer("L1TRCT",
     DQMStore = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(False),
     outputFile = cms.untracked.string('./L1TDQM.root'),

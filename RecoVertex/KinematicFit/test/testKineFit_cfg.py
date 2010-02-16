@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.simpleVertexAnalysis = cms.EDFilter("KineExample",
+process.simpleVertexAnalysis = cms.EDAnalyzer("KineExample",
     KVFParameters = cms.PSet(
         maxDistance = cms.double(0.01),
         maxNbrOfIterations = cms.int32(10)

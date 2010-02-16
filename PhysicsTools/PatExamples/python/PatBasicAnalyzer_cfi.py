@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-analyzeBasicPat = cms.EDFilter("PatBasicAnalyzer",
+analyzeBasicPat = cms.EDAnalyzer("PatBasicAnalyzer",
   photonSrc   = cms.untracked.InputTag("cleanLayer1Photons"),
   electronSrc = cms.untracked.InputTag("cleanLayer1Electrons"),
   muonSrc     = cms.untracked.InputTag("cleanLayer1Muons"),                                             

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ct2ct = cms.EDFilter("CaloTowersReCreator",
+ct2ct = cms.EDProducer("CaloTowersReCreator",
     # Weighting factor for EB   
     EBWeight = cms.double(1.0),
     HBGrid = cms.vdouble(0.0, 2.0, 4.0, 5.0, 9.0, 

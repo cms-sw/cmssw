@@ -2,6 +2,6 @@
 
 // user include files
 #include "CondFormats/SiPixelObjects/interface/SiPixelDisabledModules.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(SiPixelDisabledModules);
+TYPELOOKUP_DATA_REG(SiPixelDisabledModules);

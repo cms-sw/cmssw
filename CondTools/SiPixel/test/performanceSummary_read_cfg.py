@@ -24,7 +24,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:sipixelperformancesummary.db')
 )
 
-process.prod = cms.EDFilter("SiPixelPerformanceSummaryReader")
+process.prod = cms.EDAnalyzer("SiPixelPerformanceSummaryReader")
 
 #process.print = cms.OutputModule("AsciiOutputModule")
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hoSimHitStudy = cms.EDFilter("HOSimHitStudy",
+hoSimHitStudy = cms.EDAnalyzer("HOSimHitStudy",
     SourceLabel       = cms.untracked.string('generator'),
     ModuleLabel       = cms.untracked.string('g4SimHits'),
     EBCollection      = cms.untracked.string('EcalHitsEB'),

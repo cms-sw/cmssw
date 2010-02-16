@@ -5,7 +5,7 @@ from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_cfi import *
 from RecoEgamma.EgammaPhotonProducers.KFTrajectoryFitterForOutIn_cfi import *
 #TrackProducers
-ckfOutInTracksFromConversions = cms.EDFilter("TrackProducerWithSCAssociation",
+ckfOutInTracksFromConversions = cms.EDProducer("TrackProducerWithSCAssociation",
     src = cms.InputTag("conversionTrackCandidates","outInTracksFromConversions"),
     recoTrackSCAssociationCollection = cms.string('outInTrackSCAssociationCollection'),
     producer = cms.string('conversionTrackCandidates'),

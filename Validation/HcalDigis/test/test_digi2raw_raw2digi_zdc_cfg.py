@@ -54,7 +54,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 #process.VtxSmeared.SigmaZ = 0.00001
 
 
-process.Comp = cms.EDFilter("Digi2Raw2Digi",
+process.Comp = cms.EDAnalyzer("Digi2Raw2Digi",
     digiLabel1 = cms.InputTag("simHcalDigis"),
     digiLabel2 = cms.InputTag("hcalDigis"),
     outputFile = cms.untracked.string('histo.root')

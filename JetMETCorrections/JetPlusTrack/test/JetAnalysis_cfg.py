@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/CMSSW_2_1_9/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/000AD2A4-6E86-DD11-AA99-000423D9863C.root')
 )
 
-process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
     HistOutFile = cms.untracked.string('JetAnalysis.root'),
     src2 = cms.InputTag("iterativeCone5GenJets"),
     src3 = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
@@ -81,7 +81,7 @@ fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/CMSSW_2
 #    fileNames = cms.untracked.vstring('file:/tmp/kodolova/FC999068-DB60-DD11-9694-001A92971B16.root')
 )
 
-process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
     HistOutFile = cms.untracked.string('JetAnalysis.root'),
     src2 = cms.InputTag("iterativeCone5GenJets"),
     src3 = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
@@ -130,7 +130,7 @@ fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/CMSSW_2
 #    fileNames = cms.untracked.vstring('file:/tmp/kodolova/FC999068-DB60-DD11-9694-001A92971B16.root')
 )
 
-process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
     HistOutFile = cms.untracked.string('JetAnalysis.root'),
     src2 = cms.InputTag("iterativeCone5GenJets"),
     src3 = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),

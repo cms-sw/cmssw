@@ -7,7 +7,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(1) )
 process.maxEvents = cms.untracked.PSet(	input = cms.untracked.int32(10000) )
 
-process.testMVATrainerLooper = cms.EDFilter("testMVATrainerLooper")
+process.testMVATrainerLooper = cms.EDAnalyzer("testMVATrainerLooper")
 
 process.mvaDemoSaveFile = cms.EDFilter("MVADemoSaveFile",
 	testMVA = cms.string('testMVAComputerEvaluate.mva')

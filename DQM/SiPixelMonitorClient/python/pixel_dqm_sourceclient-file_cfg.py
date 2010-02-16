@@ -55,7 +55,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
+process.sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     FileSaveFrequency = cms.untracked.int32(50),
     StaticUpdateFrequency = cms.untracked.int32(10)
 )

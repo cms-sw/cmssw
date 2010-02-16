@@ -25,7 +25,7 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
+process.SiPixelCondObjOfflineBuilder = cms.EDAnalyzer("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.00),

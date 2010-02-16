@@ -21,7 +21,7 @@ import FWCore.ParameterSet.Config as cms
 # function:
 #
 # merges RoadSearchClouds according to hit overlap
-cleanRoadSearchClouds = cms.EDFilter("RoadSearchCloudCleaner",
+cleanRoadSearchClouds = cms.EDProducer("RoadSearchCloudCleaner",
     # maximal number of RecHits per RoadSearchCloud
     MaxRecHitsInCloud = cms.int32(100),
     # minimal fraction of hits which has to lap between RawRoadSearchClouds to be merged

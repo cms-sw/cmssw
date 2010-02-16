@@ -46,7 +46,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.prefer("PoolDBESSource")
-process.SiPixelCondObjOfflineReader = cms.EDFilter("SiPixelCondObjOfflineReader",
+process.SiPixelCondObjOfflineReader = cms.EDAnalyzer("SiPixelCondObjOfflineReader",
     process.SiPixelGainCalibrationServiceParameters,
     maxRangeDeadPixHist = cms.untracked.double(0.001)
 )

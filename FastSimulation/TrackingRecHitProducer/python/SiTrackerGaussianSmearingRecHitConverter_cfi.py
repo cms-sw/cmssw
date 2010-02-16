@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-siTrackerGaussianSmearingRecHits = cms.EDFilter("SiTrackerGaussianSmearingRecHitConverter",
+siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecHitConverter",
 
     #converting energy loss from GeV to ADC counts
     GevPerElectron = cms.double(3.61e-09),

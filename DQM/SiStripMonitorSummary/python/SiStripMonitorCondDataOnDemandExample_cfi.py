@@ -5,7 +5,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-myOnDemandExample = cms.EDFilter("SiStripMonitorCondDataOnDemandExample",
+myOnDemandExample = cms.EDAnalyzer("SiStripMonitorCondDataOnDemandExample",
 
      OutputMEsInRootFile = cms.bool(True),
      OutputFileName = cms.string('SiStripMonitorCondDataOnDemandExample.root'),

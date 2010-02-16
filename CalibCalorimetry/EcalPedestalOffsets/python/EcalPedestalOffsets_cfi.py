@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pedTest = cms.EDFilter("EcalPedOffset",
+pedTest = cms.EDAnalyzer("EcalPedOffset",
     dbUserName = cms.untracked.string('foo'),
     xmlFile = cms.string('provaSuperWide'),
     EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),

@@ -25,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource")
 
-process.prod = cms.EDFilter("TrackerMapTool")
+process.prod = cms.EDAnalyzer("TrackerMapTool")
 
 process.p1 = cms.Path(process.prod)
 

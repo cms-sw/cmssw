@@ -54,7 +54,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.prefer("PoolDBESSource")
-process.SiPixelCondObjAllPayloadsReader = cms.EDFilter("SiPixelCondObjAllPayloadsReader",
+process.SiPixelCondObjAllPayloadsReader = cms.EDAnalyzer("SiPixelCondObjAllPayloadsReader",
     process.SiPixelGainCalibrationServiceParameters,
     payloadType = cms.string('HLT')
 )

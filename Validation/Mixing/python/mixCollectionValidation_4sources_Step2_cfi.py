@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.MixingModule.mixObjects_cfi import *
 
-mixCollectionValidation = cms.EDFilter("MixCollectionValidation",
+mixCollectionValidation = cms.EDAnalyzer("MixCollectionValidation",
     outputFile = cms.string('histosMixCollStep2MM4sources.root'),
     minBunch = cms.int32(-5),
     maxBunch = cms.int32(3),

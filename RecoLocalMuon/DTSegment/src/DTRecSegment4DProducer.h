@@ -4,13 +4,13 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2006/05/04 14:24:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/29 13:19:54 $
+ *  $Revision: 1.4 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;

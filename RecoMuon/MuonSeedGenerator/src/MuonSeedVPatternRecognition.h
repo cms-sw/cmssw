@@ -2,7 +2,7 @@
 #define MuonSeedGenerator_MuonSeedVPatternRecognition_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 class MuonSeedVPatternRecognition

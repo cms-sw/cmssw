@@ -4,7 +4,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-read = cms.EDFilter("SiPixelLorentzAngle",
+read = cms.EDAnalyzer("SiPixelLorentzAngle",
     #what type of tracks should be used: 
     #   	string src = "generalTracks"
     src = cms.string('globalMuons'),

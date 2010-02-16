@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # MonitorTrackGlobal
-MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
+MonitorTrackSTAMuons = cms.EDAnalyzer("TrackingMonitor",
     # input tags
     TrackProducer = cms.InputTag("standAloneMuons","UpdatedAtVtx"),
     SeedProducer  = cms.InputTag("combinedP5SeedsForCTF"),

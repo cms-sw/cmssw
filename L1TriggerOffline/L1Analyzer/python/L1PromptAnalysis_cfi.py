@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1PromptAnalysis = cms.EDFilter("L1PromptAnalysis",
+l1PromptAnalysis = cms.EDAnalyzer("L1PromptAnalysis",
     verbose = cms.untracked.bool(False),
     PhysVal = cms.bool(True),
     OutputFile = cms.untracked.string('gmttree.root'),

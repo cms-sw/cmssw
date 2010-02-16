@@ -17,7 +17,7 @@ process.source = cms.Source("PoolSource",
        '/store/relval/CMSSW_2_1_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v1/0002/04983078-9082-DD11-BB8C-0019DB2F3F9B.root')
 )
 
-process.simpleAnalysis = cms.EDFilter("KVFTrackUpdate",
+process.simpleAnalysis = cms.EDAnalyzer("KVFTrackUpdate",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     TrackLabel = cms.InputTag("standAloneMuons")
 )

@@ -44,7 +44,7 @@ process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
 )
 
 process.prefer("es_ascii2")
-process.HitsReCalibration = cms.EDFilter("HitReCalibrator",
+process.HitsReCalibration = cms.EDProducer("HitReCalibrator",
     hbheInput = cms.InputTag("DiJProd","DiJetsHBHERecHitCollection"),
     hfInput = cms.InputTag("DiJProd","DiJetsHFRecHitCollection"),
     hoInput = cms.InputTag("DiJProd","DiJetsHORecHitCollection")

@@ -31,7 +31,7 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.ipCalib = cms.EDFilter("ImpactParameterCalibration",
+process.ipCalib = cms.EDAnalyzer("ImpactParameterCalibration",
     writeToDB = cms.bool(True),
     writeToBinary = cms.bool(False),
     nBins = cms.int32(10000),

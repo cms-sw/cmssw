@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Run.h"

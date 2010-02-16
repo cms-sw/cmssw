@@ -22,7 +22,7 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.SiPixelCondObjBuilder = cms.EDFilter("SiPixelCondObjBuilder",
+process.SiPixelCondObjBuilder = cms.EDAnalyzer("SiPixelCondObjBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(500),
     appendMode = cms.untracked.bool(False),

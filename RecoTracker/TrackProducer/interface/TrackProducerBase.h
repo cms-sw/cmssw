@@ -4,8 +4,8 @@
 /** \class TrackProducerBase
  *  Base Class To Produce Tracks
  *
- *  $Date: 2008/02/22 11:13:58 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/07/03 00:55:13 $
+ *  $Revision: 1.17 $
  *  \author cerati
  */
 
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 

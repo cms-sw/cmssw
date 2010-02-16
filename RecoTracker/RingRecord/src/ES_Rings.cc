@@ -9,12 +9,12 @@
 // Created:         Tue Oct  3 22:14:25 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/08/29 14:48:15 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:10:04 $
+// $Revision: 1.1 $
 //
 
 #include "RecoTracker/RingRecord/interface/Rings.h"
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(Rings);
+TYPELOOKUP_DATA_REG(Rings);

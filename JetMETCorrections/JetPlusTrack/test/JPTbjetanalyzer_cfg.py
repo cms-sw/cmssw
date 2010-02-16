@@ -553,7 +553,7 @@ process.printTree = cms.EDFilter("ParticleListDrawer",
 
 process.dump = cms.EDFilter("EventContentAnalyzer")
 
-process.myanalysis = cms.EDFilter("JPTBjetAnalyzer",
+process.myanalysis = cms.EDAnalyzer("JPTBjetAnalyzer",
     HistOutFile = cms.untracked.string('jptbjetanalyzer_cvstesy.root'),
     calojets = cms.string('iterativeCone5CaloJets'),
     zspjets = cms.string('ZSPJetCorJetIcone5'),

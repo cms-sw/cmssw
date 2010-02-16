@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-esRawToDigi = cms.EDFilter("ESRawToDigi",
+esRawToDigi = cms.EDProducer("ESRawToDigi",
     debugMode = cms.untracked.bool(False),
     InstanceES = cms.string(''),
     ESdigiCollection = cms.string(''),

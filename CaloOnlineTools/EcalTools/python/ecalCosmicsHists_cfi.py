@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalCosmicsHists = cms.EDFilter("EcalCosmicsHists",
+ecalCosmicsHists = cms.EDAnalyzer("EcalCosmicsHists",
     histogramMinRange = cms.untracked.double(0.0),
     L1GlobalMuonReadoutRecord = cms.untracked.string('gtDigis'),
     ecalRecHitCollectionEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # $ Id: $
 # Author: Jim Pivarski, Cornell 3 Aug 2006
 #
-siStripElectronToTrackAssociator = cms.EDFilter("SiStripElectronAssociator",
+siStripElectronToTrackAssociator = cms.EDProducer("SiStripElectronAssociator",
     siStripElectronCollection = cms.string(''),
     trackCollection = cms.string(''),
     electronsLabel = cms.string('siStripElectrons'),

@@ -31,7 +31,7 @@ process.source = cms.Source("EmptySource",
 )
 
 
-process.asciiwriter = cms.EDFilter("HcalConstantsASCIIWriter",
+process.asciiwriter = cms.EDAnalyzer("HcalConstantsASCIIWriter",
     fileInput = cms.string('minbias_calib_output'),
     fileOutput = cms.string('minbias_calib_output_mult')
 )

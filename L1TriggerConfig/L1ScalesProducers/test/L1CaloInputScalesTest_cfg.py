@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 #keep the logging output to a nice level
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.test = cms.EDFilter("L1CaloInputScaleTester")
+process.test = cms.EDAnalyzer("L1CaloInputScaleTester")
 
 process.p = cms.Path(process.test)
 

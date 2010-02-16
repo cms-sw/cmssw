@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelHLTSource = cms.EDFilter("SiPixelHLTSource",
+SiPixelHLTSource = cms.EDAnalyzer("SiPixelHLTSource",
     RawInput = cms.InputTag("source"),
     ErrorInput = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_HLT.root'),

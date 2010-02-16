@@ -28,7 +28,7 @@ process.source = cms.Source("PoolSource",
  )
 )
 
-process.hcalDigiAnalyzer = cms.EDFilter("HcalDigiTester",
+process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
     digiLabel = cms.InputTag("hcalDigis"),
     outputFile = cms.untracked.string('HcalDigisValidation.root'),
     hcalselector = cms.untracked.string('all'),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-roadSearchClouds = cms.EDFilter("RoadSearchCloudMaker",
+roadSearchClouds = cms.EDProducer("RoadSearchCloudMaker",
     # minimal fraction of user layers per cloud
     MinimalFractionOfUsedLayersPerCloud = cms.double(0.5),
     # module label of SiPixelRecHitConverter

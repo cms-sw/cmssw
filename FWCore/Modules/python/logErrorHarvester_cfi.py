@@ -1,2 +1,2 @@
 import FWCore.ParameterSet.Config as cms
-logErrorHarvester = cms.EDFilter("LogErrorHarvester")
+logErrorHarvester = cms.EDProducer("LogErrorHarvester")

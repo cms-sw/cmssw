@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalhistos = cms.EDFilter("HcalHistogramRawToDigi",
+hcalhistos = cms.EDProducer("HcalHistogramRawToDigi",
     InputLabel = cms.InputTag("source"),
     # Number of the first HCAL FED.  If this is not specified, the
     # default from FEDNumbering is used.

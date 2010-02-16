@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalRecHitsValidation = cms.EDFilter("EcalRecHitsValidation",
+ecalRecHitsValidation = cms.EDAnalyzer("EcalRecHitsValidation",
     hitsProducer = cms.string('g4SimHits'),
     outputFile = cms.untracked.string(''),
     EEuncalibrechitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE"),

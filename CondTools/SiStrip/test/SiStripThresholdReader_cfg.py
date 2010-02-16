@@ -41,7 +41,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     ))
 )
 
-process.reader = cms.EDFilter("SiStripThresholdReader",
+process.reader = cms.EDAnalyzer("SiStripThresholdReader",
                               printDebug = cms.untracked.uint32(5)
                               )
 

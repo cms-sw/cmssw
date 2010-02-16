@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Energy scale correction for Fixed Matrix Endcap SuperClusters
-correctedFixedMatrixSuperClustersWithPreshower = cms.EDFilter("EgammaSCCorrectionMaker",
+correctedFixedMatrixSuperClustersWithPreshower = cms.EDProducer("EgammaSCCorrectionMaker",
     corectedSuperClusterCollection = cms.string(''),
     sigmaElectronicNoise = cms.double(0.15),
     superClusterAlgo = cms.string('FixedMatrix'),

@@ -16,7 +16,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.prod = cms.EDFilter("GeoHierarchy",
+process.prod = cms.EDAnalyzer("GeoHierarchy",
     fromDDD = cms.bool(True)
 )
 

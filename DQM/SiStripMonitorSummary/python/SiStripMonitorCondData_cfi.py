@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-CondDataMonitoring = cms.EDFilter("SiStripMonitorCondData",
+CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
 
     OutputFileName             = cms.string('SiStripMonitorCondData_MYTEST.root'),
                                   

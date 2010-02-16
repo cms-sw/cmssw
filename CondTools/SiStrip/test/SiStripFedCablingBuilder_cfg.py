@@ -44,7 +44,7 @@ process.SiStripRegionConnectivity = cms.ESProducer("SiStripRegionConnectivity",
                                                    EtaMax = cms.untracked.double(2.5)
 )
 
-process.fedcablingbuilder = cms.EDFilter("SiStripFedCablingBuilder",
+process.fedcablingbuilder = cms.EDAnalyzer("SiStripFedCablingBuilder",
                                          PrintFecCabling = cms.untracked.bool(True),
                                          PrintDetCabling = cms.untracked.bool(True),
                                          PrintRegionCabling = cms.untracked.bool(True)

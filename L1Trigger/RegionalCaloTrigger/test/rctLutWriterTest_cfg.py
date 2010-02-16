@@ -99,7 +99,7 @@ process.l1RctMaskRcds = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-process.rctLutWriter = cms.EDFilter("L1RCTLutWriter",
+process.rctLutWriter = cms.EDAnalyzer("L1RCTLutWriter",
     useDebugTpgScales = cms.bool(True),
     key = cms.string('noKey')
 )

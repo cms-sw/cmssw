@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalPnGraphs = cms.EDFilter("EcalPnGraphs",
+ecalPnGraphs = cms.EDAnalyzer("EcalPnGraphs",
     # requested EBs 
     requestedEbs = cms.untracked.vstring('none'),
     # length of the line centered on listPns containing the Pns you want to see

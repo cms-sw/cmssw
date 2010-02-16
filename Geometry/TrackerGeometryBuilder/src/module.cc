@@ -1,7 +1,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(TrackerGeometry);
+TYPELOOKUP_DATA_REG(TrackerGeometry);
 
 

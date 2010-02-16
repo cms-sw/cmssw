@@ -19,7 +19,7 @@ process.source = cms.Source("PoolSource",
       )
 )
 
-process.hcalRecoAnalyzer = cms.EDFilter("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     eventype = cms.untracked.string('multi'),
     outputFile = cms.untracked.string('HcalRecHitsValidationALL_RelVal.root'),
     ecalselector = cms.untracked.string('yes'),

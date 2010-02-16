@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.out = cms.OutputModule("AsciiOutputModule")
 
-process.prod = cms.EDFilter("ModuleInfo",
+process.prod = cms.EDAnalyzer("ModuleInfo",
     fromDDD = cms.bool(True),
     printDDD = cms.untracked.bool(False)
 )

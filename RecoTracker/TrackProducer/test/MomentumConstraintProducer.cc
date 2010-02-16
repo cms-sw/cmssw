@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Jul 10 15:05:02 CEST 2007
-// $Id: MomentumConstraintProducer.cc,v 1.4 2009/03/04 13:34:31 vlimant Exp $
+// $Id: MomentumConstraintProducer.cc,v 1.6 2009/04/17 08:44:27 cerati Exp $
 //
 //
 
@@ -29,7 +29,7 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"

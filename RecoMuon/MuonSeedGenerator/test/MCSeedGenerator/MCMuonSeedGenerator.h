@@ -4,13 +4,13 @@
 /** \class MCMuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2008/07/30 16:17:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/08/06 08:46:34 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"

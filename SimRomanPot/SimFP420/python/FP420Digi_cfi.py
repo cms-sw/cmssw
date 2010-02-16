@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-FP420Digi = cms.EDFilter("DigitizerFP420",
+FP420Digi = cms.EDProducer("DigitizerFP420",
     VerbosityLevel = cms.untracked.int32(0),
     ROUList = cms.vstring('g4SimHitsFP420SI'),
     NumberFP420Stations = cms.int32(3),

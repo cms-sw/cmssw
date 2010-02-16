@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # producer for hltPhotonTrackIsol
 #
-hltPhotonTrackIsol = cms.EDFilter("EgammaHLTPhotonTrackIsolationProducersRegional",
+hltPhotonTrackIsol = cms.EDProducer("EgammaHLTPhotonTrackIsolationProducersRegional",
     egTrkIsoVetoConeSize = cms.double(0.0),
     trackProducer = cms.InputTag("ctfWithMaterialTracks"),
     egTrkIsoConeSize = cms.double(0.3),

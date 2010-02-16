@@ -24,7 +24,7 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
+process.SiPixelCondObjForHLTBuilder = cms.EDAnalyzer("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.0002),

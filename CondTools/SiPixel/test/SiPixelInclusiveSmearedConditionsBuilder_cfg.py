@@ -86,7 +86,7 @@ process.SiPixelLorentzAngleSim = cms.EDFilter("SiPixelLorentzAngleDB",
                                               record=cms.untracked.string("SiPixelLorentzAngleSimRcd")
 )
 
-process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
+process.SiPixelCondObjOfflineBuilder = cms.EDAnalyzer("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.0),
@@ -103,7 +103,7 @@ process.SiPixelCondObjOfflineBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilde
     noisyFraction = cms.double(0.0)
 )
 
-process.SiPixelCondObjOfflineSimBuilder = cms.EDFilter("SiPixelCondObjOfflineBuilder",
+process.SiPixelCondObjOfflineSimBuilder = cms.EDAnalyzer("SiPixelCondObjOfflineBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     deadFraction = cms.double(0.0),
@@ -120,7 +120,7 @@ process.SiPixelCondObjOfflineSimBuilder = cms.EDFilter("SiPixelCondObjOfflineBui
     noisyFraction = cms.double(0.0)                                                       
 )
 
-process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
+process.SiPixelCondObjForHLTBuilder = cms.EDAnalyzer("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     appendMode = cms.untracked.bool(False),
@@ -136,7 +136,7 @@ process.SiPixelCondObjForHLTBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder"
     deadFraction = cms.double(0.0),
     noisyFraction = cms.double(0.0)
 )
-process.SiPixelCondObjForHLTSimBuilder = cms.EDFilter("SiPixelCondObjForHLTBuilder",
+process.SiPixelCondObjForHLTSimBuilder = cms.EDAnalyzer("SiPixelCondObjForHLTBuilder",
     process.SiPixelGainCalibrationServiceParameters,
     numberOfModules = cms.int32(2000),
     appendMode = cms.untracked.bool(False),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dttfDigis = cms.EDFilter("DTTrackFinder",
+dttfDigis = cms.EDProducer("DTTrackFinder",
     OutOfTime_Filter = cms.untracked.bool(False),
     PT_Assignment_nbits_PhiB = cms.untracked.int32(10),
     BX_min = cms.untracked.int32(-9),

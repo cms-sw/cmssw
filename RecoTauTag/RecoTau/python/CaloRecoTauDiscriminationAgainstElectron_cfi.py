@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrackCalo
 
-caloRecoTauDiscriminationAgainstElectron = cms.EDFilter("CaloRecoTauDiscriminationAgainstElectron",
+caloRecoTauDiscriminationAgainstElectron = cms.EDProducer("CaloRecoTauDiscriminationAgainstElectron",
 
     CaloTauProducer = cms.InputTag('caloRecoTauProducer'),
 

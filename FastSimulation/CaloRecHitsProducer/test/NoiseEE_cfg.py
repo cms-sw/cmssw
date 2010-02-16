@@ -38,7 +38,7 @@ process.GlobalTag.globaltag = "MC_31X_V1::All"
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
-process.noiseCheck = cms.EDFilter("NoiseCheck",
+process.noiseCheck = cms.EDAnalyzer("NoiseCheck",
                                   OutputFile=cms.string('Noisecheck-Neutrino-fast-final.root'),
                                   Threshold=cms.double(0.318))
 

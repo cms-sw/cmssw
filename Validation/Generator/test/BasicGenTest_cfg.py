@@ -6,7 +6,7 @@ process.load("Validation.Generator.BasicGenTest_cff")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-process.Validation = cms.EDFilter("BasicGenTest")
+process.Validation = cms.EDAnalyzer("BasicGenTest")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
