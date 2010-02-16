@@ -1169,7 +1169,7 @@ void TrackerMap::drawHV3(int rack,int numcrate_inrack , bool print_total, TmPsu*
     if(psu->greenHV3>255)psu->greenHV3=255;
     if(psu->blueHV3>255)psu->blueHV3=255;
     if(temporary_file)*svgfile << psu->redHV3 << " " << psu->greenHV3 << " " << psu->blueHV3 << " ";
-    else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV3 <<"\" value=\""<<psu->valueHV3<<"\" id=\""<< psu->id*10+3 <<"\" cmodid=\""<<psu->cmodid_HV3<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<psu->redHV3<<","<<psu->greenHV3<<","<<psu->blueHV3<<")\" points=\"";
+    else *svgfile <<"<svg:polygon detid=\""<<psu->idex<<"\" count=\""<<psu->countHV3 <<"\" value=\""<<psu->valueHV3<<"\" id=\""<< psu->idex*10+3 <<"\" cmodid=\""<<psu->cmodid_HV3<<"\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\"""\" POS=\"easyCrate/easyBoard "<<psu->getPsuCrate()<<"/"<<psu->getPsuBoard()<<" connected to "<<s<<" \" fill=\"rgb("<<psu->redHV3<<","<<psu->greenHV3<<","<<psu->blueHV3<<")\" points=\"";
   }
 
 if(temporary_file)*svgfile << np << " ";
