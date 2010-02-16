@@ -1,14 +1,14 @@
 #ifdef WITH_ECAL_COND_DB
 
-// $Id: LogicID.cc,v 1.2 2010/01/25 21:12:25 dellaric Exp $
+// $Id: LogicID.cc,v 1.3 2010/02/15 22:26:41 dellaric Exp $
 
 /*!
   \file LogicID.cc
   \brief Construct EcalLogicIDs
   \author G. Della Ricca
   \author B. Gobbo
-  \version $Revision: 1.2 $
-  \date $Date: 2010/01/25 21:12:25 $
+  \version $Revision: 1.3 $
+  \date $Date: 2010/02/15 22:26:41 $
 */
 
 #include "DQM/EcalCommon/interface/LogicID.h"
@@ -84,13 +84,22 @@ EcalLogicID LogicID::getEcalLogicID( const char* name,
                          id2 ) );
   }
   if( strcmp(name, "EE_mem_channel") == 0 ) {
-    return( EcalLogicID( "EE_mem_channel", EcalLogicID::NULLID ) );
+    return( EcalLogicID( "EE_mem_channel",
+                         100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10))),
+                         id2 ) );
   }
   if( strcmp(name, "EE_mem_TT") == 0 ) {
-    return( EcalLogicID( "EE_mem_TT", EcalLogicID::NULLID ) );
+    return( EcalLogicID( "EE_mem_TT",
+                         100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10))),
+                         id2 ) );
   }
   if( strcmp(name, "EE_LM_PN") == 0 ) {
-    return( EcalLogicID( "EE_mem_TT", EcalLogicID::NULLID ) );
+    return( EcalLogicID( "EE_LM_PN",
+                         100*((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10)))+id2,
+                         ((id1>=1&&id1<=9)?(646+(id1-1)):(601+(id1-10))),
+                         id2 ) );
   }
 
   throw( std::runtime_error( "Unknown 'name': " + std::string( name ) ) );
