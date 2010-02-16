@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.29 2010/01/29 16:24:21 ewv Exp $
+// $Id: Event.h,v 1.30 2010/02/12 15:23:41 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -45,6 +45,8 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
+#include "DataFormats/FWLite/interface/HistoryGetterBase.h"
+#include "DataFormats/FWLite/interface/DataGetterHelper.h"
 
 // forward declarations
 namespace edm {
@@ -108,7 +110,7 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { std::cout << "resetting getter" << std::endl; getter_ = getter; }
+         void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) { return dataHelper_.setGetter(getter);}
 
          edm::EDProduct const* getByProductID(edm::ProductID const&) const;
 
@@ -137,7 +139,6 @@ namespace fwlite {
          void updateAux(Long_t eventIndex) const;
          void fillFileIndex() const;
 
-         internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
 
          // ---------- member data --------------------------------
          TFile* file_;
@@ -148,8 +149,6 @@ namespace fwlite {
          mutable boost::shared_ptr<fwlite::Run>  run_;
          mutable fwlite::BranchMapReader branchMap_;
 
-         typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
-         mutable KeyToDataMap data_;
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<const char*> labels_;
          mutable edm::ProcessHistoryMap historyMap_;
@@ -163,13 +162,7 @@ namespace fwlite {
          int fileVersion_;
          mutable bool parameterSetRegistryFilled_;
 
-         //references data in data_;
-         mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;
-         // mutable edm::ProductRegistry* prodReg_;
-         //references branch descriptions in prodReg_;
-         // mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
-
-         boost::shared_ptr<edm::EDProductGetter> getter_;
+         fwlite::DataGetterHelper dataHelper_;
    };
 
 }
