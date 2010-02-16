@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/01/26 07:17:08 $
- * $Revision: 1.475 $
+ * $Date: 2010/02/15 21:00:38 $
+ * $Revision: 1.476 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -78,7 +78,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( inputFile_.size() != 0 ) {
-      cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
+      cout << " Reading DQM data from inputFile '" << inputFile_ << "'" << endl;
     }
   }
 
@@ -118,7 +118,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
-      cout << " maskFile = '" << maskFile_ << "'" << endl;
+      cout << " maskFile is '" << maskFile_ << "'" << endl;
     }
   }
 
@@ -187,7 +187,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
 
   if ( verbose_ ) {
-    cout << " prescaleFactor = " << prescaleFactor_ << endl;
+    cout << " prescaleFactor is " << prescaleFactor_ << endl;
   }
 
   // prefixME path

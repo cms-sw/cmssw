@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/01/26 07:17:08 $
- * $Revision: 1.237 $
+ * $Date: 2010/02/15 21:00:39 $
+ * $Revision: 1.238 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -79,7 +79,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( inputFile_.size() != 0 ) {
-      cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
+      cout << " Reading DQM data from inputFile '" << inputFile_ << "'" << endl;
     }
   }
 
@@ -119,7 +119,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
-      cout << " maskFile = '" << maskFile_ << "'" << endl;
+      cout << " maskFile is '" << maskFile_ << "'" << endl;
     }
   }
 
@@ -188,7 +188,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
 
   if ( verbose_ ) {
-    cout << " prescaleFactor = " << prescaleFactor_ << endl;
+    cout << " prescaleFactor is " << prescaleFactor_ << endl;
   }
 
   // prefixME path
