@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.23 2010/01/29 15:42:57 mommsen Exp $
+// $Id: Configuration.cc,v 1.24 2010/02/09 14:51:09 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -556,7 +556,7 @@ namespace stor
     boost::shared_ptr<edm::ParameterSet> smPSet = pdesc->getProcessPSet();
 
     // loop over each end path
-    size_t streamId = 0;
+    StreamID streamId = 0;
     std::vector<std::string> allEndPaths = 
       smPSet->getParameter<std::vector<std::string> >("@end_paths");
     for(std::vector<std::string>::iterator endPathIter = allEndPaths.begin();

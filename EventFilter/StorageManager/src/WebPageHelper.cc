@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.42 2010/02/09 14:51:44 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.43 2010/02/15 15:12:06 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -381,7 +381,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addInt( cs_td_q_size, (*it)->queueSize() );
 
         // Events in queue:
-        const size_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
+        const uint32_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
         XHTMLMaker::Node* cs_td_in_q = maker.addNode( "td", cs_tr, td_attr );
         maker.addInt( cs_td_in_q, nevents_in_queue );
 
@@ -647,7 +647,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addInt( cs_td_q_size, (*it)->queueSize() );
 
         // Events in queue:
-        const size_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
+        const uint32_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
         XHTMLMaker::Node* cs_td_in_q = maker.addNode( "td", cs_tr, td_attr );
         maker.addInt( cs_td_in_q, nevents_in_queue );
 

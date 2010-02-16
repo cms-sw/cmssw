@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.122 2009/12/08 15:04:20 mommsen Exp $
+// $Id: StorageManager.cc,v 1.123 2010/02/09 14:52:45 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -40,7 +40,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.122 2009/12/08 15:04:20 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.123 2010/02/09 14:52:45 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -708,7 +708,7 @@ StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output*
   const utils::duration_t secs2stale =
     _sharedResources->_configuration->getEventServingParams()._activeConsumerTimeout;
   const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
-  const size_t qsize =
+  const int qsize =
     _sharedResources->_configuration->getEventServingParams()._consumerQueueSize;
 
   // Create registration info and set consumer ID:
@@ -878,7 +878,7 @@ StorageManager::processDQMConsumerRegistrationRequest( xgi::Input* in, xgi::Outp
   const utils::duration_t secs2stale =
     _sharedResources->_configuration->getEventServingParams()._DQMactiveConsumerTimeout;
   const enquing_policy::PolicyTag policy = enquing_policy::DiscardOld;
-  const size_t qsize =
+  const int qsize =
     _sharedResources->_configuration->getEventServingParams()._DQMconsumerQueueSize;
 
   // Create registration info and set consumer ID:

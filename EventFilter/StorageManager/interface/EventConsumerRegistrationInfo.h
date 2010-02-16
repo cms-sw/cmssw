@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.6 2009/12/01 13:58:08 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.7 2009/12/01 17:56:15 smorovic Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -19,9 +19,9 @@ namespace stor
   /**
    * Holds the registration information from a event consumer.
    *
-   * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/12/01 13:58:08 $
+   * $Author: smorovic $
+   * $Revision: 1.7 $
+   * $Date: 2009/12/01 17:56:15 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -40,7 +40,7 @@ namespace stor
                                    const std::string& triggerSelection,
                                    const FilterList& selEvents,
                                    const std::string& outputModuleLabel,
-                                   const size_t& queueSize,
+                                   const int& queueSize,
                                    const enquing_policy::PolicyTag& queuePolicy,
                                    const utils::duration_t& secondsToStale,
                                    const std::string& remoteHost );
@@ -70,7 +70,7 @@ namespace stor
     virtual std::string do_consumerName() const;
     virtual ConsumerID do_consumerId() const;
     virtual void do_setConsumerID(ConsumerID const& id);
-    virtual size_t do_queueSize() const;
+    virtual int do_queueSize() const;
     virtual enquing_policy::PolicyTag do_queuePolicy() const;
     virtual utils::duration_t do_secondsToStale() const;
 
