@@ -27,14 +27,24 @@ ST_ME1234 = cms.PSet(
     yweightPenalty = cms.double(1.5),
     hitDropLimit5Hits = cms.double(0.8),
     preClustering = cms.bool(True),
-    preClusteringUseChaining = cms.bool(True),
     hitDropLimit4Hits = cms.double(0.6),
     hitDropLimit6Hits = cms.double(0.3333),
     maxRecHitsInCluster = cms.int32(20),
     CSCDebug = cms.untracked.bool(False),
     onlyBestSegment = cms.bool(False),
     Pruning = cms.bool(True),
-    dYclusBoxMax = cms.double(8.0)
+    dYclusBoxMax = cms.double(8.0),
+    # Correction to improove fit
+    CorrectTheErrors = cms.bool(True),
+    NormChi2Cut2D = cms.double(20.0),
+    NormChi2Cut3D = cms.double(10.0),
+    prePrun = cms.bool(True),
+    prePrunLimit = cms.double(3.17),
+    SeedSmall = cms.double(0.000200),
+    SeedBig = cms.double(0.001500),
+    ForceCovariance = cms.bool(False),
+    ForceCovarianceAll = cms.bool(False),
+    Covariance = cms.double(0.0)
 )
 ST_ME1A = cms.PSet(
 
@@ -59,14 +69,24 @@ ST_ME1A = cms.PSet(
     yweightPenalty = cms.double(1.5),
     hitDropLimit5Hits = cms.double(0.8),
     preClustering = cms.bool(True),
-    preClusteringUseChaining = cms.bool(True),
     hitDropLimit4Hits = cms.double(0.6),
     hitDropLimit6Hits = cms.double(0.3333),
     maxRecHitsInCluster = cms.int32(24),
     CSCDebug = cms.untracked.bool(False),
     onlyBestSegment = cms.bool(False),
     Pruning = cms.bool(True),
-    dYclusBoxMax = cms.double(8.0)
+    dYclusBoxMax = cms.double(8.0),
+    # Correction to improove fit
+    CorrectTheErrors = cms.bool(True),
+    NormChi2Cut2D = cms.double(20.0),
+    NormChi2Cut3D = cms.double(10.0),
+    prePrun = cms.bool(True),
+    prePrunLimit = cms.double(3.17),
+    SeedSmall = cms.double(0.000200),
+    SeedBig = cms.double(0.001500),
+    ForceCovariance = cms.bool(False),
+    ForceCovarianceAll = cms.bool(False),
+    Covariance = cms.double(0.0)
 )
 CSCSegAlgoST = cms.PSet(
     algo_name = cms.string('CSCSegAlgoST'),

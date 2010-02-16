@@ -4,6 +4,7 @@
  *  \authors: S. Stoynev - NU
  *            I. Bloch    - FNAL
  *            E. James    - FNAL
+ *            A. Sakharov - WSU (extensive revision to handle wierd segments)
  */
  
 #include "CSCSegAlgoST.h"
@@ -40,7 +41,6 @@ CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   dXclusBoxMax           = ps.getParameter<double>("dXclusBoxMax");
   dYclusBoxMax           = ps.getParameter<double>("dYclusBoxMax");
   preClustering          = ps.getParameter<bool>("preClustering");
-  preClustering_useChaining    = ps.getParameter<bool>("preClusteringUseChaining");
   Pruning                = ps.getParameter<bool>("Pruning");
   BrutePruning           = ps.getParameter<bool>("BrutePruning");
   BPMinImprovement        = ps.getParameter<double>("BPMinImprovement");
@@ -64,7 +64,23 @@ CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps
   useShowering = ps.getParameter<bool>("useShowering");
   showering_   = new CSCSegAlgoShowering( ps );
   // std::cout<<"Constructor called..."<<std::endl;
-
+  /// Correct the Error Matrix with one dimentional x fit
+  correctCov_     = ps.getParameter<bool>("CorrectTheErrors");
+  chi2Norm_2D_        = ps.getParameter<double>("NormChi2Cut2D");
+  chi2Norm_3D_        = ps.getParameter<double>("NormChi2Cut3D");
+  prePrun_        = ps.getParameter<bool>("prePrun");
+  prePrunLimit_   = ps.getParameter<double>("prePrunLimit");
+  //
+  condSeed1_  = ps.getParameter<double>("SeedSmall");
+  condSeed2_  = ps.getParameter<double>("SeedBig");
+  covToAnyNumber_ = ps.getParameter<bool>("ForceCovariance");
+  covToAnyNumberAll_ = ps.getParameter<bool>("ForceCovarianceAll");
+  covAnyNumber_ = ps.getParameter<double>("Covariance");
+  passCondNumber=false;
+  passCondNumber_2=false;
+  protoChiUCorrection=1.0;
+  maxContrIndex=0;
+  protoNDF = 1.;
 }
 
 /* Destructor
@@ -105,18 +121,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
   
   if(preClustering) {
     // run a pre-clusterer on the given rechits to split obviously separated segment seeds:
-    if(preClustering_useChaining){
-      // it uses X,Y,Z information; there are no configurable parameters used;
-      // the X, Y, Z "cuts" are just (much) wider than the LCT readout ones
-      // (which are actually not step functions); this new code could accomodate
-      // the clusterHits one below but we leave it for security and backward 
-      // comparison reasons 
-      rechits_clusters = chainHits( theChamber, rechits );
-    }
-    else{
-      // it uses X,Y information + configurable parameters
-      rechits_clusters = clusterHits( theChamber, rechits );
-    }
+    rechits_clusters = clusterHits( theChamber, rechits );
     // loop over the found clusters:
     for(std::vector<ChamberHitContainer>::iterator sub_rechits = rechits_clusters.begin(); sub_rechits !=  rechits_clusters.end(); ++sub_rechits ) {
       // clear the buffer for the subset of segments:
@@ -309,8 +314,23 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       for(uint m = 0; m<reduced_segments[iSegment].size(); ++m ) {
 	protoSegment.push_back(&reduced_segments[iSegment][m]);
       }
-      fitSlopes(); 
-      fillChiSquared();
+      passCondNumber=false;
+      passCondNumber_2 = false;
+      protoChiUCorrection=1.0;
+      doSlopesAndChi2();
+      // Attempt to handle numerical instability of the fit;
+      // The same as in the build method;
+      // Preprune is not applied;
+      if(correctCov_){
+	if(protoChi2/protoNDF>chi2Norm_3D_){
+	  passCondNumber = true;
+	  doSlopesAndChi2();
+	}
+	if((protoChiUCorrection<1.00005)&&(protoChi2/protoNDF>chi2Norm_3D_)){
+	  passCondNumber_2=true;
+	  doSlopesAndChi2();
+	}
+      }
       fillLocalDirection();
       // calculate error matrix
       AlgebraicSymMatrix protoErrors = calculateError();   
@@ -342,7 +362,6 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       }
     }
   }
-  
   return segments;
   
 }
@@ -463,148 +482,6 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
 
       return rechits_clusters; 
 }
-
-
-std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSCChamber* aChamber, ChamberHitContainer rechits) {
-
-  std::vector<ChamberHitContainer> rechits_chains; // this is a collection of groups of rechits
-
-
-  std::vector<const CSCRecHit2D*> temp;
-
-  std::vector< ChamberHitContainer > seeds;
-
-  std::vector <bool> usedCluster;
-
-  // split rechits into subvectors and return vector of vectors:
-  // Loop over rechits
-  // Create one seed per hit
-  //std::cout<<" rechits.size() = "<<rechits.size()<<std::endl;
-  for(unsigned int i = 0; i < rechits.size(); ++i) {
-    temp.clear();
-    temp.push_back(rechits[i]);
-    seeds.push_back(temp);
-    usedCluster.push_back(false);
-  }
-  bool isME11a = false;
-  if ("ME1/a" == aChamber->specs()->chamberTypeName()){
-    isME11a = true;
-  }
-  // merge chains that are too close ("touch" each other)
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
-    for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
-      if(usedCluster[MMM] || usedCluster[NNN]){
-        continue;
-      }
-      // all is in the way we define "good";
-      // try not to "cluster" the hits but to "chain" them;
-      // it does the clustering but also does a better job
-      // for inclined tracks (not clustering them togheter;
-      // crossed tracks would be still clustered together) 
-      // 22.12.09: In fact it is not much more different 
-      // than the "clustering", we just introduce another
-      // variable in the game - Z. And it make sense 
-      // to re-introduce Y (or actually wire group mumber)
-      // in a similar way as for the strip number - see
-      // the code below.
-      bool goodToMerge  = isGoodToMerge(isME11a, seeds[NNN], seeds[MMM]);
-      if(goodToMerge){
-        // merge chains!
-        // merge by adding seed NNN to seed MMM and erasing seed NNN
-
-        // add seed NNN to MMM (lower to larger number)
-        seeds[MMM].insert(seeds[MMM].end(),seeds[NNN].begin(),seeds[NNN].end());
-
-        // mark seed NNN as used
-        usedCluster[NNN] = true;
-        // we have merged a seed (NNN) to the highter seed (MMM) - need to contimue to
-        // next seed (NNN+1)
-        break;
-      }
-
-    }
-  }
-
-  // hand over the final seeds to the output
-  // would be more elegant if we could do the above step with
-  // erasing the merged ones, rather than the
-
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
-    if(usedCluster[NNN]) continue; //skip seeds that have been marked as used up in merging
-    rechits_chains.push_back(seeds[NNN]);
-  }
-
-  //***************************************************************
-
-      return rechits_chains;
-}
-
-bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain) {
-  for(uint iRH_new = 0;iRH_new<newChain.size();++iRH_new){
-    int layer_new = newChain[iRH_new]->cscDetId().layer()-1;     
-    int middleStrip_new = newChain[iRH_new]->channels().size()/2;
-    int centralStrip_new = newChain[iRH_new]->channels()[middleStrip_new];
-    int middleWire_new = newChain[iRH_new]->wgroups().size()/2;
-    int centralWire_new = newChain[iRH_new]->wgroups()[middleWire_new];
-    bool layerRequirementOK = false;
-    bool stripRequirementOK = false;
-    bool wireRequirementOK = false;
-    bool goodToMerge = false;
-    for(uint iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
-      int layer_old = oldChain[iRH_old]->cscDetId().layer()-1;
-      int middleStrip_old = oldChain[iRH_old]->channels().size()/2;
-      int centralStrip_old = oldChain[iRH_old]->channels()[middleStrip_old];
-      int middleWire_old = oldChain[iRH_old]->wgroups().size()/2;
-      int centralWire_old = oldChain[iRH_old]->wgroups()[middleWire_old];
-
-      // to be chained, two hits need to be in neighbouring layers...
-      // or better allow few missing layers (upto 3 to avoid inefficiencies);
-      // however we'll not make an angle correction because it
-      // worsen the situation in some of the "regular" cases 
-      // (not making the correction means that the conditions for
-      // forming a cluster are different if we have missing layers -
-      // this could affect events at the boundaries ) 
-      if(layer_new==layer_old+1 || layer_new==layer_old-1 ||
-	 layer_new==layer_old+2 || layer_new==layer_old-2 ||
-	 layer_new==layer_old+3 || layer_new==layer_old-3 ||
-	 layer_new==layer_old+4 || layer_new==layer_old-4 ){
-        layerRequirementOK = true;
-      }
-      int allStrips = 48;
-      //to be chained, two hits need to be "close" in strip number (can do it in phi
-      // but it doesn't really matter); let "close" means upto 2 strips (3?) - 
-      // this is more compared to what CLCT readout patterns allow 
-      if(centralStrip_new==centralStrip_old ||
-         centralStrip_new==centralStrip_old+1 || centralStrip_new==centralStrip_old-1 ||
-         centralStrip_new==centralStrip_old+2 || centralStrip_new==centralStrip_old-2){
-        stripRequirementOK = true;
-      }
-      // same for wires (and ALCT patterns)
-      if(centralWire_new==centralWire_old ||
-         centralWire_new==centralWire_old+1 || centralWire_new==centralWire_old-1 ||
-         centralWire_new==centralWire_old+2 || centralWire_new==centralWire_old-2){
-        wireRequirementOK = true;
-      }
-
-      if(isME11a){
-	if(centralStrip_new==centralStrip_old+1-allStrips || centralStrip_new==centralStrip_old-1-allStrips ||
-	   centralStrip_new==centralStrip_old+2-allStrips || centralStrip_new==centralStrip_old-2-allStrips ||
-	   centralStrip_new==centralStrip_old+1+allStrips || centralStrip_new==centralStrip_old-1+allStrips ||
-	   centralStrip_new==centralStrip_old+2+allStrips || centralStrip_new==centralStrip_old-2+allStrips){
-	  stripRequirementOK = true;
-	}
-      }
-      if(layerRequirementOK && stripRequirementOK && wireRequirementOK){
-        goodToMerge = true;
-        return goodToMerge;
-      }
-    }
-  }
-  return false;
-}
-
-
-
 
 double CSCSegAlgoST::theWeight(double coordinate_1, double coordinate_2, double coordinate_3, float layer_1, float layer_2, float layer_3) {
   double sub_weight = 0;
@@ -1503,8 +1380,51 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
   for(unsigned int iSegment=0; iSegment<GoodSegments.size();iSegment++){
     protoSegment = GoodSegments[iSegment];
-    fitSlopes(); 
-    fillChiSquared();
+    passCondNumber=false;
+    passCondNumber_2 = false;
+    protoChiUCorrection=1.0;
+    doSlopesAndChi2();
+    // Attempt to handle numerical instability of the fit;
+    // Any segment with protoChi2/protoNDF>chi2Norm_3D_
+    // considered as that one potentially suffering from
+    // numerical instability in fit.
+    if(correctCov_){
+    // Call the fit with prefitting option;
+    // First fit a straight line to X-Z coordinates
+    // and calculate chi^2 (chiUZ in correctTheCovX(void)) for X-Z fit;
+    // Scale up errors in X if chiUZ too big (default 20);
+    // Refit XY-Z with the scaled up X errors 
+      if(protoChi2/protoNDF>chi2Norm_3D_){
+	passCondNumber = true;
+	doSlopesAndChi2();
+      }
+      if(protoChiUCorrection<1.00005){
+        LogDebug("CSCSegment|segmWierd") << "Wierd segment, ErrXX scaled, refit " <<std::endl; 
+        if(protoChi2/protoNDF>chi2Norm_3D_){
+     // Call the fit with direct adjustment of condition number;
+     // If the attempt to improve fit by scaling up X error fails
+     // call the procedure to make the condition number of M compatible with
+     // the precision of X and Y measurements;
+     // Achieved by decreasing abs value of the Covariance
+          LogDebug("CSCSegment|segmWierd") << "Wierd segment, ErrXY changed to match cond. number, refit  " << std::endl;
+	  passCondNumber_2=true;
+	  doSlopesAndChi2();
+        }
+      }
+      // Call the pre-pruning procedure;
+      // If the attempt to improve fit by scaling up X error is successfull,
+      // while scale factor for X errors is too big.
+      // Prune the recHit inducing the biggest contribution into X-Z chi^2
+      // and refit;
+      if(prePrun_ && (sqrt(protoChiUCorrection)>prePrunLimit_) &&
+	 (protoSegment.size()>3)){   
+        LogDebug("CSCSegment|segmWierd") << "Scale factor protoChiUCorrection too big, pre-Prune, refit  " << std::endl;
+	protoSegment.erase(protoSegment.begin()+(maxContrIndex),
+			   protoSegment.begin()+(maxContrIndex+1));                 
+	doSlopesAndChi2();
+      }
+    }
+    //
     fillLocalDirection();
     // calculate error matrix
     AlgebraicSymMatrix protoErrors = calculateError();   
@@ -1626,6 +1546,14 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
     }
   }
 }
+//Method doSlopesAndChi2
+// fitSlopes() and  fillChiSquared() are always called one after the other 
+// In fact code is duplicated in the two functions - it is much better to 
+// fix that at some point 
+void CSCSegAlgoST::doSlopesAndChi2(){
+  fitSlopes();
+  fillChiSquared();
+}
 
 /* Method fitSlopes
  *
@@ -1633,6 +1561,13 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
  *
  */
 void CSCSegAlgoST::fitSlopes() {
+  e_Cxx.clear(); /// Vector of the error matrix (only xx)
+  if(passCondNumber && !passCondNumber_2){
+    correctTheCovX();
+    if(e_Cxx.size()!=protoSegment.size()){
+      std::cout<<"e_Cxx.size()!=protoSegment.size() IT IS A SERIOUS PROBLEM!!!"<<std::endl;
+    }
+  }
   CLHEP::HepMatrix M(4,4,0);
   CLHEP::HepVector B(4,0);
   ChamberHitContainer::const_iterator ih = protoSegment.begin();
@@ -1645,12 +1580,23 @@ void CSCSegAlgoST::fitSlopes() {
     double u = lp.x();
     double v = lp.y();
     double z = lp.z();
+
     // ptc: Covariance matrix of local errors 
     CLHEP::HepMatrix IC(2,2);
-    IC(1,1) = hit.localPositionError().xx();
+    if(passCondNumber&& !passCondNumber_2){
+      IC(1,1) = e_Cxx.at(ih-protoSegment.begin());
+    }
+    else{
+      IC(1,1) = hit.localPositionError().xx();
+    }
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
     IC(2,1) = IC(1,2); // since Cov is symmetric
+    /// Correct the cov matrix
+    if(passCondNumber_2){
+      correctTheCovMatrix(IC);
+    }
+
     // ptc: Invert covariance matrix (and trap if it fails!)
     int ierr = 0;
     IC.invert(ierr); // inverts in place
@@ -1682,6 +1628,7 @@ void CSCSegAlgoST::fitSlopes() {
     M(4,3) += IC(2,1) * z * z;
     M(4,4) += IC(2,2) * z * z;
     B(4)   += ( u * IC(2,1) + v * IC(2,2) ) * z;
+    //
   }
   CLHEP::HepVector p = solve(M, B);
   
@@ -1690,6 +1637,7 @@ void CSCSegAlgoST::fitSlopes() {
   protoIntercept = LocalPoint(p(1), p(2), 0.);
   protoSlope_u = p(3);
   protoSlope_v = p(4);
+  //
 }
 /* Method fillChiSquared
  *
@@ -1716,11 +1664,26 @@ void CSCSegAlgoST::fillChiSquared() {
     double dv = protoIntercept.y() + protoSlope_v * z - v;
     
     CLHEP::HepMatrix IC(2,2);
-    IC(1,1) = hit.localPositionError().xx();
+    if(passCondNumber&& !passCondNumber_2){
+      IC(1,1) = e_Cxx.at(ih-protoSegment.begin());
+    }
+    else{
+      IC(1,1) = hit.localPositionError().xx();
+    }
+    //    IC(1,1) = hit.localPositionError().xx();
     IC(1,2) = hit.localPositionError().xy();
     IC(2,2) = hit.localPositionError().yy();
     IC(2,1) = IC(1,2);
+    /// Correct the cov matrix
+    if(passCondNumber_2){
+      correctTheCovMatrix(IC);
+    }
     
+    /// Correct the cov matrix
+    // if(passCondNumber){
+    // correctTheCovMatrix(IC);
+    //}
+
     // Invert covariance matrix
     int ierr = 0;
     IC.invert(ierr);
@@ -1734,6 +1697,7 @@ void CSCSegAlgoST::fillChiSquared() {
   }
 
   protoChi2 = chsq;
+  protoNDF = 2.*protoSegment.size() - 4;
 }
 /* fillLocalDirection
  *
@@ -1772,7 +1736,7 @@ AlgebraicSymMatrix CSCSegAlgoST::weightMatrix() const {
     
     const CSCRecHit2D& hit = (**it);
     ++row;
-    matrix(row, row)   = hit.localPositionError().xx();
+    matrix(row, row)   = protoChiUCorrection*hit.localPositionError().xx();
     matrix(row, row+1) = hit.localPositionError().xy();
     ++row;
     matrix(row, row-1) = hit.localPositionError().xy();
@@ -1855,4 +1819,123 @@ void CSCSegAlgoST::flipErrors( AlgebraicSymMatrix& a ) const {
   a(3,2) = hold(1,4);
   a(2,3) = hold(4,1); // = hold(1,4)
   a(1,4) = hold(3,2); // = hold(2,3)
-} 
+}
+//
+
+void CSCSegAlgoST::correctTheCovX(void){
+  std::vector<double> uu, vv, zz;  /// Vectors of coordinates
+  //std::vector<double> e_Cxx;
+  e_Cxx.clear();
+  double sum_U_err=0.0;
+  double sum_Z_U_err=0.0; 
+  double sum_Z2_U_err=0.0;
+  double sum_U_U_err=0.0;
+  double sum_UZ_U_err=0.0;
+  std::vector<double> chiUZind;
+  std::vector<double>::iterator chiContribution;
+  double chiUZ=0.0;
+  ChamberHitContainer::const_iterator ih = protoSegment.begin();
+  for (ih = protoSegment.begin(); ih != protoSegment.end(); ++ih) {
+    const CSCRecHit2D& hit = (**ih);
+    e_Cxx.push_back(hit.localPositionError().xx());
+    // 
+    const CSCLayer* layer  = theChamber->layer(hit.cscDetId().layer());
+    GlobalPoint gp         = layer->toGlobal(hit.localPosition());
+    LocalPoint  lp         = theChamber->toLocal(gp); 
+    // ptc: Local position of hit w.r.t. chamber
+    double u = lp.x();
+    double v = lp.y();
+    double z = lp.z();
+    uu.push_back(u); 
+    vv.push_back(v); 
+    zz.push_back(z);
+    /// Prepare the sums for the standard linear fit
+    sum_U_err += 1./e_Cxx.back();
+    sum_Z_U_err += z/e_Cxx.back();
+    sum_Z2_U_err += (z*z)/e_Cxx.back();
+    sum_U_U_err += u/e_Cxx.back();
+    sum_UZ_U_err += (u*z)/e_Cxx.back();
+  }
+ 
+  /// Make a primitive one dimentional fit in U-Z plane
+  /// U=U0+UZ*Z fit parameters
+  
+  double denom=sum_U_err*sum_Z2_U_err-pow(sum_Z_U_err,2);
+  double U0=(sum_Z2_U_err*sum_U_U_err-sum_Z_U_err*sum_UZ_U_err)/denom;
+  double UZ=(sum_U_err*sum_UZ_U_err-sum_Z_U_err*sum_U_U_err)/denom;
+  
+  /// Calculate the fit line trace  
+  /// Calculate one dimentional chi^2 and normilize the errors if needed
+  
+  for(unsigned i=0; i<uu.size(); ++i){
+    double uMean = U0+UZ*zz[i];
+    chiUZind.push_back((pow((uMean-uu[i]),2))/e_Cxx[i]);
+    chiUZ += (pow((uMean-uu[i]),2))/e_Cxx[i];
+  }
+  chiUZ = chiUZ/(uu.size()-2);
+  
+  if(chiUZ>=chi2Norm_2D_){
+    protoChiUCorrection = chiUZ/chi2Norm_2D_;
+    for(unsigned i=0; i<uu.size(); ++i)
+      e_Cxx[i]=e_Cxx[i]*protoChiUCorrection;
+  }
+  
+  /// Max contribution in case of big correction factor
+  
+  if(sqrt(protoChiUCorrection)>prePrunLimit_){
+    chiContribution=max_element(chiUZind.begin(),chiUZind.end());
+    maxContrIndex = chiContribution - chiUZind.begin();
+    /*
+    for(unsigned i=0; i<chiUZind.size();++i){
+      if(*chiContribution==chiUZind[i]){
+	maxContrIndex=i;
+      }
+    }
+    */
+  }
+  //  
+  //return e_Cxx;
+}
+ 
+
+void CSCSegAlgoST::correctTheCovMatrix(CLHEP::HepMatrix &IC){
+  double condNumberCorr1=0.0;
+  double condNumberCorr2=0.0; 
+  double detCov=0.0;
+  double diag1=0.0;
+  double diag2=0.0;
+  double IC_12_corr=0.0;
+  double  IC_11_corr=0.0;
+  if(!covToAnyNumberAll_){
+    condNumberCorr1=condSeed1_*IC(2,2);
+    condNumberCorr2=condSeed2_*IC(2,2);
+    diag1=IC(1,1)*IC(2,2);
+    diag2=IC(1,2)*IC(1,2);
+    detCov=fabs(diag1-diag2);
+    if((diag1<condNumberCorr2)&&(diag2<condNumberCorr2)){
+	  if(covToAnyNumber_)
+	    IC(1,2)=covAnyNumber_;
+	  else{	
+	    IC_11_corr=condSeed1_+fabs(IC(1,2))/IC(2,2);
+	    IC(1,1)=IC_11_corr;
+	  }
+    }
+    
+    if(((detCov<condNumberCorr2)&&(diag1>condNumberCorr2))||
+       ((diag2>condNumberCorr2)&&(detCov<condNumberCorr2)
+	)){
+      if(covToAnyNumber_)
+	IC(1,2)=covAnyNumber_;
+      else{	
+	IC_12_corr=sqrt(fabs(diag1-condNumberCorr2));
+	if(IC(1,2)<0)
+	  IC(1,2)=(-1)*IC_12_corr;
+	else
+	  IC(1,2)=IC_12_corr;
+      }
+    }
+  }
+  else{
+    IC(1,2)=covAnyNumber_;
+  }
+}
