@@ -72,7 +72,6 @@
 #include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 //#include "CLHEP/Matrix/DiagMatrix.h"
@@ -107,6 +106,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
+  class TriggerNames;
 }
 
 class TFile;
@@ -256,7 +256,7 @@ public:
   void chooseDirection(CLHEP::Hep3Vector & innerPosition, CLHEP::Hep3Vector & outerPosition);
   const Propagator* propagator(std::string propagatorName) const ;
   TrajectoryStateOnSurface propagate(FreeTrajectoryState & ftsStart, const BoundPlane &bp);
-  bool applyTrigger(edm::Handle<edm::TriggerResults> &hltR);
+  bool applyTrigger(edm::Handle<edm::TriggerResults> &hltR, const edm::TriggerNames & triggerNames);
   //bool applyTrigger(void);
 
 

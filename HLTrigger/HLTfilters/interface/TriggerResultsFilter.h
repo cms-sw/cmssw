@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/01/25 14:06:11 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/11 00:12:14 $
+ *  $Revision: 1.6 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -20,7 +20,6 @@
 #include <vector>
 #include <string>
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionData.h"
 

@@ -1,5 +1,6 @@
 #include "HLTriggerOffline/JetMET/interface/HLTJetMETValidation.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) : 
   triggerEventObject_(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject")),
@@ -122,7 +123,8 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   if (gotHLT) {
-    getHLTResults(*hltresults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltresults);
+    getHLTResults(*hltresults, triggerNames);
     //    trig_iter=hltTriggerMap.find(MyTrigger);
     trig_iter=hltTriggerMap.find(_HLTPath.label());
     if (trig_iter==hltTriggerMap.end()){
@@ -270,22 +272,22 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 }
 
-void HLTJetMETValidation::getHLTResults( const edm::TriggerResults& hltresults) {
+void HLTJetMETValidation::getHLTResults(const edm::TriggerResults& hltresults,
+                                        const edm::TriggerNames & triggerNames) {
 
   int ntrigs=hltresults.size();
   if (! HLTinit_){
     HLTinit_=true;
-    triggerNames_.init(hltresults);
     
     //if (writeFile_) cout << "Number of HLT Paths: " << ntrigs << endl;
     for (int itrig = 0; itrig != ntrigs; ++itrig){
-      string trigName = triggerNames_.triggerName(itrig);
+      string trigName = triggerNames.triggerName(itrig);
       // cout << "trigger " << itrig << ": " << trigName << endl; 
     }
   }
   
   for (int itrig = 0; itrig != ntrigs; ++itrig){
-    string trigName = triggerNames_.triggerName(itrig);
+    string trigName = triggerNames.triggerName(itrig);
      bool accept=hltresults.accept(itrig);
 
      if (accept) _triggerResults->Fill(float(itrig));

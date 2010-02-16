@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/01/08 10:30:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/11 00:12:22 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -34,7 +34,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
@@ -242,8 +241,6 @@ class HLTHiggsBits : public edm::EDAnalyzer {
       int n_channel_;
       int n_hlt_bits, n_hlt_bits_eg, n_hlt_bits_mu, n_hlt_bits_ph, n_hlt_bits_tau;
       
-      edm::TriggerNames triggerNames_;  // TriggerNames class
-
     //  std::map<int, std::string> algoBitToName;
 
       HLTHiggsTruth mct_analysis_;

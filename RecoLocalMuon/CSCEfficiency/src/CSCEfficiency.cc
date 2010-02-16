@@ -9,6 +9,7 @@
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 using namespace std;
 using namespace edm;
@@ -83,7 +84,8 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
    // get hold of TriggerResults
     edm::Handle<edm::TriggerResults> hltR;
     event.getByLabel(hlTriggerResults_,hltR);
-    triggerPassed = applyTrigger(hltR);
+    const edm::TriggerNames & triggerNames = event.triggerNames(*hltR);
+    triggerPassed = applyTrigger(hltR, triggerNames);
   }
   if(!triggerPassed){
     return triggerPassed;
@@ -1415,10 +1417,9 @@ TrajectoryStateOnSurface CSCEfficiency::propagate(FreeTrajectoryState & ftsStart
   return tSOSDest;
 }
 //
-bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR ){
+bool CSCEfficiency::applyTrigger(edm::Handle<edm::TriggerResults> &hltR,
+                                 const edm::TriggerNames & triggerNames){
   bool triggerPassed = true;
-  edm::TriggerNames triggerNames;
-  triggerNames.init(*hltR);
   std::vector<std::string>  hlNames=triggerNames.triggerNames();
   pointToTriggers.clear();
   for(uint imyT = 0;imyT<myTriggers.size();++imyT){

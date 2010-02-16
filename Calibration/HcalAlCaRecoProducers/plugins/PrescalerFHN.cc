@@ -13,11 +13,10 @@
 //
 // Original Author:  Kenneth Case Rossato
 //         Created:  Wed Mar 25 13:05:10 CET 2008
-// $Id: PrescalerFHN.cc,v 1.2 2009/12/17 22:43:08 wmtan Exp $
+// $Id: PrescalerFHN.cc,v 1.3 2010/02/11 00:10:37 wmtan Exp $
 //
 //
 // modified to PrecalerFHN by Grigory Safronov 27/03/09
-
 
 // system include files
 #include <memory>
@@ -35,6 +34,7 @@
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <string>
 
@@ -55,9 +55,10 @@ class PrescalerFHN : public edm::EDFilter {
       virtual void endJob() ;
       // ----------member data ---------------------------
 
-  void init(const edm::TriggerResults &);
+  void init(const edm::TriggerResults &,
+            const edm::TriggerNames & triggerNames);
 
-  edm::TriggerNames triggerNames_;
+  edm::ParameterSetID triggerNamesID_;
 
   edm::InputTag triggerTag;
 
@@ -112,14 +113,15 @@ PrescalerFHN::~PrescalerFHN()
 // member functions
 //
 
-void PrescalerFHN::init(const edm::TriggerResults &result)
+void PrescalerFHN::init(const edm::TriggerResults &result,
+                        const edm::TriggerNames & triggerNames)
 {
   trigger_indices.clear();
 
   for (std::map<std::string, unsigned int>::const_iterator cit = prescales.begin();
        cit != prescales.end(); cit++) {
 
-    trigger_indices[cit->first] = triggerNames_.triggerIndex(cit->first);
+    trigger_indices[cit->first] = triggerNames.triggerIndex(cit->first);
     
     if (trigger_indices[cit->first] >= result.size()) {
       // trigger path not found
@@ -154,7 +156,11 @@ PrescalerFHN::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      return false;
    }
 
-   if (triggerNames_.init(*trh)) init(*trh);
+   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
+   if (triggerNamesID_ != triggerNames.parameterSetID()) {
+     triggerNamesID_ = triggerNames.parameterSetID();
+     init(*trh, triggerNames);
+   }
 
    // Trigger indices are ready at this point
    // - Begin checking for HLT bits

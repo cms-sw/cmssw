@@ -16,8 +16,6 @@ Extensions from Len Apanasevich.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "FWCore/Framework/interface/TriggerNames.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -47,6 +45,10 @@ Extensions from Len Apanasevich.
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
+namespace edm {
+  class TriggerNames;
+}
+
 class HLTJetMETValidation : public edm::EDAnalyzer {
   
  public:
@@ -57,7 +59,8 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  void getHLTResults(const edm::TriggerResults&);
+  void getHLTResults(const edm::TriggerResults&,
+                     const edm::TriggerNames & triggerNames);
 
   /// InputTag of TriggerEventWithRefs to analyze
   edm::InputTag triggerEventObject_;
@@ -91,8 +94,6 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   std::vector<bool> hlttrigs;
   std::map <std::string,bool> hltTriggerMap;
   std::map<std::string,bool>::iterator trig_iter;
-
-  edm::TriggerNames triggerNames_;  // TriggerNames class
 
   bool HLTinit_;
 

@@ -31,7 +31,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Feb 12 11:22:04 CET 2009
-// $Id: ZeeCandidateFilter.cc,v 1.3 2010/01/07 13:51:09 hegner Exp $
+// $Id: ZeeCandidateFilter.cc,v 1.4 2010/02/11 00:11:36 wmtan Exp $
 //
 //
 
@@ -223,8 +223,7 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(triggerCollectionTag_, HLTResults);
    int passTrigger = 0;  
    if (HLTResults.isValid()) {
-     edm::TriggerNames triggerNames;
-     triggerNames.init(*HLTResults);
+     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
      unsigned int trigger_size = HLTResults->size();
      unsigned int trigger_position = triggerNames.triggerIndex(hltpath_);
      if (trigger_position < trigger_size)

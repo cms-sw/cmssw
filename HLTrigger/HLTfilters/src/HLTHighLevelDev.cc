@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/11/13 19:32:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/02/15 16:08:17 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -17,6 +17,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
@@ -34,7 +35,7 @@
 //
 HLTHighLevelDev::HLTHighLevelDev(const edm::ParameterSet& iConfig) :
   inputTag_     (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
-  triggerNames_ (),
+  triggerNamesID_(),
   andOr_        (iConfig.getParameter<bool> ("andOr")),
   throw_        (iConfig.getParameter<bool> ("throw")),
   eventSetupPathsKey_(iConfig.getParameter<std::string>("eventSetupPathsKey")),
@@ -75,7 +76,9 @@ HLTHighLevelDev::~HLTHighLevelDev()
 // patterns specified in the configuration.
 // This needs to be called once at startup, whenever the trigger table has changed
 // or in case of paths from eventsetup and IOV changed
-void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventSetup& iSetup)
+void HLTHighLevelDev::init(const edm::TriggerResults & result,
+                           const edm::EventSetup& iSetup,
+                           const edm::TriggerNames & triggerNames)
 {
   unsigned int n;
 
@@ -99,7 +102,7 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
     HLTPathsByIndex_.resize(n);
     HLTPrescalesExpanded_.resize(n);
     for (unsigned int i = 0; i < n; ++i) {
-      HLTPathsByName_[i] = triggerNames_.triggerName(i);
+      HLTPathsByName_[i] = triggerNames.triggerName(i);
       HLTPathsByIndex_[i] = i;
       HLTPrescalesExpanded_[i] = 1;
     }
@@ -110,7 +113,7 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
       uint32_t scale = *(i_scale++);
       if (edm::is_glob(pattern)) {
         // found a glob pattern, expand it
-        std::vector< std::vector<std::string>::const_iterator > matches = edm::regexMatch(triggerNames_.triggerNames(), pattern);
+        std::vector< std::vector<std::string>::const_iterator > matches = edm::regexMatch(triggerNames.triggerNames(), pattern);
         if (matches.empty()) {
           // pattern does not match any trigger paths
           if (throw_)
@@ -140,7 +143,7 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
     bool valid = false;
     HLTPathsByIndex_.resize(n);
     for (unsigned int i = 0; i < HLTPathsByName_.size(); i++) {
-      HLTPathsByIndex_[i] = triggerNames_.triggerIndex(HLTPathsByName_[i]);
+      HLTPathsByIndex_[i] = triggerNames.triggerIndex(HLTPathsByName_[i]);
       if (HLTPathsByIndex_[i] < result.size()) {
         valid = true;
       } else {
@@ -215,14 +218,19 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // init the TriggerNames with the TriggerResults
-  bool config_changed = triggerNames_.init(*trh);
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
+  bool config_changed = false;
+  if (triggerNamesID_ != triggerNames.parameterSetID()) {
+    triggerNamesID_ = triggerNames.parameterSetID();
+    config_changed = true;
+  }
 
   // (re)run the initialization stuff if 
   // - this is the first event 
   // - or the HLT table has changed 
   // - or selected trigger bits come from AlCaRecoTriggerBitsRcd and these changed
   if (config_changed or (watchAlCaRecoTriggerBitsRcd_ and watchAlCaRecoTriggerBitsRcd_->check(iSetup))) {
-    this->init(*trh, iSetup);
+    this->init(*trh, iSetup, triggerNames);
     for (unsigned int i = 0; i < HLTPrescalesScalers.size(); ++i)
       HLTPrescalesScalers[i] = iEvent.id().event() + 1;
     HLTOverallPrescalesScaler_ = iEvent.id().event() + 1;

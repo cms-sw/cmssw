@@ -15,7 +15,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Tue Nov 11 16:47:29 GMT 2008
-// $Id: ErsatzMEt.h,v 1.4 2010/01/14 12:39:56 fabozzi Exp $
+// $Id: ErsatzMEt.h,v 1.5 2010/02/11 00:11:34 wmtan Exp $
 //
 //
 
@@ -29,7 +29,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -122,7 +121,6 @@ class ErsatzMEt : public edm::EDAnalyzer {
 	edm::InputTag CaloTowerCollection_;
 	edm::InputTag TriggerEvent_, TriggerResults_, TriggerPath_;
 	std::string TriggerName_, ProcessName_;
-	edm::TriggerNames TriggerNames_;
 	edm::ParameterSet hyb_fCorrPSet_, m5x5_fCorrPSet_;
 	double mW_, mZ_, mTPmin_, mTPmax_;
 	double BarrelEtaMax_, EndCapEtaMin_, EndCapEtaMax_;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/11/25 10:36:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/11 00:12:23 $
+ *  $Revision: 1.4 $
  *
  *  \author Mika Huhtinen
  *
@@ -44,7 +44,6 @@ HLTHiggsBits::HLTHiggsBits(const edm::ParameterSet& iConfig) :
   hlTriggerResults_ (iConfig.getParameter<edm::InputTag> ("HLTriggerResults")),
   mctruth_ (iConfig.getParameter<edm::InputTag> ("MCTruth")),
   n_channel_ (iConfig.getParameter<int>("Nchannel")),
-  triggerNames_(),
   nEvents_(0),
   hlNames_(0),
   init_(false),
@@ -348,8 +347,8 @@ HLTHiggsBits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // initialisation
   if (!init_) {
     init_=true;
-    triggerNames_.init(*HLTR);
-    hlNames_=triggerNames_.triggerNames();
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
+    hlNames_=triggerNames.triggerNames();
   }
 
  

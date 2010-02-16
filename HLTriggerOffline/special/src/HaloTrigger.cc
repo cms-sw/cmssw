@@ -248,16 +248,15 @@ void HaloTrigger::analyze(const Event& e, const EventSetup& es)
 	{
 		edm::Handle<TriggerResults> trh;
 		e.getByLabel(HLTriggerTag,trh);
-		edm::TriggerNames names;
-		
+
 		//////////////////////////
 		// Initialize HLT Paths //
 		//////////////////////////
 		if (!first)
 		{
 			first = true;
-			names.init(*trh);	
-			Namen = names.triggerNames();
+			edm::TriggerNames const& triggerNames = e.triggerNames(*trh);
+			Namen = triggerNames.triggerNames();
 			const unsigned int n(Namen.size());
 			std::string searchName_Halo0 ("HLT_CSCBeamHalo");
 			std::string searchName_Halo1 ("HLT_CSCBeamHaloOverlapRing1");
