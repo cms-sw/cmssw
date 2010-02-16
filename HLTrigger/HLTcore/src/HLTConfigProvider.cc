@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/13 18:45:50 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/02/16 17:02:36 $
+ *  $Revision: 1.25 $
  *
  *  \author Martin Grunewald
  *
@@ -12,6 +12,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+
 #include <algorithm>
 #include <iostream>
 
@@ -23,9 +25,7 @@ void HLTConfigProvider::clear()
    // clear data members
 
    processName_ = "";
-   registry_    = pset::Registry::instance();
-
-   processPSet_   = ParameterSet();
+   processPSet_ = ParameterSet();
 
    tableName_   = "/dev/null";
 
@@ -87,6 +87,10 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
 }
 */
 
+bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
+  return init(iHistory,processName,changed);
+}
+
 bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed) {
 
    using namespace std;
@@ -112,15 +116,15 @@ bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    ProcessConfiguration processConfiguration;
    if (iHistory.getConfigurationForProcess(processName,processConfiguration)) {
      ParameterSet processPSet;
-     if (registry_->getMapped(processConfiguration.parameterSetID(),processPSet)) {
+     if (processConfiguration.parameterSetID() == processPSet_.id()) {
+       changed=false;
+       return true;
+     } else if (pset::Registry::instance()->getMapped(processConfiguration.parameterSetID(),processPSet)) {
        if (processPSet==ParameterSet()) {
 	 clear();
 	 LogError("HLTConfigProvider") << "ProcessPSet found is empty!";
 	 changed=true;
 	 return false;
-       } else if (processPSet==processPSet_) {
-	 changed=false;
-	 return true;
        } else {
 	 clear();
 	 processName_=processName;
@@ -143,8 +147,11 @@ bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
    }
 }
 
-bool HLTConfigProvider::init(const edm::Run& iRun, const std::string& processName, bool& changed)
-{
+bool HLTConfigProvider::init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
+  return init(iRun,processName,changed);
+}
+
+bool HLTConfigProvider::init(const edm::Run& iRun, const std::string& processName, bool& changed) {
    using namespace std;
    using namespace edm;
 
@@ -152,12 +159,14 @@ bool HLTConfigProvider::init(const edm::Run& iRun, const std::string& processNam
 				<< processName << "'." << endl;
 
    const ProcessHistory& processHistory(iRun.processHistory());
-   init(processHistory,processName,changed);
-   return changed;
+   return init(processHistory,processName,changed);
 }
 
-bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& processName, bool& changed)
-{
+bool HLTConfigProvider::init(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
+  return init(iEvent,processName,changed);
+}
+
+bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& processName, bool& changed) {
    using namespace std;
    using namespace edm;
 
@@ -165,8 +174,7 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
 				<< processName << "'." << endl;
 
    const ProcessHistory& processHistory(iEvent.processHistory());
-   init(processHistory,processName,changed);
-   return changed;
+   return init(processHistory,processName,changed);
 }
 
 bool HLTConfigProvider::init(const std::string& processName)
@@ -183,9 +191,6 @@ bool HLTConfigProvider::init(const std::string& processName)
      << "for such cases use the 3-parameter init method called each event!"
      << endl;
 
-   // initialise
-   clear();
-
    // Obtain ParameterSetID for requested process (with name
    // processName) from pset registry
    string pNames("");
@@ -193,7 +198,10 @@ bool HLTConfigProvider::init(const std::string& processName)
    ParameterSet   pset;
    ParameterSetID psetID;
    unsigned int   nPSets(0);
-   for (edm::pset::Registry::const_iterator i = registry_->begin(); i != registry_->end(); ++i) {
+   const edm::pset::Registry * registry_(pset::Registry::instance());
+   const edm::pset::Registry::const_iterator rb(registry_->begin());
+   const edm::pset::Registry::const_iterator re(registry_->end());
+   for (edm::pset::Registry::const_iterator i = rb; i != re; ++i) {
      if (i->second.exists("@process_name")) {
        const std::string pName(i->second.getParameter<string>("@process_name"));
        pNames += pName+" ";
@@ -219,12 +227,14 @@ bool HLTConfigProvider::init(const std::string& processName)
 				    << hNames << "." << endl;
 
    if (nPSets==0) {
+     clear();
      LogError("HLTConfigProvider") << " Process name '"
 				   << processName
 				   << "' not found in registry!" << endl;
      return false;
    }
    if (psetID==ParameterSetID()) {
+     clear();
      LogError("HLTConfigProvider") << " Process name '"
 				   << processName
 				   << "' found but ParameterSetID invalid!"
@@ -232,6 +242,7 @@ bool HLTConfigProvider::init(const std::string& processName)
      return false;
    }
    if (nPSets>1) {
+     clear();
      LogError("HLTConfigProvider") << " Process name '"
 				   << processName
 				   << " found " << nPSets
@@ -241,15 +252,19 @@ bool HLTConfigProvider::init(const std::string& processName)
 
    // Obtain ParameterSet from ParameterSetID
    if (!(registry_->getMapped(psetID,pset))) {
+     clear();
      LogError("HLTConfigProvider") << " ProcessPSet for ProcessPSetID '"
 				   << psetID
 				   << "' not found in registry!" << endl;
      return false;
    }
 
-   processName_=processName;
-   processPSet_=pset;
-   extract();
+   if ((processName_!=processName) || (processPSet_!=pset)) {
+     clear();
+     processName_=processName;
+     processPSet_=pset;
+     extract();
+   }
 
    return true;
 

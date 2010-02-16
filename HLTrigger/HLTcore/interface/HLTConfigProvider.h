@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/02 18:26:01 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/02/16 17:02:36 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -15,7 +15,6 @@
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include<string>
@@ -41,12 +40,16 @@ class HLTConfigProvider {
 
   /// call from beginRun
   bool init(const edm::Run& iRun,                const std::string& processName, bool& changed);
+  bool init(const edm::Run& iRun,                const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+
   /// call from produce/filter/analyze method
   bool init(const edm::Event& iEvent,            const std::string& processName, bool& changed);
+  bool init(const edm::Event& iEvent,            const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
  private:
   /// real init method 
   bool init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed);
+  bool init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
   /// clear data members - called by init() method
   void clear();
   /// extract information into data members - called by init() method
@@ -159,7 +162,7 @@ class HLTConfigProvider {
 
   /// c'tor
   HLTConfigProvider():
-    processName_(""), registry_(), processPSet_(),
+    processName_(""), processPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
     pathNames_(), endpathNames_(), hltL1GTSeeds_(),
@@ -170,9 +173,6 @@ class HLTConfigProvider {
  private:
 
   std::string processName_;
-
-  const edm::pset::Registry * registry_;
-
   edm::ParameterSet processPSet_;
 
   std::string tableName_;
