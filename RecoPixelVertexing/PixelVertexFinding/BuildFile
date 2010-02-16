@@ -1,4 +1,4 @@
-<flags EDM_PLUGIN=1>
+#<flags EDM_PLUGIN=1>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
