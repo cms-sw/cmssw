@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration/StandardSequences/GeometryDB_cff')
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'MC_31X_V9::All' 
 
 process.load("Geometry.CaloEventSetup.CaloGeometryDBReader_cfi")
 
@@ -18,9 +18,9 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 
 
-process.etta = cms.EDFilter("dumpEcalTrigTowerMapping")
+process.etta = cms.EDAnalyzer("dumpEcalTrigTowerMapping")
 
-process.ctgw = cms.EDFilter("testEcalGetWindow")
+process.ctgw = cms.EDAnalyzer("testEcalGetWindow")
 
 process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              fullEcalDump = cms.untracked.bool(True)

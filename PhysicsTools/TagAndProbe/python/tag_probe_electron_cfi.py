@@ -111,7 +111,7 @@ sc_sequence = cms.Sequence( (HybridSuperClusters * EBSuperClusters + EndcapSuper
 
 
 #  GsfElectron within acceptance: no other cuts
-theGsfElectrons = cms.EDFilter("GenericElectronSelection",
+theGsfElectrons = cms.EDProducer("GenericElectronSelection",
     src = cms.untracked.string('gsfElectrons'),
     etMin = cms.untracked.double(20.0),
     histogramFile = cms.string('hist-gsfElectrons.root')
@@ -130,7 +130,7 @@ HFElectronID = cms.EDFilter("CandViewSelector",
 
 
 ## #  isolation  ################
-theIsolation = cms.EDFilter("GenericElectronSelection",
+theIsolation = cms.EDProducer("GenericElectronSelection",
     src = cms.untracked.string('gsfElectrons'),
     etMin = cms.untracked.double(20.0),
     requireTkIso = cms.untracked.bool(True),

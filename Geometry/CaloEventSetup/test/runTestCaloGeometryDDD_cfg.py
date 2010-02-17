@@ -13,9 +13,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 
 process.source = cms.Source("EmptySource")
 
-process.etta = cms.EDFilter("dumpEcalTrigTowerMapping")
+process.etta = cms.EDAnalyzer("dumpEcalTrigTowerMapping")
 
-process.ctgw = cms.EDFilter("testEcalGetWindow")
+process.ctgw = cms.EDAnalyzer("testEcalGetWindow")
 
 process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              fullEcalDump = cms.untracked.bool(True)

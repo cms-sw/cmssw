@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-jetMETDQMOfflineClient = cms.EDFilter("JetMETDQMOfflineClient",
+jetMETDQMOfflineClient = cms.EDAnalyzer("JetMETDQMOfflineClient",
 
                                  Verbose=cms.untracked.int32(0),
                                  DQMDirName=cms.untracked.string("JetMET"),

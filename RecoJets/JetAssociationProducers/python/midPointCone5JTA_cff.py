@@ -1,21 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: midPointCone5JTA_cff.py,v 1.2 2008/04/21 03:27:51 rpw Exp $
+# $Id: midPointCone5JTA_cff.py,v 1.3 2008/06/19 14:55:15 rahatlou Exp $
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import * ##propagator
 
 from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-midPointCone5JetTracksAssociatorAtVertex = cms.EDFilter("JetTracksAssociatorAtVertex",
+midPointCone5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
     jets = cms.InputTag("midPointCone5CaloJets")
 )
 
-midPointCone5JetTracksAssociatorAtCaloFace = cms.EDFilter("JetTracksAssociatorAtCaloFace",
+midPointCone5JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
     j2tParametersCALO,
     jets = cms.InputTag("midPointCone5CaloJets")
 )
 
-midPointCone5JetExtender = cms.EDFilter("JetExtender",
+midPointCone5JetExtender = cms.EDProducer("JetExtender",
     jets = cms.InputTag("midPointCone5CaloJets"),
     jet2TracksAtCALO = cms.InputTag("midPointCone5JetTracksAssociatorAtCaloFace"),
     jet2TracksAtVX = cms.InputTag("midPointCone5JetTracksAssociatorAtVertex"),

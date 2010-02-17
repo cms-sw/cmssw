@@ -9,13 +9,13 @@ egHLTOffQTester = cms.EDFilter("QualityTester",
      verboseQT = cms.untracked.bool(False),
      qtestOnEndJob =cms.untracked.bool(False),
      qtestOnEndRun =cms.untracked.bool(True),
-     qtestOnEndLumi=cms.untracked.bool(False),
+     qTestOnEndLumi=cms.untracked.bool(False),
                                
  )
 
 
 
-egHLTOffDQMSummaryClient = cms.EDFilter("EgHLTOfflineSummaryClient",
+egHLTOffDQMSummaryClient = cms.EDAnalyzer("EgHLTOfflineSummaryClient",
                                         egHLTOffFiltersToMon,
                                         DQMDirName=cms.string("HLT/EgOffline"),
                                         hltTag = cms.string("HLT"),

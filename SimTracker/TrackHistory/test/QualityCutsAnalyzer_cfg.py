@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
-process.trackOriginAnalyzer = cms.EDFilter("QualityCutsAnalyzer",
+process.trackOriginAnalyzer = cms.EDAnalyzer("QualityCutsAnalyzer",
     process.trackClassifier,
     jetTracksAssociation = cms.untracked.InputTag("ic5JetTracksAssociatorAtVertex"),
     # no selection whatsoever   

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gmttree = cms.EDFilter("L1MuGMTTree",
+gmttree = cms.EDAnalyzer("L1MuGMTTree",
     GeneratorInputTag = cms.InputTag("none"),
     SimulationInputTag = cms.InputTag("none"),
     GTInputTag = cms.InputTag("none"),

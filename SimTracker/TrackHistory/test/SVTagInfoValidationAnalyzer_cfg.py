@@ -24,7 +24,7 @@ process.add_(
   )
 )
 
-process.svTagInfoValidationAnalyzer = cms.EDFilter("SVTagInfoValidationAnalyzer",
+process.svTagInfoValidationAnalyzer = cms.EDAnalyzer("SVTagInfoValidationAnalyzer",
     process.vertexClassifier,
     svTagInfoProducer = cms.untracked.InputTag('secondaryVertexTagInfos')
 )

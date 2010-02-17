@@ -13,8 +13,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-#    debugFlag = cms.untracked.bool(True),
-#    debugVebosity = cms.untracked.uint32(10),
+    debugFlag = cms.untracked.bool(True),
+    debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
       )
 )
@@ -28,7 +28,7 @@ process.hcalRecoAnalyzer = cms.EDFilter("HcalRecHitsValidation",
 )
 
 
-process.hcalTowerAnalyzer = cms.EDFilter("CaloTowersValidation",
+process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     outputFile = cms.untracked.string('CaloTowersValidationRelVal.root'),
     CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),
     hcalselector = cms.untracked.string('all')

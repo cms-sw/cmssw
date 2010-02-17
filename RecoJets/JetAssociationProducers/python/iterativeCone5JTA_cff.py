@@ -1,21 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: iterativeCone5JTA_cff.py,v 1.2 2008/04/21 03:27:44 rpw Exp $
+# $Id: iterativeCone5JTA_cff.py,v 1.3 2008/06/19 14:55:11 rahatlou Exp $
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import * ##propagator
 
 from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-iterativeCone5JetTracksAssociatorAtVertex = cms.EDFilter("JetTracksAssociatorAtVertex",
+iterativeCone5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
     jets = cms.InputTag("iterativeCone5CaloJets")
 )
 
-iterativeCone5JetTracksAssociatorAtCaloFace = cms.EDFilter("JetTracksAssociatorAtCaloFace",
+iterativeCone5JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
     j2tParametersCALO,
     jets = cms.InputTag("iterativeCone5CaloJets")
 )
 
-iterativeCone5JetExtender = cms.EDFilter("JetExtender",
+iterativeCone5JetExtender = cms.EDProducer("JetExtender",
     jets = cms.InputTag("iterativeCone5CaloJets"),
     jet2TracksAtCALO = cms.InputTag("iterativeCone5JetTracksAssociatorAtCaloFace"),
     jet2TracksAtVX = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertex"),

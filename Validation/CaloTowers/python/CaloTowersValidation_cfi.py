@@ -19,7 +19,7 @@ source = cms.Source("PoolSource",
 
 MessageLogger = cms.Service("MessageLogger")
 
-myanalyzer = cms.EDFilter("CaloTowersValidation",
+myanalyzer = cms.EDAnalyzer("CaloTowersValidation",
     outputFile = cms.untracked.string('CaloTowersValidationHB.root'),
     CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),
     hcalselector = cms.untracked.string('HB')

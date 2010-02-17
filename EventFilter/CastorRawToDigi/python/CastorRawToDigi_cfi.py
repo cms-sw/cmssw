@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # This version is intended for unpacking standard production data
-castorDigis = cms.EDFilter("CastorRawToDigi",
+castorDigis = cms.EDProducer("CastorRawToDigi",
     # Optional filter to remove any digi with "data valid" off, "error" on, 
     # or capids not rotating
     FilterDataQuality = cms.bool(True),

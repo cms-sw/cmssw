@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-caloTowerMakerHLT = cms.EDFilter("CaloTowerCreatorForTauHLT",
+caloTowerMakerHLT = cms.EDProducer("CaloTowerCreatorForTauHLT",
     verbose = cms.untracked.int32(0),
     towers = cms.InputTag("towerMaker"),
     TauId = cms.int32(0),

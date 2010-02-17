@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-ttrigcalib = cms.EDFilter("DTTTrigCalibration",
+ttrigcalib = cms.EDAnalyzer("DTTTrigCalibration",
                           # Switch on/off the check of noisy channels
                           checkNoisyChannels = cms.untracked.bool(True),
                           # Module for t0 subtraction

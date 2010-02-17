@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-cosmicCandidateFinder = cms.EDFilter("CosmicTrackFinder",
+cosmicCandidateFinder = cms.EDProducer("CosmicTrackFinder",
     stereorecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
     HitProducer = cms.string('siStripRecHits'),
     pixelRecHits = cms.InputTag("siPixelRecHits"),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ttrigwriter = cms.EDFilter("DTTTrigWriter",
+ttrigwriter = cms.EDAnalyzer("DTTTrigWriter",
                            # Switch on/off the verbosity
                            debug = cms.untracked.bool(True),
                            # Name of the input ROOT file which contains the time boxes

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoBTag.SoftLepton.muonSelection
 
 # SoftLeptonTagInfo producer for tagging caloJets with dedicated "soft" electrons
-softElectronTagInfos = cms.EDFilter("SoftLepton",
+softElectronTagInfos = cms.EDProducer("SoftLepton",
     jets = cms.InputTag("ak5CaloJets"),
     leptons = cms.InputTag("softPFElectrons"),
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),

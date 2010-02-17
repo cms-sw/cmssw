@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l2TauJetsProvider = cms.EDFilter("L2TauJetsProvider",
+l2TauJetsProvider = cms.EDProducer("L2TauJetsProvider",
     L1Particles = cms.InputTag("l1extraParticles","Tau"),
     L1TauTrigger = cms.InputTag("DummyHLTL1SeedFilter"),
     EtMin = cms.double(15.0),

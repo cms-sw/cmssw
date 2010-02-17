@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #  SiStripOfflineDQM (for Tier0 Harvesting Step) ####
-siStripOfflineAnalyser = cms.EDFilter("SiStripOfflineDQM",
+siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
     GlobalStatusFilling      = cms.untracked.int32(2),
     CreateSummary            = cms.untracked.bool(False),
     SummaryConfigPath        = cms.untracked.string("DQM/SiStripMonitorClient/data/sistrip_monitorelement_config.xml"),

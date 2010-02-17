@@ -6,7 +6,7 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi imp
 
 DQMStore = cms.Service("DQMStore")
 
-MuIsoValidation_inc = cms.EDFilter("MuIsoValidation",
+MuIsoValidation_inc = cms.EDAnalyzer("MuIsoValidation",
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(False),
     ecalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
@@ -17,7 +17,7 @@ MuIsoValidation_inc = cms.EDFilter("MuIsoValidation",
     directory = cms.string("Muons/MuonIsolationV_inc")                             
 )
 
-MuIsoValidation_global = cms.EDFilter("MuIsoValidation",
+MuIsoValidation_global = cms.EDAnalyzer("MuIsoValidation",
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(True),
     ecalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),

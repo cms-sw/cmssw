@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
-csctfunpacker = cms.EDFilter("CSCTFUnpacker",
+csctfunpacker = cms.EDProducer("CSCTFUnpacker",
     CSCCommonTrigger,
     # Set all values to 0 if you trust hardware settings
     # Keep in mind that +Z (positive endcap) has sectors 1-6 and -Z (negative endcap) 7-12

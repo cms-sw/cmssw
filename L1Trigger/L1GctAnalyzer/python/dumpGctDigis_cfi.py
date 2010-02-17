@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dumpGctDigis = cms.EDFilter("DumpGctDigis",
+dumpGctDigis = cms.EDAnalyzer("DumpGctDigis",
     doRctEm = cms.untracked.bool(True),
     doJets = cms.untracked.bool(False),
     rctEmMinRank = cms.untracked.uint32(0),

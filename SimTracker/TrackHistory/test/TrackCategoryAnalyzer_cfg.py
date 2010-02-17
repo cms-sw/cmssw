@@ -25,7 +25,7 @@ process.add_(
   )
 )
 
-process.trackCategoriesAnalyzer = cms.EDFilter("TrackCategoriesAnalyzer",
+process.trackCategoriesAnalyzer = cms.EDAnalyzer("TrackCategoriesAnalyzer",
     process.trackClassifier
 )
 

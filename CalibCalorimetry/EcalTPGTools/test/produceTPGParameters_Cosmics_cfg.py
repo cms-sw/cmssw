@@ -25,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
+process.TPGParamProducer = cms.EDAnalyzer("EcalTPGParamBuilder",
 
     #### inputs/ouputs control ####
     writeToDB  = cms.bool(False),

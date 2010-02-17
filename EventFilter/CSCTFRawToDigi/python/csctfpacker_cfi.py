@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
-csctfpacker = cms.EDFilter("CSCTFPacker",
+csctfpacker = cms.EDProducer("CSCTFPacker",
     CSCCommonTrigger,
     # the above "using" statement is equivalent to settings below:
     #   untracked(?) int32 MinBX = 3
