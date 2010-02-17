@@ -43,14 +43,15 @@ mkdir workArea
 cd workArea
 set myDir=`pwd`
 echo $myDir
-cp $CMSSW_BASE/src/CondTools/Geometry/test/dbconfig.xml .
-source $CMSSW_BASE/src/CondTools/Geometry/test/blob_preparation.txt > GeometryValidation.log
-cp $CMSSW_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
+
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/dbconfig.xml .
+source $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/blob_preparation.txt > GeometryValidation.log
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
 echo $geometry
 sed -i "{s/GeometryExtended/${geometry}/}" geometryxmlwriter.py >>  GeometryValidation.log
 cmsRun geometryxmlwriter.py >>  GeometryValidation.log
 
-cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrywriter.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
 sed -i "{s/GeometryExtended/${geometry}/}" geometrywriter.py >>  GeometryValidation.log
 sed -i "{s/geTagXX.xml/fred.xml/g}" geometrywriter.py >>  GeometryValidation.log
 cmsRun geometrywriter.py >>  GeometryValidation.log
@@ -63,7 +64,7 @@ endif
 
 echo "Start compare the content of GT and the local DB" | tee -a GeometryValidation.log
 
-cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrytest_local.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrytest_local.py .
 cmsRun geometrytest_local.py > outLocalDB.log
 if ( -s outLocalDB.log ) then
     echo "Local DB access run ok" | tee -a GeometryValidation.log
@@ -72,7 +73,7 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrytest_db.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrytest_db.py .
 sed -i "{/process.GlobalTag.globaltag/d}" geometrytest_db.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" geometrytest_db.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" geometrytest_db.py >> GeometryValidation.log 
@@ -100,7 +101,7 @@ mkdir tkddd
 cp myfile.db tkdblocal
 
 cd tkdb
-cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInfoDB_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInfoDB_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" trackerModuleInfoDB_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoDB_cfg.py >> GeometryValidation.log 
@@ -114,7 +115,7 @@ else
 endif
 
 cd ../tkdblocal
-cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInfoLocalDB_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInfoLocalDB_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" trackerModuleInfoLocalDB_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoLocalDB_cfg.py >> GeometryValidation.log 
@@ -128,7 +129,7 @@ else
 endif
 
 cd ../tkddd
-cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInfoDDD_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/trackerModuleInfoDDD_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" trackerModuleInfoDDD_cfg.py >> ../GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" trackerModuleInfoDDD_cfg.py >> GeometryValidation.log 
@@ -162,7 +163,7 @@ echo "End Tracker RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start DT RECO geometry validation" | tee -a GeometryValidation.log
 
-cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromDB_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromDB_cfg.py .  
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testDTGeometryFromDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testDTGeometryFromDB_cfg.py >> GeometryValidation.log 
@@ -174,7 +175,7 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromLocalDB_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromLocalDB_cfg.py .  
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testDTGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
@@ -186,7 +187,7 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometry_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometry_cfg.py .
 sed -i "{s/GeometryExtended/${geometry}/}" testDTGeometry_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometry_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testDTGeometry_cfg.py >> GeometryValidation.log 
@@ -217,7 +218,7 @@ echo "End DT RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start CSC RECO geometry validation" | tee -a GeometryValidation.log
 
-cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromDB_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromDB_cfg.py .  
 sed -i "{/process.GlobalTag.globaltag/d}" testCSCGeometryFromDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testCSCGeometryFromDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testCSCGeometryFromDB_cfg.py >> GeometryValidation.log 
@@ -229,7 +230,7 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromLocalDB_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromLocalDB_cfg.py .  
 sed -i "{/process.GlobalTag.globaltag/d}" testCSCGeometryFromLocalDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testCSCGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testCSCGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
@@ -241,7 +242,7 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometry_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometry_cfg.py .
 sed -i "{s/GeometryExtended/${geometry}/}" testCSCGeometry_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testCSCGeometry_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testCSCGeometry_cfg.py >> GeometryValidation.log 
@@ -272,7 +273,7 @@ echo "End CSC RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start RPC RECO geometry validation" | tee -a GeometryValidation.log
 
-cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromDB_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromDB_cfg.py .  
 sed -i "{/process.GlobalTag.globaltag/d}" testRPCGeometryFromDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testRPCGeometryFromDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testRPCGeometryFromDB_cfg.py >> GeometryValidation.log 
@@ -284,7 +285,7 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromLocalDB_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromLocalDB_cfg.py .  
 sed -i "{/process.GlobalTag.globaltag/d}" testRPCGeometryFromLocalDB_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testRPCGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.XMLFromDBSource.label = cms.string('${condlabel}')" testRPCGeometryFromLocalDB_cfg.py >> GeometryValidation.log 
@@ -296,7 +297,7 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometry_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometry_cfg.py .
 sed -i "{s/GeometryExtended/${geometry}/}" testRPCGeometry_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testRPCGeometry_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.GlobalTag.globaltag = '${gtag}'" testRPCGeometry_cfg.py >> GeometryValidation.log 
