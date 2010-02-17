@@ -4,15 +4,14 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2009/10/13 17:00:22 $
- * $Revision: 1.27 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.28 $
  *
 */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
