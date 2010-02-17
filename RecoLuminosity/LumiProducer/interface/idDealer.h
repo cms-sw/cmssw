@@ -8,8 +8,8 @@ namespace lumi{
   class idDealer{
   public:
     explicit idDealer( coral::ISchema& schema);
-    unsigned int getIDforTable( const std::string& tableName );
-    unsigned int generateNextIDForTable( const std::string& tableName );
+    unsigned long long getIDforTable( const std::string& tableName );
+    unsigned long long generateNextIDForTable( const std::string& tableName );
   private:
     coral::ISchema& m_schema;
     std::string m_idtablecolumnName;

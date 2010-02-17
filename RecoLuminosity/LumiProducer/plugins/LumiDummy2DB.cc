@@ -18,6 +18,7 @@
 
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
+#include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include <iostream>
 namespace lumi{
   class LumiDummy2DB : public DataPipe{
@@ -45,6 +46,7 @@ namespace lumi{
       unsigned int totalcmsls=32;
       session->transaction().start(false);
       coral::ISchema& schema=session->nominalSchema();
+      lumi::idDealer idg(schema);
       coral::ITable& summarytable=schema.tableHandle(LumiNames::lumisummaryTableName());
       coral::ITable& detailtable=schema.tableHandle(LumiNames::lumidetailTableName());
       coral::AttributeList summaryData;
@@ -66,7 +68,6 @@ namespace lumi{
       detailData.extend<unsigned long long>("LUMISUMMARY_ID");
       detailData.extend<coral::Blob>("BXINFO");
       detailData.extend<std::string>("ALGONAME");
-
       coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils);
       //loop over lumi LS
       unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
@@ -85,9 +86,8 @@ namespace lumi{
       unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
       //coral::Blob& bxinfo=detailData["BXINFO"].data<coral::Blob>();
       std::string& algoname=detailData["ALGONAME"].data<std::string>();
-      
       for(unsigned int i=1;i<=totallumils;++i){
-	lumisummary_id = i;
+	lumisummary_id = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());
 	lumirunnum = runnum;
 	lumiversion = "0";
 	dtnorm = 1.05;
@@ -109,7 +109,7 @@ namespace lumi{
 	summaryInserter->processNextIteration();
 	d2lumisummary_id=i;
 	for( unsigned int j=0; j<3; ++j ){
-	  lumidetail_id=i*100+j;
+	  lumidetail_id=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
 	  if(j==0) algoname=std::string("ET");
 	  if(j==1) algoname=std::string("OCC1");
 	  if(j==2) algoname=std::string("OCC2");
@@ -118,15 +118,16 @@ namespace lumi{
 	  detailInserter->processNextIteration();
 	}
       }
+      detailInserter->flush();
       summaryInserter->flush();
       delete summaryInserter;
-      detailInserter->flush();
       delete detailInserter;
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
       session->transaction().rollback();
       delete session;
       delete svc;
+      throw er;
     }
     //delete detailInserter;
     session->transaction().commit();

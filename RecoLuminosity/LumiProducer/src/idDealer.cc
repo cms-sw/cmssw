@@ -9,45 +9,38 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
+//#include <iostream>
 lumi::idDealer::idDealer( coral::ISchema& schema):m_schema(schema),m_idtablecolumnName(lumi::LumiNames::idTableColumnName()),m_idtablecolumnType(lumi::LumiNames::idTableColumnType()){
 }
-unsigned int lumi::idDealer::getIDforTable( const std::string& tableName ){
+unsigned long long lumi::idDealer::getIDforTable( const std::string& tableName ){
   std::string idtableName=lumi::LumiNames::idTableName(tableName);
   coral::IQuery* q=m_schema.tableHandle(idtableName).newQuery();
   q->addToOutputList(m_idtablecolumnName);
   q->setForUpdate(); //lock it
   coral::ICursor& cursor=q->execute();
-  unsigned int result=0;
+  unsigned long long result=0;
   while ( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    result = row[m_idtablecolumnName].data<unsigned int>();
+    result = row[m_idtablecolumnName].data<unsigned long long>();
   }
   cursor.close();
   delete q;
   return result;
 }
-unsigned int lumi::idDealer::generateNextIDForTable( const std::string& tableName ){
+unsigned long long lumi::idDealer::generateNextIDForTable( const std::string& tableName ){
   std::string idtableName=lumi::LumiNames::idTableName(tableName);
   coral::IQuery* q=m_schema.tableHandle(idtableName).newQuery();
   q->addToOutputList(m_idtablecolumnName);
   q->setForUpdate(); //lock it
   coral::ICursor& cursor=q->execute();
-  unsigned int result=0;
+  unsigned long long result=0;
   while ( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    result = row[m_idtablecolumnName].data<unsigned int>();
+    result = row[m_idtablecolumnName].data<unsigned long long>();
   }
   coral::ITableDataEditor& dataEditor=m_schema.tableHandle(idtableName).dataEditor();
   coral::AttributeList inputData;
-  if( result==0 ){
-    dataEditor.rowBuffer(inputData);
-    inputData[m_idtablecolumnName].data<unsigned int>()=result+1;
-    dataEditor.insertRow(inputData);
-  }else{
-    inputData.extend("newid",m_idtablecolumnType);
-    inputData["newid"].data<unsigned int>()=result+1;
-    dataEditor.updateRows(m_idtablecolumnName+"= :newid","",inputData);
-  }
+  dataEditor.updateRows(m_idtablecolumnName+"="+m_idtablecolumnName+"+1","",inputData);
   delete q;
   return result+1;
 }
