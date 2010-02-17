@@ -23,14 +23,14 @@ configuration object. It accepts the following arguments
 -r XXX (or --runnumber=XXX) run number, used to set IOV (REQUIRED)
 -t XXX (or --tagname=XXX) tag name to use (by default, will use default based on calibration type)
 -c XXX (or --cfgtemplate=XXX) template cfg.py file to use (defaults to CondTools/SiPixel/test/test_PixelPopConCalibAnalyzer_cfg.py)
--d XXX (or --database=XXX) connect string for database. Defaults to ORCON if at P5, sqlite file otherwise
+-D XXX (or --database=XXX) connect string for database. Defaults to ORCON if at P5, sqlite file otherwise
 -l XXX (or --logdatabase=XXX) connect string for logging database. Defaults to official logging db if at P5, sqlite file otherwise
 -a XXX (or --authPath=XXX) path to database authentication files
 -p (or --point5) Force point5 behavior (this gets set by default if running from a machine in the .cms network)
 -o XXX (or --outputFilename=XXX) Filename for output cfg.py file
 -w (or --writeOnly) Only write the cfg.py file, don't run it
 -q (or --writeChecker) Also write a PixelPopConCalibChecker cfg.py file
--d XXX (or --writeCheckerTemplate=XXX) Template cfg.py for PixelPopConCalibChecker 
+-Q XXX (or --writeCheckerTemplate=XXX) Template cfg.py for PixelPopConCalibChecker 
 """
 
 def main(argv):
@@ -41,8 +41,8 @@ def main(argv):
     
     # get the options from the command line
     try:
-        opts, args = getopt.getopt(argv, 'hdf:t:r:c:d:l:a:po:wqd:', 
-                                   ['help', 'debug', 'filename=', '--tagname=', 'runnumber=', 
+        opts, args = getopt.getopt(argv, 'hdf:t:r:c:D:l:a:po:wqQ:', 
+                                   ['help', 'debug', 'filename=', 'tagname=', 'runnumber=', 
                                     'cfgtemplate=', 'database=', 'logdatabase=', 'authPath=', 
                                     'point5', 'outputFilename=', 'writeOnly', 'writeChecker',
                                     'writeCheckerTemplate='])
@@ -96,7 +96,7 @@ def main(argv):
             runNumber = value
         elif opt in ['-c', '--cfgtemplate']:
             cfgTemplate = value
-        elif opt in ['-d', '--database']:
+        elif opt in ['-D', '--database']:
             databaseConnect = value
         elif opt in ['-l', '--logdatabase']:
             logdbConnect = value 
@@ -112,7 +112,7 @@ def main(argv):
             writeOnly = True
         elif opt in ['-q', '--writeChecker']:
             writeChecker = True
-        elif opt in ['-d', '--writeCheckerTemplate']:
+        elif opt in ['-Q', '--writeCheckerTemplate']:
             writeCheckerTemplate = value
             
     
