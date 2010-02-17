@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"

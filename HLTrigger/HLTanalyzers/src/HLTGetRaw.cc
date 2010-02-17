@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/04/20 06:58:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/02 07:02:22 $
+ *  $Revision: 1.2 $
  *
  *  \author various
  *
@@ -19,7 +19,7 @@
 #include <map>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

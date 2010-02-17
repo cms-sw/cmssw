@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id: DumpGctDigis.h,v 1.2 2007/07/18 21:58:12 jbrooke Exp $
+// $Id: DumpGctDigis.h,v 1.3 2007/10/25 17:59:28 frazier Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
 #include <fstream>

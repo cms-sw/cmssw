@@ -32,7 +32,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"

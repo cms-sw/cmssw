@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.39 2009/12/18 20:44:50 wmtan Exp $
+// $Id: FourVectorHLTOffline.h,v 1.40 2010/01/27 15:01:09 rekovic Exp $
 //
 //
 
@@ -54,7 +54,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"

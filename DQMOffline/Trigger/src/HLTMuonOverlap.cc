@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

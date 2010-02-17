@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/SelectorBase.h"
 #include "FWCore/Framework/interface/SelectorProvenance.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
 

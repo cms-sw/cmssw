@@ -1,7 +1,7 @@
 #ifndef HLTCOMPARATOR_H
 #define HLTCOMPARATOR_H
 // Original Author: James Jackson
-// $Id: HltComparator.h,v 1.3 2009/08/06 17:42:52 wittich Exp $
+// $Id: HltComparator.h,v 1.5 2009/12/29 21:55:29 nuno Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 class TH1F;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/10/08 15:56:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/05 11:51:28 $
+ *  $Revision: 1.4 $
  *
  *  \author various
  *
@@ -23,7 +23,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"

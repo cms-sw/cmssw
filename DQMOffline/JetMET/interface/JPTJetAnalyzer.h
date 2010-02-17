@@ -5,14 +5,14 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2010/01/15 14:58:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/18 21:04:05 $
+ *  $Revision: 1.7 $
  *  \author N. Cripps - Imperial
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMOffline/JetMET/interface/JetAnalyzerBase.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 // forward declare classes which do not need to be defined for interface

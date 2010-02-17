@@ -3,7 +3,7 @@
 // Combines different Jet associations into single compact object
 // which extends basic Jet information
 // Fedor Ratnikov Sep. 10, 2007
-// $Id: JetExtender.h,v 1.1 2007/08/29 17:53:15 fedor Exp $
+// $Id: JetExtender.h,v 1.1 2007/09/11 23:57:26 fedor Exp $
 //
 //
 #ifndef JetExtender_h
@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class JetExtender : public edm::EDProducer {

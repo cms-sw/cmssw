@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 15:21:37 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/03/05 16:48:58 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -14,7 +14,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iomanip>

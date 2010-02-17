@@ -5,8 +5,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2010/01/18 21:04:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/20 19:13:51 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -25,7 +25,7 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 //
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
