@@ -1,6 +1,0 @@
-<use name=DataFormats/BTauReco>
-<use name=RecoBTau/JetTagComputer>
-<export>
-  <use name=RecoBTau/JetTagComputer>
-  <lib name=RecoBTagSoftLepton>
-</export>
