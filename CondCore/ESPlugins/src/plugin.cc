@@ -23,6 +23,9 @@
 #include "CondFormats/ESObjects/interface/ESADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/ESADCToGeVConstantRcd.h"
 
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+
 #include "CondFormats/ESObjects/interface/ESGain.h"
 #include "CondFormats/DataRecord/interface/ESGainRcd.h"
 
@@ -31,6 +34,9 @@
 
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+
+#include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
+#include "CondFormats/DataRecord/interface/ESRecHitRatioCutsRcd.h"
 
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
@@ -41,7 +47,9 @@ REGISTER_PLUGIN(ESWeightStripGroupsRcd,ESWeightStripGroups);
 REGISTER_PLUGIN(ESTBWeightsRcd,ESTBWeights);
 REGISTER_PLUGIN(ESIntercalibConstantsRcd,ESFloatCondObjectContainer);
 REGISTER_PLUGIN(ESADCToGeVConstantRcd,ESADCToGeVConstant);
+REGISTER_PLUGIN(ESMIPToGeVConstantRcd,ESMIPToGeVConstant);
 REGISTER_PLUGIN(ESThresholdsRcd,ESThresholds);
 REGISTER_PLUGIN(ESEEIntercalibConstantsRcd,ESEEIntercalibConstants);
+REGISTER_PLUGIN(ESRecHitRatioCutsRcd,ESRecHitRatioCuts);
 REGISTER_PLUGIN(ESChannelStatusRcd,ESChannelStatus);
 
