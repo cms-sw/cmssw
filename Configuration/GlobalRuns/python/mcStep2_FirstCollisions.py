@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     annotation = cms.untracked.string('step2 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -129,8 +129,6 @@ process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 ## ECAL 
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
-##only for 34X
-process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
 
 ## HCAL temporary fixes
 process.hfreco.firstSample  = 1
