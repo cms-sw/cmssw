@@ -56,8 +56,11 @@ private:
     /// analyze: usage of L1GtUtils
     void analyzeL1GtUtils(const edm::Event&, const edm::EventSetup&);
 
-    /// analyze: object map record
+    /// analyze: object map product
     virtual void analyzeObjectMap(const edm::Event&, const edm::EventSetup&);
+
+    /// analyze: usage of L1GtTriggerMenuLite
+    void analyzeL1GtTriggerMenuLite(const edm::Event&, const edm::EventSetup&);
 
     /// analyze each event: event loop over various code snippets
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -67,23 +70,29 @@ private:
 
 private:
 
-    /// input tags for GT DAQ record
+    /// input tags for GT DAQ product
     edm::InputTag m_l1GtDaqReadoutRecordInputTag;
 
-    /// input tags for GT lite record
+    /// input tags for GT lite product
     edm::InputTag m_l1GtRecordInputTag;
 
     /// input tags for GT object map collection
     edm::InputTag m_l1GtObjectMapTag;
 
-    // input tag for muon collection from GMT
+    /// input tag for muon collection from GMT
     edm::InputTag m_l1GmtInputTag;
+
+    /// input tag for L1GtTriggerMenuLite
+    edm::InputTag m_l1GtTmLInputTag;
 
     /// a physics algorithm (name or alias) or a technical trigger name
     std::string m_nameAlgTechTrig;
 
     /// a condition in the physics algorithm to test the object maps
     std::string m_condName;
+
+    /// a bit number to retrieve the name and the alias
+    unsigned int m_bitNumber;
 
     L1GtUtils m_l1GtUtils;
 

@@ -11,7 +11,7 @@ import sys
 ###################### user choices ######################
 # choose (pre)release
 latestRelease = 'CMSSW_3_5_X'
-useRelease = 'CMSSW_3_4_1'
+useRelease = 'CMSSW_3_5_X'
 
 # choose the type of sample used:
 #   True for RelVal
@@ -40,15 +40,15 @@ if useRelValSample == True :
    
 else :
 
-    # data type
-    dataType = 'RAW'
+    # data type: StreamFile is not associated to these runs
+    #dataType = 'RAW'
     #dataType = 'StreamFile'
-    #dataType = 'RECO'
+    dataType = 'RECO'
     
-    runNumber = 123596
+    #runNumber = 123596
     #runNumber = 116035
     #runNumber = 121560
-
+    runNumber = 127715
 
 # change to True to use local files
 #     the type of file should match the choice of useRelValSample
@@ -107,7 +107,7 @@ else :
 #
 #
 
-process = cms.Process("TestL1GtAnalyzer")
+process = cms.Process("L1GtTriggerMenuLite")
 
 #
 # load and configure modules via Global Tag
@@ -338,6 +338,29 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
             sys.exit()
 
     
+    elif dataType == 'RECO' : 
+        # data dat
+        if runNumber == 123596 :
+            dataset = '/Cosmics/BeamCommissioning09-v2/RECO'
+            readFiles.extend( [
+                '/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/123/596/FC5C3B0F-8AE2-DE11-A905-003048D37456.root'
+        
+                ] );
+        elif (runNumber == 127715) and (useRelease == 'CMSSW_3_5_X') :
+            dataset = '/Cosmics/Commissioning10-v3/RECO'
+            print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/Cosmics/RECO/v3/000/127/715/261A3141-9F18-DF11-883E-001D09F24493.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        else :
+            print 'Error: run ', runNumber, ' has no RECO file available.'    
+            sys.exit()
+
     elif dataType == 'FileStream' : 
         # data dat
         readFiles.extend( [
@@ -388,6 +411,9 @@ process.l1GtAnalyzer.AlgorithmName = 'L1_BscMinBiasOR_BptxPlusORMinus'
 # condition in the above algorithm to test the object maps
 process.l1GtAnalyzer.ConditionName = 'SingleNoIsoEG_0x0A'
 
+# a bit number
+process.l1GtAnalyzer.BitNumber = 10
+
 
 
 
@@ -437,7 +463,7 @@ process.MessageLogger.debugs = cms.untracked.PSet(
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
 process.MessageLogger.warnings = cms.untracked.PSet( 
@@ -445,12 +471,12 @@ process.MessageLogger.warnings = cms.untracked.PSet(
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 
 process.MessageLogger.errors = cms.untracked.PSet( 
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
