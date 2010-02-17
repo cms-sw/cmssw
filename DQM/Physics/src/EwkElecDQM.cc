@@ -190,7 +190,7 @@ void EwkElecDQM::init_histograms() {
             hcalisoendcap_before_ = theDbe->book1D("HCALISOENDCAP_BEFORECUTS",chtitle,50,0.,50.);
             hcalisoendcap_after_ = theDbe->book1D("HCALISOENDCAP_LASTCUT",chtitle,50,0.,50.);
 
-            snprintf(chtitle, 255, "Absolute electron ECAL isolation variable (barrel) [GeV]");
+            snprintf(chtitle, 255, "Absolute electron track isolation variable (barrel) [GeV]");
             trkisobarrel_before_ = theDbe->book1D("TRKISOBARREL_BEFORECUTS",chtitle,50,0.,50.);
             trkisobarrel_after_ = theDbe->book1D("TRKISOBARREL_LASTCUT",chtitle,50,0.,50.);
 
