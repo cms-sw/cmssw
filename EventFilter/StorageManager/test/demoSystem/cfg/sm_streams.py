@@ -23,7 +23,7 @@ process.out3 = cms.OutputModule("EventStreamFileWriter",
                                 maxSize = cms.int32(60),
                                 SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('DiMuon', 'CalibPath', 'DiElectron', 'HighPT') ),
                                 SelectHLTOutput = cms.untracked.string('PhysicsOModule'),
-                                fractionToDisk = cms.untracked.double( 0.0 )
+                                fractionToDisk = cms.untracked.double( 0.5 )
                                 )
 
 process.out4 = cms.OutputModule("ErrorStreamFileWriter",
