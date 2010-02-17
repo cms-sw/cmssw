@@ -25,6 +25,8 @@
 
 <class name="ESEEIntercalibConstants"/>
 
+<class name="ESRecHitRatioCuts"/>
+
 <class name="ESChannelStatus"/>
 <class name="ESChannelStatusCode"/>
 <class name="std::vector<ESChannelStatusCode>"/>

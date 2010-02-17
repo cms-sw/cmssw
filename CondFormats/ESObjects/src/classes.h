@@ -15,6 +15,7 @@
 #include "CondFormats/ESObjects/interface/ESChannelStatusCode.h"
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
 #include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
 
 namespace{
   struct dictionary {
@@ -38,6 +39,8 @@ namespace{
     ESIntercalibConstants intercalib;
  
     ESEEIntercalibConstants eseeintercalib;
+
+    ESRecHitRatioCuts esrechitratiocuts;
 
     ESChannelStatus channelStatus;
 
