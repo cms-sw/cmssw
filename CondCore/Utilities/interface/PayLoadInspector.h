@@ -115,7 +115,6 @@ namespace cond {
 
   private:
     bool load( cond::DbSession & db, std::string const & token) {
-      std::cout << "PayLoadInspector::load" << std::endl;
       old = false;
       bool ok = false;
       // try wrapper, if not try plain
