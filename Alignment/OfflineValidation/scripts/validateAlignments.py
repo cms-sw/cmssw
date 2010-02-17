@@ -148,6 +148,7 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
         result = []
         for validationName in self.mode:
             if validationName == "compare":
+                randomWorkdirPart = None #use only one ranom numberr for all geom. comparisions for one alignment
                 #test if all needed alignments are defined
                 for alignmentName in self.compareTo:
                     referenceAlignment = 'IDEAL'
@@ -159,8 +160,9 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                                 foundAlignment = True
                         if not foundAlignment:
                             raise StandardError, " could not find alignment called '%s'"%alignmentName
-
-                    result.append( GeometryComparision( self, referenceAlignment, config, options.getImages ) )
+                    result.append( GeometryComparision( self, referenceAlignment, config, options.getImages, randomWorkdirPart ) )
+                    if randomWorkdirPart == None:
+                        randomWorkdirPart = result[-1].randomWorkdirPart
             elif validationName == "offline":
                 result.append( OfflineValidation( self, config ) )
             elif validationName == "offlineDQM":
@@ -265,8 +267,10 @@ alignemnt is the alignment to analyse
 config is the overall configuration
 copyImages indicates wether plot*.eps files should be copied back from the farm
 """
-    def __init__(self, alignment, referenceAlignment, config, copyImages = True):
+    def __init__(self, alignment, referenceAlignment, config, copyImages = True, randomWorkdirPart = None):
         GenericValidation.__init__(self, alignment, config)
+        if not randomWorkdirPart == None:
+            self.randomWorkdirPart = randomWorkdirPart
         self.referenceAlignment = referenceAlignment
         self.__compares = {}
         allCompares = readCompare(config)
@@ -307,7 +311,7 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
                     replaceByMap( configTemplates.intoNTuplesTemplate, repMap)}
         if not self.referenceAlignment == "IDEAL":
             referenceRepMap = self.getRepMap( self.referenceAlignment )
-            cfgFileName = "TkAlCompareToNTuple.%s_cfg.py"%self.referenceAlignment.name
+            cfgFileName = "TkAlCompareToNTuple.%s.%s_cfg.py"%(self.referenceAlignment.name, self.randomWorkdirPart)
             cfgs[ cfgFileName ] = replaceByMap( configTemplates.intoNTuplesTemplate, referenceRepMap)
 
         cfgSchedule = cfgs.keys()
@@ -447,10 +451,9 @@ class OfflineValidationDQM(OfflineValidation):
     def getRepMap(self, alignment = None):
         repMap = OfflineValidation.getRepMap(self, alignment)
         repMap.update({
-                "workdir": os.path.expandvars(repMap["workdir"]),
-		"offlineValidationMode": "Dqm",
+                "offlineValidationMode": "Dqm",
                 "offlineValidationFileOutput": configTemplates.offlineDqmFileOutputTemplate,
-                "workflow": "/%s/TkAl%s-.oO[alignmentName]Oo._R%09i_R%09i_ValSkim-v1/ALCARECO"%(self.__PrimaryDataset, datetime.datetime.now().strftime("%y"), self.__firstRun, self.__lastRun),
+                "workflow": "/%s/TkAl_.oO[alignmentName]Oo._R%09i_R%09i/ALCARECO"%(self.__PrimaryDataset, self.__firstRun, self.__lastRun),
                 "firstRunNumber": "%i"% self.__firstRun
                 }
             )
@@ -568,10 +571,11 @@ def runJob(jobName, script, config):
             "commands": general["jobmode"].split(",")[1],
             "logDir": general["logdir"],
             "jobName": jobName,
-            "script": script
+            "script": script,
+            "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub"
             }
         
-        log+=getCommandOutput2("bsub %(commands)s -J %(jobName)s -o %(logDir)s/%(jobName)s.stdout -e %(logDir)s/%(jobName)s.stderr %(script)s"%repMap)     
+        log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s -o %(logDir)s/%(jobName)s.stdout -e %(logDir)s/%(jobName)s.stderr %(script)s"%repMap)
     return log
 
 def createExtendedValidationScript(offlineValidationList, outFilePath):
@@ -717,3 +721,4 @@ def main(argv = None):
 if __name__ == "__main__":        
    # main(["-n","-N","test","-c","defaultCRAFTValidation.ini,latestObjects.ini","--getImages"])
    main()
+

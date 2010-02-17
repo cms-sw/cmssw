@@ -302,7 +302,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(0)
+    input = cms.untracked.int32(1)
 )
 
   # configuration of the Tracker Geometry Comparison Tool
@@ -454,8 +454,8 @@ void TkAlExtendedOfflineValidation()
   //compile the makro
   gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
 
-.oO[extendedInstantiation]Oo.
-
+  .oO[extendedInstantiation]Oo.
+  gROOT->ProcessLine(".mkdir -p .oO[workdir]Oo./ExtendedOfflineValidation_Images/");
   p.setOutputDir(".oO[workdir]Oo./ExtendedOfflineValidation_Images");
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
   p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.);

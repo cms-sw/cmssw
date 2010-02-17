@@ -86,7 +86,7 @@ public:
   void plotDMR(const std::string plotVar="medianX",Int_t minHits = 50);//plotVar default is medianX, but meanX and rmsX possible as well
   void plotHitMaps();
   void setOutputDir( std::string dir );
-  void setTreeBaseDir( std::string dir = "TrackerOfflineValidation");
+  void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
 
 private : 
   TList getTreeList();
