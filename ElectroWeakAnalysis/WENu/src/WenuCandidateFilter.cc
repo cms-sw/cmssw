@@ -237,8 +237,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(triggerCollectionTag_, HLTResults);
    int passTrigger = 0;  
    if (HLTResults.isValid()) {
-     edm::TriggerNames triggerNames;
-     triggerNames.init(*HLTResults);
+     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
      unsigned int trigger_size = HLTResults->size();
      unsigned int trigger_position = triggerNames.triggerIndex(hltpath_);
      if (trigger_position < trigger_size)

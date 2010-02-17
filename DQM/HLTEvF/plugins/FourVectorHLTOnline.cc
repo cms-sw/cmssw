@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.28 2009/12/07 18:47:31 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.29 2010/02/16 17:03:13 wmtan Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -161,7 +161,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    }
   }
   triggerResults_=triggerResults;
-  TriggerNames triggerNames(*triggerResults);  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;
@@ -201,8 +201,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     }
     TH2F * hist = ME->getTH2F();
-    fillHLTMatrix(hist);
-
+    fillHLTMatrix(hist, triggerNames);
   }
 
   // Fill HLTPassed Matrix bin (i,j) = (Any,Any)
@@ -1897,9 +1896,8 @@ void FourVectorHLTOnline::setupHLTMatrix(std::string name, vector<std::string> &
 
 }
 
-void FourVectorHLTOnline::fillHLTMatrix(TH2F* hist) {
-
-   TriggerNames triggerNames(*triggerResults_);
+void FourVectorHLTOnline::fillHLTMatrix(TH2F* hist,
+                                        const edm::TriggerNames & triggerNames) {
 
   // Fill HLTPassed Matrix bin (i,j) = (Any,Any)
   // --------------------------------------------------------

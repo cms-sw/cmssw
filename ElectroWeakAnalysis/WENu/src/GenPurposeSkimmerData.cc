@@ -40,7 +40,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Oct 16 17:11:55 CEST 2008
-// $Id: GenPurposeSkimmerData.cc,v 1.1 2009/12/10 16:48:23 rompotis Exp $
+// $Id: GenPurposeSkimmerData.cc,v 1.2 2010/01/07 13:58:07 hegner Exp $
 //
 //
 
@@ -52,6 +52,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 //
 //
 GenPurposeSkimmerData::GenPurposeSkimmerData(const edm::ParameterSet& ps)
@@ -177,8 +178,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
     event_HLTPath[iT] = 0;
     numberOfHLTFilterObjects[iT] =0;
     //
-    edm::TriggerNames triggerNames;
-    triggerNames.init(*HLTResultsE29);
+    const edm::TriggerNames & triggerNames = evt.triggerNames(*HLTResultsE29);
     unsigned int trigger_size = HLTResultsE29->size();
     unsigned int trigger_position = triggerNames.triggerIndex(HLTPath_[iT]);
     if (trigger_position < trigger_size ) 
@@ -221,8 +221,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
     event_HLTPath[iT] = 0;
     numberOfHLTFilterObjects[iT] =0;
     //
-    edm::TriggerNames triggerNames;
-    triggerNames.init(*HLTResultsE31);
+    const edm::TriggerNames & triggerNames = evt.triggerNames(*HLTResultsE31);
     unsigned int trigger_size = HLTResultsE31->size();
     unsigned int trigger_position = triggerNames.triggerIndex(HLTPath_[iT]);
     if (trigger_position < trigger_size ) 

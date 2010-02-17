@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.34 2009/11/18 08:47:24 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.35 2010/02/16 17:03:16 wmtan Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -789,8 +789,7 @@ void HLTMuonDQMSource::analyze(const Event& iEvent,
   iEvent.getByLabel(InputTag("TriggerResults"), trigResult);
   if( !trigResult.failedToGet() ) {
     int ntrigs = trigResult->size();
-    TriggerNames trigName;
-    trigName.init(*trigResult);
+    const edm::TriggerNames & trigName = iEvent.triggerNames(*trigResult);
     for( int itrig = 0; itrig != ntrigs; ++itrig) {
       //cout << "trigName = " << trigName.triggerName(itrig) << " " << itrig << endl;
       for( unsigned int n = 0; n < (unsigned int)theTriggerBits.size(); n++) { 

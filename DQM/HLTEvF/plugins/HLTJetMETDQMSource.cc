@@ -158,7 +158,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       return;
     }
   }
-  TriggerNames triggerNames(*triggerResults);  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   unsigned int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;

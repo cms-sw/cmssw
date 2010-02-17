@@ -13,7 +13,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -607,8 +607,7 @@ void ElectronTagProbeAnalyzer::fillMatchedHistos
 //   {
 //    //std::cout << "TriggerResults found, number of HLT paths: " << triggerResults->size() << std::endl;
 //    // get trigger names
-//    edm::TriggerNames triggerNames_;
-//    triggerNames_.init(*triggerResults) ;
+//    const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
 ////    if (nEvents_==1)
 ////     {
 ////      for (unsigned int i=0; i<triggerNames_.size(); i++)

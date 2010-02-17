@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -39,7 +38,6 @@ class HLTMonBitSummary : public edm::EDAnalyzer {
   //  virtual void endRun(const edm::Run &, const edm::EventSetup &);
 
   edm::InputTag inputTag_;
-  edm::TriggerNames triggerNames_;
   DQMStore * dbe_;
 
   std::vector<std::string > HLTPathsByName_;

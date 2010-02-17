@@ -66,8 +66,8 @@ class HLTriggerSelector {
 	return false;
     }
     
-    theTriggerNames.init(*tResults);
-    
+    const edm::TriggerNames & theTriggerNames = iEvent.triggerNames(*tResults);
+ 
     for (uint i=0;i!=theSelectTriggers.size();++i){
       uint index = theTriggerNames.triggerIndex( theSelectTriggers[i] );
       if ( index < tResults->size() && tResults->accept( index )) return true;
@@ -76,7 +76,6 @@ class HLTriggerSelector {
   }
 
   // private:
-  edm::TriggerNames theTriggerNames ;
   edm::InputTag theTriggerResulTag;
   std::vector<std::string> theSelectTriggers;
 

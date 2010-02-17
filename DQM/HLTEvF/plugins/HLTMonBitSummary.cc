@@ -298,8 +298,8 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   // get hold of trigger names - based on TriggerResults object!
-  triggerNames_.init(*trh);
-  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
+
   unsigned int lastModule = 0;
 
   //cout << " Was at least one path run? " << trh->wasrun() << endl;;
@@ -309,7 +309,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   for (unsigned int trig=0; trig < nValidTriggers_; trig++) {
     //convert *all* trigger names (from config and key) to trigger index properly  
-    HLTPathsByIndex_[trig]=triggerNames_.triggerIndex(HLTPathsByName_[trig]);
+    HLTPathsByIndex_[trig]=triggerNames.triggerIndex(HLTPathsByName_[trig]);
   }
   
   //get filter information for config triggers only
@@ -364,7 +364,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   uint denominatorIndex = 0;
   bool denominatorValidity= false;
   if (denominator_!="") {
-    denominatorIndex=triggerNames_.triggerIndex(denominator_);
+    denominatorIndex=triggerNames.triggerIndex(denominator_);
     denominatorValidity= (denominatorIndex <trh->size());
   }
   
