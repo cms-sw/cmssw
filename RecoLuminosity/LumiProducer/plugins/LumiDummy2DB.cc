@@ -20,6 +20,7 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include <iostream>
+#include <cstring>
 namespace lumi{
   class LumiDummy2DB : public DataPipe{
   public:
@@ -66,7 +67,9 @@ namespace lumi{
       coral::AttributeList detailData;
       detailData.extend<unsigned long long>("LUMIDETAIL_ID");
       detailData.extend<unsigned long long>("LUMISUMMARY_ID");
-      detailData.extend<coral::Blob>("BXINFO");
+      detailData.extend<coral::Blob>("BXLUMIVALUE");
+      detailData.extend<coral::Blob>("BXLUMIERROR");
+      detailData.extend<coral::Blob>("BXLUMIQUALITY");
       detailData.extend<std::string>("ALGONAME");
       coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils);
       //loop over lumi LS
@@ -84,7 +87,9 @@ namespace lumi{
 
       unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
       unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
-      //coral::Blob& bxinfo=detailData["BXINFO"].data<coral::Blob>();
+      coral::Blob& bxlumivalue=detailData["BXLUMIVALUE"].data<coral::Blob>();
+      coral::Blob& bxlumierror=detailData["BXLUMIERROR"].data<coral::Blob>();
+      coral::Blob& bxlumiquality=detailData["BXLUMIQUALITY"].data<coral::Blob>();
       std::string& algoname=detailData["ALGONAME"].data<std::string>();
       for(unsigned int i=1;i<=totallumils;++i){
 	lumisummary_id = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());
@@ -113,8 +118,26 @@ namespace lumi{
 	  if(j==0) algoname=std::string("ET");
 	  if(j==1) algoname=std::string("OCC1");
 	  if(j==2) algoname=std::string("OCC2");
-	  //for( unsigned int k=0; k<3546; ++k ){	    
-	  //}
+	  float lumivalue[3564];
+	  std::memset((void*)&lumivalue,0,sizeof(float)*3564 );
+	  float lumierror[3564];
+	  std::memset((void*)&lumierror,0,sizeof(float)*3564 );
+	  int lumiquality[3564];
+	  std::memset((void*)&lumiquality,0,sizeof(int)*3564 );
+	  bxlumivalue.resize(sizeof(float)*3564);
+	  bxlumierror.resize(sizeof(float)*3564);
+	  bxlumiquality.resize(sizeof(int)*3564);
+	  void* bxlumivalueStartAddress=bxlumivalue.startingAddress();
+	  void* bxlumierrorStartAddress=bxlumierror.startingAddress();
+	  void* bxlumiqualityStartAddress=bxlumiquality.startingAddress();
+	  for( unsigned int k=0; k<3546; ++k ){	    
+	    lumivalue[k]=1.5;
+	    lumierror[k]=0.1;
+	    lumiquality[k]=1;
+	  }
+	  std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*3564);
+	  std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*3564);
+	  std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(int)*3564);
 	  detailInserter->processNextIteration();
 	}
       }
