@@ -167,6 +167,9 @@ static CachingVertex<5> vertexAtState(const TransientTrack &ghostTrack,
 	LinearizedTrackStateFactory linTrackFactory;
 	VertexTrackFactory<5> vertexTrackFactory;
 
+	if (!state.isValid())
+		return CachingVertex<5>();
+
 	GlobalPoint pca1 = pred.position(state.lambda());
 	GlobalError err1 = pred.positionError(state.lambda());
 
@@ -1030,6 +1033,8 @@ bool GhostTrackVertexFinder::reassignTracks(
 
 			vtx = vertexAtState(info.ghostTrack, info.pred,
 			                    info.states[idx]);
+			if (!vtx.isValid())
+				continue;
 		} else {
 			std::vector<RefCountedVertexTrack> linTracks =
 				relinearizeTracks(tracks, iter->vertexState());
