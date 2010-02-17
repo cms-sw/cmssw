@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/16 20:06:48 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/02/16 20:34:53 $
+ *  $Revision: 1.28 $
  *
  *  \author Martin Grunewald
  *
@@ -208,7 +208,9 @@ bool HLTConfigProvider::init(const std::string& processName)
        if ( pName == processName ) {
 	 psetID = i->first;
 	 nPSets++;
-	 if (registry_->getMapped(psetID,pset)) {
+	 if ((processPSet_!=ParameterSet()) && (processPSet_.id()==psetID)) {
+	   hNames += tableName();
+	 } else if (registry_->getMapped(psetID,pset)) {
 	   if (pset.exists("HLTConfigVersion")) {
 	     const ParameterSet HLTPSet(pset.getParameter<ParameterSet>("HLTConfigVersion"));
 	     if (HLTPSet.exists("tableName")) {
