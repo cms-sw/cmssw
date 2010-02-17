@@ -61,6 +61,12 @@ class SiStripDetVOffBuilder
 
   void reduction(const uint32_t deltaTmin, const uint32_t maxIOVlength);
 
+  /// Removes IOVs as dictated by reduction
+  void discardIOVs( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
+                    std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
+                    std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
+                    const bool last, const unsigned int first );
+
  private:
   // typedefs
   typedef std::vector< std::pair< std::vector<uint32_t>,coral::TimeStamp> > DetIdTimeStampVector;
@@ -71,8 +77,8 @@ class SiStripDetVOffBuilder
 
   void printPar(std::stringstream& ss, const std::vector<int>& par);
 
-  std::string timeToStream(coral::TimeStamp & coralTime, const string & comment = "");
-  std::string timeToStream(cond::Time_t & condTime, const string & comment = "");
+  std::string timeToStream(const coral::TimeStamp & coralTime, const string & comment = "");
+  std::string timeToStream(const cond::Time_t & condTime, const string & comment = "");
 
   /** Returns the PSU channel setting, based on date.  Works from DP ID. */
   int findSetting(uint32_t id, 

@@ -454,27 +454,37 @@ void SiStripDetVOffBuilder::reduce( std::vector< std::pair<SiStripDetVOff*,cond:
 
   // if it was going off
   if( ( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() > 0 ) || ( it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() > 0 ) ) {
-    if( debug_ ) cout << "going off" << endl;
     // Set the time of the current (last) iov as the time of the initial iov of the sequence
     // replace the first iov with the last one
-    it->second = (initialIt)->second;
-    it = resultVec.erase(initialIt, it);
-
+    (it+last)->second = (initialIt)->second;
+    discardIOVs(it, initialIt, resultVec, last, 0);
+    if( debug_ ) cout << "going off" << endl;
   }
   // if it was going on
   else if( ( it->first->getLVoffCounts() - initialIt->first->getLVoffCounts() <= 0 ) || ( it->first->getHVoffCounts() - initialIt->first->getHVoffCounts() <= 0 ) ) {
-    if( debug_ ) cout << "going on" << endl;
     // replace the last minus one iov with the first one
-    // cout << "first = " << first << endl;
-    // cout << "initial->first = " << initialIt->first << ", second  = " << initialIt->second << endl;
-    if( last == true ) {
-      resultVec.erase(initialIt+first, it+1);
-      // Minus 2 because it will be incremented at the end of the loop becoming end()-1.
-      it = resultVec.end()-2;
-    }
-    else {
-      it = resultVec.erase(initialIt+first, it);
-    }
+    discardIOVs(it, initialIt, resultVec, last, first);
+    if( debug_ ) cout << "going on" << endl;
+  }
+}
+
+void SiStripDetVOffBuilder::discardIOVs( std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & it,
+                                         std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator & initialIt,
+                                         std::vector< std::pair<SiStripDetVOff*,cond::Time_t> > & resultVec,
+                                         const bool last, const unsigned int first )
+{
+  if( debug_ ) {
+    cout << "first = " << first << endl;
+    cout << "initial->first = " << initialIt->first << ", second  = " << initialIt->second << endl;
+    cout << "last = " << last << endl;
+  }
+  if( last == true ) {
+    resultVec.erase(initialIt+first, it+1);
+    // Minus 2 because it will be incremented at the end of the loop becoming end()-1.
+    it = resultVec.end()-2;
+  }
+  else {
+    it = resultVec.erase(initialIt+first, it);
   }
 }
 
@@ -614,14 +624,14 @@ void SiStripDetVOffBuilder::lastValueFromFile(TimesAndValues & tStruct)
   LogDebug("SiStripDetVOffBuilder") << "IDs are: = " << ss.str();
 }
 
-string SiStripDetVOffBuilder::timeToStream(cond::Time_t & condTime, const string & comment)
+string SiStripDetVOffBuilder::timeToStream(const cond::Time_t & condTime, const string & comment)
 {
   stringstream ss;
   ss << comment << (condTime>> 32) << " - " << (condTime & 0xFFFFFFFF) << endl;
   return ss.str();
 }
 
-string SiStripDetVOffBuilder::timeToStream(coral::TimeStamp & coralTime, const string & comment)
+string SiStripDetVOffBuilder::timeToStream(const coral::TimeStamp & coralTime, const string & comment)
 {
   stringstream ss;
   ss << "Starting from IOV time in the database : year = " << coralTime.year()
