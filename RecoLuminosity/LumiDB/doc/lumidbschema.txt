@@ -29,11 +29,13 @@ columns:
           lumisectionquality(short) // use max 3 bits [HLX,HF,BRAN]
 	  
 ======
-table 3:  LUMIDETAIL (insert 3*3564 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
+table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
 columns: 
           lumidetail_id(uint64, PK)
           lumisummary_id(FK refers to LUMISUMMARY.lumisummary_id),
-	  bxinfo(blob),
+	  bxlumivalue(blob),
+          bxlumierror(blob),
+          bxlumiquality(blob),
           algoname(string), //occ1,occ2,etsum,bran
           
 ======
