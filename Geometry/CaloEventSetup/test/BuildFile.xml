@@ -1,0 +1,19 @@
+<use   name="rootgraphics"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/EcalAlgo"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="FWCore/Framework"/>
+<use   name="CommonTools/UtilAlgos"/>
+<library   file="CaloGeometryAnalyzer.cc" name="testCaloGeometryESProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="dumpEcalTrigTowerMapping.cc" name="testEcalTrigTowerMappingSProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="testEcalGetWindow.cc" name="testEcalGetWindow">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<bin   file="dumpEEIndices2D.cpp">
+</bin>
