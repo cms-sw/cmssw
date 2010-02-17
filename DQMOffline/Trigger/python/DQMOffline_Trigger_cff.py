@@ -53,6 +53,7 @@ onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*hltMonTauRe
 from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
 # Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.TopElectronHLTOfflineSource_cfi import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -64,7 +65,7 @@ from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 # TnP
 from DQMOffline.Trigger.TnPEfficiency_cff import *
 
-offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency)
+offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency)
 
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource*l1temumonitor*l1tmonitor*onlineHLTSource)
  

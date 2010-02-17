@@ -11,7 +11,8 @@
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineSource.h"
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineClient.h"
 #include "DQMOffline/Trigger/interface/DQMOfflineHLTEventInfoClient.h"
-#include "DQMOffline/Trigger/interface/HLTTauCertifier.h"
+#include "DQMOffline/Trigger/interface/TopElectronHLTOfflineSource.h"
+#include "DQMOffline/Trigger/interface/TopElectronHLTOfflineClient.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FourVectorHLTClient);
@@ -25,6 +26,6 @@ DEFINE_ANOTHER_FWK_MODULE(HLTTauPostProcessor);
 DEFINE_ANOTHER_FWK_MODULE(JetMETHLTOfflineSource);
 DEFINE_ANOTHER_FWK_MODULE(JetMETHLTOfflineClient);
 DEFINE_ANOTHER_FWK_MODULE(DQMOfflineHLTEventInfoClient);
-DEFINE_ANOTHER_FWK_MODULE(HLTTauCertifier);
-
+DEFINE_ANOTHER_FWK_MODULE(TopElectronHLTOfflineSource);
+DEFINE_ANOTHER_FWK_MODULE(TopElectronHLTOfflineClient);
 
