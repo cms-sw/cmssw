@@ -211,7 +211,6 @@ private:
  
  
   edm::InputTag inputTag_;
-  edm::TriggerNames triggerNames_;
   std::vector<std::string> hlt_bitnames;
   std::vector<std::string> hlt_bitnamesMu;
   std::vector<std::string> hlt_bitnamesEg;

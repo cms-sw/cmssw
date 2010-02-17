@@ -73,7 +73,6 @@ private:
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "DataFormats/Common/interface/View.h"

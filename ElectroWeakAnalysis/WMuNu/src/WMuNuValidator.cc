@@ -347,21 +347,20 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
       // Trigger
       Handle<TriggerResults> triggerResults;
-      TriggerNames trigNames;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
             LogError("") << ">>> TRIGGER collection does not exist !!!";
             return false;
       }
-      trigNames.init(*triggerResults);
+      const edm::TriggerNames & triggerNames = ev.triggerNames(*triggerResults);
     /* 
       for (unsigned int i=0; i<triggerResults->size(); i++) {
             if (triggerResults->accept(i)) {
-                  LogTrace("") << "Accept by: " << i << ", Trigger: " << trigNames.triggerName(i);
+                  LogTrace("") << "Accept by: " << i << ", Trigger: " << triggerNames.triggerName(i);
             }
       }
     */  
       bool trigger_fired = false;
-      int itrig1 = trigNames.triggerIndex(muonTrig_);
+      int itrig1 = triggerNames.triggerIndex(muonTrig_);
       if (triggerResults->accept(itrig1)) trigger_fired = true;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
       fill_histogram("TRIG_BEFORECUTS",trigger_fired);

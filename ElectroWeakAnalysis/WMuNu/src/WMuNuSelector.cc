@@ -235,14 +235,13 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Trigger
       Handle<TriggerResults> triggerResults;
-      TriggerNames trigNames;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
             LogError("") << ">>> TRIGGER collection does not exist !!!";
             return 0;
       }
-      trigNames.init(*triggerResults);
+      const edm::TriggerNames & triggerNames = ev.triggerNames(*triggerResults);
       bool trigger_fired = false;
-      int itrig1 = trigNames.triggerIndex(muonTrig_);
+      int itrig1 = triggerNames.triggerIndex(muonTrig_);
       if (triggerResults->accept(itrig1)) trigger_fired = true;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
 

@@ -13,13 +13,13 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.8 2009/12/21 23:04:15 lobelle Exp $
+// $Id: TopValidation.cc,v 1.9 2010/01/19 16:45:22 olzem Exp $
 //
 //
 
 
 # include "HLTriggerOffline/Top/interface/TopValidation.h"
-
+#include "FWCore/Common/interface/TriggerNames.h"
 
 
 
@@ -89,8 +89,7 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<TriggerResults> trh;
   try {iEvent.getByLabel(inputTag_,trh);} catch(...) {;}
   
-  triggerNames_.init(*trh);
- 
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
  
   //////////////////////////////////
   //   generation  info                                     
@@ -299,33 +298,33 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned int itrig=0; itrig< n_TriggerResults; ++itrig) {
   
      ///////////
-           if (triggerNames_.triggerName(itrig) == "HLT_QuadJet30"){
+           if (triggerNames.triggerName(itrig) == "HLT_QuadJet30"){
                if ( trh.product()->accept( itrig ) ) HLTQuadJet30=true;
              } 
-	   if (triggerNames_.triggerName(itrig) == "HLT_Mu9"){
+	   if (triggerNames.triggerName(itrig) == "HLT_Mu9"){
                if ( trh.product()->accept( itrig ) ) HLTMu9=true;
           } 
   //////////////////
     if (trh.product()->accept(itrig)) {
     
          for (int i=0;i<n_hlt_bits;i++) {
-            if ( triggerNames_.triggerName(itrig)== hlt_bitnames[i]) {     
+            if ( triggerNames.triggerName(itrig)== hlt_bitnames[i]) {     
 	       wtrig_[i]=1;
             }
          }
          for (int j=0;j<n_hlt_bits_mu;j++) {
-            if ( triggerNames_.triggerName(itrig)== hlt_bitnamesMu[j]) {     
+            if ( triggerNames.triggerName(itrig)== hlt_bitnamesMu[j]) {     
 	       wtrig_m[j]=1;
              }
          }
          for (int k=0;k<n_hlt_bits_eg;k++) {
-             if ( triggerNames_.triggerName(itrig)== hlt_bitnamesEg[k]) {     
+             if ( triggerNames.triggerName(itrig)== hlt_bitnamesEg[k]) {     
 	        wtrig_eg[k]=1;
              }
           }
 	
 	 for (int l=0;l<n_hlt_bits_jet;l++) {
-             if ( triggerNames_.triggerName(itrig)== hlt_bitnamesJet[l]) {     
+             if ( triggerNames.triggerName(itrig)== hlt_bitnamesJet[l]) {     
 	        wtrig_jet[l]=1;
              }
           }
