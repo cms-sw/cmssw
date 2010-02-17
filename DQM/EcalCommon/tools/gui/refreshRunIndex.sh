@@ -13,7 +13,7 @@ cd ${HOME}/DQM/dqm-GUI
 
 LD_LIBRARY_PATH=
 source rpms/cmsset_default.sh
-source rpms/slc4_ia32_gcc345/cms/dqmgui/5.1.6/etc/profile.d/env.sh
+source rpms/slc5_amd64_gcc434/cms/dqmgui/5.1.7b/etc/profile.d/env.sh
 
 if [ -e /tmp/updateRunIndex.lock ]; then
   echo "Lock file is present, exit"
