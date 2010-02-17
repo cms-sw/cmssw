@@ -166,7 +166,7 @@ class dbUtil(object):
           inputData = coral.AttributeList()
           editor = idtableHandle.dataEditor()
           editor.rowBuffer( inputData )
-          inputData[ nameDealer.idTableColumnDefinition()[0] ].setData(1)
+          inputData[ nameDealer.idTableColumnDefinition()[0] ].setData(0)
           editor.insertRow( inputData )
         except Exception, e:
           raise Exception, str(e)

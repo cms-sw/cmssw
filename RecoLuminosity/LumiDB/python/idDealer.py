@@ -45,17 +45,10 @@ class idDealer(object):
             result = 0
             while ( cursor.next() ):
                 result = cursor.currentRow()[0].data()
-            del query            
             dataEditor = tableHandle.dataEditor()
             inputData = coral.AttributeList()
-            if result==0: #is a new table, no entry in the id table
-                dataEditor.rowBuffer(inputData)
-                inputData[self.__idTableColumnName].setData(result+1)
-                dataEditor.insertRow(inputData) 
-            else:                
-                inputData.extend( 'newid', self.__idTableColumnType )
-                inputData['newid'].setData(result+1)
-                dataEditor.updateRows('NEXTID = :newid','',inputData)
+            dataEditor.updateRows('NEXTID = NEXTID+1','',inputData)
+            del query            
             return result+1
         except Exception, e:
             raise Exception, str(e)
@@ -76,6 +69,11 @@ if __name__ == "__main__":
           description.insertColumn(idor.getIDColumnDefinition()[0],idor.getIDColumnDefinition()[1])
           idtableHandle=schema.createTable(description)
           idtableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
+          inputData=coral.AttributeList()
+          editor=idtableHandle.dataEditor()
+          editor.rowBuffer(inputData)
+          inputData[ idor.getIDColumnDefinition()[0] ].setData(0)
+          editor.insertRow(inputData)
         idor.generateNextIDForTable('Fake')
         print idor.getIDforTable('Fake')
         transaction.commit()
