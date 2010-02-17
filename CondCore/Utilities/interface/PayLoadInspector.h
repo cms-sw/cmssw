@@ -6,7 +6,7 @@
 
 #include <string>
 #include <vector>
-#include<sstream>
+#include <sstream>
 
 #include "CondFormats/Common/interface/PayloadWrapper.h"
 
@@ -115,15 +115,18 @@ namespace cond {
 
   private:
     bool load( cond::DbSession & db, std::string const & token) {
+      std::cout << "PayLoadInspector::load" << std::endl;
       old = false;
       bool ok = false;
       // try wrapper, if not try plain
-      pool::Ref<DataWrapper> ref = db.getTypedObject<DataWrapper>(token);
-      if (ref) {
-	m_data.copyShallow(ref);
-	m_data->data();
-	m_data->summary();
-	ok= true;
+      if (Reflex::Type::ByTypeInfo(typeid(DataWrapper))) {
+	pool::Ref<DataWrapper> ref = db.getTypedObject<DataWrapper>(token);
+	if (ref) {
+	  m_data.copyShallow(ref);
+	  m_data->data();
+	  m_data->summary();
+	  ok= true;
+	}
       } else {
 	pool::Ref<DataT> refo =  db.getTypedObject<DataT>(token);
 	if (refo) {
