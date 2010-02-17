@@ -165,12 +165,12 @@ public:
 public:
 
     /// get the alias for a physics algorithm with a given bit number
-    const std::string& gtAlgorithmAlias(const unsigned int& bitNumber, int& errorCode);
+    const std::string* gtAlgorithmAlias(const unsigned int bitNumber, int& errorCode) const;
 
     /// get the name for a physics algorithm or a technical trigger
     /// with a given bit number
-    const std::string& gtAlgorithmName(const unsigned int& bitNumber, int& errorCode);
-    const std::string& gtTechTrigName(const unsigned int& bitNumber, int& errorCode);
+    const std::string* gtAlgorithmName(const unsigned int bitNumber, int& errorCode) const;
+    const std::string* gtTechTrigName(const unsigned int bitNumber, int& errorCode) const;
 
     /// get the bit number for a physics algorithm or a technical trigger
     /// with a given name or alias
@@ -181,11 +181,6 @@ public:
     const bool gtTriggerResult(const std::string& trigName,
             const std::vector<bool>& decWord, int& errorCode) const;
 
-private:
-
-    std::string m_gtAlgorithmAlias;
-    std::string m_gtAlgorithmName;
-    std::string m_gtTechTrigName;
 
 private:
 

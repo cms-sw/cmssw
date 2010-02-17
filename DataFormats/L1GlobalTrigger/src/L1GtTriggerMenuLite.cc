@@ -315,71 +315,71 @@ std::ostream& operator<<(std::ostream& streamRec,
 }
 
 // get the alias for a physics algorithm with a given bit number
-const std::string& L1GtTriggerMenuLite::gtAlgorithmAlias(
-        const unsigned int& bitNumber, int& errorCode) {
+const std::string* L1GtTriggerMenuLite::gtAlgorithmAlias(
+        const unsigned int bitNumber, int& errorCode) const {
 
-    m_gtAlgorithmAlias.clear();
+    const std::string* gtAlgorithmAlias = 0;
 
     for (CItL1Trig itTrig = m_algorithmAliasMap.begin(); itTrig
             != m_algorithmAliasMap.end(); itTrig++) {
 
         if (itTrig->first == bitNumber) {
 
-            m_gtAlgorithmAlias = itTrig->second;
+            gtAlgorithmAlias = &(itTrig->second);
 
             errorCode = 0;
-            return m_gtAlgorithmAlias;
+            return gtAlgorithmAlias;
         }
     }
 
     errorCode = 1;
-    return m_gtAlgorithmAlias;
+    return gtAlgorithmAlias;
 
 }
 
 // get the name for a physics algorithm or a technical trigger
 // with a given bit number
-const std::string& L1GtTriggerMenuLite::gtAlgorithmName(
-        const unsigned int& bitNumber, int& errorCode) {
+const std::string* L1GtTriggerMenuLite::gtAlgorithmName(
+        const unsigned int bitNumber, int& errorCode) const {
 
-    m_gtAlgorithmName.clear();
+    const std::string* gtAlgorithmName = 0;
 
     for (CItL1Trig itTrig = m_algorithmMap.begin(); itTrig
             != m_algorithmMap.end(); itTrig++) {
 
         if (itTrig->first == bitNumber) {
 
-            m_gtAlgorithmName = itTrig->second;
+            gtAlgorithmName = &(itTrig->second);
 
             errorCode = 0;
-            return m_gtAlgorithmName;
+            return gtAlgorithmName;
         }
     }
 
     errorCode = 1;
-    return m_gtAlgorithmName;
+    return gtAlgorithmName;
 
 }
 
-const std::string& L1GtTriggerMenuLite::gtTechTrigName(
-        const unsigned int& bitNumber, int& errorCode) {
+const std::string* L1GtTriggerMenuLite::gtTechTrigName(
+        const unsigned int bitNumber, int& errorCode) const {
 
-    m_gtTechTrigName.clear();
+    const std::string* gtTechTrigName = 0;
 
     for (CItL1Trig itTrig = m_technicalTriggerMap.begin(); itTrig
             != m_technicalTriggerMap.end(); itTrig++) {
 
         if (itTrig->first == bitNumber) {
 
-            m_gtTechTrigName = itTrig->second;
+            gtTechTrigName = &(itTrig->second);
 
             errorCode = 0;
-            return m_gtTechTrigName;
+            return gtTechTrigName;
         }
     }
 
     errorCode = 1;
-    return m_gtTechTrigName;
+    return gtTechTrigName;
 
 }
 
