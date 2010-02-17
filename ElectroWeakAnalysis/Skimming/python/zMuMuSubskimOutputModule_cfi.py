@@ -4,7 +4,7 @@ from Configuration.EventContent.EventContent_cff import *
 
 zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
-      'drop *',
+#      'drop *',
 ####   to access the position at the momentum system for global and standalone muons
       'keep recoTrackExtras_standAloneMuons_*_*',
       'keep recoTracks_standAloneMuons_UpdatedAtVtx_*',
@@ -14,8 +14,13 @@ zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
       'keep *_dimuonsOneTrack_*_*',
       'keep *_dimuonsGlobal_*_*',
       'keep *_dimuonsOneStandAloneMuon_*_*',
-      'keep *_offlineBeamSpot_*_*'
-    ),
+      ### to access vertex information
+      'keep *_offlineBeamSpot_*_*',
+      'keep *_offlinePrimaryVerticesWithBS_*_*',
+      ### to save jet information
+      #'keep *_sisCone5CaloJets_*_*',
+      #'keep *_ak5CaloJets_*_*',
+      ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring(
            'dimuonsPath',
