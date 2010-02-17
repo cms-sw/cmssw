@@ -78,41 +78,40 @@ HcalGeometry::getValidDetIds( DetId::Detector det,
 		  ( HcalForward == subdet ? m_hfIds : m_emptyIds ) ) ) ) ) ;
 }
 
-DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const
-{
+DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
+
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
   double abseta = fabs(r.eta());
   
   // figure out subdetector, giving preference to HE in HE/HF overlap region
   HcalSubdetector bc= HcalEmpty;
-  if( abseta <= theHBHEEtaBounds[theTopology->lastHBRing()] )
-  {
+  if (abseta <= theHBHEEtaBounds[theTopology->lastHBRing()] ) {
     bc = HcalBarrel;
-  }
-  else if( abseta <= theHBHEEtaBounds[theTopology->lastHERing()] ) 
-  {
+  } else if (abseta <= theHBHEEtaBounds[theTopology->lastHERing()] ) {
     bc = HcalEndcap;
-  }
-  else
-  {
+  } else {
     bc = HcalForward;
   }
 
   if (bc == HcalForward) {
-    static const double z_long=1100.0;
     static const double z_short=1120.0;
-    // determine front-face eta
-    double radius=sqrt(pow(r.x(),2)+pow(r.y(),2));
-    double trueAeta=asinh(z_long/radius);
-    // find eta bin
-    int etaring = etaRing(bc, trueAeta);
+    int etaring = etaRing(bc, abseta);  // This is safer
+    /*
+      static const double z_long=1115.0;
+      // determine front-face eta
+      double radius=sqrt(pow(r.x(),2)+pow(r.y(),2));
+      double trueAeta=asinh(z_long/radius);
+      // find eta bin
+      int etaring = etaRing(bc, trueAeta);
+    */
     if (etaring>theTopology->lastHFRing()) etaring=theTopology->lastHFRing(); 
   
     int phibin = phiBin(r.phi(), etaring);
 
     // add a sign to the etaring
     int etabin = (r.z() > 0) ? etaring : -etaring;
+    // Next line is premature depth 1 and 2 can coexist for large z-extent
     HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
     return bestId;
   } else {
@@ -127,21 +126,22 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const
     
     //Now do depth if required
     int dbin = 1;
-    double pointradius=r.mag();
-    double dradius=99999.;
+    double pointrz=0, drz=99999.;
     HcalDetId currentId(bc, etabin, phibin, dbin);
+    if (bc == HcalBarrel) pointrz = r.mag();
+    else                  pointrz = std::abs(r.z());
     HcalDetId bestId;
-    for(  ; currentId != HcalDetId(); theTopology->incrementDepth(currentId))
-      {    
-	const CaloCellGeometry * cell = getGeometry(currentId);
-	assert(cell != 0);
-	double radius=cell->getPosition().mag();
-	if(fabs(pointradius-radius)<dradius) 
-	  {
-	    bestId = currentId;
-	    dradius=fabs(pointradius-radius);
-	  }
+    for ( ; currentId != HcalDetId(); theTopology->incrementDepth(currentId)) {
+      const CaloCellGeometry * cell = getGeometry(currentId);
+      assert(cell != 0);
+      double rz;
+      if (bc == HcalEndcap) rz = std::abs(cell->getPosition().z());
+      else                  rz = cell->getPosition().mag();
+      if (std::abs(pointrz-rz)<drz) {
+	bestId = currentId;
+	drz    = std::abs(pointrz-rz);
       }
+    }
     
     return bestId;
   }
