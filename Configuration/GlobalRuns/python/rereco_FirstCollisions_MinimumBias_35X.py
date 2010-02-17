@@ -23,7 +23,7 @@ process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
 process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -194,9 +194,7 @@ process.offlinePrimaryVertices.TkClusParameters.zSeparation = 10
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
 ##Preshower
-process.ecalPreshowerRecHit.ESGain = 2
 process.ecalPreshowerRecHit.ESBaseline = 0
-process.ecalPreshowerRecHit.ESMIPADC = 55
 
 ##only for 34X
 process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
