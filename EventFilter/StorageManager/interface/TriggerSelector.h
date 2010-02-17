@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.h,v 1.4 2009/12/01 21:04:07 smorovic Exp $
+// $Id: TriggerSelector.h,v 1.5 2010/02/17 15:21:29 smorovic Exp $
 /// @file: TriggerSelector.h 
 
 #ifndef EventFilter_StorageManager_TriggerSelector_h
@@ -22,8 +22,8 @@ namespace stor
    * Event selector allowing for and/not combination of triggers/paths
    *
    * $Author: smorovic $
-   * $Revision: 1.4 $
-   * $Date: 2009/12/01 21:04:07 $
+   * $Revision: 1.5 $
+   * $Date: 2010/02/17 15:21:29 $
    */
 
   class TriggerSelector
@@ -56,7 +56,7 @@ namespace stor
        * Returns status of always positive bit
        */
       bool wantAll() const { 
-	if (useOld_) return eventSelector_->wantAll();
+	//if (useOld_) return eventSelector_->wantAll();
 	return accept_all_; 
       }
 
