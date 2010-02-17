@@ -9,6 +9,15 @@
 using namespace std;
 using namespace oracle::occi;
 
+#define MY_NULL -1
+#define SET_INT( statement, paramNum, paramVal ) if( paramVal != MY_NULL ) { statement->setInt(paramNum, paramVal);  } else { statement->setNull(paramNum,OCCINUMBER); }
+#define SET_STRING( statement, paramNum, paramVal ) if( ! paramVal.empty() ) { statement->setString(paramNum, paramVal); } else { statement->setNull(paramNum,OCCICHAR); }
+
+int getInt(ResultSet * rset, int ipar )
+{
+  return  rset->isNull(ipar) ? MY_NULL : rset->getInt(ipar) ;
+}
+
 ODFEDAQConfig::ODFEDAQConfig()
 {
   m_env = NULL;
@@ -22,14 +31,14 @@ ODFEDAQConfig::ODFEDAQConfig()
 
 
 void ODFEDAQConfig::clear(){
-   m_del=0;
-   m_wei=0;
-   m_ped=0;
+   m_del=MY_NULL;
+   m_wei=MY_NULL;
+   m_ped=MY_NULL;
 
-   m_bxt=0;
-   m_btt=0;
-   m_tbtt=0;
-   m_tbxt=0;
+   m_bxt =MY_NULL;
+   m_btt =MY_NULL;
+   m_tbtt=MY_NULL;
+   m_tbxt=MY_NULL;
 
    m_version=0;
    m_com="";
@@ -120,13 +129,14 @@ void ODFEDAQConfig::writeDB()
     // number 1 is the id 
     m_writeStmt->setString(2, this->getConfigTag());
     m_writeStmt->setInt(3, this->getVersion());
-    m_writeStmt->setInt(4, this->getPedestalId());
-    m_writeStmt->setInt(5, this->getDelayId());
-    m_writeStmt->setInt(6, this->getWeightId());
-    m_writeStmt->setInt(7, this->getBadXtId());
-    m_writeStmt->setInt(8, this->getBadTTId());
-    m_writeStmt->setInt(9, this->getTriggerBadXtId());
-    m_writeStmt->setInt(10,this->getTriggerBadTTId());
+    SET_INT(m_writeStmt,4, this->getPedestalId());
+    SET_INT(m_writeStmt,5, this->getDelayId());
+    SET_INT(m_writeStmt,6, this->getWeightId());
+    SET_INT(m_writeStmt,7, this->getBadXtId());
+    SET_INT(m_writeStmt,8, this->getBadTTId());
+    SET_INT(m_writeStmt,9, this->getTriggerBadXtId());
+    SET_INT(m_writeStmt,10,this->getTriggerBadTTId());
+
     m_writeStmt->setString(11, this->getComment());
 
     m_writeStmt->executeUpdate();
@@ -196,14 +206,14 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     result->setConfigTag(rset->getString(2));
     result->setVersion(rset->getInt(3));
 
-    result->setPedestalId(       rset->getInt(4) );
-    result->setDelayId(        rset->getInt(5) );
-    result->setWeightId(         rset->getInt(6) );
-    result->setBadXtId(         rset->getInt(7) );
-    result->setBadTTId(         rset->getInt(8) );
-    result->setTriggerBadXtId(   rset->getInt(9) );
-    result->setTriggerBadTTId(  rset->getInt(10) );
-    result->setComment(      rset->getString(11) );
+    result->setPedestalId(       getInt(rset,4) );
+    result->setDelayId(          getInt(rset,5) );
+    result->setWeightId(         getInt(rset,6) );
+    result->setBadXtId(          getInt(rset,7) );
+    result->setBadTTId(          getInt(rset,8) );
+    result->setTriggerBadXtId(   getInt(rset,9) );
+    result->setTriggerBadTTId(   getInt(rset,10) );
+    result->setComment(          rset->getString(11) );
 
   } catch (SQLException &e) {
     throw(runtime_error("ODFEDAQConfig::fetchData():  "+e.getMessage()));
