@@ -2,6 +2,7 @@
 # cfg file to run the L1 GT test analyzer according to 
 #   the options set in "user choices"
 #
+# 2010-02-17 Updated to 3_5_0 (RelVals and GTags)
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -27,20 +28,19 @@ useRelValSample=False
 if useRelValSample == True :
     
     globalTag = 'MC'
-    #globalTag = 'STARTUP'
+    #globalTag = 'START'
     
     # RelVals 
     useSample = 'RelValQCD_Pt_80_120'
     #useSample = 'RelValTTbar'
-    #useSample = 'RelValZTT'
  
-    # data type: for RAW data, the unpacker sequence RawToDigi will be also run
-    #dataType = 'RAW'
+    # data type
     dataType = 'RECO'
    
 else :
 
-    # data type: StreamFile is not associated to these runs
+    # data type: StreamFile is not associated to these runs (no available files)
+    #           for RAW data, the unpacker sequence RawToDigi will be also run
     #dataType = 'RAW'
     #dataType = 'StreamFile'
     dataType = 'RECO'
@@ -72,9 +72,9 @@ if (useRelValSample == True) and (useLocalFiles == False) :
     
     if useRelease == 'CMSSW_3_5_X' :
         if globalTag == 'MC' :
-            useGlobalTag = 'MC_3XY_V15'
+            useGlobalTag = 'MC_3XY_V21'
         else :
-            useGlobalTag = 'STARTUP3X_V15'
+            useGlobalTag = 'START3X_V21'
     elif useRelease == 'CMSSW_3_4_1' :
         if globalTag == 'MC' :
             useGlobalTag = 'MC_3XY_V15'
@@ -93,7 +93,7 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     # global tag
     
     if useRelease == 'CMSSW_3_5_X' :
-        useGlobalTag = 'GR09_P_V8_34X'
+        useGlobalTag = 'GR10_P_V2'
     elif useRelease == 'CMSSW_3_4_1' :
         useGlobalTag = 'GR09_P_V8_34X'
     elif useRelease == 'CMSSW_3_3_6' :
@@ -142,16 +142,16 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
             print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
 
-            dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_5_0_pre3-MC_3XY_V15-v1/GEN-SIM-RECO')
+            dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_5_0-MC_3XY_V21-v1/GEN-SIM-RECO')
             readFiles.extend( [
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0006/1469E02C-D203-DF11-9C7F-00304879BAB2.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0005/E87FE5E9-4303-DF11-817C-0030487A3DE0.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0005/A063F4AC-4403-DF11-AB21-003048D2C092.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0005/9CFD43E8-4103-DF11-910C-0030487CD180.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0005/585E7702-4103-DF11-939A-0030487A18F2.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0005/3E675407-4303-DF11-9448-00304879BAB2.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0005/387D83E9-4403-DF11-8C17-00304879EDEA.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V15-v1/0005/1E7F273C-4303-DF11-B884-0030487A3C92.root' 
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0013/A6A96D0E-6313-DF11-8B6F-001A928116EE.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0012/FEDBEF25-3513-DF11-BD91-003048678A6A.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0012/FA06ACF3-3313-DF11-9FBE-002618943947.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0012/A4BA5423-3513-DF11-95AA-003048D15E02.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0012/7870118C-3513-DF11-8B09-002354EF3BDE.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0012/7853EB0B-3513-DF11-9454-00304867C16A.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0012/289824F3-3313-DF11-B31A-0026189438B1.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V21-v1/0012/16F61E92-3513-DF11-97DB-00248C0BE013.root' 
                 ] );
 
 
@@ -159,17 +159,19 @@ if (useRelValSample == True) and (useLocalFiles == False) :
             
             print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
 
-            dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_0_pre3-MC_3XY_V15-v1/GEN-SIM-RECO')
+            dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_0-MC_3XY_V21-v1/GEN-SIM-RECO')
             readFiles.extend( [
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0006/E80BF730-D203-DF11-8667-0030487CD6DA.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/F8071FA0-0203-DF11-947E-0030487C90D4.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/B4B3D656-0403-DF11-890D-0030487C60AE.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/AEB20358-0503-DF11-85E1-0030487A18A4.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/AE60F36C-0203-DF11-863B-0030487C608C.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/82371379-0303-DF11-923E-0030487CD7C0.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/78D9A28B-0F03-DF11-8D39-00304879FBB2.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/787178D3-0903-DF11-8A43-0030487A1990.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValTTbar/GEN-SIM-RECO/MC_3XY_V15-v1/0005/0802E3D1-0703-DF11-88B5-0030487A3C9A.root' 
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0014/5837B301-6D13-DF11-970D-001A928116EE.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/F203E839-6213-DF11-A013-0018F3D0960A.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/C0FA4F0F-3D13-DF11-9C08-002618943914.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/B2BC513E-4913-DF11-B3E8-001731AF68BF.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/B01AE947-4713-DF11-861B-0018F3D095EA.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/920E11A7-4413-DF11-B796-001731AF6A91.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/7C15A7E1-6913-DF11-B0A0-00261894393E.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/74EB4EA3-4613-DF11-87E0-002618943854.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/36A56A12-4513-DF11-B04B-002618943944.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/30D1DBC5-4A13-DF11-813E-003048679296.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/MC_3XY_V21-v1/0013/304C7A3B-4813-DF11-9E3E-001A92971AEC.root' 
                 ] );
 
         elif (useRelease == 'CMSSW_3_4_1') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
@@ -214,22 +216,22 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         secFiles.extend([
             ])
 
-    elif useGlobalTag.count('STARTUP') :
+    elif useGlobalTag.count('START') :
 
         if (useRelease == 'CMSSW_3_5_X') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
         
             print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
 
-            dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_2_2-MC_31X_V3-v1/GEN-SIM-RECO')
+            dataset = cms.untracked.vstring('/RelValQCD_Pt_80_120/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO')
             readFiles.extend( [
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/B0026249-D103-DF11-A139-0030487A195C.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/9CDC89D9-0803-DF11-9D10-0030487CD13A.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/9C979251-0403-DF11-9C5F-0030487A17B8.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/9022DC83-0403-DF11-B5BA-001D09F23A20.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/8ACA874E-0503-DF11-B21A-0030487A1FEC.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/3CB6012F-0303-DF11-8183-0030487C60AE.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/1E6C658F-0B03-DF11-8913-0030487D1BCC.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/1A01CF8D-0303-DF11-9F31-0030487CD77E.root' 
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/B27E46BF-3E13-DF11-A7EE-001A9281172C.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/44E856CB-3F13-DF11-8B01-001A92971B7C.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3ACDFD75-4013-DF11-A204-001A92971BDC.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/3A52592E-3E13-DF11-8EAE-001A92810AEA.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/38DA44B8-3D13-DF11-B10D-0018F3D09642.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0013/14004A7D-6213-DF11-B250-001A92810AEE.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/EA2B34EC-3913-DF11-8E34-0026189438BC.root',
+                '/store/relval/CMSSW_3_5_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/START3X_V21-v1/0012/DA4420C6-3813-DF11-84CC-003048679000.root' 
                 ] );
 
 
@@ -237,18 +239,18 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         
             print '   Running ', useRelease, ' and global tag ', useGlobalTag, ' on ', useSample, ' sample'  
 
-            dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_0_pre3-STARTUP3X_V15-v1/GEN-SIM-RECO')
+            dataset = cms.untracked.vstring('/RelValTTbar/CMSSW_3_5_0-START3X_V21-v1/GEN-SIM-RECO')
             readFiles.extend( [
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/B0026249-D103-DF11-A139-0030487A195C.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/9CDC89D9-0803-DF11-9D10-0030487CD13A.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/9C979251-0403-DF11-9C5F-0030487A17B8.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/9022DC83-0403-DF11-B5BA-001D09F23A20.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/8ACA874E-0503-DF11-B21A-0030487A1FEC.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/3CB6012F-0303-DF11-8183-0030487C60AE.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/1E6C658F-0B03-DF11-8913-0030487D1BCC.root',
-                '/store/relval/CMSSW_3_5_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP3X_V15-v1/0005/1A01CF8D-0303-DF11-9F31-0030487CD77E.root' 
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/E27A62CF-4013-DF11-8D9C-001A92971B32.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/C6BED359-4013-DF11-B77E-002618943800.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/B250B859-4213-DF11-9CE7-001A92971B12.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/984BA759-4013-DF11-8E61-002618FDA207.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/6C7C2ADA-4113-DF11-AFB7-001A92971B64.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/606521E1-4313-DF11-845B-001731AF669D.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/6038B443-3F13-DF11-A075-001A92811700.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0013/4E6B8895-3E13-DF11-B951-003048678BB8.root',
+                '/store/relval/CMSSW_3_5_0/RelValTTbar/GEN-SIM-RECO/START3X_V21-v1/0012/AE86CDB7-3813-DF11-AB79-0030486790BA.root' 
                 ] );
-
 
         elif (useRelease == 'CMSSW_3_4_1') and (useSample == 'RelValQCD_Pt_80_120') and (dataType == 'RECO') :
         
@@ -328,6 +330,17 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
     
             readFiles.extend( [                        
                 '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/121/560/DC089E4B-5ED4-DE11-A179-000423D98FBC.root'
+                ]);                                                                                               
+
+            secFiles.extend([
+                ])
+
+        elif runNumber == 127715 :
+            dataset = '/Cosmics/Commissioning10-v3/RAW'
+            print '   Running on set: '+ dataset + ' with global tag ' +  useGlobalTag 
+    
+            readFiles.extend( [                        
+                '/store/data/Commissioning10/Cosmics/RAW/v3/000/127/715/FCB12D5F-6C18-DF11-AB4B-000423D174FE.root'
                 ]);                                                                                               
 
             secFiles.extend([
