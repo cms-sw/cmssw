@@ -70,14 +70,13 @@ int distwheel(int wheel1,int wheel2){
 DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug,double eyr){
 
   /*
-  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
-  incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
   */
-  
-
+  incldt=true;
+  incldtMB4=true;
+ 
   //By now hard coded parameters
   MinCosAng=0.85;
   MaxD=80.;

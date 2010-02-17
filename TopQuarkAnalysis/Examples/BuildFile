@@ -3,6 +3,7 @@
 <use name=DataFormats/RecoCandidate>
 <use name=CommonTools/UtilAlgos>
 <use name=CommonTools/CandUtils>
+<use name=PhysicsTools/StarterKit>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Framework>
 <use name=DataFormats/Provenance>
@@ -17,6 +18,7 @@
   <use name=DataFormats/RecoCandidate>
   <use name=CommonTools/UtilAlgos>
   <use name=CommonTools/CandUtils>
+  <use name=PhysicsTools/StarterKit>
   <use name=FWCore/ServiceRegistry>
   <use name=AnalysisDataFormats/TopObjects>
   <use name=root>

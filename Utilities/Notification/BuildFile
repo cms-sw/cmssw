@@ -1,8 +1,0 @@
-<export>
- <lib name=UtilitiesNotification>
- <use name=Utilities/Threads>
- <use name=boost>
-</export>
-<use name=Utilities/Threads>
-<use name=boost>
-

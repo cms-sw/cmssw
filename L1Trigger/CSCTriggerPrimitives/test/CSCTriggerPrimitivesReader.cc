@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/10/16 13:10:47 $
-//   $Revision: 1.35 $
+//   $Date: 2009/05/01 16:10:23 $
+//   $Revision: 1.33 $
 //
 //   Modifications:
 //
@@ -168,26 +168,6 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     ev.getByLabel(lctProducerData_, "MuonCSCALCTDigi", alcts_data);
     ev.getByLabel(lctProducerData_, "MuonCSCCLCTDigi", clcts_data);
     ev.getByLabel(lctProducerData_, "MuonCSCCorrelatedLCTDigi", lcts_tmb_data);
-
-    if (!alcts_data.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of ALCTs with label MuonCSCALCTDigi"
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-    if (!clcts_data.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of CLCTs with label MuonCSCCLCTDigi"
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-    if (!lcts_tmb_data.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of correlated LCTs with label"
-	<< " MuonCSCCorrelatedLCTDigi requested, but not found in the"
-	<< " event... Skipping the rest +++\n";
-      return;
-    }
   }
 
   // Emulator
@@ -196,31 +176,6 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     ev.getByLabel(lctProducerEmul_,              clcts_emul);
     ev.getByLabel(lctProducerEmul_,              lcts_tmb_emul);
     ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
-
-    if (!alcts_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of emulated ALCTs"
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-    if (!clcts_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of emulated CLCTs"
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-    if (!lcts_tmb_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of emulated correlated LCTs"
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-    if (!lcts_mpc_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of emulated correlated LCTs (MPCs)"
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
   }
 
   // Fill histograms with reconstructed or emulated quantities.  If both are
@@ -1463,29 +1418,6 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
 		  compDigis);
     ev.getByLabel(simHitProducer_.label(), simHitProducer_.instance(),
 		  simHits);
-    if (!wireDigis.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of wire digis with label"
-	<< wireDigiProducer_.label()
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-    if (!compDigis.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of comparator digis with label"
-	<< compDigiProducer_.label()
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-    if (!simHits.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
-	<< "+++ Warning: Collection of SimHits with label"
-	<< simHitProducer_.label()
-	<< " requested, but not found in the event... Skipping the rest +++\n";
-      return;
-    }
-
-
     if (debug) LogTrace("CSCTriggerPrimitivesReader")
       << "   #CSC SimHits: " << simHits->size();
 
@@ -1860,7 +1792,7 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7], titl[50];
+  char pagenum[6], titl[50];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -1933,7 +1865,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7], titl[50];
+  char pagenum[6], titl[50];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -2101,7 +2033,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7], titl[50];
+  char pagenum[6], titl[50];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -2197,7 +2129,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[6];
   TPaveLabel *title;
 
   ps->NewPage();
@@ -2269,7 +2201,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[6];
   TPaveLabel *title;
   Int_t nbins;
 
@@ -2606,7 +2538,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[6];
   TPaveLabel *title;
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
@@ -2841,7 +2773,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   ps->NewPage();
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
-  			 "#phi_rec-#phi_sim (mrad), endcap2");
+			 "#phi_rec-#phi_sim (mrad), endcap2");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
@@ -2982,7 +2914,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   TText t;
   t.SetTextFont(32);
   t.SetTextSize(0.025);
-  char pagenum[7];
+  char pagenum[6];
   TPaveLabel *title;
   char histtitle[60];
   

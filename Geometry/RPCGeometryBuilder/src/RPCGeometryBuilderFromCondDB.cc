@@ -36,40 +36,34 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
   const std::vector<DetId>& detids(rgeo.detIds());
   RPCGeometry* geometry = new RPCGeometry();
   
-  std::string name;
-  std::vector<double>::const_iterator tranStart;
-  std::vector<double>::const_iterator shapeStart;
-  std::vector<double>::const_iterator rotStart;
-  std::vector<std::string>::const_iterator strStart;
-  
   for (unsigned int id=0; id<detids.size(); id++){
     
     RPCDetId rpcid(detids[id]);
     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),
 		  rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
     
-    tranStart=rgeo.tranStart(id);
-    shapeStart=rgeo.shapeStart(id);
-    rotStart=rgeo.rotStart(id);
-    strStart=rgeo.strStart(id);
-    name=*(strStart);
+    std::vector<double> dpar=rgeo.shapePars(id);
+    std::vector<double> tran=rgeo.translation(id);
+    std::vector<double> rota=rgeo.rotation(id);
 
-    Surface::PositionType pos(*(tranStart)/cm,*(tranStart+1)/cm, *(tranStart+2)/cm);
+    std::vector<std::string> names=rgeo.strParams(id);    
+    std::string name=names[0];
+    
+    Surface::PositionType pos(tran[0]/cm,tran[1]/cm, tran[2]/cm);
     // CLHEP way
-    Surface::RotationType rot(*(rotStart+0),*(rotStart+1),*(rotStart+2),
-			      *(rotStart+3),*(rotStart+4),*(rotStart+5),
-			      *(rotStart+6),*(rotStart+7),*(rotStart+8));
+    Surface::RotationType rot(rota[0],rota[1],rota[2],
+			      rota[3],rota[4],rota[5],
+			      rota[6],rota[7],rota[8]);
       
     std::vector<float> pars;
     RPCRollSpecs* rollspecs= 0;
     Bounds* bounds = 0;
     
-    //    if (dpar.size()==4){
-    if ( rgeo.shapeEnd(id) - shapeStart == 4 ) {
-      float width     = *(shapeStart+0)/cm;
-      float length    = *(shapeStart+1)/cm;
-      float thickness = *(shapeStart+2)/cm;
-      float nstrip    = *(shapeStart+3);
+    if (dpar.size()==4){
+      float width     = dpar[0]/cm;
+      float length    = dpar[1]/cm;
+      float thickness = dpar[2]/cm;
+      float nstrip    = dpar[3];
       //RectangularPlaneBounds* 
       bounds = 
 	new RectangularPlaneBounds(width,length,thickness);
@@ -81,7 +75,7 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
 	//Correction of the orientation to get the REAL geometry.
         //Change of axes for the +z part only.
         //Including the 0 whell
-        if ( *(tranStart+2) > -1500.) {   //tran[2] >-1500. ){
+        if (tran[2] >-1500. ){
           Basic3DVector<float> newX(-1.,0.,0.);
           Basic3DVector<float> newY(0.,-1.,0.);
           Basic3DVector<float> newZ(0.,0.,1.);
@@ -94,11 +88,11 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
       
       
     }else{
-      float be = *(shapeStart+0)/cm;
-      float te = *(shapeStart+1)/cm;
-      float ap = *(shapeStart+2)/cm;
-      float ti = *(shapeStart+3)/cm;
-      float nstrip = *(shapeStart+4);
+      float be = dpar[0]/cm;
+      float te = dpar[1]/cm;
+      float ap = dpar[2]/cm;
+      float ti = dpar[3]/cm;
+      float nstrip = dpar[4];
       //  TrapezoidalPlaneBounds* 
       bounds = 
 	new TrapezoidalPlaneBounds(be,te,ap,ti);

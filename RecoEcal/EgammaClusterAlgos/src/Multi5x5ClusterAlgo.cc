@@ -20,8 +20,7 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
 				  const CaloSubdetectorGeometry *geometryES_p,
 				  reco::CaloID::Detectors detector,
 				  bool regional,
-				  const std::vector<EcalEtaPhiRegion>& regions
-				  )
+				  const std::vector<EcalEtaPhiRegion>& regions)
 {
   seeds.clear();
   used_s.clear();
@@ -110,10 +109,9 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
 // Search for clusters
 //
 void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
-				     const CaloSubdetectorGeometry *geometry_p,
-				     const CaloSubdetectorTopology *topology_p,
-				     const CaloSubdetectorGeometry *geometryES_p
-				     )
+                                   const CaloSubdetectorGeometry *geometry_p,
+                                   const CaloSubdetectorTopology *topology_p,
+                                   const CaloSubdetectorGeometry *geometryES_p)
 {
 
    if (verbosity < pINFO)
@@ -130,11 +128,6 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       // (event though it is already used)
       bool usedButCanSeed = false;
       if (canSeed_s.find(it->id()) != canSeed_s.end()) usedButCanSeed = true;
-
-      // avoid seeding for anomalous channels (recoFlag based)
-      uint32_t rhFlag = (*it).recoFlag();
-      std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
-      if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from seeding
 
       // make sure the current seed does not belong to a cluster already.
       if ((used_s.find(it->id()) != used_s.end()) && (usedButCanSeed == false))
@@ -235,7 +228,7 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 }
 
 bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
-				      const EcalRecHitCollection *hits)
+				       const EcalRecHitCollection *hits)
 {
 
    bool maxima = true;
@@ -260,18 +253,8 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
    for (unsigned int i = 0; i < swissCrossVec.size(); ++i)
    {
       thisHit = recHits_->find(swissCrossVec[i]);
-  
-      // skip comparison with anomalous channels (recoFlag based)
-      // to find local maxima
-      bool chToBeExcluded = false;
-      uint32_t rhFlag = thisHit->recoFlag();
-      std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
-      if ( vit != v_chstatus_.end() ) chToBeExcluded = true; // the recHit has to be skipped in the local maximum search
-
-      if  ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end() || chToBeExcluded) thisEnergy = 0.0;
+      if  ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end()) thisEnergy = 0.0;
       else thisEnergy = thisHit->energy();
-
-
       if (thisEnergy > seedEnergy)
       {
          maxima = false;

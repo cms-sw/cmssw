@@ -279,7 +279,7 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
       UChar_t *cellPayloadAddr = cell->payloadAddr();
       UInt_t   cellEventSize   = cell->eventSize();
       shmBuffer_->finishReadingDqmCell(cell);      
-
+      nbPendingSMDqmDiscards_++;
       sendDqmEvent(cellIndex,cellRunNumber,cellEvtAtUpdate,cellFolderId,
 		   cellFUProcId,cellFUGuid,cellPayloadAddr,cellEventSize);
     }
@@ -356,8 +356,6 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   
   if (!reschedule) {
     shmBuffer_->writeRecoEmptyEvent();
-    shmBuffer_->writeDqmEmptyEvent();
-    
     UInt_t count=0;
     while (count<100) {
       if (shmBuffer_->nClients()==0&&
@@ -380,7 +378,21 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 
       }
     }
-    
+    bool allEmpty = false;
+    while(!allEmpty){
+      UInt_t n=nbDqmCells_;
+      allEmpty = true;
+      shmBuffer_->lock();
+      for (UInt_t i=0;i<n;i++) {
+	dqm::State_t state=shmBuffer_->dqmState(i);
+	if(state!=dqm::EMPTY) allEmpty = false; 
+      } 
+      shmBuffer_->unlock();
+    }
+   while(nbPendingSMDqmDiscards_ != 0)
+      ::usleep(10000);
+    shmBuffer_->writeDqmEmptyEvent();
+
   }
   
   return reschedule;
@@ -515,7 +527,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
       shmBuffer_->discardDqmCell(dqmIndex);
       bufRef->release();
     }
-
+    nbPendingSMDqmDiscards_--;
   }
   else {
     LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
@@ -641,21 +653,22 @@ void FUResourceTable::resetCounters()
     for (UInt_t i=0;i<shmBuffer_->nDqmCells();i++)  acceptSMDqmDiscard_[i] =false;
   }
   
-  nbAllocated_        =nbPending_;
-  nbCompleted_        =0;
-  nbSent_             =0;
-  nbSentError_        =0;
-  nbSentDqm_          =0;
-  nbPendingSMDiscards_=0;
-  nbDiscarded_        =0;
-  nbLost_             =0;
+  nbAllocated_           =nbPending_;
+  nbCompleted_           =0;
+  nbSent_                =0;
+  nbSentError_           =0;
+  nbSentDqm_             =0;
+  nbPendingSMDiscards_   =0;
+  nbPendingSMDqmDiscards_=0;
+  nbDiscarded_           =0;
+  nbLost_                =0;
 
-  nbErrors_           =0;
-  nbCrcErrors_        =0;
-  nbAllocSent_        =0;
+  nbErrors_              =0;
+  nbCrcErrors_           =0;
+  nbAllocSent_           =0;
 
-  sumOfSquares_       =0;
-  sumOfSizes_         =0;
+  sumOfSquares_          =0;
+  sumOfSizes_            =0;
 }
 
 

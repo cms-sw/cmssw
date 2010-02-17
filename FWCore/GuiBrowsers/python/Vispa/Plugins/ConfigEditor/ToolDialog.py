@@ -5,7 +5,7 @@ import imp
 import inspect
 
 from PyQt4.QtCore import QCoreApplication,Qt,SIGNAL
-from PyQt4.QtGui import QDialog,QListWidget,QVBoxLayout,QHBoxLayout,QToolButton,QPushButton,QSplitter,QFileDialog
+from PyQt4.QtGui import QDialog,QListWidget,QVBoxLayout,QHBoxLayout,QToolButton,QPushButton,QSplitter,QFileDialog,QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Views.PropertyView import PropertyView
@@ -24,7 +24,6 @@ class ToolDialog(QDialog):
         self.setWindowFlags(Qt.Window)
         self.setWindowTitle("Apply tool...")
         self.fill()
-        self.updateToolList()
     
     def fill(self):
         logging.debug(__name__ +': fill')
@@ -42,6 +41,9 @@ class ToolDialog(QDialog):
         changedir=QPushButton("&Change tools directory...")
         bottom.addWidget(changedir)
         self.connect(changedir, SIGNAL('clicked()'), self.changedir)
+        help=QPushButton("&Help")
+        bottom.addWidget(help)
+        self.connect(help, SIGNAL('clicked()'), self.help)
         bottom.addStretch()
         cancel = QPushButton('&Cancel')
         bottom.addWidget(cancel)
@@ -61,8 +63,8 @@ class ToolDialog(QDialog):
             module=imp.load_source(pythonModule, toolsFile)
             for name in dir(module):
                 tool=getattr(module,name)
-                if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not tool._label in self._toolsDict.keys() and not tool==ConfigToolBase:
-                    self._toolsDict[tool._label]=tool
+                if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not self._toolDataAccessor.label(tool) in self._toolsDict.keys() and not tool==ConfigToolBase:
+                    self._toolsDict[self._toolDataAccessor.label(tool)]=tool
         # Show test tool
         #from FWCore.GuiBrowsers.editorTools import ChangeSource
         #self._toolsDict["ChangeSource"]=ChangeSource
@@ -92,6 +94,7 @@ class ToolDialog(QDialog):
         self._toolDataAccessor=accessor
         # save process copy to undo changes during the tool dialog
         self._processCopy=copy.deepcopy(self._toolDataAccessor.configDataAccessor().process())
+        self.updateToolList()
 
     def apply(self):
         parameterErrors=self._toolDataAccessor.parameterErrors(self._selectedTool)
@@ -103,6 +106,10 @@ class ToolDialog(QDialog):
         ok=True
         try:
             self._selectedTool.apply(self._toolDataAccessor.configDataAccessor().process())
+            if not self._toolDataAccessor.configDataAccessor().process().checkRecording():
+                ok=False
+                logging.error(__name__ + ": Could not apply tool (problem with enable recording flag)")
+                QCoreApplication.instance().errorMessage("Could not apply tool (problem with enable recording flag)")
         except Exception,e:
             ok=False
             logging.error(__name__ + ": Cannot apply tool: "+exception_traceback())
@@ -118,3 +125,6 @@ class ToolDialog(QDialog):
         if not filename.isEmpty():
             self._toolsDir=str(filename)
             self.updateToolList()
+
+    def help(self):
+        QMessageBox.about(self, 'Info', "This dialog let's you choose and configure a tool.\n 1. Select a tool on the left\n 2. Set the parameters on the right. If you hold the mouse over a parameter name a tooltip with a description of the parameter will show up.\n 3. Apply the tool. In case the tool has wrong parameters set an error message will be displayed.")

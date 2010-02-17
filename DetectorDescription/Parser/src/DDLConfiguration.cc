@@ -34,13 +34,13 @@ DDLConfiguration::~DDLConfiguration()
   //  parser_->getXMLParser()->setContentHandler(0);  
 }
 
-DDLConfiguration::DDLConfiguration(DDCompactView& cpv) : configHandler_( cpv ), cpv_(cpv)
+DDLConfiguration::DDLConfiguration() : configHandler_()
 { 
   //  parser_ = DDLParser::instance();
   //  std::cout << "Making a DDLConfiguration with configHandler_ at " << &configHandler_ << std::endl;
 }
 
-DDLConfiguration::DDLConfiguration(DDLParser * ip, DDCompactView& cpv) : configHandler_( cpv ), cpv_(cpv)
+DDLConfiguration::DDLConfiguration(DDLParser * ip) : configHandler_()
 { 
   //  parser_ = ip; do NOTHING with the incomming pointer for now...
 }

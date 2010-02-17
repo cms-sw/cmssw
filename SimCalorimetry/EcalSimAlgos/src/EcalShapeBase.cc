@@ -4,7 +4,6 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <algorithm>
 
 const double EcalShapeBase::qNSecPerBin = 1./(1.*kNBinsPerNSec) ;
 
@@ -49,17 +48,6 @@ EcalShapeBase::buildMe()
 
    fillShape( shapeArray ) ;
 
-   const double maxel ( *max_element( shapeArray.begin(), shapeArray.end() ) ) ;
-
-   const double maxelt ( 1.e-5 < maxel ? maxel : 1 ) ;
-
-   for( unsigned int i ( 0 ) ; i != shapeArray.size(); ++i )
-   {
-      shapeArray[i] = shapeArray[i]/maxelt ;
-   } 
-
-   const double thresh ( threshold()/maxelt ) ;
-
 /*
    for( unsigned int i ( 0 ) ; i != k1NSecBinsTotal ; ++i ) 
    {
@@ -100,9 +88,9 @@ EcalShapeBase::buildMe()
       m_shape[ j ] = value;
       if( 0 != m_derivPtr ) (*m_derivPtr)[ j ] = deriv;
 
-      if( 0      <  j                         &&
-	  thresh <  value                     &&
-	  0      == m_firstIndexOverThreshold     )
+      if( 0           <  j                         &&
+	  threshold() <  value                     &&
+	  0           == m_firstIndexOverThreshold     )
       {
 	 m_firstIndexOverThreshold = j - 1 ;
 	 m_firstTimeOverThreshold  = m_firstIndexOverThreshold*qNSecPerBin ;

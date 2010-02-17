@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimplePUJetCorrector.h,v 1.2 2008/05/20 23:38:36 fedor Exp $
+// $Id: SimplePUJetCorrector.h,v 1.1 2008/02/11 11:59:52 kodolova Exp $
 //
 // MC Jet Corrector
 //
@@ -11,7 +11,7 @@
 #include <string>
 
 /// classes declaration
-namespace pu {
+namespace {
   class ParametrizationPUJet;
   typedef std::map <double, ParametrizationPUJet*> ParametersMap;
 }
@@ -31,7 +31,7 @@ class SimplePUJetCorrector {
  private:
   SimplePUJetCorrector (const SimplePUJetCorrector&);
   SimplePUJetCorrector& operator= (const SimplePUJetCorrector&);
-  pu::ParametersMap* mParametrization;
+  ParametersMap* mParametrization;
 };
 
 #endif

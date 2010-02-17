@@ -2,6 +2,7 @@
 #define ConfigurableAnalysis_Plotter_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
 
 #include "TH1.h"
 #include "TH1F.h"
@@ -11,10 +12,7 @@
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 #include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 #include "PhysicsTools/UtilAlgos/interface/ConfigurableHisto.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "CommonTools/Utils/interface/TFileDirectory.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 class Plotter {
  public:

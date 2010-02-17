@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.cc,v 1.9 2010/02/01 11:42:20 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.8 2009/10/13 15:08:34 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
@@ -22,7 +22,7 @@ _writer(new FRDEventFileWriter(fileRecord->completeFileName()+".dat"))
 {}
 
 
-void FRDFileHandler::do_writeEvent(const I2OChain& chain)
+void FRDFileHandler::writeEvent(const I2OChain& chain)
 {
   unsigned int fragCount = chain.fragmentCount();
   for (unsigned int idx = 0; idx < fragCount; ++idx)
@@ -30,6 +30,10 @@ void FRDFileHandler::do_writeEvent(const I2OChain& chain)
       _writer->doOutputEventFragment(chain.dataLocation(idx),
                                      chain.dataSize(idx));
     }
+
+  _fileRecord->fileSize += chain.totalDataSize();
+  ++_fileRecord->eventCount;
+  _lastEntry = utils::getCurrentTime();
 }
 
 

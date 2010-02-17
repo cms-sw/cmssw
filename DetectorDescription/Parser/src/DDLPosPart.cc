@@ -147,7 +147,8 @@ void DDLPosPart::processElement (const std::string& name, const std::string& nms
   if (atts.find("copyNumber") != atts.end())
     copyno = atts.find("copyNumber")->second;
     
-  cpv.position(DDLogicalPart(myChild->getDDName(nmspace))
+  //  cpv.posPart(DDLogicalPart(myChild->getDDName(nmspace))
+  DDpos(DDLogicalPart(myChild->getDDName(nmspace))
 	       , DDLogicalPart(myParent->getDDName(nmspace))
 	       , copyno
 	       , myDDTranslation

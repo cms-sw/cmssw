@@ -208,6 +208,11 @@ expertSettings.add_option("--harvesting",
                           default=defaultOptions.harvesting,
                           dest="harvesting")
 
+expertSettings.add_option("--particle_table",
+                          help="Which particle properties table is loaded. Default=pythia",
+                          default='pythiapdt',
+                          dest="particleTable")
+
 parser.add_option("--no_exec",
                   help="Do not exec cmsRun. Just prepare the python config file.",
                   action="store_true",
@@ -323,8 +328,15 @@ if options.fileout=="" and not first_step in ("HARVESTING"):
 # Prepare the name of the config file
 # (in addition list conditions in name)
 python_config_filename = standardFileName
-conditionsSP = options.conditions.split(',')
 
+# check if we have "auto" conditions, if so, expand them properly:
+if 'auto:' in options.conditions:
+    from autoCond import autoCond
+    for ac,cond in autoCond.items():
+        options.conditions = options.conditions.replace('auto:'+ac, cond)
+
+# now treat the conditions...
+conditionsSP = options.conditions.split(',')
 if len(conditionsSP) > 1:
     # for conditions like STARTUP_V1, IDEAL_V1 we want only the STARTUP or IDEAL part
     conditionsType = conditionsSP[1].split("_")[0]

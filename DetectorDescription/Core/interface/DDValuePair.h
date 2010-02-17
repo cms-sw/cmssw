@@ -19,7 +19,4 @@ struct DDValuePair : public std::pair<std::string,double>
   
 };
 
-std::ostream & operator<<(std::ostream & o, const DDValuePair & v);
-
-
 #endif

@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.41 2009/12/01 22:12:55 drell Exp $
+// $Id: V0Fitter.cc,v 1.42 2010/02/01 20:07:15 kaulmer Exp $
 //
 //
 
@@ -25,6 +25,8 @@
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -158,7 +160,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         tmpRef->normalizedChi2() < tkChi2Cut &&
         tmpRef->numberOfValidHits() >= tkNhitsCut ) {
       TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
-      TrajectoryStateClosestToBeamLine tscb( tmpTk.stateAtBeamLine() );
+      //TrajectoryStateClosestToBeamLine tscb( tmpTk.stateAtBeamLine() );
+      TrajectoryStateTransform theTransform;
+      FreeTrajectoryState initialFTS = theTransform.initialFreeState(*tmpRef, magField);
+      TSCBLBuilderNoMaterial blsBuilder;
+      TrajectoryStateClosestToBeamLine tscb( blsBuilder(initialFTS, *theBeamSpotHandle) );
+      
       if( tscb.isValid() ) {
 	if( tscb.transverseImpactParameter().significance() > impactParameterSigCut ) {
 	  theTrackRefs.push_back( tmpRef );

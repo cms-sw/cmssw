@@ -22,7 +22,8 @@ public:
 protected:
   
 private:
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
+  void beginRun(const edm::Run& , const edm::EventSetup& );
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
@@ -33,7 +34,7 @@ private:
   MonitorElement*  totalDCSFraction;
   MonitorElement* dcsWheelFractions[5];
   MonitorElement* dcsDiskFractions[10];
- std::pair<int, int> FEDRange_;
+  std::pair<int, int> FEDRange_;
   int numberOfDisks_;  
   int NumberOfFeds_;
 

@@ -38,21 +38,6 @@ HepPDTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       const ParticleData * part = pdt->particle ( (*iter).first );
        std::cout << " " << part->name() << std::endl; 	
     }
-  } else if ( particleName_ == "checkAllowedIDs") {
-    int maxID = 2000000000;
-    int minID = -1*maxID;
-    int legalcount = 0;
-    std::cout << " Scanning IDs from " << minID << " to " << maxID << std::endl;
-    printBanner();
-    for (int ii=minID; ii<=maxID; ii++) {
-      const ParticleData *part = pdt->particle(ii);
-      if (part) {
-        legalcount++;
-        printInfo(part);
-      }
-      if (abs(ii)>=1000000000) ii=ii+9;
-    }
-    std::cout << "  Found " << legalcount << " legal IDs in range." << std::endl;
   }
   else {
     printBanner();

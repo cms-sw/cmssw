@@ -75,3 +75,7 @@ int TCTauCorrector::allTauCandidates(){
 int TCTauCorrector::statistics(){
         return tcTauAlgorithm->statistics();
 }
+
+int TCTauCorrector::algoComponent(){
+        return tcTauAlgorithm->algoComponent();
+}

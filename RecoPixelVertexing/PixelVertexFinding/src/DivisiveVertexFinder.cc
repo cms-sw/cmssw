@@ -47,7 +47,7 @@ bool DivisiveVertexFinder::findVertexes(const reco::TrackRefVector &trks,  // in
 }
 
 bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  // input
-					   reco::VertexCollection &vertexes){ // output
+					   reco::VertexCollection &vertexes, const math::XYZPoint & bs){ // output
   std::vector< PVCluster > in;
   std::pair< std::vector< PVCluster >, std::vector< const reco::Track* > > out;
   
@@ -60,7 +60,7 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
     temp.clear();
     temp.push_back( &(*trks[i]) );
 
-    in.push_back( PVCluster( Measurement1D(trks[i]->dz(), trks[i]->dzError() ), temp ) );
+    in.push_back( PVCluster( Measurement1D(trks[i]->dz(bs), trks[i]->dzError() ), temp ) );
     mapa[temp[0]] = trks[i];
   }
 
@@ -68,15 +68,16 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
     edm::LogInfo("DivisiveVertexFinder") << "size of input vector of clusters " << in.size();
     for (unsigned int i=0; i<in.size(); ++i) {
       edm::LogInfo("DivisiveVertexFinder") << "Track " << i << " addr " << in[i].tracks()[0] 
-					   << " dz " << in[i].tracks()[0]->dz()
+					   << " dz " << in[i].tracks()[0]->dz(bs)
 					   << " +- " << in[i].tracks()[0]->dzError()
 					   << " prodID " << mapa[in[i].tracks()[0]].id()
-					   << " dz from RefTrack " << mapa[in[i].tracks()[0]]->dz()
+					   << " dz from RefTrack " << mapa[in[i].tracks()[0]]->dz(bs)
 					   << " +- " << mapa[in[i].tracks()[0]]->dzError();
     }
   }
 
   // Run the darn thing
+  divmeth_.setBeamSpot(bs);
   out = divmeth_(in);
 
   if (verbose_ > 0) edm::LogInfo("DivisiveVertexFinder") << " DivisiveClusterizer1D found " 
