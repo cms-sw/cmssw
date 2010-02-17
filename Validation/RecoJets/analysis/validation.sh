@@ -52,11 +52,9 @@ if [ -n $title ]; then
                 # Icone PF
 		if [ ${FOLDER[${i}]} = ${FOLDER[3]} ]; then
 		    cp html/htmlTemplate_PF.html $title/${FOLDER[${i}]}
-		fi
                 # AntiKt PF
-		if [ ${FOLDER[${i}]} = ${FOLDER[10]} ]; then
+		elif [ ${FOLDER[${i}]} = ${FOLDER[10]} ]; then
 		    cp html/htmlTemplate_PF.html $title/${FOLDER[${i}]}
-		fi
 		else
 		    cp html/htmlTemplate.html $title/${FOLDER[${i}]}
 		fi
