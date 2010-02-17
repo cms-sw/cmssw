@@ -85,6 +85,9 @@ namespace edm {
 
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 
+  protected:
+    ///allow inheriting classes to override but still be able to call this method in the overridden version
+    virtual bool shouldWeCloseFile() const;
   private:
     virtual void openFile(FileBlock const& fb);
     virtual void respondToOpenInputFile(FileBlock const& fb);
@@ -94,7 +97,6 @@ namespace edm {
     virtual void writeRun(RunPrincipal const& r);
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     virtual bool isFileOpen() const;
-    virtual bool shouldWeCloseFile() const;
     virtual void doOpenFile();
 
 

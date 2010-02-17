@@ -1,4 +1,4 @@
-#include "IOPool/Output/src/PoolOutputModule.h"
+#include "IOPool/Output/interface/PoolOutputModule.h"
 
 #include "FWCore/MessageLogger/interface/JobReport.h" 
 #include "IOPool/Output/src/RootOutputFile.h" 
