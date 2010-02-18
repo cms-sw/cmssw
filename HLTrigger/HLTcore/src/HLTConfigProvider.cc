@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/16 20:34:53 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/02/17 06:58:41 $
+ *  $Revision: 1.29 $
  *
  *  \author Martin Grunewald
  *
@@ -145,6 +145,21 @@ bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
      changed=true;
      return false;
    }
+}
+
+bool HLTConfigProvider::init(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {
+  return init(iLumiBlock,processName,changed);
+}
+
+bool HLTConfigProvider::init(const edm::LuminosityBlock& iLumiBlock, const std::string& processName, bool& changed) {
+   using namespace std;
+   using namespace edm;
+
+   LogInfo("HLTConfigProvider") << "Called (L) with processName '"
+				<< processName << "'." << endl;
+
+   const ProcessHistory& processHistory(iLumiBlock.processHistory());
+   return init(processHistory,processName,changed);
 }
 
 bool HLTConfigProvider::init(const edm::Run& iRun, const edm::EventSetup& iSetup, const std::string& processName, bool& changed) {

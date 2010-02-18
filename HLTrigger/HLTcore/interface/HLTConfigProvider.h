@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/16 17:02:36 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/02/16 19:54:25 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -15,6 +15,8 @@
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include<string>
@@ -39,12 +41,16 @@ class HLTConfigProvider {
   /// actually changed
 
   /// call from beginRun
-  bool init(const edm::Run& iRun,                const std::string& processName, bool& changed);
-  bool init(const edm::Run& iRun,                const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+  bool init(const edm::Run& iRun,                                                  const std::string& processName, bool& changed);
+  bool init(const edm::Run& iRun,                   const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+
+  /// call from beginLuminsoityBlock
+  bool init(const edm::LuminosityBlock& iLumiBlock,                                const std::string& processName, bool& changed);
+  bool init(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
   /// call from produce/filter/analyze method
-  bool init(const edm::Event& iEvent,            const std::string& processName, bool& changed);
-  bool init(const edm::Event& iEvent,            const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+  bool init(const edm::Event& iEvent,                                              const std::string& processName, bool& changed);
+  bool init(const edm::Event& iEvent,               const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
  private:
   /// real init method 
