@@ -145,7 +145,7 @@ void ZDCMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   chanquality_= new HcalChannelQuality(*p.product());
   */
 
-  string eventinfo="/EventInfo";
+  string eventinfo="EventInfo";
   if (rootFolder_!="ZDC")
     eventinfo+="DUMMY";
 

@@ -199,7 +199,12 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
   if (debug_>0) std::cout << "===>HcalMonitor name = " << subsystemname << endl;
   rootFolder_ = subsystemname + "/";
-
+  if (dbe_!=NULL)
+    {
+      dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
+      meProcessedEndLumi_=dbe_->bookInt("EndLumiBlockProcessed_MonitorClient");
+      meProcessedEndLumi_->Fill(-1);
+    }
   return;
 }
 
@@ -479,8 +484,9 @@ void HcalMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const Event
 
   // don't allow backsliding in online running
   //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
+  meProcessedEndLumi_->Fill(l.luminosityBlock());
   if( debug_>0 ) std::cout << "HcalMonitorClient: endLuminosityBlock" << endl;
-  if(prescaleLS_>0 && !prescale()){
+  if(prescaleLS_>0 && prescale()==false){
     // do scheduled tasks...
     if (Online_)
       analyze();
@@ -527,7 +533,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   if ( runningStandalone_) return;
 
   // run if we want to check individual events, and if this event isn't prescaled
-  if (prescaleEvt_>0 && !prescale()) 
+  if (prescaleEvt_>0 && prescale()==false) 
     analyze();
 }
 

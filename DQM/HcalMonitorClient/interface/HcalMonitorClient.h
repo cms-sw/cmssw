@@ -212,7 +212,7 @@ public:
   std::string databasedir_; // empty string means don't dump out db info
   std::map<HcalDetId, unsigned int> myquality_;
   HcalChannelQuality* chanquality_;
-
+  MonitorElement* meProcessedEndLumi_;
 };
 
 #endif

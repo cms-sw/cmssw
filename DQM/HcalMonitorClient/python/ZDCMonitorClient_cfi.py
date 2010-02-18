@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-zdcClient = cms.EDFilter("ZDCMonitorClient",
+zdcClient = cms.EDAnalyzer("ZDCMonitorClient",
 
                           # Variables for the Overall Client
                           runningStandalone         = cms.untracked.bool(False),
