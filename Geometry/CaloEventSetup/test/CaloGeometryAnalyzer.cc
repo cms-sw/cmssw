@@ -669,8 +669,9 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 	    const int ix ( did.ix() ) ;
 	    const int iy ( did.iy() ) ;
 	    const int iz ( did.zside() ) ;
-	    const int isc ( did.isc() ) ;
+/*	    const int isc ( did.isc() ) ;
 	    //std::cout<<"ix, iy="<<ix<<", "<<iy<<std::endl;
+
 	    const EcalScDetId scId ( 1+(ix-1)/5,1+(iy-1)/5,iz ) ;
 	    const int isc2 ( scId.isc() ) ;
 	    const int isc2c ( scId.hashedIndex()+1 ) ;
@@ -711,7 +712,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 			<<isc <<", "<<isc2 <<", "<<ix <<", "<<iy <<", "<<iz <<std::endl ;
 	    }
 	    if( isc == 70 ) std::cout<<"********** Seeing SC=70"<<std::endl ;
-
+*/
 	    const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
 	    f << "  // Checking getClosestCell for position " << tp->getPosition(0.) << std::endl;
 
