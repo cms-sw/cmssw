@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/11/18 13:09:45 $
-  * $Revision: 1.54 $
+  * $Date: 2009/12/06 21:42:18 $
+  * $Revision: 1.55 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -69,7 +69,8 @@ public:
 		    const HFDigiCollection& hf,
 		    int calibType,
 		    const HcalDbService& cond,
-		    const HcalUnpackerReport& report);		
+		    const HcalUnpackerReport& report,
+		    int orN, int bcN);		
   void reset();
   void setSubDetectors(bool hb, bool he, bool ho, bool hf);
   void endLuminosityBlock();
@@ -128,6 +129,11 @@ private:  ///Methods, variables accessible only within class code
   int digisize[20][4];
   int digierrorsdverr[85][72][4];
 
+  // Count events with valid digis
+  MonitorElement* h_valid_digis;
+  MonitorElement* h_invalid_orbitnumMod103;
+  MonitorElement* h_invalid_bcn;
+
   // Digi Occupancy Plots
   EtaPhiHists DigiOccupancyByDepth;
   MonitorElement* DigiOccupancyEta;
@@ -166,6 +172,8 @@ private:  ///Methods, variables accessible only within class code
 
   MonitorElement* DigiNum;
   int diginum[DIGI_NUM];
+
+
 
   DigiHists hbHists, heHists, hfHists, hoHists;
 };

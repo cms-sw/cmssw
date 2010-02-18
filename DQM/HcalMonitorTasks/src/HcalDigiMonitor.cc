@@ -133,7 +133,7 @@ void HcalDigiMonitor::beginRun()
   meEVT_->Fill(ievt_);
   meTOTALEVT_ = m_dbe->bookInt("Digi Task Total Events Processed");
   meTOTALEVT_->Fill(tevt_);
-  
+
   m_dbe->setCurrentFolder(baseFolder_+"/digi_parameters");
   MonitorElement* ExpectedOrbit = m_dbe->bookInt("ExpectedOrbitMessageTime");
   ExpectedOrbit->Fill(DigiMonitor_ExpectedOrbitMessageTime_);
@@ -183,6 +183,14 @@ void HcalDigiMonitor::beginRun()
   SetupEtaPhiHists(DigiErrorsBadDigiSize," Digis with Bad Size", "");
   
   m_dbe->setCurrentFolder(baseFolder_+"/digi_info");
+  
+  h_valid_digis=m_dbe->book1D("ValidEvents","Events with minimum number of valid digis",2,-0.5,1.5);
+  h_valid_digis->setBinLabel(1,"Valid");
+  h_valid_digis->setBinLabel(2,"Invalid");
+  
+  h_invalid_orbitnumMod103=m_dbe->book1D("InvalidDigiEvents_ORN","Orbit Number (mod 103) for Events with Many Unpacker Errors",103,-0.5,102.5);
+  h_invalid_bcn=m_dbe->book1D("InvalidDigiEvents_BCN","Bunch Crossing Number fo Events with Many Unpacker Errors",3464,-0.5,3563.5);
+
   DigiSize = m_dbe->book2D("Digi Size", "Digi Size",4,0,4,20,-0.5,19.5);
   DigiSize->setBinLabel(1,"HB",1);
   DigiSize->setBinLabel(2,"HE",1);
@@ -243,7 +251,7 @@ void HcalDigiMonitor::beginRun()
   
   m_dbe->setCurrentFolder(baseFolder_+"/bad_digis");
   
-  DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis within Digi Collection",148, bins_cellcount);
+  DigiBQ = m_dbe->book1D("NumBadQualDigis","# Bad Qual Digis within Digi Collection",148, bins_cellcount);
   // Can't set until histogram drawn?
   //(DigiBQ->getTH1F())->LabelsOption("v");
   DigiBQFrac =  m_dbe->book1D("Bad Digi Fraction","Bad Digi Fraction",
@@ -258,7 +266,7 @@ void HcalDigiMonitor::beginRun()
 					1118,bins_fraccount);
   
   m_dbe->setCurrentFolder(baseFolder_+"/good_digis/");
-  DigiNum = m_dbe->book1D("# of Good Digis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
+  DigiNum = m_dbe->book1D("NumGoodDigis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
   DigiNum -> setAxisTitle("# of Good Digis",1);  
   DigiNum -> setAxisTitle("# of Events",2);
     
@@ -327,7 +335,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HFDigiCollection& hf,
 				   int CalibType,
 				   const HcalDbService& cond,
-				   const HcalUnpackerReport& report)
+				   const HcalUnpackerReport& report,
+				   int orN, int bcN)
 { 
   if(!m_dbe) 
     { 
@@ -339,10 +348,22 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   // Skip events in which minimal good digis found -- still getting some strange (calib?) events through DQM
 
   DigiUnpackerErrorCount->Fill(report.badQualityDigis());
-  if (report.badQualityDigis()>9000)
+  
+  unsigned int allgooddigis= hbhe.size()+ho.size()+hf.size();
+  // bad threshold:  ignore events in which bad outnumber good by more than 100:1
+  // (one RBX in HBHE seems to send valid data occasionally even on QIE resets, which is why we can't just require allgooddigis==0 when looking for events to skip)
+  if ((allgooddigis==0) ||
+      (1.*report.badQualityDigis()>100*allgooddigis))
     {
+      h_valid_digis->Fill(1);
+      if (bcN>-1)
+	h_invalid_bcn->Fill(bcN);
+      if (orN>-1)
+	h_invalid_orbitnumMod103->Fill(orN);
       return;
     }
+
+  h_valid_digis->Fill(0);
 
   // Check that event is of proper calibration type
   bool processevent=false;
@@ -421,6 +442,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j)
     {
 	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+	  
 	if (digi.id().subdet()==HcalBarrel)
 	  {
 	    if (!hbHists.check) continue;
