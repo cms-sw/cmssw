@@ -136,10 +136,12 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw, edm::Trigg
 	   meTrigFrac_->setBinContent(l+1,nAcc[l]/(float)nAcc_Total);
 	 }
      }
+   
+   
      
   bool processevent=false;
   if (orAcc) processevent=true;
-  
+
   if (!processevent) return;
 
   meBXtriggered_->Fill(bxNum+0.001,1);

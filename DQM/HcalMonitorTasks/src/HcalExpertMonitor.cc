@@ -42,19 +42,19 @@ void HcalExpertMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   ievt_=0; // event counter
   baseFolder_ = rootFolder_ + "ExpertMonitor"; // Will create an "ExpertMonitor" subfolder in .root output
-  if (fVerbosity) cout <<"<HcalExpertMonitor::setup> Setup in progress"<<endl;
+  if (fVerbosity) std::cout <<"<HcalExpertMonitor::setup> Setup in progress"<< endl;
 
   
-  if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
+  if(fVerbosity) std::cout << "About to pushback fedUnpackList_" << std::endl;
 
     // Use this in CMSSW_3_0_X and above
     firstFED_ = FEDNumbering::MINHCALFEDID;
-    cout <<"FIRST FED = "<<firstFED_<<endl;
+    std::cout <<"FIRST FED = "<<firstFED_<< endl;
 
     for (int i=FEDNumbering::MINHCALFEDID; 
 	 i<=FEDNumbering::MAXHCALFEDID; ++i) 
     {
-      if(fVerbosity) cout << "<HcalExpertMonitor::setup>:Pushback for fedUnpackList_: " << i <<endl;
+      if(fVerbosity) std::cout << "<HcalExpertMonitor::setup>:Pushback for fedUnpackList_: " << i << endl;
       fedUnpackList_.push_back(i);
     } // for (int i=FEDNumbering::MINHCALFEDID;...
 
@@ -92,7 +92,7 @@ void HcalExpertMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 {
   if (!m_dbe)
     {
-      if (fVerbosity) cout <<"HcalExpertMonitor::processEvent   DQMStore not instantiated!!!"<<endl;
+      if (fVerbosity) std::cout <<"HcalExpertMonitor::processEvent   DQMStore not instantiated!!!"<< endl;
       return;
     }
 
@@ -133,7 +133,7 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
   // Should never see this error message
   if (!m_dbe)
     {
-      if (fVerbosity) cout <<"HcalExpertMonitor::processEvent_RecHit   DQMStore not instantiated!!!"<<endl;
+      if (fVerbosity) std::cout <<"HcalExpertMonitor::processEvent_RecHit   DQMStore not instantiated!!!"<< endl;
       return;
     }
 
@@ -160,12 +160,12 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
 	  SampleHist->Fill(ieta,energy);
 	  if ((HcalSubdetector)(id.subdet())==HcalBarrel)
 	    {
-	      //cout <<"This is an HB hit"<<endl;
+	      //cout <<"This is an HB hit"<< endl;
 	    } // if id.subdet()==HcalBarrel
 
 	  else
 	    {
-	      //cout <<"This is an HE hit"<<endl;
+	      //cout <<"This is an HE hit"<< endl;
 	    } // for (HBHEiter=hbheHits.begin()...
 
 	} // for (HBHEiter=hbheHits.begin(),...)
@@ -173,7 +173,7 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
 
   else
     {
-      if (fVerbosity) cout <<"HcalExpertMonitor::processEvent   No HBHE Rec Hits Found"<<endl;
+      if (fVerbosity) std::cout <<"HcalExpertMonitor::processEvent   No HBHE Rec Hits Found"<< endl;
     } 
 
   //////////////////////////////////
@@ -194,7 +194,7 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
   
   else
     {
-      if (fVerbosity) cout <<"HcalExpertMonitor::processEvent   No HO RecHits found"<<endl;
+      if (fVerbosity) std::cout <<"HcalExpertMonitor::processEvent   No HO RecHits found"<< endl;
     } // catch
   
   ///////////////////////////////////
@@ -215,7 +215,7 @@ void HcalExpertMonitor::processEvent_RecHit(const HBHERecHitCollection& hbheHits
       } // if (hfHits.size()>0)	  
     else
       {
-	if (fVerbosity) cout <<"HcalExpertMonitor::processEvent   No HF Rec Hits Found"<<endl;
+	if (fVerbosity) std::cout <<"HcalExpertMonitor::processEvent   No HF Rec Hits Found"<< endl;
       } // else
     
     return;
@@ -246,7 +246,7 @@ void HcalExpertMonitor::processEvent_Digi(const HBHEDigiCollection& hbheDigis,
   // Should never see this error message
   if (!m_dbe)
     {
-      if (fVerbosity) cout <<"HcalExpertMonitor::processEvent_Digi   DQMStore not instantiated!!!"<<endl;
+      if (fVerbosity) std::cout <<"HcalExpertMonitor::processEvent_Digi   DQMStore not instantiated!!!"<< endl;
       return;
     }
 
@@ -265,11 +265,11 @@ void HcalExpertMonitor::processEvent_Digi(const HBHEDigiCollection& hbheDigis,
       SampleHist2->Fill(iEta,iPhi);
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel)
 	{
-	  //cout <<"This is an HB Digi"<<endl;
+	  //cout <<"This is an HB Digi"<< endl;
 	}
       else
 	{
-	  //cout <<"This is an HE Digi"<<endl;
+	  //cout <<"This is an HE Digi"<< endl;
 	}
     } // for (HBHEDigiCollection::const_iterator j=hbheDigis.begin()...
 
@@ -321,7 +321,7 @@ void HcalExpertMonitor::processEvent_RawData(const FEDRawDataCollection& rawraw,
   // Should not see this error
   if(!m_dbe) 
     {
-      cout <<"HcalExpertMonitor::processEvent_RawData:  DQMStore not instantiated!!!\n"<<endl;
+      std::cout <<"HcalExpertMonitor::processEvent_RawData:  DQMStore not instantiated!!!\n"<< endl;
       return;
     }
 
@@ -373,15 +373,15 @@ void HcalExpertMonitor::unpack(const FEDRawData& raw,
   EvFragLength = raw.size();
 
   // Dump out some raw data info
-  cout <<"RAWSIZE = "<<rawsize<<endl;
-  cout <<"dcc id = "<<dccid<<endl;
-  cout <<"dccBCN = "<<dccBCN<<endl;
-  cout <<"dccEvtNum = "<<dccEvtNum<<endl;
-    cout <<"EvFragLength = "<<EvFragLength<<endl;
+  std::cout <<"RAWSIZE = "<<rawsize<< endl;
+  std::cout <<"dcc id = "<<dccid<< endl;
+  std::cout <<"dccBCN = "<<dccBCN<< endl;
+  std::cout <<"dccEvtNum = "<<dccEvtNum<< endl;
+    std::cout <<"EvFragLength = "<<EvFragLength<< endl;
   /* 1 */ //There should always be a second CDF header word indicated.
   if (!dccHeader->thereIsASecondCDFHeaderWord()) 
     {
-    cout <<"No second CDF header found!"<<endl;
+    std::cout <<"No second CDF header found!"<< endl;
     }
 
   // walk through the HTR data...
@@ -404,7 +404,7 @@ void HcalExpertMonitor::unpack(const FEDRawData& raw,
       unsigned short twoThresh = HTRraw[htr.getRawLength() -9];
       Chan24Thresh = (twoThresh>>8)&0x00FF;  //The high byte
       Chan01Thresh = (twoThresh   )&0x00FF;  //The low byte
-      cout << "Spigot: " << dec << spigot << ": "<<hex << (int) Chan01Thresh << "to" << (int) Chan24Thresh << endl;
+      std::cout << "Spigot: " << dec << spigot << ": "<<hex << (int) Chan01Thresh << "to" << (int) Chan24Thresh << std::endl;
     }
   }
 
