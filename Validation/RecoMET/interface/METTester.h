@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 #include <string>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -43,12 +45,23 @@ public:
   std::string METType_;
   std::string FolderName_;
   edm::InputTag inputMETLabel_;
+  edm::InputTag inputCaloMETLabel_;
   edm::InputTag inputTrackLabel_;
   edm::InputTag inputMuonLabel_;
   edm::InputTag inputElectronLabel_;
   edm::InputTag inputBeamSpotLabel_;
   bool finebinning_;
 
+  bool isGoodTrack( const reco::TrackRef, float d0corr );
+
+  int minhits_;
+  double maxd0_;
+  double maxchi2_;
+  double maxeta_;
+  double maxpt_;
+  double maxPtErr_;
+  std::vector<int> trkQuality_;
+  std::vector<int> trkAlgos_;
 };
 
 #endif // METTESTER_H
