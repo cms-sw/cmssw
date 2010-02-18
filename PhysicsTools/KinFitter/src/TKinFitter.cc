@@ -49,6 +49,8 @@ TKinFitter::TKinFitter():
   _C33T(1, 1),
   _deltaA(1, 1),
   _deltaY(1, 1),
+  _deltaAstar(1, 1),
+  _deltaYstar(1, 1),
   _lambda(1, 1),
   _lambdaT(1, 1),
   _lambdaVFit(1, 1),
@@ -89,6 +91,8 @@ TKinFitter::TKinFitter(const TString &name, const TString &title):
   _C33T(1, 1),
   _deltaA(1, 1),
   _deltaY(1, 1),
+  _deltaAstar(1, 1),
+  _deltaYstar(1, 1),
   _lambda(1, 1),
   _lambdaT(1, 1),
   _lambdaVFit(1, 1),
@@ -135,6 +139,8 @@ void TKinFitter::reset() {
   _C33T.ResizeTo(1, 1);
   _deltaA.ResizeTo(1, 1);
   _deltaY.ResizeTo(1, 1);
+  _deltaAstar.ResizeTo(1, 1);
+  _deltaYstar.ResizeTo(1, 1);
   _lambda.ResizeTo(1, 1);
   _lambdaT.ResizeTo(1, 1);
   _lambdaVFit.ResizeTo(1, 1);
@@ -394,21 +400,20 @@ Int_t TKinFitter::fit() {
       _status = -10;
     }
 
-    // If S or F are getting bigger reduce step width
-//     Int_t nstep =0;
-//     while ( currF >= prevF ) {
-//       nstep++;
-//       if (nstep < 6) {cout <<nstep <<" : currF: "<< currF << "\t , prevF: " << prevF << endl;}
-//       //      cout << "Reducing step width ..." << endl;
-//       _deltaA *= (1.-0.001);
-//       _deltaY *= (1.-0.001);
-// //       _lambda *= 0.00001;
-// //       _lambdaT *= 0.00001;
-//       applyDeltaA();
-//       applyDeltaY();
-//       currF = getF();
-//       currS = getS();
-//     }
+    // Reduce step width if F is not getting smaller
+    Int_t nstep = 0;
+    while (currF >= prevF) {
+      nstep++;
+      if (nstep == 10) break;
+      if (_nParA > 0) _deltaA -= (0.5) * (_deltaA - _deltaAstar);
+      _deltaY -= (0.5) * (_deltaY - _deltaYstar);
+      _lambda *= 0.5;
+      _lambdaT *= 0.5;
+      if (_nParA > 0) applyDeltaA();
+      applyDeltaY();
+      currF = getF();
+      currS = getS();
+    }
     
     // Test convergence
     isConverged = converged(currF, prevS, currS);
@@ -894,6 +899,12 @@ Bool_t TKinFitter::calcDeltaA() {
   _deltaA.ResizeTo( deltaA );
   _deltaA = deltaA;
 
+  if (_nbIter == 0) {
+    _deltaAstar.ResizeTo(deltaA);
+    _deltaAstar.Zero();
+  } else
+    _deltaAstar = _deltaA;
+
   return true;
 
 }
@@ -905,6 +916,12 @@ Bool_t TKinFitter::calcDeltaY() {
   TMatrixD deltaY( _C31T, TMatrixD::kMult, _c );
   _deltaY.ResizeTo( deltaY );
   _deltaY = deltaY;
+
+  if (_nbIter == 0) {
+    _deltaYstar.ResizeTo(deltaY);
+    _deltaYstar.Zero();
+  } else
+    _deltaYstar = _deltaY;
 
   return true;
 
