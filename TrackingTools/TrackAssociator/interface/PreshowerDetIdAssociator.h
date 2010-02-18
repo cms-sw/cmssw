@@ -14,7 +14,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: PreshowerDetIdAssociator.h,v 1.2 2009/09/06 16:39:11 dmytro Exp $
+// $Id: PreshowerDetIdAssociator.h,v 1.3 2010/02/18 01:21:50 dmytro Exp $
 //
 //
 
@@ -26,7 +26,8 @@ class PreshowerDetIdAssociator: public CaloDetIdAssociator{
    PreshowerDetIdAssociator():CaloDetIdAssociator(30,60,0.1){};
 
    PreshowerDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
-
+     
+   virtual const char* name() const { return "Preshower"; }
  protected:
 
    virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const {

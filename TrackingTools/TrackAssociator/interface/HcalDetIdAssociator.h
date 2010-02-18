@@ -15,33 +15,28 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: HcalDetIdAssociator.h,v 1.2 2007/10/08 13:04:31 dmytro Exp $
+// $Id: HcalDetIdAssociator.h,v 1.3 2009/10/02 19:48:02 heltsley Exp $
 //
 //
 
 #include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
-
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 class HcalDetIdAssociator: public CaloDetIdAssociator{
  public:
    HcalDetIdAssociator():CaloDetIdAssociator(72, 70 ,0.087){};
 
    HcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
+   
+   virtual const char* name() const { return "HCAL"; }
 
  protected:
 
-   virtual std::set<DetId> getASetOfValidDetIds() const {
-      std::set<DetId> setOfValidIds;
-      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Hcal, 1);//HB
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-         setOfValidIds.insert(*it);
-
-//      vectOfValidIds.clear();
-      const std::vector<DetId>& vectOfValidIdsHE = geometry_->getValidDetIds(DetId::Hcal, 2);//HE
-      for(std::vector<DetId>::const_iterator it = vectOfValidIdsHE.begin(); it != vectOfValidIdsHE.end(); ++it)
-         setOfValidIds.insert(*it);
-
-      return setOfValidIds;
+   virtual const unsigned int getNumberOfSubdetectors() const { return 2;}
+   virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const {
+     if ( subDetectorIndex == 0 )
+       return geometry_->getValidDetIds(DetId::Hcal, HcalBarrel);//HB
+     else
+       return geometry_->getValidDetIds(DetId::Hcal, HcalEndcap);//HE
    };
-
 };
 #endif

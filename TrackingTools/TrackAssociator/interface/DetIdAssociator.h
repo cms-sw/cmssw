@@ -25,7 +25,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.16 2009/10/29 11:47:27 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.17 2010/02/18 01:21:49 dmytro Exp $
 //
 //
 
@@ -119,6 +119,8 @@ class DetIdAssociator{
    virtual const GeomDet* getGeomDet(const DetId&) const = 0;
 
    virtual void setConditions(const DetIdAssociatorRecord&) {};
+
+   virtual const char* name() const = 0;
    
  protected:
    virtual void check_setup() const;

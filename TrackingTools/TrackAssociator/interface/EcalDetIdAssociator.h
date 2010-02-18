@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.7 2009/10/02 19:48:02 heltsley Exp $
+// $Id: EcalDetIdAssociator.h,v 1.8 2010/02/18 01:21:50 dmytro Exp $
 //
 //
 
@@ -27,8 +27,11 @@ class EcalDetIdAssociator: public CaloDetIdAssociator{
 
    EcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
 
+   virtual const char* name() const { return "ECAL"; }
+
  protected:
 
+   virtual const unsigned int getNumberOfSubdetectors() const { return 2;}
    virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const {
      if ( subDetectorIndex == 0 )
        return geometry_->getValidDetIds(DetId::Ecal, EcalBarrel);//EB

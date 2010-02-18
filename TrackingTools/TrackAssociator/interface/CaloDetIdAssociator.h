@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.14 2009/10/29 11:47:27 dmytro Exp $
+// $Id: CaloDetIdAssociator.h,v 1.15 2010/02/18 01:21:49 dmytro Exp $
 //
 //
 
@@ -45,6 +45,8 @@ class CaloDetIdAssociator: public DetIdAssociator{
    virtual void setGeometry(const DetIdAssociatorRecord& iRecord);
 
    virtual const GeomDet* getGeomDet(const DetId& id) const { return 0; };
+
+   virtual const char* name() const { return "CaloTowers"; }
 
  protected:
    virtual void check_setup() const;

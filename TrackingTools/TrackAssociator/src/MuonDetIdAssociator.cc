@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.11 2009/10/29 11:47:27 dmytro Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.12 2010/02/18 01:21:51 dmytro Exp $
 //
 //
 
@@ -49,7 +49,8 @@ GlobalPoint MuonDetIdAssociator::getPosition(const DetId& id) const {
 const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex) const {
   validIds_.clear();
   if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
-  if (subDectorIndex!=0) throw cms::Exception("FatalError") << "Muon sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
+  if (subDectorIndex!=0) throw cms::Exception("FatalError") << 
+    "Muon sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
 
   // CSC 
   if (! geometry_->slaveGeometry(CSCDetId()) ) throw cms::Exception("FatalError") << "Cannnot CSCGeometry\n";

@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.8 2009/10/29 11:47:27 dmytro Exp $
+// $Id: MuonDetIdAssociator.h,v 1.9 2010/02/18 01:21:50 dmytro Exp $
 //
 //
 
@@ -52,6 +52,8 @@ class MuonDetIdAssociator: public DetIdAssociator{
    };
 
    virtual const GeomDet* getGeomDet( const DetId& id ) const;
+
+   virtual const char* name() const { return "AllMuonDetectors"; }
 
  protected:
    

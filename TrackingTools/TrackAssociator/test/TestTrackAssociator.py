@@ -77,7 +77,7 @@ options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/relval/CMSSW_3_2_5/RelValSingleMuPt10/GEN-SIM-RECO/MC_31X_V5-v1/0011/E014EF8B-588E-DE11-8D06-001617E30E28.root'
+	'/store/relval/CMSSW_3_5_0/RelValSingleMuPt10/GEN-SIM-RECO/MC_3XY_V21-v1/0013/9263608A-6213-DF11-8763-001A92971AD0.root'
     )
 )
 

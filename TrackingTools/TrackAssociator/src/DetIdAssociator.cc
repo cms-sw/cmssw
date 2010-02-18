@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.21 2009/10/29 11:47:27 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.22 2010/02/18 01:21:51 dmytro Exp $
 //
 //
 
@@ -145,17 +145,18 @@ void DetIdAssociator::buildMap()
   // 0) determine how many elements each bin has
   // 1) fill the container map
    check_setup();
-   LogTrace("TrackAssociator")<<"building map" << "\n";
+   LogTrace("TrackAssociator")<<"building map for " << name() << "\n";
    // clear the map
    if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot build such a map.";
-   unsigned int numberOfDetIdsOutsideEtaRange = 0;
-   unsigned int numberOfDetIdsActive = 0;
    unsigned int numberOfSubDetectors = getNumberOfSubdetectors();
    unsigned totalNumberOfElementsInTheContainer(0);
    for ( unsigned int step = 0; step < 2; ++step){
+     unsigned int numberOfDetIdsOutsideEtaRange = 0;
+     unsigned int numberOfDetIdsActive = 0;
+     LogTrace("TrackAssociator")<< "Step: " << step;
      for ( unsigned int subDetectorIndex = 0; subDetectorIndex < numberOfSubDetectors; ++subDetectorIndex ){
        const std::vector<DetId>& validIds = getValidDetIds(subDetectorIndex);
-       LogTrace("TrackAssociator")<< "Number of valid DetIds: " <<  validIds.size();
+       LogTrace("TrackAssociator")<< "Number of valid DetIds for subdetector: " << subDetectorIndex << " is " <<  validIds.size();
        for (std::vector<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
 	 std::pair<const_iterator,const_iterator> points = getDetIdPoints(*id_itr);
 	 LogTrace("TrackAssociatorVerbose")<< "Found " << points.second-points.first << " global points to describe geometry of DetId: " 
@@ -234,6 +235,10 @@ void DetIdAssociator::buildMap()
 	     }
        }
      }
+     LogTrace("TrackAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
+       nEta_/2*etaBinSize_ << "): " << numberOfDetIdsOutsideEtaRange << "\n";
+     LogTrace("TrackAssociator") << "Number of active DetId's mapped: " << 
+       numberOfDetIdsActive << "\n";
      if ( step == 0 ){
        // allocate
        container_.resize(totalNumberOfElementsInTheContainer);
@@ -250,13 +255,9 @@ void DetIdAssociator::buildMap()
    }
    if ( totalNumberOfElementsInTheContainer != 0 )
      throw cms::Exception("FatalError") << "Look-up map filled incorrectly. Structural problem. Get in touch with the developer.";
-   LogTrace("TrackAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
-     nEta_/2*etaBinSize_ << "): " << numberOfDetIdsOutsideEtaRange << "\n";
-   LogTrace("TrackAssociator") << "Number of active DetId's mapped: " << 
-     numberOfDetIdsActive << "\n";
    volume_.determinInnerDimensions();
-   edm::LogVerbatim("TrackAssociator") << "Volume (minR, maxR, minZ, maxZ): " << volume_.minR() << ", " << volume_.maxR() <<
-     ", " << volume_.minZ() << ", " << volume_.maxZ();
+   edm::LogVerbatim("TrackAssociator") << "Fiducial volume for " << name() << " (minR, maxR, minZ, maxZ): " << 
+     volume_.minR() << ", " << volume_.maxR() << ", " << volume_.minZ() << ", " << volume_.maxZ();
    theMapIsValid_ = true;
 }
 
@@ -384,3 +385,5 @@ void DetIdAssociator::fillSet( std::set<DetId>& set, unsigned int iEta, unsigned
   for ( i = i0; i < i0+size; ++i )
     set.insert(container_.at(i));
 }
+
+//  LocalWords:  Fiducial
