@@ -19,7 +19,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 // forward declarations
-template<typename C>
+template<class object>
 class TriggerCandProducer : public edm::EDProducer 
 {
  public:

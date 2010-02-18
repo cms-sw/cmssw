@@ -104,16 +104,14 @@ process.PassingId = cms.EDFilter("GsfElectronRefSelector",
 ##  
 # Trigger  ##################
 
-process.PassingHLT = cms.EDProducer("eTriggerGsfElectronCollection",                     
+process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",                     
     InputProducer = cms.InputTag("PassingId"),                          
     hltTag = cms.untracked.InputTag("HLT_Ele15_SW_LooseTrackIso_L1R","","HLT"),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","","HLT")
 )
 
 
-
-
-process.Tag = process.PassingId.clone()
+process.Tag = process.PassingHLT.clone()
 process.ele_sequence = cms.Sequence(
     process.PassingGsf * 
     process.PassingIsolation * process.PassingId * 
@@ -352,12 +350,6 @@ process.tree_sequence = cms.Sequence(
     process.SCToGsf + process.GsfToIso +
     process.IsoToId + process.IdToHLT
 )    
-
-
-
-## process.tree_sequence = cms.Sequence(
-##     process.GsfToIso
-## )    
 
 
 

@@ -5,8 +5,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <string>
 
-template<typename C>
-TriggerCandProducer<C>::TriggerCandProducer(const edm::ParameterSet& iConfig )
+
+template<class object >
+TriggerCandProducer<object>::TriggerCandProducer(const edm::ParameterSet& iConfig )
 {
 
   _inputProducer = iConfig.template getParameter<edm::InputTag>("InputProducer");
@@ -26,12 +27,14 @@ TriggerCandProducer<C>::TriggerCandProducer(const edm::ParameterSet& iConfig )
   //Trigger path VS l1 trigger filter. Trigger Path is default.
   isFilter_ = iConfig.getUntrackedParameter<bool>("isTriggerFilter",false);
   printIndex_ = iConfig.getUntrackedParameter<bool>("verbose",false);
-  produces<reco::CandidateCollection>();
+
+  produces< edm::PtrVector<object> >();
+  produces< edm::RefToBaseVector<object> >();
 }
 
 
-template<typename C>
-TriggerCandProducer<C>::~TriggerCandProducer()
+template<class object>
+TriggerCandProducer<object>::~TriggerCandProducer()
 {
 
 }
@@ -43,9 +46,9 @@ TriggerCandProducer<C>::~TriggerCandProducer()
 
 
 // ------------ method called to produce the data  ------------
-template<typename C>
-void TriggerCandProducer<C>::produce(edm::Event &event, 
-				   const edm::EventSetup &eventSetup)
+template<class object >
+void TriggerCandProducer<object>::produce(edm::Event &event, 
+							    const edm::EventSetup &eventSetup)
 {
 
   using namespace std;
@@ -55,10 +58,14 @@ void TriggerCandProducer<C>::produce(edm::Event &event,
 
 
    // Create the output collection
-   std::auto_ptr<reco::CandidateCollection> outCol( new reco::CandidateCollection );
+  std::auto_ptr< edm::RefToBaseVector<object> > 
+    outColRef( new edm::RefToBaseVector<object> );
+  std::auto_ptr< edm::PtrVector<object> > 
+    outColPtr( new edm::PtrVector<object> );
+
 
    // Get the input collection
-   edm::Handle<C> candHandle;
+   edm::Handle<edm::View<object> > candHandle;
    try
    {
       event.getByLabel(_inputProducer, candHandle);
@@ -79,7 +86,8 @@ void TriggerCandProducer<C>::produce(edm::Event &event,
      edm::LogInfo("info")<< "******** Following Trigger Summary Object Not Found: " << 
        triggerEventTag_;
 
-     event.put(outCol);
+     event.put(outColRef);
+     event.put(outColPtr);
      return;
    }
 
@@ -106,12 +114,15 @@ void TriggerCandProducer<C>::produce(edm::Event &event,
    else{
      bool changed = false;
      if(! hltConfig_.init(event, hltTag_.process(), changed) ){
-       edm::LogError("TriggerCandProducer") << "Error! Can't initialize HLTConfigProvider ";
+       edm::LogError("TriggerCandProducer") << 
+	 "Error! Can't initialize HLTConfigProvider ";
        return;
      }
-     if(printIndex_ && changed) std::cout << "HLT configuration changed!!!!" << std::endl;
+     if(printIndex_ && changed) 
+       std::cout << "HLT configuration changed !" << std::endl;
      
-     std::vector<std::string> filters = hltConfig_.moduleLabels( hltTag_.label() );
+     std::vector<std::string> filters 
+       = hltConfig_.moduleLabels( hltTag_.label() );
      for(std::vector<std::string>::iterator filter =
 	   filters.begin(); filter!= filters.end(); ++filter ) {
        
@@ -142,47 +153,47 @@ void TriggerCandProducer<C>::produce(edm::Event &event,
    //-----------------------------------------------------------------
 
 
-
-
    if( index >= trgEvent->sizeFilters() ) {
      edm::LogInfo("info")<< "******** Following TRIGGER Name Not in Dataset: " <<
        hltTag_.label();
 
-     event.put(outCol);
+     event.put(outColRef);
+     event.put(outColPtr);
      return;
    }
-
 
    // find how many objects there are
    const trigger::Keys& KEYS(trgEvent->filterKeys(index));
    const size_type nK(KEYS.size());
-   // bool l1accept = nK > 0;
-
 
    // Loop over the candidate collection
-   for(unsigned int i = 0; i < candHandle->size(); ++i) {
+   const edm::PtrVector<object>& ptrVect = candHandle->ptrVector();
+   const edm::RefToBaseVector<object>& refs = candHandle->refVector();
+   unsigned int counter=0;
+
+   for( typename edm::View< object>::const_iterator j = candHandle->begin(); 
+	j != candHandle->end(); ++j, ++counter) {
+
      // Get cut decision for each candidate
-
-     reco::CandidateBaseRef masterClone( edm::Ref<C>( candHandle, i ) );
-
-     // Did this tag cause a HLT trigger?
+     // Did this candidate cause a HLT trigger?
      bool hltTrigger = false;
-
      for(int ipart = 0; ipart != nK; ++ipart) { 
 
        const trigger::TriggerObject& TO = TOC[KEYS[ipart]];	
-       double dRval = deltaR((float) masterClone->eta(), 
-			     (float)masterClone->phi(), 
-			     TO.eta(), TO.phi());	
+       double dRval = deltaR( j->eta(), j->phi(), 
+			      TO.eta(), TO.phi());	
        hltTrigger = dRval < delRMatchingCut_;
- 
        if( hltTrigger ) break;
      }       
 
-     if(hltTrigger) outCol->push_back( new reco::ShallowCloneCandidate( masterClone ) );
+     if(hltTrigger) { 
+       outColRef->push_back( refs[counter] );
+       outColPtr->push_back( ptrVect[counter] );
+     }
    } 
 
-   event.put(outCol);
+   event.put(outColRef);
+   event.put(outColPtr);
 }
    
 
@@ -192,14 +203,14 @@ void TriggerCandProducer<C>::produce(edm::Event &event,
 // ---- method called once each job just before starting event loop  ---
 
 
-template<typename C>
-void TriggerCandProducer<C>::beginJob() {
+template<class object>
+void TriggerCandProducer<object>::beginJob() {
   filterName_ = "";
 }
 
 
 
-template<typename C>
-void TriggerCandProducer<C>::endJob() {
+template<class object>
+void TriggerCandProducer<object >::endJob() {
 }
 
