@@ -1,3 +1,13 @@
+2010-02-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-01
+	* Provide Adler32 checksum for FRD (error) event streams, too.
+	  Requires IOPool/Streamer V05-08-06 or newer.
+	* Fix for uninitialized variable in TriggerSelector.
+	* Discard oldest DQM events if DQM event queue fills up.
+	  instead of newest ones.
+	* Keep track of number of discarded DQM events.
+
 2010-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-08-00
