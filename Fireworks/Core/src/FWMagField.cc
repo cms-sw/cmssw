@@ -36,8 +36,8 @@ FWMagField::GetField(Float_t x, Float_t y, Float_t z) const
 {
    // Virtual method of TEveMagField class.
 
-   double R = sqrt(x*x+y*y);
-   double field = m_reverse ? -GetMaxFieldMag() : GetMaxFieldMag();
+   Float_t R = sqrt(x*x+y*y);
+   Float_t field = m_reverse ? -GetMaxFieldMag() : GetMaxFieldMag();
 
    //barrel
    if ( TMath::Abs(z)<724 ){
@@ -76,7 +76,7 @@ FWMagField::GetField(Float_t x, Float_t y, Float_t z) const
 
 //______________________________________________________________________________
 
-double
+Float_t
 FWMagField::GetMaxFieldMag() const
 {
    if ( m_autodetect )
@@ -120,7 +120,7 @@ void FWMagField::guessFieldIsOn(bool isOn) const
    m_updateFieldEstimate  = true;
 }
 
-void FWMagField::guessField(double val) const
+void FWMagField::guessField(float val) const
 {
    fwLog(fwlog::kDebug) <<  "FWMagField::guessField "<< val << std::endl;
    m_guessValHist->Fill(val);

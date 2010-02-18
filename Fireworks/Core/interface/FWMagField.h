@@ -16,11 +16,11 @@ public:
 
    // get field values
    virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const;
-   double GetMaxFieldMag() const;
+   virtual Float_t    GetMaxFieldMag() const;
 
    // auto/user behaviour
-   void   setUserField(double b) { m_userField = b; }
-   double getUserField() const { return  m_userField; }
+   void   setUserField(float b) { m_userField = b; }
+   float  getUserField() const { return  m_userField; }
    void   setAutodetect(bool state) { m_autodetect = state; }
    bool   getAutodetect() const { return m_autodetect; }
 
@@ -32,7 +32,7 @@ public:
 
    // field estimate
    void   guessFieldIsOn( bool guess ) const;
-   void   guessField( double estimate ) const;
+   void   guessField( float estimate ) const;
    void   resetFieldEstimate() const;
 
 private:
@@ -40,7 +40,7 @@ private:
    const FWMagField& operator=(const FWMagField&); // stop default
 
    bool   m_autodetect;
-   double m_userField;
+   float  m_userField;
 
    bool   m_reverse;
    bool   m_simpleModel;
@@ -50,7 +50,7 @@ private:
    mutable int    m_numberOfFieldIsOnEstimates;
    mutable int    m_numberOfFieldEstimates;
    mutable bool   m_updateFieldEstimate;
-   mutable double m_guessedField;
+   mutable float  m_guessedField;
 };
 
 #endif
