@@ -28,7 +28,6 @@ tmp/%.cpp:  %.h %_def.xml
 tmp/%LinkDef.cc:  %LinkDef.h
 	$(QUIET) echo "generating ROOT dictionaries based on $<"; \
 	mkdir -p $(dir $@); \
-	LD_LIBRARY_PATH=$(FWROOTSYS)/lib; export LD_LIBRARY_PATH; \
 	DYLD_LIBRARY_PATH=$(FWROOTSYS)/lib; export DYLD_LIBRARY_PATH; \
 	ROOTSYS=$(FWROOTSYS); export ROOTSYS; \
 	$(FWROOTSYS)/bin/rootcint -f $@.tmp -c -p $(INCLUDE) $<; \
@@ -50,7 +49,7 @@ tmp/%LinkDef.cc:  %LinkDef.h
 tmp/%.out:  %
 	$(QUIET) echo "checking shared library for missing symbols: $<"; \
 	echo "int main(){}" > tmp/$<.cpp; \
-	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -o $@ $< tmp/$<.cpp
+	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -lEve -lCint -o $@ $< tmp/$<.cpp
 
 # this recipe for dependency generation is the one recommended by the
 # gmake manual, with slight tweaks for the location of the output

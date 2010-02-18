@@ -14,7 +14,14 @@ else
 	endif
 endif
 
-export FWROOTSYS = external/root
+DIR := $(shell pwd)
+export FWROOTSYS = ${DIR}/external/root
+
+LD_LIBRARY_PATH := ${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
+export LD_LIBRARY_PATH
+PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
+export PATH
+
 
 all: display install
 

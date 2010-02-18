@@ -23,6 +23,10 @@ include project.mk
 COMPILERFLAGS := -Wall -O0 -g -m32 -fPIC
 # common includes
 INCLUDE := -I./ -Isrc -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
+ifeq ($(shell uname), Darwin)
+	INCLUDE += -I/usr/X11/include/
+endif
+
 # compiler
 CC := c++
 
@@ -32,22 +36,21 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 ProjectMissingFlags = -lGeom -lGuiHtml
-#ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
 
 ifeq ($(shell uname), Linux)
         MAKESHAREDLIB := -shared
-        ExecLibs = -lRIO -lNet -L./ -l$(LibProject)
+        ExecLibs = -lEve -lRIO -lNet -L./ -l$(LibProject)
         ExtraProjectLibs = -L./ -l$(LibCore) 
 else 
    ifeq ($(shell uname), Darwin)
       MAKESHAREDLIB := -dynamiclib
       ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
-      ExtraProjectLibs = -lEve -lGeom -lGeomPainter -lGraf3d \
+      ExtraProjectLibs = -lRIO -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
 		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore \
-		-lboost_iostreams-xgcc40-mt-1_38 -lboost_program_options-xgcc40-mt-1_38 \
-		-lboost_regex-xgcc40-mt-1_38 -lsigc-2.0.0 -L./ -L/usr/X11R6/lib -lGL -lGLU -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib -l$(LibCore)
+		-lboost_iostreams -lboost_program_options -lboost_regex -lboost_system \
+		-lsigc-2.0.0 -L./ -L/usr/X11R6/lib -lGL -lGLU -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib -l$(LibCore)
    endif
 endif
 
