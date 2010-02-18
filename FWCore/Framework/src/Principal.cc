@@ -590,7 +590,10 @@ namespace edm {
     provenances.clear();
     for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if ((*i)->provenanceAvailable()) {
-	if ((*i)->provenance()->isPresent() && (*i)->provenance()->product().present()) {
+	// The folowing "and" should be done in this order.  In rare cases, not fully understood,
+	// where there is no product, there is no per event/lumi/run provenance for the product,
+	// and the isPresent() call asserts.
+	if ((*i)->provenance()->product().present() && (*i)->provenance()->isPresent()) {
 	   provenances.push_back((*i)->provenance());
 	}
       }
