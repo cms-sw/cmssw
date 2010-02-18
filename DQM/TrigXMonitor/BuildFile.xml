@@ -9,6 +9,9 @@
 <use   name="DQMServices/Components"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/Scalers"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>
