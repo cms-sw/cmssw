@@ -265,8 +265,10 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	fSum = 0.;
 	for (unsigned int i = 0; i < fTS; ++i) 
 	  {
-	    //fData[i] = HFQIEConst * digi[i].nominal_fC();  //  !! important. adc or nomianl fC ?  multiple with QIE const ? 
-	    fData[i] = digi[i].adc();
+	    //fData[i] = HFQIEConst * digi[i].nominal_fC();  //  !! important. adc or nominal fC ?  multiple with QIE const ? 
+	    //fData[i] = digi[i].adc();
+	    // For now, use nominal_fC, without HFQIEConstant
+	    fData[i]=digi[i].nominal_fC();
 	  }
       
 	if (!isGood(fData, 10, 0.001))
