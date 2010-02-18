@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2010/01/08 20:07:30 $
- * $Revision: 1.159 $
+ * $Date: 2010/02/05 18:50:34 $
+ * $Revision: 1.160 $
  * \author W Fisher
  * \author J Temple
  *
@@ -400,6 +400,10 @@ void HcalMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) 
    
     meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",1+(FEDNumbering::MAXHCALFEDID-FEDNumbering::MINHCALFEDID),FEDNumbering::MINHCALFEDID-0.5,FEDNumbering::MAXHCALFEDID+0.5);
 
+    meCalibType_ = dbe_->book1D("CalibrationType","Calibration Type",10,-0.5,9.5);
+    meProcessedEndLumi_=dbe_->bookInt("EndLumiBlockProcessed_MonitorModule");
+    meProcessedEndLumi_->Fill(-1);
+
     // process latency was (200,0,1), but that gave overflows
     meLatency_ = dbe_->book1D("Process Latency","Process Latency",1000,0,10);
     meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
@@ -542,6 +546,8 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // In online running, don't process events that occur before current luminosity block
   if (Online_ && lumiSeg.luminosityBlock()<ilumisec)
     return; 
+  
+  meProcessedEndLumi_->Fill(lumiSeg.luminosityBlock());
 
   // Call these every luminosity block
   if(digiMon_!=0)   {  digiMon_->endLuminosityBlock();}
@@ -588,7 +594,8 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if(ledMon_!=0)    {  ledMon_->endLuminosityBlock();}
   if(laserMon_!=0)  {  laserMon_->endLuminosityBlock();}
   if(hotMon_!=0)    {  hotMon_->endLuminosityBlock();}
-  if(deadMon_!=0)   {  deadMon_->endLuminosityBlock();}
+  // deadMon is *not* unnecessary; calling it here ensures that histograms are filled regardless of lumi section prescaling
+  if(deadMon_!=0)   {  deadMon_->endRun();}
   if(mtccMon_!=0)   {  mtccMon_->endLuminosityBlock();}
   if(rhMon_!=0)     {  rhMon_->endLuminosityBlock();}
   if (beamMon_!=0)  {  beamMon_->endLuminosityBlock();}
@@ -684,8 +691,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
   
-
-
   if (Online_ && e.luminosityBlock()<ilumisec)
     return;
 
@@ -787,6 +792,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 					     << calibType ;
     LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType ;
   } // calibType assignment loop
+
+  meCalibType_->Fill(calibType);
+
 
   // skip this event if we're prescaling...
   ++ievt_;
@@ -999,9 +1007,12 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Digi monitor task
   if((digiMon_!=NULL)  && digiOK_ && report.isValid())
     {
+      unsigned int bcN=e.bunchCrossing();
+      unsigned int orN=e.orbitNumber();
       digiMon_->setSubDetectors(HBpresent_, HEpresent_, HOpresent_, HFpresent_ );
+
       digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,
-			     calibType,*conditions_,*report);
+			     calibType,*conditions_,*report, (orN%103), bcN);
     }
   if (showTiming_)
     {

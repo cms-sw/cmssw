@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/12/14 17:45:16 $
- * $Revision: 1.59 $
+ * $Date: 2010/02/05 18:50:57 $
+ * $Revision: 1.60 $
  * \author W. Fisher
  *
 */
@@ -221,6 +221,9 @@ public:
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
   
+  MonitorElement* meCalibType_;
+  MonitorElement* meProcessedEndLumi_;
+
   HcalDigiMonitor*        digiMon_;
   HcalDataFormatMonitor*  dfMon_;
   HcalDataIntegrityTask*  diTask_;
