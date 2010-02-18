@@ -317,6 +317,9 @@ process.hcalMonitor.subSystemFolder = subsystem
 # Loosen HF hot cell thresholds when using cosmic reconstruction
 #process.hcalMonitor.HotCellMonitor_HF_energyThreshold = 20
 #process.hcalMonitor.HotCellMonitor_HF_persistentThreshold = 10
+process.hcalMonitor.HotCellMonitor_AllowedCalibTypes=[0] # ignore calibration (laser, raddam) events
+process.hcalMonitor.DeadCellMonitor_LBprescale=1 # set to 4 for online running
+
 
 # Dump out hflumi information to text file, if directory is specified
 process.hcalMonitor.BeamMonitor_lumiqualitydir=""
