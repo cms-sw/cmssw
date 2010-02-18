@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.5 2010/02/15 13:43:12 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.6 2010/02/15 15:10:57 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -41,8 +41,8 @@ namespace stor
         not put onto the FIFO.
    
      $Author: mommsen $
-     $Revision: 1.5 $
-     $Date: 2010/02/15 13:43:12 $
+     $Revision: 1.6 $
+     $Date: 2010/02/15 15:10:57 $
    */
 
 
@@ -139,11 +139,10 @@ namespace stor
   template <class T>
   struct KeepNewest
   {
-    typedef void return_type;
-
     typedef T value_type;
     typedef std::list<value_type> sequence_type;
     typedef typename sequence_type::size_type size_type;
+    typedef size_type return_type;
 
     static return_type do_enq(value_type const& item,
                               sequence_type& elements,
@@ -153,6 +152,7 @@ namespace stor
                               detail::memory_type& memory,
                               boost::condition& nonempty)
     {
+      size_type elements_removed(0);
       detail::memory_type item_size = detail::_memory_usage(item);
       while (size==capacity || used+item_size > memory) 
         {
@@ -162,11 +162,13 @@ namespace stor
           // Record the change in the length of elements.
           --size;
           used -= detail::_memory_usage( holder.front() );
+          ++elements_removed;
         }
       elements.push_back(item);
       ++size;
       used += item_size;
       nonempty.notify_one();
+      return elements_removed;
     }
   };
 
@@ -174,7 +176,7 @@ namespace stor
   template <class T>
   struct RejectNewest
   {
-    typedef void return_type;
+    typedef bool return_type;
 
     typedef T value_type;
     typedef std::list<value_type> sequence_type;
@@ -188,6 +190,7 @@ namespace stor
                               detail::memory_type& memory,
                               boost::condition& nonempty)
     {
+      bool success(false);
       detail::memory_type item_size = detail::_memory_usage(item);
       if (size < capacity && used+item_size <= memory)
         {
@@ -195,7 +198,9 @@ namespace stor
           ++size;
           used += item_size;
           nonempty.notify_one();
+          success = true;
         }
+      return success;
     }
   };
 
