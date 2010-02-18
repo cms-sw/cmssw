@@ -23,8 +23,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/12/06 21:42:18 $
-  * $Revision: 1.43 $
+  * $Date: 2010/02/03 18:22:07 $
+  * $Revision: 1.44 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -63,7 +63,6 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
  private:
   
   void fill_Nevents();
-  bool rechit_makeDiagnostics_;
 
   int rechit_checkNevents_;  // specify how often to fill histograms
 
@@ -96,26 +95,18 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double time_[85][72][4]; // will get filled when rechit found
   double time_thresh_[85][72][4]; // filled when above given energy
 
-  double HBenergy_[200];
-  double HBenergy_thresh_[200];
   double HBtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HBtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HB_occupancy_[2593];
-  double HB_occupancy_thresh_[2593];
-  double HEenergy_[200];
-  double HEenergy_thresh_[200];
+  double HB_occupancy_[261];
+  double HB_occupancy_thresh_[261];
   double HEtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HEtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HE_occupancy_[2593];
-  double HE_occupancy_thresh_[2593];
-  double HOenergy_[200];
-  double HOenergy_thresh_[200];
+  double HE_occupancy_[260];
+  double HE_occupancy_thresh_[260];
   double HOtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HOtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HO_occupancy_[2161];
-  double HO_occupancy_thresh_[2161];
-  double HFenergy_[200];
-  double HFenergy_thresh_[200];
+  double HO_occupancy_[218];
+  double HO_occupancy_thresh_[218];
   double HFtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HFtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HFenergyLong_[200];
@@ -126,8 +117,8 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double HFenergyShort_thresh_[200];
   double HFtimeShort_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HFtimeShort_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HF_occupancy_[1729];
-  double HF_occupancy_thresh_[1729];
+  double HF_occupancy_[174];
+  double HF_occupancy_thresh_[174];
   double HFlong_occupancy_[865];
   double HFlong_occupancy_thresh_[865];
   double HFshort_occupancy_[865];
@@ -139,37 +130,27 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   int HFflagcounter_[32];
 
   // Diagnostic plots
-  MonitorElement* h_HBEnergy;
-  MonitorElement* h_HBThreshEnergy;
-  MonitorElement* h_HBTotalEnergy;
-  MonitorElement* h_HBThreshTotalEnergy;
+
+  MonitorElement* h_HBsizeVsLS;
+  MonitorElement* h_HEsizeVsLS;
+  MonitorElement* h_HOsizeVsLS;
+  MonitorElement* h_HFsizeVsLS;
+
   MonitorElement* h_HBTime;
   MonitorElement* h_HBThreshTime;
   MonitorElement* h_HBOccupancy;
   MonitorElement* h_HBThreshOccupancy;
 
-  MonitorElement* h_HEEnergy;
-  MonitorElement* h_HEThreshEnergy;
-  MonitorElement* h_HETotalEnergy;
-  MonitorElement* h_HEThreshTotalEnergy;
   MonitorElement* h_HETime;
   MonitorElement* h_HEThreshTime;
   MonitorElement* h_HEOccupancy;
   MonitorElement* h_HEThreshOccupancy;
 
-  MonitorElement* h_HOEnergy;
-  MonitorElement* h_HOThreshEnergy;
-  MonitorElement* h_HOTotalEnergy;
-  MonitorElement* h_HOThreshTotalEnergy;
   MonitorElement* h_HOTime;
   MonitorElement* h_HOThreshTime;
   MonitorElement* h_HOOccupancy;
   MonitorElement* h_HOThreshOccupancy;
 
-  MonitorElement* h_HFEnergy;
-  MonitorElement* h_HFThreshEnergy;
-  MonitorElement* h_HFTotalEnergy;
-  MonitorElement* h_HFThreshTotalEnergy;
   MonitorElement* h_HFTime;
   MonitorElement* h_HFThreshTime;
   MonitorElement* h_HFOccupancy;
@@ -187,6 +168,9 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_FlagMap_TIMEADD;
   MonitorElement* h_FlagMap_TIMESUBTRACT;
   MonitorElement* h_FlagMap_TIMEERROR;
+
+  MonitorElement* h_HF_FlagCorr;
+  MonitorElement* h_HBHE_FlagCorr;
 
   double collisionHFthresh_;
   double collisionHEthresh_;

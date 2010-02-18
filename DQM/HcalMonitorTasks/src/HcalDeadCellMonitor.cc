@@ -1,7 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 
-#define OUT if(fverbosity_)cout
-
 using namespace std;
 
 HcalDeadCellMonitor::HcalDeadCellMonitor()
@@ -49,9 +47,10 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   
   // Set checkNevents values
   deadmon_checkNevents_ = ps.getUntrackedParameter<int>("DeadCellMonitor_checkNevents",checkNevents_);
-  deadmon_minEvents_     = ps.getUntrackedParameter<int>("DeadCellMonitor_minEvents",500); // minimum number of events that must be present in a luminosity block in order to check for dead cells just in that block
+  deadmon_minEvents_    = ps.getUntrackedParameter<int>("DeadCellMonitor_minEvents",500); // minimum number of events that must be present in a luminosity block in order to check for dead cells just in that block
 
-  
+  deadmon_lumiblockcount_=0;
+  deadmon_prescale_      = ps.getUntrackedParameter<int>("DeadCellMonitor_LBprescale",1); // prescale to require multiple lumi blocks be processed
 
   // Set which dead cell checks will be performed
   /* Dead cells can be defined in the following ways:
@@ -533,8 +532,16 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
 void HcalDeadCellMonitor::beginLuminosityBlock(int lb)
 {
+  int tmpevt=levt_;
   HcalBaseMonitor::beginLuminosityBlock(lb);
-  zeroCounters();
+  // Don't reset counters unless lumi block is integer multiple of prescale
+  if (deadmon_lumiblockcount_%deadmon_prescale_==0)
+    {
+      zeroCounters();
+      LBprocessed_=false;
+    }
+  else
+    levt_=tmpevt;
   return;
 } // beginLuminosityBlock(int lb)
 
@@ -542,12 +549,31 @@ void HcalDeadCellMonitor::endLuminosityBlock()
 {
   if (LBprocessed_==true)
     return; // histograms already filled for this LB
+  ++deadmon_lumiblockcount_;
+  if (deadmon_lumiblockcount_%deadmon_prescale_!=0)
+    {
+      LBprocessed_=true;
+      return;
+    }
   fillNevents_problemCells();
   fillNevents_recentdigis();
   fillNevents_recentrechits();
   LBprocessed_=true;
   return;
 } //endLuminosityBlock()
+
+void HcalDeadCellMonitor::endRun()
+{
+  // Always carry out tests at endRun, regardless of lumiblock prescaling?
+  if (LBprocessed_==true)
+    return; // histograms already filled for this LB
+  ++deadmon_lumiblockcount_;
+  fillNevents_problemCells();
+  fillNevents_recentdigis();
+  fillNevents_recentrechits();
+  LBprocessed_=true;
+  return;
+}
 
 
 /* --------------------------------------- */
@@ -1045,8 +1071,6 @@ void HcalDeadCellMonitor::periodicReset()
   if(NumberOfRecentMissingRecHitsHO)   NumberOfRecentMissingRecHitsHO->Reset();
   if(NumberOfRecentMissingRecHitsHF)   NumberOfRecentMissingRecHitsHF->Reset();
   
-  //if (ProblemCells) ProblemCells->Reset();
-
   // now reset the display histograms
   RecentMissingDigisByDepth.Reset();
   DigiPresentByDepth.Reset();

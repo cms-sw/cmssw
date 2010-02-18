@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/11/24 16:12:29 $
-  * $Revision: 1.40 $
+  * $Date: 2010/02/05 18:54:18 $
+  * $Revision: 1.41 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -43,7 +43,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   void periodicReset();
   void beginLuminosityBlock(int lb);
   void endLuminosityBlock();
-
+  void endRun();
  private:
   void zeroCounters(bool resetpresent=false);
 
@@ -54,6 +54,9 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   int deadmon_checkNevents_;  // specify how often to check is cell is dead
   int deadmon_minEvents_; // minimum number of events needed to perform checks on recent digis/rechits
   bool deadmon_makeDiagnostics_;
+  
+  int deadmon_lumiblockcount_;
+  int deadmon_prescale_;
 
   // Booleans to control which of the dead cell checking routines are used
   bool deadmon_test_digis_;
