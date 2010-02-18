@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HfRingEtScaleOnlineProd.cc,v 1.1 2009/03/26 15:48:19 jbrooke Exp $
+// $Id: L1HfRingEtScaleOnlineProd.cc,v 1.3 2009/03/27 13:18:48 jbrooke Exp $
 //
 //
 
@@ -108,7 +108,7 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
      // get ring scale key
      l1t::OMDSReader::QueryResults hfRingScaleKeyResults =
        m_omdsReader.basicQuery(
-			       "SC_CENJET_ET_THRESHOLD_FK",
+			       "SC_HF_ET_SUM_FK",
 			       "CMS_GT",
 			       "L1T_SCALES",
 			       "L1T_SCALES.ID",
