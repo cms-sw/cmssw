@@ -4,3 +4,5 @@ HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
                                        applyAlignment = cms.bool(False)
                                        )
 
+HcalAlignmentEP = cms.ESProducer( "HcalAlignmentEP" )
+
