@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.38 2009/08/20 00:25:50 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.39 2009/08/20 15:38:20 chrjones Exp $
 //
 
 // system include files
@@ -19,9 +19,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
-#define private public
 #include "DataFormats/FWLite/interface/Event.h"
-#undef private
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
@@ -392,23 +390,10 @@ FWEventItem::data(const std::type_info& iInfo) const
             }
             return 0;
          }
-//       printf("%s: wrapper address: 0x%x 0x%x 0x%x\n", name().c_str(), wrapper, &wrapper, *(int *)wrapper);
-         std::string fullbranch_classname = (edm::TypeID(iInfo)).friendlyClassName();
-         std::string fullbranch_module, fullbranch_product, fullbranch_process;
-         for (fwlite::Event::KeyToDataMap::const_iterator i = m_event->data_.begin(); i != m_event->data_.end(); ++i) {
-            if (i->second->pObj_ != wrapper)
-               continue;
-            if (i->first.module_ != 0 && strlen(i->first.module_) > 0)
-               fullbranch_module = i->first.module_;
-            if (i->first.product_ != 0 && strlen(i->first.product_) > 0)
-               fullbranch_product = i->first.product_;
-            if (i->first.process_ != 0 && strlen(i->first.process_) > 0)
-               fullbranch_process = i->first.process_;
-         }
-         m_fullBranchName  = fullbranch_classname + "_"; // the quoted separator
-         m_fullBranchName += fullbranch_module + "_";   // is required, but
-         m_fullBranchName += fullbranch_product + "_";  // looks so very Japanese
-         m_fullBranchName += fullbranch_process;
+         m_fullBranchName = m_event->getBranchNameFor(iInfo,
+						      m_moduleLabel.c_str(),
+						      m_productInstanceLabel.c_str(),
+						      m_processName.c_str());
 //       printf("full branch name for event item %s is %s\n", name().c_str(), m_fullBranchName.c_str());
 
          //Get Reflex to do the work
@@ -433,7 +418,6 @@ FWEventItem::data(const std::type_info& iInfo) const
          setData(wrapperObj);
       }
    }
-   //return m_data;
    return m_accessor->data();
 }
 
@@ -634,8 +618,8 @@ FWEventItem::destroy() const
 }
 
 
-void 
-FWEventItem::selectItem() 
+void
+FWEventItem::selectItem()
 {
    if(!m_isSelected) {
       m_isSelected=true;
@@ -643,7 +627,7 @@ FWEventItem::selectItem()
       defaultDisplayPropertiesChanged_(this);
    }
 }
-void 
+void
 FWEventItem::unselectItem()
 {
    if(m_isSelected) {
@@ -652,7 +636,7 @@ FWEventItem::unselectItem()
       defaultDisplayPropertiesChanged_(this);
    }
 }
-void 
+void
 FWEventItem::toggleSelectItem()
 {
    m_isSelected = !m_isSelected;
@@ -663,18 +647,18 @@ FWEventItem::toggleSelectItem()
    }
    defaultDisplayPropertiesChanged_(this);
 }
-bool 
+bool
 FWEventItem::itemIsSelected() const
 {
    return m_isSelected;
 }
 
-bool 
+bool
 FWEventItem::hasError() const {
    return !errorMessage().empty();
 }
 
-const std::string& 
+const std::string&
 FWEventItem::errorMessage() const
 {
    if(m_errorMessage.empty()) {
