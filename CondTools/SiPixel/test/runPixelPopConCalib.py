@@ -129,8 +129,9 @@ def main(argv):
     # set the tagname if not provided
     if not tagName:
     	tagName = getTagNameFromFile(calibFilename, debugMode)
-        print 'Unknown calibration type from calib.dat file!'
-        sys.exit(2)
+    	if not tagName:
+        	print 'Unknown calibration type from calib.dat file!'
+        	sys.exit(2)
     if debugMode:
         print '** tag name set to', tagName
         
