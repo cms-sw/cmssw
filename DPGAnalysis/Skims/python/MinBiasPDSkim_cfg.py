@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10000)
 )
 
 
@@ -38,7 +38,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_P_V7::All' 
+process.GlobalTag.globaltag = 'GR09_R_35X_V2::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
@@ -101,9 +101,6 @@ process.hltBeamHalo = cms.EDFilter("HLTHighLevel",
 #### the path
 process.cscHaloSkim = cms.Path(process.hltBeamHalo+process.cscSkim)
 
-process.options = cms.untracked.PSet(
- wantSummary = cms.untracked.bool(True)
-)
 
 
 #### output 
@@ -200,9 +197,41 @@ process.bscnobhout = cms.OutputModule("PoolOutputModule",
     )
 )
 
+####################################################################################
+##################################stoppedHSCP############################################
 
 
-process.outpath = cms.EndPath(process.recotrackout+process.outputBeamHaloSkim+process.DTskimout+process.bscnobhout)
+# this is for filtering on HLT path
+process.hltstoppedhscp = cms.EDFilter("HLTHighLevel",
+     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+     HLTPaths = cms.vstring("HLT_StoppedHSCP*"), # provide list of HLT paths (or patterns) you want
+     eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
+     andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+     throw = cms.bool(False)    # throw exception on unknown path names
+ )
+
+process.HSCP=cms.Path(process.hltstoppedhscp)
+
+process.outHSCP = cms.OutputModule("PoolOutputModule",
+                               outputCommands =  process.FEVTEventContent.outputCommands,
+                               fileName = cms.untracked.string('StoppedHSCP_filter.root'),
+                               dataset = cms.untracked.PSet(
+                                  dataTier = cms.untracked.string('RAW-RECO'),
+                                  filterName = cms.untracked.string('Skim_StoppedHSCP')),
+                               
+                               SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring("HSCP")
+    ))
+
+
+
+#===========================================================
+
+process.options = cms.untracked.PSet(
+ wantSummary = cms.untracked.bool(True)
+)
+
+process.outpath = cms.EndPath(process.recotrackout+process.outputBeamHaloSkim+process.DTskimout+process.bscnobhout+process.outHSCP)
 
 
 
