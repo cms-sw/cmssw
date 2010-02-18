@@ -35,7 +35,7 @@ namespace lumi{
   HLTDummy2DB::HLTDummy2DB(const std::string& dest):DataPipe(dest){}
   void HLTDummy2DB::retrieveRun( unsigned int runnum){
     //
-    //generate dummy data for lumi summary and detail for the given run and write data to LumiDB
+    //generate dummy data of hlt for the given run and write data to LumiDB
     //
     coral::ConnectionService* svc=new coral::ConnectionService;
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
