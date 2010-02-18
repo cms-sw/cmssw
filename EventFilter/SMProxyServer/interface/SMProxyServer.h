@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.17 2009/12/01 14:25:25 mommsen Exp $
+   $Id: SMProxyServer.h,v 1.18 2010/02/16 13:30:29 smorovic Exp $
 */
 
 #include <string>
@@ -73,6 +73,7 @@ namespace stor {
     bool halting(toolbox::task::WorkLoop* wl);
 
     bool createQueue();
+    void destroyQueue();
 
     // *** FSM soap command callback
     xoap::MessageReference fsmCallback(xoap::MessageReference msg)
@@ -118,6 +119,7 @@ namespace stor {
     edm::service::MessageServicePresence theMessageServicePresence;
   
     boost::shared_ptr<stor::DataProcessManager> dpm_;
+    boost::mutex                           queue_lock_;
     boost::mutex                           halt_lock_;
 
     //xdata::Integer nLogicalDisk_;
@@ -248,6 +250,17 @@ namespace stor {
     xdata::Double            storedVolume_;
     xdata::UnsignedInteger32 memoryUsed_;
     xdata::String            progressMarker_;
+
+    xdata::UnsignedInteger32 queueTimeout_;
+    xdata::Boolean           alwaysRestartQueue_;
+
+    int timeoutCounter_;
+
+    //workloop
+    toolbox::task::WorkLoop* timeoutWorkLoop_;
+    toolbox::task::ActionSignature  *asTimeout_;
+    bool queueTimeout(toolbox::task::WorkLoop* wl);
+
     enum
     {
       DEFAULT_PURGE_TIME = 120,

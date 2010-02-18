@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.35 2009/12/02 09:20:49 mommsen Exp $
+// $Id: SMProxyServer.cc,v 1.36 2010/02/16 13:30:29 smorovic Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -158,8 +158,21 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   dropOldLumisectionEvents_ = false;
   ispace->fireItemAvailable("dropOldLumisectionEvents",&dropOldLumisectionEvents_);
 
+  //those are relevant only when consumer defines a SM connection
+
+  queueTimeout_=120;
+  ispace->fireItemAvailable("queueTimeout",&queueTimeout_);
+  alwaysRestartQueue_=false;
+  ispace->fireItemAvailable("alwaysRestartQueue",&alwaysRestartQueue_);
+
+  timeoutCounter_=queueTimeout_;
   queueCreated_=false;
-  fsmEnabled_=false;
+
+  //prepare workloop
+  timeoutWorkLoop_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("queueTimeout", "waiting");
+  asTimeout_ = toolbox::task::bind(this,&SMProxyServer::queueTimeout,
+		  "queueTimeout");
+  timeoutWorkLoop_->submit(asTimeout_);
 
   // for performance measurements
   ispace->fireItemAvailable("receivedSamples4Stats",&samples_);
@@ -966,7 +979,9 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
         }
       }
     }
-    
+    //reset timeout count
+    timeoutCounter_=queueTimeout_;
+
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
     out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
     out->write((char*) &mybuffer_[0],len);
@@ -1110,7 +1125,7 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   // tests on whether the dpm_ shared pointer is valid (can we even get here
   // without it being valid?)
 
-  if (!selectionFromClient_) {
+  if (!selectionFromClient_ || !(fsm_.stateName()->toString() == "Enabled")) {
 
     if (! (dpm_.get() != NULL 
 	   && dpm_->haveRegWithEventServer() 
@@ -1218,10 +1233,13 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
   if (selectionFromClient_) {
 
-    if (queueCreated_) {
+    if (queueCreated_ && !alwaysRestartQueue_) {
       LOG4CPLUS_WARN(getApplicationLogger(),"Queue already exists, new client will be connected to it\n");
     }
     else {
+      boost::mutex::scoped_lock ql(queue_lock_);
+      if (queueCreated_ && alwaysRestartQueue_) destroyQueue();
+
       std::cout << "----Client parameters:----\n";
       maxEventRequestRate_ = maxEventRequestRate; 
       std::cout << "maxEventRequestRate: "<< maxEventRequestRate_ <<"\n";
@@ -1243,7 +1261,7 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
       createQueue();
       //start the Proxy
-      if (fsmEnabled_) dpm_->start();
+      dpm_->start();
     }
   }
 
@@ -3261,9 +3279,44 @@ bool SMProxyServer::createQueue() {
     return false;
   }
   queueCreated_=true;
+
+  //timeout _only_ if SM connection is setup from client
+  if (!selectionFromClient_) return true;
+
+  timeoutCounter_=queueTimeout_;
+  std::cout << "CONNECT: reactivate timeout WorkLoop\n";
+  if (!timeoutWorkLoop_->isActive()) timeoutWorkLoop_->activate();
   return true;
 }
 
+void SMProxyServer::destroyQueue() {
+
+
+  boost::shared_ptr<stor::DQMServiceManager> dqmManager;
+  if (dpm_.get() != NULL)
+  {
+    dqmManager = dpm_->getDQMServiceManager();
+    if(dqmManager.get() != NULL) {
+      dqmManager->stop();
+    }
+    // clear out events from queues
+    boost::shared_ptr<EventServer> eventServer;
+    boost::shared_ptr<DQMEventServer> dqmeventServer;
+    eventServer = dpm_->getEventServer();
+    dqmeventServer = dpm_->getDQMEventServer();
+    if (eventServer.get() != NULL) eventServer->clearQueue();
+    if (dqmeventServer.get() != NULL) dqmeventServer->clearQueue();
+    // do not stop dpm_ as we don't want to register again and get the header again
+    // need to redo if we switch to polling for events
+    // switched to polling for events
+    if (dpm_.get() != NULL) {
+      dpm_->stop();
+      dpm_->join();
+    }
+  }
+  queueCreated_=false;
+
+}
 
 bool SMProxyServer::enabling(toolbox::task::WorkLoop* wl)
 {
@@ -3280,8 +3333,6 @@ bool SMProxyServer::enabling(toolbox::task::WorkLoop* wl)
     receivedDQMEvents_ = 0;
     currentLumiSection_ = 0;
 
-    //TODO:add a mutex here and in consumerWebPage
-    fsmEnabled_=true;
     if (queueCreated_) dpm_->start();
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
@@ -3304,44 +3355,24 @@ bool SMProxyServer::stopping(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
 
     // only write out DQM data if needed
-    boost::shared_ptr<stor::DQMServiceManager> dqmManager;
-    if (dpm_.get() != NULL)
     {
-      dqmManager = dpm_->getDQMServiceManager();
-      if(dqmManager.get() != NULL) {
-        dqmManager->stop();
-      }
-    }
-    // clear out events from queues
-    boost::shared_ptr<EventServer> eventServer;
-    boost::shared_ptr<DQMEventServer> dqmeventServer;
-    if (dpm_.get() != NULL)
-    {
-      eventServer = dpm_->getEventServer();
-      dqmeventServer = dpm_->getDQMEventServer();
-    }
-    if (eventServer.get() != NULL) eventServer->clearQueue();
-    if (dqmeventServer.get() != NULL) dqmeventServer->clearQueue();
-    // do not stop dpm_ as we don't want to register again and get the header again
-    // need to redo if we switch to polling for events
-    // switched to polling for events
-    if (dpm_.get() != NULL) {
-      dpm_->stop();
-      dpm_->join();
-    }
-    // should tell StorageManager applications we are stopping in which
-    // case we need to register again
+      boost::mutex::scoped_lock ql(queue_lock_);
 
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
-    fsmEnabled_=false; 
-    fsm_.fireEvent("StopDone",this);
+      destroyQueue();
+
+      // should tell StorageManager applications we are stopping in which
+      // case we need to register again
+
+      LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
+      fsm_.fireEvent("StopDone",this);
+    }
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
     return false;
   }
-  
+
   return false;
 }
 
@@ -3365,6 +3396,7 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
     */
     
     {
+      boost::mutex::scoped_lock ql(queue_lock_);
       boost::mutex::scoped_lock sl(halt_lock_);
       dpm_.reset();
     }
@@ -3381,6 +3413,19 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
   
   return false;
 }
+
+bool SMProxyServer::queueTimeout(toolbox::task::WorkLoop* wl)
+ {
+ 	 ::sleep(1000); //sleep one second
+	if (timeoutCounter_--<=0) return true;
+	else {
+	  boost::mutex::scoped_lock ql(queue_lock_);
+	  destroyQueue();
+	  return false;
+	}
+	return false;
+}
+
 
 void SMProxyServer::checkDirectoryOK(std::string path)
 {
