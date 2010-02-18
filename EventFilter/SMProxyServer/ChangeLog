@@ -1,14 +1,21 @@
+2010-02-18 Srecko Morovic <Srecko.Morovic@cern.ch>
+	* tag V01-09-02
+	* Restarting of queues (always or after timeout),
+	  Use alwaysRestartQueue and queueTimeout (unsignedInt).
+	* New locking between consumer callbacks, fsm functions 
+	  and timer workloop.
+
 2010-02-16 Srecko Morovic <Srecko.Morovic@cern.ch>
 
 	* tag V01-09-01
-	*Added support for client-side queue definition (enabled by
-	 selectionFromClient Xdaq parameter). Rate, output module 
-	 and trigger selection are taken from the client, ignoring 
-	 SMProxy parameters. Any subsequent client connection will
-	 be attached to the same stream.
-	*Moved dpm intialization into separate function
-	*Proxy now reads run number from events into "runNumber" infospace
-	 item (to be used by function manager in non-live system)
+	* Added support for client-side queue definition (enabled by
+	  selectionFromClient Xdaq parameter). Rate, output module 
+	  and trigger selection are taken from the client, ignoring 
+	  SMProxy parameters. Any subsequent client connection will
+	  be attached to the same stream.
+	* Moved dpm intialization into separate function
+	* Proxy now reads run number from events into "runNumber" infospace
+	  item (to be used by function manager in non-live system)
 
 
 2010-01-11 Remi Mommsen <Remigius.Mommsen@cern.ch>
