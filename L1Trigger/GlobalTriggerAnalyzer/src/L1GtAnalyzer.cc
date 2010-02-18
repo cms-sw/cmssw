@@ -31,6 +31,8 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
@@ -51,11 +53,11 @@
 // constructor(s)
 L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
 
-            // input tag for GT DAQ record
+            // input tag for GT DAQ product
             m_l1GtDaqReadoutRecordInputTag(parSet.getParameter<edm::InputTag>(
                     "L1GtDaqReadoutRecordInputTag")),
 
-            // input tag for GT lite record
+            // input tag for GT lite product
             m_l1GtRecordInputTag(parSet.getParameter<edm::InputTag>(
                     "L1GtRecordInputTag")),
 
@@ -67,23 +69,31 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
             m_l1GmtInputTag(parSet.getParameter<edm::InputTag>(
                     "L1GmtInputTag")),
 
-            /// an algorithm and a condition in that algorithm to test the object maps
+            // input tag for L1GtTriggerMenuLite
+            m_l1GtTmLInputTag(parSet.getParameter<edm::InputTag> (
+                    "L1GtTmLInputTag")),
+
+            // an algorithm and a condition in that algorithm to test the object maps
             m_nameAlgTechTrig(parSet.getParameter<std::string> ("AlgorithmName")),
-            m_condName(parSet.getParameter<std::string> ("ConditionName"))
+            m_condName(parSet.getParameter<std::string> ("ConditionName")),
+            m_bitNumber(parSet.getParameter<unsigned int> ("BitNumber"))
 
 {
     LogDebug("L1GtAnalyzer")
             << "\n Input parameters for L1 GT test analyzer"
-            << "\n   L1 GT DAQ record:            "
+            << "\n   L1 GT DAQ product:            "
             << m_l1GtDaqReadoutRecordInputTag
-            << "\n   L1 GT lite record:           "
+            << "\n   L1 GT lite product:           "
             << m_l1GtRecordInputTag
-            << "\n   L1 GT object map collection: "
+            << "\n   L1 GT object map collection:  "
             << m_l1GtObjectMapTag
-            << "\n   Muon collection from GMT:    "
+            << "\n   Muon collection from GMT:     "
             << m_l1GmtInputTag
-            << "\n   Algorithm name or alias, technical trigger name: " << m_nameAlgTechTrig
-            << "\n   Condition, if a physics algorithm is requested:  " << m_condName
+            << "\n   L1 trigger menu lite product: "
+            << m_l1GtTmLInputTag
+            << "\n   Algorithm name or alias, technical trigger name:  " << m_nameAlgTechTrig
+            << "\n   Condition, if a physics algorithm is requested:   " << m_condName
+            << "\n   Bit number for an algorithm or technical trigger: " << m_bitNumber
             << " \n" << std::endl;
 
 }
@@ -116,7 +126,7 @@ void L1GtAnalyzer::analyzeDecisionReadoutRecord(const edm::Event& iEvent, const 
 
     if (!gtReadoutRecord.isValid()) {
 
-        LogDebug("L1GtUtils") << "\nL1GlobalTriggerReadoutRecord with \n  "
+        LogDebug("L1GtAnalyzer") << "\nL1GlobalTriggerReadoutRecord with \n  "
                 << m_l1GtDaqReadoutRecordInputTag
                 << "\nrequested in configuration, but not found in the event."
                 << "\nExit the method." << std::endl;
@@ -239,15 +249,15 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
         myCoutStream << "\nDecision before trigger mask for "
                 << m_nameAlgTechTrig << ":   " << decisionBeforeMaskAlgTechTrig
                 << std::endl;
-        myCoutStream << "Decision after trigger mask for "
-                << m_nameAlgTechTrig << ":    " << decisionAfterMaskAlgTechTrig
-                << std::endl;
+        myCoutStream << "Decision after trigger mask for " << m_nameAlgTechTrig
+                << ":    " << decisionAfterMaskAlgTechTrig << std::endl;
         myCoutStream << "Decision (after trigger mask) for "
                 << m_nameAlgTechTrig << ":  " << decisionAlgTechTrig
                 << std::endl;
 
         myCoutStream << "Prescale factor for " << m_nameAlgTechTrig
-                << ":                " << prescaleFactorAlgTechTrig << std::endl;
+                << ":                " << prescaleFactorAlgTechTrig
+                << std::endl;
 
         myCoutStream << "Trigger mask for " << m_nameAlgTechTrig
                 << ":                   " << triggerMaskAlgTechTrig
@@ -260,9 +270,10 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
     } else {
         myCoutStream << "\nError: "
-                << "\n  An error was encountered when retrieving decisionBeforeMask for "
-                << m_nameAlgTechTrig << "\n  Error code = " << iErrorCode
-                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+                << "\n  An error was encountered when retrieving decision, mask and prescale factor for "
+                << m_nameAlgTechTrig << "\n  L1 Menu: "
+                << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                << iErrorCode << std::endl;
 
     }
 
@@ -273,7 +284,7 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
             iErrorCode);
 
     if (iErrorCode == 0) {
-        myCoutStream << "Trigger mask for " << m_nameAlgTechTrig
+        myCoutStream << "\nTrigger mask for " << m_nameAlgTechTrig
                 << "(faster method):    " << triggerMaskAlgTechTrig
                 << std::endl;
 
@@ -284,9 +295,10 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
     } else {
         myCoutStream << "\nError: "
-                << "\n  An error was encountered when retrieving decisionBeforeMask for "
-                << m_nameAlgTechTrig << "\n  Error code = " << iErrorCode
-                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+                << "\n  An error was encountered when fast retrieving trigger mask for "
+                << m_nameAlgTechTrig << "\n  L1 Menu: "
+                << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                << iErrorCode << std::endl;
 
     }
 
@@ -529,9 +541,10 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
     } else {
         myCoutStream << "\nError: "
-                << "\n  An error was encountered when retrieving decisionBeforeMask for "
-                << m_nameAlgTechTrig << "\n  Error code = " << iErrorCode
-                << m_l1GtUtils.l1TriggerMenu()  << "\n" << std::endl;
+                << "\n  An error was encountered when retrieving decision, mask and prescale factor for "
+                << m_nameAlgTechTrig << "\n  L1 Menu: "
+                << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                << iErrorCode << std::endl;
 
     }
 
@@ -667,20 +680,20 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
 
 
 
-// analyze: object map record
+// analyze: object map product
 void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
 
     LogDebug("L1GtAnalyzer")
-            << "\n**** L1GtAnalyzer::analyzeObjectMap object map record ****\n"
+            << "\n**** L1GtAnalyzer::analyzeObjectMap object map product ****\n"
             << std::endl;
 
     // define an output stream to print into
     // it can then be directed to whatever log level is desired
     std::ostringstream myCoutStream;
 
-    // get a handle to the object map record
-    // the record can come only from emulator - no hardware ObjectMapRecord
+    // get a handle to the object map product
+    // the product can come only from emulator - no hardware ObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByLabel(m_l1GtObjectMapTag, gtObjectMapRecord);
 
@@ -737,6 +750,207 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent,
 
 }
 
+// analyze: usage of L1GtTriggerMenuLite
+void L1GtAnalyzer::analyzeL1GtTriggerMenuLite(const edm::Event& iEvent,
+        const edm::EventSetup& evSetup) {
+
+    LogDebug("L1GtAnalyzer")
+    << "\n**** L1GtAnalyzer::analyzeL1GtTriggerMenuLite ****\n"
+    << std::endl;
+
+    // define an output stream to print into
+    // it can then be directed to whatever log level is desired
+    std::ostringstream myCoutStream;
+
+    // get Run Data - the same code can be run in beginRun, with getByLabel from edm::Run
+    const edm::Run& iRun = iEvent.getRun();
+
+
+    // get L1GtTriggerMenuLite
+    edm::Handle<L1GtTriggerMenuLite> triggerMenuLite;
+    iRun.getByLabel(m_l1GtTmLInputTag, triggerMenuLite);
+
+    if (!triggerMenuLite.isValid()) {
+
+        LogDebug("L1GtAnalyzer") << "\nL1GtTriggerMenuLite with \n  "
+                << m_l1GtTmLInputTag
+                << "\nrequested in configuration, but not found in the event."
+                << "\nExit the method." << std::endl;
+
+        return;
+    }
+
+    // print via supplied "print" function
+    myCoutStream << (*triggerMenuLite);
+
+    // test the individual methods
+
+    const std::string& triggerMenuInterface =
+            triggerMenuLite->gtTriggerMenuInterface();
+    const std::string& triggerMenuName = triggerMenuLite->gtTriggerMenuName();
+    const std::string& triggerMenuImplementation =
+            triggerMenuLite->gtTriggerMenuImplementation();
+    const std::string& scaleDbKey = triggerMenuLite->gtScaleDbKey();
+
+    const L1GtTriggerMenuLite::L1TriggerMap& algorithmMap = triggerMenuLite->gtAlgorithmMap();
+    const L1GtTriggerMenuLite::L1TriggerMap& algorithmAliasMap =
+            triggerMenuLite->gtAlgorithmAliasMap();
+    const L1GtTriggerMenuLite::L1TriggerMap& technicalTriggerMap =
+            triggerMenuLite->gtTechnicalTriggerMap();
+
+    const std::vector<unsigned int>& triggerMaskAlgoTrig =
+            triggerMenuLite->gtTriggerMaskAlgoTrig();
+    const std::vector<unsigned int>& triggerMaskTechTrig =
+            triggerMenuLite->gtTriggerMaskTechTrig();
+
+    const std::vector<std::vector<int> >& prescaleFactorsAlgoTrig =
+            triggerMenuLite->gtPrescaleFactorsAlgoTrig();
+    const std::vector<std::vector<int> >& prescaleFactorsTechTrig =
+            triggerMenuLite->gtPrescaleFactorsTechTrig();
+
+    // print in the same format as in L1GtTriggerMenuLite definition
+
+    size_t nrDefinedAlgo = algorithmMap.size();
+    size_t nrDefinedTech = technicalTriggerMap.size();
+
+    // header for printing algorithms
+
+    myCoutStream << "\n   ********** L1 Trigger Menu - printing   ********** \n"
+    << "\nL1 Trigger Menu Interface: " << triggerMenuInterface
+    << "\nL1 Trigger Menu Name:      " << triggerMenuName
+    << "\nL1 Trigger Menu Implementation: " << triggerMenuImplementation
+    << "\nAssociated Scale DB Key: " << scaleDbKey << "\n\n"
+    << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
+    << "Bit Number "
+    << std::right << std::setw(35) << "Algorithm Name" << "  "
+    << std::right << std::setw(35) << "Algorithm Alias" << "  "
+    << std::right << std::setw(12) << "Trigger Mask";
+    for (unsigned iSet = 0; iSet < prescaleFactorsAlgoTrig.size(); iSet++) {
+        myCoutStream << std::right << std::setw(10) << "PF Set "
+               << std::right << std::setw(2)  << iSet;
+    }
+
+    myCoutStream << std::endl;
+
+
+    for (L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(); itTrig
+            != algorithmMap.end(); itTrig++) {
+
+        const unsigned int bitNumber = itTrig->first;
+        const std::string& aName = itTrig->second;
+
+        std::string aAlias;
+        L1GtTriggerMenuLite::CItL1Trig itAlias = algorithmAliasMap.find(bitNumber);
+        if (itAlias != algorithmAliasMap.end()) {
+            aAlias = itAlias->second;
+        }
+
+        myCoutStream << std::setw(6) << bitNumber << "     "
+            << std::right << std::setw(35) << aName << "  "
+            << std::right << std::setw(35) << aAlias << "  "
+            << std::right << std::setw(12) << triggerMaskAlgoTrig[bitNumber];
+        for (unsigned iSet = 0; iSet < prescaleFactorsAlgoTrig.size(); iSet++) {
+            myCoutStream << std::right << std::setw(12) << prescaleFactorsAlgoTrig[iSet][bitNumber];
+        }
+
+        myCoutStream << std::endl;
+    }
+
+    myCoutStream << "\nL1 Technical Triggers: " << nrDefinedTech
+            << " technical triggers defined." << "\n\n" << std::endl;
+    if (nrDefinedTech) {
+        myCoutStream
+            << std::right << std::setw(6) << "Bit Number "
+            << std::right << std::setw(45) << " Technical trigger name " << "  "
+            << std::right << std::setw(12) << "Trigger Mask";
+        for (unsigned iSet = 0; iSet < prescaleFactorsTechTrig.size(); iSet++) {
+            myCoutStream << std::right << std::setw(10) << "PF Set "
+                    << std::right << std::setw(2) << iSet;
+        }
+
+        myCoutStream << std::endl;
+    }
+
+    for (L1GtTriggerMenuLite::CItL1Trig itTrig = technicalTriggerMap.begin(); itTrig
+            != technicalTriggerMap.end(); itTrig++) {
+
+        unsigned int bitNumber = itTrig->first;
+        std::string aName = itTrig->second;
+
+        myCoutStream << std::setw(6) << bitNumber << "       "
+        << std::right << std::setw(45) << aName
+        << std::right << std::setw(12) << triggerMaskTechTrig[bitNumber];
+        for (unsigned iSet = 0; iSet < prescaleFactorsTechTrig.size(); iSet++) {
+            myCoutStream << std::right << std::setw(12) << prescaleFactorsTechTrig[iSet][bitNumber];
+        }
+
+        myCoutStream << std::endl;
+
+    }
+
+    // individual methods
+
+    int errorCode = -1;
+    const std::string* algorithmAlias = triggerMenuLite->gtAlgorithmAlias(
+            m_bitNumber, errorCode);
+    if (errorCode) {
+        myCoutStream
+                << "\nError code retrieving alias for algorithm with bit number "
+                << m_bitNumber << ": " << errorCode << std::endl;
+    } else {
+        myCoutStream << "\nAlias for algorithm with bit number " << m_bitNumber
+                << ": " << (*algorithmAlias) << std::endl;
+    }
+
+    errorCode = -1;
+    const std::string* algorithmName = triggerMenuLite->gtAlgorithmName(
+            m_bitNumber, errorCode);
+    if (errorCode) {
+        myCoutStream
+                << "\nError code retrieving name for algorithm with bit number "
+                << m_bitNumber << ": " << errorCode << std::endl;
+    } else {
+        myCoutStream << "\nName for algorithm with bit number " << m_bitNumber
+                << ": " << (*algorithmName) << std::endl;
+    }
+
+    errorCode = -1;
+    const std::string* techTrigName = triggerMenuLite->gtTechTrigName(
+            m_bitNumber, errorCode);
+    if (errorCode) {
+        myCoutStream
+                << "\nError code retrieving name for technical trigger with bit number "
+                << m_bitNumber << ": " << errorCode << std::endl;
+    } else {
+        myCoutStream << "\nName for technical trigger with bit number "
+                << m_bitNumber << ": " << (*techTrigName) << std::endl;
+    }
+
+    errorCode = -1;
+    const unsigned int bitNumber = triggerMenuLite->gtBitNumber(
+            m_nameAlgTechTrig, errorCode);
+    if (errorCode) {
+        myCoutStream
+                << "\nError code retrieving bit number for algorithm/technical trigger "
+                << m_nameAlgTechTrig << ": " << errorCode << std::endl;
+    } else {
+        myCoutStream << "\nBit number for algorithm/technical trigger "
+                << m_nameAlgTechTrig << ": " << bitNumber << std::endl;
+    }
+
+    // not tested
+    //errorCode = -1;
+    //const bool triggerMenuLite->gtTriggerResult( m_nameAlgTechTrig,
+    //        const std::vector<bool>& decWord,  errorCode);
+
+
+    LogDebug("L1GtAnalyzer") << myCoutStream.str() << std::endl;
+
+    myCoutStream.str("");
+    myCoutStream.clear();
+
+}
+
 
 // analyze each event: event loop
 void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
@@ -752,8 +966,11 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSe
     // analyze: decision for a given algorithm using L1GtUtils functions
     analyzeL1GtUtils(iEvent, evSetup);
 
-    // analyze: object map record
+    // analyze: object map product
     analyzeObjectMap(iEvent, evSetup);
+
+    // analyze: L1GtTriggerMenuLite
+    analyzeL1GtTriggerMenuLite(iEvent, evSetup);
 
 }
 
