@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.3 2010/01/07 18:05:03 mommsen Exp $
+// $Id: ChainData.cc,v 1.4 2010/02/11 13:34:26 mommsen Exp $
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -350,7 +350,7 @@ size_t detail::ChainData::memoryUsed() const
 {
   size_t memoryUsed = 0;
   toolbox::mem::Reference* curRef = _ref;
-  for (unsigned int idx = 0; idx < _fragmentCount; ++idx)
+  while (curRef)
     {
       memoryUsed += curRef->getDataSize();
       curRef = curRef->getNextReference();
