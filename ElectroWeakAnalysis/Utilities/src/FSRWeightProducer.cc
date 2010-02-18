@@ -67,7 +67,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             const reco::GenParticle& lepton = (*genParticles)[i];
             if (lepton.status()!=3) continue;
             int leptonId = lepton.pdgId();
-            if (abs(leptonId)!=11 && abs(leptonId)!=13) continue;
+            if (abs(leptonId)!=11 && abs(leptonId)!=13 && abs(leptonId)!=15) continue;
             if (lepton.numberOfMothers()!=1) continue;
             const reco::Candidate * boson = lepton.mother();
             int bosonId = abs(boson->pdgId());
