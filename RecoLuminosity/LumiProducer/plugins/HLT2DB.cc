@@ -5,7 +5,7 @@ namespace lumi{
   class HLT2DB : public DataPipe{
   public:
     HLT2DB(const std::string& dest);
-    virtual void retrieveRun( unsigned int );
+    virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~HLT2DB();
@@ -14,7 +14,7 @@ namespace lumi{
   //implementation
   //
   HLT2DB::HLT2DB(const std::string& dest):DataPipe(dest){}
-  void HLT2DB::retrieveRun( unsigned int ){
+  void HLT2DB::retrieveData( unsigned int ){
   }
   const std::string HLT2DB::dataType() const{
     return "HLT";

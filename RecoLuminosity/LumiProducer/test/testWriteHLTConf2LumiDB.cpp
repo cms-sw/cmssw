@@ -9,6 +9,6 @@ int main(){
   const std::string con("sqlite_file:pippo.db");
   std::auto_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("HLTConfDummy2DB",con));
   unsigned int hltconfId=5678;
-  ptr->retrieveRun(hltconfId);
+  ptr->retrieveData(hltconfId);
   return 0;
 }

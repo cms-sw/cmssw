@@ -5,7 +5,7 @@ namespace lumi{
   class Lumi2DB : public DataPipe{
   public:
     Lumi2DB(const std::string& dest);
-    virtual void retrieveRun( unsigned int );
+    virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~Lumi2DB();
@@ -14,7 +14,7 @@ namespace lumi{
   //implementation
   //
   Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest){}
-  void Lumi2DB::retrieveRun( unsigned int ){
+  void Lumi2DB::retrieveData( unsigned int ){
   }
   const std::string Lumi2DB::dataType() const{
     return "LUMI";

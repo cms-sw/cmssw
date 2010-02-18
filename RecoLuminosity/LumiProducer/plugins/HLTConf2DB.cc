@@ -5,7 +5,7 @@ namespace lumi{
   class HLTConf2DB : public DataPipe{
   public:
     explicit HLTConf2DB( const std::string& dest);
-    virtual void retrieveRun( unsigned int );
+    virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~HLTConf2DB();
@@ -14,7 +14,7 @@ namespace lumi{
   //implementation
   //
   HLTConf2DB::HLTConf2DB( const std::string& dest):DataPipe(dest){}
-  void HLTConf2DB::retrieveRun( unsigned int ){
+  void HLTConf2DB::retrieveData( unsigned int ){
   }
   const std::string HLTConf2DB::dataType() const{
     return "HLTConf";
