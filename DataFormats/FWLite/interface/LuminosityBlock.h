@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: LuminosityBlock.h,v 1.5 2010/02/12 15:20:14 ewv Exp $
+// $Id: LuminosityBlock.h,v 1.6 2010/02/16 16:28:21 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -42,9 +42,6 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
-#include "FWCore/FWLite/interface/BranchMapReader.h"
-#include "DataFormats/FWLite/interface/HistoryGetterBase.h"
-#include "DataFormats/FWLite/interface/DataGetterHelper.h"
 
 // forward declarations
 namespace edm {
@@ -60,6 +57,11 @@ namespace edm {
 
 namespace fwlite {
    class Event;
+   class BranchMapReader;
+   class HistoryGetterBase;
+   class DataGetterHelper;
+   class RunFactory;
+
    class LuminosityBlock : public LuminosityBlockBase
    {
 
@@ -67,7 +69,7 @@ namespace fwlite {
          // NOTE: Does NOT take ownership so iFile must remain around
          // at least as long as LuminosityBlock
          LuminosityBlock(TFile* iFile);
-         LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap);
+         LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap,  boost::shared_ptr<RunFactory> runFactory);
          virtual ~LuminosityBlock();
 
          const LuminosityBlock& operator++();
@@ -140,7 +142,8 @@ namespace fwlite {
          int fileVersion_;
          mutable bool parameterSetRegistryFilled_;
 
-         fwlite::DataGetterHelper dataHelper_;
+         DataGetterHelper dataHelper_;
+         mutable boost::shared_ptr<RunFactory> runFactory_;
    };
 
 }

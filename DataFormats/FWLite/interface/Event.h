@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.30 2010/02/12 15:23:41 ewv Exp $
+// $Id: Event.h,v 1.31 2010/02/16 20:38:18 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -44,9 +44,6 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
-#include "FWCore/FWLite/interface/BranchMapReader.h"
-#include "DataFormats/FWLite/interface/HistoryGetterBase.h"
-#include "DataFormats/FWLite/interface/DataGetterHelper.h"
 
 // forward declarations
 namespace edm {
@@ -62,6 +59,10 @@ namespace edm {
 }
 
 namespace fwlite {
+   class BranchMapReader;
+   class HistoryGetterBase;
+   class DataGetterHelper;
+   class RunFactory;
    class Event : public EventBase
    {
 
@@ -163,6 +164,7 @@ namespace fwlite {
          mutable bool parameterSetRegistryFilled_;
 
          fwlite::DataGetterHelper dataHelper_;
+         mutable boost::shared_ptr<RunFactory> runFactory_;
    };
 
 }

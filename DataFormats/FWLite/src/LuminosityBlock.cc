@@ -47,6 +47,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/FWLite/interface/LumiHistoryGetter.h"
+#include "DataFormats/FWLite/interface/RunFactory.h"
 
 //used for backwards compatability
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
@@ -103,9 +104,10 @@ namespace fwlite {
 //       auxBranch_->SetAddress(&pOldAux_);
     }
     branchMap_->updateLuminosityBlock(0);
+    runFactory_ =  boost::shared_ptr<RunFactory>(new RunFactory());
 }
 
-  LuminosityBlock::LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap):
+  LuminosityBlock::LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap, boost::shared_ptr<RunFactory> runFactory):
     branchMap_(branchMap),
     pAux_(&aux_),
     pOldAux_(0),
@@ -113,7 +115,8 @@ namespace fwlite {
     parameterSetRegistryFilled_(false),
     dataHelper_(branchMap_->getLuminosityBlockTree(),
                 boost::shared_ptr<HistoryGetterBase>(new LumiHistoryGetter(this)),
-                branchMap_)
+                branchMap_),
+    runFactory_(runFactory)
   {
 
     if(0==branchMap_->getLuminosityBlockTree()) {
@@ -376,11 +379,7 @@ namespace {
 }
 
 fwlite::Run const& LuminosityBlock::getRun() const {
-  if (not run_) {
-    // Branch map pointer not really being shared, owned by event, have to trick Run
-    run_ = boost::shared_ptr<fwlite::Run> (new fwlite::Run(boost::shared_ptr<BranchMapReader>(&*branchMap_,NoDelete())));
-//     run_ = (boost::shared_ptr<fwlite::Run>) new fwlite::Run(boost::shared_ptr<BranchMapReader>(*branchMap_));
-  }
+  run_ = runFactory_->makeRun(boost::shared_ptr<BranchMapReader>(&*branchMap_,NoDelete()));
   edm::RunNumber_t run = luminosityBlockAuxiliary().run();
   run_->to(run);
   return *run_;

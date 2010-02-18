@@ -42,6 +42,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "DataFormats/FWLite/interface/EventHistoryGetter.h"
+#include "DataFormats/FWLite/interface/RunFactory.h"
 
 //used for backwards compatability
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -126,6 +127,8 @@ namespace fwlite {
     if(fileVersion_ >= 7 ) {
       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
     }
+    runFactory_ =  boost::shared_ptr<RunFactory>(new RunFactory());
+
 }
 
 // Event::Event(const Event& rhs)
@@ -495,7 +498,10 @@ Event::throwProductNotFoundException(const std::type_info& iType, const char* iM
 fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
   if (not lumi_) {
     // Branch map pointer not really being shared, owned by event, have to trick Lumi
-    lumi_ = boost::shared_ptr<fwlite::LuminosityBlock> (new fwlite::LuminosityBlock(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete())));
+    lumi_ = boost::shared_ptr<fwlite::LuminosityBlock> (
+             new fwlite::LuminosityBlock(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+             runFactory_)
+            );
   }
   edm::RunNumber_t             run  = eventAuxiliary().run();
   edm::LuminosityBlockNumber_t lumi = eventAuxiliary().luminosityBlock();
@@ -504,10 +510,7 @@ fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
 }
 
 fwlite::Run const& Event::getRun() const {
-  if (not run_) {
-    // Branch map pointer not really being shared, owned by event, have to trick Run
-    run_ = boost::shared_ptr<fwlite::Run>(new fwlite::Run(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete())));
-  }
+  run_ = runFactory_->makeRun(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()));
   edm::RunNumber_t run = eventAuxiliary().run();
   run_->to(run);
   return *run_;
