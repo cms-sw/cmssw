@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.20 2009/09/06 16:34:11 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.21 2009/10/29 11:47:27 dmytro Exp $
 //
 //
 
@@ -22,29 +22,16 @@
 #include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
 #include <map>
 
-DetIdAssociator::DetIdAssociator():
-nPhi_(0),nEta_(0),theMap_(0),theMapIsValid_(false),etaBinSize_(0),ivProp_(0)
-{
-   maxEta_ = etaBinSize_*nEta_/2;
-   minTheta_ = 2*atan(exp(-maxEta_));
-}
-
 DetIdAssociator::DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-  :nPhi_(nPhi),nEta_(nEta),theMapIsValid_(false),etaBinSize_(etaBinSize),ivProp_(0)
+  :nPhi_(nPhi),nEta_(nEta),
+   lookupMap_(nPhi_*nEta_,std::pair<unsigned int, unsigned int>(0,0)),
+  theMapIsValid_(false),etaBinSize_(etaBinSize),ivProp_(0)
 {
    if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot initialize such a map.";
-   theMap_ = new std::set<DetId>* [nEta_];
-   for (int i=0;i<nEta_;++i) theMap_[i] = new std::set<DetId> [nPhi_];
    maxEta_ = etaBinSize_*nEta_/2;
    minTheta_ = 2*atan(exp(-maxEta_));
 }
    
-DetIdAssociator::~DetIdAssociator(){
-   if (! theMap_) return;
-   for(int i=nEta_-1;i>=0;--i) delete [] theMap_[i];
-   delete [] theMap_;
-}
-
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
 							const int iN) const
 {
@@ -69,7 +56,7 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
    int iphi = iPhi(direction);
    LogTrace("TrackAssociator") << "(ieta,iphi): " << ieta << "," << iphi << "\n";
    if (ieta>=0 && ieta<nEta_ && iphi>=0 && iphi<nPhi_){
-      set = theMap_[ieta][iphi];
+      fillSet(set,ieta,iphi);
       // dumpMapContent(ieta,iphi);
       // check if any neighbor bin is requested
       if (iNEtaPlus + iNEtaMinus + iNPhiPlus + iNPhiMinus >0 ){
@@ -95,10 +82,8 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	 // dumpMapContent(minIEta,maxIEta,minIPhi,maxIPhi);
 	 for (int i=minIEta;i<=maxIEta;i++)
 	   for (int j=minIPhi;j<=maxIPhi;j++) {
-	      // edm::LogVerbatim("TrackAssociator") << "iEta,iPhi,N DetIds: " << i << ", " << j <<
-	      // ", " << theMap_[i][j%nPhi_].size();
 	      if( i==ieta && j==iphi) continue; // already in the set
-	      set.insert((theMap_[i][j%nPhi_]).begin(),(theMap_[i][j%nPhi_]).end());
+	      fillSet(set,i,j%nPhi_);
 	   }
       }
       
@@ -156,88 +141,115 @@ int DetIdAssociator::iPhi (const GlobalPoint& point) const
 
 void DetIdAssociator::buildMap()
 {
+  // the map is built in two steps to create a clean memory footprint
+  // 0) determine how many elements each bin has
+  // 1) fill the container map
    check_setup();
    LogTrace("TrackAssociator")<<"building map" << "\n";
    // clear the map
    if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot build such a map.";
-   if (! theMap_) throw cms::Exception("FatalError") << "incorrect look-up map. Cannot build such a map.";
-   for(int i=0;i<nEta_;++i)
-     for(int j=0;j<nPhi_;++j)
-       theMap_[i][j].clear();
-   int numberOfDetIdsOutsideEtaRange = 0;
-   int numberOfDetIdsActive = 0;
-   std::set<DetId> validIds = getASetOfValidDetIds();
-   LogTrace("TrackAssociator")<< "Number of valid DetIds: " <<  validIds.size();
-   for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
-      std::pair<const_iterator,const_iterator> points = getDetIdPoints(*id_itr);
-      LogTrace("TrackAssociatorVerbose")<< "Found " << points.second-points.first << " global points to describe geometry of DetId: " 
-	<< id_itr->rawId();
-      int etaMax(-1);
-      int etaMin(-1);
-      int phiMax(-1);
-      int phiMin(-1);
-      // this is a bit overkill, but it should be 100% proof (when debugged :)
-      for(std::vector<GlobalPoint>::const_iterator iter = points.first; iter != points.second; iter++)
-	{
-	   LogTrace("TrackAssociatorVerbose")<< "\tpoint (rho,phi,z): " << iter->perp() << ", " <<
-	     iter->phi() << ", " << iter->z();
-	   // FIX ME: this should be a fatal error
-	   if(isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
-	      edm::LogWarning("TrackAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
-		<< id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr )
-		  << "\nSkipped the element";
-	      continue;
-	   }
-	   volume_.addActivePoint(*iter);
-	   int ieta = iEta(*iter);
-	   int iphi = iPhi(*iter);
-	   if (ieta<0 || ieta>=nEta_) {
-	      LogTrace("TrackAssociator")<<"Out of range: DetId:" << id_itr->rawId() << "\t (ieta,iphi): " 
-		<< ieta << "," << iphi << "\n" << "Point: " << *iter << "\t(eta,phi): " << (*iter).eta() 
-		  << "," << (*iter).phi() << "\n center: " << getPosition(*id_itr);
-	      continue;
-	   }
-	   if ( phiMin<0 ) {
-		// first element
-		etaMin = ieta;
-	        etaMax = ieta;
-	        phiMin = iphi;
-	        phiMax = iphi;
-	   }else{
-	      // check for discontinuity in phi
-	      int deltaMin = abs(phiMin -iphi);
-	      int deltaMax = abs(phiMax -iphi);
-	      // assume that no single detector element has more than 3.1416 coverage in phi
-	      if ( deltaMin > nPhi_/2 && phiMin < nPhi_/2 ) phiMin+= nPhi_;
-	      if ( deltaMax > nPhi_/2 ) {
+   unsigned int numberOfDetIdsOutsideEtaRange = 0;
+   unsigned int numberOfDetIdsActive = 0;
+   unsigned int numberOfSubDetectors = getNumberOfSubdetectors();
+   unsigned totalNumberOfElementsInTheContainer(0);
+   for ( unsigned int step = 0; step < 2; ++step){
+     for ( unsigned int subDetectorIndex = 0; subDetectorIndex < numberOfSubDetectors; ++subDetectorIndex ){
+       const std::vector<DetId>& validIds = getValidDetIds(subDetectorIndex);
+       LogTrace("TrackAssociator")<< "Number of valid DetIds: " <<  validIds.size();
+       for (std::vector<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
+	 std::pair<const_iterator,const_iterator> points = getDetIdPoints(*id_itr);
+	 LogTrace("TrackAssociatorVerbose")<< "Found " << points.second-points.first << " global points to describe geometry of DetId: " 
+					   << id_itr->rawId();
+	 int etaMax(-1);
+	 int etaMin(-1);
+	 int phiMax(-1);
+	 int phiMin(-1);
+	 // this is a bit overkill, but it should be 100% proof (when debugged :)
+	 for(std::vector<GlobalPoint>::const_iterator iter = points.first; iter != points.second; iter++)
+	   {
+	     LogTrace("TrackAssociatorVerbose")<< "\tpoint (rho,phi,z): " << iter->perp() << ", " <<
+	       iter->phi() << ", " << iter->z();
+	     // FIX ME: this should be a fatal error
+	     if(isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
+	       edm::LogWarning("TrackAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
+						  << id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr )
+						  << "\nSkipped the element";
+	       continue;
+	     }
+	     volume_.addActivePoint(*iter);
+	     int ieta = iEta(*iter);
+	     int iphi = iPhi(*iter);
+	     if (ieta<0 || ieta>=nEta_) {
+	       LogTrace("TrackAssociator")<<"Out of range: DetId:" << id_itr->rawId() << "\t (ieta,iphi): " 
+					  << ieta << "," << iphi << "\n" << "Point: " << *iter << "\t(eta,phi): " << (*iter).eta() 
+					  << "," << (*iter).phi() << "\n center: " << getPosition(*id_itr);
+	       continue;
+	     }
+	     if ( phiMin<0 ) {
+	       // first element
+	       etaMin = ieta;
+	       etaMax = ieta;
+	       phiMin = iphi;
+	       phiMax = iphi;
+	     }else{
+	       // check for discontinuity in phi
+	       int deltaMin = abs(phiMin -iphi);
+	       int deltaMax = abs(phiMax -iphi);
+	       // assume that no single detector element has more than 3.1416 coverage in phi
+	       if ( deltaMin > nPhi_/2 && phiMin < nPhi_/2 ) phiMin+= nPhi_;
+	       if ( deltaMax > nPhi_/2 ) {
 		 if (phiMax < nPhi_/2 ) 
 		   phiMax+= nPhi_;
 		 else
 		   iphi += nPhi_;
-	      }
-	      assert (iphi>=0);
-	      if ( etaMin > ieta) etaMin = ieta;
-	      if ( etaMax < ieta) etaMax = ieta;
-	      if ( phiMin > iphi) phiMin = iphi;
-	      if ( phiMax < iphi) phiMax = iphi;
+	       }
+	       assert (iphi>=0);
+	       if ( etaMin > ieta) etaMin = ieta;
+	       if ( etaMax < ieta) etaMax = ieta;
+	       if ( phiMin > iphi) phiMin = iphi;
+	       if ( phiMax < iphi) phiMax = iphi;
+	     }
 	   }
-	}
-      if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
-	 LogTrace("TrackAssociatorVerbose")<<"Out of range or no geometry: DetId:" << id_itr->rawId() <<
-	   "\n\teta (min,max): " << etaMin << "," << etaMax <<
-	   "\n\tphi (min,max): " << phiMin << "," << phiMax <<
-	   "\nTower id: " << id_itr->rawId() << "\n";
-	 numberOfDetIdsOutsideEtaRange++;
-	 continue;
-      }
-	  
-      LogTrace("TrackAssociatorVerbose") << "DetId (ieta_min,ieta_max,iphi_min,iphi_max): " << id_itr->rawId() <<
-	", " << etaMin << ", " << etaMax << ", " << phiMin << ", " << phiMax;
-      for(int ieta = etaMin; ieta <= etaMax; ieta++)
-	for(int iphi = phiMin; iphi <= phiMax; iphi++)
-	  theMap_[ieta][iphi%nPhi_].insert(*id_itr);
-      numberOfDetIdsActive++;
+	 if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
+	   LogTrace("TrackAssociatorVerbose")<<"Out of range or no geometry: DetId:" << id_itr->rawId() <<
+	     "\n\teta (min,max): " << etaMin << "," << etaMax <<
+	     "\n\tphi (min,max): " << phiMin << "," << phiMax <<
+	     "\nTower id: " << id_itr->rawId() << "\n";
+	   numberOfDetIdsOutsideEtaRange++;
+	   continue;
+	 }
+	 numberOfDetIdsActive++;
+	 
+	 LogTrace("TrackAssociatorVerbose") << "DetId (ieta_min,ieta_max,iphi_min,iphi_max): " << id_itr->rawId() <<
+	   ", " << etaMin << ", " << etaMax << ", " << phiMin << ", " << phiMax;
+	 for(int ieta = etaMin; ieta <= etaMax; ieta++)
+	   for(int iphi = phiMin; iphi <= phiMax; iphi++)
+	     if ( step == 0 ){
+	       lookupMap_.at(index(ieta,iphi%nPhi_)).second++;
+	       totalNumberOfElementsInTheContainer++;
+	     } else {
+	       container_.at(lookupMap_.at(index(ieta,iphi%nPhi_)).first) = *id_itr;
+	       lookupMap_.at(index(ieta,iphi%nPhi_)).first--;
+	       totalNumberOfElementsInTheContainer--;
+	     }
+       }
+     }
+     if ( step == 0 ){
+       // allocate
+       container_.resize(totalNumberOfElementsInTheContainer);
+       // fill the range index in the lookup map to point to the last element in the range
+       unsigned int index(0);
+       for ( std::vector<std::pair<unsigned int,unsigned int> >::iterator bin = lookupMap_.begin();
+	     bin != lookupMap_.end(); ++bin )
+	 {
+	   if (bin->second==0) continue;
+	   index += bin->second;
+	   bin->first = index-1;
+	 }
+     }
    }
+   if ( totalNumberOfElementsInTheContainer != 0 )
+     throw cms::Exception("FatalError") << "Look-up map filled incorrectly. Structural problem. Get in touch with the developer.";
    LogTrace("TrackAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
      nEta_/2*etaBinSize_ << "): " << numberOfDetIdsOutsideEtaRange << "\n";
    LogTrace("TrackAssociator") << "Number of active DetId's mapped: " << 
@@ -312,7 +324,8 @@ void DetIdAssociator::dumpMapContent(int ieta, int iphi) const
 	return;
      }
 
-   std::set<DetId> set = theMap_[ieta][iphi%nPhi_];
+   std::set<DetId> set;
+   fillSet(set,ieta,iphi%nPhi_);
    LogTrace("TrackAssociator") << "Map content for cell (ieta,iphi): " << ieta << ", " << iphi%nPhi_;
    for(std::set<DetId>::const_iterator itr = set.begin(); itr!=set.end(); itr++)
      {
@@ -361,4 +374,13 @@ void DetIdAssociator::check_setup() const
   if (nPhi_==0) throw cms::Exception("FatalError") << "Number of phi bins is not set.\n";
   // if (ivProp_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
   if (etaBinSize_==0) throw cms::Exception("FatalError") << "Eta bin size is not set.\n";
+}
+
+void DetIdAssociator::fillSet( std::set<DetId>& set, unsigned int iEta, unsigned int iPhi) const
+{
+  unsigned int i = index(iEta,iPhi);
+  unsigned int i0 = lookupMap_.at(i).first;
+  unsigned int size = lookupMap_.at(i).second;
+  for ( i = i0; i < i0+size; ++i )
+    set.insert(container_.at(i));
 }

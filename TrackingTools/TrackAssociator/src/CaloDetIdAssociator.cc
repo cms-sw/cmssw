@@ -201,14 +201,10 @@ GlobalPoint CaloDetIdAssociator::getPosition(const DetId& id) const {
   return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
 }
    
-std::set<DetId> CaloDetIdAssociator::getASetOfValidDetIds() const 
+const std::vector<DetId>& CaloDetIdAssociator::getValidDetIds(unsigned int subDectorIndex) const 
 {
-  std::set<DetId> setOfValidIds;
-  const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
-  for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-    setOfValidIds.insert(*it);
-  
-  return setOfValidIds;
+  if ( subDectorIndex!=0 ) cms::Exception("FatalError") << "Calo sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
+  return geometry_->getValidDetIds(DetId::Calo, 1);
 }
    
 std::pair<DetIdAssociator::const_iterator, DetIdAssociator::const_iterator> 

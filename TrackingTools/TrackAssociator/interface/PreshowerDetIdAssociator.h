@@ -14,7 +14,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: PreshowerDetIdAssociator.h,v 1.1.2.1 2009/07/01 10:04:16 dmytro Exp $
+// $Id: PreshowerDetIdAssociator.h,v 1.2 2009/09/06 16:39:11 dmytro Exp $
 //
 //
 
@@ -29,13 +29,9 @@ class PreshowerDetIdAssociator: public CaloDetIdAssociator{
 
  protected:
 
-   virtual std::set<DetId> getASetOfValidDetIds() const {
-      std::set<DetId> setOfValidIds;
-      std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, EcalPreshower);
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-         setOfValidIds.insert(*it);
-
-      return setOfValidIds;
+   virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const {
+     if ( subDetectorIndex != 0 ) throw cms::Exception("FatalError") << "Preshower has only one sub-detector for geometry. Abort.";
+     return geometry_->getValidDetIds(DetId::Ecal, EcalPreshower);
    };
 
 };

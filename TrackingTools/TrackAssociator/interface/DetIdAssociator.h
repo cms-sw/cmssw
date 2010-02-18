@@ -14,14 +14,18 @@
      A look up map of active detector elements in eta-phi space is 
      built to speed up access to the detector element geometry as well 
      as associated hits. The map is uniformly binned in eta and phi 
-     dimensions. It is expected that the map is used to find a set of
-     DetIds close to a given point, but since all methods are virtual 
-     implementation may vary for various subdetectors.
+     dimensions, which can be viewed as a histogram with every bin
+     containing DetId of elements crossed in a given eta-phi window.
+     It is very likely that a single DetId can be found in a few bins
+     if it's geometrical size is bigger than eta-phi bin size.
+
+     The map is implemented as a double array. The first one has fixed
+     size and points to the range of array elements in the second one.
 **/
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.15 2009/09/06 16:34:11 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.16 2009/10/29 11:47:27 dmytro Exp $
 //
 //
 
@@ -51,10 +55,8 @@ class DetIdAssociator{
    };
    typedef std::vector<GlobalPoint>::const_iterator const_iterator;
 	
-   DetIdAssociator();
    DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize);
-   
-   virtual ~DetIdAssociator();
+   virtual ~DetIdAssociator(){}
    
    /// Preselect DetIds close to a point on the inner surface of the detector. 
    /// "iN" is a number of the adjacent bins of the map to retrieve 
@@ -125,7 +127,8 @@ class DetIdAssociator{
    virtual void dumpMapContent( int, int, int, int ) const;
    
    virtual GlobalPoint getPosition(const DetId&) const = 0;
-   virtual std::set<DetId> getASetOfValidDetIds() const = 0;
+   virtual const unsigned int getNumberOfSubdetectors() const { return 1;}
+   virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const = 0;
    virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId&) const = 0;
    
    virtual bool insideElement(const GlobalPoint&, const DetId&) const = 0;
@@ -138,10 +141,19 @@ class DetIdAssociator{
 			    const DetId& id, 
 			    const double distance) const;
    
+   unsigned int index(unsigned int iEta, unsigned int iPhi) const {
+     return iEta*nPhi_+iPhi;
+   }
+   void fillSet( std::set<DetId>& set, unsigned int iEta, unsigned int iPhi) const;
+
    // map parameters
    const int nPhi_;
    const int nEta_;
-   std::set<DetId> **theMap_;
+   // The first number in the pair points to the begging
+   // of the DetId list for a given bin
+   // The second number is the number of elements in a bin
+   std::vector<std::pair<unsigned int,unsigned int> > lookupMap_;
+   std::vector<DetId> container_;
    bool theMapIsValid_;
    const double etaBinSize_;
    double maxEta_;

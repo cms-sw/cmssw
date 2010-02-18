@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.7 2009/05/12 13:27:09 jribnik Exp $
+// $Id: MuonDetIdAssociator.h,v 1.8 2009/10/29 11:47:27 dmytro Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
    
    virtual GlobalPoint getPosition(const DetId& id) const;
    
-   virtual std::set<DetId> getASetOfValidDetIds() const;
+   virtual const std::vector<DetId>& getValidDetIds(unsigned int) const;
    
    virtual std::pair<const_iterator,const_iterator> getDetIdPoints(const DetId& id) const;
 
@@ -70,6 +70,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
    const CSCBadChambers* cscbadchambers_;
    bool includeBadChambers_;
    mutable std::vector<GlobalPoint> points_;
+   mutable std::vector<DetId> validIds_;
 
 };
 #endif

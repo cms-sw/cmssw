@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.13 2009/10/02 19:48:02 heltsley Exp $
+// $Id: CaloDetIdAssociator.h,v 1.14 2009/10/29 11:47:27 dmytro Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
    
    virtual GlobalPoint getPosition(const DetId& id) const;
    
-   virtual std::set<DetId> getASetOfValidDetIds() const;
+   virtual const std::vector<DetId>& getValidDetIds( unsigned int subDetectorIndex ) const;
    
    virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id) const;
 

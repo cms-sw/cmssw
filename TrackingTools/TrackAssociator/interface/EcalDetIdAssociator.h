@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.6 2009/09/06 16:36:52 dmytro Exp $
+// $Id: EcalDetIdAssociator.h,v 1.7 2009/10/02 19:48:02 heltsley Exp $
 //
 //
 
@@ -29,18 +29,11 @@ class EcalDetIdAssociator: public CaloDetIdAssociator{
 
  protected:
 
-   virtual std::set<DetId> getASetOfValidDetIds() const {
-      std::set<DetId> setOfValidIds;
-      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, EcalBarrel);//EB
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-         setOfValidIds.insert(*it);
-
-//      vectOfValidIds.clear();
-      const std::vector<DetId>& vectOfValidIdsEE = geometry_->getValidDetIds(DetId::Ecal, EcalEndcap);//EE
-      for(std::vector<DetId>::const_iterator it = vectOfValidIdsEE.begin(); it != vectOfValidIdsEE.end(); ++it)
-         setOfValidIds.insert(*it);
-
-      return setOfValidIds;
+   virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const {
+     if ( subDetectorIndex == 0 )
+       return geometry_->getValidDetIds(DetId::Ecal, EcalBarrel);//EB
+     else
+       return geometry_->getValidDetIds(DetId::Ecal, EcalEndcap);//EE
    };
 
 };
