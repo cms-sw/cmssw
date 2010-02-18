@@ -32,6 +32,9 @@ The alignment objects are filled with fixed alignments.
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+#include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
+#include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
@@ -51,6 +54,8 @@ The alignment objects are filled with fixed alignments.
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorRcd.h"
 
 class FakeCaloAlignmentEP : public edm::ESProducer 
 {
@@ -78,6 +83,10 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHOAliErr ) ;
 	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHFAli    ) ;
 	 setWhatProduced( this, &FakeCaloAlignmentEP::produceHFAliErr ) ;
+	 setWhatProduced( this, &FakeCaloAlignmentEP::produceZdcAli    ) ;
+	 setWhatProduced( this, &FakeCaloAlignmentEP::produceZdcAliErr ) ;
+	 setWhatProduced( this, &FakeCaloAlignmentEP::produceCastorAli    ) ;
+	 setWhatProduced( this, &FakeCaloAlignmentEP::produceCastorAliErr ) ;
       }
 
       ~FakeCaloAlignmentEP() {}
@@ -158,11 +167,11 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
-	 const unsigned int nA ( 10 ) ; 
+	 const unsigned int nA ( HcalGeometry::numberOfBarrelAlignments() ) ; 
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ;
+	    const HcalDetId id ( HcalBarrel, 1, 1, 1 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -181,11 +190,11 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
-	 const unsigned int nA ( 10 ) ; 
+	 const unsigned int nA ( HcalGeometry::numberOfEndcapAlignments() ) ; 
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ;
+	    const HcalDetId id ( HcalEndcap, 21, 1, 1 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -204,11 +213,11 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
-	 const unsigned int nA ( 10 ) ; 
+	 const unsigned int nA ( HcalGeometry::numberOfOuterAlignments() ) ; 
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ;
+	    const HcalDetId id ( HcalOuter, 1, 1, 4 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -227,11 +236,11 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
-	 const unsigned int nA ( 10 ) ; 
+	 const unsigned int nA ( HcalGeometry::numberOfForwardAlignments() ) ; 
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ;
+	    const HcalDetId id ( HcalForward, 29, 1, 1 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -246,15 +255,15 @@ class FakeCaloAlignmentEP : public edm::ESProducer
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceZDCAli( const ZDCAlignmentRcd& iRecord ) 
+      ReturnAli    produceZdcAli( const ZDCAlignmentRcd& iRecord ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
-	 const unsigned int nA ( 10 ) ; 
+	 const unsigned int nA ( ZdcGeometry::numberOfAlignments() ) ; 
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalZDCDetId id ;
+	    const HcalZDCDetId id ( HcalZDCDetId::EM, false, 1 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -262,7 +271,30 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceZDCAliErr( const ZDCAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorRcd& iRecord ) 
+      { 
+	 ReturnAliErr aliErr ( new AlignmentErrors ); 
+	 return aliErr ;
+      }
+//-------------------------------------------------------------------
+
+      ReturnAli    produceCastorAli( const CastorAlignmentRcd& iRecord ) 
+      {
+	 ReturnAli ali ( new Alignments ) ;
+	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
+	 const unsigned int nA ( CastorGeometry::numberOfAlignments() ) ; 
+	 vtr.reserve( nA ) ;
+	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
+	 {
+	    const HcalCastorDetId id ( HcalCastorDetId::EM, false, 1, 1 ) ;
+	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
+					   Rot(),
+					   id           ) ) ;
+	 }
+	 return ali ;
+      }
+
+      ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorRcd& iRecord ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
