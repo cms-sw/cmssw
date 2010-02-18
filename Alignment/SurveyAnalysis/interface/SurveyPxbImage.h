@@ -1,5 +1,5 @@
-#ifndef GUARD_surveypic_h
-#define GUARD_surveypic_h
+#ifndef GUARD_surveypxbimage_h
+#define GUARD_surveypxbimage_h
 
 #include <sstream>
 #include <vector>
