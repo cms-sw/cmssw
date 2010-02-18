@@ -6,6 +6,9 @@ ifndef VERBOSE
   QUIET := @
 endif
 
+# compiler
+CC := c++
+
 ifeq ($(shell uname), Linux)
 	SO_EXT := so
         MAKESHAREDLIB := -shared
@@ -21,17 +24,16 @@ include core.mk
 
 # 
 # common compiler flags
-COMPILERFLAGS := -Wall -O3 -m32 -fPIC
-# COMPILERFLAGS := -Wall -O0 -g -fPIC
+#COMPILERFLAGS := -Wall -O3 -m32 -fPIC
+ COMPILERFLAGS := -Wall -O0 -g -m32 -fPIC
 # common includes
 INCLUDE := -I./ -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
-# compiler
-CC := c++
 
 CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 
 # linker
-LINKER = c++
+LINKER = $(CC)
+CXX = $(CC)
 # linker flags
 CoreMissingFlags = -lEG
 #CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)

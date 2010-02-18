@@ -6,6 +6,8 @@ ifndef VERBOSE
   QUIET := @
 endif
 
+# compiler
+CC := c++
 ifeq ($(shell uname), Linux)
 	SO_EXT := so
 else 
@@ -27,13 +29,12 @@ ifeq ($(shell uname), Darwin)
 	INCLUDE += -I/usr/X11/include/
 endif
 
-# compiler
-CC := c++
 
 CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 
 # linker
-LINKER = c++
+LINKER = $(CC)
+CXX = $(CC)
 # linker flags
 ProjectMissingFlags = -lGeom -lGuiHtml
 
@@ -45,6 +46,7 @@ else
    ifeq ($(shell uname), Darwin)
       MAKESHAREDLIB := -dynamiclib
       ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
+#      ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore -lCintex
       ExtraProjectLibs = -lRIO -lEve -lGeom -lGeomPainter -lGraf3d \
 		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
