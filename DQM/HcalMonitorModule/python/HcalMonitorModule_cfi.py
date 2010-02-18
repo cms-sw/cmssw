@@ -20,7 +20,7 @@ hcalMonitor = cms.EDAnalyzer("HcalMonitorModule",
                            MinPhi = cms.untracked.double(-0.5),
 
                            # number of luminosity blocks to check
-                           Nlumiblocks = cms.untracked.int32(1000),
+                           Nlumiblocks = cms.untracked.int32(4000),
                            
                            # Determine whether or not to check individual subdetectors
                            checkHF = cms.untracked.bool(True),
@@ -84,6 +84,7 @@ hcalMonitor = cms.EDAnalyzer("HcalMonitorModule",
                            DeadCellMonitor_test_rechits                 = cms.untracked.bool(False), # test for rechits less than some energy for an entire lumi block
                            DeadCellMonitor_checkNevents                 = cms.untracked.int32(1000),
                            DeadCellMonitor_minEvents                     = cms.untracked.int32(500), # minimum number of events that must be present in a LB for recent dead cell checks to be made
+                           DeadCellMonitor_LBprescale                   = cms.untracked.int32(1),
                            # Checking for cells consistently below energy threshold
                            DeadCellMonitor_energyThreshold              = cms.untracked.double(-1.),
                            DeadCellMonitor_HB_energyThreshold           = cms.untracked.double(-1.),

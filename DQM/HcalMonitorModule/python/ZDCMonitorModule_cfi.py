@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-zdcMonitor = cms.EDFilter("ZDCMonitorModule",
+zdcMonitor = cms.EDAnalyzer("ZDCMonitorModule",
 
                           # GLOBAL VARIABLES
                           debug = cms.untracked.int32(0), # make debug an int so that different values can trigger different levels of messaging
