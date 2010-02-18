@@ -284,8 +284,38 @@ HcalGeometry::alignmentTransformIndexLocal( const DetId& id )
 
    assert( gid.isHcal() ) ;
 
-   unsigned int index ( 0 ) ;// to be implemented
 
+   const HcalDetId hid ( id ) ;
+
+   const int detoff ( gid.isHB() ? 0 :
+		      ( gid.isHE() ? numberOfBarrelAlignments() :
+			( gid.isHF() ? ( numberOfBarrelAlignments() +
+					 numberOfEndcapAlignments() ) :
+			  ( numberOfBarrelAlignments() +
+			    numberOfEndcapAlignments() +
+			    numberOfForwardAlignments() ) ) ) ) ; 
+
+
+   const int iphi ( hid.iphi() ) ;
+
+   unsigned int index ( numberOfAlignments() ) ;
+   if( gid.isHO() )
+   {
+      const int ieta ( hid.ieta() ) ;
+      const int ring ( ieta < -10 ? 0 :
+		       ( ieta < -4 ? 1 :
+			 ( ieta < 5 ? 2 :
+			   ( ieta < 11 ? 3 : 4 ) ) ) ) ;
+
+      index = detoff + 12*ring + ( iphi - 1 )%6 ;
+   }
+   else
+   {
+      const int zoff ( ( hid.zside() + 1 )/2 ) ;
+      index = detoff + ( iphi - 1 )%4 + 18*zoff ;
+   }
+
+   assert( index < numberOfAlignments() ) ;
    return index ;
 }
 

@@ -47,7 +47,19 @@ class HcalGeometry : public CaloSubdetectorGeometry
 
       static std::string producerTag() { return "HCAL" ; }
 
-      static unsigned int numberOfAlignments() { return 0 ; }
+      static unsigned int numberOfBarrelAlignments() { return 36 ; }
+
+      static unsigned int numberOfEndcapAlignments() { return 36 ; }
+
+      static unsigned int numberOfOuterAlignments() { return 36 ; }
+
+      static unsigned int numberOfForwardAlignments() { return 60 ; }
+
+      static unsigned int numberOfAlignments() 
+      { return ( numberOfBarrelAlignments() +
+		 numberOfEndcapAlignments() +
+		 numberOfOuterAlignments() +
+		 numberOfForwardAlignments() ) ; }
 
       static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 

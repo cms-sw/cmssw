@@ -45,7 +45,7 @@ class CastorGeometry : public CaloSubdetectorGeometry
 
       static std::string producerTag() { return "CASTOR" ; }
 
-      static unsigned int numberOfAlignments() { return 0 ; }
+      static unsigned int numberOfAlignments() { return 1 ; }
 
       static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 

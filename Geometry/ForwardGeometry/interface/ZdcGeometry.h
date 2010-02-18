@@ -41,7 +41,7 @@ class ZdcGeometry : public CaloSubdetectorGeometry
 
       static std::string producerTag() { return "ZDC" ; }
 
-      static unsigned int numberOfAlignments() { return 0 ; }
+      static unsigned int numberOfAlignments() { return 2 ; }
 
       static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 

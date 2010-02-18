@@ -86,9 +86,7 @@ ZdcGeometry::alignmentTransformIndexLocal( const DetId& id )
 
    assert( gid.isZDC() ) ;
 
-   unsigned int index ( 0 ) ;// to be implemented
-
-   return index ;
+   return ( 0 > HcalZDCDetId( id ).zside() ? 0 : 1 ) ;
 }
 
 unsigned int

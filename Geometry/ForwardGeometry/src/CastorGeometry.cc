@@ -94,9 +94,7 @@ CastorGeometry::alignmentTransformIndexLocal( const DetId& id )
 
    assert( gid.isCastor() ) ;
 
-   unsigned int index ( 0 ) ;// to be implemented
-
-   return index ;
+   return 0 ;
 }
 
 unsigned int
