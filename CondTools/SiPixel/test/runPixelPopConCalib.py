@@ -153,7 +153,7 @@ def main(argv):
     # set database connect string if not given
     if not databaseConnect:
         if atPoint5:
-            databaseConnect = 'oracle://cms_orcon_prod/CMS_COND_PIXEL_COMM_21X'
+            databaseConnect = 'oracle://cms_orcon_prod/CMS_COND_31X_PIXEL'
         else:
             databaseConnect = 'sqlite_file:testExample.db'
     if debugMode:
@@ -162,7 +162,7 @@ def main(argv):
     # set the logging database connect string if not given
     if not logdbConnect:
         if atPoint5:
-            logdbConnect = 'oracle://cms_orcon_prod/CMS_COND_21X_POPCONLOG'
+            logdbConnect = 'oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'
         else:
             logdbConnect = 'sqlite_file:logtestExample.db'
     if debugMode:
