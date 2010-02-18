@@ -30,7 +30,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h" 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 ////////////////////////////////////////////////////////////////////////////////
 //                           Root include files                               //

@@ -16,7 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -96,7 +96,6 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     map<TString, MonitorElement *> ME;
     vector<pair<string,int> > filterNamesLevels;
     const double muonMass;
-    TriggerNames triggerNames;
 };
 
 HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
@@ -377,7 +376,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   iEvent.getByLabel(triggerResultsTag,triggerResults);
   if(triggerResults.isValid()){
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Successfully initialized "<<triggerResultsTag<<endl;
-    triggerNames.init(*triggerResults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
     size_t index = triggerNames.triggerIndex(triggerPathName);
     if( index < triggerNames.size() ){
       triggerFired = triggerResults->accept( index );

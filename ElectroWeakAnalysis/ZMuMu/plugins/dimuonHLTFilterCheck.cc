@@ -23,7 +23,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 // access trigger results
-#include <FWCore/Framework/interface/TriggerNames.h>
+#include "FWCore/Common/interface/TriggerNames.h"
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
@@ -106,8 +106,7 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
   event.getByLabel( tracksTag, tracks );
   event.getByLabel( muonTag, muons );
 
-  TriggerNames triggerNames;
-  triggerNames.init( *(triggerResults.product()) );
+  const edm::TriggerNames & triggerNames = event.triggerNames(*triggerResults);
 
   // map of MU triggers of interest
   map<string,int> dimuonHLT_triggers;

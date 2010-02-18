@@ -1,4 +1,5 @@
 #include "RecoMET/METProducers/interface/CSCHaloDataProducer.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 /*
   [class]:  CSCHaloDataProducer
@@ -67,8 +68,9 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle<edm::TriggerResults> TheHLTResults;
   iEvent.getByLabel( IT_HLTResult , TheHLTResults);
 
-  
-  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults) ) );
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*TheHLTResults);
+
+  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames) ) );
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);
   return;
