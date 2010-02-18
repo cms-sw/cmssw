@@ -94,7 +94,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   //---
 
   edm::Handle<edm::TriggerResults> triggerResults_;
-  edm::TriggerNames triggerNames_; // TriggerNames class
+  edm::TriggerNames const* triggerNames_;
 
   edm::Handle<trigger::TriggerEvent> triggerObj_;
   

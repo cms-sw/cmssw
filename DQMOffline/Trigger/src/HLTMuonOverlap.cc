@@ -60,7 +60,7 @@ void HLTMuonOverlap::analyze(const edm::Event & event ) {
   }
   size=trigRes->size();
   LogTrace("HLTMuonVal")<< "Ntp="<<Ntp<<" Size of trigger results="<<size;
-  TriggerNames triggerNames(*trigRes);
+  const edm::TriggerNames & triggerNames = event.triggerNames(*trigRes);
 
   if(Ntp)
     assert(Ntp == size);
