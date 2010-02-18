@@ -555,6 +555,7 @@ void HcalDeadCellMonitor::endLuminosityBlock()
       LBprocessed_=true;
       return;
     }
+  // fillNevents_problemCells checks for never-present cells
   fillNevents_problemCells();
   fillNevents_recentdigis();
   fillNevents_recentrechits();
@@ -565,10 +566,12 @@ void HcalDeadCellMonitor::endLuminosityBlock()
 void HcalDeadCellMonitor::endRun()
 {
   // Always carry out tests at endRun, regardless of lumiblock prescaling?
+  fillNevents_problemCells(); // always check for never-present cells
+
+  // Only check for recent missing cells if they haven't been checked already
   if (LBprocessed_==true)
     return; // histograms already filled for this LB
   ++deadmon_lumiblockcount_;
-  fillNevents_problemCells();
   fillNevents_recentdigis();
   fillNevents_recentrechits();
   LBprocessed_=true;
@@ -847,6 +850,8 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
 
 void HcalDeadCellMonitor::fillNevents_problemCells()
 {
+  //fillNevents_problemCells now only performs checks of never-present cells
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
