@@ -69,10 +69,10 @@ namespace lumi{
 	  bitnum=j;
 	  char c[10];
 	  if(j>127){
-	    ::sprintf(c,"-%d",j-127);
+	    ::sprintf(c,"%d",j-127);
 	    bitname=std::string(c);
 	  }else{
-	    ::sprintf(c,"-%d",j);
+	    ::sprintf(c,"%d",j);
 	    bitname=std::string("FakeTRGBIT_")+std::string(c);
 	  }
 	  count=12345;

@@ -1,5 +1,5 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
-const std::string lumi::LumiNames::runsummarysummaryTableName(){
+const std::string lumi::LumiNames::runsummaryTableName(){
   return "RUNSUMMARY";
 }
 const std::string lumi::LumiNames::lumisummaryTableName(){

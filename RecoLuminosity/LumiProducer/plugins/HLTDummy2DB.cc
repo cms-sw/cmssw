@@ -65,8 +65,8 @@ namespace lumi{
 	  hltrunnum = runnum;
 	  cmsluminum = i;
 	  char c[10];
-	  ::sprintf(c,"-%d",j);
-	  pathname=std::string("FakeHLTPath")+std::string(c);
+	  ::sprintf(c,"%d",j);
+	  pathname=std::string("FakeHLTPath_")+std::string(c);
 	  inputcount=12345;
 	  acceptcount=10;
 	  prescale=1;
