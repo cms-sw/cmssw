@@ -134,7 +134,6 @@ void HcalDeadCellClient::endJob(void)
 void HcalDeadCellClient::endRun(std::map<HcalDetId, unsigned int>& myqual) 
 {
   if ( debug_>1 ) std::cout << "HcalDeadCellClient: endRun, jevt = " << jevt_ << std::endl;
-
   calculateProblems(); // calculate problems before root file is closed
   updateChannelStatus(myqual);
 
@@ -457,7 +456,7 @@ void HcalDeadCellClient::calculateProblems()
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
 	      problemvalue = min(1.,problemvalue);
-
+	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
 		ieta<0 ? zside = -1 : zside = 1;
