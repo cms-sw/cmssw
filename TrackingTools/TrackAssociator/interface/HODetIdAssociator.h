@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: HODetIdAssociator.h,v 1.3 2009/10/02 19:48:02 heltsley Exp $
+// $Id: HODetIdAssociator.h,v 1.4 2010/02/18 14:35:48 dmytro Exp $
 //
 //
 
@@ -35,7 +35,7 @@ class HODetIdAssociator: public CaloDetIdAssociator{
      {
        if ( subDectorIndex!=0 ) cms::Exception("FatalError") << 
 	 "HO sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
-       return geometry_->getValidDetIds(DetId::Calo, HcalOuter);
+       return geometry_->getValidDetIds(DetId::Hcal, HcalOuter);
      }
 };
 #endif
