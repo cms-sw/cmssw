@@ -38,7 +38,9 @@ SiPixelCondObjForHLTBuilder::SiPixelCondObjForHLTBuilder(const edm::ParameterSet
       secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
       fromFile_(conf_.getParameter<bool>("fromFile")),
-      fileName_(conf_.getParameter<std::string>("fileName"))
+      fileName_(conf_.getParameter<std::string>("fileName")),
+      generateColumns_(conf_.getUntrackedParameter<bool>("generateColumns",true))
+
 {
   ::putenv((char*)"CORAL_AUTH_USER=me");
   ::putenv((char*)"CORAL_AUTH_PASSWORD=test"); 
