@@ -897,13 +897,14 @@ Bool_t TKinFitter::calcDeltaA() {
 
   TMatrixD deltaA( _C32T, TMatrixD::kMult, _c );
   _deltaA.ResizeTo( deltaA );
-  _deltaA = deltaA;
 
   if (_nbIter == 0) {
     _deltaAstar.ResizeTo(deltaA);
     _deltaAstar.Zero();
   } else
     _deltaAstar = _deltaA;
+
+  _deltaA = deltaA;
 
   return true;
 
@@ -915,13 +916,14 @@ Bool_t TKinFitter::calcDeltaY() {
 
   TMatrixD deltaY( _C31T, TMatrixD::kMult, _c );
   _deltaY.ResizeTo( deltaY );
-  _deltaY = deltaY;
 
   if (_nbIter == 0) {
     _deltaYstar.ResizeTo(deltaY);
     _deltaYstar.Zero();
   } else
     _deltaYstar = _deltaY;
+
+  _deltaY = deltaY;
 
   return true;
 
