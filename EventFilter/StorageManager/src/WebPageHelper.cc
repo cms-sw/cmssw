@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.43 2010/02/15 15:12:06 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.44 2010/02/16 10:49:37 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1884,14 +1884,23 @@ void WebPageHelper::addDOMforDQMEventStatistics(XHTMLMaker& maker,
   }
 
 
-  // DQM events received 
+  // DQM events processed
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  maker.addText(tableDiv, "DQM events received");
+  maker.addText(tableDiv, "DQM events processed");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addInt( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::FULL) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addInt( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::RECENT) );
+
+  // DQM events lost
+  tableRow = maker.addNode("tr", table, _rowAttr);
+  tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
+  maker.addText(tableDiv, "DQM events discarded");
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addDouble( tableDiv, stats.discardedDQMEventCountsStats.getValueSum(MonitoredQuantity::FULL), 0 );
+  tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
+  maker.addDouble( tableDiv, stats.discardedDQMEventCountsStats.getValueSum(MonitoredQuantity::RECENT), 0 );
 
   // Average updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
