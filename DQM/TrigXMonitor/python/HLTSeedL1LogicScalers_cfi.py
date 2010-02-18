@@ -9,7 +9,8 @@ hltSeedL1Logic = cms.EDAnalyzer('HLTSeedL1LogicScalers',
     l1BeforeMask = cms.untracked.bool(True),
     monitorPaths = cms.vstring(
             'HLT_L1MuOpen',
-            'HLT_Mu3' 
+            'HLT_L1Mu',
+            'HLT_Mu3'
       )
 
 )
