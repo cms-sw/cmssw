@@ -29,7 +29,6 @@ process.prodstrip = cms.EDFilter("SiStripDetInfoFileWriter",
 
 process.prodpixel = cms.EDFilter("SiPixelDetInfoFileWriter",
     FilePath = cms.untracked.string('PixelSkimmedGeometry_phase1.txt'),
-    WriteROCInfo = cms.untracked.bool(True)
 )
 
 process.asciiPrint = cms.OutputModule("AsciiOutputModule")
