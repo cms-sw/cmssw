@@ -197,11 +197,13 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
 
   double arglist[10];
   int ierflg;
+  int smierflg; //second MIGRAD ierflg
 
   // chi^2 errors should be 1.0, log-likelihood should be 0.5
   for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
   arglist[0] = 0.5;
   ierflg = 0;
+  smierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("SET ERR", arglist, 1, ierflg);
   if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
 
@@ -226,9 +228,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
     // minimize
     for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
     arglist[0] = 50000;
-    ierflg = 0;
-    MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, ierflg);
-    if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
+    MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, smierflg);
   }
 
   Double_t fmin, fedm, errdef;
@@ -255,6 +255,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
 
   delete MuonResidualsFitter_TMinuit;
   delete fitinfo;
+  if (smierflg != 0) return false;
   return true;
 }
 
