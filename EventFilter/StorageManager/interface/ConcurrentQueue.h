@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.6 2010/02/15 15:10:57 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.7 2010/02/18 11:22:25 mommsen Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -41,8 +41,8 @@ namespace stor
         not put onto the FIFO.
    
      $Author: mommsen $
-     $Revision: 1.6 $
-     $Date: 2010/02/15 15:10:57 $
+     $Revision: 1.7 $
+     $Date: 2010/02/18 11:22:25 $
    */
 
 
@@ -154,7 +154,7 @@ namespace stor
     {
       size_type elements_removed(0);
       detail::memory_type item_size = detail::_memory_usage(item);
-      while (size==capacity || used+item_size > memory) 
+      while ( (size==capacity || used+item_size > memory) && !elements.empty() )
         {
           sequence_type holder;
           // Move the item out of elements in a manner that will not throw.
@@ -164,10 +164,19 @@ namespace stor
           used -= detail::_memory_usage( holder.front() );
           ++elements_removed;
         }
-      elements.push_back(item);
-      ++size;
-      used += item_size;
-      nonempty.notify_one();
+      if (size < capacity && used+item_size <= memory)
+        // we succeeded to make enough room for the new element
+      {
+        elements.push_back(item); 
+        ++size;
+        used += item_size;
+        nonempty.notify_one();
+      }
+      else
+      {
+        // we cannot add the new element
+        ++elements_removed;
+      }
       return elements_removed;
     }
   };
@@ -190,7 +199,6 @@ namespace stor
                               detail::memory_type& memory,
                               boost::condition& nonempty)
     {
-      bool success(false);
       detail::memory_type item_size = detail::_memory_usage(item);
       if (size < capacity && used+item_size <= memory)
         {
@@ -198,9 +206,9 @@ namespace stor
           ++size;
           used += item_size;
           nonempty.notify_one();
-          success = true;
+          return true;
         }
-      return success;
+      return false;
     }
   };
 
