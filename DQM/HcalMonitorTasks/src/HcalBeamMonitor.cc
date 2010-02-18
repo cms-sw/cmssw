@@ -1013,13 +1013,15 @@ void HcalBeamMonitor::endLuminosityBlock()
   if (LBprocessed_==true)
     return;
   float Nentries=HFlumi_occ_LS->getBinContent(-1,-1);
-  if (Online_ && Nentries<beammon_minEvents_) 
+  if (Nentries<beammon_minEvents_) 
 
     {
       // not enough entries to determine status; fill everything with -1 and return
       HFlumi_Ring1Status_vs_LS->Fill(lumiblock,-1);
       HFlumi_Ring2Status_vs_LS->Fill(lumiblock,-1);
-      // write to output file if required
+      if (Online_==false)
+	return;
+      // write to output file if required (Online running)
       if (beammon_lumiqualitydir_.size()==0)
 	return;
       // dump out lumi quality file
@@ -1029,6 +1031,7 @@ void HcalBeamMonitor::endLuminosityBlock()
       return;
     }
   if (Nentries==0) return;
+
 
   HFlumi_total_deadcells->Fill(-1,-1,1); // counts good lumi sections in underflow bin
   HFlumi_total_hotcells->Fill(-1,-1,1);

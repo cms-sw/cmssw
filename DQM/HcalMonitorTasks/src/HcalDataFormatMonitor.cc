@@ -6,6 +6,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalDataFormatMonitor::HcalDataFormatMonitor() {
+
   // Initialize an array of MonitorElements
   meChann_DataIntegrityCheck_[0] =meCh_DataIntegrityFED00_;
   meChann_DataIntegrityCheck_[1] =meCh_DataIntegrityFED01_;
