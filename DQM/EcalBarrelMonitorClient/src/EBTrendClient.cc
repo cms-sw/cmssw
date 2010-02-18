@@ -1,8 +1,8 @@
 /*
  * \file EBTrendClient.cc
  *
- * $Date: 2010/02/08 21:32:48 $
- * $Revision: 1.1 $
+ * $Date: 2010/02/12 17:02:41 $
+ * $Revision: 1.2 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -228,8 +228,8 @@ void EBTrendClient::analyze(const Event& e, const EventSetup& c){
 
   long int minuteBinDiff = -1;
   long int minuteDiff = -1;
-  //  ecaldqm::calcBins(5,60,start_time_,last_time_,current_time_,minuteBinDiff,minuteDiff);
-  ecaldqm::calcBins(5,1,start_time_,last_time_,current_time_,minuteBinDiff,minuteDiff);
+  //  ecaldqm::calcBins(5,1,start_time_,last_time_,current_time_,minuteBinDiff,minuteDiff);
+  ecaldqm::calcBins(5,60,start_time_,last_time_,current_time_,minuteBinDiff,minuteDiff);
 
   if(minuteBinDiff <= 0) return;
 
