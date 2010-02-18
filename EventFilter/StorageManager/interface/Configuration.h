@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.15 2010/01/29 15:41:14 mommsen Exp $
+// $Id: Configuration.h,v 1.16 2010/02/09 14:50:19 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -87,9 +87,12 @@ namespace stor
   {
     unsigned int _commandQueueSize;
     unsigned int _dqmEventQueueSize;
+    unsigned int _dqmEventQueueMemoryLimitMB;
     unsigned int _fragmentQueueSize;
+    unsigned int _fragmentQueueMemoryLimitMB;
     unsigned int _registrationQueueSize;
     unsigned int _streamQueueSize;
+    unsigned int _streamQueueMemoryLimitMB;
   };
 
   /**
@@ -154,8 +157,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2010/01/29 15:41:14 $
+   * $Revision: 1.16 $
+   * $Date: 2010/02/09 14:50:19 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -360,9 +363,12 @@ namespace stor
 
     xdata::UnsignedInteger32 _commandQueueSize;
     xdata::UnsignedInteger32 _dqmEventQueueSize;
+    xdata::UnsignedInteger32 _dqmEventQueueMemoryLimitMB;
     xdata::UnsignedInteger32 _fragmentQueueSize;
+    xdata::UnsignedInteger32 _fragmentQueueMemoryLimitMB;
     xdata::UnsignedInteger32 _registrationQueueSize;
     xdata::UnsignedInteger32 _streamQueueSize;
+    xdata::UnsignedInteger32 _streamQueueMemoryLimitMB;
 
     xdata::Double _FPdeqWaitTime;
     xdata::Double _DWdeqWaitTime;

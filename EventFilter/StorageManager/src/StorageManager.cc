@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.123 2010/02/09 14:52:45 mommsen Exp $
+// $Id: StorageManager.cc,v 1.124 2010/02/16 10:49:37 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -40,7 +40,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.123 2010/02/09 14:52:45 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.124 2010/02/16 10:49:37 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -171,13 +171,13 @@ void StorageManager::initializeSharedResources()
   _sharedResources->_commandQueue.
     reset(new CommandQueue(queueParams._commandQueueSize));
   _sharedResources->_fragmentQueue.
-    reset(new FragmentQueue(queueParams._fragmentQueueSize));
+    reset(new FragmentQueue(queueParams._fragmentQueueSize, queueParams._fragmentQueueMemoryLimitMB * 1024*1024));
   _sharedResources->_registrationQueue.
     reset(new RegistrationQueue(queueParams._registrationQueueSize));
   _sharedResources->_streamQueue.
-    reset(new StreamQueue(queueParams._streamQueueSize));
+    reset(new StreamQueue(queueParams._streamQueueSize, queueParams._streamQueueMemoryLimitMB * 1024*1024));
   _sharedResources->_dqmEventQueue.
-    reset(new DQMEventQueue(queueParams._dqmEventQueueSize));
+    reset(new DQMEventQueue(queueParams._dqmEventQueueSize, queueParams._dqmEventQueueMemoryLimitMB * 1024*1024));
 
   _sharedResources->_statisticsReporter.reset(
     new StatisticsReporter(this, _sharedResources->_configuration->

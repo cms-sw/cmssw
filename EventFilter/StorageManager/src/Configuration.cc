@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.24 2010/02/09 14:51:09 mommsen Exp $
+// $Id: Configuration.cc,v 1.25 2010/02/16 10:49:36 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -225,9 +225,12 @@ namespace stor
   {
     _queueConfigParamCopy._commandQueueSize = 128;
     _queueConfigParamCopy._dqmEventQueueSize = 3072;
+    _queueConfigParamCopy._dqmEventQueueMemoryLimitMB = 9999;
     _queueConfigParamCopy._fragmentQueueSize = 1024;
+    _queueConfigParamCopy._fragmentQueueMemoryLimitMB = 9999;
     _queueConfigParamCopy._registrationQueueSize = 128;
     _queueConfigParamCopy._streamQueueSize = 2048;
+    _queueConfigParamCopy._streamQueueMemoryLimitMB = 9999;
   }
 
   void Configuration::setWorkerThreadDefaults()
@@ -370,17 +373,23 @@ namespace stor
     // copy the initial defaults to the xdata variables
     _commandQueueSize = _queueConfigParamCopy._commandQueueSize;
     _dqmEventQueueSize = _queueConfigParamCopy._dqmEventQueueSize;
+    _dqmEventQueueMemoryLimitMB = _queueConfigParamCopy._dqmEventQueueMemoryLimitMB;
     _fragmentQueueSize = _queueConfigParamCopy._fragmentQueueSize;
+    _fragmentQueueMemoryLimitMB = _queueConfigParamCopy._fragmentQueueMemoryLimitMB;
     _registrationQueueSize = _queueConfigParamCopy._registrationQueueSize;
     _streamQueueSize = _queueConfigParamCopy._streamQueueSize;
+    _streamQueueMemoryLimitMB = _queueConfigParamCopy._streamQueueMemoryLimitMB;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("commandQueueSize", &_commandQueueSize);
     infoSpace->fireItemAvailable("dqmEventQueueSize", &_dqmEventQueueSize);
+    infoSpace->fireItemAvailable("dqmEventQueueMemoryLimitMB", &_dqmEventQueueMemoryLimitMB);
     infoSpace->fireItemAvailable("fragmentQueueSize", &_fragmentQueueSize);
+    infoSpace->fireItemAvailable("fragmentQueueMemoryLimitMB", &_fragmentQueueMemoryLimitMB);
     infoSpace->fireItemAvailable("registrationQueueSize",
                                  &_registrationQueueSize);
     infoSpace->fireItemAvailable("streamQueueSize", &_streamQueueSize);
+    infoSpace->fireItemAvailable("streamQueueMemoryLimitMB", &_streamQueueMemoryLimitMB);
   }
 
   void Configuration::
@@ -495,9 +504,12 @@ namespace stor
   {
     _queueConfigParamCopy._commandQueueSize = _commandQueueSize;
     _queueConfigParamCopy._dqmEventQueueSize = _dqmEventQueueSize;
+    _queueConfigParamCopy._dqmEventQueueMemoryLimitMB = _dqmEventQueueMemoryLimitMB;
     _queueConfigParamCopy._fragmentQueueSize = _fragmentQueueSize;
+    _queueConfigParamCopy._fragmentQueueMemoryLimitMB = _fragmentQueueMemoryLimitMB;
     _queueConfigParamCopy._registrationQueueSize = _registrationQueueSize;
     _queueConfigParamCopy._streamQueueSize = _streamQueueSize;
+    _queueConfigParamCopy._streamQueueMemoryLimitMB = _streamQueueMemoryLimitMB;
   }
 
   void Configuration::updateLocalWorkerThreadData()
