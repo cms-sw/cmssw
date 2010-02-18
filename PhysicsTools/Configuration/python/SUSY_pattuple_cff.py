@@ -16,7 +16,7 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Su
     if mcVersion:
 	theJetNames = ['IC5','SC5','AK5PF','AK5JPT','AK5Track']
     loadPAT(process,JetMetCorrections)
-    addJetMET(process,theJetNames)
+    addJetMET(process,theJetNames,mcVersion)
     loadPATTriggers(process,HLTMenu)
     loadPF2PAT(process,mcInfo)
     if mcVersion == '31x' and mcInfo:
@@ -144,12 +144,15 @@ def addSUSYJetCollection(process,jets = 'IC5',doJTA=False,doType1MET=False,doJet
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
-def addJetMET(process,theJetNames):
+def addJetMET(process,theJetNames,mcVersion):
     
     #-- Jet plus tracks -----------------------------------------------------------
     #process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
     # Fiddle because of broken corrections in PAT
-    process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
+    if mcVersion == '31x':
+	process.load("JetMETCorrections.Configuration.ZSPJetCorrections31X_cff")
+    else:
+    	process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
     process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
     
     process.jptCaloJets = cms.Sequence(
