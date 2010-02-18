@@ -6,5 +6,5 @@ triggerResultsFilter = cms.EDFilter('TriggerResultsFilter',
     l1tIgnoreMask = cms.bool(False),                    # use L1 mask
     daqPartitions = cms.uint32(0x01),                   # used by the definition of the L1 mask
     throw         = cms.bool(True),                     # throw exception on unknown trigger names
-    triggerConditions = cms.string('HLT_*')
+    triggerConditions = cms.vstring( 'HLT_*' )
 )

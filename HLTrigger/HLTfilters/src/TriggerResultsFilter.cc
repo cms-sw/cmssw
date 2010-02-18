@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/25 14:06:11 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/18 14:43:54 $
+ *  $Revision: 1.10.2.1 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 #include <boost/foreach.hpp>
@@ -38,12 +39,19 @@ TriggerResultsFilter::TriggerResultsFilter(const edm::ParameterSet & config) :
   m_eventCache(config)
 {
   // parse the logical expressions into functionals
-  std::string expression( config.getParameter<std::string>("triggerConditions") );
-  m_expression = triggerExpression::parse( expression );
+  const std::vector<std::string> & expressions = config.getParameter<std::vector<std::string> >("triggerConditions");
+  if (expressions.size() == 0) {
+    edm::LogWarning("Configuration") << "Empty trigger results expression";
+  } else if (expressions.size() == 1) {
+    parse( expressions[0] );
+  } else {
+    std::stringstream expression;
+    expression << "(" << expressions[0] << ")";
+    for (unsigned int i = 1; i < expressions.size(); ++i)
+      expression << " OR (" << expressions[i] << ")";
+    parse( expression.str() );
+  }
 
-  // check if the expressions were parsed correctly
-  if (not m_expression)
-    edm::LogWarning("Configuration") << "Couldn't parse trigger results expression \"" << expression << "\"" << std::endl;
 }
 
 TriggerResultsFilter::~TriggerResultsFilter()
@@ -51,11 +59,15 @@ TriggerResultsFilter::~TriggerResultsFilter()
   delete m_expression;
 }
 
-//
-// member functions
-//
+void TriggerResultsFilter::parse(const std::string & expression) {
+  // parse the logical expressions into functionals
+  m_expression = triggerExpression::parse( expression );
 
-// ------------ method called to produce the data  ------------
+  // check if the expressions were parsed correctly
+  if (not m_expression)
+    edm::LogWarning("Configuration") << "Couldn't parse trigger results expression \"" << expression << "\"";
+}
+
 bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & setup)
 {
   if (not m_expression)
