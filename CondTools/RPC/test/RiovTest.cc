@@ -1,7 +1,7 @@
 //
 // Original Author:  Davide Pagano
 //         Created:  Wed May 20 12:47:20 CEST 2009
-// $Id: RiovTest.cc,v 1.9 2009/05/26 15:19:03 dpagano Exp $
+// $Id: RiovTest.cc,v 1.10 2009/05/26 18:43:34 dpagano Exp $
 //
 //
 
@@ -73,7 +73,12 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::cout << "=== Event " << iEvent.id().event() << " ===" << std::endl;
    TimeValue_t timeD = iEvent.time().value();
    std::cout << "DAQ  = " << timeD << std::endl;
-   timeval tmval=(timeval&)timeD;
+   //timeval tmval=(timeval&)timeD;
+   timeval tmval;
+   unsigned int timelow=static_cast<unsigned int>(0xFFFFFFFF & timeD);
+   unsigned int timehigh=static_cast<unsigned int>(timeD >> 32);
+   tmval.tv_sec=timehigh;
+   tmval.tv_usec=timelow;
    unsigned long long int timeU;
    timeU = (tmval.tv_usec*1000000LL)+tmval.tv_sec;
    timeU = (unsigned long long int)trunc(timeU/1000000);
@@ -92,7 +97,8 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      max_I = list->max_I;
    } else if (timeU < min_I || timeU > max_I) {
      imon_ = list->getImon();
-     for(std::vector<RPCObImon::I_Item>::iterator it = imon_.begin(); it < imon_.end(); ++it)
+     for(std::vector<RPCObImon::I_Item>::iterator it = imon_.begin(); it <
+imon_.end(); ++it)
        imon.push_back(*it);
      if (min_I > list->min_I) min_I = list->min_I;
      if (max_I < list->max_I) max_I = list->max_I;
@@ -104,7 +110,8 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      max_V = list->max_V;
    } else if (timeU < min_V || timeU > max_V) {
      vmon_ = list->getVmon();
-     for(std::vector<RPCObVmon::V_Item>::iterator itV = vmon_.begin(); itV < vmon_.end(); ++itV)
+     for(std::vector<RPCObVmon::V_Item>::iterator itV = vmon_.begin(); itV <
+vmon_.end(); ++itV)
        vmon.push_back(*itV);
      if (min_V > list->min_V) min_V = list->min_I;
      if (max_V < list->max_V) max_V = list->max_I;
@@ -116,7 +123,8 @@ RiovTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      max_T = list->max_T;
    } else if (timeU < min_T || timeU > max_T) {
      temp_ = list->getTemp();
-     for(std::vector<RPCObTemp::T_Item>::iterator itT = temp_.begin(); itT < temp_.end(); ++itT)
+     for(std::vector<RPCObTemp::T_Item>::iterator itT = temp_.begin(); itT <
+temp_.end(); ++itT)
        temp.push_back(*itT);
      if (min_T > list->min_T) min_T = list->min_T;
      if (max_T < list->max_T) max_T = list->max_T;
