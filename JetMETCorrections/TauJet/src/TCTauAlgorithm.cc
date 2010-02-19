@@ -208,6 +208,8 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
         math::XYZTLorentzVector p4(0,0,0,0);
 	algoComponentUsed = TCAlgoUndetermined;
 
+	if(!dropRejected) p4 = caloJet.p4();
+
         if(leadTk.isNull()) return p4;
 
 	XYZVector momentum(0,0,0);

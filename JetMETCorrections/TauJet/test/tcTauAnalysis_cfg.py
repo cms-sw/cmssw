@@ -25,6 +25,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 process.load("JetMETCorrections/TauJet/TCTauProducer_cff")
 #process.tcRecoTauProducer.DropCaloJets = cms.untracked.bool(True)
+#process.tcRecoTauProducer.DropRejectedJets = cms.untracked.bool(False)
 
 process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauAnalysis",
 
