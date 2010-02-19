@@ -451,9 +451,10 @@ class OfflineValidationDQM(OfflineValidation):
     def getRepMap(self, alignment = None):
         repMap = OfflineValidation.getRepMap(self, alignment)
         repMap.update({
-                "offlineValidationMode": "Dqm",
+                "workdir": os.path.expandvars(repMap["workdir"]),
+		"offlineValidationMode": "Dqm",
                 "offlineValidationFileOutput": configTemplates.offlineDqmFileOutputTemplate,
-                "workflow": "/%s/TkAl_.oO[alignmentName]Oo._R%09i_R%09i/ALCARECO"%(self.__PrimaryDataset, self.__firstRun, self.__lastRun),
+                "workflow": "/%s/TkAl%s-.oO[alignmentName]Oo._R%09i_R%09i_ValSkim-v1/ALCARECO"%(self.__PrimaryDataset, datetime.datetime.now().strftime("%y"), self.__firstRun, self.__lastRun),
                 "firstRunNumber": "%i"% self.__firstRun
                 }
             )
