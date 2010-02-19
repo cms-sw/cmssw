@@ -3,63 +3,74 @@ import FWCore.ParameterSet.Config as cms
 from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 import copy
 
-goodZToMuMuVtxedAtLeast1HLT = cms.EDProducer(
+#### vertex refit for loose cut
+
+goodZToMuMuVtxedAtLeast1HLTLoose = cms.EDProducer(
     "KalmanVertexFitCompositeCandProducer",
-    src = cms.InputTag("goodZToMuMuAtLeast1HLT")
+    src = cms.InputTag("goodZToMuMuAtLeast1HLTLoose")
 )
 
-
-goodZToMuMuVtxed2HLT = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-goodZToMuMuVtxed2HLT.src = cms.InputTag("goodZToMuMu2HLT")
-goodZToMuMu2HLTSequence.__iadd__(goodZToMuMuVtxed2HLT)
-goodZToMuMu2HLTSequence.setLabel("goodZToMuMu2HLT")
+goodZToMuMuPathLoose.__iadd__(goodZToMuMuVtxedAtLeast1HLTLoose)
+goodZToMuMuPathLoose.setLabel("goodZToMuMuLoose")
 
 
-goodZToMuMuVtxed1HLT = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-goodZToMuMuVtxed1HLT.src = cms.InputTag("goodZToMuMu1HLT")
-goodZToMuMu1HLTSequence.__iadd__(goodZToMuMuVtxed1HLT)
-goodZToMuMu1HLTSequence.setLabel("goodZToMuMu1HLT")
-
-oneNonIsolatedZToMuMuVtxed= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-oneNonIsolatedZToMuMuVtxed.src= cms.InputTag("oneNonIsolatedZToMuMuAtLeast1HLT")
-oneNonIsolatedZToMuMuSequence.__iadd__(oneNonIsolatedZToMuMuVtxed)
-oneNonIsolatedZToMuMuSequence.setLabel("oneNonIsolatedZToMuMu")
-
-twoNonIsolatedZToMuMuVtxed = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-twoNonIsolatedZToMuMuVtxed.src = cms.InputTag("twoNonIsolatedZToMuMuAtLeast1HLT")
-twoNonIsolatedZToMuMuSequence.__iadd__(twoNonIsolatedZToMuMuVtxed)
-twoNonIsolatedZToMuMuSequence.setLabel("twoNonIsolatedZToMuMu")
-
-goodZToMuMuSameCharge2HLTVtxed= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-goodZToMuMuSameCharge2HLTVtxed.src = cms.InputTag("goodZToMuMuSameCharge2HLT")
-goodZToMuMuSameCharge2HLTSequence.__iadd__(goodZToMuMuSameCharge2HLTVtxed)
-goodZToMuMuSameCharge2HLTSequence.setLabel("goodZToMuMuSameCharge2HLT")
+goodZToMuMuVtxed2HLTLoose = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
+goodZToMuMuVtxed2HLTLoose.src = cms.InputTag("goodZToMuMu2HLTLoose")
+goodZToMuMu2HLTPathLoose.__iadd__(goodZToMuMuVtxed2HLTLoose)
+goodZToMuMu2HLTPathLoose.setLabel("goodZToMuMu2HLTLoose")
 
 
-goodZToMuMuSameCharge1HLTVtxed= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-goodZToMuMuSameCharge1HLTVtxed.src = cms.InputTag("goodZToMuMuSameCharge1HLT")
-goodZToMuMuSameCharge1HLTSequence.__iadd__(goodZToMuMuSameCharge1HLTVtxed)
-goodZToMuMuSameCharge1HLTSequence.setLabel("goodZToMuMuSameCharge1HLT")
+goodZToMuMuVtxed1HLTLoose = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
+goodZToMuMuVtxed1HLTLoose.src = cms.InputTag("goodZToMuMu1HLTLoose")
+goodZToMuMu1HLTPathLoose.__iadd__(goodZToMuMuVtxed1HLTLoose)
+goodZToMuMu1HLTPathLoose.setLabel("goodZToMuMu1HLTLoose")
+
+## oneNonIsolatedZToMuMuVtxed= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
+## oneNonIsolatedZToMuMuVtxed.src= cms.InputTag("oneNonIsolatedZToMuMuAtLeast1HLT")
+## oneNonIsolatedZToMuMuPath.__iadd__(oneNonIsolatedZToMuMuVtxed)
+## oneNonIsolatedZToMuMuPath.setLabel("oneNonIsolatedZToMuMu")
+
+## twoNonIsolatedZToMuMuVtxed = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
+## twoNonIsolatedZToMuMuVtxed.src = cms.InputTag("twoNonIsolatedZToMuMuAtLeast1HLT")
+## twoNonIsolatedZToMuMuPath.__iadd__(twoNonIsolatedZToMuMuVtxed)
+## twoNonIsolatedZToMuMuPath.setLabel("twoNonIsolatedZToMuMu")
+
+## goodZToMuMuSameCharge2HLTVtxedLoose= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
+## goodZToMuMuSameCharge2HLTVtxedLoose.src = cms.InputTag("goodZToMuMuSameCharge2HLTLoose")
+## goodZToMuMuSameCharge2HLTPathLoose.__iadd__(goodZToMuMuSameCharge2HLTVtxedLoose)
+## goodZToMuMuSameCharge2HLTPathLoose.setLabel("goodZToMuMuSameCharge2HLTLoose")
+
+
+## goodZToMuMuSameCharge1HLTVtxedLoose= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
+## goodZToMuMuSameCharge1HLTVtxedLoose.src = cms.InputTag("goodZToMuMuSameCharge1HLTLoose")
+## goodZToMuMuSameCharge1HLTPathLoose.__iadd__(goodZToMuMuSameCharge1HLTVtxedLoose)
+## goodZToMuMuSameCharge1HLTPathLoose.setLabel("goodZToMuMuSameCharge1HLTLoose")
+
+
+goodZToMuMuSameChargeVtxedLoose= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
+goodZToMuMuSameChargeVtxedLoose.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLTLoose")
+goodZToMuMuSameChargePathLoose.__iadd__(goodZToMuMuSameChargeVtxedLoose)
+goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
 
 
 
-goodZToMuMuOneStandAloneVtxed= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-goodZToMuMuOneStandAloneVtxed.src = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLT")
-goodZToMuMuOneStandAloneMuonSequence.__iadd__(goodZToMuMuOneStandAloneVtxed)
-goodZToMuMuOneStandAloneMuonSequence.setLabel("goodZToMuMuOneStandAloneMuon")
+goodZToMuMuOneStandAloneVtxedLoose= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
+goodZToMuMuOneStandAloneVtxedLoose.src = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLTLoose")
+goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuOneStandAloneVtxedLoose)
+goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
 
-goodZToMuMuOneTrackVtxed= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
-goodZToMuMuOneTrackVtxed.src = cms.InputTag("goodZToMuMuOneTrackFirstHLT")
-goodZToMuMuOneTrackSequence.__iadd__(goodZToMuMuOneTrackVtxed)
-goodZToMuMuOneTrackSequence.setLabel("goodZToMuMuOneTrack")
+goodZToMuMuOneTrackVtxedLoose= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
+goodZToMuMuOneTrackVtxedLoose.src = cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
+goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackVtxedLoose)
+goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 
 
 ### ntuples....
 
-goodZToMuMuVtxedNtuple = cms.EDProducer(
+goodZToMuMuVtxedNtupleLoose = cms.EDProducer(
     "CandViewNtpProducer",
-    src = cms.InputTag("goodZToMuMuVtxed"),
+    src = cms.InputTag("goodZToMuMuVtxedLoose"),
     variables = cms.VPSet(
       cms.PSet(
         tag = cms.untracked.string("mass"),
@@ -77,82 +88,255 @@ goodZToMuMuVtxedNtuple = cms.EDProducer(
 )
 
 
-goodZToMuMuVtxed2HLTNtuple = copy.deepcopy(goodZToMuMuVtxedNtuple)
-goodZToMuMuVtxed2HLTNtuple.src= cms.InputTag("goodZToMuMuVtxed2HLT")
-goodZToMuMu2HLTSequence.__iadd__(goodZToMuMuVtxed2HLTNtuple)
-goodZToMuMu2HLTSequence.setLabel("goodZToMuMu2HLT")
+goodZToMuMuVtxed2HLTNtupleLoose = copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
+goodZToMuMuVtxed2HLTNtupleLoose.src= cms.InputTag("goodZToMuMuVtxed2HLTLoose")
+goodZToMuMu2HLTPathLoose.__iadd__(goodZToMuMuVtxed2HLTNtupleLoose)
+goodZToMuMu2HLTPathLoose.setLabel("goodZToMuMu2HLTLoose")
 
 
-goodZToMuMuVtxed1HLTNtuple = copy.deepcopy(goodZToMuMuVtxedNtuple)
-goodZToMuMuVtxed1HLTNtuple.src= cms.InputTag("goodZToMuMuVtxed1HLT")
-goodZToMuMu1HLTSequence.__iadd__(goodZToMuMuVtxed1HLTNtuple)
-goodZToMuMu1HLTSequence.setLabel("goodZToMuMu1HLT")
+goodZToMuMuVtxed1HLTNtupleLoose = copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
+goodZToMuMuVtxed1HLTNtupleLoose.src= cms.InputTag("goodZToMuMuVtxed1HLTLoose")
+goodZToMuMu1HLTPathLoose.__iadd__(goodZToMuMuVtxed1HLTNtupleLoose)
+goodZToMuMu1HLTPathLoose.setLabel("goodZToMuMu1HLTLoose")
 
-oneNonIsolatedZToMuMuVtxedNtuple = copy.deepcopy(goodZToMuMuVtxedNtuple)
-oneNonIsolatedZToMuMuVtxedNtuple.src = cms.InputTag("oneNonIsolatedZToMuMuVtxed")
-oneNonIsolatedZToMuMuSequence.__iadd__(oneNonIsolatedZToMuMuVtxedNtuple)
-oneNonIsolatedZToMuMuSequence.setLabel("oneNonIsolatedZToMuMu")
+## oneNonIsolatedZToMuMuVtxedNtuple = copy.deepcopy(goodZToMuMuVtxedNtuple)
+## oneNonIsolatedZToMuMuVtxedNtuple.src = cms.InputTag("oneNonIsolatedZToMuMuVtxed")
+## oneNonIsolatedZToMuMuPath.__iadd__(oneNonIsolatedZToMuMuVtxedNtuple)
+## oneNonIsolatedZToMuMuPath.setLabel("oneNonIsolatedZToMuMu")
 
-twoNonIsolatedZToMuMuVtxedNtuple = copy.deepcopy(goodZToMuMuVtxedNtuple)
-twoNonIsolatedZToMuMuVtxedNtuple.src = cms.InputTag("twoNonIsolatedZToMuMuVtxed")
-twoNonIsolatedZToMuMuSequence.__iadd__(twoNonIsolatedZToMuMuVtxedNtuple)
-twoNonIsolatedZToMuMuSequence.setLabel("twoNonIsolatedZToMuMu")
+## twoNonIsolatedZToMuMuVtxedNtuple = copy.deepcopy(goodZToMuMuVtxedNtuple)
+## twoNonIsolatedZToMuMuVtxedNtuple.src = cms.InputTag("twoNonIsolatedZToMuMuVtxed")
+## twoNonIsolatedZToMuMuPath.__iadd__(twoNonIsolatedZToMuMuVtxedNtuple)
+## twoNonIsolatedZToMuMuPath.setLabel("twoNonIsolatedZToMuMu")
 
-goodZToMuMuVtxedSameCharge2HLTNtuple= copy.deepcopy(goodZToMuMuVtxedNtuple)
-goodZToMuMuVtxedSameCharge2HLTNtuple.src = cms.InputTag("goodZToMuMuVtxedSameCharge2HLT")
-goodZToMuMuSameCharge2HLTSequence.__iadd__(goodZToMuMuVtxedSameCharge2HLTNtuple)
-goodZToMuMuSameCharge2HLTSequence.setLabel("goodZToMuMuVtxedSameCharge2HLT")
-
-
-goodZToMuMuVtxedSameCharge1HLTNtuple= copy.deepcopy(goodZToMuMuVtxedNtuple)
-goodZToMuMuVtxedSameCharge1HLTNtuple.src =  cms.InputTag("goodZToMuMuVtxedSameCharge1HLT")
-goodZToMuMuSameCharge1HLTSequence.__iadd__(goodZToMuMuVtxedSameCharge1HLTNtuple)
-goodZToMuMuSameCharge1HLTSequence.setLabel("goodZToMuMuSameCharge1HLT")
+## goodZToMuMuVtxedSameCharge2HLTNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
+## goodZToMuMuVtxedSameCharge2HLTNtupleLoose.src = cms.InputTag("goodZToMuMuVtxedSameCharge2HLTLoose")
+## goodZToMuMuSameCharge2HLTPathLoose.__iadd__(goodZToMuMuVtxedSameCharge2HLTNtupleLoose)
+## goodZToMuMuSameCharge2HLTPathLoose.setLabel("goodZToMuMuVtxedSameCharge2HLTLoose")
 
 
-goodZToMuMuVtxedOneStandAloneNtuple= copy.deepcopy(goodZToMuMuVtxedNtuple)
-goodZToMuMuVtxedOneStandAloneNtuple.src = cms.InputTag("goodZToMuMuOneStandAloneVtxed")
-goodZToMuMuOneStandAloneMuonSequence.__iadd__(goodZToMuMuVtxedOneStandAloneNtuple)
-goodZToMuMuOneStandAloneMuonSequence.setLabel("goodZToMuMuOneStandAloneMuon")
-
-goodZToMuMuVtxedOneTrackNtuple= copy.deepcopy(goodZToMuMuVtxedNtuple)
-goodZToMuMuVtxedOneTrackNtuple.src =cms.InputTag("goodZToMuMuOneTrackVtxed")
-goodZToMuMuOneTrackSequence.__iadd__(goodZToMuMuVtxedOneTrackNtuple)
-goodZToMuMuOneTrackSequence.setLabel("goodZToMuMuOneTrack")
+## goodZToMuMuVtxedSameCharge1HLTNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
+## goodZToMuMuVtxedSameCharge1HLTNtupleLoose.src =  cms.InputTag("goodZToMuMuVtxedSameCharge1HLTLoose")
+## goodZToMuMuSameCharge1HLTPathLoose.__iadd__(goodZToMuMuVtxedSameCharge1HLTNtupleLoose)
+## goodZToMuMuSameCharge1HLTPathLoose.setLabel("goodZToMuMuSameCharge1HLTLoose")
 
 
+goodZToMuMuVtxedSameChargeNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
+goodZToMuMuVtxedSameChargeNtupleLoose.src =  cms.InputTag("goodZToMuMuVtxedSameChargeAtLeast1HLTLoose")
+goodZToMuMuSameChargePathLoose.__iadd__(goodZToMuMuVtxedSameChargeNtupleLoose)
+goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
 
-VtxedNtuplesOut = cms.OutputModule(
+
+goodZToMuMuVtxedOneStandAloneNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
+goodZToMuMuVtxedOneStandAloneNtupleLoose.src = cms.InputTag("goodZToMuMuOneStandAloneVtxedLoose")
+goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuVtxedOneStandAloneNtupleLoose)
+goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
+
+goodZToMuMuVtxedOneTrackNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
+goodZToMuMuVtxedOneTrackNtupleLoose.src =cms.InputTag("goodZToMuMuOneTrackVtxedLoose")
+goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuVtxedOneTrackNtupleLoose)
+goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
+
+
+
+vtxedNtuplesOut = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string('VtxedNtuple_test.root'),
+    fileName = cms.untracked.string('VtxedNtupleLoose_test.root'),
     outputCommands = cms.untracked.vstring(
       "drop *",
 #      "keep *_goodZToMuMuOneStandAloneMuonNtuple_*_*",
-      "keep *_goodZToMuMuVtxedNtuple_*_*",
-      "keep *_goodZToMuMuVtxed1HLTNtuple_*_*",
-      "keep *_goodZToMuMuVtxed2HLTNtuple_*_*",
-      "keep *_goodZToMuMuVtxedSameCharge2HLTNtuple_*_*",
-      "keep *_goodZToMuMuVtxedSameCharge1HLTNtuple_*_*",
-      "keep *_nonIsolatedZToMuMuVtxedNtuple_*_*",
-      "keep *_oneNonIsolatedZToMuMuVtxedNtuple_*_*",
-      "keep *_twoNonIsolatedZToMuMuVtxedNtuple_*_*",
-      "keep *_goodZToMuMuVtxedOneStandAloneNtuple_*_*",
-      "keep *_goodZToMuMuVtxedOneTrackNtuple_*_*",
+      "keep *_goodZToMuMuVtxedNtupleLoose_*_*",
+      "keep *_goodZToMuMuVtxed1HLTNtupleLoose_*_*",
+      "keep *_goodZToMuMuVtxed2HLTNtupleLoose_*_*",
+#      "keep *_goodZToMuMuVtxedSameCharge2HLTNtupleLoose_*_*",
+      "keep *_goodZToMuMuVtxedSameChargeNtupleLoose_*_*",
+#      "keep *_nonIsolatedZToMuMuVtxedNtuple_*_*",
+#      "keep *_oneNonIsolatedZToMuMuVtxedNtuple_*_*",
+#      "keep *_twoNonIsolatedZToMuMuVtxedNtuple_*_*",
+      "keep *_goodZToMuMuVtxedOneStandAloneNtupleLoose_*_*",
+      "keep *_goodZToMuMuVtxedOneTrackNtupleLoose_*_*",
  #     "keep *_goodZToMuMu2HLTVtxedNtuple_*_*",
       
     ),
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring(
-        "goodZToMuMuPath",
-        "goodZToMuMu1HLTPath",
-        "goodZToMuMu2HLTPath",
-        "goodZToMuMuSameCharge2HLTPath",
-        "goodZToMuMuSameCharge1HLTPath",
-        "nonIsolatedZToMuMuPath",
-        "oneNonIsolatedZToMuMuPath",
-        "twoNonIsolatedZToMuMuPath",
-        "goodZToMuMuOneTrackPath",
-        "goodZToMuMuOneStandAloneMuonPath",
+        "goodZToMuMuPathLoose",
+        "goodZToMuMu1HLTPathLoose",
+        "goodZToMuMu2HLTPathLoose",
+#        "goodZToMuMuSameCharge2HLTPathLoose",
+        "goodZToMuMuSameChargePathLoose",
+ #       "nonIsolatedZToMuMuPath",
+ #       "oneNonIsolatedZToMuMuPath",
+ #       "twoNonIsolatedZToMuMuPath",
+        "goodZToMuMuOneTrackPathLoose",
+        "goodZToMuMuOneStandAloneMuonPathLoose",
       )
     )
 )
+
+
+vtxedNtuplesOut.setLabel("vtxedNtuplesOut")
+VtxedNtuplesOut.__iadd__(vtxedNtuplesOut)
+VtxedNtuplesOut.setLabel("VtxedNtuplesOut")
+
+
+## ## vertex refit for tight cut
+
+## goodZToMuMuVtxedAtLeast1HLTTight = cms.EDProducer(
+##     "KalmanVertexFitCompositeCandProducer",
+##     src = cms.InputTag("goodZToMuMuAtLeast1HLTTight")
+## )
+
+
+## goodZToMuMuVtxed2HLTTight = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## goodZToMuMuVtxed2HLTTight.src = cms.InputTag("goodZToMuMu2HLTTight")
+## goodZToMuMu2HLTPathTight.__iadd__(goodZToMuMuVtxed2HLTTight)
+## goodZToMuMu2HLTPathTight.setLabel("goodZToMuMu2HLTTight")
+
+
+## goodZToMuMuVtxed1HLTTight = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## goodZToMuMuVtxed1HLTTight.src = cms.InputTag("goodZToMuMu1HLTTight")
+## goodZToMuMu1HLTPathTight.__iadd__(goodZToMuMuVtxed1HLTTight)
+## goodZToMuMu1HLTPathTight.setLabel("goodZToMuMu1HLTTight")
+
+## oneNonIsolatedZToMuMuVtxedTight= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## oneNonIsolatedZToMuMuVtxedTight.src= cms.InputTag("oneNonIsolatedZToMuMuAtLeast1HLTTight")
+## oneNonIsolatedZToMuMuPathTight.__iadd__(oneNonIsolatedZToMuMuVtxedTight)
+## oneNonIsolatedZToMuMuPathTight.setLabel("oneNonIsolatedZToMuMuTight")
+
+## twoNonIsolatedZToMuMuVtxedTight = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## twoNonIsolatedZToMuMuVtxedTight.src = cms.InputTag("twoNonIsolatedZToMuMuAtLeast1HLTTight")
+## twoNonIsolatedZToMuMuPathTight.__iadd__(twoNonIsolatedZToMuMuVtxedTight)
+## twoNonIsolatedZToMuMuPathTight.setLabel("twoNonIsolatedZToMuMuTight")
+
+## goodZToMuMuSameCharge2HLTVtxedTight= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## goodZToMuMuSameCharge2HLTVtxedTight.src = cms.InputTag("goodZToMuMuSameCharge2HLTTight")
+## goodZToMuMuSameCharge2HLTPathTight.__iadd__(goodZToMuMuSameCharge2HLTVtxedTight)
+## goodZToMuMuSameCharge2HLTPathTight.setLabel("goodZToMuMuSameCharge2HLTTight")
+
+
+## goodZToMuMuSameCharge1HLTVtxedTight= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## goodZToMuMuSameCharge1HLTVtxedTight.src = cms.InputTag("goodZToMuMuSameCharge1HLTTight")
+## goodZToMuMuSameCharge1HLTPathTight.__iadd__(goodZToMuMuSameCharge1HLTVtxedTight)
+## goodZToMuMuSameCharge1HLTPathTight.setLabel("goodZToMuMuSameCharge1HLTTight")
+
+
+
+## goodZToMuMuOneStandAloneVtxedTight= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## goodZToMuMuOneStandAloneVtxedTight.src = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLTTight")
+## goodZToMuMuOneStandAloneMuonPathTight.__iadd__(goodZToMuMuOneStandAloneVtxedTight)
+## goodZToMuMuOneStandAloneMuonPathTight.setLabel("goodZToMuMuOneStandAloneMuonTight")
+
+## goodZToMuMuOneTrackVtxedTight= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTTight)
+## goodZToMuMuOneTrackVtxedTight.src = cms.InputTag("goodZToMuMuOneTrackFirstHLTTight")
+## goodZToMuMuOneTrackPathTight.__iadd__(goodZToMuMuOneTrackVtxedTight)
+## goodZToMuMuOneTrackPathTight.setLabel("goodZToMuMuOneTrackTight")
+
+
+
+## ### ntuples....
+
+## goodZToMuMuVtxedNtupleTight = cms.EDProducer(
+##     "CandViewNtpProducer",
+##     src = cms.InputTag("goodZToMuMuVtxedTight"),
+##     variables = cms.VPSet(
+##       cms.PSet(
+##         tag = cms.untracked.string("mass"),
+##         quantity = cms.untracked.string("mass")
+##       ),
+##        cms.PSet(
+##         tag = cms.untracked.string("vertexNdof"),
+##         quantity = cms.untracked.string("vertexNdof")
+##       ),
+##        cms.PSet(
+##         tag = cms.untracked.string("vertexNormalizedChi2"),
+##         quantity = cms.untracked.string("vertexNormalizedChi2")
+##       ),
+##     )
+## )
+
+
+## goodZToMuMuVtxed2HLTNtupleTight = copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## goodZToMuMuVtxed2HLTNtupleTight.src= cms.InputTag("goodZToMuMuVtxed2HLTTight")
+## goodZToMuMu2HLTPathTight.__iadd__(goodZToMuMuVtxed2HLTTightNtupleTight)
+## goodZToMuMu2HLTPathTight.setLabel("goodZToMuMu2HLTTight")
+
+
+## goodZToMuMuVtxed1HLTNtupleTight = copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## goodZToMuMuVtxed1HLTNtupleTight.src= cms.InputTag("goodZToMuMuVtxed1HLTTight")
+## goodZToMuMu1HLTPathTight.__iadd__(goodZToMuMuVtxed1HLTNtupleTight)
+## goodZToMuMu1HLTPathTight.setLabel("goodZToMuMu1HLTTight")
+
+## oneNonIsolatedZToMuMuVtxedNtupleTight = copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## oneNonIsolatedZToMuMuVtxedNtupleTight.src = cms.InputTag("oneNonIsolatedZToMuMuVtxedTight")
+## oneNonIsolatedZToMuMuPathTight.__iadd__(oneNonIsolatedZToMuMuVtxedNtupleTight)
+## oneNonIsolatedZToMuMuPathTight.setLabel("oneNonIsolatedZToMuMuTight")
+
+## twoNonIsolatedZToMuMuVtxedNtupleTight = copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## twoNonIsolatedZToMuMuVtxedNtupleTight.src = cms.InputTag("twoNonIsolatedZToMuMuVtxed")
+## twoNonIsolatedZToMuMuPathTight.__iadd__(twoNonIsolatedZToMuMuVtxedNtupleTight)
+## twoNonIsolatedZToMuMuPathTight.setLabel("twoNonIsolatedZToMuMuTight")
+
+## goodZToMuMuVtxedSameCharge2HLTNtupleTight= copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## goodZToMuMuVtxedSameCharge2HLTNtupleTight.src = cms.InputTag("goodZToMuMuVtxedSameCharge2HLTTight")
+## goodZToMuMuSameCharge2HLTPathTight.__iadd__(goodZToMuMuVtxedSameCharge2HLTNtupleTight)
+## goodZToMuMuSameCharge2HLTPathTight.setLabel("goodZToMuMuVtxedSameCharge2HLTTight")
+
+
+## goodZToMuMuVtxedSameCharge1HLTNtupleTight= copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## goodZToMuMuVtxedSameCharge1HLTNtupleTight.src =  cms.InputTag("goodZToMuMuVtxedSameCharge1HLTTight")
+## goodZToMuMuSameCharge1HLTPathTight.__iadd__(goodZToMuMuVtxedSameCharge1HLTNtupleTight)
+## goodZToMuMuSameCharge1HLTPathTight.setLabel("goodZToMuMuSameCharge1HLTTight")
+
+
+## goodZToMuMuVtxedOneStandAloneNtupleTight= copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## goodZToMuMuVtxedOneStandAloneNtupleTight.src = cms.InputTag("goodZToMuMuOneStandAloneVtxedTight")
+## goodZToMuMuOneStandAloneMuonPathTight.__iadd__(goodZToMuMuVtxedOneStandAloneNtupleTight)
+## goodZToMuMuOneStandAloneMuonPathTight.setLabel("goodZToMuMuOneStandAloneMuonTight")
+
+## goodZToMuMuVtxedOneTrackNtupleTight= copy.deepcopy(goodZToMuMuVtxedNtupleTight)
+## goodZToMuMuVtxedOneTrackNtupleTight.src =cms.InputTag("goodZToMuMuOneTrackVtxed")
+## goodZToMuMuOneTrackPathTight.__iadd__(goodZToMuMuVtxedOneTrackNtupleTight)
+## goodZToMuMuOneTrackPathTight.setLabel("goodZToMuMuOneTrackTight")
+
+
+
+## vtxedNtuplesOutTight = cms.OutputModule(
+##     "PoolOutputModule",
+##     fileName = cms.untracked.string('VtxedNtupleTight_test.root'),
+##     outputCommands = cms.untracked.vstring(
+##       "drop *",
+## #      "keep *_goodZToMuMuOneStandAloneMuonNtuple_*_*",
+##       "keep *_goodZToMuMuVtxedNtupleTight_*_*",
+##       "keep *_goodZToMuMuVtxed1HLTNtupleTight_*_*",
+##       "keep *_goodZToMuMuVtxed2HLTNtupleTight_*_*",
+##       "keep *_goodZToMuMuVtxedSameCharge2HLTNtupleTight_*_*",
+##       "keep *_goodZToMuMuVtxedSameCharge1HLTNtupleTight_*_*",
+##       "keep *_nonIsolatedZToMuMuVtxedNtupleTight_*_*",
+##       "keep *_oneNonIsolatedZToMuMuVtxedNtupleTight_*_*",
+##       "keep *_twoNonIsolatedZToMuMuVtxedNtupleTight_*_*",
+##       "keep *_goodZToMuMuVtxedOneStandAloneNtupleTight_*_*",
+##       "keep *_goodZToMuMuVtxedOneTrackNtupleTight_*_*",
+##  #     "keep *_goodZToMuMu2HLTVtxedNtuple_*_*",
+      
+##     ),
+##     SelectEvents = cms.untracked.PSet(
+##       SelectEvents = cms.vstring(
+##         "goodZToMuMuPathTight",
+##         "goodZToMuMu1HLTPathTight",
+##         "goodZToMuMu2HLTPathTight",
+##         "goodZToMuMuSameCharge2HLTPathTight",
+##         "goodZToMuMuSameCharge1HLTPathTight",
+##         "nonIsolatedZToMuMuPathTight",
+##         "oneNonIsolatedZToMuMuPathTight",
+##         "twoNonIsolatedZToMuMuPathTight",
+##         "goodZToMuMuOneTrackPathTight",
+##         "goodZToMuMuOneStandAloneMuonPathTight",
+##       )
+##     )
+## )
+
+
+## vtxedNtuplesOutTight.setLabel("vtxedNtuplesOutTight")
+## VtxedNtuplesOutTight.__iadd__(vtxedNtuplesOutTight)
+## VtxedNtuplesOutTight.setLabel("VtxedNtuplesOutTight")

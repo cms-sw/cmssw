@@ -14,100 +14,155 @@ from ElectroWeakAnalysis.ZMuMu.goodZToMuMuOneStandAloneMuon_cfi import *
 
 
 
-#ZMuMuCategoriesSequences= []
-#ZMuMuCategoriesLabels= []
+### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk and ZGoldenSameChar...
 
-goodZToMuMuSequence = cms.Sequence(
+goodZToMuMuPathLoose = cms.Path(
+    goodZToMuMuLoose +
+    goodZToMuMuAtLeast1HLTLoose
+    )
+
+goodZToMuMu2HLTPathLoose = cms.Path(
+    goodZToMuMuLoose +
+    goodZToMuMu2HLTLoose
+    )
+
+goodZToMuMu1HLTPathLoose = cms.Path(
+    goodZToMuMuLoose +
+    goodZToMuMu1HLTLoose
+    )
+
+
+goodZToMuMuSameChargePathLoose = cms.Path(
+    dimuonsGlobalSameChargeLoose+
+    goodZToMuMuSameChargeLoose +
+    goodZToMuMuSameChargeAtLeast1HLTLoose
+    )
+
+
+## goodZToMuMuSameCharge2HLTPathLoose = cms.Path(
+##     dimuonsGlobalSameChargeLoose+
+##     goodZToMuMuSameChargeLoose +
+##     goodZToMuMuSameCharge2HLTLoose
+##     )
+
+
+## goodZToMuMuSameCharge1HLTPathLoose = cms.Path(
+##     dimuonsGlobalSameChargeLoose+
+##     goodZToMuMuSameChargeLoose +
+##     goodZToMuMuSameCharge1HLTLoose
+##     )
+
+
+
+goodZToMuMuOneStandAloneMuonPathLoose = cms.Path(
+    ~goodZToMuMuLoose + 
+    zToMuMuOneStandAloneMuonLoose + 
+    goodZToMuMuOneStandAloneMuonLoose +
+    goodZToMuMuOneStandAloneMuonFirstHLTLoose 
+    )
+
+
+goodZToMuMuOneTrackPathLoose=cms.Path(
+    ~goodZToMuMuLoose +
+    ~zToMuMuOneStandAloneMuonLoose +
+    zToMuGlobalMuOneTrack +
+    zToMuMuOneTrackLoose +
+    goodZToMuMuOneTrackLoose +
+    goodZToMuMuOneTrackFirstHLTLoose 
+    )
+
+
+
+### sequences and path for tight cuts...
+
+
+
+goodZToMuMuPath = cms.Path(
+    goodZToMuMuLoose +
+    goodZToMuMuAtLeast1HLTLoose + 
     goodZToMuMu +
     goodZToMuMuAtLeast1HLT
     )
 
-#ZMuMuCategoriesLabels.append("goodZToMuMuAtLeast1HLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMuSequence)
 
-goodZToMuMu2HLTSequence = cms.Sequence(
+
+goodZToMuMu2HLTPath = cms.Path(
+    goodZToMuMuLoose +
+    goodZToMuMu2HLTLoose +
     goodZToMuMu +
     goodZToMuMu2HLT
     )
 
-#ZMuMuCategoriesLabels.append("goodZToMuMu2HLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMu2HLTSequence)
 
-goodZToMuMu1HLTSequence = cms.Sequence(
+goodZToMuMu1HLTPath = cms.Path(
+    goodZToMuMuLoose +
+    goodZToMuMu1HLTLoose +
     goodZToMuMu +
     goodZToMuMu1HLT
     )
 
-#ZMuMuCategoriesLabels.append("goodZToMuMu1HLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMu1HLTSequence)
 
 
-goodZToMuMuSameChargeSequence = cms.Sequence(
-    dimuonsGlobalSameCharge+
+goodZToMuMuSameChargePath = cms.Path(
+    dimuonsGlobalSameChargeLoose+
+    goodZToMuMuSameChargeLoose +
+    goodZToMuMuSameChargeAtLeast1HLTLoose +
     goodZToMuMuSameCharge +
     goodZToMuMuSameChargeAtLeast1HLT
     )
 
-#ZMuMuCategoriesLabels.append("goodZToMuMuSameChargeAtLeast1HLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMuSameChargeSequence)
 
-goodZToMuMuSameCharge2HLTSequence = cms.Sequence(
-    dimuonsGlobalSameCharge+
+goodZToMuMuSameCharge2HLTPath = cms.Path(
+    dimuonsGlobalSameChargeLoose+
+    goodZToMuMuSameChargeLoose +
+    goodZToMuMuSameChargeAtLeast1HLTLoose +
     goodZToMuMuSameCharge +
     goodZToMuMuSameCharge2HLT
     )
 
-#ZMuMuCategoriesLabels.append("goodZToMuMuSameCharge2HLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMuSameCharge2HLTSequence)
 
-goodZToMuMuSameCharge1HLTSequence = cms.Sequence(
-    dimuonsGlobalSameCharge+
+
+goodZToMuMuSameCharge1HLTPath = cms.Path(
+    dimuonsGlobalSameChargeLoose+
+    goodZToMuMuSameChargeLoose +
+    goodZToMuMuSameChargeAtLeast1HLTLoose +
     goodZToMuMuSameCharge +
     goodZToMuMuSameCharge1HLT
     )
 
-#ZMuMuCategoriesLabels.append("goodZToMuMuSameCharge1HLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMuSameCharge1HLTSequence)
 
 
-nonIsolatedZToMuMuSequence = cms.Sequence (
+nonIsolatedZToMuMuPath = cms.Path (
     nonIsolatedZToMuMu +
     nonIsolatedZToMuMuAtLeast1HLT 
 )
 
-#ZMuMuCategoriesLabels.append("nonIsolatedZToMuMuAtLeast1HLT")
-#ZMuMuCategoriesSequences.append(nonIsolatedZToMuMuSequence)
 
-oneNonIsolatedZToMuMuSequence = cms.Sequence(
-    nonIsolatedZToMuMu +
-    oneNonIsolatedZToMuMu +
-    oneNonIsolatedZToMuMuAtLeast1HLT 
+oneNonIsolatedZToMuMuPath  = cms.Path(
+    nonIsolatedZToMuMu  +
+    oneNonIsolatedZToMuMu  +
+    oneNonIsolatedZToMuMuAtLeast1HLT  
 )
 
-#ZMuMuCategoriesLabels.append("oneNonIsolatedZToMuMuAtLeast1HLT")
-#ZMuMuCategoriesSequences.append(oneNonIsolatedZToMuMuSequence)
 
-twoNonIsolatedZToMuMuSequence = cms.Sequence(
-    nonIsolatedZToMuMu +
-    twoNonIsolatedZToMuMu +
-    twoNonIsolatedZToMuMuAtLeast1HLT 
+twoNonIsolatedZToMuMuPath  = cms.Path(
+    nonIsolatedZToMuMu  +
+    twoNonIsolatedZToMuMu  +
+    twoNonIsolatedZToMuMuAtLeast1HLT  
 )
 
-#ZMuMuCategoriesLabels.append("twoNonIsolatedZToMuMuAtLeast1HLT")
-#ZMuMuCategoriesSequences.append(twoNonIsolatedZToMuMuSequence)
 
-goodZToMuMuOneStandAloneMuonSequence = cms.Sequence(
-    ~goodZToMuMu + 
+goodZToMuMuOneStandAloneMuonPath = cms.Path(
+    ~goodZToMuMu +
     zToMuMuOneStandAloneMuon + 
     goodZToMuMuOneStandAloneMuon +
     goodZToMuMuOneStandAloneMuonFirstHLT 
     )
 
-#ZMuMuCategoriesLabels.append("goodZToMuMuOneStandAloneMuonFirstHLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMuOneStandAloneMuonSequence)
 
 
-goodZToMuMuOneTrackSequence=cms.Sequence(
+
+goodZToMuMuOneTrackPath=cms.Path(
     ~goodZToMuMu +
     ~zToMuMuOneStandAloneMuon +
     zToMuGlobalMuOneTrack +
@@ -116,10 +171,31 @@ goodZToMuMuOneTrackSequence=cms.Sequence(
     goodZToMuMuOneTrackFirstHLT 
     )
 
-
-#ZMuMuCategoriesLabels.append("goodZToMuMuOneTrackFirstHLT")
-#ZMuMuCategoriesSequences.append(goodZToMuMuOneTrackSequence)
+###### endPath
 
 
+
+
+eventInfo = cms.OutputModule (
+    "AsciiOutputModule"
+)
+
+eventInfo.setLabel("eventInfo")
+
+NtuplesOut = cms.Sequence(
+    eventInfo
+    )
+
+
+VtxedNtuplesOut = cms.Sequence(
+    eventInfo
+    )
+
+
+
+endPath = cms.EndPath( 
+   NtuplesOut +
+   VtxedNtuplesOut 
+)
 
 

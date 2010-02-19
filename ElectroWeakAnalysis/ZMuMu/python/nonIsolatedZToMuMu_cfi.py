@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.ZMuMu.zSelection_cfi import *
+import copy
+
+#### tight only....
 
 #ZMuMu:at least one muon is not isolated 
 nonIsolatedZToMuMu = cms.EDFilter(
@@ -19,6 +22,9 @@ oneNonIsolatedZToMuMu = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
+
+
+
 #ZMuMu: 2 muons are not isolated 
 twoNonIsolatedZToMuMu = cms.EDFilter(
     "ZToMuMuTwoNonIsolatedIDSelector",
@@ -26,6 +32,7 @@ twoNonIsolatedZToMuMu = cms.EDFilter(
     src = cms.InputTag("nonIsolatedZToMuMu"),
     filter = cms.bool(True) 
 )
+
 
 
 #ZMuMunotIso: requiring at least 1 trigger
@@ -37,6 +44,7 @@ nonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
+
 #ZMuMuOnenotIso: requiring at least 1 trigger
 oneNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
     "ZHLTMatchFilter",
@@ -46,6 +54,8 @@ oneNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
+
+
 #ZMuMuTwonotIso: requiring at least 1 trigger
 twoNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
     "ZHLTMatchFilter",
@@ -54,4 +64,5 @@ twoNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
     hltPath = cms.string("HLT_Mu9"),
     filter = cms.bool(True) 
 )
+
 
