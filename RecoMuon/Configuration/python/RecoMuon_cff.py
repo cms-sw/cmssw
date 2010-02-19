@@ -69,8 +69,8 @@ from RecoMuon.CosmicMuonProducer.globalCosmicMuons_cff import *
 # Muon Id producer
 muonsFromCosmics = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
 
-muonsFromCosmics.inputCollectionLabels = ['generalTracks', 'globalCosmicMuons', 'cosmicMuons']
-muonsFromCosmics.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsFromCosmics.inputCollectionLabels = ['globalCosmicMuons', 'cosmicMuons']
+muonsFromCosmics.inputCollectionTypes = ['links', 'outer tracks']
 muonsFromCosmics.fillIsolation = False
 muonsFromCosmics.fillGlobalTrackQuality = False
 
@@ -89,9 +89,9 @@ globalCosmicMuons1Leg = globalCosmicMuons.clone()
 globalCosmicMuons1Leg.MuonCollectionLabel = 'cosmicMuons1Leg'
 
 # Muon Id producer
- = muons.clone()
-muonsFromCosmics1Leg.inputCollectionLabels = ['generalTracks', 'globalCosmicMuons1Leg', 'cosmicMuons1Leg']
-muonsFromCosmics1Leg.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsFromCosmics1Leg = muons.clone()
+muonsFromCosmics1Leg.inputCollectionLabels = ['globalCosmicMuons1Leg', 'cosmicMuons1Leg']
+muonsFromCosmics1Leg.inputCollectionTypes = ['links', 'outer tracks']
 muonsFromCosmics1Leg.fillIsolation = False
 muonsFromCosmics1Leg.fillGlobalTrackQuality = False
 
