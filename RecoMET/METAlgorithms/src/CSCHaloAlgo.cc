@@ -22,7 +22,7 @@ CSCHaloAlgo::CSCHaloAlgo()
   norm_chi2_threshold = 999.;
 }
 
-reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames & triggerNames)
+reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames)
 {
   reco::CSCHaloData TheCSCHaloData;
   if( TheCSCTracks.isValid() )
@@ -114,7 +114,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
            if( vIT_HLTBit[index].label().size() )
              {
                //Get the HLT bit and check to make sure it is valid 
-               unsigned int bit = triggerNames.triggerIndex( vIT_HLTBit[index].label().c_str());
+               unsigned int bit = triggerNames->triggerIndex( vIT_HLTBit[index].label().c_str());
                if( bit < TheHLTResults->size() )
                  {
 		   //If any of the HLT names given by the user accept, then the event passes
