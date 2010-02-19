@@ -44,6 +44,11 @@ class WenuPlots : public edm::EDAnalyzer {
       bool CheckCutInv( const pat::Electron *wenu, int i);
       bool CheckCutsNminusOne(const pat::Electron *ele, int jj);
       double ReturnCandVar(const pat::Electron *ele, int i);
+  // for the extra identifications and selections
+  bool   usePrecalcID_;
+  std::string usePrecalcIDSign_;
+  std::string usePrecalcIDType_;
+  double usePrecalcIDValue_;
   std::string outputFile_;
   edm::InputTag wenuCollectionTag_;
   TFile *histofile;

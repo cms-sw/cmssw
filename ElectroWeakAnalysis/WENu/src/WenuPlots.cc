@@ -64,6 +64,14 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile",
 							   outputFile_D);
   //
+  // use of precalculatedID
+  // if you use it, then no other cuts are applied
+  usePrecalcID_ = iConfig.getUntrackedParameter<Bool_t>("usePrecalcID",false);
+  if (usePrecalcID_) {
+    usePrecalcIDType_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDType");    
+    usePrecalcIDSign_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDSign","=");    
+    usePrecalcIDValue_= iConfig.getUntrackedParameter<Double_t>("usePrecalcIDValue");
+  }
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB");
@@ -182,41 +190,46 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   double dphi = myElec->deltaPhiSuperClusterTrackAtVtx();
   double deta = myElec->deltaEtaSuperClusterTrackAtVtx();
   double HoE = myElec->hadronicOverEm();
-
-
-
-
   //
   //
   //
   // the inverted selection plots:
-  if (CheckCutsInverse(myElec)){
-    //std::cout << "-----------------INVERSION-----------passed" << std::endl;
-    h_met_inverse->Fill(met);
-    h_mt_inverse->Fill(mt);
-    if(fabs(scEta)<1.479){
-      h_met_inverse_EB->Fill(met);
-      h_mt_inverse_EB->Fill(mt);
-    }
-    if(fabs(scEta)>1.479){
-      h_met_inverse_EE->Fill(met);
-      h_mt_inverse_EE->Fill(mt);
+  // only if not using precalcID
+  if (not usePrecalcID_) {
+    if (CheckCutsInverse(myElec)){
+      //std::cout << "-----------------INVERSION-----------passed" << std::endl;
+      h_met_inverse->Fill(met);
+      h_mt_inverse->Fill(mt);
+      if(fabs(scEta)<1.479){
+	h_met_inverse_EB->Fill(met);
+	h_mt_inverse_EB->Fill(mt);
+      }
+      if(fabs(scEta)>1.479){
+	h_met_inverse_EE->Fill(met);
+	h_mt_inverse_EE->Fill(mt);
+      }
     }
   }
-
-
+  //
   ///////////////////////////////////////////////////////////////////////
   //
   // N-1 plots: plot some variable so that all the other cuts are satisfied
-  if ( fabs(scEta) < 1.479) { // reminder: the precise fiducial cuts are in
-                              // in the filter
-    if (CheckCutsNminusOne(myElec, 0)) 
-      h_trackIso_eb_NmOne->Fill(trackIso);
+  //
+  // make these plots only if you have the normal selection, not pre-calced
+  if (not usePrecalcID_) {
+    if ( fabs(scEta) < 1.479) { // reminder: the precise fiducial cuts are in
+      // in the filter
+      if (CheckCutsNminusOne(myElec, 0)) 
+	h_trackIso_eb_NmOne->Fill(trackIso);
+    }
+    else {
+      if (CheckCutsNminusOne(myElec, 0)) 
+	h_trackIso_ee_NmOne->Fill(trackIso);
+    }
   }
-  else {
-    if (CheckCutsNminusOne(myElec, 0)) 
-      h_trackIso_ee_NmOne->Fill(trackIso);
-  }
+  //
+  // SELECTION APPLICATION
+  //
   // from here on you have only events that pass the full selection
   if (not CheckCuts(myElec)) return;
   //////////////////////////////////////////////////////////////////////
@@ -250,7 +263,13 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
   }
   // uncomment for debugging purposes
-  //std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() << std::endl;
+  std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso 
+	    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() 
+	    << std::endl;
+  std::cout << "Electron ID: robLoose=" << myElec->electronID("eidRobustLoose")  
+	    << " robTight=" << myElec->electronID("eidRobustTight") << ", CatLoose=" 
+	    << myElec->electronID("eidLoose") << ", CatTight=" << myElec->electronID("eidTight")
+	    << std::endl;
 
   h_scEt->Fill(scEt);
   h_scEta->Fill(scEta);
@@ -275,10 +294,30 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
  ***********************************************************************/
 bool WenuPlots::CheckCuts( const pat::Electron *ele)
 {
-  for (int i=0; i<nBarrelVars_; ++i) {
-    if (not CheckCut(ele, i)) return false;
+  if (usePrecalcID_) {
+    if (not ele-> isElectronIDAvailable(usePrecalcIDType_)) {
+      std::cout << "Error! not existing ID with name: "
+		<< usePrecalcIDType_ << " function will return true!"
+		<< std::endl;
+      return true;
+    }
+    double val = ele->electronID(usePrecalcIDType_);
+    if (usePrecalcIDSign_ == "<") {
+      return val < usePrecalcIDValue_;
+    }
+    else if (usePrecalcIDSign_ == ">") {
+      return val > usePrecalcIDValue_;
+    }
+    else { // equality: it returns 0,1,2,3 but as float
+      return fabs(val-usePrecalcIDValue_)<0.1;
+    }
+  } 
+  else {
+    for (int i=0; i<nBarrelVars_; ++i) {
+      if (not CheckCut(ele, i)) return false;
+    }
+    return true;
   }
-  return true;
 }
 /////////////////////////////////////////////////////////////////////////
 
@@ -449,6 +488,10 @@ WenuPlots::beginJob()
 void 
 WenuPlots::endJob() {
   TFile * newfile = new TFile(TString(outputFile_),"RECREATE");
+  //
+  // for consistency all the plots are in the root file
+  // even though they may be empty (in the case when
+  // usePrecalcID_== true inverted and N-1 are empty)
   h_met->Write();
   h_met_inverse->Write();
   h_mt->Write();
