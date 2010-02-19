@@ -526,8 +526,12 @@ class Process(object):
         return result
     def _dumpPythonList(self, d, options):
         returnValue = ''
-        for name,item in sorted(d.items()):
-            returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
+        if isinstance(d, DictTypes.SortedKeysDict):
+            for name,item in d.items():
+                returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
+        else:
+            for name,item in sorted(d.items()):
+                returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
     def _validateSequence(self, sequence, label):
         # See if every module has been inserted into the process
