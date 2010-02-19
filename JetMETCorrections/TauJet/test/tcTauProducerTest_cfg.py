@@ -17,8 +17,8 @@ process.source = cms.Source("PoolSource",
 process.load("FWCore/MessageService/MessageLogger_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'STARTUP31X_V1::All'
-#process.GlobalTag.globaltag = cms.string('GR09_R_34X_V2::All')
+#process.GlobalTag.globaltag = 'STARTUP31X_V1::All'
+process.GlobalTag.globaltag = cms.string('GR09_R_34X_V2::All')
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')

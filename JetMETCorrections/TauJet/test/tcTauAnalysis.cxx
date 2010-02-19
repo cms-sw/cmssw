@@ -28,6 +28,7 @@ void tcTauAnalysis(){
         float PFTau_pt,PFTau_eta,PFTau_phi,PFTau_nProngs,PFTau_ltrackPt,PFTau_d_isol,PFTau_d_1,PFTau_d_2;
         float CaloTau_pt,CaloTau_eta,CaloTau_phi,CaloTau_nProngs,CaloTau_ltrackPt,CaloTau_d_isol,CaloTau_d_1,CaloTau_d_2;
         float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_1,TCTau_d_2;
+	float TCTau_pt_raw,TCTau_eta_raw,TCTau_phi_raw;
 
 	tauTree->SetBranchAddress("MCTau_pt",&MCTau_pt);
         tauTree->SetBranchAddress("MCTau_eta",&MCTau_eta);
@@ -41,6 +42,9 @@ void tcTauAnalysis(){
         tauTree->SetBranchAddress("TCTau_pt",&TCTau_pt);
         tauTree->SetBranchAddress("TCTau_eta",&TCTau_eta);
         tauTree->SetBranchAddress("TCTau_phi",&TCTau_phi);
+        tauTree->SetBranchAddress("TCTau_pt_raw",&TCTau_pt_raw);
+        tauTree->SetBranchAddress("TCTau_eta_raw",&TCTau_eta_raw);
+        tauTree->SetBranchAddress("TCTau_phi_raw",&TCTau_phi_raw);
         tauTree->SetBranchAddress("TCTau_nProngs",&TCTau_nProngs);
         tauTree->SetBranchAddress("TCTau_ltrackPt",&TCTau_ltrackPt);
         tauTree->SetBranchAddress("PFTau_pt",&PFTau_pt);
@@ -63,6 +67,8 @@ void tcTauAnalysis(){
 	TH1F* h_TCTau_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_TCTau_dEt");
 	TH1F* h_PFTau_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_PFTau_dEt");
 
+        TH1F* h_TCTau_dEtRaw = (TH1F*)h_CaloTau_dEt->Clone("h_TCTau_dEtRaw");
+
 	TH1F* h_PFTauRef_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_PFTauRef_dEt");
 
 	TH1F* h_CaloTau_dEta = new TH1F("h_CaloTau_dEta","",100,-0.5,0.5);
@@ -76,6 +82,7 @@ void tcTauAnalysis(){
         TH1F* h_CaloTau_dEtRatio = new TH1F("h_CaloTau_dEtRatio","",100,0,2);
 	TH1F* h_TCTau_dEtRatio = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEtRatio");
 	TH1F* h_PFTau_dEtRatio = (TH1F*)h_CaloTau_dEtRatio->Clone("h_PFTau_dEtRatio");
+        TH1F* h_TCTau_dEtRawRatio = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEtRawRatio");
 
 	for(int i = 0; i < tauTree->GetEntries(); ++i){
 		tauTree->GetEntry(i);
@@ -102,6 +109,8 @@ void tcTauAnalysis(){
 			h_TCTau_dEta->Fill(TCTau_eta - MCTau_eta);
 			h_TCTau_dPhi->Fill(deltaPhi(TCTau_phi,MCTau_phi));
 			h_TCTau_dEtRatio->Fill(TCTau_pt/MCTau_pt);
+
+			h_TCTau_dEtRawRatio->Fill(TCTau_pt_raw/MCTau_pt);
 		}
 		if(PFTau_pt > tau_pt_cut && fabs(PFTau_eta) < tau_eta_cut && PFTau_d_isol != 0) {
 			nPFTaus++;
@@ -173,12 +182,17 @@ void tcTauAnalysis(){
 	h_TCTau_dEtRatio->GetXaxis()->SetTitle("pt(RECO)/pt(MC)");
         h_TCTau_dEtRatio->DrawClone();
 
+	h_TCTau_dEtRawRatio->SetLineWidth(3);
+        h_TCTau_dEtRawRatio->SetLineColor(6);
+        h_TCTau_dEtRawRatio->SetLineStyle(3);
+        h_TCTau_dEtRawRatio->DrawClone("same");
+
         h_CaloTau_dEtRatio->SetLineWidth(3);
         h_CaloTau_dEtRatio->DrawClone("same");
 
-        h_PFTau_dEtRatio->SetLineWidth(3);
-        h_PFTau_dEtRatio->SetLineColor(3);
-        h_PFTau_dEtRatio->SetLineStyle(3);
+        h_PFTau_dEtRatio->SetLineWidth(4);
+        h_PFTau_dEtRatio->SetLineColor(4);
+        h_PFTau_dEtRatio->SetLineStyle(4);
         h_PFTau_dEtRatio->DrawClone("same");
 
 	float tctau_dEtRatioFigureMax = h_PFTau_dEtRatio->GetMaximum();
@@ -189,6 +203,9 @@ void tcTauAnalysis(){
         tex->SetLineWidth(2);
         tex->DrawClone();
         TLatex* tex = new TLatex(1.4,0.6*tctau_dEtRatioFigureMax,"PFTau");
+        tex->SetLineWidth(2);
+        tex->DrawClone();
+        TLatex* tex = new TLatex(1.4,0.5*tctau_dEtRatioFigureMax,"TCTau(raw)");
         tex->SetLineWidth(2);
         tex->DrawClone();
 
@@ -204,8 +221,14 @@ void tcTauAnalysis(){
 
         TLine *line = new TLine(1.1,0.62*tctau_dEtRatioFigureMax,1.3,0.62*tctau_dEtRatioFigureMax);
         line->SetLineWidth(3);
-	line->SetLineColor(3);
+	line->SetLineColor(4);
 	line->SetLineStyle(3);
+        line->DrawClone();
+
+        TLine *line = new TLine(1.1,0.52*tctau_dEtRatioFigureMax,1.3,0.52*tctau_dEtRatioFigureMax);
+        line->SetLineWidth(3);
+        line->SetLineColor(6);
+        line->SetLineStyle(3);
         line->DrawClone();
 
         tctau_dEtRatio->Print("tctau_dEtRatio.C");
