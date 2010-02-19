@@ -12,6 +12,16 @@ from ElectroWeakAnalysis.ZMuMu.nonIsolatedZToMuMu_cfi import *
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMuOneTrack_cfi import *
 from ElectroWeakAnalysis.ZMuMu.goodZToMuMuOneStandAloneMuon_cfi import *
 
+### for zmusta modelling...
+
+zmumuSaMassHistogram = cms.EDAnalyzer(
+    "ZMuMuSaMassHistogram",
+    src_m = cms.InputTag("goodZToMuMu"),
+    min = cms.untracked.double(0.0),
+    max = cms.untracked.double(200.0),
+    nbin = cms.untracked.int32(200)
+   # name = cms.untracked.string("zMass")    
+    )
 
 
 ### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk and ZGoldenSameChar...
@@ -73,8 +83,15 @@ goodZToMuMuOneTrackPathLoose=cms.Path(
 
 
 
+
+
 ### sequences and path for tight cuts...
 
+initialGoodZToMuMuPath = cms.Path( 
+    goodZToMuMuLoose +
+    goodZToMuMu +
+    zmumuSaMassHistogram     
+)
 
 
 goodZToMuMuPath = cms.Path(
