@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.123 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: promptReco -s RAW2DIGI,RECO,DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec --data --magField AutoFromDBCurrent --scenario cosmics
+# with command line options: promptReco -s RAW2DIGI,L1Reco,RECO,DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec --data --magField AutoFromDBCurrent --scenario cosmics
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -14,6 +14,7 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
+process.load('Configuration/StandardSequences/L1Reco_cff')
 process.load('Configuration/StandardSequences/ReconstructionCosmics_cff')
 process.load('DQMOffline/Configuration/DQMOfflineCosmics_cff')
 process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
@@ -22,7 +23,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -223,6 +224,7 @@ process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
 # Path and EndPath definitions
 
 process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstructionCosmics)
 process.dqmoffline_step = cms.Path(process.DQMOfflineCosmics)
 
@@ -286,4 +288,4 @@ process.ALCARECOStreamTkAlBeamHaloOutPath = cms.EndPath(process.ALCARECOStreamTk
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlBeamHaloOverlaps,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOTkAlCosmicsRS0T,process.pathALCARECOMuAlStandAloneCosmics,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOTkAlBeamHalo,process.pathALCARECOMuAlBeamHalo,process.endjob_step,process.out_step,process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamMuAlBeamHaloOverlapsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamMuAlBeamHaloOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamTkAlBeamHaloOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.dqmoffline_step,process.pathALCARECOMuAlBeamHaloOverlaps,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlCosmicsCTF0T,process.pathALCARECOTkAlCosmicsCosmicTF0T,process.pathALCARECOTkAlCosmicsRS0T,process.pathALCARECOMuAlStandAloneCosmics,process.pathALCARECOMuAlGlobalCosmics,process.pathALCARECOHcalCalHOCosmics,process.pathALCARECOTkAlBeamHalo,process.pathALCARECOMuAlBeamHalo,process.endjob_step,process.out_step,process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamMuAlBeamHaloOverlapsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamMuAlBeamHaloOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamTkAlBeamHaloOutPath)
