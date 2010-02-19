@@ -37,7 +37,7 @@ private:
   edm::InputTag jetTag_;
 
   //  const std::string muonTrig_;
-  const std::string elecTrig_;
+  const std::vector<std::string> elecTrig_;
   double ptCut_;
   double etaCut_;
 
