@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Dec  9 17:01:03 CST 2009
-// $Id: RecordWriter.cc,v 1.1 2009/12/16 17:44:09 chrjones Exp $
+// $Id: RecordWriter.cc,v 1.2 2010/02/19 20:59:02 chrjones Exp $
 //
 
 // system include files
@@ -70,7 +70,7 @@ RecordWriter::~RecordWriter()
 // member functions
 //
 void 
-RecordWriter::update(void* iData, const std::type_info& iType, const char* iLabel)
+RecordWriter::update(const void* iData, const std::type_info& iType, const char* iLabel)
 {
    const char* label = iLabel;
    if(0==iLabel) {
@@ -88,7 +88,7 @@ RecordWriter::update(void* iData, const std::type_info& iType, const char* iLabe
       std::string className = t.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL);
       
       //now find actual type
-      ROOT::Reflex::Object o(t,iData);
+      ROOT::Reflex::Object o(t,const_cast<void*>(iData));
       ROOT::Reflex::Type trueType = o.DynamicType();
       buffer.trueType_ = edm::TypeIDBase(trueType.TypeInfo());
       std::string trueClassName = trueType.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL);
@@ -101,7 +101,7 @@ RecordWriter::update(void* iData, const std::type_info& iType, const char* iLabe
          std::string(iLabel)));
    }
    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
-   ROOT::Reflex::Object o(t,iData);
+   ROOT::Reflex::Object o(t,const_cast<void*>(iData));
    ROOT::Reflex::Type trueType = o.DynamicType();
    assert(edm::TypeIDBase(trueType.TypeInfo())==itFound->second.trueType_);
    itFound->second.branch_->SetAddress(&(itFound->second.pBuffer_));

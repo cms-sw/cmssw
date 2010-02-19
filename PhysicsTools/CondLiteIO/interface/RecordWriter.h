@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  9 17:00:53 CST 2009
-// $Id: RecordWriter.h,v 1.1 2009/12/16 17:44:09 chrjones Exp $
+// $Id: RecordWriter.h,v 1.2 2010/02/19 20:59:01 chrjones Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ class RecordWriter
       virtual ~RecordWriter();
 
       struct DataBuffer {
-         void* pBuffer_;
+         const void* pBuffer_;
          TBranch* branch_;
          edm::TypeIDBase trueType_;
       };
@@ -48,7 +48,7 @@ class RecordWriter
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void update(void* iData, const std::type_info& iType, const char* iLabel);
+      void update(const void* iData, const std::type_info& iType, const char* iLabel);
       
       //call update before calling write
       void fill(const edm::ESRecordAuxiliary&);
