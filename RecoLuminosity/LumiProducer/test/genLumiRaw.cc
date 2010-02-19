@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "LumiRawDataStructures.h"
+#include "RecoLuminosity/LumiProducer/interface/LumiRawDataStructures.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"

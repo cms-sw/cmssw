@@ -1,7 +1,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
-#include "LumiRawDataStructures.h"
+#include "RecoLuminosity/LumiProducer/interface/LumiRawDataStructures.h"
 #include <iostream>
 #include <iomanip>
 /** This programm scans a given lumi raw data file and print out the content

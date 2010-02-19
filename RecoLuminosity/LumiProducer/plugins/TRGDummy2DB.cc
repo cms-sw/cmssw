@@ -33,7 +33,7 @@ namespace lumi{
     //
     //generate dummy data of trg for the given run and write data to LumiDB
     //
-     coral::ConnectionService* svc=new coral::ConnectionService;
+    coral::ConnectionService* svc=new coral::ConnectionService;
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
     try{
       unsigned int totalcmsls=32;
