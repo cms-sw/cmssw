@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/10/02 13:09:47 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/23 09:55:16 $
+ *  $Revision: 1.5 $
  */
 
 
@@ -492,8 +492,8 @@ bool HLTMuonBPAG::selectAndMatchMuons(const edm::Event & iEvent,
   // First, intialize a probe selection
   // Some day this should come from the driver
   
-  StringCutObjectSelector<Muon> tempRecoSelector("pt > 1 && abs(eta) < 1.4");
-  StringCutObjectSelector<TriggerObject> tempHltSelector("pt > 1 && abs(eta) < 1.4");
+  //StringCutObjectSelector<Muon> tempRecoSelector("pt > 1 && abs(eta) < 1.4");
+  //StringCutObjectSelector<TriggerObject> tempHltSelector("pt > 1 && abs(eta) < 1.4");
   string customName = "bpagTag";
   //double d0Cut = 2.0;
   //double z0Cut = 50;
