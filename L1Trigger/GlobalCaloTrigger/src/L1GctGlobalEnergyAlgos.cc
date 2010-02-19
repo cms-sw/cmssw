@@ -250,8 +250,6 @@ void L1GctGlobalEnergyAlgos::process()
     ExSum = m_exValPlusWheel + m_exVlMinusWheel;
     EySum = m_eyValPlusWheel + m_eyVlMinusWheel;
     // Execute the missing Et algorithm
-//     m_metComponents.setComponents(-ExSum, -EySum);
-//     EtMissing = m_metComponents.metVector();
     // Rotate by pi to evaluate MISSING Et. 
     // Implement this in the same way as the firmware
     m_metComponents.setComponents(ExSum, EySum);
@@ -271,8 +269,14 @@ void L1GctGlobalEnergyAlgos::process()
     ExSum = m_hxValPlusWheel + m_hxVlMinusWheel;
     EySum = m_hyValPlusWheel + m_hyVlMinusWheel;
     // Execute the missing Et algorithm
-    m_mhtComponents.setComponents(-ExSum, -EySum);
+    // Implement this in the same way as the firmware
+    m_mhtComponents.setComponents(ExSum, EySum);
     HtMissing = m_mhtComponents.metVector();
+    if (HtMissing.phi.value() > 35) {
+      HtMissing.phi.setValue(HtMissing.phi.value() - 36);
+    } else {
+      HtMissing.phi.setValue(HtMissing.phi.value() + 36);
+    }
 
     // Store 7 bits of magnitude and 5 bits of phi angle.
     static const unsigned MAX_HT_VALUE = 0x7f;
