@@ -143,8 +143,8 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<float> >( alias = zName + "Y" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Pt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Pt" ).setBranchAlias( alias );
-    produces<vector<int> >( alias = zName + "Dau1HLTBit" ).setBranchAlias( alias );
-    produces<vector<int> >( alias = zName + "Dau2HLTBit" ).setBranchAlias( alias );
+    produces<vector<unsigned int> >( alias = zName + "Dau1HLTBit" ).setBranchAlias( alias );
+    produces<vector<unsigned int> >( alias = zName + "Dau2HLTBit" ).setBranchAlias( alias );
     produces<vector<int> >( alias = zName + "Dau1Q" ).setBranchAlias( alias );
     produces<vector<int> >( alias = zName + "Dau2Q" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Eta" ).setBranchAlias( alias );
@@ -223,8 +223,8 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<float> > zY( new vector<float> );
     auto_ptr<vector<float> > zDau1Pt( new vector<float> );
     auto_ptr<vector<float> > zDau2Pt( new vector<float> );
-    auto_ptr<vector<int> > zDau1HLTBit( new vector<int> );
-    auto_ptr<vector<int> > zDau2HLTBit( new vector<int> );
+    auto_ptr<vector<unsigned int> > zDau1HLTBit( new vector<unsigned int> );
+    auto_ptr<vector<unsigned int> > zDau2HLTBit( new vector<unsigned int> );
     auto_ptr<vector<int> > zDau1Q( new vector<int> );
     auto_ptr<vector<int> > zDau2Q( new vector<int> );
     auto_ptr<vector<float> > zDau1Eta( new vector<float> );
@@ -362,12 +362,14 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       // double nChi2_tk_1= mu1->innerTrack()->normalizedChi2().....
      
       // HLT trigger  bit
-      zDau1HLTBit->push_back(0);
-      zDau2HLTBit->push_back(0);
+     
+     
       const pat::TriggerObjectStandAloneCollection mu1HLTMatches =  mu1->triggerObjectMatchesByPath( hltPath_[c] );
 	int dimTrig1 = mu1HLTMatches.size();
 	if(dimTrig1 !=0 ){
 	  zDau1HLTBit->push_back(1);
+	} else {
+	  zDau1HLTBit->push_back(0); 
 	}
  
 
@@ -386,9 +388,11 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	int dimTrig2 = mu2HLTMatches.size();
 	if(dimTrig2 !=0 ){
 	  zDau2HLTBit->push_back(1);
-	}
- 
 	} else {
+	  zDau2HLTBit->push_back(0);
+	}
+	} else {
+	  zDau2HLTBit->push_back(0);
 	  zDau2NofHit->push_back(0);
 	  zDau2NofHitTk->push_back(0);
 	  zDau2NofHitSta->push_back(0);
