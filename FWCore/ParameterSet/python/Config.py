@@ -526,8 +526,12 @@ class Process(object):
         return result
     def _dumpPythonList(self, d, options):
         returnValue = ''
-        for name,item in d.iteritems():
-            returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
+        if isinstance(d, DictTypes.SortedKeysDict):
+            for name,item in d.items():
+                returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
+        else:
+            for name,item in sorted(d.items()):
+                returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
     def _validateSequence(self, sequence, label):
         # See if every module has been inserted into the process
@@ -936,7 +940,7 @@ if __name__=="__main__":
             d=p.dumpConfig()
             self.assertEqual(d,
 """process test = {
-    module a = MyAnalyzer {
+    module a = MyAnalyzer { 
     }
     sequence s = {a}
     sequence r = {s}
@@ -988,6 +992,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
     schedule = {p2,p}
 }
 """)
+            p.b = EDAnalyzer("YourAnalyzer")
             d=p.dumpPython()
             self.assertEqual(d,
 """import FWCore.ParameterSet.Config as cms
@@ -995,6 +1000,9 @@ process.schedule = cms.Schedule(process.p2,process.p)
 process = cms.Process("test")
 
 process.a = cms.EDAnalyzer("MyAnalyzer")
+
+
+process.b = cms.EDAnalyzer("YourAnalyzer")
 
 
 process.r = cms.Sequence(process.a)
@@ -1175,26 +1183,26 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.prefer("juicer")
             self.assertEqual(p.dumpConfig(),
 """process Test = {
-    es_module juicer = JuicerProducer {
+    es_module juicer = JuicerProducer { 
     }
-    es_source  = ForceSource {
+    es_source  = ForceSource { 
     }
-    es_prefer  = ForceSource {
+    es_prefer  = ForceSource { 
     }
-    es_prefer juicer = JuicerProducer {
+    es_prefer juicer = JuicerProducer { 
     }
 }
 """)
             p.prefer("juicer",fooRcd=vstring("Foo"))
             self.assertEqual(p.dumpConfig(),
 """process Test = {
-    es_module juicer = JuicerProducer {
+    es_module juicer = JuicerProducer { 
     }
-    es_source  = ForceSource {
+    es_source  = ForceSource { 
     }
-    es_prefer  = ForceSource {
+    es_prefer  = ForceSource { 
     }
-    es_prefer juicer = JuicerProducer {
+    es_prefer juicer = JuicerProducer { 
         vstring fooRcd = {
             'Foo'
         }

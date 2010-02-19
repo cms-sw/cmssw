@@ -21,30 +21,28 @@ namespace sistrip {
     rawToDigi_(0),
     productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(0),
-    cacheId_(0),
-    extractCm_(false)
+    cacheId_(0)
   {
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
 	<< "[sistrip::RawToDigiModule::" << __func__ << "]"
 	<< " Constructing object...";
     }
-    
+
     int16_t appended_bytes = pset.getParameter<int>("AppendedBytes");
     int16_t trigger_fed_id = pset.getParameter<int>("TriggerFedId");
     bool use_daq_register = pset.getParameter<bool>("UseDaqRegister");
     bool using_fed_key = pset.getParameter<bool>("UseFedKey");
     bool unpack_bad_channels = pset.getParameter<bool>("UnpackBadChannels");
+    bool mark_missing_feds = pset.getParameter<bool>("MarkModulesOnMissingFeds");
 
     int16_t fed_buffer_dump_freq = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
     int16_t fed_event_dump_freq = pset.getUntrackedParameter<int>("FedEventDumpFreq",0);
     bool quiet = pset.getUntrackedParameter<bool>("Quiet",true);
-    extractCm_ = pset.getParameter<bool>("UnpackCommonModeValues");
 
-    rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels);
+    rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels, mark_missing_feds);
     rawToDigi_->quiet(quiet);
     rawToDigi_->useDaqRegister( use_daq_register ); 
-    rawToDigi_->extractCm(extractCm_);
   
     produces< SiStripEventSummary >();
     produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
@@ -52,7 +50,6 @@ namespace sistrip {
     produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
     produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
     produces<DetIdCollection>();
-    if ( extractCm_ ) produces< edm::DetSetVector<SiStripRawDigi> >("CommonMode");
   
   }
 
@@ -94,10 +91,9 @@ namespace sistrip {
     edm::DetSetVector<SiStripRawDigi>* pr = new edm::DetSetVector<SiStripRawDigi>();
     edm::DetSetVector<SiStripDigi>* zs = new edm::DetSetVector<SiStripDigi>();
     DetIdCollection* ids = new DetIdCollection();
-    edm::DetSetVector<SiStripRawDigi>* cm = new edm::DetSetVector<SiStripRawDigi>();
   
     // Create digis
-    if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling_,*buffers,*summary,*sm,*vr,*pr,*zs,*ids,*cm ); }
+    if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling_,*buffers,*summary,*sm,*vr,*pr,*zs,*ids ); }
   
     // Create auto_ptr's of digi products
     std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv(sm);
@@ -105,7 +101,6 @@ namespace sistrip {
     std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr_dsv(pr);
     std::auto_ptr< edm::DetSetVector<SiStripDigi> > zs_dsv(zs);
     std::auto_ptr< DetIdCollection > det_ids(ids);
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > cm_dsv(cm);
   
     // Add to event
     event.put( summary );
@@ -114,7 +109,6 @@ namespace sistrip {
     event.put( pr_dsv, "ProcessedRaw" );
     event.put( zs_dsv, "ZeroSuppressed" );
     event.put( det_ids );
-    if ( extractCm_ ) event.put( cm_dsv, "CommonMode" );
   
   }
 

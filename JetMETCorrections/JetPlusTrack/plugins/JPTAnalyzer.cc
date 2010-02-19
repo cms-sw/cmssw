@@ -1,65 +1,128 @@
-#include "CLHEP/Vector/LorentzVector.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/Math/interface/deltaR.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// system include files
+#include <memory>
+#include <string>
+#include <iostream>
+#include <fstream>
+// /CMSSW/Calibration/HcalAlCaRecoProducers/src/AlCaIsoTracksProducer.cc  track propagator
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//
+// MC info
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+//#include "CLHEP/HepPDT/DefaultConfig.hh"
+//
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/GenVector/VectorUtil.h"
+#include "Math/GenVector/PxPyPzE4D.h"
+#include "DataFormats/Math/interface/deltaR.h"
+//double dR = deltaR( c1, c2 );
+//
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+//jets
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+//
+// muons and tracks
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+// ecal
+//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+// candidates
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+//
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1.h"
 #include "TH2.h"
-#include <iostream>
-#include <string>
+//
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/GenVector/VectorUtil.h"
+#include "Math/GenVector/PxPyPzE4D.h"
+
 #include <vector>
 
 using namespace std;
 using namespace reco;
-using namespace edm;
 
-// -----------------------------------------------------------------------------
 //
+// class decleration
+//
+
 class JPTAnalyzer : public edm::EDAnalyzer {
+   public:
+      explicit JPTAnalyzer(const edm::ParameterSet&);
+      ~JPTAnalyzer();
 
-public:
 
-  explicit JPTAnalyzer(const edm::ParameterSet&);
-  ~JPTAnalyzer();
-  
-private:
+   private:
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  
-  // ----------member data ---------------------------
-
-  string fOutputFileName;
+      // ----------member data ---------------------------
+  // output root file
+  string fOutputFileName ;
+  // names of modules, producing object collections
+  // raw calo jets
   string calojetsSrc;
+  // calo jets after zsp corrections
   string zspjetsSrc;
+  // gen jets
   string genjetsSrc;
-
+  //
+  // MC jet energy corrections
+  //  string JetCorrectionMCJ;
+  // ZSP jet energy corrections
+  //  string JetCorrectionZSP;
+  // Jet+tracks energy corrections
   string JetCorrectionJPT;
-
-  double  EtaGen1, PhiGen1, EtaRaw1, PhiRaw1, EtGen1, EtRaw1, EtMCJ1, EtZSP1, EtJPT1, DRMAXgjet1, EtaZSP1, PhiZSP1, EtaJPT1, PhiJPT1; 
-  double  EtaGen2, PhiGen2, EtaRaw2, PhiRaw2, EtGen2, EtRaw2, EtMCJ2, EtZSP2, EtJPT2, DRMAXgjet2, EtaZSP2, PhiZSP2, EtaJPT2, PhiJPT2; 
-
-  TFile* hOutputFile ;
-  TTree* t1;
-
-  bool scalar_;
-
+  // variables to store in ntpl
+  double  EtaGen1, PhiGen1, EtaRaw1, PhiRaw1, EtGen1, EtRaw1, EtMCJ1, EtZSP1, EtJPT1, DRMAXgjet1;
+  double  EtaGen2, PhiGen2, EtaRaw2, PhiRaw2, EtGen2, EtRaw2, EtMCJ2, EtZSP2, EtJPT2, DRMAXgjet2;
+  // output root file and tree
+  TFile*      hOutputFile ;
+  TTree*      t1;
 };
 
-// -----------------------------------------------------------------------------
 //
-void JPTAnalyzer::beginJob( ) {
+// constants, enums and typedefs
+//
 
+//
+// static data member definitions
+//
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+JPTAnalyzer::beginJob()
+{
   using namespace edm;
   // creating a simple tree
 
@@ -78,11 +141,6 @@ void JPTAnalyzer::beginJob( ) {
   t1->Branch("EtJPT1",&EtJPT1,"EtJPT1/D");
   t1->Branch("DRMAXgjet1",&DRMAXgjet1,"DRMAXgjet1/D");
 
-  t1->Branch("EtaZSP1",&EtaZSP1,"EtaZSP1/D");
-  t1->Branch("PhiZSP1",&PhiZSP1,"PhiZSP1/D");
-  t1->Branch("EtaJPT1",&EtaJPT1,"EtaJPT1/D");
-  t1->Branch("PhiJPT1",&PhiJPT1,"PhiJPT1/D");
-
   t1->Branch("EtaGen2",&EtaGen2,"EtaGen2/D");
   t1->Branch("PhiGen2",&PhiGen2,"PhiGen2/D");
   t1->Branch("EtaRaw2",&EtaRaw2,"EtaRaw2/D");
@@ -94,27 +152,26 @@ void JPTAnalyzer::beginJob( ) {
   t1->Branch("EtJPT2",&EtJPT2,"EtJPT2/D");
   t1->Branch("DRMAXgjet2",&DRMAXgjet2,"DRMAXgjet2/D");
 
-  t1->Branch("EtaZSP2",&EtaZSP2,"EtaZSP2/D");
-  t1->Branch("PhiZSP2",&PhiZSP2,"PhiZSP2/D");
-  t1->Branch("EtaJPT2",&EtaJPT2,"EtaJPT2/D");
-  t1->Branch("PhiJPT2",&PhiJPT2,"PhiJPT2/D");
-
   return ;
 }
 
-// -----------------------------------------------------------------------------
-//
-void JPTAnalyzer::endJob() {
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+JPTAnalyzer::endJob() {
+
   hOutputFile->Write() ;
   hOutputFile->Close() ;
+  
   return ;
 }
 
-// -----------------------------------------------------------------------------
 //
-JPTAnalyzer::JPTAnalyzer( const edm::ParameterSet& iConfig ) {
+// constructors and destructor
+//
+JPTAnalyzer::JPTAnalyzer(const edm::ParameterSet& iConfig)
 
-  //now do what ever initialization is needed
+{
+   //now do what ever initialization is needed
   using namespace edm;
   // 
   // get name of output file with histogramms
@@ -133,21 +190,27 @@ JPTAnalyzer::JPTAnalyzer( const edm::ParameterSet& iConfig ) {
   //  JetCorrectionZSP = iConfig.getParameter< std::string > ("JetCorrectionZSP");
   // Jet+tracks energy corrections
   JetCorrectionJPT = iConfig.getParameter< std::string > ("JetCorrectionJPT");
-
-  scalar_ = iConfig.getUntrackedParameter<bool> ("UseScalarMethod",false);
-  
 }
 
-// -----------------------------------------------------------------------------
-//
-JPTAnalyzer::~JPTAnalyzer() {;}
 
-// -----------------------------------------------------------------------------
-//
-void JPTAnalyzer::analyze( const edm::Event& iEvent, 
-			      const edm::EventSetup& iSetup ) {
+JPTAnalyzer::~JPTAnalyzer()
+{
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
 
-  using namespace edm;
+}
+
+
+//
+// member functions
+//
+
+// ------------ method called to for each event  ------------
+void
+JPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+   using namespace edm;
 
    // initialize vector containing two highest Et gen jets > 20 GeV
    // in this example they are checked not to be leptons from Z->ll decay (DR match)
@@ -165,11 +228,6 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
    EtZSP1  = 0.;
    EtJPT1  = 0.;
    DRMAXgjet1 = 1000.;
-   
-   PhiZSP1 = 0.;
-   EtaZSP1 = 0.;
-   PhiJPT1 = 0.;
-   EtaJPT1 = 0.;
 
    EtaGen2 = 0.;
    PhiGen2 = 0.;
@@ -181,11 +239,6 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
    EtZSP2  = 0.;
    EtJPT2  = 0.;
    DRMAXgjet2 = 1000.;
-
-   PhiZSP2 = 0.;
-   EtaZSP2 = 0.;
-   PhiJPT2 = 0.;
-   EtaJPT2 = 0.;
 
    //   edm::ESHandle<CaloGeometry> geometry;
    //   iSetup.get<IdealGeometryRecord>().get(geometry);
@@ -324,40 +377,17 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
 	      <<" eta = " << zspjet->eta()
 	      <<" phi = " << zspjet->phi() << endl;
 	 */
-	 
-	 // ZSP JetRef
-	 edm::RefToBase<reco::Jet> zspRef( edm::Ref<CaloJetCollection>( zspjets, zspjet - zspjets->begin() ) );
-	 
 	 // JPT corrections
-	 double scaleJPT = -1.;
-	 Jet::LorentzVector jetscaleJPT;
-	 if ( scalar_ ) {
-	   
-	   scaleJPT = correctorJPT->correction ( (*zspjet), zspRef, iEvent, iSetup );
-	   jetscaleJPT = Jet::LorentzVector( zspjet->px()*scaleJPT, 
-					     zspjet->py()*scaleJPT,
-					     zspjet->pz()*scaleJPT, 
-					     zspjet->energy()*scaleJPT );
-	 } else {
-	   JetCorrector::LorentzVector p4;
-	   scaleJPT = correctorJPT->correction( *zspjet, zspRef, iEvent, iSetup, p4 );
-	   jetscaleJPT = Jet::LorentzVector( p4.Px(), p4.Py(), p4.Pz(), p4.E() );
-	 }	   
-	 
+	 double scaleJPT = correctorJPT->correction ((*zspjet),iEvent,iSetup);
+	 Jet::LorentzVector jetscaleJPT(zspjet->px()*scaleJPT, zspjet->py()*scaleJPT,
+					zspjet->pz()*scaleJPT, zspjet->energy()*scaleJPT);
+	 /*
+	 cout <<" ..> corrected jpt jet Et = " << jetscaleJPT.pt()
+	      <<" eta = " << jetscaleJPT.eta()
+	      <<" phi = " << jetscaleJPT.phi() << endl;
+	 */
 	 CaloJet cjetJPT(jetscaleJPT, cjet->getSpecific(), cjet->getJetConstituents());
 
-// 	 cout <<" TEST pt=" << jetscaleJPT.pt()
-// 	      <<" scale=" << scaleJPT
-// 	      <<" e=" << jetscaleJPT.E()
-// 	      <<" et=" << jetscaleJPT.Et()
-// 	      <<" eta=" << jetscaleJPT.eta()
-// 	      <<" phi=" << jetscaleJPT.phi()
-//  	      <<" e=" << cjetJPT.energy()
-//  	      <<" et=" << cjetJPT.et()
-//  	      <<" eta=" << cjetJPT.eta()
-//  	      <<" phi=" << cjetJPT.phi()
-// 	      << endl;
-	 
 	 double DRgjet1 = gjets[0].deltaR(cjetc);
 
 	 if(DRgjet1 < DRMAXgjet1) {
@@ -373,12 +403,6 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
 	   //	   EtMCJ1  = cjetMCJ.pt(); 
 	   EtZSP1  = zspjet->pt(); 
 	   EtJPT1  = cjetJPT.pt(); 
-	   
-	   EtaZSP1 = zspjet->eta(); 
-	   PhiZSP1 = zspjet->phi(); 
-	   EtaJPT1 = cjetJPT.eta(); 
-	   PhiJPT1 = cjetJPT.phi(); 
-
 	 }
 	 if(gjets.size() == 2) {
 	   double DRgjet2 = gjets[1].deltaR(cjetc);
@@ -394,48 +418,26 @@ void JPTAnalyzer::analyze( const edm::Event& iEvent,
 	     EtRaw2  = cjet->pt();
 	     EtZSP2  = zspjet->pt(); 
 	     EtJPT2  = cjetJPT.pt(); 
-	     
-	     EtaZSP2 = zspjet->eta(); 
-	     PhiZSP2 = zspjet->phi(); 
-	     EtaJPT2 = cjetJPT.eta(); 
-	     PhiJPT2 = cjetJPT.phi(); 
-	     
 	   }
 	 }
 	 jc++;
        }
-
        /*
-        cout <<" best1 match to 1st gen get = " << DRMAXgjet1
-	     <<" raw jet pt = " << EtRaw1 <<" eta = " << EtaRaw1 <<" phi " << PhiRaw1 
-	     << " phizsp " << PhiZSP1 << " phijpt " << PhiJPT1 
+        cout <<" best match to 1st gen get = " << DRMAXgjet1
+	    <<" raw jet pt = " << EtRaw1 <<" eta = " << EtaRaw1 <<" phi " << PhiRaw1 
 	    <<" mcj pt = " << EtMCJ1 << " zsp pt = " << EtZSP1 <<" jpt = " << EtJPT1 << endl; 
        if(gjets.size() == 2) {
-	 cout <<" best1 match to 2st gen get = " << DRMAXgjet2
+	 cout <<" best match to 2st gen get = " << DRMAXgjet2
 	      <<" raw jet pt = " << EtRaw2 <<" eta = " << EtaRaw2 <<" phi " << PhiRaw2 
-	      << " phizsp " << PhiZSP2 << " phijpt " << PhiJPT2 
 	      <<" mcj pt = " << EtMCJ2 << " zsp pt = " << EtZSP2 <<" jpt = " << EtJPT2 << endl; 
        }
        */
-       
      }
    }
- 
    // fill tree
    t1->Fill();
-
-//         cout <<" best2 match to 1st gen get = " << DRMAXgjet1
-// 	     <<" raw jet pt = " << EtRaw1 <<" eta = " << EtaRaw1 <<" phi " << PhiRaw1 
-// 	     << " phizsp " << PhiZSP1 << " phijpt " << PhiJPT1 
-// 	    <<" mcj pt = " << EtMCJ1 << " zsp pt = " << EtZSP1 <<" jpt = " << EtJPT1 << endl; 
-// 	cout <<" best2 match to 2st gen get = " << DRMAXgjet2
-// 	     <<" raw jet pt = " << EtRaw2 <<" eta = " << EtaRaw2 <<" phi " << PhiRaw2 
-// 	     << " phizsp " << PhiZSP2 << " phijpt " << PhiJPT2 
-// 	     <<" mcj pt = " << EtMCJ2 << " zsp pt = " << EtZSP2 <<" jpt = " << EtJPT2 << endl; 
-
 }
 
-// -----------------------------------------------------------------------------
-//
-#include "FWCore/Framework/interface/MakerMacros.h"
+
+//define this as a plug-in
 DEFINE_FWK_MODULE(JPTAnalyzer);

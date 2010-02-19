@@ -182,75 +182,46 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
    if (nlayers3D < min_3Dlayers_) return false;
    if (nlayersLost > max_lostLayers_) return false;
 
-   double chi2n =  tk.normalizedChi2();
+   // Get track parameters
+   double pt = tk.pt(),eta = tk.eta(), chi2n =  tk.normalizedChi2();
+   double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(), dz = tk.dz(), dzE =  tk.dzError();
 
-   int count1dhits = 0;
-   for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
-     const TrackingRecHit * hit = ith->get();
-     DetId detid = hit->geographicalId();
-     if (hit->isValid()) {
-       if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
-     }
-   }
-   if (count1dhits > 0) {
-     double chi2 = tk.chi2();
-     double ndof = tk.ndof();
-     chi2n = (chi2+count1dhits)/double(ndof+count1dhits);
-   }
-   // For each 1D rechit, the chi^2 and ndof is increased by one.  This is a way of retaining approximately
-   // the same normalized chi^2 distribution as with 2D rechits.
+   // Absolute cuts on all tracks impact parameters with respect to beam-spot.
+   if (abs(d0) > max_d0_) return false;
+   if (abs(dz) > max_z0_) return false;
+
+   // optimized cuts adapted to the track nlayers, pt, eta:
+   // cut on chiquare/ndof 
    if (chi2n > chi2n_par_*nlayers) return false;
 
-   // Get track parameters
-   double pt = tk.pt(), eta = tk.eta();
-   double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
-     dz = tk.dz(vertexBeamSpot.position()), dzE =  tk.dzError();
 
    // parametrized d0 resolution for the track pt
    double nomd0E = sqrt(res_par_[0]*res_par_[0]+(res_par_[1]/max(pt,1e-9))*(res_par_[1]/max(pt,1e-9)));
    // parametrized z0 resolution for the track pt and eta
    double nomdzE = nomd0E*(std::cosh(eta));
 
-
-   // ---- PrimaryVertex compatibility cut
-   bool primaryVertexZCompatibility(false);   
-   bool primaryVertexD0Compatibility(false);   
-
-   if (points.empty()) { //If not primaryVertices are reconstructed, check just the compatibility with the BS
-     //z0 within three sigma of the beam spot z, if no good vertex is found
-     if ( abs(dz) < (vertexBeamSpot.sigmaZ()*3) ) primaryVertexZCompatibility = true;  
+   if (applyAdaptedPVCuts_) {
 
      // d0 compatibility with beam line
-     if (abs(d0) < pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E &&
-	 abs(d0) < pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E) primaryVertexD0Compatibility = true;     
-   }
+     if (abs(d0) > pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E ||
+         abs(d0) > pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E) return false;
 
+     // z0 compatibility with one of the primary vertices
+	 // or z0 within three sigma of the beam spot z, if no good vertex is found
+     if (points.empty()) { 
+       if ( abs(dz) < (vertexBeamSpot.sigmaZ()*3) ) return true;  
+     }
+     for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
+       if (abs(dz-(point->z())) < pow(dz_par1_[0]*nlayers,dz_par1_[1])*nomdzE &&
+  	   abs(dz-(point->z())) < pow(dz_par2_[0]*nlayers,dz_par2_[1])*dzE ) return true;
+     }
+     return false;
 
-   for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
-     if(primaryVertexZCompatibility && primaryVertexD0Compatibility) break;
-     double dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
-     double d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
-     if (abs(dzPV) < pow(dz_par1_[0]*nlayers,dz_par1_[1])*nomdzE &&
-	 abs(dzPV) < pow(dz_par2_[0]*nlayers,dz_par2_[1])*dzE )  primaryVertexZCompatibility = true;
-
-     if (abs(d0PV) < pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E &&
-	 abs(d0PV) < pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E) primaryVertexD0Compatibility = true;     
-   }
-
-
-   // Absolute cuts on all tracks impact parameters with respect to beam-spot.
-   // If BS is not compatible, verify if at least the reco-vertex is compatible (useful for incorrect BS settings)
-   if (abs(d0) > max_d0_ && !primaryVertexD0Compatibility) return false;
-   if (abs(dz) > max_z0_ && !primaryVertexZCompatibility) return false;
-
-
-   if (applyAdaptedPVCuts_) {
-     return (primaryVertexD0Compatibility && primaryVertexZCompatibility);
    } else {
-     return true;     
+
+     return true;
+
    }
-
-
 }
 void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs, std::vector<Point> &points) {
   // Select good primary vertices

@@ -4,13 +4,10 @@ process = cms.Process("CALIB")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring(''),
+    destinations = cms.untracked.vstring('QualityReader'),
     QualityReader = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('QualityReader.log')
 )
 
 process.source = cms.Source("EmptyIOVSource",
@@ -24,15 +21,16 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
+process.load("CalibTracker.SiStripESProducers.fake.SiStripBadStripFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadFiberFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadChannelFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripDetVOffFakeESSource_cfi")
 
-
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripDetVOffRcd"),    tag    = cms.string("") ),
+     cms.PSet( record = cms.string("SiStripBadStripRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadChannelRcd"), tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadFiberRcd"),   tag    = cms.string("") ),
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )

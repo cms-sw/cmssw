@@ -7,7 +7,6 @@
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
-#include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
 
 #include "CondFormats/RPCObjects/interface/RPCObGas.h"
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
@@ -28,8 +27,6 @@
 #include "CondFormats/RPCObjects/interface/RPCRunIOV.h"
 #include "CondFormats/RPCObjects/interface/RPCObFebAssmap.h"
 #include "CondFormats/RPCObjects/interface/RPCObUXC.h"
-#include "CondFormats/RPCObjects/interface/RPCObGasMix.h"
-#include "CondFormats/RPCObjects/interface/RPCObGasHum.h"
 
 namespace{
   struct dictionary {

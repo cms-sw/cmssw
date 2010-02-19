@@ -63,7 +63,7 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
         gainRatios[2] = aGain->gain6Over1()*aGain->gain12Over6();
 
 	if (detid.subdetId()==EcalEndcap) {
-	  result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EEtimeFitParameters_, EEamplitudeFitParameters_, EEtimeFitLimits_));
+	  result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EBtimeFitParameters_, EBamplitudeFitParameters_, EBtimeFitLimits_));
         } else {
 	  result.push_back(uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, EBtimeFitParameters_, EBamplitudeFitParameters_, EBtimeFitLimits_));
         }

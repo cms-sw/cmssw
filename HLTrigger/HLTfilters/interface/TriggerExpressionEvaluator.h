@@ -12,10 +12,13 @@ public:
   Evaluator() { }
 
   // pure virtual, need a concrete implementation
-  virtual bool operator()(const Data &) = 0;
+  virtual bool operator()(const Data & data) const = 0;
+
+  // virtual function, do nothing unless overridden
+  virtual void init(const Data & data) { }
 
   // pure virtual, need a concrete implementation
-  virtual void dump(std::ostream &) const = 0;
+  virtual void dump(std::ostream & out) const = 0;
 };
 
 inline 

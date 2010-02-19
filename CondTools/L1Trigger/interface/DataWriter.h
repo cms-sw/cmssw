@@ -71,8 +71,6 @@ class DataWriter
   std::string payloadToken( const std::string& recordName,
 			    edm::RunNumber_t runNumber ) ;
 
-  std::string lastPayloadToken( const std::string& recordName ) ;
-
  protected:
 };
 

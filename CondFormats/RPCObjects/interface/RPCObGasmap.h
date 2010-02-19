@@ -1,11 +1,3 @@
-/*
- * Payload definition(s): Gas Map (RPCObGasmap)
- *
- *  $Date: 2009/11/16 12:53:47 $
- *  $Revision: 1.3 $
- *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
- */
-
 #ifndef RPCObGasmap_h
 #define RPCObGasmap_h
 #include <vector>

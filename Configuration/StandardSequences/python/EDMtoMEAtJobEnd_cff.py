@@ -7,7 +7,7 @@ dqmSaver.convention = 'Offline'
 dqmSaver.workflow = '/Global/CMSSW_X_Y_Z/RECO'
 
 DQMStore.collateHistograms = True
-EDMtoMEConverter.convertOnEndLumi = False
+EDMtoMEConverter.convertOnEndLumi = True
 EDMtoMEConverter.convertOnEndRun = True
 dqmSaver.saveByRun = -1
 dqmSaver.saveAtJobEnd = True  

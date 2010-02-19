@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2009/09/22 14:54:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/22 15:48:35 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -16,7 +16,7 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include <vector>
 #include <string>
 

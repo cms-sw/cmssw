@@ -13,8 +13,11 @@ namespace edm {
   class ParameterSet;
 }
 
-namespace JetPartonNamespace {
+namespace {
 class ParametrizationJetParton;
+}
+
+namespace {
 class UserPartonMixture;
 }
 
@@ -33,7 +36,7 @@ public:
   
 private:
 
-  typedef std::map<double,JetPartonNamespace::ParametrizationJetParton *> ParametersMap;
+  typedef std::map<double,ParametrizationJetParton *> ParametersMap;
   ParametersMap parametrization;
   int thePartonMixture;
   double theJetFinderRadius;

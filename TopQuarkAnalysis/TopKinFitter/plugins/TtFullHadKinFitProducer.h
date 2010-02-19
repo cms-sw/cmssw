@@ -35,10 +35,6 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   TtFullHadKinFitter::Constraint constraint(unsigned int configParameter);
   // convert vector of unsigned int's to vector of Contraint's
   std::vector<TtFullHadKinFitter::Constraint> constraints(std::vector<unsigned int>& configParameters);
-  // helper function for b-tagging
-  bool doBTagging(unsigned int& bTags_, unsigned int& bJetCounter, std::string& corL_, std::string& corB_,
-		  edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
-		  std::string& bTagAlgo_, double& minBTagValueBJets_, double& maxBTagValueNonBJets_);
   
  private:
   /// input tag for jets
@@ -48,21 +44,9 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   /// switch to tell whether all possible combinations should be used for the fit 
   /// or only a certain combination
   bool useOnlyMatch_;
-  /// input tag for b-tagging algorithm
-  std::string bTagAlgo_;
-  /// min value of bTag for a b-jet
-  double minBTagValueBJet_;
-  /// max value of bTag for a non-b-jet
-  double maxBTagValueNonBJet_;
-  /// switch to tell whether to use b-tagging with 1 or 2 b-jets or not (=0)
-  unsigned int bTags_;
-  /// correction level for light quarks
-  std::string corL_;
-  /// correction level dor b quarks
-  std::string corB_;
-  /// maximal number of jets (-1 possible to indicate 'all')
+  /// maximal number of jets (-1 possible to indicate 'all')  
   int maxNJets_;
-  /// maximal number of combinations to be written to the event
+  /// maximal number of combinations to be written to rthe event
   int maxNComb_;
   /// maximal number of iterations to be performed for the fit
   unsigned int maxNrIter_;

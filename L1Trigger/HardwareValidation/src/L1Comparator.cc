@@ -1,5 +1,10 @@
 #include "L1Trigger/HardwareValidation/interface/L1Comparator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+
 
 using namespace dedefs;
 

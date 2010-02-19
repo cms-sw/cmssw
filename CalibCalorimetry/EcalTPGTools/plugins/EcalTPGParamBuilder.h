@@ -34,8 +34,6 @@
 #endif
 
 
-#include <TH1F.h>
-
 #include <vector>
 #include <string>
 #include <map>
@@ -76,9 +74,9 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int uncodeWeight(double weight, int complement2 = 7) ;
   double uncodeWeight(int iweight, int complement2 = 7) ;
 #if (CMSSW_VERSION>=340)
-  std::vector<unsigned int> computeWeights(EcalShapeBase & shape, TH1F * histo) ;
+  std::vector<unsigned int> computeWeights(EcalShapeBase & shape) ;
 #else
-  std::vector<unsigned int> computeWeights(EcalShape & shape, TH1F * histo) ;
+  std::vector<unsigned int> computeWeights(EcalShape & shape) ;
 #endif
   void computeLUT(int * lut, std::string det="EB")  ;
   void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ;

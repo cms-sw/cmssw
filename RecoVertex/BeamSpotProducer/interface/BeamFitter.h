@@ -10,12 +10,11 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.14 2010/02/04 00:45:21 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.9 2009/10/27 20:59:28 yumiceva Exp $
 
  ________________________________________________________________**/
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -26,7 +25,7 @@
 #include "TTree.h"
 #include "TH1F.h"
 
-#include <fstream>
+#include<fstream>
 
 class BeamFitter {
  public:
@@ -40,7 +39,6 @@ class BeamFitter {
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
-  void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void dumpTxtFile();
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
@@ -77,7 +75,6 @@ class BeamFitter {
   // ntuple
   TH1F* h1z;
   bool saveNtuple_;
-  bool saveBeamFit_;
   std::string outputfilename_;
   TFile* file_;
   TTree* ftree_;
@@ -88,7 +85,6 @@ class BeamFitter {
   double fnormchi2;
   double fphi0;
   double fd0;
-  double fd0bs;
   double fsigmad0;
   double fz0;
   double fsigmaz0;
@@ -110,32 +106,6 @@ class BeamFitter {
   int flumi;
   bool fquality;
   bool falgo;
-  bool fpvValid;
-  double fpvx, fpvy, fpvz;
-  
-  //beam fit results
-  TTree* ftreeFit_;
-  int frunFit;
-  int fbeginLumiOfFit;
-  int fendLumiOfFit;
-  char fbeginTimeOfFit[30];
-  char fendTimeOfFit[30];
-  double fx;
-  double fy;
-  double fz;
-  double fsigmaZ;
-  double fdxdz;
-  double fdydz;
-  double fxErr;
-  double fyErr;
-  double fzErr;
-  double fsigmaZErr;
-  double fdxdzErr;
-  double fdydzErr;
-
-  TH1F *h1ntrks;
-  TH1F *h1vz_event;
-  
 };
 
 #endif

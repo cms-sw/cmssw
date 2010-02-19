@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/27 01:42:56 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/01/25 08:21:34 $
+ *  $Revision: 1.14 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -60,15 +60,13 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
   _hlt_PhysDec   = parameters.getParameter<std::string>("HLT_PhysDec");
 
-  _techTrigsAND  = parameters.getParameter<std::vector<unsigned > >("techTrigsAND");
-  _techTrigsOR   = parameters.getParameter<std::vector<unsigned > >("techTrigsOR");
-  _techTrigsNOT  = parameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
+  _techTrigs     = parameters.getParameter<std::vector<unsigned > >("techTrigs");
 
   _doPVCheck          = parameters.getParameter<bool>("doPrimaryVertexCheck");
   _doHLTPhysicsOn     = parameters.getParameter<bool>("doHLTPhysicsOn");
 
   _tightBHFiltering     = parameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering  = parameters.getParameter<int>("tightJetIDFiltering");
+  _tightJetIDFiltering  = parameters.getParameter<unsigned>("tightJetIDFiltering");
   _tightHcalFiltering   = parameters.getParameter<bool>("tightHcalFiltering");
   //Vertex requirements
   if (_doPVCheck) {
@@ -695,23 +693,20 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
       VertexCollection::const_iterator v = vertexCollection.begin();
-      double vertex_chi2    = v->normalizedChi2();
+      double vertex_chi2    = v->normalizedChi2(); //v->chi2();
       //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
-      //double vertex_numTrks = v->tracksSize();
-      double vertex_ndof    = v->ndof();
-      bool   fakeVtx        = v->isFake();
+      double vertex_numTrks = v->tracksSize();
       double vertex_sumTrks = 0.0;
       double vertex_Z       = v->z();
       for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
 	vertex_sumTrks += (*vertex_curTrack)->pt();
       }
       
-      if (  !fakeVtx
-	  && vertex_number>=_nvtx_min
-	  //&& vertex_numTrks>_nvtxtrks_min
-	  && vertex_ndof   >_nvtxtrks_min+1
+      if (vertex_number>=_nvtx_min
+	  && vertex_numTrks>=_nvtxtrks_min
 	  && vertex_chi2   <_vtxchi2_max
 	  && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
+      
     }
   }
   // ==========================================================
@@ -720,32 +715,22 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel( edm::InputTag("gtDigis"), gtReadoutRecord);
 
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+  std::vector<bool> bTechTrigResults;
+  bTechTrigResults.resize(_techTrigs.size());
 
-  bool bTechTriggers    = true;
-  bool bTechTriggersAND = true;
-  bool bTechTriggersOR  = false;
-  bool bTechTriggersNOT = false;
+  bool bTechTriggers = true;
 
-  for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
-    bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+  for (unsigned ttr = 0; ttr != _techTrigs.size(); ttr++) {
+    bTechTrigResults.at(ttr) = technicalTriggerWordBeforeMask.at(_techTrigs.at(ttr));
+    bTechTriggers = bTechTriggers && bTechTrigResults.at(ttr);
   }
-
-  for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
-    bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
-  }
-
-  for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
-    bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
-  }
-
-  bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
   bool bHcalNoise   = bHcalNoiseFilter;
   bool bBeamHaloID  = bBeamHaloIDLoosePass;
-  bool bJetID       = true;
+  bool bJetID       = bJetIDMinimal;
 
   bool bPhysicsDeclared = true;
   if(_doHLTPhysicsOn) bPhysicsDeclared =_trig_PhysDec;
@@ -753,11 +738,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if      (_tightHcalFiltering)     bHcalNoise  = bHcalNoiseFilterTight;
   if      (_tightBHFiltering)       bBeamHaloID = bBeamHaloIDTightPass;
-
-  if      (_tightJetIDFiltering==1)  bJetID      = bJetIDMinimal;
-  else if (_tightJetIDFiltering==2)  bJetID      = bJetIDLoose;
-  else if (_tightJetIDFiltering==3)  bJetID      = bJetIDTight;
-  else if (_tightJetIDFiltering==-1) bJetID      = true;
+  if      (_tightJetIDFiltering==1) bJetID      = bJetIDLoose;
+  else if (_tightJetIDFiltering==2) bJetID      = bJetIDTight;
 
   bool bBasicCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
   bool bExtraCleanup = bBasicCleanup && bHcalNoise && bJetID && bBeamHaloID;

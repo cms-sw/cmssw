@@ -42,7 +42,7 @@ PF2PAT = cms.Sequence(
     pfJetSequence +
     pfNoJet + 
     pfTauSequence +
-    pfNoTau 
-# now that we have real data, we leave it to the user
-# or maybe to PAT? to run the gen sequence. 
+    pfNoTau + 
+# putting the following in the sequence, as we don't want to leave the responsibility to forget it to the user.
+    genForPF2PATSequence
     )

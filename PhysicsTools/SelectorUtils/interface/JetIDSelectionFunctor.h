@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: JetIDSelectionFunctor.h,v 1.3 2010/01/08 15:27:07 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.4 2010/01/12 22:43:17 srappocc Exp $
 */
 
 
@@ -91,7 +91,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("LOOSE_AOD_N90Hits", false );
       set("LOOSE_AOD_EMF", false );
     }
-    
+  
+    retInternal_ = getBitTemplate();
   }
 
   // 
@@ -104,6 +105,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
       return false;
     }
   }
+  // accessor from PAT jets without the ret
+  using Selector<pat::Jet>::operator();
 
   // 
   // Accessor from *CORRECTED* 4-vector, EMF, and Jet ID. 
@@ -119,6 +122,39 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
       return false;
     }
   }
+  /// accessor like previous, without the ret
+  virtual bool operator()( reco::Candidate::LorentzVector const & correctedP4, 
+			   double emEnergyFraction, 
+			   reco::JetID const & jetID )
+  {
+    retInternal_.set(false);
+    operator()(correctedP4,emEnergyFraction, jetID, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
+
+  // 
+  // Accessor from *CORRECTED* CaloJet and Jet ID. 
+  // This can be used with reco quantities. 
+  // 
+  bool operator()( reco::CaloJet const & jet,
+		   reco::JetID const & jetID,
+		   std::strbitset & ret )  
+  {
+    if ( version_ == CRAFT08 ) return craft08Cuts( jet.p4(), jet.emEnergyFraction(), jetID, ret );
+    else {
+      return false;
+    }
+  }
+  /// accessor like previous, without the ret
+  virtual bool operator()( reco::CaloJet const & jet,
+			   reco::JetID const & jetID )
+  {
+    retInternal_.set(false);
+    operator()(jet, jetID, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
   
   // 
   // cuts based on craft 08 analysis. 
@@ -128,6 +164,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 		    reco::JetID const & jetID,
 		    std::strbitset & ret) 
   {
+
+    ret.set(false);
 
     // cache some variables
     double abs_eta = TMath::Abs( correctedP4.eta() );

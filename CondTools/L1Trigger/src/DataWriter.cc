@@ -21,8 +21,8 @@ DataWriter::writePayload( const edm::EventSetup& setup,
 			  const std::string& recordType )
 {
   WriterFactory* factory = WriterFactory::get();
-  std::auto_ptr<WriterProxy> writer(factory->create( recordType + "@Writer" )) ;
-  if( writer.get() == 0 )
+  WriterProxy* writer = factory->create( recordType + "@Writer" ) ;
+  if( writer == 0 )
     {
       throw cond::Exception( "DataWriter: could not create WriterProxy with name "
 			     + recordType + "@Writer" ) ;
@@ -45,6 +45,7 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
 			       << payloadToken ;
 
+  delete writer;
   tr.commit ();
 
   return payloadToken ;
@@ -164,7 +165,7 @@ DataWriter::payloadToken( const std::string& recordName,
   // Get IOV token for tag.
   cond::DbSession session = poolDb->session();
   cond::DbScopedTransaction tr(session);
-  tr.start(true);
+  tr.start(false);
   cond::MetaData metadata(session ) ;
   std::string iovToken ;
   if( metadata.hasTag( iovTag ) )
@@ -183,21 +184,6 @@ DataWriter::payloadToken( const std::string& recordName,
 
   tr.commit() ;
   return payloadToken ;
-}
-
-std::string
-DataWriter::lastPayloadToken( const std::string& recordName )
-{
-  edm::Service<cond::service::PoolDBOutputService> poolDb;
-  if( !poolDb.isAvailable() )
-    {
-      throw cond::Exception( "DataWriter: PoolDBOutputService not available."
-			     ) ;
-    }
-
-  cond::TagInfo tagInfo ;
-  poolDb->tagInfo( recordName, tagInfo ) ;
-  return tagInfo.lastPayloadToken ;
 }
 
 } // ns

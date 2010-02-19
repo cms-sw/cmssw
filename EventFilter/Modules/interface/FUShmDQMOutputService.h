@@ -9,7 +9,7 @@
  * 27-Dec-2006 - KAB  - Initial Implementation
  * 31-Mar-2007 - HWKC - modification for shared memory usage
  *
- * $Id: FUShmDQMOutputService.h,v 1.5 2008/10/14 13:18:13 biery Exp $
+ * $Id: FUShmDQMOutputService.h,v 1.6 2009/05/08 13:46:36 biery Exp $
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -20,37 +20,40 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "IOPool/Streamer/interface/StreamDQMSerializer.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
+#include "EventFilter/Utilities/interface/ServiceWeb.h"
 
-class FUShmDQMOutputService 
+#include "xdata/UnsignedInteger32.h"
+
+class FUShmDQMOutputService : public evf::ServiceWeb
 {
  public:
   FUShmDQMOutputService(const edm::ParameterSet &pset,
                         edm::ActivityRegistry &actReg);
   ~FUShmDQMOutputService(void);
 
+  //serviceweb interface
+  void defaultWebPage(xgi::Input *in, xgi::Output *out); 
+  void publish(xdata::InfoSpace *);
+
   void postEventProcessing(const edm::Event &event,
                            const edm::EventSetup &eventSetup);
 
   // test routines to check on timing of various signals
-  void postBeginJobProcessing();
   void postEndJobProcessing();
-  void preSourceProcessing();
-  void postSourceProcessing();
-  void preModuleProcessing(const edm::ModuleDescription &modDesc);
-  void postModuleProcessing(const edm::ModuleDescription &modDesc);
-  void preSourceConstructionProcessing(const edm::ModuleDescription &modDesc);
   void postSourceConstructionProcessing(const edm::ModuleDescription &modDesc);
-  void preModuleConstructionProcessing(const edm::ModuleDescription &modDesc);
-  void postModuleConstructionProcessing(const edm::ModuleDescription &modDesc);
   void preBeginRun(const edm::RunID &runID, const edm::Timestamp &timestamp);
-
+  void postEndLumi(edm::LuminosityBlock const&, edm::EventSetup const&);
   bool attachToShm();
   bool detachFromShm();
-
+  void reset(){
+    nbUpdates_ = 0;
+    initializationIsNeeded_ = true;
+  }
  protected:
   DQMStore *bei;
 
@@ -63,8 +66,6 @@ class FUShmDQMOutputService
   std::vector<char> messageBuffer_;
   int lumiSectionInterval_;  
   double lumiSectionsPerUpdate_;
-  //edm::LuminosityBlockID lumiSectionOfPreviousUpdate_;
-  //edm::LuminosityBlockID firstLumiSectionSeen_;
   unsigned int lumiSectionOfPreviousUpdate_;
   unsigned int firstLumiSectionSeen_;
   double timeInSecSinceUTC_;
@@ -75,6 +76,8 @@ class FUShmDQMOutputService
   edm::StreamDQMDeserializer deserializeWorker_;
 
   evf::FUShmBuffer* shmBuffer_;
+
+  xdata::UnsignedInteger32 nbUpdates_;
 
   static bool fuIdsInitialized_;
   static uint32 fuProcId_;

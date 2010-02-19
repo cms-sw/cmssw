@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/11/09 16:28:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/13 19:32:23 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -198,7 +198,7 @@ HLTHighLevelDev::pathsFromSetup(const std::string &key, const edm::EventSetup &i
 }
 
 // ------------ method called to produce the data  ------------
-  bool
+bool
 HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace std;
@@ -223,6 +223,9 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // - or selected trigger bits come from AlCaRecoTriggerBitsRcd and these changed
   if (config_changed or (watchAlCaRecoTriggerBitsRcd_ and watchAlCaRecoTriggerBitsRcd_->check(iSetup))) {
     this->init(*trh, iSetup);
+    for (unsigned int i = 0; i < HLTPrescalesScalers.size(); ++i)
+      HLTPrescalesScalers[i] = iEvent.id().event() + 1;
+    HLTOverallPrescalesScaler_ = iEvent.id().event() + 1;
   }
   unsigned int n     = HLTPathsByName_.size();
   unsigned int nbad  = 0;

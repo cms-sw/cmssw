@@ -26,6 +26,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector(
     double elePtMinLoose , double eleEtaMaxLoose,
     double jetPtMin      , double jetEtaMax
     ) :
+  EventSelector(),
   muonTag_(muonTag),
   electronTag_(electronTag),
   jetTag_(jetTag),
@@ -69,10 +70,14 @@ WPlusJetsEventSelector::WPlusJetsEventSelector(
   set( "Cosmic Veto"    );
 
   dR_ = 0.3;
+
+  retInternal_ = getBitTemplate();
 }
 
 bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::strbitset & ret)
 {
+  ret.set(false);
+
   selectedJets_.clear();
   cleanedJets_.clear();
   selectedMuons_.clear();
@@ -86,23 +91,18 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
   
   edm::Handle< vector< pat::Electron > > electronHandle;
   event.getByLabel (electronTag_, electronHandle);
-  if ( !electronHandle.isValid() ) return (bool)ret;
   
   edm::Handle< vector< pat::Muon > > muonHandle;
   event.getByLabel (muonTag_, muonHandle);
-  if ( !muonHandle.isValid() ) return (bool)ret;
 
   edm::Handle< vector< pat::Jet > > jetHandle;
   event.getByLabel (jetTag_, jetHandle);
-  if ( !jetHandle.isValid() ) return (bool)ret;
 
   edm::Handle< vector< pat::MET > > metHandle;
   event.getByLabel (metTag_, metHandle);
-  if ( !metHandle.isValid() ) return (bool)ret;  
 
   edm::Handle<pat::TriggerEvent> triggerEvent;
   event.getByLabel(edm::InputTag("patTriggerEvent"), triggerEvent);
-  if (!triggerEvent.isValid() ) return (bool)ret;  
 
 
   int nGlobalMuons = 0;
@@ -172,104 +172,112 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
     }
   }
 
-  pat::TriggerEvent const * trig = &*triggerEvent;
 
   bool passTrig = false;
+  if (!ignoreCut("Trigger") ) {
 
-  if ( trig->wasRun() && trig->wasAccept() ) {
+    pat::TriggerEvent const * trig = &*triggerEvent;
 
-    pat::TriggerPath const * muPath = trig->path("HLT_Mu9");
+    if ( trig->wasRun() && trig->wasAccept() ) {
 
-    pat::TriggerPath const * elePath = trig->path("HLT_Ele15_LW_L1R");
+      pat::TriggerPath const * muPath = trig->path("HLT_Mu9");
 
-    if ( muPlusJets_ && muPath != 0 && muPath->wasAccept() ) {
-      passTrig = true;    
-    }
+      pat::TriggerPath const * elePath = trig->path("HLT_Ele15_LW_L1R");
 
-    if ( ePlusJets_ && elePath != 0 && elePath->wasAccept() ) {
-      passTrig = true;
-    }
-
-    if ( ignoreCut("Trigger") || 
-	 passTrig ) {
-      passCut(ret, "Trigger");
-
-      int nleptons = 0;
-      if ( muPlusJets_ )
-	nleptons += selectedMuons_.size();
+      if ( muPlusJets_ && muPath != 0 && muPath->wasAccept() ) {
+	passTrig = true;    
+      }
       
-      if ( ePlusJets_ ) 
-	nleptons += selectedElectrons_.size();
+      if ( ePlusJets_ && elePath != 0 && elePath->wasAccept() ) {
+	passTrig = true;
+      }
+    }
+  }
 
-      if ( ignoreCut(">= 1 Lepton") || 
-	   ( nleptons > 0 ) ){
-	passCut( ret, ">= 1 Lepton");
 
-	bool oneMuon = 
-	  ( selectedMuons_.size() == 1 && 
-	    looseMuons_.size() + selectedElectrons_.size() + looseElectrons_.size() == 0 
-	    );
-	bool oneElectron = 
-	  ( selectedElectrons_.size() == 1 &&
-	    selectedMuons_.size() == 0 
-	    );
 
-	if ( ignoreCut("== 1 Lepton") || 
-	     ( (muPlusJets_ && oneMuon) ^ (ePlusJets_ && oneElectron )  )
-	     ) {
-	  passCut(ret, "== 1 Lepton");
+  
+  if ( ignoreCut("Trigger") || 
+       passTrig ) {
+    passCut(ret, "Trigger");
 
-	  if ( ignoreCut("Tight Jet Cuts") ||
-	       static_cast<int>(cleanedJets_.size()) >=  this->cut("Tight Jet Cuts", int()) ){
-	    passCut(ret,"Tight Jet Cuts");
+    int nleptons = 0;
+    if ( muPlusJets_ )
+      nleptons += selectedMuons_.size();
+      
+    if ( ePlusJets_ ) 
+      nleptons += selectedElectrons_.size();
+
+    if ( ignoreCut(">= 1 Lepton") || 
+	 ( nleptons > 0 ) ){
+      passCut( ret, ">= 1 Lepton");
+
+      bool oneMuon = 
+	( selectedMuons_.size() == 1 && 
+	  looseMuons_.size() + selectedElectrons_.size() + looseElectrons_.size() == 0 
+	  );
+      bool oneElectron = 
+	( selectedElectrons_.size() == 1 &&
+	  selectedMuons_.size() == 0 
+	  );
+
+      if ( ignoreCut("== 1 Lepton") || 
+	   ( (muPlusJets_ && oneMuon) ^ (ePlusJets_ && oneElectron )  )
+	   ) {
+	passCut(ret, "== 1 Lepton");
+
+	if ( ignoreCut("Tight Jet Cuts") ||
+	     static_cast<int>(cleanedJets_.size()) >=  this->cut("Tight Jet Cuts", int()) ){
+	  passCut(ret,"Tight Jet Cuts");
 	  
 
-	    bool metCut = true;
-	    if ( ignoreCut("MET Cut") ||
-		 metCut ) {
-	      passCut( ret, "MET Cut" );
+	  bool metCut = true;
+	  if ( ignoreCut("MET Cut") ||
+	       metCut ) {
+	    passCut( ret, "MET Cut" );
 	  
 
-	      bool zVeto = true;
-	      if ( selectedMuons_.size() == 2 ) {
-	      }
-	      if ( selectedElectrons_.size() == 2 ) {
-	      }
-	      if ( ignoreCut("Z Veto") ||
-		   zVeto ){
-		passCut(ret, "Z Veto");
+	    bool zVeto = true;
+	    if ( selectedMuons_.size() == 2 ) {
+	    }
+	    if ( selectedElectrons_.size() == 2 ) {
+	    }
+	    if ( ignoreCut("Z Veto") ||
+		 zVeto ){
+	      passCut(ret, "Z Veto");
 	    
   
-		bool conversionVeto = true;
-		if ( ignoreCut("Conversion Veto") ||
-		     conversionVeto ) {
-		  passCut(ret,"Conversion Veto");
+	      bool conversionVeto = true;
+	      if ( ignoreCut("Conversion Veto") ||
+		   conversionVeto ) {
+		passCut(ret,"Conversion Veto");
 		
 
 
-		  bool cosmicVeto = true;
-		  if ( ignoreCut("Cosmic Veto") ||
-		       cosmicVeto ) {
-		    passCut(ret,"Cosmic Veto");
+		bool cosmicVeto = true;
+		if ( ignoreCut("Cosmic Veto") ||
+		     cosmicVeto ) {
+		  passCut(ret,"Cosmic Veto");
 
 		  
-		  } // end if cosmic veto
+		} // end if cosmic veto
 		
-		} // end if conversion veto
+	      } // end if conversion veto
 
-	      } // end if z veto
+	    } // end if z veto
 
-	    } // end if met cut
+	  } // end if met cut
       
-	  } // end if 1 tight jet 
+	} // end if 1 tight jet 
 	
-	} // end if == 1 lepton
+      } // end if == 1 lepton
 
-      } // end if >= 1 lepton
+    } // end if >= 1 lepton
     
-    } // end if trigger
+  } // end if trigger
 
-  } // end if event triggered
+
+  setIgnored(ret);
 
   return (bool)ret;
 }

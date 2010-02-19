@@ -72,7 +72,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.dtNoiseAnalyzer = cms.EDAnalyzer("DTnoiseDBValidation",
+process.dtNoiseAnalyzer = cms.EDFilter("DTnoiseDBValidation",
     labelDBRef = cms.untracked.string('noiseRef'),
     diffTestName = cms.untracked.string('noiseDifferenceInRange'),
     wheelTestName = cms.untracked.string('noiseWheelOccInRange'),

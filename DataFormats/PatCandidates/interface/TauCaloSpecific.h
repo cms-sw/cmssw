@@ -1,5 +1,5 @@
 //
-// $Id: TauCaloSpecific.h,v 1.1 2008/06/09 09:03:19 gpetrucc Exp $
+// $Id: Tau.h,v 1.13 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_CaloSpecific_h
@@ -10,7 +10,7 @@
   \brief    Structure to hold information specific to a CaloTau inside a pat::Tau
 
   \author   Giovanni Petrucciani
-  \version  $Id: TauCaloSpecific.h,v 1.1 2008/06/09 09:03:19 gpetrucc Exp $
+  \version  $Id: Tau.h,v 1.13 2008/06/03 22:28:07 gpetrucc Exp $
 */
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
@@ -32,9 +32,6 @@ struct TauCaloSpecific {
     float isolationTracksPtSum_;
     float isolationECALhitsEtSum_;
     float maximumHCALhitEt_;
-    float etaetaMoment_;
-    float phiphiMoment_;
-    float etaphiMoment_;
 };
 
 } }

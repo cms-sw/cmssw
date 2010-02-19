@@ -50,19 +50,15 @@ public:
   DetId id() const { return DetId(detid());}
   bool isRecovered() const;
   uint32_t recoFlag() const { return 0xF & flags(); }
-  float chi2Prob() const;          // not used
-  float outOfTimeChi2Prob() const; // not used
-  float chi2() const;
-  float outOfTimeChi2() const;
+  float chi2Prob() const;
+  float outOfTimeChi2Prob() const;
   // set the energy for out of time events
   // (only energy >= 0 will be stored)
   float outOfTimeEnergy() const;
   void setRecoFlag( uint32_t flag );
-  void setChi2Prob( float chi2Prob );          // not used
-  void setOutOfTimeChi2Prob( float chi2Prob ); // not used
-  void setChi2( float chi2 );
-  void setOutOfTimeChi2( float chi2 );
+  void setChi2Prob( float chi2Prob );
   void setOutOfTimeEnergy( float energy );
+  void setOutOfTimeChi2Prob( float chi2Prob );
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit);

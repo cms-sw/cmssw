@@ -22,14 +22,12 @@ process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
       debugFlag = cms.untracked.bool(False),
       fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
-      #fileNames = cms.untracked.vstring("file:/data4/ZMuMu_Summer09-MC_31X_V3_preproduction_312-v1_RECO/20A5B350-6979-DE11-A6EF-001560AD3140.root")
 )
 
 # Printout of generator information for the first event
 process.include("SimGeneral/HepPDTESSource/data/pythiapdt.cfi")
 process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
-  maxEventsToPrint = cms.untracked.int32(-1),
-  #maxEventsToPrint = cms.untracked.int32(10),
+  maxEventsToPrint = cms.untracked.int32(10),
   printVertex = cms.untracked.bool(False),
   src = cms.InputTag("genParticles")
 )
@@ -43,8 +41,6 @@ process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
 # Selector and parameters
 # WMN fast selector (use W candidates in this example)
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
-# ZMM fast selector
-#process.load("ElectroWeakAnalysis.Utilities.zmmSelection_cfi")
 
 # Produce event weights according to generated boson Pt
 # Example corresponds to approximate weights to study
@@ -73,20 +69,15 @@ process.isrWeight = cms.EDProducer("ISRWeightProducer",
       )
 )
 
-# Produce event weights to estimate missing QED FSR terms
+# Produce event weights to estimate missing O(alpha) terms + NLO QED terms
 process.fsrWeight = cms.EDProducer("FSRWeightProducer",
-      GenTag = cms.untracked.InputTag("generator"),
-)
-
-# Produce event weights to estimate missing QED ISR terms
-process.isrGammaWeight = cms.EDProducer("ISRGammaWeightProducer",
       GenTag = cms.untracked.InputTag("generator"),
 )
 
 # Produce weights for systematics
 process.systematicsAnalyzer = cms.EDFilter("SimpleSystematicsAnalyzer",
       SelectorPath = cms.untracked.string('systAna'),
-      WeightTags = cms.untracked.VInputTag("isrWeight","fsrWeight","isrGammaWeight")
+      WeightTags = cms.untracked.VInputTag("isrWeight","fsrWeight")
 )
 
 # Main path
@@ -94,9 +85,7 @@ process.systAna = cms.Path(
        process.printGenParticles
       *process.isrWeight
       *process.fsrWeight
-      *process.isrGammaWeight
       *process.selectCaloMetWMuNus
-      #*process.goldenZMMSelectionSequence
 )
 
 process.end = cms.EndPath(process.systematicsAnalyzer)
