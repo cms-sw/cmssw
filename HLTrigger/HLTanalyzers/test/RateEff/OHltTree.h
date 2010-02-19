@@ -663,7 +663,9 @@ public :
   Int_t           HLT_MinBiasBSC_OR;
   Int_t           HLT_HighMultiplicityBSC;
 
-
+  // Splash Feb 2010
+  Int_t          HLT_SplashEcalSumET;
+   
   // Add-ons for Circulation beam v2 (2009Nov18)
   TBranch        *b_HLT_DTErrors;   //!
   TBranch        *b_HLT_HcalCalibration;   //!
@@ -1277,6 +1279,9 @@ public :
   TBranch        *b_HLT_TechTrigHCALNoise;
   TBranch        *b_HLT_HcalNZS_8E29;
   TBranch        *b_HLT_HcalPhiSym;
+
+  // Splash Feb 2010
+  TBranch        *b_HLT_SplashEcalSumET;
 
 
   // Cut on mu quality
@@ -2397,6 +2402,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MinBiasBSC", &map_BitOfStandardHLTPath["HLT_MinBiasBSC"], &b_HLT_MinBiasBSC);
   fChain->SetBranchAddress("HLT_MinBiasBSC_OR", &map_BitOfStandardHLTPath["HLT_MinBiasBSC_OR"], &b_HLT_MinBiasBSC_OR);
   fChain->SetBranchAddress("HLT_HighMultiplicityBSC", &map_BitOfStandardHLTPath["HLT_HighMultiplicityBSC"], &b_HLT_HighMultiplicityBSC);
+
+  // Splash Feb 2010
+  fChain->SetBranchAddress("HLT_SplashEcalSumET", &map_BitOfStandardHLTPath["HLT_SplashEcalSumET"], &b_HLT_SplashEcalSumET);
+
   
   Notify();
 }
