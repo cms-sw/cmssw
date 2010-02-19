@@ -15,6 +15,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
@@ -45,16 +46,21 @@ private:
 
   std::vector<double> ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_; 
   std::vector<double> relativeIsolation_;
+  std::vector<string> hltPath_;
+
 };
 
 template<typename T>
   double isolation(const T * t, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta, bool relativeIsolation) {
-   // on 34X: const pat::IsoDeposit * trkIso = t->isoDeposit(pat::TrackIso);
-   const pat::IsoDeposit * trkIso = t->trackerIsoDeposit();
-   // on 34X const pat::IsoDeposit * ecalIso = t->isoDeposit(pat::EcalIso);
-   const pat::IsoDeposit * ecalIso = t->ecalIsoDeposit();
-//    on 34X const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);   
-    const pat::IsoDeposit * hcalIso = t->hcalIsoDeposit();
+   // on 34X: 
+const pat::IsoDeposit * trkIso = t->isoDeposit(pat::TrackIso);
+//  const pat::IsoDeposit * trkIso = t->trackerIsoDeposit();
+   // on 34X 
+const pat::IsoDeposit * ecalIso = t->isoDeposit(pat::EcalIso);
+//  const pat::IsoDeposit * ecalIso = t->ecalIsoDeposit();
+//    on 34X 
+const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);   
+//    const pat::IsoDeposit * hcalIso = t->hcalIsoDeposit();
 
     Direction dir = Direction(t->eta(), t->phi());
     
@@ -102,9 +108,7 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     InputTag zGenParticlesMatch = i->getParameter<InputTag>( "zGenParticlesMatch" );
     beamSpot_ =  i->getParameter<InputTag>( "beamSpot" );
     primaryVertices_= i->getParameter<InputTag>( "primaryVertices" ) ;
-    // InputTag isolations1 = i->getParameter<InputTag>( "isolations1" );
-    //InputTag isolations2 = i->getParameter<InputTag>( "isolations2" );
-    double ptThreshold = i->getParameter<double>("ptThreshold");
+      double ptThreshold = i->getParameter<double>("ptThreshold");
     double etEcalThreshold = i->getParameter<double>("etEcalThreshold");
     double etHcalThreshold= i->getParameter<double>("etHcalThreshold");
     double dRVetoTrk=i->getParameter<double>("deltaRVetoTrk");
@@ -114,12 +118,11 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     double alpha=i->getParameter<double>("alpha");
     double beta=i->getParameter<double>("beta");
     bool relativeIsolation = i->getParameter<bool>("relativeIsolation");
+    string hltPath = i ->getParameter<std::string >("hltPath");
     zName_.push_back( zName );
     z_.push_back( z );
     zGenParticlesMatch_.push_back( zGenParticlesMatch );
-    //  isolations1_.push_back( isolations1 );
-    //isolations2_.push_back( isolations2 );
-    ptThreshold_.push_back( ptThreshold );
+      ptThreshold_.push_back( ptThreshold );
     etEcalThreshold_.push_back(etEcalThreshold);  
     etHcalThreshold_.push_back(etHcalThreshold);
     dRVetoTrk_.push_back(dRVetoTrk);
@@ -129,6 +132,7 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     alpha_.push_back(alpha);
     beta_.push_back(beta);
     relativeIsolation_.push_back(relativeIsolation);
+    hltPath_.push_back(hltPath);
     produces<vector<unsigned int> >( alias = "EventNumber" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = "RunNumber" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = "LumiBlock" ).setBranchAlias( alias );
@@ -139,6 +143,10 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<float> >( alias = zName + "Y" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Pt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Pt" ).setBranchAlias( alias );
+    produces<vector<int> >( alias = zName + "Dau1HLTBit" ).setBranchAlias( alias );
+    produces<vector<int> >( alias = zName + "Dau2HLTBit" ).setBranchAlias( alias );
+    produces<vector<int> >( alias = zName + "Dau1Q" ).setBranchAlias( alias );
+    produces<vector<int> >( alias = zName + "Dau2Q" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Eta" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Eta" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Phi" ).setBranchAlias( alias );
@@ -185,7 +193,7 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
 
 
 void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
-  Handle<reco::BeamSpot> beamSpotHandle;
+    Handle<reco::BeamSpot> beamSpotHandle;
   if (!evt.getByLabel(beamSpot_, beamSpotHandle)) {
     std::cout << ">>> No beam spot found !!!"<<std::endl;
   }
@@ -193,6 +201,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
   if (!evt.getByLabel(primaryVertices_, primaryVertices)){
     std::cout << ">>> No primary verteces  found !!!"<<std::endl;
   }
+    
   unsigned int size = z_.size();
   for( unsigned int c = 0; c < size; ++ c ) {
     Handle<CandidateView> zColl;
@@ -214,6 +223,10 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<float> > zY( new vector<float> );
     auto_ptr<vector<float> > zDau1Pt( new vector<float> );
     auto_ptr<vector<float> > zDau2Pt( new vector<float> );
+    auto_ptr<vector<int> > zDau1HLTBit( new vector<int> );
+    auto_ptr<vector<int> > zDau2HLTBit( new vector<int> );
+    auto_ptr<vector<int> > zDau1Q( new vector<int> );
+    auto_ptr<vector<int> > zDau2Q( new vector<int> );
     auto_ptr<vector<float> > zDau1Eta( new vector<float> );
     auto_ptr<vector<float> > zDau2Eta( new vector<float> );
     auto_ptr<vector<float> > zDau1Phi( new vector<float> );
@@ -270,6 +283,8 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       const Candidate * dau2 = z.daughter(1); 
       zDau1Pt->push_back( dau1->pt() );
       zDau2Pt->push_back( dau2->pt() );
+      zDau1Q->push_back( dau1->charge() );
+      zDau2Q->push_back( dau2->charge() );
       zDau1Eta->push_back( dau1->eta() );
       zDau2Eta->push_back( dau2->eta() );
       zDau1Phi->push_back( dau1->phi() );
@@ -277,7 +292,10 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       if(!(dau1->hasMasterClone()&&dau2->hasMasterClone()))
 	throw edm::Exception(edm::errors::InvalidReference) 
 	  << "Candidate daughters have no master clone\n"; 
-      const Candidate * m1 = &*dau1->masterClone(), * m2 = &*dau2->masterClone();
+      const CandidateBaseRef & mr1 = dau1->masterClone(), & mr2 = dau2->masterClone();
+       
+       const Candidate * m1 = &*mr1, * m2 = &*mr2;
+
       // isolation as defined by us into the analyzer
       double iso1 = candIsolation(m1,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  alpha_[c], beta_[c], relativeIsolation_[c]);
       double iso2 = candIsolation(m2,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  alpha_[c], beta_[c], relativeIsolation_[c] );
@@ -290,6 +308,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       // hcal isolation : alpha =1, beta =-1
       double hcalIso1 = candIsolation(m1,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c], 1.0, -1.0, relativeIsolation_[c]);
       double hcalIso2 = candIsolation(m2,ptThreshold_[c], etEcalThreshold_[c], etHcalThreshold_[c] ,dRVetoTrk_[c], dRTrk_[c], dREcal_[c] , dRHcal_[c],  1.0, -1.0, relativeIsolation_[c] );
+
       zDau1Iso->push_back( iso1 );
       zDau2Iso->push_back( iso2 );
       zDau1TrkIso->push_back( trkIso1 );
@@ -317,30 +336,67 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	}
       }      
       // quality variables 
-      const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(m1);    
-      zDau1NofHit->push_back(mu1->numberOfValidHits());
-      zDau1NofHitTk->push_back(mu1->innerTrack()->numberOfValidHits());
-      zDau1NofHitSta->push_back(mu1->outerTrack()->numberOfValidHits());
+      const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(m1);
+        // protection for standalone 
+      if (mu1->isGlobalMuon() == true){
+	zDau1NofHit->push_back(mu1->numberOfValidHits());
+	zDau1NofHitTk->push_back(mu1->innerTrack()->numberOfValidHits());
+	zDau1NofHitSta->push_back(mu1->outerTrack()->numberOfValidHits());
+	zDau1Chi2->push_back(mu1->normChi2());
+      } else {
+  	zDau1NofHit->push_back(0);
+	zDau1NofHitTk->push_back(0);
+	zDau1NofHitSta->push_back(0);
+	zDau1Chi2->push_back(0); 
+      }
       zDau1NofMuChambers->push_back(mu1->numberOfChambers());
       zDau1NofMuMatches->push_back(mu1->numberOfMatches());
-      zDau1Chi2->push_back(mu1->normChi2());
+
       zDau1dB->push_back(mu1->dB());
       TrackRef mu1TrkRef = mu1->innerTrack();
-      zDau1dxyFromBS->push_back(mu1TrkRef->dxy(beamSpotHandle->position()));
+       zDau1dxyFromBS->push_back(mu1TrkRef->dxy(beamSpotHandle->position()));
       zDau1dzFromBS->push_back(mu1TrkRef->dz(beamSpotHandle->position()));
-      zDau1dxyFromPV->push_back(mu1TrkRef->dxy(primaryVertices->begin()->position() ));
+       zDau1dxyFromPV->push_back(mu1TrkRef->dxy(primaryVertices->begin()->position() ));
       zDau1dzFromPV->push_back(mu1TrkRef->dz(primaryVertices->begin()->position() ));     
       // would we like to add another variables???, such as 
       // double nChi2_tk_1= mu1->innerTrack()->normalizedChi2().....
+     
+      // HLT trigger  bit
+      zDau1HLTBit->push_back(0);
+      zDau2HLTBit->push_back(0);
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches =  mu1->triggerObjectMatchesByPath( hltPath_[c] );
+	int dimTrig1 = mu1HLTMatches.size();
+	if(dimTrig1 !=0 ){
+	  zDau1HLTBit->push_back(1);
+	}
+ 
+
       const pat::Muon * mu2 = dynamic_cast<const pat::Muon*>(m2);
+ 
+    
       // for ZMuTk case...
       if (mu2!=0 ) {
-	zDau2NofHit->push_back(mu2->numberOfValidHits());
+	if (mu2->isGlobalMuon() == true) {
+        zDau2NofHit->push_back(mu2->numberOfValidHits());
 	zDau2NofHitTk->push_back(mu2->innerTrack()->numberOfValidHits());
 	zDau2NofHitSta->push_back(mu2->outerTrack()->numberOfValidHits());
+	zDau2Chi2->push_back(mu2->normChi2());
+	// HLT trigger  bit
+	const pat::TriggerObjectStandAloneCollection mu2HLTMatches = mu2->triggerObjectMatchesByPath( hltPath_[c] );
+	int dimTrig2 = mu2HLTMatches.size();
+	if(dimTrig2 !=0 ){
+	  zDau2HLTBit->push_back(1);
+	}
+ 
+	} else {
+	  zDau2NofHit->push_back(0);
+	  zDau2NofHitTk->push_back(0);
+	  zDau2NofHitSta->push_back(0);
+	  zDau2Chi2->push_back(0);
+	}
 	zDau2NofMuChambers->push_back(mu2->numberOfChambers());
 	zDau2NofMuMatches->push_back(mu2->numberOfMatches());
-	zDau2Chi2->push_back(mu2->normChi2());
+
 	zDau2dB->push_back(mu2->dB());
 	TrackRef mu2TrkRef = mu2->innerTrack();
 	zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
@@ -375,6 +431,10 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     evt.put( zY, zName + "Y" );
     evt.put( zDau1Pt, zName + "Dau1Pt" );
     evt.put( zDau2Pt, zName + "Dau2Pt" );
+    evt.put( zDau1HLTBit, zName + "Dau1HLTBit" );
+    evt.put( zDau2HLTBit, zName + "Dau2HLTBit" );
+    evt.put( zDau1Q, zName + "Dau1Q" );
+    evt.put( zDau2Q, zName + "Dau2Q" );
     evt.put( zDau1Eta, zName + "Dau1Eta" );
     evt.put( zDau2Eta, zName + "Dau2Eta" );
     evt.put( zDau1Phi, zName + "Dau1Phi" );
