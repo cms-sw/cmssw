@@ -30,7 +30,7 @@ hpsPFRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       #Minimum Pt for the tau                                      
       tauPtThreshold         = cms.double(15.),
       #Leading Pion Threshold                                            
-      leadPionThreshold      = cms.double(0.0),
+      leadPionThreshold      = cms.double(1.0),
 
       
       #isolation cone definitions
@@ -47,7 +47,7 @@ hpsPFRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       oneProngStripMassWindow = cms.vdouble(0.3,1.3),
       oneProngTwoStripsMassWindow = cms.vdouble(0.4,1.2),
       oneProngTwoStripsPi0MassWindow = cms.vdouble(0.05,0.2),
-      threeProngMassWindow = cms.vdouble(0.8,1.4),
+      threeProngMassWindow = cms.vdouble(0.8,1.5),
       #Matching cone for the taus
       matchingCone= cms.double(0.1),
       #Add converted electrons to the Tau LV

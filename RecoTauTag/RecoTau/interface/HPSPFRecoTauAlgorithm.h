@@ -67,8 +67,12 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   math::XYZTLorentzVector createMergedLorentzVector(const reco::PFCandidateRefVector&);
 
   void removeCandidateFromRefVector(const reco::PFCandidateRef&,reco::PFCandidateRefVector&); 
-
   void applyMassConstraint(math::XYZTLorentzVector&,double );
+
+  void refitThreeProng(reco::PFTau&); 
+
+
+
 
   //Configure the algorithm!
   void configure(const edm::ParameterSet&);

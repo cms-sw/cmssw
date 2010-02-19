@@ -124,7 +124,6 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo)
 	if(hadron->pt()>leadPionThreshold_) 
 	  //The track should be within the matching cone
 	  if(ROOT::Math::VectorUtil::DeltaR(hadron->p4(),tagInfo->pfjetRef()->p4())<matchingCone_) {
-	    
 	    //OK Lets create a Particle Flow Tau!
 	    PFTau tau = PFTau(hadron->charge(),hadron->p4(),hadron->vertex());
 	    
@@ -152,8 +151,26 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo)
 	    taus.push_back(tau);
 	  }
     }
-  
-  return taus;
+
+  reco::PFTauCollection output;
+
+  if(taus.size()>0) {
+    //if more than one tau  correspond to this PF Jet select the best one!
+    if(taus.size()>1)  {
+      if(overlapCriterion_ =="Isolation"){
+	HPSSorterByIsolation sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+      else if(overlapCriterion_ =="Pt"){
+	HPSSorterByPt sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+    }
+    output.push_back(taus.at(0));
+  }
+  taus.clear();
+  return output;
+
 }
 
 //Build one Prong + Strip
@@ -261,7 +278,27 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
       }
   }
 
-return taus;
+  reco::PFTauCollection output;
+
+  if(taus.size()>0) {
+    //if more than one tau  correspond to this PF Jet select the best one!
+    if(taus.size()>1)  {
+      if(overlapCriterion_ =="Isolation"){
+	HPSSorterByIsolation sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+      else if(overlapCriterion_ =="Pt"){
+	HPSSorterByPt sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+    }
+    output.push_back(taus.at(0));
+  }
+  taus.clear();
+  return output;
+
+
+
 }
 
 PFTauCollection
@@ -399,8 +436,25 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 		}
 	}
   }
-  
-  return taus;
+
+  reco::PFTauCollection output;
+
+  if(taus.size()>0) {
+    //if more than one tau  correspond to this PF Jet select the best one!
+    if(taus.size()>1)  {
+      if(overlapCriterion_ =="Isolation"){
+	HPSSorterByIsolation sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+      else if(overlapCriterion_ =="Pt"){
+	HPSSorterByPt sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+    }
+    output.push_back(taus.at(0));
+  }
+  taus.clear();
+  return output;
 }
 
 
@@ -422,100 +476,88 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
     for(unsigned int a=0;a<hadrons.size()-2;++a)
       for(unsigned int b=a+1;b<hadrons.size()-1;++b)
 	for(unsigned int c=b+1;c<hadrons.size();++c) {
+
 	  PFCandidateRef h1 = hadrons.at(a);
 	  PFCandidateRef h2 = hadrons.at(b);
 	  PFCandidateRef h3 = hadrons.at(c);
 
 	  //check charge Compatibility and lead track
 	  int charge=h1->charge()+h2->charge()+h3->charge(); 
-	  if(abs(charge)==1 && hadrons.at(0)->pt()>leadPionThreshold_&&(h1->p4()+h2->p4()+h3->p4()).pt()>tauThreshold_
-	     &&h1->trackRef()!=h2->trackRef() &&h1->trackRef()!=h3->trackRef()&&h2->trackRef()!=h3->trackRef()) {
+	  if(abs(charge)==1 && h1->pt()>leadPionThreshold_)
+	    //check the track refs
+	    if(h1->trackRef()!=h2->trackRef()&&h1->trackRef()!=h3->trackRef()&&h2->trackRef()!=h3->trackRef())
+	      {
+      
+		//create the tau
+		PFTau tau = PFTau(charge,h1->p4()+h2->p4()+h3->p4(),h1->vertex());
+		tau.setpfTauTagInfoRef(tagInfo);
+		
+		if(tau.pt()>tauThreshold_)//Threshold
+		    if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),tagInfo->pfjetRef()->p4())<matchingCone_) {//Matching Cone
+		      
+		      PFCandidateRefVector signal;
+		      signal.push_back(h1);
+		      signal.push_back(h2);
+		      signal.push_back(h3);
+		      //calculate the tau cone by getting the maximum distance
+		      std::vector<double> tauCones;
+		      if(coneMetric_=="DR")
+			{  
+			  tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h1->p4()));
+			  tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h2->p4()));
+			  tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h3->p4()));
+			  std::sort(tauCones.begin(),tauCones.end());
+			}
+		      else if(coneMetric_=="angle")
+			{  
+			  tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h1->p4())));
+			  tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h2->p4())));
+			  tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h3->p4())));
+			  std::sort(tauCones.begin(),tauCones.end());
+			}
+		      double tauCone = tauCones.at(2);
+		      
+		      //Set The PFTau
+		      tau.setsignalPFChargedHadrCands(signal);
+		      tau.setsignalPFCands(signal);
+		      tau.setleadPFChargedHadrCand(h1);
+		      tau.setleadPFCand(h1);
+		      
+		      if(isNarrowTau(tau,tauCone)) {
+			//calculate the isolation Deposits
+			associateIsolationCandidates(tau,tauCone);
+			applyMuonRejection(tau);
+			applyElectronRejection(tau,0.0);
+			taus.push_back(tau);
 
-	    //Fit the vertex!
-	    std::vector<TransientTrack> transientTracks;
-	    transientTracks.push_back(TransientTrackBuilder_->build(h1->trackRef()));
-	    transientTracks.push_back(TransientTrackBuilder_->build(h2->trackRef()));
-	    transientTracks.push_back(TransientTrackBuilder_->build(h3->trackRef()));
-	    //Apply the Vertex Fit 
-	    KalmanVertexFitter fitter(true);
-	    TransientVertex myVertex = fitter.vertex(transientTracks); 
-	    
-	    //Just require a valid vertex+ 3 refitted tracks
-	    if(myVertex.isValid()&&
-	       myVertex.hasRefittedTracks()&&
-	       myVertex.refittedTracks().size()==3) {
-		    
-	      math::XYZPoint vtx(myVertex.position().x(),myVertex.position().y(),myVertex.position().z());
-
-	      //Create a LV for each refitted track
-	      math::XYZTLorentzVector p1(myVertex.refittedTracks().at(0).track().px(),
-					 myVertex.refittedTracks().at(0).track().py(),
-					 myVertex.refittedTracks().at(0).track().pz(),
-					 sqrt(myVertex.refittedTracks().at(0).track().momentum().mag2() +0.139*0.139));
-	      
-	      math::XYZTLorentzVector p2(myVertex.refittedTracks().at(1).track().px(),
-					 myVertex.refittedTracks().at(1).track().py(),
-					 myVertex.refittedTracks().at(1).track().pz(),
-					 sqrt(myVertex.refittedTracks().at(1).track().momentum().mag2() +0.139*0.139));
-	      
-	      math::XYZTLorentzVector p3(myVertex.refittedTracks().at(2).track().px(),
-					 myVertex.refittedTracks().at(2).track().py(),
-					 myVertex.refittedTracks().at(2).track().pz(),
-					 sqrt(myVertex.refittedTracks().at(2).track().momentum().mag2() +0.139*0.139));
-	      
-	      //create the tau
-	      PFTau tau = PFTau(charge,p1+p2+p3,vtx);
-	      tau.setpfTauTagInfoRef(tagInfo);
-	      
-	      if(tau.pt()>tauThreshold_)//Threshold
-		if(tau.mass()>threeProngMassWindow_.at(0)&&tau.mass()<threeProngMassWindow_.at(1))//MassWindow
-		  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),tagInfo->pfjetRef()->p4())<matchingCone_) {//Matching Cone
-		    
-		    PFCandidateRefVector signal;
-		    signal.push_back(h1);
-		    signal.push_back(h2);
-		    signal.push_back(h3);
-		    //calculate the tau cone by getting the maximum distance
-		    std::vector<double> tauCones;
-		    if(coneMetric_=="DR")
-		      {  
-			tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),p1));
-			tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),p2));
-			tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),p3));
-			std::sort(tauCones.begin(),tauCones.end());
 		      }
-		    else if(coneMetric_=="angle")
-		      {  
-			tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),p1)));
-			tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),p2)));
-			tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),p3)));
-			std::sort(tauCones.begin(),tauCones.end());
-		      }
-
-
-		    double tauCone = tauCones.at(2);
-
-		    //Set The PFTau
-		    tau.setsignalPFChargedHadrCands(signal);
-		    tau.setsignalPFCands(signal);
-		    tau.setleadPFChargedHadrCand(h1);
-		    tau.setleadPFCand(h1);
-
-			
-		    if(isNarrowTau(tau,tauCone)) {
-
-		      //calculate the isolation Deposits
-		      associateIsolationCandidates(tau,tauCone);
-
-		      applyMuonRejection(tau);
-		      applyElectronRejection(tau,0.0);
-		      taus.push_back(tau);
 		    }
-		  }
-	    }
-	  }
+	      }
 	}
-  return taus;
+
+  reco::PFTauCollection output;
+
+  if(taus.size()>0) {
+    //if more than one tau  correspond to this PF Jet select the best one!
+    if(taus.size()>1)  {
+      if(overlapCriterion_ =="Isolation"){
+	HPSSorterByIsolation sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+      else if(overlapCriterion_ =="Pt"){
+	HPSSorterByPt sorter;
+	std::sort(taus.begin(),taus.end(),sorter);
+      }
+    }
+    PFTau bestTau  = taus.at(0);
+    refitThreeProng(bestTau);
+    //Apply mass constraint
+    if(bestTau.mass()>threeProngMassWindow_.at(0)&&bestTau.mass()<threeProngMassWindow_.at(1))//MassWindow
+        output.push_back(bestTau);
+  }
+  taus.clear();
+  return output;
+
 }
 
 
@@ -809,4 +851,54 @@ HPSPFRecoTauAlgorithm::sortRefVector(reco::PFCandidateRefVector& vec)
 
 
 
+void 
+HPSPFRecoTauAlgorithm::refitThreeProng(reco::PFTau& tau)
+{
+  //Get Hadrons
+  reco::PFCandidateRefVector hadrons = tau.signalPFChargedHadrCands();
+  PFCandidateRef  h1  = hadrons.at(0);
+  PFCandidateRef  h2  = hadrons.at(1);
+  PFCandidateRef  h3  = hadrons.at(2);
+
+  //Make transient tracks
+  std::vector<TransientTrack> transientTracks;
+  transientTracks.push_back(TransientTrackBuilder_->build(h1->trackRef()));
+  transientTracks.push_back(TransientTrackBuilder_->build(h2->trackRef()));
+  transientTracks.push_back(TransientTrackBuilder_->build(h3->trackRef()));
+
+  //Apply the Vertex Fit 
+  KalmanVertexFitter fitter(true);
+  TransientVertex myVertex = fitter.vertex(transientTracks); 
+      
+  //Just require a valid vertex+ 3 refitted tracks
+  if(myVertex.isValid()&&
+     myVertex.hasRefittedTracks()&&
+     myVertex.refittedTracks().size()==3) {
+        
+    math::XYZPoint vtx(myVertex.position().x(),myVertex.position().y(),myVertex.position().z());
+
+    //Create a LV for each refitted track
+    math::XYZTLorentzVector p1(myVertex.refittedTracks().at(0).track().px(),
+			       myVertex.refittedTracks().at(0).track().py(),
+			       myVertex.refittedTracks().at(0).track().pz(),
+			       sqrt(myVertex.refittedTracks().at(0).track().momentum().mag2() +0.139*0.139));
+          
+    math::XYZTLorentzVector p2(myVertex.refittedTracks().at(1).track().px(),
+			       myVertex.refittedTracks().at(1).track().py(),
+			       myVertex.refittedTracks().at(1).track().pz(),
+			       sqrt(myVertex.refittedTracks().at(1).track().momentum().mag2() +0.139*0.139));
+          
+    math::XYZTLorentzVector p3(myVertex.refittedTracks().at(2).track().px(),
+			       myVertex.refittedTracks().at(2).track().py(),
+			       myVertex.refittedTracks().at(2).track().pz(),
+			       sqrt(myVertex.refittedTracks().at(2).track().momentum().mag2() +0.139*0.139));
+
+    //Update the tau p4
+    tau.setP4(p1+p2+p3);
+    //Update the vertex
+    tau.setVertex(vtx);
+  }
+
+
+} 
 
