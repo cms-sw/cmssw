@@ -19,7 +19,8 @@ SiStripBadAPVAlgorithmFromClusterOccupancy::SiStripBadAPVAlgorithmFromClusterOcc
   numberiterations_(2),
   Nevents_(0),
   occupancy_(0),
-  OutFileName_("Occupancy.root")
+  OutFileName_("Occupancy.root"),
+  UseInputDB_(iConfig.getUntrackedParameter<bool>("UseInputDB",false))
   {
     minNevents_=Nevents_*occupancy_;
   }
@@ -28,7 +29,7 @@ SiStripBadAPVAlgorithmFromClusterOccupancy::~SiStripBadAPVAlgorithmFromClusterOc
   LogTrace("SiStripBadAPVAlgorithmFromClusterOccupancy")<<"[SiStripBadAPVAlgorithmFromClusterOccupancy::~SiStripBadAPVAlgorithmFromClusterOccupancy] "<<std::endl;
 }
 
-void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* siStripQuality,HistoMap& DM){
+void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* siStripQuality,HistoMap& DM, edm::ESHandle<SiStripQuality>& inSiStripQuality){
 
   LogTrace("SiStripBadAPVAlgorithmFromClusterOccupancy")<<"[SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs] "<<std::endl;
 
@@ -285,44 +286,44 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
   badStripList.clear();
 
   // Analyze the APV Occupancy for hot APVs
-  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer1,MeanAndRms_TIB_Layer1,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer2,MeanAndRms_TIB_Layer2,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer3,MeanAndRms_TIB_Layer3,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer4,MeanAndRms_TIB_Layer4,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer1,MeanAndRms_TIB_Layer1,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer2,MeanAndRms_TIB_Layer2,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer3,MeanAndRms_TIB_Layer3,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIB_Layer4,MeanAndRms_TIB_Layer4,badStripList,inSiStripQuality);
 
-  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer1,MeanAndRms_TOB_Layer1,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer2,MeanAndRms_TOB_Layer2,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer3,MeanAndRms_TOB_Layer3,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer4,MeanAndRms_TOB_Layer4,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer5,MeanAndRms_TOB_Layer5,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer6,MeanAndRms_TOB_Layer6,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer1,MeanAndRms_TOB_Layer1,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer2,MeanAndRms_TOB_Layer2,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer3,MeanAndRms_TOB_Layer3,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer4,MeanAndRms_TOB_Layer4,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer5,MeanAndRms_TOB_Layer5,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TOB_Layer6,MeanAndRms_TOB_Layer6,badStripList,inSiStripQuality);
 
-  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc1,MeanAndRms_TIDPlus_Disc1,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc2,MeanAndRms_TIDPlus_Disc2,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc3,MeanAndRms_TIDPlus_Disc3,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc1,MeanAndRms_TIDMinus_Disc1,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc2,MeanAndRms_TIDMinus_Disc2,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc3,MeanAndRms_TIDMinus_Disc3,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc1,MeanAndRms_TIDPlus_Disc1,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc2,MeanAndRms_TIDPlus_Disc2,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDPlus_Disc3,MeanAndRms_TIDPlus_Disc3,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc1,MeanAndRms_TIDMinus_Disc1,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc2,MeanAndRms_TIDMinus_Disc2,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TIDMinus_Disc3,MeanAndRms_TIDMinus_Disc3,badStripList,inSiStripQuality);
 
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc1,MeanAndRms_TECPlus_Disc1,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc2,MeanAndRms_TECPlus_Disc2,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc3,MeanAndRms_TECPlus_Disc3,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc4,MeanAndRms_TECPlus_Disc4,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc5,MeanAndRms_TECPlus_Disc5,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc6,MeanAndRms_TECPlus_Disc6,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc7,MeanAndRms_TECPlus_Disc7,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc8,MeanAndRms_TECPlus_Disc8,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc9,MeanAndRms_TECPlus_Disc9,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc1,MeanAndRms_TECPlus_Disc1,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc2,MeanAndRms_TECPlus_Disc2,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc3,MeanAndRms_TECPlus_Disc3,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc4,MeanAndRms_TECPlus_Disc4,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc5,MeanAndRms_TECPlus_Disc5,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc6,MeanAndRms_TECPlus_Disc6,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc7,MeanAndRms_TECPlus_Disc7,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc8,MeanAndRms_TECPlus_Disc8,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECPlus_Disc9,MeanAndRms_TECPlus_Disc9,badStripList,inSiStripQuality);
 
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc1,MeanAndRms_TECMinus_Disc1,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc2,MeanAndRms_TECMinus_Disc2,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc3,MeanAndRms_TECMinus_Disc3,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc4,MeanAndRms_TECMinus_Disc4,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc5,MeanAndRms_TECMinus_Disc5,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc6,MeanAndRms_TECMinus_Disc6,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc7,MeanAndRms_TECMinus_Disc7,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc8,MeanAndRms_TECMinus_Disc8,badStripList);
-  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc9,MeanAndRms_TECMinus_Disc9,badStripList);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc1,MeanAndRms_TECMinus_Disc1,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc2,MeanAndRms_TECMinus_Disc2,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc3,MeanAndRms_TECMinus_Disc3,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc4,MeanAndRms_TECMinus_Disc4,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc5,MeanAndRms_TECMinus_Disc5,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc6,MeanAndRms_TECMinus_Disc6,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc7,MeanAndRms_TECMinus_Disc7,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc8,MeanAndRms_TECMinus_Disc8,badStripList,inSiStripQuality);
+  AnalyzeOccupancy(siStripQuality,medianValues_TECMinus_Disc9,MeanAndRms_TECMinus_Disc9,badStripList,inSiStripQuality);
 
   siStripQuality->fillBadComponents();
 
@@ -391,16 +392,25 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(std::vector
 
 }
 
-void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality* quality, std::vector<Apv>& medianValues, std::pair<double,double>* MeanAndRms, std::vector<unsigned int>& BadStripList)
+void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality* quality, std::vector<Apv>& medianValues, std::pair<double,double>* MeanAndRms, std::vector<unsigned int>& BadStripList, edm::ESHandle<SiStripQuality>& InSiStripQuality)
 {
   int Moduleposition;
+  uint32_t Detid;
 
   for (uint32_t it=0; it<medianValues.size(); it++)
     {
       Moduleposition = (medianValues[it].modulePosition)-1;
+      Detid          = medianValues[it].detrawId;
 
       for (int apv=0; apv<medianValues[it].numberApvs; apv++)
 	{
+	  if(UseInputDB_)
+	    {
+	      if(InSiStripQuality->IsApvBad(Detid,apv) )
+		{
+		  continue;//if the apv is already flagged as bad, continue.
+		}
+	    }
 	  if (medianValues[it].apvMedian[apv] > minNevents_)
 	    {
 	      if ((medianValues[it].apvMedian[apv]>(MeanAndRms[Moduleposition].first+highoccupancy_*MeanAndRms[Moduleposition].second)) && (medianValues[it].apvMedian[apv]>absolutelow_))
@@ -411,9 +421,9 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality
 	}
       if (BadStripList.begin()!=BadStripList.end())
 	{
-	  quality->compact(medianValues[it].detrawId,BadStripList);
+	  quality->compact(Detid,BadStripList);
 	  SiStripQuality::Range range(BadStripList.begin(),BadStripList.end());
-	  quality->put(medianValues[it].detrawId,range);
+	  quality->put(Detid,range);
 	}
       BadStripList.clear();
     }

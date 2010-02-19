@@ -24,12 +24,49 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
-#process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-#process.GlobalTag.globaltag = "CRAFT_V3P::All"
-
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
+process.GlobalTag.globaltag = "GR09_R_34X_V2::All"
+
+#to read information of o2o and cabling
+process.BadComponentsOnline = cms.ESSource("PoolDBESSource",
+    appendToDataLabel = cms.string('online'),
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    DBParameters = cms.PSet(
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.string('runnumber'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('SiStripFedCablingRcd'),
+        tag = cms.string('SiStripFedCabling_GR10_v1_hlt')
+        ),
+                      cms.PSet(
+        record = cms.string('SiStripBadChannelRcd'),
+        tag = cms.string('SiStripBadChannel_FromOnline_GR10_v1_hlt')
+        )),
+    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_STRIP')
+)
+
+process.sistripconn = cms.ESProducer("SiStripConnectivity")
+
+#to produce ESetup based on o2o and cabling
+process.MySSQ = cms.ESProducer("SiStripQualityESProducer",
+    PrintDebug = cms.untracked.bool(True),
+    PrintDebugOutput = cms.bool(False),
+    UseEmptyRunInfo = cms.bool(False),
+    appendToDataLabel = cms.string('OnlineMasking'),
+    ReduceGranularity = cms.bool(True),
+    ThresholdForReducedGranularity = cms.double(0.3),
+    ListOfRecordToMerge = cms.VPSet(
+    cms.PSet(
+       record = cms.string('SiStripBadChannelRcd'),
+       tag = cms.string('online')
+    ),
+    cms.PSet(
+       record = cms.string('SiStripDetCablingRcd'),
+       tag = cms.string('online')
+    )
+    )
+)
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -47,15 +84,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.prod = cms.EDFilter("SiStripQualityHotStripIdentifierRoot",
     OccupancyRootFile = cms.untracked.string('BadAPVOccupancy_insertRun.root'),
     WriteOccupancyRootFile = cms.untracked.bool(True),
+    UseInputDB = cms.untracked.bool(True),
+    dataLabel=cms.untracked.string('OnlineMasking'),
     AlgoParameters = cms.PSet(
         AlgoName = cms.string('SiStripBadAPVAlgorithmFromClusterOccupancy'),
         OccupancyHisto = cms.untracked.string('ClusterDigiPosition__det__'),
-        LowOccupancyThreshold  = cms.untracked.double(3),
+        LowOccupancyThreshold  = cms.untracked.double(5),
         HighOccupancyThreshold = cms.untracked.double(5),
         AbsoluteLowThreshold   = cms.untracked.double(10),
         NumberIterations = cms.untracked.uint32(3),
-        OccupancyThreshold = cms.untracked.double(0.0001),
-        NumberOfEvents = cms.untracked.uint32(0)
+        OccupancyThreshold = cms.untracked.double(0.002), #0.0001
+        NumberOfEvents = cms.untracked.uint32(0),
+        UseInputDB = cms.untracked.bool(True)
     ),
     SinceAppendMode = cms.bool(True),
     verbosity = cms.untracked.uint32(0),

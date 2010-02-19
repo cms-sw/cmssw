@@ -52,8 +52,6 @@ public:
 
 private:
 
- //Will be called at the beginning of the job
-  void algoBeginJob(const edm::EventSetup&){}
   //Will be called at the beginning of each run in the job
   void algoBeginRun(const edm::Run &, const edm::EventSetup &);
   //Will be called at the beginning of each luminosity block in the run

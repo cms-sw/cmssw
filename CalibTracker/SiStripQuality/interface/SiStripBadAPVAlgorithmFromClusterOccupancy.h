@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.3 2009/06/22 13:39:47 kaussen Exp $
+// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.4 2009/10/05 09:43:35 kaussen Exp $
 //
 //
 
@@ -32,6 +32,7 @@
 #include "TFile.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
@@ -55,7 +56,7 @@ public:
   void setMinNumOfEvents();
   void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
   void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
-  void extractBadAPVs(SiStripQuality*,HistoMap&);
+  void extractBadAPVs(SiStripQuality*,HistoMap&,edm::ESHandle<SiStripQuality>&);
 
  private:
 
@@ -69,7 +70,7 @@ public:
 
   void CalculateMeanAndRMS(std::vector<Apv>, std::pair<double,double>*, int);
 
-  void AnalyzeOccupancy(SiStripQuality*, std::vector<Apv>&, std::pair<double,double>*, std::vector<unsigned int>&);
+  void AnalyzeOccupancy(SiStripQuality*, std::vector<Apv>&, std::pair<double,double>*, std::vector<unsigned int>&, edm::ESHandle<SiStripQuality>&);
 
   struct pHisto{   
 
@@ -88,6 +89,7 @@ public:
   double minNevents_;
   std::string OutFileName_;
   bool WriteOutputFile_;
+  bool UseInputDB_;
   const TrackerGeometry* TkGeom;
 
   SiStripQuality *pQuality;
