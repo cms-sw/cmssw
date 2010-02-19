@@ -1,0 +1,11 @@
+<bin   name="testParameterSet" file="ps_t.cppunit.cc">
+  <use   name="cppunit"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreParameterSetDescription" file="parameterSetDescription_t.cc">
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="DataFormats/Provenance"/>
+  <use   name="boost"/>
+</bin>
