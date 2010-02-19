@@ -1,7 +1,7 @@
 /* 
  *  \class PulseFitWithShape
  *
- *  $Date: 2008/01/31 11:25:50 $
+ *  $Date: 2009/06/02 12:55:20 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -86,6 +86,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   //if(cova[0] > 0.) noise=1./sqrt(cova[0]);
   
   xpar[0]=0.;
+  xpar[2]=0.;
 
 
   // first locate max:

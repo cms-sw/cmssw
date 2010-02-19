@@ -57,7 +57,7 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
   double bi[ntrack][2],dbi[ntrack][2];
   double zi[ntrack][2] ;
   double par3degre[3] ;
-  int    ioktk[ntrack],iokchi2[ntrack],nk,nborn_min,nborn_max ;
+  int    ioktk[ntrack],iokchi2[ntrack],nk,nborn_min=0,nborn_max=0;
   double cti[ntrack][6],dm1i[ntrack][4]; 
   double aiter[10][3];       
   double par[4],tsig[1];
