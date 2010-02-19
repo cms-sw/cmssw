@@ -3,7 +3,6 @@
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
-//#include "CoralKernel/Context.h"
 #include "CoralKernel/IHandle.h"
 #include "CoralKernel/IProperty.h"
 #include "CoralKernel/IPropertyManager.h"
@@ -52,17 +51,23 @@ namespace lumi{
       char datestr[9];
     };
     struct PerBXData{
-      int idx;
+      //int idx;
       float lumivalue;
       float lumierr;
-      int lumiquality;
+      short lumiquality;
     };
-    
     struct PerLumiData{
+      float dtnorm;
+      float lhcnorm;
+      float instlumi;
+      float instlumierror;
+      short instlumiquality;
+      short lumisectionquality;
+      bool cmsalive;
       unsigned int cmslsnr;
       unsigned int lumilsnr;
       unsigned int startorbit;
-      float lumiavg;
+
       std::vector<PerBXData> bxET;
       std::vector<PerBXData> bxOCC1;
       std::vector<PerBXData> bxOCC2;
@@ -77,7 +82,9 @@ namespace lumi{
 //implementation
 //
 lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest){}
-void lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
+
+void 
+lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
   //parse lumi source file name
   if(m_source.length()==0) throw lumi::Exception("lumi source is not set","parseSourceString","Lumi2DB");
   size_t tempIndex = m_source.rfind(".");
@@ -102,7 +109,9 @@ void lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
   result.run = atoi(pieces[4].c_str());
   result.firstsection = atoi(pieces[5].c_str());
 }
-void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
+
+void 
+lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   lumi::Lumi2DB::LumiResult lumiresult;
   //check filename is in  lumiraw format
   lumi::Lumi2DB::LumiSource filenamecontent;
@@ -112,10 +121,13 @@ void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     std::cout<<er.what()<<std::endl;
     throw er;
   }
+  if( filenamecontent.run!=runnumber ){
+    throw lumi::Exception("runnumber in file name does not match requested run number","retrieveData","Lumi2DB");
+  }
   TFile* source=TFile::Open(m_source.c_str(),"READ");
   TTree *hlxtree = (TTree*)source->Get("HLXData");
   if(!hlxtree){
-    throw std::runtime_error(std::string("non-existing HLXData "));
+    throw lumi::Exception(std::string("non-existing HLXData "),"retrieveData","Lumi2DB");
   }
   //hlxtree->Print();
   std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
@@ -129,19 +141,21 @@ void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   
   size_t nentries=hlxtree->GetEntries();
   size_t ncmslumi=0;
-  //std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
+  std::cout<<"processing total lumi lumisection "<<nentries<<std::endl;
   //size_t lumisecid=0;
   //unsigned int lumilumisecid=0;
   //runnumber=lumiheader->runNumber;
   for(size_t i=0;i<nentries;++i){
+    lumi::Lumi2DB::PerLumiData h;
+    h.cmsalive=true;
     hlxtree->GetEntry(i);
     if(!lumiheader->bCMSLive){
       std::cout<<"non-CMS LS "<<lumiheader->sectionNumber<<std::endl;
+      h.cmsalive=false;
       continue;
     }else{
       ++ncmslumi;
     }
-    lumi::Lumi2DB::PerLumiData h;
     h.bxET.reserve(3564);
     h.bxOCC1.reserve(3564);
     h.bxOCC2.reserve(3564);
@@ -149,43 +163,41 @@ void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     //runnumber=lumiheader->runNumber;
     //if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
     h.lumilsnr=lumiheader->sectionNumber;
-    h.cmslsnr=ncmslumi;//we record cms lumils
     h.startorbit=lumiheader->startOrbit;
-    h.lumiavg=lumisummary->InstantLumi;
-    
+    h.cmslsnr=ncmslumi;//we record cms lumils
+    h.instlumi=lumisummary->InstantLumi;
+    h.instlumierror=lumisummary->InstantLumiErr;
+    h.lumisectionquality=lumisummary->InstantLumiQlty;
+    h.dtnorm=lumisummary->DeadTimeNormalization;
+    h.lhcnorm=lumisummary->LHCNormalization;
     for(size_t i=0;i<3564;++i){
       lumi::Lumi2DB::PerBXData bET;
       lumi::Lumi2DB::PerBXData bOCC1;
       lumi::Lumi2DB::PerBXData bOCC2;
-      bET.idx=i+1;
+      //bET.idx=i+1;
       bET.lumivalue=lumidetail->ETLumi[i];
       bET.lumierr=lumidetail->ETLumiErr[i];
       bET.lumiquality=lumidetail->ETLumiQlty[i];      
-      //bxinfoET.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->ETLumi[i],lumidetail->ETLumiErr[i],lumidetail->ETLumiQlty[i]));
       h.bxET.push_back(bET);
 
-      bOCC1.idx=i+1;
+      //bOCC1.idx=i+1;
       bOCC1.lumivalue=lumidetail->OccLumi[0][i];
       bOCC1.lumierr=lumidetail->OccLumiErr[0][i];
       bOCC1.lumiquality=lumidetail->OccLumiQlty[0][i]; 
       h.bxOCC1.push_back(bOCC1);
-      //bxinfoOCC1.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[0][i],lumidetail->OccLumiErr[0][i],lumidetail->OccLumiQlty[0][i]));
-      
-      bOCC2.idx=i+1;
+          
+      //bOCC2.idx=i+1;
       bOCC2.lumivalue=lumidetail->OccLumi[1][i];
       bOCC2.lumierr=lumidetail->OccLumiErr[1][i];
       bOCC2.lumiquality=lumidetail->OccLumiQlty[1][i]; 
       h.bxOCC2.push_back(bOCC2);
-      //bxinfoOCC2.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[1][i],lumidetail->OccLumiErr[1][i],lumidetail->OccLumiQlty[1][i]));
-      
     }
     lumiresult.push_back(h);
   }
   coral::ConnectionService* svc=new coral::ConnectionService;
   coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
+  unsigned int totallumils=lumiresult.size();
   try{
-    unsigned int totallumils=35;
-    unsigned int totalcmsls=32;
     session->transaction().start(false);
     coral::ISchema& schema=session->nominalSchema();
     lumi::idDealer idg(schema);
@@ -194,15 +206,17 @@ void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     coral::AttributeList summaryData;
     summaryData.extend<unsigned long long>("LUMISUMMARY_ID");
     summaryData.extend<unsigned int>("RUNNUM");
+    summaryData.extend<unsigned int>("CMSLSNUM");
+    summaryData.extend<unsigned int>("LUMILSNUM");
     summaryData.extend<std::string>("LUMIVERSION");
     summaryData.extend<float>("DTNORM");
-    summaryData.extend<float>("LUMINORM");
+    summaryData.extend<float>("LHCNORM");
     summaryData.extend<float>("INSTLUMI");
     summaryData.extend<float>("INSTLUMIERROR");
     summaryData.extend<short>("INSTLUMIQUALITY");
     summaryData.extend<short>("LUMISECTIONQUALITY");
     summaryData.extend<bool>("CMSALIVE");
-    summaryData.extend<unsigned int>("LUMILSNUM");
+    summaryData.extend<unsigned int>("STARTORBIT");
     coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
     
     coral::AttributeList detailData;
@@ -212,73 +226,94 @@ void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     detailData.extend<coral::Blob>("BXLUMIERROR");
     detailData.extend<coral::Blob>("BXLUMIQUALITY");
     detailData.extend<std::string>("ALGONAME");
-    coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils);
+    coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*3);
     //loop over lumi LS
     unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
     unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
     std::string& lumiversion = summaryData["LUMIVERSION"].data<std::string>();
     float& dtnorm = summaryData["DTNORM"].data<float>();
-    float& luminorm = summaryData["LUMINORM"].data<float>();
+    float& lhcnorm = summaryData["LHCNORM"].data<float>();
     float& instlumi = summaryData["INSTLUMI"].data<float>();
     float& instlumierror = summaryData["INSTLUMIERROR"].data<float>();
     short& instlumiquality = summaryData["INSTLUMIQUALITY"].data<short>();
     short& lumisectionquality = summaryData["LUMISECTIONQUALITY"].data<short>();
     bool& cmsalive = summaryData["CMSALIVE"].data<bool>();
-    unsigned int& lumilsnum = summaryData["LUMILSNUM"].data<unsigned int>();
-    
+    unsigned int& lumilsnr = summaryData["LUMILSNUM"].data<unsigned int>();
+    unsigned int& cmslsnr = summaryData["CMSLSNUM"].data<unsigned int>();
+    unsigned int& startorbit = summaryData["STARTORBIT"].data<unsigned int>();
+
     unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
     unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
     coral::Blob& bxlumivalue=detailData["BXLUMIVALUE"].data<coral::Blob>();
     coral::Blob& bxlumierror=detailData["BXLUMIERROR"].data<coral::Blob>();
     coral::Blob& bxlumiquality=detailData["BXLUMIQUALITY"].data<coral::Blob>();
     std::string& algoname=detailData["ALGONAME"].data<std::string>();
-    for(unsigned int i=1;i<=totallumils;++i){
-      lumisummary_id = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());
+
+
+    
+    lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
+    lumi::Lumi2DB::LumiResult::const_iterator lumiBeg=lumiresult.begin();
+    lumi::Lumi2DB::LumiResult::const_iterator lumiEnd=lumiresult.end();
+    for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt){
+      lumisummary_id = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());      
       lumirunnum = runnumber;
-      lumiversion = "0";
-      dtnorm = 1.05;
-      luminorm = 1.2;
-      instlumi = 0.9;
-      instlumierror = 0.01;
-      instlumiquality = 8;
-      lumisectionquality = 16;
-      unsigned int cmslsnum = 0;
-      bool iscmsalive = false;
-      if(i<=totalcmsls){
-	iscmsalive=true;
-	cmslsnum=i;
-      }
-      cmsalive=iscmsalive;
-      lumilsnum=cmslsnum;
+      lumiversion = std::string(filenamecontent.version);
+      dtnorm = lumiIt->dtnorm;
+      lhcnorm = lumiIt->lhcnorm;
+      instlumi = lumiIt->instlumi;
+      instlumierror = lumiIt->instlumierror;
+      instlumiquality = lumiIt->instlumiquality;
+      lumisectionquality = lumiIt->lumisectionquality;
+      cmsalive = lumiIt->cmsalive;
+      cmslsnr = lumiIt->cmslsnr;
+      lumilsnr = lumiIt->lumilsnr;
+      startorbit = lumiIt->startorbit;
+
       //fetch a new id value 
       //insert the new row
       summaryInserter->processNextIteration();
-      d2lumisummary_id=i;
       for( unsigned int j=0; j<3; ++j ){
 	lumidetail_id=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
-	if(j==0) algoname=std::string("ET");
-	if(j==1) algoname=std::string("OCC1");
-	if(j==2) algoname=std::string("OCC2");
+	d2lumisummary_id=lumisummary_id;
+	std::vector<PerBXData>::const_iterator bxIt;
+	std::vector<PerBXData>::const_iterator bxBeg;
+	std::vector<PerBXData>::const_iterator bxEnd;
+	if(j==0) {
+	  algoname=std::string("ET");
+	  bxBeg=lumiIt->bxET.begin();
+	  bxEnd=lumiIt->bxET.end();
+	}
+	if(j==1) {
+	  algoname=std::string("OCC1");
+	  bxBeg=lumiIt->bxOCC1.begin();
+	  bxEnd=lumiIt->bxOCC1.end();
+	}
+	if(j==2) {
+	  algoname=std::string("OCC2");
+	  bxBeg=lumiIt->bxOCC2.begin();
+	  bxEnd=lumiIt->bxOCC2.end();
+	}
 	float lumivalue[3564];
 	std::memset((void*)&lumivalue,0,sizeof(float)*3564 );
 	float lumierror[3564];
 	std::memset((void*)&lumierror,0,sizeof(float)*3564 );
 	int lumiquality[3564];
-	std::memset((void*)&lumiquality,0,sizeof(int)*3564 );
+	std::memset((void*)&lumiquality,0,sizeof(short)*3564 );
 	bxlumivalue.resize(sizeof(float)*3564);
 	bxlumierror.resize(sizeof(float)*3564);
-	bxlumiquality.resize(sizeof(int)*3564);
+	bxlumiquality.resize(sizeof(short)*3564);
 	void* bxlumivalueStartAddress=bxlumivalue.startingAddress();
 	void* bxlumierrorStartAddress=bxlumierror.startingAddress();
 	void* bxlumiqualityStartAddress=bxlumiquality.startingAddress();
-	for( unsigned int k=0; k<3546; ++k ){	    
-	  lumivalue[k]=1.5;
-	  lumierror[k]=0.1;
-	  lumiquality[k]=1;
+	unsigned int k=0;
+	for( bxIt=bxBeg;bxIt!=bxEnd;++bxIt,++k  ){	    
+	  lumivalue[k]=bxIt->lumivalue;
+	  lumierror[k]=bxIt->lumierr;
+	  lumiquality[k]=bxIt->lumiquality;
 	}
 	std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*3564);
 	std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*3564);
-	std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(int)*3564);
+	std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*3564);
 	detailInserter->processNextIteration();
       }
     }

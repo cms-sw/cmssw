@@ -53,15 +53,17 @@ namespace lumi{
       coral::AttributeList summaryData;
       summaryData.extend<unsigned long long>("LUMISUMMARY_ID");
       summaryData.extend<unsigned int>("RUNNUM");
+      summaryData.extend<unsigned int>("CMSLSNUM");
+      summaryData.extend<unsigned int>("LUMILSNUM");
       summaryData.extend<std::string>("LUMIVERSION");
       summaryData.extend<float>("DTNORM");
-      summaryData.extend<float>("LUMINORM");
+      summaryData.extend<float>("LHCNORM");
       summaryData.extend<float>("INSTLUMI");
       summaryData.extend<float>("INSTLUMIERROR");
       summaryData.extend<short>("INSTLUMIQUALITY");
       summaryData.extend<short>("LUMISECTIONQUALITY");
       summaryData.extend<bool>("CMSALIVE");
-      summaryData.extend<unsigned int>("LUMILSNUM");
+      summaryData.extend<unsigned int>("STARTORBIT");
       coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
 
       coral::AttributeList detailData;
@@ -75,16 +77,17 @@ namespace lumi{
       //loop over lumi LS
       unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
       unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
+      unsigned int& cmslsnum=summaryData["CMSLSNUM"].data<unsigned int>();
+      unsigned int& lumilsnum=summaryData["LUMILSNUM"].data<unsigned int>();
       std::string& lumiversion = summaryData["LUMIVERSION"].data<std::string>();
       float& dtnorm = summaryData["DTNORM"].data<float>();
-      float& luminorm = summaryData["LUMINORM"].data<float>();
+      float& lhcnorm = summaryData["LHCNORM"].data<float>();
       float& instlumi = summaryData["INSTLUMI"].data<float>();
       float& instlumierror = summaryData["INSTLUMIERROR"].data<float>();
       short& instlumiquality = summaryData["INSTLUMIQUALITY"].data<short>();
       short& lumisectionquality = summaryData["LUMISECTIONQUALITY"].data<short>();
       bool& cmsalive = summaryData["CMSALIVE"].data<bool>();
-      unsigned int& lumilsnum = summaryData["LUMILSNUM"].data<unsigned int>();
-
+      unsigned int& startorbit =summaryData["STARTORBIT"].data<unsigned int>();
       unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
       unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
       coral::Blob& bxlumivalue=detailData["BXLUMIVALUE"].data<coral::Blob>();
@@ -93,10 +96,11 @@ namespace lumi{
       std::string& algoname=detailData["ALGONAME"].data<std::string>();
       for(unsigned int i=1;i<=totallumils;++i){
 	lumisummary_id = idg.generateNextIDForTable(LumiNames::lumisummaryTableName());
+	lumilsnum=i;
 	lumirunnum = runnum;
 	lumiversion = "0";
 	dtnorm = 1.05;
-	luminorm = 1.2;
+	lhcnorm = 1.2;
 	instlumi = 0.9;
 	instlumierror = 0.01;
 	instlumiquality = 8;
@@ -108,7 +112,7 @@ namespace lumi{
 	  cmslsnum=i;
 	}
 	cmsalive=iscmsalive;
-	lumilsnum=cmslsnum;
+	startorbit=2837495;
 	//fetch a new id value 
 	//insert the new row
 	summaryInserter->processNextIteration();
@@ -122,7 +126,7 @@ namespace lumi{
 	  std::memset((void*)&lumivalue,0,sizeof(float)*3564 );
 	  float lumierror[3564];
 	  std::memset((void*)&lumierror,0,sizeof(float)*3564 );
-	  int lumiquality[3564];
+	  short lumiquality[3564];
 	  std::memset((void*)&lumiquality,0,sizeof(int)*3564 );
 	  bxlumivalue.resize(sizeof(float)*3564);
 	  bxlumierror.resize(sizeof(float)*3564);
@@ -137,7 +141,7 @@ namespace lumi{
 	  }
 	  std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*3564);
 	  std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*3564);
-	  std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(int)*3564);
+	  std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*3564);
 	  detailInserter->processNextIteration();
 	}
       }
