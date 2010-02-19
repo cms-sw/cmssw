@@ -11,7 +11,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Candidate/interface/Particle.h"
