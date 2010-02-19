@@ -3,7 +3,7 @@
 #include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
-#include "CoralKernel/Context.h"
+//#include "CoralKernel/Context.h"
 #include "CoralKernel/IHandle.h"
 #include "CoralKernel/IProperty.h"
 #include "CoralKernel/IPropertyManager.h"
@@ -31,8 +31,10 @@
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include <iostream>
 #include <cstring>
+#include <cstdlib>
 #include "TFile.h"
 #include "TTree.h"
 namespace lumi{
@@ -43,7 +45,12 @@ namespace lumi{
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~Lumi2DB();
-    
+    struct LumiSource{
+      unsigned int run;
+      unsigned int firstsection;
+      char version[8];
+      char datestr[9];
+    };
     struct PerBXData{
       int idx;
       float lumivalue;
@@ -61,7 +68,8 @@ namespace lumi{
       std::vector<PerBXData> bxOCC2;
     };
     typedef std::vector<PerLumiData> LumiResult;
-    
+  private:
+    void parseSourceString(lumi::Lumi2DB::LumiSource& result)const;
   };//cl Lumi2DB
 }//ns lumi
 
@@ -69,9 +77,41 @@ namespace lumi{
 //implementation
 //
 lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest){}
+void lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
+  //parse lumi source file name
+  if(m_source.length()==0) throw lumi::Exception("lumi source is not set","parseSourceString","Lumi2DB");
+  size_t tempIndex = m_source.rfind(".");
+  size_t nameLength = m_source.length();
+  std::string subFileName = m_source.substr(0,nameLength - tempIndex);
+  
+  std::vector<std::string> fileNamePieces;
+  std::string::size_type lastPos=m_source.find_first_not_of("_",0);
+  std::string::size_type pos = m_source.find_first_of("_",lastPos);
+  std::vector<std::string> pieces;
+  while( std::string::npos != pos || std::string::npos != lastPos){
+    pieces.push_back(m_source.substr(lastPos,pos-lastPos));
+    lastPos=m_source.find_first_not_of("_",pos);
+    pos=m_source.find_first_of("_",lastPos);
+  }
+  if( pieces[0]!="CMS" || pieces[1]!="LUMI" ||  pieces[2]!="RAW" ){
+    throw lumi::Exception("not lumi raw data file CMS_LUMI_RAW","parseSourceString","Lumi2DB");
+  }
 
+  std::strcpy(result.datestr,fileNamePieces[3].c_str());
+  std::strcpy(result.version,fileNamePieces[6].c_str());
+  result.run = atoi(pieces[4].c_str());
+  result.firstsection = atoi(pieces[5].c_str());
+}
 void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   lumi::Lumi2DB::LumiResult lumiresult;
+  //check filename is in  lumiraw format
+  lumi::Lumi2DB::LumiSource filenamecontent;
+  try{
+    parseSourceString(filenamecontent);
+  }catch(const lumi::Exception& er){
+    std::cout<<er.what()<<std::endl;
+    throw er;
+  }
   TFile* source=TFile::Open(m_source.c_str(),"READ");
   TTree *hlxtree = (TTree*)source->Get("HLXData");
   if(!hlxtree){
@@ -105,7 +145,7 @@ void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     h.bxET.reserve(3564);
     h.bxOCC1.reserve(3564);
     h.bxOCC2.reserve(3564);
-
+    
     //runnumber=lumiheader->runNumber;
     //if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
     h.lumilsnr=lumiheader->sectionNumber;
