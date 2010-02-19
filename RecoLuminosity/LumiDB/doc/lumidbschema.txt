@@ -21,11 +21,12 @@ columns:
           lumilsnum(uint32),
           lumiversion(string),
           dtnorm(float),
-          luminorm(float),
+          lhcnorm(float),
           instlumi(float),
           instlumierror(float),
           instlumiquality(short),
-          cmsalive(bool),          
+          cmsalive(bool),      
+          startorbit(uint32),    
           lumisectionquality(short) // use max 3 bits [HLX,HF,BRAN]
 	  
 ======
@@ -33,10 +34,10 @@ table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LU
 columns: 
           lumidetail_id(uint64, PK)
           lumisummary_id(FK refers to LUMISUMMARY.lumisummary_id),
-	  bxlumivalue(blob),
-          bxlumierror(blob),
-          bxlumiquality(blob),
-          algoname(string), //occ1,occ2,etsum,bran
+	  bxlumivalue(blob),//blob of float
+          bxlumierror(blob), //blob of float
+          bxlumiquality(blob), //blob of short
+          algoname(string), //occ1,occ2,et,bran
           
 ======
 table 4:  TRG (insert 192 rows per run+cmsls/populate from GT-DB)
