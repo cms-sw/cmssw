@@ -49,6 +49,7 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
   const int PED_FACTOR=10;
   const int RMS_FACTOR=1000;
   const int MAX_SIZE = 252288;
+  //const int MAX_SIZE = 273024; //for extra ME1a unganged case
   const int MAX_SHORT= 32767;
   CSCDBPedestals * cndbpedestals = new CSCDBPedestals();
 
@@ -124,11 +125,13 @@ inline CSCDBPedestals * CSCPedestalsDBConditions::prefillDBPedestals()
 	 //if (new_pedrms[k]==0) itemvector[counter].rms = int (db_pedrms[i]);
        }  
      }
-     if (counter>217728){
+     
+     if (counter>223968){
        itemvector[counter].ped = int (db_peds[i]);
        itemvector[counter].rms = int (db_pedrms[i]);
        itemvector[i] = itemvector[counter];
      }
+     
    }
    return cndbpedestals;
 }

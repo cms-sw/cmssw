@@ -43,6 +43,7 @@ class CSCNoiseMatrixDBConditions: public edm::ESProducer, public edm::EventSetup
 // to workaround plugin library
 inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
 {
+  //const int MAX_SIZE = 273024; //for ME1a unganged
   const int MAX_SIZE = 252288;
   const int FACTOR=1000;
   const int MAX_SHORT= 32767;
@@ -195,7 +196,7 @@ inline CSCDBNoiseMatrix *  CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix()
       }  
     }
 
-    if (counter>217728){
+    if (counter>223968){
       itemvector[counter].elem33 = int (db_elem33[i]);
       itemvector[counter].elem34 = int (db_elem34[i]);
       itemvector[counter].elem35 = int (db_elem35[i]);
