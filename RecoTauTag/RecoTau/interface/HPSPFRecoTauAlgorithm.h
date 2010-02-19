@@ -69,7 +69,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   void removeCandidateFromRefVector(const reco::PFCandidateRef&,reco::PFCandidateRefVector&); 
   void applyMassConstraint(math::XYZTLorentzVector&,double );
 
-  void refitThreeProng(reco::PFTau&); 
+  bool refitThreeProng(reco::PFTau&); 
 
 
 

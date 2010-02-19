@@ -550,9 +550,9 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
       }
     }
     PFTau bestTau  = taus.at(0);
-    refitThreeProng(bestTau);
-    //Apply mass constraint
-    if(bestTau.mass()>threeProngMassWindow_.at(0)&&bestTau.mass()<threeProngMassWindow_.at(1))//MassWindow
+    if(refitThreeProng(bestTau))
+      //Apply mass constraint
+      if(bestTau.mass()>threeProngMassWindow_.at(0)&&bestTau.mass()<threeProngMassWindow_.at(1))//MassWindow
         output.push_back(bestTau);
   }
   taus.clear();
@@ -851,9 +851,10 @@ HPSPFRecoTauAlgorithm::sortRefVector(reco::PFCandidateRefVector& vec)
 
 
 
-void 
+bool 
 HPSPFRecoTauAlgorithm::refitThreeProng(reco::PFTau& tau)
 {
+  bool response=false;
   //Get Hadrons
   reco::PFCandidateRefVector hadrons = tau.signalPFChargedHadrCands();
   PFCandidateRef  h1  = hadrons.at(0);
@@ -874,7 +875,8 @@ HPSPFRecoTauAlgorithm::refitThreeProng(reco::PFTau& tau)
   if(myVertex.isValid()&&
      myVertex.hasRefittedTracks()&&
      myVertex.refittedTracks().size()==3) {
-        
+
+    response=true;
     math::XYZPoint vtx(myVertex.position().x(),myVertex.position().y(),myVertex.position().z());
 
     //Create a LV for each refitted track
@@ -898,7 +900,7 @@ HPSPFRecoTauAlgorithm::refitThreeProng(reco::PFTau& tau)
     //Update the vertex
     tau.setVertex(vtx);
   }
-
+  return response;
 
 } 
 
