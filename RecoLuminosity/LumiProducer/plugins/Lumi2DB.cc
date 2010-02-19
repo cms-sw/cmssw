@@ -61,6 +61,7 @@ namespace lumi{
       std::vector<PerBXData> bxOCC2;
     };
     typedef std::vector<PerLumiData> LumiResult;
+    
   };//cl Lumi2DB
 }//ns lumi
 
@@ -71,8 +72,7 @@ lumi::Lumi2DB::Lumi2DB(const std::string& dest):DataPipe(dest){}
 
 void lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   lumi::Lumi2DB::LumiResult lumiresult;
-  const std::string lumirawname("test.root");
-  TFile* source=TFile::Open(lumirawname.c_str(),"READ");
+  TFile* source=TFile::Open(m_source.c_str(),"READ");
   TTree *hlxtree = (TTree*)source->Get("HLXData");
   if(!hlxtree){
     throw std::runtime_error(std::string("non-existing HLXData "));
