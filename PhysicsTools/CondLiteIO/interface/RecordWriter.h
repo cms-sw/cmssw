@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  9 17:00:53 CST 2009
-// $Id$
+// $Id: RecordWriter.h,v 1.1 2009/12/16 17:44:09 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@ class RecordWriter
       struct DataBuffer {
          void* pBuffer_;
          TBranch* branch_;
+         edm::TypeIDBase trueType_;
       };
       // ---------- const member functions ---------------------
 
