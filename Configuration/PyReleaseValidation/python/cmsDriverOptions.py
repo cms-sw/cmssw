@@ -210,7 +210,7 @@ expertSettings.add_option("--harvesting",
 
 expertSettings.add_option("--particle_table",
                           help="Which particle properties table is loaded. Default=pythia",
-                          default='pythiapdt',
+                          default=defaultOptions.particleTable,
                           dest="particleTable")
 
 parser.add_option("--no_exec",

@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.163 $"
-__source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
+__version__ = "$Revision: 1.164 $"
+__source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module 
@@ -29,7 +29,8 @@ defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
 defaultOptions.filein = []
 defaultOptions.customisation_file = ""
-defaultOptions.particleTable = ['pythia','pdt']
+defaultOptions.particleTable = 'pythiapdt'
+defaultOptions.particleTableList = ['pythiapdt','pdt']
 
 # the pile up map
 pileupMap = {'156BxLumiPileUp': 6.9,
@@ -340,12 +341,12 @@ class ConfigBuilder(object):
 		sys.exit(-1)
 		
         self.loadAndRemember('Configuration/StandardSequences/Services_cff')
-        try:
-            self.loadAndRemember('SimGeneral.HepPDTESSource.'+self._options.particleTable+'_cfi')
-        except:
+        if self._options.particleTable not in defaultOptions.particleTableList:
             print 'Invalid particle table provided. Options are:'
             print defaultOptions.particleTable
             sys.exit(-1)
+        else:
+            self.loadAndRemember('SimGeneral.HepPDTESSource.'+self._options.particleTable+'_cfi')
         
 	self.loadAndRemember('FWCore/MessageService/MessageLogger_cfi')
 
@@ -832,7 +833,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.163 $"),
+              (version=cms.untracked.string("$Revision: 1.164 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
