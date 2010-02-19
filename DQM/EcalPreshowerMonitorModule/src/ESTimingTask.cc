@@ -52,6 +52,9 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j) 
       hTiming_[i][j] = 0;
+
+  fit_ = new TF1("fit", fitf, -200, 200, 2);
+  fit_->SetParameters(50, 10);
   
   dqmStore_->setCurrentFolder(prefixME_ + "/ESTimingTask");
   
@@ -99,12 +102,12 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
        
        int i = (zside==1)? 0:1;
        int j = plane-1;
-       
-       for (int i=0; i<dataframe.size(); i++) 
-	 adc[i] = dataframe.sample(i).adc();
-        
+
+       for (int k=0; k<dataframe.size(); ++k) 
+	 adc[k] = dataframe.sample(k).adc();
+
        double status = 0;
-       if (adc[1] < 200) continue;
+       if (adc[1] < 200) status = 1;
        if (adc[0] > 20) status = 1;
        if (adc[1] < 0 || adc[2] < 0) status = 1;
        if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
@@ -116,11 +119,9 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 	 gr->Fit("fit", "MQ");
 	 fit_->GetParameters(para); 
 	 delete gr;
-       } else {
-	 para[1] = -999;
-       }
 
-       hTiming_[i][j]->Fill(para[1]);
+	 hTiming_[i][j]->Fill(para[1]);
+       }
 
      }
    } else {
