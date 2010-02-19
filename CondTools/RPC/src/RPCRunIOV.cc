@@ -172,7 +172,7 @@ RPCRunIOV::getPVSSMap()
   std::cout << ">>> Object PVSS" << std::endl;
   std::cout << "    size " << mypvss.size() << std::endl;
 
-  RPCObPVSSmap::Item pvssItem;
+  RPCObPVSSmap::Item pvssItem={0,0,0,0,0,0,0,0,0};
   int id;
   std::map<int, RPCObPVSSmap::Item> pvssmap;
   for(ipvss = mypvss.begin(); ipvss < mypvss.end(); ++ipvss){
