@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/16 19:54:25 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/02/18 15:07:16 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -32,27 +32,32 @@ class HLTConfigProvider {
 
   /// init methods - use one and only one!
 
-  /// old, deprecated, may fail when processing file(s) containing
+  /// very old, deprecated, may fail when processing file(s) containing
   /// events accepted by different HLT tables!
   bool init(const std::string& processName);
 
-  /// new, revised, based on advice by Chris Jones (Feb.2010)
+  /// old, deprecated as well
   /// the parameter "changed" indicates whether the config has
   /// actually changed
+  bool init(const edm::Event& iEvent,                                              const std::string& processName, bool& changed);
+
+  /// new, revised, based on advice by Chris Jones (Feb.2010)
+  /// call from beginRun
+  bool init(const edm::Run& iRun,                   const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+
+
+ private:
 
   /// call from beginRun
   bool init(const edm::Run& iRun,                                                  const std::string& processName, bool& changed);
-  bool init(const edm::Run& iRun,                   const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
   /// call from beginLuminsoityBlock
   bool init(const edm::LuminosityBlock& iLumiBlock,                                const std::string& processName, bool& changed);
   bool init(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
   /// call from produce/filter/analyze method
-  bool init(const edm::Event& iEvent,                                              const std::string& processName, bool& changed);
   bool init(const edm::Event& iEvent,               const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
 
- private:
   /// real init method 
   bool init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed);
   bool init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
@@ -60,6 +65,7 @@ class HLTConfigProvider {
   void clear();
   /// extract information into data members - called by init() method
   void extract();
+
 
  public:
   /// dump config aspects to cout
@@ -171,7 +177,7 @@ class HLTConfigProvider {
     processName_(""), processPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
-    pathNames_(), endpathNames_(), hltL1GTSeeds_(),
+    hltL1GTSeeds_(),
     streamNames_(), streamIndex_(), streamContents_(),
     datasetNames_(), datasetIndex_(), datasetContents_(),
     prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
@@ -187,9 +193,6 @@ class HLTConfigProvider {
 
   std::map<std::string,unsigned int> triggerIndex_;
   std::vector<std::map<std::string,unsigned int> > moduleIndex_;
-
-  std::vector<std::string> pathNames_;
-  std::vector<std::string> endpathNames_;
 
   std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
 

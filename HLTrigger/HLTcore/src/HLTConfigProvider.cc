@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/17 06:58:41 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/02/18 15:07:16 $
+ *  $Revision: 1.30 $
  *
  *  \author Martin Grunewald
  *
@@ -34,9 +34,6 @@ void HLTConfigProvider::clear()
 
    triggerIndex_.clear();
    moduleIndex_.clear();
-
-   pathNames_.clear();
-   endpathNames_.clear();
 
    hltL1GTSeeds_.clear();
 
@@ -302,8 +299,14 @@ void HLTConfigProvider::extract()
    LogVerbatim("HLTConfigProvider") << "ProcessPSet with HLT: "
 				    << tableName();
 
-   // Extract trigger paths, which are paths but with endpaths to be
-   // removed, from ParameterSet
+   // Extract trigger paths
+   triggerNames_= processPSet_.getParameter<ParameterSet>("@trigger_paths").getParameter<vector<string> > ("@trigger_paths");
+
+   /*
+   // Trigger paths are paths but with endpaths removed
+   triggerNames_.clear();
+   std::vector<std::string> pathNames_;
+   std::vector<std::string> endpathNames_;
    pathNames_   = processPSet_.getParameter<vector<string> >("@paths");
    endpathNames_= processPSet_.getParameter<vector<string> >("@end_paths");
    const unsigned int nP(pathNames_.size());
@@ -321,6 +324,7 @@ void HLTConfigProvider::extract()
      if (pathNames_[iP]!="") {triggerNames_.push_back(pathNames_[iP]);}
    }
    pathNames_   = processPSet_.getParameter<vector<string> >("@paths");
+   */
 
    // Obtain module labels of all modules on all trigger paths
    const unsigned int n(size());
