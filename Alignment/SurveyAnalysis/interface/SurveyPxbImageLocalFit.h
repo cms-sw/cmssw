@@ -6,6 +6,7 @@
 #include <utility>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImage.h"
+//#include <iostream>
 
 //! Class to hold one picture of the BPix survey and the local fit
 class SurveyPxbImageLocalFit : public SurveyPxbImage
@@ -15,24 +16,56 @@ public:
 
 	// Constructors
 	SurveyPxbImageLocalFit(): 
-		SurveyPxbImage(), a(4,0), fitValidFlag(false) {};
+		SurveyPxbImage(), a_(4,0), fidpoints_(4), fitValidFlag_(false) 
+	{
+		initFidPoints();
+	};
 
+	//! Constructor from istringstream
 	SurveyPxbImageLocalFit(std::istringstream &iss): 
-		SurveyPxbImage(iss), a(4,0), fitValidFlag(false) {};
+		SurveyPxbImage(iss), a_(4,0), fidpoints_(4), fitValidFlag_(false) 
+	{
+		initFidPoints();
+	};
+
+	//! Invoke the fit
+	void doFit();
+	void doFit(value_t x1, value_t y1, value_t g1, value_t x2, value_t y2, value_t g2);
 
 	//! returns validity flag
-	bool isFitValid() { return fitValidFlag; };
-	
+	bool isFitValid() { return fitValidFlag_; };
+
+	//! returns local parameters after fit
+	localpars_t getLocalParameters();
+
+	//! returns the chi^2 of the fit
+	value_t getChi2();
 
 private:
 	//! Local parameters
-	localpars_t a;
+	localpars_t a_;
+
+	//! True position of the fiducial points on a sensor wrt. local frame (u,v)
+	std::vector<coord_t> fidpoints_;
 
 	//! Global parameters
-	value_t x, y, gamma;
+	value_t u1_, v1_, g1_;
+	value_t u2_, v2_, g2_;
+
+	//! chi2 of the local fit
+	value_t chi2_;
 
 	//! Validity Flag
-	bool fitValidFlag;
+	bool fitValidFlag_;
+
+	//! Initialise the fiducial points
+	void initFidPoints()
+	{
+		fidpoints_[0] = coord_t(-0.91,+3.30);
+		fidpoints_[1] = coord_t(+0.91,+3.30);
+		fidpoints_[2] = coord_t(+0.91,-3.30);
+		fidpoints_[3] = coord_t(-0.91,-3.30);
+	}
 	
 };
 

@@ -82,7 +82,13 @@ void SurveyPxbImageLocalFit::doFit()
 	//std::cout << "ATWA: \n" << ATWA << std::endl;
 	math::Matrix<4,4>::type ATWAi;
 	int ifail = 0;
-	ATWAi = ATWA.Inverse(ifail); // TODO: ifail pruefen
+	ATWAi = ATWA.Inverse(ifail);
+	if (ifail != 0)
+	{ // TODO: ifail Pruefung auf message logger ausgeben statt cout
+		std::cout << "Problem singular - fit impossible." << std::endl;
+		fitValidFlag_ = false;
+		return;
+	}
 	//std::cout << "ATWA-1: \n" << ATWAi << ifail << std::endl;
 
 	// Measurements
@@ -100,13 +106,14 @@ void SurveyPxbImageLocalFit::doFit()
 	// do the fit
 	math::VectorD<4>::type a;	
 	a = ATWAi * ROOT::Math::Transpose(A) * W * y;
-	const value_t chi2 = ROOT::Math::Dot(y,W*y)-ROOT::Math::Dot(a,ROOT::Math::Transpose(A)*W*y);
+	chi2_ = ROOT::Math::Dot(y,W*y)-ROOT::Math::Dot(a,ROOT::Math::Transpose(A)*W*y);
 	std::cout << "a: " << a 
 		<< " S= " << sqrt(a[2]*a[2]+a[3]*a[3]) 
 		<< " phi= " << atan(a[3]/a[2]) 
-		<< " chi2= " << chi2 << std::endl;
+		<< " chi2= " << chi2_ << std::endl;
 	//std::cout << "A*a: " << A*a << std::endl;
 
+	fitValidFlag_ = true;
 }
 
 
@@ -121,4 +128,15 @@ void SurveyPxbImageLocalFit::doFit(value_t u1, value_t v1, value_t g1, value_t u
 	doFit();
 }
 
+SurveyPxbImageLocalFit::localpars_t SurveyPxbImageLocalFit::getLocalParameters()
+{
+	if (!fitValidFlag_) doFit();
+	return a_;
+}
+
+SurveyPxbImageLocalFit::value_t SurveyPxbImageLocalFit::getChi2()
+{
+	if (!fitValidFlag_) doFit();
+	return chi2_;
+}
 
