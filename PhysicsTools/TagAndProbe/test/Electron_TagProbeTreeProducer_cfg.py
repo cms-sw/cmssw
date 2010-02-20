@@ -29,47 +29,37 @@ process.superClusters = cms.EDFilter("SuperClusterMerger",
 process.superClusterCands = cms.EDProducer("ConcreteEcalCandidateProducer",
    src = cms.InputTag("superClusters"),
    particleType = cms.int32(11),
-   cut = cms.string("((energy)*sin(position.theta)>20.0) && (abs(eta)<2.5) && !(1.4442<abs(eta)<1.560)")
+   cut = cms.string("((superCluster.energy)*sin(superCluster.position.theta)>20.0) && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.560)")
 )
 
-## process.superClusterCands = cms.EDFilter("CandViewSelector",
-##    src = cms.InputTag("SCtoCandidate"),
-##    cut = cms.string('et > 0.0'),
-##    filter = cms.bool(True)
+
+
+## process.superClusters = cms.EDFilter("EgammaHLTRecoEcalCandidateProducers",
+##    scHybridBarrelProducer =  cms.InputTag("hybridSuperClusters","", "RECO"),
+##    scIslandEndcapProducer =  cms.InputTag("multi5x5SuperClustersWithPreshower","", "RECO"),    
+##    recoEcalCandidateCollection = cms.string("")
 ## )
 
-## process.Sc2GsfMatching = cms.EDFilter("TrivialDeltaRViewMatcher",
-##     src = cms.InputTag("superClusterCands"),
-##     distMin = cms.double(1.0),
-##     matched = cms.InputTag("gsfElectrons")
+## process.superClusterCands = cms.EDProducer("RecoEcalCandidateSelector",
+##    src = cms.InputTag("superClusters","",""),
+##    cut = cms.string("((superCluster.energy)*sin(superCluster.position.theta)>20.0) && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.560)")
 ## )
-
-## # Use the producer to get a list of matched candidates
-## process.SCPassingGsf = cms.EDFilter("MatchedCandidateSelector",
-##      match = cms.InputTag("Sc2GsfMatching"),
-##      src = cms.InputTag("superClusterCands")
-## )
-
-
-
-
-## process.SCPassingGsf = cms.EDProducer("MatchedCandidateSelector",
-##     src   = cms.InputTag("gsfElectrons"),
-##     match = cms.InputTag("Sc2GsfMatching"),
-## )
-
 
 
 process.sc_sequence = cms.Sequence( process.superClusters *
-                                    process.superClusterCands
+                                    process.superClusterCands 
                                     )
+
+
+
 
 
 #  GsfElectron ################ 
 process.PassingGsf = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
-    cut = cms.string("(isEB || isEE) && (ecalEnergy*sin(superClusterPosition.theta)>20.0)")    
+    cut = cms.string("(abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.560) && (ecalEnergy*sin(superClusterPosition.theta)>20.0)")    
 )
+
 
 
 
@@ -113,7 +103,7 @@ process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
 
 process.Tag = process.PassingHLT.clone()
 process.ele_sequence = cms.Sequence(
-    process.PassingGsf * 
+    process.PassingGsf *
     process.PassingIsolation * process.PassingId * 
     process.PassingHLT * process.Tag
     )
@@ -129,7 +119,8 @@ process.ele_sequence = cms.Sequence(
 #  Tag & probe selection ######
 
 process.tagSC = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag@+ superClusterCands@-"), # charge coniugate states are implied
+    decay = cms.string("Tag superClusterCands"), # charge coniugate states are implied
+    checkCharge = cms.bool(False),                           
     cut   = cms.string("60 < mass < 120"),
 )
 
@@ -250,7 +241,6 @@ process.SCToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
     ),
     flags = cms.PSet(
         passing = cms.InputTag("PassingGsf")
-        #passing = cms.InputTag("SCPassingGsf")
     ),
     isMC = cms.bool(True),
     tagMatches = cms.InputTag("McMatchTag"),
