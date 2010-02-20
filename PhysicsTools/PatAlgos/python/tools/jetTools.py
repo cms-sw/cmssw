@@ -101,7 +101,7 @@ class SwitchJECSet(ConfigToolBase):
     def toolCode(self, process):        
         newName=self._parameters['newName'].value
            
-        jetCorrFactors = getattr(process, 'jetCorrFactors')
+        jetCorrFactors = getattr(process, 'patJetCorrFactors')
         jetCorrFactors.corrSample = newName
        
 switchJECSet=SwitchJECSet()
