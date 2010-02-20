@@ -6,6 +6,7 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               primaryVertex = cms.untracked.InputTag('offlinePrimaryVertices'),
                               fitEveryNLumi = cms.untracked.int32(2),
                               resetEveryNLumi = cms.untracked.int32(20),
+                              fitPVEveryNLumi = cms.untracked.int32(1),
                               resetPVEveryNLumi = cms.untracked.int32(2),
                               Debug = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(

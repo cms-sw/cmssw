@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/10 08:56:50 $
- * $Revision: 1.21 $
+ * $Date: 2010/02/11 00:00:36 $
+ * $Revision: 1.22 $
  *
  */
 
@@ -39,6 +39,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   pvSrc_          = parameters_.getUntrackedParameter<InputTag>("primaryVertex");
   fitNLumi_       = parameters_.getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
+  fitPVNLumi_     = parameters_.getUntrackedParameter<int>("fitPVEveryNLumi",-1);
   resetPVNLumi_   = parameters_.getUntrackedParameter<int>("resetPVEveryNLumi",-1);
   deltaSigCut_    = parameters_.getUntrackedParameter<double>("deltaSignificanceCut",15);
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
@@ -53,7 +54,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   theBeamFitter = new BeamFitter(parameters_);
   theBeamFitter->resetTrkVector();
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
-  nFits = 0;
+  nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
   maxZ_ = fabs(maxZ_);
 }
 
@@ -157,14 +158,14 @@ void BeamMonitor::beginJob() {
   cutFlowTable = dbe_->book1D("cutFlowTable","Cut flow table of track selection", 9, 0, 9 );
 
   // Results of previous good fit:
-  fitResults=dbe_->book2D("fitResults","Results of previous good fit",4,0,4,2,0,2);
-  fitResults->setAxisTitle("Fitted Beam Spot",1);
-  fitResults->setBinLabel(1,"x_{0}",1);
-  fitResults->setBinLabel(2,"y_{0}",1);
-  fitResults->setBinLabel(3,"z_{0}",1);
-  fitResults->setBinLabel(4,"#sigma_{Z0}",1);
-  fitResults->setBinLabel(1,"Mean",2);
-  fitResults->setBinLabel(2,"Error",2);
+  fitResults=dbe_->book2D("fitResults","Results of previous good fit",2,0,2,4,0,4);
+  fitResults->setAxisTitle("Fitted Beam Spot (cm)",1);
+  fitResults->setBinLabel(4,"x_{0}",2);
+  fitResults->setBinLabel(3,"y_{0}",2);
+  fitResults->setBinLabel(2,"z_{0}",2);
+  fitResults->setBinLabel(1,"#sigma_{Z0}",2);
+  fitResults->setBinLabel(1,"Mean",1);
+  fitResults->setBinLabel(2,"Stat. Error",1);
   fitResults->getTH1()->SetOption("text");
 
   // Histos of PrimaryVertices:
@@ -174,29 +175,27 @@ void BeamMonitor::beginJob() {
   h_nVtx->setAxisTitle("Num. of reco. vertices",1);
 
   // Monitor only the PV with highest sum pt of assoc. trks:
-  h_PVx[0] = dbe_->book1D("PVX","x coordinate of Primary Vtx",100,-0.01,0.01);
+  h_PVx[0] = dbe_->book1D("PVX","x coordinate of Primary Vtx",50,-0.01,0.01);
   h_PVx[0]->setAxisTitle("PVx (cm)",1);
   h_PVx[0]->getTH1()->SetBit(TH1::kCanRebin);
 
-  h_PVy[0] = dbe_->book1D("PVY","y coordinate of Primary Vtx",100,-0.01,0.01);
+  h_PVy[0] = dbe_->book1D("PVY","y coordinate of Primary Vtx",50,-0.01,0.01);
   h_PVy[0]->setAxisTitle("PVy (cm)",1);
   h_PVy[0]->getTH1()->SetBit(TH1::kCanRebin);
 
   h_PVz[0] = dbe_->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
   h_PVz[0]->setAxisTitle("PVz (cm)",1);
-  h_PVz[0]->getTH1()->SetBit(TH1::kCanRebin);
 
-  h_PVx[1] = dbe_->book1D("PVXFit","x coordinate of Primary Vtx (Last Fit)",100,-0.01,0.01);
+  h_PVx[1] = dbe_->book1D("PVXFit","x coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
   h_PVx[1]->setAxisTitle("PVx (cm)",1);
   h_PVx[1]->getTH1()->SetBit(TH1::kCanRebin);
 
-  h_PVy[1] = dbe_->book1D("PVYFit","y coordinate of Primary Vtx (Last Fit)",100,-0.01,0.01);
+  h_PVy[1] = dbe_->book1D("PVYFit","y coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
   h_PVy[1]->setAxisTitle("PVy (cm)",1);
   h_PVy[1]->getTH1()->SetBit(TH1::kCanRebin);
 
-  h_PVz[1] = dbe_->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",100,-0.01,0.01);
+  h_PVz[1] = dbe_->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",dzBin,dzMin,dzMax);
   h_PVz[1]->setAxisTitle("PVz (cm)",1);
-  h_PVz[1]->getTH1()->SetBit(TH1::kCanRebin);
 
   h_PVx_lumi = dbe_->book1D("PVx_lumi","Avg. x position of primary vtx vs lumi",40,0.5,40.5);
   h_PVx_lumi->setAxisTitle("Lumisection",1);
@@ -213,14 +212,22 @@ void BeamMonitor::beginJob() {
   h_PVz_lumi->setAxisTitle("PVz #pm #sigma_{PVz} (cm)",2);
   h_PVz_lumi->getTH1()->SetOption("E1");
 
+  h_PVxz = dbe_->bookProfile("PVxz","PVx vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
+  h_PVxz->setAxisTitle("PVz (cm)",1);
+  h_PVxz->setAxisTitle("PVx (cm)",2);
+
+  h_PVyz = dbe_->bookProfile("PVyz","PVy vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
+  h_PVyz->setAxisTitle("PVz (cm)",1);
+  h_PVyz->setAxisTitle("PVy (cm)",2);
+
   // Results of previous good fit:
-  pvResults=dbe_->book2D("pvResults","Results of avg. PV positions",3,0,3,2,0,2);
-  pvResults->setAxisTitle("Fitted Primary Vertex",1);
-  pvResults->setBinLabel(1,"PVx",1);
-  pvResults->setBinLabel(2,"PVy",1);
-  pvResults->setBinLabel(3,"PVz",1);
-  pvResults->setBinLabel(1,"Mean",2);
-  pvResults->setBinLabel(2,"Width",2);
+  pvResults=dbe_->book2D("pvResults","Results of avg. PV positions",2,0,2,3,0,3);
+  pvResults->setAxisTitle("Fitted Primary Vertex (cm)",1);
+  pvResults->setBinLabel(3,"PVx",2);
+  pvResults->setBinLabel(2,"PVy",2);
+  pvResults->setBinLabel(1,"PVz",2);
+  pvResults->setBinLabel(1,"Mean",1);
+  pvResults->setBinLabel(2,"Width",1);
   pvResults->getTH1()->SetOption("text");
 
   // Summary plots:
@@ -272,9 +279,11 @@ void BeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
 //--------------------------------------------------------
 void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				       const EventSetup& context) {
+  if (resetPVNLumi_ > 0 && countLumi_%resetPVNLumi_ == 0)
+    beginLumiOfPVFit_ = lumiSeg.luminosityBlock();
+
   countLumi_++;
   if (debug_) cout << "Lumi: " << countLumi_ << endl;
-
 }
 
 // ----------------------------------------------------------
@@ -341,6 +350,8 @@ void BeamMonitor::analyze(const Event& iEvent,
     h_PVx[0]->Fill(pv[idx].x());
     h_PVy[0]->Fill(pv[idx].y());
     h_PVz[0]->Fill(pv[idx].z());
+    h_PVxz->Fill(pv[idx].z(),pv[idx].x());
+    h_PVyz->Fill(pv[idx].z(),pv[idx].y());
   }
 
 }
@@ -349,59 +360,67 @@ void BeamMonitor::analyze(const Event& iEvent,
 //--------------------------------------------------------
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
-  // Primary Vertex Fit:
-  if (h_PVx[0]->getTH1()->GetEntries() >= 20) {
-    pvResults->Reset();
-    TF1 *fgaus = new TF1("fgaus","gaus");
-    double mean,width;
-    fgaus->SetLineColor(4);
-    h_PVx[0]->getTH1()->Fit("fgaus","QLM");
-    mean = fgaus->GetParameter(1);
-    width = fgaus->GetParameter(2);
-    h_PVx_lumi->ShiftFillLast(mean,width);
-    pvResults->setBinContent(1,1,mean);
-    pvResults->setBinContent(1,2,width);
+
+  if (fitPVNLumi_ > 0 && countLumi_%fitPVNLumi_ == 0) {
+    endLumiOfPVFit_ = lumiSeg.luminosityBlock();
+    // Primary Vertex Fit:
+    if (h_PVx[0]->getTH1()->GetEntries() >= 20) {
+      pvResults->Reset();
+      char tmpTitle[50];
+      sprintf(tmpTitle,"%s %i %s %i","Fitted Primary Vertex (cm) of LS: ",beginLumiOfPVFit_," to ",endLumiOfPVFit_);
+      pvResults->setAxisTitle(tmpTitle,1);
+
+      TF1 *fgaus = new TF1("fgaus","gaus");
+      double mean,width;
+      fgaus->SetLineColor(4);
+      h_PVx[0]->getTH1()->Fit("fgaus","QLM0");
+      mean = fgaus->GetParameter(1);
+      width = fgaus->GetParameter(2);
+      h_PVx_lumi->ShiftFillLast(mean,width);
+      pvResults->setBinContent(1,3,mean);
+      pvResults->setBinContent(2,3,width);
     
-    dbe_->setCurrentFolder(monitorName_+"PrimaryVertex/");
-    const char* tmpfile;
-    TH1D * tmphisto;
-    // snap shot of the fit
-    tmpfile= (h_PVx[1]->getName()).c_str();
-    tmphisto = static_cast<TH1D *>((h_PVx[0]->getTH1())->Clone("tmphisto"));
-    h_PVx[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-    h_PVx[1] = dbe_->book1D(tmpfile,h_PVx[0]->getTH1F());
-    h_PVx[1]->getTH1()->Fit("fgaus","QLM");
+      dbe_->setCurrentFolder(monitorName_+"PrimaryVertex/");
+      const char* tmpfile;
+      TH1D * tmphisto;
+      // snap shot of the fit
+      tmpfile= (h_PVx[1]->getName()).c_str();
+      tmphisto = static_cast<TH1D *>((h_PVx[0]->getTH1())->Clone("tmphisto"));
+      h_PVx[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+      h_PVx[1] = dbe_->book1D(tmpfile,h_PVx[0]->getTH1F());
+      h_PVx[1]->getTH1()->Fit("fgaus","QLM");
 
 
-    h_PVy[0]->getTH1()->Fit("fgaus","QLM");
-    mean = fgaus->GetParameter(1);
-    width = fgaus->GetParameter(2);
-    h_PVy_lumi->ShiftFillLast(mean,width);
-    pvResults->setBinContent(2,1,mean);
-    pvResults->setBinContent(2,2,width);
-    // snap shot of the fit
-    tmpfile= (h_PVy[1]->getName()).c_str();
-    tmphisto = static_cast<TH1D *>((h_PVy[0]->getTH1())->Clone("tmphisto"));
-    h_PVy[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-    h_PVy[1]->update();
-    h_PVy[1] = dbe_->book1D(tmpfile,h_PVy[0]->getTH1F());
-    h_PVy[1]->getTH1()->Fit("fgaus","QLM");
+      h_PVy[0]->getTH1()->Fit("fgaus","QLM0");
+      mean = fgaus->GetParameter(1);
+      width = fgaus->GetParameter(2);
+      h_PVy_lumi->ShiftFillLast(mean,width);
+      pvResults->setBinContent(1,2,mean);
+      pvResults->setBinContent(2,2,width);
+      // snap shot of the fit
+      tmpfile= (h_PVy[1]->getName()).c_str();
+      tmphisto = static_cast<TH1D *>((h_PVy[0]->getTH1())->Clone("tmphisto"));
+      h_PVy[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+      h_PVy[1]->update();
+      h_PVy[1] = dbe_->book1D(tmpfile,h_PVy[0]->getTH1F());
+      h_PVy[1]->getTH1()->Fit("fgaus","QLM");
 
 
-    h_PVz[0]->getTH1()->Fit("fgaus","QLM");
-    mean = fgaus->GetParameter(1);
-    width = fgaus->GetParameter(2);
-    h_PVz_lumi->ShiftFillLast(mean,width);
-    pvResults->setBinContent(3,1,mean);
-    pvResults->setBinContent(3,2,width);
-    // snap shot of the fit
-    tmpfile= (h_PVz[1]->getName()).c_str();
-    tmphisto = static_cast<TH1D *>((h_PVz[0]->getTH1())->Clone("tmphisto"));
-    h_PVz[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
-    h_PVz[1]->update();
-    h_PVz[1] = dbe_->book1D(tmpfile,h_PVz[0]->getTH1F());
-    h_PVz[1]->getTH1()->Fit("fgaus","QLM");
+      h_PVz[0]->getTH1()->Fit("fgaus","QLM0");
+      mean = fgaus->GetParameter(1);
+      width = fgaus->GetParameter(2);
+      h_PVz_lumi->ShiftFillLast(mean,width);
+      pvResults->setBinContent(1,1,mean);
+      pvResults->setBinContent(2,1,width);
+      // snap shot of the fit
+      tmpfile= (h_PVz[1]->getName()).c_str();
+      tmphisto = static_cast<TH1D *>((h_PVz[0]->getTH1())->Clone("tmphisto"));
+      h_PVz[1]->getTH1()->SetBins(tmphisto->GetNbinsX(),tmphisto->GetXaxis()->GetXmin(),tmphisto->GetXaxis()->GetXmax());
+      h_PVz[1]->update();
+      h_PVz[1] = dbe_->book1D(tmpfile,h_PVz[0]->getTH1F());
+      h_PVz[1]->getTH1()->Fit("fgaus","QLM");
 
+    }
   }
 
   if (resetPVNLumi_ > 0 && countLumi_%resetPVNLumi_ == 0) {
@@ -410,14 +429,18 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_PVz[0]->Reset();
   }
 
+//   if (resetPVNLumi_ > 0 && countLumi_%(4*resetPVNLumi_) == 0) {
+//     h_PVxz->Reset();
+//     h_PVyz->Reset();
+//   }
+
   // Beam Spot Fit:
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
-  if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
   bool fitted = false;
   if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
-    nFits++;
+    nFits_++;
     fitted = true;
   }
 
@@ -451,6 +474,8 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
   if (debug_ && fitted) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
 
+  if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
+
   if (nthBSTrk_ >= min_Ntrks_) {
     TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
     f1->SetLineColor(4);
@@ -480,14 +505,18 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_sigmaZ0->Fill( bs.sigmaZ());
 
     fitResults->Reset();
-    fitResults->setBinContent(1,1,bs.x0());
-    fitResults->setBinContent(2,1,bs.y0());
-    fitResults->setBinContent(3,1,bs.z0());
-    fitResults->setBinContent(4,1,bs.sigmaZ());
-    fitResults->setBinContent(1,2,bs.x0Error());
-    fitResults->setBinContent(2,2,bs.y0Error());
-    fitResults->setBinContent(3,2,bs.z0Error());
-    fitResults->setBinContent(4,2,bs.sigmaZ0Error());
+    int * LSRange = theBeamFitter->getFitLSRange();
+    char tmpTitle[50];
+    sprintf(tmpTitle,"%s %i %s %i","Fitted Beam Spot (cm) of LS: ",LSRange[0]," to ",LSRange[1]);
+    fitResults->setAxisTitle(tmpTitle,1);
+    fitResults->setBinContent(1,4,bs.x0());
+    fitResults->setBinContent(1,3,bs.y0());
+    fitResults->setBinContent(1,2,bs.z0());
+    fitResults->setBinContent(1,1,bs.sigmaZ());
+    fitResults->setBinContent(2,4,bs.x0Error());
+    fitResults->setBinContent(2,3,bs.y0Error());
+    fitResults->setBinContent(2,2,bs.z0Error());
+    fitResults->setBinContent(2,1,bs.sigmaZ0Error());
 
 //     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
       summaryContent_[0] += 1.;
@@ -514,18 +543,18 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   // Fill summary report
   if (fitted) {
     for (int n = 0; n < nFitElements_; n++) {
-      reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nFits );
+      reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nFits_ );
     }
 
     summarySum_ = 0;
     for (int ii = 0; ii < nFitElements_; ii++) {
       summarySum_ += summaryContent_[ii];
     }
-    reportSummary_ = summarySum_ / (nFitElements_ * nFits);
+    reportSummary_ = summarySum_ / (nFitElements_ * nFits_);
     if (reportSummary) reportSummary->Fill(reportSummary_);
 
     for ( int bi = 0; bi < nFitElements_ ; bi++) {
-      reportSummaryMap->setBinContent(1,bi+1,summaryContent_[bi] / (float)nFits);
+      reportSummaryMap->setBinContent(1,bi+1,summaryContent_[bi] / (float)nFits_);
     }
   }
 

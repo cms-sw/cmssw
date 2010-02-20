@@ -4,9 +4,10 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor'),
                               beamSpot = cms.untracked.InputTag('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
                               primaryVertex = cms.untracked.InputTag('offlinePrimaryVertices'),
-                              fitEveryNLumi = cms.untracked.int32(1),
+                              fitEveryNLumi = cms.untracked.int32(5),
                               resetEveryNLumi = cms.untracked.int32(-1),
-                              resetPVEveryNLumi = cms.untracked.int32(1),
+                              fitPVEveryNLumi = cms.untracked.int32(1),
+                              resetPVEveryNLumi = cms.untracked.int32(5),
                               Debug = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
@@ -31,15 +32,15 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                                 MinimumInputTracks = cms.untracked.int32(50),
 				deltaSignificanceCut = cms.untracked.double(10)
                                 ),
-                              dxBin = cms.int32(400),
-                              dxMin = cms.double(-2.0),
-                              dxMax = cms.double(2.0),
+                              dxBin = cms.int32(200),
+                              dxMin = cms.double(-1.0),
+                              dxMax = cms.double(1.0),
                               
                               vxBin = cms.int32(200),
                               vxMin = cms.double(-0.5),
                               vxMax = cms.double(0.5),
                               
-                              dzBin = cms.int32(80),
+                              dzBin = cms.int32(40),
                               dzMin = cms.double(-20),
                               dzMax = cms.double(20),
                               

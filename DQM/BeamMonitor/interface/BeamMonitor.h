@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/02/10 07:17:17 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/02/11 00:00:36 $
+ *  $Revision: 1.14 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -64,6 +64,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   edm::InputTag pvSrc_; // primary vertex
   
   int fitNLumi_;
+  int fitPVNLumi_;
   int resetFitNLumi_;
   int resetPVNLumi_;
   bool debug_;
@@ -73,9 +74,11 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   int countEvt_;       //counter
   int countLumi_;      //counter
+  int beginLumiOfPVFit_;
+  int endLumiOfPVFit_;
   unsigned int nthBSTrk_;       //
   int nFitElements_;
-  int nFits;
+  int nFits_;
   double deltaSigCut_;
   unsigned int min_Ntrks_;
   double maxZ_;
@@ -112,6 +115,8 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_PVx_lumi;
   MonitorElement * h_PVy_lumi;
   MonitorElement * h_PVz_lumi;
+  MonitorElement * h_PVxz;
+  MonitorElement * h_PVyz;
   MonitorElement * pvResults;
 
   // Summary:
