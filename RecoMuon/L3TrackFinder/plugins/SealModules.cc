@@ -7,8 +7,8 @@
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(MuonRoadTrajectoryBuilderESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(MuonCkfTrajectoryBuilderESProducer);
+
+DEFINE_FWK_EVENTSETUP_MODULE(MuonRoadTrajectoryBuilderESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(MuonCkfTrajectoryBuilderESProducer);

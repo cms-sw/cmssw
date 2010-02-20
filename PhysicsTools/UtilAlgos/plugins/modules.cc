@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-DEFINE_SEAL_MODULE();
+
 
 #include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 DEFINE_FWK_SERVICE( VariableHelperService );

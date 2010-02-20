@@ -1,7 +1,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 using namespace PhysicsTools::Calibration;
 
-EVENTSETUP_DATA_REG(MVAComputer);
-EVENTSETUP_DATA_REG(MVAComputerContainer);
+TYPELOOKUP_DATA_REG(MVAComputer);
+TYPELOOKUP_DATA_REG(MVAComputerContainer);

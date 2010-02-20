@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.cc,v 1.10 2009/03/10 22:58:51 drell Exp $
+// $Id: V0Producer.cc,v 1.11 2009/12/18 20:45:10 wmtan Exp $
 //
 //
 
@@ -90,6 +90,6 @@ void V0Producer::endJob() {
 
 //define this as a plug-in
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(V0Producer);
+
+DEFINE_FWK_MODULE(V0Producer);
 //DEFINE_FWK_MODULE(V0finder);

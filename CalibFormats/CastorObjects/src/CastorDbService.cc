@@ -2,9 +2,9 @@
 // F.Ratnikov (UMd), Aug. 9, 2005
 // Adapted for CASTOR by L. Mundim
 //
-// $Id: CastorDbService.cc,v 1.27 2009/03/24 16:05:21 rofierzy Exp $
+// $Id: CastorDbService.cc,v 1.3 2009/03/26 17:55:07 mundim Exp $
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "CalibFormats/CastorObjects/interface/CastorCoderDb.h"
@@ -185,4 +185,4 @@ const CastorChannelStatus* CastorDbService::getCastorChannelStatus (const HcalGe
   return mChannelQuality->getValues (fId);
 }
 
-EVENTSETUP_DATA_REG(CastorDbService);
+TYPELOOKUP_DATA_REG(CastorDbService);

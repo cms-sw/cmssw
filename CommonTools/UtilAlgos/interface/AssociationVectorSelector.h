@@ -4,12 +4,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociationVectorSelector.h,v 1.3 2008/01/21 09:22:50 llista Exp $
+ * \version $Id: AssociationVectorSelector.h,v 1.1 2009/03/03 13:07:25 llista Exp $
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/AnySelector.h"
 
 template<typename KeyRefProd, typename CVal, 

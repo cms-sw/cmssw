@@ -1,7 +1,7 @@
 #ifndef DataFormats_ReadMath_h
 #define DataFormats_ReadMath_h
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class ReadMath : public edm::EDAnalyzer {
 public:

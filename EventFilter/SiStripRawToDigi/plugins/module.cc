@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
@@ -9,9 +9,9 @@ typedef sistrip::DigiToRawModule SiStripDigiToRawModule;
 typedef sistrip::RawToDigiModule SiStripRawToDigiModule;
 typedef sistrip::RawToClusters SiStripRawToClusters;
 
-DEFINE_ANOTHER_FWK_MODULE(SiStripDigiToRawModule);
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToDigiModule);
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClusters);
+DEFINE_FWK_MODULE(SiStripDigiToRawModule);
+DEFINE_FWK_MODULE(SiStripRawToDigiModule);
+DEFINE_FWK_MODULE(SiStripRawToClusters);
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClustersRoI.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersRoI);
+DEFINE_FWK_MODULE(SiStripRawToClustersRoI);

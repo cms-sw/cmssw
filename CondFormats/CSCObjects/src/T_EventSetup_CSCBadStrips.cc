@@ -1,5 +1,5 @@
 #include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(CSCBadStrips);
+TYPELOOKUP_DATA_REG(CSCBadStrips);
 

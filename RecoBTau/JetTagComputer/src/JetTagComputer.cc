@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
@@ -45,4 +45,4 @@ float JetTagComputer::discriminator(const JetTagComputer::TagInfoHelper &info) c
 	return discriminator(info.getBase(0));
 }
 
-EVENTSETUP_DATA_REG(JetTagComputer);
+TYPELOOKUP_DATA_REG(JetTagComputer);

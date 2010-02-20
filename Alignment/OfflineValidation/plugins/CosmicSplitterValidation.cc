@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.8 2010/01/04 18:24:37 mussgill Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.9 2010/01/06 15:44:11 mussgill Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 #include "FWCore/Framework/interface/EDProducer.h"

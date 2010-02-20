@@ -4,8 +4,8 @@
 /*
  * \file TrackerHitAnalyzer.h
  *
- * $Date: 2009/02/10 17:09:40 $
- * $Revision: 1.4 $
+ * $Date: 2009/03/12 15:56:21 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -21,7 +21,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"

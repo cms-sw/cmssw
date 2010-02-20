@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetVetoedTracksAssociatorAtVertex.cc,v 1.2 2008/07/10 05:02:12 bazterra Exp $
+// $Id: JetVetoedTracksAssociatorAtVertex.cc,v 1.3 2008/07/23 01:40:41 bazterra Exp $
 //
 //
 
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimTracker/TrackHistory/interface/JetVetoedTracksAssociatorDRVertex.h"
@@ -71,5 +71,5 @@ void JetVetoedTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::E
     fEvent.put (jetTracks);
 }
 
-DEFINE_ANOTHER_FWK_MODULE(JetVetoedTracksAssociatorAtVertex);
+DEFINE_FWK_MODULE(JetVetoedTracksAssociatorAtVertex);
 

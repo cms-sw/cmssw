@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.7 2009/10/01 18:53:17 loizides Exp $
+ * $Id: PyquenHadronizer.h,v 1.8 2009/10/15 12:25:30 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -12,7 +12,7 @@
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "GeneratorInterface/HiGenCommon/interface/BaseHiGenEvtSelector.h"
 #include <map>
 #include <string>

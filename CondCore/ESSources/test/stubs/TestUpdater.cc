@@ -68,9 +68,9 @@ namespace condtest {
   DEFINE_FWK_MODULE(TestUpdater);
 }
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(std::vector<int>);
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(std::vector<int>);
 
 #include "CondCore/PluginSystem/interface/registration_macros.h"
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(OneIntRcd, std::vector<int> );

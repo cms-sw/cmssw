@@ -105,4 +105,4 @@ void TrackingParticleCategoriesAnalyzer::analyze(const edm::Event& event, const 
 }
 
 
-DEFINE_ANOTHER_FWK_MODULE(TrackingParticleCategoriesAnalyzer);
+DEFINE_FWK_MODULE(TrackingParticleCategoriesAnalyzer);

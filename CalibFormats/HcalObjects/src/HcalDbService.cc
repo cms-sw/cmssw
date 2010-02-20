@@ -2,7 +2,7 @@
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
@@ -256,4 +256,4 @@ const HcalLutMetadata* HcalDbService::getHcalLutMetadata () const {
   return mLutMetadata;
 }
 
-EVENTSETUP_DATA_REG(HcalDbService);
+TYPELOOKUP_DATA_REG(HcalDbService);

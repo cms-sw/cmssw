@@ -6,16 +6,16 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectSelector.h,v 1.1 2009/03/03 13:07:27 llista Exp $
+ * $Id: ObjectSelector.h,v 1.2 2009/08/21 16:25:48 wmtan Exp $
  *
  */
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/NonNullNumberSelector.h"
 #include "CommonTools/UtilAlgos/interface/StoreManagerTrait.h"

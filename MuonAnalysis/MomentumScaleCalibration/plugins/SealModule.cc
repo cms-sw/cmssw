@@ -10,7 +10,7 @@
 #include "MuonAnalysis/MomentumScaleCalibration/plugins/MuScleFitFilter.h"
 #include "MuonAnalysis/MomentumScaleCalibration/plugins/TestCorrection.h"
 
-DEFINE_SEAL_MODULE();
+
 DEFINE_FWK_LOOPER(MuScleFit);
 DEFINE_FWK_MODULE(MuScleFitFilter);
 DEFINE_FWK_MODULE(TestCorrection);

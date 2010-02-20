@@ -7,16 +7,16 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectCountFilter.h,v 1.12 2009/01/22 13:42:22 veelken Exp $
+ * $Id: ObjectCountFilter.h,v 1.2 2009/04/08 11:35:00 veelken Exp $
  *
  */
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/CollectionFilterTrait.h"
 #include "CommonTools/UtilAlgos/interface/EventSelectorAdapter.h"

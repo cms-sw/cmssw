@@ -1,15 +1,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSource.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningSource);
+DEFINE_FWK_MODULE(SiStripCommissioningSource);
 
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningRunTypeFilter.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningRunTypeFilter);
+DEFINE_FWK_MODULE(SiStripCommissioningRunTypeFilter);
 
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSeedFilter.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningSeedFilter);
+DEFINE_FWK_MODULE(SiStripCommissioningSeedFilter);
 
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningBasicPrescaler.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningBasicPrescaler);
+DEFINE_FWK_MODULE(SiStripCommissioningBasicPrescaler);
 

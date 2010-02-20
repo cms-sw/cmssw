@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-DEFINE_SEAL_MODULE();
+
 
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
 

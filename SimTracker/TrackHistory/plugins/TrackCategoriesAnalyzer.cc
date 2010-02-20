@@ -105,5 +105,5 @@ void TrackCategoriesAnalyzer::analyze(const edm::Event& event, const edm::EventS
 }
 
 
-DEFINE_ANOTHER_FWK_MODULE(TrackCategoriesAnalyzer);
+DEFINE_FWK_MODULE(TrackCategoriesAnalyzer);
 

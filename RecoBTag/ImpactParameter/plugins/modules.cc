@@ -13,17 +13,17 @@
 DEFINE_FWK_MODULE(TrackIPProducer);
 
 typedef JetTagComputerESProducer<TrackCountingComputer>       TrackCountingESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(TrackCountingESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(TrackCountingESProducer);
 typedef JetTagComputerESProducer<NegativeTrackCountingComputer>       NegativeTrackCountingESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(NegativeTrackCountingESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(NegativeTrackCountingESProducer);
 
 
 
 
 
 typedef JetTagComputerESProducer<JetProbabilityComputer>       JetProbabilityESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(JetProbabilityESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(JetProbabilityESProducer);
 typedef JetTagComputerESProducer<JetBProbabilityComputer>       JetBProbabilityESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(JetBProbabilityESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(JetBProbabilityESProducer);
 
 

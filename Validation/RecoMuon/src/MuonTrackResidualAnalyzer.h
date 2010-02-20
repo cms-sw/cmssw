@@ -4,14 +4,14 @@
 /** \class MuonTrackResidualAnalyzer
  *  No description available.
  *
- *  $Date: 2008/06/24 16:40:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/05/08 09:56:38 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */ 
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 

@@ -4,7 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/TrackingRecHitPropagator.h"
@@ -76,4 +76,4 @@ void TestHitPropagator::testHitPropagator(const Trajectory& traj, const Tracking
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
-DEFINE_ANOTHER_FWK_MODULE(TestHitPropagator);
+DEFINE_FWK_MODULE(TestHitPropagator);

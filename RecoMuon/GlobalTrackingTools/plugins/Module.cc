@@ -4,5 +4,5 @@
 
 #include "RecoMuon/GlobalTrackingTools/plugins/GlobalTrackQualityProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(GlobalTrackQualityProducer);
+
+DEFINE_FWK_MODULE(GlobalTrackQualityProducer);

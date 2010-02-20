@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_plugins_PATCleaner_h
 #define PhysicsTools_PatAlgos_plugins_PATCleaner_h
 //
-// $Id: PATCleaner.cc,v 1.4 2009/06/23 09:09:58 rwolf Exp $
+// $Id: PATCleaner.h,v 1.1 2009/08/14 13:07:25 srappocc Exp $
 //
 
 /**
@@ -11,14 +11,14 @@
             The same module is used for all collections.
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATCleaner.cc,v 1.4 2009/06/23 09:09:58 rwolf Exp $
+  \version  $Id: PATCleaner.h,v 1.1 2009/08/14 13:07:25 srappocc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"

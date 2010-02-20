@@ -2,5 +2,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Validation/TrackingMCTruth/interface/TrackingTruthValid.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TrackingTruthValid);
+
+DEFINE_FWK_MODULE(TrackingTruthValid);

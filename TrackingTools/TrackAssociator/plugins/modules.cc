@@ -1,6 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociatorFactory.h"
 #include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"

@@ -12,12 +12,12 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(StraightLinePropagatorESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(AnalyticalPropagatorESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(BeamHaloPropagatorESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(TrajectoryCleanerESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(TrajectoryFilterESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CompositeTrajectoryFilterESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(AnalyticalPropagatorESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(SmartPropagatorESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(BeamHaloPropagatorESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(TrajectoryCleanerESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(TrajectoryFilterESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(CompositeTrajectoryFilterESProducer);

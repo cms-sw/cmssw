@@ -1,5 +1,5 @@
 //
-// $Id: DuplicatedElectronCleaner.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
+// $Id: DuplicatedElectronCleaner.cc,v 1.3 2009/04/07 14:35:34 rwolf Exp $
 //
 
 /**
@@ -15,12 +15,12 @@
    which can be read through edm::View<reco::GsfElectron>
 
   \author   Giovanni Petrucciani
-  \version  $Id: DuplicatedElectronCleaner.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
+  \version  $Id: DuplicatedElectronCleaner.cc,v 1.3 2009/04/07 14:35:34 rwolf Exp $
 */
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"

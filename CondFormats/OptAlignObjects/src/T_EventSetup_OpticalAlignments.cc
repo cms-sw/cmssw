@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_OpticalAlignments.cc,v 1.6 2006/11/07 22:23:43 arce Exp $
+// $Id: T_EventSetup_OpticalAlignments.cc,v 1.7 2006/11/20 10:14:08 xiezhen Exp $
 //
 
 // system include files
@@ -21,13 +21,13 @@
 #include "CondFormats/OptAlignObjects/interface/MBAChBenchSurveyPlate.h"
 #include "CondFormats/OptAlignObjects/interface/Inclinometers.h"
  #include "CondFormats/OptAlignObjects/interface/PXsensors.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 //using Alignments;
-EVENTSETUP_DATA_REG(OpticalAlignments);
-EVENTSETUP_DATA_REG(CSCZSensors);
-EVENTSETUP_DATA_REG(CSCRSensors);
-EVENTSETUP_DATA_REG(MBAChBenchCalPlate);
-EVENTSETUP_DATA_REG(MBAChBenchSurveyPlate);
-EVENTSETUP_DATA_REG(Inclinometers);
-EVENTSETUP_DATA_REG(PXsensors);
+TYPELOOKUP_DATA_REG(OpticalAlignments);
+TYPELOOKUP_DATA_REG(CSCZSensors);
+TYPELOOKUP_DATA_REG(CSCRSensors);
+TYPELOOKUP_DATA_REG(MBAChBenchCalPlate);
+TYPELOOKUP_DATA_REG(MBAChBenchSurveyPlate);
+TYPELOOKUP_DATA_REG(Inclinometers);
+TYPELOOKUP_DATA_REG(PXsensors);

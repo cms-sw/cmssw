@@ -1,3 +1,3 @@
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
-EVENTSETUP_DATA_REG(HcalSeverityLevelComputer);
+TYPELOOKUP_DATA_REG(HcalSeverityLevelComputer);

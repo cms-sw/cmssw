@@ -1,13 +1,13 @@
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramF);
-EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramD);
-EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramF2D);
-EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramD2D);
-EVENTSETUP_DATA_REG(PhysicsTools::Calibration::VHistogramD2D);
-EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramF3D); 
-EVENTSETUP_DATA_REG(PhysicsTools::Calibration::HistogramD3D);
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramF);
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramD);
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramF2D);
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramD2D);
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::VHistogramD2D);
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramF3D); 
+TYPELOOKUP_DATA_REG(PhysicsTools::Calibration::HistogramD3D);
 

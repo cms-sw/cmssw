@@ -1,3 +1,3 @@
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(TrackProbabilityCalibration);
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(TrackProbabilityCalibration);

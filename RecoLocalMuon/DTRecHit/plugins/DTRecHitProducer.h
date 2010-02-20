@@ -6,13 +6,13 @@
  *  is specified with the parameter "recAlgo" and must be configured with the
  *  "recAlgoConfig" parameter set.
  *
- *  $Date: 2007/04/19 11:08:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/29 13:18:06 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
   class ParameterSet;

@@ -206,5 +206,5 @@ private:
   vector<double> v_;
 };
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MCEfficiencyAnalyzer);
+
+DEFINE_FWK_MODULE(MCEfficiencyAnalyzer);

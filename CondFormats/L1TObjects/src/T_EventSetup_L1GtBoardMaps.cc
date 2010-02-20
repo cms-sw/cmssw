@@ -1,5 +1,5 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(L1GtBoardMaps);
+TYPELOOKUP_DATA_REG(L1GtBoardMaps);

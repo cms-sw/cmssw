@@ -6,6 +6,6 @@
 #include "PropagatorWithMaterialESProducer.h"
 
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(PropagatorWithMaterialESProducer);

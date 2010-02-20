@@ -4,14 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociationMapOneToOne2Association.h,v 1.1 2008/01/16 13:59:26 llista Exp $
+ * \version $Id: AssociationMapOneToOne2Association.h,v 1.1 2009/03/03 13:07:25 llista Exp $
  */
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 template<typename CKey, typename CVal>
 class AssociationMapOneToOne2Association : public edm::EDProducer {

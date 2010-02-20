@@ -14,7 +14,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon Apr 21 10:03:50 CEST 2008
-// $Id: PATUserDataTestModule.cc,v 1.2.2.1 2009/02/03 09:09:20 gpetrucc Exp $
+// $Id: PATUserDataTestModule.cc,v 1.3 2009/03/26 05:02:48 hegner Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 #include "DataFormats/PatCandidates/interface/Muon.h"

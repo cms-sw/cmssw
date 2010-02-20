@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGScale.h"
 
-EVENTSETUP_DATA_REG(HcalTPGScale);
+TYPELOOKUP_DATA_REG(HcalTPGScale);

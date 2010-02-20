@@ -3,8 +3,8 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.20 2009/06/12 11:23:39 demattia Exp $
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+// $Id: SiStripDetCabling.cc,v 1.21 2009/07/25 11:34:40 demattia Exp $
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"

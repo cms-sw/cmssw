@@ -1,3 +1,3 @@
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(RPCStripNoises);
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(RPCStripNoises);

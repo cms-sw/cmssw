@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.27 2008/11/27 13:26:22 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.28 2008/11/28 14:17:43 bainbrid Exp $
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

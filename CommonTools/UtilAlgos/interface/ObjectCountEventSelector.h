@@ -9,13 +9,13 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: ObjectCountEventSelector.h,v 1.1 2009/01/22 13:40:10 veelken Exp $
+ * $Id: ObjectCountEventSelector.h,v 1.1 2009/03/03 13:07:27 llista Exp $
  *
  */
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/UtilAlgos/interface/CollectionFilterTrait.h"
 #include "CommonTools/UtilAlgos/interface/EventSelectorBase.h"

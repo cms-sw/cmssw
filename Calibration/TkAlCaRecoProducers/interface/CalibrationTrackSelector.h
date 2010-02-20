@@ -2,7 +2,7 @@
 #define Calibration_TkAlCaRecoProducers_CalibrationTrackSelector_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 
 namespace edm {

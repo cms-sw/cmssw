@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Sep  9 09:47:01 CEST 2008
-// $Id: TrackCandidateTopBottomHitFilter.cc,v 1.1 2009/01/26 09:43:08 vlimant Exp $
+// $Id: TrackCandidateTopBottomHitFilter.cc,v 1.2 2009/03/04 13:34:26 vlimant Exp $
 //
 //
 
@@ -30,7 +30,7 @@ Implementation:
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h" 

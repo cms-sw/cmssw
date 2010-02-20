@@ -75,8 +75,8 @@ void SiStripDeDx3DBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
      
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripDeDx3DBuilder);
+
+DEFINE_FWK_MODULE(SiStripDeDx3DBuilder);
 
 
 #endif

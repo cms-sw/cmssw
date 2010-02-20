@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.8 2009/10/12 19:43:32 rwolf Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.9 2009/10/13 13:54:28 auterman Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,12 +18,12 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.8 2009/10/12 19:43:32 rwolf Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.9 2009/10/13 13:54:28 auterman Exp $
 */
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"

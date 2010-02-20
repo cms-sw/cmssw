@@ -6,5 +6,5 @@
 
 #include "TrackingTools/TransientTrack/test/TransientTrackBuilderTest.cc"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TransientTrackBuilderTest);
+
+DEFINE_FWK_MODULE(TransientTrackBuilderTest);

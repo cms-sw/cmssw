@@ -1,5 +1,5 @@
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 
-EVENTSETUP_DATA_REG(CaloTopology);
+TYPELOOKUP_DATA_REG(CaloTopology);

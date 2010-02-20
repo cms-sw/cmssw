@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/08 20:04:25 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/01/04 14:46:10 $
+ *  $Revision: 1.17 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -26,7 +26,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 // Trigger stuff
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 

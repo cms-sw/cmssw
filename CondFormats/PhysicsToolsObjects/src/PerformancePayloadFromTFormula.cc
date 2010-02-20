@@ -70,5 +70,5 @@ void PerformancePayloadFromTFormula::check() const {
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-EVENTSETUP_DATA_REG(PerformancePayloadFromTFormula);
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(PerformancePayloadFromTFormula);

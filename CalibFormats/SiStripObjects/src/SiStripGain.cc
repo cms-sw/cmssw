@@ -6,9 +6,9 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.7 2009/11/13 16:19:46 demattia Exp $
+// $Id: SiStripGain.cc,v 1.8 2009/11/16 10:06:30 demattia Exp $
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"

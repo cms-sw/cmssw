@@ -10,5 +10,5 @@
 #include "DPGAnalysis/SiStripTools/interface/APVLatency.h"
 #include "DPGAnalysis/SiStripTools/interface/APVLatencyRcd.h"
 
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(APVLatencyRcd,APVLatency);

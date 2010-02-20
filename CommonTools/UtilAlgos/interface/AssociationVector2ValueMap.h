@@ -4,13 +4,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociationVector2ValueMap.h,v 1.2 2008/01/16 13:59:26 llista Exp $
+ * \version $Id: AssociationVector2ValueMap.h,v 1.1 2009/03/03 13:07:25 llista Exp $
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 template<typename KeyRefProd, typename CVal>
 class AssociationVector2ValueMap : public edm::EDProducer {

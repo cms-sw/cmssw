@@ -1,5 +1,5 @@
 
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(L1RPCConeBuilder);
+TYPELOOKUP_DATA_REG(L1RPCConeBuilder);

@@ -1,7 +1,7 @@
 //#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 #include "ElectronIDAnalyzer.h"
 #include "ElectronSeedAnalyzer.h"
@@ -17,7 +17,7 @@
 #include "GsfElectronFakeAnalyzer.h"
 #include "GsfElectronMCFakeAnalyzer.h"
 #include "PatPhotonSimpleAnalyzer.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "CommonTools/UtilAlgos/interface/Merger.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -25,17 +25,17 @@ DEFINE_SEAL_MODULE();
 
 typedef Merger<reco::SuperClusterCollection> EgammaSuperClusterMerger;
 DEFINE_FWK_MODULE(EgammaSuperClusterMerger);
-DEFINE_ANOTHER_FWK_MODULE(ElectronIDAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronSeedAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(MCElectronAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(MCPhotonAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(MCPizeroAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(GsfElectronMCAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(GsfElectronDataAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(GsfElectronFakeAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(GsfElectronMCFakeAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(SimplePhotonAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PhotonsWithConversionsAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PatPhotonSimpleAnalyzer);
+DEFINE_FWK_MODULE(ElectronIDAnalyzer);
+DEFINE_FWK_MODULE(ElectronSeedAnalyzer);
+DEFINE_FWK_MODULE(MCElectronAnalyzer);
+DEFINE_FWK_MODULE(MCPhotonAnalyzer);
+DEFINE_FWK_MODULE(MCPizeroAnalyzer);
+DEFINE_FWK_MODULE(GsfElectronMCAnalyzer);
+DEFINE_FWK_MODULE(GsfElectronDataAnalyzer);
+DEFINE_FWK_MODULE(GsfElectronFakeAnalyzer);
+DEFINE_FWK_MODULE(GsfElectronMCFakeAnalyzer);
+DEFINE_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
+DEFINE_FWK_MODULE(SimplePhotonAnalyzer);
+DEFINE_FWK_MODULE(SiStripElectronAnalyzer);
+DEFINE_FWK_MODULE(PhotonsWithConversionsAnalyzer);
+DEFINE_FWK_MODULE(PatPhotonSimpleAnalyzer);

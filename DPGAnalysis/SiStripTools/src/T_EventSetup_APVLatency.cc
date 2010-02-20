@@ -2,6 +2,6 @@
 
 // user include files
 #include "DPGAnalysis/SiStripTools/interface/APVLatency.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(APVLatency);
+TYPELOOKUP_DATA_REG(APVLatency);

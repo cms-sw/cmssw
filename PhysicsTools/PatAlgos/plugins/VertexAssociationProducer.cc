@@ -9,14 +9,14 @@
    These can be retrieved in PAT Layer 1 to be embedded in PAT Objects 
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATVertexAssociationProducer.h,v 1.2 2008/03/10 14:38:57 lowette Exp $
+  \version  $Id: VertexAssociationProducer.cc,v 1.1 2008/07/22 12:47:02 gpetrucc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"

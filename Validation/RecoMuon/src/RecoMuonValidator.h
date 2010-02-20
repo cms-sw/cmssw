@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
 #include "DataFormats/TrackReco/interface/Track.h"

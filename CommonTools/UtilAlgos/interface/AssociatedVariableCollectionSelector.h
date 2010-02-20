@@ -4,10 +4,10 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: AssociatedVariableCollectionSelector.h,v 1.3 2008/02/04 10:44:27 llista Exp $
+ * \version $Id: AssociatedVariableCollectionSelector.h,v 1.1 2009/03/03 13:07:25 llista Exp $
  *
  */
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"

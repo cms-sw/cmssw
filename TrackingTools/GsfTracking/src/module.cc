@@ -7,9 +7,9 @@
 // #include "FWCore/Framework/interface/ESHandle.h"
 // #include "FWCore/Framework/interface/ModuleFactory.h"
 // #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-// EVENTSETUP_DATA_REG(TrajectoryFitter);
-// EVENTSETUP_DATA_REG(TrajectorySmoother);
-EVENTSETUP_DATA_REG(GsfMaterialEffectsUpdator);
-EVENTSETUP_DATA_REG(MultiTrajectoryStateMerger);
+// TYPELOOKUP_DATA_REG(TrajectoryFitter);
+// TYPELOOKUP_DATA_REG(TrajectorySmoother);
+TYPELOOKUP_DATA_REG(GsfMaterialEffectsUpdator);
+TYPELOOKUP_DATA_REG(MultiTrajectoryStateMerger);

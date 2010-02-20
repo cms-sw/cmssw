@@ -4,11 +4,11 @@
  * 
  * \author Luca Lista, INFN
  * 
- * \version $Id: CollectionAdder.h,v 1.1 2007/11/07 10:46:33 llista Exp $
+ * \version $Id: CollectionAdder.h,v 1.2 2009/05/11 14:28:57 llista Exp $
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 

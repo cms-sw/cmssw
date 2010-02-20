@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSpatialResolution.h,v 1.3 2008/03/05 14:56:50 fronga Exp $
+// $Id: ObjectSpatialResolution.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_ObjectSpatialResolution_h
@@ -15,7 +15,7 @@
      PhysicsTools/PatAlgos/data/ObjectSpatialResolution.cfi
 
   \author   Volker Adler
-  \version  $Id: ObjectSpatialResolution.h,v 1.3 2008/03/05 14:56:50 fronga Exp $
+  \version  $Id: ObjectSpatialResolution.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"

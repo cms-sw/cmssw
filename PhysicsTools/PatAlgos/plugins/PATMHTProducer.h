@@ -13,7 +13,7 @@
 //
 // Original Author:  Xin Shi & Freya Blekman, Cornell University
 //         Created:  Fri Sep 12 17:58:29 CEST 2008
-// $Id: PATMHTProducer.h,v 1.3 2009/11/10 22:15:25 xshi Exp $
+// $Id: PATMHTProducer.h,v 1.4 2010/01/11 13:36:48 hegner Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/InputTag.h" 
+#include "FWCore/Utilities/interface/InputTag.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 

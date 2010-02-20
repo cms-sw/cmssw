@@ -13,9 +13,9 @@
  *          Joshua Swanson,
  *          Christian Veelken
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
  *
  */
 
@@ -60,16 +60,16 @@ class EwkTauDQM : public edm::EDAnalyzer
  * \author Joshua Swanson
  *        (modified by Christian Veelken)
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
  *
  */
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -203,16 +203,16 @@ class EwkElecTauHistManager
  * \author Letizia Lusito,
  *         Christian Veelken
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
  *
  */
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -342,9 +342,9 @@ class EwkMuTauHistManager
  * 
  * \author Joshua Swanson
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
  *
  */
 

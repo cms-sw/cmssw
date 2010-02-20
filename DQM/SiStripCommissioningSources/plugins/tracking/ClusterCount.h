@@ -15,7 +15,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Tue May 27 11:11:05 CEST 2008
-// $Id: ClusterCount.h,v 1.1 2008/06/09 12:43:30 delaer Exp $
+// $Id: ClusterCount.h,v 1.2 2010/01/04 16:40:10 lowette Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <DataFormats/Common/interface/DetSetVector.h>
 
 //

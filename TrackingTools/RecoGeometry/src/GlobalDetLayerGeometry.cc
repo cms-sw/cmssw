@@ -1,5 +1,5 @@
 #include "TrackingTools/RecoGeometry/interface/GlobalDetLayerGeometry.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 const DetLayer* 
 GlobalDetLayerGeometry::idToLayer(const DetId& detId) const{
@@ -13,4 +13,4 @@ GlobalDetLayerGeometry::idToLayer(const DetId& detId) const{
 }
 
 
-EVENTSETUP_DATA_REG(GlobalDetLayerGeometry);
+TYPELOOKUP_DATA_REG(GlobalDetLayerGeometry);

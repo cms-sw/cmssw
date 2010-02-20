@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.13 2009/10/09 13:02:54 llista Exp $
+// $Id: V0Analyzer.cc,v 1.14 2009/12/18 20:45:10 wmtan Exp $
 //
 //
 
@@ -1039,5 +1039,5 @@ void V0Analyzer::endJob() {
 
 //define this as a plug-in
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(V0Analyzer);
+
+DEFINE_FWK_MODULE(V0Analyzer);

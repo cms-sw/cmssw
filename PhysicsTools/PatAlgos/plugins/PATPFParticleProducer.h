@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.5 2009/03/26 20:44:37 vadler Exp $
+// $Id: PATPFParticleProducer.h,v 1.6 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -13,14 +13,14 @@
    a collection of objects of reco::PFCandidate.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.5 2009/03/26 20:44:37 vadler Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.6 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "CommonTools/Utils/interface/PtComparator.h"

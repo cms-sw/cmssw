@@ -67,6 +67,6 @@ void SiStripDeDxMipBuilder::analyze(const edm::Event& evt, const edm::EventSetup
      
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripDeDxMipBuilder);
+
+DEFINE_FWK_MODULE(SiStripDeDxMipBuilder);
 

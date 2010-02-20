@@ -1,5 +1,5 @@
 // user include files
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(DTCCBConfig);
+TYPELOOKUP_DATA_REG(DTCCBConfig);

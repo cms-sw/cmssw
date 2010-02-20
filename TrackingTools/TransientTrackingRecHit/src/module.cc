@@ -1,6 +1,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(TransientTrackingRecHitBuilder);
+TYPELOOKUP_DATA_REG(TransientTrackingRecHitBuilder);
 
 

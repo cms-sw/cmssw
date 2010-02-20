@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: PATHeavyIonProducer.cc,v 1.8 2009/10/27 15:56:49 yilmaz Exp $
+// $Id: PATHeavyIonProducer.cc,v 1.1 2009/10/28 12:14:31 yilmaz Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/HeavyIonEvent/interface/HeavyIon.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

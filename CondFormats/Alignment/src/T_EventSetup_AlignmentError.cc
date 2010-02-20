@@ -13,7 +13,7 @@
 
 // user include files
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 //using Alignments;
-EVENTSETUP_DATA_REG(AlignmentErrors);
+TYPELOOKUP_DATA_REG(AlignmentErrors);

@@ -14,8 +14,8 @@ using reco::modules::TrackMultiSelector;
 using reco::modules::AnalyticalTrackSelector;
 using reco::modules::CosmicTrackSelector;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SimpleTrackListMerger);
-DEFINE_ANOTHER_FWK_MODULE(TrackMultiSelector);
-DEFINE_ANOTHER_FWK_MODULE(AnalyticalTrackSelector);
-DEFINE_ANOTHER_FWK_MODULE(CosmicTrackSelector);
+
+DEFINE_FWK_MODULE(SimpleTrackListMerger);
+DEFINE_FWK_MODULE(TrackMultiSelector);
+DEFINE_FWK_MODULE(AnalyticalTrackSelector);
+DEFINE_FWK_MODULE(CosmicTrackSelector);

@@ -1,8 +1,8 @@
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 
-EVENTSETUP_DATA_REG(TransientTrackBuilder);
+TYPELOOKUP_DATA_REG(TransientTrackBuilder);
 
 

@@ -17,7 +17,7 @@
 //////From DummyHepMCAnalyzer.cc:
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>

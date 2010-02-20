@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2009/05/08 15:24:25 $
- * $Revision: 1.8 $
+ * $Date: 2009/10/31 05:17:36 $
+ * $Revision: 1.9 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"

@@ -63,8 +63,8 @@ void SiStripDeDx3DReader::analyze( const edm::Event& e, const edm::EventSetup& i
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripDeDx3DReader);
+
+DEFINE_FWK_MODULE(SiStripDeDx3DReader);
 
 
 

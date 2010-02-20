@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataHelper.h,v 1.6 2009/06/08 17:32:26 hegner Exp $
+// $Id: PATUserDataHelper.h,v 1.7 2009/06/25 16:56:45 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h
@@ -23,14 +23,14 @@
 	    This also can add "in situ" string-parser-based methods directly. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataHelper.h,v 1.6 2009/06/08 17:32:26 hegner Exp $
+  \version  $Id: PATUserDataHelper.h,v 1.7 2009/06/25 16:56:45 gpetrucc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/Association.h"

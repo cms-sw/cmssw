@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TrackProbabilityXMLtoDB.cc,v 1.4 2007/09/24 13:31:41 arizzi Exp $
+// $Id: TrackProbabilityXMLtoDB.cc,v 1.5 2007/09/24 21:26:17 fwyzard Exp $
 //
 //
 
@@ -32,7 +32,7 @@ using namespace std;
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Common/interface/Ref.h"

@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.20 2009/08/11 04:28:39 srappocc Exp $
+// $Id: PATElectronProducer.h,v 1.21 2009/08/26 08:34:05 cbern Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,14 +13,14 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.20 2009/08/11 04:28:39 srappocc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.21 2009/08/26 08:34:05 cbern Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"

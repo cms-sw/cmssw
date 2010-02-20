@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.18 2009/01/27 23:15:44 drell Exp $
+// $Id: V0Fitter.h,v 1.19 2009/06/09 23:28:49 drell Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 

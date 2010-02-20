@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.22 2009/09/29 15:50:59 srappocc Exp $
+// $Id: PATJetProducer.h,v 1.23 2009/11/13 17:30:40 cbern Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,14 +13,14 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.22 2009/09/29 15:50:59 srappocc Exp $
+  \version  $Id: PATJetProducer.h,v 1.23 2009/11/13 17:30:40 cbern Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "CommonTools/Utils/interface/PtComparator.h"

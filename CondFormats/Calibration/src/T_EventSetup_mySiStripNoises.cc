@@ -1,6 +1,6 @@
 // system include files
 // user include files
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(mySiStripNoises);
+TYPELOOKUP_DATA_REG(mySiStripNoises);

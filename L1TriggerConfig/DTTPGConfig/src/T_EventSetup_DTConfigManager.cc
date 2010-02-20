@@ -1,5 +1,5 @@
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(DTConfigManager);
+TYPELOOKUP_DATA_REG(DTConfigManager);

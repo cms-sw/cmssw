@@ -5,6 +5,6 @@
 #include "L1Trigger/CSCTrackFinder/plugins/CSCTFCandidateProducer.h"
 
 DEFINE_FWK_MODULE(CSCTFTrackProducer);
-DEFINE_ANOTHER_FWK_MODULE(CSCTFCandidateProducer);
-DEFINE_ANOTHER_FWK_MODULE(CSCTFanalyzer);
+DEFINE_FWK_MODULE(CSCTFCandidateProducer);
+DEFINE_FWK_MODULE(CSCTFanalyzer);
 

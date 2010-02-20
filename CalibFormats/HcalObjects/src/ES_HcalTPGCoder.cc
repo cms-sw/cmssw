@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 
-EVENTSETUP_DATA_REG(HcalTPGCoder);
+TYPELOOKUP_DATA_REG(HcalTPGCoder);

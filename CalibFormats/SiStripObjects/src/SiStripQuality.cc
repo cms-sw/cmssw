@@ -1,9 +1,9 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.19 2009/07/28 08:39:59 demattia Exp $
+// $Id: SiStripQuality.cc,v 1.20 2009/11/30 13:32:32 giordano Exp $
 //
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 

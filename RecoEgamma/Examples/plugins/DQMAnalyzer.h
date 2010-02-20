@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.h,v 1.1 2009/11/10 16:50:58 sabes Exp $
+// $Id: DQMAnalyzer.h,v 1.2 2009/12/01 16:30:42 chamont Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 class MagneticField;
 class TFile;

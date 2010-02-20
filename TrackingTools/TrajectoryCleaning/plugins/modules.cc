@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-DEFINE_SEAL_MODULE();
+
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerFactory.h"
 
