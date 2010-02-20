@@ -29,21 +29,21 @@ HcalDcsDetId::HcalDcsDetId(HcalOtherSubdetector subd, int side_or_ring,
 }
 
 HcalDcsDetId::DcsType HcalDcsDetId::DcsTypeFromString( const std::string& str) {
-  int ty(HV_V);
+  int ty(HV);
   do {
     if (typeString(HcalDcsDetId::DcsType(ty))==str) 
       return HcalDcsDetId::DcsType(ty);
-  } while (++ty != DCSUNKNOWN);
+  } while (++ty != DCS_MAX);
   return DCSUNKNOWN;
 }
 
 std::string HcalDcsDetId::typeString (DcsType typ) {
   switch(typ) {
-  case HV_V : return "HV_V";
-  case HV_I : return "HV_I";
-  case HV_S : return "HV_S";
-  case HV_STAT : return "HV_STAT";
-  case LV_V : return "LV_V";
+  case HV : return "HV";
+  case BV : return "BV";
+  case CATH : return "CATH";
+  case DYN7 : return "DYN7";
+  case DYN8 : return "DYN8";
   case RM_TEMP : return "RM_TEMP";
   case CCM_TEMP : return "CCM_TEMP";
   case CALIB_TEMP : return "CALIB_TEMP";
@@ -51,7 +51,7 @@ std::string HcalDcsDetId::typeString (DcsType typ) {
   case TEMP : return "TEMP";
   case QPLL_LOCK : return "QPLL_LOCK";
   case STATUS : return "STATUS";
-  case DCSUNKNOWN : return "DCSUNKNOWN";
+  default: return "DCSUNKNOWN";
   }
   return "Invalid";
 }
@@ -71,7 +71,7 @@ std::ostream& operator<<(std::ostream& s,const HcalDcsDetId& id) {
 				<< id.subchannel()
 				<< ')';
   case(HcalDcsForward) : return s << "(HF" << id.zside() << ' '
-				  << ((id.type()<HcalDcsDetId::HV_STAT)? "Q" : "")
+				  << ((id.type()<=HcalDcsDetId::DYN8)? "Q" : "")
 				  << id.slice() << ' ' << id.typeString(id.type())
 				  << id.subchannel()
 				  << ')';
