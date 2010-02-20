@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.15 2010/02/05 01:48:26 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.16 2010/02/11 00:11:56 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -50,6 +50,12 @@ class BeamFitter {
     h1cutFlow->Reset();
     for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++) countPass[i]=0;
   };
+  int* getFitLSRange() {
+    int *tmp=new int[2];
+    tmp[0] = fbeginLumiOfFit;
+    tmp[1] = fendLumiOfFit;
+    return tmp;
+  }
   
  private:
 
