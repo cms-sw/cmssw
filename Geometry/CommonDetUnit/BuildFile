@@ -2,5 +2,5 @@
  <lib name=GeometryCommonDetUnit>
 </export>
 <use name=DataFormats/GeometrySurface>
-<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
 <use name=clhep>

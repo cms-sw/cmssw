@@ -2,7 +2,6 @@
 <use name=CondFormats/Common>
 <use name=DataFormats/DetId>
 <use name=DataFormats/MuonDetId>
-<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
 <use name=boost>
