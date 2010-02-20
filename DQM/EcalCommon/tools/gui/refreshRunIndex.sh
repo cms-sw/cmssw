@@ -13,8 +13,9 @@ cd ${HOME}/DQM/dqm-GUI
 
 LD_LIBRARY_PATH=
 VO_CMS_SW_DIR=${PWD}/rpms
-source rpms/cmsset_default.sh
-source rpms/slc5_amd64_gcc434/cms/dqmgui/5.1.7b/etc/profile.d/env.sh
+SCRAM_ARCH=slc5_amd64_gcc434
+source ${VO_CMS_SW_DIR}/cmsset_default.sh
+source ${VO_CMS_SW_DIR}/${SCRAM_ARCH}/cms/dqmgui/5.1.7b/etc/profile.d/env.sh
 
 if [ -e /tmp/updateRunIndex.lock ]; then
   echo "Lock file is present, exit"
