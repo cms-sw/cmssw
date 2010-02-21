@@ -121,6 +121,7 @@ HLT_HighMult40
 HLTriggerFinalPath
 DQMOutput
 HLTOutput
-ESOutput
+ExpressOutput
 AlCaOutput
-MONOutput
+HLTDQMOutput
+HLTMONOutput

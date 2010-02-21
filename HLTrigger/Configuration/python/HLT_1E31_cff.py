@@ -1,16 +1,13 @@
-# /dev/CMSSW_3_5_0/1E31/V21 (CMSSW_3_5_1)
+# /dev/CMSSW_3_5_0/1E31/V23 (CMSSW_3_5_2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V21')
+  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V23')
 )
 
 streams = cms.PSet( 
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  Offline = cms.vstring(  ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -25,12 +22,12 @@ streams = cms.PSet(
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  Express = cms.vstring( 'ExpressMuon' )
+  Express = cms.vstring( 'ExpressMuon' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  Offline = cms.vstring(  ),
+  RPCMON = cms.vstring( 'RPCMonitor' )
 )
 datasets = cms.PSet( 
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNormalisation' ),
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
@@ -109,7 +106,10 @@ datasets = cms.PSet(
   ExpressMuon = cms.vstring( 'HLT_MET100',
     'HLT_L1MuOpen',
     'HLT_L1Mu',
-    'HLT_ZeroBias' )
+    'HLT_ZeroBias' ),
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNormalisation' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1910,9 +1910,11 @@ hltL1SingleMu7L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     SelectQualities = cms.vint32(  )
 )
 hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
-    inputLabel = cms.untracked.InputTag( "rawDataCollector" ),
     dataType = cms.string( "DDU" ),
-    fedbyType = cms.untracked.bool( False ),
+    fedbyType = cms.bool( False ),
+    inputLabel = cms.InputTag( "rawDataCollector" ),
+    useStandardFEDid = cms.bool( True ),
+    dqmOnly = cms.bool( False ),
     rosParameters = cms.PSet( 
     ),
     readOutParameters = cms.PSet( 
@@ -7369,18 +7371,18 @@ hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
 hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( True ),
+    bunchCrossings = cms.vint32( 0 ),
     physicsLoBits = cms.uint64( 0x7fffffffffffffff ),
     physicsHiBits = cms.uint64( 0x7fffffffffffffff ),
-    technicalBits = cms.uint64( 0x7fffffffffffffff ),
-    bunchCrossings = cms.vint32( 0 )
+    technicalBits = cms.uint64( 0x7fffffffffffffff )
 )
 hltLevel1Activity = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( False ),
+    bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 ),
     physicsLoBits = cms.uint64( 0x7fdfff03c03fbffc ),
     physicsHiBits = cms.uint64( 0x3f1bfdbb01800bf6 ),
-    technicalBits = cms.uint64( 0x70000fffff001f00 ),
-    bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 )
+    technicalBits = cms.uint64( 0x70000fffff001f00 )
 )
 hltPreHcalPhiSym = cms.EDFilter( "HLTPrescaler" )
 hltL1sHcalNZS1E31 = cms.EDFilter( "HLTLevel1GTSeed",

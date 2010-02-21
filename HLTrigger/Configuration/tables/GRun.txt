@@ -123,6 +123,7 @@ HLTriggerFinalPath
 HLTAnalyzerEndpath
 DQMOutput
 HLTOutput
-ESOutput
+ExpressOutput
 AlCaOutput
-MONOutput
+HLTDQMOutput
+HLTMONOutput

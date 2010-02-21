@@ -1,14 +1,13 @@
-# /dev/CMSSW_3_5_0/HIon/V21 (CMSSW_3_5_1)
+# /dev/CMSSW_3_5_0/HIon/V23 (CMSSW_3_5_2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V21')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V23')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
@@ -25,7 +24,8 @@ streams = cms.PSet(
   HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
-  Express = cms.vstring( 'ExpressMuon' )
+  Express = cms.vstring( 'ExpressMuon' ),
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
   EcalLaser = cms.vstring(  ),
@@ -1296,9 +1296,11 @@ hltHIMML1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
-    inputLabel = cms.untracked.InputTag( "rawDataCollector" ),
     dataType = cms.string( "DDU" ),
-    fedbyType = cms.untracked.bool( False ),
+    fedbyType = cms.bool( False ),
+    inputLabel = cms.InputTag( "rawDataCollector" ),
+    useStandardFEDid = cms.bool( True ),
+    dqmOnly = cms.bool( False ),
     rosParameters = cms.PSet( 
     ),
     readOutParameters = cms.PSet( 
@@ -1743,11 +1745,11 @@ hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer
     measurementTrackerName = cms.string( "" )
 )
 hltHIMML3Filter = cms.EDFilter( "HLTHIMuL1L2L3Filter",
+    TTRHBuilder = cms.string( "HITTRHBuilderWithoutRefit" ),
     PrimaryVertexTag = cms.InputTag( "hltHIPixelVertices" ),
-    NavigationPSet = cms.PSet(  ComponentName = cms.string( "SimpleNavigationSchool" ) ),
     L2CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     rphiRecHits = cms.InputTag( 'siStripMatchedRecHits','rphiRecHit' ),
-    TTRHBuilder = cms.string( "HITTRHBuilderWithoutRefit" )
+    NavigationPSet = cms.PSet(  ComponentName = cms.string( "SimpleNavigationSchool" ) )
 )
 hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     processName = cms.string( "@" )
