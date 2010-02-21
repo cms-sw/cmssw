@@ -1,6 +1,0 @@
-<use name=DataFormats/BTauReco>
-<export>
-  <use name=DataFormats/BTauReco>
-  <lib name=RecoBTagImpactParameter>
-</export>
-

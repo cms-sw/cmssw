@@ -1,9 +1,0 @@
-<use name=DataFormats/TrackReco>
-<use name=FWCore/MessageLogger>
-<use name=xerces-c>
-<export>
-  <use name=DataFormats/TrackReco>
-  <use name=xerces-c>
-  <lib name=RecoBTagTrackProbability>
-</export>
-
