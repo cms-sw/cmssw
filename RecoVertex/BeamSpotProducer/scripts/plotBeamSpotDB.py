@@ -16,15 +16,16 @@
 
    A very simple script to plot the beam spot data stored in condDB
 
-   usage: %prog -t <tag name>   
+   usage: %prog -t <tag name>
+   -b, --batch : Run ROOT in batch mode.
    -c, --create  = CREATE: name for beam spot data file.
    -d, --data    = DATA: input beam spot data file.
    -i, --initial = INITIAL: First run.
    -f, --final   = FINAL: Last run.
-   -n, --noplot  = NOPLOT: no make plots only extract beam spot data.
-   -o, --output  = OUTPUT: output ROOT filename.
+   -n, --noplot : Only extract beam spot data, plots are not created..
+   -o, --output  = OUTPUT: filename of ROOT file with plots.
    -t, --tag     = TAG: tag name.
-   -w, --wait : Pause script after plotting a new superposition of histograms.
+   -w, --wait : Pause script after plotting a new histograms.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -46,7 +47,7 @@ except:
         print " setenv PYTHONPATH $ROOTSYS/lib\n"
         sys.exit()
 
-from ROOT import TFile
+from ROOT import TFile, TGraphErrors, TGaxis
 from ROOT import TCanvas
 
 #_______________OPTIONS________________
@@ -97,32 +98,105 @@ class BeamSpot:
     def __init__(self):
         self.type = ""
         self.X = 0.
+	self.Xerr = 0.
         self.Y = 0.
+	self.Yerr = 0.
         self.Z = 0.
+	self.Zerr = 0.
         self.sigmaZ = 0.
-        self.dXdZ = 0.
-        self.dYdZ = 0.
+	self.sigmaZerr = 0.
+        self.dxdz = 0.
+	self.dxdzerr = 0.
+        self.dydz = 0.
+	self.dydzerr = 0.
         self.beamWidthX = 0.
+	self.beamWdithXerr = 0.
         self.beamWidthY = 0.
+	self.beamWidthYerr = 0.
+	self.EmittanceX = 0.
+	self.EmittanceY = 0.
+	self.betastar = 0.
+	self.IOVfirst = 0
+	self.IOVlast = 0
     def Reset(self):
 	self.X = self.Y = self.Z = 0.
-	self.sigmaZ = 0.
-	self.dXdZ = self.dYdZ
+	self.Xerr = self.Yerr = self.Zerr = 0.
+	self.sigmaZ = self.sigmaZerr = 0.
+	self.dxdz = self.dydz = 0.
+	self.dxdzerr = self.dydzerr = 0.
 	self.beamWidthX = self.beamWidthY = 0.
+	self.beamWidthXerr = self.beamWidthYerr = 0.
+	self.EmittanceX = self.EmittanceY = self.betastar = 0.
+	self.IOVfirst = self.IOVlast = 0
 
 class IOV:
     def __init__(self):
 	self.since = 1
 	self.till = 1
 
+# ROOT STYLE
+#############################
+def SetStyle():
 
+    # canvas
+    ROOT.gStyle.SetCanvasBorderMode(0)
+    ROOT.gStyle.SetCanvasColor(0)
+    ROOT.gStyle.SetCanvasDefH(600)
+    ROOT.gStyle.SetCanvasDefW(600)
+    ROOT.gStyle.SetCanvasDefX(0)
+    ROOT.gStyle.SetCanvasDefY(0)
+    # pad
+    ROOT.gStyle.SetPadBorderMode(0)
+    ROOT.gStyle.SetPadColor(0)
+    ROOT.gStyle.SetPadGridX(False)
+    ROOT.gStyle.SetPadGridY(False)
+    ROOT.gStyle.SetGridColor(0)
+    ROOT.gStyle.SetGridStyle(3)
+    ROOT.gStyle.SetGridWidth(1)
+                  
+    ROOT.gStyle.SetFrameBorderMode(0)
+    ROOT.gStyle.SetFrameFillColor(0)
+    ROOT.gStyle.SetTitleColor(1)
+    ROOT.gStyle.SetStatColor(0)
+
+    # set the paper & margin sizes
+    ROOT.gStyle.SetPaperSize(20,26)
+    ROOT.gStyle.SetPadTopMargin(0.04)
+    ROOT.gStyle.SetPadRightMargin(0.04)
+    ROOT.gStyle.SetPadBottomMargin(0.14)
+    ROOT.gStyle.SetPadLeftMargin(0.16)
+    ROOT.gStyle.SetPadTickX(1)
+    ROOT.gStyle.SetPadTickY(1)
+
+    ROOT.gStyle.SetTextFont(42) #132
+    ROOT.gStyle.SetTextSize(0.09)
+    ROOT.gStyle.SetLabelFont(42,"xyz")
+    ROOT.gStyle.SetTitleFont(42,"xyz")
+    ROOT.gStyle.SetLabelSize(0.035,"xyz")
+    ROOT.gStyle.SetTitleSize(0.045,"xyz")
+    ROOT.gStyle.SetTitleOffset(1.5,"y")
+
+    # use bold lines and markers
+    ROOT.gStyle.SetMarkerStyle(8)
+    ROOT.gStyle.SetHistLineWidth(2)
+    ROOT.gStyle.SetLineWidth(1)
+    #ROOT.gStyle.SetLineStyleString(2,"[12 12]") // postscript dashes
+
+    # do not display any of the standard histogram decorations
+    ROOT.gStyle.SetOptTitle(0)
+    ROOT.gStyle.SetOptStat(0) #("m")
+    ROOT.gStyle.SetOptFit(0)
+    
+    #ROOT.gStyle.SetPalette(1,0)
+    ROOT.gStyle.cd()
+    ROOT.gROOT.ForceStyle()
+#########################################
 
 if __name__ == '__main__':
 
     # style
-    #thestyle = Style.Style()
-    #thestyle.SetStyle()
-
+    SetStyle()
+    
     printCanvas = False
     printFormat = "png"
     printBanner = False
@@ -140,6 +214,9 @@ if __name__ == '__main__':
     else:
 	tag = option.tag
 
+    if option.batch:
+        ROOT.gROOT.SetBatch()
+        
     datafilename = "tmp_beamspot.dat"
     if option.create:
         datafilename = option.create
@@ -148,7 +225,15 @@ if __name__ == '__main__':
     if option.data:
         getDBdata = False
     
+    firstRun = 1
+    lastRun  = 4999999999
+
+    if option.initial:
+        firstRun = int(option.initial)
+    if option.final:
+        lastRun = int(option.final)
     
+                                                
     # GET IOVs
     ################################
 
@@ -184,15 +269,6 @@ if __name__ == '__main__':
         #  GET DATA
         ################################
 
-        firstRun = 1
-        lastRun  = 4999999999
-
-        if option.initial:
-            firstRun = int(option.initial)
-        if option.final:
-            lastRun = int(option.final)
-    
-    
         print " get beam spot data from DB for IOVs. This can take a few minutes ..."
 
         tmpfile = open(datafilename,'w')
@@ -242,24 +318,126 @@ if __name__ == '__main__':
 	
 	if line.find('X0') != -1:
 	    tmpbeam.X = line.split()[2]
+	    tmpbeam.Xerr = line.split()[4]
 	    tmpbeamsize += 1
             #print " x = " + str(tmpbeam.X)
 	if line.find('Y0') != -1:
 	    tmpbeam.Y = line.split()[2]
+	    tmpbeam.Yerr = line.split()[4]
 	    tmpbeamsize += 1
             #print " y =" + str(tmpbeam.Y)
 	if line.find('Z0') != -1 and line.find('Sigma Z0') == -1:
 	    tmpbeam.Z = line.split()[2]
+	    tmpbeam.Zerr = line.split()[4]
 	    tmpbeamsize += 1
             #print " z =" + str(tmpbeam.Z)
-	if tmpbeamsize == 3:
+	if line.find('Sigma Z0') !=-1:
+	    tmpbeam.sigmaZ = line.split()[3]
+	    tmpbeam.sigmaZerr = line.split()[5]
+	    tmpbeamsize += 1
+	if line.find('dxdz') != -1:
+	    tmpbeam.dxdz = line.split()[2]
+	    tmpbeam.dxdzerr = line.split()[4]
+	    tmpbeamsize += 1
+	if line.find('dydz') != -1:
+	    tmpbeam.dydz = line.split()[2]
+	    tmpbeam.dydzerr = line.split()[4]
+	    tmpbeamsize += 1
+	if line.find('Beam Width X') != -1:
+	    tmpbeam.beamWidthX = line.split()[4]
+	    tmpbeam.beamWidthXerr = line.split()[6]
+	    tmpbeamsize += 1
+	if line.find('Beam Width Y') != -1:
+	    tmpbeam.beamWidthY = line.split()[4]
+	    tmpbeam.beamWidthYerr = line.split()[6]
+	    tmpbeamsize += 1
+	#if line.find('Run ') != -1:
+        if line.find('for runs')  != -1:
+	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
+            tmpbeam.IOVfirst = line.split()[2]
+            tmpbeam.IOVlast = line.split()[4]
+	    tmpbeamsize += 1
+	if tmpbeamsize == 9:
             #print " from object " + str(tmpbeam.X)
-	    listbeam.append(tmpbeam)
-	    tmpbeamsize = 0
-	    tmpbeam.Reset()
-    
-    print " total number of IOVs " + str(len(listbeam))
+            if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
+                listbeam.append(tmpbeam)
+            tmpbeamsize = 0
+	    tmpbeam = BeamSpot()
+	    
+    print " got total number of IOVs = " + str(len(listbeam)) + " from file "+datafilename
+    #print " run " + str(listbeam[3].IOVfirst ) + " " + str( listbeam[3].X )
+
+    # MAKE PLOTS
+    ###################################
+   
+    TGaxis.SetMaxDigits(8)
+
+    graphlist = []
+    graphnamelist = ['X','Y','Z','SigmaZ','dxdz','dydz']
+    graphtitlelist = ['beam spot X','beam spot Y','beam spot Z','beam spot #sigma_Z','beam spot dX/dZ','beam spot dY/dZ']
+    graphXaxis = 'Run number'
+    graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_Z [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ']
+
+    cvlist = []
+
+    for ig in range(0,6):
+	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 800, 600) )
+	graphlist.append( TGraphErrors( len(listbeam) ) )
+	graphlist[ig].SetName(graphnamelist[ig])
+        graphlist[ig].SetTitle(graphnamelist[ig])
+	ipoint = 0
+	for ii in range(0,len(listbeam)):
+	    
+	    ibeam = listbeam[ii]
+	    datax = dataxerr = 0.
+	    datay = datayerr = 0.
+	    if graphnamelist[ig] == 'X':
+		datay = ibeam.X
+		datayerr = ibeam.Xerr
+	    if graphnamelist[ig] == 'Y':
+		datay = ibeam.Y
+		datayerr = ibeam.Yerr
+	    if graphnamelist[ig] == 'Z':
+		datay = ibeam.Z
+		datayerr = ibeam.Zerr
+	    if graphnamelist[ig] == 'SigmaZ':
+		datay = ibeam.sigmaZ
+		datayerr = ibeam.sigmaZerr
+	    if graphnamelist[ig] == 'dxdz':
+		datay = ibeam.dxdz
+		datayerr = ibeam.dxdzerr
+	    if graphnamelist[ig] == 'dydz':
+		datay = ibeam.dydz
+		datayerr = ibeam.dydzerr
+	    
+	    datax = ibeam.IOVfirst
+	    if datax == '1':
+		print " skip in plot IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
+		graphlist[ig].Set( len(listbeam) -1 )
+		continue
+	    #print str(ipoint) + " x = " + str(datax) + " y = " + str(datay)
+	    graphlist[ig].SetPoint(ipoint, float(datax), float(datay) )
+	    graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
+	    ipoint += 1
+
 	
+	graphlist[ig].Draw('AP')
+	graphlist[ig].GetXaxis().SetTitle(graphXaxis)
+	graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])
+	cvlist[ig].Update()
+        if option.wait:
+            raw_input( 'Press ENTER to continue\n ' )
+        #graphlist[0].Print('all')
+
+    if option.output:
+        outroot = TFile(option.output,"RECREATE")
+        for ig in graphlist:
+            ig.Write()
+
+        outroot.Close()
+        print " plots have been written to "+option.output
+        
+    
 
     # CLEAN temporal files
     ###################################
