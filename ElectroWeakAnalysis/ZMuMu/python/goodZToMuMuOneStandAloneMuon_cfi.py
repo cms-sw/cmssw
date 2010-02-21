@@ -20,7 +20,7 @@ zToMuMuOneStandAloneMuon = cms.EDFilter(
 goodZToMuMuOneStandAloneMuonLoose = cms.EDFilter(
     "ZMuMuOverlapExclusionSelector",    
     src = cms.InputTag("zToMuMuOneStandAloneMuonLoose"),
-    overlap = cms.InputTag("goodZToMuMuLoose"),
+    overlap = cms.InputTag("goodZToMuMu"),
     filter = cms.bool(True)
 )
 

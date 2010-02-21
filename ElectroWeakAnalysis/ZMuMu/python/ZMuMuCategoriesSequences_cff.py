@@ -43,21 +43,21 @@ goodZToMuMu1HLTPathLoose = cms.Path(
 
 
 goodZToMuMuSameChargePathLoose = cms.Path(
-    dimuonsGlobalSameChargeLoose+
+    dimuonsGlobalSameCharge+
     goodZToMuMuSameChargeLoose +
     goodZToMuMuSameChargeAtLeast1HLTLoose
     )
 
 
 ## goodZToMuMuSameCharge2HLTPathLoose = cms.Path(
-##     dimuonsGlobalSameChargeLoose+
+##     dimuonsGlobalSameCharge+
 ##     goodZToMuMuSameChargeLoose +
 ##     goodZToMuMuSameCharge2HLTLoose
 ##     )
 
 
 ## goodZToMuMuSameCharge1HLTPathLoose = cms.Path(
-##     dimuonsGlobalSameChargeLoose+
+##     dimuonsGlobalSameCharge+
 ##     goodZToMuMuSameChargeLoose +
 ##     goodZToMuMuSameCharge1HLTLoose
 ##     )
@@ -65,7 +65,8 @@ goodZToMuMuSameChargePathLoose = cms.Path(
 
 
 goodZToMuMuOneStandAloneMuonPathLoose = cms.Path(
-    ~goodZToMuMuLoose + 
+### I should deby the tight zmumu, otherwise I cut to much.... 
+    ~goodZToMuMu + 
     zToMuMuOneStandAloneMuonLoose + 
     goodZToMuMuOneStandAloneMuonLoose +
     goodZToMuMuOneStandAloneMuonFirstHLTLoose 
@@ -73,8 +74,9 @@ goodZToMuMuOneStandAloneMuonPathLoose = cms.Path(
 
 
 goodZToMuMuOneTrackPathLoose=cms.Path(
-    ~goodZToMuMuLoose +
-    ~zToMuMuOneStandAloneMuonLoose +
+    ### I should deby the tight zmumu, otherwise I cut to much.... 
+    ~goodZToMuMu +
+    ~zToMuMuOneStandAloneMuon +
     zToMuGlobalMuOneTrack +
     zToMuMuOneTrackLoose +
     goodZToMuMuOneTrackLoose +
@@ -88,15 +90,12 @@ goodZToMuMuOneTrackPathLoose=cms.Path(
 ### sequences and path for tight cuts...
 
 initialGoodZToMuMuPath = cms.Path( 
-    goodZToMuMuLoose +
     goodZToMuMu +
     zmumuSaMassHistogram     
 )
 
 
 goodZToMuMuPath = cms.Path(
-    goodZToMuMuLoose +
-    goodZToMuMuAtLeast1HLTLoose + 
     goodZToMuMu +
     goodZToMuMuAtLeast1HLT
     )
@@ -104,16 +103,12 @@ goodZToMuMuPath = cms.Path(
 
 
 goodZToMuMu2HLTPath = cms.Path(
-    goodZToMuMuLoose +
-    goodZToMuMu2HLTLoose +
     goodZToMuMu +
     goodZToMuMu2HLT
     )
 
 
 goodZToMuMu1HLTPath = cms.Path(
-    goodZToMuMuLoose +
-    goodZToMuMu1HLTLoose +
     goodZToMuMu +
     goodZToMuMu1HLT
     )
@@ -121,18 +116,14 @@ goodZToMuMu1HLTPath = cms.Path(
 
 
 goodZToMuMuSameChargePath = cms.Path(
-    dimuonsGlobalSameChargeLoose+
-    goodZToMuMuSameChargeLoose +
-    goodZToMuMuSameChargeAtLeast1HLTLoose +
+    dimuonsGlobalSameCharge+
     goodZToMuMuSameCharge +
     goodZToMuMuSameChargeAtLeast1HLT
     )
 
 
 goodZToMuMuSameCharge2HLTPath = cms.Path(
-    dimuonsGlobalSameChargeLoose+
-    goodZToMuMuSameChargeLoose +
-    goodZToMuMuSameChargeAtLeast1HLTLoose +
+    dimuonsGlobalSameCharge+
     goodZToMuMuSameCharge +
     goodZToMuMuSameCharge2HLT
     )
@@ -140,9 +131,7 @@ goodZToMuMuSameCharge2HLTPath = cms.Path(
 
 
 goodZToMuMuSameCharge1HLTPath = cms.Path(
-    dimuonsGlobalSameChargeLoose+
-    goodZToMuMuSameChargeLoose +
-    goodZToMuMuSameChargeAtLeast1HLTLoose +
+    dimuonsGlobalSameCharge+
     goodZToMuMuSameCharge +
     goodZToMuMuSameCharge1HLT
     )

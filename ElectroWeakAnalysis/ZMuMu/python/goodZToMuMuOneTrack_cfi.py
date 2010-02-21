@@ -25,12 +25,12 @@ zToMuMuOneTrack = cms.EDFilter(
 )
 
 
-## attention to the overlap... should be done for both tight and loose cuts
+## attention to the overlap... should be done with tight zmumu
 
 goodZToMuMuOneTrackLoose = cms.EDFilter(
     "ZMuMuOverlapExclusionSelector",
     src = cms.InputTag("zToMuMuOneTrackLoose"),
-    overlap = cms.InputTag("goodZToMuMuLoose"),
+    overlap = cms.InputTag("goodZToMuMu"),
     filter = cms.bool(True)
 )
 
