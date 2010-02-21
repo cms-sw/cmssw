@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/8E29/V23 (CMSSW_3_5_2_HLT2)
+# /dev/CMSSW_3_5_0/8E29/V25 (CMSSW_3_5_2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V23')
+  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V25')
 )
 
 streams = cms.PSet( 
@@ -37,7 +37,9 @@ datasets = cms.PSet(
   RandomTriggers = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
     'HLT_HcalPhiSym' ),
-  MinimumBias = cms.vstring( 'HLT_DoublePhoton10_L1R',
+  MinimumBias = cms.vstring( 'HLT_DoubleLooseIsoTau15',
+    'HLT_SingleLooseIsoTau20',
+    'HLT_DoublePhoton10_L1R',
     'HLT_Photon30_L1R_8E29',
     'HLT_Photon20_L1R',
     'HLT_Photon15_LooseEcalIso_L1R',
@@ -87,9 +89,7 @@ datasets = cms.PSet(
     'HLT_L1Mu14_L1SingleJet6U',
     'HLT_L1Mu14_L1SingleEG10',
     'HLT_StoppedHSCP_8E29',
-    'HLT_BTagIP_Jet50U',
-    'HLT_DoubleLooseIsoTau15',
-    'HLT_SingleLooseIsoTau20' ),
+    'HLT_BTagIP_Jet50U' ),
   Cosmics = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Mu20',
     'HLT_L1Mu',

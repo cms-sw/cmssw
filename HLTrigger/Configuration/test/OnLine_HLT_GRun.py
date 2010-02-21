@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/GRun/V23 (CMSSW_3_5_2_HLT2)
+# /dev/CMSSW_3_5_0/GRun/V25 (CMSSW_3_5_2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V23')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V25')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1737,8 +1737,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'infos',
       'debugs',
       'cout',
-      'cerr',
-      'log4cplus' ),
+      'cerr' ),
     categories = cms.untracked.vstring( 'FwkJob',
       'FwkReport',
       'FwkSummary',
@@ -8358,7 +8357,7 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Activity_EcalREM',
       'HLT_Activity_L1A',
       'HLT_Activity_PixelClusters',
-      'HLT_BackwardB SC',
+      'HLT_BackwardBSC',
       'HLT_BTagIP_Jet50U',
       'HLT_BTagMu_Jet10U',
       'HLT_CSCBeamHalo',
@@ -8410,13 +8409,13 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_L1DoubleMuOpen',
       'HLT_L1Jet6U',
       'HLT_L1MET20',
-      'HLT_L1Mu 0',
+      'HLT_L1Mu / 10',
       'HLT_L1Mu14_L1ETM30',
       'HLT_L1Mu14_L1SingleEG10',
       'HLT_L1Mu14_L1SingleJet6U',
       'HLT_L1Mu20',
-      'HLT_L1MuOpen 0',
-      'HLT_L1MuOpen_NoBPTX 0',
+      'HLT_L1MuOpen / 10',
+      'HLT_L1MuOpen_NoBPTX / 10',
       'HLT_L1SingleEG1',
       'HLT_L1SingleEG2',
       'HLT_L1SingleEG20_NoBPTX',
