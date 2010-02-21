@@ -27,7 +27,7 @@ key=$2
 release=CMSSW_3_5_0
 version=007
 
-echo "`date` : o2o-setIOV.sh $run $key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+echo "`date` : o2o-setIOV-slc5.sh $run $key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 if [ $# -lt 2 ]
     then
@@ -100,7 +100,7 @@ else
     echo "L1-O2O-ERROR: o2o-setIOV.sh failed!" >&2
 fi
 
-echo "`date` : o2o-setIOV.sh finished : ${run} ${key}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+echo "`date` : o2o-setIOV-slc5.sh finished : ${run} ${key}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 echo "" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 #if [ ! -f /nfshome0/popcondev/L1Job/o2o.summary ]
