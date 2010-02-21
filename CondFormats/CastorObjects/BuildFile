@@ -1,7 +1,6 @@
 <flags GENREFLEX_ARGS="--">
 <use name=DataFormats/DetId>
 <use name=DataFormats/HcalDetId>
-<use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=rootrflx>
 <export>

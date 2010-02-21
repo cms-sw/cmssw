@@ -2,7 +2,8 @@
 <use name=CondFormats/Common>
 <use name=boost>
 <use name=DataFormats/MuonDetId>
-<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
 <use name=rootrflx>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>

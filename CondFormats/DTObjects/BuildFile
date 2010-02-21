@@ -1,7 +1,7 @@
 <flags GENREFLEX_ARGS="--">
 <use name=CondFormats/Common>
 <use name=DataFormats/MuonDetId>
-<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
 <use name=CondCore/DBCommon>
 <use name=rootrflx>
 <export>

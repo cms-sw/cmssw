@@ -1,7 +1,7 @@
 <flags GENREFLEX_ARGS="--">
 <use name=CondFormats/Common>
 <use name=DataFormats/EcalDetId>
-<use name=FWCore/Framework>
+<use name=FWCore/Utilities>
 <use name=rootrflx>
 <use name=boost>
 
@@ -10,6 +10,6 @@
   <use name=boost>
   <use name=rootrflx>
   <use name=DataFormats/EcalDetId>
-  <use name=FWCore/Framework>
+  <use name=FWCore/Utilities>
   <lib name=CondFormatsEcalCorrections>
 </export>

@@ -1,6 +1,5 @@
 <flags GENREFLEX_ARGS="--">
 <use name=CondFormats/Common>
-<use name=FWCore/Framework>
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/Math>
 <use name=boost>
