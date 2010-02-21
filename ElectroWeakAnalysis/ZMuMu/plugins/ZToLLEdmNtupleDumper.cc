@@ -343,21 +343,27 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	zDau1NofHitTk->push_back(mu1->innerTrack()->numberOfValidHits());
 	zDau1NofHitSta->push_back(mu1->outerTrack()->numberOfValidHits());
 	zDau1Chi2->push_back(mu1->normChi2());
+	TrackRef mu1TrkRef = mu1->innerTrack();
+	zDau1dxyFromBS->push_back(mu1TrkRef->dxy(beamSpotHandle->position()));
+	zDau1dzFromBS->push_back(mu1TrkRef->dz(beamSpotHandle->position()));
+	zDau1dxyFromPV->push_back(mu1TrkRef->dxy(primaryVertices->begin()->position() ));
+	zDau1dzFromPV->push_back(mu1TrkRef->dz(primaryVertices->begin()->position() ));     
+
       } else {
   	zDau1NofHit->push_back(0);
 	zDau1NofHitTk->push_back(0);
 	zDau1NofHitSta->push_back(0);
 	zDau1Chi2->push_back(0); 
+	zDau1dxyFromBS->push_back(-1);
+	zDau1dzFromBS->push_back(-1);
+	zDau1dxyFromPV->push_back(-1);
+	zDau1dzFromPV->push_back(-1);     
+
       }
       zDau1NofMuChambers->push_back(mu1->numberOfChambers());
       zDau1NofMuMatches->push_back(mu1->numberOfMatches());
 
       zDau1dB->push_back(mu1->dB());
-      TrackRef mu1TrkRef = mu1->innerTrack();
-       zDau1dxyFromBS->push_back(mu1TrkRef->dxy(beamSpotHandle->position()));
-      zDau1dzFromBS->push_back(mu1TrkRef->dz(beamSpotHandle->position()));
-       zDau1dxyFromPV->push_back(mu1TrkRef->dxy(primaryVertices->begin()->position() ));
-      zDau1dzFromPV->push_back(mu1TrkRef->dz(primaryVertices->begin()->position() ));     
       // would we like to add another variables???, such as 
       // double nChi2_tk_1= mu1->innerTrack()->normalizedChi2().....
      
@@ -376,13 +382,19 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       const pat::Muon * mu2 = dynamic_cast<const pat::Muon*>(m2);
  
     
-      // for ZMuTk case...
+
       if (mu2!=0 ) {
 	if (mu2->isGlobalMuon() == true) {
         zDau2NofHit->push_back(mu2->numberOfValidHits());
 	zDau2NofHitTk->push_back(mu2->innerTrack()->numberOfValidHits());
 	zDau2NofHitSta->push_back(mu2->outerTrack()->numberOfValidHits());
 	zDau2Chi2->push_back(mu2->normChi2());
+	TrackRef mu2TrkRef = mu2->innerTrack();
+	zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
+	zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
+	zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
+	zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));
+
 	// HLT trigger  bit
 	const pat::TriggerObjectStandAloneCollection mu2HLTMatches = mu2->triggerObjectMatchesByPath( hltPath_[c] );
 	int dimTrig2 = mu2HLTMatches.size();
@@ -397,17 +409,18 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	  zDau2NofHitTk->push_back(0);
 	  zDau2NofHitSta->push_back(0);
 	  zDau2Chi2->push_back(0);
+	  zDau2dxyFromBS->push_back(-1);
+	  zDau2dzFromBS->push_back(-1);
+	  zDau2dxyFromPV->push_back(-1);
+	  zDau2dzFromPV->push_back(-1);
 	}
 	zDau2NofMuChambers->push_back(mu2->numberOfChambers());
 	zDau2NofMuMatches->push_back(mu2->numberOfMatches());
 
 	zDau2dB->push_back(mu2->dB());
-	TrackRef mu2TrkRef = mu2->innerTrack();
-	zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
-	zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
-	zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
-	zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));
+
       } else{
+      // for ZMuTk case...
 	// it's a track......
 	const pat::GenericParticle * trk2 = dynamic_cast<const pat::GenericParticle*>(m2);
 	TrackRef mu2TrkRef = trk2->track(); 
