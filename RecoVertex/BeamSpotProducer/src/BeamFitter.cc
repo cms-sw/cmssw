@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.23 2010/02/05 01:48:04 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.24 2010/02/11 00:11:57 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -423,10 +423,10 @@ void BeamFitter::dumpTxtFile(){
   fasciiFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
   fasciiFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
   fasciiFile << "Type " << fbeamspot.type() << std::endl;
-  fasciiFile << "X " << fbeamspot.x0() << std::endl;
-  fasciiFile << "Y " << fbeamspot.y0() << std::endl;
-  fasciiFile << "Z " << fbeamspot.z0() << std::endl;
-  fasciiFile << "sigmaZ " << fbeamspot.sigmaZ() << std::endl;
+  fasciiFile << "X0 " << fbeamspot.x0() << std::endl;
+  fasciiFile << "Y0 " << fbeamspot.y0() << std::endl;
+  fasciiFile << "Z0 " << fbeamspot.z0() << std::endl;
+  fasciiFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
   fasciiFile << "dxdz " << fbeamspot.dxdz() << std::endl;
   fasciiFile << "dydz " << fbeamspot.dydz() << std::endl;
   if (inputBeamWidth_ > 0 ) {

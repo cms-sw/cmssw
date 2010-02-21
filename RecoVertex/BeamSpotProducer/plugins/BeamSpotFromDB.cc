@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotFromDB.cc,v 1.2 2009/12/18 20:45:08 wmtan Exp $
+ version $Id: BeamSpotFromDB.cc,v 1.3 2010/02/20 21:01:51 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -28,6 +28,7 @@ ________________________________________________________________**/
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
+
 BeamSpotFromDB::BeamSpotFromDB(const edm::ParameterSet& iConfig)
 {
   
@@ -47,7 +48,10 @@ BeamSpotFromDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	edm::ESHandle< BeamSpotObjects > beamhandle;
 	iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
 	const BeamSpotObjects *mybeamspot = beamhandle.product();
-	
+
+	std::cout << " for runs: " << iEvent.id().run() << " - " << iEvent.id().run() << std::endl;
+	//std::cout << iEvent.getRun().beginTime().value() << std::endl;
+	//std::cout << iEvent.time().value() << std::endl;
 	std::cout << *mybeamspot << std::endl;
 
 }

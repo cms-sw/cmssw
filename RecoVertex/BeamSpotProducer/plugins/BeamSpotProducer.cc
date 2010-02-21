@@ -50,43 +50,43 @@ BeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //typedef math::Error<dimension>::type CovarianceMatrix;
 
 	
-	try {
-		edm::LogInfo("RecoVertex/BeamSpotProducer") 
-			<< "Reconstructing event number: " << iEvent.id() << "\n";
+	//try {
+	edm::LogInfo("RecoVertex/BeamSpotProducer") 
+	  << "Reconstructing event number: " << iEvent.id() << "\n";
 
-		edm::ESHandle< BeamSpotObjects > beamhandle;
-		iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
-		const BeamSpotObjects *spotDB = beamhandle.product();
+	edm::ESHandle< BeamSpotObjects > beamhandle;
+	iSetup.get<BeamSpotObjectsRcd>().get(beamhandle);
+	const BeamSpotObjects *spotDB = beamhandle.product();
 
-		// translate from BeamSpotObjects to reco::BeamSpot
-		reco::BeamSpot::Point apoint( spotDB->GetX(), spotDB->GetY(), spotDB->GetZ() );
+	// translate from BeamSpotObjects to reco::BeamSpot
+	reco::BeamSpot::Point apoint( spotDB->GetX(), spotDB->GetY(), spotDB->GetZ() );
 		
-		reco::BeamSpot::CovarianceMatrix matrix;
-		for ( int i=0; i<7; ++i ) {
-			for ( int j=0; j<7; ++j ) {
-				matrix(i,j) = spotDB->GetCovariance(i,j);
-			}
-		}
-
-		// this assume beam width same in x and y
-		aSpot = reco::BeamSpot( apoint,
-								spotDB->GetSigmaZ(),
-								spotDB->Getdxdz(),
-								spotDB->Getdydz(),
-								spotDB->GetBeamWidthX(),
-								matrix );
-		aSpot.setBeamWidthY( spotDB->GetBeamWidthY() );
-		aSpot.setEmittanceX( spotDB->GetEmittanceX() );
-		aSpot.setEmittanceY( spotDB->GetEmittanceY() );
-		aSpot.setbetaStar( spotDB->GetBetaStar() );
-		
+	reco::BeamSpot::CovarianceMatrix matrix;
+	for ( int i=0; i<7; ++i ) {
+	  for ( int j=0; j<7; ++j ) {
+	    matrix(i,j) = spotDB->GetCovariance(i,j);
+	  }
 	}
 	
-	catch (std::exception & err) {
-		edm::LogInfo("RecoVertex/BeamSpotProducer") 
-			<< "Exception during event number: " << iEvent.id() 
-			<< "\n" << err.what() << "\n";
-	}
+	// this assume beam width same in x and y
+	aSpot = reco::BeamSpot( apoint,
+				spotDB->GetSigmaZ(),
+				spotDB->Getdxdz(),
+				spotDB->Getdydz(),
+				spotDB->GetBeamWidthX(),
+				matrix );
+	aSpot.setBeamWidthY( spotDB->GetBeamWidthY() );
+	aSpot.setEmittanceX( spotDB->GetEmittanceX() );
+	aSpot.setEmittanceY( spotDB->GetEmittanceY() );
+	aSpot.setbetaStar( spotDB->GetBetaStar() );
+		
+	//}
+	//
+	//catch (std::exception & err) {
+	//	edm::LogInfo("RecoVertex/BeamSpotProducer") 
+	//		<< "Exception during event number: " << iEvent.id() 
+	//		<< "\n" << err.what() << "\n";
+	//}
 
 	*result = aSpot;
 	
