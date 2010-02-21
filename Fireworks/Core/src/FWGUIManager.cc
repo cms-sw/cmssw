@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.187 2010/01/26 15:30:20 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.188 2010/02/01 14:31:02 amraktad Exp $
 
 //
 
@@ -151,7 +151,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    TEveCompositeFrame::IconBarCreator_foo foo =  &FWGUIManager::makeGUIsubview;
    TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
 
-   TEveManager::Create(kFALSE, "FI");
+   TEveManager::Create(kFALSE, "FIV");
    {
       //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
       // causing the program to go into full screen mode under default SL4 window manager
