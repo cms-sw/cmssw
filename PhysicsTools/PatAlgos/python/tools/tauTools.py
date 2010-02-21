@@ -22,8 +22,7 @@ def redoPFTauDiscriminators(process,
         tauDiscriminationSequence = process.patCaloTauDiscrimination
         tauSrc = 'CaloTauProducer'
 
-    process.patDefaultSequence.replace(process.patCandidates, tauDiscriminationSequence + process.patCandidates)
-    process.patDefaultSequence.replace(process.patTaus, process.patTaus+tauDiscriminationSequence)
+    process.makePatTaus.replace(process.patTaus, tauDiscriminationSequence*process.patTaus)
 
     massSearchReplaceParam(tauDiscriminationSequence, tauSrc, oldPFTauLabel, newPFTauLabel)
 
@@ -46,8 +45,10 @@ def switchToCaloTau(process,
     process.patTaus.isolation   = cms.PSet()
     process.patTaus.isoDeposits = cms.PSet()
     process.patTaus.userIsolation = cms.PSet()
+    process.patDefaultSequence.remove(process.patPFCandidateIsoDepositSelection)
+    process.patDefaultSequence.remove(process.patPFTauIsolation)
     ## adapt cleanPatTaus
-    process.cleanPatTaus.preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5 & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5'
+    process.cleanPatTaus.preselection = 'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5 & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5 & (signalTracks.size() = 1 | signalTracks.size() = 3)'
 
 # internal auxiliary function to switch to **any** PFTau collection
 def _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, pfTauType):

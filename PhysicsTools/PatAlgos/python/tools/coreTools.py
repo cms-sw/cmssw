@@ -94,6 +94,7 @@ class RemoveMCMatching(ConfigToolBase):
                 _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
                 ## remove mc extra modules for taus
                 process.patDefaultSequence.remove(process.tauGenJets)
+                process.patDefaultSequence.remove(process.tauGenJetsSelectorAllHadrons)
                 process.patDefaultSequence.remove(process.tauGenJetMatch)
                 ## remove mc extra configs for taus
                 tauProducer = getattr(process, 'patTaus')
@@ -119,7 +120,7 @@ class RemoveMCMatching(ConfigToolBase):
                 ## remove mc extra configs for jets
                 metProducer = getattr(process, 'patMETs')        
                 metProducer.addGenMET           = False
-                metProducer.genMETSource        = ''       
+                metProducer.genMETSource        = ''
             
 removeMCMatching=RemoveMCMatching()
 
@@ -226,6 +227,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                 process.patDefaultSequence.remove(getattr(process, 'patPFTauIsolation'))
                 process.patDefaultSequence.remove(getattr(process, 'tauMatch'))
                 process.patDefaultSequence.remove(getattr(process, 'tauGenJets'))
+                process.patDefaultSequence.remove(getattr(process, 'tauGenJetsSelectorAllHadrons'))
                 process.patDefaultSequence.remove(getattr(process, 'tauGenJetMatch'))
             if( names[obj] == 'Jets' ):
                 print process.patDefaultSequence

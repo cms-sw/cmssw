@@ -93,58 +93,58 @@ def adaptPFPhotons(process,module):
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import adaptTauDiscriminator, producerIsTauTypeMapper 
 
-def reconfigureLayer0Taus(process,
+def reconfigurePF2PATTaus(process,
       tauType='shrinkingConePFTau', 
-      layer0Selection=["DiscriminationByIsolation", "DiscriminationByLeadingPionPtCut"],
+      pf2patSelection=["DiscriminationByIsolation", "DiscriminationByLeadingPionPtCut"],
       selectionDependsOn=["DiscriminationByLeadingTrackFinding"],
       producerFromType=lambda producer: producer+"Producer"):
    print "patTaus will be produced from taus of type: %s that pass %s" \
-	 % (tauType, layer0Selection)
+	 % (tauType, pf2patSelection)
 
    # Get the prototype of tau producer to make, i.e. fixedConePFTauProducer
    producerName = producerFromType(tauType)
-   # Set as the source for the pat taus selector
+   # Set as the source for the pf2pat taus (pfTaus) selector
    process.patTaus.tauSource = producerName
-   # Start our layer0 base sequence
-   process.patTausBaseSequence = cms.Sequence(getattr(process,
+   # Start our pf2pat taus base sequence
+   process.pfTausBaseSequence = cms.Sequence(getattr(process,
       producerName))
    # Get our prediscriminants
    for predisc in selectionDependsOn:
       # Get the prototype
       originalName = tauType+predisc # i.e. fixedConePFTauProducerDiscriminationByLeadingTrackFinding
-      clonedName = "patTausBase"+predisc
+      clonedName = "pfTausBase"+predisc
       clonedDisc = getattr(process, originalName).clone()
       # Register in our process
       setattr(process, clonedName, clonedDisc)
-      process.patTausBaseSequence += getattr(process, clonedName)
+      process.pfTausBaseSequence += getattr(process, clonedName)
       # Adapt this discriminator for the cloned prediscriminators 
-      adaptTauDiscriminator(clonedDisc, newTauProducer="patTausBase", 
+      adaptTauDiscriminator(clonedDisc, newTauProducer="pfTausBase", 
 	    newTauTypeMapper=producerIsTauTypeMapper,
 	    preservePFTauProducer=True)
-   # Reconfigure the layer0 PFTau selector discrimination sources
-   process.patTaus.discriminators = cms.VPSet()
-   for selection in layer0Selection:
-      # Get our discriminator that will be used to select layer0Taus
+   # Reconfigure the pf2pat PFTau selector discrimination sources
+   process.pfTaus.discriminators = cms.VPSet()
+   for selection in pf2patSelection:
+      # Get our discriminator that will be used to select pfTaus
       originalName = tauType+selection
-      clonedName = "patTausBase"+selection
+      clonedName = "pfTausBase"+selection
       clonedDisc = getattr(process, originalName).clone()
       # Register in our process
       setattr(process, clonedName, clonedDisc)
       # Adapt our cloned discriminator to the new prediscriminants
-      adaptTauDiscriminator(clonedDisc, newTauProducer="patTausBase",
+      adaptTauDiscriminator(clonedDisc, newTauProducer="pfTausBase",
 	    newTauTypeMapper=producerIsTauTypeMapper, preservePFTauProducer=True)
-      process.patTausBaseSequence += clonedDisc
-      # Add this selection to our layer0Tau selectors
-      process.patTaus.discriminators.append(cms.PSet(
+      process.pfTausBaseSequence += clonedDisc
+      # Add this selection to our pfTau selectors
+      process.pfTaus.discriminators.append(cms.PSet(
          discriminator=cms.InputTag(clonedName), selectionCut=cms.double(0.5)))
 
 
 def adaptPFTaus(process,tauType = 'shrinkingConePFTau'):
-    oldTaus = process.allLayer0Taus.src
+    oldTaus = process.pfTaus.src
 
     # Set up the collection used as a preselection to use this tau type    
-    reconfigureLayer0Taus(process, tauType)
-    process.patTaus.tauSource = cms.InputTag("allLayer0Taus")
+    reconfigurePF2PATTaus(process, tauType)
+    process.patTaus.tauSource = cms.InputTag("pfTaus")
     
     redoPFTauDiscriminators(process, 
                             cms.InputTag(tauType+'Producer'),
@@ -229,7 +229,14 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5'):
     process.patJets.embedCaloTowers   = False
     process.patJets.embedPFCandidates   = True
 
-def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
+#-- Remove MC dependence ------------------------------------------------------
+def removeMCMatchingPF2PAT( process ):
+    from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
+    process.patDefaultSequence.remove(process.genForPF2PATSequence)
+    removeMCMatching(process, ['All'])
+
+
+def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True):
 
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED. 
@@ -243,6 +250,7 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
        #process.dump = cms.EDAnalyzer("EventContentAnalyzer")
         process.patDefaultSequence.replace(process.patCandidates, process.PF2PAT+process.patCandidates)
 
+        
     removeCleaning(process)
     
     # -------- OBJECTS ------------
@@ -263,7 +271,7 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
     
     # Taus
     #adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
-    adaptPFTaus( process, tauType='fixedConePFTau' )
+    adaptPFTaus( process, tauType='shrinkingConePFTau' )
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))
@@ -271,14 +279,12 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='IC5'):
     # Unmasked PFCandidates
     addPFCandidates(process,cms.InputTag('pfNoJet'),patLabel='PFParticles',cut="")
 
+    if runOnMC:
+        process.load("PhysicsTools.PFCandProducer.genForPF2PAT_cff")
+        process.patDefaultSequence.replace(process.patCandidates,
+                                           process.genForPF2PATSequence+
+                                           process.patCandidates)
+    else:
+        removeMCMatchingPF2PAT( process )
 
-def removeMCDependencedorPF( process ):
-    #-- Remove MC dependence ------------------------------------------------------
-    from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
-    process.patDefaultSequence.remove(process.genParticlesForMETAllVisible)
-    process.patDefaultSequence.remove(process.genMetTrue)
-    process.patDefaultSequence.remove(process.genParticlesForJets)
-    process.patDefaultSequence.remove(process.ak5GenJetsNoNu)
-    process.patDefaultSequence.remove(process.iterativeCone5GenJetsNoNu)
-    removeMCMatching(process, ['PFAll'])
     
