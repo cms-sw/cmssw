@@ -1,0 +1,11 @@
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/Math"/>
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="RecoLocalCalo/EcalRecAlgos"/>
+<use   name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

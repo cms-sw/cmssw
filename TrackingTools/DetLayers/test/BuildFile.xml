@@ -1,0 +1,4 @@
+<bin   file="testBinFinders.cpp">
+  <use   name="DataFormats/Math"/>
+  <use   name="clhep"/>
+</bin>

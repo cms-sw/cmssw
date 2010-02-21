@@ -1,0 +1,16 @@
+<flags   GENREFLEX_ARGS="--"/>
+<use   name="rootrflx"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/SiStripDigi"/>
+<use   name="DataFormats/Scalers"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DetId"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/SiStripObjects"/>
+<export>
+  <lib   name="1"/>
+</export>

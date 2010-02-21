@@ -1,0 +1,17 @@
+<bin   name="multiPlotter" file="multiPlotter.cpp">
+  <use   name="boost"/>
+  <use   name="boost_program_options"/>
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="rootcintex"/>
+  <use   name="rootgraphics"/>
+  <use   name="root"/>
+</bin>
+<bin   name="makePlot" file="makePlot.cpp">
+  <use   name="boost"/>
+  <use   name="FWCore/FWLite"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="rootcintex"/>
+  <use   name="rootgraphics"/>
+  <use   name="root"/>
+</bin>

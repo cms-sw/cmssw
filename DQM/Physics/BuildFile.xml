@@ -1,0 +1,18 @@
+<use   name="DQMServices/Core"/>
+<use   name="FWCore/Framework"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/TrackerTopology"/>
+<use   name="JetMETCorrections/Objects"/>
+<export>
+  <lib   name="1"/>
+</export>

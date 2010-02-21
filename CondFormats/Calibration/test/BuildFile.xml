@@ -1,0 +1,8 @@
+<use   name="CondFormats/Calibration"/>
+<use   name="CondCore/DBCommon"/>
+<bin   file="testBitSet.cpp">
+</bin>
+<bin   file="testBoostType.cpp">
+</bin>
+<bin   file="testbig.cpp">
+</bin>

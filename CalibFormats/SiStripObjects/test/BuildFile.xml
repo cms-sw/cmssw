@@ -1,0 +1,11 @@
+<library   file="plugins/*.cc" name="testCalibFormatsSiStripObjectsPlugins">
+  <use   name="CalibFormats/SiStripObjects"/>
+  <use   name="DataFormats/SiStripCommon"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="Geometry/Records"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="boost"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

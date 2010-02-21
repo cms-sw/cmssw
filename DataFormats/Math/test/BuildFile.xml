@@ -1,0 +1,11 @@
+<library   file="ReadMath.cc,WriteMath.cc,SealModule.cc" name="DataFormatsMath_test">
+  <use   name="DataFormats/Math"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="DataFormats/Common"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<use   name="rootmath"/>
+<bin   file="Matrices_t.cpp" name="DataFormatsMatrices_t">
+</bin>
+<bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
+</bin>

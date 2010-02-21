@@ -1,0 +1,8 @@
+<use   name="MagneticField/Engine"/>
+<use   name="TrackPropagation/Geant4e"/>
+<use   name="CLHEP"/>
+<use   name="DataFormats/CLHEP"/>
+<use   name="geant4"/>
+<library   file="*.cc" name="TrackPropagatorsGeant4ePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

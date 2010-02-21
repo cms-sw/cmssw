@@ -1,0 +1,5 @@
+<bin   name="testSimGeneralHepPDTRecord" file="testPdtEntry.cc,testRunner.cpp">
+  <use   name="SimGeneral/HepPDTRecord"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="cppunit"/>
+</bin>
