@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -17,6 +17,7 @@
 #include "CommonTools/Utils/src/ExpressionNumberSetter.h"
 #include "CommonTools/Utils/src/ExpressionVarSetter.h"
 #include "CommonTools/Utils/src/ExpressionFunctionSetter.h"
+#include "CommonTools/Utils/src/ExpressionConditionSetter.h"
 #include "CommonTools/Utils/src/ComparisonSetter.h"
 #include "CommonTools/Utils/src/BinarySelectorSetter.h"
 #include "CommonTools/Utils/src/TrinarySelectorSetter.h"
@@ -83,7 +84,7 @@ namespace reco {
 	typedef boost::spirit::classic::rule<ScannerT> rule;
 	rule number, var, metharg, method, term, power, factor, function1, function2, expression, 
 	  comparison_op, binary_comp, trinary_comp,
-	  logical_combiner, logical_expression, logical_factor, logical_term,
+	  logical_combiner, logical_expression, nocond_expression, cond_expression, logical_factor, logical_term,
 	  or_op, and_op, cut, fun;
 	definition(const Grammar & self) {
 	  using namespace boost::spirit::classic;
@@ -92,6 +93,7 @@ namespace reco {
 	  ExpressionNumberSetter number_s(self.exprStack);
 	  IntSetter int_s(self.intStack);
 	  ExpressionVarSetter var_s(self.exprStack, self.methStack, self.lazyMethStack, self.typeStack);
+	  ExpressionConditionSetter cond_s(self.exprStack, self.selStack);
 	  MethodArgumentSetter methodArg_s(self.methArgStack);
 	  MethodSetter method_s(self.methStack, self.lazyMethStack, self.typeStack, self.methArgStack, self.lazy_);
 	  ComparisonSetter<less_equal<double> > less_equal_s(self.cmpStack);
@@ -129,6 +131,7 @@ namespace reco {
 	  BOOST_SPIRIT_DEBUG_RULE(var);
 	  BOOST_SPIRIT_DEBUG_RULE(method);
 	  BOOST_SPIRIT_DEBUG_RULE(logical_expression);
+	  BOOST_SPIRIT_DEBUG_RULE(cond_expression);
 	  BOOST_SPIRIT_DEBUG_RULE(logical_term);
 	  BOOST_SPIRIT_DEBUG_RULE(logical_factor);
 	  BOOST_SPIRIT_DEBUG_RULE(number);
@@ -171,9 +174,14 @@ namespace reco {
 	  function2 = 
 	    chseq_p("atan2") [ atan2_s ] | chseq_p("chi2prob") [ chi2prob_s ] | chseq_p("pow") [ pow_s ] |
             chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ];
-	  expression = 
-	    term >> * (('+' >> expect(term)) [ plus_s ] |
-		       ('-' >> expect(term)) [ minus_s ]);
+	  expression =
+	    cond_expression |
+	    nocond_expression;
+	  nocond_expression = 
+	    term >> (* (('+' >> expect(term)) [ plus_s ] |
+			('-' >> expect(term)) [ minus_s ]));
+	  cond_expression = 
+	     (ch_p('?') >> logical_expression >> ch_p('?') >> expect(expression) >> ch_p(":") >> expect(expression)) [cond_s];
 	  term = 
 	    power >> * (('*' >> expect(power)) [ multiplies_s ] |
 			('/' >> expect(power)) [ divides_s ]);

@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         adapted to Reflex by Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
  */
 #include "CommonTools/Utils/src/ExpressionNumber.h"
@@ -18,7 +18,7 @@ namespace reco {
     struct ExpressionNumberSetter {
       ExpressionNumberSetter(ExpressionStack & stack) : stack_(stack) { }
       void operator()(double n) const {
-	stack_.push_back(boost::shared_ptr<ExpressionBase>(new ExpressionNumber(n)));
+	stack_.push_back(ExpressionPtr(new ExpressionNumber(n)));
       }
     private:
       ExpressionStack & stack_;
