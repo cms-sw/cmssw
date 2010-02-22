@@ -112,6 +112,7 @@ void SurveyPxbImageLocalFit::doFit()
 		<< " phi= " << atan(a[3]/a[2]) 
 		<< " chi2= " << chi2_ << std::endl;
 	//std::cout << "A*a: " << A*a << std::endl;
+	a_.assign(a.begin(),a.end());
 
 	fitValidFlag_ = true;
 }
