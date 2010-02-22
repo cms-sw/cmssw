@@ -4,7 +4,6 @@
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/Provenance"/>
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="Geometry/EcalMapping"/>
 <use   name="boost"/>
