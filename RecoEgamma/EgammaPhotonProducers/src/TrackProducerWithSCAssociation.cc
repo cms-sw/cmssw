@@ -53,7 +53,7 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
 
 void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
-  edm::LogInfo("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
+  //edm::LogInfo("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
 
   //LogDebug("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
   //  std::cout << " TrackProducerWithSCAssociation Analyzing event number: " << theEvent.id() << "\n";
@@ -89,7 +89,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   edm::Handle<reco::TrackCandidateCaloClusterPtrAssociation> trkCandidateSCAssocHandle;
   theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
   if ( !trkCandidateSCAssocHandle.isValid() ) {
-    std::cout << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
+    //    std::cout << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
     edm::LogError("TrackProducerWithSCAssociation") << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
     validTrackCandidateSCAssociationInput_=false;
   }
@@ -110,7 +110,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     //
     //run the algorithm  
     //
-    LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
+    //  LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
     //    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
     //			     theFitter.product(), thePropagator.product(), theBuilder.product(), algoResults);
     // we have to copy this method from the algo in order to get the association track-seed
@@ -138,7 +138,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 									 &(theG.product()->idToDet(detId)->surface()), 
 									 theMF.product());
 	  
-	  LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  Initial TSOS\n" << theTSOS << "\n";
+	  //LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  Initial TSOS\n" << theTSOS << "\n";
 	  
 	  //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
 	  //meanwhile computes the number of degrees of freedom
@@ -153,9 +153,9 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 
 	  
 	  //build Track
-	  LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
+	  // LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
 	  bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
-	  LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
+	  // LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
 	  if(ok) {
 	    cont++;
 	    tccLocations.push_back(tcc);
@@ -163,7 +163,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	  tcc++;
 	}
       edm::LogInfo("TrackProducerWithSCAssociation") << "Number of Tracks found: " << cont << "\n";
-      LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation Number of Tracks found: " << cont << "\n";
+      //LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation Number of Tracks found: " << cont << "\n";
       // end of copied code ======================================================
       
     } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
@@ -226,7 +226,7 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
     //
     //run the algorithm  
     //
-   LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
+    //LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
 			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
 
@@ -237,7 +237,7 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
     ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator.product()->magneticField() ));
   }
 
- LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation end" << "\n";
+  //LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation end" << "\n";
 
   return ttks;
 }
@@ -273,7 +273,7 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     reco::Track * theTrack = (*i).second.first;
     PropagationDirection seedDir = (*i).second.second;
     
-    LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
+    //LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
     
     reco::Track t = * theTrack;
     selTracks->push_back( t );
@@ -362,16 +362,16 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     delete theTraj;
   }
 
-  LogTrace("TrackingRegressionTest") << "========== TrackProducer Info ===================";
-  LogDebug("TrackProducerWithSCAssociation") << "number of finalTracks: " << selTracks->size() << std::endl;
-  for (reco::TrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
-    LogDebug("TrackProducerWithSCAssociation")  << "track's n valid and invalid hit, chi2, pt : "
-                                       << it->found() << " , "
-                                       << it->lost()  <<" , "
-                                       << it->normalizedChi2() << " , "
-	       << it->pt() << std::endl;
-  }
-  LogTrace("TrackingRegressionTest") << "=================================================";
+  //LogTrace("TrackingRegressionTest") << "========== TrackProducer Info ===================";
+  //LogDebug("TrackProducerWithSCAssociation") << "number of finalTracks: " << selTracks->size() << std::endl;
+  //for (reco::TrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
+    //LogDebug("TrackProducerWithSCAssociation")  << "track's n valid and invalid hit, chi2, pt : "
+    //                                  << it->found() << " , "
+    //                                  << it->lost()  <<" , "
+    //                                  << it->normalizedChi2() << " , "
+    //	       << it->pt() << std::endl;
+  // }
+  //LogTrace("TrackingRegressionTest") << "=================================================";
 
 
   rTracks_ = evt.put( selTracks );
