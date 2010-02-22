@@ -29,17 +29,19 @@
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include <iostream>
+#include <sstream>
 namespace lumi{
   class TRG2DB : public DataPipe{
   public:
-    TRG2DB(const std::string& dest);
-    virtual void retrieveData( unsigned int );
+    explicit TRG2DB(const std::string& dest);
+    virtual void retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~TRG2DB();
   private:
-    std::string int2str(int t);
+    std::string int2str(unsigned int t,unsigned int width);
     unsigned int str2int(const std::string& s);
   private:
     //per run information
@@ -59,6 +61,7 @@ namespace lumi{
   //
  TRG2DB::TRG2DB(const std::string& dest):DataPipe(dest){}
   void TRG2DB::retrieveData( unsigned int runnumber){
+    std::string runnumberstr=int2str(runnumber,6);
     //query source GT database
     coral::ConnectionService* svc=new coral::ConnectionService;
     coral::ISessionProxy* session=svc->connect(m_source, coral::ReadOnly);
@@ -94,8 +97,8 @@ namespace lumi{
     algocount.reserve(1024);
     lumi::TRG2DB::TriggerCountResult_Tech techcount;
     techcount.reserve(1024);
-    lumi::TRG2DB::TriggerDeadCountResult deadtime;
-    deadtime.reserve(400);
+    lumi::TRG2DB::TriggerDeadCountResult deadtimeresult;
+    deadtimeresult.reserve(400);
     coral::ITransaction& transaction=session->transaction();
     //uncomment if you want to see all the visible views
     /**
@@ -122,16 +125,16 @@ namespace lumi{
     transaction.start(true);
     coral::ISchema& gtmonschemaHandle=session->schema(gtmonschema);    
     if(!gtmonschemaHandle.existsView(algoviewname)){
-      throw std::runtime_error(std::string("non-existing view ")+algoviewname);
+      throw lumi::Exception(std::string("non-existing view ")+algoviewname,"retrieveData","TRG2DB");
     }
     if(!gtmonschemaHandle.existsView(techviewname)){
-      throw std::runtime_error(std::string("non-existing view ")+techviewname);
+      throw lumi::Exception(std::string("non-existing view ")+techviewname,"retrieveData","TRG2DB");
     }
     if(!gtmonschemaHandle.existsView(deadviewname)){
-      throw std::runtime_error(std::string("non-existing view ")+deadviewname);
+      throw lumi::Exception(std::string("non-existing view ")+deadviewname,"retrieveData","TRG2DB");
     }
     if(!gtmonschemaHandle.existsTable(celltablename)){
-      throw std::runtime_error(std::string("non-existing table ")+celltablename);
+      throw lumi::Exception(std::string("non-existing table ")+celltablename,"retrieveData","TRG2DB");
     }
     //
     //select counts,lsnr,algobit from cms_gt_mon.gt_mon_trig_algo_view where runnr=:runnumber order by lsnr,algobit;
@@ -166,10 +169,15 @@ namespace lumi{
       ++s;
     }
     if(s==0){
-      std::cout<<"requested run "<<runnumber<<" doesn't exist for algocounts"<<std::endl;
       c.close();
       delete Queryalgoview;
       transaction.commit();
+      throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for algocounts"),"retrieveData","TRG2DB");
+    }
+    if( mybitcount_algo.size()!=128){
+      delete Queryalgoview;
+      transaction.commit();
+      throw lumi::Exception(std::string("total number of algo bits is not 128"),"retrieveData","TRG2DB");
     }
     delete Queryalgoview;
     //
@@ -205,11 +213,15 @@ namespace lumi{
       ++s;
     }
     if(s==0){
-      std::cout<<"requested run "<<runnumber<<" doesn't exist for techcounts, do nothing"<<std::endl;
       techcursor.close();
       delete Querytechview;
       transaction.commit();
-      return;
+      throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for tecgcounts"),"retrieveData","TRG2DB");
+    }
+    if( mybitcount_tech.size()!=64){
+      delete Querytechview;
+      transaction.commit();
+      throw lumi::Exception(std::string("total number of tech bits is not 64"),"retrieveData","TRG2DB");
     }
     delete Querytechview;
     //
@@ -237,7 +249,7 @@ namespace lumi{
       //row.toOutputStream( std::cout ) << std::endl;
       //unsigned int lsnr=row["lsnr"].data<unsigned int>();
       unsigned int count=row["counts"].data<unsigned int>();
-      deadtime.push_back(count);
+      deadtimeresult.push_back(count);
       ++s;
     }
     if(s==0){
@@ -319,12 +331,12 @@ namespace lumi{
     QueryAlgoPresc->addToTableList(runprescalgoviewname);
     coral::AttributeList qAlgoPrescOutput;
     std::string algoprescBase("PRESCALE_FACTOR_ALGO_");
-    for(int bitidx=0;bitidx<128;++bitidx){
-      std::string algopresc=algoprescBase+int2str(bitidx);
+    for(unsigned int bitidx=0;bitidx<128;++bitidx){
+      std::string algopresc=algoprescBase+int2str(bitidx,3);
       qAlgoPrescOutput.extend(algopresc,typeid(unsigned int));
     }
-    for(int bitidx=0;bitidx<128;++bitidx){
-      std::string algopresc=algoprescBase+int2str(bitidx);
+    for(unsigned int bitidx=0;bitidx<128;++bitidx){
+      std::string algopresc=algoprescBase+int2str(bitidx,3);
       QueryAlgoPresc->addToOutputList(algopresc);
     }
     coral::AttributeList PrescbindVariable;
@@ -338,8 +350,8 @@ namespace lumi{
     while( algopresccursor.next() ){
       const coral::AttributeList& row = algopresccursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;  
-      for(int bitidx=0;bitidx<128;++bitidx){
-	std::string algopresc=algoprescBase+int2str(bitidx);
+      for(unsigned int bitidx=0;bitidx<128;++bitidx){
+	std::string algopresc=algoprescBase+int2str(bitidx,3);
 	algoprescale.push_back(row[algopresc].data<unsigned int>());
       }
     }
@@ -351,12 +363,12 @@ namespace lumi{
     QueryTechPresc->addToTableList(runpresctechviewname);
     coral::AttributeList qTechPrescOutput;
     std::string techprescBase("PRESCALE_FACTOR_TT_");
-    for(int bitidx=0;bitidx<64;++bitidx){
-      std::string techpresc=techprescBase+this->int2str(bitidx);
+    for(unsigned int bitidx=0;bitidx<64;++bitidx){
+      std::string techpresc=techprescBase+this->int2str(bitidx,3);
       qTechPrescOutput.extend(techpresc,typeid(unsigned int));
     }
-    for(int bitidx=0;bitidx<64;++bitidx){
-      std::string techpresc=techprescBase+int2str(bitidx);
+    for(unsigned int bitidx=0;bitidx<64;++bitidx){
+      std::string techpresc=techprescBase+int2str(bitidx,3);
       QueryTechPresc->addToOutputList(techpresc);
     }
     coral::AttributeList TechPrescbindVariable;
@@ -370,8 +382,8 @@ namespace lumi{
     while( techpresccursor.next() ){
       const coral::AttributeList& row = techpresccursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      for(int bitidx=0;bitidx<64;++bitidx){
-	std::string techpresc=techprescBase+int2str(bitidx);
+      for(unsigned int bitidx=0;bitidx<64;++bitidx){
+	std::string techpresc=techprescBase+int2str(bitidx,3);
 	techprescale.push_back(row[techpresc].data<unsigned int>());
       }
     }
@@ -398,7 +410,7 @@ namespace lumi{
     //write data into lumi db
     //
     try{
-      unsigned int totalcmsls=deadtime.size();
+      unsigned int totalcmsls=deadtimeresult.size();
       session->transaction().start(false);
       coral::ISchema& schema=session->nominalSchema();
       lumi::idDealer idg(schema);
@@ -414,6 +426,7 @@ namespace lumi{
       trgData.extend<unsigned int>("PRESCALE");
       coral::IBulkOperation* trgInserter=trgtable.dataEditor().bulkInsert(trgData,totalcmsls*192);
       //loop over lumi LS
+      
       unsigned long long& trg_id=trgData["TRG_ID"].data<unsigned long long>();
       unsigned int& trgrunnum=trgData["RUNNUM"].data<unsigned int>();
       unsigned int& cmsluminum=trgData["CMSLUMINUM"].data<unsigned int>();
@@ -422,26 +435,34 @@ namespace lumi{
       unsigned long long& count=trgData["COUNT"].data<unsigned long long>();
       unsigned long long& deadtime=trgData["DEADTIME"].data<unsigned long long>();
       unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
-      
-      for(unsigned int i=1;i<=totalcmsls;++i){
-	for(unsigned int j=0;j<192;++j){ //total n of trg bits
+
+
+      TriggerCountResult_Algo::const_iterator algoIt;
+      TriggerCountResult_Algo::const_iterator algoBeg=algocount.begin();
+      TriggerCountResult_Algo::const_iterator algoEnd=algocount.end();
+      TriggerCountResult_Tech::const_iterator techIt;
+      TriggerCountResult_Tech::const_iterator techBeg=techcount.begin();
+      TriggerCountResult_Tech::const_iterator techEnd=techcount.end();
+      unsigned int trglscount=0;
+      for(algoIt=algoBeg;algoIt!=algoEnd;++algoIt){
+	unsigned int cmslscount=trglscount+1;
+	BITCOUNT::const_iterator algoBitIt;
+	BITCOUNT::const_iterator algoBitBeg=algoIt->begin();
+	BITCOUNT::const_iterator algoBitEnd=algoIt->end();
+	unsigned int j=0;
+	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt){
 	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
 	  trgrunnum = runnumber;
-	  cmsluminum = i;
+	  cmsluminum = cmslscount;
 	  bitnum=j;
-	  char c[10];
-	  if(j>127){
-	    ::sprintf(c,"%d",j-127);
-	    bitname=std::string(c);
-	  }else{
-	    ::sprintf(c,"%d",j);
-	    bitname=std::string("FakeTRGBIT_")+std::string(c);
-	  }
-	  count=12345;
-	  deadtime=6785;
-	  prescale=1;
-	  trgInserter->processNextIteration();
+	  bitname=algonames[j];
+	  count=*algoBitIt;
+	  prescale=algoprescale[j];
+	  trgInserter->processNextIteration();	
+	  ++j;
 	}
+	deadtime=deadtimeresult[trglscount];;
+	++trglscount;
       }
       trgInserter->flush();
       delete trgInserter;
@@ -464,9 +485,9 @@ namespace lumi{
     return "DB";
   }
   //utilities
-  std::string TRG2DB::int2str(int t){
+  std::string TRG2DB::int2str(unsigned int t, unsigned int width){
     std::stringstream ss;
-    ss.width(3);
+    ss.width(width);
     ss.fill('0');
     ss<<t;
     return ss.str();
@@ -477,7 +498,7 @@ namespace lumi{
     if(myStream>>i){
       return i;
     }else{
-      throw std::runtime_error(std::string("str2int error"));
+      throw lumi::Exception(std::string("str2int error"),"str2int","TRG2DB");
     }
   }
   TRG2DB::~TRG2DB(){}

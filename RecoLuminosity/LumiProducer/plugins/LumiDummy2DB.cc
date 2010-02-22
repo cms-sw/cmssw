@@ -105,7 +105,7 @@ namespace lumi{
 	instlumierror = 0.01;
 	instlumiquality = 8;
 	lumisectionquality = 16;
-	unsigned int cmslsnum = 0;
+	//	unsigned int cmslsnum = 0;
 	bool iscmsalive = false;
 	if(i<=totalcmsls){
 	  iscmsalive=true;
