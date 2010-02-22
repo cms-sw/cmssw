@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2009/07/02 10:01:50 $ by $Author: futyand $
+# last update: $Date: 2010/02/12 14:15:31 $ by $Author: argiro $
 
 # AlCaReco sequence definitions:
 
@@ -70,6 +70,11 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
 # RPC calibration
 ###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
+###############################################################
+# DT calibration
+###############################################################
+from CalibMuon.DTCalibration.ALCARECODtCalib_cff import *
+
 
 ###############################################################
 # nonbeam alcas
@@ -106,6 +111,7 @@ pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMu
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
+pathALCARECODtCalib = cms.Path(seqALCARECODtCalib)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps*ALCARECOMuAlBeamHaloOverlapsDQM)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo*ALCARECOMuAlBeamHaloDQM)
@@ -300,6 +306,15 @@ ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 	paths  = (pathALCARECORpcCalHLT),
 	content = OutALCARECORpcCalHLT.outputCommands,
 	selectEvents = OutALCARECORpcCalHLT.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamDtCalib = cms.FilteredStream(
+	responsible = 'Mario Pelliccioni',
+	name = 'DtCalib',
+	paths  = (pathALCARECODtCalib),
+	content = OutALCARECODtCalib.outputCommands,
+	selectEvents = OutALCARECODtCalib.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
