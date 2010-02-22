@@ -9,22 +9,19 @@ process = cms.Process("DigiToRawToDigi")
 process.source = cms.Source(
    "PoolSource",
    fileNames = cms.untracked.vstring(
-   '/store/relval/CMSSW_3_1_1/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V2-v1/0002/ECAD7ED7-966B-DE11-B4FE-000423D99CEE.root'
+   '/store/relval/CMSSW_3_5_2/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_3XY_V21-v1/0015/FA48FEA0-191E-DF11-9B68-003048679076.root'
     )
-)
+   )
 
 # ---- Services ----
 process.load("DQM.SiStripCommon.MessageLogger_cfi")
 process.MessageLogger.debugModules = cms.untracked.vstring()
 process.Timing = cms.Service("Timing")
-process.Tracer = cms.Service(
-    "Tracer",
-    sourceSeed = cms.untracked.string("$$")
-    )
+process.Tracer = cms.Service("Tracer")
 
 # ---- Conditions ----
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V2::All"
+process.GlobalTag.globaltag = "MC_3XY_V21::All"
 
 # ---- DigiToRaw ----
 process.load("EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi")
