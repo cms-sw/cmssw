@@ -21,7 +21,7 @@ goodZToMuMuSameChargeLoose.cut=cms.string("charge!=0 & daughter(0).pt > 10 & dau
 
 goodZToMuMuSameCharge = cms.EDFilter(
     "ZToMuMuIsolatedIDSelector",
-    zSelectionLoose,
+    zSelection,
     src = cms.InputTag("dimuonsGlobalSameCharge"),
     filter = cms.bool(True) 
 )
