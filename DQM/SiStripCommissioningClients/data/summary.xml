@@ -111,10 +111,11 @@
 
 <SummaryPlot monitorable="StripNoiseKS" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
 <SummaryPlot monitorable="StripNoiseGaus" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
-<SummaryPlot monitorable="Bin84Percent" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="StripNoiseBin84" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
+<SummaryPlot monitorable="StripNoiseRMS" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
 <SummaryPlot monitorable="StripNoiseChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
 <SummaryPlot monitorable="StripNoiseSignif" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
-
+<SummaryPlot monitorable="NoiseRmsSpread" presentation="Histo1D" level="SiStrip/ControlView" granularity="LldChannel"/>
 </RunType>
 
 <RunType name="Noise">

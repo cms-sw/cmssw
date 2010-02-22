@@ -21,7 +21,7 @@ client = cms.EDAnalyzer("SiStripCommissioningOfflineClient",
     TargetGain = cms.double(0.8)    # target gain (0.8 = 640ADC for tickmark)
   ),
   PedestalsParameters	   = cms.PSet(
-    DeadStripMax  = cms.double(5),  # number times the noise spread below mean noise
+    DeadStripMax  = cms.double(10),  # number times the noise spread below mean noise
     NoisyStripMin = cms.double(5),  # number times the noise spread above mean noise
     HighThreshold = cms.double(5),  # analysis-wide high threshold for the fed zero suppression
     LowThreshold  = cms.double(2)   # analysis-wide low threshold for the fed zero suppression
