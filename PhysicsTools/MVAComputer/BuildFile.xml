@@ -6,5 +6,5 @@
 <use name="boost"/>
 <use name="zlib"/>
 <export>
-  <lib name="1"/>
+   <lib name="1"/>
 </export>
