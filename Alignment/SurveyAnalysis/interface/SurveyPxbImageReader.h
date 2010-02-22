@@ -15,10 +15,22 @@ template <class T> class SurveyPxbImageReader
 	// Constructors
 	//! Empty default constructor
 	SurveyPxbImageReader() {};
+	//! Constructor with ifstream and destination vector
+	SurveyPxbImageReader(std::ifstream &infile, measurements_t &measurements, SurveyPxbImage::count_t reserve = 800)
+	{
+		read(infile, measurements, reserve);
+	};
+
 	//! Constructor with filename and destination vector
 	SurveyPxbImageReader(std::string filename, measurements_t &measurements, SurveyPxbImage::count_t reserve = 800)
 	{ 
-		read(filename, measurements, reserve);
+		std::ifstream infile(filename.c_str());
+		if (!infile)
+		{
+			std::cerr << "Cannot open file " << filename
+			     << " - operation aborted." << std::endl;
+		}
+		read(infile, measurements, reserve);
    	};
 	
 	//! Reads a file, parses its content and fills the data vector
@@ -27,15 +39,8 @@ template <class T> class SurveyPxbImageReader
 	//! \param measurements Vector containing the measurements, previous content will be deleted
 	//! \param reserve Initial size of the vector, set with vector::reserve()
 	//! \return number of succesfully read entries
-	SurveyPxbImage::count_t read(std::string filename, measurements_t &measurements, SurveyPxbImage::count_t reserve = 800)
+	SurveyPxbImage::count_t read(std::ifstream &infile, measurements_t &measurements, SurveyPxbImage::count_t reserve = 830)
 	{
-		std::ifstream infile(filename.c_str());
-		if (!infile)
-		{
-			std::cerr << "Cannot open file " << filename
-			     << " - operation aborted." << std::endl;
-			return 0;
-		}
 
 		// prepare the measurements vector
 		measurements.clear();

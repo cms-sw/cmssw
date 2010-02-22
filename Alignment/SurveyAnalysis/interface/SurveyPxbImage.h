@@ -48,7 +48,10 @@ class SurveyPxbImage
 	  - <tt>v_2_2, u_2_2 -> (0)</tt>
 	  The sigmas denote the Gaussian error of the measurement in the u and v coordinate
 	  */
-	SurveyPxbImage(std::istringstream &iss);
+	SurveyPxbImage(std::istringstream &iss) : isValidFlag_(false)
+	{
+		fill(iss);
+	};
 
 	void fill(std::istringstream &iss);
 

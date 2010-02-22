@@ -6,12 +6,6 @@
 #include <vector>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-
-SurveyPxbImage::SurveyPxbImage(std::istringstream &iss) : isValidFlag_(false)
-{
-	fill(iss);
-}
-
 void SurveyPxbImage::fill(std::istringstream &iss)
 {
   id_t id1, id2;

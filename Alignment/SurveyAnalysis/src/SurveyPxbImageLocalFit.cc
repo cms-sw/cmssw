@@ -107,10 +107,12 @@ void SurveyPxbImageLocalFit::doFit()
 	ROOT::Math::SVector<value_t,4> a;	
 	a = ATWAi * ROOT::Math::Transpose(A) * W * y;
 	chi2_ = ROOT::Math::Dot(y,W*y)-ROOT::Math::Dot(a,ROOT::Math::Transpose(A)*W*y);
+#ifdef DEBUG
 	std::cout << "a: " << a 
 		<< " S= " << sqrt(a[2]*a[2]+a[3]*a[3]) 
 		<< " phi= " << atan(a[3]/a[2]) 
 		<< " chi2= " << chi2_ << std::endl;
+#endif
 	//std::cout << "A*a: " << A*a << std::endl;
 	a_.assign(a.begin(),a.end());
 
