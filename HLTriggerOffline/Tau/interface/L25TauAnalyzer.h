@@ -13,7 +13,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id: L25TauAnalyzer.h,v 1.6 2008/10/03 19:09:11 bachtis Exp $
+// $Id: L25TauAnalyzer.h,v 1.7 2009/12/18 20:44:55 wmtan Exp $
 //
 //
 
@@ -97,5 +97,6 @@ class L25TauAnalyzer : public edm::EDAnalyzer {
       float trkDrRMSA;
       float leadSignalTrackPt;
       float leadTrkJetDeltaR; 
+  float emf;
       bool hasLeadTrk;
 };

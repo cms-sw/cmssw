@@ -53,10 +53,11 @@ class L2TauAnalyzer : public edm::EDAnalyzer {
       bool IsSignal_;                 //Flag to tell the analyzer if it is signal OR QCD
       edm::InputTag mcColl_;          // input products from HLTMcInfo
 
+      
       double matchDR_;
 
       int cl_Nclusters;
-      float  ecalIsol_Et,towerIsol_Et,cl_etaRMS,cl_phiRMS,cl_drRMS,MCeta,MCet,seedTowerEt,JetEt,JetEta,L1et,L1eta; 
+      float  ecalIsol_Et,towerIsol_Et,cl_etaRMS,cl_phiRMS,cl_drRMS,MCeta,MCet,seedTowerEt,JetEt,JetEta,L1et,L1eta,jetEMF; 
       TFile *l2file;//File to store the histos...
       TTree *l2tree;
 

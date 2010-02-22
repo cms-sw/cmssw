@@ -15,7 +15,7 @@
 //
 // Original Author:  Eduardo Luiggi
 //         Created:  Fri Apr  4 16:37:44 CDT 2008
-// $Id: L25TauAnalyzer.cc,v 1.7 2008/10/03 19:09:11 bachtis Exp $
+// $Id: L25TauAnalyzer.cc,v 1.8 2009/12/18 20:44:55 wmtan Exp $
 //
 //
 
@@ -52,10 +52,11 @@ L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
   numQPixTrkInSignalCone=0;
   numQPixTrkInAnnulus=0;
   hasLeadTrk=0;
-
+  emf=0;
 
 
   l25tree->Branch("jetEt", &jetEt, "jetEt/F");
+  l25tree->Branch("jetEMF", &emf, "jetEMF/F");
   l25tree->Branch("jetEta", &jetEta, "jetEta/F");
   l25tree->Branch("jetMCEt", &jetMCEt, "jetMCEt/F");
   l25tree->Branch("jetMCEta", &jetMCEta, "jetMCEta/F");
@@ -82,7 +83,7 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
    Handle<IsolatedTauTagInfoCollection> tauTagInfo;
-
+   using namespace reco;
    Handle<LVColl> mcInfo;							 
 
    if(signal_){ 								 
@@ -110,6 +111,12 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 	     if((signal_&&m.matched)||(!signal_))
 	       {
+
+		 const Jet* Jet =i->jet().get();
+		 const CaloJet* calojet = dynamic_cast<const CaloJet*>(Jet);
+		 emf = calojet->emEnergyFraction();
+
+		 
 		 jetEt=i->jet()->et();
 		 jetEta=i->jet()->eta();
 		 jetMCEt=m.mcEt;

@@ -32,9 +32,11 @@ L2TauAnalyzer::L2TauAnalyzer(const edm::ParameterSet& iConfig):
   JetEta=0.;
   L1et=0.;
   L1eta=0.;
+  jetEMF = 0.;
 
   //Setup Branches
   l2tree->Branch("ecalIsolEt",&ecalIsol_Et,"ecalIsolEt/F");
+  l2tree->Branch("jetEMF",&jetEMF,"jetEMF/F");
   l2tree->Branch("towerIsolEt",&towerIsol_Et,"towerIsolEt/F");
   l2tree->Branch("clEtaRMS",&cl_etaRMS,"clEtaRMS/F");
   l2tree->Branch("clPhiRMS",&cl_phiRMS,"clPhiRMS/F");
@@ -91,6 +93,7 @@ L2TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if((mcMatch.matched&&IsSignal_)||(!IsSignal_))
 		    {
 		      //Fill variables
+		      jetEMF = jet.emEnergyFraction();
 		      ecalIsol_Et=l2info.ecalIsolEt();
 		      towerIsol_Et=l2info.hcalIsolEt();
 		      cl_Nclusters=l2info.nEcalHits();
