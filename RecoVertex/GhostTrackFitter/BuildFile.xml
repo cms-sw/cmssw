@@ -14,14 +14,5 @@
 <use name="RecoVertex/AdaptiveVertexFit"/>
 <use name="rootmath"/>
 <export>
-	<use name="FWCore/ParameterSet"/>
-	<use name="FWCore/Utilities"/>
-	<use name="DataFormats/Math"/>
-	<use name="DataFormats/GeometryVector"/>
-	<use name="DataFormats/GeometryCommonDetAlgo"/>
-	<use name="DataFormats/TrackReco"/>
-	<use name="TrackingTools/TransientTrack"/>
-	<use name="TrackingTools/TrajectoryState"/>
-	<use name="rootmath"/>
-	<lib name="RecoVertexGhostTrackFitter"/>
+   <lib name="1"/>
 </export>
