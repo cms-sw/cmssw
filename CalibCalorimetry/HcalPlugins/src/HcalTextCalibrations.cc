@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.15 2009/09/21 16:57:03 kukartse Exp $
+// $Id: HcalTextCalibrations.cc,v 1.16 2009/10/23 18:53:53 andersj Exp $
 //
 //
 
@@ -98,12 +98,16 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceDcsValues);
       findingRecord <HcalDcsRcd> ();
     }
+    else if (objectName == "DcsMap") {
+      setWhatProduced (this, &HcalTextCalibrations::produceDcsMap);
+      findingRecord <HcalDcsMapRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
 		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
-		<< "ValidationCorrs LutMetadata "
+		<< "ValidationCorrs LutMetadata DcsValues DcsMap "
 		<< std::endl;
     }
   }
@@ -206,4 +210,8 @@ std::auto_ptr<HcalLutMetadata> HcalTextCalibrations::produceLutMetadata (const H
 std::auto_ptr<HcalDcsValues>
   HcalTextCalibrations::produceDcsValues(HcalDcsRcd const & rcd) {
   return produce_impl<HcalDcsValues> (mInputs ["DcsValues"]);
+}
+
+std::auto_ptr<HcalDcsMap> HcalTextCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
+  return produce_impl<HcalDcsMap> (mInputs ["DcsMap"]);
 }

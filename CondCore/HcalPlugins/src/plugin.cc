@@ -28,3 +28,4 @@ REGISTER_PLUGIN(HcalL1TriggerObjectsRcd,HcalL1TriggerObjects);
 REGISTER_PLUGIN(HcalValidationCorrsRcd,HcalValidationCorrs);
 REGISTER_PLUGIN(HcalLutMetadataRcd,HcalLutMetadata);
 REGISTER_PLUGIN(HcalDcsRcd, HcalDcsValues);
+REGISTER_PLUGIN(HcalDcsMapRcd,HcalDcsMap);

@@ -13,7 +13,7 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.14 2009/09/21 16:55:03 kukartse Exp $
+   $Id: HcalDbASCIIIO.h,v 1.15 2009/10/23 18:50:59 andersj Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -33,6 +33,8 @@ Text file formats for different data types is as following:
                                  sector(HBM/HBP/HEM/HEP/HO0/HO1P/HO1M/HO2P/HO2M/HFP/HFM) rbx#(wage) channel
   calibration channel type association see HcalCalibDetId.h
   if electronics channel is known to be unconnected, either "subdet" or "eta" should be NA
+- HcalDcsMap:
+  line# Ring Slice Subchannel Type Subdetector Eta Phi Depth
 */
 namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalPedestals* fObject);
@@ -49,7 +51,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalCalibrationQIEData& fObject);
   bool getObject (std::istream& fInput, HcalElectronicsMap* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject);
-
   bool getObject (std::istream& fInput, HcalChannelQuality* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject);
   bool getObject (std::istream& fInput, HcalRespCorrs* fObject);
@@ -62,7 +63,6 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObject);
   bool getObject (std::istream& fInput, HcalZSThresholds* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject);
-
   bool getObject (std::istream& fInput, HcalL1TriggerObjects* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalL1TriggerObjects& fObject);
 
@@ -70,8 +70,9 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject);
   bool getObject (std::istream& fInput, HcalLutMetadata* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject);
-
   bool getObject (std::istream& fInput, HcalDcsValues* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalDcsValues& fObject);
+  bool getObject (std::istream& fInput, HcalDcsMap* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject);
 } 
 #endif

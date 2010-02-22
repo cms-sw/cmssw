@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.21 2009/03/24 16:11:34 rofierzy Exp $
+// $Id: HcalDbHardcode.cc,v 1.22 2009/05/27 11:24:06 fabiocos Exp $
 //
 #include <vector>
 #include <string>
@@ -97,6 +97,21 @@ HcalQIEShape HcalDbHardcode::makeQIEShape () {
 #define EMAP_NTOPBOT 2
 #define EMAP_NHTRSHO 4
 #define EMAP_NHSETSHO 3
+
+void HcalDbHardcode::makeHardcodeDcsMap(HcalDcsMap& dcs_map) {
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -16, 1, 1), 
+			  HcalDcsDetId(HcalDcsBarrel, -1, 1, HcalDcsDetId::HV, 2));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -41, 3, 1), 
+			  HcalDcsDetId(HcalDcsForward, -1, 1, HcalDcsDetId::DYN8, 1));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, -26, 25, 2), 
+			  HcalDcsDetId(HcalDcsForward, -1, 7, HcalDcsDetId::HV, 1));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalBarrel, -15, 68, 1), 
+			  HcalDcsDetId(HcalDcsBarrel, -1, 18, HcalDcsDetId::HV, 3));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalOuter, -14, 1, 4), 
+			  HcalDcsDetId(HcalDcsOuter, -2, 2, HcalDcsDetId::HV, 4));
+  dcs_map.mapGeomId2DcsId(HcalDetId(HcalForward, 41, 71, 2), 
+			  HcalDcsDetId(HcalDcsForward, 1, 4, HcalDcsDetId::DYN8, 3));
+}
 
 void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 

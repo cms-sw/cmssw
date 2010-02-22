@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.22 2009/09/21 16:57:03 kukartse Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.23 2009/10/23 18:53:53 andersj Exp $
 //
 //
 
@@ -132,17 +132,21 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
       setWhatProduced (this, &HcalHardcodeCalibrations::produceL1TriggerObjects);
       findingRecord <HcalL1TriggerObjectsRcd> ();
     }
-    if ((*objectName == "ValidationCorrs") || (*objectName == "ResponseCorrection") || all) {
+    if ((*objectName == "ValidationCorrs") || (*objectName == "ValidationCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceValidationCorrs);
       findingRecord <HcalValidationCorrsRcd> ();
     }
-    if ((*objectName == "LutMetadata") || (*objectName == "electronicsMap") || all) {
+    if ((*objectName == "LutMetadata") || (*objectName == "lutMetadata") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceLutMetadata);
       findingRecord <HcalLutMetadataRcd> ();
     }
     if ((*objectName == "DcsValues") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceDcsValues);
       findingRecord <HcalDcsRcd> ();
+    }
+    if ((*objectName == "DcsMap") || (*objectName == "dcsMap") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceDcsMap);
+      findingRecord <HcalDcsMapRcd> ();
     }
   }
 }
@@ -343,3 +347,12 @@ std::auto_ptr<HcalDcsValues>
   std::auto_ptr<HcalDcsValues> result(new HcalDcsValues);
   return result;
 }
+
+std::auto_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap (const HcalDcsMapRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceDcsMap-> ...";
+
+  std::auto_ptr<HcalDcsMap> result (new HcalDcsMap ());
+  HcalDbHardcode::makeHardcodeDcsMap(*result);
+  return result;
+}
+

@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.51 2009/09/21 16:55:03 kukartse Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.52 2009/10/23 18:50:59 andersj Exp $
 //
 #include <vector>
 #include <string>
@@ -1059,3 +1059,142 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput,
 
   return true;
 }
+
+
+// Format of the ASCII file:
+// line# Ring Slice Subchannel Subdetector Eta Phi Depth
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size () < 8) {
+      if (items.size()==0) continue; // no warning here
+      else {
+	edm::LogError("MapFormat") << "HcalDcsMap-> Bad line: " << buffer 
+				   << "\n line must contain 8 items: line ring slice subchannel subdet ieta iphi depth";
+	continue;
+      }
+    }
+    //    std::cout << "HcalDcsMap-> processing line: " << buffer << std::endl;
+    int ring = atoi (items [1].c_str());
+    unsigned int slice = atoi (items [2].c_str());
+    unsigned int subchannel = atoi (items [3].c_str());
+    HcalDcsDetId::DcsType type = HcalDcsDetId::DCSUNKNOWN;
+//    if(items[4].find("HV")!=std::string::npos){
+//      type = HcalDcsDetId::HV;
+//    }
+//    else if (items[4].find("BV")!=std::string::npos){
+//      type = HcalDcsDetId::BV;
+//    }
+//    else if (items[4].find("CATH")!=std::string::npos){
+//      type = HcalDcsDetId::CATH;
+//    }
+//    else if (items[4].find("DYN7")!=std::string::npos){
+//      type = HcalDcsDetId::DYN7;
+//    }
+//    else if (items[4].find("DYN8")!=std::string::npos){
+//      type = HcalDcsDetId::DYN8;
+//    }
+//    else if (items[4].find("RM_TEMP")!=std::string::npos){
+//      type = HcalDcsDetId::RM_TEMP;
+//    }
+//    else if (items[4].find("CCM_TEMP")!=std::string::npos){
+//      type = HcalDcsDetId::CCM_TEMP;
+//    }
+//    else if (items[4].find("CALIB_TEMP")!=std::string::npos){
+//      type = HcalDcsDetId::CALIB_TEMP;
+//    }
+//    else if (items[4].find("LVTTM_TEMP")!=std::string::npos){
+//      type = HcalDcsDetId::LVTTM_TEMP;
+//    }
+//    else if (items[4].find("TEMP")!=std::string::npos){
+//      type = HcalDcsDetId::TEMP;
+//    }
+//    else if (items[4].find("QPLL_LOCK")!=std::string::npos){
+//      type = HcalDcsDetId::QPLL_LOCK;
+//    }
+//    else if (items[4].find("STATUS")!=std::string::npos){
+//      type = HcalDcsDetId::STATUS;
+//    }
+//    else if (items[4].find("DCS_MAX")!=std::string::npos){
+//      type = HcalDcsDetId::DCS_MAX;
+//    }
+//    else{
+//      edm::LogError("MapFormat") << "HcalDcsMap-> Unknown DCS Type, line is not accepted: " << items[4];
+//      continue;
+//    }
+    HcalOtherSubdetector subdet = HcalOtherEmpty;
+    if (items[4].find("CALIB")!=std::string::npos){
+      subdet = HcalCalibration;
+    }
+    else if (items[4].find("HB")!=std::string::npos){
+      subdet = HcalDcsBarrel;
+    }
+    else if (items[4].find("HE")!=std::string::npos){
+      subdet = HcalDcsEndcap;
+    }
+    else if (items[4].find("HO")!=std::string::npos){
+      subdet = HcalDcsOuter;
+    }
+    else if (items[4].find("HF")!=std::string::npos){
+      subdet = HcalDcsForward;
+    }
+    else{
+      edm::LogError("MapFormat") << "HcalDcsMap-> Unknown subdetector, line is not accepted: " << items[5];
+      continue;
+    }
+    HcalDcsDetId dcsId(subdet, ring, slice, type, subchannel);
+    HcalText2DetIdConverter converter (items [4], items [5], items [6], items [7]);
+    HcalDetId id(0);
+    if (converter.isHcalDetId()){
+      id = converter.getId();
+    }
+    else{
+      edm::LogWarning("Invalid HCAL channel") << "HcalDcsMap-> invalid channel: " 
+					      << items [4] << '/' 
+					      << items [5] << '/'
+					      << items [6] << '/' 
+					      << items [7] << std::endl; 
+      continue;
+    }
+    fObject->mapGeomId2DcsId(id, dcsId);
+  }
+  fObject->sort ();
+  return true;
+}
+
+// Format of the ASCII file:
+// line# Ring Slice Subchannel Subdetector Eta Phi Depth
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject) {
+  char buf [1024];
+  sprintf (buf, "# %7s %10s %6s %8s %7s %5s %5s %6s",
+	   "i", "side_ring", "slice", "subchan", "subdet", "ieta", "iphi", "depth");
+  fOutput << buf << std::endl;
+  HcalDcsMap::const_iterator _line;
+  unsigned int line_counter = 0;
+  for (_line = fObject.beginById();
+       _line != fObject.endById();
+       ++_line) {
+    HcalDcsDetId dcsId = _line.getHcalDcsDetId();
+    //std::string _dcs_type = "DCSUNKNOWN";
+    HcalText2DetIdConverter _converter(_line.getHcalDetId());
+    sprintf (buf, " %8X %10d %6d %8d %7s %5s %5s %6s",
+	     line_counter,
+	     dcsId.zside()*dcsId.ring(),
+	     dcsId.slice(),
+	     dcsId.subchannel(),
+	     _converter.getFlavor().c_str(),
+	     _converter.getField1().c_str(),
+	     _converter.getField2().c_str(),
+	     _converter.getField3().c_str()
+	     );
+    fOutput << buf << std::endl;
+    ++line_counter;
+  }
+  return true;
+}
+
+
