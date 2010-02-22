@@ -25,8 +25,7 @@ PhotonCoreProducer::PhotonCoreProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
   scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
-  conversionProducer_ = conf_.getParameter<std::string>("conversionProducer");
-  conversionCollection_ = conf_.getParameter<std::string>("conversionCollection");
+  conversionProducer_ = conf_.getParameter<edm::InputTag>("conversionProducer");
   PhotonCoreCollection_ = conf_.getParameter<std::string>("photonCoreCollection");
   pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
@@ -84,8 +83,9 @@ void PhotonCoreProducer::produce(edm::Event& theEvent, const edm::EventSetup& th
   ///// Get the conversion collection
   validConversions_=true;
   edm::Handle<reco::ConversionCollection> conversionHandle; 
-  theEvent.getByLabel(conversionProducer_, conversionCollection_ , conversionHandle);
+  theEvent.getByLabel(conversionProducer_, conversionHandle);
   if (!conversionHandle.isValid()) {
+    edm::LogError("PhotonCoreProducer") << "Error! Can't get the product "<< conversionProducer_.label() << "\n" ;
     validConversions_=false;
   }
  
