@@ -95,7 +95,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
   }
 
   if (bc == HcalForward) {
-    static const double z_short=1120.0;
+    static const double z_short=1137.0;
     int etaring = etaRing(bc, abseta);  // This is safer
     /*
       static const double z_long=1115.0;
