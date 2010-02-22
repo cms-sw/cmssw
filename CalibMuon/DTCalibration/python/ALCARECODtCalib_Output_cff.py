@@ -7,9 +7,9 @@ OutALCARECODtCalib_noDrop = cms.PSet(
         SelectEvents = cms.vstring('')
     ),
     outputCommands = cms.untracked.vstring( 
-        'keep  *4DSegments*', 
-        'keep  *muonDTDigis*', 
-        'keep  *_dttfDigis_*_*',
+        'keep *_dt4DSegments_*_*', 
+        'keep *_muonDTDigis_*_*', 
+        'keep *_dttfDigis_*_*',
         'keep *_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
 	'keep *_MEtoEDMConverter_*_*')
