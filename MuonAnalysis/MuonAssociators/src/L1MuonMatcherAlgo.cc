@@ -1,9 +1,5 @@
 #include "MuonAnalysis/MuonAssociators/interface/L1MuonMatcherAlgo.h"
 
-#include <cmath>
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet & iConfig) :
@@ -39,6 +35,8 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const l1extra::L
 
 int
 L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vector<l1extra::L1MuonParticle> &l1s, float &deltaR, float &deltaPhi) const {
+    return matchGeneric(propagated, l1s, preselectionCut_, deltaR, deltaPhi);
+/*
     int match = -1;
     double minDeltaPhi = deltaPhi_;
     double minDeltaR2  = deltaR2_;
@@ -59,6 +57,7 @@ L1MuonMatcherAlgo::match(TrajectoryStateOnSurface & propagated, const std::vecto
         }
     }
     return match;
+*/
 }
 
 

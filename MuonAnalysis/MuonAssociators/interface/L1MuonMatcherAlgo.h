@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.2 2009/08/03 09:57:58 gpetrucc Exp $
+// $Id: L1MuonMatcherAlgo.h,v 1.3 2009/09/23 12:32:27 gpetrucc Exp $
 //
 
 /**
@@ -9,16 +9,20 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcherAlgo.h,v 1.2 2009/08/03 09:57:58 gpetrucc Exp $
+  \version  $Id: L1MuonMatcherAlgo.h,v 1.3 2009/09/23 12:32:27 gpetrucc Exp $
 */
 
 
+#include <cmath>
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/AnySelector.h"
 #include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 
 class L1MuonMatcherAlgo {
@@ -82,12 +86,41 @@ class L1MuonMatcherAlgo {
         /// The preselection cut on L1, if specified in the config, is applied before the match
         int match(TrajectoryStateOnSurface &propagated, const std::vector<l1extra::L1MuonParticle> &l1, float &deltaR, float &deltaPhi) const ;
 
+
+        /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
+        /// Returns -1 if the match fails
+        /// Only the objects passing the selector will be allowed for the match.
+        /// If you don't need a selector, just use an AnySelector (CommonTools/Utils) which accepts everything
+        template<typename Collection, typename Selector>
+        int matchGeneric(const reco::Track &tk, const Collection &l1, const Selector &sel, float &deltaR, float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            propagated = extrapolate(tk);
+            return propagated.isValid() ? matchGeneric(propagated, l1, sel, deltaR, deltaPhi) : -1;
+        }
+
+        /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi and propagated TSOS accordingly)
+        /// Returns -1 if the match fails
+        /// Only the objects passing the selector will be allowed for the match.
+        /// If you don't need a selector, just use an AnySelector (CommonTools/Utils) which accepts everything
+        template<typename Collection, typename Selector>
+        int matchGeneric(const reco::Candidate &c, const Collection &l1, const Selector &sel, float &deltaR, float &deltaPhi, TrajectoryStateOnSurface &propagated) const {
+            propagated = extrapolate(c);
+            return propagated.isValid() ? matchGeneric(propagated, l1, sel, deltaR, deltaPhi) : -1;
+        }
+
+        /// Find the best match to L1, and return its index in the vector (and update deltaR, deltaPhi accordingly)
+        /// Returns -1 if the match fails
+        /// Only the objects passing the selector will be allowed for the match.
+        /// The selector defaults to an AnySelector (CommonTools/Utils) which just accepts everything
+        template<typename Collection, typename Selector>
+        int matchGeneric(TrajectoryStateOnSurface &propagated, const Collection &l1, const Selector &sel, float &deltaR, float &deltaPhi) const ;
+
+
     private:
         PropagateToMuon prop_;
 
-        typedef StringCutObjectSelector<l1extra::L1MuonParticle> Selector;
+        typedef StringCutObjectSelector<l1extra::L1MuonParticle> L1Selector;
         /// Preselection cut to apply to L1 candidates before matching
-        Selector preselectionCut_;
+        L1Selector preselectionCut_;
 
         /// Matching cuts
         double deltaPhi_, deltaR2_;
@@ -95,5 +128,31 @@ class L1MuonMatcherAlgo {
         /// Sort by deltaPhi instead of deltaR
         bool sortByDeltaPhi_;
 };
+
+template<typename Collection, typename Selector>
+int 
+L1MuonMatcherAlgo::matchGeneric(TrajectoryStateOnSurface &propagated, const Collection &l1s, const Selector &sel, float &deltaR, float &deltaPhi) const {
+    typedef typename Collection::value_type obj;
+    int match = -1;
+    double minDeltaPhi = deltaPhi_;
+    double minDeltaR2  = deltaR2_;
+    GlobalPoint pos = propagated.globalPosition();
+    for (int i = 0, n = l1s.size(); i < n; ++i) {
+        const obj &l1 = l1s[i];
+        if (sel(l1)) {
+            double thisDeltaPhi = ::deltaPhi(double(pos.phi()),  l1.phi());
+            double thisDeltaR2  = ::deltaR2(double(pos.eta()), double(pos.phi()), l1.eta(), l1.phi());
+            if ((fabs(thisDeltaPhi) < deltaPhi_) && (thisDeltaR2 < deltaR2_)) { // check both
+                if (sortByDeltaPhi_ ? (fabs(thisDeltaPhi) < fabs(minDeltaPhi)) : (thisDeltaR2 < minDeltaR2)) { // sort on one
+                    match = i;
+                    deltaR   = std::sqrt(thisDeltaR2);
+                    deltaPhi = thisDeltaPhi;
+                    if (sortByDeltaPhi_) minDeltaPhi = thisDeltaPhi; else minDeltaR2 = thisDeltaR2;
+                }
+            }
+        }
+    }
+    return match;
+}
 
 #endif
