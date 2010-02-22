@@ -1421,6 +1421,9 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   float chosen_curv = best_curv_A;
   int chosen_nlayers = n_layers_occupied_tot;
   int chosen_pseg = best_pseg;
+  if (best_pseg<0) { 
+    return segmentInChamber; 
+  }
   chosen_Psegments = (Psegments);
   chosen_weight_A = (weight_A);
 
@@ -1720,7 +1723,7 @@ void CSCSegAlgoST::fitSlopes() {
   if(passCondNumber && !passCondNumber_2){
     correctTheCovX();
     if(e_Cxx.size()!=protoSegment.size()){
-      std::cout<<"e_Cxx.size()!=protoSegment.size() IT IS A SERIOUS PROBLEM!!!"<<std::endl;
+      LogDebug("CSCSegment|segmWierd") << "e_Cxx.size()!=protoSegment.size() IT IS A SERIOUS PROBLEM!!! " <<std::endl;
     }
   }
   CLHEP::HepMatrix M(4,4,0);
