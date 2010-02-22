@@ -150,9 +150,26 @@ void HLTMuonBPAG::analyze( const Event & iEvent )
     // each tag passed a tag trigger
 
     bool passedHLT = false;
-    for ( size_t jCollLabel = 0; jCollLabel < theHltCollectionLabels.size(); jCollLabel++ ) {
-      if ( tagRecMatches[iTag].hltCands[jCollLabel].pt() > 0 ) {        
-        passedHLT = true;
+
+    LogTrace ("HLTMuonVal") << "CRASH: tagRecMatches[iTag].hltCands.size() =  "
+                            << theHltCollectionLabels.size() << endl
+                            << "CRASH: theHltCollectionLabels.size() =  "
+                            << theHltCollectionLabels.size()
+                            << endl;
+
+//     cout <<  "==========================================================================" << endl
+//          <<  "  Run =  " << iEvent.id().run() << "  Event =  " << iEvent.id().event() << endl
+//          <<  "  tagRecMatches[iTag].hltCands.size() = " << tagRecMatches[iTag].hltCands.size() << endl
+//          <<  "  theHltCollectionLabels.size() = " << theHltCollectionLabels.size() << endl
+//          <<  ""  << endl;
+      
+
+      
+    if ( theHltCollectionLabels.size() <= tagRecMatches[iTag].hltCands.size()) {
+      for ( size_t jCollLabel = 0; jCollLabel < theHltCollectionLabels.size(); jCollLabel++ ) {
+        if ( tagRecMatches[iTag].hltCands[jCollLabel].pt() > 0 ) {        
+          passedHLT = true;
+        }
       }
     }
 
