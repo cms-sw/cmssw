@@ -35,7 +35,7 @@ using namespace std;
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.7 2009/10/21 11:27:11 fblekman Exp $
+// $Id: SignCaloSpecificAlgo.cc,v 1.8 2009/10/22 16:50:45 fblekman Exp $
 //
 //
 
@@ -75,10 +75,10 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
     if(candidate){
       const CaloTower * calotower = dynamic_cast<const CaloTower*> (candidate);
       if(calotower){
-	if(calotower->et()<globalThreshold)
+	double sign_tower_et = calotower->et();
+	if(sign_tower_et<globalThreshold)
 	  continue;
 	bool wasused=false;
-	double sign_tower_et = calotower->et();
 	double sign_tower_phi = calotower->phi();
 	double sign_tower_sigma_et = 0;
 	double sign_tower_sigma_phi = 0;
@@ -97,26 +97,26 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
 		if(subdet == HcalBarrel){
 		  sign_tower_type = "hadcalotower";
 		  sign_tower_et = calotower->hadEt();
-		  sign_tower_sigma_et = resolutions.eval(metsig::caloHB,metsig::ET,calotower->hadEt(),calotower->phi(),calotower->eta());
-		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHB,metsig::PHI,calotower->hadEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHB,metsig::ET,sign_tower_et,calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHB,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
 		}
 		else if(subdet==HcalOuter){
 		  sign_tower_type = "hadcalotower";
 		  sign_tower_et = calotower->outerEt();
-		  sign_tower_sigma_et = resolutions.eval(metsig::caloHO,metsig::ET,calotower->outerEt(),calotower->phi(),calotower->eta());
-		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHO,metsig::PHI,calotower->outerEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHO,metsig::ET,sign_tower_et,calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHO,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
 		}
 		else if(subdet==HcalEndcap){
 		  sign_tower_type = "hadcalotower";
 		  sign_tower_et = calotower->hadEt();
-		  sign_tower_sigma_et = resolutions.eval(metsig::caloHE,metsig::ET,calotower->hadEt(),calotower->phi(),calotower->eta());
-		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHE,metsig::PHI,calotower->hadEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHE,metsig::ET,sign_tower_et,calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHE,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
 		}
 		else if(subdet == HcalForward){
 		  sign_tower_type = "hadcalotower";
 		  sign_tower_et = calotower->et();
-		  sign_tower_sigma_et = resolutions.eval(metsig::caloHF,metsig::ET,calotower->et(),calotower->phi(),calotower->eta());
-		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHF,metsig::PHI,calotower->et(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloHF,metsig::ET,sign_tower_et,calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloHF,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
 		}
 		else{
 		  edm::LogWarning("SignCaloSpecificAlgo") << " HCAL tower cell not assigned to an HCAL subdetector!!!" << std::endl;
@@ -136,14 +136,14 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
 		if(subdet == EcalBarrel){
 		  sign_tower_type = "emcalotower";
 		  sign_tower_et = calotower->emEt();
-		  sign_tower_sigma_et = resolutions.eval(metsig::caloEB,metsig::ET,calotower->emEt(),calotower->phi(),calotower->eta());
-		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEB,metsig::PHI,calotower->emEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloEB,metsig::ET,sign_tower_et,calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEB,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
 		}
 		else if(subdet == EcalEndcap ){
 		  sign_tower_type = "emcalotower";
 		  sign_tower_et = calotower->emEt();
-		  sign_tower_sigma_et = resolutions.eval(metsig::caloEE,metsig::ET,calotower->emEt(),calotower->phi(),calotower->eta());
-		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEE,metsig::PHI,calotower->emEt(),calotower->phi(),calotower->eta());
+		  sign_tower_sigma_et = resolutions.eval(metsig::caloEE,metsig::ET,sign_tower_et,calotower->phi(),calotower->eta());
+		  sign_tower_sigma_phi = resolutions.eval(metsig::caloEE,metsig::PHI,sign_tower_et,calotower->phi(),calotower->eta());
 		    
 		}
 		else{

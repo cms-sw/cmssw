@@ -68,11 +68,14 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 	const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
 	if (calotower)
 	  {
-	    if(calotower->et() < globalThreshold) continue;
-	    totalEt  += calotower->et();
-	    totalEm  += calotower->emEt();
+	    double caloTowerEt=calotower->et();
+	    double caloTowerHadEt=calotower->hadEt();
+	    double caloTowerEmEt=calotower->emEt();
+	    if(caloTowerEt < globalThreshold) continue;
+	    totalEt  += caloTowerEt;
+	    totalEm  += caloTowerEmEt;
 	           
-	    //totalHad += calotower->hadEt() + calotower->outerEt() ;
+	    //totalHad += caloTowerHadEt + calotower->outerEt() ;
 	           
 	    bool hadIsDone = false;
 	    bool emIsDone = false;
@@ -85,45 +88,45 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 		    HcalSubdetector subdet = HcalDetId(id).subdet();
 		    if( subdet == HcalBarrel || subdet == HcalOuter )
 		      {
-			if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-			specific.HadEtInHB   += calotower->hadEt();
+			if( caloTowerHadEt > MaxTowerHad ) MaxTowerHad = caloTowerHadEt;
+			specific.HadEtInHB   += caloTowerHadEt;
 			specific.HadEtInHO   += calotower->outerEt();
 		      }
 		    else if( subdet == HcalEndcap )
 		      {
-			if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-			specific.HadEtInHE   += calotower->hadEt();
+			if( caloTowerHadEt > MaxTowerHad ) MaxTowerHad = caloTowerHadEt;
+			specific.HadEtInHE   += caloTowerHadEt;
 		      }
 		    else if( subdet == HcalForward )
 		      {
 			if (!noHF)
 			  {
-			    if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-			    if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+			    if( caloTowerHadEt > MaxTowerHad ) MaxTowerHad = caloTowerHadEt;
+			    if( caloTowerEmEt  > MaxTowerEm  ) MaxTowerEm  = caloTowerEmEt;
 			    //These quantities should be nonzero only if HF is included, i.e., noHF == false
-			    specific.HadEtInHF   += calotower->hadEt();
-			    specific.EmEtInHF    += calotower->emEt();
+			    specific.HadEtInHF   += caloTowerHadEt;
+			    specific.EmEtInHF    += caloTowerEmEt;
 			  }
 			else
 			  {
 			    //These quantities need to be corrected from above if HF is excluded
-			    // totalHad             -= calotower->hadEt();  
-			    totalEm              -= calotower->emEt();
-			    totalEt              -= calotower->et();
+			    // totalHad             -= caloTowerHadEt;  
+			    totalEm              -= caloTowerEmEt;
+			    totalEt              -= caloTowerEt;
 			  }
 			// These get calculate regardless of NoHF == true or not.
 			// They are needed below for either case. 
 			if (calotower->eta()>=0)
 			  {
-			    sumEtInpHF  += calotower->et();
-			    MExInpHF    -= (calotower->et() * cos(calotower->phi()));
-			    MEyInpHF    -= (calotower->et() * sin(calotower->phi()));
+			    sumEtInpHF  += caloTowerEt;
+			    MExInpHF    -= (caloTowerEt * cos(calotower->phi()));
+			    MEyInpHF    -= (caloTowerEt * sin(calotower->phi()));
 			  }
 			else
 			  {
-			    sumEtInmHF  += calotower->et();
-			    MExInmHF    -= (calotower->et() * cos(calotower->phi()));
-			    MEyInmHF    -= (calotower->et() * sin(calotower->phi()));
+			    sumEtInmHF  += caloTowerEt;
+			    MExInmHF    -= (caloTowerEt * cos(calotower->phi()));
+			    MEyInmHF    -= (caloTowerEt * sin(calotower->phi()));
 			  }
 		      }
 		    hadIsDone = true;
@@ -131,14 +134,14 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 		else if( !emIsDone && id.det() == DetId::Ecal )
 		  {
 		    EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
-		    if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+		    if( caloTowerEmEt  > MaxTowerEm  ) MaxTowerEm  = caloTowerEmEt;
 		    if( subdet == EcalBarrel )
 		      {
-			specific.EmEtInEB    += calotower->emEt(); 
+			specific.EmEtInEB    += caloTowerEmEt; 
 		      }
 		    else if( subdet == EcalEndcap ) 
 		      {
-			specific.EmEtInEE    += calotower->emEt();
+			specific.EmEtInEE    += caloTowerEmEt;
 		      }
 		    emIsDone = true;
 		  }
