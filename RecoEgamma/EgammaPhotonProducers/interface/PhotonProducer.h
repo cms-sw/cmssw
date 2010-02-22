@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.35 2009/05/12 16:45:17 nancy Exp $ 
- **  $Date: 2009/05/12 16:45:17 $ 
- **  $Revision: 1.35 $
+ **  $Id: PhotonProducer.h,v 1.36 2009/05/29 18:11:15 nancy Exp $ 
+ **  $Date: 2009/05/29 18:11:15 $ 
+ **  $Revision: 1.36 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -63,7 +63,7 @@ class PhotonProducer : public edm::EDProducer {
 
  
 
-  std::string PhotonCoreCollection_;
+  //  std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
   edm::InputTag photonCoreProducer_;
   edm::InputTag barrelEcalHits_;
