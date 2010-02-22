@@ -43,7 +43,9 @@ class PedsFullNoiseAnalysis : public CommissioningAnalysis {
     // Noise value calculated by a gaussian fit instead of RMS.
 	inline const VVFloat& noiseGaus() const;
 	// Noise value calculated by a gaussian fit instead of RMS.
-	inline const VVFloat& bin84Percent() const;
+	inline const VVFloat& noiseBin84() const;
+    // Noise value calculated by RMS of ADC values.
+    inline const VVFloat& noiseRMS() const;
     // The significance of noise of each strip compared to the apv
 	inline const VVFloat& noiseSignif() const;
     
@@ -97,7 +99,8 @@ class PedsFullNoiseAnalysis : public CommissioningAnalysis {
     VVFloat ksProb_;
     VVFloat chi2Prob_;
     VVFloat noiseGaus_;
-	VVFloat bin84Percent_;
+	VVFloat noiseBin84_;
+    VVFloat noiseRMS_;
     VVFloat noiseSignif_;
     // VVInts means: 1 vector per APV, values are strip numbers.
 
@@ -157,7 +160,8 @@ const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::raw() const { retur
 const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::ksProb() const { return ksProb_; }
 const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::chi2Prob() const { return chi2Prob_; }
 const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::noiseGaus() const { return noiseGaus_; }
-const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::bin84Percent() const { return bin84Percent_; }
+const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::noiseBin84() const { return noiseBin84_; }
+const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::noiseRMS() const { return noiseRMS_; }
 const PedsFullNoiseAnalysis::VVFloat& PedsFullNoiseAnalysis::noiseSignif() const { return noiseSignif_; }
 
 const PedsFullNoiseAnalysis::VVInt& PedsFullNoiseAnalysis::dead() const { return dead_; } 
