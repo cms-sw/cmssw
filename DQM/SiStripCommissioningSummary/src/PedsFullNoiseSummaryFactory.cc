@@ -23,6 +23,7 @@ void PedsFullNoiseSummaryFactory::extract( Iterator iter ) {
   std::vector< std::vector<float> > bin84( 2, temp );
   std::vector< std::vector<float> > chi2( 2, temp );
   std::vector< std::vector<float> > signif( 2, temp );
+  std::vector< std::vector<float> > rms( 2, temp );
   peds[0] 	= anal->peds()[0];
   peds[1] 	= anal->peds()[1];
   noise[0] 	= anal->noise()[0];
@@ -31,8 +32,10 @@ void PedsFullNoiseSummaryFactory::extract( Iterator iter ) {
   ks[1] 	= anal->ksProb()[1]; // dummy values
   noiseG[0] 	= anal->noiseGaus()[0];
   noiseG[1] 	= anal->noiseGaus()[1];
-  bin84[0] 	= anal->bin84Percent()[0];
-  bin84[1] 	= anal->bin84Percent()[1];
+  bin84[0] 	= anal->noiseBin84()[0];
+  bin84[1] 	= anal->noiseBin84()[1];
+  rms[0] 	= anal->noiseRMS()[0];
+  rms[1] 	= anal->noiseRMS()[1];
   chi2[0]     = anal->chi2Prob()[0];
   chi2[1]     = anal->chi2Prob()[1];
   signif[0]     = anal->noiseSignif()[0];
@@ -90,13 +93,21 @@ void PedsFullNoiseSummaryFactory::extract( Iterator iter ) {
       value[0][iks] = noiseG[0][iks];
       value[1][iks] = noiseG[1][iks];     
   	}
-  } else if ( mon_ == sistrip::NOISE_BIN_84_PERCENT ) {
+  } else if ( mon_ == sistrip::NOISE_BIN_84_ALL_STRIPS ) {
     all_strips = true;
     uint16_t bins = bin84[0].size();
 	if ( bin84[0].size() < bin84[1].size() ) { bins = bin84[1].size(); }
     for ( uint16_t iks = 0; iks < bins; iks++ ) {
       value[0][iks] = bin84[0][iks];
       value[1][iks] = bin84[1][iks];     
+  	}
+  }	else if ( mon_ == sistrip::NOISE_RMS_ALL_STRIPS ) {
+    all_strips = true;
+    uint16_t bins = rms[0].size();
+	if ( rms[0].size() < rms[1].size() ) { bins = rms[1].size(); }
+    for ( uint16_t iks = 0; iks < bins; iks++ ) {
+      value[0][iks] = rms[0][iks];
+      value[1][iks] = rms[1][iks];     
   	}
   } else if ( mon_ == sistrip::NOISE_SIGNIF_ALL_STRIPS ) {
     all_strips = true;
@@ -184,9 +195,11 @@ void PedsFullNoiseSummaryFactory::format() {
   } else if ( mon_ == sistrip::NOISE_KS_ALL_STRIPS ) { 
     generator_->axisLabel( "KS Prob." );
   } else if ( mon_ == sistrip::NOISE_GAUS_ALL_STRIPS ) { 
-    generator_->axisLabel( "Gaus Sigma." );
-  } else if ( mon_ == sistrip::NOISE_BIN_84_PERCENT ) { 
-    generator_->axisLabel( "Bin 84 Percent." );
+    generator_->axisLabel( "Noise Gaus." );
+  } else if ( mon_ == sistrip::NOISE_BIN_84_ALL_STRIPS ) { 
+    generator_->axisLabel( "Noise Bin 84." );
+  }	else if ( mon_ == sistrip::NOISE_RMS_ALL_STRIPS ) { 
+    generator_->axisLabel( "Noise RMS." );
   } else if ( mon_ == sistrip::NOISE_CHI2_ALL_STRIPS ) { 
     generator_->axisLabel( "Chi2 Prob." );
   }  else { 
