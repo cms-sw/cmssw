@@ -9,6 +9,7 @@ from DQM.RPCMonitorClient.RPCDqmClient_cfi import *
 
 from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
 
+from DQM.RPCMonitorClient.RPCEfficiencySecondStep_cfi import *
 
 qTesterRPC = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
@@ -16,4 +17,4 @@ qTesterRPC = cms.EDFilter("QualityTester",
 )
 
 
-rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcEventSummary)
+rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcEventSummary*rpcefficiencysecond)

@@ -14,6 +14,10 @@ from DQM.RPCMonitorClient.RPCMonitorRaw_cfi import *
 from DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi import *
 
 
+#Efficiency
+from DQM.RPCMonitorDigi.RPCEfficiency_cfi import *
+
+
 # DQM Services
 rpcEventInfo = cms.EDFilter("DQMEventInfo",
     subSystemFolder = cms.untracked.string('RPC')
@@ -21,5 +25,5 @@ rpcEventInfo = cms.EDFilter("DQMEventInfo",
 
 
 
-rpcTier0Source = cms.Sequence(rpcdigidqm*rpcEventInfo*rpcFEDIntegrity)
+rpcTier0Source = cms.Sequence(rpcdigidqm*rpcEventInfo*rpcFEDIntegrity*rpcefficiency)
 
