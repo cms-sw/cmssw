@@ -119,6 +119,8 @@ namespace edmtest
       dumpIt(new HcalLutMetadata, new HcalLutMetadataRcd, e,context,"LutMetadata");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsValues")) != mDumpRequest.end())
       dumpIt(new HcalDcsValues, new HcalDcsRcd, e,context,"DcsValues");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsMap")) != mDumpRequest.end())
+      dumpIt(new HcalDcsMap, new HcalDcsMapRcd, e,context,"DcsMap");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

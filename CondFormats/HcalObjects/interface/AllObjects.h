@@ -20,5 +20,6 @@
 #include "CondFormats/HcalObjects/interface/HcalValidationCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsValues.h"
+#include "CondFormats/HcalObjects/interface/HcalDcsMap.h"
 
 #endif

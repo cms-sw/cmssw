@@ -12,7 +12,7 @@ process = cms.Process("DUMP")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 ## specify which conditions you would like to dump to a text file in the "dump" vstring
-process.prod = cms.EDAnalyzer("HcalDumpConditions",
+process.prod = cms.EDFilter("HcalDumpConditions",
     dump = cms.untracked.vstring(
 #        'Pedestals'
 #        ,'PedestalWidths' 
@@ -28,9 +28,9 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 #        'L1TriggerObjects'
 #        ,'ZSThresholds'
 #        ,'ValidationCorrs' 
-#        ,'LutMetadata'
-#        ,'DcsValues'
-        ,'DcsMap'
+#        ,'LutMetadata' 
+#        'DcsValues'
+        'DcsMap' 
                                  ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
@@ -42,12 +42,12 @@ process.source = cms.Source("EmptySource",
 )
 
 
-#process.es_pool = cms.ESSource("PoolDBESSource",
-#     process.CondDBSetup,
-#     timetype = cms.string('runnumber'),
-#     connect = cms.string('sqlite_file:testExample.db'),
-#     authenticationMethod = cms.untracked.uint32(0),
-#     toGet = cms.VPSet(
+process.es_pool = cms.ESSource("PoolDBESSource",
+     process.CondDBSetup,
+     timetype = cms.string('runnumber'),
+     connect = cms.string('sqlite_file:testExample.db'),
+     authenticationMethod = cms.untracked.uint32(0),
+     toGet = cms.VPSet(
 #        cms.PSet(
 #            record = cms.string('HcalPedestalsRcd'),
 #            tag = cms.string('hcal_pedestals_fC_v6_mc')
@@ -87,7 +87,11 @@ process.source = cms.Source("EmptySource",
 #        cms.PSet(
 #            record = cms.string('HcalLutMetadataRcd'),
 #            tag = cms.string('hcal_lutmetadata_trivial_v1.01_mc')
-#        ) 
+#        ),  
+#        cms.PSet(
+#            record = cms.string('HcalDcsRcd'),
+#            tag = cms.string('hcal_dcsvalue_trivial_v1.01_mc')
+#        )
 #        cms.PSet(
 #            record = cms.string('HcalDcsMapRcd'),
 #            tag = cms.string('HcalDcsMap_v1.00_test')
@@ -141,7 +145,10 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
                                    'GainWidths',
                                    'L1TriggerObjects',
                                    'LutMetadata',
-                                   'ZSThresholds')
+                                   'ZSThresholds'
+                                   #,'DcsValues'
+                                   #,'DcsMap'
+                                   )
  )
 
 #process.es_ascii = cms.ESSource("HcalTextCalibrations",
@@ -187,12 +194,8 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 #             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_validationCorr_trivial_HF0.7.txt')
 #         ),
 #         cms.PSet(
-#             object = cms.string('LutMetadata'),
-#             tag = cms.FileInPath('CondFormats/HcalObjects/data/hcal_lutmetadata_trivial_v1.01_mc')
-#         ) 
-#         cms.PSet(
 #             object = cms.string('DcsMap'),
-#             file = cms.FileInPath('HcalDcsMap_v1.00_test')
+#             file = cms.FileInPath('CondTools/Hcal/test/HcalDcsMap_v1.00_test.txt')
 #         ) 
 #         )
 # )

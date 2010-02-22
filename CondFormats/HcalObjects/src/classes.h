@@ -56,6 +56,9 @@ namespace {
 
     HcalDcsValues myDcsValues;
     std::vector<HcalDcsValue> myDcsValueVec;
+
+    HcalDcsMap myDcsMap;
+    std::vector<HcalDcsMap::Item> myDcsMapVec;
   };
 }
 
