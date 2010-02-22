@@ -342,7 +342,7 @@ int CSCFileReader::nextEventFromFUs(FEDRawDataCollection *data){
 	return eventNumber;
 }
 
-bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data){
+int CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data){
 	data = new FEDRawDataCollection();
 
 	int runNumber   = 0; // Unknown at the level of EMu local DAQ

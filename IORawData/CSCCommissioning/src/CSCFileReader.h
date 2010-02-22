@@ -39,7 +39,7 @@ private:
 	int nextEventFromFUs  (FEDRawDataCollection *data);
 
 public:
-	bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data);
+	int fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data);
 
 	CSCFileReader(const edm::ParameterSet& pset);
 	virtual ~CSCFileReader(void);
