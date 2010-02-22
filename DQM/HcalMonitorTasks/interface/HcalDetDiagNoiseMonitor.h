@@ -27,7 +27,7 @@ using namespace std;
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -66,8 +66,8 @@ using namespace std;
 
 /** \class HcalDetDiagNoiseMonitor
   *  
-  * $Date: 2009/08/06 10:14:30 $
-  * $Revision: 1.1 $
+  * $Date: 2009/12/01 17:03:37 $
+  * $Revision: 1.2 $
   * \author D. Vishnevskiy
   */
 
