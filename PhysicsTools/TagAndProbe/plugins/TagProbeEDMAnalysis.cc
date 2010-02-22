@@ -14,6 +14,11 @@
 //         Created:  Sun Apr 20 10:35:25 CDT 2008
 //
 
+#define private public
+// Sorry, I nead TFileDirectory::cd()
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#undef private
+
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
 
 // TP Utilities
@@ -58,9 +63,6 @@
 // STL
 #include <vector>
 #include <string>
-
-/// FIXME temporary workaround waiting for new version of TFileService
-namespace { inline void cd_(TFileDirectory &tf) { delete tf.make<TH1F>("dummy","dummy",1,0,1); }  }
 
 TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig): 
 
@@ -315,7 +317,7 @@ void TagProbeEDMAnalysis::ReadMCHistograms(){
            iFile != readFiles_.end(); ++iFile) {
          TFile inputFile(iFile->c_str());
          TTree *tree = (TTree *) inputFile.Get(readDirectory_.empty() ? "fitter_tree" : (readDirectory_+"/fitter_tree").c_str());
-         var1Pass_->GetDirectory()->cd();
+         mcDetails_.cd();
          char basecut[255];
          if (hasWeights_) {
              sprintf(basecut,"mcTrue && (%f < %s) && (%s < %f)) * %s", massLow_, massName_.c_str(), massName_.c_str(), massHigh_, weightName_.c_str());
@@ -744,9 +746,6 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
     }
     
   }
-
-  cd_(*fs); 
-  effhist->Write(); // must call Write, as it's not a THs
 }
 
 
@@ -964,14 +963,6 @@ void TagProbeEDMAnalysis::TPEffFitter( std::string &fileName, std::string &bvar,
      chi2hist->SetPoint(iBin, xval, chi2Val);
      qualityhist->SetPoint(iBin, xval, quality);
    }
-  
-   cd_(*fs); 
-   effhist->Write();     // must call Write
-   cd_(fitDetails_);
-   chi2hist->Write();    // as they're not
-   qualityhist->Write(); // THs or TTrees
-   
-   return;
 }
 
 
@@ -1013,12 +1004,6 @@ const std::string &bvar2, std::vector<double> &bins2 )
         qualityhist->SetBinContent( bin1+1, bin2+1, quality);
       }
    }
-
-   cd_(*fs);
-   effhist->Write();     // must call Write
-   cd_(fitDetails_);
-   chi2hist->Write();    // as they are not
-   qualityhist->Write(); // THs or TTrees
 }
 // ************************************** //
 

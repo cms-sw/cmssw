@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.24 2010/01/06 22:47:40 gpetrucc Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.25 2010/02/12 20:02:43 davidb Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -20,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "PhysicsTools/Utilities/interface/SideBandSubtraction.h"
 
 class FeldmanCousinsBinomialInterval;
