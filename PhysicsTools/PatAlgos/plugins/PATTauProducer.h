@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
+// $Id: PATTauProducer.h,v 1.19.18.1 2010/02/22 10:37:18 mbluj Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.19 2009/06/25 23:49:35 gpetrucc Exp $
+  \version  $Id: PATTauProducer.h,v 1.19.18.1 2010/02/22 10:37:18 mbluj Exp $
 */
 
 
@@ -62,6 +62,17 @@ namespace pat {
       bool embedIsolationTracks_;
       bool embedLeadTrack_;
       bool embedSignalTracks_;
+      bool embedLeadPFCand_; 
+      bool embedLeadPFChargedHadrCand_; 
+      bool embedLeadPFNeutralCand_; 
+      bool embedSignalPFCands_; 
+      bool embedSignalPFChargedHadrCands_; 
+      bool embedSignalPFNeutralHadrCands_; 
+      bool embedSignalPFGammaCands_; 
+      bool embedIsolationPFCands_; 
+      bool embedIsolationPFChargedHadrCands_; 
+      bool embedIsolationPFNeutralHadrCands_; 
+      bool embedIsolationPFGammaCands_; 
 
       bool          addGenMatch_;
       bool          embedGenMatch_;
