@@ -5,6 +5,8 @@
 #include <vector>
 #include <utility>
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalTag.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
 
 //! Class to hold one picture of the BPix survey
 class SurveyPxbImage
@@ -12,8 +14,8 @@ class SurveyPxbImage
     public:
 	typedef unsigned int count_t;
 	typedef unsigned int id_t;
-	typedef LocalPoint coord_t;
 	typedef double value_t;
+	typedef Point3DBase<value_t, LocalTag> coord_t;
 
 	//! \p enum to help access specific locations on a picture
 	enum location{
