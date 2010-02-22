@@ -6,6 +6,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 
 #include "PhysicsTools/RecoAlgos/plugins/KalmanVertexFitter.h"
 
@@ -115,7 +116,8 @@ PFDisplacedVertexFinder::findDisplacedVertices() {
     
     if (!tempDisplacedVertexSeeds[idv].isEmpty() && !bLockedSeeds[idv]) {
       PFDisplacedVertex displacedVertex;  
-      bLockedSeeds[idv] = fitVertexFromSeed(tempDisplacedVertexSeeds[idv], "KalmanVertexFitter", displacedVertex);
+      //      bLockedSeeds[idv] = fitVertexFromSeed(tempDisplacedVertexSeeds[idv], "KalmanVertexFitter", displacedVertex);
+      bLockedSeeds[idv] = fitVertexFromSeed(tempDisplacedVertexSeeds[idv], "AdaptiveVertexFitter", displacedVertex);
       if (!bLockedSeeds[idv])  tempDisplacedVertices.push_back(displacedVertex);
     }
   }
@@ -270,7 +272,20 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
   // ---- Define Vertex fitters and fit ---- //
 
-  AdaptiveVertexFitter theAdaptiveFitterRaw;
+  //  AdaptiveVertexFitter theAdaptiveFitterRaw;
+
+  double sigmacut = 6;
+  double Tini = 256.;
+  double ratio = 0.25;
+
+  AdaptiveVertexFitter theAdaptiveFitterRaw(
+					    GeometricAnnealing(sigmacut, Tini, ratio),
+					    DefaultLinearizationPointFinder(),
+					    KalmanVertexUpdator<5>(), 
+					    KalmanVertexTrackCompatibilityEstimator<5>(), 
+					    KalmanVertexSmoother() );
+
+
   TransientVertex theVertexAdaptiveRaw;
   
   try{
@@ -336,7 +351,13 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 
   //  if (debug_) cout << "Second Adaptive Fit" << endl;
 
-  AdaptiveVertexFitter theAdaptiveFitter;
+  AdaptiveVertexFitter theAdaptiveFitter( 
+					 GeometricAnnealing(sigmacut, Tini, ratio),
+					 DefaultLinearizationPointFinder(),
+					 KalmanVertexUpdator<5>(), 
+					 KalmanVertexTrackCompatibilityEstimator<5>(), 
+					 KalmanVertexSmoother() );;
+
   TransientVertex theVertexAdaptive = theAdaptiveFitter.vertex(transTracksRaw, seedPoint);
 
 
