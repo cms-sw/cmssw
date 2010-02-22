@@ -14,6 +14,13 @@ hltSeedL1Logic = cms.EDAnalyzer('HLTSeedL1LogicScalers',
             'HLT_L1SingleForJet',
             'HLT_SingleLooseIsoTau20',
             'HLT_MinBiasEcal'
-      )
+      ),
+    # input tag for GT readout collection: 
+    #     GT emulator, GT unpacker:  gtDigis  
+    L1GtDaqReadoutRecordInputTag = cms.InputTag("gtDigis"),
+    
+    # input tags for GT lite record
+    #     L1 GT lite record producer:  l1GtRecord  
+    L1GtRecordInputTag = cms.InputTag("l1GtRecord")
 
 )
