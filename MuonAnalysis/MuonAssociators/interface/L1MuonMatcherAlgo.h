@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 #define MuonAnalysis_MuonAssociators_interface_L1MuonMatcherAlgo_h
 //
-// $Id: L1MuonMatcherAlgo.h,v 1.3 2009/09/23 12:32:27 gpetrucc Exp $
+// $Id: L1MuonMatcherAlgo.h,v 1.4 2010/02/22 11:53:04 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcherAlgo.h,v 1.3 2009/09/23 12:32:27 gpetrucc Exp $
+  \version  $Id: L1MuonMatcherAlgo.h,v 1.4 2010/02/22 11:53:04 gpetrucc Exp $
 */
 
 
@@ -123,7 +123,7 @@ class L1MuonMatcherAlgo {
         L1Selector preselectionCut_;
 
         /// Matching cuts
-        double deltaPhi_, deltaR2_;
+        double deltaR2_, deltaPhi_;
 
         /// Sort by deltaPhi instead of deltaR
         bool sortByDeltaPhi_;

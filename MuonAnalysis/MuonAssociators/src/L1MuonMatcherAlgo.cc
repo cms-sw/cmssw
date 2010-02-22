@@ -5,8 +5,8 @@
 L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet & iConfig) :
     prop_(iConfig),
     preselectionCut_(iConfig.existsAs<std::string>("preselection") ? iConfig.getParameter<std::string>("preselection") : ""),
-    deltaPhi_(iConfig.getParameter<double>("maxDeltaPhi")),
     deltaR2_(std::pow(iConfig.getParameter<double>("maxDeltaR"),2)),
+    deltaPhi_(iConfig.existsAs<double>("maxDeltaPhi") ? iConfig.getParameter<double>("maxDeltaPhi") : 10),
     sortByDeltaPhi_(iConfig.existsAs<bool>("sortByDeltaPhi") ? iConfig.getParameter<bool>("sortByDeltaPhi") : false)
 {
 }
