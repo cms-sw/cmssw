@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.14 2009/04/09 12:02:15 veelken Exp $
+// $Id: Tau.cc,v 1.15 2010/02/03 10:32:03 veelken Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -15,6 +15,17 @@ Tau::Tau() :
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
     embeddedSignalTracks_(false)
+    ,embeddedLeadPFCand_(false)
+    ,embeddedLeadPFChargedHadrCand_(false)
+    ,embeddedLeadPFNeutralCand_(false)
+    ,embeddedSignalPFCands_(false)
+    ,embeddedSignalPFChargedHadrCands_(false)
+    ,embeddedSignalPFNeutralHadrCands_(false)
+    ,embeddedSignalPFGammaCands_(false)
+    ,embeddedIsolationPFCands_(false)
+    ,embeddedIsolationPFChargedHadrCands_(false)
+    ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,embeddedIsolationPFGammaCands_(false)
 {
 }
 
@@ -25,6 +36,17 @@ Tau::Tau(const reco::BaseTau & aTau) :
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
     embeddedSignalTracks_(false)
+    ,embeddedLeadPFCand_(false)
+    ,embeddedLeadPFChargedHadrCand_(false)
+    ,embeddedLeadPFNeutralCand_(false)
+    ,embeddedSignalPFCands_(false)
+    ,embeddedSignalPFChargedHadrCands_(false)
+    ,embeddedSignalPFNeutralHadrCands_(false)
+    ,embeddedSignalPFGammaCands_(false)
+    ,embeddedIsolationPFCands_(false)
+    ,embeddedIsolationPFChargedHadrCands_(false)
+    ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,embeddedIsolationPFGammaCands_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -39,6 +61,17 @@ Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
     embeddedSignalTracks_(false)
+    ,embeddedLeadPFCand_(false)
+    ,embeddedLeadPFChargedHadrCand_(false)
+    ,embeddedLeadPFNeutralCand_(false)
+    ,embeddedSignalPFCands_(false)
+    ,embeddedSignalPFChargedHadrCands_(false)
+    ,embeddedSignalPFNeutralHadrCands_(false)
+    ,embeddedSignalPFGammaCands_(false)
+    ,embeddedIsolationPFCands_(false)
+    ,embeddedIsolationPFChargedHadrCands_(false)
+    ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,embeddedIsolationPFGammaCands_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -52,6 +85,17 @@ Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
     embeddedSignalTracks_(false)
+    ,embeddedLeadPFCand_(false)
+    ,embeddedLeadPFChargedHadrCand_(false)
+    ,embeddedLeadPFNeutralCand_(false)
+    ,embeddedSignalPFCands_(false)
+    ,embeddedSignalPFChargedHadrCands_(false)
+    ,embeddedSignalPFNeutralHadrCands_(false)
+    ,embeddedSignalPFGammaCands_(false)
+    ,embeddedIsolationPFCands_(false)
+    ,embeddedIsolationPFChargedHadrCands_(false)
+    ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,embeddedIsolationPFGammaCands_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -215,3 +259,253 @@ void Tau::setDecayMode(int decayMode)
   if (!isPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
   pfSpecific_[0].decayMode_ = decayMode;
 } 
+
+/// method to store the leading candidate internally
+void Tau::embedLeadPFCand() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  leadPFCand_.clear();
+  if (pfSpecific_[0].leadPFCand_.isNonnull() ) {
+    leadPFCand_.push_back(*pfSpecific_[0].leadPFCand_); //already set in C-tor
+    embeddedLeadPFCand_ = true;
+  }
+}
+/// method to store the leading candidate internally
+void Tau::embedLeadPFChargedHadrCand() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  leadPFChargedHadrCand_.clear();
+  if (pfSpecific_[0].leadPFChargedHadrCand_.isNonnull() ) {
+    leadPFChargedHadrCand_.push_back(*pfSpecific_[0].leadPFChargedHadrCand_); //already set in C-tor
+    embeddedLeadPFChargedHadrCand_ = true;
+  }
+}
+/// method to store the leading candidate internally
+void Tau::embedLeadPFNeutralCand() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  leadPFNeutralCand_.clear();
+  if (pfSpecific_[0].leadPFNeutralCand_.isNonnull() ) {
+    leadPFNeutralCand_.push_back(*pfSpecific_[0].leadPFNeutralCand_); //already set in C-tor
+    embeddedLeadPFNeutralCand_ = true;
+  }
+}
+
+void Tau::embedSignalPFCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedSignalPFCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    signalPFCands_.push_back(*candRefVec.at(i));
+  }
+}
+void Tau::embedSignalPFChargedHadrCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedSignalPFChargedHadrCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    signalPFChargedHadrCands_.push_back(*candRefVec.at(i));
+  }
+}
+void Tau::embedSignalPFNeutralHadrCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedSignalPFNeutrHadrCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    signalPFNeutralHadrCands_.push_back(*candRefVec.at(i));
+  }
+}
+void Tau::embedSignalPFGammaCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedSignalPFGammaCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    signalPFGammaCands_.push_back(*candRefVec.at(i));
+  }
+}
+
+void Tau::embedIsolationPFCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedIsolationPFCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    isolationPFCands_.push_back(*candRefVec.at(i));
+  }
+}
+
+void Tau::embedIsolationPFChargedHadrCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedIsolationPFChargedHadrCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    isolationPFChargedHadrCands_.push_back(*candRefVec.at(i));
+  }
+}
+void Tau::embedIsolationPFNeutralHadrCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedIsolationPFNeutrHadrCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    isolationPFNeutralHadrCands_.push_back(*candRefVec.at(i));
+  }
+}
+void Tau::embedIsolationPFGammaCands() {
+  if (!isPFTau() ) {//additional check with warning in pat::tau producer
+    return;
+  }
+  reco::PFCandidateRefVector candRefVec = pfSpecific_[0].selectedIsolationPFGammaCands_;
+  for (unsigned int i = 0; i < candRefVec.size(); i++) {
+    isolationPFGammaCands_.push_back(*candRefVec.at(i));
+  }
+}
+
+const reco::PFCandidateRef Tau::leadPFChargedHadrCand() const { 
+  if(!embeddedLeadPFChargedHadrCand_)
+    return pfSpecific().leadPFChargedHadrCand_; 
+  else
+    return reco::PFCandidateRef(&leadPFChargedHadrCand_,0);
+}
+
+const reco::PFCandidateRef Tau::leadPFNeutralCand() const { 
+  if(!embeddedLeadPFNeutralCand_)
+    return pfSpecific().leadPFNeutralCand_;
+  else
+    return reco::PFCandidateRef(&leadPFNeutralCand_,0);
+}
+
+const reco::PFCandidateRef Tau::leadPFCand() const { 
+  if(!embeddedLeadPFCand_)
+    return pfSpecific().leadPFCand_;
+  else
+    return reco::PFCandidateRef(&leadPFCand_,0);
+}
+
+const reco::PFCandidateRefVector & Tau::signalPFCands() const { 
+  if (embeddedSignalPFCands_) {
+    if (!signalPFCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < signalPFCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&signalPFCands_, i) );
+      }
+      signalPFCandsTransientRefVector_.swap(aRefVec);
+      signalPFCandsRefVectorFixed_ = true;
+    }
+    return signalPFCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedSignalPFCands_; 
+}
+
+const reco::PFCandidateRefVector & Tau::signalPFChargedHadrCands() const {
+  if (embeddedSignalPFChargedHadrCands_) {
+    if (!signalPFChargedHadrCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < signalPFChargedHadrCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&signalPFChargedHadrCands_, i) );
+      }
+      signalPFChargedHadrCandsTransientRefVector_.swap(aRefVec);
+      signalPFChargedHadrCandsRefVectorFixed_ = true;
+    }
+    return signalPFChargedHadrCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedSignalPFChargedHadrCands_;
+} 
+
+const reco::PFCandidateRefVector & Tau::signalPFNeutrHadrCands() const {
+  if (embeddedSignalPFNeutralHadrCands_) {
+    if (!signalPFNeutralHadrCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < signalPFNeutralHadrCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&signalPFNeutralHadrCands_, i) );
+      }
+      signalPFNeutralHadrCandsTransientRefVector_.swap(aRefVec);
+      signalPFNeutralHadrCandsRefVectorFixed_ = true;
+    }
+    return signalPFNeutralHadrCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedSignalPFNeutrHadrCands_;
+} 
+
+const reco::PFCandidateRefVector & Tau::signalPFGammaCands() const {
+  if (embeddedSignalPFGammaCands_) {
+    if (!signalPFGammaCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < signalPFGammaCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&signalPFGammaCands_, i) );
+      }
+      signalPFGammaCandsTransientRefVector_.swap(aRefVec);
+      signalPFGammaCandsRefVectorFixed_ = true;
+    }
+    return signalPFGammaCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedSignalPFGammaCands_;
+}
+
+const reco::PFCandidateRefVector & Tau::isolationPFCands() const {
+  if (embeddedIsolationPFCands_) {
+    if (!isolationPFCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < isolationPFCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&isolationPFCands_, i) );
+      }
+      isolationPFCandsTransientRefVector_.swap(aRefVec);
+      isolationPFCandsRefVectorFixed_ = true;
+    }
+    return isolationPFCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedIsolationPFCands_;
+} 
+
+const reco::PFCandidateRefVector & Tau::isolationPFChargedHadrCands() const {
+  if (embeddedIsolationPFChargedHadrCands_) {
+    if (!isolationPFChargedHadrCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < isolationPFChargedHadrCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&isolationPFChargedHadrCands_, i) );
+      }
+      isolationPFChargedHadrCandsTransientRefVector_.swap(aRefVec);
+      isolationPFChargedHadrCandsRefVectorFixed_ = true;
+    }
+    return isolationPFChargedHadrCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedIsolationPFChargedHadrCands_;
+} 
+
+const reco::PFCandidateRefVector & Tau::isolationPFNeutrHadrCands() const {
+  if (embeddedIsolationPFNeutralHadrCands_) {
+    if (!isolationPFNeutralHadrCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < isolationPFNeutralHadrCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&isolationPFNeutralHadrCands_, i) );
+      }
+      isolationPFNeutralHadrCandsTransientRefVector_.swap(aRefVec);
+      isolationPFNeutralHadrCandsRefVectorFixed_ = true;
+    }
+    return isolationPFNeutralHadrCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedIsolationPFNeutrHadrCands_;
+} 
+
+const reco::PFCandidateRefVector & Tau::isolationPFGammaCands() const {
+  if (embeddedIsolationPFGammaCands_) {
+    if (!isolationPFGammaCandsRefVectorFixed_) {
+      reco::PFCandidateRefVector aRefVec;
+      for (unsigned int i = 0; i < isolationPFGammaCands_.size(); i++) {
+	aRefVec.push_back(reco::PFCandidateRef(&isolationPFGammaCands_, i) );
+      }
+      isolationPFGammaCandsTransientRefVector_.swap(aRefVec);
+      isolationPFGammaCandsRefVectorFixed_ = true;
+    }
+    return isolationPFGammaCandsTransientRefVector_;
+  } else
+    return pfSpecific().selectedIsolationPFGammaCands_;
+}
