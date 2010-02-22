@@ -75,10 +75,10 @@ PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted
 				      sqrt(m2 + p2));
       } else {
 
-	double p2 = refittedTracks()[i].innerMomentum().Mag2();
-	P += math::XYZTLorentzVector (refittedTracks()[i].innerMomentum().x(),
-				      refittedTracks()[i].innerMomentum().y(),
-				      refittedTracks()[i].innerMomentum().z(),
+	double p2 = refittedTracks()[i].momentum().Mag2();
+	P += math::XYZTLorentzVector (refittedTracks()[i].momentum().x(),
+				      refittedTracks()[i].momentum().y(),
+				      refittedTracks()[i].momentum().z(),
 				      sqrt(m2 + p2));
 
 
