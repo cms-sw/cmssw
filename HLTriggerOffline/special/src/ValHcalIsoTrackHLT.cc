@@ -410,7 +410,7 @@ ValHcalIsoTrackHLT::~ValHcalIsoTrackHLT()
       //calculate overlaps:
       
       
-      for (int i=0; i<overlapNames.size(); k++)
+      for (unsigned int k=0; k<overlapNames.size(); k++)
 	{
 	  if (nL3accHB>0) overlapsHB[k]=overlapsHB[k]/nL3accHB;
 	  else overlapsHB[k]=0;
@@ -940,8 +940,8 @@ void ValHcalIsoTrackHLT::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::InputTag l3TagHB = edm::InputTag(l3FilterLabelHB_, "",hltProcess_);
   edm::InputTag l3TagHE = edm::InputTag(l3FilterLabelHE_, "",hltProcess_);
   
-  trigger::size_type l3filterIndexHB=triggerObj->filterIndex(l3TagHB);
-  trigger::size_type l3filterIndexHE=triggerObj->filterIndex(l3TagHE);
+//  trigger::size_type l3filterIndexHB=triggerObj->filterIndex(l3TagHB);
+//  trigger::size_type l3filterIndexHE=triggerObj->filterIndex(l3TagHE);
   
   if ((pureHBHE||pureHE||pureHB)&&(hbl3fired||hel3fired))
     {
