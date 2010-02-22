@@ -4,7 +4,8 @@
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+//#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,6 +26,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include <vector>
 
 using namespace edm;
@@ -35,19 +37,21 @@ using namespace isodeposit;
 
 class ZToLLEdmNtupleDumper : public edm::EDProducer {
 public:
+  typedef math::XYZVector Vector;
   ZToLLEdmNtupleDumper( const edm::ParameterSet & );
    
 private:
   void produce( edm::Event &, const edm::EventSetup & );
-  
-  std::vector<std::string> zName_;
+    std::vector<std::string> zName_;
   std::vector<edm::InputTag> z_, zGenParticlesMatch_ ;
   edm::InputTag beamSpot_,  primaryVertices_;
 
   std::vector<double> ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_; 
   std::vector<double> relativeIsolation_;
   std::vector<string> hltPath_;
-
+  int counter;
+  
+  
 };
 
 template<typename T>
@@ -137,20 +141,27 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<unsigned int> >( alias = "RunNumber" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = "LumiBlock" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Mass" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "MassSa" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Pt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Eta" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Phi" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Y" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Pt" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Pt" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau1SaPt" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau2SaPt" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = zName + "Dau1HLTBit" ).setBranchAlias( alias );
     produces<vector<unsigned int> >( alias = zName + "Dau2HLTBit" ).setBranchAlias( alias );
     produces<vector<int> >( alias = zName + "Dau1Q" ).setBranchAlias( alias );
     produces<vector<int> >( alias = zName + "Dau2Q" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Eta" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Eta" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau1SaEta" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau2SaEta" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Phi" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Phi" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau1SaPhi" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau2SaPhi" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Iso" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Iso" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1TrkIso" ).setBranchAlias( alias );
@@ -172,8 +183,8 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     produces<vector<unsigned int> >( alias = zName + "Dau2NofMuMatches" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1Chi2" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2Chi2" ).setBranchAlias( alias );
-    produces<vector<float> >( alias = zName + "Dau1dB" ).setBranchAlias( alias );
-    produces<vector<float> >( alias = zName + "Dau2dB" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau1TrkChi2" ).setBranchAlias( alias );
+    produces<vector<float> >( alias = zName + "Dau2TrkChi2" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1dxyFromBS" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau2dxyFromBS" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Dau1dzFromBS" ).setBranchAlias( alias );
@@ -217,20 +228,27 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<unsigned int> > run( new vector<unsigned int> );
     auto_ptr<vector<unsigned int> > lumi( new vector<unsigned int > );
     auto_ptr<vector<float> > zMass( new vector<float> );
+    auto_ptr<vector<float> > zMassSa( new vector<float> );
     auto_ptr<vector<float> > zPt( new vector<float> );
     auto_ptr<vector<float> > zEta( new vector<float> );
     auto_ptr<vector<float> > zPhi( new vector<float> );
     auto_ptr<vector<float> > zY( new vector<float> );
     auto_ptr<vector<float> > zDau1Pt( new vector<float> );
     auto_ptr<vector<float> > zDau2Pt( new vector<float> );
+    auto_ptr<vector<float> > zDau1SaPt( new vector<float> );
+    auto_ptr<vector<float> > zDau2SaPt( new vector<float> );
     auto_ptr<vector<unsigned int> > zDau1HLTBit( new vector<unsigned int> );
     auto_ptr<vector<unsigned int> > zDau2HLTBit( new vector<unsigned int> );
     auto_ptr<vector<int> > zDau1Q( new vector<int> );
     auto_ptr<vector<int> > zDau2Q( new vector<int> );
     auto_ptr<vector<float> > zDau1Eta( new vector<float> );
     auto_ptr<vector<float> > zDau2Eta( new vector<float> );
+    auto_ptr<vector<float> > zDau1SaEta( new vector<float> );
+    auto_ptr<vector<float> > zDau2SaEta( new vector<float> );
     auto_ptr<vector<float> > zDau1Phi( new vector<float> );
     auto_ptr<vector<float> > zDau2Phi( new vector<float> );
+    auto_ptr<vector<float> > zDau1SaPhi( new vector<float> );
+    auto_ptr<vector<float> > zDau2SaPhi( new vector<float> );
     auto_ptr<vector<float> > zDau1Iso( new vector<float> );
     auto_ptr<vector<float> > zDau2Iso( new vector<float> );
     auto_ptr<vector<float> > zDau1TrkIso( new vector<float> );
@@ -252,8 +270,8 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     auto_ptr<vector<unsigned int> > zDau2NofMuMatches( new vector<unsigned int> );
     auto_ptr<vector<float> > zDau1Chi2( new vector<float> );
     auto_ptr<vector<float> > zDau2Chi2( new vector<float> );
-    auto_ptr<vector<float> > zDau1dB( new vector<float> );
-    auto_ptr<vector<float> > zDau2dB( new vector<float> );
+    auto_ptr<vector<float> > zDau1TrkChi2( new vector<float> );
+    auto_ptr<vector<float> > zDau2TrkChi2( new vector<float> );
     auto_ptr<vector<float> > zDau1dxyFromBS( new vector<float> );
     auto_ptr<vector<float> > zDau2dxyFromBS( new vector<float> );
     auto_ptr<vector<float> > zDau1dzFromBS( new vector<float> );
@@ -344,6 +362,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	zDau1NofHitSta->push_back(mu1->outerTrack()->numberOfValidHits());
 	zDau1Chi2->push_back(mu1->normChi2());
 	TrackRef mu1TrkRef = mu1->innerTrack();
+	zDau1TrkChi2->push_back( mu1TrkRef->normalizedChi2());
 	zDau1dxyFromBS->push_back(mu1TrkRef->dxy(beamSpotHandle->position()));
 	zDau1dzFromBS->push_back(mu1TrkRef->dz(beamSpotHandle->position()));
 	zDau1dxyFromPV->push_back(mu1TrkRef->dxy(primaryVertices->begin()->position() ));
@@ -354,6 +373,7 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	zDau1NofHitTk->push_back(0);
 	zDau1NofHitSta->push_back(0);
 	zDau1Chi2->push_back(0); 
+	zDau1TrkChi2->push_back(0);
 	zDau1dxyFromBS->push_back(-1);
 	zDau1dzFromBS->push_back(-1);
 	zDau1dxyFromPV->push_back(-1);
@@ -362,14 +382,8 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
       }
       zDau1NofMuChambers->push_back(mu1->numberOfChambers());
       zDau1NofMuMatches->push_back(mu1->numberOfMatches());
-
-      zDau1dB->push_back(mu1->dB());
-      // would we like to add another variables???, such as 
-      // double nChi2_tk_1= mu1->innerTrack()->normalizedChi2().....
-     
+      // would we like to add another variables??? 
       // HLT trigger  bit
-     
-     
       const pat::TriggerObjectStandAloneCollection mu1HLTMatches =  mu1->triggerObjectMatchesByPath( hltPath_[c] );
 	int dimTrig1 = mu1HLTMatches.size();
 	if(dimTrig1 !=0 ){
@@ -377,122 +391,156 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	} else {
 	  zDau1HLTBit->push_back(0); 
 	}
- 
-
       const pat::Muon * mu2 = dynamic_cast<const pat::Muon*>(m2);
- 
-    
-
       if (mu2!=0 ) {
 	if (mu2->isGlobalMuon() == true) {
-        zDau2NofHit->push_back(mu2->numberOfValidHits());
-	zDau2NofHitTk->push_back(mu2->innerTrack()->numberOfValidHits());
-	zDau2NofHitSta->push_back(mu2->outerTrack()->numberOfValidHits());
-	zDau2Chi2->push_back(mu2->normChi2());
-	TrackRef mu2TrkRef = mu2->innerTrack();
-	zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
-	zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
-	zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
-	zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));
+	  zDau2NofHit->push_back(mu2->numberOfValidHits());
+	  zDau2NofHitTk->push_back(mu2->innerTrack()->numberOfValidHits());
+	  zDau2NofHitSta->push_back(mu2->outerTrack()->numberOfValidHits());
+	  zDau2Chi2->push_back(mu2->normChi2());
+	  TrackRef mu2TrkRef = mu2->innerTrack();
+	  zDau1TrkChi2->push_back( mu2TrkRef->normalizedChi2());
+	  zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
+	  zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
+	  zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
+	  zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));  
+	  // HLT trigger  bit
+	  const pat::TriggerObjectStandAloneCollection mu2HLTMatches = mu2->triggerObjectMatchesByPath( hltPath_[c] );
+	  int dimTrig2 = mu2HLTMatches.size();
+	  if(dimTrig2 !=0 ){
+	    zDau2HLTBit->push_back(1);
+	  } 
+	  else {
+	    zDau2HLTBit->push_back(0);
+	  }
+	  /// only for ZGolden evaluated zMassSa for the mu+sta pdf, see zmumuSaMassHistogram.cc
+	  TrackRef stAloneTrack1;
+	  TrackRef stAloneTrack2;
+          Vector momentum;
+	  Candidate::PolarLorentzVector p4_1;
+	  double mu_mass;
+	  stAloneTrack1 = dau1->get<TrackRef,reco::StandAloneMuonTag>();
+	  stAloneTrack2 = dau2->get<TrackRef,reco::StandAloneMuonTag>();
+	  zDau1SaEta->push_back(stAloneTrack1->eta());
+  	  zDau2SaEta->push_back(stAloneTrack2->eta());
+	  zDau1SaPhi->push_back(stAloneTrack1->phi());
+  	  zDau2SaPhi->push_back(stAloneTrack2->phi());
+	  if(counter % 2 == 0) {
+	    momentum = stAloneTrack1->momentum();
+	    p4_1 = dau2->polarP4();
+	    mu_mass = dau1->mass();
+	    /// I fill the dau1 with positive and dau2 with negatove values for the pt, in order to flag the muons used for building zMassSa
+	    zDau1SaPt->push_back(stAloneTrack1->pt());
+	    zDau2SaPt->push_back(- stAloneTrack2->pt());
+	  }else{
+	    momentum = stAloneTrack2->momentum();
+	    p4_1= dau1->polarP4();
+	    mu_mass = dau2->mass();
+	    /// I fill the dau1 with negatove and dau2 with positive values for the pt
+	    zDau1SaPt->push_back( - stAloneTrack1->pt());
+	    zDau2SaPt->push_back( stAloneTrack2->pt());
+	  }
 
-	// HLT trigger  bit
-	const pat::TriggerObjectStandAloneCollection mu2HLTMatches = mu2->triggerObjectMatchesByPath( hltPath_[c] );
-	int dimTrig2 = mu2HLTMatches.size();
-	if(dimTrig2 !=0 ){
-	  zDau2HLTBit->push_back(1);
+	  Candidate::PolarLorentzVector p4_2(momentum.rho(), momentum.eta(),momentum.phi(), mu_mass);
+	  double mass = (p4_1+p4_2).mass();
+	  zMassSa->push_back(mass);  	
+	  ++counter;
+	  
+
 	} else {
-	  zDau2HLTBit->push_back(0);
-	}
-	} else {
-	  zDau2HLTBit->push_back(0);
-	  zDau2NofHit->push_back(0);
-	  zDau2NofHitTk->push_back(0);
-	  zDau2NofHitSta->push_back(0);
-	  zDau2Chi2->push_back(0);
-	  zDau2dxyFromBS->push_back(-1);
-	  zDau2dzFromBS->push_back(-1);
-	  zDau2dxyFromPV->push_back(-1);
-	  zDau2dzFromPV->push_back(-1);
-	}
-	zDau2NofMuChambers->push_back(mu2->numberOfChambers());
-	zDau2NofMuMatches->push_back(mu2->numberOfMatches());
-
-	zDau2dB->push_back(mu2->dB());
-
-      } else{
+	zDau2HLTBit->push_back(0);
+	zDau2NofHit->push_back(0);
+	zDau2NofHitTk->push_back(0);
+	zDau2NofHitSta->push_back(0);
+	zDau2Chi2->push_back(0);
+	zDau2TrkChi2->push_back(0);
+	zDau2dxyFromBS->push_back(-1);
+	zDau2dzFromBS->push_back(-1);
+	zDau2dxyFromPV->push_back(-1);
+	zDau2dzFromPV->push_back(-1);
+      }
+      zDau2NofMuChambers->push_back(mu2->numberOfChambers());
+      zDau2NofMuMatches->push_back(mu2->numberOfMatches());
+    } else{
       // for ZMuTk case...
 	// it's a track......
-	const pat::GenericParticle * trk2 = dynamic_cast<const pat::GenericParticle*>(m2);
-	TrackRef mu2TrkRef = trk2->track(); 
-	zDau2NofHit->push_back(mu2TrkRef->numberOfValidHits());
-	zDau2NofHitTk->push_back( mu2TrkRef->numberOfValidHits());
-	zDau2NofHitSta->push_back( 0);
-	zDau2NofMuChambers->push_back(0);
-	zDau2NofMuMatches->push_back(0);
-	zDau2Chi2->push_back(mu2TrkRef->normalizedChi2());
-	zDau2dB->push_back( mu2TrkRef->dxy(beamSpotHandle->position())); // for now without beam spot.... 
-	zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
-	zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
-	zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
-	zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));	
-      }
+      const pat::GenericParticle * trk2 = dynamic_cast<const pat::GenericParticle*>(m2);
+      TrackRef mu2TrkRef = trk2->track(); 
+      zDau2NofHit->push_back(mu2TrkRef->numberOfValidHits());
+      zDau2NofHitTk->push_back( mu2TrkRef->numberOfValidHits());
+      zDau2NofHitSta->push_back( 0);
+      zDau2NofMuChambers->push_back(0);
+      zDau2NofMuMatches->push_back(0);
+      zDau2Chi2->push_back(mu2TrkRef->normalizedChi2());
+      zDau2dxyFromBS->push_back(mu2TrkRef->dxy(beamSpotHandle->position()));
+      zDau2dzFromBS->push_back(mu2TrkRef->dz(beamSpotHandle->position()));
+      zDau2dxyFromPV->push_back(mu2TrkRef->dxy(primaryVertices->begin()->position() ));
+      zDau2dzFromPV->push_back(mu2TrkRef->dz(primaryVertices->begin()->position() ));	
     }
-    const string & zName = zName_[c];
-    evt.put( event,"EventNumber" );
-    evt.put( run,"RunNumber" );
-    evt.put( lumi,"LumiBlock" );
-    evt.put( zMass, zName +  "Mass" );
-    evt.put( zPt, zName + "Pt" );
-    evt.put( zEta, zName + "Eta" );
-    evt.put( zPhi, zName + "Phi" );
-    evt.put( zY, zName + "Y" );
-    evt.put( zDau1Pt, zName + "Dau1Pt" );
-    evt.put( zDau2Pt, zName + "Dau2Pt" );
-    evt.put( zDau1HLTBit, zName + "Dau1HLTBit" );
-    evt.put( zDau2HLTBit, zName + "Dau2HLTBit" );
-    evt.put( zDau1Q, zName + "Dau1Q" );
-    evt.put( zDau2Q, zName + "Dau2Q" );
-    evt.put( zDau1Eta, zName + "Dau1Eta" );
-    evt.put( zDau2Eta, zName + "Dau2Eta" );
-    evt.put( zDau1Phi, zName + "Dau1Phi" );
-    evt.put( zDau2Phi, zName + "Dau2Phi" );
-    evt.put( zDau1Iso, zName + "Dau1Iso" );
-    evt.put( zDau2Iso, zName + "Dau2Iso" );
-    evt.put( zDau1TrkIso, zName + "Dau1TrkIso" );
-    evt.put( zDau2TrkIso, zName + "Dau2TrkIso" );
-    evt.put( zDau1EcalIso, zName + "Dau1EcalIso" );
-    evt.put( zDau2EcalIso, zName + "Dau2EcalIso" );
-    evt.put( zDau1HcalIso, zName + "Dau1HcalIso" );
-    evt.put( zDau2HcalIso, zName + "Dau2HcalIso" );
-    evt.put( vtxNormChi2, zName + "VtxNormChi2" );
-    evt.put( zDau1NofHit, zName + "Dau1NofHit" );
-    evt.put( zDau2NofHit, zName + "Dau2NofHit" );
-    evt.put( zDau1NofHitTk, zName + "Dau1NofHitTk" );
-    evt.put( zDau2NofHitTk, zName + "Dau2NofHitTk" );
-    evt.put( zDau1NofHitSta, zName + "Dau1NofHitSta" );
-    evt.put( zDau2NofHitSta, zName + "Dau2NofHitSta" );
-    evt.put( zDau1NofMuChambers, zName + "Dau1NofMuChambers" );
-    evt.put( zDau1NofMuMatches, zName + "Dau1NofMuMatches" );
-    evt.put( zDau2NofMuChambers, zName + "Dau2NofMuChambers" );
-    evt.put( zDau2NofMuMatches, zName + "Dau2NofMuMatches" );
-    evt.put( zDau1Chi2, zName + "Dau1Chi2" );
-    evt.put( zDau2Chi2, zName + "Dau2Chi2" );
-    evt.put( zDau1dB, zName + "Dau1dB" );
-    evt.put( zDau2dB, zName + "Dau2dB" );
-    evt.put( zDau1dxyFromBS, zName + "Dau1dxyFromBS" );
-    evt.put( zDau2dxyFromBS, zName + "Dau2dxyFromBS" );
-    evt.put( zDau1dxyFromPV, zName + "Dau1dxyFromPV" );
-    evt.put( zDau2dxyFromPV, zName + "Dau2dxyFromPV" );
-    evt.put( zDau1dzFromBS, zName + "Dau1dzFromBS" );
-    evt.put( zDau2dzFromBS, zName + "Dau2dzFromBS" );
-    evt.put( zDau1dzFromPV, zName + "Dau1dzFromPV" );
-    evt.put( zDau2dzFromPV, zName + "Dau2dzFromPV" );
-    evt.put( trueZMass, zName +  "TrueMass" );
-    evt.put( trueZPt, zName + "TruePt" );
-    evt.put( trueZEta, zName + "TrueEta" );
-    evt.put( trueZPhi, zName + "TruePhi" );
-    evt.put( trueZY, zName + "TrueY" );
   }
+  const string & zName = zName_[c];
+  evt.put( event,"EventNumber" );
+  evt.put( run,"RunNumber" );
+  evt.put( lumi,"LumiBlock" );
+  evt.put( zMass, zName +  "Mass" );
+  evt.put( zMassSa, zName +  "MassSa" );
+  evt.put( zPt, zName + "Pt" );
+  evt.put( zEta, zName + "Eta" );
+  evt.put( zPhi, zName + "Phi" );
+  evt.put( zY, zName + "Y" );
+  evt.put( zDau1Pt, zName + "Dau1Pt" );
+  evt.put( zDau2Pt, zName + "Dau2Pt" );
+  evt.put( zDau1SaPt, zName + "Dau1SaPt" );
+  evt.put( zDau2SaPt, zName + "Dau2SaPt" );
+  evt.put( zDau1HLTBit, zName + "Dau1HLTBit" );
+  evt.put( zDau2HLTBit, zName + "Dau2HLTBit" );
+  evt.put( zDau1Q, zName + "Dau1Q" );
+  evt.put( zDau2Q, zName + "Dau2Q" );
+  evt.put( zDau1Eta, zName + "Dau1Eta" );
+  evt.put( zDau2Eta, zName + "Dau2Eta" );
+  evt.put( zDau1SaEta, zName + "Dau1SaEta" );
+  evt.put( zDau2SaEta, zName + "Dau2SaEta" );
+  evt.put( zDau1Phi, zName + "Dau1Phi" );
+  evt.put( zDau2Phi, zName + "Dau2Phi" );
+  evt.put( zDau1SaPhi, zName + "Dau1SaPhi" );
+  evt.put( zDau2SaPhi, zName + "Dau2SaPhi" );
+  evt.put( zDau1Iso, zName + "Dau1Iso" );
+  evt.put( zDau2Iso, zName + "Dau2Iso" );
+  evt.put( zDau1TrkIso, zName + "Dau1TrkIso" );
+  evt.put( zDau2TrkIso, zName + "Dau2TrkIso" );
+  evt.put( zDau1EcalIso, zName + "Dau1EcalIso" );
+  evt.put( zDau2EcalIso, zName + "Dau2EcalIso" );
+  evt.put( zDau1HcalIso, zName + "Dau1HcalIso" );
+  evt.put( zDau2HcalIso, zName + "Dau2HcalIso" );
+  evt.put( vtxNormChi2, zName + "VtxNormChi2" );
+  evt.put( zDau1NofHit, zName + "Dau1NofHit" );
+  evt.put( zDau2NofHit, zName + "Dau2NofHit" );
+  evt.put( zDau1NofHitTk, zName + "Dau1NofHitTk" );
+  evt.put( zDau2NofHitTk, zName + "Dau2NofHitTk" );
+  evt.put( zDau1NofHitSta, zName + "Dau1NofHitSta" );
+  evt.put( zDau2NofHitSta, zName + "Dau2NofHitSta" );
+  evt.put( zDau1NofMuChambers, zName + "Dau1NofMuChambers" );
+  evt.put( zDau1NofMuMatches, zName + "Dau1NofMuMatches" );
+  evt.put( zDau2NofMuChambers, zName + "Dau2NofMuChambers" );
+  evt.put( zDau2NofMuMatches, zName + "Dau2NofMuMatches" );
+  evt.put( zDau1Chi2, zName + "Dau1Chi2" );
+  evt.put( zDau2Chi2, zName + "Dau2Chi2" );
+  evt.put( zDau1TrkChi2, zName + "Dau1TrkChi2" );
+  evt.put( zDau2TrkChi2, zName + "Dau2TrkChi2" );
+  evt.put( zDau1dxyFromBS, zName + "Dau1dxyFromBS" );
+  evt.put( zDau2dxyFromBS, zName + "Dau2dxyFromBS" );
+  evt.put( zDau1dxyFromPV, zName + "Dau1dxyFromPV" );
+  evt.put( zDau2dxyFromPV, zName + "Dau2dxyFromPV" );
+  evt.put( zDau1dzFromBS, zName + "Dau1dzFromBS" );
+  evt.put( zDau2dzFromBS, zName + "Dau2dzFromBS" );
+  evt.put( zDau1dzFromPV, zName + "Dau1dzFromPV" );
+  evt.put( zDau2dzFromPV, zName + "Dau2dzFromPV" );
+  evt.put( trueZMass, zName +  "TrueMass" );
+  evt.put( trueZPt, zName + "TruePt" );
+  evt.put( trueZEta, zName + "TrueEta" );
+  evt.put( trueZPhi, zName + "TruePhi" );
+  evt.put( trueZY, zName + "TrueY" );
+}
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
