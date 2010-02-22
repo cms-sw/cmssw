@@ -69,7 +69,7 @@ private:
 
   DQMStore* dbe_;  
 
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -992,7 +992,7 @@ void ValHcalIsoTrackHLT::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (!l1pass||!(hel3fired||hbl3fired)) return;
 }
 
-void ValHcalIsoTrackHLT::beginJob(const edm::EventSetup&)
+void ValHcalIsoTrackHLT::beginJob()
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder(folderName_);
