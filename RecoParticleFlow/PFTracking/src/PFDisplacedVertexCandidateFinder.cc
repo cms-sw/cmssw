@@ -231,6 +231,9 @@ PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
 
   if ( rho2 < primaryVertexCut2_) {dist = -1; return;}
 
+  return;
+
+  /*
   // Check if the inner hit of one of the tracks is not too far away from the vertex
   double dx = el1->innerPosition().x()-P.x();
   double dy = el1->innerPosition().y()-P.y();
@@ -253,7 +256,7 @@ PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
     if (debug_) cout << "track " << el2.key() << " dist to vertex " << sqrt(dist2) << endl; 
     return;
   }
-
+  */
   
 }
 
