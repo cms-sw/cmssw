@@ -2,26 +2,33 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.Generator.PythiaUESettings_cfi import *
 pyquenPythiaDefaultBlock = cms.PSet(
-
-    pythiaDefault = cms.vstring('MSEL=0', # ! Only user defined processes,  
-                                'MSTU(21)=1', # ! to avoid stopping run',
-                                'PARU(14)=1.', # ! tolerance parameter to adjust fragmentation',
-                                'MSTP(81)=0', # ! pp multiple scattering off',
-                                'PMAS(5,1)=4.8', # ! b quark mass',
-                                'PMAS(6,1)=175.0', # ! t quark mass'
-                                'CKIN(3)=7.',# ! ptMin
-                                'MSTJ(22)=2',
-                                'PARJ(71)=10.', # Decays only if life time < 10mm
-                                'PARP(67)=1.',
-                                'PARP(82)=1.9',
-                                'PARP(85)=0.33',
-                                'PARP(86)=0.66',
-                                'PARP(89)=1000.',
-                                'PARP(91)=1.0',
-                                'MSTJ(11)=3',
-                                'MSTJ(22)=2'                                
-                                ),
+    pythiaUESettingsBlock,
+    ppDefault = cms.vstring('MSEL=1   ! QCD hight pT processes',
+                            'CKIN(3)=7.',# ! ptMin
+                            'MSTP(81)=0'
+                            ),
+    pythiaHirootDefault = cms.vstring('MSEL=0', # ! Only user defined processes,
+                                      'MSTU(21)=1', # ! to avoid stopping run',
+                                      'PARU(14)=1.', # ! tolerance parameter to adjust fragmentation',
+                                      'MSTP(81)=0', # ! pp multiple scattering off',
+                                      'PMAS(5,1)=4.8', # ! b quark mass',
+                                      'PMAS(6,1)=175.0', # ! t quark mass'
+                                      'CKIN(3)=7.',# ! ptMin
+                                      'MSTJ(22)=2',
+                                      'PARJ(71)=10.', # Decays only if life time < 10mm
+                                      'PARP(67)=1.',
+                                      'PARP(82)=1.9',
+                                      'PARP(85)=0.33',
+                                      'PARP(86)=0.66',
+                                      'PARP(89)=1000.',
+                                      'PARP(91)=1.0',
+                                      'MSTJ(11)=3',
+                                      'MSTJ(22)=2'
+                                      ),
+    
+    ppJets = cms.vstring('MSEL=1   ! QCD hight pT processes'),
     pythiaJets = cms.vstring('MSUB(11)=1', # q+q->q+q
                              'MSUB(12)=1', # q+qbar->q+qbar
                              'MSUB(13)=1', # q+qbar->g+g
@@ -35,10 +42,13 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                       'MSUB(114)=1', # g+g->gamma+gamma
                                       'MSUB(115)=1' # g+g->g+gamma
                                       ),
-
+    
     pythiaWeakBosons = cms.vstring('MSUB(1)=1',
-                              'MSUB(2)=1'),
-
+                                   'MSUB(2)=1'),
+    
+    pythiaZjets = cms.vstring('MSUB(15)=1',
+                              'MSUB(30)=1'),
+    
     pythiaCharmoniumNRQCD = cms.vstring('MSUB(421) = 1',
                                         'MSUB(422) = 1',
                                         'MSUB(423) = 1',
@@ -59,7 +69,7 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                         'MSUB(438) = 1',
                                         'MSUB(439) = 1'
                                         ),
-
+    
     pythiaBottomoniumNRQCD = cms.vstring('MSUB(461) = 1',
                                          'MSUB(462) = 1',
                                          'MSUB(463) = 1',
@@ -80,7 +90,6 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                          'MSUB(478) = 1',
                                          'MSUB(479) = 1',
                                          ),
-
     pythiaQuarkoniaSettings = cms.vstring('PARP(141)=1.16',   # Matrix Elements
                                           'PARP(142)=0.0119',
                                           'PARP(143)=0.01',
@@ -90,7 +99,7 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                           'PARP(147)=0.15',
                                           'PARP(148)=0.02',
                                           'PARP(149)=0.02',
-                                          'PARP(150)=0.085',                                                
+                                          'PARP(150)=0.085',
                                           # Meson spin
                                           'PARJ(13)=0.60',
                                           'PARJ(14)=0.162',
@@ -110,7 +119,6 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                           'BRAT(1555)=0.356',
                                           'BRAT(1556)=0.644'
                                           ),
-    
     pythiaZtoMuons = cms.vstring("MDME(174,1)=0",          # !Z decay into d dbar,
                                  "MDME(175,1)=0",          # !Z decay into u ubar,
                                  "MDME(176,1)=0",          # !Z decay into s sbar,
@@ -124,6 +132,35 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                  "MDME(186,1)=0",          # !Z decay into tau- tau+,
                                  "MDME(187,1)=0"           # !Z decay into nu_tau nu_taubar
                                  ),
+
+    
+    pythiaZtoElectrons = cms.vstring("MDME(174,1)=0",          # !Z decay into d dbar,
+                                     "MDME(175,1)=0",          # !Z decay into u ubar,
+                                     "MDME(176,1)=0",          # !Z decay into s sbar,
+                                     "MDME(177,1)=0",          # !Z decay into c cbar,
+                                     "MDME(178,1)=0",          # !Z decay into b bbar,
+                                     "MDME(179,1)=0",          # !Z decay into t tbar,
+                                     "MDME(182,1)=1",          # !Z decay into e- e+,
+                                     "MDME(183,1)=0",          # !Z decay into nu_e nu_ebar,
+                                     "MDME(184,1)=0",          # !Z decay into mu- mu+,
+                                     "MDME(185,1)=0",          # !Z decay into nu_mu nu_mubar,
+                                     "MDME(186,1)=0",          # !Z decay into tau- tau+,
+                                     "MDME(187,1)=0"           # !Z decay into nu_tau nu_taubar
+                                     ),
+    
+    pythiaZtoMuonsAndElectrons = cms.vstring("MDME(174,1)=0",          # !Z decay into d dbar,
+                                             "MDME(175,1)=0",          # !Z decay into u ubar,
+                                             "MDME(176,1)=0",          # !Z decay into s sbar,
+                                             "MDME(177,1)=0",          # !Z decay into c cbar,
+                                             "MDME(178,1)=0",          # !Z decay into b bbar,
+                                             "MDME(179,1)=0",          # !Z decay into t tbar,
+                                             "MDME(182,1)=1",          # !Z decay into e- e+,
+                                             "MDME(183,1)=0",          # !Z decay into nu_e nu_ebar,
+                                             "MDME(184,1)=1",          # !Z decay into mu- mu+,
+                                             "MDME(185,1)=0",          # !Z decay into nu_mu nu_mubar,
+                                             "MDME(186,1)=0",          # !Z decay into tau- tau+,
+                                             "MDME(187,1)=0"           # !Z decay into nu_tau nu_taubar
+                                             ),
 
     pythiaUpsilonToMuons = cms.vstring('BRAT(1034) = 0 ',  # switch off',
                                        'BRAT(1035) = 1 ',  # switch on',
@@ -144,14 +181,14 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                        'MDME(1041,1) = 0 ',  # switch off',
                                        'MDME(1042,1) = 0 ',  # switch off'
                                        ),
-
-   pythiaJpsiToMuons = cms.vstring('BRAT(858) = 0 ',  # switch off',
-                                   'BRAT(859) = 1 ',  # switch on',
-                                   'BRAT(860) = 0 ',  # switch off',
-                                   'MDME(858,1) = 0 ',  # switch off',
-                                   'MDME(859,1) = 1 ',  # switch on',
-                                   'MDME(860,1) = 0 ',  # switch off'
-                                   ),
+        
+    pythiaJpsiToMuons = cms.vstring('BRAT(858) = 0 ',  # switch off',
+                                    'BRAT(859) = 1 ',  # switch on',
+                                    'BRAT(860) = 0 ',  # switch off',
+                                    'MDME(858,1) = 0 ',  # switch off',
+                                    'MDME(859,1) = 1 ',  # switch on',
+                                    'MDME(860,1) = 0 ',  # switch off'
+                                    ),
     
     pythiaMuonCandidates = cms.vstring(
     'CKIN(3)=20',
@@ -162,4 +199,3 @@ pyquenPythiaDefaultBlock = cms.PSet(
     )
     
     )
-

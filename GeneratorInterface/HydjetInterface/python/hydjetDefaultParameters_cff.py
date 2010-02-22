@@ -31,9 +31,9 @@ hydjetDefaultParameters = cms.PSet(
 
                     PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
                                                 # Quarkonia and Weak Bosons removed upon dilepton group's request.
-                                                parameterSets = cms.vstring('pythiaDefault','pythiaJets','pythiaPromptPhotons'),
+                                                parameterSets = cms.vstring('pythiaUESettings','ppJets','pythiaPromptPhotons','kinematics'),
                                                 ),
-                    
+                        
                     allowEmptyEvents = cms.bool(False)
                     )
 
