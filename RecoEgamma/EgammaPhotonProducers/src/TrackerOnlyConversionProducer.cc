@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.26 2010/02/15 17:45:50 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.16 2010/02/15 17:50:42 nancy Exp $
 //
 //
 
@@ -722,7 +722,7 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	if(iEvent.getByLabel(src_[ii],temp_handle)){//starting from 170
 	    trackCollectionHandles.push_back(temp_handle);
 	} else {
-	    edm::LogWarning("TrackerOnlyConversionProducer") << "Collection reco::TrackCollection with label " << src_[ii] << " cannot be found, using empty collection of same type";
+	    edm::LogError("TrackerOnlyConversionProducer") << "Collection reco::TrackCollection with label " << src_[ii] << "\n" ;
 	}
     }
 
