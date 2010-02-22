@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.32 2009/07/01 09:40:19 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.33 2009/10/26 15:23:43 saout Exp $
 
 
 #include <memory>
@@ -291,7 +291,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     properties.etaRel   = relativeEta( lepton_momentum, axis );
     properties.ratio    = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
-    properties.quality  = 0.; //FIXME
+//    properties.quality  = 0.; // replaced by setQuality()
     info.insert( lepton, properties );
   }
 
