@@ -118,16 +118,18 @@ namespace reco {
     /// Number of tracks
     const int nTracks() const {return trackTypes_.size();}
 
+    //    const reco::VertexTrackType vertexTrackType(reco::TrackBaseRef tkRef) const;
+
     /// Momentum of secondary tracks calculated with a mass hypothesis. Some of those
-    /// hypothesis are default: PI, KAON, LAMBDA, MASSLESS, CUSTOM
+    /// hypothesis are default: "PI" , "KAON", "LAMBDA", "MASSLESS", "CUSTOM"
+    /// the value of custom shall be then provided in mass variable
     const math::XYZTLorentzVector secondaryMomentum(std::string massHypo, 
-						    bool useRefitted, double mass = 0.0) const 
+						    bool useRefitted = true, double mass = 0.0) const 
       {return momentum(massHypo, T_FROM_VERTEX, useRefitted, mass);}
 
-    /// Momentum of primary or merged track calculated with a mass hypothesis. Some of those
-    /// hypothesis are default:
+    /// Momentum of primary or merged track calculated with a mass hypothesis.
     const math::XYZTLorentzVector primaryMomentum(std::string massHypo, 
-						  bool useRefitted, double mass = 0.0) const
+						  bool useRefitted = true, double mass = 0.0) const
       {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
 
 
