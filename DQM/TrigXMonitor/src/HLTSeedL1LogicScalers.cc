@@ -1,5 +1,5 @@
 
-// $Id: HLTSeedL1LogicScalers.cc,v 1.1 2010/02/18 13:41:49 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.cc,v 1.2 2010/02/22 12:59:08 rekovic Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 
@@ -158,10 +158,13 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
   // book histos for L1 logic of specificified HLT paths
   LogTrace("HLTSeedL1LogicScalers") << "size of vector of paths to monitor = " << fMonitorPaths.size() << endl;
   for (unsigned int iPath=0;iPath<fMonitorPaths.size();iPath++) {
-    
+
     string monPath = fMonitorPaths[iPath];
     LogTrace("HLTSeedL1LogicScalers") << "monPath = " << monPath << endl;
 
+    string folderName = fDQMFolder + "/" + monPath;
+    fDbe->setCurrentFolder(folderName);
+    
     // do nothing if monPath is not in the HLT menu
     if(fHLTConfig.triggerIndex(monPath) == fHLTConfig.size()) continue;
     // get L1SeedLogicalExpression of this path
@@ -170,17 +173,17 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
 
     // each GT Seed of each path contains l1Algos
     vector< vector<string> > gTSeedL1Algos;
-    for (unsigned int i=0;i<hltL1GTSeed.size();i++) {
+    for (unsigned int iSeed=0;iSeed<hltL1GTSeed.size();iSeed++) {
 
-      LogTrace("HLTSeedL1LogicScalers") << "  TechBit_flag = " << hltL1GTSeed[i].first << "  GTSeedL1LogicalExpression = " << hltL1GTSeed[i].second << endl;;
+      LogTrace("HLTSeedL1LogicScalers") << "  TechBit_flag = " << hltL1GTSeed[iSeed].first << "  GTSeedL1LogicalExpression = " << hltL1GTSeed[iSeed].second << endl;;
 
-      istringstream totalSString( hltL1GTSeed[i].second );
+      istringstream totalSString( hltL1GTSeed[iSeed].second );
       string temp_string;
 
       vector<string> l1Algos;
 
       // only if not TechBit flag
-      while(! hltL1GTSeed[i].first) {
+      while(! hltL1GTSeed[iSeed].first) {
 
         totalSString >> temp_string;
 
@@ -196,17 +199,7 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
         }
       }
 
-      gTSeedL1Algos.push_back(l1Algos);
-
-   } // end for Seeds
-
-   // make histogram of 2^n Xbins, where n = l1Algos.size(), from 0..n
-   string folderName = fDQMFolder + "/" + monPath;
-   fDbe->setCurrentFolder(folderName);
-
-   for (unsigned int iSeed=0;iSeed<gTSeedL1Algos.size();iSeed++) {
-   
-      vector<string> l1Algos = gTSeedL1Algos[iSeed];
+      //gTSeedL1Algos.push_back(l1Algos);
       int nL1Algo = l1Algos.size();
       int nBins = pow(2,nL1Algo);
 
@@ -237,7 +230,8 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
       pairMEL1Algo.second = l1Algos;
       fMapMEL1Algos.push_back(pairMEL1Algo);
 
-    } // end for seed iSeed
+   } // end for Seeds
+
 
 
   } // end for monitoring paths
