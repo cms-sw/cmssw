@@ -25,16 +25,15 @@ class dbUtil(object):
                 if table.description().hasPrimaryKey():
                   print 'Primary Key : '
                   print '\t',table.description().primaryKey().columnNames()
-                  
+
             viewlist=self.__schema.listViews()
             for v in viewlist:
-                view = self.__schema.viewHandle(v)
-                print 'view : ', v
-                print 'definition : ',view.definition()
-                n=view.numberOfColumns()
+                myview = self.__schema.viewHandle('V0')
+                print 'definition : ',myview.definition()
+                n=myview.numberOfColumns()
                 for i in range(0,n):
                   columndesp=view.column(i)
-                  print '\t',columndesp.name(),columndesp.type()                 
+                  print '\t',columndesp.name(),columndesp.type()
         except Exception, e:
             raise Exception, str(e)
     def existRow( self, tableName, condition, conditionbindDict):

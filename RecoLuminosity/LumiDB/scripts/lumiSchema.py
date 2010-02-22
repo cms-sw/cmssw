@@ -45,9 +45,9 @@ def createLumi(dbsession):
     detail.setName( nameDealer.lumidetailTableName() )
     detail.insertColumn('LUMIDETAIL_ID','unsigned long long')
     detail.insertColumn('LUMISUMMARY_ID','unsigned long long')
-    detail.insertColumn('BXLUMIVALUE','BLOB')
-    detail.insertColumn('BXLUMIERROR','BLOB')
-    detail.insertColumn('BXLUMIQUALITY','BLOB')
+    detail.insertColumn('BXLUMIVALUE','blob')
+    detail.insertColumn('BXLUMIERROR','blob')
+    detail.insertColumn('BXLUMIQUALITY','blob')
     detail.insertColumn('ALGONAME','string')
     detail.setPrimaryKey('LUMIDETAIL_ID')
     detail.createForeignKey('DETAILSOURCE','LUMISUMMARY_ID',nameDealer.lumisummaryTableName(),'LUMISUMMARY_ID')
@@ -136,6 +136,8 @@ def main():
     args=parser.parse_args()
     connectstring=args.connect
     svc = coral.ConnectionService()
+    if len(args.authpath)!=0:
+        os.environ['CORAL_AUTH_PATH']=args.authpath
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     if args.action == 'create':
        createLumi(session)
