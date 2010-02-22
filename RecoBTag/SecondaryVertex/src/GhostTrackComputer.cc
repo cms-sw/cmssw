@@ -98,11 +98,6 @@ static double etaRel(const math::XYZVector &dir, const math::XYZVector &track)
 
 static void addMeas(std::pair<double, double> &sum, Measurement1D meas)
 {
-if (!std::isfinite(meas.value()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(meas.error()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-
 	double weight = 1. / meas.error();
 	weight *= weight;
 	sum.first += weight * meas.value();
@@ -202,18 +197,6 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 		dist3D = Measurement1D(
 				vertexDist3D.first / vertexDist3D.second,
 				std::sqrt(1. / vertexDist3D.second));
-if (!std::isfinite(dist2D.value()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist2D.error()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist2D.significance()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist3D.value()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist3D.error()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist3D.significance()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
 
 		vars.insert(btau::jetNSecondaryVertices, nVertices, true);
 		vars.insert(btau::vertexNTracks, nVertexTracks, true);
@@ -227,18 +210,6 @@ if (!std::isfinite(dist3D.significance()))
 		dist3D = Measurement1D(
 				tracksDist3D.first / tracksDist3D.second,
 				std::sqrt(1. / tracksDist3D.second));
-if (!std::isfinite(dist2D.value()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist2D.error()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist2D.significance()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist3D.value()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist3D.error()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
-if (!std::isfinite(dist3D.significance()))
-	std::cout << "FAIL " << __LINE__ << std::endl;
 	}
 
 	if (nVertices || nTracks) {
@@ -317,11 +288,11 @@ if (!std::isfinite(dist3D.significance()))
 		vars.insert(btau::trackMomentum, trackMag, true);
 		vars.insert(btau::trackEta, trackMom.Eta(), true);
 
+		vars.insert(btau::trackChi2, track.normalizedChi2(), true);
+		vars.insert(btau::trackNPixelHits, track.hitPattern().pixelLayersWithMeasurement(), true);
+		vars.insert(btau::trackNTotalHits, track.hitPattern().trackerLayersWithMeasurement(), true);
 		vars.insert(btau::trackPtRel, VectorUtil::Perp(trackMom, jetDir), true);
-		vars.insert(btau::trackPPar, jetDir.Dot(trackMom), true);
 		vars.insert(btau::trackDeltaR, VectorUtil::DeltaR(trackMom, jetDir), true);
-		vars.insert(btau::trackPtRatio, VectorUtil::Perp(trackMom, jetDir) / trackMag, true);
-		vars.insert(btau::trackPParRatio, jetDir.Dot(trackMom) / trackMag, true);
 	} 
 
 	vars.insert(btau::vertexCategory, vtxType, true);
