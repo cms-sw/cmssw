@@ -272,10 +272,10 @@ void L1GctGlobalEnergyAlgos::process()
     // Implement this in the same way as the firmware
     m_mhtComponents.setComponents(ExSum, EySum);
     HtMissing = m_mhtComponents.metVector();
-    if (HtMissing.phi.value() > 35) {
-      HtMissing.phi.setValue(HtMissing.phi.value() - 36);
+    if (HtMissing.phi.value() > 8) {
+      HtMissing.phi.setValue(HtMissing.phi.value() - 9);
     } else {
-      HtMissing.phi.setValue(HtMissing.phi.value() + 36);
+      HtMissing.phi.setValue(HtMissing.phi.value() + 9);
     }
 
     // Store 7 bits of magnitude and 5 bits of phi angle.
