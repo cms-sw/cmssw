@@ -17,7 +17,10 @@ using namespace pos;
 
 
 PixelFEDCard::PixelFEDCard(): 
-  PixelConfigBase(" "," "," "){}
+  PixelConfigBase(" "," "," ")
+{
+  clear();
+}
 
 // modified by MR on 24-04-2008 12:05:42
 // Read configuration from DB
@@ -941,7 +944,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
 void PixelFEDCard::clear(void) 
 {
   FEDBASE_0 = 0 ;
-  fedNumber = 0 ;
+  fedNumber = 999 ;
   for(int i=0;i<36;i++){
     NRocs[i]    = 0;
     offs_dac[i] = 0;
