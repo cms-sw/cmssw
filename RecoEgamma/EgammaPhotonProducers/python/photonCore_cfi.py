@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 #
 # producer for photonCore collection
-# $Id: photonCore_cfi.py,v 1.1 2009/03/25 11:17:18 nancy Exp $
+# $Id: photonCore_cfi.py,v 1.2 2010/01/07 17:21:08 nancy Exp $
 #
 photonCore = cms.EDProducer("PhotonCoreProducer",
-    conversionProducer = cms.string('conversions'),
-    conversionCollection = cms.string(''),
+    conversionProducer = cms.InputTag("conversions"),
+   # conversionCollection = cms.string(''),
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     photonCoreCollection = cms.string(''),
