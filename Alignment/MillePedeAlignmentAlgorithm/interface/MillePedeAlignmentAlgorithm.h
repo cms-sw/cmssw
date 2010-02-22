@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.27 $
-///  $Date: 2009/10/23 07:53:35 $
+///  $Revision: 1.28 $
+///  $Date: 2009/12/15 17:59:39 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -68,7 +68,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// Run the algorithm on trajectories and tracks
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
 
-/*   virtual void beginRun(const edm::EventSetup &setup) {} */
+  /// Run on things like survey data
+  virtual void beginRun(const edm::EventSetup &setup);
   /// Run on run products, e.g. TkLAS
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup);
 
@@ -151,6 +152,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   void addLasBeam(const TkFittedLasBeam &lasBeam,
 		  const std::vector<TrajectoryStateOnSurface> &tsoses);
 
+  /// add measurement data from PXB survey
+  void addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg);
+
   //--------------------------------------------------------
   // Data members
   //--------------------------------------------------------
@@ -180,6 +184,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::vector<float>        theFloatBufferX;
   std::vector<float>        theFloatBufferY;
   std::vector<int>          theIntBuffer;
+  bool						theDoSurveyPixelBarrel;
 };
 
 #endif

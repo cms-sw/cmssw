@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.59 $
- *  $Date: 2009/12/15 17:59:40 $
+ *  $Revision: 1.60 $
+ *  $Date: 2010/02/08 15:24:32 $
  *  (last update by $Author: flucke $)
  */
 
@@ -58,6 +58,14 @@
 typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
+
+// Frank
+#include <iostream>
+#include "Alignment/SurveyAnalysis/interface/SurveyPxbImage.h"
+#include "Alignment/SurveyAnalysis/interface/SurveyPxbImageLocalFit.h"
+#include "Alignment/SurveyAnalysis/interface/SurveyPxbImageReader.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
@@ -151,6 +159,11 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   if (this->isMode(myPedeSteerBit) // for pedeRun and pedeRead we might want to merge
       || !theConfig.getParameter<std::vector<std::string> >("mergeTreeFiles").empty()) {
     this->doIO(0);
+
+  // Get config for survey and set flag accordingly
+  const edm::ParameterSet pxbSurveyCfg(theConfig.getParameter<edm::ParameterSet>("surveyPixelBarrel"));
+  theDoSurveyPixelBarrel = pxbSurveyCfg.getParameter<bool>("doSurvey");
+  if (theDoSurveyPixelBarrel) addPxbSurvey(pxbSurveyCfg);
   }
 }
 
@@ -299,6 +312,12 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
   } // end if valid trajectory
 
   return hitResultXy;
+}
+
+//____________________________________________________
+void MillePedeAlignmentAlgorithm::beginRun(const edm::EventSetup &setup)
+{
+	// do nothing for the moment
 }
 
 //____________________________________________________
@@ -993,6 +1012,41 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
   
   theMille->end();
 }
+
+void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg)
+{
+	std::cout << "Let's do survey" << std::endl;
+	std::vector<SurveyPxbImageLocalFit> measurements;
+	//std::ifstream infile(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath().c_str());
+	std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
+	SurveyPxbImageReader<SurveyPxbImageLocalFit> reader(filename, measurements, 800);
+	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
+	{
+		std::cout << "Module " << i << ": ";
+		std::cout << measurements[i].getIdFirst();
+		AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
+		AlignableDetOrUnitPtr mod2(theAlignableNavigator->alignableFromDetId(measurements[i].getIdSecond()));
+		const AlignableSurface& surf1 = mod1->surface();
+		const AlignableSurface& surf2 = mod2->surface();
+		const LocalPoint fidpoint0(-0.91,+3.30);
+		const LocalPoint fidpoint1(+0.91,+3.30);
+		const LocalPoint fidpoint2(+0.91,-3.30);
+		const LocalPoint fidpoint3(-0.91,-3.30);
+		const GlobalPoint surf2point0(surf2.toGlobal(fidpoint0));
+		const GlobalPoint surf2point1(surf2.toGlobal(fidpoint1));
+		const LocalPoint fidpoint0inSurf1frame(surf1.toLocal(surf2point0));
+		const LocalPoint fidpoint1inSurf1frame(surf1.toLocal(surf2point1));
+		
+		std::cout << " surf2point0: " << surf2point0 
+				  << " surf2point1: " << surf2point1
+				  << " fidpoint0inSurf1frame: " << fidpoint0inSurf1frame
+				  << " fidpoint1inSurf1frame: " << fidpoint1inSurf1frame
+				  << std::endl;
+		//std::cout << surf.toGlobal(fidpoint1) << std::endl;
+		//measurements[i].doFit(0.,0.,0.,0.,-6.7,0.);
+	}
+}
+
 
 /*____________________________________________________
 void MillePedeAlignmentAlgorithm::addBeamSpotConstraint

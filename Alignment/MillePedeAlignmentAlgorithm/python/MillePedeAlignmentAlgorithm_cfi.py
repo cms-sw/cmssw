@@ -66,6 +66,11 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 	# BzeroReferenceTrajectoryFactory,
 	# TwoBodyDecayReferenceTrajectoryFactory,
     minNumHits = cms.uint32(7), ## minimum number of hits (with alignable parameters)
-    max2Dcorrelation = cms.double(0.05) ## if correlation >5% 2D measurements in TID/TEC get diagonalized
+    max2Dcorrelation = cms.double(0.05), ## if correlation >5% 2D measurements in TID/TEC get diagonalized
+
+    surveyPixelBarrel = cms.PSet(
+			doSurvey = cms.bool(False),
+			infile = cms.FileInPath("Alignment/SurveyAnalysis/data/BPix_Survey_info_raw.txt")
+	)
 )
 
