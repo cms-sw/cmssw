@@ -1,6 +1,8 @@
 #ifndef DataFormats_BTauReco_SoftLeptonTagInfo_h
 #define DataFormats_BTauReco_SoftLeptonTagInfo_h
 
+#include <vector>
+
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
@@ -10,8 +12,6 @@ namespace reco {
  
 class SoftLeptonProperties {
 public:
-    float quality;                          // lepton quality
-   
     float sip2d;                            // 2D signed impact parameter
     float sip3d;                            // 3D signed impact parameter
     float ptRel;                            // transverse momentum wrt. the jet axis
@@ -20,7 +20,55 @@ public:
     float etaRel;                           // (pseudo)rapidity along jet axis
     float deltaR;                           // (pseudo)angular distance to jet axis
     float ratio;                            // momentum over jet energy
-    float ratioRel;                         // momentum paraller to jet axis over jet energy
+    float ratioRel;                         // momentum parallel to jet axis over jet energy
+
+    static const float undefQuality;
+
+    struct quality {
+        enum ElectronQuality {
+            pfElectronId = 0,
+            egammaElectronId,
+            btagElectronId
+        };
+
+        enum MuonQuality {
+            muonId = 0
+        };
+    };
+
+    // check to see if quality has been set
+
+    inline float hasQuality() const
+    { return quality() != undefQuality; }
+    inline float hasQuality(quality::MuonQuality qual) const
+    { return quality((unsigned int)qual, false) != undefQuality; }
+    inline float hasQuality(quality::ElectronQuality qual) const
+    { return quality((unsigned int)qual, false) != undefQuality; }
+
+    // retrieve lepton quality
+
+    inline float quality(quality::MuonQuality qual,
+                         bool throwIfUndefined = true) const
+    { return quality((unsigned int)qual, throwIfUndefined); }
+    inline float quality(quality::ElectronQuality qual,
+                         bool throwIfUndefined = true) const
+    { return quality((unsigned int)qual, throwIfUndefined); }
+
+    // default value
+    inline float quality() const { return quality(0, false); }
+
+    // set lepton quality
+
+    inline void setQuality(quality::MuonQuality qual, float value)
+    { setQuality((unsigned int)qual, value); }
+    inline void setQuality(quality::ElectronQuality qual, float value)
+    { setQuality((unsigned int)qual, value); }
+
+private:
+    float quality(unsigned int index, bool throwIfUndefined) const;
+    void setQuality(unsigned int index, float value);
+
+    std::vector<float> qualities_;          // lepton qualities
 };
 
 class SoftLeptonTagInfo : public JetTagInfo {
