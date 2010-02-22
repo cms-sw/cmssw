@@ -1,5 +1,5 @@
 
-// $Id: $
+// $Id: HLTSeedL1LogicScalers.cc,v 1.1 2010/02/18 13:41:49 rekovic Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 
@@ -49,6 +49,13 @@ HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig)
   
   fProcessname = iConfig.getUntrackedParameter("processname", string("HLT"));
 
+  // input tag for GT DAQ product
+  fL1GtDaqReadoutRecordInputTag  = iConfig.getParameter<edm::InputTag>("L1GtDaqReadoutRecordInputTag");
+
+  // input tag for GT lite product
+  fL1GtRecordInputTag = iConfig.getParameter<edm::InputTag>("L1GtRecordInputTag");
+
+
   /*
   fL1GtLabel = iConfig.getParameter< edm::InputTag >("l1GtLabel");
   fTriggerResultsLabel = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
@@ -70,48 +77,12 @@ HLTSeedL1LogicScalers::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   LogDebug("HLTSeedL1LogicScalers") << "HLTSeedL1LogicScalers::analyze  event " ;
 
-  /*
-  // get Global Trigger decision and the decision word
-  Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-  iEvent.getByLabel(fL1GtLabel,gtRecord);
+  // before accessing any result from L1GtUtils, one must retrieve and cache
+  // the L1 trigger event setup
+  // add this call in the analyze / produce / filter method of your
+  // analyzer / producer / filter
 
-  if (! gtRecord.isValid() ) {
-    LogDebug("HLTSeedL1LogicScalers") << "L1GlobalTriggerReadoutRecord "
-			<< "with label " << fL1GtLabel.label()
-      << " skipping event";
-    return;
-  }
-
-  // get HLT decisions  
-  Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(fTriggerResultsLabel,triggerResults);
-  if(!triggerResults.isValid()) {
-    InputTag triggerResultsLabelFU(fTriggerResultsLabel.label(),fTriggerResultsLabel.instance(), "FU");
-   iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
-  if(!triggerResults.isValid()) {
-    LogInfo("HLTSeedL1LogicScalers") << "TriggerResults not found, "
-      "skipping event"; 
-    return;
-   }
-  }
-
-  fTriggerResults = triggerResults;
-  TriggerNames triggerNames(*triggerResults);  
-  int npath = triggerResults->size();
-
-  string path = "HLT_Mu3";
-
-  for(int i = 0; i < npath; ++i) {
-
-   if (triggerNames.triggerName(i).find(path) != string::npos && triggerResults->accept(i))
-   { 
-      
-     LogTrace("HLTSeedL1LogicScalers") << "Path " << path  << " passed HLT " << endl;
-
-   }
-
-  }
-  */
+  m_l1GtUtils.retrieveL1EventSetup(iSetup);
 
   // loop over maps of ME-L1Algos
   for (unsigned int i=0;i<fMapMEL1Algos.size();i++) {
@@ -159,7 +130,6 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
   
   // HLT config does not change within runs!
  
-  fProcessname = "HLT";
   if (!fHLTConfig.init(fProcessname)) {
 
     fProcessname = "FU";
@@ -167,6 +137,7 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
     if (!fHLTConfig.init(fProcessname)){
 
       LogDebug("HLTSeedL1LogicScalers") << "HLTConfigProvider failed to initialize.";
+      return;
 
     }
 
@@ -195,13 +166,6 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
     if(fHLTConfig.triggerIndex(monPath) == fHLTConfig.size()) continue;
     // get L1SeedLogicalExpression of this path
     vector<pair<bool,string> > hltL1GTSeed = fHLTConfig.hltL1GTSeeds(monPath);
-    /*
-      vector<pair<bool,string> > hltL1GTSeed;
-      pair<bool, string > pairBoolSeedLE;
-      pairBoolSeedLE.first = false;
-      pairBoolSeedLE.second = "L1_SingleMuOpen OR L1_SingleMu0";
-      hltL1GTSeed.push_back(pairBoolSeedLE);
-      */
     LogTrace("HLTSeedL1LogicScalers") << endl << "size of vector of GTSeedL1LogicalExpression = " << hltL1GTSeed.size() << endl;
 
     // each GT Seed of each path contains l1Algos
@@ -236,7 +200,7 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
 
    } // end for Seeds
 
-      // make histogram of 2^n Xbins, where n = l1Algos.size(), from 0..n
+   // make histogram of 2^n Xbins, where n = l1Algos.size(), from 0..n
    string folderName = fDQMFolder + "/" + monPath;
    fDbe->setCurrentFolder(folderName);
 
@@ -290,16 +254,10 @@ void
 HLTSeedL1LogicScalers::endJob() {
 }
 
-bool HLTSeedL1LogicScalers::analyzeL1GtUtils(const edm::Event& iEvent, const edm::EventSetup& evSetup, string l1AlgoName)
+bool HLTSeedL1LogicScalers::analyzeL1GtUtils(const edm::Event& iEvent, const edm::EventSetup& evSetup, const string & l1AlgoName)
 {
 
   LogTrace("HLTSeedL1LogicScalers") << "analyzeL1GtUtils..." << endl;
-    // before accessing any result from L1GtUtils, one must retrieve and cache
-    // the L1 trigger event setup
-    // add this call in the analyze / produce / filter method of your
-    // analyzer / producer / filter
-
-    m_l1GtUtils.retrieveL1EventSetup(evSetup);
 
     // access L1 trigger results using public methods from L1GtUtils
     // always check on error code returned by that method
@@ -314,12 +272,12 @@ bool HLTSeedL1LogicScalers::analyzeL1GtUtils(const edm::Event& iEvent, const edm
     // check flag L1BeforeMask
     if (fL1BeforeMask) {
       
-      decisionAlgTechTrig = m_l1GtUtils.decisionBeforeMask(iEvent, l1AlgoName, iErrorCode);
+      decisionAlgTechTrig = m_l1GtUtils.decisionBeforeMask(iEvent, fL1GtRecordInputTag, fL1GtDaqReadoutRecordInputTag, l1AlgoName, iErrorCode);
 
     } 
     else {
 
-     decisionAlgTechTrig = m_l1GtUtils.decisionAfterMask(iEvent, l1AlgoName, iErrorCode);
+     decisionAlgTechTrig = m_l1GtUtils.decisionAfterMask(iEvent, fL1GtRecordInputTag, fL1GtDaqReadoutRecordInputTag, l1AlgoName, iErrorCode);
 
     }
 

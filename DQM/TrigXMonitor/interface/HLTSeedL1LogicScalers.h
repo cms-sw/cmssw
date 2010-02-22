@@ -13,7 +13,7 @@
 //
 // Original Author:   Vladimir  Rekovic
 //         Created:  Tue Feb  9 15:15:20 CET 2010
-// $Id$
+// $Id: HLTSeedL1LogicScalers.h,v 1.1 2010/02/17 14:00:35 rekovic Exp $
 //
 //
 
@@ -59,7 +59,7 @@ class HLTSeedL1LogicScalers : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) ;
-      bool analyzeL1GtUtils(const edm::Event&, const edm::EventSetup&, std::string);
+      bool analyzeL1GtUtils(const edm::Event&, const edm::EventSetup&, const std::string &);
       bool analyzeL1GtRecord(const edm::Event&, const edm::EventSetup&, std::string);
 
 
@@ -82,6 +82,9 @@ class HLTSeedL1LogicScalers : public edm::EDAnalyzer {
       edm::InputTag fTriggerResultsLabel;
       edm::InputTag fL1GtLabel;
       */
+      edm::InputTag fL1GtDaqReadoutRecordInputTag;
+      edm::InputTag fL1GtRecordInputTag;
+
 
       std::vector<std::string> fMonitorPaths;
       std::vector<MonitorElement*> fMonitorPathsME;
