@@ -18,6 +18,7 @@
 #include "CondFormats/DataRecord/interface/HcalValidationCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalLutMetadataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalDcsRcd.h"
+#include "CondFormats/DataRecord/interface/HcalDcsMapRcd.h"
 
 
 #endif
