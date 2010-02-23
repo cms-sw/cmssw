@@ -12,7 +12,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.1 2010/02/23 10:21:29 carrillo Exp $
+// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.2 2010/02/23 10:38:24 carrillo Exp $
 //
 //
 
@@ -73,15 +73,9 @@ bool HLTRPCTrigNoSyncFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   
   //std::cout <<"\t Getting the RPC RecHits"<<std::endl;
 
-  bool accessTorpcRecHits = true;
-  try {
-    iEvent.getByLabel(rpcRecHitsLabel,rpcRecHits);
-  }catch( cms::Exception& exception ) {
-    //std::cout<<"RPC RecHits were not found skipping the event"<<std::endl;
-    accessTorpcRecHits = false;
-  }
-
-  if(!accessTorpcRecHits || !rpcRecHits.isValid()){
+  iEvent.getByLabel(rpcRecHitsLabel,rpcRecHits);
+  
+  if(!rpcRecHits.isValid()){
     //std::cout<<"no valid RPC Collection"<<std::endl;
     //std::cout<<"event skipped"<<std::endl;
     return false;
