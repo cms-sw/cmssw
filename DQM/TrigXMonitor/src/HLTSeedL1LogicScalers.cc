@@ -1,5 +1,5 @@
 
-// $Id: HLTSeedL1LogicScalers.cc,v 1.3 2010/02/22 22:15:40 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.cc,v 1.4 2010/02/23 16:50:45 rekovic Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 
@@ -190,7 +190,7 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
           if(temp_string.compare(l1Algos.back()) == 0) break;
 
         }
-        if(temp_string != "OR" && temp_string != "AND" && temp_string != "NOT" && temp_string != ""){
+        if(temp_string != "OR" && temp_string != "AND" && temp_string != "NOT" && temp_string != "(" && temp_string != ")" && temp_string != ""){
 
           l1Algos.push_back(temp_string);
 
