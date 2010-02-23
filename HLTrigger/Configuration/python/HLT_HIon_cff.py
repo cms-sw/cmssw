@@ -1,13 +1,14 @@
-# /dev/CMSSW_3_5_0/HIon/V25 (CMSSW_3_5_2_HLT2)
+# /dev/CMSSW_3_5_0/HIon/V26 (CMSSW_3_5_2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V25')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V26')
 )
 
 streams = cms.PSet( 
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
@@ -22,12 +23,12 @@ streams = cms.PSet(
     'Cosmics' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   Express = cms.vstring( 'ExpressMuon' ),
   Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
+  OfflineMonitor = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
@@ -40,7 +41,6 @@ datasets = cms.PSet(
   HcalNZS = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   ExpressMuon = cms.vstring(  )
 )

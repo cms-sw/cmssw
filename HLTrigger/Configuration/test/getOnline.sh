@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/commissioning10/week05/HLT'
+HLT='/users/fwyzard/test/20100222.162100/HLT/V1'
 
 rm -f OnData_HLT_TEST.py
 rm -f OnLine_HLT_TEST.py
