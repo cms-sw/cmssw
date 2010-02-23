@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.1 2010/01/25 21:03:56 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.2 2010/02/11 10:04:10 carrillo Exp $
 //
 //
 
@@ -28,8 +28,8 @@
 
 RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
 {
-  dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
-  cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
+  cscSegments=iConfig.getParameter<edm::InputTag>("cscSegments");
+  dt4DSegments=iConfig.getParameter<edm::InputTag>("dt4DSegments");
 
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
@@ -37,7 +37,6 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
-  MaxDistanceBetweenSegments=iConfig.getUntrackedParameter<double>("",150.);
   ExtrapolatedRegion=iConfig.getUntrackedParameter<double>("ExtrapolatedRegion",0.5);
 
   produces<RPCRecHitCollection>("RPCDTExtrapolatedPoints");
