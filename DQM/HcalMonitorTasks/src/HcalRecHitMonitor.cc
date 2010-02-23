@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 using namespace std;
 
@@ -358,11 +359,10 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
     bool passedHLT=false;
   edm::Handle<edm::TriggerResults> hltResults;
   iEvent.getByLabel("HLT",hltResults);
-  edm::TriggerNames triggernames;
-  triggernames.init(*hltResults);
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltResults);
   for (unsigned int i=0;i<hltResults->size();++i)
     {
-      string trigName = triggernames.triggerName(i);
+      string trigName = triggerNames.triggerName(i);
       if (trigName!="HLT_L1_HFtech")
 	continue;
       if (hltResults->accept(i))

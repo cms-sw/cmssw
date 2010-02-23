@@ -8,8 +8,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include <math.h>
+
+namespace edm {
+  class TriggerNames;
+}
 
 class HcalNZSMonitor: public HcalBaseMonitor {
  public:
@@ -18,7 +21,10 @@ class HcalNZSMonitor: public HcalBaseMonitor {
   
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
 
-  void processEvent(const FEDRawDataCollection& rawraw, edm::TriggerResults, int bxNum);
+  void processEvent(const FEDRawDataCollection& rawraw,
+                    const edm::TriggerResults&,
+                    int bxNum,
+                    const edm::TriggerNames & triggerNames);
 
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
   void clearME();

@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2010/02/05 18:50:34 $
- * $Revision: 1.160 $
+ * $Date: 2010/02/18 20:36:28 $
+ * $Revision: 1.161 $
  * \author W Fisher
  * \author J Temple
  *
@@ -13,6 +13,10 @@
 
 using namespace std;
 using namespace edm;
+
+namespace edm {
+  class TriggerNames;
+}
 
 //--------------------------------------------------------
 HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
@@ -1166,7 +1170,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   if (nzsMon_ != NULL && hltResOK_) 
     {
-      nzsMon_->processEvent( *rawraw,*hltRes,e.bunchCrossing());
+      const edm::TriggerNames & triggerNames = e.triggerNames(*hltRes);
+      nzsMon_->processEvent( *rawraw,*hltRes,e.bunchCrossing(),triggerNames);
     }
   if (showTiming_)
     {

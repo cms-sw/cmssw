@@ -94,13 +94,12 @@ void HcalNZSMonitor::setup(const edm::ParameterSet& ps,
   return;
 }
 
-void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw, edm::TriggerResults trigRes, int bxNum)
+void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw,
+                                  const edm::TriggerResults & trigRes,
+                                  int bxNum,
+                                  const edm::TriggerNames & triggerNames)
 {
-  
-  edm::TriggerNames triggerNames_;
-  triggerNames_.init(trigRes);
-  vector<string>  hlNames_=triggerNames_.triggerNames();
-  const unsigned int nTrig(hlNames_.size());
+  const unsigned int nTrig(triggerNames.size());
  
   vector<bool> trigAcc;
   for (unsigned int i=0; i<triggers_.size(); i++) trigAcc.push_back(false);
@@ -109,7 +108,7 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw, edm::Trigg
      {
        for (unsigned int i=0; i<triggers_.size(); i++)
 	 {
-	   if (hlNames_[k]==triggers_[i]&&trigRes.accept(k)) trigAcc[i]=true;
+	   if (triggerNames.triggerName(k) == triggers_[i] && trigRes.accept(k)) trigAcc[i]=true;
 	 }
      }
    bool andAcc=true;

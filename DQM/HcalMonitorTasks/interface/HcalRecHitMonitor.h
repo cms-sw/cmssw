@@ -10,7 +10,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-#include "FWCore/Common/interface/TriggerNames.h" 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
@@ -23,8 +22,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2010/02/03 18:22:07 $
-  * $Revision: 1.44 $
+  * $Date: 2010/02/18 20:42:07 $
+  * $Revision: 1.45 $
   * \author J. Temple - Univ. of Maryland
   */
 
