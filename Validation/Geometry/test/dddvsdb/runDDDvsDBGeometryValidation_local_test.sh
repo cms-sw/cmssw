@@ -32,7 +32,6 @@ addpkg Geometry/DTGeometry
 addpkg Geometry/CSCGeometry
 addpkg Geometry/CaloEventSetup
 addpkg GeometryReaders/XMLIdealGeometryESSource
-addpkg Validation/Geometry 
 addpkg DetectorDescription/Schema
 addpkg Configuration/StandardSequences
 addpkg CondTools/Geometry
