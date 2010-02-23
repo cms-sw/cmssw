@@ -123,7 +123,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTr
  ##
  ## PATH
  ##
-process.p = cms.Path(process.lumiSkim*process.skimming*process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
+process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
                      *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
 """
@@ -154,7 +154,7 @@ TrackSelectionTemplate = """
 process.AlignmentTrackSelector.applyBasicCuts = True
 # Note that pMin is overridden and set to zero in
 # the offlineTemplate0T
-process.AlignmentTrackSelector.pMin    = 1.5
+process.AlignmentTrackSelector.pMin    = 3
 process.AlignmentTrackSelector.pMax    = 9999.
 process.AlignmentTrackSelector.ptMin   = 0
 process.AlignmentTrackSelector.ptMax   = 9999.
@@ -659,7 +659,7 @@ process.TrackRefitter2.NavigationSchool = ""
 
 ### Now adding the construction of global Muons
 # what Chang did...
-process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+process.load("Configuration.StandardSequences.ReconstructionCosmics")
 
 process.cosmicValidation = cms.EDFilter("CosmicSplitterValidation",
 	ifSplitMuons = cms.bool(False),
@@ -908,41 +908,22 @@ process.es_prefer_APE = cms.ESPrefer("PoolDBESSource", "APE")
 """
 
 
-TrackSelectionPeakModeFirstData = """
+TrackSelectionPeakMode = """
 ############################################################
 ######
 ######WARNING temporary fix to run on first collision data
 ######
 #############################################################
 
-#########################################################################
-## Physics Filter for first data analysis
-## flag set by hand by the online shifter
-###########################################################################
-process.skimming = cms.EDFilter("PhysDecl",
-           applyfilter = cms.untracked.bool(True)
-)
-
-
-process.lumiSkim = cms.EDFilter("MYSKIM",
-               applyfilter = cms.untracked.bool(True),
-               selectedRun = cms.untracked.int32(123596),
-               minLumiSection = cms.untracked.int32(69),
-               maxLumiSection = cms.untracked.int32(99999),
-               selectedLastRun = cms.untracked.int32(123818),        
-               excludeLumiSection = cms.untracked.int32(0),                 
-
-)             
-
 ##### For Tracks:
 process.AlignmentTrackSelector.applyBasicCuts = True
-process.AlignmentTrackSelector.pMin    = 1.5
+process.AlignmentTrackSelector.pMin    = 3.
 process.AlignmentTrackSelector.pMax    = 9999.
 process.AlignmentTrackSelector.ptMin   = 0.
 process.AlignmentTrackSelector.ptMax   = 9999.
 process.AlignmentTrackSelector.etaMin  = -999.
 process.AlignmentTrackSelector.etaMax  = 999.
-process.AlignmentTrackSelector.nHitMin = 6
+process.AlignmentTrackSelector.nHitMin = 8
 process.AlignmentTrackSelector.nHitMin2D = 2
 process.AlignmentTrackSelector.chi2nMax = 999.
 process.AlignmentTrackSelector.applyMultiplicityFilter = False
@@ -959,7 +940,7 @@ process.AlignmentTrackSelector.minHitChargeStrip = 50.
 
 ##### For Hits:
 process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
-process.TrackerTrackHitFilter.minimumHits = 6
+process.TrackerTrackHitFilter.minimumHits = 8
 process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
 process.TrackerTrackHitFilter.detsToIgnore = [
      # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
@@ -973,7 +954,7 @@ process.TrackerTrackHitFilter.detsToIgnore = [
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
-process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 14.0")
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 #process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 8.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.17 # in rads, starting from the module surface
@@ -1168,16 +1149,16 @@ process.AliMomConstraint1.fixedMomentumError = 0.005
 # Second momentum constraint
 #process.load("RecoTracker.TrackProducer.MomentumConstraintProducer_cff")
 #import RecoTracker.TrackProducer.MomentumConstraintProducer_cff
-process.AliMomConstraint2 = RecoTracker.TrackProducer.MomentumConstraintProducer_cff.MyMomConstraint.clone()
-process.AliMomConstraint2.src = 'AlignmentTrackSelector'
-process.AliMomConstraint2.fixedMomentum = 5.0
-process.AliMomConstraint2.fixedMomentumError = 0.005
+#process.AliMomConstraint2 = RecoTracker.TrackProducer.MomentumConstraintProducer_cff.MyMomConstraint.clone()
+#process.AliMomConstraint2.src = 'AlignmentTrackSelector'
+#process.AliMomConstraint2.fixedMomentum = 5.0
+#process.AliMomConstraint2.fixedMomentumError = 0.005
    
 
 
 #now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
-process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksP5.clone(
+process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
     src = 'TrackerTrackHitFilter'
 ###    ,
 ###    TrajectoryInEvent = True,
@@ -1195,17 +1176,17 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 #process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter1 = process.TrackRefitterP5.clone(
-   src = 'AliMomConstraint1'
-   TrajectoryInEvent = True
-   TTRHBuilder = "WithAngleAndTemplate"
+   src =  '.oO[TrackCollection]Oo.'#'AliMomConstraint1',
+   TrajectoryInEvent = True,
+   TTRHBuilder = "WithAngleAndTemplate",
    NavigationSchool = "",
-   constraint = 'momentum' ### SPECIFIC FOR CRUZET
+   constraint = 'momentum', ### SPECIFIC FOR CRUZET
    srcConstr='AliMomConstraint1' ### SPECIFIC FOR CRUZET$works only with tag V02-10-02 TrackingTools/PatternTools / or CMSSW >=31X
 )
 
 process.TrackRefitter2 = process.TrackRefitter1.clone(
-    src = 'AliMomConstraint2',
-    srcConstr='AliMomConstraint2',
+    src = 'AlignmentTrackSelector',
+    srcConstr='AliMomConstraint1',
     constraint = 'momentum' ### SPECIFIC FOR CRUZET
 )
 
@@ -1254,11 +1235,9 @@ process.TFileService.fileName = '.oO[outputFile]Oo.'
  ##
  ## PATH
  ##
-#process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
-#                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
 process.p = cms.Path(process.offlineBeamSpot*process.AliMomConstraint1*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
-                     *process.AlignmentTrackSelector*process.AliMomConstraint2*process.TrackRefitter2*process.TrackerOfflineValidation)
+                     *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
 
 """
@@ -1304,7 +1283,7 @@ process.TrackerTrackHitFilter.detsToIgnore = [
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
-process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 14.0")
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 #process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 8.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
 process.TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
