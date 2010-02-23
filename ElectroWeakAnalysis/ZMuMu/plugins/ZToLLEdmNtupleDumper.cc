@@ -137,9 +137,9 @@ ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper( const ParameterSet & cfg ) {
     beta_.push_back(beta);
     relativeIsolation_.push_back(relativeIsolation);
     hltPath_.push_back(hltPath);
-    produces<vector<unsigned int> >( alias = "EventNumber" ).setBranchAlias( alias );
-    produces<vector<unsigned int> >( alias = "RunNumber" ).setBranchAlias( alias );
-    produces<vector<unsigned int> >( alias = "LumiBlock" ).setBranchAlias( alias );
+    produces<vector<unsigned int> >( alias = zName + "EventNumber" ).setBranchAlias( alias );
+    produces<vector<unsigned int> >( alias = zName + "RunNumber" ).setBranchAlias( alias );
+    produces<vector<unsigned int> >( alias = zName + "LumiBlock" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Mass" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "MassSa" ).setBranchAlias( alias );
     produces<vector<float> >( alias = zName + "Pt" ).setBranchAlias( alias );
@@ -479,9 +479,9 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
     }
   }
   const string & zName = zName_[c];
-  evt.put( event,"EventNumber" );
-  evt.put( run,"RunNumber" );
-  evt.put( lumi,"LumiBlock" );
+  evt.put( event,zName + "EventNumber" );
+  evt.put( run, zName + "RunNumber" );
+  evt.put( lumi,zName + "LumiBlock" );
   evt.put( zMass, zName +  "Mass" );
   evt.put( zMassSa, zName +  "MassSa" );
   evt.put( zPt, zName + "Pt" );
