@@ -12,11 +12,24 @@
 
 #include <iostream>
 
+void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec, const pede_label_t &label1, const pede_label_t &label2)
+{
+	labelVec1_.clear();
+	labelVec1_.push_back(label1+0);
+	labelVec1_.push_back(label1+1);
+	labelVec1_.push_back(label1+5);
+	labelVec2_.clear();
+	labelVec2_.push_back(label2+0);
+	labelVec2_.push_back(label2+1);
+	labelVec2_.push_back(label2+5);
+	doFit(fidpointvec);
+}
+
 void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec)
 {
 	fitValidFlag_ = false;
 
-	ROOT::Math::SMatrix<value_t,8,4> A;
+	ROOT::Math::SMatrix<value_t,nMsrmts,nLcD> A; // 8x4
 	A(0,0)=1.; A(0,1)=0; A(0,2)=+fidpointvec[0].x(); A(0,3)=+fidpointvec[0].y();
 	A(1,0)=0.; A(1,1)=1; A(1,2)=+fidpointvec[0].y(); A(1,3)=-fidpointvec[0].x();
 	A(2,0)=1.; A(2,1)=0; A(2,2)=+fidpointvec[1].x(); A(2,3)=+fidpointvec[1].y();
@@ -27,8 +40,14 @@ void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec)
 	A(7,0)=0.; A(7,1)=1; A(7,2)=+fidpointvec[3].y(); A(7,3)=-fidpointvec[3].x();
 	//std::cout << "A: \n" << A << std::endl;
 
+	// we need a casted copy as pede wants to have derivs as floats
+	for(count_t i=0; i!=nMsrmts; i++)
+		for(count_t j=0; j!=nLcD; j++)
+			localDerivsMatrix_(i,j) = (pede_deriv_t) A(i,j);
+
+
 	// Covariance matrix
-	ROOT::Math::SMatrix<value_t,8,8> W;
+	ROOT::Math::SMatrix<value_t,nMsrmts,nMsrmts> W; // 8x8
 	//ROOT::Math::MatRepSym<value_t,8> W;
 	const value_t sigma_u2inv = 1./(sigma_u_*sigma_u_);
 	const value_t sigma_v2inv = 1./(sigma_v_*sigma_v_);
@@ -43,11 +62,11 @@ void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec)
 	//std::cout << "W: \n" << W << std::endl;
 
 	// Prepare for the fit
-	ROOT::Math::SMatrix<value_t,4,4> ATWA;
+	ROOT::Math::SMatrix<value_t,nLcD,nLcD> ATWA; // 4x4
 	ATWA = ROOT::Math::Transpose(A) * W * A;
 	//ATWA = ROOT::Math::SimilarityT(A,W); // W muss symmterisch sein -> aendern.
 	//std::cout << "ATWA: \n" << ATWA << std::endl;
-	ROOT::Math::SMatrix<value_t,4,4> ATWAi;
+	ROOT::Math::SMatrix<value_t,nLcD,nLcD> ATWAi; // 4x4
 	int ifail = 0;
 	ATWAi = ATWA.Inverse(ifail);
 	if (ifail != 0)
@@ -59,7 +78,7 @@ void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec)
 	//std::cout << "ATWA-1: \n" << ATWAi << ifail << std::endl;
 
 	// Measurements
-	ROOT::Math::SVector<value_t,8> y;
+	ROOT::Math::SVector<value_t,nMsrmts> y; // 8
 	y(0) = measurementVec_[0].x();
 	y(1) = measurementVec_[0].y();
 	y(2) = measurementVec_[1].x();
@@ -71,7 +90,7 @@ void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec)
 	//std::cout << "y: " << y << std::endl;
 
 	// do the fit
-	ROOT::Math::SVector<value_t,4> a;	
+	ROOT::Math::SVector<value_t,nLcD> a; // 4
 	a = ATWAi * ROOT::Math::Transpose(A) * W * y;
 	chi2_ = ROOT::Math::Dot(y,W*y)-ROOT::Math::Dot(a,ROOT::Math::Transpose(A)*W*y);
 #ifdef DEBUG
@@ -82,6 +101,36 @@ void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec)
 #endif
 	//std::cout << "A*a: " << A*a << std::endl;
 	a_.assign(a.begin(),a.end());
+
+	// Calculate vector of residuals
+	r = y - A*a;
+
+	// Fill vector with global derivatives and labels (8x3)
+	globalDerivsMatrix_(0,0) = +a(2);
+	globalDerivsMatrix_(0,1) = +a(3);
+	globalDerivsMatrix_(0,2) = +a(3)*fidpoints_[0].x()-a(2)*fidpoints_[0].y();
+	globalDerivsMatrix_(1,0) = -a(3);
+	globalDerivsMatrix_(1,1) = +a(2);
+	globalDerivsMatrix_(1,2) = +a(2)*fidpoints_[0].x()+a(3)*fidpoints_[0].y();
+	globalDerivsMatrix_(2,0) = +a(2);
+	globalDerivsMatrix_(2,1) = +a(3);
+	globalDerivsMatrix_(2,2) = +a(3)*fidpoints_[1].x()-a(2)*fidpoints_[1].y();
+	globalDerivsMatrix_(3,0) = -a(3);
+	globalDerivsMatrix_(3,1) = +a(2);
+	globalDerivsMatrix_(3,2) = +a(2)*fidpoints_[1].x()+a(3)*fidpoints_[1].y();
+
+	globalDerivsMatrix_(4,0) = +a(2);
+	globalDerivsMatrix_(4,1) = +a(3);
+	globalDerivsMatrix_(4,2) = +a(3)*fidpoints_[2].x()-a(2)*fidpoints_[2].y();
+	globalDerivsMatrix_(5,0) = -a(3);
+	globalDerivsMatrix_(5,1) = +a(2);
+	globalDerivsMatrix_(5,2) = +a(2)*fidpoints_[2].x()+a(3)*fidpoints_[2].y();
+	globalDerivsMatrix_(6,0) = +a(2);
+	globalDerivsMatrix_(6,1) = +a(3);
+	globalDerivsMatrix_(6,2) = +a(3)*fidpoints_[3].x()-a(2)*fidpoints_[3].y();
+	globalDerivsMatrix_(7,0) = -a(3);
+	globalDerivsMatrix_(7,1) = +a(2);
+	globalDerivsMatrix_(7,2) = +a(2)*fidpoints_[3].x()+a(3)*fidpoints_[3].y();
 
 	fitValidFlag_ = true;
 }
