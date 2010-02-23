@@ -16,6 +16,8 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 
+//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include <vector>
 #include <iostream>
 #include "TFile.h"
@@ -52,6 +54,8 @@ class WenuPlots : public edm::EDAnalyzer {
   std::string outputFile_;
   edm::InputTag wenuCollectionTag_;
   TFile *histofile;
+  //
+  //  math::XYZPoint bspotPosition_; // comment out only if you don't use pat
   //
   // the histograms ********************
 
@@ -110,12 +114,16 @@ class WenuPlots : public edm::EDAnalyzer {
   Double_t dphi_EB_;
   Double_t hoe_EB_;
   Double_t userIso_EB_;
+  Double_t tip_bspot_EB_;
+  Double_t eop_EB_;
   //
   Double_t sihih_EE_;
   Double_t deta_EE_;
   Double_t dphi_EE_;
   Double_t hoe_EE_;
   Double_t userIso_EE_;
+  Double_t tip_bspot_EE_;
+  Double_t eop_EE_;
   //
   bool trackIso_EB_inv;
   bool ecalIso_EB_inv;
@@ -130,12 +138,16 @@ class WenuPlots : public edm::EDAnalyzer {
   bool dphi_EB_inv;
   bool hoe_EB_inv;
   bool userIso_EB_inv;
+  bool tip_bspot_EB_inv;
+  bool eop_EB_inv;
   //
   bool sihih_EE_inv;
   bool deta_EE_inv;
   bool dphi_EE_inv;
   bool hoe_EE_inv;
   bool userIso_EE_inv;
+  bool tip_bspot_EE_inv;
+  bool eop_EE_inv;
   //
   //
   int nBarrelVars_;

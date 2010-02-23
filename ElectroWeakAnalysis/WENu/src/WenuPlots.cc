@@ -31,7 +31,9 @@
   12Feb09  First Release of the code for CMSSW_2_2_X
   16Sep09  tested that it works with 3_1_2 as well 
   09Sep09  added one extra iso with the name userIso_XX_
-           
+  23Feb09  added option to include extra IDs that are in CMSSW, such as
+           categorized, likehood etc
+           added extra variables TIP and E/P  
   Contact: 
   Nikolaos Rompotis  -  Nikolaos.Rompotis@Cern.ch
   Imperial College London
@@ -87,12 +89,16 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   deta_EB_ = iConfig.getUntrackedParameter<Double_t>("deta_EB");
   hoe_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe_EB");
   userIso_EB_ = iConfig.getUntrackedParameter<Double_t>("userIso_EB", 1000.);
+  tip_bspot_EB_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EB", 1000.);
+  eop_EB_=iConfig.getUntrackedParameter<Double_t>("eop_EB", 1000.);
   //
   sihih_EE_ = iConfig.getUntrackedParameter<Double_t>("sihih_EE");
   dphi_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi_EE");
   deta_EE_ = iConfig.getUntrackedParameter<Double_t>("deta_EE");
   hoe_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe_EE");
   userIso_EE_ = iConfig.getUntrackedParameter<Double_t>("userIso_EE", 1000.);
+  tip_bspot_EE_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EE", 1000.);
+  eop_EE_=iConfig.getUntrackedParameter<Double_t>("eop_EE", 1000.);
   //
   trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", 
 							    false);
@@ -119,6 +125,9 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 							false);
   userIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("userIso_EB_inv",
 							 false);
+  tip_bspot_EB_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EB_inv", 
+							 false);
+  eop_EB_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EB_inv", false);
   //
   sihih_EE_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EE_inv",
 							 false);
@@ -130,6 +139,10 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 							false);
   userIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("userIso_EE_inv",
 							 false);
+  tip_bspot_EE_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EE_inv", 
+							 false);
+  eop_EE_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EE_inv", false);
+
 
 }
 
@@ -163,7 +176,23 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     cout << "Warning: no wenu candidates in this event..." << endl;
     return;
   }
+  // calculate the beam spot position for the TIP calculation
   //
+  // this is how one should do it, however, the beam spot is given in
+  // the pat electron producer cfi, hence it is stored there
+  // The reason that we don't do like that is that we want if possible the
+  // code to run only on WenuCandidate objects and nothing else
+  // facilitating the analysis from super-skimmed edmFiles
+  //
+  // edm::Handle<reco::BeamSpot> pBeamSpot;
+  // if(iEvent.getByLabel("offlineBeamSpot", pBeamSpot)) {
+  //   const reco::BeamSpot *bspot = pBeamSpot.product();
+  //   bspotPosition_ = bspot->position();
+  // } else {
+  //   std::cout << "Offline beam spot was not found with collection name " 
+  // 	      << " offlineBeamSpot  --> it will be set to zero" << std::endl;
+  //   bspotPosition_.SetXYZ(0,0,0);
+  // }
   //
   const pat::CompositeCandidateCollection *wcands = WenuCands.product();
   const pat::CompositeCandidateCollection::const_iterator 
@@ -175,6 +204,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     dynamic_cast<const pat::Electron*> (wenu.daughter("electron"));
   const pat::MET * myMet=
     dynamic_cast<const pat::MET*> (wenu.daughter("met"));
+  //
   // some variables here
   double scEta = myElec->superCluster()->eta();
   double scPhi = myElec->superCluster()->phi();
@@ -263,13 +293,13 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
   }
   // uncomment for debugging purposes
-  std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso 
-	    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() 
-	    << std::endl;
-  std::cout << "Electron ID: robLoose=" << myElec->electronID("eidRobustLoose")  
-	    << " robTight=" << myElec->electronID("eidRobustTight") << ", CatLoose=" 
-	    << myElec->electronID("eidLoose") << ", CatTight=" << myElec->electronID("eidTight")
-	    << std::endl;
+  //std::cout << "tracIso: " <<  trackIso << ", " << myElec->trackIso() << ", ecaliso: " << ecalIso 
+  //    << ", " << myElec->ecalIso() << ", hcaliso: " << hcalIso << ", "  << myElec->hcalIso() 
+  //    << std::endl;
+  //std::cout << "Electron ID: robLoose=" << myElec->electronID("eidRobustLoose")  
+  //    << " robTight=" << myElec->electronID("eidRobustTight") << ", CatLoose=" 
+  //    << myElec->electronID("eidLoose") << ", CatTight=" << myElec->electronID("eidTight")
+  //    << std::endl;
 
   h_scEt->Fill(scEt);
   h_scEta->Fill(scEta);
@@ -370,6 +400,9 @@ double WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
   else if (i==6) return ele->hadronicOverEm();
   else if (i==7) return ele->userIsolation(pat::User1Iso);
+  //  else if (i==8) return ele->gsfTrack()->dxy(bspotPosition_);
+  else if (i==8) return ele->dB();
+  else if (i==9) return ele->eSuperClusterOverP();
   std::cout << "Error in WenuPlots::ReturnCandVar" << std::endl;
   return -1.;
 
@@ -439,7 +472,9 @@ WenuPlots::beginJob()
 
   
   // if you add some new variable change the nBarrelVars_ accordingly
-  nBarrelVars_ = 8;
+  // reminder: in the current implementation you must have the same number
+  //  of vars in both barrel and endcaps
+  nBarrelVars_ = 10;
   //
   // Put EB variables together and EE variables together
   // number of barrel variables = number of endcap variable
@@ -452,6 +487,8 @@ WenuPlots::beginJob()
   CutVars_.push_back( deta_EB_ );    //5
   CutVars_.push_back( hoe_EB_ );     //6
   CutVars_.push_back( userIso_EB_ ); //7
+  CutVars_.push_back( tip_bspot_EB_);//8
+  CutVars_.push_back( eop_EB_ );     //9
   
   CutVars_.push_back( trackIso_EE_);//0
   CutVars_.push_back( ecalIso_EE_); //1
@@ -461,6 +498,8 @@ WenuPlots::beginJob()
   CutVars_.push_back( deta_EE_);    //5
   CutVars_.push_back( hoe_EE_ );    //6 
   CutVars_.push_back( userIso_EE_ );//7 
+  CutVars_.push_back(tip_bspot_EE_);//8
+  CutVars_.push_back( eop_EE_ );    //9
   //
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
@@ -470,6 +509,8 @@ WenuPlots::beginJob()
   InvVars_.push_back( deta_EB_inv);    //5
   InvVars_.push_back( hoe_EB_inv);     //6
   InvVars_.push_back( userIso_EB_inv); //7
+  InvVars_.push_back(tip_bspot_EB_inv);//8
+  InvVars_.push_back( eop_EB_inv);     //9
   //
   InvVars_.push_back( trackIso_EE_inv);//0
   InvVars_.push_back( ecalIso_EE_inv); //1
@@ -479,6 +520,8 @@ WenuPlots::beginJob()
   InvVars_.push_back( deta_EE_inv);    //5
   InvVars_.push_back( hoe_EE_inv);     //6
   InvVars_.push_back( userIso_EE_inv); //7
+  InvVars_.push_back(tip_bspot_EE_inv);//8
+  InvVars_.push_back( eop_EE_inv);     //9
   //
 
 
