@@ -150,9 +150,14 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   hltpathFilter = cms.untracked.InputTag(HLT_filter_name,"",HLT_process_name),
                                   electronMatched2HLT = cms.untracked.bool(False),
                                   electronMatched2HLT_DR = cms.untracked.double(0.2),
+                                  # additional preselection cuts
+                                  useValidFirstPXBHit = cms.untracked.bool(False),
+                                  useConversionRejection = cms.untracked.bool(False),
+                                  useExpectedMissingHits = cms.untracked.bool(False),
+                                  maxNumberOfExpectedMissingHits = cms.untracked.int32(2),
                                   # electrons and MET
                                   electronCollectionTag = cms.untracked.InputTag("patElectrons","","PAT"),
-                                  metCollectionTag = cms.untracked.InputTag(myDesiredMetCollection,"","PAT")
+                                  metCollectionTag = cms.untracked.InputTag(myDesiredMetCollection,"","PAT"),
 
                                   )
 ####################################################################################
