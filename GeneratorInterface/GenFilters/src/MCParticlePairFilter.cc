@@ -125,7 +125,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
       if(gottypeAID) {
-	if ( (*p)->momentum().perp() > ptMin[0] && (*p)->momentum().mag() > pMin[0] && (*p)->momentum().eta() > etaMin[0] 
+	if ( (*p)->momentum().perp() > ptMin[0] && (*p)->momentum().rho() > pMin[0] && (*p)->momentum().eta() > etaMin[0] 
 	     && (*p)->momentum().eta() < etaMax[0] && ((*p)->status() == status[0] || status[0] == 0)) { 
 	  // passed A type conditions ...
 	  // ... now check pair-conditions with B type passed particles
@@ -195,7 +195,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
       if(gottypeBID) {
-	if ( (*p)->momentum().perp() > ptMin[1] && (*p)->momentum().mag() > pMin[1] && (*p)->momentum().eta() > etaMin[1] 
+	if ( (*p)->momentum().perp() > ptMin[1] && (*p)->momentum().rho() > pMin[1] && (*p)->momentum().eta() > etaMin[1] 
 	     && (*p)->momentum().eta() < etaMax[1] && ((*p)->status() == status[1] || status[1] == 0)) { 
 	  // passed B type conditions ...
 	  // ... now check pair-conditions with A type passed particles vector

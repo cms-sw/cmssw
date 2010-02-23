@@ -61,8 +61,8 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       rapidity = 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) );
 
 	if ( abs((*p)->pdg_id()) == particleID 
-	     && (*p)->momentum().mag() > minpcut 
-	     && (*p)->momentum().mag() < maxpcut
+	     && (*p)->momentum().rho() > minpcut 
+	     && (*p)->momentum().rho() < maxpcut
 	     && (*p)->momentum().perp() > minptcut 
 	     && (*p)->momentum().perp() < maxptcut
 	     && (*p)->momentum().eta() > minetacut

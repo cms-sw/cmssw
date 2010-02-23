@@ -122,7 +122,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
     const HepMC::GenParticle *p=*iter;
     int charge3 = pdt->particle(p->pdg_id())->ID().threeCharge();
     int status = p->status();
-    double momentum = p->momentum().mag();
+    double momentum = p->momentum().rho();
     double abseta = fabs(p->momentum().eta());
 
     // only consider stable, charged particles
