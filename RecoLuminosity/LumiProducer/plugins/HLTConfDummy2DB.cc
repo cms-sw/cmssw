@@ -13,6 +13,8 @@
 #include "CoralBase/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
 namespace lumi{
   class HLTConfDummy2DB : public DataPipe{
@@ -32,6 +34,10 @@ namespace lumi{
     //generate dummy configuration data for the given hltconfid and write data to LumiDB
     //
     coral::ConnectionService* svc=new coral::ConnectionService;
+    lumi::DBConfig dbconf(*svc);
+    if(!m_authpath.empty()){
+      dbconf.setAuthentication(m_authpath);
+    }
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
     try{
       unsigned int totalhltpath=126;

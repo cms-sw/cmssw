@@ -7,8 +7,9 @@
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
-#include "RelationalAccess/IQuery.h"
-#include "RelationalAccess/ICursor.h"
+#include "RelationalAccess/ITypeConverter.h"
+//#include "RelationalAccess/IQuery.h"
+//#include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/AttributeList.h"
@@ -19,7 +20,9 @@
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
-#include <iostream>
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
+//#include <iostream>
 #include <cstring>
 namespace lumi{
   class LumiDummy2DB : public DataPipe{
@@ -41,7 +44,13 @@ namespace lumi{
     //generate dummy data for lumi summary and detail for the given run and write data to LumiDB
     //
     coral::ConnectionService* svc=new coral::ConnectionService;
+    lumi::DBConfig dbconf(*svc);
+    if(!m_authpath.empty()){
+      dbconf.setAuthentication(m_authpath);
+    }
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
+    coral::ITypeConverter& tpc=session->typeConverter();
+    tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
     try{
       unsigned int totallumils=35;
       unsigned int totalcmsls=32;
@@ -51,28 +60,27 @@ namespace lumi{
       coral::ITable& summarytable=schema.tableHandle(LumiNames::lumisummaryTableName());
       coral::ITable& detailtable=schema.tableHandle(LumiNames::lumidetailTableName());
       coral::AttributeList summaryData;
-      summaryData.extend<unsigned long long>("LUMISUMMARY_ID");
-      summaryData.extend<unsigned int>("RUNNUM");
-      summaryData.extend<unsigned int>("CMSLSNUM");
-      summaryData.extend<unsigned int>("LUMILSNUM");
-      summaryData.extend<std::string>("LUMIVERSION");
-      summaryData.extend<float>("DTNORM");
-      summaryData.extend<float>("LHCNORM");
-      summaryData.extend<float>("INSTLUMI");
-      summaryData.extend<float>("INSTLUMIERROR");
-      summaryData.extend<short>("INSTLUMIQUALITY");
-      summaryData.extend<short>("LUMISECTIONQUALITY");
-      summaryData.extend<bool>("CMSALIVE");
-      summaryData.extend<unsigned int>("STARTORBIT");
+      summaryData.extend("LUMISUMMARY_ID",typeid(unsigned long long));
+      summaryData.extend("RUNNUM",typeid(unsigned int));
+      summaryData.extend("CMSLSNUM",typeid(unsigned int));
+      summaryData.extend("LUMILSNUM",typeid(unsigned int));
+      summaryData.extend("LUMIVERSION",typeid(std::string));
+      summaryData.extend("DTNORM",typeid(float));
+      summaryData.extend("LHCNORM",typeid(float));
+      summaryData.extend("INSTLUMI",typeid(float));
+      summaryData.extend("INSTLUMIERROR",typeid(float));
+      summaryData.extend("INSTLUMIQUALITY",typeid(short));
+      summaryData.extend("LUMISECTIONQUALITY",typeid(short));
+      summaryData.extend("CMSALIVE",typeid(bool));
+      summaryData.extend("STARTORBIT",typeid(unsigned int));
       coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
-
       coral::AttributeList detailData;
-      detailData.extend<unsigned long long>("LUMIDETAIL_ID");
-      detailData.extend<unsigned long long>("LUMISUMMARY_ID");
-      detailData.extend<coral::Blob>("BXLUMIVALUE");
-      detailData.extend<coral::Blob>("BXLUMIERROR");
-      detailData.extend<coral::Blob>("BXLUMIQUALITY");
-      detailData.extend<std::string>("ALGONAME");
+      detailData.extend("LUMIDETAIL_ID",typeid(unsigned long long));
+      detailData.extend("LUMISUMMARY_ID",typeid(unsigned long long));
+      detailData.extend("BXLUMIVALUE",typeid(coral::Blob));
+      detailData.extend("BXLUMIERROR",typeid(coral::Blob));
+      detailData.extend("BXLUMIQUALITY",typeid(coral::Blob));
+      detailData.extend("ALGONAME",typeid(std::string));
       coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils);
       //loop over lumi LS
       unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
@@ -116,6 +124,7 @@ namespace lumi{
 	//fetch a new id value 
 	//insert the new row
 	summaryInserter->processNextIteration();
+	summaryInserter->flush();
 	d2lumisummary_id=i;
 	for( unsigned int j=0; j<3; ++j ){
 	  lumidetail_id=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
@@ -127,10 +136,10 @@ namespace lumi{
 	  float lumierror[3564];
 	  std::memset((void*)&lumierror,0,sizeof(float)*3564 );
 	  short lumiquality[3564];
-	  std::memset((void*)&lumiquality,0,sizeof(int)*3564 );
+	  std::memset((void*)&lumiquality,0,sizeof(short)*3564 );
 	  bxlumivalue.resize(sizeof(float)*3564);
 	  bxlumierror.resize(sizeof(float)*3564);
-	  bxlumiquality.resize(sizeof(int)*3564);
+	  bxlumiquality.resize(sizeof(short)*3564);
 	  void* bxlumivalueStartAddress=bxlumivalue.startingAddress();
 	  void* bxlumierrorStartAddress=bxlumierror.startingAddress();
 	  void* bxlumiqualityStartAddress=bxlumiquality.startingAddress();
@@ -146,11 +155,9 @@ namespace lumi{
 	}
       }
       detailInserter->flush();
-      summaryInserter->flush();
       delete summaryInserter;
       delete detailInserter;
     }catch( const coral::Exception& er){
-      std::cout<<"database problem "<<er.what()<<std::endl;
       session->transaction().rollback();
       delete session;
       delete svc;

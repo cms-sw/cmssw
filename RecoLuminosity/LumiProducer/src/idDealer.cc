@@ -31,16 +31,19 @@ unsigned long long lumi::idDealer::generateNextIDForTable( const std::string& ta
   std::string idtableName=lumi::LumiNames::idTableName(tableName);
   coral::IQuery* q=m_schema.tableHandle(idtableName).newQuery();
   q->addToOutputList(m_idtablecolumnName);
+  unsigned long long r=0;
+  coral::AttributeList myresult;
+  myresult.extend(m_idtablecolumnName,typeid(unsigned long long));
+  q->defineOutput(myresult);
   q->setForUpdate(); //lock it
   coral::ICursor& cursor=q->execute();
-  unsigned long long result=0;
   while ( cursor.next() ){
     const coral::AttributeList& row = cursor.currentRow();
-    result = row[m_idtablecolumnName].data<unsigned long long>();
+    r = row[m_idtablecolumnName].data<unsigned long long>();
   }
   coral::ITableDataEditor& dataEditor=m_schema.tableHandle(idtableName).dataEditor();
   coral::AttributeList inputData;
   dataEditor.updateRows(m_idtablecolumnName+"="+m_idtablecolumnName+"+1","",inputData);
   delete q;
-  return result+1;
+  return r+1;
 }

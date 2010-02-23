@@ -30,6 +30,7 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
 #include <sstream>
 namespace lumi{
@@ -64,6 +65,10 @@ namespace lumi{
     std::string runnumberstr=int2str(runnumber,6);
     //query source GT database
     coral::ConnectionService* svc=new coral::ConnectionService;
+    lumi::DBConfig dbconf(*svc);
+    if(!m_authpath.empty()){
+      dbconf.setAuthentication(m_authpath);
+    }
     coral::ISessionProxy* session=svc->connect(m_source, coral::ReadOnly);
     coral::AttributeList bindVariableList;
     bindVariableList.extend("runnumber",typeid(unsigned int));

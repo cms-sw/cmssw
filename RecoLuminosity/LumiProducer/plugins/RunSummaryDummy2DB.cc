@@ -45,8 +45,8 @@ namespace lumi{
       runData["TOTALLUMILS"].data<unsigned int>()=35;
       runData["SEQUENCE"].data<std::string>()="run sequence key";
       runData["HLTCONFIGID"].data<unsigned int>()=6785;
-      runData["STARTORBIT"].data<unsigned long long>()=273840506;
-      runData["ENDORBIT"].data<unsigned long long>()=769708988;
+      runData["STARTORBIT"].data<unsigned int>()=340506;
+      runData["ENDORBIT"].data<unsigned int>()=7698988;
       runtable.dataEditor().insertRow(runData);
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;

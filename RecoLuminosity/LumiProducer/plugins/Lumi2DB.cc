@@ -31,6 +31,7 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
@@ -195,6 +196,10 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumiresult.push_back(h);
   }
   coral::ConnectionService* svc=new coral::ConnectionService;
+  lumi::DBConfig dbconf(*svc);
+  if(!m_authpath.empty()){
+    dbconf.setAuthentication(m_authpath);
+  }
   coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
   unsigned int totallumils=lumiresult.size();
   try{

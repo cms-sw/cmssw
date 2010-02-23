@@ -14,6 +14,8 @@
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
 #include <cstdio>
 namespace lumi{
@@ -34,6 +36,10 @@ namespace lumi{
     //generate dummy data of hlt for the given run and write data to LumiDB
     //
     coral::ConnectionService* svc=new coral::ConnectionService;
+    lumi::DBConfig dbconf(*svc);
+    if(!m_authpath.empty()){
+      dbconf.setAuthentication(m_authpath);
+    }
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
     try{
       unsigned int totalcmsls=32;
