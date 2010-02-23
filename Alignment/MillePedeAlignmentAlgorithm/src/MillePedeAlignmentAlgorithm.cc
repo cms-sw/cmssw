@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.62 $
- *  $Date: 2010/02/23 11:06:14 $
+ *  $Revision: 1.63 $
+ *  $Date: 2010/02/23 13:10:25 $
  *  (last update by $Author: frmeier $)
  */
 
@@ -1017,49 +1017,74 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 {
 	const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
 	if (doOutputOnStdout) std::cout << "# Below output from addPxbSurvey follows because doOutputOnStdout is set to True" << std::endl;
+
+	// read data from file
 	std::vector<SurveyPxbImageLocalFit> measurements;
 	std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
 	SurveyPxbImageReader<SurveyPxbImageLocalFit> reader(filename, measurements, 800);
+
+	// loop over photographs and perform the fit
 	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
 	{
 		if (doOutputOnStdout) std::cout << "Module " << i << ": ";
-		//std::cout << measurements[i].getIdFirst();
+
+		// get the Alignables and their surfaces
 		AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
 		AlignableDetOrUnitPtr mod2(theAlignableNavigator->alignableFromDetId(measurements[i].getIdSecond()));
 		const AlignableSurface& surf1 = mod1->surface();
 		const AlignableSurface& surf2 = mod2->surface();
+		
+		// the position of the fiducial points in local frame of a PXB module
 		const LocalPoint fidpoint0(-0.91,+3.30);
 		const LocalPoint fidpoint1(+0.91,+3.30);
 		const LocalPoint fidpoint2(+0.91,-3.30);
 		const LocalPoint fidpoint3(-0.91,-3.30);
+		
+		// We choose the local frame of the first module as reference,
+		// so take the fidpoints of the second module and calculate their
+		// positions in the reference frame
 		const GlobalPoint surf2point0(surf2.toGlobal(fidpoint0));
 		const GlobalPoint surf2point1(surf2.toGlobal(fidpoint1));
 		const LocalPoint fidpoint0inSurf1frame(surf1.toLocal(surf2point0));
 		const LocalPoint fidpoint1inSurf1frame(surf1.toLocal(surf2point1));
 		
-		/*std::cout << " surf2point0: " << surf2point0 
-				  << " surf2point1: " << surf2point1
-				  << " fidpoint0inSurf1frame: " << fidpoint0inSurf1frame
-				  << " fidpoint1inSurf1frame: " << fidpoint1inSurf1frame
-				  << std::endl;*/
+		// Create the vector for the fit
 		SurveyPxbImageLocalFit::fidpoint_t fidpointvec;
 		fidpointvec.push_back(fidpoint0inSurf1frame);
 		fidpointvec.push_back(fidpoint1inSurf1frame);
 		fidpointvec.push_back(fidpoint2);
 		fidpointvec.push_back(fidpoint3);
-		//std::cout << surf.toGlobal(fidpoint1) << std::endl;
-		measurements[i].doFit(fidpointvec);
-	  SurveyPxbImageLocalFit::localpars_t a; // local pars from fit
+		
+		// do the fit and report the results
+		measurements[i].doFit(fidpointvec, thePedeLabels->alignableLabel(mod1), thePedeLabels->alignableLabel(mod2));
+	    SurveyPxbImageLocalFit::localpars_t a; // local pars from fit
 		a = measurements[i].getLocalParameters();
 		const SurveyPxbImageLocalFit::value_t chi2 = measurements[i].getChi2();
 		if (doOutputOnStdout)
 		{
-		std::cout << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
+		  std::cout << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
 			<< " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
 			<< " phi= " << atan(a[3]/a[2])
 			<< " chi2= " << chi2 << std::endl;
 		}
 		if (theMonitor) theMonitor->fillPxbSurveyHists(chi2);
+
+		/*std::cout << "deriv: " << measurements[i].getLocalDerivsPtr(0) << " " << *(measurements[i].getLocalDerivsPtr(0))
+			<< " diff: " << measurements[i].getLocalDerivsPtr(1)-measurements[i].getLocalDerivsPtr(0) 
+			<< std::endl;*/
+
+		for(SurveyPxbImageLocalFit::count_t j=0; j!=SurveyPxbImageLocalFit::nMsrmts; j++)
+		{
+			//std::cout << "j:" << j << " " << measurements[i].getLocalDerivsPtr(j) << "|";
+			theMille->mille((int)measurements[i].getLocalDerivsSize(),
+				measurements[i].getLocalDerivsPtr(j),
+				(int)measurements[i].getGlobalDerivsSize(),
+				measurements[i].getGlobalDerivsPtr(j),
+				measurements[i].getGlobalDerivsLabelPtr(j),
+				measurements[i].getResiduum(j),
+				measurements[i].getSigma(j));
+		}
+		theMille->end();
 	}
 }
 
