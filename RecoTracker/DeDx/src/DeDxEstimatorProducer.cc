@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.23 2010/01/21 08:28:23 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.24 2010/01/21 08:30:45 querten Exp $
 //
 //
 
@@ -78,15 +78,53 @@ DeDxEstimatorProducer::~DeDxEstimatorProducer()
 }
 
 
+
+// ------------ method called once each job just before starting event loop  ------------
+void  DeDxEstimatorProducer::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
+{
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+//   const TrackerGeometry* m_tracker = tkGeom.product();
+
+   MODsColl.clear();
+   vector<GeomDet*> Det = tkGeom->dets();
+   for(unsigned int i=0;i<Det.size();i++){
+      DetId  Detid  = Det[i]->geographicalId();
+
+       StripGeomDetUnit* StripDetUnit = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+       PixelGeomDetUnit* PixelDetUnit = dynamic_cast<PixelGeomDetUnit*> (Det[i]);
+
+       double Thick=-1, Dist=-1, Norma=-1;
+       if(StripDetUnit){
+          Dist      = StripDetUnit->position().mag();
+          Thick     = StripDetUnit->surface().bounds().thickness();
+          Norma     = MeVperADCStrip/Thick;
+       }else if(PixelDetUnit){
+          Dist      = PixelDetUnit->position().mag();
+          Thick     = PixelDetUnit->surface().bounds().thickness();
+          Norma     = MeVperADCPixel/Thick;
+       }
+
+       stModInfo* MOD       = new stModInfo;
+       MOD->DetId           = Detid.rawId();
+       MOD->Thickness       = Thick;
+       MOD->Distance        = Dist;
+       MOD->Normalization   = Norma;
+       MODsColl[MOD->DetId] = MOD;
+   }
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void  DeDxEstimatorProducer::endJob() {}
+
+
+
+
 void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   auto_ptr<ValueMap<DeDxData> > trackDeDxEstimateAssociation(new ValueMap<DeDxData> );  
   ValueMap<DeDxData>::Filler filler(*trackDeDxEstimateAssociation);
 
-  edm::ESHandle<TrackerGeometry> tkGeom;
-  iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-  m_tracker=&(* tkGeom );
-  
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
@@ -111,9 +149,10 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
      int NClusterSaturating = 0; 
      for(size_t i=0; i < hits.size(); i++)
      {
-	 float pathLen=thickness(hits[i].detId)/std::abs(hits[i].angleCosine);
-	 float charge=normalization(hits[i].detId)*hits[i].charge*std::abs(hits[i].angleCosine); 
-	 dedxHits.push_back( DeDxHit( charge, distance(hits[i].detId), pathLen, hits[i].detId) );
+         stModInfo* MOD = MODsColl[hits[i].detId];
+         float pathLen = MOD->Thickness/std::abs(hits[i].angleCosine);
+         float charge  = MOD->Normalization*hits[i].charge*std::abs(hits[i].angleCosine);
+         dedxHits.push_back( DeDxHit( charge, MOD->Distance, pathLen, hits[i].detId) );
 
          if(hits[i].NSaturating>0)NClusterSaturating++;
      }
@@ -135,84 +174,6 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
    // put into the event 
   iEvent.put(trackDeDxEstimateAssociation);   
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void  DeDxEstimatorProducer::beginRun(edm::Run & run, const edm::EventSetup&){}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void  DeDxEstimatorProducer::endJob() {}
-
-
-double DeDxEstimatorProducer::thickness(DetId id)
-{
- map<DetId,double>::iterator th=m_thicknessMap.find(id);
- if(th!=m_thicknessMap.end())
-   return (*th).second;
- else {
-   double detThickness=1.;
-   //compute thickness normalization
-   const GeomDetUnit* it = m_tracker->idToDetUnit(DetId(id));
-   bool isPixel = dynamic_cast<const PixelGeomDetUnit*>(it)!=0;
-   bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it)!=0;
-   if (!isPixel && ! isStrip) {
-   //FIXME throw exception
-      edm::LogWarning("DeDxHitsProducer") << "\t\t this detID doesn't seem to belong to the Tracker";
-      detThickness = 1.;
-  }else{
-      detThickness = it->surface().bounds().thickness();
-  }
-
-   m_thicknessMap[id]=detThickness;//computed value
-   return detThickness;
- }
-
-}
-
-
-double DeDxEstimatorProducer::normalization(DetId id)
-{
-  map<DetId,double>::iterator norm=m_normalizationMap.find(id);
-  if(norm!=m_normalizationMap.end()) 
-     return (*norm).second;
-  else {
-     double detNormalization=1./thickness(id);
-  
-     //compute other normalization
-     const GeomDetUnit* it = m_tracker->idToDetUnit(DetId(id));
-     bool isPixel = dynamic_cast<const PixelGeomDetUnit*>(it)!=0;
-     bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it)!=0;
-
-     //FIXME: include gain et al calib
-//     if(isPixel) detNormalization*=3.61e-06;
-//     if(isStrip) detNormalization*=3.61e-06*250;
-
-     if(isPixel) detNormalization*=MeVperADCPixel;
-     if(isStrip) detNormalization*=MeVperADCStrip;
-
-     m_normalizationMap[id]=detNormalization;//computed value
-     return detNormalization;
-   } 
-}
-
-
-double DeDxEstimatorProducer::distance(DetId id)
-{
- map<DetId,double>::iterator dist=m_distanceMap.find(id);
- if(dist!=m_distanceMap.end()) 
-   return (*dist).second;
- else
- {
-  const GeomDetUnit* it = m_tracker->idToDetUnit(DetId(id));
-   float   d=it->position().mag();
-   m_distanceMap[id]=d;
-   return d;
- }
- 
-}
-
-
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DeDxEstimatorProducer);
