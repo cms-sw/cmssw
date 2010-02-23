@@ -32,6 +32,7 @@
 //
 L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   theElectronTestIsEnabled   (iConfig.getUntrackedParameter<bool>("doElectrons",   false)),
+  theSingleEventTestIsEnabled(iConfig.getUntrackedParameter<bool>("doSingleEvent", false)),
   theEnergyAlgosTestIsEnabled(iConfig.getUntrackedParameter<bool>("doEnergyAlgos", false)),
   theFirmwareTestIsEnabled   (iConfig.getUntrackedParameter<bool>("doFirmware",    false)),
   theInputDataFileName       (iConfig.getUntrackedParameter<std::string>("inputFile",     "")),
@@ -50,6 +51,10 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   if (theFirmwareTestIsEnabled && theInputDataFileName=="") {
     throw cms::Exception ("L1GctTestInitialisationError")
       << "no input filename provided for firmware tests.\n" 
+      << "Specify non-blank parameter inputFile in cmsRun configuration\n"; }
+  if (theSingleEventTestIsEnabled && theInputDataFileName=="") {
+    throw cms::Exception ("L1GctTestInitialisationError")
+      << "no input filename provided for single event tests.\n" 
       << "Specify non-blank parameter inputFile in cmsRun configuration\n"; }
   if (theFirmwareTestIsEnabled && theReferenceDataFileName=="") {
     throw cms::Exception ("L1GctTestInitialisationError")
@@ -101,6 +106,9 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (theFirmwareTestIsEnabled) {
        m_tester->loadNextEvent(m_gct, theInputDataFileName, endOfFile, bx);
        if (endOfFile) break; }
+
+     if (theSingleEventTestIsEnabled) {
+       m_tester->loadSingleEvent(m_gct, theInputDataFileName, bx); }
    }
 
    // Run the gct emulator on the input data
@@ -120,7 +128,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      passAllTests &= m_tester->checkEnergySumsFromFirmware(m_gct, theEnergySumsDataFileName);
    }
 
-   if (theEnergyAlgosTestIsEnabled || (theFirmwareTestIsEnabled && !endOfFile)) {
+   if (theEnergyAlgosTestIsEnabled || theSingleEventTestIsEnabled || (theFirmwareTestIsEnabled && !endOfFile)) {
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
      passAllTests &= m_tester->checkHtSums(m_gct);

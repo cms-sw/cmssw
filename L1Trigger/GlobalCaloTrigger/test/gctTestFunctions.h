@@ -26,6 +26,7 @@ class L1CaloEmCand;
 class L1CaloRegion;
 
 class gctTestElectrons;
+class gctTestSingleEvent;
 class gctTestEnergyAlgos;
 class gctTestFirmware;
 class gctTestHt;
@@ -53,6 +54,7 @@ public:
   void loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
   void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx);
   void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
+  void loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
 
   /// Read the input electron data (after GCT processing).
   void fillElectronData(const L1GlobalCaloTrigger* gct);
@@ -84,6 +86,7 @@ public:
 private:
 
   gctTestElectrons*      theElectronsTester;
+  gctTestSingleEvent*    theSingleEventTester;
   gctTestEnergyAlgos*    theEnergyAlgosTester;
   gctTestFirmware*       theFirmwareTester;
   gctTestHt*             theHtTester;

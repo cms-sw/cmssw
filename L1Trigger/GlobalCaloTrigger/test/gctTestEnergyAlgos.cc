@@ -17,7 +17,8 @@ using namespace std;
 //
 /// Constructor and destructor
 
-gctTestEnergyAlgos::gctTestEnergyAlgos() : m_bxStart(0), m_numOfBx(1), etStripSums(36) {}
+gctTestEnergyAlgos::gctTestEnergyAlgos() : m_bxStart(0), m_numOfBx(1), etStripSums(36),
+					   inMinusOvrFlow(1), inPlusOverFlow(1) {}
 gctTestEnergyAlgos::~gctTestEnergyAlgos() {}
 
 //=================================================================================================================
@@ -176,6 +177,40 @@ std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gc
   endOfFile = regionEnergyMapInputFile.eof();
 
   gct->fillRegions(inputRegions);
+  return inputRegions;
+}
+
+// Load a vector of regions found elsewhere
+std::vector<L1CaloRegion> gctTestEnergyAlgos::loadEvent(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx) {
+  int bxRel=bx-m_bxStart;
+  int base=36*bxRel;
+  assert( ( (base >= 0) && (base+36) <= (int) etStripSums.size() ) );
+
+  //Initialise our local sums etc for this event
+  for (int i=0; i<36; i++) {
+    etStripSums.at(i+base)=0;
+  }
+  inMinusOvrFlow.at(bxRel) = false;
+  inPlusOverFlow.at(bxRel) = false;
+
+  gct->fillRegions(inputRegions);
+
+  // Now add up the input regions
+  for (std::vector<L1CaloRegion>::const_iterator reg=inputRegions.begin();
+       reg != inputRegions.end(); ++reg) {
+
+    assert( reg->bx() == bx );
+
+    if (reg->id().ieta()<(L1CaloRegionDetId::N_ETA/2)) {
+      unsigned strip = reg->id().iphi();
+      etStripSums.at(strip+base) += reg->et();
+      if (reg->overFlow()) inMinusOvrFlow.at(bxRel) = true;
+    } else {
+      unsigned strip = reg->id().iphi()+L1CaloRegionDetId::N_PHI;
+      etStripSums.at(strip+base) += reg->et();
+      if (reg->overFlow()) inPlusOverFlow.at(bxRel) = true;
+    }
+  }
   return inputRegions;
 }
 
@@ -362,7 +397,6 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
     if (etResult.mag==0) { phMargin = 72; } else { phMargin = (30/etResult.mag) + 1; }
     if ((etDiff > etMargin) || (phDiff > phMargin)) {cout << "Algo etMiss diff "
 							  << etDiff << " phi diff " << phDiff << endl; testPass = false; 
-    cout << "IVE CHANGED SOMETHING" << endl;
     cout << " exTotal " << exTotal << " eyTotal " << eyTotal << endl;
     cout << "etMiss mag " << etResult.mag << " phi " << etResult.phi << "; from Gct mag " 
 	 << myGlobalEnergy->getEtMissColl().at(bx).value()

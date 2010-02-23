@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.9 2009/03/17 08:12:59 heath Exp $
+// $Id: L1GctTest.h,v 1.10 2010/01/18 11:53:05 heath Exp $
 //
 //
 
@@ -62,6 +62,7 @@ private:
   gctTestFunctions* m_tester;
 
   bool theElectronTestIsEnabled;
+  bool theSingleEventTestIsEnabled;
   bool theEnergyAlgosTestIsEnabled;
   bool theFirmwareTestIsEnabled;
 

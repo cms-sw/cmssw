@@ -13,6 +13,7 @@
 #include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestElectrons.h"
+#include "L1Trigger/GlobalCaloTrigger/test/gctTestSingleEvent.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestFirmware.h"
 #include "L1Trigger/GlobalCaloTrigger/test/gctTestHt.h"
@@ -26,6 +27,7 @@
 
 gctTestFunctions::gctTestFunctions() :
   theElectronsTester   (new gctTestElectrons()),
+  theSingleEventTester (new gctTestSingleEvent()),
   theEnergyAlgosTester (new gctTestEnergyAlgos()),
   theFirmwareTester    (new gctTestFirmware()),
   theHtTester          (new gctTestHt()),
@@ -102,6 +104,12 @@ void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::strin
 {
   bxRangeUpdate(bx);
   m_inputEmCands.at(bx-m_bxStart) = theElectronsTester->loadEvent(gct, fileName, bx);
+}
+
+void gctTestFunctions::loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx)
+{
+  bxRangeUpdate(bx);
+  m_inputRegions.at(bx-m_bxStart) = theEnergyAlgosTester->loadEvent(gct, theSingleEventTester->loadEvent(fileName, bx), bx);
 }
 
 //=================================================================================================================

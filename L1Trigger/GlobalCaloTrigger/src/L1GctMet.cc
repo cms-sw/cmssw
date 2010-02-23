@@ -177,7 +177,7 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey) const
   if (m_htMissLut == 0) {
 
     result.mag = 0;
-    result.phi = 0;
+    result.phi = 9;
 
   } else {
 

@@ -38,7 +38,7 @@ L1GctHtMissLut::~L1GctHtMissLut()
 
 uint16_t L1GctHtMissLut::value (const uint16_t lutAddress) const
 {
-  uint16_t result=0;
+  uint16_t result=9;
 
   if (lutAddress!=0) {
     static const int maxComponent  = 1<<kHxOrHyMissComponentNBits;

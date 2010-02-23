@@ -33,6 +33,7 @@ public:
   /// Load another event into the gct. Overloaded for the various ways of doing this.
   std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
   std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile, const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx);
 
   /// Set array sizes for the number of bunch crossings
   void setBxRange(const int bxStart, const int numOfBx);
