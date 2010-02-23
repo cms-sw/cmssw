@@ -215,5 +215,7 @@ cp $VAL_HISTOS $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WE
 #================= Generate the gifs and index.html =====================
 
 root -b -l -q electronValidation.C
-echo "You can view your validation plots here:"
+echo "You can access the files here:"
+echo "${VAL_WEB}/${VAL_NEW_RELEASE}/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"
+echo "You can browse your validation plots here:"
 echo "${VAL_WEB_URL}/${VAL_NEW_RELEASE}/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"

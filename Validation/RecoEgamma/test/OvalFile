@@ -47,7 +47,7 @@ some RelVal reco files which have been regenerated locally.
 /tmp/chamont/RelValSingleElectronPt35-MC-RECO.root
 /tmp/chamont/RelValTTbar-MC-RECO.root
 /tmp/chamont/RelValZEE-MC-RECO.root
-/tmp/chamont/RelValZEE-STARTUP-RECO.root
+/tmp/chamont/RelValZEE-START-RECO.root
 /tmp/chamont/RelValQCD_Pt_80_120-MC-RECO.root
 </file>
   
@@ -206,7 +206,7 @@ with the local modified code.
   
     <environment name="RedoFromCoreZEEStartup">
       <var name="DBS_SAMPLE" value="RelValZEE">
-      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-STARTUP-RECO.root">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-START-RECO.root">
       <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
       <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
       <executable name="dbs_discovery.py">
@@ -256,7 +256,7 @@ with the local modified code.
   
     <environment name="RedoFromRawZEEStartup">
       <var name="DBS_SAMPLE" value="RelValZEE">
-      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-STARTUP-RECO.root">
+      <var name="TEST_OUTPUT_FILE" value="${TMPDIR}/${DBS_SAMPLE}-START-RECO.root">
       <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
       <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
       <executable name="dbs_discovery.py">
@@ -279,9 +279,9 @@ This set of targets is made for the full/fast comparison.
   This set of targets is made for the full/fast comparison.
 
   <var name="VAL_REF_RELEASE" value="FastSim">
-  <var name="DBS_COND" value="MC*FastSim">
-  <!var name="DBS_RELEASE" value="LOCAL">
-  <!var name="DBS_COND" value="">
+  <var name="DBS_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
+  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_COND" value=""-->
 
   <environment name="FastTTbar">
     <var name="DBS_SAMPLE" value="RelValTTbar">
@@ -305,7 +305,7 @@ This set of targets is made for the full/fast comparison.
   
   <environment name="FastZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="DBS_COND" value="START*FastSim">
+    <var name="DBS_COND" value="${TEST_GLOBAL_STARTUP_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
     <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="ElectronMcSignalValidation_cfg.py">
