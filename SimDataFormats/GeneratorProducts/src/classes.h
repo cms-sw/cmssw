@@ -20,6 +20,7 @@ namespace {
 
 		HepMC::GenVertex dummy11;
 		HepMC::GenParticle dummy22;
+        HepMC::GenCrossSection dummy33;
 		//Some member functions will not compile when using HepMCConfig as the parameter
 		//HepPDT::DecayDataT<HepMCConfig> dd1;
 		// lack of a public destructor plus other problems keeps us from generating this dictionary

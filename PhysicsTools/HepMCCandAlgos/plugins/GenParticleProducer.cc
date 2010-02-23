@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.13 2010/01/11 13:26:23 hegner Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.14 2010/02/11 00:12:57 wmtan Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -199,7 +199,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 
 	//Look whether heavy ion/signal event
 	bool isHI = false;
-	HepMC::HeavyIon * hi = mc->heavy_ion();
+	const HepMC::HeavyIon * hi = mc->heavy_ion();
 	if(hi && hi->Ncoll_hard() > 1) isHI = true;
 	size_t num_particles = mc->particles_size();
 	fillIndices(mc, particles, *barCodeVector, offset);

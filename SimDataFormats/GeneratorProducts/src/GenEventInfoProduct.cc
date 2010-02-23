@@ -24,7 +24,7 @@ GenEventInfoProduct::GenEventInfoProduct(const HepMC::GenEvent *evt) :
 	alphaQCD_(evt->alphaQCD()),
 	alphaQED_(evt->alphaQED())
 {
-	HepMC::PdfInfo *hepPDF = evt->pdf_info();    
+	const HepMC::PdfInfo *hepPDF = evt->pdf_info();    
 	if (hepPDF) {
 		PDF pdf;
 

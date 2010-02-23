@@ -500,7 +500,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       HepMC::FourVector momentum = (*partIter)->momentum();
       //      HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
        int id = (*partIter)->pdg_id();  // electrons and positrons are 11 and -11
-     LogDebug("")  << "MC particle id " << id << ", creationVertex " << (*creation) << " cm, initialMomentum " << momentum.mag() << " GeV/c" << std::endl;
+     LogDebug("")  << "MC particle id " << id << ", creationVertex " << (*creation) << " cm, initialMomentum " << momentum.rho() << " GeV/c" << std::endl;
 
       if (id == 11 || id == -11) {
 

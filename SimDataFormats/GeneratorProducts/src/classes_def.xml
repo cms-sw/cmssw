@@ -7,6 +7,7 @@
 		<field name="itsParticleData" transient="true"/>
 		<field name="itsDecayData" transient="true"/>
 	</class>
+    <class name="HepMC::GenCrossSection"/>
 	<class name="HepMC::WeightContainer"/>
 	<class name="HepMC::FourVector"/>
 	<class name="HepMC::HeavyIon"/>

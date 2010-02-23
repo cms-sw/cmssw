@@ -116,7 +116,7 @@ std::ostream& operator<< (std::ostream& s, TrackingParticle const & tp)
 
     for (TrackingParticle::genp_iterator hepT = tp.genParticle_begin(); hepT !=  tp.genParticle_end(); ++hepT)
     {
-        s << " HepMC Track Momentum " << (*hepT)->momentum().mag() << std::endl;
+        s << " HepMC Track Momentum " << (*hepT)->momentum().rho() << std::endl;
     }
 
     for (TrackingParticle::g4t_iterator g4T = tp.g4Track_begin(); g4T !=  tp.g4Track_end(); ++g4T)
