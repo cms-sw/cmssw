@@ -12,7 +12,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Thu Oct 29 11:04:22 CET 2009
-// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.1 2010/01/26 15:05:35 carrillo Exp $
+// $Id: HLTRPCTrigNoSyncFilter.cc,v 1.1 2010/02/23 10:21:29 carrillo Exp $
 //
 //
 
@@ -188,7 +188,7 @@ bool HLTRPCTrigNoSyncFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     
     //std::cout<<"\t \t loop on the RPCHit4D!!!"<<std::endl;
     for(std::vector<RPC4DHit>::iterator point = PointsForGMT.begin(); point < PointsForGMT.end(); ++point) {
-      float r=point->gp.mag();
+      //float r=point->gp.mag();
       outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
       incr &= (point->bx>=lastbx); //condition 2: BX must be increase when going inside-out.
       anydifferentzero &= (!point->bx==0); //to check one knee withoutzeros
