@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.3 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.4 2009/07/16 15:58:34 chrjones Exp $
 //
 
 // system include files
@@ -70,7 +70,11 @@ boost::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
   //std::cout <<"accessFor "<<iClass->GetName()<<std::endl;
-   if(iClass->GetCollectionProxy()) {
+  
+  //check if this is a collection known by ROOT but also that the item held by the colletion actually has a dictionary  
+   if(iClass->GetCollectionProxy() && 
+      iClass->GetCollectionProxy()->GetValueClass() &&
+      iClass->GetCollectionProxy()->GetValueClass()->IsLoaded()) {
       return boost::shared_ptr<FWItemAccessorBase>(new FWItemTVirtualCollectionProxyAccessor(iClass,
                                                                                              boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
    } else {
@@ -87,7 +91,10 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 	 memType = memType.FinalType();
          const TClass* rootMemType = TClass::GetClass(memType.TypeInfo());
          assert(rootMemType != 0);
-         if(rootMemType->GetCollectionProxy()) {
+         //check if this is a collection known by ROOT but also that the item held by the colletion actually has a dictionary  
+         if(rootMemType->GetCollectionProxy() &&
+            rootMemType->GetCollectionProxy()->GetValueClass() &&
+            rootMemType->GetCollectionProxy()->GetValueClass()->IsLoaded() ) {
             //std::cout <<"  reaching inside object data member"<<std::endl;
             return boost::shared_ptr<FWItemAccessorBase>(
                       new FWItemTVirtualCollectionProxyAccessor(iClass,
