@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.61 $
- *  $Date: 2010/02/22 16:34:35 $
+ *  $Revision: 1.62 $
+ *  $Date: 2010/02/23 11:06:14 $
  *  (last update by $Author: frmeier $)
  */
 
@@ -1015,13 +1015,14 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
 
 void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg)
 {
+	const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
+	if (doOutputOnStdout) std::cout << "# Below output from addPxbSurvey follows because doOutputOnStdout is set to True" << std::endl;
 	std::vector<SurveyPxbImageLocalFit> measurements;
-	//std::ifstream infile(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath().c_str());
 	std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
 	SurveyPxbImageReader<SurveyPxbImageLocalFit> reader(filename, measurements, 800);
 	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
 	{
-		std::cout << "Module " << i << ": ";
+		if (doOutputOnStdout) std::cout << "Module " << i << ": ";
 		//std::cout << measurements[i].getIdFirst();
 		AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
 		AlignableDetOrUnitPtr mod2(theAlignableNavigator->alignableFromDetId(measurements[i].getIdSecond()));
@@ -1051,10 +1052,14 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 	  SurveyPxbImageLocalFit::localpars_t a; // local pars from fit
 		a = measurements[i].getLocalParameters();
 		const SurveyPxbImageLocalFit::value_t chi2 = measurements[i].getChi2();
+		if (doOutputOnStdout)
+		{
 		std::cout << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
 			<< " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
 			<< " phi= " << atan(a[3]/a[2])
 			<< " chi2= " << chi2 << std::endl;
+		}
+		if (theMonitor) theMonitor->fillPxbSurveyHists(chi2);
 	}
 }
 

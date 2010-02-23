@@ -70,7 +70,8 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 
     surveyPixelBarrel = cms.PSet(
 			doSurvey = cms.bool(False),
-			infile = cms.FileInPath("Alignment/SurveyAnalysis/data/BPix_Survey_info_raw.txt")
+			infile = cms.FileInPath("Alignment/SurveyAnalysis/data/BPix_Survey_info_raw.txt"),
+			doOutputOnStdout = cms.bool(False)
 	)
 )
 

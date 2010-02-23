@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.17 $
- *  $Date: 2008/08/12 18:23:15 $
+ *  $Revision: 1.18 $
+ *  $Date: 2009/08/12 14:40:22 $
  *  (last update by $Author: flucke $)
  */
 
@@ -444,6 +444,14 @@ bool MillePedeMonitor::init(TDirectory *directory)
   myCorrHists.push_back(new TH1F("xyCorrTEC", "#rho_{xy} in TEC", 50, -1., 1.));
   TDirectory *dirCorr = directory->mkdir("hitCorrelationHists", "correlations");
   this->addToDirectory( myCorrHists, dirCorr);
+
+  // PXB Survey
+  myPxbSurveyHists.push_back(new TH1F("PxbSurvChi2_lo", "#chi^{2} from PXB survey", 25, 0, 25));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurvChi2_md", "#chi^{2} from PXB survey", 25, 0, 500));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurvChi2_hi", "#chi^{2} from PXB survey", 25, 0, 50000));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurvChi2prob", "Math::Prob(#chi^{2},4) from PXB survey", 25, 0, 1));
+  TDirectory *dirPxbSurvey = directory->mkdir("PxbSurveyHists", "PxbSurvey");
+  this->addToDirectory( myPxbSurveyHists, dirPxbSurvey);
 
   oldDir->cd();
   return true;
@@ -928,3 +936,20 @@ void MillePedeMonitor::fillCorrelations2D(float corr, const ConstRecHitPointer &
 
   myCorrHists[detId.subdetId()-1]->Fill(corr);
 }
+
+//____________________________________________________________________
+void MillePedeMonitor::fillPxbSurveyHists(const float &chi2)
+{
+  static const int iPxbSurvChi2_lo = this->GetIndex(myPxbSurveyHists,"PxbSurvChi2_lo");
+  myPxbSurveyHists[iPxbSurvChi2_lo]->Fill(chi2);
+  static const int iPxbSurvChi2_md = this->GetIndex(myPxbSurveyHists,"PxbSurvChi2_md");
+  myPxbSurveyHists[iPxbSurvChi2_md]->Fill(chi2);
+  static const int iPxbSurvChi2_hi = this->GetIndex(myPxbSurveyHists,"PxbSurvChi2_hi");
+  myPxbSurveyHists[iPxbSurvChi2_hi]->Fill(chi2);
+  static const int iPxbSurvChi2prob = this->GetIndex(myPxbSurveyHists,"PxbSurvChi2prob");
+  myPxbSurveyHists[iPxbSurvChi2prob]->Fill(TMath::Prob(chi2,4));
+}
+
+
+
+
