@@ -35,6 +35,19 @@ addpkg GeometryReaders/XMLIdealGeometryESSource
 addpkg Validation/Geometry 
 addpkg DetectorDescription/Schema
 addpkg Configuration/StandardSequences
+addpkg CondTools/Geometry
+
+#add cvs updates here for REAL LOCAL testing
+# e.g. cvs update -A Geometry/DTGeometry/test/*.py
+# e.g. cp -r /from/my/work/area/Geometry/* Geometry/.
+#cvs update -r V03-02-05-01 Validation/Geometry
+#cvs update -r V03-09-10-02 Geometry/CaloEventSetup 
+#cvs update -r V01-02-21-07 GeometryReaders/XMLIdealGeometryESSource 
+
+#cvs update -r V00-03-11 Geometry/DTGeometry 
+#cvs update -r V01-01-25 Geometry/RPCGeometry 
+#cvs update -r V01-05-06 Geometry/CSCGeometry 
+#cvs update -r V05-00-11 Geometry/TrackerGeometryBuilder
 
 #add cvs updates here for REAL LOCAL testing
 # e.g. cvs update -A Geometry/DTGeometry/test/*.py
