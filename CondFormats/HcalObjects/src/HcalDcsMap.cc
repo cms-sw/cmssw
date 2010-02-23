@@ -4,7 +4,7 @@
 POOL object to store map between detector ID and DCS ID
 Inspired by HcalElectronicsMap
 $Author: kukartse
-$Date: 2007/12/14 13:31:21 $
+$Date: 2010/02/22 21:08:07 $
 $Revision: 1.1 $
 */
 
@@ -149,7 +149,7 @@ const std::vector<HcalDetId> HcalDcsMap::lookup(HcalDcsDetId fId ) const{
   // duplicate records in the map for DCS channels where only type is different.
   // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
   HcalDcsDetId fDcsId_notype(fId.subdet(),
-			     fId.zside()*fId.ring(),
+			     fId.ring(), // side is already included
 			     fId.slice(),
 			     HcalDcsDetId::DCSUNKNOWN,
 			     fId.subchannel());
@@ -207,7 +207,7 @@ bool HcalDcsMap::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
   // duplicate records in the map for DCS channels where only type is different.
   // Hence, the type in HcalDcsDetId is always forced to DCSUNKNOWN
   HcalDcsDetId fDcsId_notype(fDcsId.subdet(),
-			     fDcsId.zside()*fDcsId.ring(),
+			     fDcsId.ring(), // side is included
 			     fDcsId.slice(),
 			     HcalDcsDetId::DCSUNKNOWN,
 			     fDcsId.subchannel());

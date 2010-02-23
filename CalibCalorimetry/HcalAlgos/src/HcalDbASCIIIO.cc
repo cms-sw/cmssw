@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.52 2009/10/23 18:50:59 andersj Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.53 2010/02/22 20:55:51 kukartse Exp $
 //
 #include <vector>
 #include <string>
@@ -1073,12 +1073,14 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
       if (items.size()==0) continue; // no warning here
       else {
 	edm::LogError("MapFormat") << "HcalDcsMap-> Bad line: " << buffer 
-				   << "\n line must contain 8 items: line ring slice subchannel subdet ieta iphi depth";
+				   << "\n line must contain 8 items: line side_ring slice subchannel subdet ieta iphi depth";
 	continue;
       }
     }
     //    std::cout << "HcalDcsMap-> processing line: " << buffer << std::endl;
-    int ring = atoi (items [1].c_str());
+    //int ring = atoi (items [1].c_str());
+    int ring = atoi(items[1].c_str());
+    std::cout << "DEBUG: getObject: ring = " << ring << std::endl;
     unsigned int slice = atoi (items [2].c_str());
     unsigned int subchannel = atoi (items [3].c_str());
     HcalDcsDetId::DcsType type = HcalDcsDetId::DCSUNKNOWN;
@@ -1146,6 +1148,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
       continue;
     }
     HcalDcsDetId dcsId(subdet, ring, slice, type, subchannel);
+    std::cout << "DEBUG: getObject: dcsId.ring() = " << dcsId.ring() << std::endl;
     HcalText2DetIdConverter converter (items [4], items [5], items [6], items [7]);
     HcalDetId id(0);
     if (converter.isHcalDetId()){
@@ -1183,7 +1186,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject
     HcalText2DetIdConverter _converter(_line.getHcalDetId());
     sprintf (buf, " %8X %10d %6d %8d %7s %5s %5s %6s",
 	     line_counter,
-	     dcsId.zside()*dcsId.ring(),
+	     dcsId.ring(), // contains zside() already
 	     dcsId.slice(),
 	     dcsId.subchannel(),
 	     _converter.getFlavor().c_str(),
