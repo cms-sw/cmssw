@@ -1,5 +1,5 @@
 
-// $Id: HLTSeedL1LogicScalers.cc,v 1.2 2010/02/22 12:59:08 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.cc,v 1.3 2010/02/22 22:15:40 rekovic Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 
@@ -90,7 +90,7 @@ HLTSeedL1LogicScalers::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     MonitorElement* me = fMapMEL1Algos[i].first;
     LogTrace("HLTSeedL1LogicScalers") << "ME = " << me->getName() << endl;
     
-    vector<string> l1Algos = fMapMEL1Algos[i].second;
+    const vector<string>& l1Algos = fMapMEL1Algos[i].second;
 
     // word to bit-pack decisions of l1Algos
     unsigned int myL1Word = 0;
@@ -150,8 +150,7 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
 
   for (unsigned int j=0; j!=n; ++j) {
   
-    string hlt_pathname = fHLTConfig.triggerName(j); 
-    LogTrace("HLTSeedL1LogicScalers") << "HLTConfig path " << hlt_pathname << endl;
+    LogTrace("HLTSeedL1LogicScalers") << "HLTConfig path " << fHLTConfig.triggerName(j) << endl;
 
   }
 
@@ -172,7 +171,6 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
     LogTrace("HLTSeedL1LogicScalers") << endl << "size of vector of GTSeedL1LogicalExpression = " << hltL1GTSeed.size() << endl;
 
     // each GT Seed of each path contains l1Algos
-    vector< vector<string> > gTSeedL1Algos;
     for (unsigned int iSeed=0;iSeed<hltL1GTSeed.size();iSeed++) {
 
       LogTrace("HLTSeedL1LogicScalers") << "  TechBit_flag = " << hltL1GTSeed[iSeed].first << "  GTSeedL1LogicalExpression = " << hltL1GTSeed[iSeed].second << endl;;
@@ -192,15 +190,22 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
           if(temp_string.compare(l1Algos.back()) == 0) break;
 
         }
-        if(temp_string != "OR" &&  temp_string != "AND" && temp_string != ""){
+        if(temp_string != "OR" && temp_string != "AND" && temp_string != "NOT" && temp_string != ""){
 
           l1Algos.push_back(temp_string);
 
         }
       }
 
-      //gTSeedL1Algos.push_back(l1Algos);
       int nL1Algo = l1Algos.size();
+
+      // put an upper limit on the size of l1Algos
+      if(nL1Algo > 32) {
+
+        LogWarning("HLTSeedL1LogicScalers") << "  number of l1 Algos grater than 32. Using only the first 32." << endl ;
+        l1Algos.resize(32);
+
+      }
       int nBins = pow(2,nL1Algo);
 
       for (unsigned int k=0;k< l1Algos.size();k++) {
@@ -210,25 +215,32 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
 
       } // end for k
 
-      char title[100];
-      char name[100];
+      //char title[100];
+      //char name[100];
 
-      sprintf(name,"%s_Seed_%d_L1BitLogic",monPath.c_str(),iSeed);
-      sprintf(title,"%s BitPacked L1Algos of GTSeed %d: '%s'",monPath.c_str(), iSeed, hltL1GTSeed[iSeed].second.c_str());
+      std::stringstream title;
+      std::stringstream name;
+
+      name << monPath << "_Seed_" << iSeed << "_L1BitLogic";
+      title << monPath << "  BitPacked L1Algos of GTSeed " << iSeed << ": '" << hltL1GTSeed[iSeed].second << "'";
+
+      //sprintf(name,"%s_Seed_%d_L1BitLogic",monPath.c_str(),iSeed);
+      //sprintf(title,"%s BitPacked L1Algos of GTSeed %d: '%s'",monPath.c_str(), iSeed, hltL1GTSeed[iSeed].second.c_str());
 
       LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement name = " << name << endl;
       LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement title = " << title << endl;
       LogTrace("HLTSeedL1LogicScalers") << "  MonitorElement nBins = " << nBins << endl << endl;
 
-      MonitorElement* me = fDbe->book1D(name, title, nBins,0,nBins);
+      MonitorElement* me = fDbe->book1D(name.str().c_str(), title.str().c_str(), nBins,0,nBins);
       me->setAxisTitle("bit-packed word L1 Algorithms");
       fMonitorPathsME.push_back(me);
 
       // pair of 1D hisotgram and vector of l1Algos
-      pair<MonitorElement*, vector<string> > pairMEL1Algo;
-      pairMEL1Algo.first = me;
-      pairMEL1Algo.second = l1Algos;
-      fMapMEL1Algos.push_back(pairMEL1Algo);
+      //pair<MonitorElement*, vector<string> > pairMEL1Algo;
+      //pairMEL1Algo.first = me;
+      //pairMEL1Algo.second = l1Algos;
+      //fMapMEL1Algos.push_back(pairMEL1Algo);
+      fMapMEL1Algos.push_back(make_pair(me, l1Algos));
 
    } // end for Seeds
 
