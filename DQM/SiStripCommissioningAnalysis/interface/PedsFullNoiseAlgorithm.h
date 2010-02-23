@@ -24,6 +24,8 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
   inline const Histo& hPeds() const;
 
   inline const Histo& hNoise() const;
+  
+  inline const Histo& hNoise1D() const;
 
  private:
 
@@ -42,6 +44,7 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
 
   /** Residuals and noise */
   Histo hNoise_;
+  Histo hNoise1D_;
   
   /** Analysis parameters */
   float deadStripMax_;
