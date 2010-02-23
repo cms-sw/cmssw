@@ -189,7 +189,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
       }
       if (algosumvalue<0) sum[ibin]=0;            // low-side
                                                   //high-side
-      else if (algosumvalue>0x3FF) sum[ibin]=0x3FF;
+      //else if (algosumvalue>0x3FF) sum[ibin]=0x3FF;
       else sum[ibin] = algosumvalue;              //assign value to sum[]
    }
 
@@ -224,7 +224,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
          }
 
          if (isPeak){
-            output[ibin] = sum[idx];
+            output[ibin] = std::min<unsigned int>(sum[idx],0x3FF);
             finegrain[ibin] = msb[idx];
          }
          // Not a peak
@@ -235,9 +235,11 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
          finegrain[ibin] = msb[idx];
       }
 
-      //Pegged
-      if (sum[idx] >= 0x3FF) output[ibin] = 0x3FF;
-
+      // Only Pegged for 1-TS algo.
+      if (peak_finder_algorithm_ == 1) {
+         if (samples[idx] >= 0x3FF)
+            output[ibin] = 0x3FF;
+      }
       outcoder_->compress(output, finegrain, result);
    }
 }
