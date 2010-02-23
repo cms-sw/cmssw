@@ -1,13 +1,22 @@
 #ifndef RecoLuminosity_LumiProducer_TRG2DB_h 
 #define RecoLuminosity_LumiProducer_TRG2DB_h 
+#include "RelationalAccess/IAuthenticationService.h"
 #include "RelationalAccess/IConnectionService.h"
+#include "RelationalAccess/IConnectionServiceConfiguration.h"
+#include "CoralKernel/Context.h"
+#include "CoralKernel/IHandle.h"
+#include "CoralKernel/IProperty.h"
+#include "CoralKernel/IPropertyManager.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Exception.h"
+#include "CoralBase/TimeStamp.h"
+#include "CoralBase/MessageStream.h"
 #include "RelationalAccess/AccessMode.h"
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ITypeConverter.h"
 #include "RelationalAccess/IQuery.h"
@@ -24,7 +33,6 @@
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
 #include <sstream>
-#include <map>
 namespace lumi{
   class TRG2DB : public DataPipe{
   public:
@@ -267,16 +275,16 @@ namespace lumi{
     **/
     coral::ISchema& gtschemaHandle=session->schema(gtschema);
     if(!gtschemaHandle.existsView(runtechviewname)){
-      throw lumi::Exception(std::string("non-existing view ")+runtechviewname,"retrieveData","TRG2DB");
+      throw std::runtime_error(std::string("non-existing view ")+runtechviewname);
     }
     if(!gtschemaHandle.existsView(runalgoviewname)){
-      throw lumi::Exception(std::string("non-existing view ")+runalgoviewname,"retrieveData","TRG2DB");
+      throw std::runtime_error(std::string("non-existing view ")+runalgoviewname);
     }
     if(!gtschemaHandle.existsView(runprescalgoviewname)){
-      throw lumi::Exception(std::string("non-existing view ")+runprescalgoviewname,"retrieveData","TRG2DB");
+      throw std::runtime_error(std::string("non-existing view ")+runprescalgoviewname);
     }
     if(!gtschemaHandle.existsView(runpresctechviewname)){
-      throw lumi::Exception(std::string("non-existing view ")+runpresctechviewname,"retrieveData","TRG2DB");
+      throw std::runtime_error(std::string("non-existing view ")+runpresctechviewname);
     }
     //
     //select algo_index,alias from cms_gt.gt_run_algo_view where runnumber=:runnumber order by algo_index;
