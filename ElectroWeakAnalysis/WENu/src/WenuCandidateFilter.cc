@@ -26,6 +26,8 @@
  12Feb09  First Release of the code for CMSSW_2_2_X
  16Sep09  First Release for CMSSW_3_1_X
  09Dec09  Option to ignore trigger
+ 23Feb10  Added options to use Conversion Rejection, Expected missing hits
+          and valid hit at first PXB
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -62,7 +64,12 @@
 //#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
-
+// for conversion finder
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 //
 
 //
@@ -97,6 +104,10 @@ class WenuCandidateFilter : public edm::EDFilter {
   bool electronMatched2HLT_;
   double electronMatched2HLT_DR_;
   bool vetoSecondElectronEvents_;
+  bool useValidFirstPXBHit_;
+  bool useConversionRejection_;
+  bool useExpectedMissingHits_;
+  int  maxNumberOfExpectedMissingHits_;
 };
 #endif
 //
@@ -125,6 +136,18 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   ETCut2ndEle_ = iConfig.getUntrackedParameter<double>("ETCut2ndEle",
 						       ETCut2ndEle_D);
   vetoSecondElectronEvents_ = iConfig.getUntrackedParameter<bool>("vetoSecondElectronEvents",false);
+  //
+  // preselection criteria: hit pattern
+  useValidFirstPXBHit_ = 
+    iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
+  useConversionRejection_ = 
+    iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
+  // to be implemented
+  useExpectedMissingHits_ = 
+    iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
+  maxNumberOfExpectedMissingHits_ = 
+    iConfig.getUntrackedParameter<int>("maxNumberOfExpectedMissingHits",2);
+  //
   //
   //
   double BarrelMaxEta_D = 1.4442;
@@ -192,6 +215,20 @@ IsolFilter","","HLT");
   } else {
     std::cout << "WenuCandidateFilter: Electron Candidate NOT required to "
 	      << "match HLT object " << std::endl;
+  }
+  if (useValidFirstPXBHit_) {
+    std::cout << "WenuCandidateFilter: Electron Candidate required to have "
+	      << "a valid hit in 1st PXB layer " << std::endl;
+  }
+  if (useExpectedMissingHits_) {
+    std::cout << "WenuCandidateFilter: Electron Candidate required to have "
+	      << " less than " << maxNumberOfExpectedMissingHits_ 
+	      << " expected hits missing " << std::endl;
+    ;
+  }
+  if (useConversionRejection_) {
+    std::cout << "WenuCandidateFilter: Electron Candidate required to pass "
+	      << "EGAMMA Conversion Rejection criteria " << std::endl;
   }
   std::cout << "WenuCandidateFilter: Fiducial Cut: " << std::endl;
   std::cout << "WenuCandidateFilter:    BarrelMax: "<<BarrelMaxEta_<<std::endl;
@@ -367,6 +404,52 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //	     << ", hcalIso: " << maxETelec.hcalIso()
    //	     << std::endl;
    //
+   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   // special pre-selection requirements ^^^
+   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   // hit pattern and conversion rejection
+   if (useValidFirstPXBHit_) {
+    if(not maxETelec.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel()) 
+      {
+	delete [] sorted;  delete [] et;
+	//std::cout << "Filter: there is no valid hit in 1st layer PXB" << std::endl;
+	return false;
+      }
+   }
+   if (useExpectedMissingHits_) {
+     int numberOfLostInnerHits = (int) maxETelec.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+     if (numberOfLostInnerHits >= maxNumberOfExpectedMissingHits_) {
+       delete [] sorted;  delete [] et;
+       return false;
+     }
+   }
+   if (useConversionRejection_) {
+     // use of conversion rejection as it is implemented in egamma
+     // you have to get the general track collection to do that
+     // WARNING! you have to supply the correct B-field in Tesla
+     // the magnetic field
+     edm::ESHandle<MagneticField> magneticField;
+     iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+     const  MagneticField *mField = magneticField.product();
+     edm::Handle<reco::TrackCollection> ctfTracks;
+     if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
+       ConversionFinder cf;
+       const math::XYZPoint tpoint = maxETelec.gsfTrack()->referencePoint();
+       const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
+       double bfield = mField->inTesla(gp).mag();  
+       bool isConv = cf.isElFromConversion(maxETelec, ctfTracks, bfield);
+       //std::cout << "Filter: for this elec the conversion says " << isConv << std::endl;
+       if (isConv) {
+       	 delete [] sorted;  delete [] et;
+       	 return false;	 
+       }
+     } else {
+       std::cout << "WARNING! Track Collection with input name: generalTracks" 
+		 << " was not found. Conversion Rejection is not going to be"
+		 << " applied!!!" << std::endl;
+     }
+
+   }
    // these 3 objects have been declared outside the loop
    //const int nF(pHLT->sizeFilters());
    //const int iF = pHLT->filterIndex(hltpathFilter_);
