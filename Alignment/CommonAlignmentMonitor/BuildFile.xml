@@ -1,0 +1,10 @@
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="Alignment/CommonAlignment"/>
+<use   name="roothistmatrix"/>
+<use   name="CommonTools/Utils"/>
+<use   name="CommonTools/UtilAlgos"/>
+<export>
+  <lib   name="1"/>
+</export>
