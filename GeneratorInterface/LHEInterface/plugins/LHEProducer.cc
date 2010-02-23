@@ -260,8 +260,8 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 				continue;
 
 			matchDeltaR->push_back(iter->delta);
-			matchDeltaPRel->push_back(iter->jet.mag() /
-			                          iter->parton.mag() - 1.0);
+			matchDeltaPRel->push_back(iter->jet.rho() /
+			                          iter->parton.rho() - 1.0);
 		}
 
 		event.put(matchDeltaR, "matchDeltaR");
