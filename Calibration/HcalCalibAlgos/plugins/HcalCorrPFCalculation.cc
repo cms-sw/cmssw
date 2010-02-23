@@ -259,7 +259,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       double phip = (*p)->momentum().phi();
       double etap = (*p)->momentum().eta();
       double pt  = (*p)->momentum().perp();
-      mom_MC = (*p)->momentum().mag();
+      mom_MC = (*p)->momentum().rho();
       if(pt > maxPt) { npart++; maxPt = pt; phi_MC = phip; eta_MC = etap; }
       GlobalVector mom ((*p)->momentum().x(),(*p)->momentum().y(),(*p)->momentum().z());
       int charge = -1;
@@ -334,7 +334,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       Int_t iphitrue = -10;
       Int_t ietatrue = 100;
       
-      if (abs(etahcal)<1.392) 
+      if (etahcal<1.392) 
 	{
 	  const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 	  //    const GlobalPoint tempPoint(newx, newy, newz);
@@ -344,7 +344,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  iphitrue = tempId.iphi();
 	}
       
-      if (abs(etahcal)>1.392 &&  abs(etahcal)<3.0) 
+      if (etahcal>1.392 &&  etahcal<3.0) 
 	{
 	  const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
 	  const HcalDetId tempId = gHE->getClosestCell(gPointHcal);
@@ -352,7 +352,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  iphitrue = tempId.iphi();
 	}
       
-      if (abs(etahcal)>3.0 &&  abs(etahcal)<5.0) 
+      if (etahcal>3.0 &&  etahcal<5.0) 
 	{
 	  const CaloSubdetectorGeometry* gHF = geo->getSubdetectorGeometry(DetId::Hcal,HcalForward);
 	  const HcalDetId tempId = gHF->getClosestCell(gPointHcal);
