@@ -4,6 +4,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "DQM/SiStripCommon/src/UpdateTProfile.cc"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -104,9 +105,10 @@ PedsFullNoiseTask::~PedsFullNoiseTask()
         hist->SetBinContent(binnrtarget, 0);
       } // end if source in range
     } // end loop over bins
-    // now also shift the noise profile such that it reflects the proper mean, without residual binning effect (0 if Gaussian)
-    prof->SetBinContent(istrip+1, meangood - pedgood + pedrough);
-    
+    // now also shift the noise profile such that it reflects the noise with uncertainty
+    float noise = prof->GetBinError(istrip+1);
+    float entries = noiseprof_.vNumOfEntries_[istrip]; // number of events in the TProfile (!=GetEntries()!)
+    UpdateTProfile::setBinContent(prof, istrip+1, entries, noise, noise/sqrt(entries));
   } // end loop over strips
 
 }
@@ -274,8 +276,6 @@ void PedsFullNoiseTask::fill( const SiStripEventSummary & summary,
 
   // 1D noise histogram
   for ( uint16_t istrip = 0; istrip < nstrips_; ++istrip ) {
-    // calculate noise by subtracting common mode
-    //float noiseval = static_cast<float>( digis.data[istrip].adc() ) - static_cast<float>( cm[istrip/128] );
     // calculate the noise wrt the rough pedestal estimate
     float noiseval = digis.data.at(istrip).adc() - 1.*pedroughhist_.vSumOfContents_.at(istrip)/pedroughhist_.vNumOfEntries_.at(istrip);
     // store the noise value in the profile
