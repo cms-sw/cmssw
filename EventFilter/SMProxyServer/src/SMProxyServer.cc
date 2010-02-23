@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.36 2010/02/16 13:30:29 smorovic Exp $
+// $Id: SMProxyServer.cc,v 1.37 2010/02/18 15:07:30 smorovic Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -160,7 +160,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
 
   //those are relevant only when consumer defines a SM connection
 
-  queueTimeout_=120;
+  queueTimeout_=0;
   ispace->fireItemAvailable("queueTimeout",&queueTimeout_);
   alwaysRestartQueue_=false;
   ispace->fireItemAvailable("alwaysRestartQueue",&alwaysRestartQueue_);
@@ -908,6 +908,7 @@ void SMProxyServer::DQMOutputWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  boost::mutex::scoped_lock ql(queue_lock_);
   // default the message length to zero
   int len=0;
 
@@ -979,23 +980,25 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
         }
       }
     }
-    //reset timeout count
-    timeoutCounter_=queueTimeout_;
 
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
     out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
     out->write((char*) &mybuffer_[0],len);
   } // else send DONE message as response
   else
-    {
-      OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
-      len = othermsg.size();
-      
-      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write((char*) &mybuffer_[0],len);
-    }
-  
+  {
+    OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
+    len = othermsg.size();
+
+    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+    out->write((char*) &mybuffer_[0],len);
+  }
+
+  //reset timeout counter if consumer keeps asking for events
+    timeoutCounter_=queueTimeout_;
+    queueInactive_=false;
+
 }
 
 
@@ -1003,6 +1006,7 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  boost::mutex::scoped_lock ql(queue_lock_);
   unsigned int len = 0;
 
   // determine the consumer ID from the header request
@@ -1110,6 +1114,11 @@ void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
   out->write((char*) &mybuffer_[0],len);
+
+  //reset timeout counter if consumer keeps asking for header
+  timeoutCounter_=queueTimeout_;
+  queueInactive_=false;
+
 }
 
 
@@ -1124,6 +1133,7 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
   // stream-based selection request.  At some point, we should fix up the
   // tests on whether the dpm_ shared pointer is valid (can we even get here
   // without it being valid?)
+  boost::mutex::scoped_lock ql(queue_lock_);
 
   if (!selectionFromClient_ || !(fsm_.stateName()->toString() == "Enabled")) {
 
@@ -1233,13 +1243,11 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
   if (selectionFromClient_) {
 
-    if (queueCreated_ && !alwaysRestartQueue_) {
+    if (queueCreated_ && !queueInactive_ && !alwaysRestartQueue_) {
       LOG4CPLUS_WARN(getApplicationLogger(),"Queue already exists, new client will be connected to it\n");
     }
     else {
-      boost::mutex::scoped_lock ql(queue_lock_);
-      if (queueCreated_ && alwaysRestartQueue_) destroyQueue();
-
+      if (queueCreated_) destroyQueue();
       std::cout << "----Client parameters:----\n";
       maxEventRequestRate_ = maxEventRequestRate; 
       std::cout << "maxEventRequestRate: "<< maxEventRequestRate_ <<"\n";
@@ -2690,6 +2698,7 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  boost::mutex::scoped_lock ql(queue_lock_);
   // default the message length to zero
   int len=0;
 
@@ -2765,6 +2774,7 @@ void SMProxyServer::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  boost::mutex::scoped_lock ql(queue_lock_);
   if(fsm_.stateName()->toString() == "Enabled")
   { // We need to be in the enabled state
 
@@ -3186,8 +3196,11 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     DQMconsumerName_ = url + "/" + urn + "/pushDQMEventData";
 
     //create static queue with static configuration, else wait for consumer to connect
-    if (!selectionFromClient_) 
+    boost::mutex::scoped_lock ql(queue_lock_);
+
+    if (!selectionFromClient_) { 
       if (!createQueue()) return false;
+    }
     
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
    
@@ -3279,18 +3292,19 @@ bool SMProxyServer::createQueue() {
     return false;
   }
   queueCreated_=true;
+  queueInactive_=false;
 
   //timeout _only_ if SM connection is setup from client
   if (!selectionFromClient_) return true;
 
   timeoutCounter_=queueTimeout_;
-  std::cout << "CONNECT: reactivate timeout WorkLoop\n";
   if (!timeoutWorkLoop_->isActive()) timeoutWorkLoop_->activate();
   return true;
 }
 
 void SMProxyServer::destroyQueue() {
 
+  queueCreated_=false;
 
   boost::shared_ptr<stor::DQMServiceManager> dqmManager;
   if (dpm_.get() != NULL)
@@ -3314,7 +3328,6 @@ void SMProxyServer::destroyQueue() {
       dpm_->join();
     }
   }
-  queueCreated_=false;
 
 }
 
@@ -3333,11 +3346,13 @@ bool SMProxyServer::enabling(toolbox::task::WorkLoop* wl)
     receivedDQMEvents_ = 0;
     currentLumiSection_ = 0;
 
-    if (queueCreated_) dpm_->start();
+    { 
+      boost::mutex::scoped_lock ql(queue_lock_);
+      if (queueCreated_) dpm_->start();
 
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-
-    fsm_.fireEvent("EnableDone",this);
+      LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
+      fsm_.fireEvent("EnableDone",this);
+    }
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
@@ -3366,6 +3381,7 @@ bool SMProxyServer::stopping(toolbox::task::WorkLoop* wl)
       LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
       fsm_.fireEvent("StopDone",this);
     }
+    if( timeoutWorkLoop_->isActive()) timeoutWorkLoop_->cancel();
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
@@ -3381,29 +3397,32 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
-
-    dpm_->stop();
-    dpm_->join();
-    
-    smsenders_.clear();
-    connectedSMs_ = 0;
-    /* maybe we want to see these statistics after a halt 
-    storedDQMEvents_ = 0;
-    sentEvents_   = 0;
-    sentDQMEvents_   = 0;
-    receivedEvents_ = 0;
-    receivedDQMEvents_ = 0;
-    */
-    
     {
       boost::mutex::scoped_lock ql(queue_lock_);
-      boost::mutex::scoped_lock sl(halt_lock_);
-      dpm_.reset();
+
+      dpm_->stop();
+      dpm_->join();
+    
+      smsenders_.clear();
+      connectedSMs_ = 0;
+      /* maybe we want to see these statistics after a halt 
+      storedDQMEvents_ = 0;
+      sentEvents_   = 0;
+      sentDQMEvents_   = 0;
+      receivedEvents_ = 0;
+      receivedDQMEvents_ = 0;
+      */
+    
+      {
+        boost::mutex::scoped_lock sl(halt_lock_);
+        dpm_.reset();
+      }
+    
+      LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
+    
+      fsm_.fireEvent("HaltDone",this);
     }
-    
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
-    
-    fsm_.fireEvent("HaltDone",this);
+    if( timeoutWorkLoop_->isActive()) timeoutWorkLoop_->cancel();
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "halting FAILED: " + (string)e.what();
@@ -3416,16 +3435,17 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
 
 bool SMProxyServer::queueTimeout(toolbox::task::WorkLoop* wl)
  {
- 	 ::sleep(1000); //sleep one second
-	if (timeoutCounter_--<=0) return true;
-	else {
+	if ((unsigned int) queueTimeout_ == 0) return false;
+ 	::sleep(1); //sleep one second
+	{
 	  boost::mutex::scoped_lock ql(queue_lock_);
-	  destroyQueue();
-	  return false;
+	  if (timeoutCounter_-- <= 0) { 
+		  queueInactive_=true;
+		  if (queueCreated_) destroyQueue();
+	  }
 	}
-	return false;
-}
-
+	return true;
+ }
 
 void SMProxyServer::checkDirectoryOK(std::string path)
 {

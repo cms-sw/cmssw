@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.18 2010/02/16 13:30:29 smorovic Exp $
+   $Id: SMProxyServer.h,v 1.19 2010/02/18 15:07:30 smorovic Exp $
 */
 
 #include <string>
@@ -172,6 +172,7 @@ namespace stor {
     xdata::Boolean dropOldLumisectionEvents_;
 
     bool queueCreated_;
+    bool queueInactive_;
     bool fsmEnabled_;
 
     std::map< std::string, bool > smsenders_;
