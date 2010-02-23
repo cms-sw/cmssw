@@ -26,6 +26,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/EcalMapping"/>
