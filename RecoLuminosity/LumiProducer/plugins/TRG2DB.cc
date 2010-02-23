@@ -70,6 +70,9 @@ namespace lumi{
       dbconf.setAuthentication(m_authpath);
     }
     coral::ISessionProxy* session=svc->connect(m_source, coral::ReadOnly);
+    coral::ITypeConverter& tpc=session->typeConverter();
+    tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
+    
     coral::AttributeList bindVariableList;
     bindVariableList.extend("runnumber",typeid(unsigned int));
     bindVariableList["runnumber"].data<unsigned int>()=runnumber;

@@ -1,33 +1,21 @@
 #ifndef RecoLuminosity_LumiProducer_Lumi2DB_H 
 #define RecoLuminosity_LumiProducer_Lumi2DB_H
-#include "RelationalAccess/IAuthenticationService.h"
-#include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
-#include "CoralKernel/IHandle.h"
-#include "CoralKernel/IProperty.h"
-#include "CoralKernel/IPropertyManager.h"
+#include "RelationalAccess/ConnectionService.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Blob.h"
 #include "CoralBase/Exception.h"
-#include "CoralBase/TimeStamp.h"
-#include "CoralBase/MessageStream.h"
-#include "RelationalAccess/AccessMode.h"
-#include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ITypeConverter.h"
-#include "RelationalAccess/IQuery.h"
-#include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/IView.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiRawDataStructures.h"
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
+#include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
@@ -35,6 +23,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
+#include <memory>
 #include "TFile.h"
 #include "TTree.h"
 namespace lumi{
@@ -157,9 +146,9 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     }else{
       ++ncmslumi;
     }
-    h.bxET.reserve(3564);
-    h.bxOCC1.reserve(3564);
-    h.bxOCC2.reserve(3564);
+    h.bxET.reserve(lumi::N_BX);
+    h.bxOCC1.reserve(lumi::N_BX);
+    h.bxOCC2.reserve(lumi::N_BX);
     
     //runnumber=lumiheader->runNumber;
     //if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
@@ -171,7 +160,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     h.lumisectionquality=lumisummary->InstantLumiQlty;
     h.dtnorm=lumisummary->DeadTimeNormalization;
     h.lhcnorm=lumisummary->LHCNormalization;
-    for(size_t i=0;i<3564;++i){
+    for(size_t i=0;i<lumi::N_BX;++i){
       lumi::Lumi2DB::PerBXData bET;
       lumi::Lumi2DB::PerBXData bOCC1;
       lumi::Lumi2DB::PerBXData bOCC2;
@@ -201,6 +190,8 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     dbconf.setAuthentication(m_authpath);
   }
   coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
+  coral::ITypeConverter& tpc=session->typeConverter();
+  tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
   unsigned int totallumils=lumiresult.size();
   try{
     session->transaction().start(false);
@@ -225,13 +216,13 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
     
     coral::AttributeList detailData;
-    detailData.extend<unsigned long long>("LUMIDETAIL_ID");
-    detailData.extend<unsigned long long>("LUMISUMMARY_ID");
-    detailData.extend<coral::Blob>("BXLUMIVALUE");
-    detailData.extend<coral::Blob>("BXLUMIERROR");
-    detailData.extend<coral::Blob>("BXLUMIQUALITY");
-    detailData.extend<std::string>("ALGONAME");
-    coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*3);
+    detailData.extend("LUMIDETAIL_ID",typeid(unsigned long long));
+    detailData.extend("LUMISUMMARY_ID",typeid(unsigned long long));
+    detailData.extend("BXLUMIVALUE",typeid(coral::Blob));
+    detailData.extend("BXLUMIERROR",typeid(coral::Blob));
+    detailData.extend("BXLUMIQUALITY",typeid(coral::Blob));
+    detailData.extend("ALGONAME",typeid(std::string));
+    coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*lumi::N_LUMIALGO);
     //loop over lumi LS
     unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
     unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
@@ -253,8 +244,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     coral::Blob& bxlumierror=detailData["BXLUMIERROR"].data<coral::Blob>();
     coral::Blob& bxlumiquality=detailData["BXLUMIQUALITY"].data<coral::Blob>();
     std::string& algoname=detailData["ALGONAME"].data<std::string>();
-
-
     
     lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
     lumi::Lumi2DB::LumiResult::const_iterator lumiBeg=lumiresult.begin();
@@ -277,7 +266,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       //fetch a new id value 
       //insert the new row
       summaryInserter->processNextIteration();
-      for( unsigned int j=0; j<3; ++j ){
+      for( unsigned int j=0; j<lumi::N_BX; ++j ){
 	lumidetail_id=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
 	d2lumisummary_id=lumisummary_id;
 	std::vector<PerBXData>::const_iterator bxIt;
@@ -298,15 +287,15 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	  bxBeg=lumiIt->bxOCC2.begin();
 	  bxEnd=lumiIt->bxOCC2.end();
 	}
-	float lumivalue[3564];
-	std::memset((void*)&lumivalue,0,sizeof(float)*3564 );
-	float lumierror[3564];
-	std::memset((void*)&lumierror,0,sizeof(float)*3564 );
-	int lumiquality[3564];
-	std::memset((void*)&lumiquality,0,sizeof(short)*3564 );
-	bxlumivalue.resize(sizeof(float)*3564);
-	bxlumierror.resize(sizeof(float)*3564);
-	bxlumiquality.resize(sizeof(short)*3564);
+	float lumivalue[lumi::N_BX];
+	std::memset((void*)&lumivalue,0,sizeof(float)*lumi::N_BX );
+	float lumierror[lumi::N_BX];
+	std::memset((void*)&lumierror,0,sizeof(float)*lumi::N_BX );
+	int lumiquality[lumi::N_BX];
+	std::memset((void*)&lumiquality,0,sizeof(short)*lumi::N_BX );
+	bxlumivalue.resize(sizeof(float)*lumi::N_BX);
+	bxlumierror.resize(sizeof(float)*lumi::N_BX);
+	bxlumiquality.resize(sizeof(short)*lumi::N_BX);
 	void* bxlumivalueStartAddress=bxlumivalue.startingAddress();
 	void* bxlumierrorStartAddress=bxlumierror.startingAddress();
 	void* bxlumiqualityStartAddress=bxlumiquality.startingAddress();
@@ -316,24 +305,22 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	  lumierror[k]=bxIt->lumierr;
 	  lumiquality[k]=bxIt->lumiquality;
 	}
-	std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*3564);
-	std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*3564);
-	std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*3564);
+	std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*lumi::N_BX);
+	std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*lumi::N_BX);
+	std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*lumi::N_BX);
 	detailInserter->processNextIteration();
       }
     }
-    detailInserter->flush();
     summaryInserter->flush();
+    detailInserter->flush();
     delete summaryInserter;
     delete detailInserter;
   }catch( const coral::Exception& er){
-    std::cout<<"database problem "<<er.what()<<std::endl;
     session->transaction().rollback();
     delete session;
     delete svc;
     throw er;
   }
-  //delete detailInserter;
   session->transaction().commit();
   delete session;
   delete svc;

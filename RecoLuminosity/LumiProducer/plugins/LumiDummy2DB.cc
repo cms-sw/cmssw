@@ -8,8 +8,6 @@
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
 #include "RelationalAccess/ITypeConverter.h"
-//#include "RelationalAccess/IQuery.h"
-//#include "RelationalAccess/ICursor.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/AttributeList.h"
@@ -18,6 +16,7 @@
 #include "CoralBase/Exception.h"
 
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
+#include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
@@ -81,7 +80,7 @@ namespace lumi{
       detailData.extend("BXLUMIERROR",typeid(coral::Blob));
       detailData.extend("BXLUMIQUALITY",typeid(coral::Blob));
       detailData.extend("ALGONAME",typeid(std::string));
-      coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils);
+      coral::IBulkOperation* detailInserter=detailtable.dataEditor().bulkInsert(detailData,totallumils*N_LUMIALGO);
       //loop over lumi LS
       unsigned long long& lumisummary_id=summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
       unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
@@ -126,31 +125,31 @@ namespace lumi{
 	summaryInserter->processNextIteration();
 	summaryInserter->flush();
 	d2lumisummary_id=i;
-	for( unsigned int j=0; j<3; ++j ){
+	for( unsigned int j=0; j<N_LUMIALGO; ++j ){
 	  lumidetail_id=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
 	  if(j==0) algoname=std::string("ET");
 	  if(j==1) algoname=std::string("OCC1");
 	  if(j==2) algoname=std::string("OCC2");
-	  float lumivalue[3564];
-	  std::memset((void*)&lumivalue,0,sizeof(float)*3564 );
-	  float lumierror[3564];
-	  std::memset((void*)&lumierror,0,sizeof(float)*3564 );
-	  short lumiquality[3564];
-	  std::memset((void*)&lumiquality,0,sizeof(short)*3564 );
-	  bxlumivalue.resize(sizeof(float)*3564);
-	  bxlumierror.resize(sizeof(float)*3564);
-	  bxlumiquality.resize(sizeof(short)*3564);
+	  float lumivalue[N_BX];
+	  std::memset((void*)&lumivalue,0,sizeof(float)*N_BX);
+	  float lumierror[N_BX];
+	  std::memset((void*)&lumierror,0,sizeof(float)*N_BX );
+	  short lumiquality[N_BX];
+	  std::memset((void*)&lumiquality,0,sizeof(short)*N_BX );
+	  bxlumivalue.resize(sizeof(float)*N_BX);
+	  bxlumierror.resize(sizeof(float)*N_BX);
+	  bxlumiquality.resize(sizeof(short)*N_BX);
 	  void* bxlumivalueStartAddress=bxlumivalue.startingAddress();
 	  void* bxlumierrorStartAddress=bxlumierror.startingAddress();
 	  void* bxlumiqualityStartAddress=bxlumiquality.startingAddress();
-	  for( unsigned int k=0; k<3546; ++k ){	    
+	  for( unsigned int k=0; k<N_BX; ++k ){	    
 	    lumivalue[k]=1.5;
 	    lumierror[k]=0.1;
 	    lumiquality[k]=1;
 	  }
-	  std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*3564);
-	  std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*3564);
-	  std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*3564);
+	  std::memmove(bxlumivalueStartAddress,lumivalue,sizeof(float)*N_BX);
+	  std::memmove(bxlumierrorStartAddress,lumierror,sizeof(float)*N_BX);
+	  std::memmove(bxlumiqualityStartAddress,lumiquality,sizeof(short)*N_BX);
 	  detailInserter->processNextIteration();
 	}
       }
