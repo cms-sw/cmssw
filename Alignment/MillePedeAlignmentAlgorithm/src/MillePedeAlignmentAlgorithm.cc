@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.60 $
- *  $Date: 2010/02/08 15:24:32 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.61 $
+ *  $Date: 2010/02/22 16:34:35 $
+ *  (last update by $Author: frmeier $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -1015,7 +1015,6 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
 
 void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg)
 {
-	std::cout << "Let's do survey" << std::endl;
 	std::vector<SurveyPxbImageLocalFit> measurements;
 	//std::ifstream infile(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath().c_str());
 	std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
@@ -1023,7 +1022,7 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
 	{
 		std::cout << "Module " << i << ": ";
-		std::cout << measurements[i].getIdFirst();
+		//std::cout << measurements[i].getIdFirst();
 		AlignableDetOrUnitPtr mod1(theAlignableNavigator->alignableFromDetId(measurements[i].getIdFirst()));
 		AlignableDetOrUnitPtr mod2(theAlignableNavigator->alignableFromDetId(measurements[i].getIdSecond()));
 		const AlignableSurface& surf1 = mod1->surface();
@@ -1037,13 +1036,25 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 		const LocalPoint fidpoint0inSurf1frame(surf1.toLocal(surf2point0));
 		const LocalPoint fidpoint1inSurf1frame(surf1.toLocal(surf2point1));
 		
-		std::cout << " surf2point0: " << surf2point0 
+		/*std::cout << " surf2point0: " << surf2point0 
 				  << " surf2point1: " << surf2point1
 				  << " fidpoint0inSurf1frame: " << fidpoint0inSurf1frame
 				  << " fidpoint1inSurf1frame: " << fidpoint1inSurf1frame
-				  << std::endl;
+				  << std::endl;*/
+		SurveyPxbImageLocalFit::fidpoint_t fidpointvec;
+		fidpointvec.push_back(fidpoint0inSurf1frame);
+		fidpointvec.push_back(fidpoint1inSurf1frame);
+		fidpointvec.push_back(fidpoint2);
+		fidpointvec.push_back(fidpoint3);
 		//std::cout << surf.toGlobal(fidpoint1) << std::endl;
-		//measurements[i].doFit(0.,0.,0.,0.,-6.7,0.);
+		measurements[i].doFit(fidpointvec);
+	  SurveyPxbImageLocalFit::localpars_t a; // local pars from fit
+		a = measurements[i].getLocalParameters();
+		const SurveyPxbImageLocalFit::value_t chi2 = measurements[i].getChi2();
+		std::cout << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
+			<< " S= " << sqrt(a[2]*a[2]+a[3]*a[3])
+			<< " phi= " << atan(a[3]/a[2])
+			<< " chi2= " << chi2 << std::endl;
 	}
 }
 
