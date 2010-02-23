@@ -186,7 +186,7 @@ if ( ${VAL_WEB_SUB_DIR} == "" ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Mc
   else if ( "${DBS_COND}" =~ *IDEAL* ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Ideal
-  else if ( "${DBS_COND}" =~ *STARTUP* ) then
+  else if ( "${DBS_COND}" =~ *START* ) then
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}_Startup
   else
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
