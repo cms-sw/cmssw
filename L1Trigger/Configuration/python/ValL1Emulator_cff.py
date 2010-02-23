@@ -9,12 +9,20 @@ import FWCore.ParameterSet.Config as cms
 # V.M. Ghete 2009-11-15
 
 # ECAL TPG sequence
-import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
+# can contain ecalTrigPrimESProducer when configured from TPG.txt file and not from DB
+from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 valEcalTriggerPrimitiveDigis = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
+#
+valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
+valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
+valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
+
 
 # HCAL TPG sequence
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 valHcalTriggerPrimitiveDigis = SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi.simHcalTriggerPrimitiveDigis.clone()
+#
+valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('hcalDigis'),cms.InputTag('hcalDigis'))
 
 
 # RCT emulator
@@ -25,24 +33,23 @@ valRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimiti
 valRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
 
 
-# GCT emulator - RCT data are part of the GCT FED
+# GCT emulator
+# RCT data used as input for GCT emulator are part of the GCT FED
 import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
 valGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
 #
 valGctDigis.inputLabel = 'gctDigis'
+valGctDigis.preSamples = cms.uint32(0)
+valGctDigis.postSamples = cms.uint32(0)
 
 
 # DT TP emulator
 from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
-#import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
 valDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
-#
-valDtTriggerPrimitiveDigis.digiTag = 'muonDTDigis'
 
 
 # CSC TP emulator
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
-import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
+from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 valCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone()
 #
 valCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag('muonCSCDigis',
@@ -67,6 +74,7 @@ valDttfDigis = L1Trigger.DTTrackFinder.dttfDigis_cfi.dttfDigis.clone()
 valDttfDigis.DTDigi_Source = 'dttfDigis'
 valDttfDigis.CSCStub_Source = 'valCsctfTrackDigis'
 
+
 # CSC Track Finder emulator
 import L1Trigger.CSCTrackFinder.csctfDigis_cfi
 valCsctfDigis = L1Trigger.CSCTrackFinder.csctfDigis_cfi.csctfDigis.clone()
@@ -77,7 +85,6 @@ valCsctfDigis.CSCTrackProducer = 'valCsctfTrackDigis'
 
 # RPC PAC Trigger emulator
 from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
-#import L1Trigger.RPCTrigger.rpcTriggerDigis_cff
 valRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cff.rpcTriggerDigis.clone()
 #
 valRpcTriggerDigis.label = 'muonRPCDigis'
@@ -112,7 +119,8 @@ valGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
 valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
-                                                      cms.InputTag('valRpcTechTrigDigis'))
+                                                    cms.InputTag('valRpcTechTrigDigis')
+                                                    )
 
 
 # L1 Trigger sequences
@@ -122,7 +130,9 @@ ValL1MuTrackFinders = cms.Sequence(valCsctfTrackDigis*valCsctfDigis*valDttfDigis
 ValL1TechnicalTriggers = cms.Sequence(valRpcTechTrigDigis)
 
 ValL1Emulator = cms.Sequence(
-    valRctDigis*valGctDigis
+    valEcalTriggerPrimitiveDigis
+    *valHcalTriggerPrimitiveDigis
+    *valRctDigis*valGctDigis
     *ValL1MuTriggerPrimitives*ValL1MuTrackFinders*valRpcTriggerDigis*valGmtDigis
     *ValL1TechnicalTriggers
     *valGtDigis)
