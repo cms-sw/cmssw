@@ -31,7 +31,6 @@ namespace cscdqm {
     if (mo && x) {
       resetEmuEventDisplays();
       int bitset = (int) mo->GetBinContent(x, y);
-      int before = bitset;
       bitset |= 1 << bit;
       mo->SetBinContent(x, y, bitset);
     }
