@@ -2,6 +2,6 @@
 #include <vector>
 
 namespace { namespace {
-std::vector<CentralityTable::Bins> dummy;
+std::vector<CentralityTable::CBin> dummy;
 }}
 

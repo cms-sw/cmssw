@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.12 2009/12/14 22:23:45 wmtan Exp $
+// $Id: CentralityProducer.cc,v 1.13 2010/02/11 00:13:46 wmtan Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -36,7 +36,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
@@ -45,22 +47,36 @@ using namespace std;
 //
 // class declaration
 //
+namespace reco{
 
-class CentralityProducer : public edm::EDProducer {
+class CentralityProducer : public edm::EDFilter {
    public:
       explicit CentralityProducer(const edm::ParameterSet&);
       ~CentralityProducer();
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
       // ----------member data ---------------------------
 
-  bool recoLevel_;
-  edm::InputTag  srcHF_;	
+   bool recoLevel_;
 
+   bool doFilter_;
+   bool produceHFhits_;
+   bool produceHFtowers_;
+   bool produceEcalhits_;
+   bool produceBasicClusters_;
+   bool produceZDChits_;
+
+   edm::InputTag  srcHFhits_;	
+   edm::InputTag  srcTowers_;
+   edm::InputTag srcEEhits_;
+   edm::InputTag srcEBhits_;
+   edm::InputTag srcBasicClustersEE_;
+   edm::InputTag srcBasicClustersEB_;
+   edm::InputTag srcZDChits_;
 };
 
 //
@@ -75,16 +91,31 @@ class CentralityProducer : public edm::EDProducer {
 //
 // constructors and destructor
 //
+
 CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
 {
    //register your products
-  
-  recoLevel_ = iConfig.getUntrackedParameter<bool>("recoLevel",true);
-  srcHF_ = iConfig.getParameter<edm::InputTag>("srcHF");
+   doFilter_ = iConfig.getParameter<bool>("doFilter");
+   produceHFhits_ = iConfig.getParameter<bool>("produceHFhits");
+   produceHFtowers_ = iConfig.getParameter<bool>("produceHFtowers");
+   produceBasicClusters_ = iConfig.getParameter<bool>("produceBasicClusters");
+   produceEcalhits_ = iConfig.getParameter<bool>("produceEcalhits");
+   produceZDChits_ = iConfig.getParameter<bool>("produceZDChits");
 
-  if(recoLevel_){
-    produces<reco::CentralityCollection>("recoBased");
-  }
+   if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
+   if(produceHFtowers_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
+
+   if(produceEcalhits_){
+      srcEBhits_ = iConfig.getParameter<edm::InputTag>("srcEBhits");
+      srcEEhits_ = iConfig.getParameter<edm::InputTag>("srcEEhits");
+   }
+   if(produceBasicClusters_){
+      srcBasicClustersEE_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEE");
+      srcBasicClustersEB_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEB");
+   }
+   if(produceZDChits_) srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
+   if(produceHFhits_ || produceHFtowers_ || produceBasicClusters_ || produceEcalhits_ || produceZDChits_) produces<reco::Centrality>();
+
 }
 
 
@@ -102,35 +133,74 @@ CentralityProducer::~CentralityProducer()
 //
 
 // ------------ method called to produce the data  ------------
-void
-CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool
+CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   using namespace reco;
 
-   double eHF     =  0;        // Variable for computing total HF energy 
-   //double eCASTOR =  0;      // Other variables commented out until they have been implemented
-   //double eZDC    =  0;
-   //int cnt = 0;
+  std::auto_ptr<Centrality> creco(new Centrality(0,"Hello"));
 
-   if(recoLevel_){
+  if(produceHFhits_){
+     creco->etHFhitSumPlus_ = 0;
+     creco->etHFhitSumMinus_ = 0;
+
      Handle<HFRecHitCollection> hits;
-     iEvent.getByLabel(srcHF_,hits);
+     iEvent.getByLabel(srcHFhits_,hits);
      for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
-       const HFRecHit & rechit = (*hits)[ ihit ];
-       eHF = eHF + rechit.energy();
+	const HFRecHit & rechit = (*hits)[ ihit ];
+	creco->etHFhitSumPlus_ += rechit.energy()/2;
+	creco->etHFhitSumMinus_ += rechit.energy()/2;
+     }       
+     
+  }
+  
+  if(produceHFtowers_){
+     creco->etHFtowerSumPlus_ = 0;
+     creco->etHFtowerSumMinus_ = 0;
+     
+     Handle<CaloTowerCollection> towers;
+     iEvent.getByLabel(srcTowers_,towers);
+     for( size_t i = 0; i<towers->size(); ++ i){
+	const CaloTower & tower = (*towers)[ i ];
+	double eta = tower.eta();
+	if(eta > 3)
+	   creco->etHFtowerSumPlus_ += tower.pt();
+	if(eta < -3)
+	   creco->etHFtowerSumMinus_ += tower.pt();
      }
-     std::auto_ptr<CentralityCollection> centOutput(new CentralityCollection);
-     Centrality creco(eHF,"HFTotalEnergy");
-     centOutput->push_back(creco);
-     iEvent.put(centOutput, "recoBased");
+  }
 
-     /*
-     To Do : 
-     - Add other detectors into reconstruction.
-     */
-
-   }
+  if(produceBasicClusters_){
+     creco->etEESumPlus_ = 0;
+     creco->etEESumMinus_ = 0;
+     creco->etEBSum_ = 0;
+     
+     Handle<BasicClusterCollection> clusters;
+     iEvent.getByLabel(srcBasicClustersEE_, clusters);
+     for( size_t i = 0; i<clusters->size(); ++ i){
+	const BasicCluster & cluster = (*clusters)[ i ];
+	double eta = cluster.eta();
+	double tg = cluster.position().rho()/cluster.position().r();
+	double et = cluster.energy()*tg;
+	if(eta > 0)
+	   creco->etEESumPlus_ += et;
+	if(eta < 0)
+	   creco->etEESumMinus_ += et;
+     }
+     
+     iEvent.getByLabel(srcBasicClustersEB_, clusters);
+     for( size_t i = 0; i<clusters->size(); ++ i){
+	const BasicCluster & cluster = (*clusters)[ i ];
+	double eta = cluster.eta();
+	double tg = cluster.position().rho()/cluster.position().r();
+        double et = cluster.energy()*tg;
+	creco->etEBSum_ += et;
+     }
+  }
+  
+  iEvent.put(creco);
+  return true;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -143,6 +213,7 @@ CentralityProducer::beginJob()
 void 
 CentralityProducer::endJob() {
 }
+}
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(CentralityProducer);
+DEFINE_FWK_MODULE(reco::CentralityProducer);

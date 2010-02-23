@@ -1,6 +1,6 @@
 <lcgdict>
    <class name="CentralityTable"/>
-   <class name="CentralityTable::Bins"/>
-   <class name="std::vector<CentralityTable::Bins>"/>
+   <class name="CentralityTable::CBin"/>
+   <class name="std::vector<CentralityTable::CBin>"/>
 </lcgdict>
 
