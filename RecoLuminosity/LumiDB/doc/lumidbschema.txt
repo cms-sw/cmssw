@@ -9,8 +9,8 @@ columns:  runnum(uint32,PK),
           totallumils(uint32),
           sequence(string),
           hltconfigid(uint32),
-          startorbit(uint64),
-          endorbit(uint64)
+          startorbit(uint32),
+          endorbit(uint32)
  
 =======
 table 2:  LUMISUMMARY (insert one row per run+lumiLS+lumiversion from LUMI_RAW file)
