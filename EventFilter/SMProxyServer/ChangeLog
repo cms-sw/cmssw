@@ -1,3 +1,8 @@
+2010-02-23 Srecko Morovic <Srecko.Morovic@cern.ch>
+	* tag V01-09-03
+	* improved version of queue restarting, timeouts etc.
+
+
 2010-02-18 Srecko Morovic <Srecko.Morovic@cern.ch>
 	* tag V01-09-02
 	* Restarting of queues (always or after timeout),
