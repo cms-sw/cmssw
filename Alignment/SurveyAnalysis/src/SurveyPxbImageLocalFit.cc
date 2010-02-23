@@ -12,52 +12,19 @@
 
 #include <iostream>
 
-void SurveyPxbImageLocalFit::doFit()
+void SurveyPxbImageLocalFit::doFit(const fidpoint_t &fidpointvec)
 {
 	fitValidFlag_ = false;
 
-	// Creating vectors with the global parameters of the two modules
-	ROOT::Math::SVector<value_t,4> mod1, mod2;
-	mod1(0)=u1_;
-	mod1(1)=v1_;
-	mod1(2)=cos(g1_);
-	mod1(3)=sin(g1_);
-	mod2(0)=u2_;
-	mod2(1)=v2_;
-	mod2(2)=cos(g2_);
-	mod2(3)=sin(g2_);
-	//std::cout << "mod1: " << mod1 << std::endl;
-	//std::cout << "mod2: " << mod2 << std::endl;
-
-	// Create a matrix for the transformed position of the fidpoints
-	ROOT::Math::SMatrix<value_t,4,4> M1, M2;
-	M1(0,0)=1.; M1(0,1)=0.; M1(0,2)=+fidpoints_[0].x(); M1(0,3)=-fidpoints_[0].y();
-	M1(1,0)=0.; M1(1,1)=1.; M1(1,2)=+fidpoints_[0].y(); M1(1,3)=+fidpoints_[0].x();
-	M1(2,0)=1.; M1(2,1)=0.; M1(2,2)=+fidpoints_[1].x(); M1(2,3)=-fidpoints_[1].y();
-	M1(3,0)=0.; M1(3,1)=1.; M1(3,2)=+fidpoints_[1].y(); M1(3,3)=+fidpoints_[1].x();
-	M2(0,0)=1.; M2(0,1)=0.; M2(0,2)=+fidpoints_[2].x(); M2(0,3)=-fidpoints_[2].y();
-	M2(1,0)=0.; M2(1,1)=1.; M2(1,2)=+fidpoints_[2].y(); M2(1,3)=+fidpoints_[2].x();
-	M2(2,0)=1.; M2(2,1)=0.; M2(2,2)=+fidpoints_[3].x(); M2(2,3)=-fidpoints_[3].y();
-	M2(3,0)=0.; M2(3,1)=1.; M2(3,2)=+fidpoints_[3].y(); M2(3,3)=+fidpoints_[3].x();
-
-	//std::cout << "M1:\n" << M1 << std::endl;
-	//std::cout << "M2:\n" << M2 << std::endl;
-
-	ROOT::Math::SVector<value_t,4> mod_tr1, mod_tr2;
-	mod_tr1 = M1*mod2;
-	mod_tr2 = M2*mod1;
-	//std::cout << "mod_tr1: " << mod_tr1 << std::endl;
-	//std::cout << "mod_tr2: " << mod_tr2 << std::endl;
-
 	ROOT::Math::SMatrix<value_t,8,4> A;
-	A(0,0)=1.; A(0,1)=0; A(0,2)=+mod_tr1(0); A(0,3)=+mod_tr1(1);
-	A(1,0)=0.; A(1,1)=1; A(1,2)=+mod_tr1(1); A(1,3)=-mod_tr1(0);
-	A(2,0)=1.; A(2,1)=0; A(2,2)=+mod_tr1(2); A(2,3)=+mod_tr1(3);
-	A(3,0)=0.; A(3,1)=1; A(3,2)=+mod_tr1(3); A(3,3)=-mod_tr1(2);
-	A(4,0)=1.; A(4,1)=0; A(4,2)=+mod_tr2(0); A(4,3)=+mod_tr2(1);
-	A(5,0)=0.; A(5,1)=1; A(5,2)=+mod_tr2(1); A(5,3)=-mod_tr2(0);
-	A(6,0)=1.; A(6,1)=0; A(6,2)=+mod_tr2(2); A(6,3)=+mod_tr2(3);
-	A(7,0)=0.; A(7,1)=1; A(7,2)=+mod_tr2(3); A(7,3)=-mod_tr2(2);
+	A(0,0)=1.; A(0,1)=0; A(0,2)=+fidpointvec[0].x(); A(0,3)=+fidpointvec[0].y();
+	A(1,0)=0.; A(1,1)=1; A(1,2)=+fidpointvec[0].y(); A(1,3)=-fidpointvec[0].x();
+	A(2,0)=1.; A(2,1)=0; A(2,2)=+fidpointvec[1].x(); A(2,3)=+fidpointvec[1].y();
+	A(3,0)=0.; A(3,1)=1; A(3,2)=+fidpointvec[1].y(); A(3,3)=-fidpointvec[1].x();
+	A(4,0)=1.; A(4,1)=0; A(4,2)=+fidpointvec[2].x(); A(4,3)=+fidpointvec[2].y();
+	A(5,0)=0.; A(5,1)=1; A(5,2)=+fidpointvec[2].y(); A(5,3)=-fidpointvec[2].x();
+	A(6,0)=1.; A(6,1)=0; A(6,2)=+fidpointvec[3].x(); A(6,3)=+fidpointvec[3].y();
+	A(7,0)=0.; A(7,1)=1; A(7,2)=+fidpointvec[3].y(); A(7,3)=-fidpointvec[3].x();
 	//std::cout << "A: \n" << A << std::endl;
 
 	// Covariance matrix
@@ -122,24 +89,57 @@ void SurveyPxbImageLocalFit::doFit()
 
 void SurveyPxbImageLocalFit::doFit(value_t u1, value_t v1, value_t g1, value_t u2, value_t v2, value_t g2)
 {
-	u1_ = u1;
-	v1_ = v1;
-	g1_ = g1;
-	u2_ = u2;
-	v2_ = v2;
-	g2_ = g2;
-	doFit();
+	// Creating vectors with the global parameters of the two modules
+	ROOT::Math::SVector<value_t,4> mod1, mod2;
+	mod1(0)=u1;
+	mod1(1)=v1;
+	mod1(2)=cos(g1);
+	mod1(3)=sin(g1);
+	mod2(0)=u2;
+	mod2(1)=v2;
+	mod2(2)=cos(g2);
+	mod2(3)=sin(g2);
+	//std::cout << "mod1: " << mod1 << std::endl;
+	//std::cout << "mod2: " << mod2 << std::endl;
+
+	// Create a matrix for the transformed position of the fidpoints
+	ROOT::Math::SMatrix<value_t,4,4> M1, M2;
+	M1(0,0)=1.; M1(0,1)=0.; M1(0,2)=+fidpoints_[0].x(); M1(0,3)=-fidpoints_[0].y();
+	M1(1,0)=0.; M1(1,1)=1.; M1(1,2)=+fidpoints_[0].y(); M1(1,3)=+fidpoints_[0].x();
+	M1(2,0)=1.; M1(2,1)=0.; M1(2,2)=+fidpoints_[1].x(); M1(2,3)=-fidpoints_[1].y();
+	M1(3,0)=0.; M1(3,1)=1.; M1(3,2)=+fidpoints_[1].y(); M1(3,3)=+fidpoints_[1].x();
+	M2(0,0)=1.; M2(0,1)=0.; M2(0,2)=+fidpoints_[2].x(); M2(0,3)=-fidpoints_[2].y();
+	M2(1,0)=0.; M2(1,1)=1.; M2(1,2)=+fidpoints_[2].y(); M2(1,3)=+fidpoints_[2].x();
+	M2(2,0)=1.; M2(2,1)=0.; M2(2,2)=+fidpoints_[3].x(); M2(2,3)=-fidpoints_[3].y();
+	M2(3,0)=0.; M2(3,1)=1.; M2(3,2)=+fidpoints_[3].y(); M2(3,3)=+fidpoints_[3].x();
+
+	//std::cout << "M1:\n" << M1 << std::endl;
+	//std::cout << "M2:\n" << M2 << std::endl;
+
+	ROOT::Math::SVector<value_t,4> mod_tr1, mod_tr2;
+	mod_tr1 = M1*mod2;
+	mod_tr2 = M2*mod1;
+	//std::cout << "mod_tr1: " << mod_tr1 << std::endl;
+	//std::cout << "mod_tr2: " << mod_tr2 << std::endl;
+
+	fidpoint_t fidpointvec;
+	fidpointvec.push_back(coord_t(mod_tr1(0),mod_tr1(1)));
+	fidpointvec.push_back(coord_t(mod_tr1(2),mod_tr1(3)));
+	fidpointvec.push_back(coord_t(mod_tr2(0),mod_tr2(1)));
+	fidpointvec.push_back(coord_t(mod_tr2(2),mod_tr2(3)));
+
+	doFit(fidpointvec);
 }
 
 SurveyPxbImageLocalFit::localpars_t SurveyPxbImageLocalFit::getLocalParameters()
 {
-	if (!fitValidFlag_) doFit();
+	if (!fitValidFlag_) throw std::logic_error("SurveyPxbImageLocalFit::getLocalParameters(): Fit is not valid. Call doFit(...) before calling this function.");
 	return a_;
 }
 
 SurveyPxbImageLocalFit::value_t SurveyPxbImageLocalFit::getChi2()
 {
-	if (!fitValidFlag_) doFit();
+	if (!fitValidFlag_) throw std::logic_error("SurveyPxbImageLocalFit::getChi2(): Fit is not valid. Call doFit(...) before calling this function.");
 	return chi2_;
 }
 

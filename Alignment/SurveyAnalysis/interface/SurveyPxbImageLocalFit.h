@@ -13,6 +13,8 @@ class SurveyPxbImageLocalFit : public SurveyPxbImage
 {
 public:
 	typedef std::vector<value_t> localpars_t;
+	//typedef std::vector<LocalPoint> fidpoint_t;
+	typedef std::vector<coord_t> fidpoint_t;
 
 	// Constructors
 	SurveyPxbImageLocalFit(): 
@@ -29,7 +31,7 @@ public:
 	};
 
 	//! Invoke the fit
-	void doFit();
+	void doFit(const fidpoint_t &fidpointvec);
 	void doFit(value_t x1, value_t y1, value_t g1, value_t x2, value_t y2, value_t g2);
 
 	//! returns validity flag
@@ -47,10 +49,6 @@ private:
 
 	//! True position of the fiducial points on a sensor wrt. local frame (u,v)
 	std::vector<coord_t> fidpoints_;
-
-	//! Global parameters
-	value_t u1_, v1_, g1_;
-	value_t u2_, v2_, g2_;
 
 	//! chi2 of the local fit
 	value_t chi2_;
