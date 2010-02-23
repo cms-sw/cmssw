@@ -34,7 +34,8 @@ static float timeshift_ns_hf(float wpksamp);
 namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
+		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr,
+		     HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
 
@@ -52,7 +53,7 @@ namespace HcalSimpleRecAlgoImpl {
       }
     }
 
-    float time=-9999;
+    float time = -9999;
     ////Cannot calculate time value with max ADC sample at first or last position in window....
     if(maxI==0 || maxI==(tool.size()-1)) {      
       LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
@@ -62,22 +63,25 @@ namespace HcalSimpleRecAlgoImpl {
 					       << " last: "<<(tool.size()-1)
 					       << std::endl;
     } else {
-      maxA=fabs(maxA);
       int capid=digi[maxI-1].capid();
-      float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
+      float t0 = ((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
       capid=digi[maxI+1].capid();
-      float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );    
+      float t2 = ((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
+
+      // Handle negative excursions by moving "zero":
+      float minA=t0;
+      if (maxA<minA) minA=maxA;
+      if (t2<minA)   minA=t2;
+      if (minA<0) { maxA-=minA; t0-=minA; t2-=minA; } // positivizes all samples
+
       float wpksamp = (t0 + maxA + t2);
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
-
       if (corr!=0) {
 	// Apply phase-based amplitude correction:
 	ampl *= corr->getCorrection(fc_ampl);
 	//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
       }
-
-    
       if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
     }
 
@@ -150,70 +154,89 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
 
 // timeshift implementation
 
-static const float wpksamp0_hbheho = 0.680178;
-static const float scale_hbheho    = 0.819786;
-static const int   num_bins_hbheho = 50;
+static const float wpksamp0_hbheho = 0.500043;
+static const float scale_hbheho    = 1.00001;
+static const int   num_bins_hbheho = 61;
 
 static const float actual_ns_hbheho[num_bins_hbheho] = {
- 0.00000, // 0.000-0.020
- 0.41750, // 0.020-0.040
- 0.81500, // 0.040-0.060
- 1.21000, // 0.060-0.080
- 1.59500, // 0.080-0.100
- 1.97250, // 0.100-0.120
- 2.34750, // 0.120-0.140
- 2.71250, // 0.140-0.160
- 3.07500, // 0.160-0.180
- 3.43500, // 0.180-0.200
- 3.79000, // 0.200-0.220
- 4.14250, // 0.220-0.240
- 4.49250, // 0.240-0.260
- 4.84250, // 0.260-0.280
- 5.19000, // 0.280-0.300
- 5.53750, // 0.300-0.320
- 5.89000, // 0.320-0.340
- 6.23750, // 0.340-0.360
- 6.59250, // 0.360-0.380
- 6.95250, // 0.380-0.400
- 7.31000, // 0.400-0.420
- 7.68000, // 0.420-0.440
- 8.05500, // 0.440-0.460
- 8.43000, // 0.460-0.480
- 8.83250, // 0.480-0.500
- 9.23250, // 0.500-0.520
- 9.65500, // 0.520-0.540
-10.09500, // 0.540-0.560
-10.54750, // 0.560-0.580
-11.04500, // 0.580-0.600
-11.55750, // 0.600-0.620
-12.13000, // 0.620-0.640
-12.74500, // 0.640-0.660
-13.41250, // 0.660-0.680
-14.18500, // 0.680-0.700
-15.02750, // 0.700-0.720
-15.92250, // 0.720-0.740
-16.82500, // 0.740-0.760
-17.70000, // 0.760-0.780
-18.52500, // 0.780-0.800
-19.28750, // 0.800-0.820
-19.99750, // 0.820-0.840
-20.67250, // 0.840-0.860
-21.31250, // 0.860-0.880
-21.90750, // 0.880-0.900
-22.48750, // 0.900-0.920
-23.02750, // 0.920-0.940
-23.55250, // 0.940-0.960
-24.05000, // 0.960-0.980
-24.53750, // 0.980-1.000
+-5.44000, // 0.500, 0.000-0.017
+-4.84250, // 0.517, 0.017-0.033
+-4.26500, // 0.533, 0.033-0.050
+-3.71000, // 0.550, 0.050-0.067
+-3.18000, // 0.567, 0.067-0.083
+-2.66250, // 0.583, 0.083-0.100
+-2.17250, // 0.600, 0.100-0.117
+-1.69000, // 0.617, 0.117-0.133
+-1.23000, // 0.633, 0.133-0.150
+-0.78000, // 0.650, 0.150-0.167
+-0.34250, // 0.667, 0.167-0.183
+ 0.08250, // 0.683, 0.183-0.200
+ 0.50250, // 0.700, 0.200-0.217
+ 0.90500, // 0.717, 0.217-0.233
+ 1.30500, // 0.733, 0.233-0.250
+ 1.69500, // 0.750, 0.250-0.267
+ 2.07750, // 0.767, 0.267-0.283
+ 2.45750, // 0.783, 0.283-0.300
+ 2.82500, // 0.800, 0.300-0.317
+ 3.19250, // 0.817, 0.317-0.333
+ 3.55750, // 0.833, 0.333-0.350
+ 3.91750, // 0.850, 0.350-0.367
+ 4.27500, // 0.867, 0.367-0.383
+ 4.63000, // 0.883, 0.383-0.400
+ 4.98500, // 0.900, 0.400-0.417
+ 5.33750, // 0.917, 0.417-0.433
+ 5.69500, // 0.933, 0.433-0.450
+ 6.05000, // 0.950, 0.450-0.467
+ 6.40500, // 0.967, 0.467-0.483
+ 6.77000, // 0.983, 0.483-0.500
+ 7.13500, // 1.000, 0.500-0.517
+ 7.50000, // 1.017, 0.517-0.533
+ 7.88250, // 1.033, 0.533-0.550
+ 8.26500, // 1.050, 0.550-0.567
+ 8.66000, // 1.067, 0.567-0.583
+ 9.07000, // 1.083, 0.583-0.600
+ 9.48250, // 1.100, 0.600-0.617
+ 9.92750, // 1.117, 0.617-0.633
+10.37750, // 1.133, 0.633-0.650
+10.87500, // 1.150, 0.650-0.667
+11.38000, // 1.167, 0.667-0.683
+11.95250, // 1.183, 0.683-0.700
+12.55000, // 1.200, 0.700-0.717
+13.22750, // 1.217, 0.717-0.733
+13.98500, // 1.233, 0.733-0.750
+14.81500, // 1.250, 0.750-0.767
+15.71500, // 1.267, 0.767-0.783
+16.63750, // 1.283, 0.783-0.800
+17.53750, // 1.300, 0.800-0.817
+18.38500, // 1.317, 0.817-0.833
+19.16500, // 1.333, 0.833-0.850
+19.89750, // 1.350, 0.850-0.867
+20.59250, // 1.367, 0.867-0.883
+21.24250, // 1.383, 0.883-0.900
+21.85250, // 1.400, 0.900-0.917
+22.44500, // 1.417, 0.917-0.933
+22.99500, // 1.433, 0.933-0.950
+23.53250, // 1.450, 0.950-0.967
+24.03750, // 1.467, 0.967-0.983
+24.53250, // 1.483, 0.983-1.000
+25.00000  // 1.500, 1.000-1.017 - keep for interpolation
 };
 
 float timeshift_ns_hbheho(float wpksamp) {
-  int index=(int)(0.5+num_bins_hbheho*(wpksamp-wpksamp0_hbheho)/scale_hbheho);
-  
-  if      (index <    0)             return actual_ns_hbheho[0];
-  else if (index >= num_bins_hbheho) return actual_ns_hbheho[num_bins_hbheho-1];
-  
-  return actual_ns_hbheho[index];
+  float flx = ((num_bins_hbheho-1)*(wpksamp - wpksamp0_hbheho)/scale_hbheho);
+  int index = (int)flx;
+  float yval;
+
+  if      (index <    0)               return actual_ns_hbheho[0];
+  else if (index >= num_bins_hbheho-1) return actual_ns_hbheho[num_bins_hbheho-1];
+
+  // else interpolate:
+  float y1 = actual_ns_hbheho[index];
+  float y2 = actual_ns_hbheho[index+1];
+
+  yval = y1 + (y2-y1)*(flx-(float)index);
+
+  return yval;
 }
 
 static const float wpksamp0_hf = 0.500053;
