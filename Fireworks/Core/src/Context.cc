@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.5 2009/04/07 13:58:31 chrjones Exp $
+// $Id: Context.cc,v 1.6 2010/01/21 21:01:30 amraktad Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@ Context::Context(FWModelChangeManager* iCM,
    m_propagator->SetMaxR(123.0);
    m_propagator->SetMaxZ(300.0);
    m_propagator->SetMagFieldObj(m_magField);
+   m_propagator->IncRefCount();
 }
 
 
