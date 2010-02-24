@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/GRun/V26 (CMSSW_3_5_2_HLT2)
+# /dev/CMSSW_3_5_0/GRun/V27 (CMSSW_3_5_2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V26')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V27')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -8345,8 +8345,7 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_TkMu3_NoVertex',
       'HLT_TrackerCosmics',
       'HLT_TrackPointing',
-      'HLT_ZeroBias',
-      'z' ),
+      'HLT_ZeroBias' ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMask = cms.bool( False ),

@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_0/8E29/V26 (CMSSW_3_5_2_HLT2)
+# /dev/CMSSW_3_5_0/8E29/V27 (CMSSW_3_5_2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V26')
+  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V27')
 )
 
 streams = cms.PSet( 
@@ -28,7 +28,9 @@ streams = cms.PSet(
   RPCMON = cms.vstring( 'RPCMonitor' )
 )
 datasets = cms.PSet( 
-  OfflineMonitor = cms.vstring( 'HLT_Mu5',
+  OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
+    'HLT_Mu9',
+    'HLT_Mu5',
     'HLT_Mu3',
     'HLT_IsoMu3',
     'HLT_L2Mu11',
@@ -101,9 +103,7 @@ datasets = cms.PSet(
     'HLT_BTagMu_Jet10U',
     'HLT_DoubleMu3',
     'HLT_DoubleJet15U_ForwardBackward',
-    'HLT_HighMult40',
-    'HLT_DoubleMu0',
-    'HLT_Mu9' ),
+    'HLT_HighMult40' ),
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
