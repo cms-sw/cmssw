@@ -5,8 +5,8 @@
  *
  *  The single EDProduct containing the HLT Prescale Table
  *
- *  $Date: 2010/02/15 17:40:49 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/02/24 11:23:30 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -51,7 +51,7 @@ namespace trigger
     /// high-level user access method: prescale for given trigger path
     unsigned int prescale(unsigned int set, const string& trigger) const {
       const map<string,vector<unsigned int> >::const_iterator it(table_.find(trigger));
-      if ((it==table_.end()) || (it->second.size()>=set)) {
+      if ((it==table_.end()) || (set>=it->second.size())) {
 	return 1;
       } else {
 	return it->second[set];
