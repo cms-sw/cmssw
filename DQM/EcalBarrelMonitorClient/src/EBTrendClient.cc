@@ -1,8 +1,8 @@
 /*
  * \file EBTrendClient.cc
  *
- * $Date: 2010/02/12 17:02:41 $
- * $Revision: 1.2 $
+ * $Date: 2010/02/18 23:17:06 $
+ * $Revision: 1.3 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -91,7 +91,7 @@ void EBTrendClient::beginJob(void){
   histTitles_[3]  = "EBOT rec hit thr occupancy";
 
   moduleNames_[4] = "EBOccupancyTask"; // TH2
-  histTitles_[4]  = "EBOT TP digi occupancy";
+  histTitles_[4]  = "EBOT TP digi thr occupancy";
 
 
 }
