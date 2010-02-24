@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/12/11 19:18:29 $
- * $Revision: 1.71 $
+ * $Date: 2009/12/11 20:27:55 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -111,6 +111,7 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meSCMapSingleCrystal_[1] = 0;
 
   mes1s9_ = 0;
+  mes1s9thr_ = 0;
   mes9s25_ = 0;
 
   meInvMassPi0_ = 0;
@@ -237,6 +238,8 @@ void EEClusterTask::reset(void) {
   if ( meSCMapSingleCrystal_[1] ) meSCMapSingleCrystal_[1]->Reset();
 
   if ( mes1s9_ ) mes1s9_->Reset();
+
+  if ( mes1s9thr_ ) mes1s9thr_->Reset();
 
   if ( mes9s25_ ) mes9s25_->Reset();
 
@@ -456,6 +459,10 @@ void EEClusterTask::setup(void){
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
+    sprintf(histo, "EECLT s1s9 thr");
+    mes1s9thr_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
+    mes1s9thr_->setAxisTitle("s1/s9", 1);
+
     sprintf(histo, "EECLT s9s25");
     mes9s25_ = dqmStore_->book1D(histo, histo, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
@@ -622,6 +629,9 @@ void EEClusterTask::cleanup(void){
 
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
+
+    if ( mes1s9thr_ ) dqmStore_->removeElement( mes1s9thr_->getName() );
+    mes1s9thr_ = 0;
 
     if ( mes9s25_ ) dqmStore_->removeElement( mes9s25_->getName() );
     mes9s25_ = 0;
@@ -889,6 +899,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       if(sIds.size() == 1) meSCMapSingleCrystal_[eeSide]->Fill(xeex, xeey);
 
       mes1s9_->Fill( eMax/e3x3 );
+      if ( eMax > 3.0 ) mes1s9thr_->Fill( eMax/e3x3 );
       mes9s25_->Fill( e3x3/e5x5 );
 
       // look for the two most energetic super clusters
