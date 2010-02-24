@@ -135,16 +135,19 @@ class CaloGeometryDBEP : public edm::ESProducer
 
 	    const DetId id ( T::DetIdType::detIdFromDenseIndex( i ) ) ;
     
-	    const unsigned int iGlob ( T::alignmentTransformIndexGlobal( id ) ) ;
+	    const unsigned int iGlob ( 0 == globalPtr ? 0 :
+				       T::alignmentTransformIndexGlobal( id ) ) ;
 
-	    const AlignTransform* gt ( 0 == globalPtr ? 0 :
-				       ( iGlob < globalPtr->m_align.size() ?
-					 &globalPtr->m_align[ iGlob ] : 0 ) ) ;
+	    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size() ) ;
 
-	    const unsigned int iLoc ( T::alignmentTransformIndexLocal( id ) ) ;
+	    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] ) ;
 
-	    assert( 0 == alignPtr ||
-		    iLoc < alignPtr->m_align.size() ) ;
+	    assert( 0 == gt || iGlob == T::alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
+
+	    const unsigned int iLoc ( 0 == alignPtr ? 0 :
+				      T::alignmentTransformIndexLocal( id ) ) ;
+
+	    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size() ) ;
 
 	    const AlignTransform* at ( 0 == alignPtr ? 0 :
 				       &alignPtr->m_align[ iLoc ] ) ;
