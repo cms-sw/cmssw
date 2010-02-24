@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2010/01/18 21:04:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/17 17:49:42 $
+ *  $Revision: 1.5 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -74,6 +74,70 @@ class JetAnalyzer : public JetAnalyzerBase {
   void setJetHiPass(int pass) {
     _JetHiPass = pass;
   }
+  //jet counters
+  int getNjets_HB() {
+    return  _Njets_HB;
+  }
+  int getNjets_BE() {
+    return  _Njets_BE;
+  }
+  int getNjets_HE() {
+    return  _Njets_HE;
+  }
+  int getNjets_EF() {
+    return  _Njets_EF;
+  }
+  int getNjets_HF() {
+    return  _Njets_HF;
+  }
+  //
+  void setNjets_HB(int hb) {
+    _Njets_HB = hb;
+  }
+  void setNjets_BE(int be) {
+    _Njets_BE = be;
+  }
+  void setNjets_HE(int he) {
+    _Njets_HE = he;
+  }
+  void setNjets_EF(int ef) {
+    _Njets_EF = ef;
+  }
+  void setNjets_HF(int hf) {
+    _Njets_HF = hf;
+  }
+  //
+  int getNCleanedjets_HB() {
+    return  _NCleanedjets_HB;
+  }
+  int getNCleanedjets_BE() {
+    return  _NCleanedjets_BE;
+  }
+  int getNCleanedjets_HE() {
+    return  _NCleanedjets_HE;
+  }
+  int getNCleanedjets_EF() {
+    return  _NCleanedjets_EF;
+  }
+  int getNCleanedjets_HF() {
+    return  _NCleanedjets_HF;
+  }
+  //
+  void setNCleanedjets_HB(int hb) {
+    _NCleanedjets_HB = hb;
+  }
+  void setNCleanedjets_BE(int be) {
+    _NCleanedjets_BE = be;
+  }
+  void setNCleanedjets_HE(int he) {
+    _NCleanedjets_HE = he;
+  }
+  void setNCleanedjets_EF(int ef) {
+    _NCleanedjets_EF = ef;
+  }
+  void setNCleanedjets_HF(int hf) {
+    _NCleanedjets_HF = hf;
+  }
 
  private:
   // ----------member data ---------------------------
@@ -93,6 +157,19 @@ class JetAnalyzer : public JetAnalyzerBase {
   double _fHPDMax;
   double _resEMFMin;
   int _n90HitsMin;
+
+  int iscleaned;
+  int makedijetselection;
+  int _Njets_HB;
+  int _Njets_BE;
+  int _Njets_HE;
+  int _Njets_EF;
+  int _Njets_HF;
+  int _NCleanedjets_HB;
+  int _NCleanedjets_BE;
+  int _NCleanedjets_HE;
+  int _NCleanedjets_EF;
+  int _NCleanedjets_HF;
 
   //histo binning parameters
   int    etaBin;
@@ -223,8 +300,9 @@ class JetAnalyzer : public JetAnalyzerBase {
   //  MonitorElement* mEnergyFractionEm;
   MonitorElement* mN90Hits;
   MonitorElement* mfHPD;
+  MonitorElement* mfRBX;
   MonitorElement* mresEMF;
-
+  MonitorElement* mJIDEff;
 
   // Events passing the jet triggers
   MonitorElement* mEta_Lo;

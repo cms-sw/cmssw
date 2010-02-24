@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2010/01/27 01:43:22 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/02/07 22:08:59 $
+ *  $Revision: 1.13 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -101,7 +101,6 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   double _vtxchi2_max;
   double _vtxz_max;
 
-
   int _LSBegin;
   int _LSEnd;
 
@@ -125,6 +124,8 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   bool thePFJetAnalyzerFlag;
   bool thePFJetCleaningFlag;
 
+  bool theDiJetSelectionFlag;
+
   bool theJPTJetAnalyzerFlag;
   bool theJPTJetCleaningFlag;
 
@@ -146,6 +147,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   JetAnalyzer       * theCleanedAKJetAnalyzer;
   JetAnalyzer       * theCleanedSCJetAnalyzer;
   JetAnalyzer       * theCleanedICJetAnalyzer;
+  JetAnalyzer       * theDiJetAnalyzer;
 
   JPTJetAnalyzer    * theJPTJetAnalyzer;
   JPTJetAnalyzer    * theCleanedJPTJetAnalyzer;
@@ -172,5 +174,43 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
 
   HTMHTAnalyzer     * theHTMHTAnalyzer;
   
+  //
+  int AKNjets_HB;
+  int AKNjets_BE;
+  int AKNjets_HE;
+  int AKNjets_EF;
+  int AKNjets_HF;
+  int SCNjets_HB;
+  int SCNjets_BE;
+  int SCNjets_HE;
+  int SCNjets_EF;
+  int SCNjets_HF;
+  int ICNjets_HB;
+  int ICNjets_BE;
+  int ICNjets_HE;
+  int ICNjets_EF;
+  int ICNjets_HF;
+  int AKNCleanedjets_HB;
+  int AKNCleanedjets_BE;
+  int AKNCleanedjets_HE;
+  int AKNCleanedjets_EF;
+  int AKNCleanedjets_HF;
+  int SCNCleanedjets_HB;
+  int SCNCleanedjets_BE;
+  int SCNCleanedjets_HE;
+  int SCNCleanedjets_EF;
+  int SCNCleanedjets_HF;
+  int ICNCleanedjets_HB;
+  int ICNCleanedjets_BE;
+  int ICNCleanedjets_HE;
+  int ICNCleanedjets_EF;
+  int ICNCleanedjets_HF;
+  int Dijets_HB;
+  int Dijets_BE;
+  int Dijets_HE;
+  int DijetsCleaned_HB;
+  int DijetsCleaned_BE;
+  int DijetsCleaned_HE;
+
 };
 #endif  

@@ -29,7 +29,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 #include <string>
 using namespace std;
@@ -47,6 +47,9 @@ class JetPtAnalyzer : public JetAnalyzerBase {
 
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore * dbe);
+
+  /// Finish up a job
+  void endJob();
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
@@ -66,8 +69,10 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   // Calo Jet Label
   edm::InputTag theCaloJetCollectionLabel;
 
- 
-  
+  // JetID helper
+  reco::helper::JetIDHelper *jetID;
+
+  int iscleaned;
 
   //histo binning parameters
   int    etaBin;
@@ -81,6 +86,12 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   int    ptBin;
   double ptMin;
   double ptMax;
+  //  int jIDeffptBins;
+
+  //set them to a maximum length (must be < jIDeffptBins)
+  //  int njetsinptbins[50];
+  //  int ncleanedjetsinptbins[50];
+
 
   //the histos
   MonitorElement* jetME;
@@ -103,7 +114,11 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   MonitorElement* mEmEnergyInEB;
   MonitorElement* mEmEnergyInEE;
   MonitorElement* mEmEnergyInHF;
-  MonitorElement* mN90;
+  MonitorElement* mN90Hits;
+  MonitorElement* mresEMF;
+  MonitorElement* mfHPD;
+  MonitorElement* mfRBX;
+  //  MonitorElement* mJIDEffVsPt;
 
 
 };
