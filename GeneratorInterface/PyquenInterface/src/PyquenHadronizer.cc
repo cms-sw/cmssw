@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.9 2009/10/01 18:53:17 loizides Exp $
+ * $Id: PyquenHadronizer.cc,v 1.10 2009/10/15 12:25:31 yilmaz Exp $
 */
 
 #include <iostream>
@@ -128,7 +128,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
       Handle<HepMCProduct> input;
       e.getByLabel(src_,input);
       const HepMC::GenEvent * inev = input->GetEvent();
-      HepMC::HeavyIon* hi = inev->heavy_ion();
+      const HepMC::HeavyIon* hi = inev->heavy_ion();
       if(hi){
 	 bfixed_ = hi->impact_parameter();
 	 evtPlane_ = hi->event_plane_angle();
