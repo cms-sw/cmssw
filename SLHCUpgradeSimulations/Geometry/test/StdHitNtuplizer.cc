@@ -375,11 +375,14 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
                 << " err x/y = " << sqrt(le.xx()) << " " << sqrt(le.yy()) << std::endl;
 */
           }
+          // clone uses new so delete it
+          delete hit;
         }
       } //end of loop on tracking rechits
   } // end of loop on recotracks
 
-  // now for strip rechits
+  // now for strip rechits - but only if we ask for them (they do not exist for Longbarrel maybe)
+  if( (rphiRecHits_.encode().size()) && (stereoRecHits_.encode().size()) && (matchedRecHits_.encode().size()) ) {
   edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
   edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
@@ -652,6 +655,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       } // end of rechit loop
     } // end of detidt loop
   } // end of loop test on rechit size
+  }// end of test if strip input tag labels are empty
             
 } // end analyze function
 
@@ -773,6 +777,8 @@ void StdHitNtuplizer::fillPRecHit(const int subid,
   recHit_.gy = GP.y();
   recHit_.gz = GP.z();
   recHit_.subid = subid;
+  // clone uses new so delete it
+  delete pixeliter;
 }
 
 void
