@@ -86,10 +86,10 @@ all: display
 
 display: lib$(LibProject).$(SO_EXT) tmp/lib$(LibProject).$(SO_EXT).out cmsShow.exe
 
+
 macDebugLink: lib$(LibCore).$(SO_EXT)
-ifeq ($(shell uname), Darwin)\
-   dsymutil --verbose lib$(LibProject).$(SO_EXT)
-endif
+	$(QUIET) echo "Add debug info for lib$(LibCore).$(SO_EXT)"; \
+   if [ $(shell uname) == "Darwin" ]; then /usr/bin/dsymutil --verbose lib$(LibCore).$(SO_EXT); fi;
 
 cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) macDebugLink src/Fireworks/Core/bin/cmsShow.cc
 	$(QUIET) echo "linking cmsShow.exe"; \
