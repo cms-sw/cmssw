@@ -5,8 +5,8 @@
  *
  *  The single EDProduct containing the HLT Prescale Table
  *
- *  $Date: 2010/02/24 11:23:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/24 11:57:31 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -72,6 +72,11 @@ namespace trigger
       for (map<string,vector<unsigned int> >::const_iterator it=ib; it!=ie; ++it) {
 	assert (it->second.size()==n);
       }
+    }
+
+    /// merge rule - just checking equality
+    bool mergeProduct(const HLTPrescaleTable& that) {
+      return ((set()==that.set()) && (labels()==that.labels()) && (table()==that.table()));
     }
 
     /// low-level const accessors for data members
