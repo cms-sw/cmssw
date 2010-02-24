@@ -48,7 +48,7 @@ EcalBarrelGeometry::alignmentTransformIndexLocal( const DetId& id )
 unsigned int
 EcalBarrelGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
-   return (unsigned int)DetId::Ecal ;
+   return (unsigned int)DetId::Ecal - 1 ;
 }
 // Get closest cell, etc...
 DetId 

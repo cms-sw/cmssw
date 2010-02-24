@@ -34,7 +34,7 @@ EcalEndcapGeometry::alignmentTransformIndexLocal( const DetId& id )
 unsigned int
 EcalEndcapGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
-   return (unsigned int)DetId::Ecal ;
+   return (unsigned int)DetId::Ecal - 1 ;
 }
 
 void 

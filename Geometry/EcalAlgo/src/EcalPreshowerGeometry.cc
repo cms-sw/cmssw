@@ -71,7 +71,7 @@ EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
 unsigned int
 EcalPreshowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
-   return (unsigned int)DetId::Ecal ;
+   return (unsigned int)DetId::Ecal - 1 ;
 }
 
 
