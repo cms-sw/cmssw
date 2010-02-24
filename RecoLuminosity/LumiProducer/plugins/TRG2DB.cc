@@ -432,37 +432,48 @@ namespace lumi{
       unsigned int& cmsluminum=trgData["CMSLUMINUM"].data<unsigned int>();
       unsigned int& bitnum=trgData["BITNUM"].data<unsigned int>();
       std::string& bitname=trgData["BITNAME"].data<std::string>();
-      unsigned long long& count=trgData["COUNT"].data<unsigned long long>();
+      unsigned int& count=trgData["COUNT"].data<unsigned int>();
       unsigned long long& deadtime=trgData["DEADTIME"].data<unsigned long long>();
       unsigned int& prescale=trgData["PRESCALE"].data<unsigned int>();
 
-
-      TriggerCountResult_Algo::const_iterator algoIt;
-      TriggerCountResult_Algo::const_iterator algoBeg=algocount.begin();
-      TriggerCountResult_Algo::const_iterator algoEnd=algocount.end();
-      TriggerCountResult_Tech::const_iterator techIt;
-      TriggerCountResult_Tech::const_iterator techBeg=techcount.begin();
-      TriggerCountResult_Tech::const_iterator techEnd=techcount.end();
-      unsigned int trglscount=0;
-      for(algoIt=algoBeg;algoIt!=algoEnd;++algoIt){
+      
+      TriggerDeadCountResult::const_iterator deadIt;
+      TriggerDeadCountResult::const_iterator deadBeg=deadtimeresult.begin();
+      TriggerDeadCountResult::const_iterator deadEnd=deadtimeresult.end();
+      unsigned int trglscount=0;      
+      for(deadIt=deadBeg;deadIt!=deadEnd;++deadIt,++trglscount ){
 	unsigned int cmslscount=trglscount+1;
+	BITCOUNT& algoinbits=algocount[trglscount];
+	BITCOUNT& techinbits=techcount[trglscount];
+	unsigned int trgbitcount=0;
 	BITCOUNT::const_iterator algoBitIt;
-	BITCOUNT::const_iterator algoBitBeg=algoIt->begin();
-	BITCOUNT::const_iterator algoBitEnd=algoIt->end();
-	unsigned int j=0;
-	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt){
+	BITCOUNT::const_iterator algoBitBeg=algoinbits.begin();
+	BITCOUNT::const_iterator algoBitEnd=algoinbits.end();
+	for(algoBitIt=algoBitBeg;algoBitIt!=algoBitEnd;++algoBitIt,++trgbitcount){
 	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
+	  deadtime=*deadIt;
 	  trgrunnum = runnumber;
 	  cmsluminum = cmslscount;
-	  bitnum=j;
-	  bitname=algonames[j];
+	  bitnum=trgbitcount;
+	  bitname=algonames[trgbitcount];
 	  count=*algoBitIt;
-	  prescale=algoprescale[j];
+	  prescale=algoprescale[trgbitcount];
 	  trgInserter->processNextIteration();	
-	  ++j;
 	}
-	deadtime=deadtimeresult[trglscount];;
-	++trglscount;
+	BITCOUNT::const_iterator techBitIt;
+	BITCOUNT::const_iterator techBitBeg=techinbits.begin();
+	BITCOUNT::const_iterator techBitEnd=techinbits.end();
+	for(techBitIt=techBitBeg;techBitIt!=techBitEnd;++techBitIt,++trgbitcount){
+	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
+	  deadtime=*deadIt;
+	  trgrunnum = runnumber;
+	  cmsluminum = cmslscount;
+	  bitnum=trgbitcount;
+	  bitname=technames[trgbitcount-lumi::N_TRGALGOBIT];
+	  count=*techBitIt;
+	  prescale=techprescale[trgbitcount-lumi::N_TRGALGOBIT];
+	  trgInserter->processNextIteration();	
+	}
       }
       trgInserter->flush();
       delete trgInserter;
