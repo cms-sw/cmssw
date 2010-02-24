@@ -92,7 +92,7 @@ ZdcGeometry::alignmentTransformIndexLocal( const DetId& id )
 unsigned int
 ZdcGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
-   return (unsigned int)DetId::Calo ;
+   return (unsigned int)DetId::Calo - 1 ;
 }
 
 std::vector<HepGeom::Point3D<double> > 

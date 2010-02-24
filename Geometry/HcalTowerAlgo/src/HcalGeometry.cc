@@ -287,14 +287,18 @@ HcalGeometry::alignmentTransformIndexLocal( const DetId& id )
 
    const HcalDetId hid ( id ) ;
 
-   const int detoff ( gid.isHB() ? 0 :
-		      ( gid.isHE() ? numberOfBarrelAlignments() :
-			( gid.isHF() ? ( numberOfBarrelAlignments() +
-					 numberOfEndcapAlignments() ) :
-			  ( numberOfBarrelAlignments() +
-			    numberOfEndcapAlignments() +
-			    numberOfForwardAlignments() ) ) ) ) ; 
+   const int jz ( ( hid.zside() + 1 )/2 ) ;
 
+   const int zoff ( jz*numberOfAlignments()/2 ) ;
+
+   const int detoff ( zoff + 
+		      ( gid.isHB() ? 0 :
+			( gid.isHE() ? numberOfBarrelAlignments()/2 :
+			  ( gid.isHF() ? ( numberOfBarrelAlignments() +
+					   numberOfEndcapAlignments() )/2 :
+			    ( numberOfBarrelAlignments() +
+			      numberOfEndcapAlignments() +
+			      numberOfForwardAlignments() )/2 ) ) ) ) ; 
 
    const int iphi ( hid.iphi() ) ;
 
@@ -311,8 +315,7 @@ HcalGeometry::alignmentTransformIndexLocal( const DetId& id )
    }
    else
    {
-      const int zoff ( ( hid.zside() + 1 )/2 ) ;
-      index = detoff + ( iphi - 1 )%4 + 18*zoff ;
+      index = detoff + ( iphi - 1 )%4 ;
    }
 
    assert( index < numberOfAlignments() ) ;
@@ -322,7 +325,7 @@ HcalGeometry::alignmentTransformIndexLocal( const DetId& id )
 unsigned int
 HcalGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
-   return (unsigned int)DetId::Hcal ;
+   return (unsigned int)DetId::Hcal - 1 ;
 }
 
 std::vector<HepGeom::Point3D<double> > 

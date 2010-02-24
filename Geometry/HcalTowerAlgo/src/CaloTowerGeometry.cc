@@ -17,15 +17,24 @@ CaloTowerGeometry::alignmentTransformIndexLocal( const DetId& id )
 
    assert( gid.isCaloTower() ) ;
 
-   unsigned int index ( 0 ) ;// to be implemented
+   const CaloTowerDetId cid ( id ) ;
 
-   return index ;
+   const unsigned int iea ( cid.ietaAbs() ) ;
+
+   const unsigned int ip ( ( cid.iphi() - 1 )/4 ) ;
+
+   const int izoff ( ( cid.zside() + 1 )/2 ) ;
+
+   const unsigned int offset ( izoff*3*18) ;
+
+   return ( offset + ip + ( CaloTowerDetId::kEndIEta < iea ? 36 :
+			    ( CaloTowerDetId::kBarIEta < iea ? 18 : 0 ) ) ) ;
 }
 
 unsigned int
 CaloTowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
 {
-   return 0 ;
+   return (unsigned int) DetId::Calo - 1 ;
 }
 
 std::vector<HepGeom::Point3D<double> > 
