@@ -65,7 +65,7 @@ exit 1 unless ( -e "$cmssw_path" );
 my $task;
 
 if ( $opts{'read'} ) {
-  $task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; TNS_ADMIN=/etc ; cd $config{'ec_mon_path'} ; readMaskFromDB --sid=$dbName --user-name=$dbUserName --password=$dbPassword --location=$location --run-number=$run $file";
+  $task = "export SCRAM_ARCH=$cmssw_arch ; source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; TNS_ADMIN=/etc ; cd $config{'ec_mon_path'} ; readMaskFromDB --sid=$dbName --user-name=$dbUserName --password=$dbPassword --location=$location --run-number=$run $file";
   print "$task\n" if ( $opts{'debug'} );
   system("$task");
   exit 0;
