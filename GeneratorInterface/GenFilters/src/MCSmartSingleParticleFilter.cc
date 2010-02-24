@@ -150,7 +150,7 @@ bool MCSmartSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSet
     for (unsigned int i = 0; i < particleID.size(); i++){
      if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
     
-      if ( (*p)->momentum().mag() > pMin[i] && (*p)->momentum().perp() > ptMin[i]
+      if ( (*p)->momentum().rho() > pMin[i] && (*p)->momentum().perp() > ptMin[i]
        && (*p)->momentum().eta() > etaMin[i] && (*p)->momentum().eta() < etaMax[i]
        && ((*p)->status() == status[i] || status[i] == 0)) { 
 
