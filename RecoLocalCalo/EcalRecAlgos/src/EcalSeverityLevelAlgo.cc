@@ -3,8 +3,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 int EcalSeverityLevelAlgo::severityLevel( const DetId id, 
-                const EcalRecHitCollection &recHits, 
-                const EcalChannelStatus &chStatus )
+                const EcalRecHitCollection & recHits, 
+                const EcalChannelStatus & chStatus,
+                SpikeId sp,
+                float threshold
+                )
 {
         // get DB flag
         uint16_t dbStatus = retrieveDBStatus( id, chStatus );
@@ -77,14 +80,35 @@ uint16_t EcalSeverityLevelAlgo::retrieveDBStatus( const DetId id, const EcalChan
         if ( chIt != chStatus.end() ) {
                 dbStatus = chIt->getStatusCode();
         } else {
-                edm::LogError("EcalSeveritylevelError") << "No channel status found for xtal " 
+                edm::LogError("EcalSeverityLevelError") << "No channel status found for xtal " 
                         << id.rawId() 
                         << "! something wrong with EcalChannelStatus in your DB? ";
         }
         return dbStatus;
 }
 
-float EcalSeverityLevelAlgo::spikeFromNeighbours( const DetId id, const EcalRecHitCollection & recHits )
+float EcalSeverityLevelAlgo::spikeFromNeighbours( const DetId id,
+                                                  const EcalRecHitCollection & recHits,
+                                                  SpikeId spId
+                                                  )
+{
+        switch( spId ) {
+                case kE1OverE9:
+                        return E1OverE9( id, recHits );
+                        break;
+                case kSwissCross:
+                        return swissCross( id, recHits );
+                        break;
+                default:
+                        edm::LogInfo("EcalSeverityLevelAlgo") << "Algorithm number " << spId
+                                << " not known. Please check the enum in EcalSeverityLevelAlgo.h";
+                        break;
+
+        }
+        return 0;
+}
+
+float EcalSeverityLevelAlgo::E1OverE9( const DetId id, const EcalRecHitCollection & recHits )
 {
         // compute R9
         if ( id.subdetId() == EcalBarrel ) {
@@ -105,6 +129,51 @@ float EcalSeverityLevelAlgo::spikeFromNeighbours( const DetId id, const EcalRecH
                 return recHitEnergy(id, recHits) / s9;
         }
         return 0;
+}
+
+float EcalSeverityLevelAlgo::E1OverE9New( const DetId id, const EcalRecHitCollection & recHits )
+{
+        // compute E1 over E9
+        if ( id.subdetId() == EcalBarrel ) {
+                EBDetId ebId( id );
+                float s9 = 0;
+                for ( int deta = -1; deta <= +1; ++deta ) {
+                        for ( int dphi = -1; dphi <= +1; ++dphi ) {
+                                s9 += recHitEnergy( id, recHits, deta, dphi );
+                        }
+                }
+                return recHitEnergy(id, recHits) / s9;
+        }
+        return 0;
+}
+
+float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollection & recHits )
+{
+        // compute swissCross
+        if ( id.subdetId() == EcalBarrel ) {
+                EBDetId ebId( id );
+                float s4 = 0;
+                s4 += recHitEnergy( id, recHits,  1,  0 );
+                s4 += recHitEnergy( id, recHits, -1,  0 );
+                s4 += recHitEnergy( id, recHits,  0,  1 );
+                s4 += recHitEnergy( id, recHits,  0, -1 );
+                return recHitEnergy( id, recHits ) / s4;
+        }
+        return 0;
+}
+
+float EcalSeverityLevelAlgo::recHitEnergy( const DetId id, const EcalRecHitCollection & recHits,
+                                           int dEta, int dPhi )
+{
+        EBDetId ebId( id );
+        int ieta0 = iEta2cIndex( ebId.ieta() );
+        int iphi0 = iPhi2cIndex( ebId.iphi() );
+        int eta = ieta0 + dEta;
+        int phi = ( iphi0 + dPhi ) % 360;
+        if ( phi < 0  ) phi += 360;
+        if ( ! EBDetId::validDetId( cIndex2iEta(eta), cIndex2iPhi(phi) ) ) return 0;
+        EBDetId hitId( cIndex2iEta(eta), cIndex2iPhi(phi) );
+        return recHitEnergy( hitId, recHits );
 }
 
 float EcalSeverityLevelAlgo::recHitEnergy( const DetId id, const EcalRecHitCollection &recHits )
