@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for HTMHT
  *
- *  $Date: 2010/01/20 19:07:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/17 17:49:40 $
+ *  $Revision: 1.5 $
  *  \author K. Hatakeyama, Rockefeller University
  */
 
@@ -26,7 +26,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 //
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"

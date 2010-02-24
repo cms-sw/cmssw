@@ -1,13 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 21:03:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/20 19:07:24 $
+ *  $Revision: 1.5 $
  *  \author K. Hatakeyama - Rockefeller University
  */
 
 #include "DQMOffline/JetMET/interface/HTMHTAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -94,8 +95,7 @@ void HTMHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //
     //
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    edm::TriggerNames triggerNames; // TriggerNames class
-    triggerNames.init(triggerResults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
     
     //
     //

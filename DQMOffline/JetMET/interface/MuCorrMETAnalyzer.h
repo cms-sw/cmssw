@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/01/18 21:04:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/17 17:49:46 $
+ *  $Revision: 1.4 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -25,7 +25,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"

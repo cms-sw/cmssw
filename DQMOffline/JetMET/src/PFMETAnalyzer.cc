@@ -1,14 +1,15 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/27 22:20:28 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/02/07 22:08:13 $
+ *  $Revision: 1.17 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
 
 #include "DQMOffline/JetMET/interface/PFMETAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 //#include "DataFormats/METReco/interface/PFMET.h"
 //#include "DataFormats/METReco/interface/PFMETCollection.h"
@@ -394,8 +395,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //
     //
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    edm::TriggerNames triggerNames; // TriggerNames class
-    triggerNames.init(triggerResults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
     
     //
     //

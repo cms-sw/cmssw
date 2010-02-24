@@ -1,13 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/04 19:29:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/18 21:03:51 $
+ *  $Revision: 1.4 $
  *  \author A.Apresyan - Caltech
  */
 
 #include "DQMOffline/JetMET/interface/TcMETAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -320,8 +321,7 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //
     //
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    edm::TriggerNames triggerNames; // TriggerNames class
-    triggerNames.init(triggerResults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
     
     //
     //

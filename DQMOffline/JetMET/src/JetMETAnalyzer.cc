@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 09:24:39 $
- *  $Revision: 1.46 $
+ *  $Date: 2010/02/24 09:33:34 $
+ *  $Revision: 1.47 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 //#include "DataFormats/METReco/interface/CaloMETCollection.h"
 //#include "DataFormats/METReco/interface/CaloMET.h"
@@ -433,8 +434,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(!_doHLTPhysicsOn) bPhysicsDeclared = true;
 
   if (triggerResults.isValid()){
-    edm::TriggerNames triggerNames;
-    triggerNames.init(*(triggerResults.product()));
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
     
     if( triggerNames.triggerIndex("HLT_PhysicsDeclared") != triggerNames.size() )
       if (triggerResults->accept(triggerNames.triggerIndex("HLT_PhysicsDeclared"))) {
@@ -456,8 +456,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (triggerResults.isValid()) {
 
     if (DEBUG) std::cout << "trigger valid " << std::endl;
-    edm::TriggerNames triggerNames;    // TriggerNames class
-    triggerNames.init(*triggerResults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
 
