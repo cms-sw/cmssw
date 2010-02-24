@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.2 2010/02/24 19:34:59 arizzi Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.3 2010/02/24 21:25:07 ameyer Exp $
 //
 //
 
@@ -75,12 +75,6 @@ void Vx3DHLTAnalyzer::beginJob()
 {
   DQMStore* dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
-
-  if ( dbe )
-    {
-      dbe->setCurrentFolder("BeamPixel");
-      dbe->rmdir("BeamPixel");
-    }
  
   if ( dbe ) 
     {
@@ -89,6 +83,12 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", 1000, -5.0, 5.0);
       Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", 1000, -5.0, 5.0);
       Vx_Z = dbe->book1D("Vertex_Z", "Primary Vertex Z Coordinate Distribution", 800, -20.0, 20.0);
+      
+      dbe->setCurrentFolder("BeamPixel/EventInfo");
+      reportSummary = dbe->bookFloat("reportSummary");
+      reportSummary->Fill(1.);
+      reportSummaryMap = dbe->book2D("reportSummaryMap","Beam Pixel Summary Map", 1,0.,1.,1,0.,1.);
+      dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
     }
 }
 
