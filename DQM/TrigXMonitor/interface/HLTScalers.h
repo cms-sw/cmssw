@@ -1,12 +1,15 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.14 2010/02/02 11:42:53 wittich Exp $
+// $Id: HLTScalers.h,v 1.15 2010/02/11 00:11:05 wmtan Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.15  2010/02/11 00:11:05  wmtan
+// Adapt to moved framework header
+//
 // Revision 1.14  2010/02/02 11:42:53  wittich
 // new diagnostic histograms
 //
@@ -100,7 +103,7 @@ private:
 
   std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
-  bool resetMe_, monitorDaemon_; 
+  bool resetMe_, sentPaths_, monitorDaemon_; 
 
   int nev_; // Number of events processed
   int nLumi_; // number of lumi blocks

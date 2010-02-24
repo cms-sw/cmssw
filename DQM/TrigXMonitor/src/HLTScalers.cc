@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.20 2010/02/11 00:11:08 wmtan Exp $
+// $Id: HLTScalers.cc,v 1.21 2010/02/11 23:54:28 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.21  2010/02/11 23:54:28  wittich
+// modify how the monitoring histo is filled
+//
 // Revision 1.20  2010/02/11 00:11:08  wmtan
 // Adapt to moved framework header
 //
@@ -71,6 +74,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   nLumiBlock_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   resetMe_(true),
+  sentPaths_(false),
   monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
   nev_(0), 
   nLumi_(0),
@@ -131,7 +135,6 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 			   << " with label " << trigResultsSource_;
     return;
   }
-  TriggerNames names(*hltResults);
   
   
   int npath = hltResults->size();
@@ -164,6 +167,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 		         	npath, -0.5, npath-0.5,
 				npath, -0.5, npath-0.5);
 
+    dbe_->setCurrentFolder(folderName_); // these two belong in top-level
     hltBxVsPath_ = dbe_->book2D("hltBxVsPath", "HLT Accept vs Bunch Number", 
 				3600, -0.5, 3599.5,
 				npath, -0.5, npath-0.5);
@@ -171,6 +175,11 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 			  3600, -0.5, 3599.5);
 
     resetMe_ = false;
+  } // end resetme_ - pseudo-end-run record
+
+  // for some reason this doesn't appear to work on the first event sometimes
+  if ( ! sentPaths_ ) {
+    TriggerNames names(*hltResults);
     // save path names in DQM-accessible format
     int q =0;
     for ( TriggerNames::Strings::const_iterator 
@@ -183,9 +192,9 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       ++q;
       MonitorElement *e = dbe_->bookString(pname, *j);
       hltPathNames_.push_back(e);  // I don't ever use these....
+      sentPaths_ = true;
     }
-  } // end resetme_ - pseudo-end-run record
-  
+  }
 
   bool accept = false;
   int bx = e.bunchCrossing();
@@ -222,7 +231,7 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 				    const edm::EventSetup& c)
 {
   // put this in as a first-pass for figuring out the rate
-  // each lumi block is 93 seconds in length
+  // each lumi block is 23 seconds in length
   nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
  
   LogDebug("HLTScalers") << "End of luminosity block." ;
