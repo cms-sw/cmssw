@@ -60,7 +60,7 @@ def createLumi(dbsession):
     trg.insertColumn('CMSLUMINUM','unsigned int')
     trg.insertColumn('BITNUM','unsigned int')
     trg.insertColumn('BITNAME','string')
-    trg.insertColumn('COUNT','unsigned long long')
+    trg.insertColumn('COUNT','unsigned int')
     trg.insertColumn('DEADTIME','unsigned long long')
     trg.insertColumn('PRESCALE','unsigned int')
     trg.insertColumn('HLTPATH','string')
