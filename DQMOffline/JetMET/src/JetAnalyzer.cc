@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 21:03:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/02/24 09:24:39 $
+ *  $Revision: 1.16 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -270,6 +270,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (mDPhi) mDPhi->Fill (dphiDJ);
 	  //dphi cut
 	  if(fabs(dphiDJ)>2.1){
+	    //JetID 
+	    jetID->calculate(iEvent, (caloJets.at(0)));
+	    if(jetID->n90Hits()>=_n90HitsMin && jetID->fHPD()<_fHPDMax && jetID->restrictedEMF()>=_resEMFMin) cleanedFirstJet=true;
+	    jetID->calculate(iEvent, (caloJets.at(1)));
+	    if(jetID->n90Hits()>=_n90HitsMin && jetID->fHPD()<_fHPDMax && jetID->restrictedEMF()>=_resEMFMin) cleanedSecondJet=true;
+	    if(cleanedFirstJet && cleanedSecondJet) { //only if both jets are cleaned
 	    //fill histos for first jet
 	    if (mPt)   mPt->Fill ((caloJets.at(0)).pt());
 	    if (mEta)  mEta->Fill ((caloJets.at(0)).eta());
@@ -283,8 +289,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if (mMass) mMass->Fill ((caloJets.at(0)).mass());
 	    if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill ((caloJets.at(0)).maxEInEmTowers());
 	    if (mMaxEInHadTowers) mMaxEInHadTowers->Fill ((caloJets.at(0)).maxEInHadTowers());
-	    jetID->calculate(iEvent, (caloJets.at(0)));
-	    if(jetID->n90Hits()>=_n90HitsMin && jetID->fHPD()<_fHPDMax && jetID->restrictedEMF()>=_resEMFMin) cleanedFirstJet=true;
 	    if (mN90Hits)         mN90Hits->Fill (jetID->n90Hits());
 	    if (mfHPD)            mfHPD->Fill (jetID->fHPD());
 	    if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
@@ -302,13 +306,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if (mMass) mMass->Fill ((caloJets.at(1)).mass());
 	    if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill ((caloJets.at(1)).maxEInEmTowers());
 	    if (mMaxEInHadTowers) mMaxEInHadTowers->Fill ((caloJets.at(1)).maxEInHadTowers());
-	    jetID->calculate(iEvent, (caloJets.at(1)));
-	    if(jetID->n90Hits()>=_n90HitsMin && jetID->fHPD()<_fHPDMax && jetID->restrictedEMF()>=_resEMFMin) cleanedSecondJet=true;
+	  }
 	    if (mN90Hits)         mN90Hits->Fill (jetID->n90Hits());
 	    if (mfHPD)            mfHPD->Fill (jetID->fHPD());
 	    if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
 	    if (mfRBX)            mfRBX->Fill (jetID->fRBX());
-	    //let's see how many of these jets would pass the JetID cleaning
+	    //let's see how many of these jets passed the JetID cleaning
 	    	    if(iscleaned==1){
 	      //counters used for JID efficiencies below
 	      //we just take three regions since for dijets we cut on |eta|<3
