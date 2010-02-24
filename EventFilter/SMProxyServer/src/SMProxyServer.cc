@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.37 2010/02/18 15:07:30 smorovic Exp $
+// $Id: SMProxyServer.cc,v 1.38 2010/02/23 21:25:11 smorovic Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -3400,9 +3400,10 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
     {
       boost::mutex::scoped_lock ql(queue_lock_);
 
-      dpm_->stop();
-      dpm_->join();
-    
+      if (dpm_.get()) {
+        dpm_->stop();
+        dpm_->join();
+      }
       smsenders_.clear();
       connectedSMs_ = 0;
       /* maybe we want to see these statistics after a halt 
@@ -3415,11 +3416,10 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
     
       {
         boost::mutex::scoped_lock sl(halt_lock_);
-        dpm_.reset();
+	if (dpm_.get()) dpm_.reset();
       }
     
       LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
-    
       fsm_.fireEvent("HaltDone",this);
     }
     if( timeoutWorkLoop_->isActive()) timeoutWorkLoop_->cancel();
