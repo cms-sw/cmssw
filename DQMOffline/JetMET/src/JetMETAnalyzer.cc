@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/11 19:44:12 $
- *  $Revision: 1.45 $
+ *  $Date: 2010/02/24 09:24:39 $
+ *  $Revision: 1.46 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -544,8 +544,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
-
-  bJetCleanup=true;
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
