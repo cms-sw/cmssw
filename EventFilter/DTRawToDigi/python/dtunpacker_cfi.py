@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Module for DT data unpacking: produces a DTDigiCollection and - on demand - 
 # a DTLocalTriggerCollection
-muonDTDigis = cms.EDFilter("DTUnpackingModule",
+muonDTDigis = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
     inputLabel = cms.InputTag('source'),
     fedbyType = cms.bool(False),

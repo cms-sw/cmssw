@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # configuration for running the DT unpacker on data acquired thorugh ROS25
 #
-dtunpacker = cms.EDFilter("DTUnpackingModule",
+dtunpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('ROS25'),
     inputLabel = cms.InputTag('source'),
     fedbyType = cms.bool(False),
