@@ -1,4 +1,4 @@
-#include "SimCalorimetry/HcalSimAlgos/src/HPDIonFeedbackSim.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include <iostream>
