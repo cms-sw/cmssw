@@ -11,15 +11,16 @@ int main(){
   const std::string authpath("/afs/cern.ch/user/x/xiezhen");
   std::cout<<"fill out hlx data"<<std::endl;
   //fill lhx data
-  std::auto_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("LumiDummy2DB",con));
+  std::auto_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("Lumi2DB",con));
   ptr->setAuthPath(authpath);
   ptr->setSource("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
   ptr->retrieveData(124025);
 
   //fill trg data
   std::cout<<"fill out trg data"<<std::endl;
-  std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRGDummy2DB",con));
+  std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB",con));
   trgptr->setAuthPath(authpath);
+  trgptr->setSource("oracle://cms_omds_lb/CMS_GT_MON");
   trgptr->retrieveData(124025);
 
   /*
