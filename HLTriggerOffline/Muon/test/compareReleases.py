@@ -67,7 +67,7 @@ def main():
     ## Define constants
     global file_type, path_muon, path_dist, cross_channel_format, colors
     file_type = options.file_type
-    path_muon = "/DQMData/HLT/Muon"
+    path_muon = "/DQMData/Run 1/HLT/Run summary/Muon"
     path_dist = "%s/Distributions" % path_muon
     cross_channel_format = re.compile("HLT_[^_]*_[^_]*$")
     colors = [ROOT.kBlue, ROOT.kRed, ROOT.kGreen+2, ROOT.kMagenta+2,
