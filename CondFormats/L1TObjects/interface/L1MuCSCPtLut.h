@@ -1,8 +1,9 @@
 #ifndef L1TObjects_L1MuCSCPtLut_h
 #define L1TObjects_L1MuCSCPtLut_h
 
-#include <string.h>
+#include <string>
 
+using namespace std;
 class CSCTFConfigProducer;
 
 class L1MuCSCPtLut {
@@ -11,6 +12,9 @@ private:
 	friend class CSCTFConfigProducer;
 
 public:
+
+	void readFromDBS(std::string& ptLUT);
+
 	unsigned short pt(unsigned long addr) const throw() {
 	  if( addr<(1<<21) ) return pt_lut[(unsigned int)addr];
 		else return 0;
@@ -23,6 +27,7 @@ public:
 	L1MuCSCPtLut(void){ bzero(pt_lut,sizeof(pt_lut)); }
 	L1MuCSCPtLut(const L1MuCSCPtLut& lut){ memcpy(pt_lut,lut.pt_lut,sizeof(pt_lut)); }
 	~L1MuCSCPtLut(void){}
+
 };
 
 #endif
