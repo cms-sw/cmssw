@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id$
+// $Id: Vx3DHLTAnalyzer.h,v 1.1 2010/02/24 18:57:55 arizzi Exp $
 //
 //
 
@@ -49,6 +49,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
 
+     edm::InputTag vertexCollection;
 
   MonitorElement* Vx_X;
   MonitorElement* Vx_Y;

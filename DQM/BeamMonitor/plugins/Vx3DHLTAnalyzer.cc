@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id$
+// $Id: Vx3DHLTAnalyzer.cc,v 1.1 2010/02/24 18:57:55 arizzi Exp $
 //
 //
 
@@ -28,10 +28,13 @@
 
 using namespace std;
 using namespace reco;
-
+using namespace edm;
 
 Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const edm::ParameterSet& iConfig)
 {
+
+  vertexCollection  = iConfig.getParameter<edm::InputTag>("vertexCollection");
+
 }
 
 
@@ -43,7 +46,7 @@ Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer()
 void Vx3DHLTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<VertexCollection> Vx3DCollection;
-  iEvent.getByLabel("hlt3DPixelVertices",Vx3DCollection);
+  iEvent.getByLabel(vertexCollection,Vx3DCollection);
 
   for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 
