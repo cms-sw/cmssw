@@ -6,10 +6,10 @@
 //
 // Project: HPD ion feedback
 // Author: T.Yetkin University of Iowa, Feb. 16, 2010
-// $Id:$
+// $Id: HPDIonFeedbackSim.cc,v 1.1 2010/02/23 23:57:11 rpw Exp $
 // --------------------------------------------------------
 
-#include "SimCalorimetry/HcalSimAlgos/src/HPDIonFeedbackSim.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -23,6 +23,9 @@
 
 using namespace edm;
 using namespace std;
+
+// constants for simulation/parameterization
+double pe2Charge = 0.333333;    // fC/p.e.
 
 HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig)
 : theDbService(0), theRandBinomial(0), theRandFlat(0), theRandGauss(0), theRandPoissonQ(0)
@@ -56,8 +59,6 @@ double HPDIonFeedbackSim::getIonFeedback(DetId detId, double signal, double pedW
     
     HcalDetId id = detId;
     
-    // constants for simulation/parameterization
-    double pe2Charge = 0.333333;    // fC/p.e.
     double GeVperfC = 1.;
     if(isInGeV) GeVperfC = 1./fCtoGeV(detId);
     
@@ -111,6 +112,20 @@ double HPDIonFeedbackSim::getIonFeedbackFromPE(DetId detId, double npe, bool doT
     }
 
     return noise;
+}
+
+
+void HPDIonFeedbackSim::applyToSignalInPE(CaloSamples & samples)
+{
+  // find the total number of pe
+  double sumPE = 0.;
+  for(int i = 0; i < samples.size(); ++i) 
+  {
+    sumPE += samples[i];
+  }
+  double noisefC = getIonFeedbackFromPE(samples.id(), sumPE, true);
+  double factor = 1. + noisefC/pe2Charge/sumPE;
+  samples *= factor;
 }
 
 
