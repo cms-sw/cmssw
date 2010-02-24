@@ -72,14 +72,14 @@ if ( $opts{'read'} ) {
 }
 
 if ( $opts{'verify'} ) {
-  $task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; TNS_ADMIN=/etc ; cd $config{'ec_mon_path'} ; writeMaskToDB --sid=$dbName --user-name=$dbUserName --password=$dbPassword --location=$location --run-number=$run --verify-syntax $file";
+  $task = "export SCRAM_ARCH=$cmssw_arch ; source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; TNS_ADMIN=/etc ; cd $config{'ec_mon_path'} ; writeMaskToDB --sid=$dbName --user-name=$dbUserName --password=$dbPassword --location=$location --run-number=$run --verify-syntax $file";
   print "$task\n" if ( $opts{'debug'} );
   system("$task");
   exit 0;
 }
 
 if ( $opts{'write'} ) {
-  $task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; TNS_ADMIN=/etc ; cd $config{'ec_mon_path'} ; writeMaskToDB --sid=$dbName --user-name=$dbUserName --password=$dbPassword --location=$location --run-number=$run $file";
+  $task = "export SCRAM_ARCH=$cmssw_arch ; source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; TNS_ADMIN=/etc ; cd $config{'ec_mon_path'} ; writeMaskToDB --sid=$dbName --user-name=$dbUserName --password=$dbPassword --location=$location --run-number=$run $file";
   print "$task\n" if ( $opts{'debug'} );
   system("$task");
   exit 0;
