@@ -63,7 +63,7 @@ CSCTFAlignmentOnlineProd::newObject( const std::string& objectKey )
 
 //   std::cout<<conf_stat<<std::endl;
    for (int i=0;i<16;i++) {
-	edm::LogInfo( "algn_par quried" ) << par_align[i] ;
+	edm::LogInfo( "algn_par queried" ) << par_align[i] ;
 	par_align_double[i]=par_align[i] ;
    }
    return boost::shared_ptr< L1MuCSCTFAlignment >( new L1MuCSCTFAlignment(par_align_double) ) ;
