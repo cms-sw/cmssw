@@ -28,6 +28,7 @@ columns:
           cmsalive(bool),      
           startorbit(uint32),    
           lumisectionquality(short) // use max 3 bits [HLX,HF,BRAN]
+          physicsdeclared(short) //to be decided in a 2nd phase...
 	  
 ======
 table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
@@ -83,6 +84,11 @@ table 8: INTLUMIHLT (insert 1 row per combinatorial of run+lumiversion+hltpath)
 	 hltpath(string),
          recordedlumi( float )
 
+====== bookkeeping tables ===== (to be added in a 2nd phase)
+table 9: LATESTOFFICIALRUNINFO (one entry represents the most recent official run fectched from the cms run info db, can be used to trigger new data pulling chain )
+         runnum(uint32),
+         hltconfid(uint32)
+     
  ====== other helper id tables======
          lumisummary_id, NEXTID (uint64,PK)
          lumidetail_id, NEXTID (uint64,PK),
