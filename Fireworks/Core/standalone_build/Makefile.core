@@ -32,7 +32,6 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 
 # linker
 LINKER = $(CC)
-CXX = $(CC)
 # linker flags
 CoreMissingFlags = -lEG
 #CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)

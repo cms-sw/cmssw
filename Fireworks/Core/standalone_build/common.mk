@@ -64,7 +64,7 @@ tmp/%.d:   %.cc
 tmp/%LinkDef.d:  %LinkDef.h
 	$(QUIET) echo "dependencies for ROOT dictionaries based on $<"; \
 	mkdir -p $(dir $@); \
-	$(CC) -M -MT $@ -MT ${@:.d=.ro} -MT ${@:.d=.cc} $(CFLAGS) $(INCLUDE) $< > $@; \
+	$(CXX) -M -MT $@ -MT ${@:.d=.ro} -MT ${@:.d=.cc} $(CFLAGS) $(INCLUDE) $< > $@; \
                      [ -s $@ ] || rm -f $@
 -include /dev/null $(ProjectRootDicSources:.cc=.d)
 -include /dev/null $(CoreRootDicSources:.cc=.d)
@@ -72,7 +72,7 @@ tmp/%LinkDef.d:  %LinkDef.h
 tmp/%classes.d : %classes.h
 	$(QUIET) echo "dependencies for dictionaries based on $*classes_def.xml"; \
 	mkdir -p $(dir $@); \
-	$(CC) -M -MT $@ -MT ${@:.d=.do} -MT ${@:.d=.cpp} $(CFLAGS) $(INCLUDE) $< > $@; \
+	$(CXX) -M -MT $@ -MT ${@:.d=.do} -MT ${@:.d=.cpp} $(CFLAGS) $(INCLUDE) $< > $@; \
                      [ -s $@ ] || rm -f $@
 
 -include /dev/null $(ProjectDictionarySources:.cpp=.d)

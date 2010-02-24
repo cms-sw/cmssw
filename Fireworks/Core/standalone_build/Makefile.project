@@ -34,7 +34,6 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 
 # linker
 LINKER = $(CC)
-CXX = $(CC)
 # linker flags
 ProjectMissingFlags = -lGeom -lGuiHtml
 
@@ -87,7 +86,7 @@ all: display
 display: lib$(LibProject).$(SO_EXT) tmp/lib$(LibProject).$(SO_EXT).out cmsShow.exe
 
 
-macDebugLink: lib$(LibCore).$(SO_EXT)
+macDebugLink: lib$(LibProject).$(SO_EXT)
 	$(QUIET) echo "Add debug info for lib$(LibProject).$(SO_EXT)"; \
    if [ $(shell uname) == "Darwin" ]; then /usr/bin/dsymutil --verbose lib$(LibProject).$(SO_EXT); fi;
 
