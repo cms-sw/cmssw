@@ -121,10 +121,17 @@ private:
   TH1F *HEposTime;
   TH1F *HEnegTime;
   TH1F *HFLSRatio;
+  TH1F *HFOERatio;
+  TH1F *HFEnePMT0;
+  TH1F *HFEnePMT1;
+  TH1F *HFEnePMT2;
   TH1F *HFEne;
   TH1F *HFEneFlagged;
   TH1F *HFEneTh;
   TH1F *HFEneTh1;
+  TH1F *HFTimePMT0;
+  TH1F *HFTimePMT1;
+  TH1F *HFTimePMT2;
   TH1F *HFTime;
   TH1F *PMTHits;
   TH1F *HFTimeFlagged;
@@ -158,10 +165,12 @@ private:
   TH1F *HFLEne;
   TH1F *HFLEneNoS;
   TH1F *HFLEneNoSFlagged;
+  TH1F *HFLEneNoSFlaggedN;
   TH1F *HFLTime;
   TH1F *HFSEne;
   TH1F *HFSEneNoL;
   TH1F *HFSEneNoLFlagged;
+  TH1F *HFSEneNoLFlaggedN;
   TH2F *HFLvsS;
 
   TH2F *HBTvsE;
@@ -175,10 +184,18 @@ private:
   TH1F *HOEneTh1;
   TH1F *HOTime;
   TH1F *HOTimeTh;
+  TH1F *HFEtaFlagged;
+  TH1F *HFEtaFlaggedL;
+  TH1F *HFEtaFlaggedLN;
+  TH1F *HFEtaFlaggedS;
+  TH1F *HFEtaFlaggedSN;
+
+  TProfile *HFEtaNFlagged;
   TH2F *HOocc;
   TH2F *HBocc;
   TH2F *HEocc;
   TH2F *HFocc;
+  TH2F *HFEtaPhiNFlagged;
   TH2F *HFoccFlagged;
   TH2F *HOoccOOT;
   TH2F *HBoccOOT;
@@ -257,6 +274,8 @@ private:
   TH1F *MEy;
   TH1F *METPhi;
   // ---
+
+  TH1F *SiClusters;
 
   // --- from reco vertexs
   TH1F *h_Vx;
