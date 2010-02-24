@@ -21,6 +21,7 @@
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
+#include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -81,21 +82,21 @@ namespace lumi{
 
     //data exchange format
     lumi::TRG2DB::BITCOUNT mybitcount_algo;
-    mybitcount_algo.reserve(128);
+    mybitcount_algo.reserve(lumi::N_TRGALGOBIT);
     lumi::TRG2DB::BITCOUNT mybitcount_tech; 
-    mybitcount_tech.reserve(64);
+    mybitcount_tech.reserve(lumi::N_TRGTECHBIT);
     lumi::TRG2DB::TriggerNameResult_Algo algonames;
-    algonames.reserve(128);
+    algonames.reserve(lumi::N_TRGALGOBIT);
     lumi::TRG2DB::TriggerNameResult_Tech technames;
-    technames.reserve(64);
+    technames.reserve(lumi::N_TRGTECHBIT);
     lumi::TRG2DB::PrescaleResult_Algo algoprescale;
-    algoprescale.reserve(128);
+    algoprescale.reserve(lumi::N_TRGALGOBIT);
     lumi::TRG2DB::PrescaleResult_Tech techprescale;
-    techprescale.reserve(64);
+    techprescale.reserve(lumi::N_TRGTECHBIT);
     lumi::TRG2DB::TriggerCountResult_Algo algocount;
-    algocount.reserve(1024);
+    algocount.reserve(400);
     lumi::TRG2DB::TriggerCountResult_Tech techcount;
-    techcount.reserve(1024);
+    techcount.reserve(400);
     lumi::TRG2DB::TriggerDeadCountResult deadtimeresult;
     deadtimeresult.reserve(400);
     coral::ITransaction& transaction=session->transaction();
@@ -161,7 +162,7 @@ namespace lumi{
       unsigned int count=row["counts"].data<unsigned int>();
       unsigned int algobit=row["algobit"].data<unsigned int>();
       mybitcount_algo.push_back(count);
-      if(algobit==127){
+      if(algobit==(lumi::N_TRGALGOBIT-1)){
 	algocount.push_back(mybitcount_algo);
 	mybitcount_algo.clear();
       }
@@ -173,7 +174,7 @@ namespace lumi{
       transaction.commit();
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for algocounts"),"retrieveData","TRG2DB");
     }
-    if( mybitcount_algo.size()!=128){
+    if( mybitcount_algo.size()!=lumi::N_TRGALGOBIT){
       delete Queryalgoview;
       transaction.commit();
       throw lumi::Exception(std::string("total number of algo bits is not 128"),"retrieveData","TRG2DB");
@@ -217,7 +218,7 @@ namespace lumi{
       transaction.commit();
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for tecgcounts"),"retrieveData","TRG2DB");
     }
-    if( mybitcount_tech.size()!=64){
+    if( mybitcount_tech.size()!=lumi::N_TRGTECHBIT){
       delete Querytechview;
       transaction.commit();
       throw lumi::Exception(std::string("total number of tech bits is not 64"),"retrieveData","TRG2DB");
@@ -330,11 +331,11 @@ namespace lumi{
     QueryAlgoPresc->addToTableList(runprescalgoviewname);
     coral::AttributeList qAlgoPrescOutput;
     std::string algoprescBase("PRESCALE_FACTOR_ALGO_");
-    for(unsigned int bitidx=0;bitidx<128;++bitidx){
+    for(unsigned int bitidx=0;bitidx<lumi::N_TRGALGOBIT;++bitidx){
       std::string algopresc=algoprescBase+int2str(bitidx,3);
       qAlgoPrescOutput.extend(algopresc,typeid(unsigned int));
     }
-    for(unsigned int bitidx=0;bitidx<128;++bitidx){
+    for(unsigned int bitidx=0;bitidx<lumi::N_TRGALGOBIT;++bitidx){
       std::string algopresc=algoprescBase+int2str(bitidx,3);
       QueryAlgoPresc->addToOutputList(algopresc);
     }
@@ -362,11 +363,11 @@ namespace lumi{
     QueryTechPresc->addToTableList(runpresctechviewname);
     coral::AttributeList qTechPrescOutput;
     std::string techprescBase("PRESCALE_FACTOR_TT_");
-    for(unsigned int bitidx=0;bitidx<64;++bitidx){
+    for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
       std::string techpresc=techprescBase+this->int2str(bitidx,3);
       qTechPrescOutput.extend(techpresc,typeid(unsigned int));
     }
-    for(unsigned int bitidx=0;bitidx<64;++bitidx){
+    for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
       std::string techpresc=techprescBase+int2str(bitidx,3);
       QueryTechPresc->addToOutputList(techpresc);
     }
@@ -381,7 +382,7 @@ namespace lumi{
     while( techpresccursor.next() ){
       const coral::AttributeList& row = techpresccursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      for(unsigned int bitidx=0;bitidx<64;++bitidx){
+      for(unsigned int bitidx=0;bitidx<lumi::N_TRGTECHBIT;++bitidx){
 	std::string techpresc=techprescBase+int2str(bitidx,3);
 	techprescale.push_back(row[techpresc].data<unsigned int>());
       }
@@ -389,7 +390,7 @@ namespace lumi{
     delete QueryTechPresc;
     transaction.commit();
     //reprocess Algo name result filling unallocated trigger bit with string "False"
-    for(size_t algoidx=0;algoidx<128;++algoidx){
+    for(size_t algoidx=0;algoidx<lumi::N_TRGALGOBIT;++algoidx){
       std::map<unsigned int,std::string>::iterator pos=triggernamemap.find(algoidx);
       if(pos!=triggernamemap.end()){
 	algonames.push_back(pos->second);
@@ -399,7 +400,7 @@ namespace lumi{
     }
     //reprocess Tech name result filling unallocated trigger bit with string "False"  
     std::stringstream ss;
-    for(size_t techidx=0;techidx<64;++techidx){
+    for(size_t techidx=0;techidx<lumi::N_TRGTECHBIT;++techidx){
       std::map<unsigned int,std::string>::iterator pos=techtriggernamemap.find(techidx);
       ss<<techidx;
       technames.push_back(ss.str());
