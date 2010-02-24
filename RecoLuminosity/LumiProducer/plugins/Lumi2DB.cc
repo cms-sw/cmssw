@@ -77,11 +77,10 @@ void
 lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
   //parse lumi source file name
   if(m_source.length()==0) throw lumi::Exception("lumi source is not set","parseSourceString","Lumi2DB");
-  size_t tempIndex = m_source.rfind(".");
+  //std::cout<<"source "<<m_source<<std::endl;
+  size_t tempIndex = m_source.find_last_of(".");
   size_t nameLength = m_source.length();
-  std::string subFileName = m_source.substr(0,nameLength - tempIndex);
-  
-  std::vector<std::string> fileNamePieces;
+  std::string FileSuffix= m_source.substr(tempIndex+1,nameLength - tempIndex);
   std::string::size_type lastPos=m_source.find_first_not_of("_",0);
   std::string::size_type pos = m_source.find_first_of("_",lastPos);
   std::vector<std::string> pieces;
@@ -90,14 +89,16 @@ lumi::Lumi2DB::parseSourceString(lumi::Lumi2DB::LumiSource& result)const{
     lastPos=m_source.find_first_not_of("_",pos);
     pos=m_source.find_first_of("_",lastPos);
   }
-  if( pieces[0]!="CMS" || pieces[1]!="LUMI" ||  pieces[2]!="RAW" ){
+  if( pieces[1]!="LUMI" || pieces[2]!="RAW" || FileSuffix!="root"){
     throw lumi::Exception("not lumi raw data file CMS_LUMI_RAW","parseSourceString","Lumi2DB");
   }
-
-  std::strcpy(result.datestr,fileNamePieces[3].c_str());
-  std::strcpy(result.version,fileNamePieces[6].c_str());
+  std::strcpy(result.datestr,pieces[3].c_str());
+  std::strcpy(result.version,pieces[5].c_str());
+  //std::cout<<"version : "<<result.version<<std::endl;
   result.run = atoi(pieces[4].c_str());
+  //std::cout<<"run : "<<result.run<<std::endl;
   result.firstsection = atoi(pieces[5].c_str());
+  //std::cout<<"first section : "<< result.firstsection<<std::endl;
 }
 
 void 
@@ -266,7 +267,8 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       //fetch a new id value 
       //insert the new row
       summaryInserter->processNextIteration();
-      for( unsigned int j=0; j<lumi::N_BX; ++j ){
+      summaryInserter->flush();
+      for( unsigned int j=0; j<lumi:: N_LUMIALGO; ++j ){
 	lumidetail_id=idg.generateNextIDForTable(LumiNames::lumidetailTableName());
 	d2lumisummary_id=lumisummary_id;
 	std::vector<PerBXData>::const_iterator bxIt;
@@ -311,7 +313,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
 	detailInserter->processNextIteration();
       }
     }
-    summaryInserter->flush();
     detailInserter->flush();
     delete summaryInserter;
     delete detailInserter;

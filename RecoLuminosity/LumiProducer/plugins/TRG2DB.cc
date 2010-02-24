@@ -42,7 +42,7 @@ namespace lumi{
     typedef std::vector<unsigned int> PrescaleResult_Algo;
     typedef std::vector<unsigned int> PrescaleResult_Tech;
     //per lumisection information
-    typedef unsigned int DEADCOUNT;
+    typedef unsigned long long DEADCOUNT;
     typedef std::vector<DEADCOUNT> TriggerDeadCountResult;
     typedef std::vector<unsigned int> BITCOUNT;
     typedef std::vector<BITCOUNT> TriggerCountResult_Algo;
@@ -60,8 +60,9 @@ namespace lumi{
     if(!m_authpath.empty()){
       dbconf.setAuthentication(m_authpath);
     }
-    coral::ISessionProxy* session=svc->connect(m_source, coral::ReadOnly);
-    coral::ITypeConverter& tpc=session->typeConverter();
+    //std::cout<<"m_source "<<m_source<<std::endl;
+    coral::ISessionProxy* trgsession=svc->connect(m_source, coral::ReadOnly);
+    coral::ITypeConverter& tpc=trgsession->typeConverter();
 
     tpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
     tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
@@ -101,7 +102,8 @@ namespace lumi{
     techcount.reserve(400);
     lumi::TRG2DB::TriggerDeadCountResult deadtimeresult;
     deadtimeresult.reserve(400);
-    coral::ITransaction& transaction=session->transaction();
+    coral::ITransaction& transaction=trgsession->transaction();
+    transaction.start(true);
     //uncomment if you want to see all the visible views
     /**
        transaction.start(true); //true means readonly transaction
@@ -124,8 +126,7 @@ namespace lumi{
        Part I
        query tables in schema cms_gt_mon
     **/
-    transaction.start(true);
-    coral::ISchema& gtmonschemaHandle=session->schema(gtmonschema);    
+    coral::ISchema& gtmonschemaHandle=trgsession->schema(gtmonschema);    
     if(!gtmonschemaHandle.existsView(algoviewname)){
       throw lumi::Exception(std::string("non-existing view ")+algoviewname,"retrieveData","TRG2DB");
     }
@@ -176,11 +177,6 @@ namespace lumi{
       transaction.commit();
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for algocounts"),"retrieveData","TRG2DB");
     }
-    if( mybitcount_algo.size()!=lumi::N_TRGALGOBIT){
-      delete Queryalgoview;
-      transaction.commit();
-      throw lumi::Exception(std::string("total number of algo bits is not 128"),"retrieveData","TRG2DB");
-    }
     delete Queryalgoview;
     //
     //select counts,lsnr,techbit from cms_gt_mon.gt_mon_trig_tech_view where runnr=:runnumber order by lsnr,techbit;
@@ -219,11 +215,6 @@ namespace lumi{
       delete Querytechview;
       transaction.commit();
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for techcounts"),"retrieveData","TRG2DB");
-    }
-    if( mybitcount_tech.size()!=lumi::N_TRGTECHBIT){
-      delete Querytechview;
-      transaction.commit();
-      throw lumi::Exception(std::string("total number of tech bits is not 64"),"retrieveData","TRG2DB");
     }
     delete Querytechview;
     //
@@ -267,7 +258,7 @@ namespace lumi{
        Part II
        query tables in schema cms_gt
     **/
-    coral::ISchema& gtschemaHandle=session->schema(gtschema);
+    coral::ISchema& gtschemaHandle=trgsession->schema(gtschema);
     if(!gtschemaHandle.existsView(runtechviewname)){
       throw lumi::Exception(std::string("non-existing view ")+runtechviewname,"str2int","TRG2DB");
     }
@@ -391,7 +382,10 @@ namespace lumi{
     }
     delete QueryTechPresc;
     transaction.commit();
+    delete trgsession;
+    //
     //reprocess Algo name result filling unallocated trigger bit with string "False"
+    //
     for(size_t algoidx=0;algoidx<lumi::N_TRGALGOBIT;++algoidx){
       std::map<unsigned int,std::string>::iterator pos=triggernamemap.find(algoidx);
       if(pos!=triggernamemap.end()){
@@ -400,7 +394,9 @@ namespace lumi{
 	algonames.push_back("False");
       }
     }
+    //
     //reprocess Tech name result filling unallocated trigger bit with string "False"  
+    //
     std::stringstream ss;
     for(size_t techidx=0;techidx<lumi::N_TRGTECHBIT;++techidx){
       std::map<unsigned int,std::string>::iterator pos=techtriggernamemap.find(techidx);
@@ -408,13 +404,26 @@ namespace lumi{
       technames.push_back(ss.str());
       ss.str(""); //clear the string buffer after usage
     }
+    //
+    //cross check result size
+    //
+    if(algonames.size()!=lumi::N_TRGALGOBIT || technames.size()!=lumi::N_TRGTECHBIT){
+      throw lumi::Exception("wrong number of bits","retrieveData","TRG2DB");
+    }
+    if(algoprescale.size()!=lumi::N_TRGALGOBIT || techprescale.size()!=lumi::N_TRGTECHBIT){
+      throw lumi::Exception("wrong number of prescale","retrieveData","TRG2DB");
+    }
+    if(deadtimeresult.size()!=algocount.size() || deadtimeresult.size()!=techcount.size()){
+      throw lumi::Exception("inconsistent number of LS","retrieveData","TRG2DB");
+    }
     //    
     //write data into lumi db
     //
+    coral::ISessionProxy* lumisession=svc->connect(m_dest,coral::Update);
+    unsigned int totalcmsls=deadtimeresult.size();
     try{
-      unsigned int totalcmsls=deadtimeresult.size();
-      session->transaction().start(false);
-      coral::ISchema& schema=session->nominalSchema();
+      lumisession->transaction().start(false);
+      coral::ISchema& schema=lumisession->nominalSchema();
       lumi::idDealer idg(schema);
       coral::ITable& trgtable=schema.tableHandle(LumiNames::trgTableName());
       coral::AttributeList trgData;
@@ -423,7 +432,7 @@ namespace lumi{
       trgData.extend<unsigned int>("CMSLUMINUM");
       trgData.extend<unsigned int>("BITNUM");
       trgData.extend<std::string>("BITNAME");
-      trgData.extend<unsigned long long>("COUNT");
+      trgData.extend<unsigned int>("COUNT");
       trgData.extend<unsigned long long>("DEADTIME");
       trgData.extend<unsigned int>("PRESCALE");
       coral::IBulkOperation* trgInserter=trgtable.dataEditor().bulkInsert(trgData,totalcmsls*192);
@@ -480,15 +489,14 @@ namespace lumi{
       trgInserter->flush();
       delete trgInserter;
     }catch( const coral::Exception& er){
-      std::cout<<"database problem "<<er.what()<<std::endl;
-      session->transaction().rollback();
-      delete session;
+      lumisession->transaction().rollback();
+      delete lumisession;
       delete svc;
       throw er;
     }
     //delete detailInserter;
-    session->transaction().commit();
-    delete session;
+    lumisession->transaction().commit();
+    delete lumisession;
     delete svc;
   }
   const std::string TRG2DB::dataType() const{
