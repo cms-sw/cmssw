@@ -55,7 +55,8 @@ if ( -e "/nfshome0/ecalpro/DQM/online-DQM/.cms_tstore.conf" ) {
   print "DB config file not found, exit\n"
 }
 
-my $cmssw_setup = "/cmssrv0/nfshome0/cmssw/scripts/setup.sh";
+my $cmssw_arch = "slc5_ia32_gcc434";
+my $cmssw_setup = "/cmssrv0/nfshome0/cmssw2/scripts/setup.sh";
 
 my $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_current";
 
