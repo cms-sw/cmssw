@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/05 16:48:58 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/02/17 17:50:08 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -24,7 +24,6 @@
 //
 HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   hlTriggerResults_ (iConfig.getParameter<edm::InputTag> ("HLTriggerResults")),
-  triggerNames_(),
   nEvents_(0),
   nWasRun_(0),
   nAccept_(0),
@@ -74,8 +73,8 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // initialisation (could be made dynamic)
   if (!init_) {
     init_=true;
-    triggerNames_.init(*HLTR);
-    hlNames_=triggerNames_.triggerNames();
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTR);
+    hlNames_=triggerNames.triggerNames();
     const unsigned int n(hlNames_.size());
     hlWasRun_.resize(n);
     hlAccept_.resize(n);

@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTInfo.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 // L1 related
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
@@ -169,12 +170,12 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     int ntrigs = hltresults->size();
     if (ntrigs==0){std::cout << "%HLTInfo -- No trigger name given in TriggerResults of the input " << std::endl;}
 
-    triggerNames_.init(* hltresults);
+    edm::TriggerNames const& triggerNames = iEvent.triggerNames(*hltresults);
 
     // 1st event : Book as many branches as trigger paths provided in the input...
     if (HltEvtCnt==0){
       for (int itrig = 0; itrig != ntrigs; ++itrig) {
-        TString trigName = triggerNames_.triggerName(itrig);
+        TString trigName = triggerNames.triggerName(itrig);
         HltTree->Branch(trigName,trigflag+itrig,trigName+"/I");
       }
       HltEvtCnt++;
@@ -182,7 +183,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     // ...Fill the corresponding accepts in branch-variables
     for (int itrig = 0; itrig != ntrigs; ++itrig){
 
-      string trigName=triggerNames_.triggerName(itrig);
+      string trigName=triggerNames.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
 
       if (accept){trigflag[itrig] = 1;}
