@@ -9,13 +9,13 @@ import FWCore.ParameterSet.Config as cms
 # V.M. Ghete 2009-11-15
 
 # ECAL TPG sequence
-# can contain ecalTrigPrimESProducer when configured from TPG.txt file and not from DB
-from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
+import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 valEcalTriggerPrimitiveDigis = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
 #
 valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
+
 
 
 # HCAL TPG sequence
