@@ -4,7 +4,7 @@
 *  Tracks and 4DSegments from AlcaReco.
 *  Calculation of predicted states is performed here.
 *
-*  $Date: 2008/12/12 18:02:14 $
+*  $Date: 2009/12/15 15:07:16 $
 *  $Revision: 1.1 $
 *  \author P. Martinez Ruiz del Arbol, IFCA (CSIC-UC)  <Pablo.Martinez@cern.ch>
 */
@@ -58,26 +58,8 @@ protected:
 private:
   
   
-  edm::InputTag MuonCollectionTag;
- 
-  edm::InputTag TrackerCollectionTag;
-  
   edm::InputTag SACollectionTag;
 
-  std::string  TrackRefitterType;
-
-  std::string propagatorSourceOpposite;  
-  
-  std::string propagatorSourceAlong;  
-
-  //Propagator *thePropagator;
-
-  SegmentToTrackAssociator *theSegmentsAssociator;
-   
-  enum TrackType {
-    CosmicLike,
-    LHCLike
-  };
     
 };
 #endif
