@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
@@ -155,8 +155,7 @@ bool HiggsToTauTauMuonTauSkim::filter(edm::Event& iEvent, const edm::EventSetup&
   bool MuonTrigger = false;
   
   if (HLTResults.isValid()) {
-    edm::TriggerNames triggerNames;
-    triggerNames.init(*HLTResults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
     for (unsigned int iHLT = 0; iHLT < HLTResults->size(); iHLT++) {
       for (std::vector<std::string>::const_iterator iLMu = hltMuonBits.begin(); iLMu != hltMuonBits.end(); ++iLMu) {
 	std::string filterMuonBit = (*iLMu);

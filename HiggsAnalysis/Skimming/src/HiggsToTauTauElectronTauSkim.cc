@@ -22,7 +22,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
@@ -158,8 +158,7 @@ bool HiggsToTauTauElectronTauSkim::filter(edm::Event& iEvent, const edm::EventSe
   bool ElectronTrigger = false;
   
   if (HLTResults.isValid()) {
-    edm::TriggerNames triggerNames;
-    triggerNames.init(*HLTResults);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
     for (unsigned int iHLT = 0; iHLT < HLTResults->size(); iHLT++) {
       for (std::vector<std::string>::const_iterator iLEl = hltElectronBits.begin(); iLEl != hltElectronBits.end(); ++iLEl) {
 	std::string filterElectronBit = (*iLEl);

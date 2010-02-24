@@ -16,9 +16,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include<vector>
 #include<string>
 
@@ -40,8 +39,6 @@ class HiggsToZZ4LeptonsHLTAnalysis : public edm::EDProducer {
 
     /// HLT TriggerResults EDProduct
     edm::InputTag inputTag_,muonlabel_,electronlabel_;
-    /// HLT trigger names
-    edm::TriggerNames triggerNames_;
 
     /// false=and-mode (all requested triggers), true=or-mode (at least one)
     bool andOr_;

@@ -12,6 +12,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 // Muons:
 #include <DataFormats/MuonReco/interface/Muon.h>
@@ -110,16 +111,16 @@ void HiggsToZZ4LeptonsHLTAnalysis::produce(edm::Event& iEvent, const edm::EventS
     cout << "TriggerResults found, number of HLT paths: " << trh->size() << endl;
     
     // get hold of trigger names - based on TriggerResults object!
-    triggerNames_.init(*trh);
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
     if (firstevent_) {
-      for (unsigned int i=0; i<triggerNames_.size(); i++) {
-	cout << "Found the trigger path= " << triggerNames_.triggerName(i) << endl;
+      for (unsigned int i=0; i<triggerNames.size(); i++) {
+	cout << "Found the trigger path= " << triggerNames.triggerName(i) << endl;
       }
     }
     
     unsigned int n(n_);
     for (unsigned int i=0; i!=n; i++) {
-      HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
+      HLTPathsByIndex_[i]=triggerNames.triggerIndex(HLTPathsByName_[i]);
     }
     
     // for empty input vectors (n==0), default to all HLT trigger paths!
@@ -128,7 +129,7 @@ void HiggsToZZ4LeptonsHLTAnalysis::produce(edm::Event& iEvent, const edm::EventS
       HLTPathsByName_.resize(n);
       HLTPathsByIndex_.resize(n);
       for (unsigned int i=0; i!=n; i++) {
-	HLTPathsByName_[i]=triggerNames_.triggerName(i);
+	HLTPathsByName_[i]=triggerNames.triggerName(i);
 	HLTPathsByIndex_[i]=i;
       }
     }

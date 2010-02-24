@@ -15,17 +15,16 @@
 #include <HiggsAnalysis/Skimming/interface/LightChHiggsToTauNuSkim.h>
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsHLTAnalysis);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsSkimProducer);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsSkimFilter);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsSkim);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsSkimEff);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToZZ4LeptonsPreFilter);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToWW2LeptonsSkim);
-DEFINE_ANOTHER_FWK_MODULE(HeavyChHiggsToTauNuSkim);
-DEFINE_ANOTHER_FWK_MODULE(HiggsTo2GammaSkim);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToTauTauElectronTauSkim);
-DEFINE_ANOTHER_FWK_MODULE(HiggsToTauTauMuonTauSkim);
-DEFINE_ANOTHER_FWK_MODULE(LightChHiggsToTauNuSkim);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsHLTAnalysis);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimProducer);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimFilter);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkim);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsSkimEff);
+DEFINE_FWK_MODULE(HiggsToZZ4LeptonsPreFilter);
+DEFINE_FWK_MODULE(HiggsToWW2LeptonsSkim);
+DEFINE_FWK_MODULE(HeavyChHiggsToTauNuSkim);
+DEFINE_FWK_MODULE(HiggsTo2GammaSkim);
+DEFINE_FWK_MODULE(HiggsToTauTauElectronTauSkim);
+DEFINE_FWK_MODULE(HiggsToTauTauMuonTauSkim);
+DEFINE_FWK_MODULE(LightChHiggsToTauNuSkim);
 
