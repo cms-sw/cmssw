@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.1 2010/02/24 18:57:55 arizzi Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.2 2010/02/24 19:34:59 arizzi Exp $
 //
 //
 
@@ -78,13 +78,13 @@ void Vx3DHLTAnalyzer::beginJob()
 
   if ( dbe )
     {
-      dbe->setCurrentFolder("BeamMonitor");
-      dbe->rmdir("BeamMonitor");
+      dbe->setCurrentFolder("BeamPixel");
+      dbe->rmdir("BeamPixel");
     }
  
   if ( dbe ) 
     {
-      dbe->setCurrentFolder("BeamMonitor");
+      dbe->setCurrentFolder("BeamPixel");
 
       Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", 1000, -5.0, 5.0);
       Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", 1000, -5.0, 5.0);
