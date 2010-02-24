@@ -4,7 +4,6 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Exception.h"
-//#include "RelationalAccess/AccessMode.h"
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
@@ -63,7 +62,10 @@ namespace lumi{
     }
     coral::ISessionProxy* session=svc->connect(m_source, coral::ReadOnly);
     coral::ITypeConverter& tpc=session->typeConverter();
+
+    tpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
     tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
+    tpc.setCppTypeForSqlType("unsigned long long","NUMBER(20)");
     
     coral::AttributeList bindVariableList;
     bindVariableList.extend("runnumber",typeid(unsigned int));
@@ -206,7 +208,7 @@ namespace lumi{
       unsigned int count=row["counts"].data<unsigned int>();
       unsigned int techbit=row["techbit"].data<unsigned int>();
       mybitcount_tech.push_back(count);
-      if(techbit==63){
+      if(techbit==(lumi::N_TRGTECHBIT-1)){
 	techcount.push_back(mybitcount_tech);
 	mybitcount_tech.clear();
       }
@@ -216,7 +218,7 @@ namespace lumi{
       techcursor.close();
       delete Querytechview;
       transaction.commit();
-      throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for tecgcounts"),"retrieveData","TRG2DB");
+      throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for techcounts"),"retrieveData","TRG2DB");
     }
     if( mybitcount_tech.size()!=lumi::N_TRGTECHBIT){
       delete Querytechview;
@@ -253,11 +255,11 @@ namespace lumi{
       ++s;
     }
     if(s==0){
-      std::cout<<"requested run "<<runnumber<<" doesn't exist for deadcount, do nothing"<<std::endl;
       deadcursor.close();
       delete Querydeadview;
       transaction.commit();
-      return;
+ throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for deadcounts"),"retrieveData","TRG2DB");
+ return;
     }
     //transaction.commit();
     delete Querydeadview;
