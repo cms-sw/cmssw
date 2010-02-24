@@ -55,5 +55,5 @@ goodZToMuMu1HLTLoose = copy.deepcopy(goodZToMuMuAtLeast1HLTLoose)
 goodZToMuMu1HLTLoose.condition =cms.string("exactlyOneMatched")
 
 goodZToMuMu1HLT = copy.deepcopy(goodZToMuMuAtLeast1HLT)
-goodZToMuMu1HLTLoose.condition =cms.string("exactlyOneMatched")
+goodZToMuMu1HLT.condition =cms.string("exactlyOneMatched")
 
