@@ -59,8 +59,8 @@ table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
 	 runnum(uint32),
          cmsluminum(uint32),
          pathname(string),
-         inputcount(uint64),
-         acceptcount(uint64),
+         inputcount(uint32),
+         acceptcount(uint32),
          prescale(uint32)
 	  
 ======
