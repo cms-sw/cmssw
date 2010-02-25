@@ -10,6 +10,7 @@
  *
  ************************************************************/
 
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"

@@ -1,5 +1,6 @@
 #ifndef EGammaReco_ElectronSeedFwd_h
 #define EGammaReco_ElectronSeedFwd_h
+
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
