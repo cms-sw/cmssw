@@ -1,8 +1,8 @@
 #ifndef GsfElectron_h
 #define GsfElectron_h
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 //#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -32,13 +32,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.37 2009/12/11 09:09:41 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.38 2010/01/11 15:09:46 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.38  2010/01/11 15:09:46  chamont
+// give explicit values to classification enum
+//
 // Revision 1.37  2009/12/11 09:09:41  chamont
 // tranform NARROW into OLDNARROW, and add closestCtfTrack to GsfElectronCore
 //

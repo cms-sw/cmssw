@@ -1,6 +1,7 @@
 #ifndef GsfElectronCore_h
 #define GsfElectronCore_h
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -25,13 +26,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectronCore.h,v 1.6 2009/10/20 20:57:54 chamont Exp $
+ * \version $Id: GsfElectronCore.h,v 1.7 2009/12/11 09:09:41 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectronCore.h,v $
+// Revision 1.7  2009/12/11 09:09:41  chamont
+// tranform NARROW into OLDNARROW, and add closestCtfTrack to GsfElectronCore
+//
 // Revision 1.6  2009/10/20 20:57:54  chamont
 // restore previous attribute names, so to preserve backward data compatibility
 //
