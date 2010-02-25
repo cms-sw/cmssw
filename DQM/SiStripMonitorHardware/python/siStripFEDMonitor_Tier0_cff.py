@@ -38,6 +38,21 @@ siStripFEDMonitor.FETimeDiffTIBHistogramConfig.Enabled = False
 siStripFEDMonitor.FETimeDiffTOBHistogramConfig.Enabled = False
 siStripFEDMonitor.FETimeDiffTECBHistogramConfig.Enabled = False
 siStripFEDMonitor.FETimeDiffTECFHistogramConfig.Enabled = False
+siStripFEDMonitor.ApveAddressHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajAddressHistogramConfig.Enabled = False
+#medians per APV for all channels, all events
+siStripFEDMonitor.MedianAPV0HistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  NBins = cms.untracked.uint32(256),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(1024)
+  )
+siStripFEDMonitor.MedianAPV1HistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(False),
+  NBins = cms.untracked.uint32(256),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(1024)
+  )
 #Error counting histograms
 siStripFEDMonitor.nFEDErrorsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),

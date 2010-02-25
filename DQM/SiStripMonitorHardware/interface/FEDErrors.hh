@@ -85,6 +85,8 @@ public:
     bool Missing;
     bool BadMajorityAddress;
     int TimeDifference;
+    unsigned int Apve;
+    unsigned int FeMaj;
   };
 
   struct ChannelLevelErrors {
@@ -130,7 +132,9 @@ public:
 		     bool & aFullDebug,
 		     const unsigned int aPrintDebug,
 		     unsigned int & aCounterMonitoring,
-		     unsigned int & aCounterUnpacker
+		     unsigned int & aCounterUnpacker,
+		     std::vector<uint16_t> & aMedians,
+		     const bool aDoMeds
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
@@ -139,7 +143,9 @@ public:
 			 bool & aFullDebug,
 			 const unsigned int aPrintDebug,
 			 unsigned int & aCounterMonitoring,
-			 unsigned int & aCounterUnpacker
+			 unsigned int & aCounterUnpacker,
+			 std::vector<uint16_t> & aMedians,
+			 const bool aDoMeds
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer

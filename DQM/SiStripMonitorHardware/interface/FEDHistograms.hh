@@ -64,6 +64,11 @@ public:
 			  );
 
 
+  bool cmHistosEnabled();
+  //to be filled for all channels...
+  void fillCMHistograms(const unsigned int aAPV0,
+			const unsigned int aAPV1);
+
 
    //book the top level histograms
   void bookTopLevelHistograms(DQMStore* dqm);
@@ -138,7 +143,14 @@ private:
   MonitorElement *feTimeDiffTIB_,
     *feTimeDiffTOB_,
     *feTimeDiffTECB_,
-    *feTimeDiffTECF_;        
+    *feTimeDiffTECF_;
+
+  MonitorElement *apveAddress_;
+  MonitorElement *feMajAddress_;
+
+  MonitorElement *medianAPV0_;
+  MonitorElement *medianAPV1_;
+
 
   //FED level histograms
   std::map<unsigned int,MonitorElement*> feOverflowDetailed_, 

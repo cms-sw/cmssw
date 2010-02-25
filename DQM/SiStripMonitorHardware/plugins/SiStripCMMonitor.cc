@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.12 2010/01/14 18:04:09 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.13 2010/02/20 20:59:06 wmtan Exp $
 //
 
 #include <sstream>
@@ -135,6 +135,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
+    dqm_(0),
     cablingCacheId_(0)
     
 {
