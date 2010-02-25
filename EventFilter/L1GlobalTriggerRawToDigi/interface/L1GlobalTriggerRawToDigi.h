@@ -82,6 +82,10 @@ private:
     void unpackTrailer(const unsigned char*, FEDTrailer&);
 
 
+    /// produce empty products in case of problems
+    void produceEmptyProducts(edm::Event&);
+
+
     /// dump FED raw data
     void dumpFedRawData(const unsigned char*, int, std::ostream&);
 

@@ -202,28 +202,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
                     << "\nQuit unpacking this event" << std::endl;
         }
 
-        std::auto_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(
-                new L1GlobalTriggerReadoutRecord());
-
-        // produce also the GMT readout collection and set the reference in GT record
-        std::auto_ptr<L1MuGMTReadoutCollection> gmtrc(new L1MuGMTReadoutCollection());
-
-        std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
-
-        // put empty records into event
-
-        iEvent.put(gmtrc);
-        iEvent.put(gtReadoutRecord);
-
-        iEvent.put(DTCands, "DT");
-        iEvent.put(CSCCands, "CSC");
-        iEvent.put(RPCbCands, "RPCb");
-        iEvent.put(RPCfCands, "RPCf");
-        iEvent.put(GMTCands);
+        produceEmptyProducts(iEvent);
 
         return;
     }
@@ -236,18 +215,37 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
     // get a const pointer to the beginning of the data buffer
     const unsigned char* ptrGt = raw.data();
 
+    // get a const pointer to the end of the data buffer
+    const unsigned char* endPtrGt = ptrGt + gtSize;
+
     //
     if (m_verbosity && m_isDebugEnabled) {
 
+        LogTrace("L1GlobalTriggerRawToDigi") << "\n Size of raw data: "
+                << gtSize << "\n" << std::endl;
+
         std::ostringstream myCoutStream;
         dumpFedRawData(ptrGt, gtSize, myCoutStream);
-        LogTrace("L1GlobalTriggerRawToDigi") << "\n Size of raw data: " << gtSize << "\n"
-                << "\n Dump FEDRawData\n" << myCoutStream.str() << "\n" << std::endl;
+
+        LogTrace("L1GlobalTriggerRawToDigi") << "\n Dump FEDRawData\n"
+                << myCoutStream.str() << "\n" << std::endl;
 
     }
 
-    // unpack header
+    // unpack header (we have one header only)
     int headerSize = 8;
+
+    if ((ptrGt + headerSize) > endPtrGt) {
+        edm::LogError("L1GlobalTriggerRawToDigi")
+                << "\nError: Pointer after header greater than end pointer."
+                << "\n Put empty products in the event!"
+                << "\n Quit unpacking this event." << std::endl;
+
+        produceEmptyProducts(iEvent);
+
+        return;
+    }
+
 
     FEDHeader cmsHeader(ptrGt);
     FEDTrailer cmsTrailer(ptrGt + gtSize - headerSize);
@@ -257,6 +255,19 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
     // unpack first GTFE to find the length of the record and the active boards
     // here GTFE assumed immediately after the header
+
+    // if pointer after GTFE payload is greater than pointer at
+    // the end of GT payload, produce empty products and quit unpacking
+    if ((ptrGt + m_gtfeWord->getSize()) > endPtrGt) {
+        edm::LogError("L1GlobalTriggerRawToDigi")
+                << "\nError: Pointer after GTFE greater than end pointer."
+                << "\n Put empty products in the event!"
+                << "\n Quit unpacking this event." << std::endl;
+
+        produceEmptyProducts(iEvent);
+
+        return;
+    }
 
     bool gtfeUnpacked = false;
 
@@ -290,32 +301,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
                             << "\nQuit unpacking this event" << std::endl;
                 }
 
-                std::auto_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(
-                        new L1GlobalTriggerReadoutRecord());
-
-                // produce also the GMT readout collection and set the reference in GT record
-                std::auto_ptr<L1MuGMTReadoutCollection> gmtrc(new L1MuGMTReadoutCollection());
-
-                std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<
-                        L1MuRegionalCand>);
-                std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<
-                        L1MuRegionalCand>);
-                std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<
-                        L1MuRegionalCand>);
-                std::auto_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<
-                        L1MuRegionalCand>);
-                std::auto_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
-
-                // put empty records into event
-
-                iEvent.put(gmtrc);
-                iEvent.put(gtReadoutRecord);
-
-                iEvent.put(DTCands, "DT");
-                iEvent.put(CSCCands, "CSC");
-                iEvent.put(RPCbCands, "RPCb");
-                iEvent.put(RPCfCands, "RPCf");
-                iEvent.put(GMTCands);
+                produceEmptyProducts(iEvent);
 
                 return;
             }
@@ -333,28 +319,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
                     << "\nQuit unpacking this event" << std::endl;
         }
 
-        std::auto_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(
-                new L1GlobalTriggerReadoutRecord());
-
-        // produce also the GMT readout collection and set the reference in GT record
-        std::auto_ptr<L1MuGMTReadoutCollection> gmtrc(new L1MuGMTReadoutCollection());
-
-        std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
-        std::auto_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
-
-        // put empty records into event
-
-        iEvent.put(gmtrc);
-        iEvent.put(gtReadoutRecord);
-
-        iEvent.put(DTCands, "DT");
-        iEvent.put(CSCCands, "CSC");
-        iEvent.put(RPCbCands, "RPCb");
-        iEvent.put(RPCfCands, "RPCf");
-        iEvent.put(GMTCands);
+        produceEmptyProducts(iEvent);
 
         return;
     }
@@ -599,6 +564,20 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
             case FDL: {
                 for (int iFdl = 0; iFdl < m_totalBxInEvent; ++iFdl) {
 
+                    // if pointer after FDL payload is greater than pointer at
+                    // the end of GT payload, produce empty products and quit unpacking
+                    if ((ptrGt + m_gtFdlWord->getSize()) > endPtrGt) {
+                        edm::LogError("L1GlobalTriggerRawToDigi")
+                                << "\nError: Pointer after FDL " << iFdl
+                                << " greater than end pointer."
+                                << "\n Put empty products in the event!"
+                                << "\n Quit unpacking this event." << std::endl;
+
+                        produceEmptyProducts(iEvent);
+
+                        return;
+                    }
+
                     // unpack only if requested, otherwise skip it
                     if (activeBoardToUnpack) {
 
@@ -639,6 +618,20 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
             case PSB: {
                 for (int iPsb = 0; iPsb < m_totalBxInEvent; ++iPsb) {
 
+                    // if pointer after PSB payload is greater than pointer at
+                    // the end of GT payload, produce empty products and quit unpacking
+                    if ((ptrGt + m_gtPsbWord->getSize()) > endPtrGt) {
+                        edm::LogError("L1GlobalTriggerRawToDigi")
+                                << "\nError: Pointer after PSB " << iPsb
+                                << " greater than end pointer."
+                                << "\n Put empty products in the event!"
+                                << "\n Quit unpacking this event." << std::endl;
+
+                        produceEmptyProducts(iEvent);
+
+                        return;
+                    }
+
                     // unpack only if requested, otherwise skip it
                     if (activeBoardToUnpack) {
 
@@ -671,14 +664,29 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
                 break;
             case GMT: {
 
+                // 17*64/8 TODO FIXME ask Ivan for a getSize() function for GMT record
+                unsigned int gmtRecordSize = 136;
+                unsigned int gmtCollSize = m_totalBxInEvent * gmtRecordSize;
+
+                // if pointer after GMT payload is greater than pointer at
+                // the end of GT payload, produce empty products and quit unpacking
+                if ((ptrGt + gmtCollSize) > endPtrGt) {
+                    edm::LogError("L1GlobalTriggerRawToDigi")
+                            << "\nError: Pointer after GMT "
+                            << " greater than end pointer."
+                            << "\n Put empty products in the event!"
+                            << "\n Quit unpacking this event." << std::endl;
+
+                    produceEmptyProducts(iEvent);
+
+                    return;
+                }
+
                 // unpack only if requested, otherwise skip it
                 if (activeBoardToUnpack) {
                     unpackGMT(ptrGt, gmtrc, iEvent);
                 }
 
-                // 17*64/8 TODO FIXME ask Ivan for a getSize() function for GMT record
-                unsigned int gmtRecordSize = 136;
-                unsigned int gmtCollSize = m_totalBxInEvent * gmtRecordSize;
 
                 ptrGt += gmtCollSize; // advance with GMT block size
             }
@@ -707,8 +715,26 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
 
     // unpack trailer
+
+    int trailerSize = 8;
+
+    // if pointer after trailer is greater than pointer at
+    // the end of GT payload, produce empty products and quit unpacking
+    if ((ptrGt + trailerSize) > endPtrGt) {
+        edm::LogError("L1GlobalTriggerRawToDigi")
+                << "\nError: Pointer after trailer "
+                << " greater than end pointer."
+                << "\n Put empty products in the event!"
+                << "\n Quit unpacking this event." << std::endl;
+
+        produceEmptyProducts(iEvent);
+
+        return;
+    }
+
     unpackTrailer(ptrGt, cmsTrailer);
 
+    //
     if (m_verbosity && m_isDebugEnabled) {
         std::ostringstream myCoutStream;
         gtReadoutRecord->print(myCoutStream);
@@ -977,6 +1003,35 @@ void L1GlobalTriggerRawToDigi::unpackTrailer(const unsigned char* trlPtr, FEDTra
     }
 
 }
+
+// produce empty products in case of problems
+void L1GlobalTriggerRawToDigi::produceEmptyProducts(edm::Event& iEvent) {
+
+    std::auto_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(
+            new L1GlobalTriggerReadoutRecord());
+
+    std::auto_ptr<L1MuGMTReadoutCollection> gmtrc(new L1MuGMTReadoutCollection());
+
+    std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
+    std::auto_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
+    std::auto_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
+    std::auto_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
+    std::auto_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
+
+    // put empty records into event
+
+    iEvent.put(gmtrc);
+    iEvent.put(gtReadoutRecord);
+
+    iEvent.put(DTCands, "DT");
+    iEvent.put(CSCCands, "CSC");
+    iEvent.put(RPCbCands, "RPCb");
+    iEvent.put(RPCfCands, "RPCf");
+    iEvent.put(GMTCands);
+
+}
+
+
 
 // dump FED raw data
 void L1GlobalTriggerRawToDigi::dumpFedRawData(
