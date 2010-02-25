@@ -27,9 +27,11 @@ class SimpleSecondaryVertexComputer : public JetTagComputer {
 		const reco::SecondaryVertexTagInfo &info =
 				tagInfos.get<reco::SecondaryVertexTagInfo>();
 		unsigned int idx = 0;
-		while(idx < info.nVertices())
+		while(idx < info.nVertices()) {
 			if (info.nVertexTracks(idx) >= minTracks)
 				break;
+			idx++;
+		}
 		if (idx >= info.nVertices())
 			return -1.0;
 
