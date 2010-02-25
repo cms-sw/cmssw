@@ -191,6 +191,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 
                 // === time computation ===
                 // ratio method
+                float clockToNsConstant = 25.;
                 if (detid.subdetId()==EcalEndcap) {
                                 ratioMethod_endcap_.init( *itdg, pedVec, pedRMSVec, gainRatios );
                                 ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
@@ -199,7 +200,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 if ( uncalibRecHit.amplitude() > amplitudeThreshEE_
-                                     && fabs(crh.timeMax-5) > outOfTimeThresh_ ) {
+                                     && fabs( ((crh.timeMax-5) * clockToNsConstant + itimeconst) / clockToNsConstant ) > outOfTimeThresh_ ) {
                                         uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                 }
                 } else {
@@ -210,7 +211,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
                                 if ( uncalibRecHit.amplitude() > amplitudeThreshEB_ && 
-                                     fabs(crh.timeMax-5) > outOfTimeThresh_ ) {
+                                     fabs( ((crh.timeMax-5) * clockToNsConstant + itimeconst) / clockToNsConstant) > outOfTimeThresh_ ) {
                                         uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                 }
                 }
