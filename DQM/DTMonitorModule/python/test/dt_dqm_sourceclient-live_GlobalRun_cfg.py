@@ -7,7 +7,8 @@ process = cms.Process("DTDQM")
 #----------------------------
 process.load("DQM.Integration.test.inputsource_cfi")
 process.EventStreamHttpReader.consumerName = 'DT DQM Consumer'
-
+#process.EventStreamHttpReader.sourceURL = cms.string('http://srv-c2d04-30:50082/urn:xdaq-application:lid=29')
+process.EventStreamHttpReader.sourceURL = cms.string('http://srv-c2c05-07:22100/urn:xdaq-application:lid=30')
 
 #----------------------------
 #### DQM Environment
@@ -22,7 +23,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #### DQM Live Environment
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
-process.DQM.collectorHost = 'srv-c2d05-13.cms'
+process.DQM.collectorHost = 'localhost'
 process.DQM.collectorPort = 9190
 process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.convention = 'Online'

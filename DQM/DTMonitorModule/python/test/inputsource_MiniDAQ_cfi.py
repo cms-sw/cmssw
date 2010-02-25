@@ -35,11 +35,12 @@ maxEvents = cms.untracked.PSet(
 
 source = cms.Source("EventStreamHttpReader",
       #sourceURL = cms.string('http://srv-c2d05-14.cms:22100/urn:xdaq-application:lid=30'),
+      #sourceURL = cms.string('http://srv-c2d04-30:50082/urn:xdaq-application:lid=29'),
       sourceURL = cms.string('http://cmsdisk1.cms:33100/urn:xdaq-application:lid=50'),
       consumerPriority = cms.untracked.string('normal'),
       max_event_size = cms.int32(7000000),
       consumerName = cms.untracked.string('DQM Source'),
-      SelectHLTOutput = cms.untracked.string('out4DQM'),
+      SelectHLTOutput = cms.untracked.string('hltOutputDQM'),
       max_queue_depth = cms.int32(5),
       maxEventRequestRate = cms.untracked.double(15.0),
       SelectEvents = cms.untracked.PSet(
