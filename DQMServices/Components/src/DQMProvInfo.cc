@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2009/12/13 14:15:02 $
- * $Revision: 1.10 $
+ * $Date: 2009/12/15 23:07:13 $
+ * $Revision: 1.11 $
  * $Author: ameyer $
  *
  */
@@ -24,6 +24,8 @@
 
 using namespace edm;
 using namespace std;
+
+const static int XBINS=2000;
 
 DQMProvInfo::DQMProvInfo(const ParameterSet& ps){
   
@@ -53,7 +55,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   reportSummary_=dbe_->bookFloat("reportSummary");
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
-                     "HV and GT vs Lumi", 200, 1., 201., 26, 0., 26.);
+                     "HV and GT vs Lumi", XBINS, 1., XBINS+1, 26, 0., 26.);
   reportSummaryMap_->setBinLabel(1," CSC+",2);   
   reportSummaryMap_->setBinLabel(2," CSC-",2);   
   reportSummaryMap_->setBinLabel(3," DT0",2);    
@@ -100,7 +102,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
 {
 
   int nlumi = l.id().luminosityBlock();
-  if (nlumi > 200) 
+  if (nlumi > XBINS) 
   {
     cout << "DQMProvInfo: lumi " << nlumi << " exceeds histogram boundaries " << endl;
     return;
@@ -136,14 +138,14 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   {
     reportSummary_->Fill(1.); 
     reportSummaryMap_->setBinContent(nlumi,24+1,1.);
-    if (nlumi < 200) 
+    if (nlumi < XBINS) 
       reportSummaryMap_->setBinContent(nlumi+1,24+1,-1.);
   }
   else
   {
     reportSummary_->Fill(0.); 
     reportSummaryMap_->setBinContent(nlumi,24+1,0.);
-    if (nlumi < 200) 
+    if (nlumi < XBINS) 
       reportSummaryMap_->setBinContent(nlumi+1,24+1,-1.);
   }
 
@@ -172,7 +174,7 @@ DQMProvInfo::getShowTags(void)
      line.ReplaceAll(" ","");
      out = out + line + ";";
      if (line.Contains("-------------------")) break;
-     if (out.Length()>2000) break;
+     if (out.Length()>XBINS) break;
    }
    out.ReplaceAll("--","");
    out.ReplaceAll(";-",";");
