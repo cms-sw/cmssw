@@ -4,7 +4,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: JetCorrectionService.h,v 1.1 2009/09/24 13:18:55 bainbrid Exp $
+// $Id: JetCorrectionService.h,v 1.2 2009/11/12 18:08:28 schiefer Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 // macro to define instance of JetCorrectionService
 #define DEFINE_JET_CORRECTION_SERVICE(corrector_, name_ ) \
 typedef JetCorrectionService <corrector_>  name_; \
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(name_)
+DEFINE_FWK_EVENTSETUP_SOURCE(name_)
 
 
 // Correction Service itself
