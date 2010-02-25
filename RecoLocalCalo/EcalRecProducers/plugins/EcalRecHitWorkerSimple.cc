@@ -105,7 +105,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         const EcalTimeCalibConstantMap & itimeMap = itime->getMap();  
         EcalTimeCalibConstantMap::const_iterator itime = itimeMap.find(detid);
         EcalTimeCalibConstant itimeconst = 0;
-        if( icalit!=icalMap.end() ) {
+        if( itime!=itimeMap.end() ) {
                 itimeconst = (*itime);
         } else {
                 edm::LogError("EcalRecHitError") << "No time calib const found for xtal "
