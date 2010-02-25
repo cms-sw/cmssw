@@ -6,6 +6,6 @@
 
 #include "HLTriggerOffline/Higgs/interface/HLTHiggsBits.h"
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(HLTHiggsBits);
+
+DEFINE_FWK_MODULE(HLTHiggsBits);

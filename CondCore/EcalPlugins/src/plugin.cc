@@ -116,7 +116,7 @@
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
 
 
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
 REGISTER_PLUGIN(EcalTBWeightsRcd,EcalTBWeights);

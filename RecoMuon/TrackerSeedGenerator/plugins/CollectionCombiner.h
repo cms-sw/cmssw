@@ -6,7 +6,7 @@
  * Description: this templated EDProducer can merge (no duplicate removal) any number of collection of the same type.
  * the usage is to declare a concrete combiner in SealModule:
  * typedef CollectionCombiner<std::vector< Trajectory> > TrajectoryCombiner;
- * DEFINE_ANOTHER_FWK_MODULE(TrajectoryCombiner);
+ * DEFINE_FWK_MODULE(TrajectoryCombiner);
  * edm::View cannot be used, because the template argument is used for the input and the output type.
  *
  * \author Jean-Roch Vlimant

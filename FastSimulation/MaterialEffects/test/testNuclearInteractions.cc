@@ -930,5 +930,5 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testNuclearInteractions);
+
+DEFINE_FWK_MODULE(testNuclearInteractions);

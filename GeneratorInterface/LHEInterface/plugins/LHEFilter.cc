@@ -45,4 +45,4 @@ bool LHEFilter::filter(edm::Event &event, const edm::EventSetup &es)
 	return product->GetEvent();
 }
 
-DEFINE_ANOTHER_FWK_MODULE(LHEFilter);
+DEFINE_FWK_MODULE(LHEFilter);

@@ -9,8 +9,8 @@
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoDF.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoST.h>
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CSCSegmentProducer);
+
+DEFINE_FWK_MODULE(CSCSegmentProducer);
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoSK, "CSCSegAlgoSK");
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoTC, "CSCSegAlgoTC");
 DEFINE_EDM_PLUGIN(CSCSegmentBuilderPluginFactory, CSCSegAlgoDF, "CSCSegAlgoDF");

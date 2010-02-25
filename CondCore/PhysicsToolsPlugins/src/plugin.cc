@@ -8,7 +8,7 @@
 
 #include "CondCore/ESSources/interface/registration_macros.h"
 
-DEFINE_SEAL_MODULE();
+
 
 
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"

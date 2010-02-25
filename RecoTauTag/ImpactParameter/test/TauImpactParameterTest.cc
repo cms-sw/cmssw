@@ -428,5 +428,5 @@ void TauImpactParameterTest::endJob(){
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TauImpactParameterTest);
+
+DEFINE_FWK_MODULE(TauImpactParameterTest);

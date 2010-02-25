@@ -12,18 +12,18 @@ typedef CalibAnalyzer<reco::GenParticleCollection, reco::GenJetCollection, Parto
 
 typedef CalibAnalyzer<reco::PhotonCollection, reco::CaloJetCollection, PhotonCaloJetBalance> PhotonJetClosure;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE( CompareCalibs );
-DEFINE_ANOTHER_FWK_MODULE( GenJetClosure );
-DEFINE_ANOTHER_FWK_MODULE( PartonClosure );
-DEFINE_ANOTHER_FWK_MODULE( PartonCorrection );
-DEFINE_ANOTHER_FWK_MODULE( PhotonJetClosure );
+
+DEFINE_FWK_MODULE( CompareCalibs );
+DEFINE_FWK_MODULE( GenJetClosure );
+DEFINE_FWK_MODULE( PartonClosure );
+DEFINE_FWK_MODULE( PartonCorrection );
+DEFINE_FWK_MODULE( PhotonJetClosure );
 
 
 #include "PFJetTester.h"
 #include "CaloJetTester.h"
 #include "JetFileSaver.h"
 
-DEFINE_ANOTHER_FWK_MODULE( PFJetTester );
-DEFINE_ANOTHER_FWK_MODULE( CaloJetTester );
-DEFINE_ANOTHER_FWK_MODULE( JetFileSaver );
+DEFINE_FWK_MODULE( PFJetTester );
+DEFINE_FWK_MODULE( CaloJetTester );
+DEFINE_FWK_MODULE( JetFileSaver );

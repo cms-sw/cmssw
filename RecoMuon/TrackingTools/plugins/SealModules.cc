@@ -8,5 +8,5 @@
 
 #include "RecoMuon/TrackingTools/plugins/MuonErrorMatrixAdjuster.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MuonErrorMatrixAdjuster);
+
+DEFINE_FWK_MODULE(MuonErrorMatrixAdjuster);

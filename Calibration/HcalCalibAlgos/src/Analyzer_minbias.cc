@@ -678,5 +678,5 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 }
 //define this as a plug-in
-//DEFINE_ANOTHER_FWK_MODULE(Analyzer_minbias)
+//DEFINE_FWK_MODULE(Analyzer_minbias)
 

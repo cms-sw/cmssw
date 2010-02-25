@@ -125,5 +125,5 @@ int FUShmReader::fillRawData(EventID& eID,
 // CMSSW framwork macros
 ////////////////////////////////////////////////////////////////////////////////
 
-DEFINE_SEAL_MODULE();
+
 DEFINE_EDM_PLUGIN(DaqReaderPluginFactoryU,FUShmReader,"FUShmReader");

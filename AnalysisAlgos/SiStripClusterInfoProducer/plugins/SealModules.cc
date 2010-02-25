@@ -5,5 +5,5 @@
 
 #include "AnalysisAlgos/SiStripClusterInfoProducer/plugins/SiStripProcessedRawDigiProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripProcessedRawDigiProducer);
+
+DEFINE_FWK_MODULE(SiStripProcessedRawDigiProducer);

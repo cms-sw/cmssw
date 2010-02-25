@@ -726,6 +726,6 @@ void GSRecHitValidation::endJob(){
 
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(GSRecHitValidation);
+
+DEFINE_FWK_MODULE(GSRecHitValidation);
 

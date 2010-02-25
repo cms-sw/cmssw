@@ -3,6 +3,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoTracker/RoadSearchCloudMaker/test/RoadSearchCloudDumper.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchCloudDumper);
+
+DEFINE_FWK_MODULE(RoadSearchCloudDumper);
 

@@ -299,7 +299,7 @@ typedef DijetMass<CaloJet> DijetMassCaloJets;
 DEFINE_FWK_MODULE(DijetMassCaloJets);
 /////////// Gen Jet Instance ////////
 typedef DijetMass<GenJet> DijetMassGenJets;
-DEFINE_ANOTHER_FWK_MODULE(DijetMassGenJets);
+DEFINE_FWK_MODULE(DijetMassGenJets);
 /////////// PF Jet Instance ////////
 typedef DijetMass<PFJet> DijetMassPFJets;
-DEFINE_ANOTHER_FWK_MODULE(DijetMassPFJets);
+DEFINE_FWK_MODULE(DijetMassPFJets);

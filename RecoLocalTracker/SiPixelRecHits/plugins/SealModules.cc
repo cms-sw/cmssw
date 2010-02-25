@@ -21,10 +21,10 @@
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
 using cms::SiPixelRecHitConverter;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiPixelRecHitConverter);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelCPEInitialESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelCPEParmErrorESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelCPEGenericESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelCPETemplateRecoESProducer);
+
+DEFINE_FWK_MODULE(SiPixelRecHitConverter);
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEInitialESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEParmErrorESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEGenericESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPETemplateRecoESProducer);
 

@@ -8,9 +8,9 @@
 
 using cms::AlCaDiJetsProducer; 
 using cms::ProducerAnalyzer;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(AlCaIsoTracksProducer);
-DEFINE_ANOTHER_FWK_MODULE(AlCaEcalHcalReadoutsProducer);
-DEFINE_ANOTHER_FWK_MODULE(AlCaDiJetsProducer);
-DEFINE_ANOTHER_FWK_MODULE(AlCaGammaJetProducer);
-DEFINE_ANOTHER_FWK_MODULE(ProducerAnalyzer);
+
+DEFINE_FWK_MODULE(AlCaIsoTracksProducer);
+DEFINE_FWK_MODULE(AlCaEcalHcalReadoutsProducer);
+DEFINE_FWK_MODULE(AlCaDiJetsProducer);
+DEFINE_FWK_MODULE(AlCaGammaJetProducer);
+DEFINE_FWK_MODULE(ProducerAnalyzer);

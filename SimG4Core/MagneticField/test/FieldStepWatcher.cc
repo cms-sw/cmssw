@@ -202,5 +202,5 @@ int FieldStepWatcher::findName(std::string name) {
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
+
 DEFINE_SIMWATCHER(FieldStepWatcher);

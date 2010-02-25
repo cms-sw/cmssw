@@ -5,8 +5,8 @@
 #include "SimMuon/CSCDigitizer/src/CSCNeutronWriter.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigiSuppressor.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CSCDigiProducer);
-DEFINE_ANOTHER_FWK_MODULE(CSCDigiDump);
-DEFINE_ANOTHER_FWK_MODULE(CSCNeutronWriter);
-DEFINE_ANOTHER_FWK_MODULE(CSCDigiSuppressor);
+
+DEFINE_FWK_MODULE(CSCDigiProducer);
+DEFINE_FWK_MODULE(CSCDigiDump);
+DEFINE_FWK_MODULE(CSCNeutronWriter);
+DEFINE_FWK_MODULE(CSCDigiSuppressor);

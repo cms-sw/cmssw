@@ -166,5 +166,5 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 }
 }
 //define this as a plug-in
-//DEFINE_ANOTHER_FWK_MODULE(HcalConstantsASCIIWriter)
+//DEFINE_FWK_MODULE(HcalConstantsASCIIWriter)
 

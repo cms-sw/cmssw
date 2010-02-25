@@ -34,9 +34,9 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, L1MuonRegionProducer, "L1MuonRe
 #include "TSGFromL1Muon.h"
 #include "TSGFromL2Muon.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TSGFromL1Muon);
-DEFINE_ANOTHER_FWK_MODULE(TSGFromL2Muon);
+
+DEFINE_FWK_MODULE(TSGFromL1Muon);
+DEFINE_FWK_MODULE(TSGFromL2Muon);
 
 #include "CollectionCombiner.h"
 
@@ -54,9 +54,9 @@ typedef CollectionCombiner<reco::TrackCollection> L3TrackCombiner;
 typedef CollectionCombiner<TrackCandidateCollection> L3TrackCandCombiner;
 typedef CollectionCombiner<reco::MuonTrackLinksCollection> L3TrackLinksCombiner;
 
-DEFINE_ANOTHER_FWK_MODULE(TrajectoryCombiner);
-DEFINE_ANOTHER_FWK_MODULE(L3MuonTrajectorySeedCombiner);
-DEFINE_ANOTHER_FWK_MODULE(L3TrackCombiner);
-DEFINE_ANOTHER_FWK_MODULE(L3TrackCandCombiner);
-DEFINE_ANOTHER_FWK_MODULE(L3TrackLinksCombiner);
+DEFINE_FWK_MODULE(TrajectoryCombiner);
+DEFINE_FWK_MODULE(L3MuonTrajectorySeedCombiner);
+DEFINE_FWK_MODULE(L3TrackCombiner);
+DEFINE_FWK_MODULE(L3TrackCandCombiner);
+DEFINE_FWK_MODULE(L3TrackLinksCombiner);
 

@@ -12,11 +12,11 @@
 #include "Calibration/HcalIsolatedTrackReco/interface/HITSiStripRawToClustersRoI.h" 	 
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITRegionalPixelSeedGenerator, "HITRegionalPixelSeedGenerator"); 
-//DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(IsolatedPixelTrackCandidateProducer);
-DEFINE_ANOTHER_FWK_MODULE(EcalIsolatedParticleCandidateProducer);
-DEFINE_ANOTHER_FWK_MODULE(SiStripRegFEDSelector);
-DEFINE_ANOTHER_FWK_MODULE(ECALRegFEDSelector);
-DEFINE_ANOTHER_FWK_MODULE(SubdetFEDSelector);
-DEFINE_ANOTHER_FWK_MODULE(IPTCorrector);
-DEFINE_ANOTHER_FWK_MODULE(HITSiStripRawToClustersRoI);
+//
+DEFINE_FWK_MODULE(IsolatedPixelTrackCandidateProducer);
+DEFINE_FWK_MODULE(EcalIsolatedParticleCandidateProducer);
+DEFINE_FWK_MODULE(SiStripRegFEDSelector);
+DEFINE_FWK_MODULE(ECALRegFEDSelector);
+DEFINE_FWK_MODULE(SubdetFEDSelector);
+DEFINE_FWK_MODULE(IPTCorrector);
+DEFINE_FWK_MODULE(HITSiStripRawToClustersRoI);

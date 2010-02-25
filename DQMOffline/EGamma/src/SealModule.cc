@@ -10,13 +10,13 @@
 #include "DQMOffline/EGamma/interface/ElectronOfflineClient.h"
 
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(PhotonAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PhotonOfflineClient);
-DEFINE_ANOTHER_FWK_MODULE(PhotonDataCertification);
-DEFINE_ANOTHER_FWK_MODULE(PiZeroAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronGeneralAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronTagProbeAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronOfflineClient);
+
+DEFINE_FWK_MODULE(PhotonAnalyzer);
+DEFINE_FWK_MODULE(PhotonOfflineClient);
+DEFINE_FWK_MODULE(PhotonDataCertification);
+DEFINE_FWK_MODULE(PiZeroAnalyzer);
+DEFINE_FWK_MODULE(ElectronGeneralAnalyzer);
+DEFINE_FWK_MODULE(ElectronAnalyzer);
+DEFINE_FWK_MODULE(ElectronTagProbeAnalyzer);
+DEFINE_FWK_MODULE(ElectronOfflineClient);

@@ -146,4 +146,4 @@ bool LHESource::produce(edm::Event &event)
 	return true;
 }
 
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(LHESource);
+DEFINE_FWK_INPUT_SOURCE(LHESource);

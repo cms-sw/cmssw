@@ -1327,4 +1327,4 @@ extern "C" {
 }
 #endif
 
-DEFINE_ANOTHER_FWK_MODULE(PomwigProducer);
+DEFINE_FWK_MODULE(PomwigProducer);

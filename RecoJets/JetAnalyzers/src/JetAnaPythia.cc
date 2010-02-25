@@ -358,7 +358,7 @@ typedef JetAnaPythia<CaloJet> CaloJetAnaPythia;
 DEFINE_FWK_MODULE(CaloJetAnaPythia);
 /////////// Cen Jet Instance ////////
 typedef JetAnaPythia<GenJet> GenJetAnaPythia;
-DEFINE_ANOTHER_FWK_MODULE(GenJetAnaPythia);
+DEFINE_FWK_MODULE(GenJetAnaPythia);
 /////////// PF Jet Instance ////////
 typedef JetAnaPythia<PFJet> PFJetAnaPythia;
-DEFINE_ANOTHER_FWK_MODULE(PFJetAnaPythia);
+DEFINE_FWK_MODULE(PFJetAnaPythia);

@@ -5,8 +5,8 @@
 #include "SimCalorimetry/CastorSim/plugins/CastorDigiAnalyzer.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CastorDigiProducer);
-DEFINE_ANOTHER_FWK_MODULE(CastorHitAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(CastorDigiAnalyzer);
+
+DEFINE_FWK_MODULE(CastorDigiProducer);
+DEFINE_FWK_MODULE(CastorHitAnalyzer);
+DEFINE_FWK_MODULE(CastorDigiAnalyzer);
 

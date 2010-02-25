@@ -5,6 +5,6 @@
 
 #include "RecoTracker/RingRecord/test/RingTest.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RingTest);
+
+DEFINE_FWK_MODULE(RingTest);
 

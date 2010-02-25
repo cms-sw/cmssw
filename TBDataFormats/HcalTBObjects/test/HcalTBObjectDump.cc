@@ -16,8 +16,8 @@ namespace cms {
 
   /** \class HcalTBObjectDump
       
-  $Date: 2007/03/09 15:42:53 $
-  $Revision: 1.5 $
+  $Date: 2007/04/10 23:11:20 $
+  $Revision: 1.6 $
   \author J. Mans - Minnesota
   */
   class HcalTBObjectDump : public edm::EDAnalyzer {
@@ -91,6 +91,6 @@ namespace cms {
 
 using namespace cms;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalTBObjectDump);
+
+DEFINE_FWK_MODULE(HcalTBObjectDump);
 

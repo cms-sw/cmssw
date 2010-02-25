@@ -7,6 +7,6 @@
 
 using cms::RingPainter;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RingPainter);
+
+DEFINE_FWK_MODULE(RingPainter);
 

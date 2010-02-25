@@ -4,6 +4,6 @@
 #include "RecoMuon/CosmicMuonProducer/test/CosmicMuonValidator.cc"
 #include "RecoMuon/CosmicMuonProducer/test/RealCosmicDataAnalyzer.cc"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CosmicMuonValidator);
-DEFINE_ANOTHER_FWK_MODULE(RealCosmicDataAnalyzer);
+
+DEFINE_FWK_MODULE(CosmicMuonValidator);
+DEFINE_FWK_MODULE(RealCosmicDataAnalyzer);

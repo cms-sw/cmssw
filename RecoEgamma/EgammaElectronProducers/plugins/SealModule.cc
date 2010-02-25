@@ -12,13 +12,13 @@
 #include "GsfElectronProducer.h"
 //#include "GlobalGsfElectronProducer.h"
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(SiStripElectronProducer);
-DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAssociator);
-DEFINE_ANOTHER_FWK_MODULE(ElectronSeedProducer);
-//DEFINE_ANOTHER_FWK_MODULE(GlobalSeedProducer);
-DEFINE_ANOTHER_FWK_MODULE(GsfElectronCoreProducer);
-DEFINE_ANOTHER_FWK_MODULE(GsfElectronProducer);
-//DEFINE_ANOTHER_FWK_MODULE(GlobalGsfElectronProducer);
-DEFINE_ANOTHER_FWK_MODULE(SiStripElectronSeedProducer);
+
+DEFINE_FWK_MODULE(SiStripElectronProducer);
+DEFINE_FWK_MODULE(SiStripElectronAssociator);
+DEFINE_FWK_MODULE(ElectronSeedProducer);
+//DEFINE_FWK_MODULE(GlobalSeedProducer);
+DEFINE_FWK_MODULE(GsfElectronCoreProducer);
+DEFINE_FWK_MODULE(GsfElectronProducer);
+//DEFINE_FWK_MODULE(GlobalGsfElectronProducer);
+DEFINE_FWK_MODULE(SiStripElectronSeedProducer);

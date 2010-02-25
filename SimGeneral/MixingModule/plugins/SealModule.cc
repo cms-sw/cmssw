@@ -17,10 +17,10 @@
   using edm::SecSourceAnalyzer;
   using edm::TestMixedSource;
   
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MixingModule);
-DEFINE_ANOTHER_FWK_MODULE(TestMix);
-DEFINE_ANOTHER_FWK_MODULE(CFWriter);
-DEFINE_ANOTHER_FWK_MODULE(InputAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(SecSourceAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(TestMixedSource);
+
+DEFINE_FWK_MODULE(MixingModule);
+DEFINE_FWK_MODULE(TestMix);
+DEFINE_FWK_MODULE(CFWriter);
+DEFINE_FWK_MODULE(InputAnalyzer);
+DEFINE_FWK_MODULE(SecSourceAnalyzer);
+DEFINE_FWK_MODULE(TestMixedSource);

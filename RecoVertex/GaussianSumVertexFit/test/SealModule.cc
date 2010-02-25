@@ -2,6 +2,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoVertex/GaussianSumVertexFit/test/GsfTest.h"
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(GsfTest);
+
+DEFINE_FWK_MODULE(GsfTest);

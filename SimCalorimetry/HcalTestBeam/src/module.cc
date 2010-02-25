@@ -2,6 +2,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBDigiProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalTBDigiProducer);
+
+DEFINE_FWK_MODULE(HcalTBDigiProducer);
 

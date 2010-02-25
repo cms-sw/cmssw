@@ -8,7 +8,7 @@
   using edm::DataMixingModule;
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(DataMixingModule);
+
+DEFINE_FWK_MODULE(DataMixingModule);
 
 

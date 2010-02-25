@@ -7,5 +7,5 @@
 using edm::CosMuoGenSource;
 using edm::CosMuoGenProducer;
 
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(CosMuoGenSource);
+DEFINE_FWK_INPUT_SOURCE(CosMuoGenSource);
 DEFINE_FWK_MODULE(CosMuoGenProducer);

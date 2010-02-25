@@ -4,5 +4,5 @@
 #include "SimGeneral/HepPDTESSource/interface/HepPDTESSource.h"
 
 
-  DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE( HepPDTESSource );
+  
+  DEFINE_FWK_EVENTSETUP_SOURCE( HepPDTESSource );

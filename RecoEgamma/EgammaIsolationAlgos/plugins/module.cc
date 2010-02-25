@@ -1,6 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
@@ -25,12 +25,12 @@ DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaRecHitExtra
 #include "GamIsoDetIdCollectionProducer.h"
 #include "EleIsoDetIdCollectionProducer.h"
 
-DEFINE_ANOTHER_FWK_MODULE(EgammaElectronTkIsolationProducer);
-DEFINE_ANOTHER_FWK_MODULE(EgammaElectronTkNumIsolationProducer);
-DEFINE_ANOTHER_FWK_MODULE(EgammaPhotonTkIsolationProducer);
-DEFINE_ANOTHER_FWK_MODULE(EgammaPhotonTkNumIsolationProducer);
-DEFINE_ANOTHER_FWK_MODULE(EgammaTowerIsolationProducer);
-DEFINE_ANOTHER_FWK_MODULE(EgammaEcalRecHitIsolationProducer);
-//DEFINE_ANOTHER_FWK_MODULE(EgammaDetIdCollectionProducer);
-DEFINE_ANOTHER_FWK_MODULE(EleIsoDetIdCollectionProducer);
-DEFINE_ANOTHER_FWK_MODULE(GamIsoDetIdCollectionProducer);
+DEFINE_FWK_MODULE(EgammaElectronTkIsolationProducer);
+DEFINE_FWK_MODULE(EgammaElectronTkNumIsolationProducer);
+DEFINE_FWK_MODULE(EgammaPhotonTkIsolationProducer);
+DEFINE_FWK_MODULE(EgammaPhotonTkNumIsolationProducer);
+DEFINE_FWK_MODULE(EgammaTowerIsolationProducer);
+DEFINE_FWK_MODULE(EgammaEcalRecHitIsolationProducer);
+//DEFINE_FWK_MODULE(EgammaDetIdCollectionProducer);
+DEFINE_FWK_MODULE(EleIsoDetIdCollectionProducer);
+DEFINE_FWK_MODULE(GamIsoDetIdCollectionProducer);

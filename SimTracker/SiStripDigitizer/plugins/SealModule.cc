@@ -4,7 +4,7 @@
 
 #include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiStripDigitizer);
+
+DEFINE_FWK_MODULE(SiStripDigitizer);
 
 

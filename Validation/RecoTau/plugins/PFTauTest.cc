@@ -206,5 +206,5 @@ void PFTauHLTTest::endJob(){
  if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) dbeTau->save (outPutFile_);
 }
 
-DEFINE_SEAL_MODULE();
+
 DEFINE_FWK_MODULE(PFTauHLTTest);

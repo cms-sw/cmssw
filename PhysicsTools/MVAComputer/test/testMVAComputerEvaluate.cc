@@ -60,7 +60,7 @@ void testMVAComputerEvaluate::analyze(const edm::Event& iEvent,
 }
 
 // define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(testMVAComputerEvaluate);
+DEFINE_FWK_MODULE(testMVAComputerEvaluate);
 
 // define the plugins for the record
 MVA_COMPUTER_CONTAINER_IMPLEMENT(MVADemo);

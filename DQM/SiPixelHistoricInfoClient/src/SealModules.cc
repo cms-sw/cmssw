@@ -6,8 +6,8 @@
 #include "DQM/SiPixelHistoricInfoClient/interface/SiPixelHistoricInfoReader.h"
 
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(SiPixelHistoricInfoDQMClient);
-DEFINE_ANOTHER_FWK_MODULE(SiPixelHistoricInfoEDAClient);
-DEFINE_ANOTHER_FWK_MODULE(SiPixelHistoricInfoReader);
+
+DEFINE_FWK_MODULE(SiPixelHistoricInfoDQMClient);
+DEFINE_FWK_MODULE(SiPixelHistoricInfoEDAClient);
+DEFINE_FWK_MODULE(SiPixelHistoricInfoReader);

@@ -5,7 +5,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
   
-DEFINE_SEAL_MODULE ();
+
 typedef FP420SD FP420SensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(FP420SensitiveDetector);
 DEFINE_SIMWATCHER (FP420Test); //=

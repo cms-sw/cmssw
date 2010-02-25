@@ -1,9 +1,9 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "PixelTrackProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducer);
+DEFINE_FWK_MODULE(PixelTrackProducer);
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"

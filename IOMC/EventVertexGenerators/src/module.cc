@@ -12,11 +12,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-DEFINE_SEAL_MODULE ();
+
 
 //using edm::VertexGenerator;
-//DEFINE_ANOTHER_FWK_MODULE(VertexGenerator) ;
-DEFINE_ANOTHER_FWK_MODULE(GaussEvtVtxGenerator) ;
-DEFINE_ANOTHER_FWK_MODULE(FlatEvtVtxGenerator) ;
-DEFINE_ANOTHER_FWK_MODULE(BeamProfileVtxGenerator) ;
-DEFINE_ANOTHER_FWK_MODULE(BetafuncEvtVtxGenerator) ;
+//DEFINE_FWK_MODULE(VertexGenerator) ;
+DEFINE_FWK_MODULE(GaussEvtVtxGenerator) ;
+DEFINE_FWK_MODULE(FlatEvtVtxGenerator) ;
+DEFINE_FWK_MODULE(BeamProfileVtxGenerator) ;
+DEFINE_FWK_MODULE(BetafuncEvtVtxGenerator) ;

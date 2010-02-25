@@ -10,4 +10,4 @@
 
 typedef ObjectSelector<IsolatedPFCandidateSelectorDefinition> IsolatedPFCandidateSelector;
 
-DEFINE_ANOTHER_FWK_MODULE(IsolatedPFCandidateSelector);
+DEFINE_FWK_MODULE(IsolatedPFCandidateSelector);

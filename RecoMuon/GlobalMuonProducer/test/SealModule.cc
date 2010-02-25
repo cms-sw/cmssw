@@ -8,6 +8,6 @@
 
 using namespace edm::serviceregistry;
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(GLBMuonAnalyzer);
+
+DEFINE_FWK_MODULE(GLBMuonAnalyzer);

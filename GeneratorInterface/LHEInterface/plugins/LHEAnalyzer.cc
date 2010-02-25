@@ -272,4 +272,4 @@ void LHEAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
 	}
 }
 
-DEFINE_ANOTHER_FWK_MODULE(LHEAnalyzer);
+DEFINE_FWK_MODULE(LHEAnalyzer);

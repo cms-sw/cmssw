@@ -6,7 +6,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
-DEFINE_SEAL_MODULE();
+
 
 REGISTER_PLUGIN(PerformancePayloadRecord, PerformancePayload);
 REGISTER_PLUGIN(PerformanceWPRecord, PerformanceWorkingPoint);

@@ -7,6 +7,6 @@
 
 using cms::RoadSearchTrackReader;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchTrackReader);
+
+DEFINE_FWK_MODULE(RoadSearchTrackReader);
 

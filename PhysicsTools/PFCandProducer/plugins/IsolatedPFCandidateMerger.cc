@@ -7,4 +7,4 @@
 
 typedef Merger<reco::IsolatedPFCandidateCollection> IsolatedPFCandidateMerger;
 
-DEFINE_ANOTHER_FWK_MODULE(IsolatedPFCandidateMerger);
+DEFINE_FWK_MODULE(IsolatedPFCandidateMerger);

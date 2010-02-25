@@ -228,5 +228,5 @@ void
 L1GctPrintLuts::endJob() {
 }
 
-DEFINE_ANOTHER_FWK_MODULE(L1GctPrintLuts);
+DEFINE_FWK_MODULE(L1GctPrintLuts);
 

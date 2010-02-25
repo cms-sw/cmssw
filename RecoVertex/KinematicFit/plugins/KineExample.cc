@@ -307,4 +307,4 @@ TrackingVertex KineExample::getSimVertex(const edm::Event& iEvent) const
 //    }
    return *(tPC.begin());
 }
-DEFINE_ANOTHER_FWK_MODULE(KineExample);
+DEFINE_FWK_MODULE(KineExample);

@@ -10,5 +10,5 @@ DEFINE_FWK_MODULE (EcalPedOffset) ;
 
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/testChannel.h"
 
-DEFINE_ANOTHER_FWK_MODULE (testChannel) ;
+DEFINE_FWK_MODULE (testChannel) ;
  

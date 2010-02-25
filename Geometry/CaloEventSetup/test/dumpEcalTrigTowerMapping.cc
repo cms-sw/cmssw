@@ -248,5 +248,5 @@ dumpEcalTrigTowerMapping::analyze( const edm::Event& iEvent, const edm::EventSet
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(dumpEcalTrigTowerMapping);
+
+DEFINE_FWK_MODULE(dumpEcalTrigTowerMapping);

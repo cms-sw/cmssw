@@ -10,16 +10,16 @@
 using namespace l1t;
 
 DEFINE_FWK_MODULE(L1CondDBPayloadWriter);
-DEFINE_ANOTHER_FWK_MODULE(L1CondDBIOVWriter);
+DEFINE_FWK_MODULE(L1CondDBIOVWriter);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyDummyProd);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProd);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1SubsystemKeysOnlineProd);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1TriggerKeyOnlineProd);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProd);
+DEFINE_FWK_EVENTSETUP_MODULE(L1SubsystemKeysOnlineProd);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyOnlineProd);
 
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 #include "CondTools/L1Trigger/interface/WriterProxy.h"
 
-DEFINE_SEAL_MODULE();
+
 
 // Central L1 records
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"

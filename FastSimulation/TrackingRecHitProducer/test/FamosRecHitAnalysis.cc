@@ -1491,5 +1491,5 @@ bool FamosRecHitAnalysis::isFlipped(const PixelGeomDetUnit* theDet) const {
 // 
 
 //
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(FamosRecHitAnalysis);
+
+DEFINE_FWK_MODULE(FamosRecHitAnalysis);

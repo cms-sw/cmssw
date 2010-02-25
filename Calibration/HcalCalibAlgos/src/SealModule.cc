@@ -16,12 +16,12 @@ using cms::HitReCalibrator;
 
 //using cms::HcalCalibrator;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(Analyzer_minbias);
-DEFINE_ANOTHER_FWK_MODULE(GammaJetAnalysis);
-DEFINE_ANOTHER_FWK_MODULE(DiJetAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(HcalConstantsASCIIWriter);
-DEFINE_ANOTHER_FWK_MODULE(HitReCalibrator);
 
-//DEFINE_ANOTHER_FWK_MODULE(HcalCalibrator);
+DEFINE_FWK_MODULE(Analyzer_minbias);
+DEFINE_FWK_MODULE(GammaJetAnalysis);
+DEFINE_FWK_MODULE(DiJetAnalyzer);
+DEFINE_FWK_MODULE(HcalConstantsASCIIWriter);
+DEFINE_FWK_MODULE(HitReCalibrator);
+
+//DEFINE_FWK_MODULE(HcalCalibrator);
 

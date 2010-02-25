@@ -103,4 +103,4 @@ TrackMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-DEFINE_ANOTHER_FWK_MODULE(TrackMix);
+DEFINE_FWK_MODULE(TrackMix);

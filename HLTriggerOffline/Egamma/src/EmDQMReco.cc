@@ -686,4 +686,4 @@ void EmDQMReco::endJob(){
 
 }
 
-DEFINE_ANOTHER_FWK_MODULE(EmDQMReco);
+DEFINE_FWK_MODULE(EmDQMReco);

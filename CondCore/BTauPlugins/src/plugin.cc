@@ -12,7 +12,7 @@
 
 using namespace PhysicsTools::Calibration;
 
-DEFINE_SEAL_MODULE();
+
 
 REGISTER_PLUGIN(CombinedTauTagRcd,CombinedTauTagCalibration);
 REGISTER_PLUGIN(BTauGenericMVAJetTagComputerRcd, MVAComputerContainer);

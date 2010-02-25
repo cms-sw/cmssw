@@ -4,9 +4,9 @@
 #include "SeedGeneratorFromProtoTracksEDProducer.h"
 #include "SeedCombiner.h"
 
-DEFINE_ANOTHER_FWK_MODULE(SeedGeneratorFromRegionHitsEDProducer);
-DEFINE_ANOTHER_FWK_MODULE(SeedGeneratorFromProtoTracksEDProducer);
-DEFINE_ANOTHER_FWK_MODULE(SeedCombiner);
+DEFINE_FWK_MODULE(SeedGeneratorFromRegionHitsEDProducer);
+DEFINE_FWK_MODULE(SeedGeneratorFromProtoTracksEDProducer);
+DEFINE_FWK_MODULE(SeedCombiner);
 
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"

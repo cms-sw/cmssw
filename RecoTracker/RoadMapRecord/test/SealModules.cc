@@ -5,6 +5,6 @@
 
 #include "RecoTracker/RoadMapRecord/test/RoadMapTest.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadMapTest);
+
+DEFINE_FWK_MODULE(RoadMapTest);
 

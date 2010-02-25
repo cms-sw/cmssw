@@ -11,13 +11,13 @@
 
 //using cms::CkfTrackCandidateMakerWithSeedAssoc;
 
-DEFINE_SEAL_MODULE();
 
-//DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CkfTrajectoryBuilderWithSeedAssocESProducer);
-//DEFINE_ANOTHER_FWK_MODULE(SiStripElectronProducer);
-//DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAssociator);
-DEFINE_ANOTHER_FWK_MODULE(FastElectronSeedProducer);
-//DEFINE_ANOTHER_FWK_MODULE(PixelMatchElectronProducer);
-//DEFINE_ANOTHER_FWK_MODULE(PixelMatchGsfElectronProducer);
-//DEFINE_ANOTHER_FWK_MODULE(TrackProducerWithSeedAssoc);
-//DEFINE_ANOTHER_FWK_MODULE(GsfTrackProducerWithSeedAssoc);
+
+//DEFINE_FWK_EVENTSETUP_MODULE(CkfTrajectoryBuilderWithSeedAssocESProducer);
+//DEFINE_FWK_MODULE(SiStripElectronProducer);
+//DEFINE_FWK_MODULE(SiStripElectronAssociator);
+DEFINE_FWK_MODULE(FastElectronSeedProducer);
+//DEFINE_FWK_MODULE(PixelMatchElectronProducer);
+//DEFINE_FWK_MODULE(PixelMatchGsfElectronProducer);
+//DEFINE_FWK_MODULE(TrackProducerWithSeedAssoc);
+//DEFINE_FWK_MODULE(GsfTrackProducerWithSeedAssoc);

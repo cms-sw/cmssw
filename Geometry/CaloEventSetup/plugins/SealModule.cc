@@ -6,6 +6,6 @@
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(CaloGeometryBuilder);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CaloTowerConstituentsMapBuilder);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(EcalTrigTowerConstituentsMapBuilder);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CaloTopologyBuilder);
+DEFINE_FWK_EVENTSETUP_MODULE(CaloTowerConstituentsMapBuilder);
+DEFINE_FWK_EVENTSETUP_MODULE(EcalTrigTowerConstituentsMapBuilder);
+DEFINE_FWK_EVENTSETUP_MODULE(CaloTopologyBuilder);

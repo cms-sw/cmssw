@@ -7,7 +7,7 @@
 #include "RecoTracker/TrackProducer/plugins/MTFTrackProducer.h"
 #include "RecoTracker/TrackProducer/plugins/GsfTrackRefitter.h"
 
-// DEFINE_SEAL_MODULE();
+// 
 DEFINE_FWK_MODULE(TrackProducer);
 DEFINE_FWK_MODULE(TrackRefitter);
 DEFINE_FWK_MODULE(GsfTrackProducer);

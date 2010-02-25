@@ -19,7 +19,7 @@
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(FastPixelCPEESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(FastStripCPEESProducer);
+
+DEFINE_FWK_EVENTSETUP_MODULE(FastPixelCPEESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(FastStripCPEESProducer);
 

@@ -3,5 +3,5 @@
 
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBObjectUnpacker.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalTBObjectUnpacker);
+
+DEFINE_FWK_MODULE(HcalTBObjectUnpacker);

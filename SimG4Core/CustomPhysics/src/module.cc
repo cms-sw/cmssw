@@ -3,6 +3,6 @@
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
+
 DEFINE_PHYSICSLIST(CustomPhysics);
 

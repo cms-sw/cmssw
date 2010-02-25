@@ -1,5 +1,5 @@
 /*  
- *  $Id: SealModule.cc,v 1.4 2009/09/11 17:37:39 heltsley Exp $
+ *  $Id: SealModule.cc,v 1.5 2009/10/15 21:34:01 heltsley Exp $
  */
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -7,9 +7,9 @@
 
 #include "SimCalorimetry/EcalTestBeam/interface/EcalTBDigiProducer.h"
 
-DEFINE_SEAL_MODULE () ;
+
 
 using edm::EDProducer;
-DEFINE_ANOTHER_FWK_MODULE (EcalTBDigiProducer) ;
+DEFINE_FWK_MODULE (EcalTBDigiProducer) ;
 
 

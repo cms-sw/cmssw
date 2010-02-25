@@ -5,8 +5,8 @@
 #include "SimCalorimetry/HcalSimProducers/src/HcalDigiAnalyzer.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalDigiProducer);
-DEFINE_ANOTHER_FWK_MODULE(HcalHitAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(HcalDigiAnalyzer);
+
+DEFINE_FWK_MODULE(HcalDigiProducer);
+DEFINE_FWK_MODULE(HcalHitAnalyzer);
+DEFINE_FWK_MODULE(HcalDigiAnalyzer);
 

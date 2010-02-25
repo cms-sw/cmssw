@@ -96,7 +96,7 @@ typedef JetPlotsExample<CaloJet> CaloJetPlotsExample;
 DEFINE_FWK_MODULE(CaloJetPlotsExample);
 /////////// Cen Jet Instance ////////
 typedef JetPlotsExample<GenJet> GenJetPlotsExample;
-DEFINE_ANOTHER_FWK_MODULE(GenJetPlotsExample);
+DEFINE_FWK_MODULE(GenJetPlotsExample);
 /////////// PF Jet Instance ////////
 typedef JetPlotsExample<PFJet> PFJetPlotsExample;
-DEFINE_ANOTHER_FWK_MODULE(PFJetPlotsExample);
+DEFINE_FWK_MODULE(PFJetPlotsExample);

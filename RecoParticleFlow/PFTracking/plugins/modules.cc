@@ -10,13 +10,13 @@
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexCandidateProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(GoodSeedProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFElecTkProducer);
-DEFINE_ANOTHER_FWK_MODULE(LightPFTrackProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFNuclearProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFConversionsProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFV0Producer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronSeedMerger);
-DEFINE_ANOTHER_FWK_MODULE(PFDisplacedVertexCandidateProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFDisplacedVertexProducer);
+
+DEFINE_FWK_MODULE(GoodSeedProducer);
+DEFINE_FWK_MODULE(PFElecTkProducer);
+DEFINE_FWK_MODULE(LightPFTrackProducer);
+DEFINE_FWK_MODULE(PFNuclearProducer);
+DEFINE_FWK_MODULE(PFConversionsProducer);
+DEFINE_FWK_MODULE(PFV0Producer);
+DEFINE_FWK_MODULE(ElectronSeedMerger);
+DEFINE_FWK_MODULE(PFDisplacedVertexCandidateProducer);
+DEFINE_FWK_MODULE(PFDisplacedVertexProducer);

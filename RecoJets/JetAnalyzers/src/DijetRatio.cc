@@ -108,7 +108,7 @@ typedef DijetRatio<CaloJet> DijetRatioCaloJets;
 DEFINE_FWK_MODULE(DijetRatioCaloJets);
 /////////// Gen Jet Instance ////////
 typedef DijetRatio<GenJet> DijetRatioGenJets;
-DEFINE_ANOTHER_FWK_MODULE(DijetRatioGenJets);
+DEFINE_FWK_MODULE(DijetRatioGenJets);
 /////////// PF Jet Instance ////////
 typedef DijetRatio<PFJet> DijetRatioPFJets;
-DEFINE_ANOTHER_FWK_MODULE(DijetRatioPFJets);
+DEFINE_FWK_MODULE(DijetRatioPFJets);

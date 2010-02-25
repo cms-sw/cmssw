@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -25,17 +25,17 @@ using namespace cms;
 using namespace reco;
 
 typedef JetCorrectionProducer<CaloJet> CaloJetCorrectionProducer;
-DEFINE_ANOTHER_FWK_MODULE(CaloJetCorrectionProducer);
+DEFINE_FWK_MODULE(CaloJetCorrectionProducer);
 
 typedef JetCorrectionProducer<PFJet> PFJetCorrectionProducer;
-DEFINE_ANOTHER_FWK_MODULE(PFJetCorrectionProducer);
+DEFINE_FWK_MODULE(PFJetCorrectionProducer);
 
 typedef JetCorrectionProducer<GenJet> GenJetCorrectionProducer;
-DEFINE_ANOTHER_FWK_MODULE(GenJetCorrectionProducer);
+DEFINE_FWK_MODULE(GenJetCorrectionProducer);
 
-DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
+DEFINE_FWK_MODULE(PlotJetCorrections);
 
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(JetCorrectionServiceChain);
+DEFINE_FWK_EVENTSETUP_SOURCE(JetCorrectionServiceChain);
 
 //--------------- Generic LX correction service --------------------
 DEFINE_JET_CORRECTION_SERVICE (LXXXCorrector, LXXXCorrectionService);

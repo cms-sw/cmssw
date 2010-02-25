@@ -8,7 +8,7 @@ using cms::SiPixelFakeGainReader;
 using cms::SiPixelFakeGainForHLTReader;
 using cms::SiPixelFakeGainOfflineReader;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiPixelFakeGainReader);
-DEFINE_ANOTHER_FWK_MODULE(SiPixelFakeGainForHLTReader);
-DEFINE_ANOTHER_FWK_MODULE(SiPixelFakeGainOfflineReader);
+
+DEFINE_FWK_MODULE(SiPixelFakeGainReader);
+DEFINE_FWK_MODULE(SiPixelFakeGainForHLTReader);
+DEFINE_FWK_MODULE(SiPixelFakeGainOfflineReader);

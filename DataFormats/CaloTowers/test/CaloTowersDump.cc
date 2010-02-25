@@ -9,8 +9,8 @@ using namespace std;
 
   /** \class CaloTowersDump
       
-  $Date: 2007/04/10 23:07:28 $
-  $Revision: 1.4 $
+  $Date: 2007/07/31 15:19:58 $
+  $Revision: 1.5 $
   \author J. Mans - Minnesota
   */
   class CaloTowersDump : public edm::EDAnalyzer {
@@ -46,6 +46,6 @@ using namespace std;
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CaloTowersDump);
+
+DEFINE_FWK_MODULE(CaloTowersDump);
 

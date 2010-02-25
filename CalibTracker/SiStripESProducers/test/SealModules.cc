@@ -4,5 +4,5 @@
 
 #include "CalibTracker/SiStripESProducers/test/testSiStripQualityESProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testSiStripQualityESProducer);
+
+DEFINE_FWK_MODULE(testSiStripQualityESProducer);

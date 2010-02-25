@@ -4,5 +4,5 @@
 
  #include "CalibCalorimetry/EcalSRTools/interface/EcalDccWeightBuilder.h"
 
- DEFINE_SEAL_MODULE();
- DEFINE_ANOTHER_FWK_MODULE(EcalDccWeightBuilder);
+ 
+ DEFINE_FWK_MODULE(EcalDccWeightBuilder);

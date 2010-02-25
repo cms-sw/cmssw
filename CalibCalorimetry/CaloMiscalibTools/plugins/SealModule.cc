@@ -8,11 +8,11 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/WriteEcalMiscalibConstants.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/WriteEcalMiscalibConstantsMC.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CaloMiscalibTools);
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(CaloMiscalibToolsMC);
-DEFINE_ANOTHER_FWK_MODULE(EcalRecHitRecalib);
-DEFINE_ANOTHER_FWK_MODULE(HcalRecHitRecalib);
-DEFINE_ANOTHER_FWK_MODULE(WriteEcalMiscalibConstants);
-DEFINE_ANOTHER_FWK_MODULE(WriteEcalMiscalibConstantsMC);
+
+DEFINE_FWK_EVENTSETUP_SOURCE(CaloMiscalibTools);
+DEFINE_FWK_EVENTSETUP_SOURCE(CaloMiscalibToolsMC);
+DEFINE_FWK_MODULE(EcalRecHitRecalib);
+DEFINE_FWK_MODULE(HcalRecHitRecalib);
+DEFINE_FWK_MODULE(WriteEcalMiscalibConstants);
+DEFINE_FWK_MODULE(WriteEcalMiscalibConstantsMC);
 

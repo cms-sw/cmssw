@@ -5,5 +5,5 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 DEFINE_FWK_MODULE(HcalLutGenerator);
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(HcalOmdsCalibrations);
+
+DEFINE_FWK_EVENTSETUP_SOURCE(HcalOmdsCalibrations);

@@ -1,8 +1,8 @@
 #ifndef HI_MixEvtVtxGenerator_H
 #define HI_MixEvtVtxGenerator_H
 /*
-*   $Date: 2009/08/13 14:18:13 $
-*   $Revision: 1.1 $
+*   $Date: 2010/02/16 17:10:09 $
+*   $Revision: 1.2 $
 */
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -126,6 +126,6 @@ void MixEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 
 }
 
-DEFINE_ANOTHER_FWK_MODULE(MixEvtVtxGenerator);
+DEFINE_FWK_MODULE(MixEvtVtxGenerator);
 
 #endif

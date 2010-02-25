@@ -7,7 +7,7 @@
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
+
 typedef HFWedgeSD HFWedgeSensitiveDetector;
 DEFINE_SENSITIVEDETECTOR(HFWedgeSensitiveDetector);
 typedef HFChamberSD HFChamberSensitiveDetector;

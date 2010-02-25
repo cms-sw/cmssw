@@ -35,39 +35,39 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterTTBar.h"
 
 
-DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilter);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaDauFilter);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaJet);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaGamma);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterZJet);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaHLTSoupFilter);
-  DEFINE_ANOTHER_FWK_MODULE(BsJpsiPhiFilter);
-  DEFINE_ANOTHER_FWK_MODULE(JetFlavourFilter);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaJetWithBg);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaJetWithOutBg);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterZJetWithOutBg);
-  DEFINE_ANOTHER_FWK_MODULE(MCDijetResonance);
-  DEFINE_ANOTHER_FWK_MODULE(MCProcessFilter);
-  DEFINE_ANOTHER_FWK_MODULE(MCProcessRangeFilter);
-  DEFINE_ANOTHER_FWK_MODULE(MCSingleParticleFilter);
-  DEFINE_ANOTHER_FWK_MODULE(MCSmartSingleParticleFilter);
-  DEFINE_ANOTHER_FWK_MODULE(MCZll);
-  DEFINE_ANOTHER_FWK_MODULE(MinimumBiasFilter);
-  DEFINE_ANOTHER_FWK_MODULE(RecoDiMuon);
-  DEFINE_ANOTHER_FWK_MODULE(MCLongLivedParticles);
-  DEFINE_ANOTHER_FWK_MODULE(MCParticlePairFilter);
-  DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterHelix);
-  DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterLowE);
-  DEFINE_ANOTHER_FWK_MODULE(BHFilter);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterIsolatedTrack);
-  DEFINE_ANOTHER_FWK_MODULE(BCToEFilter);
-  DEFINE_ANOTHER_FWK_MODULE(EMEnrichingFilter);
-  DEFINE_ANOTHER_FWK_MODULE(doubleEMEnrichingFilter);
-  DEFINE_ANOTHER_FWK_MODULE(MCDecayingPionKaonFilter);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterEMJetHeep);
-  DEFINE_ANOTHER_FWK_MODULE(ComphepSingletopFilter);
-  DEFINE_ANOTHER_FWK_MODULE(STFilter);
-  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterTTBar);
+
+  DEFINE_FWK_MODULE(PythiaFilter);
+  DEFINE_FWK_MODULE(PythiaDauFilter);
+  DEFINE_FWK_MODULE(PythiaFilterGammaJet);
+  DEFINE_FWK_MODULE(PythiaFilterGammaGamma);
+  DEFINE_FWK_MODULE(PythiaFilterZJet);
+  DEFINE_FWK_MODULE(PythiaHLTSoupFilter);
+  DEFINE_FWK_MODULE(BsJpsiPhiFilter);
+  DEFINE_FWK_MODULE(JetFlavourFilter);
+  DEFINE_FWK_MODULE(PythiaFilterGammaJetWithBg);
+  DEFINE_FWK_MODULE(PythiaFilterGammaJetWithOutBg);
+  DEFINE_FWK_MODULE(PythiaFilterZJetWithOutBg);
+  DEFINE_FWK_MODULE(MCDijetResonance);
+  DEFINE_FWK_MODULE(MCProcessFilter);
+  DEFINE_FWK_MODULE(MCProcessRangeFilter);
+  DEFINE_FWK_MODULE(MCSingleParticleFilter);
+  DEFINE_FWK_MODULE(MCSmartSingleParticleFilter);
+  DEFINE_FWK_MODULE(MCZll);
+  DEFINE_FWK_MODULE(MinimumBiasFilter);
+  DEFINE_FWK_MODULE(RecoDiMuon);
+  DEFINE_FWK_MODULE(MCLongLivedParticles);
+  DEFINE_FWK_MODULE(MCParticlePairFilter);
+  DEFINE_FWK_MODULE(CosmicGenFilterHelix);
+  DEFINE_FWK_MODULE(CosmicGenFilterLowE);
+  DEFINE_FWK_MODULE(BHFilter);
+  DEFINE_FWK_MODULE(PythiaFilterIsolatedTrack);
+  DEFINE_FWK_MODULE(BCToEFilter);
+  DEFINE_FWK_MODULE(EMEnrichingFilter);
+  DEFINE_FWK_MODULE(doubleEMEnrichingFilter);
+  DEFINE_FWK_MODULE(MCDecayingPionKaonFilter);
+  DEFINE_FWK_MODULE(PythiaFilterEMJetHeep);
+  DEFINE_FWK_MODULE(ComphepSingletopFilter);
+  DEFINE_FWK_MODULE(STFilter);
+  DEFINE_FWK_MODULE(PythiaFilterTTBar);
 
 

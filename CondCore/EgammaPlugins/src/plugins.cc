@@ -6,6 +6,6 @@
 
 using namespace PhysicsTools::Calibration;
 
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(ElectronLikelihoodPdfsRcd,ElectronLikelihoodCalibration);
 REGISTER_PLUGIN(PhotonConversionMVAComputerRcd,MVAComputerContainer);

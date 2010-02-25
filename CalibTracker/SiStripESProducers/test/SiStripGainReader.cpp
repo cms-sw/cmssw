@@ -87,6 +87,6 @@ void SiStripGainReader::analyze( const edm::Event& e, const edm::EventSetup& iSe
       }
 }
 
-DEFINE_ANOTHER_FWK_MODULE(SiStripGainReader);
+DEFINE_FWK_MODULE(SiStripGainReader);
 
 

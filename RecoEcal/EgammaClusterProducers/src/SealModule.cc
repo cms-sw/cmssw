@@ -15,20 +15,20 @@
 #include "RecoEcal/EgammaClusterProducers/interface/Multi5x5SuperClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/CosmicClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/EcalDigiSelector.h"
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(IslandClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(HybridClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(SuperClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(EgammaSCCorrectionMaker);
-DEFINE_ANOTHER_FWK_MODULE(EgammaSimpleAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(PreshowerAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(RecHitFilter);
-DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterShapeProducer);
-DEFINE_ANOTHER_FWK_MODULE(Multi5x5ClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(Multi5x5SuperClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(ReducedRecHitCollectionProducer);
-DEFINE_ANOTHER_FWK_MODULE(InterestingDetIdCollectionProducer);
-DEFINE_ANOTHER_FWK_MODULE(CosmicClusterProducer);
-DEFINE_ANOTHER_FWK_MODULE(EcalDigiSelector);
+
+DEFINE_FWK_MODULE(IslandClusterProducer);
+DEFINE_FWK_MODULE(HybridClusterProducer);
+DEFINE_FWK_MODULE(SuperClusterProducer);
+DEFINE_FWK_MODULE(EgammaSCCorrectionMaker);
+DEFINE_FWK_MODULE(EgammaSimpleAnalyzer);
+DEFINE_FWK_MODULE(PreshowerClusterProducer);
+DEFINE_FWK_MODULE(PreshowerAnalyzer);
+DEFINE_FWK_MODULE(RecHitFilter);
+DEFINE_FWK_MODULE(PreshowerClusterShapeProducer);
+DEFINE_FWK_MODULE(Multi5x5ClusterProducer);
+DEFINE_FWK_MODULE(Multi5x5SuperClusterProducer);
+DEFINE_FWK_MODULE(ReducedRecHitCollectionProducer);
+DEFINE_FWK_MODULE(InterestingDetIdCollectionProducer);
+DEFINE_FWK_MODULE(CosmicClusterProducer);
+DEFINE_FWK_MODULE(EcalDigiSelector);

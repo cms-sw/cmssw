@@ -47,4 +47,4 @@ Herwig6Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //define this as a plug-in
 
-DEFINE_ANOTHER_FWK_MODULE(Herwig6Filter);
+DEFINE_FWK_MODULE(Herwig6Filter);

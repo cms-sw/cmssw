@@ -1,8 +1,8 @@
 /** \file LaserAlignmentSimulation.cc
  *  SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
  *
- *  $Date: 2007/03/20 12:01:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 23:53:06 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -184,5 +184,5 @@ void LaserAlignmentSimulation::update(const EndOfRun * myRun)
 // register a SimWatcher to get the Observer signals from OscarProducer
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
-DEFINE_SEAL_MODULE ();
+
 DEFINE_SIMWATCHER (LaserAlignmentSimulation);

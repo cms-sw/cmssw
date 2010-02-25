@@ -248,5 +248,5 @@ testEcalGetWindow::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testEcalGetWindow);
+
+DEFINE_FWK_MODULE(testEcalGetWindow);

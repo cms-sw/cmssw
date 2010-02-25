@@ -8,7 +8,7 @@
 
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 
-DEFINE_SEAL_MODULE();
+
 
 
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"

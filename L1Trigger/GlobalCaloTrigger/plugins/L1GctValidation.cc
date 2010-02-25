@@ -299,5 +299,5 @@ void
 L1GctValidation::endJob() {
 }
 
-DEFINE_ANOTHER_FWK_MODULE(L1GctValidation);
+DEFINE_FWK_MODULE(L1GctValidation);
 

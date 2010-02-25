@@ -5,11 +5,11 @@
 // the source
 #include "DQMServices/Examples/interface/DQMClientExample.h"
 DEFINE_FWK_MODULE(DQMClientExample);
-DEFINE_ANOTHER_FWK_MODULE(DQMSourceExample);
+DEFINE_FWK_MODULE(DQMSourceExample);
 #include <DQMServices/Examples/interface/ConverterTester.h>
-DEFINE_ANOTHER_FWK_MODULE(ConverterTester);
+DEFINE_FWK_MODULE(ConverterTester);
 #include <DQMServices/Examples/interface/HarvestingAnalyzer.h>
-DEFINE_ANOTHER_FWK_MODULE(HarvestingAnalyzer);
+DEFINE_FWK_MODULE(HarvestingAnalyzer);
 #include <DQMServices/Examples/interface/HarvestingDataCertification.h>
-DEFINE_ANOTHER_FWK_MODULE(HarvestingDataCertification);
+DEFINE_FWK_MODULE(HarvestingDataCertification);
 

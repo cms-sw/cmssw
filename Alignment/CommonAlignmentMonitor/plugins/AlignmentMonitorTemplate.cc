@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.4 2008/04/26 03:35:20 pivarski Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.5 2008/08/11 20:24:19 pivarski Exp $
 //
 
 // system include files
@@ -157,6 +157,6 @@ void AlignmentMonitorTemplate::afterAlignment(const edm::EventSetup &iSetup) {
 // SEAL definitions
 //
 
-// DEFINE_SEAL_MODULE();
+// 
 // DEFINE_SEAL_PLUGIN(AlignmentMonitorPluginFactory, AlignmentMonitorTemplate, "AlignmentMonitorTemplate");
 DEFINE_EDM_PLUGIN(AlignmentMonitorPluginFactory, AlignmentMonitorTemplate, "AlignmentMonitorTemplate");

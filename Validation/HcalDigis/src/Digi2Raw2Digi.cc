@@ -282,5 +282,5 @@ void Digi2Raw2Digi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
 }
 
-DEFINE_SEAL_MODULE ();
-DEFINE_ANOTHER_FWK_MODULE (Digi2Raw2Digi) ;
+
+DEFINE_FWK_MODULE (Digi2Raw2Digi) ;

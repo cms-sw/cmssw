@@ -3,5 +3,5 @@
 
 #include "Validation/MuonRPCDigis/interface/RPCDigiValid.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RPCDigiValid);
+
+DEFINE_FWK_MODULE(RPCDigiValid);

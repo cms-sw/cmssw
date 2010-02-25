@@ -1,8 +1,8 @@
 /** \file LaserOpticalPhysics.cc
  *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: 2008/01/22 16:35:33 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/12/10 18:10:05 $
+ *  $Revision: 1.9 $
  *  \author Maarten Thomas
  */
 
@@ -50,5 +50,5 @@ LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
 // define the custom physics list
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
+
 DEFINE_PHYSICSLIST (LaserOpticalPhysics);

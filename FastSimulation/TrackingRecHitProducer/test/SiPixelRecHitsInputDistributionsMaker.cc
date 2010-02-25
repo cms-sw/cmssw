@@ -683,5 +683,5 @@ void SiPixelRecHitsInputDistributionsMaker::fillForward(const SiPixelRecHit & re
 }
 
 //
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiPixelRecHitsInputDistributionsMaker);
+
+DEFINE_FWK_MODULE(SiPixelRecHitsInputDistributionsMaker);

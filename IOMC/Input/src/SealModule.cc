@@ -5,6 +5,6 @@
 
 
   using edm::MCFileSource; 
-  DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_INPUT_SOURCE(MCFileSource);
+  
+  DEFINE_FWK_INPUT_SOURCE(MCFileSource);
 

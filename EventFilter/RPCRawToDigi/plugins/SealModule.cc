@@ -4,6 +4,6 @@
 #include "RPCUnpackingModule.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RPCUnpackingModule);
-DEFINE_ANOTHER_FWK_MODULE(RPCPackingModule);
+
+DEFINE_FWK_MODULE(RPCUnpackingModule);
+DEFINE_FWK_MODULE(RPCPackingModule);

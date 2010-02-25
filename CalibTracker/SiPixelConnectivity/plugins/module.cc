@@ -3,4 +3,4 @@
 #include "PixelToLNKAssociateFromAsciiESProducer.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(PixelToFEDAssociateFromAsciiESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelToLNKAssociateFromAsciiESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(PixelToLNKAssociateFromAsciiESProducer);

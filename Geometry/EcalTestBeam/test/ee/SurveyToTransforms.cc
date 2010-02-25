@@ -145,5 +145,5 @@ SurveyToTransforms::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SurveyToTransforms);
+
+DEFINE_FWK_MODULE(SurveyToTransforms);

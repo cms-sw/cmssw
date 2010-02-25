@@ -3,15 +3,15 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-DEFINE_SEAL_MODULE();
+
 
 // Median Vertexing
 #include "HIPixelMedianVtxProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(HIPixelMedianVtxProducer);
+DEFINE_FWK_MODULE(HIPixelMedianVtxProducer);
 
 // Best Vertex Producer
 #include "RecoHI/HiTracking/interface/HIBestVertexProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(HIBestVertexProducer);
+DEFINE_FWK_MODULE(HIBestVertexProducer);
 
 // Restricted HI tracking regions                                                                                                              
 #include "HITrackingRegionProducer.h"

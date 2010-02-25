@@ -5,19 +5,19 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
-DEFINE_SEAL_MODULE () ;
+
  
 #include "SimG4CMS/EcalTestBeam/interface/EcalTBMCInfoProducer.h"
-DEFINE_ANOTHER_FWK_MODULE (EcalTBMCInfoProducer) ;
+DEFINE_FWK_MODULE (EcalTBMCInfoProducer) ;
 
 #include "SimG4CMS/EcalTestBeam/interface/FakeTBHodoscopeRawInfoProducer.h"
-DEFINE_ANOTHER_FWK_MODULE (FakeTBHodoscopeRawInfoProducer) ;
+DEFINE_FWK_MODULE (FakeTBHodoscopeRawInfoProducer) ;
 
 #include "SimG4CMS/EcalTestBeam/interface/TBHodoActiveVolumeRawInfoProducer.h"
-DEFINE_ANOTHER_FWK_MODULE (TBHodoActiveVolumeRawInfoProducer) ;
+DEFINE_FWK_MODULE (TBHodoActiveVolumeRawInfoProducer) ;
 
 #include "SimG4CMS/EcalTestBeam/interface/FakeTBEventHeaderProducer.h"
-DEFINE_ANOTHER_FWK_MODULE (FakeTBEventHeaderProducer) ;
+DEFINE_FWK_MODULE (FakeTBEventHeaderProducer) ;
 
 typedef EcalTBH4BeamSD EcalTBH4BeamDetector;
 DEFINE_SENSITIVEDETECTOR(EcalTBH4BeamDetector);

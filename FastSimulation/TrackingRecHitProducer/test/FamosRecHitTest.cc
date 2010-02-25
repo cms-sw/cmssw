@@ -91,5 +91,5 @@ void FamosRecHitTest::analyze(const edm::Event& event, const edm::EventSetup& se
    }
  }
 }
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(FamosRecHitTest);
+
+DEFINE_FWK_MODULE(FamosRecHitTest);

@@ -89,4 +89,4 @@ typedef JetCorExample<CaloJet> CaloJetCorExample;
 DEFINE_FWK_MODULE(CaloJetCorExample);
 /////////// PF Jet Instance ////////
 typedef JetCorExample<PFJet> PFJetCorExample;
-DEFINE_ANOTHER_FWK_MODULE(PFJetCorExample);
+DEFINE_FWK_MODULE(PFJetCorExample);

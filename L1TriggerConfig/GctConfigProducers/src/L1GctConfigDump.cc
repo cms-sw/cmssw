@@ -67,4 +67,4 @@ void L1GctConfigDump::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 
-DEFINE_ANOTHER_FWK_MODULE(L1GctConfigDump);
+DEFINE_FWK_MODULE(L1GctConfigDump);

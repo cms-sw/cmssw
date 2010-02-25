@@ -23,7 +23,7 @@
 
 #include "CondFormats/DataRecord/interface/MBAChBenchCalPlateRcd.h"
 #include "CondFormats/DataRecord/interface/MBAChBenchSurveyPlateRcd.h"
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(OpticalAlignmentsRcd,OpticalAlignments);
 REGISTER_PLUGIN(CSCZSensorsRcd,CSCZSensors);
 REGISTER_PLUGIN(CSCRSensorsRcd,CSCRSensors);

@@ -85,6 +85,6 @@ GFlash::~GFlash() {
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
-DEFINE_SEAL_MODULE();
+
 DEFINE_PHYSICSLIST(GFlash);
 

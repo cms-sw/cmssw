@@ -24,7 +24,7 @@
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 
 
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(GeometryFileRcd,GeometryFile);
 REGISTER_PLUGIN(IdealGeometryRecord,PGeometricDet);
 REGISTER_PLUGIN(PEcalBarrelRcd,PCaloGeometry);

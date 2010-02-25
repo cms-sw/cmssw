@@ -1287,4 +1287,4 @@ double TestTrackHits::computeChi2Increment(MeasurementExtractor me,
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_ANOTHER_FWK_MODULE(TestTrackHits);
+DEFINE_FWK_MODULE(TestTrackHits);

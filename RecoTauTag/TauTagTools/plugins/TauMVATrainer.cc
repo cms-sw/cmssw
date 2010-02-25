@@ -13,7 +13,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 //
 // Original Author:  Evan K.Friis, UC Davis  (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVATrainer.cc,v 1.4 2009/05/05 13:35:51 friis Exp $
+// $Id: TauMVATrainer.cc,v 1.5 2009/09/02 23:04:50 friis Exp $
 //
 //
 
@@ -241,6 +241,6 @@ TauMVATrainer::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TauMVATrainer);
+
+DEFINE_FWK_MODULE(TauMVATrainer);
 //DEFINE_FWK_MODULE(TauMVATrainer);

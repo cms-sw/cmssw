@@ -15,8 +15,8 @@
 using cms::CkfTrackCandidateMaker;
 using cms::CkfTrajectoryMaker;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CkfTrajectoryBuilderESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(GroupedCkfTrajectoryBuilderESProducer);
-DEFINE_ANOTHER_FWK_MODULE(CkfTrackCandidateMaker);
-DEFINE_ANOTHER_FWK_MODULE(CkfTrajectoryMaker);
+
+DEFINE_FWK_EVENTSETUP_MODULE(CkfTrajectoryBuilderESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(GroupedCkfTrajectoryBuilderESProducer);
+DEFINE_FWK_MODULE(CkfTrackCandidateMaker);
+DEFINE_FWK_MODULE(CkfTrajectoryMaker);

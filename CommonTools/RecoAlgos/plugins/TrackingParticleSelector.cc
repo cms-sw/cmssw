@@ -4,8 +4,8 @@
  *
  *  \author Giuseppe Cerati, INFN
  *
- *  $Date: 2007/11/13 10:46:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/03/04 13:11:31 $
+ *  $Revision: 1.1 $
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,6 +17,6 @@ namespace reco {
     typedef SingleObjectSelector<TrackingParticleCollection,::TrackingParticleSelector> 
     TrackingParticleSelector ;
 
-    DEFINE_ANOTHER_FWK_MODULE( TrackingParticleSelector );
+    DEFINE_FWK_MODULE( TrackingParticleSelector );
   }
 }

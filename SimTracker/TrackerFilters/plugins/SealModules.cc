@@ -3,5 +3,5 @@
 #include "SimTracker/TrackerFilters/interface/CosmicTIFTrigFilter.h"
 using cms::CosmicTIFTrigFilter;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CosmicTIFTrigFilter);
+
+DEFINE_FWK_MODULE(CosmicTIFTrigFilter);

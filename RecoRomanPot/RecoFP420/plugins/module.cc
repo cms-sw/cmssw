@@ -7,12 +7,12 @@
 #include "RecoRomanPot/RecoFP420/interface/ReconstructerFP420.h"
 
 using cms::ClusterizerFP420;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(ClusterizerFP420);
+
+DEFINE_FWK_MODULE(ClusterizerFP420);
 
 using cms::TrackerizerFP420;
-DEFINE_ANOTHER_FWK_MODULE(TrackerizerFP420);
+DEFINE_FWK_MODULE(TrackerizerFP420);
 
 using cms::ReconstructerFP420;
-DEFINE_ANOTHER_FWK_MODULE(ReconstructerFP420);
+DEFINE_FWK_MODULE(ReconstructerFP420);
 

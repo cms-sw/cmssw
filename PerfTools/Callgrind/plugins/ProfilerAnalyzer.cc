@@ -128,4 +128,4 @@ ProfilerAnalyzer::endJob() {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(StartProfilerAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(StopProfilerAnalyzer);
+DEFINE_FWK_MODULE(StopProfilerAnalyzer);

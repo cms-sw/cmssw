@@ -94,6 +94,6 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
 
 };
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TrackInfoAnalyzerExample);
+
+DEFINE_FWK_MODULE(TrackInfoAnalyzerExample);
 

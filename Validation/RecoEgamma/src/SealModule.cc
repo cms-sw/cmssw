@@ -8,11 +8,11 @@
 #include "Validation/RecoEgamma/interface/ElectronMcSignalValidator.h"
 #include "Validation/RecoEgamma/interface/ElectronMcFakeValidator.h"
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(EgammaObjects);
-DEFINE_ANOTHER_FWK_MODULE(PhotonValidator);
-DEFINE_ANOTHER_FWK_MODULE(PhotonPostprocessing);
-DEFINE_ANOTHER_FWK_MODULE(ElectronMcSignalValidator);
-DEFINE_ANOTHER_FWK_MODULE(ElectronMcFakeValidator);
+
+DEFINE_FWK_MODULE(EgammaObjects);
+DEFINE_FWK_MODULE(PhotonValidator);
+DEFINE_FWK_MODULE(PhotonPostprocessing);
+DEFINE_FWK_MODULE(ElectronMcSignalValidator);
+DEFINE_FWK_MODULE(ElectronMcFakeValidator);
 

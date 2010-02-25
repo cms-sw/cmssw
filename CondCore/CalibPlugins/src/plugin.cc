@@ -16,7 +16,7 @@
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include "CondCore/IOVService/interface/KeyListProxy.h"
 
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(PedestalsRcd,Pedestals);
 REGISTER_PLUGIN(anotherPedestalsRcd,Pedestals);
 REGISTER_PLUGIN(mySiStripNoisesRcd,mySiStripNoises);

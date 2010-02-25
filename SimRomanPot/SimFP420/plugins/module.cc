@@ -5,5 +5,5 @@
 #include "SimRomanPot/SimFP420/interface/DigitizerFP420.h"
 
 using cms::DigitizerFP420;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(DigitizerFP420);
+
+DEFINE_FWK_MODULE(DigitizerFP420);

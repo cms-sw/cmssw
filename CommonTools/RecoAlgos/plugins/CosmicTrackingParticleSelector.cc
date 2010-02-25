@@ -4,7 +4,7 @@
  *  
  *  \author Yanyan Gao, FNAL
  *
- *  $Date: 2009/07/15 13:11:31 $
+ *  $Date: 2009/09/02 22:39:13 $
  *  $Revision: 1.1 $
  */
 
@@ -14,5 +14,5 @@
 
 namespace reco {
   typedef ObjectSelector<CosmicTrackingParticleSelector> CosmicTrackingParticleSelector;
-    DEFINE_ANOTHER_FWK_MODULE( CosmicTrackingParticleSelector );
+    DEFINE_FWK_MODULE( CosmicTrackingParticleSelector );
 }

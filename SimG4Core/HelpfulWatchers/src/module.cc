@@ -7,7 +7,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
 using namespace simwatcher;
-DEFINE_SEAL_MODULE ();
+
 DEFINE_SIMWATCHER (SimTracer);
 DEFINE_SIMWATCHER (BeginOfTrackCounter);
 

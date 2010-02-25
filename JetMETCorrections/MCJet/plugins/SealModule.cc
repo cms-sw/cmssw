@@ -6,6 +6,6 @@
 #include "JetMETCorrections/MCJet/plugins/CaloMCTruthTreeProducer.h"
 #include "JetMETCorrections/MCJet/plugins/PFMCTruthTreeProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CaloMCTruthTreeProducer);
-DEFINE_ANOTHER_FWK_MODULE(PFMCTruthTreeProducer);
+
+DEFINE_FWK_MODULE(CaloMCTruthTreeProducer);
+DEFINE_FWK_MODULE(PFMCTruthTreeProducer);

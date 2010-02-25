@@ -1,8 +1,8 @@
-// Last commit: $Id: module.cc,v 1.3 2008/03/26 09:13:11 bainbrid Exp $
+// Last commit: $Id: module.cc,v 1.4 2008/04/11 13:27:34 bainbrid Exp $
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
-DEFINE_ANOTHER_FWK_MODULE(testSiStripConfigDb);
+DEFINE_FWK_MODULE(testSiStripConfigDb);
 

@@ -7,6 +7,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/test/CPEAccessTester.cc"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(ReadPixelRecHit);
-DEFINE_ANOTHER_FWK_MODULE(CPEAccessTester);
+
+DEFINE_FWK_MODULE(ReadPixelRecHit);
+DEFINE_FWK_MODULE(CPEAccessTester);

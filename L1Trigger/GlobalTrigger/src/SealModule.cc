@@ -4,5 +4,5 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 
 
-  DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_MODULE(L1GlobalTrigger);
+  
+  DEFINE_FWK_MODULE(L1GlobalTrigger);

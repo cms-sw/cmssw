@@ -5,5 +5,5 @@
 #include "Validation/MuonHits/src/MuonSimHitsValidAnalyzer.h"
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MuonSimHitsValidAnalyzer);
+
+DEFINE_FWK_MODULE(MuonSimHitsValidAnalyzer);

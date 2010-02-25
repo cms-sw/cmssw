@@ -297,6 +297,6 @@ void LHEProducer::onBeforeHadronisation()
 	jetMatching->beforeHadronisation(partonLevel);
 }
 
-DEFINE_ANOTHER_FWK_MODULE(LHEProducer);
+DEFINE_FWK_MODULE(LHEProducer);
 
 DEFINE_LHE_JETMATCHING_PLUGIN(JetMatchingMLM);

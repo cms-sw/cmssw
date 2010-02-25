@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
-DEFINE_SEAL_MODULE();
+
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 

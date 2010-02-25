@@ -64,4 +64,4 @@ void LHEWriter::analyze(const edm::Event &event, const edm::EventSetup &es)
 	          std::ostream_iterator<std::string>(file));
 }
 
-DEFINE_ANOTHER_FWK_MODULE(LHEWriter);
+DEFINE_FWK_MODULE(LHEWriter);

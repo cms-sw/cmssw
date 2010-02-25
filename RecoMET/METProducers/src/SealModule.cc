@@ -13,11 +13,11 @@ using cms::METProducer;
 
 using cms::METProducer;
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(METProducer);
-DEFINE_ANOTHER_FWK_MODULE(BeamHaloSummaryProducer);
-DEFINE_ANOTHER_FWK_MODULE(CSCHaloDataProducer);
-DEFINE_ANOTHER_FWK_MODULE(HcalHaloDataProducer);
-DEFINE_ANOTHER_FWK_MODULE(EcalHaloDataProducer);
-DEFINE_ANOTHER_FWK_MODULE(GlobalHaloDataProducer);
+
+DEFINE_FWK_MODULE(METProducer);
+DEFINE_FWK_MODULE(BeamHaloSummaryProducer);
+DEFINE_FWK_MODULE(CSCHaloDataProducer);
+DEFINE_FWK_MODULE(HcalHaloDataProducer);
+DEFINE_FWK_MODULE(EcalHaloDataProducer);
+DEFINE_FWK_MODULE(GlobalHaloDataProducer);

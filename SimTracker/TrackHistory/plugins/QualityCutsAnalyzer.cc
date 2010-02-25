@@ -414,4 +414,4 @@ QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     }
 }
 
-DEFINE_ANOTHER_FWK_MODULE(QualityCutsAnalyzer);
+DEFINE_FWK_MODULE(QualityCutsAnalyzer);

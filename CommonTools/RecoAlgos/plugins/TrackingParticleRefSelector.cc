@@ -4,7 +4,7 @@
  *
  *  \author Ian Tomalin, RAL
  *
- *  $Date: 2009/07/09 13:11:31 $
+ *  $Date: 2009/10/13 12:07:49 $
  *  $Revision: 1.1 $
  */
 
@@ -18,6 +18,6 @@ namespace reco {
     typedef SingleObjectSelector<TrackingParticleCollection,::TrackingParticleSelector,TrackingParticleRefVector> 
     TrackingParticleRefSelector ;
 
-    DEFINE_ANOTHER_FWK_MODULE( TrackingParticleRefSelector );
+    DEFINE_FWK_MODULE( TrackingParticleRefSelector );
   }
 }

@@ -35,7 +35,7 @@
 #include "CondFormats/DataRecord/interface/DTLVStatusRcd.h"
 
 
-DEFINE_SEAL_MODULE();
+
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
 REGISTER_PLUGIN(DTT0Rcd,DTT0);
 REGISTER_PLUGIN(DTT0RefRcd,DTT0);

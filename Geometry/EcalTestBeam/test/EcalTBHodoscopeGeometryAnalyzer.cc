@@ -168,5 +168,5 @@ CLHEP::HepRotation * EcalTBHodoscopeGeometryAnalyzer::fromCMStoTB( const double 
 
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(EcalTBHodoscopeGeometryAnalyzer);
+
+DEFINE_FWK_MODULE(EcalTBHodoscopeGeometryAnalyzer);

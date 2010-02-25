@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.39 $
-///  last update: $Date: 2009/10/14 08:38:37 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.40 $
+///  last update: $Date: 2010/01/18 12:13:19 $
+///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -731,4 +731,4 @@ void AlignmentProducer::writeDB(Alignments *alignments,
 }
 
 
-DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );
+DEFINE_FWK_LOOPER( AlignmentProducer );

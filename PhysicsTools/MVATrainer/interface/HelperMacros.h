@@ -10,19 +10,19 @@
 #define MVA_COMPUTER_SAVE_IMPLEMENT(T, P)			\
 	namespace { namespace mva11 {				\
 		typedef ::PhysicsTools::MVATrainerSaveImpl<T> P; \
-		DEFINE_ANOTHER_FWK_MODULE(P);			\
+		DEFINE_FWK_MODULE(P);			\
 	}} typedef int mvaDummyTypedef11 ## T
 
 #define MVA_COMPUTER_CONTAINER_SAVE_IMPLEMENT(T, P)		\
 	namespace { namespace mva12 {				\
 		typedef ::PhysicsTools::MVATrainerContainerSaveImpl<T> P; \
-		DEFINE_ANOTHER_FWK_MODULE(P);			\
+		DEFINE_FWK_MODULE(P);			\
 	}} typedef int mvaDummyTypedef12 ## T
 
 #define MVA_COMPUTER_FILE_SAVE_IMPLEMENT(T, P)	\
 	namespace { namespace mva13 {				\
 		typedef ::PhysicsTools::MVATrainerFileSaveImpl<T> P; \
-		DEFINE_ANOTHER_FWK_MODULE(P);			\
+		DEFINE_FWK_MODULE(P);			\
 	}} typedef int mvaDummyTypedef13 ## T
 
 #define MVA_TRAINER_LOOPER_IMPLEMENT(T, P)			\

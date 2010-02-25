@@ -4,7 +4,7 @@
 #include "Alignment/SurveyAnalysis/test/SurveyTest.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_ANOTHER_FWK_MODULE(SurveyDBReader);
-DEFINE_ANOTHER_FWK_MODULE(SurveyInputDummy);
-DEFINE_ANOTHER_FWK_MODULE(SurveyInputTest);
-DEFINE_ANOTHER_FWK_MODULE(SurveyTest);
+DEFINE_FWK_MODULE(SurveyDBReader);
+DEFINE_FWK_MODULE(SurveyInputDummy);
+DEFINE_FWK_MODULE(SurveyInputTest);
+DEFINE_FWK_MODULE(SurveyTest);

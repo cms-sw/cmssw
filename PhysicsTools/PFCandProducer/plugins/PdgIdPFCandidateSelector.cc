@@ -10,4 +10,4 @@
 
 typedef ObjectSelector<PdgIdPFCandidateSelectorDefinition> PdgIdPFCandidateSelector;
 
-DEFINE_ANOTHER_FWK_MODULE(PdgIdPFCandidateSelector);
+DEFINE_FWK_MODULE(PdgIdPFCandidateSelector);

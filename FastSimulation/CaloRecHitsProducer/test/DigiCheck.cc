@@ -325,5 +325,5 @@ void DigiCheck::endRun()
   dbe->save("Digicheck.root");
 }
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(DigiCheck);
+
+DEFINE_FWK_MODULE(DigiCheck);

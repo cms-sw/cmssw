@@ -95,5 +95,5 @@ void ESDigisReferenceDistrib::analyze(const Event& e, const EventSetup& c){
 
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(ESDigisReferenceDistrib);
+
+DEFINE_FWK_MODULE(ESDigisReferenceDistrib);

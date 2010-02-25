@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009-12-10 17:12:44 $
+ *  $Date: 2010/01/18 18:36:32 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -79,8 +79,8 @@ int DTHVCheckByAbsoluteValues::checkCurrentStatus(
 }
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_SERVICE( DTHVCheckByAbsoluteValues );
+
+DEFINE_FWK_SERVICE( DTHVCheckByAbsoluteValues );
 } }
 
 

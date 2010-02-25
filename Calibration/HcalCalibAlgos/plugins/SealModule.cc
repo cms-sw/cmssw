@@ -6,4 +6,4 @@ using namespace cms;
 
 #include "Calibration/HcalCalibAlgos/plugins/ValidationHcalIsoTrackAlCaReco.h"
 
-DEFINE_ANOTHER_FWK_MODULE(ValidationHcalIsoTrackAlCaReco);
+DEFINE_FWK_MODULE(ValidationHcalIsoTrackAlCaReco);

@@ -14,9 +14,9 @@ using cms::ClusterMTCCFilter;
 using cms::TECClusterFilter;
 using cms::TrackMTCCFilter;
 using cms::LTCTriggerBitsFilter;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MTCCHLTrigger);
-DEFINE_ANOTHER_FWK_MODULE(ClusterMTCCFilter);
-DEFINE_ANOTHER_FWK_MODULE(TECClusterFilter);
-DEFINE_ANOTHER_FWK_MODULE(TrackMTCCFilter);
-DEFINE_ANOTHER_FWK_MODULE(LTCTriggerBitsFilter);
+
+DEFINE_FWK_MODULE(MTCCHLTrigger);
+DEFINE_FWK_MODULE(ClusterMTCCFilter);
+DEFINE_FWK_MODULE(TECClusterFilter);
+DEFINE_FWK_MODULE(TrackMTCCFilter);
+DEFINE_FWK_MODULE(LTCTriggerBitsFilter);

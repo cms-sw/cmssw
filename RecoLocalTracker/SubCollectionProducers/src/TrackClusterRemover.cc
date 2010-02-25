@@ -373,4 +373,4 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_ANOTHER_FWK_MODULE(TrackClusterRemover);
+DEFINE_FWK_MODULE(TrackClusterRemover);

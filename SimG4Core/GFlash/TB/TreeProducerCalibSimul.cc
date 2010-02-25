@@ -249,5 +249,5 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TreeProducerCalibSimul);
+
+DEFINE_FWK_MODULE(TreeProducerCalibSimul);

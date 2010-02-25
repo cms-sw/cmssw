@@ -6,5 +6,5 @@
 #include "RecoTracker/RoadSearchCloudCleaner/interface/RoadSearchCloudCleaner.h"
 
 using cms::RoadSearchCloudCleaner;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchCloudCleaner);
+
+DEFINE_FWK_MODULE(RoadSearchCloudCleaner);

@@ -104,7 +104,7 @@ void testMVATrainerLooper::analyze(const edm::Event& iEvent,
 }
 
 // define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(testMVATrainerLooper);
+DEFINE_FWK_MODULE(testMVATrainerLooper);
 
 // Here come the definition(s) for the CMSSW interaction:
 

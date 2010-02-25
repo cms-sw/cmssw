@@ -69,7 +69,7 @@ void TrackingTruthOutputTest::analyze(const edm::Event& event, const edm::EventS
   }
 }
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TrackingTruthOutputTest);
+
+DEFINE_FWK_MODULE(TrackingTruthOutputTest);
 
 

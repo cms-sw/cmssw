@@ -91,13 +91,13 @@ typedef popcon::PopConAnalyzer<EcalTimeCalibErrorsHandler>
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(EcalGainRatiosAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalADCToGeVConstantAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalChannelStatusAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalTBWeightsAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalWeightGroupAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalIntercalibConstantsAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalIntercalibErrorsAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalIntercalibConstantsMCAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalTimeCalibConstantsAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(EcalTimeCalibErrorsAnalyzer);
+DEFINE_FWK_MODULE(EcalADCToGeVConstantAnalyzer);
+DEFINE_FWK_MODULE(EcalChannelStatusAnalyzer);
+DEFINE_FWK_MODULE(EcalTBWeightsAnalyzer);
+DEFINE_FWK_MODULE(EcalWeightGroupAnalyzer);
+DEFINE_FWK_MODULE(EcalIntercalibConstantsAnalyzer);
+DEFINE_FWK_MODULE(EcalIntercalibErrorsAnalyzer);
+DEFINE_FWK_MODULE(EcalIntercalibConstantsMCAnalyzer);
+DEFINE_FWK_MODULE(EcalTimeCalibConstantsAnalyzer);
+DEFINE_FWK_MODULE(EcalTimeCalibErrorsAnalyzer);
 

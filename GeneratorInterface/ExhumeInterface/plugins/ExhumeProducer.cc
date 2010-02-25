@@ -228,4 +228,4 @@ void ExhumeProducer::produce(Event & event, const EventSetup& setup) {
   event.put(genEventInfo);
 }
 
-DEFINE_ANOTHER_FWK_MODULE(ExhumeProducer);
+DEFINE_FWK_MODULE(ExhumeProducer);

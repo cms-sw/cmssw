@@ -10,7 +10,7 @@
 using cms::RoadSearchHelixMaker;
 using cms::RoadSearchTrackListCleaner;
 using cms::TrackListMerger;
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchHelixMaker);
-DEFINE_ANOTHER_FWK_MODULE(RoadSearchTrackListCleaner);
-DEFINE_ANOTHER_FWK_MODULE(TrackListMerger);
+
+DEFINE_FWK_MODULE(RoadSearchHelixMaker);
+DEFINE_FWK_MODULE(RoadSearchTrackListCleaner);
+DEFINE_FWK_MODULE(TrackListMerger);

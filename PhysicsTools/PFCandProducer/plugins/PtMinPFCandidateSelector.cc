@@ -10,5 +10,5 @@
 
 typedef ObjectSelector<PtMinPFCandidateSelectorDefinition> PtMinPFCandidateSelector;
 
-DEFINE_ANOTHER_FWK_MODULE(PtMinPFCandidateSelector);
+DEFINE_FWK_MODULE(PtMinPFCandidateSelector);
 

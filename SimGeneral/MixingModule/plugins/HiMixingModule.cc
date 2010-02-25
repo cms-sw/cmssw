@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.5 2009/11/13 14:04:36 fambrogl Exp $
+// $Id: HiMixingModule.cc,v 1.6 2010/02/16 17:10:07 wmtan Exp $
 //
 //
 
@@ -298,6 +298,6 @@ bool HiMixingModule::verifyRegistry(std::string object, std::string subdet, Inpu
 }
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(HiMixingModule);                                                                               
+DEFINE_FWK_MODULE(HiMixingModule);                                                                               
 
 }

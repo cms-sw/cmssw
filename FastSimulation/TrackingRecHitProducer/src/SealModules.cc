@@ -23,8 +23,8 @@
 TYPELOOKUP_DATA_REG(FastPixelCPE);
 TYPELOOKUP_DATA_REG(FastStripCPE);
 
-DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(SiTrackerGaussianSmearingRecHitConverter);
-DEFINE_ANOTHER_FWK_MODULE(TrackingRecHitTranslator);
-DEFINE_ANOTHER_FWK_MODULE(SiClusterTranslator);
+
+DEFINE_FWK_MODULE(SiTrackerGaussianSmearingRecHitConverter);
+DEFINE_FWK_MODULE(TrackingRecHitTranslator);
+DEFINE_FWK_MODULE(SiClusterTranslator);

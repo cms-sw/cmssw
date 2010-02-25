@@ -4,6 +4,6 @@
 #include "IORawData/HcalTBInputService/interface/HcalTBSource.h"
 #include "IORawData/HcalTBInputService/src/HcalTBWriter.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(HcalTBSource);
-DEFINE_ANOTHER_FWK_MODULE(HcalTBWriter);
+
+DEFINE_FWK_INPUT_SOURCE(HcalTBSource);
+DEFINE_FWK_MODULE(HcalTBWriter);
