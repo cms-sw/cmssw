@@ -140,7 +140,7 @@ namespace lumi{
       pathcontent.hltinput=row["hltinput"].data<unsigned int>();
       pathcontent.hltaccept=row["hltratecounter"].data<unsigned int>();
       pathcontent.pathname=row["pathname"].data<std::string>();
-      pathcontent.pathname=row["prescale"].data<unsigned int>();
+      pathcontent.prescale=row["prescale"].data<unsigned int>();
       pathcontent.hltconfigid=row["hltconfigid"].data<unsigned int>();
       allpaths.push_back(pathcontent);
       lastLumiSection=currentLumiSection;
