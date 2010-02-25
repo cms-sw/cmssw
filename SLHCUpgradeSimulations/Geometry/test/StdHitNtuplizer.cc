@@ -287,6 +287,8 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<View<reco::Track> >  trackCollection;
   edm::InputTag trackProducer;
   trackProducer = conf_.getParameter<edm::InputTag>("trackProducer");
+  if( (trackProducer.encode().size()) ) {
+
   e.getByLabel(trackProducer, trackCollection);
 
 /*
@@ -380,6 +382,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
         }
       } //end of loop on tracking rechits
   } // end of loop on recotracks
+  }
 
   // now for strip rechits - but only if we ask for them (they do not exist for Longbarrel maybe)
   if( (rphiRecHits_.encode().size()) && (stereoRecHits_.encode().size()) && (matchedRecHits_.encode().size()) ) {
