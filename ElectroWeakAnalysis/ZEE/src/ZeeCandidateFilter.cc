@@ -22,7 +22,17 @@
  12Feb09  First Release of the code for CMSSW_2_2_X
  17Sep09  First Release for CMSSW_3_1_X
  09Dec09  Option to ignore trigger
-
+ 25Feb10  Added options to use Conversion Rejection, Expected missing hits                      
+          and valid hit at first PXB                                                            
+          Added option to calculate these criteria and store them in the pat electron object    
+          this is done by setting in the configuration the flags                                
+          calculateValidFirstPXBHit = true                                                      
+          calculateConversionRejection = true                                                   
+          calculateExpectedMissinghits = true                                                   
+          Then the code calculates them and you can access all these from pat::Electron         
+          myElec.userInt("PassValidFirstPXBHit")      0 fail, 1 passes                          
+          myElec.userInt("PassConversionRejection")   0 fail, 1 passes                          
+          myElec.userInt("NumberOfExpectedMissingHits") the number of lost hits  
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -31,7 +41,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Feb 12 11:22:04 CET 2009
-// $Id: ZeeCandidateFilter.cc,v 1.4 2010/02/11 00:11:36 wmtan Exp $
+// $Id: ZeeCandidateFilter.cc,v 1.5 2010/02/16 22:28:34 wdd Exp $
 //
 //
 
@@ -64,6 +74,12 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 //
+// for conversion finder 
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 //
 // class declaration
@@ -98,6 +114,9 @@ class ZeeCandidateFilter : public edm::EDFilter {
   bool electronMatched2HLT_;
   double electronMatched2HLT_DR_;
   bool useTriggerInfo_;
+  bool calculateValidFirstPXBHit_;
+  bool calculateConversionRejection_;
+  bool calculateExpectedMissingHits_;
 };
 #endif
 //
@@ -160,6 +179,14 @@ IsolFilter","","HLT");
   electronMatched2HLT_ = iConfig.getUntrackedParameter<bool>("electronMatched2HLT");
   electronMatched2HLT_DR_=iConfig.getUntrackedParameter<double>("electronMatched2HLT_DR");
   //
+  // extra preselection variables calculated:
+  calculateValidFirstPXBHit_ =
+    iConfig.getUntrackedParameter<Bool_t>("calculateValidFirstPXBHit",false);
+  calculateConversionRejection_ =
+    iConfig.getUntrackedParameter<Bool_t>("calculateConversionRejection",false);
+  calculateExpectedMissingHits_ =
+    iConfig.getUntrackedParameter<Bool_t>("calculateExpectedMissingHits",false);
+  //
   // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   //
   // now print a summary with what exactly the filter does:
@@ -187,6 +214,24 @@ IsolFilter","","HLT");
   std::cout << "ZeeCandidateFilter:    EndcapMin: " << EndCapMinEta_
 	    << "  EndcapMax: " << EndCapMaxEta_
 	    <<std::endl;
+  if (calculateValidFirstPXBHit_) {
+    std::cout << "ZeeCandidateFilter: Info about whether there is a valid 1st layer PXB hit "
+              << "will be stored: you can access that later by "
+              << "myElec.userInt(\"PassValidFirstPXBHit\")==1" << std::endl;
+  }
+  if (calculateExpectedMissingHits_) {
+    std::cout << "ZeeCandidateFilter: Missing Hits from expected inner layers "
+              << "will be calculated and stored: you can access them later by "
+              << "myElec.userInt(\"NumberOfExpectedMissingHits\")"   << std::endl;
+  }
+  if (calculateConversionRejection_) {
+    std::cout << "ZeeCandidateFilter: EGAMMA Conversion Rejection criteria "
+              << "will be calculated and stored: you can access them later by "
+              << "demanding for a successful electron "
+              << "myElec.userInt(\"PassConversionRejection\")==1"
+              << std::endl;
+  }
+
   // extra info in the event
   produces< pat::CompositeCandidateCollection > ("selectedZeeCandidates").setBranchAlias
     ("selectedZeeCandidates");
@@ -366,6 +411,47 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    *************************************************************/
    //
+   // special preselection requirement info stored in the electrons
+   if (calculateValidFirstPXBHit_) {
+     std::string vfpx("PassValidFirstPXBHit");
+     bool fail1 =
+       not maxETelec.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
+     bool fail2 =
+       not maxETelec2.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
+     if (fail1) maxETelec.addUserInt(vfpx,0);
+     else maxETelec.addUserInt(vfpx,1);
+     if (fail2) maxETelec2.addUserInt(vfpx,0);
+     else maxETelec2.addUserInt(vfpx,1);
+   }
+   if (calculateExpectedMissingHits_) {
+     int numberOfLostInnerHits = (int) maxETelec.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+     int numberOfLostInnerHits2 = (int) maxETelec2.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+     maxETelec.addUserInt("NumberOfExpectedMissingHits",numberOfLostInnerHits);
+     maxETelec2.addUserInt("NumberOfExpectedMissingHits",numberOfLostInnerHits2);
+   }
+   if (calculateConversionRejection_) {
+     edm::ESHandle<MagneticField> magneticField;
+     iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+     const  MagneticField *mField = magneticField.product();
+     edm::Handle<reco::TrackCollection> ctfTracks;
+     if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
+       ConversionFinder cf;
+       const math::XYZPoint tpoint = maxETelec.gsfTrack()->referencePoint();
+       const GlobalPoint gp(tpoint.x(), tpoint.y(), tpoint.z());
+       double bfield = mField->inTesla(gp).mag();
+       bool isConv = cf.isElFromConversion(maxETelec, ctfTracks, bfield);
+       bool isConv2 = cf.isElFromConversion(maxETelec2, ctfTracks, bfield);
+       if (isConv) maxETelec.addUserInt("PassConversionRejection",0);
+       else maxETelec.addUserInt("PassConversionRejection",1);
+       if (isConv2) maxETelec2.addUserInt("PassConversionRejection",0);
+       else maxETelec2.addUserInt("PassConversionRejection",1);
+     }
+     else {
+       std::cout << "WARNING! Track Collection with input name: generalTracks"
+                 << " was not found. Conversion Rejection is not going to be"
+                 << " applied!!!" << std::endl;
+     }
+   }
    //
    // get the met now:
    const pat::METCollection *pMet = patMET.product();

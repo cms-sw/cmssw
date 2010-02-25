@@ -11,6 +11,9 @@
     For more details see also WenuPlots class description
  Implementation:
   09Dec09: option to have a different selection for the 2nd leg of the Z added
+  24Feb10: more variables added E/P and TIP
+           option to choose CMSSW defined electron ID, the same or different
+           for each leg
 */
 //
 // Original Author:  Nikolaos Rompotis
@@ -39,6 +42,45 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 							   outputFile_D);
   //
   //
+  // use of precalculatedID
+  // if you use it, then no other cuts are applied
+  usePrecalcID_ = iConfig.getUntrackedParameter<Bool_t>("usePrecalcID",false);
+  if (usePrecalcID_) {
+    usePrecalcIDType_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDType");    
+    usePrecalcIDSign_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDSign","=");    
+    usePrecalcIDValue_= iConfig.getUntrackedParameter<Double_t>("usePrecalcIDValue");
+    std::cout << "ZeePlots: WARNING: you have chosen to use CMSSW"
+	      << " precalculated ID with name: >>> " << usePrecalcIDType2_
+	      << " <<< such that the value map " << usePrecalcIDSign2_ << " "
+	      << usePrecalcIDValue2_ << std::endl;
+  }
+  useValidFirstPXBHit_ = iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
+  useConversionRejection_ = iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
+  useExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
+  useValidFirstPXBHit2_ = iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit2",false);
+  useConversionRejection2_ = iConfig.getUntrackedParameter<Bool_t>("useConversionRejection2",false);
+  useExpectedMissingHits2_ = iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits2",false);
+  maxNumberOfExpectedMissingHits_ = iConfig.getUntrackedParameter<Int_t>("maxNumberOfExpectedMissingHits",1);
+  maxNumberOfExpectedMissingHits2_= iConfig.getUntrackedParameter<Int_t>("maxNumberOfExpectedMissingHits2",1);
+  if (useValidFirstPXBHit_ || useConversionRejection_ || useExpectedMissingHits_ || useValidFirstPXBHit2_
+      || useConversionRejection2_ || useExpectedMissingHits2_) usePreselection_ = true;
+  else usePreselection_=false;
+  if (useValidFirstPXBHit_) 
+    std::cout << "ZeePlots: Warning: you have demanded ValidFirstPXBHit in 1st electron" << std::endl;
+  if (useValidFirstPXBHit2_) 
+    std::cout << "ZeePlots: Warning: you have demanded ValidFirstPXBHit in 2nd electron" << std::endl;
+  if (useConversionRejection_)
+    std::cout << "ZeePlots: Warning: you have demanded Conversion Rejection in 1st electron" << std::endl;
+  if (useConversionRejection2_)
+    std::cout << "ZeePlots: Warning: you have demanded Conversion Rejection in 2nd electron" << std::endl;
+  if (useExpectedMissingHits_)
+    std::cout << "ZeePlots: Warning: you have demanded Expected Missing Hits in 1st electron " 
+	      << "no more than " << maxNumberOfExpectedMissingHits_    << std::endl;
+  if (useExpectedMissingHits2_)
+    std::cout << "ZeePlots: Warning: you have demanded Expected Missing Hits in 2nd electron " 
+	      << "no more than " << maxNumberOfExpectedMissingHits2_    << std::endl;
+  //
+  //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB");
   ecalIso_EB_ = iConfig.getUntrackedParameter<Double_t>("ecalIso_EB");
@@ -53,12 +95,16 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   deta_EB_ = iConfig.getUntrackedParameter<Double_t>("deta_EB");
   hoe_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe_EB");
   userIso_EB_ = iConfig.getUntrackedParameter<Double_t>("userIso_EB",1000.);
+  tip_bspot_EB_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EB", 1000.);
+  eop_EB_=iConfig.getUntrackedParameter<Double_t>("eop_EB", 1000.);
   //
   sihih_EE_ = iConfig.getUntrackedParameter<Double_t>("sihih_EE");
   dphi_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi_EE");
   deta_EE_ = iConfig.getUntrackedParameter<Double_t>("deta_EE");
   hoe_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe_EE");
   userIso_EE_ = iConfig.getUntrackedParameter<Double_t>("userIso_EE",1000.);
+  tip_bspot_EE_=iConfig.getUntrackedParameter<Double_t>("tip_bspot_EE", 1000.);
+  eop_EE_=iConfig.getUntrackedParameter<Double_t>("eop_EE", 1000.);
   //
   trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", 
 							    false);
@@ -79,12 +125,19 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   deta_EB_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EB_inv",false);
   hoe_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EB_inv",false);
   userIso_EB_inv=iConfig.getUntrackedParameter<Bool_t>("userIso_EB_inv",false);
+  tip_bspot_EB_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EB_inv", 
+							 false);
+  eop_EB_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EB_inv", false);
   //
   sihih_EE_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EE_inv", false);
   dphi_EE_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EE_inv", false);
   deta_EE_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EE_inv",false);
   hoe_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EE_inv",false);
   userIso_EE_inv=iConfig.getUntrackedParameter<Bool_t>("userIso_EE_inv",false);
+  tip_bspot_EE_inv=iConfig.getUntrackedParameter<Bool_t>("tip_bspot_EE_inv", 
+							 false);
+  eop_EE_inv=iConfig.getUntrackedParameter<Bool_t>("eop_EE_inv", false);
+  //
   useDifferentSecondLegSelection_ = iConfig.getUntrackedParameter<Bool_t>
     ("useDifferentSecondLegSelection",false);
   if (useDifferentSecondLegSelection_) {
@@ -103,12 +156,33 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     deta2_EB_ = iConfig.getUntrackedParameter<Double_t>("deta2_EB");
     hoe2_EB_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EB");
     userIso2_EB_=iConfig.getUntrackedParameter<Double_t>("userIso2_EB", 1000.);
+    tip_bspot2_EB_=iConfig.getUntrackedParameter<Double_t>("tip_bspot2_EB", 
+							   1000.);
+    eop2_EB_=iConfig.getUntrackedParameter<Double_t>("eop2_EB", 1000.);
     //
     sihih2_EE_ = iConfig.getUntrackedParameter<Double_t>("sihih2_EE");
     dphi2_EE_ = iConfig.getUntrackedParameter<Double_t>("dphi2_EE");
     deta2_EE_ = iConfig.getUntrackedParameter<Double_t>("deta2_EE");
     hoe2_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe2_EE");
     userIso2_EE_=iConfig.getUntrackedParameter<Double_t>("userIso2_EE", 1000.);
+    tip_bspot2_EE_=iConfig.getUntrackedParameter<Double_t>("tip_bspot2_EE", 
+							   1000.);
+    eop2_EE_=iConfig.getUntrackedParameter<Double_t>("eop2_EE", 1000.);
+
+    usePrecalcID2_ = iConfig.getUntrackedParameter<Bool_t>("usePrecalcID2",
+							   false);
+    if (usePrecalcID2_) {
+      usePrecalcIDType2_ = iConfig.getUntrackedParameter<std::string>
+	("usePrecalcIDType2");    
+      usePrecalcIDSign2_ = iConfig.getUntrackedParameter<std::string>
+	("usePrecalcIDSign2","=");    
+      usePrecalcIDValue2_= iConfig.getUntrackedParameter<Double_t>
+	("usePrecalcIDValue2");
+      std::cout << "ZeePlots: WARNING: 2nd leg ID:you have chosen to use CMSSW"
+		<< " precalculated ID with name: >>> " << usePrecalcIDType_
+		<< " <<< such that the value map " << usePrecalcIDSign_ << " "
+		<< usePrecalcIDValue_ << std::endl;
+    }
   }
   else {
     trackIso2_EB_ = trackIso_EB_;
@@ -124,12 +198,16 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     deta2_EB_ = deta_EB_;
     hoe2_EB_ = hoe_EB_;
     userIso2_EB_ = userIso_EB_;
+    tip_bspot2_EB_ = tip_bspot_EB_;
+    eop2_EB_ = eop_EB_;
     //
     sihih2_EE_ = sihih_EE_;
     dphi2_EE_ = dphi_EE_;
     deta2_EE_ = deta_EE_;
     hoe2_EE_ = hoe_EE_;
     userIso2_EE_ = userIso_EE_;
+    tip_bspot2_EE_ = tip_bspot_EE_;
+    eop2_EE_ = eop_EE_;
   }
 
 }
@@ -182,8 +260,12 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   //  dynamic_cast<const pat::MET*> (zee.daughter("met"));
 
   //double met = myMet->et();
-
-
+  // extra preselection criteria
+  if (usePreselection_) {
+    bool a1 = PassPreselectionCriteria(myElec1);
+    bool a2 = PassPreselectionCriteria2(myElec2);  
+    if (not (a1 && a2)) return;
+  }
   TLorentzVector e1;
   TLorentzVector e2;
 
@@ -284,10 +366,30 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
  ***********************************************************************/
 bool ZeePlots::CheckCuts( const pat::Electron *ele)
 {
-  for (int i=0; i<nBarrelVars_; ++i) {
-    if (not CheckCut(ele, i)) return false;
+  if (usePrecalcID_) {
+    if (not ele-> isElectronIDAvailable(usePrecalcIDType_)) {
+      std::cout << "Error! not existing ID with name: "
+		<< usePrecalcIDType_ << " function will return true!"
+		<< std::endl;
+      return true;
+    }
+    double val = ele->electronID(usePrecalcIDType_);
+    if (usePrecalcIDSign_ == "<") {
+      return val < usePrecalcIDValue_;
+    }
+    else if (usePrecalcIDSign_ == ">") {
+      return val > usePrecalcIDValue_;
+    }
+    else { // equality: it returns 0,1,2,3 but as float
+      return fabs(val-usePrecalcIDValue_)<0.1;
+    }
+  } 
+  else {
+    for (int i=0; i<nBarrelVars_; ++i) {
+      if (not CheckCut(ele, i)) return false;
+    }
+    return true;
   }
-  return true;
 }
 /////////////////////////////////////////////////////////////////////////
 
@@ -339,6 +441,9 @@ double ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
   else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
   else if (i==6) return ele->hadronicOverEm();
   else if (i==7) return ele->userIsolation(pat::User1Iso);
+  //  else if (i==8) return ele->gsfTrack()->dxy(bspotPosition_);
+  else if (i==8) return ele->dB();
+  else if (i==9) return ele->eSuperClusterOverP();
   std::cout << "Error in ZeePlots::ReturnCandVar" << std::endl;
   return -1.;
 
@@ -348,11 +453,38 @@ double ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
 // Z leg is added - NR 09Dec09
 bool ZeePlots::CheckCuts2( const pat::Electron *ele)
 {
-  for (int i=0; i<nBarrelVars_; ++i) {
-    if (not CheckCut2(ele, i)) return false;
+  if (usePrecalcID2_) {
+    if (not ele-> isElectronIDAvailable(usePrecalcIDType2_)) {
+      std::cout << "Error! not existing ID with name: "
+		<< usePrecalcIDType2_ << " function will return true!"
+		<< std::endl;
+      return true;
+    }
+    double val = ele->electronID(usePrecalcIDType2_);
+    if (usePrecalcIDSign2_ == "<") {
+      return val < usePrecalcIDValue2_;
+    }
+    else if (usePrecalcIDSign2_ == ">") {
+      return val > usePrecalcIDValue2_;
+    }
+    else { // equality: it returns 0,1,2,3 but as float
+      return fabs(val-usePrecalcIDValue2_)<0.1;
+    }
+  } 
+  else {
+    for (int i=0; i<nBarrelVars_; ++i) {
+      if (not CheckCut2(ele, i)) return false;
+    }
+    return true;
   }
-  return true;
 }
+//bool ZeePlots::CheckCuts2( const pat::Electron *ele)
+//{
+//  for (int i=0; i<nBarrelVars_; ++i) {
+//    if (not CheckCut2(ele, i)) return false;
+//  }
+//  return true;
+//}
 /////////////////////////////////////////////////////////////////////////
 
 bool ZeePlots::CheckCuts2Inverse(const pat::Electron *ele)
@@ -393,6 +525,90 @@ bool ZeePlots::CheckCut2Inv(const pat::Electron *ele, int i) {
   }
   return fabs(ReturnCandVar(ele, i)) < CutVars2_[i+nBarrelVars_];
 }
+//
+// special preselection criteria
+bool ZeePlots::PassPreselectionCriteria(const pat::Electron *ele) {
+  bool passConvRej = true;
+  bool passPXB = true;
+  bool passEMH = true;
+  if (useConversionRejection_) {
+    if (ele->hasUserInt("PassConversionRejection")) {
+      //std::cout << "con rej: " << ele->userInt("PassConversionRejection") << std::endl;
+      if (not (ele->userInt("PassConversionRejection")==1)) passConvRej = false;
+    }
+    else {
+      std::cout << "ZeePlots: WARNING: Conversion Rejection Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true; 
+    }
+  }
+  if (useValidFirstPXBHit_) {
+    if (ele->hasUserInt("PassValidFirstPXBHit")) {
+      //std::cout << "valid1stPXB: " << ele->userInt("PassValidFirstPXBHit") << std::endl;
+      if (not (ele->userInt("PassValidPXBHit")==1)) passPXB = false;
+    }
+    else {
+      std::cout << "ZeePlots: WARNING: Valid First PXB Hit Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true;
+    }
+  }
+  if (useExpectedMissingHits_) {
+    if (ele->hasUserInt("NumberOfExpectedMissingHits")) {
+      //std::cout << "missing hits: " << ele->userInt("NumberOfExpectedMissingHits") << std::endl;
+      if (not (ele->userInt("NumberOfExpectedMissingHits")<=maxNumberOfExpectedMissingHits_))
+        passEMH = false;
+    }
+    else {
+      std::cout << "ZeePlots: WARNING: Number of Expected Missing Hits Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true; 
+    }
+  }
+  return passConvRej && passPXB && passEMH;
+}
+//
+bool ZeePlots::PassPreselectionCriteria2(const pat::Electron *ele) {
+  bool passConvRej = true;
+  bool passPXB = true;
+  bool passEMH = true;
+  if (useConversionRejection2_) {
+    if (ele->hasUserInt("PassConversionRejection")) {
+      //std::cout << "con rej2: " << ele->userInt("PassConversionRejection") << std::endl;
+      if (not (ele->userInt("PassConversionRejection")==1)) passConvRej = false;
+    }
+    else {
+      std::cout << "ZeePlots: WARNING: Conversion Rejection Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true; 
+    }
+  }
+  if (useValidFirstPXBHit2_) {
+    if (ele->hasUserInt("PassValidFirstPXBHit")) {
+      //std::cout << "valid1stPXB2: " << ele->userInt("PassValidFirstPXBHit") << std::endl;
+      if (not (ele->userInt("PassValidPXBHit")==1)) passPXB = false;
+    }
+    else {
+      std::cout << "ZeePlots: WARNING: Valid First PXB Hit Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true; 
+    }
+  }
+  if (useExpectedMissingHits2_) {
+    if (ele->hasUserInt("NumberOfExpectedMissingHits")) {
+      //std::cout << "missing hits2: " << ele->userInt("NumberOfExpectedMissingHits") << std::endl;
+      if (not (ele->userInt("NumberOfExpectedMissingHits")<=maxNumberOfExpectedMissingHits2_))
+        passEMH = false;
+    }
+    else {
+      std::cout << "ZeePlots: WARNING: Number of Expected Missing Hits Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true; 
+    }
+  }
+  return passConvRej && passPXB && passEMH;
+}
+
 ////////////////////////////////////////////////////////////////////////
 
 // ------------ method called once each job just before starting event loop  --
@@ -437,7 +653,7 @@ ZeePlots::beginJob()
 
   //
   // if you add some new variable change the nBarrelVars_ accordingly
-  nBarrelVars_ = 8;
+  nBarrelVars_ = 10;
   //
   // Put EB variables together and EE variables together
   // number of barrel variables = number of endcap variable
@@ -450,6 +666,8 @@ ZeePlots::beginJob()
   CutVars_.push_back( deta_EB_ );    //5
   CutVars_.push_back( hoe_EB_ );     //6
   CutVars_.push_back( userIso_EB_ ); //7
+  CutVars_.push_back( tip_bspot_EB_);//8
+  CutVars_.push_back( eop_EB_ );     //9
 
   CutVars_.push_back( trackIso_EE_);//0
   CutVars_.push_back( ecalIso_EE_); //1
@@ -459,6 +677,9 @@ ZeePlots::beginJob()
   CutVars_.push_back( deta_EE_);    //5
   CutVars_.push_back( hoe_EE_ );    //6 
   CutVars_.push_back( userIso_EE_ );//7 
+  CutVars_.push_back(tip_bspot_EE_);//8
+  CutVars_.push_back( eop_EE_ );    //9
+
   //
   // 2nd leg variables
   CutVars2_.push_back( trackIso2_EB_ );//0
@@ -469,6 +690,8 @@ ZeePlots::beginJob()
   CutVars2_.push_back( deta2_EB_ );    //5
   CutVars2_.push_back( hoe2_EB_ );     //6
   CutVars2_.push_back( userIso2_EB_ ); //7
+  CutVars2_.push_back( tip_bspot2_EB_);//8
+  CutVars2_.push_back( eop2_EB_ );     //9
 
   CutVars2_.push_back( trackIso2_EE_);//0
   CutVars2_.push_back( ecalIso2_EE_); //1
@@ -478,6 +701,8 @@ ZeePlots::beginJob()
   CutVars2_.push_back( deta2_EE_);    //5
   CutVars2_.push_back( hoe2_EE_ );    //6 
   CutVars2_.push_back( userIso2_EE_ );//7 
+  CutVars2_.push_back(tip_bspot2_EE_);//8
+  CutVars2_.push_back( eop2_EE_ );    //9
   //...........................................
   InvVars_.push_back( trackIso_EB_inv);//0
   InvVars_.push_back( ecalIso_EB_inv); //1
@@ -487,6 +712,8 @@ ZeePlots::beginJob()
   InvVars_.push_back( deta_EB_inv);    //5
   InvVars_.push_back( hoe_EB_inv);     //6
   InvVars_.push_back( userIso_EB_inv); //7
+  InvVars_.push_back(tip_bspot_EB_inv);//8
+  InvVars_.push_back( eop_EB_inv);     //9
   //
   InvVars_.push_back( trackIso_EE_inv);//0
   InvVars_.push_back( ecalIso_EE_inv); //1
@@ -496,6 +723,8 @@ ZeePlots::beginJob()
   InvVars_.push_back( deta_EE_inv);    //5
   InvVars_.push_back( hoe_EE_inv);     //6
   InvVars_.push_back( userIso_EE_inv); //7
+  InvVars_.push_back(tip_bspot_EE_inv);//8
+  InvVars_.push_back( eop_EE_inv);     //9
   //
 
 
