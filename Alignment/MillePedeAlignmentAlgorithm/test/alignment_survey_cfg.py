@@ -1,4 +1,4 @@
-# last update on $Date: 2010/02/23 11:06:14 $ by $Author: frmeier $
+# last update on $Date: 2010/02/23 13:10:25 $ by $Author: frmeier $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -213,6 +213,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(0) )
 
 process.AlignmentProducer.algoConfig.surveyPixelBarrel.doSurvey = True
 process.AlignmentProducer.algoConfig.surveyPixelBarrel.doOutputOnStdout = True
+process.AlignmentProducer.algoConfig.surveyPixelBarrel.doToySurvey = True
 
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter)
 

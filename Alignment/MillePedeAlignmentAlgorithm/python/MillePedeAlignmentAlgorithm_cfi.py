@@ -68,10 +68,27 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     minNumHits = cms.uint32(7), ## minimum number of hits (with alignable parameters)
     max2Dcorrelation = cms.double(0.05), ## if correlation >5% 2D measurements in TID/TEC get diagonalized
 
+	# Parameters for PXB survey steering
     surveyPixelBarrel = cms.PSet(
 			doSurvey = cms.bool(False),
 			infile = cms.FileInPath("Alignment/SurveyAnalysis/data/BPix_Survey_info_raw.txt"),
-			doOutputOnStdout = cms.bool(False)
+			doOutputOnStdout = cms.bool(False),
+			# Settings for toy survey - produces a file with toy survey data according to given parameters
+			doToySurvey = cms.bool(False),
+			toySurveyFile = cms.untracked.string('toySurveyInfo.txt'),
+			toySurveySeed = cms.uint32(12),
+			toySurveyParameters = cms.VPSet(
+					# Position of photo in local frame (unit: pixels in photo)
+					cms.PSet(name = cms.string('a0'),    mean = cms.double(1800.), sigma = cms.double(150.)),
+					cms.PSet(name = cms.string('a1'),    mean = cms.double(2600.), sigma = cms.double(200.)),
+					# Scale of photo (unit: pixels per cm)
+					cms.PSet(name = cms.string('scale'), mean = cms.double(1150.), sigma = cms.double(50.)),
+					# Rotation of photo in local frame (unit: rads)
+					cms.PSet(name = cms.string('phi'),   mean = cms.double(0.), sigma = cms.double(0.0025)),
+					# Smearing of measurements in u and v coordinate (unit: pixels in photo)
+					cms.PSet(name = cms.string('u'),     mean = cms.double(0.), sigma = cms.double(0.175)),
+					cms.PSet(name = cms.string('v'),     mean = cms.double(0.), sigma = cms.double(0.175))
+					)
 	)
 )
 

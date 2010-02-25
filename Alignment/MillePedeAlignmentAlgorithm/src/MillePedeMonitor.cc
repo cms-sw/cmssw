@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.18 $
- *  $Date: 2009/08/12 14:40:22 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.19 $
+ *  $Date: 2010/02/23 13:10:25 $
+ *  (last update by $Author: frmeier $)
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -450,6 +450,12 @@ bool MillePedeMonitor::init(TDirectory *directory)
   myPxbSurveyHists.push_back(new TH1F("PxbSurvChi2_md", "#chi^{2} from PXB survey", 25, 0, 500));
   myPxbSurveyHists.push_back(new TH1F("PxbSurvChi2_hi", "#chi^{2} from PXB survey", 25, 0, 50000));
   myPxbSurveyHists.push_back(new TH1F("PxbSurvChi2prob", "Math::Prob(#chi^{2},4) from PXB survey", 25, 0, 1));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurv_a0", "a_{0} from PXB survey", 100, -3000, 3000));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurv_a0_abs", "fabs(a_{0}) from PXB survey", 100, 0, 3000));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurv_a1", "a_{1} from PXB survey", 100, -6000, 6000));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurv_a1_abs", "fabs(a_{1}) from PXB survey", 100, 0, 6000));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurv_scale", "scale (#sqrt{a_{2}^{2}+a_{3}^{2}}) from PXB survey", 100, 0, 1500));
+  myPxbSurveyHists.push_back(new TH1F("PxbSurv_phi", "angle(#atan{a_{3}/a_{4}}) from PXB survey", 100, -.05, .05));
   TDirectory *dirPxbSurvey = directory->mkdir("PxbSurveyHists", "PxbSurvey");
   this->addToDirectory( myPxbSurveyHists, dirPxbSurvey);
 
@@ -938,7 +944,7 @@ void MillePedeMonitor::fillCorrelations2D(float corr, const ConstRecHitPointer &
 }
 
 //____________________________________________________________________
-void MillePedeMonitor::fillPxbSurveyHists(const float &chi2)
+void MillePedeMonitor::fillPxbSurveyHistsChi2(const float &chi2)
 {
   static const int iPxbSurvChi2_lo = this->GetIndex(myPxbSurveyHists,"PxbSurvChi2_lo");
   myPxbSurveyHists[iPxbSurvChi2_lo]->Fill(chi2);
@@ -950,6 +956,21 @@ void MillePedeMonitor::fillPxbSurveyHists(const float &chi2)
   myPxbSurveyHists[iPxbSurvChi2prob]->Fill(TMath::Prob(chi2,4));
 }
 
-
+//____________________________________________________________________
+void MillePedeMonitor::fillPxbSurveyHistsLocalPars(const float &a0, const float &a1, const float &S, const float &phi)
+{
+  static const int iPxbSurv_a0 = this->GetIndex(myPxbSurveyHists,"PxbSurv_a0");
+  myPxbSurveyHists[iPxbSurv_a0]->Fill(a0);
+  static const int iPxbSurv_a0_abs = this->GetIndex(myPxbSurveyHists,"PxbSurv_a0_abs");
+  myPxbSurveyHists[iPxbSurv_a0_abs]->Fill(fabs(a0));
+  static const int iPxbSurv_a1 = this->GetIndex(myPxbSurveyHists,"PxbSurv_a1");
+  myPxbSurveyHists[iPxbSurv_a1]->Fill(a1);
+  static const int iPxbSurv_a1_abs = this->GetIndex(myPxbSurveyHists,"PxbSurv_a1_abs");
+  myPxbSurveyHists[iPxbSurv_a1_abs]->Fill(fabs(a1));
+  static const int iPxbSurv_scale = this->GetIndex(myPxbSurveyHists,"PxbSurv_scale");
+  myPxbSurveyHists[iPxbSurv_scale]->Fill(S);
+  static const int iPxbSurv_phi = this->GetIndex(myPxbSurveyHists,"PxbSurv_phi");
+  myPxbSurveyHists[iPxbSurv_phi]->Fill(phi);
+}
 
 

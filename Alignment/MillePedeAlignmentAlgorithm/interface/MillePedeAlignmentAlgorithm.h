@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.28 $
-///  $Date: 2009/12/15 17:59:39 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.29 $
+///  $Date: 2010/02/22 16:34:35 $
+///  (last update by $Author: frmeier $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -68,8 +68,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// Run the algorithm on trajectories and tracks
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
 
-  /// Run on things like survey data
-  virtual void beginRun(const edm::EventSetup &setup);
   /// Run on run products, e.g. TkLAS
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup);
 

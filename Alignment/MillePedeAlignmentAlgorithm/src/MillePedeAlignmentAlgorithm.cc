@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.63 $
- *  $Date: 2010/02/23 13:10:25 $
+ *  $Revision: 1.64 $
+ *  $Date: 2010/02/23 22:45:47 $
  *  (last update by $Author: frmeier $)
  */
 
@@ -59,11 +59,12 @@ typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
 typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 
-// Frank
+// Includes for PXB survey
 #include <iostream>
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImage.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImageLocalFit.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbImageReader.h"
+#include "Alignment/SurveyAnalysis/interface/SurveyPxbDicer.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -312,12 +313,6 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
   } // end if valid trajectory
 
   return hitResultXy;
-}
-
-//____________________________________________________
-void MillePedeAlignmentAlgorithm::beginRun(const edm::EventSetup &setup)
-{
-	// do nothing for the moment
 }
 
 //____________________________________________________
@@ -1018,6 +1013,8 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 	const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
 	if (doOutputOnStdout) std::cout << "# Below output from addPxbSurvey follows because doOutputOnStdout is set to True" << std::endl;
 
+	SurveyPxbDicer dicer(pxbSurveyCfg.getParameter<std::vector<edm::ParameterSet> >("toySurveyParameters"), pxbSurveyCfg.getParameter<unsigned int>("toySurveySeed"));
+
 	// read data from file
 	std::vector<SurveyPxbImageLocalFit> measurements;
 	std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
@@ -1054,6 +1051,11 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 		fidpointvec.push_back(fidpoint1inSurf1frame);
 		fidpointvec.push_back(fidpoint2);
 		fidpointvec.push_back(fidpoint3);
+
+		if (pxbSurveyCfg.getParameter<bool>("doToySurvey"))
+		{
+			std::cout << "Diced: " << dicer.doDice(fidpointvec,measurements[i].getIdPair()) << std::endl;
+		}
 		
 		// do the fit and report the results
 		measurements[i].doFit(fidpointvec, thePedeLabels->alignableLabel(mod1), thePedeLabels->alignableLabel(mod2));
@@ -1067,7 +1069,8 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 			<< " phi= " << atan(a[3]/a[2])
 			<< " chi2= " << chi2 << std::endl;
 		}
-		if (theMonitor) theMonitor->fillPxbSurveyHists(chi2);
+		if (theMonitor) theMonitor->fillPxbSurveyHistsChi2(chi2);
+		if (theMonitor) theMonitor->fillPxbSurveyHistsLocalPars(a[0],a[1],sqrt(a[2]*a[2]+a[3]*a[3]),atan(a[3]/a[2]));
 
 		/*std::cout << "deriv: " << measurements[i].getLocalDerivsPtr(0) << " " << *(measurements[i].getLocalDerivsPtr(0))
 			<< " diff: " << measurements[i].getLocalDerivsPtr(1)-measurements[i].getLocalDerivsPtr(0) 

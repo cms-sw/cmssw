@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.11 $
-///  $Date: 2008/07/30 15:44:49 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.12 $
+///  $Date: 2010/02/23 13:10:24 $
+///  (last update by $Author: frmeier $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
@@ -61,7 +61,8 @@ class MillePedeMonitor
 
   void fillCorrelations2D(float corr, const TransientTrackingRecHit::ConstRecHitPointer &hit);
   
-  void fillPxbSurveyHists(const float &chi2);
+  void fillPxbSurveyHistsChi2(const float &chi2);
+  void fillPxbSurveyHistsLocalPars(const float &a0, const float &a1, const float &S, const float &phi);
 
  private:
   bool init(TDirectory *directory);
