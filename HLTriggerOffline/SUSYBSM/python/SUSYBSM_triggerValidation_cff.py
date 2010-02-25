@@ -328,6 +328,6 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
         def_jetPtMin = cms.double(30.0),
         photons = cms.string(''),
         photonProducer = cms.string('photons'),
-        BinFactor = cms.int32(1) #put a number >1 to have a larger number of bins for eta and phi distributions. Put 1 for DQM.
+        BinFactor = cms.int32(10) #put a number >1 to have a larger number of bins for eta and phi distributions. Put 1 for DQM.
     )
 )

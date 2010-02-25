@@ -103,6 +103,7 @@ void HltSusyExoPostProcessor::endRun(edm::Run const& run, edm::EventSetup const&
 
   LogDebug("HltSusyExoPostProcessor") << "MonitorElements booked";
 
+  cout << "************************************************  MonitorElements booked" << endl;
   //get the total number of events 
   float nTotalBeforeCuts = -1;
   int reference_bin = -1;
@@ -227,6 +228,7 @@ void HltSusyExoPostProcessor::endRun(edm::Run const& run, edm::EventSetup const&
   int Hltbincounter[8]; for(unsigned int i=0; i<sizeof(Hltbincounter)/sizeof(Hltbincounter[0]); ++i) Hltbincounter[i]=0;
   TProfile* hL1_ = (TProfile*)hL1EffBeforeCuts->getTProfile();
   TProfile* hHlt_ = (TProfile*)hHltEffBeforeCuts->getTProfile();
+  for(int i = 0; i<hHlt_->GetXaxis()->GetNbins(); i++) cout << "hHLT_->GetBinError(" << i << ") = " << hHlt_->GetBinError(i+1) << endl;
   for(unsigned int i=0; i<L1placement.size(); ++i)
     {
       if(L1placement[i]!=-1)
