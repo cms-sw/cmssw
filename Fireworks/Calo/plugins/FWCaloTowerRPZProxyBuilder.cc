@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.18 2009/11/14 16:22:37 chrjones Exp $
+// $Id: FWCaloTowerRPZProxyBuilder.cc,v 1.19 2009/11/25 20:25:58 chrjones Exp $
 //
 
 // system include files
@@ -34,7 +34,7 @@ FWCaloTowerRPZProxyBuilderBase::~FWCaloTowerRPZProxyBuilderBase()
 }
 
 //______________________________________________________________________________
-void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElementList** product)
+void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElementList** /*product*/)
 {
    m_towers=0;
    iItem->get(m_towers);
@@ -73,10 +73,6 @@ void FWCaloTowerRPZProxyBuilderBase::build(const FWEventItem* iItem, TEveElement
             (m_hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
          }
       }
-   }
-   if ( *product == 0)
-   {
-      *product = new TEveElementList("RPZCalo3DHolder");
    }
 }
 
