@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.88 2010/01/18 20:55:02 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.89 2010/01/22 10:06:56 chamont Exp $
 //
 //
 
@@ -82,6 +82,20 @@
 using namespace edm ;
 using namespace std ;
 using namespace reco ;
+
+template <typename Col>
+class ExceptionSafeStlPtrCol : public Col
+ {
+  public :
+    ExceptionSafeStlPtrCol() : Col() {}
+    ~ExceptionSafeStlPtrCol()
+     {
+      Col::const_iterator it ;
+      for ( it = begin() ; it != end() ; it++ )
+       { delete (*it) ; }
+     }
+ }
+
 
 GsfElectronAlgo::GsfElectronAlgo
  ( const edm::ParameterSet & conf,
@@ -282,7 +296,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
     ecalSeedingParametersChecked_ = true ;
     if (!seedsCollection.isValid())
      {
-      edm::LogWarning("GsfElectronAlgo")
+      edm::LogWarning("GsfElectronAlgo|UnreachableSeedsProvenance")
         <<"Cannot check consistency of parameters with ecal seeding ones,"
         <<" because the original collection of seeds is not any more available." ;
      }
@@ -302,41 +316,38 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   hcalHelperPflow_->readEvent(e) ;
 
   // temporay array for electrons before preselection and before amb. solving
-  GsfElectronPtrCollection tempEle, tempEle1;
+  ExceptionSafeStlPtrCol<GsfElectronPtrCollection> tempEle ;
+  GsfElectronPtrCollection tempEle1 ;
 
   // create electrons
   process(coresH,ctfTracksH,pfMVAH,towersH,pEBRecHits,pEERecHits,bs,tempEle);
 
-  std::ostringstream str;
-
-  str << "\n========== GsfElectronAlgo Info (before preselection) ==========";
-  str << "\nEvent " << e.id();
-  str << "\nNumber of electron cores: " << coresH.product()->size();
-  str << "\nNumber of electrons: " << tempEle.size();
-  for (GsfElectronPtrCollection::const_iterator it = tempEle.begin(); it != tempEle.end(); it++) {
-    str << "\nNew electron with charge, pt, eta, phi : "  << (*it)->charge() << " , "
+  LogTrace("GsfElectronAlgo") << "========== GsfElectronAlgo Info (before preselection) ==========";
+  LogTrace("GsfElectronAlgo") << "Event " << e.id();
+  LogTrace("GsfElectronAlgo") << "Number of electron cores: " << coresH.product()->size();
+  LogTrace("GsfElectronAlgo") << "Number of electrons: " << tempEle.size();
+  for (GsfElectronPtrCollection::const_iterator it = tempEle.begin(); it != tempEle.end(); it++)
+   {
+    LogTrace("GsfElectronAlgo") << "New electron with charge, pt, eta, phi : "  << (*it)->charge() << " , "
         << (*it)->pt() << " , " << (*it)->eta() << " , " << (*it)->phi();
-  }
+   }
+  LogTrace("GsfElectronAlgo") << "=================================================";
 
   if (applyPreselection_)
    {
 
-    preselectElectrons(tempEle, tempEle1, bs);
+    preselectElectrons(tempEle,tempEle1,bs) ;
 
-    std::ostringstream str1 ;
-
-    str1 << "\n=================================================";
-    LogDebug("GsfElectronAlgo") << str.str();
-
-    str1 << "\n========== GsfElectronAlgo Info (before amb. solving) ==========";
-    str1 << "\nEvent " << e.id();
-    str1 << "\nNumber of preselected electrons: " << tempEle1.size();
+    LogTrace("GsfElectronAlgo") << "========== GsfElectronAlgo Info (after preselection) ==========";
+    LogTrace("GsfElectronAlgo") << "Event " << e.id();
+    LogTrace("GsfElectronAlgo") << "Number of preselected electrons: " << tempEle1.size();
     GsfElectronPtrCollection::const_iterator it ;
     for ( it = tempEle1.begin(); it != tempEle1.end(); it++)
      {
-      str1 << "\nNew electron with charge, pt, eta, phi : "  << (*it)->charge() << " , "
+      LogTrace("GsfElectronAlgo") << "New electron with charge, pt, eta, phi : "  << (*it)->charge() << " , "
           << (*it)->pt() << " , " << (*it)->eta() << " , " << (*it)->phi();
      }
+    LogTrace("GsfElectronAlgo") << "=================================================";
    }
   else
    {
@@ -344,25 +355,20 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
      { tempEle1.push_back(*it) ; }
    }
 
-  str << "\n=================================================";
-  LogDebug("GsfElectronAlgo") << str.str();
 
   if (applyAmbResolution_)
    {
     //resolveElectrons(tempEle1, outEle);
     resolveElectrons(tempEle1, outEle, pEBRecHits, pEERecHits);
 
-    std::ostringstream str2 ;
-
-    str2 << "\n========== GsfElectronAlgo Info (after amb. solving) ==========";
-    str2 << "\nEvent " << e.id();
-    str2 << "\nNumber of preselected and resolved electrons: " << outEle.size();
+    LogTrace("GsfElectronAlgo") << "========== GsfElectronAlgo Info (after amb. solving) ==========";
+    LogTrace("GsfElectronAlgo") << "Event " << e.id();
+    LogTrace("GsfElectronAlgo") << "Number of preselected and resolved electrons: " << outEle.size();
     for ( GsfElectronCollection::const_iterator it = outEle.begin(); it != outEle.end(); it++) {
-      str2 << "\nNew electron with charge, pt, eta, phi : "  << it->charge() << " , "
+      LogTrace("GsfElectronAlgo") << "New electron with charge, pt, eta, phi : "  << it->charge() << " , "
           << it->pt() << " , " << it->eta() << " , " << it->phi();
     }
-    str2 << "\n=================================================";
-    LogDebug("GsfElectronAlgo") << str2.str() ;
+    LogTrace("GsfElectronAlgo") << "=================================================";
 
    }
   else
@@ -370,11 +376,6 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
     for ( GsfElectronPtrCollection::const_iterator it = tempEle1.begin() ; it != tempEle1.end() ; it++ )
      { outEle.push_back(**it) ; }
    }
-
-  // delete temporary electrons
-  GsfElectronPtrCollection::const_iterator it ;
-  for ( it = tempEle.begin() ; it != tempEle.end() ; it++ )
-   { delete (*it) ; }
 
   return ;
 }
@@ -449,7 +450,7 @@ void GsfElectronAlgo::process(
     // we generally use in the configuration file for minMVA.
     float mva = (*pfMVAH.product())[gsfTrackRef] ;
     double noCutMin = -999999999 ;
-    if (mva<noCutMin) { edm::LogError("GsfElectronAlgo")<<"unexpected MVA value: "<<mva ; }
+    if (mva<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<mva ; }
 
     // electron basic cluster
     CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus) ;
@@ -492,7 +493,7 @@ void GsfElectronAlgo::process(
       ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,
       reducedEBRecHits,reducedEERecHits,mva,outEle) ;
 
-     LogInfo("")<<"Constructed new electron with energy  "<< theClus.energy();
+    LogInfo("GsfElectronAlgo")<<"Constructed new electron with energy  "<< theClus.energy();
 
   } // loop over tracks
 }
@@ -503,20 +504,20 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
   GsfElectronPtrCollection::iterator e1 ;
   for( ei=1, e1=inEle.begin() ;  e1!=inEle.end() ; ++ei, ++e1 )
    {
-    LogDebug("")<<"========== pre-selection "<<ei<<"/"<<emax<<"==========" ;
+    LogTrace("GsfElectronAlgo")<<"========== pre-selection "<<ei<<"/"<<emax<<"==========" ;
 
     // kind of construction algorithm
     bool eg = (*e1)->core()->ecalDrivenSeed();
     bool pf = (*e1)->core()->trackerDrivenSeed() && !(*e1)->core()->ecalDrivenSeed() ;
-    if (eg&&pf) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be both egamma and purely pflow" ; }
-    if ((!eg)&&(!pf)) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be neither egamma nor purely pflow" ; }
+    if (eg&&pf) { throw cms::Exception("GsfElectronAlgo|BothEcalAndPureTrackerDriven")<<"An electron cannot be both egamma and purely pflow" ; }
+    if ((!eg)&&(!pf)) { throw cms::Exception("GsfElectronAlgo|NeitherEcalNorPureTrackerDriven")<<"An electron cannot be neither egamma nor purely pflow" ; }
 
     // Or MVA
     if ( (eg && ((*e1)->mva()>=minMVA_)) || (pf && ((*e1)->mva()>=minMVAPflow_)) )
      {
       outEle.push_back(*e1) ;
-      LogDebug("") << "electron has passed preselection criteria ";
-      LogDebug("") << "=================================================";
+      LogTrace("GsfElectronAlgo") << "electron has passed preselection criteria ";
+      LogTrace("GsfElectronAlgo") << "=================================================";
       continue ;
      }
 //    // And MVA
@@ -525,14 +526,14 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
 
 
     // Et cut
-    LogDebug("") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
+    LogTrace("GsfElectronAlgo") << "Et : " << (*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta());
     if (eg && (*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrel_)) continue;
     if (eg && (*e1)->isEE() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtEndcaps_)) continue;
     if (pf && (*e1)->isEB() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtBarrelPflow_)) continue;
     if (pf && (*e1)->isEE() && ((*e1)->superCluster()->energy()/cosh((*e1)->superCluster()->eta()) < minSCEtEndcapsPflow_)) continue;
 
     // E/p cut
-    LogDebug("") << "E/p : " << (*e1)->eSuperClusterOverP();
+    LogTrace("GsfElectronAlgo") << "E/p : " << (*e1)->eSuperClusterOverP();
     if (eg && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() > maxEOverPBarrel_)) continue;
     if (eg && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() > maxEOverPEndcaps_)) continue;
     if (eg && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() < minEOverPBarrel_)) continue;
@@ -541,10 +542,10 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if (pf && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() > maxEOverPEndcapsPflow_)) continue;
     if (pf && (*e1)->isEB() && ((*e1)->eSuperClusterOverP() < minEOverPBarrelPflow_)) continue;
     if (pf && (*e1)->isEE() && ((*e1)->eSuperClusterOverP() < minEOverPEndcapsPflow_)) continue;
-    LogDebug("") << "E/p criteria is satisfied ";
+    LogTrace("GsfElectronAlgo") << "E/p criteria is satisfied ";
 
     // HoE cuts
-    LogDebug("") << "HoE1 : " << (*e1)->hcalDepth1OverEcal() << "HoE2 : " << (*e1)->hcalDepth2OverEcal();
+    LogTrace("GsfElectronAlgo") << "HoE1 : " << (*e1)->hcalDepth1OverEcal() << "HoE2 : " << (*e1)->hcalDepth2OverEcal();
 //     if ( eg && (*e1)->isEB() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Barrel_) ) continue;
 //     if ( eg && (*e1)->isEE() && ((*e1)->hcalDepth1OverEcal() > maxHOverEDepth1Endcaps_) ) continue;
 //     if ( eg && ((*e1)->hcalDepth2OverEcal() > maxHOverEDepth2_) ) continue;
@@ -562,25 +563,25 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if (detector==EcalBarrel && (had<maxHBarrelPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrelPflow_)) HoEvetoPflow=true;
     else if (detector==EcalEndcap && (had<maxHEndcapsPflow_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcapsPflow_)) HoEvetoPflow=true;
     if ( pf && !HoEvetoPflow ) continue;
-    LogDebug("") << "H/E criteria is satisfied ";
+    LogTrace("GsfElectronAlgo") << "H/E criteria is satisfied ";
 
     // delta eta criteria
     double deta = (*e1)->deltaEtaSuperClusterTrackAtVtx();
-    LogDebug("") << "delta eta : " << deta;
+    LogTrace("GsfElectronAlgo") << "delta eta : " << deta;
     if (eg && (*e1)->isEB() && (fabs(deta) > maxDeltaEtaBarrel_)) continue;
     if (eg && (*e1)->isEE() && (fabs(deta) > maxDeltaEtaEndcaps_)) continue;
     if (pf && (*e1)->isEB() && (fabs(deta) > maxDeltaEtaBarrelPflow_)) continue;
     if (pf && (*e1)->isEE() && (fabs(deta) > maxDeltaEtaEndcapsPflow_)) continue;
-    LogDebug("") << "Delta eta criteria is satisfied ";
+    LogTrace("GsfElectronAlgo") << "Delta eta criteria is satisfied ";
 
     // delta phi criteria
     double dphi = (*e1)->deltaPhiSuperClusterTrackAtVtx();
-    LogDebug("") << "delta phi : " << dphi;
+    LogTrace("GsfElectronAlgo") << "delta phi : " << dphi;
     if (eg && (*e1)->isEB() && (fabs(dphi) > maxDeltaPhiBarrel_)) continue;
     if (eg && (*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcaps_)) continue;
     if (pf && (*e1)->isEB() && (fabs(dphi) > maxDeltaPhiBarrelPflow_)) continue;
     if (pf && (*e1)->isEE() && (fabs(dphi) > maxDeltaPhiEndcapsPflow_)) continue;
-    LogDebug("") << "Delta phi criteria is satisfied ";
+    LogTrace("GsfElectronAlgo") << "Delta phi criteria is satisfied ";
 
     //
     if (eg && (*e1)->isEB() && ((*e1)->sigmaIetaIeta() > maxSigmaIetaIetaBarrel_)) continue;
@@ -604,7 +605,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if (eg && !seedFromTEC_)
      {
       if (elseed.isNull())
-	   { edm::LogError("GsfElectronAlgo")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
+	   { throw cms::Exception("GsfElectronAlgo|NotElectronSeed")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
 	  else
 	   { if (elseed->subDet2()==6) continue ; }
      }
@@ -614,8 +615,8 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     if (pf && fabs((*e1)->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) continue;
 
     outEle.push_back(*e1) ;
-    LogDebug("") << "electron has passed preselection criteria ";
-    LogDebug("") << "=================================================";
+    LogTrace("GsfElectronAlgo") << "electron has passed preselection criteria ";
+    LogTrace("GsfElectronAlgo") << "=================================================";
    }
  }
 
@@ -763,7 +764,7 @@ void GsfElectronAlgo::createElectron
      { fiducialFlags.isEEDeeGap = true ; }
    }
   else
-   { edm::LogWarning("GsfElectronAlgo")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
+   { through cms::Exception("GsfElectronAlgo|UnknownXtalRegion")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
 
 
   //====================================================
@@ -801,11 +802,11 @@ void GsfElectronAlgo::createElectron
   //====================================================
 
   GsfElectron * ele = new
-	GsfElectron
-	 ( momentum,charge,chargeInfo,coreRef,
-	   tcMatching, tkExtra, ctfInfo,
-	   fiducialFlags,showerShape,
-	   fbrem,mva) ;
+    GsfElectron
+     ( momentum,charge,chargeInfo,coreRef,
+       tcMatching, tkExtra, ctfInfo,
+       fiducialFlags,showerShape,
+       fbrem,mva) ;
 
   // set corrections + classification
   ElectronClassification theClassifier;
@@ -910,7 +911,7 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
   else if (ambSortingStrategy_==1)
    { inEle.sort(EgAmbiguityTools::isInnerMost(trackerHandle_)) ; }
   else
-   { edm::LogError("GsfElectronAlgo")<<"unknown ambSortingStrategy "<<ambSortingStrategy_ ; }
+   { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguitySortingStrategy")<<"value of ambSortingStrategy_ is : "<<ambSortingStrategy_ ; }
 
   // resolve when e/g SC is found
   for( e1 = inEle.begin() ;  e1 != inEle.end() ; ++e1 )
@@ -933,14 +934,14 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
        { sameCluster = (scRef1==scRef2) ; }
       else if (ambClustersOverlapStrategy_==1)
        {
-    	sameCluster =
+    	  sameCluster =
          ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
     	   (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
     	   (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
     	   (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ) ;
        }
       else
-       { edm::LogError("GsfElectronAlgo")<<"unknown ambClustersOverlapStrategy_ "<<ambClustersOverlapStrategy_ ; }
+       { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")<<"value of ambClustersOverlapStrategy_ is : "<<ambClustersOverlapStrategy_ ; }
 
       // main instructions
       if (sameCluster)
@@ -1100,7 +1101,7 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
    {
     // For pure tracker seeded electrons, if MVA is under translatorMinMva, there is no supercluster
     // of any kind available, so GsfElectronCoreProducer has already discarded the electron.
-    edm::LogWarning("GsfElectronAlgo")
+    edm::LogWarning("GsfElectronAlgo|MvaCutTooLow")
       <<"Parameter minMVAPflow will have no effect on purely tracker seeded electrons."
       <<" It is inferior to the cut already applied by PFlow translator." ;
    }
@@ -1109,9 +1110,9 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
     // For ecal seeded electrons, there is a cluster and GsfElectronCoreProducer has kept all electrons,
     // but when MVA is under translatorMinMva, the translator has not stored the supercluster and
     // forced the MVA value to translatorUndefined
-    if (minMVA_<pfTranslatorUndefined)
+    if (minMVA_>pfTranslatorUndefined)
      {
-      edm::LogWarning("GsfElectronAlgo")
+      edm::LogWarning("GsfElectronAlgo|IncompletePflowInformation")
         <<"Parameter minMVA is inferior to the cut applied by PFlow translator."
         <<" Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster." ;
      }
@@ -1119,9 +1120,9 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
      {
       // the MVA value has been forced to translatorUndefined, inferior minMVAPflow
       // so the cut actually applied is the PFlow one
-       edm::LogWarning("GsfElectronAlgo")
-        <<"Parameter minMVA will have no effect on ecal (and eventually tracker) seeded electrons."
-        <<" It is inferior to the cut already defined by PFlow translator." ;
+      throw cms::exception("GsfElectronAlgo|BadMvaCut")
+        <<"Parameter minMVA is inferior to the lowest possible value."
+        <<" Every electron will be blessed whatever other criteria." ;
      }
    }
  }
@@ -1137,15 +1138,15 @@ void GsfElectronAlgo::checkEcalSeedingParameters( edm::ParameterSetID const & ps
 //  if (seedParameters.getParameter<bool>("applyHOverECut"))
 //   {
 //    if (hOverEConeSize_!=seedParameters.getParameter<double>("hOverEConeSize"))
-//     { edm::LogWarning("GsfElectronAlgo") <<"The H/E cone size is different from ecal seeding." ; }
+//     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The H/E cone size is different from ecal seeding." ; }
 //    if (maxHOverEBarrel_<seedParameters.getParameter<double>("maxHOverEBarrel"))
-//     { edm::LogWarning("GsfElectronAlgo") <<"The max barrel H/E is lower than during ecal seeding." ; }
+//     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel H/E is lower than during ecal seeding." ; }
 //    if (maxHOverEEndcaps_<seedParameters.getParameter<double>("maxHOverEEndcaps"))
-//     { edm::LogWarning("GsfElectronAlgo") <<"The max endcaps H/E is lower than during ecal seeding." ; }
+//     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps H/E is lower than during ecal seeding." ; }
 //   }
 //
 //  if (minSCEtBarrel_<seedParameters.getParameter<double>("SCEtCut"))
-//   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
+//   { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
 //  if (minSCEtEndcaps_<seedParameters.getParameter<double>("SCEtCut"))
-//   { edm::LogWarning("GsfElectronAlgo") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
+//   { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
  }
