@@ -133,20 +133,27 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     else
       cut = cuts_.getParameter<std::vector<double> >("endcap");
 
+    if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]))
+      result = 0.;
+    else
+      result = 2.;
+
     if (hOverE > cut[0]) 
-      return 0.;    
+      return result;    
 
     if (sigmaee > cut[1]) 
-      return 0.;    
+      return result;    
 
     if (fabs(deltaPhiIn) > cut[2]) 
-      return 0.;    
+      return result;    
 
     if (fabs(deltaEtaIn) > cut[3]) 
-      return 0.;    
+      return result;    
     
     if (e25Maxoe55 < cut[4] && e15oe55 < cut[5])
-         return 0.;
+         return result;
+    
+    result = result + 1;
     
     return 1.;
   }
