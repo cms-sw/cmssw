@@ -46,11 +46,18 @@ class WenuPlots : public edm::EDAnalyzer {
       bool CheckCutInv( const pat::Electron *wenu, int i);
       bool CheckCutsNminusOne(const pat::Electron *ele, int jj);
       double ReturnCandVar(const pat::Electron *ele, int i);
+      bool   PassPreselectionCriteria(const pat::Electron *ele);
   // for the extra identifications and selections
   bool   usePrecalcID_;
   std::string usePrecalcIDSign_;
   std::string usePrecalcIDType_;
   double usePrecalcIDValue_;
+  // for extra preselection criteria:
+  bool useValidFirstPXBHit_;
+  bool useConversionRejection_;
+  bool useExpectedMissingHits_;
+  int  maxNumberOfExpectedMissingHits_;
+  bool usePreselection_;
   std::string outputFile_;
   edm::InputTag wenuCollectionTag_;
   TFile *histofile;
