@@ -1,5 +1,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/BeamSpot"/>
+<use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
