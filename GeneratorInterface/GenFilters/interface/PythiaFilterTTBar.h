@@ -20,7 +20,7 @@
 //
 // Original Author:  Michael Maes
 //         Created:  Wed Dec  3 12:07:13 CET 2009
-// $Id: PythiaFilterTTBar.h,v 1.1 2010/02/17 11:20:10 fabstoec Exp $
+// $Id: PythiaFilterTTBar.h,v 1.2 2010/02/22 18:25:22 wmtan Exp $
 //
 //
 
@@ -38,7 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/View.h"

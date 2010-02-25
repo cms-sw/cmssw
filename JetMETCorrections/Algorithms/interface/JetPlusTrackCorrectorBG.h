@@ -8,7 +8,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/SingleParticleJetResponse.h"
 #include "boost/range/iterator_range.hpp"
