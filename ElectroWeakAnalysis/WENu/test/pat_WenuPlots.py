@@ -154,7 +154,11 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   useValidFirstPXBHit = cms.untracked.bool(False),
                                   useConversionRejection = cms.untracked.bool(False),
                                   useExpectedMissingHits = cms.untracked.bool(False),
-                                  maxNumberOfExpectedMissingHits = cms.untracked.int32(2),
+                                  maxNumberOfExpectedMissingHits = cms.untracked.int32(1),
+                                  # calculate some new cuts
+                                  calculateValidFirstPXBHit = cms.untracked.bool(True),
+                                  calculateConversionRejection = cms.untracked.bool(True),
+                                  calculateExpectedMissingHits = cms.untracked.bool(True),
                                   # electrons and MET
                                   electronCollectionTag = cms.untracked.InputTag("patElectrons","","PAT"),
                                   metCollectionTag = cms.untracked.InputTag(myDesiredMetCollection,"","PAT"),
@@ -216,10 +220,11 @@ process.plotter = cms.EDAnalyzer('WenuPlots',
                                  usePrecalcIDType = cms.untracked.string('eidTight'),
                                  usePrecalcIDSign = cms.untracked.string('='),
                                  usePrecalcIDValue = cms.untracked.double(1),
-                                 # selections cuts on the fly
-                                 # ..  should be there even not in use
-                                 # ..  they are not used if usePrecalcID = true
-                                 #
+                                 # preselection criteria
+                                 useConversionRejection = cms.untracked.bool(False),
+                                 useValidFirstPXBHit =  cms.untracked.bool(False),
+                                 useExpectedMissingHits = cms.untracked.bool(False),
+                                 maxNumberOfExpectedMissingHits = cms.untracked.int32(1),
                                  #
                                  wenuCollectionTag = cms.untracked.InputTag(
     "wenuFilter","selectedWenuCandidates","PAT")
