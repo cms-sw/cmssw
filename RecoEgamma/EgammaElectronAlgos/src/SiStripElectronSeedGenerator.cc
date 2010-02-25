@@ -55,10 +55,30 @@ Description: SiStrip-driven electron seed finding algorithm.
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
 
-SiStripElectronSeedGenerator::SiStripElectronSeedGenerator()
+SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterSet &pset)
   :theUpdator(0),thePropagator(0),theMeasurementTracker(0),
    theSetup(0),pts_(0),theMatcher_(0),
-   cacheIDMagField_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
+   cacheIDMagField_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0),
+   tibOriginZCut_(pset.getParameter<double>("tibOriginZCut")),
+   tidOriginZCut_(pset.getParameter<double>("tidOriginZCut")),
+   tecOriginZCut_(pset.getParameter<double>("tecOriginZCut")),
+   monoOriginZCut_(pset.getParameter<double>("monoOriginZCut")),
+   tibDeltaPsiCut_(pset.getParameter<double>("tibDeltaPsiCut")),
+   tidDeltaPsiCut_(pset.getParameter<double>("tidDeltaPsiCut")),
+   tecDeltaPsiCut_(pset.getParameter<double>("tecDeltaPsiCut")),
+   monoDeltaPsiCut_(pset.getParameter<double>("monoDeltaPsiCut")),
+   tibPhiMissHit2Cut_(pset.getParameter<double>("tibPhiMissHit2Cut")),
+   tidPhiMissHit2Cut_(pset.getParameter<double>("tidPhiMissHit2Cut")),
+   tecPhiMissHit2Cut_(pset.getParameter<double>("tecPhiMissHit2Cut")),
+   monoPhiMissHit2Cut_(pset.getParameter<double>("monoPhiMissHit2Cut")),
+   tibZMissHit2Cut_(pset.getParameter<double>("tibZMissHit2Cut")),
+   tidRMissHit2Cut_(pset.getParameter<double>("tidRMissHit2Cut")),
+   tecRMissHit2Cut_(pset.getParameter<double>("tecRMissHit2Cut")),
+   tidEtaUsage_(pset.getParameter<double>("tidEtaUsage")),
+   tidMaxHits_(pset.getParameter<int>("tidMaxHits")),
+   tecMaxHits_(pset.getParameter<int>("tecMaxHits")),
+   monoMaxHits_(pset.getParameter<int>("monoMaxHits")),
+   maxSeeds_(pset.getParameter<int>("maxSeeds"))
 {
   theUpdator = new KFUpdator();
   theEstimator = new Chi2MeasurementEstimator(30,3);
@@ -230,7 +250,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 1)){
 	hasLay1Hit = true;
 	layer1Hits_.push_back(matchedHit);
       }
@@ -242,7 +262,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 1)){
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
       }
@@ -250,7 +270,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   }
 
   if(!(hasLay1Hit && hasLay2Hit)) useTID = true;
-  if(fabs(scEta) > 1.2) useTID = true;
+  if(fabs(scEta) > tidEtaUsage_) useTID = true;
   std::vector<TrajectoryMeasurement> tid1measurements;
   if(useDL.at(2) && useTID) tid1measurements = layerMeasurements.measurements(*tid1,initialTSOS,*thePropagator,*theEstimator);
   std::vector<TrajectoryMeasurement> tid2measurements;
@@ -259,23 +279,23 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   if(useDL.at(4) && useTID) tid3measurements = layerMeasurements.measurements(*tid3,initialTSOS,*thePropagator,*theEstimator);
 
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tid1measurements.begin(); tmIter != tid1measurements.end(); ++ tmIter){
-    if(tid1MHC < 4){
+    if(tid1MHC < tidMaxHits_){
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 2)){
 	tid1MHC++;
 	hasLay1Hit = true;
 	layer1Hits_.push_back(matchedHit);
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
       }
-    }else if(useDL.at(8) && tid1BHC < 4){
+    }else if(useDL.at(8) && tid1BHC < monoMaxHits_){
       const SiStripRecHit2D* backupHit = backupHitConverter(hit);
       if(backupHit){
 	GlobalPoint position = trackerGeometryHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
-	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
+	if(preselection(position, superCluster, phiVsRSlope, 4) && position.perp() > 37.){
 	  tid1BHC++;
 	  hasBackupHit = true;
 	  backupLayer2Hits_.push_back(backupHit);
@@ -286,23 +306,23 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   }
 
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tid2measurements.begin(); tmIter != tid2measurements.end(); ++ tmIter){
-    if(tid2MHC < 4){
+    if(tid2MHC < tidMaxHits_){
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 2)){
 	tid2MHC++;
 	hasLay1Hit = true;
 	layer1Hits_.push_back(matchedHit);
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
       }
-    }else if(useDL.at(8) && tid2BHC < 4){
+    }else if(useDL.at(8) && tid2BHC < monoMaxHits_){
       const SiStripRecHit2D* backupHit = backupHitConverter(hit);
       if(backupHit){
 	GlobalPoint position = trackerGeometryHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
-	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
+	if(preselection(position, superCluster, phiVsRSlope, 4) && position.perp() > 37.){
 	  tid2BHC++;
 	  hasBackupHit = true;
 	  backupLayer2Hits_.push_back(backupHit);
@@ -313,23 +333,23 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   }
 
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tid3measurements.begin(); tmIter != tid3measurements.end(); ++ tmIter){
-    if(tid3MHC < 4){
+    if(tid3MHC < tidMaxHits_){
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 2)){
 	tid3MHC++;
 	hasLay1Hit = true;
 	layer1Hits_.push_back(matchedHit);
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
       }
-    }else if(useDL.at(8) && tid3BHC < 4){
+    }else if(useDL.at(8) && tid3BHC < monoMaxHits_){
       const SiStripRecHit2D* backupHit = backupHitConverter(hit);
       if(backupHit){
 	GlobalPoint position = trackerGeometryHandle->idToDet(backupHit->geographicalId())->surface().toGlobal(backupHit->localPosition());
-	if(preselection(position, superCluster, phiVsRSlope) && position.perp() > 37.){
+	if(preselection(position, superCluster, phiVsRSlope, 4) && position.perp() > 37.){
 	  tid3BHC++;
 	  hasBackupHit = true;
 	  backupLayer2Hits_.push_back(backupHit);
@@ -347,12 +367,12 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   if(useDL.at(7)) tec3measurements = layerMeasurements.measurements(*tec3,initialTSOS,*thePropagator,*theEstimator);
 
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tec1measurements.begin(); tmIter != tec1measurements.end(); ++ tmIter){
-    if(tec1MHC < 2){
+    if(tec1MHC < tecMaxHits_){
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 3)){
 	tec1MHC++;
 	hasLay1Hit = true;
 	layer1Hits_.push_back(matchedHit);
@@ -364,12 +384,12 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   }
 
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tec2measurements.begin(); tmIter != tec2measurements.end(); ++ tmIter){
-    if(tec2MHC < 2){
+    if(tec2MHC < tecMaxHits_){
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 3)){
 	tec2MHC++;
 	hasLay1Hit = true;
 	layer1Hits_.push_back(matchedHit);
@@ -381,12 +401,12 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   }
 
   for(std::vector<TrajectoryMeasurement>::const_iterator tmIter = tec3measurements.begin(); tmIter != tec3measurements.end(); ++ tmIter){
-    if(tec3MHC < 2){
+    if(tec3MHC < tecMaxHits_){
     ConstRecHitPointer hit = tmIter->recHit();
     const SiStripMatchedRecHit2D* matchedHit = matchedHitConverter(hit);
     if(matchedHit){
       GlobalPoint position = trackerGeometryHandle->idToDet(matchedHit->geographicalId())->surface().toGlobal(matchedHit->localPosition());
-      if(preselection(position, superCluster, phiVsRSlope)){
+      if(preselection(position, superCluster, phiVsRSlope, 3)){
 	tec3MHC++;
 	hasLay2Hit = true;
 	layer2Hits_.push_back(matchedHit);
@@ -401,7 +421,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1 = layer1Hits_.begin() ; hit1!= layer1Hits_.end(); ++hit1) {
       for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2 = layer2Hits_.begin() ; hit2!= layer2Hits_.end(); ++hit2) {
 
-	if(seedCounter < 5){
+	if(seedCounter < maxSeeds_){
 
 	  if(checkHitsAndTSOS(hit1,hit2,scr,scz,pT,scEta)) {
 
@@ -416,9 +436,9 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 	    recHits_.push_back(hit);
 
 	    PropagationDirection dir = alongMomentum;
-        reco::ElectronSeed seed(*pts_,recHits_,dir) ;
-        reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-        seed.setCaloCluster(caloCluster) ;
+	    reco::ElectronSeed seed(*pts_,recHits_,dir) ;
+	    reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+	    seed.setCaloCluster(caloCluster) ;
 	    result.push_back(seed);
 
 	    delete pts_;
@@ -440,7 +460,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
     for (std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1 = layer1Hits_.begin() ; hit1!= layer1Hits_.end(); ++hit1) {
       for (std::vector<const SiStripRecHit2D*>::const_iterator hit2 = backupLayer2Hits_.begin() ; hit2!= backupLayer2Hits_.end(); ++hit2) {
 
-	if(seedCounter < 5){
+	if(seedCounter < maxSeeds_){
 
 	  if(altCheckHitsAndTSOS(hit1,hit2,scr,scz,pT,scEta)) {
 
@@ -456,9 +476,9 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
 	    recHits_.push_back(outerHit);
 
 	    PropagationDirection dir = alongMomentum;
-        reco::ElectronSeed seed(*pts_,recHits_,dir) ;
-        reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-        seed.setCaloCluster(caloCluster) ;
+	    reco::ElectronSeed seed(*pts_,recHits_,dir) ;
+	    reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+	    seed.setCaloCluster(caloCluster) ;
 	    result.push_back(seed);
 
 	    delete pts_;
@@ -484,11 +504,6 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   bool seedCutsSatisfied = false;
 
   using namespace std;
-
-  // define our hit cut parameters
-  double zCut = .35;
-  double rCut = .3;
-  double phiCut = 0.;
 
   GlobalPoint hit1Pos = trackerGeometryHandle->idToDet((*hit1)->geographicalId())->surface().toGlobal((*hit1)->localPosition());
   double r1 = sqrt(hit1Pos.x()*hit1Pos.x() + hit1Pos.y()*hit1Pos.y());
@@ -521,31 +536,25 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
 
     int subdetector = whichSubdetector(hit2);
 
-    if(subdetector == 1){
-      phiCut = .006;
-    }else if(subdetector == 2){
-      phiCut = .006;
-    }else if(subdetector == 3){
-      phiCut = .007;
-    }
-
     bool zDiff = true;
-    if(z1 > 75 && z1 < 95 && ((z2-z1) > 18 || (z2-z1) < 5)) zDiff = false;
-    if(z1 > 100 && z1 < 110 && ((z2-z1) > 35 || (z2-z1) < 5)) zDiff = false;
-    if(z1 > 125 && z1 < 150 && ((z2-z1) > 18 || (z2-z1) < 5)) zDiff = false;
+    double zVar1 = fabs(z1);
+    double zVar2 = fabs(z2 - z1);
+    if(zVar1 > 75 && zVar1 < 95 && (zVar2 > 18 || zVar2 < 5)) zDiff = false;
+    if(zVar1 > 100 && zVar1 < 110 && (zVar2 > 35 || zVar2 < 5)) zDiff = false;
+    if(zVar1 > 125 && zVar1 < 150 && (zVar2 > 18 || zVar2 < 5)) zDiff = false;
 
     if(subdetector == 1){
       int tibExtraCut = 0;
       if(r1 > 23 && r1 < 28 && r2 > 31 && r2 < 37) tibExtraCut = 1;
-      if(fabs(phiMissHit2) < phiCut && fabs(zMissHit2) < zCut && tibExtraCut == 1) seedCutsSatisfied = true;
+      if(fabs(phiMissHit2) < tibPhiMissHit2Cut_ && fabs(zMissHit2) < tibZMissHit2Cut_ && tibExtraCut == 1) seedCutsSatisfied = true;
     }else if(subdetector == 2){
       int tidExtraCut = 0;
       if(r1 > 23 && r1 < 34 && r2 > 26 && r2 < 42) tidExtraCut = 1;
-      if(fabs(phiMissHit2) < phiCut && fabs(rMissHit2) < rCut && tidExtraCut == 1 && zDiff) seedCutsSatisfied = true;
+      if(fabs(phiMissHit2) < tidPhiMissHit2Cut_ && fabs(rMissHit2) < tidRMissHit2Cut_ && tidExtraCut == 1 && zDiff) seedCutsSatisfied = true;
     }else if(subdetector == 3){
       int tecExtraCut = 0;
       if(r1 > 23 && r1 < 32 && r2 > 26 && r2 < 42) tecExtraCut = 1;
-      if(fabs(phiMissHit2) < phiCut && fabs(rMissHit2) < rCut && tecExtraCut == 1 && zDiff) seedCutsSatisfied = true;
+      if(fabs(phiMissHit2) < tecPhiMissHit2Cut_ && fabs(rMissHit2) < tecRMissHit2Cut_ && tecExtraCut == 1 && zDiff) seedCutsSatisfied = true;
     }
 
   }
@@ -622,7 +631,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
     if(fabs(b - a)<fabs(b + a)) phiMissHit2 = b - a;
     if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;
 
-    if(fabs(phiMissHit2) < .02) seedCutSatisfied = true;
+    if(fabs(phiMissHit2) < monoPhiMissHit2Cut_) seedCutSatisfied = true;
 
   }
 
@@ -668,7 +677,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 }
 
 
-bool SiStripElectronSeedGenerator::preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope){
+bool SiStripElectronSeedGenerator::preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope,int hitLayer){
   double r = position.perp();
   double phi = position.phi();
   double z = position.z();
@@ -685,8 +694,19 @@ bool SiStripElectronSeedGenerator::preselection(GlobalPoint position,GlobalPoint
     dP = antiDeltaPsi;
   }
   double originZ = (scr*z - r*scz)/(scr-r);
+
   bool result = false;
-  if(fabs(originZ) < 20 && fabs(dP) < .1) result = true;
+
+  if(hitLayer == 1){
+    if(fabs(originZ) < tibOriginZCut_ && fabs(dP) < tibDeltaPsiCut_) result = true;
+  }else if(hitLayer == 2){
+    if(fabs(originZ) < tidOriginZCut_ && fabs(dP) < tidDeltaPsiCut_) result = true;
+  }else if(hitLayer == 3){
+    if(fabs(originZ) < tecOriginZCut_ && fabs(dP) < tecDeltaPsiCut_) result = true;
+  }else if(hitLayer == 4){
+    if(fabs(originZ) < monoOriginZCut_ && fabs(dP) < monoDeltaPsiCut_) result = true;
+  }
+
   return result;
 }
 

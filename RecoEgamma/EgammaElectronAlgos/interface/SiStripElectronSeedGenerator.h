@@ -70,7 +70,7 @@ public:
   typedef TransientTrackingRecHit::RecHitPointer       RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer     RecHitContainer;
 
-  SiStripElectronSeedGenerator();
+  SiStripElectronSeedGenerator(const edm::ParameterSet&);
 
   ~SiStripElectronSeedGenerator();
 
@@ -104,7 +104,8 @@ private:
   
   int whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit);
   
-  bool preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope);
+  bool preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope, int hitLayer); 
+  //hitLayer: 1 = TIB, 2 = TID, 3 = TEC, 4 = Mono
 	
   bool checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
 			std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
@@ -144,6 +145,27 @@ private:
   unsigned long long cacheIDMagField_;
   unsigned long long cacheIDCkfComp_;
   unsigned long long cacheIDTrkGeom_;
+
+  double tibOriginZCut_;
+  double tidOriginZCut_;
+  double tecOriginZCut_;
+  double monoOriginZCut_;
+  double tibDeltaPsiCut_;
+  double tidDeltaPsiCut_;
+  double tecDeltaPsiCut_;
+  double monoDeltaPsiCut_;
+  double tibPhiMissHit2Cut_;
+  double tidPhiMissHit2Cut_;
+  double tecPhiMissHit2Cut_;
+  double monoPhiMissHit2Cut_;
+  double tibZMissHit2Cut_;
+  double tidRMissHit2Cut_;
+  double tecRMissHit2Cut_;
+  double tidEtaUsage_;
+  int tidMaxHits_;
+  int tecMaxHits_;
+  int monoMaxHits_;
+  int maxSeeds_;
 
 };
 

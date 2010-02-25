@@ -18,9 +18,33 @@
 
 using namespace reco;
 
-SiStripElectronSeedProducer::SiStripElectronSeedProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
+SiStripElectronSeedProducer::SiStripElectronSeedProducer(const edm::ParameterSet& iConfig)
 {
-  matcher_ = new SiStripElectronSeedGenerator();
+  if(iConfig.exists("SeedConfiguration")){
+    conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
+  }else{
+    conf_.addParameter("tibOriginZCut",20.);
+    conf_.addParameter("tidOriginZCut",20.);
+    conf_.addParameter("tecOriginZCut",20.);
+    conf_.addParameter("monoOriginZCut",20.);
+    conf_.addParameter("tibDeltaPsiCut",0.1);
+    conf_.addParameter("tidDeltaPsiCut",0.1);
+    conf_.addParameter("tecDeltaPsiCut",0.1);
+    conf_.addParameter("monoDeltaPsiCut",0.1);
+    conf_.addParameter("tibPhiMissHit2Cut",0.006);
+    conf_.addParameter("tidPhiMissHit2Cut",0.006);
+    conf_.addParameter("tecPhiMissHit2Cut",0.007);
+    conf_.addParameter("monoPhiMissHit2Cut",0.02);
+    conf_.addParameter("tibZMissHit2Cut",0.35);
+    conf_.addParameter("tidRMissHit2Cut",0.3);
+    conf_.addParameter("tecRMissHit2Cut",0.3);
+    conf_.addParameter("tidEtaUsage", 1.2);
+    conf_.addParameter("tidMaxHits",4);
+    conf_.addParameter("tecMaxHits",2);
+    conf_.addParameter("monoMaxHits",4);
+    conf_.addParameter("maxSeeds",5);
+  }
+  matcher_ = new SiStripElectronSeedGenerator(conf_);
 
   //  get labels from config
   superClusters_[0]=iConfig.getParameter<edm::InputTag>("barrelSuperClusters");
