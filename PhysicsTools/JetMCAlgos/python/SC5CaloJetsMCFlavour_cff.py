@@ -10,13 +10,13 @@ SC5byRef = cms.EDProducer("JetPartonMatcher",
 # Flavour byValue PhysDef
 SC5byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("SC5byRef"),
-    physicsDefinition = cms.bool(True)
+    physicsDefinition = cms.bool(True),
+    leptonInfo = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
 SC5byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("SC5byRef"),
-    physicsDefinition = cms.bool(False)
+    physicsDefinition = cms.bool(False),
+    leptonInfo = cms.bool(True)
 )
-
-

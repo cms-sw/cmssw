@@ -10,13 +10,13 @@ KT6byRef = cms.EDProducer("JetPartonMatcher",
 # Flavour byValue PhysDef
 KT6byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("KT6byRef"),
-    physicsDefinition = cms.bool(True)
+    physicsDefinition = cms.bool(True),
+    leptonInfo = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
 KT6byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("KT6byRef"),
-    physicsDefinition = cms.bool(False)
+    physicsDefinition = cms.bool(False),
+    leptonInfo = cms.bool(True)
 )
-
-

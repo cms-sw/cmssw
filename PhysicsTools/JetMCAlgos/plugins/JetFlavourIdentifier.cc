@@ -95,10 +95,17 @@ class JetFlavourIdentifier : public edm::EDProducer
   private:
     virtual void produce(edm::Event&, const edm::EventSetup& );
 
+    JetFlavour::Leptons findLeptons(const GenParticleRef &);
+    std::vector<const reco::Candidate*> findCandidate(const reco::Candidate*, int);
+    void fillLeptons(const std::vector<const reco::Candidate*> &, JetFlavour::Leptons &, int);
+    static int heaviestFlavour(int);
+
     Handle<JetMatchedPartonsCollection> theTagByRef;
     InputTag sourceByRefer_;
     bool physDefinition;
+    bool leptonInfo_;
     DEFINITION_T definition;
+    math::XYZTLorentzVector thePartonLV;
 
 };
 } }
@@ -111,6 +118,7 @@ JetFlavourIdentifier::JetFlavourIdentifier( const edm::ParameterSet& iConfig )
     produces<JetFlavourMatchingCollection>();
     sourceByRefer_ = iConfig.getParameter<InputTag>("srcByReference");
     physDefinition = iConfig.getParameter<bool>("physicsDefinition");
+    leptonInfo_ = iConfig.exists("leptonInfo") ? iConfig.getParameter<bool>("leptonInfo") : true;
     // If we have a definition of which parton to identify, use it,
     // otherwise we default to the "old" behavior of either "physics" or "algorithmic".
     // Furthermore, if the specified definition is not sensible for the given jet,
@@ -150,81 +158,89 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
                                                     j != theTagByRef->end();
                                                     j ++ ) {
 
+
     // Consider this match. 
     const MatchedPartons aMatch = (*j).second;
 
-    // This will hold the 4-vector, vertex, and flavour of the
-    // requested object. 
+    // This will hold the 4-vector, vertex, flavour and the leptonian decays (0: no lepton, xyz: x leptons in layer 2, y in layer 1 and z in layer 0) of the requested object.
     math::XYZTLorentzVector thePartonLorentzVector(0,0,0,0);
     math::XYZPoint          thePartonVertex(0,0,0);
-    int                     thePartonFlavour = 0;  
+    int                     thePartonFlavour = 0;
+    JetFlavour::Leptons     theLeptons;
 
     // get the partons based on which definition to use. 
     switch (definition) {
-    case PHYSICS: {
-      const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton() ;
-      if(aPartPhy.isNonnull()) {  
-	thePartonLorentzVector = aPartPhy.get()->p4();         
-	thePartonVertex        = aPartPhy.get()->vertex();
-	thePartonFlavour       = aPartPhy.get()->pdgId(); 
+      case PHYSICS: {
+        const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton() ;
+        if(aPartPhy.isNonnull()) {
+	        thePartonLorentzVector = aPartPhy.get()->p4();
+	        thePartonVertex        = aPartPhy.get()->vertex();
+	        thePartonFlavour       = aPartPhy.get()->pdgId();
+          if(leptonInfo_) theLeptons = findLeptons(aPartPhy);
+        }
+        break;
       }
-      break;
-    }
-    case ALGO: {
-      const GenParticleRef aPartAlg = aMatch.algoDefinitionParton() ;
-      if(aPartAlg.isNonnull()) {
-	thePartonLorentzVector = aPartAlg.get()->p4();
-	thePartonVertex        = aPartAlg.get()->vertex();
-	thePartonFlavour       = aPartAlg.get()->pdgId();
+      case ALGO: {
+        const GenParticleRef aPartAlg = aMatch.algoDefinitionParton() ;
+        if(aPartAlg.isNonnull()) {
+	        thePartonLorentzVector = aPartAlg.get()->p4();
+	        thePartonVertex        = aPartAlg.get()->vertex();
+	        thePartonFlavour       = aPartAlg.get()->pdgId();
+          if(leptonInfo_) theLeptons = findLeptons(aPartAlg);
+        }
+        break;
       }
-      break;
-    }
-    case NEAREST_STATUS2 : {
-      const GenParticleRef aPartN2 = aMatch.nearest_status2() ;
-      if(aPartN2.isNonnull()) {
-	thePartonLorentzVector = aPartN2.get()->p4();
-	thePartonVertex        = aPartN2.get()->vertex();
-	thePartonFlavour       = aPartN2.get()->pdgId();
+      case NEAREST_STATUS2 : {
+        const GenParticleRef aPartN2 = aMatch.nearest_status2() ;
+        if(aPartN2.isNonnull()) {
+	        thePartonLorentzVector = aPartN2.get()->p4();
+	        thePartonVertex        = aPartN2.get()->vertex();
+	        thePartonFlavour       = aPartN2.get()->pdgId();
+          if(leptonInfo_) theLeptons = findLeptons(aPartN2);
+        }
+        break;
       }
-      break;
-    }
-    case NEAREST_STATUS3: {
-      const GenParticleRef aPartN3 = aMatch.nearest_status3() ;
-      if(aPartN3.isNonnull()) {
-	thePartonLorentzVector = aPartN3.get()->p4();
-	thePartonVertex        = aPartN3.get()->vertex();
-	thePartonFlavour       = aPartN3.get()->pdgId();
+      case NEAREST_STATUS3: {
+        const GenParticleRef aPartN3 = aMatch.nearest_status3() ;
+        if(aPartN3.isNonnull()) {
+	        thePartonLorentzVector = aPartN3.get()->p4();
+	        thePartonVertex        = aPartN3.get()->vertex();
+	        thePartonFlavour       = aPartN3.get()->pdgId();
+          if(leptonInfo_) theLeptons = findLeptons(aPartN3);
+        }
+        break;
       }
-      break;
-    }
-    case HEAVIEST: {
-      const GenParticleRef aPartHeaviest = aMatch.heaviest() ;
-      if(aPartHeaviest.isNonnull()) {
-	thePartonLorentzVector = aPartHeaviest.get()->p4();
-	thePartonVertex        = aPartHeaviest.get()->vertex();
-	thePartonFlavour       = aPartHeaviest.get()->pdgId();
+      case HEAVIEST: {
+        const GenParticleRef aPartHeaviest = aMatch.heaviest() ;
+        if(aPartHeaviest.isNonnull()) {
+	        thePartonLorentzVector = aPartHeaviest.get()->p4();
+	        thePartonVertex        = aPartHeaviest.get()->vertex();
+	        thePartonFlavour       = aPartHeaviest.get()->pdgId();
+          if(leptonInfo_) theLeptons = findLeptons(aPartHeaviest);
+        }
+        break;
       }
-      break;
-    }
-    // Default case is backwards-compatible
-    default:{
-      if( physDefinition ) {
-	const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton() ;
-	if(aPartPhy.isNonnull()) {  
-	  thePartonLorentzVector = aPartPhy.get()->p4();         
-	  thePartonVertex        = aPartPhy.get()->vertex();
-	  thePartonFlavour       = aPartPhy.get()->pdgId(); 
-	}
-      }
-      else {
-	const GenParticleRef aPartAlg = aMatch.algoDefinitionParton() ;
-	if(aPartAlg.isNonnull()) {
-	  thePartonLorentzVector = aPartAlg.get()->p4();
-	  thePartonVertex        = aPartAlg.get()->vertex();
-	  thePartonFlavour       = aPartAlg.get()->pdgId();
-	}
-      }
-    } break;
+      // Default case is backwards-compatible
+      default:{
+        if( physDefinition ) {
+	        const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton() ;
+	        if(aPartPhy.isNonnull()) {
+	          thePartonLorentzVector = aPartPhy.get()->p4();
+	          thePartonVertex        = aPartPhy.get()->vertex();
+	          thePartonFlavour       = aPartPhy.get()->pdgId();
+            if(leptonInfo_) theLeptons = findLeptons(aPartPhy);
+	        }
+        }
+        else {
+	        const GenParticleRef aPartAlg = aMatch.algoDefinitionParton() ;
+	        if(aPartAlg.isNonnull()) {
+	          thePartonLorentzVector = aPartAlg.get()->p4();
+	          thePartonVertex        = aPartAlg.get()->vertex();
+	          thePartonFlavour       = aPartAlg.get()->pdgId();
+	          if (leptonInfo_) theLeptons = findLeptons(aPartAlg);
+	        }
+        }
+      } break;
     }// end switch on definition
 
     // Now make sure we have a match. If the user specified "heaviest", for instance,
@@ -232,25 +248,31 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
     
     if ( thePartonFlavour == 0 ) {
       if( physDefinition ) {
-	const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton() ;
-	if(aPartPhy.isNonnull()) {  
-	  thePartonLorentzVector = aPartPhy.get()->p4();         
-	  thePartonVertex        = aPartPhy.get()->vertex();
-	  thePartonFlavour       = aPartPhy.get()->pdgId(); 
-	}
+	      const GenParticleRef aPartPhy = aMatch.physicsDefinitionParton() ;
+	      if (aPartPhy.isNonnull()) {
+	        thePartonLorentzVector = aPartPhy.get()->p4();
+	        thePartonVertex        = aPartPhy.get()->vertex();
+	        thePartonFlavour       = aPartPhy.get()->pdgId();
+	        if (leptonInfo_) theLeptons = findLeptons(aPartPhy);
+	      }
       }
       else {
-	const GenParticleRef aPartAlg = aMatch.algoDefinitionParton() ;
-	if(aPartAlg.isNonnull()) {
-	  thePartonLorentzVector = aPartAlg.get()->p4();
-	  thePartonVertex        = aPartAlg.get()->vertex();
-	  thePartonFlavour       = aPartAlg.get()->pdgId();
-	}
+	      const GenParticleRef aPartAlg = aMatch.algoDefinitionParton() ;
+	      if(aPartAlg.isNonnull()) {
+	        thePartonLorentzVector = aPartAlg.get()->p4();
+	        thePartonVertex        = aPartAlg.get()->vertex();
+	        thePartonFlavour       = aPartAlg.get()->pdgId();
+	        if (leptonInfo_) theLeptons = findLeptons(aPartAlg);
+	      }
       }
     }
 
+     /*std::cout<<"Leptons of "<<thePartonFlavour<<" Jet: "<<std::endl;
+     std::cout<<"  electrons: "<<theLeptons.electron<<std::endl;
+     std::cout<<"  muons    : "<<theLeptons.muon<<std::endl;
+     std::cout<<"  tau      : "<<theLeptons.tau<<std::endl;*/
     // Add the jet->flavour match to the map. 
-    (*jetFlavMatching)[(*j).first]=JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour); 
+    (*jetFlavMatching)[(*j).first] = JetFlavour(thePartonLorentzVector, thePartonVertex, thePartonFlavour, theLeptons);
   }// end loop over jets
 
 
@@ -258,6 +280,96 @@ void JetFlavourIdentifier::produce( Event& iEvent, const EventSetup& iEs )
   iEvent.put(  jetFlavMatching );
 
 }
+
+JetFlavour::Leptons JetFlavourIdentifier::findLeptons(const GenParticleRef &parton)
+{
+  JetFlavour::Leptons theLeptons;
+
+  thePartonLV = parton->p4();
+
+  ///first daughter of the parton should be an MC particle (pdgId==92,93)
+  const reco::Candidate* mcstring = parton->daughter(0);
+  int partonFlavour= std::abs(parton->pdgId());
+  //std::cout<<"parton DeltaR: "<<DeltaR( thePartonLV, parton->p4() )<<endl;
+
+  ///lookup particles with parton flavour and weak decay
+  std::vector<const reco::Candidate*> candidates = findCandidate(mcstring, partonFlavour);
+  //std::cout<<"Candidates are:"<<std::endl;
+  //for(unsigned int j=0; j<candidates.size(); j++) std::cout<<"   --> "<<candidates[j]->pdgId()<<std::endl;
+
+  ///count leptons of candidates
+  fillLeptons(candidates, theLeptons, 0);
+
+  return theLeptons;
+}
+
+std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidate(const reco::Candidate* cand, int partonFlavour)
+{
+  std::vector<const reco::Candidate*> cands;
+  
+  for(unsigned int i = 0; i < cand->numberOfDaughters(); i++) {
+/*
+    std::cout<<"DeltaR - "<<partonFlavour<<" ";
+    if (DeltaR(thePartonLV, cand->daughter(i)->p4()) > 0.7) std::cout<<"(";
+    std::cout<<cand->daughter(i)->pdgId()<<": "<<DeltaR( thePartonLV, cand->daughter(i)->p4() );
+    if (DeltaR(thePartonLV, cand->daughter(i)->p4()) > 0.7) std::cout<<")";
+    std::cout<<std::endl;
+*/
+
+    if (DeltaR(thePartonLV, cand->daughter(i)->p4()) < 0.7) {
+      int pdgId = std::abs(cand->daughter(i)->pdgId());
+      int flavour = heaviestFlavour(pdgId);
+      if (partonFlavour == flavour) {
+
+        //std::cout<<"<------- "<<std::endl;
+        std::vector<const reco::Candidate*> newcands = findCandidate(cand->daughter(i), partonFlavour);
+        //std::cout<<" ------->"<<std::endl;
+
+        std::copy(newcands.begin(), newcands.end(),
+                  std::back_inserter(newcands));
+      }
+      if (partonFlavour > 6)
+        cands.push_back(cand->daughter(i));
+    }
+  }
+  if (cands.empty() && std::abs(cand->pdgId()) > 110)
+    cands.push_back(cand);
+  return cands;
+}
+
+void JetFlavourIdentifier::fillLeptons(const std::vector<const reco::Candidate*> &cands, JetFlavour::Leptons &leptons, int rank)
+{
+  for(unsigned int j = 0; j < cands.size(); j++) {
+    for(unsigned int i = 0; i < cands[j]->numberOfDaughters(); i++) {
+      int pdgId = std::abs(cands[j]->daughter(i)->pdgId());
+
+      //for(int z=0;z<=rank;z++) std::cout<<" ------ ";
+      //std::cout<<pdgId<<std::endl;
+
+      ///test for neutrinos because of conversions and dalitz pions
+      if (pdgId == 12) leptons.electron += 1 << rank;
+      if (pdgId == 14) leptons.muon += 1 << rank;
+      if (pdgId == 16) leptons.tau += 1 << rank;
+      fillLeptons(findCandidate(cands[j]->daughter(i), heaviestFlavour(pdgId)), leptons, rank + 1);
+    }
+  }
+}
+
+int JetFlavourIdentifier::heaviestFlavour(int pdgId)
+{
+  pdgId = std::abs(pdgId) % 100000;
+  int flavour = 0;
+  if (pdgId > 110) {
+    while(pdgId % 10 && pdgId % 10 < 6) {
+      pdgId /= 10;
+      if (pdgId % 10 > flavour)
+        flavour = pdgId % 10;
+    }
+  } else
+    flavour = pdgId;
+  return flavour;
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(JetFlavourIdentifier);

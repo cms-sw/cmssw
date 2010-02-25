@@ -110,7 +110,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
       nPart++;
     }
 
-    //Add Partons stauts 2
+    //Add Partons status 2
     if(   aParticle.numberOfDaughters() > 0  && 
         ( aParticle.daughter(0)->pdgId() == 91 || aParticle.daughter(0)->pdgId() == 92 ) ) {
       thePartons->push_back( GenParticleRef( particles, m ) );

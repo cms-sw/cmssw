@@ -10,13 +10,13 @@ GK7byRef = cms.EDProducer("JetPartonMatcher",
 # Flavour byValue PhysDef
 GK7byValPhys = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("GK7byRef"),
-    physicsDefinition = cms.bool(True)
+    physicsDefinition = cms.bool(True),
+    leptonInfo = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
 GK7byValAlgo = cms.EDProducer("JetFlavourIdentifier",
     srcByReference = cms.InputTag("GK7byRef"),
-    physicsDefinition = cms.bool(False)
+    physicsDefinition = cms.bool(False),
+    leptonInfo = cms.bool(True)
 )
-
-
