@@ -1,17 +1,17 @@
-<use   name="DataFormats/BTauReco"/>
-<use   name="DataFormats/Common"/>
-<use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="SimDataFormats/JetMatching"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="CondFormats/DataRecord"/>
-<use   name="RecoBTau/JetTagComputer"/>
-<use   name="rootcore"/>
-<use   name="DQMServices/Core"/>
-<use   name="rootgpad"/>
-<use   name="JetMETCorrections/Objects"/>
-<use   name="boost"/>
+<use name="DataFormats/BTauReco"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="SimDataFormats/JetMatching"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/DataRecord"/>
+<use name="RecoBTau/JetTagComputer"/>
+<use name="rootcore"/>
+<use name="DQMServices/Core"/>
+<use name="rootgpad"/>
+<use name="JetMETCorrections/Objects"/>
+<use name="boost"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
