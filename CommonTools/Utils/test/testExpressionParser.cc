@@ -139,8 +139,6 @@ void testExpressionParser::checkAll() {
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
     checkTrack("algo", reco::Track::iter2);
-    checkTrack("?ndof<0?1:0", trk.ndof()<0?1:0);
-    checkTrack("?ndof=10?1:0", trk.ndof()==10?1:0);
   }
   reco::Candidate::LorentzVector p1(1, 2, 3, 4);
   reco::Candidate::LorentzVector p2(1.1, 2.2, 3.3, 4.4);
@@ -240,12 +238,12 @@ void testExpressionParser::checkAll() {
      
      reco::SoftLeptonTagInfo dummyInfo;
      reco::SoftLeptonProperties props;
-     props.quality = 10;
+     props.setQuality(reco::SoftLeptonProperties::quality::muonId, 10);
      dummyInfo.insert(edm::RefToBase<reco::Track>(), props);
      edm::Ptr<reco::BaseTagInfo> ptrDummyInfo(edm::ProductID(1),&dummyInfo,0);
      jet.addTagInfo("dummy", ptrDummyInfo);
      o = ROOT::Reflex::Object(t, & jet);
-     checkJet("tagInfoSoftLepton.properties(0).quality",jet.tagInfoSoftLepton()->properties(0).quality);
+     checkJet("tagInfoSoftLepton.properties(0).quality()",jet.tagInfoSoftLepton()->properties(0).quality());
   }
   muon = pat::Muon(reco::Muon(+1, p1+p2));
   muon.setUserIso(2.0);
