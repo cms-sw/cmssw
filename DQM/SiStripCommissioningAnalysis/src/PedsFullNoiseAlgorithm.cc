@@ -19,6 +19,7 @@ PedsFullNoiseAlgorithm::PedsFullNoiseAlgorithm( const edm::ParameterSet & pset, 
   : CommissioningAlgorithm(anal),
     hPeds_(0,""),
     hNoise_(0,""),
+    hNoise1D_(0,""),
     deadStripMax_(pset.getParameter<double>("DeadStripMax")),
     noisyStripMin_(pset.getParameter<double>("NoisyStripMin"))
 {
@@ -181,49 +182,19 @@ void PedsFullNoiseAlgorithm::analyse() {
 	        		if ( ana->raw_[iapv][istr] > r_max ) { r_max = ana->raw_[iapv][istr]; }
 	        		if ( ana->raw_[iapv][istr] < r_min ) { r_min = ana->raw_[iapv][istr]; }
 	    		}
-        	} else{ 
-            	SiStripFedKey fed_key(ana->fedKey());
-            	SiStripFecKey fec_key(ana->fecKey());
-            	std::cout<<"BadPeds1D "<<fed_key.fedId()
-            	<<" "<<fed_key.fedChannel()
-	            <<" "<<iapv
-    	        <<" "<<istr
-        	    <<" 0"
-            	<<" 0"
-                <<" 0"
-	            <<" 0"
-    	        <<" "<<fec_key.fecCrate()
-        	    <<" "<<fec_key.fecSlot()
-            	<<" "<<fec_key.fecRing()
-            	<<" "<<fec_key.ccuAddr()
-	            <<" "<<fec_key.ccuChan()
-    	        <<" "<<fec_key.lldChan()<<std::endl;
-            } 
-            
+        	} 
             // Noise from 1D Profile
       		if ( noise1d ) {
 				if ( noise1d->GetBinEntries(istr+1) ) {
                 	//std::cout<<noise1d->GetBinContent(iapv*128 + istr + 1)<<std::endl;
 	  				ana->noiseRMS_[iapv][istr] = noise1d->GetBinContent(iapv*128 + istr + 1);
 				}
-      		} else{ 
-            	SiStripFedKey fed_key(ana->fedKey());
-            	SiStripFecKey fec_key(ana->fecKey());
-            	std::cout<<"BadNoise1D "<<fed_key.fedId()
-            	<<" "<<fed_key.fedChannel()
-	            <<" "<<iapv
-    	        <<" "<<istr
-        	    <<" 0"
-            	<<" 0"
-                <<" 0"
-	            <<" 0"
-    	        <<" "<<fec_key.fecCrate()
-        	    <<" "<<fec_key.fecSlot()
-            	<<" "<<fec_key.fecRing()
-            	<<" "<<fec_key.ccuAddr()
-	            <<" "<<fec_key.ccuChan()
-    	        <<" "<<fec_key.lldChan()<<std::endl;
-            }
+                // Setting Sum of RMS and RMS^2 for Dead/Noisy Strip calculations
+            	n_sum += ana->noiseRMS_[iapv][istr];
+            	n_sum2 += (ana->noiseRMS_[iapv][istr] * ana->noiseRMS_[iapv][istr]);
+            	if ( ana->noiseRMS_[iapv][istr] > n_max ) { n_max = ana->noiseRMS_[iapv][istr]; }
+            	if ( ana->noiseRMS_[iapv][istr] < n_min ) { n_min = ana->noiseRMS_[iapv][istr]; }
+      		}
         	// Noise from Full Distribution
         	if ( noise_histo ) {
         		// Fit the ADC Distribution from TH2S by projecting it out and fitting.
@@ -246,16 +217,7 @@ void PedsFullNoiseAlgorithm::analyse() {
                             float yinter = integralFrac[i]-slope*(i+1-noisehist->GetNbinsX()/2);
                             ana->noiseBin84_[iapv][istr] = (0.84135-yinter)/slope;
                         }                     
-                    }
-                    if(ana->noiseBin84_[iapv][istr] > 0) ana->noise_[iapv][istr] = ana->noiseBin84_[iapv][istr];
-                    else ana->noise_[iapv][istr] = ana->noiseRMS_[iapv][istr];
-            
-            		// Setting Sum of Gaus and Gaus^2 for Dead/Noisy Strip calculations
-            		n_sum += ana->noiseGaus_[iapv][istr];
-            		n_sum2 += (ana->noiseGaus_[iapv][istr] * ana->noiseGaus_[iapv][istr]);
-            		if ( ana->noiseGaus_[iapv][istr] > n_max ) { n_max = ana->noiseGaus_[iapv][istr]; }
-            		if ( ana->noiseGaus_[iapv][istr] < n_min ) { n_min = ana->noiseGaus_[iapv][istr]; }
-                        
+                    }   
             		// Compare shape of ADC to a histogram made of Gaus Fit for KSProb, Chi2Prob, Etc...
             		TH1D * FitHisto = new TH1D("FitHisto","FitHisto",noisehist->GetNbinsX(),
                                  -noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
@@ -263,43 +225,18 @@ void PedsFullNoiseAlgorithm::analyse() {
             		FitHisto->Sumw2();
             		noisehist->Sumw2();
                 
-            		if(noisehist->Integral() > 0 && FitHisto->Integral() > 0){
+            		if(FitHisto->Integral() > 0){
             			// This is stored as a float but will be plotted as an int at the summary histos.
                         // This forces the histo to draw 10000 bins instead of 1.
             			ana->ksProb_[iapv][istr] = noisehist->KolmogorovTest(FitHisto)*10000;
             		}            	
             		delete FitHisto;
                 }
-                else{ // Something went wrong here so set everything to zero.
-                    ana->noiseRMS_[iapv][istr] 	= 0;
-					ana->noiseGaus_[iapv][istr] = 0;
-					ana->noise_[iapv][istr]		= 0;
-					ana->noiseBin84_[iapv][istr]= 0;
-                	ana->ksProb_[iapv][istr]	= 0;
-					//n_sum // do not increase the sum.
-					//n_sum2
-					//n_max
-					//n_min
-                    SiStripFedKey fed_key(ana->fedKey());
-            		SiStripFecKey fec_key(ana->fecKey());
-            		std::cout<<"BadNoise2D "<<fed_key.fedId()
-            		<<" "<<fed_key.fedChannel()
-	            	<<" "<<iapv
-    	        	<<" "<<istr
-        	        <<" 0"
-            	    <<" 0"
-                	<<" 0"
-	                <<" 0"
-    	            <<" "<<fec_key.fecCrate()
-        	    	<<" "<<fec_key.fecSlot()
-            		<<" "<<fec_key.fecRing()
-            		<<" "<<fec_key.ccuAddr()
-	            	<<" "<<fec_key.ccuChan()
-    	        	<<" "<<fec_key.lldChan()<<std::endl;            		
-            	}
                 delete noisehist;    
         	}
-            
+            // Assigning the actual noise values use for Upload!
+            //if(ana->noiseBin84_[iapv][istr] > 0) ana->noise_[iapv][istr] = ana->noiseBin84_[iapv][istr];
+            ana->noise_[iapv][istr] = ana->noiseRMS_[iapv][istr];
     	} // strip loop
     
     	// Calc mean and rms for peds
@@ -310,10 +247,10 @@ void PedsFullNoiseAlgorithm::analyse() {
         	ana->pedsSpread_[iapv] = sqrt( fabs(p_sum2 - p_sum*p_sum) );
     	}
     
-    	// Calc mean and rms for noise using noiseGaus.
-    	if ( !ana->noiseGaus_[iapv].empty() ) { 
-    		n_sum /= static_cast<float>( ana->noiseGaus_[iapv].size() );
-        	n_sum2 /= static_cast<float>( ana->noiseGaus_[iapv].size() );
+    	// Calc mean and rms for noise using noiseRMS.
+    	if ( !ana->noiseRMS_[iapv].empty() ) { 
+    		n_sum /= static_cast<float>( ana->noiseRMS_[iapv].size() );
+        	n_sum2 /= static_cast<float>( ana->noiseRMS_[iapv].size() );
         	ana->noiseMean_[iapv] = n_sum;
         	ana->noiseSpread_[iapv] = sqrt( fabs(n_sum2 - n_sum*n_sum) );
     	}
@@ -338,13 +275,13 @@ void PedsFullNoiseAlgorithm::analyse() {
     	for ( uint16_t istr = 0; istr < 128; istr++ ) { // strip loop 
     	
         	// Set the significance of the noise of each strip also compared to apv avg.
-        	ana->noiseSignif_[iapv][istr] = (ana->noiseGaus_[iapv][istr]-ana->noiseMean_[iapv])/ana->noiseSpread_[iapv];
+        	ana->noiseSignif_[iapv][istr] = (ana->noiseRMS_[iapv][istr]-ana->noiseMean_[iapv])/ana->noiseSpread_[iapv];
     	
         	if ( ana->noiseMin_[iapv] > sistrip::maximum_ || ana->noiseMax_[iapv] > sistrip::maximum_ ) { 
         		continue; 
         	}
         	// Strip Masking for Dead Strips
-        	if((ana->noiseGaus_[iapv][istr]-ana->noiseMean_[iapv])/ana->noiseSpread_[iapv] < -deadStripMax_){
+        	if(ana->noiseSignif_[iapv][istr] < -deadStripMax_){
         		ana->dead_[iapv].push_back(istr);
 				// Outputs Dead FedId FedCh Apv Strip Max/Mean Spread Signif Mean CrateSlot Ring Addr ccu lld.
                 SiStripFedKey fed_key(ana->fedKey());
@@ -407,7 +344,7 @@ void PedsFullNoiseAlgorithm::analyse() {
             	<<" "<<fec_key.ccuAddr()
             	<<" "<<fec_key.ccuChan()
             	<<" "<<fec_key.lldChan()<<std::endl;
-            }
+            } // if NoisyLM
             else if(ana->noiseSignif_[iapv][istr] > 10){
             	ana->noisy_[iapv].push_back(istr);
             	// Outputs NoisySignif FedId FedCh Apv Strip Max/Mean Spread Signif Mean CrateSlot Ring Addr ccu lld.
@@ -427,7 +364,7 @@ void PedsFullNoiseAlgorithm::analyse() {
             	<<" "<<fec_key.ccuAddr()
             	<<" "<<fec_key.ccuChan()
             	<<" "<<fec_key.lldChan()<<std::endl;
-            }
+            } // if Signif
             
             
             if(ana->ksProb_[iapv][istr] < 1.0 && ana->noiseSpread_[iapv] > 0.3        
@@ -451,7 +388,7 @@ void PedsFullNoiseAlgorithm::analyse() {
             		<<" "<<fec_key.ccuChan()
             		<<" "<<fec_key.lldChan()<<std::endl;
             	}
-            }
+            }//if KS and LM
             if((ana->noiseMax_[iapv]/ana->noiseMean_[iapv] > 3 || ana->noiseSpread_[iapv] > 3)
             && ana->noiseSignif_[iapv][istr] > 1){
             	if(ana->noiseSignif_[iapv][istr] > 10) {
@@ -472,7 +409,7 @@ void PedsFullNoiseAlgorithm::analyse() {
             		<<" "<<fec_key.ccuChan()
             		<<" "<<fec_key.lldChan()<<std::endl;                    
                 }
-            }
+            } // if LM and Signif
             if(ana->ksProb_[iapv][istr] < 1.0 && ana->noiseSpread_[iapv] > 0.3        
             &&(ana->noiseRMS_[iapv][istr]-ana->noiseMean_[iapv])/ana->noiseSpread_[iapv]> 10	){
             	if(ana->noiseSignif_[iapv][istr] > 10) {
@@ -493,9 +430,9 @@ void PedsFullNoiseAlgorithm::analyse() {
             		<<" "<<fec_key.ccuChan()
             		<<" "<<fec_key.lldChan()<<std::endl;                    
                 }
-            }
+            } // if KS and Signif
                         
-    	}// strip loop    
+    	}// strip loop to set dead or noisy strips   
 	} // apv loop
   //std::cout << std::endl;
 }
