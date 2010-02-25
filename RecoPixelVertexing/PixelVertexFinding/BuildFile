@@ -11,6 +11,11 @@
 <use name=RecoPixelVertexing/PixelTriplets>
 <use name=RecoPixelVertexing/PixelTrackFitting>
 
+<use name=MagneticField/Records>
+<use name=MagneticField/Engine>
+<use name=TrackingTools/TransientTrack>
+<use name=RecoVertex/KalmanVertexFit>
+
 <export>
  <lib name=RecoPixelVertexingPixelVertexFinding>
  <use name=DataFormats/VertexReco>
