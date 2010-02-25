@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.19 2009/06/09 23:28:49 drell Exp $
+// $Id: V0Fitter.h,v 1.20 2010/02/20 21:02:01 wmtan Exp $
 //
 //
 
@@ -80,8 +80,8 @@ class V0Fitter {
   bool doKshorts;
   bool doLambdas;
 
-  bool doPostFitCuts;
-  bool doTkQualCuts;
+  /*bool doPostFitCuts;
+    bool doTkQualCuts;*/
 
   // Cuts
   double chi2Cut;
@@ -95,6 +95,9 @@ class V0Fitter {
   double impactParameterSigCut;
   double mPiPiCut;
   double tkDCACut;
+  double innerHitPosCut;
+
+  std::vector<reco::TrackBase::TrackQuality> qualities;
 
   edm::InputTag vtxFitter;
 
