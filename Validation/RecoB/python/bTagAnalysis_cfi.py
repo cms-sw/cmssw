@@ -67,6 +67,10 @@ bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
             label = cms.InputTag("combinedSecondaryVertexMVABJetTags")
         ), 
         cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("ghostTrackBJetTags")
+        ), 
+        cms.PSet(
             bTagSoftLeptonAnalysisBlock,
             label = cms.InputTag("softMuonBJetTags")
         ), 
