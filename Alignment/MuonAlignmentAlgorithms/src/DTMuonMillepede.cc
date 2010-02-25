@@ -343,9 +343,9 @@ TMatrixD DTMuonMillepede::getCcsMatrix(int wh, int st, int se) {
 
   TMatrixD matrix(size, size);
 
-  float Error[3][6] = {0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001,
-		       0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005, 
-		       0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005};
+  float Error[3][6] = {{0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001},
+		       {0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005}, 
+		       {0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005}};
 
   float TollerancyPosition = 0.01;
   float TollerancyRotation = 0.0001;
@@ -391,9 +391,9 @@ TMatrixD DTMuonMillepede::getbcsMatrix(int wh, int st, int se) {
 
   TMatrixD matrix(size, 1);
 
-  float Error[3][6] = {0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001,
-		       0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005, 
-		       0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005};
+  float Error[3][6] = {{0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001},
+		       {0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005}, 
+		       {0.005,    0.005,    0.005,    0.00005,  0.00005,  0.00005}};
 
   float TollerancyPosition = 0.01;
   float TollerancyRotation = 0.0001;
@@ -584,7 +584,7 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
         } 
       }
     }
-  } else {
+  } else { 
     for(int counterChamber = 0; counterChamber < 12; ++counterChamber) {
       ResQC(0, counterChamber) = -surv(counterChamber, 0)/10000.0;
     }
@@ -688,8 +688,8 @@ TMatrixD DTMuonMillepede::getCsurveyMatrix(int wh, int st, int se) {
 
   TMatrixD matrix(size+6, size+6);
   //Careful with the sign
-  float error[2][6] = {0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 
-		       0.05,     0.05,     0.05,     0.005,    0.005,    0.005};
+  float error[2][6] = {{0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001}, 
+		       {0.05,     0.05,     0.05,     0.005,    0.005,    0.005}};
   for(int counterLayer = 0; counterLayer < size/5; counterLayer++) {
     for(int counterLayer2 = 0; counterLayer2 < size/5; counterLayer2++) {
       int sl1 = counterLayer/4;
@@ -744,8 +744,8 @@ TMatrixD DTMuonMillepede::getbsurveyMatrix(int wh, int st, int se) {
 
   TMatrixD matrix(size+6, 1);
   //Careful with the sign
-  float error[2][6] = {0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 
-		       0.05,     0.05,     0.05,     0.005,    0.005,    0.005};
+  float error[2][6] = {{0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001}, 
+		       {0.05,     0.05,     0.05,     0.005,    0.005,    0.005}};
   for(int counterLayer = 0; counterLayer < size/5; counterLayer++) {
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       int counterDegAux = counterDeg+1;

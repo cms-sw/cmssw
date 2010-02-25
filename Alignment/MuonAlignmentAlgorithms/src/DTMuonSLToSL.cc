@@ -73,7 +73,7 @@ void DTMuonSLToSL::calculationSLToSL() {
           
       float x_13 = xSlSL3[counter]; float xp_13 = xSL1SL3[counter];
       float x_31 = xSlSL1[counter]; float xp_31 = xSL3SL1[counter];
-      float tanphi = dxdzSl[counter];
+      //float tanphi = dxdzSl[counter];
       float tanphi_13 = dxdzSlSL1[counter];
       float tanphi_31 = dxdzSlSL3[counter];
       int wheel = wh[counter];
