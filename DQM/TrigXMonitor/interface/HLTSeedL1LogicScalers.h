@@ -13,7 +13,7 @@
 //
 // Original Author:   Vladimir  Rekovic
 //         Created:  Tue Feb  9 15:15:20 CET 2010
-// $Id: HLTSeedL1LogicScalers.h,v 1.1 2010/02/17 14:00:35 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.h,v 1.2 2010/02/22 12:59:09 rekovic Exp $
 //
 //
 
@@ -35,7 +35,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"

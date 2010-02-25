@@ -1,6 +1,10 @@
-// $Id: HLTScalers.cc,v 1.21 2010/02/11 23:54:28 wittich Exp $
+// $Id: HLTScalers.cc,v 1.22 2010/02/24 17:43:47 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.22  2010/02/24 17:43:47  wittich
+// - keep trying to get path names if it doesn't work first time
+// - move the Bx histograms out of raw to the toplevel directory.
+//
 // Revision 1.21  2010/02/11 23:54:28  wittich
 // modify how the monitoring histo is filled
 //
@@ -179,7 +183,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 
   // for some reason this doesn't appear to work on the first event sometimes
   if ( ! sentPaths_ ) {
-    TriggerNames names(*hltResults);
+    const edm::TriggerNames & names = e.triggerNames(*hltResults);
+
     // save path names in DQM-accessible format
     int q =0;
     for ( TriggerNames::Strings::const_iterator 
