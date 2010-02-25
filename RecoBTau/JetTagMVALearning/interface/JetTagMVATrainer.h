@@ -28,8 +28,12 @@ class JetTagMVATrainer : public edm::EDAnalyzer {
 	                     const edm::EventSetup &es);
 
     protected:
-	bool isSignalFlavour(int flavour) const;
-	bool isIgnoreFlavour(int flavour) const;
+	struct JetInfo;
+
+	static bool isFlavour(const JetInfo &info,
+	                      const std::vector<int> &list);
+	bool isSignalFlavour(const JetInfo &jetInfo) const;
+	bool isIgnoreFlavour(const JetInfo &jetInfo) const;
 
 	edm::InputTag					jetFlavour;
 	std::auto_ptr<TagInfoMVACategorySelector>	categorySelector;

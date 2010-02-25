@@ -55,8 +55,7 @@ JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 
 	std::vector<std::string> calibrationLabels;
 	if (params.getParameter<bool>("useCategories")) {
-		categorySelector = std::auto_ptr<TagInfoMVACategorySelector>(
-				new TagInfoMVACategorySelector(params));
+		categorySelector.reset(new TagInfoMVACategorySelector(params));
 
 		calibrationLabels = categorySelector->getCategoryLabels();
 	} else {
@@ -66,8 +65,7 @@ JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 		calibrationLabels.push_back(calibrationRecord);
 	}
 
-	computerCache = std::auto_ptr<GenericMVAComputerCache>(
-			new GenericMVAComputerCache(calibrationLabels));
+	computerCache.reset(new GenericMVAComputerCache(calibrationLabels));
 }
 
 JetTagMVATrainer::~JetTagMVATrainer()
@@ -93,24 +91,6 @@ void JetTagMVATrainer::setup(const JetTagComputer &computer)
 	setupDone = true;
 }
 
-bool JetTagMVATrainer::isSignalFlavour(int flavour) const
-{
-	std::vector<int>::const_iterator pos =
-		std::lower_bound(signalFlavours.begin(), signalFlavours.end(),
-		                 flavour);
-
-	return pos != signalFlavours.end() && *pos == flavour;
-}
-
-bool JetTagMVATrainer::isIgnoreFlavour(int flavour) const
-{
-	std::vector<int>::const_iterator pos =
-		std::lower_bound(ignoreFlavours.begin(), ignoreFlavours.end(),
-		                 flavour);
-
-	return pos != ignoreFlavours.end() && *pos == flavour;
-}
-
 // map helper
 namespace {
 	struct JetCompare :
@@ -120,11 +100,49 @@ namespace {
 		                         const edm::RefToBase<Jet> &j2) const
 		{ return j1.key() < j2.key(); }
 	};
+}
 
-	struct JetInfo {
-		unsigned int		flavour;
-		std::vector<int>	tagInfos;
-	};
+struct JetTagMVATrainer::JetInfo {
+	JetInfo() : flavour(0)
+	{ leptons[0] = leptons[1] = leptons[2] = 0; }
+
+	unsigned int		flavour;
+	bool			leptons[3];
+	std::vector<int>	tagInfos;
+};
+
+static bool isFlavour(int flavour, const std::vector<int> &list)
+{
+	std::vector<int>::const_iterator pos =
+			std::lower_bound(list.begin(), list.end(), flavour);
+
+	return pos != list.end() && *pos == flavour;
+}
+
+bool JetTagMVATrainer::isFlavour(const JetInfo &info,
+                                 const std::vector<int> &list)
+{
+	if (::isFlavour(info.flavour, list))
+		return true;
+	else if (info.flavour < 4)
+		return false;
+
+	for(unsigned int i = 1; i <= 3; i++)
+		if (info.leptons[i - 1] &&
+		    ::isFlavour(info.flavour * 10 + i, list))
+			return true;
+
+	return false;
+}
+
+bool JetTagMVATrainer::isSignalFlavour(const JetInfo &info) const
+{
+	return isFlavour(info, signalFlavours);
+}
+
+bool JetTagMVATrainer::isIgnoreFlavour(const JetInfo &info) const
+{
+	return isFlavour(info, ignoreFlavours);
 }
 
 void JetTagMVATrainer::analyze(const edm::Event& event,
@@ -176,7 +194,6 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 
 			JetInfo &jetInfo = jetInfos[iter->jet()];
 			if (jetInfo.tagInfos.empty()) {
-				jetInfo.flavour = 0;
 				jetInfo.tagInfos.resize(nTagInfos, -1);
 			}
 
@@ -197,8 +214,15 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 		if (pos != jetInfos.end()) {
 			int flavour = iter->second.getFlavour();
 			flavour = std::abs(flavour);
-			if (flavour < 100)
+			if (flavour < 100) {
+				JetFlavour::Leptons leptons =
+						iter->second.getLeptons();
+
 				pos->second.flavour = flavour;
+				pos->second.leptons[0] = leptons.electron > 0;
+				pos->second.leptons[1] = leptons.muon > 0;
+				pos->second.leptons[2] = leptons.tau > 0;
+			}
 		}
 	}
 
@@ -221,11 +245,11 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 			continue;
 
 		// do not train with unknown jet flavours
-		if (isIgnoreFlavour(info.flavour))
+		if (isIgnoreFlavour(info))
 			continue;
 
 		// is it a b-jet?
-		bool target = isSignalFlavour(info.flavour);
+		bool target = isSignalFlavour(info);
 
 		// build TagInfos pointer for helper
 		std::vector<const BaseTagInfo*> tagInfoPtrs(nTagInfos);
