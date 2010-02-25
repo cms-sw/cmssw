@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.h,v 1.4 2010/02/15 20:53:19 drell Exp $
+// $Id: V0Validator.h,v 1.5 2010/02/24 14:22:50 werdmann Exp $
 //
 //
 
@@ -264,11 +264,17 @@ private:
   MonitorElement* fakeLamMass;
   MonitorElement* goodLamMass;
 
+  MonitorElement* ksMassAll;
+  MonitorElement* lamMassAll;
+
 
   MonitorElement* ksFakeDauRadDist;
   MonitorElement* lamFakeDauRadDist;
 
+
   std::string theDQMRootFileName;
+  edm::InputTag k0sCollectionTag;
+  edm::InputTag lamCollectionTag;
   std::string dirName;
 
 };

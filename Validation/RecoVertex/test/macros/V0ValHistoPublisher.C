@@ -10,6 +10,7 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   gStyle->SetPadGridY(kTRUE);
   gStyle->SetPadRightMargin(0.07);
   gStyle->SetPadLeftMargin(0.13);
+  gStyle->SetOptTitle(1);
   //gStyle->SetTitleXSize(0.07); 
   //gStyle->SetTitleXOffset(0.6); 
   //tyle->SetTitleYSize(0.3);
@@ -17,16 +18,23 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   //gStyle->SetTextSize(0.5);
   char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
   char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
+  //char* refLabel2("");
 
   TFile* infile1 = new TFile(refFile);
   infile1->cd("DQMData/V0V/EffFakes");
   TDirectory* refdir = gDirectory;
   TList* hList1 = refdir->GetListOfKeys();
+  infile1->cd("DQMData/V0V/Other");
+  TDirectory* refdir_1 = gDirectory;
+  TList* hList1_1 = refdir_1->GetListOfKeys();
 
   TFile* infile2 = new TFile(newFile);
   infile2->cd("DQMData/V0V/EffFakes");
   TDirectory* newdir = gDirectory;
   TList* hList2 = newdir->GetListOfKeys();
+  infile2->cd("DQMData/V0V/Other");
+  TDirectory* newdir_1 = gDirectory;
+  TList* hList2_1 = newdir_1->GetListOfKeys();
 
   TCanvas* canvas;
 
@@ -46,6 +54,11 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   TH1F *ksNewFakeEta, *ksNewTkFakeEta;
   TH1F *ksNewFakePt, *ksNewTkFakePt;
   TH1F *ksNewFakeR, *ksNewTkFakeR;
+
+  TH1F *ksNewFakeMass, *ksNewGoodMass;
+  TH1F *ksNewMassAll;
+  TH1F *ksFakeMass, *ksGoodMass;
+  TH1F* ksMassAll;
 
   // K0s Efficiency plots from reference release
   //refdir->GetObject(hList1->At(0)->GetName(), ksEffEta);
@@ -79,6 +92,17 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   //refdir->GetObject(hList1->At(8)->GetName(), ksTkEffR);
   refdir->GetObject(hList1->FindObject("K0sTkEffVsR")->GetName(), ksTkEffR);
   ksTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  // K0S mass plots from ref release
+  refdir_1->GetObject(hList1_1->FindObject("ksMassFake")->GetName(), ksFakeMass);
+  ksFakeMass->SetXTitle(//"Mass of fake Ks, ref release");
+			refLabel);
+  refdir_1->GetObject(hList1_1->FindObject("ksMassGood")->GetName(), ksGoodMass);
+  ksGoodMass->SetXTitle(//"Mass of good Ks, ref release");
+			refLabel);
+  refdir_1->GetObject(hList1_1->FindObject("ksMassAll")->GetName(), ksMassAll);
+  ksMassAll->SetXTitle(//"Mass of all found Ks, ref release");
+		       refLabel);
 
 
   // K0s efficiency plots from new release
@@ -114,6 +138,17 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   //newdir->GetObject(hList1->At(8)->GetName(), ksNewTkEffR);
   newdir->GetObject(hList2->FindObject("K0sTkEffVsR")->GetName(), ksNewTkEffR);
   ksNewTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  // K0S mass plots from new release
+  newdir_1->GetObject(hList2_1->FindObject("ksMassFake")->GetName(), ksNewFakeMass);
+  ksNewFakeMass->SetXTitle(//"Mass of fake Ks, new release");
+			   newLabel);
+  newdir_1->GetObject(hList2_1->FindObject("ksMassGood")->GetName(), ksNewGoodMass);
+  ksNewGoodMass->SetXTitle(//"Mass of good Ks, new release");
+			   newLabel);
+  newdir_1->GetObject(hList2_1->FindObject("ksMassAll")->GetName(), ksNewMassAll);
+  ksNewMassAll->SetXTitle(//"Mass of all found Ks, new release");
+			  newLabel);
 
 
   // K0s fake rate plots from reference release
@@ -287,6 +322,53 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   delete leg1;
   //delete canvas;
 
+  ksmcanvas = new TCanvas("KsMass", "K^{0}_{S} mass plots",
+			  1000, 1400);
+
+  ksFakeMass->SetLineColor(2);
+  ksFakeMass->SetMarkerStyle(20);
+  ksFakeMass->SetMarkerColor(2);
+  ksNewFakeMass->SetLineColor(4);
+  ksNewFakeMass->SetMarkerStyle(20);
+  ksNewFakeMass->SetMarkerColor(4);
+
+  ksGoodMass->SetLineColor(2);
+  ksGoodMass->SetMarkerStyle(20);
+  ksGoodMass->SetMarkerColor(2);
+  ksNewGoodMass->SetLineColor(4);
+  ksNewGoodMass->SetMarkerStyle(20);
+  ksNewGoodMass->SetMarkerColor(4);
+
+  ksMassAll->SetLineColor(2);
+  ksMassAll->SetMarkerStyle(20);
+  ksMassAll->SetMarkerColor(2);
+  ksNewMassAll->SetLineColor(4);
+  ksNewMassAll->SetMarkerStyle(20);
+  ksNewMassAll->SetMarkerColor(4);
+
+  ksmcanvas->Divide(2,3);
+  ksmcanvas->cd(1);
+  ksMassAll->Draw();
+
+  ksmcanvas->cd(2);
+  ksNewMassAll->Draw();
+
+  ksmcanvas->cd(3);
+  ksGoodMass->Draw();
+
+  ksmcanvas->cd(4);
+  ksNewGoodMass->Draw();
+
+  ksmcanvas->cd(5);
+  ksFakeMass->Draw();
+
+  ksmcanvas->cd(6);
+  ksNewFakeMass->Draw();
+
+  ksmcanvas->Print("KsMass.png");
+  ksmcanvas->Print("KsMass.pdf");
+
+
   canvas = new TCanvas("Kshorts", "K^{0}_{S} Fake Rate", 
 		       1000, 1400);
 
@@ -411,6 +493,11 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   TH1F *lamNewFakePt, *lamNewTkFakePt;
   TH1F *lamNewFakeR, *lamNewTkFakeR;
 
+  TH1F *lamNewFakeMass, *lamNewGoodMass;
+  TH1F *lamNewMassAll;
+  TH1F *lamFakeMass, *lamGoodMass;
+  TH1F *lamMassAll;
+
   // Lambda Efficiency plots from reference release
   //refdir->GetObject(hList1->At(12)->GetName(), lamEffEta);
   refdir->GetObject(hList1->FindObject("LamEffVsEta")->GetName(), lamEffEta);
@@ -443,6 +530,17 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   //refdir->GetObject(hList1->At(20)->GetName(), lamTkEffR);
   refdir->GetObject(hList1->FindObject("LamTkEffVsR")->GetName(), lamTkEffR);
   lamTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  // Lambda mass plots from ref release
+  refdir_1->GetObject(hList1_1->FindObject("lamMassFake")->GetName(), lamFakeMass);
+  lamFakeMass->SetXTitle(//"Mass of fake #Lambda, ref release");
+			 refLabel);
+  refdir_1->GetObject(hList1_1->FindObject("lamMassGood")->GetName(), lamGoodMass);
+  lamGoodMass->SetXTitle(//"Mass of good #Lambda, ref release");
+			 refLabel);
+  refdir_1->GetObject(hList1_1->FindObject("lamMassAll")->GetName(), lamMassAll);
+  lamMassAll->SetXTitle(//"Mass of all found #Lambda, ref release");
+			refLabel);
 
 
   // Lambda efficiency plots from new release
@@ -478,6 +576,17 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   //newdir->GetObject(hList1->At(20)->GetName(), lamNewTkEffR);
   newdir->GetObject(hList2->FindObject("LamTkEffVsR")->GetName(), lamNewTkEffR);
   lamNewTkEffR->GetYaxis()->SetRangeUser(0, 1.1);
+
+  // Lambda mass plots from new release
+  newdir_1->GetObject(hList2_1->FindObject("lamMassFake")->GetName(), lamNewFakeMass);
+  lamNewFakeMass->SetXTitle(//"Mass of fake #Lambda, new release");
+			    newLabel);
+  newdir_1->GetObject(hList2_1->FindObject("lamMassGood")->GetName(), lamNewGoodMass);
+  lamNewGoodMass->SetXTitle(//"Mass of good #Lambda, new release");
+			    newLabel);
+  newdir_1->GetObject(hList2_1->FindObject("lamMassAll")->GetName(), lamNewMassAll);
+  lamNewMassAll->SetXTitle(//"Mass of all found #Lambda, new release");
+			   newLabel);
 
 
   // Lambda fake rate plots from reference release
@@ -650,6 +759,52 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
 
   delete leg3;
   //delete canvas;
+
+  lammcanvas = new TCanvas("LamMass", "#Lambda^{0} mass plots",
+			   1000, 1400);
+
+  lamFakeMass->SetLineColor(2);
+  lamFakeMass->SetMarkerStyle(20);
+  lamFakeMass->SetMarkerColor(2);
+  lamNewFakeMass->SetLineColor(4);
+  lamNewFakeMass->SetMarkerStyle(20);
+  lamNewFakeMass->SetMarkerColor(4);
+
+  lamGoodMass->SetLineColor(2);
+  lamGoodMass->SetMarkerStyle(20);
+  lamGoodMass->SetMarkerColor(2);
+  lamNewGoodMass->SetLineColor(4);
+  lamNewGoodMass->SetMarkerStyle(20);
+  lamNewGoodMass->SetMarkerColor(4);
+
+  lamMassAll->SetLineColor(2);
+  lamMassAll->SetMarkerStyle(20);
+  lamMassAll->SetMarkerColor(2);
+  lamNewMassAll->SetLineColor(4);
+  lamNewMassAll->SetMarkerStyle(20);
+  lamNewMassAll->SetMarkerColor(4);
+
+  lammcanvas->Divide(2,3);
+  lammcanvas->cd(1);
+  lamMassAll->Draw();
+
+  lammcanvas->cd(2);
+  lamNewMassAll->Draw();
+
+  lammcanvas->cd(3);
+  lamGoodMass->Draw();
+
+  lammcanvas->cd(4);
+  lamNewGoodMass->Draw();
+
+  lammcanvas->cd(5);
+  lamFakeMass->Draw();
+
+  lammcanvas->cd(6);
+  lamNewFakeMass->Draw();
+
+  lammcanvas->Print("LamMass.png");
+  lammcanvas->Print("LamMass.pdf");
 
   canvas = new TCanvas("Lambdas", "#Lambda^{0} Fake Rate", 
 		       1000, 1400);
