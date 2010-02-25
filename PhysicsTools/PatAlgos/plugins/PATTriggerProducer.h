@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerProducer
 //
-// $Id: PATTriggerProducer.h,v 1.4 2009/04/01 16:06:39 vadler Exp $
+// $Id: PATTriggerProducer.h,v 1.5 2010/01/12 19:28:36 vadler Exp $
 //
 /**
   \class    pat::PATTriggerProducer PATTriggerProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: PATTriggerProducer.h,v 1.4 2009/04/01 16:06:39 vadler Exp $
+  \version  $Id: PATTriggerProducer.h,v 1.5 2010/01/12 19:28:36 vadler Exp $
 */
 
 
@@ -24,21 +24,11 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include <string>
-#include <vector>
-#include <map>
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-#include "DataFormats/PatCandidates/interface/TriggerPath.h"
-#include "DataFormats/PatCandidates/interface/TriggerFilter.h"
-#include "DataFormats/PatCandidates/interface/TriggerObject.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 
 namespace pat {
@@ -48,20 +38,28 @@ namespace pat {
     public:
 
       explicit PATTriggerProducer( const edm::ParameterSet & iConfig );
-      ~PATTriggerProducer();
+      ~PATTriggerProducer() {};
 
     private:
 
       virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
 
+      bool onlyStandAlone_;
+      // L1
+      edm::InputTag tagL1ExtraMu_;
+      edm::InputTag tagL1ExtraNoIsoEG_;
+      edm::InputTag tagL1ExtraIsoEG_;
+      edm::InputTag tagL1ExtraCenJet_;
+      edm::InputTag tagL1ExtraForJet_;
+      edm::InputTag tagL1ExtraTauJet_;
+      edm::InputTag tagL1ExtraETM_;
+      edm::InputTag tagL1ExtraHTM_;
+      // HLT
       HLTConfigProvider hltConfig_;
       std::string       nameProcess_;
       edm::InputTag     tagTriggerResults_;
       edm::InputTag     tagTriggerEvent_;
-      bool              onlyStandAlone_;
-
-      // trigger path
-      bool addPathModuleLabels_;
+      bool              addPathModuleLabels_;
 
   };
 

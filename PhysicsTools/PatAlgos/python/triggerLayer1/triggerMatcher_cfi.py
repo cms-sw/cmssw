@@ -10,7 +10,26 @@ import FWCore.ParameterSet.Config as cms
 # are NOT tuned (using old values from TQAF MC match, January 2008)
 
 
-## PAT Tuple (modified), 8E29 (start-up) ##
+## L1 ##
+
+# matches to HLT_IsoMu3
+muonTriggerMatchL1Muon = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
+    src     = cms.InputTag( "cleanPatMuons" ),
+    matched = cms.InputTag( "patTrigger" ),
+    andOr          = cms.bool( False ),
+    filterIdsEnum  = cms.vstring( 'TriggerL1Mu' ),
+    filterIds      = cms.vint32( 0 ),
+    filterLabels   = cms.vstring( '*' ),
+    pathNames      = cms.vstring( '*' ),
+    collectionTags = cms.vstring( '*' ),
+    maxDPtRel = cms.double( 0.5 ),
+    maxDeltaR = cms.double( 0.5 ),
+    resolveAmbiguities    = cms.bool( True ),
+    resolveByMatchQuality = cms.bool( False )
+)
+
+
+## PAT Tuple (modified), HLT 8E29 (start-up) ##
 
 # matches to HLT_IsoMu3
 muonTriggerMatchHLTIsoMu3 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
@@ -182,6 +201,7 @@ patTriggerMatcherElectron = cms.Sequence(
     electronTriggerMatchHLTDoubleEle5SWL1R
 )
 patTriggerMatcherMuon = cms.Sequence(
+    muonTriggerMatchL1Muon       +
     muonTriggerMatchHLTIsoMu3    +
     muonTriggerMatchHLTMu3       +
     muonTriggerMatchHLTDoubleMu3
