@@ -60,26 +60,28 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
         barrel = cms.vdouble(0.0201, 0.0102, 0.0211, 0.00606, -1, -1, 2.34, 3.24, 4.51),
         endcap = cms.vdouble(0.00253, 0.0291, 0.022, 0.0032, -1, -1, 0.826, 2.7, 0.255)
     ),
-                           
+
+    # variables H/E sigmaietaieta deltaphiin deltaetain e2x5/e5X5 e1x5/e5x5
+    #           isoTk (ecalIso+hcal1)(a+b*Et) (ecalIso+hcal1)(a+b*(Et-50)) hcalIso2(barrel/endcap)   
     #Robust High Energy Cuts
     #V00 CMSSW16X optimization 
     #V01 CMSSW22X optimization
     #V02 CMSSW33X optimization
     robusthighenergyEleIDCutsV00 = cms.PSet(
-        barrel = cms.vdouble(0.050, 0.011, 0.090, 0.005, -1, -1, -1, -1, -1),
-        endcap = cms.vdouble(0.100, 0.0275, 0.090, 0.007, -1, -1, -1, -1, -1)
+        barrel = cms.vdouble(0.050, 0.011, 0.090, 0.005, -1, -1, -1, -1, -1, -1, -1, -1),
+        endcap = cms.vdouble(0.100, 0.0275, 0.090, 0.007, -1, -1, -1, -1, -1, -1, -1, -1)
     ),
     robusthighenergyEleIDCutsV01 = cms.PSet(
-        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005, 0.94, 0.83, -1, -1, -1),
-        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007, -1, -1, -1, -1, -1)
+        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005, 0.94, 0.83, -1, -1, -1, -1, -1, -1),
+        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007, -1, -1, -1, -1, -1, -1, -1, -1)
     ),
     robusthighenergyEleIDCutsV02 = cms.PSet(
-        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005, 0.94, 0.83, -1, -1, -1),
-        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007, -1, -1, -1, -1, -1)
+        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005, 0.94, 0.83, 7.5, 2, 0.03, 0, 0, 0),
+        endcap = cms.vdouble(0.050, 0.03, 0.090, 0.007, -1, -1, 15, 2.5, 0.03, 2.5, 0, 0.5)
     ),
     robusthighenergyEleIDCuts = cms.PSet(
-        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005, 0.94, 0.83, -1, -1, -1),
-        endcap = cms.vdouble(0.050, 0.0275, 0.090, 0.007, -1, -1, -1, -1, -1)
+        barrel = cms.vdouble(0.050, 9999, 0.090, 0.005, 0.94, 0.83, 7.5, 2, 0.03, 0, 0, 0),
+        endcap = cms.vdouble(0.050, 0.03, 0.090, 0.007, -1, -1, 15, 2.5, 0.03, 2.5, 0, 0.5)
     ),
 
     #Class Based Loose Cuts

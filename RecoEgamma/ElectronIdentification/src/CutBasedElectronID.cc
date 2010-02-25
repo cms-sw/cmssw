@@ -75,7 +75,10 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
 double CutBasedElectronID::result(const reco::GsfElectron* electron ,
                                   const edm::Event& e ,
                                   const edm::EventSetup& es) { 
-  
+
+  double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
+  double scEt = electron->superCluster()->energy()*sin(scTheta); 
+ 
   double eta = electron->p4().Eta();
   double eOverP = electron->eSuperClusterOverP();
   double eSeed = electron->superCluster()->seed()->energy();
@@ -100,6 +103,8 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   double tkIso = electron->dr03TkSumPt();
   double ecalIso = electron->dr04EcalRecHitSumEt();
   double hcalIso = electron->dr04HcalTowerSumEt();
+  double hcalIso1 = electron->dr04HcalDepth1TowerSumEt();
+  double hcalIso2 = electron->dr04HcalDepth2TowerSumEt();
 
   if (version_ == "V00") {
      std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
@@ -127,18 +132,28 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   // ROBUST Selection
   if (type_ == "robust") {
     
-    float result = 0;
+    double result = 0;
 
     // hoe, sigmaEtaEta, dPhiIn, dEtaIn
     if (electron->isEB())
       cut = cuts_.getParameter<std::vector<double> >("barrel");
     else
       cut = cuts_.getParameter<std::vector<double> >("endcap");
-
-    if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]))
-      result = 0.;
-    else
-      result = 2.;
+    
+    if (quality_ == "highenergy") {
+      if ((tkIso > cut[6] || hcalIso2 > cut[11]) ||
+          (electron->isEB() && ((ecalIso + hcalIso1) > cut[7]+cut[8]*scEt)) ||
+          (electron->isEE() && (scEt >= 50.) && ((ecalIso + hcalIso1) > cut[7]+cut[8]*(scEt-50))) ||
+          (electron->isEE() && (scEt < 50.) && ((ecalIso + hcalIso1) > cut[9]+cut[10]*(scEt-50))))
+        result = 0;
+      else
+        result = 2;
+    } else {
+      if ((tkIso > cut[6]) || (ecalIso > cut[7]) || (hcalIso > cut[8]))
+        result = 0.;
+      else
+        result = 2.;
+    }
 
     if (hOverE > cut[0]) 
       return result;    
@@ -208,10 +223,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   
   if (type_ == "classbased" && (version_ == "V02" || version_ == "")) {
     double result = 0.;
-    
-    double scTheta = (2*atan(exp(-electron->superCluster()->eta())));
-    double scEt = electron->superCluster()->energy()*sin(scTheta);
-  
+
     int bin = 0;
 
     if (scEt < 20.)
