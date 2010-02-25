@@ -28,7 +28,7 @@ float SoftLeptonProperties::quality(unsigned int index, bool throwIfUndefined) c
   
 void SoftLeptonProperties::setQuality(unsigned int index, float qual)
 {
-  if (qualities_.size() < index)
+  if (qualities_.size() <= index)
     qualities_.resize(index + 1, undefQuality);
 
   qualities_[index] = qual;
