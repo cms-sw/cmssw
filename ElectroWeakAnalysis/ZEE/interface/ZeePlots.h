@@ -53,7 +53,25 @@ class ZeePlots : public edm::EDAnalyzer {
       bool CheckCuts2NminusOne(const pat::Electron *ele, int jj);
       //
       double ReturnCandVar(const pat::Electron *ele, int i);
+      bool   PassPreselectionCriteria(const pat::Electron *ele);
+      bool   PassPreselectionCriteria2(const pat::Electron *ele);
+      //
       bool   useDifferentSecondLegSelection_;
+      bool   usePrecalcID_;
+      std::string usePrecalcIDSign_;
+      std::string usePrecalcIDType_;
+      double usePrecalcIDValue_;
+      bool   usePrecalcID2_;
+      std::string usePrecalcIDSign2_;
+      std::string usePrecalcIDType2_;
+      double usePrecalcIDValue2_;
+      //
+      bool usePreselection_;
+      bool useValidFirstPXBHit_, useValidFirstPXBHit2_,;
+      bool useConversionRejection_, useConversionRejection2_;
+      bool useExpectedMissingHits_, useExpectedMissingHits2_;
+      bool maxNumberOfExpectedMissingHits_;
+      bool maxNumberOfExpectedMissingHits2_;
   std::string outputFile_;
   edm::InputTag zeeCollectionTag_;
   TFile *histofile;
@@ -102,12 +120,16 @@ class ZeePlots : public edm::EDAnalyzer {
   Double_t dphi_EB_;
   Double_t hoe_EB_;
   Double_t userIso_EB_;
+  Double_t tip_bspot_EB_;
+  Double_t eop_EB_;
   //
   Double_t sihih_EE_;
   Double_t deta_EE_;
   Double_t dphi_EE_;
   Double_t hoe_EE_;
   Double_t userIso_EE_;
+  Double_t tip_bspot_EE_;
+  Double_t eop_EE_;
   //
   Double_t trackIso2_EB_;
   Double_t ecalIso2_EB_;
@@ -122,12 +144,16 @@ class ZeePlots : public edm::EDAnalyzer {
   Double_t dphi2_EB_;
   Double_t hoe2_EB_;
   Double_t userIso2_EB_;
+  Double_t tip_bspot2_EB_;
+  Double_t eop2_EB_;
   //
   Double_t sihih2_EE_;
   Double_t deta2_EE_;
   Double_t dphi2_EE_;
   Double_t hoe2_EE_;
   Double_t userIso2_EE_;
+  Double_t tip_bspot2_EE_;
+  Double_t eop2_EE_;
   //
   bool trackIso_EB_inv;
   bool ecalIso_EB_inv;
@@ -142,12 +168,16 @@ class ZeePlots : public edm::EDAnalyzer {
   bool dphi_EB_inv;
   bool hoe_EB_inv;
   bool userIso_EB_inv;
+  bool tip_bspot_EB_inv;
+  bool eop_EB_inv;
   //
   bool sihih_EE_inv;
   bool deta_EE_inv;
   bool dphi_EE_inv;
   bool hoe_EE_inv;
   bool userIso_EE_inv;
+  bool tip_bspot_EE_inv;
+  bool eop_EE_inv;
   //
   int nBarrelVars_;
   //
