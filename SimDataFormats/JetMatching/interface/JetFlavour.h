@@ -21,19 +21,31 @@ class JetFlavour
     typedef math::XYZTLorentzVector LorentzVector;
     /// point in the space
     typedef math::XYZPoint Point;
+    /// lepton info struct
+    struct Leptons {
+      int electron;
+      int muon;
+      int tau;
+
+      Leptons() : electron(0), muon(0), tau(0) {}
+    };
 
     JetFlavour(void) { }
-    JetFlavour(LorentzVector LV, Point PT, int FL)
-    : m_partonMomentum(LV), m_partonVertex(PT), m_flavour(FL) {}
+    JetFlavour(LorentzVector lv, const Point &pt, int fl, const Leptons &le)
+    : m_partonMomentum(lv), m_partonVertex(pt), m_flavour(fl), m_leptons(le) {}
+    JetFlavour(LorentzVector lv, Point pt, int fl)
+    : m_partonMomentum(lv), m_partonVertex(pt), m_flavour(fl) {}
 
     const LorentzVector getLorentzVector() const {return m_partonMomentum;}
     const Point         getPartonVertex()  const {return m_partonVertex;  }
     const int           getFlavour()       const {return m_flavour;       } 
+    const Leptons       getLeptons()       const {return m_leptons;       }
      
   private:
     LorentzVector m_partonMomentum;
     Point         m_partonVertex;       // is it needed?
     int           m_flavour;
+    Leptons       m_leptons;
 };
 
 }

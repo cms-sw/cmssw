@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="reco::JetFlavour"/>
+  <class name="reco::JetFlavour::Leptons"/>
   <class name="std::vector<reco::JetFlavour>"/>
   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavour>"/>
   <class name="std::vector<std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavour> >"/>

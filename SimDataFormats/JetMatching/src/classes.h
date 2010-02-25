@@ -10,6 +10,7 @@
 namespace {
   struct dictionary {
     reco::JetFlavour                                 jf;
+    reco::JetFlavour::Leptons                        jflep;
     reco::JetFlavourMatchingCollectionBase           jfmcb;
     reco::JetFlavourMatchingCollection               jfmc;
     reco::JetFlavourMatchingRef                      jfmr;
