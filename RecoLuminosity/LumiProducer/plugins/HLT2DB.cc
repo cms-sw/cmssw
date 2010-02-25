@@ -62,6 +62,11 @@ namespace lumi{
     if(!m_authpath.empty()){
       dbconf.setAuthentication(m_authpath);
     }
+    /**retrieve hlt info with 2 queries
+       select count(distinct PATHNAME ) as npath from HLT_SUPERVISOR_LUMISECTIONS_V2 where runnr=110823 and lsnumber=1;
+       select l.PATHNAME,l.LSNUMBER,l.L1PASS,l.PACCEPT,m.PSVALUE from hlt_supervisor_lumisections_v2 l, hlt_supervisor_scalar_map m where l.RUNNR=m.RUNNR and l.PSINDEX=m.PSINDEX and l.PATHNAME=m.PATHNAME and l.RUNNR=83037 order by l.LSNUMBER;
+    **/
+    
     //std::cout<<"m_source "<<m_source<<std::endl;
     coral::ISessionProxy* srcsession=svc->connect(m_source, coral::ReadOnly);
     coral::ITypeConverter& tpc=srcsession->typeConverter();
@@ -98,10 +103,11 @@ namespace lumi{
 	return;
       }
     }
+    std::cout<<"npath "<<npath<<std::endl;
     coral::IQuery* q2=srcsession->nominalSchema().newQuery();
     coral::AttributeList q2bindVariableList;
     q2bindVariableList.extend("runnumber",typeid(unsigned int));
-
+    q2bindVariableList["runnumber"].data<unsigned int>()=runnumber;
     q2->addToTableList(tabname,"l");
     q2->addToTableList(maptabname,"m");
     q2->addToOutputList("l.LSNUMBER","lsnumber");
@@ -110,8 +116,7 @@ namespace lumi{
     q2->addToOutputList("l.PACCEPT","hltratecounter");
     q2->addToOutputList("m.PSVALUE","prescale");
     q2->addToOutputList("m.HLTKEY","hltconfigid");
-    q2->setCondition("l.RUNNR=m.RUNNR and l.PSINDEX=m.PSINDEX and l.PATHNAME=m.PATHNAME and l.RUNNR =:runnumber",q2bindVariableList);
-    
+    q2->setCondition("l.RUNNR=m.RUNNR and l.PSINDEX=m.PSINDEX and l.PATHNAME=m.PATHNAME and l.RUNNR =:runnumber",q2bindVariableList);   
     q2->addToOrderList("lsnumber");
     q2->setRowCacheSize(10692);
     coral::ICursor& cursor2=q2->execute();
@@ -146,6 +151,66 @@ namespace lumi{
     srcsession->transaction().commit();
     delete srcsession;
     
+    //
+    // Write into DB
+    //
+    unsigned int totalcmsls=hltresult.size();
+    std::cout<<"totalcmsls "<<totalcmsls<<std::endl;
+    coral::ISessionProxy* destsession=svc->connect(m_dest,coral::Update);
+    try{
+      destsession->transaction().start(false);
+      coral::ISchema& lumischema=destsession->nominalSchema();
+      lumi::idDealer idg(lumischema);
+      coral::ITable& hlttable=lumischema.tableHandle(LumiNames::hltTableName());
+      coral::AttributeList hltData;
+      hltData.extend("HLT_ID",typeid(unsigned long long));
+      hltData.extend("RUNNUM",typeid(unsigned int));
+      hltData.extend("CMSLUMINUM",typeid(unsigned int));
+      hltData.extend("PATHNAME",typeid(std::string));
+      hltData.extend("INPUTCOUNT",typeid(unsigned int));
+      hltData.extend("ACCEPTCOUNT",typeid(unsigned int));
+      hltData.extend("PRESCALE",typeid(unsigned int));
+      coral::IBulkOperation* hltInserter=hlttable.dataEditor().bulkInsert(hltData,totalcmsls*260);
+      //loop over lumi LS
+      unsigned long long& hlt_id=hltData["HLT_ID"].data<unsigned long long>();
+      unsigned int& hltrunnum=hltData["RUNNUM"].data<unsigned int>();
+      unsigned int& cmsluminum=hltData["CMSLUMINUM"].data<unsigned int>();
+      std::string& pathname=hltData["PATHNAME"].data<std::string>();
+      unsigned int& inputcount=hltData["INPUTCOUNT"].data<unsigned int>();
+      unsigned int& acceptcount=hltData["ACCEPTCOUNT"].data<unsigned int>();
+      unsigned int& prescale=hltData["PRESCALE"].data<unsigned int>();
+      
+      std::vector< std::vector<HLT2DB::hltinfo> >::const_iterator hltIt;
+      std::vector< std::vector<HLT2DB::hltinfo> >::const_iterator hltBeg=hltresult.begin();
+      std::vector< std::vector<HLT2DB::hltinfo> >::const_iterator hltEnd=hltresult.end();
+      for(hltIt=hltBeg;hltIt!=hltEnd;++hltIt){
+	std::vector<HLT2DB::hltinfo>::const_iterator pathIt;
+	std::vector<HLT2DB::hltinfo>::const_iterator pathBeg=hltIt->begin();
+	std::vector<HLT2DB::hltinfo>::const_iterator pathEnd=hltIt->end();
+	for(pathIt=pathBeg;pathIt!=pathEnd;++pathIt){
+	  hlt_id = idg.generateNextIDForTable(LumiNames::hltTableName());
+	  hltrunnum = runnumber;
+	  cmsluminum = pathIt->cmsluminr;
+	  pathname = pathIt->pathname;
+	  inputcount = pathIt->hltinput;
+	  acceptcount = pathIt->hltaccept;
+	  prescale = pathIt->prescale;
+	  hltInserter->processNextIteration();
+	}
+      }
+      hltInserter->flush();
+      delete hltInserter;
+    }catch( const coral::Exception& er){
+      std::cout<<"database problem "<<er.what()<<std::endl;
+      destsession->transaction().rollback();
+      delete destsession;
+      delete svc;
+      throw er;
+    }
+    //delete detailInserter;
+    destsession->transaction().commit();
+    delete destsession;
+    delete svc;
   }
   const std::string HLT2DB::dataType() const{
     return "HLT";
