@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.89 2010/01/22 10:06:56 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.90 2010/02/25 19:08:14 chamont Exp $
 //
 //
 
@@ -90,11 +90,11 @@ class ExceptionSafeStlPtrCol : public Col
     ExceptionSafeStlPtrCol() : Col() {}
     ~ExceptionSafeStlPtrCol()
      {
-      Col::const_iterator it ;
-      for ( it = begin() ; it != end() ; it++ )
+      typename Col::const_iterator it ;
+      for ( it = Col::begin() ; it != Col::end() ; it++ )
        { delete (*it) ; }
      }
- }
+ } ;
 
 
 GsfElectronAlgo::GsfElectronAlgo
@@ -764,7 +764,7 @@ void GsfElectronAlgo::createElectron
      { fiducialFlags.isEEDeeGap = true ; }
    }
   else
-   { through cms::Exception("GsfElectronAlgo|UnknownXtalRegion")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
+   { throw cms::Exception("GsfElectronAlgo|UnknownXtalRegion")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
 
 
   //====================================================
@@ -1120,7 +1120,7 @@ void GsfElectronAlgo::checkPfTranslatorParameters( edm::ParameterSetID const & p
      {
       // the MVA value has been forced to translatorUndefined, inferior minMVAPflow
       // so the cut actually applied is the PFlow one
-      throw cms::exception("GsfElectronAlgo|BadMvaCut")
+      throw cms::Exception("GsfElectronAlgo|BadMvaCut")
         <<"Parameter minMVA is inferior to the lowest possible value."
         <<" Every electron will be blessed whatever other criteria." ;
      }
