@@ -1,7 +1,8 @@
-// $Id: FourVectorHLTriggerOffline.cc,v 1.33 2009/12/29 01:20:45 nuno Exp $
+// $Id: FourVectorHLTriggerOffline.cc,v 1.35 2009/12/29 22:22:56 nuno Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include <map>
 #include <utility>
@@ -157,7 +158,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
       return;
     }
   }
-  TriggerNames triggerNames(*triggerResults);  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;

@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.23 2009/12/29 01:20:43 nuno Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.25 2009/12/29 22:25:06 nuno Exp $
 //
 //
 
@@ -54,7 +54,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"

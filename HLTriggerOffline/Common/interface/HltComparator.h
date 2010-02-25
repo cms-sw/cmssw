@@ -1,7 +1,7 @@
 #ifndef HLTCOMPARATOR_H
 #define HLTCOMPARATOR_H
 // Original Author: James Jackson
-// $Id: HltComparator.h,v 1.5 2009/12/29 21:55:29 nuno Exp $
+// $Id: HltComparator.h,v 1.6 2010/02/17 17:50:09 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 class TH1F;
@@ -23,8 +22,6 @@ class HltComparator : public edm::EDFilter
     private:
         edm::InputTag hltOnlineResults_;
         edm::InputTag hltOfflineResults_;
-        edm::TriggerNames onlineTriggerNames_;
-        edm::TriggerNames offlineTriggerNames_;
 
         std::vector<std::string> onlineActualNames_;
         std::vector<std::string> offlineActualNames_;
@@ -46,7 +43,8 @@ class HltComparator : public edm::EDFilter
         virtual bool filter(edm::Event&, const edm::EventSetup&);
         virtual void endJob() ;
         void initialise(const edm::TriggerResults&, 
-			const edm::TriggerResults&);
+			const edm::TriggerResults&,
+                        edm::Event& e);
         std::string formatResult(const unsigned int);
 };
 

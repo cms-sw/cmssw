@@ -1,10 +1,10 @@
 // Originally written by James Jackson
 // modified by Peter Wittich
-// $Id: HltComparator.cc,v 1.6 2009/12/29 01:20:46 nuno Exp $
+// $Id: HltComparator.cc,v 1.7 2010/01/12 06:33:18 hegner Exp $
 
 // user include files
 #include "HLTriggerOffline/Common/interface/HltComparator.h"
-
+#include "FWCore/Common/interface/TriggerNames.h"
 //#include "FWCore/Utilities/interface/Exception.h"
 
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,15 +50,16 @@ HltComparator::~HltComparator()
 // Initialises online --> offline trigger bit mappings and histograms
 void
 HltComparator::initialise(const edm::TriggerResults & onlineResults,
-			  const edm::TriggerResults & offlineResults)
+			  const edm::TriggerResults & offlineResults,
+                          edm::Event& e)
 {
   init_ = true;
 
   // Get trigger names 
-  onlineTriggerNames_.init(onlineResults);
-  offlineTriggerNames_.init(offlineResults);
-  onlineActualNames_ = onlineTriggerNames_.triggerNames();
-  offlineActualNames_ = offlineTriggerNames_.triggerNames();
+  const edm::TriggerNames & onlineTriggerNames = e.triggerNames(onlineResults);
+  const edm::TriggerNames & offlineTriggerNames = e.triggerNames(offlineResults);
+  onlineActualNames_ = onlineTriggerNames.triggerNames();
+  offlineActualNames_ = offlineTriggerNames.triggerNames();
   numTriggers_ = onlineActualNames_.size();
   
   // do we need to throw? I guess the whole job is crap if this happens.
@@ -167,7 +168,7 @@ HltComparator::filter(edm::Event & event,
   
   // Initialise comparator if required
   if (!init_) {
-    initialise(*onlineResults, *offlineResults);
+    initialise(*onlineResults, *offlineResults, event);
   }
   
   // Perform trigger checks
