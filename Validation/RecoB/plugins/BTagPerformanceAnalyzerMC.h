@@ -66,9 +66,10 @@ class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
   EtaPtBin getEtaPtBin(int iEta, int iPt);
     typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
 typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
+typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
   //  reco::JetFlavour getJetFlavour(
   //	edm::RefToBase<reco::Jet> caloRef, FlavourMap flavours);
-  bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef, 
+  bool getJetWithFlavour(edm::RefToBase<reco::Jet> caloRef,
                          FlavourMap flavours, JetWithFlavour &jetWithFlavour,
                          const edm::EventSetup & es);
 
@@ -104,9 +105,7 @@ typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> Flavour
   MatchJet jetMatcher;
 
   bool eventInitialized;
-
-
-
+  bool electronPlots, muonPlots, tauPlots;
 };
 
 
