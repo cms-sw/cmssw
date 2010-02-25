@@ -1,8 +1,8 @@
 /*
  * \file EETrendClient.cc
  *
- * $Date: 2010/02/24 23:23:10 $
- * $Revision: 1.2 $
+ * $Date: 2010/02/24 23:26:44 $
+ * $Revision: 1.3 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -85,10 +85,10 @@ void EETrendClient::beginJob(void){
   histTitles_[1]  = "EEPOT pedestal G12 rms";
 
   moduleNames_[2] = "EEOccupancyTask"; // TH2
-  histTitles_[2]  = "EEOT TP digi thr occupancy EE-";
+  histTitles_[2]  = "EEOT TP digi thr occupancy EE -";
 
   moduleNames_[3] = "EEOccupancyTask"; // TH2
-  histTitles_[3]  = "EEOT TP digi thr occupancy EE+";
+  histTitles_[3]  = "EEOT TP digi thr occupancy EE +";
 
   moduleNames_[4] = "EEOccupancyTask"; // TH2
   histTitles_[4]  = "EEOT rec hit thr occupancy EE -";
