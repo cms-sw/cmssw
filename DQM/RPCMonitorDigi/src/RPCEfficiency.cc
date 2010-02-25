@@ -104,7 +104,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking Residuals for EndCap"<<std::endl;
-  folder = folderPath+"MuonSegEff/"+"/Residuals/EndCap";
+  folder = folderPath+"MuonSegEff"+"/Residuals/EndCap";
   dbe->setCurrentFolder(folder);
 
   //Endcap  
