@@ -3,7 +3,10 @@
 
 #include <iostream>
 using namespace std;
-DTMuonMillepede::DTMuonMillepede(std::string path, int n_files, float MaxPt, float MinPt, int nPhihits, int nThetahits, int workingmode, int nMtxSection) {
+DTMuonMillepede::DTMuonMillepede(std::string path, int n_files,
+				 float MaxPt, float MinPt,
+				 int nPhihits, int nThetahits,
+				 int workingmode, int nMtxSection) {
   
   ntuplePath = path;
   numberOfRootFiles = n_files;
@@ -14,11 +17,12 @@ DTMuonMillepede::DTMuonMillepede(std::string path, int n_files, float MaxPt, flo
   nPhiHits = nPhihits;
   nThetaHits = nThetahits;
 
+  TDirectory * dirSave = gDirectory;
+
   //Interface to Survey information
   myPG = new ReadPGInfo("./InternalData2009.root"); 
   
   f = new TFile("./LocalMillepedeResults.root", "RECREATE");
-
   f->cd();
 
   setBranchTree();
@@ -30,6 +34,7 @@ DTMuonMillepede::DTMuonMillepede(std::string path, int n_files, float MaxPt, flo
   f->Write(); 
   f->Close();
 
+  dirSave->cd();
 }
 
 
@@ -442,6 +447,9 @@ TMatrixD DTMuonMillepede::getMatrixFromFile(TString Code, int wh, int st, int se
 	    
   TString MtxFileName = "./LocalMillepedeMatrix_"; MtxFileName += mf; MtxFileName += ".root";
   if (mf==-1) MtxFileName = "./LocalMillepedeMatrix.root";
+
+  TDirectory *dirSave = gDirectory;
+
   TFile *MatrixFile = new TFile(MtxFileName);
   
   TString MtxName = Code; MtxName += wh; MtxName += "_"; MtxName += st; MtxName += "_"; MtxName += se;
@@ -449,6 +457,8 @@ TMatrixD DTMuonMillepede::getMatrixFromFile(TString Code, int wh, int st, int se
 
   MatrixFile->Close();
   
+  dirSave->cd();
+
   return *ThisMtx;
 
 }

@@ -1,3 +1,11 @@
+#ifndef Alignment_MuonAlignmentAlgorithms_MuonInfoTuple_H
+#define Alignment_MuonAlignmentAlgorithms_MuonInfoTuple_H
+
+/*  $Date$
+ *  $Revision: 1.3 $
+ *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
+ */
+
 #define MAX_HIT 60
 #define MAX_HIT_CHAM 14
 #define MAX_SEGMENT 5

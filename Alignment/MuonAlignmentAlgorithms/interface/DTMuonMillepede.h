@@ -1,3 +1,12 @@
+#ifndef Alignment_MuonAlignmentAlgorithms_DTMuonMillepede_H
+#define Alignment_MuonAlignmentAlgorithms_DTMuonMillepede_H
+
+/** \class DTMuonMillepede
+ *  $Date:$
+ *  $Revision: 1.3 $
+ *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
+ */
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/DTMuonLocalAlignment.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/ReadPGInfo.h"
 #include "TMatrixD.h"
@@ -59,4 +68,4 @@ class DTMuonMillepede : public DTMuonLocalAlignment {
    
 };
 
-
+#endif

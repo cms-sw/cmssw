@@ -1,3 +1,12 @@
+#ifndef Alignment_MuonAlignmentAlgorithms_DTMuonSLToSL_H
+#define Alignment_MuonAlignmentAlgorithms_DTMuonSLToSL_H
+
+/** \class DTMuonSLToSL
+ *  $Date$
+ *  $Revision: 1.3 $
+ *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
+ */
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/DTMuonLocalAlignment.h"
 #include "TMatrixD.h"
 #include "TFile.h"
@@ -5,7 +14,6 @@
 #include <string>
 #include "TChain.h"
 #include "math.h"
-
 
 class DTMuonSLToSL : public DTMuonLocalAlignment {
   
@@ -38,4 +46,4 @@ class DTMuonSLToSL : public DTMuonLocalAlignment {
 
 };
 
-
+#endif

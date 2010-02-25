@@ -1,7 +1,11 @@
 #ifndef Alignment_MuonAlignmentAlgorithms_DTMuonLocalAlignment_h
 #define Alignment_MuonAlignmentAlgorithms_DTMuonLocalAlignment_h
 
-
+/** \class DTMuonLocalAlignment
+ *  $Date$
+ *  $Revision: 1.3 $
+ *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
+ */
 
 #include "TFile.h"
 #include "TTree.h"
