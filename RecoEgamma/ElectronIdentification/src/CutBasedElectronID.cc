@@ -127,6 +127,8 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
   // ROBUST Selection
   if (type_ == "robust") {
     
+    float result = 0;
+
     // hoe, sigmaEtaEta, dPhiIn, dEtaIn
     if (electron->isEB())
       cut = cuts_.getParameter<std::vector<double> >("barrel");
