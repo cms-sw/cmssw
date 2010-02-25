@@ -48,7 +48,24 @@ process.BadComponentsOnline = cms.ESSource("PoolDBESSource",
 
 process.sistripconn = cms.ESProducer("SiStripConnectivity")
 
-#to produce ESetup based on o2o and cabling
+#to read information of RunInfo
+process.poolDBESSourceRunInfo = cms.ESSource("PoolDBESSource",
+   appendToDataLabel = cms.string('online2'),
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(2),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('frontier://PromptProd/CMS_COND_31X_RUN_INFO'),
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('RunInfoRcd'),
+        tag = cms.string('runinfo_start_31X_hlt')
+        )               
+    )
+)
+
+#to produce ESetup based on o2o, cabling and RunInfo
 process.MySSQ = cms.ESProducer("SiStripQualityESProducer",
     PrintDebug = cms.untracked.bool(True),
     PrintDebugOutput = cms.bool(False),
@@ -63,7 +80,11 @@ process.MySSQ = cms.ESProducer("SiStripQualityESProducer",
     ),
     cms.PSet(
        record = cms.string('SiStripDetCablingRcd'),
-       tag = cms.string('online')
+       tag = cms.string('')
+    ),
+    cms.PSet(
+       record = cms.string('RunInfoRcd'),
+       tag = cms.string('online2')
     )
     )
 )
