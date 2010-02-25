@@ -11,7 +11,7 @@ int main(){
   const std::string authpath("/afs/cern.ch/user/x/xiezhen");
   std::cout<<"fill out hlx data"<<std::endl;
   //fill lhx data
-  
+  /**
   std::auto_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("Lumi2DB",con));
   ptr->setAuthPath(authpath);
   ptr->setSource("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
@@ -26,12 +26,19 @@ int main(){
   
   //fill conf data
   std::cout<<"fill out conf data"<<std::endl;
-  std::auto_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create("HLTConf2DB",con));
-  hltptr->setSource("oracle://cms_omds_lb/CMS_HLT");
-  hltptr->setAuthPath(authpath);
+  std::auto_ptr<lumi::DataPipe> confptr(lumi::DataPipeFactory::get()->create("HLTConf2DB",con));
+  confptr->setSource("oracle://cms_omds_lb/CMS_HLT");
+  confptr->setAuthPath(authpath);
   unsigned int hltkey=1905;
-  hltptr->retrieveData(hltkey);
-  
+  confptr->retrieveData(hltkey);
+  **/
+  //fill hlt data
+  std::cout<<"fill out hlt data"<<std::endl;
+  std::auto_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create("HLT2DB",con));
+  hltptr->setSource("oracle://cms_omds_lb/CMS_RUNINFO");
+  hltptr->setAuthPath(authpath);
+  hltptr->retrieveData(129265);
+
   /*
   //fill runsummary data
   std::cout<<"fill out runsummary data"<<std::endl;
