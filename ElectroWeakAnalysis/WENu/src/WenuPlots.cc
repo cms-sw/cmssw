@@ -74,6 +74,17 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
     usePrecalcIDSign_ = iConfig.getUntrackedParameter<std::string>("usePrecalcIDSign","=");    
     usePrecalcIDValue_= iConfig.getUntrackedParameter<Double_t>("usePrecalcIDValue");
   }
+  useValidFirstPXBHit_ = iConfig.getUntrackedParameter<Bool_t>("useValidFirstPXBHit",false);
+  useConversionRejection_ = iConfig.getUntrackedParameter<Bool_t>("useConversionRejection",false);
+  useExpectedMissingHits_ = iConfig.getUntrackedParameter<Bool_t>("useExpectedMissingHits",false);
+  maxNumberOfExpectedMissingHits_ = iConfig.getUntrackedParameter<Int_t>("maxNumberOfExpectedMissingHits",1);
+  if (useValidFirstPXBHit_) std::cout << "WenuPlots: Warning: you have demanded a valid 1st layer PXB hit" << std::endl;
+  if (useConversionRejection_) std::cout << "WenuPlots: Warning: you have demanded egamma conversion rejection criteria to be applied" << std::endl;
+  if (useExpectedMissingHits_) std::cout << "WenuPlots: Warning: you have demanded at most " 
+      <<maxNumberOfExpectedMissingHits_ << " missing inner hits "<< std::endl;
+  if (useValidFirstPXBHit_ || useExpectedMissingHits_ || useConversionRejection_) {
+    usePreselection_ = true;
+  } else { usePreselection_ = false; }
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB");
@@ -204,6 +215,11 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     dynamic_cast<const pat::Electron*> (wenu.daughter("electron"));
   const pat::MET * myMet=
     dynamic_cast<const pat::MET*> (wenu.daughter("met"));
+  //
+  // if you want some preselection: Conv rejection, hit pattern 
+  if (usePreselection_) {
+    if (not PassPreselectionCriteria(myElec)) return;
+  }
   //
   // some variables here
   double scEta = myElec->superCluster()->eta();
@@ -408,7 +424,46 @@ double WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
 
 }
 /////////////////////////////////////////////////////////////////////////
-
+bool WenuPlots::PassPreselectionCriteria(const pat::Electron *ele) {
+  bool passConvRej = true;
+  bool passPXB = true;
+  bool passEMH = true;
+  if (useConversionRejection_) {
+    if (ele->hasUserInt("PassConversionRejection")) {
+      //std::cout << "con rej: " << ele->userInt("PassConversionRejection") << std::endl;
+      if (not (ele->userInt("PassConversionRejection")==1)) passConvRej = false;
+    }
+    else {
+      std::cout << "WenuPlots: WARNING: Conversion Rejection Request Disregarded: "
+		<< "you must calculate it before " << std::endl;
+      // return true;
+    }
+  }
+  if (useValidFirstPXBHit_) {
+    if (ele->hasUserInt("PassValidFirstPXBHit")) {
+      //std::cout << "valid1stPXB: " << ele->userInt("PassValidFirstPXBHit") << std::endl;
+      if (not (ele->userInt("PassValidPXBHit")==1)) passPXB = false;
+    }
+    else {
+      std::cout << "WenuPlots: WARNING: Valid First PXB Hit Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true;
+    }
+  }
+  if (useExpectedMissingHits_) {
+    if (ele->hasUserInt("NumberOfExpectedMissingHits")) {
+      //std::cout << "missing hits: " << ele->userInt("NumberOfExpectedMissingHits") << std::endl;
+      if (not (ele->userInt("NumberOfExpectedMissingHits")<=maxNumberOfExpectedMissingHits_)) 
+	passEMH = false;
+    }
+    else {
+      std::cout << "WenuPlots: WARNING: Number of Expected Missing Hits Request Disregarded: "
+                << "you must calculate it before " << std::endl;
+      // return true;
+    }
+  }
+  return passConvRej && passPXB && passEMH;
+}
 // ------------ method called once each job just before starting event loop  --
 void 
 WenuPlots::beginJob()
