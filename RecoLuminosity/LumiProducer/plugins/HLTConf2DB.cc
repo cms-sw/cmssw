@@ -40,7 +40,7 @@ namespace lumi{
   //implementation
   //
   HLTConf2DB::HLTConf2DB( const std::string& dest):DataPipe(dest){}
-  void HLTConf2DB::retrieveData( unsigned int ){
+  void HLTConf2DB::retrieveData( unsigned int configid ){
     //must login as cms_hlt_r
     //select HLTKEY from HLT_SUPERVISOR_SCALAR_MAP where RUNNR=124025
     std::string runinfoschema("CMS_RUNINFO");
@@ -53,7 +53,7 @@ namespace lumi{
     //std::cout<<"m_source "<<m_source<<std::endl;
     coral::ISessionProxy* srcsession=svc->connect(m_source, coral::ReadOnly);
     //coral::ITypeConverter& tpc=srcsession->typeConverter();
-    unsigned int configid=1905;
+    //unsigned int configid=1905;
     srcsession->transaction().start(true);
     coral::ISchema& confSchemaHandle=srcsession->schema(hltschema);
     if( !confSchemaHandle.existsTable("PATHS") || !confSchemaHandle.existsTable("STRINGPARAMVALUES") || !confSchemaHandle.existsTable("PARAMETERS") || !confSchemaHandle.existsTable("SUPERIDPARAMETERASSOC") || !confSchemaHandle.existsTable("MODULES") || !confSchemaHandle.existsTable("MODULETEMPLATES") || !confSchemaHandle.existsTable("PATHMODULEASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONPATHASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONS") ){
@@ -81,9 +81,9 @@ namespace lumi{
     q1->addToTableList("PATHMODULEASSOC");
     q1->addToTableList("CONFIGURATIONPATHASSOC");
     q1->addToTableList("CONFIGURATIONS");
-
+    
     q1->setCondition("PARAMETERS.PARAMID=STRINGPARAMVALUES.PARAMID and SUPERIDPARAMETERASSOC.PARAMID=PARAMETERS.PARAMID and MODULES.SUPERID=SUPERIDPARAMETERASSOC.SUPERID and MODULETEMPLATES.SUPERID=MODULES.TEMPLATEID and PATHMODULEASSOC.MODULEID=MODULES.SUPERID and PATHS.PATHID=PATHMODULEASSOC.PATHID and CONFIGURATIONPATHASSOC.PATHID=PATHS.PATHID and CONFIGURATIONS.CONFIGID=CONFIGURATIONPATHASSOC.CONFIGID and MODULETEMPLATES.NAME = :hltseed and PARAMETERS.NAME = :l1seedexpr and CONFIGURATIONS.CONFIGID = :hltkey",q1BindVariableList);
-
+    
     /**
        select paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configid=1905; 
     **/
@@ -100,23 +100,42 @@ namespace lumi{
     delete q1;
     srcsession->transaction().commit();
     delete srcsession;
-
+    
     std::vector< std::pair<std::string,std::string> >::const_iterator mIt;
     std::vector< std::pair<std::string,std::string> >::const_iterator mBeg=hlt2l1map.begin();
     std::vector< std::pair<std::string,std::string> >::const_iterator mEnd=hlt2l1map.end();
     
-    for(mIt=mBeg; mIt!=mEnd; ++mIt ){
-      std::cout<<mIt->first<<" "<<mIt->second<<std::endl;
-      
+    coral::ISessionProxy* destsession=svc->connect(m_dest, coral::Update);
+    try{
+      destsession->transaction().start(false);
+      coral::ISchema& destschema=destsession->nominalSchema();
+      coral::ITable& hltconftable=destschema.tableHandle(LumiNames::trghltMapTableName());
+      coral::AttributeList hltconfData;
+      hltconfData.extend<unsigned int>("HLTCONFID");
+      hltconfData.extend<std::string>("HLTPATHNAME");
+      hltconfData.extend<std::string>("L1SEED");
+      coral::IBulkOperation* hltconfInserter=hltconftable.dataEditor().bulkInsert(hltconfData,200);
+      hltconfData["HLTCONFID"].data<unsigned int>()=configid;
+      std::string& hltpathname=hltconfData["HLTPATHNAME"].data<std::string>();
+      std::string& l1seedname=hltconfData["L1SEED"].data<std::string>();
+      for(mIt=mBeg; mIt!=mEnd; ++mIt ){
+	hltpathname=mIt->first;
+	l1seedname=mIt->second;
+	hltconfInserter->processNextIteration();
+	//std::cout<<mIt->first<<" "<<mIt->second<<std::endl;      
+      }
+      hltconfInserter->flush();
+      delete hltconfInserter;
+    }catch( const coral::Exception& er){
+      std::cout<<"database problem "<<er.what()<<std::endl;
+      destsession->transaction().rollback();
+      delete destsession;
+      delete svc;
+      throw er;
     }
-    
-    //coral::ISessionProxy* destsession=svc->connect(m_dest, coral::Update);
-    //coral::ITypeConverter& tpcdest=destsession->typeConverter();
-    //destsession->transaction().start(false);
-    
-    //destsession->transaction().commit();
-    //delete destsession;
-
+    destsession->transaction().commit();
+    delete destsession;
+    delete svc;
   }
   const std::string HLTConf2DB::dataType() const{
     return "HLTConf";
