@@ -16,6 +16,7 @@ class SurveyPxbImage
 	typedef unsigned int id_t;
 	typedef double value_t;
 	typedef Point3DBase<value_t, LocalTag> coord_t;
+	typedef std::pair<id_t,id_t> idPair_t;
 
 	//! \p enum to help access specific locations on a picture
 	enum location{
@@ -59,6 +60,8 @@ class SurveyPxbImage
 	const id_t getIdFirst() { return idPair_.first; };
 	//! Get \p Id of second module
 	const id_t getIdSecond() { return idPair_.second; };
+	//! Get \p Id pair
+	const idPair_t getIdPair() { return idPair_; };
 
 	/*! Get coordinate of a measurement
 	  \param m number of mark
@@ -87,7 +90,7 @@ class SurveyPxbImage
 	
 	//! Pair to hold the Id's of the involved modules
 	//! first: module with lower Id
-	std::pair<id_t,id_t> idPair_;
+	idPair_t idPair_;
 	
 };
 
