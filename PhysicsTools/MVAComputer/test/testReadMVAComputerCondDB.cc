@@ -98,5 +98,4 @@ void testReadMVAComputerCondDB::endJob()
 }
 
 // define this as a plug-in
-
 DEFINE_FWK_MODULE(testReadMVAComputerCondDB);
