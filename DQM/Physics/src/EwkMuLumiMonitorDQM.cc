@@ -230,13 +230,12 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       isW_=false;
       // Trigger
       Handle<TriggerResults> triggerResults;
-      TriggerNames trigNames;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
 	LogWarning("") << ">>> TRIGGER collection does not exist !!!";
 	return;
       }
       ev.getByLabel(trigTag_, triggerResults); 
-      trigNames.init(*triggerResults);
+      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       bool trigger_fired = false;
       for (unsigned int i=0; i<triggerResults->size(); i++) {
         std::string trigName = trigNames.triggerName(i);

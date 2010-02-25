@@ -1,12 +1,13 @@
 /*
- *  $Date: 2009/11/25 14:47:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/07 14:16:30 $
+ *  $Revision: 1.9 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
 #include "TLorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DQM/Physics/src/TopDiLeptonDQM.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 using namespace std;
 using namespace edm;
@@ -216,8 +217,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     int N_Triggers = trigResults->size();
 
-    TriggerNames trigName;
-    trigName.init(*trigResults);
+    const edm::TriggerNames & trigName = evt.triggerNames(*trigResults);
 
     for( int i_Trig = 0; i_Trig < N_Triggers; ++i_Trig ) {
 

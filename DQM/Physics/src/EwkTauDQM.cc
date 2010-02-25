@@ -232,8 +232,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 		readError, "Failed to access Trigger results");
   if ( readError ) return;
   
-  edm::TriggerNames triggerNames;
-  triggerNames.init(*hltDecision);
+  const edm::TriggerNames & triggerNames = evt.triggerNames(*hltDecision);
    
   bool isTriggered = false;
   for ( vstring::const_iterator hltPath = hltPaths_.begin();
@@ -632,8 +631,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 		readError, "Failed to access Trigger results");
   if ( readError ) return;
   
-  edm::TriggerNames triggerNames;
-  triggerNames.init(*hltDecision);
+  const edm::TriggerNames & triggerNames = evt.triggerNames(*hltDecision);
    
   bool isTriggered = false;
   for ( vstring::const_iterator hltPath = hltPaths_.begin();
