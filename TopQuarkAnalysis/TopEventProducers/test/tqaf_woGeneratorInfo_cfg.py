@@ -38,7 +38,7 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.jetTools import *
 process.patDefaultSequence.remove(process.ak5JetID)
 addJetID(process,
-         "sisCone5CaloJets",
+         cms.InputTag("sisCone5CaloJets"),
          'sc5')
 switchJetCollection(process, 
                     cms.InputTag("sisCone5CaloJets"),
