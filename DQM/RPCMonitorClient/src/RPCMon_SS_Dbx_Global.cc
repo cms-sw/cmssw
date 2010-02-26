@@ -39,7 +39,7 @@ RPCMon_SS_Dbx_Global::~RPCMon_SS_Dbx_Global(){
   dbe_=0;
 }
 
-void RPCMon_SS_Dbx_Global::beginJob(const EventSetup& iSetup){
+void RPCMon_SS_Dbx_Global::beginJob(){
  LogVerbatim ("rpcmonitorerror") << "[RPCMon_SS_Dbx_Global]: Begin job ";
  dbe_ = Service<DQMStore>().operator->();
 }
@@ -130,7 +130,7 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	     name << "Barrel, After Pulse, Diff. bx, Wheel # " << std::setw(2) << std::setfill('+') << id.ring();
 	     me = dbe_->get(globalFolder_ + "/"+tag.str());
 	     if (!me){
-	       me = dbe_->book2D (tag.str(),name.str(),12,0.5,13.5,21,1.0,21.0);
+	       me = dbe_->book2D (tag.str(),name.str(),12,0.5,12.5,21,1.0,21.0);
 	       rpcUtils.labelXAxisSector( me);
 	       rpcUtils.labelYAxisRoll(me, 0, id.ring());
 	     }
