@@ -85,6 +85,8 @@ process.L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'CSCTF',
 
 # Generate configuration data from OMDS
 process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFConfigOnline_cfi")
+#process.load("L1TriggerConfig.CSCTFConfigProducers.CSCTFAlignmentOnline_cfi")
+process.load("L1TriggerConfig.CSCTFConfigProducers.L1MuCSCPtLutConfigOnline_cfi")
 
 process.load("L1TriggerConfig.DTTrackFinder.L1MuDTEtaPatternLutOnline_cfi")
 process.load("L1TriggerConfig.DTTrackFinder.L1MuDTExtLutOnline_cfi")
