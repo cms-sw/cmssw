@@ -16,11 +16,12 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.10 2009/10/26 15:56:35 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.11 2010/02/20 21:00:43 wmtan Exp $
 //
 
 // system include files
 #include <memory>
+#include <map>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -45,11 +46,22 @@ public:
   explicit SoftLepton(const edm::ParameterSet& iConfig);
   ~SoftLepton();
 
+  struct TrackCompare :
+    public std::binary_function<edm::RefToBase<reco::Track>,
+                                edm::RefToBase<reco::Track>, bool> {
+    inline bool operator () (const edm::RefToBase<reco::Track> &t1,
+                             const edm::RefToBase<reco::Track> &t2) const
+    { return t1.key() < t2.key();}
+  };
+
+  typedef std::map<unsigned int, float> LeptonIds;
+  typedef std::map<edm::RefToBase<reco::Track>, LeptonIds, TrackCompare> Leptons;
+
   // generic interface, using a TrackRefVector for lepton tracks
   reco::SoftLeptonTagInfo tag (
       const edm::RefToBase<reco::Jet> & jet,
       const reco::TrackRefVector      & tracks,
-      const std::vector<edm::RefToBase<reco::Track> > & leptons,
+      const Leptons                   & leptons,
       const reco::Vertex              & primaryVertex
   ) const;
 
@@ -60,6 +72,8 @@ public:
   };
 
 protected:
+  // generic interface, using a TrackRefVector for lepton tracks
+
   GlobalVector refineJetAxis (
       const edm::RefToBase<reco::Jet>   & jet,
       const reco::TrackRefVector        & tracks,
@@ -83,6 +97,8 @@ private:
   const edm::InputTag m_jets;
   const edm::InputTag m_primaryVertex;
   const edm::InputTag m_leptons;
+  const edm::InputTag m_leptonCands;
+  const edm::InputTag m_leptonId;
 
   // service used to make transient tracks from tracks
   const TransientTrackBuilder * m_transientTrackBuilder;
@@ -91,7 +107,6 @@ private:
   unsigned int  m_refineJetAxis;
   double        m_deltaRCut;
   double        m_chi2Cut;
-  double        m_qualityCut;
   VertexType    m_pvType;       // vertex type
   
   // specific for reco::Muons

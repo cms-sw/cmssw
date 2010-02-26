@@ -3,31 +3,38 @@
 
 #include <string>
 
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 namespace btag {
 
-namespace LeptonSelector {
+class LeptonSelector {
+  public:
+    LeptonSelector(const edm::ParameterSet &params);
+    ~LeptonSelector();
 
-/// optionally select leptons based on their impact parameter sign
-enum sign {
-  negative = -1,
-  any      =  0,
-  positive =  1
+    bool operator() (const reco::SoftLeptonProperties &properties, bool use3d = true) const;
+
+    inline bool isAny()      const { return m_sign == any; }
+    inline bool isPositive() const { return m_sign == positive; }
+    inline bool isNegative() const { return m_sign == negative; }
+
+  private:
+    /// optionally select leptons based on their impact parameter sign
+
+    enum sign {
+      negative = -1,
+      any      =  0,
+      positive =  1
+    };
+
+    static sign option(const std::string & election);
+
+    sign                                         m_sign;
+    reco::SoftLeptonProperties::quality::Generic m_leptonId;
+    float                                        m_qualityCut;
 };
-
-inline sign option(const std::string & selection) {
-  if (selection == "any")
-    return any;
-  else if (selection == "negative")
-    return negative;
-  else if (selection == "positive")
-    return positive;
-  else 
-    throw edm::Exception( edm::errors::Configuration ) << "invalid parameter specified for soft lepton selection";
-}
-
-} // namespace LeptonSelector
 
 } // namespace btag
 

@@ -8,9 +8,9 @@
 
 /** \class ElectronTagger
  *
- *  $Id: ElectronTagger.h,v 1.4 2008/04/24 22:15:48 saout Exp $
- *  $Date: 2008/04/24 22:15:48 $
- *  $Revision: 1.4 $
+ *  $Id: ElectronTagger.h,v 1.5 2008/10/01 12:35:34 fwyzard Exp $
+ *  $Date: 2008/10/01 12:35:34 $
+ *  $Revision: 1.5 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -22,7 +22,7 @@ public:
   /// explicit ctor 
   explicit ElectronTagger(const edm::ParameterSet & configuration) : 
     theNet(),
-    m_selection( btag::LeptonSelector::option( configuration.getParameter<std::string>("ipSign") ) )
+    m_selector(configuration)
   { 
     uses("seTagInfos"); 
   }
@@ -37,7 +37,7 @@ private:
 
   mutable ElectronTaggerMLP theNet;
 
-  btag::LeptonSelector::sign m_selection;
+  btag::LeptonSelector m_selector;
 
 };
 

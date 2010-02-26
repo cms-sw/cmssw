@@ -12,16 +12,9 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
   // if there are multiple leptons, look for the highest tag result
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
-    if ((m_selection == btag::LeptonSelector::any) or 
-        (m_selection == btag::LeptonSelector::positive and properties.sip3d >= 0)) 
-    {
-      float tag = theNet.value(0, properties.ptRel, properties.sip3d, properties.deltaR, properties.ratioRel);
-      if (tag > bestTag)
-        bestTag = tag;
-    }
-    else if (m_selection == btag::LeptonSelector::negative and properties.sip3d <= 0) 
-    {
-      float tag = theNet.value(0, properties.ptRel, - properties.sip3d, properties.deltaR, properties.ratioRel);
+    if (m_selector(properties)) {
+      float sip3d = m_selector.isNegative() ? -properties.sip3d : properties.sip3d;
+      float tag = theNet.value(0, properties.ptRel, sip3d, properties.deltaR, properties.ratioRel);
       if (tag > bestTag)
         bestTag = tag;
     }

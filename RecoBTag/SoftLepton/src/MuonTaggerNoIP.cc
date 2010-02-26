@@ -12,10 +12,7 @@ float MuonTaggerNoIP::discriminator(const TagInfoHelper & tagInfo) const {
   // if there are multiple leptons, look for the highest tag result
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
-    if ((m_selection == btag::LeptonSelector::any) or 
-        (m_selection == btag::LeptonSelector::positive and properties.sip3d >= 0) or 
-        (m_selection == btag::LeptonSelector::negative and properties.sip3d <= 0)) 
-    {
+    if (m_selector(properties)) {
       float tag = theNet.value( 0, properties.ptRel, properties.ratioRel, properties.deltaR, info.jet()->energy(), info.jet()->eta() ) +
                   theNet.value( 1, properties.ptRel, properties.ratioRel, properties.deltaR, info.jet()->energy(), info.jet()->eta() );
       if (tag > bestTag)

@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 #from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
-from RecoBTag.SoftLepton.softPFElectronProducer_cfi import *
+#from RecoBTag.SoftLepton.softPFElectronProducer_cfi import *
+from RecoBTag.SoftLepton.softElectronCandProducer_cfi import *
 from RecoBTag.SoftLepton.softLeptonByPtES_cfi import *
 from RecoBTag.SoftLepton.softLeptonByIP3dES_cfi import *
 from RecoBTag.SoftLepton.softElectronES_cfi import *

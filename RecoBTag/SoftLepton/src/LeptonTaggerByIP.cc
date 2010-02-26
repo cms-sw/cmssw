@@ -13,13 +13,10 @@ float LeptonTaggerByIP::discriminator(const TagInfoHelper & tagInfo) const {
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
     float sip = m_use3d ? properties.sip3d : properties.sip2d;
-    if ((m_selection == btag::LeptonSelector::any) or (m_selection == btag::LeptonSelector::positive and sip >= 0)) {
+    if (m_selector.isNegative())
+      sip = -sip;
+    if (m_selector(properties, m_use3d)) {
       float tag = sip;
-      if (tag > bestTag)
-        bestTag = tag;
-    }
-    else if (m_selection == btag::LeptonSelector::negative and sip <= 0) {
-      float tag = - sip;
       if (tag > bestTag)
         bestTag = tag;
     }

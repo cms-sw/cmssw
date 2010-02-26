@@ -4,12 +4,12 @@ import RecoBTag.SoftLepton.muonSelection
 # SoftLeptonTagInfo producer for tagging caloJets with dedicated "soft" electrons
 softElectronTagInfos = cms.EDProducer("SoftLepton",
     jets = cms.InputTag("ak5CaloJets"),
-    leptons = cms.InputTag("softPFElectrons"),
+    leptons = cms.InputTag("gsfElectrons"),
+    leptonCands = cms.InputTag("softElectronCands"),
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
 
     refineJetAxis = cms.uint32(0),          # use calorimetric jet direction minus electron momentum by default
 
-    leptonQualityCut = cms.double(0.0),
     leptonDeltaRCut = cms.double(0.4),      # lepton distance from jet axis
     leptonChi2Cut = cms.double(10.0),     # no cut on lepton's track's chi2/ndof
     

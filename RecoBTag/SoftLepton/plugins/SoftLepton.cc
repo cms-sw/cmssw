@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.33 2009/10/26 15:23:43 saout Exp $
+// $Id: SoftLepton.cc,v 1.34 2010/02/22 18:19:58 saout Exp $
 
 
 #include <memory>
@@ -30,6 +30,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 // ROOT::Math vectors (aka math::XYZVector)
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -94,11 +95,12 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_jets(          iConfig.getParameter<edm::InputTag>( "jets" ) ),
   m_primaryVertex( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ),
   m_leptons(       iConfig.getParameter<edm::InputTag>( "leptons" ) ),
-  m_transientTrackBuilder( NULL ),
+  m_leptonCands(   iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ),
+  m_leptonId(      iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ),
+  m_transientTrackBuilder( 0 ),
   m_refineJetAxis( iConfig.getParameter<unsigned int>( "refineJetAxis" ) ),
   m_deltaRCut(     iConfig.getParameter<double>( "leptonDeltaRCut" ) ),
   m_chi2Cut(       iConfig.getParameter<double>( "leptonChi2Cut" ) ),
-  m_qualityCut(    iConfig.getParameter<double>( "leptonQualityCut" ) ),
   m_muonSelection( (muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
@@ -175,7 +177,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   {
     Handle<reco::VertexCollection> h_primaryVertex;
     event.getByLabel(m_primaryVertex, h_primaryVertex);
-    if (not h_primaryVertex->empty())
+    if (!h_primaryVertex->empty())
       vertex = h_primaryVertex->front();
     else
       // fall back to nominal beam spot
@@ -183,37 +185,63 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   }
 
   // input leptons (can be of different types)
-  ProductID leptons_id;
-  std::vector<edm::RefToBase<reco::Track> > leptons;
+  Leptons leptons;
+
+  Handle< ValueMap<float> > h_leptonCands;
+  bool haveLeptonCands = !(m_leptonCands == edm::InputTag());
+  if (haveLeptonCands)
+    event.getByLabel(m_leptonCands, h_leptonCands);
+
   // try to access the input collection as a collection of GsfElectrons, Muons or Tracks
+
+  unsigned int leptonId = SoftLeptonProperties::quality::leptonId;
   do { {
     // look for View<GsfElectron>
     Handle<GsfElectronView> h_electrons;
     event.getByLabel(m_leptons, h_electrons);
+
     if (h_electrons.isValid()) {
-      for (GsfElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
-        leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
+      leptonId = SoftLeptonProperties::quality::egammaElectronId;
+      for (GsfElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
+        LeptonIds &id = leptons[reco::TrackBaseRef(electron->gsfTrack())];
+        id[SoftLeptonProperties::quality::pfElectronId] = electron->mva();
+        if (haveLeptonCands)
+          id[SoftLeptonProperties::quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
+      }
       break;
     }
   } { // else
     // look for View<Electron>
+    // FIXME: is this obsolete?
     Handle<ElectronView> h_electrons;
     event.getByLabel(m_leptons, h_electrons);
     if (h_electrons.isValid()) {
-      for (ElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
-        leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
+      leptonId = SoftLeptonProperties::quality::egammaElectronId;
+      for (ElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
+        LeptonIds &id = leptons[reco::TrackBaseRef(electron->track())];
+        if (haveLeptonCands)
+          id[SoftLeptonProperties::quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
+      }
       break;
     }
   } { // else
     // look for PFElectrons
+    // FIXME: is this obsolete?
     Handle<reco::PFCandidateCollection> h_electrons;
     event.getByLabel(m_leptons, h_electrons);
     if (h_electrons.isValid()) {
+      leptonId = SoftLeptonProperties::quality::egammaElectronId;
       for (reco::PFCandidateCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
-        if(!(electron->gsfTrackRef().isNull()))
-          leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrackRef() ));
+        LeptonIds *id;
+        if (electron->gsfTrackRef().isNonnull())
+          id = &leptons[reco::TrackBaseRef(electron->gsfTrackRef())];
+        else if (electron->trackRef().isNonnull())
+          id = &leptons[reco::TrackBaseRef(electron->trackRef())];
         else
-          leptons.push_back(edm::RefToBase<reco::Track>( electron->trackRef() ));
+          continue;
+        (*id)[SoftLeptonProperties::quality::pfElectronId] = electron->mva_e_pi();
+        if (haveLeptonCands)
+          (*id)[SoftLeptonProperties::quality::btagElectronCands] = (*h_leptonCands)[reco::PFCandidateRef(h_electrons, electron - h_electrons->begin())];
       }
       break;
     }
@@ -223,16 +251,20 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     event.getByLabel(m_leptons, h_muons);
     if (h_muons.isValid()) {
       for (MuonView::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon) {
+        // FIXME -> turn this selection into a muonCands input?
         if (muon::isGoodMuon( *muon, m_muonSelection )) {
-          if (not muon->globalTrack().isNull())
-            leptons.push_back(edm::RefToBase<reco::Track>( muon->globalTrack() ));
-          else 
-          if (not muon->innerTrack().isNull())
-            leptons.push_back(edm::RefToBase<reco::Track>( muon->innerTrack() ));
-          else
-          if (not muon->outerTrack().isNull())
+          LeptonIds *id;
+          if (muon->globalTrack().isNonnull())
+            id = &leptons[reco::TrackBaseRef(muon->globalTrack())];
+          else if (muon->innerTrack().isNonnull())
+            id = &leptons[reco::TrackBaseRef(muon->innerTrack())];
+          else if (muon->outerTrack().isNonnull())
             // does this makes sense ?
-            leptons.push_back(edm::RefToBase<reco::Track>( muon->outerTrack() ));
+            id = &leptons[reco::TrackBaseRef(muon->outerTrack())];
+          else
+            continue;
+          if (haveLeptonCands)
+            (*id)[SoftLeptonProperties::quality::btagMuonCands] = (*h_leptonCands)[h_muons->refAt(muon - h_muons->begin())];
         }
       }
       break;
@@ -242,13 +274,24 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     Handle<edm::View<reco::Track> > h_tracks;
     event.getByLabel(m_leptons, h_tracks);
     if (h_tracks.isValid()) {
-      for (unsigned int i = 0; i < h_tracks->size(); i++)
-        leptons.push_back(h_tracks->refAt(i));
+      for (unsigned int i = 0; i < h_tracks->size(); i++) {
+        LeptonIds &id = leptons[h_tracks->refAt(i)];
+        if (haveLeptonCands)
+          id[SoftLeptonProperties::quality::btagLeptonCands] = (*h_leptonCands)[h_tracks->refAt(i)];
+      }
       break;
     }
   } { // else
-    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"edm::View<reco::GsfElectron>\", \"edm::View<reco::Muon>\", \"edm::View<reco::Track>\") not found";
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"edm::View<reco::GsfElectron>\", \"edm::View<reco::Muon>\", \"edm::View<reco::Track>\") !found";
   } } while (false);
+
+  if (!(m_leptonId == edm::InputTag())) {
+    Handle< ValueMap<float> > h_leptonId;
+    event.getByLabel(m_leptonId, h_leptonId);
+
+    for(Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
+      lepton->second[leptonId] = (*h_leptonId)[lepton->first];
+  }
 
   // output collections
   std::auto_ptr<reco::SoftLeptonTagInfoCollection> outputCollection(  new reco::SoftLeptonTagInfoCollection() );
@@ -263,26 +306,25 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
 reco::SoftLeptonTagInfo SoftLepton::tag (
     const edm::RefToBase<reco::Jet> & jet,
     const reco::TrackRefVector      & tracks,
-    const std::vector<edm::RefToBase<reco::Track> > & leptons,
+    const Leptons                   & leptons,
     const reco::Vertex              & primaryVertex
 ) const {
   reco::SoftLeptonTagInfo info;
   info.setJetRef( jet );
 
-  for (unsigned int i = 0; i < leptons.size(); i++) {
-    const edm::RefToBase<reco::Track> & lepton = leptons[i];
-    const math::XYZVector & lepton_momentum = lepton->momentum();
-    if ((m_chi2Cut > 0.0) and (lepton->normalizedChi2() > m_chi2Cut))
+  for(Leptons::const_iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
+    const math::XYZVector & lepton_momentum = lepton->first->momentum();
+    if (m_chi2Cut > 0.0 && lepton->first->normalizedChi2() > m_chi2Cut)
       continue;
 
-    const GlobalVector jetAxis = refineJetAxis( jet, tracks, lepton );
+    const GlobalVector jetAxis = refineJetAxis( jet, tracks, lepton->first );
     const math::XYZVector axis( jetAxis.x(), jetAxis.y(), jetAxis.z());
     if (DeltaR(lepton_momentum, axis) > m_deltaRCut)
       continue;
 
     reco::SoftLeptonProperties properties;
 
-    const reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton);
+    reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton->first);
     properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
     properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
     properties.deltaR   = DeltaR( lepton_momentum, axis );
@@ -291,8 +333,11 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     properties.etaRel   = relativeEta( lepton_momentum, axis );
     properties.ratio    = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
-//    properties.quality  = 0.; // replaced by setQuality()
-    info.insert( lepton, properties );
+ 
+    for(LeptonIds::const_iterator iter = lepton->second.begin(); iter != lepton->second.end(); ++iter)
+      properties.setQuality(static_cast<SoftLeptonProperties::quality::Generic>(iter->first), iter->second);
+
+    info.insert( lepton->first, properties );
   }
 
   return info;
@@ -303,7 +348,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
 GlobalVector SoftLepton::refineJetAxis (
     const edm::RefToBase<reco::Jet>   & jet,
     const reco::TrackRefVector        & tracks,
-    const edm::RefToBase<reco::Track> & exclude /* = edm::RefToBase<reco::Track>() */
+    const reco::TrackBaseRef & exclude /* = reco::TrackBaseRef() */
 ) const {
   math::XYZVector axis = jet->momentum();
 

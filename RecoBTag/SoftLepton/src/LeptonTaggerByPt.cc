@@ -12,10 +12,7 @@ float LeptonTaggerByPt::discriminator(const TagInfoHelper & tagInfo) const {
   // if there are multiple leptons, look for the one with the highest pT_rel
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
-    if ((m_selection == btag::LeptonSelector::any) or 
-        (m_selection == btag::LeptonSelector::positive and properties.sip3d >= 0) or 
-        (m_selection == btag::LeptonSelector::negative and properties.sip3d <= 0)) 
-    {
+    if (m_selector(properties)) {
       float tag = properties.ptRel;
       if (tag > bestTag)
         bestTag = tag;
