@@ -6,7 +6,7 @@
 #
 
 MASTER="/dev/CMSSW_3_5_0/HLT"                       # no version, take the latest one
-TARGET="/online/commissioning10/week05/HLT"         # where to store the online-compliant menu
+TARGET="/online/commissioning10/week09/HLT"         # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
