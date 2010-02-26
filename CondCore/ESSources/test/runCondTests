@@ -27,6 +27,7 @@ cmsRun $runbasedir/src/CondCore/ESSources/test/python/print_ped_cfg.py
 
 echo "test blob"
 cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeBlob_cfg.py
+cmscond_list_iov -c sqlite_file:blob.db  -t noise_tag 
 pool_retrieve_object_relational_mapping -c sqlite_file:blob.db -n mySiStripNoises -d CondFormatsCalibration -o mapping.xml
 cat mapping.xml
 echo "read back blob"
@@ -55,8 +56,8 @@ cmsRun $runbasedir/src/CondCore/DBOutputService/test/python/writeKeyed_cfg.py
 cmscond_list_iov -c sqlite:keys.db -t KeyTest -s
 cmscond_list_iov -c sqlite:keys.db -t ConfTest
 pool_list_object_relational_mapping -c sqlite_file:keys.db
-$runbasedir/test/slc5_ia32_gcc434/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 15
-$runbasedir/test/slc5_ia32_gcc434/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 99
+$runbasedir/test/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 15
+$runbasedir/test/$SCRAM_ARCH/CondDataProxy_t -c sqlite_file:keys.db -t ConfTest -k KeyTest -r ExDwarfListRcd -a 99
 
 
 echo "test refresh"
