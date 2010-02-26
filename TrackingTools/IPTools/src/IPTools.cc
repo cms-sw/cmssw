@@ -2,6 +2,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -11,6 +12,8 @@
 #include <string>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
 
 namespace IPTools
@@ -19,41 +22,70 @@ namespace IPTools
   using namespace reco;
 
 
-  /** 
-   *  Returns life time signed transverse impact parameter
-   *  The track is extrapolated to the closest point to the primary vertex in transverse plane
-   *  then the impact parameter and its error are computed
-   */
+    std::pair<bool,Measurement1D> absoluteImpactParameter(const TrajectoryStateOnSurface & tsos  , const  reco::Vertex & vertex, VertexDistance & distanceComputer) {
+        if(!tsos.isValid()) {
+         return pair<bool,Measurement1D>(false,Measurement1D(0.,0.)) ;
+        }
+        GlobalPoint refPoint          = tsos.globalPosition();
+        GlobalError refPointErr       = tsos.cartesianError().position();
+        GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
+        GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+        return pair<bool,Measurement1D>(true,distanceComputer.distance(VertexState(vertexPosition,vertexPositionErr), VertexState(refPoint, refPointErr)));
+   }
 
+    std::pair<bool,Measurement1D> absoluteImpactParameter3D(const reco::TransientTrack & transientTrack, const  reco::Vertex & vertex)
+    {
+      AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
+      VertexDistance3D dist;
+      return absoluteImpactParameter(extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position())), vertex, dist);
+    }
+    std::pair<bool,Measurement1D> absoluteTransverseImpactParameter(const reco::TransientTrack & transientTrack, const  reco::Vertex & vertex)
+    {
+      TransverseImpactPointExtrapolator extrapolator(transientTrack.field());
+      VertexDistanceXY dist;
+      return absoluteImpactParameter(extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position())), vertex,  dist);
+    }
+    
   pair<bool,Measurement1D> signedTransverseImpactParameter(const TransientTrack & track,
                                                            const GlobalVector & direction, const  Vertex & vertex){
-
-    GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
-    GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
-
     //Extrapolate to closest point on transverse plane
-    TrajectoryStateOnSurface closestOnTransversePlaneState = transverseExtrapolate(track.impactPointState(),vertexPosition,track.field());
+    TransverseImpactPointExtrapolator extrapolator(track.field());
+    TrajectoryStateOnSurface closestOnTransversePlaneState = extrapolator.extrapolate(track.impactPointState(),RecoVertex::convertPos(vertex.position()));
+    
+    //Compute absolute value
+    VertexDistanceXY dist;
+    pair<bool,Measurement1D> result = absoluteImpactParameter(closestOnTransversePlaneState, vertex,  dist);
 
-    //Check if extrapolation has been successfull
-    if(!closestOnTransversePlaneState.isValid()) {
-      //TODO: throw instead?
-      return pair<bool,Measurement1D>(false,Measurement1D(0.,0.)) ;
-    }
-
+    //Compute Sign
     GlobalPoint impactPoint    = closestOnTransversePlaneState.globalPosition();
-    GlobalError impactPointErr = closestOnTransversePlaneState.cartesianError().position();
-
-    ///calculate the distance of the PV to the refPoint on the track
-    VertexDistanceXY distanceComputer;
-    Measurement1D mess1D = distanceComputer.distance(VertexState(vertexPosition, vertexPositionErr), VertexState(impactPoint, impactPointErr));
-
-
     GlobalVector IPVec(impactPoint.x()-vertex.x(),impactPoint.y()-vertex.y(),0.);
     double prod = IPVec.dot(direction);
-    double sign = (prod!=0) ? prod/fabs(prod) : 1.;
-
-    return pair<bool,Measurement1D>(true,Measurement1D(sign*mess1D.value(), mess1D.error()));
+    double sign = (prod>=0) ? 1. : -1.;
+    
+    //Apply sign to the result
+    return pair<bool,Measurement1D>(result.first,Measurement1D(sign*result.second.value(), result.second.error()));
   }
+
+  pair<bool,Measurement1D> signedImpactParameter3D(const TransientTrack & track,
+                                                           const GlobalVector & direction, const  Vertex & vertex){
+    //Extrapolate to closest point on transverse plane
+    AnalyticalImpactPointExtrapolator extrapolator(track.field());
+    TrajectoryStateOnSurface closestIn3DSpaceState = extrapolator.extrapolate(track.impactPointState(),RecoVertex::convertPos(vertex.position()));
+
+    //Compute absolute value
+    VertexDistance3D dist;
+    pair<bool,Measurement1D> result = absoluteImpactParameter(closestIn3DSpaceState, vertex,  dist);
+
+    //Compute Sign
+    GlobalPoint impactPoint = closestIn3DSpaceState.globalPosition();
+    GlobalVector IPVec(impactPoint.x()-vertex.x(),impactPoint.y()-vertex.y(),impactPoint.z()-vertex.z());
+    double prod = IPVec.dot(direction);
+    double sign = (prod>=0) ? 1. : -1.;
+
+    //Apply sign to the result
+    return pair<bool,Measurement1D>(result.first,Measurement1D(sign*result.second.value(), result.second.error()));
+  }
+
 
 
   pair<bool,Measurement1D> signedDecayLength3D(const   TrajectoryStateOnSurface & closestToJetState,
@@ -61,7 +93,6 @@ namespace IPTools
 
     //Check if extrapolation has been successfull
     if(!closestToJetState.isValid()) {
-      //TODO: throw instead?
       return pair<bool,Measurement1D>(false,Measurement1D(0.,0.));
     }
 
@@ -96,15 +127,13 @@ namespace IPTools
 
 
     
-  pair<bool,Measurement1D> signedImpactParameter3D(const   TrajectoryStateOnSurface & closestToJetState ,
+  pair<bool,Measurement1D> linearizedSignedImpactParameter3D(const   TrajectoryStateOnSurface & closestToJetState ,
 						   const GlobalVector & direction, const  Vertex & vertex)
   {
     //Check if extrapolation has been successfull
     if(!closestToJetState.isValid()) {
-      //TODO: throw instead?
       return pair<bool,Measurement1D>(false,Measurement1D(0.,0.));
     }
-
 
     GlobalPoint vertexPosition(vertex.x(),vertex.y(),vertex.z());
     GlobalVector impactParameter = linearImpactParameter(closestToJetState, vertexPosition);
