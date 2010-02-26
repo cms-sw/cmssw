@@ -3,6 +3,7 @@
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
+#include "RelationalAccess/ITypeConverter.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ITableDataEditor.h"
@@ -12,6 +13,8 @@
 #include "CoralBase/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 namespace lumi{
@@ -31,8 +34,15 @@ namespace lumi{
     //
     //generate dummy data of run summary for the given run and write data to LumiDB
     //
+    std::string fakehltkey("/cdaq/Cosmic/V12");
     coral::ConnectionService* svc=new coral::ConnectionService;
+    lumi::DBConfig dbconf(*svc);
+    if(!m_authpath.empty()){
+      dbconf.setAuthentication(m_authpath);
+    }
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
+    coral::ITypeConverter& tpc=session->typeConverter();
+    tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
     try{
       session->transaction().start(false);
       coral::ISchema& schema=session->nominalSchema();
@@ -44,7 +54,7 @@ namespace lumi{
       runData["TOTALCMSLS"].data<unsigned int>()=32;
       runData["TOTALLUMILS"].data<unsigned int>()=35;
       runData["SEQUENCE"].data<std::string>()="run sequence key";
-      runData["HLTKEY"].data<std::string>()="FakeHLTKey/a/b/c";
+      runData["HLTKEY"].data<std::string>()=fakehltkey;
       runData["STARTORBIT"].data<unsigned int>()=340506;
       runData["ENDORBIT"].data<unsigned int>()=7698988;
       runtable.dataEditor().insertRow(runData);
