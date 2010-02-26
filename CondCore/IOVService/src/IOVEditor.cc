@@ -230,7 +230,7 @@ namespace cond {
       reportError("cond::IOVEditor::append time not in global range",sinceTime);
     
     
-    if(  m_iov->iovs().size()>1 ){
+    if(  !m_iov->iovs().empty() ){
       //range check in case 
       cond::Time_t lastValidSince=m_iov->iovs().back().sinceTime();
       //std::cout<<"lastValidTill "<<lastValidTill<<std::endl;
