@@ -8,7 +8,7 @@ columns:  runnum(uint32,PK),
           totalcmsls(uint32),
           totallumils(uint32),
           sequence(string),
-          hltconfigid(uint32),
+          hltkey(string),
           startorbit(uint32),
           endorbit(uint32)
  
@@ -65,7 +65,7 @@ table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
 	  
 ======
 table 6: TRGHLTMAP (intert 1 row per hltpath-l1bit / populated from ConfDB+L1Seed expression parser)
-         hltconfid(uint32),
+         hltkey(string),
          hltpathname(string),
          l1seed(string)
 	 

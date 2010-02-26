@@ -19,3 +19,8 @@ validation/
        
   step-2'. $LOCALRT/test/$SCRAM_ARCH/standaloneScanLumiRaw lumiraw.root
      to dump generated fake raw lumi data file by the previous step 
+
+  step-3. lumiSchema.py -c oracle://<mydb> -P <myauthpath> drop
+          lumiSchema.py -c oracle://<mydb> -P <myauthpath> crete
+          $LOCALRT/test/slc5_ia32_gcc434/populateDummy2LumiDB
+     to recreate lumiDB schema and fill dummy numbers in all input data tables
