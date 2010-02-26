@@ -22,36 +22,53 @@ public:
     float ratio;                            // momentum over jet energy
     float ratioRel;                         // momentum parallel to jet axis over jet energy
 
-    static const float undefQuality;
-
     struct quality {
-        enum ElectronQuality {
-            pfElectronId = 0,
-            egammaElectronId,
-            btagElectronId
+        static const float undef;
+
+	// these first two entries work for both electrons and muons,
+	// entries afterwards can be specific to either one
+	// electrons & muons shared the same indicies to avoid waste of space
+        enum Generic {
+            leptonId = 0,
+            btagLeptonCands
         };
 
-        enum MuonQuality {
-            muonId = 0
+        enum Electron {
+            pfElectronId = 0,
+            btagElectronCands,
+	    egammaElectronId
         };
+
+        enum Muon {
+            muonId = 0,
+	    btagMuonCands
+        };
+
+        template<typename T> static inline T byName(const char *name)
+        { return static_cast<T>(internalByName(name)); }
+
+      private:
+        static unsigned int internalByName(const char *name);
     };
 
     // check to see if quality has been set
 
     inline float hasQuality() const
-    { return quality() != undefQuality; }
-    inline float hasQuality(quality::MuonQuality qual) const
-    { return quality((unsigned int)qual, false) != undefQuality; }
-    inline float hasQuality(quality::ElectronQuality qual) const
-    { return quality((unsigned int)qual, false) != undefQuality; }
+    { return quality() != quality::undef; }
+    inline float hasQuality(quality::Generic qual) const
+    { return quality((unsigned int)qual, false) != quality::undef; }
+    inline float hasQuality(quality::Muon qual) const
+    { return quality((unsigned int)qual, false) != quality::undef; }
+    inline float hasQuality(quality::Electron qual) const
+    { return quality((unsigned int)qual, false) != quality::undef; }
 
     // retrieve lepton quality
 
-    inline float quality(quality::MuonQuality qual,
-                         bool throwIfUndefined = true) const
+    inline float quality(quality::Generic qual, bool throwIfUndefined = true) const
     { return quality((unsigned int)qual, throwIfUndefined); }
-    inline float quality(quality::ElectronQuality qual,
-                         bool throwIfUndefined = true) const
+    inline float quality(quality::Muon qual, bool throwIfUndefined = true) const
+    { return quality((unsigned int)qual, throwIfUndefined); }
+    inline float quality(quality::Electron qual, bool throwIfUndefined = true) const
     { return quality((unsigned int)qual, throwIfUndefined); }
 
     // default value
@@ -59,9 +76,11 @@ public:
 
     // set lepton quality
 
-    inline void setQuality(quality::MuonQuality qual, float value)
+    inline void setQuality(quality::Generic qual, float value)
     { setQuality((unsigned int)qual, value); }
-    inline void setQuality(quality::ElectronQuality qual, float value)
+    inline void setQuality(quality::Muon qual, float value)
+    { setQuality((unsigned int)qual, value); }
+    inline void setQuality(quality::Electron qual, float value)
     { setQuality((unsigned int)qual, value); }
 
 private:

@@ -81,6 +81,7 @@ namespace reco {
       neutralclusterRadius,                     // mean DR between neutral ECAL clus. and lead.track
 
       leptonQuality,                            // lepton identification quality
+      leptonQuality2,                           // lepton identification quality 2
       trackP0Par,                               // track momentum along the jet axis, in the jet rest frame
       trackP0ParRatio,                          // track momentum along the jet axis, in the jet rest frame, normalized to its energy"
       trackChi2,                                // track fit chi2
