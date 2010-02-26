@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWCSCSegmentsRPZ2DProxyBuilder.cc,v 1.3 2009/05/08 20:47:04 amraktad Exp $
+// $Id: FWCSCSegmentsRPZ2DProxyBuilder.cc,v 1.4 2009/05/08 21:16:36 amraktad Exp $
 //
 
 
@@ -101,8 +101,6 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
       return;
    }
 
-   TEveCompound* compund = new TEveCompound("csc compound", "cscSegments" );
-   compund->OpenCompound();
    unsigned int index = 0;
    for (  CSCSegmentCollection::id_iterator chamberId = segments->id_begin();
           chamberId != segments->id_end(); ++chamberId, ++index )
@@ -116,21 +114,23 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
 
       std::stringstream s;
       s << "chamber" << index;
-      TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
-      TEvePointSet* pointSet = new TEvePointSet();
-      segmentSet->SetLineWidth(3);
-      segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
-      segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-      segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-      pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
-      compund->AddElement( segmentSet);
-      segmentSet->AddElement( pointSet );
 
       CSCSegmentCollection::range range = segments->get(*chamberId);
       const double segmentLength = 15;
       for (CSCSegmentCollection::const_iterator segment = range.first;
            segment!=range.second; ++segment)
       {
+         TEveCompound* compund = new TEveCompound("csc compound", "cscSegments" );
+         compund->OpenCompound();
+         tList->AddElement(compund);
+
+         TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
+         segmentSet->SetLineWidth(3);
+         segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
+         segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+         segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
+         compund->AddElement( segmentSet);
+
          Double_t localSegmentInnerPoint[3];
          Double_t localSegmentCenterPoint[3];
          Double_t localSegmentOuterPoint[3];
@@ -166,7 +166,6 @@ void FWCSCSegmentsRPZ2DProxyBuilder::build(const FWEventItem* iItem,
          }
       }
    }
-   tList->AddElement(compund);
 }
 
 void
