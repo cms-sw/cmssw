@@ -44,7 +44,7 @@ namespace lumi{
       runData["TOTALCMSLS"].data<unsigned int>()=32;
       runData["TOTALLUMILS"].data<unsigned int>()=35;
       runData["SEQUENCE"].data<std::string>()="run sequence key";
-      runData["HLTCONFIGID"].data<unsigned int>()=6785;
+      runData["HLTKEY"].data<std::string>()="FakeHLTKey/a/b/c";
       runData["STARTORBIT"].data<unsigned int>()=340506;
       runData["ENDORBIT"].data<unsigned int>()=7698988;
       runtable.dataEditor().insertRow(runData);
