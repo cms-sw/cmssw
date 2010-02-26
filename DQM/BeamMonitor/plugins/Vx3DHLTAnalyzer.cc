@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.4 2010/02/24 21:39:09 ameyer Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.5 2010/02/26 13:20:38 dinardo Exp $
 //
 //
 
@@ -67,7 +67,9 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 					 const EventSetup& iSetup)
 {
-  if (lumiCounter == nLumiReset)
+  lumiCounter++;
+
+  if ((lumiCounter == nLumiReset) && (nLumiReset != 0))
     {
       Vx_X->Reset();
       Vx_Y->Reset();
@@ -79,7 +81,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
       lumiCounter = 0;
     }
-  else lumiCounter++;
+  else if (nLumiReset == 0) lumiCounter = 0;
 }
 
 
@@ -95,10 +97,27 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", 4000, -2.0, 2.0);
       Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", 4000, -2.0, 2.0);
       Vx_Z = dbe->book1D("Vertex_Z", "Primary Vertex Z Coordinate Distribution", 800, -20.0, 20.0);
-      
-      Vx_XZ = dbe->book2D("Vertex_XZ", "Primary Vertex XZ Coordinate Distributions", 4000, -2.0, 2.0, 800, -20.0, 20.0);
-      Vx_YZ = dbe->book2D("Vertex_YZ", "Primary Vertex YZ Coordinate Distributions", 4000, -2.0, 2.0, 800, -20.0, 20.0);
-      Vx_XY = dbe->book2D("Vertex_XY", "Primary Vertex XY Coordinate Distributions", 4000, -2.0, 2.0, 4000, -2.0, 2.0);
+
+      Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
+      Vx_X->setAxisTitle("Entries [#]",2);
+      Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
+      Vx_Y->setAxisTitle("Entries [#]",2);
+      Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
+      Vx_Z->setAxisTitle("Entries [#]",2);
+ 
+      Vx_XZ = dbe->book2D("Vertex_XZ", "Primary Vertex XZ Coordinate Distributions", 400, -2.0, 2.0, 80, -20.0, 20.0);
+      Vx_YZ = dbe->book2D("Vertex_YZ", "Primary Vertex YZ Coordinate Distributions", 400, -2.0, 2.0, 80, -20.0, 20.0);
+      Vx_XY = dbe->book2D("Vertex_XY", "Primary Vertex XY Coordinate Distributions", 400, -2.0, 2.0, 400, -2.0, 2.0);
+
+      Vx_XZ->setAxisTitle("Primary Vertices X [cm]",1);
+      Vx_XZ->setAxisTitle("Primary Vertices Z [cm]",2);
+      Vx_XZ->setAxisTitle("Entries [#]",3);
+      Vx_YZ->setAxisTitle("Primary Vertices Y [cm]",1);
+      Vx_YZ->setAxisTitle("Primary Vertices Z [cm]",2);
+      Vx_YZ->setAxisTitle("Entries [#]",3);
+      Vx_XY->setAxisTitle("Primary Vertices X [cm]",1);
+      Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
+      Vx_XY->setAxisTitle("Entries [#]",3);
 
       dbe->setCurrentFolder("BeamPixel/EventInfo");
       reportSummary = dbe->bookFloat("reportSummary");
