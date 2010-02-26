@@ -303,13 +303,13 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   int ntrkA=0;
   double trkisoA=0;
   calculateTrackIso(pho, e, trkisoA, ntrkA, isolationtrackThresholdA_,    
-		    trackConeOuterRadiusA_, trackConeInnerRadiusA_, isolationtrackEtaSliceA_, trackLipRadiusA_, trackD0RadiusA_);
+		    trackConeOuterRadiusA_, trackConeInnerRadiusA_, isolationtrackEtaSliceA_ );
 
   //Calculate solid cone track isolation, CONE A
   int sntrkA=0;
   double strkisoA=0;
   calculateTrackIso(pho, e, strkisoA, sntrkA, isolationtrackThresholdA_,    
-		    trackConeOuterRadiusA_, 0., isolationtrackEtaSliceA_, trackLipRadiusA_, trackD0RadiusA_ );
+		    trackConeOuterRadiusA_, 0., isolationtrackEtaSliceA_ );
 
   phoisolR1.nTrkHollowCone = ntrkA;
   phoisolR1.trkSumPtHollowCone = trkisoA;
@@ -320,13 +320,13 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   int ntrkB=0;
   double trkisoB=0;
   calculateTrackIso(pho, e, trkisoB, ntrkB, isolationtrackThresholdB_,    
-		    trackConeOuterRadiusB_, trackConeInnerRadiusB_,  isolationtrackEtaSliceB_, trackLipRadiusB_, trackD0RadiusB_ );
+		    trackConeOuterRadiusB_, trackConeInnerRadiusB_,  isolationtrackEtaSliceB_ );
 
   //Calculate solid cone track isolation, CONE B
   int sntrkB=0;
   double strkisoB=0;
   calculateTrackIso(pho, e, strkisoB, sntrkB, isolationtrackThresholdB_,    
-		    trackConeOuterRadiusB_, 0., isolationtrackEtaSliceB_, trackLipRadiusB_, trackD0RadiusB_);
+		    trackConeOuterRadiusB_, 0., isolationtrackEtaSliceB_);
 
   phoisolR2.nTrkHollowCone = ntrkB;
   phoisolR2.trkSumPtHollowCone = trkisoB;

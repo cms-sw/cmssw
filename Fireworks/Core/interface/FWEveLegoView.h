@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.19 2009/11/04 18:09:44 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.18 2009/11/03 16:56:38 amraktad Exp $
 //
 
 // system include files
@@ -76,9 +76,7 @@ private:
    void setCameras();
    void setAutoRebin();
    void setPixelsPerBin();
-   void plotEt();
    void showScales();
-   
    
    // ---------- member data --------------------------------
    FWEvePtr<TEveViewer> m_viewer;
@@ -88,12 +86,15 @@ private:
 
    TEveCaloLego* m_lego;
    TEveCaloLegoOverlay* m_overlay;
-   
-   FWBoolParameter   m_plotEt;
-   FWBoolParameter   m_autoRebin;
+   // FWLongParameter m_range;
+   //FWDoubleParameter m_minEcalEnergy;
+   //FWDoubleParameter m_minHcalEnergy;
+   //double m_minEcalEnergyInit;
+   //double m_minHcalEnergyInit;
+   FWBoolParameter m_autoRebin;
    FWDoubleParameter m_pixelsPerBin;
-   FWBoolParameter   m_showScales;
-   
+   FWBoolParameter m_showScales;
+
    TGLMatrix*  m_cameraMatrix;
    TGLMatrix*  m_cameraMatrixBase;
    TGLMatrix*  m_cameraMatrixRef;

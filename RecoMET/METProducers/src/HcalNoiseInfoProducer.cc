@@ -339,6 +339,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       hpd.maxZeros_=totalzeros;
   }
 
+  delete myqual;
   return;
 }
 

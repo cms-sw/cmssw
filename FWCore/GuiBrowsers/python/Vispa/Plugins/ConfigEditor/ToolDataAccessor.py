@@ -3,6 +3,7 @@ import os.path
 import logging
 import re
 import copy
+import inspect
 
 from PyQt4.QtCore import QCoreApplication
 
@@ -88,7 +89,11 @@ class ToolDataAccessor(BasicDataAccessor):
     def label(self, object):
         """ Return a string that is used as caption of an object.
         """
-        return object._label
+        if isinstance(object,type):
+            directory=os.path.splitext(os.path.basename(inspect.getfile(object)))[0]
+        else:
+            directory=os.path.splitext(os.path.basename(inspect.getfile(type(object))))[0]
+        return directory+"."+object._label
 
     def _property(self,name,value,description,typ):
         if typ in [bool] and type(value)!=typ:
@@ -204,6 +209,10 @@ class ToolDataAccessor(BasicDataAccessor):
         try:
             for tool in self._toolList:
                 tool.apply(process)
+                if not process.checkRecording():
+                    logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
+                    QCoreApplication.instance().errorMessage("Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
+                    return False
         except Exception,e:
             logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))

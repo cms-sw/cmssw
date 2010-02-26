@@ -28,7 +28,7 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 
 # Famos sequences (MC conditions, not Fake anymore!)
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.GlobalTag.globaltag = "MC_3XY_V20::All"
+process.GlobalTag.globaltag = "MC_3XY_V21::All"
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)

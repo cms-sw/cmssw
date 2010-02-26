@@ -21,6 +21,7 @@ namespace evf{
       , restart_countdown_(0)
       , save_nbp_(0)
       , save_nba_(0)
+      , save_ndqm_(0)
       {
       }
     SubProcess(int ind, pid_t pid)
@@ -32,6 +33,7 @@ namespace evf{
       , restart_countdown_(0)
       , save_nbp_(0)
       , save_nba_(0)
+      , save_ndqm_(0)
       {
       }
     SubProcess(const SubProcess &b)
@@ -53,6 +55,7 @@ namespace evf{
 	mqs_=b.mqs_;
 	save_nbp_ = b.save_nbp_;
 	save_nba_ = b.save_nba_;
+	save_ndqm_ = b.save_ndqm_;
 	restart_countdown_=b.restart_countdown_;
 
 	return *this;
@@ -66,6 +69,7 @@ namespace evf{
 	mqm_->disconnect();
 	save_nbp_ = 0;
 	save_nba_ = 0;
+	save_ndqm_ = 0;
       }
     void setStatus(int st){
       alive_ = st;
@@ -74,6 +78,7 @@ namespace evf{
 	  //save counters after last update
 	  save_nbp_= prg_.nbp;
 	  save_nba_= prg_.nba;
+	  save_ndqm_ = prg_.dqm;
 	}
     }
     int queueId(){return (mqm_.get()!=0 ? mqm_->id() : 0);}
@@ -92,6 +97,7 @@ namespace evf{
 	prg_.nba = p->nba + save_nba_;
 	prg_.Ms  = p->Ms;
 	prg_.ms  = p->ms;
+	prg_.dqm = p->dqm;
       }
     int post(MsgBuf &ptr, bool isMonitor)
       {
@@ -145,6 +151,7 @@ namespace evf{
     static const unsigned int monitor_queue_offset_ = 200;
     int save_nbp_;
     int save_nba_;
+    unsigned int save_ndqm_;
   };
 
 

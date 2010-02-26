@@ -10,11 +10,12 @@ hltL3TrajectorySeedFromL2 = cms.EDFilter("TSGFromL2Muon",
     #defines a bunch of PSet with name the name of the Seed generator
     # to redefine do
     # replace hltL3TrajectorySeedFromL2.TSGFromPixelPairs.TTRHBuilder = ""
-    TSGsBlock,
+#    TSGsBlock,
     TrackerSeedCleanerCommon,
     #ServiceParameters
     MuonServiceProxy,
-    tkSeedGenerator = cms.string('TSGFromCombinedHits'),
+#    tkSeedGenerator = cms.string('TSGFromCombinedHits'),
+    TkSeedGenerator = TSGsBlock.TSGForRoadSearchOI,                                         
     UseTFileService = cms.untracked.bool(False),
     MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
     #this should not exist there !

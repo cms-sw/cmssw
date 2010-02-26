@@ -68,8 +68,8 @@ public:
 private:
 
   // Tree variables
-  float *jcalpt, *jcalphi, *jcaleta, *jcale, *jcalemf, *jcaln90;
-  float *jcorcalpt, *jcorcalphi, *jcorcaleta, *jcorcale, *jcorcalemf, *jcorcaln90;
+  float *jcalpt, *jcalphi, *jcaleta, *jcale;
+  float *jcorcalpt, *jcorcalphi, *jcorcaleta, *jcorcale;
   float *jgenpt, *jgenphi, *jgeneta, *jgene;
   float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
   float mcalmet,mcalphi,mcalsum;

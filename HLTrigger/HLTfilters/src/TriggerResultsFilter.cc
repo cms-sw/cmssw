@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/01/22 01:04:16 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/25 14:06:11 $
+ *  $Revision: 1.9 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -58,23 +58,24 @@ TriggerResultsFilter::~TriggerResultsFilter()
 // ------------ method called to produce the data  ------------
 bool TriggerResultsFilter::filter(edm::Event & event, const edm::EventSetup & setup)
 {
+  if (not m_expression)
+    // no valid expression has been parsed
+    return false;
+
   if (not m_eventCache.setEvent(event, setup))
     // couldn't properly access all information from the Event
     return false;
 
-  bool result = false;
+  // if the L1 or HLT configurations have changed, (re)initialize the filters (including during the first event)
+  if (m_eventCache.configurationUpdated()) {
+    m_expression->init(m_eventCache);
 
-  if (m_expression) {
-    // run the trigger results filter
-    result = (*m_expression)(m_eventCache);
- 
-    // if the L1 or HLT configurations have changed, log the expanded configuration
-    // this must be done *after* running the Evaluator, as that triggers the update 
-    if (m_eventCache.configurationUpdated())
-      edm::LogInfo("Configuration") << "TriggerResultsFilter configuration updated: " << *m_expression;
+    // log the expanded configuration
+    edm::LogInfo("Configuration") << "TriggerResultsFilter configuration updated: " << *m_expression;
   }
 
-  return result; 
+  // run the trigger results filter
+  return (*m_expression)(m_eventCache);
 }
 
 // register as framework plugin

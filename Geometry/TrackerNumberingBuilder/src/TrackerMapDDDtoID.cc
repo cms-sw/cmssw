@@ -38,7 +38,7 @@ void TrackerMapDDDtoID::buildAllStep2(const GeometricDet* theTracker){
   edm::LogInfo("TrackerMapDDDtoID")<<"Created TrackerMapDDDtoID; results in "<<allDetectors.size()<<" detectors numbered.";
 }
 
-/*
+
 unsigned int TrackerMapDDDtoID::id(const DDExpandedView & e) const
 {
   return id(e.navPos());
@@ -49,7 +49,7 @@ unsigned int TrackerMapDDDtoID::id(const DDFilteredView & f) const
 {
   return id(f.navPos());
 }
-*/
+
 
 unsigned int TrackerMapDDDtoID::id(const nav_type & n) const
 {
@@ -61,20 +61,17 @@ unsigned int TrackerMapDDDtoID::id(const nav_type & n) const
 }
 
 
-std::vector<TrackerMapDDDtoID::nav_type> const & TrackerMapDDDtoID::allNavTypes() const{
+std::vector<TrackerMapDDDtoID::nav_type> TrackerMapDDDtoID::allNavTypes() const{
   return navVec;
 }
 
-namespace {
-  const TrackerMapDDDtoID::nav_type nullresult;
-}
-
-TrackerMapDDDtoID::nav_type const & TrackerMapDDDtoID::navType(uint32_t num) const
+TrackerMapDDDtoID::nav_type TrackerMapDDDtoID::navType(uint32_t num) const
 { 
   std::map<uint32_t,nav_type>::const_iterator it = revpath2id_.find(num);
+  nav_type result;
   if (it != revpath2id_.end())
-    return it->second;
-  return nullresult;  
+    result = it->second;
+  return result;  
 }
 
 void TrackerMapDDDtoID::clear(){

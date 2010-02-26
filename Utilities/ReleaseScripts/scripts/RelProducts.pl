@@ -22,34 +22,141 @@ foreach my $pack (sort keys %$data)
   my $str="";
   foreach my $p (sort keys %{$data->{$pack}{LIBRARY}}){$str.="lib$p.so,";}
   foreach my $p (sort keys %{$data->{$pack}{PLUGIN}}){$str.="plugin$p.so,";}
+  foreach my $p (sort keys %{$data->{$pack}{IGLET}}){$str.="$p.iglet,";}
   $str=~s/,$//; $str.="|";
   foreach my $p (sort keys %{$data->{$pack}{BIN}}){$str.="$p,";}
   $str=~s/,$//; $str.="|";
   foreach my $p (sort keys %{$data->{$pack}{TEST}}){$str.="$p,";}
-  $str=~s/,$//;  
+  $str=~s/,$//; $str.="|";
+  foreach my $p (sort keys %{$data->{$pack}{SCRIPTS}}){$str.="$p,";}
+  $str=~s/,$//;
   print "$pack:$str\n"; 
 }
 
 exit 0;
 
+sub doSearch()
+{
+  foreach my $pack (sort keys %$data)
+  {
+    foreach my $p (sort keys %{$data->{$pack}{LIBRARY}})
+    {
+      if (!-e "${release}/lib/".$ENV{SCRAM_ARCH}."/lib${p}.so"){print "Missing LIBRARY: lib${p}.so\n";}
+    }
+    foreach my $p (sort keys %{$data->{$pack}{PLUGIN}})
+    {
+      if (!-e "${release}/lib/".$ENV{SCRAM_ARCH}."/plugin${p}.so"){print "Missing PLUGIN: plugin${p}.so\n";}
+    }
+    foreach my $p (sort keys %{$data->{$pack}{IGLET}})
+    {
+      if (!-e "${release}/lib/".$ENV{SCRAM_ARCH}."/${p}.iglet"){print "Missing IGLET: ${p}.iglet\n";}
+    }
+    foreach my $p (sort keys %{$data->{$pack}{BIN}})
+    {
+      if (!-e "${release}/bin/".$ENV{SCRAM_ARCH}."/${p}"){print "Missing BIN: $p\n";}
+    }
+    foreach my $p (sort keys %{$data->{$pack}{TEST}})
+    {
+      if (!-e "${release}/test/".$ENV{SCRAM_ARCH}."/${p}"){print "Missing TEST: $p\n";}
+    }
+    foreach my $p (sort keys %{$data->{$pack}{SCRIPTS}})
+    {
+      if (!-e "${release}/bin/".$ENV{SCRAM_ARCH}."/${p}"){print "Missing SCRIPTS: $p\n";}
+    }
+  }
+}
+
+sub doSearchRev()
+{
+  foreach my $file (`find ${release}/lib/$ENV{SCRAM_ARCH} -name "*" -type f | sed 's|${release}/lib/$ENV{SCRAM_ARCH}/||'`)
+  {
+    chomp $file;
+    my $t="";
+    my $n="";
+    if ($file=~/^(plugin|lib)([^\.]+)\.so$/)
+    {
+      my $t="LIBRARY";
+      my $n=$2;
+      if ($1 eq "plugin"){$t="PLUGIN";}
+    }
+    elsif ($file=~/^([^\.]+)\.iglet$/)
+    {
+      $t="IGLET";
+      $n=$1;
+    }
+    if ($n ne "")
+    {
+      my $found=0;
+      foreach my $pack (sort keys %$data)
+      {
+        if (exists $data->{$pack}{$t}{$n}){$found=1; last;}
+      }
+      if (!$found){print "RMissing $t: $n ($file)\n";}
+    }
+  }
+  foreach my $file (`find ${release}/test/$ENV{SCRAM_ARCH} -name "*" -type f | sed 's|${release}/test/$ENV{SCRAM_ARCH}/||'`)
+  {
+    chomp $file;
+    my $found=0;
+    foreach my $pack (sort keys %$data)
+    {
+      if (exists $data->{$pack}{TEST}{$file}){$found=1; last;}
+    }
+    if (!$found){print "RMissing TEST: $file\n";}
+  }
+  foreach my $file (`find ${release}/bin/$ENV{SCRAM_ARCH} -maxdepth 1 -name "*" -type f | sed 's|${release}/bin/$ENV{SCRAM_ARCH}/||'`)
+  {
+    chomp $file;
+    my $found=0;
+    foreach my $pack (sort keys %$data)
+    {
+      if (exists $data->{$pack}{BIN}{$file}){$found=1; last;}
+      if (exists $data->{$pack}{SCRIPTS}{$file}){$found=1; last;}
+    }
+    if (!$found){print "RMissing BIN: $file\n";}
+  }
+}
+
 sub updateProd ()
 {
   my $p=shift;
-  if(exists $projcache->{BUILDTREE}{$p}{CLASS} && (exists $projcache->{BUILDTREE}{$p}{RAWDATA}{content}))
+  if(exists $projcache->{BUILDTREE}{$p}{CLASS})
   {
     my $suffix=$projcache->{BUILDTREE}{$p}{SUFFIX};
     if($suffix ne ""){return 0;}
     my $class=$projcache->{BUILDTREE}{$p}{CLASS};
-    my $c=$projcache->{BUILDTREE}{$p}{RAWDATA}{content};
     my $pack=dirname($p);
-    if($class=~/^(LIBRARY|CLASSLIB|SEAL_PLATFORM)$/)
+    if (exists $projcache->{BUILDTREE}{$p}{RAWDATA}{content})
     {
-      my $type="LIBRARY";
-      if (&isPlugin($class,$c)){$type="PLUGIN";}
-      my $name=$projcache->{BUILDTREE}{$p}{NAME};
-      $data->{$pack}{$type}{$name}=1;
+      my $c=$projcache->{BUILDTREE}{$p}{RAWDATA}{content};
+      if($class=~/^(LIBRARY|CLASSLIB|SEAL_PLATFORM)$/)
+      {
+        my $type="LIBRARY";
+        if (&isPlugin($class,$c)){$type="PLUGIN";}
+        my $name=$projcache->{BUILDTREE}{$p}{NAME};
+        if (-f "${release}/src/${p}/iglet.cc"){$data->{$pack}{IGLET}{$name}=1;}
+        elsif (($type eq "LIBRARY") && (-f "${release}/src/${p}/classes.h")  && (-f "${release}/src/${p}/classes_def.xml"))
+        {$data->{$pack}{PLUGIN}{"${name}Capabilities"}=1;}
+        $data->{$pack}{$type}{$name}=1;
+        if ((exists $c->{FLAGS}) && (exists $c->{FLAGS}{INSTALL_SCRIPTS}))
+        {
+          foreach my $file (@{$c->{FLAGS}{INSTALL_SCRIPTS}}){$data->{$pack}{SCRIPTS}{$file}=1;}
+        }
+      }
+      elsif ($class=~/^(TEST|BIN|PLUGINS|BINARY)$/){&updateProds($pack,$c,$class);}
     }
-    elsif ($class=~/^(TEST|BIN|PLUGINS|BINARY)$/){&updateProds($pack,$c,$class);}
+    elsif ($class=~/^SCRIPTS$/){&updateScripts($pack,$p);}
+  }
+}
+
+sub updateScripts()
+{
+  my $pack=shift;
+  my $dir=shift;
+  foreach my $f (`ls ${release}/src/$dir`)
+  {
+    chomp $f;
+    $data->{$pack}{SCRIPTS}{$f}=1;
   }
 }
 
@@ -64,6 +171,11 @@ sub updateProds()
     {
       my $type=&getType($ptype,$t,$c->{BUILDPRODUCTS}{$t}{$prod}{content},$c);
       $data->{$pack}{$type}{$prod}=1;
+      my $c1=$c->{BUILDPRODUCTS}{$t}{$prod}{content};
+      if ((exists $c1->{FLAGS}) && (exists $c1->{FLAGS}{INSTALL_SCRIPTS}))
+      {
+        foreach my $file (@{$c1->{FLAGS}{INSTALL_SCRIPTS}}){$data->{$pack}{SCRIPTS}{$file}=1;}
+      }
     }
   }
 }

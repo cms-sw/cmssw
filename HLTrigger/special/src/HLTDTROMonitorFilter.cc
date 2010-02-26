@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/14 10:12:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/07/14 12:56:49 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -57,7 +57,7 @@ bool HLTDTROMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setu
 	int wordIndex8 = numberOf32Words*wordSize_32 - 3*wordSize_64 + rosId; 
 	DTDDUFirstStatusWord statusWord(index8[wordIndex8]);
 	// check the error bit
-	if(statusWord.errorFromROS() != 0) return true;
+	if(statusWord.errorFromROS() != 0 || statusWord.eventTrailerLost() != 0) return true;
       }
     }
   }

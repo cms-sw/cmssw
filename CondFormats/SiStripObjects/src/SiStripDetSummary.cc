@@ -2,6 +2,9 @@
 
 void SiStripDetSummary::add(const DetId & detid, const float & value)
 {
+
+  // std::cout << "value = " << value << std::endl;
+
   int layer = 0;
   int stereo = 0;
   int detNum = 0;
@@ -43,7 +46,7 @@ void SiStripDetSummary::add(const DetId & detid, const float & value)
       break;
     }
   }
-  detNum += layer*10 + stereo;
+  detNum += layer*10 + stereo*1;
   // string name( detector + boost::lexical_cast<string>(layer) + boost::lexical_cast<string>(stereo) );
   meanMap_[detNum] += value;
   rmsMap_[detNum] += value*value;

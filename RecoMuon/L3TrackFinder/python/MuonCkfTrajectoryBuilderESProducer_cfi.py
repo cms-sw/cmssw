@@ -19,7 +19,12 @@ MuonCkfTrajectoryBuilder = cms.ESProducer("MuonCkfTrajectoryBuilderESProducer",
     #1.0 would skip this step completely
     rescaleErrorIfFail = cms.double(1.0),
     propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
-    lostHitPenalty = cms.double(30.0)
+    lostHitPenalty = cms.double(30.0),
+    #this is present in HLT config, appears to be dummy
+#    appendToDataLabel = cms.string( "" ),
+    #safety cone size
+    deltaEta = cms.double( 0.1 ),
+    deltaPhi = cms.double( 0.1 )
 )
 
 

@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2010/01/11 14:51:07 $
+//  last update: $Date: 2009/12/17 12:28:07 $
 //  by         : $Author: flucke $
 
 #include <memory>
@@ -43,8 +43,7 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 					 const MagneticField *magField, 
 					 MaterialEffects materialEffects,
 					 PropagationDirection propDir,
-					 double mass,
-					 const reco::BeamSpot &beamSpot) 
+					 double mass) 
  : ReferenceTrajectoryBase( 
    (materialEffects >= brokenLinesCoarse) ? 1 : refTsos.localParameters().mixedFormatVector().kSize, 
    recHits.size(), 
@@ -62,11 +61,9 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 	 it != recHits.rend(); ++it) {
       fwdRecHits.push_back(*it);
     }
-    theValidityFlag = this->construct(refTsos, fwdRecHits, mass, materialEffects,
-				      propDir, magField, beamSpot);
+    theValidityFlag = this->construct(refTsos, fwdRecHits, mass, materialEffects, propDir, magField);
   } else {
-    theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects,
-				      propDir, magField, beamSpot);
+    theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, propDir, magField);
   }
 }
 
@@ -87,9 +84,7 @@ ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits,
 bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos, 
 				    const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 				    double mass, MaterialEffects materialEffects,
-				    const PropagationDirection propDir,
-				    const MagneticField *magField,
-				    const reco::BeamSpot &beamSpot)
+				    const PropagationDirection propDir, const MagneticField *magField)
 {   
   const SurfaceSide surfaceSide = this->surfaceSide(propDir);
   // auto_ptr to avoid memory leaks in case of not reaching delete at end of method:
@@ -126,9 +121,6 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   double firstStep = 0.;
   AlgebraicMatrix firstCurvlinJacobian(5, 5, 1);
   if (materialEffects > brokenLinesFine) {
-    // FIXME: instead of (0,0,0), TSCPBuilderNoMaterial and TrajectoryStateClosestToPoint,
-    //        we should probably use beamSpot, TSCBLBuilderNoMaterial
-    //        (or TSCBLBuilderWithPropagator?) and TrajectoryStateClosestToBeamLine
     GlobalPoint origin(0.,0.,0.);
     TrajectoryStateClosestToPoint tsctp(TSCPBuilderNoMaterial()(refTsos, origin));
     FreeTrajectoryState pcaFts = tsctp.theState();

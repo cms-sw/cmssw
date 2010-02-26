@@ -26,26 +26,11 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     useOnlyMatch = cms.bool(False),
 
     # ------------------------------------------------
-    # option to use b-tagging
-    # ------------------------------------------------
-    bTagAlgo            = cms.string("trackCountingHighPurBJetTags"),
-    minBTagValueBJet    = cms.double(3.0),
-    maxBTagValueNonBJet = cms.double(3.0),
-    bTags               = cms.uint32(2), # if set to 1 also tries to take 2 if possible
-
-    # ------------------------------------------------
-    # use corrected energies for jets (not perfectly implemented)
-    # ------------------------------------------------
-    corL = cms.string("abs"),
-    corB = cms.string("abs"),
-                                      
-    # ------------------------------------------------
     # settings for the KinFitter
     # ------------------------------------------------    
     maxNrIter = cms.uint32(500),
     maxDeltaS = cms.double(5e-05),
     maxF      = cms.double(0.0001),
-                                      
     # ------------------------------------------------
     # select parametrisation
     # 0: EMom, 1: EtEtaPhi, 2: EtThetaPhi
@@ -56,9 +41,8 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # set constraints
     # 1: W1-mass, 2: W2-mass
     # 3: t1-mass, 4: t2-mass
-    # 5: equal top-masses
     # ------------------------------------------------                                   
-    constraints = cms.vuint32(1, 2, 5),
+    constraints = cms.vuint32(1, 2, 3, 4),
 
     # ------------------------------------------------
     # set mass values used in the constraints

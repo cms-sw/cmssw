@@ -41,7 +41,7 @@ public:
     int theLinkBoardInputNum;
     int thePartition;
     int theChamber;
-    int theAlgo;
+    int nStrips;
   };
 
   std::vector<dccItem> theDccs;
@@ -49,6 +49,7 @@ public:
   std::vector<linkItem> theLinks;
   std::vector<lbItem> theLBs;
   std::vector<febItem> theFebs;
+  std::vector<int> theStrips;
 
   RPCReadOutMapping* convert() const {
     RPCReadOutMapping* cabling = new RPCReadOutMapping(theVersion);
@@ -56,6 +57,7 @@ public:
     int lastLink=0;
     int lastLB=0;
     int lastFeb=0;
+    int lastStrip=0;
     for (unsigned int idcc=0; idcc<theDccs.size(); idcc++) {
       DccSpec dcc(theDccs[idcc].theId);
       for (int itb=lastTB; itb<lastTB+theDccs[idcc].nTBs; itb++) {
@@ -79,9 +81,15 @@ public:
               char positionInLocalEtaPartition=(theFebs[ifeb].thePartition)%10;
               FebLocationSpec afeb={cmsEtaPartition,positionInCmsEtaPartition,localEtaPartition,positionInLocalEtaPartition};
               FebConnectorSpec febConnector(theFebs[ifeb].theLinkBoardInputNum,chamber,afeb);
-              febConnector.addStrips(theFebs[ifeb].theAlgo);
+              for (int istrip=lastStrip; istrip<lastStrip+theFebs[ifeb].nStrips; istrip++) {
+                int cablePinNumber=(theStrips[istrip])/10000;
+                int chamberStripNumber=((theStrips[istrip])%10000)/100;
+                int cmsStripNumber=(theStrips[istrip])%100;
+                ChamberStripSpec strip={cablePinNumber,chamberStripNumber,cmsStripNumber};
+                febConnector.add(strip);
+              }
               lb.add(febConnector);
-//              std::cout<<"End of FEB"<<std::endl;
+              lastStrip+=theFebs[ifeb].nStrips;
             }
             lc.add(lb);
             lastFeb+=theLBs[ilb].nFebs;

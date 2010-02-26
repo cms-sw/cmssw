@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/12/03 11:32:07 $
- *  $Revision: 1.43 $
- *  $Date: 2009/12/03 11:32:07 $
- *  $Revision: 1.43 $
+ *  $Date: 2009/09/16 13:07:46 $
+ *  $Revision: 1.42 $
+ *  $Date: 2009/09/16 13:07:46 $
+ *  $Revision: 1.42 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -81,11 +81,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include <TH1.h>
-#include <TFile.h>
-
 using namespace std;
 using namespace edm;
 
@@ -127,20 +122,6 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   thePtCut = par.getParameter<double>("PtCut");
 
   theCacheId_TRH = 0;
-
-  useTFileService_ = par.getUntrackedParameter<bool>("UseTFileService",false);
-
-  if(useTFileService_) {
-    edm::Service<TFileService> fs;
-    TFileDirectory subDir = fs->mkdir( "builderBase" );
-    h_nTkTrajs = subDir.make<TH1F>("h_nTkTrajs","N Tk Tracks sent to Builder per STA",21,-0.5,20.5);
-    h_nStaTkRefittedTrajs = subDir.make<TH1F>("h_nStaTkRefittedTrajs","N Refitted Trajectories per STA-TK Pair",21,-0.5,20.5);
-    h_staTkProb = subDir.make<TH1F>("h_staTkProb","#chi^{2} Probability for Leading STA-TK Pair",200,0,100);
-  } else {
-    h_nTkTrajs = 0;
-    h_nStaTkRefittedTrajs = 0;
-    h_staTkProb = 0;
-  }
 
 }
 
@@ -188,12 +169,10 @@ MuonCandidate::CandidateContainer
 GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
                                    MuonCandidate::CandidateContainer& tkTrajs) const {
 
-  LogTrace(theCategory) << " Begin Build" << endl;
+  LogTrace(theCategory) << "build begin. " << endl;
 
   // tracker trajectory should be built and refit before this point
   if ( tkTrajs.empty() ) return CandidateContainer();
-
-  if(h_nTkTrajs) h_nTkTrajs->Fill(tkTrajs.size());
 
   // add muon hits and refit/smooth trajectories
   CandidateContainer refittedResult;
@@ -203,7 +182,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   if ( (muonRecHits.size() > 1) &&
        ( muonRecHits.front()->globalPosition().mag() >
 	 muonRecHits.back()->globalPosition().mag() ) ) {
-    LogTrace(theCategory)<< "   reverse order: ";
+    LogTrace(theCategory)<< "reverse order: ";
     stable_sort(muonRecHits.begin(),muonRecHits.end(),RecHitLessByDet(alongMomentum));
   }
 
@@ -212,14 +191,13 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
   for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
 
     // cut on tracks with low momenta
-    LogTrace(theCategory)<< "   Track p and pT " << (*it)->trackerTrack()->p() << " " << (*it)->trackerTrack()->pt();
     if(  (*it)->trackerTrack()->p() < 2.5 || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
 
     ConstRecHitContainer trackerRecHits;
     if ((*it)->trackerTrack().isNonnull()) {
       trackerRecHits = getTransientRecHits(*(*it)->trackerTrack());
     } else {
-      LogDebug(theCategory)<<"     NEED HITS FROM TRAJ";
+      LogDebug(theCategory)<<"NEED HITS FROM TRAJ";
       //trackerRecHits = (*it)->trackerTrajectory()->recHits();
     }
 
@@ -241,7 +219,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
     if((*it)->trackerTrack()->seedRef().isAvailable()) tmpSeed = (*it)->trackerTrack()->seedRef();
 
     if ( !innerTsos.isValid() ) {
-      LogTrace(theCategory) << "     inner Trajectory State is invalid. ";
+      LogTrace(theCategory) << "inner Trajectory State is invalid. ";
       continue;
     }
   
@@ -255,7 +233,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
     if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) { 
       refitted0 = theTrackTransformer->transform((*it)->trackerTrack()) ;
       if (!refitted0.empty()) tkTrajectory = new Trajectory(*(refitted0.begin())); 
-      else LogWarning(theCategory)<< "     Failed to load tracker track trajectory";
+      else LogWarning(theCategory)<< "Failed to load tracker track trajectory";
     } else tkTrajectory = (*it)->trackerTrajectory();
     if (tkTrajectory) tkTrajectory->setSeedRef(tmpSeed);
 
@@ -263,11 +241,9 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
     ConstRecHitContainer allRecHits = trackerRecHits;
     allRecHits.insert(allRecHits.end(), muonRecHits.begin(),muonRecHits.end());
     refitted1 = theGlbRefitter->refit( *(*it)->trackerTrack(), tTT, allRecHits,theMuonHitsOption);
-    LogTrace(theCategory)<<"     This track-sta refitted to " << refitted1.size() << " trajectories";
-    if(h_nStaTkRefittedTrajs) h_nStaTkRefittedTrajs->Fill(refitted1.size());
     Trajectory *glbTrajectory1 = 0;
     if (!refitted1.empty()) glbTrajectory1 = new Trajectory(*(refitted1.begin()));
-    else LogDebug(theCategory)<< "     Failed to load global track trajectory 1"; 
+    else LogDebug(theCategory)<< "Failed to load global track trajectory 1"; 
     if (glbTrajectory1) glbTrajectory1->setSeedRef(tmpSeed);
     
     finalTrajectory = 0;
@@ -288,8 +264,6 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
   for (CandidateContainer::const_iterator iter=refittedResult.begin(); iter != refittedResult.end(); iter++) {
     double prob = trackProbability(*(*iter)->trajectory());
-    LogTrace(theCategory)<<"   refitted-track-sta with pT " << (*iter)->trackerTrack()->pt() << " has probability " << prob;
-    if(h_staTkProb) h_staTkProb->Fill(prob);
     if (prob < minProb) {
       minProb = prob;
       tmpCand = (*iter);
@@ -559,7 +533,7 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
       if ( recoid.det() == DetId::Tracker ) {
 	TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
 	TrajectoryStateOnSurface predTsos =  theService->propagator(theTrackerPropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
-
+	LogTrace(theCategory)<<"predtsos "<<predTsos.isValid();
 	if ( !predTsos.isValid() ) {
 	  edm::LogError("MissingTransientHit")
 	    <<"Could not get a tsos on the hit surface. We will miss a tracking hit.";

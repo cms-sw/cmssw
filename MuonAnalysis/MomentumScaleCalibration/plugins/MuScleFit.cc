@@ -1,11 +1,11 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/01/12 07:58:40 $
-//  $Revision: 1.69 $
+//  $Date: 2009/11/03 07:42:53 $
+//  $Revision: 1.66 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
-//  Recent additions:
+//  Recent additions: 
 //  - several parameters allow a more flexible use, tests, and control handles
 //    for the likelihood. In particular, a set of integers controls the order
 //    with which parameters are released; another controls which parameters are
@@ -21,7 +21,7 @@
 //    of muon momentum resolution and angle resolution has been implemented, but
 //    extensions are straightforward.
 //  - It is however advisable to fit separately resolution and scale. The suggested
-//    course of action is:
+//    course of action is: 
 //    1) fit the scale with a simple parametrization
 //    2) check results, fit with more complicated forms
 //    3) verify which is a sufficiently accurate description of the data
@@ -33,11 +33,11 @@
 //  - The treatment of signal windows in the Y region
 //    has to be refined because of overlaps. More work is needed here, assigning a different
 //    weight to different hypothesis of the resonance producing a given mass, if there are
-//    multiple candidates.
+//    multiple candidates. 
 //  - Also, larger windows are to be allowed for fits to SA muons.
 //  - File Probs_1000.root contains the probability distribution of lorentzians convoluted
 //    with gaussian smearing functions, for the six resonances. A 1000x1000 grid
-//    in mass,sigma has been computed (using root macro Probs.C).
+//    in mass,sigma has been computed (using root macro Probs.C). 
 //    A wider interval of masses for each resonance should be computed, to be used for standalone muons
 //
 //
@@ -102,6 +102,7 @@
 
 #include "MuScleFit.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+//#include "MuScleFitUtils.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -208,6 +209,11 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   MuScleFitUtils::scaleFunction = scaleFunctionService( scaleType );
   MuScleFitUtils::scaleFunctionForVec = scaleFunctionVecService( scaleType );
 
+  MuScleFitUtils::backgroundHandler = new BackgroundHandler( pset.getParameter<vector<int> >("BgrFitType"),
+                                                             pset.getParameter<vector<double> >("LeftWindowFactor"),
+                                                             pset.getParameter<vector<double> >("RightWindowFactor"),
+                                                             MuScleFitUtils::ResMass );
+
   // Initial parameters values
   // -------------------------
   MuScleFitUtils::parBias  = pset.getParameter<vector<double> >("parBias");
@@ -234,7 +240,6 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   simTracksCollection_ = pset.getUntrackedParameter<InputTag>("SimTracksCollection", InputTag("g4SimHits"));
 
   PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
-  genParticlesName_ = pset.getUntrackedParameter<string>("GenParticlesName", "genParticles");
 
   // This must be set to true if using events generated with Sherpa
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
@@ -275,6 +280,39 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   }
   MuScleFitUtils::goodmuon = 0;
 
+  // Initialize ResMaxSigma And ResHalfWidth - 0 = global, 1 = SM, 2 = tracker
+  // -------------------------------------------------------------------------
+//   MuScleFitUtils::ResMaxSigma[0] = 50.;
+//   MuScleFitUtils::ResMaxSigma[1] = 5.;
+//   MuScleFitUtils::ResMaxSigma[2] = 5.;
+//   MuScleFitUtils::ResMaxSigma[3] = 5.;
+//   MuScleFitUtils::ResMaxSigma[4] = 2.;
+//   MuScleFitUtils::ResMaxSigma[5] = 2.;
+//   MuScleFitUtils::ResHalfWidth[0] = 20.;
+//   MuScleFitUtils::ResHalfWidth[1] = 0.5;
+//   MuScleFitUtils::ResHalfWidth[2] = 0.5;
+//   MuScleFitUtils::ResHalfWidth[3] = 0.5;
+//   MuScleFitUtils::ResHalfWidth[4] = 0.2;
+//   MuScleFitUtils::ResHalfWidth[5] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[0][0] = 20.;
+  MuScleFitUtils::massWindowHalfWidth[1][0] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[2][0] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[3][0] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[4][0] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[5][0] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[0][1] = 50.;
+  MuScleFitUtils::massWindowHalfWidth[1][1] = 2.5;
+  MuScleFitUtils::massWindowHalfWidth[2][1] = 2.5;
+  MuScleFitUtils::massWindowHalfWidth[3][1] = 2.5;
+  MuScleFitUtils::massWindowHalfWidth[4][1] = 1.5;
+  MuScleFitUtils::massWindowHalfWidth[5][1] = 1.5;
+  MuScleFitUtils::massWindowHalfWidth[0][2] = 20.;
+  MuScleFitUtils::massWindowHalfWidth[1][2] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[2][2] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[3][2] = 0.5;
+  MuScleFitUtils::massWindowHalfWidth[4][2] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[5][2] = 0.2;
+
   MuScleFitUtils::MuonType = theMuonType_-1;
   if( MuScleFitUtils::MuonType < 3 ) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
@@ -282,33 +320,6 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   else {
     MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
   }
-
-  // Initialize ResMaxSigma And ResHalfWidth - 0 = global, 1 = SM, 2 = tracker
-  // -------------------------------------------------------------------------
-  MuScleFitUtils::massWindowHalfWidth[0][0] = 20.;
-  MuScleFitUtils::massWindowHalfWidth[0][1] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[0][2] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[0][3] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[0][4] = 0.2;
-  MuScleFitUtils::massWindowHalfWidth[0][5] = 0.2;
-  MuScleFitUtils::massWindowHalfWidth[1][0] = 50.;
-  MuScleFitUtils::massWindowHalfWidth[1][1] = 2.5;
-  MuScleFitUtils::massWindowHalfWidth[1][2] = 2.5;
-  MuScleFitUtils::massWindowHalfWidth[1][3] = 2.5;
-  MuScleFitUtils::massWindowHalfWidth[1][4] = 1.5;
-  MuScleFitUtils::massWindowHalfWidth[1][5] = 1.5;
-  MuScleFitUtils::massWindowHalfWidth[2][0] = 20.;
-  MuScleFitUtils::massWindowHalfWidth[2][1] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[2][2] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[2][3] = 0.5;
-  MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
-  MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
-
-  MuScleFitUtils::backgroundHandler = new BackgroundHandler( pset.getParameter<vector<int> >("BgrFitType"),
-                                                             pset.getParameter<vector<double> >("LeftWindowFactor"),
-                                                             pset.getParameter<vector<double> >("RightWindowFactor"),
-                                                             MuScleFitUtils::ResMass,
-                                                             MuScleFitUtils::massWindowHalfWidth[MuScleFitUtils::MuonTypeForCheckMassWindow] );
 }
 
 // Destructor
@@ -322,11 +333,19 @@ MuScleFit::~MuScleFit () {
 // ---------
 void MuScleFit::beginOfJob () {
 
-  //if(maxLoopNumber>1)
+  // Read probability distributions from the database of a local root file.
+  // These are 2-D PDFs containing a grid of 1000x1000 values of the
+  // integral of Lorentz * Gaussian as a function of mass and resolution
+  // of a given measurement, for each of the six considered di-muon resonances.
+  // -------------------------------------------------
+  // if( readPdfFromDB ) readProbabilityDistributions( eventSetup );
+  // else
+  	  
+  if(maxLoopNumber>1)
     readProbabilityDistributionsFromFile();
-
+    
   if (debug_>0) cout << "[MuScleFit]: beginOfJob" << endl;
-
+  
   // Create the root file
   // --------------------
   for (unsigned int i=0; i<(maxLoopNumber); i++) {
@@ -338,11 +357,11 @@ void MuScleFit::beginOfJob () {
   if (debug_>0) cout << "[MuScleFit]: Root file created" << endl;
 
   plotter = new MuScleFitPlotter(theGenInfoRootFileName_);
-  plotter->debug = debug_;
+  plotter->debug = debug_; 
 }
 
 // End of job method
-// -----------------
+// -----------------              
 void MuScleFit::endOfJob () {
   if (debug_>0) cout << "[MuScleFit]: endOfJob" << endl;
 }
@@ -353,7 +372,7 @@ void MuScleFit::startingNewLoop( unsigned int iLoop )
 {
   if (debug_>0) cout << "[MuScleFit]: Starting loop # " << iLoop << endl;
 
-  // Number of muons used
+  // Number of muons used 
   // --------------------
   MuScleFitUtils::goodmuon = 0;
 
@@ -446,6 +465,7 @@ void MuScleFit::endOfFastLoop( const unsigned int iLoop )
 // -----------------------
 edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSetup& eventSetup )
 {
+
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
 #endif
@@ -492,7 +512,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
       event.getByLabel (theMuonLabel_, caloMuons);
       vector<reco::Track> tracks;
       for (vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
-	tracks.push_back(*(muon->track()));
+	tracks.push_back(*(muon->track()));  
       }
       muons = fillMuonCollection(tracks);
     }
@@ -502,18 +522,18 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
       event.getByLabel (theMuonLabel_, tracks);
       muons = fillMuonCollection(*tracks);
     }
-
+    
     plotter->fillRec(muons);
     // Compare reco with mc
     // if( loopCounter == 0 && !MuScleFitUtils::speedup ) plotter->fillRecoVsGen(muons, evtMC);
 
     // Find the two muons from the resonance, and set ResFound bool
     // ------------------------------------------------------------
-    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes =
+    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
       MuScleFitUtils::findBestRecoRes(muons);
     if (MuScleFitUtils::ResFound) {
       if (debug_>0) {
-	cout <<setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " "
+	cout <<setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " " 
 	     << (recMuFromBestRes.second).Pt() << endl;
 	cout << "recMu1 = " << recMu1 << endl;
 	cout << "recMu2 = " << recMu2 << endl;
@@ -541,7 +561,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
       // ----------------------------------------------------------------------------
       Handle<HepMCProduct> evtMC;
       Handle<SimTrackContainer> simTracks;
-      Handle<GenParticleCollection> genParticles;
+      Handle<GenParticleCollection> genParticles; 
 
       // Fill gen information only in the first loop
       ifHepMC=false;
@@ -557,7 +577,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
       }
       else {
         // cout << "HepMCProduct non existent. Trying with genParticles" << endl;
-        event.getByLabel( genParticlesName_, genParticles );
+        event.getByLabel ("genParticles", genParticles);
         if( genParticles.isValid() ) {
 
           MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(genParticles) );
@@ -615,11 +635,11 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
   recMu2 = (MuScleFitUtils::SavedPair[iev].second);
   if (recMu1.Pt()>0 && recMu2.Pt()>0) {
     MuScleFitUtils::ResFound = true;
-    if (debug_>0) cout << "Ev = " << iev << ": found muons in tree with Pt = "
+    if (debug_>0) cout << "Ev = " << iev << ": found muons in tree with Pt = " 
                        << recMu1.Pt() << " " << recMu2.Pt() << endl;
   }
 
-  if( debug_>0 ) cout << "About to start lik par correction and histo filling; ResFound is "
+  if( debug_>0 ) cout << "About to start lik par correction and histo filling; ResFound is " 
 		    << MuScleFitUtils::ResFound << endl;
   // If resonance found, do the hard work
   // ------------------------------------
@@ -627,11 +647,9 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
 
     // Find weight and reference mass for this muon pair
     // -------------------------------------------------
-    // The last parameter = true means that we want to use always the background window to compute the weight,
-    // otherwise the probability will be filled only for the resonance region.
-    double weight = MuScleFitUtils::computeWeight( (recMu1+recMu2).mass(), iev, true );
+    double weight = MuScleFitUtils::computeWeight( (recMu1+recMu2).mass(), iev );
     if (debug_>0) {
-      cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = "
+      cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = " 
 	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
     }
     // For successive iterations, correct the muons only if the previous iteration was a scale fit.
@@ -643,7 +661,7 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
       }
     }
     if (debug_>0) {
-      cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = "
+      cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = " 
 	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
     }
 
@@ -711,7 +729,6 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
 
     // Compute likelihood histograms
     // -----------------------------
-    cout << "mass = " << bestRecRes.mass() << endl;
     if (weight!=0.) {
       double massResol;
       double prob;
@@ -728,17 +745,14 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
 	  initpar.push_back(MuScleFitUtils::parBgr[i]);
 	}
 	massResol = MuScleFitUtils::massResolution (recMu1, recMu2, initpar);
-	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(), massResol, initpar, true);
+	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(), massResol, initpar);
       } else {
-	massResol = MuScleFitUtils::massResolution (recMu1, recMu2,
+	massResol = MuScleFitUtils::massResolution (recMu1, recMu2, 
                                                     MuScleFitUtils::parvalue[loopCounter-1]);
-	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(),
-                                              massResol, MuScleFitUtils::parvalue[loopCounter-1], true);
+	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(), 
+                                              massResol, MuScleFitUtils::parvalue[loopCounter-1]);
       }
-      cout << "inside weight: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
-      if (prob>0) {
-        cout << "inside prob: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
-
+      if (prob>0) { 
 	deltalike = log(prob)*weight; // NB maximum likelihood --> deltalike is maximized
 	mapHisto_["hLikeVSMu"]->Fill(recMu1, deltalike);
 	mapHisto_["hLikeVSMu"]->Fill(recMu2, deltalike);
@@ -799,7 +813,6 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
         }
 
         mapHisto_["hMass_P"]->Fill(bestRecRes.mass(), prob);
-        cout << "mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
         mapHisto_["hMass_fine_P"]->Fill(bestRecRes.mass(), prob);
       }
     }
@@ -813,7 +826,7 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
 	}
       }
     }
-  } // end if ResFound
+  } // end if ResFound  
 
   // Fill the pair
   // -------------
@@ -895,7 +908,7 @@ void MuScleFit::checkParameters() {
   }
   // Smear parameters: dimension check
   // ---------------------------------
-  if ((MuScleFitUtils::SmearType==1  && MuScleFitUtils::parSmear.size()!=3) ||
+  if ((MuScleFitUtils::SmearType==1  && MuScleFitUtils::parSmear.size()!=3) || 
       (MuScleFitUtils::SmearType==2  && MuScleFitUtils::parSmear.size()!=4) ||
       (MuScleFitUtils::SmearType==3  && MuScleFitUtils::parSmear.size()!=5) ||
       (MuScleFitUtils::SmearType==4  && MuScleFitUtils::parSmear.size()!=6) ||
@@ -907,22 +920,22 @@ void MuScleFit::checkParameters() {
   }
   // Protect against bad size of parameters
   // --------------------------------------
-  if (MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolFix.size() ||
+  if (MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolFix.size() || 
       MuScleFitUtils::parResol.size()!=MuScleFitUtils::parResolOrder.size()) {
     cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Resol: aborting!" << endl;
     abort();
   }
-  if (MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleFix.size() ||
+  if (MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleFix.size() || 
       MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleOrder.size()) {
     cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Scale: aborting!" << endl;
     abort();
   }
-  if (MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrFix.size() ||
+  if (MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrFix.size() || 
       MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrOrder.size()) {
     cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << endl;
     abort();
   }
-
+  
   // Protect against an incorrect number of resonances
   // -------------------------------------------------
   if (MuScleFitUtils::resfind.size()!=6) {

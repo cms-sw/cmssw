@@ -18,7 +18,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Sep  2 22:48:15 CEST 2008
-// $Id: L1ConfigOnlineProdBase.h,v 1.7 2010/02/01 21:54:42 wsun Exp $
+// $Id: L1ConfigOnlineProdBase.h,v 1.5 2009/08/14 19:58:38 wsun Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 #include "CondTools/L1Trigger/interface/Exception.h"
 
-#include "FWCore/Utilities/interface/typelookup.h"
+#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
@@ -111,7 +111,9 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
      //     if( pData.get() == 0 )
      if( pData == boost::shared_ptr< TData >() )
        {
-	 std::string dataType = edm::typelookup::className<TData>();
+	 std::string dataType =
+	   edm::eventsetup::heterocontainer::HCTypeTagTemplate< TData,
+	   edm::eventsetup::DataKey >::className() ;
 
 	 throw l1t::DataInvalidException( "Unable to generate " +
 					  dataType + " for key " + key +
@@ -120,7 +122,9 @@ L1ConfigOnlineProdBase<TRcd, TData>::produce( const TRcd& iRecord )
    }
    else
    {
-     std::string dataType = edm::typelookup::className<TData>();
+     std::string dataType =
+       edm::eventsetup::heterocontainer::HCTypeTagTemplate< TData,
+       edm::eventsetup::DataKey >::className() ;
 
      throw l1t::DataAlreadyPresentException( dataType +
         " for key " + key + " already in CondDB." ) ;
@@ -159,8 +163,12 @@ L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(
    }
 
    // Get object key from L1TriggerKey
-   std::string recordName = edm::typelookup::className<TData>();
-   std::string dataType = edm::typelookup::className<TData>();
+   std::string recordName =
+      edm::eventsetup::heterocontainer::HCTypeTagTemplate< TRcd,
+      edm::eventsetup::EventSetupRecordKey >::className() ;
+   std::string dataType =
+      edm::eventsetup::heterocontainer::HCTypeTagTemplate< TData,
+      edm::eventsetup::DataKey >::className() ;
 
    objectKey = key->get( recordName, dataType ) ;
 

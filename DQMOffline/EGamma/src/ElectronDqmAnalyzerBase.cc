@@ -17,7 +17,7 @@
 #include <sstream>
 
 ElectronDqmAnalyzerBase::ElectronDqmAnalyzerBase( const edm::ParameterSet& conf )
- : bookPrefix_("ele"), bookIndex_(0), histoNamesReady(false), finalDone_(false)
+ : bookPrefix_("ele"), bookIndex_(0), finalDone_(false)
  {
   verbosity_ = conf.getUntrackedParameter<int>("Verbosity") ;
   finalStep_ = conf.getParameter<std::string>("FinalStep") ;
@@ -38,13 +38,10 @@ void ElectronDqmAnalyzerBase::setBookIndex( short index )
 
 const std::string * ElectronDqmAnalyzerBase::find( const std::string & name )
  {
-  typedef std::vector<std::string> HistoNames ;
-  typedef HistoNames::iterator HistoNamesItr ;
-  if (!histoNamesReady)
-   { histoNamesReady = true ; histoNames_ = store_->getMEs() ; }
-  HistoNamesItr histoName ;
-  std::vector<HistoNamesItr> res ;
-  for ( histoName = histoNames_.begin() ; histoName != histoNames_.end() ; ++histoName )
+  typedef std::vector<std::string>::iterator HistoItr ;
+  HistoItr histoName ;
+  std::vector<HistoItr> res ;
+  for ( histoName = initialHistos_.begin() ; histoName != initialHistos_.end() ; ++histoName )
    {
     std::size_t nsize = name.size(), lsize = histoName->size() ;
     if ( (histoName->find(bookPrefix_)==0) &&
@@ -54,21 +51,15 @@ const std::string * ElectronDqmAnalyzerBase::find( const std::string & name )
    }
   if (res.size()==0)
    {
-    std::ostringstream oss ;
-    oss<<"Histogram "<<name<<" not found in "<<outputInternalPath_ ;
-    char sep = ':' ;
-    for ( histoName = histoNames_.begin() ; histoName != histoNames_.end() ; ++histoName )
-     { oss<<*histoName<<sep<<' ' ; sep = ',' ; }
-    oss<<'.' ;
-    edm::LogWarning("ElectronDqmAnalyzerBase::find")<<oss.str() ;
+    edm::LogWarning("ElectronDqmAnalyzerBase::find")<<"Unknown histogram: "<<name ;
     return 0 ;
    }
   else if (res.size()>1)
    {
-    std::ostringstream oss ;
-    oss<<"Ambiguous histograms for "<<name<<" in "<<outputInternalPath_ ;
     char sep = ':' ;
-    std::vector<HistoNamesItr>::iterator resItr ;
+    std::ostringstream oss ;
+    oss<<"Ambiguous histograms for "<<name ;
+    std::vector<HistoItr>::iterator resItr ;
     for ( resItr = res.begin() ; resItr != res.end() ; ++resItr )
      { oss<<sep<<" "<<(**resItr) ; sep = ',' ; }
     oss<<'.' ;
@@ -89,6 +80,7 @@ void ElectronDqmAnalyzerBase::beginJob()
    { store_->open(inputFile_) ; }
   store_->setCurrentFolder(outputInternalPath_) ;
   book() ;
+  initialHistos_ = store_->getMEs() ;
  }
 
 void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & )

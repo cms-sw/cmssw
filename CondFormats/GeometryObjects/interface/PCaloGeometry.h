@@ -8,14 +8,12 @@ class PCaloGeometry{
 
  public:
   PCaloGeometry();
-  PCaloGeometry(std::vector<double> const & ,
-		std::vector<double> const & ,
-		std::vector<uint32_t> const &);
+  PCaloGeometry(std::vector<double>,std::vector<double>,std::vector<uint32_t>);
   ~PCaloGeometry(){};
 
-  std::vector<double> const &  getTranslation() const { return m_translation; }
-  std::vector<double> const & getDimension() const { return m_dimension; }
-  std::vector<uint32_t> const & cgetIndexes() const { return m_indexes; }
+  std::vector<double>   getTranslation() const { return m_translation; } ;
+  std::vector<double>   getDimension()   const { return m_dimension  ; } ;
+  std::vector<uint32_t> getIndexes()     const { return m_indexes    ; } ;
 
  private:
   std::vector<double>   m_translation ;

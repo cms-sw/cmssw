@@ -23,6 +23,8 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     // all on by default
     set("D0");
     set("RelIso");
+
+    retInternal_ = getBitTemplate();
   }
 
   // Allow for multiple definitions of the cuts. 
@@ -35,10 +37,13 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     }
   }
 
+  using Selector<pat::Electron>::operator();
+
   // cuts based on craft 08 analysis. 
   bool summer08Cuts( const pat::Electron & electron, std::strbitset & ret) 
   {
 
+    ret.set(false);
     double corr_d0 = electron.dB();
 	
     double hcalIso = electron.hcalIso();
@@ -51,6 +56,7 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")     ) passCut(ret, "D0"     );
     if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso") ) passCut(ret, "RelIso" );
 
+    setIgnored(ret);
     return (bool)ret;
   }
   

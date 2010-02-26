@@ -544,7 +544,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiMB(const gblphidat &csclut) const
   // modifications from Darin and GP
   int GlobalPhiMin = (_subsector == 1) ? 0x42 : 0x800;  // (0.999023 : 31 in degrees)
   int GlobalPhiMax = (_subsector == 1) ? 0x7ff : 0xfbd; // (30.985 : 60.986 in degrees)
-  double GlobalPhiShift = (1.0*GlobalPhiMin + (GlobalPhiMax - GlobalPhiMin)/2.0);
+  int GlobalPhiShift = (GlobalPhiMin + (GlobalPhiMax - GlobalPhiMin)/2.0);
 
   double dt_out = static_cast<double>(csclut.global_phi) - GlobalPhiShift;
 

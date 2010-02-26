@@ -41,11 +41,8 @@ if source=="PoolSource":
                                 
                                 fileNames = cms.untracked.vstring
                                 (
-        # Collisions at 2.36 TeV
-        '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/F6ADE109-6BE8-DE11-9680-000423D991D4.root',
-
         # A (relatively) recent run
-        #'/store/data/Commissioning09/Calo/RAW/v3/000/118/962/127CDC23-8FC5-DE11-B66D-000423D991D4.root',
+        '/store/data/Commissioning09/Calo/RAW/v3/000/118/962/127CDC23-8FC5-DE11-B66D-000423D991D4.root',
         # Calibration triggers only
         #'/store/data/Commissioning09/TestEnables/RAW/v3/000/118/074/84ED101B-03C0-DE11-B33C-000423D94E70.root',
         # cosmics run with known hot cell in HF
@@ -110,8 +107,8 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 # Set collector host to machine where gui output to be collected
 #process.DQM.collectorHost = 'lxplus249'
-#process.DQM.collectorHost = host
-#process.DQM.collectorPort = 9190
+process.DQM.collectorHost = host
+process.DQM.collectorPort = 9190
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'
 process.dqmEnv.subSystemFolder = subsystem
@@ -133,8 +130,7 @@ process.dqmSaver.saveByRun = 1
 
 # lxplus
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = "GR09_P_V5::All" 
-process.GlobalTag.globaltag = "GR10_P_V1::All"
+process.GlobalTag.globaltag = "GR09_P_V5::All" 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
@@ -352,12 +348,10 @@ process.options = cms.untracked.PSet(
 # Allow even bad-quality digis
 #process.hcalDigis.FilterDataQuality=False
 
-
 # Set expected orbit time to 3560 (value should be 6 for run < 116401)
-# updated to 3559 in late 2009
-process.hcalDigis.ExpectedOrbitMessageTime= cms.untracked.int32(3559)
+process.hcalDigis.ExpectedOrbitMessageTime= cms.untracked.int32(3560)
 # Set monitor value to -1 to skip check of IDLE BCN 
-process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3559
+process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3560
 
 # ----------------------
 # Trigger Unpacker Stuff

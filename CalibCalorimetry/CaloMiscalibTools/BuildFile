@@ -13,8 +13,6 @@
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <use name=xerces-c>
-<use name=CondTools/Ecal>
-
 <export>
    <lib name=CalibCalorimetryCaloMiscalibTools>
    <use name=FWCore/Framework>
@@ -32,5 +30,4 @@
    <use name=CondCore/DBCommon>
    <use name=CondCore/DBOutputService>
    <use name=xerces-c>
-   <use name=CondTools/Ecal>
 </export>

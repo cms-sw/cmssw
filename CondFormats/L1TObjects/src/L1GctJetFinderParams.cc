@@ -4,9 +4,6 @@
 #include <iomanip>
 #include <math.h>
 
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctStaticParameters.h"
 
 
@@ -58,40 +55,7 @@ L1GctJetFinderParams::L1GctJetFinderParams(double rgnEtLsb,
   tauCorrCoeffs_(tauCorrCoeffs),
   convertToEnergy_(convertToEnergy),
   energyConversionCoeffs_(energyConvCoeffs)
-{ 
-  // check number of eta bins
-  if (jetCorrCoeffs_.size() != NUMBER_ETA_VALUES ||
-      tauCorrCoeffs_.size() != N_CENTRAL_ETA_VALUES ||
-      energyConversionCoeffs_.size() != NUMBER_ETA_VALUES) {
-
-    LogDebug("L1-O2O") << "GCT jet corrections constructed with " << jetCorrCoeffs_.size() << " bins, expected " << NUMBER_ETA_VALUES << std::endl;
-    LogDebug("L1-O2O") << "GCT tau corrections constructed with " << tauCorrCoeffs_.size() << " bins, expected " << N_CENTRAL_ETA_VALUES << std::endl;
-    LogDebug("L1-O2O") << "GCT energy corrections constructed with " << energyConversionCoeffs_.size() << " bins, expected " << NUMBER_ETA_VALUES << std::endl;
-
-    throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with wrong number of eta bins : " << jetCorrCoeffs_.size() << " jets, " << tauCorrCoeffs_.size() << " taus, " << energyConversionCoeffs_.size() << " energy conversion bins" << std::endl;
-
-  }
-
-  // check number of coefficients
-  if (corrType_ != 1) {
-    std::vector< std::vector<double> >::const_iterator itr;
-    unsigned nCoeffs=0;
-    if (corrType_ == 2) nCoeffs=8;  // ORCA style corrections need 4 coefficients
-    if (corrType_ == 3) nCoeffs=11;  // piecewise-cubic corrections need 11 coefficients?!?
-      
-    for (itr=jetCorrCoeffs_.begin(); itr!=jetCorrCoeffs_.end(); ++itr) {
-      if (itr->size() != nCoeffs) {
-	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " jet correction coefficients, when " << nCoeffs << " expected" << std::endl;
-      }
-    }
-    for (itr=tauCorrCoeffs_.begin(); itr!=tauCorrCoeffs_.end(); ++itr) {
-      if (itr->size() != nCoeffs) {
-	throw cms::Exception("InconsistentConfig") << "L1GctJetFinderParams constructed with " << itr->size() << " tau correction coefficients, when " << nCoeffs << " expected"<< std::endl;
-      }
-    }
-  }
-  
-}
+{ }
 
 
 L1GctJetFinderParams::~L1GctJetFinderParams() {}
@@ -269,7 +233,6 @@ double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector
   return Et;
 }
 
-
 double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::vector<double>& coeffs) const
 {
   // The correction fuction is a set of 3rd order polynomials
@@ -301,23 +264,9 @@ double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::v
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderParams& fn)
 {
-  os << std::setprecision(2);
-
-  os << "=== Level-1 GCT : Jet Finder Parameters  ===" << std::endl;
-  os << "RCT region LSB               : " << std::fixed << fn.getRgnEtLsbGeV() << " GeV" << std::endl;
-  os << "Central jet seed threshold   : " << std::fixed << fn.getCenJetEtSeedGeV() << " GeV" << std::endl;
-  os << "Tau jet seed threshold       : " << std::fixed << fn.getTauJetEtSeedGeV() << " GeV" << std::endl;
-  os << "Forward jet seed threshold   : " << std::fixed << fn.getForJetEtSeedGeV() << " GeV" << std::endl;
-  os << "Tau isolation threshold      : " << std::fixed << fn.getTauIsoEtThresholdGeV() << " GeV" << std::endl;
-  os << "Ht jet Et threshold          : " << std::fixed << fn.getHtJetEtThresholdGeV() << " GeV" << std::endl;
-  os << "MHt jet Et threshold         : " << std::fixed << fn.getMHtJetEtThresholdGeV() << " GeV" << std::endl;
-  os << "Ht LSB                       : " << std::fixed << fn.getHtLsbGeV() << " GeV" << std::endl;
-  os << "Central/Forward boundary     : " << std::fixed << fn.getCenForJetEtaBoundary() << std::endl;
-
-  os << std::endl;
-
-
   os << "=== Level-1 GCT : Jet Et Calibration Function  ===" << std::endl;
+  os << std::setprecision(2);
+  os << "LSB for Ht scale is " << std::fixed << fn.getHtLsbGeV() << " --- ";
   if (fn.getCorrType() == 0) {
     os << "No jet energy corrections applied" << std::endl;
   } else { 

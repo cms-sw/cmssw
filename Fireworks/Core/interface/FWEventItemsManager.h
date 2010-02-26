@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.14 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWEventItemsManager.h,v 1.13 2008/12/09 14:40:46 chrjones Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ class FWEventItemsManager : public FWConfigurable
 {
 public:
    //does not take ownership of the object to which it points but does keep reference
-   FWEventItemsManager(FWModelChangeManager*);
+   FWEventItemsManager(FWModelChangeManager*,FWSelectionManager*);
    virtual ~FWEventItemsManager();
 
    typedef std::vector<FWEventItem*>::const_iterator const_iterator;
@@ -85,6 +85,7 @@ private:
    // ---------- member data --------------------------------
    std::vector<FWEventItem*> m_items;
    FWModelChangeManager* m_changeManager;
+   FWSelectionManager* m_selectionManager;
    fireworks::Context* m_context;
 
    const fwlite::Event* m_event;

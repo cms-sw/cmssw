@@ -4,8 +4,8 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2009/11/03 07:39:18 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/28 16:55:44 $
+ *  $Revision: 1.6 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -13,6 +13,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+#include <CLHEP/Vector/LorentzVector.h>
 
 namespace edm {
   class ParameterSet;
@@ -45,7 +46,7 @@ class MuScleFitPlotter{
   void writeHistoMap();
 
   bool debug;
-
+  
  protected:
 
  private:
@@ -57,4 +58,4 @@ class MuScleFitPlotter{
 };
 #endif
 
-
+ 

@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2010/01/20 09:12:32 $
- *  $Revision: 1.39.2.1 $
+ *  $Date: 2010/02/02 09:20:37 $
+ *  $Revision: 1.40 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -168,26 +168,16 @@ namespace edm {
       {
 	//	std::cout << "got new lumi block " << retval
 	//		  << " was " << luminosityBlockNumber_ << std::endl;
-	if(luminosityBlockNumber_ < (-1)*retval+1)
+	unsigned int nextLsFromSignal = (-1)*retval+1;
+	if(luminosityBlockNumber_ < nextLsFromSignal)
 	  {
-	    luminosityBlockNumber_ = (-1)*retval+1;
-	    pthread_mutex_lock(&mutex_);
-	    pthread_cond_signal(&cond_);
-	    pthread_mutex_unlock(&mutex_);
-	    ::usleep(1000);
-	    
-	    pthread_mutex_lock(&mutex_);
-	    pthread_mutex_unlock(&mutex_);
+	    if(luminosityBlockNumber_ == nextLsFromSignal - 1) //only signal increments by one of the ls index
+	      signalWaitingThreadAndBlock();
+	    luminosityBlockNumber_ = nextLsFromSignal;
 	    newLumi_ = true;
 	    lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	    resetLuminosityBlockAuxiliary();
-	    //	    std::cout << "done dealing with ls signal " << std::endl;
 	  }
-	//	else
-	// {
-	    //	    std::cout << "ls end signal was received after an event from new ls" << std::endl;
-	    
-	//  }
       }
     else
       {
@@ -204,15 +194,13 @@ namespace edm {
 	if(gtpFedAddr !=0) gtpsize = fedCollection->FEDData(daqsource::gtpEvmId_).size();
 	unsigned char *gtpeFedAddr = fedCollection->FEDData(daqsource::gtpeId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpeId_).data() : 0; 
 
-	if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
-	  luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
-	  pthread_mutex_lock(&mutex_);
-	  pthread_cond_signal(&cond_);
-	  pthread_mutex_unlock(&mutex_);
-	  ::usleep(1000);
-
-	  pthread_mutex_lock(&mutex_);
-	  pthread_mutex_unlock(&mutex_);
+	unsigned int nextFakeLs	= 0;
+	if(fakeLSid_ && luminosityBlockNumber_ != 
+	   (nextFakeLs =(eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
+	  
+	  if(luminosityBlockNumber_ == nextFakeLs-1)
+	    signalWaitingThreadAndBlock();
+	  luminosityBlockNumber_ = nextFakeLs;
 	  newLumi_ = true;
 	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	  resetLuminosityBlockAuxiliary();
@@ -224,14 +212,9 @@ namespace edm {
 	    prescaleSetIndex_.value_ = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
 	    evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
+	      if(luminosityBlockNumber_ == thisEventLSid)
+		signalWaitingThreadAndBlock();
 	      luminosityBlockNumber_ = thisEventLSid + 1;
-	      pthread_mutex_lock(&mutex_);
-	      pthread_cond_signal(&cond_);
-	      pthread_mutex_unlock(&mutex_);
-	      ::usleep(1000);
-
-	      pthread_mutex_lock(&mutex_);
-	      pthread_mutex_unlock(&mutex_);
 	      newLumi_ = true;
 	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	      resetLuminosityBlockAuxiliary();
@@ -241,16 +224,12 @@ namespace edm {
 	    unsigned int thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
 	    evttype =  edm::EventAuxiliary::PhysicsTrigger; 
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
+	      if(luminosityBlockNumber_ == thisEventLSid)
+		signalWaitingThreadAndBlock();
 	      luminosityBlockNumber_ = thisEventLSid + 1;
-	      pthread_mutex_lock(&mutex_);
-	      pthread_cond_signal(&cond_);
-	      pthread_mutex_unlock(&mutex_);
-	      ::usleep(1000);
-
-	      pthread_mutex_lock(&mutex_);
-	      pthread_mutex_unlock(&mutex_);
 	      newLumi_ = true;
 	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	      resetLuminosityBlockAuxiliary();
 	    }
 	  }
 	}
@@ -410,8 +389,20 @@ namespace edm {
   void DaqSource::closeBackDoor()
   {
     count--;
+    pthread_cond_signal(&cond_);
     pthread_mutex_unlock(&mutex_);
     lsTimedOut_.value_ = false; 
     ::usleep(1000);
   }
+
+  void DaqSource::signalWaitingThreadAndBlock()
+  {
+    pthread_mutex_lock(&mutex_);
+    std::cout << getpid() << " DS::signal from evloop " << std::endl;
+    pthread_cond_signal(&cond_);
+    std::cout << getpid() << " DS::go to wait for scalers wl " << std::endl;
+    pthread_cond_wait(&cond_, &mutex_);
+    pthread_mutex_unlock(&mutex_);
+
+  }  
 }
