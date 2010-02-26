@@ -1,5 +1,5 @@
 #include "CondFormats/HLTObjects/interface/HLTPrescaleTable.h"
 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(trigger::HLTPrescaleTable);
+TYPELOOKUP_DATA_REG(trigger::HLTPrescaleTable);
