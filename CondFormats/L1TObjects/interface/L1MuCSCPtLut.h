@@ -2,8 +2,8 @@
 #define L1TObjects_L1MuCSCPtLut_h
 
 #include <string>
+#include <string.h>
 
-using namespace std;
 class CSCTFConfigProducer;
 
 class L1MuCSCPtLut {

@@ -2,6 +2,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <sstream>
 #include <iostream>
+#include <errno.h>
 
 void L1MuCSCPtLut::readFromDBS( std::string& ptLUT )
 {
@@ -11,7 +12,7 @@ void L1MuCSCPtLut::readFromDBS( std::string& ptLUT )
   // the ptLUT returned by the OMDS query will have a structure like number"\n"number"\n"
   // e.g., 32896\n32896\n32896\n32896\n and so on
   // remove the \n separator to write the pt_lut[1<<21] line-by-line
-  for(size_t pos=ptLUT.find("\\n"); pos!=string::npos; pos=ptLUT.find("\\n",pos)){ 
+  for(size_t pos=ptLUT.find("\\n"); pos!=std::string::npos; pos=ptLUT.find("\\n",pos)){ 
     ptLUT[pos]=' '; 
     ptLUT[pos+1]='\n'; 
   }
