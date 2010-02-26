@@ -40,11 +40,12 @@ namespace lumi{
   //implementation
   //
   HLTConf2DB::HLTConf2DB( const std::string& dest):DataPipe(dest){}
-  void HLTConf2DB::retrieveData( unsigned int configid ){
-    //must login as cms_hlt_r
-    //select HLTKEY from HLT_SUPERVISOR_SCALAR_MAP where RUNNR=124025
+  void HLTConf2DB::retrieveData( unsigned int runnumber ){
     std::string runinfoschema("CMS_RUNINFO");
     std::string hltschema("CMS_HLT");
+    std::string runsessiontable("RUNSESSION_PARAMETER");
+    //
+    //must login as cms_hlt_r
     coral::ConnectionService* svc=new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if(!m_authpath.empty()){
@@ -53,69 +54,131 @@ namespace lumi{
     //std::cout<<"m_source "<<m_source<<std::endl;
     coral::ISessionProxy* srcsession=svc->connect(m_source, coral::ReadOnly);
     //coral::ITypeConverter& tpc=srcsession->typeConverter();
-    //unsigned int configid=1905;
-    srcsession->transaction().start(true);
-    coral::ISchema& confSchemaHandle=srcsession->schema(hltschema);
-    if( !confSchemaHandle.existsTable("PATHS") || !confSchemaHandle.existsTable("STRINGPARAMVALUES") || !confSchemaHandle.existsTable("PARAMETERS") || !confSchemaHandle.existsTable("SUPERIDPARAMETERASSOC") || !confSchemaHandle.existsTable("MODULES") || !confSchemaHandle.existsTable("MODULETEMPLATES") || !confSchemaHandle.existsTable("PATHMODULEASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONPATHASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONS") ){
-      throw lumi::Exception("missing hlt conf tables" ,"retrieveData","HLTConf2DB");
-    }
-    coral::AttributeList q1BindVariableList;
-    q1BindVariableList.extend("hltseed",typeid(std::string));
-    q1BindVariableList.extend("l1seedexpr",typeid(std::string));
-    q1BindVariableList.extend("hltkey",typeid(unsigned int));
-    q1BindVariableList["hltseed"].data<std::string>()=std::string("HLTLevel1GTSeed");
-    q1BindVariableList["l1seedexpr"].data<std::string>()=std::string("L1SeedsLogicalExpression");
-    q1BindVariableList["hltkey"].data<unsigned int>()=configid;    
-    
-    coral::IQuery* q1=srcsession->nominalSchema().newQuery();
-
-    q1->addToOutputList("PATHS.NAME","hltpath");
-    q1->addToOutputList("STRINGPARAMVALUES.VALUE","l1expression");
-
-    q1->addToTableList("PATHS");    
-    q1->addToTableList("STRINGPARAMVALUES");
-    q1->addToTableList("PARAMETERS");
-    q1->addToTableList("SUPERIDPARAMETERASSOC");
-    q1->addToTableList("MODULES");
-    q1->addToTableList("MODULETEMPLATES");
-    q1->addToTableList("PATHMODULEASSOC");
-    q1->addToTableList("CONFIGURATIONPATHASSOC");
-    q1->addToTableList("CONFIGURATIONS");
-    
-    q1->setCondition("PARAMETERS.PARAMID=STRINGPARAMVALUES.PARAMID and SUPERIDPARAMETERASSOC.PARAMID=PARAMETERS.PARAMID and MODULES.SUPERID=SUPERIDPARAMETERASSOC.SUPERID and MODULETEMPLATES.SUPERID=MODULES.TEMPLATEID and PATHMODULEASSOC.MODULEID=MODULES.SUPERID and PATHS.PATHID=PATHMODULEASSOC.PATHID and CONFIGURATIONPATHASSOC.PATHID=PATHS.PATHID and CONFIGURATIONS.CONFIGID=CONFIGURATIONPATHASSOC.CONFIGID and MODULETEMPLATES.NAME = :hltseed and PARAMETERS.NAME = :l1seedexpr and CONFIGURATIONS.CONFIGID = :hltkey",q1BindVariableList);
-    
-    /**
-       select paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configid=1905; 
-    **/
+    //
+    //select string_value from CMS_RUNINFO.runsession_parameter where name='CMS.LVL0:HLT_KEY_DESCRIPTION' and runnumber=xx;
+    //
+    std::string hltkey("");
     std::vector< std::pair<std::string,std::string> > hlt2l1map;
     hlt2l1map.reserve(200);
-    coral::ICursor& cursor1=q1->execute();
-    while( cursor1.next() ){
-      const coral::AttributeList& row=cursor1.currentRow();
-      std::string hltpath=row["hltpath"].data<std::string>();
-      std::string l1expression=row["l1expression"].data<std::string>();
-      hlt2l1map.push_back(std::make_pair(hltpath,l1expression));
+    try{
+      srcsession->transaction().start(true);
+      std::cout<<1<<std::endl;
+      coral::ISchema& runinfoSchemaHandle=srcsession->schema(runinfoschema);
+      if( !runinfoSchemaHandle.existsTable(runsessiontable) ){
+	throw lumi::Exception("missing runsession table","retrieveData","HLTConf2DB");
+      }
+      std::cout<<2<<std::endl;
+      coral::AttributeList rfBindVariableList;
+      rfBindVariableList.extend("name",typeid(std::string));
+      rfBindVariableList.extend("runnumber",typeid(unsigned int));
+      rfBindVariableList["name"].data<std::string>()=std::string("CMS.LVL0:HLT_KEY_DESCRIPTION");
+      rfBindVariableList["runnumber"].data<unsigned int>()=runnumber;
+      coral::IQuery* kq=runinfoSchemaHandle.newQuery();
+      coral::AttributeList runinfoOut;
+      runinfoOut.extend("STRING_VALUE",typeid(std::string));
+      kq->addToTableList(runsessiontable);
+      kq->setCondition("NAME = :name AND RUNNUMBER = :runnumber",rfBindVariableList);
+      kq->addToOutputList("STRING_VALUE");
+      kq->defineOutput(runinfoOut);
+      coral::ICursor& kcursor=kq->execute();
+      unsigned int s=0;
+      while( kcursor.next() ){
+	const coral::AttributeList& row=kcursor.currentRow();
+	hltkey=row["STRING_VALUE"].data<std::string>();
+	++s;
+      }
+      if( s==0||hltkey.empty() ){
+	kcursor.close();
+	delete kq;
+	srcsession->transaction().rollback();
+	throw lumi::Exception(std::string("requested run has no or invalid hltkey"),"retrieveData","TRG2DB");
+      }
+      if(s>1){
+	kcursor.close();
+	delete kq;
+	srcsession->transaction().rollback();
+	throw lumi::Exception(std::string("requested run has multile hltkey"),"retrieveData","TRG2DB");
+      }
+    }catch( const coral::Exception& er ){
+      std::cout<<"source runinfo database problem "<<er.what()<<std::endl;
+      srcsession->transaction().rollback();
+      delete srcsession;
+      delete svc;
+      throw er;
     }
-    cursor1.close();
-    delete q1;
+    std::cout<<"hehe "<<srcsession<<std::endl;
+    coral::ISchema& confSchemaHandle=srcsession->schema(hltschema);
+    std::cout<<"what"<<std::endl;
+    try{
+      //srcsession->transaction().start(true);
+      std::cout<<3<<std::endl;
+      if( !confSchemaHandle.existsTable("PATHS") || !confSchemaHandle.existsTable("STRINGPARAMVALUES") || !confSchemaHandle.existsTable("PARAMETERS") || !confSchemaHandle.existsTable("SUPERIDPARAMETERASSOC") || !confSchemaHandle.existsTable("MODULES") || !confSchemaHandle.existsTable("MODULETEMPLATES") || !confSchemaHandle.existsTable("PATHMODULEASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONPATHASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONS") ){
+	throw lumi::Exception("missing hlt conf tables" ,"retrieveData","HLTConf2DB");
+      }
+      coral::AttributeList q1BindVariableList;
+      q1BindVariableList.extend("hltseed",typeid(std::string));
+      q1BindVariableList.extend("l1seedexpr",typeid(std::string));
+      q1BindVariableList.extend("hltkey",typeid(std::string));
+      q1BindVariableList["hltseed"].data<std::string>()=std::string("HLTLevel1GTSeed");
+      q1BindVariableList["l1seedexpr"].data<std::string>()=std::string("L1SeedsLogicalExpression");
+      q1BindVariableList["hltkey"].data<std::string>()=hltkey;    
+      std::cout<<4<<std::endl;
+      coral::IQuery* q1=confSchemaHandle.newQuery();
+      std::cout<<5<<std::endl;
+      q1->addToOutputList("PATHS.NAME","hltpath");
+      q1->addToOutputList("STRINGPARAMVALUES.VALUE","l1expression");
+      
+      q1->addToTableList("PATHS");    
+      q1->addToTableList("STRINGPARAMVALUES");
+      q1->addToTableList("PARAMETERS");
+      q1->addToTableList("SUPERIDPARAMETERASSOC");
+      q1->addToTableList("MODULES");
+      q1->addToTableList("MODULETEMPLATES");
+      q1->addToTableList("PATHMODULEASSOC");
+      q1->addToTableList("CONFIGURATIONPATHASSOC");
+      q1->addToTableList("CONFIGURATIONS");
+      
+      q1->setCondition("PARAMETERS.PARAMID=STRINGPARAMVALUES.PARAMID and SUPERIDPARAMETERASSOC.PARAMID=PARAMETERS.PARAMID and MODULES.SUPERID=SUPERIDPARAMETERASSOC.SUPERID and MODULETEMPLATES.SUPERID=MODULES.TEMPLATEID and PATHMODULEASSOC.MODULEID=MODULES.SUPERID and PATHS.PATHID=PATHMODULEASSOC.PATHID and CONFIGURATIONPATHASSOC.PATHID=PATHS.PATHID and CONFIGURATIONS.CONFIGID=CONFIGURATIONPATHASSOC.CONFIGID and MODULETEMPLATES.NAME = :hltseed and PARAMETERS.NAME = :l1seedexpr and CONFIGURATIONS.CONFIGDESCRIPTOR = :hltkey",q1BindVariableList);
+
+      /**
+	 select paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configid=1905; 
+      **/
+      std::cout<<5<<std::endl;
+      coral::ICursor& cursor1=q1->execute();
+      while( cursor1.next() ){
+	const coral::AttributeList& row=cursor1.currentRow();
+	std::string hltpath=row["hltpath"].data<std::string>();
+	std::string l1expression=row["l1expression"].data<std::string>();
+	hlt2l1map.push_back(std::make_pair(hltpath,l1expression));
+      }
+      cursor1.close();
+      delete q1;
+    }catch( const coral::Exception& er ){
+      std::cout<<"database problem with source hlt confdb"<<er.what()<<std::endl;
+      srcsession->transaction().rollback();
+      delete srcsession;
+      throw er;
+    }
     srcsession->transaction().commit();
     delete srcsession;
-    
+    std::cout<<"end src session"<<std::endl;
     std::vector< std::pair<std::string,std::string> >::const_iterator mIt;
     std::vector< std::pair<std::string,std::string> >::const_iterator mBeg=hlt2l1map.begin();
     std::vector< std::pair<std::string,std::string> >::const_iterator mEnd=hlt2l1map.end();
     
     coral::ISessionProxy* destsession=svc->connect(m_dest, coral::Update);
-    try{
+    try{      
       destsession->transaction().start(false);
       coral::ISchema& destschema=destsession->nominalSchema();
       coral::ITable& hltconftable=destschema.tableHandle(LumiNames::trghltMapTableName());
       coral::AttributeList hltconfData;
-      hltconfData.extend<unsigned int>("HLTCONFID");
+      hltconfData.extend<unsigned int>("RUNNUM");
+      hltconfData.extend<std::string>("HLTKEY");
       hltconfData.extend<std::string>("HLTPATHNAME");
       hltconfData.extend<std::string>("L1SEED");
       coral::IBulkOperation* hltconfInserter=hltconftable.dataEditor().bulkInsert(hltconfData,200);
-      hltconfData["HLTCONFID"].data<unsigned int>()=configid;
+      hltconfData["HLTKEY"].data<std::string>()=hltkey;
+      hltconfData["RUNNUM"].data<unsigned int>()=runnumber;
       std::string& hltpathname=hltconfData["HLTPATHNAME"].data<std::string>();
       std::string& l1seedname=hltconfData["L1SEED"].data<std::string>();
       for(mIt=mBeg; mIt!=mEnd; ++mIt ){
@@ -126,6 +189,7 @@ namespace lumi{
       }
       hltconfInserter->flush();
       delete hltconfInserter;
+      destsession->transaction().commit();
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
       destsession->transaction().rollback();
@@ -133,7 +197,6 @@ namespace lumi{
       delete svc;
       throw er;
     }
-    destsession->transaction().commit();
     delete destsession;
     delete svc;
   }

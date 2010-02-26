@@ -5,7 +5,7 @@ namespace lumi{
   class RunSummary2DB : public DataPipe{
   public:
     RunSummary2DB( const std::string& dest);
-    virtual void retrieveData( unsigned int );
+    virtual void retrieveData( unsigned int runnumber );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~RunSummary2DB();

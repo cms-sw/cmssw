@@ -44,45 +44,45 @@ namespace lumi{
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
     try{
       unsigned int totalhltpath=126;
-      bool writeKeyToSunSummary=false;
-      session->transaction().start(true);
+      //session->transaction().start(true);
       //
       //check if this hltkey is also registered in runsummary table
       //
-      coral::AttributeList rqBindVariables;
-      rqBindVariables.extend("runnumber",typeid(unsigned int));
-      rqBindVariables["runnumber"].data<unsigned int>()=runnumber;
-      coral::AttributeList rqResult;
-      rqResult.extend("HLTKEY",typeid(std::string));
-      coral::IQuery* rq=session->nominalSchema().tableHandle(LumiNames::runsummaryTableName()).newQuery();
-      rq->addToOutputList("HLTKEY");
-      rq->setCondition("RUNNUM = :runnumber",rqBindVariables);
-      rq->defineOutput(rqResult);
-      coral::ICursor& rqCursor=rq->execute();
-      std::string hltkey;
-      unsigned int s=0;
-      while( rqCursor.next() ){
-	const coral::AttributeList& row=rqCursor.currentRow();
-	hltkey=row["HLTKEY"].data<std::string>();
-	++s;
-      }
-      if(s==0 || hltkey.empty()){
-	std::cout<<"hltkey is not registered for requested run"<<std::endl;
-	writeKeyToSunSummary=true;
-      }
-      if(s>1){
-	throw lumi::Exception("hltkey is not unique for the requested run","retrieveData","HLTConfDummy2DB");
-      }
-      if( s!=0 && hltkey!=fakehltkey ){
-	throw lumi::Exception("exist a different hltkey for the requested run","retrieveData","HLTConfDummy2DB");
-      }
-      session->transaction().commit();
-      delete rq;
+      /**coral::AttributeList rqBindVariables;
+	 rqBindVariables.extend("runnumber",typeid(unsigned int));
+	 rqBindVariables["runnumber"].data<unsigned int>()=runnumber;
+	 coral::AttributeList rqResult;
+	 rqResult.extend("HLTKEY",typeid(std::string));
+	 coral::IQuery* rq=session->nominalSchema().tableHandle(LumiNames::runsummaryTableName()).newQuery();
+	 rq->addToOutputList("HLTKEY");
+	 rq->setCondition("RUNNUM = :runnumber",rqBindVariables);
+	 rq->defineOutput(rqResult);
+	 coral::ICursor& rqCursor=rq->execute();
+	 std::string hltkey;
+	 unsigned int s=0;
+	 while( rqCursor.next() ){
+	 const coral::AttributeList& row=rqCursor.currentRow();
+	 hltkey=row["HLTKEY"].data<std::string>();
+	 ++s;
+	 }
+	 if(s==0 || hltkey.empty()){
+	 std::cout<<"hltkey is not registered for requested run"<<std::endl;
+	 writeKeyToSunSummary=true;
+	 }
+	 if(s>1){
+	 throw lumi::Exception("hltkey is not unique for the requested run","retrieveData","HLTConfDummy2DB");
+	 }
+	 if( s!=0 && hltkey!=fakehltkey ){
+	 throw lumi::Exception("exist a different hltkey for the requested run","retrieveData","HLTConfDummy2DB");
+	 }
+	 session->transaction().commit();
+	 delete rq;
+      **/
       session->transaction().start(false);
       coral::ISchema& schema=session->nominalSchema();
-
       coral::ITable& hltconftable=schema.tableHandle(LumiNames::trghltMapTableName());
       coral::AttributeList hltconfData;
+      hltconfData.extend<unsigned int>("RUNNUM");
       hltconfData.extend<std::string>("HLTKEY");
       hltconfData.extend<std::string>("HLTPATHNAME");
       hltconfData.extend<std::string>("L1SEED");
@@ -91,6 +91,7 @@ namespace lumi{
       //loop over hltpaths
       //
       hltconfData["HLTKEY"].data<std::string>()=fakehltkey;
+      hltconfData["RUNNUM"].data<unsigned int>()=runnumber;
       std::string& hltpathname=hltconfData["HLTPATHNAME"].data<std::string>();
       std::string& l1seed=hltconfData["L1SEED"].data<std::string>();
       for(unsigned int i=1;i<=totalhltpath;++i){
@@ -102,20 +103,7 @@ namespace lumi{
       }
       hltconfInserter->flush();
       delete hltconfInserter;
-      if(writeKeyToSunSummary){
-	coral::ITable& rtable=session->nominalSchema().tableHandle(LumiNames::runsummaryTableName());
-	coral::ITableDataEditor& rEditor = rtable.dataEditor();
-	coral::AttributeList rdata;
-	rdata.extend("hltkey",typeid(std::string));
-	rdata.extend("runnumber",typeid(unsigned int));
-	long nrows=rEditor.updateRows("HLTKEY =:hltkey","RUNNUM=:runnumber",rdata);
-	rdata["hltkey"].data<std::string>()=fakehltkey;
-	rdata["runnumber"].data<unsigned int>()=runnumber;
-	if(nrows==0){
-	  throw lumi::Exception("could not update the row","retrieveData","HLTConfDummy2DB");
-	}
-      }
-
+      session->transaction().commit();
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
       session->transaction().rollback();
@@ -123,7 +111,6 @@ namespace lumi{
       delete svc;
       throw er;
     }
-    session->transaction().commit();
     delete session;
     delete svc;
   }
