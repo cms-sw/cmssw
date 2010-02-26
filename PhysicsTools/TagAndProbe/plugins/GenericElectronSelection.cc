@@ -12,4 +12,4 @@ DEFINE_FWK_MODULE( gsfElectronSelector );
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 typedef GenericElectronSelection< pat::Electron > patElectronSelector;
-DEFINE_ANOTHER_FWK_MODULE( patElectronSelector  );
+DEFINE_FWK_MODULE( patElectronSelector  );

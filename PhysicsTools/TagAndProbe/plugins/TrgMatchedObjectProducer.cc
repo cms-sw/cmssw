@@ -24,23 +24,23 @@ DEFINE_FWK_MODULE( trgMatchedMETProducer );
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 typedef TriggerCandProducer<reco::Candidate> trgMatchedCandidateProducer;
-DEFINE_ANOTHER_FWK_MODULE( trgMatchedCandidateProducer );
+DEFINE_FWK_MODULE( trgMatchedCandidateProducer );
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 typedef TriggerCandProducer<reco::RecoEcalCandidate> trgMatchedEcalCandidateProducer;
-DEFINE_ANOTHER_FWK_MODULE( trgMatchedEcalCandidateProducer );
+DEFINE_FWK_MODULE( trgMatchedEcalCandidateProducer );
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 typedef TriggerCandProducer<reco::RecoChargedCandidate> trgMatchedChargedCandidateProducer;
-DEFINE_ANOTHER_FWK_MODULE( trgMatchedChargedCandidateProducer );
+DEFINE_FWK_MODULE( trgMatchedChargedCandidateProducer );
 
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 typedef TriggerCandProducer<reco::IsolatedPixelTrackCandidate> trgMatchedIsolatedPixelTrackCandidateProducer;
-DEFINE_ANOTHER_FWK_MODULE( trgMatchedIsolatedPixelTrackCandidateProducer );
+DEFINE_FWK_MODULE( trgMatchedIsolatedPixelTrackCandidateProducer );
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 typedef TriggerCandProducer<reco::Electron> trgMatchedElectronProducer;
-DEFINE_ANOTHER_FWK_MODULE( trgMatchedElectronProducer );
+DEFINE_FWK_MODULE( trgMatchedElectronProducer );
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 typedef TriggerCandProducer< reco::SuperCluster > trgMatchedSuperClusterProducer;
