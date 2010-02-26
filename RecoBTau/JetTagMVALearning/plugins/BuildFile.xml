@@ -1,10 +1,31 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/Utilities"/>
-<library   file="module.cc" name="RecoBTauJetTagMVALearningPlugins">
-  <use   name="CondFormats/DataRecord"/>
-  <use   name="PhysicsTools/MVATrainer"/>
-  <use   name="RecoBTau/JetTagMVALearning"/>
-  <flags   EDM_PLUGIN="1"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+
+<library file="module.cc" name="RecoBTauJetTagMVALearningPlugins">
+   <use name="CondFormats/DataRecord"/>
+   <use name="PhysicsTools/MVATrainer"/>
+   <use name="RecoBTau/JetTagMVALearning"/>
+   <flags EDM_PLUGIN="1"/>
 </library>
+
+<!--
+<library file="JetTagMVAExtractor.cc" name="RecoBTauJetTagMVAExtractor">
+   <use name="PhysicsTools/MVATrainer"/>
+   <use name="CondFormats/DataRecord"/>
+   <use name="RecoBTau/JetTagMVALearning"/>
+   <use name="rootcore"/>
+   <use name="boost"/>
+   <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="JetTagMVATreeTrainer.cc EventProgress.cc" name="RecoBTauJetTagMVATreeTrainer">
+   <use name="PhysicsTools/MVATrainer"/>
+   <use name="CondFormats/DataRecord"/>
+   <use name="RecoBTau/JetTagMVALearning"/>
+   <use name="rootcore"/>
+   <use name="boost"/>
+   <flags EDM_PLUGIN="1"/>
+</library>
+-->
