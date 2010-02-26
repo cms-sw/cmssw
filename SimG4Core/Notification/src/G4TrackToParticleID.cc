@@ -2,24 +2,23 @@
 
 #include "G4Track.hh"
 
-G4TrackToParticleID::G4TrackToParticleID()
-{
-    theInternalMap["deuteron"] = -100;
-    theInternalMap["alpha"] = -102;
-    theInternalMap["triton"] = -101;
-    theInternalMap["He3"] = -104;
-}
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+//#define DebugLog
+
+G4TrackToParticleID::G4TrackToParticleID() {}
 
 int G4TrackToParticleID::particleID(const G4Track * g4trk)
 {
     int particleID_ = g4trk->GetDefinition()->GetPDGEncoding();
+#ifdef DebugLog
     if ( particleID_ > 1000000000 ) {
-      //std::cout << "G4TrackToParticleID ion code = " << particleID_ << std::endl;
-      particleID_ = theInternalMap[g4trk->GetDefinition()->GetParticleName()];
-      //std::cout << "G4TrackToParticleID light nucleus code = " << particleID_ << std::endl;
+      LogDebug("SimG4CoreNotification") << "G4TrackToParticleID ion code = " << particleID_ ;
     }
+#endif
     if (particleID_ != 0) return particleID_;
+    edm::LogWarning("SimG4CoreNotification") << "G4TrackToParticleID: unknown code for track Id = " << g4trk->GetTrackID();
     return -99;
 }
 
-G4TrackToParticleID::~G4TrackToParticleID() { theInternalMap.clear(); }
+G4TrackToParticleID::~G4TrackToParticleID() {}

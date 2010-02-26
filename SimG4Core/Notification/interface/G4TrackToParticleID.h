@@ -1,9 +1,6 @@
 #ifndef SimG4Core_G4TrackToParticleID_H
 #define SimG4Core_G4TrackToParticleID_H
 
-#include <map>
-#include <string>
-
 class G4Track;
 
 /**
@@ -14,12 +11,10 @@ class G4Track;
 class G4TrackToParticleID
 {
 public:
-    typedef std::map<std::string, int> MapType;
     G4TrackToParticleID();
     ~G4TrackToParticleID();
     int particleID(const G4Track *);
 private:
-    MapType theInternalMap;
 };
 
 #endif
