@@ -6,11 +6,10 @@
 #include "Validation/RecoTrack/interface/SiStripTrackingRecHitsValid.h"
 #include "Validation/RecoTrack/interface/SiPixelTrackingRecHitsValid.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(MultiTrackValidator);
-DEFINE_ANOTHER_FWK_MODULE(TrackerSeedValidator);
-DEFINE_ANOTHER_FWK_MODULE(SiStripTrackingRecHitsValid);
-DEFINE_ANOTHER_FWK_MODULE(SiPixelTrackingRecHitsValid);
+DEFINE_FWK_MODULE(MultiTrackValidator);
+DEFINE_FWK_MODULE(TrackerSeedValidator);
+DEFINE_FWK_MODULE(SiStripTrackingRecHitsValid);
+DEFINE_FWK_MODULE(SiPixelTrackingRecHitsValid);
 
 // #include "Validation/RecoTrack/interface/RecoTrackSelector.h"
 // #include "Validation/RecoTrack/interface/TrackEfficiencySelector.h"
@@ -23,26 +22,26 @@ DEFINE_ANOTHER_FWK_MODULE(SiPixelTrackingRecHitsValid);
 // typedef 
 // ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection,RecoTrackSelector> > 
 // TrackSelector ;
-// DEFINE_ANOTHER_FWK_MODULE( TrackSelector );
+// DEFINE_FWK_MODULE( TrackSelector );
 
 // typedef 
 // ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection,TrackEfficiencySelector> > 
 // TrackSelectorForEfficiency ;
-// DEFINE_ANOTHER_FWK_MODULE( TrackSelectorForEfficiency );
+// DEFINE_FWK_MODULE( TrackSelectorForEfficiency );
 
 // typedef 
 // ObjectSelector<SingleElementCollectionSelector<reco::TrackCollection,TrackFakeRateSelector> > 
 // TrackSelectorForFakeRate ;
-// DEFINE_ANOTHER_FWK_MODULE( TrackSelectorForFakeRate );
+// DEFINE_FWK_MODULE( TrackSelectorForFakeRate );
 
 // typedef 
 // ObjectSelector<SingleElementCollectionSelector<TrackingParticleCollection,TPEfficiencySelector> > 
 // TPSelectorForEfficiency ;
-// DEFINE_ANOTHER_FWK_MODULE( TPSelectorForEfficiency );
+// DEFINE_FWK_MODULE( TPSelectorForEfficiency );
 
 // typedef 
 // ObjectSelector<SingleElementCollectionSelector<TrackingParticleCollection,TPFakeRateSelector> > 
 // TPSelectorForFakeRate ;
-// DEFINE_ANOTHER_FWK_MODULE( TPSelectorForFakeRate );
+// DEFINE_FWK_MODULE( TPSelectorForFakeRate );
 
 
