@@ -1,7 +1,5 @@
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 
-#include "DataFormats/JetReco/interface/Jet.h"
-
 pat::tau::TauPFSpecific::TauPFSpecific(const reco::PFTau &tau) :
     // Tau tag ingo
     PFTauTagInfoRef_(tau.pfTauTagInfoRef()),
@@ -41,8 +39,4 @@ pat::tau::TauPFSpecific::TauPFSpecific(const reco::PFTau &tau) :
     segComp_(tau.segComp()),
     muonDecision_(tau.muonDecision())
 {
-  reco::Jet::EtaPhiMoments etaPhiStatistics = tau.pfTauTagInfoRef()->pfjetRef()->etaPhiStatistics();
-  etaetaMoment_ = etaPhiStatistics.etaEtaMoment;
-  phiphiMoment_ = etaPhiStatistics.phiPhiMoment;
-  etaphiMoment_ = etaPhiStatistics.etaPhiMoment;
 }

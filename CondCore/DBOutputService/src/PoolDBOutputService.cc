@@ -394,6 +394,7 @@ cond::service::PoolDBOutputService::queryLog()const{
 
 void 
 cond::service::PoolDBOutputService::tagInfo(const std::string& recordName,cond::TagInfo& result ){
+  if (!m_dbstarted) initDB();
   Record& record = lookUpRecord(recordName);
   result.name=record.m_tag;
   result.token=record.m_iovtoken;

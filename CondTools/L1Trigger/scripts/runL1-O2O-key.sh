@@ -34,7 +34,7 @@ fi
 if [ ${xflag} -eq 0 ]
     then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db ${overwrite} outputDBAuth=. logTransactions=0 print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=sqlite_file:l1config.db ${overwrite} outputDBAuth=. print
     o2ocode=$?
     if [ ${o2ocode} -eq 0 ]
 	then

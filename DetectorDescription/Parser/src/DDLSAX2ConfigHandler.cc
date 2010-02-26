@@ -33,7 +33,7 @@
 // ---------------------------------------------------------------------------
 //  DDLSAX2ConfigHandler: Constructors and Destructor
 // ---------------------------------------------------------------------------
-DDLSAX2ConfigHandler::DDLSAX2ConfigHandler( DDCompactView& cpv) : doValidation_(false), files_(), urls_(), schemaLocation_(), cpv_(cpv)
+DDLSAX2ConfigHandler::DDLSAX2ConfigHandler() : doValidation_(false), files_(), urls_(), schemaLocation_()
 {
 }
 
@@ -100,13 +100,12 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 
       fileName = fileName.substr(0, fileName.find("."));
       std::cout << fileName << ":" << logicalPartName << " is the ROOT" << std::endl;
-      DDLogicalPart root(DDName(logicalPartName,fileName));
-      DDRootDef::instance().set(root);//DDName(logicalPartName, fileName));
+      DDLogicalPart root;
+      DDRootDef::instance().set(DDName(logicalPartName, fileName));
       /// bad, just testing...
-      //      DDCompactView cpv;
-      //DDName rt(DDName(logicalPartName, fileName));
-      cpv_.setRoot(root);
-      DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
+      DDCompactView cpv;
+      cpv.setRoot(DDName(logicalPartName, fileName));
+     DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
 
     }
   else if (myelemname == "Schema")
@@ -122,7 +121,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	  ++i;
 	}
     }
-  std::cout <<  "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement " << myelemname << " completed..." << std::endl;
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement" << myelemname << " completed...");
 }
 
 const std::vector<std::string>& DDLSAX2ConfigHandler::getFileNames() const

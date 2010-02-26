@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.3 2009/11/16 16:06:31 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.1 2010/01/25 21:03:56 carrillo Exp $
 //
 //
 
@@ -68,7 +68,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
       iEvent.put(TheDTPoints,"RPCDTExtrapolatedPoints"); 
     }else{
-      std::cout<<"RPCHLT Invalid DTSegments collection"<<std::endl;
+      if(debug) std::cout<<"RPCHLT Invalid DTSegments collection"<<std::endl;
     }
   }
 
@@ -80,7 +80,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
       iEvent.put(TheCSCPoints,"RPCCSCExtrapolatedPoints"); 
     }else{
-      std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
+      if(debug) std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
     }
   }
   

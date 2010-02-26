@@ -18,7 +18,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //--------------------------------------------------------------------------
-DDDividedTubsRho::DDDividedTubsRho( const DDDivision& div, DDCompactView* cpv)
+DDDividedTubsRho::DDDividedTubsRho( const DDDivision& div, DDCompactView& cpv)
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -97,7 +97,7 @@ DDLogicalPart DDDividedTubsRho::makeDDLogicalPart (const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView* cpv)
+DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView& cpv)
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
@@ -192,7 +192,7 @@ DDLogicalPart DDDividedTubsPhi::makeDDLogicalPart (const int copyNo ) const
 
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
-DDDividedTubsZ::DDDividedTubsZ( const DDDivision& div, DDCompactView* cpv)
+DDDividedTubsZ::DDDividedTubsZ( const DDDivision& div, DDCompactView& cpv)
   :  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();

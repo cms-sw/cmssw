@@ -12,7 +12,7 @@ trackClassifier = cms.PSet(
     trackQuality,
     hepMC = cms.untracked.InputTag("generator"),
     beamSpot = cms.untracked.InputTag("offlineBeamSpot"),
-    badPull = cms.untracked.double(3.0),
+    badD0Pull = cms.untracked.double(3.0),
     longLivedDecayLength = cms.untracked.double(1e-14),
     vertexClusteringDistance = cms.untracked.double(0.0001),
     numberOfInnerLayers = cms.untracked.uint32(2)

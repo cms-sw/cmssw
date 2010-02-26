@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.14 2009/04/09 12:02:15 veelken Exp $
+// $Id: Tau.cc,v 1.13 2009/03/26 10:54:35 veelken Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -189,26 +189,6 @@ const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
   return caloSpecific_[0]; 
 }
 
-float Tau::etaetaMoment() const
-{
-  if ( isCaloTau() ) return caloSpecific().etaetaMoment_;
-  if ( isPFTau()   ) return pfSpecific().etaetaMoment_;
-  throw cms::Exception("Type Error") << "Requesting a CaloTau/PFTau-specific information from a pat::Tau which wasn't made from either a CaloTau or a PFTau.\n";
-}
-
-float Tau::phiphiMoment() const
-{
-  if ( isCaloTau() ) return caloSpecific().phiphiMoment_;
-  if ( isPFTau()   ) return pfSpecific().phiphiMoment_;
-  throw cms::Exception("Type Error") << "Requesting a CaloTau/PFTau-specific information from a pat::Tau which wasn't made from either a CaloTau or a PFTau.\n";
-}
-
-float Tau::etaphiMoment() const
-{
-  if ( isCaloTau() ) return caloSpecific().etaphiMoment_;
-  if ( isPFTau()   ) return pfSpecific().etaphiMoment_;
-  throw cms::Exception("Type Error") << "Requesting a CaloTau/PFTau-specific information from a pat::Tau which wasn't made from either a CaloTau or a PFTau.\n";
-}
 
 void Tau::setDecayMode(int decayMode)
 {

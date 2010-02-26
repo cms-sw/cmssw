@@ -8,7 +8,7 @@ dqmSaver.workflow = '/Global/CMSSW_X_Y_Z/RECO'
 
 DQMStore.collateHistograms = False
 EDMtoMEConverter.convertOnEndLumi = True
-EDMtoMEConverter.convertOnEndRun = False
+EDMtoMEConverter.convertOnEndRun = True
 
 EDMtoME = cms.Sequence(EDMtoMEConverter)
 

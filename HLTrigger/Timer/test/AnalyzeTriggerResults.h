@@ -10,7 +10,7 @@
 #include <TFile.h>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 // class for analyzing the trigger decisions
 class AnalyzeTriggerResults

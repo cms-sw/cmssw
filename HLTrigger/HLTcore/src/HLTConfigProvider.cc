@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/03 06:21:57 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/02/03 09:03:14 $
+ *  $Revision: 1.23 $
  *
  *  \author Martin Grunewald
  *
@@ -58,8 +58,8 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
    using namespace std;
    using namespace edm;
 
-   LogDebug("HLTConfigProvider") << "Called with processName '"
-				 << processName << "'." << endl;
+   LogInfo("HLTConfigProvider") << "Called (E) with processName '"
+				<< processName << "'." << endl;
 
    ParameterSet eventPSet;
    if (iEvent.getProcessParameterSet(processName,eventPSet)) {
@@ -69,8 +69,6 @@ bool HLTConfigProvider::init(const edm::Event& iEvent, const std::string& proces
        clear();
        processName_  =processName;
        processPSet_  =eventPSet;
-       LogDebug("HLTConfigProvider") << "New ProcessPSet!";
-       LogDebug("HLTConfigProvider") << processPSet_;
        extract();
        changed=true;
      }
@@ -91,14 +89,14 @@ bool HLTConfigProvider::init(const std::string& processName)
    using namespace std;
    using namespace edm;
 
-   LogInfo("HLTConfigProvider")
-     << " This 1-parameter init method fails (returns false) when processing"
-     << " file(s) containing events accepted by different HLT tables - "
-     << " for such cases use the 3-parameter init method called each event!"
-     << endl;
+   LogInfo("HLTConfigProvider") << "Called (R) with processName '"
+				<< processName << "'." << endl;
 
-   LogDebug("HLTConfigProvider") << "Called with processName '"
-				 << processName << "'." << endl;
+   LogVerbatim("HLTConfigProvider")
+     << "This 1-parameter init method fails (returns false) when processing "
+     << "file(s) containing events accepted by different HLT tables - "
+     << "for such cases use the 3-parameter init method called each event!"
+     << endl;
 
    // initialise
    clear();
@@ -106,6 +104,7 @@ bool HLTConfigProvider::init(const std::string& processName)
    // Obtain ParameterSetID for requested process (with name
    // processName) from pset registry
    string pNames("");
+   string hNames("");
    ParameterSet   pset;
    ParameterSetID psetID;
    unsigned int   nPSets(0);
@@ -116,12 +115,23 @@ bool HLTConfigProvider::init(const std::string& processName)
        if ( pName == processName ) {
 	 psetID = i->first;
 	 nPSets++;
+	 if (registry_->getMapped(psetID,pset)) {
+	   if (pset.exists("HLTConfigVersion")) {
+	     const ParameterSet HLTPSet(pset.getParameter<ParameterSet>("HLTConfigVersion"));
+	     if (HLTPSet.exists("tableName")) {
+	       hNames += HLTPSet.getParameter<string>("tableName")+" ";
+	     }
+	   }
+	 }
        }
      }
    }
 
-   LogDebug("HLTConfigProvider") << "Unordered list of process names found: "
-				 << pNames << "." << endl;
+   LogVerbatim("HLTConfigProvider") << "Unordered list of all process names found: "
+				    << pNames << "." << endl;
+
+   LogVerbatim("HLTConfigProvider") << "HLT TableName of each selected process: "
+				    << hNames << "." << endl;
 
    if (nPSets==0) {
      LogError("HLTConfigProvider") << " Process name '"
@@ -155,8 +165,6 @@ bool HLTConfigProvider::init(const std::string& processName)
    processName_=processName;
    processPSet_=pset;
    extract();
-   LogDebug("HLTConfigProvider") << "ProcessPSet:";
-   LogDebug("HLTConfigProvider") << processPSet_;
 
    return true;
 
@@ -174,9 +182,8 @@ void HLTConfigProvider::extract()
        tableName_=HLTPSet.getParameter<string>("tableName");
      }
    }
-   LogInfo("HLTConfigProvider") << " HLT-ConfDB TableName = '"
-				<< tableName_
-				<< "'." << endl;
+   LogVerbatim("HLTConfigProvider") << "ProcessPSet with HLT: "
+				    << tableName();
 
    // Extract trigger paths, which are paths but with endpaths to be
    // removed, from ParameterSet
@@ -381,17 +388,19 @@ void HLTConfigProvider::dump(const std::string& what) const {
    } else if (what=="Prescales") {
      const unsigned int m (prescaleLabels_.size());
      cout << "HLTConfigProvider::dump: Prescales: " << m << endl;
-     for (unsigned int j=0; j!=m; ++j) {
-       cout << " " << j << "/" << prescaleLabels_[j];
-     }
-     cout << endl;
-     const unsigned int n(size());
-     for (unsigned int i=0; i!=n; ++i) {
-       cout << "  " << i << triggerNames_[i] << " ";
+     if (m>0) {
        for (unsigned int j=0; j!=m; ++j) {
-	 cout << " " << j << "/" << prescaleValues_[i][j];
+	 cout << " " << j << "/" << prescaleLabels_[j];
        }
        cout << endl;
+       const unsigned int n(size());
+       for (unsigned int i=0; i!=n; ++i) {
+	 cout << "  " << i << " " << triggerNames_[i] << " ";
+	 for (unsigned int j=0; j!=m; ++j) {
+	   cout << " " << j << "/" << prescaleValues_[i][j];
+	 }
+	 cout << endl;
+       }
      }
    } else {
      cout << "HLTConfigProvider::dump: Unkown dump request: " << what << endl;

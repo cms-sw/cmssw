@@ -12,13 +12,9 @@
 #include <iomanip>
 #include <string>
 
-static const size_t UnpackBxInEvent = 5;
-
 using namespace std;
 
-void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID
-		    ,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4 
-		    ,SampleDiagnostics& primaryDatasetsDiagnostics)
+void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4) 
 {
   cout<<"Start looping on sample "<<procID<<endl;
   if (fChain == 0) {cerr<<"Error: no tree!"<<endl; return;}
@@ -35,10 +31,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     fChain->SetBranchStatus("*",kFALSE);
     fChain->SetBranchStatus("MCmu*",kTRUE); // for ppMuX
     fChain->SetBranchStatus("MCel*",kTRUE); // for ppEleX
-    // fChain->SetBranchStatus("L1TechnicalTriggerBits",kTRUE);
     if (cfg->selectBranchL1) {
       fChain->SetBranchStatus("L1_*",kTRUE);
-      fChain->SetBranchStatus("L1Tech_*",kTRUE);
     }
     if (cfg->selectBranchHLT) {
       fChain->SetBranchStatus("HLT_*",kTRUE);
@@ -62,7 +56,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     fChain->SetBranchStatus("*",kTRUE);
   }
 
-  
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -71,85 +64,39 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if (jentry%cfg->nPrintStatusEvery == 0)
       cout<<"Processing entry "<<jentry<<"/"<<nentries<<"\r"<<flush<<endl;
 
-    // When running on real data, keep track of how many LumiSections have been 
-    // used. Note: this assumes LumiSections are contiguous, and that the user 
-    // uses complete LumiSections
-    if(menu->IsRealData())
-      {
-
-	if (cfg->runLumiblockList.size()>0) {
-	  if (!isInRunLumiblockList(Run,LumiBlock,cfg->runLumiblockList)) continue;
-	}
-		  
-	currentLumiSection = LumiBlock;
-	if(currentLumiSection != previousLumiSection) {
-	  
-	  cout<<"Run, LS: "<<Run<<" "<<LumiBlock<<endl;
-	  if (rc->isNewRunLS(Run,LumiBlock)) { // check against double counting
-	    rc->addRunLS(Run,LumiBlock);
-	    nLumiSections++;
-	  }
-	}
-
-	previousLumiSection = currentLumiSection;	
-      }
+    if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
+    if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
  
     SetOpenL1Bits(); 
 
     RemoveEGOverlaps();
    
-
-    // ccla example to extract timing info from L1Tech_XXX_5bx bits
-    // if (L1Tech_BSC_minBias_OR_v0_5bx >0){
-    //   cout << "L1Tech_BSC_minBias_OR_v0_5bx: " << L1Tech_BSC_minBias_OR_v0_5bx 
-    //        << " Unpacked: " ;
-    //   for (unsigned int i = 0; i<UnpackBxInEvent ; ++i){
-    //     bool bitOn=L1Tech_BSC_minBias_OR_v0_5bx & (1 << i);
-    //     std::cout << bitOn << " ";
-    //   }
-    //   cout << "\n";
-    // }
-
     // 1. Loop to check which Bit fired
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!
     if(menu->DoL1preLoop() && menu->IsHltMenu()) {
-      ApplyL1Prescales(menu,cfg,rc);
+      ApplyL1Prescales(menu);
     }
 
     //SetMapL1BitOfStandardHLTPath(menu);
     SetMapL1BitOfStandardHLTPathUsingLogicParser(menu,(int)jentry);
     SetL1MuonQuality();
-
-
-    // Apply prefilter based on bits
-    if (!passPreFilterLogicParser(cfg->preFilterLogicString,(int)jentry)) {
-      //cout<<"Event rejected due to prefilter!!!"<<endl;
-      continue;
-    }
-
-    if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
-    if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
-
+	  
     //////////////////////////////////////////////////////////////////
     // Get Denominator (normalization and acc. definition) for efficiency evaluation
     //////////////////////////////////////////////////////////////////
 
 
-//     if (cfg->pnames[procID]=="zee"||cfg->pnames[procID]=="zmumu"){
-    if(cfg->pisPhysicsSample[procID]!=0) {
+    if (cfg->pnames[procID]=="zee"||cfg->pnames[procID]=="zmumu"){
       int accMCMu=0;
       int accMCEle=0;
       if(cfg->selectBranchMC){
 	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
-	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
-	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
+	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
 	}
-	if     ((cfg->pisPhysicsSample[procID]==1 && accMCEle>=1               )){ Den=Den+1;}
-	else if((cfg->pisPhysicsSample[procID]==2 &&                accMCMu >=1)){ Den=Den+1;}
-	else if((cfg->pisPhysicsSample[procID]==3 && accMCEle>=1 && accMCMu >=1)){ Den=Den+1;}
-
-	else {continue;}
+	if((cfg->pnames[procID]=="zee" && accMCEle>1)||(cfg->pnames[procID] == "zmumu" && accMCMu>1)){ Den=Den+1;}
+	else{continue;}
       }
     }
 
@@ -159,13 +106,12 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //////////////////////////////////////////////////////////////////
     TString hlteffmode;
     TString ohltobject;
-    //    hlteffmode="GEN";
+    hlteffmode="GEN";
     //    hlteffmode="L1";
-    hlteffmode="RECO";
+    //    hlteffmode="RECO";
     ohltobject="None";
-    if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
-    if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
-    if (cfg->pisPhysicsSample[procID]==3)ohltobject="ele_mu";
+    if (cfg->pnames[procID]=="zee")ohltobject="electron";
+    if (cfg->pnames[procID]=="zmumu")ohltobject="muon";
     PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 
@@ -184,21 +130,19 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	// Prefixes reserved for Standard HLT&L1	
 	if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) {	
 	  if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	    if (prescaleResponse(menu,cfg,rc,i)) { triggerBit[i] = true; }
+	    if (GetIntRandom() % menu->GetPrescale(i) == 0) { triggerBit[i] = true; }
 	  }
 	}
       } else {
-	CheckOpenHlt(cfg,menu,rc,i);
+	CheckOpenHlt(cfg,menu,i);
       }
     }
-    primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
 
     /* ******************************** */
     // 2. Loop to check overlaps
     for (int it = 0; it < nTrig; it++){
       if (triggerBit[it]) {
 	rc->iCount[it]++;
-	rc->incrRunLSCount(Run,LumiBlock,it); // for per LS rates!
 	for (int it2 = 0; it2 < nTrig; it2++){
 	  if (triggerBit[it2]) {
 	    rc->overlapCount[it][it2] += 1;
@@ -208,10 +152,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	      allOtherBitsFired[it] = true;
 	  }
 	}
-	if (not previousBitsFired[it]) {
+	if (not previousBitsFired[it])
 	  rc->sPureCount[it]++;
-	  rc->incrRunLSTotCount(Run,LumiBlock); // for per LS rates!	  
-	}
 	if (not allOtherBitsFired[it])
 	  rc->pureCount[it]++;
       }
@@ -234,38 +176,3 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
   //}
 };
 
-
-
-
-bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
-  if (cfg->doDeterministicPrescale) {
-    (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetPrescale(i) == 0); //
-  } else {
-    return (GetIntRandom() % menu->GetPrescale(i) == 0);
-  }
-};
-
-bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
-  if (cfg->doDeterministicPrescale) {
-    (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) == 0); //
-  } else {
-    return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
-  }
-};
-
-bool OHltTree::isInRunLumiblockList(int run, int lumiBlock,vector < vector <int> > list) {
-
-  unsigned int nrunLumiList = list.size();
-  if (nrunLumiList>0) {
-    for (unsigned int i=0;i<nrunLumiList;i++) {
-      if (run == list[i][0] && lumiBlock >= list[i][1] && lumiBlock <= list[i][2]) {
-	return true;
-      }
-    }
-  }
-
-  //cout << "Skip event, it is not in runLumiblockList: "<<run<<" "<<lumiBlock<<endl;
-  return false;
-}

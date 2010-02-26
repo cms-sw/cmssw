@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 07:06:56 CET 2008
-// $Id: L1CondDBPayloadWriter.h,v 1.6 2009/12/17 23:43:58 wmtan Exp $
+// $Id: L1CondDBPayloadWriter.h,v 1.5 2009/08/14 17:44:59 wsun Exp $
 //
 
 // system include files
@@ -60,9 +60,6 @@ class L1CondDBPayloadWriter : public edm::EDAnalyzer {
       bool m_overwriteKeys ;
 
       bool m_logTransactions ;
-
-      // if true, do not retrieve L1TriggerKeyList from EventSetup
-      bool m_newL1TriggerKeyList ;
 };
 
 #endif

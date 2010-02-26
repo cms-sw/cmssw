@@ -72,7 +72,7 @@ void DDTIDAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
 		      << matOut;
 }
 
-void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
+void DDTIDAxialCableAlgo::execute() {
 
   DDName mother = parent().name();
   std::vector<DDName> logs;
@@ -212,7 +212,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
       DDTranslation tran(0,0,0);
       if (k == ((int)(logs.size())-1))
 	tran = DDTranslation(0,0,0.5*(zEnd+zBend));
-     cpv.position(logs[k], mother, i+1, tran, rotation);
+      DDpos (logs[k], mother, i+1, tran, rotation);
       LogDebug("TIDGeom") << "DDTIDAxialCableAlgo test " << logs[k] 
 			  << " number " << i+1 << " positioned in "
 			  << mother << " at " << tran << " with "
