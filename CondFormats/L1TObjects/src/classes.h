@@ -39,6 +39,9 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
+#include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
+
 
 namespace {
   struct dictionary {

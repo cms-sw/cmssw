@@ -19,7 +19,7 @@ RPCPacTrigger::RPCPacTrigger(RPCTriggerConfiguration* triggerConfig):
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
+L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec, edm::ESHandle<L1RPCHsbConfig> hsbConf) {
   m_GBFinalMuons.clear();
 
  if (m_TrigCnfg->getDebugLevel()!=0){
@@ -58,7 +58,7 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
   }
 
   // It would be fine, if half sorters would just modify tcsMuonsVec2
-  L1RpcTBMuonsVec2 halfMuons = m_HalfSorters.run(tcsMuonsVec2);
+  L1RpcTBMuonsVec2 halfMuons = m_HalfSorters.run(tcsMuonsVec2, hsbConf);
   m_GBFinalMuons = m_FinalSorter.run(halfMuons);
 
 #ifdef GETCONES

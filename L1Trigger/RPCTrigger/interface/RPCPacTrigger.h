@@ -12,6 +12,9 @@
 #include "L1Trigger/RPCTrigger/interface/RPCHalfSorter.h"
 #include "L1Trigger/RPCTrigger/interface/RPCTriggerConfiguration.h"
 
+#include <FWCore/Framework/interface/ESHandle.h>
+#include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
+
 class RPCPacTrigger {
 public:
   /** Construct the structure of Trigger Crates,
@@ -25,7 +28,7 @@ public:
     * Then runs and RPCFinalSorter::run().
     * @return m_GBFinalMuons[be][iMU] be = 0 = barrel; be = 1 = endcaps,
     * 4 muons from barrel and 4 muons from endcaps, (some can be empty)*/
-  L1RpcTBMuonsVec2 runEvent(const L1RpcLogConesVec& logConesVec);
+  L1RpcTBMuonsVec2 runEvent(const L1RpcLogConesVec& logConesVec, edm::ESHandle<L1RPCHsbConfig> hsbConf );
 
 
   /** Returns vector of not empty muons.

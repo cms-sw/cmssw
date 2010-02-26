@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  9 13:48:06 CEST 2008
-// $Id: L1RPCHwConfig.h,v 1.3 2008/05/29 09:28:38 michals Exp $
+// $Id: L1RPCHwConfig.h,v 1.4 2008/06/24 11:06:53 michals Exp $
 //
 
 // system include files
@@ -99,11 +99,6 @@ class L1RPCHwConfig
          }
       };
 
-      int getFirstBX() const {return m_firstBX;};
-      int getLastBX() const {return m_lastBX;};
-
-      void setFirstBX(int bx) { m_firstBX = bx;};
-      void setLastBX(int bx) {  m_lastBX = bx;};
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
@@ -113,8 +108,6 @@ class L1RPCHwConfig
 
    private:
 
-      int m_firstBX;
-      int m_lastBX;
       std::set<L1RPCDevCoords> m_disabledDevices;
 
       // ---------- member data --------------------------------

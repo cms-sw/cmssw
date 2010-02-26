@@ -9,6 +9,10 @@
 
 #include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
+
+#include "CondFormats/DataRecord/interface/L1RPCBxOrConfigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
+
 //#define ML_DEBUG 
 
 
@@ -139,9 +143,17 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::ESHandle<L1RPCHwConfig> hwConfig;
     iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
 
-    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, l1RPCConeDefinition, hwConfig, iBx);
+    edm::ESHandle<L1RPCBxOrConfig> bxOrConfig;
+    iSetup.get<L1RPCBxOrConfigRcd>().get(bxOrConfig);
+
+
+
+    ActiveCones = m_theLinksystemFromES.getConesFromES(rpcDigis, coneBuilder, l1RPCConeDefinition, bxOrConfig, hwConfig, iBx);
     
-    L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones);
+    edm::ESHandle<L1RPCHsbConfig> hsbConfig;
+    iSetup.get<L1RPCHsbConfigRcd>().get(hsbConfig);
+
+    L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones, hsbConfig);
   
     //int maxFiredPlanes = 0;
     

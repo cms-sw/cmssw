@@ -21,6 +21,17 @@ process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
 
 process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
 process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff")
+
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCBxOrConfig_cff")
+process.load("L1TriggerConfig.RPCTriggerConfig.RPCHsbConfig_cff")
+
+                                       #TC  11  0  1  2  3  4  5  6
+process.l1RPCHsbConfig.hsb0Mask = cms.vint32(3, 3, 3, 3, 3, 3, 3, 3)
+                                       #TC   5  6  7  8  9 10 11  0
+process.l1RPCHsbConfig.hsb1Mask = cms.vint32(3, 3, 3, 3, 3, 3, 0, 3)
+
+
+
 process.load("L1Trigger.RPCTrigger.l1RpcEmulDigis_cfi")
 process.l1RpcEmulDigis.label = cms.string('simMuonRPCDigis')
 process.l1RpcEmulDigis.RPCTriggerDebug = 1

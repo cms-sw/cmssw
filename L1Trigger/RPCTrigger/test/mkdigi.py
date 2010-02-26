@@ -34,7 +34,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 
@@ -52,13 +52,15 @@ process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MinPt = cms.double(14),
-        MaxPt = cms.double(15),
-        PartID = cms.vint32(13),
-        MaxEta = cms.double(0.1),
-        MaxPhi = cms.double(3.141592),
-        MinEta = cms.double(-0.1),
-        MinPhi = cms.double(-3.141592)
+        MinPt = cms.double(90),
+        MaxPt = cms.double(99),
+        PartID = cms.vint32(13,-13,13,-13,13,-13),
+        MaxEta = cms.double(1.6),
+#MaxPhi = cms.double(3.141592),
+        MaxPhi = cms.double(-0.21),
+        MinEta = cms.double(-1.6),
+#       MinPhi = cms.double(-3.141592)
+        MinPhi = cms.double(-0.22)
     ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(100),

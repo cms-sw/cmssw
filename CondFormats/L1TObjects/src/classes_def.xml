@@ -40,6 +40,8 @@
   <class name="std::vector<L1RPCConeDefinition::TRingToTower>"/>
   <class name="L1RPCConeDefinition::TRingToLP"/>
   <class name="std::vector<L1RPCConeDefinition::TRingToLP>"/>
+  <class name="L1RPCBxOrConfig"/>
+  <class name="L1RPCHsbConfig"/>
   <class name="L1TriggerKey"/>
   <class name="L1TriggerKeyList"/>
   <class name="L1RCTParameters"/>

@@ -4,8 +4,8 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2008/08/29 08:28:12 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/03/26 12:28:33 $
+ *  $Revision: 1.16 $
  *  \author Tomasz Fruboes
  */
 
@@ -37,6 +37,11 @@
 #include "L1Trigger/RPCTrigger/interface/RPCPacData.h"
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "L1Trigger/RPCTrigger/interface/RPCPacManager.h"
+
+
+#include "CondFormats/DataRecord/interface/L1RPCHsbConfigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
+
 
 #include <memory>
 #include <vector>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id: TestHWConfig.cc,v 1.3 2009/05/29 20:36:37 michals Exp $
+// $Id: TestHWConfig.cc,v 1.4 2009/12/21 11:50:40 fruboes Exp $
 //
 //
 
@@ -123,7 +123,7 @@ TestHWConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   }  // crate iteration ends
 
-  std::cout << "First BX: "<<hwConfig->getFirstBX()<<", last BX: "<<hwConfig->getLastBX()<<std::endl;
+  //std::cout << "First BX: "<<hwConfig->getFirstBX()<<", last BX: "<<hwConfig->getLastBX()<<std::endl;
 
   std::cout << " Done " << hwConfig->size() << std::endl;
 }

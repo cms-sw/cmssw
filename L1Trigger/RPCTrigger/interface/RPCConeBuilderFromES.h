@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:15 CET 2008
-// $Id: RPCConeBuilderFromES.h,v 1.4 2009/03/19 12:39:43 fruboes Exp $
+// $Id: RPCConeBuilderFromES.h,v 1.5 2009/03/20 15:27:49 michals Exp $
 //
 
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
@@ -31,6 +31,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+
+#include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
 
 
 // system include files
@@ -48,6 +50,7 @@ class RPCConeBuilderFromES
       L1RpcLogConesVec getConesFromES(edm::Handle<RPCDigiCollection> rpcDigis, 
                                       edm::ESHandle<L1RPCConeBuilder> coneBuilder,
                                       edm::ESHandle<L1RPCConeDefinition> coneDef,
+                                      edm::ESHandle<L1RPCBxOrConfig> bxOrDef,
                                       edm::ESHandle<L1RPCHwConfig> hwConfig, int bx);
       // ---------- const member functions ---------------------
 
