@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.9 2009/04/10 18:11:38 chiorbo Exp $
+// $Id: TriggerValidator.h,v 1.12 2010/02/25 11:13:11 chiorbo Exp $
 //
 //
 
@@ -31,7 +31,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "HLTriggerOffline/SUSYBSM/interface/RecoSelector.h"
@@ -117,7 +116,6 @@ class TriggerValidator : public edm::EDAnalyzer {
       // name of each L1 algorithm
       std::vector<std::string> l1Names_;    
       // name of each hlt algorithm
-      edm::TriggerNames triggerNames_;  // TriggerNames class
       std::vector<std::string>  hlNames_;  
 
 

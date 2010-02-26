@@ -16,7 +16,7 @@ Implementation:
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
 //  Philip Hebda, July 2009
-// $Id: TriggerValidator.cc,v 1.14 2009/04/27 23:27:44 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.19 2010/02/25 11:13:11 chiorbo Exp $
 //
 //
 
@@ -35,7 +35,7 @@ Implementation:
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 
@@ -306,8 +306,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     //resize the name vector and get the names
-    triggerNames_.init(*trhv);
-    hlNames_=triggerNames_.triggerNames();
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trhv);
+    hlNames_=triggerNames.triggerNames();
     hlNames_.push_back("Total");
 
     //set the bin names for the "path" histos
