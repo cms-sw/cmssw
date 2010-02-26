@@ -8,10 +8,13 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 ##############################################################################
 ##### Templates to change parameters in hltMuonValidator #####################
 # process.hltMuonValidator.hltPathsToCheck = ["HLT_IsoMu3"]
-# process.hltMuonValidator.hltProcessName  = "HLT"
 # process.hltMuonValidator.genMuonCut = "abs(mother.pdgId) == 24"
 # process.hltMuonValidator.recMuonCut = "isGlobalMuon && eta < 1.2"
 ##############################################################################
+
+hltProcessName = "HLT"
+process.relvalMuonBits.TriggerResultsTag.setProcessName(hltProcessName)
+process.hltMuonValidator.hltProcessName = hltProcessName
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
