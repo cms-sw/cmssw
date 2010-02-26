@@ -68,13 +68,15 @@ void CopyDir(TDirectory *source) {
 void reduceToMuonContent(TString oldFileName, TString newFileName) {
 
   TFile *oldFile = new TFile(oldFileName);
-  gDirectory->cd("/DQMData/HLT/Muon/");
+  gDirectory->cd("/DQMData/Run 1/HLT/Run summary/Muon/");
   TDirectory *oldDir = gDirectory;
 
   TFile *newFile = new TFile(newFileName, "recreate");
   newFile->cd();
   TDirectory *newDir = newFile->mkdir("DQMData");
+  newDir = newDir->mkdir("Run 1");
   newDir = newDir->mkdir("HLT");
+  newDir = newDir->mkdir("Run summary");
   newDir->cd();
   CopyDir(oldDir);
 
@@ -163,7 +165,7 @@ else
 fi
 
 SHORTNAME=`echo $LONGNAME | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
-mv hltMuonPostProcessor.root TEMP.root
+mv DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root TEMP.root
 reduceToMuonContent TEMP.root $SHORTNAME.root
 rm TEMP.root
 echo "Produced $SHORTNAME.root"
