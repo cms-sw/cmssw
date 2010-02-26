@@ -81,6 +81,7 @@ def createLumi(dbsession):
     #trghlt map table
     trghlt=coral.TableDescription()
     trghlt.setName( nameDealer.trghltMapTableName() )
+    trghlt.insertColumn( 'RUNNUM','unsigned int' )
     trghlt.insertColumn( 'HLTKEY','string' )
     trghlt.insertColumn( 'HLTPATHNAME','string' )
     trghlt.insertColumn( 'L1SEED','string' )

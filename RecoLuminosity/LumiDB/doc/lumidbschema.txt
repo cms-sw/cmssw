@@ -64,7 +64,8 @@ table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
          prescale(uint32)
 	  
 ======
-table 6: TRGHLTMAP (intert 1 row per hltpath-l1bit / populated from ConfDB+L1Seed expression parser)
+table 6: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Seed expression parser)
+         runnum(uint32),//runnum+hltkey should be unique
          hltkey(string),
          hltpathname(string),
          l1seed(string)
@@ -85,9 +86,9 @@ table 8: INTLUMIHLT (insert 1 row per combinatorial of run+lumiversion+hltpath)
          recordedlumi( float )
 
 ====== bookkeeping tables ===== (to be added in a 2nd phase)
-table 9: LATESTOFFICIALRUNINFO (one entry represents the most recent official run fectched from the cms run info db, can be used to trigger new data pulling chain )
+table 9: LATEST_OFFICIAL_RUN (one entry represents the most recent official run fectched from the cms run info db, can be used to trigger new data pulling chain )
          runnum(uint32),
-         hltconfid(uint32)
+         hltkey(string)
      
  ====== other helper id tables======
          lumisummary_id, NEXTID (uint64,PK)
