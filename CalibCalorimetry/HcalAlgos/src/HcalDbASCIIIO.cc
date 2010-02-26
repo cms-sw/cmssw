@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.53 2010/02/22 20:55:51 kukartse Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.54 2010/02/23 00:44:38 kukartse Exp $
 //
 #include <vector>
 #include <string>
@@ -1080,7 +1080,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
     //    std::cout << "HcalDcsMap-> processing line: " << buffer << std::endl;
     //int ring = atoi (items [1].c_str());
     int ring = atoi(items[1].c_str());
-    std::cout << "DEBUG: getObject: ring = " << ring << std::endl;
     unsigned int slice = atoi (items [2].c_str());
     unsigned int subchannel = atoi (items [3].c_str());
     HcalDcsDetId::DcsType type = HcalDcsDetId::DCSUNKNOWN;
@@ -1148,7 +1147,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalDcsMap* fObject) {
       continue;
     }
     HcalDcsDetId dcsId(subdet, ring, slice, type, subchannel);
-    std::cout << "DEBUG: getObject: dcsId.ring() = " << dcsId.ring() << std::endl;
     HcalText2DetIdConverter converter (items [4], items [5], items [6], items [7]);
     HcalDetId id(0);
     if (converter.isHcalDetId()){
