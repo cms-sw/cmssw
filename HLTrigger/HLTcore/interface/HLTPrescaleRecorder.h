@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLTPrescaleTable object
  *
- *  $Date: 2010/02/16 10:24:52 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/02/24 11:27:19 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -23,6 +24,8 @@
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 
 #include<map>
@@ -46,20 +49,30 @@ class HLTPrescaleRecorder : public edm::EDProducer {
 
  private:
 
-  /// (Single) source 0:PrescaleService, 1:Run, 2:Lumi, 3:Event
+  /// (Single) source: -1:PrescaleServicePSet 0:PrescaleService,
+  /// 1:Run, 2:Lumi, 3:Event, 4:CondDB
   int src_;
 
   /// (Multiple) Destinations
   bool run_;
   bool lumi_;
   bool event_;
+  bool condDB_;
+
+  /// Source configs
+  /// name of PrescaleServicePSet (src=-1)
+  std::string psetName_;
+  /// InputTag of HLTPrescaleTable product (src=1,2,3)
+  edm::InputTag hltInputTag_;
+  /// Tag of DB entry (HLT Key Name) (src=4)
+  std::string hltDBTag_;
 
   /// prescale service
   edm::service::PrescaleService* ps_;
 
-  /// InputTag and Handle for existing HLT object
-  edm::InputTag hltInputTag_;
+  /// Handle and ESHandle for existing HLT object
   edm::Handle<trigger::HLTPrescaleTable> hltHandle_;
+  edm::ESHandle<trigger::HLTPrescaleTable> hltESHandle_;
 
   /// payload HLT object
   trigger::HLTPrescaleTable hlt_;
