@@ -67,7 +67,7 @@ const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);
 //    const pat::IsoDeposit * hcalIso = t->hcalIsoDeposit();
 
     Direction dir = Direction(t->eta(), t->phi());
-    
+   
     pat::IsoDeposit::AbsVetos vetosTrk;
     vetosTrk.push_back(new ConeVeto( dir, dRVetoTrk ));
     vetosTrk.push_back(new ThresholdVeto( ptThreshold ));
@@ -369,15 +369,17 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	zDau1dzFromPV->push_back(mu1TrkRef->dz(primaryVertices->begin()->position() ));     
 
       } else {
-  	zDau1NofHit->push_back(0);
+        // the muon is a standalone
+	TrackRef mu1StaRef = mu1->outerTrack(); 
+  	zDau1NofHit->push_back(mu1StaRef->numberOfValidHits());
 	zDau1NofHitTk->push_back(0);
-	zDau1NofHitSta->push_back(0);
-	zDau1Chi2->push_back(0); 
+	zDau1NofHitSta->push_back(mu1StaRef->numberOfValidHits());
+	zDau1Chi2->push_back(mu1StaRef->normalizedChi2()); 
 	zDau1TrkChi2->push_back(0);
-	zDau1dxyFromBS->push_back(-1);
-	zDau1dzFromBS->push_back(-1);
-	zDau1dxyFromPV->push_back(-1);
-	zDau1dzFromPV->push_back(-1);     
+	zDau1dxyFromBS->push_back(mu1StaRef->dxy(beamSpotHandle->position()));
+	zDau1dzFromBS->push_back(mu1StaRef->dz(beamSpotHandle->position()));
+	zDau1dxyFromPV->push_back(mu1StaRef->dxy(primaryVertices->begin()->position() ));
+	zDau1dzFromPV->push_back(mu1StaRef->dz(primaryVertices->begin()->position() ));     
 
       }
       zDau1NofMuChambers->push_back(mu1->numberOfChambers());
@@ -448,16 +450,18 @@ void ZToLLEdmNtupleDumper::produce( Event & evt, const EventSetup & ) {
 	  
 
 	} else {
+	  // its' a standalone
 	zDau2HLTBit->push_back(0);
-	zDau2NofHit->push_back(0);
+	TrackRef mu2StaRef = mu2->outerTrack(); 
+  	zDau2NofHit->push_back(mu2StaRef->numberOfValidHits());
 	zDau2NofHitTk->push_back(0);
-	zDau2NofHitSta->push_back(0);
-	zDau2Chi2->push_back(0);
+	zDau2NofHitSta->push_back(mu2StaRef->numberOfValidHits());
+	zDau2Chi2->push_back(mu2StaRef->normalizedChi2()); 
 	zDau2TrkChi2->push_back(0);
-	zDau2dxyFromBS->push_back(-1);
-	zDau2dzFromBS->push_back(-1);
-	zDau2dxyFromPV->push_back(-1);
-	zDau2dzFromPV->push_back(-1);
+	zDau2dxyFromBS->push_back(mu2StaRef->dxy(beamSpotHandle->position()));
+	zDau2dzFromBS->push_back(mu2StaRef->dz(beamSpotHandle->position()));
+	zDau2dxyFromPV->push_back(mu2StaRef->dxy(primaryVertices->begin()->position() ));
+	zDau2dzFromPV->push_back(mu2StaRef->dz(primaryVertices->begin()->position() ));     
       }
       zDau2NofMuChambers->push_back(mu2->numberOfChambers());
       zDau2NofMuMatches->push_back(mu2->numberOfMatches());
