@@ -52,7 +52,7 @@ class L1BitComputer : public VariableComputer {
 };
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class HLTBitComputer : public VariableComputer {
@@ -73,12 +73,12 @@ class HLTBitComputer : public VariableComputer {
       edm::Handle<edm::TriggerResults> trh;
       iEvent.getByLabel(src_,trh);
       if (!trh.isValid()) doesNotCompute();
-      triggerNames_.init(*trh);
+      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
       for (uint iT=0;iT!=validTriggerNames_.size();++iT){
 	
 	TString tname(validTriggerNames_[iT]);
 	tname.ReplaceAll("HLT_","");
-	double r=trh->accept(triggerNames_.triggerIndex(validTriggerNames_[iT]));
+	double r=trh->accept(triggerNames.triggerIndex(validTriggerNames_[iT]));
 	assign(std::string(tname),r);
       }
       
@@ -86,7 +86,6 @@ class HLTBitComputer : public VariableComputer {
  private:
     edm::InputTag src_;
     std::vector<std::string> validTriggerNames_;
-    mutable edm::TriggerNames triggerNames_;
 };
 
 class HLTBitVariable : public CachingVariable {
@@ -99,8 +98,7 @@ class HLTBitVariable : public CachingVariable {
       edm::Handle<edm::TriggerResults> hltHandle;
       iEvent.getByLabel(src_, hltHandle);
       if (hltHandle.failedToGet()) return std::make_pair(false,0);
-      edm::TriggerNames trgNames;
-      trgNames.init(*hltHandle);
+      const edm::TriggerNames & trgNames = iEvent.triggerNames(*hltHandle);
       unsigned int index = trgNames.triggerIndex(bitName_);
       if ( index==trgNames.size() ) return std::make_pair(false,0);
       else return std::make_pair(true, hltHandle->accept(index));

@@ -31,8 +31,7 @@ HLTEventSelector::select (const edm::Event& event) const
   //
   // get results
   //
-  edm::TriggerNames trgNames;
-  trgNames.init(*hltHandle);
+  const edm::TriggerNames & trgNames = event.triggerNames(*hltHandle);
   unsigned int trgSize = trgNames.size();
 //   static int first(true);
 //   if ( first ) {
