@@ -2,20 +2,16 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbDicer.h"
 
 //#include <stdexcept>
-//#include <utility>
-//#include <sstream>
 #include <vector>
 #include <cmath>
 #include <string>
 #include <sstream>
 #include <functional>
-//#include <map>
 #include <algorithm>
-//#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include <fstream>
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "Math/SMatrix.h"
 #include "Math/SVector.h"
-//#include "Math/TRandom3.h"
 #include <CLHEP/Random/RandGauss.h>
 #include <CLHEP/Random/Random.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -53,22 +49,35 @@ std::string SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t
 	const coord_t p2 = transform(fidpointvec[2],a0,a1,a2,a3);
 	const coord_t p3 = transform(fidpointvec[3],a0,a1,a2,a3);
 	std::ostringstream oss;
+	// Observe sign flip from CMS coordinate system to photo
 	oss << id.first << " " 
-		 << ranGauss(p2.y(),sigma_v) << " " << ranGauss(p2.x(),sigma_u) << " "
-		 << ranGauss(p3.y(),sigma_v) << " " << ranGauss(p3.x(),sigma_u) << " "
+		 << ranGauss(-p2.y(),sigma_v) << " " << ranGauss(p2.x(),sigma_u) << " "
+		 << ranGauss(-p3.y(),sigma_v) << " " << ranGauss(p3.x(),sigma_u) << " "
 		 << id.second << " "
-		 << ranGauss(p1.y(),sigma_v) << " " << ranGauss(p1.x(),sigma_u) << " "
-		 << ranGauss(p0.y(),sigma_v) << " " << ranGauss(p0.x(),sigma_u) << " "
-		 << sigma_u << " " << sigma_v;
+		 << ranGauss(-p1.y(),sigma_v) << " " << ranGauss(p1.x(),sigma_u) << " "
+		 << ranGauss(-p0.y(),sigma_v) << " " << ranGauss(p0.x(),sigma_u) << " "
+		 << sigma_u << " " << sigma_v
+		 << " # MC-truth:"
+		 << " a0-a3: " << a0 << " " << a1 << " " << a2 << " " << a3
+		 << " S: " << scale
+		 << " phi: " << phi
+		 << " x0: " << fidpointvec[0].x() << " " << fidpointvec[0].y()
+		 << " x1: " << fidpointvec[1].x() << " " << fidpointvec[1].y()
+		 << " x2: " << fidpointvec[2].x() << " " << fidpointvec[2].y()
+		 << " x3: " << fidpointvec[3].x() << " " << fidpointvec[3].y()
+		 << std::endl;
 	return oss.str();
 }
 
-std::string SurveyPxbDicer::toString(const int &i) { std::ostringstream oss; oss << i; return oss.str(); }
-std::string SurveyPxbDicer::toString(const double &x) { std::ostringstream oss; oss << x; return oss.str(); }
+void SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t &id, std::ofstream &outfile)
+{
+	outfile << doDice(fidpointvec, id);
+}
 
 SurveyPxbDicer::coord_t SurveyPxbDicer::transform(const coord_t &x, const value_t &a0, const value_t &a1, const value_t &a2, const value_t &a3)
 {
-	return coord_t(a0+a2*x.x()+a3*x.y(),a1-a3*x.x()+a2*x.y());
+	return coord_t(a0+a2*x.x()+a3*x.y(),
+			       a1-a3*x.x()+a2*x.y());
 }
 
 SurveyPxbDicer::value_t SurveyPxbDicer::getParByName(const std::string &name, const std::string &par, const std::vector<edm::ParameterSet>& pars)
@@ -78,10 +87,4 @@ SurveyPxbDicer::value_t SurveyPxbDicer::getParByName(const std::string &name, co
 	if (it == pars.end()) { throw std::runtime_error("Parameter not found in SurveyPxbDicer::getParByName"); }
 	return (*it).getParameter<value_t>(par);
 }
-/*
-bool SurveyPxbDicer::findParByName(std::string name, edm::ParameterSet parset)
-{
-	return (parset.getParameter<std::string>("name") == name);
-}
-*/
 
