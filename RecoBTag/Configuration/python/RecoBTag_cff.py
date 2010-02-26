@@ -22,13 +22,14 @@ btagging = cms.Sequence(
           combinedSecondaryVertexBJetTags + 
           combinedSecondaryVertexMVABJetTags
         ) +
-        ghostTrackVertexTagInfos *
-          ghostTrackBJetTags
+        ghostTrackVertexTagInfos
+# *
+#          ghostTrackBJetTags
       ) +
 
       # soft electrons, tag infos and algorithm(s)
-#     softElectronSelector *
-      softPFElectrons *
+      softElectronCands *
+#     softPFElectrons *
       softElectronTagInfos * (
 #       softElectronBJetTags +
         softElectronByIP3dBJetTags +
