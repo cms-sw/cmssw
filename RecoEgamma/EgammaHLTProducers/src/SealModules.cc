@@ -27,6 +27,8 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/ESListOfFEDSProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/ESRecHitsMerger.h"
 
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTNxNClusterProducer.h"
+
 
 DEFINE_FWK_MODULE(EgammaHLTElectronTrackIsolationProducers);
 DEFINE_FWK_MODULE(EgammaHLTElectronDetaDphiProducer);
@@ -49,4 +51,4 @@ DEFINE_FWK_MODULE(EcalListOfFEDSProducer);
 DEFINE_FWK_MODULE(EcalRecHitsMerger);
 DEFINE_FWK_MODULE(ESListOfFEDSProducer);
 DEFINE_FWK_MODULE(ESRecHitsMerger);
-
+DEFINE_FWK_MODULE(EgammaHLTNxNClusterProducer);
