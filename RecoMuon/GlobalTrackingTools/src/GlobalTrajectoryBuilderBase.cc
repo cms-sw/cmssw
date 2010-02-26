@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/12/03 11:32:07 $
- *  $Revision: 1.43 $
- *  $Date: 2009/12/03 11:32:07 $
- *  $Revision: 1.43 $
+ *  $Date: 2010/02/02 22:07:24 $
+ *  $Revision: 1.44 $
+ *  $Date: 2010/02/02 22:07:24 $
+ *  $Revision: 1.44 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -125,6 +125,7 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theTECxScale = par.getParameter<double>("ScaleTECxFactor");
   theTECyScale = par.getParameter<double>("ScaleTECyFactor");
   thePtCut = par.getParameter<double>("PtCut");
+  thePCut = par.getParameter<double>("PCut");
 
   theCacheId_TRH = 0;
 
@@ -213,7 +214,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
     // cut on tracks with low momenta
     LogTrace(theCategory)<< "   Track p and pT " << (*it)->trackerTrack()->p() << " " << (*it)->trackerTrack()->pt();
-    if(  (*it)->trackerTrack()->p() < 2.5 || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
+    if(  (*it)->trackerTrack()->p() < thePCut || (*it)->trackerTrack()->pt() < thePtCut  ) continue;
 
     ConstRecHitContainer trackerRecHits;
     if ((*it)->trackerTrack().isNonnull()) {

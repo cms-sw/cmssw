@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/09/04 19:47:19 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/02/02 22:07:23 $
+ *  $Revision: 1.21 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -163,6 +163,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
     std::string theCategory;
     float thePtCut;
+    float thePCut;
 
   private:
 
