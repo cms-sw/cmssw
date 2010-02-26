@@ -22,7 +22,8 @@ namespace sistrip {
     productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(0),
     cacheId_(0),
-    extractCm_(false)
+    extractCm_(false),
+    doFullCorruptBufferChecks_(false)
   {
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
@@ -41,11 +42,13 @@ namespace sistrip {
     int16_t fed_event_dump_freq = pset.getUntrackedParameter<int>("FedEventDumpFreq",0);
     bool quiet = pset.getUntrackedParameter<bool>("Quiet",true);
     extractCm_ = pset.getParameter<bool>("UnpackCommonModeValues");
+    doFullCorruptBufferChecks_ = pset.getParameter<bool>("DoAllCorruptBufferChecks");
 
     rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels, mark_missing_feds);
     rawToDigi_->quiet(quiet);
     rawToDigi_->useDaqRegister( use_daq_register ); 
     rawToDigi_->extractCm(extractCm_);
+    rawToDigi_->doFullCorruptBufferChecks(doFullCorruptBufferChecks_);
   
     produces< SiStripEventSummary >();
     produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");

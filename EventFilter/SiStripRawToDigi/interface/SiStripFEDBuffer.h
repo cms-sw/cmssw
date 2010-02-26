@@ -94,6 +94,7 @@ namespace sistrip {
       void readNewClusterInfo();
       static void throwBadChannelLength(const uint16_t length);
       void throwBadClusterLength();
+      static void throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster);
       const uint8_t* data_;
       size_t currentOffset_;
       uint8_t currentStrip_;
@@ -265,7 +266,9 @@ namespace sistrip {
   inline void FEDZSChannelUnpacker::readNewClusterInfo()
     {
       if (channelPayloadLength_) {
-	currentStrip_ = data_[(currentOffset_++)^7];
+        uint8_t newFirstStrip = data_[(currentOffset_++)^7];
+	if (newFirstStrip > currentStrip_) currentStrip_ = newFirstStrip;
+        else throwUnorderedData(currentStrip_,newFirstStrip);
 	valuesLeftInCluster_ = data_[(currentOffset_++)^7]-1;
       }
     }

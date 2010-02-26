@@ -59,6 +59,8 @@ namespace sistrip {
 
     inline void extractCm( bool );
     
+    inline void doFullCorruptBufferChecks( bool );
+    
   private:
     
     /// fill DetSetVectors using registries
@@ -122,6 +124,7 @@ namespace sistrip {
     bool useDaqRegister_;
     bool quiet_;
     bool extractCm_;    
+    bool doFullCorruptBufferChecks_;
     
     /// registries
     std::vector<Registry> zs_work_registry_;
@@ -173,6 +176,8 @@ void sistrip::RawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
 void sistrip::RawToDigiUnpacker::useDaqRegister( bool use ) { useDaqRegister_ =  use; }
 
 void sistrip::RawToDigiUnpacker::extractCm( bool extract_cm ) { extractCm_ = extract_cm; }
+
+void sistrip::RawToDigiUnpacker::doFullCorruptBufferChecks( bool do_full_corrupt_buffer_checks ) { doFullCorruptBufferChecks_ = do_full_corrupt_buffer_checks; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 

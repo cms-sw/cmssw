@@ -123,26 +123,44 @@ namespace sistrip {
         const sistrip::FEDReadoutMode mode = buffer->readoutMode();
 	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
 	
-	  // create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
-	
-	  // unpack
-	  while (unpacker.hasData()) {
-	    clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
-	    unpacker++;
-	  }
+          try {
+	    // create unpacker
+	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
+	    
+	    // unpack
+	    while (unpacker.hasData()) {
+	      clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
+	      unpacker++;
+	    }
+          } catch (const cms::Exception& e) {
+            if (edm::isDebugEnabled()) {
+              std::ostringstream ss;
+              ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId;
+              edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+            }
+            continue;
+          }
 	}
 
 	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
 	
-	  // create unpacker
-	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
-	
-	  // unpack
-	  while (unpacker.hasData()) {
-	    clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
-	    unpacker++;
-	  }
+          try {
+            // create unpacker
+            sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
+
+            // unpack
+            while (unpacker.hasData()) {
+              clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
+              unpacker++;
+            }
+          } catch (const cms::Exception& e) {
+            if (edm::isDebugEnabled()) {
+              std::ostringstream ss;
+              ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId;
+              edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+            }                                               
+            continue;
+          }
 	}
 
 	else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {

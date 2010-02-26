@@ -70,6 +70,7 @@ namespace sistrip {
 
   void FEDBuffer::findChannels()
   {
+    const uint16_t minLength = ( (readoutMode() == READOUT_MODE_ZERO_SUPPRESSED) ? 7 : 2 );
     size_t offsetBeginningOfChannel = 0;
     for (size_t i = 0; i < FEDCH_PER_FED; i++) {
       //if FE unit is not enabled then skip rest of FE unit adding NULL pointers
@@ -93,6 +94,17 @@ namespace sistrip {
       channels_.push_back(FEDChannel(payloadPointer_,offsetBeginningOfChannel));
       //get length and check that whole channel fits into buffer
       uint16_t channelLength = channels_.back().length();
+      //check that the channel length is long enough to contain the header
+      if (channelLength < minLength) {
+        SiStripFedKey key(0,i/FEDCH_PER_FEUNIT,i%FEDCH_PER_FEUNIT);
+        std::ostringstream ss;
+        ss << "Channel " << uint16_t(i) << " (FE unit " << key.feUnit() << " channel " << key.feChan() << " according to external numbering scheme)"
+           << " is too short. "
+           << "Channel starts at " << uint16_t(offsetBeginningOfChannel) << " in payload. "
+           << "Channel length is " << uint16_t(channelLength) << ". "
+           << "Min length is " << uint16_t(minLength) << ". ";
+        throw cms::Exception("FEDBuffer") << ss.str();
+      }
       if (offsetBeginningOfChannel+channelLength > payloadLength_) {
         SiStripFedKey key(0,i/FEDCH_PER_FEUNIT,i%FEDCH_PER_FEUNIT);
 	std::ostringstream ss;
@@ -128,6 +140,8 @@ namespace sistrip {
     if (validChannels_ != FEDCH_PER_FED) return false;
     //do checks from base class
     if (!FEDBufferBase::doChecks()) return false;
+    //check CRC
+    if (!checkCRC()) return false;
     return true;
   }
 
@@ -419,6 +433,16 @@ namespace sistrip {
     std::ostringstream ss;
     ss << "Cluster does not fit into channel. "
        << "Cluster length is " << uint16_t(valuesLeftInCluster_) << "."
+       << std::endl;
+    throw cms::Exception("FEDBuffer") << ss.str();
+  }
+  
+  void FEDZSChannelUnpacker::throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster)
+  {
+    std::ostringstream ss;
+    ss << "First strip of new cluster is not greater than last strip of previous cluster. "
+       << "Last strip of previous cluster is " << uint16_t(currentStrip) << ". "
+       << "First strip of new cluster is " << uint16_t(firstStripOfNewCluster) << "."
        << std::endl;
     throw cms::Exception("FEDBuffer") << ss.str();
   }

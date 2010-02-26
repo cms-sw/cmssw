@@ -41,6 +41,7 @@ namespace sistrip {
     const SiStripFedCabling* cabling_;
     uint32_t cacheId_;
     bool extractCm_;    
+    bool doFullCorruptBufferChecks_;
   };
   
 }

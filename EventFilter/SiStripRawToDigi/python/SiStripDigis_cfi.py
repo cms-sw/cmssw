@@ -12,6 +12,7 @@ siStripDigis = cms.EDProducer(
     #FedEventDumpFreq  = cms.untracked.int32(0),
     #FedBufferDumpFreq = cms.untracked.int32(0),
     UnpackCommonModeValues = cms.bool(False),
+    DoAllCorruptBufferChecks = cms.bool(False),
     )
 
 

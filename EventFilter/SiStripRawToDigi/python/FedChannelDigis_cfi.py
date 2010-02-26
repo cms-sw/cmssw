@@ -13,5 +13,6 @@ FedChannelDigis = cms.EDProducer("SiStripRawToDigiModule",
     #FedBufferDumpFreq = cms.untracked.int32(0),
     #Quiet             = cms.untracked.bool(False)
     UnpackCommonModeValues = cms.bool(False),
+    DoAllCorruptBufferChecks = cms.bool(False),
 )
 
