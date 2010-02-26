@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DDataProxyBuilder.cc,v 1.5 2009/10/28 14:46:17 chrjones Exp $
+// $Id: FW3DDataProxyBuilder.cc,v 1.6 2010/01/21 21:01:35 amraktad Exp $
 //
 
 // system include files
@@ -193,7 +193,6 @@ void
 FW3DDataProxyBuilder::modelChanges(const FWModelIds& iIds,
                                    TEveElement* iElements )
 {
-   //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
    assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;

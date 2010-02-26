@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.4 2009/07/16 15:58:34 chrjones Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.5 2010/02/23 17:13:41 chrjones Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
+#include "Fireworks/Core/interface/FWItemAccessorRegistry.h"
 #include "Fireworks/Core/src/FWItemTVirtualCollectionProxyAccessor.h"
 #include "Fireworks/Core/src/FWItemSingleAccessor.h"
 
@@ -66,6 +67,26 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
 //
 // const member functions
 //
+/** Create an accessor for a given type @a iClass.
+   
+    @a iClass the type for which we need an accessor.
+
+    If the type is known to ROOT to be some sort of collection,
+    we return the a FWItemTVirtualCollectionProxyAccessor 
+    constructed using the associated TVirtualCollectionProxy.
+  
+    If the type is not a collection but it contains only
+    one element which is a collection, we return a 
+    FWItemTVirtualCollectionProxyAccessor using the 
+    TVirtualCollectionProxy of that element.
+
+    If none of the above is true, we lookup the plugin based
+    FWItemAccessorRegistry for a plugin that can handle the
+    given type.
+
+    Failing that, we return a FWItemSingleAccessor which threats
+    the object as if it was not a collection. 
+ */
 boost::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
@@ -79,8 +100,8 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
                                                                                              boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
    } else {
       assert(iClass->GetTypeInfo());
-      ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
-      assert(dataType != ROOT::Reflex::Type() );
+      ROOT::Reflex::Type dataType(ROOT::Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
+      assert(dataType != ROOT::Reflex::Type());
 
       //is this an object which has only one member item and that item is a container?
       if(dataType.DataMemberSize()==1) {
@@ -102,7 +123,25 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
          }
       }
    }
+   
    //std::cout <<"  single"<<std::endl;
+ 
+   // Iterate on the available plugins and use the one which handles 
+   // the iClass type. 
+   // NOTE: This is done only a few times, not really performance critical.
+   // If you want this to be fast, the loop can be moved in the 
+   // constructor. Notice that this will require constructing FWEventItemsManager 
+   // after the plugin manager (i.e. invoking AutoLibraryLoader::enable()) is configured
+   // (i.e. invoking AutoLibraryLoader::enable()) in CmsShowMain.
+   const std::vector<edmplugin::PluginInfo> &available = FWItemAccessorRegistry::get()->available();
+   for (size_t i = 0, e = available.size(); i != e; ++i)
+   {
+      std::string name = available[i].name_;
+      std::string type = name.substr(0, name.find_first_of('@'));
+      if (iClass->GetTypeInfo()->name() == type)
+        return boost::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(name, iClass));
+   } 
+
    return boost::shared_ptr<FWItemAccessorBase>(new FWItemSingleAccessor(iClass));
 }
 
