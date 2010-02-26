@@ -97,7 +97,6 @@ bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
             label = cms.InputTag("softElectronByPtBJetTags")
         )
     ),
-    mcPlots = cms.bool(True)
+    mcPlots = cms.bool(True),
+    leptonPlots = cms.uint32(0)
 )
-
-

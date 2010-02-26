@@ -249,10 +249,7 @@ void BTagPerformanceAnalyzerMC::init(const edm::ParameterSet& iConfig)
   muonPlots = false;
   tauPlots = false;
 
-  int leptonplots = 0;
-  if (iConfig.exists("leptonPlots"))
-    leptonplots = iConfig.getParameter<int>("leptonPlots");
-  switch(leptonplots) {
+  switch(iConfig.getParameter<unsigned int>("leptonPlots")) {
     case 11: electronPlots = true; break;
     case 13: muonPlots = true;     break;
     case 15: tauPlots = true;      break;
@@ -295,9 +292,9 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
   for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin();
        iter != jetMC->end(); iter++) {
     unsigned int fl = std::abs(iter->second.getFlavour());
-    flavours.insert(FlavourMap::value_type(iter->first, fl));
-    reco::JetFlavour::Leptons lep = iter->second.getLeptons();
-    leptons.insert(LeptonMap::value_type(iter->first, lep));
+    flavours.insert(std::make_pair(iter->first, fl));
+    const reco::JetFlavour::Leptons &lep = iter->second.getLeptons();
+    leptons.insert(std::make_pair(iter->first, lep));
   }
 
   edm::Handle<reco::SoftLeptonTagInfoCollection> infoHandle;
