@@ -1,4 +1,4 @@
-# last update on $Date: 2010/02/23 13:10:25 $ by $Author: frmeier $
+# last update on $Date: 2010/02/25 18:44:14 $ by $Author: frmeier $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -213,7 +213,21 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(0) )
 
 process.AlignmentProducer.algoConfig.surveyPixelBarrel.doSurvey = True
 process.AlignmentProducer.algoConfig.surveyPixelBarrel.doOutputOnStdout = True
+process.AlignmentProducer.algoConfig.surveyPixelBarrel.infile = cms.FileInPath("Alignment/MillePedeAlignmentAlgorithm/test/toySurveyInfo1.txt")
 process.AlignmentProducer.algoConfig.surveyPixelBarrel.doToySurvey = True
+process.AlignmentProducer.algoConfig.surveyPixelBarrel.toySurveyParameters = cms.VPSet(
+		# Position of photo in local frame (unit: pixels in photo)
+		cms.PSet(name = cms.string('a0'),    mean = cms.double(1879.11,), sigma = cms.double(0.)),
+		cms.PSet(name = cms.string('a1'),    mean = cms.double(2476.56,), sigma = cms.double(0.)),
+		# Scale of photo (unit: pixels per cm)
+		cms.PSet(name = cms.string('scale'), mean = cms.double(1168.68), sigma = cms.double(0.)),
+		# Rotation of photo in local frame (unit: rads)
+		cms.PSet(name = cms.string('phi'),   mean = cms.double(0.00887099), sigma = cms.double(0.)),
+		# Smearing of measurements in u and v coordinate (unit: pixels in photo)
+		cms.PSet(name = cms.string('u'),     mean = cms.double(0.), sigma = cms.double(0.175)),
+		cms.PSet(name = cms.string('v'),     mean = cms.double(0.), sigma = cms.double(0.175))
+		)
+
 
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter)
 

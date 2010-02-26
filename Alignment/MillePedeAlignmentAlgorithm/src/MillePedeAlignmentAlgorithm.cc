@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.64 $
- *  $Date: 2010/02/23 22:45:47 $
+ *  $Revision: 1.65 $
+ *  $Date: 2010/02/25 18:44:13 $
  *  (last update by $Author: frmeier $)
  */
 
@@ -1010,17 +1010,20 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
 
 void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurveyCfg)
 {
+	// do some printing, if requested
 	const bool doOutputOnStdout(pxbSurveyCfg.getParameter<bool>("doOutputOnStdout"));
-	if (doOutputOnStdout) std::cout << "# Below output from addPxbSurvey follows because doOutputOnStdout is set to True" << std::endl;
+	if (doOutputOnStdout) std::cout << "# Output from addPxbSurvey follows below because doOutputOnStdout is set to True" << std::endl;
 
+	// instantiate a dicer object
 	SurveyPxbDicer dicer(pxbSurveyCfg.getParameter<std::vector<edm::ParameterSet> >("toySurveyParameters"), pxbSurveyCfg.getParameter<unsigned int>("toySurveySeed"));
+	std::ofstream outfile(pxbSurveyCfg.getUntrackedParameter<std::string>("toySurveyFile").c_str());
 
 	// read data from file
 	std::vector<SurveyPxbImageLocalFit> measurements;
 	std::string filename(pxbSurveyCfg.getParameter<edm::FileInPath>("infile").fullPath());
 	SurveyPxbImageReader<SurveyPxbImageLocalFit> reader(filename, measurements, 800);
 
-	// loop over photographs and perform the fit
+	// loop over photographs (=measurements) and perform the fit
 	for(std::vector<SurveyPxbImageLocalFit>::size_type i=0; i!=measurements.size(); i++)
 	{
 		if (doOutputOnStdout) std::cout << "Module " << i << ": ";
@@ -1052,16 +1055,19 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 		fidpointvec.push_back(fidpoint2);
 		fidpointvec.push_back(fidpoint3);
 
+		// if toy survey is requested, dice the values now
 		if (pxbSurveyCfg.getParameter<bool>("doToySurvey"))
 		{
-			std::cout << "Diced: " << dicer.doDice(fidpointvec,measurements[i].getIdPair()) << std::endl;
+			dicer.doDice(fidpointvec,measurements[i].getIdPair(), outfile);
 		}
 		
-		// do the fit and report the results
+		// do the fit
 		measurements[i].doFit(fidpointvec, thePedeLabels->alignableLabel(mod1), thePedeLabels->alignableLabel(mod2));
 	    SurveyPxbImageLocalFit::localpars_t a; // local pars from fit
 		a = measurements[i].getLocalParameters();
 		const SurveyPxbImageLocalFit::value_t chi2 = measurements[i].getChi2();
+
+		// do some reporting, if requested
 		if (doOutputOnStdout)
 		{
 		  std::cout << "a: " << a[0] << ", " << a[1]  << ", " << a[2] << ", " << a[3]
@@ -1069,16 +1075,15 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 			<< " phi= " << atan(a[3]/a[2])
 			<< " chi2= " << chi2 << std::endl;
 		}
-		if (theMonitor) theMonitor->fillPxbSurveyHistsChi2(chi2);
-		if (theMonitor) theMonitor->fillPxbSurveyHistsLocalPars(a[0],a[1],sqrt(a[2]*a[2]+a[3]*a[3]),atan(a[3]/a[2]));
+		if (theMonitor) 
+		{
+			theMonitor->fillPxbSurveyHistsChi2(chi2);
+			theMonitor->fillPxbSurveyHistsLocalPars(a[0],a[1],sqrt(a[2]*a[2]+a[3]*a[3]),atan(a[3]/a[2]));
+		}
 
-		/*std::cout << "deriv: " << measurements[i].getLocalDerivsPtr(0) << " " << *(measurements[i].getLocalDerivsPtr(0))
-			<< " diff: " << measurements[i].getLocalDerivsPtr(1)-measurements[i].getLocalDerivsPtr(0) 
-			<< std::endl;*/
-
+		// pass the results from the local fit to mille
 		for(SurveyPxbImageLocalFit::count_t j=0; j!=SurveyPxbImageLocalFit::nMsrmts; j++)
 		{
-			//std::cout << "j:" << j << " " << measurements[i].getLocalDerivsPtr(j) << "|";
 			theMille->mille((int)measurements[i].getLocalDerivsSize(),
 				measurements[i].getLocalDerivsPtr(j),
 				(int)measurements[i].getGlobalDerivsSize(),
@@ -1089,6 +1094,7 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 		}
 		theMille->end();
 	}
+	outfile.close();
 }
 
 
