@@ -1,6 +1,9 @@
 <use name=DQM/BeamMonitor>
 <use name=FWCore/Framework>
 
+<use name=DataFormats/VertexReco>
+<use name=DQMServices/Core>
+
 <library file=*.cc name=BeamMonitorPlugins>
 	<flags EDM_PLUGIN=1>
 </library>

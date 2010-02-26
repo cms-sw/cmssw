@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.2 2010/02/24 19:34:59 arizzi Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.3 2010/02/24 21:40:05 ameyer Exp $
 //
 //
 
@@ -49,13 +49,22 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
 
-     edm::InputTag vertexCollection;
+      // cfg file parameters
+      edm::InputTag vertexCollection;
+      unsigned int nLumiReset;
 
   MonitorElement* Vx_X;
   MonitorElement* Vx_Y;
   MonitorElement* Vx_Z;
+
+  MonitorElement* Vx_XZ;
+  MonitorElement* Vx_YZ;
+  MonitorElement* Vx_XY;
+
   MonitorElement* reportSummary;
   MonitorElement* reportSummaryMap;
+
+  unsigned int lumiCounter;
 };
 
 #endif

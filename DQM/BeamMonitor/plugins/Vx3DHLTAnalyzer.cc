@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.3 2010/02/24 21:25:07 ameyer Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.4 2010/02/24 21:39:09 ameyer Exp $
 //
 //
 
@@ -30,11 +30,11 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const edm::ParameterSet& iConfig)
+
+Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
 {
-
-  vertexCollection  = iConfig.getParameter<edm::InputTag>("vertexCollection");
-
+  vertexCollection = iConfig.getParameter<InputTag>("vertexCollection");
+  nLumiReset       = iConfig.getParameter<unsigned int>("nLumiReset");
 }
 
 
@@ -43,9 +43,9 @@ Vx3DHLTAnalyzer::~Vx3DHLTAnalyzer()
 }
 
 
-void Vx3DHLTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
-  edm::Handle<VertexCollection> Vx3DCollection;
+  Handle<VertexCollection> Vx3DCollection;
   iEvent.getByLabel(vertexCollection,Vx3DCollection);
 
   for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
@@ -55,41 +55,59 @@ void Vx3DHLTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	Vx_X->Fill(it3DVx->x());
 	Vx_Y->Fill(it3DVx->y());
 	Vx_Z->Fill(it3DVx->z());
+
+	Vx_XZ->Fill(it3DVx->x(), it3DVx->z());
+	Vx_YZ->Fill(it3DVx->y(), it3DVx->z());
+	Vx_XY->Fill(it3DVx->x(), it3DVx->y());
       }
   }
 }
 
 
-void Vx3DHLTAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
-					 const edm::EventSetup& iSetup)
+void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
+					 const EventSetup& iSetup)
 {
-  // Put this in as a first-pass for figuring out the rate
-  // each lumi block is 93 seconds in length
-  Vx_X->Reset();
-  Vx_Y->Reset();
-  Vx_Z->Reset();
+  if (lumiCounter == nLumiReset)
+    {
+      Vx_X->Reset();
+      Vx_Y->Reset();
+      Vx_Z->Reset();
+
+      Vx_XZ->Reset();
+      Vx_YZ->Reset();
+      Vx_XY->Reset();
+
+      lumiCounter = 0;
+    }
+  else lumiCounter++;
 }
 
 
 void Vx3DHLTAnalyzer::beginJob()
 {
   DQMStore* dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
+  dbe = Service<DQMStore>().operator->();
  
   if ( dbe ) 
     {
       dbe->setCurrentFolder("BeamPixel");
 
-      Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", 1000, -5.0, 5.0);
-      Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", 1000, -5.0, 5.0);
+      Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", 4000, -2.0, 2.0);
+      Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", 4000, -2.0, 2.0);
       Vx_Z = dbe->book1D("Vertex_Z", "Primary Vertex Z Coordinate Distribution", 800, -20.0, 20.0);
       
+      Vx_XZ = dbe->book2D("Vertex_XZ", "Primary Vertex XZ Coordinate Distributions", 4000, -2.0, 2.0, 800, -20.0, 20.0);
+      Vx_YZ = dbe->book2D("Vertex_YZ", "Primary Vertex YZ Coordinate Distributions", 4000, -2.0, 2.0, 800, -20.0, 20.0);
+      Vx_XY = dbe->book2D("Vertex_XY", "Primary Vertex XY Coordinate Distributions", 4000, -2.0, 2.0, 4000, -2.0, 2.0);
+
       dbe->setCurrentFolder("BeamPixel/EventInfo");
       reportSummary = dbe->bookFloat("reportSummary");
       reportSummary->Fill(1.);
-      reportSummaryMap = dbe->book2D("reportSummaryMap","Beam Pixel Summary Map", 1,0.,1.,1,0.,1.);
+      reportSummaryMap = dbe->book2D("reportSummaryMap","Beam Pixel Summary Map", 1, 0., 1., 1, 0., 1.);
       dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
     }
+
+  lumiCounter = 0;
 }
 
 
@@ -98,5 +116,5 @@ void Vx3DHLTAnalyzer::endJob()
 }
 
 
-//define this as a plug-in
+// Define this as a plug-in
 DEFINE_FWK_MODULE(Vx3DHLTAnalyzer);
