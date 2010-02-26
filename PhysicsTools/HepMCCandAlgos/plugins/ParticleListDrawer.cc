@@ -76,12 +76,7 @@ std::string ParticleListDrawer::getParticleName(int id) const
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {  
   Handle<reco::CandidateView> particles;
   iEvent.getByLabel (src_, particles );
-  if (!particles.isValid()) {
-    cerr << "[ParticleListDrawer] caught std::exception " << endl;
-    return;
-  } else {
-    iSetup.getData( pdt_ );
-  }
+  iSetup.getData( pdt_ );
 
   if(maxEventsToPrint_ < 0 || nEventAnalyzed_ < maxEventsToPrint_) {
     ostringstream out;
