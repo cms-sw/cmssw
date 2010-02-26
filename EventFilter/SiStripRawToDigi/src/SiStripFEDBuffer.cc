@@ -70,7 +70,19 @@ namespace sistrip {
 
   void FEDBuffer::findChannels()
   {
-    const uint16_t minLength = ( (readoutMode() == READOUT_MODE_ZERO_SUPPRESSED) ? 7 : 2 );
+    //set min length to 2 for ZSLite, 7 for ZS and 3 for raw
+    uint16_t minLength;
+    switch (readoutMode()) {
+      case READOUT_MODE_ZERO_SUPPRESSED:
+        minLength = 7;
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+        minLength = 2;
+        break;
+      default:
+        minLength = 3;
+        break;
+    }
     size_t offsetBeginningOfChannel = 0;
     for (size_t i = 0; i < FEDCH_PER_FED; i++) {
       //if FE unit is not enabled then skip rest of FE unit adding NULL pointers

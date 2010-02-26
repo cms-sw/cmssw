@@ -135,7 +135,7 @@ namespace sistrip {
           } catch (const cms::Exception& e) {
             if (edm::isDebugEnabled()) {
               std::ostringstream ss;
-              ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId;
+              ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
               edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
             }
             continue;
@@ -156,7 +156,7 @@ namespace sistrip {
           } catch (const cms::Exception& e) {
             if (edm::isDebugEnabled()) {
               std::ostringstream ss;
-              ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId;
+              ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
               edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
             }                                               
             continue;

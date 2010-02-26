@@ -211,7 +211,7 @@ namespace sistrip {
       channelPayloadOffset_(channelPayloadOffset),
       channelPayloadLength_(channelPayloadLength)
     {
-      readNewClusterInfo();
+      if (channelPayloadLength_) readNewClusterInfo();
     }
   
   inline FEDZSChannelUnpacker FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(const FEDChannel& channel)
@@ -253,7 +253,11 @@ namespace sistrip {
         valuesLeftInCluster_--;
       } else {
 	currentOffset_++;
-	readNewClusterInfo();
+	if (hasData()) {
+          const uint8_t oldStrip = currentStrip_;
+          readNewClusterInfo();
+          if ( !(currentStrip_ > oldStrip) ) throwUnorderedData(oldStrip,currentStrip_);
+        }
       }
       return (*this);
     }
@@ -265,12 +269,8 @@ namespace sistrip {
   
   inline void FEDZSChannelUnpacker::readNewClusterInfo()
     {
-      if (channelPayloadLength_) {
-        uint8_t newFirstStrip = data_[(currentOffset_++)^7];
-	if (newFirstStrip >= currentStrip_) currentStrip_ = newFirstStrip;
-        else throwUnorderedData(currentStrip_,newFirstStrip);
-	valuesLeftInCluster_ = data_[(currentOffset_++)^7]-1;
-      }
+      currentStrip_ = data_[(currentOffset_++)^7];
+      valuesLeftInCluster_ = data_[(currentOffset_++)^7]-1;
     }
 
 }
