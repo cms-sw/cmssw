@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.18 2009/09/27 16:45:33 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.19 2010/02/20 21:00:54 wmtan Exp $
 //
 //
 
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
@@ -56,7 +55,6 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   unsigned int nAfterTrigger_;
 
   edm::InputTag triggerResults_;
-  edm::TriggerNames triggerNames_;
 
   std::vector<std::string > HLTPathsByName_;
   std::vector<unsigned int> HLTPathsByIndex_;

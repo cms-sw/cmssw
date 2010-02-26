@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: DQMAnalyzer.cc,v 1.2 2009/11/13 09:37:31 chamont Exp $
+// $Id: DQMAnalyzer.cc,v 1.3 2009/12/01 16:30:42 chamont Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -948,20 +949,19 @@ bool DQMAnalyzer::trigger( const edm::Event & e )
     //std::cout << "TriggerResults found, number of HLT paths: " << triggerResults->size() << std::endl;
 
     // get trigger names
-    edm::TriggerNames triggerNames_;
-    triggerNames_.init(*triggerResults) ;
+    const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
     if (nEvents_==1)
      {
-      for (unsigned int i=0; i<triggerNames_.size(); i++)
+      for (unsigned int i=0; i<triggerNames.size(); i++)
        {
-//	      std::cout << "trigger path= " << triggerNames_.triggerName(i) << std::endl;
+//	      std::cout << "trigger path= " << triggerNames.triggerName(i) << std::endl;
        }
      }
 
     unsigned int n = HLTPathsByName_.size() ;
     for (unsigned int i=0; i!=n; i++)
      {
-      HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]) ;
+      HLTPathsByIndex_[i]=triggerNames.triggerIndex(HLTPathsByName_[i]) ;
      }
 
     // empty input vectors (n==0) means any trigger paths
@@ -972,7 +972,7 @@ bool DQMAnalyzer::trigger( const edm::Event & e )
       HLTPathsByIndex_.resize(n) ;
       for ( unsigned int i=0 ; i!=n ; i++)
        {
-	      HLTPathsByName_[i]=triggerNames_.triggerName(i) ;
+	      HLTPathsByName_[i]=triggerNames.triggerName(i) ;
 	      HLTPathsByIndex_[i]=i ;
        }
      }
