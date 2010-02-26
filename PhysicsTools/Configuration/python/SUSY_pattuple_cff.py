@@ -26,7 +26,7 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Su
     process.eventCountProducer = cms.EDProducer("EventCountProducer")
 
     # Full path
-    process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
+    process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets * process.fixedMETSequence
                                                    *process.patDefaultSequence
                                                    * process.patTrigger*process.patTriggerEvent
 						   * process.PFPATafterPAT * process.eventCountProducer )
@@ -172,7 +172,14 @@ def addJetMET(process,theJetNames,mcVersion):
     #-- Track Jets ----------------------------------------------------------------
     process.load('RecoJets.Configuration.RecoTrackJets_cff')
     process.addTrackJets = cms.Sequence ( process.recoTrackJets )
- 
+
+    #-- MET fixes ----------------------------------------------------------------
+    process.load("JetMETCorrections.Type1MET.MuonMETValueMapProducer_cff") 
+    process.load("JetMETCorrections.Type1MET.MuonTCMETValueMapProducer_cff")
+    process.load("JetMETCorrections.Type1MET.MetMuonCorrections_cff") 
+    process.load("RecoMET.METProducers.TCMET_cfi") 
+    process.fixedMETSequence = cms.Sequence(process.muonMETValueMapProducer * process.muonTCMETValueMapProducer * process.corMetGlobalMuons * process.tcMet)
+
     #-- Extra Jet/MET collections -------------------------------------------------
     # Add a few jet collections...
     for jetName in theJetNames:
