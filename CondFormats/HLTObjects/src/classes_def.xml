@@ -1,4 +1,7 @@
 <lcgdict>
  <class name="AlCaRecoTriggerBits"/>
+ <class name="std::pair <const std::string, std::vector<unsigned int> >" />
+ <class name="std::map <std::string, std::vector<unsigned int> >" />
+ <class name="trigger::HLTPrescaleTable"/>
 </lcgdict>   
 
