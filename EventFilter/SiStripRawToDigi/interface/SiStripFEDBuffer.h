@@ -267,7 +267,7 @@ namespace sistrip {
     {
       if (channelPayloadLength_) {
         uint8_t newFirstStrip = data_[(currentOffset_++)^7];
-	if (newFirstStrip > currentStrip_) currentStrip_ = newFirstStrip;
+	if (newFirstStrip >= currentStrip_) currentStrip_ = newFirstStrip;
         else throwUnorderedData(currentStrip_,newFirstStrip);
 	valuesLeftInCluster_ = data_[(currentOffset_++)^7]-1;
       }
