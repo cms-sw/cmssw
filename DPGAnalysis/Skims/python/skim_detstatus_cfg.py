@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load("DPGAnalysis/Skims/skim_detstatus_cfi")
+process.load("DPGAnalysis/Skims/DetStatus_cfi")
 
 
 # DCS partitions
@@ -15,12 +15,13 @@ process.load("DPGAnalysis/Skims/skim_detstatus_cfi")
 process.dcsstatus.DetectorType =  cms.vstring('TOB','BPIX','TECp','TECm')
 process.dcsstatus.ApplyFilter =  cms.bool(True)
 process.dcsstatus.DebugOn =  cms.untracked.bool(True)
+process.dcsstatus.AndOr =  cms.bool(True)
 
 
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/skim_detstatus_cfg.py,v $'),
     annotation = cms.untracked.string('DCSStatus skim')
 )
@@ -51,19 +52,23 @@ myfilelist = cms.untracked.vstring()
 #    debugFlag = cms.untracked.bool(False),
 #    fileNames = myfilelist
 #))
+
 myfilelist.extend( [
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/124/022/FC89901D-FFE6-DE11-AA38-001D09F25401.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/124/022/EED31843-06E7-DE11-B658-000423D6B5C4.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/124/022/56725260-03E7-DE11-8291-001D09F28EA3.root'
-#'/store/express/BeamCommissioning09/OfflineMonitor/FEVTHLTALL/v1/000/121/550/CCD51E51-52D4-DE11-A51D-001617C3B654.root',
-#'/store/express/BeamCommissioning09/OfflineMonitor/FEVTHLTALL/v1/000/121/550/C2C8880A-55D4-DE11-8883-001617C3B6DE.root',
-#'/store/express/BeamCommissioning09/OfflineMonitor/FEVTHLTALL/v1/000/121/550/B047990A-55D4-DE11-A6A0-001D09F23944.root',
-#'/store/express/BeamCommissioning09/OfflineMonitor/FEVTHLTALL/v1/000/121/550/42C5EC0B-55D4-DE11-ABA3-001617DBD556.root'
-#'/store/data/BeamCommissioning09/Cosmics/RECO/v2/000/121/550/AAC5F95D-5BD4-DE11-BA3F-000423D94524.root'
-#'/store/data/BeamCommissioning09/RandomTriggers/RAW/v1/000/121/550/845D19D0-57D4-DE11-8FF8-001D09F23944.root'
+# data
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/124/022/FC89901D-FFE6-DE11-AA38-001D09F25401.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/124/022/EED31843-06E7-DE11-B658-000423D6B5C4.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/124/022/56725260-03E7-DE11-8291-001D09F28EA3.root'
+#MC
+#'/store/mc/Summer09/MinBias/GEN-SIM-RECO/V16D_900GeV-v1/0000/026DF601-7916-DF11-8223-003048D46012.root',
+#'/store/mc/Summer09/MinBias/GEN-SIM-RECO/V16D_900GeV-v1/0000/026DF601-7916-DF11-8223-003048D46012.root'
+#RelVal
+#'/store/relval/CMSSW_3_4_0_pre2/RelValMinBias/GEN-SIM-RECO/STARTUP3XY_V9-v1/0003/FE73FBC4-C0BD-DE11-9691-0026189438A5.root'
 ] )
+
+
 process.source = cms.Source('PoolSource',
-    debugVerbosity = cms.untracked.uint32(0),
-    debugFlag = cms.untracked.bool(False),
+#    debugVerbosity = cms.untracked.uint32(0),
+#    debugFlag = cms.untracked.bool(False),
     fileNames = myfilelist )
+
 

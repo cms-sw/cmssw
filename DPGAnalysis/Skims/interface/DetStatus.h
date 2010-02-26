@@ -13,6 +13,7 @@ class DetStatus : public edm::EDFilter {
 
   bool verbose_;
   bool applyfilter_;
+  bool AndOr_;
   std::vector<std::string>  DetNames_;
   unsigned int DetMap_;
 

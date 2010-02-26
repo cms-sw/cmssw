@@ -12,6 +12,7 @@ using namespace std;
 //
 DetStatus::DetStatus( const edm::ParameterSet & pset ) {
    verbose_      = pset.getUntrackedParameter<bool>( "DebugOn", false );
+   AndOr_      = pset.getParameter<bool>( "AndOr");
    applyfilter_      = pset.getParameter<bool>( "ApplyFilter");
    DetNames_ = pset.getParameter<std::vector<std::string> >( "DetectorType" );
 
@@ -48,25 +49,41 @@ bool DetStatus::filter( edm::Event & evt, edm::EventSetup const& es) {
 
   if (dcsStatus.isValid()) 
     {
-      unsigned int curr_dcs=(*dcsStatus)[0].ready();
-      accepted=((DetMap_ & curr_dcs)== DetMap_);
-      if (verbose_)
+      if ((*dcsStatus).size()==0)
 	{
-	  std::cout << "DCSStatus filter: requested map: " << DetMap_ << " dcs in event: " <<curr_dcs << " filter: " << accepted << std::endl; 
-	  std::cout << "Partitions ON: " ;
-	  for (unsigned int detlist=0;detlist<DcsStatus::nPartitions;detlist++)
+	  // it's probably a MC event, accepet it in any case
+	  edm::LogError("DetStatus") << "Error! dcsStatus has size 0, accept in any case" ;
+	  accepted=true;
+	}
+      else 
+	{
+	  unsigned int curr_dcs=(*dcsStatus)[0].ready();
+	  std::cout << "curr_dcs = " << curr_dcs << std::endl;
+	  if(AndOr_)
+	    accepted=((DetMap_ & curr_dcs)== DetMap_);
+	  else
+	    accepted=((DetMap_ & curr_dcs)!= 0);
+	    
+	  if (verbose_)
+
 	    {
-	      if ((*dcsStatus)[0].ready(DcsStatus::partitionList[detlist]))
+	      std::cout << "DCSStatus filter: requested map: " << DetMap_ << " dcs in event: " <<curr_dcs << " filter: " << accepted << std::endl; 
+	      std::cout << "Partitions ON: " ;
+	      for (unsigned int detlist=0;detlist<DcsStatus::nPartitions;detlist++)
 		{
-		  std::cout << " " << DcsStatus::partitionName[detlist];
+		  if ((*dcsStatus)[0].ready(DcsStatus::partitionList[detlist]))
+		    {
+		      std::cout << " " << DcsStatus::partitionName[detlist];
+		    }
 		}
+	      std::cout << std::endl ;
 	    }
-	  std::cout << std::endl ;
 	}
     }
   else
     {
-      edm::LogError("scalersRawToDigiError") << "Error! can't get the product: scalersRawToDigi" ;
+      edm::LogError("DetStatus") << "Error! can't get the product: scalersRawToDigi, accept in any case" ;
+      accepted=true;
     }
 
   if (! applyfilter_) accepted=true;
