@@ -7,7 +7,7 @@ L1RPCHwConfigOffline = cms.ESSource("PoolDBESSource",
         record = cms.string('L1RPCHwConfigRcd'),
         tag = cms.string('L1RPCHwConfig_v1')
     )),
-    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_30X_RPC')
+    connect = cms.string('oracle://cms_orcoff_prod/CMS_COND_31X_RPC')
 )
 
 

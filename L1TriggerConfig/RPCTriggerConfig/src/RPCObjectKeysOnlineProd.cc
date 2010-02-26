@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu Oct  2 19:35:26 CEST 2008
-// $Id: RPCObjectKeysOnlineProd.cc,v 1.2 2009/03/13 17:53:23 wsun Exp $
+// $Id: RPCObjectKeysOnlineProd.cc,v 1.3 2009/04/01 18:34:06 wsun Exp $
 //
 //
 
@@ -39,6 +39,8 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       // ----------member data ---------------------------
   bool m_enableL1RPCConfig ;
   bool m_enableL1RPCConeDefinition ;
+  bool m_enableL1RPCHsbConfig ;
+  bool m_enableL1RPCBxOrConfig ;
 };
 
 //
@@ -55,7 +57,9 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 RPCObjectKeysOnlineProd::RPCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
   : L1ObjectKeysOnlineProdBase( iConfig ),
     m_enableL1RPCConfig( iConfig.getParameter< bool >( "enableL1RPCConfig" ) ),
-    m_enableL1RPCConeDefinition( iConfig.getParameter< bool >( "enableL1RPCConeDefinition" ) )
+    m_enableL1RPCConeDefinition( iConfig.getParameter< bool >( "enableL1RPCConeDefinition" ) ),
+    m_enableL1RPCHsbConfig( iConfig.getParameter< bool >( "enableL1RPCHsbConfig" ) ),
+    m_enableL1RPCBxOrConfig( iConfig.getParameter< bool >( "enableL1RPCBxOrConfig" ) )
 {}
 
 
@@ -92,6 +96,19 @@ RPCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 			      "L1RPCConeDefinition",
 			      rpcKey ) ;
 	}
+      if( m_enableL1RPCHsbConfig )
+        {
+          pL1TriggerKey->add( "L1RPCHsbConfigRcd",
+                              "L1RPCHsbConfig",
+                              rpcKey ) ;
+        }
+      if( m_enableL1RPCBxOrConfig )
+        {
+          pL1TriggerKey->add( "L1RPCBxOrConfigRcd",
+                              "L1RPCBxOrConfig",
+                              rpcKey ) ;
+        }
+
     }
 }
 
