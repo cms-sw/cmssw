@@ -18,6 +18,8 @@
  *
  */
 
+#pragma pack(push)
+#pragma pack(1)
 
 /// \class ScalersRaw.h
 /// \brief Raw Data Level 1 Global Trigger Scalers and Lumi Scalers
@@ -233,5 +235,7 @@ struct ScalersEventRecordRaw_v5
   unsigned long long bx[ScalersRaw::N_BX_v2];
   unsigned long long trailer;
 };
+
+#pragma pack(pop)
 
 #endif
