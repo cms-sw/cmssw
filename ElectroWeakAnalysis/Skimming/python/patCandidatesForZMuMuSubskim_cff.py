@@ -14,7 +14,7 @@ patAODTrackCands.cut = 'pt > 10.'
 # layer 1 tracks
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 
-allPatTrackCands = patGenericParticles.clone(
+allPatTracks = patGenericParticles.clone(
     src = cms.InputTag("patAODTrackCands"),
     embedTrack = cms.bool(True),
     # isolation configurables
@@ -48,24 +48,41 @@ selectedPatTracks.cut = 'pt > 10.'
 # PAT MUONS
 
 # before layer 1: Merge CaloMuons into the collection of reco::Muons
-from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
-muons = cms.EDProducer("CaloMuonMerger",
-    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
-    caloMuons = cms.InputTag("calomuons"),
-    minCaloCompatibility = calomuons.minCaloCompatibility)
+# NEED A SPECIAL RECIPE IF YOU WANT CALOMUONS MERGING (DUE TO THE NECESSITY TO REDONE ISOLATION... )
+#from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
+#muons = cms.EDProducer("CaloMuonMerger",
+#    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
+#    caloMuons = cms.InputTag("calomuons"),
+#    minCaloCompatibility = calomuons.minCaloCompatibility)
 
 ## And re-make isolation, as we can't use the one in AOD because our collection is different
-import RecoMuon.MuonIsolationProducers.muIsolation_cff
+#import RecoMuon.MuonIsolationProducers.muIsolation_cff
 
 # layer 1 muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
-patMuons.userIsolation.tracker = cms.PSet(
-    veto = cms.double(0.015),
-    src = cms.InputTag("muIsoDepositTk"),
-    deltaR = cms.double(0.3),
-    cut = cms.double(3.0),
-    threshold = cms.double(1.5)
+patMuons.isoDeposits = cms.PSet(
+        tracker = cms.InputTag("muIsoDepositTk"),
+        ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+        hcal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
 )
+patMuons.userIsolation = cms.PSet(
+        hcal = cms.PSet(
+            src = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
+            deltaR = cms.double(0.3)
+        ),
+        tracker = cms.PSet(
+            veto = cms.double(0.015),
+            src = cms.InputTag("muIsoDepositTk"),
+            deltaR = cms.double(0.3),
+            cut = cms.double(3.0),
+            threshold = cms.double(1.5)
+            ),
+        ecal = cms.PSet(
+            src = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+            deltaR = cms.double(0.3)
+        )
+    )
+
 patMuons.addGenMatch = cms.bool(False)
 patMuons.embedTrack = cms.bool(True)
 patMuons.embedCombinedMuon = cms.bool(True)
@@ -121,24 +138,24 @@ muonTriggerMatchEmbedder = cms.Sequence(
 
 # pat sequences
 
-beforePatMuons = cms.Sequence(
-    muons *
-    muIsolation
-)
+#beforePatMuons = cms.Sequence(
+#    muons *
+#    muIsolation
+#)
 
 beforePatTracks = cms.Sequence(
     patAODTrackCandSequence 
 )
 
 beforePatPat = cms.Sequence(
-    beforePatMuons *
+ #   beforePatMuons *
     beforePatTracks
 )
 
 patPat = cms.Sequence(
     patMuons *
     selectedPatMuons *
-    allPatTrackCands *
+    allPatTracks *
     selectedPatTracks
 )
 
