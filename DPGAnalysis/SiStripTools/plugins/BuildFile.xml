@@ -6,9 +6,6 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CondCore/PluginSystem"/>
-<use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripCluster"/>

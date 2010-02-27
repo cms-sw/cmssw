@@ -21,13 +21,14 @@ from DPGAnalysis.SiStripTools.filtertest.rawtodigi_cff import *
 # Global Tag
 #-------------------------------------------------
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = "CRAFT09_R_V5::All"
+#GlobalTag.globaltag = "CRAFT09_R_V5::All"
+GlobalTag.globaltag = "GR09_R_35_V3A::All"
 
 #-------------------------------------------------------------------------
-from CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi import *
-from CalibTracker.SiStripESProducers.services.SiStripLatencyGeneratorService_cfi import *
-SiStripLatencyGenerator.latency = cms.uint32(146)
-SiStripLatencyGenerator.mode = cms.uint32(37)
+#from CalibTracker.SiStripESProducers.fake.SiStripLatencyFakeESSource_cfi import *
+#from CalibTracker.SiStripESProducers.services.SiStripLatencyGeneratorService_cfi import *
+#SiStripLatencyGenerator.latency = cms.uint32(146)
+#SiStripLatencyGenerator.mode = cms.uint32(37)
 #-------------------------------------------------------------------------
 
 consecutiveHEs = cms.EDProducer("EventWithHistoryProducerFromL1ABC",
