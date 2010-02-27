@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.24 2010/02/11 00:11:57 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.25 2010/02/21 20:26:37 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -32,18 +32,8 @@ ________________________________________________________________**/
 
 static char * formatTime( const time_t t )  {
 
-  static  char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-
-#ifdef AN_ALTERNATIVE_FOR_TIMEZONE
-  char * c  = ctime( &t );
-  strncpy( ts+ 0, c+ 8, 2 );  // dd
-  strncpy( ts+ 3, c+ 4, 3 );  // Mon
-  strncpy( ts+ 7, c+20, 4 );  // yyyy
-  strncpy( ts+12, c+11, 8 );  // hh:mm:ss
-  strncpy( ts+21, tzname[localtime(&t)->tm_isdst], 8 );
-#endif
-
-  strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+  static  char ts[] = "yyyy.Mm.dd hh:mm:ss TZN     ";
+  strftime( ts, strlen(ts)+1, "%Y.%m.%d %H:%M:%S %Z", gmtime(&t) );
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
   // strip trailing blanks that would come when the time zone is not as
