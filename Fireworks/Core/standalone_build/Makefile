@@ -2,28 +2,51 @@
 #  Autors:   Dmytro Kovalskyi
 #            Johannes Muelmenstaedt
 # 
+
+# debug
 ifndef VERBOSE
-  QUIET := @
+  export QUIET := @
 endif
 
+# library extensions
 ifeq ($(shell uname), Linux)
-	SO_EXT := so
+		CC := c++
+		COMPILERFLAGS := -Wall -O2 -m32 -fPIC
+		SO_EXT := so
+		MAKESHAREDLIB := -shared
+		LinkerOptions := -Wl,-rpath -Wl,
 else 
 	ifeq ($(shell uname), Darwin)
+		CC := c++
+		COMPILERFLAGS := -m32 -Wall -O2 -fPIC
 		SO_EXT := dylib
+		MAKESHAREDLIB := -dynamiclib
+		LinkerOptions := -Wl,-rpath -Wl,
 	endif
 endif
 
+export CC
+export COMPILERFLAGS
+export LinkerOptions
+export SO_EXT
+export MAKESHAREDLIB
+
+# linker
+export LINKER = $(CC)
+
 DIR := $(shell pwd)
 export FWROOTSYS = ${DIR}/external/root
+export LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
 
-LD_LIBRARY_PATH := ${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
-export LD_LIBRARY_PATH
-PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
-export PATH
+# linux specific, tarball ships compiler 
+export LD_LIBRARY_PATH := ${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
+export PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
 
+##############################################################################
 
-all: display install
+#############################################################################
+
+all: core display
 
 core:   Makefile.core
 	$(QUIET) $(MAKE) -f Makefile.core
@@ -31,13 +54,9 @@ core:   Makefile.core
 display: Makefile.project
 	$(QUIET) $(MAKE) -f Makefile.project
 
-install: Makefile.core
-	$(QUIET) $(MAKE) -f Makefile.core install;\
-	echo Done
-
 clean: cleandisplay
 
-cleanall: cleancore cleandisplay
+distclean: cleancore cleandisplay
 
 cleancore: 
 	$(QUIET) echo "removing temporary core objects and output library..."; \
