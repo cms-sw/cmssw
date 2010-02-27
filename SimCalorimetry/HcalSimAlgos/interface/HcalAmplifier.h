@@ -9,6 +9,7 @@ class CaloVNoiseSignalGenerator;
 #include "CLHEP/Random/RandGaussQ.h"
 
 class HcalDbService;
+class HPDIonFeedbackSim;
 
 class HcalAmplifier {
 public:
@@ -16,11 +17,9 @@ public:
   virtual ~HcalAmplifier(){ delete theRandGaussQ; }
 
   /// the Producer will probably update this every event
-  void setDbService(const HcalDbService * service) {
-    theDbService = service;
-   }
-
+  void setDbService(const HcalDbService * service);
   void setRandomEngine(CLHEP::HepRandomEngine & engine);
+  void setIonFeedbackSim(HPDIonFeedbackSim * feedbackSim) {theIonFeedbackSim = feedbackSim;}
 
   /// if it's set, the amplifier will only use it to check
   /// if it has already added noise
@@ -42,6 +41,7 @@ private:
   CLHEP::RandGaussQ * theRandGaussQ;
   const CaloVSimParameterMap * theParameterMap;
   const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
+  HPDIonFeedbackSim * theIonFeedbackSim;
   unsigned theStartingCapId;
   bool addNoise_;
 };

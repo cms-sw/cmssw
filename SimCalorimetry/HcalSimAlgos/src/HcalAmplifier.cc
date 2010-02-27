@@ -1,5 +1,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -21,19 +22,31 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   theRandGaussQ(0),
   theParameterMap(parameters),
   theNoiseSignalGenerator(0),
+  theIonFeedbackSim(0),
   theStartingCapId(0), 
   addNoise_(addNoise)
 {
 }
 
 
+void HcalAmplifier::setDbService(const HcalDbService * service) {
+  theDbService = service;
+  if(theIonFeedbackSim) theIonFeedbackSim->setDbService(service);
+}
+
+
 void HcalAmplifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
 {
   theRandGaussQ = new CLHEP::RandGaussQ(engine);
+  if(theIonFeedbackSim) theIonFeedbackSim->setRandomEngine(engine);
 }
 
 
 void HcalAmplifier::amplify(CaloSamples & frame) const {
+  if(theIonFeedbackSim)
+  {
+    theIonFeedbackSim->addThermalNoise(frame);
+  }
   pe2fC(frame);
   if(theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()))
   {
