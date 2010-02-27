@@ -7,6 +7,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "CLHEP/Random/RandPoissonQ.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVPECorrection.h"
 
 #include<map>
 #include<vector>
@@ -63,6 +64,11 @@ public:
     theHitCorrection = hitCorrection;
   }
 
+  /// if you want to correct the photoelectrons
+  void setPECorrection(const CaloVPECorrection * peCorrection) {
+    thePECorrection = peCorrection;
+  }
+
   virtual void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
   /// frees up memory
@@ -102,6 +108,7 @@ protected:
   const CaloVSimParameterMap * theParameterMap;
   const CaloVShape * theShape;
   const CaloVHitCorrection * theHitCorrection;
+  const CaloVPECorrection * thePECorrection;
   const CaloVHitFilter * theHitFilter;
 
   const CaloGeometry * theGeometry;
