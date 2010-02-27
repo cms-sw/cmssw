@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.6 2009/11/05 21:09:14 dutta Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.8 2009/11/18 12:12:04 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -538,6 +538,15 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       dbe_->setCurrentFolder (monitorName_ + folder);
 
       LayerMEs layerMEs;
+      layerMEs.EtaPhiAllClustersMap           = 0;
+      layerMEs.EtaDistribAllClustersMap       = 0;  
+      layerMEs.PhiDistribAllClustersMap       = 0;
+      layerMEs.EtaPhiOnTrackClustersMap       = 0;
+      layerMEs.EtaDistribOnTrackClustersMap   = 0;
+      layerMEs.PhiDistribOnTrackClustersMap   = 0;  
+      layerMEs.EtaPhiL3MuTrackClustersMap     = 0;
+      layerMEs.EtaDistribL3MuTrackClustersMap = 0;
+      layerMEs.PhiDistribL3MuTrackClustersMap = 0;
 
       string histoname;
       string title;
