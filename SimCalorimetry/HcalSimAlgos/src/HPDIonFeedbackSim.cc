@@ -6,10 +6,11 @@
 //
 // Project: HPD ion feedback
 // Author: T.Yetkin University of Iowa, Feb. 16, 2010
-// $Id: HPDIonFeedbackSim.cc,v 1.1 2010/02/23 23:57:11 rpw Exp $
+// $Id: HPDIonFeedbackSim.cc,v 1.2 2010/02/24 01:58:58 rpw Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -28,7 +29,8 @@ using namespace std;
 double pe2Charge = 0.333333;    // fC/p.e.
 
 HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig)
-: theDbService(0), theRandBinomial(0), theRandFlat(0), theRandGauss(0), theRandPoissonQ(0)
+: theDbService(0), theShape(0),
+ theRandBinomial(0), theRandFlat(0), theRandGauss(0), theRandPoissonQ(0)
 {
 }
 
@@ -67,14 +69,19 @@ double HPDIonFeedbackSim::getIonFeedback(DetId detId, double signal, double pedW
     double noise = 0.;          // fC
     if (charge > 3. * pedWidth) {    // 3 sigma away from pedestal mean
         int npe = int (charge / pe2Charge);
-        noise = getIonFeedbackFromPE(detId, npe, doThermal);
+        if(doThermal) {
+          double electronEmission = 0.08;
+          npe += theRandPoissonQ->fire(electronEmission);
+        }
+
+        noise = correctPE(detId, npe) - npe;
     }
     return (noise * GeVperfC);
 
 }
 
 
-double HPDIonFeedbackSim::getIonFeedbackFromPE(DetId detId, double npe, bool doThermal)
+double HPDIonFeedbackSim::correctPE(const DetId & detId, double npe) const
 {
     double rateInTail = 0.000211988;//read this from XML file
     double rateInSecondTail = 4.61579e-06;//read this from XML file
@@ -97,10 +104,6 @@ double HPDIonFeedbackSim::getIonFeedbackFromPE(DetId detId, double npe, bool doT
     double p8 = 1.59696e+01;
 
     double noise = 0.;          // fC
-    if(doThermal) {
-      double electronEmission = 0.08;
-      npe += theRandPoissonQ->fire(electronEmission);
-    }
     int nFirst = theRandBinomial->fire(npe, rateInTail);
     int nSecond = theRandBinomial->fire(npe, rateInSecondTail);
 
@@ -111,21 +114,32 @@ double HPDIonFeedbackSim::getIonFeedbackFromPE(DetId detId, double npe, bool doT
       noise += theRandGauss->fire(p7, p8);
     }
 
-    return noise;
+    return npe + std::max(noise/pe2Charge, 0.);
 }
 
 
-void HPDIonFeedbackSim::applyToSignalInPE(CaloSamples & samples)
+void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples)
 {
-  // find the total number of pe
-  double sumPE = 0.;
-  for(int i = 0; i < samples.size(); ++i) 
+  // make some chance to add a PE (with a chance of feedback)
+  // for each time sample
+  double meanPE = 0.02;
+  DetId detId(samples.id());
+  int nSamples = samples.size();
+  for(int i = 0; i < nSamples; ++i) 
   {
-    sumPE += samples[i];
+    double npe = theRandPoissonQ->fire(meanPE);
+    // TODOprobably should time-smear these
+    if(npe > 0.)
+    {
+      // chance of feedback
+      npe = correctPE(detId, npe);
+      for(int j = i; j < nSamples; ++j)
+      {
+        double timeFromPE = (j-i) * 25.;
+        samples[j] += (*theShape)(timeFromPE) * npe;
+      }
+    }
   }
-  double noisefC = getIonFeedbackFromPE(samples.id(), sumPE, true);
-  double factor = 1. + noisefC/pe2Charge/sumPE;
-  samples *= factor;
 }
 
 
