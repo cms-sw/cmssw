@@ -1,61 +1,36 @@
 # -*-make-*-
 #  Autors:   Dmytro Kovalskyi
 #            Johannes Muelmenstaedt
-# 
-ifndef VERBOSE
-  QUIET := @
-endif
 
-# compiler
-CC := c++
-ifeq ($(shell uname), Linux)
-	SO_EXT := so
-else 
-   ifeq ($(shell uname), Darwin)
-	SO_EXT := dylib
-   endif     
-endif
-
-include core.mk
 include project.mk
 
-# 
-# common compiler flags
-# COMPILERFLAGS := -Wall -O3 -m32 -fPIC
-COMPILERFLAGS := -Wall -O0 -g -m32 -fPIC
 # common includes
 INCLUDE := -I./ -Isrc -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
 ifeq ($(shell uname), Darwin)
 	INCLUDE += -I/usr/X11/include/
 endif
 
-
 CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 
-# linker
-LINKER = $(CC)
 # linker flags
 ProjectMissingFlags = -lGeom -lGuiHtml
 
 ifeq ($(shell uname), Linux)
-        MAKESHAREDLIB := -shared
         ExecLibs = -lEve -lRIO -lNet -L./ -l$(LibProject)
         ExtraProjectLibs = -L./ -l$(LibCore) 
 else 
    ifeq ($(shell uname), Darwin)
-      MAKESHAREDLIB := -dynamiclib
       ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
-#      ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -l$(LibProject) -l$(LibCore) -lCore -lCintex
       ExtraProjectLibs = -lRIO -lEve -lGeom -lGeomPainter -lGraf3d \
-		 -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
+      -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
 		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
-		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore \
+		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore -lGuiHtml\
 		-lboost_iostreams -lboost_program_options -lboost_regex -lboost_system \
 		-lsigc-2.0.0 -L./ -L/usr/X11R6/lib -lGL -lGLU -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib -l$(LibCore)
    endif
 endif
 
-ProjectLinkerFlags = $(MAKESHAREDLIB) -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+ProjectLinkerFlags = $(MAKESHAREDLIB) -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectgggngFlags)
 
 # cmsShow source code and its object files
 ProjectSourcesDirs = src plugins
@@ -75,11 +50,6 @@ ProjectDictionaryObjects  = $(ProjectDictionarySources:.cpp=.do)
 
 LibCore = CMSDataFormats
 LibProject = CMSShow
-
-# Don't change this
-LinkerOptions := -Wl,-rpath -Wl,
-
-LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
 
 all: display
 
@@ -101,8 +71,6 @@ lib$(LibProject).$(SO_EXT): $(ProjectObjects) $(ProjectRootDicObjects) $(Project
 	$(LINKER) $(ProjectLinkerFlags) $(ExtraProjectLibs) \
 	-o lib$(LibProject).$(SO_EXT) $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects)
 
-#debugMake: 
-#	echo "$(ProjectSourcesDirs) $(ProjectSources)"
    
 ######################################################################################
 # 
@@ -111,11 +79,5 @@ lib$(LibProject).$(SO_EXT): $(ProjectObjects) $(ProjectRootDicObjects) $(Project
 ######################################################################################
 
 include common.mk
-
-# # check dependencies
-# tmp/%.d:  %.cc check_dependencies.pl
-# 	$(QUIET) ./check_dependencies.pl $< $@ $(INCLUDE)
-# 
-# include $(addprefix tmp/,$(ProjectSources:.cc=.d))
 
 .PRECIOUS: $(ProjectDictionarySources) $(ProjectRootDicSources)
