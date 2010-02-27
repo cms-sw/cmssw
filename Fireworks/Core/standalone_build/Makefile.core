@@ -2,39 +2,16 @@
 #  Autors:   Dmytro Kovalskyi
 #            Johannes Muelmenstaedt
 # 
-ifndef VERBOSE
-  QUIET := @
-endif
 
-# compiler
-CC := c++
-
-ifeq ($(shell uname), Linux)
-	SO_EXT := so
-        MAKESHAREDLIB := -shared
-else 
-   ifeq ($(shell uname), Darwin)
-         SO_EXT := dylib
-        MAKESHAREDLIB := -dynamiclib
-   endif
-endif
 
 include core.mk
-# include project.mk
 
-# 
-# common compiler flags
-COMPILERFLAGS := -Wall -O2 -m32 -fPIC
-# common includes
 INCLUDE := -I./ -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
 
-CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
+CFLAGS := $(COMPILERFLAGS) $(INCLUDE) $(EXTRACFLAGS)
 
-# linker
-LINKER = $(CC)
 # linker flags
 CoreMissingFlags = -lEG
-#CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
 CoreLinkerFlags = $(MAKESHAREDLIB) -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags) -lThread
 
 # cms data format source files and their object files
@@ -42,7 +19,6 @@ CoreSources = $(wildcard cms/*/*/src/*.cc)
 CoreObjects = $(addprefix tmp/,$(CoreSources:.cc=.o))
 CoreSourcesC = $(wildcard cms/*/*/src/*.c)
 CoreObjectsC = $(addprefix tmp/,$(CoreSourcesC:.c=.co))
-# CoreObjects = $(addprefix tmp/,$(addsuffix .o,$(basename $(CoreSources)— )))
 
 # cms data format dictionaries
 CoreRootDicHeaders = $(wildcard cms/*/*/src/*LinkDef.h)
@@ -56,26 +32,7 @@ CoreDictionaryObjects  = $(CoreDictionarySources:.cpp=.do)
 
 LibCore = CMSDataFormats
 
-# Don't change
-LinkerOptions := -Wl,-rpath -Wl,
-
-LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
-
-all: core install
-
-install:
-	$(QUIET) echo '#!/bin/sh' > root.sh; \
-	echo "CMSSW_BASE="`pwd` >> root.sh; \
-	echo "export CMSSW_BASE" >> root.sh; \
-	echo "ROOTSYS="`pwd`"/$(FWROOTSYS)" >> root.sh; \
-	echo "export ROOTSYS" >> root.sh; \
-	echo "LD_LIBRARY_PATH="`pwd`:`pwd`/external/lib:'$$ROOTSYS/lib' >> root.sh; \
-	echo "export LD_LIBRARY_PATH" >> root.sh; \
-	echo "DYLD_LIBRARY_PATH="`pwd`:`pwd`/external/lib:'$$ROOTSYS/lib' >> root.sh; \
-	echo "export DYLD_LIBRARY_PATH" >> root.sh; \
-	echo '$$ROOTSYS/bin/root.exe $$*' >> root.sh; \
-	chmod u+x root.sh
-#	$(QUIET) find tmp -name "*.d" -exec rm {} \;
+all: core 
 
 core:   lib$(LibCore).$(SO_EXT) tmp/lib$(LibCore).$(SO_EXT).out
 
