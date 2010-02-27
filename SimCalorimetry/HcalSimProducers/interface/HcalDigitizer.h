@@ -16,6 +16,7 @@ class CaloVShape;
 class CaloHitResponse;
 class HcalSimParameterMap;
 class HcalAmplifier;
+class HPDIonFeedbackSim;
 class HcalCoderFactory;
 class HcalElectronicsSim;
 class HcalHitCorrection;
@@ -77,7 +78,7 @@ private:
   HcalAmplifier * theHOAmplifier;
   HcalAmplifier * theZDCAmplifier;
 
-
+  HPDIonFeedbackSim * theIonFeedback;
   HcalCoderFactory * theCoderFactory;
 
   HcalElectronicsSim * theHBHEElectronicsSim;

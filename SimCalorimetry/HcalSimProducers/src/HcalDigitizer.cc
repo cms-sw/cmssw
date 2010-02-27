@@ -13,6 +13,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -99,6 +100,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHFAmplifier(0),
   theHOAmplifier(0),
   theZDCAmplifier(0),
+  theIonFeedback(0),
   theCoderFactory(0),
   theHBHEElectronicsSim(0),
   theHFElectronicsSim(0),
@@ -221,6 +223,17 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
     if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
   }
 
+  if(ps.getParameter<bool>("doIonFeedback") && theHBHEResponse)
+  {
+    theIonFeedback = new HPDIonFeedbackSim(ps);
+    theHBHEResponse->setPECorrection(theIonFeedback);
+    if(ps.getParameter<bool>("doThermalNoise"))
+    {
+      theHBHEAmplifier->setIonFeedbackSim(theIonFeedback);
+      theIonFeedback->setShape(theHcalIntegratedShape);
+    }
+  }
+
   if(ps.getParameter<bool>("injectTestHits") ){
     theNoiseHitGenerator = new HcalTestHitGenerator(ps);
     if(theHBHEDigitizer) theHBHEDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
@@ -244,6 +257,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setRandomEngine(engine);
   if(theHODigitizer) theHODigitizer->setRandomEngine(engine);
   if(theHOSiPMDigitizer) theHOSiPMDigitizer->setRandomEngine(engine);
+  if(theIonFeedback) theIonFeedback->setRandomEngine(engine);
   theHFDigitizer->setRandomEngine(engine);
   theZDCDigitizer->setRandomEngine(engine);
 
