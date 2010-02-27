@@ -1,9 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-# Standard reco (import it here to avoid confusions with what's in there and what's here)
-from RecoMuon.Configuration.RecoMuon_cff import *
-muoncosmicreco = cms.Sequence(CosmicMuonSeed)
-muoncosmicreco1leg = cms.Sequence(CosmicMuonSeed)
-muoncosmicreco2legs = cms.Sequence(CosmicMuonSeed)
 
 ######################## Cosmic Reco #############################
 
@@ -328,6 +323,9 @@ muonrecoforsplitcosmics = cms.Sequence(globalCosmicSplitMuons*splitMuons)
 ##############################################
 
 ######################## LHC like Reco #############################
+
+# Standard reco
+from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
 ## Barrel only ##
 
