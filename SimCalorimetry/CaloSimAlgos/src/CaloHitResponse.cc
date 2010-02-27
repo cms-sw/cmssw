@@ -25,6 +25,7 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theParameterMap(parametersMap), 
   theShape(shape),  
   theHitCorrection(0),
+  thePECorrection(0),
   theHitFilter(0),
   theGeometry(0),
   theRandPoisson(0),
@@ -131,7 +132,6 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
     result[bin] += (*theShape)(binTime)* signal;
     binTime += BUNCHSPACE;
   }
-
   return result;
 } 
 
@@ -152,11 +152,13 @@ double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSi
 
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
-  double npe = hit.energy() * parameters.simHitToPhotoelectrons( DetId(hit.id()) );
+  DetId detId(hit.id());
+  double npe = hit.energy() * parameters.simHitToPhotoelectrons(detId);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
     npe = theRandPoisson->fire(npe);
   }
+  if(thePECorrection) npe = thePECorrection->correctPE(detId, npe);
   return npe;
 }
 
