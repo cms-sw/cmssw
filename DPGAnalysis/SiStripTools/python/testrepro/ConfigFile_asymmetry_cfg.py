@@ -59,13 +59,13 @@ process.load("DPGAnalysis.SiStripTools.testrepro.tecbadmodules_cff")
 #------------------------------------------------------------------------
 # Selection of events with clusters in selected modules
 #------------------------------------------------------------------------
-process.load("myTKAnalyses.DigiInvestigator.modulewithcluster_cfi")
-process.modulewithcluster.collectionName = cms.InputTag("calZeroBiasClusters")
-process.modulewithcluster.selectedModules = cms.untracked.vuint32(369120618,
-                                                                  369120617
-                                                                  )
-process.load("myTKAnalyses.DigiInvestigator.modulewithdigi_cfi")
-process.modulewithdigi.selectedModules = cms.untracked.vuint32(369120618)
+process.load("DPGAnalysis.SiStripTools.sistripdetwithcluster_cfi")
+process.sistripdetwithcluster.collectionName = cms.InputTag("calZeroBiasClusters")
+process.sistripdetwithcluster.selectedModules = cms.untracked.vuint32(369120618,
+                                                                      369120617
+                                                                      )
+process.load("DPGAnalysis.SiStripTools.sistripdetwithdigi_cfi")
+process.sistripdetwithdigi.selectedModules = cms.untracked.vuint32(369120618)
 
 process.pickEvents = cms.EDFilter("PickEvents",
                                   whichRun = cms.untracked.int32(69800),
@@ -92,8 +92,8 @@ process.p = cms.Path(process.siStripDigis*process.siStripZeroSuppression*
                      process.consecutiveHEs+ # APV phase and Event History producers
 #filter for digi in selected modules
                      process.pickEvents+
-                     process.modulewithcluster+
-                     process.modulewithdigi+
+                     process.sistripdetwithcluster+
+                     process.sistripdetwithdigi+
                      process.modulebxsliceanalyzer+
 #
                      process.newDigisMap+process.unpackerBadListMap+ process.unpackerBadList + #occupancy and bad modules maps
