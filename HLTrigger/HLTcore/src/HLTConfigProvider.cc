@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/18 15:07:16 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/02/19 14:26:54 $
+ *  $Revision: 1.31 $
  *
  *  \author Martin Grunewald
  *
@@ -138,9 +138,13 @@ bool HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
      }
    } else {
      clear();
-     LogError("HLTConfigProvider") << "ProcessName not found in history!";
      changed=true;
-     return false;
+     if (init(processName)) {
+       return true;
+     } else {
+       LogError("HLTConfigProvider") << "ProcessName not found in history!";
+       return false;
+     }
    }
 }
 
