@@ -8,6 +8,8 @@ import cern.dip.*;
 import java.lang.Thread;
 import java.util.Random;
 import java.io.*;
+import java.text.*;
+import java.util.Date;
 
 public class BeamSpotDipServer
 extends Thread
@@ -88,16 +90,26 @@ implements Runnable,DipPublicationErrorHandler
       {
 	try{
 	    File myFile = new File("/nfshome0/jengbou/BeamFitResults.txt");
+	    myFile.createNewFile();
 	    FileReader fr = new FileReader(myFile);
 	    BufferedReader br = new BufferedReader(fr);
 	    LineNumberReader lbr = new LineNumberReader(br);
 
 	    long tmpTime = myFile.lastModified();
-	    if (tmpTime > lastFitTime) {
-		System.out.println("Read new record");
-		lastFitTime = tmpTime;
-	    } else {
-		System.out.println("No new record");
+	    if (tmpTime > lastFitTime){
+		if (myFile.length() > 0) {
+		    System.out.println("Read new record");
+		    lastFitTime = tmpTime;
+		}
+		else {
+		    System.out.println("New Run Started");
+		    lastFitTime = tmpTime;
+		    lastLine = 0;
+		    continue;
+		}
+	    } 
+	    else {
+		System.out.println("Waiting for data...");
 		try { Thread.sleep(23000); }
 		catch(InterruptedException e) {
 		    keepRunning = false;
@@ -107,7 +119,7 @@ implements Runnable,DipPublicationErrorHandler
 	    int recCount = 0;
 	    int it = 0;
 	    String record = new String();
-	    System.out.println("Last line read = " + lastLine);
+	    //System.out.println("Last line read = " + lastLine);
 	    while ((record = br.readLine()) != null) {
 		recCount++;
 		if (lastLine >= recCount) {
@@ -235,9 +247,17 @@ implements Runnable,DipPublicationErrorHandler
 	messageLHC.insert("Centroid",Centroid);
 	messageLHC.insert("Tilt",Tilt);
 
-	DipTimestamp zeit = new DipTimestamp();
-	publicationCMS.send(messageCMS, zeit);
-	publicationLHC.send(messageLHC, zeit);
+	try {
+	    long epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zz").parse(endTime).getTime();
+	    System.out.println(epoch);
+	    DipTimestamp zeit = new DipTimestamp(epoch);
+	    publicationCMS.send(messageCMS, zeit);
+	    publicationLHC.send(messageLHC, zeit);
+	}
+	catch (ParseException e) {
+	    System.out.println("Publishing failed due to time parsing because " + e.getMessage());
+	    e.printStackTrace();
+	}
       }
     }
     catch (DipException e)
