@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.8 2010/01/12 19:28:36 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.9 2010/02/25 16:15:32 vadler Exp $
 //
 
 
@@ -74,6 +74,26 @@ PATTriggerProducer::PATTriggerProducer( const edm::ParameterSet & iConfig ) :
 
 }
 
+
+void PATTriggerProducer::beginRun( edm::Run & iRun, const edm::EventSetup & iSetup )
+{
+
+  bool changed( true );
+  if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
+    edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+    hltConfigInit_ = false;
+    return;
+  }
+  if ( hltConfig_.size() <= 0 ) {
+    edm::LogError( "hltConfigSize" ) << "HLT config size error";
+    hltConfigInit_ = false;
+    return;
+  }
+  hltConfigInit_ = true;
+
+}
+
+
 void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
@@ -89,24 +109,17 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   edm::Handle< trigger::TriggerEvent > handleTriggerEvent;
   iEvent.getByLabel( tagTriggerEvent_, handleTriggerEvent );
-  bool goodHlt( true );
-  bool changed( true );
-  if ( ! hltConfig_.init( iEvent, nameProcess_, changed ) ) {
-    edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_ << std::endl
+  bool goodHlt( hltConfigInit_ );
+  if ( goodHlt ) {
+    if( ! handleTriggerResults.isValid() ) {
+      edm::LogError( "errorTriggerResultsValid" ) << "edm::TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event" << std::endl
+                                                  << "No HLT information produced.";
+      goodHlt = false;
+    } else if ( ! handleTriggerEvent.isValid() ) {
+      edm::LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << tagTriggerEvent_.encode() << " not in event" << std::endl
                                                 << "No HLT information produced.";
-    goodHlt = false;
-  } else if ( hltConfig_.size() <= 0 ) {
-    edm::LogError( "errorHltConfigSize" ) << "HLT config size error" << std::endl
-                                          << "No HLT information produced.";
-    goodHlt = false;
-  } else if (  ! handleTriggerResults.isValid() ) {
-    edm::LogError( "errorTriggerResultsValid" ) << "edm::TriggerResults product with InputTag " << tagTriggerResults_.encode() << " not in event" << std::endl
-                                                << "No HLT information produced.";
-    goodHlt = false;
-  } else if ( ! handleTriggerEvent.isValid() ) {
-    edm::LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << tagTriggerEvent_.encode() << " not in event" << std::endl
-                                              << "No HLT information produced.";
-    goodHlt = false;
+      goodHlt = false;
+    }
   }
 
   // Produce HLT paths and determine status of modules

@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerEventProducer.cc,v 1.4 2009/08/25 20:48:01 hegner Exp $
+// $Id: PATTriggerEventProducer.cc,v 1.5 2010/01/12 19:28:36 vadler Exp $
 //
 
 
@@ -7,17 +7,24 @@
 
 #include <cassert>
 
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+
 #include "DataFormats/Common/interface/AssociativeIterator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
 using namespace pat;
 
+
 PATTriggerEventProducer::PATTriggerEventProducer( const edm::ParameterSet & iConfig ) :
+  hltConfigInit_( true ),
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   tagTriggerResults_( iConfig.getParameter< edm::InputTag >( "triggerResults" ) ),
   tagTriggerProducer_( iConfig.getParameter< edm::InputTag >( "patTriggerProducer" ) ),
   tagsTriggerMatcher_( iConfig.getParameter< std::vector< edm::InputTag > >( "patTriggerMatches" ) )
 {
+
   if ( tagTriggerResults_.process().empty() ) {
     tagTriggerResults_ = edm::InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
   }
@@ -26,23 +33,34 @@ PATTriggerEventProducer::PATTriggerEventProducer( const edm::ParameterSet & iCon
    produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
   }
   produces< TriggerEvent >();
+
 }
 
-PATTriggerEventProducer::~PATTriggerEventProducer()
-{
-}
 
-void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+void PATTriggerEventProducer::beginRun( edm::Run & iRun, const edm::EventSetup & iSetup )
 {
+
   bool changed( true );
-  if ( ! hltConfig_.init( iEvent, nameProcess_, changed ) ) {
+  if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
     edm::LogError( "errorHltConfigExtraction" ) << "HLT config extraction error with process name " << nameProcess_;
+    hltConfigInit_ = false;
     return;
   }
   if ( hltConfig_.size() <= 0 ) {
     edm::LogError( "hltConfigSize" ) << "HLT config size error";
+    hltConfigInit_ = false;
     return;
   }
+  hltConfigInit_ = true;
+
+}
+
+
+void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+{
+
+  if ( ! hltConfigInit_ ) return;
+
   edm::Handle< edm::TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
   if ( ! handleTriggerResults.isValid() ) {
@@ -120,6 +138,7 @@ void PATTriggerEventProducer::produce( edm::Event& iEvent, const edm::EventSetup
   }
 
   iEvent.put( triggerEvent );
+
 }
 
 
