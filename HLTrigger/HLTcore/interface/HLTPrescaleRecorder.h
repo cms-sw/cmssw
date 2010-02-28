@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLTPrescaleTable object
  *
- *  $Date: 2010/02/24 11:27:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/26 16:34:42 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -67,8 +68,10 @@ class HLTPrescaleRecorder : public edm::EDProducer {
   /// Tag of DB entry (HLT Key Name) (src=4)
   std::string hltDBTag_;
 
-  /// prescale service
+  /// Prescale service
   edm::service::PrescaleService* ps_;
+  /// Pool DB service
+  cond::service::PoolDBOutputService* db_;
 
   /// Handle and ESHandle for existing HLT object
   edm::Handle<trigger::HLTPrescaleTable> hltHandle_;

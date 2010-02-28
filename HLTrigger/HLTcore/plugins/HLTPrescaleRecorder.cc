@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/24 11:27:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/26 16:34:42 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -14,7 +14,6 @@
 #include "CondFormats/HLTObjects/interface/HLTPrescaleTable.h"
 #include "CondFormats/DataRecord/interface/HLTPrescaleTableRcd.h"
 
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,25 +41,33 @@ HLTPrescaleRecorder::HLTPrescaleRecorder(const edm::ParameterSet& ps) :
   hltInputTag_(ps.getParameter<InputTag>("hltInputTag")),
   hltDBTag_(ps.getParameter<string>("hltDBTag")),
   ps_(0),
+  db_(0),
   hltHandle_(),
   hltESHandle_(),
   hlt_()
 {
-  if(edm::Service<edm::service::PrescaleService>().isAvailable()) {
-    ps_ = edm::Service<edm::service::PrescaleService>().operator->();
-  } else if (src_==0) {
-    LogError("HLTPrescaleRecorder")<<"PrescaleService requested as source but unavailable!";
-  }
-
-  if (run_)   produces<HLTPrescaleTable,edm::InRun>("Run");
-  if (lumi_)  produces<HLTPrescaleTable,edm::InLumi>("Lumi");
-  if (event_) produces<HLTPrescaleTable,edm::InEvent>("Event");
 
   LogInfo("HLTPrescaleRecorder")
     << "src:run-lumi-event-condDB+psetName+tags: "
     << src_ << ":" << run_ << "-" << lumi_ << "-" << event_ << "-"
     << condDB_ << "+" << psetName_ << "+"
     << hltInputTag_.encode() << "+" << hltDBTag_;
+
+  if(edm::Service<edm::service::PrescaleService>().isAvailable()) {
+    ps_ = edm::Service<edm::service::PrescaleService>().operator->();
+  } else if (src_==0) {
+    LogError("HLTPrescaleRecorder")<<"PrescaleService requested as source but unavailable!";
+  }
+
+  if (edm::Service<cond::service::PoolDBOutputService>().isAvailable()) {
+    db_ = edm::Service<cond::service::PoolDBOutputService>().operator->();
+  } else if (condDB_) {
+    LogError("HLTPrescaleRecorder")<<"PoolDBOutputService requested as destination but unavailable!";
+  }
+
+  if (run_)   produces<HLTPrescaleTable,edm::InRun>("Run");
+  if (lumi_)  produces<HLTPrescaleTable,edm::InLumi>("Lumi");
+  if (event_) produces<HLTPrescaleTable,edm::InEvent>("Event");
 
 }
 
@@ -91,26 +98,31 @@ void HLTPrescaleRecorder::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup
       if (labels[i]==defaultLabel) set=i;
     }
 
-    const unsigned int m(vpTable.size());
     map<string,vector<unsigned int> > table;
+    const unsigned int m (vpTable.size());
     for (unsigned int i=0; i!=m; ++i) {
       table[vpTable[i].getParameter<std::string>("pathName")] = 
 	vpTable[i].getParameter<std::vector<unsigned int> >("prescales");
     }
     hlt_=HLTPrescaleTable(set,labels,table);
 
-  }
-
-  if (src_==1) {
+  } else  if (src_==0) {
+    /// From PrescaleService
+    /// default index updated at lumi block boundaries
+    if (ps_!=0) {
+      hlt_=HLTPrescaleTable(ps_->getLvl1IndexDefault(), ps_->getLvl1Labels(), ps_->getPrescaleTable());
+    } else {
+      hlt_=HLTPrescaleTable();
+      LogError("HLTPrescaleRecorder")<<"PrescaleService not found!";
+    }
+  } else if (src_==1) {
     /// From Run Block
     if (iRun.getByLabel(hltInputTag_,hltHandle_)) {
       hlt_=*hltHandle_;
     } else {
       LogError("HLTPrescaleRecorder")<<"HLTPrescaleTable not found in Run!";
     }
-  }
-
-  if (src_==4) {
+  } else if (src_==4) {
     /// From CondDB (needs ESProducer module as well)
     const HLTPrescaleTableRcd& hltRecord(iSetup.get<HLTPrescaleTableRcd>());
     hltRecord.get(hltDBTag_,hltESHandle_);
@@ -122,16 +134,6 @@ void HLTPrescaleRecorder::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup
 
 void HLTPrescaleRecorder::beginLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
 
-  if (src_==2) {
-    /// From Lumi Block
-    if (iLumi.getByLabel(hltInputTag_,hltHandle_)) {
-      hlt_=*hltHandle_;
-    } else {
-      hlt_=HLTPrescaleTable();
-      LogError("HLTPrescaleRecorder")<<"HLTPrescaleTable not found in LumiBlock!";
-    }
-  }
-
   if (src_==0) {
     /// From PrescaleService
     /// default index updated at lumi block boundaries
@@ -140,6 +142,14 @@ void HLTPrescaleRecorder::beginLuminosityBlock(edm::LuminosityBlock& iLumi, cons
     } else {
       hlt_=HLTPrescaleTable();
       LogError("HLTPrescaleRecorder")<<"PrescaleService not found!";
+    }
+  } else if (src_==2) {
+    /// From Lumi Block
+    if (iLumi.getByLabel(hltInputTag_,hltHandle_)) {
+      hlt_=*hltHandle_;
+    } else {
+      hlt_=HLTPrescaleTable();
+      LogError("HLTPrescaleRecorder")<<"HLTPrescaleTable not found in LumiBlock!";
     }
   }
 
@@ -209,19 +219,18 @@ void HLTPrescaleRecorder::endRun(edm::Run& iRun, const edm::EventSetup& iSetup) 
 
   if (condDB_) {
     /// Writing to CondDB (needs PoolDBOutputService)
-    edm::Service<cond::service::PoolDBOutputService> poolDbService;
-    if (poolDbService.isAvailable()) {
+    if (db_!=0) {
       HLTPrescaleTable* product (new HLTPrescaleTable(hlt_));
       const string rcdName("HLTPrescaleTableRcd");
-      if ( poolDbService->isNewTagRequest(rcdName) ) {
-	poolDbService->createNewIOV<HLTPrescaleTable>(product,
-	      poolDbService->beginOfTime(),poolDbService->endOfTime(),rcdName);
+      if ( db_->isNewTagRequest(rcdName) ) {
+	db_->createNewIOV<HLTPrescaleTable>(product,
+	      db_->beginOfTime(),db_->endOfTime(),rcdName);
       } else {
 	::timeval tv;
 	gettimeofday(&tv,0);
 	edm::Timestamp tstamp((unsigned long long)tv.tv_sec);
-	poolDbService->appendSinceTime<HLTPrescaleTable>(product,
-//            poolDbService->currentTime()
+	db_->appendSinceTime<HLTPrescaleTable>(product,
+//            db_->currentTime()
               tstamp.value()
 		,rcdName);
       }
