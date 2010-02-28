@@ -737,4 +737,4 @@ SVTagInfoValidationAnalyzer::endJob() {
 } 
 
 
-DEFINE_ANOTHER_FWK_MODULE(SVTagInfoValidationAnalyzer);
+DEFINE_FWK_MODULE(SVTagInfoValidationAnalyzer);

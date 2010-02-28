@@ -328,4 +328,4 @@ std::string VertexHistoryAnalyzer::vertexString(
 }
 
 
-DEFINE_ANOTHER_FWK_MODULE(VertexHistoryAnalyzer);
+DEFINE_FWK_MODULE(VertexHistoryAnalyzer);

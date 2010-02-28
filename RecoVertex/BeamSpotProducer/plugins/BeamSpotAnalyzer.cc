@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.15 2010/02/11 00:38:28 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.16 2010/02/11 07:53:29 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -162,4 +162,4 @@ BeamSpotAnalyzer::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(BeamSpotAnalyzer);
+DEFINE_FWK_MODULE(BeamSpotAnalyzer);

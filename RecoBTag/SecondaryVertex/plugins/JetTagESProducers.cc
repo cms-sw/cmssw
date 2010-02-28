@@ -25,10 +25,10 @@ typedef GenericMVAJetTagComputerWrapper<GhostTrackComputer,
 	reco::SecondaryVertexTagInfo, svTagInfos> GhostTrackJetTagComputer;
 
 typedef JetTagComputerESProducer<CombinedSVJetTagComputer> CombinedSecondaryVertexESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexESProducer);
 
 typedef JetTagComputerESProducer<GhostTrackJetTagComputer> GhostTrackESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(GhostTrackESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(GhostTrackESProducer);
 
 typedef JetTagComputerESProducer<SimpleSecondaryVertexComputer> SimpleSecondaryVertexESProducer;
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SimpleSecondaryVertexESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(SimpleSecondaryVertexESProducer);

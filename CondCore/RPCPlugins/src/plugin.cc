@@ -42,7 +42,6 @@
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
-DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
 REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
 REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);

@@ -648,6 +648,5 @@ double CaloTowersValidation::dR(double eta1, double phi1, double eta2, double ph
   return tmp;
 }
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CaloTowersValidation);
+DEFINE_FWK_MODULE(CaloTowersValidation);
 

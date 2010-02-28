@@ -335,4 +335,4 @@ std::string TrackHistoryAnalyzer::vertexString(
 }
 
 
-DEFINE_ANOTHER_FWK_MODULE(TrackHistoryAnalyzer);
+DEFINE_FWK_MODULE(TrackHistoryAnalyzer);

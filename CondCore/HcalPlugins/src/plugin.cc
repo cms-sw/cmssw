@@ -10,7 +10,6 @@
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 
-DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(HcalPedestalsRcd,HcalPedestals);
 REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd,HcalGains);

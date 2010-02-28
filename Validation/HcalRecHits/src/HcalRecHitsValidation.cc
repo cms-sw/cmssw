@@ -1874,6 +1874,5 @@ double HcalRecHitsValidation::dPhiWsign(double phi1, double phi2) {
 }
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HcalRecHitsValidation);
+DEFINE_FWK_MODULE(HcalRecHitsValidation);
 

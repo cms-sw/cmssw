@@ -724,5 +724,4 @@ double HcalDigiTester::dR(double eta1, double phi1, double eta2, double phi2) {
 }
 
 
-DEFINE_SEAL_MODULE ();
-DEFINE_ANOTHER_FWK_MODULE (HcalDigiTester) ;
+DEFINE_FWK_MODULE (HcalDigiTester) ;

@@ -341,4 +341,4 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_ANOTHER_FWK_MODULE( EcalDetIdToBeRecoveredProducer );
+DEFINE_FWK_MODULE( EcalDetIdToBeRecoveredProducer );
