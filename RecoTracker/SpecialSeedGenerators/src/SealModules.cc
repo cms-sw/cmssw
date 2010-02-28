@@ -1,15 +1,14 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
 #include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CRackSeedGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/SimpleCosmicBONSeeder.h"
 
-DEFINE_ANOTHER_FWK_MODULE(CtfSpecialSeedGenerator);
-DEFINE_ANOTHER_FWK_MODULE(CosmicSeedGenerator);
-DEFINE_ANOTHER_FWK_MODULE(CRackSeedGenerator);
-DEFINE_ANOTHER_FWK_MODULE(SimpleCosmicBONSeeder);
+DEFINE_FWK_MODULE(CtfSpecialSeedGenerator);
+DEFINE_FWK_MODULE(CosmicSeedGenerator);
+DEFINE_FWK_MODULE(CRackSeedGenerator);
+DEFINE_FWK_MODULE(SimpleCosmicBONSeeder);
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"

@@ -6,8 +6,7 @@
 #include "QCDAnalysis/UEAnalysis/interface/UEJetValidation.h"
 #include "QCDAnalysis/UEAnalysis/interface/UEJetMultiplicity.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(AnalysisRootpleProducer);
-DEFINE_ANOTHER_FWK_MODULE(AnalysisRootpleProducerOnlyMC);
-DEFINE_ANOTHER_FWK_MODULE(UEJetValidation);
-DEFINE_ANOTHER_FWK_MODULE(UEJetMultiplicity);
+DEFINE_FWK_MODULE(AnalysisRootpleProducer);
+DEFINE_FWK_MODULE(AnalysisRootpleProducerOnlyMC);
+DEFINE_FWK_MODULE(UEJetValidation);
+DEFINE_FWK_MODULE(UEJetMultiplicity);

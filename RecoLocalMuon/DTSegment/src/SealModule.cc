@@ -2,11 +2,9 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-
 // ----------- Modules for 2D-segments reco -----------
 #include "RecoLocalMuon/DTSegment/src/DTClusterer.h"
-DEFINE_ANOTHER_FWK_MODULE(DTClusterer);
+DEFINE_FWK_MODULE(DTClusterer);
 
 
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DProducer.h"
@@ -16,8 +14,8 @@ DEFINE_ANOTHER_FWK_MODULE(DTClusterer);
 #include "RecoLocalMuon/DTSegment/src/DTMeantimerPatternReco.h"
 #include "RecoLocalMuon/DTSegment/src/DTLPPatternReco.h"
 
-DEFINE_ANOTHER_FWK_MODULE(DTRecSegment2DProducer);
-DEFINE_ANOTHER_FWK_MODULE(DTSegment4DT0Corrector);
+DEFINE_FWK_MODULE(DTRecSegment2DProducer);
+DEFINE_FWK_MODULE(DTSegment4DT0Corrector);
 DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTCombinatorialPatternReco, "DTCombinatorialPatternReco");
 DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTLPPatternReco, "DTLPPatternReco");
 DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTMeantimerPatternReco, "DTMeantimerPatternReco");
@@ -25,7 +23,7 @@ DEFINE_EDM_PLUGIN (DTRecSegment2DAlgoFactory, DTMeantimerPatternReco, "DTMeantim
 
 // ----------- Modules for 2D-segments extended reco -----------
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DExtendedProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(DTRecSegment2DExtendedProducer);
+DEFINE_FWK_MODULE(DTRecSegment2DExtendedProducer);
 
 // ----------- Modules for 4D-segments reco -----------
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DProducer.h"
@@ -35,7 +33,7 @@ DEFINE_ANOTHER_FWK_MODULE(DTRecSegment2DExtendedProducer);
 #include "RecoLocalMuon/DTSegment/src/DTMeantimerPatternReco4D.h"
 #include "RecoLocalMuon/DTSegment/src/DTRefitAndCombineReco4D.h"
 
-DEFINE_ANOTHER_FWK_MODULE(DTRecSegment4DProducer);
+DEFINE_FWK_MODULE(DTRecSegment4DProducer);
 DEFINE_EDM_PLUGIN (DTRecSegment4DAlgoFactory, DTCombinatorialPatternReco4D, "DTCombinatorialPatternReco4D");
 DEFINE_EDM_PLUGIN (DTRecSegment4DAlgoFactory, DTLPPatternReco4D, "DTLPPatternReco4D");
 DEFINE_EDM_PLUGIN (DTRecSegment4DAlgoFactory, DTRefitAndCombineReco4D, "DTRefitAndCombineReco4D");
