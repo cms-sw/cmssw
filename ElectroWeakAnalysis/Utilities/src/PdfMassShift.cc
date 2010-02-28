@@ -7,7 +7,7 @@ public:
       PdfMassShift(const edm::ParameterSet& pset);
       virtual ~PdfMassShift();
       virtual bool filter(edm::Event &, const edm::EventSetup&);
-      virtual void beginJob(const edm::EventSetup& eventSetup) ;
+      virtual void beginJob() ;
       virtual void endJob() ;
 private:
       std::string selectorPath_;
@@ -46,7 +46,7 @@ PdfMassShift::PdfMassShift(const edm::ParameterSet& pset) :
 PdfMassShift::~PdfMassShift(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void PdfMassShift::beginJob(const edm::EventSetup& eventSetup){
+void PdfMassShift::beginJob(){
       originalEvents_ = 0;
       selectedEvents_ = 0;
       massSelectedEvents_ = 0;

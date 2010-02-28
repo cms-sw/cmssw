@@ -89,7 +89,7 @@ class Event_Ntuplizer : public edm::EDAnalyzer {
    Event_Ntuplizer(const edm::ParameterSet& iConfig);
    ~Event_Ntuplizer(){}
 
-   virtual void beginJob(const edm::EventSetup&);
+   virtual void beginJob();
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    virtual void endJob();
  
@@ -287,7 +287,7 @@ Event_Ntuplizer::Event_Ntuplizer(const edm::ParameterSet& iConfig):
   EventTree = fs->make<TTree>("EventTree","EventTree");
     
   }
-void Event_Ntuplizer::beginJob(const edm::EventSetup& setup)
+void Event_Ntuplizer::beginJob()
 {
   for(int i=0;i<200;i++){ L1Trigger[i]=0; HLTTrigger[i]=0;}
 
