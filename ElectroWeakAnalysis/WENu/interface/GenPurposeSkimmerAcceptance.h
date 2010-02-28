@@ -30,7 +30,7 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 //
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
