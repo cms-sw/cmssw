@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.8 2009/11/05 12:23:58 amagnan Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.9 2010/02/20 20:59:07 wmtan Exp $
 //
 //
 
@@ -139,7 +139,11 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  const bool gotData = iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
+  if (!gotData) {
+    //module is required to silently do nothing when data is not present
+    return;
+  }
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
   //get FED IDs
