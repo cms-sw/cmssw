@@ -2,8 +2,8 @@
 /*
  * \file DTLocalTriggerSynchTask.cc
  * 
- * $Date: 2009/11/15 14:00:37 $
- * $Revision: 1.3 $
+ * $Date: 2010/01/07 10:30:19 $
+ * $Revision: 1.4 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -12,7 +12,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // DT trigger
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"

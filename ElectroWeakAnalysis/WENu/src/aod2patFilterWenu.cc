@@ -41,7 +41,7 @@
 //
 #include <vector>
 #include <iostream>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
