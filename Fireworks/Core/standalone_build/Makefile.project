@@ -62,7 +62,7 @@ macDebugLink: lib$(LibProject).$(SO_EXT)
 
 cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) macDebugLink src/Fireworks/Core/bin/cmsShow.cc
 	$(QUIET) echo "linking cmsShow.exe"; \
-	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
+	$(CC) $(CFLAGS) -lstdc++ -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
 	$(ExecLibs) -o cmsShow.exe src/Fireworks/Core/bin/cmsShow.cc
 
 

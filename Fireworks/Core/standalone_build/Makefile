@@ -17,8 +17,8 @@ ifeq ($(shell uname), Linux)
 		LinkerOptions := -Wl,-rpath -Wl,
 else 
 	ifeq ($(shell uname), Darwin)
-		CC := c++
-		COMPILERFLAGS := -m32 -Wall -O2 -fPIC
+		CC := c++-4.0
+		COMPILERFLAGS := -V 4.0.1 -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -x c++ -m32 -Wall -O2 -fPIC
 		SO_EXT := dylib
 		MAKESHAREDLIB := -dynamiclib
 		LinkerOptions := -Wl,-rpath -Wl,
@@ -46,7 +46,7 @@ export PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
 
 #############################################################################
 
-all: core display
+dist: core display
 
 core:   Makefile.core
 	$(QUIET) $(MAKE) -f Makefile.core
