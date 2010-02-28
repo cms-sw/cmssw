@@ -1389,16 +1389,30 @@ unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit
 unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
 
   const DetId id = hit->detid();
-  uint16_t dbStatus = theEcalChStatus->find(id)->getStatusCode();
-  uint32_t rhFlags  = hit->flags();
 
-  int severityLevel = theEcalSevLvlAlgo->severityLevel(rhFlags, dbStatus);
+  //  uint16_t dbStatus = theEcalChStatus->find(id)->getStatusCode();
+  //  uint32_t rhFlags  = hit->flags();
+  //  int severityLevel = theEcalSevLvlAlgo->severityLevel(rhFlags, dbStatus);
+  // The methods above will become private and cannot be usef for flagging ecal spikes.
+  // Use the recommended interface - we leave the parameters for spilke removal to be specified by ECAL.
 
-  // the current impelementaion from ECAL has severity levels that are
-  // the same as the categories defined for CaloTower. This is different from the initial idea and from
+
+  int severityLevel = 999;
+
+  if      (id.subdetId() == EcalBarrel) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEbHandle, *theEcalChStatus);
+  else if (id.subdetId() == EcalEndcap) severityLevel = theEcalSevLvlAlgo->severityLevel( id, *theEeHandle, *theEcalChStatus);
+
+  // there should be no other ECAL types used in this reconstruction
+
+
+  // The definition of ECAL severity levels uses categories that
+  // are similar to the defined for CaloTower. (However, the categorization
+  // for CaloTowers depends on the specified maximum acceptabel severity and therefore cannnot
+  // be exact correspondence between the two. ECAL has additional categories describing modes of failure.)
+  // This approach is different from the initial idea and from
   // the implementation for HCAL. Still make the logic similar to HCAL so that one has the ability to 
   // exclude problematic channels as defined by ECAL.
-  // See: RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h
+  // For definitions of ECAL severity levels see RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h
 
 
   if (severityLevel == EcalSeverityLevelAlgo::kGood) return CaloTowersCreationAlgo::GoodChan;
