@@ -2,5 +2,4 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "JetMETCorrections/Utilities/interface/TriggerFilter.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TriggerFilter);
+DEFINE_FWK_MODULE(TriggerFilter);
