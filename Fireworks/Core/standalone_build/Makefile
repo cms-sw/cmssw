@@ -46,7 +46,7 @@ export PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
 
 #############################################################################
 
-dist: core display
+all: core display
 
 core:   Makefile.core
 	$(QUIET) $(MAKE) -f Makefile.core
@@ -56,7 +56,7 @@ display: Makefile.project
 
 clean: cleandisplay
 
-distclean: cleancore cleandisplay
+cleanall: cleancore cleandisplay
 
 cleancore: 
 	$(QUIET) echo "removing temporary core objects and output library..."; \
