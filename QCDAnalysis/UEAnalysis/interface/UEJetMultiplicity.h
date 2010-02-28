@@ -32,7 +32,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 // access trigger results
-#include <FWCore/Framework/interface/TriggerNames.h>
+#include <FWCore/Common/interface/TriggerNames.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>

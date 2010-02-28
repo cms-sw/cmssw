@@ -42,13 +42,13 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 // access trigger results
-#include <FWCore/Framework/interface/TriggerNames.h>
+#include <FWCore/Common/interface/TriggerNames.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include <DataFormats/HLTReco/interface/TriggerEvent.h>
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -822,6 +822,5 @@ if (DEBUG) cout<<"    qualitySize: "<<trackIt->quality( reco::TrackBase::quality
 
 
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(Event_Ntuplizer);
+DEFINE_FWK_MODULE(Event_Ntuplizer);
 
