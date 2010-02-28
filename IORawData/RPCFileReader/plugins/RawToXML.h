@@ -2,7 +2,7 @@
 #define IORawData_RPCFileReader_RawToXML_H
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm { class Event; class EventSetup; class ParameterSet; }
 class XMLDataIO;

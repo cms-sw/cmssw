@@ -4,8 +4,8 @@
 /*
  *  DQM HLT Dimuon Test Client
  *
- *  $Date: 2010/01/07 14:16:30 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/02/11 10:45:28 $
+ *  $Revision: 1.3 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -23,9 +23,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"

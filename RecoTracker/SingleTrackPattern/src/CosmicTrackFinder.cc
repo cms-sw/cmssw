@@ -18,7 +18,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 

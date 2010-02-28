@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.25 2010/02/21 20:26:37 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.26 2010/02/27 18:02:30 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -16,7 +16,7 @@ ________________________________________________________________**/
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"

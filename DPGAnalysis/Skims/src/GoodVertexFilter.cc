@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Dec  7 18:02:10 CET 2009
-// $Id: GoodVertexFilter.cc,v 1.2 2009/12/07 17:32:23 arizzi Exp $
+// $Id: GoodVertexFilter.cc,v 1.3 2010/02/03 13:14:23 arizzi Exp $
 //
 //
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 //

@@ -1,6 +1,6 @@
 ////////// Header section /////////////////////////////////////////////
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class SimpleSystematicsAnalyzer: public edm::EDFilter {
 public:
@@ -27,7 +27,7 @@ private:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 /////////////////////////////////////////////////////////////////////////////////////

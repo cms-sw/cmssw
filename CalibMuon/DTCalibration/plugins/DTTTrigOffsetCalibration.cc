@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/26 06:12:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/16 10:03:23 $
+ *  $Revision: 1.4 $
  *  \author A. Vilela Pereira
  */
 
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

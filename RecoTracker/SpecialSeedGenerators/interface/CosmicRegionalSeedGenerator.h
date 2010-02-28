@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -25,7 +25,7 @@
 #include "DQM/HLTEvF/interface/FourVectorHLT.h"
  
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"

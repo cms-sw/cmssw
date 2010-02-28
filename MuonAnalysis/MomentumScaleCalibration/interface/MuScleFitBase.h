@@ -10,7 +10,7 @@
 #include "TFile.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 using namespace std;

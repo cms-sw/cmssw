@@ -4,15 +4,15 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/11/10 11:15:29 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/01/12 07:58:40 $
+ *  $Revision: 1.25 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 // Base Class Headers
 // ------------------
 #include "FWCore/Framework/interface/EDLooper.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include <CLHEP/Vector/LorentzVector.h>
 #include <vector>
