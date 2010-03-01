@@ -4,7 +4,8 @@
 namespace lumi{
   class LumiNames{
   public:
-    static const std::string runsummaryTableName();
+    static const std::string cmsrunsummaryTableName();
+    static const std::string lumirunsummaryTableName();
     static const std::string lumisummaryTableName();
     static const std::string lumidetailTableName();
     static const std::string trgTableName();

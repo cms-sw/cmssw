@@ -35,6 +35,7 @@ namespace lumi{
     //
     //generate dummy configuration data for the given hltconfid and write data to LumiDB
     //
+    //std::cout<<"retrieving data for run "<<runnumber<<std::endl;
     std::string fakehltkey("/cdaq/Cosmic/V12");
     coral::ConnectionService* svc=new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
@@ -44,45 +45,10 @@ namespace lumi{
     coral::ISessionProxy* session=svc->connect(m_dest,coral::Update);
     try{
       unsigned int totalhltpath=126;
-      //session->transaction().start(true);
-      //
-      //check if this hltkey is also registered in runsummary table
-      //
-      /**coral::AttributeList rqBindVariables;
-	 rqBindVariables.extend("runnumber",typeid(unsigned int));
-	 rqBindVariables["runnumber"].data<unsigned int>()=runnumber;
-	 coral::AttributeList rqResult;
-	 rqResult.extend("HLTKEY",typeid(std::string));
-	 coral::IQuery* rq=session->nominalSchema().tableHandle(LumiNames::runsummaryTableName()).newQuery();
-	 rq->addToOutputList("HLTKEY");
-	 rq->setCondition("RUNNUM = :runnumber",rqBindVariables);
-	 rq->defineOutput(rqResult);
-	 coral::ICursor& rqCursor=rq->execute();
-	 std::string hltkey;
-	 unsigned int s=0;
-	 while( rqCursor.next() ){
-	 const coral::AttributeList& row=rqCursor.currentRow();
-	 hltkey=row["HLTKEY"].data<std::string>();
-	 ++s;
-	 }
-	 if(s==0 || hltkey.empty()){
-	 std::cout<<"hltkey is not registered for requested run"<<std::endl;
-	 writeKeyToSunSummary=true;
-	 }
-	 if(s>1){
-	 throw lumi::Exception("hltkey is not unique for the requested run","retrieveData","HLTConfDummy2DB");
-	 }
-	 if( s!=0 && hltkey!=fakehltkey ){
-	 throw lumi::Exception("exist a different hltkey for the requested run","retrieveData","HLTConfDummy2DB");
-	 }
-	 session->transaction().commit();
-	 delete rq;
-      **/
       session->transaction().start(false);
       coral::ISchema& schema=session->nominalSchema();
       coral::ITable& hltconftable=schema.tableHandle(LumiNames::trghltMapTableName());
       coral::AttributeList hltconfData;
-      hltconfData.extend<unsigned int>("RUNNUM");
       hltconfData.extend<std::string>("HLTKEY");
       hltconfData.extend<std::string>("HLTPATHNAME");
       hltconfData.extend<std::string>("L1SEED");
@@ -91,7 +57,6 @@ namespace lumi{
       //loop over hltpaths
       //
       hltconfData["HLTKEY"].data<std::string>()=fakehltkey;
-      hltconfData["RUNNUM"].data<unsigned int>()=runnumber;
       std::string& hltpathname=hltconfData["HLTPATHNAME"].data<std::string>();
       std::string& l1seed=hltconfData["L1SEED"].data<std::string>();
       for(unsigned int i=1;i<=totalhltpath;++i){

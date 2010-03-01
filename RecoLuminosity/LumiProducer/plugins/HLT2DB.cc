@@ -103,7 +103,7 @@ namespace lumi{
 	return;
       }
     }
-    std::cout<<"npath "<<npath<<std::endl;
+    //std::cout<<"npath "<<npath<<std::endl;
     coral::IQuery* q2=srcsession->nominalSchema().newQuery();
     coral::AttributeList q2bindVariableList;
     q2bindVariableList.extend("runnumber",typeid(unsigned int));
@@ -155,7 +155,7 @@ namespace lumi{
     // Write into DB
     //
     unsigned int totalcmsls=hltresult.size();
-    std::cout<<"totalcmsls "<<totalcmsls<<std::endl;
+    //std::cout<<"totalcmsls "<<totalcmsls<<std::endl;
     coral::ISessionProxy* destsession=svc->connect(m_dest,coral::Update);
     try{
       destsession->transaction().start(false);

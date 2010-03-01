@@ -48,14 +48,14 @@
   <use name=rootcore>
   <flags EDM_PLUGIN=1>
 </library>
-<library file=RunSummaryDummy2DB.cc name=RunSummaryDummy2DB>
+<library file=CMSRunSummaryDummy2DB.cc name=CMSRunSummaryDummy2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
   <use name=CoralBase>
   <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
-<library file=RunSummary2DB.cc name=RunSummary2DB>
+<library file=CMSRunSummary2DB.cc name=CMSRunSummary2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
   <use name=CoralBase>

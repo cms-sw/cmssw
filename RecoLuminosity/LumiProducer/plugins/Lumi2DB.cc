@@ -57,7 +57,7 @@ namespace lumi{
       unsigned int cmslsnr;
       unsigned int lumilsnr;
       unsigned int startorbit;
-
+      unsigned int numorbit;
       std::vector<PerBXData> bxET;
       std::vector<PerBXData> bxOCC1;
       std::vector<PerBXData> bxOCC2;
@@ -155,6 +155,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     //if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
     h.lumilsnr=lumiheader->sectionNumber;
     h.startorbit=lumiheader->startOrbit;
+    h.numorbit=lumiheader->numOrbits;
     h.cmslsnr=ncmslumi;//we record cms lumils
     h.instlumi=lumisummary->InstantLumi;
     h.instlumierror=lumisummary->InstantLumiErr;
@@ -214,6 +215,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     summaryData.extend<short>("LUMISECTIONQUALITY");
     summaryData.extend<bool>("CMSALIVE");
     summaryData.extend<unsigned int>("STARTORBIT");
+    summaryData.extend<unsigned int>("NUMORBIT");
     coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
     
     coral::AttributeList detailData;
@@ -238,6 +240,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     unsigned int& lumilsnr = summaryData["LUMILSNUM"].data<unsigned int>();
     unsigned int& cmslsnr = summaryData["CMSLSNUM"].data<unsigned int>();
     unsigned int& startorbit = summaryData["STARTORBIT"].data<unsigned int>();
+    unsigned int& numorbit = summaryData["NUMORBIT"].data<unsigned int>();
 
     unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
     unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
@@ -263,7 +266,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       cmslsnr = lumiIt->cmslsnr;
       lumilsnr = lumiIt->lumilsnr;
       startorbit = lumiIt->startorbit;
-
+      numorbit = lumiIt->numorbit;
       //fetch a new id value 
       //insert the new row
       summaryInserter->processNextIteration();

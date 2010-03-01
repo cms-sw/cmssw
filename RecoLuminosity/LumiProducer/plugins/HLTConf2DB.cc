@@ -53,7 +53,8 @@ namespace lumi{
     }
     //std::cout<<"m_source "<<m_source<<std::endl;
     coral::ISessionProxy* srcsession=svc->connect(m_source, coral::ReadOnly);
-    //coral::ITypeConverter& tpc=srcsession->typeConverter();
+    coral::ITypeConverter& tpc=srcsession->typeConverter();
+    tpc.setCppTypeForSqlType("unsigned int","NUMBER(38)");
     //
     //select string_value from CMS_RUNINFO.runsession_parameter where name='CMS.LVL0:HLT_KEY_DESCRIPTION' and runnumber=xx;
     //
@@ -62,12 +63,10 @@ namespace lumi{
     hlt2l1map.reserve(200);
     try{
       srcsession->transaction().start(true);
-      std::cout<<1<<std::endl;
       coral::ISchema& runinfoSchemaHandle=srcsession->schema(runinfoschema);
       if( !runinfoSchemaHandle.existsTable(runsessiontable) ){
 	throw lumi::Exception("missing runsession table","retrieveData","HLTConf2DB");
       }
-      std::cout<<2<<std::endl;
       coral::AttributeList rfBindVariableList;
       rfBindVariableList.extend("name",typeid(std::string));
       rfBindVariableList.extend("runnumber",typeid(unsigned int));
@@ -106,12 +105,9 @@ namespace lumi{
       delete svc;
       throw er;
     }
-    std::cout<<"hehe "<<srcsession<<std::endl;
     coral::ISchema& confSchemaHandle=srcsession->schema(hltschema);
-    std::cout<<"what"<<std::endl;
     try{
       //srcsession->transaction().start(true);
-      std::cout<<3<<std::endl;
       if( !confSchemaHandle.existsTable("PATHS") || !confSchemaHandle.existsTable("STRINGPARAMVALUES") || !confSchemaHandle.existsTable("PARAMETERS") || !confSchemaHandle.existsTable("SUPERIDPARAMETERASSOC") || !confSchemaHandle.existsTable("MODULES") || !confSchemaHandle.existsTable("MODULETEMPLATES") || !confSchemaHandle.existsTable("PATHMODULEASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONPATHASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONS") ){
 	throw lumi::Exception("missing hlt conf tables" ,"retrieveData","HLTConf2DB");
       }
@@ -122,9 +118,7 @@ namespace lumi{
       q1BindVariableList["hltseed"].data<std::string>()=std::string("HLTLevel1GTSeed");
       q1BindVariableList["l1seedexpr"].data<std::string>()=std::string("L1SeedsLogicalExpression");
       q1BindVariableList["hltkey"].data<std::string>()=hltkey;    
-      std::cout<<4<<std::endl;
       coral::IQuery* q1=confSchemaHandle.newQuery();
-      std::cout<<5<<std::endl;
       q1->addToOutputList("PATHS.NAME","hltpath");
       q1->addToOutputList("STRINGPARAMVALUES.VALUE","l1expression");
       
@@ -143,7 +137,6 @@ namespace lumi{
       /**
 	 select paths.name,stringparamvalues.value from stringparamvalues,paths,parameters,superidparameterassoc,modules,moduletemplates,pathmoduleassoc,configurationpathassoc,configurations where parameters.paramid=stringparamvalues.paramid and  superidparameterassoc.paramid=parameters.paramid and modules.superid=superidparameterassoc.superid and moduletemplates.superid=modules.templateid and pathmoduleassoc.moduleid=modules.superid and paths.pathid=pathmoduleassoc.pathid and configurationpathassoc.pathid=paths.pathid and configurations.configid=configurationpathassoc.configid and moduletemplates.name='HLTLevel1GTSeed' and parameters.name='L1SeedsLogicalExpression' and configurations.configid=1905; 
       **/
-      std::cout<<5<<std::endl;
       coral::ICursor& cursor1=q1->execute();
       while( cursor1.next() ){
 	const coral::AttributeList& row=cursor1.currentRow();
@@ -161,24 +154,41 @@ namespace lumi{
     }
     srcsession->transaction().commit();
     delete srcsession;
-    std::cout<<"end src session"<<std::endl;
     std::vector< std::pair<std::string,std::string> >::const_iterator mIt;
     std::vector< std::pair<std::string,std::string> >::const_iterator mBeg=hlt2l1map.begin();
     std::vector< std::pair<std::string,std::string> >::const_iterator mEnd=hlt2l1map.end();
     
     coral::ISessionProxy* destsession=svc->connect(m_dest, coral::Update);
     try{      
+      //check if hltkey already exists
+      destsession->transaction().start(true);
+      bool hltkeyExists=false;
+      coral::AttributeList kQueryBindList;
+      kQueryBindList.extend("hltkey",typeid(std::string));
+      coral::IQuery* kQuery=destsession->nominalSchema().tableHandle(LumiNames::trghltMapTableName()).newQuery();
+      kQuery->setCondition("HLTKEY =:hltkey",kQueryBindList);
+      kQueryBindList["hltkey"].data<std::string>()=hltkey;
+      coral::ICursor& kResult=kQuery->execute();
+      while( kResult.next() ){
+	hltkeyExists=true;
+      }
+      if(hltkeyExists){
+	std::cout<<"hltkey "<<hltkey<<" already registered , do nothing"<<std::endl;
+	destsession->transaction().commit();
+	delete kQuery;
+	delete svc;
+	return;
+      }
+      destsession->transaction().commit();
       destsession->transaction().start(false);
       coral::ISchema& destschema=destsession->nominalSchema();
       coral::ITable& hltconftable=destschema.tableHandle(LumiNames::trghltMapTableName());
       coral::AttributeList hltconfData;
-      hltconfData.extend<unsigned int>("RUNNUM");
       hltconfData.extend<std::string>("HLTKEY");
       hltconfData.extend<std::string>("HLTPATHNAME");
       hltconfData.extend<std::string>("L1SEED");
       coral::IBulkOperation* hltconfInserter=hltconftable.dataEditor().bulkInsert(hltconfData,200);
       hltconfData["HLTKEY"].data<std::string>()=hltkey;
-      hltconfData["RUNNUM"].data<unsigned int>()=runnumber;
       std::string& hltpathname=hltconfData["HLTPATHNAME"].data<std::string>();
       std::string& l1seedname=hltconfData["L1SEED"].data<std::string>();
       for(mIt=mBeg; mIt!=mEnd; ++mIt ){

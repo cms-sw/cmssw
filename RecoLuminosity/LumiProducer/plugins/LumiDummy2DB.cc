@@ -72,6 +72,7 @@ namespace lumi{
       summaryData.extend("LUMISECTIONQUALITY",typeid(short));
       summaryData.extend("CMSALIVE",typeid(bool));
       summaryData.extend("STARTORBIT",typeid(unsigned int));
+      summaryData.extend("NUMORBIT",typeid(unsigned int));
       coral::IBulkOperation* summaryInserter=summarytable.dataEditor().bulkInsert(summaryData,totallumils);
       coral::AttributeList detailData;
       detailData.extend("LUMIDETAIL_ID",typeid(unsigned long long));
@@ -94,7 +95,8 @@ namespace lumi{
       short& instlumiquality = summaryData["INSTLUMIQUALITY"].data<short>();
       short& lumisectionquality = summaryData["LUMISECTIONQUALITY"].data<short>();
       bool& cmsalive = summaryData["CMSALIVE"].data<bool>();
-      unsigned int& startorbit =summaryData["STARTORBIT"].data<unsigned int>();
+      unsigned int& startorbit=summaryData["STARTORBIT"].data<unsigned int>();
+      unsigned int& numorbit= summaryData["NUMORBIT"].data<unsigned int>();
       unsigned long long& lumidetail_id=detailData["LUMIDETAIL_ID"].data<unsigned long long>();
       unsigned long long& d2lumisummary_id=detailData["LUMISUMMARY_ID"].data<unsigned long long>();
       coral::Blob& bxlumivalue=detailData["BXLUMIVALUE"].data<coral::Blob>();
@@ -120,6 +122,7 @@ namespace lumi{
 	}
 	cmsalive=iscmsalive;
 	startorbit=2837495;
+	numorbit=34566;
 	//fetch a new id value 
 	//insert the new row
 	summaryInserter->processNextIteration();
