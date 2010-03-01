@@ -1,6 +1,6 @@
 ifeq ($(shell uname), Linux)
    BoostLibs := boost_thread  boost_signals  boost_filesystem boost_program_options boost_regex
-   RootLibs  := Cint Core  Net Tree Hist Matrix MathCore MathMore Reflex EG Eve FTGL Ged Geom GeomPainter Gpad Graf Graf3d Gui Physics RGL Rint TreePlayer
+   RootLibs  := Cint Core  Net Tree Hist Matrix MathCore MathMore Reflex EG Eve FTGL Ged Geom GeomPainter Gpad Graf Graf3d Gui Physics RGL Rint TreePlayer RIO GuiHtml
    ProjectLibs  := $(BoostLibs) $(RootLibs) CLHEP-2.0.4.2 gsl gslcblas HepMC pcre sigc-2.0 nsl crypt dl uuid
   
    ProjectIncludes := external/inc/boost/1.40.0-cms3/include
@@ -12,8 +12,8 @@ ifeq ($(shell uname), Linux)
    ProjectIncludes += external/inc/uuid/1.38/include
  else 
    ifeq ($(shell uname), Darwin)
-      BoostLibs := boost_thread  boost_iostreams boost_signals  boost_filesystem boost_program_options boost_regex
-      RootLibs  := Cint Core  Net Tree Hist Matrix MathCore MathMore Reflex EG Eve FTGL Ged Geom GeomPainter Gpad Graf Graf3d Gui Physics RGL Rint TreePlayer
+      BoostLibs := boost_thread  boost_iostreams boost_signals  boost_filesystem boost_system boost_program_options boost_regex
+      RootLibs  := Cint Core  Net Tree Hist Matrix MathCore MathMore Reflex EG Eve FTGL Ged Geom GeomPainter Gpad Graf Graf3d Gui Physics RGL Rint TreePlayer RIO GuiHtml
       ProjectLibs :=  $(BoostLibs) $(RootLibs) CLHEP-2.0.4.2 gsl gslcblas HepMC sigc-2.0.0 dl
 
       ProjectIncludes := external/inc/boost/1.40.0/include
