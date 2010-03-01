@@ -4,9 +4,9 @@ from DQM.DTMonitorClient.dtDAQInfo_cfi import *
 from DQM.RPCMonitorClient.RPCDaqInfo_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBDaqInfoTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEDaqInfoTask_cfi import *
-siStripDaqInfo = cms.EDFilter("SiStripDaqInfo")
+siStripDaqInfo = cms.EDAnalyzer("SiStripDaqInfo")
 from DQM.CSCMonitorModule.csc_daq_info_cfi import *
-siPixelDaqInfo  = cms.EDFilter("SiPixelDaqInfo")
+siPixelDaqInfo  = cms.EDAnalyzer("SiPixelDaqInfo")
 from DQM.HcalMonitorClient.HcalDAQInfo_cfi import *
 from DQM.RPCMonitorClient.RPCDaqInfo_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDaqInfoTask_cfi import *

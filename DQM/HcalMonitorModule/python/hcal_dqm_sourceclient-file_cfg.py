@@ -188,7 +188,7 @@ process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 
 # This is a separate process to create a special collection of digis in which
 # problem digis aren't rejected from the collection.  Casual users do not need to worry about this.
-process.hcalAllDigis = cms.EDFilter("HcalRawToDigi",
+process.hcalAllDigis = cms.EDProducer("HcalRawToDigi",
                                     # Flag to enable unpacking of ZDC channels (default = false)
                                     UnpackZDC = cms.untracked.bool(True),
                                     # Optional filter to remove any digi with "data valid" off, "error" on,

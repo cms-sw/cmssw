@@ -11,7 +11,7 @@ process = cms.Process("DUMP")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 ## specify which conditions you would like to dump to a text file in the "dump" vstring
-process.prod = cms.EDFilter("HcalDumpConditions",
+process.prod = cms.EDAnalyzer("HcalDumpConditions",
                             dump = cms.untracked.vstring(
     'ChannelQuality' 
     ),

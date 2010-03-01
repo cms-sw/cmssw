@@ -31,7 +31,7 @@ src2 = cms.ESSource("EcalTrivialConditionRetriever",
     producedEcalADCToGeVConstant = cms.untracked.bool(True)
 )
 
-getCond = cms.EDFilter("EventSetupRecordDataGetter",
+getCond = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalTBWeightsRcd'),
         data = cms.vstring('EcalTBWeights')

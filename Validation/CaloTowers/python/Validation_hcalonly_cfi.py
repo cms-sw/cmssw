@@ -17,14 +17,14 @@ source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/1_4_x/mc_pi+100_etaphi44.root')
 )
 
-hcalDigiAnalyzer = cms.EDFilter("HcalDigiTester",
+hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
     digiLabel = cms.InputTag("simHcalDigis"),
     subpedvalue = cms.untracked.bool(True),
     outputFile = cms.untracked.string('HcalDigisValidationHF.root'),
     hcalselector = cms.untracked.string('HF')
 )
 
-hcalRecoAnalyzer = cms.EDFilter("HcalRecHitsValidation",
+hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     outputFile = cms.untracked.string('HcalRecHitsValidationHB.root'),
     eventype = cms.untracked.string('single'),
     mc = cms.untracked.string('yes'),

@@ -57,7 +57,7 @@ secFiles.extend( (
                    ) )
 
 
-process.report = cms.EDFilter("HLTrigReport",
+process.report = cms.EDAnalyzer("HLTrigReport",
     HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
 )
 

@@ -125,12 +125,12 @@ process.SiPixelCondObjForHLTSimReader = cms.EDAnalyzer("SiPixelCondObjForHLTRead
 
 
 ####### LORENTZ ANGLE READERS ######
-process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader",
+process.SiPixelLorentzAngleReader = cms.EDAnalyzer("SiPixelLorentzAngleReader",
     printDebug = cms.untracked.bool(False),
     useSimRcd = cms.bool(False)
 )
 
-process.SiPixelLorentzAngleSimReader = cms.EDFilter("SiPixelLorentzAngleReader",
+process.SiPixelLorentzAngleSimReader = cms.EDAnalyzer("SiPixelLorentzAngleReader",
     printDebug = cms.untracked.bool(False),
     useSimRcd = cms.bool(True)
 )

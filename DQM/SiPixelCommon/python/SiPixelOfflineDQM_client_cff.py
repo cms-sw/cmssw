@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #Client:
-sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
+sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
@@ -13,9 +13,9 @@ sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
 )
 
 #DataCertification:
-sipixelDaqInfo = cms.EDFilter("SiPixelDaqInfo")
-sipixelDcsInfo = cms.EDFilter("SiPixelDcsInfo")
-sipixelCertification = cms.EDFilter("SiPixelCertification")
+sipixelDaqInfo = cms.EDAnalyzer("SiPixelDaqInfo")
+sipixelDcsInfo = cms.EDAnalyzer("SiPixelDcsInfo")
+sipixelCertification = cms.EDAnalyzer("SiPixelCertification")
 
 #Predefined Sequences:
 PixelOfflineDQMClient = cms.Sequence(sipixelEDAClient)

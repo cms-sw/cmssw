@@ -102,7 +102,7 @@ SiPixelHitEfficiencySource.diskOn = False
 SiPixelHitEfficiencySource.ringOn = False
 
 #DQM service
-dqmInfo = cms.EDFilter("DQMEventInfo",
+dqmInfo = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Pixel')
 )
 

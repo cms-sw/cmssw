@@ -9,7 +9,7 @@ from DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff import *
 from DQM.SiStripMonitorSummary.SiStripMonitorCondData_cfi import *
 
 # DQMEventInfo
-DqmEventInfoSiStrip = cms.EDFilter( "DQMEventInfo",
+DqmEventInfoSiStrip = cms.EDAnalyzer( "DQMEventInfo",
     subSystemFolder = cms.untracked.string( 'SiStrip' )
 )
 

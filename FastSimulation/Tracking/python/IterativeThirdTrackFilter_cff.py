@@ -52,7 +52,7 @@ thStep = cms.EDProducer("FastTrackMerger",
                                                      cms.InputTag("thStepTrk"))
 )
 
-thfilter = cms.EDFilter("QualityFilter",
+thfilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("thStep")
 )

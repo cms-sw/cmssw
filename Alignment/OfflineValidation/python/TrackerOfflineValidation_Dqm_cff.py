@@ -54,7 +54,7 @@ TrackerOfflineValidationSummaryDqm = TrackerOfflineValidationSummaryBinned.clone
 # DQM backend
 from DQMServices.Core.DQM_cfg import *
 # DQM file saver
-DqmSaverTkAl = cms.EDFilter("DQMFileSaver",
+DqmSaverTkAl = cms.EDAnalyzer("DQMFileSaver",
           convention=cms.untracked.string("Offline"),
           workflow=cms.untracked.string("/Cosmics/TkAl09-AlignmentSpecification_R000100000_R000100050_ValSkim-v1/ALCARECO"),   # /primaryDatasetName/WorkflowDescription/DataTier; Current Convention: Indicate run range (first and last run) in file name
 	                                                                                                                       # WorkflowDescription should match namespace conventions, must have a year indicated by 2 digits in first word (aquisition era)) 

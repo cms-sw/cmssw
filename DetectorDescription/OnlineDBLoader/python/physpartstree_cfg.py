@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.ppt = cms.EDFilter("PhysicalPartsTree")
+process.ppt = cms.EDAnalyzer("PhysicalPartsTree")
 
 process.print = cms.OutputModule("AsciiOutputModule")
 

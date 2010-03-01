@@ -28,7 +28,7 @@ process.TkDetMap = cms.Service("TkDetMap")
 
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
-process.tester = cms.EDFilter("testTkHistoMap",
+process.tester = cms.EDAnalyzer("testTkHistoMap",
                               readFromFile = cms.bool(False)
                               )
 process.p = cms.Path(process.tester)

@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 
 #HIT REMOVAL
-trkfilter5 = cms.EDFilter("QualityFilter",
+trkfilter5 = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
 # Reject hits found in standard iterations                          
     recTracks = cms.InputTag("tobtecStep")
@@ -13,7 +13,7 @@ trkfilter5 = cms.EDFilter("QualityFilter",
 #    recTracks = cms.InputTag("largeD0step4")
 )
 
-largeD0step5Clusters = cms.EDFilter("TrackClusterRemover",
+largeD0step5Clusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("trkfilter5"),
 
 # To run this step eliminating hits from standard iterations.

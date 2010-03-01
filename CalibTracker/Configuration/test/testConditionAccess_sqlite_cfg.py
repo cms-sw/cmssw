@@ -42,7 +42,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 
-process.fedcablingreader = cms.EDFilter("SiStripFedCablingReader")
+process.fedcablingreader = cms.EDAnalyzer("SiStripFedCablingReader")
 #process.noise            = cms.EDFilter("SiStripNoisesReader", printDebug = cms.untracked.uint32(4))
 
 process.p1 = cms.Path(process.fedcablingreader) #*process.noise)

@@ -17,7 +17,7 @@ src1 = cms.ESSource("PoolDBESSource",
     authenticationMethod = cms.untracked.uint32(0)
 )
 
-getCalibrations = cms.EDFilter("EventSetupRecordDataGetter",
+getCalibrations = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalIntercalibConstantsRcd'),
         data = cms.vstring('EcalIntercalibConstants')

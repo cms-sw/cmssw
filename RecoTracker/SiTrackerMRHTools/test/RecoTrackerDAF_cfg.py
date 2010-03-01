@@ -45,7 +45,7 @@ process.maxEvents = cms.untracked.PSet(
     )
 process.Timing = cms.Service("Timing")
 
-process.printList = cms.EDFilter("ParticleListDrawer",
+process.printList = cms.EDAnalyzer("ParticleListDrawer",
                                  src = cms.InputTag("genParticles"),
                                  maxEventsToPrint = cms.untracked.int32(1)
                                 )

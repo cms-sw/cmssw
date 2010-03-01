@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-siStripDcsInfo = cms.EDFilter("SiStripDcsInfo")
-siPixelDcsInfo = cms.EDFilter("SiPixelDcsInfo")
+siStripDcsInfo = cms.EDAnalyzer("SiStripDcsInfo")
+siPixelDcsInfo = cms.EDAnalyzer("SiPixelDcsInfo")
 from DQM.EcalBarrelMonitorTasks.EBDcsInfoTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEDcsInfoTask_cfi import *
 from DQM.DTMonitorClient.dtDCSSummary_cfi import *

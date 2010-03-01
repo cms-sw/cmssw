@@ -64,7 +64,7 @@ process.trackCategorySelector = TrackingParticleCategorySelector(
     cut = cms.string("is('SignalEvent')")
 )
 
-process.trackingParticleCategoriesAnalyzer = cms.EDFilter("TrackingParticleCategoriesAnalyzer",
+process.trackingParticleCategoriesAnalyzer = cms.EDAnalyzer("TrackingParticleCategoriesAnalyzer",
     process.trackClassifier
 )
 

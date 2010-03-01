@@ -8,7 +8,7 @@ photonDataCertification = cms.EDAnalyzer("PhotonDataCertification",
 
 
 ################# Photon Quality Tests  #########################
-qTesterPhoton = cms.EDFilter("QualityTester",
+qTesterPhoton = cms.EDAnalyzer("QualityTester",
      qtList = cms.untracked.FileInPath('DQMOffline/EGamma/test/EGamma.xml'),
      prescaleFactor = cms.untracked.int32(1),
      testInEventloop = cms.untracked.bool(False),

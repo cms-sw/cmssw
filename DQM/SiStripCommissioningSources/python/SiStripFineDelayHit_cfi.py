@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # module for fine delay analysis, stored in fake digis to comply with the digi input format of the Commissioning Source
-siStripFineDelayHit = cms.EDFilter("SiStripFineDelayHit",
+siStripFineDelayHit = cms.EDProducer("SiStripFineDelayHit",
     # general parameters
     cosmic = cms.bool(True),
     MagneticField = cms.bool(False),

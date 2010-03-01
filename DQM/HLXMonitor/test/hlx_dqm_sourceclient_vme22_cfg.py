@@ -18,7 +18,7 @@ process.load("DQM.Integration.test.environment_cfi")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.hlxQualityTester = cms.EDFilter("QualityTester",
+process.hlxQualityTester = cms.EDAnalyzer("QualityTester",
     # default is 1
     prescaleFactor = cms.untracked.int32(10000),
     # use eventloop for testing only ! default is false

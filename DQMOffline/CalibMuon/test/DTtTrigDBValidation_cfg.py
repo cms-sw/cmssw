@@ -70,7 +70,7 @@ process.dtTTrigAnalyzer = cms.EDAnalyzer("DTtTrigDBValidation",
     #OutputFileName = cms.untracked.string('tTrigDBMonitoring_112281_vs_112237.root')
 )
 
-process.qTester = cms.EDFilter("QualityTester",
+process.qTester = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )

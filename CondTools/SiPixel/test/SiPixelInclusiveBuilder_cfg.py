@@ -136,7 +136,7 @@ process.PixelToLNKAssociateFromAsciiESProducer = cms.ESProducer("PixelToLNKAssoc
 )
 
 
-process.MapWriter = cms.EDFilter("SiPixelFedCablingMapWriter",
+process.MapWriter = cms.EDAnalyzer("SiPixelFedCablingMapWriter",
     record = cms.string('SiPixelFedCablingMapRcd'),
     associator = cms.untracked.string('PixelToLNKAssociateFromAscii')
 )
@@ -144,7 +144,7 @@ process.MapWriter = cms.EDFilter("SiPixelFedCablingMapWriter",
 
 
 ###### LORENTZ ANGLE OBJECT ######
-process.SiPixelLorentzAngle = cms.EDFilter("SiPixelLorentzAngleDB",
+process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
     bPixLorentzAnglePerTesla = cms.double(0.106),
     fPixLorentzAnglePerTesla = cms.double(0.091),
@@ -154,7 +154,7 @@ process.SiPixelLorentzAngle = cms.EDFilter("SiPixelLorentzAngleDB",
     fileName = cms.string('lorentzFit.txt')	
 )
 
-process.SiPixelLorentzAngleSim = cms.EDFilter("SiPixelLorentzAngleDB",
+process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
     bPixLorentzAnglePerTesla = cms.double(0.106),
     fPixLorentzAnglePerTesla = cms.double(0.091),

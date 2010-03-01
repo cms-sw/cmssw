@@ -79,7 +79,7 @@ dtNoiseAnalysisMonitor.doSynchNoise = True
 # report summary
 from DQM.DTMonitorClient.dtSummaryClients_cfi import *
 
-dtqTester = cms.EDFilter("QualityTester",
+dtqTester = cms.EDAnalyzer("QualityTester",
                          #reportThreshold = cms.untracked.string('red'),
                          prescaleFactor = cms.untracked.int32(1),
                          qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests.xml'),

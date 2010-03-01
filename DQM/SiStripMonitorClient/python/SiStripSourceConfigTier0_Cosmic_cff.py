@@ -130,7 +130,7 @@ TrackSplitMonitor.FolderName = 'Tracking/TrackParameters/SplitTracks'
 
 
 # DQM Services
-dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
+dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
      subSystemFolder = cms.untracked.string('SiStrip')
 )
 

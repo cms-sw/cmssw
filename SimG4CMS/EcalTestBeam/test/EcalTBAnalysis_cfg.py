@@ -20,7 +20,7 @@ process.ecalHitsValidation = cms.EDFilter("EcalSimHitsTask",
     moduleLabelMC = cms.untracked.string('source')
 )
 
-process.ecalDigisValidation = cms.EDFilter("EcalDigisValidation",
+process.ecalDigisValidation = cms.EDAnalyzer("EcalDigisValidation",
     moduleLabelTk = cms.untracked.string('g4SimHits'),
     moduleLabelVtx = cms.untracked.string('g4SimHits'),
     outputFile = cms.untracked.string('EcalDigisTBValidation.root'),
@@ -28,7 +28,7 @@ process.ecalDigisValidation = cms.EDFilter("EcalDigisValidation",
     moduleLabelMC = cms.untracked.string('source')
 )
 
-process.ecalBarrelDigisValidation = cms.EDFilter("EcalBarrelDigisValidation",
+process.ecalBarrelDigisValidation = cms.EDAnalyzer("EcalBarrelDigisValidation",
     verbose = cms.untracked.bool(True)
 )
 

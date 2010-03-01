@@ -33,6 +33,6 @@ from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
 process.pixelTracks2 = pixelTracks.clone()
 process.pixelTracks2.FitterPSet = PixelFitterByConformalMappingAndLine 
 
-process.test = cms.EDFilter("PixelTrackTest", TrackCollection = cms.string("pixelTracks2"))
+process.test = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks2"))
 
 process.p = cms.Path(pixeltrackerlocalreco+process.pixelTracks2+process.test)

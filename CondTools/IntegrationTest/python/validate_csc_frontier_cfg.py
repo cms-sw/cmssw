@@ -37,7 +37,7 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.get = cms.EDFilter("EventSetupRecordDataGetter",
+process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCPedestalsRcd'),
         data = cms.vstring('CSCPedestals')

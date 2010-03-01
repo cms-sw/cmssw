@@ -11,11 +11,11 @@ from DQM.EcalEndcapMonitorTasks.EEHltTask_cfi import *
 from DQMOffline.Ecal.EBClusterTaskExtras_cfi import *
 from DQMOffline.Ecal.EEClusterTaskExtras_cfi import *
 
-dqmInfoEB = cms.EDFilter("DQMEventInfo",
+dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
-dqmInfoEE = cms.EDFilter("DQMEventInfo",
+dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 

@@ -33,7 +33,7 @@ process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ##### RAW to DIGI #####
-process.rpcunpacker = cms.EDFilter("RPCUnpackingModule",
+process.rpcunpacker = cms.EDProducer("RPCUnpackingModule",
     InputLabel = cms.untracked.InputTag("source"),
     doSynchro = cms.bool(False)
 )

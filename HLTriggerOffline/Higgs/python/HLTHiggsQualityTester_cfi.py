@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltHiggsQualityTester = cms.EDFilter("QualityTester",
+hltHiggsQualityTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/Higgs/data/HLTHiggsQualityTest.xml'
     ),

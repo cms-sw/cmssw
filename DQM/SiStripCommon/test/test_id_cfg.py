@@ -7,7 +7,7 @@ process.source = cms.Source("EmptySource",
 
 process.print = cms.OutputModule("AsciiOutputModule")
 
-process.read = cms.EDFilter("Test_SiStrip_HistId")
+process.read = cms.EDAnalyzer("Test_SiStrip_HistId")
 
 process.p1 = cms.Path(process.read+process.print)
 

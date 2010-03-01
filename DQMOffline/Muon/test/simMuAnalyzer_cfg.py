@@ -37,12 +37,12 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.Timing = cms.Service("Timing")
 
-process.qTester1 = cms.EDFilter("QualityTester",
+process.qTester1 = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests1.xml')
 )
 
-process.qTester2 = cms.EDFilter("QualityTester",
+process.qTester2 = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests2.xml')
 )

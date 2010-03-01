@@ -5,7 +5,7 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
-hiPixel3PrimTracks = cms.EDFilter("PixelTrackProducer",
+hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
 
     passLabel  = cms.string('Pixel triplet primary tracks with vertex constraint'),
 

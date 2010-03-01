@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-towermaker = cms.EDFilter("CaloTowersCreator",
+towermaker = cms.EDProducer("CaloTowersCreator",
     EBSumThreshold = cms.double(0.2), ## GeV, Scheme B
 
     EBWeight = cms.double(1.0),

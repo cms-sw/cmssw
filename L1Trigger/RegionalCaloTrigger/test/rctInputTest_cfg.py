@@ -41,7 +41,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.source = cms.Source("EmptySource")
 
-process.rctInput = cms.EDFilter("RctInputTextToDigi",
+process.rctInput = cms.EDProducer("RctInputTextToDigi",
     inputFile = cms.FileInPath('L1Trigger/TextToDigi/test/data/rctTestInputFileElec.txt')
 )
 

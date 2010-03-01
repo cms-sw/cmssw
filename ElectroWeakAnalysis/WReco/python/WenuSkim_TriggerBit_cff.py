@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-report = cms.EDFilter("HLTrigReport",
+report = cms.EDAnalyzer("HLTrigReport",
     HLTriggerResults = cms.InputTag("TriggerResults")
 )
 

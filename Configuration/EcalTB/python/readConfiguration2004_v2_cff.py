@@ -33,7 +33,7 @@ src1 = cms.ESSource("PoolDBESSource",
     authenticationMethod = cms.untracked.uint32(0)
 )
 
-getCond = cms.EDFilter("EventSetupRecordDataGetter",
+getCond = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalPedestalsRcd'),
         data = cms.vstring('EcalPedestals')

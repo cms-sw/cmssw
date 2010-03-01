@@ -29,7 +29,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                              ))
                                        )
 
-process.load = cms.EDFilter("WriteOneGeometryFromXML",
+process.load = cms.EDAnalyzer("WriteOneGeometryFromXML",
                                 rotNumSeed = cms.int32(0),
                                 dumpSpecs = cms.untracked.bool(False),
                                 dumpGeoHistory = cms.untracked.bool(False),

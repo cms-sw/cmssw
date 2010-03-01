@@ -16,14 +16,14 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:calodigis.root')
 )
 
-process.gctDigiToRaw = cms.EDFilter("GctDigiToRaw",
+process.gctDigiToRaw = cms.EDProducer("GctDigiToRaw",
     rctInputLabel = cms.InputTag("rctDigis"),
     gctInputLabel = cms.InputTag("gctDigis"),
     gctFedId = cms.int32(745),
     verbose = cms.untracked.bool(False)
 )
 
-process.l1GctHwDigis = cms.EDFilter("GctRawToDigi",
+process.l1GctHwDigis = cms.EDProducer("GctRawToDigi",
     gctFedId = cms.int32(745),
     unpackInternEm = cms.untracked.bool(True),
     inputLabel = cms.InputTag("gctDigiToRaw"),
@@ -31,7 +31,7 @@ process.l1GctHwDigis = cms.EDFilter("GctRawToDigi",
     unpackFibres = cms.untracked.bool(True)
 )
 
-process.dump = cms.EDFilter("DumpFEDRawDataProduct",
+process.dump = cms.EDAnalyzer("DumpFEDRawDataProduct",
     feds = cms.untracked.vint32(745),
     dumpPayload = cms.untracked.bool(True)
 )

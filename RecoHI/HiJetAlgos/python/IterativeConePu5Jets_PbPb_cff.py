@@ -9,7 +9,7 @@ CaloTowerConstituentsMapBuilder = cms.ESProducer("CaloTowerConstituentsMapBuilde
     MapFile = cms.untracked.string('Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz')
 )
 
-caloTowers = cms.EDFilter("CaloTowerCandidateCreator",
+caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
     src = cms.InputTag("towerMaker"),
     e = cms.double(0.0),
     verbose = cms.untracked.int32(0),

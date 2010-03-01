@@ -25,13 +25,13 @@ firstStepTracksWithQuality.keepAllTracks = True
 firstStepTracksWithQuality.copyExtras = True
 firstStepTracksWithQuality.copyTrajectories = True
 
-zeroStepFilter = cms.EDFilter("QualityFilter",
+zeroStepFilter = cms.EDProducer("QualityFilter",
      TrackQuality = cms.string('highPurity'),
      recTracks = cms.InputTag("zeroStepTracksWithQuality:")
 )
 
 
-firstfilter = cms.EDFilter("QualityFilter",
+firstfilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("firstStepTracksWithQuality")
 )

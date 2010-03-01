@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.ppt = cms.EDFilter("SolidsForOnline")
+process.ppt = cms.EDAnalyzer("SolidsForOnline")
 
 process.print = cms.OutputModule("AsciiOutputModule")
 

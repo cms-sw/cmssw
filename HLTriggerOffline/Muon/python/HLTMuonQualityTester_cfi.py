@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltMuonQualityTester = cms.EDFilter("QualityTester",
+hltMuonQualityTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(
         'HLTriggerOffline/Muon/data/HLTMuonQualityTests.xml'
     ),

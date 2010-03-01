@@ -47,7 +47,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.sipixelEDAClient = cms.EDFilter("SiPixelEDAClient",
+process.sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     StaticUpdateFrequency = cms.untracked.int32(10),
     OutputFilePath = cms.untracked.string('.'),
 )
@@ -56,12 +56,12 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmEnv = cms.EDFilter("DQMEventInfo",
+process.dqmEnv = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('Pixel'),
     eventInfoFolder = cms.untracked.string('EventInfo')
 )
 
-process.dqmSaver = cms.EDFilter("DQMFileSaver",
+process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     prescaleEvt = cms.untracked.int32(-1),
     producer = cms.untracked.string('DQM'),
     workflow = cms.untracked.string('/A/B/C'),

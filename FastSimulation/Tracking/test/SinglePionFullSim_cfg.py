@@ -102,23 +102,23 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 ##from Kevin
 ##from Kevin
-process.zeroStepHighPurity = cms.EDFilter("QualityFilter",
+process.zeroStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("zeroStepTracksWithQuality")
                                            )
-process.firstStepHighPurity = cms.EDFilter("QualityFilter",
+process.firstStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
-process.fourthStepHighPurity = cms.EDFilter("QualityFilter",
+process.fourthStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("pixellessStep")
                                            )
-process.fifthStepHighPurity = cms.EDFilter("QualityFilter",
+process.fifthStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("tobtecStep")
                                            )
-process.generalTracksHighPurity = cms.EDFilter("QualityFilter",
+process.generalTracksHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("generalTracks")
                                            )

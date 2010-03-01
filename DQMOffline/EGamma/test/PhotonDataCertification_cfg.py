@@ -21,7 +21,7 @@ process.source = cms.Source("EmptySource"
 
 
 
-process.dqmInfoEgamma = cms.EDFilter("DQMEventInfo",
+process.dqmInfoEgamma = cms.EDAnalyzer("DQMEventInfo",
                                          subSystemFolder = cms.untracked.string('Egamma')
                                      )
 

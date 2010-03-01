@@ -32,7 +32,7 @@ genParticlesjgj = cms.EDProducer("GenParticleProducer",
     abortOnUnknownPDGCode = cms.untracked.bool(True)
 )
 
-genJetParticlesjgj = cms.EDFilter("InputGenJetsParticleSelector",
+genJetParticlesjgj = cms.EDProducer("InputGenJetsParticleSelector",
     src = cms.InputTag("genParticlesjgj"),
     ignoreParticleIDs = cms.vuint32(1000022, 2000012, 2000014, 2000016, 1000039, 
         5000039, 4000012, 9900012, 9900014, 9900016, 

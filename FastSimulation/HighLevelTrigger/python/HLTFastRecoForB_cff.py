@@ -8,7 +8,7 @@ from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 #############################################
 
 # Take all pixel tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
-hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
+hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
@@ -16,7 +16,7 @@ hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
     minHits = cms.untracked.uint32(8)
 )
 
-hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDFilter("FastTrackMerger",
+hltBLifetimeRegionalCtfWithMaterialTracksRelaxed = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
@@ -28,7 +28,7 @@ hltBLifetimeRegionalCkfTrackCandidates = cms.Sequence(globalPixelTracking)
 hltBLifetimeRegionalCkfTrackCandidatesRelaxed = cms.Sequence(globalPixelTracking)
 
 # Take all pixel tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
-hltBLifetimeRegionalCtfWithMaterialTracksStartupU = cms.EDFilter("FastTrackMerger",
+hltBLifetimeRegionalCtfWithMaterialTracksStartupU = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
@@ -36,7 +36,7 @@ hltBLifetimeRegionalCtfWithMaterialTracksStartupU = cms.EDFilter("FastTrackMerge
     minHits = cms.untracked.uint32(8)
 )
 
-hltBLifetimeRegionalCtfWithMaterialTracksStartup = cms.EDFilter("FastTrackMerger",
+hltBLifetimeRegionalCtfWithMaterialTracksStartup = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
@@ -56,7 +56,7 @@ hltBLifetimeRegionalCkfTrackCandidatesStartup = cms.Sequence(globalPixelTracking
 import FWCore.ParameterSet.Config as cms
 
 # Take all pixel-seeded tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
-hltCtfWithMaterialTracksMumuk = cms.EDFilter("FastTrackMerger",
+hltCtfWithMaterialTracksMumuk = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
                                    cms.InputTag("globalPixelTrackCandidates")),
@@ -78,7 +78,7 @@ hltCkfTrackCandidatesMumuk = cms.Sequence(cms.SequencePlaceholder("HLTL3muonreco
 #############################################
 
 # Take all pixel-seeded tracks for b tagging track reco (pTMin>1GeV, nHits>=8) 
-hltCtfWithMaterialTracksMumu = cms.EDFilter("FastTrackMerger",
+hltCtfWithMaterialTracksMumu = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("hltL3Muons")),
     ptMin = cms.untracked.double(3.0),

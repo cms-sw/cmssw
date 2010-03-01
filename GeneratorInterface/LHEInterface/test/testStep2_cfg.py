@@ -52,12 +52,12 @@ process.genParticles.abortOnUnknownPDGCode = False
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.printList = cms.EDFilter("ParticleListDrawer",
+process.printList = cms.EDAnalyzer("ParticleListDrawer",
 	src = cms.InputTag("genParticles"),
 	maxEventsToPrint = cms.untracked.int32(-1)
 )
 
-process.printTree = cms.EDFilter("ParticleTreeDrawer",
+process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
 	src = cms.InputTag("genParticles"),
 	printP4 = cms.untracked.bool(False),
 	printPtEtaPhi = cms.untracked.bool(False),

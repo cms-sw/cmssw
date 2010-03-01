@@ -10,7 +10,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-myMuonPostVal = cms.EDFilter("DQMGenericClient",
+myMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
     verbose        = cms.untracked.uint32(0), #set this to zero!
     outputFileName = cms.untracked.string(''),# set this to empty!
     #outputFileName= cms.untracked.string('MuonPostProcessor.root'),
@@ -23,7 +23,7 @@ myMuonPostVal = cms.EDFilter("DQMGenericClient",
 )
 
 
-myEgammaPostVal = cms.EDFilter("DQMGenericClient",
+myEgammaPostVal = cms.EDAnalyzer("DQMGenericClient",
     #outputFileName= cms.untracked.string('EgammaPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
@@ -33,7 +33,7 @@ myEgammaPostVal = cms.EDFilter("DQMGenericClient",
     )
 )
 
-myTauPostVal = cms.EDFilter("DQMGenericClient",
+myTauPostVal = cms.EDAnalyzer("DQMGenericClient",
     #outputFileName= cms.untracked.string('TauPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    
@@ -44,7 +44,7 @@ myTauPostVal = cms.EDFilter("DQMGenericClient",
 )
 
 
-myTopPostVal = cms.EDFilter("DQMGenericClient",
+myTopPostVal = cms.EDAnalyzer("DQMGenericClient",
     #outputFileName= cms.untracked.string('TopPostProcessor.root'),
     commands       = cms.vstring(),
     resolution     = cms.vstring(),                                    

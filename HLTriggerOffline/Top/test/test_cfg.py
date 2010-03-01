@@ -37,7 +37,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.dqmSaverMy = cms.EDFilter("DQMFileSaver",
+process.dqmSaverMy = cms.EDAnalyzer("DQMFileSaver",
         convention=cms.untracked.string("Offline"),
     
           workflow=cms.untracked.string("/HLT/Top/Validation"),

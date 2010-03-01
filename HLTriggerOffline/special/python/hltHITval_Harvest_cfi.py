@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltHITval_Harvest = cms.EDFilter("DQMGenericClient",
+hltHITval_Harvest = cms.EDAnalyzer("DQMGenericClient",
     outputFileName = cms.untracked.string(''),
     verbose        = cms.untracked.uint32(0),
     commands       = cms.vstring(),

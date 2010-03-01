@@ -33,7 +33,7 @@ process.source = cms.Source("DaqSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
-process.cscunpacker = cms.EDFilter("CSCDCCUnpacker",
+process.cscunpacker = cms.EDProducer("CSCDCCUnpacker",
     #untracked bool PrintEventNumber = false
     Debug = cms.untracked.bool(False),
     Verbosity = cms.untracked.int32(0),

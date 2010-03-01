@@ -16,7 +16,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
  
 process.GlobalTag.globaltag = 'STARTUP_31X::All'
 
-process.gmtDigis = cms.EDFilter("L1MuGlobalMuonTrigger",
+process.gmtDigis = cms.EDProducer("L1MuGlobalMuonTrigger",
     Debug = cms.untracked.int32(9),
     BX_min = cms.int32(-1),
     BX_max = cms.int32(1),

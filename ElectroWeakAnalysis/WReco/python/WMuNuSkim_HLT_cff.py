@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 #include "HLTrigger/Muon/data/PathSingleMu_1032_Iso.cff"
 #include "HLTrigger/Muon/data/PathSingleMu_1032_NoIso.cff"
 # HWW Skim
-WMuNuTrigReport = cms.EDFilter("HLTrigReport",
+WMuNuTrigReport = cms.EDAnalyzer("HLTrigReport",
     HLTriggerResults = cms.InputTag("TriggerResults")
 )
 

@@ -19,7 +19,7 @@ hltTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-hltCaloTowersCentral1 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral1 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(0),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
@@ -27,7 +27,7 @@ hltCaloTowersCentral1 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
 )
-hltCaloTowersCentral2 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral2 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(1),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
@@ -35,7 +35,7 @@ hltCaloTowersCentral2 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
 )
-hltCaloTowersCentral3 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral3 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(2),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
@@ -43,7 +43,7 @@ hltCaloTowersCentral3 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
 )
-hltCaloTowersCentral4 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral4 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(3),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),

@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 # Take all pixel tracks but the potential electrons
-hltL1IsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDFilter("FastTrackMerger",
+hltL1IsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracksForElectrons"),
                                    cms.InputTag("globalPixelTrackCandidatesForElectrons"))
 )
 
-hltL1IsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDFilter("FastTrackMerger",
+hltL1IsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracksForElectrons"),
                                    cms.InputTag("globalPixelTrackCandidatesForElectrons"))

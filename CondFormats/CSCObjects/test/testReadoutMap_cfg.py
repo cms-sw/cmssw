@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.action = cms.EDFilter("CSCReadoutMapTest")
+process.action = cms.EDAnalyzer("CSCReadoutMapTest")
 
 process.printEvent = cms.OutputModule("AsciiOutputModule")
 

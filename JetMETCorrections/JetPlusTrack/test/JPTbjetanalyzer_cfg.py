@@ -546,7 +546,7 @@ readFiles.extend( [
 ] ) 
 
 
-process.printTree = cms.EDFilter("ParticleListDrawer",
+process.printTree = cms.EDAnalyzer("ParticleListDrawer",
    src = cms.InputTag("genParticles"),
    maxEventsToPrint = cms.untracked.int32(3)
 )

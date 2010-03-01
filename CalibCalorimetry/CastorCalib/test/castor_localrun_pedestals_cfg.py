@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
 
-process.castorDigis = cms.EDFilter("CastorRawToDigi",
+process.castorDigis = cms.EDProducer("CastorRawToDigi",
    CastorFirstFED = cms.untracked.int32(690),
    FilterDataQuality = cms.bool(True),
    ExceptionEmptyData = cms.untracked.bool(True),
@@ -34,9 +34,9 @@ process.dumpRaw = cms.EDAnalyzer( "DumpFEDRawDataProduct",
    dumpPayload = cms.untracked.bool( True )
 )
 
-process.m = cms.EDFilter("HcalDigiDump")
+process.m = cms.EDAnalyzer("HcalDigiDump")
 
-process.dump = cms.EDFilter("HcalTBObjectDump")
+process.dump = cms.EDAnalyzer("HcalTBObjectDump")
 
 process.dumpECA = cms.EDAnalyzer("EventContentAnalyzer")
 

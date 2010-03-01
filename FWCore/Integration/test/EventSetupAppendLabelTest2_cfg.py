@@ -20,7 +20,7 @@ process.DoodadESSource = cms.ESSource("DoodadESSource",
     appendToDataLabel = cms.string('Two')
 )
 
-process.get = cms.EDFilter("EventSetupRecordDataGetter",
+process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('GadgetRcd'),
         data = cms.vstring('edmtest::WhatsIt', 

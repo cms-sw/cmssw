@@ -58,7 +58,7 @@ process.SiPixelCondObjForHLTReader = cms.EDAnalyzer("SiPixelCondObjForHLTReader"
     process.SiPixelGainCalibrationServiceParameters
 )
 
-process.SiPixelLorentzAngleReader = cms.EDFilter("SiPixelLorentzAngleReader")
+process.SiPixelLorentzAngleReader = cms.EDAnalyzer("SiPixelLorentzAngleReader")
 
 process.SiPixelFedCablingMapAnalyzer = cms.EDAnalyzer("SiPixelFedCablingMapAnalyzer")
 

@@ -37,7 +37,7 @@ process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              fullEcalDump = cms.untracked.bool(True)
                              )
 
-process.mfa = cms.EDFilter("testMagneticField")
+process.mfa = cms.EDAnalyzer("testMagneticField")
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('calogeom.root')

@@ -19,7 +19,7 @@ dqmSaver.saveByRun = 1
 dqmSaver.saveAtJobEnd = True
 
 # Quality Tester ####
-qTester = cms.EDFilter("QualityTester",
+qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
     prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True)

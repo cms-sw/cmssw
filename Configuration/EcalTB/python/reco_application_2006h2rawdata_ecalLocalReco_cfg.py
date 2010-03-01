@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/u1/meridian/data/h2/2006/h2.00028833.combined.OutServ_0.0.root')
 )
 
-process.tbunpacker = cms.EDFilter("HcalTBObjectUnpacker",
+process.tbunpacker = cms.EDProducer("HcalTBObjectUnpacker",
     IncludeUnmatchedHits = cms.untracked.bool(False),
     HcalTDCFED = cms.untracked.int32(8),
     HcalSourcePosFED = cms.untracked.int32(-1),
@@ -44,7 +44,7 @@ process.tbunpacker = cms.EDFilter("HcalTBObjectUnpacker",
     ConfigurationFile = cms.untracked.string('configQADCTDC.txt')
 )
 
-process.ecalTBunpack = cms.EDFilter("EcalRawToDigi",
+process.ecalTBunpack = cms.EDProducer("EcalRawToDigi",
     FEDs = cms.untracked.vint32(9),
     DCCMapFile = cms.untracked.string('EventFilter/EcalRawToDigi/data/DCCMap_h2.txt'),
     EcalFirstFED = cms.untracked.int32(8)

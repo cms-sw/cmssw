@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from HiggsAnalysis.Skimming.higgsToWW2Leptons_HLTPaths_cfi import *
 from HiggsAnalysis.Skimming.higgsToWW2Leptons_Filter_cfi import *
-higgsToWWTrigReport = cms.EDFilter("HLTrigReport",
+higgsToWWTrigReport = cms.EDAnalyzer("HLTrigReport",
     HLTriggerResults = cms.InputTag("TriggerResults")
 )
 

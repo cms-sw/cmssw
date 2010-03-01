@@ -51,7 +51,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.hcalunpacker = cms.EDFilter("HcalRawToDigi",
+process.hcalunpacker = cms.EDProducer("HcalRawToDigi",
     FilterDataQuality = cms.bool(True),
     HcalFirstFED = cms.untracked.int32(700),
     InputLabel = cms.InputTag("source"),

@@ -57,7 +57,7 @@ ctfL1IsoLargeWindowTracks.Propagator = 'PropagatorWithMaterial'
 
 
 # Merge
-hltCtfL1IsoLargeWindowWithMaterialTracks = cms.EDFilter("FastTrackMerger",
+hltCtfL1IsoLargeWindowWithMaterialTracks = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("ctfL1IsoLargeWindowTracks"),
                                    cms.InputTag("hltCtfL1IsoWithMaterialTracks"))

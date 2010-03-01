@@ -55,7 +55,7 @@ ctfL1NonIsoLargeWindowTracks.Fitter = 'KFFittingSmootherForElectrons'
 ctfL1NonIsoLargeWindowTracks.Propagator = 'PropagatorWithMaterial'
 
 # Track merger
-hltCtfL1NonIsoLargeWindowWithMaterialTracks = cms.EDFilter("FastTrackMerger",
+hltCtfL1NonIsoLargeWindowWithMaterialTracks = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(cms.InputTag("ctfL1NonIsoLargeWindowTracks"),
                                    cms.InputTag("hltCtfL1NonIsoWithMaterialTracks"))

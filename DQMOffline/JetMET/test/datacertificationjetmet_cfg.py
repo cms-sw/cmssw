@@ -16,7 +16,7 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("histos.root")
 )
 
-process.dqmInfoJetMET = cms.EDFilter("DQMEventInfo",
+process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
                                          subSystemFolder = cms.untracked.string('JetMET')
                                      )
 

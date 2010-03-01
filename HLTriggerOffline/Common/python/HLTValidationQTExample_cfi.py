@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltQTExample = cms.EDFilter("QualityTester",
+hltQTExample = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('HLTriggerOffline/Common/data/HltQTExample.xml'),
     #QualityTestPrescaler = cms.untracked.int32(1)
     reportThreshold = cms.untracked.string('black'),

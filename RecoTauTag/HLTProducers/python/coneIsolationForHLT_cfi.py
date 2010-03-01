@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #ConeIsolation
-coneIsolationForHLT = cms.EDFilter("ConeIsolation",
+coneIsolationForHLT = cms.EDProducer("ConeIsolation",
     MinimumTransverseMomentumInIsolationRing = cms.double(1.0),
     MaximumTransverseImpactParameter = cms.double(0.03),
     VariableConeParameter = cms.double(3.5),

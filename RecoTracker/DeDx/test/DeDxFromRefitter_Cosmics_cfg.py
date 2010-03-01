@@ -178,7 +178,7 @@ process.filterOnTracks = cms.EDFilter("TrackCountFilter",
 #process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi")
 
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
-process.globalMuons = cms.EDFilter("TracksToTrajectories",
+process.globalMuons = cms.EDProducer("TracksToTrajectories",
     Tracks = cms.InputTag("globalCosmicMuons"),
     TrackTransformer = cms.PSet(
         Fitter = cms.string('KFFitterForRefitInsideOut'),

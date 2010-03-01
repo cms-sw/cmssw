@@ -49,7 +49,7 @@ secStep = cms.EDProducer("FastTrackMerger",
                                                      cms.InputTag("secStepTrk"))
 )
 
-secfilter = cms.EDFilter("QualityFilter",
+secfilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("secStep")
 )

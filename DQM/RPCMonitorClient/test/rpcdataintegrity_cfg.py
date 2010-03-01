@@ -30,7 +30,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
 ################# RPC Unpacker  ######################
-process.rpcunpacker = cms.EDFilter("RPCUnpackingModule",
+process.rpcunpacker = cms.EDProducer("RPCUnpackingModule",
     InputLabel = cms.untracked.InputTag("source"),
     doSynchro = cms.bool(False)
 )
@@ -67,7 +67,7 @@ process.rpcClusterSize = cms.EDAnalyzer("RPCClusterSizeTest")
 process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
 
 ################# Quality Tests #########################
-process.qTesterRPC = cms.EDFilter("QualityTester",
+process.qTesterRPC = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1)
 )

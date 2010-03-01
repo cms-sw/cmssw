@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackHitFilter = cms.EDFilter("TrackHitFilter",
+TrackHitFilter = cms.EDProducer("TrackHitFilter",
     theBadModules = cms.vuint32(369329156, 369329160, 369329164, 369328388, 369328392, 
         369328396, 369328644, 369328648, 369328652, 369328900, 
         369328904, 369328908, 369199365, 369199366, 369199369, 

@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 
 
-report = cms.EDFilter("HLTrigReport",
+report = cms.EDAnalyzer("HLTrigReport",
     HLTriggerResults = cms.InputTag("TriggerResults")
 )
 

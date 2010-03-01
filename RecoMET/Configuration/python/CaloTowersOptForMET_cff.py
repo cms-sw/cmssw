@@ -10,13 +10,13 @@ import FWCore.ParameterSet.Config as cms
 # reconstruct CaloRecHits and create calotowers here
 from RecoJets.Configuration.CaloTowersES_cfi import *
 from RecoMET.METProducers.CaloTowersOpt_cfi import *
-caloTowersForMET = cms.EDFilter("CaloTowerCandidateCreator",
+caloTowersForMET = cms.EDProducer("CaloTowerCandidateCreator",
     src = cms.InputTag("towerMaker"),
     minimumEt = cms.double(-1.0),
     minimumE = cms.double(-1.0)
 )
 
-caloTowersOpt = cms.EDFilter("CaloTowerCandidateCreator",
+caloTowersOpt = cms.EDProducer("CaloTowerCandidateCreator",
     src = cms.InputTag("calotoweroptmaker"),
     minimumEt = cms.double(-1.0),
     minimumE = cms.double(-1.0)

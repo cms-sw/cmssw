@@ -123,26 +123,26 @@ process.source = cms.Source("PoolSource",
     )
                             )
 
-process.FirstSecondTrackMerging = cms.EDFilter("QualityFilter",
+process.FirstSecondTrackMerging = cms.EDProducer("QualityFilter",
                                                TrackQuality = cms.string('highPurity'),
                                                recTracks = cms.InputTag("mergeFirstTwoSteps")
                                                )
 
 
-process.FirstSecondThirdFourthFifthTrackMerging = cms.EDFilter("QualityFilter",
+process.FirstSecondThirdFourthFifthTrackMerging = cms.EDProducer("QualityFilter",
                                                     TrackQuality = cms.string('highPurity'),
                                                     recTracks = cms.InputTag("generalTracks")
                                                     )
 
-process.zeroStepHighPurity = cms.EDFilter("QualityFilter",
+process.zeroStepHighPurity = cms.EDProducer("QualityFilter",
                                           TrackQuality = cms.string('highPurity'),
                                           recTracks = cms.InputTag("zeroStepTracksWithQuality")
                                           )
-process.firstStepHighPurity = cms.EDFilter("QualityFilter",
+process.firstStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("preMergingFirstStepTracksWithQuality")
                                            )
-process.fifthStepHighPurity = cms.EDFilter("QualityFilter",
+process.fifthStepHighPurity = cms.EDProducer("QualityFilter",
                                            TrackQuality = cms.string('highPurity'),
                                            recTracks = cms.InputTag("tobtecStep")
                                            )

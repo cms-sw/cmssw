@@ -6,12 +6,12 @@ import FWCore.ParameterSet.Config as cms
 
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
 
-thfilter = cms.EDFilter("QualityFilter",
+thfilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("thStep")
 )
 
-fourthClusters = cms.EDFilter("TrackClusterRemover",
+fourthClusters = cms.EDProducer("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("thClusters"),
     trajectories = cms.InputTag("thfilter"),
     pixelClusters = cms.InputTag("thClusters"),

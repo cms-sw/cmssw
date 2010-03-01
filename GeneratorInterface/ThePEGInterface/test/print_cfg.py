@@ -16,11 +16,11 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.printList = cms.EDFilter("ParticleListDrawer",
+process.printList = cms.EDAnalyzer("ParticleListDrawer",
 	maxEventsToPrint = cms.untracked.int32(-1)
 )
 
-process.printTree = cms.EDFilter("ParticleTreeDrawer",
+process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
 	status = cms.untracked.vint32(1, 2, 3),
 	src = cms.InputTag("genParticles"),
 	printP4 = cms.untracked.bool(False),

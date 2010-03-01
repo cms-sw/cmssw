@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # main configuration for LaserAlignment reconstruction module
 
 
-LaserAlignment = cms.EDFilter( "LaserAlignment",
+LaserAlignment = cms.EDProducer( "LaserAlignment",
 
     ### USER OPTIONS:
 

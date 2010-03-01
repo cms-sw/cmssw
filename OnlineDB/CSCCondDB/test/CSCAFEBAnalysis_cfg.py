@@ -13,7 +13,7 @@ process.source = cms.Source("DaqSource",
     reader = cms.string('CSCFileReader')
 )
 
-process.cscunpacker = cms.EDFilter("CSCDCCUnpacker",
+process.cscunpacker = cms.EDProducer("CSCDCCUnpacker",
     Debug = cms.untracked.bool(False),
     PrintEventNumber = cms.untracked.bool(False),
     theMappingFile = cms.FileInPath('OnlineDB/CSCCondDB/test/csc_slice_test_map.txt'),

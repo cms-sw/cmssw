@@ -7,7 +7,7 @@ import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
 nuclearStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 nuclearMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
-nuclearClusters = cms.EDFilter("TrackClusterRemover",
+nuclearClusters = cms.EDProducer("TrackClusterRemover",
     oldClusterRemovalInfo = cms.InputTag("thClusters"),
     trajectories = cms.InputTag("thStep"),
     pixelClusters = cms.InputTag("thClusters"),

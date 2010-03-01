@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-siStripCertificationInfo = cms.EDFilter("SiStripCertificationInfo")
-siPixelCertification = cms.EDFilter("SiPixelCertification")
+siStripCertificationInfo = cms.EDAnalyzer("SiStripCertificationInfo")
+siPixelCertification = cms.EDAnalyzer("SiPixelCertification")
 from DQM.EcalEndcapMonitorTasks.EEDataCertificationTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBDataCertificationTask_cfi import *
 from DQM.HcalMonitorClient.HcalDataCertification_cfi import *

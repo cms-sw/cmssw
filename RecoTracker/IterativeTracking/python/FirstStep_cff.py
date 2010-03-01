@@ -59,13 +59,13 @@ preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 ### STEP 1 ###
 
 # Lock hits from step0 tracks
-zeroStepFilter = cms.EDFilter("QualityFilter",
+zeroStepFilter = cms.EDProducer("QualityFilter",
     TrackQuality = cms.string('highPurity'),
     recTracks = cms.InputTag("zeroStepTracksWithQuality:")
 )
 
 # new hit collection
-newClusters = cms.EDFilter("TrackClusterRemover",
+newClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("zeroStepFilter"), 
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
