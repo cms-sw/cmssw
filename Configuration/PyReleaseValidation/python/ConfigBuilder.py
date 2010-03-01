@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.165 $"
+__version__ = "$Revision: 1.166 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -663,6 +663,16 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.raw2digi_step)
         return
 
+    def prepare_L1HwVal(self, sequence = 'L1HwVal'):
+        ''' Enrich the schedule with L1 HW validation '''
+	if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember(self.L1HwValDefaultCFF)
+        else:
+            self.loadAndRemember(sequence.split(',')[0])
+            self.process.l1hwval_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+            self.schedule.append( self.process.l1hwval_step )
+        return
+						
     def prepare_L1Reco(self, sequence = "L1Reco"):
         ''' Enrich the schedule with L1 reconstruction '''
         if ( len(sequence.split(','))==1 ):
@@ -715,12 +725,6 @@ class ConfigBuilder(object):
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
-
-	# add special L1 hardware validation -- makes only sense if run on real data
-	if self._options.isData==True :
-	    self.loadAndRemember( self.L1HwValDefaultCFF )
-	    self.process.l1hwval_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-	    self.schedule.append( self.process.l1hwval_step )
 
         if ( len(sequence.split(','))==1 ):
             self.loadAndRemember(self.DQMOFFLINEDefaultCFF)
@@ -841,7 +845,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.165 $"),
+              (version=cms.untracked.string("$Revision: 1.166 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
