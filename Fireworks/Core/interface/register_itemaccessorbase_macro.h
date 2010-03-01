@@ -16,7 +16,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 11:31:20 EDT 2010
-// $Id$
+// $Id: register_itemaccessorbase_macro.h,v 1.1 2010/02/26 09:40:55 eulisse Exp $
 //
 
 // system include files
@@ -43,6 +43,16 @@
       static std::string s_type(typeid(_type_).name()); \
       return s_type;} \
    const std::string& _accessor_::classPurpose() { \
+      static std::string s_purpose(_purpose_); return s_purpose;} enum {CONCATENATE(dummy_itemaccessor_methods_, __LINE__)}
+
+#define DEFINE_TEMPLATE_FWITEMACCESSOR_METHODS(_accessor_,_type_,_purpose_) \
+   template<> const std::string& _accessor_::classTypeName() { \
+      static std::string s_type = ROOT::Reflex::Type::ByTypeInfo(typeid(_type_)).Name(ROOT::Reflex::SCOPED); \
+      return s_type;} \
+   template<> const std::string& _accessor_::classRegisterTypeName() { \
+      static std::string s_type(typeid(_type_).name()); \
+      return s_type;} \
+   template<> const std::string& _accessor_::classPurpose() { \
       static std::string s_purpose(_purpose_); return s_purpose;} enum {CONCATENATE(dummy_itemaccessor_methods_, __LINE__)}
 
 #endif

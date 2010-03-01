@@ -18,7 +18,7 @@
 //
 // Original Author:  Giulio Eulisse 
 //         Created:  Thu Feb 18 00:00:00 EDT 2010
-// $Id$
+// $Id: FWItemAccessorRegistry.h,v 1.1 2010/02/26 09:40:48 eulisse Exp $
 //
 
 // system include files
@@ -37,6 +37,10 @@ typedef edmplugin::PluginFactory<IAccessorCreator> FWItemAccessorRegistry;
 
 #define REGISTER_FWITEMACCESSOR(_name_,_type_,_purpose_) \
    DEFINE_FWITEMACCESSOR_METHODS(_name_,_type_,_purpose_); \
+   DEFINE_EDM_PLUGIN(FWItemAccessorRegistry,_name_,_name_::classRegisterTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
+
+#define REGISTER_TEMPLATE_FWITEMACCESSOR(_name_,_type_,_purpose_) \
+   DEFINE_TEMPLATE_FWITEMACCESSOR_METHODS(_name_,_type_,_purpose_); \
    DEFINE_EDM_PLUGIN(FWItemAccessorRegistry,_name_,_name_::classRegisterTypeName()+"@"+_name_::classPurpose()+"@" # _name_)
 
 #endif
