@@ -37,6 +37,7 @@
 	  myElec.userInt("PassValidFirstPXBHit")      0 fail, 1 passes
           myElec.userInt("PassConversionRejection")   0 fail, 1 passes
           myElec.userInt("NumberOfExpectedMissingHits") the number of lost hits
+ 01Mar10  2nd electron option to be isolated if requested by user
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -94,7 +95,7 @@ class WenuCandidateFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       bool isInFiducial(double eta);
-      
+  bool passEleIDCuts(pat::Electron *ele);
       // ----------member data ---------------------------
   double ETCut_;
   double METCut_;
@@ -113,6 +114,10 @@ class WenuCandidateFilter : public edm::EDFilter {
   bool electronMatched2HLT_;
   double electronMatched2HLT_DR_;
   bool vetoSecondElectronEvents_;
+  bool useVetoSecondElectronID_;
+  std::string vetoSecondElectronIDType_;
+  std::string vetoSecondElectronIDSign_;
+  double vetoSecondElectronIDValue_;
   bool useValidFirstPXBHit_;
   bool calculateValidFirstPXBHit_;
   bool useConversionRejection_;
@@ -148,6 +153,16 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   ETCut2ndEle_ = iConfig.getUntrackedParameter<double>("ETCut2ndEle",
 						       ETCut2ndEle_D);
   vetoSecondElectronEvents_ = iConfig.getUntrackedParameter<bool>("vetoSecondElectronEvents",false);
+  vetoSecondElectronIDType_ = iConfig.getUntrackedParameter<std::string>
+    ("vetoSecondElectronIDType", "NULL");
+  if (vetoSecondElectronIDType_ != "NULL") {
+    useVetoSecondElectronID_ = true;
+    vetoSecondElectronIDValue_ = iConfig.getUntrackedParameter<double>
+      ("vetoSecondElectronIDValue");
+    vetoSecondElectronIDSign_ = iConfig.getUntrackedParameter<std::string>
+      ("vetoSecondElectronIDSign","=");
+  }
+  else useVetoSecondElectronID_ = false;
   //
   // preselection criteria: hit pattern
   useValidFirstPXBHit_ = 
@@ -218,8 +233,14 @@ IsolFilter","","HLT");
   std::cout << "WenuCandidateFilter: ET  > " << ETCut_ << std::endl;
   std::cout << "WenuCandidateFilter: MET > " << METCut_ << std::endl;
   if (vetoSecondElectronEvents_) {
-  std::cout << "WenuCandidateFilter: VETO 2nd electron with ET > " 
-	    << ETCut2ndEle_ << std::endl;
+    std::cout << "WenuCandidateFilter: VETO 2nd electron with ET > " 
+	      << ETCut2ndEle_ << std::endl;
+    if (useVetoSecondElectronID_) {
+      std::cout<<"WenuCandidateFilter: VETO 2nd ele ID "  
+	       << vetoSecondElectronIDType_ << vetoSecondElectronIDSign_
+	       << vetoSecondElectronIDValue_
+	       << std::endl;
+    }
   }
   else {
     std::cout << "WenuCandidateFilter: No veto for 2nd electron applied " 
@@ -421,8 +442,9 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    // now search for a second Gsf electron with ET > ETCut2ndEle_
    if (event_elec_number>=2 && vetoSecondElectronEvents_) {
-     if (ETs[ sorted[1] ] > ETCut2ndEle_) {
-       //std::cout<<"Second Electron with ET=" << ETs[ sorted[1] ]<<std::endl;
+     pat::Electron secElec = myElectrons[ sorted[1] ];
+     //std::cout << "Second Electron with ET=" << ETs[ sorted[1] ] << " and ID: " << passEleIDCuts(&secElec)  <<std::endl;
+     if (ETs[ sorted[1] ] > ETCut2ndEle_ && passEleIDCuts(&secElec)) {
        delete [] sorted;  delete [] et;
        return false;  // RETURN if you have more that 1 electron with ET>cut
      }
@@ -627,6 +649,32 @@ bool WenuCandidateFilter::isInFiducial(double eta)
     return true;
   return false;
 
+}
+
+bool WenuCandidateFilter::passEleIDCuts(pat::Electron *ele)
+{
+  if (not useVetoSecondElectronID_)  return true;
+  if (not ele->isElectronIDAvailable(vetoSecondElectronIDType_)) {
+    std::cout << "WenuCandidateFilter: request ignored: 2nd electron ID type "
+	      << "not found in electron object" << std::endl;
+    return true;
+  }
+  if (vetoSecondElectronIDSign_ == ">") {
+    if (ele->electronID(vetoSecondElectronIDType_)>vetoSecondElectronIDValue_)
+      return true;
+    else return false;
+  }
+  else if (vetoSecondElectronIDSign_ == "<") {
+    if (ele->electronID(vetoSecondElectronIDType_)<vetoSecondElectronIDValue_)
+      return true;
+    else return false;
+  }
+  else {
+    if (fabs(ele->electronID(vetoSecondElectronIDType_)-
+	     vetoSecondElectronIDValue_) < 0.1)
+      return true;
+    else return false;    
+  }
 }
 
 //define this as a plug-in
