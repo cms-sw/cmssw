@@ -32,20 +32,75 @@ public:
 	ReturnType produce(const BeamSpotObjectsRcd &record);
 private:
 	void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,const edm::IOVSyncValue &syncValue,edm::ValidityInterval &oValidity);
-	edm::FileInPath xmlCalibration;
-	bool usedummy;
-	std::string BeamType;
+  edm::FileInPath inputFilename_;
+  bool getDataFromFile_;
+  double x,y,z,sigmaZ,dxdz,dydz,beamWidthX,beamWidthY,emittanceX,emittanceY,betastar;
+  std::string tag;
+  double cov[7][7];
+  int type;
 	
 };
 
-BeamSpotFakeConditions::BeamSpotFakeConditions(const edm::ParameterSet &params) :
-	
-	//xmlCalibration(params.getParameter<edm::FileInPath>("xmlCalibration") ), //disable until xml writer is fixed
-	usedummy(params.getParameter<bool>("UseDummy") ),
-	BeamType(params.getParameter<std::string>("BeamType") ) {
-		
+BeamSpotFakeConditions::BeamSpotFakeConditions(const edm::ParameterSet &params)
+{	
 		setWhatProduced(this);
 		findingRecord<BeamSpotObjectsRcd>();
+		getDataFromFile_ = params.getParameter<bool>("getDataFromFile");
+		if (getDataFromFile_) {
+		  inputFilename_   = params.getParameter<edm::FileInPath>("InputFilename");
+		  std::ifstream fasciiFile(inputFilename_.fullPath().c_str() );
+		  fasciiFile >> tag >> type;
+		  fasciiFile >> tag >> x;
+		  fasciiFile >> tag >> y;
+		  fasciiFile >> tag >> z;
+		  fasciiFile >> tag >> sigmaZ;
+		  fasciiFile >> tag >> dxdz;
+		  fasciiFile >> tag >> dydz;
+		  fasciiFile >> tag >> beamWidthX;
+		  fasciiFile >> tag >> beamWidthY;
+		  fasciiFile >> tag >> cov[0][0] >> cov[0][1] >> cov[0][2]>> cov[0][3] >> cov[0][4]>> cov[0][5] >> cov[0][6]
+		    ;
+		  fasciiFile >> tag >> cov[1][0] >> cov[1][1] >> cov[1][2] >> cov[1][3]>> cov[1][4] >> cov[1][5]>> cov[1][6]
+		    ;
+		  fasciiFile >> tag >> cov[2][0]  >> cov[2][1] >> cov[2][2] >> cov[2][3]>> cov[2][4] >> cov[2][5]>> cov[2][6
+															   ];
+		  fasciiFile >> tag >> cov[3][0]  >> cov[3][1] >> cov[3][2] >> cov[3][3]>> cov[3][4] >> cov[3][5]>> cov[3][6
+															   ];
+		  fasciiFile >> tag >> cov[4][0] >> cov[4][1] >> cov[4][2] >> cov[4][3]>> cov[4][4] >> cov[4][5]>> cov[4][6]
+		    ;
+		  fasciiFile >> tag >> cov[5][0] >> cov[5][1] >> cov[5][2] >> cov[5][3]>> cov[5][4] >> cov[5][5]>> cov[5][6]
+		    ;
+		  fasciiFile >> tag >> cov[6][0] >> cov[6][1] >> cov[6][2] >> cov[6][3]>> cov[6][4] >> cov[6][5]>> cov[6][6]
+		    ;
+		  fasciiFile >> tag >> emittanceX;
+		  fasciiFile >> tag >> emittanceY;
+		  fasciiFile >> tag >> betastar;
+
+		}
+		// input values by hand
+		else {
+		  x =              params.getParameter<double>(  "X0" );
+		  y =              params.getParameter<double>(  "Y0" );
+		  z =              params.getParameter<double>(  "Z0" );
+		  dxdz =           params.getParameter<double>(  "dxdz" );
+		  dydz =           params.getParameter<double>(  "dydz" );
+		  sigmaZ =         params.getParameter<double>(  "sigmaZ" );
+		  beamWidthX =     params.getParameter<double>(  "widhthX" );
+		  beamWidthY =     params.getParameter<double>(  "widhthY" );
+		  emittanceX =     params.getParameter<double>(  "emittanceX" );
+		  emittanceY =     params.getParameter<double>(  "emittanceY" );
+		  betastar =       params.getParameter<double>(  "betaStar"  );
+
+		  // we ignore correlations when values are given by hand
+		  cov[0][0] =       pow( params.getParameter<double>(  "errorX0" ), 2 );
+		  cov[1][1] =       pow(    params.getParameter<double>(  "errorY0" ), 2 );
+		  cov[2][2] =       pow(    params.getParameter<double>(  "errorZ0" ), 2 );
+		  cov[3][3] =       pow( params.getParameter<double>(  "errorSigmaZ" ), 2 );
+		  cov[4][4] =       pow( params.getParameter<double>(  "errordxdz" ), 2 );
+		  cov[5][5] =       pow( params.getParameter<double>(  "errordydz" ), 2 );
+		  cov[6][6] =       pow( params.getParameter<double>(  "errorWidhth" ), 2 );
+		  
+		}
 }
 
 BeamSpotFakeConditions::~BeamSpotFakeConditions(){}
@@ -56,113 +111,22 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 	BeamSpotObjects *adummy = new BeamSpotObjects();
 	
-	if ( ! usedummy ) {
-	  //TBufferXML code removed from here...		
+	adummy->SetPosition( x, y , z );
+	adummy->SetSigmaZ( sigmaZ);
+	adummy->Setdxdz( dxdz );
+	adummy->Setdydz( dydz );
+	adummy->SetBeamWidthX( beamWidthX );
+	adummy->SetBeamWidthY( beamWidthY );
+	for (int i=0; i<7; i++ ) {
+	  for (int j=0; j<7; j++) {
+
+	    adummy->SetCovariance( i, j, cov[i][j] );
+	  } 
 	}
-	else {
+	adummy->SetEmittanceX( emittanceX );
+	adummy->SetEmittanceY( emittanceY );
+	adummy->SetBetaStar( betastar);
 
-		
-
-		// we are going to use the truth values defined at the generator stage,
-		// see IOMC/EventVertexGenerators/data
-
-		//////////////////
-		// FOR THE MOMENT, FAKE CONDITIONS ARE A HARD WIRED COPY OF THE DB CONDITIONS
-		//////////////////
-		
-		if ( BeamType == "SimpleGaussian" || BeamType == "DummySigmaZ_5p3cm") {
-			adummy->SetPosition(0.,0.,0.);
-			adummy->SetSigmaZ(5.3);
-			adummy->Setdxdz(0.);
-			adummy->Setdydz(0.);
-			adummy->SetBeamWidthX(15.e-4);
-			adummy->SetBeamWidthY(15.e-4);
-		}
-
-		else if ( BeamType == "Early10TeVCollision" ) {
-			adummy->SetPosition(0.0325127,0.000505765,0.0795808);
-			adummy->SetSigmaZ(3.79659);
-			adummy->Setdxdz(4.58986e-05);
-			adummy->Setdydz(-0.000112271);
-			adummy->SetBeamWidthX(46.0e-4);
-			adummy->SetBeamWidthY(46.0e-4);
-			adummy->SetCovariance(0,0,pow(5.17247e-05,2));
-			adummy->SetCovariance(1,1,pow(5.01696e-05,2));
-			adummy->SetCovariance(2,2,pow(0.467712,2));
-			adummy->SetCovariance(3,3,pow(0.400947,2));
-			adummy->SetCovariance(4,4,pow(1.39248e-05,2));
-			adummy->SetCovariance(5,5,pow(1.31797e-05,2));
-			adummy->SetCovariance(6,6,pow(2.0e-4,2));
-			adummy->SetEmittanceX(7.03e-08);
-			adummy->SetEmittanceY(7.03e-08);
-			adummy->SetBetaStar(300.0);
-		}
-
-		else if ( BeamType == "EarlyCollision" ) {
-			adummy->SetPosition(0.032206,-1.97386e-05,-0.282702);
-			adummy->SetSigmaZ(5.3); // temporal
-			adummy->Setdxdz(1.76367e-06);
-			adummy->Setdydz(-2.58129e-05);
-			adummy->SetBeamWidthX(31.7e-4);
-			adummy->SetBeamWidthY(31.7e-4);
-			adummy->SetCovariance(0,0,pow(6.96e-05,2));
-			adummy->SetCovariance(1,1,pow(6.74e-5,2));
-			adummy->SetCovariance(2,2,pow(0.70,2));
-			adummy->SetCovariance(3,3,pow(0.1,2));// temporal
-			adummy->SetCovariance(4,4,pow(9.74e-6,2));
-			adummy->SetCovariance(5,5,pow(9.64e-6,2));
-			adummy->SetCovariance(6,6,pow(2.0e-4,2));
-		}
-
-		else if ( BeamType == "NominalCollision" ) {
-			adummy->SetPosition(0.05,0.,0.);
-			adummy->SetSigmaZ(5.3);
-			adummy->Setdxdz(140.e-6);
-			adummy->Setdydz(0.);
-			adummy->SetBeamWidthX(16.6e-4);
-			adummy->SetBeamWidthY(16.6e-4);
-		}
-		// extreme cases
-		else if ( BeamType == "NominalCollision1" ) {
-			adummy->SetPosition(0.05,0.025,0.);
-			adummy->SetSigmaZ(5.3);
-			adummy->Setdxdz(0.);
-			adummy->Setdydz(0.);
-			adummy->SetBeamWidthX(16.6e-4);
-			adummy->SetBeamWidthY(16.6e-4);
-		}
-		
-		else if ( BeamType == "NominalCollision2" ) {
-			adummy->SetPosition(0.05,0.025,0.);
-			adummy->SetSigmaZ(5.3);
-			adummy->Setdxdz(140.e-6);
-			adummy->Setdydz(0.);
-			adummy->SetBeamWidthX(16.6e-4);
-			adummy->SetBeamWidthY(16.6e-4);
-		}
-
-		else if ( BeamType == "NominalCollision3" ) {
-			adummy->SetPosition(0.1,0.025,0.);
-			adummy->SetSigmaZ(5.3);
-			adummy->Setdxdz(0.);
-			adummy->Setdydz(0.);
-			adummy->SetBeamWidthX(16.6e-4);
-			adummy->SetBeamWidthY(16.6e-4);
-		}
-
-		else if ( BeamType == "NominalCollision4" ) {
-			adummy->SetPosition(0.2,0.025,0.);
-			adummy->SetSigmaZ(5.3);
-			adummy->Setdxdz(0.);
-			adummy->Setdydz(0.);
-			adummy->SetBeamWidthX(16.6e-4);
-			adummy->SetBeamWidthY(16.6e-4);
-		}
-
-		
-		//return ReturnType(adummy);
-	}
-  
 	return ReturnType(adummy);
 }
 
