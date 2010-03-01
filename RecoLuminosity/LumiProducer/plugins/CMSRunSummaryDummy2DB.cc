@@ -1,5 +1,5 @@
-#ifndef RecoLuminosity_LumiProducer_RunSummaryDummy2DB_h 
-#define RecoLuminosity_LumiProducer_RunSummaryDummy2DB_h 
+#ifndef RecoLuminosity_LumiProducer_CMSRunSummaryDummy2DB_H 
+#define RecoLuminosity_LumiProducer_CMSRunSummaryDummy2DB_H 
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
@@ -16,21 +16,20 @@
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include <iostream>
-#include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 namespace lumi{
-  class RunSummaryDummy2DB : public DataPipe{
+  class CMSRunSummaryDummy2DB : public DataPipe{
   public:
-    RunSummaryDummy2DB(const std::string& dest);
+    CMSRunSummaryDummy2DB(const std::string& dest);
     virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
-    virtual ~RunSummaryDummy2DB();
-  };//cl RunSummaryDummy2DB
+    virtual ~CMSRunSummaryDummy2DB();
+  };//cl CMSRunSummaryDummy2DB
   //
   //implementation
   //
-  RunSummaryDummy2DB::RunSummaryDummy2DB( const std::string& dest):DataPipe(dest){}
-  void RunSummaryDummy2DB::retrieveData( unsigned int runnum){
+  CMSRunSummaryDummy2DB::CMSRunSummaryDummy2DB( const std::string& dest):DataPipe(dest){}
+  void CMSRunSummaryDummy2DB::retrieveData( unsigned int runnum){
     //
     //generate dummy data of run summary for the given run and write data to LumiDB
     //
@@ -46,17 +45,13 @@ namespace lumi{
     try{
       session->transaction().start(false);
       coral::ISchema& schema=session->nominalSchema();
-      coral::ITable& runtable=schema.tableHandle(LumiNames::runsummaryTableName());
+      coral::ITable& runtable=schema.tableHandle(LumiNames::cmsrunsummaryTableName());
       coral::AttributeList runData;
       runtable.dataEditor().rowBuffer(runData);
       runData["RUNNUM"].data<unsigned int>()=runnum;
       runData["FILLNUM"].data<unsigned int>()=8973344;
-      runData["TOTALCMSLS"].data<unsigned int>()=32;
-      runData["TOTALLUMILS"].data<unsigned int>()=35;
       runData["SEQUENCE"].data<std::string>()="run sequence key";
       runData["HLTKEY"].data<std::string>()=fakehltkey;
-      runData["STARTORBIT"].data<unsigned int>()=340506;
-      runData["ENDORBIT"].data<unsigned int>()=7698988;
       runtable.dataEditor().insertRow(runData);
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
@@ -65,19 +60,18 @@ namespace lumi{
       delete svc;
       throw er;
     }
-    //delete detailInserter;
     session->transaction().commit();
     delete session;
     delete svc;
   }
-  const std::string RunSummaryDummy2DB::dataType() const{
-    return "RUNSUMMARY";
+  const std::string CMSRunSummaryDummy2DB::dataType() const{
+    return "CMSRUNSUMMARY";
   }
-  const std::string RunSummaryDummy2DB::sourceType() const{
+  const std::string CMSRunSummaryDummy2DB::sourceType() const{
     return "DUMMY";
   }
-  RunSummaryDummy2DB::~RunSummaryDummy2DB(){}
+  CMSRunSummaryDummy2DB::~CMSRunSummaryDummy2DB(){}
 }//ns lumi
 #include "RecoLuminosity/LumiProducer/interface/DataPipeFactory.h"
-DEFINE_EDM_PLUGIN(lumi::DataPipeFactory,lumi::RunSummaryDummy2DB,"RunSummaryDummy2DB");
+DEFINE_EDM_PLUGIN(lumi::DataPipeFactory,lumi::CMSRunSummaryDummy2DB,"CMSRunSummaryDummy2DB");
 #endif
