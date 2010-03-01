@@ -40,15 +40,6 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 #process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
 ##
 #
-# for ecal isolation: set the correct name of the ECAL rechit collection
-# 
-#process.eleIsoDepositEcalFromHits.ExtractorPSet.barrelEcalHits = cms.InputTag("reducedEcalRecHitsEB", "", "RECO")
-#process.eleIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE", "", "RECO")
-#
-#
-#process.eidRobustHighEnergy.reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB", "", "RECO")
-#process.eidRobustHighEnergy.reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE", "", "RECO")     
-
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## MET creation     <=== WARNING: YOU MAY WANT TO MODIFY THIS PART OF THE CODE       %%%%%%%%%%%%%
 ##                                specify the names of the MET collections that you need here %%%%
@@ -68,17 +59,6 @@ process.makePatMETs = cms.Sequence(process.patMETCorrections * process.patMETs *
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## modify the final pat sequence: keep only electrons + METS (muons are needed for met corrections)
 process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
-#process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
-#process.electronEcalRecHitIsolationScone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
-#process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEE")
-#process.electronEcalRecHitIsolationScone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEE")
-#
-#process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitCollection = cms.InputTag("")
-#process.electronEcalRecHitIsolationScone.ecalBarrelRecHitCollection = cms.InputTag("")
-#process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitCollection = cms.InputTag("")
-#process.electronEcalRecHitIsolationScone.ecalEndcapRecHitCollection = cms.InputTag("")
-#
-#
 process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
 
 process.patElectrons.isoDeposits = cms.PSet()
@@ -142,6 +122,10 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   METCut = cms.untracked.double(0.),
                                   vetoSecondElectronEvents = cms.untracked.bool(False),
                                   ETCut2ndEle = cms.untracked.double(20.),
+                                  # some extras for 2nd electron cuts - uncomment if you don't want them
+                                  vetoSecondElectronIDType = cms.untracked.string("eidRobustLoose"),
+                                  vetoSecondElectronIDSign = cms.untracked.string("="),
+                                  vetoSecondElectronIDValue = cms.untracked.double(1.),
                                   # trigger here
                                   useTriggerInfo = cms.untracked.bool(False),
                                   triggerCollectionTag = cms.untracked.InputTag("TriggerResults","",HLT_process_name),
