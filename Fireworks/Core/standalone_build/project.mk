@@ -18,7 +18,7 @@ ifeq ($(shell uname), Linux)
 
       ProjectIncludes := external/inc/boost/1.40.0/include
       ProjectIncludes += external/inc/clhep/2.0.4.2/include 
-      ProjectIncludes += external/inc/g sl/1.10/include
+      ProjectIncludes += external/inc/gsl/1.10/include
       ProjectIncludes += external/inc/hepmc/2.03.06/include
       ProjectIncludes += external/inc/sigcpp/2.2.3/include/sigc++-2.0 
    endif     

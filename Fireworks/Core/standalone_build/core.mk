@@ -18,7 +18,7 @@ else
 
       CoreIncludes := external/inc/boost/1.40.0/include
       CoreIncludes += external/inc/clhep/2.0.4.2/include 
-      CoreIncludes += external/inc/g sl/1.10/include
+      CoreIncludes += external/inc/gsl/1.10/include
       CoreIncludes += external/inc/hepmc/2.03.06/include
       CoreIncludes += external/inc/sigcpp/2.2.3/include/sigc++-2.0 
    endif     
