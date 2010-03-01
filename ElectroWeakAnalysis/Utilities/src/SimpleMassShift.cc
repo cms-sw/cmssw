@@ -98,8 +98,7 @@ bool SimpleMassShift::filter(edm::Event & ev, const edm::EventSetup&){
             return false;
       }
 
-      edm::TriggerNames trigNames;
-      trigNames.init(*triggerResults);
+      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       unsigned int pathIndex = trigNames.triggerIndex(selectorPath_);
       bool pathFound = (pathIndex>=0 && pathIndex<trigNames.size());
       if (pathFound) {
