@@ -1,34 +1,38 @@
-# /dev/CMSSW_3_5_0/8E29/V35 (CMSSW_3_5_2_HLT3)
+# /dev/CMSSW_3_5_0/8E29/V36 (CMSSW_3_5_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V35')
+  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V36')
 )
 
 streams = cms.PSet( 
   Offline = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'ZeroBias',
-    'HcalHPDNoise',
+  A = cms.vstring( 'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
+    'ZeroBias',
     'Cosmics',
     'MinimumBias' ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressMuon' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' )
 )
 datasets = cms.PSet( 
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_L1MuOpen',
+    'HLT_L1Mu',
+    'HLT_ZeroBias' ),
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
@@ -109,11 +113,11 @@ datasets = cms.PSet(
     'HLT_DoubleMu3',
     'HLT_DoubleJet15U_ForwardBackward',
     'HLT_HighMult40' ),
-  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   HcalHPDNoise = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
     'HLT_HcalPhiSym' ),
+  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   Cosmics = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Mu20',
     'HLT_L1Mu',
@@ -185,10 +189,6 @@ datasets = cms.PSet(
     'HLT_L1Mu14_L1SingleEG10',
     'HLT_StoppedHSCP_8E29',
     'HLT_BTagIP_Jet50U' ),
-  ExpressMuon = cms.vstring( 'HLT_MET100',
-    'HLT_L1MuOpen',
-    'HLT_L1Mu',
-    'HLT_ZeroBias' ),
   AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
     'AlCa_EcalPi0_8E29' ),
