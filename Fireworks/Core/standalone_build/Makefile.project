@@ -13,20 +13,14 @@ endif
 CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 
 # linker flags
-ProjectMissingFlags = -lGeom -lGuiHtml
-
 ifeq ($(shell uname), Linux)
         ExecLibs = -lEve -lGuiHtml -lRIO -lNet -L./ -l$(LibProject)
         ExtraProjectLibs = -L./ -l$(LibCore) 
 else 
    ifeq ($(shell uname), Darwin)
       ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
-      ExtraProjectLibs = -lRIO -lEve -lGeom -lGeomPainter -lGraf3d \
-      -lGui -lGpad -lGraf -lHist -lPhysics -lGed -lEG -lTree \
-		-lTreePlayer -lRGL -lFTGL -lNet  -lRint -lRGL -lGui -lCore \
-		-lCintex -lCint -lReflex -lGenVector -lMathMore -lMathCore -lGuiHtml\
-		-lboost_iostreams -lboost_program_options -lboost_regex -lboost_system \
-		-lsigc-2.0.0 -L./ -L/usr/X11R6/lib -lGL -lGLU -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib -l$(LibCore)
+      ExtraProjectLibs =  -L/usr/X11R6/lib -lGL -lGLU -L./ -l$(LibCore) \
+      -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
    endif
 endif
 
