@@ -12,7 +12,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Common/interface/TriggerNames.h"
+// #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -20,6 +20,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+// #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -72,6 +75,7 @@ typedef struct HPD_struct {
 myFilter::myFilter(const edm::ParameterSet& cfg) :
   CaloJetAlgorithm( cfg.getParameter<string>( "CaloJetAlgorithm" ) )
 {
+  _nTotal      = 0;
   _nEvent      = 0;
   _acceptedEvt = 0;
   _passPt      = 0;
@@ -84,6 +88,9 @@ myFilter::myFilter(const edm::ParameterSet& cfg) :
   _passHighPtTower    = 0;
   _passNRBX    = 0;
   _passHLT     = 0;
+  _passNPMTHits     = 0;
+  _passNMultiPMTHits     = 0;
+  _passPKAM     = 0;
 
   theTriggerResultsLabel = cfg.getParameter<edm::InputTag>("TriggerResultsLabel");
 }
@@ -98,7 +105,7 @@ void myFilter::endJob() {
 
   std::cout << "=============================================================" << std::endl;
   std::cout << "myFilter: accepted " 
-	    << _acceptedEvt << " / " <<  _nEvent <<  " events." << std::endl;
+	    << _acceptedEvt << " / " <<  _nEvent <<  " / " << _nTotal << " events" << std::endl;
   std::cout << "Pt           = " << _passPt          << std::endl;
   std::cout << "NJets        = " << _passNJets       << std::endl;
   std::cout << "NTrks        = " << _passNTrks       << std::endl;
@@ -108,6 +115,9 @@ void myFilter::endJob() {
   std::cout << "METSig       = " << _passMETSig      << std::endl;
   std::cout << "HighPtTower  = " << _passHighPtTower << std::endl;
   std::cout << "NRBX         = " << _passNRBX        << std::endl;
+  std::cout << "NPMTHits     = " << _passNPMTHits    << std::endl;
+  std::cout << "NMultPMTHits = " << _passNMultiPMTHits    << std::endl;
+  std::cout << "PKAM         = " << _passPKAM    << std::endl;
   std::cout << "=============================================================" << std::endl;
 
 }
@@ -130,6 +140,9 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   bool filter_HighPtTower  = false;
   bool filter_NRBX         = false;
   bool filter_HLT          = false;
+  bool filter_NPMTHits     = false;
+  bool filter_NMultiPMTHits     = false;
+  bool filter_PKAM     = false;
 
 
   bool Pass = false;
@@ -173,7 +186,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   HFM_E = 0.;
   HFP_ETime = 0.;
   HFP_E = 0.;
-
+  int NPMTHits;
+  NPMTHits= 0;
   try {
     std::vector<edm::Handle<HFRecHitCollection> > colls;
     evt.getManyByType(colls);
@@ -181,7 +195,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     for (i=colls.begin(); i!=colls.end(); i++) {
       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         if (j->id().subdet() == HcalForward) {
-
+	  if (j->flagField(0) != 0) NPMTHits++;
           if (j->id().ieta()<0) {
             if (j->energy() > HFThreshold) {
               HFM_ETime += j->energy()*j->time();
@@ -201,6 +215,10 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   } catch (...) {
     cout << "No HF RecHits." << endl;
   }
+  if (NPMTHits > 0) filter_NPMTHits = true;
+  if (NPMTHits > 1) filter_NMultiPMTHits = true;
+  //  cout << "NPMTHits = " << NPMTHits << endl;
+
 
   if ((HFP_E > 0.) && (HFM_E > 0.)) {
     HF_PMM = (HFP_ETime / HFP_E) - (HFM_ETime / HFM_E);
@@ -215,15 +233,16 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     Pass = false;
   }
 
-
-
+  _nTotal++;
+  Pass = true;
   if (Pass) {
+    /***
   std::cout << ">>>> FIL: Run = "    << evt.id().run()
             << " Event = " << evt.id().event()
             << " Bunch Crossing = " << evt.bunchCrossing()
             << " Orbit Number = "  << evt.orbitNumber()
             <<  std::endl;
-
+    ***/
   // *********************************************************
   // --- Event Classification
   // *********************************************************
@@ -332,10 +351,10 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   }
   if ( (nHPD == 1) && (nTowers > 6) ) {
     evtType = 2;
-    cout << " nHPD = "   << nHPD
-         << " Towers = " << nTowers
-         << " Type = "   << evtType
-         << endl;
+    //    cout << " nHPD = "   << nHPD
+    //         << " Towers = " << nTowers
+    //         << " Type = "   << evtType
+    //         << endl;
   }
 
 
@@ -350,6 +369,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   Int_t JetLoPass = 0;
 
+  /****
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
     const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
@@ -361,10 +381,52 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
       }
     }
   }
+  *****/
 
   // *********************************************************
   // --- Vertex Selection
   // *********************************************************
+
+  // *********************************************************
+  // --- Pixel Track and Clusters
+  // *********************************************************
+  /*******
+  // -- Tracks
+  edm::Handle<std::vector<reco::Track> > hTrackCollection;
+  try {
+    evt.getByLabel("generalTracks", hTrackCollection);
+  } catch (cms::Exception &ex) {
+    if (fVerbose > 1) cout << "No Track collection with label " << fTrackCollectionLabel << endl;
+  }
+
+  if (hTrackCollection.isValid()) {
+    const std::vector<reco::Track> trackColl = *(hTrackCollection.product());
+    nTk = trackColl.size();
+  }
+  *******/
+
+  // *********************************************************
+  // --- Pixel Clusters
+  // *********************************************************
+  // -- Pixel cluster
+  /***
+  edm::Handle<reco::SiPixelCluster> hClusterColl;
+  evt.getByLabel("siPixelClusters", hClusterColl);
+  const reco::SiPixelCluster cC = *(hClusterColl.product());
+  ***/
+
+  edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
+  evt.getByLabel("siPixelClusters", hClusterColl);
+  const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
+  //  nCl = clustColl.size();
+
+  /***
+  int nCl = 0;
+  if (hClusterColl.isValid()) {
+    const edmNew::DetSetVector<SiPixelCluster> clustColl = *(hClusterColl.product());
+    nCl = clustColl.size();
+  }
+  ***/
 
   // *********************************************************
   // --- Track Selection
@@ -374,7 +436,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   evt.getByLabel("generalTracks", trackCollection);
   
   const reco::TrackCollection tC = *(trackCollection.product());
-  std::cout << "FIL: Reconstructed "<< tC.size() << " tracks" << std::endl ;
+  //  std::cout << "FIL: Reconstructed "<< tC.size() << " tracks" << std::endl ;
 
   if (tC.size() > 3) filter_NTrks = true;
 
@@ -398,6 +460,13 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     std::cout << "\t direction: " << track->seedDirection() << std::endl;
   ****/
 
+
+  if ((tC.size() > 100) && (clustColl.size() > 1000)) {
+    _passPKAM++;
+    filter_PKAM = true;
+  }
+  //  std::cout << "N Tracks =  "  << tC.size() 
+  //	    << " N Cluster = " << clustColl.size() << std::endl ;
 
 
 
@@ -561,7 +630,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   _nEvent++;  
 
   if ( (filter_HLT) || (filter_NJets) )  {
-    result = true;
+    //    result = true;
     //    _acceptedEvt++;
   }
 
@@ -573,10 +642,18 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   }
   ***/
 
-  if ( (filter_Pt) || (filter_NJets) ) {
+  //  if ( (filter_Pt) || (filter_NJets) ) {
+  //    result = true;
+  //    _acceptedEvt++;
+  //  }  
+
+  //  if (filter_NMultiPMTHits) {
+  if (filter_PKAM) {
     result = true;
     _acceptedEvt++;
   }  
+
+
 
   if (filter_Pt)           _passPt++;
   if (filter_NJets)        _passNJets++;
@@ -587,6 +664,8 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   if (filter_HighPtTower)  _passHighPtTower++;
   if (filter_NRBX)         _passNRBX++;
   if (filter_HLT)          _passHLT++;
+  if (filter_NPMTHits)     _passNPMTHits++;
+  if (filter_NMultiPMTHits)     _passNMultiPMTHits++;
 
   /****  
   if ((evt.id().run() == 120020) && (evt.id().event() == 453)) {
