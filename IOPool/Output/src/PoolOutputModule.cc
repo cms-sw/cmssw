@@ -203,19 +203,16 @@ namespace edm {
   }
 
   void PoolOutputModule::write(EventPrincipal const& e) {
-      if(hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
       rootOutputFile_->writeOne(e);
   }
 
   void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-      if(hasNewlyDroppedBranch()[InLumi]) lb.addToProcessHistory();
       rootOutputFile_->writeLuminosityBlock(lb);
       Service<JobReport> reportSvc;
       reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
   void PoolOutputModule::writeRun(RunPrincipal const& r) {
-      if(hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       rootOutputFile_->writeRun(r);
       Service<JobReport> reportSvc;
       reportSvc->reportRunNumber(r.run());
