@@ -58,7 +58,6 @@ namespace edm {
     void selectProducts();
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
-    boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
@@ -106,8 +105,6 @@ namespace edm {
     // 
     // We do not own the BranchDescriptions to which we point.
     SelectionsArray keptProducts_;
-
-    boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;
     GroupSelectorRules groupSelectorRules_;
