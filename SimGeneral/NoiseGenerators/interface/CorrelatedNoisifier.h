@@ -42,7 +42,7 @@ public:
   void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
   template<class T>
-  void noisify(T & frame)
+  void noisify(T & frame) const
   {
     // make a vector of random values
     assert(frame.size() == (int)theSize);
@@ -91,9 +91,7 @@ public:
   void computeDecomposition();
 
   // for test purpose
-  const M & covmatrix() {
-    return theCovarianceMatrix;
-  }
+  const M& covmatrix() const { return theCovarianceMatrix ; }
 
 private:
   void init();
