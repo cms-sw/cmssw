@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.164 $"
+__version__ = "$Revision: 1.165 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -363,6 +363,7 @@ class ConfigBuilder(object):
 	self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
 	self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
 	self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
+	self.L1HwValDefaultCFF = "Configuration/StandardSequences/L1HwVal_cff"
 	self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOffline_cff"
 	self.HARVESTINGDefaultCFF="Configuration/StandardSequences/Harvesting_cff"
 	self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
@@ -393,6 +394,7 @@ class ConfigBuilder(object):
 	self.L1RecoDefaultSeq='L1Reco'
 	self.RECODefaultSeq='reconstruction'
 	self.POSTRECODefaultSeq=None
+	self.L1HwValDefaultSeq='L1HwVal'
 	self.DQMDefaultSeq='DQMOffline'
 	self.FASTSIMDefaultSeq='all'
 	self.VALIDATIONDefaultSeq='validation'
@@ -714,6 +716,12 @@ class ConfigBuilder(object):
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
+	# add special L1 hardware validation -- makes only sense if run on real data
+	if self._options.isData==True :
+	    self.loadAndRemember( self.L1HwValDefaultCFF )
+	    self.process.l1hwval_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+	    self.schedule.append( self.process.l1hwval_step )
+
         if ( len(sequence.split(','))==1 ):
             self.loadAndRemember(self.DQMOFFLINEDefaultCFF)
         else:    
@@ -833,7 +841,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.164 $"),
+              (version=cms.untracked.string("$Revision: 1.165 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
