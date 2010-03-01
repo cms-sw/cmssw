@@ -1,7 +1,5 @@
 #include "CondTools/SiPixel/test/SiPixelTemplateDBObjectUploader.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject0TRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject38TRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject4TRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -142,28 +140,14 @@ SiPixelTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::Ev
 	//for(std::map<unsigned int,short>::const_iterator it=templMap.begin(); it!=templMap.end();++it)
 		//std::cout<< "Map:\n"<< "DetId: "<< it->first << " TemplateID: "<< it->second <<"\n";
 
-
-	
-  //--- Create a new IOV
+	//--- Create a new IOV
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
-	
-  if( poolDbService.isAvailable() ) {
-		if ( poolDbService->isNewTagRequest(theTemplateBaseString + "Rcd") )
-      poolDbService->
-				createNewIOV<SiPixelTemplateDBObject>( obj,
-					poolDbService->beginOfTime(),
-					poolDbService->endOfTime(),
-					theTemplateBaseString + "Rcd");
-		else
-      poolDbService->
-				appendSinceTime<SiPixelTemplateDBObject>( obj, 
-					poolDbService->currentTime(),
-					theTemplateBaseString + "Rcd");
-	}
-  else {
-    std::cout << "Pool Service Unavailable" << std::endl;
-    // &&& throw an exception???
-	}
+	if( !poolDbService.isAvailable() ) // Die if not available
+		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+	if(poolDbService->isNewTagRequest("SiPixelTemplateDBObjectRcd"))
+		poolDbService->writeOne( obj, poolDbService->beginOfTime(), "SiPixelTemplateDBObjectRcd");
+	else
+		poolDbService->writeOne( obj, poolDbService->currentTime(), "SiPixelTemplateDBObjectRcd");
 }
 
 void 

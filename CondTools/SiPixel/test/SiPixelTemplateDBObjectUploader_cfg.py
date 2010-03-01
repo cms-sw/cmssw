@@ -8,16 +8,12 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V20::All"
-
-#MagFieldValue = 0
-#MagFieldValue = 3.8
-#MagFieldValue = 4
+process.GlobalTag.globaltag = "MC_3XY_V23::All"
 
 MagFieldValue = float(sys.argv[2])
+#version = 'v2'
+version = sys.argv[3]
 
-
-tagversion = 'v1'
 if ( MagFieldValue==0 ):
     MagFieldString = '0'
     files_to_upload = cms.vstring(
@@ -32,7 +28,7 @@ elif(MagFieldValue==4):
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0019.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(18,19)
-elif(MagFieldValue==38):
+elif(MagFieldValue==3.8 or MagFieldValue==38):
     MagFieldString = '38'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0020.out",
@@ -53,7 +49,7 @@ elif(MagFieldValue==3):
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0033.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(32,33)
-elif(MagFieldValue==35):
+elif(MagFieldValue==3.5 or MagFieldValue==35):
     MagFieldString = '35'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0034.out",
@@ -66,7 +62,7 @@ elif(MagFieldValue==35):
 template_base = 'SiPixelTemplateDBObject' + MagFieldString + 'T'
 #theTemplateBaseString = cms.string(template_base)
 
-print 'Uploading',template_base
+print '\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTemplates%sT.db\n' % (template_base,version,MagFieldString)
 
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string('runnumber'),
@@ -87,8 +83,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           timetype = cms.untracked.string('runnumber'),
                                           connect = cms.string('sqlite_file:siPixelTemplates' + MagFieldString + 'T.db'),
                                           toPut = cms.VPSet(cms.PSet(
-    record = cms.string(template_base + 'Rcd'),
-    tag = cms.string(template_base + tagversion)
+    record = cms.string('SiPixelTemplateDBObjectRcd'),
+    tag = cms.string(template_base + version)
     ))
                                           )
 

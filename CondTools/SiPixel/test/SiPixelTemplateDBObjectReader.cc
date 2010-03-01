@@ -31,36 +31,9 @@ SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
 {
 	//To test Standalone without the ESProducer
 	if(testStandalone) {
-		if(theMagField==0) {
-			if(SiPixTemplDBObj0TWatcher_.check(setup)) {
-				edm::ESHandle<SiPixelTemplateDBObject> templateH;
-				setup.get<SiPixelTemplateDBObject0TRcd>().get(templateH);
-				dbobject = *templateH.product();
-				hasTriggeredWatcher=true;
-			}
-		}
-		else if(theMagField>3.9 && theMagField<4.1) {
-			if(SiPixTemplDBObj4TWatcher_.check(setup)) {
-				edm::ESHandle<SiPixelTemplateDBObject> templateH;
-				setup.get<SiPixelTemplateDBObject4TRcd>().get(templateH);
-				dbobject = *templateH.product();
-				hasTriggeredWatcher=true;
-			}
-		}
-		else {
-			//      if(theMagField<3.7 || theMagField>=4.1) edm::LogWarning("UnexpectedMagFieldUsingDefaultPixelTemplate") << "Mag field is "	<< theMagField;
-			if(SiPixTemplDBObj38TWatcher_.check(setup)) {
-				edm::ESHandle<SiPixelTemplateDBObject> templateH;
-				setup.get<SiPixelTemplateDBObject38TRcd>().get(templateH);
-				dbobject = *templateH.product();
-				hasTriggeredWatcher=true;
-			}
-		}
-	}
-	else {
-		if(SiPixTemplDBObjectWatcher_.check(setup)) {
+		if(SiPixTemplDBObjWatcher_.check(setup)) {
 			edm::ESHandle<SiPixelTemplateDBObject> templateH;
-			setup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateH);
+			setup.get<SiPixelTemplateDBObjectRcd>().get(templateH);
 			dbobject = *templateH.product();
 			hasTriggeredWatcher=true;
 		}
