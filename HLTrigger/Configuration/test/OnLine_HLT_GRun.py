@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/GRun/V34 (CMSSW_3_5_2_HLT3)
+# /dev/CMSSW_3_5_0/GRun/V35 (CMSSW_3_5_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V34')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V35')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -17,35 +17,26 @@ process.streams = cms.PSet(
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Offline = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressMuon' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'ZeroBias',
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
     'Cosmics',
     'MinimumBias' ),
+  EventDisplay = cms.vstring(  ),
   DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  )
+  HLTDQM = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressMuon' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  RPCMON = cms.vstring( 'RPCMonitor' )
 )
 process.datasets = cms.PSet( 
   EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
   TestEnables = cms.vstring( 'HLT_Calibration' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
-  ExpressMuon = cms.vstring( 'HLT_MET100',
-    'HLT_L1MuOpen',
-    'HLT_L1Mu',
-    'HLT_ZeroBias' ),
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
-    'AlCa_EcalPi0_8E29' ),
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNormalisation' ),
   OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
@@ -259,7 +250,16 @@ process.datasets = cms.PSet(
     'HLT_L1Mu14_L1SingleJet6U',
     'HLT_L1Mu14_L1SingleEG10',
     'HLT_StoppedHSCP_8E29',
-    'HLT_BTagIP_Jet50U' )
+    'HLT_BTagIP_Jet50U' ),
+  ExpressMuon = cms.vstring( 'HLT_MET100',
+    'HLT_L1MuOpen',
+    'HLT_L1Mu',
+    'HLT_ZeroBias' ),
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
+  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
+    'AlCa_EcalPi0_8E29' ),
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNormalisation' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -8139,7 +8139,6 @@ process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_TechTrigHCALNoise',
       'HLT_TkMu3_NoVertex',
       'HLT_TrackerCosmics',
-      'HLT_TrackPointing',
       'HLT_ZeroBias',
       'HLT_ZeroBiasPixel_SingleTrack' ),
     hltResults = cms.InputTag( "TriggerResults" ),
@@ -8260,7 +8259,6 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_TechTrigHCALNoise',
       'HLT_TkMu3_NoVertex',
       'HLT_TrackerCosmics',
-      'HLT_TrackPointing',
       'HLT_ZeroBias' ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "" ),
