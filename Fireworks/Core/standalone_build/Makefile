@@ -18,7 +18,7 @@ ifeq ($(shell uname), Linux)
 else 
 	ifeq ($(shell uname), Darwin)
 		CC := c++-4.0
-		COMPILERFLAGS := -V 4.0.1 -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -x c++ -m32 -Wall -O2 -fPIC
+		COMPILERFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -x c++ -Wall -O2 -fPIC
 		SO_EXT := dylib
 		MAKESHAREDLIB := -dynamiclib
 		LinkerOptions := -Wl,-rpath -Wl,
@@ -64,5 +64,7 @@ cleancore:
 
 cleandisplay: 
 	$(QUIET) echo "removing temporary project objects and output libraries..."; \
-	rm -rf tmp/src; rm libCMSShow.$(SO_EXT); echo "done"
+	rm -rf tmp/src; rm libCMSShow.$(SO_EXT); \
+	if [ $(shell uname) == "Darwin" ]; then rm -rf lib$(LibProject).$(SO_EXT).dSYM; fi; \
+	echo "done"
 
