@@ -122,11 +122,7 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw,
 	   nAcc[p]++;
 	 }
      }
-   if (andAcc) 
-     {
-       nAndAcc++;
-       meTrigFrac_->setBinContent(triggers_.size()+1,nAndAcc/(float)nAcc_Total);
-     }
+
    if (orAcc)
      {
        nAcc_Total++;
@@ -136,7 +132,11 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw,
 	 }
      }
    
-   
+   if (andAcc) 
+     {
+       nAndAcc++;
+       meTrigFrac_->setBinContent(triggers_.size()+1,nAndAcc/(float)nAcc_Total);
+     }
      
   bool processevent=false;
   if (orAcc) processevent=true;
