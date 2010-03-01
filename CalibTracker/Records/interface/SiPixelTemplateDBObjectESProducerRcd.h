@@ -6,10 +6,8 @@
 #include "boost/mpl/vector.hpp"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject0TRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject38TRcd.h"
-#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObject4TRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 
-class SiPixelTemplateDBObjectESProducerRcd : public edm::eventsetup::DependentRecordImplementation<SiPixelTemplateDBObjectESProducerRcd, boost::mpl::vector<IdealMagneticFieldRecord, SiPixelTemplateDBObject0TRcd, SiPixelTemplateDBObject38TRcd, SiPixelTemplateDBObject4TRcd> > {};
+class SiPixelTemplateDBObjectESProducerRcd : public edm::eventsetup::DependentRecordImplementation<SiPixelTemplateDBObjectESProducerRcd, boost::mpl::vector<IdealMagneticFieldRecord, SiPixelTemplateDBObjectRcd> > {};
 
 #endif
