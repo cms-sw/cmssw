@@ -122,6 +122,7 @@ HLTriggerFinalPath
 HLTAnalyzerEndpath
 DQMOutput
 HLTOutput
+EventDisplayOutput
 ExpressOutput
 AlCaOutput
 HLTDQMOutput
