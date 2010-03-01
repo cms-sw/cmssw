@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 15:57:23 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/01/20 18:20:08 $
+ *  $Revision: 1.17 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -35,7 +35,7 @@ DTT0::DTT0():
   dataVersion( " " ),
   nsPerCount( 25.0 / 32.0 ) {
   dataList.reserve( 12000 );
-  dBuf = 0;
+  dBuf = sortedLayers = 0;
 }
 
 
@@ -43,7 +43,7 @@ DTT0::DTT0( const std::string& version ):
   dataVersion( version ),
   nsPerCount( 25.0 / 32.0 ) {
   dataList.reserve( 12000 );
-  dBuf = 0;
+  dBuf = sortedLayers = 0;
 }
 
 
@@ -67,8 +67,8 @@ DTT0Data::DTT0Data() :
 // Destructor --
 //--------------
 DTT0::~DTT0() {
-//  DTDataBuffer<int,int>::dropBuffer( mapName() );
   delete dBuf;
+  delete sortedLayers;
 }
 
 
@@ -96,27 +96,37 @@ int DTT0::get( int   wheelId,
   t0mean =
   t0rms  = 0.0;
 
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer<int,int>::findBuffer( mName );
-//  }
-  if ( dBuf == 0 ) cacheMap();
+  if ( ( dBuf == 0 ) && ( sortedLayers == 0 ) ) checkOrder();
+  if ( sortedLayers != 0 ) return getSorted( wheelId, stationId, sectorId,
+                                                slId,   layerId,   cellId,
+                                              t0mean,     t0rms,     unit );
+  else                     return getRandom( wheelId, stationId, sectorId,
+                                                slId,   layerId,   cellId,
+                                              t0mean,     t0rms,     unit );
+  return -999999999;
+}
 
-  std::vector<int> chanKey;
-  chanKey.reserve(6);
-  chanKey.push_back(   wheelId );
-  chanKey.push_back( stationId );
-  chanKey.push_back(  sectorId );
-  chanKey.push_back(      slId );
-  chanKey.push_back(   layerId );
-  chanKey.push_back(    cellId );
+
+int DTT0::getRandom( int   wheelId,
+                     int stationId,
+                     int  sectorId,
+                     int      slId,
+                     int   layerId,
+                     int    cellId,
+                     float& t0mean,
+                     float& t0rms,
+                     DTTimeUnits::type unit ) const {
+
+  DTWireId detId( wheelId, stationId, sectorId,
+                  slId,   layerId,   cellId );
+  int chanKey = detId.rawId();
+
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  std::map<int,int>::const_iterator buf_iter = dBuf->find( chanKey );
+  std::map<int,int>::const_iterator buf_iend = dBuf->end();
+  int searchStatus = ( buf_iter == buf_iend );
   if ( !searchStatus ) {
+    ientry = buf_iter->second;
     const DTT0Data& data( dataList[ientry].second );
     t0mean = data.t0mean;
     t0rms  = data.t0rms;
@@ -128,6 +138,59 @@ int DTT0::get( int   wheelId,
 
   return searchStatus;
 
+}
+
+
+int DTT0::getSorted( int   wheelId,
+                     int stationId,
+                     int  sectorId,
+                     int      slId,
+                     int   layerId,
+                     int    cellId,
+                     float& t0mean,
+                     float& t0rms,
+                     DTTimeUnits::type unit ) const {
+
+  DTLayerId detId( wheelId, stationId, sectorId,
+                      slId,   layerId );
+  int chanKey = detId.rawId();
+
+  std::map<int,int>::iterator layer_iter = sortedLayers->find( chanKey );
+  std::map<int,int>::iterator layer_iend = sortedLayers->end();
+
+  if ( layer_iter == layer_iend ) return 1;
+
+  int& lCode = layer_iter->second;
+  int idprev = lCode / 1000;
+  int length = lCode % 1000;
+  int idnext = idprev + length;
+
+  --idprev;
+  int idtest;
+  while ( ( length = idnext - idprev ) >= 2 ) {
+    idtest = idprev + ( length / 2 );
+    int cCell = dataList[idtest].first.cellId;
+    if ( cCell < cellId ) {
+      idprev = idtest;
+      continue;
+    }
+    if ( cCell > cellId ) {
+      idnext = idtest;
+      continue;
+    }
+    idprev = idtest++;
+    idnext = idtest;
+    const DTT0Data& data( dataList[idprev].second );
+    t0mean = data.t0mean;
+    t0rms  = data.t0rms;
+    if ( unit == DTTimeUnits::ns ) {
+      t0mean *= nsPerCount;
+      t0rms  *= nsPerCount;
+    }
+    return 0;
+  }
+  std::cout << "cell not found!" << std::endl;
+  return 1;
 }
 
 
@@ -162,7 +225,6 @@ std::string& DTT0::version() {
 
 
 void DTT0::clear() {
-//  DTDataBuffer<int,int>::dropBuffer( mapName() );
   delete dBuf;
   dBuf = 0;
   dataList.clear();
@@ -185,27 +247,19 @@ int DTT0::set( int   wheelId,
     t0rms  /= nsPerCount;
   }
 
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::findBuffer( mName );
-//  if ( dBuf == 0 ) {
-//    cacheMap();
-//    dBuf =
-//    DTDataBuffer<int,int>::findBuffer( mName );
-//  }
   if ( dBuf == 0 ) cacheMap();
-  std::vector<int> chanKey;
-  chanKey.reserve(6);
-  chanKey.push_back(   wheelId );
-  chanKey.push_back( stationId );
-  chanKey.push_back(  sectorId );
-  chanKey.push_back(      slId );
-  chanKey.push_back(   layerId );
-  chanKey.push_back(    cellId );
+
+  DTWireId detId( wheelId, stationId, sectorId,
+                  slId,   layerId,   cellId );
+  int chanKey = detId.rawId();
+
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  std::map<int,int>::const_iterator buf_iter = dBuf->find( chanKey );
+  std::map<int,int>::const_iterator buf_iend = dBuf->end();
+  int searchStatus = ( buf_iter == buf_iend );
 
   if ( !searchStatus ) {
+    ientry = buf_iter->second;
     DTT0Data& data( dataList[ientry].second );
     data.t0mean = t0mean;
     data.t0rms  = t0rms;
@@ -224,7 +278,7 @@ int DTT0::set( int   wheelId,
     data.t0rms  = t0rms;
     ientry = dataList.size();
     dataList.push_back( std::pair<const DTT0Id,DTT0Data>( key, data ) );
-    dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
+    dBuf->insert( std::pair<int,int>( detId.rawId(), ientry ) );
     return 0;
   }
 
@@ -252,6 +306,24 @@ void DTT0::setUnit( float unit ) {
 }
 
 
+void DTT0::sortData() {
+  std::cout << "test data" << std::endl;
+  if ( sortedLayers != 0 ) return;
+  if ( dBuf == 0 ) checkOrder();
+  if ( sortedLayers != 0 ) return;
+  if ( dBuf == 0 ) return;
+  std::vector< std::pair<DTT0Id,DTT0Data> > tempList;
+  std::cout << "sort data" << std::endl;
+  std::map<int,int>::const_iterator iter = dBuf->begin();
+  std::map<int,int>::const_iterator iend = dBuf->end();
+  while ( iter != iend ) tempList.push_back( dataList[iter++->second] );
+  dataList = tempList;
+  delete dBuf;
+  dBuf = 0;
+  return;
+}
+
+
 DTT0::const_iterator DTT0::begin() const {
   return dataList.begin();
 }
@@ -269,35 +341,60 @@ std::string DTT0::mapName() const {
 }
 
 
+bool DTT0::checkOrder() const {
+  std::cout << "check order" << std::endl;
+  delete sortedLayers;
+  sortedLayers = new std::map<int,int>;
+  int entryNum = 0;
+  int entryMax = dataList.size();
+  int oldId = 0;
+  int lCell = -999999999;
+  bool layerOrder = true;
+  while ( entryNum < entryMax ) {
+    const DTT0Id& chan = dataList[entryNum].first;
+    DTLayerId detId( chan.  wheelId, chan.stationId, chan. sectorId,
+                     chan.     slId, chan.  layerId );
+    int rawId = detId.rawId();
+    std::map<int,int>::iterator layer_iter = sortedLayers->find( rawId );
+    std::map<int,int>::iterator layer_iend = sortedLayers->end();
+    if ( layer_iter == layer_iend ) {
+      sortedLayers->insert( std::pair<int,int>( rawId,
+                                                1 + ( entryNum * 1000 ) ) );
+      oldId = rawId;
+    }
+    else {
+      int& lCode = layer_iter->second;
+      int offset = lCode / 1000;
+      int length = lCode % 1000;
+      int ncells = entryNum - offset;
+      if ( ( ncells != length     ) ||
+           (  rawId != oldId      ) ||
+           ( chan.cellId <= lCell ) ) layerOrder = false;
+      layer_iter->second = ( offset * 1000 ) + ncells + 1;
+    }
+    lCell = chan.cellId;
+    entryNum++;
+  }
+  if ( !layerOrder ) cacheMap();
+  return layerOrder;
+}
+
+
 void DTT0::cacheMap() const {
 
-//  std::string mName = mapName();
-//  DTBufferTree<int,int>* dBuf =
-//  DTDataBuffer<int,int>::openBuffer( mName );
-
-//  dBuf = new DTBufferTree<int,int>;
-  DTBufferTree<int,int>** pBuf;
-  pBuf = const_cast<DTBufferTree<int,int>**>( &dBuf );
-  *pBuf = new DTBufferTree<int,int>;
-
-////  DTBufferTree<int,int>* cMap = const_cast<DTBufferTree<int,int>*>( dBuf );
+  std::cout << "cache map" << std::endl;
+  delete sortedLayers;
+  sortedLayers = 0;
+  dBuf = new std::map<int,int>;
 
   int entryNum = 0;
   int entryMax = dataList.size();
-  std::vector<int> chanKey;
-  chanKey.reserve(6);
   while ( entryNum < entryMax ) {
 
     const DTT0Id& chan = dataList[entryNum].first;
-
-    chanKey.clear();
-    chanKey.push_back( chan.  wheelId );
-    chanKey.push_back( chan.stationId );
-    chanKey.push_back( chan. sectorId );
-    chanKey.push_back( chan.     slId );
-    chanKey.push_back( chan.  layerId );
-    chanKey.push_back( chan.   cellId );
-    dBuf->insert( chanKey.begin(), chanKey.end(), entryNum++ );
+    DTWireId detId( chan.  wheelId, chan.stationId, chan. sectorId,
+                    chan.     slId, chan.  layerId, chan.   cellId );
+    dBuf->insert( std::pair<int,int>( detId.rawId(), entryNum++ ) );
 
   }
 

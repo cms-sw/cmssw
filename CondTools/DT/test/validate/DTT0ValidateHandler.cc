@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/09/29 13:12:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/20 17:29:27 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -72,10 +72,13 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
   int qua;
   int lay;
   int cel;
+  int cur;
+  int ndt = 20;
   float t0mean;
   float t0rms;
   float ckmean;
   float ckrms;
+  int ckrun = runNumber % 3;
 
   whe = 3;
   while ( --whe >= -2 ) {
@@ -90,8 +93,9 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
                ( qua == 2 ) ) continue;
           lay = 5;
           while ( --lay ) {
-            cel = 20;
-            while ( --cel ) {
+            cur = ndt;
+            while ( --cur ) {
+              cel = ( ckrun ? cur : ndt - cur );
               t0mean = random() * 1.0 / 0x0fffffff;
               t0rms  = random() * 0.2 / 0x7fffffff;
               t0mean -= 4.0;
@@ -143,6 +147,7 @@ void DTT0ValidateHandler::addNewObject( int runNumber ) {
   }
 
   cond::Time_t snc = runNumber;
+  if ( ckrun == 1 ) t0->sortData();
   m_to_transfer.push_back( std::make_pair( t0, snc ) );
 
   return;

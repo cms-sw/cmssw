@@ -14,6 +14,7 @@
   <class name="DTReadOutGeometryLink" id="C428DA7A-EE34-DA11-89FB-000E0C5CE283"/>
   <class name="DTT0" id="FAEFE9C5-2A00-DA11-89E6-000E0C4DE431">
     <field name="dBuf" transient="true"/>
+    <field name="sortedLayers" transient="true"/>
   </class>
   <class name="std::pair<DTT0Id,DTT0Data>"/>
   <class name="std::vector<std::pair<DTT0Id,DTT0Data> >"/>

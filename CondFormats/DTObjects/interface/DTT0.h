@@ -6,8 +6,8 @@
  *       Class to hold drift tubes T0s
  *             ( cell by cell time offsets )
  *
- *  $Date: 2008/09/29 13:10:34 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/20 18:20:08 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -21,7 +21,6 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 //---------------
@@ -29,6 +28,7 @@
 //---------------
 #include <string>
 #include <vector>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
@@ -149,6 +149,7 @@ class DTT0 {
            float t0rms,
            DTTimeUnits::type unit );
   void setUnit( float unit );
+  void sortData();
 
   /// Access methods to data
   typedef std::vector< std::pair<DTT0Id,
@@ -164,11 +165,31 @@ class DTT0 {
 
   std::vector< std::pair<DTT0Id,DTT0Data> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  mutable std::map<int,int>* dBuf;
+  mutable std::map<int,int>* sortedLayers;
 
   /// read and store full content
+  bool checkOrder() const;
   void cacheMap() const;
   std::string mapName() const;
+  int getRandom( int   wheelId,
+                 int stationId,
+                 int  sectorId,
+                 int      slId,
+                 int   layerId,
+                 int    cellId,
+                 float& t0mean,
+                 float& t0rms,
+                 DTTimeUnits::type unit ) const;
+  int getSorted( int   wheelId,
+                 int stationId,
+                 int  sectorId,
+                 int      slId,
+                 int   layerId,
+                 int    cellId,
+                 float& t0mean,
+                 float& t0rms,
+                 DTTimeUnits::type unit ) const;
 
 };
 
