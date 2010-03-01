@@ -37,25 +37,21 @@ boost::shared_ptr<SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::pr
 	GlobalPoint center(0.0, 0.0, 0.0);
 	float theMagField = magfield.product()->inTesla(center).mag();
 
-	if(std::fabs(theMagField)<0.1) {
-		ESHandle<SiPixelTemplateDBObject> SiPixelTemplateDBObject0T;
-		iRecord.getRecord<SiPixelTemplateDBObject0TRcd>().get(SiPixelTemplateDBObject0T);
-		boost::shared_ptr<SiPixelTemplateDBObject> dbptr(new SiPixelTemplateDBObject(*(SiPixelTemplateDBObject0T)));
-		return dbptr;
-	}
-	else if(theMagField>3.9 && theMagField<4.1) {
-		ESHandle<SiPixelTemplateDBObject> SiPixelTemplateDBObject4T;
-		iRecord.getRecord<SiPixelTemplateDBObject4TRcd>().get(SiPixelTemplateDBObject4T);
-		boost::shared_ptr<SiPixelTemplateDBObject> dbptr(new SiPixelTemplateDBObject(*(SiPixelTemplateDBObject4T)));
-		return dbptr;
-	}
+	std::string label = "";
+	
+	if(std::fabs(theMagField)<0.1)              label = "0T";
+	else if(theMagField>1.9 && theMagField<2.1) label = "2T";
+	else if(theMagField>2.9 && theMagField<3.1) label = "3T";
+	else if(theMagField>3.4 && theMagField<3.6) label = "3.5T";
+	else if(theMagField>3.9 && theMagField<4.1) label = "4T";
 	else {
+		label = "3.8T";
 		if(theMagField<3.7 || theMagField>=4.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate") << "Magnetic field is " << theMagField;
-		ESHandle<SiPixelTemplateDBObject> SiPixelTemplateDBObject38T;
-		iRecord.getRecord<SiPixelTemplateDBObject38TRcd>().get(SiPixelTemplateDBObject38T);
-		boost::shared_ptr<SiPixelTemplateDBObject> dbptr(new SiPixelTemplateDBObject(*(SiPixelTemplateDBObject38T)));
-		return dbptr;
 	}
+	ESHandle<SiPixelTemplateDBObject> dbobject;
+	iRecord.getRecord<SiPixelTemplateDBObjectRcd>().get(label,dbobject);
+	boost::shared_ptr<SiPixelTemplateDBObject> dbptr(new SiPixelTemplateDBObject(*(dbobject)));
+	return dbptr;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelTemplateDBObjectESProducer);
