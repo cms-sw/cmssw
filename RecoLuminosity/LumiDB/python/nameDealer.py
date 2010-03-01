@@ -2,8 +2,11 @@
 '''
 central place for all the table names
 '''
-def runsummaryTableName():
-	return 'RUNSUMMARY'
+def cmsrunsummaryTableName():
+       return 'CMSRUNSUMMARY'
+
+#def lumirunsummaryTableName():
+#	return 'LUMIRUNSUMMARY'
 
 def lumisummaryTableName():
 	return 'LUMISUMMARY'
