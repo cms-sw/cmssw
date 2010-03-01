@@ -14,20 +14,17 @@ ifeq ($(shell uname), Linux)
 		COMPILERFLAGS := -Wall -O2 -m32 -fPIC
 		SO_EXT := so
 		MAKESHAREDLIB := -shared
-		LinkerOptions := -Wl,-rpath -Wl,
 else 
 	ifeq ($(shell uname), Darwin)
 		CC := c++-4.0
 		COMPILERFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -x c++ -Wall -O2 -fPIC
 		SO_EXT := dylib
-		MAKESHAREDLIB := -dynamiclib
-		LinkerOptions := -Wl,-rpath -Wl,
+		MAKESHAREDLIB := -mmacosx-version-min=10.5 -dynamiclib
 	endif
 endif
 
 export CC
 export COMPILERFLAGS
-export LinkerOptions
 export SO_EXT
 export MAKESHAREDLIB
 
@@ -38,10 +35,13 @@ DIR := $(shell pwd)
 export FWROOTSYS = ${DIR}/external/root
 export LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
 
-# linux specific, tarball ships compiler 
-export LD_LIBRARY_PATH := ${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
-export PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
+export LinkerOptions := -Wl,-rpath -Wl,
 
+# linux specific, tarball ships compiler
+ifeq ($(shell uname), Linux)
+	export LD_LIBRARY_PATH := ${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
+	export PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
+endif
 ##############################################################################
 
 #############################################################################
