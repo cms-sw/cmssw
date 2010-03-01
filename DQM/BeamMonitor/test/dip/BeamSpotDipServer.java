@@ -17,6 +17,7 @@ implements Runnable,DipPublicationErrorHandler
 {
   public final static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public final static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
+  public final static String sourceFile = "/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt";
 
   DipFactory dip;
   DipData messageCMS;
@@ -86,17 +87,18 @@ implements Runnable,DipPublicationErrorHandler
     }
     try
     {
+      int lsCount = 0;
       while (keepRunning)
       {
 	try{
-	    File myFile = new File("/nfshome0/jengbou/BeamFitResults.txt");
+	    File myFile = new File(sourceFile);
 	    myFile.createNewFile();
 	    FileReader fr = new FileReader(myFile);
 	    BufferedReader br = new BufferedReader(fr);
 	    LineNumberReader lbr = new LineNumberReader(br);
 
 	    long tmpTime = myFile.lastModified();
-	    if (tmpTime > lastFitTime){
+	    if ((lastFitTime != 0) && (tmpTime > lastFitTime)){
 		if (myFile.length() > 0) {
 		    System.out.println("Read new record");
 		    lastFitTime = tmpTime;
@@ -105,17 +107,30 @@ implements Runnable,DipPublicationErrorHandler
 		    System.out.println("New Run Started");
 		    lastFitTime = tmpTime;
 		    lastLine = 0;
+		    lsCount = 0;
 		    continue;
 		}
-	    } 
+	    }
 	    else {
-		System.out.println("Waiting for data...");
+		if (lastFitTime == 0) {//executed when server starts
+		    int countln = 0;
+		    while (lbr.readLine() != null){
+			countln++;
+		    }
+		    // skip previous results if server restatred during a run
+		    lastLine = countln;}
+		if (lsCount%10 == 0) {
+		    System.out.println("Waiting for data...");
+		    lastFitTime = tmpTime;
+		}
+		lsCount++;
 		try { Thread.sleep(23000); }
 		catch(InterruptedException e) {
 		    keepRunning = false;
 		}
 		continue;
 	    }
+	    lsCount = 0;
 	    int recCount = 0;
 	    int it = 0;
 	    String record = new String();
@@ -135,16 +150,18 @@ implements Runnable,DipPublicationErrorHandler
 			System.exit(0);
 		    }
  		    runnum = new Integer(tmp[1]);
-		    System.out.println("Run: "+runnum);
+		    System.out.println("Run: " + runnum);
 		    break;
 		case 2:
                     startTime = record.substring(15);
 		    break;
 		case 3:
                     endTime = record.substring(13);
+		    System.out.println("Time of fit: " + endTime);
 		    break;
 		case 4:
 		    lumiRange = record.substring(10);
+		    System.out.println("LS: " + lumiRange);
 		    break;
 		case 5:
 		    type = new Integer(tmp[1]);
@@ -249,7 +266,7 @@ implements Runnable,DipPublicationErrorHandler
 
 	try {
 	    long epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zz").parse(endTime).getTime();
-	    System.out.println(epoch);
+	    //System.out.println(epoch);
 	    DipTimestamp zeit = new DipTimestamp(epoch);
 	    publicationCMS.send(messageCMS, zeit);
 	    publicationLHC.send(messageLHC, zeit);
