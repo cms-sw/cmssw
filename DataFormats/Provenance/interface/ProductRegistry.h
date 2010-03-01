@@ -130,6 +130,7 @@ namespace edm {
       ConstProductList constProductList_; 
       // Is at least one (run), (lumi), (event) product produced this process?
       boost::array<bool, NumBranchTypes> productProduced_;
+      bool anyProductProduced_;
 
       // indices used to quickly find a group in the vector groups_
       // by type, first one by the type of the EDProduct and the
@@ -142,9 +143,13 @@ namespace edm {
     };
 
     bool productProduced(BranchType branchType) const {return transients_.get().productProduced_[branchType];}
+    bool anyProductProduced() const {return transients_.get().anyProductProduced_;}
 
   private:
-    void setProductProduced(BranchType branchType) const {transients_.get().productProduced_[branchType] = true;}
+    void setProductProduced(BranchType branchType) const {
+      transients_.get().productProduced_[branchType] = true;
+      transients_.get().anyProductProduced_ = true;
+    }
 
     bool & frozen() const {return transients_.get().frozen_;}
     
