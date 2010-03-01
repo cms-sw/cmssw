@@ -45,7 +45,7 @@ boost::shared_ptr<SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::pr
 	else if(theMagField>=3.25 && theMagField<3.65) label = "3.5T";
 	else if(theMagField>=3.9  && theMagField<4.1 ) label = "4T";
 	else {
-		label = "3.8T";
+		//label = "3.8T";
 		if(theMagField>=4.1 || theMagField<-0.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate") << "Magnetic field is " << theMagField;
 	}
 	ESHandle<SiPixelTemplateDBObject> dbobject;
