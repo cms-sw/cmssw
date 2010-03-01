@@ -1208,6 +1208,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         if(ccu->count > 0 || ccu->red!=-1) { useCcuValue=true; break;}
       }
     }
+ 
+  
   if(!useCcuValue)//store mean of connected modules value{
     for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
     TmCcu *  ccu= i_ccu->second;
@@ -1238,7 +1240,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
       }
    }
   
- 
+
   
   if(!print_total){
     for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
@@ -1249,6 +1251,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         }
     }
   }
+ 
   if(minvalue>=maxvalue){
 
     minvalue=9999999.;
@@ -1261,7 +1264,10 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         }
     }
   }
-     if(filetype=="svg"){
+
+
+  
+ if(filetype=="svg"){
       saveAsSingleLayer=false;
       ostringstream outs;
     outs << outputfilename<<".svg";
@@ -1291,13 +1297,17 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
          }
     ncrate=crate;
     deffecwindow(ncrate);
+ 
     for ( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
       TmCcu *  ccu= i_ccu->second;
-      if(ccu->getCcuCrate() == crate){
+      if(ccu!=0){
+        if(ccu->getCcuCrate() == crate){
               
 	      drawCcu(crate,ccu->getCcuSlot()-2,print_total,ccu,savefile,useCcuValue);
+        }
       }
     }
+ 
    if(!temporary_file){
     if(filetype=="xml"){
     *savefile << "</g> </svg> <text id=\"currentElementText\" x=\"40\" y=\"30\"> " << endl;
