@@ -16,7 +16,7 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 ProjectMissingFlags = -lGeom -lGuiHtml
 
 ifeq ($(shell uname), Linux)
-        ExecLibs = -lEve -lRIO -lNet -L./ -l$(LibProject)
+        ExecLibs = -lEve -lGuiHtml -lRIO -lNet -L./ -l$(LibProject)
         ExtraProjectLibs = -L./ -l$(LibCore) 
 else 
    ifeq ($(shell uname), Darwin)
