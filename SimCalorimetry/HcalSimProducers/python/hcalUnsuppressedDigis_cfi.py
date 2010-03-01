@@ -12,8 +12,8 @@ hcalSimBlock = cms.PSet(
     # These empty signals can get noise via the doNoise flag
     doEmpty = cms.bool(True),
     doHPDNoise = cms.bool(False),
-    doIonFeedback = cms.bool(False),
-    doThermalNoise = cms.bool(False),
+    doIonFeedback = cms.bool(True),
+    doThermalNoise = cms.bool(True),
     #HPDNoiseLibrary = cms.PSet(
     #   FileName = cms.FileInPath("SimCalorimetry/HcalSimAlgos/data/hpdNoiseLibrary.root"),
     #   HPDName = cms.untracked.string("HPD")
