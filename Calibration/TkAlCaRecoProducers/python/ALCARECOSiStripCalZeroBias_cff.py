@@ -14,6 +14,14 @@ ALCARECOSiStripCalZeroBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLev
     throw = False # tolerate triggers stated above, but not available
 )
 
+# Select only events where tracker had HV on (according to DCS bit information)
+import DPGAnalysis.Skims.DetStatus_cfi
+DCSStatus = DPGAnalysis.Skims.DetStatus_cfi.dcsstatus.clone()
+DCSStatus.DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm')
+DCSStatus.ApplyFilter  = cms.bool(True)
+DCSStatus.AndOr        = cms.bool(False) # Take the "or" of the detector types from above
+DCSStatus.DebugOn      = cms.untracked.bool(False)
+
 # Include masking only from Cabling and O2O
 import CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi
 siStripQualityESProducerUnbiased = CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi.siStripQualityESProducer.clone()
@@ -59,4 +67,4 @@ qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
 )
 
 # Sequence #
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*calZeroBiasClusters*APVPhases*consecutiveHEs)
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*DCSStatus*calZeroBiasClusters*APVPhases*consecutiveHEs)
