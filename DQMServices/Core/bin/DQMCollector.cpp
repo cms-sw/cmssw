@@ -12,6 +12,11 @@
 #include <unistd.h>
 #include <cstdlib>
 
+static const int FATAL_OPTS = (lat::Signal::FATAL_DEFAULT
+			       & ~(lat::Signal::FATAL_ON_INT
+				   | lat::Signal::FATAL_ON_QUIT
+				   | lat::Signal::FATAL_DUMP_CORE));
+
 volatile sig_atomic_t s_stop = 0;
 static void
 interrupt (int sig) 
@@ -54,6 +59,7 @@ onAssertFail (const char *message)
 int main (int argc, char **argv)
 {
   lat::DebugAids::failHook(&onAssertFail);
+  lat::Signal::handleFatal(argv[0], IOFD_INVALID, 0, 0, FATAL_OPTS);
   lat::Signal::handle(SIGINT, (lat::Signal::HandlerType) &interrupt);
   lat::Signal::ignore(SIGPIPE);
 
