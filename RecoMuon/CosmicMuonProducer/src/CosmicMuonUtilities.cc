@@ -1,15 +1,17 @@
 /** \file CosmicMuonUtilities
  *
  *
- *  $Date: 2007/12/16 13:56:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/25 14:55:44 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonUtilities.h"
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -36,10 +38,15 @@ void CosmicMuonUtilities::reverseDirection(TrajectoryStateOnSurface& tsos, const
                                   mgfield);
    TrajectoryStateOnSurface newTsos(gtp, tsos.cartesianError(), tsos.surface()); 
    tsos = newTsos;
+
    return;
 
 }
 
+
+//
+//
+//
 string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::ConstMuonRecHitContainer& hits) const {
 
    stringstream output;
@@ -58,10 +65,15 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::ConstMuonRe
     << "  det " << (*ir)->det()->geographicalId().det()
     << "  sub det " << (*ir)->det()->subDetector()<<endl;
   }
+
   return output.str();
 
 }
 
+
+//
+//
+//
 string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::MuonRecHitContainer& hits) const {
 
    stringstream output;
@@ -80,13 +92,78 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::MuonRecHitC
     << "  det " << (*ir)->det()->geographicalId().det()
     << "  sub det " << (*ir)->det()->subDetector()<<endl;
   }
+
   return output.str();
 
 }
 
+
+//
+//
+//
+string CosmicMuonUtilities::print(const TransientTrackingRecHit::ConstRecHitContainer& hits) const {
+
+    stringstream output;
+
+    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
+    if ( !(*ir)->isValid() ) {
+      output << "invalid RecHit"<<endl;
+      continue;
+    }
+
+    const GlobalPoint& pos = (*ir)->globalPosition();
+    output
+    << "pos"<<pos
+    << "radius "<<pos.perp()
+    << "  dim " << (*ir)->dimension()
+    << "  det " << (*ir)->det()->geographicalId().det()
+    << "  sub det " << (*ir)->det()->subDetector()<<endl;
+  }
+
+  return output.str();
+
+}
+
+
+//
+//
+//
+bool CosmicMuonUtilities::isTraversing(const Trajectory& t) const {
+
+  TransientTrackingRecHit::ConstRecHitContainer hits = t.recHits();
+
+  if ( hits.empty() ) return false;
+
+  ConstRecHitContainer::const_iterator frontHit = hits.begin();
+  ConstRecHitContainer::const_iterator backHit  = hits.end() - 1;
+
+  // find first valid hit at both ends of the trajectory
+  while ( !(*frontHit)->isValid() && frontHit != backHit) {++frontHit;}
+  while ( !(*backHit)->isValid() && backHit != frontHit)  {--backHit;}
+
+  if ( frontHit == backHit )  return false;
+
+  GlobalPoint frontPos = (*frontHit)->globalPosition();
+  GlobalPoint backPos = (*backHit)->globalPosition();
+
+  // are there separate muon hits in 2 different hemispheres
+  GlobalVector deltaPos(frontPos - backPos);
+  if ( fabs(deltaPos.z() ) > 500.0 ) return true;
+  if ( deltaPos.perp() > 350.0 ) return true;
+  if ( deltaPos.mag() < 100.0 ) return false;
+  GlobalPoint middle((frontPos.x()+backPos.x())/2, (frontPos.y()+backPos.y())/2, (frontPos.z()+backPos.z())/2);
+
+  return ( (middle.perp() < frontPos.perp()) && (middle.perp() < backPos.perp()));
+
+}
+
+
+//
+//
+//
 TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStateOnSurface& tsos,
-                                              const ConstRecHitPointer& hit,
-                                              const Propagator& prop ) const {
+                                                            const ConstRecHitPointer& hit,
+                                                            const Propagator& prop ) const {
 
   const std::string metname = "Muon|RecoMuon|CosmicMuonUtilities";
 
@@ -121,27 +198,5 @@ TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStat
   predTsos = prop.propagate(currTsos, hit->det()->surface());
 
   return predTsos;
-}
 
-
-string CosmicMuonUtilities::print(const TransientTrackingRecHit::ConstRecHitContainer& hits) const {
-
-    stringstream output;
-
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
-      output << "invalid RecHit"<<endl;
-      continue;
-    }
-
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    output
-    << "pos"<<pos
-    << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector()<<endl;
-  }
-
-  return output.str();
 }

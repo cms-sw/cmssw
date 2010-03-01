@@ -4,8 +4,8 @@
 /** \file CosmicMuonUtilities
  *  contain those methods that are commonly used
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/03/08 20:01:29 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -27,24 +27,28 @@ typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitCon
 
 
 class CosmicMuonUtilities {
-public:
 
-  CosmicMuonUtilities();
-  virtual ~CosmicMuonUtilities();
+  public:
 
-  std::string print(const ConstMuonRecHitContainer&) const;
+    CosmicMuonUtilities();
 
-  std::string print(const MuonRecHitContainer&) const;
+    virtual ~CosmicMuonUtilities();
 
-  std::string print(const ConstRecHitContainer&) const;
+    std::string print(const ConstMuonRecHitContainer&) const;
 
-  void reverseDirection(TrajectoryStateOnSurface&,const MagneticField*) const;
+    std::string print(const MuonRecHitContainer&) const;
 
-  TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
-                                         const ConstRecHitPointer&,
-                                         const Propagator&) const;
+    std::string print(const ConstRecHitContainer&) const;
 
-private:
+    bool isTraversing(const Trajectory&) const;
+
+    void reverseDirection(TrajectoryStateOnSurface&,const MagneticField*) const;
+
+    TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
+                                           const ConstRecHitPointer&,
+                                           const Propagator&) const;
+
+  private:
   
 };
 #endif
