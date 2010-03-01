@@ -1,53 +1,53 @@
-# /dev/CMSSW_3_5_0/HIon/V31 (CMSSW_3_5_2_HLT2)
+# /dev/CMSSW_3_5_0/HIon/V33 (CMSSW_3_5_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V31')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V33')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  A = cms.vstring( 'HcalNZS',
-    'MinimumBias',
-    'Cosmics',
-    'ZeroBias',
-    'HcalHPDNoise',
-    'RandomTriggers' ),
-  EventDisplay = cms.vstring(  ),
-  Express = cms.vstring( 'ExpressMuon' ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
+  Express = cms.vstring( 'ExpressMuon' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  EventDisplay = cms.vstring(  ),
+  A = cms.vstring( 'ZeroBias',
+    'HcalHPDNoise',
+    'RandomTriggers',
+    'HcalNZS',
+    'Cosmics',
+    'MinimumBias' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
   Offline = cms.vstring(  )
 )
 process.datasets = cms.PSet( 
-  OfflineMonitor = cms.vstring(  ),
-  HcalNZS = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
-  ZeroBias = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  ),
+  EcalLaser = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
   ExpressMuon = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
-  EcalLaser = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
-  LogMonitor = cms.vstring(  ),
-  FEDMonitor = cms.vstring(  )
+  OfflineMonitor = cms.vstring(  ),
+  ZeroBias = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  HcalNZS = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  MinimumBias = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -1650,7 +1650,7 @@ process.hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( True ),
-    bunchCrossings = cms.vint32( 0 ),
+    bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x70000 ),
     technicalBits = cms.uint64( 0x7f )
@@ -2553,7 +2553,7 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'MC_3XY_V21::All'
+    process.GlobalTag.globaltag         = 'MC_3XY_V24::All'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 
 if 'Level1MenuOverride' in process.__dict__:
