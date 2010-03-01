@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegments3DProxyBuilder.cc,v 1.1 2009/05/14 Yanjun Tu Exp $
+// $Id: FWDTSegments3DProxyBuilder.cc,v 1.1 2009/05/14 20:29:26 yanjuntu Exp $
 //
 
 // system include files
@@ -87,8 +87,6 @@ FWDTSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       // std::cout <<"failed to get DT segments"<<std::endl;
       return;
    }
-  TEveCompound* compund = new TEveCompound("dt compound", "dtSegments" );
-   compund->OpenCompound();
    unsigned int index = 0;
    for (  DTRecSegment4DCollection::id_iterator chamberId = segments->id_begin();
           chamberId != segments->id_end(); ++chamberId, ++index )
@@ -96,17 +94,6 @@ FWDTSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 
       std::stringstream s;
       s << "chamber" << index;
-      TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
-      TEvePointSet* pointSet = new TEvePointSet();
-      pointSet->SetMarkerStyle(2);
-      pointSet->SetMarkerSize(3);
-      segmentSet->SetLineWidth(3);
-      segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
-      segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-      segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-      pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
-      compund->AddElement( segmentSet );
-      segmentSet->AddElement( pointSet );
       const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( (*chamberId).rawId() );
 
       DTRecSegment4DCollection::range range = segments->get(*chamberId);
@@ -114,22 +101,24 @@ FWDTSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       for (DTRecSegment4DCollection::const_iterator segment = range.first;
            segment!=range.second; ++segment)
       {
+         TEveCompound* compund = new TEveCompound("dt compound", "dtSegments" );
+         tList->AddElement(compund);
+
+         compund->OpenCompound();
+
+         TEveStraightLineSet* segmentSet = new TEveStraightLineSet(s.str().c_str());
+         segmentSet->SetLineWidth(3);
+         segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
+         segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+         segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
+         compund->AddElement( segmentSet );
+
          Double_t localSegmentInnerPoint[3];
          Double_t localSegmentCenterPoint[3];
          Double_t localSegmentOuterPoint[3];
          Double_t globalSegmentInnerPoint[3];
          Double_t globalSegmentCenterPoint[3];
          Double_t globalSegmentOuterPoint[3];
-
-        //  if ( (rhoPhiProjection && !segment->hasPhi() ) ||
-//               (!rhoPhiProjection && !segment->hasZed() ) ) {
-//             localSegmentInnerPoint[0] = 0;
-//             localSegmentInnerPoint[1] = 0;
-//             localSegmentInnerPoint[2] = 0;
-//             matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-//             pointSet->SetNextPoint( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2] );
-//             continue;
-//          }
 
          localSegmentOuterPoint[0] = segment->localPosition().x() + segmentLength*segment->localDirection().x();
          localSegmentOuterPoint[1] = segment->localPosition().y() + segmentLength*segment->localDirection().y();
@@ -160,7 +149,6 @@ FWDTSegments3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
          }
       }
    }
-   tList->AddElement(compund);
 
 }
 

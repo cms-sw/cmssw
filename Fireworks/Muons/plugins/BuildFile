@@ -3,6 +3,7 @@
   <use name=Fireworks/Calo>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/CSCRecHit>
+  <use name=DataFormats/DTRecHit>
   <use name=Fireworks/Candidates>
   <flags EDM_PLUGIN=1>
 </library>
