@@ -602,8 +602,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
-    //    edm::TriggerNames triggerNames;    // TriggerNames class
-    //    triggerNames.init(*triggerResults);
+    // const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
 
@@ -1238,8 +1237,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
-    //    edm::TriggerNames triggerNames;    // TriggerNames class
-    //    triggerNames.init(*triggerResults);
+    // const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
 

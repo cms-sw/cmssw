@@ -372,8 +372,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
   /****
   if (triggerResults.isValid()) {
     if (DEBUG) std::cout << "trigger valid " << std::endl;
-    edm::TriggerNames triggerNames;    // TriggerNames class
-    triggerNames.init(*triggerResults);
+    const edm::TriggerNames & triggerNames = evt.triggerNames(*triggerResults);
     unsigned int n = triggerResults->size();
     for (unsigned int i=0; i!=n; i++) {
       if ( triggerNames.triggerName(i) == "HLT_Jet30" ) {
