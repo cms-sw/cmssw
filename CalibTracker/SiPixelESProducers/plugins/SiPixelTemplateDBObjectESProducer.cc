@@ -39,17 +39,21 @@ boost::shared_ptr<SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::pr
 
 	std::string label = "";
 	
-	if(std::fabs(theMagField)<0.1)              label = "0T";
-	else if(theMagField>1.9 && theMagField<2.1) label = "2T";
-	else if(theMagField>2.9 && theMagField<3.1) label = "3T";
-	else if(theMagField>3.4 && theMagField<3.6) label = "3.5T";
-	else if(theMagField>3.9 && theMagField<4.1) label = "4T";
+	if(     theMagField>=-0.1 && theMagField<1.0 ) label = "0T";
+	else if(theMagField>=1.0  && theMagField<2.5 ) label = "2T";
+	else if(theMagField>=2.5  && theMagField<3.25) label = "3T";
+	else if(theMagField>=3.25 && theMagField<3.65) label = "3.5T";
+	else if(theMagField>=3.9  && theMagField<4.1 ) label = "4T";
 	else {
 		label = "3.8T";
-		if(theMagField<3.7 || theMagField>=4.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate") << "Magnetic field is " << theMagField;
+		if(theMagField>=4.1 || theMagField<-0.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixelTemplate") << "Magnetic field is " << theMagField;
 	}
 	ESHandle<SiPixelTemplateDBObject> dbobject;
 	iRecord.getRecord<SiPixelTemplateDBObjectRcd>().get(label,dbobject);
+
+	if(std::fabs(theMagField-dbobject->sVector()[22])>0.1)
+		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixelTemplate") << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject->sVector()[22];
+	
 	boost::shared_ptr<SiPixelTemplateDBObject> dbptr(new SiPixelTemplateDBObject(*(dbobject)));
 	return dbptr;
 }
