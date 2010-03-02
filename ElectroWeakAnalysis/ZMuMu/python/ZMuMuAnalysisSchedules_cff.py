@@ -6,117 +6,142 @@ from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
 
 ### controll by hand that all the path are in ... :-(
 
-dimuonsSeq = cms.Sequence(
-    dimuonsHLTFilter *
-    goodMuonRecoForDimuon *
-    dimuons *
-    dimuonsGlobal *
-    dimuonsOneStandAloneMuon *
-    dimuonsFilter    
-)
+## dimuonsSeq = cms.Sequence(
+##     dimuonsHLTFilter *
+##     goodMuonRecoForDimuon *
+##     dimuons *
+##     dimuonsGlobal *
+##     dimuonsOneStandAloneMuon *
+##     dimuonsFilter    
+## )
 
-dimuonsOneTrackSeq= cms.Sequence(dimuonsHLTFilter+
-                               goodMuonRecoForDimuon+
-                               dimuonsOneTrack+
-                               dimuonsOneTrackFilter
-)
-
-
+## dimuonsOneTrackSeq= cms.Sequence(dimuonsHLTFilter+
+##                                goodMuonRecoForDimuon+
+##                                dimuonsOneTrack+
+##                                dimuonsOneTrackFilter
+## )
 
 
 
 
-goodZToMuMuPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
-
-goodZToMuMu2HLTPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
-
-goodZToMuMu1HLTPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
-
-goodZToMuMuSameChargePathLoose.replace(dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
 
 
-notGoodZToMuMuSeq = cms.Sequence(
-    dimuonsSeq *
-    ~goodZToMuMu *
-    zToMuMuOneStandAloneMuonLoose
-    )
+#goodZToMuMuPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
+goodZToMuMuPathLoose._seq = dimuonsPath._seq + goodZToMuMuPathLoose._seq
 
-notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
+goodZToMuMu2HLTPathLoose._seq = dimuonsPath._seq + goodZToMuMu2HLTPathLoose._seq
+#goodZToMuMu2HLTPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
 
-goodZToMuMuOneStandAloneMuonPathLoose.remove(goodZToMuMu)
+#goodZToMuMu1HLTPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
 
-goodZToMuMuOneStandAloneMuonPathLoose.replace(zToMuMuOneStandAloneMuonLoose, notGoodZToMuMuSeq)
+goodZToMuMu1HLTPathLoose._seq= dimuonsPath._seq + goodZToMuMu1HLTPathLoose._seq 
 
-notGoodZToMuMuSeq = cms.Sequence(
-    dimuonsSeq +
-    dimuonsOneTrackSeq+
-    ~goodZToMuMu +
-    ~zToMuMuOneStandAloneMuon +
-    zToMuGlobalMuOneTrack 
-    )
+#goodZToMuMuSameChargePathLoose.replace(dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
+goodZToMuMuSameChargePathLoose._seq = dimuonsPath._seq + goodZToMuMuSameChargePathLoose._seq
 
 
+## notGoodZToMuMuSeq = cms.Sequence(
+##     dimuonsSeq *
+##     ~goodZToMuMu *
+##     zToMuMuOneStandAloneMuonLoose
+##     )
 
-notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
+## notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
 
-goodZToMuMuOneTrackPathLoose.remove( goodZToMuMu)
-goodZToMuMuOneTrackPathLoose.remove(zToMuMuOneStandAloneMuon )
+## goodZToMuMuOneStandAloneMuonPathLoose.remove(goodZToMuMu)
+
+#goodZToMuMuOneStandAloneMuonPathLoose.replace(zToMuMuOneStandAloneMuonLoose, notGoodZToMuMuSeq)
+
+goodZToMuMuOneStandAloneMuonPathLoose._seq = dimuonsPath._seq  + goodZToMuMuOneStandAloneMuonPathLoose._seq 
+
+## notGoodZToMuMuSeq = cms.Sequence(
+##     dimuonsSeq +
+##     dimuonsOneTrackSeq+
+##     ~goodZToMuMu +
+##     ~zToMuMuOneStandAloneMuon +
+##     zToMuGlobalMuOneTrack 
+##     )
+
+
+
+## notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
+
+## goodZToMuMuOneTrackPathLoose.remove( goodZToMuMu)
+## goodZToMuMuOneTrackPathLoose.remove(zToMuMuOneStandAloneMuon )
     
-goodZToMuMuOneTrackPathLoose.replace(zToMuGlobalMuOneTrack, notGoodZToMuMuSeq *  zToMuGlobalMuOneTrack )
+#goodZToMuMuOneTrackPathLoose.replace(zToMuGlobalMuOneTrack, notGoodZToMuMuSeq *  zToMuGlobalMuOneTrack )
+
+goodZToMuMuOneTrackPathLoose._seq = dimuonsPath._seq  + dimuonsOneTrackPath._seq + goodZToMuMuOneTrackPathLoose._seq 
 
 goodZToMuMuOneTrackPathLoose.remove(dimuonsFilter)
 
-
-initialGoodZToMuMuPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
-
-goodZToMuMuPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
+#initialGoodZToMuMuPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
+initialGoodZToMuMuPath._seq = dimuonsPath._seq + initialGoodZToMuMuPath._seq
 
 
-goodZToMuMu2HLTPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
-
-goodZToMuMu1HLTPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
-
-goodZToMuMuSameChargePath.replace( dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
-
-goodZToMuMuSameCharge2HLTPath.replace( dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
-
-goodZToMuMuSameCharge1HLTPath.replace( dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
-
-nonIsolatedZToMuMuPath.replace(nonIsolatedZToMuMu, dimuonsSeq * nonIsolatedZToMuMu)
+#goodZToMuMuPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
+goodZToMuMuPath._seq = dimuonsPath._seq + goodZToMuMuPath._seq
 
 
-oneNonIsolatedZToMuMuPath.replace(nonIsolatedZToMuMu, dimuonsSeq * nonIsolatedZToMuMu)
+#goodZToMuMu2HLTPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
+goodZToMuMu1HLTPath._seq = dimuonsPath._seq + goodZToMuMu1HLTPath._seq
 
-twoNonIsolatedZToMuMuPath.replace(nonIsolatedZToMuMu, dimuonsSeq * nonIsolatedZToMuMu)
-
-notGoodZToMuMuSeq = cms.Sequence(
-    dimuonsSeq *
-    ~goodZToMuMu *
-    zToMuMuOneStandAloneMuon
-    )
-
-notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
-
-goodZToMuMuOneStandAloneMuonPath.remove(goodZToMuMu)
-goodZToMuMuOneStandAloneMuonPath.replace(zToMuMuOneStandAloneMuon, notGoodZToMuMuSeq)
+#goodZToMuMu1HLTPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
+goodZToMuMu2HLTPath._seq = dimuonsPath._seq + goodZToMuMu2HLTPath._seq
 
 
-notGoodZToMuMuSeq = cms.Sequence(
-    dimuonsSeq +
-    ~goodZToMuMu +
-    dimuonsOneTrackSeq+
-    ~zToMuMuOneStandAloneMuon +
-    zToMuGlobalMuOneTrack 
-    )
+#goodZToMuMuSameChargePath.replace( dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
+goodZToMuMuSameChargePath._seq = dimuonsPath._seq + goodZToMuMuSameChargePath._seq 
+
+#goodZToMuMuSameCharge2HLTPath.replace( dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
+
+goodZToMuMuSameCharge2HLTPath._seq = dimuonsPath._seq + goodZToMuMuSameCharge2HLTPath._seq 
+
+#goodZToMuMuSameCharge1HLTPath.replace( dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
+goodZToMuMuSameCharge1HLTPath._seq = dimuonsPath._seq + goodZToMuMuSameCharge1HLTPath._seq
+
+
+#nonIsolatedZToMuMuPath.replace(nonIsolatedZToMuMu, dimuonsSeq * nonIsolatedZToMuMu)
+nonIsolatedZToMuMuPath._seq = dimuonsPath._seq + nonIsolatedZToMuMuPath._seq 
+
+#oneNonIsolatedZToMuMuPath.replace(nonIsolatedZToMuMu, dimuonsSeq * nonIsolatedZToMuMu)
+oneNonIsolatedZToMuMuPath._seq = dimuonsPath._seq + oneNonIsolatedZToMuMuPath._seq 
+
+#twoNonIsolatedZToMuMuPath.replace(nonIsolatedZToMuMu, dimuonsSeq * nonIsolatedZToMuMu)
+twoNonIsolatedZToMuMuPath._seq = dimuonsPath._seq + twoNonIsolatedZToMuMuPath._seq 
+
+
+## notGoodZToMuMuSeq = cms.Sequence(
+##     dimuonsSeq *
+##     ~goodZToMuMu *
+##     zToMuMuOneStandAloneMuon
+##     )
+
+## notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
+
+## goodZToMuMuOneStandAloneMuonPath.remove(goodZToMuMu)
+## goodZToMuMuOneStandAloneMuonPath.replace(zToMuMuOneStandAloneMuon, notGoodZToMuMuSeq)
+goodZToMuMuOneStandAloneMuonPath._seq = dimuonsPath._seq + goodZToMuMuOneStandAloneMuonPath._seq
+
+
+## notGoodZToMuMuSeq = cms.Sequence(
+##     dimuonsSeq +
+##     ~goodZToMuMu +
+##     dimuonsOneTrackSeq+
+##     ~zToMuMuOneStandAloneMuon +
+##     zToMuGlobalMuOneTrack 
+##     )
 
 
 
-notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
+## notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
 
-goodZToMuMuOneTrackPath.remove( goodZToMuMu)
-goodZToMuMuOneTrackPath.remove(zToMuMuOneStandAloneMuon )
+## goodZToMuMuOneTrackPath.remove( goodZToMuMu)
+## goodZToMuMuOneTrackPath.remove(zToMuMuOneStandAloneMuon )
     
-goodZToMuMuOneTrackPath.replace(zToMuGlobalMuOneTrack, notGoodZToMuMuSeq *  zToMuGlobalMuOneTrack )
+## goodZToMuMuOneTrackPath.replace(zToMuGlobalMuOneTrack, notGoodZToMuMuSeq *  zToMuGlobalMuOneTrack )
+
+goodZToMuMuOneTrackPath._seq = dimuonsPath._seq + dimuonsOneTrackPath._seq + goodZToMuMuOneTrackPath._seq
 goodZToMuMuOneTrackPath.remove(dimuonsFilter)
 
 
