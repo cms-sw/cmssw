@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.30 2010/01/28 13:41:54 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.31 2010/02/09 14:54:55 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -326,7 +326,7 @@ void ResourceMonitorCollection::checkNumberOfCopyWorkers()
 {
   const std::string alarmName = "CopyWorkers";
 
-  if ( _numberOfCopyWorkers != _rmParams._copyWorkers._expectedCount )
+  if ( _numberOfCopyWorkers < _rmParams._copyWorkers._expectedCount )
   {
     std::ostringstream msg;
     msg << "Expected " << _rmParams._copyWorkers._expectedCount <<
