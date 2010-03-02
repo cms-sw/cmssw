@@ -6,11 +6,12 @@ Purpose of the package:
 
 lumiSchema.py create/drop
     -c lumiDBconnectStr(required) 
-    -P authpath(optional) 
+    -P authpath(optional , default None) 
 
 lumiCal.py delivered/recorded/effective 
     -r runnumber (required)
-    -c lumiDBconnectStr(required) 
-    -P authpath (optional) 
-    -i inputFile (optional for effective arg)
-    -h hltpath (optional)
+    -c lumiDBconnectStr (required) 
+    -n normalizationfactor (optional, default 1.64E04)
+    -P authpath (optional, default None) 
+    -i inputFile (optional for effective arg, default None)
+    -h hltpath (optional, default All)
