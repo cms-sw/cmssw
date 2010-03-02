@@ -1,3 +1,15 @@
 Purpose of the package:
   tools to manage(create,clean,maintain,schema doc) LumiDB.
+  tools to calculate luminosity
   LumiDB web tool
+
+
+lumiSchema.py create/drop
+    -c lumiDBconnectStr(required) 
+    -P authpath(optional) 
+
+lumiCal.py delivered/recorded/effective 
+    -c lumiDBconnectStr(required) 
+    -P authpath(optional) 
+    -i inputFile(optional for effective arg)
+    -h hltpath(optional)
