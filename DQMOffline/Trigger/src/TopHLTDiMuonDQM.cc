@@ -10,6 +10,7 @@
 
 //#include "DQM/Physics/src/TopHLTDiMuonDQM.h"
 #include "DQMOffline/Trigger/interface/TopHLTDiMuonDQM.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 using namespace std;
 using namespace edm;
@@ -219,8 +220,7 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
     int N_Triggers = trigResults->size();
 
-    TriggerNames trigName;
-    trigName.init(*trigResults);
+    const edm::TriggerNames & trigName = iEvent.triggerNames(*trigResults);
 
     for( int i_Trig = 0; i_Trig < N_Triggers; ++i_Trig ) {
 
