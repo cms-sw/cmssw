@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/11 00:00:36 $
- * $Revision: 1.22 $
+ * $Date: 2010/02/20 02:42:10 $
+ * $Revision: 1.23 $
  *
  */
 
@@ -23,9 +23,26 @@
 #include <math.h>
 #include <TMath.h>
 #include <iostream>
+#include <TStyle.h>
 
 using namespace std;
 using namespace edm;
+
+static char * formatTime( const time_t t )  {
+#define CET (+1)
+
+  static  char ts[] = "yyyy-Mm-dd hh:mm:ss     ";
+  tm * ptm;
+  ptm = gmtime ( &t );
+  sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CET)%24, ptm->tm_min, ptm->tm_sec);
+
+#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
+  unsigned int b = strlen(ts);
+  while (ts[--b] == ' ') {ts[b] = 0;}
+#endif
+  return ts;
+
+}
 
 //
 // constructors and destructor
@@ -37,6 +54,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   bsSrc_          = parameters_.getUntrackedParameter<InputTag>("beamSpot");
   pvSrc_          = parameters_.getUntrackedParameter<InputTag>("primaryVertex");
+  intervalInSec_  = parameters_.getUntrackedParameter<int>("timeInterval",920);//40 LS X 23"
   fitNLumi_       = parameters_.getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
   fitPVNLumi_     = parameters_.getUntrackedParameter<int>("fitPVEveryNLumi",-1);
@@ -56,6 +74,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
   maxZ_ = fabs(maxZ_);
+  fdenom = pow(2,32);
 }
 
 
@@ -83,7 +102,7 @@ void BeamMonitor::beginJob() {
   const int    dzBin = parameters_.getParameter<int>("dzBin");
   const double dzMin  = parameters_.getParameter<double>("dzMin");
   const double dzMax  = parameters_.getParameter<double>("dzMax");
-  
+
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Fit");
   
@@ -100,27 +119,84 @@ void BeamMonitor::beginJob() {
   //   h_vx_vy->getTH1()->SetBit(TH1::kCanRebin);
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)",1);
   h_vx_vy->setAxisTitle("y coordinate of input track at PCA (cm)",2);
-  
-  h_x0_lumi = dbe_->book1D("x0_lumi","x coordinate of beam spot vs lumi (Fit)",40,0.5,40.5);
-  h_x0_lumi->setAxisTitle("Lumisection",1);
-  h_x0_lumi->setAxisTitle("x_{0} (cm)",2);
-  h_x0_lumi->getTH1()->SetOption("E1");
-  
-  h_y0_lumi = dbe_->book1D("y0_lumi","y coordinate of beam spot vs lumi (Fit)",40,0.5,40.5);
-  h_y0_lumi->setAxisTitle("Lumisection",1);
-  h_y0_lumi->setAxisTitle("y_{0} (cm)",2);
-  h_y0_lumi->getTH1()->SetOption("E1");
-  
-  h_z0_lumi = dbe_->book1D("z0_lumi","z coordinate of beam spot vs lumi (Fit)",40,0.5,40.5);
-  h_z0_lumi->setAxisTitle("Lumisection",1);
-  h_z0_lumi->setAxisTitle("z_{0} (cm)",2);
-  h_z0_lumi->getTH1()->SetOption("E1");
-  
+
+  TDatime *da = new TDatime();
+  gStyle->SetTimeOffset(da->Convert(kTRUE));
+
+  char coord[] = {"xyz"};
+  for (int i = 0; i < 4; i++) {
+    dbe_->setCurrentFolder(monitorName_+"Fit");
+    for (int ic=0; ic<3; ++ic) {
+      string histName(1,coord[ic]);
+      string histTitle(1,coord[ic]);
+      string ytitle(1,coord[ic]);
+      string xtitle("");
+      string options("E1");
+      switch(i) {
+      case 1: // BS vs time
+	histName += "0_time";
+	histTitle += " coordinate of beam spot vs time (Fit)";
+	xtitle += "Time [UTC]";
+	ytitle += "_{0} (cm)";
+	break;
+      case 2: // PV vs lumi
+	dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+	histName.insert(0,"PV");
+	histName += "_lumi";
+	histTitle.insert(0,"Avg. ");
+	histTitle += " position of primary vtx vs lumi";
+	xtitle += "Lumisection";
+	ytitle.insert(0,"PV");
+	ytitle += " #pm #sigma_{PV";
+	ytitle += coord[ic];
+	ytitle += "} (cm)";
+	break;
+      case 3: // PV vs time
+	dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
+	histName.insert(0,"PV");
+	histName += "_time";
+	histTitle.insert(0,"Avg. ");
+	histTitle += " position of primary vtx vs time";
+	xtitle += "Time [UTC]";
+	ytitle.insert(0,"PV");
+	ytitle += " #pm #sigma_{PV";
+	ytitle += coord[ic];
+	ytitle += "} (cm)";
+	break;
+      default: // BS vs lumi
+	histName += "0_lumi";
+	histTitle += " coordinate of beam spot vs lumi (Fit)";
+	xtitle += "Lumisection";
+	ytitle += "_{0} (cm)";
+	break;
+      }
+      if (debug_) std::cout << "hitsName = " << histName << "; histTitle = " << histTitle << std::endl;
+      hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
+      hs[histName]->setAxisTitle(xtitle,1);
+      hs[histName]->setAxisTitle(ytitle,2);
+      hs[histName]->getTH1()->SetOption("E1");
+      if (histName.find("time") != string::npos) {
+	//int nbins = (intervalInSec_/23 > 0 ? intervalInSec_/23 : 40);
+ 	hs[histName]->getTH1()->SetBins(intervalInSec_,0.,intervalInSec_);
+	hs[histName]->setAxisTimeDisplay(1);
+	hs[histName]->setAxisTimeFormat("%H:%M",1);
+      }
+    }
+  }
+  dbe_->setCurrentFolder(monitorName_+"Fit");
+
   h_sigmaZ0_lumi = dbe_->book1D("sigmaZ0_lumi","sigma z_{0} of beam spot vs lumi (Fit)",40,0.5,40.5);
   h_sigmaZ0_lumi->setAxisTitle("Lumisection",1);
   h_sigmaZ0_lumi->setAxisTitle("sigma z_{0} (cm)",2);
   h_sigmaZ0_lumi->getTH1()->SetOption("E1");
-  
+
+  h_sigmaZ0_time = dbe_->book1D("sigmaZ0_time","sigma z_{0} of beam spot vs time (Fit)",intervalInSec_,0.,intervalInSec_);
+  h_sigmaZ0_time->setAxisTitle("Time",1);
+  h_sigmaZ0_time->setAxisTitle("sigma z_{0} (cm)",2);
+  h_sigmaZ0_time->getTH1()->SetOption("E1");
+  h_sigmaZ0_time->setAxisTimeDisplay(1);
+  h_sigmaZ0_time->setAxisTimeFormat("%H:%M",1);
+
   h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
   h_trk_z0->setAxisTitle("z_{0} of selected tracks (cm)",1);
 
@@ -158,11 +234,13 @@ void BeamMonitor::beginJob() {
   cutFlowTable = dbe_->book1D("cutFlowTable","Cut flow table of track selection", 9, 0, 9 );
 
   // Results of previous good fit:
-  fitResults=dbe_->book2D("fitResults","Results of previous good fit",2,0,2,4,0,4);
+  fitResults=dbe_->book2D("fitResults","Results of previous good beam fit",2,0,2,6,0,6);
   fitResults->setAxisTitle("Fitted Beam Spot (cm)",1);
-  fitResults->setBinLabel(4,"x_{0}",2);
-  fitResults->setBinLabel(3,"y_{0}",2);
-  fitResults->setBinLabel(2,"z_{0}",2);
+  fitResults->setBinLabel(6,"x_{0}",2);
+  fitResults->setBinLabel(5,"y_{0}",2);
+  fitResults->setBinLabel(4,"z_{0}",2);
+  fitResults->setBinLabel(3,"dx/dz",2);
+  fitResults->setBinLabel(2,"dy/dz",2);
   fitResults->setBinLabel(1,"#sigma_{Z0}",2);
   fitResults->setBinLabel(1,"Mean",1);
   fitResults->setBinLabel(2,"Stat. Error",1);
@@ -197,21 +275,6 @@ void BeamMonitor::beginJob() {
   h_PVz[1] = dbe_->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",dzBin,dzMin,dzMax);
   h_PVz[1]->setAxisTitle("PVz (cm)",1);
 
-  h_PVx_lumi = dbe_->book1D("PVx_lumi","Avg. x position of primary vtx vs lumi",40,0.5,40.5);
-  h_PVx_lumi->setAxisTitle("Lumisection",1);
-  h_PVx_lumi->setAxisTitle("PVx #pm #sigma_{PVx} (cm)",2);
-  h_PVx_lumi->getTH1()->SetOption("E1");
-
-  h_PVy_lumi = dbe_->book1D("PVy_lumi","Avg. y position of primary vtx vs lumi",40,0.5,40.5);
-  h_PVy_lumi->setAxisTitle("Lumisection",1);
-  h_PVy_lumi->setAxisTitle("PVy #pm #sigma_{PVy} (cm)",2);
-  h_PVy_lumi->getTH1()->SetOption("E1");
-
-  h_PVz_lumi = dbe_->book1D("PVz_lumi","Avg. z position of primary vtx vs lumi",40,0.5,40.5);
-  h_PVz_lumi->setAxisTitle("Lumisection",1);
-  h_PVz_lumi->setAxisTitle("PVz #pm #sigma_{PVz} (cm)",2);
-  h_PVz_lumi->getTH1()->SetOption("E1");
-
   h_PVxz = dbe_->bookProfile("PVxz","PVx vs. PVz",dzBin/2,dzMin,dzMax,dxBin/2,dxMin,dxMax,"");
   h_PVxz->setAxisTitle("PVz (cm)",1);
   h_PVxz->setAxisTitle("PVx (cm)",2);
@@ -221,13 +284,16 @@ void BeamMonitor::beginJob() {
   h_PVyz->setAxisTitle("PVy (cm)",2);
 
   // Results of previous good fit:
-  pvResults=dbe_->book2D("pvResults","Results of avg. PV positions",2,0,2,3,0,3);
+  pvResults=dbe_->book2D("pvResults","Results of fitting Primary Vertices",2,0,2,6,0,6);
   pvResults->setAxisTitle("Fitted Primary Vertex (cm)",1);
-  pvResults->setBinLabel(3,"PVx",2);
-  pvResults->setBinLabel(2,"PVy",2);
-  pvResults->setBinLabel(1,"PVz",2);
+  pvResults->setBinLabel(6,"PVx",2);
+  pvResults->setBinLabel(5,"PVy",2);
+  pvResults->setBinLabel(4,"PVz",2);
+  pvResults->setBinLabel(3,"#sigma x",2);
+  pvResults->setBinLabel(2,"#sigma y",2);
+  pvResults->setBinLabel(1,"#sigma z",2);
   pvResults->setBinLabel(1,"Mean",1);
-  pvResults->setBinLabel(2,"Width",1);
+  pvResults->setBinLabel(2,"Stat. Error",1);
   pvResults->getTH1()->SetOption("text");
 
   // Summary plots:
@@ -284,11 +350,54 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   countLumi_++;
   if (debug_) cout << "Lumi: " << countLumi_ << endl;
+
+  ftimestamp = lumiSeg.beginTime().value();
+  tmpTime = ftimestamp / fdenom;
+  if (countLumi_ == 1) {
+    refTime =  tmpTime;
+    char* eventTime = formatTime(tmpTime);
+    TDatime da(eventTime);
+    if (debug_) {
+      std::cout << "TimeOffset = ";
+      da.Print();
+    }
+    hs["x0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["y0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["z0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    h_sigmaZ0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["PVx_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["PVy_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["PVz_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  }
 }
 
 // ----------------------------------------------------------
 void BeamMonitor::analyze(const Event& iEvent, 
-			  const EventSetup& iSetup ) {  
+			  const EventSetup& iSetup ) {
+  ftimestamp = iEvent.time().value();
+  tmpTime = ftimestamp / fdenom;
+  if (debug_) std::cout << "tmpTime - refTime = " << tmpTime - refTime << std:: endl;
+  if (tmpTime - refTime >= intervalInSec_) {
+    if (debug_) std::cout << "Reset Time Offset" << std::endl;
+    refTime = tmpTime;
+    char* eventTime = formatTime(tmpTime);
+    TDatime da(eventTime);
+    hs["x0_time"]->Reset();
+    hs["x0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["y0_time"]->Reset();
+    hs["y0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["z0_time"]->Reset();
+    hs["z0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    h_sigmaZ0_time->Reset();
+    h_sigmaZ0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["PVx_time"]->Reset();
+    hs["PVx_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["PVy_time"]->Reset();
+    hs["PVy_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    hs["PVz_time"]->Reset();
+    hs["PVz_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  }
+
   countEvt_++;
   theBeamFitter->readEvent(iEvent);
   Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -371,14 +480,21 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       pvResults->setAxisTitle(tmpTitle,1);
 
       TF1 *fgaus = new TF1("fgaus","gaus");
-      double mean,width;
+      double mean,width,meanErr,widthErr;
       fgaus->SetLineColor(4);
       h_PVx[0]->getTH1()->Fit("fgaus","QLM0");
       mean = fgaus->GetParameter(1);
       width = fgaus->GetParameter(2);
-      h_PVx_lumi->ShiftFillLast(mean,width);
-      pvResults->setBinContent(1,3,mean);
-      pvResults->setBinContent(2,3,width);
+      meanErr = fgaus->GetParError(1);
+      widthErr = fgaus->GetParError(2);
+      hs["PVx_lumi"]->ShiftFillLast(mean,width);
+      int nthBin = tmpTime - refTime;
+      hs["PVx_time"]->setBinContent(nthBin,mean);
+      hs["PVx_time"]->setBinError(nthBin,width);
+      pvResults->setBinContent(1,6,mean);
+      pvResults->setBinContent(1,3,width);
+      pvResults->setBinContent(2,6,meanErr);
+      pvResults->setBinContent(2,3,widthErr);
     
       dbe_->setCurrentFolder(monitorName_+"PrimaryVertex/");
       const char* tmpfile;
@@ -394,9 +510,15 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       h_PVy[0]->getTH1()->Fit("fgaus","QLM0");
       mean = fgaus->GetParameter(1);
       width = fgaus->GetParameter(2);
-      h_PVy_lumi->ShiftFillLast(mean,width);
-      pvResults->setBinContent(1,2,mean);
-      pvResults->setBinContent(2,2,width);
+      meanErr = fgaus->GetParError(1);
+      widthErr = fgaus->GetParError(2);
+      hs["PVy_lumi"]->ShiftFillLast(mean,width);
+      hs["PVy_time"]->setBinContent(nthBin,mean);
+      hs["PVy_time"]->setBinError(nthBin,width);
+      pvResults->setBinContent(1,5,mean);
+      pvResults->setBinContent(1,2,width);
+      pvResults->setBinContent(2,5,meanErr);
+      pvResults->setBinContent(2,2,widthErr);
       // snap shot of the fit
       tmpfile= (h_PVy[1]->getName()).c_str();
       tmphisto = static_cast<TH1D *>((h_PVy[0]->getTH1())->Clone("tmphisto"));
@@ -409,9 +531,15 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       h_PVz[0]->getTH1()->Fit("fgaus","QLM0");
       mean = fgaus->GetParameter(1);
       width = fgaus->GetParameter(2);
-      h_PVz_lumi->ShiftFillLast(mean,width);
-      pvResults->setBinContent(1,1,mean);
-      pvResults->setBinContent(2,1,width);
+      meanErr = fgaus->GetParError(1);
+      widthErr = fgaus->GetParError(2);
+      hs["PVz_lumi"]->ShiftFillLast(mean,width);
+      hs["PVz_time"]->setBinContent(nthBin,mean);
+      hs["PVz_time"]->setBinError(nthBin,width);
+      pvResults->setBinContent(1,4,mean);
+      pvResults->setBinContent(1,1,width);
+      pvResults->setBinContent(2,4,meanErr);
+      pvResults->setBinContent(2,1,widthErr);
       // snap shot of the fit
       tmpfile= (h_PVz[1]->getName()).c_str();
       tmphisto = static_cast<TH1D *>((h_PVz[0]->getTH1())->Clone("tmphisto"));
@@ -494,10 +622,20 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       cout << bs << endl;
       cout << "[BeamFitter] fitting done \n" << endl;
     }
-    h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
-    h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
-    h_z0_lumi->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
+    hs["x0_lumi"]->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
+    hs["y0_lumi"]->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
+    hs["z0_lumi"]->ShiftFillLast( bs.z0(), bs.z0Error(), fitNLumi_ );
     h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
+
+    int nthBin = tmpTime - refTime;
+    hs["x0_time"]->setBinContent(nthBin, bs.x0());
+    hs["y0_time"]->setBinContent(nthBin, bs.y0());
+    hs["z0_time"]->setBinContent(nthBin, bs.z0());
+    h_sigmaZ0_time->setBinContent(nthBin, bs.sigmaZ());
+    hs["x0_time"]->setBinError(nthBin, bs.x0Error());
+    hs["y0_time"]->setBinError(nthBin, bs.y0Error());
+    hs["z0_time"]->setBinError(nthBin, bs.z0Error());
+    h_sigmaZ0_time->setBinError(nthBin, bs.sigmaZ0Error());
 
     h_x0->Fill( bs.x0());
     h_y0->Fill( bs.y0());
@@ -509,13 +647,19 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     char tmpTitle[50];
     sprintf(tmpTitle,"%s %i %s %i","Fitted Beam Spot (cm) of LS: ",LSRange[0]," to ",LSRange[1]);
     fitResults->setAxisTitle(tmpTitle,1);
-    fitResults->setBinContent(1,4,bs.x0());
-    fitResults->setBinContent(1,3,bs.y0());
-    fitResults->setBinContent(1,2,bs.z0());
+    fitResults->setBinContent(1,6,bs.x0());
+    fitResults->setBinContent(1,5,bs.y0());
+    fitResults->setBinContent(1,4,bs.z0());
+    fitResults->setBinContent(1,3,bs.sigmaZ());
+    fitResults->setBinContent(1,3,bs.dxdz());
+    fitResults->setBinContent(1,2,bs.dydz());
     fitResults->setBinContent(1,1,bs.sigmaZ());
-    fitResults->setBinContent(2,4,bs.x0Error());
-    fitResults->setBinContent(2,3,bs.y0Error());
-    fitResults->setBinContent(2,2,bs.z0Error());
+
+    fitResults->setBinContent(2,6,bs.x0Error());
+    fitResults->setBinContent(2,5,bs.y0Error());
+    fitResults->setBinContent(2,4,bs.z0Error());
+    fitResults->setBinContent(2,3,bs.dxdzError());
+    fitResults->setBinContent(2,2,bs.dydzError());
     fitResults->setBinContent(2,1,bs.sigmaZ0Error());
 
 //     if (fabs(refBS.x0()-bs.x0())/bs.x0Error() < deltaSigCut_) { // disabled temporarily
@@ -534,10 +678,11 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       cout << "Fill previous good fitted results:" << endl;
       cout << preBS << endl;
     }
-    h_x0_lumi->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
-    h_y0_lumi->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
-    h_z0_lumi->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
     h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
+    hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
+    hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
+    hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
+
   }
   
   // Fill summary report

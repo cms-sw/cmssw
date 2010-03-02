@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/02/11 00:00:36 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/02/20 02:42:10 $
+ *  $Revision: 1.15 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -20,7 +20,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
-//#include "DataFormats/TrackReco/interface/TrackBase.h"
+
 
 //
 // class declaration
@@ -67,6 +67,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   int fitPVNLumi_;
   int resetFitNLumi_;
   int resetPVNLumi_;
+  int intervalInSec_;
   bool debug_;
   
   DQMStore* dbe_;
@@ -76,7 +77,7 @@ class BeamMonitor : public edm::EDAnalyzer {
   int countLumi_;      //counter
   int beginLumiOfPVFit_;
   int endLumiOfPVFit_;
-  unsigned int nthBSTrk_;       //
+  unsigned int nthBSTrk_;
   int nFitElements_;
   int nFits_;
   double deltaSigCut_;
@@ -93,10 +94,8 @@ class BeamMonitor : public edm::EDAnalyzer {
   // MonitorElements:
   MonitorElement * h_nTrk_lumi;
   MonitorElement * h_d0_phi0;
-  MonitorElement * h_x0_lumi;
-  MonitorElement * h_y0_lumi;
-  MonitorElement * h_z0_lumi;
   MonitorElement * h_sigmaZ0_lumi;
+  MonitorElement * h_sigmaZ0_time;
   MonitorElement * h_trk_z0;
   MonitorElement * h_vx_vy;
   MonitorElement * h_vx_dz;
@@ -112,12 +111,10 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * h_PVx[2];
   MonitorElement * h_PVy[2];
   MonitorElement * h_PVz[2];
-  MonitorElement * h_PVx_lumi;
-  MonitorElement * h_PVy_lumi;
-  MonitorElement * h_PVz_lumi;
   MonitorElement * h_PVxz;
   MonitorElement * h_PVyz;
   MonitorElement * pvResults;
+  std::map<TString, MonitorElement*> hs;
 
   // Summary:
   Float_t reportSummary_;
@@ -129,6 +126,11 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * cutFlowTable;
   // variables for beam fit
 
+  // 
+  time_t tmpTime;
+  time_t refTime;
+  edm::TimeValue_t ftimestamp;
+  edm::TimeValue_t fdenom;
 };
 
 #endif
