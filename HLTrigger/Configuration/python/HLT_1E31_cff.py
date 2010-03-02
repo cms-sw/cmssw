@@ -1,42 +1,40 @@
-# /dev/CMSSW_3_5_0/1E31/V36 (CMSSW_3_5_2_HLT3)
+# /dev/CMSSW_3_5_0/1E31/V37 (CMSSW_3_5_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V36')
+  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V37')
 )
 
 streams = cms.PSet( 
+  RPCMON = cms.vstring( 'RPCMonitor' ),
   Offline = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  A = cms.vstring( 'Cosmics',
+    'MinimumBias',
+    'HcalHPDNoise',
+    'RandomTriggers',
+    'HcalNZS',
+    'ZeroBias' ),
+  EventDisplay = cms.vstring(  ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'HcalHPDNoise',
-    'RandomTriggers',
-    'HcalNZS',
-    'ZeroBias',
-    'Cosmics',
-    'MinimumBias' ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' )
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' )
 )
 datasets = cms.PSet( 
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNormalisation' ),
   ExpressPhysics = cms.vstring( 'HLT_MET100',
     'HLT_L1MuOpen',
     'HLT_L1Mu',
     'HLT_ZeroBias' ),
-  EcalLaser = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
-  LogMonitor = cms.vstring(  ),
-  FEDMonitor = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
@@ -71,10 +69,6 @@ datasets = cms.PSet(
     'HLT_L1MET20',
     'HLT_DoubleMu3',
     'HLT_HighMult40' ),
-  HcalHPDNoise = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  ),
-  HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
-  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   Cosmics = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Mu',
     'HLT_L1MuOpen',
@@ -107,10 +101,16 @@ datasets = cms.PSet(
     'HLT_MinBiasEcal',
     'HLT_MinBiasHcal',
     'HLT_L1Mu14_L1SingleEG10' ),
+  HcalHPDNoise = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
+  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
+  EcalLaser = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNormalisation' )
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1955,7 +1955,8 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         wirePropCorrType = cms.int32( 1 ),
         doWirePropCorrection = cms.bool( True ),
         doT0Correction = cms.bool( True ),
-        debug = cms.untracked.bool( False )
+        debug = cms.untracked.bool( False ),
+        tTrigLabel = cms.string( "" )
       ),
       tTrigMode = cms.string( "DTTTrigSyncFromDB" )
     )
@@ -1992,7 +1993,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
             wirePropCorrType = cms.int32( 1 ),
             doWirePropCorrection = cms.bool( True ),
             doT0Correction = cms.bool( True ),
-            debug = cms.untracked.bool( False )
+            debug = cms.untracked.bool( False ),
+            tTrigLabel = cms.string( "" )
           ),
           tTrigMode = cms.string( "DTTTrigSyncFromDB" )
         ),
@@ -2012,7 +2014,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           wirePropCorrType = cms.int32( 1 ),
           doWirePropCorrection = cms.bool( True ),
           doT0Correction = cms.bool( True ),
-          debug = cms.untracked.bool( False )
+          debug = cms.untracked.bool( False ),
+          tTrigLabel = cms.string( "" )
         ),
         tTrigMode = cms.string( "DTTTrigSyncFromDB" )
       ),
