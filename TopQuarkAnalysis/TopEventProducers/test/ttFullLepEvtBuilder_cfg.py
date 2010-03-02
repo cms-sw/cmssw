@@ -1,23 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-#-------------------------------------------------
-# test cfg file for the production of a 
-# ttFullEvent
-#-------------------------------------------------
-process = cms.Process("TEST2")
+process = cms.Process("TEST")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.categories.append('TtFullLeptonicEvent')
 process.MessageLogger.cerr.TtFullLeptonicEvent = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )
-
-#-------------------------------------------------
-# process configuration
-#-------------------------------------------------
 
 ## define input
 process.source = cms.Source("PoolSource",
@@ -49,13 +40,21 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 ## std sequence to produce the ttFullLepEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_cff")
 process.ttFullLepEvent.verbosity = 1
+
+## optional change of settings
+#from TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_cff import *		      
+#removeTtFullLepHypGenMatch(process)
+
+#setForAllTtFullLepHypotheses(process,"muons","myMuons")
+#setForAllTtFullLepHypotheses(process,"jets","myJets")
+#setForAllTtFullLepHypotheses(process,"maxNJets",4)
+#setForAllTtFullLepHypotheses(process,"jetCorrectionLevel","part")
 
 ## process path
 process.p = cms.Path(process.patDefaultSequence *
