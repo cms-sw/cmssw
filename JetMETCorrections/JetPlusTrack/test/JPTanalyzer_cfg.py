@@ -136,7 +136,7 @@ process.source = cms.Source("PoolSource",
        '/store/relval/CMSSW_2_1_9/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/IDEAL_V9_v2/0001/FC15908F-6D86-DD11-AF1B-000423D9853C.root')
 )
 
-process.dump = cms.EDFilter("EventContentAnalyzer")
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.myanalysis = cms.EDAnalyzer("JPTAnalyzer",
     HistOutFile = cms.untracked.string('analysis.root'),

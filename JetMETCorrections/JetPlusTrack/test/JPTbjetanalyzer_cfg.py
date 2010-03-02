@@ -551,7 +551,7 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
    maxEventsToPrint = cms.untracked.int32(3)
 )
 
-process.dump = cms.EDFilter("EventContentAnalyzer")
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.myanalysis = cms.EDAnalyzer("JPTBjetAnalyzer",
     HistOutFile = cms.untracked.string('jptbjetanalyzer_cvstesy.root'),

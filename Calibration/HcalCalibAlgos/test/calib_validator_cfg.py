@@ -74,7 +74,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
-process.pts = cms.EDFilter("PathTimerInserter")
+process.pts = cms.EDProducer("PathTimerInserter")
 process.PathTimerService = cms.Service("PathTimerService")
 
 process.TFileService = cms.Service("TFileService",

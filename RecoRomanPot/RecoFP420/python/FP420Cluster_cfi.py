@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-FP420Cluster = cms.EDFilter("ClusterizerFP420",
+FP420Cluster = cms.EDProducer("ClusterizerFP420",
     ROUList = cms.vstring('FP420Digi'),
     VerbosityLevel = cms.untracked.int32(0),
     NumberFP420Stations = cms.int32(3),

@@ -38,7 +38,7 @@ thirdStep  = cms.Sequence( thirdClusters
 
 ###################################
 # Tracklist combiner
-allTracks = cms.EDFilter("TrackListCombiner",
+allTracks = cms.EDProducer("TrackListCombiner",
 #   trackProducers = cms.vstring('pixel3PrimTracks',
 #                                'pixel3SecoTracks')
     trackProducers = cms.vstring('globalPrimTracks',

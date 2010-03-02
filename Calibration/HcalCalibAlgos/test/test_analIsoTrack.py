@@ -53,7 +53,7 @@ process.TimerService = cms.Service("TimerService",
 )
 
 process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
-process.pts = cms.EDFilter("PathTimerInserter")
+process.pts = cms.EDProducer("PathTimerInserter")
 process.PathTimerService = cms.Service("PathTimerService")
 
 #Use this Path to run the code on RECO data sets (such as single pions produced by Salavat):

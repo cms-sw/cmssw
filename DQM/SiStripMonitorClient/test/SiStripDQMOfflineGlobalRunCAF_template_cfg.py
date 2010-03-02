@@ -40,7 +40,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # HLT Filter
-process.hltFilter = cms.EDFilter( "HLTHighLevel",
+process.hltFilter = cms.EDFilter("HLTHighLevel",
     HLTPaths           = cms.vstring(
         'HLT_WhatEverFunnyFilter',
         'HLT_TrackerCosmics',

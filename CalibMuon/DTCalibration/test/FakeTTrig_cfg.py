@@ -53,7 +53,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
  
-process.FaketTrig = cms.EDFilter("FakeTTrig",
+process.FaketTrig = cms.EDAnalyzer("FakeTTrig",
     useTofCorrection = cms.untracked.bool(False),
     useWirePropCorrection = cms.untracked.bool(False),
     dbLabel = cms.untracked.string(''),

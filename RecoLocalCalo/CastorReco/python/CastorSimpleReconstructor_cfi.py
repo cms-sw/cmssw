@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-castorreco = cms.EDFilter("CastorSimpleReconstructor",
+castorreco = cms.EDProducer("CastorSimpleReconstructor",
     correctionPhaseNS = cms.double(0.0),
     digiLabel = cms.InputTag("simCastorDigis"),
     samplesToAdd = cms.int32(1),

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #################################
 # Remaining clusters
-secondClusters = cms.EDFilter("TrackClusterRemover",
+secondClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("globalPrimTracks"),
     pixelClusters = cms.InputTag("siPixelClusters"),
     Common = cms.PSet(

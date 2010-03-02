@@ -46,9 +46,9 @@ process.ptrak = cms.EDAnalyzer("TrackerDigiGeometryAnalyzer")
 #process.pcalo = cms.EDAnalyzer("CaloGeometryAnalyzer")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-process.etta = cms.EDFilter("dumpEcalTrigTowerMapping")
+process.etta = cms.EDAnalyzer("dumpEcalTrigTowerMapping")
 
-process.ctgw = cms.EDFilter("testEcalGetWindow")
+process.ctgw = cms.EDAnalyzer("testEcalGetWindow")
 
 process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                                  fullEcalDump = cms.untracked.bool(True)
@@ -56,8 +56,8 @@ process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 
 
-process.ctgw = cms.EDFilter("testEcalGetWindow")
-process.mfa = cms.EDFilter("testMagneticField")
+process.ctgw = cms.EDAnalyzer("testEcalGetWindow")
+process.mfa = cms.EDAnalyzer("testMagneticField")
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('calogeom.root') )
 

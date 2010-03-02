@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-FP420Reco = cms.EDFilter("ReconstructerFP420",
+FP420Reco = cms.EDProducer("ReconstructerFP420",
     ROUList = cms.vstring('FP420Track'),
     VerbosityLevel = cms.untracked.int32(0),
     NumberFP420Detectors = cms.int32(3),

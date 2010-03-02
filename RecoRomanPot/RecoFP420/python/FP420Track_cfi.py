@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-FP420Track = cms.EDFilter("TrackerizerFP420",
+FP420Track = cms.EDProducer("TrackerizerFP420",
     ROUList = cms.vstring('FP420Cluster'),
     VerbosityLevel = cms.untracked.int32(0),
     NumberFP420Stations = cms.int32(3),

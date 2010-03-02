@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ##########################
 # The base for all steps
-allPixelTracks = cms.EDFilter("PixelTrackProducer",
+allPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     passLabel  = cms.string(''),
 

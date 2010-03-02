@@ -46,7 +46,7 @@ process.source.fileNames=cms.untracked.vstring('file:test/relVal_350pre2Test.roo
 process.source.processingMode = cms.untracked.string("Runs")
 
 
-process.qTester = cms.EDFilter("QualityTester",
+process.qTester = cms.EDAnalyzer("QualityTester",
      qtList = cms.untracked.FileInPath('DQMOffline/Trigger/data/EgHLTOffQualityTests.xml'),
      verboseQT = cms.untracked.bool(True),
      qtestOnEndJob =cms.untracked.bool(False),

@@ -103,7 +103,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/tmp/anikiten/PARTICLEGUN_DIPION_50_FULLCALO_cff_py_RAW2DIGI_RECO.root')
 )
 
-process.dump = cms.EDFilter("EventContentAnalyzer")
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 #    tracks = cms.string('RefitTracks'), 
 process.myanalysis = cms.EDAnalyzer("SinglePionEfficiencyNew",
@@ -148,7 +148,7 @@ process.myanalysis = cms.EDAnalyzer("SinglePionEfficiencyNew",
 )
 
 
-process.dump = cms.EDFilter("EventContentAnalyzer")
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 # process.p1 = cms.Path(process.mix*process.dump)
 # process.p1 = cms.Path(process.mix*process.simHcalUnsuppressedDigis*process.simHcalDigis*process.hbhereco*process.hfreco*process.horeco*process.dump)

@@ -106,7 +106,7 @@ process.myanalysis = cms.EDFilter(
     JetCorrectionJPT = cms.string('JetPlusTrackZSPCorrectorAntiKt5')
     )
 
-process.dump = cms.EDFilter("EventContentAnalyzer")
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 # Path
 process.p1 = cms.Path(

@@ -32,7 +32,7 @@ process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
      minHitEnergy = cms.double(1.5)
 )
 
-process.hcalRecoAnalyzer = cms.EDFilter("HcalRecHitsValidation",
+process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     eventype = cms.untracked.string('multi'),
     outputFile = cms.untracked.string('HcalRecHitValidationRelVal.root'),
     ecalselector = cms.untracked.string('yes'),

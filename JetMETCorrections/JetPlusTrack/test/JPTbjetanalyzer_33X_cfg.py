@@ -87,7 +87,7 @@ process.myanalysis = cms.EDFilter(
     jet_abseta = cms.double(2.5),     
     )
 
-process.dump = cms.EDFilter("EventContentAnalyzer")
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 # Path
 process.p1 = cms.Path(

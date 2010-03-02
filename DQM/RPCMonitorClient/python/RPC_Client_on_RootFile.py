@@ -50,7 +50,7 @@ process.rpcEventSummary.PrescaleFactor = 1
 process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
 
 ################# Quality Tests ############################
-process.qTesterRPC = cms.EDFilter("QualityTester",
+process.qTesterRPC = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1)
 )

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1GmtEmulDigis = cms.EDFilter("L1MuGlobalMuonTrigger",
+l1GmtEmulDigis = cms.EDProducer("L1MuGlobalMuonTrigger",
     Debug = cms.untracked.int32(0),
     BX_min = cms.int32(-4),
     BX_max = cms.int32(4),

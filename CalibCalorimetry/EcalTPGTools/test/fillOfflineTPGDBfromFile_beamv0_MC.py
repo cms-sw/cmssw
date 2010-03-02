@@ -89,7 +89,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         ))
 )
 
-process.dbCopy = cms.EDFilter("EcalTPGDBCopy",
+process.dbCopy = cms.EDAnalyzer("EcalTPGDBCopy",
     timetype = cms.string('runnumber'),
     toCopy = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGPedestalsRcd'),

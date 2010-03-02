@@ -61,7 +61,7 @@ from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi import *
 
 # SiStripQuality (only to test the different data labels)#
-qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
+qualityStatistics = cms.EDAnalyzer("SiStripQualityStatistics",
     TkMapFileName = cms.untracked.string(''),
     dataLabel = cms.untracked.string('unbiased')
 )

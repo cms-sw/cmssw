@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -115,7 +115,7 @@ process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
 )
 
 ##################################################DT skim###############################################
-process.muonDTDigis = cms.EDFilter("DTUnpackingModule",
+process.muonDTDigis = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
     useStandardFEDid = cms.untracked.bool(True),
     fedbyType = cms.untracked.bool(True),
@@ -135,7 +135,7 @@ process.muonDTDigis = cms.EDFilter("DTUnpackingModule",
 )
 
 
-process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
+process.hltDTActivityFilter = cms.EDFilter("HLTDTActivityFilter",
  inputDCC         = cms.InputTag( "dttfDigis" ),   
  inputDDU         = cms.InputTag( "muonDTDigis" ),   
  inputDigis       = cms.InputTag( "muonDTDigis" ),   

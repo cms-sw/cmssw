@@ -11,7 +11,7 @@ from  DQM.RPCMonitorClient.RPCChamberQuality_cfi import *
 
 from DQM.RPCMonitorClient.RPCEfficiencySecondStep_cfi import *
 
-qTesterRPC = cms.EDFilter("QualityTester",
+qTesterRPC = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(10)
 )

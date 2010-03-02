@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.rpcEfficiencySecond = cms.EDFilter("RPCEfficiencySecond",
+process.rpcEfficiencySecond = cms.EDAnalyzer("RPCEfficiencySecond",
     SaveFile = cms.untracked.bool(True),
     NameFile = cms.untracked.string('/tmp/carrillo/RPCEfficiency.root'),
     debug = cms.untracked.bool(False),

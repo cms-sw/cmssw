@@ -5,7 +5,7 @@
 #EE+
 import FWCore.ParameterSet.Config as cms
 
-ecaldigitorawzerosup = cms.EDFilter("EcalDigiToRaw",
+ecaldigitorawzerosup = cms.EDProducer("EcalDigiToRaw",
     InstanceEB = cms.string('SRPebDigis'),
     InstanceEE = cms.string('SRPeeDigis'),
     DoEndCap = cms.untracked.bool(True),

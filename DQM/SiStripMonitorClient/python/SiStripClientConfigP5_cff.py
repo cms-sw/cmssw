@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiStripMonitorSummary.OnDemandMonitoring_cfi import *
 #  SiStripMonitorAnalyser ####
-SiStripAnalyser = cms.EDFilter("SiStripAnalyser",
+SiStripAnalyser = cms.EDAnalyzer("SiStripAnalyser",
     StaticUpdateFrequency    = cms.untracked.int32(1),
     GlobalStatusFilling      = cms.untracked.int32(2),
     TkMapCreationFrequency   = cms.untracked.int32(3),
