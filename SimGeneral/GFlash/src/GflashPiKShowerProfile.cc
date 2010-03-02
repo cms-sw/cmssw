@@ -130,7 +130,7 @@ void GflashPiKShowerProfile::loadParameters()
     //the shower start point while for the spread term is nearly constant
 
     if(!isEndcap) lateralPar[Gflash::kHB][0] -= 2.3562e-01*(position.getRho()-131.0); 
-    else  lateralPar[Gflash::kHE][0] -= 2.3562e-01*(position.getZ()-332.0);
+    else  lateralPar[Gflash::kHE][0] -= 2.3562e-01*(std::abs(position.getZ())-332.0);
 
     double *rhoEcal = new double [2*Gflash::NPar];
     double *correlationVectorEcal = new double [Gflash::NPar*(Gflash::NPar+1)/2];
