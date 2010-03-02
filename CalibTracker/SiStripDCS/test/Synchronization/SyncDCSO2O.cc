@@ -124,7 +124,7 @@ void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
     cout << "digis = " << totDigis << endl;
-    timeInfo_.push_back( TimeInfo(iEvent.time().value(), totDigis, totDigisWithMasking, detIds.size()) );
+    timeInfo_.push_back( TimeInfo(iEvent.time().value(), totDigis, totDigisWithMasking, detVOff->getHVoffCounts()) );
   }
 }
 

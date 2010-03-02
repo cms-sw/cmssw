@@ -85,6 +85,8 @@ class SiStripPsuDetIdMap
    * ATTENTION: this will only build the pgMap, not the cgMap.
    */
   void BuildMap( const std::string & mapFile );
+  /// Overloaded method that does the buidling
+  void BuildMap( const std::string & mapFile, std::vector< std::pair<uint32_t, std::string> > & map );
 
   /** Returns the DCU-PSU map as a vector. */
   std::vector< std::pair<uint32_t, std::string> > getDcuPsuMap();

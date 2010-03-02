@@ -135,6 +135,7 @@ process.SiStripDetVOffBuilder = cms.Service(
 
     # Leave empty if you want to use the db
     PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat")
+    ExcludedDetIdListFile = cms.string('CalibTracker/SiStripCommon/data/ExcludedSiStripDetInfo.dat'),
 )
 
 # -----------------------------------------------------------------------------
