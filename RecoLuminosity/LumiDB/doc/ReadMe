@@ -8,10 +8,15 @@ lumiSchema.py create/drop
     -c lumiDBconnectStr(required) 
     -P authpath(optional , default None) 
 
-lumiCal.py delivered/recorded/effective 
+lumiCalc.py delivered/recorded/effective 
     -r runnumber (required)
     -c lumiDBconnectStr (required) 
-    -n normalizationfactor (optional, default 1.64E04)
+    -n normalizationfactor (optional, default 16400)
     -P authpath (optional, default None) 
-    -i inputFile (optional for effective arg, default None)
-    -h hltpath (optional, default All)
+    -i inputFile (optional for recorded and effective actions, default None)
+    -b beamMode (optional for delivered, default 'stable','quiet','either') 
+    -lumiversion lumiversion (optional for all, default 1)
+    -hltpath hltpath (optional, default All)
+
+Examples:
+ lumiCalc.py -c oracle://devdb10/cms_xiezhen_dev -P ~ -r 124025 -lumiversion 0001 delivered
