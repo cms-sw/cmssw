@@ -47,9 +47,9 @@ tmp/%LinkDef.cc:  %LinkDef.h
 # -lRIO -lNet - "hacks" for standard ROOT to be able to use the
 # recipe below to check for undefined symbols
 tmp/%.out:  %
-   $(QUIET) echo "checking shared library for missing symbols: $<"; \
-   echo "int main(){}" > tmp/$<.cpp; \
-   $(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -lEve -lCint -o $@ $< tmp/$<.cpp.
+	$(QUIET) echo "checking shared library for missing symbols: $<"; \
+	echo "int main(){}" > tmp/$<.cpp; \
+	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -lEve -lCint -o $@ $< tmp/$<.cpp
 
 # this recipe for dependency generation is the one recommended by the
 # gmake manual, with slight tweaks for the location of the output
