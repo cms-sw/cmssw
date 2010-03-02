@@ -7,11 +7,11 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 # PAT TRACKS 
 
-# before layer 1: conversion to track candidates for pat; isolation 
+# before pat: conversion to track candidates for pat; isolation 
 from ElectroWeakAnalysis.Skimming.patAODTrackCandSequence_cff import *
 patAODTrackCands.cut = 'pt > 10.'
 
-# layer 1 tracks
+# pat tracks
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 
 allPatTracks = patGenericParticles.clone(
@@ -47,8 +47,11 @@ selectedPatTracks.cut = 'pt > 10.'
 
 # PAT MUONS
 
-# before layer 1: Merge CaloMuons into the collection of reco::Muons
-# NEED A SPECIAL RECIPE IF YOU WANT CALOMUONS MERGING (DUE TO THE NECESSITY TO REDONE ISOLATION... )
+# before pat: Merge CaloMuons into the collection of reco::Muons
+# Starting from 3_4_X a special recipe is needed for CaloMuons merging
+# Uncomment the following lines and follow the recipe in:
+# https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIsolation#To_remake_IsoDeposits_in_CMSSW_3
+
 #from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
 #muons = cms.EDProducer("CaloMuonMerger",
 #    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
@@ -58,7 +61,7 @@ selectedPatTracks.cut = 'pt > 10.'
 ## And re-make isolation, as we can't use the one in AOD because our collection is different
 #import RecoMuon.MuonIsolationProducers.muIsolation_cff
 
-# layer 1 muons
+# pat muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 patMuons.isoDeposits = cms.PSet(
         tracker = cms.InputTag("muIsoDepositTk"),
@@ -74,7 +77,6 @@ patMuons.userIsolation = cms.PSet(
             veto = cms.double(0.015),
             src = cms.InputTag("muIsoDepositTk"),
             deltaR = cms.double(0.3),
-            cut = cms.double(3.0),
             threshold = cms.double(1.5)
             ),
         ecal = cms.PSet(
@@ -136,8 +138,7 @@ muonTriggerMatchEmbedder = cms.Sequence(
     selectedPatMuonsTriggerMatch
 )
 
-# pat sequences
-
+# uncomment in case of CaloMuons merging
 #beforePatMuons = cms.Sequence(
 #    muons *
 #    muIsolation
@@ -147,12 +148,13 @@ beforePatTracks = cms.Sequence(
     patAODTrackCandSequence 
 )
 
-beforePatPat = cms.Sequence(
- #   beforePatMuons *
+beforePat = cms.Sequence(
+# uncomment in case of CaloMuons merging
+#    beforePatMuons *
     beforePatTracks
 )
 
-patPat = cms.Sequence(
+patCandsSequence = cms.Sequence(
     patMuons *
     selectedPatMuons *
     allPatTracks *
@@ -160,8 +162,8 @@ patPat = cms.Sequence(
 )
 
 goodMuonRecoForDimuon = cms.Sequence(
-    beforePatPat *
-    patPat *
+    beforePat *
+    patCandsSequence *
     patTriggerSequence *
     muonTriggerMatchEmbedder
 )

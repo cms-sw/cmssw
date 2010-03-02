@@ -4,12 +4,12 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 # PAT TRACKS
 
-# before layer 1: conversion to track candidates for pat; isolation 
+# before pat: conversion to track candidates for pat; isolation 
 #from PhysicsTools.PatAlgos.recoLayer0.genericTrackCandidates_cff import *
 from ElectroWeakAnalysis.Skimming.patAODTrackCandSequence_cff import *
 patAODTrackCands.cut = 'pt > 10.'
 
-# before layer 1: MC match
+# before pat: MC match
 #from PhysicsTools.PatAlgos.mcMatchLayer0.trackMuMatch_cfi import *
 from ElectroWeakAnalysis.Skimming.trackMuMatch_cfi import *
 trackMuMatch.maxDeltaR = 0.15
@@ -17,10 +17,10 @@ trackMuMatch.maxDPtRel = 1.0
 trackMuMatch.resolveAmbiguities = True
 trackMuMatch.resolveByMatchQuality = True
 
-# layer 1 tracks
+# pat tracks
 from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 
-allTrackCands = patGenericParticles.clone(
+allPatTracks = patGenericParticles.clone(
     src = cms.InputTag("patAODTrackCands"),
     # isolation configurables
     isolation = cms.PSet(
@@ -51,25 +51,38 @@ allTrackCands = patGenericParticles.clone(
 from PhysicsTools.PatAlgos.selectionLayer1.trackSelector_cfi import *
 selectedPatTracks.cut = 'pt > 10.'
 
-# PAT MUONS (sequence compatible with PAT v2)
+# PAT MUONS
 
-# before layer 1: MC match
+# before pat: MC match
 from PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi import *
 muonMatch.maxDeltaR = 0.15
 muonMatch.maxDPtRel = 1.0
 muonMatch.resolveAmbiguities = True
 muonMatch.resolveByMatchQuality = True
 
-# layer 1 muons
+# pat muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
-patMuons.userIsolation.tracker = cms.PSet(
-    veto = cms.double(0.015),
-    src = cms.InputTag("muIsoDepositTk"),
-    deltaR = cms.double(0.3),
-    cut = cms.double(3.0),
-    threshold = cms.double(1.5)
+patMuons.isoDeposits = cms.PSet(
+        tracker = cms.InputTag("muIsoDepositTk"),
+        ecal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+        hcal    = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
 )
-#allLayer1Muons.addTrigMatch = cms.bool(False)
+patMuons.userIsolation = cms.PSet(
+        hcal = cms.PSet(
+            src = cms.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
+            deltaR = cms.double(0.3)
+        ),
+        tracker = cms.PSet(
+            veto = cms.double(0.015),
+            src = cms.InputTag("muIsoDepositTk"),
+            deltaR = cms.double(0.3),
+            threshold = cms.double(1.5)
+            ),
+        ecal = cms.PSet(
+            src = cms.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
+            deltaR = cms.double(0.3)
+        )
+    )
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 selectedPatMuons.cut = 'pt > 0. & abs(eta) < 100.0'
@@ -136,30 +149,30 @@ muonTriggerMatchEmbedder = cms.Sequence(
 
 # pat sequences
 
-beforeTracks = cms.Sequence(
+beforePatTracks = cms.Sequence(
     patAODTrackCandSequence *
     trackMuMatch
 )
 
-beforeMuons = cms.Sequence(
+beforePatMuons = cms.Sequence(
     muonMatch
 )
 
 beforePat = cms.Sequence(
-    beforeTracks +
-    beforeMuons
+    beforePatTracks +
+    beforePatMuons
 )
 
-pat = cms.Sequence(
+patCandsSequence = cms.Sequence(
     patMuons *
     selectedPatMuons *
-    allTrackCands *
+    allPatTracks *
     selectedPatTracks
 )
 
 goodMuonRecoForDimuon = cms.Sequence(
     beforePat *
-    pat *
+    patCandsSequence *
     patTriggerSequence *
     muonTriggerMatchEmbedder
 )
