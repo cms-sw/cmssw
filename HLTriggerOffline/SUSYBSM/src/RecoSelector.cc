@@ -67,8 +67,8 @@ bool RecoSelector::isSelected(const edm::Event& iEvent)
       LogDebug("RecoSelectorCuts") << "elpt = " << elpt << endl;
     }
     else {
-      float elenergy = 0;
-      float elpt = 0;
+      //      float elenergy = 0;
+      //      float elpt = 0;
       ElectronCutPassed = false;
     }
   }

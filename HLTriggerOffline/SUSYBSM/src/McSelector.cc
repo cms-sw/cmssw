@@ -41,26 +41,24 @@ McSelector::McSelector(edm::ParameterSet userCut_params)
   mc_nJet      = userCut_params.getParameter<int>("mc_nJet" );
 
 
-  cout << endl;
-  cout << "UserAnalysis parameters, MC for " << name << " selection:" << endl;
-  cout << " mc_ptElecMin      = " << mc_ptElecMin  	<< endl;
-  cout << " mc_ptMuonMin      = " << mc_ptMuonMin  	<< endl;
-  cout << " mc_ptTauMin       = " << mc_ptTauMin   	<< endl;
-  cout << " mc_ptPhotMin      = " << mc_ptPhotMin  	<< endl;
-  cout << " mc_ptJetMin       = " << mc_ptJetMin   	<< endl;
-  cout << " mc_ptJetForHtMin  = " << mc_ptJetForHtMin   << endl;
-  cout << " mc_metMin         = " << mc_metMin     	<< endl;
-  cout << " mc_htMin          = " << mc_htMin      	<< endl;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << "UserAnalysis parameters, MC for " << name << " selection:" ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_ptElecMin      = " << mc_ptElecMin  	;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_ptMuonMin      = " << mc_ptMuonMin  	;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_ptTauMin       = " << mc_ptTauMin   	;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_ptPhotMin      = " << mc_ptPhotMin  	;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_ptJetMin       = " << mc_ptJetMin   	;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_ptJetForHtMin  = " << mc_ptJetForHtMin   ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_metMin         = " << mc_metMin     	;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_htMin          = " << mc_htMin      	;
 
-  cout << " mc_nElec  	 = " << mc_nElec   << endl;
-  cout << " mc_nElecRule = " << mc_nElecRule << endl;
-  cout << " mc_nMuon  	 = " << mc_nMuon   << endl;
-  cout << " mc_nMuonRule = " << mc_nMuonRule << endl;
-  cout << " mc_nTau  	 = " << mc_nTau    << endl;
-  cout << " mc_nPhot  	 = " << mc_nPhot   << endl;
-  cout << " mc_nJet   	 = " << mc_nJet    << endl;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_nElec  	 = " << mc_nElec   ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_nElecRule = " << mc_nElecRule ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_nMuon  	 = " << mc_nMuon   ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_nMuonRule = " << mc_nMuonRule ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_nTau  	 = " << mc_nTau    ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_nPhot  	 = " << mc_nPhot   ;
+  edm::LogInfo("HLTriggerOfflineSUSYBSM") << " mc_nJet   	 = " << mc_nJet    ;
 
-  cout << endl;
 
 }
 
@@ -107,7 +105,7 @@ bool McSelector::isSelected(const edm::Event& iEvent)
     if(genParticle->status() == 1) {
       //      cout << "genParticle->status() = " << genParticle->status() << "    genParticle->pdgId() = " << genParticle->pdgId() << "     genParticle->pt() = " << genParticle->pt() << endl;
       //electrons
-      if(fabs(genParticle->pdgId()) == 11) {
+      if(fabs(genParticle->pdgId()) == 11 && genParticle->numberOfMothers()) {
 	//		cout << "Mc Electron, pt = " << genParticle->pt() << endl;
 	//		cout << "Electron Mother = " << genParticle->mother()->pdgId() << endl;
 // 		if(fabs(genParticle->mother()->pdgId()) == 11 || fabs(genParticle->mother()->pdgId()) == 15) 
@@ -127,7 +125,7 @@ bool McSelector::isSelected(const edm::Event& iEvent)
 	}
       }
       //muons
-      if(fabs(genParticle->pdgId()) == 13) {
+      if(fabs(genParticle->pdgId()) == 13 && genParticle->numberOfMothers()) {
 	//	cout << "Mc Muon, pt = " << genParticle->pt() << endl;
 	//		cout << "Muon Mother = " << genParticle->mother()->pdgId() << endl;
 // 		if(fabs(genParticle->mother()->pdgId()) == 13 || fabs(genParticle->mother()->pdgId()) == 15)
