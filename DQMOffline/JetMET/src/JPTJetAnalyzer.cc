@@ -31,6 +31,8 @@
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 #include <cmath>
 #include <string>
 #include <memory>
@@ -84,8 +86,13 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
     zspCorrector_(NULL),
     writeDQMStore_(config.getUntrackedParameter<bool>("WriteDQMStore")),
     dqmStoreFileName_(),
+    n90HitsMin_(config.getUntrackedParameter<int>("n90HitsMin")),
+    fHPDMax_(config.getUntrackedParameter<double>("fHPDMax")),
+    resEMFMin_(config.getUntrackedParameter<double>("resEMFMin")),
+    correctedPtMin_(config.getUntrackedParameter<double>("correctedPtThreshold")),
     trackPropagator_(new jptJetAnalysis::TrackPropagatorToCalo),
-    sOverNCalculator_(new jptJetAnalysis::StripSignalOverNoiseCalculator)
+    sOverNCalculator_(new jptJetAnalysis::StripSignalOverNoiseCalculator),
+    jetID_(new reco::helper::JetIDHelper(config.getParameter<edm::ParameterSet>("JetIDParams")))
 {
   //print config to debug log
   std::ostringstream debugStream;
@@ -118,6 +125,10 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
   getConfigForHistogram("deltaEta",config,pDebugStream);
   getConfigForHistogram("deltaPhi",config,pDebugStream);
   getConfigForHistogram("PhiVsEta",config,pDebugStream);
+  getConfigForHistogram("N90Hits",config,pDebugStream);
+  getConfigForHistogram("fHPD",config,pDebugStream);
+  getConfigForHistogram("ResEMF",config,pDebugStream);
+  getConfigForHistogram("fRBX",config,pDebugStream);
   getConfigForHistogram("TrackSiStripHitStoN",config,pDebugStream);
   getConfigForHistogram("InCaloTrackDirectionJetDR",config,pDebugStream);
   getConfigForHistogram("OutCaloTrackDirectionJetDR",config,pDebugStream);
@@ -163,6 +174,7 @@ void JPTJetAnalyzer::beginJob(DQMStore* dqmStore)
   //book histograms
   dqmStore->setCurrentFolder(histogramPath_);
   bookHistograms(dqmStore);
+  //construct JetID helpper
 }
 
 
@@ -233,46 +245,56 @@ void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eve
   }
   
   //fill histograms
-  const double deltaEta = jptCorrectedJet.eta() - rawJet.eta();
-  const double deltaPhi = jptCorrectedJet.phi() - rawJet.phi();
-  fillHistogram(JetE_,jptCorrectedJet.energy());
-  fillHistogram(JetEt_,jptCorrectedJet.et());
-  fillHistogram(JetP_,jptCorrectedJet.p());
-  fillHistogram(JetMass_,jptCorrectedJet.mass());
-  fillHistogram(JetPt_,jptCorrectedJet.pt());
-  fillHistogram(JetPx_,jptCorrectedJet.px());
-  fillHistogram(JetPy_,jptCorrectedJet.py());
-  fillHistogram(JetPz_,jptCorrectedJet.pz());
-  fillHistogram(JetEta_,jptCorrectedJet.eta());
-  fillHistogram(JetPhi_,jptCorrectedJet.phi());
-  fillHistogram(JetDeltaEta_,deltaEta);
-  fillHistogram(JetDeltaPhi_,deltaPhi);
-  fillHistogram(JetPhiVsEta_,jptCorrectedJet.phi(),jptCorrectedJet.eta());
-  const uint16_t totalTracks = pions.inVertexInCalo_.size() + pions.outOfVertexInCalo_.size() + pions.inVertexOutOfCalo_.size() +
-                               muons.inVertexInCalo_.size() + muons.outOfVertexInCalo_.size() + muons.inVertexOutOfCalo_.size() +
-                               electrons.inVertexInCalo_.size() + electrons.outOfVertexInCalo_.size() + electrons.inVertexOutOfCalo_.size();
-  fillHistogram(NTracksPerJetHisto_,totalTracks);
-  fillHistogram(NTracksPerJetVsJetEtHisto_,rawJet.et(),totalTracks);
-  fillHistogram(NTracksPerJetVsJetEtaHisto_,rawJet.eta(),totalTracks);
-  fillHistogram(CorrFactorHisto_,factorZSPJPT);
-  fillHistogram(CorrFactorVsJetEtHisto_,rawJet.et(),factorZSPJPT);
-  fillHistogram(CorrFactorVsJetEtaHisto_,rawJet.eta(),factorZSPJPT);
-  fillHistogram(ZSPCorrFactorHisto_,factorZSP);
-  fillHistogram(ZSPCorrFactorVsJetEtHisto_,rawJet.et(),factorZSP);
-  fillHistogram(ZSPCorrFactorVsJetEtaHisto_,rawJet.eta(),factorZSP);
-  const double factorJPT = factorZSPJPT / factorZSP;
-  fillHistogram(JPTCorrFactorHisto_,factorJPT);
-  fillHistogram(JPTCorrFactorVsJetEtHisto_,rawJet.et(),factorJPT);
-  fillHistogram(JPTCorrFactorVsJetEtaHisto_,rawJet.eta(),factorJPT);
-  const double ptFractionInCone = findPtFractionInCone(pions.inVertexInCalo_,pions.inVertexOutOfCalo_);
-  fillHistogram(PtFractionInConeHisto_,ptFractionInCone);
-  fillHistogram(PtFractionInConeVsJetRawEtHisto_,rawJet.et(),ptFractionInCone);
-  fillHistogram(PtFractionInConeVsJetEtaHisto_,rawJet.eta(),ptFractionInCone);
-  //fill track level histograms
-  fillTrackHistograms(allPionHistograms_,inCaloInVertexPionHistograms_,inCaloOutVertexPionHistograms_,outCaloInVertexPionHistograms_,pions,rawJet);
-  fillTrackHistograms(allMuonHistograms_,inCaloInVertexMuonHistograms_,inCaloOutVertexMuonHistograms_,outCaloInVertexMuonHistograms_,muons,rawJet);
-  fillTrackHistograms(allElectronHistograms_,inCaloInVertexElectronHistograms_,inCaloOutVertexElectronHistograms_,outCaloInVertexElectronHistograms_,
-                      electrons,rawJet);
+  jetID_->calculate(event,jptCorrectedJet);
+  const bool idPassed = ( (jetID_->n90Hits() >= n90HitsMin_) && (jetID_->fHPD() < fHPDMax_) && (jetID_->restrictedEMF() >= resEMFMin_) );
+  fillHistogram(JetN90Hits_,jetID_->n90Hits());
+  fillHistogram(JetfHPD_,jetID_->fHPD());
+  fillHistogram(JetResEMF_,jetID_->restrictedEMF());
+  fillHistogram(JetfRBX_,jetID_->fRBX());
+  if (idPassed) {
+    const double deltaEta = jptCorrectedJet.eta() - rawJet.eta();
+    const double deltaPhi = jptCorrectedJet.phi() - rawJet.phi();
+    fillHistogram(JetE_,jptCorrectedJet.energy());
+    fillHistogram(JetEt_,jptCorrectedJet.et());
+    fillHistogram(JetP_,jptCorrectedJet.p());
+    fillHistogram(JetMass_,jptCorrectedJet.mass());
+    fillHistogram(JetPt_,jptCorrectedJet.pt());
+    fillHistogram(JetPx_,jptCorrectedJet.px());
+    fillHistogram(JetPy_,jptCorrectedJet.py());
+    fillHistogram(JetPz_,jptCorrectedJet.pz());
+    if (jptCorrectedJet.pt() > correctedPtMin_) {
+      fillHistogram(JetEta_,jptCorrectedJet.eta());
+      fillHistogram(JetPhi_,jptCorrectedJet.phi());
+      fillHistogram(JetDeltaEta_,deltaEta);
+      fillHistogram(JetDeltaPhi_,deltaPhi);
+      fillHistogram(JetPhiVsEta_,jptCorrectedJet.phi(),jptCorrectedJet.eta());
+      const uint16_t totalTracks = pions.inVertexInCalo_.size() + pions.outOfVertexInCalo_.size() + pions.inVertexOutOfCalo_.size() +
+                                   muons.inVertexInCalo_.size() + muons.outOfVertexInCalo_.size() + muons.inVertexOutOfCalo_.size() +
+                                   electrons.inVertexInCalo_.size() + electrons.outOfVertexInCalo_.size() + electrons.inVertexOutOfCalo_.size();
+      fillHistogram(NTracksPerJetHisto_,totalTracks);
+      fillHistogram(NTracksPerJetVsJetEtHisto_,rawJet.et(),totalTracks);
+      fillHistogram(NTracksPerJetVsJetEtaHisto_,rawJet.eta(),totalTracks);
+      fillHistogram(CorrFactorHisto_,factorZSPJPT);
+      fillHistogram(CorrFactorVsJetEtHisto_,rawJet.et(),factorZSPJPT);
+      fillHistogram(CorrFactorVsJetEtaHisto_,rawJet.eta(),factorZSPJPT);
+      fillHistogram(ZSPCorrFactorHisto_,factorZSP);
+      fillHistogram(ZSPCorrFactorVsJetEtHisto_,rawJet.et(),factorZSP);
+      fillHistogram(ZSPCorrFactorVsJetEtaHisto_,rawJet.eta(),factorZSP);
+      const double factorJPT = factorZSPJPT / factorZSP;
+      fillHistogram(JPTCorrFactorHisto_,factorJPT);
+      fillHistogram(JPTCorrFactorVsJetEtHisto_,rawJet.et(),factorJPT);
+      fillHistogram(JPTCorrFactorVsJetEtaHisto_,rawJet.eta(),factorJPT);
+      const double ptFractionInCone = findPtFractionInCone(pions.inVertexInCalo_,pions.inVertexOutOfCalo_);
+      fillHistogram(PtFractionInConeHisto_,ptFractionInCone);
+      fillHistogram(PtFractionInConeVsJetRawEtHisto_,rawJet.et(),ptFractionInCone);
+      fillHistogram(PtFractionInConeVsJetEtaHisto_,rawJet.eta(),ptFractionInCone);
+      //fill track level histograms
+      fillTrackHistograms(allPionHistograms_,inCaloInVertexPionHistograms_,inCaloOutVertexPionHistograms_,outCaloInVertexPionHistograms_,pions,rawJet);
+      fillTrackHistograms(allMuonHistograms_,inCaloInVertexMuonHistograms_,inCaloOutVertexMuonHistograms_,outCaloInVertexMuonHistograms_,muons,rawJet);
+      fillTrackHistograms(allElectronHistograms_,inCaloInVertexElectronHistograms_,inCaloOutVertexElectronHistograms_,outCaloInVertexElectronHistograms_,
+                          electrons,rawJet);
+    }
+  }
 }
 
 void JPTJetAnalyzer::endJob()
@@ -411,6 +433,10 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   JetDeltaEta_ = bookHistogram("deltaEta","Change in #eta","#Delta #eta",dqm);
   JetDeltaPhi_ = bookHistogram("deltaPhi","Change in #phi","#Delta #phi",dqm);
   JetPhiVsEta_ = book2DHistogram("PhiVsEta","Corrected jet #phi vs #eta","jet #phi","jet #eta",dqm);
+  JetN90Hits_  = bookHistogram("N90Hits","Jet N90Hits","N90 Hits",dqm);
+  JetfHPD_     = bookHistogram("fHPD","Jet fHPD","fHPD",dqm);
+  JetResEMF_   = bookHistogram("ResEMF","Jet restricted EM fraction","restricted EMF",dqm);
+  JetfRBX_     = bookHistogram("fRBX","Jet fRBX","fRBX",dqm);
   
   TrackSiStripHitStoNHisto_            = bookHistogram("TrackSiStripHitStoN","Signal to noise of track SiStrip hits","S/N",dqm);
   InCaloTrackDirectionJetDRHisto_      = bookHistogram("InCaloTrackDirectionJetDR",

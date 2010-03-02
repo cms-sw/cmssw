@@ -38,6 +38,10 @@ drMax = 1.0
 jetConeSize = 0.5 #no point having histograms with DR larger than the jet cone size when out of cone tracks are not used
 drBinSize = 0.01
 ptFractionBins = 50
+n90Bins = 50
+fHPDBins = 50
+resEMFBins = 50
+fRBXBins = 50
 #derrived constants
 nTracksMax = nTracksBins
 nHitsMax = nHitsBins
@@ -64,6 +68,7 @@ deltaPhiMin = -deltaPhiMax
 deltaPhiBins = int(2*deltaPhiMax/deltaPhiBinSize)
 sOverNBins = int(sOverNMax/sOverNBinSize)
 drBins = int(drMax/drBinSize)
+n90Max = n90Bins
 
 import JetMETCorrections.Configuration.JetPlusTrackCorrections_cff
 JetPlusTrackZSPCorrectorAntiKt5ForDQM = JetMETCorrections.Configuration.JetPlusTrackCorrections_cff.JetPlusTrackZSPCorrectorAntiKt5.clone()
@@ -73,6 +78,9 @@ JetPlusTrackZSPCorrectorAntiKt5ForDQM.JetTracksAssociationAtVertex = cms.InputTa
 JetPlusTrackZSPCorrectorAntiKt5ForDQM.JetTracksAssociationAtCaloFace = cms.InputTag('ak5JetTracksAssociatorAtCaloFace')
 from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
+
+import RecoJets.JetProducers.JetIDParams_cfi
+theJetIDParams = RecoJets.JetProducers.JetIDParams_cfi.JetIDParams.clone()
 
 #plugin config
 jptDQMParameters = cms.PSet(
@@ -88,7 +96,14 @@ jptDQMParameters = cms.PSet(
   #KH WriteDQMStore = cms.untracked.bool(True), This has to be false by default
   WriteDQMStore = cms.untracked.bool(False),
   DQMStoreFileName = cms.untracked.string('DQMStore.root'),
-
+  
+  #Jet ID
+  n90HitsMin = cms.int32(2),
+  fHPDMax    = cms.double(0.98),
+  resEMFMin  = cms.double(0.01),
+  correctedPtThreshold = cms.double(10.0),
+  JetIDParams = theJetIDParams,
+  
   #Historgram configuration
   EHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -188,6 +203,30 @@ jptDQMParameters = cms.PSet(
     NBinsY = cms.uint32(etaBins),
     MinY = cms.double(etaMin),
     MaxY = cms.double(etaMax)
+  ),
+  N90HitsHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(n90Bins),
+    Min = cms.double(0),
+    Max = cms.double(n90Max)
+  ),
+  fHPDHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(fHPDBins),
+    Min = cms.double(0.0),
+    Max = cms.double(1.0)
+  ),
+  ResEMFHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(resEMFBins),
+    Min = cms.double(0.0),
+    Max = cms.double(1.0)
+  ),
+  fRBXHistogramConfig = cms.PSet(
+    Enabled = cms.bool(True),
+    NBins = cms.uint32(fRBXBins),
+    Min = cms.double(0.0),
+    Max = cms.double(1.0)
   ),
   
   #Pions

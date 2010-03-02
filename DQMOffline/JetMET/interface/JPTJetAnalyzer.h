@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2010/01/18 21:04:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/02/17 17:49:41 $
+ *  $Revision: 1.8 $
  *  \author N. Cripps - Imperial
  */
 
@@ -15,10 +15,14 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <memory>
 // forward declare classes which do not need to be defined for interface
 class DQMStore;
 namespace reco {
   class CaloJet;
+  namespace helper {
+    class JetIDHelper;
+  }
 }
 namespace jptJetAnalysis {
   class TrackPropagatorToCalo;
@@ -54,8 +58,8 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   
  private:
    
-  // Helpper classes
-  /// Helpper class to hold the configuration for a histogram
+  // Helper classes
+  /// Helper class to hold the configuration for a histogram
   struct HistogramConfig {
     bool enabled;
     unsigned int nBins;
@@ -69,7 +73,7 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
     HistogramConfig(const unsigned int theNBinsX, const double theMinX, const double theMaxX,
                     const unsigned int theNBinsY, const double theMinY, const double theMaxY);
   };
-  /// Helpper class for grouping histograms belowing to a set of tracks
+  /// Helper class for grouping histograms belowing to a set of tracks
   struct TrackHistograms {
     MonitorElement* nTracksHisto;
     MonitorElement* ptHisto;
@@ -143,16 +147,25 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   /// DQM store file name
   std::string dqmStoreFileName_;
   
-  /// Helpper object to propagate tracks to the calo surface
-  jptJetAnalysis::TrackPropagatorToCalo* trackPropagator_;
-  /// Helpper object to calculate strip SoN for tracks
-  jptJetAnalysis::StripSignalOverNoiseCalculator* sOverNCalculator_;
+  /// Jet ID cuts
+  const int n90HitsMin_;
+  const double fHPDMax_;
+  const double resEMFMin_;
+  const double correctedPtMin_;
+  
+  /// Helper object to propagate tracks to the calo surface
+  std::auto_ptr<jptJetAnalysis::TrackPropagatorToCalo> trackPropagator_;
+  /// Helper object to calculate strip SoN for tracks
+  std::auto_ptr<jptJetAnalysis::StripSignalOverNoiseCalculator> sOverNCalculator_;
+  /// Helper object to calculate jet ID parameters
+  std::auto_ptr<reco::helper::JetIDHelper> jetID_;
   
   // Histograms
   MonitorElement *JetE_, *JetEt_, *JetP_, *JetMass_, *JetPt_;
   MonitorElement *JetPt1_, *JetPt2_, *JetPt3_;
   MonitorElement *JetPx_, *JetPy_, *JetPz_;
   MonitorElement *JetEta_, *JetPhi_, *JetDeltaEta_, *JetDeltaPhi_, *JetPhiVsEta_;
+  MonitorElement *JetN90Hits_, *JetfHPD_, *JetResEMF_, *JetfRBX_;
   MonitorElement *TrackSiStripHitStoNHisto_;
   MonitorElement *InCaloTrackDirectionJetDRHisto_, *OutCaloTrackDirectionJetDRHisto_;
   MonitorElement *InVertexTrackImpactPointJetDRHisto_, *OutVertexTrackImpactPointJetDRHisto_;
