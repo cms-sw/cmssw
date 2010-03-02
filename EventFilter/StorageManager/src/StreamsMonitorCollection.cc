@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.7 2009/12/16 14:44:49 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.8 2010/03/02 10:47:28 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -116,6 +116,8 @@ void StreamsMonitorCollection::do_updateInfoSpaceItems()
   _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
   _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
   _bandwidthToDisk = static_cast<xdata::Double>(allStreamsVolumeStats.getValueRate(MonitoredQuantity::RECENT));
+
+  boost::mutex::scoped_lock sl(_streamRecordsMutex);
 
   _streamNames.clear();
   _eventsPerStream.clear();
