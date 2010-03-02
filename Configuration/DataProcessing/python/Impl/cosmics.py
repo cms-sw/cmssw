@@ -45,7 +45,7 @@ class cosmics(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
