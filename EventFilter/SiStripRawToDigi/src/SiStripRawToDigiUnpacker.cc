@@ -291,23 +291,23 @@ namespace sistrip {
 
 	    
 	  // Common mode values
-	  if ( extractCm_ ) {
-	    try {
+ 	  if ( extractCm_ ) {
+ 	    try {
 	      Registry regItem2( key, 2*ipair, cm_work_digis_.size(), 2 );
 	      cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(0) ) );
 	      cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(1) ) );
 	      cm_work_registry_.push_back( regItem2 );
-	    } catch (const cms::Exception& e) {
-	      if ( edm::isDebugEnabled() ) {
-		edm::LogWarning(sistrip::mlRawToDigi_)
-		  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
-		  << " Problem extracting common modes for FED id "
-		  << *ifed << " and channel " << iconn->fedCh()
-		  << ": " << e.what();
-	      }
-	    }
-	  }
-
+ 	    } catch (const cms::Exception& e) {
+ 	      if ( edm::isDebugEnabled() ) {
+ 		edm::LogWarning(sistrip::mlRawToDigi_)
+ 		  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+ 		  << " Problem extracting common modes for FED id "
+ 		  << *ifed << " and channel " << iconn->fedCh()
+ 		  << ": " << std::endl << e.what();
+ 	      }
+ 	    }
+ 	  }
+	  
 	}
 
 	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
@@ -1087,15 +1087,15 @@ namespace sistrip {
 	uint16_t tmp5 = buffer.data()[i*8+5] & 0xFF;
 	uint16_t tmp6 = buffer.data()[i*8+6] & 0xFF;
 	uint16_t tmp7 = buffer.data()[i*8+7] & 0xFF;
-	if ( !tmp0 && !tmp1 && !tmp2 && !tmp3 &&
-	     !tmp4 && !tmp5 && !tmp6 && !tmp7 ) { empty++; }
-	else { 
-	  if ( empty ) { 
-	    ss << "         [.." 
-	       << std::dec << std::setfill('.') << std::setw(4) << empty 
-	       << " null words....]" << std::endl; 
-	    empty = 0; 
-	  }
+// 	if ( !tmp0 && !tmp1 && !tmp2 && !tmp3 &&
+// 	     !tmp4 && !tmp5 && !tmp6 && !tmp7 ) { empty++; }
+// 	else { 
+// 	  if ( empty ) { 
+// 	    ss << "         [.." 
+// 	       << std::dec << std::setfill('.') << std::setw(4) << empty 
+// 	       << " null words....]" << std::endl; 
+// 	    empty = 0; 
+// 	  }
 	  ss << std::dec
 	     << std::setfill(' ')  << std::setw(6) << i*8+7 << " : " 
 	     << std::hex 
@@ -1110,7 +1110,7 @@ namespace sistrip {
 	     << std::dec
 	     << " :" << std::setfill(' ')  << std::setw(6) << i*8 
 	     << std::endl;
-	}
+// 	}
       }
 
     }
