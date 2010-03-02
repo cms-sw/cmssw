@@ -1,8 +1,8 @@
 /*
  * \file EBTrendClient.cc
  *
- * $Date: 2010/02/18 23:17:06 $
- * $Revision: 1.3 $
+ * $Date: 2010/02/24 23:23:10 $
+ * $Revision: 1.4 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -78,21 +78,31 @@ void EBTrendClient::beginJob(void){
   // ebtmt timing RMS ID summary
   // 
 
-  moduleNames_[0] = "EBClusterTask"; // TH1
-  histTitles_[0]  = "EBCLT BC energy";
+  int index = 0;
 
-  moduleNames_[1] = "EBSummaryClient"; // TProfile
-  histTitles_[1]  = "EBPOT pedestal G12 mean";
+  moduleNames_[index] = "EBClusterTask"; // TH1
+  histTitles_[index]  = "EBCLT BC energy";
+  index++;
 
-  moduleNames_[2] = "EBSummaryClient"; // TProfile
-  histTitles_[2]  = "EBPOT pedestal G12 rms";
+  moduleNames_[index] = "EBClusterTask"; // TH1
+  histTitles_[index]  = "EBCLT SC energy";
+  index++;
 
-  moduleNames_[3] = "EBOccupancyTask"; // TH2
-  histTitles_[3]  = "EBOT rec hit thr occupancy";
+  moduleNames_[index] = "EBSummaryClient"; // TProfile
+  histTitles_[index]  = "EBPOT pedestal G12 mean";
+  index++;
 
-  moduleNames_[4] = "EBOccupancyTask"; // TH2
-  histTitles_[4]  = "EBOT TP digi thr occupancy";
+  moduleNames_[index] = "EBSummaryClient"; // TProfile
+  histTitles_[index]  = "EBPOT pedestal G12 rms";
+  index++;
 
+  moduleNames_[index] = "EBOccupancyTask"; // TH2
+  histTitles_[index]  = "EBOT rec hit thr occupancy";
+  index++;
+
+  moduleNames_[index] = "EBOccupancyTask"; // TH2
+  histTitles_[index]  = "EBOT TP digi thr occupancy";
+  index++;
 
 }
 
@@ -273,7 +283,7 @@ void EBTrendClient::analyze(const Event& e, const EventSetup& c){
 
     if(verbose_) {
       std::cout << std::scientific;
-      std::cout << "mean["<<i<<"] = " << mean_[i] << ", \t rms["<<i<<"] = " << rms_[i] << std::endl;
+      std::cout << "EBTrendClient mean["<<i<<"] = " << mean_[i] << ", \t rms["<<i<<"] = " << rms_[i] << std::endl;
     }
 
     ecaldqm::shift2Right(meanMinutely_[i]->getTProfile(), minuteBinDiff);

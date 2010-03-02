@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2009/11/19 18:14:45 $
- * $Revision: 1.3 $
+ * $Date: 2010/02/08 21:35:07 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -63,17 +63,27 @@ EETrendTask::EETrendTask(const ParameterSet& ps){
 
   // parameters...
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
+  BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
+  SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
 
   // histograms...
   nEEDigiMinutely_ = 0;
   nEcalRecHitMinutely_ = 0;
+  nBasicClusterMinutely_ = 0;
+  nBasicClusterSizeMinutely_ = 0;
+  nSuperClusterMinutely_ = 0;
+  nSuperClusterSizeMinutely_ = 0;
   nFEDEEminusRawDataMinutely_ = 0;
   nFEDEEplusRawDataMinutely_ = 0;
 
   nEEDigiHourly_ = 0;
   nEcalRecHitHourly_ = 0;
+  nBasicClusterHourly_ = 0;
+  nBasicClusterSizeHourly_ = 0;
+  nSuperClusterHourly_ = 0;
+  nSuperClusterSizeHourly_ = 0;
   nFEDEEminusRawDataHourly_ = 0;
   nFEDEEplusRawDataHourly_ = 0;
 }
@@ -115,11 +125,19 @@ void EETrendTask::reset(void) {
 
   if(nEEDigiMinutely_) nEEDigiMinutely_->Reset();
   if(nEcalRecHitMinutely_) nEcalRecHitMinutely_->Reset();
+  if(nBasicClusterMinutely_) nBasicClusterMinutely_->Reset();
+  if(nBasicClusterSizeMinutely_) nBasicClusterSizeMinutely_->Reset();
+  if(nSuperClusterMinutely_) nSuperClusterMinutely_->Reset();
+  if(nSuperClusterSizeMinutely_) nSuperClusterSizeMinutely_->Reset();
   if(nFEDEEminusRawDataMinutely_) nFEDEEminusRawDataMinutely_->Reset();
   if(nFEDEEplusRawDataMinutely_) nFEDEEplusRawDataMinutely_->Reset();
 
   if(nEEDigiHourly_) nEEDigiHourly_->Reset();
   if(nEcalRecHitHourly_) nEcalRecHitHourly_->Reset();
+  if(nBasicClusterHourly_) nBasicClusterHourly_->Reset();
+  if(nBasicClusterSizeHourly_) nBasicClusterSizeHourly_->Reset();
+  if(nSuperClusterHourly_) nSuperClusterHourly_->Reset();
+  if(nSuperClusterSizeHourly_) nSuperClusterSizeHourly_->Reset();
   if(nFEDEEminusRawDataHourly_) nFEDEEminusRawDataHourly_->Reset();
   if(nFEDEEplusRawDataHourly_) nFEDEEplusRawDataHourly_->Reset();
 
@@ -147,6 +165,26 @@ void EETrendTask::setup(void){
     nEcalRecHitMinutely_->setAxisTitle("Minutes", 1);
     nEcalRecHitMinutely_->setAxisTitle("Average Number of EcalRecHit / 5 minutes", 2);
 
+    sprintf(histo, "AverageNumberOfBasicClusterVs5Minutes");
+    nBasicClusterMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nBasicClusterMinutely_->setAxisTitle("Minutes", 1);
+    nBasicClusterMinutely_->setAxisTitle("Average Number of BasicClusters / 5 minutes", 2);
+
+    sprintf(histo, "AverageNumberOfBasicClusterSizeVs5Minutes");
+    nBasicClusterSizeMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nBasicClusterSizeMinutely_->setAxisTitle("Minutes", 1);
+    nBasicClusterSizeMinutely_->setAxisTitle("Average Size of BasicClusters / 5 minutes", 2);
+
+    sprintf(histo, "AverageNumberOfSuperClusterVs5Minutes");
+    nSuperClusterMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nSuperClusterMinutely_->setAxisTitle("Minutes", 1);
+    nSuperClusterMinutely_->setAxisTitle("Average Number of SuperClusters / 5 minutes", 2);
+
+    sprintf(histo, "AverageNumberOfSuperClusterSizeVs5Minutes");
+    nSuperClusterSizeMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nSuperClusterSizeMinutely_->setAxisTitle("Minutes", 1);
+    nSuperClusterSizeMinutely_->setAxisTitle("Average Size of SuperClusters / 5 minutes", 2);
+
     sprintf(histo, "AverageNumberOfFEDEEminusRawDataVs5Minutes");
     nFEDEEminusRawDataMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nFEDEEminusRawDataMinutely_->setAxisTitle("Minutes", 1);
@@ -169,6 +207,26 @@ void EETrendTask::setup(void){
     nEcalRecHitHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nEcalRecHitHourly_->setAxisTitle("Hours", 1);
     nEcalRecHitHourly_->setAxisTitle("Average Number of EcalRecHit / hour", 2);
+
+    sprintf(histo, "AverageNumberOfBasicClusterVs1Hour");
+    nBasicClusterHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    nBasicClusterHourly_->setAxisTitle("Hours", 1);
+    nBasicClusterHourly_->setAxisTitle("Average Number of BasicClusters / hour", 2);
+
+    sprintf(histo, "AverageNumberOfBasicClusterSizeVs1Hour");
+    nBasicClusterSizeHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    nBasicClusterSizeHourly_->setAxisTitle("Hours", 1);
+    nBasicClusterSizeHourly_->setAxisTitle("Average Size of BasicClusters / hour", 2);
+
+    sprintf(histo, "AverageNumberOfSuperClusterVs1Hour");
+    nSuperClusterHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    nSuperClusterHourly_->setAxisTitle("Hours", 1);
+    nSuperClusterHourly_->setAxisTitle("Average Number of SuperClusters / hour", 2);
+
+    sprintf(histo, "AverageNumberOfSuperClusterSizeVs1Hour");
+    nSuperClusterSizeHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    nSuperClusterSizeHourly_->setAxisTitle("Hours", 1);
+    nSuperClusterSizeHourly_->setAxisTitle("Average Size of SuperClusters / hour", 2);
 
     sprintf(histo, "AverageNumberOfFEDEEminusRawDataVs1Hour");
     nFEDEEminusRawDataHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
@@ -196,6 +254,14 @@ void EETrendTask::cleanup(void){
     nEEDigiMinutely_ = 0;
     if(nEcalRecHitMinutely_) dqmStore_->removeElement( nEcalRecHitMinutely_->getName());
     nEcalRecHitMinutely_ = 0;
+    if(nBasicClusterMinutely_) dqmStore_->removeElement( nBasicClusterMinutely_->getName());
+    nBasicClusterMinutely_ = 0;
+    if(nBasicClusterSizeMinutely_) dqmStore_->removeElement( nBasicClusterSizeMinutely_->getName());
+    nBasicClusterSizeMinutely_ = 0;
+    if(nSuperClusterMinutely_) dqmStore_->removeElement( nSuperClusterMinutely_->getName());
+    nSuperClusterMinutely_ = 0;
+    if(nSuperClusterSizeMinutely_) dqmStore_->removeElement( nSuperClusterSizeMinutely_->getName());
+    nSuperClusterSizeMinutely_ = 0;
     if(nFEDEEminusRawDataMinutely_) dqmStore_->removeElement( nFEDEEminusRawDataMinutely_->getName());
     nFEDEEminusRawDataMinutely_ = 0;
     if(nFEDEEplusRawDataMinutely_) dqmStore_->removeElement( nFEDEEplusRawDataMinutely_->getName());
@@ -205,6 +271,14 @@ void EETrendTask::cleanup(void){
     nEEDigiHourly_ = 0;
     if(nEcalRecHitHourly_) dqmStore_->removeElement( nEcalRecHitHourly_->getName());
     nEcalRecHitHourly_ = 0;
+    if(nBasicClusterHourly_) dqmStore_->removeElement( nBasicClusterHourly_->getName());
+    nBasicClusterHourly_ = 0;
+    if(nBasicClusterSizeHourly_) dqmStore_->removeElement( nBasicClusterSizeHourly_->getName());
+    nBasicClusterSizeHourly_ = 0;
+    if(nSuperClusterHourly_) dqmStore_->removeElement( nSuperClusterHourly_->getName());
+    nSuperClusterHourly_ = 0;
+    if(nSuperClusterSizeHourly_) dqmStore_->removeElement( nSuperClusterSizeHourly_->getName());
+    nSuperClusterSizeHourly_ = 0;
     if(nFEDEEminusRawDataHourly_) dqmStore_->removeElement( nFEDEEminusRawDataHourly_->getName());
     nFEDEEminusRawDataHourly_ = 0;
     if(nFEDEEplusRawDataHourly_) dqmStore_->removeElement( nFEDEEplusRawDataHourly_->getName());
@@ -275,6 +349,65 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
   
   ecaldqm::shift2Right(nEcalRecHitHourly_->getTProfile(), hourBinDiff);
   nEcalRecHitHourly_->Fill(hourDiff,nrhc);
+
+
+  // --------------------------------------------------
+  // BasicClusters
+  // --------------------------------------------------
+  int nbcc = 0;
+  float nbcc_size = 0.0;
+  Handle<BasicClusterCollection> pBasicClusters;
+  if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
+    nbcc = pBasicClusters->size();
+    for(reco::BasicClusterCollection::const_iterator it = pBasicClusters->begin();
+	it != pBasicClusters->end(); it++){
+      nbcc_size += it->size();
+    }
+    if(nbcc == 0) nbcc_size = 0;
+    else nbcc_size = nbcc_size / nbcc;
+  }
+  else LogWarning("EETrendTask") << BasicClusterCollection_ << " is not available";
+
+  ecaldqm::shift2Right(nBasicClusterMinutely_->getTProfile(), minuteBinDiff);
+  nBasicClusterMinutely_->Fill(minuteDiff,nbcc);
+  
+  ecaldqm::shift2Right(nBasicClusterHourly_->getTProfile(), hourBinDiff);
+  nBasicClusterHourly_->Fill(hourDiff,nbcc);
+
+  ecaldqm::shift2Right(nBasicClusterSizeMinutely_->getTProfile(), minuteBinDiff);
+  nBasicClusterSizeMinutely_->Fill(minuteDiff,nbcc);
+  
+  ecaldqm::shift2Right(nBasicClusterSizeHourly_->getTProfile(), hourBinDiff);
+  nBasicClusterSizeHourly_->Fill(hourDiff,nbcc);
+
+  // --------------------------------------------------
+  // SuperClusters
+  // --------------------------------------------------
+  int nscc = 0;
+  float nscc_size = 0.0;
+  Handle<SuperClusterCollection> pSuperClusters;
+  if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
+    nscc = pSuperClusters->size();
+    for(reco::SuperClusterCollection::const_iterator it = pSuperClusters->begin();
+	it != pSuperClusters->end(); it++){
+      nscc_size += it->clustersSize();
+    }
+    if(nscc == 0) nscc_size = 0;
+    else nscc_size = nscc_size / nscc;
+  }
+  else LogWarning("EETrendTask") << SuperClusterCollection_ << " is not available";
+
+  ecaldqm::shift2Right(nSuperClusterMinutely_->getTProfile(), minuteBinDiff);
+  nSuperClusterMinutely_->Fill(minuteDiff,nscc);
+  
+  ecaldqm::shift2Right(nSuperClusterHourly_->getTProfile(), hourBinDiff);
+  nSuperClusterHourly_->Fill(hourDiff,nscc);
+
+  ecaldqm::shift2Right(nSuperClusterSizeMinutely_->getTProfile(), minuteBinDiff);
+  nSuperClusterSizeMinutely_->Fill(minuteDiff,nscc);
+  
+  ecaldqm::shift2Right(nSuperClusterSizeHourly_->getTProfile(), hourBinDiff);
+  nSuperClusterSizeHourly_->Fill(hourDiff,nscc);
 
 
   // --------------------------------------------------

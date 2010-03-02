@@ -7,6 +7,8 @@ ecalEndcapTrendTask = cms.EDAnalyzer("EETrendTask",
     verbose = cms.untracked.bool(False),
     EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    BasicClusterCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
+    SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters"),
     FEDRawDataCollection = cms.InputTag("source")
 )
 

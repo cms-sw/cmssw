@@ -4,7 +4,7 @@
 /*
  * \file EETrendClient.h
  *
- * $Date: 2010/02/08 21:32:48 $
+ * $Date: 2010/02/18 23:19:04 $
  * $Revision: 1.1 $
  * \author Dongwook Jang, Soon Yung Jun
  *
@@ -21,7 +21,7 @@
 class MonitorElement;
 class DQMStore;
 
-const int nHists_ = 6;
+const int nHists_ = 8;
 
 class EETrendClient: public edm::EDAnalyzer{
 

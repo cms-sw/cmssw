@@ -4,8 +4,8 @@
 /*
  * \file EBTrendClient.h
  *
- * $Date: 2009/11/11 09:37:13 $
- * $Revision: 1.2 $
+ * $Date: 2010/02/08 21:32:48 $
+ * $Revision: 1.1 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
@@ -21,7 +21,7 @@
 class MonitorElement;
 class DQMStore;
 
-const int nHists_ = 5;
+const int nHists_ = 6;
 
 class EBTrendClient: public edm::EDAnalyzer{
 

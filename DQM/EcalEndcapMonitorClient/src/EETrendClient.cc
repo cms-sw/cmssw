@@ -1,8 +1,8 @@
 /*
  * \file EETrendClient.cc
  *
- * $Date: 2010/02/24 23:26:44 $
- * $Revision: 1.3 $
+ * $Date: 2010/02/25 17:59:34 $
+ * $Revision: 1.4 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -78,23 +78,39 @@ void EETrendClient::beginJob(void){
   // ebtmt timing RMS ID summary
   // 
 
-  moduleNames_[0] = "EESummaryClient"; // TProfile
-  histTitles_[0]  = "EEPOT pedestal G12 mean";
+  int index = 0;
 
-  moduleNames_[1] = "EESummaryClient"; // TProfile
-  histTitles_[1]  = "EEPOT pedestal G12 rms";
+  moduleNames_[index] = "EEClusterTask"; // TH1
+  histTitles_[index]  = "EECLT BC energy";
+  index++;
 
-  moduleNames_[2] = "EEOccupancyTask"; // TH2
-  histTitles_[2]  = "EEOT TP digi thr occupancy EE -";
+  moduleNames_[index] = "EEClusterTask"; // TH1
+  histTitles_[index]  = "EECLT SC energy";
+  index++;
 
-  moduleNames_[3] = "EEOccupancyTask"; // TH2
-  histTitles_[3]  = "EEOT TP digi thr occupancy EE +";
+  moduleNames_[index] = "EESummaryClient"; // TProfile
+  histTitles_[index]  = "EEPOT pedestal G12 mean";
+  index++;
 
-  moduleNames_[4] = "EEOccupancyTask"; // TH2
-  histTitles_[4]  = "EEOT rec hit thr occupancy EE -";
+  moduleNames_[index] = "EESummaryClient"; // TProfile
+  histTitles_[index]  = "EEPOT pedestal G12 rms";
+  index++;
 
-  moduleNames_[5] = "EEOccupancyTask"; // TH2
-  histTitles_[5]  = "EEOT rec hit thr occupancy EE +";
+  moduleNames_[index] = "EEOccupancyTask"; // TH2
+  histTitles_[index]  = "EEOT TP digi thr occupancy EE -";
+  index++;
+
+  moduleNames_[index] = "EEOccupancyTask"; // TH2
+  histTitles_[index]  = "EEOT TP digi thr occupancy EE +";
+  index++;
+
+  moduleNames_[index] = "EEOccupancyTask"; // TH2
+  histTitles_[index]  = "EEOT rec hit thr occupancy EE -";
+  index++;
+
+  moduleNames_[index] = "EEOccupancyTask"; // TH2
+  histTitles_[index]  = "EEOT rec hit thr occupancy EE +";
+  index++;
 
 }
 
@@ -275,7 +291,7 @@ void EETrendClient::analyze(const Event& e, const EventSetup& c){
 
     if(verbose_) {
       std::cout << std::scientific;
-      std::cout << "mean["<<i<<"] = " << mean_[i] << ", \t rms["<<i<<"] = " << rms_[i] << std::endl;
+      std::cout << "EETrendClient mean["<<i<<"] = " << mean_[i] << ", \t rms["<<i<<"] = " << rms_[i] << std::endl;
     }
 
     ecaldqm::shift2Right(meanMinutely_[i]->getTProfile(), minuteBinDiff);
