@@ -9,7 +9,8 @@ lumiSchema.py create/drop
     -P authpath(optional) 
 
 lumiCal.py delivered/recorded/effective 
+    -r runnumber (required)
     -c lumiDBconnectStr(required) 
-    -P authpath(optional) 
-    -i inputFile(optional for effective arg)
-    -h hltpath(optional)
+    -P authpath (optional) 
+    -i inputFile (optional for effective arg)
+    -h hltpath (optional)
