@@ -14,16 +14,17 @@ L1RPCHsbConfig::~L1RPCHsbConfig(){
 }
 
 
-void L1RPCHsbConfig::setHsbMask(int hsb, const int mask[] ) {
+void L1RPCHsbConfig::setHsbMask(int hsb, std::vector<int> mask ) {
 
-  /*
-  if (sizeof(mask)!=(sizeof( m_hsb0 )) )  {
+  if (getMaskSize() != int(mask.size()) )  {
      throw cms::Exception("L1RPCHsbConfig::setHsbMask") 
        << "Wrong size of hsb mask "
-       << sizeof(mask) << " " << sizeof( m_hsb0 ) 
+       << mask.size() << " " << getMaskSize()
        << "\n";
   
-  }*/ // nope. Not this way 
+  }
+
+
   if (hsb != 0 && hsb != 1) {
      throw cms::Exception("L1RPCHsbConfig::getHsbMask") 
        << "Wrong hsb index: " << hsb << "\n";

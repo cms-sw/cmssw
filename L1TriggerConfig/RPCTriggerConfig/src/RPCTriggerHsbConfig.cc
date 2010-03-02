@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 13:57:29 CEST 2008
-// $Id: RPCTriggerHsbConfig.cc,v 1.1 2010/02/26 15:50:58 fruboes Exp $
+// $Id: RPCTriggerHsbConfig.cc,v 1.2 2010/03/02 13:37:10 fruboes Exp $
 //
 //
 
@@ -46,8 +46,8 @@ class RPCTriggerHsbConfig : public edm::ESProducer {
 
       ReturnType produce(const L1RPCHsbConfigRcd&);
    private:
-      int m_hsb0[8];
-      int m_hsb1[8];
+      std::vector<int> m_hsb0;
+      std::vector<int>  m_hsb1;
 
 };
 
@@ -68,15 +68,13 @@ RPCTriggerHsbConfig::RPCTriggerHsbConfig(const edm::ParameterSet& iConfig)
    // data is being produced
    setWhatProduced(this);
 
-   std::vector<int> hsbconf0 = iConfig.getParameter< std::vector<int > >("hsb0Mask");
-   std::vector<int> hsbconf1 = iConfig.getParameter< std::vector<int > >("hsb1Mask");
+   m_hsb0 = iConfig.getParameter< std::vector<int > >("hsb0Mask");
+   m_hsb1 = iConfig.getParameter< std::vector<int > >("hsb1Mask");
 
 
-   if (hsbconf0.size() !=8 || hsbconf1.size() != 8 )
+   if ( m_hsb0.size() !=8 || m_hsb1.size() != 8 )
         throw cms::Exception("BadConfig") << " hsbMask needs to be 8 digits long \n";
 
-   for (int i = 0; i < 8; ++i ) { m_hsb0[i] = hsbconf0.at(i); }
-   for (int i = 0; i < 8; ++i ) { m_hsb1[i] = hsbconf1.at(i); }
   
    // contents of the vector wont be checked here - there are also different sources of this cfg
 
