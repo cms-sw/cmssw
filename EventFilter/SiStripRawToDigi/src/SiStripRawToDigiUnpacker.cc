@@ -291,10 +291,22 @@ namespace sistrip {
 
 	    
 	  // Common mode values
-	  Registry regItem2( key, 2*ipair, cm_work_digis_.size(), 2 );
-	  cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(0) ) );
-	  cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(1) ) );
-	  cm_work_registry_.push_back( regItem2 );
+	  if ( extractCm_ ) {
+	    try {
+	      Registry regItem2( key, 2*ipair, cm_work_digis_.size(), 2 );
+	      cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(0) ) );
+	      cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(1) ) );
+	      cm_work_registry_.push_back( regItem2 );
+	    } catch (const cms::Exception& e) {
+	      if ( edm::isDebugEnabled() ) {
+		edm::LogWarning(sistrip::mlRawToDigi_)
+		  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+		  << " Problem extracting common modes for FED id "
+		  << *ifed << " and channel " << iconn->fedCh()
+		  << ": " << e.what();
+	      }
+	    }
+	  }
 
 	}
 
