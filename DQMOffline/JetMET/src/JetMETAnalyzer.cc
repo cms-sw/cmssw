@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.48 $
+ *  $Date: 2010/03/02 01:11:45 $
+ *  $Revision: 1.49 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -353,30 +353,31 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   //
   //--- htlConfig_
   //processname_="HLT";
-  hltConfig_.init(processname_);
-  if (!hltConfig_.init(processname_)) {
+  bool changed(true);
+  if (!hltConfig_.init(iRun,iSetup,processname_,changed)) {
     processname_ = "FU";
-    if (!hltConfig_.init(processname_)){
+    if (!hltConfig_.init(iRun,iSetup,processname_,changed)){
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
   }
-  
+
   hltpathME = 0;
   physdecME = 0;
-  if (hltConfig_.size()){
-    dbe->setCurrentFolder("JetMET");
-    hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
-    physdecME = dbe->book1D("physdec", "physdec", 2,   0., 2.);
-    if (physdecME) physdecME->setBinLabel(1,"All Events");
-  }
-
-  
-  for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
-    if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
-    if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
-      if (physdecME) physdecME->setBinLabel(2,"PhysicsDeclared");
-  }
-  
+  if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
+    if (hltConfig_.size()){
+      dbe->setCurrentFolder("JetMET");
+      hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
+      physdecME = dbe->book1D("physdec", "physdec", 2,   0., 2.);
+      if (physdecME) physdecME->setBinLabel(1,"All Events");
+    }
+    
+    
+    for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
+      if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
+      if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
+	if (physdecME) physdecME->setBinLabel(2,"PhysicsDeclared");
+    }
+  }  
   //
   //--- Jet
 
