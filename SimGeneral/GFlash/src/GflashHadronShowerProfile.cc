@@ -32,7 +32,6 @@ void GflashHadronShowerProfile::initialize(int showerType, double energy, double
 					   Gflash3Vector &position,Gflash3Vector &momentum) { 
 
   //initialize GflashShowino for this track
-
   theShowino->initialize(showerType, energy, globalTime, charge, 
 			 position, momentum, theBField);
 
@@ -299,7 +298,6 @@ double GflashHadronShowerProfile::longitudinalProfile(double showerDepth, double
   double transDepth = theShowino->getStepLengthToHcal();
   Gflash3Vector pos = theShowino->getPosition();
   int showerType = theShowino->getShowerType();
-  //  double einc = theShowino->getEnergy();
 
   // Energy in a delta step (dz) = (energy to deposite)*[Gamma(z+dz)-Gamma(z)]*dz
   // where the incomplete Gamma function gives an intergrate probability of the longitudinal 
@@ -311,8 +309,9 @@ double GflashHadronShowerProfile::longitudinalProfile(double showerDepth, double
   theShowino->getHelix()->getGflashTrajectoryPoint(tempPoint,pathLength);
 
   if(showerType == 0 || showerType == 1 ) {
-    //@@@@change 152 to the 129+22*sin(theta) type of boundary
-    if(tempPoint.getPosition().getRho() < 152.0 ) { 
+    double rhoBackEB = Gflash::Rmin[Gflash::kESPM] + Gflash::ROffCrystalEB
+                     + Gflash::LengthCrystalEB*std::sin(pos.getTheta());
+    if(tempPoint.getPosition().getRho() < rhoBackEB ) { 
       heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kESPM);
     }
     else if (tempPoint.getPosition().getRho() > Gflash::Rmin[Gflash::kHB] ){
@@ -322,10 +321,10 @@ double GflashHadronShowerProfile::longitudinalProfile(double showerDepth, double
   }  
   else if(showerType == 4 || showerType == 5){
     //@@@use new parameterization for EE/HE
-    if(std::abs(tempPoint.getPosition().getZ()) < Gflash::Zmin[Gflash::kENCA]+23.0 ) { 
+    if(std::abs(tempPoint.getPosition().getZ()) < Gflash::Zmin[Gflash::kENCA]+Gflash::LengthCrystalEB ) { 
       heightProfile = twoGammaProfile(longEcal,showerDepth,Gflash::kENCA);
     }
-    else if (std::abs(tempPoint.getPosition().getZ()) > Gflash::Rmin[Gflash::kHE] ){
+    else if (std::abs(tempPoint.getPosition().getZ()) > Gflash::Zmin[Gflash::kHE] ){
       heightProfile = twoGammaProfile(longHcal,showerDepth-transDepth,Gflash::kHE);
     }
     else heightProfile = 0.;
@@ -437,26 +436,25 @@ int GflashHadronShowerProfile::getNumberOfSpots(Gflash::CalorimeterNumber kCalor
   double nsigma = 0.0;
 
   if(showerType == 0 || showerType == 1 || showerType == 4 || showerType == 5 ) {
-    if(kCalor == Gflash::kESPM) {
+    if(kCalor == Gflash::kESPM || kCalor == Gflash::kENCA) {
       nmean = 10000 + 5000*log(einc);
       nsigma = 1000;
     }
-    if(kCalor == Gflash::kHB) {
+    if(kCalor == Gflash::kHB || kCalor == Gflash::kHE) {
       nmean =  5000 + 2500*log(einc);
       nsigma =  500;
     }
   }
   else if (showerType == 2 || showerType == 3 || showerType == 6 || showerType == 7 ) {
-    if(kCalor == Gflash::kHB) {
+    if(kCalor == Gflash::kHB || kCalor == Gflash::kHE) {
       nmean =  5000 + 2500*log(einc);
       nsigma =  500;
     }
-  }
-  else {
+    else {
       nmean = 10000;
       nsigma = 1000;
+    }
   }
-
   //@@@need correlation and individual fluctuation on alphaNspots and betaNspots here:
   //evaluating covariance should be straight forward since the distribution is 'one' Gamma
 
@@ -464,7 +462,10 @@ int GflashHadronShowerProfile::getNumberOfSpots(Gflash::CalorimeterNumber kCalor
 
   //until we optimize the reduction scale in the number of Nspots
       
-  if( (theShowino->getPosition()).getRho() < 153.0 ) {
+  if( kCalor == Gflash::kESPM && (theShowino->getPosition()).getRho() < 153.0 ) {
+    numberOfSpots = static_cast<int>(numberOfSpots/100);
+  }
+  else if( kCalor == Gflash::kENCA && std::fabs((theShowino->getPosition()).getZ()) < 340.0 ) {
     numberOfSpots = static_cast<int>(numberOfSpots/100);
   }
   else {
