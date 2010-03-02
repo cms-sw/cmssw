@@ -23,7 +23,7 @@ from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import pa
 allPatTracks = patGenericParticles.clone(
     src = cms.InputTag("patAODTrackCands"),
     # isolation configurables
-    isolation = cms.PSet(
+    userIsolation = cms.PSet(
       tracker = cms.PSet(
         veto = cms.double(0.015),
         src = cms.InputTag("patAODTrackIsoDepositCtfTk"),

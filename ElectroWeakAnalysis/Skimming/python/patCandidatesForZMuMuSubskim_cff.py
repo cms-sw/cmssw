@@ -18,7 +18,7 @@ allPatTracks = patGenericParticles.clone(
     src = cms.InputTag("patAODTrackCands"),
     embedTrack = cms.bool(True),
     # isolation configurables
-    isolation = cms.PSet(
+    userIsolation = cms.PSet(
       tracker = cms.PSet(
         veto = cms.double(0.015),
         src = cms.InputTag("patAODTrackIsoDepositCtfTk"),
