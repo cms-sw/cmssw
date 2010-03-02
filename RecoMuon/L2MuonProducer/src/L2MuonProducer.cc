@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2007/12/17 17:23:05 $
- *   $Revision: 1.22 $
+ *   $Date: 2008/02/13 13:53:53 $
+ *   $Revision: 1.23 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -63,9 +63,10 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  // instantiate the concrete trajectory builder in the Track Finder
+  // instantiate the concrete trajectory builder in the Track Finder,
+  // with NO cleaner ("0" pointer)
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
-				       new MuonTrackLoader(trackLoaderParameters, theService));
+				       new MuonTrackLoader(trackLoaderParameters, theService),0);
   
   produces<reco::TrackCollection>();
   produces<reco::TrackCollection>("UpdatedAtVtx");
@@ -80,8 +81,8 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 /// destructor
 L2MuonProducer::~L2MuonProducer(){
   LogTrace("Muon|RecoMuon|L2eMuonProducer")<<"L2MuonProducer destructor called"<<endl;
-  if (theService) delete theService;
-  if (theTrackFinder) delete theTrackFinder;
+  delete theService;
+  delete theTrackFinder;
 }
 
 

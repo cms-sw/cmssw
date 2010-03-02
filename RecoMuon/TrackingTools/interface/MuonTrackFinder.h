@@ -4,8 +4,8 @@
 /** \class MuonTrackFinder
  *  Track finder for the Muon Reco
  *
- *  $Date: 2007/09/06 17:39:01 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/12/17 17:23:07 $
+ *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -35,9 +35,14 @@ class MuonTrackFinder {
 
   public:
   
-    /// constructor, for the STA reconstruction the trackLoader must have the propagator.
+    /// Constructor, with default cleaner. For the STA reconstruction the trackLoader must have the propagator.
     MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
 		    MuonTrackLoader *trackLoader);
+
+    /// Constructor, with user-defined cleaner. For the STA reconstruction the trackLoader must have the propagator.
+    MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
+		    MuonTrackLoader *trackLoader,
+		    MuonTrajectoryCleaner* cleaner);
     
     /// destructor
     virtual ~MuonTrackFinder();
