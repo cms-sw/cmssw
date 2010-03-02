@@ -5,14 +5,13 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include <iostream>
 #include <Reflex/Object.h>
 #include <Reflex/Type.h>
 #include <typeinfo>
-#include "DataFormats/Common/interface/TestHandle.h"
+#include "DataFormats/Common/test/TestHandle.h"
 
 class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionParser);
@@ -139,8 +138,6 @@ void testExpressionParser::checkAll() {
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
     checkTrack("algo", reco::Track::iter2);
-    checkTrack("?ndof<0?1:0", trk.ndof()<0?1:0);
-    checkTrack("?ndof=10?1:0", trk.ndof()==10?1:0);
   }
   reco::Candidate::LorentzVector p1(1, 2, 3, 4);
   reco::Candidate::LorentzVector p2(1.1, 2.2, 3.3, 4.4);
@@ -168,23 +165,7 @@ void testExpressionParser::checkAll() {
     checkCandidate("name.empty()", true, true);
     checkCandidate("roles.size()", 0, true);
 
-    cand = CompositeCandidate();
-    pat::MuonCollection patMuons;
-    pat::Muon muon1 = pat::Muon(reco::Muon(+1, p1));
-    pat::Muon muon2= pat::Muon(reco::Muon(-1, p2));
-    patMuons.push_back(muon1);
-    patMuons.push_back(muon2);
-    edm::ProductID const pid(2);
-    edm::TestHandle<pat::MuonCollection> h(&patMuons, pid);
-    reco::ShallowCloneCandidate c1(reco::CandidateBaseRef(pat::MuonRef(h,0))); 
-    reco::ShallowCloneCandidate c2(reco::CandidateBaseRef(pat::MuonRef(h,1))); 
-    cand.addDaughter(c1);
-    cand.addDaughter(c2);
-    checkCandidate("daughter(0).masterClone.numberOfChambers",
-		   dynamic_cast<const pat::Muon*>(&*cand.daughter(0)->masterClone())->numberOfChambers(), 1);
-    checkCandidate("daughter(1).masterClone.numberOfChambers",
-		   dynamic_cast<const pat::Muon*>(&*cand.daughter(1)->masterClone())->numberOfChambers(), 1);
-}
+  }
 
   std::vector<reco::LeafCandidate> cands;
   cands.push_back(c1);  cands.push_back(c2); 
@@ -213,10 +194,6 @@ void testExpressionParser::checkAll() {
   bp = std::pair<std::string,float>("aaa", 1.0); jet.addBDiscriminatorPair(bp); 
   bp = std::pair<std::string,float>("b c", 2.0); jet.addBDiscriminatorPair(bp); 
   bp = std::pair<std::string,float>("d " , 3.0); jet.addBDiscriminatorPair(bp); 
-  pat::JetCorrFactors::FlavourCorrections dummyfc;
-  pat::JetCorrFactors jcfs("a",2.f,2.f,2.f,1.f,dummyfc,dummyfc,dummyfc,std::vector<float>());
-  jet.setCorrFactors(jcfs);
-  jet.setCorrStep(pat::JetCorrFactors::L3);
   CPPUNIT_ASSERT(jet.bDiscriminator("aaa") == 1.0);
   CPPUNIT_ASSERT(jet.bDiscriminator("b c") == 2.0);
   CPPUNIT_ASSERT(jet.bDiscriminator("d ")  == 3.0);
@@ -228,9 +205,6 @@ void testExpressionParser::checkAll() {
     checkJet("bDiscriminator('aaa')"  , jet.bDiscriminator("aaa"));
     checkJet("bDiscriminator(\"b c\")", jet.bDiscriminator("b c"));
     checkJet("bDiscriminator(\"d \")" , jet.bDiscriminator("d " ));
-    checkJet("correctedJet('RAW').pt",  jet.correctedJet("RAW").pt());
-    // vv--- This fails, because in overloading the string method takes precedence
-    //checkJet("correctedJet('Raw').pt",  jet.correctedJet(pat::JetCorrFactors::Raw).pt());
   }
 
   {
@@ -240,12 +214,12 @@ void testExpressionParser::checkAll() {
      
      reco::SoftLeptonTagInfo dummyInfo;
      reco::SoftLeptonProperties props;
-     props.setQuality(reco::SoftLeptonProperties::quality::muonId, 10);
+     props.quality = 10;
      dummyInfo.insert(edm::RefToBase<reco::Track>(), props);
      edm::Ptr<reco::BaseTagInfo> ptrDummyInfo(edm::ProductID(1),&dummyInfo,0);
      jet.addTagInfo("dummy", ptrDummyInfo);
      o = ROOT::Reflex::Object(t, & jet);
-     checkJet("tagInfoSoftLepton.properties(0).quality()",jet.tagInfoSoftLepton()->properties(0).quality());
+     checkJet("tagInfoSoftLepton.properties(0).quality",jet.tagInfoSoftLepton()->properties(0).quality);
   }
   muon = pat::Muon(reco::Muon(+1, p1+p2));
   muon.setUserIso(2.0);
