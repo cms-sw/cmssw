@@ -17,7 +17,7 @@ ifeq ($(shell uname), Linux)
 else 
 	ifeq ($(shell uname), Darwin)
 		CC := c++-4.0
-		COMPILERFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -x c++ -Wall -O2 -fPIC
+		COMPILERFLAGS := -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 -arch i386 -Wall -O2 -fPIC
 		SO_EXT := dylib
 		MAKESHAREDLIB := -mmacosx-version-min=10.5 -dynamiclib
 	endif
