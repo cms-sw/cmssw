@@ -1,0 +1,49 @@
+#ifndef PhysicsTools_PFCandProducer_PFMETAlgo_
+#define PhysicsTools_PFCandProducer_PFMETAlgo_
+
+// system include files
+#include <memory>
+#include <string>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+/* #include "FWCore/Framework/interface/EDProducer.h" */
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+/* #include "FWCore/Framework/interface/Event.h" */
+/* #include "FWCore/Framework/interface/MakerMacros.h" */
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+
+/**\class PFMETAlgo 
+\brief Computes the MET from a collection of PFCandidates. 
+
+\author Colin Bernet
+\date   february 2008
+*/
+
+
+namespace pf2pat {
+  
+  class PFMETAlgo {
+  public:
+
+    explicit PFMETAlgo(const edm::ParameterSet&);
+
+    ~PFMETAlgo();
+    
+    reco::MET produce(const reco::PFCandidateCollection& pfCandidates);
+
+  private:
+    
+    /// HF calibration factor (in 31X applied by PFProducer)
+    double hfCalibFactor_;
+    
+    /// verbose ?
+    bool   verbose_;
+
+  };
+}
+
+#endif

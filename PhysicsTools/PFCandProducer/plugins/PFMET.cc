@@ -18,22 +18,15 @@ using namespace edm;
 using namespace reco;
 using namespace math;
 
-PFMET::PFMET(const edm::ParameterSet& iConfig) {
+PFMET::PFMET(const edm::ParameterSet& iConfig) : pfMETAlgo_(iConfig) {
   
 
 
   inputTagPFCandidates_ 
     = iConfig.getParameter<InputTag>("PFCandidates");
 
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  hfCalibFactor_ = 
-    iConfig.getParameter<double>("hfCalibFactor");
-
   produces<METCollection>();
   
-
   LogDebug("PFMET")
     <<" input collection : "<<inputTagPFCandidates_ ;
    
@@ -63,51 +56,10 @@ void PFMET::produce(Event& iEvent,
   
   auto_ptr< METCollection > 
     pOutput( new METCollection() ); 
+
   
-  double sumEx = 0;
-  double sumEy = 0;
-  double sumEt = 0;
-
-  for( unsigned i=0; i<pfCandidates->size(); i++ ) {
-
-    const reco::PFCandidate& cand = (*pfCandidates)[i];
-    
-    double E = cand.energy();
-
-    /// HF calibration factor (in 31X applied by PFProducer)
-    if( cand.particleId()==PFCandidate::h_HF || 
-	cand.particleId()==PFCandidate::egamma_HF ) 
-      E *= hfCalibFactor_;
-
-    double phi = cand.phi();
-    double cosphi = cos(phi);
-    double sinphi = sin(phi);
-
-    double theta = cand.theta();
-    double sintheta = sin(theta);
-    
-    double et = E*sintheta;
-    double ex = et*cosphi;
-    double ey = et*sinphi;
-    
-    sumEx += ex;
-    sumEy += ey;
-    sumEt += et;
-  }
   
-  double Et = sqrt( sumEx*sumEx + sumEy*sumEy);
-  XYZTLorentzVector missingEt( -sumEx, -sumEy, 0, Et);
-  
-  if(verbose_) {
-    cout<<"PFMET: mEx, mEy, mEt = "
-	<< missingEt.X() <<", "
-	<< missingEt.Y() <<", "
-	<< missingEt.T() <<endl;
-  }
-
-  XYZPoint vertex; // dummy vertex
-  pOutput->push_back( MET(sumEt, missingEt, vertex) );
-
+  pOutput->push_back( pfMETAlgo_.produce( *pfCandidates ) );
   iEvent.put( pOutput );
   
   LogDebug("PFMET")<<"STOP event: "<<iEvent.id().event()
