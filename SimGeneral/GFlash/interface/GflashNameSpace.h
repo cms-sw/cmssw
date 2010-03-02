@@ -68,6 +68,7 @@ namespace Gflash {
 
   //additional energy scale for the Hcal sensitive detector
   const double scaleSensitive = 0.200;
+  const double scaleSensitiveHE = 0.260;
 
   // properties for different sub-detectors (calorimeters)
 

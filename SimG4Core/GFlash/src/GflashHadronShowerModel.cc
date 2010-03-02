@@ -152,8 +152,12 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
     G4String nameCalor = aCurrentVolume->GetName();
     nameCalor.assign(nameCalor,0,2);
     G4double samplingWeight = 1.0; 
-    if(nameCalor == "HB" || nameCalor=="HE" || nameCalor == "HT") samplingWeight = Gflash::scaleSensitive;
-    
+    if(nameCalor == "HB" ) {
+      samplingWeight = Gflash::scaleSensitive;
+    }
+    else if(nameCalor=="HE" || nameCalor == "HT") {
+      samplingWeight = Gflash::scaleSensitiveHE;
+    }
     theGflashStep->SetTotalEnergyDeposit(spotIter->getEnergy()*samplingWeight);
 
     aSensitive->Hit(theGflashStep);
