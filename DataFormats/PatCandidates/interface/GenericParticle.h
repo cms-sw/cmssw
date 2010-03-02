@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.h,v 1.7 2009/10/15 17:20:09 rwolf Exp $
+// $Id: GenericParticle.h,v 1.8 2009/10/15 17:37:53 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.7 2009/10/15 17:20:09 rwolf Exp $
+  \version  $Id: GenericParticle.h,v 1.8 2009/10/15 17:37:53 rwolf Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -126,23 +126,53 @@ namespace pat {
       void setQuality(float quality) { quality_ = quality; }
       
       //============ BEGIN ISOLATION BLOCK =====
-      /// Returns the isolation variable for a specifc key (or pseudo-key like CaloIso), or -1.0 if not available
-      float isolation(IsolationKeys key) const { 
+      /// Returns the isolation variable for a specifc key (or 
+      /// pseudo-key like CaloIso), or -1.0 if not available
+      float userIsolation(IsolationKeys key) const { 
           if (key >= 0) {
-              //if (key >= isolations_.size()) throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
+              //if (key >= isolations_.size()) throw cms::Excepton("Missing Data") 
+	      //<< "Isolation corresponding to key " 
+	      //<< key << " was not stored for this particle.";
               if (size_t(key) >= isolations_.size()) return -1.0;
               return isolations_[key];
           } else switch (key) {
 	  case pat::CaloIso:  
-	    //if (isolations_.size() <= pat::HcalIso) throw cms::Excepton("Missing Data") << "CalIsoo Isolation was not stored for this particle.";
+	    //if (isolations_.size() <= pat::HcalIso) throw cms::Excepton("Missing Data") 
+	    //<< "CalIsoo Isolation was not stored for this particle.";
 	    if (isolations_.size() <= pat::HcalIso) return -1.0; 
 	    return isolations_[pat::EcalIso] + isolations_[pat::HcalIso];
 	  default:
 	    return -1.0;
-	    //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
+	    //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " 
+	    //<< key << " was not stored for this particle.";
           }
       }
-
+      /// Returns the isolation variable for string type function arguments
+      /// (to be used with the cut-string parser);
+      /// the possible values of the strings are the enums defined in
+      /// DataFormats/PatCandidates/interface/Isolation.h
+      float userIsolation(const std::string& key) const {
+	// remove leading namespace specifier
+	std::string prunedKey = ( key.find("pat::") == 0 ) ? std::string(key, 5) : key;
+	if ( prunedKey == "TrackIso" ) return userIsolation(pat::TrackIso);
+	if ( prunedKey == "EcalIso" ) return userIsolation(pat::EcalIso);
+	if ( prunedKey == "HcalIso" ) return userIsolation(pat::HcalIso);
+	if ( prunedKey == "PfAllParticleIso" ) return userIsolation(pat::PfAllParticleIso);
+	if ( prunedKey == "PfChargedHadronIso" ) return userIsolation(pat::PfChargedHadronIso);
+	if ( prunedKey == "PfNeutralHadronIso" ) return userIsolation(pat::PfNeutralHadronIso);
+	if ( prunedKey == "PfGammaIso" ) return userIsolation(pat::PfGammaIso);
+	if ( prunedKey == "User1Iso" ) return userIsolation(pat::User1Iso);
+	if ( prunedKey == "User2Iso" ) return userIsolation(pat::User2Iso);
+	if ( prunedKey == "User3Iso" ) return userIsolation(pat::User3Iso);
+	if ( prunedKey == "User4Iso" ) return userIsolation(pat::User4Iso);
+	if ( prunedKey == "User5Iso" ) return userIsolation(pat::User5Iso);
+	if ( prunedKey == "UserBaseIso" ) return userIsolation(pat::UserBaseIso);
+	if ( prunedKey == "CaloIso" ) return userIsolation(pat::CaloIso);
+	//throw cms::Excepton("Missing Data")
+	//<< "Isolation corresponding to key " 
+	//<< key << " was not stored for this particle.";
+	return -1.0;
+      }
       /// Sets the isolation variable for a specifc key.
       /// Note that you can't set isolation for a pseudo-key like CaloIso
       void setIsolation(IsolationKeys key, float value) {
@@ -159,16 +189,19 @@ namespace pat {
       }
 
       // ---- specific getters ----
-      /// Return the tracker isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float trackIso() const { return isolation(pat::TrackIso); }
-      /// Return the sum of ecal and hcal isolation variable that were stored in this object when produced, or -1.0 if at least one is missing
-      float caloIso()  const { return isolation(pat::CaloIso); }
-      /// Return the ecal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float ecalIso()  const { return isolation(pat::EcalIso); }
-      /// Return the hcal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float hcalIso()  const { return isolation(pat::HcalIso); }
-      /// Return the user defined isolation variable #index that was stored in this object when produced, or -1.0 if there is none
-      float userIso(uint8_t index=0)  const { return isolation(IsolationKeys(UserBaseIso + index)); }
+      /// Return the tracker isolation variable that was stored in this 
+      /// object when produced, or -1.0 if there is none
+      float trackIso() const { return userIsolation(pat::TrackIso); }
+      /// Return the sum of ecal and hcal isolation variable that were 
+      /// stored in this object when produced, or -1.0 if at least one 
+      /// is missing
+      float caloIso()  const { return userIsolation(pat::CaloIso); }
+      /// Return the ecal isolation variable that was stored in this 
+      /// object when produced, or -1.0 if there is none
+      float ecalIso()  const { return userIsolation(pat::EcalIso); }
+      /// Return the hcal isolation variable that was stored in this 
+      /// object when produced, or -1.0 if there is none
+      float hcalIso()  const { return userIsolation(pat::HcalIso); }
 
       // ---- specific setters ----
       /// Sets tracker isolation variable
