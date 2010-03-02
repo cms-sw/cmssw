@@ -85,8 +85,8 @@ BeamSpotFakeConditions::BeamSpotFakeConditions(const edm::ParameterSet &params)
 		  dxdz =           params.getParameter<double>(  "dxdz" );
 		  dydz =           params.getParameter<double>(  "dydz" );
 		  sigmaZ =         params.getParameter<double>(  "sigmaZ" );
-		  beamWidthX =     params.getParameter<double>(  "widhthX" );
-		  beamWidthY =     params.getParameter<double>(  "widhthY" );
+		  beamWidthX =     params.getParameter<double>(  "widthX" );
+		  beamWidthY =     params.getParameter<double>(  "widthY" );
 		  emittanceX =     params.getParameter<double>(  "emittanceX" );
 		  emittanceY =     params.getParameter<double>(  "emittanceY" );
 		  betastar =       params.getParameter<double>(  "betaStar"  );
@@ -98,7 +98,7 @@ BeamSpotFakeConditions::BeamSpotFakeConditions(const edm::ParameterSet &params)
 		  cov[3][3] =       pow( params.getParameter<double>(  "errorSigmaZ" ), 2 );
 		  cov[4][4] =       pow( params.getParameter<double>(  "errordxdz" ), 2 );
 		  cov[5][5] =       pow( params.getParameter<double>(  "errordydz" ), 2 );
-		  cov[6][6] =       pow( params.getParameter<double>(  "errorWidhth" ), 2 );
+		  cov[6][6] =       pow( params.getParameter<double>(  "errorWidth" ), 2 );
 		  
 		}
 }

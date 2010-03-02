@@ -12,7 +12,8 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
 {
   
   scalertag_ = iconf.getParameter<InputTag>("label");
-  
+  changeFrame_ = iconf.getParameter<bool>("changeToCMSCoordinates");
+
   produces<reco::BeamSpot>();
 
 } 
@@ -38,7 +39,10 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iConfig)
 
   reco::BeamSpot aSpot;
 
-  reco::BeamSpot::Point apoint( spotOnline.x(), spotOnline.y(), spotOnline.z() );
+  double f = 1.;
+  if (changeFrame_) f = -1.;
+
+  reco::BeamSpot::Point apoint( f* spotOnline.x(), spotOnline.y(), f* spotOnline.z() );
 
   reco::BeamSpot::CovarianceMatrix matrix;
   matrix(0,0) = spotOnline.err_x()*spotOnline.err_x();
@@ -49,7 +53,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iConfig)
   aSpot = reco::BeamSpot( apoint,
 			  spotOnline.sigma_z(),
 			  spotOnline.dxdz(),
-			  spotOnline.dydz(),
+			  f* spotOnline.dydz(),
 			  spotOnline.width_x(),
 			  matrix);
 

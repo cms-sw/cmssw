@@ -23,10 +23,12 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'))
                                     )
 
-process.scalers = cms.EDProducer('ScalersRawToDigi')
-process.onlineBeamSpot = cms.EDProducer('BeamSpotOnlineProducer',
-                              label = cms.InputTag('scalers')
-                              )
+#process.scalers = cms.EDProducer('ScalersRawToDigi')
+#process.onlineBeamSpot = cms.EDProducer('BeamSpotOnlineProducer',
+#                              label = cms.InputTag('scalers')
+#                              )
+
+process.load("RecoVertex.BeamSpotProducer.BeamSpotOnline_cff")
 
 process.out = cms.OutputModule( "PoolOutputModule",
                                 fileName = cms.untracked.string( 'onlineBeamSpot.root' ),
