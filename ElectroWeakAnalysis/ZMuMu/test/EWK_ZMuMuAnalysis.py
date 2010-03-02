@@ -61,5 +61,5 @@ process.ntuplesOut.fileName = cms.untracked.string('NtupleLoose_test_oneshot.roo
 process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim_oneshot.root'
 
 
-
+process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisSchedules_cff") 
 
