@@ -1,58 +1,41 @@
 #
 #  SUSY-PAT configuration fragment
 #
-#  PAT configuration for the SUSY group - 33X/34X series
+#  PAT configuration for the SUSY group - 35X series
 #  More information here:
-#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV7
+#  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV8
 
 
 import FWCore.ParameterSet.Config as cms
 
-def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV',mcVersion='',theJetNames = ['IC5','SC5','AK5PF','AK5JPT','AK5Track']):
+def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Summer09_7TeV_ReReco332',theJetNames = ['IC5Calo','SC5Calo','AK5PF','AK5JPT','AK5Track']):
     if not mcInfo:
 	removeMCDependence(process)
-    else:
-	loadMCVersion(process,mcVersion)
-    if mcVersion:
-	theJetNames = ['IC5','SC5','AK5PF','AK5JPT','AK5Track']
     loadPAT(process,JetMetCorrections)
-    addJetMET(process,theJetNames,mcVersion)
+    addJetMET(process,theJetNames)
     loadPATTriggers(process,HLTMenu)
-    loadPF2PAT(process,mcInfo)
-    if mcVersion == '31x' and mcInfo:
-	runSUSY33xOn31xMC(process)
+    #not included for the time being
+    #loadPF2PAT(process,mcInfo)
 
     #-- Counter for the number of processed events --------------------------------
     process.eventCountProducer = cms.EDProducer("EventCountProducer")
 
     # Full path
-    process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets * process.fixedMETSequence
-                                                   *process.patDefaultSequence
+    process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
+                                                   * process.patDefaultSequence #* process.patDefaultSequencePF
                                                    * process.patTrigger*process.patTriggerEvent
-						   * process.PFPATafterPAT * process.eventCountProducer )
-
-def loadMCVersion(process, mcVersion):
-    #-- Missing ak5GenJets in 3.3.2 samples ---------------------------------------
-    from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run33xOnReRecoMC, run33xOn31xMC
-    if not mcVersion:
-	return
-    elif mcVersion == '31x': 
-	run33xOn31xMC( process )
-    elif mcVersion == '31xReReco332':
-	run33xOnReRecoMC( process, "ak5GenJets" )
-    else: raise ValueError, "Unknown MC version: %s" % (mcVersion)
+						                           * process.eventCountProducer )
 
 def loadPAT(process,JetMetCorrections):
     #-- PAT standard config -------------------------------------------------------
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
     #-- Changes for electron and photon ID ----------------------------------------
     # Turn off photon-electron cleaning (i.e., flag only)
-    process.cleanLayer1Photons.checkOverlaps.electrons.requireNoOverlaps = False
+    process.cleanPatPhotons.checkOverlaps.electrons.requireNoOverlaps = False
 
     # Remove embedding of superClusters, will keep entire superCluster collection
-    process.allLayer1Electrons.embedSuperCluster = False
-    process.allLayer1Photons.embedSuperCluster   = False
+    process.patElectrons.embedSuperCluster = False
+    process.patPhotons.embedSuperCluster   = False
     
     #-- Tuning of Monte Carlo matching --------------------------------------------
     # Also match with leptons of opposite charge
@@ -64,26 +47,27 @@ def loadPAT(process,JetMetCorrections):
     process.muonMatch.maxDPtRel       = cms.double(999999.)
     process.tauMatch.checkCharge      = False
     process.tauMatch.maxDeltaR        = cms.double(0.3)
-    process.jetPartonMatch.maxDeltaR  = cms.double(0.25)
-    process.jetPartonMatch.maxDPtRel  = cms.double(999999.)
-    process.jetGenJetMatch.maxDeltaR  = cms.double(0.25)
-    process.jetGenJetMatch.maxDPtRel  = cms.double(999999.)
+    process.patJetPartonMatch.maxDeltaR  = cms.double(0.25)
+    process.patJetPartonMatch.maxDPtRel  = cms.double(999999.)
+    process.patJetGenJetMatch.maxDeltaR  = cms.double(0.25)
+    process.patJetGenJetMatch.maxDPtRel  = cms.double(999999.)
 
     #-- Jet corrections -----------------------------------------------------------
-    process.jetCorrFactors.corrSample = JetMetCorrections ## 'Summer09' for 10TeV, 'Summer09_7TeV' for 7TeV no ReReco
+    process.patJetCorrFactors.corrSample = JetMetCorrections 
 
-def loadPF2PAT(process,mcInfo):
+def loadPF2PAT(process,mcInfo): 
     #-- PF2PAT config -------------------------------------------------------------
-    from PhysicsTools.PatAlgos.tools.pfTools import usePATandPF2PAT, removeMCDependencedorPF
-    usePATandPF2PAT(process,runPATandPF2PAT=True, jetAlgo='IC5')
-    if not mcInfo:
-	removeMCDependencedorPF(process)
+    #process.load("PhysicsTools.PatAlgos.patSequences_cff")
+    #from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
+    #cloneProcessingSnippet(process, process.patDefaultSequence, "PF")
+    from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
+    usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5',runOnMC=mcInfo)
     
-    process.load("RecoTauTag.RecoTau.PFRecoTauDiscriminationLowPt_cff")
-    process.PFPATafterPAT.replace(process.pfTauSequence,process.pfTauSequence + process.TauDiscrForLowPt)
-    process.pfLayer1Taus.tauIDSources.LowPtTausDiscr=cms.InputTag("DiscrLowPtTau")
-    process.pfMuonsPtGt5.ptMin = cms.double(2.0)
-    process.pfElectronsPtGt5.ptMin = cms.double(2.0)
+    #process.load("RecoTauTag.RecoTau.PFRecoTauDiscriminationLowPt_cff")
+    #process.patDefaultSequence.replace(process.pfTauSequence,process.pfTauSequence + process.TauDiscrForLowPt)
+    #process.pfLayer1Taus.tauIDSources.LowPtTausDiscr=cms.InputTag("DiscrLowPtTau")
+    #process.pfMuonsPtGt5.ptMin = cms.double(2.0)
+    #process.pfElectronsPtGt5.ptMin = cms.double(2.0)
 	
     
 def loadPATTriggers(process,HLTMenu):
@@ -96,12 +80,10 @@ def loadPATTriggers(process,HLTMenu):
     process.patTrigger.processName = HLTMenu
     process.patTriggerEvent.processName = HLTMenu
 
-def addSUSYJetCollection(process,jets = 'IC5',doJTA=False,doType1MET=False,doJetID = True,jetIdLabel = None):
+def addSUSYJetCollection(process,jets = 'IC5Calo',doJTA=False,doType1MET=False,doJetID = True,jetIdLabel = None):
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection, addJetID
     algorithm = jets[0:3]
     type = jets[3:len(jets)]
-    if len(type) == 0:
-	type = 'Calo'
     jetCorrLabel = (algorithm,type)
     if 'IC' in algorithm: collection = algorithm.replace('IC','iterativeCone')
     elif 'SC' in algorithm: collection = algorithm.replace('SC','sisCone')
@@ -124,15 +106,15 @@ def addSUSYJetCollection(process,jets = 'IC5',doJTA=False,doType1MET=False,doJet
         else: raise ValueError, "Unknown jet algorithm: %s" % (jets)
         jetCollection = 'JetPlusTrackZSPCorJet%(collectionJPT)s' % locals()
     	jetCorrLabel = None
-        jetIdLabel =  '%(jetIdLabel)sJPT' % locals()
+        jetIdLabel =  '%(collection)sJPT' % locals()
     elif type == 'Track':
 	jetCollection = '%(collection)sTrackJets' % locals()
     	jetCorrLabel = None
 	doJetID = False
     else: raise ValueError, "Unknown jet type: %s" % (jets)
-     
+
     addJetCollection(process, cms.InputTag(jetCollection),
-                     jets,
+                     algorithm, type,
                      doJTA            = doJTA,
                      doBTagging       = True,
                      jetCorrLabel     = jetCorrLabel,
@@ -140,19 +122,14 @@ def addSUSYJetCollection(process,jets = 'IC5',doJTA=False,doType1MET=False,doJet
                      doL1Cleaning     = True,
                      doL1Counters     = True,
                      doJetID          = doJetID,
-		     jetIdLabel       = jetIdLabel,
+		             jetIdLabel       = jetIdLabel,
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
-def addJetMET(process,theJetNames,mcVersion):
+def addJetMET(process,theJetNames):
     
     #-- Jet plus tracks -----------------------------------------------------------
-    #process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
-    # Fiddle because of broken corrections in PAT
-    if mcVersion == '31x':
-	process.load("JetMETCorrections.Configuration.ZSPJetCorrections31X_cff")
-    else:
-    	process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
+    process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
     process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
     
     process.jptCaloJets = cms.Sequence(
@@ -166,20 +143,12 @@ def addJetMET(process,theJetNames,mcVersion):
 
     process.load("JetMETCorrections.JetPlusTrack.matchJptAndCaloJets_cff")
     process.load("JetMETCorrections.JetPlusTrack.jptJetId_cff")
-    process.jpt = cms.Sequence( process.jptCaloJets * process.matchJptAndCaloJets )
-    process.allLayer1Objects.replace(process.allLayer1Jets,  process.jptJetId * process.allLayer1Jets )
+    process.jpt = cms.Sequence( process.jptCaloJets * process.matchJptAndCaloJets * process.jptJetId)
     
     #-- Track Jets ----------------------------------------------------------------
     process.load('RecoJets.Configuration.RecoTrackJets_cff')
     process.addTrackJets = cms.Sequence ( process.recoTrackJets )
-
-    #-- MET fixes ----------------------------------------------------------------
-    process.load("JetMETCorrections.Type1MET.MuonMETValueMapProducer_cff") 
-    process.load("JetMETCorrections.Type1MET.MuonTCMETValueMapProducer_cff")
-    process.load("JetMETCorrections.Type1MET.MetMuonCorrections_cff") 
-    process.load("RecoMET.METProducers.TCMET_cfi") 
-    process.fixedMETSequence = cms.Sequence(process.muonMETValueMapProducer * process.muonTCMETValueMapProducer * process.corMetGlobalMuons * process.tcMet)
-
+ 
     #-- Extra Jet/MET collections -------------------------------------------------
     # Add a few jet collections...
     for jetName in theJetNames:
@@ -188,64 +157,69 @@ def addJetMET(process,theJetNames,mcVersion):
     #-- Tune contents of jet collections  -----------------------------------------
     theJetNames.append('')
     for jetName in theJetNames:
-        module = getattr(process,'allLayer1Jets'+jetName)
+        module = getattr(process,'patJets'+jetName)
         module.addTagInfos = False    # Remove tag infos
         module.embedGenJetMatch = False # Only keep reference, since we anyway keep the genJet collections
     theJetNames.pop()
     
-    # Add tcMET, pfMET
+    # Add tcMET, pfMET 
     from PhysicsTools.PatAlgos.tools.metTools import addTcMET, addPfMET
     addTcMET(process,'TC')
     addPfMET(process,'PF')
 
-    # Add MHT
-    from PhysicsTools.PatAlgos.producersLayer1.mhtProducer_cff import makeLayer1MHTs, layer1MHTs
-    process.allLayer1Objects.replace(process.makeLayer1METs, process.makeLayer1METs + process.makeLayer1MHTs)
-
     # Rename default jet collection for uniformity
-    process.cleanLayer1JetsAK5 = process.cleanLayer1Jets
-    process.layer1METsAK5      = process.layer1METs
-    process.layer1MHTsAK5      = process.layer1MHTs
+    process.cleanPatJetsAK5Calo = process.cleanPatJets
+    process.patMETsAK5Calo      = process.patMETs
+    process.patMHTsAK5Calo      = process.patMHTs
 
     # Modify subsequent modules
-    process.cleanLayer1Hemispheres.patJets = process.cleanLayer1JetsAK5.label()
-    process.countLayer1Jets.src            = process.cleanLayer1JetsAK5.label()
+    process.patHemispheres.patJets = process.cleanPatJetsAK5Calo.label()
+    process.countPatJets.src       = process.cleanPatJetsAK5Calo.label()
+    
+    # Add MHT (inserted until officially suported)
+    from PhysicsTools.PatAlgos.producersLayer1.mhtProducer_cff import makePatMHTs, patMHTs
+    process.countPatCandidates.replace(process.countPatJets, process.countPatJets + process.makePatMHTs)
+    process.patMHTs.jetTag      = 'patJets'
+    process.patMHTs.electronTag = 'patElectrons'
+    process.patMHTs.muonTag     = 'patMuons'
+    process.patMHTs.tauTag      = 'patTaus'
+    process.patMHTs.photonTag   = 'patPhotons'
 
     # Modify counters' input
-    process.allLayer1Summary.candidates.remove(cms.InputTag('layer1METs'))
-    process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsAK5'))
-    process.allLayer1Summary.candidates.append(cms.InputTag('layer1MHTsAK5'))
-    process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
-    process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsAK5'))
+    process.patCandidateSummary.candidates.remove(cms.InputTag('patMETs'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5Calo'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMHTsAK5Calo'))
+    process.cleanPatCandidateSummary.candidates.remove(cms.InputTag('cleanPatJets'))
+    process.cleanPatCandidateSummary.candidates.append(cms.InputTag('cleanPatJetsAK5Calo'))
     # Add new jet collections to counters (MET done automatically)
     for jets in theJetNames: 
-        process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1Jets'+jets))
-        process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
-        process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
+        process.patCandidateSummary.candidates.append(cms.InputTag('patJets'+jets))
+        process.selectedPatCandidateSummary.candidates.append(cms.InputTag('selectedPatJets'+jets))
+        process.cleanPatCandidateSummary.candidates.append(cms.InputTag('cleanPatJets'+jets))
 	
 
 def removeMCDependence( process ):
     #-- Remove MC dependence ------------------------------------------------------
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
-    removeMCMatching(process, 'All')
+    removeMCMatching(process, ['All'])
 
 def getSUSY_pattuple_outputCommands( process ):
     return [ # PAT Objects
-        'keep *_cleanLayer1Photons_*_*',
-        'keep *_cleanLayer1Electrons_*_*',
-        'keep *_cleanLayer1Muons_*_*',
-        'keep *_cleanLayer1Taus_*_*',
-        'keep *_cleanLayer1Jets*_*_*',       # All Jets
-        'keep *_layer1METs*_*_*',            # All METs
-        'keep *_layer1MHTs*_*_*',            # All MHTs
-        'keep *_cleanLayer1Hemispheres_*_*',
-        'keep *_cleanLayer1PFParticles_*_*',
+        'keep *_cleanPatPhotons_*_*',
+        'keep *_cleanPatElectrons_*_*',
+        'keep *_cleanPatMuons_*_*',
+        'keep *_cleanPatTaus_*_*',
+        'keep *_cleanPatJets*_*_*',       # All Jets
+        'keep *_patMETs*_*_*',            # All METs
+        'keep *_patMHTs*_*_*',            # All MHTs
+        'keep *_cleanPatHemispheres_*_*',
+        'keep *_cleanPatPFParticles_*_*',
         # Generator information
         'keep GenEventInfoProduct_generator_*_*',
         'keep GenRunInfoProduct_generator_*_*',
         # Generator particles/jets/MET
         'keep recoGenParticles_genParticles_*_*',
-        'keep recoGenJets_*_*_*',
+        'keep recoGenJets_*GenJets*_*_*',
         'keep recoGenMETs_*_*_*',
         # Trigger information
         'keep edmTriggerResults_TriggerResults_*_HLT*',
@@ -274,26 +248,3 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep recoTracks_*onversions_*_*',
         'keep HcalNoiseSummary_*_*_*' #Keep the one in RECO
         ] 
-
-def runSUSY33xOn31xMC(process):
-   process.ZSPJetCorJetAntiKt5.src = "antikt5CaloJets"
-   process.jetGenJetMatchAK5Track.matched = "antikt5GenJets"
-   process.jetGenJetMatchAK5JPT.matched = "antikt5GenJets"
-   process.jetGenJetMatchAK5Track.matched = "antikt5GenJets"
-   process.jetGenJetMatchAK5PF.matched = "antikt5GenJets"
-   process.matchJptAndCaloJetsAK5.CaloJetCollection = "antikt5CaloJets"
-   process.ak5JPTJetID.CaloJetCollection = "antikt5CaloJets"
-   process.ak5JPTJetID.CaloJetIDValueMap = "antikt5JetID"
-
-   process.jetTracksAssociatorAtVertexAK5PF.jets = "antikt5PFJets"
-   process.jetGenJetMatchAK5Track.src = "antikt5GenJets"
-
-   from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
-   process.ak5PFJets = ak5PFJets
-
-   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import addJetID
-   #addJetID("antikt5CaloJets", "ak5JetID")
-   addJetID(process, "iterativeCone5CaloJets","ic5")
-   addJetID(process, "sisCone5CaloJets","sc5")
-
-   process.seqAdditionalRECO = cms.Sequence( process.ak5PFJets )
