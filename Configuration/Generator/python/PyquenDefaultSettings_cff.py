@@ -8,11 +8,11 @@ collisionParameters4TeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/targ
                                comEnergy = cms.double(4000.0)
                                )
 
-collisionParameters2800GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
-                                   comEnergy = cms.double(2800.0)
+collisionParameters2760GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                   comEnergy = cms.double(2760.0)
                                    )
 
-collisionParameters = collisionParameters4TeV.clone()
+collisionParameters = collisionParameters2760GeV.clone()
 
 qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
@@ -31,9 +31,9 @@ pyquenParameters  = cms.PSet(doIsospin = cms.bool(True),
 
 hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
                             shadowingSwitch = cms.int32(0),
-                            nMultiplicity = cms.int32(26000),
+                            nMultiplicity = cms.int32(21500),
                             fracSoftMultiplicity = cms.double(1.),
-                            maxLongitudinalRapidity = cms.double(3.75),
+                            maxLongitudinalRapidity = cms.double(4.5),
                             maxTransverseRapidity = cms.double(1.),
                             rotateEventPlane = cms.bool(True),
                             allowEmptyEvents = cms.bool(False)
@@ -42,7 +42,7 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
 pyquenPythiaDefaultBlock = cms.PSet(
     pythiaUESettingsBlock,
     ppDefault = cms.vstring('MSEL=1   ! QCD hight pT processes',
-                            'CKIN(3)=7.',# ! ptMin
+                            'CKIN(3)=6.',# ! ptMin
                             'MSTP(81)=0'
                             ),
     pythiaHirootDefault = cms.vstring('MSEL=0', # ! Only user defined processes,  
