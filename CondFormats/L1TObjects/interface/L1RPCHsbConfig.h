@@ -30,17 +30,14 @@ class L1RPCHsbConfig
       L1RPCHsbConfig();
       virtual ~L1RPCHsbConfig();
 
-      void setHsb0Mask(std::vector<int > hsb0) { m_hsb0 = hsb0;};
-      void setHsb1Mask(std::vector<int > hsb1) { m_hsb1 = hsb1;};
-
-      const std::vector<int > & getHsb0Mask() const { return m_hsb0;};
-      const std::vector<int > & getHsb1Mask() const { return m_hsb1;};
-
+      void setHsbMask(int hsb, const int mask[] );
+      int getHsbMask(int hsb, int input) const;
+      int getMaskSize() const {return sizeof(m_hsb0)/sizeof(m_hsb0[0]);};
 
    private:
 
-      std::vector<int > m_hsb0;
-      std::vector<int > m_hsb1;
+      int m_hsb0[8];
+      int m_hsb1[8];
 
 
 };

@@ -73,11 +73,13 @@ L1RPCHsbConfigOnlineProd::newObject( const std::string& objectKey )
   edm::LogError( "L1-O2O" ) << "L1RPCHsbConfig object with key "
 			    << objectKey << " not in ORCON!" ;
   boost::shared_ptr< L1RPCHsbConfig > pHsbConfig (new L1RPCHsbConfig());
-  std::vector<int> hsbconf;
+  //std::vector<int> hsbconf;
+  int hsbconf[8];
   int mask=3;
-  for (int i=0; i<9; i++) hsbconf.push_back(mask);
-  pHsbConfig->setHsb0Mask(hsbconf);
-  pHsbConfig->setHsb1Mask(hsbconf);
+  // XX was: i<9, corrected
+  for (int i=0; i<8; i++) hsbconf[i] = mask;
+  pHsbConfig->setHsbMask(0, hsbconf);
+  pHsbConfig->setHsbMask(1, hsbconf);
   return pHsbConfig;
 //  return boost::shared_ptr< L1RPCHsbConfig >() ;
 }

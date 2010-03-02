@@ -30,6 +30,8 @@ process.l1RPCHsbConfig.hsb0Mask = cms.vint32(3, 3, 3, 3, 3, 3, 3, 3)
                                        #TC   5  6  7  8  9 10 11  0
 process.l1RPCHsbConfig.hsb1Mask = cms.vint32(3, 3, 3, 3, 3, 3, 3, 3)
 
+#process.l1RPCHsbConfig.hsb0Mask = cms.vint32(0, 0, 0, 0 , 0, 0 , 0 ,0 )
+#process.l1RPCHsbConfig.hsb1Mask = cms.vint32(0, 0, 0, 0 , 0, 0 , 0 ,0 )
 
 
 process.load("L1Trigger.RPCTrigger.l1RpcEmulDigis_cfi")

@@ -97,19 +97,16 @@ DumpL1RPCHsbConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    
    LogDebug("DumpL1RPCHsbConfig")<< "Checking HSB inputs" << std::endl;
   
-   std::vector<int> mask0 = hsbConfig->getHsb0Mask();
-   std::vector<int> mask1 = hsbConfig->getHsb1Mask(); 
 
    LogDebug("DumpL1RPCHsbConfig") << " HSB0: ";
-   for (unsigned int i = 0; i < mask0.size() ; i++){
-     std::cout<<mask0[i]<<" ";
+   for (int i = 0; i < hsbConfig->getMaskSize() ; ++i){
+     LogDebug("DumpL1RPCHsbConfig") << " Input " << i << " " << hsbConfig->getHsbMask(0, i)<<" ";
    }
    std::cout<<std::endl;
    LogDebug("DumpL1RPCHsbConfig") << " HSB1: ";
-   for (unsigned int i = 0; i < mask1.size() ; i++){
-     std::cout<<mask1[i]<<" ";
+   for (int i = 0; i < hsbConfig->getMaskSize() ; ++i){
+     LogDebug("DumpL1RPCHsbConfig") << " Input " << i << " " << hsbConfig->getHsbMask(1, i) <<" ";
    }
-   std::cout<<std::endl;
    
 }
 
