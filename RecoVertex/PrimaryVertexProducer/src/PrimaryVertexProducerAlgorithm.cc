@@ -12,7 +12,6 @@
 #include <algorithm>
 
 using namespace reco;
-//#define PV_EXTRA
 
 //
 // constructors and destructor
@@ -21,7 +20,6 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   // extract relevant parts of config for components
   : theConfig(conf), 
     theTrackFilter(conf.getParameter<edm::ParameterSet>("TkFilterParameters")), 
-    //    theTrackClusterizer(conf.getParameter<edm::ParameterSet>("TkClusParameters")), 
     theVertexSelector(VertexDistanceXY(), 
 		      conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam"))
 {
@@ -35,6 +33,8 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
   fMinNdof           = conf.getParameter<double>("minNdof");
+  fFailsafe          = true;
+
 
   // select and configure the track clusterizer
   std::string clusteringAlgorithm=conf.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<std::string>("algorithm");
@@ -128,23 +128,11 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     seltks = tracks;
   }
 
-  if(fVerbose){
-    cout << endl << "PrimaryVertexProducerAlgorithm::vertices  selected tracks=" << seltks.size() << endl;
-    if( fUseBeamConstraint && validBS  ) {
-      cout << "beamspot   "<< setw(8) << setprecision(4)
-	   << " x=" << beamVertexState.position().x() 
-	   << " y=" << beamVertexState.position().y()
-	   << " z=" << beamVertexState.position().z()
-	   << " dx=" << sqrt(beamVertexState.error().cxx())
-	   << " dy=" << sqrt(beamVertexState.error().cyy())
-	   << " dz=" << sqrt(beamVertexState.error().czz())
-	   << std::endl;
-    }
-  }
+
 
   // clusterize tracks in Z
-  vector< vector<reco::TransientTrack> > clusters = 
-    theTrackClusterizer->clusterize(seltks);
+  vector< vector<reco::TransientTrack> > clusters =  theTrackClusterizer->clusterize(seltks);
+  if (fVerbose){cout <<  " clustering returned  "<< clusters.size() << " clusters  from " << seltks.size() << " selected tracks" <<endl;}
 
 
   // look for primary vertices in each cluster
@@ -176,19 +164,16 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	else cout <<"Invalid fitted vertex\n";
       }
 
-    }else if (fVerbose){
-      cout <<  "cluster dropped" << endl;
     }
-
 
     nclu++;
 
   }// end of cluster loop
 
-
   if(fVerbose){
     cout << "PrimaryVertexProducerAlgorithm::vertices  candidates =" << pvCand.size() << endl;
   }
+
 
 
   // select vertices compatible with beam
@@ -203,9 +188,36 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   }
 
 
+  if(pvs.size()>0){
 
-  // sort vertices by pt**2  vertex (aka signal vertex tagging)
-  sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
+    // sort vertices by pt**2  vertex (aka signal vertex tagging)
+    sort(pvs.begin(), pvs.end(), VertexHigherPtSquared());
+
+  }else{
+
+    if (    fFailsafe 
+	    && (seltks.size()>1) 
+	    && ( (clusters.size()!=1)  ||  ( (clusters.size()==1) && (clusters.begin()->size()<seltks.size())) )
+        )
+      { 
+	// if no vertex was found, try fitting all selected tracks, unless this has already been tried
+	// in low/no pile-up situations with low multiplicity vertices, this can recover vertices lost in clustering
+	// with very small zSep. Only makes sense when used with a robust fitter, like the AdaptiveVertexFitter
+	TransientVertex v;
+	if( fUseBeamConstraint && validBS ){
+	  v = theFitter->vertex(seltks, beamSpot);
+	}else{
+	  v = theFitter->vertex(seltks); 
+	}
+	if (fVerbose){ cout << "PrimaryVertexProducerAlgorithm: failsafe vertex "
+			    <<"  tracks="  << seltks.size()
+			    <<"  valid()=" << v.isValid() << " ndof()=" << v.degreesOfFreedom() 
+			    <<"  selected="<< theVertexSelector(v,beamVertexState) << endl; }
+	if ( v.isValid() && (v.degreesOfFreedom()>=fMinNdof) && (theVertexSelector(v,beamVertexState)) )  pvs.push_back(v);
+      }
+    
+  }
+
 
   return pvs;
   
