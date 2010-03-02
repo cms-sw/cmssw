@@ -20,6 +20,5 @@ class CentralityTable {
     virtual ~CentralityTable(){}
    
     std::vector<CBin> m_table;
-   
 };
 

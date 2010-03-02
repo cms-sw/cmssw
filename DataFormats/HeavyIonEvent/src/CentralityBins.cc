@@ -1,6 +1,6 @@
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 
-int CentralityBins::getBin(double value){
+int CentralityBins::getBin(double value) const {
 
    if(value < 0) return -1;
 
