@@ -8,7 +8,10 @@ EcalRawToRecHitRoI = cms.EDProducer("EcalRawToRecHitRoI",
     type = cms.string('muon egamma jet candidate all'),
     MuonJobPSet = cms.PSet(
 
-    )
+    ),
+    doES = cms.bool(False),
+    sourceTag_es = cms.InputTag(''),
+    esInstance = cms.untracked.string('es')
 )
 
 
