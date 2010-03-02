@@ -16,7 +16,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import Options
 from Configuration.PyReleaseValidation.ConfigBuilder import defaultOptions
 from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStream
 from Configuration.PyReleaseValidation.ConfigBuilder import addOutputModule
-
+from Configuration.GlobalRuns.reco_TLR import reco_TLR
 
 class pp(Scenario):
     """
@@ -45,7 +45,7 @@ class pp(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO:reconstruction_withPixellessTk'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -68,6 +68,9 @@ class pp(Scenario):
         for tier in writeTiers: 
           addOutputModule(process, tier, "RECO")        
 
+        #add the former top level patches here
+        reco_TLR(process)
+        
         return process
 
     def expressProcessing(self, globalTag,  writeTiers = [],
@@ -110,6 +113,9 @@ class pp(Scenario):
         # // TODO: Install Alca output
         #//
         
+        #add the former top level patches here
+        reco_TLR(process)
+
         return process
     
 
