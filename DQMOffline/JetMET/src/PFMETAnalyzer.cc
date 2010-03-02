@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/07 22:08:13 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/02/24 19:08:54 $
+ *  $Revision: 1.18 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -60,31 +60,37 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
   _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
-  _hlt_PhysDec   = parameters.getParameter<std::string>("HLT_PhysDec");
 
-  _techTrigsAND  = parameters.getParameter<std::vector<unsigned > >("techTrigsAND");
-  _techTrigsOR   = parameters.getParameter<std::vector<unsigned > >("techTrigsOR");
-  _techTrigsNOT  = parameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
+  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
 
-  _doPVCheck          = parameters.getParameter<bool>("doPrimaryVertexCheck");
-  _doHLTPhysicsOn     = parameters.getParameter<bool>("doHLTPhysicsOn");
+  //Trigger parameters
+  gtTag          = theCleaningParameters.getParameter<edm::InputTag>("gtLabel");
+  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
+  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
+  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
 
-  _tightBHFiltering     = parameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering  = parameters.getParameter<int>("tightJetIDFiltering");
-  _tightHcalFiltering   = parameters.getParameter<bool>("tightHcalFiltering");
+  _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
+  _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
+
+  _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
+  _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
+  _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
 
   //Vertex requirements
+  _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
+  vertexTag  = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
+
   if (_doPVCheck) {
-    _nvtx_min        = parameters.getParameter<int>("nvtx_min");
-    _nvtxtrks_min    = parameters.getParameter<int>("nvtxtrks_min");
-    _vtxndof_min     = parameters.getParameter<int>("vtxndof_min");
-    _vtxchi2_max     = parameters.getParameter<double>("vtxchi2_max");
-    _vtxz_max        = parameters.getParameter<double>("vtxz_max");
+    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
+    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
+    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
+    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
+    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
   }
 
 
   // PFMET information
-  thePfMETCollectionLabel       = parameters.getParameter<edm::InputTag>("PfMETCollectionLabel");
+  thePfMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
   thePfJetCollectionLabel       = parameters.getParameter<edm::InputTag>("PfJetCollectionLabel");
   _source                       = parameters.getParameter<std::string>("Source");
 
@@ -101,10 +107,10 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
   _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
 
-  _highPtPFJetThreshold = parameters.getParameter<double>("HighPtPFJetThreshold"); // High Pt Jet threshold
-  _lowPtPFJetThreshold = parameters.getParameter<double>("LowPtPFJetThreshold");   // Low Pt Jet threshold
-  _highPFMETThreshold = parameters.getParameter<double>("HighPFMETThreshold");     // High MET threshold
-  _lowPFMETThreshold = parameters.getParameter<double>("LowPFMETThreshold");       // Low MET threshold
+  _highPtPFJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
+  _lowPtPFJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");   // Low Pt Jet threshold
+  _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");     // High MET threshold
+  _lowPFMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
@@ -196,12 +202,6 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
     bookMonitorElement(DirName+"/"+"Muon",false);
     meTriggerName_Muon = _dbe->bookString("triggerName_Muon", _hlt_Muon);
   }
-
-  if (_hlt_PhysDec.size()){
-    bookMonitorElement(DirName+"/"+"PhysicsDeclared",false);
-    meTriggerName_PhysDec = _dbe->bookString("triggerName_PhysicsDeclared", _hlt_PhysDec);
-  }
-
 }
 
 // ***********************************************************
@@ -330,7 +330,6 @@ void PFMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
       if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
       if (_hlt_Ele.size())       makeRatePlot(DirName+"/"+_hlt_Ele,totltime);
       if (_hlt_Muon.size())      makeRatePlot(DirName+"/"+_hlt_Muon,totltime);
-      if (_hlt_PhysDec.size())   makeRatePlot(DirName+"/"+_hlt_PhysDec,totltime);
     }
 }
 
@@ -638,7 +637,14 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(_doPVCheck){
     bPrimaryVertex = false;
     Handle<VertexCollection> vertexHandle;
-    iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+
+    iEvent.getByLabel(vertexTag, vertexHandle);
+
+    if (!vertexHandle.isValid()) {
+      LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
+      if (_verbose) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
+    }
+    
     if ( vertexHandle.isValid() ){
       VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
@@ -663,29 +669,36 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
   // ==========================================================
-  
+
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
-  iEvent.getByLabel( edm::InputTag("gtDigis"), gtReadoutRecord);
+  iEvent.getByLabel( gtTag, gtReadoutRecord);
 
-  const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
-
+  if (!gtReadoutRecord.isValid()) {
+    LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
+    if (_verbose) std::cout << "CaloMETAnalyzer: Could not find GT readout record product" << std::endl;
+  }
+  
   bool bTechTriggers    = true;
   bool bTechTriggersAND = true;
   bool bTechTriggersOR  = false;
   bool bTechTriggersNOT = false;
 
-  for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
-    bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+  if (gtReadoutRecord.isValid()) {
+    const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+    
+    for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
+      bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+    }
+    
+    for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
+      bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
+    }
+    
+    for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
+      bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
+    }
   }
-
-  for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
-    bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
-  }
-
-  for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
-    bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
-  }
-
+    
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
 
   // ==========================================================
@@ -795,7 +808,6 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
   if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
   if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",pfmet,false);
-  if (_hlt_PhysDec.size() && _trig_PhysDec) fillMonitorElement(iEvent,DirName,"PhysicsDeclared",pfmet,false);
 }
 
 // ***********************************************************
@@ -821,9 +833,6 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   }
   else if (TriggerTypeName=="Muon") {
     if (!selectWMuonEvent(iEvent)) return;
-  }
-  else if (TriggerTypeName=="PhysicsDeclared") {
-    if (!selectPhysicsDeclaredEvent(iEvent)) return;
   }
   
   // Reconstructed MET Information
@@ -953,19 +962,6 @@ bool PFMETAnalyzer::selectWMuonEvent(const edm::Event& iEvent){
 
   /*
     W-muon event selection comes here
-  */
-
-  return return_value;
-
-}
-
-// ***********************************************************
-bool PFMETAnalyzer::selectPhysicsDeclaredEvent(const edm::Event& iEvent){
-
-  bool return_value=false;
-
-  /*
-    PhysicsDeclared event selection comes here
   */
 
   return return_value;

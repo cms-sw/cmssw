@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/02/07 22:08:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/02/24 19:08:54 $
+ *  $Revision: 1.12 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -83,7 +83,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   bool selectLowPtJetEvent(const edm::Event&);
   bool selectWElectronEvent(const edm::Event&);
   bool selectWMuonEvent(const edm::Event&);
-  bool selectPhysicsDeclaredEvent(const edm::Event&);
 
   void setSource(std::string source) {
     _source = source;
@@ -108,6 +107,8 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag PFCandidatesTag;
   edm::InputTag BeamHaloSummaryTag;
+  edm::InputTag vertexTag;
+  edm::InputTag gtTag;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
@@ -118,6 +119,8 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
+
+  edm::ParameterSet theCleaningParameters;
   std::string _hlt_PhysDec;
 
   std::vector<unsigned > _techTrigsAND;
