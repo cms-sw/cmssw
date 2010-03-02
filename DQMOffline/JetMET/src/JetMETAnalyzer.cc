@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 09:33:34 $
- *  $Revision: 1.47 $
+ *  $Date: 2010/02/24 19:08:54 $
+ *  $Revision: 1.48 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -172,24 +172,30 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   processname_ = parameters.getParameter<std::string>("processname");
 
   //jet cleanup parameters
-  _hlt_PhysDec   = parameters.getParameter<std::string>("HLT_PhysDec");
+  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
 
-  _techTrigsAND  = parameters.getParameter<std::vector<unsigned > >("techTrigsAND");
-  _techTrigsOR   = parameters.getParameter<std::vector<unsigned > >("techTrigsOR");
-  _techTrigsNOT  = parameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
+  _hlt_PhysDec   = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
 
-  _doPVCheck          = parameters.getParameter<bool>("doPrimaryVertexCheck");
-  _doHLTPhysicsOn     = parameters.getParameter<bool>("doHLTPhysicsOn");
+  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
+  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
+  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
 
-  _tightBHFiltering     = parameters.getParameter<bool>("tightBHFiltering");
-  _tightHcalFiltering   = parameters.getParameter<bool>("tightHcalFiltering");
+  _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
+  _doHLTPhysicsOn     = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
+
+  _tightBHFiltering   = theCleaningParameters.getParameter<bool>("tightBHFiltering");
+  _tightHcalFiltering = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
+
+  _theVertexLabel     = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
+  _theGTLabel         = theCleaningParameters.getParameter<edm::InputTag>("gtLabel");
+
   //Vertex requirements
   if (_doPVCheck) {
-    _nvtx_min        = parameters.getParameter<int>("nvtx_min");
-    _nvtxtrks_min    = parameters.getParameter<int>("nvtxtrks_min");
-    _vtxndof_min     = parameters.getParameter<int>("vtxndof_min");
-    _vtxchi2_max     = parameters.getParameter<double>("vtxchi2_max");
-    _vtxz_max        = parameters.getParameter<double>("vtxz_max");
+    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
+    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
+    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
+    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
+    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
   }
 
 
@@ -354,14 +360,16 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
   }
-
+  
+  hltpathME = 0;
+  physdecME = 0;
   if (hltConfig_.size()){
     dbe->setCurrentFolder("JetMET");
     hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
     physdecME = dbe->book1D("physdec", "physdec", 2,   0., 2.);
+    if (physdecME) physdecME->setBinLabel(1,"All Events");
   }
 
-  if (physdecME) physdecME->setBinLabel(1,"All Events");
   
   for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
     if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
@@ -492,7 +500,14 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(_doPVCheck){
     bPrimaryVertex = false;
     Handle<VertexCollection> vertexHandle;
-    iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
+
+    iEvent.getByLabel(_theVertexLabel, vertexHandle);
+
+    if (!vertexHandle.isValid()) {
+      LogInfo("JetMETAnalyzer") << "JetMETAnalyzer: Could not find vertex collection" << std::endl;
+      if (DEBUG) std::cout << "JetMETAnalyzer: Could not find vertex collection" << std::endl;
+    }
+    
     if ( vertexHandle.isValid() ){
       VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
@@ -516,32 +531,39 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
     }
   }
+  // ==========================================================
 
-  //   // ==========================================================
-  //Get the L1 Technical Trigger results
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
-  iEvent.getByLabel( edm::InputTag("gtDigis"), gtReadoutRecord);
+  iEvent.getByLabel( _theGTLabel, gtReadoutRecord);
 
-  const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
-
+  if (!gtReadoutRecord.isValid()) {
+    LogInfo("JetMETAnalyzer") << "JetMETAnalyzer: Could not find GT readout record" << std::endl;
+    if (DEBUG) std::cout << "JetMETAnalyzer: Could not find GT readout record product" << std::endl;
+  }
+  
   bool bTechTriggers    = true;
   bool bTechTriggersAND = true;
   bool bTechTriggersOR  = false;
   bool bTechTriggersNOT = false;
 
-  for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
-    bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+  if (gtReadoutRecord.isValid()) {
+    const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+    
+    for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
+      bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+    }
+    
+    for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
+      bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
+    }
+    
+    for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
+      bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
+    }
   }
-
-  for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
-    bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
-  }
-
-  for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
-    bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
-  }
-
+    
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
+    
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
 
   // **** Get the Calo Jet container

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *
-#import DQMOffline.JetMET.jetMETDQMCleanup_cff as cleanup
 
 metDQMParameters = cms.PSet(
 
