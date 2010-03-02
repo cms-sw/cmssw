@@ -1,6 +1,7 @@
 // Authors: F. Ambroglini, L. Fano', F. Bechtel
 #include <QCDAnalysis/UEAnalysis/interface/UEJetValidation.h>
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "FWCore/Common/interface/TriggerNames.h"
  
 using namespace edm;
 using namespace std;
@@ -503,7 +504,7 @@ void UEJetValidation::analyze( const Event& e, const EventSetup& es)
   ///
   if (e.getByLabel( triggerResultsTag, triggerResults ) )
     {
-      triggerNames.init( *(triggerResults.product()) );
+      const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
       
       if ( triggerResults.product()->wasrun() )
     	{

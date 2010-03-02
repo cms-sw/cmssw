@@ -1,5 +1,6 @@
 // Authors: F. Ambroglini, L. Fano', F. Bechtel
 #include <QCDAnalysis/UEAnalysis/interface/UEJetMultiplicity.h>
+#include "FWCore/Common/interface/TriggerNames.h"
  
 using namespace edm;
 using namespace std;
@@ -123,7 +124,7 @@ void UEJetMultiplicity::analyze( const Event& e, const EventSetup& es)
   ///
   if (e.getByLabel( triggerResultsTag, triggerResults ) )
     {
-      triggerNames.init( *(triggerResults.product()) );
+      const edm::TriggerNames & triggerNames = e.triggerNames(*triggerResults);
       
       if ( triggerResults.product()->wasrun() )
     	{

@@ -32,7 +32,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 // access trigger results
-#include <FWCore/Common/interface/TriggerNames.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
@@ -84,7 +83,6 @@ private:
   Handle< TriggerResults      > triggerResults;
   Handle< TriggerEvent        > triggerEvent;
   //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
-  TriggerNames triggerNames;
   std::vector<std::string> selectedHLTBits;
 
   edm::Service<TFileService> fs;
