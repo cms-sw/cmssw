@@ -44,7 +44,6 @@ struct vertex_t{
 
   std::vector< std::vector<reco::TransientTrack> >
     clusterize(const std::vector<reco::TransientTrack> & tracks)const;
-  //float zSeparation() const;
 
 
   std::vector< TransientVertex >
@@ -58,8 +57,16 @@ struct vertex_t{
 		     std::vector<vertex_t> & y
 		     )const;
 
+  double updateWeightsAndFit(
+		     double beta,
+		     std::vector<track_t> & tks,
+		     std::vector<vertex_t> & y,
+		     double & rho0
+		     )const;
+
   void dump(const double beta, const std::vector<vertex_t> & y, const std::vector<track_t> & tks, const int verbosity=0)const;
   bool merge(std::vector<vertex_t> &,int )const;
+  bool merge(std::vector<vertex_t> &, std::vector<track_t> & , double &, const double )const;
 
   void splitAll(
 	       std::vector<track_t> & tks,
@@ -76,13 +83,14 @@ struct vertex_t{
 
   
 private:
-  float zSep;
+  //float zSep;
   bool verbose_;
   float vertexSize_;
   int maxIterations_;
-  float betamax_;
   double coolingFactor_;
+  float betamax_;
   float betastop_;
+  double mu0_;
 };
 
 #endif
