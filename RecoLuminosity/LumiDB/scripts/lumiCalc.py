@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,ctypes
 import coral
-from RecoLuminosity.LumiDB import argparse,nameDealer
+from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser
 
 class constants(object):
     def __init__(self):
@@ -10,15 +10,12 @@ class constants(object):
         self.NORM=16400
         self.LUMIVERSION='0001'
         self.BEAMMODE='stable' #possible choices stable,quiet,either
-        
-def parseSelectionFile(filename):
-    print 'inside parseSelectionFile filname ',filename
-
+    
 def deliveredLumiForRun(dbsession,c,runnum):
     #
     #select sum(INSTLUMI) from lumisummary where runnum=124025 and lumiversion='0001';
-    #apply norm factor on the query result (?)
-    #unit E27cm^-2 (?)
+    #apply norm factor on the query result 
+    #unit E27cm^-2 
     #
     delivered=0.0
     try:
@@ -51,7 +48,13 @@ def deliveredLumiForRange(dbsession,c,inputfile):
     #
     #in this case,only take run numbers from theinput file
     #
-    print 'inside deliveredLumi : norm : ',c.NORM,' : inputfile : ',inputfile
+    #print 'inside deliveredLumi : norm : ',c.NORM,' : inputfile : ',inputfile
+    
+    f=open(inputfile,'r')
+    content=f.read()
+    s=selectionParser.selectionParser(content)
+    for run in s.runs():
+        deliveredLumiForRun(dbsession,c,run)
     
 def recordedLumiForRun(dbsession,c,runnum):
     print 'inside recordedLumi : run : ',runnum,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
