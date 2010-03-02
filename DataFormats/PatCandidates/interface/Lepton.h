@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.21 2009/10/15 17:37:53 rwolf Exp $
+// $Id: Lepton.h,v 1.22 2010/02/22 11:10:00 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Lepton.h,v 1.21 2009/10/15 17:37:53 rwolf Exp $
+  \version  $Id: Lepton.h,v 1.22 2010/02/22 11:10:00 veelken Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -73,21 +73,21 @@ namespace pat {
       /// DataFormats/PatCandidates/interface/Isolation.h
       float userIsolation(const std::string& key) const {
 	// remove leading namespace specifier
-	std::string key_shortened = ( key.find("pat::") == 0 ) ? std::string(key, 5) : key;
-	if ( key_shortened == "TrackIso" ) return userIsolation(pat::TrackIso);
-	if ( key_shortened == "EcalIso" ) return userIsolation(pat::EcalIso);
-	if ( key_shortened == "HcalIso" ) return userIsolation(pat::HcalIso);
-	if ( key_shortened == "PfAllParticleIso" ) return userIsolation(pat::PfAllParticleIso);
-	if ( key_shortened == "PfChargedHadronIso" ) return userIsolation(pat::PfChargedHadronIso);
-	if ( key_shortened == "PfNeutralHadronIso" ) return userIsolation(pat::PfNeutralHadronIso);
-	if ( key_shortened == "PfGammaIso" ) return userIsolation(pat::PfGammaIso);
-	if ( key_shortened == "User1Iso" ) return userIsolation(pat::User1Iso);
-	if ( key_shortened == "User2Iso" ) return userIsolation(pat::User2Iso);
-	if ( key_shortened == "User3Iso" ) return userIsolation(pat::User3Iso);
-	if ( key_shortened == "User4Iso" ) return userIsolation(pat::User4Iso);
-	if ( key_shortened == "User5Iso" ) return userIsolation(pat::User5Iso);
-	if ( key_shortened == "UserBaseIso" ) return userIsolation(pat::UserBaseIso);
-	if ( key_shortened == "CaloIso" ) return userIsolation(pat::CaloIso);
+	std::string prunedKey = ( key.find("pat::") == 0 ) ? std::string(key, 5) : key;
+	if ( prunedKey == "TrackIso" ) return userIsolation(pat::TrackIso);
+	if ( prunedKey == "EcalIso" ) return userIsolation(pat::EcalIso);
+	if ( prunedKey == "HcalIso" ) return userIsolation(pat::HcalIso);
+	if ( prunedKey == "PfAllParticleIso" ) return userIsolation(pat::PfAllParticleIso);
+	if ( prunedKey == "PfChargedHadronIso" ) return userIsolation(pat::PfChargedHadronIso);
+	if ( prunedKey == "PfNeutralHadronIso" ) return userIsolation(pat::PfNeutralHadronIso);
+	if ( prunedKey == "PfGammaIso" ) return userIsolation(pat::PfGammaIso);
+	if ( prunedKey == "User1Iso" ) return userIsolation(pat::User1Iso);
+	if ( prunedKey == "User2Iso" ) return userIsolation(pat::User2Iso);
+	if ( prunedKey == "User3Iso" ) return userIsolation(pat::User3Iso);
+	if ( prunedKey == "User4Iso" ) return userIsolation(pat::User4Iso);
+	if ( prunedKey == "User5Iso" ) return userIsolation(pat::User5Iso);
+	if ( prunedKey == "UserBaseIso" ) return userIsolation(pat::UserBaseIso);
+	if ( prunedKey == "CaloIso" ) return userIsolation(pat::CaloIso);
 	//throw cms::Excepton("Missing Data")
 	//<< "Isolation corresponding to key " 
 	//<< key << " was not stored for this particle.";
@@ -149,11 +149,11 @@ namespace pat {
 
       // ---- specific setters ----
       /// Sets tracker isolation variable
-	void setTrackIso(float trackIso) { setIsolation(pat::TrackIso, trackIso); }
+      void setTrackIso(float trackIso) { setIsolation(pat::TrackIso, trackIso); }
       /// Sets ecal isolation variable
-	void setEcalIso(float caloIso)   { setIsolation(pat::EcalIso, caloIso);  } 
+      void setEcalIso(float caloIso)   { setIsolation(pat::EcalIso, caloIso);  } 
       /// Sets hcal isolation variable
-	void setHcalIso(float caloIso)   { setIsolation(pat::HcalIso, caloIso);  }
+      void setHcalIso(float caloIso)   { setIsolation(pat::HcalIso, caloIso);  }
       /// Sets user isolation variable #index
       void setUserIso(float value, uint8_t index=0)  { setIsolation(IsolationKeys(UserBaseIso + index), value); }
 
