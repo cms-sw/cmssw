@@ -14,6 +14,16 @@ L1TriggerRAW = cms.PSet(
     'keep *_gmtDigis_*_*', 
     'keep *_gtDigis_*_*', 
     'keep *_gtEvmDigis_*_*', 
+    'keep *_valCscTriggerPrimitiveDigis_*_*', 
+    'keep *_valDtTriggerPrimitiveDigis_*_*', 
+    'keep *_valRpcTriggerDigis_*_*', 
+    'keep *_valRctDigis_*_*', 
+    'keep *_valCsctfDigis_*_*', 
+    'keep *_valCsctfTrackDigis_*_*', 
+    'keep *_valDttfDigis_*_*', 
+    'keep *_valGctDigis_*_*', 
+    'keep *_valGmtDigis_*_*', 
+    'keep *_valGtDigis_*_*', 
     'keep *_l1GtRecord_*_*', 
     'keep *_l1GtObjectMap_*_*', 
     'keep *_l1extraParticles_*_*')
@@ -33,8 +43,17 @@ L1TriggerRECO = cms.PSet(
     'keep *_gmtDigis_*_*', 
     'keep *_gtDigis_*_*', 
     'keep *_gtEvmDigis_*_*', 
+    'keep *_valCscTriggerPrimitiveDigis_*_*', 
+    'keep *_valDtTriggerPrimitiveDigis_*_*', 
+    'keep *_valRpcTriggerDigis_*_*', 
+    'keep *_valRctDigis_*_*', 
+    'keep *_valCsctfDigis_*_*', 
+    'keep *_valCsctfTrackDigis_*_*', 
+    'keep *_valDttfDigis_*_*', 
+    'keep *_valGctDigis_*_*', 
+    'keep *_valGmtDigis_*_*', 
+    'keep *_valGtDigis_*_*', 
     'keep *_l1GtRecord_*_*', 
-    'keep *_l1GtTriggerMenuLite_*_*',
     'keep *_l1GtObjectMap_*_*', 
     'keep *_l1extraParticles_*_*',
     'keep LumiDetails_lumiProducer_*_*',
@@ -46,7 +65,6 @@ L1TriggerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'keep *_gtDigis_*_*', 
     'keep *_l1GtRecord_*_*', 
-    'keep *_l1GtTriggerMenuLite_*_*',
     'keep *_l1GtObjectMap_*_*', 
     'keep *_l1extraParticles_*_*',
     'keep LumiSummary_lumiProducer_*_*')
@@ -73,10 +91,5 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_gctDigis_*_*', 
         'keep *_gmtDigis_*_*', 
         'keep *_gtDigis_*_*',
-        'keep *_gtEvmDigis_*_*',
-        'keep *_l1GtRecord_*_*', 
-        'keep *_l1GtTriggerMenuLite_*_*',
-        'keep LumiDetails_lumiProducer_*_*',
-        'keep LumiSummary_lumiProducer_*_*'       
-        )
+        'keep *_gtEvmDigis_*_*')
 )
