@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/02/07 22:08:37 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/02/24 19:08:53 $
+ *  $Revision: 1.15 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -80,7 +80,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   bool selectLowPtJetEvent(const edm::Event&);
   bool selectWElectronEvent(const edm::Event&);
   bool selectWMuonEvent(const edm::Event&);
-  bool selectPhysicsDeclaredEvent(const edm::Event&);
 
   int evtCounter;
 
@@ -102,6 +101,8 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::InputTag HcalNoiseRBXCollectionTag;
   edm::InputTag HcalNoiseSummaryTag;
   edm::InputTag BeamHaloSummaryTag;
+  edm::InputTag vertexTag;
+  edm::InputTag gtTag;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
@@ -112,6 +113,8 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
+
+  edm::ParameterSet theCleaningParameters;
   std::string _hlt_PhysDec;
 
   std::vector<unsigned > _techTrigsAND;
@@ -177,60 +180,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   DQMStore *_dbe;
 
   //the histos
-  MonitorElement* metME;
 
-  MonitorElement* meTriggerName_HighPtJet;
-  MonitorElement* meTriggerName_LowPtJet;
-  MonitorElement* meTriggerName_HighMET;
-  MonitorElement* meTriggerName_LowMET;
-  MonitorElement* meTriggerName_Ele;
-  MonitorElement* meTriggerName_Muon;
-  MonitorElement* meTriggerName_PhysDec;
-
-  MonitorElement* meNevents;
-  MonitorElement* meCaloMEx;
-  MonitorElement* meCaloMEy;
-  MonitorElement* meCaloEz;
-  MonitorElement* meCaloMETSig;
-  MonitorElement* meCaloMET;
-  MonitorElement* meCaloMETPhi;
-  MonitorElement* meCaloSumET;
-  MonitorElement* meCaloMExLS;
-  MonitorElement* meCaloMEyLS;
-
-  MonitorElement* meCaloMET_logx;
-  MonitorElement* meCaloSumET_logx;
-
-  MonitorElement* meCaloMETIonFeedbck;
-  MonitorElement* meCaloMETHPDNoise;
-  MonitorElement* meCaloMETRBXNoise;
-
-  MonitorElement* meCaloMETPhi002;
-  MonitorElement* meCaloMETPhi010;
-  MonitorElement* meCaloMETPhi020;
-
-  MonitorElement* meCaloMaxEtInEmTowers;
-  MonitorElement* meCaloMaxEtInHadTowers;
-  MonitorElement* meCaloEtFractionHadronic;
-  MonitorElement* meCaloEmEtFraction;
-
-  MonitorElement* meCaloEmEtFraction002;
-  MonitorElement* meCaloEmEtFraction010;
-  MonitorElement* meCaloEmEtFraction020;
-
-  MonitorElement* meCaloHadEtInHB;
-  MonitorElement* meCaloHadEtInHO;
-  MonitorElement* meCaloHadEtInHE;
-  MonitorElement* meCaloHadEtInHF;
-  MonitorElement* meCaloHadEtInEB;
-  MonitorElement* meCaloHadEtInEE;
-  MonitorElement* meCaloEmEtInHF;
-  MonitorElement* meCaloEmEtInEE;
-  MonitorElement* meCaloEmEtInEB;
-
-  MonitorElement* meCaloMETRate;
-
-  //
   std::map<std::string, MonitorElement*> me;
 
 };

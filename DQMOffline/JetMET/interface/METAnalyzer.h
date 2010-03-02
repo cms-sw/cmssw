@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/02/07 22:08:49 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/02/24 19:08:54 $
+ *  $Revision: 1.12 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -86,7 +86,6 @@ class METAnalyzer : public METAnalyzerBase {
   bool selectLowPtJetEvent(const edm::Event&);
   bool selectWElectronEvent(const edm::Event&);
   bool selectWMuonEvent(const edm::Event&);
-  bool selectPhysicsDeclaredEvent(const edm::Event&);
 
   void setSource(std::string source) {
     _source = source;
@@ -113,6 +112,8 @@ class METAnalyzer : public METAnalyzerBase {
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag TcCandidatesTag;
   edm::InputTag BeamHaloSummaryTag;
+  edm::InputTag vertexTag;
+  edm::InputTag gtTag;
 
   edm::InputTag inputTrackLabel;
   edm::InputTag inputMuonLabel;
@@ -129,6 +130,8 @@ class METAnalyzer : public METAnalyzerBase {
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
+
+  edm::ParameterSet theCleaningParameters;
   std::string _hlt_PhysDec;
 
   std::vector<unsigned > _techTrigsAND;
@@ -193,37 +196,7 @@ class METAnalyzer : public METAnalyzerBase {
   DQMStore *_dbe;
 
   //the histos
-  MonitorElement* metME;
 
-  MonitorElement* meTriggerName_HighPtJet;
-  MonitorElement* meTriggerName_LowPtJet;
-  MonitorElement* meTriggerName_HighMET;
-  MonitorElement* meTriggerName_LowMET;
-  MonitorElement* meTriggerName_Ele;
-  MonitorElement* meTriggerName_Muon;
-  MonitorElement* meTriggerName_PhysDec;
-
-  MonitorElement* meNevents;
-  MonitorElement* meMEx;
-  MonitorElement* meMEy;
-  MonitorElement* meEz;
-  MonitorElement* meMETSig;
-  MonitorElement* meMET;
-  MonitorElement* meMETPhi;
-  MonitorElement* meSumET;
-  MonitorElement* meMExLS;
-  MonitorElement* meMEyLS;
-
-  MonitorElement* meMET_logx;
-  MonitorElement* meSumET_logx;
-
-  MonitorElement* meMETIonFeedbck;
-  MonitorElement* meMETHPDNoise;
-  MonitorElement* meMETRBXNoise;
-
-  MonitorElement* meMETRate;
-
-  //
   std::map<std::string, MonitorElement*> me;
 
 };
