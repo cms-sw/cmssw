@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.10 2009/10/29 09:56:04 chrjones Exp $
+// $Id: FWTableViewTableManager.cc,v 1.11 2009/12/11 16:04:50 chrjones Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -71,6 +71,7 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 {
      const int realRowNumber = unsortedRowNumber(iSortedRowNumber);
      if (m_view->item() != 0 &&
+         m_view->item()->size() &&
 	 m_view->item()->modelData(realRowNumber) != 0 &&
 	 iCol < (int)m_evaluators.size()) {
 	  double ret;
