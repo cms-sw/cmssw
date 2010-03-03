@@ -170,15 +170,18 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ResponseFile      = cms.FileInPath('SimG4CMS/Calo/data/responsTBpim50.dat')
     ),
     ECalSD = cms.PSet(
-        UseBirkLaw = cms.bool(True),
+        UseBirkLaw      = cms.bool(True),
         BirkL3Parametrization = cms.bool(True),
-        BirkSlope = cms.double(0.253694),
-        BirkCut = cms.double(0.1),
-        BirkC1 = cms.double(0.03333),
-        BirkC3 = cms.double(1.0),
-        BirkC2 = cms.double(0.0),
+        BirkSlope       = cms.double(0.253694),
+        BirkCut         = cms.double(0.1),
+        BirkC1          = cms.double(0.03333),
+        BirkC3          = cms.double(1.0),
+        BirkC2          = cms.double(0.0),
         SlopeLightYield = cms.double(0.02),
-        TestBeam = cms.untracked.bool(False)
+        StoreSecondary  = cms.bool(False),
+        XtalMat         = cms.untracked.string('E_PbWO4'),
+        TestBeam        = cms.untracked.bool(False),
+        StoreRadLength  = cms.untracked.bool(False)
     ),
     HCalSD = cms.PSet(
         UseBirkLaw = cms.bool(True),
@@ -200,8 +203,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         WtFile = cms.untracked.string('None')
     ),
     CaloTrkProcessing = cms.PSet(
-        TestBeam = cms.bool(False),
-        EminTrack = cms.double(0.01)
+        TestBeam  = cms.bool(False),
+        EminTrack = cms.double(0.01),
+        PutHistory = cms.bool(False)
     ),
     HFShower = cms.PSet(
         ProbMax         = cms.double(1.0),

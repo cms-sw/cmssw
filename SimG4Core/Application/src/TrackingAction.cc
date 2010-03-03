@@ -9,9 +9,13 @@
 #include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4UImanager.hh" 
 #include "G4TrackingManager.hh"
 #include "G4PhysicalVolumeStore.hh"
+
+//#define DebugLog
 
 TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
   : eventAction_(e),currentTrack_(0),
@@ -70,18 +74,26 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
 	  
 	  std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> p(pos,mom);
 	  eventAction_->addTkCaloStateInfo(id,p);
-	  
+#ifdef DebugLog
+	  LogDebug("SimTrackManager") << "TrackingAction addTkCaloStateInfo " << id << " of momentum " << mom << " at " << pos;
+#endif
 	}
 
-      bool withAncestor = (extractor(aTrack).getIDonCaloSurface() == aTrack->GetTrackID());
+      bool withAncestor = ((extractor(aTrack).getIDonCaloSurface() == aTrack->GetTrackID()) || (extractor(aTrack).isAncestor()));
       if (extractor(aTrack).isInHistory())
         {
           currentTrack_->checkAtEnd(aTrack);  // check with end-of-track information
           eventAction_->addTrack(currentTrack_, true, withAncestor);
+#ifdef DebugLog
+	  LogDebug("SimTrackManager") << "TrackingAction addTrack "  << currentTrack_->trackID() << " saved with " << true << " and " << withAncestor;
+#endif
         }
       else
         {
           eventAction_->addTrack(currentTrack_, false, false);
+#ifdef DebugLog
+	  LogDebug("SimTrackManager") << "TrackingAction addTrack " << currentTrack_->trackID() << " saved with " << false << " and " << false;
+#endif
           delete currentTrack_;
         }
     }

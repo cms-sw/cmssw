@@ -21,20 +21,20 @@ public:
   virtual void PrepareNewEvent();
 private:
   void   initPointer();
-  bool   isThisVolume(const G4VTouchable*, G4LogicalVolume* ) const;
+  bool   isThisVolume(const G4VTouchable*, std::vector<G4LogicalVolume*>&) const;
   int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
   int    isItFromPrimary(const G4Track &, int) const;
   bool   isItLongLived(const G4Track*) const;
 private:
-  G4LogicalVolume          *tracker, *beam, *calo, *muon;
-  bool                     savePDandCinTracker, savePDandCinCalo;
-  bool                     savePDandCinMuon, saveFirstSecondary;
-  bool                     killHeavy, trackNeutrino, killDeltaRay;
-  double                   kmaxIon, kmaxNeutron, kmaxProton;
-  double                   maxTrackTime;
-  std::vector<double>      maxTrackTimes;
-  std::vector<std::string> maxTimeNames;
-  std::vector<G4Region*>   maxTimeRegions;
+  bool                          savePDandCinTracker, savePDandCinCalo;
+  bool                          savePDandCinMuon, saveFirstSecondary;
+  bool                          killHeavy, trackNeutrino, killDeltaRay;
+  double                        kmaxIon, kmaxNeutron, kmaxProton;
+  double                        maxTrackTime;
+  std::vector<double>           maxTrackTimes;
+  std::vector<std::string>      maxTimeNames;
+  std::vector<G4Region*>        maxTimeRegions;
+  std::vector<G4LogicalVolume*> tracker, calo, muon;
 };
 
 #endif

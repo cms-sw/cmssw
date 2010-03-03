@@ -11,11 +11,12 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4RegionStore.hh"
 
+#include<algorithm>
+
 //#define DebugLog
 
-StackingAction::StackingAction(const edm::ParameterSet & p): tracker(0),
-							     beam(0), calo(0),
-							     muon(0) {
+StackingAction::StackingAction(const edm::ParameterSet & p) {
+
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
@@ -75,8 +76,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     classification = fKill;
   } else {
     const G4Track * mother = CurrentG4Track::track();
-    if ((savePDandCinTracker && (isThisVolume(aTrack->GetTouchable(),tracker)||
-				 isThisVolume(aTrack->GetTouchable(),beam))) ||
+    if ((savePDandCinTracker && isThisVolume(aTrack->GetTouchable(),tracker))||
 	(savePDandCinCalo && isThisVolume(aTrack->GetTouchable(),calo)) ||
 	(savePDandCinMuon && isThisVolume(aTrack->GetTouchable(),muon)))
       flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
@@ -129,29 +129,30 @@ void StackingAction::initPointer() {
     std::vector<G4LogicalVolume*>::const_iterator lvcite;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
       if (savePDandCinTracker) {
-        if ((*lvcite)->GetName() == "Tracker") tracker = (*lvcite);
-        if ((*lvcite)->GetName() == "BEAM")    beam    = (*lvcite);
+        if (strcmp("Tracker",(*lvcite)->GetName().c_str()) == 0) tracker.push_back(*lvcite);
+        if (strcmp("BEAM",(*lvcite)->GetName().substr(0,4).c_str()) == 0) tracker.push_back(*lvcite);
       }
       if (savePDandCinCalo) {
-        if ((*lvcite)->GetName() == "CALO")    calo    = (*lvcite);
+        if (strcmp("CALO",(*lvcite)->GetName().c_str()) == 0) calo.push_back(*lvcite);
+        if (strcmp("VCAL",(*lvcite)->GetName().c_str()) == 0) calo.push_back(*lvcite);
       }
       if (savePDandCinMuon) {
-        if ((*lvcite)->GetName() == "MUON")    muon    = (*lvcite);
+        if (strcmp("MUON",(*lvcite)->GetName().c_str()) == 0) muon.push_back(*lvcite);
       }
-      if ( (!savePDandCinTracker || (tracker && beam)) && 
-	   (!savePDandCinCalo || calo) && (!savePDandCinMuon || muon ) ) break;
     }
-    edm::LogInfo("SimG4CoreApplication") << "Pointers for Tracker " << tracker
-                                         << ", BeamPipe " << beam << ", Calo " 
-					 << calo << ", Muon " << muon;
-    if (tracker) edm::LogInfo("SimG4CoreApplication") << "Tracker vol name "
-						      << tracker->GetName();
-    if (beam)    edm::LogInfo("SimG4CoreApplication") << "BeamPipe vol name "
-						      << beam->GetName();
-    if (calo)    edm::LogInfo("SimG4CoreApplication")<< "Calorimeter vol name "
-						     << calo->GetName();
-    if (muon)    edm::LogInfo("SimG4CoreApplication") << "Muon vol name "
-						      << muon->GetName();
+    edm::LogInfo("SimG4CoreApplication") << "# of LV for Tracker " 
+					 << tracker.size() << " for Calo "
+                                         << calo.size() << " for Muon "
+					 << muon.size();
+    for (unsigned int i=0; i<tracker.size(); ++i)
+      edm::LogInfo("SimG4CoreApplication") << "Tracker vol " << i << " name "
+					   << tracker[i]->GetName();
+    for (unsigned int i=0; i<calo.size(); ++i)
+      edm::LogInfo("SimG4CoreApplication") << "Calorimeter vol " <<i <<" name "
+					   << calo[i]->GetName();
+    for (unsigned int i=0; i<muon.size(); ++i)
+      edm::LogInfo("SimG4CoreApplication") << "Muon vol " << i << " name "
+					   << muon[i]->GetName();
   }
 
   const G4RegionStore * rs = G4RegionStore::GetInstance();
@@ -184,14 +185,14 @@ void StackingAction::initPointer() {
 }
 
 bool StackingAction::isThisVolume(const G4VTouchable* touch, 
-				  G4LogicalVolume* lv) const {
+				  std::vector<G4LogicalVolume*> & lvs) const {
 
   bool flag = false;
-  if (lv != 0 && touch !=0) {
+  if (lvs.size() > 0 && touch !=0) {
     int level = ((touch->GetHistoryDepth())+1);
     if (level >= 3) {
       int  ii = level - 3;
-      flag    = (touch->GetVolume(ii)->GetLogicalVolume() == lv);
+      flag    = (std::count(lvs.begin(),lvs.end(),(touch->GetVolume(ii)->GetLogicalVolume())) != 0);
     }
   }
   return flag;
