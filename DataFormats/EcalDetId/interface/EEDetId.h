@@ -11,7 +11,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.23 2010/02/08 15:23:02 pgras Exp $
+ *  $Id: EEDetId.h,v 1.24 2010/02/09 17:31:23 pgras Exp $
  */
 class EEDetId : public DetId {
    public:
@@ -185,6 +185,20 @@ class EEDetId : public DetId {
        * @return compact index from 0 to kSizeForDenseIndexing-1
        */
       uint32_t denseIndex() const { return hashedIndex() ; }
+
+      /** returns a new EEDetId offset by nrStepsX and nrStepsY (can be negative),
+        * returns EEDetId(0) if invalid */
+      EEDetId offsetBy( int nrStepsX, int nrStepsY ) const;
+
+      /** returns a new EEDetId swapped (same iX, iY) to the other endcap, 
+        * returns EEDetId(0) if invalid (shouldnt happen) */
+      EEDetId switchZSide() const;
+ 
+      /** following are static member functions of the above two functions
+        *  which take and return a DetId, returns DetId(0) if invalid 
+        */
+      static DetId offsetBy( const DetId startId, int nrStepsX, int nrStepsY );
+      static DetId switchZSide( const DetId startId );
 
       /** Checks validity of a dense/hashed index
        * @param din dense/hashed index as returned by hashedIndex() or denseIndex()

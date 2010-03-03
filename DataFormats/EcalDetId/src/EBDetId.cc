@@ -105,6 +105,58 @@ int EBDetId::numberBySM() const {
   return (ism()-1) * kCrystalsPerSM + ic() -1;
 }
 
+EBDetId EBDetId::offsetBy(int nrStepsEta, int nrStepsPhi ) const
+{
+        int newEta = ieta()+nrStepsEta;
+        if( newEta*ieta() <= 0 ) {
+                if( ieta() < 0 ) {
+                        newEta++;
+                } else {
+                        newEta--;
+                }
+        }
+        int newPhi = iphi() + nrStepsPhi;
+        while ( newPhi>360 ) newPhi -= 360;
+        while ( newPhi<=0  ) newPhi += 360;
+
+        if( validDetId( newEta, newPhi ) ) {
+                return EBDetId( newEta, newPhi);
+        } else {
+                return EBDetId(0);
+        }
+}
+
+EBDetId EBDetId::switchZSide() const
+{
+        int newEta = ieta()*-1;
+        if( validDetId( newEta, iphi() ) ) {
+                return EBDetId( newEta, iphi() );
+        } else {
+                return EBDetId(0);
+        }
+}
+
+
+DetId EBDetId::offsetBy(const DetId startId, int nrStepsEta, int nrStepsPhi )
+{
+        if( startId.det() == DetId::Ecal && startId.subdetId() == EcalBarrel ) {
+                EBDetId ebStartId(startId);
+                return ebStartId.offsetBy( nrStepsEta, nrStepsPhi ).rawId();
+        } else {
+                return DetId(0);
+        }
+}
+
+DetId EBDetId::switchZSide( const DetId startId )
+{
+        if( startId.det() == DetId::Ecal && startId.subdetId() == EcalBarrel ) {
+                EBDetId ebStartId(startId);
+                return ebStartId.switchZSide().rawId();
+        } else {
+                return DetId(0);
+        }
+}
+
 //corrects for HB/EB differing iphi=1
 int EBDetId::tower_iphi() const { 
   int iphi_simple=((iphi()-1)/5)+1; 

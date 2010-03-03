@@ -13,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.24 2009/01/28 16:23:16 elmer Exp $
+ *  $Id: EBDetId.h,v 1.25 2009/10/12 18:29:27 meridian Exp $
  */
 
 
@@ -73,6 +73,20 @@ class EBDetId : public DetId {
   int hashedIndex() const { return numberByEtaPhi(); }
 
   uint32_t denseIndex() const { return hashedIndex() ; }
+
+  /** returns a new EBDetId offset by nrStepsEta and nrStepsPhi (can be negative), 
+    * returns EBDetId(0) if invalid */
+  EBDetId offsetBy( int nrStepsEta, int nrStepsPhi ) const;
+
+  /** returns a new EBDetId on the other zside of barrel (ie iEta*-1), 
+    * returns EBDetId(0) if invalid (shouldnt happen) */
+  EBDetId switchZSide() const;
+ 
+  /** following are static member functions of the above two functions
+    * which take and return a DetId, returns DetId(0) if invalid 
+    */
+  static DetId offsetBy( const DetId startId, int nrStepsEta, int nrStepsPhi );
+  static DetId switchZSide( const DetId startId );
 
   static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
 
