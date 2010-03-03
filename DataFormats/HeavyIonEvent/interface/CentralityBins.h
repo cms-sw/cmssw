@@ -1,10 +1,8 @@
 #ifndef __Cent_Bin_h__
 #define __Cent_Bin_h__
 
-//#include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include <TNamed.h>
 #include <vector>
-
 
 class CBin : public TObject {
  public:
@@ -28,18 +26,16 @@ class CentralityBins : public TNamed {
  public:
 
    CentralityBins(){;}
-   CentralityBins(const char* name, const char* title, int nbins) : TNamed(name,title), nbins_(nbins) {
-      table_.reserve(nbins_);
-      for(int j = 0; j < nbins_; ++j){
+   CentralityBins(const char* name, const char* title, int nbins) : TNamed(name,title) {
+      table_.reserve(nbins);
+      for(int j = 0; j < nbins; ++j){
 	 CBin b;
 	 table_.push_back(b); 
       }
    }
       ~CentralityBins() {;}
       int getBin(double value) const;
-      int getNbins() const {return nbins_;}
-      int getNbinsMax() const {return table_.size();}
-      void setNbins(int nb) const {nbins_ = nb;}
+      int getNbins() const {return table_.size();}
       double lowEdge(double value) const { return lowEdgeOfBin(getBin(value));}
       double lowEdgeOfBin(int bin) const { return table_[bin].bin_edge;}
       double NpartMean(double value) const { return NpartMeanOfBin(getBin(value));}
@@ -59,18 +55,9 @@ class CentralityBins : public TNamed {
       double bSigma(double value) const { return bSigmaOfBin(getBin(value));}
       double bSigmaOfBin(int bin) const { return table_[bin].b_var;}
 
-      /*      double nPartMean(double value){ return table_.m_table[getBin(value)].n_part_mean;}
-      double nPartMeanOfBin(int bin){ return table_.m_table[bin].n_part_mean;}
-      double nPartSigma(double value){ return table_.m_table[getBin(value)].n_part_var;}
-      double nPartSigmaOfBin(int bin){ return table_.m_table[bin].n_part_var;}
-      */
-      
       // private:
-      mutable int nbins_;
       std::vector<CBin> table_;
-      //      std::vector<CentralityTable::CBin> table_;
-
-   ClassDef(CentralityBins,2)
+      ClassDef(CentralityBins,1)
 };
 
 #endif

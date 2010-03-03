@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.cc,v 1.5 2010/03/02 22:55:44 yilmaz Exp $
+// $Id: Centrality.cc,v 1.6 2010/03/03 17:05:15 yilmaz Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
@@ -37,7 +37,7 @@ Centrality::~Centrality()
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup, int nbins){
+const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup){
 
    edm::ESHandle<CentralityTable> inputDB_;
    iSetup.get<HeavyIonRcd>().get(inputDB_);
@@ -59,7 +59,6 @@ const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup, int
       CB->table_[j].b_var = thisBin->b_var;
 
    }
-   CB->setNbins(nbins);
 
    return CB;
 }
