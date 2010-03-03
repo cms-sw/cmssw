@@ -10,10 +10,12 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4String.hh"
+#include <string>
 #include <map>
 
 class EcalBaseNumber;
@@ -30,7 +32,8 @@ public:
   virtual uint16_t                  getRadiationLength(G4Step *);
   virtual uint32_t                  setDetUnitId(G4Step*);
   void                              setNumberingScheme(EcalNumberingScheme*);
-  uint16_t                          getDepth(G4Step*);
+  virtual int                       getTrackID(G4Track*);
+  virtual uint16_t                  getDepth(G4Step*);
 
 private:    
 
@@ -39,13 +42,19 @@ private:
   double                            crystalLength(G4LogicalVolume*);
   void                              getBaseNumber(const G4Step*); 
   double                            getBirkL3(G4Step*);
+  std::vector<double>               getDDDArray(const std::string&,
+						const DDsvalues_type&);
+  std::vector<std::string>          getStringArray(const std::string&,
+						   const DDsvalues_type&);
 
   EcalNumberingScheme *             numberingScheme;
-  bool                              useWeight;
+  bool                              useWeight, storeTrack, storeRL;
   bool                              useBirk, useBirkL3;
   double                            birk1, birk2, birk3, birkSlope, birkCut;
   double                            slopeLY;
+  std::string                       crystalMat, depth1Name, depth2Name;
   std::map<G4LogicalVolume*,double> xtalLMap;
+  std::vector<G4LogicalVolume*>     useDepth1, useDepth2, noWeight;
   EcalBaseNumber                    theBaseNumber;
 };
 

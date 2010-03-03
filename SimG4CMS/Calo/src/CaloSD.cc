@@ -78,6 +78,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   primAncestor = 0;
   cleanIndex = 0;
   totalHits = 0;
+  forceSave = false;
 
   //
   // Now attach the right detectors (LogicalVolumes) to me
@@ -141,7 +142,6 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
     
     theTrack = const_cast<G4Track *>(aSpot->GetOriginatorTrack()->GetPrimaryTrack());
     G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-    TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
     
     if (particleCode == emPDG ||
         particleCode == epPDG ||
@@ -153,32 +153,22 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 	
     if (edepositEM>0.)  {
       G4Step *      fFakeStep          = new G4Step();
-      G4StepPoint * fFakePreStepPoint  = fFakeStep->GetPreStepPoint();
+      preStepPoint                     = fFakeStep->GetPreStepPoint();
       G4StepPoint * fFakePostStepPoint = fFakeStep->GetPostStepPoint();
-      fFakePreStepPoint->SetPosition(aSpot->GetPosition());
+      preStepPoint->SetPosition(aSpot->GetPosition());
       fFakePostStepPoint->SetPosition(aSpot->GetPosition());
       
       G4TouchableHandle fTouchableHandle   = aSpot->GetTouchableHandle();
-      fFakePreStepPoint->SetTouchableHandle(fTouchableHandle);
+      preStepPoint->SetTouchableHandle(fTouchableHandle);
       fFakeStep->SetTotalEnergyDeposit(aSpot->GetEnergySpot()->GetEnergy());
       
       double       time   = 0;
       unsigned int unitID = setDetUnitId(fFakeStep);
-      int      primaryID;
-      
-      if (trkInfo)
-        primaryID  = trkInfo->getIDonCaloSurface();
-      else
-        primaryID = 0;
-      
-      if (primaryID == 0) {
-        edm::LogWarning("CaloSim") << "CaloSD: Spot Problem with primaryID "
-                                   << "**** set by force to  **** " 
-                                   << theTrack->GetTrackID(); 
-        primaryID = theTrack->GetTrackID();
-      }
+      int          primaryID = getTrackID(theTrack);
+      uint16_t     depth = getDepth(fFakeStep);
+
       if (unitID > 0) {
-        currentID.setID(unitID, time, primaryID, 0);
+        currentID.setID(unitID, time, primaryID, depth);
 #ifdef DebugLog
         LogDebug("CaloSim") << "CaloSD:: GetSpotInfo for"
                             << " Unit 0x" << std::hex << currentID.unitID() 
@@ -283,29 +273,12 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
   
   double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
   unsigned int unitID= setDetUnitId(aStep);
-  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
-  int      primaryID;
-  
-  if (trkInfo)
-    primaryID = trkInfo->getIDonCaloSurface();	
-  else
-    primaryID = 0;
-  
-#ifdef DebugLog
-  if (trkInfo) LogDebug("CaloSim") << "CaloSD: hit update from track Id on Calo Surface " << trkInfo->getIDonCaloSurface();
-#endif   
-  
-  if (primaryID == 0) {
-    edm::LogWarning("CaloSim") << "CaloSD: Problem with primaryID **** set by "
-                               << "force to TkID **** " 
-                               << theTrack->GetTrackID() << " in Volume "
-                               << preStepPoint->GetTouchable()->GetVolume(0)->GetName();
-    primaryID = theTrack->GetTrackID();
-  }
+  uint16_t     depth = getDepth(aStep);
+  int          primaryID = getTrackID(theTrack);
   
   bool flag = (unitID > 0);
   if (flag) {
-    currentID.setID(unitID, time, primaryID, 0);
+    currentID.setID(unitID, time, primaryID, depth);
 #ifdef DebugLog
     G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
     LogDebug("CaloSim") << "CaloSD:: GetStepInfo for"
@@ -435,11 +408,13 @@ CaloG4Hit* CaloSD::createNewHit() {
   if (currentID.trackID() == primIDSaved) { // The track is saved; nothing to be done
   } else if (currentID.trackID() == theTrack->GetTrackID()) {
     etrack= theTrack->GetKineticEnergy();
-    if (etrack >= energyCut) {
+    //    edm::LogInfo("CaloSim") << "CaloSD: set save the track " << currentID.trackID() << " etrack " << etrack << " eCut " << energyCut << " flag " << forceSave;
+    if (etrack >= energyCut || forceSave) {
       TrackInformation * trkInfo = 
         (TrackInformation *)(theTrack->GetUserInformation());
       trkInfo->storeTrack(true);
       trkInfo->putInHistory();
+      trkInfo->setAncestor();
 #ifdef DebugLog
       LogDebug("CaloSim") << "CaloSD: set save the track " 
                           << currentID.trackID() << " with Hit";
@@ -609,6 +584,26 @@ void CaloSD::clearHits() {
 
 void CaloSD::initRun() {}
 
+int CaloSD::getTrackID(G4Track* aTrack) {
+
+  int primaryID = 0;
+  forceSave = false;
+  TrackInformation* trkInfo=(TrackInformation *)(aTrack->GetUserInformation());
+  if (trkInfo) {
+    primaryID = trkInfo->getIDonCaloSurface();	
+#ifdef DebugLog
+    LogDebug("CaloSim") << "CaloSD: hit update from track Id on Calo Surface " 
+			<< trkInfo->getIDonCaloSurface();
+#endif   
+  } else {
+    primaryID = aTrack->GetTrackID();
+    edm::LogWarning("CaloSim") << "CaloSD: Problem with primaryID **** set by "
+                               << "force to TkID **** " << primaryID << " in "
+                               << preStepPoint->GetTouchable()->GetVolume(0)->GetName();
+  }
+  return primaryID;
+}
+
 uint16_t CaloSD::getDepth(G4Step*) { return 0; }
 
 bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
@@ -650,6 +645,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
     tkID = aHit->getTrackID();
     ok = false;
   }
+  //  edm::LogInfo("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() << " changed to " << tkID << " by SimTrackManager" << " Status " << ok;
 #ifdef DebugLog
   LogDebug("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() 
                       << " changed to " << tkID << " by SimTrackManager"

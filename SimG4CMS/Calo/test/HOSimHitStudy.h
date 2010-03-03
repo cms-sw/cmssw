@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -56,8 +56,14 @@ private:
   TH1F                  *edep_[3], *hitTow_[3], *eneInc_, *etaInc_, *phiInc_;
   TH1F                  *edepT_[3], *eEB_, *eEBHB_, *eEBHBHO_, *eEBHBHOT_;
   TH1F                  *edepZon_[3], *edepZonT_[3], *eEBT_, *eEBHBT_;
+  TH1F                  *eHOE17_[15], *eHOE18_[15], *eHOE_[15];
+  TH1F                  *eHOE17T_[15], *eHOE18T_[15], *eHOET_[15];
+  TH1F                  *eHOEta17_[15], *eHOEta18_[15], *eHOEta_[15];
+  TH1F                  *eHOEta17T_[15], *eHOEta18T_[15], *eHOEtaT_[15];
+  TH1F                  *nHOE1_[15],*nHOE1T_[15], *nHOEta1_[15],*nHOEta1T_[15];
   TProfile              *eHO1_, *eHO1T_, *eHO17_, *eHO17T_, *eHO18_, *eHO18T_;
-  TProfile              *nHO1_, *nHO1T_;
+  TProfile              *nHO1_, *nHO1T_, *nHOE2_[15], *nHOE2T_[15];
+  TProfile              *nHOEta2_[15], *nHOEta2T_[15];
   TProfile2D            *eHO2_, *eHO2T_, *nHO2_, *nHO2T_;
   double                eInc, etaInc, phiInc;
 };

@@ -64,7 +64,7 @@ private:
   void                     detectorLevel(const G4VTouchable*, int&, int*,
 					 G4String*) const;
 
-  bool                     testBeam;
+  bool                     testBeam, putHistory;
   double                   eMin;
   int                      lastTrackID;
   std::vector<Detector>    detectors;

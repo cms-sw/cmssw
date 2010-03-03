@@ -24,11 +24,11 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   tkHighLab[4]= "TrackerHitsTIDHighTof";
   tkHighLab[5]= "TrackerHitsTOBHighTof";
   tkLowLab[0] = "TrackerHitsPixelBarrelLowTof";
-  tkLowLab[0] = "TrackerHitsPixelEndcapLowTof";
-  tkLowLab[0] = "TrackerHitsTECLowTof";
-  tkLowLab[0] = "TrackerHitsTIBLowTof";
-  tkLowLab[0] = "TrackerHitsTIDLowTof";
-  tkLowLab[0] = "TrackerHitsTOBLowTof";
+  tkLowLab[1] = "TrackerHitsPixelEndcapLowTof";
+  tkLowLab[2] = "TrackerHitsTECLowTof";
+  tkLowLab[3] = "TrackerHitsTIBLowTof";
+  tkLowLab[4] = "TrackerHitsTIDLowTof";
+  tkLowLab[5] = "TrackerHitsTOBLowTof";
   edm::LogInfo("HitStudy") << "Module Label: " << g4Label << "   Hits: "
 			   << hitLab[0] << ", " << hitLab[1] << ", " 
 			   << hitLab[2] << ", "<< hitLab[3] 
@@ -39,7 +39,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   if ( !tfile.isAvailable() )
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
-  std::string dets[7] = {"EB", "EE", "ES", "HB", "HE", "HO", "HF"};
+  std::string dets[9] = {"EB", "EB(APD)", "EB(ATJ)", "EE", "ES", "HB", "HE", "HO", "HF"};
   char  name[20], title[100];
   sprintf (title, "Incident PT (GeV)");
   ptInc_ = tfile->make<TH1F>("PtInc", title, 1000, 0., maxEnergy_);
@@ -57,7 +57,7 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   phiInc_ = tfile->make<TH1F>("PhiInc", title, 200, -3.1415926, 3.1415926);
   phiInc_->GetXaxis()->SetTitle(title);
   phiInc_->GetYaxis()->SetTitle("Events");
-  for (int i=0; i<7; i++) {
+  for (int i=0; i<9; i++) {
     sprintf (name, "Hit%d", i);
     sprintf (title, "Number of hits in %s", dets[i].c_str());
     hit_[i]  = tfile->make<TH1F>(name, title, 1000, 0., 20000.);
@@ -74,7 +74,8 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
     timeAll_[i]->GetXaxis()->SetTitle(title); 
     timeAll_[i]->GetYaxis()->SetTitle("Hits");
     double ymax = maxEnergy_;
-    if (i > 1) ymax *= 0.05;
+    if (i==1 || i==2 || i==4) ymax = 1.0;
+    else if (i>4 && i<8)      ymax = 10.0;
     sprintf (name, "Edep%d", i);
     sprintf (title, "Energy deposit (GeV) in %s", dets[i].c_str());
     edep_[i]  = tfile->make<TH1F>(name, title, 5000, 0., ymax);
@@ -110,6 +111,28 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   hitMu  = tfile->make<TH1F>("HitMu","Number of hits in Track (Muon)",1000,0,5000.);
   hitMu->GetXaxis()->SetTitle("Number of hits in Muon");
   hitMu->GetYaxis()->SetTitle("Events");
+  std::string dett[15] = {"Pixel Barrel (High)", "Pixel Endcap (High)", 
+			  "TEC (High)", "TIB (High)", "TID (High)", 
+			  "TOB (High)", "Pixel Barrel (Low)", 
+			  "Pixel Endcap (Low)","TEC (Low)", "TIB (Low)", 
+			  "TID (Low)", "TOB (Low)", "RPC", "CSC", "DT"};
+  for (int i=0; i<15; i++) {
+    sprintf (name, "HitTk%d", i);
+    sprintf (title, "Number of hits in %s", dett[i].c_str());
+    hitTk_[i]  = tfile->make<TH1F>(name, title, 1000, 0., 1000.);
+    hitTk_[i]->GetXaxis()->SetTitle(title); 
+    hitTk_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "TimeTk%d", i);
+    sprintf (title, "Time of the hit (ns) in %s", dett[i].c_str());
+    tofTk_[i]  = tfile->make<TH1F>(name, title, 1000, 0., 200.);
+    tofTk_[i]->GetXaxis()->SetTitle(title); 
+    tofTk_[i]->GetYaxis()->SetTitle("Hits");
+    sprintf (name, "EdepTk%d", i);
+    sprintf (title, "Energy deposit (GeV) in %s", dett[i].c_str());
+    edepTk_[i]  = tfile->make<TH1F>(name, title, 5000, 0., 10.);
+    edepTk_[i]->GetXaxis()->SetTitle(title); 
+    edepTk_[i]->GetYaxis()->SetTitle("Hits");
+  }
 }
 
 void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
@@ -154,24 +177,30 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
   edm::Handle<edm::PSimHitContainer> hitsTrack;
   for (int i=0; i<3; i++) {
     e.getByLabel(g4Label,muonLab[i],hitsTrack); 
-    if (hitsTrack.isValid())
+    if (hitsTrack.isValid()) {
       muonHits.insert(muonHits.end(),hitsTrack->begin(),hitsTrack->end());
+      analyzeHits (hitsTrack, i+12);
+    }
   }
   unsigned int nhmu = muonHits.size();
   hitMu->Fill(double(nhmu));
   std::vector<PSimHit>               tkHighHits;
   for (int i=0; i<6; i++) {
     e.getByLabel(g4Label,tkHighLab[i],hitsTrack); 
-    if (hitsTrack.isValid())
+    if (hitsTrack.isValid()) {
       tkHighHits.insert(tkHighHits.end(),hitsTrack->begin(),hitsTrack->end());
+      analyzeHits (hitsTrack, i);
+    }
   }
   unsigned int nhtkh = tkHighHits.size();
   hitHigh->Fill(double(nhtkh));
   std::vector<PSimHit>               tkLowHits;
   for (int i=0; i<6; i++) {
     e.getByLabel(g4Label,tkLowLab[i],hitsTrack); 
-    if (hitsTrack.isValid())
+    if (hitsTrack.isValid()) {
       tkLowHits.insert(tkLowHits.end(),hitsTrack->begin(),hitsTrack->end());
+      analyzeHits (hitsTrack, i+6);
+    }
   }
   unsigned int nhtkl = tkLowHits.size();
   hitLow->Fill(double(nhtkl));
@@ -180,90 +209,137 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits, int indx) {
 
   int nHit = hits.size();
-  int nHB=0, nHE=0, nHO=0, nHF=0, nEB=0, nEE=0, nES=0, nBad=0;
+  int nHB=0, nHE=0, nHO=0, nHF=0, nEB=0, nEBAPD=0, nEBATJ=0, nEE=0, nES=0, nBad=0;
   std::map<unsigned int,double> hitMap;
-  std::vector<double> etot(7,0), etotG(7,0);
+  std::vector<double> etot(9,0), etotG(9,0);
   for (int i=0; i<nHit; i++) {
     double edep      = hits[i].energy();
     double time      = hits[i].time();
     unsigned int id_ = hits[i].id();
     double edepEM    = hits[i].energyEM();
     double edepHad   = hits[i].energyHad();
+    if (indx == 0) {
+      if      (hits[i].depth()==1) id_ |= 0x20000;
+      else if (hits[i].depth()==2) id_ |= 0x40000;
+    }
     std::map<unsigned int,double>::const_iterator it = hitMap.find(id_);
     if (it == hitMap.end()) {
       hitMap.insert(std::pair<unsigned int,double>(id_,time));
     }
+    int idx = -1;
     if (indx != 3) {
-      time_[indx]->Fill(time);
-      edep_[indx]->Fill(edep);
-      edepEM_[indx]->Fill(edepEM);
-      edepHad_[indx]->Fill(edepHad);
-      if      (indx == 0) nEB++;
-      else if (indx == 1) nEE++;
-      else if (indx == 2) nES++;
-      else                nBad++;
-      if (indx < 3) {
-	etot[indx] += edep;
-	if (time < 100) etotG[indx] += edep;
-      }
-    } else {
-      HcalDetId id     = HcalDetId(id_);
-      int idx          = -1;
-      int subdet       = id.subdet();
-      if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx; nHB++;}
-      else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+1; nHE++;}
-      else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+2; nHO++;}
-      else if (subdet == static_cast<int>(HcalForward)) {idx = indx+3; nHF++;}
-      if (idx > 0) {
-	time_[idx]->Fill(time);
-	edep_[idx]->Fill(edep);
-	edepEM_[indx]->Fill(edepEM);
-	edepHad_[indx]->Fill(edepHad);
+      if (indx == 0)  idx = hits[i].depth();
+      else            idx = indx+2;
+      time_[idx]->Fill(time);
+      edep_[idx]->Fill(edep);
+      edepEM_[idx]->Fill(edepEM);
+      edepHad_[idx]->Fill(edepHad);
+      if      (idx == 0) nEB++;
+      else if (idx == 1) nEBAPD++;
+      else if (idx == 2) nEBATJ++;
+      else if (idx == 3) nEE++;
+      else if (idx == 4) nES++;
+      else               nBad++;
+      if (indx >=0 && indx < 3) {
 	etot[idx] += edep;
 	if (time < 100) etotG[idx] += edep;
       }
+    } else {
+      HcalDetId id     = HcalDetId(id_);
+      int subdet       = id.subdet();
+      if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx+2; nHB++;}
+      else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+3; nHE++;}
+      else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+4; nHO++;}
+      else if (subdet == static_cast<int>(HcalForward)) {idx = indx+5; nHF++;}
+      if (idx > 0) {
+	time_[idx]->Fill(time);
+	edep_[idx]->Fill(edep);
+	edepEM_[idx]->Fill(edepEM);
+	edepHad_[idx]->Fill(edepHad);
+	etot[idx] += edep;
+	if (time < 100) etotG[idx] += edep;
+      } else {
+	nBad++;
+      }
     }
   }
-  if (indx != 3) {
-    hit_[indx]->Fill(double(nHit));
-    etot_[indx]->Fill(etot[indx]);
-    etotg_[indx]->Fill(etotG[indx]);
-  } else {
-    hit_[3]->Fill(double(nHB));
-    hit_[4]->Fill(double(nHE));
-    hit_[5]->Fill(double(nHO));
-    hit_[6]->Fill(double(nHF));
-    for (int idx=3; idx<7; idx++) {
+  if (indx < 3) {
+    etot_[indx+2]->Fill(etot[indx+2]);
+    etotg_[indx+2]->Fill(etotG[indx+2]);
+    if (indx == 0) {
+      etot_[indx]->Fill(etot[indx]);
+      etotg_[indx]->Fill(etotG[indx]);
+      etot_[indx+1]->Fill(etot[indx+1]);
+      etotg_[indx+1]->Fill(etotG[indx+1]);
+      hit_[indx]->Fill(double(nEB));
+      hit_[indx+1]->Fill(double(nEBAPD));
+      hit_[indx+2]->Fill(double(nEBATJ));
+    } else {
+      hit_[indx+2]->Fill(double(nHit));
+    }
+  } else if (indx == 3) {
+    hit_[5]->Fill(double(nHB));
+    hit_[6]->Fill(double(nHE));
+    hit_[7]->Fill(double(nHO));
+    hit_[8]->Fill(double(nHF));
+    for (int idx=5; idx<9; idx++) {
       etot_[idx]->Fill(etot[idx]);
       etotg_[idx]->Fill(etotG[idx]);
     }
   }
 
-  LogDebug("HitStudy") << "CaloSimHitStudy::analyzeHits: EB " << nEB << " EE "
-		       << nEE << " ES " << nES << " HB " << nHB << " HE " 
-		       << nHE << " HO " << nHO << " HF " << nHF << " Bad " 
-		       << nBad << " All " << nHit << " Reduced " 
-		       << hitMap.size();
+  LogDebug("HitStudy") << "CaloSimHitStudy::analyzeHits: EB " << nEB << ", "
+		       << nEBAPD << ", " << nEBATJ << " EE " << nEE << " ES " 
+		       << nES << " HB " << nHB << " HE " << nHE << " HO " 
+		       << nHO << " HF " << nHF << " Bad " << nBad << " All " 
+		       << nHit << " Reduced " << hitMap.size();
   std::map<unsigned int,double>::const_iterator it = hitMap.begin();
   for (; it !=hitMap.end(); it++) {
     double time      = it->second;
     unsigned int id_ = (it->first);
-    if (indx != 3) {
-      timeAll_[indx]->Fill(time);
-    } else {
+    int idx          = -1;
+    if (indx < 3) {
+      if (indx == 0) {
+	if      ((id_&0x20000) != 0) idx = indx+1;
+	else if ((id_&0x40000) != 0) idx = indx+1;
+	else                         idx = indx;
+      } else {
+	idx  = indx + 2;
+      }
+      if (idx >= 0 && idx < 5) timeAll_[idx]->Fill(time);
+    } else if (indx == 3) {
       HcalDetId id     = HcalDetId(id_);
       int idx          = -1;
       int subdet       = id.subdet();
-      if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx;}
-      else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+1;}
-      else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+2;}
-      else if (subdet == static_cast<int>(HcalForward)) {idx = indx+3;}
+      if      (subdet == static_cast<int>(HcalBarrel))  {idx = indx+2;}
+      else if (subdet == static_cast<int>(HcalEndcap))  {idx = indx+3;}
+      else if (subdet == static_cast<int>(HcalOuter))   {idx = indx+4;}
+      else if (subdet == static_cast<int>(HcalForward)) {idx = indx+5;}
       if (idx > 0) {
 	timeAll_[idx]->Fill(time);
       }
     }
   }
 
+}
+
+void CaloSimHitStudy::analyzeHits (edm::Handle<edm::PSimHitContainer>& hits, 
+				   int indx) {
+
+  int nHit = 0;
+  edm::PSimHitContainer::const_iterator ihit;
+  std::string label(" ");
+  if      (indx >= 0 && indx < 6) label = tkHighLab[indx];
+  else if (indx >= 6 && indx <12) label = tkLowLab[indx-6];
+  else if (indx >=12 && indx <15) label = muonLab[indx-12];
+  for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
+    edepTk_[indx]->Fill(ihit->energyLoss());
+    tofTk_[indx]->Fill(ihit->timeOfFlight());
+    nHit++;
+  }
+  hitTk_[indx]->Fill(float(nHit));
+  LogDebug("HitStudy") << "CaloSimHitStudy::analyzeHits: for " << label 
+		       << " Index "  << indx << " # of Hits " << nHit;
 }
 
 //define this as a plug-in

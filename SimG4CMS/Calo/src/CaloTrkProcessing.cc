@@ -29,11 +29,13 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
 
   //Initialise the parameter set
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
-  testBeam  = m_p.getParameter<bool>("TestBeam");
-  eMin      = m_p.getParameter<double>("EminTrack")*MeV;
+  testBeam   = m_p.getParameter<bool>("TestBeam");
+  eMin       = m_p.getParameter<double>("EminTrack")*MeV;
+  putHistory = m_p.getParameter<bool>("PutHistory");
 
   edm::LogInfo("CaloSim") << "CaloTrkProcessing: Initailised with TestBeam = " 
-			  << testBeam << " Emin = " << eMin << " MeV";
+			  << testBeam << " Emin = " << eMin << " MeV and"
+			  << " History flag " << putHistory;
 
   //Get the names 
   G4String attribute = "ReadOutName"; 
@@ -188,12 +190,15 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
 			  << " at step Number "
 			  << theTrack->GetCurrentStepNumber();
 #endif
-      trkInfo->setIDonCaloSurface(id,0,0);
+      trkInfo->setIDonCaloSurface(id,0,0,
+				  theTrack->GetDefinition()->GetPDGEncoding(),
+				  theTrack->GetMomentum().mag());
       lastTrackID = id;
       if (theTrack->GetKineticEnergy()/MeV > eMin)
 	trkInfo->putInHistory();
     } 
   } else {
+    if (putHistory) trkInfo->putInHistory();
 #ifdef DebugLog
     LogDebug("CaloSim") << "CaloTrkProcessing Entered for " << id 
 			<< " at stepNumber "<< theTrack->GetCurrentStepNumber()
@@ -207,7 +212,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
 
         if (isItInside(post_touch, trkInfo->getIDCaloVolume(),
 		       trkInfo->getIDLastVolume()) > 0) {
-          trkInfo->setIDonCaloSurface(0, -1, -1);
+          trkInfo->setIDonCaloSurface(0, -1, -1, 0, 0);
         } else {
           trkInfo->setCaloIDChecked(true);
         }
@@ -221,7 +226,9 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
 	const G4VTouchable* pre_touch    = preStepPoint->GetTouchable();
 	int                 inside       = isItInside(pre_touch, ical, -1);
 	if (inside >= 0 ||  (theTrack->GetCurrentStepNumber()==1)) {
-	  trkInfo->setIDonCaloSurface(id,ical,inside);
+	  trkInfo->setIDonCaloSurface(id,ical,inside,
+				      theTrack->GetDefinition()->GetPDGEncoding(),
+				      theTrack->GetMomentum().mag());
           trkInfo->setCaloIDChecked(true);
 	  lastTrackID = id;
 	  if (theTrack->GetKineticEnergy()/MeV > eMin) trkInfo->putInHistory();

@@ -37,7 +37,7 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
   std::string dets[3] = {"EB", "HB", "HO"};
-  char  name[20], title[60];
+  char  name[60], title[100];
   double ymax = maxEnergy;
   sprintf (title, "Incident Energy (GeV)");
   eneInc_ = tfile->make<TH1F>("EneInc", title, 1000, 0., ymax);
@@ -131,7 +131,7 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
   eHO1_ = tfile->make<TProfile>("EHO1", title, 30, -1.305, 1.305);
   eHO1_->GetXaxis()->SetTitle(title); 
   eHO1_->GetYaxis()->SetTitle("Events");
-  eHO2_ = tfile->make<TProfile2D>("EHO2", title, 30,-1.305,1.305,72,0,6.28319);
+  eHO2_ = tfile->make<TProfile2D>("EHO2", title, 30,-1.305,1.305,72,-3.1415926,3.1415926);
   eHO2_->GetXaxis()->SetTitle(title); 
   eHO2_->GetYaxis()->SetTitle("Events");
   sprintf (title, "SimHit energy in HO Layer 17");
@@ -146,7 +146,7 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
   eHO1T_ = tfile->make<TProfile>("EHO1T", title, 30, -1.305, 1.305);
   eHO1T_->GetXaxis()->SetTitle(title); 
   eHO1T_->GetYaxis()->SetTitle("Events");
-  eHO2T_ = tfile->make<TProfile2D>("EHO2T", title, 30,-1.305,1.305,72,0,6.28319);
+  eHO2T_ = tfile->make<TProfile2D>("EHO2T", title, 30,-1.305,1.305,72,-3.1415926,3.1415926);
   eHO2T_->GetXaxis()->SetTitle(title); 
   eHO2T_->GetYaxis()->SetTitle("Events");
   sprintf (title, "SimHit energy in HO Layer 17 for t < %d ns", itcut);
@@ -161,16 +161,114 @@ HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
   nHO1_ = tfile->make<TProfile>("NHO1", title, 30, -1.305, 1.305);
   nHO1_->GetXaxis()->SetTitle(title); 
   nHO1_->GetYaxis()->SetTitle("Events");
-  nHO2_ = tfile->make<TProfile2D>("NHO2", title, 30,-1.305,1.305,72,0,6.28319);
+  nHO2_ = tfile->make<TProfile2D>("NHO2", title, 30,-1.305,1.305,72,-3.1415926,3.1415926);
   nHO2_->GetXaxis()->SetTitle(title); 
   nHO2_->GetYaxis()->SetTitle("Events");
-  sprintf (title, "Number of layers hit in HOfor t < %d ns", itcut);
+  sprintf (title, "Number of layers hit in HO for t < %d ns", itcut);
   nHO1T_ = tfile->make<TProfile>("NHO1T", title, 30, -1.305, 1.305);
   nHO1T_->GetXaxis()->SetTitle(title); 
   nHO1T_->GetYaxis()->SetTitle("Events");
-  nHO2T_ = tfile->make<TProfile2D>("NHO2T", title, 30,-1.305,1.305,72,0,6.28319);
+  nHO2T_ = tfile->make<TProfile2D>("NHO2T", title, 30,-1.305,1.305,72,-3.1415926,3.1415926);
   nHO2T_->GetXaxis()->SetTitle(title); 
   nHO2T_->GetYaxis()->SetTitle("Events");
+  for (int i=0; i<15; i++) {
+    sprintf (name, "EHOE%d", i+1);
+    sprintf (title, "SimHit energy in HO (Beam in #eta=%d bin)",i+1);
+    eHOE_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOE_[i]->GetXaxis()->SetTitle(title); 
+    eHOE_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOE17%d", i+1);
+    sprintf (title, "SimHit energy in Layer 17 (Beam in #eta=%d bin)",i+1);
+    eHOE17_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOE17_[i]->GetXaxis()->SetTitle(title); 
+    eHOE17_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOE18%d", i+1);
+    sprintf (title, "SimHit energy in Layer 18 (Beam in #eta=%d bin)",i+1);
+    eHOE18_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOE18_[i]->GetXaxis()->SetTitle(title); 
+    eHOE18_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOE%dT", i+1);
+    sprintf (title, "SimHit energy in HO (Beam in #eta=%d bin, t < %d ns)",i+1,itcut);
+    eHOET_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOET_[i]->GetXaxis()->SetTitle(title); 
+    eHOET_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOE17%dT", i+1);
+    sprintf (title, "SimHit energy in Layer 17 (Beam in #eta=%d bin, t < %d ns)",i+1,itcut);
+    eHOE17T_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOE17T_[i]->GetXaxis()->SetTitle(title); 
+    eHOE17T_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOE18%dT", i+1);
+    sprintf (title, "SimHit energy in Layer 18 (Beam in #eta=%d bin, t < %d ns)",i+1,itcut);
+    eHOE18T_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOE18T_[i]->GetXaxis()->SetTitle(title); 
+    eHOE18T_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOEta%d", i+1);
+    sprintf (title, "SimHit energy in HO #eta bin %d (Beam in #eta=%d bin)",i+1,i+1);
+    eHOEta_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOEta_[i]->GetXaxis()->SetTitle(title); 
+    eHOEta_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOEta17%d", i+1);
+    sprintf (title, "SimHit energy in Layer 17 #eta bin %d (Beam in #eta=%d bin)",i+1,i+1);
+    eHOEta17_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOEta17_[i]->GetXaxis()->SetTitle(title); 
+    eHOEta17_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOEta18%d", i+1);
+    sprintf (title, "SimHit energy in Layer 18 #eta bin %d (Beam in #eta=%d bin)",i+1,i+1);
+    eHOEta18_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOEta18_[i]->GetXaxis()->SetTitle(title); 
+    eHOEta18_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOEta%dT", i+1);
+    sprintf (title, "SimHit energy in HO #eta bin %d (Beam in #eta=%d bin, t < %d ns)",i+1,i+1,itcut);
+    eHOEtaT_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOEtaT_[i]->GetXaxis()->SetTitle(title); 
+    eHOEtaT_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOEta17%dT", i+1);
+    sprintf (title, "SimHit energy in Layer 17 #eta bin %d (Beam in #eta=%d bin, t < %d ns)",i+1,i+1,itcut);
+    eHOEta17T_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOEta17T_[i]->GetXaxis()->SetTitle(title); 
+    eHOEta17T_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "EHOEta18%dT", i+1);
+    sprintf (title, "SimHit energy in Layer 18 #eta bin %d (Beam in #eta=%d bin, t < %d ns)",i+1,i+1,itcut);
+    eHOEta18T_[i] = tfile->make<TH1F>(name, title, 1000, 0., 0.25);
+    eHOEta18T_[i]->GetXaxis()->SetTitle(title); 
+    eHOEta18T_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOE1%d", i+1);
+    sprintf (title, "Number of layers hit in HO  (Beam in #eta=%d bin)",i+1);
+    nHOE1_[i] = tfile->make<TH1F>(name, title, 20, 0, 20.);
+    nHOE1_[i]->GetXaxis()->SetTitle(title); 
+    nHOE1_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOE2%d", i+1);
+    nHOE2_[i] = tfile->make<TProfile>(name, title, 72, -3.1415926, 3.1415926);
+    nHOE2_[i]->GetXaxis()->SetTitle(title); 
+    nHOE2_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOE1%dT", i+1);
+    sprintf (title, "Number of layers hit in HO (Beam in #eta=%d bin, t < %d ns)", i+1,itcut);
+    nHOE1T_[i] = tfile->make<TH1F>(name, title, 20, 0, 20.);
+    nHOE1T_[i]->GetXaxis()->SetTitle(title); 
+    nHOE1T_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOE2%dT", i+1);
+    nHOE2T_[i] = tfile->make<TProfile>(name, title, 72, -3.1415926, 3.1415926);
+    nHOE2T_[i]->GetXaxis()->SetTitle(title); 
+    nHOE2T_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOEta1%d", i+1);
+    sprintf (title, "Number of layers hit in HO #eta bin %d (Beam in #eta=%d bin)", i+1,i+1);
+    nHOEta1_[i] = tfile->make<TH1F>(name, title, 20, 0, 20.);
+    nHOEta1_[i]->GetXaxis()->SetTitle(title); 
+    nHOEta1_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOEta2%d", i+1);
+    nHOEta2_[i] = tfile->make<TProfile>(name, title, 72, -3.1415926, 3.1415926);
+    nHOEta2_[i]->GetXaxis()->SetTitle(title); 
+    nHOEta2_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOEta1%dT", i+1);
+    sprintf (title, "Number of layers hit in HO #eta bin %d (Beam in #eta=%d bin, t < %d ns)", i+1,i+1,itcut);
+    nHOEta1T_[i] = tfile->make<TH1F>(name, title, 20, 0, 20.);
+    nHOEta1T_[i]->GetXaxis()->SetTitle(title); 
+    nHOEta1T_[i]->GetYaxis()->SetTitle("Events");
+    sprintf (name, "NHOEta2%dT", i+1);
+    nHOEta2T_[i] = tfile->make<TProfile>(name, title, 72, -3.1415926, 3.1415926);
+    nHOEta2T_[i]->GetXaxis()->SetTitle(title); 
+    nHOEta2T_[i]->GetYaxis()->SetTitle("Events");
+  }
 }
 
 void HOSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
@@ -237,6 +335,10 @@ void HOSimHitStudy::analyzeHits () {
   phiInc_->Fill(phiInc);
   
   double eHO17=0, eHO18=0, eHO17T=0, eHO18T=0;
+  double eHOE17[15], eHOE18[15], eHOE17T[15], eHOE18T[15];
+  for (int k=0; k<15; k++) {
+    eHOE17[k] = eHOE18[k] = eHOE17T[k] = eHOE18T[k] = 0;
+  }
   // Loop over containers
   for (int k=0; k<2; k++) {
     int nHit;
@@ -280,9 +382,17 @@ void HOSimHitStudy::analyzeHits () {
 	  if (lay == 18)       {
 	    eHO17 += edep;
 	    if (time < tcut_) eHO17T += edep;
+	    if (eta >=0 && eta < 15) {
+	      eHOE17[eta] += edep;
+	      if (time < tcut_) eHOE17T[eta] += edep;
+	    }
 	  } else {
 	    eHO18 += edep;
 	    if (time < tcut_) eHO18T += edep;
+	    if (eta >=0 && eta < 15) {
+	      eHOE18[eta] += edep;
+	      if (time < tcut_) eHOE18T[eta] += edep;
+	    }
 	  }
 	}
       }
@@ -395,6 +505,34 @@ void HOSimHitStudy::analyzeHits () {
   nHO2_->Fill(etaInc,phiInc,(double)(nHO));
   nHO1T_->Fill(etaInc,(double)(nHOT));
   nHO2T_->Fill(etaInc,phiInc,(double)(nHOT));
+  int ieta=15;
+  for (int k=0; k<15; ++k) {
+    if (std::abs(etaInc) < 0.087*(k+1)) {
+      ieta = k; break;
+    }
+  }
+  if (ieta>=0 && ieta<15) {
+    eHOE_[ieta]->Fill(eHO17+eHO18);
+    eHOE17_[ieta]->Fill(eHO17);
+    eHOE18_[ieta]->Fill(eHO18);
+    eHOET_[ieta]->Fill(eHO17T+eHO18T);
+    eHOE17T_[ieta]->Fill(eHO17T);
+    eHOE18T_[ieta]->Fill(eHO18T);
+    eHOEta_[ieta]->Fill(eHOE17[ieta]+eHOE18[ieta]);
+    eHOEta17_[ieta]->Fill(eHOE17[ieta]);
+    eHOEta18_[ieta]->Fill(eHOE18[ieta]);
+    nHOE1_[ieta]->Fill((double)(nHO));
+    nHOE2_[ieta]->Fill(phiInc,(double)(nHO));
+    nHOE1T_[ieta]->Fill((double)(nHOT));
+    nHOE2T_[ieta]->Fill(phiInc,(double)(nHOT));
+    int nHOE=0, nHOET=0;
+    if (eHOE17[ieta] > 0) nHOE++; if (eHOE17T[ieta] > 0) nHOET++;
+    if (eHOE18[ieta] > 0) nHOE++; if (eHOE18T[ieta] > 0) nHOET++;
+    nHOEta1_[ieta]->Fill((double)(nHOE));
+    nHOEta2_[ieta]->Fill(phiInc,(double)(nHOE));
+    nHOEta1T_[ieta]->Fill((double)(nHOET));
+    nHOEta2T_[ieta]->Fill(phiInc,(double)(nHOET));
+  }
   
   LogDebug("HitStudy") << "HOSimHitStudy::analyzeHits: Hits in EB " << nhit[0]
 		       << " in " << ebEtow.size() << " towers with total E "

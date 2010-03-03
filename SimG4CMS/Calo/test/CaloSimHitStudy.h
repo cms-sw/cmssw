@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -43,15 +43,17 @@ protected:
   void analyze  (const edm::Event& e, const edm::EventSetup& c);
 
   void analyzeHits  (std::vector<PCaloHit> &, int);
+  void analyzeHits  (edm::Handle<edm::PSimHitContainer>&, int);
 
 private:
 
   std::string    sourceLabel, g4Label, hitLab[4];
   std::string    muonLab[3], tkHighLab[6], tkLowLab[6];
 
-  TH1F           *hit_[7],  *time_[7], *edepEM_[7], *edepHad_[7], *edep_[7];
-  TH1F           *etot_[7], *etotg_[7], *timeAll_[7], *hitMu, *hitHigh;
+  TH1F           *hit_[9],  *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
+  TH1F           *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;
   TH1F           *hitLow, *eneInc_, *etaInc_, *phiInc_, *ptInc_;
+  TH1F           *hitTk_[15], *edepTk_[15], *tofTk_[15];
 };
 
 #endif

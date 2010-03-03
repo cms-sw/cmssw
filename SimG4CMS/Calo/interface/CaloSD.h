@@ -87,6 +87,7 @@ protected:
   virtual void     initRun();
   virtual bool     filterHit(CaloG4Hit*, double);
 
+  virtual int      getTrackID(G4Track*);
   virtual uint16_t getDepth(G4Step*);   
   double           getResponseWt(G4Track*);
 
@@ -129,6 +130,7 @@ protected:
   double                          kmaxIon, kmaxNeutron, kmaxProton;
 
   G4int                           emPDG, epPDG, gammaPDG;
+  bool                            forceSave;
 
 private:
 

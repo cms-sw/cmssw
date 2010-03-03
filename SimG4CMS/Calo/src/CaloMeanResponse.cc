@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iomanip>
 
-#define DebugLog
+//#define DebugLog
 
 CaloMeanResponse::CaloMeanResponse(edm::ParameterSet const & p) {
 

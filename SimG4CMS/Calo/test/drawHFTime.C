@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
 
 #include "Rtypes.h"
 #include "TROOT.h"
@@ -261,16 +262,22 @@ void plotBERT(char name[10]="Hit0", char filx[10]="minbias", bool logy=true,
   leg1->Draw();
 }
 
-void plotHO(char name[10]="EHO17", char filx[10]="50", int bin=1, int mode=0) {
+void plotHO(char namx[4]="EHO", char namy[6]="17", char filx[10]="50", int bin=1, int eta=1, int mode=0) {
 
   setTDRStyle();
   TCanvas *myc = new TCanvas("myc","",800,600);
-  char file[50], lego1[32], lego2[32], name2[20], ytit[10];
+  char name[10], file[50], lego1[32], lego2[32], name2[20], ytit[10], xtit[10];
+  sprintf (name, "%s%s", namx, namy);
   sprintf (file, "simHitStudy_%s.root", filx); 
   sprintf (lego1, "All Hits"); sprintf (lego2, "Hits with t < 100 ns");
   sprintf (name2, "%sT", name);
-  if (!strcmp("NHO1",name)) sprintf (ytit, "<NLayer>");
-  else                      sprintf (ytit, "<Edep>");
+  if (!strcmp("NHO",namx))        sprintf (ytit, "<NLayer>");
+  else if (!strcmp("NHOE",namx))  sprintf (ytit, "<NLayer>");
+  else if (!strcmp("EHOE",namx))  sprintf (ytit, "Events");
+  else                            sprintf (ytit, "<Edep>");
+  if (!strcmp("NHOE",namx))       sprintf (xtit, "#phi");
+  else if (!strcmp("EHOE",namx))  sprintf (xtit, "Edep (GeV)");
+  else                            sprintf (xtit, "#eta");
   
   std::cout << "Open " << file << "\n";
   TFile* File = new TFile(file);
@@ -287,7 +294,7 @@ void plotHO(char name[10]="EHO17", char filx[10]="50", int bin=1, int mode=0) {
   hist2->SetLineColor(4);
 
   if (mode <= 0) {
-    hist1->GetXaxis()->SetTitle("#eta");
+    hist1->GetXaxis()->SetTitle(xtit);
     hist1->GetYaxis()->SetTitle(ytit);
     hist1->GetYaxis()->SetLabelSize(0.03);
     hist1->GetXaxis()->SetLabelSize(0.03);
@@ -295,7 +302,7 @@ void plotHO(char name[10]="EHO17", char filx[10]="50", int bin=1, int mode=0) {
     hist1->Draw();
     hist2->Draw("sames");
   } else {
-    hist2->GetXaxis()->SetTitle("#eta");
+    hist2->GetXaxis()->SetTitle(xtit);
     hist2->GetYaxis()->SetTitle(ytit);
     hist2->GetXaxis()->SetLabelSize(0.03);
     hist2->GetYaxis()->SetLabelSize(0.03);
@@ -325,7 +332,9 @@ void plotHO(char name[10]="EHO17", char filx[10]="50", int bin=1, int mode=0) {
 
   TLegend *leg1 = new TLegend(0.10,0.15,0.35,0.30);
   char head[40];
-  sprintf (head, "%s GeV #mu^{-}", filx);
+  if (!strcmp("NHOE",namx)) sprintf (head, "%s GeV #mu^{-} (#eta = %d)", filx, eta);
+  else if (!strcmp("EHOE",namx)) sprintf (head, "%s GeV #mu^{-} (#eta = %d)", filx, eta);
+  else                      sprintf (head, "%s GeV #mu^{-}", filx);
   leg1->SetHeader(head); leg1->SetFillColor(0); leg1->SetTextSize(0.03);
   leg1->AddEntry(hist1,lego1,"F");
   leg1->AddEntry(hist2,lego2,"F");

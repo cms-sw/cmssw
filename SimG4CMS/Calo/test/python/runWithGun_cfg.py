@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
-#process.load("SimG4CMS.Calo.pythiapdt_cfi")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load("SimG4CMS.Calo.pythiapdt_cfi")
+#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
-process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryAPD1XML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
@@ -22,13 +22,13 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('CaloSim', 'EcalGeom', 'EcalSim', 
                                        'HCalGeom', 'HcalSim', 'HFShower', 
-                                       'SimG4CoreApplication', 
-                                       'G4cout', 'G4cerr', 'MagneticField'),
+                                       'SimG4CoreApplication', 'HitStudy',
+                                       'G4cout', 'G4cerr', 'SimTrackManager'),
 #    debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
+#        threshold = cms.untracked.string('DEBUG'),
         INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -39,20 +39,23 @@ process.MessageLogger = cms.Service("MessageLogger",
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        MagneticField = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        SimG4CoreApplication = cms.untracked.PSet(
+        SimTrackManager = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        CaloSim = cms.untracked.PSet(
+        SimG4CoreApplication = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
+        ),
+        HitStudy = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        CaloSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         ),
         EcalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         ),
         HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -76,10 +79,13 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(500)
+    input = cms.untracked.int32(2)
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun        = cms.untracked.uint32(1),
+    firstEvent      = cms.untracked.uint32(1)
+)
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
@@ -88,25 +94,31 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         MaxEta = cms.double(3.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        MinPt  = cms.double(1000.),
-        MaxPt  = cms.double(1000.)
+        MinPt  = cms.double(100.),
+        MaxPt  = cms.double(100.)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False),
-    firstRun        = cms.untracked.uint32(1)
+    AddAntiParticle = cms.bool(False)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent.root')
+    fileName = cms.untracked.string('simevent_QGSP_BERT_EMV.root')
 )
 
 process.Timing = cms.Service("Timing")
 
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+    oncePerEventMode = cms.untracked.bool(True),
+    showMallocInfo = cms.untracked.bool(True),
+    dump = cms.untracked.bool(True),
+    ignoreTotal = cms.untracked.int32(1)
+)
+
 process.Tracer = cms.Service("Tracer")
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('runWithGun.root')
+    fileName = cms.string('runWithGun_QGSP_BERT_EMV.root')
 )
 
 process.common_maximum_timex = cms.PSet(
@@ -117,14 +129,17 @@ process.common_maximum_timex = cms.PSet(
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy)
 process.outpath = cms.EndPath(process.o1)
 process.caloSimHitStudy.MaxEnergy = 1000.0
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EMV'
 process.g4SimHits.Physics.MonopoleCharge = 1
 process.g4SimHits.Physics.Verbosity = 0
 process.g4SimHits.CaloSD.UseResponseTables = [1,1,0,1]
+process.g4SimHits.CaloSD.EminHits[0] = 0
+process.g4SimHits.ECalSD.StoreSecondary = True
+process.g4SimHits.CaloTrkProcessing.PutHistory = True
 process.g4SimHits.CaloResponse.UseResponseTable  = True
 process.g4SimHits.CaloResponse.ResponseScale = 1.0
 process.g4SimHits.CaloResponse.ResponseFile = 'SimG4CMS/Calo/data/responsTBpim50.dat'
-process.g4SimHits.G4Commands = ['/tracking/verbose 1']
+process.g4SimHits.G4Commands = ['/run/verbose 2']
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
@@ -149,10 +164,10 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
     EventMin  = cms.untracked.int32(0),
-    EventMax  = cms.untracked.int32(1),
+    EventMax  = cms.untracked.int32(0),
     EventStep = cms.untracked.int32(1),
     TrackMin  = cms.untracked.int32(0),
-    TrackMax  = cms.untracked.int32(99999999),
+    TrackMax  = cms.untracked.int32(999999999),
     TrackStep = cms.untracked.int32(1),
     VerboseLevel = cms.untracked.int32(2),
     DEBUG     = cms.untracked.bool(False),
