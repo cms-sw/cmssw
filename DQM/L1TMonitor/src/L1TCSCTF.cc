@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2009/12/01 09:13:44 $
- * $Revision: 1.33 $
+ * $Date: 2009/12/01 20:54:01 $
+ * $Revision: 1.34 $
  * \author J. Berryhill
  *
  */
@@ -491,7 +491,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 	  long LUTAdd = trk->first.ptLUTAddress();
 	  int trigMode = ( (LUTAdd)&0xf0000 ) >> 16;
 	  float etaReal = (trk->first.eta_packed() );
-	  if( trk->first.endcap() == 1) 
+	  if( trk->first.endcap() != 1) 
 	    {
 	      float holder = etaReal;
 	      etaReal = -1*holder;
