@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2009/12/01 20:54:01 $
- * $Revision: 1.34 $
+ * $Date: 2010/03/03 17:04:18 $
+ * $Revision: 1.35 $
  * \author J. Berryhill
  *
  */
@@ -369,7 +369,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
      	}
 
       // GP: compute the average
-      L1ABXN /= nStat;
+      if(nStat!=0) L1ABXN /= nStat;
      
       if(integrity) csctferrors->Fill(0.5);
       if(se)        csctferrors->Fill(1.5);
