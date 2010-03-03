@@ -212,18 +212,22 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
    // parametrized z0 resolution for the track pt and eta
    double nomdzE = nomd0E*(std::cosh(eta));
 
+   double dzCut = min( pow(dz_par1_[0]*nlayers,dz_par1_[1])*nomdzE, 
+                       pow(dz_par2_[0]*nlayers,dz_par2_[1])*dzE );
+   double d0Cut = min( pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E, 
+                       pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E );
+
 
    // ---- PrimaryVertex compatibility cut
    bool primaryVertexZCompatibility(false);   
    bool primaryVertexD0Compatibility(false);   
 
    if (points.empty()) { //If not primaryVertices are reconstructed, check just the compatibility with the BS
-     //z0 within three sigma of the beam spot z, if no good vertex is found
-     if ( abs(dz) < (vertexBeamSpot.sigmaZ()*nSigmaZ_) ) primaryVertexZCompatibility = true;  
+     //z0 within (n sigma + dzCut) of the beam spot z, if no good vertex is found
+     if ( abs(dz) < vertexBeamSpot.sigmaZ()*nSigmaZ_ + dzCut ) primaryVertexZCompatibility = true;  
 
      // d0 compatibility with beam line
-     if (abs(d0) < pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E &&
-	 abs(d0) < pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E) primaryVertexD0Compatibility = true;     
+     if (abs(d0) < d0Cut) primaryVertexD0Compatibility = true;     
    }
 
 
@@ -231,11 +235,8 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
      if(primaryVertexZCompatibility && primaryVertexD0Compatibility) break;
      double dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
      double d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
-     if (abs(dzPV) < pow(dz_par1_[0]*nlayers,dz_par1_[1])*nomdzE &&
-	 abs(dzPV) < pow(dz_par2_[0]*nlayers,dz_par2_[1])*dzE )  primaryVertexZCompatibility = true;
-
-     if (abs(d0PV) < pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E &&
-	 abs(d0PV) < pow(d0_par2_[0]*nlayers,d0_par2_[1])*d0E) primaryVertexD0Compatibility = true;     
+     if (abs(dzPV) < dzCut)  primaryVertexZCompatibility = true;
+     if (abs(d0PV) < d0Cut) primaryVertexD0Compatibility = true;     
    }
 
 
