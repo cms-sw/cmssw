@@ -250,7 +250,6 @@ if __name__ == "__main__":
             n.setLabel("n")
             s1 = Sequence(m*n)
             options = PrintOptions()
-            print s1.dumpPython(options)
 
 
 
