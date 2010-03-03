@@ -152,7 +152,6 @@ class _Parameterizable(object):
         if type(params).__name__ == 'str':
             return getattr(self, params, None)
         for param in params:
-            print "PARA "+param
             lastParam = getattr(lastParam, param, None)
             print str(lastParam)
             if lastParam == None:
