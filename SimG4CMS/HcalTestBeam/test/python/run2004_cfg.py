@@ -86,7 +86,7 @@ process.common_beam_direction_parameters = cms.PSet(
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
-process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
+process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
     BeamMeanX       = cms.double(0.0),

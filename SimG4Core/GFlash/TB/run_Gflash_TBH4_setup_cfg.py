@@ -43,14 +43,14 @@ process.source = cms.Source("FlatRandomEGunSource",
     Verbosity = cms.untracked.int32(0)
 )
 
-process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
+process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     BeamSigmaX = cms.untracked.double(2.4),
     BeamSigmaY = cms.untracked.double(2.4),
     GaussianProfile = cms.untracked.bool(False)
 )
 
-process.treeProducerCalibSimul = cms.EDFilter("TreeProducerCalibSimul",
+process.treeProducerCalibSimul = cms.EDAnalyzer("TreeProducerCalibSimul",
     rootfile = cms.untracked.string('treeTB_gf.root'),
     eventHeaderCollection = cms.string(''),
     eventHeaderProducer = cms.string('SimEcalEventHeader'),

@@ -39,7 +39,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity = cms.untracked.int32(0)
 )
 
-process.VtxSmeared = cms.EDFilter("GaussEvtVtxGenerator",
+process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
     src   = cms.InputTag("generator"),
     MeanX = cms.double(-12.0),
     MeanY = cms.double(0.0),

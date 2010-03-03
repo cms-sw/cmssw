@@ -17,7 +17,7 @@ generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 # Don't smear our vertex!
-VtxSmeared = cms.EDFilter("GaussEvtVtxGenerator",
+VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
     src    = cms.InputTag("generator"),
     MeanX  = cms.double(0.0),
     MeanY  = cms.double(-2.0),

@@ -49,7 +49,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
 
-process.mix = cms.EDFilter("MixingModule",
+process.mix = cms.EDProducer("MixingModule",
     bunchspace = cms.int32(25)
 )
 

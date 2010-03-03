@@ -47,7 +47,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
 
-process.VtxSmeared = cms.EDFilter("GaussEvtVtxGenerator",
+process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
     MeanX = cms.double(0.0),
     MeanY = cms.double(0.0),
     MeanZ = cms.double(0.0),

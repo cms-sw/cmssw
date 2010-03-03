@@ -75,7 +75,7 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 # this module takes input in the units of *cm* and *radian*!!!
 #
 
-process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
+process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
     BeamSigmaX = cms.double(2.4),
