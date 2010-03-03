@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.32 2010/03/03 19:39:53 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.33 2010/03/03 19:56:47 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -214,10 +214,12 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   edm::Handle< edm::View<reco::Vertex> > PVCollection;
 
+  bool hasPVs = false;
   edm::View<reco::Vertex> pv;
-  if ( iEvent.getByLabel("offlinePrimaryVertices", PVCollection ) )
+  if ( iEvent.getByLabel("offlinePrimaryVertices", PVCollection ) ) {
       pv = *PVCollection;
-  
+      hasPVs = true;
+  }
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 
   const reco::BeamSpot *refBS =  0;
@@ -306,16 +308,16 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     // check if we have a valid PV
     fpvValid = false;
 
-    //if (pv) {
-    /*
+    if ( hasPVs ) {
+    
         for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
             if (! pv[ipv].isFake()) fpvValid = true;
       
             if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); }
         }
-    */
-        //}
+    
+    }
     
     
     if (saveNtuple_) ftree_->Fill();
