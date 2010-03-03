@@ -2,10 +2,18 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 
 ivars = VarParsing.VarParsing('standard')
 
-ivars.register ('randomNumber',
+ivars.register ('outputTag',
                 mult=ivars.multiplicity.singleton,
+                mytype=ivars.varType.string,
                 info="for testing")
-ivars.randomNumber=1
+ivars.outputTag="demo"
+
+ivars.register ('inputFile',
+                mult=ivars.multiplicity.singleton,
+                mytype=ivars.varType.string,
+                info="for testing")
+ivars.input="./input.root"
+ivars.output="./output.root"
 
 ivars.parseArguments()
 
@@ -21,21 +29,21 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = "sqlite_file:CentralityTables.db"
+process.CondDBCommon.connect = "sqlite_file:" + ivars.output
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           timetype = cms.untracked.string("runnumber"),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('HeavyIonRcd'),
-                                                                     tag = cms.string('HFhitSum_Hydjet4TeV_352_17kE_Test01')
+                                                                     tag = cms.string(ivars.outputTag)
                                                                      )
                                                             )
                                           )
 
 process.makeCentralityTableDB = cms.EDAnalyzer('CentralityTableProducer',
                                                makeDBFromTFile = cms.untracked.bool(True),
-                                               inputTFile = cms.string("/net/hisrv0001/home/yetkin/CMSSW_3_5_2/src/RecoHI/HiCentralityAlgos/macros/bins20_4TeV_CMSSW_3_5_2.root"),
-                                               rootTag = cms.string("HFhitBins"),
+                                               inputTFile = cms.string(ivars.input),
+                                               rootTag = cms.string(ivars.outputTag),
                                                nBins = cms.int32(20)
                                                )
 

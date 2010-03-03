@@ -31,6 +31,7 @@ void makeCentralityTable(const string label = "hf", const char * tag = "HFhitBin
 
    // This macro assumes all inefficiency is in the most peripheral bin.
    double EFF = 1. - MXS;
+   bool onlySaveTable = true;
 
    // Retrieving data
   int nFiles = 1;
@@ -175,15 +176,15 @@ void makeCentralityTable(const string label = "hf", const char * tag = "HFhitBin
 
   // Enter values in table
   for(int i = 0; i < nbins; ++i){
-     bins->table_[i].n_part_mean = hNpartMean->GetBinContent(i);
-     bins->table_[i].n_part_var = hNpartSigma->GetBinContent(i);
-     bins->table_[i].n_coll_mean = hNcollMean->GetBinContent(i);
-     bins->table_[i].n_coll_var = hNcollSigma->GetBinContent(i);
-     bins->table_[i].b_mean = hbMean->GetBinContent(i);
-     bins->table_[i].b_var = hbSigma->GetBinContent(i);
-     bins->table_[i].n_hard_mean = hNhardMean->GetBinContent(i);
-     bins->table_[i].n_hard_var = hNhardSigma->GetBinContent(i);
-     bins->table_[i].bin_edge = binboundaries[i];
+     bins->table_[nbins-i-1].n_part_mean = hNpartMean->GetBinContent(i);
+     bins->table_[nbins-i-1].n_part_var = hNpartSigma->GetBinContent(i);
+     bins->table_[nbins-i-1].n_coll_mean = hNcollMean->GetBinContent(i);
+     bins->table_[nbins-i-1].n_coll_var = hNcollSigma->GetBinContent(i);
+     bins->table_[nbins-i-1].b_mean = hbMean->GetBinContent(i);
+     bins->table_[nbins-i-1].b_var = hbSigma->GetBinContent(i);
+     bins->table_[nbins-i-1].n_hard_mean = hNhardMean->GetBinContent(i);
+     bins->table_[nbins-i-1].n_hard_var = hNhardSigma->GetBinContent(i);
+     bins->table_[nbins-i-1].bin_edge = binboundaries[i];
 
      cout<<i<<" "
 	 <<hNpartMean->GetBinContent(i)<<" "
@@ -198,6 +199,22 @@ void makeCentralityTable(const string label = "hf", const char * tag = "HFhitBin
   cout<<"-------------------------------------"<<endl;
 
   // Save the table in output file
+
+  if(onlySaveTable){
+     hNpart->Delete();
+     hNpartMean->Delete();
+     hNpartSigma->Delete();
+     hNcoll->Delete();
+     hNcollMean->Delete();
+     hNcollSigma->Delete();
+     hNhard->Delete();
+     hNhardMean->Delete();
+     hNhardSigma->Delete();
+     hb->Delete();
+     hbMean->Delete();
+     hbSigma->Delete();
+  }
+  
   bins->Write();
   outFile->Write();
   
