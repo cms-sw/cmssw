@@ -43,7 +43,7 @@ fileNames = cms.untracked.vstring(
 )
 )
 
-#process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+#process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
 #    HistOutFile = cms.untracked.string('JetAnalysis.root'),
 #    src2 = cms.InputTag("iterativeCone5GenJets"),
 #    src3 = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
@@ -57,7 +57,7 @@ fileNames = cms.untracked.vstring(
 #    inputTrackLabel = cms.untracked.string('generalTracks')
 #)
 
-process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
     HistOutFile = cms.untracked.string('JetAnalysis.root'),
     src2 = cms.InputTag("sisCone5GenJets"),
     src3 = cms.InputTag("JetPlusTrackZSPCorJetSiscone5"),

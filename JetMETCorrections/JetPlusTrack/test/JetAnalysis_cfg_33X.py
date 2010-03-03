@@ -34,7 +34,7 @@ process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0_pre2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V8-v1/0002/2254715C-A99B-DE11-9CA8-0018F3D096BA.root')
 )
 
-#process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+#process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
 #    HistOutFile = cms.untracked.string('JetAnalysis.root'),
 #    src2 = cms.InputTag("iterativeCone5GenJets"),
 #    src3 = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
@@ -48,7 +48,7 @@ fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0_pre2/RelValQCD_Pt_8
 #    inputTrackLabel = cms.untracked.string('generalTracks')
 #)
 
-process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
     HistOutFile = cms.untracked.string('JetAnalysis.root'),
     src2 = cms.InputTag("sisCone5GenJets"),
     src3 = cms.InputTag("JetPlusTrackZSPCorJetSiscone5"),

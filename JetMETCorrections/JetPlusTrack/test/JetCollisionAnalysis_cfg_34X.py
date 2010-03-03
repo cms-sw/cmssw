@@ -44,7 +44,7 @@ process.source = cms.Source("PoolSource",
 )
 )
 
-#process.myjetplustrack = cms.EDFilter("JetPlusTrackAnalysis",
+#process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackAnalysis",
 #    HistOutFile = cms.untracked.string('JetAnalysis.root'),
 #    src2 = cms.InputTag("iterativeCone5GenJets"),
 #    src3 = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
@@ -70,7 +70,7 @@ process.monster = cms.EDFilter(
 
 
 
-process.myjetplustrack = cms.EDFilter("JetPlusTrackCollisionAnalysis",
+process.myjetplustrack = cms.EDAnalyzer("JetPlusTrackCollisionAnalysis",
     HistOutFile = cms.untracked.string('JetAnalysis.root'),
     src1 = cms.InputTag("ak5CaloJets"),
     src2 = cms.InputTag("ZSPJetCorJetAntiKt5"),
