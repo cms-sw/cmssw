@@ -34,16 +34,12 @@ LibCore = CMSDataFormats
 
 all: core 
 
-core:   lib$(LibCore).$(SO_EXT)
+core:   lib$(LibCore).$(SO_EXT) tmp/lib$(LibCore).$(SO_EXT).out
 
 lib$(LibCore).$(SO_EXT): $(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
 	$(QUIET) echo "linking core library $(LibCore)"; \
 	$(LINKER) $(CoreLinkerFlags) -o lib$(LibCore).$(SO_EXT) \
-	$(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects) \
-	$(QUIET) echo "checking shared library for missing symbols: $<"; \
-	echo "int main(){}" > tmp/$<.cpp; \
-	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -lEve -lCint -o $@ $< tmp/$<.cpp
-
+	$(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
 
 ######################################################################################
 # 
