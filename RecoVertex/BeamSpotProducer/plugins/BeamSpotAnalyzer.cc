@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.16 2010/02/11 07:53:29 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.17 2010/02/28 20:05:08 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -77,6 +77,7 @@ BeamSpotAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 	if ( countLumi_ == 0 || (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) ) {
 		ftmprun0 = lumiSeg.run();
+        ftmprun = ftmprun0;
 		ftmplumi0 = lumiSeg.id().luminosityBlock();
 	}
 	countLumi_++;
@@ -89,6 +90,8 @@ void
 BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 									 const edm::EventSetup& iSetup) {
 
+    ftmplumi = lumiSeg.id().luminosityBlock();
+    
 	if ( fitNLumi_ == -1 && resetFitNLumi_ == -1 ) return;
 	
 	if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
