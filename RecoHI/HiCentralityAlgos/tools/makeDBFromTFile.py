@@ -49,8 +49,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.makeCentralityTableDB = cms.EDAnalyzer('CentralityTableProducer',
                                                makeDBFromTFile = cms.untracked.bool(True),
                                                inputTFile = cms.string(ivars.inputFile),
-                                               rootTag = cms.string(ivars.outputTag),
-                                               nBins = cms.int32(40)
+                                               rootTag = cms.string(ivars.outputTag)
                                                )
 
 process.step  = cms.Path(process.makeCentralityTableDB)

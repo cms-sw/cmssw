@@ -26,22 +26,22 @@ using namespace std;
 
 void testCentrality(){
 
-   TFile * centFile = new TFile("../data/bins20_4TeV_CMSSW_3_5_2.root");
+   TFile * centFile = new TFile("../data/CentralityTables.root");
    TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_d20100222/DEF33D38-12E8-DE11-BA8F-0019B9CACF1A.root");
   fwlite::Event event(infile);
   TFile* outFile = new TFile("test.root","recreate");
 
   TH1D::SetDefaultSumw2();
-  TH2D* hNpart = new TH2D("hNpart",";Npart Truth;Npart RECO",500,0,500,250,0,500);
+  TH2D* hNpart = new TH2D("hNpart",";Npart Truth;Npart RECO",50,0,500,50,0,500);
   TH1D* hBins = new TH1D("hBins",";bins;events",44,-1,21);
 
-  const CentralityBins* HFhitBins = (const CentralityBins*)centFile->Get("HFhitBins"); 
+  const CentralityBins* HFhitBins = (const CentralityBins*)centFile->Get("HFhits40_MXS0_Hydjet4TeV_MC_3XY_V21_v0"); 
 
   // loop the events
   unsigned int iEvent=0;
   for(event.toBegin(); !event.atEnd(); ++event, ++iEvent){
      edm::EventBase const & ev = event;
-    if( iEvent % 500 == 0 ) cout<<"Processing event : "<<iEvent<<endl;
+    if( iEvent % 10 == 0 ) cout<<"Processing event : "<<iEvent<<endl;
     edm::Handle<edm::GenHIEvent> mc;
     ev.getByLabel(edm::InputTag("heavyIon"),mc);
     edm::Handle<reco::Centrality> cent;

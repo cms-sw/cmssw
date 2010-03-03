@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id$
+// $Id: AnalyzerWithCentrality.cc,v 1.1 2010/03/02 23:48:41 yilmaz Exp $
 //
 //
 
@@ -53,7 +53,7 @@ class AnalyzerWithCentrality : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-   const CentralityBins cbins_*;
+   const CentralityBins * cbins_;
    edm::Service<TFileService> fs;
    TH1D* h1;
 };

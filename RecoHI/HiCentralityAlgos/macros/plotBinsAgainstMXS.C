@@ -11,13 +11,13 @@ void plotBinsAgainstMXS(){
    TGraph * graphs[40];
 
    TFile* inf = new TFile("tables.root","read");
+   TFile* outf = new TFile("ErrorMap.root","recreate");
 
    for(int i  = 0 ; i < nTables; ++i){
       tables[i] = (CentralityBins*)inf->Get(Form("HFhitBins_MXS_%d",i)); 
    }
 
    for(int j = 0; j< nBins; ++j){
-
       graphs[j] = new TGraph(nTables);
       graphs[j]->SetName(Form("Bin%d",j));
       graphs[j]->SetMarkerColor(j+1);
@@ -66,6 +66,11 @@ void plotBinsAgainstMXS(){
    g1->Draw("p");
 
    c2->Print("delta_vs_bins.gif");
+
+
+   hPad2->Write();
+   g1->Write();
+   outf->Write();
 
 
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.1 2010/02/23 13:31:25 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.2 2010/03/02 23:31:18 yilmaz Exp $
 //
 //
 
@@ -68,8 +68,6 @@ class CentralityTableProducer : public edm::EDAnalyzer {
    void printBin(const CentralityTable::CBin*);
       // ----------member data ---------------------------
 
-   int nbins_;
-
    bool makeDBFromTFile_;
    bool makeTFileFromDB_;
 
@@ -107,7 +105,6 @@ CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfi
       inputTFileName_ = iConfig.getParameter<string>("inputTFile");
       rootTag_ = iConfig.getParameter<string>("rootTag");
    }
-   nbins_ = iConfig.getParameter<int>("nBins");
    if(makeDBFromTFile_){
       inputTFile_  = new TFile(inputTFileName_.data(),"read");
       cout<<inputTFileName_.data()<<endl;
@@ -136,9 +133,7 @@ CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
    // do nothing
    if(makeTFileFromDB_ && !inputDB_.isValid()){
       iSetup.get<HeavyIonRcd>().get(inputDB_);
-      nbins_ =  (*inputDB_).m_table.size();
-      //   const CentralityBins* CB = getCentralityBinsFromDB(iSetup,nbins_);
-      CB = fs->make<CentralityBins>(*(getCentralityBinsFromDB(iSetup,nbins_)));
+      CB = fs->make<CentralityBins>(*(getCentralityBinsFromDB(iSetup)));
    }
 }
 
@@ -149,9 +144,9 @@ CentralityTableProducer::beginRun(const edm::EventSetup& iSetup)
    cout<<"Beginning Run"<<endl;
    // Get Heavy Ion Record
    if(makeTFileFromDB_){
-      CB = getCentralityBinsFromDB(iSetup,nbins_);
+      CB = getCentralityBinsFromDB(iSetup);
    }
-   cout<<"Centrality Values are being determined for "<<nbins_<<" HF energy bins of equal cross section."<<endl;
+   cout<<"Centrality Values are being determined for "<<CB->getNbins()<<" HF energy bins of equal cross section."<<endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -163,11 +158,9 @@ CentralityTableProducer::endJob() {
       CB = (CentralityBins*) inputTFile_->Get(rootTag_.data());
       cout<<rootTag_.data()<<endl;
       CT = new CentralityTable();
-      CT->m_table.reserve(nbins_);
-   }
+      CT->m_table.reserve(CB->getNbins());
 
-   for(int j=0; j<nbins_; j++){
-    if(makeDBFromTFile_){
+   for(int j=0; j<CB->getNbins(); j++){
        CentralityTable::CBin* thisBin = new CentralityTable::CBin();
        thisBin->bin_edge = CB->lowEdgeOfBin(j);
        thisBin->n_part_mean = CB->NpartMeanOfBin(j);
@@ -181,18 +174,15 @@ CentralityTableProducer::endJob() {
        printBin(thisBin);
        CT->m_table.push_back(*thisBin);
        if(thisBin) delete thisBin;
-    }
   }
 
-   if(makeDBFromTFile_){
       edm::Service<cond::service::PoolDBOutputService> pool;
       if( pool.isAvailable() )
 	 if( pool->isNewTagRequest( "HeavyIonRcd" ) )
 	    pool->createNewIOV<CentralityTable>( CT, pool->beginOfTime(), pool->endOfTime(), "HeavyIonRcd" );
 	 else
 	    pool->appendSinceTime<CentralityTable>( CT, pool->currentTime(), "HeavyIonRcd" );
-   }
-
+    }
 }
 
 
