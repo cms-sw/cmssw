@@ -10,13 +10,15 @@ class constants(object):
         self.NORM=16400
         self.LUMIVERSION='0001'
         self.BEAMMODE='stable' #possible choices stable,quiet,either
-    
+        self.VERBOSE=False
 def deliveredLumiForRun(dbsession,c,runnum):
     #
     #select sum(INSTLUMI) from lumisummary where runnum=124025 and lumiversion='0001';
     #apply norm factor on the query result 
     #unit E27cm^-2 
     #
+    if c.VERBOSE:
+        print 'deliveredLumiForRun : norm : ',c.NORM,' : run : ',runnum
     delivered=0.0
     try:
         dbsession.transaction().start(True)
@@ -48,7 +50,8 @@ def deliveredLumiForRange(dbsession,c,inputfile):
     #
     #in this case,only take run numbers from theinput file
     #
-    #print 'inside deliveredLumi : norm : ',c.NORM,' : inputfile : ',inputfile
+    if c.VERBOSE:
+        print 'deliveredLumiForRange : norm : ',c.NORM,' : inputfile : ',inputfile
     
     f=open(inputfile,'r')
     content=f.read()
@@ -57,7 +60,8 @@ def deliveredLumiForRange(dbsession,c,inputfile):
         deliveredLumiForRun(dbsession,c,run)
     
 def recordedLumiForRun(dbsession,c,runnum):
-    print 'inside recordedLumi : run : ',runnum,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    if c.VERBOSE:
+        print 'recordedLumiForRun : run : ',runnum,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
     #
     #LS_length=25e-9*numorbit*3564(sec)
     #LS deadfraction=deadtimecount/(numorbit*3564) 
@@ -101,13 +105,64 @@ def recordedLumiForRun(dbsession,c,runnum):
         del dbsession
     
 def recordedLumiForRange(dbsession,c,inputfile):
-    print 'inside recordedLumi : inputfile : ',inputfile,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    if c.VERBOSE:
+        print 'recordedLumi : inputfile : ',inputfile,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    f=open(inputfile,'r')
+    content=f.read()
+    s=selectionParser.selectionParser(content)
+    runsandLSStr=s.runsandlsStr()
+    runsandLS=s.runsandls()
+    if c.VERBOSE:
+        print 'recordedLumi : selected runs and LS ',runsandLS
+    recorded={}
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        query=schema.newQuery()
+        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
+        query.addToTableList(nameDealer.trgTableName(),'trg')
+        for runnumstr,LSlistStr in runsandLSStr.items():
+            query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+            result=coral.AttributeList()
+            result.extend("recorded","float")
+            query.defineOutput(result)
+            queryCondition=coral.AttributeList()
+            queryCondition.extend("runnumber","unsigned int")
+            queryCondition.extend("lumiversion","string")
+            queryCondition.extend("alive","bool")
+            queryCondition.extend("bitnum","unsigned int")
+            realLSlist=runsandLS[int(runnumstr)]
+
+            queryCondition["runnumber"].setData(int(runnumstr))
+            queryCondition["lumiversion"].setData(c.LUMIVERSION)
+            queryCondition["alive"].setData(True)
+            queryCondition["bitnum"].setData(0)
+            for l in realLSlist:
+                queryCondition.extend(str(l),"unsigned int")
+                queryCondition[str(l)].setData(int(l))
+            o=[':'+x for x in LSlistStr]
+            inClause='('+','.join(o)+')'
+            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
+            cursor=query.execute()
+            while cursor.next():
+                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()
+        del query
+        dbsession.transaction().commit()
+        for run,recd in  recorded.items():
+            print "Recorded Luminosity for Run "+str(run)+" : "+str(recd*c.NORM)+c.LUMIUNIT
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+        
     
 def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
-    print 'inside effectiveLumi : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    if c.VERBOSE:
+        print 'effectiveLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
 
 def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
-    print 'inside effectiveLumi : inputfile : ',inputfile,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    if c.VERBOSE:
+        print 'effectiveLumiForRange : inputfile : ',inputfile,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
 
 
 def main():
@@ -125,14 +180,22 @@ def main():
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the effective luminosity, default to All')
     parser.add_argument('action',choices=['delivered','recorded','effective'],help='lumi calculation types')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
+    parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
     connectstring=args.connect
     runnumber=0
     svc = coral.ConnectionService()
+    isverbose=False
+    if args.debug :
+        msg=coral.MessageStream('')
+        msg.setMsgVerbosity(coral.message_Level_Debug)
+        c.VERBOSE=True
     hpath=''
     ifilename=''
     beammode='stable'
+    if args.verbose :
+        c.VERBOSE=True
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
     if args.normfactor:
@@ -167,8 +230,6 @@ def main():
             effectiveLumiForRun(session,c,runnumber,hpath)
         else:
             effectiveLumiForRange(session,c,ifilename,hpath)
-    if args.verbose :
-        print 'verbose mode'
     del session
     del svc
 if __name__=='__main__':
