@@ -304,7 +304,7 @@ private:
   std::map<std::string, TH1*> hBS;
   std::map<std::string, TH1*> hnoBS;
   std::map<std::string, TH1*> hDA;
-  std::map<std::string, TH1*> hDAF;
+  std::map<std::string, TH1*> hPIX;
   std::map<std::string, TH1*> hMVF;
   std::map<std::string, TH1*> hsimPV;
 

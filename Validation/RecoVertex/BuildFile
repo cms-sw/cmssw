@@ -36,7 +36,6 @@
 <flags EDM_PLUGIN=1>
 <flags CXXFLAGS="-O0 -g3 -fno-inline">
 <export>
-   <lib name=ValidationVertexReco>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/Candidate>
