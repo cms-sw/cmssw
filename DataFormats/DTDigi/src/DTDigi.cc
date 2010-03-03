@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2008/01/22 18:45:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/03/03 11:18:59 $
+ *  $Revision: 1.6 $
  *
  * \author N. Amapane - INFN Torino
  */
@@ -30,14 +30,14 @@ DTDigi::DTDigi (int wire, double tdrift, int number):
 {}
 
 
-DTDigi::DTDigi (ChannelType channel, int nTDC):
-  theWire(0),
-  theCounts(nTDC),
-  theNumber(0)
-{
-  theNumber = channel&number_mask;
-  theWire   = (channel&wire_mask)>>wire_offset;
-}
+// DTDigi::DTDigi (ChannelType channel, int nTDC):
+//   theWire(0),
+//   theCounts(nTDC),
+//   theNumber(0)
+// {
+//   theNumber = channel&number_mask;
+//   theWire   = (channel&wire_mask)>>wire_offset;
+// }
 
 
 DTDigi::DTDigi ():
@@ -57,10 +57,10 @@ DTDigi::operator == (const DTDigi& digi) const {
 }
 
 // Getters
-DTDigi::ChannelType
-DTDigi::channel() const {
-  return  (theNumber & number_mask) | (theWire<<wire_offset)&wire_mask;
-}
+// DTDigi::ChannelType
+// DTDigi::channel() const {
+//   return  (theNumber & number_mask) | (theWire<<wire_offset)&wire_mask;
+// }
 
 double DTDigi::time() const { return theCounts*reso; }
 

@@ -7,8 +7,8 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2006/04/05 15:03:07 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/03/03 11:18:59 $
+ *  $Revision: 1.8 $
  *
  * \author N. Amapane, G. Cerminara, M. Pelliccioni - INFN Torino
  *
@@ -19,19 +19,19 @@
 class DTDigi{
 
 public:
-  typedef uint32_t ChannelType;
+  //  typedef uint32_t ChannelType;
   
   /// Construct from the wire#, the TDC counts and the digi number.
   /// number should identify uniquely multiple digis in the same cell.
   explicit DTDigi (int wire, int nTDC, int number=0);
 
-  /// Construct from the wire#, the time (ns) and the digi number.
-  /// time is converted in TDC counts (1 TDC = 25./32. ns)
-  /// number should identify uniquely multiple digis in the same cell.
+  // Construct from the wire#, the time (ns) and the digi number.
+  // time is converted in TDC counts (1 TDC = 25./32. ns)
+  // number should identify uniquely multiple digis in the same cell.
   explicit DTDigi (int wire, double tdrift, int number=0);
 
-  /// Construct from channel and counts.
-  explicit DTDigi (ChannelType channel, int nTDC);
+  // Construct from channel and counts.
+  //  explicit DTDigi (ChannelType channel, int nTDC);
 
   /// Default construction.
   DTDigi ();
@@ -39,8 +39,8 @@ public:
   /// Digis are equal if they are on the same cell and have same TDC count
   bool operator==(const DTDigi& digi) const;
 
-  /// The channel identifier and the digi number packed together
-  ChannelType channel() const ;
+  // The channel identifier and the digi number packed together
+  //  ChannelType channel() const ;
 
   /// Return wire number
   int wire() const;
@@ -70,9 +70,9 @@ private:
   static const double reso;
 
   // Masks&shifts for the channel identifier
-  static const uint32_t wire_mask   = 0xffff0000;
-  static const uint32_t number_mask = 0xffff;
-  static const uint32_t wire_offset = 16;
+//   static const uint32_t wire_mask   = 0xffff0000;
+//   static const uint32_t number_mask = 0xffff;
+//   static const uint32_t wire_offset = 16;
 
   uint16_t theWire;   // channel number
   uint32_t theCounts; // TDC count, up to 20 bits actually used
