@@ -26,7 +26,7 @@ kine = cms.PSet(
     )
 
 # Collections to ntuplize
-ntuplizeJetCollections = cms.EDFilter(
+ntuplizeJetCollections = cms.EDProducer(
     "NTuplingDevice",
     Ntupler = cms.PSet(
     ComponentName = cms.string('StringBasedNTupler'),

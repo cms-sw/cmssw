@@ -58,7 +58,7 @@ process.load("JetMETCorrections.Configuration.ZSPJetCorrections31X_cff")
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 
 # Analyzer module
-process.myanalysis = cms.EDFilter(
+process.myanalysis = cms.EDAnalyzer(
     "JPTAnalyzer",
     HistOutFile      = cms.untracked.string('analysis.root'),
     calojets         = cms.string('iterativeCone5CaloJets'),

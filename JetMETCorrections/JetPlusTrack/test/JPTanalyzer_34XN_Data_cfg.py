@@ -90,7 +90,7 @@ process.source = cms.Source("PoolSource",
 # runselection = XXXXXX, YYYYYYY, .....
 
 # Analyzer module
-process.myanalysis = cms.EDFilter(
+process.myanalysis = cms.EDAnalyzer(
     "JPTAnalyzer_Data",
     HistOutFile      = cms.untracked.string('analysis.root'),
 #    calojets         = cms.string('iterativeCone5CaloJets'),

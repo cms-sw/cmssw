@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-matchToGenJets = cms.EDFilter(
+matchToGenJets = cms.EDProducer(
     "GenJetMatcher",
     src = cms.InputTag("iterativeCone5CaloJets"),
     matched = cms.InputTag("iterativeCone5GenJets"),
