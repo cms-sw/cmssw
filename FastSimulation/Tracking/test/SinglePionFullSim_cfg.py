@@ -43,7 +43,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V15::All"
+process.GlobalTag.globaltag = "MC_3XY_V24::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -169,7 +169,8 @@ process.fevt = cms.OutputModule(
       'keep *_newTrackCandidateMaker_*_*',
       "keep SimTracks_*_*_*",
       "keep SimVertexs_*_*_*",
-      "keep edmHepMCProduct_*_*_*"
+      "keep edmHepMCProduct_*_*_*",
+      "keep recoTrackExtras_*_*_*"   
       )
 )
 
