@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/11/13 12:39:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/12 14:11:19 $
+ *  $Revision: 1.3 $
  *  
  *  \author  J. Slaunwhite (modified from above
  */
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"

@@ -16,8 +16,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.3 $
-///  $Date: 2009/03/27 14:33:54 $
+///  $Revision: 1.2 $
+///  $Date: 2008/10/20 12:58:21 $
 ///  (last update by $Author: flucke $)
 
 
@@ -29,7 +29,6 @@
 #include <vector>
 
 class ReferenceTrajectory;
-namespace reco { class BeamSpot;}
 
 class DualKalmanTrajectory : public ReferenceTrajectoryBase
 {
@@ -44,7 +43,6 @@ public:
 		       MaterialEffects materialEffects,
 		       PropagationDirection propDir,
 		       double mass,
-		       const reco::BeamSpot &beamSpot,
 		       int residualMethod);
 
   virtual ~DualKalmanTrajectory() {}
@@ -62,7 +60,7 @@ protected:
 			 const std::vector<unsigned int> &backwardRecHitNums,
 			 double mass, MaterialEffects materialEffects,
 			 const PropagationDirection propDir, const MagneticField *magField,
-			 const reco::BeamSpot &beamSpot, int residualMethod);
+			 int residualMethod);
 
   /// Method to get a single ReferenceTrajectory for a half of the trajectory.
   virtual ReferenceTrajectory* construct(const Trajectory::DataContainer &trajMeasurements,
@@ -70,8 +68,7 @@ protected:
 					 const std::vector<unsigned int> &recHits,
 					 double mass, MaterialEffects materialEffects,
 					 const PropagationDirection propDir,
-					 const MagneticField *magField,
-					 const reco::BeamSpot &beamSpot) const;
+					 const MagneticField *magField) const;
   /// Fill that part of data members that is different from DualReferenceTrajectory.
   bool fillKalmanPart(const Trajectory::DataContainer &trajMeasurements,
 		      const std::vector<unsigned int> &recHitNums, bool startFirst,

@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.62 $
+ * $Date: 2010/02/16 10:53:19 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -19,6 +19,7 @@
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EETriggerTowerTask.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 using namespace cms;
 using namespace edm;
@@ -448,8 +449,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int ntrigs = hltResults->size();
     if ( ntrigs!=0 ) {
 
-      TriggerNames triggerNames;
-      triggerNames.init( *hltResults );
+      const edm::TriggerNames & triggerNames = e.triggerNames(*hltResults);
 
       for ( int itrig = 0; itrig != ntrigs; ++itrig ) {
         std::string trigName = triggerNames.triggerName(itrig);
@@ -513,7 +513,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if ( compDigiItr != compDigis->end() ) {
-        //        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
         compDigiEt = compDigiItr->compressedEt();
         compDigiInterest = (compDigiItr->ttFlag() & 0x3);
         if ( ismt >= 1 && ismt <= 9 ) {
@@ -534,7 +533,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
         }
         if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
-          //          LogDebug("EETriggerTowerTask") << "but it is different...";
           good = false;
         }
 
@@ -548,7 +546,6 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         }
         if (!matchedAny) matchSample[0]=true;
         if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
-          //          LogDebug("EETriggerTowerTask") << "but fine grain veto is different...";
           goodVeto = false;
         }
       } else {
@@ -557,13 +554,13 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
     }
 
-    vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
+    vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
 
-    int crystalsInTower = crystals.size();
+    int crystalsInTower = crystals->size();
 
-    for ( unsigned int i=0; i<crystals.size(); i++ ) {
+    for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-      EEDetId id = crystals[i];
+      EEDetId id = (*crystals)[i];
 
       int ix = id.ix();
       int iy = id.iy();

@@ -18,7 +18,7 @@ SiStripTrivialClusterSource::SiStripTrivialClusterSource(const edm::ParameterSet
 
 SiStripTrivialClusterSource::~SiStripTrivialClusterSource() {}
 
-void SiStripTrivialClusterSource::beginJob(const edm::EventSetup& setup) {  
+void SiStripTrivialClusterSource::beginRun( edm::Run&, const edm::EventSetup& setup ) {  
 
   setup.get<SiStripDetCablingRcd>().get(cabling_);
   cabling_->addAllDetectorsRawIds(detids_);

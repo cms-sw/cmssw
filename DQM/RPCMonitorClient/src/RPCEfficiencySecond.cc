@@ -31,7 +31,7 @@ camilo.carrilloATcern.ch
 #include<iostream>
 #include <vector>
 #include "DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h"
-#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
+#include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
 
 #include "TH1F.h"
 
@@ -54,7 +54,6 @@ int rollY(std::string shortname,std::vector<std::string> rollNames){
 RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){
   SaveFile  = iConfig.getUntrackedParameter<bool>("SaveFile", false); 
   NameFile  = iConfig.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root"); 
-  folderPath  = iConfig.getUntrackedParameter<std::string>("folderPath","RPC/RPCEfficiency/"); 
   debug = iConfig.getUntrackedParameter<bool>("debug",false); 
   barrel = iConfig.getUntrackedParameter<bool>("barrel"); 
   endcap = iConfig.getUntrackedParameter<bool>("endcap"); 
@@ -62,14 +61,15 @@ RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){
  
 RPCEfficiencySecond::~RPCEfficiencySecond(){}
 
-void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
+void RPCEfficiencySecond::beginJob(){
   
   dbe = edm::Service<DQMStore>().operator->();
 
   if(debug) std::cout<<"Booking Residuals Barrel"<<std::endl;
-  dbe->setCurrentFolder(folderPath+"ResidualsBarrel/");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/ResidualsBarrel/");
  
   //Barrel
+  
   hGlobal2ResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",101,-10.,10.);
   hGlobal2ResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",101,-10.,10.);
   hGlobal2ResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",101,-10.,10.);
@@ -92,7 +92,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   hGlobal2ResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking Residuals EndCaps"<<std::endl;
-  dbe->setCurrentFolder(folderPath+"ResidualsEndCaps/");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/ResidualsEndCaps/");
 
   //Endcap  
   hGlobal2ResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
@@ -117,15 +117,15 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   hGlobal2ResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
   if(debug) std::cout<<"Booking EffDistros"<<std::endl;
-  dbe->setCurrentFolder(folderPath);
+  dbe->setCurrentFolder("RPC/RPCEfficiency/");
 
   if(debug) std::cout<<"Booking statistcs2"<<std::endl;
-  dbe->setCurrentFolder(folderPath);
+  dbe->setCurrentFolder("RPC/RPCEfficiency/");
   statistics2 = dbe->book1D("AllStatistics","Analyzed Events DT and CSC Segments",33,0.5,33.5);
   
   //Barrel 
   
-  dbe->setCurrentFolder(folderPath+"Wheel_-2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_-2");
   EffDistroWm2=dbe->book1D("EffDistroWheel_-2near","Efficiency Distribution for Near Side Wheel -2 ",20,0.5,100.5);
   EffDistroWm2far=dbe->book1D("EffDistroWheel_-2far","Efficiency Distribution for Far Side Wheel -2 ",20,0.5,100.5);
   EffGlobWm2=dbe->book1D("GlobEfficiencyWheel_-2near","Efficiency Near Side Wheel -2 ",101,0.5,101.5);
@@ -139,7 +139,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionWm2=dbe->book1D("NoPredictionWheel_-2near","No Predictions Near Side Wheel -2 ",101,0.5,101.5);
   NoPredictionWm2far=dbe->book1D("NoPredictionWheel_-2far","No Predictions Efficiency Far Side Wheel -2 ",105,0.5,105.5);
   
-  dbe->setCurrentFolder(folderPath+"Wheel_-1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_-1");
   EffDistroWm1=dbe->book1D("EffDistroWheel_-1near","Efficiency Distribution for Near Side Wheel -1 ",20,0.5,100.5);
   EffDistroWm1far=dbe->book1D("EffDistroWheel_-1far","Efficiency Distribution for Far Side Wheel -1 ",20,0.5,100.5);
   EffGlobWm1= dbe->book1D("GlobEfficiencyWheel_-1near","Efficiency Near Side Wheel -1",101,0.5,101.5);
@@ -153,7 +153,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionWm1=dbe->book1D("NoPredictionWheel_-1near","No Predictions Near Side Wheel -1 ",101,0.5,101.5);
   NoPredictionWm1far=dbe->book1D("NoPredictionWheel_-1far","No Predictions Efficiency Far Side Wheel -1 ",105,0.5,105.5);
 
-  dbe->setCurrentFolder(folderPath+"Wheel_0");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_0");
   EffDistroW0=dbe->book1D("EffDistroWheel_0near","Efficiency Distribution for Near Side Wheel 0 ",20,0.5,100.5);
   EffDistroW0far=dbe->book1D("EffDistroWheel_0far","Efficiency Distribution for Far Side Wheel 0 ",20,0.5,100.5);
   EffGlobW0 = dbe->book1D("GlobEfficiencyWheel_0near","Efficiency Near Side Wheel 0",101,0.5,101.5);
@@ -167,7 +167,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionW0=dbe->book1D("NoPredictionWheel_0near","No Predictions Near Side Wheel 0 ",101,0.5,101.5);
   NoPredictionW0far=dbe->book1D("NoPredictionWheel_0far","No Predictions Efficiency Far Side Wheel 0 ",105,0.5,105.5);
 
-  dbe->setCurrentFolder(folderPath+"Wheel_1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_1");
   EffDistroW1=dbe->book1D("EffDistroWheel_1near","Efficiency Distribution for Near Side Wheel 1 ",20,0.5,100.5);
   EffDistroW1far=dbe->book1D("EffDistroWheel_1far","Efficiency Distribution for Far Side Wheel 1 ",20,0.5,100.5);
   EffGlobW1 = dbe->book1D("GlobEfficiencyWheel_1near","Efficiency Near Side Wheel 1",101,0.5,101.5);
@@ -181,7 +181,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionW1=dbe->book1D("NoPredictionWheel_1near","No Predictions Near Side Wheel 1 ",101,0.5,101.5);
   NoPredictionW1far=dbe->book1D("NoPredictionWheel_1far","No Predictions Efficiency Far Side Wheel 1 ",105,0.5,105.5);
 
-  dbe->setCurrentFolder(folderPath+"Wheel_2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Wheel_2");
   EffDistroW2=dbe->book1D("EffDistroWheel_2near","Efficiency Distribution for Near Side Wheel 2 ",20,0.5,100.5);
   EffDistroW2far=dbe->book1D("EffDistroWheel_2far","Efficiency Distribution for Far Side Wheel 2 ",20,0.5,100.5);
   EffGlobW2 = dbe->book1D("GlobEfficiencyWheel_2near","Efficiency Near Side Wheel 2",101,0.5,101.5);
@@ -197,7 +197,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
 
   //EndCap
 
-  dbe->setCurrentFolder(folderPath+"Disk_3");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_3");
   EffDistroD3=dbe->book1D("EffDistroDisk_3near","Efficiency Distribution Near Side Disk 3 ",20,0.5,100.5);
   EffDistroD3far=dbe->book1D("EffDistroDisk_3far","Efficiency Distribution Far Side Disk 3 ",20,0.5,100.5);
   EffGlobD3 = dbe->book1D("GlobEfficiencyDisk_3near","Efficiency Near Side Disk 3",109,0.5,109.5);
@@ -211,7 +211,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionD3=dbe->book1D("NoPredictionDisk_3near","No Predictions Near Side Disk 3 ",109,0.5,109.5);
   NoPredictionD3far=dbe->book1D("NoPredictionDisk_3far","No Predictions Efficiency Far Side Disk 3 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder(folderPath+"Disk_2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_2");
   EffDistroD2=dbe->book1D("EffDistroDisk_2near","Efficiency Distribution Near Side Disk 2 ",20,0.5,100.5);
   EffDistroD2far=dbe->book1D("EffDistroDisk_2far","Efficiency Distribution Far Side Disk 2 ",20,0.5,100.5);
   EffGlobD2 = dbe->book1D("GlobEfficiencyDisk_2near","Efficiency Near Side Disk 2",109,0.5,109.5);
@@ -225,7 +225,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionD2=dbe->book1D("NoPredictionDisk_2near","No Predictions Near Side Disk 2 ",109,0.5,109.5);
   NoPredictionD2far=dbe->book1D("NoPredictionDisk_2far","No Predictions Efficiency Far Side Disk 2 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder(folderPath+"Disk_1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_1");
   EffDistroD1=dbe->book1D("EffDistroDisk_1near","Efficiency Distribution Near Side Disk 1 ",20,0.5,100.5);
   EffDistroD1far=dbe->book1D("EffDistroDisk_1far","Efficiency Distribution Far Side Disk 1 ",20,0.5,100.5);
   EffGlobD1 = dbe->book1D("GlobEfficiencyDisk_1near","Efficiency Near Side Disk 1",109,0.5,109.5);
@@ -239,7 +239,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionD1=dbe->book1D("NoPredictionDisk_1near","No Predictions Near Side Disk 1 ",109,0.5,109.5);
   NoPredictionD1far=dbe->book1D("NoPredictionDisk_1far","No Predictions Efficiency Far Side Disk 1 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder(folderPath+"Disk_-1");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_-1");
   EffDistroDm1=dbe->book1D("EffDistroDisk_m1near","Efficiency Distribution Near Side Disk - 1 ",20,0.5,100.5);
   EffDistroDm1far=dbe->book1D("EffDistroDisk_m1far","Efficiency Distribution Far Side Disk - 1 ",20,0.5,100.5);
   EffGlobDm1 = dbe->book1D("GlobEfficiencyDisk_m1near","Efficiency Near Side Disk -1",109,0.5,109.5);
@@ -253,7 +253,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionDm1=dbe->book1D("NoPredictionDisk_m1near","No Predictions Near Side Disk -1 ",109,0.5,109.5);
   NoPredictionDm1far=dbe->book1D("NoPredictionDisk_m1far","No Predictions Efficiency Far Side Disk -1 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder(folderPath+"Disk_-2");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_-2");
   EffDistroDm2=dbe->book1D("EffDistroDisk_m2near","Efficiency Distribution Near Side Disk - 2 ",20,0.5,100.5);
   EffDistroDm2far=dbe->book1D("EffDistroDisk_m2far","Efficiency Distribution Far Side Disk - 2 ",20,0.5,100.5);
   EffGlobDm2 = dbe->book1D("GlobEfficiencyDisk_m2near","Efficiency Near Side Disk -2",109,0.5,109.5);
@@ -267,7 +267,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   NoPredictionDm2=dbe->book1D("NoPredictionDisk_m2near","No Predictions Near Side Disk -2 ",109,0.5,109.5);
   NoPredictionDm2far=dbe->book1D("NoPredictionDisk_m2far","No Predictions Efficiency Far Side Disk -2 ",109,0.5,109.5);
 
-  dbe->setCurrentFolder(folderPath+"Disk_-3");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Disk_-3");
   EffDistroDm3=dbe->book1D("EffDistroDisk_m3near","Efficiency Distribution Near Side Disk - 3 ",20,0.5,100.5);
   EffDistroDm3far=dbe->book1D("EffDistroDisk_m3far","Efficiency Distribution Far Side Disk - 3 ",20,0.5,100.5);
   EffGlobDm3 = dbe->book1D("GlobEfficiencyDisk_m3near","Efficiency Near Side Disk -3",109,0.5,109.5);
@@ -284,7 +284,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   //Summary Histograms
   
 
-  dbe->setCurrentFolder(folderPath);
+  dbe->setCurrentFolder("RPC/RPCEfficiency/");
   std::string os;
   os="Efficiency_Roll_vs_Sector_Wheel_-2";                                      
   Wheelm2Summary = dbe->book2D(os, os, 12, 0.5,12.5, 21, 0.5, 21.5);
@@ -312,7 +312,7 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
   
   //Azimutal Histograms
 
-  dbe->setCurrentFolder(folderPath+"Azimutal/");
+  dbe->setCurrentFolder("RPC/RPCEfficiency/Azimutal/");
   sectorEffWm2= dbe->book1D("AzimutalDistroWm2","Efficiency per Sector Wheel -2",12,0.5,12.5);
   sectorEffWm1= dbe->book1D("AzimutalDistroWm1","Efficiency per Sector Wheel -1",12,0.5,12.5);
   sectorEffW0= dbe->book1D("AzimutalDistroW0","Efficiency per Sector Wheel 0",12,0.5,12.5);
@@ -363,14 +363,12 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
   std::string label,folder;
-  folder = folderPath;
-  label = folder + "MuonSegEff/Statistics";
+  folder = "RPC/RPCEfficiency/MuonSegEff/";
+  label = folder + "Statistics";
   if(debug) std::cout<<"Getting statistcs="<<label<<std::endl;
   statistics = dbe->get(label);
   if(!statistics){
-
     std::cout<<"Statistics Doesn't exist Not access to a monitor element"<<std::endl;
-    std::cout<<label<<std::endl;
     edm::LogWarning("Missing rpcSource in the sequence") << " Statistics Doesn't exist.";
     return;
   }
@@ -416,7 +414,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   
   //Cloning Residuals.
 
-  folder = folderPath+"MuonSegEff/Residuals/Barrel/";
+  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/Barrel/";
   
   label = folder + "GlobalResidualsClu1La1"; hGlobalResClu1La1 = dbe->get(label);
   label = folder + "GlobalResidualsClu1La2"; hGlobalResClu1La2 = dbe->get(label);
@@ -466,65 +464,57 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
   }
 
   if(debug) std::cout<<"Clonning the EndCap"<<std::endl;
-  folder = folderPath+"MuonSegEff/Residuals/EndCap/";
-  if(debug) std::cout<<folder<<std::endl;
-  
+  folder = "RPC/RPCEfficiency/MuonSegEff/Residuals/EndCap/";
+
   label = folder + "GlobalResidualsClu1R3C"; hGlobalResClu1R3C = dbe->get(label); 
-  //if(!hGlobalResClu1R3C)std::cout<<"hGlobal2ResClu1R3C dont exist"<<std::endl;
-  //std::cout<<label<<std::endl;
-  label = folder + "GlobalResidualsClu1R3B"; hGlobalResClu1R3B = dbe->get(label);
-  //if(!hGlobalResClu1R3B)std::cout<<"hGlobal2ResClu1R3B dont exist"<<std::endl;
-  //std::cout<<label<<std::endl;
-  label = folder + "GlobalResidualsClu1R3A"; hGlobalResClu1R3A = dbe->get(label); 
-  label = folder + "GlobalResidualsClu1R2C"; hGlobalResClu1R2C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu1R2B"; hGlobalResClu1R2B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu1R2A"; hGlobalResClu1R2A = dbe->get(label); 
-  										   	   
-  label = folder + "GlobalResidualsClu2R3C"; hGlobalResClu2R3C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R3B"; hGlobalResClu2R3B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R3A"; hGlobalResClu2R3A = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R2C"; hGlobalResClu2R2C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R2B"; hGlobalResClu2R2B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu2R2A"; hGlobalResClu2R2A = dbe->get(label); 
-										   	   
-  label = folder + "GlobalResidualsClu3R3C"; hGlobalResClu3R3C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R3B"; hGlobalResClu3R3B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R3A"; hGlobalResClu3R3A = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R2C"; hGlobalResClu3R2C = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R2B"; hGlobalResClu3R2B = dbe->get(label); 
-  label = folder + "GlobalResidualsClu3R2A"; hGlobalResClu3R2A = dbe->get(label); 
+  label = folder + "GlobalResidualsClu1R3B"; hGlobalResClu1R3B = dbe->get(label); 
+  label = folder + "GlobalResidualsClu1R3A"; hGlobalResClu1R3A = dbe->get(label);
+  label = folder + "GlobalResidualsClu1R2C"; hGlobalResClu1R2C = dbe->get(label);
+  label = folder + "GlobalResidualsClu1R2B"; hGlobalResClu1R2B = dbe->get(label);
+  label = folder + "GlobalResidualsClu1R2A"; hGlobalResClu1R2A = dbe->get(label);
+
+  label = folder + "GlobalResidualsClu2R3C"; hGlobalResClu2R3C = dbe->get(label);
+  label = folder + "GlobalResidualsClu2R3B"; hGlobalResClu2R3B = dbe->get(label);
+  label = folder + "GlobalResidualsClu2R3A"; hGlobalResClu2R3A = dbe->get(label);
+  label = folder + "GlobalResidualsClu2R2C"; hGlobalResClu2R2C = dbe->get(label);
+  label = folder + "GlobalResidualsClu2R2B"; hGlobalResClu2R2B = dbe->get(label);
+  label = folder + "GlobalResidualsClu2R2A"; hGlobalResClu2R2A = dbe->get(label);
+
+  label = folder + "GlobalResidualsClu3R3C"; hGlobalResClu3R3C = dbe->get(label);
+  label = folder + "GlobalResidualsClu3R3B"; hGlobalResClu3R3B = dbe->get(label);
+  label = folder + "GlobalResidualsClu3R3A"; hGlobalResClu3R3A = dbe->get(label);
+  label = folder + "GlobalResidualsClu3R2C"; hGlobalResClu3R2C = dbe->get(label);
+  label = folder + "GlobalResidualsClu3R2B"; hGlobalResClu3R2B = dbe->get(label);
+  label = folder + "GlobalResidualsClu3R2A"; hGlobalResClu3R2A = dbe->get(label);
 
 
   if(debug) std::cout<<"Going for!"<<std::endl;
-  /*for(int i=1;i<=101;i++){
-    if(debug) std::cout<<i<<std::endl;
-    hGlobal2ResClu1R3C->setBinContent(i,hGlobalResClu1R3C->getBinContent(i)); std::cout<<"hGlobal2ResClu1R3C"<<std::endl;
-    hGlobal2ResClu1R3B->setBinContent(i,hGlobalResClu1R3B->getBinContent(i)); std::cout<<"hGlobal2ResClu1R3B"<<std::endl;
-    hGlobal2ResClu1R3A->setBinContent(i,hGlobalResClu1R3A->getBinContent(i)); std::cout<<"hGlobal2ResClu1R3A"<<std::endl;
-    hGlobal2ResClu1R2C->setBinContent(i,hGlobalResClu1R2C->getBinContent(i)); std::cout<<"hGlobal2ResClu1R2C"<<std::endl;
-    hGlobal2ResClu1R2B->setBinContent(i,hGlobalResClu1R2B->getBinContent(i)); std::cout<<"hGlobal2ResClu1R2B"<<std::endl;
-    hGlobal2ResClu1R2A->setBinContent(i,hGlobalResClu1R2A->getBinContent(i)); std::cout<<"hGlobal2ResClu1R2A"<<std::endl;
-    		      							      				    	       
-    hGlobal2ResClu2R3C->setBinContent(i,hGlobalResClu2R3C->getBinContent(i)); std::cout<<"hGlobal2ResClu2R3C"<<std::endl;
-    hGlobal2ResClu2R3B->setBinContent(i,hGlobalResClu2R3B->getBinContent(i)); std::cout<<"hGlobal2ResClu2R3B"<<std::endl;
-    hGlobal2ResClu2R3A->setBinContent(i,hGlobalResClu2R3A->getBinContent(i)); std::cout<<"hGlobal2ResClu2R3A"<<std::endl;
-    hGlobal2ResClu2R2C->setBinContent(i,hGlobalResClu2R2C->getBinContent(i)); std::cout<<"hGlobal2ResClu2R2C"<<std::endl;
-    hGlobal2ResClu2R2B->setBinContent(i,hGlobalResClu2R2B->getBinContent(i)); std::cout<<"hGlobal2ResClu2R2B"<<std::endl;
-    hGlobal2ResClu2R2A->setBinContent(i,hGlobalResClu2R2A->getBinContent(i)); std::cout<<"hGlobal2ResClu2R2A"<<std::endl;
-    		      							      				    	       
-    hGlobal2ResClu3R3C->setBinContent(i,hGlobalResClu3R3C->getBinContent(i)); std::cout<<"hGlobal2ResClu3R3C"<<std::endl;
-    hGlobal2ResClu3R3B->setBinContent(i,hGlobalResClu3R3B->getBinContent(i)); std::cout<<"hGlobal2ResClu3R3B"<<std::endl;
-    hGlobal2ResClu3R3A->setBinContent(i,hGlobalResClu3R3A->getBinContent(i)); std::cout<<"hGlobal2ResClu3R3A"<<std::endl;
-    hGlobal2ResClu3R2C->setBinContent(i,hGlobalResClu3R2C->getBinContent(i)); std::cout<<"hGlobal2ResClu3R2C"<<std::endl;
-    hGlobal2ResClu3R2B->setBinContent(i,hGlobalResClu3R2B->getBinContent(i)); std::cout<<"hGlobal2ResClu3R2B"<<std::endl;
-    hGlobal2ResClu3R2A->setBinContent(i,hGlobalResClu3R2A->getBinContent(i)); std::cout<<"hGlobal2ResClu3R2A"<<std::endl;
-    }*/
-   
+  for(int i=1;i<=101;i++){
+    hGlobal2ResClu1R3C->setBinContent(i,hGlobalResClu1R3C->getBinContent(i));
+    hGlobal2ResClu1R3B->setBinContent(i,hGlobalResClu1R3B->getBinContent(i));
+    hGlobal2ResClu1R3A->setBinContent(i,hGlobalResClu1R3A->getBinContent(i));
+    hGlobal2ResClu1R2C->setBinContent(i,hGlobalResClu1R2C->getBinContent(i));
+    hGlobal2ResClu1R2B->setBinContent(i,hGlobalResClu1R2B->getBinContent(i));
+    hGlobal2ResClu1R2A->setBinContent(i,hGlobalResClu1R2A->getBinContent(i));
+
+    hGlobal2ResClu2R3C->setBinContent(i,hGlobalResClu2R3C->getBinContent(i));
+    hGlobal2ResClu2R3B->setBinContent(i,hGlobalResClu2R3B->getBinContent(i));
+    hGlobal2ResClu2R3A->setBinContent(i,hGlobalResClu2R3A->getBinContent(i));
+    hGlobal2ResClu2R2C->setBinContent(i,hGlobalResClu2R2C->getBinContent(i));
+    hGlobal2ResClu2R2B->setBinContent(i,hGlobalResClu2R2B->getBinContent(i));
+    hGlobal2ResClu2R2A->setBinContent(i,hGlobalResClu2R2A->getBinContent(i));
+
+    hGlobal2ResClu3R3C->setBinContent(i,hGlobalResClu3R3C->getBinContent(i));
+    hGlobal2ResClu3R3B->setBinContent(i,hGlobalResClu3R3B->getBinContent(i));
+    hGlobal2ResClu3R3A->setBinContent(i,hGlobalResClu3R3A->getBinContent(i));
+    hGlobal2ResClu3R2C->setBinContent(i,hGlobalResClu3R2C->getBinContent(i));
+    hGlobal2ResClu3R2B->setBinContent(i,hGlobalResClu3R2B->getBinContent(i));
+    hGlobal2ResClu3R2A->setBinContent(i,hGlobalResClu3R2A->getBinContent(i));
+
+  }
+  
   //Setting Labels in Summary Label.
   std::stringstream binLabel;
-
-  if(debug) std::cout<<"Putting Labels"<<std::endl;
-
   for(int i=1;i<=12;i++){
     binLabel.str("");
     binLabel<<"Sec "<<i;
@@ -669,7 +659,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
 	if(debug) std::cout<<"Booking for "<<nameRoll<<std::endl;
-	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath);
+	meCollection[rpcId.rawId()] = bookDetUnitSeg(rpcId,(*r)->nstrips());
       }
     }
   }
@@ -728,7 +718,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 	  
-	  std::string folder = folderPath+"MuonSegEff";
+	  std::string folder = "RPC/RPCEfficiency/MuonSegEff";
 
 	  if(debug) std::cout<<"Setting the folder "<<folder<<std::endl;
 
@@ -736,7 +726,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  meIdDT<<folder<<"/ExpectedOccupancyFromDT_"<<rpcId.rawId();
 	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
       
-	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  std::string folder2 = "RPC/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
 
 	  delete folderStr;
 
@@ -1090,13 +1080,13 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  
 	  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
 
-	  std::string folder = folderPath+"MuonSegEff";
+	  std::string folder = "RPC/RPCEfficiency/MuonSegEff";
 	  
 	  meIdRPC<<folder<<"/RPCDataOccupancyFromCSC_"<<rpcId.rawId();
 	  meIdCSC<<folder<<"/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
 	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
 		
-	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  std::string folder2 = "RPC/RPCEfficiency/RollByRoll/" +  folderStr->folderStructure(rpcId); 
 	  
 	  delete folderStr;
 

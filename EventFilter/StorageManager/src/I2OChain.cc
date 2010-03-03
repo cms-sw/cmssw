@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.16 2009/12/17 18:28:58 mommsen Exp $
+// $Id: I2OChain.cc,v 1.17 2010/01/07 18:03:57 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -399,6 +399,12 @@ namespace stor
         return tmpList;
       }
     return _data->getDQMEventConsumerTags();
+  }
+
+  size_t I2OChain::memoryUsed() const
+  {
+    if (!_data) return 0;
+    return _data->memoryUsed();
   }
 
   unsigned long I2OChain::totalDataSize() const

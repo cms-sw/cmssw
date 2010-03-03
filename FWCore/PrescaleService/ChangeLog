@@ -1,3 +1,7 @@
+2010-02-17  Martin Grunewald  <Martin.Grunewald@cern.ch>
+	* tag V00-05-06
+	* adding const accessors to extract prescale table info
+
 2010-01-18  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-05-05

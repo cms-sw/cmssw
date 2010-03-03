@@ -5,11 +5,11 @@ SimGeneralFEVTDEBUG = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *_trackingtruthprod_*_*', 
         'drop *_electrontruth_*_*', 
         'keep *_mergedtruth_MergedTrackTruth_*',
-        'keep CrossingFramePlaybackInfo_*_*_*')
+        'keep CrossingFramePlaybackInfoExtended_*_*_*')
 )
 #RAW content
 SimGeneralRAW = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep CrossingFramePlaybackInfo_*_*_*')
+    outputCommands = cms.untracked.vstring('keep CrossingFramePlaybackInfoExtended_*_*_*')
 )
 #RECO content
 SimGeneralRECO = cms.PSet(

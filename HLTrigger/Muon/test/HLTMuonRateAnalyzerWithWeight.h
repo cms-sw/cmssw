@@ -9,7 +9,7 @@
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <vector>
 

@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2009/12/11 16:13:18 $
- * $Revision: 1.54 $
+ * $Date: 2010/02/12 21:57:31 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -358,9 +358,6 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      LogDebug("EETimingTask") << " det id = " << id;
-      LogDebug("EETimingTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       MonitorElement* meTime = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meTimeAmpli = 0;
@@ -372,11 +369,8 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      LogDebug("EETimingTask") << " hit amplitude " << xval;
-      LogDebug("EETimingTask") << " hit jitter " << yval;
-
       uint32_t flag = hitItr->recoFlag();      
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*hitItr), *chStatus );
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
 
       float theta = pGeometry_->getGeometry(id)->getPosition().theta();
       float eta = pGeometry_->getGeometry(id)->getPosition().eta();

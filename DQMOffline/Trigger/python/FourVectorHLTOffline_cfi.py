@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.25 2009/12/11 02:49:15 rekovic Exp $
-hltResults = cms.EDFilter("FourVectorHLTOffline",
+# $Id: FourVectorHLTOffline_cfi.py,v 1.26 2009/12/11 19:06:49 rekovic Exp $
+hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     muonRecoCollectionName = cms.untracked.string("muons"),
     plotAll = cms.untracked.bool(False),

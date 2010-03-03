@@ -124,8 +124,7 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     int verbosity_ ;
     std::string bookPrefix_ ;
     short bookIndex_ ;
-    bool histoNamesReady ;
-    std::vector<std::string> histoNames_ ;
+    std::vector<std::string> initialHistos_ ;
     std::string finalStep_ ;
     std::string inputFile_ ;
     std::string outputFile_ ;

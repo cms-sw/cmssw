@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotWrite2DB.cc,v 1.5 2009/10/27 14:38:20 yumiceva Exp $
+ version $Id: BeamSpotWrite2DB.cc,v 1.6 2009/12/18 20:45:08 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -135,4 +135,4 @@ BeamSpotWrite2DB::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(BeamSpotWrite2DB);
+DEFINE_FWK_MODULE(BeamSpotWrite2DB);

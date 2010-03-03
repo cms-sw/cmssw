@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -60,7 +60,7 @@ void HLTMuonOverlap::analyze(const edm::Event & event ) {
   }
   size=trigRes->size();
   LogTrace("HLTMuonVal")<< "Ntp="<<Ntp<<" Size of trigger results="<<size;
-  TriggerNames triggerNames(*trigRes);
+  const edm::TriggerNames & triggerNames = event.triggerNames(*trigRes);
 
   if(Ntp)
     assert(Ntp == size);

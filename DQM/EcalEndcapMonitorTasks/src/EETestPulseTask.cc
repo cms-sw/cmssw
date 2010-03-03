@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.53 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -375,9 +375,6 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
-      LogDebug("EETestPulseTask") << " det id = " << id;
-      LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       int ic = Numbers::icEE(ism, ix, iy);
 
       EEDataFrame dataframe = (*digiItr);
@@ -436,9 +433,6 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
-      LogDebug("EETestPulseTask") << " det id = " << id;
-      LogDebug("EETestPulseTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       MonitorElement* meAmplMap = 0;
 
       if ( mgpaGain[ism-1] == 3 ) meAmplMap = meAmplMapG01_[ism-1];
@@ -452,11 +446,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 //      if ( mgpaGain[ism-1] == 2 ) xval = xval * 1./ 2.;
 //      if ( mgpaGain[ism-1] == 1 ) xval = xval * 1./ 1.;
 
-      LogDebug("EETestPulseTask") << " hit amplitude " << xval;
-
       if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
-
-      LogDebug("EETestPulseTask") << "Crystal " << ix << " " << iy << " Amplitude = " << xval;
 
     }
 
@@ -483,9 +473,6 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
-
-      LogDebug("EETestPulseTask") << " det id = " << pnItr->id();
-      LogDebug("EETestPulseTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 

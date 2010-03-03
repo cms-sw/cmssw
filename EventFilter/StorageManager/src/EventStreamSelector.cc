@@ -1,4 +1,4 @@
-// $Id: EventStreamSelector.cc,v 1.10 2009/12/01 13:58:08 mommsen Exp $
+// $Id: EventStreamSelector.cc,v 1.11 2009/12/01 17:50:40 smorovic Exp $
 /// @file: EventStreamSelector.cc
 
 #include <cstdlib>
@@ -90,7 +90,7 @@ bool EventStreamSelector::acceptEvent( const I2OChain& ioc )
 
   if ( _configInfo.fractionToDisk() < 1 )
   {
-    double rand = std::rand()/static_cast<double>(RAND_MAX);
+    double rand = static_cast<double>(std::rand())/static_cast<double>(RAND_MAX);
     if ( rand > _configInfo.fractionToDisk() ) return false;
   }
 

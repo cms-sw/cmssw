@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.6 2010/01/26 14:14:19 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.10 2010/02/12 14:01:27 pgras Exp $
  */
 
 /***************************************************
@@ -516,9 +516,9 @@ bool LaserSorter::writeFedBlock(std::ofstream& out,
         << "for FED ID " <<  ((pData[0] >>8) & 0xFFF) << "!\n";
     }
     
-    if(verbosity_) cout << "[LaserSorter " << now() << "] " << "Event fragment size: "
-                        << data.size() << " Byte"
-                        << "\t From Dcc header: " << dccLen64*8 << " Byte\n";
+    if(verbosity_>3) cout << "[LaserSorter " << now() << "] " << "Event fragment size: "
+                          << data.size() << " Byte"
+                          << "\t From Dcc header: " << dccLen64*8 << " Byte\n";
     
     const size_t nBytes = data.size();
     //       cout << "[LaserSorter] " 
@@ -725,7 +725,7 @@ bool LaserSorter::writeEventHeader(std::ofstream& out,
   data[8] = nFeds;
   data[9] = 0; //reserved (to be aligned on 64-bits)
 
-  if(verbosity_){
+  if(verbosity_>1){
     cout << "[LaserSorter " << now() << "] " << "Write header of event: "
          << "Time: " << toString(evt.time().value())
          << ", LB: " << evt.luminosityBlock()
@@ -1105,13 +1105,15 @@ void LaserSorter::restoreStreamsOfLumiBlock(int lumiBlock){
   string fileName;
   
   for(int fedId = ecalDccFedIdMin_-2; fedId <= ecalDccFedIdMax_; ++fedId){
-    if(fedId == ecalDccFedIdMin_-2) fedId == -1; //stream for event w/o ECAL data
-    streamFileName(fedId, lumiBlock, dummy, fileName);
+    int fedId_;
+    if(fedId == ecalDccFedIdMin_-2) fedId_ = -1; //stream for event w/o ECAL data
+    else fedId_ = fedId;
+    streamFileName(fedId_, lumiBlock, dummy, fileName);
     struct stat s;
     //TODO: could be optimized by adding an option to get stream
     //to open only existing file: would avoid double call to streamFileName.
     if(stat(fileName.c_str(), &s)==0){//file exists
-      getStream(fedId, lumiBlock);
+      getStream(fedId_, lumiBlock);
     }
   }
 }

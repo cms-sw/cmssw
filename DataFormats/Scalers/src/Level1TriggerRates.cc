@@ -37,22 +37,39 @@ Level1TriggerRates::Level1TriggerRates():
 }
 
 Level1TriggerRates::Level1TriggerRates(Level1TriggerScalers const& s)
+{
+  Level1TriggerRates(s,Level1TriggerScalers::firstShortLSRun);
+}
+
+Level1TriggerRates::Level1TriggerRates(Level1TriggerScalers const& s,
+				       int runNumber)
 { 
   Level1TriggerRates();
-  computeRates(s);
+  computeRates(s,runNumber);
 }
 
 Level1TriggerRates::Level1TriggerRates(Level1TriggerScalers const& s1,
 				       Level1TriggerScalers const& s2)
+{
+  Level1TriggerRates(s1,s2,Level1TriggerScalers::firstShortLSRun);
+}
+
+Level1TriggerRates::Level1TriggerRates(Level1TriggerScalers const& s1,
+				       Level1TriggerScalers const& s2,
+				       int runNumber)
 {  
   Level1TriggerRates();
-  computeRates(s1,s2);
+  computeRates(s1,s2,runNumber);
 }
 
 Level1TriggerRates::~Level1TriggerRates() { } 
 
 
 void Level1TriggerRates::computeRates(Level1TriggerScalers const& t)
+{ computeRates(t,Level1TriggerScalers::firstShortLSRun);}
+
+void Level1TriggerRates::computeRates(Level1TriggerScalers const& t,
+				      int run)
 {
   version_ = t.version();
 
@@ -66,45 +83,45 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t)
   collectionTimeLumiSeg_.set_tv_nsec(t.collectionTimeLumiSeg().tv_nsec);
 
   triggersPhysicsGeneratedFDLRate_ 
-    = Level1TriggerScalers::rateLS(t.triggersPhysicsGeneratedFDL());
+    = Level1TriggerScalers::rateLS(t.triggersPhysicsGeneratedFDL(),run);
   triggersPhysicsLostRate_ 
-    = Level1TriggerScalers::rateLS(t.triggersPhysicsLost());
+    = Level1TriggerScalers::rateLS(t.triggersPhysicsLost(),run);
   triggersPhysicsLostBeamActiveRate_ 
-    = Level1TriggerScalers::rateLS(t.triggersPhysicsLostBeamActive());
+    = Level1TriggerScalers::rateLS(t.triggersPhysicsLostBeamActive(),run);
   triggersPhysicsLostBeamInactiveRate_ 
-    = Level1TriggerScalers::rateLS(t.triggersPhysicsLostBeamInactive());
+    = Level1TriggerScalers::rateLS(t.triggersPhysicsLostBeamInactive(),run);
 
-  l1AsPhysicsRate_ = Level1TriggerScalers::rateLS(t.l1AsPhysics());
-  l1AsRandomRate_ = Level1TriggerScalers::rateLS(t.l1AsRandom());
-  l1AsTestRate_ = Level1TriggerScalers::rateLS(t.l1AsTest());
-  l1AsCalibrationRate_ = Level1TriggerScalers::rateLS(t.l1AsCalibration());
+  l1AsPhysicsRate_ = Level1TriggerScalers::rateLS(t.l1AsPhysics(),run);
+  l1AsRandomRate_ = Level1TriggerScalers::rateLS(t.l1AsRandom(),run);
+  l1AsTestRate_ = Level1TriggerScalers::rateLS(t.l1AsTest(),run);
+  l1AsCalibrationRate_ = Level1TriggerScalers::rateLS(t.l1AsCalibration(),run);
 
-  deadtimePercent_ = Level1TriggerScalers::percentLS(t.deadtime());
+  deadtimePercent_ = Level1TriggerScalers::percentLS(t.deadtime(),run);
   deadtimeBeamActivePercent_ =
-    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActive());
+    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActive(),run);
   deadtimeBeamActiveTriggerRulesPercent_ =
-    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActiveTriggerRules());
+    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActiveTriggerRules(),run);
   deadtimeBeamActiveCalibrationPercent_ =
-    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActiveCalibration());
+    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActiveCalibration(),run);
   deadtimeBeamActivePrivateOrbitPercent_ =
-    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActivePrivateOrbit());
+    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActivePrivateOrbit(),run);
   deadtimeBeamActivePartitionControllerPercent_ =
-    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActivePartitionController());
+    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActivePartitionController(),run);
   deadtimeBeamActiveTimeSlotPercent_ =
-    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActiveTimeSlot());
+    Level1TriggerScalers::percentLSActive(t.deadtimeBeamActiveTimeSlot(),run);
 
   const std::vector<unsigned int> gtAlgoCounts = t.gtAlgoCounts();
   for ( std::vector<unsigned int>::const_iterator counts = gtAlgoCounts.begin();
 	counts != gtAlgoCounts.end(); ++counts)
   {
-    gtAlgoCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts));
+    gtAlgoCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts,run));
   }
 
   const std::vector<unsigned int> gtTechCounts = t.gtTechCounts();
   for ( std::vector<unsigned int>::const_iterator counts = gtTechCounts.begin();
 	counts != gtTechCounts.end(); ++counts)
   {
-    gtTechCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts));
+    gtTechCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts,run));
   }
 
   deltaNS_ = 0ULL;
@@ -114,7 +131,14 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t)
 void Level1TriggerRates::computeRates(Level1TriggerScalers const& t1,
 				      Level1TriggerScalers const& t2)
 {
-  computeRates(t1);
+  computeRates(t1,t2,Level1TriggerScalers::firstShortLSRun);
+}
+
+void Level1TriggerRates::computeRates(Level1TriggerScalers const& t1,
+				      Level1TriggerScalers const& t2,
+				      int run)
+{
+  computeRates(t1,run);
 
   unsigned long long zeit1 = 
     ( (unsigned long long)t1.collectionTime().tv_sec * 1000000000ULL)| 

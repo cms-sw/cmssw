@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2008/10/17 10:42:35 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/09/01 23:36:29 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -55,7 +55,7 @@ namespace edm {
     virtual void publishToXmas(xdata::InfoSpace *);
     virtual void openBackDoor(unsigned int);
     virtual void closeBackDoor();
-
+    virtual void signalWaitingThreadAndBlock();
 
     DaqBaseReader*  reader_;
     unsigned int    lumiSegmentSizeInEvents_; //temporary kludge, LS# will come from L1 Global record

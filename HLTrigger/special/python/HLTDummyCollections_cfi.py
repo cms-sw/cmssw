@@ -1,41 +1,41 @@
 import FWCore.ParameterSet.Config as cms
 
-hltDummyEcalRawToRecHitFacility = cms.EDFilter("HLTDummyCollections",
+hltDummyEcalRawToRecHitFacility = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doEcal")
 )
 
-hltDummyHcalDigis = cms.EDFilter("HLTDummyCollections",
+hltDummyHcalDigis = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doHcal"),
   UnpackZDC = cms.bool(True)
 )
 
-hltDummyEcalPreshowerDigis = cms.EDFilter("HLTDummyCollections",
+hltDummyEcalPreshowerDigis = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doEcalPreshower"),
   ESdigiCollection = cms.string( "" )
 )
 
-hltDummyMuonDTDigis = cms.EDFilter("HLTDummyCollections",
+hltDummyMuonDTDigis = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doMuonDT")
 )
 
-hltDummyMuonCSCDigis = cms.EDFilter("HLTDummyCollections",
+hltDummyMuonCSCDigis = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doMuonCSC")
 )
 
-hltDummySiPixelDigis = cms.EDFilter("HLTDummyCollections",
+hltDummySiPixelDigis = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doSiPixel")
 )
 
-hltDummySiStripRawToClustersFacility = cms.EDFilter("HLTDummyCollections",
+hltDummySiStripRawToClustersFacility = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doSiStrip")
 )
 
-hltDummyGctDigis = cms.EDFilter("HLTDummyCollections",
+hltDummyGctDigis = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doGCT")
 )
 
 
-hltDummyL1GtObjectMap = cms.EDFilter("HLTDummyCollections",
+hltDummyL1GtObjectMap = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doObjectMap")
 )
 

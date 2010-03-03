@@ -247,7 +247,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		double shortFibre = energyhadHF/2.;
 		int ieta = detid.ieta();
 		int iphi = detid.iphi();
-		if ( longFibre/shortFibre < longFibre_Fraction && shortFibre > shortFibre_Cut ) {
+		if ( shortFibre > shortFibre_Cut && longFibre/shortFibre < longFibre_Fraction ) {
 		  // Check if the long-fibre hit was not cleaned already (because hot)
 		  // In this case don't apply the cleaning
 		  HcalDetId theLongDetId (HcalForward, ieta, iphi, 1);

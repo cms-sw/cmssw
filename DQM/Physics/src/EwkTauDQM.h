@@ -15,7 +15,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.1 2009/12/01 17:03:36 veelken Exp $
  *
  */
 
@@ -42,7 +42,6 @@ class EwkTauDQM : public edm::EDAnalyzer
   DQMStore* dqmStore_;
   std::string dqmDirectory_;
   int dqmError_;
-  int maxNumWarnings_;
 
   EwkElecTauHistManager* elecTauHistManager_;
   EwkMuTauHistManager* muTauHistManager_;
@@ -62,7 +61,7 @@ class EwkTauDQM : public edm::EDAnalyzer
  *
  * \version $Revision: 1.1 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: EwkElecTauHistManager.h,v 1.1 2009/12/01 17:03:36 veelken Exp $
  *
  */
 
@@ -172,23 +171,6 @@ class EwkElecTauHistManager
   unsigned numEventsSelected_;
 
   int cfgError_;
-
-  int maxNumWarnings_;
-
-  long numWarningsTriggerResults_;
-  long numWarningsHLTpath_;
-  long numWarningsVertex_;
-  long numWarningsBeamSpot_;
-  long numWarningsElectron_;
-  long numWarningsTauJet_;
-  long numWarningsTauDiscrByLeadTrackFinding_;
-  long numWarningsTauDiscrByLeadTrackPtCut_;
-  long numWarningsTauDiscrByTrackIso_;
-  long numWarningsTauDiscrByEcalIso_;
-  long numWarningsTauDiscrAgainstElectrons_;
-  long numWarningsTauDiscrAgainstMuons_;
-  long numWarningsCaloMEt_;
-  long numWarningsPFMEt_;
 };
 
 //-------------------------------------------------------------------------------
@@ -205,7 +187,7 @@ class EwkElecTauHistManager
  *
  * \version $Revision: 1.1 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: EwkMuTauHistManager.h,v 1.1 2009/12/01 17:03:36 veelken Exp $
  *
  */
 
@@ -288,7 +270,7 @@ class EwkMuTauHistManager
   MonitorElement* hVisMass_;
   //MonitorElement* hMtMuCaloMEt_;
   MonitorElement* hMtMuPFMEt_;
-  //MonitorElement* hPzetaCmaxNumWarnings_aloMEt_;
+  //MonitorElement* hPzetaCaloMEt_;
   //MonitorElement* hPzetaPFMEt_;
   MonitorElement* hMuTauAcoplanarity_;
   //MonitorElement* hMuTauCharge_;
@@ -313,22 +295,6 @@ class EwkMuTauHistManager
   unsigned numEventsSelected_;
 
   int cfgError_;
-
-  int maxNumWarnings_;
-
-  long numWarningsTriggerResults_;
-  long numWarningsHLTpath_;
-  long numWarningsVertex_;
-  long numWarningsBeamSpot_;
-  long numWarningsMuon_;
-  long numWarningsTauJet_;
-  long numWarningsTauDiscrByLeadTrackFinding_;
-  long numWarningsTauDiscrByLeadTrackPtCut_;
-  long numWarningsTauDiscrByTrackIso_;
-  long numWarningsTauDiscrByEcalIso_;
-  long numWarningsTauDiscrAgainstMuons_;
-  long numWarningsCaloMEt_;
-  long numWarningsPFMEt_;
 };
 
 //-------------------------------------------------------------------------------
@@ -344,7 +310,7 @@ class EwkMuTauHistManager
  *
  * \version $Revision: 1.1 $
  *
- * $Id: EwkTauDQM.h,v 1.1 2010/01/13 13:42:51 veelken Exp $
+ * $Id: ewkTauAuxFunctions.h,v 1.1 2009/12/01 17:03:36 veelken Exp $
  *
  */
 
@@ -362,18 +328,6 @@ class EwkMuTauHistManager
 #include <string>
 
 enum { kAbsoluteIso, kRelativeIso, kUndefinedIso };
-
-template<typename T>
-void readEventData(const edm::Event& evt, const edm::InputTag& src, edm::Handle<T>& handle, long& numWarnings, int maxNumWarnings, 
-		   bool& error, const char* errorMessage)
-{
-  if ( !evt.getByLabel(src, handle) ) {
-    if ( numWarnings < maxNumWarnings || maxNumWarnings == -1 )
-      edm::LogWarning ("readEventData") << errorMessage << " !!";
-    ++numWarnings;
-    error = true;
-  }
-}
 
 int getIsoMode(const std::string&, int&);
 

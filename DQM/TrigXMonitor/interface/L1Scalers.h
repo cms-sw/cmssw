@@ -1,7 +1,7 @@
 // -*-c++-*-
 #ifndef L1Scalers_H
 #define L1Scalers_H
-// $Id: L1Scalers.h,v 1.9 2008/09/17 20:56:02 lorenzo Exp $
+// $Id: L1Scalers.h,v 1.11 2010/02/11 00:11:06 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -9,7 +9,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class L1Scalers: public edm::EDAnalyzer
 {
@@ -58,16 +58,16 @@ private:
   // 2d versions
   MonitorElement *l1scalersBx_;
   MonitorElement *l1techScalersBx_;
-  MonitorElement *pixFedSizeBx_;
-  MonitorElement *hfEnergyMaxTowerBx_;
+//   MonitorElement *pixFedSizeBx_;
+//   MonitorElement *hfEnergyMaxTowerBx_;
 
   // Int
   MonitorElement *nLumiBlock_;
   MonitorElement *l1AlgoCounter_;  //for total Algo Rate
   MonitorElement *l1TtCounter_;    //for total TT Rate
   // Hacks for early running
-  MonitorElement *pixFedSize_;
-  MonitorElement *hfEnergy_;
+//   MonitorElement *pixFedSize_;
+//   MonitorElement *hfEnergy_;
   // steal from HLTrigger/special
   unsigned int threshold_;
   unsigned int fedStart_, fedStop_ ;

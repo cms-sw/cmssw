@@ -1,7 +1,6 @@
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <vector>
 #include <unistd.h>
 #include <fcntl.h>
 #include <dcap.h>
@@ -243,71 +242,6 @@ DCacheFile::write (const void *from, IOSize n)
   }
 
   return done;
-}
-
-IOSize
-DCacheFile::readv (IOBuffer *into, IOSize buffers)
-{
-  assert (! buffers || into);
-
-  // readv may not support zero buffers.
-  if (! buffers)
-    return 0;
-
-  // Convert the buffers to system format.
-  std::vector<iovec> bufs (buffers);
-  for (IOSize i = 0; i < buffers; ++i)
-  {
-    bufs [i].iov_len  = into [i].size ();
-    bufs [i].iov_base = (caddr_t) into [i].data ();
-  }
-
-  // Read as long as signals cancel the read before doing anything.
-  dc_errno = 0;
-  ssize_t n = dc_readv (m_fd, &bufs [0], buffers);
-
-  // If it was serious error, throw it.
-  if (n == -1)
-    throw cms::Exception("DCacheFile::readv()")
-      << "dc_readv(name='" << m_name << "', iov[" << buffers
-      << "]) failed with error '" << dc_strerror(dc_errno)
-      << "' (dc_errno=" << dc_errno << ")";
-
-  // Return the number of bytes actually read.
-  return n;
-}
-
-IOSize
-DCacheFile::readv (IOPosBuffer *into, IOSize buffers)
-{
-  assert (! buffers || into);
-
-  // readv may not support zero buffers.
-  if (! buffers)
-    return 0;
-
-  // Convert the buffers to system format.
-  std::vector<iovec2> bufs (buffers);
-  for (IOSize i = 0; i < buffers; ++i)
-  {
-    bufs [i].offset = into [i].offset ();
-    bufs [i].len    = into [i].size ();
-    bufs [i].buf    = (char *) into [i].data ();
-  }
-
-  // Read as long as signals cancel the read before doing anything.
-  dc_errno = 0;
-  ssize_t n = dc_readv2 (m_fd, &bufs [0], buffers);
-
-  // If it was serious error, throw it.
-  if (n == -1)
-    throw cms::Exception("DCacheFile::readv()")
-      << "dc_readv2(name='" << m_name << "', iov2[" << buffers
-      << "]) failed with error '" << dc_strerror(dc_errno)
-      << "' (dc_errno=" << dc_errno << ")";
-
-  // Return the number of bytes actually read.
-  return n;
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 03:03:32 CET 2008
-// $Id: L1TriggerKeyOnlineProd.cc,v 1.10 2008/10/13 01:49:48 wsun Exp $
+// $Id: L1TriggerKeyOnlineProd.cc,v 1.9 2008/09/19 19:31:13 wsun Exp $
 //
 //
 
@@ -27,6 +27,7 @@
 
 #include "CondTools/L1Trigger/interface/Exception.h"
 
+#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //

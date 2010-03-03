@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.11 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Ready.cc,v 1.12 2010/01/18 11:11:18 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -103,6 +103,14 @@ void Ready::do_entryActionWork()
   ResourceMonitorParams rmp =
     sharedResources->_configuration->getResourceMonitorParams();
   rmc.configureResources(rmp);
+  AlarmParams ap =
+    sharedResources->_configuration->getAlarmParams();
+  rmc.configureAlarms(ap);
+  
+  // configure the run monitoring
+  RunMonitorCollection& run_mc =
+    sharedResources->_statisticsReporter->getRunMonitorCollection();
+  run_mc.configureAlarms(ap);
 
   // configure the discard manager
   sharedResources->_discardManager->configure();

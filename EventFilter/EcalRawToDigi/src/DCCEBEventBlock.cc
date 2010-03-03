@@ -160,7 +160,7 @@ void DCCEBEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
    
   int STATUS = unpackTCCBlocks();
 
-  if(  STATUS != STOP_EVENT_UNPACKING && feUnpacking_ || srpUnpacking_ ){
+  if(  STATUS != STOP_EVENT_UNPACKING && (feUnpacking_ || srpUnpacking_) ){
     
     //NMGA note : SR comes before TCC blocks 
     // Emmanuelle please change this in the digi to raw

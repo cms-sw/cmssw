@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # Type-1 met corrections (IC5PFJets)
 # remember about including ES producer definition e.g. JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff
 
-pfType1MET = cms.EDFilter("Type1PFMET",
+pfType1MET = cms.EDProducer("Type1PFMET",
     inputUncorJetsTag = cms.InputTag("iterativeCone5PFJets"),
     jetEMfracLimit = cms.double(0.95), # to remove electron which give rise to jets
     jetMufracLimit = cms.double(0.95), # to remove electron which give rise to jets

@@ -1,11 +1,9 @@
-// $Id: ExpirableQueue.h,v 1.3 2009/06/19 13:49:12 dshpakov Exp $
+// $Id: ExpirableQueue.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: ExpirableQueue.h 
 
 
 #ifndef EventFilter_StorageManager_ExpirableQueue_h
 #define EventFilter_StorageManager_ExpirableQueue_h
-
-#include <cstddef> // for size_t
 
 #include "EventFilter/StorageManager/interface/ConcurrentQueue.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
@@ -20,9 +18,9 @@ namespace stor
      information. It keeps track of when the most recent called to deq
      was made.
    
-     $Author: dshpakov $
-     $Revision: 1.3 $
-     $Date: 2009/06/19 13:49:12 $
+     $Author: mommsen $
+     $Revision: 1.4 $
+     $Date: 2009/07/20 13:06:10 $
    */
 
   template <class T, class Policy>
@@ -30,11 +28,13 @@ namespace stor
   {
   public:
     typedef Policy policy_type; // publish template parameter
+    typedef typename ConcurrentQueue<T, Policy>::size_type size_type;
+
     /**
        Create an ExpirableQueue with the given maximum size and
        given "time to stale", specified in seconds.
      */
-    explicit ExpirableQueue(size_t maxsize=std::numeric_limits<size_t>::max(),
+    explicit ExpirableQueue(size_type maxsize=std::numeric_limits<size_type>::max(),
                             utils::duration_t seconds_to_stale = 120.0,
                             utils::time_point_t now = utils::getCurrentTime());
     /**
@@ -82,7 +82,7 @@ namespace stor
     /**
        Get number of entries in queue
     */
-    size_t size() const;
+    size_type size() const;
 
     /**
        Return true if the queue is stale, and false if it is not. The
@@ -110,7 +110,7 @@ namespace stor
 
   
   template <class T, class Policy>
-  ExpirableQueue<T, Policy>::ExpirableQueue(size_t maxsize,
+  ExpirableQueue<T, Policy>::ExpirableQueue(size_type maxsize,
                                             utils::duration_t seconds_to_stale,
                                             utils::time_point_t now) :
     _events(maxsize),
@@ -168,7 +168,7 @@ namespace stor
 
   template <class T, class Policy>
   inline
-  size_t
+  typename ExpirableQueue<T, Policy>::size_type
   ExpirableQueue<T, Policy>::size() const
   {
     return _events.size();

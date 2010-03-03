@@ -2,6 +2,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
+const int EcalScDetId::QuadColLimits[EcalScDetId::nCols+1] = { 0, 8,17,27,36,45,54,62,70,76,79 };
+const int EcalScDetId::iYoffset[EcalScDetId::nCols+1]      = { 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 EcalScDetId::EcalScDetId() : DetId() {
 }
@@ -33,29 +35,81 @@ EcalScDetId& EcalScDetId::operator=(const DetId& gen) {
   id_=gen.rawId();
   return *this;
 }
-
-int 
-EcalScDetId::iquadrant() const 
-{
-   const int jx ( ix() ) ;
-   const int jy ( iy() ) ;
-   static const int MX ( IX_MAX/2 ) ;
-   static const int MY ( IY_MAX/2 ) ;
-   return ( MX <= jx && MY <= jy ? 1 :
-	    ( MX >= jx && MY <= jy ? 2 :
-	      ( MX >= jx && MY >= jy ? 3 : 4 ) ) ) ;
+  
+int EcalScDetId::hashedIndex() const {
+  return ((zside()>0)?(IX_MAX*IY_MAX):(0))+(iy()-1)*IX_MAX+(ix()-1);
 }
 
-int 
-EcalScDetId::isc() const 
+int EcalScDetId::ixQuadrantOne() const
 { 
-   return EEDetId::isc( ix(), iy() ) ; 
+  int iQuadrant = iquadrant();
+  if ( iQuadrant == 1 || iQuadrant == 4)
+    return (ix() - 10);
+  else if ( iQuadrant == 2 || iQuadrant == 3)
+    return (11 - ix());
+  //Should never be reached
+  return -1;
 }
 
-bool 
-EcalScDetId::validDetId(int iX, int iY, int iZ) 
+int EcalScDetId::iyQuadrantOne() const
+{ 
+  int iQuadrant = iquadrant();
+  if ( iQuadrant == 1 || iQuadrant == 2)
+    return (iy() - 10);
+  else if ( iQuadrant == 3 || iQuadrant == 4)
+    return 11 - iy();
+  //Should never be reached
+  return -1;
+}
+
+int EcalScDetId::iquadrant() const {
+  if (ix()>10)
+    {
+      if(iy()>10)
+	return 1;
+      else
+	return 4;
+    }
+  else
+    {
+      if(iy()>10)
+	return 2;
+      else
+	return 3;
+    }
+  //Should never be reached
+  return -1;
+}  
+
+int EcalScDetId::isc() const 
 {
-   static const char endcapMap[401] = {
+  /*
+   *  Return SC number from (x,y) coordinates.
+   *
+   *  Copied from code originally written by B W Kennedy
+   */
+  
+  int iCol = ix();
+  int iRow = iy();
+  int nSCinQuadrant = QuadColLimits[nCols];
+  int iSC;
+  
+  if (iRow <= iYoffset[iCol]) 
+    return -1;
+  else 
+    iSC = QuadColLimits[iCol-1] + iRow - iYoffset[iCol];
+
+  if (iSC > QuadColLimits[iCol]) 
+    return -2;
+  
+  if (iSC>0) 
+      iSC += nSCinQuadrant*(iquadrant()-1);
+  
+  return iSC;
+}  
+
+bool EcalScDetId::validDetId(int iX, int iY, int iZ) {
+  static const char endcapMap[401] = {
     "       XXXXXX       "
     "    XXXXXXXXXXXX    "
     "   XXXXXXXXXXXXXX   "
@@ -77,12 +131,7 @@ EcalScDetId::validDetId(int iX, int iY, int iZ)
     "    XXXXXXXXXXXX    "
     "       XXXXXX       "};
 
-   return ( 1      == abs(iZ) && 
-	    IX_MIN <= iX      &&
-	    IX_MAX >= iX      &&
-	    IY_MIN <= iY      &&
-	    IY_MAX >= iY      &&
-	    endcapMap[iX-1+(iY-1)*20]!=' ' ) ;
+  return abs(iZ)==1 && endcapMap[iX-1+(iY-1)*20]!=' ';
 }
 
 std::ostream& operator<<(std::ostream& s,const EcalScDetId& id) {

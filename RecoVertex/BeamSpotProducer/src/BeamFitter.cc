@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.22 2010/02/04 00:45:23 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.24 2010/02/11 00:11:57 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -164,7 +164,17 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   //debug histograms
   h1ntrks = new TH1F("h1ntrks","number of tracks per event",50,0,50);
   h1vz_event = new TH1F("h1vz_event","track Vz", 50, -30, 30 );
-  
+  h1cutFlow = new TH1F("h1cutFlow","Cut flow table of track selection", 9, 0, 9);
+  h1cutFlow->GetXaxis()->SetBinLabel(1,"No cut");
+  h1cutFlow->GetXaxis()->SetBinLabel(2,"Traker hits");
+  h1cutFlow->GetXaxis()->SetBinLabel(3,"Pixel hits");
+  h1cutFlow->GetXaxis()->SetBinLabel(4,"norm. #chi^{2}");
+  h1cutFlow->GetXaxis()->SetBinLabel(5,"algo");
+  h1cutFlow->GetXaxis()->SetBinLabel(6,"quality");
+  h1cutFlow->GetXaxis()->SetBinLabel(7,"d_{0}");
+  h1cutFlow->GetXaxis()->SetBinLabel(8,"z_{0}");
+  h1cutFlow->GetXaxis()->SetBinLabel(9,"p_{T}");
+  resetCutFlow();
 }
 
 BeamFitter::~BeamFitter() {
@@ -173,6 +183,7 @@ BeamFitter::~BeamFitter() {
     if (h1z) h1z->Write();
     h1ntrks->Write();
     h1vz_event->Write();
+    if (h1cutFlow) h1cutFlow->Write();
     ftree_->Write();
   }
   if (saveBeamFit_){
@@ -306,30 +317,39 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     
     if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
-    
-    
-    // Final track selection
-    if (fnTotLayerMeas >= trk_MinNTotLayers_
-        && fnPixelLayerMeas >= trk_MinNPixLayers_
-	&& fnormchi2 < trk_MaxNormChi2_
-	&& fpt > trk_MinpT_
-	&& falgo
-	&& fquality
-	&& std::abs( fd0 ) < trk_MaxIP_
-	&& std::abs( fz0 ) < trk_MaxZ_
-	&& std::abs( feta ) < trk_MaxEta_
-	//&& fpvValid
-        ) {
-      if (debug_){
-	std::cout << "Selected track quality = " << track->qualityMask();
-	std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
+
+    countPass[0] = ftotal_tracks;
+    // Track selection
+    if (fnTotLayerMeas >= trk_MinNTotLayers_) { countPass[1] += 1;
+      if (fnPixelLayerMeas >= trk_MinNPixLayers_) { countPass[2] += 1;
+	if (fnormchi2 < trk_MaxNormChi2_) { countPass[3] += 1;
+	  if (falgo) {countPass[4] += 1;
+	    if (fquality) { countPass[5] += 1;
+	      if (std::abs( fd0 ) < trk_MaxIP_) { countPass[6] += 1;
+		if (std::abs( fz0 ) < trk_MaxZ_){ countPass[7] += 1;		  
+		  if (fpt > trk_MinpT_) {
+		    countPass[8] += 1;
+		    if (std::abs( feta ) < trk_MaxEta_
+			//&& fpvValid
+			) {
+		      if (debug_) {
+			std::cout << "Selected track quality = " << track->qualityMask();
+			std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
+		      }
+		      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
+		      BSTrk.setVx(fvx);
+		      BSTrk.setVy(fvy);
+		      fBSvector.push_back(BSTrk);
+		      averageZ += fz0;
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
       }
-      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
-      BSTrk.setVx(fvx);
-      BSTrk.setVy(fvy);
-      fBSvector.push_back(BSTrk);
-      averageZ += fz0;
-    }
+    }// track selection
 
   }// tracks
 
@@ -343,6 +363,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   
   h1ntrks->Fill( fBSvector.size() );
   h1vz_event->Fill( eventZ/(float)(fBSvector.size() ) ) ;
+  for (unsigned int i=0; i < sizeof(countPass)/sizeof(countPass[0]); i++) 
+    h1cutFlow->SetBinContent(i+1,countPass[i]);
 
 }
 
@@ -401,10 +423,10 @@ void BeamFitter::dumpTxtFile(){
   fasciiFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
   fasciiFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
   fasciiFile << "Type " << fbeamspot.type() << std::endl;
-  fasciiFile << "X " << fbeamspot.x0() << std::endl;
-  fasciiFile << "Y " << fbeamspot.y0() << std::endl;
-  fasciiFile << "Z " << fbeamspot.z0() << std::endl;
-  fasciiFile << "sigmaZ " << fbeamspot.sigmaZ() << std::endl;
+  fasciiFile << "X0 " << fbeamspot.x0() << std::endl;
+  fasciiFile << "Y0 " << fbeamspot.y0() << std::endl;
+  fasciiFile << "Z0 " << fbeamspot.z0() << std::endl;
+  fasciiFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
   fasciiFile << "dxdz " << fbeamspot.dxdz() << std::endl;
   fasciiFile << "dydz " << fbeamspot.dydz() << std::endl;
   if (inputBeamWidth_ > 0 ) {

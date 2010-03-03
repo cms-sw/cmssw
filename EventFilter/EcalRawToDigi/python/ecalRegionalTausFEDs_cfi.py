@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalRegionalTausFEDs = cms.EDFilter("EcalRawToRecHitRoI",
+ecalRegionalTausFEDs = cms.EDProducer("EcalRawToRecHitRoI",
     sourceTag = cms.InputTag("EcalRawToRecHitFacility"),
     JetJobPSet = cms.VPSet(cms.PSet(
         Source = cms.InputTag("l1extraParticles","Tau"),

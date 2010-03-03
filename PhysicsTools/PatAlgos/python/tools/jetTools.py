@@ -101,7 +101,7 @@ class SwitchJECSet(ConfigToolBase):
     def toolCode(self, process):        
         newName=self._parameters['newName'].value
            
-        jetCorrFactors = getattr(process, 'jetCorrFactors')
+        jetCorrFactors = getattr(process, 'patJetCorrFactors')
         jetCorrFactors.corrSample = newName
        
 switchJECSet=SwitchJECSet()
@@ -249,6 +249,11 @@ class RunBTagging(ConfigToolBase):
         seq = mkseq(process, 'btaggingTagInfos'+label, 'btaggingJetTags' + label) 
         setattr( process, 'btagging'+label, seq )
         ## return the combined sequence and the labels defined above
+
+        if hasattr(process, "addAction"):
+            process.enableRecording()
+            action=self.__copy__()
+            process.addAction(action)
         return (seq, labels)
 
       

@@ -1,3 +1,27 @@
+2010-02-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-01
+	* Provide Adler32 checksum for FRD (error) event streams, too.
+	  Requires IOPool/Streamer V05-08-06 or newer.
+	* Fix for uninitialized variable in TriggerSelector.
+	* Discard oldest DQM events if DQM event queue fills up.
+	  instead of newest ones.
+	* Keep track of number of discarded DQM events.
+
+2010-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-00
+	* Send alarms instead of sentinel messages for event not used by
+	  anybody and for a too high rate of error events (default 10Hz).
+	  This is only enabled if 'isProductionSystem' is true (default false).
+	* Keep track of memory allocated to objects in ConcurrentQueues
+	  and fragment store; shown on ThroughputMonitor hyperdaq page.
+	* ConcurrentQueues allow to limit memory usage, but not use yet.
+	* Avoid creation of StreamHandlers for streams with fractionToDisk=0.
+	* Show fractionToDisk parameter on StreamRecord hypderdaq page.
+	* Clear all sentinel alarms at run-start.
+	* Minor cleanup in types to improve consistency in 64bit builds.
+
 2010-02-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-07-00

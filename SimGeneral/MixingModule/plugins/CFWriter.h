@@ -22,7 +22,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"

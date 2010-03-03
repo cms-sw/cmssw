@@ -5,10 +5,10 @@ import FWCore.ParameterSet.Config as cms
 # (one solution for each possible jet combination)
 #
 solutions = cms.EDProducer("StEvtSolutionMaker",
-    metSource      = cms.InputTag("layer1METs"),
-    muonSource     = cms.InputTag("selectedLayer1Muons"),
-    electronSource = cms.InputTag("selectedLayer1Electrons"),
-    jetSource      = cms.InputTag("selectedLayer1Jets"),
+    metSource      = cms.InputTag("patMETs"),
+    muonSource     = cms.InputTag("selectedPatMuons"),
+    electronSource = cms.InputTag("selectedPatElectrons"),
+    jetSource      = cms.InputTag("selectedPatJets"),
 
     ## lepton flavor
     leptonFlavour = cms.string('muon'),

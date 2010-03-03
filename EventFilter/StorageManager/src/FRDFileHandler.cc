@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.cc,v 1.9 2010/02/01 11:42:20 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.10 2010/02/01 14:08:30 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
@@ -56,6 +56,7 @@ void FRDFileHandler::closeFile(const FilesMonitorCollection::FileRecord::Closing
   {
     // if writer was reset, we already closed the stream but failed to move the file to the closed position
     _writer->stop();
+    setAdler(_writer->adler32(), 0);
     _writer.reset(); // Destruct the writer to flush the file stream
   }
   moveFileToClosed(false, reason);

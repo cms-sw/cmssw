@@ -11,6 +11,7 @@ HLT_Jet30U
 HLT_Jet50U
 HLT_DiJetAve15U_8E29
 HLT_DiJetAve30U_8E29
+HLT_DoubleJet15U_ForwardBackward
 HLT_L1SingleForJet
 HLT_FwdJet20U
 HLT_QuadJet15U
@@ -31,6 +32,7 @@ HLT_DoubleMu0
 HLT_DoubleMu3
 HLT_L1DoubleMuOpen
 HLT_IsoMu3
+HLT_L1SingleEG1
 HLT_L1SingleEG2
 HLT_L1SingleEG5
 HLT_L1SingleEG5_NoBPTX
@@ -62,9 +64,9 @@ HLT_L1Mu14_L1SingleEG10
 HLT_L1Mu14_L1SingleJet6U
 HLT_L1Mu14_L1ETM30
 HLT_ZeroBias
-HLT_ZeroBias1kHz
 HLT_MinBias
 HLT_MinBiasBSC
+HLT_MinBiasBSC_NoBPTX
 HLT_MinBiasBSC_OR
 HLT_MinBiasEcal
 HLT_MinBiasHcal
@@ -106,6 +108,7 @@ HLT_L1_BPTX
 HLT_L1_BPTX_MinusOnly
 HLT_L1_BPTX_PlusOnly
 HLT_L1_BscMinBiasOR_BptxPlusORMinus
+HLT_L1_BscMinBiasOR_BptxPlusORMinus_NoBPTX
 HLT_L1_BSC
 HLT_L1_HFtech
 HLT_L1Tech_HCAL_HF_coincidence_PM
@@ -119,7 +122,8 @@ HLTriggerFinalPath
 HLTAnalyzerEndpath
 DQMOutput
 HLTOutput
-HLTOutputB
-ESOutput
+EventDisplayOutput
+ExpressOutput
 AlCaOutput
-MONOutput
+HLTDQMOutput
+HLTMONOutput

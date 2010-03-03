@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-jetMETHLTOfflineClient = cms.EDFilter("JetMETHLTOfflineClient",
+jetMETHLTOfflineClient = cms.EDAnalyzer("JetMETHLTOfflineClient",
 
                                  processname = cms.string("HLT"),
                                  DQMDirName=cms.string("HLT/JetMET"),

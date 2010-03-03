@@ -97,7 +97,7 @@ graphwalker<N,E>::graphwalker(const graph<N,E> & g, const N & root)
 {
    index_result rr = graph_.nodeIndex(root);
    if (!rr.second) // no such root node, no walker can be created!
-     throw root;
+     throw root;  
      
    root_.push_back(edge_type(rr.first, 0));
    stack_.push_back(edge_range(root_.begin(),root_.end()));   

@@ -193,7 +193,7 @@ void RPCDqmClient::makeClientMap() {
   //Fill vectors with all possible RPC DQM clients , source histos names, and tag values
   //RPCMultiplicityTest
   clientNames.push_back("RPCMultiplicityTest");
-  clientHisto.push_back("NumberOfDigi");
+  clientHisto.push_back("Multiplicity");
   clientTag.push_back(rpcdqm::MULTIPLICITY);
   clientModules.push_back( new RPCMultiplicityTest(parameters_));
   //RPCDeadChannelTest

@@ -5,7 +5,8 @@ EcalRawToRecHitProducer = cms.EDProducer("EcalRawToRecHitProducer",
     sourceTag = cms.InputTag("EcalRawToRecHitRoI"),
     splitOutput = cms.bool(True),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
-    EErechitCollection = cms.string('EcalRecHitsEE')
+    EErechitCollection = cms.string('EcalRecHitsEE'),
+    rechitCollection = cms.string('')
 )
 
 

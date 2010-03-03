@@ -212,21 +212,14 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	  << "smoothing estimate (with combTSOS)=" << estimate << "\n"
 	  << "filtering estimate=" << itm->estimate() << "\n";
 	
-	//check for valid hits with no det (refitter with constraints)
-	if (preciseHit->det()) myTraj.push(TM(itm->forwardPredictedState(),
-					      predTsos,
-					      smooTsos,
-					      preciseHit,
-					      estimate,
-					      theGeometry->idToLayer(preciseHit->geographicalId()) ),
-					   estimator()->estimate(predTsos,*preciseHit).second);
-	else myTraj.push(TM(itm->forwardPredictedState(),
-			    predTsos,
-			    smooTsos,
-			    preciseHit,
-			    estimate),
-			 estimator()->estimate(predTsos,*preciseHit).second);
-	//itm->estimate());
+	myTraj.push(TM(itm->forwardPredictedState(),
+		       predTsos,
+		       smooTsos,
+		       preciseHit,
+		       estimate,
+		       theGeometry->idToLayer(preciseHit->geographicalId()) ),
+		    estimator()->estimate(predTsos,*preciseHit).second);
+	            //itm->estimate());
       }
     } else {
       LogDebug("TrackFitters") 
@@ -246,7 +239,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       }
       
       myTraj.push(TM(itm->forwardPredictedState(),
-		     predTsos,
+    		     predTsos,
     		     combTsos,
     		     hit,
 		     0,

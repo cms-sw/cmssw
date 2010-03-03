@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"

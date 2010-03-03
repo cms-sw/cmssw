@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-rpcEfficiency = cms.EDFilter("RPCEfficiency",
+rpcEfficiency = cms.EDAnalyzer("RPCEfficiency",
     incldt = cms.untracked.bool(True),
     incldtMB4 = cms.untracked.bool(True),
     inclcsc = cms.untracked.bool(True),

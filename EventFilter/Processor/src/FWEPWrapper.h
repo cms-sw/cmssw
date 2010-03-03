@@ -17,6 +17,8 @@
 #include "xgi/Output.h"
 #include "xgi/exception/Exception.h"
 
+#include "xoap/MessageReference.h"
+
 #include "xdata/InfoSpace.h"
 #include "xdata/Integer.h"
 #include "log4cplus/logger.h"
@@ -94,9 +96,14 @@ namespace evf{
 
     void sumAndPackTriggerReport(MsgBuf &buf);
     void resetPackedTriggerReport(){trh_.resetPackedTriggerReport();}
+    void adjustLsIndexForRestart(){trh_.adjustLsIndexForRestart();}
+    void resetTriggerReport(){trh_.resetTriggerReport();}
     MsgBuf &getPackedTriggerReport(){return trh_.getPackedTriggerReport();}
     bool fireScalersUpdate(); 
+    void createAndSendScalersMessage();
+
     void lumiSumTable(xgi::Output *out);
+
     // some accessors for FUEventProcessor
     std::string const &moduleNameFromIndex(unsigned int i) const
       {
@@ -108,14 +115,14 @@ namespace evf{
 	if(i<statmod_.size()) return statmod_[i];
 	else return unknown;
       }
+
     lsTriplet &lastLumi(){return lumiSectionsCtr_[rollingLsIndex_];}
+    void resetWaiting(){waitingForLs_ = false;}
+    bool isWaitingForLs(){return waitingForLs_;}
 
   private:
     static const std::string        unknown;
     edm::EventProcessor             *evtProcessor_;
-    bool                             inRecovery_;
-    unsigned int                     recoveryCount_;
-    bool                             triggerReportIncomplete_;
 
     edm::ServiceToken                serviceToken_;    
     edm::ServiceToken                slaveServiceToken_;    
@@ -175,11 +182,6 @@ namespace evf{
     xdata::String                    micro_state_legend_;
 
     // LS stuff
-    unsigned int                     firstLsTimeOut_;
-    unsigned int                     residualTimeOut_;
-    bool                             lastLsTimedOut_; 
-    unsigned int                     lastLsWithEvents_;
-    unsigned int                     lastLsWithTimeOut_;
     unsigned int                     allPastLumiProcessed_;
     std::list<std::string>           names_;
     std::string                      lsidTimedOutAsString_;
@@ -203,6 +205,7 @@ namespace evf{
     std::string                      configuration_;
     xdata::UnsignedInteger32         instance_;
     bool                             hasSubProcesses;
+    bool                             waitingForLs_;
     friend class FUEventProcessor;
   };
 }

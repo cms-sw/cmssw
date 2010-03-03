@@ -18,7 +18,7 @@ class DDTIDModulePosAlgo : public DDAlgorithm {
                   const DDMapArguments & mArgs,
                   const DDStringArguments & sArgs,
                   const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& cpv);
+  void execute();
 
 private:
 

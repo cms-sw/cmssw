@@ -54,7 +54,7 @@ void RPCDaqInfo::beginLuminosityBlock(const LuminosityBlock& lumiBlock, const  E
 void RPCDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){}
 
 
-void RPCDaqInfo::beginJob(const edm::EventSetup& iSetup){
+void RPCDaqInfo::beginJob(){
 
   dbe_ = 0;
   dbe_ = Service<DQMStore>().operator->();

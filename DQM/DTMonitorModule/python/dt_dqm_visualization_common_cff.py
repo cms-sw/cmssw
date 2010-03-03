@@ -8,25 +8,13 @@ calibrationEventsFilter = cms.EDFilter("HLTTriggerTypeFilter",
                                        SelectedTriggerType = cms.int32(1) 
                                        )
 
-# DT digitization and reconstruction
-dtunpacker = cms.EDProducer("DTUnpackingModule",
-    dataType = cms.string('DDU'),
-    useStandardFEDid = cms.untracked.bool(True),
-    fedbyType = cms.untracked.bool(True),
-    readOutParameters = cms.PSet(
-        debug = cms.untracked.bool(False),
-        rosParameters = cms.PSet(
-            writeSC = cms.untracked.bool(True),
-            readingDDU = cms.untracked.bool(True),
-            performDataIntegrityMonitor = cms.untracked.bool(False),
-            readDDUIDfromDDU = cms.untracked.bool(True),
-            debug = cms.untracked.bool(False),
-            localDAQ = cms.untracked.bool(False)
-        ),
-        localDAQ = cms.untracked.bool(False),
-        performDataIntegrityMonitor = cms.untracked.bool(False)
-    )
-)
+from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
+#from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
+#dtunpacker.readOutParameters.performDataIntegrityMonitor = True
+#dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
+dtunpacker.readOutParameters.debug = False
+dtunpacker.readOutParameters.rosParameters.debug = False
+
 
 from Configuration.StandardSequences.ReconstructionCosmics_cff import *
 #from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff import *

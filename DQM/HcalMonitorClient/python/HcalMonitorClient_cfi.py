@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from copy import deepcopy
 
-hcalClient = cms.EDFilter("HcalMonitorClient",
+hcalClient = cms.EDAnalyzer("HcalMonitorClient",
 
                           # Variables for the Overall Client
                           runningStandalone         = cms.untracked.bool(False),

@@ -519,7 +519,7 @@ void HcalBeamClient::analyze(void)
 	{
 	  for (int i=0;i<dead->GetNbinsX();++i)
 	    {
-	      if (i<3)
+	      if (i<=3)
 		myieta=i-36;
 	      else
 		myieta=i+29;
@@ -549,7 +549,7 @@ void HcalBeamClient::analyze(void)
 	{
 	  for (int i=0;i<hot->GetNbinsX();++i)
 	    {
-	      if (i<3)
+	      if (i<=3)
 		myieta=i-36;
 	      else
 		myieta=i+29;

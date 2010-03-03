@@ -142,8 +142,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       int accMCEle=0;
       if(cfg->selectBranchMC){
 	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
-	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
-	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==3 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
+	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
 	}
 	if     ((cfg->pisPhysicsSample[procID]==1 && accMCEle>=1               )){ Den=Den+1;}
 	else if((cfg->pisPhysicsSample[procID]==2 &&                accMCMu >=1)){ Den=Den+1;}
@@ -159,13 +159,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //////////////////////////////////////////////////////////////////
     TString hlteffmode;
     TString ohltobject;
-    //    hlteffmode="GEN";
+    hlteffmode="GEN";
     //    hlteffmode="L1";
-    hlteffmode="RECO";
+    //    hlteffmode="RECO";
     ohltobject="None";
     if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
     if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
     if (cfg->pisPhysicsSample[procID]==3)ohltobject="ele_mu";
+    if (cfg->pisPhysicsSample[procID]==4)ohltobject=="photon";
     PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 

@@ -193,23 +193,15 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
                         // associated trigger towers
                         std::set<EcalTrigTowerDetId> aTT;
+                        float totE = 0;
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
+                                float theta = eeGeom_->getGeometry( eeC[i] )->getPosition().theta();
+                                totE += ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() ) / sin(theta);
                                 aTT.insert( ttMap_->towerOf( eeC[i] ) );
                         }
-                        // associated trigger towers: total energy
-                        float totE = 0;
                         // associated trigger towers: EEDetId constituents
                         std::set<DetId> aTTC;
                         for ( std::set<EcalTrigTowerDetId>::const_iterator it = aTT.begin(); it != aTT.end(); ++it ) {
-                                // add the energy of this trigger tower
-                                EcalTrigPrimDigiCollection::const_iterator itTP = tpDigis->find( *it );
-                                if ( itTP != tpDigis->end() ) {
-                                        EcalTrigTowerDetId ttId = itTP->id();
-                                        EEDetId eeId( ttId.ieta(), ttId.iphi(), ttId.zside() );
-                                        float theta = eeGeom_->getGeometry( eeId )->getPosition().theta();
-                                        totE += ecalScale_.getTPGInGeV( itTP->compressedEt(), itTP->id() ) / sin(theta);
-                                }
-                                // get the trigger tower constituents
                                 std::vector<DetId> v = ttMap_->constituentsOf( *it );
                                 for ( size_t j = 0; j < v.size(); ++j ) {
                                         aTTC.insert( v[j] );

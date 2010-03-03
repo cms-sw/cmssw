@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.191 $
+ * $Date: 2010/02/14 11:11:10 $
+ * $Revision: 1.194 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -62,7 +62,9 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   if ( runNumber_ != 0 ) fixedRunNumber_ = true;
 
   if ( fixedRunNumber_ ) {
-    LogInfo("EcalBarrelMonitorModule") << " using fixed Run Number = " << runNumber_ << endl;
+    if ( verbose_ ) {
+      cout << " fixed Run Number = " << runNumber_ << endl;
+    }
   }
 
   // this should come from the event header
@@ -76,16 +78,22 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   if ( runType_ != -1 ) fixedRunType_ = true;
 
   if ( fixedRunType_) {
-    LogInfo("EcalBarrelMonitorModule") << " using fixed Run Type = " << runType_ << endl;
+    if ( verbose_ ) {
+      cout << " fixed Run Type = " << runType_ << endl;
+    }
   }
 
   // debug switch
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   if ( debug_ ) {
-    LogInfo("EcalBarrelMonitorModule") << " debug switch is ON";
+    if ( verbose_ ) {
+      cout << " debug switch is ON" << endl;
+    }
   } else {
-    LogInfo("EcalBarrelMonitorModule") << " debug switch is OFF";
+    if ( verbose_ ) {
+      cout << " debug switch is OFF" << endl;
+    }
   }
 
   // prefixME path
@@ -98,9 +106,13 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   if ( enableCleanup_ ) {
-    LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is ON";
+    if ( verbose_ ) {
+      cout << " enableCleanup switch is ON" << endl;
+    }
   } else {
-    LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is OFF";
+    if ( verbose_ ) {
+      cout << " enableCleanup switch is OFF" << endl;
+    }
   }
 
   // EventDisplay switch
@@ -373,7 +385,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  LogInfo("EcalBarrelMonitorModule") << "processing event " << ievt_;
+  LogDebug("EcalBarrelMonitorModule") << "processing event " << ievt_;
 
   if ( ! fixedRunNumber_ ) runNumber_ = e.id().run();
 
@@ -384,7 +396,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     if ( dcchs->size() == 0 ) {
-      LogInfo("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " is empty";
+      LogDebug("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " is empty";
       return;
     }
 
@@ -442,7 +454,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
   if ( ievt_ == 1 ) {
-    LogInfo("EcalBarrelMonitorModule") << "processing run " << runNumber_;
+    LogDebug("EcalBarrelMonitorModule") << "processing run " << runNumber_;
     // begin-of-run
     if ( meStatus_ ) meStatus_->Fill(0);
   } else {
@@ -471,16 +483,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       EBDataFrame dataframe = (*digiItr);
       EBDetId id = dataframe.id();
 
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
-
       int ism = Numbers::iSM( id );
 
       counter[ism-1]++;
-
-      LogDebug("EcalBarrelMonitorModule") << " det id = " << id;
-      LogDebug("EcalBarrelMonitorModule") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
     }
 
@@ -526,12 +531,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      LogDebug("EcalBarrelMonitorModule") << " det id = " << id;
-      LogDebug("EcalBarrelMonitorModule") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       float xval = hit.energy();
-
-      LogDebug("EcalBarrelMonitorModule") << " hit energy " << xval;
 
       if ( enableEventDisplay_ ) {
 

@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.13 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Processing.cc,v 1.14 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -63,7 +63,8 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
 {
   static unsigned int noFragmentCount = 0;
 
-  bool completed = outermost_context().getFragmentStore()->addFragment(frag);
+  FragmentStore* fragmentStore = outermost_context().getFragmentStore();
+  bool completed = fragmentStore->addFragment(frag);
   if ( completed )
   {
     // The run number check has to be done before the event is added to the
@@ -102,7 +103,11 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
   // disk writing is slow or stopped, the stream queue fills up, and there
   // is backpressure within the SM, the true number of events in the fragment
   // store is zero, and putting the sampling here reflects that.
-  outermost_context().getSharedResources()->_statisticsReporter->getThroughputMonitorCollection().setFragmentStoreSize(outermost_context().getFragmentStore()->size());
+  ThroughputMonitorCollection& tmc = 
+    outermost_context().getSharedResources()->_statisticsReporter->
+    getThroughputMonitorCollection();
+  tmc.setFragmentStoreSize(fragmentStore->size());
+  tmc.setFragmentStoreMemoryUsed(fragmentStore->memoryUsed());
 }
 
 void

@@ -325,7 +325,7 @@ muonrecoforsplitcosmics = cms.Sequence(globalCosmicSplitMuons*splitMuons)
 ######################## LHC like Reco #############################
 
 # Standard reco
-from RecoMuon.Configuration.RecoMuon_cff import *
+from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
 ## Barrel only ##
 

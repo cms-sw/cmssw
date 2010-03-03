@@ -8,7 +8,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V20::All"
+process.GlobalTag.globaltag = "MC_3XY_V10::All"
 
 #MagFieldValue = 0
 #MagFieldValue = 3.8
@@ -17,8 +17,8 @@ process.GlobalTag.globaltag = "MC_3XY_V20::All"
 MagFieldValue = float(sys.argv[2])
 
 
-tagversion = 'v1'
-if ( MagFieldValue==0 ):
+tagversion = 'v0'
+if(MagFieldValue==0):
     MagFieldString = '0'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0022.out",
@@ -32,36 +32,19 @@ elif(MagFieldValue==4):
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0019.out")
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(18,19)
-elif(MagFieldValue==38):
+else:
     MagFieldString = '38'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0020.out",
         "CalibTracker/SiPixelESProducers/data/template_summary_zp0021.out")
+#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0024.out",
+#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0025.out",
+#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0026.out",
+#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0027.out")
+#    theDetIds      = cms.vuint32(27,2,1,0)
+#    theTemplateIds = cms.vuint32(12,8,6,4)
     theDetIds      = cms.vuint32( 1, 2)
     theTemplateIds = cms.vuint32(20,21)
-elif(MagFieldValue==2):
-    MagFieldString = '2'
-    files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0030.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0031.out")
-    theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(30,31)
-elif(MagFieldValue==3):
-    MagFieldString = '3'
-    files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0032.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0033.out")
-    theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(32,33)
-elif(MagFieldValue==35):
-    MagFieldString = '35'
-    files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0034.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0035.out")
-    theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(34,35)
-
-
 
 template_base = 'SiPixelTemplateDBObject' + MagFieldString + 'T'
 #theTemplateBaseString = cms.string(template_base)
@@ -95,7 +78,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.uploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
                                   siPixelTemplateCalibrations = files_to_upload,
                                   theTemplateBaseString = cms.string(template_base),
-                                  Version = cms.double("3.0"),
+                                  Version = cms.double("2.0"),
                                   MagField = cms.double(MagFieldValue),
                                   detIds = theDetIds,
                                   templateIds = theTemplateIds

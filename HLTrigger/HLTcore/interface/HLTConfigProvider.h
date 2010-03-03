@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/02 18:17:48 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/02/18 15:07:16 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -15,7 +15,8 @@
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include<string>
@@ -29,19 +30,44 @@ class HLTConfigProvider {
   
  public:
 
-  /// init methods - use either one or the other but not both!
-  /// 1) simple and useable in beginRun() - but may fail when processing
-  /// file(s) containing events accepted by different HLT tables!
-  bool init(const std::string& processName);
-  /// 2) fail-safe init method to be called for each event - the parameter
-  /// "changed" indicates whether the config has actually changed
-  bool init(const edm::Event& iEvent, const std::string& processName, bool& changed);
+  /// init methods - use one and only one!
 
-  /// clear data members - called by init() methods, not by user!
+  /// very old, deprecated, may fail when processing file(s) containing
+  /// events accepted by different HLT tables!
+  bool init(const std::string& processName);
+
+  /// old, deprecated as well
+  /// the parameter "changed" indicates whether the config has
+  /// actually changed
+  bool init(const edm::Event& iEvent,                                              const std::string& processName, bool& changed);
+
+  /// new, revised, based on advice by Chris Jones (Feb.2010)
+  /// call from beginRun
+  bool init(const edm::Run& iRun,                   const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+
+
+ private:
+
+  /// call from beginRun
+  bool init(const edm::Run& iRun,                                                  const std::string& processName, bool& changed);
+
+  /// call from beginLuminsoityBlock
+  bool init(const edm::LuminosityBlock& iLumiBlock,                                const std::string& processName, bool& changed);
+  bool init(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+
+  /// call from produce/filter/analyze method
+  bool init(const edm::Event& iEvent,               const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+
+  /// real init method 
+  bool init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed);
+  bool init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
+  /// clear data members - called by init() method
   void clear();
-  /// extract information into data members - called by init() methods
+  /// extract information into data members - called by init() method
   void extract();
 
+
+ public:
   /// dump config aspects to cout
   void dump(const std::string& what) const;
 
@@ -148,10 +174,10 @@ class HLTConfigProvider {
 
   /// c'tor
   HLTConfigProvider():
-    processName_(""), registry_(), processPSet_(),
+    processName_(""), processPSet_(),
     tableName_(), triggerNames_(), moduleLabels_(),
     triggerIndex_(), moduleIndex_(),
-    pathNames_(), endpathNames_(), hltL1GTSeeds_(),
+    hltL1GTSeeds_(),
     streamNames_(), streamIndex_(), streamContents_(),
     datasetNames_(), datasetIndex_(), datasetContents_(),
     prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
@@ -159,9 +185,6 @@ class HLTConfigProvider {
  private:
 
   std::string processName_;
-
-  const edm::pset::Registry * registry_;
-
   edm::ParameterSet processPSet_;
 
   std::string tableName_;
@@ -170,9 +193,6 @@ class HLTConfigProvider {
 
   std::map<std::string,unsigned int> triggerIndex_;
   std::vector<std::map<std::string,unsigned int> > moduleIndex_;
-
-  std::vector<std::string> pathNames_;
-  std::vector<std::string> endpathNames_;
 
   std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
 

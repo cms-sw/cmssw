@@ -38,8 +38,7 @@ class HDQMInspector
     iDoStat(0),
     fSkip99s(false),
     fSkip0s(false),
-    fHDQMInspectorConfig(0x0),
-    fSep("@")
+    fHDQMInspectorConfig(0x0)
     {
     };
   
@@ -54,8 +53,7 @@ class HDQMInspector
     iDoStat(0),
     fSkip99s(false),
     fSkip0s(false),
-    fHDQMInspectorConfig(InConfig),
-    fSep("@")
+    fHDQMInspectorConfig(InConfig)
     {
     };
   
@@ -76,7 +74,6 @@ class HDQMInspector
   void setDebug(int i){iDebug=i;}
   void setDoStat(int i){iDoStat=i;}
   void setBlackList(std::string const& ListItems);
-  void setWhiteList(std::string const& ListItems);
   void setSkip99s (bool const in) {
     fSkip99s = in;
     return;
@@ -93,10 +90,6 @@ class HDQMInspector
   }
   double findGraphMax(TGraphErrors*);
   double findGraphMin(TGraphErrors*);
-  void setSeparator(std::string const in) {
-    fSep = in;
-    return;
-  }
 
   
   inline std::vector<unsigned int> getRuns() { return vRun_;}
@@ -125,7 +118,6 @@ private:
   
   std::vector<unsigned int> iovList;
   std::vector<unsigned int> blackList;
-  std::vector<unsigned int> whiteList;
   
   std::vector<unsigned int> vRun_;
   std::vector<float> vSummary_;
@@ -139,8 +131,6 @@ private:
   bool fSkip0s;
 
   const HDQMInspectorConfigBase* fHDQMInspectorConfig;
-
-  std::string fSep;
 
 public:
   TFile *fOutFile;

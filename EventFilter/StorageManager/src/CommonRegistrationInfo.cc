@@ -1,4 +1,4 @@
-// $Id: CommonRegistrationInfo.cc,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: CommonRegistrationInfo.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: CommonRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/CommonRegistrationInfo.h"
@@ -10,7 +10,7 @@ namespace stor
   CommonRegistrationInfo::CommonRegistrationInfo
   (
     const std::string& consumerName,
-    const size_t& queueSize,
+    const int& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
     const utils::duration_t& secondsToStale
   ) :

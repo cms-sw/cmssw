@@ -1,16 +1,54 @@
-# /dev/CMSSW_3_5_0/HIon/V10 (CMSSW_3_5_0_pre3_HLT2)
+# /dev/CMSSW_3_5_0/HIon/V37 (CMSSW_3_5_2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V10')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V37')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
+process.streams = cms.PSet( 
+  Offline = cms.vstring(  ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  A = cms.vstring( 'Cosmics',
+    'MinimumBias',
+    'HcalHPDNoise',
+    'RandomTriggers',
+    'HcalNZS',
+    'ZeroBias' ),
+  EventDisplay = cms.vstring(  ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
+  Calibration = cms.vstring( 'TestEnables' ),
+  OnlineErrors = cms.vstring( 'LogMonitor',
+    'FEDMonitor' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' )
+)
+process.datasets = cms.PSet( 
+  OfflineMonitor = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  HcalNZS = cms.vstring(  ),
+  ZeroBias = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  EcalLaser = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  )
+)
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring( 'file:RelVal_DigiL1Raw_HIon.root' )
@@ -28,7 +66,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR10_H_V1::All" ),
+    globaltag = cms.string( "GR10_H_V2::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialPeriod = cms.untracked.int32( 10 ),
@@ -1183,9 +1221,9 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
       Level = cms.int32( 0 )
     )
   ),
-  DropChannelStatusBits = cms.vstring(  ),
+  RecoveredRecHitBits = cms.vstring(  ),
   appendToDataLabel = cms.string( "" ),
-  RecoveredRecHitBits = cms.vstring(  )
+  DropChannelStatusBits = cms.vstring(  )
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer",
   appendToDataLabel = cms.string( "" )
@@ -1487,8 +1525,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'infos',
       'debugs',
       'cout',
-      'cerr',
-      'log4cplus' ),
+      'cerr' ),
     categories = cms.untracked.vstring( 'FwkJob',
       'FwkReport',
       'FwkSummary',
@@ -1612,11 +1649,11 @@ process.hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 )
 process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    ignoreL1Mask = cms.bool( False ),
+    ignoreL1Mask = cms.bool( True ),
+    bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 ),
-    bunchCrossings = cms.vint32( 0, 1, -1, 2, -2 )
+    physicsHiBits = cms.uint64( 0x70000 ),
+    technicalBits = cms.uint64( 0x7f )
 )
 process.hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 process.hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
@@ -1778,6 +1815,7 @@ process.hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJet
     UseOnlyVertexTracks = cms.bool( False ),
     UseOnlyOnePV = cms.bool( False ),
     DzTrVtxMax = cms.double( 0.0 ),
+    DxyTrVtxMax = cms.double( 0.0 ),
     jetAlgorithm = cms.string( "IterativeCone" ),
     rParam = cms.double( 0.5 ),
     src = cms.InputTag( "hltTowerMakerForAll" ),
@@ -1864,7 +1902,7 @@ process.hltCorrectedIslandBarrelSuperClustersHI = cms.EDProducer( "EgammaSCCorre
     rawSuperClusterProducer = cms.InputTag( 'hltIslandSuperClustersHI','islandBarrelSuperClustersHI' ),
     superClusterAlgo = cms.string( "Island" ),
     applyEnergyCorrection = cms.bool( True ),
-    sigmaElectronicNoise = cms.double( 0.03 ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 0.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet(  ),
@@ -1920,9 +1958,11 @@ process.hltHIMML1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
-    inputLabel = cms.untracked.InputTag( "rawDataCollector" ),
     dataType = cms.string( "DDU" ),
-    fedbyType = cms.untracked.bool( False ),
+    fedbyType = cms.bool( False ),
+    inputLabel = cms.InputTag( "rawDataCollector" ),
+    useStandardFEDid = cms.bool( True ),
+    dqmOnly = cms.bool( False ),
     rosParameters = cms.PSet( 
     ),
     readOutParameters = cms.PSet( 
@@ -1954,7 +1994,8 @@ process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         wirePropCorrType = cms.int32( 1 ),
         doWirePropCorrection = cms.bool( True ),
         doT0Correction = cms.bool( True ),
-        debug = cms.untracked.bool( False )
+        debug = cms.untracked.bool( False ),
+        tTrigLabel = cms.string( "" )
       ),
       tTrigMode = cms.string( "DTTTrigSyncFromDB" )
     )
@@ -1965,20 +2006,20 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
     recHits2DLabel = cms.InputTag( "dt2DSegments" ),
     Reco4DAlgoName = cms.string( "DTCombinatorialPatternReco4D" ),
     Reco4DAlgoConfig = cms.PSet( 
-      segmCleanerMode = cms.int32( 1 ),
+      segmCleanerMode = cms.int32( 2 ),
       Reco2DAlgoName = cms.string( "DTCombinatorialPatternReco" ),
       recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
       nSharedHitsMax = cms.int32( 2 ),
       hit_afterT0_resolution = cms.double( 0.03 ),
       Reco2DAlgoConfig = cms.PSet( 
-        segmCleanerMode = cms.int32( 1 ),
+        segmCleanerMode = cms.int32( 2 ),
         recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
         nSharedHitsMax = cms.int32( 2 ),
         AlphaMaxPhi = cms.double( 1.0 ),
         hit_afterT0_resolution = cms.double( 0.03 ),
         MaxAllowedHits = cms.uint32( 50 ),
         performT0_vdriftSegCorrection = cms.bool( False ),
-        AlphaMaxTheta = cms.double( 0.1 ),
+        AlphaMaxTheta = cms.double( 0.9 ),
         debug = cms.untracked.bool( False ),
         recAlgoConfig = cms.PSet( 
           debug = cms.untracked.bool( False ),
@@ -1991,7 +2032,8 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
             wirePropCorrType = cms.int32( 1 ),
             doWirePropCorrection = cms.bool( True ),
             doT0Correction = cms.bool( True ),
-            debug = cms.untracked.bool( False )
+            debug = cms.untracked.bool( False ),
+            tTrigLabel = cms.string( "" )
           ),
           tTrigMode = cms.string( "DTTTrigSyncFromDB" )
         ),
@@ -2011,7 +2053,8 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           wirePropCorrType = cms.int32( 1 ),
           doWirePropCorrection = cms.bool( True ),
           doT0Correction = cms.bool( True ),
-          debug = cms.untracked.bool( False )
+          debug = cms.untracked.bool( False ),
+          tTrigLabel = cms.string( "" )
         ),
         tTrigMode = cms.string( "DTTTrigSyncFromDB" )
       ),
@@ -2116,7 +2159,17 @@ process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
             maxDTheta = cms.double( 999.0 ),
             Pruning = cms.bool( True ),
             dYclusBoxMax = cms.double( 8.0 ),
-            preClusteringUseChaining = cms.bool( True )
+            preClusteringUseChaining = cms.bool( True ),
+            CorrectTheErrors = cms.bool( True ),
+            NormChi2Cut2D = cms.double( 20.0 ),
+            NormChi2Cut3D = cms.double( 10.0 ),
+            prePrun = cms.bool( True ),
+            prePrunLimit = cms.double( 3.17 ),
+            SeedSmall = cms.double( 2.0E-4 ),
+            SeedBig = cms.double( 0.0015 ),
+            ForceCovariance = cms.bool( False ),
+            ForceCovarianceAll = cms.bool( False ),
+            Covariance = cms.double( 0.0 )
           ),
           cms.PSet(  maxRatioResidualPrune = cms.double( 3.0 ),
             yweightPenalty = cms.double( 1.5 ),
@@ -2143,7 +2196,17 @@ process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
             maxDTheta = cms.double( 999.0 ),
             Pruning = cms.bool( True ),
             dYclusBoxMax = cms.double( 8.0 ),
-            preClusteringUseChaining = cms.bool( True )
+            preClusteringUseChaining = cms.bool( True ),
+            CorrectTheErrors = cms.bool( True ),
+            NormChi2Cut2D = cms.double( 20.0 ),
+            NormChi2Cut3D = cms.double( 10.0 ),
+            prePrun = cms.bool( True ),
+            prePrunLimit = cms.double( 3.17 ),
+            SeedSmall = cms.double( 2.0E-4 ),
+            SeedBig = cms.double( 0.0015 ),
+            ForceCovariance = cms.bool( False ),
+            ForceCovarianceAll = cms.bool( False ),
+            Covariance = cms.double( 0.0 )
           )
         ),
         parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
@@ -2303,7 +2366,8 @@ process.hltHIPixelTracks = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        maxTriplets = cms.uint32( 10000 )
       )
     ),
     FitterPSet = cms.PSet( 
@@ -2346,11 +2410,11 @@ process.hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetter
     measurementTrackerName = cms.string( "" )
 )
 process.hltHIMML3Filter = cms.EDFilter( "HLTHIMuL1L2L3Filter",
+    TTRHBuilder = cms.string( "HITTRHBuilderWithoutRefit" ),
     PrimaryVertexTag = cms.InputTag( "hltHIPixelVertices" ),
-    NavigationPSet = cms.PSet(  ComponentName = cms.string( "SimpleNavigationSchool" ) ),
     L2CandTag = cms.InputTag( "hltL2MuonCandidates" ),
     rphiRecHits = cms.InputTag( 'siStripMatchedRecHits','rphiRecHit' ),
-    TTRHBuilder = cms.string( "HITTRHBuilderWithoutRefit" )
+    NavigationPSet = cms.PSet(  ComponentName = cms.string( "SimpleNavigationSchool" ) )
 )
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     processName = cms.string( "@" )
@@ -2372,7 +2436,10 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDoubleMu',
+  'HLT_HIJet35U',
+  'HLT_HIMinBiasCalo',
+  'HLT_HIPhoton15' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -2400,7 +2467,21 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' ),
+      'keep triggerTriggerEvent_*_*_*',
+      'keep *_hltEcalCalibrationRaw_*_*' ),
+    use_compression = cms.untracked.bool( True ),
+    compression_level = cms.untracked.int32( 1 ),
+    max_event_size = cms.untracked.int32( 7000000 )
+)
+process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputALCAP0.root" ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*',
+      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+      'keep *_hltAlCaEtaRegRecHits_*_*',
+      'keep *_hltAlCaPi0RegRecHits_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2411,17 +2492,8 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltGtDigis_*_*' ),
-    use_compression = cms.untracked.bool( True ),
-    compression_level = cms.untracked.int32( 1 ),
-    max_event_size = cms.untracked.int32( 7000000 )
-)
-process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputALCAP0.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' ),
+      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+      'keep *_hltAlCaPhiSymStream_*_*' ),
     use_compression = cms.untracked.bool( True ),
     compression_level = cms.untracked.int32( 1 ),
     max_event_size = cms.untracked.int32( 7000000 )
@@ -2472,7 +2544,7 @@ process.HLT_HIDoubleMu = cms.Path( process.HLTBeginSequenceBPTX + process.hltHIP
 process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltPreTriggerSummaryRAW + process.hltTriggerSummaryRAW + process.hltBoolFinalPath )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.HLTOutput = cms.EndPath( process.hltOutputA )
-process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAPHISYM + process.hltOutputALCAP0 + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
+process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAP0 + process.hltOutputALCAPHISYM + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
 
 process.setName_('HLT')
 
@@ -2484,7 +2556,7 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'MC_3XY_V21::All'
+    process.GlobalTag.globaltag         = 'MC_3XY_V24::All'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
 
 if 'Level1MenuOverride' in process.__dict__:

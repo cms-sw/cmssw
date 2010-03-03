@@ -101,7 +101,7 @@ void TreeReader::addBranch(TBranch *branch, AtomicId name, bool opt)
 	TString typeName = leaf->GetTypeName();
 	char typeId = 0;
 	bool multi = false;
-	if (typeName == "Double_t" || typeName == "doubl")
+	if (typeName == "Double_t" || typeName == "double")
 		typeId = 'D';
 	else if (typeName == "Float_t" || typeName == "float")
 		typeId = 'F';

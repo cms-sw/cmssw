@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1GetDigi = cms.EDFilter("HLTGetDigi",
+l1GetDigi = cms.EDAnalyzer("HLTGetDigi",
     EEdigiCollection = cms.InputTag("ecalDigis","eeDigis"),
     getGctEt = cms.untracked.bool(False),
     HBHEdigiCollection = cms.InputTag("hcalDigis"),

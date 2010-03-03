@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.1 2009/12/21 19:27:08 srappocc Exp $
+  \version  $Id: Selector.h,v 1.2 2010/01/12 22:43:17 srappocc Exp $
 */
 
 
@@ -36,6 +36,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     intCuts_.clear(); 
     doubleCuts_.clear();
     cutFlow_.clear();
+    retInternal_ = getBitTemplate();
   }
 
   virtual ~Selector() {}
@@ -68,6 +69,15 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
 
   /// This provides the interface for base classes to select objects
   virtual bool operator()( T const & t, std::strbitset & ret ) = 0;
+
+  /// This provides an alternative signature without the second ret
+  virtual bool operator()( T const & t )
+  {
+    retInternal_.set(false);
+    operator()(t, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
   
   /// Set a given selection cut, on or off
   void set(std::string s, bool val = true) {
@@ -175,6 +185,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
 
  protected:
   std::strbitset bits_;        //!< the bitset indexed by strings
+  std::strbitset retInternal_; //!< internal ret if users don't care about return bits
   int_map        intCuts_;     //!< the int-value cut map
   double_map     doubleCuts_;  //!< the double-value cut map
   cut_flow_map   cutFlow_;     //!< map of cut flows in "human" order

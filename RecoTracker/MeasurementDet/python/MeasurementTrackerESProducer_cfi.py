@@ -38,6 +38,7 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     # One or more DetIdCollections of modules to mask on the fly for a given event
     inactivePixelDetectorLabels = cms.VInputTag(),
     inactiveStripDetectorLabels = cms.VInputTag('siStripDigis'),
+    switchOffPixelsIfEmpty = cms.bool(True)                                    
 )
 
 

@@ -5,6 +5,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
@@ -54,6 +55,10 @@ namespace {
     edm::Wrapper<trigger::TriggerFilterObjectWithRefs> wtfowr;
     edm::Wrapper<trigger::TriggerEvent> wte;
     edm::Wrapper<trigger::TriggerEventWithRefs> wtewr;
+
+    std::map<std::string,std::vector<unsigned int> > msu;
+    trigger::HLTPrescaleTable hpt;
+    edm::Wrapper<trigger::HLTPrescaleTable> whpt;
 
   };
 }

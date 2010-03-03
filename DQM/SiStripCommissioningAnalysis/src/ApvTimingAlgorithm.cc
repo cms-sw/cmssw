@@ -36,7 +36,7 @@ void ApvTimingAlgorithm::extract( const std::vector<TH1*>& histos ) {
   
   // Extract FED key from histo title
   if ( !histos.empty() ) { anal()->fedKey( extractFedKey( histos.front() ) ); }
-  
+ 
   // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
@@ -153,7 +153,7 @@ void ApvTimingAlgorithm::analyse() {
     anal->addErrorCode(sistrip::smallTickMarkHeight_);
     return; 
   }
-  
+ 
   // Find rms spread in "baseline" samples
   float mean = 0.;
   float mean2 = 0.;
@@ -170,14 +170,24 @@ void ApvTimingAlgorithm::analyse() {
   }
   float baseline_rms = sqrt( fabs( mean2 - mean*mean ) ); 
 
-
   // Find rising edges (derivative across two bins > threshold) 
   std::map<uint16_t,float> edges;
   for ( uint16_t ibin = 1; ibin < nbins-1; ibin++ ) {
-    if ( bin_entries[ibin+1] && 
-	 bin_entries[ibin-1] ) {
+    if  (bin_entries[ibin+4] &&
+	 bin_entries[ibin+3] && 
+	 bin_entries[ibin+2] && 
+	 bin_entries[ibin+1] && 
+	 bin_entries[ibin] && 
+	 bin_entries[ibin-1]) {
       float derivative = bin_contents[ibin+1] - bin_contents[ibin-1];
-      if ( derivative > 3.*baseline_rms ) { 
+      float derivative1 = bin_contents[ibin+1] - bin_contents[ibin];
+      float derivative2 = bin_contents[ibin+2] - bin_contents[ibin+1];
+      float derivative3 = bin_contents[ibin+3] - bin_contents[ibin+2];
+      
+      if ( derivative > 3.*baseline_rms && 
+	   derivative1 > 1.*baseline_rms && 
+	   derivative2 > 1.*baseline_rms && 
+	   derivative3 > 1.*baseline_rms ) { 
 	edges[ibin] = derivative; 
       }
     }
@@ -187,7 +197,6 @@ void ApvTimingAlgorithm::analyse() {
     return;
   }
   
-
   // Iterate through "edges" map
   uint16_t max_derivative_bin = sistrip::invalid_;
   float max_derivative = -1.*sistrip::invalid_;
@@ -198,11 +207,13 @@ void ApvTimingAlgorithm::analyse() {
 
     // Iterate through 50 subsequent samples
     bool valid = true;
+    int lowpointcount = 0;
+    const int lowpointallow = 25;  //Number of points allowed to fall below threshhold w/o invalidating tick mark
     for ( uint16_t ii = 0; ii < 50; ii++ ) {
       uint16_t bin = iter->first + ii;
 
       // Calc local derivative 
-      float temp = 0.;
+      float temp = 0;
       if ( static_cast<uint32_t>(bin-1) < 0 ||
 	   static_cast<uint32_t>(bin+1) >= nbins ) { 
 	valid = false; //@@ require complete plateau is found within histo
@@ -212,132 +223,34 @@ void ApvTimingAlgorithm::analyse() {
       temp = bin_contents[bin+1] - bin_contents[bin-1];
       
       // Store max derivative
-      if ( temp > max_derivative ) {
+      if ( temp > max_derivative && ii < 10) {
 	max_derivative = temp;
 	max_derivative_bin = bin;
       }
-      
-      // Check if samples following edge are all "high"
-      if ( ii > 10 && ii < 40 && bin_entries[bin] &&
-	   bin_contents[bin] < baseline + 5.*baseline_rms ) { 
-	valid = false; 
-      }
 
+
+      // Check if majority of samples following edge are all "high"
+      if ( ii > 10 && ii < 40 && bin_entries[bin] &&
+	   bin_contents[bin] < baseline + 5.*baseline_rms ) {
+	lowpointcount++;
+	if(lowpointcount > lowpointallow){
+	  valid = false; 
+	}
+      }
     }
 
     // Break from loop if tick mark found
     if ( valid ) { found = true; }
-
-    /*
     else {
       max_derivative = -1.*sistrip::invalid_;
       max_derivative_bin = sistrip::invalid_;
       //edges.erase(iter);
       anal->addErrorCode(sistrip::rejectedCandidate_);
     }
-    */
 
     iter++; // next candidate
     
   }
-
-
-
-  if ( !found ) { //Try tick mark recovery
-
-    max_derivative_bin = sistrip::invalid_;
-    max_derivative = -1.*sistrip::invalid_;
-
-    // Find rising edges_r (derivative_r across five bins > threshold) 
-    std::map<uint16_t,float> edges_r;
-    for ( uint16_t ibin_r = 1; ibin_r < nbins-1; ibin_r++ ) {
-      if  (bin_entries[ibin_r+4] &&
-	   bin_entries[ibin_r+3] && 
-	   bin_entries[ibin_r+2] && 
-	   bin_entries[ibin_r+1] && 
-	   bin_entries[ibin_r] && 
-	   bin_entries[ibin_r-1]) {
-	float derivative_r = bin_contents[ibin_r+1] - bin_contents[ibin_r-1];
-	float derivative_r1 = bin_contents[ibin_r+1] - bin_contents[ibin_r];
-	float derivative_r2 = bin_contents[ibin_r+2] - bin_contents[ibin_r+1];
-	float derivative_r3 = bin_contents[ibin_r+3] - bin_contents[ibin_r+2];
-	
-	if ( derivative_r > 3.*baseline_rms && 
-	     derivative_r1 > 1.*baseline_rms && 
-	     derivative_r2 > 1.*baseline_rms && 
-	     derivative_r3 > 1.*baseline_rms ) { 
-	  edges_r[ibin_r] = derivative_r; 
-	}
-      }
-    }
-    if ( edges_r.empty() ) {
-      anal->addErrorCode(sistrip::noRisingEdges_);
-      return;
-    }
-    
-    // Iterate through "edges_r" map
-    uint16_t max_derivative_r_bin = sistrip::invalid_;
-    float max_derivative_r = -1.*sistrip::invalid_;
-    
-    bool found_r = false;
-    std::map<uint16_t,float>::iterator iter_r = edges_r.begin();
-    while ( !found_r && iter_r != edges_r.end() ) {
-      
-      // Iterate through 50 subsequent samples
-      bool valid_r = true;
-      int lowpointcount_r = 0;
-      const int lowpointallow_r = 25;  //Number of points allowed to fall below threshhold w/o invalidating tick mark
-      for ( uint16_t ii_r = 0; ii_r < 50; ii_r++ ) {
-	uint16_t bin_r = iter_r->first + ii_r;
-	
-	// Calc local derivative_r 
-	float temp_r = 0.;
-	if ( static_cast<uint32_t>(bin_r-1) < 0 ||
-	     static_cast<uint32_t>(bin_r+1) >= nbins ) { 
-	  valid_r = false; //@@ require complete plateau is found_r within histo
-	  anal->addErrorCode(sistrip::incompletePlateau_);
-	  continue; 
-	}
-	temp_r = bin_contents[bin_r+1] - bin_contents[bin_r-1];
-	
-	// Store max derivative_r
-	if ( temp_r > max_derivative_r && ii_r < 10) {
-	  max_derivative_r = temp_r;
-	  max_derivative = temp_r;
-	  max_derivative_r_bin = bin_r;
-	  max_derivative_bin = bin_r;
-	}
-	
-	
-	// Check if majority of samples following edge are all "high"
-	if ( ii_r > 10 && ii_r < 40 && bin_entries[bin_r] &&
-	     bin_contents[bin_r] < baseline + 5.*baseline_rms ) {
-	  lowpointcount_r++;
-	  if(lowpointcount_r > lowpointallow_r){
-	    valid_r = false; 
-	  }
-	}
-      }
-      
-      // Break from loop if recovery tick mark found
-      if ( valid_r ) {
-	found_r = true; 
-	found = true;
-	anal->addErrorCode(sistrip::tickMarkRecovered_);
-      }
-      else {
-	max_derivative_r = -1.*sistrip::invalid_;
-	max_derivative = -1.*sistrip::invalid_;
-	max_derivative_r_bin = sistrip::invalid_;
-	max_derivative_bin = sistrip::invalid_;
-	//edges_r.erase(iter_r);
-	anal->addErrorCode(sistrip::rejectedCandidate_);
-      }
-      
-      iter_r++; // next candidate
-      
-    }
-  } //End tick mark recovery
   
   // Record time monitorable and check tick mark height
   if ( max_derivative_bin <= sistrip::valid_ ) {
@@ -348,5 +261,5 @@ void ApvTimingAlgorithm::analyse() {
   } else {
     anal->addErrorCode(sistrip::missingTickMark_);
   }
-  
+    
 }

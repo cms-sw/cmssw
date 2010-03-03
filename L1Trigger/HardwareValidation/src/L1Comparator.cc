@@ -740,8 +740,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[CTP][0]&=     ctp_cat_data_.isValid(); isValidDE[CTP][1]&=    ctp_cat_emul_.isValid();
   }
   isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
-//isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1]&=   ctf_trk_emul_ .isValid();
-//isValidDE[CTF][0]&=    ctf_sta_data_ .isValid(); isValidDE[CTF][1]&=   ctf_sta_emul_ .isValid();
+  isValidDE[CTF][0]&=    ctf_trk_data_ .isValid(); isValidDE[CTF][1]&=   ctf_trk_emul_ .isValid();
+  //isValidDE[CTF][0]&=    ctf_sta_data_ .isValid(); isValidDE[CTF][1]&=   ctf_sta_emul_ .isValid();
   isValidDE[RPC][0] =     rpc_cen_data .isValid(); isValidDE[RPC][1] =    rpc_cen_emul .isValid();
   isValidDE[RPC][0]&=     rpc_for_data .isValid(); isValidDE[RPC][1]&=    rpc_for_emul .isValid();
   isValidDE[LTC][0] =         ltc_data .isValid(); isValidDE[LTC][1] =        ltc_emul .isValid();
@@ -807,7 +807,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_lct_data,     ctp_lct_emul, CTP,CSCtpl);
   if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (        ctf_data,         ctf_emul, CTF,CSCtf);
   if(m_doSys[CTF]&&isValid[CTF]) process<CSCCorrelatedLCTDigiCollection_>(    ctf_trk_data,     ctf_trk_emul, CTF,CSCtftrk);
-  if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (    ctf_trc_data,     ctf_trc_emul, CTF,CSCtftrc);
+  //if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (    ctf_trc_data,     ctf_trc_emul, CTF,CSCtftrc);
   if(m_doSys[CTF]&&isValid[CTF]) process<L1CSCSPStatusDigiCollection_>   (    ctf_sta_data,     ctf_sta_emul, CTF,CSCtfsta);
   if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_cen_data,     rpc_cen_emul, RPC,RPCcen);
   if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_for_data,     rpc_for_emul, RPC,RPCfor);

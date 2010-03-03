@@ -4,6 +4,6 @@ pfNoTau = cms.EDProducer(
     "TPPFTausOnPFJets",
     verbose = cms.untracked.bool( False ),
     name = cms.untracked.string("noTau"),
-    topCollection = cms.InputTag("allLayer0Taus"),
+    topCollection = cms.InputTag("pfTaus"),
     bottomCollection = cms.InputTag("pfJets"),
 )

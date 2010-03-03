@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2009/09/22 14:54:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/11 00:12:12 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -16,13 +16,14 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include <vector>
 #include <string>
 
 // forward declarations
 namespace edm {
   class TriggerResults;
+  class TriggerNames;
 }
 class AlCaRecoTriggerBitsRcd;
 
@@ -43,13 +44,15 @@ class HLTHighLevelDev : public HLTFilter {
                                             const edm::EventSetup &iSetup) const;
   private:
     /// initialize the trigger conditions (call this if the trigger paths have changed)
-    void init(const edm::TriggerResults & results, const edm::EventSetup &iSetup);
+    void init(const edm::TriggerResults & results,
+              const edm::EventSetup &iSetup,
+              const edm::TriggerNames & triggerNames);
 
     /// HLT TriggerResults EDProduct
     edm::InputTag inputTag_;
 
     /// HLT trigger names
-    edm::TriggerNames triggerNames_;
+    edm::ParameterSetID triggerNamesID_;
 
     /// false = and-mode (all requested triggers), true = or-mode (at least one)
     bool andOr_;

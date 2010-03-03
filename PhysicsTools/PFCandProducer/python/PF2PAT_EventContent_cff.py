@@ -17,7 +17,7 @@ PF2PATEventContent = cms.PSet(
     # jets
     'keep recoPFJets_pfNoTau_*_*',
     # taus 
-    'keep *_allLayer0Taus_*_*',
+    'keep *_pfTaus_*_*',
     'keep recoPFTauDiscriminator_*_*_*',
     'keep *_offlinePrimaryVerticesWithBS_*_*',
     # MET

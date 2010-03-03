@@ -14,16 +14,13 @@
 namespace triggerExpression {
 
 // define the result of the module from the L1 reults
-bool L1TechReader::operator()(const Data & data) {
+bool L1TechReader::operator()(const Data & data) const {
   if (not data.hasL1T())
     return false;
 
-  if (data.l1tConfigurationUpdated())
-    init(data);
-
   typedef std::pair<std::string, unsigned int> value_type;
   BOOST_FOREACH(const value_type & trigger, m_triggers)
-    if (data.l1tResults().decisionWord()[trigger.second])
+    if (data.l1tResults().technicalTriggerWord()[trigger.second])
       return true;
 
   return false;

@@ -7,7 +7,6 @@
 #  include "FWCore/MessageLogger/interface/JobReport.h"
 #  include "FWCore/Version/interface/GetReleaseVersion.h"
 # else
-#  include <memory>
 #  include <string>
 #  include <vector>
 #  include <map>

@@ -23,7 +23,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     # label of tracks to be used
     TrackLabel = cms.InputTag("pixelTracks"),
-    useBeamConstraint = cms.bool(False),
+    useBeamConstraint = cms.bool(True),  # default for long term data and MC prod
     VtxFinderParameters = cms.PSet(
         ptCut = cms.double(0.0),
         vtxFitProbCut = cms.double(0.01), ## 1% vertex fit probability
@@ -33,7 +33,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
 
     ),
     TkClusParameters = cms.PSet(
-        zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
+        zSeparation = cms.double(1) ## 1 cm max separation betw. clusters
 
     )
 )

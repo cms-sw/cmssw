@@ -1,8 +1,10 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
+
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 
-DEFINE_SEAL_MODULE();
+#include "CondFormats/HLTObjects/interface/HLTPrescaleTable.h"
+#include "CondFormats/DataRecord/interface/HLTPrescaleTableRcd.h"
+
 REGISTER_PLUGIN(AlCaRecoTriggerBitsRcd,AlCaRecoTriggerBits);
-
-
+REGISTER_PLUGIN(HLTPrescaleTableRcd,trigger::HLTPrescaleTable);

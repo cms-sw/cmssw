@@ -29,7 +29,7 @@ class SiStripDigiValidator : public edm::EDAnalyzer {
   SiStripDigiValidator(const edm::ParameterSet& config);
   ~SiStripDigiValidator();
 
-  virtual void beginJob(const edm::EventSetup& setup);
+  virtual void beginJob();
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
 

@@ -18,9 +18,9 @@ trackMuMatch.resolveAmbiguities = True
 trackMuMatch.resolveByMatchQuality = True
 
 # layer 1 tracks
-import PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi as genericpartproducer_cfi
+from PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi import patGenericParticles
 
-allLayer1TrackCands = genericpartproducer_cfi.allLayer1GenericParticles.clone(
+allTrackCands = patGenericParticles.clone(
     src = cms.InputTag("patAODTrackCands"),
     # isolation configurables
     isolation = cms.PSet(
@@ -49,7 +49,7 @@ allLayer1TrackCands = genericpartproducer_cfi.allLayer1GenericParticles.clone(
 )
 
 from PhysicsTools.PatAlgos.selectionLayer1.trackSelector_cfi import *
-selectedLayer1TrackCands.cut = 'pt > 10.'
+selectedPatTracks.cut = 'pt > 10.'
 
 # PAT MUONS (sequence compatible with PAT v2)
 
@@ -62,7 +62,7 @@ muonMatch.resolveByMatchQuality = True
 
 # layer 1 muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
-allLayer1Muons.userIsolation.tracker = cms.PSet(
+patMuons.userIsolation.tracker = cms.PSet(
     veto = cms.double(0.015),
     src = cms.InputTag("muIsoDepositTk"),
     deltaR = cms.double(0.3),
@@ -72,7 +72,7 @@ allLayer1Muons.userIsolation.tracker = cms.PSet(
 #allLayer1Muons.addTrigMatch = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
-selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
+selectedPatMuons.cut = 'pt > 0. & abs(eta) < 100.0'
 
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
@@ -99,7 +99,7 @@ patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 #)
 
 muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-    src     = cms.InputTag( "selectedLayer1Muons" ),
+    src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
@@ -125,41 +125,41 @@ patTriggerSequence = cms.Sequence(
     patTriggerEvent
 )
 
-selectedLayer1MuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
-    src     = cms.InputTag( "selectedLayer1Muons" ),
+selectedPatMuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
+    src     = cms.InputTag( "selectedPatMuons" ),
     matches = cms.VInputTag( "muonTriggerMatchHLTMuons" )
 )
 
 muonTriggerMatchEmbedder = cms.Sequence(
-    selectedLayer1MuonsTriggerMatch
+    selectedPatMuonsTriggerMatch
 )
 
 # pat sequences
 
-beforeLayer1Tracks = cms.Sequence(
+beforeTracks = cms.Sequence(
     patAODTrackCandSequence *
     trackMuMatch
 )
 
-beforeLayer1Muons = cms.Sequence(
+beforeMuons = cms.Sequence(
     muonMatch
 )
 
-beforePatLayer1 = cms.Sequence(
-    beforeLayer1Tracks +
-    beforeLayer1Muons
+beforePat = cms.Sequence(
+    beforeTracks +
+    beforeMuons
 )
 
-patLayer1 = cms.Sequence(
-    allLayer1Muons *
-    selectedLayer1Muons *
-    allLayer1TrackCands *
-    selectedLayer1TrackCands
+pat = cms.Sequence(
+    patMuons *
+    selectedPatMuons *
+    allTrackCands *
+    selectedPatTracks
 )
 
 goodMuonRecoForDimuon = cms.Sequence(
-    beforePatLayer1 *
-    patLayer1 *
+    beforePat *
+    pat *
     patTriggerSequence *
     muonTriggerMatchEmbedder
 )
