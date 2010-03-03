@@ -9,7 +9,7 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
     minNdof  = cms.double(0.0),
     TkFilterParameters = cms.PSet(
         maxNormalizedChi2 = cms.double(5.0),     # 
-        minSiliconLayersWithHits = cms.int32(6), # >= 6
+        minSiliconLayersWithHits = cms.int32(5), # >= 5
         minPixelLayersWithHits = cms.int32(2),   # >= 2 
         maxD0Significance = cms.double(5.0),     # keep most primary tracks
         minPt = cms.double(0.0),                 # better for softish events

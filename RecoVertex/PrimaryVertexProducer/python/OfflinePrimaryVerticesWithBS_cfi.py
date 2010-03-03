@@ -12,7 +12,7 @@ offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
     minNdof  = cms.double(2.0),
     TkFilterParameters = cms.PSet(
         maxNormalizedChi2 = cms.double(5.0),
-        minSiliconLayersWithHits = cms.int32(6), # >=6  (TDR > 7 hits)
+        minSiliconLayersWithHits = cms.int32(5), # >=5  (TDR > 7 hits)
         minPixelLayersWithHits = cms.int32(2),   # >=2  (TDR > 2 hits)
         maxD0Significance = cms.double(5.0),     # keep most primary tracks
         minPt = cms.double(0.0),                 # better for softish events
@@ -25,14 +25,6 @@ offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
         )
 
     )
-    #VtxFinderParameters = cms.PSet(
-    #    ptCut = cms.double(0.0),
-    #    vtxFitProbCut = cms.double(0.01), ## 1% vertex fit probability
-    #	trackCompatibilityToSVcut = cms.double(0.01), ## 1%
-    #     trackCompatibilityToPVcut = cms.double(0.05), ## 5%
-    #    maxNbOfVertices = cms.int32(0) ## search all vertices in each cluster
-    #
-    #),
 )
 
 
