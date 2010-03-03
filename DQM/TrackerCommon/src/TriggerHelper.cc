@@ -1,5 +1,5 @@
 //
-// $Id: TriggerHelper.cc,v 1.8 2010/02/04 22:16:20 vadler Exp $
+// $Id: TriggerHelper.cc,v 1.10 2010/02/16 20:17:14 vadler Exp $
 //
 
 
@@ -26,7 +26,42 @@ TriggerHelper::TriggerHelper()
 }
 
 
-/// GT status, L1, HLT and DCS filters combined
+/// DCS, status bits, L1 and HLT filters combined
+bool TriggerHelper::accept( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config, const HLTConfigProvider & hltConfig, bool hltConfigInit )
+{
+
+  // Getting the and/or switch from the configuration
+  // If it does not exist, the configuration is considered not to be present,
+  // and the filter dos not have any effect.
+  if ( ! config.exists( "andOr" ) ) return true;
+  andOr_ = config.getParameter< bool >( "andOr" );
+
+  // Determine decision
+  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) || acceptL1( event, setup, config ) || acceptHlt( event, config, hltConfig, hltConfigInit ) );
+  return ( acceptDcs( event, config ) && acceptGt( event, config ) && acceptL1( event, setup, config ) && acceptHlt( event, config, hltConfig, hltConfigInit ) );
+
+}
+
+
+/// DCS, status bits and HLT filters only
+bool TriggerHelper::accept( const edm::Event & event, const edm::ParameterSet & config, const HLTConfigProvider & hltConfig, bool hltConfigInit )
+{
+
+  // Getting the and/or switch from the configuration
+  // If it does not exist, the configuration is considered not to be present,
+  // and the filter dos not have any effect.
+  if ( ! config.exists( "andOr" ) ) return true;
+  andOr_ = config.getParameter< bool >( "andOr" );
+
+  // Determine decision
+  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) || acceptHlt( event, config, hltConfig, hltConfigInit ) );
+  return ( acceptDcs( event, config ) && acceptGt( event, config ) && acceptHlt( event, config, hltConfig, hltConfigInit ) );
+
+}
+
+
+
+/// DCS, GT status and L1 filters combined
 bool TriggerHelper::accept( const Event & event, const EventSetup & setup, const ParameterSet & config )
 {
 
@@ -37,13 +72,13 @@ bool TriggerHelper::accept( const Event & event, const EventSetup & setup, const
   andOr_ = config.getParameter< bool >( "andOr" );
 
   // Determine decision
-  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) || acceptL1( event, setup, config ) || acceptHlt( event, config ) );
-  return ( acceptDcs( event, config ) && acceptGt( event, config ) && acceptL1( event, setup, config ) && acceptHlt( event, config ) );
+  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) || acceptL1( event, setup, config ) );
+  return ( acceptDcs( event, config ) && acceptGt( event, config ) && acceptL1( event, setup, config ) );
 
 }
 
 
-/// GT status, HLT and DCS filters only
+/// DCS and GT status filters only
 bool TriggerHelper::accept( const Event & event, const ParameterSet & config )
 {
 
@@ -54,8 +89,8 @@ bool TriggerHelper::accept( const Event & event, const ParameterSet & config )
   andOr_ = config.getParameter< bool >( "andOr" );
 
   // Determine decision
-  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) || acceptHlt( event, config ) );
-  return ( acceptDcs( event, config ) && acceptGt( event, config ) && acceptHlt( event, config ) );
+  if ( andOr_ ) return ( acceptDcs( event, config ) || acceptGt( event, config ) );
+  return ( acceptDcs( event, config ) && acceptGt( event, config ) );
 
 }
 
@@ -295,7 +330,7 @@ bool TriggerHelper::acceptL1LogicalExpression( const Event & event, string l1Log
 
 
 /// Was this event accepted by the configured HLT logical expression combination?
-bool TriggerHelper::acceptHlt( const Event & event, const ParameterSet & config )
+bool TriggerHelper::acceptHlt( const Event & event, const ParameterSet & config, const HLTConfigProvider & hltConfig, bool hltConfigInit )
 {
 
   // Getting the and/or HLT switch from the configuration
@@ -318,6 +353,17 @@ bool TriggerHelper::acceptHlt( const Event & event, const ParameterSet & config 
     return errorReplyHlt_;
   }
 
+  // Checking the HLT configuration,
+  // initialization already in the calling DQM module (beginRun())
+  if ( ! hltConfigInit ) {
+    LogError( "hltConfigInit" ) << "HLT config initialization error with process name " << hltInputTag_.process() << " ==> decision: " << errorReplyHlt_;
+    return errorReplyHlt_;
+  }
+  if ( hltConfig.size() <= 0 ) {
+    LogError( "hltConfigSize" ) << "HLT config size error ==> decision: " << errorReplyHlt_;
+    return errorReplyHlt_;
+  }
+
   // Accessing the TriggerResults
   event.getByLabel( hltInputTag_, hltTriggerResults_ );
   if ( ! hltTriggerResults_.isValid() ) {
@@ -325,26 +371,15 @@ bool TriggerHelper::acceptHlt( const Event & event, const ParameterSet & config 
     return errorReplyHlt_;
   }
 
-  // Getting the HLT configuration from the provenance
-  bool changed( true );
-  if ( ! hltConfig_.init( event, hltInputTag_.process(), changed ) ) {
-    LogError( "hltConfigInit" ) << "HLT config initialization error with process name " << hltInputTag_.process() << " ==> decision: " << errorReplyHlt_;
-    return errorReplyHlt_;
-  }
-  if ( hltConfig_.size() <= 0 ) {
-    LogError( "hltConfigSize" ) << "HLT config size error ==> decision: " << errorReplyHlt_;
-    return errorReplyHlt_;
-  }
-
   // Determine decision of HLT logical expression combination and return
   if ( config.getParameter< bool >( "andOrHlt" ) ) { // OR combination
     for ( vector< string >::const_iterator hltLogicalExpression = hltLogicalExpressions.begin(); hltLogicalExpression != hltLogicalExpressions.end(); ++hltLogicalExpression ) {
-      if ( acceptHltLogicalExpression( *hltLogicalExpression ) ) return true;
+      if ( acceptHltLogicalExpression( *hltLogicalExpression, hltConfig ) ) return true;
     }
     return false;
   }
   for ( vector< string >::const_iterator hltLogicalExpression = hltLogicalExpressions.begin(); hltLogicalExpression != hltLogicalExpressions.end(); ++hltLogicalExpression ) {
-    if ( ! acceptHltLogicalExpression( *hltLogicalExpression ) ) return false;
+    if ( ! acceptHltLogicalExpression( *hltLogicalExpression, hltConfig ) ) return false;
   }
   return true;
 
@@ -352,7 +387,7 @@ bool TriggerHelper::acceptHlt( const Event & event, const ParameterSet & config 
 
 
 /// Was this event accepted by this particular HLT paths' logical expression?
-bool TriggerHelper::acceptHltLogicalExpression( string hltLogicalExpression ) const
+bool TriggerHelper::acceptHltLogicalExpression( string hltLogicalExpression, const HLTConfigProvider & hltConfig ) const
 {
 
   // Check empty strings
@@ -373,9 +408,9 @@ bool TriggerHelper::acceptHltLogicalExpression( string hltLogicalExpression ) co
   // Loop over paths
   for ( size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath ) {
     const string hltPathName( hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenName );
-    const unsigned indexPath( hltConfig_.triggerIndex( hltPathName ) );
+    const unsigned indexPath( hltConfig.triggerIndex( hltPathName ) );
     // Further error checks
-    if ( indexPath == hltConfig_.size() ) {
+    if ( indexPath == hltConfig.size() ) {
       LogError( "hltPathInProcess" ) << "HLT path " << hltPathName << " is not found in process " << hltInputTag_.process() << " ==> decision: " << errorReplyHlt_;
       hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenResult = errorReplyHlt_;
       continue;
