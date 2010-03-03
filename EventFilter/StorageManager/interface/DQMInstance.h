@@ -1,4 +1,4 @@
-// $Id: DQMInstance.h,v 1.12 2009/09/16 11:04:22 mommsen Exp $
+// $Id: DQMInstance.h,v 1.13 2009/09/17 14:29:24 mommsen Exp $
 /// @file: DQMInstance.h 
 
 #ifndef StorageManager_DQMInstance_h
@@ -24,8 +24,8 @@ namespace stor
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.13 $
+   * $Date: 2009/09/17 14:29:24 $
    */
 
   class DQMFolder
@@ -33,7 +33,8 @@ namespace stor
     public:
       DQMFolder();
      ~DQMFolder();
-      std::map<std::string, TObject *> dqmObjects_;
+      typedef std::map<std::string, TObject *> DQMObjectsMap;
+      DQMObjectsMap dqmObjects_;
   }; 
 
 
@@ -42,8 +43,8 @@ namespace stor
    * A collection of DQM Folders under the same top-level name.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.13 $
+   * $Date: 2009/09/17 14:29:24 $
    */
 
   class DQMGroup
@@ -51,15 +52,17 @@ namespace stor
     public:
       DQMGroup(int readyTime, int expectedUpdates);
      ~DQMGroup();
-      std::map<std::string, DQMFolder *> dqmFolders_;
-      int getNUpdates()             { return(nUpdates_);}
-      int getReadyTime()            { return(readyTime_);}
-      int getLastEvent()            { return(lastEvent_);}
+      typedef std::map<std::string, DQMFolder *> DQMFoldersMap;
+      DQMFoldersMap dqmFolders_;
+      inline int getNUpdates() const             { return(nUpdates_);}
+      inline int getReadyTime() const            { return(readyTime_);}
+      inline int getLastEvent() const            { return(lastEvent_);}
       void setLastEvent(int lastEvent);
-      TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
-      TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
-      TTimeStamp * getLastServed()  { return(lastServed_);}
-      bool isReady(int currentTime);
+      inline TTimeStamp * getFirstUpdate() const { return(firstUpdate_);}
+      inline TTimeStamp * getLastUpdate() const  { return(lastUpdate_);}
+      inline TTimeStamp * getLastServed() const  { return(lastServed_);}
+      bool isReady(int currentTime) const;
+      inline bool isComplete() const;
       bool wasServedSinceUpdate()   { return(wasServedSinceUpdate_);}
       void setServedSinceUpdate();
       void setLastServed()          { lastServed_->Set();}
@@ -82,8 +85,8 @@ namespace stor
    * collated DQM groups
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.13 $
+   * $Date: 2009/09/17 14:29:24 $
    */
 
   class DQMInstance
@@ -98,24 +101,27 @@ namespace stor
 
      ~DQMInstance();
 
-      int getRunNumber()            { return(runNumber_);}
-      int getLastEvent()            { return(lastEvent_);}
-      int getLumiSection()          { return(lumiSection_);}
-      int getInstance()             { return(instance_);}
-      int getPurgeTime()            { return(purgeTime_);}
-      int getReadyTime()            { return(readyTime_);}
+      inline int getRunNumber() const   { return(runNumber_);}
+      inline int getLastEvent() const   { return(lastEvent_);}
+      inline int getLumiSection() const { return(lumiSection_);}
+      inline int getInstance() const    { return(instance_);}
+      inline int getPurgeTime() const   { return(purgeTime_);}
+      inline int getReadyTime() const   { return(readyTime_);}
 
-      TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
-      TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
+      inline TTimeStamp * getFirstUpdate() const { return(firstUpdate_);}
+      inline TTimeStamp * getLastUpdate() const  { return(lastUpdate_);}
       int updateObject(std::string groupName,
 		       std::string objectDirectory,
 		       TObject   * object,
 		       int         eventNumber);
-      double writeFile(std::string filePrefix, bool endRunFlag);
-      DQMGroup * getDQMGroup(std::string groupName);
-      bool isReady(int currentTime);
-      bool isStale(int currentTime);
-      std::map<std::string, DQMGroup *> dqmGroups_;
+      bool isReady(int currentTime) const;
+      bool isStale(int currentTime) const;
+      bool isComplete() const;
+
+      double writeFile(std::string filePrefix, bool endRunFlag) const;
+      DQMGroup * getDQMGroup(std::string groupName) const;
+      typedef std::map<std::string, DQMGroup *> DQMGroupsMap;
+      DQMGroupsMap dqmGroups_;
 
       static std::string getSafeMEName(TObject *object);
 
