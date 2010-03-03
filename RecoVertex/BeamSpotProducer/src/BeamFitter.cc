@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.28 2010/03/03 17:34:41 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.29 2010/03/03 18:29:01 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -259,7 +259,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     fcharge = track->charge();
     fnormchi2 = track->normalizedChi2();
     fd0 = track->d0();
-    fd0bs = -1*track->dxy(refBS->position());
+    if (refBS) fd0bs = -1*track->dxy(refBS->position());
     fsigmad0 = track->d0Error();
     fz0 = track->dz();
     fsigmaz0 = track->dzError();
