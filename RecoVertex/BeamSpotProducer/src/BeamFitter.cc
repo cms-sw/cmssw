@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.30 2010/03/03 18:51:29 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.31 2010/03/03 19:29:23 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -307,12 +307,14 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     fpvValid = false;
 
     //if (pv) {
+    /*
         for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
             if (! pv[ipv].isFake()) fpvValid = true;
       
             if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); }
         }
+    */
         //}
     
     
