@@ -30,10 +30,11 @@
 <!-- ========================================================================================= -->
 <!-- ================================== TRACKING TRIGGER INCLUDES =================================== -->
 <!-- ========================================================================================= -->
-    <class pattern="*set*"/>  
+    <class pattern="std::set<*>"/>  
 
 <!-- Never used to be a problem... -->
 	 <class pattern="edm::Ref<*>"/>
+	 <class pattern="edm::Ptr<*>"/>
 
 	<class pattern="TrackTriggerHit"/>
 	<class pattern="edm::DetSet<TrackTriggerHit>"/>
@@ -78,6 +79,8 @@
   
      <class pattern="edm::Wrapper<cmsUpgrades::Cluster*>"/>
 
+	 <class pattern="std::pair<unsigned int,*>"/>
+ 
 <!-- ========================================================================== -->
 
 

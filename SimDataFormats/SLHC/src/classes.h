@@ -134,6 +134,8 @@ namespace {
 /* ========================================================================== */
       
 //Cluster types
+	std::pair<cmsUpgrades::StackedTrackerDetId,int>				STP_STDI_I;
+
       cmsUpgrades::Cluster_PSimHit_Map                          CL_PSH_M;
       edm::Wrapper<cmsUpgrades::Cluster_PSimHit_Map>            CL_PSH_MW;
       cmsUpgrades::Cluster_PixelDigi_Map                        CL_PD_M;
@@ -141,6 +143,17 @@ namespace {
       cmsUpgrades::Cluster_TTHit_Map                            CL_TTH_M;
       edm::Wrapper<cmsUpgrades::Cluster_TTHit_Map>              CL_TTH_MW;
 
+	
+	std::pair<unsigned int, cmsUpgrades::Cluster_PSimHit >		P_INT_PSHC;
+	std::pair<unsigned int, cmsUpgrades::Cluster_PixelDigi >	P_INT_PDC;
+	std::pair<unsigned int, cmsUpgrades::Cluster_TTHit > 		P_INT_TTHC;
+
+	//edm::Ptr< cmsUpgrades::GlobalStub_PSimHit_ >				PTR_GS_PSH;
+	//edm::Ptr< cmsUpgrades::GlobalStub_PixelDigi_ >				PTR_GS_PD;
+	//edm::Ptr< cmsUpgrades::GlobalStub_TTHit_ >					PTR_GS_TTH;
+	std::pair<unsigned int , edm::Ptr< cmsUpgrades::GlobalStub_PSimHit_ > >			P_INT_PTRGS_PSH;
+	std::pair<unsigned int , edm::Ptr< cmsUpgrades::GlobalStub_PixelDigi_ > >		P_INT_PTRGS_PD;
+	std::pair<unsigned int , edm::Ptr< cmsUpgrades::GlobalStub_TTHit_ > >			P_INT_PTRGS_TTH;
   }
 }
 
