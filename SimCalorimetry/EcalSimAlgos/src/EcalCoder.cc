@@ -116,7 +116,7 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
 
    if( m_addNoise ) 
    { 
-      if( 0 != m_eeCorrNoise             && 
+      if( 0 == m_eeCorrNoise             ||
 	  EcalBarrel == detId.subdetId()     )
       {
 	 m_ebCorrNoise->noisify( noiseframe ) ;
