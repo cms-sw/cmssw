@@ -23,14 +23,14 @@
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ConvertHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-
-#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-//#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
 
