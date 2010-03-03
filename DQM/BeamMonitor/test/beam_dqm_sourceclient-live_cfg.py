@@ -6,7 +6,7 @@ process = cms.Process("BeamMonitor")
 # Event Source
 #-----------------------------
 process.load("DQM.Integration.test.inputsource_cfi")
-process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_MinBiasBSC','HLT_L1_BSC'))
+#process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_MinBiasBSC','HLT_L1_BSC'))
 
 #--------------------------
 # Filters
@@ -94,6 +94,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctfTracksPixelLess)
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
 
-process.p = cms.Path(process.phystrigger*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+process.p = cms.Path(process.gtDigis*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
 #process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.offlinePrimaryVertices*process.monitor_pixelless*process.dqmSaver)
 
