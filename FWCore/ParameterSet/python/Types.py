@@ -518,7 +518,7 @@ class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_La
     def configValue(self, options=PrintOptions()):
        return self.dumpConfig(options)
     def dumpPython(self, options=PrintOptions()):
-        return "cms.SecSource(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
+        return _TypedParameterizable.dumpPython(self, options)
     def copy(self):
         # TODO is the one in TypedParameterizable better?
         return copy.copy(self)
@@ -855,7 +855,6 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def pythonValueForItem(self,item, options):
         return PSet.dumpPython(item,options)
     def copy(self):
-        print "VPSET COPY"
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
@@ -977,7 +976,6 @@ if __name__ == "__main__":
             self.assertEqual(p.b.value(),1)
         def testInputTag(self):
             it = InputTag._valueFromString("label::proc")
-            print it.pythonValue()
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getProductInstanceLabel(), "")
             self.assertEqual(it.getProcessName(), "proc")
@@ -1010,7 +1008,6 @@ if __name__ == "__main__":
             self.assertEqual(a.isModified(),True)
         def testESInputTag(self):
             it = ESInputTag._valueFromString("label:data")
-            print it.pythonValue()
             self.assertEqual(it.getModuleLabel(), "label")
             self.assertEqual(it.getDataLabel(), "data")
             # tolerate, at least for translation phase
