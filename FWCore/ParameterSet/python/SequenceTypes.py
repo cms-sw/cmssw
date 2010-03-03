@@ -143,8 +143,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         return self
     def __setattr__(self,name,value):
         if not name.startswith("_"):
-            print "You cannot set parameters for sequence like objects."
-            raise AttributeError
+            raise AttributeError, "You cannot set parameters for sequence like objects."
         else:
             self.__dict__[name] = value
     #def replace(self,old,new):
@@ -303,6 +302,11 @@ class _UnarySequenceOperator(_Sequenceable):
        self._operand = operand
        if isinstance(operand, _ModuleSequenceType):
            raise RuntimeError("This operator cannot accept a sequence")
+    def __eq__(self, other):
+        # allows replace(~a, b)
+        return type(self) == type(other) and self._operand==other._operand
+    def __ne__(self, other):
+        return not self.__eq__(other)
     def _findDependencies(self,knownDeps, presentDeps):
         self._operand._findDependencies(knownDeps, presentDeps)
     def _clonesequence(self, lookuptable):
@@ -681,11 +685,17 @@ if __name__=="__main__":
  
             s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
             s2 = Sequence(m1*m2)
-            s3 = Sequence(~m1*s2)  
             l = []
             namesVisitor = DecoratedNodeNameVisitor(l)
             s1.visit(namesVisitor)
             self.assertEqual(l,['m1', '!m2', 'm1', 'm2', '-m2'])
+
+            s3 = Sequence(~m1*s2)
+            s3.replace(~m1, m2)
+            l[:] = []
+            s3.visit(namesVisitor)
+            self.assertEqual(l, ['m2', 'm1', 'm2'])
+
             s1.replace(m2,m3)
             l[:] = []
             s1.visit(namesVisitor)
