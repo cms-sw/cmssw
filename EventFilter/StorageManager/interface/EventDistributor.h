@@ -1,10 +1,12 @@
-// $Id: EventDistributor.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: EventDistributor.h,v 1.5 2009/09/23 13:02:47 mommsen Exp $
 /// @file: EventDistributor.h 
 
 #ifndef StorageManager_EventDistributor_h
 #define StorageManager_EventDistributor_h
 
+#include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventQueueCollection.h"
+#include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 
 #include "boost/shared_ptr.hpp"
@@ -35,8 +37,8 @@ namespace stor {
    * header.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/23 13:02:47 $
    */
 
   class EventDistributor
