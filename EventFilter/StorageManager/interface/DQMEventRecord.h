@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.h,v 1.6 2010/01/21 09:27:08 mommsen Exp $
+// $Id: DQMEventRecord.h,v 1.7 2010/02/11 13:33:35 mommsen Exp $
 /// @file: DQMEventRecord.h 
 
 #ifndef StorageManager_DQMEventRecord_h
@@ -19,14 +19,16 @@
 namespace stor {
 
   class DQMEventMonitorCollection;
+  class SharedResources;
+  typedef boost::shared_ptr<SharedResources> SharedResourcesPtr;
 
 
   /**
    * Class holding information for one DQM event
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2010/01/21 09:27:08 $
+   * $Revision: 1.7 $
+   * $Date: 2010/02/11 13:33:35 $
    */
 
   class DQMEventRecord : public DQMInstance
@@ -90,7 +92,8 @@ namespace stor {
       const DQMKey,
       const DQMProcessingParams,
       DQMEventMonitorCollection&,
-      const unsigned int expectedUpdates
+      const unsigned int expectedUpdates,
+      SharedResourcesPtr
     );
 
     ~DQMEventRecord();
@@ -126,8 +129,7 @@ namespace stor {
 
     std::vector<QueueID> _dqmConsumers;
     std::string _releaseTag;
-    unsigned int _updateCount; //incremented for each new event being added.
-                               //Note that nUpdates_ is incremented for each folder
+    SharedResourcesPtr _sr;
   };
 
   typedef boost::shared_ptr<DQMEventRecord> DQMEventRecordPtr;
