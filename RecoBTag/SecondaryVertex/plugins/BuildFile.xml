@@ -16,7 +16,8 @@
    <use name="RecoVertex/GhostTrackFitter"/>
    <flags EDM_PLUGIN="1"/>
 </library>
-<library file="JetTagESProducers.cc" name="RecoBTagSecondaryVertexESProducers"/>
+
+<library file="JetTagESProducers.cc" name="RecoBTagSecondaryVertexESProducers">
    <use name="RecoBTau/JetTagComputer"/>
    <flags EDM_PLUGIN="1"/>
 </library>
