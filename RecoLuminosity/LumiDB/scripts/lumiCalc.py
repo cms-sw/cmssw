@@ -58,7 +58,46 @@ def deliveredLumiForRange(dbsession,c,inputfile):
     
 def recordedLumiForRun(dbsession,c,runnum):
     print 'inside recordedLumi : run : ',runnum,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-
+    #
+    #LS_length=25e-9*numorbit*3564(sec)
+    #LS deadfraction=deadtimecount/(numorbit*3564) 
+    #select distinct lumisummary.instlumi*trg.deadtime/(lumisummary.numorbit*3564) as deadfraction from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=1 and trg.cmsluminum=1;
+    #
+    #let oracle do everything!
+    #
+    #select sum(distinct lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmsluminum and lumisummary.cmsalive=1;
+    #multiply query result by norm factor, attach unit
+    #7.368e-5*16400.0=1.2083520000000001
+    recorded=0.0
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        query=schema.newQuery()
+        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
+        query.addToTableList(nameDealer.trgTableName(),'trg')
+        queryCondition=coral.AttributeList()
+        queryCondition.extend("runnumber","unsigned int")
+        queryCondition.extend("lumiversion","string")
+        queryCondition.extend("alive","bool")
+        queryCondition["runnumber"].setData(int(runnum))
+        queryCondition["lumiversion"].setData(c.LUMIVERSION)
+        queryCondition["alive"].setData(True)
+        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive",queryCondition)
+        query.addToOutputList("sum(distinct lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+        result=coral.AttributeList()
+        result.extend("recorded","float")
+        query.defineOutput(result)
+        cursor=query.execute()
+        while cursor.next():
+            recorded=cursor.currentRow()["recorded"].data()*c.NORM
+        del query
+        dbsession.transaction().commit()
+        print "Recorded Luminosity for Run "+str(runnum)+" : "+str(recorded)+c.LUMIUNIT
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+    
 def recordedLumiForRange(dbsession,c,inputfile):
     print 'inside recordedLumi : inputfile : ',inputfile,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
     
