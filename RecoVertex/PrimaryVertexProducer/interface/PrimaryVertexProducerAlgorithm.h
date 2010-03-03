@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.10 2010/02/05 10:21:27 werdmann Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.11 2010/02/12 04:56:36 werdmann Exp $
 //
 //
 
@@ -67,5 +67,6 @@ private:
   double fMinNdof;
   VertexFitter<5> *theFitter;
   bool fapply_finder;
+  bool fFailsafe;
 
 };
