@@ -5,7 +5,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace RecoVertex{
-  static reco::Vertex::Error convertError(const GlobalError& ge) 
+  inline reco::Vertex::Error convertError(const GlobalError& ge) 
     {
       reco::Vertex::Error error;
       error(0,0) = ge.cxx();
@@ -16,7 +16,8 @@ namespace RecoVertex{
       error(2,2) = ge.czz();
       return error;
     }
-  static GlobalError convertError(const reco::Vertex::Error& error)
+
+  inline GlobalError convertError(const reco::Vertex::Error& error)
     { return GlobalError(error(0,0), error(0,1), error(1,1), error(0,2), error(1,2), error(2,2)); }
 }
 
