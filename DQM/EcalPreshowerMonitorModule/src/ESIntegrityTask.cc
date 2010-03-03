@@ -158,6 +158,10 @@ void ESIntegrityTask::setup(void){
       meFiberBadStatus_->setAxisTitle("ES FED", 1);
       meFiberBadStatus_->setAxisTitle("Fiber Number", 2);
 
+      sprintf(histo, "ES Fiber Error Code");
+      meFiberErrCode_ = dqmStore_->book1D(histo, histo, 17, -0.5, 16.5);
+      meFiberErrCode_->setAxisTitle("Fiber Error Code", 1);
+
       sprintf(histo, "ES Fiber Off");
       meFiberOff_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 36, 0.5, 36.5);
       meFiberOff_->setAxisTitle("ES FED", 1);
@@ -292,12 +296,17 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
        for (unsigned int i=0; i<fiberStatus.size(); ++i) {
 	 if (fiberStatus[i]==4 || fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12) {
 	   meFiberBadStatus_->Fill(dcc.fedId(), i+1, 1);
+	   meFiberErrCode_->Fill(fiberStatus[i]);
 	   nDIErr[dcc.fedId()-520][i]++;
 	 }
-	 if (fiberStatus[i]==7) 
+	 if (fiberStatus[i]==7) {
+	   meFiberErrCode_->Fill(fiberStatus[i]);
 	   meFiberOff_->Fill(dcc.fedId(), i+1, 1);
-	 if (fiberStatus[i]==6) 
+	 }
+	 if (fiberStatus[i]==6) {
+	   meFiberErrCode_->Fill(fiberStatus[i]);
 	   meEVDR_->Fill(dcc.fedId(), i+1, 1);
+	 }
        }
        
        runtype_   = dcc.getRunType();
