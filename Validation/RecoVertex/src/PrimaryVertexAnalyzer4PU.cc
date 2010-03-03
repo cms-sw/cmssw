@@ -1765,7 +1765,7 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
   Handle<reco::VertexCollection> recVtxsDA;
   bool bDA=iEvent.getByLabel("offlinePrimaryVerticesDA", recVtxsDA);
 
-//   Handle<reco::VertexCollection> recVtxsPIX;
+  Handle<reco::VertexCollection> recVtxsPIX;
 //   bool bPIX=iEvent.getByLabel("pixelVertices", recVtxsPIX);
   bool bPIX=false;
 
