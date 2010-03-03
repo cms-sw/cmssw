@@ -40,7 +40,7 @@ TrackWithHistory::TrackWithHistory(const G4Track * g4trk) :
     saved_ = false;
     genParticleID_ = extractGenID( g4trk);
 #ifdef DEBUG	
-    LogDebug("TrackWithHistory") << " TrackWithHistory : created history for " << trackID_
+    LogDebug("TrackInformation") << " TrackWithHistory : created history for " << trackID_
 				 << " with mother " << parentID_;
 #endif
   }
@@ -54,16 +54,16 @@ void TrackWithHistory::checkAtEnd(const G4Track * gt) {
   double epsilon = 1.e-6;
   double eps2 = epsilon*epsilon;
   if ((vertexPosition_-vposdir).Mag2() > eps2)  {
-    std::cout << "TrackWithHistory vertex position check failed" << std::endl;
-    std::cout << "At construction: " << vertexPosition_ << std::endl;
-    std::cout << "At end:          " << vposdir << std::endl;
+    edm::LogWarning("TrackInformation") << "TrackWithHistory vertex position check failed" 
+					<< "\nAt construction: " << vertexPosition_
+					<< "\nAt end:          " << vposdir;
     ok = false;
   }
   math::XYZVectorD dirDiff = momentum_.Unit() - vmomdir;
   if (dirDiff.Mag2() > eps2 &&  momentum_.Unit().R() > eps2) {
-    std::cout << "TrackWithHistory momentum direction check failed"<<std::endl;
-    std::cout << "At construction: " << momentum_.Unit() << std::endl;
-    std::cout << "At end:          " << vmomdir << std::endl;
+    edm::LogWarning("TrackInformation") << "TrackWithHistory momentum direction check failed"
+					<< "\nAt construction: " << momentum_.Unit() 
+					<< "\nAt end:          " << vmomdir;
     ok = false;
   }
   if (!ok) throw SimG4Exception("TrackWithHistory::checkAtEnd failed");

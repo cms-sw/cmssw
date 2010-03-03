@@ -63,12 +63,16 @@ void NewTrackAction::addUserInfoToSecondary(G4Track * aTrack,const TrackInformat
     trkInfo->putInHistory();
     trkInfo->setIDonCaloSurface(aTrack->GetTrackID(),
 				motherInfo.getIDCaloVolume(),
-				motherInfo.getIDLastVolume());
+				motherInfo.getIDLastVolume(),
+				aTrack->GetDefinition()->GetPDGEncoding(),
+				aTrack->GetMomentum().mag());
   } else {
     // transfer calo ID from mother (to be checked in TrackingAction)
     trkInfo->setIDonCaloSurface(motherInfo.getIDonCaloSurface(),
 				motherInfo.getIDCaloVolume(),
-				motherInfo.getIDLastVolume());
+				motherInfo.getIDLastVolume(),
+				motherInfo.caloSurfaceParticlePID(),
+				motherInfo.caloSurfaceParticleP());
   }
   aTrack->SetUserInformation(trkInfo);  
 }
