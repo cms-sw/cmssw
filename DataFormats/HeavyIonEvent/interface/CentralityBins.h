@@ -39,7 +39,7 @@ class CentralityBins : public TNamed {
       int getBin(double value) const;
       int getNbins() const {return nbins_;}
       int getNbinsMax() const {return table_.size();}
-      void setNbins(int nb) {nbins_ = nb;}
+      void setNbins(int nb) const {nbins_ = nb;}
       double lowEdge(double value) const { return lowEdgeOfBin(getBin(value));}
       double lowEdgeOfBin(int bin) const { return table_[bin].bin_edge;}
       double NpartMean(double value) const { return NpartMeanOfBin(getBin(value));}
@@ -66,11 +66,11 @@ class CentralityBins : public TNamed {
       */
       
       // private:
-      int nbins_;
+      mutable int nbins_;
       std::vector<CBin> table_;
       //      std::vector<CentralityTable::CBin> table_;
 
-   ClassDef(CentralityBins,1)
+   ClassDef(CentralityBins,2)
 };
 
 #endif
