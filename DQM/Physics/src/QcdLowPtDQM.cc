@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.12 2009/11/29 10:19:06 loizides Exp $
+// $Id: QcdLowPtDQM.cc,v 1.13 2009/11/30 11:14:25 loizides Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -23,7 +23,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h" 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include <TString.h>
 #include <TMath.h>
 #include <TH1F.h>
@@ -151,17 +150,16 @@ void QcdLowPtDQM::beginLuminosityBlock(const LuminosityBlock &l,
 //--------------------------------------------------------------------------------------------------
 void QcdLowPtDQM::beginRun(const Run &run, const EventSetup &iSetup)
 {
-  // Begin run, get or create needed structures.  TODO: can this be called several times in DQM???
-
-  HLTConfigProvider hltConfig;
+  // Begin run, get or create needed structures.  TODO: can this be called several times in DQM??? -> YES!
 
   bool isinit = false;
+  bool isHltCfgChanged = false; // for new HLTConfigProvider::init
   string teststr;
   for(size_t i=0; i<hltProcNames_.size(); ++i) {
     if (i>0) 
       teststr += ", ";
     teststr += hltProcNames_.at(i);
-    if (hltConfig.init(hltProcNames_.at(i))) {
+    if( hltConfig_.init(  run, iSetup, hltProcNames_.at(i), isHltCfgChanged )  ) {
       isinit = true;
       hltUsedResName_ = hltResName_;
       if (hltResName_.find(':')==string::npos)
@@ -188,8 +186,8 @@ void QcdLowPtDQM::beginRun(const Run &run, const EventSetup &iSetup)
   for(size_t i=0;i<hltTrgNames_.size();++i) {
     const string &n1(hltTrgNames_.at(i));
     bool found = 0;
-    for(size_t j=0;j<hltConfig.size();++j) {
-      const string &n2(hltConfig.triggerName(j));
+    for(size_t j=0;j<hltConfig_.size();++j) {
+      const string &n2(hltConfig_.triggerName(j));
       if(0) print(0,Form("Checking trigger name %s for %s", n2.c_str(), n1.c_str()));
       if (n2==n1) {
         hltTrgBits_.push_back(j);

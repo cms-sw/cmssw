@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.8 2009/11/18 21:36:24 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.9 2009/11/19 22:33:15 loizides Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include <TMath.h>
 #include <vector>
 
@@ -211,6 +212,7 @@ class QcdLowPtDQM : public edm::EDAnalyzer
     std::vector<TH3F*>            NbkgTracklets23_;    //number of background tracklets 23
     std::vector<TH1F*>            hEvtCountsPerEta23_; //event count per tracklet23 eta-vtx region
     TH3F                         *AlphaTracklets23_;   //alpha correction for tracklets 23
+    HLTConfigProvider             hltConfig_;
     const TrackerGeometry        *tgeo_;               //tracker geometry
     DQMStore                     *theDbe_;             //dqm store
     MonitorElement               *repSumMap_;          //report summary map
