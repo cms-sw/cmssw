@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.4 2009/09/23 20:32:33 chrjones Exp $
+// $Id: FWTableViewManager.h,v 1.5 2009/09/24 14:55:25 chrjones Exp $
 //
 
 // system include files
@@ -37,59 +37,90 @@ class FWViewBase;
 class FWGUIManager;
 class TEveWindowSlot;
 
-class FWTableViewManager : public FWViewManagerBase, public FWConfigurable {
-     friend class FWTableView;
-     friend class FWTableViewTableManager;
-
+class FWTableViewManager : public FWViewManagerBase, public FWConfigurable 
+{
+   friend class FWTableView;
+   friend class FWTableViewTableManager;
 public:
-     FWTableViewManager(FWGUIManager*);
-     virtual ~FWTableViewManager();
+   struct TableEntry {
+      enum { INT = 0, INT_HEX = -1, BOOL = -2 };
+      std::string    expression;
+      std::string    name;
+      int            precision;
+   };
 
-     struct TableEntry {
-	  enum { INT = 0, INT_HEX = -1, BOOL = -2 };
-	  std::string expression;
-	  std::string name;
-	  int precision;
-     };
+   /** Container for the event items which have a table. */
+   typedef std::vector<const FWEventItem *>                Items;
+   /** Container for the description of the columns of a given table. */
+   typedef std::vector<TableEntry> TableEntries;
+   /** Type for the collection specific (i.e. those that do not use
+       default) table definition. */
+   typedef std::map<std::string, TableEntries> TableSpecs;
 
-     // ---------- const member functions ---------------------
-     virtual FWTypeToRepresentations supportedTypesAndRepresentations() const;
-     // ---------- static member functions --------------------
+   FWTableViewManager(FWGUIManager*);
+   virtual ~FWTableViewManager();
 
-     // ---------- member functions ---------------------------
-     virtual void newItem(const FWEventItem*);
-     void destroyItem (const FWEventItem *item);
-     FWViewBase *buildView (TEveWindowSlot *iParent);
-     const std::vector<const FWEventItem *> &items () const { return m_items; }
-     std::map<std::string, std::vector<TableEntry> >::iterator tableFormats (const Reflex::Type &key);
-     std::map<std::string, std::vector<TableEntry> >::iterator tableFormats (const TClass &key);
-     void addTo(FWConfiguration&) const;
-     void addToImpl (FWConfiguration&) const;
-     void setFrom(const FWConfiguration&);
+   // ---------- const member functions ---------------------
+   virtual FWTypeToRepresentations supportedTypesAndRepresentations() const;
+   // ---------- static member functions --------------------
 
-     static const std::string kConfigTypeNames;
-     static const std::string kConfigColumns;
+   // ---------- member functions ---------------------------
+   virtual void            newItem(const FWEventItem*);
+   void                    destroyItem(const FWEventItem *item);
+   FWViewBase *            buildView(TEveWindowSlot *iParent);
+   const Items &           items() const { return m_items; }
+   TableSpecs::iterator    tableFormats(const Reflex::Type &key);
+   TableSpecs::iterator    tableFormats(const TClass &key);
+   void                    addTo(FWConfiguration&) const;
+   void                    addToImpl(FWConfiguration&) const;
+   void                    setFrom(const FWConfiguration&);
+
+   void                    notifyViews();
+
+   static const std::string kConfigTypeNames;
+   static const std::string kConfigColumns;
 
 protected:
-     FWTableViewManager();
+   FWTableViewManager();
 
-     /** called when models have changed and so the display must be updated*/
-     virtual void modelChangesComing();
-     virtual void modelChangesDone();
-     virtual void colorsChanged();
-     void dataChanged ();
+   /** Called when models have changed and so the display must be updated. */
+   virtual void modelChangesComing();
+   virtual void modelChangesDone();
+   virtual void colorsChanged();
+   void dataChanged ();
 
-     std::vector<boost::shared_ptr<FWTableView> > m_views;
-     std::vector<const FWEventItem *> m_items;
+   typedef std::vector<boost::shared_ptr<FWTableView> >    Views;
 
-     std::map<std::string, std::vector<TableEntry> > m_tableFormats;
+   Views       m_views;
+   Items       m_items;
+   TableSpecs  m_tableFormats;
 private:
-     std::map<std::string, std::vector<TableEntry> >::iterator tableFormatsImpl (const Reflex::Type &key);
-     FWTableViewManager(const FWTableViewManager&);    // stop default
-     const FWTableViewManager& operator=(const FWTableViewManager&);    // stop default
+   TableSpecs::iterator tableFormatsImpl(const Reflex::Type &key);
+   FWTableViewManager(const FWTableViewManager&);    // stop default
+   const FWTableViewManager& operator=(const FWTableViewManager&);    // stop default
 
-     void beingDestroyed(const FWViewBase*);
+   void beingDestroyed(const FWViewBase*);
+   
+   class TableHandle
+   {
+   public: 
+      TableHandle &column(const char *formula, int precision, const char *name);
+      TableHandle &column(const char *label, int precision)
+         {
+            return column(label, precision, label);
+         }
 
+      TableHandle(const char *name, TableSpecs &specs)
+         :m_name(name), m_specs(specs) 
+         {
+            m_specs[name].clear();
+         }
+   private:
+      std::string  m_name;
+      TableSpecs  &m_specs;
+   };
+
+   TableHandle table(const char *collection);
 };
 
 #endif
