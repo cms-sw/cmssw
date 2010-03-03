@@ -227,6 +227,7 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep L1GlobalTriggerObjectMapRecord_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_*_*_*',
         # Others
+        'keep recoCaloMET_met_*_*', # raw MET
         'keep *_muon*METValueMapProducer_*_*',   # Muon corrections to MET
         'keep *_offlinePrimaryVertices_*_*',
         'keep *_offlineBeamSpot_*_*',

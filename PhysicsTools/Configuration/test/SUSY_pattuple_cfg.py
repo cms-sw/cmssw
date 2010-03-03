@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.24 $'),
+    version = cms.untracked.string('$Revision: 1.25 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -35,7 +35,7 @@ process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 #-- Calibration tag -----------------------------------------------------------
 # Should match input file's tag
-process.GlobalTag.globaltag = 'MC_3XY_V22A::All'
+process.GlobalTag.globaltag = 'MC_3XY_V24::All'
 
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
