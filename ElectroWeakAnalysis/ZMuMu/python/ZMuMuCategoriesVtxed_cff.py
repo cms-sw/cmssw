@@ -122,7 +122,7 @@ goodZToMuMu1HLTPathLoose.setLabel("goodZToMuMu1HLTLoose")
 
 
 goodZToMuMuVtxedSameChargeNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
-goodZToMuMuVtxedSameChargeNtupleLoose.src =  cms.InputTag("goodZToMuMuVtxedSameChargeAtLeast1HLTLoose")
+goodZToMuMuVtxedSameChargeNtupleLoose.src =  cms.InputTag("goodZToMuMuSameChargeAtLeast1HLTLoose")
 goodZToMuMuSameChargePathLoose.__iadd__(goodZToMuMuVtxedSameChargeNtupleLoose)
 goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
 
