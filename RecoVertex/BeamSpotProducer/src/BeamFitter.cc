@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.29 2010/03/03 18:29:01 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.30 2010/03/03 18:51:29 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -212,15 +212,18 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   edm::Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
 
-  //edm::Handle< edm::View<reco::Vertex> > PVCollection;
-  //iEvent.getByLabel("offlinePrimaryVertices", PVCollection );
+  edm::Handle< edm::View<reco::Vertex> > PVCollection;
 
+  edm::View<reco::Vertex> pv;
+  if ( iEvent.getByLabel("offlinePrimaryVertices", PVCollection ) )
+      pv = *PVCollection;
+  
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 
   const reco::BeamSpot *refBS;
   if ( iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
-
+  
   const reco::TrackCollection *tracks = TrackCollection.product();
 
   //const edm::View<reco::Vertex> &pv = *PVCollection;
@@ -260,6 +263,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     fnormchi2 = track->normalizedChi2();
     fd0 = track->d0();
     if (refBS) fd0bs = -1*track->dxy(refBS->position());
+    else fd0bs = 0.;
+    
     fsigmad0 = track->d0Error();
     fz0 = track->dz();
     fsigmaz0 = track->dzError();
@@ -300,14 +305,16 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     
     // check if we have a valid PV
     fpvValid = false;
-    /*
-    for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
-      if (! pv[ipv].isFake()) fpvValid = true;
+    //if (pv) {
+        for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
+
+            if (! pv[ipv].isFake()) fpvValid = true;
       
-      if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); }
-    }
-    */
+            if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); }
+        }
+        //}
+    
     
     if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
