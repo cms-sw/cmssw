@@ -23,11 +23,11 @@
 
 #endif
 
-static const int nbins = 40;
+static const int nbinsMax = 40;
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeCentralityTable(const string label = "hf", const char * tag = "HFhitBins", double MXS = 0.){
+void makeCentralityTable(int nbins = 40, const string label = "hf", const char * tag = "HFhitBins", double MXS = 0.){
 
    // This macro assumes all inefficiency is in the most peripheral bin.
    double EFF = 1. - MXS;
@@ -46,7 +46,7 @@ void makeCentralityTable(const string label = "hf", const char * tag = "HFhitBin
   bins->table_.reserve(nbins);
 
   // Setting up variables & branches
-  double binboundaries[nbins+1];
+  double binboundaries[nbinsMax+1];
   vector<float> values;
 
   // Determining bins of cross section
