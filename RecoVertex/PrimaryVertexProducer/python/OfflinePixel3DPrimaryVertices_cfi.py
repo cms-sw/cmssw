@@ -9,6 +9,8 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     ),
     verbose = cms.untracked.bool(False),
     algorithm = cms.string('AdaptiveVertexFitter'), ## 100 is for when the beamspot is not well known (ONLY FOR STARTUP)
+    useBeamConstraint = cms.bool(False),
+    minNdof  = cms.double(0.0),               # new 
     TkFilterParameters = cms.PSet(
         maxNormalizedChi2 = cms.double(100.0),
 
@@ -18,6 +20,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
 
         minPixelLayersWithHits = cms.int32(3),   # >=3  three or more pixel layers
         minSiliconLayersWithHits = cms.int32(3), # >=3  (includes pixel layers)
+        trackQuality = cms.string("any")
 
         # no longer used
         #minSiliconHits = cms.int32(2), ## hits > 2 - for when the beamspot is not well known (ONLY FOR STARTUP)
@@ -28,7 +31,6 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     # label of tracks to be used
     TrackLabel = cms.InputTag("pixelTracks"),
 
-    useBeamConstraint = cms.bool(False),
     TkClusParameters = cms.PSet(
         algorithm   = cms.string("gap"),
         TkGapClusParameters = cms.PSet(
