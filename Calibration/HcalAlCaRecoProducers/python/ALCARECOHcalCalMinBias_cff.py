@@ -15,6 +15,10 @@ hfrecoMBspecial = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
 horecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
 
+#add GT digi:
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+gtDigisAlCaMB = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #    HLTPaths = ['HLT_HcalPhiSym'],
@@ -22,7 +26,9 @@ hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False #dont throw except on unknown path name 
 )
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
+seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
+
+gtDigisAlCaMB.DaqGtInputTag = 'source'
 
 hcalDigiAlCaMB.firstSample = 0
 hcalDigiAlCaMB.lastSample = 9
