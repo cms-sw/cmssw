@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.h,v 1.6 2010/02/23 13:35:37 yilmaz Exp $
+// $Id: Centrality.h,v 1.7 2010/03/02 22:55:43 yilmaz Exp $
 //
 
 #ifndef DataFormats_Centrality_h
@@ -73,7 +73,7 @@ protected:
 
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup, int nbins = 20);
+const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup);
 
 
 
