@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.27 2010/02/28 20:10:06 wmtan Exp $
+   version $Id: BeamFitter.cc,v 1.28 2010/03/03 17:34:41 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -216,13 +216,16 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   //iEvent.getByLabel("offlinePrimaryVertices", PVCollection );
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
+
+  const reco::BeamSpot *refBS;
+  if ( iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle) )
+      refBS = recoBeamSpotHandle.product();
 
   const reco::TrackCollection *tracks = TrackCollection.product();
 
   //const edm::View<reco::Vertex> &pv = *PVCollection;
 
-  const reco::BeamSpot *refBS = recoBeamSpotHandle.product();
+  //const reco::BeamSpot *refBS = recoBeamSpotHandle.product();
 
   double eventZ = 0;
   double averageZ = 0;
