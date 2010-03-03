@@ -215,7 +215,6 @@ void
 EcalDigiProducer::produce( edm::Event&            event,
 			   const edm::EventSetup& eventSetup ) 
 {
-
    // Step A: Get Inputs
 
    checkGeometry( eventSetup );
@@ -240,10 +239,10 @@ EcalDigiProducer::produce( edm::Event&            event,
    MixCollection<PCaloHit>* EBHits ( !crossingFrame.isValid() ? 0 :
 				     new MixCollection<PCaloHit>( crossingFrame.product() ) ) ;
 
-   const bool isEB ( 0 == barrelDets.size()   ||
-		     !crossingFrame.isValid() ||
-		     0 == EBHits              ||
-		     !EBHits->inRegistry()       ) ;
+   const bool isEB ( 0 != barrelDets.size()  &&
+		     crossingFrame.isValid() &&
+		     0 != EBHits             &&
+		     EBHits->inRegistry()       ) ;
 
    if( !crossingFrame.isValid() ) edm::LogError("EcalDigiProducer") << "Error! can't get the product " 
 								    << barrelHitsName.c_str() ;
@@ -257,10 +256,10 @@ EcalDigiProducer::produce( edm::Event&            event,
    MixCollection<PCaloHit>* EEHits ( !crossingFrame.isValid() ? 0 :
 				     new MixCollection<PCaloHit>( crossingFrame.product() ) ) ;
 
-   const bool isEE ( 0 == endcapDets.size()   ||
-		     !crossingFrame.isValid() ||
-		     0 == EEHits              ||
-		     !EEHits->inRegistry()       ) ;
+   const bool isEE ( 0 != endcapDets.size()  &&
+		     crossingFrame.isValid() &&
+		     0 != EEHits             &&
+		     EEHits->inRegistry()       ) ;
 
    if( !crossingFrame.isValid() ) edm::LogError("EcalDigiProducer") << "Error! can't get the product " 
 								    << endcapHitsName.c_str() ;
@@ -274,10 +273,10 @@ EcalDigiProducer::produce( edm::Event&            event,
    MixCollection<PCaloHit>* ESHits ( !crossingFrame.isValid() ? 0 :
 				     new MixCollection<PCaloHit>( crossingFrame.product() ) ) ;
 
-   const bool isES ( 0 == preshowerDets.size() ||
-		     !crossingFrame.isValid()  ||
-		     0 == ESHits               ||
-		     !ESHits->inRegistry()          ) ;
+   const bool isES ( 0 != preshowerDets.size() &&
+		     crossingFrame.isValid()   &&
+		     0 != ESHits               &&
+		     ESHits->inRegistry()          ) ;
 
    if( !crossingFrame.isValid() ) edm::LogError("EcalDigiProducer") << "Error! can't get the product " 
 								    << preshowerHitsName.c_str() ;
