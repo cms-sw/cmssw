@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.31 2010/03/03 19:29:23 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.32 2010/03/03 19:39:53 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -220,7 +220,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 
-  const reco::BeamSpot *refBS;
+  const reco::BeamSpot *refBS =  0;
   if ( iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
   
