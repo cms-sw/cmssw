@@ -17,6 +17,8 @@ std::vector<L1CaloRegion> gctTestSingleEvent::loadEvent(const std::string &fileN
 
   std::ifstream inFile;
 
+  std::cout << "Reading event data from file " << fileName << std::endl;
+
   inFile.open(fileName.c_str(), std::ios::in);
 
   unsigned phi, et;

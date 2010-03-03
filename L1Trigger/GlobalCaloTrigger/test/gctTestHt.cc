@@ -293,8 +293,6 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htMiss = 0;
     unsigned htMPhi = 0;
 
-    cout << "Checking MHT, components are " << hxTotal << " and " << hyTotal << endl;
-
     if ((((-hxTotal) & 0xff0) != 0) || (((-hyTotal) & 0xff0) != 0)) {
 
       double dhx = htComponentGeVForHtMiss(-hxTotal);
@@ -308,9 +306,8 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
 
     }
 
-    cout << "MHT result is: magnitude " << htMiss << " angle " << htMPhi << std::endl;
-
     if (htmMinusOvrFlow || htmPlusOverFlow) htMiss = 127;
+    if ((abs(hxTotal)>2047) || (abs(hyTotal)>2047)) htMiss = 127; 
 
     if ((htMiss != myGlobalEnergy->getHtMissColl().at(bx).value()) ||
 	(htMPhi != myGlobalEnergy->getHtMissPhiColl().at(bx).value())) {

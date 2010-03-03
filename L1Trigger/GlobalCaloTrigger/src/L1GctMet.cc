@@ -57,7 +57,7 @@ L1GctMet::metVector () const
   result.mag.setValue(algoResult.mag>>(m_bitShift));
   result.phi.setValue(algoResult.phi);
 
-  result.mag.setOverFlow( result.mag.overFlow() || m_exComponent.overFlow() || m_eyComponent.overFlow() );
+  result.mag.setOverFlow( result.mag.overFlow() || inputOverFlow() );
 
   return result;
 
@@ -181,9 +181,11 @@ L1GctMet::useHtMissLutAlgo (const int ex, const int ey) const
 
   } else {
 
+    // Extract the bit fields of the input components to be used for the LUT address
     int hxCompBits = (ex >> kExOrEyMissComponentShift) & componentMask;
     int hyCompBits = (ey >> kExOrEyMissComponentShift) & componentMask;
 
+    // Perform the table lookup to get the missing Ht magnitude and phi
     uint16_t lutAddress = static_cast<uint16_t> ( (hxCompBits << L1GctHtMissLut::kHxOrHyMissComponentNBits) | hyCompBits );
 
     uint16_t lutData = m_htMissLut->lutValue(lutAddress);
@@ -316,4 +318,20 @@ const double L1GctMet::componentLsb() const
   return m_htMissLut->componentLsb();
 }
 
+/// Private method to check for an overflow condition on the input components
+/// Allows the check to depend on the algorithm type
+const bool L1GctMet::inputOverFlow() const
+{
+  bool result = m_exComponent.overFlow() || m_eyComponent.overFlow();
+
+  if (m_algoType == useHtMissLut) {
+    static const int maxComponentInput = ( 1 << (L1GctHtMissLut::kHxOrHyMissComponentNBits+kExOrEyMissComponentShift-1) ) - 1;
+
+    // Emulate the (symmetric) overflow condition used in the firmware
+    result |= (m_exComponent.value() > maxComponentInput) || (m_exComponent.value() < -maxComponentInput) ||
+      (m_eyComponent.value() > maxComponentInput) || (m_eyComponent.value() < -maxComponentInput);
+  }
+
+  return result;
+}
 

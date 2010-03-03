@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.p1 = cms.Path(process.gctemu)
 process.gctemu.doSingleEvent = True
-process.gctemu.inputFile = 'Event617.txt'
+process.gctemu.inputFile = 'Event819.txt'
 process.gctemu.preSamples = 0
 process.gctemu.postSamples = 0
 
