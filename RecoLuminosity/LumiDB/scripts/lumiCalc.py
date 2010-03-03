@@ -65,7 +65,7 @@ def recordedLumiForRun(dbsession,c,runnum):
     #
     #let oracle do everything!
     #
-    #select sum(distinct lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmsluminum and lumisummary.cmsalive=1;
+    #select sum( lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmsluminum and lumisummary.cmsalive=1 and trg.bitnum=0;
     #multiply query result by norm factor, attach unit
     #7.368e-5*16400.0=1.2083520000000001
     recorded=0.0
@@ -79,11 +79,13 @@ def recordedLumiForRun(dbsession,c,runnum):
         queryCondition.extend("runnumber","unsigned int")
         queryCondition.extend("lumiversion","string")
         queryCondition.extend("alive","bool")
+        queryCondition.extend("bitnum","unsigned int")
         queryCondition["runnumber"].setData(int(runnum))
         queryCondition["lumiversion"].setData(c.LUMIVERSION)
         queryCondition["alive"].setData(True)
-        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive",queryCondition)
-        query.addToOutputList("sum(distinct lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+        queryCondition["bitnum"].setData(0)
+        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
+        query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
         result=coral.AttributeList()
         result.extend("recorded","float")
         query.defineOutput(result)
