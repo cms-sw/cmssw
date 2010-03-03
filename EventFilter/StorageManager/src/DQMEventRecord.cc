@@ -1,9 +1,10 @@
-// $Id: DQMEventRecord.cc,v 1.5 2009/09/16 11:06:46 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.6 2009/11/24 16:43:46 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventRecord.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/SharedResources.h"
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
@@ -11,6 +12,7 @@
 
 #include "TROOT.h"
 
+#include <sstream>
 
 using namespace stor;
 
@@ -20,7 +22,8 @@ DQMEventRecord::DQMEventRecord
   DQMKey const dqmKey,
   DQMProcessingParams const dqmParams,
   DQMEventMonitorCollection& dqmEventMonColl,
-  const unsigned int expectedUpdates
+  const unsigned int expectedUpdates,
+  SharedResourcesPtr sr
 ) :
 DQMInstance(
   dqmKey.runNumber, dqmKey.lumiSection, dqmKey.updateNumber, 
@@ -30,26 +33,33 @@ DQMInstance(
 ),
 _dqmParams(dqmParams),
 _dqmEventMonColl(dqmEventMonColl),
-_updateCount(0)
+_sr(sr)
 {
   gROOT->SetBatch(kTRUE);
+  std::ostringstream msg;
+  msg << "Constructed new DQMEventRecord for run "
+    << dqmKey.runNumber << ", LS " << dqmKey.lumiSection
+    << " and update number " << dqmKey.updateNumber;
+  _sr->localDebug(msg.str());
 }
 
 
 DQMEventRecord::~DQMEventRecord()
-{
-  _dqmEventMonColl.getNumberOfUpdatesMQ().addSample( 
-    static_cast<double>(_updateCount) / dqmGroups_.size()
-  );
-}
+{}
 
 
 void DQMEventRecord::addDQMEventView(DQMEventMsgView const& view)
 {
   _releaseTag = view.releaseTag();
-  if ( dqmGroups_[view.topFolderName()] == 0 )
+  if ( dqmGroups_.find(view.topFolderName()) == dqmGroups_.end() )
     _dqmEventMonColl.getNumberOfGroupsMQ().addSample(1);
-  ++_updateCount;
+
+  std::ostringstream msg;
+  msg << "Adding " << view.topFolderName()
+    << " with event number " << view.eventNumberAtUpdate()
+    << " for LS " << view.lumiSection()
+    << " from FU " << view.fuProcessId();
+  _sr->localDebug(msg.str());
 
   edm::StreamDQMDeserializer deserializer;
   std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
@@ -97,7 +107,7 @@ double DQMEventRecord::writeFile(std::string filePrefix, bool endRunFlag)
 
 DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::string groupName)
 {
-  DQMEventRecord::GroupRecord groupRecord;
+  GroupRecord groupRecord;
   groupRecord._entry->dqmConsumers = _dqmConsumers;
 
   // Package list of TObjects into a DQMEvent::TObjectTable
@@ -167,6 +177,9 @@ DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::strin
     builder.setCompressionFlag(serializer.currentEventSize());
   }
 
+  _dqmEventMonColl.getNumberOfUpdatesMQ().addSample( 
+    static_cast<double>(group->getNUpdates())
+  );
   _dqmEventMonColl.getServedDQMEventSizeMQ().addSample(
     static_cast<double>(groupRecord.totalDataSize()) / 0x100000
   );
