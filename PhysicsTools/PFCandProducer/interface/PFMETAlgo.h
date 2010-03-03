@@ -14,7 +14,9 @@
 /* #include "FWCore/Framework/interface/MakerMacros.h" */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/METReco/interface/METFwd.h"
+
+//not a fwd declaration, to save the pain to the user to include the necessary DF header as well
+#include "DataFormats/METReco/interface/MET.h"
 
 /**\class PFMETAlgo 
 \brief Computes the MET from a collection of PFCandidates. 
