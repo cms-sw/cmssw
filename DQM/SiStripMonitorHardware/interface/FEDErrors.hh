@@ -124,9 +124,17 @@ public:
   //perform a sanity check with unpacking code check
   bool failUnpackerFEDCheck(const FEDRawData & fedData);
 
-
   //return true if there were no errors at the level they are analysing
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
+  bool fillFatalFEDErrors(const FEDRawData& aFedData,
+			  const unsigned int aPrintDebug);
+
+  //expensive check: fatal but kept separate
+  bool fillCorruptBuffer(const sistrip::FEDBuffer* aBuffer);
+
+  //FE/Channel check: rate of channels with error (only considering connected channels)
+  float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer);
+
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
 		     bool & aFullDebug,
