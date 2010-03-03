@@ -8,6 +8,7 @@ int CentralityBins::getBin(double value) const {
    for(int i = 0; i < table_.size(); ++i){
       if(value > table_[i].bin_edge){
 	 bin = i;
+	 return bin;
       }
    }
 
