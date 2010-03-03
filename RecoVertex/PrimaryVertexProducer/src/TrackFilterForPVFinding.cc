@@ -42,13 +42,3 @@ TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
 }
 
 
-// float TrackFilterForPVFinding::minPt() const
-// {
-//   return minPt_;
-// }
-
-
-// float TrackFilterForPVFinding::maxD0Significance() const
-// {
-//   return maxD0Sig_;
-// }
