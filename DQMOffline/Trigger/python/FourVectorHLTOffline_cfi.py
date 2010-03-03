@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.26 2009/12/11 19:06:49 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.27 2010/02/17 17:47:25 wmtan Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -35,7 +35,7 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
 
     paths = cms.VPSet(
              cms.PSet(
-              pathname = cms.string("HLT"),
+              pathname = cms.string("HLT_"),
               denompathname = cms.string("HLT_MinBiasBSC")  
              )
             # cms.PSet(
