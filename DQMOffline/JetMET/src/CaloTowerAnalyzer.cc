@@ -191,9 +191,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if( TheHLTResults.isValid() )
     {
       //Get HLT Names
-      edm::TriggerNames TheTriggerNames;
-      TheTriggerNames.init(*TheHLTResults);
-
+      const edm::TriggerNames & TheTriggerNames = iEvent.triggerNames(*TheHLTResults);
       
       for( unsigned int index = 0 ; index < HLTBitLabel_.size(); index++)
 	{
