@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.26 2010/02/27 18:02:30 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.27 2010/02/28 20:10:06 wmtan Exp $
 
 ________________________________________________________________**/
 
@@ -212,15 +212,15 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   edm::Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
 
-  edm::Handle< edm::View<reco::Vertex> > PVCollection;
-  iEvent.getByLabel("offlinePrimaryVertices", PVCollection );
+  //edm::Handle< edm::View<reco::Vertex> > PVCollection;
+  //iEvent.getByLabel("offlinePrimaryVertices", PVCollection );
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle);
 
   const reco::TrackCollection *tracks = TrackCollection.product();
 
-  const edm::View<reco::Vertex> &pv = *PVCollection;
+  //const edm::View<reco::Vertex> &pv = *PVCollection;
 
   const reco::BeamSpot *refBS = recoBeamSpotHandle.product();
 
@@ -297,13 +297,14 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     
     // check if we have a valid PV
     fpvValid = false;
-    
+    /*
     for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
       if (! pv[ipv].isFake()) fpvValid = true;
       
       if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); }
     }
+    */
     
     if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
