@@ -7,7 +7,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id$
+// $Id: FWItemRandomAccessor.h,v 1.1 2010/03/01 09:43:01 eulisse Exp $
 //
 
 // system include files
@@ -98,5 +98,98 @@ public:
       }
 };
 
+/** Generic class for creating accessors for containers which 
+    are implemented as a container of containers. This for example includes
+    `DetSetVector` hence the name. Both the outer and the inner containers
+    must follow the Random Access Container model and in particular
+    must have a size() method. The outer collection must be iterable, while
+    the inner collections must have an array subscript operator. 
+  */
+template <class C, class COLL = typename C::collection_type, class V = typename COLL::value_type >
+class FWItemDetSetAccessor : public FWItemRandomAccessorBase
+{
+public:
+   typedef C      container_type;
+   typedef COLL   collection_type;
+   typedef V      collection_value_type;
+
+   FWItemDetSetAccessor(const TClass *iClass)
+      : FWItemRandomAccessorBase(iClass, typeid(collection_value_type))
+      {}
+
+   REGISTER_FWITEMACCESSOR_METHODS();
+
+   const void*    modelData(int iIndex) const
+      {
+         if (!getDataPtr())
+            return 0;
+         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
+         size_t collectionOffset = 0;
+         for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
+         {
+            iIndex -= collectionOffset;
+            if (iIndex < ci->size())
+               return &(ci->operator[](iIndex));
+            collectionOffset += ci->size();
+         }
+
+         return 0;
+      }
+
+   unsigned int   size() const
+      {
+         if (!getDataPtr())
+            return 0;
+         const container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
+         size_t finalSize = 0;
+
+         for (typename container_type::const_iterator i = c->begin(), e = c->end(); i != e; ++i)
+            finalSize += i->size();
+         
+         return finalSize;
+      }
+};
+
+template <class C, class R = typename C::Range, class V = typename R::value_type>
+class FWItemRangeAccessor : public FWItemRandomAccessorBase
+{
+   typedef C            container_type;
+   typedef R            range_type;
+   typedef V            value_type;
+
+   FWItemRangeAccessor(const TClass *iClass)
+      : FWItemRandomAccessorBase(iClass, typeid(value_type))
+      {}
+
+   const void*    modelData(int iIndex) const
+      {
+         if (!getDataPtr())
+            return 0;
+         container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
+         size_t collectionOffset = 0;
+         for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
+         {
+            iIndex -= collectionOffset;
+            if (iIndex < std::distance(ci->first, ci->second))
+               return &(*(ci + iIndex));
+            collectionOffset += ci->size();
+         }
+
+         return 0;
+      }
+
+   unsigned int   size() const
+      {
+         if (!getDataPtr())
+            return 0;
+         container_type *c = reinterpret_cast<const container_type*>(getDataPtr());
+         size_t finalSize = 0;
+
+         for (typename range_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
+            finalSize += std::distance(ci->first, ci->second);
+
+         return finalSize;
+      }
+};
 
 #endif
