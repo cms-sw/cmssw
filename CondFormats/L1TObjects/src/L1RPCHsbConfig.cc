@@ -49,7 +49,7 @@ int  L1RPCHsbConfig::getHsbMask(int hsb, int input) const {
    if (hsb==0) {
      return m_hsb0[input];
    } else if (hsb==1) {
-     return m_hsb0[input];
+     return m_hsb1[input];
    } else {
      throw cms::Exception("L1RPCHsbConfig::getHsbMask") 
        << "Wrong hsb index: " << hsb << "\n";
