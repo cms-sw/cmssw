@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.11 2009/10/29 09:56:04 chrjones Exp $
+// $Id: FWTableViewManager.cc,v 1.12 2010/03/03 17:19:01 eulisse Exp $
 //
 
 // system include files
@@ -247,11 +247,24 @@ FWTableViewManager::tableFormats(const Reflex::Type &key)
    if (ret != m_tableFormats.end()) 
       return ret;
 
-   table(keyType.c_str()).
-   column("pt", 1).
-   column("eta", 3).
-   column("phi", 3).
-   column("foo", 3);
+   TableHandle handle = table(keyType.c_str());
+   for (ROOT::Reflex::Member_Iterator mi = key.Member_Begin(),
+                                      me = key.Member_End();
+        mi != me; ++mi)
+   {
+      if (!mi->IsPublic())
+         continue;
+      if (!mi->IsConst())
+         continue;
+      if (mi->TypeOf().ReturnType().Name() == "int")
+         handle.column(mi->Name().c_str(), TableEntry::INT);
+      else if (mi->TypeOf().ReturnType().Name() == "bool")
+         handle.column(mi->Name().c_str(), TableEntry::BOOL);
+      else if (mi->TypeOf().ReturnType().Name() == "double")
+         handle.column(mi->Name().c_str(), 5);
+      else if (mi->TypeOf().ReturnType().Name() == "float")
+         handle.column(mi->Name().c_str(), 3);
+   }
    return m_tableFormats.find(keyType);
 }
 
