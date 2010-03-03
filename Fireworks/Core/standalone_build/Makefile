@@ -46,7 +46,7 @@ endif
 
 #############################################################################
 
-all: core display
+all: display
 
 core:   Makefile.core
 	$(QUIET) $(MAKE) -f Makefile.core
