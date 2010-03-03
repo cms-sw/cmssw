@@ -26,7 +26,7 @@ class TableView(AbstractView, QTableWidget):
         QTableWidget.__init__(self, parent)
 
         self._operationId = 0
-        self._selection = None
+        self._selection = (None,None)
         self._updatingFlag = 0
         self._columns=[]
         self._sortingFlag=False
@@ -171,7 +171,7 @@ class TableView(AbstractView, QTableWidget):
         """
         logging.debug(__name__ + ": itemSelectionChanged")
         if not self._updatingFlag:
-            self._selection = self.item(self.currentRow(),self._firstColumn).text()
+            self._selection = (self.currentRow(),self.item(self.currentRow(),self._firstColumn).text())
             if self.item(self.currentRow(),self._firstColumn)!=None:
                 self.emit(SIGNAL("selected"), self.item(self.currentRow(),self._firstColumn).object)
             else:
@@ -179,23 +179,30 @@ class TableView(AbstractView, QTableWidget):
         
     def select(self, object):
         """ Mark an object in the TableView as selected.
+        Remember position an name of object in order to restore the selection.
         """
         logging.debug(__name__ + ": select")
         items = []
         for i in range(self.rowCount()):
             if self.item(i,self._firstColumn).object == object:
-                items += [self.item(i,self._firstColumn)]
+                items += [(i,self.item(i,self._firstColumn))]
         if len(items) > 0:
-            item = items[0]
-            self._selection = item.text()
+            index = items[0][0]
+            item = items[0][1]
+            self._selection = (index,item.text())
             self._updatingFlag +=1
             self.setCurrentItem(item)
             self._updatingFlag -=1
 
     def _selectedRow(self):
+        """ Return the row containing the selected object.
+        First search for object by name. If it is not found use position.
+        """
         for i in range(self.rowCount()):
-            if self.item(i,self._firstColumn).text() == self._selection:
+            if self.item(i,self._firstColumn).text() == self._selection[1]:
                 return i
+        if self._selection[0]<self.rowCount():
+            return self._selection[0]
         if self.rowCount()>0:
             return 0
         else:

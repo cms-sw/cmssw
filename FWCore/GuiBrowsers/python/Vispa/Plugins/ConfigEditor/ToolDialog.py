@@ -104,16 +104,21 @@ class ToolDialog(QDialog):
             QCoreApplication.instance().errorMessage(message)
             return
         ok=True
-        try:
-            self._selectedTool.apply(self._toolDataAccessor.configDataAccessor().process())
-            if not self._toolDataAccessor.configDataAccessor().process().checkRecording():
+        if self._selectedTool:
+            try:
+                self._selectedTool.apply(self._toolDataAccessor.configDataAccessor().process())
+                if not self._toolDataAccessor.configDataAccessor().process().checkRecording():
+                    ok=False
+                    logging.error(__name__ + ": Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag)")
+                    QCoreApplication.instance().errorMessage("Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag)")
+            except Exception,e:
                 ok=False
-                logging.error(__name__ + ": Could not apply tool (problem with enable recording flag)")
-                QCoreApplication.instance().errorMessage("Could not apply tool (problem with enable recording flag)")
-        except Exception,e:
+                logging.error(__name__ + ": Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+": "+exception_traceback())
+                QCoreApplication.instance().errorMessage("Cannot apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (see log file for details):\n"+str(e))
+        else:
             ok=False
-            logging.error(__name__ + ": Cannot apply tool: "+exception_traceback())
-            QCoreApplication.instance().errorMessage("Cannot apply tool (see log file for details):\n"+str(e))
+            logging.error(__name__ + ": Could not apply tool: No tool selected.")
+            QCoreApplication.instance().errorMessage("Cannot apply tool: No tool selected.")
         # recover process copy to undo changes during the tool dialog
         self._toolDataAccessor.configDataAccessor().setProcess(self._processCopy)
         if ok:

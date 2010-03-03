@@ -421,14 +421,14 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     
     def foundIn(self, object):
         """ Make list of all mother sequences """
-        if not object in self._foundInDict.keys():
+        if not str(object) in self._foundInDict.keys():
             foundin = []
             for entry in self._allObjects:
                 for daughter in self.children(entry):
                     if self.label(object) == self.label(daughter) and len(self.children(entry)) > 0 and not self.label(entry) in foundin:
                         foundin += [self.label(entry)]
-            self._foundInDict[object]=foundin
-        return self._foundInDict[object]
+            self._foundInDict[str(object)]=foundin
+        return self._foundInDict[str(object)]
 
     def usedBy(self, object):
         """ Find config objects that use this as input """
@@ -446,14 +446,24 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         properties = []
         if name != "" and not isinstance(object, typ.PSet):
             try:
+                partyp=str(type(object)).split("'")[1].replace("FWCore.ParameterSet.Types","cms")
                 if isinstance(object, cms.InputTag):
-                    properties += [("String", name, str(object.dumpPython()), None, readonly)]
+                    inputtagValue=object.pythonValue()
+                    for i in range(3-len(inputtagValue.split(","))):
+                        inputtagValue+=', ""'
+                    properties += [("String", name, "cms.InputTag("+inputtagValue+")", partyp, readonly)]
+                elif isinstance(object, cms.bool):
+                    properties += [("Boolean", name, object.value(), partyp, readonly)]
+                elif isinstance(object, (cms.int32, cms.uint32, cms.int64, cms.uint64)):
+                    properties += [("Integer", name, object.value(), partyp, readonly)]
+                elif isinstance(object, cms.double):
+                    properties += [("Double", name, object.value(), partyp, readonly)]
                 elif hasattr(object, "pythonValue"):
-                    properties += [("String", name, str(object.pythonValue()), None, readonly)]
+                    properties += [("String", name, str(object.pythonValue()).strip("\"'"), partyp, readonly)]
                 elif hasattr(object, "value"):
-                    properties += [("MultilineString", name, str(object.value()), None, readonly)]
+                    properties += [("MultilineString", name, str(object.value()), partyp, readonly)]
                 else:
-                    properties += [("MultilineString", name, str(object), None, readonly)]
+                    properties += [("MultilineString", name, str(object), partyp, readonly)]
             except Exception:
                 logging.error(__name__ + ": " + exception_traceback())
         
@@ -498,7 +508,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 if text != "":
                     text += ", "
                 text += entry
-            properties += [("String", "in sequence", text, None, True)]
+            properties += [("String", "in sequence", text, "This module/sequence is used the listed sequences", True)]
         uses=self.uses(object)
         usedBy=self.usedBy(object)
         if len(uses) + len(usedBy) > 0:
@@ -509,7 +519,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                     if text != "":
                         text += ", "
                     text += label
-                properties += [("MultilineString", "uses", text, None, True)]
+                properties += [("MultilineString", "uses", text, "This module/sequence depends on the output of the listes modules/seuquences", True)]
             if len(usedBy) > 0:
                 text = ""
                 usedby = []
@@ -517,7 +527,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                     if text != "":
                         text += ", "
                     text += entry
-                properties += [("MultilineString", "used by", text, None, True)]
+                properties += [("MultilineString", "used by", text, "The listed modules/sequences depend on the output of this module/sequence", True)]
         if len(self.parameters(object)) > 0:
             properties += [("Category", "Parameters", "")]
             properties += self.recursePSetProperties("", object)
@@ -531,7 +541,12 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         else: 
             process=self.process()
             try:
-                exec "object." + name + "=" + value
+                if isinstance(value,str) and\
+                    not value[0]=="[" and\
+                    not value[0:4]=="cms.":
+                    exec "object." + name + "='''" + value + "'''"
+                else:
+                    exec "object." + name + "=" + str(value)
             except Exception,e:
                 error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
