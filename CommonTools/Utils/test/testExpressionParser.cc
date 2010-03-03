@@ -138,6 +138,8 @@ void testExpressionParser::checkAll() {
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
     checkTrack("algo", reco::Track::iter2);
+    checkTrack("?ndof<0?1:0", trk.ndof()<0?1:0);
+    checkTrack("?ndof=10?1:0", trk.ndof()==10?1:0);
   }
   reco::Candidate::LorentzVector p1(1, 2, 3, 4);
   reco::Candidate::LorentzVector p2(1.1, 2.2, 3.3, 4.4);
