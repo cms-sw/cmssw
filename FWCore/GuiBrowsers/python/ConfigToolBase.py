@@ -133,7 +133,6 @@ class ConfigToolBase(object) :
         if value==[]:
             self.parAccepted=False
         elif (isinstance(value,dict)) and (isinstance(self._parameters[name].allowedValues,list)):
-            
             for key in value.keys():
                 if key not in self._parameters[name].allowedValues:
                     raise ValueError("The input key value "+'"'+str(key)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues))
@@ -157,4 +156,5 @@ class ConfigToolBase(object) :
         else:
             if not (isinstance(self._parameters[name].value,self._parameters[name].type) or self._parameters[name].value is None):
                 raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
-            
+    def getAllowedValues(self,name):
+        return self._defaultParameters[name].allowedValues
