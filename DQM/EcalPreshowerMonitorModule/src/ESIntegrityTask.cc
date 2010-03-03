@@ -299,10 +299,8 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 	   meFiberErrCode_->Fill(fiberStatus[i]);
 	   nDIErr[dcc.fedId()-520][i]++;
 	 }
-	 if (fiberStatus[i]==7) {
-	   meFiberErrCode_->Fill(fiberStatus[i]);
+	 if (fiberStatus[i]==7)
 	   meFiberOff_->Fill(dcc.fedId(), i+1, 1);
-	 }
 	 if (fiberStatus[i]==6) {
 	   meFiberErrCode_->Fill(fiberStatus[i]);
 	   meEVDR_->Fill(dcc.fedId(), i+1, 1);
