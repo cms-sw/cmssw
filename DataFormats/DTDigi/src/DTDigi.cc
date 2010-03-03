@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/04/05 15:03:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/22 18:45:04 $
+ *  $Revision: 1.5 $
  *
  * \author N. Amapane - INFN Torino
  */
@@ -35,9 +35,8 @@ DTDigi::DTDigi (ChannelType channel, int nTDC):
   theCounts(nTDC),
   theNumber(0)
 {
-  ChannelPacking* ch = reinterpret_cast<ChannelPacking*>(&channel);
-  theWire = ch->wire;
-  theNumber = ch->number;
+  theNumber = channel&number_mask;
+  theWire   = (channel&wire_mask)>>wire_offset;
 }
 
 
@@ -60,18 +59,8 @@ DTDigi::operator == (const DTDigi& digi) const {
 // Getters
 DTDigi::ChannelType
 DTDigi::channel() const {
-  ChannelPacking result;
-  result.wire = theWire;
-  result.number= theNumber;
-  return *(reinterpret_cast<DTDigi::ChannelType*>(&result));
+  return  (theNumber & number_mask) | (theWire<<wire_offset)&wire_mask;
 }
-
-// DTEnum::ViewCode
-// DTDigi::viewCode() const{
-//   if ( slayer()==2 )
-//     return DTEnum::RZed;
-//   else return DTEnum::RPhi;
-// }
 
 double DTDigi::time() const { return theCounts*reso; }
 

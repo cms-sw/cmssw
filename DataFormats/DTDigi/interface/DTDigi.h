@@ -7,10 +7,10 @@
  * It can be initialized/set with a time in ns or a TDC count in 25/32 ns 
  * units.
  *  
- *  $Date: 2005/12/02 10:18:27 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/04/05 15:03:07 $
+ *  $Revision: 1.7 $
  *
- * \author N. Amapane - INFN Torino
+ * \author N. Amapane, G. Cerminara, M. Pelliccioni - INFN Torino
  *
  */
 
@@ -42,9 +42,6 @@ public:
   /// The channel identifier and the digi number packed together
   ChannelType channel() const ;
 
-  /// R-Phi or R-Zed SuperLayer
-  //  DTEnum::ViewCode viewCode() const ;
-
   /// Return wire number
   int wire() const;
 
@@ -72,14 +69,11 @@ private:
   // The value of one TDC count in ns
   static const double reso;
 
-  // Used to repack the channel number to an int
-  struct ChannelPacking {
-    uint16_t wire;
-    uint16_t number;
-  };
+  // Masks&shifts for the channel identifier
+  static const uint32_t wire_mask   = 0xffff0000;
+  static const uint32_t number_mask = 0xffff;
+  static const uint32_t wire_offset = 16;
 
-
- private:
   uint16_t theWire;   // channel number
   uint32_t theCounts; // TDC count, up to 20 bits actually used
   uint16_t theNumber; // counter for digis in the same cell
