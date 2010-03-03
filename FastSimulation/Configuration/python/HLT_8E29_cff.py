@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_5_0/8E29/V21 (CMSSW_3_5_1)
+# /dev/CMSSW_3_5_0/8E29/V37 (CMSSW_3_5_2_HLT3)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V21')
+  tableName = cms.string('/dev/CMSSW_3_5_0/8E29/V37')
 )
 
 
@@ -1140,7 +1140,8 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         wirePropCorrType = cms.int32( 1 ),
         doWirePropCorrection = cms.bool( True ),
         doT0Correction = cms.bool( True ),
-        debug = cms.untracked.bool( False )
+        debug = cms.untracked.bool( False ),
+        tTrigLabel = cms.string( "" )
       ),
       tTrigMode = cms.string( "DTTTrigSyncFromDB" )
     )
@@ -1177,7 +1178,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
             wirePropCorrType = cms.int32( 1 ),
             doWirePropCorrection = cms.bool( True ),
             doT0Correction = cms.bool( True ),
-            debug = cms.untracked.bool( False )
+            debug = cms.untracked.bool( False ),
+            tTrigLabel = cms.string( "" )
           ),
           tTrigMode = cms.string( "DTTTrigSyncFromDB" )
         ),
@@ -1197,7 +1199,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           wirePropCorrType = cms.int32( 1 ),
           doWirePropCorrection = cms.bool( True ),
           doT0Correction = cms.bool( True ),
-          debug = cms.untracked.bool( False )
+          debug = cms.untracked.bool( False ),
+          tTrigLabel = cms.string( "" )
         ),
         tTrigMode = cms.string( "DTTTrigSyncFromDB" )
       ),
@@ -4257,8 +4260,8 @@ hltPreCSCBeamHaloOverlapRing1 = cms.EDFilter( "HLTPrescaler" )
 hltOverlapsHLTCSCBeamHaloOverlapRing1 = cms.EDFilter( "HLTCSCOverlapFilter",
     input = cms.InputTag( "hltCsc2DRecHits" ),
     minHits = cms.uint32( 4 ),
-    xWindow = cms.double( 2.0 ),
-    yWindow = cms.double( 2.0 ),
+    xWindow = cms.double( 1000.0 ),
+    yWindow = cms.double( 1000.0 ),
     ring1 = cms.bool( True ),
     ring2 = cms.bool( False ),
     fillHists = cms.bool( False )
@@ -4278,8 +4281,8 @@ hltPreCSCBeamHaloOverlapRing2 = cms.EDFilter( "HLTPrescaler" )
 hltOverlapsHLTCSCBeamHaloOverlapRing2 = cms.EDFilter( "HLTCSCOverlapFilter",
     input = cms.InputTag( "hltCsc2DRecHits" ),
     minHits = cms.uint32( 4 ),
-    xWindow = cms.double( 2.0 ),
-    yWindow = cms.double( 2.0 ),
+    xWindow = cms.double( 1000.0 ),
+    yWindow = cms.double( 1000.0 ),
     ring1 = cms.bool( False ),
     ring2 = cms.bool( True ),
     fillHists = cms.bool( False )
