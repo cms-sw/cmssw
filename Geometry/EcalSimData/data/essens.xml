@@ -6,7 +6,8 @@
    <PartSelector path="//SFSX"/>
    <PartSelector path="//SFSY"/>
    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="EcalHitsES" eval="false"/>
+   <Parameter name="ReadOutName"    value="EcalHitsES" eval="false"/>
+   <Parameter name="EnergyWeight"   value="0.0"/>
  </SpecPar> 
 </SpecParSection>
 
