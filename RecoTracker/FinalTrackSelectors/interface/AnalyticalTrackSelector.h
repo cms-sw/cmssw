@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.14 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.13 2010/01/27 04:02:09 stenson Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.14 2010/02/20 21:01:18 wmtan Exp $
  *
  */
 
@@ -82,6 +82,7 @@ namespace reco { namespace modules {
             /// Impact parameter absolute cuts
             double max_d0_;
             double max_z0_;
+            double nSigmaZ_;
 
             /// Cuts on numbers of layers with hits/3D hits/lost hits. 
 			uint32_t min_layers_;

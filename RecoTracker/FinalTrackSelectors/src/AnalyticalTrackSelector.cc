@@ -31,6 +31,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     // Impact parameter absolute cuts.
     max_d0_(cfg.getParameter<double>("max_d0")),
     max_z0_(cfg.getParameter<double>("max_z0")),
+    nSigmaZ_(cfg.getParameter<double>("nSigmaZ")),
     // Cuts on numbers of layers with hits/3D hits/lost hits.
     min_layers_(cfg.getParameter<uint32_t>("minNumberLayers") ),
     min_3Dlayers_(cfg.getParameter<uint32_t>("minNumber3DLayers") ),
@@ -218,7 +219,7 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
 
    if (points.empty()) { //If not primaryVertices are reconstructed, check just the compatibility with the BS
      //z0 within three sigma of the beam spot z, if no good vertex is found
-     if ( abs(dz) < (vertexBeamSpot.sigmaZ()*3) ) primaryVertexZCompatibility = true;  
+     if ( abs(dz) < (vertexBeamSpot.sigmaZ()*nSigmaZ_) ) primaryVertexZCompatibility = true;  
 
      // d0 compatibility with beam line
      if (abs(d0) < pow(d0_par1_[0]*nlayers,d0_par1_[1])*nomd0E &&
