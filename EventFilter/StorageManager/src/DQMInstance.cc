@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.15 2009/09/17 14:31:09 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.16 2009/11/24 16:40:58 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <iostream>
@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "EventFilter/StorageManager/interface/DQMInstance.h"
 #include "TH1.h"
+#include "TProfile.h"
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TString.h"
@@ -41,6 +42,7 @@ DQMFolder::~DQMFolder()
     TObject * object = i0->second;
     if ( object != NULL ) { delete(object); } 
   }
+  dqmObjects_.clear();
 }
 
 DQMGroup::DQMGroup(int readyTime, int expectedUpdates):
@@ -56,11 +58,8 @@ DQMGroup::DQMGroup(int readyTime, int expectedUpdates):
 
 void DQMGroup::setLastEvent(int lastEvent)
 {
-  if ( lastEvent_ != lastEvent )
-  {
-    lastEvent_ = lastEvent;
-    ++nUpdates_;
-  }
+  lastEvent_ = lastEvent;
+  ++nUpdates_;
   wasServedSinceUpdate_ = false;
   lastUpdate_->Set();  
 }
@@ -71,15 +70,20 @@ void DQMGroup::setServedSinceUpdate()
   nUpdates_ = 0;
 }
 
-bool DQMGroup::isReady(int currentTime)
+bool DQMGroup::isReady(int currentTime) const
 {
+  if ( isComplete() ) return true;
+
   time_t lastUpdateSecs = lastUpdate_->GetSec();
   // 29-Oct-2008, KAB - added a test that lastUpdateSecs is greater
   // than zero so that we don't report that a brand-new group is
   // ready before any updates have been added.
-  return( lastUpdateSecs > 0 &&
-          ( nUpdates_ == expectedUpdates_ ||
-          ( currentTime - lastUpdateSecs ) > readyTime_));
+  return( lastUpdateSecs > 0 && (currentTime - lastUpdateSecs) > readyTime_);
+}
+
+bool DQMGroup::isComplete() const
+{
+  return ( nUpdates_ == expectedUpdates_ );
 }
 
 DQMGroup::~DQMGroup() 
@@ -93,6 +97,7 @@ DQMGroup::~DQMGroup()
     DQMFolder * folder = i0->second;
     if ( folder != NULL ) { delete(folder); } 
   }
+  dqmFolders_.clear();
 }
 
 
@@ -120,12 +125,13 @@ DQMInstance::~DQMInstance()
   if ( firstUpdate_ != NULL ) { delete(firstUpdate_);}
   if ( lastUpdate_ != NULL )  { delete(lastUpdate_);}
 
-  for (std::map<std::string, DQMGroup * >::iterator i0 = 
+  for (DQMGroupsMap::iterator i0 = 
 	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
   {
     DQMGroup  * group     = i0->second;
     if ( group != NULL ) { delete(group); } 
   }
+  dqmGroups_.clear();
 }
 
 
@@ -136,32 +142,44 @@ int DQMInstance::updateObject(std::string groupName,
 {
   lastEvent_ = eventNumber;
   std::string objectName = getSafeMEName(object);
-  DQMGroup * group = dqmGroups_[groupName];
-  if ( group == NULL )
-  {
-    group = new DQMGroup(readyTime_,expectedUpdates_);
-    dqmGroups_[groupName] = group;
-  }
 
-  DQMFolder * folder = group->dqmFolders_[objectDirectory];
-  if ( folder == NULL )
+  DQMGroupsMap::iterator groupPos = dqmGroups_.lower_bound(groupName);
+  if ( groupPos == dqmGroups_.end() || (dqmGroups_.key_comp()(groupName, groupPos->first)) )
   {
-    folder = new DQMFolder();
-    group->dqmFolders_[objectDirectory] = folder;
+    groupPos = dqmGroups_.insert(groupPos, DQMGroupsMap::value_type(groupName,
+        new DQMGroup(readyTime_,expectedUpdates_)));
   }
+  DQMGroup * group = groupPos->second;
 
-  TObject * storedObject = folder->dqmObjects_[objectName];
-  if ( storedObject == NULL )
+  DQMGroup::DQMFoldersMap::iterator folderPos = group->dqmFolders_.lower_bound(objectDirectory);
+  if ( folderPos == group->dqmFolders_.end() || (group->dqmFolders_.key_comp()(objectDirectory, folderPos->first)) )
   {
-    folder->dqmObjects_[objectName] = object->Clone(object->GetName());
+    folderPos = group->dqmFolders_.insert(folderPos, DQMGroup::DQMFoldersMap::value_type(objectDirectory,
+        new DQMFolder()));
+  }
+  DQMFolder * folder = folderPos->second;
+
+  DQMFolder::DQMObjectsMap::iterator objectPos = folder->dqmObjects_.lower_bound(objectName);
+  if ( objectPos == folder->dqmObjects_.end() || (folder->dqmObjects_.key_comp()(objectName, objectPos->first)) )
+  {
+    objectPos = folder->dqmObjects_.insert(objectPos, DQMFolder::DQMObjectsMap::value_type(objectName,
+        object->Clone(object->GetName())));
   }
   else
   {
-    if ( object->InheritsFrom("TH1") && 
+    TObject * storedObject = objectPos->second;
+    if ( object->InheritsFrom("TProfile") && 
+	 storedObject->InheritsFrom("TProfile") )
+    {
+      TProfile * newProfile    = static_cast<TProfile*>(object);
+      TProfile * storedProfile = static_cast<TProfile*>(storedObject);
+      storedProfile->Add(newProfile);
+    }
+    else if ( object->InheritsFrom("TH1") && 
 	 storedObject->InheritsFrom("TH1") )
     {
-      TH1 * newHistogram    = (TH1 *)object;
-      TH1 * storedHistogram = (TH1 *)storedObject;
+      TH1 * newHistogram    = static_cast<TH1*>(object);
+      TH1 * storedHistogram = static_cast<TH1*>(storedObject);
       storedHistogram->Add(newHistogram);
     }
     else
@@ -181,7 +199,7 @@ int DQMInstance::updateObject(std::string groupName,
   return(nUpdates_);
 }
 
-bool DQMInstance::isReady(int currentTime)
+bool DQMInstance::isReady(int currentTime) const
 {
   bool readyFlag = true;
 
@@ -191,10 +209,13 @@ bool DQMInstance::isReady(int currentTime)
   // even been created.
   if (dqmGroups_.size() == 0) readyFlag = false;
 
-  for (std::map<std::string, DQMGroup * >::iterator i0 = 
-	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
+  if ( isComplete() ) return readyFlag;
+
+  for (DQMGroupsMap::const_iterator
+         it = dqmGroups_.begin(), itEnd = dqmGroups_.end();
+       it != itEnd ; ++it)
   {
-    DQMGroup  * group     = i0->second;
+    DQMGroup  * group = it->second;
     if ( group != NULL && ! group->isReady(currentTime) ) {
       readyFlag = false;
     }
@@ -202,12 +223,17 @@ bool DQMInstance::isReady(int currentTime)
   return readyFlag;
 }
 
-bool DQMInstance::isStale(int currentTime)
+bool DQMInstance::isStale(int currentTime) const
 {
   return( ( currentTime - lastUpdate_->GetSec() ) > purgeTime_);
 }
 
-double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
+bool DQMInstance::isComplete() const
+{
+  return( nUpdates_ == expectedUpdates_ );
+}
+
+double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag) const
 {
   double size = 0;
   char fileName[1024];
@@ -216,10 +242,11 @@ double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
   std::string runString("Run ");
   runString.append(boost::lexical_cast<std::string>(runNumber_));
 
-  for (std::map<std::string, DQMGroup * >::iterator i0 = 
-	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
+  for (DQMGroupsMap::const_iterator
+	 it = dqmGroups_.begin(), itEnd = dqmGroups_.end();
+       it != itEnd; ++it)
   {
-    DQMGroup * group = i0->second;
+    DQMGroup * group = it->second;
     if (endRunFlag) {
       sprintf(fileName,"%s/DQM_V0001_EvF_R%9.9d.root", 
               filePrefix.c_str(), runNumber_);
@@ -317,8 +344,13 @@ double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag)
   return(size);
 }
 
-DQMGroup * DQMInstance::getDQMGroup(std::string groupName)
-{ return(dqmGroups_[groupName]);}
+DQMGroup * DQMInstance::getDQMGroup(std::string groupName) const
+{
+  DQMGroup* dqmGroup = 0;
+  DQMGroupsMap::const_iterator it = dqmGroups_.find(groupName);
+  if ( it != dqmGroups_.end() ) dqmGroup = it->second;
+  return dqmGroup;
+}
 
 // 15-Jul-2008, KAB - this method should probably exist in DQMStore
 // rather than here, but I'm going for expediency...
@@ -337,3 +369,12 @@ std::string DQMInstance::getSafeMEName(TObject *object)
 
   return safeName;
 }
+
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -
