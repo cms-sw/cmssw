@@ -926,8 +926,6 @@ if __name__=="__main__":
             self.assertEqual(p.Full.type_(),"Full")
             self.assertEqual(str(p.c),'a')
             self.assertEqual(str(p.d),'a')
-            p.dumpConfig()
-            p.dumpPython()
 
         def testProcessDumpConfig(self):
             p = Process("test")
@@ -937,18 +935,6 @@ if __name__=="__main__":
             p.r = Sequence(p.s)
             p.p2 = Path(p.s)
             p.schedule = Schedule(p.p2,p.p)
-            d=p.dumpConfig()
-            self.assertEqual(d,
-"""process test = {
-    module a = MyAnalyzer { 
-    }
-    sequence s = {a}
-    sequence r = {s}
-    path p = {a}
-    path p2 = {s}
-    schedule = {p2,p}
-}
-""")
             d=p.dumpPython()
             self.assertEqual(d,
 """import FWCore.ParameterSet.Config as cms
@@ -980,18 +966,6 @@ process.schedule = cms.Schedule(process.p2,process.p)
             p.s = Sequence(p.r)
             p.p2 = Path(p.r)
             p.schedule = Schedule(p.p2,p.p)
-            d=p.dumpConfig()
-            self.assertEqual(d,
-"""process test = {
-    module a = MyAnalyzer {
-    }
-    sequence s = {r}
-    sequence r = {a}
-    path p = {a}
-    path p2 = {r}
-    schedule = {p2,p}
-}
-""")
             p.b = EDAnalyzer("YourAnalyzer")
             d=p.dumpPython()
             self.assertEqual(d,
@@ -1022,7 +996,7 @@ process.schedule = cms.Schedule(process.p2,process.p)
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
-            self.assertEqual(p.dumpConfig(),"process test = {\n    secsource a = MySecSource { \n    }\n}\n")
+            self.assertEqual(p.dumpPython().replace('\n',''),'import FWCore.ParameterSet.Config as cmsprocess = cms.Process("test")process.a = cms.SecSource("MySecSource")')
 
         def testGlobalReplace(self):
             p = Process('test')
