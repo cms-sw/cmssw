@@ -32,7 +32,15 @@ zGolden=(
     cms.PSet(
     tag = cms.untracked.string("Dau2dB"),
     quantity = cms.untracked.string("daughter(1).masterClone.dB")
-    )
+    )#,
+    #cms.PSet(
+    #tag = cms.untracked.string("Dau1UserIso"),
+    #quantity = cms.untracked.string("daughter(0).masterClone.User1Iso")
+    #)#,
+    #cms.PSet(
+    #tag = cms.untracked.string("Dau1UserIsolation"),
+    #quantity = cms.untracked.string("daughter(0).masterClone.isolations_[7]")
+    #)
     )
 
 zMuTrk=(
@@ -151,28 +159,28 @@ goodZToMuMuPathLoose.__iadd__(goodZToMuMuEdmNtupleLoose)
 goodZToMuMuPathLoose.setLabel("goodZToMuMuEdmLoose")
 
 
-goodZToMuMuSameChargeEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuSameChargeEdmNtupleLoose.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLTLoose")
-goodZToMuMuSameChargeEdmNtupleLoose.prefix = cms.untracked.string("zSameCharge")
-goodZToMuMuSameChargeEdmNtupleLoose.variables += zGolden
-goodZToMuMuSameChargePathLoose.__iadd__(goodZToMuMuSameChargeEdmNtupleLoose)
-goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
+#goodZToMuMuSameChargeEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
+#goodZToMuMuSameChargeEdmNtupleLoose.src = cms.InputTag("goodZToMuMuSameChargeAtLeast1HLTLoose")
+#goodZToMuMuSameChargeEdmNtupleLoose.prefix = cms.untracked.string("zSameCharge")
+#goodZToMuMuSameChargeEdmNtupleLoose.variables += zGolden
+#goodZToMuMuSameChargePathLoose.__iadd__(goodZToMuMuSameChargeEdmNtupleLoose)
+#goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
 
 
 
-goodZToMuMuOneStandAloneEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuOneStandAloneEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLTLoose")
-goodZToMuMuOneStandAloneEdmNtupleLoose.prefix=cms.untracked.string("zMuSta")
-goodZToMuMuOneStandAloneEdmNtupleLoose.variables += zGolden
-goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuOneStandAloneEdmNtupleLoose)
-goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
+#goodZToMuMuOneStandAloneEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
+#goodZToMuMuOneStandAloneEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLTLoose")
+#goodZToMuMuOneStandAloneEdmNtupleLoose.prefix=cms.untracked.string("zMuSta")
+#goodZToMuMuOneStandAloneEdmNtupleLoose.variables += zGolden
+#goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuOneStandAloneEdmNtupleLoose)
+#goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
 
-goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
-goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
-goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
-goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
-goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
+#goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
+#goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
+#goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
+#goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
+#goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
+#goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 ntuplesOut = cms.OutputModule(
     "PoolOutputModule",
@@ -180,9 +188,9 @@ ntuplesOut = cms.OutputModule(
     outputCommands = cms.untracked.vstring(
       "drop *",
       "keep *_goodZToMuMuEdmNtupleLoose_*_*",
-      "keep *_goodZToMuMuSameChargeEdmNtupleLoose_*_*",
-      "keep *_goodZToMuMuOneStandAloneEdmNtupleLoose_*_*",
-      "keep *_goodZToMuMuOneTrackEdmNtupleLoose_*_*"
+      #"keep *_goodZToMuMuSameChargeEdmNtupleLoose_*_*",
+      #"keep *_goodZToMuMuOneStandAloneEdmNtupleLoose_*_*",
+      #"keep *_goodZToMuMuOneTrackEdmNtupleLoose_*_*"
       
     )
     )
