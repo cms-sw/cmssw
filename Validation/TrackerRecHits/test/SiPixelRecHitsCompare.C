@@ -164,6 +164,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	 }
        Pixel0->Print("Clust_y_size_by_module.eps");   
+       Pixel0->Print("Clust_y_size_by_module.gif");   
      }
    
    if (1) 
@@ -201,6 +202,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	 }
        Pixel1->Print("Clust_x_size_by_layer.eps");   
+       Pixel1->Print("Clust_x_size_by_layer.gif");   
      }
    
    if (1) 
@@ -238,6 +240,7 @@ void SiPixelRecHitsCompare()
 	   leg.Draw();
 	 }
        Pixel2->Print("Clust_charge_layer1_modules.eps");   
+       Pixel2->Print("Clust_charge_layer1_modules.gif");   
      }
    
    if (1) 
@@ -275,6 +278,7 @@ void SiPixelRecHitsCompare()
 	   leg.Draw();
 	 }
        Pixel3->Print("Clust_charge_layer2_modules.eps");   
+       Pixel3->Print("Clust_charge_layer2_modules.gif");   
      }
    
    if (1) 
@@ -312,6 +316,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	 }
        Pixel4->Print("Clust_charge_layer3_modules.eps");   
+       Pixel4->Print("Clust_charge_layer3_modules.gif");   
      }
    
    //----------------------------
@@ -353,6 +358,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	 }
        Pixel5->Print("Clust_xsize_disk1_plaquettes.eps");   
+       Pixel5->Print("Clust_xsize_disk1_plaquettes.gif");   
      }
    
    if (1) 
@@ -390,6 +396,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	 }
        Pixel6->Print("Clust_xsize_disk2_plaquettes.eps");   
+       Pixel6->Print("Clust_xsize_disk2_plaquettes.gif");   
      }
    
    
@@ -428,6 +435,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	 }
        Pixel7->Print("Clust_ysize_disk1_plaquettes.eps");   
+       Pixel7->Print("Clust_ysize_disk1_plaquettes.gif");   
      }
    
    if (1) 
@@ -465,6 +473,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	}
        Pixel8->Print("Clust_ysize_disk2_plaquettes.eps");   
+       Pixel8->Print("Clust_ysize_disk2_plaquettes.gif");   
      }
    
    
@@ -503,6 +512,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	 }
        Pixel9->Print("Clust_charge_disk1_plaquettes.eps");   
+       Pixel9->Print("Clust_charge_disk1_plaquettes.gif");   
      }
    
    if (1) 
@@ -540,6 +550,7 @@ void SiPixelRecHitsCompare()
    leg.Draw();
 	}
        Pixel10->Print("Clust_charge_disk2_plaquettes.eps");   
+       Pixel10->Print("Clust_charge_disk2_plaquettes.gif");   
      }
 
    
@@ -578,6 +589,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel11->Print("RecHit_XDist_FullModules.eps");
+       Pixel11->Print("RecHit_XDist_FullModules.gif");
        
        //RecHit x distribution half modules
        
@@ -608,6 +620,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel12->Print("RecHit_XDist_HalfModules.eps");
+       Pixel12->Print("RecHit_XDist_HalfModules.gif");
        
        //RecHit y distribution all modules
        
@@ -638,6 +651,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel13->Print("RecHit_YDist_AllModules.eps");
+       Pixel13->Print("RecHit_YDist_AllModules.gif");
      }
    
    if (1) 
@@ -676,6 +690,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel14->Print("RecHit_XRes_FlippedLadder_Layers.eps");
+       Pixel14->Print("RecHit_XRes_FlippedLadder_Layers.gif");
      }
    
    if (1) 
@@ -714,6 +729,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel15->Print("RecHit_XRes_UnFlippedLadder_Layers.eps");
+       Pixel15->Print("RecHit_XRes_UnFlippedLadder_Layers.gif");
      }
    
    if (1) 
@@ -752,6 +768,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel16->Print("RecHit_YRes_Layer1_Modules.eps");
+       Pixel16->Print("RecHit_YRes_Layer1_Modules.gif");
      }
    
    if (1) 
@@ -790,6 +807,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
        Pixel17->Print("RecHit_YRes_Layer2_Modules.eps");
+       Pixel17->Print("RecHit_YRes_Layer2_Modules.gif");
      }
    
    if (1) 
@@ -828,6 +846,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel18->Print("RecHit_YRes_Layer3_Modules.eps");
+       Pixel18->Print("RecHit_YRes_Layer3_Modules.gif");
      }
    
    ////////////////////////////////
@@ -866,6 +885,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel19->Print("RecHit_X_Plaquette_xsize1.eps");
+       Pixel19->Print("RecHit_X_Plaquette_xsize1.gif");
        
        //RecHit x distribution for plaquettes x-size 2
        
@@ -897,6 +917,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel20->Print("RecHit_X_Plaquette_xsize2.eps");
+       Pixel20->Print("RecHit_X_Plaquette_xsize2.gif");
        
        //RecHit y distribution for plaquettes y-size 2
        
@@ -928,6 +949,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel21->Print("RecHit_Y_Plaquette_ysize2.eps");
+       Pixel21->Print("RecHit_Y_Plaquette_ysize2.gif");
        
        //RecHit y distribution for plaquettes y-size 3
        
@@ -959,6 +981,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel22->Print("RecHit_Y_Plaquette_ysize3.eps");
+       Pixel22->Print("RecHit_Y_Plaquette_ysize3.gif");
        
        //RecHit y distribution for plaquettes y-size 4
        
@@ -990,6 +1013,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel23->Print("RecHit_Y_Plaquette_ysize4.eps");
+       Pixel23->Print("RecHit_Y_Plaquette_ysize4.gif");
        
        //RecHit y distribution for plaquettes y-size 5
        
@@ -1021,6 +1045,7 @@ void SiPixelRecHitsCompare()
        leg.Draw();
        
        Pixel24->Print("RecHit_Y_Plaquette_ysize5.eps");
+       Pixel24->Print("RecHit_Y_Plaquette_ysize5.gif");
      }
    
    if (1) 
@@ -1059,6 +1084,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
        Pixel25->Print("RecHit_XRes_disk1_plaquettes.eps");
+       Pixel25->Print("RecHit_XRes_disk1_plaquettes.gif");
      }
    
    if (1) 
@@ -1097,6 +1123,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel26->Print("RecHit_XRes_disk2_plaquettes.eps");
+       Pixel26->Print("RecHit_XRes_disk2_plaquettes.gif");
      }
    
    if (1) 
@@ -1135,6 +1162,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel27->Print("RecHit_YRes_disk1_plaquettes.eps");
+       Pixel27->Print("RecHit_YRes_disk1_plaquettes.gif");
      }
    
    if (1) 
@@ -1173,6 +1201,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel28->Print("RecHit_YRes_disk2_plaquettes.eps");
+       Pixel28->Print("RecHit_YRes_disk2_plaquettes.gif");
      }
    
       
@@ -1216,6 +1245,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
        Pixel29->Print("RecHit_XPull_FlippedLadder_Layers.eps");
+       Pixel29->Print("RecHit_XPull_FlippedLadder_Layers.gif");
      }
    
    if (1) 
@@ -1254,6 +1284,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel30->Print("RecHit_XPull_UnFlippedLadder_Layers.eps");
+       Pixel30->Print("RecHit_XPull_UnFlippedLadder_Layers.gif");
      }
    
    if (1) 
@@ -1292,6 +1323,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel31->Print("RecHit_YPull_Layer1_Modules.eps");
+       Pixel31->Print("RecHit_YPull_Layer1_Modules.gif");
      }
    
    if (1) 
@@ -1330,6 +1362,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel32->Print("RecHit_YPull_Layer2_Modules.eps");
+       Pixel32->Print("RecHit_YPull_Layer2_Modules.gif");
      }
 
    if (1) 
@@ -1368,6 +1401,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel33->Print("RecHit_YPull_Layer3_Modules.eps");
+       Pixel33->Print("RecHit_YPull_Layer3_Modules.gif");
      }
    
    ////////////////////////////////
@@ -1411,6 +1445,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel34->Print("RecHit_XPull_disk1_plaquettes.eps");
+       Pixel34->Print("RecHit_XPull_disk1_plaquettes.gif");
      }
    
    if (1) 
@@ -1449,6 +1484,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel35->Print("RecHit_XPull_disk2_plaquettes.eps");
+       Pixel35->Print("RecHit_XPull_disk2_plaquettes.gif");
      }
    
    if (1) 
@@ -1487,6 +1523,7 @@ void SiPixelRecHitsCompare()
 	   
 	 }
        Pixel36->Print("RecHit_YPull_disk1_plaquettes.eps");
+       Pixel36->Print("RecHit_YPull_disk1_plaquettes.gif");
      }
    
    if (1) 
@@ -1525,6 +1562,7 @@ void SiPixelRecHitsCompare()
 	   
 	}
        Pixel37->Print("RecHit_YPull_disk2_plaquettes.eps");
+       Pixel37->Print("RecHit_YPull_disk2_plaquettes.gif");
      }
 
 } // end
