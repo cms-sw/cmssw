@@ -15,7 +15,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    comEnergy = cms.double(10000.),
+    comEnergy = cms.double(7000.),
     PythiaParameters = cms.PSet(
         pythia8_example04 = cms.vstring('LeftRightSymmmetry:ffbar2WR = on',
                                         '9900024:m0 = 1500',
