@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/02/20 02:42:10 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/03/02 23:08:09 $
+ *  $Revision: 1.16 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -56,7 +56,10 @@ class BeamMonitor : public edm::EDAnalyzer {
   void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   
  private:
-  
+
+  void scrollTH1(TH1 *, time_t);
+  bool testScroll(time_t &, time_t &);
+
   edm::ParameterSet parameters_;
   std::string monitorName_;
   edm::InputTag bsSrc_; // beam spot
@@ -126,11 +129,12 @@ class BeamMonitor : public edm::EDAnalyzer {
   MonitorElement * cutFlowTable;
   // variables for beam fit
 
-  // 
+  //
   time_t tmpTime;
   time_t refTime;
   edm::TimeValue_t ftimestamp;
   edm::TimeValue_t fdenom;
+  int lastNZbin; // last non zero bin of time histos
 };
 
 #endif

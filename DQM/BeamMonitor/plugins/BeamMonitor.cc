@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/02/20 02:42:10 $
- * $Revision: 1.23 $
+ * $Date: 2010/03/02 23:08:09 $
+ * $Revision: 1.24 $
  *
  */
 
@@ -43,6 +43,8 @@ static char * formatTime( const time_t t )  {
   return ts;
 
 }
+
+#define buffTime (23)
 
 //
 // constructors and destructor
@@ -177,9 +179,9 @@ void BeamMonitor::beginJob() {
       hs[histName]->getTH1()->SetOption("E1");
       if (histName.find("time") != string::npos) {
 	//int nbins = (intervalInSec_/23 > 0 ? intervalInSec_/23 : 40);
- 	hs[histName]->getTH1()->SetBins(intervalInSec_,0.,intervalInSec_);
+ 	hs[histName]->getTH1()->SetBins(intervalInSec_,0.5,intervalInSec_+0.5);
 	hs[histName]->setAxisTimeDisplay(1);
-	hs[histName]->setAxisTimeFormat("%H:%M",1);
+	hs[histName]->setAxisTimeFormat("%H:%M:%S",1);
       }
     }
   }
@@ -190,12 +192,12 @@ void BeamMonitor::beginJob() {
   h_sigmaZ0_lumi->setAxisTitle("sigma z_{0} (cm)",2);
   h_sigmaZ0_lumi->getTH1()->SetOption("E1");
 
-  h_sigmaZ0_time = dbe_->book1D("sigmaZ0_time","sigma z_{0} of beam spot vs time (Fit)",intervalInSec_,0.,intervalInSec_);
+  h_sigmaZ0_time = dbe_->book1D("sigmaZ0_time","sigma z_{0} of beam spot vs time (Fit)",intervalInSec_,0.5,intervalInSec_+0.5);
   h_sigmaZ0_time->setAxisTitle("Time",1);
   h_sigmaZ0_time->setAxisTitle("sigma z_{0} (cm)",2);
   h_sigmaZ0_time->getTH1()->SetOption("E1");
   h_sigmaZ0_time->setAxisTimeDisplay(1);
-  h_sigmaZ0_time->setAxisTimeFormat("%H:%M",1);
+  h_sigmaZ0_time->setAxisTimeFormat("%H:%M:%S",1);
 
   h_trk_z0 = dbe_->book1D("trk_z0","z_{0} of selected tracks",dzBin,dzMin,dzMax);
   h_trk_z0->setAxisTitle("z_{0} of selected tracks (cm)",1);
@@ -374,30 +376,6 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 // ----------------------------------------------------------
 void BeamMonitor::analyze(const Event& iEvent, 
 			  const EventSetup& iSetup ) {
-  ftimestamp = iEvent.time().value();
-  tmpTime = ftimestamp / fdenom;
-  if (debug_) std::cout << "tmpTime - refTime = " << tmpTime - refTime << std:: endl;
-  if (tmpTime - refTime >= intervalInSec_) {
-    if (debug_) std::cout << "Reset Time Offset" << std::endl;
-    refTime = tmpTime;
-    char* eventTime = formatTime(tmpTime);
-    TDatime da(eventTime);
-    hs["x0_time"]->Reset();
-    hs["x0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["y0_time"]->Reset();
-    hs["y0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["z0_time"]->Reset();
-    hs["z0_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    h_sigmaZ0_time->Reset();
-    h_sigmaZ0_time->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["PVx_time"]->Reset();
-    hs["PVx_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["PVy_time"]->Reset();
-    hs["PVy_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-    hs["PVz_time"]->Reset();
-    hs["PVz_time"]->getTH1()->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
-  }
-
   countEvt_++;
   theBeamFitter->readEvent(iEvent);
   Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -470,6 +448,20 @@ void BeamMonitor::analyze(const Event& iEvent,
 void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 				     const EventSetup& iSetup) {
 
+  ftimestamp = lumiSeg.endTime().value();
+  tmpTime = ftimestamp / fdenom;
+  if (debug_) std::cout << "Time lapsed since last LS = " << tmpTime - refTime << std:: endl;
+
+  if (testScroll(tmpTime,refTime)) {
+    scrollTH1(hs["x0_time"]->getTH1(),refTime);
+    scrollTH1(hs["y0_time"]->getTH1(),refTime);
+    scrollTH1(hs["z0_time"]->getTH1(),refTime);
+    scrollTH1(h_sigmaZ0_time->getTH1(),refTime);
+    scrollTH1(hs["PVx_time"]->getTH1(),refTime);
+    scrollTH1(hs["PVy_time"]->getTH1(),refTime);
+    scrollTH1(hs["PVz_time"]->getTH1(),refTime);
+  }
+
   if (fitPVNLumi_ > 0 && countLumi_%fitPVNLumi_ == 0) {
     endLumiOfPVFit_ = lumiSeg.luminosityBlock();
     // Primary Vertex Fit:
@@ -489,8 +481,12 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       widthErr = fgaus->GetParError(2);
       hs["PVx_lumi"]->ShiftFillLast(mean,width);
       int nthBin = tmpTime - refTime;
-      hs["PVx_time"]->setBinContent(nthBin,mean);
-      hs["PVx_time"]->setBinError(nthBin,width);
+      if (nthBin < 0 && debug_)
+	std::cout << "Event time outside current range of time histograms!" << std::endl;
+      if (nthBin > 0) {
+	hs["PVx_time"]->setBinContent(nthBin,mean);
+	hs["PVx_time"]->setBinError(nthBin,width);
+      }
       pvResults->setBinContent(1,6,mean);
       pvResults->setBinContent(1,3,width);
       pvResults->setBinContent(2,6,meanErr);
@@ -513,8 +509,10 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
       hs["PVy_lumi"]->ShiftFillLast(mean,width);
-      hs["PVy_time"]->setBinContent(nthBin,mean);
-      hs["PVy_time"]->setBinError(nthBin,width);
+      if (nthBin > 0) {
+	hs["PVy_time"]->setBinContent(nthBin,mean);
+	hs["PVy_time"]->setBinError(nthBin,width);
+      }
       pvResults->setBinContent(1,5,mean);
       pvResults->setBinContent(1,2,width);
       pvResults->setBinContent(2,5,meanErr);
@@ -534,8 +532,10 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
       hs["PVz_lumi"]->ShiftFillLast(mean,width);
-      hs["PVz_time"]->setBinContent(nthBin,mean);
-      hs["PVz_time"]->setBinError(nthBin,width);
+      if (nthBin > 0) {
+	hs["PVz_time"]->setBinContent(nthBin,mean);
+	hs["PVz_time"]->setBinError(nthBin,width);
+      }
       pvResults->setBinContent(1,4,mean);
       pvResults->setBinContent(1,1,width);
       pvResults->setBinContent(2,4,meanErr);
@@ -628,15 +628,16 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_sigmaZ0_lumi->ShiftFillLast( bs.sigmaZ(), bs.sigmaZ0Error(), fitNLumi_ );
 
     int nthBin = tmpTime - refTime;
-    hs["x0_time"]->setBinContent(nthBin, bs.x0());
-    hs["y0_time"]->setBinContent(nthBin, bs.y0());
-    hs["z0_time"]->setBinContent(nthBin, bs.z0());
-    h_sigmaZ0_time->setBinContent(nthBin, bs.sigmaZ());
-    hs["x0_time"]->setBinError(nthBin, bs.x0Error());
-    hs["y0_time"]->setBinError(nthBin, bs.y0Error());
-    hs["z0_time"]->setBinError(nthBin, bs.z0Error());
-    h_sigmaZ0_time->setBinError(nthBin, bs.sigmaZ0Error());
-
+    if (nthBin > 0) {
+      hs["x0_time"]->setBinContent(nthBin, bs.x0());
+      hs["y0_time"]->setBinContent(nthBin, bs.y0());
+      hs["z0_time"]->setBinContent(nthBin, bs.z0());
+      h_sigmaZ0_time->setBinContent(nthBin, bs.sigmaZ());
+      hs["x0_time"]->setBinError(nthBin, bs.x0Error());
+      hs["y0_time"]->setBinError(nthBin, bs.y0Error());
+      hs["z0_time"]->setBinError(nthBin, bs.z0Error());
+      h_sigmaZ0_time->setBinError(nthBin, bs.sigmaZ0Error());
+    }
     h_x0->Fill( bs.x0());
     h_y0->Fill( bs.y0());
     h_z0->Fill( bs.z0());
@@ -711,14 +712,64 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     theBeamFitter->resetLSRange();
   }
 }
+
 //--------------------------------------------------------
 void BeamMonitor::endRun(const Run& r, const EventSetup& context){
 
 }
+
 //--------------------------------------------------------
 void BeamMonitor::endJob(const LuminosityBlock& lumiSeg, 
 			 const EventSetup& iSetup){
   endLuminosityBlock(lumiSeg, iSetup);
+}
+
+//--------------------------------------------------------
+void BeamMonitor::scrollTH1(TH1 * h, time_t ref) {
+  char* offsetTime = formatTime(ref);
+  TDatime da(offsetTime);
+  if (lastNZbin > 0) {
+    double val = h->GetBinContent(lastNZbin);
+    double valErr = h->GetBinError(lastNZbin);
+    h->Reset();
+    h->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+    int bin = (lastNZbin > buffTime ? buffTime : 1);
+    h->SetBinContent(bin,val);
+    h->SetBinError(bin,valErr);
+  }
+  else {
+    h->Reset();
+    h->GetXaxis()->SetTimeOffset(da.Convert(kTRUE));
+  }
+}
+
+//--------------------------------------------------------
+// Method to check whether to chane histogram time offset (forward only)
+bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
+  bool scroll_ = false;
+  if (tmpTime_ - refTime_ >= intervalInSec_) {
+    scroll_ = true;
+    if (debug_) std::cout << "Reset Time Offset" << std::endl;
+    lastNZbin = intervalInSec_;
+    for (int bin = intervalInSec_; bin >= 1; bin--) {
+      if (hs["x0_time"]->getBinContent(bin) > 0) {
+	lastNZbin = bin;
+	break;
+      }
+    }
+    if (debug_) std::cout << "Last non zero bin = " << lastNZbin << std::endl;
+    if (tmpTime_ - refTime_ >= intervalInSec_ + lastNZbin) {
+      if (debug_) std::cout << "Time difference too large since last readout" << std::endl;
+      lastNZbin = 0;
+      refTime_ = tmpTime_ - buffTime;
+    }
+    else{
+      if (debug_) std::cout << "Offset to last record" << std::endl;
+      int offset = ((lastNZbin > buffTime) ? (lastNZbin - buffTime) : (lastNZbin - 1));
+      refTime_ += offset;
+    }
+  }
+  return scroll_;
 }
 
 DEFINE_FWK_MODULE(BeamMonitor);
