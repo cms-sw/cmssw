@@ -12,8 +12,14 @@ ivars.register ('inputFile',
                 mult=ivars.multiplicity.singleton,
                 mytype=ivars.varType.string,
                 info="for testing")
-ivars.input="./input.root"
-ivars.output="./output.root"
+
+ivars.register ('outputFile',
+                mult=ivars.multiplicity.singleton,
+                mytype=ivars.varType.string,
+                info="for testing")
+
+ivars.inputFile="./input.root"
+ivars.outputFile="./output.db"
 
 ivars.parseArguments()
 
@@ -29,7 +35,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = "sqlite_file:" + ivars.output
+process.CondDBCommon.connect = "sqlite_file:" + ivars.outputFile
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
@@ -42,9 +48,9 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.makeCentralityTableDB = cms.EDAnalyzer('CentralityTableProducer',
                                                makeDBFromTFile = cms.untracked.bool(True),
-                                               inputTFile = cms.string(ivars.input),
+                                               inputTFile = cms.string(ivars.inputFile),
                                                rootTag = cms.string(ivars.outputTag),
-                                               nBins = cms.int32(20)
+                                               nBins = cms.int32(40)
                                                )
 
 process.step  = cms.Path(process.makeCentralityTableDB)
