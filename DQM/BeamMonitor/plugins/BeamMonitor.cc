@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/02 23:08:09 $
- * $Revision: 1.24 $
+ * $Date: 2010/03/03 21:27:42 $
+ * $Revision: 1.25 $
  *
  */
 
@@ -479,7 +479,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       width = fgaus->GetParameter(2);
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
-      hs["PVx_lumi"]->ShiftFillLast(mean,width);
+      hs["PVx_lumi"]->ShiftFillLast(mean,width,fitPVNLumi_);
       int nthBin = tmpTime - refTime;
       if (nthBin < 0 && debug_)
 	std::cout << "Event time outside current range of time histograms!" << std::endl;
@@ -508,7 +508,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       width = fgaus->GetParameter(2);
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
-      hs["PVy_lumi"]->ShiftFillLast(mean,width);
+      hs["PVy_lumi"]->ShiftFillLast(mean,width,fitPVNLumi_);
       if (nthBin > 0) {
 	hs["PVy_time"]->setBinContent(nthBin,mean);
 	hs["PVy_time"]->setBinError(nthBin,width);
@@ -531,7 +531,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
       width = fgaus->GetParameter(2);
       meanErr = fgaus->GetParError(1);
       widthErr = fgaus->GetParError(2);
-      hs["PVz_lumi"]->ShiftFillLast(mean,width);
+      hs["PVz_lumi"]->ShiftFillLast(mean,width,fitPVNLumi_);
       if (nthBin > 0) {
 	hs["PVz_time"]->setBinContent(nthBin,mean);
 	hs["PVz_time"]->setBinError(nthBin,width);

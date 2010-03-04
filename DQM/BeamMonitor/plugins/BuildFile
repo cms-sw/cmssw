@@ -1,8 +1,13 @@
+<use name=DQMServices/Components>
+<use name=DQMServices/Core>
+<use name=DataFormats/TrackReco>
 <use name=DQM/BeamMonitor>
 <use name=FWCore/Framework>
-
+<use name=DataFormats/BeamSpot>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/BeamSpotObjects>
+<use name=RecoVertex/BeamSpotProducer>
 <use name=DataFormats/VertexReco>
-<use name=DQMServices/Core>
 
 <library file=*.cc name=BeamMonitorPlugins>
 	<flags EDM_PLUGIN=1>
