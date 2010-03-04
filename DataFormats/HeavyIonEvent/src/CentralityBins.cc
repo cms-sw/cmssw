@@ -15,8 +15,19 @@ int CentralityBins::getBin(double value) const {
    return bin;
 }
 
+CentralityBins::RunMap getCentralityFromFile(TFile* file, const char* tag, int firstRun, int lastRun){
+
+   CentralityBins::RunMap map;
+   for(int run = firstRun; run<= lastRun; ++run){
+      const CentralityBins* table = (const CentralityBins*)file->Get(Form("%s/run%d",tag,run));
+      if(table) map.insert(std::pair<int,const CentralityBins*>(run,table));
+   }
+   return map;
+}
+
 ClassImp(CBin)
 ClassImp(CentralityBins)
+
 
 
 

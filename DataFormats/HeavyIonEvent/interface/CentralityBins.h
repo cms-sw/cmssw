@@ -2,7 +2,9 @@
 #define __Cent_Bin_h__
 
 #include <TNamed.h>
+#include <TFile.h>
 #include <vector>
+#include <map>
 
 class CBin : public TObject {
  public:
@@ -24,6 +26,7 @@ class CBin : public TObject {
 class CentralityBins : public TNamed {
    
  public:
+   typedef std::map<int, const CentralityBins*> RunMap;
 
    CentralityBins(){;}
    CentralityBins(const char* name, const char* title, int nbins) : TNamed(name,title) {
@@ -59,5 +62,11 @@ class CentralityBins : public TNamed {
       std::vector<CBin> table_;
       ClassDef(CentralityBins,1)
 };
+
+CentralityBins::RunMap getCentralityFromFile(TFile*, const char* tag, int firstRun = 0, int lastRun = 10);
+
+
+
+
 
 #endif
