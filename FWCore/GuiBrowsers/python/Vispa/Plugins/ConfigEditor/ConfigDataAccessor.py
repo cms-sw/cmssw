@@ -69,13 +69,11 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         entry = None
         if isinstance(pth, (cms.Path, cms.Sequence, cms.Source, mod._Module, cms.Service, cms.ESSource, cms.ESProducer, cms.ESPrefer, cms.PSet)):
             entry = pth
+            entry._configChildren=[]
             self._allObjects += [pth]
             if mother != None:
-                if hasattr(mother, "_configChildren"):
-                    if not pth in mother._configChildren:
-                        mother._configChildren += [pth]
-                else:
-                    mother._configChildren = [pth]
+                if not pth in mother._configChildren:
+                    mother._configChildren += [pth]
             else:
                 self._topLevelObjects += [pth]
         next_mother = entry
