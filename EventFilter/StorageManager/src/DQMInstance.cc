@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.16 2009/11/24 16:40:58 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.17 2010/03/03 15:23:21 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <iostream>
@@ -45,10 +45,11 @@ DQMFolder::~DQMFolder()
   dqmObjects_.clear();
 }
 
-DQMGroup::DQMGroup(int readyTime, int expectedUpdates):
+DQMGroup::DQMGroup(const int readyTime, const unsigned int expectedUpdates):
   nUpdates_(0),
   readyTime_(readyTime),
-  expectedUpdates_(expectedUpdates)
+  expectedUpdates_(expectedUpdates),
+  wasServedSinceUpdate_(false)
 {
   lastUpdate_  = new TTimeStamp(0,0);
   lastServed_  = new TTimeStamp(0,0);
@@ -58,8 +59,11 @@ DQMGroup::DQMGroup(int readyTime, int expectedUpdates):
 
 void DQMGroup::setLastEvent(int lastEvent)
 {
-  lastEvent_ = lastEvent;
-  ++nUpdates_;
+  if ( lastEvent_ != lastEvent )
+  {
+    lastEvent_ = lastEvent;
+    ++nUpdates_;
+  }
   wasServedSinceUpdate_ = false;
   lastUpdate_->Set();  
 }
@@ -67,23 +71,22 @@ void DQMGroup::setLastEvent(int lastEvent)
 void DQMGroup::setServedSinceUpdate()
 {
   wasServedSinceUpdate_=true;
-  nUpdates_ = 0;
 }
 
 bool DQMGroup::isReady(int currentTime) const
 {
-  if ( isComplete() ) return true;
-
-  time_t lastUpdateSecs = lastUpdate_->GetSec();
-  // 29-Oct-2008, KAB - added a test that lastUpdateSecs is greater
-  // than zero so that we don't report that a brand-new group is
-  // ready before any updates have been added.
-  return( lastUpdateSecs > 0 && (currentTime - lastUpdateSecs) > readyTime_);
+  return ( isComplete() || isStale(currentTime) );
 }
 
 bool DQMGroup::isComplete() const
 {
-  return ( nUpdates_ == expectedUpdates_ );
+  return ( expectedUpdates_ == nUpdates_ );
+}
+
+bool DQMGroup::isStale(int currentTime) const
+{
+  time_t lastUpdateSecs = lastUpdate_->GetSec();
+  return ( lastUpdateSecs > 0 && (currentTime - lastUpdateSecs) > readyTime_);
 }
 
 DQMGroup::~DQMGroup() 
@@ -101,12 +104,12 @@ DQMGroup::~DQMGroup()
 }
 
 
-DQMInstance::DQMInstance(int runNumber, 
-			 int lumiSection, 
-			 int instance,
-			 int purgeTime,
-                         int readyTime,
-                         int expectedUpdates):
+DQMInstance::DQMInstance(const int runNumber, 
+			 const int lumiSection, 
+			 const int instance,
+			 const int purgeTime,
+                         const int readyTime,
+                         const unsigned int expectedUpdates):
   runNumber_(runNumber),
   lumiSection_(lumiSection),
   instance_(instance),
@@ -128,17 +131,17 @@ DQMInstance::~DQMInstance()
   for (DQMGroupsMap::iterator i0 = 
 	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
   {
-    DQMGroup  * group     = i0->second;
+    DQMGroup * group = i0->second;
     if ( group != NULL ) { delete(group); } 
   }
   dqmGroups_.clear();
 }
 
 
-int DQMInstance::updateObject(std::string groupName,
-			      std::string objectDirectory, 
-			      TObject    *object,
-			      int eventNumber)
+unsigned int DQMInstance::updateObject(const std::string groupName,
+                                       const std::string objectDirectory, 
+			               TObject          *object,
+			               const int         eventNumber)
 {
   lastEvent_ = eventNumber;
   std::string objectName = getSafeMEName(object);
@@ -201,22 +204,19 @@ int DQMInstance::updateObject(std::string groupName,
 
 bool DQMInstance::isReady(int currentTime) const
 {
+  // 29-Oct-2008, KAB - if there are no groups, return false
+  // so that newly constructed DQMInstance objects don't report
+  // ready==true before any groups have even been created.
+  if ( dqmGroups_.empty() ) return false;
+
   bool readyFlag = true;
-
-  // 29-Oct-2008, KAB - if there are no groups, switch
-  // the default to false so that newly constructed DQMInstance
-  // objects don't report ready==true before any groups have
-  // even been created.
-  if (dqmGroups_.size() == 0) readyFlag = false;
-
-  if ( isComplete() ) return readyFlag;
 
   for (DQMGroupsMap::const_iterator
          it = dqmGroups_.begin(), itEnd = dqmGroups_.end();
        it != itEnd ; ++it)
   {
-    DQMGroup  * group = it->second;
-    if ( group != NULL && ! group->isReady(currentTime) ) {
+    DQMGroup * group = it->second;
+    if ( group && ! (group->isReady(currentTime) && group->wasServedSinceUpdate()) ) {
       readyFlag = false;
     }
   }
@@ -225,12 +225,8 @@ bool DQMInstance::isReady(int currentTime) const
 
 bool DQMInstance::isStale(int currentTime) const
 {
-  return( ( currentTime - lastUpdate_->GetSec() ) > purgeTime_);
-}
-
-bool DQMInstance::isComplete() const
-{
-  return( nUpdates_ == expectedUpdates_ );
+  time_t lastUpdateSecs = lastUpdate_->GetSec();
+  return( lastUpdateSecs > 0 && (currentTime - lastUpdateSecs) > purgeTime_);
 }
 
 double DQMInstance::writeFile(std::string filePrefix, bool endRunFlag) const

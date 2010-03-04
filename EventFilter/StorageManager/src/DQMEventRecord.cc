@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.6 2009/11/24 16:43:46 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.7 2010/03/03 15:24:35 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -51,6 +51,7 @@ DQMEventRecord::~DQMEventRecord()
 void DQMEventRecord::addDQMEventView(DQMEventMsgView const& view)
 {
   _releaseTag = view.releaseTag();
+
   if ( dqmGroups_.find(view.topFolderName()) == dqmGroups_.end() )
     _dqmEventMonColl.getNumberOfGroupsMQ().addSample(1);
 
@@ -183,6 +184,7 @@ DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::strin
   _dqmEventMonColl.getServedDQMEventSizeMQ().addSample(
     static_cast<double>(groupRecord.totalDataSize()) / 0x100000
   );
+  group->setServedSinceUpdate();
 
   return groupRecord;
 }

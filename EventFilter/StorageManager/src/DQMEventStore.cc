@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.cc,v 1.6 2009/09/16 11:06:11 mommsen Exp $
+// $Id: DQMEventStore.cc,v 1.7 2010/03/03 15:24:35 mommsen Exp $
 /// @file: DQMEventStore.cc
 
 #include "TROOT.h"
@@ -108,7 +108,6 @@ void DQMEventStore::addNextAvailableDQMGroupToReadyToServe(const std::string gro
   
   if ( record )
   {  
-    record->getDQMGroup(groupName)->setServedSinceUpdate();
     _recordsReadyToServe.push(
       record->populateAndGetGroup( groupName )
     );
@@ -152,17 +151,17 @@ DQMEventStore::getNewestReadyDQMEventRecord(const std::string groupName) const
        ++it)
   {
     DQMGroup *group = it->second->getDQMGroup(groupName);
-    if ( group && group->isReady( now.GetSec() ) )
+    if ( group && group->isReady( now.GetSec() ) && ! group->wasServedSinceUpdate() )
     {
       TTimeStamp *groupTime = group->getLastUpdate();
-      if ( ( groupTime->GetSec() > maxTime ) &&
-        ( ! group->wasServedSinceUpdate() ) )
+      if ( groupTime->GetSec() > maxTime )
       {
         maxTime = groupTime->GetSec();
         readyRecord = it->second;
         std::ostringstream msg;
-        msg << "Record ready: " << groupName 
-          << " group updates: " << group->getNUpdates()
+        msg << "Group ready: " << groupName
+          << "\t LS: " << it->second->getLumiSection()
+          << "\t group updates: " << group->getNUpdates()
           << "\t expected updates: " << _initMsgColl->maxMsgCount();
         _sr->localDebug( msg.str() );
       }
@@ -177,24 +176,31 @@ void DQMEventStore::writeAndPurgeStaleDQMInstances()
 {
   TTimeStamp now;
   now.Set();
+  time_t nowSec = now.GetSec();
   
   for (
     DQMEventRecordMap::iterator it = _store.begin();
     it != _store.end();
   )
   {
-    if ( it->second->isComplete() || it->second->isStale( now.GetSec() ) )
+    if ( it->second->isReady(nowSec) || it->second->isStale(nowSec) )
     {
-      if ( _dqmParams._archiveDQM && it->second->isReady( now.GetSec() ) &&
-        (_dqmParams._archiveIntervalDQM > 0 &&
-          (it->second->getLumiSection() % 
-            static_cast<int>(_dqmParams._archiveIntervalDQM)) == 0) )
+      if ( _dqmParams._archiveDQM &&
+           _dqmParams._archiveIntervalDQM > 0 &&
+           ((it->second->getLumiSection() % 
+             static_cast<int>(_dqmParams._archiveIntervalDQM)) == 0) )
       {
         // The instance is written to file when it is ready and intermediate
         // histograms are written and the lumi section matches the
         // one-in-N archival interval
         it->second->writeFile(_dqmParams._filePrefixDQM, false);
       }
+      std::ostringstream msg;
+      msg << "Record deleted."
+          << "\t LS: " << it->second->getLumiSection()
+          << "\t isReady: " << it->second->isReady(nowSec)
+          << "\t isStale: " << it->second->isStale(nowSec);
+      _sr->localDebug( msg.str() );
       _store.erase(it++);
     }
     else
@@ -218,6 +224,7 @@ void DQMEventStore::writeLatestReadyDQMInstance() const
 {
   TTimeStamp now;
   now.Set();
+  time_t nowSec = now.GetSec();
   
   // Iterate over map in reverse sense. Thus, we encounter the
   // newest instance first
@@ -225,7 +232,7 @@ void DQMEventStore::writeLatestReadyDQMInstance() const
     itEnd = _store.rend();
   while ( it != itEnd )
   {
-    if ( it->second->isReady( now.GetSec() ) )
+    if ( it->second->isReady(nowSec) || it->second->isStale(nowSec) )
     {
       it->second->writeFile(_dqmParams._filePrefixDQM, true);
       break;
