@@ -1,5 +1,5 @@
 /**
- * $Id: SharedResources.cc,v 1.6 2009/09/29 07:55:46 mommsen Exp $
+ * $Id: SharedResources.cc,v 1.7 2010/03/03 15:22:23 mommsen Exp $
 /// @file: SharedResources.cc
  */
 
@@ -69,7 +69,7 @@ namespace stor
       _configuration->getDiskWritingParams()._smInstanceString <<
       "_" << getpid();
     const std::string fname = fname_oss.str();
-    std::ofstream f( fname.c_str(), std::ios_base::app );
+    std::ofstream f( fname.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );
     if( f.is_open() )
     {
       try
