@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.96 2010/01/25 13:33:37 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.97 2010/01/25 16:05:21 amraktad Exp $
 //
 
 // system include files
@@ -264,8 +264,6 @@ private:
    mutable ViewMap_t m_viewMap;
    NameToViewBuilder m_nameToViewBuilder;
    
-   TGTab             *m_textViewTab;
-   TGCompositeFrame  *m_textViewFrame[3];
    TEveWindowPack    *m_viewPrimPack;
    TEveWindowPack    *m_viewSecPack;
 
