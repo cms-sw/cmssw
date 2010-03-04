@@ -16,7 +16,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 12:45:17 CST 2010
-// $Id: DataGetterHelper.h,v 1.2 2010/02/12 15:20:13 ewv Exp $
+// $Id: DataGetterHelper.h,v 1.3 2010/02/16 16:28:21 ewv Exp $
 //
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -29,10 +29,6 @@
 #include <memory>
 #include <cstring>
 
-#include "TBranch.h"
-#include "Rtypes.h"
-#include "Reflex/Object.h"
-
 // user include files
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
@@ -43,6 +39,8 @@
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 
 // forward declarations
+class TTreeCache;
+class TTree;
 
 namespace fwlite {
     class DataGetterHelper
@@ -53,7 +51,8 @@ namespace fwlite {
             DataGetterHelper(TTree* tree,
                              boost::shared_ptr<HistoryGetterBase> historyGetter,
                              boost::shared_ptr<BranchMapReader> branchMap = boost::shared_ptr<BranchMapReader>(),
-                             boost::shared_ptr<edm::EDProductGetter> getter = boost::shared_ptr<edm::EDProductGetter>());
+                             boost::shared_ptr<edm::EDProductGetter> getter = boost::shared_ptr<edm::EDProductGetter>(),
+                             bool useCache = false);
             virtual ~DataGetterHelper();
 
             // ---------- const member functions ---------------------
@@ -80,9 +79,10 @@ namespace fwlite {
             DataGetterHelper(const DataGetterHelper&); // stop default
 
             const DataGetterHelper& operator=(const DataGetterHelper&); // stop default
-                  TTree* tree_;
+            TTree* tree_;
             Long64_t index_;
             internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
+            void getBranchData(edm::EDProductGetter*, Long64_t, internal::Data&) const;
 
             // ---------- member data --------------------------------
             mutable boost::shared_ptr<BranchMapReader> branchMap_;
@@ -95,6 +95,8 @@ namespace fwlite {
             mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_;
             boost::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
             boost::shared_ptr<edm::EDProductGetter> getter_;
+            mutable TTreeCache* tcache_;
+            mutable bool tcTrained_;
     };
 
 }

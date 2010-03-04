@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.h,v 1.32 2010/02/18 20:44:57 ewv Exp $
+// $Id: Event.cc,v 1.42 2010/02/18 20:45:56 ewv Exp $
 //
 
 // system include files
@@ -90,7 +90,8 @@ namespace fwlite {
   dataHelper_(branchMap_.getEventTree(),
               boost::shared_ptr<HistoryGetterBase>(new EventHistoryGetter(this)),
               boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
-              boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this)))
+              boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this)),
+              true)
 {
     if(0==iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";

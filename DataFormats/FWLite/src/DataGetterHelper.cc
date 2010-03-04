@@ -8,7 +8,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 11:58:01 CST 2010
-// $Id: DataGetterHelper.cc,v 1.1 2010/02/11 17:21:39 ewv Exp $
+// $Id: DataGetterHelper.cc,v 1.2 2010/02/16 16:28:21 ewv Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TTreeCache.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -42,11 +43,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#define TTCACHE_SIZE 20*1024*1024
 
 namespace fwlite {
     //
     // constants, enums and typedefs
     //
+
+    class withTCache {
+    public:
+        withTCache(TFile* file, TTreeCache* tc) : f_(file) { f_->SetCacheRead(tc); }
+        ~withTCache() { f_->SetCacheRead(0); }
+    private:
+        TFile* f_;
+    };
 
     //
     // static data member definitions
@@ -61,15 +71,25 @@ namespace fwlite {
     DataGetterHelper::DataGetterHelper(TTree* tree,
                                        boost::shared_ptr<HistoryGetterBase> historyGetter,
                                        boost::shared_ptr<BranchMapReader> branchMap,
-                                       boost::shared_ptr<edm::EDProductGetter> getter):
+                                       boost::shared_ptr<edm::EDProductGetter> getter,
+                                       bool useCache):
         branchMap_(branchMap),
         historyGetter_(historyGetter),
-        getter_(getter)
+        getter_(getter),
+        tcache_(0),
+        tcTrained_(false)
     {
         if(0==tree) {
             throw cms::Exception("NoTree")<<"The TTree pointer passed to the constructor was null";
         }
         tree_ = tree;
+        if (useCache) {
+            tree_->SetCacheSize(TTCACHE_SIZE);
+            TFile* iFile(branchMap_->getFile());
+            tcache_ = dynamic_cast<TTreeCache*>(iFile->GetCacheRead());
+            iFile->SetCacheRead(0);
+            //std::cout << "In const " << iFile << " " << tcache_ << " " << iFile->GetCacheRead() << std::endl;
+        }
     }
 
     // DataGetterHelper::DataGetterHelper(const DataGetterHelper& rhs)
@@ -115,10 +135,10 @@ namespace fwlite {
         return iTree->GetBranch(branchName.c_str());
     }
 
-    static
-    void getBranchData(edm::EDProductGetter* iGetter,
+    void
+    DataGetterHelper::getBranchData(edm::EDProductGetter* iGetter,
                     Long64_t index,
-                    internal::Data& iData)
+                    internal::Data& iData) const
     {
         GetterOperate op(iGetter);
 
@@ -138,8 +158,19 @@ namespace fwlite {
         obj.Destruct();
         //END OF WORK AROUND
 
-        iData.branch_->GetEntry(index);
-        iData.lastProduct_=index;
+        if (0 == tcache_) {
+            iData.branch_->GetEntry(index);
+        } else {
+            if (!tcTrained_) {
+                tcache_->SetLearnEntries(100);
+                tcache_->SetEntryRange(0, tree_->GetEntries());
+                tcTrained_ = true;
+            }
+            withTCache tcguard(branchMap_->getFile(), tcache_);
+            tree_->LoadTree(index);
+            iData.branch_->GetEntry(index);
+       }
+       iData.lastProduct_=index;
     }
 
 
