@@ -11,7 +11,8 @@ gmtDigis = cms.EDProducer("L1MuGlobalMuonTrigger",
     CSCCandidates = cms.InputTag("l1CscTfEmulDigis","CSC"),
     RPCfCandidates = cms.InputTag("l1RpcEmulDigis","RPCf"),
     MipIsoData = cms.InputTag("L1RCTRegionSumsEmCands"),
-    WriteLUTsAndRegs = cms.untracked.bool(False)
+    WriteLUTsAndRegs = cms.untracked.bool(False),
+    SendMipIso = cms.untracked.bool(False)
 )
 
 
