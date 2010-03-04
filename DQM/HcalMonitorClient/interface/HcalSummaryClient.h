@@ -1,145 +1,61 @@
-#ifndef HcalSummaryClient_H
-#define HcalSummaryClient_H
+#ifndef HcalSummaryClient_GUARD_H
+#define HcalSummaryClient_GUARD_H
 
-/*
- * \file HcalSummaryClient.h
- *
- * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/10/13 11:13:54 $
- * $Revision: 1.23 $
- * \author Jeff Temple
- *
-*/
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <vector>
-#include <string>
-#include <fstream>
-#include <sys/time.h>
-
-#include <memory>
-#include <iostream>
-#include <iomanip>
-#include <map>
-#include <cmath>
-#include <ostream>
-
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TColor.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
-
-#include "DQM/HcalMonitorClient/interface/HcalDataFormatClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalDigiClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalRecHitClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalPedestalClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalDeadCellClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalHotCellClient.h"
-#include "DQM/HcalMonitorClient/interface/SubTaskSummaryStatus.h"
-#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
-
+class EtaPhiHists;
 class MonitorElement;
-class DQMStore;
+class HcalBaseDQClient;
 
-class HcalSummaryClient : public HcalBaseClient {
+class HcalSummaryClient : public HcalBaseDQClient {
 
  public:
 
-  // Constructor
-   
-  HcalSummaryClient();
-   
-  // Destructor
-  virtual ~HcalSummaryClient();
-     
-  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
+  /// Constructors
+  HcalSummaryClient(){name_="";};
+  HcalSummaryClient(std::string myname);//{ name_=myname;};
+  HcalSummaryClient(std::string myname, const edm::ParameterSet& ps);
 
-  // BeginJob
-  void beginJob(DQMStore* dqmStore);
-    
-  // EndJob
+  void analyze(int LS=-1);
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
+  void beginJob(void);
   void endJob(void);
-  
-  // BeginRun
   void beginRun(void);
-  
-  // EndRun
-  void endRun(void);
-  
-  // Setup
-  void setup(void);
-  
-  // Cleanup
+  void endRun(void); 
+  void setup(void);  
   void cleanup(void);
   
+  void fillReportSummary(int LS);
 
-  // Analyze
-  void analyze(void);
-  void analyze_subtask(SubTaskSummaryStatus& s);
-  void resetSummaryPlots();
-  void incrementCounters(void);
+  bool hasErrors_Temp(void);  
+  bool hasWarnings_Temp(void);
+  bool hasOther_Temp(void);
+  bool test_enabled(void);
 
-  // HtmlOutput
-  void htmlOutput(int& run, time_t& mytime, int& minlumi, int& maxlumi, std::string& htmlDir, std::string& htmlName);
-  void htmlStatusDump(std::string name, SubTaskSummaryStatus& task, std::vector<int>& Ncells);
-  void htmlStatusDumpText(std::string name, SubTaskSummaryStatus& task, std::vector<int>& Ncells);
+  void getFriends(std::vector<HcalBaseDQClient*> clients){clients_=clients;};
 
-  // Get Functions
-  inline int getEvtPerJob() { return ievt_; }
-  inline int getEvtPerRun() { return jevt_; }
-
- // Introduce temporary error/warning checks
-  bool hasErrors_Temp();
-  bool hasWarnings_Temp();
-  bool hasOther_Temp() {return false;}
+  /// Destructor
+  ~HcalSummaryClient();
 
  private:
+  int nevts_;
+  EtaPhiHists* SummaryMapByDepth; // used to store & calculate problems
+  MonitorElement* StatusVsLS_;
+  MonitorElement* EnoughEvents_;
+  MonitorElement* MinEvents_;
+  MonitorElement* MinErrorRate_;
+  MonitorElement* reportMap_;
 
-  int ievt_;
-  int jevt_;
-  int lastupdate_;
+  double status_global_, status_HB_, status_HE_, status_HO_, status_HF_;
+  double status_HO0_, status_HO12_, status_HFlumi_;
+  int NLumiBlocks_;
 
+  std::vector<HcalBaseDQClient*> clients_;
+  std::map<std::string, int> subdetCells_;
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 
-  bool cloneME_;
-
-  int debug_;
-  
-  std::string prefixME_;
-  
-  bool enableCleanup_;
-
-  DQMStore* dqmStore_;
-
-  SubTaskSummaryStatus dataFormatMon_, digiMon_, recHitMon_;
-  SubTaskSummaryStatus pedestalMon_, ledMon_, hotCellMon_;
-  SubTaskSummaryStatus deadCellMon_, trigPrimMon_, caloTowerMon_;
-  SubTaskSummaryStatus beamMon_;  // still needs to be added into src code
-
-  std::map<std::string, int> subdetCells_;
-  int totalcells_; // stores total possible # of cells being checked
-
-  // overall values for each subdetector and global status
-  double status_HB_;
-  double status_HE_;
-  double status_HO_;
-  double status_HO0_;
-  double status_HO12_;
-  double status_HF_;
-  double status_HFlumi_;
-  
-  double status_global_;
-
-  std::vector<MonitorElement *> depthME; // needed to calculate overall summary problems
-    
-  ofstream htmlFile;
-
-  MonitorElement * StatusVsLS;
-
-}; // end of class declaration
+};
 
 #endif
