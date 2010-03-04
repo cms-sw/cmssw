@@ -55,7 +55,7 @@ gROOT.ProcessLine(".x "+macrosDir+"ResolCompare.cc("+firstFile+", "+secondFile+"
 # os.system("root -l "+macrosDir+"ResolCompare.cc")
 
 # Pt reco vs Pt gen
-gROOT.ProcessLine(".x "+macrosDir+"CompareRecoGenPt.C("+firstFile+", "+secondFile+")")
+gROOT.ProcessLine(".x "+macrosDir+"CompareRecoGenPt.C+("+firstFile+", "+secondFile+")")
 
 # Mass vs mass probability. The last value is the rebin of the mass histogram
 gROOT.ProcessLine(".x "+macrosDir+"Plot_mass.C+("+firstFile+", "+secondFile+", 1)")
