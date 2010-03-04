@@ -17,6 +17,21 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
 
+  <class name="reco::JPTJet"/>
+  <class name="reco::JPTJet::Specific"/>
+  <class name="std::vector<reco::JPTJet>"/>
+  <class name="edm::RefProd<std::vector<reco::JPTJet> >"/>
+  <class name="edm::RefVector<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> >"/>
+  <class name="edm::Ref<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::JPTJet> >"/>
+  <class name="edm::Wrapper<reco::JPTJetRefVector>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::JPTJet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<reco::JPTJetCollection, std::vector<reco::Track>, unsigned int> >">
+      <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::helpers::KeyVal<edm::RefProd<reco::JPTJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
+
   <class name="reco::PFJet"/>
   <class name="reco::PFJet::Specific"/>
   <class name="std::vector<reco::PFJet>"/>

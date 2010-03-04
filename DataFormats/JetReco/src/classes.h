@@ -10,6 +10,7 @@
 #include "Math/PtEtaPhiM4D.h" 
 #include "Math/PxPyPzE4D.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h" 
+#include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJetCollection.h"
@@ -89,6 +90,15 @@ namespace {
     edm::reftobase::Holder<reco::Candidate, reco::TrackJetRef> rtb6;
     JetTrackMatch<TrackJetCollection> jtm6;
 
+    JPTJetCollection o7;
+    JPTJetRef r7;
+    JPTJetRefVector rr7;
+    JPTJetRefProd rrr7;
+    edm::Wrapper<JPTJetCollection> w7;
+    edm::Wrapper<JPTJetRefVector> wrv7;
+    edm::reftobase::Holder<reco::Candidate, reco::JPTJetRef> rtb7;
+    JetTrackMatch<JPTJetCollection> jtm7;
+
 
     edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >  rtbb6;
 
@@ -129,11 +139,13 @@ namespace {
     edm::RefToBase<reco::Jet>  rtbj;
     edm::reftobase::IndirectHolder<reco::Jet> ihj;
     edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> hcj;
+    edm::reftobase::Holder<reco::Jet, reco::JPTJetRef> hjptj;
     edm::reftobase::Holder<reco::Jet, reco::GenJetRef> hgj;
     edm::reftobase::Holder<reco::Jet, reco::PFJetRef> hpfj;
     edm::reftobase::Holder<reco::Jet, reco::BasicJetRef> hbj;
     edm::reftobase::Holder<reco::Jet, reco::TrackJetRef> htj;
     edm::reftobase::RefHolder<reco::CaloJetRef> rhcj;
+    edm::reftobase::RefHolder<reco::JPTJetRef> rhjptj;
     edm::reftobase::RefHolder<reco::GenJetRef> rhgj;
     edm::reftobase::RefHolder<reco::PFJetRef> rhpfj;
     edm::reftobase::RefHolder<reco::BasicJetRef> rhbj;
@@ -148,6 +160,9 @@ namespace {
 
     edm::Ptr<reco::CaloJet> ptrcj;
     edm::PtrVector<reco::CaloJet> ptrvcj;
+
+    edm::Ptr<reco::JPTJet> ptrjptj;
+    edm::PtrVector<reco::JPTJet> ptrvjptj;
 
     edm::Ptr<reco::PFJet> ptrpfj;
     edm::PtrVector<reco::PFJet> ptrvpfj;
@@ -170,6 +185,7 @@ namespace {
     edm::Association<reco::GenJetCollection> a_gj;
     edm::Wrapper<edm::Association<reco::GenJetCollection> > w_a_gj;
     std::vector<reco::CaloJet::Specific> v_cj_s;
+    std::vector<reco::JPTJet::Specific> v_jptj_s;
     std::vector<reco::PFJet::Specific> v_pj_s;
   };
 }
