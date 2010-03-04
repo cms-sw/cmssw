@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.13 2010/02/11 00:13:46 wmtan Exp $
+// $Id: CentralityProducer.cc,v 1.14 2010/02/23 13:31:25 yilmaz Exp $
 //
 //
 
@@ -139,7 +139,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
 
-  std::auto_ptr<Centrality> creco(new Centrality(0,"Hello"));
+  std::auto_ptr<Centrality> creco(new Centrality());
 
   if(produceHFhits_){
      creco->etHFhitSumPlus_ = 0;
