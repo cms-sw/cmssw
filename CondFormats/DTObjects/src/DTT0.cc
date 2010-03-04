@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/20 18:20:08 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/03/01 10:27:09 $
+ *  $Revision: 1.18 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -307,13 +307,11 @@ void DTT0::setUnit( float unit ) {
 
 
 void DTT0::sortData() {
-  std::cout << "test data" << std::endl;
   if ( sortedLayers != 0 ) return;
   if ( dBuf == 0 ) checkOrder();
   if ( sortedLayers != 0 ) return;
   if ( dBuf == 0 ) return;
   std::vector< std::pair<DTT0Id,DTT0Data> > tempList;
-  std::cout << "sort data" << std::endl;
   std::map<int,int>::const_iterator iter = dBuf->begin();
   std::map<int,int>::const_iterator iend = dBuf->end();
   while ( iter != iend ) tempList.push_back( dataList[iter++->second] );
@@ -342,7 +340,6 @@ std::string DTT0::mapName() const {
 
 
 bool DTT0::checkOrder() const {
-  std::cout << "check order" << std::endl;
   delete sortedLayers;
   sortedLayers = new std::map<int,int>;
   int entryNum = 0;
@@ -382,7 +379,6 @@ bool DTT0::checkOrder() const {
 
 void DTT0::cacheMap() const {
 
-  std::cout << "cache map" << std::endl;
   delete sortedLayers;
   sortedLayers = 0;
   dBuf = new std::map<int,int>;
