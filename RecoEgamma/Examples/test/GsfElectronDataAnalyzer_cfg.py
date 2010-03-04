@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
 )
 
-process.mergedSuperClusters = cms.EDFilter("EgammaSuperClusterMerger",
+process.mergedSuperClusters = cms.EDProducer("EgammaSuperClusterMerger",
     src = cms.VInputTag(cms.InputTag("correctedHybridSuperClusters"), cms.InputTag("multi5x5SuperClustersWithPreshower"))
 )
 

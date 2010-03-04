@@ -34,7 +34,7 @@ genCandidatesForMET = cms.EDProducer(
     )  
     )
 
-genParticlesForMETAllVisible = cms.EDFilter(
+genParticlesForMETAllVisible = cms.EDProducer(
     "InputGenJetsParticleSelector",
     src = cms.InputTag("genParticles"),
     partonicFinalState = cms.bool(False),

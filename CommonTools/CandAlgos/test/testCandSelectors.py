@@ -41,7 +41,7 @@ process.muons = EDProducer("PdgIdCandSelector",
 )
 
 # select only electrons within eta and Pt cuts 
-process.bestElectrons = EDProducer("EtaPtMinCandViewSelector",
+process.bestElectrons = EDFilter("EtaPtMinCandViewSelector",
   src = InputTag("electronRefs"),
   ptMin = double( 20 ),
   etaMin = double( -2.5 ),

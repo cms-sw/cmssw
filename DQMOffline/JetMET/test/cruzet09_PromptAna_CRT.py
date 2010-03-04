@@ -49,7 +49,7 @@ process.DQMStore.referenceFileName = 'jetMETMonitoring_cruzet100945.root'
 #-----------------------------
 # Locate a directory in DQMStore
 #-----------------------------
-process.dqmInfoJetMET = cms.EDFilter("DQMEventInfo",
+process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
                 subSystemFolder = cms.untracked.string('JetMET')
                 )
 

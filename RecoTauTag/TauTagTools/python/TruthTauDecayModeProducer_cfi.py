@@ -8,7 +8,7 @@ They either contain the visible decay products of taus selected by
 the 'mcDecayedTaus' package or all of the consituents of a QCD GenJet
 """
 
-mcDecayedTaus = cms.EDProducer("PdgIdAndStatusCandViewSelector",
+mcDecayedTaus = cms.EDFilter("PdgIdAndStatusCandViewSelector",
     status = cms.vint32(2),
     src = cms.InputTag("genParticles"),
     pdgId = cms.vint32(15, -15)

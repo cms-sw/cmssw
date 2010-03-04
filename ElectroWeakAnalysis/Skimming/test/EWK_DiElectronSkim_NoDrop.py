@@ -34,7 +34,7 @@ process.EWK_DiElectronHLTFilter.HLTPaths = ["HLT_Ele15_LW_L1R"]
 #   Make a collection of good SuperClusters.
 #
 #   Before selection is made, merge the Barrel and EndCap SC's.
-process.superClusterMerger =  cms.EDFilter("EgammaSuperClusterMerger",
+process.superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
                                     src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'), cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'))
                                   )
 

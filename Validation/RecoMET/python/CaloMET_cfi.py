@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # Date: 03.04.2008
 #
 # Fill validation histograms for MET.
-metAnalyzer = cms.EDFilter(
+metAnalyzer = cms.EDAnalyzer(
     "METTester",
     OutputFile = cms.untracked.string('METTester_met.root'),
     InputMETLabel = cms.InputTag("met"),
@@ -23,7 +23,7 @@ metHOAnalyzer = cms.EDAnalyzer(
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
-metNoHFAnalyzer = cms.EDFilter(
+metNoHFAnalyzer = cms.EDAnalyzer(
     "METTester",
     OutputFile = cms.untracked.string('METTester_metNoHF.root'),
     InputMETLabel = cms.InputTag("metNoHF"),
@@ -42,7 +42,7 @@ metNoHFHOAnalyzer = cms.EDAnalyzer(
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
-metOptAnalyzer = cms.EDFilter(
+metOptAnalyzer = cms.EDAnalyzer(
     "METTester",
     OutputFile = cms.untracked.string('METTester_metOpt.root'),
     InputMETLabel = cms.InputTag("metOpt"),
@@ -61,7 +61,7 @@ metOptHOAnalyzer = cms.EDAnalyzer(
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
-metOptNoHFAnalyzer = cms.EDFilter(
+metOptNoHFAnalyzer = cms.EDAnalyzer(
     "METTester",
     OutputFile = cms.untracked.string('METTester_metOptNoHF.root'),
     InputMETLabel = cms.InputTag("metOptNoHF"),

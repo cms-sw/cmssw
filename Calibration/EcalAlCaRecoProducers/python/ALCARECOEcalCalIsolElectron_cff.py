@@ -5,7 +5,7 @@ from Calibration.EcalAlCaRecoProducers.electronIsolationSequence_cff import *
 import HLTrigger.HLTfilters.hltHighLevel_cfi 
 
 #
-# The current (as of $Date: 2009/04/23 13:49:10 $) ALCA stream for single and double electron
+# The current (as of $Date: 2009/04/30 12:53:25 $) ALCA stream for single and double electron
 # calibration
 #
 
@@ -40,7 +40,7 @@ goodElectronFilter2 = cms.EDFilter("CandViewCountFilter",
 
 
 
-superClusterMerger =  cms.EDFilter("EgammaSuperClusterMerger",
+superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
     src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'), cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'))
     )
 

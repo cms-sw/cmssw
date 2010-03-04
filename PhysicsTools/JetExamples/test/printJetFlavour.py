@@ -32,7 +32,7 @@ process.flavourByVal = cms.EDFilter("JetFlavourIdentifier",
     physicsDefinition = cms.bool(False)
 )
 
-process.printEvent = cms.EDFilter("printJetFlavour",
+process.printEvent = cms.EDAnalyzer("printJetFlavour",
     srcSelectedPartons = cms.InputTag("myPartons"),
     srcByReference = cms.InputTag("flavourByRef"),
     srcByValue = cms.InputTag("flavourByVal")

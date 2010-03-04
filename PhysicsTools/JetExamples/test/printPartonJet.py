@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/relval/2008/5/20/RelVal-RelValTTbar-1211209682-FakeConditions-2nd/0000/08765709-5826-DD11-9CE8-000423D94700.root')
 )
 
-process.genParticlesForJets = cms.EDFilter("InputGenJetsParticleSelector",
+process.genParticlesForJets = cms.EDProducer("InputGenJetsParticleSelector",
     src = cms.InputTag("genParticles"),
     ignoreParticleIDs = cms.vuint32(1000022, 2000012, 2000014, 2000016, 1000039, 
         5000039, 4000012, 9900012, 9900014, 9900016, 
@@ -40,7 +40,7 @@ process.selectedJets = cms.EDFilter("GenJetRefSelector",
     cut = cms.string('pt > 20')
 )
 
-process.printEvent = cms.EDFilter("printPartonJet",
+process.printEvent = cms.EDAnalyzer("printPartonJet",
     src = cms.InputTag("selectedJets"),
     HistOutFile = cms.untracked.string('myPlots.root')
 )

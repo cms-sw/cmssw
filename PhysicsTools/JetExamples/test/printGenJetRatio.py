@@ -36,7 +36,7 @@ process.BCRatio = cms.EDFilter("GenJetBCEnergyRatio",
     genJets = cms.InputTag("iterativeCone5GenJets")
 )
 
-process.printEvent = cms.EDFilter("printGenJetRatio",
+process.printEvent = cms.EDAnalyzer("printGenJetRatio",
     srcBratio = cms.InputTag("BCRatio","bRatioCollection"),
     srcCratio = cms.InputTag("BCRatio","cRatioCollection")
 )

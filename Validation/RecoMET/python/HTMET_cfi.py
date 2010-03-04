@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # Date: 03.04.2008
 #
 # Fill validation histograms for MET.
-htMetSC5Analyzer = cms.EDFilter(
+htMetSC5Analyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("htMetSC5"),
     METType = cms.untracked.string('MET'),
@@ -14,7 +14,7 @@ htMetSC5Analyzer = cms.EDFilter(
 )
 
 
-htMetSC7Analyzer = cms.EDFilter(
+htMetSC7Analyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("htMetSC7"),
     METType = cms.untracked.string('MET'),
@@ -22,7 +22,7 @@ htMetSC7Analyzer = cms.EDFilter(
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
 )
 
-htMetIC5Analyzer = cms.EDFilter(
+htMetIC5Analyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("htMetIC5"),
     METType = cms.untracked.string('MET'),
@@ -30,7 +30,7 @@ htMetIC5Analyzer = cms.EDFilter(
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
 )
 
-htMetKT4Analyzer = cms.EDFilter(
+htMetKT4Analyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("htMetKT4"),
     METType = cms.untracked.string('MET'),
@@ -38,7 +38,7 @@ htMetKT4Analyzer = cms.EDFilter(
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
 )
 
-htMetKT6Analyzer = cms.EDFilter(
+htMetKT6Analyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("htMetKT6"),
     METType = cms.untracked.string('MET'),

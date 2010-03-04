@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # Date: 03.04.2008
 #
 # Fill validation histograms for MET.
-genMetAnalyzer = cms.EDFilter(
+genMetAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("genMet"),
     METType = cms.untracked.string('GenMET'),
@@ -13,7 +13,7 @@ genMetAnalyzer = cms.EDFilter(
     FolderName = cms.untracked.string("RecoMETV/MET_Global/")
 )
 
-genMetNoNuBSMAnalyzer = cms.EDFilter(
+genMetNoNuBSMAnalyzer = cms.EDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("genMetNoNuBSM"),
     METType = cms.untracked.string('GenMET'),

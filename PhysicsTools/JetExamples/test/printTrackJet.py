@@ -34,7 +34,7 @@ process.trackJet = cms.EDProducer("IterativeConeJetProducer",
     inputEMin = cms.double(0.0)
 )
 
-process.printEvent = cms.EDFilter("printTrackJet",
+process.printEvent = cms.EDAnalyzer("printTrackJet",
     src = cms.InputTag("trackJet")
 )
 
