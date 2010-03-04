@@ -5,14 +5,15 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/11/10 11:15:05 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/01/11 09:31:24 $
+ *  $Revision: 1.16 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -21,6 +22,7 @@
 #include "TH2F.h"
 #include "TMinuit.h"
 
+#include "MuonAnalysis/MomentumScaleCalibration/interface/CrossSectionHandler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundHandler.h"
 
 #include <vector>
@@ -66,11 +68,6 @@ public:
   static std::vector<TGraphErrors*> fitMass (TH2F* histo);
   static std::vector<TGraphErrors*> fitReso (TH2F* histo);
 
-  static void cleanEstimator();
-  static void computeEstimator( const lorentzVector & recMu1, const lorentzVector & recMu2, const double & Zmass );
-  static void computeEstimator( const lorentzVector & recMu, const double & Zmass );
-  static void returnEstimator();
-
   static lorentzVector applyScale( const lorentzVector & muon, const std::vector<double> & parval, const int charge );
   static lorentzVector applyScale( const lorentzVector & muon, double* parval, const int charge );
   static lorentzVector applyBias( const lorentzVector & muon, const int charge );
@@ -89,7 +86,6 @@ public:
   static double massProb( const double & mass, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false );
   // static double massProb( const double & mass, const double & rapidity, const double & massResol, std::auto_ptr<double> parval );
   static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
-  static double massProb2( const double & mass, const int ires, const double & massResol ); // Not used yet
   static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
 
 
@@ -150,6 +146,11 @@ public:
   // A background function for each resonance
   // static backgroundFunctionBase * backgroundFunction[];
 
+  // The Cross section handler takes care of computing the relative cross
+  // sections to be used depending on the resonances that are being fitted.
+  // This corresponds to a normalization of the signal pdf.
+  static CrossSectionHandler * crossSectionHandler;
+
   // The background handler takes care of using the correct function in each
   // window, use regions or resonance windows and rescale the fractions when needed
   static BackgroundHandler * backgroundHandler;
@@ -157,6 +158,7 @@ public:
   // Parameters used to select whether to do a fit
   static std::vector<int> doResolFit;
   static std::vector<int> doScaleFit;
+  static std::vector<int> doCrossSectionFit;
   static std::vector<int> doBackgroundFit;
 
   static int minuitLoop_;
@@ -164,16 +166,21 @@ public:
   static TH1D* signalProb_;
   static TH1D* backgroundProb_;
 
+  static bool duringMinos_;
+
   static std::vector<double> parSmear;
   static std::vector<double> parBias;
   static std::vector<double> parResol;
   static std::vector<double> parScale;
+  static std::vector<double> parCrossSection;
   static std::vector<double> parBgr;
   static std::vector<int> parResolFix;
   static std::vector<int> parScaleFix;
+  static std::vector<int> parCrossSectionFix;
   static std::vector<int> parBgrFix;
   static std::vector<int> parResolOrder;
   static std::vector<int> parScaleOrder;
+  static std::vector<int> parCrossSectionOrder;
   static std::vector<int> parBgrOrder;
   static std::vector<int> resfind;
   static int FitStrategy;
@@ -197,15 +204,18 @@ public:
   static std::vector<int> parorder;
 
   static std::vector<std::pair<lorentzVector,lorentzVector> > SavedPair;
+  static std::vector<std::pair<lorentzVector,lorentzVector> > ReducedSavedPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > genPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > simPair;
 
   static bool scaleFitNotDone_;
 
+  static bool normalizeLikelihoodByEventNumber_;
   // Pointer to the minuit object
   static TMinuit * rminPtr_;
   // Value stored to check whether to apply a new normalization to the likelihood
   static double oldNormalization_;
+  static unsigned int normalizationChanged_;
 
   // This must be set to true if using events generated with Sherpa
   static bool sherpa_;

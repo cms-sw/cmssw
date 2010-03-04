@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/10/30 10:49:45 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/10/30 15:31:10 $
+ *  $Revision: 1.19 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -467,10 +467,10 @@ class HPartVSEta : public Histograms
     hMassVSEta_->Write();
     hMassVSEta_prof_->Write();
 
-    vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSEta_)) );
-    for (vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++) {
-      (*graph)->Write();
-    }
+    //     vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSEta_)) );
+    //     for (vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++) {
+    //       (*graph)->Write();
+    //     }
   }
 
   virtual void Clear() {
@@ -570,38 +570,38 @@ class HPartVSPhi : public Histograms
     hMassVSPhiWp2_->Write();
     hMassVSPhiF_->Write();
 
-    vector<TGraphErrors*> graphs ((MuScleFitUtils::fitMass(hMassVSPhi_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
-      (*graph)->Write();
-    }
-    vector<TGraphErrors*> graphsB ((MuScleFitUtils::fitMass(hMassVSPhiB_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsB.begin(); graph != graphsB.end(); graph++){
-      (*graph)->Write();
-    }
-    vector<TGraphErrors*> graphsWm2 ((MuScleFitUtils::fitMass(hMassVSPhiWm2_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsWm2.begin(); graph != graphsWm2.end(); graph++){
-      (*graph)->Write();
-    }
-    vector<TGraphErrors*> graphsWm1 ((MuScleFitUtils::fitMass(hMassVSPhiWm1_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsWm1.begin(); graph != graphsWm1.end(); graph++){
-      (*graph)->Write();
-    }
-    vector<TGraphErrors*> graphsW0 ((MuScleFitUtils::fitMass(hMassVSPhiW0_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsW0.begin(); graph != graphsW0.end(); graph++){
-      (*graph)->Write();
-    }
-    vector<TGraphErrors*> graphsWp1 ((MuScleFitUtils::fitMass(hMassVSPhiWp1_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsWp1.begin(); graph != graphsWp1.end(); graph++){
-      (*graph)->Write();
-    }
-    vector<TGraphErrors*> graphsWp2 ((MuScleFitUtils::fitMass(hMassVSPhiWp2_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsWp2.begin(); graph != graphsWp2.end(); graph++){
-      (*graph)->Write();
-    }
-    vector<TGraphErrors*> graphsF ((MuScleFitUtils::fitMass(hMassVSPhiF_)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsF.begin(); graph != graphsF.end(); graph++){
-      (*graph)->Write();
-    }
+//     vector<TGraphErrors*> graphs ((MuScleFitUtils::fitMass(hMassVSPhi_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
+//       (*graph)->Write();
+//     }
+//     vector<TGraphErrors*> graphsB ((MuScleFitUtils::fitMass(hMassVSPhiB_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphsB.begin(); graph != graphsB.end(); graph++){
+//       (*graph)->Write();
+//     }
+//     vector<TGraphErrors*> graphsWm2 ((MuScleFitUtils::fitMass(hMassVSPhiWm2_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphsWm2.begin(); graph != graphsWm2.end(); graph++){
+//       (*graph)->Write();
+//     }
+//     vector<TGraphErrors*> graphsWm1 ((MuScleFitUtils::fitMass(hMassVSPhiWm1_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphsWm1.begin(); graph != graphsWm1.end(); graph++){
+//       (*graph)->Write();
+//     }
+//     vector<TGraphErrors*> graphsW0 ((MuScleFitUtils::fitMass(hMassVSPhiW0_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphsW0.begin(); graph != graphsW0.end(); graph++){
+//       (*graph)->Write();
+//     }
+//     vector<TGraphErrors*> graphsWp1 ((MuScleFitUtils::fitMass(hMassVSPhiWp1_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphsWp1.begin(); graph != graphsWp1.end(); graph++){
+//       (*graph)->Write();
+//     }
+//     vector<TGraphErrors*> graphsWp2 ((MuScleFitUtils::fitMass(hMassVSPhiWp2_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphsWp2.begin(); graph != graphsWp2.end(); graph++){
+//       (*graph)->Write();
+//     }
+//     vector<TGraphErrors*> graphsF ((MuScleFitUtils::fitMass(hMassVSPhiF_)));
+//     for(vector<TGraphErrors*>::const_iterator graph = graphsF.begin(); graph != graphsF.end(); graph++){
+//       (*graph)->Write();
+//     }
   }
 
   virtual void Clear() {
@@ -666,10 +666,10 @@ class HPartVSPt : public Histograms
     hMassVSPt_->Write();
     hMassVSPt_prof_->Write();
    
-    vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSPt_)) );
-    for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
-      (*graph)->Write();
-    }
+//     vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSPt_)) );
+//     for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
+//       (*graph)->Write();
+//     }
   }
   
   virtual void Clear() {

@@ -32,6 +32,7 @@ public:
       weightedEvents_ += weight;
     }
   }
+  inline void resetCounter() { weightedEvents_ = 0; }
   inline bool isIn(const double & mass) { return( mass > lowerBound_ && mass < upperBound_ ); }
   inline double mass() const {return centralMass_;}
   inline double lowerBound() const {return lowerBound_;}

@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/01/12 07:58:40 $
-//  $Revision: 1.69 $
+//  $Date: 2010/01/21 15:51:45 $
+//  $Revision: 1.70 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -115,6 +115,7 @@
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
+// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -185,6 +186,7 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   // Selection of fits according to loop
   MuScleFitUtils::doResolFit = pset.getParameter<vector<int> >("doResolFit");
   MuScleFitUtils::doScaleFit = pset.getParameter<vector<int> >("doScaleFit");
+  MuScleFitUtils::doCrossSectionFit = pset.getParameter<vector<int> >("doCrossSectionFit");
   MuScleFitUtils::doBackgroundFit = pset.getParameter<vector<int> >("doBackgroundFit");
 
   // Bias and smear types
@@ -210,17 +212,20 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 
   // Initial parameters values
   // -------------------------
-  MuScleFitUtils::parBias  = pset.getParameter<vector<double> >("parBias");
-  MuScleFitUtils::parSmear = pset.getParameter<vector<double> >("parSmear");
-  MuScleFitUtils::parResol = pset.getParameter<vector<double> >("parResol");
-  MuScleFitUtils::parScale = pset.getParameter<vector<double> >("parScale");
-  MuScleFitUtils::parBgr   = pset.getParameter<vector<double> >("parBgr");
-  MuScleFitUtils::parResolFix   = pset.getParameter<vector<int> >("parResolFix");
-  MuScleFitUtils::parScaleFix   = pset.getParameter<vector<int> >("parScaleFix");
-  MuScleFitUtils::parBgrFix     = pset.getParameter<vector<int> >("parBgrFix");
-  MuScleFitUtils::parResolOrder = pset.getParameter<vector<int> >("parResolOrder");
-  MuScleFitUtils::parScaleOrder = pset.getParameter<vector<int> >("parScaleOrder");
-  MuScleFitUtils::parBgrOrder   = pset.getParameter<vector<int> >("parBgrOrder");
+  MuScleFitUtils::parBias         = pset.getParameter<vector<double> >("parBias");
+  MuScleFitUtils::parSmear        = pset.getParameter<vector<double> >("parSmear");
+  MuScleFitUtils::parResol        = pset.getParameter<vector<double> >("parResol");
+  MuScleFitUtils::parScale        = pset.getParameter<vector<double> >("parScale");
+  MuScleFitUtils::parCrossSection = pset.getParameter<vector<double> >("parCrossSection");
+  MuScleFitUtils::parBgr          = pset.getParameter<vector<double> >("parBgr");
+  MuScleFitUtils::parResolFix        = pset.getParameter<vector<int> >("parResolFix");
+  MuScleFitUtils::parScaleFix        = pset.getParameter<vector<int> >("parScaleFix");
+  MuScleFitUtils::parCrossSectionFix = pset.getParameter<vector<int> >("parCrossSectionFix");
+  MuScleFitUtils::parBgrFix          = pset.getParameter<vector<int> >("parBgrFix");
+  MuScleFitUtils::parResolOrder        = pset.getParameter<vector<int> >("parResolOrder");
+  MuScleFitUtils::parScaleOrder        = pset.getParameter<vector<int> >("parScaleOrder");
+  MuScleFitUtils::parCrossSectionOrder = pset.getParameter<vector<int> >("parCrossSectionOrder");
+  MuScleFitUtils::parBgrOrder          = pset.getParameter<vector<int> >("parBgrOrder");
 
   MuScleFitUtils::resfind     = pset.getParameter<vector<int> >("resfind");
   MuScleFitUtils::FitStrategy = pset.getParameter<int>("FitStrategy");
@@ -309,6 +314,14 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
                                                              pset.getParameter<vector<double> >("RightWindowFactor"),
                                                              MuScleFitUtils::ResMass,
                                                              MuScleFitUtils::massWindowHalfWidth[MuScleFitUtils::MuonTypeForCheckMassWindow] );
+
+  MuScleFitUtils::crossSectionHandler = new CrossSectionHandler( MuScleFitUtils::parCrossSection, MuScleFitUtils::resfind );
+
+  // Build cross section scale factors
+  // MuScleFitUtils::resfind
+
+  MuScleFitUtils::normalizeLikelihoodByEventNumber_ = pset.getUntrackedParameter<bool>("NormalizeLikelihoodByEventNumber", true);
+  if (debug_>0) cout << "End of MuScleFit constructor" << endl;
 }
 
 // Destructor
@@ -320,7 +333,8 @@ MuScleFit::~MuScleFit () {
 
 // Begin job
 // ---------
-void MuScleFit::beginOfJob () {
+void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
+// void MuScleFit::beginOfJob () {
 
   //if(maxLoopNumber>1)
     readProbabilityDistributionsFromFile();
@@ -371,7 +385,7 @@ void MuScleFit::startingNewLoop( unsigned int iLoop )
   iev = 0;
   MuScleFitUtils::iev_ = 0;
 
-  MuScleFitUtils::cleanEstimator();
+  MuScleFitUtils::oldNormalization_ = 0;
 }
 
 // End of loop routine
@@ -425,7 +439,9 @@ void MuScleFit::endOfFastLoop( const unsigned int iLoop )
 
   // Likelihood minimization to compute corrections
   // ----------------------------------------------
-  theFiles_[iLoop]->cd();
+  // theFiles_[iLoop]->cd();
+  TDirectory * likelihoodDir = theFiles_[iLoop]->mkdir("likelihood");
+  likelihoodDir->cd();
   MuScleFitUtils::minimizeLikelihood();
 
   // ATTENTION, this was put BEFORE the minimizeLikelihood. Check for problems.
@@ -436,10 +452,6 @@ void MuScleFit::endOfFastLoop( const unsigned int iLoop )
   // Clear the histos
   // ----------------
   clearHistoMap();
-
-  //Compute the estimator h
-  //-----------------------
-  if (!MuScleFitUtils::speedup) MuScleFitUtils::returnEstimator();
 }
 
 // Stuff to do during loop
@@ -547,7 +559,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
       ifHepMC=false;
       ifGenPart=false;
 
-      event.getByLabel( "generator", evtMC );
+      event.getByLabel( genParticlesName_, evtMC );
       if( evtMC.isValid() ) {
 
         MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(evtMC) );
@@ -670,6 +682,7 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
     if (loopCounter==0) {
       initpar = MuScleFitUtils::parResol;
       initpar.insert( initpar.end(), MuScleFitUtils::parScale.begin(), MuScleFitUtils::parScale.end() );
+      initpar.insert( initpar.end(), MuScleFitUtils::parCrossSection.begin(), MuScleFitUtils::parCrossSection.end() );
       initpar.insert( initpar.end(), MuScleFitUtils::parBgr.begin(), MuScleFitUtils::parBgr.end() );
       parval = &initpar;
     } else {
@@ -711,7 +724,7 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
 
     // Compute likelihood histograms
     // -----------------------------
-    cout << "mass = " << bestRecRes.mass() << endl;
+    if( debug_ > 0 ) cout << "mass = " << bestRecRes.mass() << endl;
     if (weight!=0.) {
       double massResol;
       double prob;
@@ -724,6 +737,11 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
 	for (int i=0; i<(int)(MuScleFitUtils::parScale.size()); i++) {
 	  initpar.push_back(MuScleFitUtils::parScale[i]);
 	}
+// 	for (int i=0; i<(int)(MuScleFitUtils::parCrossSection.size()); i++) {
+// 	  initpar.push_back(MuScleFitUtils::parCrossSection[i]);
+// 	}
+        MuScleFitUtils::crossSectionHandler->addParameters(initpar);
+
 	for (int i=0; i<(int)(MuScleFitUtils::parBgr.size()); i++) {
 	  initpar.push_back(MuScleFitUtils::parBgr[i]);
 	}
@@ -735,9 +753,9 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
 	prob      = MuScleFitUtils::massProb (bestRecRes.mass(), bestRecRes.Rapidity(),
                                               massResol, MuScleFitUtils::parvalue[loopCounter-1], true);
       }
-      cout << "inside weight: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
+      if( debug_ > 0 ) cout << "inside weight: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
       if (prob>0) {
-        cout << "inside prob: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
+        if( debug_ > 0 ) cout << "inside prob: mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
 
 	deltalike = log(prob)*weight; // NB maximum likelihood --> deltalike is maximized
 	mapHisto_["hLikeVSMu"]->Fill(recMu1, deltalike);
@@ -799,18 +817,8 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
         }
 
         mapHisto_["hMass_P"]->Fill(bestRecRes.mass(), prob);
-        cout << "mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
+        if( debug_ > 0 ) cout << "mass = " << bestRecRes.mass() << ", prob = " << prob << endl;
         mapHisto_["hMass_fine_P"]->Fill(bestRecRes.mass(), prob);
-      }
-    }
-
-    // Compute f, g for each variable
-    // ------------------------------
-    if (!MuScleFitUtils::speedup) {
-      for( int i=0; i<6; ++i ) {
-	if( bestRecRes.mass() > minResMass_hwindow[i] && bestRecRes.mass() < maxResMass_hwindow[i] ) {
-	  MuScleFitUtils::computeEstimator( recMu1, recMu2, bestRecRes.mass() );
-	}
       }
     }
   } // end if ResFound
@@ -868,6 +876,11 @@ void MuScleFit::checkParameters() {
     cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
     abort();
   }
+  if( MuScleFitUtils::doCrossSectionFit.size() != maxLoopNumber ) {
+    cout << "[MuScleFit-Constructor]: wrong size of cross section fits selector = " << MuScleFitUtils::doCrossSectionFit.size() << endl;
+    cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
+    abort();
+  }
   if( MuScleFitUtils::doBackgroundFit.size() != maxLoopNumber ) {
     cout << "[MuScleFit-Constructor]: wrong size of background fits selector = " << MuScleFitUtils::doBackgroundFit.size() << endl;
     cout << "it must have as many values as the number of loops, which is = " << maxLoopNumber << endl;
@@ -915,6 +928,11 @@ void MuScleFit::checkParameters() {
   if (MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleFix.size() ||
       MuScleFitUtils::parScale.size()!=MuScleFitUtils::parScaleOrder.size()) {
     cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Scale: aborting!" << endl;
+    abort();
+  }
+  if (MuScleFitUtils::parCrossSection.size()!=MuScleFitUtils::parCrossSectionFix.size() ||
+      MuScleFitUtils::parCrossSection.size()!=MuScleFitUtils::parCrossSectionOrder.size()) {
+    cout << "[MuScleFit-Constructor]: Mismatch in number of parameters for Bgr: aborting!" << endl;
     abort();
   }
   if (MuScleFitUtils::parBgr.size()!=MuScleFitUtils::parBgrFix.size() ||

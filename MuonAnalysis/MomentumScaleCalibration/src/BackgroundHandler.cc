@@ -221,6 +221,16 @@ pair<double, double> BackgroundHandler::backgroundFunction( const bool doBackgro
 void BackgroundHandler::countEventsInAllWindows(const vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,
                                                 const double & weight)
 {
+  // First reset all the counters
+  BOOST_FOREACH(MassWindow & resonanceWindow, resonanceWindow_) {
+    resonanceWindow.resetCounter();
+  }
+  // Count events in background windows
+  BOOST_FOREACH(MassWindow & backgroundWindow, backgroundWindow_) {
+    backgroundWindow.resetCounter();
+  }
+
+  // Now count the events in each window
   std::pair<lorentzVector,lorentzVector> muonPair;
   BOOST_FOREACH(muonPair, muonPairs) {
     // Count events in resonance windows

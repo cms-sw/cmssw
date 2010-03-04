@@ -4,11 +4,12 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2009/11/03 07:39:18 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/11 09:31:23 $
+ *  $Revision: 1.8 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
+// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"

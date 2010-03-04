@@ -304,7 +304,7 @@ public:
     }
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
-    double thisStep[] = {0.0001, 0.00001, 0.00001, 0.00001};
+    double thisStep[] = {0.00001, 0.000001, 0.0000001, 0.0000001};
     TString thisParName[] = {"Pt offset", "Pt slope", "Eta slope", "Eta quadr"};
     if( muonType == 1 ) {
       double thisMini[] = {0.9, -0.3, -0.3, -0.3};
@@ -313,8 +313,8 @@ public:
     } else {
       // double thisMini[] = {0.985, -0.002, -0.005, -0.005};
       // double thisMaxi[] = {1.015, 0.002, 0.005, 0.005};
-      double thisMini[] = {0.9, -0.002, -0.005, -0.005};
-      double thisMaxi[] = {1.1,  0.002,  0.005,  0.005};
+      double thisMini[] = {0.9, -0.002, -0.01, -0.005};
+      double thisMaxi[] = {1.1,  0.002,  0.01,  0.005};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
@@ -1824,7 +1824,11 @@ class resolutionFunctionType19 : public resolutionFunctionBase<T> {
   resolutionFunctionType19() { this->parNum_ = 4; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
-    return( parval[0]+parval[1]*pt + parval[2]*etaByPoints(eta, parval[3]) );
+    double value = parval[0]+parval[1]*pt + parval[2]*etaByPoints(eta, parval[3]);
+    if( value != value ) {
+      cout << "parval[0] = " << parval[0] << ", parval[1]*"<<pt<<" = " << parval[1]*pt << "parval[2] = " << parval[1] << ",etaByPoints("<<eta<<", "<<parval[3]<<") = " << etaByPoints(eta, parval[3]) << endl;
+    }
+    return( parval[0] + parval[1]*pt + parval[2]*etaByPoints(eta, parval[3]) );
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
@@ -1834,16 +1838,16 @@ class resolutionFunctionType19 : public resolutionFunctionBase<T> {
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
     return( 0.00011 + 0.0018/pt - (9.4e-07)*fabs(eta) + (2.2e-05)*eta*eta );
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
-
-    double thisStep[] = { 0.0000002, 0.0000001, 0.00001, 0.02 };
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType)
+  {
+    double thisStep[] = { 0.0000002, 0.0000001, 0.00001, 0.001 };
     TString thisParName[] = { "Pt res. sc.", "Pt res. Pt sc.", "Pt res. Eta sc.", "Pt res. eta border"};
-    double thisMini[] = {  -0.03, -0.0000001, 0.1, 0.01};
+    double thisMini[] = {  -0.03, -0.0000001, 0.001, 0.01};
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1., 1.};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = { 0.03, 0.1, 1.4, 0.6};
+      double thisMaxi[] = { 0.03, 0.1, 2., 0.6};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
