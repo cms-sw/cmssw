@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.8 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DQMServiceManager.cc,v 1.9 2009/09/16 11:07:41 mommsen Exp $
 //
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -36,6 +36,7 @@ DQMServiceManager::DQMServiceManager(std::string filePrefix,
   archiveDQM_(archiveDQM),
   archiveInterval_(archiveInterval),
   nUpdates_(0),
+  sentEvents_(0),
   filePrefix_(filePrefix),
   purgeTime_(purgeTime),
   readyTime_(readyTime)
@@ -89,23 +90,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
   std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
     deserializer.deserializeDQMEvent(msg);
 
-  DQMEvent::TObjectTable::const_iterator toIter;
-  for (toIter = toTablePtr->begin();
-       toIter != toTablePtr->end(); toIter++) 
-  {
-    std::string subFolderName = toIter->first;
-    std::vector<TObject *> toList = toIter->second;
-
-    for (int tdx = 0; tdx < (int) toList.size(); tdx++) 
-    {
-      TObject *object = toList[tdx];
-      dqm->updateObject(msg.topFolderName(),
-			subFolderName,
-			object,
-			msg.eventNumberAtUpdate());
-      delete(object);
-    }
-  }
+  dqm->addEvent(msg.topFolderName(), toTablePtr);
   
   // Now send the best DQMGroup for this grouping, which may 
   // not be the currently updated one (it may not yet be ready)
@@ -114,7 +99,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
   if ( descriptor != NULL )
   {
     // Reserialize the data and give to DQM server
-    DQMGroup    * group    = descriptor->group_;
+    DQMGroup * group = descriptor->group_;
     if ( !group->wasServedSinceUpdate() )
     {
       group->setServedSinceUpdate();
@@ -168,10 +153,10 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
       DQMEventMsgBuilder builder((void *)&buffer[0], 
 				 totalSize,
 				 instance->getRunNumber(),
-				 group->getLastEvent(),
+                                 ++sentEvents_, //group->getLastEvent(),
 				 zeit,
 				 instance->getLumiSection(),
-				 instance->getInstance(),
+				 instance->getUpdateNumber(),
 				 msg.releaseTag(),
 				 msg.topFolderName(),
 				 table); 
@@ -210,7 +195,7 @@ DQMInstance * DQMServiceManager::findDQMInstance(int runNumber,
   {
     if ( ( dqmInstances_[i]->getRunNumber()   == runNumber ) && 
 	 ( dqmInstances_[i]->getLumiSection() == lumiSection ) && 
-	 ( dqmInstances_[i]->getInstance()    == instance ) )
+	 ( dqmInstances_[i]->getUpdateNumber()== instance ) )
     { reply = dqmInstances_[i]; }
   }
   return(reply);
