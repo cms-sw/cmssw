@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.3 2010/02/24 21:40:05 ameyer Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.4 2010/02/26 13:20:38 dinardo Exp $
 //
 //
 
@@ -53,18 +53,29 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       edm::InputTag vertexCollection;
       unsigned int nLumiReset;
 
-  MonitorElement* Vx_X;
-  MonitorElement* Vx_Y;
-  MonitorElement* Vx_Z;
+      MonitorElement* mXlumi;
+      MonitorElement* mYlumi;
+      MonitorElement* mZlumi;
+      
+      MonitorElement* sXlumi;
+      MonitorElement* sYlumi;
+      MonitorElement* sZlumi;
+      
+      MonitorElement* Vx_X;
+      MonitorElement* Vx_Y;
+      MonitorElement* Vx_Z;
+      
+      MonitorElement* Vx_ZX;
+      MonitorElement* Vx_ZY;
+      MonitorElement* Vx_XY;
+      
+      MonitorElement* Vx_ZX_profile;
+      MonitorElement* Vx_ZY_profile;
 
-  MonitorElement* Vx_XZ;
-  MonitorElement* Vx_YZ;
-  MonitorElement* Vx_XY;
-
-  MonitorElement* reportSummary;
-  MonitorElement* reportSummaryMap;
-
-  unsigned int lumiCounter;
+      MonitorElement* reportSummary;
+      MonitorElement* reportSummaryMap;
+      
+      unsigned int lumiCounter;
 };
 
 #endif
