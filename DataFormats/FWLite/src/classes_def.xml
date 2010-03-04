@@ -4,4 +4,8 @@
   <class name="fwlite::ChainEvent"/>
   <class name="fwlite::MultiChainEvent"/>
   <class name="fwlite::ErrorThrower"/>
+  <class name="fwlite::LuminosityBlockBase"/>
+  <class name="fwlite::LuminosityBlock"/>
+  <class name="fwlite::RunBase"/>
+  <class name="fwlite::Run"/>
 </lcgdict>

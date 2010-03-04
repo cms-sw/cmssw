@@ -14,7 +14,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan  13 15:01:20 EDT 2007
-// $Id: Event.h,v 1.32 2010/02/18 20:44:57 ewv Exp $
+// $Id: LuminosityBlock.cc,v 1.9 2010/02/18 20:45:56 ewv Exp $
 //
 
 // system include files
@@ -370,6 +370,14 @@ LuminosityBlock::getByProductID(edm::ProductID const& iID) const {
 //
 // static member functions
 //
+void
+LuminosityBlock::throwProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iProduct, const char* iProcess)
+{
+    edm::TypeID type(iType);
+  throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule
+    <<"'\n  productInstance='"<<((0!=iProduct)?iProduct:"")<<"'\n  process='"<<((0!=iProcess)?iProcess:"")<<"'\n"
+    "but no data is available for this LuminosityBlock";
+}
 
 
 namespace {
