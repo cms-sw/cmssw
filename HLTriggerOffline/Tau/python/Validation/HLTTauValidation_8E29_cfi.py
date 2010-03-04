@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTauValidationProcess_STARTUP = "HLT8E29"
+hltTauValidationProcess_STARTUP = "HLT"
 
 hltTauValStartupMonitor = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
