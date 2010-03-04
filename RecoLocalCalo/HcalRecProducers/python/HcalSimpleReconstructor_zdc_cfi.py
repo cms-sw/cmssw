@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 zdcreco = cms.EDProducer("ZdcSimpleReconstructor",
     correctionPhaseNS = cms.double(0.0),
     digiLabel = cms.InputTag("hcalDigis"),
-    samplesToAdd = cms.int32(1),
+    samplesToAdd = cms.int32(4),
     Subdetector = cms.string('ZDC'),
     firstSample = cms.int32(3),
     correctForPhaseContainment = cms.bool(False),
