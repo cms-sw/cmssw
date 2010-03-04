@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.3 2010/03/03 20:39:28 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.4 2010/03/04 03:18:01 yilmaz Exp $
 //
 //
 
@@ -134,7 +134,7 @@ void
 CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    runnum_ = iEvent.id().run();
-
+   cout<<"Adding table for run : "<<runnum_<<endl;
    if(makeTFileFromDB_ && !inputDB_.isValid()){
       iSetup.get<HeavyIonRcd>().get(inputDB_);
       CB = fs->make<CentralityBins>(*(getCentralityBinsFromDB(iSetup)));
