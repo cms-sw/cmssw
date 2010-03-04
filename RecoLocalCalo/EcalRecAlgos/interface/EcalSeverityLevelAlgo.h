@@ -24,7 +24,7 @@ class EcalSeverityLevelAlgo {
                 static int severityLevel( const DetId,
                                           const EcalRecHitCollection &,
                                           const EcalChannelStatus &,
-                                          SpikeId spId = kE1OverE9,
+                                          SpikeId spId = kSwissCross,
                                           float threshold = 0.95
                                           );
 
@@ -46,10 +46,11 @@ class EcalSeverityLevelAlgo {
                  */
                 static float swissCross( const DetId id, const EcalRecHitCollection & );
 
+        private:
+
                 static int severityLevel( uint32_t rhFlag, uint16_t dbStatus );
                 static int severityLevel( const EcalRecHit &, const EcalChannelStatus & );
 
-        private:
                 static uint16_t retrieveDBStatus( const DetId , const EcalChannelStatus &chStatus );
 
                 /** return energy of a recHit (if in the collection)
