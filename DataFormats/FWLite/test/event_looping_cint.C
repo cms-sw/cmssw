@@ -1,9 +1,29 @@
+#include <vector>
+#include <TFile.h>
+using namespace std;
+
+#if defined(__CINT__) && !defined(__MAKECINT__)
+class loadFWLite {
+   public:
+      loadFWLite() {
+         gSystem->Load("libFWCoreFWLite");
+         AutoLibraryLoader::enable();
+      }
+};
+
+static loadFWLite lfw;
+#endif
+
+#include "DataFormats/FWLite/interface/Handle.h"
+
+#if !defined(__CINT__) && !defined(__MAKECINT__)
+#include "DataFormats/TestObjects/interface/ThingCollection.h"
+#endif
+
+void event_looping_cint()
 {
-gSystem->Load("libFWCoreFWLite");
-AutoLibraryLoader::enable();
 TFile f("good.root");
 fwlite::Event e(&f);
-#include "DataFormats/FWLite/interface/Handle.h" 
 
 int i =0;
 int returnValue = 0;
@@ -13,8 +33,9 @@ for( ;e.isValid();++e,++i) {
   pThing.getByLabel(e,"Thing");
   
   for(int i=0; i!=pThing.ref().size();++i) {
-    cout <<pThing.ref().at(i).a<<endl;
+    cout <<pThing.ref().at(i).a<< " ";
   }
+  cout << endl;
 }  
 if (i==0) {
   cout <<"First loop failed!"<<endl;
@@ -38,8 +59,9 @@ for(e.toBegin(); !e.atEnd();++e,++i) {
    pThing.getByLabel(e,"Thing");
    
    for(int i=0; i!=pThing.ref().size();++i) {
-      cout <<pThing.ref().at(i).a<<endl;
+      cout <<pThing.ref().at(i).a<<" ";
    }
+   cout << endl;
 
    //DOES NOT WORK
    //for(vector<edmtest::Thing>::const_iterator it = pThing.data()->begin(); it != pThing.data()->end();++it) {
