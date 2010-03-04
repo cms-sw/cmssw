@@ -564,8 +564,8 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
                         myparams[key]=value
                     else:
                         self._Parameterizable__raiseBadSetAttr(key)
-
         returnValue = PSet(**myparams)
+        returnValue.setIsTracked(self.isTracked())
         returnValue._isModified = False
         returnValue._isFrozen = False
         return returnValue
@@ -1032,6 +1032,16 @@ if __name__ == "__main__":
             self.assert_(p1.hasParameter(['a', 'b']))
             self.failIf(p1.hasParameter(['a', 'c']))
             self.assertEqual(p1.getParameter(['a', 'b']).value(), 1)
+            # test clones and trackedness
+            p3 = untracked.PSet(i = int32(1), ui=untracked.int32(2), a = PSet(b = untracked.int32(1)), b = untracked.PSet(b = int32(1)))
+            p4 = p3.clone()
+            self.assertFalse(p4.isTracked())
+            self.assert_(p4.i.isTracked())
+            self.assertFalse(p4.ui.isTracked())
+            self.assert_(p4.a.isTracked())
+            self.assertFalse(p4.b.isTracked())
+            self.assertFalse(p4.a.b.isTracked())
+            self.assert_(p4.b.b.isTracked())
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
