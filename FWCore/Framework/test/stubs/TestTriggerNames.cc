@@ -46,8 +46,6 @@ namespace edmtest
 
   private:
 
-    bool status_;
-
     Strings expected_trigger_paths_;
     Strings expected_trigger_previous_;
     Strings expected_end_paths_;
@@ -55,14 +53,11 @@ namespace edmtest
     bool dumpPSetRegistry_;
     std::vector<unsigned int> expectedTriggerResultsHLT_;
     std::vector<unsigned int> expectedTriggerResultsPROD_;
-
-    edm::TriggerNames triggerNamesI_;
   };
 
   // -----------------------------------------------------------------
 
   TestTriggerNames::TestTriggerNames(edm::ParameterSet const& ps):
-    status_(true),
     expected_trigger_paths_(ps.getUntrackedParameter<Strings>("trigPaths", Strings())),
     expected_trigger_previous_(ps.getUntrackedParameter<Strings>("trigPathsPrevious", Strings())),
     expected_end_paths_(ps.getUntrackedParameter<Strings>("endPaths", Strings())),
@@ -199,59 +194,36 @@ namespace edmtest
       }
 
       // Look again using the TriggerNames class instead
-      // of going directly to the service.  Try it both
-      // both ways, using the constructor and also using
-      // the init function of a member object.
-
-      TriggerNames triggerNames(*prod[0]);
-
-      // In the tests this is intended for, the first
-      // return should be true and all the subsequent
-      // returns false, because the triggernames are the
-      // same in all the events, so they only get updated
-      // once if the init function is used.
-      if (triggerNamesI_.init(*prod[0]) != status_) {
-        std::cerr << "TestTriggerNames: "
-             << "init returning incorrect value" << std::endl;  
-        abort();
-      }
-      status_ = false;
+      // of going to the service. 
 
       TriggerNames const& triggerNamesFromEvent = e.triggerNames(*prod[0]);
 
-      Strings triggernames2 = triggerNames.triggerNames();
       Strings namesFromEvent = triggerNamesFromEvent.triggerNames();
-      if (triggernames2.size() != expected_trigger_previous_.size() ||
-          namesFromEvent.size() != expected_trigger_previous_.size()) {
+      if (namesFromEvent.size() != expected_trigger_previous_.size()) {
         std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
              << "Expected and actual previous trigger path lists not the same size" << std::endl;  
         abort();
       }
       for (Strings::size_type i = 0; i < expected_trigger_previous_.size(); ++i) {
-        if (triggernames2[i] != expected_trigger_previous_[i] ||
-            namesFromEvent[i] != expected_trigger_previous_[i]) {
+        if (namesFromEvent[i] != expected_trigger_previous_[i]) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
 	  abort();
         }
-        if (triggerNames.triggerName(i) != expected_trigger_previous_[i] ||
-            triggerNamesFromEvent.triggerName(i) != expected_trigger_previous_[i]) {
+        if (triggerNamesFromEvent.triggerName(i) != expected_trigger_previous_[i]) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "name from index accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
 	  abort();
         }
-        // Exercise the object initialized with the init function and
-        // at the same time the function that returns an index
-        if ( i != triggerNamesI_.triggerIndex(expected_trigger_previous_[i]) ||
-             i != triggerNamesFromEvent.triggerIndex(expected_trigger_previous_[i])) {
+        // Exercise the function that returns an index
+        if ( i != triggerNamesFromEvent.triggerIndex(expected_trigger_previous_[i])) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "index from name accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
 	  abort();
         }
-        if (triggerNamesI_.size() != expected_trigger_previous_.size() ||
-            triggerNamesFromEvent.size() != expected_trigger_previous_.size()) {
+        if (triggerNamesFromEvent.size() != expected_trigger_previous_.size()) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "Checking size accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;  
