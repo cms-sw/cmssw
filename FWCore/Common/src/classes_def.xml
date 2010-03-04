@@ -1,5 +1,7 @@
 <lcgdict>
   <class name="edm::EventBase"/>
+  <class name="edm::LuminosityBlockBase"/>
+  <class name="edm::RunBase"/>
   <class name="edm::TriggerNames"/>
   <class name="edm::TriggerResultsByName"/>
 </lcgdict>
