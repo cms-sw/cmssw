@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectron3DProxyBuilder.cc,v 1.5 2009/10/04 12:13:19 dmytro Exp $
+// $Id: FWElectron3DProxyBuilder.cc,v 1.6 2010/01/21 21:02:11 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
@@ -67,4 +67,4 @@ FWElectron3DProxyBuilder::build(const reco::GsfElectron& iData, unsigned int iIn
    oItemHolder.AddElement( track );
 }
 
-REGISTER_FW3DDATAPROXYBUILDER(FWElectron3DProxyBuilder,std::vector<reco::GsfElectron>,"Electrons");
+REGISTER_FW3DDATAPROXYBUILDER(FWElectron3DProxyBuilder,reco::GsfElectron,"Electrons");
