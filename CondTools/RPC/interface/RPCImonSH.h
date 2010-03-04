@@ -5,8 +5,6 @@
  * \class RPCImonSH
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2009/06/05 14:36:44 $
- *  $Revision: 1.8 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

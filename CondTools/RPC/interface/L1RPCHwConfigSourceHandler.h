@@ -46,7 +46,9 @@ namespace popcon
     void getNewObjects();
     std::string id() const {return m_name;}
     void ConnectOnlineDB(string connect, string authPath);
+    void ConnectOnlineDB(string host, string sid, string user, string pass, int port);
     void DisconnectOnlineDB();
+    void readHwConfig0();
     void readHwConfig1();
     int Compare2Configs(Ref set1, L1RPCHwConfig* set2);
 
@@ -60,10 +62,17 @@ namespace popcon
     std::string m_name;
     int m_dummy;
     int m_validate;
+    int m_firstBX;
+    int m_lastBX;
     std::vector<int> m_disableCrates;
     std::vector<int> m_disableTowers;
     std::string m_connect;
     std::string m_authpath;
+    std::string m_host;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    int m_port;
 
         };
 }

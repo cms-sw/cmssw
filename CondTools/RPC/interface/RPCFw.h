@@ -5,8 +5,6 @@
  * \class RPCFw
  *  Reads data from OMDS and creates conditioning objects
  *
- *  $Date: 2009/11/20 15:53:36 $
- *  $Revision: 1.18 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

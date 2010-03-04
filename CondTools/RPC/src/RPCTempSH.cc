@@ -1,8 +1,6 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2009/09/04 12:00:59 $
- *  $Revision: 1.7 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

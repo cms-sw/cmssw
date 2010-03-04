@@ -2,8 +2,6 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/14 13:00:57 $
- *  $Revision: 1.26 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

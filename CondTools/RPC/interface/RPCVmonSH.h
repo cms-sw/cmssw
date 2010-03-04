@@ -5,8 +5,6 @@
  * \class RpcData
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/12/30 10:16:02 $
- *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 

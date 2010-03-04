@@ -5,8 +5,6 @@
  * \class RPCRunIOV
  *  Reads data from ORCOFF and sqlite file
  *
- *  $Date: 2009/06/18 11:57:54 $
- *  $Revision: 1.9 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
