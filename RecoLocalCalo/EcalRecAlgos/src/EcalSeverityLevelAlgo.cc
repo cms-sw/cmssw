@@ -27,7 +27,7 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 }
         } else {
                 // the channel is in the recHit collection
-                if ( spikeFromNeighbours(id, recHits) > 0.95  ) return kWeird;
+                if ( spikeFromNeighbours(id, recHits) > threshold  ) return kWeird;
                 return severityLevel( *it, chStatus );
         }
         return 0;
@@ -110,29 +110,6 @@ float EcalSeverityLevelAlgo::spikeFromNeighbours( const DetId id,
 
 float EcalSeverityLevelAlgo::E1OverE9( const DetId id, const EcalRecHitCollection & recHits )
 {
-        // compute R9
-        if ( id.subdetId() == EcalBarrel ) {
-                EBDetId ebId( id );
-                float s9 = 0;
-                int ieta0 = iEta2cIndex( ebId.ieta() );
-                int iphi0 = iPhi2cIndex( ebId.iphi() );
-                for ( int deta = -1; deta <= +1; ++deta ) {
-                        for ( int dphi = -1; dphi <= +1; ++dphi ) {
-                                int eta = ieta0 + deta;
-                                int phi = ( iphi0 + dphi ) % 360;
-                                if ( phi < 0  ) phi += 360;
-                                if ( ! EBDetId::validDetId( cIndex2iEta(eta), cIndex2iPhi(phi) ) ) continue;
-                                EBDetId hitId( cIndex2iEta(eta), cIndex2iPhi(phi) );
-                                s9 += recHitEnergy( hitId, recHits );
-                        }
-                }
-                return recHitEnergy(id, recHits) / s9;
-        }
-        return 0;
-}
-
-float EcalSeverityLevelAlgo::E1OverE9New( const DetId id, const EcalRecHitCollection & recHits )
-{
         // compute E1 over E9
         if ( id.subdetId() == EcalBarrel ) {
                 EBDetId ebId( id );
@@ -157,7 +134,7 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 s4 += recHitEnergy( id, recHits, -1,  0 );
                 s4 += recHitEnergy( id, recHits,  0,  1 );
                 s4 += recHitEnergy( id, recHits,  0, -1 );
-                return recHitEnergy( id, recHits ) / s4;
+                return 1 - s4 / recHitEnergy( id, recHits );
         }
         return 0;
 }
@@ -165,15 +142,8 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
 float EcalSeverityLevelAlgo::recHitEnergy( const DetId id, const EcalRecHitCollection & recHits,
                                            int dEta, int dPhi )
 {
-        EBDetId ebId( id );
-        int ieta0 = iEta2cIndex( ebId.ieta() );
-        int iphi0 = iPhi2cIndex( ebId.iphi() );
-        int eta = ieta0 + dEta;
-        int phi = ( iphi0 + dPhi ) % 360;
-        if ( phi < 0  ) phi += 360;
-        if ( ! EBDetId::validDetId( cIndex2iEta(eta), cIndex2iPhi(phi) ) ) return 0;
-        EBDetId hitId( cIndex2iEta(eta), cIndex2iPhi(phi) );
-        return recHitEnergy( hitId, recHits );
+        DetId nid = EBDetId::offsetBy( id, dEta, dPhi );
+        return ( nid == DetId(0) ? 0 : recHitEnergy( nid, recHits ) );
 }
 
 float EcalSeverityLevelAlgo::recHitEnergy( const DetId id, const EcalRecHitCollection &recHits )
