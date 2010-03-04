@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DDataProxyBuilder.cc,v 1.6 2010/01/21 21:01:35 amraktad Exp $
+// $Id: FW3DDataProxyBuilder.cc,v 1.7 2010/02/26 09:41:02 eulisse Exp $
 //
 
 // system include files
@@ -205,6 +205,9 @@ FW3DDataProxyBuilder::modelChanges(const FWModelIds& iIds,
          ++index;
          assert(itElement != iElements->EndChildren());
       }
+      if(specialModelChangeHandling(*it,*itElement)) {
+         fireworks::setUserDataElementAndChildren(*itElement,&(ids()[it->index()]));
+      }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);
       (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
@@ -212,6 +215,9 @@ FW3DDataProxyBuilder::modelChanges(const FWModelIds& iIds,
       (*itElement)->ElementChanged();
    }
 }
+
+bool FW3DDataProxyBuilder::specialModelChangeHandling(const FWModelId&, TEveElement*) { return false;}
+
 
 //
 // const member functions

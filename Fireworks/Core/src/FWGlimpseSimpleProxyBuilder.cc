@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 09:46:41 EST 2008
-// $Id: FWGlimpseSimpleProxyBuilder.cc,v 1.2 2008/12/03 01:15:17 chrjones Exp $
+// $Id: FWGlimpseSimpleProxyBuilder.cc,v 1.3 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -86,20 +86,41 @@ FWGlimpseSimpleProxyBuilder::build(const FWEventItem* iItem,
       std::string name;
       m_helper.fillTitle(*iItem,index,name);
       std::auto_ptr<TEveCompound> itemHolder(new TEveCompound(name.c_str(),name.c_str()));
-      {
-         itemHolder->OpenCompound();
-         //guarantees that CloseCompound will be called no matter what happens
-         boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
-                                                boost::mem_fn(&TEveCompound::CloseCompound));
-         build(m_helper.offsetObject(modelData),index,*itemHolder);
-      }
       const FWEventItem::ModelInfo& info = iItem->modelInfo(index);
-      changeElementAndChildren(itemHolder.get(), info);
+      if(info.displayProperties().isVisible()) {
+         {
+            itemHolder->OpenCompound();
+            //guarantees that CloseCompound will be called no matter what happens
+            boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
+                                                   boost::mem_fn(&TEveCompound::CloseCompound));
+            build(m_helper.offsetObject(modelData),index,*itemHolder);
+         }
+         changeElementAndChildren(itemHolder.get(), info);
+      }
       itemHolder->SetRnrSelf(info.displayProperties().isVisible());
       itemHolder->SetRnrChildren(info.displayProperties().isVisible());
       itemHolder->ElementChanged();
       (*product)->AddElement(itemHolder.release());
    }
+}
+
+bool 
+FWGlimpseSimpleProxyBuilder::specialModelChangeHandling(const FWModelId& iId, TEveElement* iCompound) {
+   const FWEventItem::ModelInfo& info = iId.item()->modelInfo(iId.index());
+   bool returnValue = false;
+   if(info.displayProperties().isVisible() && iCompound->NumChildren()==0) {
+      TEveCompound* c = dynamic_cast<TEveCompound*> (iCompound);
+      assert(0!=c);
+      c->OpenCompound();
+      //guarantees that CloseCompound will be called no matter what happens
+      boost::shared_ptr<TEveCompound> sentry(c,
+                                             boost::mem_fn(&TEveCompound::CloseCompound));
+      const void* modelData = iId.item()->modelData(iId.index());
+      
+      build(m_helper.offsetObject(modelData),iId.index(),*iCompound);
+      returnValue=true;
+   }
+   return returnValue;
 }
 
 //

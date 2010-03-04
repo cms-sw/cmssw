@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 09:46:36 EST 2008
-// $Id: FW3DSimpleProxyBuilder.h,v 1.1 2008/12/04 15:24:37 dmytro Exp $
+// $Id: FW3DSimpleProxyBuilder.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -50,6 +50,8 @@ private:
    virtual void itemChangedImp(const FWEventItem*);
    virtual void build(const FWEventItem* iItem,
                       TEveElementList** product);
+   
+   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
 
    //called once for each item in collection, the void* points to the
    // object properly offset in memory

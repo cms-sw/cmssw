@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:18 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.5 2009/07/20 08:46:44 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.6 2009/07/20 12:50:49 amraktad Exp $
 //
 
 // system include files
@@ -48,6 +48,7 @@ private:
    virtual void itemChangedImp(const FWEventItem*);
    virtual void applyChangesToAllModels();
    virtual void modelChanges(const FWModelIds&, TEveElement*);
+   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
    virtual void build(const FWEventItem* iItem,
                       TEveElementList** product) = 0;
    FW3DLegoEveElementProxyBuilder(const FW3DLegoEveElementProxyBuilder&);    // stop default

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 16:34:41 EST 2008
-// $Id: FW3DLegoSimpleProxyBuilder.h,v 1.1 2008/12/02 23:42:19 chrjones Exp $
+// $Id: FW3DLegoSimpleProxyBuilder.h,v 1.2 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -46,6 +46,8 @@ private:
    FW3DLegoSimpleProxyBuilder(const FW3DLegoSimpleProxyBuilder&); // stop default
 
    const FW3DLegoSimpleProxyBuilder& operator=(const FW3DLegoSimpleProxyBuilder&); // stop default
+
+   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
 
    virtual void itemChangedImp(const FWEventItem*);
    virtual void build(const FWEventItem* iItem,

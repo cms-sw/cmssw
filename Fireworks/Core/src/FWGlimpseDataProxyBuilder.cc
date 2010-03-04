@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.9 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.10 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -208,6 +208,9 @@ FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds,
          ++index;
          assert(itElement != iElements->EndChildren());
       }
+      if(specialModelChangeHandling(*it,*itElement)) {
+         fireworks::setUserDataElementAndChildren(*itElement,&(ids()[it->index()]));
+      }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);
       (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
@@ -215,6 +218,12 @@ FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds,
       (*itElement)->ElementChanged();
    }
 }
+
+bool 
+FWGlimpseDataProxyBuilder::specialModelChangeHandling(const FWModelId&, TEveElement*) {
+   return false;
+}
+
 
 //
 // const member functions

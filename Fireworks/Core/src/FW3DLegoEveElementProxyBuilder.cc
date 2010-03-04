@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.6 2009/07/20 12:50:50 amraktad Exp $
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.7 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -140,6 +140,9 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
          ++index;
          assert(itElement != iElements->EndChildren());
       }
+      if(specialModelChangeHandling(*it,*itElement)) {
+         setUserDataElementAndChildren(*itElement,&(ids()[it->index()]));
+      }
       const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
       changeElementAndChildren(*itElement, info);
       (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
@@ -147,6 +150,9 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
       (*itElement)->ElementChanged();
    }
 }
+
+bool 
+FW3DLegoEveElementProxyBuilder::specialModelChangeHandling(const FWModelId&, TEveElement*) { return false;}
 
 void
 FW3DLegoEveElementProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)

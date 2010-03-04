@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWGlimpseDataProxyBuilder.h,v 1.7 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWGlimpseDataProxyBuilder.h,v 1.8 2009/10/28 14:46:16 chrjones Exp $
 //
 
 // system include files
@@ -81,6 +81,7 @@ private:
 
    //Override this if you need to special handle selection or other changes
    virtual void modelChanges(const FWModelIds&, TEveElement*);
+   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
    virtual void applyChangesToAllModels(TEveElement* iElements);
    virtual void itemChangedImp(const FWEventItem*);
 

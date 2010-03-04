@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 09:46:36 EST 2008
-// $Id: FWGlimpseSimpleProxyBuilder.h,v 1.1 2008/12/02 21:11:52 chrjones Exp $
+// $Id: FWGlimpseSimpleProxyBuilder.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -50,6 +50,7 @@ private:
    virtual void itemChangedImp(const FWEventItem*);
    virtual void build(const FWEventItem* iItem,
                       TEveElementList** product);
+   virtual bool specialModelChangeHandling(const FWModelId&, TEveElement*);
 
    //called once for each item in collection, the void* points to the
    // object properly offset in memory
