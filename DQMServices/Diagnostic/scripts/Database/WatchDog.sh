@@ -10,11 +10,11 @@
 #  /home/cmstacuser/historyDQM/Cron/Scripts/MainScript.sh > log &
 #fi
 
-Dir=/home/cmstacuser/historyDQM/Cron/Scripts
+Dir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/HDQM/Cron/Scripts
 
 # Check if process is running, if not launch it again
 PID=`/sbin/pidof -x MainScript.sh`
-if [ ! ${PID} ]; then
+if [ ! "${PID}" ]; then
     echo "Not running, restarting it at" `date`
     ${Dir}/MainScript.sh &
 else

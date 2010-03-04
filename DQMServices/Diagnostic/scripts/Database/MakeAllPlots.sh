@@ -40,11 +40,11 @@ function MakeAllPlots ()
 	local ThisDir=`pwd`
 	cd ${LocalBaseDir}/scripts
 	if [ ${RunEnd} ]; then
-	    ./MakePlots.sh ${Macro} ${TagNames[$k]} $Password $RunStart $RunEnd
+	    ./MakePlots.sh ${Macro} ${Database} ${TagNames[$k]} $Password $RunStart $RunEnd
 	elif [ ${RunStart} ]; then
-	    ./MakePlots.sh ${Macro} ${TagNames[$k]} $Password $RunStart
+	    ./MakePlots.sh ${Macro} ${Database} ${TagNames[$k]} $Password $RunStart
 	else
-	    ./MakePlots.sh ${Macro} ${TagNames[$k]} $Password 40
+	    ./MakePlots.sh ${Macro} ${Database} ${TagNames[$k]} $Password 40
 	fi
 	mv -v CurrentPlots $BasePlotOutDir/Plots_$Det
 	cd $ThisDir

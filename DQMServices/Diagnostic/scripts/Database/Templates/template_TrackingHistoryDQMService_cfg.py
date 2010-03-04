@@ -92,7 +92,7 @@ process.SiStripHistoryDQMService = cms.Service(
     #CosmicTk
     cms.PSet( keyName = cms.untracked.string("NumberOfTracks_CosmicTk"), quantitiesToExtract  = cms.untracked.vstring("stat"))
     ,
-    cms.PSet( keyName = cms.untracked.string("Chi2overDoF_CosmicTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    cms.PSet( keyName = cms.untracked.string("Chi2oNDF_CosmicTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
     ,
     cms.PSet( keyName = cms.untracked.string("NumberOfRecHitsPerTrack_CosmicTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
     ,
@@ -112,7 +112,7 @@ process.SiStripHistoryDQMService = cms.Service(
 
     # CKFTk
     ,
-    cms.PSet( keyName = cms.untracked.string("Chi2overDoF_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    cms.PSet( keyName = cms.untracked.string("Chi2oNDF_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
     ,
     cms.PSet( keyName = cms.untracked.string("NumberOfTracks_CKFTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
     ,
@@ -134,7 +134,7 @@ process.SiStripHistoryDQMService = cms.Service(
 
     # RSTk
     ,
-    cms.PSet( keyName = cms.untracked.string("Chi2overDoF_RSTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    cms.PSet( keyName = cms.untracked.string("Chi2oNDF_RSTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
     ,
     cms.PSet( keyName = cms.untracked.string("NumberOfTracks_RSTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
     ,
