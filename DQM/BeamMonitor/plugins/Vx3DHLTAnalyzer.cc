@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.7 2010/03/04 09:36:07 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.8 2010/03/04 10:30:39 dinardo Exp $
 //
 //
 
@@ -27,6 +27,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
+//#include <TF1.h>
 
 
 using namespace std;
@@ -83,6 +85,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
   if ((lumiCounter == nLumiReset) && (nLumiReset != 0))
     {
+      TF1* Gauss = new TF1("Gauss","gaus");
+
       mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), nLumiReset);
       mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), nLumiReset);
       mZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetMean(), Vx_Z->getTH1F()->GetMeanError(), nLumiReset);
@@ -90,6 +94,22 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       sXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS(), Vx_X->getTH1F()->GetRMSError(), nLumiReset);
       sYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS(), Vx_Y->getTH1F()->GetRMSError(), nLumiReset);
       sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), nLumiReset);
+      
+      Gauss->SetParameters(Vx_X->getTH1()->GetMaximum(), Vx_X->getTH1()->GetMean(), Vx_X->getTH1()->GetRMS());
+      Vx_X->getTH1()->Fit("Gauss","QLM0");
+      RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2),
+				 (Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
+											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
+      Gauss->SetParameters(Vx_Y->getTH1()->GetMaximum(), Vx_Y->getTH1()->GetMean(), Vx_Y->getTH1()->GetRMS());
+      Vx_Y->getTH1()->Fit("Gauss","QLM0");
+      RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2),
+				 (Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
+											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
+      Gauss->SetParameters(Vx_Z->getTH1()->GetMaximum(), Vx_Z->getTH1()->GetMean(), Vx_Z->getTH1()->GetRMS());
+      Vx_Z->getTH1()->Fit("Gauss","QLM0");
+      RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2),
+				 (Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
+											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
 
       Vx_X->Reset();
       Vx_Y->Reset();
@@ -105,6 +125,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       reportSummary->Fill(0.5);
 
       lumiCounter = 0;
+
+      delete Gauss;
     }
   else if (nLumiReset == 0)
     {
@@ -170,6 +192,20 @@ void Vx3DHLTAnalyzer::beginJob()
       sZlumi->setAxisTitle("Lumisection [#]",1);
       sZlumi->setAxisTitle("Entries [#]",2);
       sZlumi->getTH1()->SetOption("E1");
+
+      RMSsigXlumi = dbe->book1D("RMS_over_sigma X vs lumi", "RMS_{x}/\\sigma_{x} vs. Lumisection", 50, 0.5, 50.5);
+      RMSsigYlumi = dbe->book1D("RMS_over_sigma Y vs lumi", "RMS_{y}/\\sigma_{y} vs. Lumisection", 50, 0.5, 50.5);
+      RMSsigZlumi = dbe->book1D("RMS_over_sigma Z vs lumi", "RMS_{z}/\\sigma_{z} vs. Lumisection", 50, 0.5, 50.5);
+
+      RMSsigXlumi->setAxisTitle("Lumisection [#]",1);
+      RMSsigXlumi->setAxisTitle("Entries [#]",2);
+      RMSsigXlumi->getTH1()->SetOption("E1");
+      RMSsigYlumi->setAxisTitle("Lumisection [#]",1);
+      RMSsigYlumi->setAxisTitle("Entries [#]",2);
+      RMSsigYlumi->getTH1()->SetOption("E1");
+      RMSsigZlumi->setAxisTitle("Lumisection [#]",1);
+      RMSsigZlumi->setAxisTitle("Entries [#]",2);
+      RMSsigZlumi->getTH1()->SetOption("E1");
 
       Vx_ZX = dbe->book2D("Vertex_ZX", "Primary Vertex ZX Coordinate Distributions", 80, -20.0, 20.0, 400, -2.0, 2.0);
       Vx_ZY = dbe->book2D("Vertex_ZY", "Primary Vertex ZY Coordinate Distributions", 80, -20.0, 20.0, 400, -2.0, 2.0);
