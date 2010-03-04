@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/02/12 21:57:31 $
- * $Revision: 1.56 $
+ * $Date: 2010/02/16 11:01:50 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -370,14 +370,17 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       float yval = hitItr->time();
 
       uint32_t flag = hitItr->recoFlag();      
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
+      // uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
+      EcalChannelStatus::const_iterator chsIt = chStatus->find( id );
+      uint16_t dbStatus = 0; // 0 = good
+      if ( chsIt != chStatus->end() ) dbStatus = chsIt->getStatusCode();
 
       float theta = pGeometry_->getGeometry(id)->getPosition().theta();
       float eta = pGeometry_->getGeometry(id)->getPosition().eta();
       float phi = pGeometry_->getGeometry(id)->getPosition().phi();
       float et = hitItr->energy() * fabs(sin(theta));
 
-      if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && dbStatus == 0 ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
 
