@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.6 2010/02/26 15:32:04 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.7 2010/03/04 09:36:07 dinardo Exp $
 //
 //
 
@@ -78,17 +78,18 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 					 const EventSetup& iSetup)
 {
+  // To know the lumisection: lumiBlock.luminosityBlock()
   lumiCounter++;
 
   if ((lumiCounter == nLumiReset) && (nLumiReset != 0))
     {
-      mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), lumiBlock.luminosityBlock());
-      mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), lumiBlock.luminosityBlock());
-      mZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetMean(), Vx_Z->getTH1F()->GetMeanError(), lumiBlock.luminosityBlock());
-
-      sXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS(), Vx_X->getTH1F()->GetRMSError(), lumiBlock.luminosityBlock());
-      sYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS(), Vx_Y->getTH1F()->GetRMSError(), lumiBlock.luminosityBlock());
-      sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), lumiBlock.luminosityBlock());
+      mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), nLumiReset);
+      mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), nLumiReset);
+      mZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetMean(), Vx_Z->getTH1F()->GetMeanError(), nLumiReset);
+      
+      sXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS(), Vx_X->getTH1F()->GetRMSError(), nLumiReset);
+      sYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS(), Vx_Y->getTH1F()->GetRMSError(), nLumiReset);
+      sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), nLumiReset);
 
       Vx_X->Reset();
       Vx_Y->Reset();
@@ -105,7 +106,20 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
       lumiCounter = 0;
     }
-  else if (nLumiReset == 0) { lumiCounter = 0; reportSummary->Fill(0.5); }
+  else if (nLumiReset == 0)
+    {
+      mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), 1);
+      mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), 1);
+      mZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetMean(), Vx_Z->getTH1F()->GetMeanError(), 1);
+      
+      sXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS(), Vx_X->getTH1F()->GetRMSError(), 1);
+      sYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS(), Vx_Y->getTH1F()->GetRMSError(), 1);
+      sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), 1);
+
+      reportSummary->Fill(0.5);
+
+      lumiCounter = 0;
+    }
 }
 
 
