@@ -62,7 +62,8 @@ namespace edm {
     numberOfEventsBeforeBigSkip_(0),
     numberOfEventsInBigSkip_(0),
     numberOfSequentialEvents_(0),
-    forkedChildIndex_(0) {
+    forkedChildIndex_(0)
+  {
     if (secondaryFileSequence_) {
       boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
@@ -195,6 +196,9 @@ namespace edm {
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
     }
+    if(0 != numberOfEventsInBigSkip_) {
+      --numberOfEventsBeforeBigSkip_;
+    }
     return primaryPrincipal;
   }
 
@@ -207,7 +211,9 @@ namespace edm {
   InputSource::ItemType
   PoolSource::getNextItemType() {
     InputSource::ItemType returnValue = primaryFileSequence_->getNextItemType();
-    if(returnValue == InputSource::IsEvent && 0 != numberOfEventsInBigSkip_ && 0 == --numberOfEventsBeforeBigSkip_) {
+    if(returnValue == InputSource::IsEvent && 
+       0 != numberOfEventsInBigSkip_ &&
+       0 == numberOfEventsBeforeBigSkip_) {
       primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_, principalCache());
       numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
       returnValue = primaryFileSequence_->getNextItemType();
@@ -237,7 +243,8 @@ namespace edm {
       }
       primaryFileSequence_->skipEvents(numberToSkip, principalCache());
     }
-    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
+    //numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
+    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
