@@ -11,7 +11,7 @@ from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *    # above 0.9 GeV
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
 
 # Jet Reconstruction
-from RecoHI.HiJetAlgos.IterativeConePu5Jets_PbPb_cff import *
+from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 
 # Muon Reco
 from RecoHI.HiMuonAlgos.HiRecoMuon_cff import * 
@@ -23,7 +23,7 @@ from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 # Global + High-Level Reco Sequence
 globalRecoPbPb = cms.Sequence(heavyIonTracking
                               * hiEcalClusters
-                              * runjets
+                              * hiRecoJets
                               * muonRecoPbPb
                               * hiEgammaSequence
                               * hiCentrality
