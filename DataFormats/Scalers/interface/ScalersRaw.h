@@ -19,7 +19,7 @@
  */
 
 #pragma pack(push)
-#pragma pack(1)
+#pragma pack(4)
 
 /// \class ScalersRaw.h
 /// \brief Raw Data Level 1 Global Trigger Scalers and Lumi Scalers
