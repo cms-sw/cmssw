@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltTauValidationProcess_IDEAL = "HLT"
 
-hltTauValIdealMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
+hltTauValIdealMonitor = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),

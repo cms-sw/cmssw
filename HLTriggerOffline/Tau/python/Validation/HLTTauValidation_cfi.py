@@ -79,7 +79,7 @@ singleTauSetup = cms.PSet(
 
 
 
-hltTauValDefMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
+hltTauValDefMonitor = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
                          doubleTauSetup,
                          singleTauSetup,
