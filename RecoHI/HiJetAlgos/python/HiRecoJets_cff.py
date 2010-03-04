@@ -94,4 +94,4 @@ akFastPu7CaloJets.doRhoFastjet = True
 #                                         coneRadius = cms.double(0.5)
 #                                         )
 
-runjets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+akPu5CaloJets+akPu7CaloJets+akFastPu5CaloJets+akFastPu7CaloJets)
+hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+akPu5CaloJets+akPu7CaloJets+akFastPu5CaloJets+akFastPu7CaloJets)
