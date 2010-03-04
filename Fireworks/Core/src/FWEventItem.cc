@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.39 2009/08/20 15:38:20 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.40 2010/02/18 21:51:27 chrjones Exp $
 //
 
 // system include files
@@ -85,9 +85,6 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
       m_itemInfos.reserve(1);
    }
    m_filter.setClassName(modelType()->GetName());
-   //only want to listen to this signal when we need to run the filter
-   m_shouldFilterConnection = changeManager()->changeSignalsAreDone_.connect(sigc::mem_fun(*this,&FWEventItem::runFilter));
-   m_shouldFilterConnection.block(true);
 
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
@@ -121,10 +118,7 @@ FWEventItem::setEvent(const fwlite::Event* iEvent)
    m_event = iEvent;
    m_accessor->reset();
    m_itemInfos.clear();
-   preItemChanged_(this);
-   //want filter to rerun after all changes have been made
-   m_shouldFilterConnection.block(false);
-   changeManager()->changed(this);
+   handleChange();
 }
 
 void
@@ -137,10 +131,7 @@ FWEventItem::setLabels(const std::string& iModule,
    m_processName = iProcess;
    m_accessor->reset();
    m_itemInfos.clear();
-   preItemChanged_(this);
-   //want filter to rerun after all changes have been made
-   m_shouldFilterConnection.block(false);
-   changeManager()->changed(this);
+   handleChange();
 }
 
 void
@@ -196,8 +187,6 @@ FWEventItem::setFilterExpression(const std::string& iExpression)
 void
 FWEventItem::runFilter()
 {
-   m_shouldFilterConnection.block(true);
-
    if(m_accessor->isCollection() && m_accessor->data()) {
       //std::cout <<"runFilter"<<std::endl;
       FWChangeSentry sentry(*(this->changeManager()));
@@ -318,11 +307,9 @@ FWEventItem::moveToFront()
 
    m_itemInfos.clear();
    m_accessor->reset();
-   preItemChanged_(this);
-   //want filter to rerun after all changes have been made
-   m_shouldFilterConnection.block(false);
-   changeManager()->changed(this);
+   handleChange();
 }
+
 void
 FWEventItem::moveToBack()
 {
@@ -344,12 +331,19 @@ FWEventItem::moveToBack()
 
    m_itemInfos.clear();
    m_accessor->reset();
-   preItemChanged_(this);
-   //want filter to rerun after all changes have been made
-   m_shouldFilterConnection.block(false);
-   changeManager()->changed(this);
+   handleChange();
 }
 
+void 
+FWEventItem::handleChange()
+{
+   preItemChanged_(this);
+   FWChangeSentry sentry(*(this->changeManager()));
+   //want filter to rerun after all changes have been made
+   changeManager()->changed(this);
+   getPrimaryData();
+   runFilter();
+}
 //
 // const member functions
 //

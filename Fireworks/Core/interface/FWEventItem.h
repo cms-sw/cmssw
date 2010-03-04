@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.37 2009/08/20 00:25:50 chrjones Exp $
+// $Id: FWEventItem.h,v 1.38 2010/01/21 21:01:34 amraktad Exp $
 //
 
 // system include files
@@ -217,6 +217,7 @@ private:
 
    void getPrimaryData() const;
    void runFilter();
+   void handleChange();
    // ---------- member data --------------------------------
    const fireworks::Context* m_context;
    unsigned int m_id;
@@ -239,7 +240,6 @@ private:
    FWItemValueGetter m_interestingValueGetter;
 
    FWModelFilter m_filter;
-   sigc::connection m_shouldFilterConnection;
    mutable bool m_printedErrorThisEvent;
    mutable std::string m_fullBranchName;
    
