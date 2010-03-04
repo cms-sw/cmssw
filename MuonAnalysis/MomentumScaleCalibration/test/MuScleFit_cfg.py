@@ -217,16 +217,6 @@ process.looper = cms.Looper(
     # ------------------------- #
     # Resolution fit parameters #
     # ------------------------- #
-
-    # The eleven parResol parameters of resolfittype=8 are respectively:
-    # constant of sigmaPt, Pt dep. of sigmaPt, Pt^2 dep. of sigmaPt,
-    # scale of the eta dep. made by points with values derived from MuonGun,
-    # border value (higher eta) of etaByPoints;
-    # constant of sigmaCotgTheta, 1/Pt dep. of sigmaCotgTheta, Eta dep. of
-    # sigmaCotgTheta, Eta^2 dep of sigmaCotgTheta;
-    # onstant of sigmaPhi, 1/Pt dep. of sigmaPhi, Eta dep. of sigmaPhi,
-    # Eta^2 dep. of sigmaPhi.
-    # ----------------------------------------------------------------
     #ResolFitType = cms.int32(8),
     #parResol = cms.vdouble(-0.003, 0.000205, 1.0, 0.445473,
     #                       0.00043, 0.0041, 0.0000028, 0.000077,
@@ -238,37 +228,11 @@ process.looper = cms.Looper(
     #                           0, 0, 0, 0,
     #                           0, 0, 0, 0),
 
-    # ResolFitType = cms.int32(9),
-    # parResol = cms.vdouble(0.00118247, 0.000365709, -0.00000181061, -0.000000207808, 0.00000000143758, 0.600788, 0.0416943,
-    #                        0.00045, 0.0039, 1.4e-06, 7.8e-05,
-    #                        6.5e-05, 0.0036, -6.7e-07, 2.2e-05,
-    #                        0.00496148, 0.00496148, 0.00448753, 0.00448753,
-    #                        0.00468222, 0.00468222, 0.00392335, 0.00392335,
-    #                        0.296549, 0.296549, 0.360698, 0.360698,
-    #                        0.452533, 0.452533, 0.419223, 0.419223),
-    # parResolFix = cms.vint32(0, 0, 0, 0, 0, 0, 0,
-    #                          1, 1, 1, 1,
-    #                          1, 1, 1, 1,
-    #                          0, 0, 0, 0,
-    #                          0, 0, 0, 0,
-    #                          0, 0, 0, 0,
-    #                          0, 0, 0, 0),
-    # parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0, 0,
-    #                            0, 0, 0, 0,
-    #                            0, 0, 0, 0,
-    #                            0, 0, 0, 0,
-    #                            0, 0, 0, 0,
-    #                            0, 0, 0, 0,
-    #                            0, 0, 0, 0),
-
-
     # ------------------------------------------------- #
     # New resolution function derived for low Pt region #
     # ------------------------------------------------- #
-
     # The eleven parResol parameters of resolfittype=11 are respectively:
     #"offsetEtaCentral", "offsetEtaHigh", "coeffOverPt", "coeffHighPt", "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh" };
-
     ResolFitType = cms.int32(11), #inner tracks in 31X
     parResol = cms.vdouble(-0.986, -0.986, -0.04, -0.038, -0.0014, 0.006, -0.0025, 0.0185),
     parResolFix = cms.vint32(0, 0, 0, 0, 0, 0, 0, 0),
@@ -278,14 +242,6 @@ process.looper = cms.Looper(
     # -------------------- #
     # Scale fit parameters #
     # -------------------- #
-
-    # Fit a linear Pt scale correction with parameters:
-    # Pt scale and Pt slope.
-    # -------------------------------------------------
-    # ScaleFitType = cms.int32(1),
-    # parScaleOrder = cms.vint32(0,0),
-    # parScaleFix = cms.vint32(0,0),
-    # parScale = cms.vdouble(1.0, 0.0),
 
     # Scale fit type=14: Pt offset and grade up to three, Eta terms up to the sixth grade
     # -----------------------------------------------------------------------------------
@@ -300,28 +256,12 @@ process.looper = cms.Looper(
                            -0.000000315315, 0., 0.,
                            0.0000147547, -0.00000836992, 0., 0., 0., 0.),
 
-
-    # ---------------------------------
-    # Scale fit type=19: R.C. Nov.2009 -> Z misaligned with Startup scenario
-    # --------------------------------
-##     ScaleFitType = cms.int32(19),
-##     parScaleOrder = cms.vint32(0, # pt offset
-##                                0,0,0, # phi amplitude |  phi frequency | phi phase (Pos)
-##                                0,0, # Eta slope | Eta quadratic
-##                                0,0,0), # phi amplitude | phi frequency | phi phase (Neg)
-    
-##     parScaleFix =   cms.vint32(0,
-##                                0,0,0,
-##                                0,0,
-##                                0,0,0),
-
-    
-##     parScale = cms.vdouble(1.0,
-##                            0.,1.,0.,
-##                            0.0000147547, -0.00000836992,
-##                            0.,1.,0.),
-  
-
+    # ---------------------------- #
+    # Cross section fit parameters #
+    # ---------------------------- #
+    parCrossSectionOrder = cms.vint32(0, 0, 0, 0, 0, 0),
+    parCrossSectionFix =   cms.vint32(0, 0, 0, 0, 0, 0),
+    parCrossSection = cms.vdouble(1.233, 2.07, 6.33, 13.9, 2.169, 127.2),
 
     # ------------------------- #
     # Background fit parameters #
