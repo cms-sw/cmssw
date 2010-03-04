@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.32 $
+ *  $Date: 2010/03/02 02:12:06 $
+ *  $Revision: 1.33 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -1056,8 +1056,12 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
 
     if (_allhist){
       if (bLumiSecPlot){
-	me[DirName+"/CaloMExLS"]->Fill(caloMEx,myLuminosityBlock);
-	me[DirName+"/CaloMEyLS"]->Fill(caloMEy,myLuminosityBlock);
+	if ( (_dbe->get(DirName+"/"+"METTask_CaloMExLS")) &&
+	     ((_dbe->get(DirName+"/"+"METTask_CaloMExLS"))->getRootObject()))
+	     me[DirName+"/CaloMExLS"]->Fill(caloMEx,myLuminosityBlock);
+	if ( (_dbe->get(DirName+"/"+"METTask_CaloMEyLS")) &&
+	     ((_dbe->get(DirName+"/"+"METTask_CaloMEyLS"))->getRootObject()))
+	     me[DirName+"/CaloMEyLS"]->Fill(caloMEy,myLuminosityBlock);
       }
       
       me[DirName+"/CaloEtFractionHadronic"]->Fill(caloEtFractionHadronic);

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/03/02 02:12:01 $
+ *  $Revision: 1.20 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -877,8 +877,12 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
        
     if (_allhist){
       if (bLumiSecPlot){
-	me[DirName+"/MExLS"]->Fill(MEx,myLuminosityBlock);
-	me[DirName+"/MEyLS"]->Fill(MEy,myLuminosityBlock);
+	if ( (_dbe->get(DirName+"/"+"METTask_MExLS")) &&
+	     ((_dbe->get(DirName+"/"+"METTask_MExLS"))->getRootObject()))
+	  me[DirName+"/MExLS"]->Fill(MEx,myLuminosityBlock);
+	if ( (_dbe->get(DirName+"/"+"METTask_MEyLS")) &&
+	     ((_dbe->get(DirName+"/"+"METTask_MEyLS"))->getRootObject()))
+	  me[DirName+"/MEyLS"]->Fill(MEy,myLuminosityBlock);
       }
     } // _allhist
 
