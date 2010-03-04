@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.11 2009/10/31 21:51:31 chrjones Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.12 2010/01/21 21:01:35 amraktad Exp $
 //
 
 // system include files
@@ -143,7 +143,6 @@ FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds,
    }
 }
 
-
 void
 FWRPZDataProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 {
@@ -193,7 +192,7 @@ FWRPZDataProxyBuilderBase::attachToRhoPhiView(boost::shared_ptr<FWRhoPhiZView> i
    //std::cout <<"attachToRhoPhiView " << typeid(*this).name() <<std::endl;
    if(m_item && m_item->hasEvent()) {
       if(TEveElementList* prod = getRhoPhiProduct()) {
-         addRhoPhiProj( iView->importElements(prod,layer()));
+         iView->importElements(prod,layer(), &m_rhoPhiProjs);
       }
       if(m_modelsChanged) {
          if(m_rhoPhiProjs.HasChildren()) {
@@ -212,7 +211,7 @@ FWRPZDataProxyBuilderBase::attachToRhoZView(boost::shared_ptr<FWRhoPhiZView> iVi
 
    if(m_item && m_item->hasEvent()) {
       if(TEveElementList* prod = getRhoZProduct()) {
-         addRhoZProj( iView->importElements(prod,layer()));
+         iView->importElements(prod,layer(), &m_rhoZProjs);
       }
       if(m_modelsChanged) {
          if(m_rhoZProjs.HasChildren()) {

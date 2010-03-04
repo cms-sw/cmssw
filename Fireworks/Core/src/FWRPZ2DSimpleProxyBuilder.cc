@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:27:21 EST 2008
-// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.5 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWRPZ2DSimpleProxyBuilder.cc,v 1.6 2009/10/28 14:46:17 chrjones Exp $
 //
 
 // system include files
@@ -96,17 +96,54 @@ FWRPZ2DSimpleProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
    m_rhoZElementsPtr->DestroyElements();
 }
 
+template<class TCaller>
 void
-FWRPZ2DSimpleProxyBuilder::modelChangesImp(const FWModelIds& iIds)
+FWRPZ2DSimpleProxyBuilder::buildIfNeeded(const FWModelIds& iIds, TEveElement* iParent)
 {
-   //If we need an update it means no view wanted this info and therefore
-   // it was never made and therefore we should not try to update it
-   if(!m_rhoPhiNeedsUpdate) {
-      modelChanges(iIds,m_rhoPhiElementsPtr.get());
-   }
-   if(!m_rhoZNeedsUpdate) {
-      modelChanges(iIds,m_rhoZElementsPtr.get());
-   }
+   //Do I have to create the model?  Only do it if 
+   // 1) model is visible
+   // 2) model does not already exist
+   
+   //NOTE: life would be easier if I used a random access list rather than a TEveElementList
+   TEveElement::List_i itElement = iParent->BeginChildren();
+   int index = 0; //this keeps track of what index corresponds to itElement
+   
+   for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
+       it != itEnd;
+       ++it,++itElement,++index) {
+      
+      const FWEventItem::ModelInfo& info = it->item()->modelInfo(it->index());
+      if(info.displayProperties().isVisible()) {
+         assert(itElement != iParent->EndChildren());
+         while(index < it->index()) {
+            ++itElement;
+            ++index;
+            assert(itElement != iParent->EndChildren());
+         }
+         if((*itElement)->NumChildren()==0) {
+            //now build them
+            //std::cout <<"building "<<index<<std::endl;
+            TEveCompound* itemHolder = dynamic_cast<TEveCompound*> (*itElement);
+            itemHolder->OpenCompound();
+            {
+               //guarantees that CloseCompound will be called no matter what happens
+               boost::shared_ptr<TEveCompound> sentry(itemHolder,
+                                                      boost::mem_fn(&TEveCompound::CloseCompound));
+               const void* modelData = it->item()->modelData(index);
+               TCaller::build(this,m_helper.offsetObject(modelData),index,*itemHolder);
+            }
+            changeElementAndChildren(itemHolder, info);
+            fireworks::setUserDataElementAndChildren(itemHolder, static_cast<void*>(&(ids()[index])));
+            //make sure this is 'projected'
+            for(TEveElement::List_i itChild = itemHolder->BeginChildren(), itChildEnd = itemHolder->EndChildren();
+                itChild != itChildEnd;
+                ++itChild) {
+               itemHolder->ProjectChild(*itChild);
+               itemHolder->RecheckImpliedSelections();
+            }
+         }         
+      }
+   }   
 }
 
 class FWRPSimpleCaller {
@@ -130,6 +167,23 @@ public:
 
 };
 
+void
+FWRPZ2DSimpleProxyBuilder::modelChangesImp(const FWModelIds& iIds)
+{
+   //If we need an update it means no view wanted this info and therefore
+   // it was never made and therefore we should not try to update it
+   if(!m_rhoPhiNeedsUpdate) {
+      buildIfNeeded<FWRPSimpleCaller>(iIds,m_rhoPhiElementsPtr.get());
+      modelChanges(iIds,m_rhoPhiElementsPtr.get());
+   }
+   if(!m_rhoZNeedsUpdate) {
+      buildIfNeeded<FWRZSimpleCaller>(iIds,m_rhoZElementsPtr.get());
+      modelChanges(iIds,m_rhoZElementsPtr.get());
+   }
+}
+
+
+
 template<class T>
 void
 FWRPZ2DSimpleProxyBuilder::build(TEveElementList* oAddTo, T iCaller)
@@ -149,14 +203,16 @@ FWRPZ2DSimpleProxyBuilder::build(TEveElementList* oAddTo, T iCaller)
          std::string name;
          m_helper.fillTitle(*item(),index,name);
          std::auto_ptr<TEveCompound> itemHolder(new TEveCompound(name.c_str(),name.c_str()));
-         {
-            itemHolder->OpenCompound();
-            //guarantees that CloseCompound will be called no matter what happens
-            boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
-                                                   boost::mem_fn(&TEveCompound::CloseCompound));
-            iCaller.build(this,m_helper.offsetObject(modelData),index,*itemHolder);
-         }
          const FWEventItem::ModelInfo& info = item()->modelInfo(index);
+         if(info.displayProperties().isVisible()) {
+            {
+               itemHolder->OpenCompound();
+               //guarantees that CloseCompound will be called no matter what happens
+               boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
+                                                      boost::mem_fn(&TEveCompound::CloseCompound));
+               iCaller.build(this,m_helper.offsetObject(modelData),index,*itemHolder);
+            }
+         }
          //NOTE: TEveCompounds only change the color of child elements which are already the
          // old color of the TEveCompound
          changeElementAndChildren(itemHolder.get(), info);

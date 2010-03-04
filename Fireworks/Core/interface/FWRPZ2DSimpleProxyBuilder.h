@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 11:02:04 EST 2008
-// $Id: FWRPZ2DSimpleProxyBuilder.h,v 1.2 2008/12/02 21:17:46 chrjones Exp $
+// $Id: FWRPZ2DSimpleProxyBuilder.h,v 1.3 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -68,6 +68,9 @@ private:
 
    template<class T>
    void build(TEveElementList* oAddTo, T iCaller);
+   template<class TCaller>
+   void buildIfNeeded(const FWModelIds& iIds, TEveElement* iParent);
+   
    // ---------- member data --------------------------------
    FWEvePtr<TEveElementList> m_rhoPhiElementsPtr;
    FWEvePtr<TEveElementList> m_rhoZElementsPtr;

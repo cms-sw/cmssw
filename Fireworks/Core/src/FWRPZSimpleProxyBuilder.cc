@@ -8,17 +8,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 12:39:36 EST 2008
-// $Id: FWRPZSimpleProxyBuilder.cc,v 1.5 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWRPZSimpleProxyBuilder.cc,v 1.6 2009/10/28 14:46:17 chrjones Exp $
 //
 
 // system include files
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/mem_fn.hpp>
+#include <boost/bind.hpp>
 
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 #include "TClass.h"
+
 #include "TEveCompound.h"
 
 // user include files
@@ -88,6 +90,50 @@ FWRPZSimpleProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
 void
 FWRPZSimpleProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
+   //Do I have to create the model?  Only do it if 
+   // 1) model is visible
+   // 2) model does not already exist
+   
+   //NOTE: life would be easier if I used a random access list rather than a TEveElementList
+   TEveElement::List_i itElement = m_containerPtr->BeginChildren();
+   int index = 0; //this keeps track of what index corresponds to itElement
+   
+   for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
+       it != itEnd;
+       ++it,++itElement,++index) {
+      
+      const FWEventItem::ModelInfo& info = it->item()->modelInfo(it->index());
+      if(info.displayProperties().isVisible()) {
+         assert(itElement != m_containerPtr->EndChildren());
+         while(index < it->index()) {
+            ++itElement;
+            ++index;
+            assert(itElement != m_containerPtr->EndChildren());
+         }
+         if((*itElement)->NumChildren()==0) {
+            //now build them
+            //std::cout <<"building "<<index<<std::endl;
+            TEveCompound* itemHolder = dynamic_cast<TEveCompound*> (*itElement);
+            itemHolder->OpenCompound();
+            {
+               //guarantees that CloseCompound will be called no matter what happens
+               boost::shared_ptr<TEveCompound> sentry(itemHolder,
+                                                      boost::mem_fn(&TEveCompound::CloseCompound));
+               const void* modelData = it->item()->modelData(index);
+               build(m_helper.offsetObject(modelData),index,*itemHolder);
+            }
+            changeElementAndChildren(itemHolder, info);
+            fireworks::setUserDataElementAndChildren(itemHolder, static_cast<void*>(&(ids()[index])));
+            //make sure this is 'projected'
+            for(TEveElement::List_i itChild = itemHolder->BeginChildren(), itChildEnd = itemHolder->EndChildren();
+                itChild != itChildEnd;
+                ++itChild) {
+               itemHolder->ProjectChild(*itChild);
+               itemHolder->RecheckImpliedSelections();
+            }
+         }         
+      }
+   }
    modelChanges(iIds,m_containerPtr.get());
 }
 
@@ -129,16 +175,18 @@ FWRPZSimpleProxyBuilder::build()
          std::string name;
          m_helper.fillTitle(*item(), index, name);
          std::auto_ptr<TEveCompound> itemHolder(new TEveCompound(name.c_str(),name.c_str()));
-         {
-            itemHolder->OpenCompound();
-            //guarantees that CloseCompound will be called no matter what happens
-            boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
-                                                   boost::mem_fn(&TEveCompound::CloseCompound));
-            build(m_helper.offsetObject(modelData),index,*itemHolder);
-         }
          const FWEventItem::ModelInfo& info = item()->modelInfo(index);
-         changeElementAndChildren(itemHolder.get(), info);
-         fireworks::setUserDataElementAndChildren(itemHolder.get(), static_cast<void*>(&(*itId)));
+         if(info.displayProperties().isVisible()) {
+            {
+               itemHolder->OpenCompound();
+               //guarantees that CloseCompound will be called no matter what happens
+               boost::shared_ptr<TEveCompound> sentry(itemHolder.get(),
+                                                      boost::mem_fn(&TEveCompound::CloseCompound));
+               build(m_helper.offsetObject(modelData),index,*itemHolder);
+            }
+            changeElementAndChildren(itemHolder.get(), info);
+            fireworks::setUserDataElementAndChildren(itemHolder.get(), static_cast<void*>(&(*itId)));
+         }
          itemHolder->SetRnrSelf(info.displayProperties().isVisible());
          itemHolder->SetRnrChildren(info.displayProperties().isVisible());
          itemHolder->ElementChanged();

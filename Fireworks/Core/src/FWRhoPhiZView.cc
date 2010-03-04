@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.52 2009/11/05 22:06:02 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.53 2009/12/10 13:27:02 amraktad Exp $
 //
 
 #define private public
@@ -263,7 +263,7 @@ FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
 
 //returns the new element created from this import
 TEveElement*
-FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
+FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer, TEveElement* iProjectedParent)
 {
    float oldLayer = m_projMgr->GetCurrentDepth();
    m_projMgr->SetCurrentDepth(iLayer);
@@ -271,7 +271,7 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    boost::shared_ptr<TEveProjectionManager> sentry(m_projMgr.get(),
                                                    boost::bind(&TEveProjectionManager::SetCurrentDepth,
                                                                _1,oldLayer));
-   m_projMgr->ImportElements(iChildren);
+   m_projMgr->ImportElements(iChildren,iProjectedParent);
    TEveElement* lastChild = m_projMgr->LastChild();
    updateCalo( lastChild, true );
    updateCaloLines( lastChild );

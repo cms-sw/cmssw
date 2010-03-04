@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.23 2009/11/05 13:58:58 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.24 2009/11/05 22:06:02 dmytro Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ public:
    void eventEnd();
 
    //returns the new element created from this import
-   TEveElement* importElements(TEveElement*, float iLayer);
+   TEveElement* importElements(TEveElement* iProjectableChild, float iLayer, TEveElement* iProjectedParent=0);
 
 private:
    void doDistortion();
