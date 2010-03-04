@@ -45,8 +45,6 @@ void JetPtAnalyzer::beginJob(DQMStore * dbe) {
   //initialize JetID
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
-  iscleaned = parameters.getParameter<int>("iscleaned");
-
   // monitoring of eta parameter
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
@@ -61,16 +59,11 @@ void JetPtAnalyzer::beginJob(DQMStore * dbe) {
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
   ptMax = parameters.getParameter<double>("ptMax");
-  //  jIDeffptBins = parameters.getParameter<int>("jIDeffptBins");
-
 
   mEta                     = dbe->book2D("EtaVsPt", "EtaVsPt",ptBin, ptMin, ptMax, etaBin, etaMin, etaMax);
   mPhi                     = dbe->book2D("PhiVsPt", "PhiVsPt",ptBin, ptMin, ptMax, phiBin, phiMin, phiMax);
   mConstituents            = dbe->book2D("ConstituentsVsPt", "# of ConstituentsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
   //  mNJets                   = dbe->book2D("NJetsVsPt", "Number of JetsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
-
-
-
 
   // CaloJet specific
   mHFrac                   = dbe->book2D("HFracVsPt", "HFracVsPt",ptBin, ptMin, ptMax, 120, -0.1, 1.1);
@@ -84,14 +77,11 @@ void JetPtAnalyzer::beginJob(DQMStore * dbe) {
   mEmEnergyInEB           = dbe->book2D("EmEnergyInEBVsPt", "EmEnergyInEBVsPt",ptBin, ptMin, ptMax, 100, 0, 50);
   mEmEnergyInEE           = dbe->book2D("EmEnergyInEEVsPt", "EmEnergyInEEVsPt",ptBin, ptMin, ptMax, 100, 0, 50);
   mEmEnergyInHF           = dbe->book2D("EmEnergyInHFVsPt", "EmEnergyInHFVsPt",ptBin, ptMin, ptMax, 120, -20, 100); 
-
-
   //jetID variables
   mN90Hits                    = dbe->book2D("N90HitsVsPt", "N90HitsVsPt",ptBin, ptMin, ptMax, 50, 0, 50);
   mresEMF                    = dbe->book2D("resEMFVsPt", "resEMFVsPt",ptBin, ptMin, ptMax,50, 0., 1.);
   mfHPD                   = dbe->book2D("fHPDVsPt", "fHPDVsPt",ptBin, ptMin, ptMax,50, 0., 1.);
   mfRBX                    = dbe->book2D("fRBXVsPt", "fRBXVsPt",ptBin, ptMin, ptMax,50, 0., 1.);
-  //  mJIDEffVsPt                    = dbe->book1D("JIDEffVsPt", "JIDEffVsPt",jIDeffptBins, ptMin, ptMax);
 
 
 }
@@ -114,10 +104,6 @@ void JetPtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   jetID->calculate(iEvent, *jet);
   
-  /*  if (jet == caloJets.begin()) {
-    numofjets=caloJets.size();
-    }*/
-
   if (mEta)  mEta->Fill (jet->pt(),jet->eta());
   if (mPhi)  mPhi->Fill (jet->pt(),jet->phi());
 
@@ -143,13 +129,5 @@ void JetPtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (mfHPD)            mfHPD->Fill(jet->pt(),jetID->fHPD());
   if (mfRBX)            mfRBX->Fill(jet->pt(),jetID->fRBX());
 
-
-  /*  for(int ptb=0; ptb<jIDeffptBins; ptb++){
   }
-  if (mJIDEffVsPt)      mJIDEffVsPt->Fill();
-
-  */
-  }
-
-
 }

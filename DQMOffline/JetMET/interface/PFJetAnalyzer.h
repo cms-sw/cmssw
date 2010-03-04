@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2009/11/03 16:46:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/18 21:04:05 $
+ *  $Revision: 1.4 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -84,6 +84,15 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   int    pBin;
   double pMin;
   double pMax;
+
+  double _LooseCHFMin;
+  double _LooseNHFMax;
+  double _LooseCEFMax;
+  double _LooseNEFMax;
+  double _TightCHFMin;
+  double _TightNHFMax;
+  double _TightCEFMax;
+  double _TightNEFMax;
 
   //the histos
   MonitorElement* jetME;
@@ -210,6 +219,11 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mEResNeutralFraction;
   MonitorElement* mEResChargedFraction;
   MonitorElement* nEEff;
+
+  MonitorElement* mLooseJIDPassFractionVSeta;
+  MonitorElement* mLooseJIDPassFractionVSpt;
+  MonitorElement* mTightJIDPassFractionVSeta;
+  MonitorElement* mTightJIDPassFractionVSpt;
 
 };
 #endif

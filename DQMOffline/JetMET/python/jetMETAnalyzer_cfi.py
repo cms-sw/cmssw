@@ -33,6 +33,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoJetAnalysis              = cms.untracked.bool(True),
     DoJetCleaning              = cms.untracked.bool(True),
     DoIterativeCone            = cms.untracked.bool(False),
+    DoSisCone            = cms.untracked.bool(False),                               
 
     DoJetPtAnalysis            = cms.untracked.bool(False),                           
     DoJetPtCleaning            = cms.untracked.bool(False),                           
@@ -151,8 +152,9 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     # For dijet Analysis
     #
-    DijetAnalysis = jetDQMParameters.clone(
-        makedijetselection = cms.int32(1)
+    DijetAnalysis = cleanedJetDQMParameters.clone(
+        makedijetselection = cms.int32(1),
+        fillJIDPassFrac   = cms.int32(1)
     ),
 
     #
@@ -168,7 +170,16 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     # For PF jetAnalysis
     #
-    pfJetAnalysis = jetDQMParameters.clone(),
+    pfJetAnalysis = jetDQMParameters.clone(
+    TightCHFMin = cms.double(0.0),
+    TightNHFMax = cms.double(1.0),
+    TightCEFMax = cms.double(1.0),
+    TightNEFMax = cms.double(1.0),
+    LooseCHFMin = cms.double(0.0),
+    LooseNHFMax = cms.double(0.9),
+    LooseCEFMax = cms.double(1.0),
+    LooseNEFMax = cms.double(0.9),
+    ),
 
     #
     # For Cleaned PF jetAnalysis

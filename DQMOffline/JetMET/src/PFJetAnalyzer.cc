@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/04 15:20:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/18 21:03:51 $
+ *  $Revision: 1.10 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -25,6 +25,15 @@ PFJetAnalyzer::PFJetAnalyzer(const edm::ParameterSet& pSet) {
   _JetLoPass   = 0;
   _JetHiPass   = 0;
   _ptThreshold = 5.;
+  _LooseCHFMin = -999.;
+  _LooseNHFMax = -999.;
+  _LooseCEFMax = -999.;
+  _LooseNEFMax = -999.;
+  _TightCHFMin = -999.;
+  _TightNHFMax = -999.;
+  _TightCEFMax = -999.;
+  _TightNEFMax = -999.;
+
 }
 
 
@@ -67,6 +76,15 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   pMax = parameters.getParameter<double>("pMax");
 
   _ptThreshold = parameters.getParameter<double>("ptThreshold");
+
+  _TightCHFMin = parameters.getParameter<double>("TightCHFMin");
+  _TightNHFMax = parameters.getParameter<double>("TightNHFMax");
+  _TightCEFMax = parameters.getParameter<double>("TightCEFMax");
+  _TightNEFMax = parameters.getParameter<double>("TightNEFMax");
+  _LooseCHFMin = parameters.getParameter<double>("LooseCHFMin");
+  _LooseNHFMax = parameters.getParameter<double>("LooseNHFMax");
+  _LooseCEFMax = parameters.getParameter<double>("LooseCEFMax");
+  _LooseNEFMax = parameters.getParameter<double>("LooseNEFMax");
 
   // Generic Jet Parameters
   mPt                      = dbe->book1D("Pt",  "Pt", ptBin, ptMin, ptMax);
@@ -160,10 +178,14 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mChargedMultiplicity= dbe->book1D("mChargedMultiplicity ", "mChargedMultiplicity ", 100, 0, 100);
   mNeutralMultiplicity = dbe->book1D(" mNeutralMultiplicity", "mNeutralMultiplicity", 100, 0, 100);
   mMuonMultiplicity= dbe->book1D("mMuonMultiplicity", "mMuonMultiplicity", 100, 0, 100);
-  
   //__________________________________________________
-
   mNeutralFraction = dbe->book1D("NeutralFraction","Neutral Fraction",100,0,1);
+  mLooseJIDPassFractionVSeta= dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",etaBin, etaMin, etaMax,0.,1.2);
+  mLooseJIDPassFractionVSpt= dbe->bookProfile("LooseJIDPassFractionVSpt","LooseJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
+  mTightJIDPassFractionVSeta= dbe->bookProfile("TightJIDPassFractionVSeta","TightJIDPassFractionVSeta",etaBin, etaMin, etaMax,0.,1.2);
+  mTightJIDPassFractionVSpt= dbe->bookProfile("TightJIDPassFractionVSpt","TightJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
+
+
   
 }
 
@@ -176,11 +198,15 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   double  corr = 0.;
   double  dphi = -999. ;
 
-
+  bool Loosecleaned=false; 
+  bool Tightcleaned=false; 
+  bool LooseCHFcleaned=false;
+  bool TightCHFcleaned=false;
 
   for (reco::PFJetCollection::const_iterator jet = pfJets.begin(); jet!=pfJets.end(); ++jet){
   LogTrace(metname)<<"[JetAnalyzer] Analyze PFJet";
-
+  Loosecleaned=false;
+  Tightcleaned=false;
   if (jet == pfJets.begin()) {
     fstPhi = jet->phi();
     _leadJetFlag = 1;
@@ -190,7 +216,6 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (jet == (pfJets.begin()+1)) sndPhi = jet->phi();
   //  if (jet->pt() < _ptThreshold) return;
   if (jet->pt() > _ptThreshold) {
-
     numofjets++ ;
     jetME->Fill(2);
 
@@ -304,6 +329,28 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (mMuonMultiplicity )mMuonMultiplicity->Fill (jet-> muonMultiplicity());
   //_______________________________________________________
   if (mNeutralFraction) mNeutralFraction->Fill (jet->neutralMultiplicity()/jet->nConstituents());
+  //
+  LooseCHFcleaned=true;
+  TightCHFcleaned=true;
+  if((jet->chargedHadronEnergy()/jet->energy())<=_LooseCHFMin && fabs(jet->eta())<2.4) LooseCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
+  if((jet->chargedHadronEnergy()/jet->energy())<=_TightCHFMin && fabs(jet->eta())<2.4) TightCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
+  if(LooseCHFcleaned && (jet->neutralHadronEnergy()/jet->energy())<_LooseNHFMax && (jet->chargedEmEnergy()/jet->energy())<_LooseCEFMax && (jet->neutralEmEnergy()/jet->energy())<_LooseNEFMax) Loosecleaned=true;
+  if(TightCHFcleaned && (jet->neutralHadronEnergy()/jet->energy())<_TightNHFMax && (jet->chargedEmEnergy()/jet->energy())<_TightCEFMax && (jet->neutralEmEnergy()/jet->energy())<_TightNEFMax) Tightcleaned=true;
+
+  if(Loosecleaned) {
+    mLooseJIDPassFractionVSeta->Fill(jet->eta(),1.);
+    mLooseJIDPassFractionVSpt->Fill(jet->pt(),1.);
+  } else {
+    mLooseJIDPassFractionVSeta->Fill(jet->eta(),0.);
+    mLooseJIDPassFractionVSpt->Fill(jet->pt(),0.);
+  }
+  if(Tightcleaned) {
+    mTightJIDPassFractionVSeta->Fill(jet->eta(),1.);
+    mTightJIDPassFractionVSpt->Fill(jet->pt(),1.);
+  } else {
+    mTightJIDPassFractionVSeta->Fill(jet->eta(),0.);
+    mTightJIDPassFractionVSpt->Fill(jet->pt(),0.);
+  }
 
   //calculate correctly the dphi
   if(numofjets>1) {

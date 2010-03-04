@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2010/02/24 19:08:53 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/03/02 01:12:28 $
+ *  $Revision: 1.16 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -120,6 +120,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   
   bool theJetAnalyzerFlag;  
   bool theIConeJetAnalyzerFlag;
+  bool theSConeJetAnalyzerFlag;
   bool theJetCleaningFlag;
 
   bool theJetPtAnalyzerFlag;
@@ -177,44 +178,6 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   PFMETAnalyzer     * thePfMETAnalyzer;
 
   HTMHTAnalyzer     * theHTMHTAnalyzer;
-  
-  //
-  int AKNjets_HB;
-  int AKNjets_BE;
-  int AKNjets_HE;
-  int AKNjets_EF;
-  int AKNjets_HF;
-  int SCNjets_HB;
-  int SCNjets_BE;
-  int SCNjets_HE;
-  int SCNjets_EF;
-  int SCNjets_HF;
-  int ICNjets_HB;
-  int ICNjets_BE;
-  int ICNjets_HE;
-  int ICNjets_EF;
-  int ICNjets_HF;
-  int AKNCleanedjets_HB;
-  int AKNCleanedjets_BE;
-  int AKNCleanedjets_HE;
-  int AKNCleanedjets_EF;
-  int AKNCleanedjets_HF;
-  int SCNCleanedjets_HB;
-  int SCNCleanedjets_BE;
-  int SCNCleanedjets_HE;
-  int SCNCleanedjets_EF;
-  int SCNCleanedjets_HF;
-  int ICNCleanedjets_HB;
-  int ICNCleanedjets_BE;
-  int ICNCleanedjets_HE;
-  int ICNCleanedjets_EF;
-  int ICNCleanedjets_HF;
-  int Dijets_HB;
-  int Dijets_BE;
-  int Dijets_HE;
-  int DijetsCleaned_HB;
-  int DijetsCleaned_BE;
-  int DijetsCleaned_HE;
 
 };
 #endif  

@@ -71,8 +71,6 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   // JetID helper
   reco::helper::JetIDHelper *jetID;
 
-  int iscleaned;
-
   //histo binning parameters
   int    etaBin;
   double etaMin;
@@ -85,12 +83,6 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   int    ptBin;
   double ptMin;
   double ptMax;
-  //  int jIDeffptBins;
-
-  //set them to a maximum length (must be < jIDeffptBins)
-  //  int njetsinptbins[50];
-  //  int ncleanedjetsinptbins[50];
-
 
   //the histos
   MonitorElement* jetME;
@@ -117,7 +109,6 @@ class JetPtAnalyzer : public JetAnalyzerBase {
   MonitorElement* mresEMF;
   MonitorElement* mfHPD;
   MonitorElement* mfRBX;
-  //  MonitorElement* mJIDEffVsPt;
 
 
 };
