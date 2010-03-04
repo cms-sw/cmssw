@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.5 2010/02/23 17:13:41 chrjones Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.6 2010/02/26 09:41:02 eulisse Exp $
 //
 
 // system include files
@@ -111,9 +111,9 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 	 //make sure this is the real type and not a typedef
 	 memType = memType.FinalType();
          const TClass* rootMemType = TClass::GetClass(memType.TypeInfo());
-         assert(rootMemType != 0);
          //check if this is a collection known by ROOT but also that the item held by the colletion actually has a dictionary  
-         if(rootMemType->GetCollectionProxy() &&
+         if(rootMemType &&
+            rootMemType->GetCollectionProxy() &&
             rootMemType->GetCollectionProxy()->GetValueClass() &&
             rootMemType->GetCollectionProxy()->GetValueClass()->IsLoaded() ) {
             //std::cout <<"  reaching inside object data member"<<std::endl;

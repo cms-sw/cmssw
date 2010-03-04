@@ -7,7 +7,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemRandomAccessor.h,v 1.1 2010/03/01 09:43:01 eulisse Exp $
+// $Id: FWItemRandomAccessor.h,v 1.2 2010/03/03 17:23:19 eulisse Exp $
 //
 
 // system include files
@@ -105,7 +105,7 @@ public:
     must have a size() method. The outer collection must be iterable, while
     the inner collections must have an array subscript operator. 
   */
-template <class C, class COLL = typename C::collection_type, class V = typename COLL::value_type >
+template <class C, class COLL = typename C::value_type, class V = typename COLL::value_type >
 class FWItemDetSetAccessor : public FWItemRandomAccessorBase
 {
 public:
@@ -127,9 +127,9 @@ public:
          size_t collectionOffset = 0;
          for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
          {
-            iIndex -= collectionOffset;
-            if (iIndex < ci->size())
-               return &(ci->operator[](iIndex));
+            size_t i = iIndex - collectionOffset;
+            if (i < ci->size())
+               return &(ci->operator[](i));
             collectionOffset += ci->size();
          }
 
@@ -169,9 +169,9 @@ class FWItemRangeAccessor : public FWItemRandomAccessorBase
          size_t collectionOffset = 0;
          for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci)
          {
-            iIndex -= collectionOffset;
-            if (iIndex < std::distance(ci->first, ci->second))
-               return &(*(ci + iIndex));
+            size_t i = iIndex - collectionOffset;
+            if (i < std::distance(ci->first, ci->second))
+               return &(*(ci + i));
             collectionOffset += ci->size();
          }
 

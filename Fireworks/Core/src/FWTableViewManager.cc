@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.12 2010/03/03 17:19:01 eulisse Exp $
+// $Id: FWTableViewManager.cc,v 1.13 2010/03/03 17:19:58 eulisse Exp $
 //
 
 // system include files
@@ -252,6 +252,8 @@ FWTableViewManager::tableFormats(const Reflex::Type &key)
                                       me = key.Member_End();
         mi != me; ++mi)
    {
+      if (mi->FunctionParameterSize())
+         continue;
       if (!mi->IsPublic())
          continue;
       if (!mi->IsConst())
