@@ -520,6 +520,7 @@ namespace edm {
       } else {
         maxEvents_ = 0;
       }
+      remainingEvents_=maxEvents_;
     }
     postForkReacquireResources(iChildIndex, iNumberOfChildren, iNumberOfSequentialEvents);
   }

@@ -135,6 +135,7 @@ namespace edm {
     void rewind() {
       doneReadAhead_ = false;
       state_ = IsInvalid;
+      remainingEvents_=maxEvents_;
       rewind_();
     }
 
