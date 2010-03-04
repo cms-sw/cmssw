@@ -159,7 +159,17 @@ def recordedLumiForRange(dbsession,c,inputfile):
 def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
     if c.VERBOSE:
         print 'effectiveLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-
+    #
+    #select TRGHLTMAP.HLTPATHNAME,TRGHLTMAP.L1SEED from TRGHLTMAP,CMSRUNSUMMARY where TRGHLTMAP.HLTKEY=CMSRUNSUMMARY.HLTKEY and CMSRUNSUMMARY.RUNNUM=124025;
+    #loop over all the selected HLTPath 
+    #select PRESCALE from HLT where RUNNUM=124025 and PATHNAME='HLT_EgammaSuperClusterOnly_L1R' order by cmsluminum;
+    #select PRESCALE,DEADTIME from trg where runnum=124025 and bitname='L1_SingleMu0' order by cmsluminum;
+    #select deadtime from trg where runnum=124025 and 
+    #select lumisummary.instlumi from lumisummary,trg where lumisummary.runnum=124025 and trg.runnum=124025 and lumisummary.cmslsnum=trg.cmsluminum and lumisummary.cmsalive=1 and trg.bitnum=0 order by trg.cmsluminum
+    
+    hltprescale=0
+    l1prescale=0
+    
 def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
     if c.VERBOSE:
         print 'effectiveLumiForRange : inputfile : ',inputfile,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
