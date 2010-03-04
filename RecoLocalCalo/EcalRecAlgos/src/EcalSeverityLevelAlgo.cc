@@ -130,11 +130,15 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
         if ( id.subdetId() == EcalBarrel ) {
                 EBDetId ebId( id );
                 float s4 = 0;
+                float e1 = recHitEnergy( id, recHits );
+                float approxEta = 0.017453292519943295 * id.ieta();
+                // select recHits above 5 GeV 
+                if ( e1 / cosh( approxEta ) < 5 ) return 0;
                 s4 += recHitEnergy( id, recHits,  1,  0 );
                 s4 += recHitEnergy( id, recHits, -1,  0 );
                 s4 += recHitEnergy( id, recHits,  0,  1 );
                 s4 += recHitEnergy( id, recHits,  0, -1 );
-                return 1 - s4 / recHitEnergy( id, recHits );
+                return 1 - s4 / e1;
         }
         return 0;
 }
