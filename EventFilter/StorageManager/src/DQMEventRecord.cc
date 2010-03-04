@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.7 2010/03/03 15:24:35 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.8 2010/03/04 11:21:02 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -33,7 +33,8 @@ DQMInstance(
 ),
 _dqmParams(dqmParams),
 _dqmEventMonColl(dqmEventMonColl),
-_sr(sr)
+_sr(sr),
+_sentEvents(0)
 {
   gROOT->SetBatch(kTRUE);
   std::ostringstream msg;
@@ -66,32 +67,8 @@ void DQMEventRecord::addDQMEventView(DQMEventMsgView const& view)
   std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
     deserializer.deserializeDQMEvent(view);
 
-  DQMEvent::TObjectTable::const_iterator toIter;
-  for (
-    DQMEvent::TObjectTable::const_iterator it = toTablePtr->begin(),
-      itEnd = toTablePtr->end();
-    it != itEnd; 
-    it++
-  ) 
-  {
-    std::string subFolderName = it->first;
-    std::vector<TObject *> toList = it->second;
+  addEvent(view.topFolderName(), toTablePtr);
 
-    for (unsigned int tdx = 0; tdx < toList.size(); tdx++) 
-    {
-      TObject *object = toList[tdx];
-      if (object)
-      {
-        updateObject(
-          view.topFolderName(),
-          subFolderName,
-          object,
-          view.eventNumberAtUpdate()
-        );
-        delete(object);
-      }
-    }
-  }
   _dqmEventMonColl.getDQMEventSizeMQ().addSample(
     static_cast<double>(view.size()) / 0x100000
   );
@@ -114,31 +91,7 @@ DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::strin
   // Package list of TObjects into a DQMEvent::TObjectTable
   DQMEvent::TObjectTable table;
   DQMGroup *group = getDQMGroup(groupName);
-
-  int subFolderSize = 0;
-  for ( std::map<std::string, DQMFolder *>::iterator i1 = 
-          group->dqmFolders_.begin(); i1 != group->dqmFolders_.end(); ++i1)
-  {
-    std::string folderName = i1->first;
-    DQMFolder * folder = i1->second;
-    for ( std::map<std::string, TObject *>::iterator i2 = 
-            folder->dqmObjects_.begin(); i2!=folder->dqmObjects_.end(); ++i2)
-    {
-      std::string objectName = i2->first;
-      TObject *object = i2->second;
-      if ( object != NULL ) 
-      { 
-        if ( table.count(folderName) == 0 )
-        {
-          std::vector<TObject *> newObjectVector;
-          table[folderName] = newObjectVector;
-          subFolderSize += 2*sizeof(uint32) + folderName.length();
-        }
-        std::vector<TObject *> &objectVector = table[folderName];
-        objectVector.push_back(object);
-      }
-    }
-  }
+  const size_t subFolderSize = group->populateTable(table);
   
   edm::StreamDQMSerializer serializer;
   serializer.serializeDQMEvent(table,
@@ -162,10 +115,10 @@ DQMEventRecord::GroupRecord DQMEventRecord::populateAndGetGroup(const std::strin
     (void *)&(groupRecord._entry->buffer[0]), 
     totalSize,
     getRunNumber(),
-    group->getLastEvent(),
+    ++_sentEvents,
     zeit,
     getLumiSection(),
-    getInstance(),
+    getUpdateNumber(),
     _releaseTag,
     groupName,
     table

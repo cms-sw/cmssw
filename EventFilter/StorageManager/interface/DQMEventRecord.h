@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.h,v 1.7 2010/02/11 13:33:35 mommsen Exp $
+// $Id: DQMEventRecord.h,v 1.8 2010/03/03 15:21:45 mommsen Exp $
 /// @file: DQMEventRecord.h 
 
 #ifndef StorageManager_DQMEventRecord_h
@@ -27,8 +27,8 @@ namespace stor {
    * Class holding information for one DQM event
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/02/11 13:33:35 $
+   * $Revision: 1.8 $
+   * $Date: 2010/03/03 15:21:45 $
    */
 
   class DQMEventRecord : public DQMInstance
@@ -130,6 +130,8 @@ namespace stor {
     std::vector<QueueID> _dqmConsumers;
     std::string _releaseTag;
     SharedResourcesPtr _sr;
+
+    unsigned int _sentEvents;
   };
 
   typedef boost::shared_ptr<DQMEventRecord> DQMEventRecordPtr;
