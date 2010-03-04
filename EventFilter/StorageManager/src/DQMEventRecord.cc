@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.8 2010/03/04 11:21:02 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.9 2010/03/04 17:00:33 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -38,9 +38,9 @@ _sentEvents(0)
 {
   gROOT->SetBatch(kTRUE);
   std::ostringstream msg;
-  msg << "Constructed new DQMEventRecord for run "
-    << dqmKey.runNumber << ", LS " << dqmKey.lumiSection
-    << " and update number " << dqmKey.updateNumber;
+  msg << "Constructed new DQMEventRecord. run: "
+    << dqmKey.runNumber << "\t LS: " << dqmKey.lumiSection
+    << "\t update number: " << dqmKey.updateNumber;
   _sr->localDebug(msg.str());
 }
 
@@ -60,7 +60,8 @@ void DQMEventRecord::addDQMEventView(DQMEventMsgView const& view)
   msg << "Adding " << view.topFolderName()
     << " with event number " << view.eventNumberAtUpdate()
     << " for LS " << view.lumiSection()
-    << " from FU " << view.fuProcessId();
+    << " from FU " << view.fuProcessId()
+    << " with GUID " << view.fuGuid();
   _sr->localDebug(msg.str());
 
   edm::StreamDQMDeserializer deserializer;

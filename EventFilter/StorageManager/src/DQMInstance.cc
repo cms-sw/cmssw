@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.18 2010/03/04 11:21:02 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.19 2010/03/04 17:00:33 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <cstdio>
@@ -355,7 +355,7 @@ void DQMInstance::addEvent(const std::string topFolderName, std::auto_ptr<DQMEve
   lastUpdate_->Set();
 }
 
-bool DQMInstance::isReady(time_t now) const
+bool DQMInstance::isReady() const
 {
   // 29-Oct-2008, KAB - if there are no groups, return false
   // so that newly constructed DQMInstance objects don't report
@@ -369,7 +369,7 @@ bool DQMInstance::isReady(time_t now) const
        it != itEnd ; ++it)
   {
     DQMGroup * group = it->second;
-    if ( group && ! (group->isReady(now) && group->wasServedSinceUpdate()) ) {
+    if ( group && ! (group->isComplete() && group->wasServedSinceUpdate()) ) {
       readyFlag = false;
     }
   }

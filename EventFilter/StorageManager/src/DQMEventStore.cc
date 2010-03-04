@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.cc,v 1.7 2010/03/03 15:24:35 mommsen Exp $
+// $Id: DQMEventStore.cc,v 1.8 2010/03/04 11:21:02 mommsen Exp $
 /// @file: DQMEventStore.cc
 
 #include "TROOT.h"
@@ -183,7 +183,7 @@ void DQMEventStore::writeAndPurgeStaleDQMInstances()
     it != _store.end();
   )
   {
-    if ( it->second->isReady(nowSec) || it->second->isStale(nowSec) )
+    if ( it->second->isReady() || it->second->isStale(nowSec) )
     {
       if ( _dqmParams._archiveDQM &&
            _dqmParams._archiveIntervalDQM > 0 &&
@@ -198,7 +198,7 @@ void DQMEventStore::writeAndPurgeStaleDQMInstances()
       std::ostringstream msg;
       msg << "Record deleted."
           << "\t LS: " << it->second->getLumiSection()
-          << "\t isReady: " << it->second->isReady(nowSec)
+          << "\t isReady: " << it->second->isReady()
           << "\t isStale: " << it->second->isStale(nowSec);
       _sr->localDebug( msg.str() );
       _store.erase(it++);
@@ -232,7 +232,7 @@ void DQMEventStore::writeLatestReadyDQMInstance() const
     itEnd = _store.rend();
   while ( it != itEnd )
   {
-    if ( it->second->isReady(nowSec) || it->second->isStale(nowSec) )
+    if ( it->second->isReady() || it->second->isStale(nowSec) )
     {
       it->second->writeFile(_dqmParams._filePrefixDQM, true);
       break;

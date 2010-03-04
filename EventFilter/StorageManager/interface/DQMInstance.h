@@ -1,4 +1,4 @@
-// $Id: DQMInstance.h,v 1.15 2010/03/04 11:19:40 mommsen Exp $
+// $Id: DQMInstance.h,v 1.16 2010/03/04 16:58:35 mommsen Exp $
 /// @file: DQMInstance.h 
 
 #ifndef StorageManager_DQMInstance_h
@@ -21,8 +21,8 @@ namespace stor
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2010/03/04 11:19:40 $
+   * $Revision: 1.16 $
+   * $Date: 2010/03/04 16:58:35 $
    */
 
   class DQMFolder
@@ -47,8 +47,8 @@ namespace stor
    * A collection of DQM Folders under the same top-level name.
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2010/03/04 11:19:40 $
+   * $Revision: 1.16 $
+   * $Date: 2010/03/04 16:58:35 $
    */
 
   class DQMGroup
@@ -92,8 +92,8 @@ namespace stor
    * collated DQM groups
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2010/03/04 11:19:40 $
+   * $Revision: 1.16 $
+   * $Date: 2010/03/04 16:58:35 $
    */
 
   class DQMInstance
@@ -117,7 +117,7 @@ namespace stor
     inline TTimeStamp * getFirstUpdate() const { return(firstUpdate_);}
     inline TTimeStamp * getLastUpdate() const  { return(lastUpdate_);}
 
-    bool isReady(time_t now) const;
+    bool isReady() const;
     bool isStale(time_t now) const;
 
     void addEvent(const std::string topFolderName, std::auto_ptr<DQMEvent::TObjectTable>);

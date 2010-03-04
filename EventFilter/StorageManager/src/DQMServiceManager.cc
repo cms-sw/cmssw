@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.9 2009/09/16 11:07:41 mommsen Exp $
+// $Id: DQMServiceManager.cc,v 1.10 2010/03/04 16:59:53 mommsen Exp $
 //
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -222,7 +222,7 @@ int DQMServiceManager::writeAndPurgeDQMInstances(bool writeAll)
     {
       ++listSizeWithOneReady;
       DQMInstance * instance = *r0;
-      if (instance->isReady(now.GetSec()))
+      if (instance->isReady())
       {
         break;
       }
@@ -237,7 +237,7 @@ int DQMServiceManager::writeAndPurgeDQMInstances(bool writeAll)
     DQMInstance * instance = *i0;
     if ( instance->isStale(now.GetSec()) || writeAll)
     {
-      if (archiveDQM_ && instance->isReady(now.GetSec()) &&
+      if (archiveDQM_ && instance->isReady() &&
           ((archiveInterval_ > 0 &&
             (instance->getLumiSection() % archiveInterval_) == 0)
            || (writeAll && n == listSizeWithOneReady)))
