@@ -22,9 +22,10 @@ src/PdfWeightProducer.cc
 
 - WARNING AT CREATION TIME: From the 330 series on, full LHAPDF libraries are 
   shipped with CMSSW. However, the default libraries used in the release are 
-  he "light" ones, leading to a very slow code. In order to run fast, 
-  please follow the recipes provided in ElectroWeakAnalysis/Utilities/BuildFile
-  and comment/uncomment the relevant lines there.
+  he "light" ones, leading to a very slow code. In order to run fast. please execute:
+      scram setp lhapdffull
+      scram b ToolUpdated
+      scram b
 
 - A typical application is the determination of the PDF systematics. This is 
   implemented in "src/PdfSystematicsAnalyzer.cc". This analyzer counts the 

@@ -19,8 +19,6 @@ process.MessageLogger.cout = cms.untracked.PSet(
 
 # Input files (on disk)
 process.source = cms.Source("PoolSource",
-      debugVerbosity = cms.untracked.uint32(0),
-      debugFlag = cms.untracked.bool(False),
       fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
       #fileNames = cms.untracked.vstring("file:/data4/ZMuMu_Summer09-MC_31X_V3_preproduction_312-v1_RECO/20A5B350-6979-DE11-A6EF-001560AD3140.root")
 )
@@ -28,8 +26,8 @@ process.source = cms.Source("PoolSource",
 # Printout of generator information for the first event
 process.include("SimGeneral/HepPDTESSource/data/pythiapdt.cfi")
 process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
-  maxEventsToPrint = cms.untracked.int32(-1),
-  #maxEventsToPrint = cms.untracked.int32(10),
+  #maxEventsToPrint = cms.untracked.int32(-1),
+  maxEventsToPrint = cms.untracked.int32(10),
   printVertex = cms.untracked.bool(False),
   src = cms.InputTag("genParticles")
 )
