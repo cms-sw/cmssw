@@ -7,14 +7,14 @@
 #include <TFile.h>
 #include <TSystem.h>
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
+
+#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-
+#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
@@ -35,7 +35,7 @@ void testCentrality(){
   TH2D* hNpart = new TH2D("hNpart",";Npart Truth;Npart RECO",50,0,500,50,0,500);
   TH1D* hBins = new TH1D("hBins",";bins;events",44,-1,21);
 
-  const CentralityBins* HFhitBins = (const CentralityBins*)centFile->Get("HFhits40_MXS0_Hydjet4TeV_MC_3XY_V21_v0"); 
+  CentralityBins::RunMap HFhitBinMap = getCentralityFromFile(centFile,"HFhits20_MXS0_Hydjet4TeV_MC_3XY_V21_v0",0,20);
 
   // loop the events
   unsigned int iEvent=0;
@@ -59,12 +59,13 @@ void testCentrality(){
     double eep = cent->EtEESumPlus();
     double eem = cent->EtEESumMinus();
 
-    int bin = HFhitBins->getBin(hf);
+    int run = ev.id().run();
+
+    int bin = HFhitBinMap[run]->getBin(hf);
     hBins->Fill(bin);
 
-
-    double npartMean = HFhitBins->NpartMean(hf);
-    double npartSigma = HFhitBins->NpartSigma(hf);
+    double npartMean = HFhitBinMap[run]->NpartMean(hf);
+    double npartSigma = HFhitBinMap[run]->NpartSigma(hf);
     hNpart->Fill(npart,npartMean);
   }
 
