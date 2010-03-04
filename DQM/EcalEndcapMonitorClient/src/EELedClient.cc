@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/02/16 10:53:18 $
- * $Revision: 1.109 $
+ * $Date: 2010/03/04 13:56:01 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1032,8 +1032,6 @@ void EELedClient::analyze(void) {
   uint64_t bits01 = 0;
   bits01 |= EcalErrorDictionary::getMask("LED_MEAN_WARNING");
   bits01 |= EcalErrorDictionary::getMask("LED_RMS_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LED_MEAN_OVER_PN_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("LED_RMS_OVER_PN_WARNING");
 
   uint64_t bits02 = 0;
   bits02 |= EcalErrorDictionary::getMask("PEDESTAL_LOW_GAIN_MEAN_WARNING");
@@ -1602,6 +1600,7 @@ void EELedClient::analyze(void) {
     for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
 
       if ( (m->second).getErrorBits() & bits01 ) {
+
         EcalLogicID ecid = m->first;
 
         if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
