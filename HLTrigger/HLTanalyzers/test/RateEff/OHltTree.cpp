@@ -93,11 +93,19 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
 	previousLumiSection = currentLumiSection;	
       }
- 
-    SetOpenL1Bits(); 
 
+
+    // Do operations on L1extra quantities before calling SetopenL1Bits, 
+    // so that they can be used in emulation of new L1 triggers, or later 
+    // by HLT paths
+    SetL1MuonQuality();
     RemoveEGOverlaps();
-   
+
+    // Do emulations of any new L1 bits. This is done before calling 
+    // ApplyL1Prescales and looping over the HLT paths, so that 
+    // L1 prescales are applied coherently to real L1 bits and 
+    // "OpenL1" bits
+    SetOpenL1Bits(); 
 
     // ccla example to extract timing info from L1Tech_XXX_5bx bits
     // if (L1Tech_BSC_minBias_OR_v0_5bx >0){
@@ -119,8 +127,6 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     //SetMapL1BitOfStandardHLTPath(menu);
     SetMapL1BitOfStandardHLTPathUsingLogicParser(menu,(int)jentry);
-    SetL1MuonQuality();
-
 
     // Apply prefilter based on bits
     if (!passPreFilterLogicParser(cfg->preFilterLogicString,(int)jentry)) {
