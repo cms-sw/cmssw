@@ -2,6 +2,7 @@
 datadir=$CMSSW_BASE/src/RecoHI/HiCentralityAlgos/data
 
 rm tables.root
+rm $datadir/Cen*.*
 
 root -b -q makeCentralityTable.C+'(40,"hf", "HFhits40_MXS0_Hydjet4TeV_MC_3XY_V21_v0", 0.)'
 root -b -q makeCentralityTable.C+'(40,"ee", "EEbcs40_MXS0_Hydjet4TeV_MC_3XY_V21_v0", 0.)'

@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <map>
 
 #include <TH2D.h>
 #include <TH1D.h>
@@ -38,11 +39,15 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
   vector<string> fileNames;
   TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_d20100222/Hydjet_MinBias_4TeV_runs1to300.root");
   fwlite::Event event(infile);
+  vector<int> runnums;
 
   // Creating output table
   TFile* outFile = new TFile("tables.root","update");
+   TDirectory* dir = outFile->mkdir(tag);
+   dir->cd();
+
   TH1D::SetDefaultSumw2();
-  CentralityBins* bins = new CentralityBins(tag,"Test tag", nbins);
+  CentralityBins* bins = new CentralityBins("noname","Test tag", nbins);
   bins->table_.reserve(nbins);
 
   // Setting up variables & branches
@@ -83,8 +88,11 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
     if(label.compare("ee") == 0) parameter = eep+eem;
 
     values.push_back(parameter);
+    
+    int run = event.id().run();
+    if(runnums.size() == 0 || runnums[runnums.size()-1] != run) runnums.push_back(run);
   }
-
+  
   if(label.compare("b") == 0) sort(values.begin(),values.end(),descend);
   else sort(values.begin(),values.end());
 
@@ -201,6 +209,24 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
   // Save the table in output file
 
   if(onlySaveTable){
+
+     TH1D* hh = (TH1D*)gDirectory->Get("hNpart_0");
+     hh->Delete();
+     hh = (TH1D*)gDirectory->Get("hNpart_chi2");
+     hh->Delete();
+     hh = (TH1D*)gDirectory->Get("hNcoll_0");
+     hh->Delete();
+     hh = (TH1D*)gDirectory->Get("hNcoll_chi2");
+     hh->Delete();
+     hh = (TH1D*)gDirectory->Get("hNhard_0");
+     hh->Delete();
+     hh = (TH1D*)gDirectory->Get("hNhard_chi2");
+     hh->Delete();
+     hh = (TH1D*)gDirectory->Get("hb_0");
+     hh->Delete();
+     hh = (TH1D*)gDirectory->Get("hb_chi2");
+     hh->Delete();
+
      hNpart->Delete();
      hNpartMean->Delete();
      hNpartSigma->Delete();
@@ -215,7 +241,13 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
      hbSigma->Delete();
   }
   
-  bins->Write();
+  for(int i = 0; i < runnums.size(); ++i){
+     CentralityBins* binsForRun = (CentralityBins*) bins->Clone();
+     binsForRun->SetName(Form("run%d",runnums[i]));
+     binsForRun->Write();
+  }
+  
+  bins->Delete();
   outFile->Write();
   
 }

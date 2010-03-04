@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.2 2010/03/02 23:31:18 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.3 2010/03/03 20:39:28 yilmaz Exp $
 //
 //
 
@@ -82,6 +82,8 @@ class CentralityTableProducer : public edm::EDAnalyzer {
    CentralityTable* CT;
    const CentralityBins* CB;
 
+   int runnum_;
+
 };
 
 //
@@ -96,7 +98,8 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig):
-   text_("results.txt")
+   text_("results.txt"),
+   runnum_(-1)
 {
    //now do what ever initialization is needed
    makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile",1);
@@ -130,7 +133,8 @@ CentralityTableProducer::~CentralityTableProducer()
 void
 CentralityTableProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   // do nothing
+   runnum_ = iEvent.id().run();
+
    if(makeTFileFromDB_ && !inputDB_.isValid()){
       iSetup.get<HeavyIonRcd>().get(inputDB_);
       CB = fs->make<CentralityBins>(*(getCentralityBinsFromDB(iSetup)));
@@ -155,7 +159,7 @@ CentralityTableProducer::endJob() {
 
    if(makeDBFromTFile_){
       // Get values from root file
-      CB = (CentralityBins*) inputTFile_->Get(rootTag_.data());
+      CB = (CentralityBins*) inputTFile_->Get(Form("%s/run%d",rootTag_.data(),runnum_));
       cout<<rootTag_.data()<<endl;
       CT = new CentralityTable();
       CT->m_table.reserve(CB->getNbins());

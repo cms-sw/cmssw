@@ -1,11 +1,11 @@
 
 
-static const int maxtables = 15;
+static const int maxtables = 25;
 
 void plotBinsAgainstMXS(){
 
-   int nTables = 13;
-   int nBins = 40;
+   int nTables = 16;
+   int nBins = 18;
 
    CentralityBins* tables[maxtables];
    TGraph * graphs[40];
@@ -14,22 +14,24 @@ void plotBinsAgainstMXS(){
    TFile* outf = new TFile("ErrorMap.root","recreate");
 
    for(int i  = 0 ; i < nTables; ++i){
-      tables[i] = (CentralityBins*)inf->Get(Form("HFhitBins_MXS_%d",i)); 
+      tables[i] = (CentralityBins*)inf->Get(Form("HFhits20_MXS%d_Hydjet4TeV_MC_3XY_V21_v0",i)); 
    }
 
    for(int j = 0; j< nBins; ++j){
       graphs[j] = new TGraph(nTables);
       graphs[j]->SetName(Form("Bin%d",j));
-      graphs[j]->SetMarkerColor(j+1);
+      graphs[j]->SetMarkerColor(nBins-j);
       graphs[j]->SetMarkerSize(1.);
       graphs[j]->SetMarkerStyle(20);
       
       for(int i  = 0 ; i < nTables; ++i){
 	 double reference = tables[0]->NpartMeanOfBin(j);
-	 if(reference <= 0) reference = 1;
+	 if(reference <= 0) reference = 0.001;
 	 graphs[j]->SetPoint(i,((double)i)/100,tables[i]->NpartMeanOfBin(j)/reference);
       }
    }
+
+   graphs[0]->SetMarkerColor(49);
 
    TGraph* g1 = new TGraph(nBins);
    g1->SetName("g1");
@@ -37,10 +39,10 @@ void plotBinsAgainstMXS(){
    g1->SetMarkerStyle(20);
    
    TH2D* hPad1 = new TH2D("hPad1",";Fraction of Missing XS;[N_{part}]/[N_{part}(100%)]",100,-0.02,0.2,450,0,7);
-   TH2D* hPad2 = new TH2D("hPad2",";bin;#Delta N_{part}/N_{part} per unit efficiency",41,-0.5,40.5,450,0,50);
+   TH2D* hPad2 = new TH2D("hPad2",";bin;#Delta N_{part}/N_{part} per unit efficiency",nBins+1,-0.5,nBins+0.5,450,0,35);
 
    TCanvas* c1 = new TCanvas("c1","c1",400,400);
-   TLegend* leg3 = new TLegend(0.32,0.45,0.67,0.72,NULL,"brNDC");
+   TLegend* leg3 = new TLegend(0.2,0.65,0.55,0.92,NULL,"brNDC");
    leg3->SetFillColor(0);
    leg3->SetTextSize(0.06);
    leg3->SetBorderSize(0);
