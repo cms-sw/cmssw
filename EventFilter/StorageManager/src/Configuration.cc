@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.25 2010/02/16 10:49:36 mommsen Exp $
+// $Id: Configuration.cc,v 1.26 2010/02/18 14:47:45 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -207,8 +207,8 @@ namespace stor
     _dqmParamCopy._archiveDQM = false;
     _dqmParamCopy._filePrefixDQM = "/tmp/DQM";
     _dqmParamCopy._archiveIntervalDQM = 0;
-    _dqmParamCopy._purgeTimeDQM = 120;
-    _dqmParamCopy._readyTimeDQM = 30;
+    _dqmParamCopy._purgeTimeDQM = 300;
+    _dqmParamCopy._readyTimeDQM = 120;
     _dqmParamCopy._useCompressionDQM = true;
     _dqmParamCopy._compressionLevelDQM = 1;
   }
@@ -480,6 +480,12 @@ namespace stor
     _dqmParamCopy._readyTimeDQM = _readyTimeDQM;
     _dqmParamCopy._useCompressionDQM = _useCompressionDQM;
     _dqmParamCopy._compressionLevelDQM = _compressionLevelDQM;
+
+    // make sure that purge time is larger than ready time
+    if ( _dqmParamCopy._purgeTimeDQM < _dqmParamCopy._readyTimeDQM )
+    {
+      _dqmParamCopy._purgeTimeDQM = _dqmParamCopy._readyTimeDQM + 10;
+    }
   }
 
   void Configuration::updateLocalEventServingData()
