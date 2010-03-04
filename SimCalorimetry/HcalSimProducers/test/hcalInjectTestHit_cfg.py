@@ -16,7 +16,7 @@ process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/Generator_cff')
 process.load('Configuration/StandardSequences/VtxSmearedEarly10TeVCollision_cff')
 process.load('Configuration/StandardSequences/Sim_cff')
-process.load('RecoLocalCalo/Configuration//hcalLocalReco_cff')
+process.load('RecoLocalCalo/Configuration/hcalLocalReco_cff')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
