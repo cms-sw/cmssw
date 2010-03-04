@@ -24,8 +24,20 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
   if (fChain == 0) {cerr<<"Error: no tree!"<<endl; return;}
 
   Long64_t nentries = (Long64_t)cfg->nEntries; 
+  Long64_t nTotEnt=fChain->GetEntries();
+  if (nTotEnt <=0){
+    cout << "\nTrouble! Number of entries on ntuples is " << nTotEnt 
+	 <<". Please check your input paths and fnames."
+	 << "\nStopping program execution." << endl;
+    exit(EXIT_FAILURE);
+  }
+  cout<<"Succeeded initialising OHltTree. nEntries: "<< nTotEnt <<endl;
+
   if (cfg->nEntries <= 0)
-    nentries = fChain->GetEntries();
+    nentries = nTotEnt;
+  else
+    nentries= cfg->nEntries;
+
   cout<<"Entries to be processed: "<<nentries<<endl;
 
   // Only for experts:
