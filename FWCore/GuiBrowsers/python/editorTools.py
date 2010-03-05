@@ -24,7 +24,7 @@ class UserCodeTool(ConfigToolBase):
     def apply(self,process):
         code=self._parameters['code'].value
         exec code
-    def typeError(self,name,bool):
+    def typeError(self,name):
         pass
 
 userCodeTool=UserCodeTool()
