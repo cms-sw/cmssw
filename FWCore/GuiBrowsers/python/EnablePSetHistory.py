@@ -323,19 +323,19 @@ from FWCore.ParameterSet.SequenceTypes import _SequenceOperator, _SequenceNegati
 
 
 def new__SequenceOperator_name(self):
-    return self._left._name()+self._pySymbol+self._right._name()
+    return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
 _SequenceOperator._name = new__SequenceOperator_name    
 
 def new__SequenceNegation_name(self):
-    return '~'+self._operand._name()
+    return '~'+str(self._operand._name())
 _SequenceNegation._name = new__SequenceNegation_name    
 
 def new__SequenceIgnore_name(self):
-    return '-'+self._operand._name()
+    return '-'+str(self._operand._name())
 _SequenceIgnore._name = new__SequenceIgnore_name
 
 def new_Sequence_name(self):
-    return '('+self._seq._name()+')'
+    return '('+str(self._seq._name())+')'
 cms.Sequence._name = new_Sequence_name
 
 def new__Module_name(self):
