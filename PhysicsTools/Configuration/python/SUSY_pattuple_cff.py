@@ -21,10 +21,14 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Su
     process.eventCountProducer = cms.EDProducer("EventCountProducer")
 
     # Full path
-    process.seqSUSYDefaultSequence = cms.Sequence( process.jpt * process.addTrackJets
+    process.seqSUSYDefaultSequence = cms.Sequence( process.jpt 
                                                    * process.patDefaultSequence #* process.patDefaultSequencePF
-                                                   * process.patTrigger*process.patTriggerEvent
-						                           * process.eventCountProducer )
+                                                   * process.patTrigger * process.patTriggerEvent
+                                                   * process.eventCountProducer )
+
+    # Do not produce JPT jets if they are not in the list of jets
+    if not 'JPT' in ''.join(theJetNames):
+	process.seqSUSYDefaultSequence.remove( process.jpt )
 
 def loadPAT(process,JetMetCorrections):
     #-- PAT standard config -------------------------------------------------------
@@ -75,7 +79,7 @@ def loadPATTriggers(process,HLTMenu):
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
     switchOnTrigger( process )
     process.patTriggerSequence.remove( process.patTriggerMatcher )
-    process.patTriggerEvent.patTriggerMatches  = ()
+    process.patTriggerEvent.patTriggerMatches  = []
     # If we have to rename the default trigger menu
     process.patTrigger.processName = HLTMenu
     process.patTriggerEvent.processName = HLTMenu
@@ -122,7 +126,7 @@ def addSUSYJetCollection(process,jets = 'IC5Calo',doJTA=False,doType1MET=False,d
                      doL1Cleaning     = True,
                      doL1Counters     = True,
                      doJetID          = doJetID,
-		             jetIdLabel       = jetIdLabel,
+		     jetIdLabel       = jetIdLabel,
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
@@ -145,9 +149,9 @@ def addJetMET(process,theJetNames):
     process.load("JetMETCorrections.JetPlusTrack.jptJetId_cff")
     process.jpt = cms.Sequence( process.jptCaloJets * process.matchJptAndCaloJets * process.jptJetId)
     
-    #-- Track Jets ----------------------------------------------------------------
-    process.load('RecoJets.Configuration.RecoTrackJets_cff')
-    process.addTrackJets = cms.Sequence ( process.recoTrackJets )
+    #-- Not needed anymore Track Jets are in RECO since 35X -----------------------
+    #process.load('RecoJets.Configuration.RecoTrackJets_cff')
+    #process.addTrackJets = cms.Sequence ( process.recoTrackJets )
  
     #-- Extra Jet/MET collections -------------------------------------------------
     # Add a few jet collections...
@@ -226,6 +230,19 @@ def getSUSY_pattuple_outputCommands( process ):
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep L1GlobalTriggerObjectMapRecord_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_*_*_*',
+        #Pat trigger matching
+        'keep patTriggerObjects_patTrigger_*_*',
+        'keep patTriggerFilters_patTrigger_*_*',
+        'keep patTriggerPaths_patTrigger_*_*',
+        'keep patTriggerEvent_patTriggerEvent_*_*',
+        'keep *_cleanPatPhotonsTriggerMatch_*_*',
+        'keep *_cleanPatElectronsTriggerMatch_*_*',
+        'keep *_cleanPatMuonsTriggerMatch_*_*',
+        'keep *_cleanPatTausTriggerMatch_*_*',
+        'keep *_cleanPatJetsTriggerMatch_*_*',
+        'keep *_patMETsTriggerMatch_*_*',
+        'keep patTriggerObjectStandAlones_patTrigger_*_*',
+        'keep patTriggerObjectStandAlonesedmAssociation_*_*_*',
         # Others
         'keep recoCaloMET_met_*_*', # raw MET
         'keep *_muon*METValueMapProducer_*_*',   # Muon corrections to MET
