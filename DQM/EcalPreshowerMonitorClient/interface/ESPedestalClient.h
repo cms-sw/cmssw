@@ -3,8 +3,13 @@
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
+#include "OnlineDB/ESCondDB/interface/ESMonPedestalsDat.h"
+
+#include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "OnlineDB/ESCondDB/interface/ESCondDBInterface.h"
+#include "OnlineDB/ESCondDB/interface/ESMonPedestalsDat.h"
+#include "DQM/EcalPreshowerMonitorClient/interface/ESPedestalClient.h"
 
 #include <TF1.h>
 
@@ -16,6 +21,9 @@
 
 class MonitorElement;
 class DQMStore;
+class ESCondDBInterface;
+class RunIOV;
+class ESMonRunIOV;
 
 class ESPedestalClient : public ESClient{
 
@@ -24,15 +32,19 @@ class ESPedestalClient : public ESClient{
    public:
    ESPedestalClient(const edm::ParameterSet& ps);
    virtual ~ESPedestalClient();
-   void analyze(void);
-   void beginJob(DQMStore* dqmStore);
+   void analyze();
+   //void beginJob(DQMStore* dqmStore);
+   void beginJob(void);
    void endJob(void);
    void beginRun(void);
    void endRun(void);
    void setup(void);
    void cleanup(void);
-
+   /// WriteDB
+   void writeDb(ESCondDBInterface* econn, RunIOV* runiov, ESMonRunIOV* moniov, int side);
+   
    /// Get Functions
+   int  searchxy(int Z, int X, int Y);
    inline int getEvtPerJob() { return ievt_; }
    inline int getEvtPerRun() { return jevt_; }
 
@@ -45,7 +57,9 @@ class ESPedestalClient : public ESClient{
    bool verbose_;
    bool debug_;
    bool fitPedestal_;
-
+   bool PlusSide;
+   bool MinusSide;
+   int Side_;
 
    edm::FileInPath lookup_;
    std::string prefixME_;
