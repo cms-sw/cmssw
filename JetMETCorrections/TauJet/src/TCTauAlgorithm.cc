@@ -208,7 +208,8 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
         math::XYZTLorentzVector p4(0,0,0,0);
 	algoComponentUsed = TCAlgoUndetermined;
 
-	if(!dropRejected) p4 = caloJet.p4();
+	//if(!dropRejected) 
+	p4 = caloJet.p4();
 
         if(leadTk.isNull()) return p4;
 
@@ -271,11 +272,13 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
                 }
                 if ( eHcalOverTrack  < etHcalOverTrackMin ) {
                   if(!dropCaloJets) p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
+                  else p4.SetXYZT(0,0,0,0);
                   algoComponentUsed = TCAlgoCaloJet;
                 }
 		if ( eHcalOverTrack  > etHcalOverTrackMax ) {
 		  algoComponentUsed = TCAlgoHadronicJet; // reject
 		  if(!dropRejected) p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
+		  else p4.SetXYZT(0,0,0,0);
 		}
         }
 	if( eCaloOverTrack  < etCaloOverTrackMin ) {
