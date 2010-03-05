@@ -5,10 +5,13 @@ const unsigned int L1GctNullJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_
 const unsigned int L1GctNullJetFinder::N_COLS = 4;
 const unsigned int L1GctNullJetFinder::CENTRAL_COL0 = 1;
 
+#include <iostream>
+
 L1GctNullJetFinder::L1GctNullJetFinder(int id):
   L1GctJetFinderBase(id)
 {
   this->reset();
+  std::cout << "Null jetFinder with id " << id << " has been constructed" << std::endl;
 }
 
 L1GctNullJetFinder::~L1GctNullJetFinder()
