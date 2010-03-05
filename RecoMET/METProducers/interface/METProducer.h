@@ -69,7 +69,8 @@ namespace cms
 
       //Temporary implementation of response function for Track Corrected MET
       //TH2D *responseFunction_;  
-      TH2D responseFunction_;  
+      TH2D responseFunction_;
+      TH2D showerRF_;
 
     };
 }

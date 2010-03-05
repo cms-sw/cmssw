@@ -36,6 +36,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -49,10 +51,10 @@ class TCMETAlgo
   typedef std::vector<const reco::Candidate> InputCollection;
   TCMETAlgo();
   virtual ~TCMETAlgo();
-  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D *response_function);
+  reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D *response_function, TH2D *showerRF);
   TH2D* getResponseFunction_fit ( );
   TH2D* getResponseFunction_mode ( );
-
+  TH2D* getResponseFunction_shower ( );
  private:
   double met_x;
   double met_y;
@@ -63,6 +65,7 @@ class TCMETAlgo
   edm::Handle<reco::CaloMETCollection> metHandle;
   edm::Handle<reco::TrackCollection> TrackHandle;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
+  edm::Handle<reco::VertexCollection> VertexHandle;
 
   edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > muon_data_h;
   edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > tcmet_data_h;
@@ -72,12 +75,17 @@ class TCMETAlgo
   edm::InputTag metInputTag_;
   edm::InputTag trackInputTag_;
   edm::InputTag beamSpotInputTag_;
+  edm::InputTag vertexInputTag_;
 
   edm::InputTag muonDepValueMap_;
   edm::InputTag tcmetDepValueMap_;
-
+  
+  
   int     rfType_;
-
+  int     nMinOuterHits_;
+  double  scaleShowerRF_;
+  double  usedeltaRRejection_;
+  double  deltaRShower_;
   double  minpt_;
   double  maxpt_;
   double  maxeta_;
@@ -85,14 +93,23 @@ class TCMETAlgo
   double  minhits_;
   double  maxd0_;
   double  maxPtErr_;
+  double  radius_;
+  double  zdist_;
+  double  corner_;
   std::vector<int> trkQuality_;
   std::vector<int> trkAlgos_;
 
   bool isCosmics_;
+  bool correctShowerTracks_;
+  bool usePvtxd0_;
+  bool propagateToHCAL_;
 
   const class MagneticField* bField;
 
   class TH2D* response_function;
+  class TH2D* showerRF;
+  bool hasValidVertex;
+  const reco::VertexCollection *vertexColl;
 
   edm::ValueMap<reco::MuonMETCorrectionData> muon_data;
   edm::ValueMap<reco::MuonMETCorrectionData> tcmet_data;
@@ -104,9 +121,14 @@ class TCMETAlgo
   void correctSumEtForMuon( const reco::TrackRef, const unsigned int );
   void correctMETforMuon( const unsigned int );
   void correctSumEtForMuon( const unsigned int );
-  void correctMETforTrack( const reco::TrackRef );
-  void correctSumEtForTrack( const reco::TrackRef );
+  void correctMETforTrack( const reco::TrackRef , TH2D* rf);
+  void correctSumEtForTrack( const reco::TrackRef , TH2D* rf);
   class TVector3 propagateTrack( const reco::TrackRef );
+  class TVector3 propagateTrackToHCAL( const reco::TrackRef );
+  void findGoodShowerTracks(vector<int>& goodShowerTracks);
+  bool nearGoodShowerTrack( const reco::TrackRef , vector<int> goodShowerTracks );
+  int nExpectedInnerHits(const reco::TrackRef);
+  int nExpectedOuterHits(const reco::TrackRef);
 
 };
 

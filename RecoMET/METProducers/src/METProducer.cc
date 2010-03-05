@@ -84,6 +84,9 @@ namespace cms
 	     responseFunction_ = (*ALGO.getResponseFunction_fit());
 	else if( rfType_ == 2 )
 	     responseFunction_ = (*ALGO.getResponseFunction_mode());
+
+	
+	showerRF_ = (*ALGO.getResponseFunction_shower());
       }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
@@ -167,7 +170,7 @@ namespace cms
 	TCMETAlgo tcmetalgorithm;
 	std::auto_ptr<METCollection> tcmetcoll;
 	tcmetcoll.reset(new METCollection);
-	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_, &responseFunction_) ) ;
+	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_, &responseFunction_, &showerRF_) ) ;
 	event.put( tcmetcoll );
       }
     //----------------------------------
