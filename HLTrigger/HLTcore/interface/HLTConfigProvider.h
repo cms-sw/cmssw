@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/19 14:26:53 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/03/05 15:37:26 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -150,12 +150,13 @@ class HLTConfigProvider {
 
   /*
   /// HLT Prescales
+  /// number of prescale sets available
+  unsigned int prescaleSize() const;
   /// high-level user access method: prescale for given trigger path
   unsigned int prescaleValue(unsigned int set, const std::string& trigger) const;
   /// low-level data member access 
   const std::vector<std::string>& prescaleLabels() const;
   const std::map<std::string,std::vector<unsigned int> >& prescaleTable() const;
-
   private:
   /// private - default prescale set index to be taken from L1 event data!!
   unsigned int prescaleSet() const;
