@@ -111,7 +111,7 @@ EBDetId EBDetId::offsetBy(int nrStepsEta, int nrStepsPhi ) const
         if( newEta*ieta() <= 0 ) {
                 if( ieta() < 0 ) {
                         newEta++;
-                } else {
+                } else if ( ieta() > 0 ) {
                         newEta--;
                 }
         }
