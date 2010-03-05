@@ -293,7 +293,12 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << ">>> WMuNu not found !!!";
             return false;
       }
-  
+ 
+      if(plotHistograms_){
+             h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());
+      }
+
+ 
       if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
       if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
 
@@ -306,10 +311,6 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
      
       const reco::Muon & mu = WMuNu.getMuon();
       const reco::MET  & met =WMuNu.getNeutrino();
-            if(plotHistograms_){
-            h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());  
-            }
-
 
       // Preselection cuts:
 
