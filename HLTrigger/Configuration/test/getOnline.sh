@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/users/fwyzard/test/20100222.162100/HLT/V1'
+HLT='/online/collisions/2010/week10/HLT'
 
 rm -f OnData_HLT_TEST.py
 rm -f OnLine_HLT_TEST.py
