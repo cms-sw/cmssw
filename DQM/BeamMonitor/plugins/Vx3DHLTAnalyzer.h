@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.6 2010/03/04 18:49:16 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.7 2010/03/05 14:22:34 dinardo Exp $
 //
 //
 
@@ -35,6 +35,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <vector>
+
+
+using namespace std;
+
 
 class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
    public:
@@ -46,6 +51,8 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
+      virtual void writeToFile(vector<double>* vals,
+			       string fileName);
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
 
@@ -58,6 +65,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       double yStep;
       double zRange;
       double zStep;
+      string fileName;
 
       // Histograms
       MonitorElement* mXlumi;

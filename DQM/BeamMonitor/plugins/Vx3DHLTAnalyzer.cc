@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.10 2010/03/05 10:52:29 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.11 2010/03/05 14:22:31 dinardo Exp $
 //
 //
 
@@ -28,7 +28,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-//#include <TF1.h>
+#include <iostream>
+#include <fstream>
 
 
 using namespace std;
@@ -39,8 +40,15 @@ using namespace edm;
 Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
 {
   vertexCollection = edm::InputTag("pixelVertices");
-  nLumiReset = 0;
-
+  nLumiReset       = 1;
+  xRange           = 0.;
+  xStep            = 1.;
+  yRange           = 0.;
+  yStep            = 1.;
+  zRange           = 0.;
+  zStep            = 1.;
+  fileName         = "BeamSpot_3DVxPixels.txt";
+ 
   vertexCollection = iConfig.getParameter<InputTag>("vertexCollection");
   nLumiReset       = iConfig.getParameter<unsigned int>("nLumiReset");
   xRange           = iConfig.getParameter<double>("xRange");
@@ -49,6 +57,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   yStep            = iConfig.getParameter<double>("yStep");
   zRange           = iConfig.getParameter<double>("zRange");
   zStep            = iConfig.getParameter<double>("zStep");
+  fileName         = iConfig.getParameter<string>("fileName");
 }
 
 
@@ -84,6 +93,62 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 }
 
 
+void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
+				  string fileName)
+{
+  ofstream outputFile;
+  outputFile.open(fileName.c_str(), ios::out); // To append: ios::app
+
+  stringstream BufferString;
+  BufferString.precision(5);
+  
+  if (outputFile.is_open() == true)
+    {
+      vector<double>::const_iterator it = vals->begin();
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+      BufferString.str("");
+      it++;
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+      BufferString.str("");
+      it++;
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+      BufferString.str("");
+      it++;
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+      BufferString.str("");
+      it++;
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+      BufferString.str("");
+      it++;
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+      BufferString.str("");
+      it++;
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+      BufferString.str("");
+      it++;
+
+      BufferString << *it;
+      outputFile << BufferString.str().c_str() << endl;
+
+      outputFile.close();
+    }
+}
+
+
 void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 					 const EventSetup& iSetup)
 {
@@ -93,6 +158,19 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
   if ((lumiCounter == nLumiReset) && (nLumiReset != 0))
     {
       TF1* Gauss = new TF1("Gauss","gaus");
+
+      // Write the 8 beam spot parameters into a file
+      vector<double> vals;
+      vals.push_back(Vx_X->getTH1F()->GetMean());
+      vals.push_back(Vx_Y->getTH1F()->GetMean());
+      vals.push_back(Vx_Z->getTH1F()->GetMean());
+      vals.push_back(Vx_X->getTH1F()->GetRMS());
+      vals.push_back(Vx_Y->getTH1F()->GetRMS());
+      vals.push_back(Vx_Z->getTH1F()->GetRMS());
+      vals.push_back(0.);
+      vals.push_back(0.);
+      writeToFile(&vals, fileName);
+      vals.clear();
 
       mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), nLumiReset);
       mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), nLumiReset);
@@ -138,14 +216,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
     }
   else if (nLumiReset == 0)
     {
-      mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), 1);
-      mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), 1);
-      mZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetMean(), Vx_Z->getTH1F()->GetMeanError(), 1);
-      
-      sXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS(), Vx_X->getTH1F()->GetRMSError(), 1);
-      sYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS(), Vx_Y->getTH1F()->GetRMSError(), 1);
-      sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), 1);
-
       reportSummary->Fill(0.5);
       reportSummaryMap->Fill(0.5, 0.5, 0.5);
 
