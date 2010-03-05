@@ -58,6 +58,7 @@ private:
   double dxyCut_;
   double normalizedChi2Cut_;
   int trackerHitsCut_;
+  int muonHitsCut_;
   bool isAlsoTrackerMuon_;
 
   int selectByCharge_;
@@ -138,6 +139,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),
       normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
       trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
+      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
 
       // W+/W- Selection
@@ -163,6 +165,7 @@ void WMuNuSelector::beginJob() {
      h1_["hEtaMu_sel"]                   =fs->make<TH1D>("etaMu_sel","Eta mu",50,-2.5,2.5);
      h1_["hd0_sel"]                      =fs->make<TH1D>("d0_sel","Impact parameter",1000,-1.,1.);
      h1_["hNHits_sel"]                   =fs->make<TH1D>("NumberOfValidHits_sel","Number of Hits in Silicon",100,0.,100.);
+     h1_["hNMuonHits_sel"]               =fs->make<TH1D>("NumberOfValidMuonHits_sel","Number of Hits in Silicon",100,0.,100.);
      h1_["hNormChi2_sel"]                =fs->make<TH1D>("NormChi2_sel","Chi2/ndof of global track",1000,0.,50.);
      h1_["hTracker_sel"]                 =fs->make<TH1D>("isTrackerMuon_sel","is Tracker Muon?",2,0.,2.); 
      h1_["hMET_sel"]                     =fs->make<TH1D>("MET_sel","Missing Transverse Energy (GeV)", 300,0.,300.);
@@ -344,16 +347,19 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
-            double normalizedChi2 = gm->normalizedChi2(); LogTrace("")<<"Im here"<<endl;
+            double normalizedChi2 = gm->normalizedChi2(); 
             double trackerHits = gm->hitPattern().numberOfValidTrackerHits();
-            LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " << mu.isTrackerMuon();
+            double muonHits = gm->hitPattern().numberOfValidMuonHits();
+            LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, muonhits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " <<", "<<muonHits << ", " << mu.isTrackerMuon();
 
                   if(plotHistograms_){ h1_["hd0_sel"]->Fill(dxy);}
-            if (!muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) ) return 0;
+            if (dxy>dxyCut_) return 0;
                   if(plotHistograms_){ h1_["hNormChi2_sel"]->Fill(normalizedChi2);}
             if (normalizedChi2>normalizedChi2Cut_) return 0;
                   if(plotHistograms_){ h1_["hNHits_sel"]->Fill(trackerHits);}
             if (trackerHits<trackerHitsCut_) return 0;
+                  if(plotHistograms_){ h1_["hNMuonHits_sel"]->Fill(muonHits);}
+            if (muonHits<muonHitsCut_) return 0;
                   if(plotHistograms_){ h1_["hTracker_sel"]->Fill(mu.isTrackerMuon());}
             if (!mu.isTrackerMuon()) return 0;
 

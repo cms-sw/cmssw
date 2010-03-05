@@ -41,6 +41,7 @@ selcorMet = cms.EDFilter("WMuNuSelector",
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
+      MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
 
       # Select only W-, W+ ( default is all Ws)  
@@ -83,6 +84,7 @@ selpfMet = cms.EDFilter("WMuNuSelector",
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
+      MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
 
       # Select only W-, W+ ( default is all Ws)
@@ -125,6 +127,7 @@ seltcMet = cms.EDFilter("WMuNuSelector",
       DxyCut = cms.untracked.double(0.2),
       NormalizedChi2Cut = cms.untracked.double(10.),
       TrackerHitsCut = cms.untracked.int32(11),
+      MuonHitsCut = cms.untracked.int32(1),
       IsAlsoTrackerMuon = cms.untracked.bool(True),
 
       # Select only W-, W+ ( default is all Ws)
