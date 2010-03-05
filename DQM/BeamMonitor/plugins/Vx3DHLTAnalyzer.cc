@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.8 2010/03/04 10:30:39 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.9 2010/03/04 18:49:14 dinardo Exp $
 //
 //
 
@@ -72,6 +72,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	Vx_ZY_profile->Fill(it3DVx->z(), it3DVx->y());
 
 	reportSummary->Fill(1.0);
+	reportSummaryMap->Fill(0.5, 0.5, 1.0);
       }
   }
 }
@@ -123,6 +124,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       Vx_ZY_profile->Reset();
 
       reportSummary->Fill(0.5);
+      reportSummaryMap->Fill(0.5, 0.5, 0.5);
 
       lumiCounter = 0;
 
@@ -139,6 +141,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), 1);
 
       reportSummary->Fill(0.5);
+      reportSummaryMap->Fill(0.5, 0.5, 0.5);
 
       lumiCounter = 0;
     }
@@ -233,6 +236,7 @@ void Vx3DHLTAnalyzer::beginJob()
       reportSummary = dbe->bookFloat("reportSummary");
       reportSummary->Fill(0.);
       reportSummaryMap = dbe->book2D("reportSummaryMap","Beam Pixel Summary Map", 1, 0., 1., 1, 0., 1.);
+      reportSummaryMap->Fill(0.5, 0.5, 0.);
       dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
     }
 
