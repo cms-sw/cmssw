@@ -32,7 +32,10 @@ jetDQMParameters = cms.PSet(
     resEMFMinLoose   = cms.double(0.01),    
     n90HitsMinTight  = cms.int32(4),
     fHPDMaxTight     = cms.double(0.98),
-    resEMFMinTight   = cms.double(0.01),    
+    resEMFMinTight   = cms.double(0.01),
+
+    sigmaEtaMinTight   = cms.double(0.01),    
+    sigmaPhiMinTight   = cms.double(0.01),
     
     makedijetselection  = cms.int32(0),
 

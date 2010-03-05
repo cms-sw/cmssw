@@ -154,6 +154,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     DijetAnalysis = cleanedJetDQMParameters.clone(
         makedijetselection = cms.int32(1),
+        ptThreshold = cms.double(8.),
         fillJIDPassFrac   = cms.int32(1)
     ),
 

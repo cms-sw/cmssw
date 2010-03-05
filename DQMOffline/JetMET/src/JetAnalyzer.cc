@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 09:52:22 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/03/04 16:31:53 $
+ *  $Revision: 1.18 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -36,6 +36,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   _n90HitsMinTight =0;
   _fHPDMaxTight=1.;
   _resEMFMinTight=0.;
+  _sigmaEtaMinTight=-999.;
+  _sigmaPhiMinTight=-999.;
 
 } 
   
@@ -91,6 +93,8 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   _n90HitsMin = parameters.getParameter<int>("n90HitsMin");
   _fHPDMax = parameters.getParameter<double>("fHPDMax");
   _resEMFMin = parameters.getParameter<double>("resEMFMin");
+  _sigmaEtaMinTight = parameters.getParameter<double>("sigmaEtaMinTight");
+  _sigmaPhiMinTight = parameters.getParameter<double>("sigmaPhiMinTight");
 
   _n90HitsMinLoose = parameters.getParameter<int>("n90HitsMinLoose");
   _fHPDMaxLoose = parameters.getParameter<double>("fHPDMaxLoose");
@@ -208,6 +212,9 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   mN90Hits                = dbe->book1D("N90Hits", "N90Hits", 50, 0., 50);
   mfHPD                   = dbe->book1D("fHPD", "fHPD", 50, 0., 1.);
   mfRBX                   = dbe->book1D("fRBX", "fRBX", 50, 0., 1.);
+
+  msigmaEta                   = dbe->book1D("sigmaEta", "sigmaEta", 50, 0., 0.5);
+  msigmaPhi                   = dbe->book1D("sigmaPhi", "sigmaPhi", 50, 0., 0.5);
   
   if(makedijetselection==1 && fillJIDPassFrac==1) {
     mLooseJIDPassFractionVSeta  = dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",50, -3., 3.,0.,1.2);
@@ -276,13 +283,22 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if(jetID->restrictedEMF()<_resEMFMinLoose && fabs((caloJets.at(0)).eta())<2.6) emfcleanLooseFirstJet=false;
 	    if(jetID->restrictedEMF()<_resEMFMinTight && fabs((caloJets.at(0)).eta())<2.6) emfcleanTightFirstJet=false;
 	    if(jetID->n90Hits()>=_n90HitsMinLoose && jetID->fHPD()<_fHPDMaxLoose && emfcleanLooseFirstJet) LoosecleanedFirstJet=true;
-	    if(jetID->n90Hits()>=_n90HitsMinTight && jetID->fHPD()<_fHPDMaxTight && emfcleanTightFirstJet) TightcleanedFirstJet=true;
+	    if(jetID->n90Hits()>=_n90HitsMinTight && jetID->fHPD()<_fHPDMaxTight && sqrt((caloJets.at(0)).etaetaMoment())>_sigmaEtaMinTight && sqrt((caloJets.at(0)).phiphiMoment())>_sigmaPhiMinTight && emfcleanTightFirstJet) TightcleanedFirstJet=true;
+	    //fill the JID variables histograms BEFORE you cut on them
+	    if (mN90Hits)         mN90Hits->Fill (jetID->n90Hits());
+	    if (mfHPD)            mfHPD->Fill (jetID->fHPD());
+	    if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
+	    if (mfRBX)            mfRBX->Fill (jetID->fRBX());
 	    jetID->calculate(iEvent, (caloJets.at(1)));
 	    if(jetID->restrictedEMF()<_resEMFMinLoose && fabs((caloJets.at(1)).eta())<2.6) emfcleanLooseSecondJet=false;
 	    if(jetID->restrictedEMF()<_resEMFMinTight && fabs((caloJets.at(1)).eta())<2.6) emfcleanTightSecondJet=false;
 	    if(jetID->n90Hits()>=_n90HitsMinLoose && jetID->fHPD()<_fHPDMaxLoose && emfcleanLooseSecondJet) LoosecleanedSecondJet=true;
-	    if(jetID->n90Hits()>=_n90HitsMinTight && jetID->fHPD()<_fHPDMaxTight && emfcleanTightSecondJet) TightcleanedSecondJet=true;
-
+	    if(jetID->n90Hits()>=_n90HitsMinTight && jetID->fHPD()<_fHPDMaxTight && sqrt((caloJets.at(1)).etaetaMoment())>_sigmaEtaMinTight && sqrt((caloJets.at(1)).phiphiMoment())>_sigmaPhiMinTight && emfcleanTightSecondJet) TightcleanedSecondJet=true;
+	    //fill the JID variables histograms BEFORE you cut on them
+	    if (mN90Hits)         mN90Hits->Fill (jetID->n90Hits());
+	    if (mfHPD)            mfHPD->Fill (jetID->fHPD());
+	    if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
+	    if (mfRBX)            mfRBX->Fill (jetID->fRBX());
 	    if(LoosecleanedFirstJet && LoosecleanedSecondJet) { //only if both jets are (loose) cleaned
 	      //fill histos for first jet
 	      if (mPt)   mPt->Fill ((caloJets.at(0)).pt());
@@ -301,6 +317,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      if (mfHPD)            mfHPD->Fill (jetID->fHPD());
 	      if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
 	      if (mfRBX)            mfRBX->Fill (jetID->fRBX());
+	      //sigmaeta and sigmaphi only used in the tight selection.
+	      //fill the histos for them AFTER the loose selection 
+	      if (msigmaEta)  msigmaEta->Fill(sqrt((caloJets.at(0)).etaetaMoment()));
+	      if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(0)).phiphiMoment()));
 	      //fill histos for second jet
 	      if (mPt)   mPt->Fill ((caloJets.at(1)).pt());
 	      if (mEta)  mEta->Fill ((caloJets.at(1)).eta());
@@ -314,11 +334,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      if (mMass) mMass->Fill ((caloJets.at(1)).mass());
 	      if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill ((caloJets.at(1)).maxEInEmTowers());
 	      if (mMaxEInHadTowers) mMaxEInHadTowers->Fill ((caloJets.at(1)).maxEInHadTowers());
+	      //sigmaeta and sigmaphi only used in the tight selection.
+	      //fill the histos for them AFTER the loose selection 
+	      if (msigmaEta)  msigmaEta->Fill(sqrt((caloJets.at(1)).etaetaMoment()));
+	      if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(1)).phiphiMoment()));
+
 	    }
-	    if (mN90Hits)         mN90Hits->Fill (jetID->n90Hits());
-	    if (mfHPD)            mfHPD->Fill (jetID->fHPD());
-	    if (mresEMF)         mresEMF->Fill (jetID->restrictedEMF());
-	    if (mfRBX)            mfRBX->Fill (jetID->fRBX());
 	    //let's see how many of these jets passed the JetID cleaning
 	    if(fillJIDPassFrac==1) {
 	      if(LoosecleanedFirstJet) {
@@ -372,13 +393,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       jetID->calculate(iEvent, *jet);
       //minimal (uncorrected!) pT cut
       if (jet->pt() > _ptThreshold) {
+	if (msigmaEta)  msigmaEta->Fill(sqrt(jet->etaetaMoment()));
+	if (msigmaPhi)  msigmaPhi->Fill(sqrt(jet->phiphiMoment()));
 	//cleaning to use for filling histograms
 	thisemfclean=true;
 	if(jetID->restrictedEMF()<_resEMFMin && fabs(jet->eta())<2.6) thisemfclean=false;
 	if(jetID->n90Hits()>=_n90HitsMin && jetID->fHPD()<_fHPDMax && thisemfclean) thiscleaned=true;
 	//loose and tight cleaning, used to fill the JetIDPAssFraction histos
 	if(jetID->n90Hits()>=_n90HitsMinLoose && jetID->fHPD()<_fHPDMaxLoose && emfcleanLoose) Loosecleaned=true;
-	if(jetID->n90Hits()>=_n90HitsMinTight && jetID->fHPD()<_fHPDMaxTight && emfcleanTight) Tightcleaned=true;
+	if(jetID->n90Hits()>=_n90HitsMinTight && jetID->fHPD()<_fHPDMaxTight && sqrt(jet->etaetaMoment())>_sigmaEtaMinTight && sqrt(jet->phiphiMoment())>_sigmaPhiMinTight && emfcleanTight) Tightcleaned=true;
 
 	if(fillJIDPassFrac==1) {
 	  if(Loosecleaned) {

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2010/02/24 19:08:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/03/04 16:31:52 $
+ *  $Revision: 1.8 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -104,6 +104,8 @@ class JetAnalyzer : public JetAnalyzerBase {
   double _fHPDMaxTight;
   double _resEMFMinTight;
   int _n90HitsMinTight;
+  double _sigmaEtaMinTight;
+  double _sigmaPhiMinTight; 
 
   //histo binning parameters
   int    etaBin;
@@ -236,6 +238,8 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mfHPD;
   MonitorElement* mfRBX;
   MonitorElement* mresEMF;
+  MonitorElement* msigmaEta;
+  MonitorElement* msigmaPhi;
   MonitorElement* mLooseJIDPassFractionVSeta;
   MonitorElement* mLooseJIDPassFractionVSpt;
   MonitorElement* mTightJIDPassFractionVSeta;
