@@ -175,7 +175,7 @@ class ConfigToolBase(object) :
             if not isinstance(self._parameters[name].value,self._parameters[name].type):
                 raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
         else:
-            if not (isinstance(self._parameters[name].value,self._parameters[name].type)) and (self._parameters[name].value is not None):
+            if not (isinstance(self._parameters[name].value,self._parameters[name].type) or self._parameters[name].value is  None):
                 raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
     def getAllowedValues(self,name):
         return self._defaultParameters[name].allowedValues
