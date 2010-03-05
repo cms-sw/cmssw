@@ -22,77 +22,77 @@ class TagProbeFitTreeAnalyzer : public edm::EDAnalyzer{
 };
 
 TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
-  fitter( pset.getUntrackedParameter<string>("InputFileName", ""),
-          pset.getUntrackedParameter<string>("InputDirectoryName", ""),
-          pset.getUntrackedParameter<string>("InputTreeName", ""),
-          pset.getUntrackedParameter<string>("OutputFileName", ""),
-          pset.getUntrackedParameter<uint>("NumCPU", 1),
-          pset.getUntrackedParameter<bool>("SaveWorkspace", false)
+  fitter( pset.getParameter<vector<string> >("InputFileNames"),
+          pset.getParameter<string>("InputDirectoryName"),
+          pset.getParameter<string>("InputTreeName"),
+          pset.getParameter<string>("OutputFileName"),
+          pset.getParameter<uint>("NumCPU"),
+          pset.getParameter<bool>("SaveWorkspace")
   )
 {
-  const ParameterSet variables = pset.getUntrackedParameter<ParameterSet>("Variables");
-  vector<string> variableNames = variables.getParameterNamesForType<vector<string> >(false);
+  const ParameterSet variables = pset.getParameter<ParameterSet>("Variables");
+  vector<string> variableNames = variables.getParameterNamesForType<vector<string> >();
   for (vector<string>::const_iterator name = variableNames.begin(); name != variableNames.end(); name++) {
-    vector<string> var = variables.getUntrackedParameter<vector<string> >(*name);
+    vector<string> var = variables.getParameter<vector<string> >(*name);
     double lo, hi;
     if(var.size()>=4 && !(istringstream(var[1])>>lo).fail() && !(istringstream(var[2])>>hi).fail()){
       fitter.addVariable(*name, var[0], lo, hi, var[3]);
     }else{
       LogError("TagProbeFitTreeAnalyzer")<<"Could not create variable: "<<*name<<
-      ". Example: pt = cms.untracked.vstring(\"Probe pT\", \"1.0\", \"100.0\", \"GeV/c\") ";
+      ". Example: pt = cms.vstring(\"Probe pT\", \"1.0\", \"100.0\", \"GeV/c\") ";
     }
   }
 
-  const ParameterSet categories = pset.getUntrackedParameter<ParameterSet>("Categories");
-  vector<string> categoryNames = categories.getParameterNamesForType<vector<string> >(false);
+  const ParameterSet categories = pset.getParameter<ParameterSet>("Categories");
+  vector<string> categoryNames = categories.getParameterNamesForType<vector<string> >();
   for (vector<string>::const_iterator name = categoryNames.begin(); name != categoryNames.end(); name++) {
-    vector<string> cat = categories.getUntrackedParameter<vector<string> >(*name);
+    vector<string> cat = categories.getParameter<vector<string> >(*name);
     if(cat.size()==2){
       fitter.addCategory(*name, cat[0], cat[1]);
     }else{
       LogError("TagProbeFitTreeAnalyzer")<<"Could not create category: "<<*name<<
-      ". Example: mcTrue = cms.untracked.vstring(\"MC True\", \"dummy[true=1,false=0]\") ";
+      ". Example: mcTrue = cms.vstring(\"MC True\", \"dummy[true=1,false=0]\") ";
     }
   }
 
-  const ParameterSet pdfs = pset.getUntrackedParameter<ParameterSet>("PDFs");
-  vector<string> pdfNames = pdfs.getParameterNamesForType<vector<string> >(false);
+  const ParameterSet pdfs = pset.getParameter<ParameterSet>("PDFs");
+  vector<string> pdfNames = pdfs.getParameterNamesForType<vector<string> >();
   for (vector<string>::const_iterator name = pdfNames.begin(); name != pdfNames.end(); name++) {
-    vector<string> pdf = pdfs.getUntrackedParameter<vector<string> >(*name);
+    vector<string> pdf = pdfs.getParameter<vector<string> >(*name);
     fitter.addPdf(*name, pdf);
   }
 
-  const ParameterSet efficiencies = pset.getUntrackedParameter<ParameterSet>("Efficiencies");
-  vector<string> efficiencyNames = efficiencies.getParameterNamesForType<ParameterSet>(false);
+  const ParameterSet efficiencies = pset.getParameter<ParameterSet>("Efficiencies");
+  vector<string> efficiencyNames = efficiencies.getParameterNamesForType<ParameterSet>();
   for (vector<string>::const_iterator name = efficiencyNames.begin(); name != efficiencyNames.end(); name++) {
-    calculateEfficiency(*name, efficiencies.getUntrackedParameter<ParameterSet>(*name));
+    calculateEfficiency(*name, efficiencies.getParameter<ParameterSet>(*name));
   }
 }
 
 void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::ParameterSet& pset){
-  vector<string> effCatState = pset.getUntrackedParameter<vector<string> >("EfficiencyCategoryAndState");
+  vector<string> effCatState = pset.getParameter<vector<string> >("EfficiencyCategoryAndState");
   if(effCatState.size() != 2){
     cout<<"EfficiencyCategoryAndState must specify a category and a state of that category"<<endl;
     exit(1);
   }
 
-  vector<string> unbinnedVariables = pset.getUntrackedParameter<vector<string> >("UnbinnedVariables", vector<string>());
+  vector<string> unbinnedVariables = pset.getParameter<vector<string> >("UnbinnedVariables");
 
-  const ParameterSet binVars = pset.getUntrackedParameter<ParameterSet>("BinnedVariables", ParameterSet());
+  const ParameterSet binVars = pset.getParameter<ParameterSet>("BinnedVariables");
   map<string, vector<double> >binnedVariables;
-  vector<string> variableNames = binVars.getParameterNamesForType<vector<double> >(false);
+  vector<string> variableNames = binVars.getParameterNamesForType<vector<double> >();
   for (vector<string>::const_iterator var = variableNames.begin(); var != variableNames.end(); var++) {
-    vector<double> binning = binVars.getUntrackedParameter<vector<double> >(*var);
+    vector<double> binning = binVars.getParameter<vector<double> >(*var);
     binnedVariables[*var] = binning;
   }
   map<string, vector<string> >mappedCategories;
-  vector<string> categoryNames = binVars.getParameterNamesForType<vector<string> >(false);
+  vector<string> categoryNames = binVars.getParameterNamesForType<vector<string> >();
   for (vector<string>::const_iterator var = categoryNames.begin(); var != categoryNames.end(); var++) {
-    vector<string> map = binVars.getUntrackedParameter<vector<string> >(*var);
+    vector<string> map = binVars.getParameter<vector<string> >(*var);
     mappedCategories[*var] = map;
   }
 
-  vector<string> binToPDFmap = pset.getUntrackedParameter<vector<string> >("BinToPDFmap", vector<string>());
+  vector<string> binToPDFmap = pset.getParameter<vector<string> >("BinToPDFmap");
   if((binToPDFmap.size() > 0) && (binToPDFmap.size()%2 == 0)){
     cout<<"BinToPDFmap must have odd size, first string is the default, followed by binRegExp - PDFname pairs!"<<endl;
     exit(2);

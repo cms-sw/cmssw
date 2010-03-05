@@ -2,7 +2,7 @@
 #define TagProbeFitter_h
 
 #include "TFile.h"
-#include "TTree.h"
+#include "TChain.h"
 #include "TGraphAsymmErrors.h"
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
@@ -10,7 +10,7 @@
 class TagProbeFitter: public TGraphAsymmErrors{
   public:
   ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin 
-  TagProbeFitter(std::string inputFileName, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false);
+  TagProbeFitter(std::vector<std::string> inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false);
 
   ///destructor closes the files
   ~TagProbeFitter();
@@ -29,11 +29,8 @@ class TagProbeFitter: public TGraphAsymmErrors{
   std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
 
   protected:
-  ///pointer to the input file that contains the TTree data
-  TFile* inputFile;
-
-  ///pointer to the input TTree data
-  TTree* inputTree;
+  ///pointer to the input TTree Chain of data
+  TChain* inputTree;
 
   ///pointer to the output file
   TFile* outputFile;

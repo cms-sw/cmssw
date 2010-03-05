@@ -27,10 +27,11 @@
 
 using namespace RooFit;
 
-TagProbeFitter::TagProbeFitter(string inputFileName, string inputDirectoryName, string inputTreeName, string outputFileName, int numCPU_, bool saveWorkspace_){
-  inputFile = new TFile(inputFileName.c_str());
-  inputFile->Cd(inputDirectoryName.c_str());
-  inputTree = (TTree*)gROOT->FindObject(inputTreeName.c_str());
+TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirectoryName, string inputTreeName, string outputFileName, int numCPU_, bool saveWorkspace_){
+  inputTree = new TChain((inputDirectoryName+"/"+inputTreeName).c_str());
+  for(size_t i=0; i<inputFileNames.size(); i++){
+    inputTree->Add(inputFileNames[i].c_str());
+  }
   outputFile = new TFile(outputFileName.c_str(),"recreate");
   outputDirectory = outputFile->mkdir(inputDirectoryName.c_str());
   numCPU = numCPU_;
@@ -38,8 +39,8 @@ TagProbeFitter::TagProbeFitter(string inputFileName, string inputDirectoryName, 
 }
 
 TagProbeFitter::~TagProbeFitter(){
-  if(inputFile)
-    inputFile->Close();
+  if(inputTree)
+    delete inputTree;
   if(outputFile)
     outputFile->Close();
 }
@@ -339,7 +340,9 @@ void TagProbeFitter::doCntEfficiency(RooWorkspace* w, RooRealVar& efficiency){
 }
 
 int main(int argc, char* argv[]){
-  TagProbeFitter f("testNewWrite.root", "MakeHisto", "fitter_tree", "myplots.root", 1, true);
+  vector<string> inputs;
+  inputs.push_back("testNewWrite.root");
+  TagProbeFitter f(inputs, "MakeHisto", "fitter_tree", "myplots.root", 1, true);
 
   f.addVariable("mass", "tag-probe mass", 2.5, 3.8, "GeV/c^{2}");
   f.addVariable("pt", "probe pT", 3., 10., "GeV/c");
