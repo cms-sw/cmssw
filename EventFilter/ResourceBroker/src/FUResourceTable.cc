@@ -258,6 +258,7 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
   
   if (state==dqm::EMPTY) {
     LOG4CPLUS_WARN(log_,"Don't reschedule sendDqm workloop.");
+    std::cout << "shut down dqm workloop " << std::endl;
     UInt_t cellIndex=cell->index();
     shmBuffer_->finishReadingDqmCell(cell);
     shmBuffer_->discardDqmCell(cellIndex);
@@ -355,16 +356,20 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   }
   
   if (!reschedule) {
+    std::cout << " entered shutdown cycle " << std::endl;
     shmBuffer_->writeRecoEmptyEvent();
     UInt_t count=0;
     while (count<100) {
+      std::cout << " shutdown cycle " <<shmBuffer_->nClients() << " "
+		<<  FUShmBuffer::shm_nattch(shmBuffer_->shmid()) << std::endl;
       if (shmBuffer_->nClients()==0&&
 	  FUShmBuffer::shm_nattch(shmBuffer_->shmid())==1) {
-	isReadyToShutDown_ = true;
+	//	isReadyToShutDown_ = true;
 	break;
       }
       else {
 	count++;
+	std::cout << " shutdown cycle attempt " << count << std::endl;
 	LOG4CPLUS_DEBUG(log_,"FUResourceTable: Wait for all clients to detach,"
 			<<" nClients="<<shmBuffer_->nClients()
 			<<" nattch="<<FUShmBuffer::shm_nattch(shmBuffer_->shmid())
@@ -379,6 +384,7 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
       }
     }
     bool allEmpty = false;
+    std::cout << "Checking if all dqm cells are empty " << std::endl;
     while(!allEmpty){
       UInt_t n=nbDqmCells_;
       allEmpty = true;
@@ -389,10 +395,16 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
       } 
       shmBuffer_->unlock();
     }
-   while(nbPendingSMDqmDiscards_ != 0)
-      ::usleep(10000);
-    shmBuffer_->writeDqmEmptyEvent();
+    std::cout << "Making sure there are no dqm pending discards " << std::endl;
+    if(nbPendingSMDqmDiscards_ != 0)
+      {
+	LOG4CPLUS_WARN(log_,"FUResourceTable: pending DQM discards not zero: ="
+		       << nbPendingSMDqmDiscards_ << " while cells are all empty. This may cause problems at next start ");
 
+      }
+    shmBuffer_->writeDqmEmptyEvent();
+    isReadyToShutDown_ = true; // moved here from within the first while loop to make sure the 
+                               // sendDqm loop has been shut down as well
   }
   
   return reschedule;
@@ -527,7 +539,11 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
       shmBuffer_->discardDqmCell(dqmIndex);
       bufRef->release();
     }
-    nbPendingSMDqmDiscards_--;
+    if(nbPendingSMDqmDiscards_>0)nbPendingSMDqmDiscards_--;
+    else {
+      LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
+    }
+
   }
   else {
     LOG4CPLUS_ERROR(log_,"Spurious DQM discard by StorageManager, skip!");
