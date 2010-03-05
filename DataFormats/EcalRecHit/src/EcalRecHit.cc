@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-EcalRecHit::EcalRecHit() : CaloRecHit() {
+EcalRecHit::EcalRecHit() : CaloRecHit(), flagBits_(0) {
 }
 
 EcalRecHit::EcalRecHit(const DetId& id, float energy, float time, uint32_t flags, uint32_t flagBits) :
