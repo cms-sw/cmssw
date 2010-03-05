@@ -112,9 +112,9 @@ def recordedLumiForRange(dbsession,c,inputfile):
     s=selectionParser.selectionParser(content)
     runsandLSStr=s.runsandlsStr()
     runsandLS=s.runsandls()
+    recorded={}
     if c.VERBOSE:
         print 'recordedLumi : selected runs and LS ',runsandLS
-    recorded={}
     try:
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
@@ -161,12 +161,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         hltpath='all'
     if c.VERBOSE:
         print 'effectiveLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-    #
-    #select TRGHLTMAP.HLTPATHNAME,TRGHLTMAP.L1SEED from TRGHLTMAP,CMSRUNSUMMARY where TRGHLTMAP.HLTKEY=CMSRUNSUMMARY.HLTKEY and CMSRUNSUMMARY.RUNNUM=124025;
-    #loop over all the selected HLTPath,seed 
-    #select PRESCALE as hltprescale from HLT where RUNNUM=124025 and PATHNAME='HLT_EgammaSuperClusterOnly_L1R' and CMSLUMINUM=1 and PRESCALE!=0;
-    #select PRESCALE as trgprescale, DEADTIME as trgdeadtime from trg where runnum=124025 and bitname='L1_SingleMu0' order by CMSLUMINUM;
-    #select sum( lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmsluminum and lumisummary.cmsalive=1 and trg.bitnum=0;
+
     try:
         collectedseeds=[]
         filteredbits=[]
@@ -312,8 +307,145 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
 def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
     if c.VERBOSE:
         print 'effectiveLumiForRange : inputfile : ',inputfile,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    f=open(inputfile,'r')
+    content=f.read()
+    s=selectionParser.selectionParser(content)
+    runsandLSStr=s.runsandlsStr()
+    runsandLS=s.runsandls()
+    recorded={}
+    hltTotrgMapAllRuns={}
+    try:
+        for runnumstr,LSlistStr in runsandLSStr.items():
+            dbsession.transaction().start(True)
+            schema=dbsession.nominalSchema()
+            query=schema.newQuery()
+            query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
+            query.addToTableList(nameDealer.trgTableName(),'trg')
+            query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+            result=coral.AttributeList()
+            result.extend("recorded","float")
+            query.defineOutput(result)
+            queryCondition=coral.AttributeList()
+            queryCondition.extend("runnumber","unsigned int")
+            queryCondition.extend("lumiversion","string")
+            queryCondition.extend("alive","bool")
+            queryCondition.extend("bitnum","unsigned int")
+            realLSlist=runsandLS[int(runnumstr)]
+            queryCondition["runnumber"].setData(int(runnumstr))
+            queryCondition["lumiversion"].setData(c.LUMIVERSION)
+            queryCondition["alive"].setData(True)
+            queryCondition["bitnum"].setData(0)
+            for l in realLSlist:
+                queryCondition.extend(str(l),"unsigned int")
+                queryCondition[str(l)].setData(int(l))
+            o=[':'+x for x in LSlistStr]
+            inClause='('+','.join(o)+')'
+            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
+            cursor=query.execute()
+            while cursor.next():
+                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()*c.NORM
+            del query
+            dbsession.transaction().commit()
 
+            #start hlt and trg queries
+            collectedseeds=[]
+            filteredbits=[]
+            finalhltData={} #{hltpath:(l1bitname,hltprescale)}
+            hltTotrgMap={} #{hltpath:(l1bitname,hltprescale,l1prescale,[(lsnum,l1deadtime)])}
+            dbsession.transaction().start(True)
+            schema=dbsession.nominalSchema()
+            query=schema.newQuery()
+            query.addToTableList(nameDealer.cmsrunsummaryTableName(),'cmsrunsummary')
+            query.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')
+            queryCondition=coral.AttributeList()
+            queryCondition.extend("runnumber","unsigned int")
+            queryCondition["runnumber"].setData(int(runnumstr))
+            query.setCondition("trghltmap.HLTKEY=cmsrunsummary.HLTKEY AND cmsrunsummary.RUNNUM=:runnumber",queryCondition)
+            query.addToOutputList("trghltmap.HLTPATHNAME","hltpathname")
+            query.addToOutputList("trghltmap.L1SEED","l1seed")
+            result=coral.AttributeList()
+            result.extend("hltpathname","string")
+            result.extend("l1seed","string")
+            query.defineOutput(result)
+            cursor=query.execute()
+            while cursor.next():
+                hltpathname=cursor.currentRow()["hltpathname"].data()
+                l1seed=cursor.currentRow()["l1seed"].data()
+                collectedseeds.append((hltpathname,l1seed))
+            del query
+            dbsession.transaction().commit()
+        
+            for ip in collectedseeds:
+                l1bitname=hltTrgSeedMapper.findUniqueSeed(ip[0],ip[1])
+                if l1bitname:
+                    filteredbits.append((ip[0],l1bitname.replace('\"','')))
 
+            dbsession.transaction().start(True)
+            schema=dbsession.nominalSchema()
+            for h in filteredbits:
+                hltprescQuery=schema.tableHandle(nameDealer.hltTableName()).newQuery()
+                hltprescQuery.addToOutputList("PRESCALE","hltprescale")
+                hltprescCondition=coral.AttributeList()
+                hltprescCondition.extend('runnumber','unsigned int')
+                hltprescCondition.extend('pathname','string')
+                hltprescCondition.extend('cmsluminum','unsigned int')
+                hltprescCondition.extend('inf','unsigned int')
+                hltprescResult=coral.AttributeList()
+                hltprescResult.extend('hltprescale','unsigned int')
+                hltprescQuery.defineOutput(hltprescResult)
+                hltprescCondition['runnumber'].setData(int(runnumstr))
+                hltprescCondition['pathname'].setData(h[0])
+                hltprescCondition['cmsluminum'].setData(1)
+                hltprescCondition['inf'].setData(0)
+                hltprescQuery.setCondition("RUNNUM =:runnumber AND PATHNAME =:pathname and CMSLUMINUM =:cmsluminum and PRESCALE !=:inf",hltprescCondition)
+                cursor=hltprescQuery.execute()
+                while cursor.next():
+                    hltprescale=cursor.currentRow()['hltprescale'].data()
+                    finalhltData[h[0]]=(h[1],hltprescale)
+                cursor.close()
+                del hltprescQuery
+            dbsession.transaction().commit()
+
+            dbsession.transaction().start(True)
+            schema=dbsession.nominalSchema()
+            for myhltpath,(myl1bitname,myhltprescale) in finalhltData.items():
+                trgQuery=schema.tableHandle(nameDealer.trgTableName()).newQuery()
+                trgQuery.addToOutputList("CMSLUMINUM","cmsluminum")
+                trgQuery.addToOutputList("PRESCALE","trgprescale")
+                trgQuery.addToOutputList("DEADTIME","trgdeadtime")
+                trgQueryCondition=coral.AttributeList()
+                trgQueryCondition.extend('runnumber','unsigned int')
+                trgQueryCondition.extend('bitname','string')
+                trgQueryCondition['runnumber'].setData(int(runnumstr))
+                trgQueryCondition['bitname'].setData(myl1bitname)
+                trgResult=coral.AttributeList()
+                trgResult.extend("cmsluminum","unsigned int")
+                trgResult.extend("trgprescale","unsigned int")
+                trgResult.extend("trgdeadtime","unsigned long long")
+                trgQuery.defineOutput(trgResult)
+                trgQuery.setCondition("RUNNUM =:runnumber AND BITNAME =:bitname order by CMSLUMINUM",trgQueryCondition)
+                cursor=trgQuery.execute()
+                counter=0
+                while cursor.next():
+                    trglsnum=cursor.currentRow()['cmsluminum'].data()
+                    trgprescale=cursor.currentRow()['trgprescale'].data()
+                    trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
+                    if counter==0:
+                        hltTotrgMap[myhltpath]=(myl1bitname,myhltprescale,trgprescale,[])
+                    hltTotrgMap[myhltpath][-1].append((trglsnum,trgdeadtime))
+                    counter=counter+1
+                cursor.close()
+                del trgQuery
+            dbsession.transaction().commit()
+            hltTotrgMapAllRuns[int(runnumstr)]=hltTotrgMap
+        #print recorded
+        print hltTotrgMapAllRuns
+        
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+        
 def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
