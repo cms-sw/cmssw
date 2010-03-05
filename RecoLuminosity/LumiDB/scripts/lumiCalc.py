@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 VERSION='1.00'
-import os,sys,ctypes
+import os,sys
 import coral
-from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser
+from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper
 
 class constants(object):
     def __init__(self):
@@ -158,18 +158,55 @@ def recordedLumiForRange(dbsession,c,inputfile):
     
 def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
     if c.VERBOSE:
+        if len(hltpath)==0:
+            hltpath='All'
         print 'effectiveLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
     #
     #select TRGHLTMAP.HLTPATHNAME,TRGHLTMAP.L1SEED from TRGHLTMAP,CMSRUNSUMMARY where TRGHLTMAP.HLTKEY=CMSRUNSUMMARY.HLTKEY and CMSRUNSUMMARY.RUNNUM=124025;
-    #loop over all the selected HLTPath 
+    #loop over all the selected HLTPath,seed 
     #select PRESCALE from HLT where RUNNUM=124025 and PATHNAME='HLT_EgammaSuperClusterOnly_L1R' order by cmsluminum;
     #select PRESCALE,DEADTIME from trg where runnum=124025 and bitname='L1_SingleMu0' order by cmsluminum;
     #select deadtime from trg where runnum=124025 and 
     #select lumisummary.instlumi from lumisummary,trg where lumisummary.runnum=124025 and trg.runnum=124025 and lumisummary.cmslsnum=trg.cmsluminum and lumisummary.cmsalive=1 and trg.bitnum=0 order by trg.cmsluminum
-    
     hltprescale=0
     l1prescale=0
     
+    try:
+        collectedseeds=[]
+        filteredbits=[]
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        query=schema.newQuery()
+        query.addToTableList(nameDealer.cmsrunsummaryTableName(),'cmsrunsummary')
+        query.addToTableList(nameDealer.trghltMapTableName(),'trghltmap')
+        queryCondition=coral.AttributeList()
+        queryCondition.extend("runnumber","unsigned int")
+        queryCondition["runnumber"].setData(int(runnum))
+        query.setCondition("trghltmap.HLTKEY=cmsrunsummary.HLTKEY AND cmsrunsummary.RUNNUM=:runnumber",queryCondition)
+        query.addToOutputList("trghltmap.HLTPATHNAME","hltpathname")
+        query.addToOutputList("trghltmap.L1SEED","l1seed")
+        result=coral.AttributeList()
+        result.extend("hltpathname","string")
+        result.extend("l1seed","string")
+        query.defineOutput(result)
+        cursor=query.execute()
+        while cursor.next():
+            hltpathname=cursor.currentRow()["hltpathname"].data()
+            l1seed=cursor.currentRow()["l1seed"].data()
+            collectedseeds.append((hltpathname,l1seed))
+        del query
+        for ip in collectedseeds:
+            l1bitname=hltTrgSeedMapper.findUniqueSeed(ip[0],ip[1])
+            if l1bitname:
+                filteredbits.append((hltpathname,l1bitname))
+        dbsession.transaction().commit()
+        print "filtered result : ",filteredbits
+        #print "Recorded Luminosity for Run "+str(runnum)+" : "+str(recorded)+c.LUMIUNIT
+    except Exception,e:
+        print str(e)
+        dbsession.transaction().rollback()
+        del dbsession
+        
 def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
     if c.VERBOSE:
         print 'effectiveLumiForRange : inputfile : ',inputfile,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
