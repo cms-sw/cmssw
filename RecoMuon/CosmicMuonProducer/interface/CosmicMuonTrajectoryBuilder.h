@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/09/21 19:45:24 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/10/18 22:23:23 $
+ *  $Revision: 1.22 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -36,7 +36,8 @@ class MuonBestMeasurementFinder;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
-class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
+class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
+
 public:
 
   /// Constructor 
@@ -111,7 +112,7 @@ private:
 
   std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const Propagator*, const MeasurementEstimator*);
 
-  void incrementChamberCounters(const DetLayer *layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
+  void incrementChamberCounters(const DetLayer* layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
 
   DirectMuonNavigation* theNavigation;
   edm::ParameterSet theNavigationPSet;
@@ -128,6 +129,7 @@ private:
   std::string thePropagatorName;
 
   bool theTraversingMuonFlag;
+  bool theStrict1LegFlag;
 
   std::string category_;
   int theNTraversing;
@@ -136,7 +138,6 @@ private:
   unsigned long long theCacheId_DG;
   edm::Handle<CSCRecHit2DCollection> cschits_;
   edm::Handle<DTRecHitCollection> dthits_;
-
-  
+ 
 };
 #endif
