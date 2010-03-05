@@ -6,6 +6,9 @@
 #include "TString.h"
 #include "Calibration/HcalCalibAlgos/interface/hcalCalibUtils.h"
 
+//#include "Calibration/HcalCalibAlgos/plugins/CommonUsefulStuff.h"
+#include "Calibration/HcalCalibAlgos/interface/CommonUsefulStuff.h"
+
 using namespace std;
 
 void sumDepths(vector<TCell> &selectCells) {
@@ -358,6 +361,7 @@ void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint hitPos
 
 
 // From Jim H. => keep till the code is included centrally
+/*
 double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint) {
   
   // Simplified version of getDistInPlane
@@ -399,4 +403,4 @@ double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechi
 
     
 }
-
+*/

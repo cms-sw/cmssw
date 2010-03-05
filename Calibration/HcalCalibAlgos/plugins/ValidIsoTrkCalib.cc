@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.10 2010/01/25 22:13:27 hegner Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.11 2010/01/29 19:58:02 andrey Exp $
 //
 
 // system include files
@@ -27,9 +27,9 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -48,10 +48,8 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-//TFile Service
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "Calibration/HcalCalibAlgos/src/MaxHit_struct.h"
+
+#include "Calibration/HcalCalibAlgos/interface/CommonUsefulStuff.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -71,7 +69,7 @@ public:
   explicit ValidIsoTrkCalib(const edm::ParameterSet&);
   ~ValidIsoTrkCalib();
 
-  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
+  //  double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
 
 private:
 
@@ -196,49 +194,6 @@ private:
   
 };
 
-double ValidIsoTrkCalib::getDistInPlaneSimple(const GlobalPoint caloPoint,
-                            const GlobalPoint rechitPoint)
-{
-
-  // Simplified version of getDistInPlane
-  // Assume track direction is origin -> point of hcal intersection
-
-  const GlobalVector caloIntersectVector(caloPoint.x(),
-                                         caloPoint.y(),
-                                         caloPoint.z());
-
-  const GlobalVector caloIntersectUnitVector = caloIntersectVector.unit();
-
-  const GlobalVector rechitVector(rechitPoint.x(),
-                                  rechitPoint.y(),
-                                  rechitPoint.z());
-
-  const GlobalVector rechitUnitVector = rechitVector.unit();
-  double dotprod = caloIntersectUnitVector.dot(rechitUnitVector);
-  double rechitdist = caloIntersectVector.mag()/dotprod;
-
-
-  const GlobalVector effectiveRechitVector = rechitdist*rechitUnitVector;
-  const GlobalPoint effectiveRechitPoint(effectiveRechitVector.x(),
-                                         effectiveRechitVector.y(),
-                                         effectiveRechitVector.z());
-
-
-  GlobalVector distance_vector = effectiveRechitPoint-caloPoint;
-
-  if (dotprod > 0.)
-  {
-    return distance_vector.mag();
-  }
-  else
-  {
-    return 999999.;
-
-  }
-
-
-}
-
 
 ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   
@@ -280,8 +235,8 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   parameters_.loadParameters( parameters );
   trackAssociator_.useDefaultPropagator();
 
-  taECALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
-  taHCALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
+  // taECALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
+  //taHCALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
 
 }
 
@@ -319,9 +274,9 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(trackLabel1_,isoProdTracks);
 
 
-  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> pixelTracks;
-  //edm::Handle<reco::TrackCollection> pixelTracks;
-  iEvent.getByLabel(trackLabel_,pixelTracks);
+  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isoPixelTracks;
+  //edm::Handle<reco::TrackCollection> isoPixelTracks;
+  iEvent.getByLabel(trackLabel_,isoPixelTracks);
   
   /*
   edm::Handle<EcalRecHitCollection> ecal;
@@ -336,81 +291,33 @@ ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
+  
+  const CaloSubdetectorGeometry* gHcal = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+  //Note: even though it says HcalBarrel, we actually get the whole Hcal detector geometry!
 
   // Lumi_n=iEvent.luminosityBlock();
   parameters_.useEcal = true;
   parameters_.useHcal = true;
   parameters_.useCalo = false;
   parameters_.useMuon = false;
-  parameters_.dREcal = taECALCone_;
-  parameters_.dRHcal = taHCALCone_;
+  //parameters_.dREcal = taECALCone_;
+  //parameters_.dRHcal = taHCALCone_;
 
+  //cout<<"Hello World. TrackCollectionSize: "<< isoPixelTracks->size()<<endl;
 
-  //cout<<"Hello World. TrackCollectionSize: "<< pixelTracks->size()<<endl;
-
-  //cout<<" generalTracks Size: "<< generalTracks->size()<<endl;
-  int n = generalTracks->size();
-  nTracks->Fill(n);
-
-  if(takeGenTracks_ && iEvent.id().event()%10==1)
-    {
-      gen = generalTracks->size();
-      iso = isoProdTracks->size();
-      pix = pixelTracks->size();
-      
-      genPt[0] = -33;     	  
-      genPhi[0] = -33;     	  
-      genEta[0] = -33;     	  
-      
-      isoPt[0] = -33;     	  
-      isoPhi[0] = -33;     	  
-      isoEta[0] = -33;     	  
-      
-      pixPt[0] = -33;     	  
-      pixPhi[0] = -33;     	  
-      pixEta[0] = -33;     	  
-      
-      Int_t gencount=0, isocount=0, pixcount=0;
-      for (reco::TrackCollection::const_iterator gentr=generalTracks->begin(); gentr!=generalTracks->end(); gentr++)
-	{
-	  genPt[gencount] = gentr->pt();     	  
-	  genPhi[gencount] = gentr->phi();     	  
-	  genEta[gencount] = gentr->eta();     	  
-	  gencount++;
-	}
-      
-      for (reco::TrackCollection::const_iterator isotr=isoProdTracks->begin(); isotr!=isoProdTracks->end(); isotr++)
-	{
-	  isoPt[isocount] = isotr->pt();     	  
-	  isoPhi[isocount] = isotr->phi();     	  
-	  isoEta[isocount] = isotr->eta();     	  
-	  isocount++;
-	}
-      
-      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator pixtr=pixelTracks->begin(); pixtr!=pixelTracks->end(); pixtr++)
-	{
-	  pixPt[pixcount] = pixtr->pt();     	  
-	  pixPhi[pixcount] = pixtr->phi();     	  
-	  pixEta[pixcount] = pixtr->eta();     	  
-	  pixcount++;
-	}
-    }
-
-  tTree -> Fill();
-
-if (pixelTracks->size()==0) return;
+if (isoPixelTracks->size()==0) return;
   
 
 for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=isoProdTracks->end(); trit++)
     {
       
-      reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched=pixelTracks->begin();
-      //reco::TrackCollection::const_iterator isoMatched=pixelTracks->begin();
+      reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched=isoPixelTracks->begin();
+      //reco::TrackCollection::const_iterator isoMatched=isoPixelTracks->begin();
       bool matched=false;
  
-   //for (reco::IsolatedPixelTrackCandidateCollection::const_iterator trit = pixelTracks->begin(); trit!=pixelTracks->end(); trit++)
-   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = pixelTracks->begin(); it!=pixelTracks->end(); it++)
-   //for (reco::TrackCollection::const_iterator it = pixelTracks->begin(); it!=pixelTracks->end(); it++)
+   //for (reco::IsolatedPixelTrackCandidateCollection::const_iterator trit = isoPixelTracks->begin(); trit!=isoPixelTracks->end(); trit++)
+   for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
+   //for (reco::TrackCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
    { 
 
 	  if (abs((trit->pt() - it->pt())/it->pt()) < 0.005 && abs(trit->eta() - it->eta()) < 0.01) 
@@ -455,10 +362,8 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
       
       //float etaecal=info.trkGlobPosAtEcal.eta();
       //float phiecal=info.trkGlobPosAtEcal.phi();
-      
-
-      float etahcal=info.trkGlobPosAtHcal.eta();
-      float phihcal=info.trkGlobPosAtHcal.phi();
+      //  float etahcal=info.trkGlobPosAtHcal.eta();
+      // float phihcal=info.trkGlobPosAtHcal.phi();
 
 
         xTrkEcal=info.trkGlobPosAtEcal.x();
@@ -469,34 +374,25 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
         yTrkHcal=info.trkGlobPosAtHcal.y();
         zTrkHcal=info.trkGlobPosAtHcal.z();
 
-        GlobalPoint gP(xTrkHcal,yTrkHcal,zTrkHcal);
+      if (xTrkEcal==0 && yTrkEcal==0&& zTrkEcal==0) {cout<<"zero point at Ecal"<<endl; continue;}
+      if (xTrkHcal==0 && yTrkHcal==0&& zTrkHcal==0) {cout<<"zero point at Hcal"<<endl; continue;}	
+      
+      /*GlobalVector trackMomAtEcal = info.trkMomAtEcal;
+      GlobalVector trackMomAtHcal = info.trkMomAtHcal;
+	
+      PxTrkHcal = trackMomAtHcal.x();
+      PyTrkHcal = trackMomAtHcal.y();
+      PzTrkHcal = trackMomAtHcal.z();
+      */
 
+      GlobalPoint gPointEcal(xTrkEcal,yTrkEcal,zTrkEcal);
+      GlobalPoint gPointHcal(xTrkHcal,yTrkHcal,zTrkHcal);
 
 	int iphitrue = -10;
 	int ietatrue = 100;
-
-	if (abs(etahcal)<1.392) 
-	  {
-	    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-	    const HcalDetId tempId = gHB->getClosestCell(gP);
-	    ietatrue = tempId.ieta();
-	    iphitrue = tempId.iphi();
-	  }
-
-	if (abs(etahcal)>1.392 &&  abs(etahcal)<3.0) 
-	  {
-	    const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
-	    const HcalDetId tempId = gHE->getClosestCell(gP);
-	    ietatrue = tempId.ieta();
-	    iphitrue = tempId.iphi();
-	  }
-
-      /*
-	float dphi = fabs(info.trkGlobPosAtHcal.phi() - phihit); 
-	if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	float deta = fabs(info.trkGlobPosAtHcal.eta() - etahit); 
-	float dr = sqrt(dphi*dphi + deta*deta);
-      */
+	const HcalDetId tempId = gHcal->getClosestCell(gPointHcal);
+	ietatrue = tempId.ieta();
+	iphitrue = tempId.iphi();
 
 
        MaxHit_struct MaxHit;
@@ -536,8 +432,8 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  // rof end
 
 	  GlobalPoint pos = geo->getPosition(hhit->detid());
-	  float phihit = pos.phi();
-	  float etahit = pos.eta();
+	  //float phihit = pos.phi();
+	  //float etahit = pos.eta();
 	  
 	  int iphihitm  = (hhit->id()).iphi();
 	  int ietahitm  = (hhit->id()).ieta();
@@ -545,25 +441,19 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  float enehit = hhit->energy() * recal;
 	  
 	  if (depthhit!=1) continue;
-	   
-	  float dphi = fabs(phihcal - phihit); 
-	  if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	  float deta = fabs(etahcal - etahit); 
-	  float dr = sqrt(dphi*dphi + deta*deta);
 	  
 	  /*
-	  if (deta<dddeta) {
-	   ietatrue = ietahitm;
-	   dddeta=deta;
-	  }
-	  
-	  if (dphi<dddphi) {
-	  iphitrue = iphihitm;
-	  dddphi=dphi;
-	  }
+	    float dphi = fabs(phihcal - phihit); 
+	    if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	    float deta = fabs(etahcal - etahit); 
+	    float dr = sqrt(dphi*dphi + deta*deta);
 	  */
 	  
-	  if(dr<associationConeSize_) 
+         
+	  //double distAtHcal =  getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, pos);
+	  double distAtHcal =  getDistInPlaneSimple(gPointHcal, pos);
+
+	  if(distAtHcal < associationConeSize_) 
 	    {
 	      
 	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
@@ -587,7 +477,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
  		  MaxHit.hitenergy =  enehit;
 		  MaxHit.ietahitm   = (hhit->id()).ieta();
 		  MaxHit.iphihitm   = (hhit->id()).iphi();
-		  MaxHit.dr   = dr;
+		  MaxHit.dr   = distAtHcal;
 		  //MaxHit.depthhit  = (hhit->id()).depth();
 		  MaxHit.depthhit  = 1;
 
@@ -756,7 +646,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 		    }//end of 3x3
 		  
 		  		  
-                  if (AxB_=="Cone" && getDistInPlaneSimple(gP, pos2) < calibrationConeSize_) {
+                  if (AxB_=="Cone" && getDistInPlaneSimple(gPointHcal, pos2) < calibrationConeSize_) {
 		    
 		    HTime[numHits]=  hhit->time();
 		    numHits++;			      
@@ -825,6 +715,59 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	}
 
     } //end of isoProdTracks cycle
+
+
+
+/* ------------------   Some stuff for general tracks  ----------   ----*/
+  //cout<<" generalTracks Size: "<< generalTracks->size()<<endl;
+  int n = generalTracks->size();
+  nTracks->Fill(n);
+
+  if(takeGenTracks_ && iEvent.id().event()%10==1)
+    {
+      gen = generalTracks->size();
+      iso = isoProdTracks->size();
+      pix = isoPixelTracks->size();
+      
+      genPt[0] = -33;     	  
+      genPhi[0] = -33;     	  
+      genEta[0] = -33;     	  
+      
+      isoPt[0] = -33;     	  
+      isoPhi[0] = -33;     	  
+      isoEta[0] = -33;     	  
+      
+      pixPt[0] = -33;     	  
+      pixPhi[0] = -33;     	  
+      pixEta[0] = -33;     	  
+      
+      Int_t gencount=0, isocount=0, pixcount=0;
+      for (reco::TrackCollection::const_iterator gentr=generalTracks->begin(); gentr!=generalTracks->end(); gentr++)
+	{
+	  genPt[gencount] = gentr->pt();     	  
+	  genPhi[gencount] = gentr->phi();     	  
+	  genEta[gencount] = gentr->eta();     	  
+	  gencount++;
+	}
+      
+      for (reco::TrackCollection::const_iterator isotr=isoProdTracks->begin(); isotr!=isoProdTracks->end(); isotr++)
+	{
+	  isoPt[isocount] = isotr->pt();     	  
+	  isoPhi[isocount] = isotr->phi();     	  
+	  isoEta[isocount] = isotr->eta();     	  
+	  isocount++;
+	}
+      
+      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator pixtr=isoPixelTracks->begin(); pixtr!=isoPixelTracks->end(); pixtr++)
+	{
+	  pixPt[pixcount] = pixtr->pt();     	  
+	  pixPhi[pixcount] = pixtr->phi();     	  
+	  pixEta[pixcount] = pixtr->eta();     	  
+	  pixcount++;
+	}
+    }
+
+  tTree -> Fill();
 
 }
 

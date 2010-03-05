@@ -1,15 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HcalPFCorrsCulculation")
+
+process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(5000)
 
+process.load("Calibration.HcalCalibAlgos.pfCorrs_cfi")
+process.hcalPFcorrs.ConeRadiusCm = cms.untracked.double(26.2)
+
+#process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'MC_31X_V5::All'
+#process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
+process.prefer("GlobalTag")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -19,20 +29,10 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.load("Calibration.HcalCalibAlgos.pfCorrs_cfi")
-#process.hcalRecoAnalyzer.outputFile = cms.untracked.string("HcalCorrPF.root")
-process.hcalRecoAnalyzer.ConeRadiusCm = cms.untracked.double(30.)
-
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('HcalCorrPF.root')
 )
 
-
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
-#process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
-process.prefer("GlobalTag")
 
 process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
                         appendToDataLabel = cms.string('recalibrate'),
@@ -50,6 +50,6 @@ process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
                          )
 )
 
-process.p = cms.Path(process.hcalRecoAnalyzer)
+process.p = cms.Path(process.hcalPFcorrs)
 
 

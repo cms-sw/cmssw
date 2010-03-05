@@ -8,8 +8,9 @@
   //  Int_t fillstyle = 3008;
 Int_t sample=0;
 
- TString imgpath("~/public/html/validation/");  
- TFile* tf = new TFile("./ValidFile_XX.root","OPEN");
+ TString imgpath("~/afs/public_html/validation/");  
+ TFile* tf = new TFile("~/nobackup/arch/ValidFile_50GeV_v1.root","OPEN");
+ // TFile* tf = new TFile("./ValidFile_XX.root","OPEN");
   
 
   //TCut tr_cut = "eTrack>9 && eTrack<11";  label = new TText(0.97,0.1, "10 GeV"); sample=10;
@@ -22,15 +23,16 @@ label->SetTextAlign(11);
 label->SetTextSize(0.05);
 label->SetTextAngle(90);
 
-TCut tr_quality = "numValidTrkHits>=13 && (abs(etaTrack) <= 1.47 || numValidTrkStrips>=9)"; 
+TCut tr_quality = "";
+// TCut tr_quality = "numValidTrkHits>=13 && (abs(etaTrack) <= 1.47 || numValidTrkStrips>=9)"; 
  TCut mip_cut = "eECAL<1";
  TCut hit_dist = "sqrt(dietatr*dietatr+diphitr*diphitr)<1.5";
  TCut ptNear = "PtNearBy<2";
 TCut selection = tr_cut && mip_cut && tr_quality && hit_dist && ptNear;
   
 
-  TTree* ftree = (TTree*)tf->Get("fTree");  
-  TTree* ttree = (TTree*)tf->Get("tTree");
+  TTree* ftree = (TTree*)tf->Get("ValidationIsoTrk/fTree");  
+  TTree* ttree = (TTree*)tf->Get("ValidationIsoTrk/tTree");
    Int_t  nentries = (Int_t)ftree->GetEntries();
   Double_t nent = 1.;
   TCanvas* c1 = new TCanvas("c1","all",0,0,350,350);
@@ -768,7 +770,7 @@ label -> Draw();
 
   c1 -> SetLogy(1);
 
-  ftree -> Draw("numValidTrkStrips>>hh1", tr_cut && mip_cut && hit_dist &&"iEta<17", "");
+  ftree -> Draw("numValidTrkStrips>>hh1", tr_cut && mip_cut && hit_dist &&"abs(iEta)<17", "");
   hh1 -> SetTitle("track pattern: numberOfValidStripTECHits(). HB");
   hh1 -> SetLineColor(kRed+1);
 label -> Draw();
@@ -776,7 +778,7 @@ label -> Draw();
   hh1 -> Delete();
 
 
-  ftree -> Draw("numValidTrkStrips>>hh1", tr_cut && mip_cut && hit_dist && "iEta>18", "");
+  ftree -> Draw("numValidTrkStrips>>hh1", tr_cut && mip_cut && hit_dist && "abs(iEta)>18", "");
   hh1 -> SetTitle("track pattern: numberOfValidStripTECHits(). HE");
   hh1 -> SetLineColor(kBlue+1);
 label -> Draw();
@@ -819,7 +821,7 @@ label -> Draw();
 
 
   ftree -> Draw("eECAL:iEta>>hh1", selection, "lego");
-//  ftree -> Draw("eECAL>>hh1", selection&&"iEta>17", "");
+//  ftree -> Draw("eECAL>>hh1", selection&&"abs(iEta)>17", "");
   hh1 -> SetTitle("ecal energy cs iEta");
   hh1 -> SetYTitle("energy");
   hh1 -> SetXTitle("iEta");

@@ -17,10 +17,8 @@ ValidationIsoTrk = cms.EDAnalyzer("ValidIsoTrkCalib",
         HcalIsolTrackInput = cms.InputTag("IsoProd:HcalIsolatedTrackCollection"),
         trackInput = cms.InputTag("IsoProd:IsoTrackTracksCollection"),
         associationConeSize = cms.double(0.5),
-#        outputFileName = cms.string("ValidFile.root"),
-#        calibFactorsFileName = cms.string("Calibration/HcalCalibAlgos/data/response_corrections.txt"),
         AxB = cms.string("Cone"),
-        calibrationConeSize = cms.double(26),
+        calibrationConeSize = cms.double(26.2),
 
         energyECALmip = cms.double(500.0), #take a broad range. put cuts later
 	MinNTrackHitsBarrel = cms.int32(-1), # def=13. no actual cut, apply it later.
