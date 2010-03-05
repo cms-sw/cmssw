@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/28 19:16:07 $
- *  $Revision: 1.32 $
+ *  $Date: 2010/03/05 15:37:26 $
+ *  $Revision: 1.33 $
  *
  *  \author Martin Grunewald
  *
@@ -403,9 +403,6 @@ void HLTConfigProvider::extract()
      }
      hltPrescaleTable_=HLTPrescaleTable(set,labels,table);
    }
-
-   dump("ProcessPSet");
-   dump("PrescaleTable");
 
    return;
 }
