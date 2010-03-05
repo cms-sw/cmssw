@@ -7,7 +7,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
                            
     vertices = cms.InputTag("pixelVertices"),
     vtxNumber = cms.int32(-1),
-    vtxTracks = cms.uint32(3), ## at least 3 tracks
+    vtxNdof = cms.double(2.), ## 3D: ndof = 2*sum(weights) - 3; 1D: ndof = tracks - 1
     vtxChi2Prob = cms.double(0.01), ## at least 1% chi2nprobability (if it has a chi2)
 
     #untracked bool copyTrajectories = true // when doing retracking before

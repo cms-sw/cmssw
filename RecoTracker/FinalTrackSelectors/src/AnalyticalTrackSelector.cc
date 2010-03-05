@@ -17,7 +17,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     setQualityBit_( false ),
     qualityToSet_( TrackBase::undefQuality ),
     vtxNumber_( cfg.getParameter<int32_t>("vtxNumber") ),
-    vtxTracks_( cfg.getParameter<uint32_t>("vtxTracks") ),
+    vtxNdof_( cfg.getParameter<double>("vtxNdof") ),
     vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") ),
 	//  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_(cfg.getParameter< std::vector<double> >("res_par") ),
@@ -224,7 +224,7 @@ bool AnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const
 
    if (points.empty()) { //If not primaryVertices are reconstructed, check just the compatibility with the BS
      //z0 within (n sigma + dzCut) of the beam spot z, if no good vertex is found
-     if ( abs(dz) < vertexBeamSpot.sigmaZ()*nSigmaZ_ + dzCut ) primaryVertexZCompatibility = true;  
+     if ( abs(dz) < hypot(vertexBeamSpot.sigmaZ()*nSigmaZ_,dzCut) ) primaryVertexZCompatibility = true;  
 
      // d0 compatibility with beam line
      if (abs(d0) < d0Cut) primaryVertexD0Compatibility = true;     
@@ -259,7 +259,7 @@ void AnalyticalTrackSelector::selectVertices(const reco::VertexCollection &vtxs,
     using namespace reco;
     int32_t toTake = vtxNumber_; 
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
-        if ((it->tracksSize() >= vtxTracks_)  && 
+        if ((it->ndof() >= vtxNdof_)  && 
                 ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()) ) >= vtxChi2Prob_) ) ) {
             points.push_back(it->position()); 
             toTake--; if (toTake == 0) break;

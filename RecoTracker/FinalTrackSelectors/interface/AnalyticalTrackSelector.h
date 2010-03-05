@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.14 $
+ * \version $Revision: 1.15 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.14 2010/02/20 21:01:18 wmtan Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.15 2010/03/03 16:49:49 gpetrucc Exp $
  *
  */
 
@@ -66,7 +66,7 @@ namespace reco { namespace modules {
 
             /// vertex cuts
             int32_t vtxNumber_;
-            size_t  vtxTracks_;
+            double  vtxNdof_;
             double  vtxChi2Prob_;
 
 			//  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
