@@ -157,9 +157,9 @@ def recordedLumiForRange(dbsession,c,inputfile):
         
     
 def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
+    if len(hltpath)==0:
+        hltpath='All'
     if c.VERBOSE:
-        if len(hltpath)==0:
-            hltpath='All'
         print 'effectiveLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
     #
     #select TRGHLTMAP.HLTPATHNAME,TRGHLTMAP.L1SEED from TRGHLTMAP,CMSRUNSUMMARY where TRGHLTMAP.HLTKEY=CMSRUNSUMMARY.HLTKEY and CMSRUNSUMMARY.RUNNUM=124025;
@@ -288,12 +288,22 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
             recorded=cursor.currentRow()["recorded"].data()*c.NORM
         del query
         dbsession.transaction().commit()
-        print 'Effective Luminosity for Run '+str(runnum) 
-        for hltname in hltTotrgMap.keys():
-            effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
-            print '    '+hltname+' : '+str(effresult)+c.LUMIUNIT
+        print 'Effective Luminosity for Run '+str(runnum)
+        if hltpath=='All':
+            for hltname in hltTotrgMap.keys():
+                effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
+                print '    '+hltname+' : '+str(effresult)+c.LUMIUNIT
+                if c.VERBOSE:
+                    print '     ### L1 :'+str(hltTotrgMap[hltname][0])+', HLT Prescale : '+str(hltTotrgMap[hltname][1])+', L1 Prescale : '+str(hltTotrgMap[hltname][2])+', Deadtime : '+str(hltTotrgMap[hltname][3])
+        else:
+            if hltTotrgMap.has_key(hltpath) is False:
+                print 'Unable to calculate effective luminosity for HLTPath ',hltpath
+                return
+            effresult=recorded/(hltTotrgMap[hltpath][1]*hltTotrgMap[hltpath][2])
+            print '    '+hltpath+' : '+str(effresult)+c.LUMIUNIT
             if c.VERBOSE:
-                print '     ### L1 :'+str(hltTotrgMap[hltname][0])+', HLT Prescale : '+str(hltTotrgMap[hltname][1])+', L1 Prescale : '+str(hltTotrgMap[hltname][2])+', Deadtime : '+str(hltTotrgMap[hltname][3])
+                print '     ### L1 :'+str(hltTotrgMap[hltpath][0])+', HLT Prescale : '+str(hltTotrgMap[hltpath][1])+', L1 Prescale : '+str(hltTotrgMap[hltpath][2])+', Deadtime : '+str(hltTotrgMap[hltpath][3])
+                
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
