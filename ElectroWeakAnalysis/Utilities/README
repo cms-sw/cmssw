@@ -2,6 +2,22 @@
 UTILITIES in ElectroWeakAnalysis/Utilities:
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+IMPORTANT BEFORE COMPLIATION/LINK: From the 330 series on, full LHAPDF libraries are 
+shipped with CMSSW. However, the default libraries used in the release are always
+the "light" ones, which are very slow for PDF reweighting. In order to run fast, 
+you should execute:
+      1) scram setup lhapdffull
+      2) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
+      3) scram b
+
+If you prefer to use your own LHAPDF library and files, assumed to be installed 
+under /usr/local, then do:
+      1) Edit the file $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/available/lhapdf.xml
+      2) In that file, change the default for LHAPDF_BASE to "/usr/local/"
+      3) scram setup lhapdf (and check that environment variables point to /usr/local/...)
+      4) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
+      5) scram b
+
 src/PdfWeightProducer.cc
 ===========================
 - Writes into the data structure a std::vector<double> containing the LHAPDF weights 
@@ -19,13 +35,6 @@ src/PdfWeightProducer.cc
                   , "MRST2007lomod.LHgrid"
             )
       )
-
-- WARNING AT CREATION TIME: From the 330 series on, full LHAPDF libraries are 
-  shipped with CMSSW. However, the default libraries used in the release are 
-  he "light" ones, leading to a very slow code. In order to run fast. please execute:
-      scram setp lhapdffull
-      scram b ToolUpdated
-      scram b
 
 - A typical application is the determination of the PDF systematics. This is 
   implemented in "src/PdfSystematicsAnalyzer.cc". This analyzer counts the 
