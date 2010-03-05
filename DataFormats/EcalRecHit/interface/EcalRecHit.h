@@ -32,6 +32,26 @@ public:
           kUnknown                   // to easy the interface with functions returning flags
   };
 
+  // ES recHit flags
+  enum ESFlags {
+          kGood,
+          kDead,
+          kHot,
+          kPassBX,
+          kTwoGoodRatios,
+          kGoodRatioFor12,
+          kGoodRatioFor23Upper,
+          kGoodRatioFor23Lower,
+          kTS1Largest,
+          kTS3Largest,
+          kTS3Negative,
+          kSaturated,
+          kTS2Saturated,
+          kTS3Saturated,
+          kTS13Sigmas,
+          kTS15Sigmas
+  };
+
   /** bit structure of CaloRecHit::flags_ used in EcalRecHit:
    *
    *  | 32 | 31...25 | 24...12 | 11...5 | 4...1 |
