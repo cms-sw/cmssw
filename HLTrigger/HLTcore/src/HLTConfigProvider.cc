@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/05 15:40:22 $
- *  $Revision: 1.34 $
+ *  $Date: 2010/03/05 16:26:48 $
+ *  $Revision: 1.35 $
  *
  *  \author Martin Grunewald
  *
@@ -379,12 +379,12 @@ void HLTConfigProvider::extract()
    if (processPSet_.exists("PrescaleService")) {
      prescaleName="PrescaleService";
    } else if ( processPSet_.exists("@PrescaleTable")) {
-     prescaleName="PrescaleTable";
+     prescaleName="@PrescaleTable";
    }
    if (prescaleName=="") {
      hltPrescaleTable_=HLTPrescaleTable();
    } else {
-     const ParameterSet iPS(processPSet_.getParameter<ParameterSet>("PrescaleTable"));
+     const ParameterSet iPS(processPSet_.getParameter<ParameterSet>(prescaleName));
      string defaultLabel(iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel",""));
      vector<string> labels(iPS.getParameter<std::vector<std::string> >("lvl1Labels"));
      vector<ParameterSet> vpTable(iPS.getParameter<std::vector<ParameterSet> >("prescaleTable"));
