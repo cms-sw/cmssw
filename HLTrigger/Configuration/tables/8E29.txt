@@ -55,9 +55,6 @@ HLT_ZeroBias
 HLT_MinBiasHcal
 HLT_MinBiasEcal
 HLT_ZeroBiasPixel_SingleTrack
-HLT_MinBiasPixel_SingleTrack
-HLT_MinBiasPixel_DoubleTrack
-HLT_MinBiasPixel_DoubleIsoTrack5
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
