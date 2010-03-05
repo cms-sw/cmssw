@@ -32,11 +32,15 @@ zGolden=(
     cms.PSet(
     tag = cms.untracked.string("Dau2dB"),
     quantity = cms.untracked.string("daughter(1).masterClone.dB")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1CombinedIso"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userIso(0)")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1relCombinedIso"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userIso(1)")
     )#,
-    #cms.PSet(
-    #tag = cms.untracked.string("Dau1UserIso"),
-    #quantity = cms.untracked.string("daughter(0).masterClone.User1Iso")
-    #)#,
     #cms.PSet(
     #tag = cms.untracked.string("Dau1UserIsolation"),
     #quantity = cms.untracked.string("daughter(0).masterClone.isolations_[7]")
