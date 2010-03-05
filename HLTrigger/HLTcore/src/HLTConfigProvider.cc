@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/05 16:26:48 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/03/05 19:00:37 $
+ *  $Revision: 1.36 $
  *
  *  \author Martin Grunewald
  *
@@ -659,25 +659,23 @@ const std::vector<std::string>& HLTConfigProvider::datasetContent(const std::str
 }
 
 /*
-///
-/// high-level user access method: prescale for given trigger path
-unsigned int HLTConfigProvider::prescaleValue(unsigned int set, const std::string& trigger) const {
-  using namespace std;
-  const map<string,vector<unsigned int> >& table(hltPrescaleTable_.table());
-  const map<string,vector<unsigned int> >::const_iterator it(table.find(trigger));
-  if ((it==table.end()) || (prescaleSet()>=it->second.size())) {
-    return 1;
-  } else {
-    return it->second[set];
-  }
+unsigned int HLTConfigProvider::prescaleSize() const {
+  return hltPrescaleTable_.size();
 }
-///
-/// low-level data member access
-const std::vector<std::string>& HLTConfigProvider::prescaleLabels() const {return hltPrescaleTable_.labels();}
-const std::map<std::string,std::vector<unsigned int> >& HLTConfigProvider::prescaleTable() const {return hltPrescaleTable_.table();}
-///
-/// private - default prescale set index to be taken from L1 event data!!
-unsigned int HLTConfigProvider::prescaleSet() const {return hltPrescaleTable_.set();}
+unsigned int HLTConfigProvider::prescaleValue(unsigned int set, const std::string& trigger) const {
+  return hltPrescaleTable_.prescale(set,trigger);
+}
+
+const std::vector<std::string>& HLTConfigProvider::prescaleLabels() const {
+  return hltPrescaleTable_.labels();
+}
+const std::map<std::string,std::vector<unsigned int> >& HLTConfigProvider::prescaleTable() const {
+  return hltPrescaleTable_.table();
+}
+
+unsigned int HLTConfigProvider::prescaleSet() const {
+  return hltPrescaleTable_.set();
+}
 unsigned int HLTConfigProvider::prescaleValue(const std::string& trigger) const {
   return prescaleValue(prescaleSet(),trigger);
 }
