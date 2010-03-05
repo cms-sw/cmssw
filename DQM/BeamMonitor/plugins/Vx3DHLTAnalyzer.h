@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.5 2010/03/04 09:36:10 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.6 2010/03/04 18:49:16 dinardo Exp $
 //
 //
 
@@ -52,6 +52,12 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       // cfg file parameters
       edm::InputTag vertexCollection;
       unsigned int nLumiReset;
+      double xRange;
+      double xStep;
+      double yRange;
+      double yStep;
+      double zRange;
+      double zStep;
 
       // Histograms
       MonitorElement* mXlumi;

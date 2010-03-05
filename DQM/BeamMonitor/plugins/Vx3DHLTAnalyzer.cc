@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.9 2010/03/04 18:49:14 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.10 2010/03/05 10:52:29 dinardo Exp $
 //
 //
 
@@ -43,6 +43,12 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
 
   vertexCollection = iConfig.getParameter<InputTag>("vertexCollection");
   nLumiReset       = iConfig.getParameter<unsigned int>("nLumiReset");
+  xRange           = iConfig.getParameter<double>("xRange");
+  xStep            = iConfig.getParameter<double>("xStep");
+  yRange           = iConfig.getParameter<double>("yRange");
+  yStep            = iConfig.getParameter<double>("yStep");
+  zRange           = iConfig.getParameter<double>("zRange");
+  zStep            = iConfig.getParameter<double>("zStep");
 }
 
 
@@ -97,17 +103,17 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), nLumiReset);
       
       Gauss->SetParameters(Vx_X->getTH1()->GetMaximum(), Vx_X->getTH1()->GetMean(), Vx_X->getTH1()->GetRMS());
-      Vx_X->getTH1()->Fit("Gauss","QLM0");
+      Vx_X->getTH1()->Fit("Gauss","QN0");
       RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2),
 				 (Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
 											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
       Gauss->SetParameters(Vx_Y->getTH1()->GetMaximum(), Vx_Y->getTH1()->GetMean(), Vx_Y->getTH1()->GetRMS());
-      Vx_Y->getTH1()->Fit("Gauss","QLM0");
+      Vx_Y->getTH1()->Fit("Gauss","QN0");
       RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2),
 				 (Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
 											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
       Gauss->SetParameters(Vx_Z->getTH1()->GetMaximum(), Vx_Z->getTH1()->GetMean(), Vx_Z->getTH1()->GetRMS());
-      Vx_Z->getTH1()->Fit("Gauss","QLM0");
+      Vx_Z->getTH1()->Fit("Gauss","QN0");
       RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2),
 				 (Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
 											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
@@ -157,9 +163,9 @@ void Vx3DHLTAnalyzer::beginJob()
     {
       dbe->setCurrentFolder("BeamPixel");
 
-      Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", 4000, -2.0, 2.0);
-      Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", 4000, -2.0, 2.0);
-      Vx_Z = dbe->book1D("Vertex_Z", "Primary Vertex Z Coordinate Distribution", 800, -20.0, 20.0);
+      Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", (int)(xRange/xStep), -xRange/2., xRange/2.);
+      Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", (int)(yRange/yStep), -yRange/2., yRange/2.);
+      Vx_Z = dbe->book1D("Vertex_Z", "Primary Vertex Z Coordinate Distribution", (int)(zRange/zStep), -zRange/2., zRange/2.);
 
       Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
       Vx_X->setAxisTitle("Entries [#]",2);
@@ -210,9 +216,9 @@ void Vx3DHLTAnalyzer::beginJob()
       RMSsigZlumi->setAxisTitle("Entries [#]",2);
       RMSsigZlumi->getTH1()->SetOption("E1");
 
-      Vx_ZX = dbe->book2D("Vertex_ZX", "Primary Vertex ZX Coordinate Distributions", 80, -20.0, 20.0, 400, -2.0, 2.0);
-      Vx_ZY = dbe->book2D("Vertex_ZY", "Primary Vertex ZY Coordinate Distributions", 80, -20.0, 20.0, 400, -2.0, 2.0);
-      Vx_XY = dbe->book2D("Vertex_XY", "Primary Vertex XY Coordinate Distributions", 400, -2.0, 2.0, 400, -2.0, 2.0);
+      Vx_ZX = dbe->book2D("Vertex_ZX", "Primary Vertex ZX Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2.);
+      Vx_ZY = dbe->book2D("Vertex_ZY", "Primary Vertex ZY Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
+      Vx_XY = dbe->book2D("Vertex_XY", "Primary Vertex XY Coordinate Distributions", (int)(xRange/xStep/10.), -xRange/2., xRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
 
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
@@ -224,11 +230,11 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      Vx_ZX_profile = dbe->bookProfile("ZX profile","ZX Profile", 40, -20.0, 20.0, 200, -2.0, 2.0, "");
+      Vx_ZX_profile = dbe->bookProfile("ZX profile","ZX Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(xRange/xStep/20.), -xRange/2., xRange/2., "");
       Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
 
-      Vx_ZY_profile = dbe->bookProfile("ZY profile","ZY Profile", 40, -20.0, 20.0, 200, -2.0, 2.0, "");
+      Vx_ZY_profile = dbe->bookProfile("ZY profile","ZY Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(yRange/yStep/20.), -yRange/2., yRange/2., "");
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
 
