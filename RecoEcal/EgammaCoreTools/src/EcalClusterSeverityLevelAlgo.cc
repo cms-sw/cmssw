@@ -18,7 +18,7 @@ float EcalClusterSeverityLevelAlgo::goodFraction( const reco::CaloCluster & clus
                         edm::LogError("EcalClusterSeverityLevelAlgo") << "The cluster DetId " << id.rawId() << " is not in the recHit collection!!";
                         return -1;
                 }
-                uint32_t sev = EcalSeverityLevelAlgo::severityLevel((*jrh), chStatus );
+                uint32_t sev = EcalSeverityLevelAlgo::severityLevel( id, recHits, chStatus );
 		//                if ( sev == EcalSeverityLevelAlgo::kBad ) ++recoveryFailed;
                 if ( sev == EcalSeverityLevelAlgo::kProblematic 
                      || sev == EcalSeverityLevelAlgo::kRecovered || sev == EcalSeverityLevelAlgo::kBad ) 
@@ -92,7 +92,7 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster &
       if ( jrh == recHits.end() ) 
 	continue;
       //Now checking rh flag
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*jrh), chStatus );
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( *it, recHits, chStatus );
       if (sev == EcalSeverityLevelAlgo::kGood)
 	continue;
       //      std::cout << "[closestProblematic] Found a problematic channel " << EBDetId(*it) << " " << flag << std::endl;
