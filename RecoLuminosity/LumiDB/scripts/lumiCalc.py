@@ -158,7 +158,7 @@ def recordedLumiForRange(dbsession,c,inputfile):
     
 def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
     if len(hltpath)==0:
-        hltpath='All'
+        hltpath='all'
     if c.VERBOSE:
         print 'effectiveLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
     #
@@ -289,7 +289,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         del query
         dbsession.transaction().commit()
         print 'Effective Luminosity for Run '+str(runnum)
-        if hltpath=='All':
+        if hltpath=='all':
             for hltname in hltTotrgMap.keys():
                 effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
                 print '    '+hltname+' : '+str(effresult)+c.LUMIUNIT
@@ -326,7 +326,7 @@ def main():
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file, optional for recorded and effective actions, not taken by delivered action')
     parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
-    parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the effective luminosity, default to All')
+    parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the effective luminosity, default to all')
     parser.add_argument('action',choices=['delivered','recorded','effective'],help='lumi calculation types')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
