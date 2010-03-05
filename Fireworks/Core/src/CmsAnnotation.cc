@@ -15,6 +15,8 @@
 #include <KeySymbols.h>
 
 #include "Fireworks/Core/interface/CmsAnnotation.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
+//# #include "Fireworks/Core/src/FWGUIManager.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) :

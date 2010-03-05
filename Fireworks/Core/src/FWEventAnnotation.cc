@@ -14,7 +14,7 @@
 
 #include "Fireworks/Core/interface/FWEventAnnotation.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
-#include "Fireworks/Core/src/FWGUIManager.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
