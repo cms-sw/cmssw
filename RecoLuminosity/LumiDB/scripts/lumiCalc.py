@@ -198,9 +198,10 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         for ip in collectedseeds:
             l1bitname=hltTrgSeedMapper.findUniqueSeed(ip[0],ip[1])
             if l1bitname:
-                filteredbits.append((hltpathname,l1bitname))
+                filteredbits.append((ip[0],l1bitname))
         dbsession.transaction().commit()
         print "filtered result : ",filteredbits
+        
         #print "Recorded Luminosity for Run "+str(runnum)+" : "+str(recorded)+c.LUMIUNIT
     except Exception,e:
         print str(e)
