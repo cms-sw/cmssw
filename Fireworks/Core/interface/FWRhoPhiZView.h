@@ -41,9 +41,10 @@ class TEveCalo2D;
 class TEveScene;
 class TEveProjectionAxes;
 class TEveWindowSlot;
-
+class FWEventAnnotation;
 class FWRhoPhiZViewManager;
 class FWViewContextMenuHandlerGL;
+
 
 class FWRhoPhiZView : public FWViewBase
 {
@@ -75,6 +76,7 @@ public:
    TEveElement* importElements(TEveElement* iProjectableChild, float iLayer, TEveElement* iProjectedParent=0);
 
 private:
+   void doEventAnnotation();
    void doDistortion();
    void doCompression(bool);
    void doZoom(double);
@@ -103,16 +105,17 @@ private:
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
 
    // parameters
-   FWDoubleParameter m_caloDistortion;
-   FWDoubleParameter m_muonDistortion;
-   FWBoolParameter m_showProjectionAxes;
-   FWBoolParameter m_compressMuon;
-   FWDoubleParameter m_caloFixedScale;
-   FWBoolParameter m_caloAutoScale;
-   FWDoubleParameter m_lineWidth;
-   FWBoolParameter m_smoothLine;
-   FWBoolParameter*  m_showHF;
-   FWBoolParameter*  m_showEndcaps;
+   FWEventAnnotation* m_eventAnnotation;
+   FWDoubleParameter  m_caloDistortion;
+   FWDoubleParameter  m_muonDistortion;
+   FWBoolParameter    m_showProjectionAxes;
+   FWBoolParameter    m_compressMuon;
+   FWDoubleParameter  m_caloFixedScale;
+   FWBoolParameter    m_caloAutoScale;
+   FWDoubleParameter  m_lineWidth;
+   FWBoolParameter    m_smoothLine;
+   FWBoolParameter*   m_showHF;
+   FWBoolParameter*   m_showEndcaps;
 
    // camera parameters
    double* m_cameraZoom;

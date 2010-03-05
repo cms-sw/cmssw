@@ -53,6 +53,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 
+#include "Fireworks/Core/interface/FWEventAnnotation.h"
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
@@ -104,6 +105,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_typeName(iName),
    m_caloScale(1),
    m_axes(),
+   m_eventAnnotation(0),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
@@ -125,6 +127,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
 #endif
    iParent->ReplaceWindow(nv);
    gEve->GetViewers()->AddElement(nv);
+   m_eventAnnotation = new FWEventAnnotation(m_embeddedViewer, this);
 
    TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
    m_scene.reset(ns);
@@ -169,6 +172,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
 
    gEve->AddElement(m_projMgr.get(), ns);
 
+   m_eventAnnotation->m_level->changed_.connect(boost::bind(&FWRhoPhiZView::doEventAnnotation,this));
    m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
@@ -203,6 +207,12 @@ FWRhoPhiZView::~FWRhoPhiZView()
 //
 // member functions
 //
+void
+FWRhoPhiZView::doEventAnnotation()
+{
+   m_eventAnnotation->updateText();
+}
+
 void
 FWRhoPhiZView::doDistortion()
 {
@@ -255,7 +265,7 @@ FWRhoPhiZView::destroyElements()
 }
 void
 FWRhoPhiZView::replicateGeomElement(TEveElement* iChild)
-{
+{ 
    m_geom.push_back(doReplication(m_projMgr.get(),iChild,m_projMgr.get()));
    m_projMgr->AssertBBox();
    m_projMgr->ProjectChildrenRecurse(m_geom.back());
@@ -474,5 +484,7 @@ FWRhoPhiZView::eventEnd()
 {
    if (not m_caloAutoScale.value()) return;
    updateScaleParameters();
+
+   m_eventAnnotation->setEvent();
 }
 
