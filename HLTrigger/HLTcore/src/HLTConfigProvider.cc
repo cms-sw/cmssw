@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/05 19:00:37 $
- *  $Revision: 1.36 $
+ *  $Date: 2010/03/05 19:41:24 $
+ *  $Revision: 1.37 $
  *
  *  \author Martin Grunewald
  *
@@ -374,10 +374,12 @@ void HLTConfigProvider::extract()
 
    // Extract and fill Prescale information
 
-   // Check both possibilities to get the HLT prescale sets:
+   // Check various possibilities to get the HLT prescale sets:
    string prescaleName("");
    if (processPSet_.exists("PrescaleService")) {
      prescaleName="PrescaleService";
+   } else if ( processPSet_.exists("PrescaleTable")) {
+     prescaleName="PrescaleTable";
    } else if ( processPSet_.exists("@PrescaleTable")) {
      prescaleName="@PrescaleTable";
    }
