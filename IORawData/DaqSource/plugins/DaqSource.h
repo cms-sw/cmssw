@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2009/09/01 23:36:29 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/02/15 13:42:21 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -67,15 +67,19 @@ namespace edm {
     bool newRun_;
     bool newLumi_;
     bool eventCached_;
+    bool alignLsToLast_;
     
     pthread_mutex_t mutex_;
+    pthread_mutex_t signal_lock_;
     pthread_cond_t cond_;
     xdata::UnsignedInteger32         lumiSectionIndex_;
     xdata::UnsignedInteger32         prescaleSetIndex_;
     xdata::Boolean                   lsTimedOut_;
+    xdata::Boolean                   lsToBeRecovered_;
     xdata::InfoSpace                *is_;
     xdata::InfoSpace                *mis_;
-    int count;
+    int                              count;
+    unsigned int                     thisEventLSid;
   };
   
 }

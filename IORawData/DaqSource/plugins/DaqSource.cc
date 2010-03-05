@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2010/02/02 09:20:37 $
- *  $Revision: 1.40 $
+ *  $Date: 2010/02/15 13:42:21 $
+ *  $Revision: 1.41 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -58,14 +58,18 @@ namespace edm {
     , newRun_(true)
     , newLumi_(true)
     , eventCached_(false)
+    , alignLsToLast_(false)
     , lumiSectionIndex_(1)
     , prescaleSetIndex_(0)
     , lsTimedOut_(false)
+    , lsToBeRecovered_(true)
     , is_(0)
     , mis_(0)
+    , thisEventLSid(0)
   {
     count = 0;
     pthread_mutex_init(&mutex_,0);
+    pthread_mutex_init(&signal_lock_,0);
     pthread_cond_init(&cond_,0);
     produces<FEDRawDataCollection>();
     setTimestamp(Timestamp::beginOfTime());
@@ -98,6 +102,7 @@ namespace edm {
 	is_->fireItemRevoked("lumiSectionIndex");
 	is_->fireItemRevoked("prescaleSetIndex");
 	is_->fireItemRevoked("lsTimedOut");
+	is_->fireItemRevoked("lsToBeRecovered");
       }
     if(mis_)
       {
@@ -130,7 +135,31 @@ namespace edm {
       //      std::cout << "newLumi & lumiblock valid " << std::endl;
       return IsLumi;
     }
+    if (alignLsToLast_) { //here we are recovering from a gap in Ls number so an event may already be cached but 
+      // we hold onto it until we have issued all the necessary endLumi/beginLumi
+//       std::cout << getpid() << "alignLsToLast was set and ls number is " 
+// 		<< luminosityBlockNumber_ << " before signaling" << std::endl;
+      signalWaitingThreadAndBlock();
+      luminosityBlockNumber_++;
+//       std::cout << getpid() << "alignLsToLast signaled and incremented " 
+// 		<< luminosityBlockNumber_ << " eventcached " 
+// 		<< eventCached_ << std::endl;
+      newLumi_ = true;
+      lumiSectionIndex_.value_ = luminosityBlockNumber_;
+      resetLuminosityBlockAuxiliary();
+      if(luminosityBlockNumber_ == thisEventLSid+1) alignLsToLast_ = false;
+      if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
+	setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
+								 runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
+	
+	readAndCacheLumi();
+	setLumiPrematurelyRead();
+	//      std::cout << "nextItemType: dealt with new lumi block principal, retval is " << retval << std::endl;
+      }
+      return IsLumi;
+    }
     if (eventCached_) {
+      //      std::cout << "read event already cached " << std::endl;
       return IsEvent;
     }
     if(reader_ == 0) {
@@ -166,18 +195,34 @@ namespace edm {
     }
     else if(retval<0)
       {
-	//	std::cout << "got new lumi block " << retval
-	//		  << " was " << luminosityBlockNumber_ << std::endl;
+ 
 	unsigned int nextLsFromSignal = (-1)*retval+1;
+// 	std::cout << getpid() << "::got end-of-lumi for " << (-1)*retval
+// 		  << " was " << luminosityBlockNumber_ << std::endl;
 	if(luminosityBlockNumber_ < nextLsFromSignal)
 	  {
-	    if(luminosityBlockNumber_ == nextLsFromSignal - 1) //only signal increments by one of the ls index
+	    if(lsToBeRecovered_.value_){
+// 	      std::cout << getpid() << "eol::recover ls::for " << (-1)*retval << std::endl;
 	      signalWaitingThreadAndBlock();
-	    luminosityBlockNumber_ = nextLsFromSignal;
-	    newLumi_ = true;
-	    lumiSectionIndex_.value_ = luminosityBlockNumber_;
-	    resetLuminosityBlockAuxiliary();
+	      luminosityBlockNumber_++;
+	      newLumi_ = true;
+	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	      resetLuminosityBlockAuxiliary();
+	      thisEventLSid = nextLsFromSignal - 1;
+	      if(luminosityBlockNumber_ != thisEventLSid+1) 
+		alignLsToLast_ = true;
+	      //	      std::cout << getpid() << "eol::::alignLsToLast_ " << alignLsToLast_ << std::endl;
+	    }
+	    else{
+	      //	      std::cout << getpid() << "eol::realign ls::for " << (-1)*retval << std::endl;
+	      luminosityBlockNumber_ = nextLsFromSignal;
+	      newLumi_ = true;
+	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
+	      resetLuminosityBlockAuxiliary();
+	    }
 	  }
+	//	else
+	//	  std::cout << getpid() << "::skipping end-of-lumi for " << (-1)*retval << std::endl;
       }
     else
       {
@@ -201,6 +246,7 @@ namespace edm {
 	  if(luminosityBlockNumber_ == nextFakeLs-1)
 	    signalWaitingThreadAndBlock();
 	  luminosityBlockNumber_ = nextFakeLs;
+	  thisEventLSid = nextFakeLs-1;
 	  newLumi_ = true;
 	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
 	  resetLuminosityBlockAuxiliary();
@@ -208,20 +254,34 @@ namespace edm {
 	else if(!fakeLSid_){ 
 
 	  if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr,gtpsize)){
-	    unsigned int thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
+	    thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
 	    prescaleSetIndex_.value_ = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
 	    evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
-	      if(luminosityBlockNumber_ == thisEventLSid)
+	      // we got here in a running process and some Ls might have been skipped so set the flag, 
+	      // increase by one, check and if appropriate set the flag then continue
+	      if(lsToBeRecovered_.value_){
+		//		std::cout << getpid() << "eve::recover ls::for " << thisEventLSid << std::endl;
 		signalWaitingThreadAndBlock();
-	      luminosityBlockNumber_ = thisEventLSid + 1;
-	      newLumi_ = true;
-	      lumiSectionIndex_.value_ = luminosityBlockNumber_;
-	      resetLuminosityBlockAuxiliary();
+		luminosityBlockNumber_++;
+		newLumi_ = true;
+		lumiSectionIndex_.value_ = luminosityBlockNumber_;
+		resetLuminosityBlockAuxiliary();
+		if(luminosityBlockNumber_ != thisEventLSid+1) alignLsToLast_ = true;
+		//		std::cout << getpid() << "eve::::alignLsToLast_ " << alignLsToLast_ << std::endl;
+	      }
+	      else{ // we got here because the process was restarted. just realign the ls id and proceed with this event
+		//		std::cout << getpid() << "eve::realign ls::for " << thisEventLSid << std::endl;
+		luminosityBlockNumber_ = thisEventLSid + 1;
+		newLumi_ = true;
+		lumiSectionIndex_.value_ = luminosityBlockNumber_;
+		resetLuminosityBlockAuxiliary();
+		lsToBeRecovered_.value_ = true;
+	      }
 	    }
 	  }
 	  else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
-	    unsigned int thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
+	    thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
 	    evttype =  edm::EventAuxiliary::PhysicsTrigger; 
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      if(luminosityBlockNumber_ == thisEventLSid)
@@ -266,7 +326,7 @@ namespace edm {
     }
 
     // make a brand new event
-    eventId = EventID(runNumber_,luminosityBlockNumber_, eventId.event());
+    eventId = EventID(runNumber_,thisEventLSid+1, eventId.event());
     std::auto_ptr<EventAuxiliary> eventAux(
       new EventAuxiliary(eventId, processGUID(),
 			 timestamp(),
@@ -365,6 +425,7 @@ namespace edm {
     is->fireItemAvailable("lumiSectionIndex", &lumiSectionIndex_);
     is->fireItemAvailable("prescaleSetIndex", &prescaleSetIndex_);
     is->fireItemAvailable("lsTimedOut",       &lsTimedOut_);
+    is->fireItemAvailable("lsToBeRecovered",  &lsToBeRecovered_);
   }
   void DaqSource::publishToXmas(xdata::InfoSpace *is)
   {
@@ -379,6 +440,7 @@ namespace edm {
     count++;
     if(count==2) throw;
     pthread_mutex_lock(&mutex_);
+    pthread_mutex_unlock(&signal_lock_);
     timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     ts.tv_sec += timeout_sec;
@@ -391,18 +453,20 @@ namespace edm {
     count--;
     pthread_cond_signal(&cond_);
     pthread_mutex_unlock(&mutex_);
+    pthread_mutex_lock(&signal_lock_);
     lsTimedOut_.value_ = false; 
-    ::usleep(1000);
   }
 
   void DaqSource::signalWaitingThreadAndBlock()
   {
+    pthread_mutex_lock(&signal_lock_);
     pthread_mutex_lock(&mutex_);
-    std::cout << getpid() << " DS::signal from evloop " << std::endl;
+    pthread_mutex_unlock(&signal_lock_);
+    //    std::cout << getpid() << " DS::signal from evloop " << std::endl;
     pthread_cond_signal(&cond_);
-    std::cout << getpid() << " DS::go to wait for scalers wl " << std::endl;
+    //    std::cout << getpid() << " DS::go to wait for scalers wl " << std::endl;
     pthread_cond_wait(&cond_, &mutex_);
     pthread_mutex_unlock(&mutex_);
-
+    ::usleep(1000);//allow other thread to lock
   }  
 }
