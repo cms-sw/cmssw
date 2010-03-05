@@ -74,7 +74,15 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
     edm::LogWarning ("L1GctEmulatorSetup") << "Unrecognised jetFinder option " << jfTypeStr
                                            << "\nHardware jetFinder will be used";
   }
-  m_gct = new L1GlobalCaloTrigger(jfType);
+  bool hwTest = ps.getParameter<bool>("hardwareTest");
+  if (hwTest) {
+    unsigned mask = ps.getUntrackedParameter<unsigned>("jetLeafMask", 0);
+    m_gct = new L1GlobalCaloTrigger(jfType);
+    edm::LogWarning ("L1GctEmulatorSetup") << "Emulator has been configured in hardware test mode with mask " << mask
+					   << "\nThis mode should NOT be used for Physics studies!";
+  } else {
+    m_gct = new L1GlobalCaloTrigger(jfType);
+  }
   m_gct->setBxRange(firstBx, lastBx);
 
   // Fill the jetEtCalibLuts vector

@@ -62,7 +62,7 @@ public:
   typedef L1GctJetFinderBase::lutPtrVector lutPtrVector;
 
   /// construct the GCT
-  L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
+  L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::hardwareJetFinder, unsigned jetLeafMask = 0);
 
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
@@ -235,7 +235,7 @@ public:
   void bxProcess(const int bx);
 
   /// instantiate the hardware & algo objects and wire up the system
-  void build(L1GctJetLeafCard::jetFinderType jfType);
+  void build(L1GctJetLeafCard::jetFinderType jfType, unsigned jetLeafMask);
 
   /// check we have done all the setup
   bool setupOk() const;

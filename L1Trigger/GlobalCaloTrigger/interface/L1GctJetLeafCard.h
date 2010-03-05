@@ -29,7 +29,7 @@ class L1GctJetLeafCard : public L1GctProcessor
 {
 public:
   //Type declaration
-  enum jetFinderType { tdrJetFinder, hardwareJetFinder };
+  enum jetFinderType { tdrJetFinder, hardwareJetFinder, nullJetFinder };
 
   //Statics
   static const int MAX_JET_FINDERS;  ///< Number of jetfinders per jet leaf card

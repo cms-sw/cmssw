@@ -22,7 +22,7 @@ const int L1GlobalCaloTrigger::N_EM_LEAF_CARDS = 2;
 const int L1GlobalCaloTrigger::N_WHEEL_CARDS = 2;
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType) :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType jfType, unsigned jetLeafMask) :
   theJetLeafCards(N_JET_LEAF_CARDS),
   theJetFinders(N_JET_LEAF_CARDS*3),
   theEmLeafCards(N_EM_LEAF_CARDS),
@@ -39,7 +39,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(const L1GctJetLeafCard::jetFinderType j
 {
 
   // construct hardware
-  build(jfType);
+  build(jfType, jetLeafMask);
 }
 
 /// GCT Destructor
@@ -830,16 +830,32 @@ void L1GlobalCaloTrigger::setTerse() {
 /* PRIVATE METHODS */
 
 // instantiate hardware/algorithms
-void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
+void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType, unsigned jetLeafMask) {
 
   // The first half of the jet leaf cards are at negative eta,
   // followed by positive eta
   // Jet Leaf cards
-  for (int jlc=0; jlc<N_JET_LEAF_CARDS; jlc++) {
-    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3, jfType);
-    theJetFinders.at( 3*jlc ) = theJetLeafCards.at(jlc)->getJetFinderA();
-    theJetFinders.at(3*jlc+1) = theJetLeafCards.at(jlc)->getJetFinderB();
-    theJetFinders.at(3*jlc+2) = theJetLeafCards.at(jlc)->getJetFinderC();
+  if (jetLeafMask==0) {
+    for (int jlc=0; jlc<N_JET_LEAF_CARDS; jlc++) {
+      theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3, jfType);
+      theJetFinders.at( 3*jlc ) = theJetLeafCards.at(jlc)->getJetFinderA();
+      theJetFinders.at(3*jlc+1) = theJetLeafCards.at(jlc)->getJetFinderB();
+      theJetFinders.at(3*jlc+2) = theJetLeafCards.at(jlc)->getJetFinderC();
+    }
+  } else {
+    // Setup for hardware testing with reduced number of leaf cards
+    unsigned mask = jetLeafMask;
+    for (int jlc=0; jlc<N_JET_LEAF_CARDS; jlc++) {
+      if ((mask&1) == 0) {
+	theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3, jfType);
+      } else {
+	theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3, L1GctJetLeafCard::nullJetFinder);
+      }
+      theJetFinders.at( 3*jlc ) = theJetLeafCards.at(jlc)->getJetFinderA();
+      theJetFinders.at(3*jlc+1) = theJetLeafCards.at(jlc)->getJetFinderB();
+      theJetFinders.at(3*jlc+2) = theJetLeafCards.at(jlc)->getJetFinderC();
+      mask = mask >> 1;
+    }
   }
 
   //Link jet leaf cards together

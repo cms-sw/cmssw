@@ -5,6 +5,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctNullJetFinder.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -59,6 +60,12 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
     m_jetFinderA = new L1GctHardwareJetFinder( 3*id );
     m_jetFinderB = new L1GctHardwareJetFinder(3*id+1);
     m_jetFinderC = new L1GctHardwareJetFinder(3*id+2);
+    break;
+
+  case nullJetFinder :
+    m_jetFinderA = new L1GctNullJetFinder( 3*id );
+    m_jetFinderB = new L1GctNullJetFinder(3*id+1);
+    m_jetFinderC = new L1GctNullJetFinder(3*id+2);
     break;
 
   default :
