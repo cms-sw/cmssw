@@ -10,7 +10,7 @@ class RestrictInputToAOD(ConfigToolBase):
     content
     """
     _label='restrictInputToAOD'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -57,7 +57,7 @@ class RemoveMCMatching(ConfigToolBase):
     candidate collections:
     """
     _label='removeMCMatching'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -144,7 +144,7 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
     """ Remove all PAT objects from the default sequence but a specific one
     """
     _label='removeAllPATObjectsBut'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -184,7 +184,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
     """ Remove a specific PAT object from the default sequence
     """
     _label='removeSpecificPATObjects'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -291,7 +291,7 @@ class RemoveCleaning(ConfigToolBase):
     """ remove PAT cleaning from the default sequence:
     """
     _label='removeCleaning'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -338,7 +338,7 @@ class AddCleaning(ConfigToolBase):
     """ Add PAT cleaning from the default sequence
     """
     _label='addCleaning'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

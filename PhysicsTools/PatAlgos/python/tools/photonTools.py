@@ -7,7 +7,7 @@ class AddPhotonUserIsolation(ConfigToolBase):
     """ add userIsolation to patPhoton
     """
     _label='addPhotonUserIsolation'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

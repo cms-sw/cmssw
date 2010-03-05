@@ -7,7 +7,7 @@ class AddMuonUserIsolation(ConfigToolBase):
     """ add userIsolation to patMuon
     """
     _label='addMuonUserIsolation'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

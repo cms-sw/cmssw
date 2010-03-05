@@ -7,7 +7,7 @@ class MakeAODTrackCandidates(ConfigToolBase):
     """ Create selected tracks and a candidate hypothesis on AOD:
     """
     _label='makeAODTrackCandidates'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -71,7 +71,7 @@ class MakePATTrackCandidates(ConfigToolBase):
     """ Create pat track candidates from AOD track collections:
     """
     _label='makePATTrackCandidates'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -238,7 +238,7 @@ class MakeTrackCandidates(ConfigToolBase):
     """ Create selected tracks and a candidate hypothesis on AOD:
     """
     _label='makeTrackCandidates'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

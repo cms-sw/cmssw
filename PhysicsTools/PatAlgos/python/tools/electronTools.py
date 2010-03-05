@@ -7,7 +7,7 @@ class AddElectronUserIsolation(ConfigToolBase):
     """ add userIsolation to patElectron
     """
     _label='addElectronUserIsolation'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
