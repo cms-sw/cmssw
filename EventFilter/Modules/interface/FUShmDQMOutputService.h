@@ -9,7 +9,7 @@
  * 27-Dec-2006 - KAB  - Initial Implementation
  * 31-Mar-2007 - HWKC - modification for shared memory usage
  *
- * $Id: FUShmDQMOutputService.h,v 1.6 2009/05/08 13:46:36 biery Exp $
+ * $Id: FUShmDQMOutputService.h,v 1.7 2010/02/15 13:43:15 meschi Exp $
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -66,6 +66,7 @@ class FUShmDQMOutputService : public evf::ServiceWeb
   std::vector<char> messageBuffer_;
   int lumiSectionInterval_;  
   double lumiSectionsPerUpdate_;
+  uint32 updateNumber_;
   unsigned int lumiSectionOfPreviousUpdate_;
   unsigned int firstLumiSectionSeen_;
   double timeInSecSinceUTC_;

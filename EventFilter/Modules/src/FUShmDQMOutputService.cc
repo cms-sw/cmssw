@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.15 2009/07/25 02:20:00 wmtan Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.16 2010/02/15 13:43:16 meschi Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -32,6 +32,8 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "TClass.h"
 #include "zlib.h"
+#include <unistd.h>
+#include <sys/types.h>
 
 using namespace std;
 
@@ -57,6 +59,7 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   : evf::ServiceWeb("FUShmDQMOutputService")
   , shmBuffer_(0)
   , nbUpdates_(0)
+  , updateNumber_(0)
 {
 
   // specify the routine to be called after event processing.  This routine
@@ -142,7 +145,7 @@ void FUShmDQMOutputService::publish(xdata::InfoSpace *is)
 void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::EventSetup const &es)
 {
   std::string dqm = "DQM";
-  std::string in = "IN";
+  std::string in = "INPUT";
   evf::MicroStateService *mss = 0;
   try{
     mss = edm::Service<evf::MicroStateService>().operator->();
@@ -182,13 +185,22 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
     timeInSecSinceUTC_ = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0);
   }
 
-  std::cout << getpid() << ":DQMOutputService sending update for lumiSection " << thisLumiSection << std::endl;
-
+  //  std::cout << getpid() << ": :" //<< gettid() 
+  //	    << ":DQMOutputService check if have to send update for lumiSection " << thisLumiSection << std::endl;
+  if(thisLumiSection%4!=0) 
+    {
+//       std::cout << getpid() << ": :" //<< gettid() 
+// 		<< ":DQMOutputService skipping update for lumiSection " << thisLumiSection << std::endl;
+      if(mss) mss->setMicroState(in);
+      return;
+    }
+//   std::cout << getpid() << ": :" //<< gettid() 
+// 	    << ":DQMOutputService sending update for lumiSection " << thisLumiSection << std::endl;
   // CAlculate the update ID and lumi ID for this update
   int fullLsDelta = (int) (thisLumiSection - firstLumiSectionSeen_);
   double fullUpdateRatio = ((double) fullLsDelta) / lumiSectionsPerUpdate_;
   // this is the update number starting from zero
-  uint32 updateNumber = -1 + (uint32) fullUpdateRatio;
+
   // this is the actual luminosity section number for the beginning lumi section of this update
   unsigned int lumiSectionTag = thisLumiSection;
 
@@ -250,7 +262,7 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
     DQMEventMsgBuilder dqmMsgBuilder(&messageBuffer_[0], messageBuffer_.size(),
                                      lb.run(), lb.luminosityBlock(),
 				     lb.endTime(),
-                                     lumiSectionTag, updateNumber,
+                                     lumiSectionTag, updateNumber_,
                                      edm::getReleaseVersion(), dirName,
                                      toTable);
 
@@ -268,6 +280,8 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
 
     // send the message
     writeShmDQMData(dqmMsgBuilder);
+//     std::cout << getpid() << ": :" // << gettid() 
+// 	      << ":DQMOutputService DONE sending update for lumiSection " << thisLumiSection << std::endl;
     if(mss) mss->setMicroState(in);
 
   }
@@ -279,6 +293,7 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
   // update the "previous" lumi section
   lumiSectionOfPreviousUpdate_ = thisLumiSection;
   nbUpdates_++;
+  updateNumber_++;
 }
 
 /**
@@ -299,6 +314,7 @@ void FUShmDQMOutputService::preBeginRun(const edm::RunID &runID,
                                         const edm::Timestamp &timestamp)
 {
   nbUpdates_ = 0;
+  updateNumber_ = 0;
   initializationIsNeeded_ = true;
 }
 
