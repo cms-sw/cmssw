@@ -34,22 +34,22 @@ public:
 
   // ES recHit flags
   enum ESFlags {
-          kGood,
-          kDead,
-          kHot,
-          kPassBX,
-          kTwoGoodRatios,
-          kGoodRatioFor12,
-          kGoodRatioFor23Upper,
-          kGoodRatioFor23Lower,
-          kTS1Largest,
-          kTS3Largest,
-          kTS3Negative,
-          kSaturated,
-          kTS2Saturated,
-          kTS3Saturated,
-          kTS13Sigmas,
-          kTS15Sigmas
+          kESGood,
+          kESDead,
+          kESHot,
+          kESPassBX,
+          kESTwoGoodRatios,
+          kESGoodRatioFor12,
+          kESGoodRatioFor23Upper,
+          kESGoodRatioFor23Lower,
+          kESTS1Largest,
+          kESTS3Largest,
+          kESTS3Negative,
+          kESSaturated,
+          kESTS2Saturated,
+          kESTS3Saturated,
+          kESTS13Sigmas,
+          kESTS15Sigmas
   };
 
   /** bit structure of CaloRecHit::flags_ used in EcalRecHit:
