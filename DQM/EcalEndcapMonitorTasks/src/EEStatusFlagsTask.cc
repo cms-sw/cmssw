@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/02/16 07:23:26 $
- * $Revision: 1.26 $
+ * $Date: 2010/02/16 10:53:19 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -52,6 +52,8 @@ EEStatusFlagsTask::EEStatusFlagsTask(const ParameterSet& ps){
     meFEchErrors_[i][2] = 0;
   }
 
+  meFEchErrorsByLumi_ = 0;
+
 }
 
 EEStatusFlagsTask::~EEStatusFlagsTask(){
@@ -67,6 +69,15 @@ void EEStatusFlagsTask::beginJob(void){
     dqmStore_->rmdir(prefixME_ + "/EEStatusFlagsTask");
   }
 
+}
+
+void EEStatusFlagsTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+
+  if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Reset();
+
+}
+
+void EEStatusFlagsTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
 void EEStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
@@ -90,6 +101,7 @@ void EEStatusFlagsTask::reset(void) {
     if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
     if ( meFEchErrors_[i][2] ) meFEchErrors_[i][2]->Reset();
   }
+  if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Reset();
 
 }
 
@@ -179,6 +191,16 @@ void EEStatusFlagsTask::setup(void){
       dqmStore_->tag(meFEchErrors_[i][2], i+1);
     }
 
+    // checking the number of front-end errors in each DCC for each lumi
+    // tower error is weighted by 1/34
+    // bin 0 contains the number of processed events in the lumi (for normalization)
+    sprintf(histo, "EESFT weighted front-end errors");
+    meFEchErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1., 19.);
+    meFEchErrorsByLumi_->setLumiFlag();
+    for (int i = 0; i < 18; i++) {
+      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
   }
 
 }
@@ -206,6 +228,9 @@ void EEStatusFlagsTask::cleanup(void){
       meFEchErrors_[i][2] = 0;
     }
 
+    if ( meFEchErrorsByLumi_ ) dqmStore_->removeElement( meFEchErrorsByLumi_->getName() );
+    meFEchErrorsByLumi_ = 0;
+
   }
 
   init_ = false;
@@ -226,6 +251,9 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
+  // fill bin 0 with number of events in the lumi
+  if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(0.);
+
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
@@ -235,6 +263,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
       int ism = Numbers::iSM( *dcchItr, EcalEndcap );
+      float xism = ism + 0.5;
 
       if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
@@ -272,6 +301,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
           if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
+            if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./34.);
           }
 
           }

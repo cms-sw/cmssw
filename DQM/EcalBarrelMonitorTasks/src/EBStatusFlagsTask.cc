@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2009/08/27 08:35:32 $
- * $Revision: 1.22 $
+ * $Date: 2009/10/26 17:33:48 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -50,6 +50,8 @@ EBStatusFlagsTask::EBStatusFlagsTask(const ParameterSet& ps){
     meFEchErrors_[i][2] = 0;
   }
 
+  meFEchErrorsByLumi_ = 0;
+
 }
 
 EBStatusFlagsTask::~EBStatusFlagsTask(){
@@ -65,6 +67,15 @@ void EBStatusFlagsTask::beginJob(void){
     dqmStore_->rmdir(prefixME_ + "/EBStatusFlagsTask");
   }
 
+}
+
+void EBStatusFlagsTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+
+  if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Reset();
+
+}
+
+void EBStatusFlagsTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
 void EBStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
@@ -88,7 +99,7 @@ void EBStatusFlagsTask::reset(void) {
     if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
     if ( meFEchErrors_[i][2] ) meFEchErrors_[i][2]->Reset();
   }
-
+  if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Reset();
 }
 
 void EBStatusFlagsTask::setup(void){
@@ -177,6 +188,16 @@ void EBStatusFlagsTask::setup(void){
       dqmStore_->tag(meFEchErrors_[i][2], i+1);
     }
 
+    // checking the number of front-end errors in each DCC for each lumi
+    // tower error is weighted by 1/68
+    // bin 0 contains the number of processed events in the lumi (for normalization)
+    sprintf(histo, "EBSFT weighted front-end errors");
+    meFEchErrorsByLumi_ = dqmStore_->book1D(histo, histo, 36, 1., 37.);
+    meFEchErrorsByLumi_->setLumiFlag();
+    for (int i = 0; i < 36; i++) {
+      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
 }
@@ -204,6 +225,9 @@ void EBStatusFlagsTask::cleanup(void){
       meFEchErrors_[i][2] = 0;
     }
 
+    if ( meFEchErrorsByLumi_ ) dqmStore_->removeElement( meFEchErrorsByLumi_->getName() );
+    meFEchErrorsByLumi_ = 0;
+
   }
 
   init_ = false;
@@ -224,6 +248,9 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
+  // fill bin 0 with number of events in the lumi
+  if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(0.);
+
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
@@ -233,6 +260,7 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
       if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
+      float xism = ism + 0.5;
 
       if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
@@ -258,6 +286,7 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
           if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xiet, xipt);
+            if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./68.);
           }
 
         } else if ( itt == 69 || itt == 70 ) {

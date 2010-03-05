@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2009/06/23 06:41:50 $
- * $Revision: 1.28 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
  */
@@ -38,6 +38,12 @@ void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginLuminosityBlock
+void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup);
+
+/// EndLuminosityBlock
+void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
 
 /// BeginRun
 void beginRun(const edm::Run & r, const edm::EventSetup & c);
@@ -88,6 +94,7 @@ MonitorElement* meIntegrityMemGain[36];
 MonitorElement* meIntegrityMemTTId[36];
 MonitorElement* meIntegrityMemTTBlockSize[36];
 MonitorElement* meIntegrityDCCSize;
+MonitorElement* meIntegrityErrorsByLumi;
 
 bool init_;
 

@@ -40,6 +40,7 @@ EEDcsInfoTask::EEDcsInfoTask(const ParameterSet& ps) {
   for (int i = 0; i < 18; i++) {
     meEEDcsActive_[i] = 0;
   }
+  meDcsErrorsByLumi_ = 0;
 
 }
 
@@ -63,6 +64,16 @@ void EEDcsInfoTask::beginJob(void){
     meEEDcsActiveMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
     meEEDcsActiveMap_->setAxisTitle("jx", 1);
     meEEDcsActiveMap_->setAxisTitle("jy", 2);
+
+    // checking the number of DCS errors in each DCC for each lumi
+    // tower error is weighted by 1/34
+    // bin 0 contains the number of processed events in the lumi (for normalization)
+    sprintf(histo, "weighted DCS errors");
+    meDcsErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1., 19.);
+    meDcsErrorsByLumi_->setLumiFlag();
+    for (int i = 0; i < 18; i++) {
+      meDcsErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
     
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
@@ -89,6 +100,8 @@ void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
       readyLumi[itx][ity] = 1;
     }
   }
+
+  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
 
 }
 
@@ -125,6 +138,7 @@ void EEDcsInfoTask::reset(void) {
   }
 
   if ( meEEDcsActiveMap_ ) meEEDcsActiveMap_->Reset();
+  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
   
 }
 
@@ -138,6 +152,8 @@ void EEDcsInfoTask::cleanup(void){
     if ( meEEDcsFraction_ ) dqmStore_->removeElement( meEEDcsFraction_->getName() );
 
     if ( meEEDcsActiveMap_ ) dqmStore_->removeElement( meEEDcsActiveMap_->getName() );
+
+    if ( meDcsErrorsByLumi_ ) dqmStore_->removeElement( meDcsErrorsByLumi_->getName() );
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
@@ -181,6 +197,9 @@ void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){
 
 void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
 
+  // fill bin 0 with 1 (for consistency with event-based tasks)
+  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(0.);
+
   float readySum[18];
   int nValidChannels[18];
   for ( int ism = 0; ism < 18; ism++ ) {
@@ -209,9 +228,12 @@ void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
               EEDetId id = EEDetId(ix+1, iy+1, iz, EEDetId::XYMODE);
 
               int ism = Numbers::iSM(id);
+              float xism = ism + 0.5;
               if(ready[offsetSC+itx][ity]) {
                 readySum[ism-1]++;
                 readySumTot++;
+              } else {
+                if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(xism, 1./34.);
               }
               
               nValidChannels[ism-1]++;
