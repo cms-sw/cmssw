@@ -130,7 +130,12 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       
       //yAxis
       if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
-      if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
+      if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);
+      else if (ref_hist1[nh1]->GetMaximum() < val_hist1[nh1]->GetMaximum() &&
+	       val_hist1[nh1]->GetMaximum() > 0){
+	if (LogSwitch == "Log") ref_hist1[nh1]->SetMaximum(   2 * val_hist1[nh1]->GetMaximum());
+	else                    ref_hist1[nh1]->SetMaximum(1.05 * val_hist1[nh1]->GetMaximum());
+      }
       
       //Title
       ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
@@ -226,7 +231,12 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       
       //yAxis
       if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
-      if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
+      if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);
+      else if (ref_hist2[nh2]->GetMaximum() < val_hist2[nh2]->GetMaximum() &&
+	       val_hist2[nh2]->GetMaximum() > 0){
+	if (LogSwitch == "Log") ref_hist2[nh2]->SetMaximum(   2 * val_hist2[nh2]->GetMaximum());
+	else                    ref_hist2[nh2]->SetMaximum(1.05 * val_hist2[nh2]->GetMaximum());
+      }
       
       //Legend
       leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");
@@ -277,6 +287,11 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       //yAxis
       if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
       if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
+      else if (ref_hist2[nh2]->GetMaximum() < val_hist2[nh2]->GetMaximum() &&
+	       val_hist2[nh2]->GetMaximum() > 0){
+	if (LogSwitch == "Log") ref_hist2[nh2]->SetMaximum(   2 * val_hist2[nh2]->GetMaximum());
+	else                    ref_hist2[nh2]->SetMaximum(1.05 * val_hist2[nh2]->GetMaximum());
+      }
 
       //Legend
       leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");

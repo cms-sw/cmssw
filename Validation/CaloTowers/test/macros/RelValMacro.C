@@ -86,6 +86,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
   TString OutLabel;
   string xTitleCheck;
 
+  float hmax = 0;
+
   int nh1 = 0;
   int nh2 = 0;
   int npr = 0;
@@ -147,7 +149,12 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       //yAxis
       if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
       if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
-
+      else if (ref_hist1[nh1]->GetMaximum() < val_hist1[nh1]->GetMaximum() &&
+	       val_hist1[nh1]->GetMaximum() > 0){
+	if (LogSwitch == "Log") ref_hist1[nh1]->SetMaximum(   2 * val_hist1[nh1]->GetMaximum());
+	else                    ref_hist1[nh1]->SetMaximum(1.05 * val_hist1[nh1]->GetMaximum());
+      }
+      
       //Title
       if (xTitleCheck != "NoTitle") ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
 
@@ -270,7 +277,13 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	val_prof[npi]->SetMarkerColor(43);
 	val_prof[npi]->SetMarkerStyle(22);
 	val_prof[npi]->SetMarkerSize(1.0);  
-
+	
+	if (ref_prof[npi]->GetMaximum() < val_prof[npi]->GetMaximum() &&
+	    val_prof[npi]->GetMaximum() > 0){
+	  if (LogSwitch == "Log") ref_prof[npi]->SetMaximum(   2 * val_prof[npi]->GetMaximum());
+	  else                    ref_prof[npi]->SetMaximum(1.05 * val_prof[npi]->GetMaximum());
+	}
+	
 	ref_prof[npi]->Draw("hist pl");   
 	val_prof[npi]->Draw("hist pl same");
 
@@ -311,6 +324,12 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	val_fp[npi]->SetMarkerColor(4); 
 	val_fp[npi]->SetMarkerStyle(22);
 	val_fp[npi]->SetMarkerSize(0.5);
+
+	if (ref_fp[npi]->GetMaximum() < val_fp[npi]->GetMaximum() &&
+	    val_fp[npi]->GetMaximum() > 0){
+	  if (LogSwitch == "Log") ref_fp[npi]->SetMaximum(   2 * val_fp[npi]->GetMaximum());
+	  else                    ref_fp[npi]->SetMaximum(1.05 * val_fp[npi]->GetMaximum());
+	}
 	
 	ref_fp[npi]->Draw("p9");   
 	val_fp[npi]->Draw("p9same");
@@ -352,6 +371,11 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       //yAxis
       if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
       if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
+      else if (ref_hist2[nh2]->GetMaximum() < val_hist2[nh2]->GetMaximum() &&
+	       val_hist2[nh2]->GetMaximum() > 0){
+	if (LogSwitch == "Log") ref_hist2[nh2]->SetMaximum(   2 * val_hist2[nh2]->GetMaximum());
+	else                    ref_hist2[nh2]->SetMaximum(1.05 * val_hist2[nh2]->GetMaximum());
+      }
 
       //Legend
       leg = new TLegend(0.48, 0.91, 0.74, 0.99, "","brNDC");

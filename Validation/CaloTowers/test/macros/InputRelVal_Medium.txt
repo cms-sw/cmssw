@@ -59,8 +59,8 @@
                     CaloTowersTask_HAD_Energy_Timing_HF   1  HF_CaloTowers_HAD_Energy_Timing_HF.gif	1	0	-1	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers HAD Timing vs Energy
             CaloTowersTask_HAD_Energy_Timing_profile_HF
                     HcalRecHitTask_RecHit_StatusWord_HB   1	                  HB_StatusWord.gif	1	0	-1	0	-1	1D	NoStat	noChi2	Log	41	42	       HB status word
-                    HcalRecHitTask_RecHit_StatusWord_HE   1	                  HE_StatusWord.gif	1	0	-1	1E-9	1	1D	NoStat	noChi2	Log	41	42	       HE status word
-                    HcalRecHitTask_RecHit_StatusWord_HF   1	                  HF_StatusWord.gif	1	0	-1	1E-5	1E-1	1D	NoStat	noChi2	Log	41	42	       HF status word
+                    HcalRecHitTask_RecHit_StatusWord_HE   1	                  HE_StatusWord.gif	1	0	-1	1E-9	-1	1D	NoStat	noChi2	Log	41	42	       HE status word
+                    HcalRecHitTask_RecHit_StatusWord_HF   1	                  HF_StatusWord.gif	1	0	-1	1E-5	-1	1D	NoStat	noChi2	Log	41	42	       HF status word
                     HcalRecHitTask_RecHit_StatusWord_HO   1	                  HO_StatusWord.gif	1	0	-1	0	-1	1D	NoStat	noChi2	noLog	41	42	       HO status word
                     HcalRecHitTask_energy_of_rechits_HB   1	              RecHits_energy_HB.gif	10	0	600	0	-1	1D	Statrv	Chi2	Log	2	1		HB RecHits energy (GeV)
                     HcalRecHitTask_energy_of_rechits_HE   1	              RecHits_energy_HE.gif	10	0	-1	0	-1	1D	Statrv	Chi2	Log	2	1		HE RecHits energy (GeV)
@@ -152,7 +152,7 @@
                                   occupancy_vs_ieta_HE3   1	          occupancy_vs_ieta_HE3.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HE depth 3: occupancy vs ieta
                                   occupancy_vs_ieta_HF1   1	          occupancy_vs_ieta_HF1.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 1: occupancy vs ieta
                                   occupancy_vs_ieta_HF2   1	          occupancy_vs_ieta_HF2.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HF depth 2: occupancy vs ieta
-                                   occupancy_vs_ieta_HO   1	           occupancy_vs_ieta_HO.gif	1	0	-1	0	0.35	1D	noStat	noChi2	NoLog	41	42		HO: occupancy vs ieta
+                                   occupancy_vs_ieta_HO   1	           occupancy_vs_ieta_HO.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42		HO: occupancy vs ieta
                                         hLumiBlockCount   0
                                              hRBXEnergy   1	                     RBX_energy.gif	1	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy (GeV)
                                         hRBXEnergyType1   1	               RBX_energy_type1.gif	1	0	400	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 1 (GeV)
