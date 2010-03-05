@@ -1,14 +1,13 @@
-# /dev/CMSSW_3_5_0/HIon/V37 (CMSSW_3_5_2_HLT3)
+# /dev/CMSSW_3_5_0/HIon/V38 (CMSSW_3_5_3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V37')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V38')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   A = cms.vstring( 'Cosmics',
     'MinimumBias',
@@ -26,7 +25,8 @@ streams = cms.PSet(
     'FEDMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' )
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
   OfflineMonitor = cms.vstring(  ),

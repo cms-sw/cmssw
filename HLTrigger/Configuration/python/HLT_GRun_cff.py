@@ -1,13 +1,23 @@
-# /dev/CMSSW_3_5_0/GRun/V37 (CMSSW_3_5_2_HLT3)
+# /dev/CMSSW_3_5_0/GRun/V38 (CMSSW_3_5_3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V37')
+  tableName = cms.string('/dev/CMSSW_3_5_0/GRun/V38')
 )
 
 streams = cms.PSet( 
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  A = cms.vstring( 'Cosmics',
+    'MinimumBias',
+    'HcalHPDNoise',
+    'RandomTriggers',
+    'HcalNZS',
+    'ZeroBias' ),
+  EventDisplay = cms.vstring(  ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -16,32 +26,9 @@ streams = cms.PSet(
   Offline = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'Cosmics',
-    'MinimumBias',
-    'HcalHPDNoise',
-    'RandomTriggers',
-    'HcalNZS',
-    'ZeroBias' ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  )
+  ALCAP0 = cms.vstring( 'AlCaP0' )
 )
 datasets = cms.PSet( 
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNormalisation' ),
-  EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
-  TestEnables = cms.vstring( 'HLT_Calibration' ),
-  LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
-  FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
-  ExpressPhysics = cms.vstring( 'HLT_MET100',
-    'HLT_L1MuOpen',
-    'HLT_L1Mu',
-    'HLT_ZeroBias' ),
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
-    'AlCa_EcalPi0_8E29' ),
   OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
@@ -255,7 +242,20 @@ datasets = cms.PSet(
   ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
     'HLT_L1_BPTX_MinusOnly',
     'HLT_L1_BPTX',
-    'HLT_ZeroBias' )
+    'HLT_ZeroBias' ),
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNormalisation' ),
+  EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
+  TestEnables = cms.vstring( 'HLT_Calibration' ),
+  LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
+  FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_L1MuOpen',
+    'HLT_L1Mu',
+    'HLT_ZeroBias' ),
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
+  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
+    'AlCa_EcalPi0_8E29' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -5470,12 +5470,12 @@ hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     Method2 = cms.bool( True )
 )
-hltSelector4JetsU = cms.EDFilter( "LargestEtCaloJetSelector",
+hltSelector4JetsU = cms.EDProducer( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltMCJetCorJetIcone5HF07" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBLifetimeL25JetsStartupU = cms.EDFilter( "EtMinCaloJetSelector",
+hltBLifetimeL25JetsStartupU = cms.EDProducer( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4JetsU" ),
     filter = cms.bool( False ),
     etMin = cms.double( 15.0 )
@@ -5628,7 +5628,7 @@ hltBJet10U = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
 )
-hltBSoftMuonL25JetsU = cms.EDFilter( "EtMinCaloJetSelector",
+hltBSoftMuonL25JetsU = cms.EDProducer( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4JetsU" ),
     filter = cms.bool( False ),
     etMin = cms.double( 10.0 )
