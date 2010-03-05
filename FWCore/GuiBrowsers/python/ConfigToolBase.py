@@ -1,11 +1,30 @@
 import copy
 import inspect
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.DictTypes as dicttypes
+
+#### patches needed for deepcopy of sorted dicts ####
+
+import FWCore.ParameterSet.DictTypes as typ
+    
+def new_SortedKeysDict__copy__(self):
+    return self.__class__(self)
+typ.SortedKeysDict.__copy__ = new_SortedKeysDict__copy__
+
+def new_SortedKeysDict__deepcopy__(self, memo=None):
+    from copy import deepcopy
+    if memo is None:
+        memo = {}
+    d = memo.get(id(self), None)
+    if d is not None:
+        return d
+    memo[id(self)] = d = self.__class__()
+    d.__init__(deepcopy(self.items(), memo))
+    return d
+typ.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
+
 
 class parameter:
     pass
-
 
 ### Base class for object oriented designed tools
         
@@ -17,7 +36,7 @@ class ConfigToolBase(object) :
     _defaultValue="No default value. Set parameter value."
     _path = ""
     def __init__(self):
-        self._parameters=dicttypes.SortedKeysDict()
+        self._parameters=typ.SortedKeysDict()
         self._description=self.__doc__
         self._comment = ''
         self.parAccepted=True
