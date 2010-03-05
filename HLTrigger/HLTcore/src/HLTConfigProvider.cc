@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/19 14:26:54 $
- *  $Revision: 1.31 $
+ *  $Date: 2010/02/28 19:16:07 $
+ *  $Revision: 1.32 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,7 @@ void HLTConfigProvider::clear()
 {
    using namespace std;
    using namespace edm;
+   using namespace trigger;
 
    // clear data members
 
@@ -45,10 +46,9 @@ void HLTConfigProvider::clear()
    datasetContents_.clear();
    datasetIndex_.clear();
 
-   prescaleLabels_.clear();
-   prescaleIndex_.clear();
-   prescaleValues_.clear();
+   hltPrescaleTable_ = HLTPrescaleTable();
 
+   return;
 }
 
 /*
@@ -292,6 +292,7 @@ void HLTConfigProvider::extract()
 {
    using namespace std;
    using namespace edm;
+   using namespace trigger;
 
    // Obtain PSet containing table name (available only in 2_1_10++ files)
    if (processPSet_.exists("HLTConfigVersion")) {
@@ -303,32 +304,8 @@ void HLTConfigProvider::extract()
    LogVerbatim("HLTConfigProvider") << "ProcessPSet with HLT: "
 				    << tableName();
 
-   // Extract trigger paths
-   triggerNames_= processPSet_.getParameter<ParameterSet>("@trigger_paths").getParameter<vector<string> > ("@trigger_paths");
-
-   /*
-   // Trigger paths are paths but with endpaths removed
-   triggerNames_.clear();
-   std::vector<std::string> pathNames_;
-   std::vector<std::string> endpathNames_;
-   pathNames_   = processPSet_.getParameter<vector<string> >("@paths");
-   endpathNames_= processPSet_.getParameter<vector<string> >("@end_paths");
-   const unsigned int nP(pathNames_.size());
-   const unsigned int nE(endpathNames_.size());
-   for (unsigned int iE=0; iE!=nE; ++iE) {
-     const std::string& endpath(endpathNames_[iE]);
-     for (unsigned int iP=0; iP!=nP; ++iP) {
-       if (pathNames_[iP]==endpath) {
-	 pathNames_[iP]=""; // erase endpaths
-       }
-     }
-   }
-   triggerNames_.reserve(nP);
-   for (unsigned int iP=0; iP!=nP; ++iP) {
-     if (pathNames_[iP]!="") {triggerNames_.push_back(pathNames_[iP]);}
-   }
-   pathNames_   = processPSet_.getParameter<vector<string> >("@paths");
-   */
+   // Extract trigger paths (= paths - end_paths)
+   triggerNames_= processPSet_.getParameter<ParameterSet>("@trigger_paths").getParameter<vector<string> >("@trigger_paths");
 
    // Obtain module labels of all modules on all trigger paths
    const unsigned int n(size());
@@ -395,37 +372,40 @@ void HLTConfigProvider::extract()
      }
    }
 
-   // Extract and fill PrescaleService information
-   prescaleValues_.resize(n);
-   for (unsigned int i=0; i!=n; ++i) {
-     prescaleValues_[i].clear();
-   }
+   // Extract and fill Prescale information
+
+   // Check both possibilities to get the HLT prescale sets:
+   string prescaleName("");
    if (processPSet_.exists("PrescaleService")) {
-     const edm::ParameterSet PSet (modulePSet("PrescaleService"));
-     prescaleLabels_ = PSet.getParameter< std::vector<std::string> >("lvl1Labels");
-     const unsigned int m(prescaleLabels_.size());
-     for (unsigned int j=0; j!=m; ++j) {
-       prescaleIndex_[prescaleLabels_[j]]=j;
-     }
-
-     prescaleValues_.resize(n);
-     for (unsigned int i=0; i!=n; ++i) {
-       prescaleValues_[i].resize(m);
-       for (unsigned int j=0; j!=m; ++j) {
-	 prescaleValues_[i][j]=1;
-       }
-     }
-
-     const edm::VParameterSet VPSet(PSet.getParameter<edm::VParameterSet>("prescaleTable"));
-     const unsigned int l(VPSet.size());
-     for (unsigned int j=0; j!=l; ++j) {
-       const unsigned int i(triggerIndex(VPSet[j].getParameter<std::string>("pathName")));
-       if (i<size()) {
-	 prescaleValues_[i]=VPSet[j].getParameter<std::vector<unsigned int> >("prescales");
-       }
-     }
-
+     prescaleName="PrescaleService";
+   } else if ( processPSet_.exists("PrescaleTable")) {
+     prescaleName="PrescaleTable";
    }
+   if (prescaleName=="") {
+     hltPrescaleTable_=HLTPrescaleTable();
+   } else {
+     const ParameterSet iPS(processPSet_.getParameter<ParameterSet>("PrescaleTable"));
+     string defaultLabel(iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel",""));
+     vector<string> labels(iPS.getParameter<std::vector<std::string> >("lvl1Labels"));
+     vector<ParameterSet> vpTable(iPS.getParameter<std::vector<ParameterSet> >("prescaleTable"));
+
+     unsigned int set(0);
+     const unsigned int n(labels.size());
+     for (unsigned int i=0; i!=n; ++i) {
+       if (labels[i]==defaultLabel) set=i;
+     }
+     
+     map<string,vector<unsigned int> > table;
+     const unsigned int m (vpTable.size());
+     for (unsigned int i=0; i!=m; ++i) {
+       table[vpTable[i].getParameter<std::string>("pathName")] = 
+	 vpTable[i].getParameter<std::vector<unsigned int> >("prescales");
+     }
+     hltPrescaleTable_=HLTPrescaleTable(set,labels,table);
+   }
+
+   dump("ProcessPSet");
+   dump("PrescaleTable");
 
    return;
 }
@@ -510,22 +490,23 @@ void HLTConfigProvider::dump(const std::string& what) const {
 	 cout << "    " << j << " " << datasetContents_[i][j] << endl;
        }
      }
-   } else if (what=="Prescales") {
-     const unsigned int m (prescaleLabels_.size());
-     cout << "HLTConfigProvider::dump: Prescales: " << m << endl;
-     if (m>0) {
-       for (unsigned int j=0; j!=m; ++j) {
-	 cout << " " << j << "/" << prescaleLabels_[j];
-       }
-       cout << endl;
-       const unsigned int n(size());
+   } else if (what=="PrescaleTable") {
+     const unsigned int n (hltPrescaleTable_.size());
+     cout << "HLTConfigProvider::dump: PrescaleTable: # of sets : " << n << endl;
+     const vector<string>& labels(hltPrescaleTable_.labels());
+     for (unsigned int i=0; i!=n; ++i) {
+       cout << " " << i << "/'" << labels.at(i) << "'";
+     }
+     if (n>0) cout << endl;
+     const map<string,vector<unsigned int> >& table(hltPrescaleTable_.table());
+     cout << "HLTConfigProvider::dump: PrescaleTable: # of paths: " << table.size() << endl;
+     const map<string,vector<unsigned int> >::const_iterator tb(table.begin());
+     const map<string,vector<unsigned int> >::const_iterator te(table.end());
+     for (map<string,vector<unsigned int> >::const_iterator ti=tb; ti!=te; ++ti) {
        for (unsigned int i=0; i!=n; ++i) {
-	 cout << "  " << i << " " << triggerNames_[i] << " ";
-	 for (unsigned int j=0; j!=m; ++j) {
-	   cout << " " << j << "/" << prescaleValues_[i][j];
-	 }
-	 cout << endl;
+	 cout << " " << ti->second.at(i);
        }
+       cout << " " << ti->first << endl;
      }
    } else {
      cout << "HLTConfigProvider::dump: Unkown dump request: " << what << endl;
@@ -680,38 +661,27 @@ const std::vector<std::string>& HLTConfigProvider::datasetContent(const std::str
   return datasetContent(datasetIndex(dataset));
 }
 
-
 /*
-const std::vector<std::string>& HLTConfigProvider::prescaleLabels() const {
-  return prescaleLabels_;
-}
-
-const std::string& HLTConfigProvider::prescaleLabel(unsigned int label) const {
-  return prescaleLabels_.at(label);
-}
-
-unsigned int HLTConfigProvider::prescaleIndex(const std::string& label) const {
-  const std::map<std::string,unsigned int>::const_iterator index(prescaleIndex_.find(label));
-  if (index==prescaleIndex_.end()) {
-    return prescaleLabels_.size();
+///
+/// high-level user access method: prescale for given trigger path
+unsigned int HLTConfigProvider::prescaleValue(unsigned int set, const std::string& trigger) const {
+  using namespace std;
+  const map<string,vector<unsigned int> >& table(hltPrescaleTable_.table());
+  const map<string,vector<unsigned int> >::const_iterator it(table.find(trigger));
+  if ((it==table.end()) || (prescaleSet()>=it->second.size())) {
+    return 1;
   } else {
-    return index->second;
+    return it->second[set];
   }
 }
-
-const std::vector<unsigned int>& HLTConfigProvider::prescaleValues(unsigned int trigger) const {
-  return prescaleValues_.at(trigger);
-}
-
-const std::vector<unsigned int>& HLTConfigProvider::prescaleValues(const std::string& trigger) const {
-  return prescaleValues(triggerIndex(trigger));
-}
-
-unsigned int HLTConfigProvider::prescaleValue(unsigned int trigger, unsigned int label) const {
-  return prescaleValues(trigger).at(label);
-}
-
-unsigned int HLTConfigProvider::prescaleValue(const std::string& trigger, const std::string& label) const {
-  return prescaleValue(triggerIndex(trigger),prescaleIndex(label));
+///
+/// low-level data member access
+const std::vector<std::string>& HLTConfigProvider::prescaleLabels() const {return hltPrescaleTable_.labels();}
+const std::map<std::string,std::vector<unsigned int> >& HLTConfigProvider::prescaleTable() const {return hltPrescaleTable_.table();}
+///
+/// private - default prescale set index to be taken from L1 event data!!
+unsigned int HLTConfigProvider::prescaleSet() const {return hltPrescaleTable_.set();}
+unsigned int HLTConfigProvider::prescaleValue(const std::string& trigger) const {
+  return prescaleValue(prescaleSet(),trigger);
 }
 */

@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/02/18 15:07:16 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/02/19 14:26:53 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 
 #include<string>
 #include<vector>
@@ -146,32 +148,21 @@ class HLTConfigProvider {
   /// names of trigger paths in dataset with name
   const std::vector<std::string>& datasetContent(const std::string& dataset) const;
 
-
-  /*  Not useable: PrescaleService configuration is not saved in Provenance
-  /// PrescaleService accessors
-
-  /// Available prescale column labels
+  /*
+  /// HLT Prescales
+  /// high-level user access method: prescale for given trigger path
+  unsigned int prescaleValue(unsigned int set, const std::string& trigger) const;
+  /// low-level data member access 
   const std::vector<std::string>& prescaleLabels() const;
+  const std::map<std::string,std::vector<unsigned int> >& prescaleTable() const;
 
-  /// Prescale column label of given index key
-  const std::string& prescaleLabel(unsigned int label) const;
-
-  /// Index key of given column label
-  unsigned int prescaleIndex(const std::string& label) const;
-
-  /// Prescale values for given trigger
-  const std::vector<unsigned int>& prescaleValues(unsigned int trigger) const;
-
-  /// Prescale values for given trigger
-  const std::vector<unsigned int>& prescaleValues(const std::string& trigger) const;
-
-  /// Prescale value for given trigger and prescale index key
-  unsigned int prescaleValue(unsigned int trigger, unsigned int label) const;
-
-  /// Prescale value for given trigger and prescale label
-  unsigned int prescaleValue(const std::string& trigger, const std::string& label) const;
+  private:
+  /// private - default prescale set index to be taken from L1 event data!!
+  unsigned int prescaleSet() const;
+  unsigned int prescaleValue(const std::string& trigger) const;
   */
 
+ public:
   /// c'tor
   HLTConfigProvider():
     processName_(""), processPSet_(),
@@ -180,7 +171,7 @@ class HLTConfigProvider {
     hltL1GTSeeds_(),
     streamNames_(), streamIndex_(), streamContents_(),
     datasetNames_(), datasetIndex_(), datasetContents_(),
-    prescaleLabels_(), prescaleIndex_(), prescaleValues_() { }
+    hltPrescaleTable_() { }
 
  private:
 
@@ -204,9 +195,7 @@ class HLTConfigProvider {
   std::map<std::string,unsigned int> datasetIndex_;
   std::vector<std::vector<std::string> > datasetContents_;
 
-  std::vector<std::string> prescaleLabels_;
-  std::map<std::string,unsigned int> prescaleIndex_;
-  std::vector<std::vector<unsigned int> > prescaleValues_;
+  trigger::HLTPrescaleTable hltPrescaleTable_;
 
 };
 #endif
