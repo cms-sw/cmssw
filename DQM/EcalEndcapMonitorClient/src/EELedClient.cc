@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/03/04 13:56:01 $
- * $Revision: 1.110 $
+ * $Date: 2010/03/04 18:05:40 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -151,11 +151,11 @@ EELedClient::EELedClient(const ParameterSet& ps) {
   percentVariation01_ = 999.; // not used nor not normalized VPTs
   percentVariation03_ = 999.; // not used nor not normalized VPTs
 
-  amplitudeThreshold01_ = 60.;
-  amplitudeThreshold03_ = 5.;
+  amplitudeThreshold01_ = 2.;
+  amplitudeThreshold03_ = 2.;
 
-  rmsThresholdRelative01_ = 0.3;
-  rmsThresholdRelative03_ = 1.0;
+  rmsThreshold01_ = 10.;
+  rmsThreshold03_ = 10.;
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
@@ -1290,7 +1290,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmplL1) > fabs(percentVariation01_ * meanAmplL1) || mean01 < amplitudeThreshold01_ || rms01 > rmsThresholdRelative01_ * mean01 )
+          if ( mean01 < amplitudeThreshold01_ || rms01 > rmsThreshold01_ )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ix, iy, val );
 
@@ -1314,7 +1314,7 @@ void EELedClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmplL2) > fabs(percentVariation03_ * meanAmplL2) || mean03 < amplitudeThreshold03_ || rms03 > rmsThresholdRelative03_ * mean03 )
+          if (  mean03 < amplitudeThreshold03_ || rms03 > rmsThreshold03_ )
             val = 0.;
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, val);
 
