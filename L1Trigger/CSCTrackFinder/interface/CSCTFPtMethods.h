@@ -34,13 +34,61 @@ class CSCTFPtMethods
   /** Corrections for ME1 F/R bit */
   static const float FRCorrLowEta[kME2andMB2][2];
   static const float FRCorrHighEta[kME2andMB2][2];
-  
+ 
+/** parameters for Anna's method 2010*/
+  static const double A_mu12Front[4][15];
+  static const double A_sig12Front[3][15];
+  static const double A_mu13Front[4][15];
+  static const double A_sig13Front[3][15];
+  static const double A_mu14Front[4][15];
+  static const double A_sig14Front[3][15];
+
+  static const double A_mu12Rare[4][15];
+  static const double A_sig12Rare[3][15];
+  static const double A_mu13Rare[4][15];
+  static const double A_sig13Rare[3][15];
+  static const double A_mu14Rare[4][15];
+  static const double A_sig14Rare[3][15];
+
+  static const double A_mu52[4][15];
+  static const double A_sig52[3][15];
+
+  static const double A_mu23[4][15];
+  static const double A_sig23[3][15];
+  static const double A_mu24[4][15];
+  static const double A_sig24[3][15];
+  static const double A_mu34[4][15];
+  static const double A_sig34[3][15];
+
+/*
+  static const double A_mu23CSCTF[4][15];
+  static const double A_sig23CSCTF[3][15];
+  static const double A_mu24CSCTF[4][15];
+  static const double A_sig24CSCTF[3][15];
+  static const double A_mu34CSCTF[4][15];
+  static const double A_sig34CSCTF[3][15];
+*/ 
+  static const double A_rho123FrontCSCTF[5][15];
+  static const double A_rho124FrontCSCTF[5][15];
+  static const double A_rho134FrontCSCTF[5][15];
+
+  static const double A_rho123RareCSCTF[5][15];
+  static const double A_rho124RareCSCTF[5][15];
+  static const double A_rho134RareCSCTF[5][15];
+
+  static const double A_rho234CSCTF[5][15];
+
+// don't care about Mode 12: 1-2-b1 yet, should add A_mu12CSCTF or A_mu51CSCTF depending how calculate dphi12
+
   /** 2-station Pt measurement for types (see SP class for 2-stn types) */
   float Pt2Stn(int type, float eta, float dphi, int fr=-1) const;
-  
+  float Pt2Stn2010(int type, float eta, float dphi, int fr=-1) const;
+  double Likelihood2(double *phi12, double *par_m12, double *par_sig12, double *v) const;  
+ 
   /** 3-station Pt measurement for types (see SP class for 3-stn types) */
   float Pt3Stn(int type, float eta, float dphi1, float dphi2, int fr=-1) const;
-    
+  float Pt3Stn2010(int type, float eta, float dphi1, float dphi2, int fr=-1) const;
+  double Likelihood(double *phi12, double *phi23, double *par_m12, double *par_m23, double *par_sig12, double *par_sig23, double *par_rho, double *v) const; 
   /** Second are the parameterizations of Acosta/Yeh */
 
   static const float ptbins[29];

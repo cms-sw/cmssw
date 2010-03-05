@@ -22,7 +22,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 ##process.load("CalibMuon.Configuration.CSC_FakeConditions_cff")
 ##process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ('GR09_31X_V5P::All')
+#process.GlobalTag.globaltag = ('GR09_31X_V5P::All')
+process.GlobalTag.globaltag = ('GR09_R_35X_V3::All')
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff")
 
@@ -44,12 +45,16 @@ process.cscmakesrlut = cms.EDAnalyzer("CSCMakeSRLUT",
  )
 
 process.cscmakeptlut = cms.EDAnalyzer("CSCMakePTLUT",
+#  create .bin file
    BinaryOutput = cms.untracked.bool(True),
+##  create .dat file
+#   BinaryOutput = cms.untracked.bool(False), 
    lutParam = cms.PSet(
     isBeamStartConf = cms.untracked.bool(True)
+#    isBeamStartConf = cms.untracked.bool(False)
    )
 )
 
-#process.Path = cms.Path(process.cscmakesrlut)
-process.Path = cms.Path(process.cscmakeptlut)				
+process.Path = cms.Path(process.cscmakesrlut)
+#process.Path = cms.Path(process.cscmakeptlut)				
 #process.Path = cms.Path(process.cscmakesrlut+process.cscmakeptlut)

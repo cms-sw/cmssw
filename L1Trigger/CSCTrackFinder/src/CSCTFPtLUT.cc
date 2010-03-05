@@ -31,7 +31,7 @@ bool CSCTFPtLUT::lut_read_in = false;
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
 CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
-	pt_method = 1;
+	pt_method = 4;
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
 	pt_lut = new ptdat[1<<21];
@@ -79,7 +79,8 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 1 - Darin's parameterization method
   // 2 - Cathy Yeh's chi-square minimization method
   // 3 - Hybrid
-  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",1);
+  // 4 - Anna's parameterization method
+  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",4);
   // what does this mean???
   lowQualityFlag = pset.getUntrackedParameter<unsigned>("LowQualityFlag",4);
 
@@ -163,8 +164,8 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 
   //  kluge to use 2-stn track in overlap region
   //  see also where this routine is called, and encode LUTaddress, and assignPT
-  if ((mode == 2 || mode == 3 || mode == 4) && (eta<3)) mode = 6;
-  if ((mode == 5)                           && (eta<3)) mode = 8;
+  if (pt_method != 4 && (mode == 2 || mode == 3 || mode == 4) && (eta<3)) mode = 6;
+  if (pt_method != 4 && (mode == 5)                           && (eta<3)) mode = 8;
 
   switch(mode)
     {
@@ -182,7 +183,17 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 
       // now convert to real numbers for input into PT assignment algos.
 
-      if(pt_method == 1) // param method
+      if(pt_method == 4) // param method 2010
+        {
+          dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+          dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+          if(charge12 * charge23 < 0) dphi23R = -dphi23R;
+
+          ptR_front = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 1);
+          ptR_rear  = ptMethods.Pt3Stn2010(mode, etaR, dphi12R, dphi23R, 0);
+
+        }
+      else if(pt_method == 1) // param method
 	{
 	  dphi12R = (static_cast<float>(absPhi12<<1)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
 	  dphi23R = (static_cast<float>(absPhi23<<4)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
@@ -262,8 +273,17 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
+      if(pt_method == 4) // param method 2010
+        {
+              dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+
+              //std::cout<< " Sector_rad = " << (CSCTFConstants::SECTOR_RAD) << std::endl;
+              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1);
+              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0);
+        }
+
       break;
-    case 12:
+    case 12:  // 1-2-b1 calculated only delta_phi12 = 2-b1
     case 14:
       type = 2;
 
@@ -284,6 +304,17 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
+      if(pt_method == 4) // param method 2010 
+        {
+              dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+
+              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1);
+              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0);
+
+              if(fabs(dphi12R)<0.01 && (ptR_rear < 10 || ptR_front < 10))
+                std::cout << "dphi12R = " << dphi12R << " ptR_rear = " << ptR_rear
+                << " ptR_front = " << ptR_front << " etaR = " << etaR << " mode = " << mode << std::endl;
+        }
       break;
     case 13:
       type = 4;
@@ -305,6 +336,15 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 	  ptR_front = trigger_ptscale->getPtScale()->getLowEdge(1);
 	  ptR_rear  = trigger_ptscale->getPtScale()->getLowEdge(1);
 	}
+
+      if(pt_method == 4) // param method 2010
+        {
+              dphi12R = (static_cast<float>(absPhi12)) / (static_cast<float>(1<<12)) * CSCTFConstants::SECTOR_RAD;
+
+              ptR_front = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 1);
+              ptR_rear  = ptMethods.Pt2Stn2010(mode, etaR, dphi12R, 0);
+        }
+
       break;
     case 11:
       // singles trigger
@@ -330,17 +370,19 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
   rear_pt  = trigger_ptscale->getPtScale()->getPacked(ptR_rear);
 
   // kluge to set arbitrary Pt for some tracks with lousy resolution (and no param)
-  if ((front_pt==0 || front_pt==1) && (eta<3) && quality==1 && pt_method != 2) front_pt = 31;
-  if ((rear_pt==0  || rear_pt==1) && (eta<3) && quality==1 && pt_method != 2) rear_pt = 31;
-
-  if(pt_method != 2 && quality == 1)
+  if(pt_method != 4) 
+    {
+      if ((front_pt==0 || front_pt==1) && (eta<3) && quality==1 && pt_method != 2) front_pt = 31;
+      if ((rear_pt==0  || rear_pt==1) && (eta<3) && quality==1 && pt_method != 2) rear_pt = 31;
+    }
+  if(pt_method != 2 && pt_method != 4 && quality == 1)
     {
       if (front_pt < 5) front_pt = 5;
       if (rear_pt  < 5) rear_pt  = 5;
     }
 
   // in order to match the pt assignement of the previous routine
-  if(isBeamStartConf && pt_method != 2) {
+  if(isBeamStartConf && pt_method != 2 && pt_method != 4) {
     if(quality == 3 && mode == 5) {
       
       if (front_pt < 5) front_pt = 5;

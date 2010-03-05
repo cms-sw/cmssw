@@ -19,7 +19,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 				PTLUT = cms.PSet(
             LowQualityFlag = cms.untracked.uint32(4),
             ReadPtLUT = cms.untracked.bool(False),
-            PtMethod = cms.untracked.uint32(1)
+            PtMethod = cms.untracked.uint32(4)
         ),
 		
 		# Operational mode control
