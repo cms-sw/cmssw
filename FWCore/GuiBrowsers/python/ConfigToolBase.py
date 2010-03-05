@@ -1,6 +1,7 @@
 import copy
 import inspect
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.DictTypes as dicttypes
 
 class parameter:
     pass
@@ -16,7 +17,7 @@ class ConfigToolBase(object) :
     _defaultValue="No default value. Set parameter value."
     _path = ""
     def __init__(self):
-        self._parameters={}
+        self._parameters=dicttypes.SortedKeysDict()
         self._description=self.__doc__
         self._comment = ''
         self.parAccepted=True
@@ -109,7 +110,7 @@ class ConfigToolBase(object) :
         dumpPython += "\n"+self._label+"(process "
         for key in self._parameters.keys():
             dumpPython+= ", "
-            if self._parameters[key].type is type(str):
+            if self._parameters[key].type is str:
                 string = "'"+str(self.getvalue(key))+"'"
             else:
                 string = str(self.getvalue(key))
