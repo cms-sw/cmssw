@@ -64,7 +64,7 @@ public:
    */
 
   EcalRecHit();
-  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0);
+  EcalRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t flagBits = 0);
   /// get the id
   // For the moment not returning a specific id for subdetector
   DetId id() const { return DetId(detid());}
@@ -74,6 +74,7 @@ public:
   float outOfTimeChi2Prob() const; // not used
   float chi2() const;
   float outOfTimeChi2() const;
+  uint32_t flagBits() const { return flagBits_; }
   // set the energy for out of time events
   // (only energy >= 0 will be stored)
   float outOfTimeEnergy() const;
@@ -83,6 +84,10 @@ public:
   void setChi2( float chi2 );
   void setOutOfTimeChi2( float chi2 );
   void setOutOfTimeEnergy( float energy );
+  void setFlagBits( uint32_t flagBits ) { flagBits_ = flagBits; }
+
+private:
+  uint32_t flagBits_;
 };
 
 std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit);
