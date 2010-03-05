@@ -122,6 +122,12 @@ if options.copyNonO2OPayloads == 1:
     process.L1RPCConeDefinitionOnline.copyFromCondDB = cms.bool( True )
     process.L1RPCConeDefinitionOnline.onlineDB = options.copyDBConnect
     process.L1RPCConeDefinitionOnline.onlineAuthentication = options.copyDBAuth
+    process.L1RPCHsbConfigOnline.copyFromCondDB = cms.bool( True )
+    process.L1RPCHsbConfigOnline.onlineDB = options.copyDBConnect
+    process.L1RPCHsbConfigOnline.onlineAuthentication = options.copyDBAuth
+    process.L1RPCBxOrConfigOnline.copyFromCondDB = cms.bool( True )
+    process.L1RPCBxOrConfigOnline.onlineDB = options.copyDBConnect
+    process.L1RPCBxOrConfigOnline.onlineAuthentication = options.copyDBAuth
 
 process.load("L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersOnlineProducer_cfi")
 process.load("L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleOnlineProducer_cfi")
