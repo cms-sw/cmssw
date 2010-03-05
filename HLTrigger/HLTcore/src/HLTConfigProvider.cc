@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/05 15:37:26 $
- *  $Revision: 1.33 $
+ *  $Date: 2010/03/05 15:40:22 $
+ *  $Revision: 1.34 $
  *
  *  \author Martin Grunewald
  *
@@ -378,7 +378,7 @@ void HLTConfigProvider::extract()
    string prescaleName("");
    if (processPSet_.exists("PrescaleService")) {
      prescaleName="PrescaleService";
-   } else if ( processPSet_.exists("PrescaleTable")) {
+   } else if ( processPSet_.exists("@PrescaleTable")) {
      prescaleName="PrescaleTable";
    }
    if (prescaleName=="") {
