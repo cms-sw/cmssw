@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os 
 
-process = cms.Process("RECO")
+process = cms.Process("RERECO")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
@@ -11,7 +11,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 #global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'MC_3XY_V21::All'
 
 ##################################################################################
 
@@ -20,7 +20,7 @@ options = VarParsing.VarParsing ('standard')
 
 # setup any defaults you want
 options.output = 'test_out.root'
-options.files= '/store/relval/CMSSW_3_4_0_pre1/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V9-v1/0008/2EA3EA28-B7B5-DE11-9B7A-001D09F2B2CF.root'
+options.files= '/store/relval/CMSSW_3_5_2/RelValPyquen_DiJet_pt80to120_4TeV/GEN-SIM-RECO/MC_3XY_V21-v1/0001/FA961928-A01F-DF11-85F6-0030487CD7C0.root'
 options.maxEvents = 1 
 
 # get and parse the command line arguments
@@ -83,9 +83,11 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ##################################################################################
 # Paths
+process.rechits = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits)
 process.vtxreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.hiPixelVertices)
 process.pxlreco = cms.Sequence(process.vtxreco * process.hiPixel3PrimTracks)
 process.trkreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.heavyIonTracking)
-process.p = cms.Path(process.RawToDigi * process.trkreco)
+#process.reco = cms.Path(process.RawToDigi * process.trkreco)
+process.rereco = cms.Path(process.rechits * process.heavyIonTracking)
 process.save = cms.EndPath(process.output)
 
