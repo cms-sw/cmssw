@@ -12,8 +12,8 @@ you should execute:
 
 If you prefer to use your own LHAPDF library and files, assumed to be installed 
 under /usr/local, then do:
-      1) Edit the file $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/available/lhapdf.xml
-      2) In that file, change the default for LHAPDF_BASE to "/usr/local/"
+      1) Edit the file $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/lhapdf.xml
+      2) In that file, change the default for LHAPDF_BASE to "/usr/local"
       3) scram setup lhapdf (and check that environment variables point to /usr/local/...)
       4) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
       5) scram b
