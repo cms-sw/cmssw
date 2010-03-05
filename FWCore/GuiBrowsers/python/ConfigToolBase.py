@@ -4,11 +4,11 @@ import FWCore.ParameterSet.Config as cms
 
 #### patches needed for deepcopy of sorted dicts ####
 
-import FWCore.ParameterSet.DictTypes as typ
+import FWCore.ParameterSet.DictTypes as dicttypes
     
 def new_SortedKeysDict__copy__(self):
     return self.__class__(self)
-typ.SortedKeysDict.__copy__ = new_SortedKeysDict__copy__
+dicttypes.SortedKeysDict.__copy__ = new_SortedKeysDict__copy__
 
 def new_SortedKeysDict__deepcopy__(self, memo=None):
     from copy import deepcopy
@@ -20,7 +20,7 @@ def new_SortedKeysDict__deepcopy__(self, memo=None):
     memo[id(self)] = d = self.__class__()
     d.__init__(deepcopy(self.items(), memo))
     return d
-typ.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
+dicttypes.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
 
 
 class parameter:
@@ -36,7 +36,7 @@ class ConfigToolBase(object) :
     _defaultValue="No default value. Set parameter value."
     _path = ""
     def __init__(self):
-        self._parameters=typ.SortedKeysDict()
+        self._parameters=dicttypes.SortedKeysDict()
         self._description=self.__doc__
         self._comment = ''
         self.parAccepted=True
