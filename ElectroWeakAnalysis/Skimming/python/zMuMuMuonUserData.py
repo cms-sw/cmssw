@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 userDataMuons = cms.EDProducer(
-    "muonUserData",
+    "ZMuMuMuonUserData",
     src = cms.InputTag("selectedPatMuonsTriggerMatch"),
     ptThreshold = cms.double("1.5"),
     etEcalThreshold = cms.double("0.2"),
@@ -17,15 +17,3 @@ userDataMuons = cms.EDProducer(
     
     )
 
-#process.out = cms.OutputModule(
-#    "PoolOutputModule",
-#    fileName = cms.untracked.string('muonUserData.root'),
-#    outputCommands = cms.untracked.vstring(
-#      "keep *"
-#      #"keep *_muons_*_*"  
-#    
- #   )
-#)
-
-
-#process.p=cms.Path(process.muons+process.out)
