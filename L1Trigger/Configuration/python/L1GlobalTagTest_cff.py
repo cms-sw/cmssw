@@ -59,9 +59,10 @@ dumpL1RPCConfig = cms.EDAnalyzer('DumpL1RPCConfig',
           fileName = cms.string('PrintGlobalTag_L1RPCConfig.log'))
 dumpConeDefinition = cms.EDAnalyzer('DumpConeDefinition',
           fileName = cms.string('PrintGlobalTag_L1RPCConeDefinition.log'))
+dumpL1RPCBxOrConfig = cms.EDAnalyzer("DumpL1RPCBxOrConfig")
+dumpL1RPCHsbConfig = cms.EDAnalyzer("DumpL1RPCHsbConfig")
 
-
-printGlobalTagL1Rpc = cms.Sequence(dumpL1RPCConfig*dumpConeDefinition)
+printGlobalTagL1Rpc = cms.Sequence(dumpL1RPCConfig*dumpConeDefinition*dumpL1RPCBxOrConfig*dumpL1RPCHsbConfig)
 
 # Global Muon Trigger
 #

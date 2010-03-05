@@ -56,10 +56,30 @@ options.register('rpcFileDir',
                  VarParsing.VarParsing.varType.string,
                  "Replacement value of rpcconf.filedir; no replacement by default")
 options.register('rpcPACsPerTower',
-                 -1, #default value
+                 -999, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Replacement value of rpcconf.PACsPerTower; no replacement by default")
+options.register('rpcBxOrFirstBx',
+                 -999, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Replacement value of l1RPCBxOrConfig.firstBX; no replacement by default")
+options.register('rpcBxOrLastBx',
+                 -999, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Replacement value of l1RPCBxOrConfig.lastBX; no replacement by default")
+options.register('rpcHsb0Mask',
+                 [-999], #default value
+                 VarParsing.VarParsing.multiplicity.list,
+                 VarParsing.VarParsing.varType.int,
+                 "Replacement value of l1RPCHsbConfig.hsb0Mask; no replacement by default")
+options.register('rpcHsb1Mask',
+                 [-999], #default value
+                 VarParsing.VarParsing.multiplicity.list,
+                 VarParsing.VarParsing.varType.int,
+                 "Replacement value of l1RPCHsbConfig.hsb1Mask; no replacement by default")
 options.parseArguments()
 
 # Generate L1TriggerKey
@@ -96,10 +116,22 @@ process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder
 # Optional customization for RPC objects
 if options.rpcFileDir != "":
     process.rpcconf.filedir = options.rpcFileDir
-    print "New rpcconf.filedir = ", process.rpcconf.filedir
-if options.rpcPACsPerTower != -1:
+    print "New rpcconf.filedir =", process.rpcconf.filedir
+if options.rpcPACsPerTower != -999:
     process.rpcconf.PACsPerTower = options.rpcPACsPerTower
-    print "New rpcconf.PACsPerTower = ", process.rpcconf.PACsPerTower
+    print "New rpcconf.PACsPerTower =", process.rpcconf.PACsPerTower
+if options.rpcBxOrFirstBx != -999:
+    process.l1RPCBxOrConfig.firstBX = options.rpcBxOrFirstBx
+    print "New l1RPCBxOrConfig.firstBX =", process.l1RPCBxOrConfig.firstBX
+if options.rpcBxOrLastBx != -999:
+    process.l1RPCBxOrConfig.lastBX = options.rpcBxOrLastBx
+    print "New l1RPCBxOrConfig.lastBX =", process.l1RPCBxOrConfig.lastBX
+if options.rpcHsb0Mask != [[-999]]:
+    process.l1RPCHsbConfig.hsb0Mask = options.rpcHsb0Mask
+    print "New l1RPCHsbConfig.hsb0Mask =", process.l1RPCHsbConfig.hsb0Mask
+if options.rpcHsb1Mask != [[-999]]:
+    process.l1RPCHsbConfig.hsb1Mask = options.rpcHsb1Mask
+    print "New l1RPCHsbConfig.hsb1Mask =", process.l1RPCHsbConfig.hsb1Mask
 
 # writer modules
 from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter

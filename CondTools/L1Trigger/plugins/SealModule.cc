@@ -106,6 +106,16 @@ REGISTER_L1_WRITER(L1RPCConfigRcd, L1RPCConfig);
 
 REGISTER_L1_WRITER(L1RPCConeDefinitionRcd, L1RPCConeDefinition);
 
+#include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
+#include "CondFormats/DataRecord/interface/L1RPCBxOrConfigRcd.h"
+
+REGISTER_L1_WRITER(L1RPCBxOrConfigRcd, L1RPCBxOrConfig);
+
+#include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
+#include "CondFormats/DataRecord/interface/L1RPCHsbConfigRcd.h"
+
+REGISTER_L1_WRITER(L1RPCHsbConfigRcd, L1RPCHsbConfig);
+
 // GMT records
 #include "CondFormats/L1TObjects/interface/L1MuGMTParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuGMTParametersRcd.h"

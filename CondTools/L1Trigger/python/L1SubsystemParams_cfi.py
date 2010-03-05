@@ -114,6 +114,18 @@ def initL1Subsystems( tagBase = 'IDEAL',
             key = cms.string(objectKey)
         ),
         cms.PSet(
+            record = cms.string('L1RPCHsbConfigRcd'),
+            tag = cms.string('L1RPCHsbConfig_' + tagBase),
+            type = cms.string('L1RPCHsbConfig'),
+            key = cms.string(objectKey)
+        ),
+        cms.PSet(
+            record = cms.string('L1RPCBxOrConfigRcd'),
+            tag = cms.string('L1RPCBxOrConfig_' + tagBase),
+            type = cms.string('L1RPCBxOrConfig'),
+            key = cms.string(objectKey)
+        ),
+        cms.PSet(
             record = cms.string('L1MuGMTParametersRcd'),
             tag = cms.string('L1MuGMTParameters_' + tagBase),
             type = cms.string('L1MuGMTParameters'),

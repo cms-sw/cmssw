@@ -97,6 +97,8 @@ process.load("L1TriggerConfig.DTTrackFinder.L1MuDTTFParametersOnline_cfi")
 
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfigOnline_cfi")
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConeDefinitionOnline_cfi")
+process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCBxOrConfigOnline_cfi")
+process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCHsbConfigOnline_cfi")
 
 if options.copyNonO2OPayloads == 1:
     process.L1MuDTEtaPatternLutOnline.copyFromCondDB = cms.bool( True )
