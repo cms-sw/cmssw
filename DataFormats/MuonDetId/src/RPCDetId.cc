@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.23 2009/05/06 22:17:53 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.24 2009/05/31 15:32:35 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
@@ -47,7 +47,6 @@ RPCDetId::buildfromDB(int region, int ring, int trlayer, int sector,
 		      const std::string& dbname){
 
   bool barrel = (region==0);
-
   //STATION
   int station = -1;
   if (barrel) {
@@ -167,8 +166,10 @@ RPCDetId::buildfromTrIndex(int trIndex)
   trIndex = trIndex%10000;
   int sector_id = trIndex/100;
   if (region!=0) {
-    sector_id+=1;
-    if (sector_id==37)sector_id=1;
+        if ( !(ring == 1 && station > 1 && region==1)) {     
+         sector_id+=1;
+         if (sector_id==37)sector_id=1;
+     }
   }
   if (region==-1){
     if (sector_id < 20 ){
@@ -190,13 +191,13 @@ RPCDetId::buildfromTrIndex(int trIndex)
   else {
     if ( ring == 1 && station > 1) {
       // 20 degree chambers
-      subsector = (sector_id/2-1)%3+1;
+       subsector = ((sector_id+1)/2-1)%3+1;
     }else {
       // 10 degree chambers
       subsector = (sector_id-1)%6+1;
     }
-    // std::cout << "RE"<<station<<"/"<<ring<<" sector_id "<<sector_id
-    //	      << " sector "<<sector <<" sub "<<subsector<<std::endl;
+//     std::cout <<" RE"<<station*region<<"/"<<ring<<" sector_id "<<sector_id
+//    	      << " sector "<<sector <<" sub "<<subsector<<std::endl;
   }
 
 
