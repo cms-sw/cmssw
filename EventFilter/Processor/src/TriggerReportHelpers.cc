@@ -107,6 +107,7 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   if(tableFormatted_) return;
   std::ostringstream ost;
   trp_ = tr;
+  lumiSectionIndex_ = 0;
   resetTriggerReport();
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
 
@@ -160,7 +161,7 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
     }
 
   }
-  if(noNukeLegenda) pathLegenda_.value_ = ost.str();
+  if(noNukeLegenda) pathLegenda_ = ost.str().c_str();
 
 }
 

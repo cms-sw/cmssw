@@ -93,6 +93,9 @@ namespace evf{
       evf::MsgBuf & getPackedTriggerReport(){return cache_;}
       TriggerReportStatic *getPackedTriggerReportAsStruct(){return (TriggerReportStatic *)cache_->mtext;}
       xdata::String *getPathLegenda(){return &pathLegenda_;}
+      void resetLumiSectionReferenceIndex(){lumiSectionIndex_=0;}
+      void withdrawLumiSectionIncrement(){lumiSectionIndex_--;}
+      unsigned int getLumiSectionReferenceIndex(){return lumiSectionIndex_;}
     private:
       // scalers table
       xdata::UnsignedInteger32 eventsProcessed_;

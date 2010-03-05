@@ -49,6 +49,7 @@ namespace evf{
     unsigned int Ms;
     unsigned int ms;
     unsigned int dqm;
+    unsigned int trp;
   };
   
 

@@ -159,6 +159,7 @@ namespace evf{
     hasSubProcesses = serviceMap & 0x10;
     configString_ = configString;
     trh_.resetFormat(); //reset the report table even if HLT didn't change
+    scalersUpdateCounter_ = 0;
     if (epInitialized_) {
       LOG4CPLUS_INFO(log_,"CMSSW EventProcessor already initialized: skip!");
       return;
@@ -354,8 +355,12 @@ namespace evf{
 	    mapmod_[outcount+modcount] = descs_[i]->moduleLabel();
 	  }
       }
+//     std::cout << "*******************************microstate legend**************************" << std::endl;
+//     std::cout << oss2.str() << std::endl;
+//     std::cout << "*******************************microstate legend**************************" << std::endl;
+
     if(instanceZero){
-      micro_state_legend_ = oss2.str();
+      micro_state_legend_ = oss2.str().c_str();
     }
     monitorInfoSpace_->unlock();
     LOG4CPLUS_INFO(log_," edm::EventProcessor configuration finished.");
@@ -589,10 +594,10 @@ namespace evf{
     timeval tv;
     if(useLock) {
       gettimeofday(&tv,0);
-      std::cout << getpid() << " calling openBackdoor " << std::endl;
+      //      std::cout << getpid() << " calling openBackdoor " << std::endl;
       waitingForLs_ = true;
       mwr->openBackDoor("DaqSource",lsTimeOut_);
-      std::cout << getpid() << " opened Backdoor " << std::endl;
+      //      std::cout << getpid() << " opened Backdoor " << std::endl;
     }
 
     try{
@@ -640,9 +645,9 @@ namespace evf{
     evtProcessor_->getTriggerReport(tr);
 
     if(useLock){
-      std::cout << getpid() << " calling closeBackdoor " << std::endl;
+      //      std::cout << getpid() << " calling closeBackdoor " << std::endl;
       mwr->closeBackDoor("DaqSource");
-      std::cout << getpid() << " closed Backdoor " << std::endl;
+      //      std::cout << getpid() << " closed Backdoor " << std::endl;
     }  
 
     trh_.formatReportTable(tr,descs_,false);
@@ -651,7 +656,7 @@ namespace evf{
     trh_.triggerReportToTable(tr,ls,ps,trh_.checkLumiSection(ls));
     trh_.packTriggerReport(tr);
     it->setField("triggerReport",trh_.getTableWithNames());
-    std::cout << getpid() << " returning normally from gettriggerreport " << std::endl;
+    //    std::cout << getpid() << " returning normally from gettriggerreport " << std::endl;
     return true;
   }
 

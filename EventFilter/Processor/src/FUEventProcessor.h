@@ -229,6 +229,9 @@ namespace evf
     toolbox::task::WorkLoop         *wlScalers_;      
     toolbox::task::ActionSignature  *asScalers_;
     bool                             wlScalersActive_;
+    unsigned int                     scalersUpdates_;
+
+    //summarize workloop
     toolbox::task::WorkLoop         *wlSummarize_;      
     toolbox::task::ActionSignature  *asSummarize_;
     bool                             wlSummarizeActive_;

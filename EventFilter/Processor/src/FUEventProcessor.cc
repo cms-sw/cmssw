@@ -100,6 +100,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , wlScalers_(0)
   , asScalers_(0)
   , wlScalersActive_(false)
+  , scalersUpdates_(0)
   , wlSummarize_(0)
   , asSummarize_(0)
   , wlSummarizeActive_(false)
@@ -299,11 +300,11 @@ FUEventProcessor::~FUEventProcessor()
 //______________________________________________________________________________
 bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 {
-  std::cout << "values " << ((nbSubProcesses_.value_!=0) ? 0x10 : 0) << " "
-	    << ((instance_.value_==0) ? 0x8 : 0) << " "
-	    << (hasServiceWebRegistry_.value_ ? 0x4 : 0) << " "
-	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
-	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
+//   std::cout << "values " << ((nbSubProcesses_.value_!=0) ? 0x10 : 0) << " "
+// 	    << ((instance_.value_==0) ? 0x8 : 0) << " "
+// 	    << (hasServiceWebRegistry_.value_ ? 0x4 : 0) << " "
+// 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
+// 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
     = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + ((instance_.value_==0) ? 0x8 : 0)
@@ -367,11 +368,12 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
   nbTotalDQM_ = 0;
-  std::cout << "values " << ((nbSubProcesses_.value_!=0) ? 0x10 : 0) << " "
-	    << ((instance_.value_==0) ? 0x8 : 0) << " "
-	    << (hasServiceWebRegistry_.value_ ? 0x4 : 0) << " "
-	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
-	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
+  scalersUpdates_ = 0;
+//   std::cout << "values " << ((nbSubProcesses_.value_!=0) ? 0x10 : 0) << " "
+// 	    << ((instance_.value_==0) ? 0x8 : 0) << " "
+// 	    << (hasServiceWebRegistry_.value_ ? 0x4 : 0) << " "
+// 	    << (hasModuleWebRegistry_.value_ ? 0x2 : 0) << " "
+// 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
     = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
     + ((instance_.value_==0) ? 0x8 : 0)
@@ -384,6 +386,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 
   std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
   configuration_ = evtProcessor_.configuration(); // get it again after init has been carried out...
+  evtProcessor_.resetLumiSectionReferenceIndex();
   //classic appl will return here 
   if(nbSubProcesses_.value_==0) return enableClassic();
 
@@ -900,6 +903,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		  if(rr==0)
 		    {
 		      isChildProcess_=true;
+		      scalersUpdates_ = 0;
 		      try{
 			pt::PeerTransport * ptr =
 			  pt::getPeerTransportAgent()->getPeerTransport("http","soap",pt::Receiver);
@@ -921,6 +925,16 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      catch(...){
 			std::cout << "trouble with lsindex during restart" << std::endl;
 		      }
+		      try{
+			xdata::Serializable *lstb = applicationInfoSpace_->find("lsToBeRecovered");
+			if(lstb) {
+			  ((xdata::Boolean*)(lstb))->value_ = false; // do not issue eol/bol for all Ls when restarting
+			}
+		      }
+		      catch(...){
+			std::cout << "trouble with resetting flag for eol recovery " << std::endl;
+		      }
+
 		      evtProcessor_.adjustLsIndexForRestart();
 		      evtProcessor_.resetPackedTriggerReport();
 		      enableMPEPSlave(i);
@@ -978,7 +992,8 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	  nba->value_ = 0;
 	  nblive_ = 0;
 	  nbdead_ = 0;
-	  
+	  scalersUpdates_ = 0;
+
 	  for(unsigned int i = 0; i < subs_.size(); i++)
 	    {
 	      if(subs_[i].alive()>0)
@@ -996,6 +1011,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		    ((xdata::UnsignedInteger32*)nbAccepted)->value_  += p->nba;
 		    if(dqm)dqm->value_ += p->dqm;
 		    nbTotalDQM_ +=  p->dqm;
+		    scalersUpdates_ += p->trp;
 		    if(p->ls > ls->value_) ls->value_ = p->ls;
 		    if(p->ps != ps->value_) ps->value_ = p->ps;
 		  }
@@ -1099,9 +1115,10 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
     }
   if(isChildProcess_) 
     {
-      std::cout << getpid() << "going to post on control queue from scalers" << std::endl;
+      //      std::cout << getpid() << "going to post on control queue from scalers" << std::endl;
       int ret = sq_->post(evtProcessor_.getPackedTriggerReport());
       if(ret!=0)      std::cout << "scalers workloop, error posting to sq_ " << errno << std::endl;
+      scalersUpdates_++;
     }
   else
     evtProcessor_.fireScalersUpdate();
@@ -1113,6 +1130,7 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 {
   MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_TRR);
   evtProcessor_.resetPackedTriggerReport();
+  bool atLeastOneProcessUpdatedSuccessfully = false;
   for (unsigned int i = 0; i < subs_.size(); i++)
     {
       if(subs_[i].alive()>0)
@@ -1131,13 +1149,28 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
 	    }
 	  
 
-	  if(ret==MSQS_MESSAGE_TYPE_TRR) evtProcessor_.sumAndPackTriggerReport(msg);
+	  if(ret==MSQS_MESSAGE_TYPE_TRR) {
+	    TriggerReportStatic *trp = (TriggerReportStatic *)msg->mtext;
+	    if(trp->lumiSection > evtProcessor_.getLumiSectionReferenceIndex()){
+	      std::cout << "postpone handing of msg from slot " << i << " with Ls " <<  trp->lumiSection
+			<< " should be " << evtProcessor_.getLumiSectionReferenceIndex() << std::endl;
+	      subs_[i].post(msg,false);
+	    }else{
+	      atLeastOneProcessUpdatedSuccessfully = true;
+	      evtProcessor_.sumAndPackTriggerReport(msg);
+	    }
+	  }
 	  else std::cout << "msgrcv returned error " << errno << std::endl;
 	}
     }
-  evtProcessor_.updateRollingReport();
-  evtProcessor_.fireScalersUpdate();
-
+  if(atLeastOneProcessUpdatedSuccessfully){
+    evtProcessor_.updateRollingReport();
+    evtProcessor_.fireScalersUpdate();
+  }
+  else{
+    LOG4CPLUS_WARN(getApplicationLogger(),"Summarize loop: no process updated successfull ");          
+    evtProcessor_.withdrawLumiSectionIncrement();
+  }
   if(fsm_.stateName()->toString()!="Enabled"){
     wlScalersActive_ = false;
     return false;
@@ -1184,8 +1217,10 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	  data->Ms             = evtProcessor_.epMAltState_.value_;
 	  data->ms             = evtProcessor_.epmAltState_.value_;
 	  if(dqm) data->dqm    = dqm->value_; else data->dqm = 0;
+	  data->trp            = scalersUpdates_;
 	  //	  monitorInfoSpace_->unlock();  
 	  sqm_->post(msg1);
+	  //	  scalersUpdates_++;
 	  break;
 	}
       case MSQM_MESSAGE_TYPE_WEB:
@@ -1458,7 +1493,8 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
        << "</td><td>"<< (isChildProcess_ ? "S" : "M") <<"</td><td>" << nblive_ << "</td><td>"
        << nbdead_ << "</td><td><a href=\"/" << urn << "/procStat\">" << getpid() <<"</a></td>";
   evtProcessor_.microState(in,out);
-  *out << "<td>" << nbTotalDQM_ << "</td></tr>";
+  *out << "<td>" << nbTotalDQM_ 
+       << "</td><td>" << evtProcessor_.getScalersUpdates() << "</td></tr>";
   if(nbSubProcesses_.value_!=0 && !isChildProcess_) 
     {
       pthread_mutex_lock(&start_lock_);
@@ -1483,7 +1519,8 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 		     << " (" << float(subs_[i].params().nba)/float(subs_[i].params().nbp)*100. <<"%)" 
 		     << "</td><td>" << subs_[i].params().ls  << "/" << subs_[i].params().ls 
 		     << "</td><td>" << subs_[i].params().ps 
-		     << "</td><td>" << subs_[i].params().dqm << "</td>";
+		     << "</td><td>" << subs_[i].params().dqm 
+		     << "</td><td>" << subs_[i].params().trp << "</td>";
 	      }
 	    else 
 	      {
@@ -1505,8 +1542,8 @@ void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
 		    if(autoRestartSlaves_) *out << " will restart in " << subs_[i].countdown() << " s";
 		    else *out << " autoRestart is disabled ";
 		  }
-		*out << "</td>"
-		     << "</td><td>" << subs_[i].params().dqm << "</td>";
+		*out << "</td><td>" << subs_[i].params().dqm 
+		     << "</td><td>" << subs_[i].params().trp << "</td>";
 		pthread_mutex_unlock(&pickup_lock_);
 	      }
 	    *out << "</tr>";

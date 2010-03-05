@@ -119,7 +119,10 @@ namespace evf{
     lsTriplet &lastLumi(){return lumiSectionsCtr_[rollingLsIndex_];}
     void resetWaiting(){waitingForLs_ = false;}
     bool isWaitingForLs(){return waitingForLs_;}
-
+    unsigned int getScalersUpdates(){return scalersUpdateCounter_;}
+    void resetLumiSectionReferenceIndex(){trh_.resetLumiSectionReferenceIndex();}
+    void withdrawLumiSectionIncrement(){trh_.withdrawLumiSectionIncrement();}
+    unsigned int getLumiSectionReferenceIndex(){return trh_.getLumiSectionReferenceIndex();}
   private:
     static const std::string        unknown;
     edm::EventProcessor             *evtProcessor_;
