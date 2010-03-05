@@ -2,8 +2,8 @@
 /*
  * \file DTLocalTriggerSynchTask.cc
  * 
- * $Date: 2010/01/07 10:30:19 $
- * $Revision: 1.4 $
+ * $Date: 2010/02/28 21:10:36 $
+ * $Revision: 1.5 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -66,15 +66,16 @@ void DTLocalTriggerSynchTask::beginJob(){
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: BeginJob" << endl;
 
-  bxTime     = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
-  rangeInBX  = parameters.getParameter<bool>("rangeWithinBX");
-  nBXLow     = parameters.getParameter<int>("nBXLow");
-  nBXHigh    = parameters.getParameter<int>("nBXHigh");
-  angleRange = parameters.getParameter<double>("angleRange");
-  minHitsPhi = parameters.getParameter<int>("minHitsPhi");
+  bxTime        = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
+  rangeInBX     = parameters.getParameter<bool>("rangeWithinBX");
+  nBXLow        = parameters.getParameter<int>("nBXLow");
+  nBXHigh       = parameters.getParameter<int>("nBXHigh");
+  angleRange    = parameters.getParameter<double>("angleRange");
+  minHitsPhi    = parameters.getParameter<int>("minHitsPhi");
+  baseDirectory = parameters.getParameter<string>("baseDir");
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setCurrentFolder("DT/90-LocalTriggerSynch/");
+  dbe->setCurrentFolder(baseDir());
   dbe->bookFloat("BXTimeSpacing")->Fill(bxTime);
   
 }
@@ -104,7 +105,7 @@ void DTLocalTriggerSynchTask::beginRun(const Run& run, const EventSetup& context
 void DTLocalTriggerSynchTask::endJob() {
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: analyzed " << nevents << " events" << endl;
-  dbe->rmdir("DT/90-LocalTriggerSynch");
+  dbe->rmdir(baseDir());
 
 }
 
@@ -245,7 +246,7 @@ void DTLocalTriggerSynchTask::bookHistos(const DTChamberId& dtChId) {
   stringstream sector; sector << dtChId.sector();
   uint32_t chRawId = dtChId.rawId();
   
-  dbe->setCurrentFolder("DT/90-LocalTriggerSynch/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() );
+  dbe->setCurrentFolder(baseDir() + "/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() );
   
 
   string histoTag[5] = { "SEG_TrackCrossingTime", "DCC_TrackCrossingTimeAll", "DCC_TrackCrossingTimeHH", "DDU_TrackCrossingTimeAll", "DDU_TrackCrossingTimeHH" };
@@ -257,7 +258,7 @@ void DTLocalTriggerSynchTask::bookHistos(const DTChamberId& dtChId) {
   for (int iHisto=0;iHisto<5;++iHisto) {
     string histoName = histoTag[iHisto] + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: booking " 
-					    << "DT/90-LocalTriggerSynch/Wheel" << wheel.str()
+						 << baseDir() + "/Wheel" << wheel.str()
 					    << "/Sector" << sector.str()
 					    << "/Station"<< station.str() 
 					    << "/" << histoName << endl;

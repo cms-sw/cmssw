@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerSynchTask.h
  *
- * $Date: 2009/11/02 14:42:45 $
- * $Revision: 1.2 $
+ * $Date: 2010/01/07 10:30:19 $
+ * $Revision: 1.3 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -69,6 +69,8 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
   
   /// EndJob
   void endJob(void);
+
+  std::string & baseDir() { return baseDirectory; }
     
  private:
   
@@ -88,6 +90,8 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
   float minHitsPhi;
   int fineDelay;
   DTTTrigBaseSync *tTrigSync;
+
+  std::string baseDirectory;
 
   DQMStore* dbe;
   edm::ParameterSet parameters;
