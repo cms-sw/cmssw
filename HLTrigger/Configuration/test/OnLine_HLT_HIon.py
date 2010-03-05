@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_0/HIon/V38 (CMSSW_3_5_3)
+# /dev/CMSSW_3_5_0/HIon/V39 (CMSSW_3_5_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V38')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V39')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -13,8 +13,8 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  A = cms.vstring( 'Cosmics',
-    'MinimumBias',
+  A = cms.vstring( 'MinimumBias',
+    'Cosmics',
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
@@ -34,8 +34,8 @@ process.streams = cms.PSet(
 )
 process.datasets = cms.PSet( 
   OfflineMonitor = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),

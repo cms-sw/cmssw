@@ -1,16 +1,16 @@
-# /dev/CMSSW_3_5_0/HIon/V38 (CMSSW_3_5_3)
+# /dev/CMSSW_3_5_0/HIon/V39 (CMSSW_3_5_3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V38')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V39')
 )
 
 streams = cms.PSet( 
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  A = cms.vstring( 'Cosmics',
-    'MinimumBias',
+  A = cms.vstring( 'MinimumBias',
+    'Cosmics',
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
@@ -30,8 +30,8 @@ streams = cms.PSet(
 )
 datasets = cms.PSet( 
   OfflineMonitor = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
