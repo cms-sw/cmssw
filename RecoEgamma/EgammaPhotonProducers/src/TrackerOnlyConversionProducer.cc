@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.16 2010/02/15 17:50:42 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.28 2010/02/22 08:21:26 hlliu Exp $
 //
 //
 
@@ -294,6 +294,53 @@ bool TrackerOnlyConversionProducer::getMatchedBC(const reco::CaloClusterPtrVecto
 	return false;
 }
 
+//check track open angle of phi at vertex
+bool TrackerOnlyConversionProducer::checkPhi(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
+	const TrackerGeometry* trackerGeom, const MagneticField* magField,
+	const reco::Vertex& vtx){
+    if (!allowDeltaPhi_)
+	return true;
+    //if track has innermost momentum, check with innermost phi
+    //if track also has valid vertex, propagate to vertex then calculate phi there
+    //if track has no innermost momentum, just return true, because track->phi() makes no sense
+    if (tk_l->extra().isNonnull() && tk_r->extra().isNonnull()){
+	double iphi1 = tk_l->innerMomentum().phi(), iphi2 = tk_r->innerMomentum().phi();
+	if (vtx.isValid()){
+	    PropagatorWithMaterial propag( anyDirection, 0.000511, magField );
+	    TrajectoryStateTransform transformer;
+	    double recoPhoR = vtx.position().Rho();
+	    Surface::RotationType rot;
+	    ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder( Surface::PositionType(0,0,0), rot,
+			SimpleCylinderBounds( recoPhoR-0.001, recoPhoR+0.001, -fabs(vtx.position().z()), fabs(vtx.position().z()))));
+	    ReferenceCountingPointer<BoundDisk>      theDisk_(
+		    new BoundDisk( Surface::PositionType( 0, 0, vtx.position().z()), rot,
+			SimpleDiskBounds( 0, recoPhoR, -0.001, 0.001)));
+
+	    const TrajectoryStateOnSurface myTSOS1 = transformer.innerStateOnSurface(*tk_l, *trackerGeom, magField);
+	    const TrajectoryStateOnSurface myTSOS2 = transformer.innerStateOnSurface(*tk_r, *trackerGeom, magField);
+	    TrajectoryStateOnSurface  stateAtVtx1, stateAtVtx2;
+	    stateAtVtx1 = propag.propagate(myTSOS1, *theBarrel_);
+	    if (!stateAtVtx1.isValid() ) {
+		stateAtVtx1 = propag.propagate(myTSOS1, *theDisk_);
+	    }
+	    if (stateAtVtx1.isValid()){
+		iphi1 = stateAtVtx1.globalDirection().phi();
+	    }
+	    stateAtVtx2 = propag.propagate(myTSOS2, *theBarrel_);
+	    if (!stateAtVtx2.isValid() ) {
+		stateAtVtx2 = propag.propagate(myTSOS2, *theDisk_);
+	    }
+	    if (stateAtVtx2.isValid()){
+		iphi2 = stateAtVtx2.globalDirection().phi();
+	    }
+	}
+	const double dPhi = reco::deltaPhi(iphi1, iphi2);
+	return (fabs(dPhi) < deltaPhi_);
+    } else {
+	return true;
+    }
+}
+
 bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRef, reco::CaloClusterPtr>& ll, 
 	const std::pair<reco::TrackRef, reco::CaloClusterPtr>& rr, 
 	const MagneticField* magField,
@@ -307,6 +354,7 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     const reco::CaloClusterPtr& bc_r = rr.second;
     
     //DeltaPhi as preselection cut
+    /*
     if (allowDeltaPhi_){
 	const double phi_l = tk_l->innerMomentum().phi();
 	const double phi_r = tk_r->innerMomentum().phi();
@@ -314,7 +362,9 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 
 	if (fabs(dPhi) > deltaPhi_) return false;//Delta Phi cut for pair
     }
+    */
 
+    //The cuts should be ordered by considering if takes time and if cuts off many fakes
     if (allowTrackBC_){
 	//check energy of BC
 	double total_e_bc = 0;
@@ -334,10 +384,20 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 	if (fabs(dCotTheta) > deltaCotTheta_) return false;//Delta Cot(Theta) cut for pair
     }
 
+    //check with tracks innermost position z, except TEC
+    if (tk_l->extra().isNonnull() && tk_r->extra().isNonnull()){//inner position delta Z cut
+	const double inner_z_l = tk_l->innerPosition().z();
+	const double inner_z_r = tk_r->innerPosition().z();
+	if (fabs(inner_z_l)<120. && fabs(inner_z_r)<120.) {//not using delta z cut in TEC
+	    if (fabs(inner_z_l-inner_z_r) > dzCut_)
+		return false;
+	}
+    }
+
     if (allowMinApproach_){
 	const double distance = getMinApproach(tk_l, tk_r, magField);
 
-	if (distance < minApproach_ || distance >10.) return false;
+	if (distance < minApproach_ || distance >1.) return false;
 	else
 	    appDist = distance;
     }
@@ -350,15 +410,6 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 
     if (cross_r<r_cut) return false;
     
-    //check with tracks innermost position z, except TEC
-    if (tk_l->extra().isNonnull() && tk_r->extra().isNonnull()){//inner position delta Z cut
-	const double inner_z_l = tk_l->innerPosition().z();
-	const double inner_z_r = tk_r->innerPosition().z();
-	if (fabs(inner_z_l)<120. && fabs(inner_z_r)<120.) {//not using delta z cut in TEC
-	    if (fabs(inner_z_l-inner_z_r) > dzCut_)
-		return false;
-	}
-    }
     //TODO INSERT MORE CUTS HERE!
 
     return true;
@@ -606,16 +657,20 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 	    const std::pair<reco::TrackRef, reco::CaloClusterPtr> the_right = std::make_pair<reco::TrackRef, reco::CaloClusterPtr>(right, trackMatchedBC[rr->second]);
 
 	    double app_distance = -999.;
+	    //signature cuts, then check if vertex, then post-selection cuts
 	    if ( checkTrackPair(the_left, the_right, magField, app_distance) ){
 		reco::Vertex the_vertex;//by default it is invalid
 		//if allow vertex and there is a vertex, go vertex finding, otherwise
 		if (allowVertex_) {
+		    //const bool found_vertex = checkVertex((*ll), right, magField, the_vertex);
 		    checkVertex((*ll), right, magField, the_vertex);
 		}
-		right_candidates.push_back(rr->second);
-		right_candidate_theta.push_back(right->innerMomentum().Theta());
-		right_candidate_approach.push_back(app_distance);
-		vertex_candidates.push_back(the_vertex);//this vertex can be valid or not
+		if (checkPhi((*ll), right, trackerGeom, magField, the_vertex)){
+		    right_candidates.push_back(rr->second);
+		    right_candidate_theta.push_back(right->innerMomentum().Theta());
+		    right_candidate_approach.push_back(app_distance);
+		    vertex_candidates.push_back(the_vertex);//this vertex can be valid or not
+		}
 	    }
 	}
 	//fill collection with all right candidates
@@ -722,7 +777,7 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	if(iEvent.getByLabel(src_[ii],temp_handle)){//starting from 170
 	    trackCollectionHandles.push_back(temp_handle);
 	} else {
-	    edm::LogError("TrackerOnlyConversionProducer") << "Collection reco::TrackCollection with label " << src_[ii] << "\n" ;
+	    edm::LogWarning("TrackerOnlyConversionProducer") << "Collection reco::TrackCollection with label " << src_[ii] << " cannot be found, using empty collection of same type";
 	}
     }
 
