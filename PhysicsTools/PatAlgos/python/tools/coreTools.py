@@ -230,7 +230,6 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                 process.patDefaultSequence.remove(getattr(process, 'tauGenJetsSelectorAllHadrons'))
                 process.patDefaultSequence.remove(getattr(process, 'tauGenJetMatch'))
             if( names[obj] == 'Jets' ):
-                print process.patDefaultSequence
                 process.patDefaultSequence.remove(getattr(process, 'patJetCharge'))
                 process.patDefaultSequence.remove(getattr(process, 'patJetCorrections'))
                 process.patDefaultSequence.remove(getattr(process, 'patJetPartonMatch'))
