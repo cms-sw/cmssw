@@ -1,9 +1,15 @@
-2010-03-03 Remi Mommsen <Remigius.Mommsen@cern.ch>
+2010-03-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-05
+	* Remove debug output for histogram collection.
+	* Fix handling of multi-fragment DQM event messages.
+
+2010-03-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-08-04
 	* Fix logic when all expected DQM histograms for a given LS have been
 	  received from the EPs.
-	* Optimize code in DQMInstance.
+	* Re-factor and optimize code in DQMInstance.
 	* Add missing lock in StreamsMonitorCollection.
 	* Add temporary debug output for histogram collection.
 
