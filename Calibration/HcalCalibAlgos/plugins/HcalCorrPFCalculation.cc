@@ -1,4 +1,4 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.19 2010/02/23 13:50:49 fabiocos Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.20 2010/03/05 22:50:27 andrey Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -369,7 +369,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       /*       -----------------   ------------------------      */
 
       
-      if (gPointHcal.x()==0 && gPointHcal.y()==0 && gPointHcal.y()==0)
+      if (gPointHcal.x()==0 && gPointHcal.y()==0 && gPointHcal.z()==0)
 	{cout <<"gPointHcal is Zero!"<<endl; continue;}
 
 
