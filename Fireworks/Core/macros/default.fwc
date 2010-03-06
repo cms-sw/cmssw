@@ -686,6 +686,11 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
+  topaaa.addKeyValue("event info", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
   topaaa.addKeyValue("Show calo endcaps", topaaaa);
 }
 {
@@ -782,6 +787,11 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(1);
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Plot Et", topaaaa);
+}
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
@@ -1090,6 +1100,11 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
   topaaa.addKeyValue("Smooth line", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("event info", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -1535,6 +1550,11 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Line width", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
   topaaaa.addValue("0.432383");
   topaaa.addKeyValue("cameraMatrix0Plain3D", topaaaa);
 }
@@ -1707,6 +1727,11 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("");
   topaaa.addKeyValue("Filter", topaaaa);
 }
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("HLT");
+  topaaa.addKeyValue("Process", topaaaa);
+}
   topaa.addKeyValue("TriggerTable", topaaa);
 }
   topa.addKeyValue("views", topaa);
@@ -1795,12 +1820,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1013");
+  topaaaaa.addValue("1001");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("76");
+  topaaaaa.addValue("73");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
@@ -1843,12 +1868,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1013");
+  topaaaaa.addValue("1003");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("421");
+  topaaaaa.addValue("408");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
