@@ -6,7 +6,7 @@
 // Package:    Vx3DHLTAnalyzer
 // Class:      Vx3DHLTAnalyzer
 // 
-/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc Vx3DHLTAnalysis/Vx3DHLTAnalyzer/interface/Vx3DHLTAnalyzer.h
+/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc interface/Vx3DHLTAnalyzer.h
 
  Description: [one line class summary]
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.7 2010/03/05 14:22:34 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.1 2010/03/06 19:24:13 dinardo Exp $
 //
 //
 
@@ -51,8 +51,6 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
-      virtual double Gauss3DFunc(double* x,
-				 double* par);
       virtual void writeToFile(vector<double>* vals,
 			       string fileName,
 			       edm::TimeValue_t BeginTimeOfFit,

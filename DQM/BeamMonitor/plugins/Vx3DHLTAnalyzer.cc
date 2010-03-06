@@ -3,7 +3,7 @@
 // Package:    Vx3DHLTAnalyzer
 // Class:      Vx3DHLTAnalyzer
 // 
-/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc Vx3DHLTAnalysis/Vx3DHLTAnalyzer/src/Vx3DHLTAnalyzer.cc
+/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc plugins/Vx3DHLTAnalyzer.cc
 
  Description: [one line class summary]
 
@@ -13,12 +13,12 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.11 2010/03/05 14:22:31 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.13 2010/03/06 19:20:24 dinardo Exp $
 //
 //
 
 
-#include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
+#include "DQM/BeamMonitor/interface/Vx3DHLTAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -30,6 +30,8 @@
 
 #include <iostream>
 #include <fstream>
+
+#include <TF3.h>
 
 
 using namespace std;
@@ -102,8 +104,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 }
 
 
-double Vx3DHLTAnalyzer::Gauss3DFunc(double* x,
-				    double* par)
+double Gauss3DFunc(double* x, double* par)
 { 
   double a,b,c,d,e,f;
 
@@ -113,12 +114,12 @@ double Vx3DHLTAnalyzer::Gauss3DFunc(double* x,
       cos(par[5])*cos(par[5]) / (2.*par[4]*par[4]) + sin(par[5])*sin(par[5]) / (2.*par[6]*par[6]);
   c = cos(par[3])*cos(par[3]) / (2.*par[6]*par[6]) + sin(par[3])*sin(par[3]) / (2.*par[2]*par[2]) +
       cos(par[5])*cos(par[5]) / (2.*par[6]*par[6]) + sin(par[5])*sin(par[5]) / (2.*par[4]*par[4]);
-  d = -sin(2*par[1]) / (4*par[2]*par[2]) + sin(2*par[1]) / (4*par[4]*par[4]);
-  e = -sin(2*par[5]) / (4*par[4]*par[4]) + sin(2*par[5]) / (4*par[6]*par[6]);
-  f = -sin(2*par[3]) / (4*par[6]*par[6]) + sin(2*par[3]) / (4*par[2]*par[2]);
+  d = -sin(2.*par[1]) / (4.*par[2]*par[2]) + sin(2.*par[1]) / (4.*par[4]*par[4]);
+  e = -sin(2.*par[5]) / (4.*par[4]*par[4]) + sin(2.*par[5]) / (4.*par[6]*par[6]);
+  f = -sin(2.*par[3]) / (4.*par[6]*par[6]) + sin(2.*par[3]) / (4.*par[2]*par[2]);
 
   return par[0] + exp(-(a*(x[0]-par[7])*(x[0]-par[7]) + b*(x[1]-par[8])*(x[1]-par[8]) + c*(x[2]-par[9])*(x[2]-par[9]) +
-			2*d*(x[0]-par[7])*(x[1]-par[8]) + 2*e*(x[1]-par[8])*(x[2]-par[9]) + 2*f*(x[0]-par[7])*(x[2]-par[9])));
+			2.*d*(x[0]-par[7])*(x[1]-par[8]) + 2.*e*(x[1]-par[8])*(x[2]-par[9]) + 2.*f*(x[0]-par[7])*(x[2]-par[9])));
 }
 
 
@@ -210,11 +211,11 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 {
   // To know the lumisection: lumiBlock.luminosityBlock()
   lumiCounter++;
-  
+
   if ((lumiCounter == nLumiReset) && (nLumiReset != 0) && (beginTimeOfFit != 0))
     {
-      TF1* Gauss   = new TF1("Gauss","gaus");
-      TF1* Gauss3D = new TF1("Gauss3D","Gauss3DFunc");
+      TF1* Gauss   = new TF1("Gauss", "gaus");
+      TF3* Gauss3D = new TF3("Gauss3D", Gauss3DFunc, -xRange/2., xRange/2., -yRange/2., yRange/2., -zRange/2., zRange/2., 10);
 
       mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), nLumiReset);
       mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), nLumiReset);
@@ -257,14 +258,15 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       Distribution3D->getTH1()->Fit("Gauss3D","QN0");
       if (dataFromFit == true)
 	{
+	  vals.push_back(Gauss3D->GetParameter(7));
 	  vals.push_back(Gauss3D->GetParameter(8));
 	  vals.push_back(Gauss3D->GetParameter(9));
-	  vals.push_back(Gauss3D->GetParameter(10));
-	  vals.push_back(Gauss3D->GetParameter(3));
-	  vals.push_back(Gauss3D->GetParameter(5));
-	  vals.push_back(Gauss3D->GetParameter(7));
+	  vals.push_back(Gauss3D->GetParameter(2));
 	  vals.push_back(Gauss3D->GetParameter(4));
 	  vals.push_back(Gauss3D->GetParameter(6));
+	  vals.push_back(Gauss3D->GetParameter(3));
+	  vals.push_back(Gauss3D->GetParameter(5));
+
 	}
       else
 	{
@@ -280,16 +282,16 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       writeToFile(&vals, fileName, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit);
       vals.clear();
 
-//       Vx_X->Reset();
-//       Vx_Y->Reset();
-//       Vx_Z->Reset();
+      Vx_X->Reset();
+      Vx_Y->Reset();
+      Vx_Z->Reset();
 
-//       Vx_ZX->Reset();
-//       Vx_ZY->Reset();
-//       Vx_XY->Reset();
+      Vx_ZX->Reset();
+      Vx_ZY->Reset();
+      Vx_XY->Reset();
 
-//       Vx_ZX_profile->Reset();
-//       Vx_ZY_profile->Reset();
+      Vx_ZX_profile->Reset();
+      Vx_ZY_profile->Reset();
 
       reportSummary->Fill(0.5);
       reportSummaryMap->Fill(0.5, 0.5, 0.5);
@@ -297,6 +299,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       lumiCounter = 0;
 
       delete Gauss;
+      delete Gauss3D;
     }
   else if (nLumiReset == 0)
     {
@@ -316,11 +319,10 @@ void Vx3DHLTAnalyzer::beginJob()
   if ( dbe ) 
     {
       dbe->setCurrentFolder("BeamPixel");
-
-      Distribution3D = dbe->book3D("Distribution3D", "Distribution3D of the Vertex Coordinates",
-				   (int)(xRange/xStep), -xRange/2., xRange/2.,
-				   (int)(yRange/yStep), -yRange/2., yRange/2.,
-				   (int)(zRange/zStep), -zRange/2., zRange/2.);
+      Distribution3D = dbe->book3D("Distribution_3D", "Distribution3D of the Vertex Coordinates",
+				   ((int)(xRange/xStep) < 40) ? (int)(xRange/xStep) : 40, -xRange/2., xRange/2.,
+				   ((int)(yRange/yStep) < 40) ? (int)(yRange/yStep) : 40, -yRange/2., yRange/2.,
+				   ((int)(zRange/zStep) <  8) ? (int)(zRange/zStep) :  8, -zRange/2., zRange/2.);
 
       Vx_X = dbe->book1D("Vertex_X", "Primary Vertex X Coordinate Distribution", (int)(xRange/xStep), -xRange/2., xRange/2.);
       Vx_Y = dbe->book1D("Vertex_Y", "Primary Vertex Y Coordinate Distribution", (int)(yRange/yStep), -yRange/2., yRange/2.);
