@@ -38,20 +38,20 @@
 //
 
 class SiStripElectronAssociator : public edm::EDProducer {
-   public:
-      explicit SiStripElectronAssociator(const edm::ParameterSet&);
-      ~SiStripElectronAssociator();
-
-
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-      std::string siStripElectronProducer_;
-      std::string siStripElectronCollection_;
-      std::string trackProducer_;
-      std::string trackCollection_;
-
-      std::string electronsLabel_;
+ public:
+  explicit SiStripElectronAssociator(const edm::ParameterSet&);
+  ~SiStripElectronAssociator();
+  
+  
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+ private:
+  // ----------member data ---------------------------
+  edm::InputTag siStripElectronProducer_;
+  edm::InputTag siStripElectronCollection_;
+  edm::InputTag trackProducer_;
+  edm::InputTag trackCollection_;
+  
+  edm::InputTag electronsLabel_;
 };
 
 #endif // EgammaElectronProducers_SiStripElectronAssociator_h
