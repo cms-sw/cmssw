@@ -31,6 +31,8 @@
 <use name=HLTrigger/HLTcore>
 
 <use name=DataFormats/HcalRecHit>
+<use name=RecoEcal/EgammaCoreTools>
+<use name=DataFormats/EgammaReco>
 <flags EDM_PLUGIN=1>
 <export>
    <use name=FWCore/Framework>
