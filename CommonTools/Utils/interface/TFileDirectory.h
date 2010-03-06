@@ -30,7 +30,7 @@ public:
     TDirectory *d = cd();
     T* t = new T();
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) { func(t,d); } 
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); } 
     else { d->Append(t); }
     return t;
   }
@@ -40,7 +40,7 @@ public:
     TDirectory *d = cd();
     T * t = new T( a1 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t; 
   }
@@ -50,7 +50,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -60,7 +60,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -70,7 +70,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -82,7 +82,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4, a5 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -94,7 +94,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4, a5, a6 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -106,7 +106,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -118,7 +118,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -132,7 +132,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -146,7 +146,7 @@ public:
     TDirectory *d = cd(); 
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -160,7 +160,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
@@ -174,7 +174,7 @@ public:
     TDirectory *d = cd();
     T * t =  new T( a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 );
     ROOT::DirAutoAdd_t func = T::Class()->GetDirectoryAutoAdd();
-    if (func) {func(t,d); }
+    if (func) { TH1AddDirectorySentry sentry; func(t,d); }
     else { d->Append(t); }
     return t;
   }
