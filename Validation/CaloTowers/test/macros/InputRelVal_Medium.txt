@@ -58,6 +58,7 @@
              CaloTowersTask_EM_Energy_Timing_profile_HF
                     CaloTowersTask_HAD_Energy_Timing_HF   1  HF_CaloTowers_HAD_Energy_Timing_HF.gif	1	0	-1	0	-1	TM	noStat	noChi2	NoLog	53	42	       HF CaloTowers HAD Timing vs Energy
             CaloTowersTask_HAD_Energy_Timing_profile_HF
+                       CaloTowersTask_occupancy_vs_ieta   1        CaloTowers_occupancy_vs_ieta.gif	1	0	-1	0	-1	1D	noStat	noChi2	NoLog	41	42	       CaloTowers Occupancy vs. iEta
                     HcalRecHitTask_RecHit_StatusWord_HB   1	                  HB_StatusWord.gif	1	0	-1	0	-1	1D	NoStat	noChi2	Log	41	42	       HB status word
                     HcalRecHitTask_RecHit_StatusWord_HE   1	                  HE_StatusWord.gif	1	0	-1	1E-9	-1	1D	NoStat	noChi2	Log	41	42	       HE status word
                     HcalRecHitTask_RecHit_StatusWord_HF   1	                  HF_StatusWord.gif	1	0	-1	1E-5	-1	1D	NoStat	noChi2	Log	41	42	       HF status word

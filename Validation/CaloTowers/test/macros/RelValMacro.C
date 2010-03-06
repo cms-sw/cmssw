@@ -13,21 +13,10 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
 
   //Service variables
   //CaloTowers
-  const int CT_HB_nHist1 = 7;
-  const int CT_HE_nHist1 = 7;
-  const int CT_HF_nHist1 = 7;
-
-  const int CT_HB_nHist2 = 2;
-  const int CT_HE_nHist2 = 2;
-  const int CT_HF_nHist2 = 2;
-
-  const int CT_HB_nProf = 2;
-  const int CT_HE_nProf = 2;
-  const int CT_HF_nProf = 2;
-
-  const int CT_HB_nHistTot = 20;
-  const int CT_HE_nHistTot = 20;
-  const int CT_HF_nHistTot = 20;
+  const int CT_nHistTot = 61;
+  const int CT_nHist1   = 22;
+  const int CT_nHist2   = 6;
+  const int CT_nProf    = 6;
   
   //RecHits
   const int RH_nHistTot = 95; 
@@ -43,9 +32,7 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
 
   TString RBX_HistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
 
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_HB_nHist1, CT_HB_nHist2, CT_HB_nProf, CT_HB_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_HE_nHist1, CT_HE_nHist2, CT_HE_nProf, CT_HE_nHistTot, ref_vers, val_vers);
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_HF_nHist1, CT_HF_nHist2, CT_HF_nProf, CT_HF_nHistTot, ref_vers, val_vers);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers);
 
   ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, RH_HistDir);
 
@@ -183,8 +170,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	ref_hist1[nh1]->SetFillColor(48);
 	ref_hist1[nh1]->Draw("hist");   
 	val_hist1[nh1]->SetLineStyle(1);  
-	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames e0");   
-	else                        val_hist1[nh1]->Draw("hist same e0");   
+	if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("sames e0");   
+	else                        val_hist1[nh1]->Draw("same e0");   
 
 	//Get p-value from chi2 test
 	const float NCHI2MIN = 0.01;

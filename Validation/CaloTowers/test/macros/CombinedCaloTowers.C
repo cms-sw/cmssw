@@ -104,6 +104,9 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     if (LogSwitch == "Log") myc->SetLogy();
     else                    myc->SetLogy(0);
     
+    if (StatSwitch == "Stat") myc->SetGrid(0,0);
+    else                      myc->SetGrid();
+    
     if (DimSwitch == "1D"){
       //Get histograms from files
       ref_file.cd("DQMData/CaloTowersV/CaloTowersTask");   
@@ -119,8 +122,11 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       }
       
       //Set the colors, styles, titles, stat boxes and format x-axis for the histograms 
-      if (StatSwitch == "Stat") ref_hist1[nh1]->SetStats(kTRUE);
-      
+      if (StatSwitch != "Stat"){
+	ref_hist1[nh1]->SetStats(kFALSE);
+	val_hist1[nh1]->SetStats(kFALSE);
+      }
+
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
       //xAxis
       if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
@@ -144,18 +150,22 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       ref_hist1[nh1]->SetTitle("");
       ref_hist1[nh1]->SetLineWidth(1); 
       ref_hist1[nh1]->SetLineColor(RefCol);
-      //    ref_hist1[nh1]->SetLineStyle(1); 
+      ref_hist1[nh1]->SetLineStyle(1); 
+      if (StatSwitch != "Stat") ref_hist1[nh1]->SetLineWidth(2); 
       
       val_hist1[nh1]->SetTitle("");
       val_hist1[nh1]->SetLineWidth(1); 
       val_hist1[nh1]->SetLineColor(ValCol);
-      //    val_hist1[nh1]->SetLineStyle(2);
+      val_hist1[nh1]->SetLineStyle(2);
+      if (StatSwitch != "Stat") val_hist1[nh1]->SetLineWidth(2); 
       
       //Chi2
       if (Chi2Switch == "Chi2"){
 	//Draw histograms
 	ref_hist1[nh1]->SetFillColor(48);
 	ref_hist1[nh1]->Draw("hist"); // "stat"
+
+	val_hist1[nh1]->SetLineStyle(1);
 	val_hist1[nh1]->Draw("sames e0");
 	//Get p-value from chi2 test
 	const float NCHI2MIN = 0.01;
