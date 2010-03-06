@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SKIM")
+process = cms.Process("SKIM2")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.8 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(500)
 )
 
 
@@ -46,37 +46,6 @@ process.load('Configuration/EventContent/EventContent_cff')
 
 process.FEVTEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 
-
-######################################Reco Track#################################################
-
-process.generalTracksFilter = cms.EDFilter("TrackCountFilter",
-                                                      src = cms.InputTag('generalTracks'),
-                                                      minNumber = cms.uint32(2) 
-                                                      )
-process.pixelLessTracksFilter = cms.EDFilter("TrackCountFilter",
-                                                      src = cms.InputTag('ctfPixelLess'),
-                                                      minNumber = cms.uint32(1) 
-                                                      )
-process.pixelTracksFilter = cms.EDFilter("TrackCountFilter",
-                                                      src = cms.InputTag('pixelTracks'),
-                                                      minNumber = cms.uint32(1) 
-                                                      )
-
-process.generalTracksPath = cms.Path(process.generalTracksFilter)
-process.pixelTracksPath = cms.Path(process.pixelLessTracksFilter)
-process.pixelLessTracksPath = cms.Path(process.pixelTracksFilter)
-
-
-process.recotrackout = cms.OutputModule("PoolOutputModule",
-                               outputCommands = process.FEVTEventContent.outputCommands,
-                               SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generalTracksPath',
-    										'pixelTracksPath',
-										'pixelLessTracksPath')),
-                               dataset = cms.untracked.PSet(
-			                 dataTier = cms.untracked.string('RAW-RECO'),
-                                         filterName = cms.untracked.string('RecoTracks')),
-                               fileName = cms.untracked.string('generalTracks.root')
-                               )
 
 ###########################################################################################
 #------------------------------------------
@@ -117,8 +86,12 @@ process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
 ##################################################DT skim###############################################
 process.muonDTDigis = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
-    useStandardFEDid = cms.untracked.bool(True),
-    fedbyType = cms.untracked.bool(True),
+    inputLabel = cms.InputTag('source'),
+#    fedbyType = cms.untracked.bool(True),
+# fedbytype is tracked in 353
+    fedbyType = cms.bool(True),
+    useStandardFEDid = cms.bool(True),
+    dqmOnly = cms.bool(False),                       
     readOutParameters = cms.PSet(
         debug = cms.untracked.bool(False),
         rosParameters = cms.PSet(
@@ -196,6 +169,22 @@ process.bscnobhout = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.vstring('bscnobeamhalo')
     )
 )
+##################################filter_rechit for ECAL############################################
+process.load("DPGAnalysis.Skims.filterRecHits_cfi")
+
+process.ecalrechitfilter = cms.Path(process.recHitEnergyFilter)
+
+
+process.ecalrechitfilter_out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('ecalrechitfilter.root'),
+    outputCommands = process.FEVTEventContent.outputCommands,
+    dataset = cms.untracked.PSet(
+    	      dataTier = cms.untracked.string('RAW-RECO'),
+    	      filterName = cms.untracked.string('ECALRECHIT')),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('ecalrechitfilter')
+    )
+)
 
 ####################################################################################
 ##################################stoppedHSCP############################################
@@ -231,7 +220,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.recotrackout+process.outputBeamHaloSkim+process.DTskimout+process.bscnobhout+process.outHSCP)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.DTskimout+process.bscnobhout+process.outHSCP+process.ecalrechitfilter_out)
 
 
 
