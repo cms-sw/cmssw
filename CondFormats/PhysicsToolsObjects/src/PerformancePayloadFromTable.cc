@@ -64,5 +64,5 @@ bool PerformancePayloadFromTable::isInPayload(PerformanceResult::ResultType res,
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include "FWCore/Utilities/interface/typelookup.h"
-TYPELOOKUP_DATA_REG(PerformancePayloadFromTable);
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+EVENTSETUP_DATA_REG(PerformancePayloadFromTable);
