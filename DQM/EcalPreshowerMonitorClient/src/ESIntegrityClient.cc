@@ -267,7 +267,8 @@ void ESIntegrityClient::analyze(void) {
 	  if (fed_[iz][ip][ix][iy] == -1) continue;
 	  if (fedStatus_[fed_[iz][ip][ix][iy]-520]==-1 || fiberStatus_[fed_[iz][ip][ix][iy]-520][fiber_[iz][ip][ix][iy]] == 0)
 	    kchip_xval[kchip_[iz][ip][ix][iy]-1] = 0;
-	  meKCHIP_[iz][ip]->setBinContent(ix+1, iy+1, kchip_xval[kchip_[iz][ip][ix][iy]-1]); 
+	  if ((kchip_[iz][ip][ix][iy]-2) >= 0) 
+	    meKCHIP_[iz][ip]->setBinContent(ix+1, iy+1, kchip_xval[kchip_[iz][ip][ix][iy]-2]); 
 	}
 
   // FED, Fiber, KCHIP summary (i.e. summary 1) 
