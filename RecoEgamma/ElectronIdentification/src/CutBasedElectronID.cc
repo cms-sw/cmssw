@@ -16,19 +16,19 @@ void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
   verticesCollection = conf.getParameter<edm::InputTag>("verticesCollection");
   
   if (type_ == "robust" || type_ == "classbased") {
-    if (quality_ == "loose" || quality_ == "tight" ||
-        quality_ == "medium" || quality_ == "highenergy" ) {
-       std::string stringCut = type_+quality_+"EleIDCuts"+version_;
-       cuts_ = conf.getParameter<edm::ParameterSet>(stringCut);
-    }
-    else {
-       edm::LogError("CutBasedElectronID") << "Invalid electronQuality parameter: must be loose, tight or highenergy." ;
-       exit (1);
-    }
+    //if (quality_ == "loose" || quality_ == "tight" ||
+    //    quality_ == "medium" || quality_ == "highenergy" ) {
+    std::string stringCut = type_+quality_+"EleIDCuts"+version_;
+    cuts_ = conf.getParameter<edm::ParameterSet>(stringCut);
+    //}
+    //else {
+    //throw cms::Exception("Configuration")
+    // << "Invalid electronQuality parameter in CutBasedElectronID: must be loose, tight or highenergy.\n";
+    //}
   } 
   else {
-    edm::LogError("CutBasedElectronID") << "Invalid electronType parameter: must be robust or classbased." ;
-    exit (1);
+    throw cms::Exception("Configuration")
+      << "Invalid electronType parameter in CutBasedElectronID: must be robust or classbased\n";
   }
 }
 
@@ -172,7 +172,7 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron ,
     
     result = result + 1;
     
-    return 1.;
+    return result;
   }
   
   int cat = classify(electron);
