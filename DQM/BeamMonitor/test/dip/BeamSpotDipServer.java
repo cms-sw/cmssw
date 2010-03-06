@@ -18,6 +18,12 @@ implements Runnable,DipPublicationErrorHandler
   public final static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public final static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
   public final static String sourceFile = "/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt";
+  public final static int lnPerRcd = 23;
+  public final static int msPerLS = 23000; // ms
+  public static boolean overwriteFlag = true; //if true, flag with flags[0]
+  public static boolean publishStatErrors = false;
+
+  private String[] flags = {"UNCERTAIN","BAD","GOOD"};
 
   DipFactory dip;
   DipData messageCMS;
@@ -28,6 +34,7 @@ implements Runnable,DipPublicationErrorHandler
   String startTime;
   String endTime;
   String lumiRange;
+  String flag;
   int type;
   float x;
   float y;
@@ -63,7 +70,7 @@ implements Runnable,DipPublicationErrorHandler
     e.printStackTrace();
   }
 
-  public void run() 
+  public void run()
   {
     java.util.Date now = new java.util.Date();
 
@@ -88,6 +95,7 @@ implements Runnable,DipPublicationErrorHandler
     try
     {
       int lsCount = 0;
+      flag = flags[0];
       while (keepRunning)
       {
 	try{
@@ -117,33 +125,33 @@ implements Runnable,DipPublicationErrorHandler
 		    while (lbr.readLine() != null){
 			countln++;
 		    }
-		    // skip previous results if server restatred during a run
-		    lastLine = countln;}
+		    // read the last record if server restatred during a run
+		    lastLine = countln - lnPerRcd;}
 		if (lsCount%10 == 0) {
 		    System.out.println("Waiting for data...");
 		    lastFitTime = tmpTime;
 		}
 		lsCount++;
-		try { Thread.sleep(23000); }
+		try { Thread.sleep(msPerLS); }
 		catch(InterruptedException e) {
 		    keepRunning = false;
 		}
 		continue;
 	    }
 	    lsCount = 0;
-	    int recCount = 0;
-	    int it = 0;
+	    int nthLnInFile = 0;
+	    int nthLnInRcd = 0;
 	    String record = new String();
 	    //System.out.println("Last line read = " + lastLine);
 	    while ((record = br.readLine()) != null) {
-		recCount++;
-		if (lastLine >= recCount) {
+		nthLnInFile++;
+		if (lastLine >= nthLnInFile) {
 		    continue;
 		}
-		it = recCount % 23;
+		nthLnInRcd = nthLnInFile % lnPerRcd;
 		String[] tmp;
 		tmp = record.split("\\s");
-		switch(it) {
+		switch(nthLnInRcd) {
 		case 1:
 		    if (!record.startsWith("Run")){
 			System.out.println("BeamFitResults text file may be corrupted. Stopping BeamSpot DIP Server!");
@@ -165,6 +173,11 @@ implements Runnable,DipPublicationErrorHandler
 		    break;
 		case 5:
 		    type = new Integer(tmp[1]);
+		    if (overwriteFlag) {
+			flag = flags[0];
+		    }
+		    else if (type >= 2) flag = flags[2];
+		    else flag = flags[1];
 		    break;
 		case 6:
 		    x = new Float(tmp[1]);
@@ -187,6 +200,12 @@ implements Runnable,DipPublicationErrorHandler
 		    break;
 		case 11:
 		    dydz = new Float(tmp[1]);
+		    break;
+		case 12:
+		    width_x = new Float(tmp[1]);
+		    break;
+		case 13:
+		    width_y = new Float(tmp[1]);
 		    break;
 		case 14:
 		    err_x = new Float(Math.sqrt(Double.parseDouble(tmp[1])));
@@ -212,20 +231,19 @@ implements Runnable,DipPublicationErrorHandler
 		    err_dydz = new Float(Math.sqrt(Double.parseDouble(tmp[6])));
 		    //System.out.println(err_dydz);
 		    break;
+		case 20:
+		    err_width_x = new Float(Math.sqrt(Double.parseDouble(tmp[7])));
+		    err_width_y = err_width_x;
+		    break;
 
 		default:
-		    
+		    break;
 		}
 	    }
-	    lastLine = recCount;
+	    lastLine = nthLnInFile;
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
-
-	width_x = (float)Math.abs( random.nextGaussian() * 0.98 );
-	width_y = (float)Math.abs( random.nextGaussian() * 1.20 );
-	err_width_x = (float)Math.abs( random.nextGaussian() * 0.42 );
-	err_width_y = (float)Math.abs( random.nextGaussian() * 0.56 );
 
 	Centroid[0] = x;
 	Centroid[1] = y;
@@ -242,24 +260,26 @@ implements Runnable,DipPublicationErrorHandler
 	messageCMS.insert("startTime",startTime);
 	messageCMS.insert("endTime",endTime);
 	messageCMS.insert("lumiRange",lumiRange);
+	messageCMS.insert("flag",flag);
 	messageCMS.insert("type",type); //Unknown=-1, Fake=0, Tracker=2(Good)
 	messageCMS.insert("x",x);
 	messageCMS.insert("y",y);
 	messageCMS.insert("z",z);
-	messageCMS.insert("err_x",err_x);
-	messageCMS.insert("err_y",err_y);
-	messageCMS.insert("err_z",err_z);
 	messageCMS.insert("dxdz",dxdz);
 	messageCMS.insert("dydz",dydz);
-	messageCMS.insert("err_dxdz",err_dxdz);
-	messageCMS.insert("err_dydz",err_dydz);
 	messageCMS.insert("width_x",width_x);
 	messageCMS.insert("width_y",width_y);
 	messageCMS.insert("sigma_z",sigma_z);
-	messageCMS.insert("err_width_x",err_width_x);
-	messageCMS.insert("err_width_y",err_width_y);
-	messageCMS.insert("err_sigma_z",err_sigma_z);
-
+	if (publishStatErrors) {
+	    messageCMS.insert("err_x",err_x);
+	    messageCMS.insert("err_y",err_y);
+	    messageCMS.insert("err_z",err_z);
+	    messageCMS.insert("err_dxdz",err_dxdz);
+	    messageCMS.insert("err_dydz",err_dydz);
+	    messageCMS.insert("err_width_x",err_width_x);
+	    messageCMS.insert("err_width_y",err_width_y);
+	    messageCMS.insert("err_sigma_z",err_sigma_z);
+	}
 	messageLHC.insert("Size",Size);
 	messageLHC.insert("Centroid",Centroid);
 	messageLHC.insert("Tilt",Tilt);
