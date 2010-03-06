@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.4 2007/08/28 01:42:29 ratnik Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.5 2008/10/31 15:30:56 nancy Exp $
 //
 //
 
@@ -52,31 +52,21 @@
 SiStripElectronAssociator::SiStripElectronAssociator(const edm::ParameterSet& iConfig)
 {
    //register your products
-  electronsLabel_ = iConfig.getParameter<std::string>("electronsLabel");
-  produces<reco::ElectronCollection>(electronsLabel_);
+  electronsLabel_ = iConfig.getParameter<edm::InputTag>("electronsLabel");
+  produces<reco::ElectronCollection>(electronsLabel_.label());
 
    //now do what ever other initialization is needed
-   siStripElectronProducer_ = iConfig.getParameter<std::string>("siStripElectronProducer");
-   siStripElectronCollection_ = iConfig.getParameter<std::string>("siStripElectronCollection");
-   trackProducer_ = iConfig.getParameter<std::string>("trackProducer");
-   trackCollection_ = iConfig.getParameter<std::string>("trackCollection");
+  //siStripElectronProducer_ = iConfig.getParameter<edm::InputTag>("siStripElectronProducer");
+  siStripElectronCollection_ = iConfig.getParameter<edm::InputTag>("siStripElectronCollection");
+  //trackProducer_ = iConfig.getParameter<edm::InputTag>("trackProducer");
+  trackCollection_ = iConfig.getParameter<edm::InputTag>("trackCollection");
 }
 
 
 SiStripElectronAssociator::~SiStripElectronAssociator()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
+{}
 
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -85,10 +75,10 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
   static const double positionTol = 1e-3 ; 
 
    edm::Handle<reco::SiStripElectronCollection> siStripElectrons;
-   iEvent.getByLabel(siStripElectronProducer_, siStripElectronCollection_, siStripElectrons);
+   iEvent.getByLabel(siStripElectronCollection_, siStripElectrons);
 
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(trackProducer_, trackCollection_, tracks);
+   iEvent.getByLabel(trackCollection_, tracks);
 
    std::map<const reco::SiStripElectron*, bool> alreadySeen;
    for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectrons->begin();  strippyIter != siStripElectrons->end();  ++strippyIter) {
@@ -98,9 +88,9 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    // Output the high-level Electrons
    std::auto_ptr<reco::ElectronCollection> output(new reco::ElectronCollection);
 
-   LogDebug("") << " About to loop over tracks " << std::endl ;
-   LogDebug("") << " Number of tracks in Associator " << tracks.product()->size() ;
-   LogDebug("") << " Number of SiStripElectron Candidates " << siStripElectrons->size();
+   LogDebug("SiStripElectronAssociator") << " About to loop over tracks " << std::endl ;
+   LogDebug("SiStripElectronAssociator") << " Number of tracks in Associator " << tracks.product()->size() ;
+   LogDebug("SiStripElectronAssociator") << " Number of SiStripElectron Candidates " << siStripElectrons->size();
 
    // The reco::Track's hits are a (improper?) subset of the reco::SiStripElectron's
    // countSiElFit counts electron candidates that return w/ a good track fit
@@ -108,8 +98,6 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    for (unsigned int i = 0;  i < tracks.product()->size();  i++) {
       const reco::Track* trackPtr = &(*reco::TrackRef(tracks, i));
       
-      std::ostringstream debugstr;
-   
       // If the reco::Track and the reco::SiStripElectron share even
       // one hit in common, they belong to each other.  (Disjoint sets
       // of hits are assigned to electrons.)  So let's look at one hit.
@@ -117,122 +105,108 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
       // But first, make sure the track's hit list is not empty.
       if (trackPtr->recHitsBegin() == trackPtr->recHitsEnd()) { continue; }
 
-
-
       // Detector id is not enough to completely specify a hit
       uint32_t id = (*trackPtr->recHitsBegin())->geographicalId().rawId();
       LocalPoint pos = (*trackPtr->recHitsBegin())->localPosition();
       
-      debugstr << " New Track Candidate " << i
-	       << " DetId " << id
-	       << " pos " << pos << "\n" ;
+      LogDebug("SiStripElectronAssociator") << " New Track Candidate " << i
+                                            << " DetId " << id
+                                            << " pos " << pos << "\n";
 
       // Find the electron with that hit!
       bool foundElectron = false;
       for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectrons->begin();  strippyIter != siStripElectrons->end();  ++strippyIter) {
-	 if (!alreadySeen[&(*strippyIter)]) {
+        if (!alreadySeen[&(*strippyIter)]) {
+          
+          bool hitInCommon = false;
+          LogDebug("SiStripElectronAssociator") << " Looping over Mono hits " << "\n" ;
+          
+          for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->rphiRecHits().begin();  hitIter != strippyIter->rphiRecHits().end();  ++hitIter) {
+            
+            LogDebug("SiStripElectronAssociator") << " SiStripCand " 
+                                                  << " DetId " << hitIter->geographicalId().rawId()
+                                                  << " localPos " << hitIter->localPosition()
+                                                  << " deltasPos " << (hitIter->localPosition() - pos).mag() ;
+            
+            if (hitIter->geographicalId().rawId() == id   &&
+                (hitIter->localPosition() - pos).mag() < positionTol ) {
+              hitInCommon = true;
+              LogDebug("SiStripElectronAssociator") << " hitInCommon True " << "\n" ;
+              break;
+            } else {
+              LogDebug("SiStripElectronAssociator") << " hitInCommon False " << "\n" ;
+            }
+          } // end loop over rphi hits
+          
+          if(!hitInCommon) {
+            LogDebug("SiStripElectronAssociator") << " Looping over Stereo hits " << "\n" ;
 
-	 
-
-	    bool hitInCommon = false;
-
-	    debugstr << " Looping over Mono hits " << "\n" ;
-
-	    for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->rphiRecHits().begin();  hitIter != strippyIter->rphiRecHits().end();  ++hitIter) {
-
-	      debugstr << " SiStripCand " 
-		       << " DetId " << hitIter->geographicalId().rawId()
-		       << " localPos " << hitIter->localPosition()
-		       << " deltasPos " << (hitIter->localPosition() - pos).mag() ;
-
-		if (hitIter->geographicalId().rawId() == id   &&
-		    (hitIter->localPosition() - pos).mag() < positionTol ) {
-		  hitInCommon = true;
-		  debugstr << " hitInCommon True " << "\n" ;
-		    break;
-		} else {
-		  debugstr << " hitInCommon False " << "\n" ;
-		    }
-	    } // end loop over rphi hits
-
-
-	    if(!hitInCommon) {
-	      debugstr << " Looping over Stereo hits " << "\n" ;
-
-	      for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->stereoRecHits().begin();  hitIter != strippyIter->stereoRecHits().end();  ++hitIter) {
-		
-		debugstr << " SiStripCand " 
-			 << " DetId " << hitIter->geographicalId().rawId()
-			 << " localPos " << hitIter->localPosition()
-			 << " deltasPos " << (hitIter->localPosition() - pos).mag() ;
- 		
-		if (hitIter->geographicalId().rawId() == id   &&
-		    (hitIter->localPosition() - pos).mag() < positionTol) {
-		  hitInCommon = true;
-		  debugstr << " hitInCommon True " << "\n"  ;
-		  break;
-		} else {
-		  debugstr << " hitInCommon False " << "\n" ;
-		}
-		
-	      } // end loop over stereo hits
-	    } // end of hitInCommon check for loop over stereo hits
-
-	    if (hitInCommon) {
-	      debugstr << " Hit in Common Found \n" ;
- 	      ++countSiElFit ;
-	       foundElectron = true;
-	       alreadySeen[&(*strippyIter)] = true;
-
-	       reco::Electron electron((trackPtr->charge() > 0 ? 1 : -1),
-				       math::XYZTLorentzVector(trackPtr->px(),
-							       trackPtr->py(),
-							       trackPtr->pz(),
-							       trackPtr->p()),
-				       math::XYZPoint(trackPtr->vx(),
-						      trackPtr->vy(),
-						      trackPtr->vz()));
-	       electron.setSuperCluster(strippyIter->superCluster());
-	       electron.setTrack(reco::TrackRef(tracks, i));
-	       
-	       output->push_back(electron);
-	       break ; // no need to check other SiStripElectrons if this one is good 
-
-	    } else {
-
-	      debugstr << "Hit in Common NOT found \n"  ;
-
-	    }
-	    // endif this electron belongs to this track
-
-
-	 } // endif we haven't seen this electron before
-	 debugstr << "Done with this electron " << "\n\n\n";
+            for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->stereoRecHits().begin();  hitIter != strippyIter->stereoRecHits().end();  ++hitIter) {
+              
+               LogDebug("SiStripElectronAssociator") << " SiStripCand " 
+                                                     << " DetId " << hitIter->geographicalId().rawId()
+                                                     << " localPos " << hitIter->localPosition()
+                                                     << " deltasPos " << (hitIter->localPosition() - pos).mag() ;
+               
+               if (hitIter->geographicalId().rawId() == id   &&
+                   (hitIter->localPosition() - pos).mag() < positionTol) {
+                 hitInCommon = true;
+                  LogDebug("SiStripElectronAssociator") << " hitInCommon True " << "\n"  ;
+                 break;
+               } else {
+                 LogDebug("SiStripElectronAssociator") << " hitInCommon False " << "\n" ;
+               }
+               
+            } // end loop over stereo hits
+          } // end of hitInCommon check for loop over stereo hits
+          
+          if (hitInCommon) {
+             LogDebug("SiStripElectronAssociator") << " Hit in Common Found \n" ;
+             ++countSiElFit ;
+             foundElectron = true;
+             alreadySeen[&(*strippyIter)] = true;
+             
+             reco::Electron electron((trackPtr->charge() > 0 ? 1 : -1),
+                                     math::XYZTLorentzVector(trackPtr->px(),
+                                                             trackPtr->py(),
+                                                             trackPtr->pz(),
+                                                             trackPtr->p()),
+                                     math::XYZPoint(trackPtr->vx(),
+                                                    trackPtr->vy(),
+                                                    trackPtr->vz()));
+             electron.setSuperCluster(strippyIter->superCluster());
+             electron.setTrack(reco::TrackRef(tracks, i));
+             
+             output->push_back(electron);
+             break ; // no need to check other SiStripElectrons if this one is good 
+             
+          } else {
+             LogDebug("SiStripElectronAssociator") << "Hit in Common NOT found \n"  ;
+          }
+          // endif this electron belongs to this track
+          
+          
+        } // endif we haven't seen this electron before
+        LogDebug("SiStripElectronAssociator") << "Done with this electron " << "\n\n\n";
       } // end loop over electrons
-
-      LogDebug("") << debugstr.str() << std::endl ;
-      LogDebug("") << "Testing if foundElectron " << foundElectron << std::endl ;
-
+      
+      LogDebug("SiStripElectronAssociator") << "Testing if foundElectron " << foundElectron << std::endl;
+      
       if (!foundElectron) {
-	edm::LogError("SIStripElectron")
-	  //	 throw cms::Exception("InconsistentData")
-	   << " It is possible that the trackcollection used '"
-	   << trackCollection_ << "' from producer '" << trackProducer_
-	   << "' is not consistent with '"<< siStripElectronCollection_ 
-	   << "' from the producer '"<< siStripElectronProducer_
-	   << "' --- Please check your cfg file " << "\n"
-	   << " OR Hit Position don't match " 
-	  //	   << "\n" << std::endl
-	  ;
+        throw cms::Exception("Configuration")
+          << " It is possible that the trackcollection used '"
+          << trackCollection_ << "' from producer '" << trackProducer_
+          << "' is not consistent with '"<< siStripElectronCollection_ 
+          << "' from the producer '"<< siStripElectronProducer_
+          << "' --- Please check your cfg file " << "\n";
       }
-
-      LogDebug("") << "At end of track loop \n" << std::endl; 
-
+      
+      LogDebug("SiStripElectronAssociator") << "At end of track loop \n" << std::endl; 
+      
    } // end loop over tracks
-
-
-   LogDebug("") << " Number of SiStripElectrons returned with a good fit " 
-                     << countSiElFit << "\n"<<  std::endl ;
-
-   iEvent.put(output,electronsLabel_);
+   
+   
+   LogDebug("SiStripElectronAssociator") << " Number of SiStripElectrons returned with a good fit " 
+                                         << countSiElFit << "\n"<<  std::endl ;
+   iEvent.put(output, electronsLabel_.label());
 }
