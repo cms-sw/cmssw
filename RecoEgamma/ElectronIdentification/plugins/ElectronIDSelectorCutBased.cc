@@ -8,10 +8,9 @@ ElectronIDSelectorCutBased::ElectronIDSelectorCutBased (const edm::ParameterSet&
      electronIDAlgo_ = new PTDRElectronID ();
   else if ( algorithm_ == "eIDCB" )
      electronIDAlgo_ = new CutBasedElectronID ();
-  else 
-  {
-    edm::LogError("ElectronIDSelectorCutBased") << "Invalid algorithm parameter: must be eIDCBClasses or eIDCB." ;
-    exit (1); 
+  else { 
+    throw cms::Exception("Configuration")
+      << "Invalid algorithm parameter in ElectronIDSelectorCutBased: must be eIDCBClasses or eIDCB." ;
   }
 }
 

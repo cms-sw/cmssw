@@ -30,10 +30,8 @@ void PTDRElectronID::setup(const edm::ParameterSet& conf) {
     cuts_ = conf.getParameter<edm::ParameterSet>("looseEleIDCuts");
     variables_ = 0 ;
   } else {
-    edm::LogError("PTDRElectronID") << "Invalid electronQuality parameter: must be tight, medium or loose." ;
-    exit (1);
-  }
-  
+     throw cms::Exception("Configuration") << "Invalid electronQuality parameter in PTDElectronID: must be tight, medium or loose." ;
+  }  
 }
 
 double PTDRElectronID::result(const reco::GsfElectron* electron,
