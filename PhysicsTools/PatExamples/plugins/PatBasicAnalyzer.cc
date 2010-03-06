@@ -13,7 +13,9 @@
 class PatBasicAnalyzer : public edm::EDAnalyzer {
 
 public:
+  /// default constructor
   explicit PatBasicAnalyzer(const edm::ParameterSet&);
+  /// default destructor
   ~PatBasicAnalyzer();
   
 private:
