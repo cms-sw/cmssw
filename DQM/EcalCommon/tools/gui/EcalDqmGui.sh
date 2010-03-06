@@ -19,4 +19,17 @@ rm -f gui/*/blacklist.txt
 
 visDQMControl $1 all from config/server-conf-ecal.py
 
+case "$1" in
+    start)
+        DQMCollector --listen 9090 > collector/collector.out 2>&1 </dev/null &
+        ;;
+    stop)
+        killall -9 DQMCollector
+        ;;
+    restart)
+        killall -9 DQMCollector
+        DQMCollector --listen 9090 > collector/collector.out 2>&1 </dev/null &
+        ;;
+esac
+
 exit 0
