@@ -1,5 +1,11 @@
 2010-03-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
+	* tag V05-08-06
+	* Reduce DQMEventQueue size from 3072 to 882, i.e. to the number of
+	  events for one LS update.
+
+2010-03-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
 	* tag V05-08-05
 	* Remove debug output for histogram collection.
 	* Fix handling of multi-fragment DQM event messages.
