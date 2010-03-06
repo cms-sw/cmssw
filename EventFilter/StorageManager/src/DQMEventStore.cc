@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.cc,v 1.8 2010/03/04 11:21:02 mommsen Exp $
+// $Id: DQMEventStore.cc,v 1.9 2010/03/04 17:34:59 mommsen Exp $
 /// @file: DQMEventStore.cc
 
 #include "TROOT.h"
@@ -17,8 +17,7 @@ using namespace stor;
 
 DQMEventStore::DQMEventStore(SharedResourcesPtr sr) :
 _dqmEventMonColl(sr->_statisticsReporter->getDQMEventMonitorCollection()),
-_initMsgColl(sr->_initMsgCollection),
-_sr(sr)
+_initMsgColl(sr->_initMsgCollection)
 {
   gROOT->SetBatch(kTRUE);
 }
@@ -120,7 +119,7 @@ DQMEventStore::makeDQMEventRecord(I2OChain const& dqmEvent)
 {
   DQMEventRecordPtr record(
     new DQMEventRecord(dqmEvent.dqmKey(), _dqmParams, _dqmEventMonColl,
-      _initMsgColl->maxMsgCount(), _sr) 
+      _initMsgColl->maxMsgCount()) 
   );
   record->setEventConsumerTags( dqmEvent.getDQMEventConsumerTags() );
   record->addDQMEventView( getDQMEventView(dqmEvent) );
@@ -158,12 +157,6 @@ DQMEventStore::getNewestReadyDQMEventRecord(const std::string groupName) const
       {
         maxTime = groupTime->GetSec();
         readyRecord = it->second;
-        std::ostringstream msg;
-        msg << "Group ready: " << groupName
-          << "\t LS: " << it->second->getLumiSection()
-          << "\t group updates: " << group->getNUpdates()
-          << "\t expected updates: " << _initMsgColl->maxMsgCount();
-        _sr->localDebug( msg.str() );
       }
     }
   }
@@ -195,12 +188,6 @@ void DQMEventStore::writeAndPurgeStaleDQMInstances()
         // one-in-N archival interval
         it->second->writeFile(_dqmParams._filePrefixDQM, false);
       }
-      std::ostringstream msg;
-      msg << "Record deleted."
-          << "\t LS: " << it->second->getLumiSection()
-          << "\t isReady: " << it->second->isReady()
-          << "\t isStale: " << it->second->isStale(nowSec);
-      _sr->localDebug( msg.str() );
       _store.erase(it++);
     }
     else

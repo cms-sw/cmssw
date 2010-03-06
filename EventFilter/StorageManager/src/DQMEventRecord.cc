@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.cc,v 1.10 2010/03/04 17:34:59 mommsen Exp $
+// $Id: DQMEventRecord.cc,v 1.11 2010/03/04 17:55:34 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -22,8 +22,7 @@ DQMEventRecord::DQMEventRecord
   DQMKey const dqmKey,
   DQMProcessingParams const dqmParams,
   DQMEventMonitorCollection& dqmEventMonColl,
-  const unsigned int expectedUpdates,
-  SharedResourcesPtr sr
+  const unsigned int expectedUpdates
 ) :
 DQMInstance(
   dqmKey.runNumber, dqmKey.lumiSection, dqmKey.updateNumber, 
@@ -33,16 +32,9 @@ DQMInstance(
 ),
 _dqmParams(dqmParams),
 _dqmEventMonColl(dqmEventMonColl),
-_sr(sr),
 _sentEvents(0)
 {
   gROOT->SetBatch(kTRUE);
-  std::ostringstream msg;
-  msg << "New record: "
-    << "\t LS: " << dqmKey.lumiSection
-    << "\t run: " << dqmKey.runNumber
-    << "\t update number: " << dqmKey.updateNumber;
-  _sr->localDebug(msg.str());
 }
 
 
@@ -56,14 +48,6 @@ void DQMEventRecord::addDQMEventView(DQMEventMsgView const& view)
 
   if ( dqmGroups_.find(view.topFolderName()) == dqmGroups_.end() )
     _dqmEventMonColl.getNumberOfGroupsMQ().addSample(1);
-
-  std::ostringstream msg;
-  msg << "Adding " << view.topFolderName()
-    << ":\t LS: " << view.lumiSection()
-    << "\t event number: " << view.eventNumberAtUpdate()
-    << "\t FU: " << view.fuProcessId()
-    << "\t GUID: " << view.fuGuid();
-  _sr->localDebug(msg.str());
 
   edm::StreamDQMDeserializer deserializer;
   std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
