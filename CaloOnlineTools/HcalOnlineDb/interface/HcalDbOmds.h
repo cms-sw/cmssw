@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.8 2009/11/18 23:02:25 lsexton Exp $
+// $Id: HcalDbOmds.h,v 1.9 2010/01/26 08:36:56 kukartse Exp $
 //
 //
 #ifndef HcalDbOmds_h
@@ -25,7 +25,6 @@ using namespace oracle::occi;
    \class HcalDbOmds
    \brief IO for OMDS instances of Hcal Calibrations
    \author Gena Kukartsev March 11, 2009
-   $Id: HcalDbOmds.h,v 1.8 2009/11/18 23:02:25 lsexton Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line

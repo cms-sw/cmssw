@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.16 2009/10/26 09:18:00 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.17 2010/01/26 08:36:57 kukartse Exp $
 //
 //
 #include <vector>
@@ -880,20 +880,27 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
     // 3. value,
     // 4. upper limit,
     // 5. lower limit,
-    // 6. tag (string),
-    // 7. version (string),
-    // 8. subversion (int)
+    // 6. subdetector (string)
+    // 7. side_ring
+    // 8. slice
+    // 9. subchannel
+    // 10. type (string)
     //
     while (rs->next()) {
       _row.count();
 
       std::string _dpname = rs->getString(1);
+      //HcalOtherSubdetector subd      = getSubDetFromDpName(_dpname);
+      //int sidering                   = getSideRingFromDpName(_dpname);
+      //unsigned int slice             = getSliceFromDpName(_dpname);
+      //HcalDcsDetId::DcsType dcs_type = getDcsTypeFromDpName(_dpname);
+      //unsigned int subchan           = getSubChannelFromDpName(_dpname);
 
-      HcalOtherSubdetector subd      = getSubDetFromDpName(_dpname);
-      int sidering                   = getSideRingFromDpName(_dpname);
-      unsigned int slice             = getSliceFromDpName(_dpname);
-      HcalDcsDetId::DcsType dcs_type = getDcsTypeFromDpName(_dpname);
-      unsigned int subchan           = getSubChannelFromDpName(_dpname);
+      HcalOtherSubdetector subd      = getSubDetFromString(rs->getString(6));
+      int sidering                   = rs->getInt(7);
+      unsigned int slice             = rs->getInt(8);
+      unsigned int subchan           = rs->getInt(9);
+      HcalDcsDetId::DcsType dcs_type = getDcsTypeFromString(rs->getString(10));
 
       HcalDcsDetId newId(subd, sidering, slice, 
 			 dcs_type, subchan);
@@ -1019,6 +1026,46 @@ HcalDcsDetId::DcsType HcalDbOmds::getDcsTypeFromDpName(std::string _dpname){
   HcalDcsDetId::DcsType result = HcalDcsDetId::DcsType(15); // unknown
   std::string _type = _dpname.substr(_dpname.find("/RM")+4);
   if (_type.find("HV")!=std::string::npos) result = HcalDcsDetId::DcsType(1);
+  return result;
+}
+
+HcalOtherSubdetector HcalDbOmds::getSubDetFromString(std::string subdet){
+  HcalOtherSubdetector subd;
+  switch (subdet.at(1)){
+  case 'B':
+    subd = HcalDcsBarrel;
+    break;
+  case 'E':
+    subd = HcalDcsEndcap;
+    break;
+  case 'F':
+    subd = HcalDcsForward;
+    break;
+  case 'O':
+    subd = HcalDcsOuter;
+    break;
+  default:
+    subd = HcalOtherEmpty;
+    break;
+  }
+  return subd;
+}
+
+HcalDcsDetId::DcsType HcalDbOmds::getDcsTypeFromString(std::string type){
+  HcalDcsDetId::DcsType result = HcalDcsDetId::DCSUNKNOWN; // unknown
+  if (type.find("HV")!=std::string::npos) result = HcalDcsDetId::HV;
+  else if (type.find("BV")!=std::string::npos) result = HcalDcsDetId::BV;
+  else if (type.find("Cath")!=std::string::npos) result = HcalDcsDetId::CATH;
+  else if (type.find("Dyn7")!=std::string::npos) result = HcalDcsDetId::DYN7;
+  else if (type.find("Dyn8")!=std::string::npos) result = HcalDcsDetId::DYN8;
+  else if (type.find("RM_TEMP")!=std::string::npos) result = HcalDcsDetId::RM_TEMP;
+  else if (type.find("CCM_TEMP")!=std::string::npos) result = HcalDcsDetId::CCM_TEMP;
+  else if (type.find("CALIB_TEMP")!=std::string::npos) result = HcalDcsDetId::CALIB_TEMP;
+  else if (type.find("LVTTM_TEMP")!=std::string::npos) result = HcalDcsDetId::LVTTM_TEMP;
+  else if (type.find("TEMP")!=std::string::npos) result = HcalDcsDetId::TEMP;
+  else if (type.find("QPLL_LOCK")!=std::string::npos) result = HcalDcsDetId::QPLL_LOCK;
+  else if (type.find("STATUS")!=std::string::npos) result = HcalDcsDetId::STATUS;
+  else if (type.find("DCS_MAX")!=std::string::npos) result = HcalDcsDetId::DCS_MAX;
   return result;
 }
 
