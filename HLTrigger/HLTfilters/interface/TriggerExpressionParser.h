@@ -86,12 +86,18 @@ public:
   Parser() : 
     Parser::base_type(expression)
   {
+#if BOOST_VERSION < 104100
     alnum            = +(qi::char_('a', 'z') | qi::char_('A', 'Z') | qi::char_('0', '9') | qi::char_('_', '_') | qi::char_('*', '*') | qi::char_('?', '?'));
-
     token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> alnum]];
     token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> alnum]];
     token_l1        %= qi::raw[qi::lexeme["L1_"     >> alnum]];
     token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> alnum]];
+#else
+    token_hlt       %= qi::raw[qi::lexeme["HLT_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
+    token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> +(qi::char_("a-zA-Z0-9_*?"))]];
+    token_l1        %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
+    token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
+#endif
 
     token            = ( token_hlt                      [qi::_val = new_<HLTReader>(qi::_1)]
                        | token_alca                     [qi::_val = new_<HLTReader>(qi::_1)]
@@ -123,8 +129,9 @@ private:
   typedef qi::rule<Iterator, std::string(), ascii::space_type> name_rule;
   typedef qi::rule<Iterator, Evaluator*(),  ascii::space_type> rule;
 
+#if BOOST_VERSION < 104100
   void_rule alnum;
-
+#endif
   name_rule token_hlt;
   name_rule token_alca;
   name_rule token_l1;
