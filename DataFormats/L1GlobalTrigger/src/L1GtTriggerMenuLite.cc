@@ -118,6 +118,7 @@ L1GtTriggerMenuLite& L1GtTriggerMenuLite::operator=(
         m_triggerMenuInterface = rhs.m_triggerMenuInterface;
         m_triggerMenuName = rhs.m_triggerMenuName;
         m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
+        m_scaleDbKey = rhs.m_scaleDbKey;
 
         m_algorithmMap = rhs.m_algorithmMap;
         m_algorithmAliasMap = rhs.m_algorithmAliasMap;
