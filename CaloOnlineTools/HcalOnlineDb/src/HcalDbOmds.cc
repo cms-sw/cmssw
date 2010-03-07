@@ -2,8 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.17 2010/01/26 08:36:57 kukartse Exp $
-//
+// $Id$
 //
 #include <vector>
 #include <string>

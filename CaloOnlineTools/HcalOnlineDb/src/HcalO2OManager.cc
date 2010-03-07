@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.25.2.1 2010/02/26 00:51:04 kukartse Exp $
+// $Id$
 //
 
 
