@@ -203,16 +203,16 @@ for iteration in range(1, ITERATIONS+1):
 
     bsubfile.append("cd %s" % directory)
 
+    mapplots = False
+    if mapplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): mapplots = True
+    segdiffplots = False
+    if segdiffplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): segdiffplots = True
+    curvatureplots = False
+    if curvatureplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): curvatureplots = True
+
     for jobnumber in range(options.subjobs):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
         inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
-
-        mapplots = False
-        if mapplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): mapplots = True
-        segdiffplots = False
-        if segdiffplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): segdiffplots = True
-        curvatureplots = False
-        if curvatureplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): curvatureplots = True
 
         if mapplots or segdiffplots or curvatureplots: copyplots = "plotting*.root"
         else: copyplots = ""
