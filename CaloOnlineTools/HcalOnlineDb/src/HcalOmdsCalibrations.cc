@@ -2,8 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalAsciiCalibrations
-// $Id: HcalOmdsCalibrations.cc,v 1.10 2009/10/26 09:18:00 kukartse Exp $
-//
+// $Id$
 //
 
 #include <memory>

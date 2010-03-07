@@ -2,8 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id: HcalDbOmds.h,v 1.8.2.2 2010/03/07 15:16:58 kukartse Exp $
-//
+// $Id$
 //
 #ifndef HcalDbOmds_h
 #define HcalDbOmds_h

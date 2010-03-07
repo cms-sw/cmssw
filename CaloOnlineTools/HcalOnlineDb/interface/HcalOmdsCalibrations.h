@@ -1,7 +1,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalTextCalibrations
-// $Id: HcalOmdsCalibrations.h,v 1.4.2.1 2010/02/26 00:51:03 kukartse Exp $
+// $Id$
 //
 //
 #include <map>
