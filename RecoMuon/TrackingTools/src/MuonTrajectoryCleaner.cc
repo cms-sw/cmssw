@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2009/09/16 16:41:46 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/10/31 02:05:56 $
+ *  $Revision: 1.27 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -233,7 +233,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
 
       float deta(fabs(eta1-eta2));
       float dphi(fabs(Geom::Phi<float>(phi1)-Geom::Phi<float>(phi2)));
-      float dpt(abs(pt1-pt2));
+      float dpt(fabs(pt1-pt2));
       if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
         directionMatch = true;
         LogTrace(metname)
