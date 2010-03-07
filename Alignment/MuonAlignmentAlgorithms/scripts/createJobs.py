@@ -45,6 +45,10 @@ parser.add_option("--segdiffplots",
                   help="if invoked, draw \"segment-difference plots\"",
                   action="store_true",
                   dest="segdiffplots")
+parser.add_option("--curvatureplots",
+                  help="if invoked, draw \"curvature plots\"",
+                  action="store_true",
+                  dest="curvatureplots")
 parser.add_option("--globalTag",
                   help="GlobalTag for alignment/calibration conditions (typically all conditions except muon and tracker alignment)",
                   type="string",
@@ -150,8 +154,9 @@ INITIALGEOM = sys.argv[3]
 INPUTFILES = sys.argv[4]
 
 options, args = parser.parse_args(sys.argv[5:])
-mapplots = options.mapplots
-segdiffplots = options.segdiffplots
+mapplots_ingeneral = options.mapplots
+segdiffplots_ingeneral = options.segdiffplots
+curvatureplots_ingeneral = options.curvatureplots
 globaltag = options.globaltag
 trackerconnect = options.trackerconnect
 trackeralignment = options.trackeralignment
@@ -202,7 +207,14 @@ for iteration in range(1, ITERATIONS+1):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
         inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
 
-        if mapplots or segdiffplots: copyplots = "plotting*.root"
+        mapplots = False
+        if mapplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): mapplots = True
+        segdiffplots = False
+        if segdiffplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): segdiffplots = True
+        curvatureplots = False
+        if curvatureplots_ingeneral and (iteration == 1 or iteration == ITERATIONS): curvatureplots = True
+
+        if mapplots or segdiffplots or curvatureplots: copyplots = "plotting*.root"
         else: copyplots = ""
 
         copytrackerdb = ""
@@ -224,6 +236,7 @@ export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_JOBNUMBER=%(jobnumber)d
 export ALIGNMENT_MAPPLOTS=%(mapplots)s
 export ALIGNMENT_SEGDIFFPLOTS=%(segdiffplots)s
+export ALIGNMENT_CURVATUREPLOTS=%(curvatureplots)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s

@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonChamberResidual_H
 
 /** \class MuonChamberResidual
- *  $Date: 2009/03/15 21:24:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/23 05:06:01 $
+ *  $Revision: 1.5 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -173,6 +173,10 @@ public:
       return m_globalGeometry->idToDet(m_localIDs[i])->position().z();  // Z for CSCs
     }
     else assert(false);
+  };
+
+  DetId localid(int i) const {
+    return m_localIDs[i];
   };
 
 protected:

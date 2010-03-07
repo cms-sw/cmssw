@@ -39,6 +39,16 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
+<library   name="AlignmentMonitorMuonVsCurvature" file="AlignmentMonitorMuonVsCurvature.cc">
+  <use   name="Alignment/MuonAlignmentAlgorithms"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="Geometry/Records"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
 <library   name="AlignmentMonitorMuonSystemMap1D" file="AlignmentMonitorMuonSystemMap1D.cc">
   <use   name="Alignment/MuonAlignmentAlgorithms"/>
   <use   name="Alignment/CommonAlignmentMonitor"/>

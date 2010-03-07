@@ -6,6 +6,7 @@ iteration = int(os.environ["ALIGNMENT_ITERATION"])
 jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
 mapplots = (os.environ["ALIGNMENT_MAPPLOTS"] == "True")
 segdiffplots = (os.environ["ALIGNMENT_SEGDIFFPLOTS"] == "True")
+curvatureplots = (os.environ["ALIGNMENT_CURVATUREPLOTS"] == "True")
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 trackerconnect = os.environ["ALIGNMENT_TRACKERCONNECT"]
@@ -78,6 +79,17 @@ if segdiffplots:
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.AlignmentMonitorSegmentDifferences.minCSCHits = process.looper.algoConfig.minCSCHits
+
+if curvatureplots:
+    process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorMuonVsCurvature_cfi")
+    process.looper.monitorConfig.monitors.append("AlignmentMonitorMuonVsCurvature")
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature = process.AlignmentMonitorMuonVsCurvature
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minTrackerHits = cms.int32(minTrackerHits)
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.allowTIDTEC = cms.bool(allowTIDTEC)
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minDT13Hits = process.looper.algoConfig.minDT13Hits
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minDT2Hits = process.looper.algoConfig.minDT2Hits
+    process.looper.monitorConfig.AlignmentMonitorMuonVsCurvature.minCSCHits = process.looper.algoConfig.minCSCHits
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
