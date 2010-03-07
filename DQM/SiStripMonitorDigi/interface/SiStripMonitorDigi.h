@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.20 2009/11/05 21:07:51 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.21 2010/01/24 20:29:36 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -103,8 +103,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   TString name;
   SiStripFolderOrganizer folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
-  /*        edm::Handle< edmNew::DetSetVector<SiStripDigi> > digi_detsetvektor; */
-  edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor[4];
+  const edm::DetSetVector<SiStripDigi> *digi_detset_vector[4];
+
   std::vector<uint32_t> ModulesToBeExcluded_;
 
   TkHistoMap* tkmapdigi;  

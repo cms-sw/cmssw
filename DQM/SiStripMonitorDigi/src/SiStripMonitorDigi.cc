@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.55 2010/02/02 16:59:06 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.56 2010/02/21 21:13:41 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -241,9 +241,14 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   Parameters::iterator itDigiProducersList = DigiProducersList.begin();
   int icoll = 0;
   for(; itDigiProducersList != DigiProducersList.end(); ++itDigiProducersList ) {
+    digi_detset_vector[icoll] = 0;  
     std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
     std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
-    iEvent.getByLabel(digiProducer,digiLabel,digi_detsetvektor[icoll]);
+
+    edm::Handle< edm::DetSetVector<SiStripDigi> > digi_handle;
+
+    iEvent.getByLabel(digiProducer,digiLabel,digi_handle);
+    if (digi_handle.isValid()) digi_detset_vector[icoll] = digi_handle.product();
     icoll++;
   }    
   int nTotDigiTIB = 0; 
@@ -698,14 +703,13 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 int SiStripMonitorDigi::getDigiSource(uint32_t id, edm::DetSet<SiStripDigi>& digi_detset) {
   int nDigi = 0;
   for (unsigned int ival = 0; ival < 4; ival++) {
-    if (!digi_detsetvektor[ival].isValid() ) continue; 
-    edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detsetvektor[ival]->find(id); 
-    if(isearch == digi_detsetvektor[ival]->end()) nDigi = 0;
+    edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detset_vector[ival]->find(id); 
+    if(isearch == digi_detset_vector[ival]->end()) nDigi = 0;
     else {
       //digi_detset is a structure
       //digi_detset.data is a std::vector<SiStripDigi>
       //digi_detset.id is uint32_t
-      digi_detset = (*(digi_detsetvektor[ival]))[id];
+      digi_detset = (*(digi_detset_vector[ival]))[id];
       nDigi = digi_detset.size();
       return nDigi;
     }
