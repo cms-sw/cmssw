@@ -1829,6 +1829,153 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
             tline2 = ROOT.TLine(abscissa[0], -window, abscissa[1], -window); tline2.SetLineWidth(2); tline2.Draw()
             tline3 = ROOT.TLine(abscissa[0], window, abscissa[1], window); tline3.Draw()
 
+def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False, title="", fitgauss=False, reset_palette=True):
+    tdrStyle.SetOptTitle(1)
+    tdrStyle.SetTitleBorderSize(0)
+    tdrStyle.SetOptStat(0)
+    tdrStyle.SetOptFit(0)
+    tdrStyle.SetTitleFontSize(0.05)
+
+    c1.Clear()
+    if reset_palette: set_palette("blues")
+    global hist, histCOPY, hist2d, tline1, tline2, tline3, tline4
+    prof = tfiles[0].Get("AlignmentMonitorMuonVsCurvature/iter1/tprofile_%s_%s" % (name, param)).Clone()
+    hist2d = tfiles[0].Get("AlignmentMonitorMuonVsCurvature/iter1/th2f_%s_%s" % (name, param)).Clone()
+    for tfile in tfiles[1:]:
+        prof.Add(tfile.Get("AlignmentMonitorMuonVsCurvature/iter1/tprofile_%s_%s" % (name, param)))
+        hist2d.Add(tfile.Get("AlignmentMonitorMuonVsCurvature/iter1/th2f_%s_%s" % (name, param)))
+
+    hist = ROOT.TH1F("hist", "", prof.GetNbinsX(), prof.GetBinLowEdge(1), -prof.GetBinLowEdge(1))
+    for i in xrange(1, prof.GetNbinsX()+1):
+        hist.SetBinContent(i, prof.GetBinContent(i))
+        hist.SetBinError(i, prof.GetBinError(i))
+
+    if mode == "plain":
+        hist = prof
+
+    elif mode == "from2d":
+        skip = 1
+        if widebins:
+            hist.Rebin(5)
+            skip = 5
+
+        for i in xrange(0, int(prof.GetNbinsX()), skip):
+            tmp = hist2d.ProjectionY("tmp", i+1, i + skip)
+            if tmp.GetEntries() > 2:
+                hist.SetBinContent(i/skip+1, tmp.GetMean())
+                hist.SetBinError(i/skip+1, tmp.GetRMS() / sqrt(tmp.GetEntries()))
+            else:
+                hist.SetBinContent(i/skip+1, 2000.)
+                hist.SetBinError(i/skip+1, 1000.)
+
+    else:
+        raise Exception
+
+    if fitgauss:
+        f = ROOT.TF1("f", "[0] + [1]*exp(-x**2/2/0.01**2)", hist.GetBinLowEdge(1), -hist.GetBinLowEdge(1))
+        f.SetParameters(0, 0., 0.01)
+        hist.Fit(f, "q")
+        hist.GetFunction("f").SetLineColor(ROOT.kRed)
+        global fitgauss_diff, fitgauss_chi2, fitgauss_ndf
+#         fitter = ROOT.TVirtualFitter.GetFitter()
+#         fitgauss_diff = hist.GetFunction("f").GetParameter(0) - hist.GetFunction("f").GetParameter(1), \
+#                         sqrt(hist.GetFunction("f").GetParError(0)**2 + hist.GetFunction("f").GetParError(1)**2 + 2.*fitter.GetCovarianceMatrixElement(0, 1))
+        fitgauss_diff = hist.GetFunction("f").GetParameter(1), hist.GetFunction("f").GetParError(1)
+        fitgauss_chi2 = hist.GetFunction("f").GetChisquare()
+        fitgauss_ndf = hist.GetFunction("f").GetNDF()
+
+    hist.SetAxisRange(-window, window, "Y")
+    hist.SetMarkerStyle(20)
+    hist.SetMarkerSize(0.75)
+    hist.GetXaxis().CenterTitle()
+    hist.GetYaxis().CenterTitle()
+    if param == "curverr":
+        hist.GetYaxis().SetTitleOffset(1.35)
+    else:
+        hist.GetYaxis().SetTitleOffset(0.75)
+    hist.GetXaxis().SetTitleOffset(1.2)
+    hist.GetXaxis().SetTitleSize(0.05)
+    hist.GetYaxis().SetTitleSize(0.05)
+    hist.SetTitle(title)
+    if param == "pterr": hist.SetXTitle("qp_{T} (GeV/c)")
+    else: hist.SetXTitle("q/p_{T} (c/GeV)")
+    if param == "deltax": hist.SetYTitle("#Deltax' (mm)")
+    if param == "deltadxdz": hist.SetYTitle("#Deltadx'/dz (mrad)")
+    if param == "pterr": hist.SetYTitle("#Deltap_{T}/p_{T} (%)")
+    if param == "curverr": hist.SetYTitle("#Deltaq/p_{T} (c/GeV)")
+    hist.SetMarkerColor(ROOT.kBlack)
+    hist.SetLineColor(ROOT.kBlack)
+    hist.Draw()
+    hist2d.Draw("colzsame")
+    histCOPY = hist.Clone()
+    histCOPY.SetXTitle("")
+    histCOPY.SetYTitle("")
+    if widebins:
+        histCOPY.Draw("samee1")
+        histCOPY.Draw("sameaxis")
+    else:
+        histCOPY.Draw("same")
+        histCOPY.Draw("sameaxis")
+    tline1 = ROOT.TLine(hist.GetBinLowEdge(1), -window, hist.GetBinLowEdge(1), window)
+    tline2 = ROOT.TLine(hist.GetBinLowEdge(1), window, -hist.GetBinLowEdge(1), window)
+    tline3 = ROOT.TLine(-hist.GetBinLowEdge(1), window, -hist.GetBinLowEdge(1), -window)
+    tline4 = ROOT.TLine(-hist.GetBinLowEdge(1), -window, hist.GetBinLowEdge(1), -window)
+    for t in tline1, tline2, tline3, tline4: t.Draw()
+
+def curvatureDTsummary(tfiles, window=15., pdgSfactor=False):
+    global h, gm2, gm1, gz, gp1, gp2, tlegend
+
+    set_palette("blues")
+    phis = {-2: [], -1: [], 0: [], 1: [], 2: []}
+    diffs = {-2: [], -1: [], 0: [], 1: [], 2: []}
+    differrs = {-2: [], -1: [], 0: [], 1: [], 2: []}
+    for wheelstr, wheel in ("m2", "-2"), ("m1", "-1"), ("z", "0"), ("p1", "+1"), ("p2", "+2"):
+        for sector in "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12":
+            curvatureplot(tfiles, "wheel%s_sector%s" % (wheelstr, sector), "deltax", title="Wheel %s, sector %s" % (wheel, sector), fitgauss=True, reset_palette=False)
+            if fitgauss_diff[1] < window:
+                uncertainty = fitgauss_diff[1]
+                if pdgSfactor and (fitgauss_chi2/fitgauss_ndf) > 1.: uncertainty *= sqrt(fitgauss_chi2/fitgauss_ndf)
+
+                phis[int(wheel)].append(signConventions["DT", int(wheel), 1, int(sector)][4])
+                diffs[int(wheel)].append(fitgauss_diff[0])
+                differrs[int(wheel)].append(uncertainty)
+
+    h = ROOT.TH1F("h", "", 1, -pi, pi)
+    h.SetAxisRange(-window, window, "Y")
+    h.SetXTitle("#phi (rad)")
+    h.SetYTitle("#Deltax(p_{T} #rightarrow #infty) - #Deltax(p_{T} #rightarrow 0) (mm)")
+    h.GetXaxis().CenterTitle()
+    h.GetYaxis().CenterTitle()
+
+    gm2 = ROOT.TGraphErrors(len(phis[-2]), array.array("d", phis[-2]), array.array("d", diffs[-2]), array.array("d", [0.]*len(phis[-2])), array.array("d", differrs[-2]))
+    gm1 = ROOT.TGraphErrors(len(phis[-1]), array.array("d", phis[-1]), array.array("d", diffs[-1]), array.array("d", [0.]*len(phis[-1])), array.array("d", differrs[-1]))
+    gz = ROOT.TGraphErrors(len(phis[0]), array.array("d", phis[0]), array.array("d", diffs[0]), array.array("d", [0.]*len(phis[0])), array.array("d", differrs[0]))
+    gp1 = ROOT.TGraphErrors(len(phis[1]), array.array("d", phis[1]), array.array("d", diffs[1]), array.array("d", [0.]*len(phis[1])), array.array("d", differrs[1]))
+    gp2 = ROOT.TGraphErrors(len(phis[2]), array.array("d", phis[2]), array.array("d", diffs[2]), array.array("d", [0.]*len(phis[2])), array.array("d", differrs[2]))
+
+    gm2.SetMarkerStyle(21); gm2.SetMarkerColor(ROOT.kRed); gm2.SetLineColor(ROOT.kRed)
+    gm1.SetMarkerStyle(22); gm1.SetMarkerColor(ROOT.kBlue); gm1.SetLineColor(ROOT.kBlue)
+    gz.SetMarkerStyle(3); gz.SetMarkerColor(ROOT.kBlack); gz.SetLineColor(ROOT.kBlack)
+    gp1.SetMarkerStyle(26); gp1.SetMarkerColor(ROOT.kBlue); gp1.SetLineColor(ROOT.kBlue)
+    gp2.SetMarkerStyle(25); gp2.SetMarkerColor(ROOT.kRed); gp2.SetLineColor(ROOT.kRed)
+
+    h.Draw()
+    tlegend = ROOT.TLegend(0.25, 0.2, 0.85, 0.5)
+    tlegend.SetFillColor(ROOT.kWhite)
+    tlegend.SetBorderSize(0)
+    tlegend.AddEntry(gm2, "Wheel -2", "p")
+    tlegend.AddEntry(gm1, "Wheel -1", "p")
+    tlegend.AddEntry(gz, "Wheel 0", "p")
+    tlegend.AddEntry(gp1, "Wheel +1", "p")
+    tlegend.AddEntry(gp2, "Wheel +2", "p")
+    tlegend.Draw()
+
+    gm2.Draw("p")
+    gm1.Draw("p")
+    gz.Draw("p")
+    gp1.Draw("p")
+    gp2.Draw("p")
+
 def getname(r):
     if r.postal_address[0] == "DT":
         wheel, station, sector = r.postal_address[1:]
