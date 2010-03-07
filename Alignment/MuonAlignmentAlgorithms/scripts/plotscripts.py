@@ -1586,7 +1586,7 @@ phiedges3 = [0.29751957124275596, 0.82111826253905784, 1.3447162969496083, 1.868
 phiedges4 = [3.0136655290752188, -2.7530905195097337, -2.2922883025568734, -1.9222915077192773, -1.5707963267948966, -1.2193011458705159, -0.84930435103291968, -0.38850213408005951, 0.127927124514574, 0.65152597487624719, 1.1322596819239259, 1.5707963267948966, 2.0093329716658674, 2.4900666787135459]
 
 def philines(station, window, abscissa):
-    global philine_tlines
+    global philine_tlines, philine_labels
     philine_tlines = []
     if station == "me11": phiedges = phiedges_me11
     if station == "me12": phiedges = phiedges_me12
@@ -1607,15 +1607,37 @@ def philines(station, window, abscissa):
             philine_tlines.append(ROOT.TLine(phi, -window, phi, window))
             philine_tlines[-1].SetLineStyle(2)
             philine_tlines[-1].Draw()
+    if station in (1, 2, 3, 4):
+        philine_labels = []
+        phiedges = phiedges[:]
+        phiedges.sort()
+        if station in (1, 2, 3):
+            labels = [" 8", " 9", "10", "11", "12", " 1", " 2", " 3", " 4", " 5", " 6"]
+            phiedges = phiedges[1:]
+        else: 
+            labels = [" 7", " 8", " 9", "14", "10", "11", "12", " 1", " 2", " 3", "13", " 4", " 5", " 6"]
+        for phi, label in zip(phiedges, labels):
+            littlebit = 0.
+            if label in (" 7", " 9", "14", "10", "11"): littlebit = 0.05
+            philine_labels.append(ROOT.TText(phi-0.35+littlebit, -0.9*window, label)); philine_labels[-1].Draw()
+        philine_labels.append(ROOT.TText(-2.9, -0.75*window, "Sector:")); philine_labels[-1].Draw()
 
 def zlines(window, abscissa):
-    global zline_tlines
+    global zline_tlines, zline_labels
     zline_tlines = []
     for z in -401.625, -133.875, 133.875, 401.625:
         if abscissa is None or abscissa[0] < z < abscissa[1]:
             zline_tlines.append(ROOT.TLine(z, -window, z, window))
             zline_tlines[-1].SetLineStyle(2)
             zline_tlines[-1].Draw()
+    zline_labels = []
+    zline_labels.append(ROOT.TText(-550, -0.9*window, "-2"))
+    zline_labels.append(ROOT.TText(-300, -0.9*window, "-1"))
+    zline_labels.append(ROOT.TText(-10, -0.9*window, "0"))
+    zline_labels.append(ROOT.TText(250, -0.9*window, "+1"))
+    zline_labels.append(ROOT.TText(500, -0.9*window, "+2"))
+    for z in zline_labels: z.Draw()
+    zline_labels.append(ROOT.TText(-600, -0.75*window, "Wheel:")); zline_labels[-1].Draw()
 
 def rlines(disk, window, abscissa):
     global rline_tlines
@@ -1628,7 +1650,7 @@ def rlines(disk, window, abscissa):
             rline_tlines[-1].SetLineStyle(2)
             rline_tlines[-1].Draw()
 
-def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", widebins=False, fitsine=False, reset_palette=True):
+def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", widebins=False, fitsine=False, fitline=False, reset_palette=True):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptStat(0)
@@ -1708,6 +1730,16 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
         fitsine_chi2 = hist2d.GetFunction("f").GetChisquare()
         fitsine_ndf = hist2d.GetFunction("f").GetNDF()
 
+    if fitline:
+        f = ROOT.TF1("f", "[0] + [1]*x", -1000., 1000.)
+        hist2d.Fit(f, "q")
+        hist2d.GetFunction("f").SetLineColor(ROOT.kRed)
+        global fitline_const, fitline_linear, fitline_chi2, fitline_ndf
+        fitline_const = hist2d.GetFunction("f").GetParameter(0), hist2d.GetFunction("f").GetParError(0)
+        fitline_linear = hist2d.GetFunction("f").GetParameter(1), hist2d.GetFunction("f").GetParError(1)
+        fitline_chi2 = hist2d.GetFunction("f").GetChisquare()
+        fitline_ndf = hist2d.GetFunction("f").GetNDF()
+
     hist.SetAxisRange(-window, window, "Y")
     if abscissa is not None: hist.SetAxisRange(abscissa[0], abscissa[1], "X")
     hist.SetMarkerStyle(20)
@@ -1735,7 +1767,21 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     hist2d.Draw("colzsame")
     if widebins: hist.Draw("samee1")
     else: hist.Draw("same")
-    if fitsine: hist2d.GetFunction("f").Draw("same")
+    if fitsine:
+        hist2d.GetFunction("f").Draw("same")
+        global fitsine_ttext
+        fitsine_ttext = ROOT.TText(-1., 0.8*window, "%.3g + %.3g sin(phi) + %.3g cos(phi)" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
+        fitsine_ttext.SetTextColor(ROOT.kRed)
+        fitsine_ttext.Draw()
+    if fitline:
+        hist2d.GetFunction("f").Draw("same")
+        global fitline_ttext
+        if "vsz" in name: which = "Z"
+        elif "vsr" in name: which = "R"
+        fitline_ttext = ROOT.TText(hist.GetBinCenter(hist.GetNbinsX()/2), 0.8*window, "%.3g + %.3g %s" % (fitline_const[0], fitline_linear[0], which))
+        fitline_ttext.SetTextColor(ROOT.kRed)
+        fitline_ttext.Draw()
+
     if "vsphi" in name: 
         if ("mem11" in name or "mep11" in name) and not widebins: philines("me11", window, abscissa)
         elif ("mem12" in name or "mep12" in name) and not widebins: philines("me12", window, abscissa)
