@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2009/04/20 17:07:10 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/10/31 01:38:21 $
+ *  $Revision: 1.16 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -194,7 +194,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
   double eta=0; double phi=0;
 
   // eta, pt parametrization from MC study
-  float pt = abs(mom.perp());
+  float pt = fabs(mom.perp());
 
   if ( pt <= 10. ) {
      // angular coefficients
