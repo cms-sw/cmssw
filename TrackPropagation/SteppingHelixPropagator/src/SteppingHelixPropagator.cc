@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2009/10/20 12:45:47 $
- *  $Revision: 1.67 $
+ *  $Date: 2010/02/12 11:09:15 $
+ *  $Revision: 1.68 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.67 2009/10/20 12:45:47 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.68 2010/02/12 11:09:15 slava77 Exp $
 //
 //
 
@@ -1052,8 +1052,6 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       
       double epsilonP0 = 1.+ dP/(p0-0.5*dP);
       //      double omegaP0 = -dP/(p0-0.5*dP) + dS*dEdXPrime;      
-      
-      
       //      double dsp = dS/(p0-0.5*dP); //use the initial p0 (not the mid-point) to keep the transport properly additive
       
       Vector tbtVec(bHat - tauB*tau); // for b||z tau.z()*(-tau.x(), -tau.y(), 1.-tau.z())
@@ -1095,232 +1093,139 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	double hn1 = hn.x(); double hn2 = hn.y(); double hn3 = hn.z();
 	double dx1 = dx.x(); double dx2 = dx.y(); double dx3 = dx.z();
 	//	double hnDt1 = hn1*t11 + hn2*t12 + hn3*t13;
-	if (bAlongZ&&1>2){ // t23 == t13
-	  double gamma = hn3*t23;
-	  double an1 =  -hn3*t22;
-	  double an2 = hn3*t21;
-	  //	  double an3 =  0;
-	  //	  double auInv = sqrt(1.- t13*t13); double au = auInv>0 ? 1./auInv : 1e24;
-	  double auInv = cosl0; double au = auInv>0 ? 1./auInv : 1e24;
-	  double u11 = -au*t12; double u12 = au*t11;
-	  double v11 = -t13*u12; double v12 = t13*u11; double v13 = auInv;//t11*u12 - t12*u11;
-	  //same	  auInv = sqrt(1. - t23*t23); au = auInv>0 ? 1./auInv : 1e24;
-	  double u21 = -au*t22; double u22 = au*t21;
-	  double v21 = -t13*u22; double v22 = t13*u21; double v23 = auInv;//t21*u22 - t22*u21;
 
-	  //	  double anv = 0;
-	  double anu = hn3*v23;
-	  double omcost = oneLessCosPhi; double tmsint = -phi*phiLessSinPhiOPhi;
-	  
-	  double hu1 = -hn3*u12;
-	  double hu2 = hn3*u11;
-	  //	  double hu3 = 0;
-	  
-	  double hv1 = -hn3*v12;
-	  double hv2 =  hn3*v11;
-	  //	  double hv3 =  0;
-	  cosecl1 = au;//tauNextPerpInv; == 1./cosl0
-	  
-	  dCCurvTransform_(0,0) = 1./(epsilonP0*epsilonP0)*(1. + dS*dEdXPrime);
-	  
-	  //   lambda
-	  
-	  //	  dCCurvTransform_(1,0) = 0;
-	  
-	  //	  dCCurvTransform_(1,1) = cost*(v11*v21 + v12*v22 + v13*v23) +
-	  //	    sint*(hv1*v21 + hv2*v22) +
-	  //	    omcost*v13*v23;
-	  dCCurvTransform_(1,1) = cost*(v11*v21 + v12*v22) +
-	    sint*(hv1*v21 + hv2*v22) +
-	    v13*v23;
-	  
-	  dCCurvTransform_(1,2) = (cost*(u11*v21 + u12*v22          ) +
-				   sint*(hu1*v21 + hu2*v22))*cosl0;
-	  
-	  //   phi
-	  //	  dCCurvTransform_(2,0) = - phi*p0/svCurrent.q*cosecl1*cosecl1*
-	  //	    (oneLessCosPhi*hn3*auInv + cosPhi*tbtVec.z()) ;
-	  dCCurvTransform_(2,0) = - phi*p0/svCurrent.q*cosecl1*hn3*
-	    (oneLessCosPhi + cosPhi*auInv) ;
-	  
-	  dCCurvTransform_(2,1) = (cost*(v11*u21 + v12*u22          ) +
-				   sint*(hv1*u21 + hv2*u22          ) +
-				   anu*(-sint*(v11*t21 + v12*t22 + v13*t23) +
-					omcost*(v11*an1 + v12*an2) -
-					tmsint*gamma*(hn3*v13) ))*cosecl1;
-	  
-	  dCCurvTransform_(2,2) = (cost*(u11*u21 + u12*u22          ) +
-	    sint*(hu1*u21 + hu2*u22          ) +
-	    anu*(-sint*(u11*t21 + u12*t22          ) +
-		 omcost*(u11*an1 + u12*an2          ) ));// *cosecl1*cosl0;
-	  
-	  //   yt
-	  
-	  double pp = 1./qbp;
-	  dCCurvTransform_(3,0) = - pp*(u21*dx1 + u22*dx2            ); //NB: modified from the original: changed the sign
-	  dCCurvTransform_(4,0) = - pp*(v21*dx1 + v22*dx2 + v23*dx3);  
-	  
-	  
-	  dCCurvTransform_(3,1) = (sint*(v11*u21 + v12*u22          ) +
-				   omcost*(hv1*u21 + hv2*u22          ))/q;
-	  
-	  dCCurvTransform_(3,2) = (sint*(u11*u21 + u12*u22          ) +
-				   omcost*(hu1*u21 + hu2*u22          ))*cosl0/q;
-	  
-	  dCCurvTransform_(3,3) = (u11*u21 + u12*u22          );
-	  
-	  dCCurvTransform_(3,4) = (v11*u21 + v12*u22          );
-	  
-	  //   zt
-	  
-	  //	  dCCurvTransform_(4,1) = (sint*(v11*v21 + v12*v22 + v13*v23) +
-	  //				   omcost*(hv1*v21 + hv2*v22) +
-	  //				   tmsint*(v23) * (v13))/q;
-	  //sint*v13*v23+tmsint*v23*v13 = -phi*v13*v23	  
-	  dCCurvTransform_(4,1) = (sint*(v11*v21 + v12*v22) +
-				   omcost*(hv1*v21 + hv2*v22) -
-				   phi*v23 * v13 )/q;
-
-	  dCCurvTransform_(4,2) = (sint*(u11*v21 + u12*v22          ) +
-				   omcost*(hu1*v21 + hu2*v22))*cosl0/q;
-	  
-	  dCCurvTransform_(4,3) = (u11*v21 + u12*v22          );
-	  
-	  dCCurvTransform_(4,4) = (v11*v21 + v12*v22 + v13*v23);
-	} else {
-	  double gamma =  hn1*t21 + hn2*t22 + hn3*t23;
-	  double an1 =  hn2*t23 - hn3*t22;
-	  double an2 =  hn3*t21 - hn1*t23;
-	  double an3 =  hn1*t22 - hn2*t21;
-	  //	  double auInv = sqrt(1.- t13*t13); double au = auInv>0 ? 1./auInv : 1e24;
-	  double auInv = cosl0; double au = auInv>0 ? 1./auInv : 1e24;
-	  //	  double auInv = sqrt(t11*t11 + t12*t12); double au = auInv>0 ? 1./auInv : 1e24;
-	  double u11 = -au*t12; double u12 = au*t11;
-	  double v11 = -t13*u12; double v12 = t13*u11; double v13 = auInv;//t11*u12 - t12*u11;
-	  auInv = sqrt(1. - t23*t23); au = auInv>0 ? 1./auInv : 1e24;
-	  //	  auInv = sqrt(t21*t21 + t22*t22); au = auInv>0 ? 1./auInv : 1e24;
-	  double u21 = -au*t22; double u22 = au*t21;
-	  double v21 = -t23*u22; double v22 = t23*u21; double v23 = auInv;//t21*u22 - t22*u21;
-	  // now prepare the transport matrix
-	  // pp only needed in high-p case (WA)
-	  //   double pp = 1./qbp;
-	  ////    double pp = fts.momentum().mag();
-	  // moved up (where -h.mag() is needed()
-	  //   double qp = q*pp;
-	  double anv =  -(hn1*u21 + hn2*u22          );
-	  double anu =   (hn1*v21 + hn2*v22 + hn3*v23); 
-	  double omcost = oneLessCosPhi; double tmsint = -phi*phiLessSinPhiOPhi;
-	  
-	  double hu1 =         - hn3*u12;
-	  double hu2 =  hn3*u11;
-	  double hu3 =  hn1*u12 - hn2*u11;
-	  
-	  double hv1 =  hn2*v13 - hn3*v12;
-	  double hv2 =  hn3*v11 - hn1*v13;
-	  double hv3 =  hn1*v12 - hn2*v11;
-	  
-	  //   1/p - doesn't change since |tau| = |tauNext| ... not. It changes now
-	  dCCurvTransform_(0,0) = 1./(epsilonP0*epsilonP0)*(1. + dS*dEdXPrime);
-	  
-	  //   lambda
-	  
-	  dCCurvTransform_(1,0) = phi*p0/svCurrent.q*cosecl1*
-	    (sinPhi*bbtVec.z() - cosPhi*btVec.z());
-	  //was dCCurvTransform_(1,0) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3); //NOTE (SK) this was found to have an opposite sign
-	  //from independent re-calculation ... in fact the tauNext.dot.dR piece isnt reproduced 
-	  
-	  dCCurvTransform_(1,1) = cost*(v11*v21 + v12*v22 + v13*v23) +
-	    sint*(hv1*v21 + hv2*v22 + hv3*v23) +
-	    omcost*(hn1*v11 + hn2*v12 + hn3*v13) * (hn1*v21 + hn2*v22 + hn3*v23) +
-	    anv*(-sint*(v11*t21 + v12*t22 + v13*t23) +
-		 omcost*(v11*an1 + v12*an2 + v13*an3) -
-		 tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
-	  
-	  dCCurvTransform_(1,2) = cost*(u11*v21 + u12*v22          ) +
-	    sint*(hu1*v21 + hu2*v22 + hu3*v23) +
-	    omcost*(hn1*u11 + hn2*u12          ) * (hn1*v21 + hn2*v22 + hn3*v23) +
-	    anv*(-sint*(u11*t21 + u12*t22          ) +
-		 omcost*(u11*an1 + u12*an2          ) -
-		 tmsint*gamma*(hn1*u11 + hn2*u12          ) );
-	  dCCurvTransform_(1,2) *= cosl0;
-	  
-	  // Commented out in part for reproducibility purposes: these terms are zero in cart->curv 
-	  //	dCCurvTransform_(1,3) = -q*anv*(u11*t21 + u12*t22          ); //don't show up in cartesian setup-->curv
-	  //why would lambdaNext depend explicitely on initial position ? any arbitrary init point can be chosen not 
-	  // affecting the final state's momentum direction ... is this the field gradient in curvilinear coord?
-	  //	dCCurvTransform_(1,4) = -q*anv*(v11*t21 + v12*t22 + v13*t23); //don't show up in cartesian setup-->curv
-	  
-	  //   phi
-	  
-	  dCCurvTransform_(2,0) = - phi*p0/svCurrent.q*cosecl1*cosecl1*
-	    (oneLessCosPhi*bHat.z()*btVec.mag2() + sinPhi*btVec.z() + cosPhi*tbtVec.z()) ;
-	  //was 	dCCurvTransform_(2,0) = -qp*anu*(t21*dx1 + t22*dx2 + t23*dx3)*cosecl1;
-	  
-	  dCCurvTransform_(2,1) = cost*(v11*u21 + v12*u22          ) +
-	    sint*(hv1*u21 + hv2*u22          ) +
-	    omcost*(hn1*v11 + hn2*v12 + hn3*v13) *
-	    (hn1*u21 + hn2*u22          ) +
-	    anu*(-sint*(v11*t21 + v12*t22 + v13*t23) +
-		 omcost*(v11*an1 + v12*an2 + v13*an3) -
-		 tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
-	  dCCurvTransform_(2,1) *= cosecl1;
-	  
-	  dCCurvTransform_(2,2) = cost*(u11*u21 + u12*u22          ) +
-	    sint*(hu1*u21 + hu2*u22          ) +
-	    omcost*(hn1*u11 + hn2*u12          ) *
-	    (hn1*u21 + hn2*u22          ) +
-	    anu*(-sint*(u11*t21 + u12*t22          ) +
-		 omcost*(u11*an1 + u12*an2          ) -
-		 tmsint*gamma*(hn1*u11 + hn2*u12          ) );
-	  dCCurvTransform_(2,2) *= cosecl1*cosl0;
-	  
-	  // Commented out in part for reproducibility purposes: these terms are zero in cart->curv 
-	  // dCCurvTransform_(2,3) = -q*anu*(u11*t21 + u12*t22          )*cosecl1;
-	  //why would lambdaNext depend explicitely on initial position ? any arbitrary init point can be chosen not 
-	  // affecting the final state's momentum direction ... is this the field gradient in curvilinear coord?
-	  // dCCurvTransform_(2,4) = -q*anu*(v11*t21 + v12*t22 + v13*t23)*cosecl1;
-	  
-	  //   yt
-	  
-	  double pp = 1./qbp;
-	  // (SK) these terms seem to consistently have a sign opp from private derivation
-	  dCCurvTransform_(3,0) = - pp*(u21*dx1 + u22*dx2            ); //NB: modified from the original: changed the sign
-	  dCCurvTransform_(4,0) = - pp*(v21*dx1 + v22*dx2 + v23*dx3);  
-	  
-	  
-	  dCCurvTransform_(3,1) = (sint*(v11*u21 + v12*u22          ) +
-				   omcost*(hv1*u21 + hv2*u22          ) +
-				   tmsint*(hn1*u21 + hn2*u22          ) *
-				   (hn1*v11 + hn2*v12 + hn3*v13))/q;
-	  
-	  dCCurvTransform_(3,2) = (sint*(u11*u21 + u12*u22          ) +
-				   omcost*(hu1*u21 + hu2*u22          ) +
-				   tmsint*(hn1*u21 + hn2*u22          ) *
-				   (hn1*u11 + hn2*u12          ))*cosl0/q;
-	  
-	  dCCurvTransform_(3,3) = (u11*u21 + u12*u22          );
-	  
-	  dCCurvTransform_(3,4) = (v11*u21 + v12*u22          );
-	  
-	  //   zt
-	  
-	  dCCurvTransform_(4,1) = (sint*(v11*v21 + v12*v22 + v13*v23) +
-				   omcost*(hv1*v21 + hv2*v22 + hv3*v23) +
-				   tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
-				   (hn1*v11 + hn2*v12 + hn3*v13))/q;
-	  
-	  dCCurvTransform_(4,2) = (sint*(u11*v21 + u12*v22          ) +
-				   omcost*(hu1*v21 + hu2*v22 + hu3*v23) +
-				   tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
-				   (hn1*u11 + hn2*u12          ))*cosl0/q;
-	  
-	  dCCurvTransform_(4,3) = (u11*v21 + u12*v22          );
-	  
-	  dCCurvTransform_(4,4) = (v11*v21 + v12*v22 + v13*v23);
-	  // end of TRPRFN
-	}
+	double gamma =  hn1*t21 + hn2*t22 + hn3*t23;
+	double an1 =  hn2*t23 - hn3*t22;
+	double an2 =  hn3*t21 - hn1*t23;
+	double an3 =  hn1*t22 - hn2*t21;
+	//	  double auInv = sqrt(1.- t13*t13); double au = auInv>0 ? 1./auInv : 1e24;
+	double auInv = cosl0; double au = auInv>0 ? 1./auInv : 1e24;
+	//	  double auInv = sqrt(t11*t11 + t12*t12); double au = auInv>0 ? 1./auInv : 1e24;
+	double u11 = -au*t12; double u12 = au*t11;
+	double v11 = -t13*u12; double v12 = t13*u11; double v13 = auInv;//t11*u12 - t12*u11;
+	auInv = sqrt(1. - t23*t23); au = auInv>0 ? 1./auInv : 1e24;
+	//	  auInv = sqrt(t21*t21 + t22*t22); au = auInv>0 ? 1./auInv : 1e24;
+	double u21 = -au*t22; double u22 = au*t21;
+	double v21 = -t23*u22; double v22 = t23*u21; double v23 = auInv;//t21*u22 - t22*u21;
+	// now prepare the transport matrix
+	// pp only needed in high-p case (WA)
+	//   double pp = 1./qbp;
+	////    double pp = fts.momentum().mag();
+	// moved up (where -h.mag() is needed()
+	//   double qp = q*pp;
+	double anv =  -(hn1*u21 + hn2*u22          );
+	double anu =   (hn1*v21 + hn2*v22 + hn3*v23); 
+	double omcost = oneLessCosPhi; double tmsint = -phi*phiLessSinPhiOPhi;
+	
+	double hu1 =         - hn3*u12;
+	double hu2 =  hn3*u11;
+	double hu3 =  hn1*u12 - hn2*u11;
+	
+	double hv1 =  hn2*v13 - hn3*v12;
+	double hv2 =  hn3*v11 - hn1*v13;
+	double hv3 =  hn1*v12 - hn2*v11;
+	
+	//   1/p - doesn't change since |tau| = |tauNext| ... not. It changes now
+	dCCurvTransform_(0,0) = 1./(epsilonP0*epsilonP0)*(1. + dS*dEdXPrime);
+	
+	//   lambda
+	
+	dCCurvTransform_(1,0) = phi*p0/svCurrent.q*cosecl1*
+	  (sinPhi*bbtVec.z() - cosPhi*btVec.z());
+	//was dCCurvTransform_(1,0) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3); //NOTE (SK) this was found to have an opposite sign
+	//from independent re-calculation ... in fact the tauNext.dot.dR piece isnt reproduced 
+	
+	dCCurvTransform_(1,1) = cost*(v11*v21 + v12*v22 + v13*v23) +
+	  sint*(hv1*v21 + hv2*v22 + hv3*v23) +
+	  omcost*(hn1*v11 + hn2*v12 + hn3*v13) * (hn1*v21 + hn2*v22 + hn3*v23) +
+	  anv*(-sint*(v11*t21 + v12*t22 + v13*t23) +
+	       omcost*(v11*an1 + v12*an2 + v13*an3) -
+	       tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
+	
+	dCCurvTransform_(1,2) = cost*(u11*v21 + u12*v22          ) +
+	  sint*(hu1*v21 + hu2*v22 + hu3*v23) +
+	  omcost*(hn1*u11 + hn2*u12          ) * (hn1*v21 + hn2*v22 + hn3*v23) +
+	  anv*(-sint*(u11*t21 + u12*t22          ) +
+	       omcost*(u11*an1 + u12*an2          ) -
+	       tmsint*gamma*(hn1*u11 + hn2*u12          ) );
+	dCCurvTransform_(1,2) *= cosl0;
+	
+	// Commented out in part for reproducibility purposes: these terms are zero in cart->curv 
+	//	dCCurvTransform_(1,3) = -q*anv*(u11*t21 + u12*t22          ); //don't show up in cartesian setup-->curv
+	//why would lambdaNext depend explicitely on initial position ? any arbitrary init point can be chosen not 
+	// affecting the final state's momentum direction ... is this the field gradient in curvilinear coord?
+	//	dCCurvTransform_(1,4) = -q*anv*(v11*t21 + v12*t22 + v13*t23); //don't show up in cartesian setup-->curv
+	
+	//   phi
+	
+	dCCurvTransform_(2,0) = - phi*p0/svCurrent.q*cosecl1*cosecl1*
+	  (oneLessCosPhi*bHat.z()*btVec.mag2() + sinPhi*btVec.z() + cosPhi*tbtVec.z()) ;
+	//was 	dCCurvTransform_(2,0) = -qp*anu*(t21*dx1 + t22*dx2 + t23*dx3)*cosecl1;
+	
+	dCCurvTransform_(2,1) = cost*(v11*u21 + v12*u22          ) +
+	  sint*(hv1*u21 + hv2*u22          ) +
+	  omcost*(hn1*v11 + hn2*v12 + hn3*v13) *
+	  (hn1*u21 + hn2*u22          ) +
+	  anu*(-sint*(v11*t21 + v12*t22 + v13*t23) +
+	       omcost*(v11*an1 + v12*an2 + v13*an3) -
+	       tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
+	dCCurvTransform_(2,1) *= cosecl1;
+	
+	dCCurvTransform_(2,2) = cost*(u11*u21 + u12*u22          ) +
+	  sint*(hu1*u21 + hu2*u22          ) +
+	  omcost*(hn1*u11 + hn2*u12          ) *
+	  (hn1*u21 + hn2*u22          ) +
+	  anu*(-sint*(u11*t21 + u12*t22          ) +
+	       omcost*(u11*an1 + u12*an2          ) -
+	       tmsint*gamma*(hn1*u11 + hn2*u12          ) );
+	dCCurvTransform_(2,2) *= cosecl1*cosl0;
+	
+	// Commented out in part for reproducibility purposes: these terms are zero in cart->curv 
+	// dCCurvTransform_(2,3) = -q*anu*(u11*t21 + u12*t22          )*cosecl1;
+	//why would lambdaNext depend explicitely on initial position ? any arbitrary init point can be chosen not 
+	// affecting the final state's momentum direction ... is this the field gradient in curvilinear coord?
+	// dCCurvTransform_(2,4) = -q*anu*(v11*t21 + v12*t22 + v13*t23)*cosecl1;
+	
+	//   yt
+	
+	double pp = 1./qbp;
+	// (SK) these terms seem to consistently have a sign opp from private derivation
+	dCCurvTransform_(3,0) = - pp*(u21*dx1 + u22*dx2            ); //NB: modified from the original: changed the sign
+	dCCurvTransform_(4,0) = - pp*(v21*dx1 + v22*dx2 + v23*dx3);  
+	
+	
+	dCCurvTransform_(3,1) = (sint*(v11*u21 + v12*u22          ) +
+				 omcost*(hv1*u21 + hv2*u22          ) +
+				 tmsint*(hn1*u21 + hn2*u22          ) *
+				 (hn1*v11 + hn2*v12 + hn3*v13))/q;
+	
+	dCCurvTransform_(3,2) = (sint*(u11*u21 + u12*u22          ) +
+				 omcost*(hu1*u21 + hu2*u22          ) +
+				 tmsint*(hn1*u21 + hn2*u22          ) *
+				 (hn1*u11 + hn2*u12          ))*cosl0/q;
+	
+	dCCurvTransform_(3,3) = (u11*u21 + u12*u22          );
+	
+	dCCurvTransform_(3,4) = (v11*u21 + v12*u22          );
+	
+	//   zt
+	
+	dCCurvTransform_(4,1) = (sint*(v11*v21 + v12*v22 + v13*v23) +
+				 omcost*(hv1*v21 + hv2*v22 + hv3*v23) +
+				 tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
+				 (hn1*v11 + hn2*v12 + hn3*v13))/q;
+	
+	dCCurvTransform_(4,2) = (sint*(u11*v21 + u12*v22          ) +
+				 omcost*(hu1*v21 + hu2*v22 + hu3*v23) +
+				 tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
+				 (hn1*u11 + hn2*u12          ))*cosl0/q;
+	
+	dCCurvTransform_(4,3) = (u11*v21 + u12*v22          );
+	
+	dCCurvTransform_(4,4) = (v11*v21 + v12*v22 + v13*v23);
+	// end of TRPRFN
       }
-      
+    
       if (debug_){
 	Basis rep; setRep(rep, tauNext);
 	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"rep X: "<<rep.lX<<" "<<rep.lX.mag()
