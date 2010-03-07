@@ -16,11 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:45:38 CEST 2009
-<<<<<<< HcalO2OManager.h
-// $Id: HcalO2OManager.h,v 1.6 2010/01/27 05:55:25 elmer Exp $
-=======
-// $Id: HcalO2OManager.h,v 1.5.2.1 2010/02/26 00:51:03 kukartse Exp $
->>>>>>> 1.5.2.1
+// $Id: HcalO2OManager.h,v 1.7 2010/03/07 21:53:33 kukartse Exp $
 //
 
 #include<vector>
