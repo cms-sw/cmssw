@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2010/02/11 00:14:16 $
- *  $Revision: 1.50 $
+ *  $Date: 2010/03/05 22:14:26 $
+ *  $Revision: 1.51 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -204,7 +204,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed) {
  
      measL = findBestMeasurements(*rnxtlayer, lastTsos, propagator(), (updator()->estimator()));
 
-     if ( measL.empty() &&  (abs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").isValid() ) )  {
+     if ( measL.empty() &&  (fabs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").isValid() ) )  {
        LogTrace(category_) << "try straight line propagator ";
        measL = findBestMeasurements(*rnxtlayer, lastTsos, &*theService->propagator("StraightLinePropagator"), (updator()->estimator()));
      }
