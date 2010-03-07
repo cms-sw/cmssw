@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_5_0/1E31/V37 (CMSSW_3_5_2_HLT3)
+# /dev/CMSSW_3_5_0/1E31/V39 (CMSSW_3_5_3)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V37')
+  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V39')
 )
 
 
@@ -4580,12 +4580,12 @@ hltBJet80 = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
 )
-hltSelector4JetsRegional = cms.EDFilter( "LargestEtCaloJetSelector",
+hltSelector4JetsRegional = cms.EDProducer( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltMCJetCorJetIcone5Regional" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBLifetimeL25JetsStartup = cms.EDFilter( "EtMinCaloJetSelector",
+hltBLifetimeL25JetsStartup = cms.EDProducer( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4JetsRegional" ),
     filter = cms.bool( False ),
     etMin = cms.double( 30.0 )
@@ -4695,12 +4695,12 @@ hltBJet20 = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
 )
-hltSelector4Jets = cms.EDFilter( "LargestEtCaloJetSelector",
+hltSelector4Jets = cms.EDProducer( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltMCJetCorJetIcone5" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBSoftMuonL25Jets = cms.EDFilter( "EtMinCaloJetSelector",
+hltBSoftMuonL25Jets = cms.EDProducer( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4Jets" ),
     filter = cms.bool( False ),
     etMin = cms.double( 20.0 )
