@@ -37,7 +37,7 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 ## specify for which run you would like to get the conditions in the "firstRun"
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(123151)
+    firstRun = cms.untracked.uint32(123596)
 )
 
 
@@ -89,7 +89,7 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #        ),  
         cms.PSet(
             record = cms.string('HcalDcsRcd'),
-            tag = cms.string('hcal_dcsvalues_trivial_v1.01_mc')
+            tag = cms.string('HcalDcsValues_v1.00_offline')
         )
 )
 )

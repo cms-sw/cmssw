@@ -24,7 +24,7 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('DcsValues'),
         tag = cms.string('HcalDcsValues_v1.00_offline'),
-        version = cms.string('dummy-obsolete'),
+        version = cms.string('fakeversion'),
         subversion = cms.int32(1),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44'),
         #accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/CMSDEVR_LB?PASSWORD=HCAL_Reader_44'),
@@ -33,33 +33,39 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
 select 
       i.dpname, 
       -1 as lumisection, 
-      i.value,          
-      i.set_high as upper,   
-      i.set_low as lower,       
-      i.tag_name as tag, 
-      'fakeversion' as version, 
-      1 as subversion          
-from                           
+      i.value, 
+      i.set_high as upper, 
+      i.set_low as lower, 
+      REGEXP_SUBSTR(i.DPNAME, 'H[BEFO]', 1, 1, 'c') as subdetector, 
+      i.ring, 
+      TO_NUMBER(LTRIM(i.slice, 'SQ')) as slice, 
+      TO_NUMBER(LTRIM(i.subchannel, 'PRM')) as subchannel, 
+      i.type 
+from 
       cms_hcl_hcal_cond.V_CMS_HCAL_HV_INIT_VALUES i 
-where                 
+where 
       i.tag_name like :1 
-      and length(:2)>-1 and :3>-1 
-      and i.run_number = :4      
+      and 'fakeversion' like :2 
+      and 1 = :3 
+      and i.run_number = :4 
 UNION 
 select 
       i.dpname, 
-      -1 as lumisection, 
-      i.value,          
-      i.set_high as upper,   
-      i.set_low as lower,       
-      i.tag_name as tag, 
-      'fakeversion' as version, 
-      1 as subversion          
-from                           
+      i.lum_secxn as lumisection, 
+      i.value, 
+      i.set_high as upper, 
+      i.set_low as lower, 
+      REGEXP_SUBSTR(i.DPNAME, 'H[BEFO]', 1, 1, 'c') as subdetector, 
+      i.ring, 
+      TO_NUMBER(LTRIM(i.slice, 'SQ')) as slice, 
+      TO_NUMBER(LTRIM(i.subchannel, 'PRM')) as subchannel, 
+      i.type 
+from 
       cms_hcl_hcal_cond.V_CMS_HCAL_HV_UPDATE_VALUES i 
-where                 
+where 
       i.tag_name like :1 
-      and length(:2)>-1 and :3>-1 
+      and 'fakeversion' like :2 
+      and 1 = :3 
       and i.run_number = :4 
       ''')
     ))
@@ -82,7 +88,8 @@ process.mytest = cms.EDAnalyzer("HcalDcsValuesPopConAnalyzer",
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
 #    firstSince=cms.untracked.double(300) 
-    IOVRun=cms.untracked.uint32(1)
+#    IOVRun=cms.untracked.uint32(1)
+    IOVRun=cms.untracked.uint32(123596)
     )
 )
 
