@@ -321,16 +321,14 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 			MuonChamberResidual *dt13other = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kDT13);
 			if (dt13other != NULL  &&  dt13other->numHits() >= m_minDT13Hits) {
 			   double slopediff = 1000. * (dt13->global_resslope() - dt13other->global_resslope());
-			   double weight = dt13->ndof() / dt13->chi2();
-			   if (weight > 1.) weight = 1.;
 
 			   double length = dt13->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp() - dt13other->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp();
 			   double residdiff = 10. * (dt13->global_residual() + length*dt13->global_resslope() - dt13other->global_residual());
 
 			   if (thisid.station() == 1  &&  thatid.station() == 2) {
-			      m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, residdiff, weight);
-			      m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, slopediff, weight);
-			      if (fabs(qoverpt) > 0) {
+			      m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, residdiff);
+			      m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, slopediff);
+			      if (qoverpt > 0) {
 				 m_posdt13_resid[thisid.wheel()+2][thisid.sector()-1][0]->Fill(residdiff);
 				 m_posdt13_slope[thisid.wheel()+2][thisid.sector()-1][0]->Fill(slopediff);
 			      }
@@ -340,9 +338,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 			      }
 			   }
 			   else if (thisid.station() == 2  &&  thatid.station() == 3) {
-			      m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, residdiff, weight);
-			      m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, slopediff, weight);
-			      if (fabs(qoverpt) > 0) {
+			      m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, residdiff);
+			      m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, slopediff);
+			      if (qoverpt > 0) {
 				 m_posdt13_resid[thisid.wheel()+2][thisid.sector()-1][1]->Fill(residdiff);
 				 m_posdt13_slope[thisid.wheel()+2][thisid.sector()-1][1]->Fill(slopediff);
 			      }
@@ -352,9 +350,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 			      }
 			   }
 			   else if (thisid.station() == 3  &&  thatid.station() == 4) {
-			      m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, residdiff, weight);
-			      m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, slopediff, weight);
-			      if (fabs(qoverpt) > 0) {
+			      m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, residdiff);
+			      m_dt13_slope[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, slopediff);
+			      if (qoverpt > 0) {
 				 m_posdt13_resid[thisid.wheel()+2][thisid.sector()-1][2]->Fill(residdiff);
 				 m_posdt13_slope[thisid.wheel()+2][thisid.sector()-1][2]->Fill(slopediff);
 			      }
@@ -381,16 +379,14 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 			MuonChamberResidual *dt2other = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kDT2);
 			if (dt2other != NULL  &&  dt2other->numHits() >= m_minDT2Hits) {
 			   double slopediff = 1000. * (dt2->global_resslope() - dt2other->global_resslope());
-			   double weight = dt2->ndof() / dt2->chi2();
-			   if (weight > 1.) weight = 1.;
 
 			   double length = dt2->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp() - dt2other->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).perp();
 			   double residdiff = 10. * (dt2->global_residual() + length*dt2->global_resslope() - dt2other->global_residual());
 
 			   if (thisid.station() == 1  &&  thatid.station() == 2) {
-			      m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, residdiff, weight);
-			      m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, slopediff, weight);
-			      if (fabs(qoverpt) > 0) {
+			      m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, residdiff);
+			      m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][0]->Fill(qoverpt, slopediff);
+			      if (qoverpt > 0) {
 				 m_posdt2_resid[thisid.wheel()+2][thisid.sector()-1][0]->Fill(residdiff);
 				 m_posdt2_slope[thisid.wheel()+2][thisid.sector()-1][0]->Fill(slopediff);
 			      }
@@ -400,9 +396,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 			      }
 			   }
 			   else if (thisid.station() == 2  &&  thatid.station() == 3) {
-			      m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, residdiff, weight);
-			      m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, slopediff, weight);
-			      if (fabs(qoverpt) > 0) {
+			      m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, residdiff);
+			      m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][1]->Fill(qoverpt, slopediff);
+			      if (qoverpt > 0) {
 				 m_posdt2_resid[thisid.wheel()+2][thisid.sector()-1][1]->Fill(residdiff);
 				 m_posdt2_slope[thisid.wheel()+2][thisid.sector()-1][1]->Fill(slopediff);
 			      }
@@ -412,9 +408,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 			      }
 			   }
 			   else if (thisid.station() == 3  &&  thatid.station() == 4) {
-			      m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, residdiff, weight);
-			      m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, slopediff, weight);
-			      if (fabs(qoverpt) > 0) {
+			      m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, residdiff);
+			      m_dt2_slope[thisid.wheel()+2][thisid.sector()-1][2]->Fill(qoverpt, slopediff);
+			      if (qoverpt > 0) {
 				 m_posdt2_resid[thisid.wheel()+2][thisid.sector()-1][2]->Fill(residdiff);
 				 m_posdt2_slope[thisid.wheel()+2][thisid.sector()-1][2]->Fill(slopediff);
 			      }
@@ -445,8 +441,6 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 			MuonChamberResidual *cscother = muonResidualsFromTrack.chamberResidual(*otherId, MuonChamberResidual::kCSC);
 			if (cscother != NULL  &&  cscother->numHits() >= m_minCSCHits) {
 			   double slopediff = 1000. * (csc->global_resslope() - cscother->global_resslope());
-			   double weight = csc->ndof() / csc->chi2();
-			   if (weight > 1.) weight = 1.;
 
 			   double length = csc->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).z() - cscother->chamberAlignable()->surface().toGlobal(LocalPoint(0,0,0)).z();
 			   double residdiff = 10. * (csc->global_residual() + length*csc->global_resslope() - cscother->global_residual());
@@ -460,9 +454,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 
 			   if (thisring == thatid.ring()  &&  thischamber == thatid.chamber()) {
 			      if (thisring == 2  &&  thisid.station() == 1  &&  thatid.station() == 2) {
-				 m_cscouter_resid[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, residdiff, weight);
-				 m_cscouter_slope[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, slopediff, weight);
-				 if (fabs(qoverpt) > 0) {
+				 m_cscouter_resid[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, residdiff);
+				 m_cscouter_slope[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, slopediff);
+				 if (qoverpt > 0) {
 				    m_poscscouter_resid[thisid.endcap()-1][thischamber-1][0]->Fill(residdiff);
 				    m_poscscouter_slope[thisid.endcap()-1][thischamber-1][0]->Fill(slopediff);
 				 }
@@ -472,9 +466,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 				 }
 			      }
 			      else if (thisring == 2  &&  thisid.station() == 2  &&  thatid.station() == 3) {
-				 m_cscouter_resid[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, residdiff, weight);
-				 m_cscouter_slope[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, slopediff, weight);
-				 if (fabs(qoverpt) > 0) {
+				 m_cscouter_resid[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, residdiff);
+				 m_cscouter_slope[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, slopediff);
+				 if (qoverpt > 0) {
 				    m_poscscouter_resid[thisid.endcap()-1][thischamber-1][1]->Fill(residdiff);
 				    m_poscscouter_slope[thisid.endcap()-1][thischamber-1][1]->Fill(slopediff);
 				 }
@@ -484,9 +478,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 				 }
 			      }
 			      else if (thisring == 1  &&  thisid.station() == 1  &&  thatid.station() == 2) {
-				 m_cscinner_resid[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, residdiff, weight);
-				 m_cscinner_slope[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, slopediff, weight);
-				 if (fabs(qoverpt) > 0) {
+				 m_cscinner_resid[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, residdiff);
+				 m_cscinner_slope[thisid.endcap()-1][thischamber-1][0]->Fill(qoverpt, slopediff);
+				 if (qoverpt > 0) {
 				    m_poscscinner_resid[thisid.endcap()-1][thischamber-1][0]->Fill(residdiff);
 				    m_poscscinner_slope[thisid.endcap()-1][thischamber-1][0]->Fill(slopediff);
 				 }
@@ -496,9 +490,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 				 }
 			      }
 			      else if (thisring == 1  &&  thisid.station() == 2  &&  thatid.station() == 3) {
-				 m_cscinner_resid[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, residdiff, weight);
-				 m_cscinner_slope[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, slopediff, weight);
-				 if (fabs(qoverpt) > 0) {
+				 m_cscinner_resid[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, residdiff);
+				 m_cscinner_slope[thisid.endcap()-1][thischamber-1][1]->Fill(qoverpt, slopediff);
+				 if (qoverpt > 0) {
 				    m_poscscinner_resid[thisid.endcap()-1][thischamber-1][1]->Fill(residdiff);
 				    m_poscscinner_slope[thisid.endcap()-1][thischamber-1][1]->Fill(slopediff);
 				 }
@@ -508,9 +502,9 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 				 }
 			      }
 			      else if (thisring == 1  &&  thisid.station() == 3  &&  thatid.station() == 4) {
-				 m_cscinner_resid[thisid.endcap()-1][thischamber-1][2]->Fill(qoverpt, residdiff, weight);
-				 m_cscinner_slope[thisid.endcap()-1][thischamber-1][2]->Fill(qoverpt, slopediff, weight);
-				 if (fabs(qoverpt) > 0) {
+				 m_cscinner_resid[thisid.endcap()-1][thischamber-1][2]->Fill(qoverpt, residdiff);
+				 m_cscinner_slope[thisid.endcap()-1][thischamber-1][2]->Fill(qoverpt, slopediff);
+				 if (qoverpt > 0) {
 				    m_poscscinner_resid[thisid.endcap()-1][thischamber-1][2]->Fill(residdiff);
 				    m_poscscinner_slope[thisid.endcap()-1][thischamber-1][2]->Fill(slopediff);
 				 }
