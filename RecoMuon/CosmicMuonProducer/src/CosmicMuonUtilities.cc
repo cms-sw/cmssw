@@ -1,8 +1,8 @@
 /** \file CosmicMuonUtilities
  *
  *
- *  $Date: 2008/04/25 14:55:44 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/03/01 20:57:49 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -24,11 +24,13 @@ using namespace std;
 CosmicMuonUtilities::CosmicMuonUtilities() {
 }
 
+
 //
 // destructor
 //
 CosmicMuonUtilities::~CosmicMuonUtilities() {
 }
+
 
 void CosmicMuonUtilities::reverseDirection(TrajectoryStateOnSurface& tsos, const MagneticField* mgfield) const {
 
@@ -148,12 +150,14 @@ bool CosmicMuonUtilities::isTraversing(const Trajectory& t) const {
 
   // are there separate muon hits in 2 different hemispheres
   GlobalVector deltaPos(frontPos - backPos);
+  if ( deltaPos.mag() < 100.0 ) return false;
   if ( fabs(deltaPos.z() ) > 500.0 ) return true;
   if ( deltaPos.perp() > 350.0 ) return true;
-  if ( deltaPos.mag() < 100.0 ) return false;
-  GlobalPoint middle((frontPos.x()+backPos.x())/2, (frontPos.y()+backPos.y())/2, (frontPos.z()+backPos.z())/2);
+  GlobalPoint middle((frontPos.x()+backPos.x())/2, 
+                     (frontPos.y()+backPos.y())/2, 
+                     (frontPos.z()+backPos.z())/2);
 
-  return ( (middle.perp() < frontPos.perp()) && (middle.perp() < backPos.perp()));
+  return ( (middle.perp() < frontPos.perp()) && (middle.perp() < backPos.perp()) );
 
 }
 
