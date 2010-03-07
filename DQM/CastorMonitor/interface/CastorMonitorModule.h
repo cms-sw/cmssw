@@ -26,10 +26,11 @@
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h" //-- no CastorUnpackerReport at the moment !
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h" //-- HcalCastorDetId
 #include "DQM/CastorMonitor/interface/CastorMonitorSelector.h"
-#include "DQM/CastorMonitor/interface/CastorPedestalMonitor.h"
+#include "DQM/CastorMonitor/interface/CastorDigiMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
-#include "DQM/CastorMonitor/interface/CastorRecHitsValidation.h"
+#include "DQM/CastorMonitor/interface/CastorChannelQualityMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
+#include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
@@ -60,27 +61,27 @@ public:
  protected:
   
   ////---- analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup);
   
   ////---- beginJob
   void beginJob();
   
   ////---- beginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& eventSetup);
 
   ////---- begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& c) ;
+                            const edm::EventSetup& eventSetup) ;
 
   ////---- end LumiBlock
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
+                          const edm::EventSetup& eventSetup);
 
   ////---- endJob
   void endJob(void);
   
   ////---- endRun
-  void endRun(const edm::Run& run, const edm::EventSetup& c);
+  void endRun(const edm::Run& run, const edm::EventSetup& eventSetup);
 
   ////---- reset
   void reset(void);
@@ -141,7 +142,7 @@ public:
   DQMStore* dbe_;  
   
   ////---- define environment variables
-  int irun_,ilumisec_,ievent_,itime_;
+  int irun_,ilumisec_,ievent_,itime_,ibunch_;
   bool actonLS_ ;
   std::string rootFolder_;
 
@@ -169,18 +170,22 @@ public:
   MonitorElement* meTrigger_;
   MonitorElement* meLatency_;
   MonitorElement* meQuality_;
-  ////--- define ReportSummaryMap
-  MonitorElement* reportSummaryMap_;
+  MonitorElement* CastorEventProduct;
   
   ////---- define monitors
   CastorMonitorSelector*    evtSel_;
   CastorRecHitMonitor*      RecHitMon_;
-  CastorRecHitsValidation*  RecHitMonValid_;
-  CastorPedestalMonitor*    PedMon_;
+  CastorChannelQualityMonitor*  CQMon_;
+  CastorDigiMonitor*        DigiMon_;
   CastorLEDMonitor*         LedMon_;
+  CastorPSMonitor*          PSMon_;
   
+
   edm::ESHandle<CastorDbService> conditions_;
   const CastorElectronicsMap*    readoutMap_;
+
+  vector<HcalGenericDetId> listEMap; //electronics Emap
+
 
   ofstream m_logFile;
 

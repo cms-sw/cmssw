@@ -23,10 +23,15 @@ private:
 
   ////---- define Monitoring elements
   struct{
-    MonitorElement* meRECHIT_E_all     ; //-- energy of all hits 
-    MonitorElement* meRECHIT_T_all     ; //-- time of all hits
-    MonitorElement* meRECHIT_MAP_CHAN_E; //-- energy vs channel plot
-
+    MonitorElement* meRECHIT_E_all     ;   //-- energy of all hits 
+    MonitorElement* meRECHIT_T_all     ;   //-- time of all hits
+    MonitorElement* meRECHIT_MAP_CHAN_E;   //-- energy vs channel plot
+    MonitorElement* meRECHIT_MAP_CHAN_E2D; //-- 2D energy map 
+    MonitorElement* meRECHIT_E_modules;    //-- energy in modules
+    MonitorElement* meRECHIT_E_sectors;    //-- energy in sectors 
+    MonitorElement* meRECHIT_N_modules;    //-- number of rechits in modules
+    MonitorElement* meRECHIT_N_sectors;    //-- number of rechits in sectors 
+    MonitorElement* meCastorRecHitsOccupancy; //-- occupancy plot
     std::map<HcalCastorDetId, MonitorElement*> meRECHIT_E, meRECHIT_T;  //-- complicated per-channel histogram setup
   } castorHists ;
 

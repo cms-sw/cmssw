@@ -1,15 +1,17 @@
 #include <DQM/CastorMonitor/interface/CastorMonitorModule.h>
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 
 //**************************************************************//
 //***************** CastorMonitorModule       ******************//
 //***************** Author: Dmytro Volyanskyy ******************//
 //***************** Date  : 22.11.2008 (first version) *********// 
 //**************************************************************//
-///// Simple event filter which directs events to monitoring tasks: 
-///// Access unpacked data from each event and pass them to monitoring tasks 
-
+////---- simple event filter which directs events to monitoring tasks: 
+////---- access unpacked data from each event and pass them to monitoring tasks 
+////---- last revision: 05.03.2010 
 
 //==================================================================//
 //======================= Constructor ==============================//
@@ -30,6 +32,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   ilumisec_=0; 
   ievent_=0; 
   itime_=0;
+  ibunch_=0;
   actonLS_=false;
 
   meStatus_=0;  meRunType_=0;
@@ -37,10 +40,11 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   meLatency_=0; meQuality_=0;
   fedsListed_ = false;
 
-  RecHitMon_ = NULL;  RecHitMonValid_ = NULL;  
-  PedMon_ = NULL; 
+  RecHitMon_ = NULL; 
+  DigiMon_ = NULL; 
   LedMon_ = NULL;    
-
+  PSMon_ = NULL;    
+  CQMon_ = NULL;  
 
  ////---- get DQMStore service  
   dbe_ = Service<DQMStore>().operator->();
@@ -49,11 +53,11 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   evtSel_ = new CastorMonitorSelector(ps);
 
  
- //---------------------- PedestalMonitor ----------------------// 
-  if ( ps.getUntrackedParameter<bool>("PedestalMonitor", false) ) {
-    if(fVerbosity>0) cout << "CastorMonitorModule: Pedestal monitor flag is on...." << endl;
-    PedMon_ = new CastorPedestalMonitor();
-    PedMon_->setup(ps, dbe_);
+ //---------------------- DigiMonitor ----------------------// 
+  if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) ) {
+    if(fVerbosity>0) cout << "CastorMonitorModule: Digi monitor flag is on...." << endl;
+    DigiMon_ = new CastorDigiMonitor();
+    DigiMon_->setup(ps, dbe_);
   }
  //------------------------------------------------------------//
 
@@ -65,15 +69,13 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   }
  //-------------------------------------------------------------//
  
-////-------------------- RecHitMonitorValid ------------------------// 
-  if ( ps.getUntrackedParameter<bool>("RecHitMonitorValid", false) ) {
-    if(fVerbosity>0) cout << "CastorMonitorModule: RecHitValid monitor flag is on...." << endl;
-    RecHitMonValid_ = new CastorRecHitsValidation();
-    RecHitMonValid_->setup(ps, dbe_);
+////-------------------- ChannelQualityMonitor ------------------------// 
+  if ( ps.getUntrackedParameter<bool>("ChannelQualityMonitor", false) ) {
+    if(fVerbosity>0) cout << "CastorChannelQualityMonitor: CQ monitor flag is on...." << endl;
+    CQMon_ = new CastorChannelQualityMonitor();
+    CQMon_->setup(ps, dbe_);
   }
  //-------------------------------------------------------------//
-
-
 
   ////-------------------- LEDMonitor ------------------------// 
   if ( ps.getUntrackedParameter<bool>("LEDMonitor", false) ) {
@@ -82,8 +84,17 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
     LedMon_->setup(ps, dbe_);
   }
  //-------------------------------------------------------------//
+ 
+ //---------------------- PSMonitor ----------------------// 
+  if ( ps.getUntrackedParameter<bool>("PSMonitor", false) ) {
+    if(fVerbosity>0) cout << "CastorMonitorModule: PS monitor flag is on...." << endl;
+    PSMon_ = new CastorPSMonitor();
+    PSMon_->setup(ps, dbe_);
+  }
+ //------------------------------------------------------------//
 
-   ////---- ADD OTHER MONITORS HERE !!!!!!!!!!!!
+
+   ////---- ADD OTHER MONITORS HERE !!!
   
   ////---- get steerable variables
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
@@ -109,7 +120,6 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   }
 
 
-
   gettimeofday(&psTime_.updateTV,NULL);
   ////---- get time in milliseconds, convert to minutes
   psTime_.updateTime = (psTime_.updateTV.tv_sec*1000.0+psTime_.updateTV.tv_usec/1000.0);
@@ -128,14 +138,15 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
 CastorMonitorModule::~CastorMonitorModule(){
   
 // if (dbe_){    
-//   if(PedMon_!=NULL)     {  PedMon_->clearME();}
+//   if(DigiMon_!=NULL)     {  DigiMon_->clearME();}
 //   if(RecHitMon_!=NULL)  {  RecHitMon_->clearME();}
 //   if(LedMon_!=NULL)     {  LedMon_->clearME();}
+//   if(PSMon_!=NULL)     {  LedMon_->clearME();}
 //   dbe_->setCurrentFolder(rootFolder_);
 //   dbe_->removeContents();
 // }
 //
-//  if(PedMon_!=NULL)    { delete PedMon_;   PedMon_=NULL;     }
+//  if(DigiMon_!=NULL)    { delete DigiMon_;   DigiMon_=NULL;     }
 //  if(RecHitMon_!=NULL) { delete RecHitMon_; RecHitMon_=NULL; }
 //  if(LedMon_!=NULL)    { delete LedMon_;   LedMon_=NULL;     }
 //  delete evtSel_; evtSel_ = NULL;
@@ -154,18 +165,19 @@ void CastorMonitorModule::beginJob(){
 
   if ( dbe_ != NULL ){
   
-     ////---- create ReportSummary Map (put it here for the time being 
+
+     ////---- create EventProduct histogram
     dbe_->setCurrentFolder(rootFolder_+"EventInfo");
-    reportSummaryMap_=dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,1,0,1);
-    TH2F* myReportSummary=reportSummaryMap_->getTH2F();
-    myReportSummary->GetXaxis()->SetBinLabel(1,"RawData");
-    myReportSummary->GetXaxis()->SetBinLabel(2,"CastorDigi");
-    myReportSummary->GetXaxis()->SetBinLabel(3,"CastorRecHits");
-    myReportSummary->GetYaxis()->SetBinLabel(1,"Status");
-    myReportSummary->SetBinContent(1,1,-1);
-    myReportSummary->SetBinContent(2,1,-1);
-    myReportSummary->SetBinContent(3,1,-1);
-    myReportSummary->SetOption("textcolz");
+    CastorEventProduct =dbe_->book2D("CastorEventProduct","CastorEventProduct",3,0,3,1,0,1);
+    TH2F* hCastorEventProduct =CastorEventProduct->getTH2F();
+    hCastorEventProduct->GetXaxis()->SetBinLabel(1,"RawData");
+    hCastorEventProduct->GetXaxis()->SetBinLabel(2,"CastorDigi");
+    hCastorEventProduct->GetXaxis()->SetBinLabel(3,"CastorRecHits");
+    hCastorEventProduct->GetYaxis()->SetBinLabel(1,"Status");
+    hCastorEventProduct->SetBinContent(1,1,-1);
+    hCastorEventProduct->SetBinContent(2,1,-1);
+    hCastorEventProduct->SetBinContent(3,1,-1);
+    hCastorEventProduct->SetOption("textcolz");
 
 
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
@@ -184,85 +196,9 @@ void CastorMonitorModule::beginJob(){
     meCASTOR_->Fill(0); 
     }
   else{
-  if(fVerbosity>0) cout << "CastorMonitorModule::beginJob - NO DQMStore service" << endl; 
- }
-  /*
-  ////  (NO "CastorDbRecord" record found in the EventSetup)
-  ////---- get Castor Readout Map from the DB 
-  edm::ESHandle<CastorDbService> pSetup;
-  c.get<CastorDbRecord>().get( pSetup );
-  readoutMap_=pSetup->getCastorMapping();
-  DetId detid_;
-  HcalCastorDetId CastorDetID_; 
-
-  if(fVerbosity>0) cout << "CastorMonitorModule::beginJob 6" << endl; 
+    if(fVerbosity>0) cout << "CastorMonitorModule::beginJob - NO DQMStore service" << endl; 
+  }
  
-  ////---- build a map of readout hardware unit to calorimeter channel
-  std::vector <CastorElectronicsId> AllElIds = readoutMap_->allElectronicsIdPrecision();
-  int dccid;
-  pair <int,int> dcc_spgt;
-  ////---- by looping over all precision (non-trigger) items
-  for (std::vector <CastorElectronicsId>::iterator eid = AllElIds.begin();
-       eid != AllElIds.end(); eid++) 
-  {
-    ////---- get the HcalCastorDetId from the CastorElectronicsId
-    detid_ = readoutMap_->lookup(*eid); 
-
-  if(fVerbosity>0) cout << "CastorMonitorModule::beginJob (within loop)" << endl; 
-
-    ////---- NULL if illegal; ignore
-    if (!detid_.null()) {
-      try {
-	CastorDetID_ = HcalCastorDetId(detid_);
-
-	dccid = eid->dccid();
-	dcc_spgt = pair <int,int> (dccid, eid->spigot());
-      
-	thisDCC = DCCtoCell.find(dccid);
-	thisHTR = HTRtoCell.find(dcc_spgt);
-      
-	////---- if this DCC has no entries, make this its first one
-	if (thisDCC == DCCtoCell.end()) {
-	  std::vector <HcalCastorDetId> tempv;
-	  tempv.push_back(CastorDetID_);
-	  pair <int, std::vector<HcalCastorDetId> > thispair;
-	  thispair = pair <int, std::vector<HcalCastorDetId> > (dccid,tempv);
-	  DCCtoCell.insert(thispair); 
-	}
-	else {
-	  thisDCC->second.push_back(CastorDetID_);
-	}
-      
-	////---- if this HTR has no entries, make this its first one
-	if (thisHTR == HTRtoCell.end()) {
-	  std::vector <HcalCastorDetId> tempv;
-	  tempv.push_back(CastorDetID_);
-	  pair < pair <int,int>, std::vector<HcalCastorDetId> > thispair;
-	  thispair = pair <pair <int,int>, std::vector<HcalCastorDetId> > (dcc_spgt,tempv);
-	  HTRtoCell.insert(thispair); 
-	}
-	else {
-	  thisHTR->second.push_back(CastorDetID_);	
-	}
-
-      } 
-      catch (...) { }
-    }
-  } 
-
-  ////---- get conditions form the Castor DB
-  c.get<CastorDbRecord>().get(conditions_);
-
-  ////---- fill reference pedestals with database values
-   if (PedMon_!=NULL)
-  //////////////  PedMon_->fillDBValues(*conditions_); //FIX 
-
-  
-  edm::ESHandle<CastorChannelQuality> p;
-  //// c.get<CastorChannelQualityRcd>().get(p);     //FIX
-  //// chanquality_= new CastorChannelQuality(*p.product());
- 
-   */
  if(fVerbosity>0) cout << "CastorMonitorModule::beginJob (end)" << endl;
 
   return;
@@ -272,9 +208,15 @@ void CastorMonitorModule::beginJob(){
 //=================================================================//
 //========================== beginRun =============================//
 //================================================================//
-void CastorMonitorModule::beginRun(const edm::Run& run, const edm::EventSetup& c) {
+void CastorMonitorModule::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+
   fedsListed_ = false;
   reset();
+
+  //--- get Castor Conditions at the begiining of each new run
+  iSetup.get<CastorDbRecord>().get(conditions_);
+  
+  return;
 }
 
 //=================================================================//
@@ -306,7 +248,7 @@ void CastorMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& conte
 {
   if (fVerbosity>0)  cout <<"CastorMonitorModule::endRun(...) "<<endl;
   ////--- do final pedestal histogram filling
-  if (PedMon_!=NULL) //************ PedMon_->fillPedestalHistos(); //FIX
+  if (DigiMon_!=NULL) //************ DigiMon_->fillPedestalHistos(); //FIX
   return;
 }
 
@@ -317,51 +259,15 @@ void CastorMonitorModule::endJob(void) {
   if ( meStatus_ ) meStatus_->Fill(2);
 
   if(RecHitMon_!=NULL) RecHitMon_->done();
-  if(PedMon_!=NULL) PedMon_->done();
+  if(DigiMon_!=NULL) DigiMon_->done();
   if(LedMon_!=NULL) LedMon_->done();
-  if(RecHitMonValid_!=NULL) RecHitMonValid_->done();
+  if(CQMon_!=NULL) CQMon_->done();
+   if(PSMon_!=NULL) PSMon_->done();
   
-  
-  /* FIX
+  /* LEAVE IT OUT FOR THE MOMENT
   // TO DUMP THE OUTPUT TO DATABASE FILE
-  if (dump2database_)
-    {
-      std::vector<DetId> mydetids = chanquality_->getAllChannels();
-      CastorChannelQuality* newChanQual = new CastorChannelQuality();
-      for (unsigned int i=0;i<mydetids.size();++i)
-	{
-	  if (mydetids[i].det()!=4) continue; // not hcal
-	  //HcalCastorDetId id(mydetids[i]);
-	  HcalCastorDetId id=mydetids[i];
-	  // get original channel status item
-	  const CastorChannelStatus* origstatus=chanquality_->getValues(mydetids[i]);
-	  // make copy of status
-	  CastorChannelStatus* mystatus=new CastorChannelStatus(origstatus->rawId(),origstatus->getValue());
-	  if (myquality_.find(id)!=myquality_.end())
-	    {
-
-	      // check dead cells
-	      if ((myquality_[id]>>5)&0x1)
-		  mystatus->setBit(5);
-	      else
-		mystatus->unsetBit(5);
-	      // check hot cells
-	      if ((myquality_[id]>>6)&0x1)
-		mystatus->setBit(6);
-	      else
-		mystatus->unsetBit(6);
-	    }
-	  newChanQual->addValues(*mystatus);
-	} // for (unsigned int i=0;...)
-      // Now dump out to text file
-      std::ostringstream file;
-      file <<"CastorDQMstatus_"<<irun_<<".txt";
-      std::ofstream outStream(file.str().c_str());
-      CastorDbASCIIIO::dumpObject (outStream, (*newChanQual));
-      
-      //std::ofstream dumb("orig.txt");
-      //CastorDbASCIIIO::dumpObject (dumb,(*chanquality_));
-      
+  if (dump2database_){
+    
     } 
   */
   return;
@@ -373,37 +279,45 @@ void CastorMonitorModule::endJob(void) {
 //=================================================================//
 void CastorMonitorModule::reset(){
 
-  if(PedMon_!=NULL)       PedMon_->reset();
-  if(RecHitMon_!=NULL)    RecHitMon_->reset();
-  if(LedMon_!=NULL)     LedMon_->reset();
-  if(RecHitMonValid_!=NULL) RecHitMonValid_->reset();
+  if(DigiMon_!=NULL)     DigiMon_->reset();
+  if(RecHitMon_!=NULL)   RecHitMon_->reset();
+  if(LedMon_!=NULL)      LedMon_->reset();
+  if(CQMon_!=NULL)       CQMon_->reset();
+  if(PSMon_!=NULL)       PSMon_->reset();
+
 }
 
 
 //=================================================================//
 //========================== analyze  ===============================//
 //=================================================================//
-void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
+void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup){
 
-  // environment datamembers
-  irun_     = e.id().run();
-  ilumisec_ = e.luminosityBlock();
-  ievent_   = e.id().event();
-  itime_    = e.time().value();
+  using namespace edm;
+
+  ////---- environment datamembers
+  irun_     = iEvent.id().run();
+  ilumisec_ = iEvent.luminosityBlock();
+  ievent_   = iEvent.id().event();
+  itime_    = iEvent.time().value();
+  ibunch_   = iEvent.bunchCrossing();
+
 
   if (fVerbosity>0) { 
   cout << "==> CastorMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << endl;
   cout << " evt: " << ievent_ << ", time: " << itime_  <<"\t counter = "<< ievt_pre_<< "\t total count = "<<ievt_<<endl; 
   }
 
-  // skip this event if we're prescaling...
+  ////---- event counter
+  ievt_++;
+
+  ////---- skip this event if we're prescaling...
   ievt_pre_++; // need to increment counter before calling prescale
   if(prescale()) return;
 
-  meLatency_->Fill(psTime_.elapsedTime);
 
-  // Do default setup...
-  ievt_++;
+  meLatency_->Fill(psTime_.elapsedTime);
+ 
 
   int evtMask=DO_CASTOR_RECHITMON|DO_CASTOR_PED_CALIBMON; 
  // add in DO_HCAL_TPMON, DO_HCAL_CTMON ?(in CastorMonitorSelector.h)
@@ -430,7 +344,7 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   edm::Handle<FEDRawDataCollection> RawData;  
  
   try{
-    e.getByType(RawData);
+    iEvent.getByType(RawData);
   }
   catch(...)
     {
@@ -440,13 +354,10 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
     rawOK_=false;
   }
   
- 
-  //--- MY_DEBUG put it for now
-  //HcalUnpackerReport * report = new HcalUnpackerReport();
   
   edm::Handle<HcalUnpackerReport> report;  
   try{
-    e.getByType(report);
+    iEvent.getByType(report);
   }
   catch(...)
     {
@@ -472,11 +383,10 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   //-------------------  try to get digis ------------------------//
   //---------------------------------------------------------------//
 
-
   edm::Handle<CastorDigiCollection> CastorDigi;
 
   try{
-      e.getByLabel(inputLabelDigi_,CastorDigi);
+      iEvent.getByLabel(inputLabelDigi_,CastorDigi);
     }
   catch(...) {
       digiOK_=false;
@@ -488,7 +398,7 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   
 
   
-  // MY_DEBUG
+  ////---- LEAVE IT OUT FOR THE MOMENT
   ////---- check that Castor is on by seeing which are reading out FED data
   //if ( checkCASTOR_ )
   //  CheckCastorStatus(*RawData,*report,*readoutMap_,*CastorDigi);
@@ -500,7 +410,7 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   edm::Handle<CastorRecHitCollection> CastorHits;
 
   try{
-  e.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
+  iEvent.getByLabel(inputLabelRecHitCASTOR_,CastorHits);
   }
   catch(...) {
   rechitOK_=false;
@@ -511,16 +421,16 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   }
 
 
-  //---------- fill reportSummaryMap every 100 events
- if(ievt_%100 == 0) {
+  ////---- fill CastorEventProduct every 10 events
+ if(ievt_%10 == 0) {
    cout << "    RAW Data   ==> " << rawOK_<< endl;
    cout << "    Digis      ==> " << digiOK_<< endl;
    cout << "    RecHits    ==> " << rechitOK_<< endl;
 
-  TH2F* myReportSummary_=reportSummaryMap_->getTH2F();
-  myReportSummary_->SetBinContent(1,1,int(rawOK_));
-  myReportSummary_->SetBinContent(2,1,int(digiOK_));
-  myReportSummary_->SetBinContent(3,1,int(rechitOK_));
+  TH2F* hCastorEventProduct=CastorEventProduct->getTH2F();
+  hCastorEventProduct->SetBinContent(1,1,int(rawOK_));
+  hCastorEventProduct->SetBinContent(2,1,int(digiOK_));
+  hCastorEventProduct->SetBinContent(3,1,int(rechitOK_));
  }
 
   //------------------------------------------------------------//
@@ -528,24 +438,16 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
   //-------------- protect against missing products -----------//
   //-----------------------------------------------------------//
 
-  if (showTiming_)
-    {
+ if (showTiming_){
       cpu_timer.reset(); cpu_timer.start();
-    }
+  }
 
-
-
-  //----------------- Pedestal monitor task ------------------//
-  // MY_DEBUG
-  // if((PedMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
-  
-  if(digiOK_)
-  PedMon_->processEvent(*CastorDigi,*conditions_);
-    
-  if (showTiming_)
-    {
+  //----------------- Digi monitor task ------------------//
+  // if((DigiMon_!=NULL) && (evtMask&DO_CASTOR_PED_CALIBMON) && digiOK_) 
+  if(digiOK_) DigiMon_->processEvent(*CastorDigi,*conditions_);
+  if (showTiming_){
       cpu_timer.stop();
-      if (PedMon_!=NULL) cout <<"TIMER:: PEDESTAL MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      if (DigiMon_!=NULL) cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -553,38 +455,59 @@ void CastorMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& ev
 
  //----------------- Rec Hit monitor task -------------------------//
   //  if((RecHitMon_ != NULL) && (evtMask&DO_CASTOR_RECHITMON) && rechitOK_) 
-
- if(rechitOK_)
-    RecHitMon_->processEvent(*CastorHits);
-  if (showTiming_){
+ if(rechitOK_) RecHitMon_->processEvent(*CastorHits);
+ if (showTiming_){
       cpu_timer.stop();
       if (RecHitMon_!=NULL) cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
       cpu_timer.reset(); cpu_timer.start();
     }
+ 
 
-  
-   //----------------- Rec HitMonValid -------------------------//
-    if(rechitOK_)
-      RecHitMonValid_->processEvent(*CastorHits);
-    
-
+   //----------------- Channel Quality Monitor task -------------------------//
+ if(rechitOK_) CQMon_->processEvent(*CastorHits);
+ if (showTiming_){
+      cpu_timer.stop();
+      if (CQMon_!=NULL) cout <<"TIMER:: CHANNELQUALITY MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+ 
+ 
   //---------------- LED monitor task ------------------------//
   //  if((LedMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
-  if(digiOK_)
-     LedMon_->processEvent(*CastorDigi,*conditions_);
-   if (showTiming_)
-     {
+  if(digiOK_) LedMon_->processEvent(*CastorDigi,*conditions_);
+   if (showTiming_){
        cpu_timer.stop();
        if (LedMon_!=NULL) cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<endl;
        cpu_timer.reset(); cpu_timer.start();
      }
+   
+ //---------------- Pulse Shape monitor task ------------------------//
+ ////---- get electronics map
+  edm::ESHandle<CastorElectronicsMap> refEMap;
+  eventSetup.get<CastorElectronicsMapRcd>().get(refEMap);
+  const CastorElectronicsMap* myRefEMap = refEMap.product();
+  listEMap = myRefEMap->allPrecisionId();
+
+ if(digiOK_) PSMon_->processEvent(*CastorDigi,*conditions_, listEMap, ibunch_);  
+  if (showTiming_) {
+      cpu_timer.stop();
+      if (PSMon_!=NULL) cout <<"TIMER:: PULSE SHAPE  ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
   
+
+
+
 
   if(fVerbosity>0 && ievt_%100 == 0)
     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
   
   return;
 }
+
+
+
+
 //=====================================================================//
 //========================== prescale  ===============================//
 //===================================================================//
