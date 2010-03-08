@@ -42,23 +42,23 @@ class JPTJet : public Jet {
          mSumPtOfChargedWithoutEff (0),
          mSumEnergyOfChargedWithEff (0),
          mSumEnergyOfChargedWithoutEff (0),
-         R2mom_tr (0),
-         Eta2mom_tr (0),
-         Phi2mom_tr (0),
-         P_out (0),
-         Z_ch (0)
+         R2momtr (0),
+         Eta2momtr (0),
+         Phi2momtr (0),
+         Pout (0),
+         Zch (0)
     {}
     float mZSPCor;
     edm::RefToBase<reco::Jet> theCaloJetRef;    
-    reco::TrackRefVector pions_inVertexInCalo;
-    reco::TrackRefVector pions_inVertexOutCalo;
-    reco::TrackRefVector pions_OutVertexInCalo;
-    reco::TrackRefVector muons_inVertexInCalo;
-    reco::TrackRefVector muons_inVertexOutCalo;
-    reco::TrackRefVector muons_OutVertexInCalo;
-    reco::TrackRefVector elecs_inVertexInCalo;
-    reco::TrackRefVector elecs_inVertexOutCalo;
-    reco::TrackRefVector elecs_OutVertexInCalo;
+    reco::TrackRefVector pionsInVertexInCalo;
+    reco::TrackRefVector pionsInVertexOutCalo;
+    reco::TrackRefVector pionsOutVertexInCalo;
+    reco::TrackRefVector muonsInVertexInCalo;
+    reco::TrackRefVector muonsInVertexOutCalo;
+    reco::TrackRefVector muonsOutVertexInCalo;
+    reco::TrackRefVector elecsInVertexInCalo;
+    reco::TrackRefVector elecsInVertexOutCalo;
+    reco::TrackRefVector elecsOutVertexInCalo;
     float mChargedHadronEnergy;
     float mNeutralHadronEnergy;
     float mChargedEmEnergy;
@@ -69,11 +69,11 @@ class JPTJet : public Jet {
     float  mSumPtOfChargedWithoutEff;
     float  mSumEnergyOfChargedWithEff;
     float  mSumEnergyOfChargedWithoutEff;
-    float R2mom_tr;
-    float Eta2mom_tr;
-    float Phi2mom_tr;
-    float P_out;
-    float Z_ch;
+    float R2momtr;
+    float Eta2momtr;
+    float Phi2momtr;
+    float Pout;
+    float Zch;
  };
    
   /** Default constructor*/
@@ -89,49 +89,48 @@ class JPTJet : public Jet {
 
 
   /// chargedHadronEnergy 
-  float chargedHadronEnergy () const {return m_specific.mChargedHadronEnergy;}
+  float chargedHadronEnergy () const {return mspecific.mChargedHadronEnergy;}
   ///  chargedHadronEnergyFraction
   float  chargedHadronEnergyFraction () const {return chargedHadronEnergy () / energy ();}
   /// neutralHadronEnergy
-  float neutralHadronEnergy () const {return m_specific.mNeutralHadronEnergy;}
+  float neutralHadronEnergy () const {return mspecific.mNeutralHadronEnergy;}
   /// neutralHadronEnergyFraction
   float neutralHadronEnergyFraction () const {return neutralHadronEnergy () / energy ();}
   /// chargedEmEnergy
-  float chargedEmEnergy () const {return m_specific.mChargedEmEnergy;}
+  float chargedEmEnergy () const {return mspecific.mChargedEmEnergy;}
   /// chargedEmEnergyFraction
   float chargedEmEnergyFraction () const {return chargedEmEnergy () / energy ();}
   /// neutralEmEnergy
-  float neutralEmEnergy () const {return m_specific.mNeutralEmEnergy;}
+  float neutralEmEnergy () const {return mspecific.mNeutralEmEnergy;}
   /// neutralEmEnergyFraction
   float neutralEmEnergyFraction () const {return neutralEmEnergy () / energy ();}
   /// chargedMultiplicity
-  int chargedMultiplicity () const {return m_specific.muons_inVertexInCalo.size()+m_specific.muons_inVertexOutCalo.size()+
-                                           m_specific.pions_inVertexInCalo.size()+m_specific.pions_inVertexOutCalo.size()+
-					   m_specific.elecs_inVertexInCalo.size()+m_specific.elecs_inVertexOutCalo.size();}
+  int chargedMultiplicity () const {return mspecific.muonsInVertexInCalo.size()+mspecific.muonsInVertexOutCalo.size()+
+                                           mspecific.pionsInVertexInCalo.size()+mspecific.pionsInVertexOutCalo.size()+
+					   mspecific.elecsInVertexInCalo.size()+mspecific.elecsInVertexOutCalo.size();}
   /// muonMultiplicity
-  int muonMultiplicity () const {return m_specific.muons_inVertexInCalo.size()+m_specific.muons_inVertexOutCalo.size();}
+  int muonMultiplicity () const {return mspecific.muonsInVertexInCalo.size()+mspecific.muonsInVertexOutCalo.size();}
   /// elecMultiplicity
-  int elecMultiplicity () const {return m_specific.elecs_inVertexInCalo.size()+m_specific.elecs_inVertexOutCalo.size();}
+  int elecMultiplicity () const {return mspecific.elecsInVertexInCalo.size()+mspecific.elecsInVertexOutCalo.size();}
   /// Tracks   
-  const reco::TrackRefVector& getPions_inVertexInCalo() const{return m_specific.pions_inVertexInCalo;}
-  const reco::TrackRefVector& getPions_inVertexOutCalo() const{return m_specific.pions_inVertexOutCalo;}
-  const reco::TrackRefVector& getPions_OutVertexInCalo() const{return m_specific.pions_OutVertexInCalo;}
-  const reco::TrackRefVector& getMuons_inVertexInCalo() const{return m_specific.muons_inVertexInCalo;}
-  const reco::TrackRefVector& getMuons_inVertexOutCalo() const{return m_specific.muons_inVertexOutCalo;}
-  const reco::TrackRefVector& getMuons_OutVertexInCalo() const{return m_specific.muons_OutVertexInCalo;}
-  const reco::TrackRefVector& getElecs_inVertexInCalo() const{return m_specific.elecs_inVertexInCalo;}
-  const reco::TrackRefVector& getElecs_inVertexOutCalo() const{return m_specific.elecs_inVertexOutCalo;}
-  const reco::TrackRefVector& getElecs_OutVertexInCalo() const{return m_specific.elecs_OutVertexInCalo;}
+  const reco::TrackRefVector& getPionsInVertexInCalo() const{return mspecific.pionsInVertexInCalo;}
+  const reco::TrackRefVector& getPionsInVertexOutCalo() const{return mspecific.pionsInVertexOutCalo;}
+  const reco::TrackRefVector& getPionsOutVertexInCalo() const{return mspecific.pionsOutVertexInCalo;}
+  const reco::TrackRefVector& getMuonsInVertexInCalo() const{return mspecific.muonsInVertexInCalo;}
+  const reco::TrackRefVector& getMuonsInVertexOutCalo() const{return mspecific.muonsInVertexOutCalo;}
+  const reco::TrackRefVector& getMuonsOutVertexInCalo() const{return mspecific.muonsOutVertexInCalo;}
+  const reco::TrackRefVector& getElecsInVertexInCalo() const{return mspecific.elecsInVertexInCalo;}
+  const reco::TrackRefVector& getElecsInVertexOutCalo() const{return mspecific.elecsInVertexOutCalo;}
+  const reco::TrackRefVector& getElecsOutVertexInCalo() const{return mspecific.elecsOutVertexInCalo;}
   
 
   
-  const float& getZSPCor() const {return m_specific.mZSPCor;} 
+  const float& getZSPCor() const {return mspecific.mZSPCor;} 
 
-//  const edm::RefToBase<reco::CaloJet>& getCaloJetRef() {return m_specific.theCaloJetRef;}
-  const edm::RefToBase<reco::Jet>& getCaloJetRef() const {return m_specific.theCaloJetRef;}
+  const edm::RefToBase<reco::Jet>& getCaloJetRef() const {return mspecific.theCaloJetRef;}
   /// block accessors
   
-  const Specific& getSpecific () const {return m_specific;}
+  const Specific& getSpecific () const {return mspecific;}
   
   /// Polymorphic clone
   virtual JPTJet* clone () const;
@@ -147,7 +146,7 @@ class JPTJet : public Jet {
   
   //Variables specific to to the JPTJet class
  
-  Specific m_specific;
+  Specific mspecific;
   //reco::CaloJetRef theCaloJetRef;
 };
 

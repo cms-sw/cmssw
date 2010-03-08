@@ -1,6 +1,6 @@
 // JPTJet.cc
 // Fedor Ratnikov UMd
-// $Id: JPTJet.cc,v 1.22 2009/04/16 20:04:20 srappocc Exp $
+// $Id: JPTJet.cc,v 1.1 2010/03/04 13:16:36 kodolova Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -15,14 +15,14 @@ JPTJet::JPTJet (const LorentzVector& fP4, const Point& fVertex,
 		const Specific& fSpecific, const Jet::Constituents& fConstituents 
 		)
   : Jet (fP4, fVertex),
-    m_specific (fSpecific)
+    mspecific (fSpecific)
 {}
 
 JPTJet::JPTJet (const LorentzVector& fP4, 
 		const Specific& fSpecific, const Jet::Constituents& fConstituents 
 		)
   : Jet (fP4, Point(0,0,0)),
-    m_specific (fSpecific)
+    mspecific (fSpecific)
 {}
 
 
@@ -41,9 +41,9 @@ void JPTJet::printJet () const {
       << "      chargedhadrons energy: " << chargedHadronEnergy () << std::endl
       << "      charged multiplicity: " << chargedMultiplicity () << std::endl;
   std::cout << "      JPTCandidate constituents:" << std::endl;
-  std::cout<< " Number of pions: "<< getPions_inVertexInCalo().size()+getPions_inVertexOutCalo().size()<<std::endl;
-  std::cout<< " Number of muons: "<< getMuons_inVertexInCalo().size()+getMuons_inVertexOutCalo().size()<<std::endl;
-  std::cout<< " Number of Electrons: "<< getElecs_inVertexInCalo().size()+getElecs_inVertexOutCalo().size()<<std::endl;
+  std::cout<< " Number of pions: "<< getPionsInVertexInCalo().size()+getPionsInVertexOutCalo().size()<<std::endl;
+  std::cout<< " Number of muons: "<< getMuonsInVertexInCalo().size()+getMuonsInVertexOutCalo().size()<<std::endl;
+  std::cout<< " Number of Electrons: "<< getElecsInVertexInCalo().size()+getElecsInVertexOutCalo().size()<<std::endl;
   
 }
 
@@ -55,9 +55,9 @@ std::string JPTJet::print () const {
       << "      charged: " << chargedMultiplicity () << std::endl;
   out << "      JPTCandidate constituents:" << std::endl;
 
-  out<< " Number of pions: "<< getPions_inVertexInCalo().size()+getPions_inVertexOutCalo().size()<<std::endl;
-  out<< " Number of muons: "<< getMuons_inVertexInCalo().size()+getMuons_inVertexOutCalo().size()<<std::endl;
-  out<< " Number of Electrons: "<< getElecs_inVertexInCalo().size()+getElecs_inVertexOutCalo().size()<<std::endl;
+  out<< " Number of pions: "<< getPionsInVertexInCalo().size()+getPionsInVertexOutCalo().size()<<std::endl;
+  out<< " Number of muons: "<< getMuonsInVertexInCalo().size()+getMuonsInVertexOutCalo().size()<<std::endl;
+  out<< " Number of Electrons: "<< getElecsInVertexInCalo().size()+getElecsInVertexOutCalo().size()<<std::endl;
   
   return out.str ();
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id$
+// $Id: JetPlusTrackProducerAA.cc,v 1.1 2010/03/04 13:12:36 kodolova Exp $
 //
 //
 
@@ -167,15 +167,15 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   reco::JPTJet::Specific specific;
 
   if(ok) {
-    specific.pions_inVertexInCalo = pions.inVertexInCalo_;
-    specific.pions_inVertexOutCalo = pions.inVertexOutOfCalo_;
-    specific.pions_OutVertexInCalo = pions.outOfVertexInCalo_;
-    specific.muons_inVertexInCalo = muons.inVertexInCalo_;
-    specific.muons_inVertexOutCalo = muons.inVertexOutOfCalo_;
-    specific.muons_OutVertexInCalo = muons.outOfVertexInCalo_;
-    specific.elecs_inVertexInCalo = elecs.inVertexInCalo_;
-    specific.elecs_inVertexOutCalo = elecs.inVertexOutOfCalo_;
-    specific.elecs_OutVertexInCalo = elecs.outOfVertexInCalo_;
+    specific.pionsInVertexInCalo = pions.inVertexInCalo_;
+    specific.pionsInVertexOutCalo = pions.inVertexOutOfCalo_;
+    specific.pionsOutVertexInCalo = pions.outOfVertexInCalo_;
+    specific.muonsInVertexInCalo = muons.inVertexInCalo_;
+    specific.muonsInVertexOutCalo = muons.inVertexOutOfCalo_;
+    specific.muonsOutVertexInCalo = muons.outOfVertexInCalo_;
+    specific.elecsInVertexInCalo = elecs.inVertexInCalo_;
+    specific.elecsInVertexOutCalo = elecs.inVertexOutOfCalo_;
+    specific.elecsOutVertexInCalo = elecs.outOfVertexInCalo_;
   }
 
 // Fill JPT Specific
@@ -190,12 +190,12 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     specific.mSumEnergyOfChargedWithoutEff = (float)mJPTalgo->getSumEnergyWithoutEff();
     specific.mChargedHadronEnergy = (float)mJPTalgo->getSumEnergyWithoutEff();
 // Fill Charged Jet shape parameters
-   double deR2_Tr = 0.;
-   double deEta2_Tr = 0.;
-   double dePhi2_Tr = 0.;
-   double Z_ch = 0.;
-   double P_out_2 = 0.;
-   double P_out = 0.;
+   double deR2Tr = 0.;
+   double deEta2Tr = 0.;
+   double dePhi2Tr = 0.;
+   double Zch = 0.;
+   double Pout2 = 0.;
+   double Pout = 0.;
    double denominator_tracks = 0.;
 
    for( reco::TrackRefVector::const_iterator it = pions.inVertexInCalo_.begin(); it != pions.inVertexInCalo_.end(); it++) {
@@ -203,14 +203,14 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     double deEta = (*it)->eta() - p4.eta();
     double dePhi = deltaPhi((*it)->phi(), p4.phi());
      if((**it).ptError()/(**it).pt() < 0.1) {
-       deR2_Tr   =  deR2_Tr + deR*deR*(*it)->pt();
-       deEta2_Tr = deEta2_Tr + deEta*deEta*(*it)->pt();
-       dePhi2_Tr = dePhi2_Tr + dePhi*dePhi*(*it)->pt();
+       deR2Tr   =  deR2Tr + deR*deR*(*it)->pt();
+       deEta2Tr = deEta2Tr + deEta*deEta*(*it)->pt();
+       dePhi2Tr = dePhi2Tr + dePhi*dePhi*(*it)->pt();
        denominator_tracks = denominator_tracks + (*it)->pt();
-       Z_ch    =
+       Zch    =
        ((*it)->px()*p4.Px()+(*it)->py()*p4.Py()+(*it)->pz()*p4.Pz())/(p4.P()*p4.P());
-       P_out_2 = (**it).p()*(**it).p() - (Z_ch*p4.P())*(Z_ch*p4.P());
-       P_out   = sqrt(fabs(P_out_2));
+       Pout2 = (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
+       Pout   = sqrt(fabs(Pout2));
      }
    }
    for( reco::TrackRefVector::const_iterator it = muons.inVertexInCalo_.begin(); it != muons.inVertexInCalo_.end(); it++) {
@@ -218,14 +218,14 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     double deEta = (*it)->eta() - p4.eta();
     double dePhi = deltaPhi((*it)->phi(), p4.phi());
      if((**it).ptError()/(**it).pt() < 0.1) {
-       deR2_Tr   =  deR2_Tr + deR*deR*(*it)->pt();
-       deEta2_Tr = deEta2_Tr + deEta*deEta*(*it)->pt();
-       dePhi2_Tr = dePhi2_Tr + dePhi*dePhi*(*it)->pt();
+       deR2Tr   =  deR2Tr + deR*deR*(*it)->pt();
+       deEta2Tr = deEta2Tr + deEta*deEta*(*it)->pt();
+       dePhi2Tr = dePhi2Tr + dePhi*dePhi*(*it)->pt();
        denominator_tracks = denominator_tracks + (*it)->pt();
-       Z_ch    =
+       Zch    =
        ((*it)->px()*p4.Px()+(*it)->py()*p4.Py()+(*it)->pz()*p4.Pz())/(p4.P()*p4.P());
-       P_out_2 = (**it).p()*(**it).p() - (Z_ch*p4.P())*(Z_ch*p4.P());
-       P_out   = sqrt(fabs(P_out_2));
+       Pout2 = (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
+       Pout   = sqrt(fabs(Pout2));
      }
    }
    for( reco::TrackRefVector::const_iterator it = elecs.inVertexInCalo_.begin(); it != elecs.inVertexInCalo_.end(); it++) {
@@ -233,28 +233,28 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     double deEta = (*it)->eta() - p4.eta();
     double dePhi = deltaPhi((*it)->phi(), p4.phi());
      if((**it).ptError()/(**it).pt() < 0.1) {
-       deR2_Tr   =  deR2_Tr + deR*deR*(*it)->pt();
-       deEta2_Tr = deEta2_Tr + deEta*deEta*(*it)->pt();
-       dePhi2_Tr = dePhi2_Tr + dePhi*dePhi*(*it)->pt();
+       deR2Tr   =  deR2Tr + deR*deR*(*it)->pt();
+       deEta2Tr = deEta2Tr + deEta*deEta*(*it)->pt();
+       dePhi2Tr = dePhi2Tr + dePhi*dePhi*(*it)->pt();
        denominator_tracks = denominator_tracks + (*it)->pt();
-       Z_ch    =
+       Zch    =
        ((*it)->px()*p4.Px()+(*it)->py()*p4.Py()+(*it)->pz()*p4.Pz())/(p4.P()*p4.P());
-       P_out_2 = (**it).p()*(**it).p() - (Z_ch*p4.P())*(Z_ch*p4.P());
-       P_out   = sqrt(fabs(P_out_2));
+       Pout2 = (**it).p()*(**it).p() - (Zch*p4.P())*(Zch*p4.P());
+       Pout   = sqrt(fabs(Pout2));
      }
    }
 
           if (denominator_tracks!=0){
-            deR2_Tr  = deR2_Tr/denominator_tracks;
-            deEta2_Tr= deEta2_Tr/denominator_tracks;
-            dePhi2_Tr= dePhi2_Tr/denominator_tracks;
+            deR2Tr  = deR2Tr/denominator_tracks;
+            deEta2Tr= deEta2Tr/denominator_tracks;
+            dePhi2Tr= dePhi2Tr/denominator_tracks;
           }
 
-      specific.R2mom_tr = deR2_Tr;
-      specific.Eta2mom_tr = deEta2_Tr;
-      specific.Phi2mom_tr = dePhi2_Tr;
-      specific.P_out = P_out;
-      specific.Z_ch = Z_ch;
+      specific.R2momtr = deR2Tr;
+      specific.Eta2momtr = deEta2Tr;
+      specific.Phi2momtr = dePhi2Tr;
+      specific.Pout = Pout;
+      specific.Zch = Zch;
 
 // Create JPT jet
 
