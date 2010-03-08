@@ -5,7 +5,7 @@
 //
 #include "RecoJets/JetPlusTracks/interface/ZSPJPTJetCorrector.h"
 #include "RecoJets/JetPlusTracks/interface/SimpleZSPJPTJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/SimpleL1OffsetCorrector.h"
+//#include "CondFormats/JetMETObjects/interface/SimpleL1OffsetCorrector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,7 @@ ZSPJPTJetCorrector::ZSPJPTJetCorrector (const edm::ParameterSet& fConfig) {
  for(vector<string>::iterator it=theFilesL1Offset.begin(); it != theFilesL1Offset.end(); it++) {
    std::string file="CondFormats/JetMETObjects/data/"+(*it)+".txt";
    edm::FileInPath f2(file);
-   mSimpleCorrectorOffset.push_back(new SimpleL1OffsetCorrector (f2.fullPath()));
+   mSimpleCorrectorOffset.push_back(new SimpleZSPJPTJetCorrector (f2.fullPath()));
  }
  }
 
@@ -57,8 +57,8 @@ double ZSPJPTJetCorrector::correction( const reco::Jet& fJet, const edm::Event& 
 
   if(iPU >= 0) {
     if(mSimpleCorrectorOffset.size()>0) {
-     b = mSimpleCorrectorOffset[nPU]->correctionEnEta (a*fJet.p4().E(), fJet.p4().Eta());
-    } 
+     b = mSimpleCorrectorOffset[nPU]->correctionPUEtEtaPhiP (fJet.p4().Pt(), fJet.p4().Eta(), fJet.p4().Phi(),fJet.p4().E());
+   } 
   }
    double c = a * b; 
    return c;

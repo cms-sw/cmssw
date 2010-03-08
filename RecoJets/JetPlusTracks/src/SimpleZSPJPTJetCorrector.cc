@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJetCorrector.cc,v 1.4 2009/11/24 13:45:19 kodolova Exp $
+// $Id: SimpleZSPJPTJetCorrector.cc,v 1.1 2010/03/04 13:12:02 kodolova Exp $
 //
 // ZSP Jet Corrector
 //
@@ -30,14 +30,14 @@ SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector ()
 
 SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector (const std::string& fDataFile) 
 {
-  mParameters = new SimpleJetCorrectorParameters (fDataFile);
+  mParameters = new JetCorrectorParameters (fDataFile,"");
 // Read parameters
  if (zspjpt::debug) {
   std::cout<<" Size of parameters as read by SimpleJetCorrectorParameters "<<mParameters->size()<<std::endl;
   for(int i = 0; i<mParameters->size(); i++){
    const std::vector<float> p = mParameters->record (i).parameters ();
     for(std::vector<float>::const_iterator j=p.begin(); j<p.end(); j++) {
-         std::cout<<" Parameter number "<<mParameters->record (i).etaMin()<<" "<<mParameters->record (i).etaMax()<<" "<<(*j)<<std::endl;
+         std::cout<<" Parameter number "<<mParameters->record (i).xMin(0)<<" "<<mParameters->record (i).xMax(0)<<" "<<(*j)<<std::endl;
      }
   }
  } // debug
@@ -58,7 +58,8 @@ double SimpleZSPJPTJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, d
   double factor = 1.;
 
 // Define Eta bin for parametrization 
-  int band = mParameters->bandIndex(eta);
+  std::vector<float> xx; xx.push_back(eta);
+  int band = mParameters->binIndex(xx);
 
   if(band < 0) return factor;
 
@@ -76,3 +77,32 @@ double SimpleZSPJPTJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, d
   
   return etnew/et;
 }
+
+double SimpleZSPJPTJetCorrector::correctionPUEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const {
+
+  double et=fEt;
+  double eta=fabs (fEta);
+  double factor = 1.;
+
+// Define Eta bin for parametrization 
+  std::vector<float> xx; xx.push_back(eta);
+  int band = mParameters->binIndex(xx);
+
+  if(band < 0) return factor;
+
+  const std::vector<float> p = mParameters->record (band).parameters ();
+
+  if (zspjpt::debug) {
+     cout<<" Et and eta of jet "<<et<<" "<<eta<<" bin "<<band<<std::endl;
+  }
+
+  double koef = (et-p[2])/et;
+  double etnew = et/koef;
+
+  if (zspjpt::debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+
+  return etnew/et;
+}
+
+
+
