@@ -6,6 +6,7 @@
 #include "TGraphAsymmErrors.h"
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
+#include "RooDataSet.h"
 
 class TagProbeFitter: public TGraphAsymmErrors{
   public:
@@ -73,6 +74,9 @@ class TagProbeFitter: public TGraphAsymmErrors{
 
   ///saves the distributions canvas
   void saveDistributionsPlot(RooWorkspace* w);
+
+  ///saves the efficiency plots
+  void saveEfficiencyPlots(RooDataSet& eff, std::string effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
 };
 
 #endif //TagProbeFitter_h
