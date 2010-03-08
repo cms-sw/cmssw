@@ -136,11 +136,11 @@ double Level1TriggerScalers::rateLS(unsigned long long counts,
   double rate;
   if (( runNumber >= firstShortLSRun ) || ( runNumber <= 1 ))
   {
-    rate = ((double)counts) / 93.24163832335329;
+    rate = ((double)counts) / 23.31040958083832;
   }
   else
   {
-    rate = ((double)counts) / 23.31040958083832;
+    rate = ((double)counts) / 93.24163832335329;
   }
   return(rate);
 }
