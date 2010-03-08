@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/01/13 10:59:35 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/03/04 09:15:37 $
+ *  $Revision: 1.28 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -1641,6 +1641,8 @@ void MuScleFitUtils::minimizeLikelihood()
     if( somethingtodo ) {
       stringstream iorderString;
       iorderString << iorder;
+      stringstream iLoopString;
+      iLoopString << loopCounter;
 
       for (int ipar=0; ipar<parnumber; ipar++) {
         if( parfix[ipar] == 1 ) continue;
@@ -1649,7 +1651,7 @@ void MuScleFitUtils::minimizeLikelihood()
         iparString << ipar+1;
         rmin.mncomd( ("scan "+iparString.str()).c_str(), ierror );
         if( ierror == 0 ) {
-          TCanvas * canvas = new TCanvas(("likelihoodCanvas_oder_"+iorderString.str()+"_par_"+iparString.str()).c_str(), ("likelihood_"+iparString.str()).c_str(), 1000, 800);
+          TCanvas * canvas = new TCanvas(("likelihoodCanvas_loop_"+iLoopString.str()+"_oder_"+iorderString.str()+"_par_"+iparString.str()).c_str(), ("likelihood_"+iparString.str()).c_str(), 1000, 800);
           canvas->cd();
           // arglis[0] = ipar;
           // rmin.mnexcm( "sca", arglis, 0, ierror );
