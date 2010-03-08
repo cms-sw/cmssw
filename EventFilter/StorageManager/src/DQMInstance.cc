@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.19 2010/03/04 17:00:33 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.20 2010/03/04 17:34:59 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <cstdio>
@@ -72,8 +72,8 @@ void DQMFolder::addObjects(std::vector<TObject *> toList)
       DQMObjectsMap::iterator pos = dqmObjects_.lower_bound(objectName);
       if ( pos == dqmObjects_.end() || (dqmObjects_.key_comp()(objectName, pos->first)) )
       {
-        pos = dqmObjects_.insert(pos, DQMFolder::DQMObjectsMap::value_type(objectName,
-            object->Clone(object->GetName())));
+        pos = dqmObjects_.insert(pos,
+          DQMFolder::DQMObjectsMap::value_type(objectName, object));
       }
       else
       {
@@ -83,14 +83,20 @@ void DQMFolder::addObjects(std::vector<TObject *> toList)
         {
           TProfile * newProfile    = static_cast<TProfile*>(object);
           TProfile * storedProfile = static_cast<TProfile*>(storedObject);
-        storedProfile->Add(newProfile);
+          if (newProfile->GetEntries() > 0)
+          {
+            storedProfile->Add(newProfile);
+          }
         }
         else if ( object->InheritsFrom("TH1") && 
           storedObject->InheritsFrom("TH1") )
         {
           TH1 * newHistogram    = static_cast<TH1*>(object);
           TH1 * storedHistogram = static_cast<TH1*>(storedObject);
-          storedHistogram->Add(newHistogram);
+          if (newHistogram->GetEntries() > 0)
+          {
+            storedHistogram->Add(newHistogram);
+          }
         }
         else
         {
@@ -101,8 +107,8 @@ void DQMFolder::addObjects(std::vector<TObject *> toList)
           //delete(storedObject);
           //folder->dqmObjects_[objectName] = object->Clone(object->GetName());
         }
+        delete(object);
       }
-      delete(object);
     }
   }
 }
