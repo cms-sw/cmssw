@@ -6,7 +6,7 @@ GlobalMuonRefitter = cms.PSet(
     RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
 
     MuonHitsOption = cms.int32(1),
-    PtCut = cms.double(0.5),
+    PtCut = cms.double(1.0),
     Chi2ProbabilityCut = cms.double(30.0),
     Chi2CutCSC = cms.double(9.0),
     Chi2CutDT = cms.double(6.0),

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 GlobalMuonTrackMatcher = cms.PSet(
       GlobalMuonTrackMatcher = cms.PSet(
             MinP = cms.double(2.5),
-            MinPt = cms.double(0.5),
+            MinPt = cms.double(1.0),
             Pt_threshold1= cms.double(0.0),
             Pt_threshold2= cms.double(999999999.0),
             Eta_threshold= cms.double(1.2),

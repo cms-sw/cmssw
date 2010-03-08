@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2009/10/31 01:37:41 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/02/02 22:07:24 $
+ *  $Revision: 1.21 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -43,11 +43,6 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include <TH1.h>
-#include <TFile.h>
-
 using namespace std;
 using namespace reco;
 
@@ -76,64 +71,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theQual_2= par.getParameter<double>("Quality_2");
   theQual_3= par.getParameter<double>("Quality_3");
   theOutPropagatorName = par.getParameter<string>("Propagator");
-
-  useTFileService_ = par.getUntrackedParameter<bool>("UseTFileService",false);
-
-
-  if(useTFileService_) {
-    edm::Service<TFileService> fs;
-    TFileDirectory subDir = fs->mkdir( "trackMatcher" );
-    h_pt = subDir.make<TH1F>( "h_pt"  , "p_{t}", 100,  0., 100. );
-    h_nTk = subDir.make<TH1F>( "h_nTk" , "n Tk" , 21 , -0.5, 20.5 );
-
-    h_distance_0 = subDir.make<TH1F>("h_distance_0","distance",100,0,50);
-    h_chi2_0 = subDir.make<TH1F>("h_chi2_0","chi2",100,0,500);
-    h_loc_chi2_0 = subDir.make<TH1F>("h_loc_chi2_0","loc_chi2",100,0,0.001);
-    h_deltaR_0 = subDir.make<TH1F>("h_deltaR_0","deltaR",100,0,10);
-
-    h_distance_a1 = subDir.make<TH1F>("h_distance_a1","distance a1",100,0,50);
-    h_loc_chi2_a1 = subDir.make<TH1F>("h_loc_chi2_a1","loc_chi2 a1",100,0,5);
-
-    h_chi2_a2 = subDir.make<TH1F>("h_chi2_a2","chi2 a2",100,0,500);
-    h_distance_a2 = subDir.make<TH1F>("h_distance_a2","distance a2",100,0,50);
-
-    h_distance_a3 = subDir.make<TH1F>("h_distance_a3","distance a3",100,0,50);
-    h_deltaR_a3 = subDir.make<TH1F>("h_deltaR_a3","deltaR a3",100,0,10);
-
-    h_deltaEta_b = subDir.make<TH1F>("h_deltaEta_b","deltaEta b",10,0,4);
-    h_deltaPhi_b = subDir.make<TH1F>("h_deltaPhi_b","deltaPhi b",30,0,3);
-
-    h_nMatch = subDir.make<TH1F>("h_nMatch","nMatch",11,-0.5,10.5);
-    h_nClean = subDir.make<TH1F>("h_nClean","nClean",11,-0.5,10.5);
-
-    h_nCands = subDir.make<TH1F>("h_nCands","nCands",11,-0.5,10.5);
-    h_na1 = subDir.make<TH1F>("h_na1","na1",11,-0.5,10.5);
-    h_na2 = subDir.make<TH1F>("h_na2","na2",11,-0.5,10.5);
-    h_na3 = subDir.make<TH1F>("h_na3","na3",11,-0.5,10.5);
-    h_nb = subDir.make<TH1F>("h_nb","nb",11,-0.5,10.5);
-  } else {
-    h_pt = 0;
-    h_nTk = 0;
-    h_distance_0 = 0;
-    h_chi2_0 = 0;
-    h_loc_chi2_0 = 0;
-    h_deltaR_0 = 0;
-    h_distance_a1 = 0;
-    h_loc_chi2_a1 = 0;
-    h_chi2_a2 = 0;
-    h_distance_a2 = 0;
-    h_distance_a3 = 0;
-    h_deltaR_a3 = 0;
-    h_deltaEta_b = 0;
-    h_deltaPhi_b = 0;
-    h_nMatch = 0;
-    h_nClean = 0;
-    h_nCands = 0;
-    h_na1 = 0;
-    h_na2 = 0;
-    h_na3 = 0;
-    h_nb = 0;
-  }
 
 }
 
@@ -248,8 +185,6 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
   
   if ( tracks.empty() ) return result;
   
-  if(h_nTk) h_nTk->Fill(tracks.size());
-
   typedef std::pair<TrackCand, TrajectoryStateOnSurface> TrackCandWithTSOS;
   vector<TrackCandWithTSOS> cands;
   int iiTk = 1;
@@ -271,9 +206,9 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
   double min_d = 999999;
   double min_de= 999999;
   double min_r_pos = 999999;
-  bool passes[1000] = {false};
+  std::vector<bool> passes(cands.size(),false);
   int jj=0;
-  if(h_nCands) h_nCands->Fill(cands.size());
+
   int iTkCand = 1;
   for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii,jj++,iTkCand++) {
     
@@ -286,11 +221,6 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     double loc_chi2 = match_dist(muonTSOS,(*ii).second);
     double deltaR = match_Rpos(muonTSOS,(*ii).second);
 
-    if(h_distance_0) h_distance_0->Fill(distance);
-    if(h_chi2_0) h_chi2_0->Fill(chi2);
-    if(h_loc_chi2_0) h_loc_chi2_0->Fill(loc_chi2);
-    if(h_deltaR_0) h_deltaR_0->Fill(deltaR);
-
     LogTrace(category) << "   iTk " << iTkCand << " of " << cands.size() << " eta " << (*ii).second.globalPosition().eta() << " phi " << (*ii).second.globalPosition().phi() << endl; 
     LogTrace(category) << "    distance " << distance << " distance cut " << " " << endl;
     LogTrace(category) << "    chi2 " << chi2 << " chi2 cut " << " " << endl;
@@ -299,35 +229,24 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     
     if( (*ii).second.globalMomentum().perp()<thePt_threshold1){
       LogTrace(category) << "    Enters  a1" << endl;
-      if(h_na1) h_na1->Fill(1);
+
       if(abs((*ii).second.globalMomentum().eta()<1.2) && h_chi2_a1) h_chi2_a1->Fill(chi2);
-      if(h_distance_a1) h_distance_a1->Fill(distance);
-      if(h_loc_chi2_a1) h_loc_chi2_a1->Fill(loc_chi2);
-      if( ( chi2>0 && abs((*ii).second.globalMomentum().eta())<1.2 && chi2<theChi2_1 ) || (distance>0 && distance<theDeltaD_1 && loc_chi2>0 && loc_chi2<theLocChi2) ){
+      if( ( chi2>0 && fabs((*ii).second.globalMomentum().eta())<1.2 && chi2<theChi2_1 ) || (distance>0 && distance<theDeltaD_1 && loc_chi2>0 && loc_chi2<theLocChi2) ){
 	LogTrace(category) << "    Passes a1" << endl;
-	if(h_na1) h_na1->Fill(2);
         result.push_back((*ii).first);
         passes[jj]=true;
       }
     }else if((*ii).second.globalMomentum().perp()<thePt_threshold2){
       LogTrace(category) << "    Enters a2" << endl;
-      if(h_na2) h_na2->Fill(1);
-      if(h_chi2_a2) h_chi2_a2->Fill(chi2);
-      if(h_distance_a2) h_distance_a2->Fill(distance);
       if( ( chi2>0 && chi2< theChi2_2 ) || (distance>0 && distance<theDeltaD_2) ){
 	LogTrace(category) << "    Passes a2" << endl;
-	if(h_na2) h_na2->Fill(2);
 	result.push_back((*ii).first);
 	passes[jj] = true;
       }
     }else{
       LogTrace(category) << "    Enters a3" << endl;
-      if(h_na3) h_na3->Fill(1);
-      if(h_distance_a3) h_distance_a3->Fill(distance);
-      if(h_deltaR_a3) h_deltaR_a3->Fill(deltaR);
       if( distance>0 && distance<theDeltaD_3 && deltaR>0 && deltaR<theDeltaR_1){
 	LogTrace(category) << "    Passes a3" << endl;
-	if(h_na3) h_na3->Fill(2);
 	result.push_back((*ii).first);
         passes[jj]=true;
       }
@@ -351,16 +270,11 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
       double deltaR = match_Rpos(muonTSOS,(*is).second);
 
       if (muonTSOS.isValid() && (*is).second.isValid()) {
-	if(h_nb) h_nb->Fill(1);
 	// check matching between tracker and muon tracks using dEta cut looser then dPhi cut 
-	if(h_deltaEta_b) h_deltaEta_b->Fill((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta());
-	if(h_deltaPhi_b) h_deltaPhi_b->Fill(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()));
-
 	LogTrace(category) << "    Stage 2 deltaR " << deltaR << " deltaEta " << fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2) << " deltaPhi " << (fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2) << endl;
-
-        if(fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta()<1.5*theDeltaR_2)
+        
+	if(fabs((*is).second.globalPosition().eta()-muonTSOS.globalPosition().eta())<1.5*theDeltaR_2
 	   &&fabs(deltaPhi((*is).second.globalPosition().phi(),muonTSOS.globalPosition().phi()))<theDeltaR_2){
-	  if(h_nb) h_nb->Fill(2);
 	  result.push_back((*is).first);
 	  passes[jj]=true;
 	}
@@ -388,8 +302,6 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
 			      << " eta " << iTk->second->eta() 
 			      << " phi " << iTk->second->phi() << endl; 
   }
-
-  if(h_nMatch) h_nMatch->Fill(result.size());
 
   if(result.size()<2)
     return result;
@@ -433,7 +345,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     }
     
   }
-  if(h_nClean) h_nClean->Fill(result.size());
+
   for(vector<TrackCand>::const_iterator iTk=result.begin();
       iTk != result.end(); ++iTk) {
     LogTrace(category) << "   -----" << endl 
@@ -604,7 +516,7 @@ GlobalMuonTrackMatcher::samePlane(const TrajectoryStateOnSurface& tsos1,
 
   if ( !tsos1.isValid() || !tsos2.isValid() ) return false;
 
-  if ( abs(match_D(tsos1,tsos2) - match_d(tsos1,tsos2)) > 0.1 ) return false;
+  if ( fabs(match_D(tsos1,tsos2) - match_d(tsos1,tsos2)) > 0.1 ) return false;
 
   const float maxtilt = 0.999;
   const float maxdist = 0.01; // in cm

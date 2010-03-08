@@ -23,7 +23,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         RefitRPCHits = cms.bool(True),
         DoPredictionsOnly = cms.bool(False)
     ),
-    PtCut = cms.double(0.5),
+    PtCut = cms.double(1.0),
     PCut = cms.double(2.5),
     TrackerPropagator = cms.string('SteppingHelixPropagatorAny'),
     GlbRefitterParameters = cms.PSet(
@@ -31,7 +31,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
         
         MuonHitsOption = cms.int32(1),
-        PtCut = cms.double(0.5),
+        PtCut = cms.double(1.0),
         Chi2ProbabilityCut = cms.double(30.0),
         Chi2CutCSC = cms.double(150.0),
         Chi2CutDT = cms.double(10.0),

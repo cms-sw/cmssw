@@ -26,7 +26,7 @@ MuonTrackingRegionCommon = cms.PSet(
         PhiR_UpperLimit_Par2 = cms.double(0.2),
         vertexCollection = cms.InputTag("pixelVertices"),
         Phi_fixed = cms.double(0.2),
-        EscapePt = cms.double(0.5), ## Min pt to escape traker
+        EscapePt = cms.double(1.5), ## Min pt to escape traker
 
         UseFixedRegion = cms.bool(False), ## Use a fixed region size
 
