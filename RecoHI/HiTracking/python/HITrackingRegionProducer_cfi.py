@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# global tracking region for primary pixel tracks
 HiTrackingRegionWithVertexBlock = cms.PSet(
     ptMin         = cms.double(1.5),	  
     originRadius  = cms.double(0.2),
@@ -13,6 +14,7 @@ HiTrackingRegionWithVertexBlock = cms.PSet(
     sigmaZVertex  = cms.double(3.0)		
     )
 
+# limited tracking region for pixel proto-tracks passed to vertexing
 HiTrackingRegionForPrimaryVertexBlock = cms.PSet( 
     ptMin = cms.double( 0.7 ),
     doVariablePtMin = cms.bool ( True ),
@@ -25,3 +27,22 @@ HiTrackingRegionForPrimaryVertexBlock = cms.PSet(
     directionYCoord = cms.double( 1.0 ),
     directionZCoord = cms.double( 0.0 )
     )
+
+# limited jet-seeded tracking region
+from RecoTauTag.HLTProducers.TauRegionalPixelSeedGenerator_cfi import tauRegionalPixelSeedGenerator
+HiTrackingRegionFactoryFromJetsBlock = tauRegionalPixelSeedGenerator.RegionFactoryPSet
+HiTrackingRegionFactoryFromJetsBlock.RegionPSet.JetSrc = cms.InputTag("iterativeConePu5CaloJets")
+HiTrackingRegionFactoryFromJetsBlock.RegionPSet.vertexSrc = cms.InputTag("hiSelectedVertex")
+
+# limited stand-alone muon-seeded tracking region
+from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
+from RecoMuon.GlobalTrackingTools.MuonTrackingRegionCommon_cff import MuonTrackingRegionCommon
+HiTrackingRegionFactoryFromSTAMuonsBlock = cms.PSet(
+    MuonServiceProxy,
+    MuonTrackingRegionCommon,
+    ComponentName = cms.string('HIMuonTrackingRegionProducer'),
+    MuonSrc = cms.InputTag("standAloneMuons","UpdatedAtVtx")
+    )
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollection = cms.InputTag("hiSelectedVertex")
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex = cms.bool(True)
+HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Rescale_Dz = cms.double(5.0)
