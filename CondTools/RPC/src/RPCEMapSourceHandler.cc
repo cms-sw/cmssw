@@ -105,7 +105,9 @@ void popcon::RPCEMapSourceHandler::readEMap1()
   query1->addToOrderList("FEDNUMBER");
   condition = "DCCBOARD.DCCBOARDID>0";
   query1->setCondition( condition, conditionData );
+//  cout<<"Getting DCCBOARD...";
   coral::ICursor& cursor1 = query1->execute();
+  cout<<"OK"<<endl;
   std::pair<int,int> tmp_tbl;
   std::vector< std::pair<int,int> > theDAQ;
   while ( cursor1.next() ) {
@@ -146,11 +148,11 @@ void popcon::RPCEMapSourceHandler::readEMap1()
 // get links
       RPCEMap::linkItem thisLink;
       coral::IQuery* query3 = schema.newQuery();
-      query3->addToTableList("LINKCONN");
-      query3->addToOutputList("LINKCONN.BOARD_BOARDID","BOARDID");
-      query3->addToOutputList("LINKCONN.TRIGGERBOARDINPUTNUM","TBINPUTNUM");
+      query3->addToTableList("BOARDBOARDCONN");
+      query3->addToOutputList("BOARDBOARDCONN.BOARD_BOARDID","BOARDID");
+      query3->addToOutputList("BOARDBOARDCONN.COLLECTORBOARDINPUTNUM","TBINPUTNUM");
       query3->addToOrderList("TBINPUTNUM");
-      condition = "LINKCONN.TB_TRIGGERBOARDID="+IntToString(theTB[iTB].first);
+      condition = "BOARDBOARDCONN.BOARD_COLLECTORBOARDID="+IntToString(theTB[iTB].first);
       query3->setCondition( condition, conditionData );
       coral::ICursor& cursor3 = query3->execute();
       int nlinks=0;
@@ -305,7 +307,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
 //                  std::cout<<"Changed subsector + to null for "<<chname<<std::endl;
 //                }
 //              }
-//
+
               std::string subsVal[5]={"--","-","","+","++"};
               char subsector=0;
               for (int i=0; i<5; i++) if (temp==subsVal[i]) subsector=i;
