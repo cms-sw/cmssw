@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.13 2009/08/18 09:45:41 mommsen Exp $
+// $Id: DataProcessManager.h,v 1.14 2009/12/01 14:25:25 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -78,6 +78,9 @@ namespace stor
 
     void setReadyTimeDQM(int readyTimeDQM)
     { dqmServiceManager_->setReadyTime(readyTimeDQM);}
+
+    void setExpectedUpdatesDQM(int expectedUpdatesDQM)
+    { dqmServiceManager_->setExpectedUpdates(expectedUpdatesDQM);}
 
     void setFilePrefixDQM(std::string filePrefixDQM)
     { dqmServiceManager_->setFilePrefix(filePrefixDQM);}
