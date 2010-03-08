@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.69 2010/02/15 21:54:09 dellaric Exp $
+// $Id: Numbers.cc,v 1.70 2010/02/16 10:53:18 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.69 $
-  \date $Date: 2010/02/15 21:54:09 $
+  \version $Revision: 1.70 $
+  \date $Date: 2010/02/16 10:53:18 $
 */
 
 #include <sstream>
@@ -708,11 +708,15 @@ std::vector<DetId>* Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std
     int itt = Numbers::map->iTT(id);
 
     int index = 100*itcc + itt;
-    std::pair<std::map<int, std::vector<DetId> >::iterator, bool> ret;
 
-    ret = Numbers::crystalsTCC_.insert(std::pair<int, std::vector<DetId> >(index, Numbers::map->ttConstituents( itcc, itt )));
-  
-    return &(ret.first->second);
+    std::map<int, std::vector<DetId> >::iterator iter;
+    iter = Numbers::crystalsTCC_.find(index);
+
+    if ( iter == Numbers::crystalsTCC_.end() ) {
+      iter = Numbers::crystalsTCC_.insert(Numbers::crystalsTCC_.begin(), std::make_pair(index, Numbers::map->ttConstituents( itcc, itt )));
+    }
+
+    return &(iter->second);
 
   } else {
 
@@ -784,11 +788,15 @@ std::vector<DetId>* Numbers::crystals( int idcc, int itt ) throw( std::runtime_e
   if( Numbers::map ) {
 
     int index = 100*idcc + itt;
-    std::pair<std::map<int, std::vector<DetId> >::iterator, bool> ret;
 
-    ret = Numbers::crystalsDCC_.insert(std::pair<int, std::vector<DetId> >(index, Numbers::map->dccTowerConstituents( idcc, itt )));
-  
-    return &(ret.first->second);
+    std::map<int, std::vector<DetId> >::iterator iter;
+    iter = Numbers::crystalsDCC_.find(index);
+
+    if ( iter == Numbers::crystalsDCC_.end() ) {
+      iter = Numbers::crystalsDCC_.insert(Numbers::crystalsDCC_.begin(), std::make_pair(index, Numbers::map->dccTowerConstituents( idcc, itt )));
+    }
+
+    return &(iter->second);
 
   } else {
 
