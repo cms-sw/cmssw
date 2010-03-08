@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/01 10:27:09 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/03/04 13:38:22 $
+ *  $Revision: 1.19 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -189,7 +189,7 @@ int DTT0::getSorted( int   wheelId,
     }
     return 0;
   }
-  std::cout << "cell not found!" << std::endl;
+  // std::cout << "cell not found!" << std::endl;
   return 1;
 }
 
