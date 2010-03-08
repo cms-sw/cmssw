@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ZMuMuNtp")
+process = cms.Process("ZMuMuNtupla")
 
 
 

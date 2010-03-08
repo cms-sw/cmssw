@@ -40,11 +40,27 @@ zGolden=(
     cms.PSet(
     tag = cms.untracked.string("Dau1relCombinedIso"),
     quantity = cms.untracked.string("daughter(0).masterClone.userIso(1)")
-    )#,
-    #cms.PSet(
-    #tag = cms.untracked.string("Dau1UserIsolation"),
-    #quantity = cms.untracked.string("daughter(0).masterClone.isolations_[7]")
-    #)
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1UserDummy"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('dummy')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dxyFromBS"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dxyFromBS')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dzFromBS"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dzFromBS')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dxyFromPV"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dxyFromPV')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dzFromPV"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dzFromPV')")
+    )
     )
 
 zMuTrk=(
