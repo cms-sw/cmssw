@@ -26,48 +26,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 
-using namespace ROOT::Math::VectorUtil ;
+using namespace ROOT::Math::VectorUtil;
 
-PhotonTkIsolation::PhotonTkIsolation (double extRadius,
-				      double intRadius,
-				      double etLow,
-				      double lip,
-				      double drb,
- 				      const reco::TrackCollection* trackCollection,
-				      reco::TrackBase::Point beamPoint)   :
-  extRadius_(extRadius),
-  intRadiusBarrel_(intRadius),
-  intRadiusEndcap_(intRadius),
-  stripBarrel_(0.0),
-  stripEndcap_(0.0),
-  etLow_(etLow),
-  lip_(lip),
-  drb_(drb),
-  trackCollection_(trackCollection),
-  beamPoint_(beamPoint)
-{
-}
-
-PhotonTkIsolation::PhotonTkIsolation (double extRadius,
-                                      double intRadius,
-                                      double strip,
-                                      double etLow,
-                                      double lip,
-                                      double drb,
-                                      const reco::TrackCollection* trackCollection,
-                                      reco::TrackBase::Point beamPoint)   :
-  extRadius_(extRadius),
-  intRadiusBarrel_(intRadius),
-  intRadiusEndcap_(intRadius),
-  stripBarrel_(strip),
-  stripEndcap_(strip),
-  etLow_(etLow),
-  lip_(lip),
-  drb_(drb),
-  trackCollection_(trackCollection),
-  beamPoint_(beamPoint)
-{
-}
 
 PhotonTkIsolation::PhotonTkIsolation (double extRadius,
                                       double intRadiusBarrel,
@@ -78,7 +38,8 @@ PhotonTkIsolation::PhotonTkIsolation (double extRadius,
                                       double lip,
                                       double drb,
                                       const reco::TrackCollection* trackCollection,
-                                      reco::TrackBase::Point beamPoint)   :
+                                      reco::TrackBase::Point beamPoint,
+                                      const std::string &dzOptionString) :
   extRadius_(extRadius),
   intRadiusBarrel_(intRadiusBarrel),
   intRadiusEndcap_(intRadiusEndcap),
@@ -90,6 +51,7 @@ PhotonTkIsolation::PhotonTkIsolation (double extRadius,
   trackCollection_(trackCollection),
   beamPoint_(beamPoint)
 {
+    setDzOption(dzOptionString);
 }
 
 PhotonTkIsolation::~PhotonTkIsolation ()
@@ -113,15 +75,21 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) 
   for(reco::TrackCollection::const_iterator trItr = trackCollection_->begin(); trItr != trackCollection_->end(); ++trItr){
 
     //check z-distance of vertex 
-    if (fabs( (*trItr).dz() - photon->vertex().z() ) >= lip_ ) continue ;
+    double dzCut = 0;
+    switch( dzOption_ ) {
+        case EgammaTrackSelector::dz : dzCut = fabs( (*trItr).dz() - photon->vertex().z() ); break;
+        case EgammaTrackSelector::vz : dzCut = fabs( (*trItr).vz() - photon->vertex().z() ); break;
+        case EgammaTrackSelector::bs : dzCut = fabs( (*trItr).dz(beamPoint_) - photon->vertex().z() ); break;
+        case EgammaTrackSelector::vtx: dzCut = fabs( (*trItr).dz(photon->vertex())); break;
+        default : dzCut = fabs( (*trItr).vz() - photon->vertex().z() ); break;
+    }
+    if (dzCut > lip_ ) continue;
 
     math::XYZVector tmpTrackMomentumAtVtx = (*trItr).momentum () ;
     double this_pt  = (*trItr).pt();
-    if ( this_pt < etLow_ ) 
-      continue ;  
-    if (fabs( (*trItr).dxy(beamPoint_) ) > drb_   ) // only consider tracks from the main vertex
-      continue;
-    double dr = DeltaR(tmpTrackMomentumAtVtx,mom) ;
+    if ( this_pt < etLow_ ) continue ;  
+    if (fabs( (*trItr).dxy(beamPoint_) ) > drb_   ) continue;// only consider tracks from the main vertex 
+    double dr = ROOT::Math::VectorUtil::DeltaR(tmpTrackMomentumAtVtx,mom) ;
     double deta = (*trItr).eta() - photonEta ;
     if (fabs(photonEta) < 1.479) {
     	if(fabs(dr) < extRadius_ && fabs(dr) >= intRadiusBarrel_ && fabs(deta) >= stripBarrel_) 

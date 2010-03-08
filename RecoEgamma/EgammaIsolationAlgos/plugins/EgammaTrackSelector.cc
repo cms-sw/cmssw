@@ -15,7 +15,14 @@ EgammaTrackSelector::result_type EgammaTrackSelector::operator()(const EgammaTra
     //! someone will have some fun reading the log if Debug is on
     //! the biggest reason is the numberOfValidHits call (the rest are not as costly)
 
-    float tZ = it->dz(); //it->vz(); 
+    float tZ;
+    switch(thePars.dzOption) {
+        case dz : tZ = it->dz();                  break;
+        case vz : tZ = it->vz();                  break;
+        case bs : tZ = it->dz(thePars.beamPoint); break;
+        default : tZ = it->vz();                  break;
+    }
+
     float tPt = it->pt();
     //float tD0 = fabs(it->d0());  //currently not used.  
     float tD0Cor = fabs(it->dxy(thePars.beamPoint));

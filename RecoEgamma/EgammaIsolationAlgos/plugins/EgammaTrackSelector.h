@@ -10,6 +10,7 @@
 
 namespace egammaisolation {
 
+
   class EgammaTrackSelector {
   public:
 
@@ -17,6 +18,8 @@ namespace egammaisolation {
     typedef std::list<const reco::Track*> result_type;
     typedef edm::View<reco::Track> input_type;
     typedef reco::TrackBase::Point BeamPoint;
+
+    enum { dz = 0, vz, bs, vtx };
   
     //!config parameters
     struct Parameters {
@@ -30,12 +33,13 @@ namespace egammaisolation {
       Range        zRange;  //! range in z
       Range        rRange;  //! range in d0 or dxy (abs value)
       reco::isodeposit::Direction       dir;  //! direction of the selection cone
-      double        drMax;  //! cone size
-      BeamPoint beamPoint;  //! beam spot position
-      uint       nHitsMin;  //! nValidHits >= nHitsMin
-      double  chi2NdofMax;  //! max value of normalized chi2
-      double  chi2ProbMin;  //! ChiSquaredProbability( chi2, ndf ) > chi2ProbMin
-      double        ptMin;  //! tk.pt>ptMin
+      double        drMax;      //! cone size
+      BeamPoint beamPoint;      //! beam spot position
+      uint       nHitsMin;      //! nValidHits >= nHitsMin
+      double  chi2NdofMax;      //! max value of normalized chi2
+      double  chi2ProbMin;      //! ChiSquaredProbability( chi2, ndf ) > chi2ProbMin
+      double        ptMin;      //! tk.pt>ptMin
+      int           dzOption;  //! which dz cut to use
     };
 
 
