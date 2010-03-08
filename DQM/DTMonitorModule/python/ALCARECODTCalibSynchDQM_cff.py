@@ -5,7 +5,7 @@ from DQM.DTMonitorModule.dtTriggerSynchTask_cfi import *
 
 dtResolutionAnalysisMonitor.topHistoFolder = "DtCalibSynch/01-Calibration" 
 dtTriggerSynchMonitor.baseDir = 'DtCalibSynch/02-Synchronization'             
-dtTriggerSynchMonitor.SEGInputTag = 'dt4DSegments'             
+dtTriggerSynchMonitor.SEGInputTag = 'dt4DSegmentsNoWire'             
 dtTriggerSynchMonitor.rangeWithinBX  = False
 dtTriggerSynchMonitor.nBXHigh        = 3
 dtTriggerSynchMonitor.nBXLow         = -2
