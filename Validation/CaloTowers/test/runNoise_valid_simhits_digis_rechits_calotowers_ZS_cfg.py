@@ -114,6 +114,7 @@ process.p = cms.Path(
  process.hcalDigis *
  process.calolocalreco *
  process.caloTowersRec *
+ process.hcalDigiAnalyzer *
  process.hcalRecoAnalyzer *
  process.hcalTowerAnalyzer
 )
