@@ -120,7 +120,9 @@ class WorkFlowRunner(Thread):
 
             # for HI B0 step2 use a file from a previous relval production as step1 doesn't write
             # any output in 1 hour.
-            if '41.0' in str(self.wf.numId) : 
+            if ( '40.0' in str(self.wf.numId) ) :
+                inFile = '/store/relval/CMSSW_3_5_0/RelValPyquen_ZeemumuJets_pt10_4TeV/GEN-SIM-RAW/MC_3XY_V21-v1/0011/FA9779D6-D714-DF11-88D3-0030487CAEAC.root'
+            if ( '41.0' in str(self.wf.numId) ) : 
                 inFile = '/store/relval/CMSSW_3_4_0/RelValPyquen_GammaJet_pt20_4TeV/GEN-SIM-RAW/MC_3XY_V14-v1/0008/46F11B87-37EA-DE11-9337-00248C0BE005.root'
 
             fullcmd += ' --filein '+inFile+ ' '
