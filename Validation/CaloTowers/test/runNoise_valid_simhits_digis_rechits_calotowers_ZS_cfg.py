@@ -12,7 +12,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V24::All'
+process.GlobalTag.globaltag = 'MC_3XY_V25::All'
 
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
@@ -115,6 +115,6 @@ process.p = cms.Path(
  process.calolocalreco *
  process.caloTowersRec *
  process.hcalDigiAnalyzer *
- process.hcalRecoAnalyzer *
- process.hcalTowerAnalyzer
+ process.hcalTowerAnalyzer *
+ process.hcalRecoAnalyzer 
 )
