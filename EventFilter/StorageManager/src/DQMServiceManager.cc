@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.10 2010/03/04 16:59:53 mommsen Exp $
+// $Id: DQMServiceManager.cc,v 1.11 2010/03/04 17:34:59 mommsen Exp $
 //
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -29,7 +29,8 @@ DQMServiceManager::DQMServiceManager(std::string filePrefix,
 				     bool archiveDQM,
 				     int archiveInterval,
 				     bool useCompression,
-				     int  compressionLevel):
+                                     int  compressionLevel,
+                                     int expectedUpdates):
   useCompression_(useCompression),
   compressionLevel_(compressionLevel),
   collateDQM_(collateDQM),
@@ -39,7 +40,8 @@ DQMServiceManager::DQMServiceManager(std::string filePrefix,
   sentEvents_(0),
   filePrefix_(filePrefix),
   purgeTime_(purgeTime),
-  readyTime_(readyTime)
+  readyTime_(readyTime),
+  expectedUpdates_(expectedUpdates)
 {
   dqmInstances_.reserve(20);
 
@@ -76,7 +78,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
 			  msg.updateNumber(),
 			  purgeTime_,
                           readyTime_,
-                          std::numeric_limits<unsigned int>::max());
+                          expectedUpdates_);
     dqmInstances_.push_back(dqm);
     int preSize = dqmInstances_.size();
 
@@ -287,7 +289,6 @@ DQMGroupDescriptor * DQMServiceManager::getBestDQMGroupDescriptor(std::string gr
   if ( ( newestInstance != NULL ) &&
        ( newestGroup    != NULL ) )
   { reply = new DQMGroupDescriptor(newestInstance,newestGroup); }
-
   return(reply);
 }
 
