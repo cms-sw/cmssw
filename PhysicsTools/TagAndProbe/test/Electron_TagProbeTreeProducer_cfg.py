@@ -30,7 +30,8 @@ process.source = cms.Source("PoolSource",
 '/store/relval/CMSSW_3_4_1/RelValZEE/GEN-SIM-RECO/MC_3XY_V14-v1/0004/4E4D206B-8DED-DE11-966A-001617E30F50.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )    
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
 
 
 ##   ____                         ____ _           _            
@@ -229,7 +230,8 @@ process.tagHLT = cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 process.allTagsAndProbes = cms.Sequence(
-    process.tagSC + process.tagGsf +
+    process.tagSC +
+    process.tagGsf +
     process.tagIso + process.tagId + process.tagHLT
 )
 
@@ -335,23 +337,6 @@ mcTruthCommonStuff = cms.PSet(
 )   
 
 
-##    _____             _____              
-##   |_   _|_ _  __ _  |_   _| __ ___  ___ 
-##     | |/ _` |/ _` |   | || '__/ _ \/ _ \
-##     | | (_| | (_| |   | || | |  __/  __/
-##     |_|\__,_|\__, |   |_||_|  \___|\___|
-##              |___/                      
-
-## store variables for tag electron into a separate TTree
-process.TagTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
-     recoCommonStuff,
-     isMC = cms.bool(False),
-     tagProbePairs = cms.InputTag("tagSC"),
-     arbitration   = cms.string("OneProbe"),
-     flags = cms.PSet(),
-    allProbes     = cms.InputTag("Tag")
-)                                 
-     
 ##    ____   ____       __     ____      __ 
 ##   / ___| / ___|      \ \   / ___|___ / _|
 ##   \___ \| |      _____\ \ | |  _/ __| |_ 
@@ -434,7 +419,8 @@ process.IdToHLT.variables.drjet = cms.InputTag("GsfDRToNearestJet")
 
 
 process.tree_sequence = cms.Sequence(
-    process.TagTree + process.SCToGsf + process.GsfToIso +
+    process.SCToGsf +
+    process.GsfToIso +
     process.IsoToId + process.IdToHLT
 )    
 

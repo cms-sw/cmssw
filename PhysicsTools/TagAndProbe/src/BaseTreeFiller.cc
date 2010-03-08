@@ -62,6 +62,7 @@ tnp::BaseTreeFiller::BaseTreeFiller(const char *name, const edm::ParameterSet iC
     for (std::vector<tnp::ProbeVariable>::iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
         tree_->Branch(it->name().c_str(), it->address(), (it->name()+"/F").c_str());
     }
+    
     for (std::vector<tnp::ProbeFlag>::iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
         tree_->Branch(it->name().c_str(), it->address(), (it->name()+"/I").c_str());
     }
@@ -99,14 +100,16 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 
 void tnp::BaseTreeFiller::fill(const reco::CandidateBaseRef &probe) const {
     for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
+      try{
         it->fill(probe);
+      } catch(...){}
     }
+
     for (std::vector<tnp::ProbeFlag>::const_iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
-        it->fill(probe);
+      it->fill(probe);
     }
     tree_->Fill();
 }
-
 void tnp::BaseTreeFiller::writeProvenance(const edm::ParameterSet &pset) const {
     TList *list = tree_->GetUserInfo();
     list->Add(new TObjString(pset.dump().c_str()));
