@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.28 2009/10/12 22:18:51 rwolf Exp $
+// $Id: Muon.h,v 1.29 2009/10/13 13:13:14 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.28 2009/10/12 22:18:51 rwolf Exp $
+  \version  $Id: Muon.h,v 1.29 2009/10/13 13:13:14 rwolf Exp $
 */
 
 
@@ -155,7 +155,8 @@ namespace pat {
       void setNormChi2 (double normChi2 ) 
       { normChi2_ = normChi2; cachedNormChi2_ = true; }
 
-
+      /// Returns the segment compatibility, using muon::segmentCompatibility (DataFormats/MuonReco/interface/MuonSelectors.h)
+      double segmentCompatibility(reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration) const ;
     protected:
 
       // ---- for content embedding ----

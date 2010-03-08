@@ -1,8 +1,9 @@
 //
-// $Id: Muon.cc,v 1.21.2.1 2009/10/08 04:18:08 srappocc Exp $
+// $Id: Muon.cc,v 1.22 2009/10/12 00:44:01 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <limits>
@@ -257,4 +258,8 @@ double Muon::dB() const {
   } else {
     return std::numeric_limits<double>::max();
   }
+}
+
+double Muon::segmentCompatibility(reco::Muon::ArbitrationType arbitrationType) const {
+   return muon::segmentCompatibility(*this, arbitrationType);
 }
