@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.9 2010/02/25 16:15:32 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.10 2010/02/28 13:47:53 vadler Exp $
 //
 
 
@@ -148,7 +148,7 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       }
       if ( ! onlyStandAlone_ ) {
         const unsigned indexLastFilter( handleTriggerResults->index( indexPath ) );
-        TriggerPath triggerPath( namePath, indexPath, 0, handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilter );
+        TriggerPath triggerPath( namePath, indexPath, 1, handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilter );
         // add module names to path and states' map
         assert( indexLastFilter < sizeModules );
         std::map< unsigned, std::string > indicesModules;

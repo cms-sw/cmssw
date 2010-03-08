@@ -7,7 +7,7 @@
 // Package:    PatAlgos
 // Class:      pat::PATTriggerEventProducer
 //
-// $Id: PATTriggerEventProducer.h,v 1.4 2010/01/12 19:28:36 vadler Exp $
+// $Id: PATTriggerEventProducer.h,v 1.5 2010/02/28 13:47:53 vadler Exp $
 //
 /**
   \class    pat::PATTriggerEventProducer PATTriggerEventProducer.h "PhysicsTools/PatAlgos/plugins/PATTriggerEventProducer.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: PATTriggerEventProducer.h,v 1.4 2010/01/12 19:28:36 vadler Exp $
+  \version  $Id: PATTriggerEventProducer.h,v 1.5 2010/02/28 13:47:53 vadler Exp $
 */
 
 
@@ -30,7 +30,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
 
 namespace pat {
