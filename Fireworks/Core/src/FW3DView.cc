@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.25 2009/12/10 13:27:01 amraktad Exp $
+// $Id: FW3DView.cc,v 1.26 2009/12/11 13:57:52 amraktad Exp $
 //
 
 // system include files
@@ -61,6 +61,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWEventAnnotation.h"
 
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
@@ -82,6 +83,8 @@
 // constructors and destructor
 //
 FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
+   m_overlayEventInfo(0),
+
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
    m_cameraFOV(0),
@@ -92,6 +95,8 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_pixelEndcapElements(0),
    m_trackerBarrelElements(0),
    m_trackerEndcapElements(0),
+
+   m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
    m_showMuonBarrel(this, "Show Muon Barrel", false ),
    m_showMuonEndcap(this, "Show Muon Endcap", false),
    m_showPixelBarrel(this, "Show Pixel Barrel", false ),
@@ -119,6 +124,9 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    ctxHand->setPickCameraCenter(true);
    m_viewContextMenu.reset(ctxHand);
    
+   m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer, this);
+   m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
+ 
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
@@ -570,4 +578,10 @@ FW3DView::staticTypeName()
 {
    static std::string s_name("3D");
    return s_name;
+}
+
+void
+FW3DView::eventEnd()
+{
+   m_overlayEventInfo->setEvent();
 }

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.12 2009/11/03 16:56:38 amraktad Exp $
+// $Id: FW3DView.h,v 1.13 2009/12/11 13:57:52 amraktad Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ class TGLMatrix;
 class FW3DViewManager;
 class DetIdToMatrix;
 class TEveWindowSlot;
+class FWEventAnnotation;
 class FWViewContextMenuHandlerGL;
 
 class FW3DView : public FWViewBase
@@ -64,6 +65,7 @@ public:
    // ---------- member functions ---------------------------
    void setGeometry( const DetIdToMatrix* geom );
    void setBackgroundColor(Color_t);
+   void eventEnd();
 
 private:
    FW3DView(const FW3DView&);    // stop default
@@ -86,6 +88,7 @@ private:
    TEveScene* m_scene;
    TEveScene* m_detectorScene;
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
+   FWEventAnnotation* m_overlayEventInfo;
 
    TGLMatrix* m_cameraMatrix;
    TGLMatrix* m_cameraMatrixBase;
@@ -100,6 +103,8 @@ private:
    TEveElementList*   m_trackerBarrelElements;
    TEveElementList*   m_trackerEndcapElements;
 
+   // parameters
+   FWLongParameter m_overlayEventInfoLevel;
    FWBoolParameter m_showMuonBarrel;
    FWBoolParameter m_showMuonEndcap;
    FWBoolParameter m_showPixelBarrel;

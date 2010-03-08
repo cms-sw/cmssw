@@ -16,18 +16,19 @@ public:
    FWEventAnnotation(TGLViewerBase *view, FWParameterizable* confParent);
    virtual ~FWEventAnnotation();
 
-   //   void setEvent( const fwlite::Event* event);
-   void setEvent();
-   FWLongParameter*  m_level;
-
    virtual void   Render(TGLRnrCtx& rnrCtx);
-   void updateText();
+
+   void setLevel(long x);
+   void setEvent();
   
 private:
    FWEventAnnotation(const FWEventAnnotation&); // stop default
    const FWEventAnnotation& operator=(const FWEventAnnotation&); // stop default
 
+   void updateOverlayText();
+
    const fwlite::Event* m_event;
+   int  m_level;
 };
 
 #endif
