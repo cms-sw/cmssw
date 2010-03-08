@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.24 2009/11/05 22:06:02 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.26 2010/03/05 19:44:35 amraktad Exp $
 //
 
 // system include files
@@ -76,7 +76,6 @@ public:
    TEveElement* importElements(TEveElement* iProjectableChild, float iLayer, TEveElement* iProjectedParent=0);
 
 private:
-   void doEventAnnotation();
    void doDistortion();
    void doCompression(bool);
    void doZoom(double);
@@ -103,9 +102,10 @@ private:
    double m_caloScale;
    FWEvePtr<TEveProjectionAxes> m_axes;
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
+   FWEventAnnotation* m_overlayEventInfo;
 
    // parameters
-   FWEventAnnotation* m_eventAnnotation;
+   FWLongParameter    m_overlayEventInfoLevel;
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
    FWBoolParameter    m_showProjectionAxes;

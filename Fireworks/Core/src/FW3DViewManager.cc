@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.14 2009/11/16 02:16:58 dmytro Exp $
+// $Id: FW3DViewManager.cc,v 1.15 2010/01/21 21:01:36 amraktad Exp $
 //
 
 // system include files
@@ -250,4 +250,7 @@ FW3DViewManager::eventEnd()
          child.next();
       }
    }
+
+   for ( std::vector<boost::shared_ptr<FW3DView> >::iterator view = m_views.begin(); view != m_views.end(); ++view )
+      (*view)->eventEnd();
 }

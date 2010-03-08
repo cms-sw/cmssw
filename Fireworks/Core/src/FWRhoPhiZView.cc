@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.53 2009/12/10 13:27:02 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.55 2010/03/05 19:44:35 amraktad Exp $
 //
 
 #define private public
@@ -105,7 +105,8 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_typeName(iName),
    m_caloScale(1),
    m_axes(),
-   m_eventAnnotation(0),
+   m_overlayEventInfo(0),
+   m_overlayEventInfoLevel(this, "Overlay Event Info", 1l, 0l, 3l),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
@@ -127,7 +128,6 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
 #endif
    iParent->ReplaceWindow(nv);
    gEve->GetViewers()->AddElement(nv);
-   m_eventAnnotation = new FWEventAnnotation(m_embeddedViewer, this);
 
    TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
    m_scene.reset(ns);
@@ -172,7 +172,8 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
 
    gEve->AddElement(m_projMgr.get(), ns);
 
-   m_eventAnnotation->m_level->changed_.connect(boost::bind(&FWRhoPhiZView::doEventAnnotation,this));
+   m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer, this);
+   m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
    m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
@@ -207,11 +208,6 @@ FWRhoPhiZView::~FWRhoPhiZView()
 //
 // member functions
 //
-void
-FWRhoPhiZView::doEventAnnotation()
-{
-   m_eventAnnotation->updateText();
-}
 
 void
 FWRhoPhiZView::doDistortion()
@@ -485,6 +481,6 @@ FWRhoPhiZView::eventEnd()
    if (not m_caloAutoScale.value()) return;
    updateScaleParameters();
 
-   m_eventAnnotation->setEvent();
+   m_overlayEventInfo->setEvent();
 }
 
