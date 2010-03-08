@@ -15,15 +15,17 @@ public class BeamSpotDipServer
 extends Thread
 implements Runnable,DipPublicationErrorHandler
 {
+  public final static boolean overwriteFlag = true; //if true, flag with flags[0]
+  public final static boolean publishStatErrors = false;
   public final static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public final static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
   public final static String sourceFile = "/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt";
   public final static int lnPerRcd = 23;
   public final static int msPerLS = 23000; // ms
-  public static boolean overwriteFlag = true; //if true, flag with flags[0]
-  public static boolean publishStatErrors = false;
-
-  private String[] flags = {"UNCERTAIN","BAD","GOOD"};
+  public final static int rad2urad = 1000000;
+  public final static int cm2um = 10000;
+  public final static int cm2mm = 10;
+  public final static String[] flags = {"Uncertain","Bad","Good"};
 
   DipFactory dip;
   DipData messageCMS;
@@ -173,27 +175,25 @@ implements Runnable,DipPublicationErrorHandler
 		    break;
 		case 5:
 		    type = new Integer(tmp[1]);
-		    if (overwriteFlag) {
-			flag = flags[0];
-		    }
-		    else if (type >= 2) flag = flags[2];
+		    if (overwriteFlag) flag = flags[0];
+		    else if (type >= 2)	flag = flags[2];
 		    else flag = flags[1];
 		    break;
 		case 6:
 		    x = new Float(tmp[1]);
-		    System.out.println("x0      = " + x);
+		    System.out.println("x0      = " + x + " [cm]");
 		    break;
 		case 7:
 		    y = new Float(tmp[1]);
-		    System.out.println("y0      = " + y);
+		    System.out.println("y0      = " + y + " [cm]");
 		    break;
 		case 8:
 		    z = new Float(tmp[1]);
-		    System.out.println("z0      = " + z);
+		    System.out.println("z0      = " + z + " [cm]");
 		    break;
 		case 9:
 		    sigma_z = new Float(tmp[1]);
-		    System.out.println("sigma_z = " + sigma_z);
+		    System.out.println("sigma_z = " + sigma_z + " [cm]");
 		    break;
 		case 10:
 		    dxdz = new Float(tmp[1]);
@@ -245,16 +245,16 @@ implements Runnable,DipPublicationErrorHandler
 	    e.printStackTrace();
 	}
 
-	Centroid[0] = x;
-	Centroid[1] = y;
-	Centroid[2] = z;
+	Centroid[0] = x*-1*cm2um;
+	Centroid[1] = y*cm2um;
+	Centroid[2] = z*-1*cm2mm;
 
-	Size[0] = width_x;
-	Size[1] = width_y;
-	Size[2] = sigma_z;
+	Size[0] = width_x*cm2um;
+	Size[1] = width_y*cm2um;
+	Size[2] = sigma_z*cm2mm;
 
-	Tilt[0] = dxdz;
-	Tilt[1] = dydz;
+	Tilt[0] = dxdz*rad2urad;
+	Tilt[1] = dydz*-1*rad2urad;
 
 	messageCMS.insert("runnum",runnum);
 	messageCMS.insert("startTime",startTime);
@@ -290,6 +290,18 @@ implements Runnable,DipPublicationErrorHandler
 	    DipTimestamp zeit = new DipTimestamp(epoch);
 	    publicationCMS.send(messageCMS, zeit);
 	    publicationLHC.send(messageLHC, zeit);
+	    if (overwriteFlag ) {
+		publicationCMS.setQualityUncertain("Overwritten Temporarily");
+		publicationLHC.setQualityUncertain("Overwritten Temporarily");
+	    }
+	    else if (flag == flags[0]) {
+		publicationCMS.setQualityUncertain();
+		publicationLHC.setQualityUncertain();
+	    }
+	    else if (flag == flags[1]) {
+		publicationCMS.setQualityBad();
+		publicationLHC.setQualityBad();
+	    }
 	}
 	catch (ParseException e) {
 	    System.out.println("Publishing failed due to time parsing because " + e.getMessage());
