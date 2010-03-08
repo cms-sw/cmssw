@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2010/02/02 22:07:24 $
- *  $Revision: 1.21 $
+ *  $Date: 2010/03/08 15:34:44 $
+ *  $Revision: 1.22 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -230,7 +230,6 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     if( (*ii).second.globalMomentum().perp()<thePt_threshold1){
       LogTrace(category) << "    Enters  a1" << endl;
 
-      if(abs((*ii).second.globalMomentum().eta()<1.2) && h_chi2_a1) h_chi2_a1->Fill(chi2);
       if( ( chi2>0 && fabs((*ii).second.globalMomentum().eta())<1.2 && chi2<theChi2_1 ) || (distance>0 && distance<theDeltaD_1 && loc_chi2>0 && loc_chi2<theLocChi2) ){
 	LogTrace(category) << "    Passes a1" << endl;
         result.push_back((*ii).first);
