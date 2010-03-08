@@ -20,6 +20,23 @@
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimTracker/Records>
 <use name=SimTracker/TrackAssociation>
+<use name=DataFormats/DetId>
+<use name=DataFormats/MuonDetId>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/Records>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/SiStripCluster>
+<use name=TrackingTools/TrackFitters>
+<use name=TrackingTools/TrajectoryState>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/VertexReco>
+<use name=SimDataFormats/Vertex>
+<use name=DataFormats/BeamSpot>
+<use name=RecoVertex/PrimaryVertexProducer>
+<use name=MagneticField/Records>
 <use name=DQMServices/Core>
 
 <use name=CLHEP>
