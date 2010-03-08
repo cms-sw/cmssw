@@ -137,7 +137,7 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    
    delete tb;
    
-   std::cout << "In XMLIdealGeometryESProducer::produce" << std::endl;
+   //std::cout << "In XMLIdealGeometryESProducer::produce" << std::endl;
    returnValue->lockdown();
 
    return returnValue ;
