@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.cc,v 1.2 2009/11/26 17:02:58 fwyzard Exp $
+// $Id: HLTDTActivityFilter.cc,v 1.4 2009/12/02 12:00:14 gruen Exp $
 //
 //
 
@@ -21,6 +21,7 @@ Implementation:
 // system include files
 #include <vector>
 #include <string>
+#include <map>
 #include <iostream>
 #include <memory>
 
@@ -39,6 +40,8 @@ Implementation:
 //
 HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) {
 
+  using namespace std;
+
   inputDCC_         = iConfig.getParameter<edm::InputTag>("inputDCC");
   inputDDU_         = iConfig.getParameter<edm::InputTag>("inputDDU");
   inputDigis_       = iConfig.getParameter<edm::InputTag>("inputDigis");
@@ -52,6 +55,13 @@ HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) {
   minBX_            = iConfig.getParameter<int>("minDDUBX");
   maxBX_            = iConfig.getParameter<int>("maxDDUBX");
   minActiveChambs_  = iConfig.getParameter<int>("minActiveChambs");
+
+  activeSecs_.reset();
+  vector<int> aSectors = iConfig.getParameter<vector<int> >("activeSectors");
+  vector<int>::const_iterator iSec = aSectors.begin();
+  vector<int>::const_iterator eSec = aSectors.end();
+  for (;iSec!=eSec;++iSec) 
+    if ((*iSec)>0 && (*iSec<15)) activeSecs_.set((*iSec)); 
 
 }
 
@@ -71,7 +81,7 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   using namespace edm;
   using namespace std;
 
-  bool goodDCC(false);
+  map<uint32_t,bitset<3> > goodMap;
   if (processDCC_) {
 
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
@@ -79,47 +89,52 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     vector<L1MuDTChambPhDigi>*  phTrigs = l1DTTPGPh->getContainer();
     vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
     vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
-
-    int nPrimitives=0;
+    
     for(; iph !=iphe ; ++iph) {
       int qual = iph->code();
-      nPrimitives += (iph->stNum()<=maxStation_ && qual>=minQual_ && qual<7);
-      if (nPrimitives>=minActiveChambs_) { goodDCC=true; break; }
+      int ch   = iph->stNum();
+      int sec  = iph->scNum() + 1; // DTTF range [0:11] -> DT SC range [1:12] 
+      int wh   = iph->whNum();
+      if (!activeSecs_[sec]) continue;
+      if (ch<=maxStation_ && qual>=minQual_ && qual<7) {
+	goodMap[DTChamberId(wh,ch,sec).rawId()].set(0);	
+      }
     }
+    
   }
 
-  bool goodDDU(false);
   if (processDDU_) {
-
+    
     Handle<DTLocalTriggerCollection> trigsDDU;
     iEvent.getByLabel(inputDDU_,trigsDDU);
     DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
-    int nPrimitives=0;
-
+    
     for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
-      int chamb = (*detUnitIt).first.station();
+      int ch  = (*detUnitIt).first.station();
+      if (!activeSecs_[(*detUnitIt).first.sector()]) continue;
+      
       const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
       for (DTLocalTriggerCollection::const_iterator trigIt = range.first; trigIt!=range.second;++trigIt){	
 	int bx = trigIt->bx();
 	int qual = trigIt->quality();
-	nPrimitives += ( chamb<=maxStation_ && bx>=minBX_ && bx<=maxBX_ && qual>=minQual_ && qual<7);
-	if (nPrimitives>=minActiveChambs_) { goodDDU=true; break; }
+	if ( ch<=maxStation_ && bx>=minBX_ && bx<=maxBX_ && qual>=minQual_ && qual<7) {
+	  goodMap[(*detUnitIt).first.rawId()].set(1);       
+	}
       }
-      if (goodDDU) { break; }
     }
+
   }
 
-  bool goodDigis(false);
   if (processDigis_) {
-
+    
     edm::Handle<DTDigiCollection> dtdigis;
     iEvent.getByLabel(inputDigis_, dtdigis);
     std::map<uint32_t,int> hitMap;
-    int activeChambDigis = 0;
     DTDigiCollection::DigiRangeIterator dtLayerIdIt;
-
+    
     for (dtLayerIdIt=dtdigis->begin(); dtLayerIdIt!=dtdigis->end(); dtLayerIdIt++) {
       DTChamberId chId = ((*dtLayerIdIt).first).chamberId();
+      if (!activeSecs_[(*dtLayerIdIt).first.sector()]) continue;
       uint32_t rawId = chId.rawId();
       int station = chId.station();
       if (station<=maxStation_) {
@@ -129,23 +144,28 @@ bool HLTDTActivityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 	  hitMap[rawId]=1;
 	}
 	if (hitMap[rawId]>=minChambLayers_) {
-	  activeChambDigis++;
-	  if (activeChambDigis>=minActiveChambs_) {
-	    goodDigis = true;
-	    break;
-	  }
+	  goodMap[chId.rawId()].set(2);
 	}
       }
     }
+    
+  }
+  
+  int nGoodCh = 0;
+  map<uint32_t,bitset<3> >::const_iterator goodMapIt  = goodMap.begin();
+  map<uint32_t,bitset<3> >::const_iterator goodMapEnd = goodMap.end();
+  for (; goodMapIt!= goodMapEnd; ++ goodMapIt) {
+
+    bool trigResult = processingMode_%2 ? ((*goodMapIt).second[0] && (*goodMapIt).second[1]) : 
+      ((*goodMapIt).second[0] || (*goodMapIt).second[1]);
+    bool result     = processingMode_/2 ? (trigResult && (*goodMapIt).second[2]) : 
+      (trigResult || (*goodMapIt).second[2]);    
+    result && nGoodCh++;
 
   }
-
-
-  bool trigResult = processingMode_%2 ? (goodDCC && goodDDU) : (goodDCC || goodDDU);
-  bool result     = processingMode_/2 ? (trigResult && goodDigis) : (trigResult || goodDigis);
-
-  return result;
-
+  
+  return nGoodCh>=minActiveChambs_;
+  
 }
 
 // define as a framework module
