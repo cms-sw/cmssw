@@ -1,8 +1,18 @@
+2010-03-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-07
+	* Drop updateNumber from DQMKey, i.e. all updates for a given
+	  run/luminosity section are lumped together.
+	* Clear DQMEventQueue at run stop (DrainingQueues state) instead
+	  of waiting until all histograms have been summed up.
+	* Minor speed-ups in DQMInstance
+	* Increase default DQMEventQueue size from 882 to 1000.
+
 2010-03-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-08-06
 	* Reduce DQMEventQueue size from 3072 to 882, i.e. to the number of
-	  events for one LS update.
+	  events for one luminosity section update.
 
 2010-03-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
