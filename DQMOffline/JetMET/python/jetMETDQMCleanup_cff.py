@@ -12,8 +12,8 @@ cleaningParameters = cms.PSet(
     techTrigsNOT    = cms.vuint32(36,37,38,39),
     
     #Turn on extra checks
-    doPrimaryVertexCheck   = cms.bool(True),
-    doHLTPhysicsOn         = cms.bool(True),
+    doPrimaryVertexCheck   = cms.bool(False),
+    doHLTPhysicsOn         = cms.bool(False),
     
     #Vertex cleanup parameters
     nvtx_min       = cms.int32(1), 
