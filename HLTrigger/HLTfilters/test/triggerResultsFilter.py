@@ -119,6 +119,20 @@ process.filter_empty_pattern = hlt.triggerResultsFilter.clone(
     throw = False
 )
 
+# TRUE
+process.filter_true_pattern = hlt.triggerResultsFilter.clone(
+    triggerConditions = ( 'TRUE', ),
+    l1tResults = '',
+    throw = False
+)
+
+# FALSE
+process.filter_false_pattern = hlt.triggerResultsFilter.clone(
+    triggerConditions = ( 'FALSE', ),
+    l1tResults = '',
+    throw = False
+)
+
 
 process.path_1 = cms.Path( process.filter_1 )
 process.path_2 = cms.Path( process.filter_2 )
@@ -139,6 +153,8 @@ process.path_wrong_name          = cms.Path( process.filter_wrong_name )
 process.path_wrong_pattern       = cms.Path( process.filter_wrong_pattern )
 process.path_not_wrong_pattern   = cms.Path( ~ process.filter_wrong_pattern )
 process.path_empty_pattern       = cms.Path( process.filter_empty_pattern )
+process.path_true_pattern        = cms.Path( process.filter_true_pattern )
+process.path_false_pattern       = cms.Path( process.filter_false_pattern )
 
 # define an EndPath to analyze all other path results
 process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',

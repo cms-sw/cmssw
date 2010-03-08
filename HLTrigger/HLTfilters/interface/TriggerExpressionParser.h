@@ -76,6 +76,7 @@ using namespace boost::phoenix;
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionL1TechReader.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionPrescaler.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionConstant.h"
 
 namespace triggerExpression {
 
@@ -103,6 +104,8 @@ public:
                        | token_alca                     [qi::_val = new_<HLTReader>(qi::_1)]
                        | token_l1                       [qi::_val = new_<L1Reader>(qi::_1)]
                        | token_l1tech                   [qi::_val = new_<L1TechReader>(qi::_1)]
+                       | qi::lit("TRUE")                [qi::_val = new_<Constant>(true)]
+                       | qi::lit("FALSE")               [qi::_val = new_<Constant>(false)]
                        );
 
     parenthesis     %= ('(' >> expression >> ')');
