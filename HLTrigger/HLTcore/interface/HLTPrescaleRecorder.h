@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLTPrescaleTable object
  *
- *  $Date: 2010/02/26 16:34:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/28 08:09:04 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
+#include "CondFormats/HLTObjects/interface/HLTPrescaleTableCond.h"
 
 #include<map>
 #include<string>
@@ -75,7 +76,7 @@ class HLTPrescaleRecorder : public edm::EDProducer {
 
   /// Handle and ESHandle for existing HLT object
   edm::Handle<trigger::HLTPrescaleTable> hltHandle_;
-  edm::ESHandle<trigger::HLTPrescaleTable> hltESHandle_;
+  edm::ESHandle<trigger::HLTPrescaleTableCond> hltESHandle_;
 
   /// payload HLT object
   trigger::HLTPrescaleTable hlt_;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/26 16:34:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/28 08:09:04 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -11,7 +11,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaleRecorder.h"
 
-#include "CondFormats/HLTObjects/interface/HLTPrescaleTable.h"
+#include "CondFormats/HLTObjects/interface/HLTPrescaleTableCond.h"
 #include "CondFormats/DataRecord/interface/HLTPrescaleTableRcd.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
@@ -126,7 +126,7 @@ void HLTPrescaleRecorder::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup
     /// From CondDB (needs ESProducer module as well)
     const HLTPrescaleTableRcd& hltRecord(iSetup.get<HLTPrescaleTableRcd>());
     hltRecord.get(hltDBTag_,hltESHandle_);
-    hlt_=*hltESHandle_;
+    hlt_=hltESHandle_->hltPrescaleTable();
   }
 
   return;
@@ -220,16 +220,16 @@ void HLTPrescaleRecorder::endRun(edm::Run& iRun, const edm::EventSetup& iSetup) 
   if (condDB_) {
     /// Writing to CondDB (needs PoolDBOutputService)
     if (db_!=0) {
-      HLTPrescaleTable* product (new HLTPrescaleTable(hlt_));
+      HLTPrescaleTableCond* product (new HLTPrescaleTableCond(hlt_));
       const string rcdName("HLTPrescaleTableRcd");
       if ( db_->isNewTagRequest(rcdName) ) {
-	db_->createNewIOV<HLTPrescaleTable>(product,
+	db_->createNewIOV<HLTPrescaleTableCond>(product,
 	      db_->beginOfTime(),db_->endOfTime(),rcdName);
       } else {
 	::timeval tv;
 	gettimeofday(&tv,0);
 	edm::Timestamp tstamp((unsigned long long)tv.tv_sec);
-	db_->appendSinceTime<HLTPrescaleTable>(product,
+	db_->appendSinceTime<HLTPrescaleTableCond>(product,
 //            db_->currentTime()
               tstamp.value()
 		,rcdName);
