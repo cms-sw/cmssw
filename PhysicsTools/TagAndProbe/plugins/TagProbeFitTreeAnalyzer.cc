@@ -26,8 +26,8 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
           pset.getParameter<string>("InputDirectoryName"),
           pset.getParameter<string>("InputTreeName"),
           pset.getParameter<string>("OutputFileName"),
-          pset.getParameter<uint>("NumCPU"),
-          pset.getParameter<bool>("SaveWorkspace")
+          pset.existsAs<uint>("NumCPU")?pset.getParameter<uint>("NumCPU"):1,
+          pset.existsAs<bool>("SaveWorkspace")?pset.getParameter<bool>("SaveWorkspace"):false
   )
 {
   const ParameterSet variables = pset.getParameter<ParameterSet>("Variables");
@@ -55,11 +55,13 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
     }
   }
 
-  const ParameterSet pdfs = pset.getParameter<ParameterSet>("PDFs");
-  vector<string> pdfNames = pdfs.getParameterNamesForType<vector<string> >();
-  for (vector<string>::const_iterator name = pdfNames.begin(); name != pdfNames.end(); name++) {
-    vector<string> pdf = pdfs.getParameter<vector<string> >(*name);
-    fitter.addPdf(*name, pdf);
+  if(pset.existsAs<ParameterSet>("PDFs")){
+    const ParameterSet pdfs = pset.getParameter<ParameterSet>("PDFs");
+    vector<string> pdfNames = pdfs.getParameterNamesForType<vector<string> >();
+    for (vector<string>::const_iterator name = pdfNames.begin(); name != pdfNames.end(); name++) {
+      vector<string> pdf = pdfs.getParameter<vector<string> >(*name);
+      fitter.addPdf(*name, pdf);
+    }
   }
 
   const ParameterSet efficiencies = pset.getParameter<ParameterSet>("Efficiencies");
@@ -76,7 +78,10 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
     exit(1);
   }
 
-  vector<string> unbinnedVariables = pset.getParameter<vector<string> >("UnbinnedVariables");
+  vector<string> unbinnedVariables;
+  if(pset.existsAs<vector<string> >("UnbinnedVariables")){
+    unbinnedVariables = pset.getParameter<vector<string> >("UnbinnedVariables");
+  }
 
   const ParameterSet binVars = pset.getParameter<ParameterSet>("BinnedVariables");
   map<string, vector<double> >binnedVariables;
@@ -92,7 +97,10 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
     mappedCategories[*var] = map;
   }
 
-  vector<string> binToPDFmap = pset.getParameter<vector<string> >("BinToPDFmap");
+  vector<string> binToPDFmap;
+  if(pset.existsAs<vector<string> >("BinToPDFmap")){
+    binToPDFmap = pset.getParameter<vector<string> >("BinToPDFmap");
+  }
   if((binToPDFmap.size() > 0) && (binToPDFmap.size()%2 == 0)){
     cout<<"BinToPDFmap must have odd size, first string is the default, followed by binRegExp - PDFname pairs!"<<endl;
     exit(2);
