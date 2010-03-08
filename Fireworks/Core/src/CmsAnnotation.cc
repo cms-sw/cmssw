@@ -50,16 +50,18 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 {
    static UInt_t ttid_black = 0;
    static UInt_t ttid_white = 0;
-
+     
    bool whiteBg = rnrCtx.ColorSet().Background().GetColorIndex() == kWhite;
    UInt_t& ttid = whiteBg ? ttid_white : ttid_black;
-   if ( whiteBg == false && ttid == 0 )
+
+   if ( whiteBg == false && ttid == 0 || whiteBg && ttid == 0)
    {
-      std::string mipmaps[3] = {"CMSLogoBlackBg.png", "CMSLogoBlackBgM.png", "CMSLogoBlackBgS.png" };
-     TImage* imgs[3];
-     for (int i = 0; i < 3; i++)
-        imgs[i] = TImage::Open(FWCheckBoxIcon::coreIcondir()+mipmaps[i]);     
-      
+      TImage* imgs[3];
+      TString base =   whiteBg ? "White" : "Black";  
+      imgs[0] = TImage::Open(FWCheckBoxIcon::coreIcondir()+"CMSLogo" + base + "Bg.png");
+      imgs[1] = TImage::Open(FWCheckBoxIcon::coreIcondir()+"CMSLogo" + base + "BgM.png");
+      imgs[2] = TImage::Open(FWCheckBoxIcon::coreIcondir()+"CMSLogo" + base + "BgS.png");
+
       glGenTextures(1, &ttid);
       glBindTexture(GL_TEXTURE_2D, ttid);
       
@@ -76,36 +78,13 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
       
       for (int i=0; i < 3; i++)
          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, imgs[i]->GetWidth(), imgs[i]->GetHeight(), 0,
-                   GL_BGRA, GL_UNSIGNED_BYTE, imgs[i]->GetArgbArray()); 
+                      GL_BGRA, GL_UNSIGNED_BYTE, imgs[i]->GetArgbArray()); 
       
       glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
      
       for (int i=0; i < 3; i++)
          delete imgs[i];
    }
-   else if (whiteBg && ttid == 0)
-   {
-      const char* path = Form(FWCheckBoxIcon::coreIcondir()+"CMSLogoWhiteBg.png");
-      TImage* img = TImage::Open(path);
-
-      glGenTextures(1, &ttid);      
-      glBindTexture(GL_TEXTURE_2D, ttid);
-      
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      
-      glPixelStorei(GL_UNPACK_ALIGNMENT,  1);
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
-      
-      gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, img->GetWidth(), img->GetHeight(), GL_BGRA, GL_UNSIGNED_BYTE, img->GetArgbArray());
-      
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
-      
-      delete img;      
-   }
-
 
    glPushAttrib(GL_ENABLE_BIT | GL_LINE_BIT | GL_POLYGON_BIT );
    TGLCapabilitySwitch lights_off(GL_LIGHTING, kFALSE);
