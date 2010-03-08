@@ -7,7 +7,7 @@
 // Package:    DQM/TrackerCommon
 // Class:      TriggerHelper
 //
-// $Id: TriggerHelper.h,v 1.4 2010/02/16 20:22:37 vadler Exp $
+// $Id: TriggerHelper.h,v 1.11 2010/03/07 18:36:01 vadler Exp $
 //
 /**
   \class    TriggerHelper TriggerHelper.h "DQM/TrackerCommon/interface/TriggerHelper.h"
@@ -16,12 +16,13 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: TriggerHelper.h,v 1.4 2010/02/16 20:22:37 vadler Exp $
+  \version  $Id: TriggerHelper.h,v 1.11 2010/03/07 18:36:01 vadler Exp $
 */
 
 
 #include <string>
 
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -32,55 +33,62 @@
 
 class TriggerHelper {
 
-    // Data members
-    // General
+    L1GtUtils         l1Gt_;
+    HLTConfigProvider hltConfig_;
+    bool              hltConfigInit_;
+    // Configuration parameters
     bool andOr_;
-    // DCS filter configuration parameters
-    edm::Handle< DcsStatusCollection > dcsStatus_; // Safe here, since this is not an EDM module.
-    bool errorReplyDcs_;
-    // GT status bits configuration parameters
-    edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord_; // Safe here, since this is not an EDM module.
-    bool errorReplyGt_;
-    // L1 access
-    L1GtUtils l1Gt_;
-    // L1 filter configuration parameters
-    bool errorReplyL1_;
-    // HLT filter configuration parameters
-    edm::InputTag hltInputTag_;
-    edm::Handle< edm::TriggerResults > hltTriggerResults_; // Safe here, since this is not an EDM module.
-    bool errorReplyHlt_;
+    bool               andOrDcs_;
+    edm::InputTag      dcsInputTag_;
+    std::vector< int > dcsPartitions_;
+    bool               errorReplyDcs_;
+    bool                       andOrGt_;
+    edm::InputTag              gtInputTag_;
+    std::vector< std::string > gtLogicalExpressions_;
+    bool                       errorReplyGt_;
+    bool                       andOrL1_;
+    std::vector< std::string > l1LogicalExpressions_;
+    bool                       errorReplyL1_;
+    bool                       andOrHlt_;
+    edm::InputTag              hltInputTag_;
+    std::vector< std::string > hltLogicalExpressions_;
+    bool                       errorReplyHlt_;
+    // Switches
+    bool on_;
+    bool onDcs_;
+    bool onGt_;
+    bool onL1_;
+    bool onHlt_;
 
   public:
 
     // Constructors and destructor
-    TriggerHelper();
+    TriggerHelper( const edm::ParameterSet & config ); // To be called from the ED module's c'tor
     ~TriggerHelper() {};
 
     // Public methods
-    bool accept( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config, const HLTConfigProvider & hltConfig, const bool hltConfigInit ); // DCS, GT status, L1, HLT
-    bool accept( const edm::Event & event, const edm::ParameterSet & config, const HLTConfigProvider & hltConfig, const bool hltConfigInit );                                // DCS, GT status    , HLT
-    bool accept( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config );                                                                // DCS, GT status, L1
-    bool accept( const edm::Event & event, const edm::ParameterSet & config );                                                                                               // DCS, GT status
+    void initRun( const edm::Run & run, const edm::EventSetup & setup );    // To be called from beginRun() methods
+    bool accept( const edm::Event & event, const edm::EventSetup & setup ); // To be called from analyze/filter() methods
 
   private:
 
     // Private methods
 
     // DCS
-    bool acceptDcs( const edm::Event & event, const edm::ParameterSet & config );
-    bool acceptDcsPartition( int dcsPartition ) const;
+    bool acceptDcs( const edm::Event & event );
+    bool acceptDcsPartition( const edm::Handle< DcsStatusCollection > & dcsStatus, int dcsPartition ) const;
 
     // GT status bits
-    bool acceptGt( const edm::Event & event, const edm::ParameterSet & config );
-    bool acceptGtLogicalExpression( std::string gtLogicalExpression );
+    bool acceptGt( const edm::Event & event );
+    bool acceptGtLogicalExpression( const edm::Handle< L1GlobalTriggerReadoutRecord > & gtReadoutRecord, std::string gtLogicalExpression );
 
     // L1
-    bool acceptL1( const edm::Event & event, const edm::EventSetup & setup, const edm::ParameterSet & config );
+    bool acceptL1( const edm::Event & event, const edm::EventSetup & setup );
     bool acceptL1LogicalExpression( const edm::Event & event, std::string l1LogicalExpression );
 
     // HLT
-    bool acceptHlt( const edm::Event & event, const edm::ParameterSet & config, const HLTConfigProvider & hltConfig, bool hltConfigInit );
-    bool acceptHltLogicalExpression( std::string hltLogicalExpression, const HLTConfigProvider & hltConfig ) const;
+    bool acceptHlt( const edm::Event & event );
+    bool acceptHltLogicalExpression( const edm::Handle< edm::TriggerResults > & hltTriggerResults, std::string hltLogicalExpression ) const;
 
     // Algos
     bool negate( std::string & word ) const;
