@@ -283,7 +283,9 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
             recorded=cursor.currentRow()["recorded"].data()*c.NORM
         del query
         dbsession.transaction().commit()
+
         print 'Effective Luminosity for Run '+str(runnum)
+        #print 'requested hltpath ',hltpath
         if hltpath=='all':
             for hltname in hltTotrgMap.keys():
                 effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
@@ -305,6 +307,8 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         del dbsession
         
 def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
+    if len(hltpath)==0:
+        hltpath='all'
     if c.VERBOSE:
         print 'effectiveLumiForRange : inputfile : ',inputfile,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
     f=open(inputfile,'r')
@@ -438,9 +442,30 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
                 del trgQuery
             dbsession.transaction().commit()
             hltTotrgMapAllRuns[int(runnumstr)]=hltTotrgMap
-        #print recorded
-        print hltTotrgMapAllRuns
-        
+       # print 'recorded '
+       # print recorded
+       # print 'hltTotrgMap all runs '
+       # print hltTotrgMapAllRuns
+        if len(recorded)!=len(hltTotrgMapAllRuns):
+            raise "inconsistent number of runs in recorded and hltTotrgMap result"
+
+        for run in recorded.keys():
+             print 'Effective Luminosity for Run '+str(run)
+             if hltpath=='all':
+                 for hltname in hltTotrgMapAllRuns[run].keys():
+                     effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltname][1]*hltTotrgMapAllRuns[run][hltname][2])
+                     print '    '+hltname+' : '+str(effresult)+c.LUMIUNIT
+                 if c.VERBOSE:
+                     print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltname][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltname][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltname][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltname][3])
+             else:
+                 if hltTotrgMapAllRuns[run].has_key(hltpath) is False:
+                     print 'Unable to calculate effective luminosity for HLTPath ',hltpath
+                     return
+                 effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltpath][1]*hltTotrgMapAllRuns[run][hltpath][2])
+                 print '    '+hltpath+' : '+str(effresult)+c.LUMIUNIT
+                 if c.VERBOSE:
+                     print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltpath][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltpath][3])
+                
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
