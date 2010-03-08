@@ -1,4 +1,4 @@
-// $Id: DQMKey.h,v 1.3.4.1 2009/09/25 10:38:52 mommsen Exp $
+// $Id: DQMKey.h,v 1.4 2009/10/13 15:08:33 mommsen Exp $
 /// @file: DQMKey.h 
 
 #ifndef StorageManager_DQMKey_h
@@ -13,15 +13,14 @@ namespace stor {
    * Definition of the DQMKey used in the storage manager
    *
    * $Author: mommsen $
-   * $Revision: 1.3.4.1 $
-   * $Date: 2009/09/25 10:38:52 $
+   * $Revision: 1.4 $
+   * $Date: 2009/10/13 15:08:33 $
    */
   
   struct DQMKey
   {
     uint32_t runNumber;
     uint32_t lumiSection;
-    uint32_t updateNumber;
 
     bool operator<(DQMKey const& other) const;
     bool operator==(DQMKey const& other) const;
@@ -30,15 +29,13 @@ namespace stor {
   inline bool DQMKey::operator<(DQMKey const& other) const
   {
     if ( runNumber != other.runNumber) return runNumber < other.runNumber;
-    if ( lumiSection != other.lumiSection) return lumiSection < other.lumiSection;
-    return updateNumber < other.updateNumber;
+    return lumiSection < other.lumiSection;
   }
   
   inline bool DQMKey::operator==(DQMKey const& other) const
   {
     return (runNumber == other.runNumber &&
-      lumiSection == other.lumiSection &&
-      updateNumber == other.updateNumber);
+      lumiSection == other.lumiSection);
   }
 
 } // namespace stor
