@@ -140,34 +140,55 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 
    if (fActive)
    {
+      // resize button
+      glPushMatrix();
       glTranslatef(a, -a, 0);
       a *= 0.15;
       z = 0.95;
-      // resize button
       glPushName(kResize);
-      TGLUtil::ColorTransparency(kGreen, 60);
+      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 70);
       glBegin(GL_QUADS);
       glVertex3f( 0, 0, z);
       glVertex3f( 0, a, z);
       glVertex3f(-a, a, z);
       glVertex3f(-a, 0, z);
       glEnd();
-      glPopName();
-      // delete
-      glPushName(7);
-      glTranslatef(0, a, 0);
-      TGLUtil::ColorTransparency(kRed, 60);
-      glBegin(GL_QUADS);
-      glVertex3f( 0, 0, z);
-      glVertex3f( 0, a, z);
-      glVertex3f(-a, a, z);
-      glVertex3f(-a, 0, z);
-      glEnd();
+      {
+         glTranslatef(-a/3, a/3, 0);
+         glBegin(GL_LINES);
+         TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 40);
+         Float_t s = a / 3;
+         glVertex3f( 0, 0, z); glVertex3f( 0, s, z);
+         glVertex3f( 0, 0, z); glVertex3f( -s, 0, z);
+         glEnd();
+      }
       glPopName();
    }
+   glPopMatrix();
 
-  
-
+   
+   // delete
+   glPushName(7);
+   TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 60);
+   glTranslatef(0, -a, 0);
+   glBegin(GL_QUADS);
+   glVertex3f( 0, 0, z);
+   glVertex3f( a, 0, z);
+   glVertex3f( a, a, z);
+   glVertex3f( 0, a, z);
+   glEnd();
+   {
+      glBegin(GL_LINES);
+      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 40);
+      Float_t s = a/3;
+      glVertex3f( s, s, z);
+      glVertex3f( a-s, a-s, z);
+      glVertex3f( s, a-s, z);
+      glVertex3f( a-s, s, z);
+      glEnd();
+   }
+   glPopName();
+   
    glEnable(GL_DEPTH_TEST);
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
