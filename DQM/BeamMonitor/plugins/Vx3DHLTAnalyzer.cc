@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.13 2010/03/06 19:20:24 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.14 2010/03/06 21:38:39 dinardo Exp $
 //
 //
 
@@ -141,8 +141,20 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       vector<double>::const_iterator it = vals->begin();
 
       outputFile << "Runnumber " << runNumber << endl;
-      outputFile << "BeginTimeOfFit " << beginTimeOfFit << endl;
-      outputFile << "EndTimeOfFit " << endTimeOfFit << endl;
+      outputFile << "BeginTimeOfFit ";
+      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_year << "-";
+      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_mon+1 << "-";
+      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_mday << " ";
+      outputFile << (gmtime((const time_t*)&beginTimeOfFit)->tm_hour+1)%24 << ":";
+      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_min << ":";
+      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_sec << endl;
+      outputFile << "EndTimeOfFit ";
+      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_year << "-";
+      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_mon+1 << "-";
+      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_mday << " ";
+      outputFile << (gmtime((const time_t*)&endTimeOfFit)->tm_hour+1)%24 << ":";
+      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_min << ":";
+      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_sec << endl;
       outputFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
       outputFile << "Type 3" << endl; // 3D Vertexing with Pixel Tracks = type 3
 
@@ -189,6 +201,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       outputFile << "EmittanceX 0.0" << endl;
       outputFile << "EmittanceY 0.0" << endl;
       outputFile << "BetaStar 0.0" << endl;
+      outputFile << "\n" << endl;
 
       outputFile.close();
     }
@@ -226,17 +239,17 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), nLumiReset);
       
       Gauss->SetParameters(Vx_X->getTH1()->GetMaximum(), Vx_X->getTH1()->GetMean(), Vx_X->getTH1()->GetRMS());
-      Vx_X->getTH1()->Fit("Gauss","QN0");
+      Vx_X->getTH1()->Fit("Gauss","LQN0");
       RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2),
 				 (Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
 											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
       Gauss->SetParameters(Vx_Y->getTH1()->GetMaximum(), Vx_Y->getTH1()->GetMean(), Vx_Y->getTH1()->GetRMS());
-      Vx_Y->getTH1()->Fit("Gauss","QN0");
+      Vx_Y->getTH1()->Fit("Gauss","LQN0");
       RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2),
 				 (Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
 											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
       Gauss->SetParameters(Vx_Z->getTH1()->GetMaximum(), Vx_Z->getTH1()->GetMean(), Vx_Z->getTH1()->GetRMS());
-      Vx_Z->getTH1()->Fit("Gauss","QN0");
+      Vx_Z->getTH1()->Fit("Gauss","LQN0");
       RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2),
 				 (Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
 											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
