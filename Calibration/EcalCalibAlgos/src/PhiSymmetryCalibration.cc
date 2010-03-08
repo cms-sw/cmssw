@@ -71,6 +71,10 @@ PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
   endcapHits_( iConfig.getParameter< std::string > ("endcapHitCollection") ),
   eCut_barl_( iConfig.getParameter< double > ("eCut_barrel") ),
   eCut_endc_( iConfig.getParameter< double > ("eCut_endcap") ),
+  ap_( iConfig.getParameter< float > ("ap") ),
+  am_( iConfig.getParameter< float > ("am") ),
+  b_( iConfig.getParameter< float > ("b") ), 
+
   eventSet_( iConfig.getParameter< int > ("eventSet") ),
   statusThreshold_(iConfig.getUntrackedParameter<int>("statusThreshold",1000)),
   reiteration_(iConfig.getUntrackedParameter< bool > ("reiteration",false)),
@@ -733,20 +737,19 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event, const edm::EventS
 
     // if (reiteration_) et= et /  previousCalibs_[hit] * newCalibs_.get()[hit];
 
-    // changes of eCut_endc_ -> variable thr 
-    float ap = -0.015; //GeV
-    float am =  0.050;
-    float b  =  0.500;
-
+    // changes of eCut_endc_ -> variable linearthr 
+    // EE+ : e_cut = ap + eta_ring*b
+    // EE- : e_cut = ap + eta_ring*b
+    //
     for (int ring=0; ring<kEndcEtaRings; ring++) {
       if(eta>etaBoundary_[ring] && eta<etaBoundary_[ring+1])
 	{
 	  float eta_ring=cellPos_[ring][50].eta();
   
 	  if(sign==1)
-	    eCut_endc_ = ap + eta_ring*b;
+	    eCut_endc_ = ap_ + eta_ring*b_;
 	  else
-	    eCut_endc_ = am + eta_ring*b;
+	    eCut_endc_ = am_ + eta_ring*b_;
 	}
     }
 

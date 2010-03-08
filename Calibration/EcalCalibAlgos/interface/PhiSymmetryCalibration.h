@@ -163,6 +163,13 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   std::string endcapHits_;
   double eCut_barl_;
   double eCut_endc_;  
+  
+  // parametrized energy cut EE+ : e_cut = ap + eta_ring*b
+  //                         EE- : e_cut = ap + eta_ring*b
+  float ap_;
+  float am_;
+  float b_;
+
   int eventSet_;
   /// threshold in channel status beyond which channel is marked bad
   int statusThreshold_; 
