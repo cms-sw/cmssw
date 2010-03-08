@@ -1,47 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalnoise = cms.EDProducer(
-    'HcalNoiseInfoProducer',
-
-    # what to fill
-    fillDigis = cms.bool(True),
-    fillRecHits = cms.bool(True),
-    fillCaloTowers = cms.bool(True),
-    fillTracks = cms.bool(True),
-
-    # maximum number of RBXs to fill
-    # if you want to record all RBXs above some energy threshold,
-    # change maxProblemRBXs to 999 and pMinE to the threshold you want
-    maxProblemRBXs  = cms.int32(20),
-
-    # parameters for calculating summary variables
-    maxCaloTowerIEta = cms.int32(20),
-    maxTrackEta = cms.double(2.0),
-    minTrackPt = cms.double(1.0),
-
-    # collection names
-    digiCollName = cms.string('hcalDigis'),
-    recHitCollName = cms.string('hbhereco'),
-    caloTowerCollName = cms.string('towerMaker'),
-    trackCollName = cms.string('generalTracks'),
-
+HcalNoiseParameterSet = cms.PSet(
     # define hit energy thesholds
     minRecHitE = cms.double(1.5),
     minLowHitE = cms.double(10.0),
     minHighHitE = cms.double(25.0),
-
+    
     # define energy threshold for "problematic" cuts
     pMinERatio = cms.double(25.0),
     pMinEZeros = cms.double(5.0),
     pMinEEMF = cms.double(10.0),
-
+    
     # define energy threshold for loose/tight/high level cuts
     minERatio = cms.double(50.0),
     minEZeros = cms.double(10.0),
     minEEMF = cms.double(20.0),
-
+    
     # define problematic RBX
-    pMinE = cms.double(150.0),
+    pMinE = cms.double(100.0),
     pMinRatio = cms.double(0.75),
     pMaxRatio = cms.double(0.90),
     pMinHPDHits = cms.int32(10),
@@ -81,6 +57,35 @@ hcalnoise = cms.EDProducer(
 
     # define high level noise cuts
     hlMaxHPDEMF = cms.double(0.01),
-    hlMaxRBXEMF = cms.double(0.01),
-
+    hlMaxRBXEMF = cms.double(0.01)
     )
+
+
+hcalnoise = cms.EDProducer(
+    'HcalNoiseInfoProducer',
+
+    # general noise parameters
+    HcalNoiseParameterSet,
+
+    # what to fill
+    fillDigis = cms.bool(True),
+    fillRecHits = cms.bool(True),
+    fillCaloTowers = cms.bool(True),
+    fillTracks = cms.bool(True),
+
+    # maximum number of RBXs to fill
+    # if you want to record all RBXs above some energy threshold,
+    # change maxProblemRBXs to 999 and pMinE (above) to the threshold you want
+    maxProblemRBXs  = cms.int32(20),
+
+    # parameters for calculating summary variables
+    maxCaloTowerIEta = cms.int32(20),
+    maxTrackEta = cms.double(2.0),
+    minTrackPt = cms.double(1.0),
+
+    # collection names
+    digiCollName = cms.string('hcalDigis'),
+    recHitCollName = cms.string('hbhereco'),
+    caloTowerCollName = cms.string('towerMaker'),
+    trackCollName = cms.string('generalTracks')
+)
