@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2010/01/11 14:51:07 $
+//  last update: $Date: 2010/01/14 16:14:04 $
 //  by         : $Author: flucke $
 
 #include <memory>
@@ -32,6 +32,7 @@
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 #include <TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h>
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
+
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -132,7 +133,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     GlobalPoint origin(0.,0.,0.);
     TrajectoryStateClosestToPoint tsctp(TSCPBuilderNoMaterial()(refTsos, origin));
     FreeTrajectoryState pcaFts = tsctp.theState();
-    //propagation
+    //propagation FIXME: Should use same propagator everywhere...
     AnalyticalPropagator propagator(magField);
     std::pair< TrajectoryStateOnSurface, double > tsosWithPath = propagator.propagateWithPath(pcaFts,refTsos.surface()); 
 
@@ -225,9 +226,10 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     //  - no error propagation needed here.
     previousHitPtr = hitPtr;
     previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
-					      updatedTsos.surface(), surfaceSide);
-    if (materialEffects<brokenLinesCoarse)
-    this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
+                                              updatedTsos.surface(), surfaceSide);
+    if (materialEffects < brokenLinesCoarse) {
+      this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
+    }
 
     AlgebraicVector mixedLocalParams = asHepVector<5>(theTsosVec.back().localParameters().mixedFormatVector());
     this->fillTrajectoryPositions(allProjections.back(), mixedLocalParams, iRow);
@@ -236,28 +238,32 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     iRow += nMeasPerHit;
   } // end of loop on hits
 
+  bool msOK = true;
   switch (materialEffects) {
   case none:
     break;
   case multipleScattering:
   case energyLoss:
   case combined:
-    this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges,
-				allDeltaParameterCovs);
+    msOK = this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges,
+                                       allDeltaParameterCovs);
     break;
   case breakPoints:
-    this->addMaterialEffectsBp (allJacobians, allProjections, allCurvatureChanges,
-				allDeltaParameterCovs, allLocalToCurv);
+    msOK = this->addMaterialEffectsBp(allJacobians, allProjections, allCurvatureChanges,
+                                      allDeltaParameterCovs, allLocalToCurv);
     break;
   case brokenLinesCoarse:
   case brokenLinesCoarsePca:
-    this->addMaterialEffectsBrl(allProjections, allDeltaParameterCovs, allLocalToCurv, allSteps, refTsos.globalParameters());
+    msOK = this->addMaterialEffectsBrl(allProjections, allDeltaParameterCovs, allLocalToCurv,
+                                       allSteps, refTsos.globalParameters());
     break;
   case brokenLinesFine:
   case brokenLinesFinePca:
-    this->addMaterialEffectsBrl(allCurvlinJacobians, allProjections, allCurvatureChanges,
-				allDeltaParameterCovs, allLocalToCurv, allSteps, refTsos.globalParameters());
+    msOK = this->addMaterialEffectsBrl(allCurvlinJacobians, allProjections, allCurvatureChanges,
+                                       allDeltaParameterCovs, allLocalToCurv, allSteps,
+                                       refTsos.globalParameters());
   }
+  if (!msOK) return false;
  
   if (refTsos.hasError()) {
     AlgebraicSymMatrix parameterCov = asHepMatrix<5>(refTsos.localError().matrix());
@@ -312,7 +318,7 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
    * NB: this propagator assumes constant, non-zero magnetic field parallel to the z-axis!
    */
   //AnalyticalPropagator aPropagator(magField, propDir);
-  // Hard coded RungeKutta instead Analytical (avoid bias in TEC
+  // Hard coded RungeKutta instead Analytical (avoid bias in TEC), but
   // work around TrackPropagation/RungeKutta/interface/RKTestPropagator.h and
   // http://www.parashift.com/c++-faq-lite/strange-inheritance.html#faq-23.9
   RKTestPropagator bPropagator(magField, propDir); //double tolerance = 5.e-5)
@@ -418,7 +424,7 @@ void ReferenceTrajectory::fillTrajectoryPositions(const AlgebraicMatrix &project
 
 //__________________________________________________________________________________
 
-void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
+bool ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
 						const std::vector<AlgebraicMatrix> &allProjections,
 						const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
 						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs)
@@ -480,20 +486,22 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
      
   }
   theMeasurementsCov += materialEffectsCov;
+
+  return true; // cannot fail
 }
 
 //__________________________________________________________________________________
 
-void ReferenceTrajectory::addMaterialEffectsBp(const std::vector<AlgebraicMatrix> &allJacobians, 
-						const std::vector<AlgebraicMatrix> &allProjections,
-						const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
-						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
-						const std::vector<AlgebraicMatrix> &allLocalToCurv)
+bool ReferenceTrajectory::addMaterialEffectsBp(const std::vector<AlgebraicMatrix> &allJacobians, 
+                                               const std::vector<AlgebraicMatrix> &allProjections,
+                                               const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
+                                               const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
+                                               const std::vector<AlgebraicMatrix> &allLocalToCurv)
 {
 //CHK: add material effects using break points
   int offsetPar = theNumberOfPars; 
   int offsetMeas = nMeasPerHit * allJacobians.size();
-  int ierr; 
+  int ierr = 0; 
 
   AlgebraicMatrix tempJacobian;
   AlgebraicMatrix MSprojection(2,5);
@@ -517,7 +525,9 @@ void ReferenceTrajectory::addMaterialEffectsBp(const std::vector<AlgebraicMatrix
     tempMSJacProj = (allProjections[k] * ( tempJacobian * allLocalToCurv[k-1].inverse(ierr) )) * MSprojection.T();
     if (ierr) {
       edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBp"
-	                         << "Inversion 1 for break points failed: " << ierr; }
+	                         << "Inversion 1 for break points failed: " << ierr;
+      return false;
+    }
     theDerivatives[nMeasPerHit*k  ][offsetPar+2*kbp  ] =  tempMSJacProj[0][0];  
     theDerivatives[nMeasPerHit*k  ][offsetPar+2*kbp+1] =  tempMSJacProj[0][1]; 
     theDerivatives[nMeasPerHit*k+1][offsetPar+2*kbp  ] =  tempMSJacProj[1][0];  
@@ -530,7 +540,9 @@ void ReferenceTrajectory::addMaterialEffectsBp(const std::vector<AlgebraicMatrix
       tempMSJacProj = (allProjections[l] * ( tempJacobian * allLocalToCurv[k-1].inverse(ierr) )) * MSprojection.T();
       if (ierr) {
 	edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBp"
-				   << "Inversion 2 for break points failed: " << ierr; }
+				   << "Inversion 2 for break points failed: " << ierr;
+        return false;
+      }
       theDerivatives[nMeasPerHit*l  ][offsetPar+2*kbp  ] =  tempMSJacProj[0][0];  
       theDerivatives[nMeasPerHit*l  ][offsetPar+2*kbp+1] =  tempMSJacProj[0][1]; 
       theDerivatives[nMeasPerHit*l+1][offsetPar+2*kbp  ] =  tempMSJacProj[1][0];  
@@ -539,12 +551,13 @@ void ReferenceTrajectory::addMaterialEffectsBp(const std::vector<AlgebraicMatrix
     }
 
   }
-  
+
+  return true;
 }
 
 //__________________________________________________________________________________
 
-void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allCurvlinJacobians, 
+bool ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allCurvlinJacobians, 
 						const std::vector<AlgebraicMatrix> &allProjections,
 						const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
 						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
@@ -558,7 +571,8 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
   
   int offsetPar = theNumberOfPars; 
   int offsetMeas = nMeasPerHit*allCurvlinJacobians.size();
-  int ierr; 
+  int ierr = 0; 
+
   bool usePCA(allSteps[0] != 0);
   if (usePCA) {offsetPar += 2; offsetMeas += nMeasPerHit;} 
   else {theNumberOfMsPars -= 2; theNumberOfMsMeas -= nMeasPerHit;}
@@ -583,6 +597,11 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     theInnerTrajectoryToCurvilinear[4][4] = 1; 
   } else {
     AlgebraicMatrix tempJacTrans = allCurvlinJacobians[kStart].sub(4,5,4,5).inverse(ierr);
+    if (ierr) {
+      edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
+                                 << "Inversion 1 for fine broken lines failed: " << ierr;
+      return false;
+    }
     AlgebraicMatrix tempJacTransBend = allCurvlinJacobians[kStart].sub(2,3,1,1);
     theInnerTrajectoryToCurvilinear[0][0] = 1;
     theInnerTrajectoryToCurvilinear[1][0] = -0.5*tempJacTransBend[0][0]; 
@@ -597,6 +616,11 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     theInnerTrajectoryToCurvilinear[4][2] = 1; 
   }
   theInnerLocalToTrajectory = theInnerTrajectoryToCurvilinear.inverse(ierr) * allLocalToCurv[0];
+  if (ierr) {
+    edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
+                               << "Inversion 2 for fine broken lines failed: " << ierr;
+    return false;
+  }
       
   AlgebraicMatrix tempJacobian(allCurvatureChanges[0]);
   AlgebraicMatrix MSprojAngle(2,5);
@@ -620,7 +644,9 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     tempMSJacProj = (allProjections[k] * allLocalToCurv[k].inverse(ierr) ) * MSprojOffset.T();  
     if (ierr) {
        edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
-				   << "Inversion 1 for broken lines failed: " << ierr; }
+				   << "Inversion 3 for fine broken lines failed: " << ierr;
+       return false;
+    }
     theDerivatives[nMeasPerHit*k  ][offsetPar+2*k  ] =  tempMSJacProj[0][0];  
     theDerivatives[nMeasPerHit*k  ][offsetPar+2*k+1] =  tempMSJacProj[0][1]; 
     theDerivatives[nMeasPerHit*k+1][offsetPar+2*k  ] =  tempMSJacProj[1][0];  
@@ -650,7 +676,9 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     tempJacOffsetN = tempJacN.sub(4,5,4,5).inverse(ierr); // .T() should do
     if (ierr) {
        edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
-				   << "Inversion 2 for broken lines failed: " << ierr; }
+				   << "Inversion 4 for fine broken lines failed: " << ierr;
+       return false;
+    }
     tempJacBending = tempJacL.sub(2,3,1,1) + tempJacN.sub(2,3,1,1);
     // bending    
     theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][              0] = -0.5*tempJacBending[1][0]*cosLambda;
@@ -673,9 +701,10 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
         
   }
   
+  return true;
 }
 
-void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
+bool ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
 						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
 						const std::vector<AlgebraicMatrix> &allLocalToCurv,
 						const std::vector<double> &allSteps,
@@ -687,7 +716,7 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
 
   int offsetPar = theNumberOfPars; 
   int offsetMeas = nMeasPerHit*allSteps.size();
-  int ierr; 
+  int ierr = 0; 
   bool usePCA(allSteps[0] != 0);
   GlobalVector p = gtp.momentum();
   double cosLambda = sqrt((p.x()*p.x()+p.y()*p.y())/(p.x()*p.x()+p.y()*p.y()+p.z()*p.z()));
@@ -709,6 +738,11 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     theInnerTrajectoryToCurvilinear[4][2] = 1; 
   } 
   theInnerLocalToTrajectory = theInnerTrajectoryToCurvilinear.inverse(ierr) * allLocalToCurv[0];
+  if (ierr) {
+    edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
+                               << "Inversion 1 for coarse broken lines failed: " << ierr;
+    return false;
+  }
         
   AlgebraicMatrix MSprojAngle(2,5);
   MSprojAngle[0][1] = 1;
@@ -736,8 +770,10 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     plane[k] = nPlane;
     sPlane[nPlane] += sTot;
   }
+  if (nPlane < 2) return false; // pathological cases: need at least 2 planes
+
   theNumberOfMsPars = 2*(nPlane+1);
-  theNumberOfMsMeas = 2*(nPlane-1);
+  theNumberOfMsMeas = 2*(nPlane-1);// unsigned underflow for nPlane == 0...
   for (unsigned int k = 0; k <= nPlane; ++k) { sPlane[k] /= (double) (last[k]-first[k]+1); }
 
   // measurements from hits  
@@ -745,6 +781,12 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
   for (unsigned int k = 0; k < allSteps.size(); ++k) {
     sTot += allSteps[k];
     tempMSJacProj = (allProjections[k] * allLocalToCurv[k].inverse(ierr) ) * MSprojOffset.T(); 
+    if (ierr) {
+      edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
+                                 << "Inversion 2 for coarse broken lines failed: " << ierr;
+      return false;
+    }
+
     unsigned int iPlane = plane[k]; 
     if (last[iPlane] == first[iPlane])
     { // single plane
@@ -807,5 +849,6 @@ void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*n+1] = deltaN;   
         
   }
-  
+
+  return true;
 }

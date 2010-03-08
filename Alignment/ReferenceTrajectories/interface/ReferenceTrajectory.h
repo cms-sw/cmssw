@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2009/12/17 12:27:31 $
+ * last update: $Date: 2010/01/14 16:14:03 $
  * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -109,14 +109,14 @@ protected:
 
   /** internal method to add material effects to measurments covariance matrix
    */
-  virtual void addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
+  virtual bool addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
 				     const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
 				     
   /** internal method to add material effects using break points
    */
-  virtual void addMaterialEffectsBp (const std::vector<AlgebraicMatrix> &allJacobians, 
+  virtual bool addMaterialEffectsBp (const std::vector<AlgebraicMatrix> &allJacobians, 
 				     const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
@@ -124,7 +124,7 @@ protected:
 				     
   /** internal methods to add material effects using broken lines (fine version)
    */
-  virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allJacobians, 
+  virtual bool addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allJacobians, 
 				     const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
@@ -133,7 +133,7 @@ protected:
 				     const GlobalTrajectoryParameters &gtp);
   /** internal methods to add material effects using broken lines (coarse version)
    */
-  virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
+  virtual bool addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv,
 				     const std::vector<double> &allSteps,
