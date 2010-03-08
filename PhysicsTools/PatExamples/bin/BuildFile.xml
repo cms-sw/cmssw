@@ -10,13 +10,9 @@
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/PatExamples"/>
 <use   name="PhysicsTools/FWLite"/>
+<use   name="PhysicsTools/SelectorUtils"/>
 <environment>
-  <bin   file="PatBasicFWLiteAnalyzer.cc">
-  </bin>
-  <bin   file="JPsiFWLiteAnalyzer.cc">
-  </bin>
-  <bin   file="PatMcMatchFWLiteAnalyzer.cc">
-  </bin>
-  <bin   file="testSelection_wplusjets.C">
-  </bin>
+  <bin   file="PatBasicFWLiteAnalyzer.cc"></bin>
+  <bin   file="PatBasicFWLiteAnalyzer_PyConfig.cc"></bin>
+  <bin   file="PatBasicFWLiteAnalyzer_Selector.cc"></bin>
 </environment>
