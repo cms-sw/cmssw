@@ -1,18 +1,21 @@
-# /dev/CMSSW_3_5_0/HIon/V39 (CMSSW_3_5_3)
+# /dev/CMSSW_3_5_0/HIon/V40 (CMSSW_3_5_3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V39')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V40')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
+  Offline = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
   A = cms.vstring( 'MinimumBias',
     'Cosmics',
     'HcalHPDNoise',
@@ -20,8 +23,6 @@ process.streams = cms.PSet(
     'HcalNZS',
     'ZeroBias' ),
   EventDisplay = cms.vstring(  ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -29,8 +30,7 @@ process.streams = cms.PSet(
     'FEDMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  Offline = cms.vstring(  )
+  ALCAP0 = cms.vstring( 'AlCaP0' )
 )
 process.datasets = cms.PSet( 
   OfflineMonitor = cms.vstring(  ),

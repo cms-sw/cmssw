@@ -1,14 +1,16 @@
-# /dev/CMSSW_3_5_0/1E31/V39 (CMSSW_3_5_3)
+# /dev/CMSSW_3_5_0/1E31/V40 (CMSSW_3_5_3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V39')
+  tableName = cms.string('/dev/CMSSW_3_5_0/1E31/V40')
 )
 
 streams = cms.PSet( 
   HLTMON = cms.vstring( 'OfflineMonitor' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
   A = cms.vstring( 'MinimumBias',
     'Cosmics',
     'HcalHPDNoise',
@@ -16,8 +18,6 @@ streams = cms.PSet(
     'HcalNZS',
     'ZeroBias' ),
   EventDisplay = cms.vstring(  ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
