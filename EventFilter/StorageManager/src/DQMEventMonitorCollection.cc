@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.7 2009/09/17 14:43:30 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.8 2010/02/18 11:23:03 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>
@@ -104,13 +104,17 @@ void DQMEventMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpac
 
 void DQMEventMonitorCollection::do_updateInfoSpaceItems()
 {
-  MonitoredQuantity::Stats stats;
-  getNumberOfUpdatesMQ().getStats(stats);
-  _dqmFoldersPerEP = static_cast<xdata::Double>(stats.getValueAverage(MonitoredQuantity::RECENT));
+  DQMEventMonitorCollection::DQMEventStats stats;
+  getStats(stats);
+
+  _dqmFoldersPerEP = static_cast<xdata::Double>(
+    stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::RECENT));
+
   _processedDQMEvents = static_cast<xdata::UnsignedInteger32>(
-    static_cast<unsigned int>(stats.getSampleCount(MonitoredQuantity::FULL)));
+    static_cast<unsigned int>(stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::FULL)));
+
   _discardedDQMEvents = static_cast<xdata::UnsignedInteger32>(
-    static_cast<unsigned int>(stats.getValueSum(MonitoredQuantity::FULL)));
+    static_cast<unsigned int>(stats.discardedDQMEventCountsStats.getValueSum(MonitoredQuantity::FULL)));
 }
 
 
