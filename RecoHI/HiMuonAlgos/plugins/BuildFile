@@ -25,6 +25,8 @@
 <use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/TransientTrack>
 <use name=HLTrigger/HLTcore>
+<use name=RecoMuon/GlobalTrackingTools>
+<use name=RecoMuon/TrackingTools>
 <use name=hepmc>
 <use name=RecoHI/HiMuonAlgos>
 <library file="*.cc" name=RecoHIHiMuonAlgosPlugins>
