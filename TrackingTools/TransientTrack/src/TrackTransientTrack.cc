@@ -77,6 +77,7 @@ void TrackTransientTrack::setTrackingGeometry(const edm::ESHandle<GlobalTracking
 void TrackTransientTrack::setBeamSpot(const BeamSpot& beamSpot)
 {
   theBeamSpot = beamSpot;
+  blStateAvailable = false;
 }
 
 TrajectoryStateOnSurface TrackTransientTrack::impactPointState() const

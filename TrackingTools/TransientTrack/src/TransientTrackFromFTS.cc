@@ -58,6 +58,7 @@ TransientTrackFromFTS::setTrackingGeometry(const edm::ESHandle<GlobalTrackingGeo
 void TransientTrackFromFTS::setBeamSpot(const BeamSpot& beamSpot)
 {
   theBeamSpot = beamSpot;
+  blStateAvailable = false;
 }
 
 
