@@ -998,6 +998,38 @@
 		<XBins>550</XBins>
 		<XMax>550</XMax>
 		<XMin>1</XMin>
+		<YBins>320</YBins>
+		<YMax>320</YMax>
+		<YMin>1</YMin>
+                <Name>Event_Display_Anode_Up</Name>
+	</Histogram>
+
+	<Histogram>
+		<Prefix>EMU</Prefix>
+		<SetNdivisionsX>550</SetNdivisionsX>
+		<SetOption>colz</SetOption>
+		<SetOptStat>e</SetOptStat>
+		<SetStats>0</SetStats>
+		<Type>h2</Type>
+		<XBins>550</XBins>
+		<XMax>550</XMax>
+		<XMin>1</XMin>
+		<YBins>320</YBins>
+		<YMax>320</YMax>
+		<YMin>1</YMin>
+                <Name>Event_Display_Anode_Down</Name>
+	</Histogram>
+
+	<Histogram>
+		<Prefix>EMU</Prefix>
+		<SetNdivisionsX>550</SetNdivisionsX>
+		<SetOption>colz</SetOption>
+		<SetOptStat>e</SetOptStat>
+		<SetStats>0</SetStats>
+		<Type>h2</Type>
+		<XBins>550</XBins>
+		<XMax>550</XMax>
+		<XMin>1</XMin>
 		<YBins>160</YBins>
 		<YMax>160</YMax>
 		<YMin>1</YMin>

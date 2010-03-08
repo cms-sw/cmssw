@@ -49,6 +49,14 @@ namespace cscdqm {
         mo->getTH1Lock()->Reset("");
       }
 
+      if (getEMUHisto(h::EMU_EVENT_DISPLAY_ANODE_UP, mo)) {
+        mo->getTH1Lock()->Reset("");
+      }
+
+      if (getEMUHisto(h::EMU_EVENT_DISPLAY_ANODE_DOWN, mo)) {
+        mo->getTH1Lock()->Reset("");
+      }
+
       if (getEMUHisto(h::EMU_EVENT_DISPLAY_CATHODE, mo)) {
         mo->getTH1Lock()->Reset("");
       }
@@ -141,8 +149,10 @@ namespace cscdqm {
     }
 
     // Receiving EMU Event displays 
-    MonitorObject *mo_Emu_EventDisplay_Anode = 0, *mo_Emu_EventDisplay_Cathode = 0, *mo_Emu_EventDisplay_XY = 0;
+    MonitorObject *mo_Emu_EventDisplay_Anode = 0, *mo_Emu_EventDisplay_AnodeUp = 0, *mo_Emu_EventDisplay_AnodeDown = 0, *mo_Emu_EventDisplay_Cathode = 0, *mo_Emu_EventDisplay_XY = 0;
     getEMUHisto(h::EMU_EVENT_DISPLAY_ANODE, mo_Emu_EventDisplay_Anode);
+    getEMUHisto(h::EMU_EVENT_DISPLAY_ANODE_UP, mo_Emu_EventDisplay_AnodeUp);
+    getEMUHisto(h::EMU_EVENT_DISPLAY_ANODE_DOWN, mo_Emu_EventDisplay_AnodeDown);
     getEMUHisto(h::EMU_EVENT_DISPLAY_CATHODE, mo_Emu_EventDisplay_Cathode);
     getEMUHisto(h::EMU_EVENT_DISPLAY_XY, mo_Emu_EventDisplay_XY);
 
@@ -157,7 +167,7 @@ namespace cscdqm {
       mo_EventDisplay->SetBinContent(1, 5, crateID);
       mo_EventDisplay->SetBinContent(1, 6, dmbID);
       mo_EventDisplay->SetBinContent(1, 7, dmbHeader->l1a());
-      if (mo_Emu_EventDisplay_Anode || mo_Emu_EventDisplay_Cathode || mo_Emu_EventDisplay_XY) {
+      if (mo_Emu_EventDisplay_Anode || mo_Emu_EventDisplay_Cathode || mo_Emu_EventDisplay_AnodeUp || mo_Emu_EventDisplay_AnodeDown || mo_Emu_EventDisplay_XY) {
         glChamberIndex = summary.getDetector().GlobalChamberIndex(cid.endcap(), cid.station(), cid.ring(), cscPosition);
       }
     }
@@ -603,8 +613,10 @@ namespace cscdqm {
 
               if (mo_EventDisplay) {
                 mo_EventDisplay->SetBinContent(nLayer + 3, wg - 1, tbin + 1);
-                setEmuEventDisplayBit(mo_Emu_EventDisplay_Anode, glChamberIndex, wg - 1, nLayer - 1);
-                setEmuEventDisplayBit(mo_Emu_EventDisplay_XY, glChamberIndex, wg - 1, nLayer - 1);
+                setEmuEventDisplayBit(mo_Emu_EventDisplay_Anode,     glChamberIndex, wg - 1, nLayer - 1);
+                setEmuEventDisplayBit(mo_Emu_EventDisplay_AnodeUp,   glChamberIndex, wg - 1, nLayer - 1);
+                setEmuEventDisplayBit(mo_Emu_EventDisplay_AnodeDown, glChamberIndex, wg - 1, nLayer - 1);
+                setEmuEventDisplayBit(mo_Emu_EventDisplay_XY,        glChamberIndex, wg - 1, nLayer - 1);
               }
 
               if (CheckLayerALCT) {
@@ -1117,6 +1129,8 @@ namespace cscdqm {
                 if (mo_EventDisplay) {
                   mo_EventDisplay->SetBinContent(nLayer + 11, hstrip, tbin_clct + 1);
                   setEmuEventDisplayBit(mo_Emu_EventDisplay_Anode, glChamberIndex, 160 + hstrip, nLayer - 1);
+                  setEmuEventDisplayBit(mo_Emu_EventDisplay_AnodeUp, glChamberIndex, 160 + hstrip, nLayer - 1);
+                  setEmuEventDisplayBit(mo_Emu_EventDisplay_AnodeDown, glChamberIndex, 160 + hstrip, nLayer - 1);
                   setEmuEventDisplayBit(mo_Emu_EventDisplay_XY, glChamberIndex, 160 + hstrip, nLayer - 1);
                 }
 
