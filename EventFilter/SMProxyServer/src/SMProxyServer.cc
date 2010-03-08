@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.38 2010/02/23 21:25:11 smorovic Exp $
+// $Id: SMProxyServer.cc,v 1.39 2010/02/24 21:27:45 smorovic Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -3261,6 +3261,7 @@ bool SMProxyServer::createQueue() {
     dpm_->setConsumerName(consumerName_.toString());
     dpm_->setDQMConsumerName(DQMconsumerName_.toString());
     unsigned int rsize = (unsigned int)smRegList_.size();
+    dpm_->setExpectedUpdatesDQM(rsize);
     for(unsigned int i = 0; i < rsize; ++i)
     {
       std::cout << "add to register list num = " << i << " url = "
