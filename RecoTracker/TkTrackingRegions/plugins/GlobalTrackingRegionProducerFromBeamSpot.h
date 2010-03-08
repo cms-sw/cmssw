@@ -20,8 +20,8 @@ public:
     if (!regionPSet.existsAs<double>("nSigmaZ") && !regionPSet.existsAs<double>("originHalfLength")) {
         throw cms::Exception("Configuration") << "GlobalTrackingRegionProducerFromBeamSpot: at least one of nSigmaZ, originHalfLength must be present in the cfg.\n";
     }
-    if (regionPSet.existsAs<double>("nSigmaZ")) theNSigmaZ = regionPSet.getParameter<double>("nSigmaZ");
-    if (regionPSet.existsAs<double>("originHalfLength")) theOriginHalfLength = regionPSet.getParameter<double>("originHalfLength");
+    theNSigmaZ          = (regionPSet.existsAs<double>("nSigmaZ")          ? regionPSet.getParameter<double>("nSigmaZ")          : 0.0);
+    theOriginHalfLength = (regionPSet.existsAs<double>("originHalfLength") ? regionPSet.getParameter<double>("originHalfLength") : 0.0);
     theBeamSpotTag      = regionPSet.getParameter<edm::InputTag>("beamSpot");
     thePrecise          = regionPSet.getParameter<bool>("precise");
   }
