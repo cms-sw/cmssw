@@ -24,26 +24,24 @@ namespace l1t
 class DataManager
 {
     public:
-        explicit DataManager (const std::string & connect,
+        DataManager() ;
+        explicit DataManager (const std::string & connectString,
 			      const std::string & authenticationPath,
 			      bool isOMDS = false );
         virtual ~DataManager ();
 
+        void connect(const std::string & connectString,
+		     const std::string & authenticationPath,
+		     bool isOMDS = false );
 	void setDebug( bool debug ) ;
 
     protected:
-        /* Returns type object for provided type name
-         */
+        //Returns type object for provided type name
         edm::eventsetup::TypeTag findType (const std::string & type) const;
 
         // Database connection management
-/*         cond::DBSession * poolSession; */
-/*         cond::DBSession * coralSession; */
 	cond::DBSession * session;
 	cond::Connection * connection ;
-/*         cond::CoralTransaction * coral; */
-/*         cond::PoolTransaction * pool; */
-  //       cond::MetaData * metadata;
 };
 
 }

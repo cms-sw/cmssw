@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/03 16:44:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/10/21 10:52:20 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -27,8 +27,6 @@
 
 #include "TFile.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <iostream>
 #include <map>
 
@@ -40,10 +38,11 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
    // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   DTHitQualityUtils::debug = debug;
+  rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
-  simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
+  simHitLabel = pset.getUntrackedParameter<string>("simHitLabel", "SimG4Object");
   // the name of the 2D rec hit collection
-  segment2DLabel = pset.getUntrackedParameter<InputTag>("segment2DLabel");
+  segment2DLabel = pset.getUntrackedParameter<string>("segment2DLabel");
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
@@ -51,38 +50,23 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   sigmaResAngle = pset.getParameter<double>("sigmaResAngle");
 
   // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
+  theFile = new TFile(rootFileName.c_str(), "RECREATE");
+  theFile->cd();
 
   if(debug)
     cout << "[DTSegment2DQuality] Constructor called " << endl;
-  
-  // ----------------------                 
-  // get hold of back-end interface 
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if (debug) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  if ( dbe_ ) {
-    if ( debug ) dbe_->showDirStructure();
-  }
 
-  h2DHitRPhi = new HRes2DHit ("RPhi",dbe_,true,true);
-  h2DHitRZ= new HRes2DHit ("RZ",dbe_,true,true);
-  h2DHitRZ_W0= new HRes2DHit ("RZ_W0",dbe_,true,true);
-  h2DHitRZ_W1= new HRes2DHit ("RZ_W1",dbe_,true,true);
-  h2DHitRZ_W2= new HRes2DHit ("RZ_W2",dbe_,true,true);
+  h2DHitRPhi = new HRes2DHit ("RPhi");
+  h2DHitRZ= new HRes2DHit ("RZ");
+  h2DHitRZ_W0= new HRes2DHit ("RZ_W0");
+  h2DHitRZ_W1= new HRes2DHit ("RZ_W1");
+  h2DHitRZ_W2= new HRes2DHit ("RZ_W2");
 
-  h2DHitEff_RPhi= new HEff2DHit ("RPhi",dbe_);
-  h2DHitEff_RZ= new HEff2DHit ("RZ",dbe_);
-  h2DHitEff_RZ_W0= new HEff2DHit ("RZ_W0",dbe_);
-  h2DHitEff_RZ_W1= new HEff2DHit ("RZ_W1",dbe_);
-  h2DHitEff_RZ_W2= new HEff2DHit ("RZ_W2",dbe_);
+  h2DHitEff_RPhi= new HEff2DHit ("RPhi");
+  h2DHitEff_RZ= new HEff2DHit ("RZ");
+  h2DHitEff_RZ_W0= new HEff2DHit ("RZ_W0");
+  h2DHitEff_RZ_W1= new HEff2DHit ("RZ_W1");
+  h2DHitEff_RZ_W2= new HEff2DHit ("RZ_W2");
   if(debug)
     cout << "[DTSegment2DQuality] hitsos created " << endl;
 }
@@ -94,13 +78,13 @@ DTSegment2DQuality::~DTSegment2DQuality(){
 
 void DTSegment2DQuality::endJob() {
   // Write the histos to file
-  //theFile->cd();
+  theFile->cd();
 
-  //h2DHitRPhi->Write();
-  //h2DHitRZ->Write();
-  //h2DHitRZ_W0->Write();
-  //h2DHitRZ_W1->Write();
-  //h2DHitRZ_W2->Write();
+  h2DHitRPhi->Write();
+  h2DHitRZ->Write();
+  h2DHitRZ_W0->Write();
+  h2DHitRZ_W1->Write();
+  h2DHitRZ_W2->Write();
 
   h2DHitEff_RPhi->ComputeEfficiency();
   h2DHitEff_RZ->ComputeEfficiency();
@@ -108,19 +92,18 @@ void DTSegment2DQuality::endJob() {
   h2DHitEff_RZ_W1->ComputeEfficiency();
   h2DHitEff_RZ_W2->ComputeEfficiency();
 
-  //h2DHitEff_RPhi->Write();
-  //h2DHitEff_RZ->Write();
-  //h2DHitEff_RZ_W0->Write();
-  //h2DHitEff_RZ_W1->Write();
-  //h2DHitEff_RZ_W2->Write();
-  //if ( rootFileName.size() != 0 && dbe_ ) dbe_->save(rootFileName); 
+  h2DHitEff_RPhi->Write();
+  h2DHitEff_RZ->Write();
+  h2DHitEff_RZ_W0->Write();
+  h2DHitEff_RZ_W1->Write();
+  h2DHitEff_RZ_W2->Write();
 
-  //theFile->Close();
+  theFile->Close();
 } 
 
 // The real analysis
 void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSetup){
-  //theFile->cd();
+  theFile->cd();
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
@@ -128,7 +111,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 
   // Get the SimHit collection from the event
   edm::Handle<PSimHitContainer> simHits;
-  event.getByLabel(simHitLabel, simHits); //FIXME: second string to be removed
+  event.getByLabel(simHitLabel, "MuonDTHits", simHits); //FIXME: second string to be removed
 
   //Map simHits by sl
   map<DTSuperLayerId, PSimHitContainer > simHitsPerSl;
@@ -143,13 +126,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
   // Get the 2D rechits from the event
   Handle<DTRecSegment2DCollection> segment2Ds;
   event.getByLabel(segment2DLabel, segment2Ds);
-
-  if(!segment2Ds.isValid()) {
-    if(debug) cout << "[DTSegment2DQuality]**Warning: no 2DSegments with label: " << segment2DLabel
-		   << " in this event, skipping!" << endl;
-    return;
-  }    
-
+    
   // Loop over all superlayers containing a segment
   DTRecSegment2DCollection::id_iterator slId;
   for (slId = segment2Ds->id_begin();

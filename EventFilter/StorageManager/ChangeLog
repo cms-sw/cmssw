@@ -1,3 +1,79 @@
+2010-03-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-07
+	* Drop updateNumber from DQMKey, i.e. all updates for a given
+	  run/luminosity section are lumped together.
+	* Clear DQMEventQueue at run stop (DrainingQueues state) instead
+	  of waiting until all histograms have been summed up.
+	* Minor speed-ups in DQMInstance
+	* Increase default DQMEventQueue size from 882 to 1000.
+
+2010-03-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-06
+	* Reduce DQMEventQueue size from 3072 to 882, i.e. to the number of
+	  events for one luminosity section update.
+
+2010-03-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-05
+	* Remove debug output for histogram collection.
+	* Fix handling of multi-fragment DQM event messages.
+
+2010-03-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-04
+	* Fix logic when all expected DQM histograms for a given LS have been
+	  received from the EPs.
+	* Re-factor and optimize code in DQMInstance.
+	* Add missing lock in StreamsMonitorCollection.
+	* Add temporary debug output for histogram collection.
+
+2010-03-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-03
+ 	* Allow to configure the maximum memory usage of objects in the queues.
+ 	* Fix a few bugs in ConcurrentQueue to handle edge cases correctly.
+	* Only send alarm for numberOfCopyWorkers if the value is less than
+	  the expected count. Requested by Gerry.
+	* Reduce recent integration interval from 300 to 30 seconds for
+	  StreamsMonitorCollection. Requested by HLT guys.
+
+2010-03-01 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V05-08-02
+	* No change with respect to V05-08-01-01. Fixed violation of tagging
+	  guidelines by using four field tags.
+
+2010-02-25 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V05-08-01-01
+	* Convert to current macros from deprecated ones for plugins
+
+2010-02-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-01
+	* Provide Adler32 checksum for FRD (error) event streams, too.
+	  Requires IOPool/Streamer V05-08-06 or newer.
+	* Fix for uninitialized variable in TriggerSelector.
+	* Discard oldest DQM events if DQM event queue fills up
+	  instead of newest ones.
+	* Keep track of number of discarded DQM events.
+
+2010-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-00
+	* Send alarms instead of sentinel messages for event not used by
+	  anybody and for a too high rate of error events (default 10Hz).
+	  This is only enabled if 'isProductionSystem' is true (default false).
+	* Keep track of memory allocated to objects in ConcurrentQueues
+	  and fragment store; shown on ThroughputMonitor hyperdaq page.
+	* ConcurrentQueues allow to limit memory usage, but not use yet.
+	* Avoid creation of StreamHandlers for streams with fractionToDisk=0.
+	* Show fractionToDisk parameter on StreamRecord hypderdaq page.
+	* Clear all sentinel alarms at run-start.
+	* Minor cleanup in types to improve consistency in 64bit builds.
+
 2010-02-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-07-00

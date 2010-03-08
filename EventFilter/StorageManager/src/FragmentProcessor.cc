@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.12 2009/08/28 16:41:26 mommsen Exp $
+// $Id: FragmentProcessor.cc,v 1.13 2009/09/29 07:59:43 mommsen Exp $
 /// @file: FragmentProcessor.cc
 
 #include <unistd.h>
@@ -149,7 +149,7 @@ void FragmentProcessor::processOneFragment()
     {
       utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
       _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addFragmentProcessorIdleSample(elapsedTime);
-      _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedFragmentSample(fragment.totalDataSize());
+      _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedFragmentSample(fragment.memoryUsed());
 
       _stateMachine->getCurrentState().processI2OFragment(fragment);
     }

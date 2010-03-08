@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2009/11/20 20:51:26 $
- * $Revision: 1.91 $
+ * $Date: 2010/01/25 21:12:26 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,8 +19,6 @@
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
-
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 

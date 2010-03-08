@@ -59,6 +59,7 @@ pixelSecoTracks.OrderedHitsFactoryPSet.SeedingLayers = 'SecondLayerTriplets'
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 secoSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone()
 secoSeeds.InputCollection = 'pixelSecoTracks'
+#secoSeeds.tripletList = ['pixelSecoTracks']
 
 #################################
 # Secondary measurement tracker
@@ -75,7 +76,6 @@ secondCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderE
 secondCkfTrajectoryBuilder.ComponentName          = 'secondCkfTrajectoryBuilder'
 secondCkfTrajectoryBuilder.MeasurementTrackerName = 'secondMeasurementTracker'
 secondCkfTrajectoryBuilder.trajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
-secondCkfTrajectoryBuilder.inOutTrajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
 
 #################################
 # Secondary track candidates
@@ -94,4 +94,5 @@ import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 globalSecoTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 globalSecoTracks.clusterRemovalInfo = 'secondClusters'
 globalSecoTracks.src                = 'secoTrackCandidates'
-globalSecoTracks.TrajectoryInEvent  = cms.bool(True)
+globalSecoTracks.TrajectoryInEvent  = True
+

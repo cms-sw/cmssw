@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsClient.h
  *
- * $Date: 2009/10/28 08:18:21 $
- * $Revision: 1.18 $
+ * $Date: 2010/02/14 14:35:45 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */

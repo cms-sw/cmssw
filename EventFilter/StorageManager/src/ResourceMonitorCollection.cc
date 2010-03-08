@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.29 2010/01/22 14:20:17 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.31 2010/02/09 14:54:55 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -60,7 +60,7 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
     _diskUsageList.push_back(diskUsage);
   }
 
-  if ( _rmParams._isProductionSystem )
+  if ( _alarmParams._isProductionSystem )
   {
     addOtherDisks();
   }
@@ -86,6 +86,12 @@ void ResourceMonitorCollection::addOtherDisks()
 void ResourceMonitorCollection::configureResources(ResourceMonitorParams const& rmParams)
 {
   _rmParams = rmParams;
+}
+
+
+void ResourceMonitorCollection::configureAlarms(AlarmParams const& alarmParams)
+{
+  _alarmParams = alarmParams;
 }
 
 
@@ -309,7 +315,7 @@ void ResourceMonitorCollection::calcNumberOfCopyWorkers()
     _numberOfCopyWorkers = 0;
   }
 
-  if ( _rmParams._isProductionSystem && _rmParams._copyWorkers._expectedCount >= 0 )
+  if ( _alarmParams._isProductionSystem && _rmParams._copyWorkers._expectedCount >= 0 )
   {
     checkNumberOfCopyWorkers();
   }
@@ -320,7 +326,7 @@ void ResourceMonitorCollection::checkNumberOfCopyWorkers()
 {
   const std::string alarmName = "CopyWorkers";
 
-  if ( _numberOfCopyWorkers != _rmParams._copyWorkers._expectedCount )
+  if ( _numberOfCopyWorkers < _rmParams._copyWorkers._expectedCount )
   {
     std::ostringstream msg;
     msg << "Expected " << _rmParams._copyWorkers._expectedCount <<
@@ -348,7 +354,7 @@ void ResourceMonitorCollection::calcNumberOfInjectWorkers()
     _numberOfInjectWorkers = 0;
   }
 
-  if ( _rmParams._isProductionSystem && _rmParams._injectWorkers._expectedCount >= 0 )
+  if ( _alarmParams._isProductionSystem && _rmParams._injectWorkers._expectedCount >= 0 )
   {
     checkNumberOfInjectWorkers();
   }
@@ -399,7 +405,7 @@ void ResourceMonitorCollection::checkSataBeasts()
 
 bool ResourceMonitorCollection::getSataBeasts(SATABeasts& sataBeasts)
 {
-  if (! _rmParams._isProductionSystem) return false;
+  if (! _alarmParams._isProductionSystem) return false;
 
   std::ifstream in;
   in.open( "/proc/mounts" );

@@ -8,7 +8,7 @@ class ConfigureHeavyIons(ConfigToolBase):
     """ Configure all defaults for heavy ions
     """
     _label='configureHeavyIons'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)        
@@ -35,7 +35,7 @@ class ProductionDefaults(ConfigToolBase):
     """ Configure all relevant layer1 candidates for heavy ions
     """
     _label='productionDefaults'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)        
@@ -105,7 +105,7 @@ class SelectionDefaults(ConfigToolBase):
     """ Configure all relevant selected layer1 candidates for heavy ions
     """
     _label='selectionDefaults'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)        

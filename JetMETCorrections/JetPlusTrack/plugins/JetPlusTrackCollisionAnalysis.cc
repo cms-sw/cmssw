@@ -34,6 +34,7 @@ namespace cms
 //};
 
 JetPlusTrackCollisionAnalysis::JetPlusTrackCollisionAnalysis(const edm::ParameterSet& iConfig)
+  : jptCorrector_(0)
 {
 
    mCone = iConfig.getParameter<double>("Cone");
@@ -116,6 +117,7 @@ void JetPlusTrackCollisionAnalysis::beginJob()
    myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[5000]/F");
 
 }
+
 void JetPlusTrackCollisionAnalysis::endJob()
 {
 
@@ -132,6 +134,17 @@ void JetPlusTrackCollisionAnalysis::analyze(
                                          const edm::Event& iEvent,
                                          const edm::EventSetup& theEventSetup)  
 {
+
+  if ( !jptCorrector_) {
+    const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,theEventSetup);
+    
+    if (!corrector) edm::LogError("JetPlusTrackCollisionAnalysis") << "Failed to get corrector with name " <<   
+      jptCorrectorName_ << "from the EventSetup";
+    jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
+    if (!jptCorrector_) edm::LogError("JetPlusTrackCollisionAnalysis") << "Corrector with name " << 
+      jptCorrectorName_ << " is not a JetPlusTrackCorrector";
+  }
+
     cout<<" JetPlusTrack analyze for Run "<<iEvent.id().run()<<" Event "
     <<iEvent.id().event()<<" Lumi block "<<iEvent.getLuminosityBlock().id().luminosityBlock()<<endl;
 
@@ -166,17 +179,6 @@ void JetPlusTrackCollisionAnalysis::analyze(
    edm::ESHandle<CaloGeometry> pG;
    theEventSetup.get<CaloGeometryRecord>().get(pG);
    const CaloGeometry* geo = pG.product();
-
-   const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,theEventSetup);
-
-  if (!corrector) edm::LogError("JetPlusTrackCollisionAnalysis") << "Failed to get corrector with name " <<
-                                    jptCorrectorName_ << "from the EventSetup";
-  jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
-  if (!jptCorrector_) edm::LogError("JetPlusTrackCollisionAnalysis") << "Corrector with name " <<
-                         jptCorrectorName_ << " is not a JetPlusTrackCorrector";
-
-
-
 /*   
   std::vector<edm::Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);

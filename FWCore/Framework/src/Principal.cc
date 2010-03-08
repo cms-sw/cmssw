@@ -590,7 +590,9 @@ namespace edm {
     provenances.clear();
     for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if ((*i)->provenanceAvailable()) {
-	if ((*i)->provenance()->isPresent() && (*i)->provenance()->product().present()) {
+	// We do not attempt to get the event/lumi/run status from the provenance,
+	// because the per event provenance may have been dropped.
+	if ((*i)->provenance()->product().present()) {
 	   provenances.push_back((*i)->provenance());
 	}
       }

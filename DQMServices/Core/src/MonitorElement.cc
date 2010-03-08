@@ -321,7 +321,7 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
     if ( entries >= nbins ) 
     {
       index = nbins;
-      xlow = entries - nbins + 3 ; xup = entries+1 ;
+      xlow = entries - nbins + 2 ; xup = entries ; 
       // average first bin
       double y1 = getBinContent(1);
       double y2 = getBinContent(2);
@@ -334,11 +334,7 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
 	double sum = N*y1 + y2;
         y1 = sum/(N+1.) ;
 	// FIXME check if correct
-	double s=(N+1.)*(N*y1*y1 + y2*y2) - sum*sum;
-        if (s>=0.) 
-	  y1err = sqrt(s)/(N+1.);  
-	else
-	  y1err = 0.;
+        y1err = sqrt((N+1.)*(N*y1*y1 + y2*y2) - sum*sum)/(N+1.);  
       }
       else 
       {

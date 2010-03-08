@@ -31,7 +31,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(1)
+        input = cms.untracked.int32(2)
         )
 process.source = cms.Source("EmptySource")
 
@@ -49,16 +49,7 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.etta = cms.EDFilter("dumpEcalTrigTowerMapping")
 
 process.ctgw = cms.EDFilter("testEcalGetWindow")
-
-process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
-                                 fullEcalDump = cms.untracked.bool(True)
-                             )
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-
-
-process.ctgw = cms.EDFilter("testEcalGetWindow")
 process.mfa = cms.EDFilter("testMagneticField")
-
 process.TFileService = cms.Service("TFileService", fileName = cms.string('calogeom.root') )
 
 process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
@@ -74,7 +65,7 @@ process.MessageLogger = cms.Service("MessageLogger",
                                         warning = cms.untracked.PSet(
             threshold = cms.untracked.string('WARNING')
                 ),
-                                        debugModules = cms.untracked.vstring('*'),
+                                        debugModules = cms.untracked.vstring('DDLParser'),
                                         critical = cms.untracked.PSet(
             threshold = cms.untracked.string('ERROR')
                 ),

@@ -540,10 +540,12 @@ int main(int argc, char* argv[]) {
   }
 
   try {
+    // The InitRootHandler service will enable Cintex and load DataFormats/StdDictionaries.
+    // We do not enable the autoloader because we do not need any other dictionaries dynamically loaded.
     std::string config =
     "import FWCore.ParameterSet.Config as cms\n"
     "process = cms.Process('edmProvDump')\n"
-     "process.InitRootHandlers = cms.Service('InitRootHandlers')\n";
+     "process.InitRootHandlers = cms.Service('InitRootHandlers', AutoLibraryLoader = cms.untracked.bool(False))\n";
 
     //create the services
     edm::ServiceToken tempToken = edm::ServiceRegistry::createServicesFromConfig(config);

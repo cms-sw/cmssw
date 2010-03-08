@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltEgammaRegionalPixelSeedGenerator = cms.EDFilter("EgammaHLTRegionalPixelSeedGeneratorProducers",
+hltEgammaRegionalPixelSeedGenerator = cms.EDProducer("EgammaHLTRegionalPixelSeedGeneratorProducers",
     deltaPhiRegion = cms.double(0.3), ## .177 
 
     vertexZ = cms.double(0.0),

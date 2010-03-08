@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1demongct = cms.EDFilter("L1TdeGCT",
+l1demongct = cms.EDAnalyzer("L1TdeGCT",
     DataEmulCompareSource = cms.InputTag("l1compare"),
     HistFolder = cms.untracked.string('L1TEMU/GCTexpert/'),
     HistFile = cms.untracked.string(''),

@@ -11,8 +11,7 @@
 #include <wordexp.h>
 #include <cstdio>
 
-HcalPatternSource::HcalPatternSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc) : 
-  edm::ConfigurableInputSource(pset,desc),
+HcalPatternSource::HcalPatternSource(const edm::ParameterSet & pset) : 
   bunches_(pset.getUntrackedParameter<std::vector<int> >("Bunches",std::vector<int>())),
   presamples_(pset.getUntrackedParameter<int>("Presamples",4)),
   samples_(pset.getUntrackedParameter<int>("Samples",10))
@@ -23,14 +22,12 @@ HcalPatternSource::HcalPatternSource(const edm::ParameterSet & pset, edm::InputS
   produces<HFDigiCollection>();
 }
 
-void HcalPatternSource::beginJob(edm::EventSetup const& es) {
+void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& es) {
+  if (e.id().event()>bunches_.size()) return;
+
   edm::ESHandle<HcalElectronicsMap> item;
   es.get<HcalElectronicsMapRcd>().get(item);
-  elecmap_=item.product();
-}
-
-bool HcalPatternSource::produce(edm::Event& e) {
-  if (e.id().event()>bunches_.size()) return false;
+  const HcalElectronicsMap *elecmap=item.product();
 
   std::auto_ptr<HBHEDigiCollection> hbhe(new HBHEDigiCollection());
   std::auto_ptr<HFDigiCollection> hf(new HFDigiCollection());
@@ -42,7 +39,8 @@ bool HcalPatternSource::produce(edm::Event& e) {
     for (int fc=0; fc<3; fc++) {
       samples=i->getSamples(bc,presamples_, samples_, fc);
       HcalElectronicsId eid=i->getId(fc);
-      HcalDetId did(elecmap_->lookup(eid));
+
+      HcalDetId did(elecmap->lookup(eid));
 
       if (did.null()) {
 	edm::LogWarning("HCAL") << "No electronics map match for id " << eid;
@@ -83,13 +81,11 @@ bool HcalPatternSource::produce(edm::Event& e) {
   e.put(hbhe);
   e.put(ho);
   e.put(hf);
-  return true;
 }
 
 void HcalPatternSource::loadPatterns(const std::string& patspec) {
   wordexp_t p;
   char** files;
-
   wordexp(patspec.c_str(),&p, WRDE_NOCMD); // do not run shell commands!
   files=p.we_wordv;
   for (unsigned int i=0; i<p.we_wordc; i++) {
@@ -105,7 +101,6 @@ void HcalPatternSource::loadPatternFile(const std::string& filename) {
   std::string buffer, element;
   std::map<std::string,std::string> params;
   std::vector<uint32_t> data;
-
   FILE* f=fopen(filename.c_str(), "r");
   if (f==0) return;
   else {

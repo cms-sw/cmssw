@@ -1,8 +1,8 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.47 2010/02/01 11:09:51 babar Exp $
+# $Id: setup_sm.sh,v 1.49 2010/02/15 12:58:29 babar Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
-    source /etc/profile.d/sm_env.sh;
+    source /etc/profile.d/sm_env.sh
 fi
 
 #
@@ -18,9 +18,9 @@ if test -n "$SM_LOOKAREA"; then
     lookarea=$SM_LOOKAREA
 fi
 
-cmhost=srv-C2C07-20
+cmhost=srv-C2C06-20
 
-hname=`hostname | cut -d. -f1`;
+hname=`hostname | cut -d. -f1`
 nname="node"`echo $hname | cut -d- -f3` 
 case $hname in
     cmsdisk0)
@@ -36,17 +36,17 @@ case $hname in
         ;;
 esac
 
-t0control="~cmsprod/$nname/t0_control.sh";
+t0control="~cmsprod/$nname/t0_control.sh"
 if test -e "/opt/copyworker/t0_control.sh"; then
     t0control="/opt/copyworker/t0_control.sh"
 fi
 
-t0cmcontrol="~cmsprod/TransferTest/old_t0_transferstatusworker.sh_old";
+t0cmcontrol="~cmsprod/TransferTest/old_t0_transferstatusworker.sh_old"
 if test -e "/opt/copymanager/t0_control.sh"; then
     t0cmcontrol="/opt/copymanager/t0_control.sh"
 fi
 
-t0inject="~smpro/scripts/t0inject.sh";
+t0inject="~smpro/scripts/t0inject.sh"
 if test -e "/opt/injectworker/inject/t0inject.sh"; then
     t0inject="/opt/injectworker/inject/t0inject.sh"
 fi
@@ -80,6 +80,10 @@ checkSLCversion () {
 
 # Mounts a disk, looking for its label
 mountByLabel () {
+    if [ ! -d $1 ]; then
+        echo "$1 is not a directory, not trying to mount it!"
+        return 1
+    fi
     sn=`basename $1`
     # First, trying to mount by label
     mount -L $sn $1 >/dev/null
@@ -184,7 +188,7 @@ startcopymanager () {
 
     if test "$hname" != "$cmhost"; then
         echo "This host is not configured to be THE CopyManager: $hname != $cmhost"
-        return;
+        return
     fi
 
     if test -r "$reference_file"; then
@@ -211,7 +215,7 @@ start () {
     case $hname in
         cmsdisk0)
             echo "cmsdisk0 needs manual treatment"
-            return 0;
+            return 0
             ;;
         srv-S2C17-01)
             ;;
@@ -265,7 +269,7 @@ start () {
             ;;
         *)
             echo "Unknown host: $hname"
-            return 1;
+            return 1
             ;;
     esac
 
@@ -291,23 +295,23 @@ start () {
     startcopyworker
     startinjectworker
 
-    return 0;
+    return 0
 }
 
 stopcopyworker () {
     su - cmsprod -c "$t0control stop"
 
-    counter=1;
+    counter=1
     while [ $counter -le 10 ]; do
-        teststr=done`ps ax | grep Copy | grep -v Copy`
-        if test "$teststr" = "done"; then
-            break;
+        if pgrep -u cmsprod CopyWorker.pl >/dev/null; then
+            sleep 6
+        else
+            break
         fi
-        sleep 6;
-        counter=`expr $counter + 1`;
+        counter=`expr $counter + 1`
     done
 
-    killall -q rfcp
+    pkill rfcp
 }
 
 stopinjectworker () {
@@ -317,7 +321,7 @@ stopinjectworker () {
 
 stopcopymanager () {
     if test "$hname" != "$cmhost"; then
-        return;
+        return
     fi
 
     su - cmsprod -c "$t0cmcontrol stop"
@@ -333,7 +337,7 @@ stop () {
     case $hname in
         cmsdisk0)
             echo "cmsdisk0 needs manual treatment"
-            return 0;
+            return 0
             ;;
         srv-S2C17-01)
             stopworkers
@@ -360,7 +364,7 @@ stop () {
             ;;
         *)
             echo "Unknown host: $hname"
-            return 1;
+            return 1
             ;;
     esac
 
@@ -377,7 +381,7 @@ stop () {
             umount -f $SM_CALIBAREA
         fi
     fi
-    return 0;
+    return 0
 }
 
 printmstat () {
@@ -394,7 +398,7 @@ status () {
     case $hname in
         cmsdisk0)
             echo "cmsdisk0 needs manual treatment"
-            return 0;
+            return 0
             ;;
         srv-S2C17-01)
             ;;
@@ -412,7 +416,7 @@ status () {
             ;;
         *)
             echo "Unknown host: $hname"
-            return 1;
+            return 1
             ;;
     esac
 

@@ -85,10 +85,16 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
   tkMapConfigName_ = "TkHistoMap";
   getConfigForHistogram(tkMapConfigName_,iConfig,pDebugStream);
 
-   getConfigForHistogram("FETimeDiffTIB",iConfig,pDebugStream);
-   getConfigForHistogram("FETimeDiffTOB",iConfig,pDebugStream);
-   getConfigForHistogram("FETimeDiffTECB",iConfig,pDebugStream);
-   getConfigForHistogram("FETimeDiffTECF",iConfig,pDebugStream);
+  getConfigForHistogram("FETimeDiffTIB",iConfig,pDebugStream);
+  getConfigForHistogram("FETimeDiffTOB",iConfig,pDebugStream);
+  getConfigForHistogram("FETimeDiffTECB",iConfig,pDebugStream);
+  getConfigForHistogram("FETimeDiffTECF",iConfig,pDebugStream);
+
+  getConfigForHistogram("ApveAddress",iConfig,pDebugStream);
+  getConfigForHistogram("FeMajAddress",iConfig,pDebugStream);
+
+  getConfigForHistogram("MedianAPV0",iConfig,pDebugStream);
+  getConfigForHistogram("MedianAPV1",iConfig,pDebugStream);
 
 }
 
@@ -183,7 +189,10 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
 				     const FEDErrors::FELevelErrors & aFeLevelErrors)
 {
   const unsigned short lFeId = aFeLevelErrors.FeID;
-  bookFEDHistograms(aFedId);
+  if ( (histogramConfig_["FEOverflowsDetailed"].enabled && aFeLevelErrors.Overflow) ||
+       (histogramConfig_["BadMajorityAddressesDetailed"].enabled && aFeLevelErrors.BadMajorityAddress) ||
+       (histogramConfig_["FEMissingDetailed"].enabled && aFeLevelErrors.Missing)
+       ) bookFEDHistograms(aFedId);
   if (aFeLevelErrors.Overflow) fillHistogram(feOverflowDetailed_[aFedId],lFeId);
   else if (aFeLevelErrors.Missing) fillHistogram(feMissingDetailed_[aFedId],lFeId);
   else if (aFeLevelErrors.BadMajorityAddress) fillHistogram(badMajorityAddressDetailed_[aFedId],lFeId);
@@ -193,6 +202,10 @@ void FEDHistograms::fillFEHistograms(const unsigned int aFedId,
     else if (aFeLevelErrors.SubDetID == 5)fillHistogram(feTimeDiffTOB_,aFeLevelErrors.TimeDifference);
     else if (aFeLevelErrors.SubDetID == 6)fillHistogram(feTimeDiffTECB_,aFeLevelErrors.TimeDifference);
     else if (aFeLevelErrors.SubDetID == 7)fillHistogram(feTimeDiffTECF_,aFeLevelErrors.TimeDifference);
+
+    fillHistogram(apveAddress_,aFeLevelErrors.Apve);
+    fillHistogram(feMajAddress_,aFeLevelErrors.FeMaj);
+
   }
 
 }
@@ -203,7 +216,11 @@ void FEDHistograms::fillChannelsHistograms(const unsigned int aFedId,
 					   bool fullDebug)
 {
   unsigned int lChId = aChErr.ChannelID;
-  bookFEDHistograms(aFedId,fullDebug);
+
+  if ( (histogramConfig_["UnlockedBitsDetailed"].enabled && aChErr.Unlocked) ||
+       (histogramConfig_["OOSBitsDetailed"].enabled && aChErr.OutOfSync)
+       ) bookFEDHistograms(aFedId,fullDebug);
+
   if (aChErr.Unlocked) {
     fillHistogram(unlockedDetailed_[aFedId],lChId);
   }
@@ -218,11 +235,29 @@ void FEDHistograms::fillAPVsHistograms(const unsigned int aFedId,
 				       bool fullDebug)
 {
   unsigned int lChId = aAPVErr.APVID;
-  bookFEDHistograms(aFedId,fullDebug);
+
+if ( (histogramConfig_["BadAPVStatusBitsDetailed"].enabled && aAPVErr.APVStatusBit) ||
+     (histogramConfig_["APVErrorBitsDetailed"].enabled && aAPVErr.APVError) ||
+     (histogramConfig_["APVAddressErrorBitsDetailed"].enabled && aAPVErr.APVAddressError)
+     ) bookFEDHistograms(aFedId,fullDebug);
+
   if (aAPVErr.APVStatusBit) fillHistogram(badStatusBitsDetailed_[aFedId],lChId);
   if (aAPVErr.APVError) fillHistogram(apvErrorDetailed_[aFedId],lChId);
   if (aAPVErr.APVAddressError) fillHistogram(apvAddressErrorDetailed_[aFedId],lChId);
 }
+
+
+bool FEDHistograms::cmHistosEnabled() {
+  return (histogramConfig_["MedianAPV0"].enabled || histogramConfig_["MedianAPV1"].enabled);
+}
+
+void FEDHistograms::fillCMHistograms(const unsigned int aAPV0,
+				     const unsigned int aAPV1)
+{
+  fillHistogram(medianAPV0_,aAPV0);
+  fillHistogram(medianAPV1_,aAPV1);
+}
+
 
 void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 {
@@ -339,6 +374,26 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 				 "(TimeLoc FE - TimeLoc APVe) for TECF, when different",
 				 401,
 				 -200,201,"#Delta_{TimeLoc}(FE-APVe)");
+
+
+
+  apveAddress_ = bookHistogram("ApveAddress","ApveAddress",
+			       "apve Address",
+			       256,0,256,
+			       "apveAddress");
+
+  feMajAddress_ = bookHistogram("FeMajAddress","FeMajAddress",
+			       "FE Majority Address",
+				256,0,256,
+			       "feMajAddress");
+
+  medianAPV0_ = bookHistogram("MedianAPV0","MedianAPV0",
+			      "Median APV0",
+			      "medianAPV0");
+
+  medianAPV1_ = bookHistogram("MedianAPV1","MedianAPV1",
+			       "Median APV1",
+			      "MedianAPV1");
 
   nFEDErrors_ = bookHistogram("nFEDErrors",
 			      "nFEDErrors",
@@ -532,7 +587,11 @@ void FEDHistograms::bookFEDHistograms(unsigned int fedId,
 				      bool fullDebugMode
 				      )
 {
+
+
   if (!histosBooked_[fedId]) {
+
+
     //will do that only once
     SiStripFedKey fedKey(fedId,0,0,0);
     std::stringstream fedIdStream;

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltTauDQMofflineProcess = "HLT"
 
 #Ref Pbjects-------------------------------------------------------------------------------------------------------
-TauRefProducer = cms.EDFilter("HLTTauRefProducer",
+TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                     PFTaus = cms.untracked.PSet(
                             PFTauDiscriminators = cms.untracked.VInputTag(cms.InputTag("fixedConePFTauDiscriminationByIsolation")),
@@ -56,7 +56,7 @@ TauRefProducer = cms.EDFilter("HLTTauRefProducer",
 
 
 
-hltTauOfflineMonitor_PFTaus = cms.EDFilter("HLTTauDQMOfflineSource",
+hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMofflineProcess),
@@ -144,7 +144,7 @@ hltTauOfflineMonitor_PFTaus = cms.EDFilter("HLTTauDQMOfflineSource",
 )
 
 
-hltTauOfflineMonitor_Inclusive = cms.EDFilter("HLTTauDQMOfflineSource",
+hltTauOfflineMonitor_Inclusive = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMofflineProcess),
@@ -235,7 +235,7 @@ hltTauOfflineMonitor_Inclusive = cms.EDFilter("HLTTauDQMOfflineSource",
 
 
 
-hltTauOfflineMonitor_Photons = cms.EDFilter("HLTTauDQMOfflineSource",
+hltTauOfflineMonitor_Photons = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMofflineProcess),
@@ -323,7 +323,7 @@ hltTauOfflineMonitor_Photons = cms.EDFilter("HLTTauDQMOfflineSource",
 )
 
 
-hltTauOfflineMonitor_HPD = cms.EDFilter("HLTTauDQMOfflineSource",
+hltTauOfflineMonitor_HPD = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMofflineProcess),

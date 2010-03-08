@@ -5,8 +5,10 @@ import FWCore.ParameterSet.Config as cms
 # Configuration for Global DAQ at MTCC
 dtunpacker = cms.EDFilter("DTUnpackingModule",
     dataType = cms.string('DDU'),
-    useStandardFEDid = cms.untracked.bool(True),
-    fedbyType = cms.untracked.bool(True),
+    inputLabel = cms.InputTag('source'),
+    fedbyType = cms.bool(True),
+    useStandardFEDid = cms.bool(True),
+    dqmOnly = cms.bool(False),                       
     readOutParameters = cms.PSet(
         debug = cms.untracked.bool(False),
         rosParameters = cms.PSet(

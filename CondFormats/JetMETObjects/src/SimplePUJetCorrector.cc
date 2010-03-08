@@ -20,7 +20,7 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVec
 using namespace std;
 
 
-namespace pu {
+namespace PUnamespace{
   bool debug = false;
 
   /// Parametrization itself
@@ -60,7 +60,7 @@ namespace pu {
     std::ifstream in( fDataFile.c_str() );
     
     //  if ( f1.isLocal() ){
-    if (pu::debug) cout << " Start to read file "<<fDataFile<<endl;
+    if (debug) cout << " Start to read file "<<fDataFile<<endl;
     string line;
     while( std::getline( in, line)){
       if(!line.size() || line[0]=='#') continue;
@@ -69,7 +69,7 @@ namespace pu {
       int type;
       linestream>>type;
       
-      if (pu::debug) cout<<" Type= "<<type<<endl;
+      if (debug) cout<<" Type= "<<type<<endl;
       
 //      etavector.push_back(par);
       lumivector.push_back(type);
@@ -93,16 +93,16 @@ SimplePUJetCorrector::SimplePUJetCorrector (const std::string& fDataFile)
 void SimplePUJetCorrector::init (const std::string& fDataFile) {
   // clean up map if not empty
   if (mParametrization) {
-    for (pu::ParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
+    for (PUnamespace::ParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
       delete it->second;
     }
     delete mParametrization;
   }
-  mParametrization = new pu::ParametersMap ();
-  pu::JetCalibrationParameterSetPUJet pset (fDataFile);
+  mParametrization = new PUnamespace::ParametersMap ();
+  PUnamespace::JetCalibrationParameterSetPUJet pset (fDataFile);
   if(pset.valid()){
     for (int ieta=0; ieta < pset.nlumi(); ieta++) {
-      (*mParametrization) [pset.lumi(ieta)]= new pu::ParametrizationPUJet (pset.parameters(ieta));
+      (*mParametrization) [pset.lumi(ieta)]= new PUnamespace::ParametrizationPUJet (pset.parameters(ieta));
     }
   }
   else {
@@ -113,7 +113,7 @@ void SimplePUJetCorrector::init (const std::string& fDataFile) {
 
 SimplePUJetCorrector::~SimplePUJetCorrector () {
   // clean up map
-  for (pu::ParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
+  for (PUnamespace::ParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
     delete it->second;
   }
   delete mParametrization;
@@ -136,10 +136,10 @@ double SimplePUJetCorrector::correctionEtEta (double fEt, double fEta) const {
   double eta=fabs (fEta);
   
   
-  if (pu::debug) cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
+  if (PUnamespace::debug) cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
   int lumi_value = 1;
   double etnew;
-  pu::ParametersMap::const_iterator ip=mParametrization->upper_bound(lumi_value);
+  PUnamespace::ParametersMap::const_iterator ip=mParametrization->upper_bound(lumi_value);
   if (ip==mParametrization->begin()) { 
     etnew=ip->second->value(et,eta); 
   }
@@ -151,7 +151,7 @@ double SimplePUJetCorrector::correctionEtEta (double fEt, double fEta) const {
     etnew=et2;
   }
 	 
-  if (pu::debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+  if (PUnamespace::debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
   
   return etnew/et;
 }

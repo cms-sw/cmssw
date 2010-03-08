@@ -32,6 +32,7 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
+
 class BzeroReferenceTrajectory : public ReferenceTrajectory
 {
 
@@ -47,11 +48,10 @@ public:
 			   const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 			   bool hitsAreReverse,
 			   const MagneticField *magField,
-			   MaterialEffects materialEffects,
-			   PropagationDirection propDir,
-			   double mass,
-			   double momentumEstimate,
-			   const reco::BeamSpot &beamSpot);
+			   MaterialEffects materialEffects = combined,
+			   PropagationDirection propDir = alongMomentum,
+			   double mass = 0.10565836,
+			   double momentumEstimate = 1.5 );
 
   virtual ~BzeroReferenceTrajectory() {}
 

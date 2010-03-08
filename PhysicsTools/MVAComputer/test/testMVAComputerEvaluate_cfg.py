@@ -12,6 +12,6 @@ process.MVADemoFileSource = cms.ESSource("MVADemoFileSource",
 	testMVA = cms.FileInPath('PhysicsTools/MVATrainer/test/testMVAComputerEvaluate.mva')
 )
 
-process.testMVAComputerEvaluate = cms.EDFilter("testMVAComputerEvaluate")
+process.testMVAComputerEvaluate = cms.EDAnalyzer("testMVAComputerEvaluate")
 
 process.p = cms.Path(process.testMVAComputerEvaluate)

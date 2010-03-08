@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.cc,v 1.6 2009/10/30 19:36:18 wmtan Exp $
+// $Id: ConsumerUtils.cc,v 1.7 2009/12/01 13:58:08 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -26,7 +26,7 @@ using namespace stor;
 //// Create consumer registration info: ////
 ////////////////////////////////////////////
 ConsRegPtr stor::parseEventConsumerRegistration( xgi::Input* in,
-                                                 size_t queueSize,
+                                                 int queueSize,
                                                  enquing_policy::PolicyTag queuePolicy,
                                                  utils::duration_t secondsToStale )
 {
@@ -151,7 +151,7 @@ ConsRegPtr stor::parseEventConsumerRegistration( xgi::Input* in,
 //// Create DQM consumer registration info: ////
 ////////////////////////////////////////////////
 DQMEventConsRegPtr stor::parseDQMEventConsumerRegistration( xgi::Input* in,
-                                                            size_t queueSize,
+                                                            int queueSize,
                                                             enquing_policy::PolicyTag queuePolicy,
                                                             utils::duration_t secondsToStale )
 {

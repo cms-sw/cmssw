@@ -20,7 +20,7 @@ tauMatch = cms.EDFilter("MCMatcher",
 
 tauGenJetMatch = cms.EDFilter("GenJetMatcher",               # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = cms.InputTag("shrinkingConePFTauProducer"),    # RECO jets (any View<Jet> is ok)
-    matched     = cms.InputTag("tauGenJets"),                # GEN jets  (must be GenJetCollection)
+    matched     = cms.InputTag("tauGenJetsSelectorAllHadrons"),  # GEN jets  (must be GenJetCollection)
     mcPdgId     = cms.vint32(),                              # n/a
     mcStatus    = cms.vint32(),                              # n/a
     checkCharge = cms.bool(False),                           # n/a

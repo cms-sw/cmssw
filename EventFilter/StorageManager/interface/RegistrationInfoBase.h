@@ -1,4 +1,4 @@
-// $Id: RegistrationInfoBase.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: RegistrationInfoBase.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: RegistrationInfoBase.h 
 
 #ifndef StorageManager_RegistrationInfoBase_h
@@ -21,9 +21,9 @@ namespace stor {
    * Defines the common interface for event and DQM consumer
    * registration info objects.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class RegistrationInfoBase
@@ -78,7 +78,7 @@ namespace stor {
     /**
        Returns the queue Size
      */
-    size_t queueSize() const;
+    int queueSize() const;
 
     /**
        Returns the time until the queue becomes stale
@@ -93,7 +93,7 @@ namespace stor {
     virtual std::string do_consumerName() const = 0;
     virtual ConsumerID do_consumerId() const = 0;
     virtual void do_setConsumerID(ConsumerID const& id) = 0;
-    virtual size_t do_queueSize() const = 0;
+    virtual int do_queueSize() const = 0;
     virtual enquing_policy::PolicyTag do_queuePolicy() const = 0;
     virtual utils::duration_t do_secondsToStale() const = 0;
   };
@@ -143,7 +143,7 @@ namespace stor {
   }
 
   inline
-  size_t RegistrationInfoBase::queueSize() const
+  int RegistrationInfoBase::queueSize() const
   {
     return do_queueSize();
   }

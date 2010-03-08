@@ -13,8 +13,15 @@ namespace evf{
 const std::string TriggerReportHelpers::columns[5] = {"l1Pass","psPass","pAccept","pExcept","pReject"};
 void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned int ls, unsigned int ps, bool lumiComplete)
 {
-
-  lumiSectionIndex_ = ls;  
+  if(adjustLsIndex_)
+    {
+      lumiSectionIndex_=ls;
+      adjustLsIndex_ = false;
+    }
+  else
+    lumiSectionIndex_++;  
+  if(lumiSectionIndex_ != ls)
+    std::cout << getpid() << "WARNING: ls index mismatch " << ls << " should be " << lumiSectionIndex_ << std::endl;
   prescaleIndex_ = ps;
   for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
     if(l1pos_[i]>=0) {
@@ -100,6 +107,7 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
   if(tableFormatted_) return;
   std::ostringstream ost;
   trp_ = tr;
+  lumiSectionIndex_ = 0;
   resetTriggerReport();
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
 
@@ -153,7 +161,7 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
     }
 
   }
-  if(noNukeLegenda) pathLegenda_.value_ = ost.str();
+  if(noNukeLegenda) pathLegenda_ = ost.str().c_str();
 
 }
 
@@ -345,9 +353,14 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
   TriggerReportStatic *trp = (TriggerReportStatic *)buf->mtext;
 
   // add check for LS consistency
-  trs->lumiSection = trp->lumiSection;
+  if(trp->lumiSection != lumiSectionIndex_){
+    std::cout << "WARNING: lumisection index mismatch from subprocess " << trp->lumiSection
+	      << " should be " << lumiSectionIndex_ << " will be skipped" << std::endl;
+    return;
+  }
+  trs->lumiSection = lumiSectionIndex_;
   trs->prescaleIndex = trp->prescaleIndex;
-  lumiSectionIndex_ = trp->lumiSection;
+
   //add to the event summary
   trs->eventSummary.totalEvents += trp->eventSummary.totalEvents;
   trs->eventSummary.totalEventsPassed += trp->eventSummary.totalEventsPassed;
@@ -387,6 +400,7 @@ void TriggerReportHelpers::resetPackedTriggerReport()
 {
 
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
+
   trp->lumiSection = 0;
   trp->prescaleIndex = 0;
   //copy the event summary
@@ -412,6 +426,7 @@ void TriggerReportHelpers::resetPackedTriggerReport()
       trp->endPathSummaries[i].timesExcept = 0;
     }
 
+  lumiSectionIndex_++;
 }
 
 void TriggerReportHelpers::resetTriggerReport()

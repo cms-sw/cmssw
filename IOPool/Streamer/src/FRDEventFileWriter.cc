@@ -1,6 +1,7 @@
-// $Id: FRDEventFileWriter.cc,v 1.1.10.1 2009/04/03 18:29:38 biery Exp $
+// $Id: FRDEventFileWriter.cc,v 1.2 2009/04/24 17:48:10 biery Exp $
 
 #include "IOPool/Streamer/interface/FRDEventFileWriter.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 
@@ -36,6 +37,8 @@ void FRDEventFileWriter::doOutputEvent(FRDEventMsgView const& msg)
       << fileName_ << ".  Possibly the output disk "
       << "is full?" << std::endl;
   }
+  
+  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
 
 void FRDEventFileWriter::doOutputEventFragment(unsigned char* dataPtr,
@@ -56,6 +59,8 @@ void FRDEventFileWriter::doOutputEventFragment(unsigned char* dataPtr,
       << fileName_ << ".  Possibly the output disk "
       << "is full?" << std::endl;
   }
+
+  cms::Adler32((const char*) dataPtr, dataSize, adlera_, adlerb_);
 }
 
 void FRDEventFileWriter::initialize(std::string const& name)
@@ -67,4 +72,7 @@ void FRDEventFileWriter::initialize(std::string const& name)
     throw cms::Exception("FRDEventFileWriter","initialize")
       << "Error opening FED Raw Data event output file: " << name << "\n";
   }
+
+  adlera_ = 1;
+  adlerb_ = 0;
 }

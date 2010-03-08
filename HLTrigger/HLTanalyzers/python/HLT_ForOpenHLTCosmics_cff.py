@@ -6468,12 +6468,12 @@ hltBLifetime1jetL2filter = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
-hltBLifetimeHighestEtJets = cms.EDProducer( "LargestEtCaloJetSelector",
+hltBLifetimeHighestEtJets = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBLifetimeL25Jets = cms.EDProducer( "EtMinCaloJetSelector",
+hltBLifetimeL25Jets = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltBLifetimeHighestEtJets" ),
     filter = cms.bool( False ),
     etMin = cms.double( 35.0 )
@@ -6616,7 +6616,7 @@ hltBLifetime1jetL2filter120 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
-hltBLifetimeL25JetsRelaxed = cms.EDProducer( "EtMinCaloJetSelector",
+hltBLifetimeL25JetsRelaxed = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltBLifetimeHighestEtJets" ),
     filter = cms.bool( False ),
     etMin = cms.double( 30.0 )
@@ -6804,12 +6804,12 @@ hltBSoftmuon2jetL2filter = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
 )
-hltBSoftmuonHighestEtJets = cms.EDProducer( "LargestEtCaloJetSelector",
+hltBSoftmuonHighestEtJets = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 2 )
 )
-hltBSoftmuonL25Jets = cms.EDProducer( "EtMinCaloJetSelector",
+hltBSoftmuonL25Jets = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltBSoftmuonHighestEtJets" ),
     filter = cms.bool( False ),
     etMin = cms.double( 20.0 )

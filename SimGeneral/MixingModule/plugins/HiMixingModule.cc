@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.4 2009/10/28 10:44:26 yilmaz Exp $
+// $Id: HiMixingModule.cc,v 1.5 2009/11/13 14:04:36 fambrogl Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Selector.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"

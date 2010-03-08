@@ -51,4 +51,8 @@
   <class name="edm::Wrapper<trigger::TriggerEvent>" splitLevel="0"/>
   <class name="edm::Wrapper<trigger::TriggerEventWithRefs>" splitLevel="0"/>
 
+  <class name="std::map<std::string,std::vector<unsigned int> >"/>
+  <class name="trigger::HLTPrescaleTable"/>
+  <class name="edm::Wrapper<trigger::HLTPrescaleTable>"/>
+
 </lcgdict>

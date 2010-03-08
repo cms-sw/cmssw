@@ -34,8 +34,8 @@ class DDLConfiguration : public DDLDocumentProvider {
  public:
   typedef XERCES_CPP_NAMESPACE::SAX2XMLReader SAX2XMLReader;
 
-  explicit DDLConfiguration(DDLParser *, DDCompactView&);
-  DDLConfiguration(DDCompactView&);
+  explicit DDLConfiguration(DDLParser *);
+  DDLConfiguration();
   virtual ~DDLConfiguration();
 
   /// Read in the configuration file.
@@ -61,7 +61,6 @@ class DDLConfiguration : public DDLDocumentProvider {
  private:
   SAX2XMLReader*  parser_;
   DDLSAX2ConfigHandler configHandler_;
-  DDCompactView& cpv_;
 };
 
 #endif

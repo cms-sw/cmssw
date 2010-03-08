@@ -84,7 +84,8 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 
   // additional tuning factor to correct the response in the barrel
   //                              1     2     3     5     9    15    20    30 
-  double barrelCorrection[15] = {0.97, 0.95, 0.93, 0.93, 0.94, 0.95, 0.95, 0.96,     0.96, 0.97, 0.97, 0.97, 0.97, 0.97, 0.97};  
+  double barrelCorrection[15] = {1.0, 0.97, 0.95, 0.95, 0.96, 0.97, 0.97, 0.98,     0.98, 0.98, 0.98, 0.98, 0.97, 0.97, 0.97};  
+  double endcapCorrection[15] = {1.03, 1.03, 1.03, 1.03, 1.03, 1.03, 1.03, 1.03,    1.03, 1.02, 1.02, 1.02, 1.02, 1.02, 1.02};
   //                             1-15 >>> 20   30    50   100   150   225
   double forwardCorrection[15] = {1.1, 1.1, 1.1, 1.1, 1.1, 1.1,
                                         1.1, 1.09, 1.08, 1.07, 1.06, 1.05, 
@@ -421,8 +422,9 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
       double factor     = 1.0;
       double factor_s   = 1.0;
 
-      if( j < 16)  factor = barrelCorrection[i];  // special HB
-      if( j >= 30) factor = forwardCorrection[i]; // special HF 
+      if( j < 16)             factor = barrelCorrection[i];  // special HB
+      if( j < 30 && j >= 26)  factor = endcapCorrection[i];  // special HE
+      if( j >= 30)            factor = forwardCorrection[i]; // special HF 
 
       meanHD[i][j]        =  factor * _meanHD[i][j]  / eGridHD[i];
       sigmaHD[i][j]       =  factor_s * _sigmaHD[i][j] / eGridHD[i];

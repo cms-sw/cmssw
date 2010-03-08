@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.13 2009/12/04 16:37:12 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.14 2009/12/06 16:02:48 rekovic Exp $
 //
 //
 
@@ -46,6 +46,10 @@
 #include <fstream>
 #include <vector>
 
+namespace edm {
+  class TriggerNames;
+}
+
 class FourVectorHLTOnline : public edm::EDAnalyzer {
    public:
       explicit FourVectorHLTOnline(const edm::ParameterSet&);
@@ -67,7 +71,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
 
       void setupHLTMatrix(std::string name, std::vector<std::string> & paths);
-      void fillHLTMatrix(TH2F* hist);
+      void fillHLTMatrix(TH2F* hist, const edm::TriggerNames & triggerNames);
       void normalizeHLTMatrix();
 
       // ----------member data --------------------------- 

@@ -8,7 +8,7 @@ def initPayloadWriter( process,
     from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
     initPayloadWriter.outputDB = cms.Service("PoolDBOutputService",
                                              CondDBSetup,
-                                             BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#                                             BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                              connect = cms.string(outputDBConnect),
                                              toPut = cms.VPSet(cms.PSet(
         record = cms.string("L1TriggerKeyListRcd"),

@@ -7,9 +7,9 @@ trainTtSemiLepJetCombMVA = cms.EDAnalyzer("TtSemiLepJetCombMVATrainer",
     #-------------------------------------------------
     # sources (leptons, jets, MET, jet-parton matching)
     #-------------------------------------------------
-    leps     = cms.InputTag("selectedLayer1Muons"),
-    jets     = cms.InputTag("selectedLayer1Jets"),
-    mets     = cms.InputTag("layer1METs"),
+    leps     = cms.InputTag("selectedPatMuons"),
+    jets     = cms.InputTag("selectedPatJets"),
+    mets     = cms.InputTag("patMETs"),
     matching = cms.InputTag("ttSemiLepJetPartonMatch"),                                       
 
     # ------------------------------------------------

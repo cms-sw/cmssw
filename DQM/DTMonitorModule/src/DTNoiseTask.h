@@ -4,8 +4,8 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: 2009/07/08 15:53:12 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.7 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -16,7 +16,7 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 
 namespace edm {

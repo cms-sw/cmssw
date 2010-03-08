@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2009/08/23 20:59:51 $
- * $Revision: 1.126 $
+ * $Date: 2010/02/12 21:45:19 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  *
 */
@@ -595,6 +595,7 @@ void EBLaserTask::cleanup(void){
         if ( mePnPedMapG16L4_[i] ) dqmStore_->removeElement( mePnPedMapG16L4_[i]->getName() );
         mePnPedMapG16L4_[i] = 0;
       }
+
     }
 
   }
@@ -664,8 +665,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       EBDetId id = digiItr->id();
 
       int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
 
       int ism = Numbers::iSM( id );
 
@@ -673,9 +672,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
                runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
-
-      LogDebug("EBLaserTask") << " det id = " << id;
-      LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
 
       EBDataFrame dataframe = (*digiItr);
 
@@ -743,9 +739,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
-
-      LogDebug("EBLaserTask") << " det id = " << pnItr->id();
-      LogDebug("EBLaserTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
@@ -845,9 +838,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
-      LogDebug("EBLaserTask") << " det id = " << id;
-      LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
-
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
@@ -888,10 +878,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
 
-      LogDebug("EBLaserTask") << " hit amplitude " << xval;
-      LogDebug("EBLaserTask") << " hit jitter " << yval;
-      LogDebug("EBLaserTask") << " hit pedestal " << zval;
-
       if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
       if ( xval > 12. ) {
@@ -913,8 +899,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
         LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
 
       }
-
-      LogDebug("EBLaserTask") << " hit amplitude over PN " << wval;
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, wval);
 

@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-hltMonjmDQM = cms.EDFilter("HLTJetMETDQMSource",
+hltMonjmDQM = cms.EDAnalyzer("HLTJetMETDQMSource",
     dirname = cms.untracked.string("HLT/JetMET"),
     DQMStore = cms.untracked.bool(True),                      
     #MonitorDaemon = cms.untracked.bool(True),

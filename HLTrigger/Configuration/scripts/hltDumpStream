@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys, imp
+import sys, imp, re
 import operator
 import FWCore.ParameterSet.Config as cms
 
@@ -84,6 +84,12 @@ class SearchSmartPrescale(SearchModuleByType):
     super(SearchSmartPrescale, self).__init__('HLTHighLevelDev', barrier)
 
 
+# search a path for a "smart" prescaler
+class SearchNewSmartPrescale(SearchModuleByType):
+  def __init__(self, barrier = None):
+    super(SearchNewSmartPrescale, self).__init__('TriggerResultsFilter', barrier)
+
+
 # extract the L1 seed for a given path
 def getL1Seed(path):
   searchSeed = SearchModuleByType('HLTLevel1GTSeed')
@@ -162,7 +168,7 @@ def getPrescales(name, out, end):
     if dumb.found and end in prescale:
       pre = map(operator.mul, pre, prescale[end])
 
-    # look for a local smart prescaler in the output path
+    # look for an old-style local smart prescaler in the output path
     smart = SearchSmartPrescale(out)
     endp.visit(smart)
     # FIXME wildcards are not supported yet
@@ -173,6 +179,22 @@ def getPrescales(name, out, end):
         pre = [ scale * p for p in pre ]
       else:
         pre = [ 0 ] * columns
+
+    # look for a new-style local smart prescaler in the output path
+    smart = SearchNewSmartPrescale(out)
+    endp.visit(smart)
+    # FIXME wildcards are not supported yet
+    # FIXME arbitrary expressions are not supported yet, only "HLT_Xxx" and "HLT_Xxx / N"
+    match_pre = re.compile(r'%s\s*/\s*(\d+)' % name)
+    for found in smart.found:
+      scale = 0
+      for condition in found.triggerConditions.value():
+        if name == condition:
+          scale = 1
+        elif match_pre.match(condition):
+          scale = int(match_pre.match(condition).groups()[0])
+      # apply the smart prescale to all columns 
+      pre = [ scale * p for p in pre ]
 
   return pre
 

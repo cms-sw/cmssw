@@ -15,7 +15,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"

@@ -80,7 +80,7 @@ class SwitchJECSet(ConfigToolBase):
     """ Replace tags in the JetCorrFactorsProducer for end-users:
     """
     _label='switchJECSet'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -101,7 +101,7 @@ class SwitchJECSet(ConfigToolBase):
     def toolCode(self, process):        
         newName=self._parameters['newName'].value
            
-        jetCorrFactors = getattr(process, 'jetCorrFactors')
+        jetCorrFactors = getattr(process, 'patJetCorrFactors')
         jetCorrFactors.corrSample = newName
        
 switchJECSet=SwitchJECSet()
@@ -121,7 +121,7 @@ class RunBTagging(ConfigToolBase):
      * labels['jetTags '] = a list of names of the JetTag modules
     """
     _label='runBTagging'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -249,6 +249,11 @@ class RunBTagging(ConfigToolBase):
         seq = mkseq(process, 'btaggingTagInfos'+label, 'btaggingJetTags' + label) 
         setattr( process, 'btagging'+label, seq )
         ## return the combined sequence and the labels defined above
+
+        if hasattr(process, "addAction"):
+            process.enableRecording()
+            action=self.__copy__()
+            process.addAction(action)
         return (seq, labels)
 
       
@@ -263,7 +268,7 @@ class AddJetCollection(ConfigToolBase):
     new jet collections
     """
     _label='addJetCollection'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -272,7 +277,7 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'typeLabel',self._defaultValue, "label to indicate the type of constituents (e.g. 'Calo', 'Pflow', 'Jpt', ...)",str)
         self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
-        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "algorithm and type of JEC; use 'None' for no JEC; examples are ('AK5','Calo'), ('SC7','Calo'), ('KT4','PF')", tuple)
+        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "algorithm and type of JEC; use 'None' for no JEC; examples are ('AK5','Calo'), ('SC7','Calo'), ('KT4','PF')", tuple,acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'doType1MET',True, "if jetCorrLabel is not 'None', set this to 'True' to redo the Type1 MET correction for the new jet colllection; at the moment it must be 'False' for non CaloJets otherwise the JetMET POG module crashes. ")
         self.addParameter(self._defaultParameters,'doL1Cleaning',True, "copy also the producer modules for cleanLayer1 will be set to 'True' automatically when doL1Counters is 'True'")
         self.addParameter(self._defaultParameters,'doL1Counters',False, "copy also the filter modules that accept/reject the event looking at the number of jets")
@@ -338,7 +343,7 @@ class AddJetCollection(ConfigToolBase):
         self.setParameter('typeLabel',typeLabel)
         self.setParameter('doJTA',doJTA)
         self.setParameter('doBTagging',doBTagging)
-        self.setParameter('jetCorrLabel',jetCorrLabel, True)
+        self.setParameter('jetCorrLabel',jetCorrLabel)
         self.setParameter('doType1MET',doType1MET)
         self.setParameter('doL1Cleaning',doL1Cleaning)
         self.setParameter('doL1Counters',doL1Counters)
@@ -543,14 +548,14 @@ class SwitchJetCollection(ConfigToolBase):
     new jet collection
     """
     _label='switchJetCollection'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
         self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
-        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "algorithm and type of JEC; use 'None' for no JEC; examples are ('AK5','Calo'), ('SC7','Calo'), ('KT4','PF')", tuple)
+        self.addParameter(self._defaultParameters,'jetCorrLabel',None, "algorithm and type of JEC; use 'None' for no JEC; examples are ('AK5','Calo'), ('SC7','Calo'), ('KT4','PF')", tuple,acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'doType1MET',True, "if jetCorrLabel is not 'None', set this to 'True' to redo the Type1 MET correction for the new jet colleection; at the moment it must be 'False' for non CaloJets otherwise the JetMET POG module crashes. ")
         self.addParameter(self._defaultParameters,'genJetCollection',cms.InputTag("ak5GenJets"), "GenJet collection to match to")
         self.addParameter(self._defaultParameters,'doJetID',True, "add jetId variables to the added jet collection")
@@ -592,7 +597,7 @@ class SwitchJetCollection(ConfigToolBase):
         self.setParameter('jetCollection',jetCollection)
         self.setParameter('doJTA',doJTA)
         self.setParameter('doBTagging',doBTagging)
-        self.setParameter('jetCorrLabel',jetCorrLabel, True)
+        self.setParameter('jetCorrLabel',jetCorrLabel)
         self.setParameter('doType1MET',doType1MET)
         self.setParameter('genJetCollection',genJetCollection)
         self.setParameter('doJetID',doJetID)
@@ -726,11 +731,11 @@ class AddJetID(ConfigToolBase):
     """ Compute jet id for process
     """
     _label='addJetID'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'jetSrc',self._defaultValue, "", Type=str)
+        self.addParameter(self._defaultParameters,'jetSrc',self._defaultValue, "", Type=cms.InputTag)
         self.addParameter(self._defaultParameters,'jetIdTag',self._defaultValue, "Tag to append to jet id map", Type=str)
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -770,7 +775,7 @@ class SetTagInfos(ConfigToolBase):
     """ Replace tag infos for collection jetSrc
     """
     _label='setTagInfos'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

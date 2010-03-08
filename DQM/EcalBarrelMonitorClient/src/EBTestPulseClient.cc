@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2009/10/28 08:18:22 $
- * $Revision: 1.216 $
+ * $Date: 2010/02/15 14:14:14 $
+ * $Revision: 1.221 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -705,16 +705,6 @@ void EBTestPulseClient::analyze(void) {
   bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_MEAN_ERROR");
   bits06 |= EcalErrorDictionary::getMask("PEDESTAL_HIGH_GAIN_RMS_ERROR");
 
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunPNErrorsDat> mask2;
-  map<EcalLogicID, RunTTErrorsDat> mask3;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-  EcalErrorMask::fetchDataSet(&mask3);
-#endif
-
   char histo[200];
 
   MonitorElement* me;
@@ -964,60 +954,6 @@ void EBTestPulseClient::analyze(void) {
 
         }
 
-        // masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
-          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int ic = Numbers::indexEB(ism, ie, ip);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism, EcalBarrel), ic).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits02 ) {
-                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-              }
-            }
-
-          }
-        }
-#endif
-
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask3.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask3.begin(); m != mask3.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits02 ) {
-                UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-              }
-              if ( (m->second).getErrorBits() & bits03 ) {
-                UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-              }
-            }
-
-          }
-        }
-#endif
-
       }
     }
 
@@ -1075,28 +1011,6 @@ void EBTestPulseClient::analyze(void) {
 
       }
 
-      // masking
-
-#ifdef WITH_ECAL_COND_DB
-      if ( mask2.size() != 0 ) {
-        map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
-        for (m = mask2.begin(); m != mask2.end(); m++) {
-
-          EcalLogicID ecid = m->first;
-
-          if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism, EcalBarrel), i-1).getLogicID() ) {
-            if ( (m->second).getErrorBits() & (bits01|bits04) ) {
-              UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
-            }
-            if ( (m->second).getErrorBits() & (bits03|bits06) ) {
-              UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-            }
-          }
-
-        }
-      }
-#endif
-
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -1128,6 +1042,156 @@ void EBTestPulseClient::analyze(void) {
     }
 
   }
+
+#ifdef WITH_ECAL_COND_DB
+  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
+    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int ic = ecid.getID2();
+
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+
+      }
+
+      if ( (m->second).getErrorBits() & bits02 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int ic = ecid.getID2();
+
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+
+      }
+
+      if ( (m->second).getErrorBits() & bits03 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int ic = ecid.getID2();
+
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int itt = ecid.getID2();
+
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
+          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
+            UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+          }
+        }
+
+      }
+
+      if ( (m->second).getErrorBits() & bits02 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int itt = ecid.getID2();
+
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
+          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
+            UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+          }
+        }
+
+      }
+
+      if ( (m->second).getErrorBits() & bits03 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int itt = ecid.getID2();
+
+        int iet = (itt-1)/4 + 1;
+        int ipt = (itt-1)%4 + 1;
+
+        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
+          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
+            UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+          }
+        }
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapPNErrors_.size() != 0 ) {
+    map<EcalLogicID, RunPNErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapPNErrors_.begin(); m != EcalErrorMask::mapPNErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int i = ecid.getID2() - 1;
+
+        UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
+
+      }
+
+      if ( (m->second).getErrorBits() & bits03 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EB_LM_PN") != 0 ) continue;
+
+        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
+        int i = ecid.getID2() - 1;
+
+        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+
+      }
+
+    }
+  }
+
+#endif
 
 }
 

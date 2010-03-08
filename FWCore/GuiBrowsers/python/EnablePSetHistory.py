@@ -147,6 +147,10 @@ def new_enableRecording(self):
     self.__dict__['_Process__enableRecording'] -= 1
 cms.Process.enableRecording=new_enableRecording
 
+def new_checkRecording(self):
+    return self.__dict__['_Process__enableRecording']==0
+cms.Process.checkRecording=new_checkRecording
+
 def new_recurseResetModified_(self, o):
     properties = []
     if isinstance(o, cms._ModuleSequenceType):
@@ -319,19 +323,19 @@ from FWCore.ParameterSet.SequenceTypes import _SequenceOperator, _SequenceNegati
 
 
 def new__SequenceOperator_name(self):
-    return self._left._name()+self._pySymbol+self._right._name()
+    return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
 _SequenceOperator._name = new__SequenceOperator_name    
 
 def new__SequenceNegation_name(self):
-    return '~'+self._operand._name()
+    return '~'+str(self._operand._name())
 _SequenceNegation._name = new__SequenceNegation_name    
 
 def new__SequenceIgnore_name(self):
-    return '-'+self._operand._name()
+    return '-'+str(self._operand._name())
 _SequenceIgnore._name = new__SequenceIgnore_name
 
 def new_Sequence_name(self):
-    return '('+self._seq._name()+')'
+    return '('+str(self._seq._name())+')'
 cms.Sequence._name = new_Sequence_name
 
 def new__Module_name(self):
@@ -510,26 +514,26 @@ if __name__=='__main__':
             changeSource(process,"file:filename3.root")
             self.assertEqual(changeSource._parameters['source'].value,"file:filename3.root")
     
-            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n')
+            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n')
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
-            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
+            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
             
             process.disableRecording()
             changeSource.setParameter('source',"file:filename4.root")
             action=changeSource.__copy__()
             process.addAction(action)
-            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
+            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n')
             
             process.enableRecording()
             changeSource.setParameter('source',"file:filename5.root")
             action=changeSource.__copy__()
             process.addAction(action)
             process.deleteAction(3)
-            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename.root")\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
 
             process.deleteAction(0)
-            self.assertEqual(process.dumpHistory(),'\nfrom PhysicsTools.PatAlgos.tools.testTools import *\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
+            self.assertEqual(process.dumpHistory(),'\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process, "file:filename2.root")\n\nchangeSource(process, "file:filename3.root")\n\nchangeSource(process, "file:filename5.root")\n')
             
         def testModifiedObjectsHistory(self):
             process = cms.Process('unittest')

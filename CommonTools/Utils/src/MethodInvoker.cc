@@ -18,7 +18,7 @@ MethodInvoker::MethodInvoker(const Member & method, const vector<AnyMethodArgume
             << " from " << method_.DeclaringType().Name() 
             << " with " << args_.size() << " arguments"
             << " (were " << ints.size() << ")"
-            << std::endl; */
+            << std::endl;*/
 }
 
 MethodInvoker::MethodInvoker(const MethodInvoker & other) :
@@ -43,22 +43,12 @@ void MethodInvoker::setArgs() {
 Reflex::Object
 MethodInvoker::invoke(const Object & o, Reflex::Object &retstore) const {
   Reflex::Object ret = retstore;
-  /* no need to check the type at run time
-  if(method_.IsVirtual()) {
-    Type dynType = o.DynamicType();
-    Member met = reco::findMethod(dynType, method_.Name(), args_.size()).first;
-    if(!met)
-      throw edm::Exception(edm::errors::InvalidReference)
-	<< "method \"" << method_.Name() << "\" not found in dynamic type \"" 
-	<< dynType.Name() << "\"\n";
-    ret = met.Invoke(Object(dynType, o.Address()), args_);
-    } else */
   /*std::cout << "Invoking " << method_.Name() 
             << " from " << method_.DeclaringType().Name(QUALIFIED) 
             << " on an instance of " << o.DynamicType().Name(QUALIFIED) 
             << " at " << o.Address()
             << " with " << args_.size() << " arguments"
-            << std::endl;*/
+            << std::endl; */
   Type retType;
   if(isFunction_) {
      method_.Invoke(o, &ret, args_);
@@ -110,7 +100,6 @@ LazyInvoker::invoker(const Reflex::Type & type) const
     SingleInvokerPtr & invoker = invokers_[type.Id()];
     if (!invoker) {
         //std::cout << "  Making new invoker for " << name_ << " on type " << type.Name(QUALIFIED|SCOPED) << std::endl;
-        //invoker = SingleInvokerPtr(new SingleInvoker(type, name_, argsBeforeFixups_));
         invoker.reset(new SingleInvoker(type, name_, argsBeforeFixups_));
     } 
     return * invoker;
@@ -119,19 +108,27 @@ LazyInvoker::invoker(const Reflex::Type & type) const
 Object
 LazyInvoker::invoke(const Reflex::Object & o) const 
 {
-    Type type = o.TypeOf();
-    if (type.IsClass()) type = o.DynamicType();
-    return invoker(type).invoke(Object(type, o.Address()));
+    pair<Object, bool> ret(o,false);
+    do {    
+        Type type = ret.first.TypeOf();
+        if (type.IsClass()) type = ret.first.DynamicType();
+        ret = invoker(type).invoke(Object(type, ret.first.Address()));
+    } while (ret.second == false);
+    return ret.first; 
 }
 
 double
 LazyInvoker::invokeLast(const Reflex::Object & o) const 
 {
-    Type type = o.TypeOf();
-    if (type.IsClass()) type = o.DynamicType();
-    const SingleInvoker & i = invoker(type);
-    Object ret = i.invoke(Object(type, o.Address()));
-    return i.retToDouble(ret);
+    pair<Object, bool> ret(o,false);
+    const SingleInvoker *i = 0;
+    do {    
+        Type type = ret.first.TypeOf();
+        if (type.IsClass()) type = ret.first.DynamicType();
+        i = & invoker(type);
+        ret = i->invoke(Object(type, ret.first.Address()));
+    } while (ret.second == false);
+    return i->retToDouble(ret.first);
 }
 
 SingleInvoker::SingleInvoker(const Reflex::Type &type,
@@ -142,33 +139,25 @@ SingleInvoker::SingleInvoker(const Reflex::Type &type,
     LazyMethodStack dummy;
     MethodArgumentStack dummy2;
     MethodSetter setter(invokers_, dummy, typeStack, dummy2, false);
-    setter.push(name, args, "LazyInvoker dynamic resolution");
-    objects_.resize(invokers_.size());
-    std::vector<MethodInvoker>::iterator it, ed; 
-    std::vector<Reflex::Object>::iterator ito;
-    for (it = invokers_.begin(), ed = invokers_.end(), ito = objects_.begin(); it != ed; ++it, ++ito) {
-        ExpressionVar::makeStorage(*ito, it->method());
-    }
-    retType_ = reco::typeCode(typeStack.back());
+    isRefGet_ = !setter.push(name, args, "LazyInvoker dynamic resolution", false);
+    //std::cerr  << "SingleInvoker on type " <<  type.Name(QUALIFIED|SCOPED) << ", name " << name << (isRefGet_ ? " is just a ref.get " : " is real") << std::endl;
+    ExpressionVar::makeStorage(storage_, invokers_.front().method());
+    retType_ = reco::typeCode(typeStack[1]); // typeStack[0] = type of self, typeStack[1] = type of ret
 }
 
 SingleInvoker::~SingleInvoker()
 {
-    for (std::vector<Reflex::Object>::iterator it = objects_.begin(), ed = objects_.end(); it != ed; ++it) {
-        ExpressionVar::delStorage(*it);
-    }
+    ExpressionVar::delStorage(storage_);
 }
 
-Object
+pair<Object,bool>
 SingleInvoker::invoke(const Reflex::Object & o) const 
 {
-    Object ro = o;
-    std::vector<MethodInvoker>::const_iterator itm, end = invokers_.end();
-    std::vector<Reflex::Object>::iterator      ito;
-    for(itm = invokers_.begin(), ito = objects_.begin(); itm != end; ++itm, ++ito) {
-        ro = itm->invoke(ro, *ito);
-    }
-    return ro;
+    /* std::cerr << "[SingleInvoker::invoke] member " << invokers_.front().method().Name(QUALIFIED|SCOPED) << 
+                                       " of type " << o.TypeOf().Name(QUALIFIED|SCOPED) <<
+                                       (!isRefGet_ ? " is one shot" : " needs another round") << std::endl; */
+    pair<Object,bool> ret(invokers_.front().invoke(o, storage_), !isRefGet_);
+    return ret;
 }
 
 double

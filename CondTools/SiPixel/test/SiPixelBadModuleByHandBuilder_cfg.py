@@ -24,10 +24,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:prova.db'),
+    connect = cms.string('sqlite_file:dead.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiPixelQualityRcd'),
-        tag = cms.string('SiPixelQuality_v07_mc')
+        tag = cms.string('SiPixelQuality_v06_mc')
     ))
 )
 
@@ -155,12 +155,7 @@ process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
 	cms.PSet(
 	    errortype = cms.string('whole'),
 	    detid = cms.uint32(302059800)
-	),
-         cms.PSet(
-            errortype = cms.string('tbmA'),
-            detid = cms.uint32(302125060)
-        )),
- 
+	)), 
     Record = cms.string('SiPixelQualityRcd'),
     SinceAppendMode = cms.bool(True),
     IOVMode = cms.string('Run'),

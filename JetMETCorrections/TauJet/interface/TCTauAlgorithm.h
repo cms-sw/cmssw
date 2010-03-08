@@ -48,6 +48,13 @@ using namespace reco;
 using namespace edm;
 
 class TCTauAlgorithm {
+    public:
+        enum  {TCAlgoUndetermined,
+	       TCAlgoMomentum,
+	       TCAlgoTrackProblem,
+	       TCAlgoMomentumECAL,
+	       TCAlgoCaloJet,
+	       TCAlgoHadronicJet};
 
     public:
         TCTauAlgorithm();
@@ -66,6 +73,7 @@ class TCTauAlgorithm {
 	double efficiency();
 	int    allTauCandidates();
 	int    statistics();
+	int    algoComponent();
 
     private:
 
@@ -85,6 +93,8 @@ class TCTauAlgorithm {
 
         int all,
             passed;
+
+	int algoComponentUsed;
 
 	int prongs;
 

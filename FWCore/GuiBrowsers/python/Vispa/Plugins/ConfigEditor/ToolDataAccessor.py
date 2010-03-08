@@ -3,6 +3,7 @@ import os.path
 import logging
 import re
 import copy
+import inspect
 
 from PyQt4.QtCore import QCoreApplication
 
@@ -88,14 +89,23 @@ class ToolDataAccessor(BasicDataAccessor):
     def label(self, object):
         """ Return a string that is used as caption of an object.
         """
-        return object._label
+        if isinstance(object,type):
+            directory=os.path.splitext(os.path.basename(inspect.getfile(object)))[0]
+        else:
+            directory=os.path.splitext(os.path.basename(inspect.getfile(type(object))))[0]
+        if directory=="ToolDataAccessor":
+            return object._label
+        else:
+            return directory+"."+object._label
 
-    def _property(self,name,value,description,typ):
+    def _property(self,name,value,description,typ,allowedValues):
         if typ in [bool] and type(value)!=typ:
             value=False
         if typ in [int, long, float] and type(value)!=typ:
             value=0
-        if typ in [bool]:
+        if not allowedValues is None and typ in [int,long,float,str]:
+            return ("DropDown", name, value,description, False, False, allowedValues)
+        elif typ in [bool]:
             return ("Boolean", name, value,description)
         elif typ in [int, long]:
             return ("Integer", name, value,description)
@@ -129,7 +139,7 @@ class ToolDataAccessor(BasicDataAccessor):
             properties+=[("String","comment",object._comment,None,False)]
         if len(object.getParameters().items())>0:
             properties += [("Category", "Parameters", "")]
-            properties+=[self._property(value.name,value.value,value.description,value.type) for key,value in object.getParameters().items()]
+            properties+=[self._property(value.name,value.value,value.description,value.type,object.getAllowedValues(value.name)) for key,value in object.getParameters().items()]
         return properties
     
     def setProperty(self, object, name, value):
@@ -204,6 +214,10 @@ class ToolDataAccessor(BasicDataAccessor):
         try:
             for tool in self._toolList:
                 tool.apply(process)
+                if not process.checkRecording():
+                    logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
+                    QCoreApplication.instance().errorMessage("Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
+                    return False
         except Exception,e:
             logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
@@ -234,7 +248,10 @@ class ToolDataAccessor(BasicDataAccessor):
         self._importTool.setImportCommands(importCommands)
         
     def topLevelObjects(self):
-        return [self._importTool]+self._toolList+[self._applyTool]
+        objectList=[self._importTool]+self._toolList
+        if self.configDataAccessor().process():
+            objectList+=[self._applyTool]
+        return objectList
 
     def toolModules(self):
         return self._toolModules

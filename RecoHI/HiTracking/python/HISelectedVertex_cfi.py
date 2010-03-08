@@ -7,7 +7,7 @@ hiBestAdaptiveVertex = cms.EDFilter("HIBestVertexSelection",
 )
 
 # select best of precise vertex, fast vertex, and beamspot
-hiSelectedVertex = cms.EDFilter("HIBestVertexProducer")
+hiSelectedVertex = cms.EDProducer("HIBestVertexProducer")
 
 # best vertex sequence
 bestHiVertex = cms.Sequence( hiBestAdaptiveVertex * hiSelectedVertex )

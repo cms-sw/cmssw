@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -76,12 +76,7 @@ std::string ParticleListDrawer::getParticleName(int id) const
 void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {  
   Handle<reco::CandidateView> particles;
   iEvent.getByLabel (src_, particles );
-  if (!particles.isValid()) {
-    cerr << "[ParticleListDrawer] caught std::exception " << endl;
-    return;
-  } else {
-    iSetup.getData( pdt_ );
-  }
+  iSetup.getData( pdt_ );
 
   if(maxEventsToPrint_ < 0 || nEventAnalyzed_ < maxEventsToPrint_) {
     ostringstream out;

@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.20 2009/10/15 17:20:09 rwolf Exp $
+// $Id: Lepton.h,v 1.21 2009/10/15 17:37:53 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Lepton.h,v 1.20 2009/10/15 17:20:09 rwolf Exp $
+  \version  $Id: Lepton.h,v 1.21 2009/10/15 17:37:53 rwolf Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -45,8 +45,8 @@ namespace pat {
 
       void setGenLepton(const reco::GenParticleRef & gl, bool embed=false) { PATObject<LeptonType>::setGenParticleRef(gl, embed); }
 
-      //============ BEGIN ISOLATION BLOCK =====
-      /// Returns the isolation variable for a specifc key (or 
+      //============ BEGIN ISOLATION BLOCK =====      
+      /// Returns the isolation variable for a specific key (or 
       /// pseudo-key like CaloIso), or -1.0 if not available
       float userIsolation(IsolationKeys key) const { 
           if (key >= 0) {
@@ -58,7 +58,7 @@ namespace pat {
           } else switch (key) {
 	  case pat::CaloIso:  
 	    //if (isolations_.size() <= pat::HcalIso) throw cms::Excepton("Missing Data") 
-	    //<< "CalIsoo Isolation was not stored for this particle.";
+	    //<< "CaloIso Isolation was not stored for this particle.";
 	    if (isolations_.size() <= pat::HcalIso) return -1.0; 
 	    return isolations_[pat::EcalIso] + isolations_[pat::HcalIso];
 	  default:
@@ -67,7 +67,33 @@ namespace pat {
 	    //<< key << " was not stored for this particle.";
           }
       }
-      /// Sets the userIsolation variable for a specifc key.
+      /// Returns the isolation variable for string type function arguments
+      /// (to be used with the cut-string parser);
+      /// the possible values of the strings are the enums defined in
+      /// DataFormats/PatCandidates/interface/Isolation.h
+      float userIsolation(const std::string& key) const {
+	// remove leading namespace specifier
+	std::string key_shortened = ( key.find("pat::") == 0 ) ? std::string(key, 5) : key;
+	if ( key_shortened == "TrackIso" ) return userIsolation(pat::TrackIso);
+	if ( key_shortened == "EcalIso" ) return userIsolation(pat::EcalIso);
+	if ( key_shortened == "HcalIso" ) return userIsolation(pat::HcalIso);
+	if ( key_shortened == "PfAllParticleIso" ) return userIsolation(pat::PfAllParticleIso);
+	if ( key_shortened == "PfChargedHadronIso" ) return userIsolation(pat::PfChargedHadronIso);
+	if ( key_shortened == "PfNeutralHadronIso" ) return userIsolation(pat::PfNeutralHadronIso);
+	if ( key_shortened == "PfGammaIso" ) return userIsolation(pat::PfGammaIso);
+	if ( key_shortened == "User1Iso" ) return userIsolation(pat::User1Iso);
+	if ( key_shortened == "User2Iso" ) return userIsolation(pat::User2Iso);
+	if ( key_shortened == "User3Iso" ) return userIsolation(pat::User3Iso);
+	if ( key_shortened == "User4Iso" ) return userIsolation(pat::User4Iso);
+	if ( key_shortened == "User5Iso" ) return userIsolation(pat::User5Iso);
+	if ( key_shortened == "UserBaseIso" ) return userIsolation(pat::UserBaseIso);
+	if ( key_shortened == "CaloIso" ) return userIsolation(pat::CaloIso);
+	//throw cms::Excepton("Missing Data")
+	//<< "Isolation corresponding to key " 
+	//<< key << " was not stored for this particle.";
+	return -1.0;
+      }
+      /// Sets the userIsolation variable for a specific key.
       /// Note that you can't set isolation for a pseudo-key 
       /// like CaloIso
       void setIsolation(IsolationKeys key, float value) {

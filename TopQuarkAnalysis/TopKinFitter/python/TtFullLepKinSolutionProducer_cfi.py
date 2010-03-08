@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 kinSolutionTtFullLepEvent = cms.EDProducer("TtFullLepKinSolutionProducer",
-    jets = cms.InputTag("selectedLayer1Jets"),    
-    electrons = cms.InputTag("selectedLayer1Electrons"),
-    muons = cms.InputTag("selectedLayer1Muons"),       
-    mets = cms.InputTag("layer1METs"),
+    jets = cms.InputTag("selectedPatJets"),    
+    electrons = cms.InputTag("selectedPatElectrons"),
+    muons = cms.InputTag("selectedPatMuons"),       
+    mets = cms.InputTag("patMETs"),
     
     # ------------------------------------------------
     # specify jet correction step and flavor correction

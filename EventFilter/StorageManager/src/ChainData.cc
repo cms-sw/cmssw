@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.2 2009/10/13 15:08:34 mommsen Exp $
+// $Id: ChainData.cc,v 1.4 2010/02/11 13:34:26 mommsen Exp $
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -344,6 +344,18 @@ void detail::ChainData::swap(ChainData& other)
   std::swap(_creationTime, other._creationTime);
   std::swap(_lastFragmentTime, other._lastFragmentTime);
   std::swap(_staleWindowStartTime, other._staleWindowStartTime);
+}
+
+size_t detail::ChainData::memoryUsed() const
+{
+  size_t memoryUsed = 0;
+  toolbox::mem::Reference* curRef = _ref;
+  while (curRef)
+    {
+      memoryUsed += curRef->getDataSize();
+      curRef = curRef->getNextReference();
+    }
+  return memoryUsed;
 }
 
 unsigned long detail::ChainData::totalDataSize() const
@@ -834,3 +846,11 @@ uint32 detail::ChainData::do_eventNumber() const
   msg << "complete EVENT or ERROR_EVENT message.";
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

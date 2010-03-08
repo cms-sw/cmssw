@@ -9,7 +9,7 @@
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 
 class TFile;

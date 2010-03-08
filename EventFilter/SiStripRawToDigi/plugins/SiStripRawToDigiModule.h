@@ -40,7 +40,8 @@ namespace sistrip {
     edm::InputTag productLabel_;
     const SiStripFedCabling* cabling_;
     uint32_t cacheId_;
-    bool extractCm_;    
+    bool doFullCorruptBufferChecks_;
+    
   };
   
 }

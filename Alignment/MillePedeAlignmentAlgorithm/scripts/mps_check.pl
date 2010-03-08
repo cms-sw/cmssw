@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.22 $ by $Author: parenti $
-#     $Date: 2009/11/26 11:45:23 $
+#     $Revision: 1.21 $ by $Author: parenti $
+#     $Date: 2009/10/19 14:33:12 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -142,8 +142,8 @@ for ($i=0; $i<@JOBID; ++$i) {
 
     # for mille jobs checks that milleBinary file is not empty
     if ( $i < $nJobs ) { # mille job!
-      $milleOut = sprintf("milleBinary%03d.dat",$i+1);
-      $mOutSize = `nsls -l $mssDir | grep $milleOut | head -1 | awk '{print \$5}'`;
+      $milleOut = sprintf("$mssDir/milleBinary%03d.dat",$i+1);
+      $mOutSize = `nsls -l $milleOut | awk '{print \$5}'`;
       if ( !($mOutSize>0) ) {
 	$emptyDatErr = 1;
       }

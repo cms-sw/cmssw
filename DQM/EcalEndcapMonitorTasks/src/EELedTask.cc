@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2009/10/09 12:14:51 $
- * $Revision: 1.53 $
+ * $Date: 2009/10/26 17:33:51 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -440,9 +440,6 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( runType[ism-1] == EcalDCCHeaderBlock::LED_GAP &&
            rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
-      LogDebug("EELedTask") << " det id = " << id;
-      LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       int ic = Numbers::icEE(ism, ix, iy);
 
       EEDataFrame dataframe = (*digiItr);
@@ -506,9 +503,6 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
                runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
-
-      LogDebug("EELedTask") << " det id = " << pnItr->id();
-      LogDebug("EELedTask") << " sm, num " << ism << " " << num;
 
       float xvalped = 0.;
 
@@ -603,9 +597,6 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       if ( runType[ism-1] == EcalDCCHeaderBlock::LED_GAP &&
            rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
 
-      LogDebug("EELedTask") << " det id = " << id;
-      LogDebug("EELedTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
@@ -636,10 +627,6 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       float zval = hitItr->pedestal();
       if ( zval <= 0. ) zval = 0.0;
 
-      LogDebug("EELedTask") << " hit amplitude " << xval;
-      LogDebug("EELedTask") << " hit jitter " << yval;
-      LogDebug("EELedTask") << " hit pedestal " << zval;
-
       if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
       if ( xval > 16. ) {
@@ -652,8 +639,6 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
       int refPn = PNsInLM[0];
 
       if ( adcPN[refPn] != 0. ) wval = xval /  adcPN[refPn];
-
-      LogDebug("EELedTask") << " hit amplitude over PN " << wval;
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
 

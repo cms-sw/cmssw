@@ -11,7 +11,7 @@
 #include <string>
 
 /// classes declaration
-namespace pu {
+namespace PUnamespace{
   class ParametrizationPUJet;
   typedef std::map <double, ParametrizationPUJet*> ParametersMap;
 }
@@ -31,7 +31,7 @@ class SimplePUJetCorrector {
  private:
   SimplePUJetCorrector (const SimplePUJetCorrector&);
   SimplePUJetCorrector& operator= (const SimplePUJetCorrector&);
-  pu::ParametersMap* mParametrization;
+  PUnamespace::ParametersMap* mParametrization;
 };
 
 #endif

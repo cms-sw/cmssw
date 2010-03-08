@@ -4,7 +4,7 @@ process = cms.Process("SKIM")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
     annotation = cms.untracked.string('Collisions DT skim')
 )
@@ -52,7 +52,7 @@ secondaryFileNames = cms.untracked.vstring()
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR09_P_V7::All"
 
-process.muonDTDigis = cms.EDFilter("DTUnpackingModule",
+process.muonDTDigis = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
     useStandardFEDid = cms.untracked.bool(True),
     fedbyType = cms.untracked.bool(True),
@@ -72,7 +72,7 @@ process.muonDTDigis = cms.EDFilter("DTUnpackingModule",
 )
 
 
-process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
+process.hltDTActivityFilter = cms.EDFilter("HLTDTActivityFilter",
  inputDCC         = cms.InputTag( "dttfDigis" ),   
  inputDDU         = cms.InputTag( "muonDTDigis" ),   
  inputDigis       = cms.InputTag( "muonDTDigis" ),   
@@ -108,7 +108,7 @@ process.DTskim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/DTskim_cfg.py,v $'),
     annotation = cms.untracked.string('BSC skim')
 )

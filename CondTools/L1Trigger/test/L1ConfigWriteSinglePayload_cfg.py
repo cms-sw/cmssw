@@ -50,6 +50,16 @@ options.register('startup',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Use L1StartupConfig_cff instead of L1DummyConfig_cff")
+options.register('rpcFileDir',
+                 '', #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Replacement value of rpcconf.filedir; no replacement by default")
+options.register('rpcPACsPerTower',
+                 -1, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Replacement value of rpcconf.PACsPerTower; no replacement by default")
 options.parseArguments()
 
 # Generate L1TriggerKey
@@ -83,13 +93,21 @@ else:
     
 process.l1CSCTFConfig.ptLUT_path = '/afs/cern.ch/cms/MUON/csc/fast1/track_finder/luts/PtLUT.dat'
 
+# Optional customization for RPC objects
+if options.rpcFileDir != "":
+    process.rpcconf.filedir = options.rpcFileDir
+    print "New rpcconf.filedir = ", process.rpcconf.filedir
+if options.rpcPACsPerTower != -1:
+    process.rpcconf.PACsPerTower = options.rpcPACsPerTower
+    print "New rpcconf.PACsPerTower = ", process.rpcconf.PACsPerTower
+
 # writer modules
 from CondTools.L1Trigger.L1CondDBPayloadWriter_cff import initPayloadWriter
 initPayloadWriter( process,
                    outputDBConnect = options.outputDBConnect,
                    outputDBAuth = options.outputDBAuth,
                    tagBase = options.tagBase )
-process.L1CondDBPayloadWriter.writeL1TriggerKey = cms.bool(False)
+process.L1CondDBPayloadWriter.writeL1TriggerKey = False
 
 if options.overwriteKey == 0:
     process.L1CondDBPayloadWriter.overwriteKeys = False

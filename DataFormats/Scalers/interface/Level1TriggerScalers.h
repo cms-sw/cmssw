@@ -31,7 +31,8 @@ class Level1TriggerScalers
   enum 
   {
     nLevel1Triggers          = 128,
-    nLevel1TestTriggers      = 64
+    nLevel1TestTriggers      = 64,
+    firstShortLSRun          = 125574
   };
 
   static const unsigned long long N_BX = 3564ULL;
@@ -114,6 +115,11 @@ class Level1TriggerScalers
   static double rateLS(unsigned int counts);
   static double percentLS(unsigned long long counts);
   static double percentLSActive(unsigned long long counts);
+
+  static double rateLS(unsigned long long counts, int runNumber);
+  static double rateLS(unsigned int counts, int runNumber);
+  static double percentLS(unsigned long long counts, int runNumber);
+  static double percentLSActive(unsigned long long counts, int runNumber);
 
   std::vector<unsigned int> gtAlgoCounts() const 
   { return(gtAlgoCounts_);}

@@ -13,7 +13,7 @@
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.4 2010/01/25 15:51:37 fgolf Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.7 2010/02/17 01:50:07 fgolf Exp $
 //
 //
 
@@ -75,6 +75,7 @@ namespace cms {
 	  trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
 	  trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
 
+	  muonMinValidStaHits_ = iConfig.getParameter<int>("muonMinValidStaHits");
 	  muond0_     = iConfig.getParameter<double>("d0_muon"    );
 	  muonpt_     = iConfig.getParameter<double>("pt_muon"    );
 	  muoneta_    = iConfig.getParameter<double>("eta_muon"   );
@@ -224,10 +225,11 @@ namespace cms {
 	  }
 
 	  if( fabs( d0 ) > muond0_ )                          return false;
-	  if( globalTrack->pt() < muonpt_ )                   return false;
-	  if( fabs( globalTrack->eta() ) > muoneta_ )         return false;
+	  if( muon->pt() < muonpt_ )                          return false;
+	  if( fabs( muon->eta() ) > muoneta_ )                return false;
 	  if( nhits < muonhits_ )                             return false;
 	  if( chi2 > muonchi2_ )                              return false;
+	  if( globalTrack->hitPattern().numberOfValidMuonHits() < muonMinValidStaHits_ ) return false;
 
 	  else return true;
      }
@@ -308,6 +310,7 @@ namespace cms {
 	  if( !( (quality & cut) == cut ) ) return false;
 
 	  bool isGoodAlgo = false;    
+	  if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
 	  for( unsigned int i = 0; i < trkAlgos_.size(); i++ ) {
 
 	       if( algo == trkAlgos_.at(i) ) isGoodAlgo = true;

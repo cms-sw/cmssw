@@ -13,7 +13,7 @@
 //
 // Original Author:  "Igor Vodopiyanov"
 //         Created:  Nov-21 2008
-// $Id: HcalDataCertification.cc,v 1.7 2009/08/24 11:35:52 temple Exp $
+// $Id: HcalDataCertification.cc,v 1.9 2009/10/27 14:31:02 ivodop Exp $
 //
 //
 
@@ -144,8 +144,8 @@ HcalDataCertification::beginJob()
   Hcal_HF = dbe_->bookFloat("Hcal_HF");
   Hcal_HO = dbe_->bookFloat("Hcal_HO");
   Hcal_HFlumi = dbe_->bookFloat("Hcal_HFlumi");
-  Hcal_HO0    = dbe_->bookFloat("HcalHO0");
-  Hcal_HO12   = dbe_->bookFloat("HcalHO12");
+  Hcal_HO0    = dbe_->bookFloat("Hcal_HO0");
+  Hcal_HO12   = dbe_->bookFloat("Hcal_HO12");
 
 }
 

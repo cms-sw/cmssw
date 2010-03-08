@@ -7,6 +7,9 @@
 DEFINE_FWK_MODULE(TtSemiLepJetCombMVAComputer);
 DEFINE_FWK_MODULE(TtSemiLepJetCombMVATrainer);
 
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombGeom.h"
+DEFINE_FWK_MODULE(TtSemiLepJetCombGeom);
+
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGeom.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypWMassMaxSumPt.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypMaxSumPtWMass.h"

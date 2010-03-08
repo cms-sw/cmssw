@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.7 2009/07/28 08:37:13 demattia Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.8 2009/10/20 15:11:45 demattia Exp $
 //
 //
 
@@ -73,6 +73,9 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
       quality->add( obj.product() );    
     } else if (recordName=="SiStripBadChannelRcd"){
       iRecord.getRecord<SiStripBadChannelRcd>().get(tagName,obj);
+      quality->add( obj.product() );    
+    } else if (recordName=="SiStripBadStripRcd"){
+      iRecord.getRecord<SiStripBadStripRcd>().get(tagName,obj); 
       quality->add( obj.product() );    
     } else if (recordName=="SiStripDetCablingRcd"){
       iRecord.getRecord<SiStripDetCablingRcd>().get(tagName,cabling);

@@ -70,6 +70,7 @@ namespace evf{
 	, lumiSectionIndex_(0)
 	, prescaleIndex_(0)
 	, cache_(sizeof(TriggerReportStatic),MSQS_MESSAGE_TYPE_TRR)
+	, adjustLsIndex_(false)
 	{}
       void resetFormat(){tableFormatted_ = false;}
       void printReportTable();
@@ -87,10 +88,14 @@ namespace evf{
       void packTriggerReport(edm::TriggerReport &);
       void sumAndPackTriggerReport(MsgBuf &);
       void resetPackedTriggerReport();
+      void adjustLsIndexForRestart(){adjustLsIndex_ = true; lumiSectionIndex_--;}
       void resetTriggerReport();
       evf::MsgBuf & getPackedTriggerReport(){return cache_;}
       TriggerReportStatic *getPackedTriggerReportAsStruct(){return (TriggerReportStatic *)cache_->mtext;}
       xdata::String *getPathLegenda(){return &pathLegenda_;}
+      void resetLumiSectionReferenceIndex(){lumiSectionIndex_=0;}
+      void withdrawLumiSectionIncrement(){lumiSectionIndex_--;}
+      unsigned int getLumiSectionReferenceIndex(){return lumiSectionIndex_;}
     private:
       // scalers table
       xdata::UnsignedInteger32 eventsProcessed_;
@@ -117,6 +122,7 @@ namespace evf{
       unsigned int prescaleIndex_;
       edm::TriggerReport trp_;
       MsgBuf  cache_;
+      bool adjustLsIndex_;
     };
   }
 }

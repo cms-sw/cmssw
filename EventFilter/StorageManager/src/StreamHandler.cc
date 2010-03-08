@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.13 2010/01/29 11:23:56 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.14 2010/01/29 15:45:47 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -89,7 +89,7 @@ void StreamHandler::writeEvent(const I2OChain& event)
 }
 
 
-const StreamHandler::FileHandlerPtr StreamHandler::getFileHandler(const I2OChain& event)
+StreamHandler::FileHandlerPtr StreamHandler::getFileHandler(const I2OChain& event)
 {
   for (
     FileHandlers::iterator it = _fileHandlers.begin(), itEnd = _fileHandlers.end();
@@ -114,7 +114,7 @@ const StreamHandler::FileHandlerPtr StreamHandler::getFileHandler(const I2OChain
 }
 
 
-const FilesMonitorCollection::FileRecordPtr
+FilesMonitorCollection::FileRecordPtr
 StreamHandler::getNewFileRecord(const I2OChain& event)
 {
   FilesMonitorCollection::FileRecordPtr fileRecord =
@@ -135,13 +135,13 @@ StreamHandler::getNewFileRecord(const I2OChain& event)
 }
 
 
-const std::string StreamHandler::getBaseFilePath(const uint32& runNumber, uint32_t fileCount) const
+std::string StreamHandler::getBaseFilePath(const uint32& runNumber, uint32_t fileCount) const
 {
   return _diskWritingParams._filePath + getFileSystem(runNumber, fileCount);
 }
 
 
-const std::string StreamHandler::getFileSystem(const uint32& runNumber, uint32_t fileCount) const
+std::string StreamHandler::getFileSystem(const uint32& runNumber, uint32_t fileCount) const
 {
   // if the number of logical disks is not specified, don't
   // add a file system subdir to the path
@@ -160,7 +160,7 @@ const std::string StreamHandler::getFileSystem(const uint32& runNumber, uint32_t
 }
 
 
-const std::string StreamHandler::getCoreFileName
+std::string StreamHandler::getCoreFileName
 (
   const uint32& runNumber,
   const uint32& lumiSection
@@ -179,7 +179,7 @@ const std::string StreamHandler::getCoreFileName
 
  
 
-const unsigned int StreamHandler::getFileCounter(const std::string& coreFileName)
+unsigned int StreamHandler::getFileCounter(const std::string& coreFileName)
 {
   CoreFileNamesMap::iterator pos = _usedCoreFileNames.find(coreFileName);
   if (pos == _usedCoreFileNames.end())
@@ -196,7 +196,7 @@ const unsigned int StreamHandler::getFileCounter(const std::string& coreFileName
 
 
 
-const unsigned long long StreamHandler::getMaxFileSize() const
+unsigned long long StreamHandler::getMaxFileSize() const
 {
   int maxFileSizeMB = _diskWritingParams._maxFileSizeMB > 0 ? 
     _diskWritingParams._maxFileSizeMB : getStreamMaxFileSize();

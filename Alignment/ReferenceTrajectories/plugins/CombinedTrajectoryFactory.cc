@@ -1,3 +1,6 @@
+// Do not include .h from plugin directory, but locally:
+#include "CombinedTrajectoryFactory.h"
+
 #include <memory>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -6,52 +9,8 @@
 #include <TString.h>
 #include <TObjArray.h>
 
-#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
-
-/// A factory that can combine the functionality of several 'trajectory factories'. At construction
-/// time, it is given an ordered list of what kinds factories it should use. When called, all the
-/// factories are called one after each other, 
-///  - either until one of them gives a result
-///  - or until all factories are really called.
-/// This is determined by the useAllFactories flag.
-///
-/// Example: 
-/// Combine TwoBodyDecayTrajectoryFactory and ReferenceTrajectoryFactory 
-/// with useAllFactories = false. In case the former
-/// can't produce a trajectory from two given tracks, the tracks can still be used for 'ordinary'
-/// reference trajectories (see also TrajectoryFactories.cff).
-
-
-class CombinedTrajectoryFactory : public TrajectoryFactoryBase
-{
-
-public:
-
-  CombinedTrajectoryFactory(const edm::ParameterSet &config);
-  virtual ~CombinedTrajectoryFactory();
-
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
-							   const ConstTrajTrackPairCollection &tracks,
-							   const reco::BeamSpot &beamSpot) const;
-
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
-							   const ConstTrajTrackPairCollection &tracks,
-							   const ExternalPredictionCollection &external,
-							   const reco::BeamSpot &beamSpot) const;
-
-  virtual CombinedTrajectoryFactory* clone() const { return new CombinedTrajectoryFactory(*this); }
-
-private:
-
-  std::vector<TrajectoryFactoryBase*> theFactories;
-  bool                                theUseAllFactories; /// use not only the first 'successful'?
-};
-
-//////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-
 using namespace std;
+
 
 CombinedTrajectoryFactory::CombinedTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config ), theUseAllFactories(config.getParameter<bool>("useAllFactories"))
@@ -79,9 +38,8 @@ CombinedTrajectoryFactory::~CombinedTrajectoryFactory( void ) {}
 
 
 const CombinedTrajectoryFactory::ReferenceTrajectoryCollection
-CombinedTrajectoryFactory::trajectories(const edm::EventSetup &setup,
-					const ConstTrajTrackPairCollection &tracks,
-					const reco::BeamSpot &beamSpot) const
+CombinedTrajectoryFactory::trajectories( const edm::EventSetup & setup,
+					 const ConstTrajTrackPairCollection & tracks ) const
 {
   ReferenceTrajectoryCollection trajectories;
   ReferenceTrajectoryCollection tmpTrajectories; // outside loop for efficiency
@@ -89,7 +47,7 @@ CombinedTrajectoryFactory::trajectories(const edm::EventSetup &setup,
   vector< TrajectoryFactoryBase* >::const_iterator itFactory;
   for ( itFactory = theFactories.begin(); itFactory != theFactories.end(); ++itFactory )
   {
-    tmpTrajectories = ( *itFactory )->trajectories(setup, tracks, beamSpot);
+    tmpTrajectories = ( *itFactory )->trajectories( setup, tracks );
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
     if (!theUseAllFactories && !trajectories.empty()) break;
@@ -99,10 +57,9 @@ CombinedTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 }
 
 const CombinedTrajectoryFactory::ReferenceTrajectoryCollection
-CombinedTrajectoryFactory::trajectories(const edm::EventSetup &setup,
-					const ConstTrajTrackPairCollection &tracks,
-					const ExternalPredictionCollection &external,
-					const reco::BeamSpot &beamSpot) const
+CombinedTrajectoryFactory::trajectories( const edm::EventSetup & setup,
+					 const ConstTrajTrackPairCollection& tracks,
+					 const ExternalPredictionCollection& external ) const
 {
   ReferenceTrajectoryCollection trajectories;
   ReferenceTrajectoryCollection tmpTrajectories; // outside loop for efficiency
@@ -110,7 +67,7 @@ CombinedTrajectoryFactory::trajectories(const edm::EventSetup &setup,
   vector< TrajectoryFactoryBase* >::const_iterator itFactory;
   for ( itFactory = theFactories.begin(); itFactory != theFactories.end(); ++itFactory )
   {
-    tmpTrajectories = ( *itFactory )->trajectories(setup, tracks, external, beamSpot);
+    tmpTrajectories = ( *itFactory )->trajectories( setup, tracks, external );
     trajectories.insert(trajectories.end(), tmpTrajectories.begin(), tmpTrajectories.end());
 
     if (!theUseAllFactories && !trajectories.empty()) break;

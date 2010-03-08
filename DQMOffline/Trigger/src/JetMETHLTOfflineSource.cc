@@ -225,7 +225,7 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
     npath = triggerResults_->size();
     if (debug_) std::cout << "npath(triggerResults)=" << npath << std::endl;
 
-    triggerNames_.init(*(triggerResults_.product()));
+    triggerNames_ = &iEvent.triggerNames(*triggerResults_);
 
   } else {
 
@@ -240,9 +240,9 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
     std::cout << std::endl;
     // tirggerResults
     for(int i = 0; i < npath; ++i) {
-      if (triggerNames_.triggerName(i).find("HLT_") != std::string::npos ){
+      if (triggerNames_->triggerName(i).find("HLT_") != std::string::npos ){
 	std::cout << i << " "
-		  << triggerNames_.triggerName(i) << " "
+		  << triggerNames_->triggerName(i) << " "
 		  << triggerResults_->wasrun(i) << " "
 		  << triggerResults_->accept(i) << " "
 		  << triggerResults_->error(i) << std::endl;
@@ -390,9 +390,9 @@ void JetMETHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSe
 	
 	// tirggerResults
 	for(int i = 0; i < npath; ++i) {
-	  if (triggerNames_.triggerName(i).find("HLT_Jet") != std::string::npos ){
+	  if (triggerNames_->triggerName(i).find("HLT_Jet") != std::string::npos ){
 	    std::cout << i << " "
-		      << triggerNames_.triggerName(i) << " "
+		      << triggerNames_->triggerName(i) << " "
 		      << triggerResults_->wasrun(i) << " "
 		      << triggerResults_->accept(i) << " "
 		      << triggerResults_->error(i) << std::endl;
@@ -909,7 +909,7 @@ void JetMETHLTOfflineSource::fillMEforMonSingleJet(){
       
       // did we pass the denomPath?
       for(int i = 0; i < npath; ++i) {
-	if (triggerNames_.triggerName(i).find("HLT_"+v->getPathName()) != std::string::npos 
+	if (triggerNames_->triggerName(i).find("HLT_"+v->getPathName()) != std::string::npos 
 	    && triggerResults_->accept(i))
 	  {
 	    // denomPath passed 
@@ -995,7 +995,7 @@ void JetMETHLTOfflineSource::fillMEforMonDiJetAve(){
       
       // did we pass the denomPath?
       for(int i = 0; i < npath; ++i) {
-	if (triggerNames_.triggerName(i).find("HLT_"+v->getPathName()) != std::string::npos 
+	if (triggerNames_->triggerName(i).find("HLT_"+v->getPathName()) != std::string::npos 
 	    && triggerResults_->accept(i))
 	  {
 	    // denomPath passed 
@@ -1070,7 +1070,7 @@ void JetMETHLTOfflineSource::fillMEforMonMET(){
       
       // did we pass the denomPath?
       for(int i = 0; i < npath; ++i) {
-	if (triggerNames_.triggerName(i).find("HLT_"+v->getPathName()) != std::string::npos 
+	if (triggerNames_->triggerName(i).find("HLT_"+v->getPathName()) != std::string::npos 
 	    && triggerResults_->accept(i))
 	  {
 	    // denomPath passed 
@@ -1640,7 +1640,7 @@ bool JetMETHLTOfflineSource::isHLTPathAccepted(std::string pathName){
   if(&triggerResults_) {
     int npath = triggerResults_->size();
     for(int i = 0; i < npath; ++i) {
-      if (triggerNames_.triggerName(i).find(pathName) != std::string::npos 
+      if (triggerNames_->triggerName(i).find(pathName) != std::string::npos 
 	  && triggerResults_->accept(i))
 	{ output = true; break; }
     }  

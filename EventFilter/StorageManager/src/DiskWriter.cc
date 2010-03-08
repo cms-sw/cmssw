@@ -1,5 +1,9 @@
-// $Id: DiskWriter.cc,v 1.14 2010/01/07 18:05:54 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.18 2010/02/09 14:54:17 mommsen Exp $
 /// @file: DiskWriter.cc
+
+#include <algorithm>
+
+#include <boost/bind.hpp>
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
@@ -111,7 +115,7 @@ void DiskWriter::writeNextEvent()
 
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedEventSample(event.totalDataSize());
+    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedEventSample(event.memoryUsed());
 
     if( event.isEndOfLumiSectionMessage() )
       {
@@ -230,7 +234,8 @@ void DiskWriter::configureEventStreams(EvtStrConfigListPtr cfgList)
     ++it
   ) 
   {
-    makeEventStream(*it);
+    if ( it->fractionToDisk() > 0 )
+      makeEventStream(*it);
   }
 }
 

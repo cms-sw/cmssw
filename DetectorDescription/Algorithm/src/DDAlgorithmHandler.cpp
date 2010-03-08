@@ -1,4 +1,5 @@
 //
+//#include "Utilities/Configuration/interface/Architecture.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
@@ -35,7 +36,7 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
   algo_->initialize(nArgs,vArgs,mArgs,sArgs, svArgs);
 }
 
-void DDAlgorithmHandler::execute(DDCompactView& cpv) throw (DDException)
+void DDAlgorithmHandler::execute() throw (DDException)
 {
-  algo_->execute(cpv);
+  algo_->execute();
 }

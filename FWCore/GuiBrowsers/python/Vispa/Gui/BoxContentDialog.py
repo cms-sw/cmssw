@@ -22,6 +22,7 @@ class BoxContentDialog(QDialog):
 
         self._applyButton = QPushButton("&Apply")
         self._applyButton.setDefault(True)
+        self._helpButton = QPushButton("&Help")
         self._cancelButton = QPushButton("&Cancel")
 
         self.setLayout(QVBoxLayout())
@@ -35,10 +36,12 @@ class BoxContentDialog(QDialog):
         self.layout().addLayout(self._layout4)
         
         self._layout4.addWidget(self._cancelButton)
+        self._layout4.addWidget(self._helpButton)
         self._layout4.addStretch()
         self._layout4.addWidget(self._applyButton)
 
         self.connect(self._applyButton, SIGNAL('clicked(bool)'), self.apply)
+        self.connect(self._helpButton, SIGNAL('clicked(bool)'), self.help)
         self.connect(self._cancelButton, SIGNAL('clicked(bool)'), self.reject)
         
         self._addLabelLabel = QLabel("Add: ")
@@ -84,4 +87,7 @@ class BoxContentDialog(QDialog):
     def apply(self):
         self.emit(SIGNAL("scriptChanged"), self.script())
         self.accept()
+
+    def help(self):
+        QMessageBox.about(self, 'Info', "This dialog allows you to specify what text shall be displayed inside the boxes of the center view. You can specify any valid Python string or use the buttons to fill the string.")
     

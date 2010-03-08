@@ -6,6 +6,7 @@ patTriggerEvent = cms.EDProducer( "PATTriggerEventProducer",
     patTriggerProducer = cms.InputTag( "patTrigger" ),
     patTriggerMatches  = cms.VInputTag( "electronTriggerMatchHLTEle15LWL1R"
                                       , "electronTriggerMatchHLTDoubleEle5SWL1R"
+                                      , "muonTriggerMatchL1Muon"
                                       , "muonTriggerMatchHLTIsoMu3"
                                       , "muonTriggerMatchHLTMu3"
                                       , "muonTriggerMatchHLTDoubleMu3"

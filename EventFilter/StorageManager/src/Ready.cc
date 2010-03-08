@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.11 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Ready.cc,v 1.13 2010/02/09 14:54:55 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -79,10 +79,18 @@ void Ready::do_entryActionWork()
     set_capacity(queueParams._commandQueueSize);
   sharedResources->_fragmentQueue->
     set_capacity(queueParams._fragmentQueueSize);
+  sharedResources->_fragmentQueue->
+    set_memory(queueParams._fragmentQueueMemoryLimitMB * 1024*1024);
   sharedResources->_registrationQueue->
     set_capacity(queueParams._registrationQueueSize);
   sharedResources->_streamQueue->
     set_capacity(queueParams._streamQueueSize);
+  sharedResources->_streamQueue->
+    set_memory(queueParams._streamQueueMemoryLimitMB * 1024*1024);
+  sharedResources->_dqmEventQueue->
+    set_capacity(queueParams._dqmEventQueueSize);
+  sharedResources->_dqmEventQueue->
+    set_memory(queueParams._dqmEventQueueMemoryLimitMB * 1024*1024);
 
   // convert the SM configuration string into ConfigInfo objects
   // and store them for later use
@@ -103,6 +111,14 @@ void Ready::do_entryActionWork()
   ResourceMonitorParams rmp =
     sharedResources->_configuration->getResourceMonitorParams();
   rmc.configureResources(rmp);
+  AlarmParams ap =
+    sharedResources->_configuration->getAlarmParams();
+  rmc.configureAlarms(ap);
+  
+  // configure the run monitoring
+  RunMonitorCollection& run_mc =
+    sharedResources->_statisticsReporter->getRunMonitorCollection();
+  run_mc.configureAlarms(ap);
 
   // configure the discard manager
   sharedResources->_discardManager->configure();

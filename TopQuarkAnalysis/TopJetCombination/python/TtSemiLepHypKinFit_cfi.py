@@ -5,11 +5,11 @@ import FWCore.ParameterSet.Config as cms
 #
 ttSemiLepHypKinFit = cms.EDProducer("TtSemiLepHypKinFit",
     ## met input
-    mets  = cms.InputTag("layer1METs"),
+    mets  = cms.InputTag("patMETs"),
     ## jet input
-    jets  = cms.InputTag("selectedLayer1Jets"),
+    jets  = cms.InputTag("selectedPatJets"),
     ## lepton input                    
-    leps  = cms.InputTag("selectedLayer1Muons"),
+    leps  = cms.InputTag("selectedPatMuons"),
     ## kin fit results
     match       = cms.InputTag("kinFitTtSemiLepEventHypothesis"),
     status      = cms.InputTag("kinFitTtSemiLepEventHypothesis","Status"),

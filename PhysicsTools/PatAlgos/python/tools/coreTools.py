@@ -10,7 +10,7 @@ class RestrictInputToAOD(ConfigToolBase):
     content
     """
     _label='restrictInputToAOD'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -57,7 +57,7 @@ class RemoveMCMatching(ConfigToolBase):
     candidate collections:
     """
     _label='removeMCMatching'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -94,6 +94,7 @@ class RemoveMCMatching(ConfigToolBase):
                 _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
                 ## remove mc extra modules for taus
                 process.patDefaultSequence.remove(process.tauGenJets)
+                process.patDefaultSequence.remove(process.tauGenJetsSelectorAllHadrons)
                 process.patDefaultSequence.remove(process.tauGenJetMatch)
                 ## remove mc extra configs for taus
                 tauProducer = getattr(process, 'patTaus')
@@ -119,46 +120,7 @@ class RemoveMCMatching(ConfigToolBase):
                 ## remove mc extra configs for jets
                 metProducer = getattr(process, 'patMETs')        
                 metProducer.addGenMET           = False
-                metProducer.genMETSource        = ''       
-            if( names[obj] == 'PFElectrons' or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF electrons"
-                _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons') 
-            if( names[obj] == 'PFMuons'     or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF muons"
-                _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons') 
-            if( names[obj] == 'PFTaus'      or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF taus"
-                _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus')
-                process.patDefaultSequence.remove(process.tauGenJetMatch)
-                process.patDefaultSequence.remove(process.tauGenJets)
-                ## remove mc extra configs for taus
-                tauProducer = getattr(process, 'patTaus')
-                tauProducer.addGenJetMatch      = False
-                tauProducer.embedGenJetMatch    = False
-                tauProducer.genJetMatch         = ''         
-            if( names[obj] == 'PFJets'      or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF jets"
-                ## remove mc extra modules for jets
-                process.patDefaultSequence.remove(process.patJetPartons)
-                process.patDefaultSequence.remove(process.pfPatJetPartonMatch)
-                process.patDefaultSequence.remove(process.pfPatJetGenJetMatch)
-                process.patDefaultSequence.remove(process.pfPatJetPartonAssociation)
-                process.patDefaultSequence.remove(process.pfPatJetFlavourAssociation)     
-                ## remove mc extra configs for jets
-                jetProducer = getattr(process, 'pfPatJets')
-                jetProducer.addGenPartonMatch   = False
-                jetProducer.embedGenPartonMatch = False
-                jetProducer.genPartonMatch      = ''
-                jetProducer.addGenJetMatch      = False
-                jetProducer.genJetMatch         = ''
-                jetProducer.getJetMCFlavour     = False
-                jetProducer.JetPartonMapSource  = ''       
-            if( names[obj] == 'PFMETs'      or names[obj] == 'PFAll' ):
-                print "now removing MC dependencies for PF MET"
-                ## remove mc extra configs for jets
-                metProducer = getattr(process, 'pfMET')        
-                metProducer.addGenMET           = cms.bool(False)
-                metProducer.genMETSource        = cms.InputTag('')
+                metProducer.genMETSource        = ''
             
 removeMCMatching=RemoveMCMatching()
 
@@ -182,7 +144,7 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
     """ Remove all PAT objects from the default sequence but a specific one
     """
     _label='removeAllPATObjectsBut'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -222,7 +184,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
     """ Remove a specific PAT object from the default sequence
     """
     _label='removeSpecificPATObjects'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -265,9 +227,9 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                 process.patDefaultSequence.remove(getattr(process, 'patPFTauIsolation'))
                 process.patDefaultSequence.remove(getattr(process, 'tauMatch'))
                 process.patDefaultSequence.remove(getattr(process, 'tauGenJets'))
+                process.patDefaultSequence.remove(getattr(process, 'tauGenJetsSelectorAllHadrons'))
                 process.patDefaultSequence.remove(getattr(process, 'tauGenJetMatch'))
             if( names[obj] == 'Jets' ):
-                print process.patDefaultSequence
                 process.patDefaultSequence.remove(getattr(process, 'patJetCharge'))
                 process.patDefaultSequence.remove(getattr(process, 'patJetCorrections'))
                 process.patDefaultSequence.remove(getattr(process, 'patJetPartonMatch'))
@@ -328,7 +290,7 @@ class RemoveCleaning(ConfigToolBase):
     """ remove PAT cleaning from the default sequence:
     """
     _label='removeCleaning'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -375,7 +337,7 @@ class AddCleaning(ConfigToolBase):
     """ Add PAT cleaning from the default sequence
     """
     _label='addCleaning'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

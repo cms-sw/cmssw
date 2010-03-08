@@ -32,6 +32,7 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJetHeep.h"
 #include "GeneratorInterface/GenFilters/interface/ComphepSingletopFilter.h"
 #include "GeneratorInterface/GenFilters/interface/STFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterTTBar.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -67,5 +68,6 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterEMJetHeep);
   DEFINE_ANOTHER_FWK_MODULE(ComphepSingletopFilter);
   DEFINE_ANOTHER_FWK_MODULE(STFilter);
+  DEFINE_ANOTHER_FWK_MODULE(PythiaFilterTTBar);
 
 

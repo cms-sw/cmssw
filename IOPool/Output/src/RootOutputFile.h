@@ -26,7 +26,7 @@
 #include "DataFormats/Provenance/interface/Selections.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "IOPool/Output/src/PoolOutputModule.h"
+#include "IOPool/Output/interface/PoolOutputModule.h"
 #include "IOPool/Output/src/RootOutputTree.h"
 
 class TTree;

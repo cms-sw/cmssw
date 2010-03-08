@@ -27,7 +27,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "xoap/MessageReference.h"
 #include "xoap/MessageFactory.h"
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
@@ -48,9 +47,6 @@ namespace evf{
   const std::string FWEPWrapper::unknown = "unknown";
   FWEPWrapper::FWEPWrapper(log4cplus::Logger &log, unsigned int instance) 
     : evtProcessor_(0)
-    , inRecovery_(false)
-    , recoveryCount_(0)
-    , triggerReportIncomplete_(false)
     , serviceToken_()
     , slaveServiceToken_()
     , servicesDone_(false)
@@ -72,17 +68,10 @@ namespace evf{
     , asMonitoring_(0)
     , wlMonitoringActive_(false)
     , watching_(false)
-    , firstLsTimeOut_(200)
-    , residualTimeOut_(0)
-    , lastLsTimedOut_(false)
-    , lastLsWithEvents_(0)
-    , lastLsWithTimeOut_(0)
     , allPastLumiProcessed_(0)
-    , lsidTimedOutAsString_("")
     , lsid_(0)
     , psid_(0)
-    , localLsIncludingTimeOuts_(0)
-    , lsTimeOut_(105)
+    , lsTimeOut_(100000000)
     , scalersUpdateAttempted_(0)
     , scalersUpdateCounter_(0)
     , lumiSectionsCtr_(lsRollSize_+1)
@@ -91,6 +80,7 @@ namespace evf{
     , rollingLsWrap_(false)
     , rcms_(0)
     , instance_(instance)
+    , waitingForLs_(false)
   {
     //list of variables for scalers flashlist
     names_.push_back("lumiSectionIndex");
@@ -99,8 +89,6 @@ namespace evf{
     //some initialization of state data
     epMAltState_ = -1;
     epmAltState_ = -1;
-    residualTimeOut_ = lsTimeOut_.value_;
-
   }
 
   FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
@@ -171,6 +159,7 @@ namespace evf{
     hasSubProcesses = serviceMap & 0x10;
     configString_ = configString;
     trh_.resetFormat(); //reset the report table even if HLT didn't change
+    scalersUpdateCounter_ = 0;
     if (epInitialized_) {
       LOG4CPLUS_INFO(log_,"CMSSW EventProcessor already initialized: skip!");
       return;
@@ -366,8 +355,12 @@ namespace evf{
 	    mapmod_[outcount+modcount] = descs_[i]->moduleLabel();
 	  }
       }
+//     std::cout << "*******************************microstate legend**************************" << std::endl;
+//     std::cout << oss2.str() << std::endl;
+//     std::cout << "*******************************microstate legend**************************" << std::endl;
+
     if(instanceZero){
-      micro_state_legend_ = oss2.str();
+      micro_state_legend_ = oss2.str().c_str();
     }
     monitorInfoSpace_->unlock();
     LOG4CPLUS_INFO(log_," edm::EventProcessor configuration finished.");
@@ -575,7 +568,6 @@ namespace evf{
     // a xdata::Table.
 
     LOG4CPLUS_DEBUG(log_,"getTriggerReport action invoked");
-    if(inRecovery_) { return false;} //stop scalers loop if caught in the middle of recovery
 
     //Get the trigger report.
     ModuleWebRegistry *mwr = 0;
@@ -602,11 +594,12 @@ namespace evf{
     timeval tv;
     if(useLock) {
       gettimeofday(&tv,0);
-      mwr->openBackDoor("DaqSource",residualTimeOut_);
-      residualTimeOut_ = lsTimeOut_.value_ ;
+      //      std::cout << getpid() << " calling openBackdoor " << std::endl;
+      waitingForLs_ = true;
+      mwr->openBackDoor("DaqSource",lsTimeOut_);
+      //      std::cout << getpid() << " opened Backdoor " << std::endl;
     }
 
-    bool localTimeOut = false;
     try{
       xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
       xdata::Serializable *psid = applicationInfoSpace_->find("prescaleSetIndex");
@@ -618,52 +611,9 @@ namespace evf{
 
       if(lsid) {
 	ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-
-	xdata::Boolean *to =  (xdata::Boolean*)applicationInfoSpace_->find("lsTimedOut");
-	if(to!=0)
-	  {
-	    localTimeOut = to->value_;
-	    if(to->value_) // there was a timeout
-	      {
-		if(lastLsTimedOut_)localLsIncludingTimeOuts_.value_++;
-		else localLsIncludingTimeOuts_.value_ = ls;
-		lastLsTimedOut_ = true; 
-		lastLsWithTimeOut_ = ls;
-	      }
-	    else // there was no timeout
-	      {
-		lastLsWithEvents_ = ls;
-		if(lastLsTimedOut_) // last ls before this timed out so these are events in the middle of an LS
-		  {
-		    if(localLsIncludingTimeOuts_.value_ < (ls-1)) //cover timed out LS not yet accounted for when events return;
-		      for(localLsIncludingTimeOuts_.value_++; localLsIncludingTimeOuts_.value_ < ls; localLsIncludingTimeOuts_.value_++)
-			{
-			  if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
-			  rollingLsIndex_--;
-			  lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
-			  lsTriplet lst;
-			  lst.ls = localLsIncludingTimeOuts_.value_;
-			  lst.proc = evtProcessor_->totalEvents()-allPastLumiProcessed_;
-			  lst.acc = evtProcessor_->totalEventsPassed()-
-			    (rollingLsWrap_ ? lumiSectionsCtr_[0].acc : lumiSectionsCtr_[rollingLsIndex_+1].acc);
-			  lumiSectionsCtr_[rollingLsIndex_] = lst;
-			  it->setField("lsid", localLsIncludingTimeOuts_);
-			  //fireScalersUpdate(); // need to find a solution in FUEventProcessor - but do not call here
-			}
-
-		    timeval tv1;
-		    gettimeofday(&tv1,0);
-		    residualTimeOut_ -= (tv1.tv_sec - tv.tv_sec); //adjust timeout to handle rest of LS where events come back
-		    mwr->closeBackDoor("DaqSource"); 
-		    lastLsTimedOut_ = false;
-		    return true;
-		  }
-		localLsIncludingTimeOuts_.value_ = ls;
-		lastLsTimedOut_ = false; 
-	      }
-	  }
-
+	localLsIncludingTimeOuts_.value_ = ls;
 	it->setField("lsid", localLsIncludingTimeOuts_);
+
       }
     }
     catch(xdata::exception::Exception e){
@@ -683,20 +633,6 @@ namespace evf{
       return false;
     }
 
-    if(lastLsTimedOut_) lsidTimedOutAsString_ = localLsIncludingTimeOuts_.toString();
-    else lsidTimedOutAsString_ = "";
-
-    if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) {
-      if(useLock){
-	mwr->closeBackDoor("DaqSource");
-      }
-      return true;
-    }
-
-    if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
-    rollingLsIndex_--;
-    lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
-
     lsTriplet lst;
     lst.ls = localLsIncludingTimeOuts_.value_;
     lst.proc = evtProcessor_->totalEvents()-allPastLumiProcessed_;
@@ -706,32 +642,21 @@ namespace evf{
     allPastLumiProcessed_ = evtProcessor_->totalEvents();
 
 
-    if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
+    evtProcessor_->getTriggerReport(tr);
 
     if(useLock){
+      //      std::cout << getpid() << " calling closeBackdoor " << std::endl;
       mwr->closeBackDoor("DaqSource");
+      //      std::cout << getpid() << " closed Backdoor " << std::endl;
     }  
 
     trh_.formatReportTable(tr,descs_,false);
 
 
-    if(trh_.checkLumiSection(ls))
-      {
-	trh_.triggerReportToTable(tr,ls,ps,false);
-	trh_.packTriggerReport(tr);
-      }
-    else
-      {
-	if(triggerReportIncomplete_)
-	  {
-	    triggerReportIncomplete_ = false;
-	    //	      trh_.printReportTable();
-	    //send xmas message with data
-	  }
-	trh_.triggerReportToTable(tr,ls,ps);
-	trh_.packTriggerReport(tr);
-      }
+    trh_.triggerReportToTable(tr,ls,ps,trh_.checkLumiSection(ls));
+    trh_.packTriggerReport(tr);
     it->setField("triggerReport",trh_.getTableWithNames());
+    //    std::cout << getpid() << " returning normally from gettriggerreport " << std::endl;
     return true;
   }
 
@@ -752,78 +677,11 @@ namespace evf{
       }
     //if there is no state listener then do not attempt to send to monitorreceiver
     if(rcms_==0) return false;
-    toolbox::net::URL url(rcms_->getContextDescriptor()->getURL());
-    toolbox::net::URL at(xappDesc_->getContextDescriptor()->getURL() + "/" + xappDesc_->getURN());
-    toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"");
-    xdaq::ContextDescriptor *ctxdsc = new xdaq::ContextDescriptor(properurl.toString());
-    xdaq::ApplicationDescriptor *appdesc = new xdaq::ApplicationDescriptorImpl(ctxdsc,rcms_->getClassName(),rcms_->getLocalId(), "pippo");
-    
-    appdesc->setAttribute("path","/rcms/servlet/monitorreceiver");
-    xdata::exdr::Serializer serializer;
-    xoap::MessageReference msg = xoap::createMessage();
-    xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
-    xoap::SOAPName responseName = envelope.createName( "report", xmas::NamespacePrefix, xmas::NamespaceUri);
-    (void) envelope.getBody().addBodyElement ( responseName );		
-    xoap::SOAPName reportName ("report", xmas::NamespacePrefix, xmas::NamespaceUri);
-    xoap::SOAPElement reportElement = envelope.getBody().getChildElements(reportName)[0];
-    reportElement.addNamespaceDeclaration (xmas::sensor::NamespacePrefix, xmas::sensor::NamespaceUri);
-    xoap::SOAPName sampleName = envelope.createName( "sample", xmas::NamespacePrefix, xmas::NamespaceUri);
-    xoap::SOAPElement sampleElement = reportElement.addChildElement(sampleName);
-    xoap::SOAPName flashListName = envelope.createName( "flashlist", "", "");
-    sampleElement.addAttribute(flashListName,"urn:xdaq-flashlist:scalers");
-    xoap::SOAPName tagName = envelope.createName( "tag", "", "");
-    sampleElement.addAttribute(tagName,"tag");
-    xoap::MimeHeaders* headers = msg->getMimeHeaders();
-    headers->removeHeader("x-xdaq-tags");
-    headers->addHeader("x-xdaq-tags", "tag");
-    tagName = envelope.createName( "originator", "", "");
-    sampleElement.addAttribute(tagName,at.toString());
-  
-    xdata::exdr::AutoSizeOutputStreamBuffer outBuffer;
-
-    try
-      {
-	serializer.exportAll( &scalersComplete_, &outBuffer );
-      }
-    catch(xdata::exception::Exception & e)
-      {
-	LOG4CPLUS_WARN(log_,
-		       "Exception in serialization of scalers table");      
-	//	localLog("-W- Exception in serialization of scalers table");      
-	return true;
-      }
-  
-    xoap::AttachmentPart * attachment = msg->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/x-xdata+exdr");
-    attachment->setContentEncoding("binary");
-    tagName = envelope.createName( "tag", "", "");
-    sampleElement.addAttribute(tagName,"tag");
-    std::stringstream contentId;
-
-    contentId << "<" <<  "urn:xdaq-flashlist:scalers" << "@" << at.getHost() << ">";
-    attachment->setContentId(contentId.str());
-    std::stringstream contentLocation;
-    contentId << at.toString();
-    attachment->setContentLocation(contentLocation.str());
-  
-    std::stringstream disposition;
-    disposition << "attachment; filename=" << "urn:xdaq-flashlist:scalers" << ".exdr; creation-date=" << "\"" << "dummy" << "\"";
-    attachment->addMimeHeader("Content-Disposition",disposition.str());
-    msg->addAttachmentPart(attachment);
     try{
-      xappCtxt_->postSOAP(msg,*(xappDesc_),*appdesc);
+      createAndSendScalersMessage();
+      scalersUpdateCounter_++;
     }
-    catch(xdaq::exception::Exception &ex)
-      {
-	std::string message = "exception when posting SOAP message to MonitorReceiver";
-	message += ex.what();
-	LOG4CPLUS_WARN(log_,message.c_str());
-	std::string lmessage = "-W- "+message;
-	//	localLog(lmessage);
-	return true;
-      }
-    delete appdesc; 
-    delete ctxdsc;
-    scalersUpdateCounter_++;
+    catch(...){return false;}
     return true;
   }
 
@@ -904,68 +762,60 @@ namespace evf{
     *out << "<td>" << std::endl;
     
     
-    if(!inRecovery_)
-      {
-	edm::TriggerReport tr; 
-	evtProcessor_->getTriggerReport(tr);
+    edm::TriggerReport tr; 
+    evtProcessor_->getTriggerReport(tr);
+    
+    // trigger summary table
+    *out << "<table border=1 bgcolor=\"#CFCFCF\">" << std::endl;
+    *out << "  <tr>"							<< std::endl;
+    *out << "    <th colspan=7>"						<< std::endl;
+    *out << "      " << "Trigger Summary"					<< std::endl;
+    *out << "    </th>"							<< std::endl;
+    *out << "  </tr>"							<< std::endl;
 	
-	// trigger summary table
-	*out << "<table border=1 bgcolor=\"#CFCFCF\">" << std::endl;
-	*out << "  <tr>"							<< std::endl;
-	*out << "    <th colspan=7>"						<< std::endl;
-	*out << "      " << "Trigger Summary"					<< std::endl;
-	*out << "    </th>"							<< std::endl;
-	*out << "  </tr>"							<< std::endl;
+    *out << "  <tr >"							<< std::endl;
+    *out << "    <th >Path</th>"						<< std::endl;
+    *out << "    <th >Exec</th>"						<< std::endl;
+    *out << "    <th >Pass</th>"						<< std::endl;
+    *out << "    <th >Fail</th>"						<< std::endl;
+    *out << "    <th >Except</th>"					<< std::endl;
+    *out << "    <th >TargetPF</th>"					<< std::endl;
+    *out << "  </tr>"							<< std::endl;
+    xdata::Serializable *psid = 0;
+    try{
+      psid = applicationInfoSpace_->find("prescaleSetIndex");
+    }
+    catch(xdata::exception::Exception e){
+    }
 	
-	*out << "  <tr >"							<< std::endl;
-	*out << "    <th >Path</th>"						<< std::endl;
-	*out << "    <th >Exec</th>"						<< std::endl;
-	*out << "    <th >Pass</th>"						<< std::endl;
-	*out << "    <th >Fail</th>"						<< std::endl;
-	*out << "    <th >Except</th>"					<< std::endl;
-	*out << "    <th >TargetPF</th>"					<< std::endl;
-	*out << "  </tr>"							<< std::endl;
-	xdata::Serializable *psid = 0;
-	try{
-	  psid = applicationInfoSpace_->find("prescaleSetIndex");
+    
+    for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
+      *out << "  <tr>" << std::endl;
+      *out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< std::endl;
+      *out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< std::endl;
+      *out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< std::endl;
+      *out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< std::endl;
+      *out << "    <td ";
+      if(tr.trigPathSummaries[i].timesExcept !=0)
+	*out << "bgcolor=\"red\""		      					<< std::endl;
+      *out << ">" << tr.trigPathSummaries[i].timesExcept << "</td>"		<< std::endl;
+      if(psid != 0)
+	{
+	  *out << "    <td>"
+	       << prescaleSvc_->getPrescale(tr.trigPathSummaries[i].name) 
+	       << "</td>"		<< std::endl;
 	}
-	catch(xdata::exception::Exception e){
-	}
-	
-	
-	for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-	  *out << "  <tr>" << std::endl;
-	  *out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< std::endl;
-	  *out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< std::endl;
-	  *out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< std::endl;
-	  *out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< std::endl;
-	  *out << "    <td ";
-	  if(tr.trigPathSummaries[i].timesExcept !=0)
-	    *out << "bgcolor=\"red\""		      					<< std::endl;
-	  *out << ">" << tr.trigPathSummaries[i].timesExcept << "</td>"		<< std::endl;
-	  if(psid != 0)
-	    {
-	      *out << "    <td>"
-		   << prescaleSvc_->getPrescale(tr.trigPathSummaries[i].name) 
-		   << "</td>"		<< std::endl;
-	    }
-	  else 	*out << "    <td>N/A</td>"		                        << std::endl;
-	  *out << "  </tr >"								<< std::endl;
-	  
-	}
-      }
-    else if(inRecovery_)
-      {
-	*out << "  <tr>"							<< std::endl;
-	*out << "    <td bgcolor=\"red\"> In Recovery !!! </td>"	      		<< std::endl;
-	*out << "  </tr>"							<< std::endl;
-      }
+      else 	*out << "    <td>N/A</td>"		                        << std::endl;
+      *out << "  </tr >"								<< std::endl;
+      
+    }
+  
     *out << "</table>" << std::endl;
     
     *out << "</td>" << std::endl;
+    
 
-
-
+    
     *out << "<td>" << std::endl;
     //Process details table
     *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">"	<< std::endl;
@@ -1207,7 +1057,7 @@ namespace evf{
       xdata::Serializable *lsid = applicationInfoSpace_->find("lumiSectionIndex");
       if(lsid!=0){
 	lsp = ((xdata::UnsignedInteger32*)lsid); 
-	lsp->value_= tr->lumiSection;;
+	lsp->value_= tr->lumiSection;
       }
     }
     catch(xdata::exception::Exception e){
@@ -1237,5 +1087,85 @@ namespace evf{
     it->setField("triggerReport",trh_.getTableWithNames());
     lumiSectionsCtr_[rollingLsIndex_] = lst;
 
+  }
+
+
+  void FWEPWrapper::createAndSendScalersMessage()
+  {
+
+    toolbox::net::URL url(rcms_->getContextDescriptor()->getURL());
+    toolbox::net::URL at(xappDesc_->getContextDescriptor()->getURL() + "/" + xappDesc_->getURN());
+    toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"");
+    xdaq::ContextDescriptor *ctxdsc = new xdaq::ContextDescriptor(properurl.toString());
+    xdaq::ApplicationDescriptor *appdesc = new xdaq::ApplicationDescriptorImpl(ctxdsc,rcms_->getClassName(),rcms_->getLocalId(), "pippo");
+    
+    appdesc->setAttribute("path","/rcms/servlet/monitorreceiver");
+
+    xoap::MessageReference msg = xoap::createMessage();
+    xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
+    xoap::SOAPName responseName = envelope.createName( "report", xmas::NamespacePrefix, xmas::NamespaceUri);
+    (void) envelope.getBody().addBodyElement ( responseName );		
+    xoap::SOAPName reportName ("report", xmas::NamespacePrefix, xmas::NamespaceUri);
+    xoap::SOAPElement reportElement = envelope.getBody().getChildElements(reportName)[0];
+    reportElement.addNamespaceDeclaration (xmas::sensor::NamespacePrefix, xmas::sensor::NamespaceUri);
+    xoap::SOAPName sampleName = envelope.createName( "sample", xmas::NamespacePrefix, xmas::NamespaceUri);
+    xoap::SOAPElement sampleElement = reportElement.addChildElement(sampleName);
+    xoap::SOAPName flashListName = envelope.createName( "flashlist", "", "");
+    sampleElement.addAttribute(flashListName,"urn:xdaq-flashlist:scalers");
+    xoap::SOAPName tagName = envelope.createName( "tag", "", "");
+    sampleElement.addAttribute(tagName,"tag");
+    xoap::MimeHeaders* headers = msg->getMimeHeaders();
+    headers->removeHeader("x-xdaq-tags");
+    headers->addHeader("x-xdaq-tags", "tag");
+    tagName = envelope.createName( "originator", "", "");
+    sampleElement.addAttribute(tagName,at.toString());
+
+    xdata::exdr::AutoSizeOutputStreamBuffer outBuffer;
+    xdata::exdr::Serializer serializer;
+    try
+      {
+	serializer.exportAll( &scalersComplete_, &outBuffer );
+      }
+    catch(xdata::exception::Exception & e)
+      {
+	LOG4CPLUS_WARN(log_,
+		       "Exception in serialization of scalers table");      
+	//	localLog("-W- Exception in serialization of scalers table");      
+	throw;
+      }
+  
+    xoap::AttachmentPart * attachment = msg->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/x-xdata+exdr");
+    attachment->setContentEncoding("binary");
+    tagName = envelope.createName( "tag", "", "");
+    sampleElement.addAttribute(tagName,"tag");
+    std::stringstream contentId;
+
+    contentId << "<" <<  "urn:xdaq-flashlist:scalers" << "@" << at.getHost() << ">";
+    attachment->setContentId(contentId.str());
+    std::stringstream contentLocation;
+    contentId << at.toString();
+    attachment->setContentLocation(contentLocation.str());
+  
+    std::stringstream disposition;
+    disposition << "attachment; filename=" << "urn:xdaq-flashlist:scalers" << ".exdr; creation-date=" << "\"" << "dummy" << "\"";
+    attachment->addMimeHeader("Content-Disposition",disposition.str());
+    msg->addAttachmentPart(attachment);
+
+    try{
+      xappCtxt_->postSOAP(msg,*(xappDesc_),*appdesc);
+    }
+    catch(xdaq::exception::Exception &ex)
+      {
+	std::string message = "exception when posting SOAP message to MonitorReceiver";
+	message += ex.what();
+	LOG4CPLUS_WARN(log_,message.c_str());
+	std::string lmessage = "-W- "+message;
+	delete appdesc; 
+	delete ctxdsc;
+	throw;
+	//	localLog(lmessage);
+      }
+    delete appdesc; 
+    delete ctxdsc;
   }
 }

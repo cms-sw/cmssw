@@ -82,22 +82,22 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
 		  const DDStringArguments & sArgs,
 		  const DDStringVectorArguments & vsArgs);
 
-  void execute(DDCompactView& cpv);
+  void execute();
 
 protected:
 
-  void constructGeneralVolume(DDCompactView& cpv);
-  void constructInsideSector(DDLogicalPart sector, DDCompactView& cpv);
+  void constructGeneralVolume();
+  void constructInsideSector(DDLogicalPart sector);
   void constructInsideLayers(DDLogicalPart laylog, std::string name, int id, 
 			     int nAbs, double rin, double d1, double alpha1, 
-			     double d2, double alpha2, double t1, double t2, DDCompactView& cpv);
+			     double d2, double alpha2, double t1, double t2);
   DDLogicalPart constructSideLayer(DDLogicalPart laylog, std::string nm,
-				   int nAbs, double rin, double alpha, DDCompactView& cpv);
+				   int nAbs, double rin, double alpha);
   DDLogicalPart constructMidLayer(DDLogicalPart laylog, std::string nm,
-				  double rin, double alpha, DDCompactView& cpv);
+				  double rin, double alpha);
   void constructInsideDetectors(DDLogicalPart detector,
 				std::string name, int id, double dx, 
-				double dy, double dz, int type, DDCompactView& cpv);
+				double dy, double dz, int type);
 
 private:
   //General Volume

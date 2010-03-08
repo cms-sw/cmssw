@@ -15,7 +15,7 @@ egHLTOffQTester = cms.EDFilter("QualityTester",
 
 
 
-egHLTOffDQMSummaryClient = cms.EDFilter("EgHLTOfflineSummaryClient",
+egHLTOffDQMSummaryClient = cms.EDAnalyzer("EgHLTOfflineSummaryClient",
                                         egHLTOffFiltersToMon,
                                         DQMDirName=cms.string("HLT/EgOffline"),
                                         hltTag = cms.string("HLT"),

@@ -20,6 +20,6 @@ process.BTauGenericMVAJetTagComputerRcd = cms.ESSource("PoolDBESSource",
 	BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 )
 
-process.testReadMVAComputerCondDB = cms.EDFilter("testReadMVAComputerCondDB")
+process.testReadMVAComputerCondDB = cms.EDAnalyzer("testReadMVAComputerCondDB")
 
 process.p = cms.Path(process.testReadMVAComputerCondDB)

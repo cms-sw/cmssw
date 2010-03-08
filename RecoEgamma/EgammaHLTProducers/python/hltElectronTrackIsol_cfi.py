@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltElectronTrackIsol = cms.EDFilter("EgammaHLTElectronTrackIsolationProducers",
+hltElectronTrackIsol = cms.EDProducer("EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoVetoConeSize = cms.double(0.02),
     trackProducer = cms.InputTag("ctfWithMaterialTracks"),
     electronProducer = cms.InputTag("pixelMatchElectronsForHLT"),

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/01/26 07:12:01 $
- * $Revision: 1.236 $
+ * $Date: 2010/02/15 21:00:39 $
+ * $Revision: 1.238 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -79,7 +79,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( inputFile_.size() != 0 ) {
-      cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
+      cout << " Reading DQM data from inputFile '" << inputFile_ << "'" << endl;
     }
   }
 
@@ -95,7 +95,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( dbName_.size() != 0 ) {
-      cout << " Using Ecal Cond DB: " << endl;
+      cout << " Ecal Cond DB: " << endl;
       cout << "   dbName = '" << dbName_ << "'" << endl;
       cout << "   dbUserName = '" << dbUserName_ << "'" << endl;
       if ( dbHostName_.size() != 0 ) {
@@ -119,7 +119,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
-      cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+      cout << " maskFile is '" << maskFile_ << "'" << endl;
     }
   }
 
@@ -188,7 +188,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) {
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
 
   if ( verbose_ ) {
-    cout << " prescaleFactor = " << prescaleFactor_ << endl;
+    cout << " prescaleFactor is " << prescaleFactor_ << endl;
   }
 
   // prefixME path

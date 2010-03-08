@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-jetMETHLTOfflineSource = cms.EDFilter("JetMETHLTOfflineSource",
+jetMETHLTOfflineSource = cms.EDAnalyzer("JetMETHLTOfflineSource",
  
                                  #triggerTriggerEvent_hltTriggerSummaryAOD_HLT
                                  triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),

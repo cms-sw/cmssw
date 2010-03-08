@@ -6,7 +6,7 @@ class ToolName(ConfigToolBase):
     Tool description
     """
     _label='toolName'
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ### import base class constructor

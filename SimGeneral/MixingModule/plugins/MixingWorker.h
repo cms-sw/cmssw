@@ -20,7 +20,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h" 
+#include "FWCore/Utilities/interface/InputTag.h" 
 
 #include <vector>
 #include <string>
