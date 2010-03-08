@@ -9,8 +9,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
-
 //DEFINE STATICS
 const unsigned int L1GctJetFinderBase::MAX_JETS_OUT = 6;
 const unsigned int L1GctJetFinderBase::N_EXTRA_REGIONS_ETA00 = 2;
@@ -301,12 +299,10 @@ void L1GctJetFinderBase::fetchProtoJetsFromNeighbour(const fetchType ft)
     RegionsVector temp;
     temp = m_neighbourJetFinders.at(0)->getSentProtoJets();
     for ( ; j<MAX_TOPBOT_JETS; ++j) {
-      if (temp.at(j).et()>0) std::cout << "Non-zero cluster transferred to jetfinder id " << m_id << std::endl;
       m_rcvdProtoJets.at(j) = temp.at(j);
     } 
     temp = m_neighbourJetFinders.at(1)->getSentProtoJets();
     for ( ; j<MAX_JETS_OUT; ++j) {
-      if (temp.at(j).et()>0) std::cout << "Non-zero cluster transferred to jetfinder id " << m_id << std::endl;
       m_rcvdProtoJets.at(j) = temp.at(j);
     }     
     break;
