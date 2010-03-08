@@ -14,13 +14,13 @@ dtunpacker = cms.EDProducer("DTUnpackingModule",
         rosParameters = cms.PSet(
             writeSC = cms.untracked.bool(True),
             readingDDU = cms.untracked.bool(True),
-            performDataIntegrityMonitor = cms.untracked.bool(False),
+            performDataIntegrityMonitor = cms.untracked.bool(True),
             readDDUIDfromDDU = cms.untracked.bool(True),
             debug = cms.untracked.bool(False),
             localDAQ = cms.untracked.bool(False)
         ),
         localDAQ = cms.untracked.bool(False),
-        performDataIntegrityMonitor = cms.untracked.bool(False)
+        performDataIntegrityMonitor = cms.untracked.bool(True)
     )
 )
 
