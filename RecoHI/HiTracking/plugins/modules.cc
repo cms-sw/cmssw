@@ -13,7 +13,7 @@ DEFINE_FWK_MODULE(HIPixelMedianVtxProducer);
 #include "RecoHI/HiTracking/interface/HIBestVertexProducer.h"
 DEFINE_FWK_MODULE(HIBestVertexProducer);
 
-// Restricted HI tracking regions                                                                                                              
+// Restricted HI tracking regions               
 #include "HITrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
