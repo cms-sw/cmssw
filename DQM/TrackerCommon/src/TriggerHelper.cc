@@ -1,5 +1,5 @@
 //
-// $Id: TriggerHelper.cc,v 1.11 2010/03/03 12:34:42 vadler Exp $
+// $Id: TriggerHelper.cc,v 1.6 2010/03/08 20:53:57 vadler Exp $
 //
 
 
@@ -123,7 +123,7 @@ bool TriggerHelper::acceptDcs( const Event & event )
   // Getting the and/or DCS switch from the configuration
   // If it does not exist, the configuration is considered not to be present,
   // and the filter dos not have any effect
-  if ( onDcs_ ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
+  if ( ! onDcs_ ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
 
   // Accessing the DcsStatusCollection
   Handle< DcsStatusCollection > dcsStatus;
