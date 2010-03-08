@@ -20,7 +20,6 @@ implements Runnable,DipPublicationErrorHandler
   public final static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public final static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
   public final static String sourceFile = "/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt";
-  public final static int lnPerRcd = 23;
   public final static int msPerLS = 23000; // ms
   public final static int rad2urad = 1000000;
   public final static int cm2um = 10000;
@@ -94,229 +93,226 @@ implements Runnable,DipPublicationErrorHandler
     {
       keepRunning = false;
     }
+
     try
     {
       int lsCount = 0;
       flag = flags[0];
-      while (keepRunning)
+      try
       {
-	try{
-	    File myFile = new File(sourceFile);
-	    myFile.createNewFile();
-	    FileReader fr = new FileReader(myFile);
-	    BufferedReader br = new BufferedReader(fr);
-	    LineNumberReader lbr = new LineNumberReader(br);
+	File logFile = new File(sourceFile);
+	logFile.createNewFile();
+	RandomAccessFile myFile = new RandomAccessFile(logFile,"r");
+	long filePointer = logFile.length();
 
-	    long tmpTime = myFile.lastModified();
-	    if ((lastFitTime != 0) && (tmpTime > lastFitTime)){
-		if (myFile.length() > 0) {
-		    System.out.println("Read new record");
-		    lastFitTime = tmpTime;
-		}
-		else {
-		    System.out.println("New Run Started");
-		    lastFitTime = tmpTime;
-		    lastLine = 0;
-		    lsCount = 0;
-		    continue;
-		}
+	while (keepRunning)
+	{
+	  try
+	  {
+	    logFile.createNewFile();
+	    long fileLength = logFile.length();
+
+	    if (fileLength < filePointer) {
+		System.err.println("New Run Started");
+		myFile = new RandomAccessFile( logFile, "r" );
+		filePointer = 0;
+		lsCount = 0;
+		continue;
 	    }
-	    else {
-		if (lastFitTime == 0) {//executed when server starts
-		    int countln = 0;
-		    while (lbr.readLine() != null){
-			countln++;
-		    }
-		    // read the last record if server restatred during a run
-		    lastLine = countln - lnPerRcd;}
-		if (lsCount%10 == 0) {
+	    else if (fileLength == filePointer) {
+		if (lsCount%50 == 0)
 		    System.out.println("Waiting for data...");
-		    lastFitTime = tmpTime;
-		}
-		lsCount++;
-		try { Thread.sleep(msPerLS); }
+		try { Thread.sleep(msPerLS/10); }
 		catch(InterruptedException e) {
 		    keepRunning = false;
 		}
+		lsCount++;
 		continue;
 	    }
-	    lsCount = 0;
-	    int nthLnInFile = 0;
-	    int nthLnInRcd = 0;
-	    String record = new String();
-	    //System.out.println("Last line read = " + lastLine);
-	    while ((record = br.readLine()) != null) {
-		nthLnInFile++;
-		if (lastLine >= nthLnInFile) {
-		    continue;
+	    else {
+		System.out.println("Read new record");
+		int nthLnInRcd = 0;
+		String record = new String();
+   		try
+   		{
+		 myFile = new RandomAccessFile( logFile, "r" );
+		 myFile.seek(filePointer);
+		 while ((record = myFile.readLine()) != null) {
+		     //System.out.println(record);
+		     nthLnInRcd ++;
+		     String[] tmp;
+		     tmp = record.split("\\s");
+		     switch(nthLnInRcd) {
+		     case 1:
+			 if (!record.startsWith("Run")){
+			     System.out.println("BeamFitResults text file may be corrupted.");
+			     System.out.println("Stopping BeamSpot DIP Server!");
+			     System.exit(0);
+			 }
+			 runnum = new Integer(tmp[1]);
+			 System.out.println("Run: " + runnum);
+			 break;
+		     case 2:
+			 startTime = record.substring(15);
+			 //System.out.println("Time of begin run: " + startTime);
+			 break;
+		     case 3:
+			 endTime = record.substring(13);
+			 System.out.println("Time of fit: " + endTime);
+			 break;
+		     case 4:
+			 lumiRange = record.substring(10);
+			 System.out.println("LS: " + lumiRange);
+			 break;
+		     case 5:
+			 type = new Integer(tmp[1]);
+			 if (overwriteFlag) flag = flags[0];
+			 else if (type >= 2)	flag = flags[2];
+			 else flag = flags[1];
+			 break;
+		     case 6:
+			 x = new Float(tmp[1]);
+			 System.out.println("x0      = " + x + " [cm]");
+			 break;
+		     case 7:
+			 y = new Float(tmp[1]);
+			 System.out.println("y0      = " + y + " [cm]");
+			 break;
+		     case 8:
+			 z = new Float(tmp[1]);
+			 System.out.println("z0      = " + z + " [cm]");
+			 break;
+		     case 9:
+			 sigma_z = new Float(tmp[1]);
+			 System.out.println("sigma_z = " + sigma_z + " [cm]");
+			 break;
+		     case 10:
+			 dxdz = new Float(tmp[1]);
+			 break;
+		     case 11:
+			 dydz = new Float(tmp[1]);
+			 break;
+		     case 12:
+			 width_x = new Float(tmp[1]);
+			 break;
+		     case 13:
+			 width_y = new Float(tmp[1]);
+			 break;
+		     case 14:
+			 err_x = new Float(Math.sqrt(Double.parseDouble(tmp[1])));
+			 //System.out.println(err_x);
+			 break;
+		     case 15:
+			 err_y = new Float(Math.sqrt(Double.parseDouble(tmp[2])));
+			 //System.out.println(err_y);
+			 break;
+		     case 16:
+			 err_z = new Float(Math.sqrt(Double.parseDouble(tmp[3])));
+			 //System.out.println(err_z);
+			 break;
+		     case 17:
+			 err_sigma_z = new Float(Math.sqrt(Double.parseDouble(tmp[4])));
+			 //System.out.println(err_sigma_z);
+			 break;
+		     case 18:
+			 err_dxdz = new Float(Math.sqrt(Double.parseDouble(tmp[5])));
+			 //System.out.println(err_dxdz);
+			 break;
+		     case 19:
+			 err_dydz = new Float(Math.sqrt(Double.parseDouble(tmp[6])));
+			 //System.out.println(err_dydz);
+			 break;
+		     case 20:
+			 err_width_x = new Float(Math.sqrt(Double.parseDouble(tmp[7])));
+			 err_width_y = err_width_x;
+			 break;
+			
+		     default:
+			 break;
+		     }
+		 }
+		 filePointer = myFile.getFilePointer();
 		}
-		nthLnInRcd = nthLnInFile % lnPerRcd;
-		String[] tmp;
-		tmp = record.split("\\s");
-		switch(nthLnInRcd) {
-		case 1:
-		    if (!record.startsWith("Run")){
-			System.out.println("BeamFitResults text file may be corrupted. Stopping BeamSpot DIP Server!");
-			System.exit(0);
-		    }
- 		    runnum = new Integer(tmp[1]);
-		    System.out.println("Run: " + runnum);
-		    break;
-		case 2:
-                    startTime = record.substring(15);
-		    break;
-		case 3:
-                    endTime = record.substring(13);
-		    System.out.println("Time of fit: " + endTime);
-		    break;
-		case 4:
-		    lumiRange = record.substring(10);
-		    System.out.println("LS: " + lumiRange);
-		    break;
-		case 5:
-		    type = new Integer(tmp[1]);
-		    if (overwriteFlag) flag = flags[0];
-		    else if (type >= 2)	flag = flags[2];
-		    else flag = flags[1];
-		    break;
-		case 6:
-		    x = new Float(tmp[1]);
-		    System.out.println("x0      = " + x + " [cm]");
-		    break;
-		case 7:
-		    y = new Float(tmp[1]);
-		    System.out.println("y0      = " + y + " [cm]");
-		    break;
-		case 8:
-		    z = new Float(tmp[1]);
-		    System.out.println("z0      = " + z + " [cm]");
-		    break;
-		case 9:
-		    sigma_z = new Float(tmp[1]);
-		    System.out.println("sigma_z = " + sigma_z + " [cm]");
-		    break;
-		case 10:
-		    dxdz = new Float(tmp[1]);
-		    break;
-		case 11:
-		    dydz = new Float(tmp[1]);
-		    break;
-		case 12:
-		    width_x = new Float(tmp[1]);
-		    break;
-		case 13:
-		    width_y = new Float(tmp[1]);
-		    break;
-		case 14:
-		    err_x = new Float(Math.sqrt(Double.parseDouble(tmp[1])));
-		    //System.out.println(err_x);
-		    break;
-		case 15:
-		    err_y = new Float(Math.sqrt(Double.parseDouble(tmp[2])));
-		    //System.out.println(err_y);
-		    break;
-		case 16:
-		    err_z = new Float(Math.sqrt(Double.parseDouble(tmp[3])));
-		    //System.out.println(err_z);
-		    break;
-		case 17:
-		    err_sigma_z = new Float(Math.sqrt(Double.parseDouble(tmp[4])));
-		    //System.out.println(err_sigma_z);
-		    break;
-		case 18:
-		    err_dxdz = new Float(Math.sqrt(Double.parseDouble(tmp[5])));
-		    //System.out.println(err_dxdz);
-		    break;
-		case 19:
-		    err_dydz = new Float(Math.sqrt(Double.parseDouble(tmp[6])));
-		    //System.out.println(err_dydz);
-		    break;
-		case 20:
-		    err_width_x = new Float(Math.sqrt(Double.parseDouble(tmp[7])));
-		    err_width_y = err_width_x;
-		    break;
-
-		default:
-		    break;
+		catch (IOException e) {
+		    e.printStackTrace();
 		}
+		lsCount = 0;
 	    }
-	    lastLine = nthLnInFile;
-	} catch (Exception e) {
-	    e.printStackTrace();
+	  } catch (Exception e){
+	      e.printStackTrace();
+	  }
+
+	  Centroid[0] = x*-1*cm2um;
+	  Centroid[1] = y*cm2um;
+	  Centroid[2] = z*-1*cm2mm;
+	  
+	  Size[0] = width_x*cm2um;
+	  Size[1] = width_y*cm2um;
+	  Size[2] = sigma_z*cm2mm;
+	  
+	  Tilt[0] = dxdz*rad2urad;
+	  Tilt[1] = dydz*-1*rad2urad;
+	  
+	  messageCMS.insert("runnum",runnum);
+	  messageCMS.insert("startTime",startTime);
+	  messageCMS.insert("endTime",endTime);
+	  messageCMS.insert("lumiRange",lumiRange);
+	  messageCMS.insert("flag",flag);
+	  messageCMS.insert("type",type); //Unknown=-1, Fake=0, Tracker=2(Good)
+	  messageCMS.insert("x",x);
+	  messageCMS.insert("y",y);
+	  messageCMS.insert("z",z);
+	  messageCMS.insert("dxdz",dxdz);
+	  messageCMS.insert("dydz",dydz);
+	  messageCMS.insert("width_x",width_x);
+	  messageCMS.insert("width_y",width_y);
+	  messageCMS.insert("sigma_z",sigma_z);
+	  if (publishStatErrors) {
+	      messageCMS.insert("err_x",err_x);
+	      messageCMS.insert("err_y",err_y);
+	      messageCMS.insert("err_z",err_z);
+	      messageCMS.insert("err_dxdz",err_dxdz);
+	      messageCMS.insert("err_dydz",err_dydz);
+	      messageCMS.insert("err_width_x",err_width_x);
+	      messageCMS.insert("err_width_y",err_width_y);
+	      messageCMS.insert("err_sigma_z",err_sigma_z);
+	  }
+	  messageLHC.insert("Size",Size);
+	  messageLHC.insert("Centroid",Centroid);
+	  messageLHC.insert("Tilt",Tilt);
+	  
+	  try {
+	      long epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zz").parse(endTime).getTime();
+	      //System.out.println(epoch);
+	      DipTimestamp zeit = new DipTimestamp(epoch);
+	      publicationCMS.send(messageCMS, zeit);
+	      publicationLHC.send(messageLHC, zeit);
+	      if (overwriteFlag ) {
+		  publicationCMS.setQualityUncertain("Overwritten Temporarily");
+		  publicationLHC.setQualityUncertain("Overwritten Temporarily");
+	      }
+	      else if (flag == flags[0]) {
+		  publicationCMS.setQualityUncertain();
+		  publicationLHC.setQualityUncertain();
+	      }
+	      else if (flag == flags[1]) {
+		  publicationCMS.setQualityBad();
+		  publicationLHC.setQualityBad();
+	      }
+	  } catch (ParseException e) {
+	      System.out.println("Publishing failed due to time parsing because " + e.getMessage());
+	      e.printStackTrace();
+	  }
 	}
-
-	Centroid[0] = x*-1*cm2um;
-	Centroid[1] = y*cm2um;
-	Centroid[2] = z*-1*cm2mm;
-
-	Size[0] = width_x*cm2um;
-	Size[1] = width_y*cm2um;
-	Size[2] = sigma_z*cm2mm;
-
-	Tilt[0] = dxdz*rad2urad;
-	Tilt[1] = dydz*-1*rad2urad;
-
-	messageCMS.insert("runnum",runnum);
-	messageCMS.insert("startTime",startTime);
-	messageCMS.insert("endTime",endTime);
-	messageCMS.insert("lumiRange",lumiRange);
-	messageCMS.insert("flag",flag);
-	messageCMS.insert("type",type); //Unknown=-1, Fake=0, Tracker=2(Good)
-	messageCMS.insert("x",x);
-	messageCMS.insert("y",y);
-	messageCMS.insert("z",z);
-	messageCMS.insert("dxdz",dxdz);
-	messageCMS.insert("dydz",dydz);
-	messageCMS.insert("width_x",width_x);
-	messageCMS.insert("width_y",width_y);
-	messageCMS.insert("sigma_z",sigma_z);
-	if (publishStatErrors) {
-	    messageCMS.insert("err_x",err_x);
-	    messageCMS.insert("err_y",err_y);
-	    messageCMS.insert("err_z",err_z);
-	    messageCMS.insert("err_dxdz",err_dxdz);
-	    messageCMS.insert("err_dydz",err_dydz);
-	    messageCMS.insert("err_width_x",err_width_x);
-	    messageCMS.insert("err_width_y",err_width_y);
-	    messageCMS.insert("err_sigma_z",err_sigma_z);
-	}
-	messageLHC.insert("Size",Size);
-	messageLHC.insert("Centroid",Centroid);
-	messageLHC.insert("Tilt",Tilt);
-
-	try {
-	    long epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zz").parse(endTime).getTime();
-	    //System.out.println(epoch);
-	    DipTimestamp zeit = new DipTimestamp(epoch);
-	    publicationCMS.send(messageCMS, zeit);
-	    publicationLHC.send(messageLHC, zeit);
-	    if (overwriteFlag ) {
-		publicationCMS.setQualityUncertain("Overwritten Temporarily");
-		publicationLHC.setQualityUncertain("Overwritten Temporarily");
-	    }
-	    else if (flag == flags[0]) {
-		publicationCMS.setQualityUncertain();
-		publicationLHC.setQualityUncertain();
-	    }
-	    else if (flag == flags[1]) {
-		publicationCMS.setQualityBad();
-		publicationLHC.setQualityBad();
-	    }
-	}
-	catch (ParseException e) {
-	    System.out.println("Publishing failed due to time parsing because " + e.getMessage());
-	    e.printStackTrace();
-	}
-      }
-    }
-    catch (DipException e)
-    {
-      System.out.println("Failed to send data because " + e.getMessage());
-      e.printStackTrace();
+      } catch (IOException e) {
+	  e.printStackTrace();
+      };
+    } catch (DipException e){
+	System.out.println("Failed to send data because " + e.getMessage());
+	e.printStackTrace();
     }
   }
-    
-    
+
   public static void main(String args[])
   {
     BeamSpotDipServer server = new BeamSpotDipServer();
