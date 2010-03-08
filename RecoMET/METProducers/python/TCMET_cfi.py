@@ -26,7 +26,6 @@ tcMet = cms.EDProducer("METProducer",
                        eta_max = cms.double(2.65), 
                        chi2_max = cms.double(5),
                        nhits_min = cms.double(6),
-                       d0_max = cms.double(0.1),
                        ptErr_max = cms.double(0.2),
                        track_quality = cms.vint32(2),
                        track_algos = cms.vint32(), 
@@ -38,10 +37,12 @@ tcMet = cms.EDProducer("METProducer",
                        nMinOuterHits = cms.int32(2),
                        usedeltaRRejection = cms.bool(False),
                        deltaRShower = cms.double(0.01),
-                       propagateToHCAL = cms.bool(False),
+                       checkTrackPropagation = cms.bool(False),
                        radius  = cms.double(130.),
                        zdist  = cms.double(314.),
-                       corner = cms.double(1.479), 
+                       corner = cms.double(1.479),
+                       d0cuta = cms.double(0.1),
+                       d0cutb = cms.double(0.) 
                        )
 
 

@@ -44,6 +44,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "TH2D.h"
+#include "TVector3.h"
 
 class TCMETAlgo 
 {
@@ -80,7 +81,8 @@ class TCMETAlgo
   edm::InputTag muonDepValueMap_;
   edm::InputTag tcmetDepValueMap_;
   
-  
+  double  d0cuta_;
+  double  d0cutb_;
   int     rfType_;
   int     nMinOuterHits_;
   double  scaleShowerRF_;
@@ -102,7 +104,7 @@ class TCMETAlgo
   bool isCosmics_;
   bool correctShowerTracks_;
   bool usePvtxd0_;
-  bool propagateToHCAL_;
+  bool checkTrackPropagation_;
 
   const class MagneticField* bField;
 
@@ -121,8 +123,8 @@ class TCMETAlgo
   void correctSumEtForMuon( const reco::TrackRef, const unsigned int );
   void correctMETforMuon( const unsigned int );
   void correctSumEtForMuon( const unsigned int );
-  void correctMETforTrack( const reco::TrackRef , TH2D* rf);
-  void correctSumEtForTrack( const reco::TrackRef , TH2D* rf);
+  void correctMETforTrack( const reco::TrackRef , TH2D* rf, const TVector3 );
+  void correctSumEtForTrack( const reco::TrackRef , TH2D* rf, const TVector3 );
   class TVector3 propagateTrack( const reco::TrackRef );
   class TVector3 propagateTrackToHCAL( const reco::TrackRef );
   void findGoodShowerTracks(vector<int>& goodShowerTracks);

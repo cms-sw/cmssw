@@ -61,15 +61,18 @@ TCMETAlgo::~TCMETAlgo() {}
 reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D* response_function, TH2D* showerRF)
 { 
      // get configuration parameters
-     correctShowerTracks_  = iConfig.getParameter<bool>  ("correctShowerTracks");
-     usePvtxd0_            = iConfig.getParameter<bool>  ("usePvtxd0");
-     nMinOuterHits_        = iConfig.getParameter<int>   ("nMinOuterHits");
-     scaleShowerRF_        = iConfig.getParameter<double>("scaleShowerRF");
-     usedeltaRRejection_   = iConfig.getParameter<bool>  ("usedeltaRRejection");
-     deltaRShower_         = iConfig.getParameter<double>("deltaRShower");
-     radius_               = iConfig.getParameter<double>("radius");
-     zdist_                = iConfig.getParameter<double>("zdist");
-     corner_               = iConfig.getParameter<double>("corner");
+     correctShowerTracks_    = iConfig.getParameter<bool>  ("correctShowerTracks");
+     checkTrackPropagation_  = iConfig.getParameter<bool>  ("checkTrackPropagation");
+     usePvtxd0_              = iConfig.getParameter<bool>  ("usePvtxd0");
+     nMinOuterHits_          = iConfig.getParameter<int>   ("nMinOuterHits");
+     scaleShowerRF_          = iConfig.getParameter<double>("scaleShowerRF");
+     usedeltaRRejection_     = iConfig.getParameter<bool>  ("usedeltaRRejection");
+     deltaRShower_           = iConfig.getParameter<double>("deltaRShower");
+     radius_                 = iConfig.getParameter<double>("radius");
+     zdist_                  = iConfig.getParameter<double>("zdist");
+     corner_                 = iConfig.getParameter<double>("corner");
+     d0cuta_                 = iConfig.getParameter<double>("d0cuta");
+     d0cutb_                 = iConfig.getParameter<double>("d0cutb");
      
      isCosmics_ = iConfig.getParameter<bool>  ("isCosmics");
      rfType_    = iConfig.getParameter<int>   ("rf_type"  );
@@ -78,7 +81,6 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      maxeta_    = iConfig.getParameter<double>("eta_max"  );
      maxchi2_   = iConfig.getParameter<double>("chi2_max" );
      minhits_   = iConfig.getParameter<double>("nhits_min");
-     maxd0_     = iConfig.getParameter<double>("d0_max"   );
      maxPtErr_  = iConfig.getParameter<double>("ptErr_max");
 
      trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
@@ -200,8 +202,9 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 		    continue;
 	       }
 	       
-	       correctMETforTrack( track , response_function);
-	       correctSumEtForTrack( track , response_function);
+	       const TVector3 outerTrackPosition = propagateTrack( track );
+	       correctMETforTrack( track , response_function , outerTrackPosition);
+	       correctSumEtForTrack( track , response_function , outerTrackPosition);
 	  }
 	  else if( flag == 5 ) {
 	       if( !mu->isGlobalMuon() && !mu->isTrackerMuon() && mu->isStandAloneMuon() )
@@ -234,6 +237,8 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 
 	  if( !isGoodTrack( trkref ) ) continue;
 
+	  const TVector3 outerTrackPosition = propagateTrack( trkref );  //propagate track from vertex to calorimeter face
+
 	  if(correctShowerTracks_){
 
 	    if(usedeltaRRejection_){
@@ -242,18 +247,18 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 
 	    //apply separate RF for showering tracks
 	    if(nExpectedOuterHits( trkref ) >= nMinOuterHits_){
-	      correctMETforTrack( trkref , showerRF);
-	      correctSumEtForTrack( trkref , showerRF);
+	      correctMETforTrack( trkref , showerRF , outerTrackPosition);
+	      correctSumEtForTrack( trkref , showerRF , outerTrackPosition);
 	    }
 	    
 	    else{
-	      correctMETforTrack( trkref , response_function);
-	      correctSumEtForTrack( trkref , response_function);
+	      correctMETforTrack( trkref , response_function , outerTrackPosition);
+	      correctSumEtForTrack( trkref , response_function , outerTrackPosition);
 	    }
 
 	  }else{
-	    correctMETforTrack( trkref , response_function);
-	    correctSumEtForTrack( trkref , response_function);
+	    correctMETforTrack( trkref , response_function , outerTrackPosition);
+	    correctSumEtForTrack( trkref , response_function , outerTrackPosition);
 	  }
      }
 
@@ -270,6 +275,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      math::XYZPointD vtx(0,0,0);
      reco::MET tcmet(TCMETData.sumet, p4, vtx);
      return tcmet;
+
 //------------------------------------------------------------------------
 }
 
@@ -388,7 +394,10 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track ) {
        d0 = -1 * track->dxy( bspot );
      }
      
-     if( fabs( d0 ) > maxd0_ ) return false;
+     //pT-dependent d0 cut
+     float d0cut = sqrt(pow(d0cuta_,2) + pow(d0cutb_/track->pt(),2)); 
+
+     if( fabs( d0 ) > d0cut ) return false;
      if( track->numberOfValidHits() < minhits_ ) return false;
      if( track->normalizedChi2() > maxchi2_ ) return false;
      if( fabs( track->eta() ) > maxeta_ ) return false;
@@ -467,7 +476,7 @@ void TCMETAlgo::correctSumEtForMuon( const unsigned int index ) {
 
 //correct MET for track
 
-void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf ) {
+void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , const TVector3 outerTrackPosition) {
 
      if( track->pt() < minpt_ ) {
 
@@ -476,33 +485,45 @@ void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf ) {
      }
 
      else {
-          const TVector3 outerTrackPosition = propagateTrack( track );  //propagate track from vertex to calorimeter face
+       //const TVector3 outerTrackPosition = propagateTrack( track );  //propagate track from vertex to calorimeter face
           
+       if(checkTrackPropagation_ && (outerTrackPosition.Theta() < -9.99 || outerTrackPosition.Phi() > 2 * TMath::Pi() - 0.01   )  ){
+	 //fail track propagation check
+       }
+       else{
+	 
 	  int bin_index = rf->FindBin( track->eta(), track->pt() );  
 	  double fracTrackEnergy = rf->GetBinContent( bin_index );  //get correction factor from response function
-
+	 
 	  met_x += ( fracTrackEnergy * track->p() * sin( outerTrackPosition.Theta() ) * cos( outerTrackPosition.Phi() ) //remove expected amount of energy track deposited in calorimeter
 		     - track->pt() * cos( track->phi() ) );  //add track at vertex
 
 	  met_y += ( fracTrackEnergy * track->p() * sin( outerTrackPosition.Theta() ) * sin( outerTrackPosition.Phi() ) //remove expected amount of energy track deposited in calorimeter
 		     - track->pt() * sin( track->phi() ) );  //add track at vertex
-     }  
-
+       } 
+     } 
+     
 }
 
 //correct sumEt for track
 
-void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf ) {
+void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , const TVector3 outerTrackPosition) {
 
      if( track->pt() < minpt_ ) {
 	  sumEt += track->pt();
      }
 
      else {
-	  int bin_index = rf->FindBin( track->eta(), track->pt() );
-	  double fracTrackEnergy = rf->GetBinContent( bin_index );  //get correction factor from response function
-    
-	  sumEt += ( 1 - fracTrackEnergy ) * track->pt();
+
+          if(checkTrackPropagation_ && (outerTrackPosition.Theta() < -9.99 || outerTrackPosition.Phi() > 2 * TMath::Pi() - 0.01 )  ){
+	    //fail track propagation check
+	  }
+	  else{
+	    int bin_index = rf->FindBin( track->eta(), track->pt() );
+	    double fracTrackEnergy = rf->GetBinContent( bin_index );  //get correction factor from response function
+	    
+	    sumEt += ( 1 - fracTrackEnergy ) * track->pt();
+	  }
      }
 }
 
