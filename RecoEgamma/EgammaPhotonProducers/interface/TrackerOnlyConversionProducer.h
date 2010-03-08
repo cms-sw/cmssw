@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/02/15 17:45:50 $
- **  $Revision: 1.10 $
+ **  $Date: 2010/02/18 10:56:05 $
+ **  $Revision: 1.11 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -104,6 +104,9 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       bool checkVertex(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
 	      const MagneticField* magField,
 	      reco::Vertex& the_vertex);
+      bool checkPhi(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
+	      const TrackerGeometry* trackerGeom, const MagneticField* magField,
+	      const reco::Vertex& the_vertex);
 
       //check the closest BC, returns true for found a BC
       bool getMatchedBC(const std::multimap<double, reco::CaloClusterPtr>& bcMap, 
