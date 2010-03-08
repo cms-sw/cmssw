@@ -13,7 +13,7 @@ import string
 FastSimUse="False"
 
 #Release to be validated:
-NewRelease='CMSSW_3_5_0_pre5'
+NewRelease='CMSSW_3_5_3'
 
 # startup and ideal sample list
 if (FastSimUse=="True"):
@@ -59,8 +59,10 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_3XY_V20'
-StartupTagUse='START3X_V20'
+IdealTagUse='MC_3XY_V24'
+StartupTagUse='START3X_V24'
+VersionTag='v1'
+#UnwantedTag=''
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
 ReferenceSelection='IDEAL_31X__noPU'
@@ -161,11 +163,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             #search for correct EventContent (and site)
             if (FastSimUse=="True"):
                 cmd+=sample+'/'+NewRelease+'-'+GlobalTagUse+'*GEN-SIM-DIGI-RECO* AND site like *cern* "'
-                cmd+='|grep '+sample+'|grep FastSim |sort| tail -1 | cut -d "," -f2 '
+#                cmd+='|grep '+sample+'|grep '+VersionTag+'|grep -v '+UnwantedTag+'|grep FastSim |sort| tail -1 | cut -d "," -f2 '
+                cmd+='|grep '+sample+'|grep '+VersionTag+'|grep FastSim |sort| tail -1 | cut -d "," -f2 '
             else:
 #                cmd+=sample+'/'+NewRelease+'_'+GlobalTagUse+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* AND site like *cern* "'
                 cmd+=sample+'/'+NewRelease+'-'+GlobalTagUse+'*GEN-SIM-RECO* AND site like *cern* "'
-                cmd+='|grep '+sample+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
+#                cmd+='|grep '+sample+'|grep '+VersionTag+'|grep -v '+UnwantedTag+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
+                cmd+='|grep '+sample+'|grep '+VersionTag+'|grep -v FastSim |sort| tail -1 | cut -d "," -f2 '
             print cmd
             dataset= os.popen(cmd).readline()
             print 'DataSet:  ', dataset, '\n'
