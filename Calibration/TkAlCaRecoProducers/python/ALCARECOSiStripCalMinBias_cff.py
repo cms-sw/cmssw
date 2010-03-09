@@ -14,11 +14,11 @@ ALCARECOSiStripCalMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLeve
 
 # Select only events where tracker had HV on (according to DCS bit information)
 import DPGAnalysis.Skims.DetStatus_cfi
-DCSStatus = DPGAnalysis.Skims.DetStatus_cfi.dcsstatus.clone()
-DCSStatus.DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm')
-DCSStatus.ApplyFilter  = cms.bool(True)
-DCSStatus.AndOr        = cms.bool(False) # Take the "or" of the detector types from above
-DCSStatus.DebugOn      = cms.untracked.bool(False)
+DCSStatusForSiStripCalMinBias = DPGAnalysis.Skims.DetStatus_cfi.dcsstatus.clone()
+DCSStatusForSiStripCalMinBias.DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm')
+DCSStatusForSiStripCalMinBias.ApplyFilter  = cms.bool(True)
+DCSStatusForSiStripCalMinBias.AndOr        = cms.bool(False) # Take the "or" of the detector types from above
+DCSStatusForSiStripCalMinBias.DebugOn      = cms.untracked.bool(False)
 
 # Select only good tracks
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
@@ -41,4 +41,4 @@ ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOSiStripCalMinBias.TwoBodyDecaySelector.applyMissingETFilter    = False
 
 # Sequence #
-seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*DCSStatus*ALCARECOSiStripCalMinBias)
+seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT*DCSStatusForSiStripCalMinBias*ALCARECOSiStripCalMinBias)
