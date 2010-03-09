@@ -35,6 +35,8 @@ class WPlusJetsEventSelector : public EventSelector {
    double elePtMinLoose , double eleEtaMaxLoose,
    double jetPtMin      , double jetEtaMax
 			  );
+
+  virtual void scaleJets(double scale) {jetScale_ = scale;}
   
   virtual bool operator()( edm::EventBase const & t, std::strbitset & ret);
   using EventSelector::operator();
@@ -87,6 +89,7 @@ class WPlusJetsEventSelector : public EventSelector {
   double jetPtMin_ ;
   double jetEtaMax_;
 
+  double jetScale_;
 
   
 };
