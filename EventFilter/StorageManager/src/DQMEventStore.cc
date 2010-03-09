@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.cc,v 1.9 2010/03/04 17:34:59 mommsen Exp $
+// $Id: DQMEventStore.cc,v 1.10 2010/03/06 08:39:03 mommsen Exp $
 /// @file: DQMEventStore.cc
 
 #include "TROOT.h"
@@ -56,7 +56,7 @@ bool DQMEventStore::getCompletedDQMGroupRecordIfAvailable
 {
   if ( _recordsReadyToServe.empty() ) return false;
 
-  entry = _recordsReadyToServe.top();
+  entry = _recordsReadyToServe.front();
   _recordsReadyToServe.pop();
 
   return true;
