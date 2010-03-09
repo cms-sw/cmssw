@@ -108,6 +108,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["CSCHaloData_InnerMostTrackHitRPlusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
     ME["CSCHaloData_InnerMostTrackHitRMinusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
     ME["CSCHaloData_InnerMostTrackHitiPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
+    ME["CSCHaloData_InnerMostTrackHitPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
     ME["CSCHaloData_L1HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
     ME["CSCHaloData_L1HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
     ME["CSCHaloData_L1HaloTriggers"]  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
@@ -184,6 +185,12 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["Extra_CSCTrackInnerOuterDEta"] = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, TMath::Pi() );
     ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
     ME["Extra_CSCTrackNHits"]     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
+    ME["Extra_InnerMostTrackHitXY"]  = dqm->book2D("Extra_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
+    ME["Extra_InnerMostTrackHitR"]  = dqm->book1D("Extra_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+    ME["Extra_InnerMostTrackHitRPlusZ"] = dqm->book2D("Extra_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
+    ME["Extra_InnerMostTrackHitRMinusZ"] = dqm->book2D("Extra_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
+    ME["Extra_InnerMostTrackHitiPhi"]  = dqm->book1D("Extra_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
+    ME["Extra_InnerMostTrackHitPhi"]  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
     ME["Extra_BXN"] = dqm->book1D("Extra_BXN", "BXN Occupancy", 4000, 0.5, 4000.5);
   }
 }
@@ -225,7 +232,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  float outermost_z = 0.;
 	  float innermost_eta = 0.;
 	  float outermost_eta = 0.;
-	  
+	  float innermost_x =0.;
+	  float innermost_y =0.;
+	  float innermost_r =0.;
 	  for(unsigned int j = 0 ; j < cosmic->extra()->recHits().size(); j++ )
 	    {
 	      edm::Ref<TrackingRecHitCollection> hit( cosmic->extra()->recHits(), j );
@@ -244,6 +253,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  innermost_phi = TheGlobalPosition.phi();
 		  innermost_eta = TheGlobalPosition.eta();
 		  innermost_z   = TheGlobalPosition.z();
+		  innermost_x   = TheGlobalPosition.x();
+		  innermost_y   = TheGlobalPosition.y();
+		  innermost_r = TMath::Sqrt( innermost_x*innermost_x + innermost_y*innermost_y );
 		}
 	      if( TMath::Abs(z) > outermost_z)
 		{
@@ -259,7 +271,15 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["Extra_CSCTrackChi2Ndof"]  -> Fill(cosmic->normalizedChi2() );
 	  ME["Extra_CSCTrackNHits"]     -> Fill(cosmic->numberOfValidHits() );
 
-
+	  ME["Extra_InnerMostTrackHitXY"]  ->Fill(innermost_x, innermost_y);
+	  ME["Extra_InnerMostTrackHitR"]  ->Fill(innermost_r);
+	  if(innermost_z > 0 ) 
+	    ME["Extra_InnerMostTrackHitRPlusZ"] ->Fill(innermost_z, innermost_r);
+	  else 
+	    ME["Extra_InnerMostTrackHitRMinusZ"] ->Fill(innermost_z, innermost_r);
+	  
+	  ME["Extra_InnerMostTrackHitiPhi"] ->Fill(Phi_To_iPhi(innermost_phi));
+	  ME["Extra_InnerMostTrackHitPhi"] ->Fill(innermost_phi);
 	}
     }
 
@@ -363,6 +383,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["CSCHaloData_InnerMostTrackHitXY"]->Fill( i->x(), i->y() );
 	  ME["CSCHaloData_InnerMostTrackHitR"]  ->Fill(r);
 	  ME["CSCHaloData_InnerMostTrackHitiPhi"]  ->Fill( Phi_To_iPhi( i->phi())); 
+	  ME["CSCHaloData_InnerMostTrackHitPhi"]  ->Fill( i->phi()); 
 	  if( i->z() > 0 ) 
 	    ME["CSCHaloData_InnerMostTrackHitRPlusZ"] ->Fill(i->z(), r) ;
 	  else
