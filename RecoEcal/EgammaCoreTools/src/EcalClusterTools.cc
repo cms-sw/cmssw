@@ -1,5 +1,3 @@
-//Version history: Tia Miceli edited from original: CVS Tags: CMSSW_3_1_0_pre5, CMSSW_3_1_0_pre6, V00-05-33, V00-05-32, V00-05-31, V00-05-30, V00-05-29, HEAD
-// Add Roundness and Angle functions
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -1031,7 +1029,6 @@ std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( std::vector
 	
 	//make sure photon has more than one crystal; else roundness and angle suck
 	if(RH_ptrs.size()<2){
-		std::cout<<"EcalClusterTools::showerRoundness- these crystals have only 1 or less recHits, can't compute roundness or angle, returning vector (-3, -3)"<<std::endl;
 		shapes.push_back( -3 );
 		shapes.push_back( -3 );
 		return shapes;
@@ -1052,7 +1049,7 @@ std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( std::vector
 		//get iEta, iPhi
 		EBDetId EBdetIdi( (*rh_ptr)->detid() );
 		if(fabs(energyTotal) < 0.0001){
-			std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (energyTotal == 0), returning vector of -2,-2"<<std::endl;
+			// don't /0, bad!
 			shapes.push_back( -2 );
 			shapes.push_back( -2 );
 			return shapes;
@@ -1068,7 +1065,7 @@ std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( std::vector
 		centerIPhi += weight*deltaIPhi(seedPosition[1],EBdetIdi.iphi());
 	}
 	if(fabs(denominator) < 0.0001){
-		std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (denominator == 0), returning vector of -2,-2"<<std::endl; 
+		// don't /0, bad!
 		shapes.push_back( -2 );
 		shapes.push_back( -2 );
 		return shapes;
@@ -1088,7 +1085,7 @@ std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( std::vector
 		EBDetId EBdetIdi( (*rh_ptr)->detid() );
 		
 		if(fabs(energyTotal) < 0.0001){
-			std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (energyTotal == 0), returning vector of -2,-2"<<std::endl;
+			// don't /0, bad!
 			shapes.push_back( -2 );
 			shapes.push_back( -2 );
 			return shapes;
@@ -1133,7 +1130,7 @@ std::vector<float> EcalClusterTools::roundnessSelectedBarrelRecHits( std::vector
 	//step 3 compute interesting quatities
 	Double_t temp = fabs(smallerAxis[0]);// closer to 1 ->beamhalo, closer to 0 something else
 	if(fabs(eValues[0]) < 0.0001){
-		std::cout<<"EcalClusterTools::showerRoundnessBarrel: dividing by 0 is not allowed (eValues[0]==0), returning vector of -2,-2"<<std::endl;
+		// don't /0, bad!
 		shapes.push_back( -2 );
 		shapes.push_back( -2 );
 		return shapes;
@@ -1177,8 +1174,8 @@ int EcalClusterTools::deltaIEta(int seed_ieta, int rh_ieta){
 std::vector<int> EcalClusterTools::getSeedPosition(std::vector<const EcalRecHit*> RH_ptrs){
 	std::vector<int> seedPosition;
 	float eSeedRH = 0;
-	float iEtaSeedRH = 0;
-	float iPhiSeedRH = 0;
+	int iEtaSeedRH = 0;
+	int iPhiSeedRH = 0;
 	
 	for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
 		
