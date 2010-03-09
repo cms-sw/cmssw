@@ -39,28 +39,21 @@ cd ${VAL_VERS}_vs_${REF_VERS}_RelVal
 cp ../html_indices/TopLevelOneSample.html index.html
 
 #MinBias
-mkdir CalTowHB
-mkdir CalTowHE
-mkdir CalTowHF
+mkdir CaloTowers
 mkdir RecHits
 mkdir RBX
 
-cp ../html_indices/RelVal_RecHits.html RecHits/index.html
-cp ../html_indices/CaloTowers_HB.html  CalTowHB/index.html
-cp ../html_indices/CaloTowers_HE.html  CalTowHE/index.html
-cp ../html_indices/CaloTowers_HF.html  CalTowHF/index.html
-cp ../html_indices/RBX.html            RBX/index.html
+cp ../html_indices/RelVal_RecHits.html    RecHits/index.html
+cp ../html_indices/RelVal_CaloTowers.html CaloTowers/index.html
+cp ../html_indices/RBX.html               RBX/index.html
 
 cd ../
 
 #Process MC MinBias
-root -b -q 'RelValMacro.C("'${REF_VERS}'","'${VAL_VERS}'","'${REF_FILE}'","'${VAL_FILE}'")'
+root -b -q 'RelValMacro.C("'${REF_VERS}'","'${VAL_VERS}'","'${REF_FILE}'","'${VAL_FILE}'","InputRelVal_Low.txt")'
 
-mv HB_CaloTowers*HB.gif ${VAL_VERS}_vs_${REF_VERS}_RelVal/CalTowHB/
-mv HE_CaloTowers*HE.gif ${VAL_VERS}_vs_${REF_VERS}_RelVal/CalTowHE/
-mv HF_CaloTowers*HF.gif ${VAL_VERS}_vs_${REF_VERS}_RelVal/CalTowHF/
-
-mv RBX*gif              ${VAL_VERS}_vs_${REF_VERS}_RelVal/RBX/
-mv *gif                 ${VAL_VERS}_vs_${REF_VERS}_RelVal/RecHits/
+mv *CaloTowers*.gif ${VAL_VERS}_vs_${REF_VERS}_RelVal/CaloTowers/
+mv RBX*gif          ${VAL_VERS}_vs_${REF_VERS}_RelVal/RBX/
+mv *gif             ${VAL_VERS}_vs_${REF_VERS}_RelVal/RecHits/
 
 exit

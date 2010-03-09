@@ -16,13 +16,15 @@ process.source = cms.Source("PoolSource",
 #    debugFlag = cms.untracked.bool(True),
 #    debugVebosity = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring(
+
       )
 )
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     outputFile = cms.untracked.string('CaloTowersValidationRelVal.root'),
     CaloTowerCollectionLabel = cms.untracked.string('towerMaker'),
-    hcalselector = cms.untracked.string('all')
+    hcalselector = cms.untracked.string('all'),
+    mc = cms.untracked.string('no')
 )
 
 process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',

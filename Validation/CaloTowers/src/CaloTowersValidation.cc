@@ -9,6 +9,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
+  mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
 
   etaMin[0] = 0.;
   etaMax[0] = 1.4;
@@ -21,6 +22,9 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   if(hcalselector_ == "HB") isub = 1;
   if(hcalselector_ == "HE") isub = 2;
   if(hcalselector_ == "HF") isub = 3;
+
+  imc = 1;
+  if(mc_ == "no") imc = 0;
   
   if ( outputFile_.size() != 0 ) {
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -347,32 +351,33 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   bool     MC = false;
   double   phi_MC = 9999.;
   double   eta_MC = 9999.;
+  
+  if (imc != 0){
+    edm::Handle<edm::HepMCProduct> evtMC;
+    //  ev.getByLabel("VtxSmeared",evtMC);
+    event.getByLabel("generator",evtMC);  // generator in late 310_preX
+    if (!evtMC.isValid()) {
+      std::cout << "no HepMCProduct found" << std::endl;    
+    } else {
+      MC=true;
+      //    std::cout << "*** source HepMCProduct found"<< std::endl;
+    }  
 
-
-  edm::Handle<edm::HepMCProduct> evtMC;
-  //  ev.getByLabel("VtxSmeared",evtMC);
-  event.getByLabel("generator",evtMC);  // generator in late 310_preX
-  if (!evtMC.isValid()) {
-    std::cout << "no HepMCProduct found" << std::endl;    
-  } else {
-    MC=true;
-    //    std::cout << "*** source HepMCProduct found"<< std::endl;
-  }  
-
-  // MC particle with highest pt is taken as a direction reference  
-  double maxPt = -99999.;
-  int npart    = 0;
-  const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
-  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
-	p != myGenEvent->particles_end(); ++p ) {
-    double phip = (*p)->momentum().phi();
-    double etap = (*p)->momentum().eta();
-    //    phi_MC = phip;
-    //    eta_MC = etap;
-    double pt  = (*p)->momentum().perp();
-    if(pt > maxPt) { npart++; maxPt = pt; phi_MC = phip; eta_MC = etap; }
-  }
-  //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
+    // MC particle with highest pt is taken as a direction reference  
+    double maxPt = -99999.;
+    int npart    = 0;
+    const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
+    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	  p != myGenEvent->particles_end(); ++p ) {
+      double phip = (*p)->momentum().phi();
+      double etap = (*p)->momentum().eta();
+      //    phi_MC = phip;
+      //    eta_MC = etap;
+      double pt  = (*p)->momentum().perp();
+      if(pt > maxPt) { npart++; maxPt = pt; phi_MC = phip; eta_MC = etap; }
+    }
+    //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
+  }    
 
   edm::Handle<CaloTowerCollection> towers;
   event.getByLabel(theCaloTowerCollectionLabel,towers);
@@ -441,23 +446,24 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     int ieta = idT.ieta();
     if(ieta > 0) ieta -= 1;
     int iphi = idT.iphi();
-
-
-    double r    = dR(eta_MC, phi_MC, etaT, phiT);
-
-    if( r < partR ){
-      Econe += eE; 
-      Hcone += eH; 
-
-      // closest to MC
-      if(r < Rmin) { 
-        if( fabs(eta_MC) < 3.0 && (ieta > 29 || ieta < -29)) {;}
-	else {    
-	  Rmin = r;
-	  ieta_MC = ieta; 
-	  iphi_MC = iphi; 
-	  Ee1     = eE;
-	  Eh1     = eH;
+    
+    if (imc != 0){
+      double r    = dR(eta_MC, phi_MC, etaT, phiT);
+      
+      if( r < partR ){
+	Econe += eE; 
+	Hcone += eH; 
+	
+	// closest to MC
+	if(r < Rmin) { 
+	  if( fabs(eta_MC) < 3.0 && (ieta > 29 || ieta < -29)) {;}
+	  else {    
+	    Rmin = r;
+	    ieta_MC = ieta; 
+	    iphi_MC = iphi; 
+	    Ee1     = eE;
+	    Eh1     = eH;
+	  }
 	}
       }
     }

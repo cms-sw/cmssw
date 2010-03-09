@@ -44,6 +44,7 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   DQMStore* dbe_;
   std::string outputFile_;
   std::string hcalselector_;
+  std::string mc_;
 
   typedef math::RhoEtaPhiVector Vector;
 
@@ -51,6 +52,9 @@ class CaloTowersValidation : public edm::EDAnalyzer {
 
   int isub;
   int nevent;
+
+  int imc;
+
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
