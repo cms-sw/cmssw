@@ -1,5 +1,5 @@
 
-// $Id: HLTSeedL1LogicScalers.cc,v 1.4 2010/02/23 16:50:45 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.cc,v 1.5 2010/02/23 17:20:14 rekovic Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 
@@ -129,21 +129,18 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
   fDbe->setCurrentFolder(fDQMFolder);
   
   // HLT config does not change within runs!
+
+  bool changed = false;
  
-  if (!fHLTConfig.init(fProcessname)) {
+  if (!fHLTConfig.init(run, iSetup, fProcessname, changed)) {
 
-    fProcessname = "FU";
-
-    if (!fHLTConfig.init(fProcessname)){
-
-      LogDebug("HLTSeedL1LogicScalers") << "HLTConfigProvider failed to initialize.";
-      return;
-
-    }
+    LogDebug("HLTSeedL1LogicScalers") << "HLTConfigProvider failed to initialize.";
+    return;
 
     // check if trigger name in (new) config
     //  cout << "Available TriggerNames are: " << endl;
     //  fHLTConfig.dump("Triggers");
+
   }
 
   const unsigned int n(fHLTConfig.size());
