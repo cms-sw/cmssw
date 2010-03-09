@@ -2557,8 +2557,12 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'MC_3XY_V24::All'
+    process.GlobalTag.globaltag         = 'auto:mc'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+    if 'auto:' in process.GlobalTag.globaltag:
+        from Configuration.PyReleaseValidation.autoCond import autoCond
+        for ac,cond in autoCond.items():
+            process.GlobalTag.globaltag = process.GlobalTag.globaltag.replace('auto:'+ac,cond)
 
 if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect  = 'frontier://FrontierProd/CMS_COND_31X_L1T'
