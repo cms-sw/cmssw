@@ -77,7 +77,8 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-process.GlobalTag.globaltag = "MC_3XY_V25::All"
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True

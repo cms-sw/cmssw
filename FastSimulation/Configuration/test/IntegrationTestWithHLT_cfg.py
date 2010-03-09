@@ -67,7 +67,8 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-process.GlobalTag.globaltag = "START3X_V25::All"
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
 
 # Apply ECAL and HCAL miscalibration 
 process.ecalRecHit.doMiscalib = True

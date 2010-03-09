@@ -29,7 +29,8 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
 # Get frontier conditions    - not applied in the HCAL, see below
-process.GlobalTag.globaltag = "START3X_V25::All"
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
