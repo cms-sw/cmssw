@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/02 02:13:33 $
- *  $Revision: 1.50 $
+ *  $Date: 2010/03/04 16:31:53 $
+ *  $Revision: 1.51 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -321,23 +321,27 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   //--- htlConfig_
   //processname_="HLT";
   bool changed(true);
-  if (!hltConfig_.init(iRun,iSetup,processname_,changed)) {
+  hlt_initialized = hltConfig_.init(iRun,iSetup,processname_,changed);
+  if (!hlt_initialized) {
+  //if (!hltConfig_.init(iRun,iSetup,processname_,changed)) {
     processname_ = "FU";
-    if (!hltConfig_.init(iRun,iSetup,processname_,changed)){
+    hlt_initialized = hltConfig_.init(iRun,iSetup,processname_,changed);
+    if(!hlt_initialized){
+      //if (!hltConfig_.init(iRun,iSetup,processname_,changed)){
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
   }
 
   hltpathME = 0;
   physdecME = 0;
-  if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
+  if (hlt_initialized) {
+  //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
     if (hltConfig_.size()){
       dbe->setCurrentFolder("JetMET");
       hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
       physdecME = dbe->book1D("physdec", "physdec", 2,   0., 2.);
       if (physdecME) physdecME->setBinLabel(1,"All Events");
     }
-    
     
     for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
       if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
@@ -377,10 +381,10 @@ void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
     theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
   }
-  if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endRun(iRun, iSetup, dbe);
+  if(theTcMETAnalyzerFlag)     theTcMETAnalyzer->endRun(iRun, iSetup, dbe);
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endRun(iRun, iSetup, dbe);
-  if(thePfMETAnalyzerFlag) thePfMETAnalyzer->endRun(iRun, iSetup, dbe);
-  //if(theHTMHTAnalyzerFlag) theHTMHTAnalyzer->endRun(iRun, iSetup, dbe);
+  if(thePfMETAnalyzerFlag)     thePfMETAnalyzer->endRun(iRun, iSetup, dbe);
+  //if(theHTMHTAnalyzerFlag)    theHTMHTAnalyzer->endRun(iRun, iSetup, dbe);
 
 }
 
@@ -416,6 +420,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	if (physdecME) physdecME->Fill(1.5);
 	if(_doHLTPhysicsOn) bPhysicsDeclared = true;
       }
+
+    //sanity check
+    assert(triggerResults->size()==hltConfig_.size());
+    //check the trigger results
     for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
       if (triggerResults->accept(j)){
         if (hltpathME) hltpathME->Fill(j);
