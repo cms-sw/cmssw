@@ -87,3 +87,7 @@ typedef SiStripTemplateEmptyFakeESSource<SiStripDetVOff,SiStripDetVOffRcd> SiStr
 DEFINE_FWK_EVENTSETUP_SOURCE(SiStripDetVOffFakeESSource);
 
 //------------------------------------//
+
+// Producer from existing tag
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripApvGainBuilderFromTag.h"
+DEFINE_FWK_MODULE(SiStripApvGainBuilderFromTag);
