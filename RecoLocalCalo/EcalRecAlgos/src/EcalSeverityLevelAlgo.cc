@@ -6,7 +6,8 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 const EcalRecHitCollection & recHits, 
                 const EcalChannelStatus & chStatus,
                 SpikeId sp,
-                float spIdThreshold
+                float spIdThreshold,
+                float recHitEtThreshold
                 )
 {
         // get DB flag
@@ -28,7 +29,13 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
         } else {
                 // the channel is in the recHit collection
                 // .. is it a spike?
-                if ( spikeFromNeighbours(id, recHits) > spIdThreshold  ) return kWeird;
+                // .. .. check for spikes only recHits above an approximate Et
+                // .. .. threshold fixed by default at 5 GeV
+                float e = recHitEnergy( id, recHits );
+                float approxEta = 0.017453292519943295 * ebId.ieta();
+                if ( e1 / cosh( approxEta ) < recHitEtThreshold ) {
+                        if ( spikeFromNeighbours(id, recHits) > spIdThreshold  ) return kWeird;
+                }
                 // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
         }

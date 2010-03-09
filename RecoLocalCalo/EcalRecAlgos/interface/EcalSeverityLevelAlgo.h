@@ -25,7 +25,8 @@ class EcalSeverityLevelAlgo {
                                           const EcalRecHitCollection &,
                                           const EcalChannelStatus &,
                                           SpikeId spId = kSwissCross,
-                                          float spIdThreshold = 0.95
+                                          float spIdThreshold = 0.95,
+                                          float recHitEtThreshold = 5.
                                           );
 
                 /** return the estimator of the signal being a spike
