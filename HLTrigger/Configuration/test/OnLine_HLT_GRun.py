@@ -9500,12 +9500,13 @@ process.options = cms.untracked.PSet(
 )
 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.globaltag         = 'auto:startup'
     process.GlobalTag.connect           = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
-    if 'auto:' in process.GlobalTag.globaltag:
+    globalTag         = 'auto:startup'
+    if globalTag.find('auto:')>=0:
         from Configuration.PyReleaseValidation.autoCond import autoCond
         for ac,cond in autoCond.items():
-            process.GlobalTag.globaltag = process.GlobalTag.globaltag.replace('auto:'+ac,cond)
+            globalTag=globalTag.replace('auto:'+ac,cond)
+    process.GlobalTag.globaltag         = globalTag
 
 if 'Level1MenuOverride' in process.__dict__:
     process.Level1MenuOverride.connect  = 'frontier://FrontierProd/CMS_COND_31X_L1T'
