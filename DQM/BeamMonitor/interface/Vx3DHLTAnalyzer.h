@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.1 2010/03/06 19:24:13 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.2 2010/03/06 21:38:57 dinardo Exp $
 //
 //
 
@@ -39,6 +39,11 @@
 
 
 using namespace std;
+
+
+vector<double> xVxValues;
+vector<double> yVxValues;
+vector<double> zVxValues;
 
 
 class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
@@ -66,6 +71,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       edm::InputTag vertexCollection;
       unsigned int nLumiReset;
       bool dataFromFit;
+      int minNentries;
       double xRange;
       double xStep;
       double yRange;
@@ -75,8 +81,6 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       string fileName;
 
       // Histograms
-      MonitorElement* Distribution3D;
-
       MonitorElement* mXlumi;
       MonitorElement* mYlumi;
       MonitorElement* mZlumi;
@@ -85,6 +89,9 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* sYlumi;
       MonitorElement* sZlumi;
       
+      MonitorElement* dxdzlumi;
+      MonitorElement* dydzlumi;
+
       MonitorElement* RMSsigXlumi;
       MonitorElement* RMSsigYlumi;
       MonitorElement* RMSsigZlumi;
