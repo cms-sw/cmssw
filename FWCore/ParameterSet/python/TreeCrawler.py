@@ -97,11 +97,11 @@ class mymf(modulefinder.ModuleFinder):
         self._localarea = os.path.expandvars('$CMSSW_BASE')
         self._globalarea = os.path.expandvars('$CMSSW_RELEASE_BASE')
         modulefinder.ModuleFinder.__init__(self,*args,**kwargs)
-    def import_hook(self, name, caller=None, fromlist=None):
+    def import_hook(self, name, caller=None, fromlist=None, level=-1):
         old_last_caller = self._last_caller
         try:
             self._last_caller = caller
-            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist)  
+            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist, level=level)  
         finally:
             self._last_caller = old_last_caller
 
@@ -148,43 +148,6 @@ def transformIntoGraph(depgraph,toplevel):
     return packageDict[toplevel]
 
 
-def getDependenciesFromConfig(filename,toplevelname,path):
-    imports = [filename]
-    config = open(filename)
-    
-    for line in config.readlines():
-        # look for all load statements
-        if line.startswith("process.load"):
-            line = line.replace('"', "'") 
-            moduleName = line.split("'")[1]
-            module = __import__(moduleName,[],[],"*")
-            imports.append(inspect.getsourcefile(module))
-    config.close()
-
-    # sort our loaded files alphabetically in Subsytem/Package pattern
-    imports.sort(key= lambda x: x.split("python/")[-1])
-
-    # hold a dict of the kind: {package : {dependencies}}
-    globalDependencyDict = {}
-
-    # create the flat include dictionaries for each load and merge them
-    for item in imports:
-        modulefinder = mymf(path)
-        modulefinder.run_script(item)
-
-        for key, value in modulefinder._depgraph.iteritems():
-            if key == "__main__": key = packageNameFromFilename(item)
-            globalDependencyDict[key] = value
-
-    # now set the dependencies of our top level config with the load statements
-    globalDependencyDict[toplevelname] = {}
-    for item in imports:
-        name = packageNameFromFilename(item)
-        if name != toplevelname:
-            globalDependencyDict[toplevelname][name] = 1
-    return globalDependencyDict                                                
-
-
 def getDependenciesFromPythonFile(filename,toplevelname,path):
     modulefinder = mymf(path)
     modulefinder.run_script(filename)
@@ -196,10 +159,8 @@ def getDependenciesFromPythonFile(filename,toplevelname,path):
 def getImportTree(filename,path):
     toplevelname = packageNameFromFilename(filename)
     # get dependencies from given file
-    if filename.endswith('_cfg.py'): 
-        globalDependencyDict = getDependenciesFromConfig(filename,toplevelname,path)
-    else:
-        globalDependencyDict = getDependenciesFromPythonFile(filename,toplevelname,path)
+    globalDependencyDict = getDependenciesFromPythonFile(filename,toplevelname,path)
+        
     # transform this flat structure in a dependency tree
     dependencyGraph = transformIntoGraph(globalDependencyDict,toplevelname)
     return dependencyGraph                                               
