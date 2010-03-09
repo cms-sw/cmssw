@@ -13,7 +13,6 @@
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="xerces-c"/>
-<use   name="CondTools/Ecal"/>
 <export>
   <lib   name="1"/>
 </export>
