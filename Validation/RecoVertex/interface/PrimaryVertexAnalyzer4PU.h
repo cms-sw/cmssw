@@ -288,6 +288,7 @@ private:
   math::XYZPoint myBeamSpot;
   // local counters
   int eventcounter_;
+  int dumpcounter_;
   int ndump_;
   bool dumpThisEvent_;
 
