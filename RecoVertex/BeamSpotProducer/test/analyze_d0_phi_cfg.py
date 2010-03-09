@@ -26,29 +26,37 @@ process.source = cms.Source("PoolSource",
 #'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/124788C9-4DE5-DE11-9F87-000423D98BE8.root',
 #'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/906/044A4BCB-4DE5-DE11-88CD-000423D951D4.root'
 
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/F0ADCD5C-67E5-DE11-BE4E-001D09F2441B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/E2AB99C9-66E5-DE11-883B-001D09F244BB.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/DA9F87C7-66E5-DE11-8B1C-001D09F244DE.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/CA6260BC-68E5-DE11-B43E-001D09F25438.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/C8F657C6-66E5-DE11-AA76-001D09F24D67.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/B852CC68-68E5-DE11-B2D2-001D09F2527B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/AA6CAA2E-63E5-DE11-BDD2-000423D6B444.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/A0618E2D-63E5-DE11-BF43-000423D99AAE.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/7637827D-64E5-DE11-BBFE-001D09F2B30B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/74AD86C6-66E5-DE11-B692-001D09F2424A.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/720D5D3A-64E5-DE11-8AA1-0019B9F707D8.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/5CDDD336-64E5-DE11-A595-001D09F28F25.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/5AE8CD5D-67E5-DE11-9260-001D09F23D1D.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/528BFF34-64E5-DE11-A463-001D09F2A690.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/4C08F3C7-66E5-DE11-9FBC-0019B9F72CE5.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/3C3C9846-65E5-DE11-9623-001D09F251CC.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/348F5FC9-66E5-DE11-8B6E-001D09F24DDF.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/308B3667-68E5-DE11-AE18-001D09F2441B.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/2C287C61-67E5-DE11-85B8-001D09F28E80.root',
-'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/0A7B2C46-65E5-DE11-B99E-001D09F2A49C.root'
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/F0ADCD5C-67E5-DE11-BE4E-001D09F2441B.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/E2AB99C9-66E5-DE11-883B-001D09F244BB.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/DA9F87C7-66E5-DE11-8B1C-001D09F244DE.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/CA6260BC-68E5-DE11-B43E-001D09F25438.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/C8F657C6-66E5-DE11-AA76-001D09F24D67.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/B852CC68-68E5-DE11-B2D2-001D09F2527B.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/AA6CAA2E-63E5-DE11-BDD2-000423D6B444.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/A0618E2D-63E5-DE11-BF43-000423D99AAE.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/7637827D-64E5-DE11-BBFE-001D09F2B30B.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/74AD86C6-66E5-DE11-B692-001D09F2424A.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/720D5D3A-64E5-DE11-8AA1-0019B9F707D8.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/5CDDD336-64E5-DE11-A595-001D09F28F25.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/5AE8CD5D-67E5-DE11-9260-001D09F23D1D.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/528BFF34-64E5-DE11-A463-001D09F2A690.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/4C08F3C7-66E5-DE11-9FBC-0019B9F72CE5.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/3C3C9846-65E5-DE11-9623-001D09F251CC.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/348F5FC9-66E5-DE11-8B6E-001D09F24DDF.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/308B3667-68E5-DE11-AE18-001D09F2441B.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/2C287C61-67E5-DE11-85B8-001D09F28E80.root',
+#'/store/express/BeamCommissioning09/ExpressPhysics/FEVT/v2/000/123/909/0A7B2C46-65E5-DE11-B99E-001D09F2A49C.root'
 
 # dbs --search --query "find file where dataset = */FEVT and run=123818 and lumi>2 and lumi< 48 " --url=http://cmsdbsprod.cern.ch/cms_dbs_caf_analysis_01/servlet/DBSServlet
 
+
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/BAEF02C0-0BED-DE11-9EBA-00261894392F.root',
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/A461CC43-03ED-DE11-8E44-00304867BFF2.root',
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/8A29D1B9-07ED-DE11-BDFD-002618943843.root',
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/26BC3350-03ED-DE11-9683-002618943885.root',
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/24E9A529-14ED-DE11-99C2-00304867C034.root',
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/24597050-03ED-DE11-A701-00261894389D.root',
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0001/F8B5CB1B-01ED-DE11-8529-003048678FAE.root'
 
 	#'file:FirstEvent.root'
 #'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_DESIGN_3X_V8A_v1/0082/22F2A8A8-8BD8-DE11-A2FE-00248C0BE01E.root',
@@ -69,7 +77,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('123909:16-123909:29')
+process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('124120:1-124120:59')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1) #1500
@@ -105,8 +113,8 @@ process.d0_phi_analyzer.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
 process.d0_phi_analyzer.BeamFitter.InputBeamWidth = 0.0400
 process.d0_phi_analyzer.BeamFitter.Debug = True
 #########################
-process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_123909.txt'
-process.d0_phi_analyzer.BeamFitter.OutputFileName = 'run123909_all.root' #AtVtx10000.root'
+process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_124120_v4.txt'
+process.d0_phi_analyzer.BeamFitter.OutputFileName = 'run124120_all_v4.root' #AtVtx10000.root'
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
 
 # fit as function of lumi sections

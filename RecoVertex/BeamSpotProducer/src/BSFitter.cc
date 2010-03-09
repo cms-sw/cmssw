@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.12 2009/12/04 19:59:43 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.13 2010/02/09 09:14:50 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -85,6 +85,9 @@ BSFitter::BSFitter( std:: vector< BSTrkParameters > BSvector ) {
 	fconvergence = 0.5; // stop fit when 50% of the input collection has been removed.
 	fminNtrks = 100;
 	finputBeamWidth = -1; // no input
+
+    h1z = new TH1F("h1z","z distribution",200,-fMaxZ, fMaxZ);
+	
 }
 
 //______________________________________________________________________
@@ -157,12 +160,12 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 
 			reco::BeamSpot::CovarianceMatrix matrix;
 			// first fit z distribution using a chi2 fit
-			reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
-			for (int j = 2 ; j < 4 ; ++j) {
-				for(int k = j ; k < 4 ; ++k) {
-					matrix(j,k) = tmp_z.covariance()(j,k);
-				}
-			}
+			//reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
+			//for (int j = 2 ; j < 4 ; ++j) {
+            //for(int k = j ; k < 4 ; ++k) {
+            //	matrix(j,k) = tmp_z.covariance()(j,k);
+            //}
+			//}
 		
 			// use d0-phi algorithm to extract transverse position
 			this->d0phi_Init();
@@ -170,26 +173,26 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			this->Setd0Cut_d0phi(4.0);
 			reco::BeamSpot tmp_d0phi= Fit_ited0phi();
 			
-			for (int j = 0 ; j < 2 ; ++j) {
-				for(int k = j ; k < 2 ; ++k) {
-					matrix(j,k) = tmp_d0phi.covariance()(j,k);
-				}
-			}
+			//for (int j = 0 ; j < 2 ; ++j) {
+			//	for(int k = j ; k < 2 ; ++k) {
+			//		matrix(j,k) = tmp_d0phi.covariance()(j,k);
+            //}
+			//}
 			// slopes
-			for (int j = 4 ; j < 6 ; ++j) {
-			  for(int k = j ; k < 6 ; ++k) {
-			    matrix(j,k) = tmp_d0phi.covariance()(j,k);
-			  }
-			}
+			//for (int j = 4 ; j < 6 ; ++j) {
+            // for(int k = j ; k < 6 ; ++k) {
+            //  matrix(j,k) = tmp_d0phi.covariance()(j,k);
+			//  }
+			//}
 
 		
 			// put everything into one object
-			reco::BeamSpot spot(reco::BeamSpot::Point(tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0()),
-								tmp_z.sigmaZ(),
+			reco::BeamSpot spot(reco::BeamSpot::Point(tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_d0phi.z0()),
+								tmp_d0phi.sigmaZ(),
 								tmp_d0phi.dxdz(),
 								tmp_d0phi.dydz(),
 								0.,
-								matrix,
+								tmp_d0phi.covariance(),
 								fbeamtype );
 
 
@@ -198,6 +201,8 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			
 			//reco::BeamSpot tmp_d0phi = Fit_d0phi();
 			// log-likelihood fit
+
+            /*
 			double tmp_par[6] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0(),
 								 tmp_z.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz()};
 			reco::BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par);
@@ -206,7 +211,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 
 				if (ffit_type == "likelihood" ) {
 					std::cout << "BSFitter: Result is non physical. Log-Likelihood fit to extract beam width did not converge." << std::endl;
-					//return tmp_lh;
+				
 					tmp_lh.setType(reco::BeamSpot::Unknown);
 					return tmp_lh;
 				}
@@ -216,9 +221,10 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			if (ffit_type == "likelihood") {
 				return tmp_lh;
 			} else {
+            */
 				std::cout << "BSFitter: default fit does not extract beam width, assigning a width of zero." << std::endl;
 				return spot;
-			}
+                //}
 			
 			
 		} else if ( ffit_type == "resolution" ) {
@@ -316,7 +322,7 @@ reco::BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 
 	for (int j = 2 ; j < 4 ; ++j) {
 		for(int k = j ; k < 4 ; ++k) {
-			matrix(j,k) = fmin.Error().Matrix()(j,k);
+		  matrix(j,k) = fmin.Error().Matrix()(j,k);
 		}
 	}
 		
@@ -334,6 +340,11 @@ reco::BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 //______________________________________________________________________
 reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 
+    // N.B. this fit is not performed anymore but now
+    // Z is fitted in the same track set used in the d0-phi fit after
+    // each iteration
+
+    
 	//std::cout << "Fit_z_chi2() called" << std::endl;
         // FIXME: include whole tracker z length for the time being
         // ==> add protection and z0 cut
@@ -358,8 +369,8 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	//std::cout<<"Debug fpar[2] = (" <<fpar[0]<<","<<fpar[1]<<")"<<std::endl;
 	reco::BeamSpot::CovarianceMatrix matrix;
 	// add matrix values.
-	matrix(2,2) = fgaus->GetParError(1);
-	matrix(3,3) = fgaus->GetParError(2);
+	matrix(2,2) = fgaus->GetParError(1) * fgaus->GetParError(1);
+	matrix(3,3) = fgaus->GetParError(2) * fgaus->GetParError(2);
 	
 	//delete h1z;
 
@@ -436,7 +447,9 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	//std::cout << " ftmp(2,0)="<<ftmp(2,0)<<std::endl;
 	//std::cout << " ftmp(3,0)="<<ftmp(3,0)<<std::endl;
 	
-
+        h1z->Reset();
+        
+        
 	TMatrixD x_result(4,1);
 	TMatrixDSym V_result(4);
 	
@@ -514,6 +527,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 			b += (iparam->d0() / sigma2 * g);
 			//weightsum += sqrt(i->weight2);
 			ftmprow++;
+            h1z->Fill( iparam->z0() );
 		}
 
 		
@@ -540,7 +554,13 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	// 	}
 	//LogDebug ("BSFitter") << " d0-phi fit done.";
 	//std::cout<< " d0-phi fit done." << std::endl;
-	
+
+    h1z->Fit("gaus","QLM0");
+	//std::cout << "fitted "<< std::endl;
+	TF1 *fgaus = h1z->GetFunction("gaus");
+	//std::cout << "got function" << std::endl;
+	double fpar[2] = {fgaus->GetParameter(1), fgaus->GetParameter(2) };
+    
 	reco::BeamSpot::CovarianceMatrix matrix;
 	// first two parameters
 	for (int j = 0 ; j < 2 ; ++j) {
@@ -555,12 +575,16 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		}
 	}
 
+    // Z0 and sigmaZ
+	matrix(2,2) = fgaus->GetParError(1) * fgaus->GetParError(1);
+	matrix(3,3) = fgaus->GetParError(2) * fgaus->GetParError(2);
+    
 	ftmp = x_result;
 	
 	return reco::BeamSpot( reco::BeamSpot::Point(x_result(0,0),
-						     x_result(1,0),
-						     0.0),
-			       0.,
+                                                 x_result(1,0),
+                                                 fpar[0]),
+                           fpar[1],
 			       x_result(2,0),
 			       x_result(3,0),
 			       0.,

@@ -133,6 +133,10 @@ class IOV:
     def __init__(self):
 	self.since = 1
 	self.till = 1
+        self.RunFirst = 1
+        self.RunLast  = 1
+        self.LumiFirst = 1
+        self.LumiLast = 1
 
 # ROOT STYLE
 #############################
@@ -314,56 +318,111 @@ if __name__ == '__main__':
     tmpbeam = BeamSpot()
     tmpbeamsize = 0
 
-    for line in tmpfile:
+    inputfiletype = 0
+    if tmpfile.readline().find('Runnumber') != -1:
+	inputfiletype = 1
+    tmpfile.seek(0)
+
+    if inputfiletype ==1:
 	
-	if line.find('X0') != -1:
-	    tmpbeam.X = line.split()[2]
-	    tmpbeam.Xerr = line.split()[4]
-	    tmpbeamsize += 1
+	print "i am here"
+
+	for line in tmpfile:
+	
+	    if line.find('X0') != -1:
+		tmpbeam.X = line.split()[1]
+		#tmpbeam.Xerr = line.split()[4]
+		tmpbeamsize += 1
             #print " x = " + str(tmpbeam.X)
-	if line.find('Y0') != -1:
-	    tmpbeam.Y = line.split()[2]
-	    tmpbeam.Yerr = line.split()[4]
-	    tmpbeamsize += 1
+	    if line.find('Y0') != -1:
+		tmpbeam.Y = line.split()[1]
+		#tmpbeam.Yerr = line.split()[4]
+		tmpbeamsize += 1
             #print " y =" + str(tmpbeam.Y)
-	if line.find('Z0') != -1 and line.find('Sigma Z0') == -1:
-	    tmpbeam.Z = line.split()[2]
-	    tmpbeam.Zerr = line.split()[4]
-	    tmpbeamsize += 1
-            #print " z =" + str(tmpbeam.Z)
-	if line.find('Sigma Z0') !=-1:
-	    tmpbeam.sigmaZ = line.split()[3]
-	    tmpbeam.sigmaZerr = line.split()[5]
-	    tmpbeamsize += 1
-	if line.find('dxdz') != -1:
-	    tmpbeam.dxdz = line.split()[2]
-	    tmpbeam.dxdzerr = line.split()[4]
-	    tmpbeamsize += 1
-	if line.find('dydz') != -1:
-	    tmpbeam.dydz = line.split()[2]
-	    tmpbeam.dydzerr = line.split()[4]
-	    tmpbeamsize += 1
-	if line.find('Beam Width X') != -1:
-	    tmpbeam.beamWidthX = line.split()[4]
-	    tmpbeam.beamWidthXerr = line.split()[6]
-	    tmpbeamsize += 1
-	if line.find('Beam Width Y') != -1:
-	    tmpbeam.beamWidthY = line.split()[4]
-	    tmpbeam.beamWidthYerr = line.split()[6]
-	    tmpbeamsize += 1
-	#if line.find('Run ') != -1:
-        if line.find('for runs')  != -1:
+	    if line.find('Z0') != -1 and line.find('sigmaZ0') == -1:
+		tmpbeam.Z = line.split()[1]
+		#tmpbeam.Zerr = line.split()[4]
+		tmpbeamsize += 1
+	    if line.find('sigmaZ0') !=-1:
+		tmpbeam.sigmaZ = line.split()[1]
+		#tmpbeam.sigmaZerr = line.split()[5]
+		tmpbeamsize += 1
+	    if line.find('Cov(0,j)') != -1:
+		tmpbeam.Xerr = str(math.sqrt( float( line.split()[1] ) ) )
+		tmpbeamsize += 1
+	    if line.find('Cov(1,j)') != -1:
+		tmpbeam.Yerr = str(math.sqrt( float( line.split()[2] ) ) )
+		tmpbeamsize += 1
+	    if line.find('Cov(2,j)') != -1:
+		tmpbeam.Zerr = str(math.sqrt( float( line.split()[3] ) ) )
+		tmpbeamsize += 1
+	    if line.find('Cov(3,j)') != -1:
+		tmpbeam.sigmaZerr = str(math.sqrt( float( line.split()[4] ) ) )
+		tmpbeamsize += 1
+	    if line.find('LumiRange')  != -1:
 	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
-            tmpbeam.IOVfirst = line.split()[2]
-            tmpbeam.IOVlast = line.split()[4]
-	    tmpbeamsize += 1
-	if tmpbeamsize == 9:
+		tmpbeam.IOVfirst = line.split()[1]
+		tmpbeam.IOVlast = line.split()[3]
+		tmpbeamsize += 1
+
+	    if tmpbeamsize == 9:
+		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
+		    listbeam.append(tmpbeam)
+		tmpbeamsize = 0
+		tmpbeam = BeamSpot()
+    else:
+
+	for line in tmpfile:
+	
+	    if line.find('X0') != -1:
+		tmpbeam.X = line.split()[2]
+		tmpbeam.Xerr = line.split()[4]
+		tmpbeamsize += 1
+            #print " x = " + str(tmpbeam.X)
+	    if line.find('Y0') != -1:
+		tmpbeam.Y = line.split()[2]
+		tmpbeam.Yerr = line.split()[4]
+		tmpbeamsize += 1
+            #print " y =" + str(tmpbeam.Y)
+	    if line.find('Z0') != -1 and line.find('Sigma Z0') == -1:
+		tmpbeam.Z = line.split()[2]
+		tmpbeam.Zerr = line.split()[4]
+		tmpbeamsize += 1
+            #print " z =" + str(tmpbeam.Z)
+	    if line.find('Sigma Z0') !=-1:
+		tmpbeam.sigmaZ = line.split()[3]
+		tmpbeam.sigmaZerr = line.split()[5]
+		tmpbeamsize += 1
+	    if line.find('dxdz') != -1:
+		tmpbeam.dxdz = line.split()[2]
+		tmpbeam.dxdzerr = line.split()[4]
+		tmpbeamsize += 1
+	    if line.find('dydz') != -1:
+		tmpbeam.dydz = line.split()[2]
+		tmpbeam.dydzerr = line.split()[4]
+		tmpbeamsize += 1
+	    if line.find('Beam Width X') != -1:
+		tmpbeam.beamWidthX = line.split()[4]
+		tmpbeam.beamWidthXerr = line.split()[6]
+		tmpbeamsize += 1
+	    if line.find('Beam Width Y') != -1:
+		tmpbeam.beamWidthY = line.split()[4]
+		tmpbeam.beamWidthYerr = line.split()[6]
+		tmpbeamsize += 1
+	#if line.find('Run ') != -1:
+	    if line.find('for runs')  != -1:
+	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
+		tmpbeam.IOVfirst = line.split()[2]
+		tmpbeam.IOVlast = line.split()[4]
+		tmpbeamsize += 1
+	    if tmpbeamsize == 9:
             #print " from object " + str(tmpbeam.X)
-            if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
-                listbeam.append(tmpbeam)
-            tmpbeamsize = 0
-	    tmpbeam = BeamSpot()
+		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
+		    listbeam.append(tmpbeam)
+		tmpbeamsize = 0
+		tmpbeam = BeamSpot()
 	    
+
     print " got total number of IOVs = " + str(len(listbeam)) + " from file "+datafilename
     #print " run " + str(listbeam[3].IOVfirst ) + " " + str( listbeam[3].X )
 
@@ -376,7 +435,7 @@ if __name__ == '__main__':
     graphnamelist = ['X','Y','Z','SigmaZ','dxdz','dydz']
     graphtitlelist = ['beam spot X','beam spot Y','beam spot Z','beam spot #sigma_Z','beam spot dX/dZ','beam spot dY/dZ']
     graphXaxis = 'Run number'
-    graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_Z [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ']
+    graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_{Z} [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ']
 
     cvlist = []
 
