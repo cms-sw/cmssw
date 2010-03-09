@@ -148,7 +148,7 @@ class PerfSuite:
            
     Examples:
     
-    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunDigiPileUp TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root --cmsdriver="--conditions FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_V9::All"
+    cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunDigiPileUp TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root --cmsdriver="--eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,IDEAL_V9::All"
     (this will run the suite with 5 events for TimeSize tests on MinBias and TTbar, 2 for IgProf tests on TTbar only, 1 for Callgrind tests on TTbar only, 5 for Memcheck on MinBias and TTbar, it will also run DIGI PILEUP for all TTbar tests defined, i.e. 5 TimeSize, 2 IgProf, 1 Callgrind, 5 Memcheck. The file /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root will be copied locally as INPUT_PILEUP_EVENTS.root and it will be used as the input file for the MixingModule pile up events. All these tests will be done for the step GEN-HLT, i.e. GEN,SIM,DIGI,L1,DIGI2RAW,HLT at once)
     OR
     cmsPerfSuite.py --step GEN-HLT -t 5 -i 2 -c 1 -m 5 --RunTimeSize MinBias,TTbar --RunIgProf TTbar --RunCallgrind TTbar --RunMemcheck TTbar --RunTimeSizePU TTbar --PUInputFile /store/relval/CMSSW_2_2_1/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_V9_v2/0001/101C84AF-56C4-DD11-A90D-001D09F24EC0.root
@@ -1504,18 +1504,22 @@ class PerfSuite:
             if tarball:
                tarballTime=PerfSuiteTimer(start=datetime.datetime.now()) #Create the tarball PerfSuiteTimer
                TimerInfo.update({'tarballTime':{'TotalTime':tarballTime}})
-               #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
-               #Cleaning the stepOptions from the --usersteps=:
+               # Adding the str(stepOptions to distinguish the tarballs for 1 release
+               # (GEN->DIGI, L1->RECO will be run in parallel)
+               
+               # Cleaning the stepOptions from the --usersteps=:
                if "=" in str(stepOptions):
                   fileStepOption=str(stepOptions).split("=")[1]
                else:
                   fileStepOption=str(stepOptions)
                if fileStepOption=="":
                   fileStepOption="UnknownStep"
-               #Add the working directory used to avoid overwriting castor files (also put a check...)
+               # Add the working directory used to avoid overwriting castor files (also put a check...)
                fileWorkingDir=os.path.basename(perfsuitedir)
-               #Also add the --conditions and --eventcontent options used in the --cmsdriver options since it is possible that the same tests will be run with different conditions and/or event content:
-               #Parse it out of --cmsdriver option:
+               
+               # Also add the --conditions and --eventcontent options used in the --cmsdriver options since it
+               # is possible that the same tests will be run with different conditions and/or event content:               
+               # Parse it out of --cmsdriver option:
                fileEventContentOption="UnknownEventContent"
                fileConditionsOption="UnknownConditions"
                for token in cmsdriverOptions.split("--"):
@@ -1530,13 +1534,20 @@ class PerfSuite:
                         if "eventcontent" in fileOption:
                            fileEventContentOption=fileOptionValue
                         elif "conditions" in fileOption:
-                           #FIXME:
-                           #Should put at least the convention in cmsPerfCommons to know how to parse it...
-                           #Potential weak point if the conditions tag convention changes...
-                           if "," in fileOptionValue: #Since 330, conditions don't have FrontierConditions_GlobalTag, in front of them anymore...
-                              fileConditionsOption=fileOptionValue.split("::")[0].split(",")[1] #"Backward" compatibility
+                           # check if we are using the autoCond style of flexible conditions
+                           # if so, expand the condition here so that the file names contain the real conditions
+                           if "auto:" in fileOptionValue: 
+                              from Configuration.PyReleaseValidation.autoCond import autoCond
+                              fileConditionsOption = autoCond[ fileOptionValue.split(':')[1] ]
                            else:
-                              fileConditionsOption=fileOptionValue.split("::")[0] 
+                              # "old style" conditions, hardcoded values ...
+                              # FIXME:
+                              # Should put at least the convention in cmsPerfCommons to know how to parse it...
+                              # Potential weak point if the conditions tag convention changes...
+                              if "," in fileOptionValue: #Since 330, conditions don't have FrontierConditions_GlobalTag, in front of them anymore...
+                                 fileConditionsOption=fileOptionValue.split("::")[0].split(",")[1] #"Backward" compatibility
+                              else:
+                                 fileConditionsOption=fileOptionValue.split("::")[0] 
                   else: # empty token
                      #print "Print this is the token: %s"%token
                      pass

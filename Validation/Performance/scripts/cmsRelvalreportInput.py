@@ -805,11 +805,21 @@ def writeCommands(simcandles,
                             if "=" in keywords[0]:
                                 keywords=keywords[0].split("=")
                             if "conditions" in keywords[0]:
-                                #Complicated expression, just to get rid of FrontierConditions_GlobalTag, and ::All at the end:
-                                if "," in keywords[1]:#Added if to handle new --conditions convention for cmsDriver.py (no more FrontierConditions... in front of it)
-                                    Conditions=keywords[1].split(",")[1].split("::")[0] #"backward" compatibility...
+                                # check if we are using the autoCond style of flexible conditions
+                                # if so, expand the condition here so that the file names contain the real conditions
+                                if "auto:" in fileOptionValue: 
+                                    from Configuration.PyReleaseValidation.autoCond import autoCond
+                                    fileConditionsOption = autoCond[ fileOptionValue.split(':')[1] ]
                                 else:
-                                    Conditions=keywords[1].split("::")[0] 
+                                    # old style, hardcoded, conditions ...
+                                    # Complicated expression, just to get rid of FrontierConditions_GlobalTag,
+                                    # and ::All at the end:
+                                    # Added if to handle new --conditions convention for cmsDriver.py (no more
+                                    # FrontierConditions... in front of it)
+                                    if "," in keywords[1]: 
+                                        Conditions=keywords[1].split(",")[1].split("::")[0] #"backward" compatibility...
+                                    else:
+                                        Conditions=keywords[1].split("::")[0] 
                             elif "pileup" in keywords[0]:
                                 PileUp=keywords[1]
                             elif "eventcontent" in keywords[0]:
