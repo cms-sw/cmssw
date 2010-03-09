@@ -4,8 +4,8 @@
 /*! \class H4Geom
  * \brief A helper class with geometry information of the super module
  *
- * $Date: 2006/04/21 10:16:50 $
- * $Author: meridian $
+ * $Date: 2009/02/08 23:26:11 $
+ * $Author: elmer $
  *
  * Crystal numbering schemes during automn 2004 (SM10):
  * - <b>Conventions</b>
@@ -237,8 +237,8 @@ int H4Geom::getSMCrystalNumber(int tower, int crystal) const
       eta += crystal/kCardsPerTower;
     else
       eta += (kCrystalsPerTower - 1 - crystal)/kCardsPerTower;
-    if (rightTower(tower) && (crystal/kCardsPerTower)%2 == 1 ||
-	!rightTower(tower) && (crystal/kCardsPerTower)%2 == 0)
+    if ((rightTower(tower) && (crystal/kCardsPerTower)%2 == 1) ||
+	(!rightTower(tower) && (crystal/kCardsPerTower)%2 == 0))
       phi += (kChannelsPerCard - 1 - crystal%kChannelsPerCard);
     else
       phi += crystal%kChannelsPerCard;
