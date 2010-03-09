@@ -1621,7 +1621,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  muonECALError += muonECAL_[1]*muonECAL_[1];
 	  active[iTrack] = false;
 	  // Stop the loop whenever enough muons are removed
-	  if ( totalChargedMomentum < caloEnergy ) break;	
+	  //Commented out: Keep looking for muons since they often come in pairs -Matt
+	  //if ( totalChargedMomentum < caloEnergy ) break;	
 	}
 	// New calo resolution.
 	Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
