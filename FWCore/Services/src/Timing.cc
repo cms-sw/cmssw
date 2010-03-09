@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.16 2009/03/18 15:39:37 fischler Exp $
+// $Id: Timing.cc,v 1.17 2009/03/18 15:47:15 fischler Exp $
 //
 // Change Log
 //
@@ -40,6 +40,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -77,8 +79,8 @@ namespace edm {
     }
 
     Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-      summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly",false)),
-      report_summary_(iPS.getUntrackedParameter<bool>("useJobReport",true)),
+      summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
+      report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
       max_event_time_(0.),
       min_event_time_(0.),
       total_event_count_(0)
@@ -97,6 +99,13 @@ namespace edm {
 
     Timing::~Timing()
     {
+    }
+
+    void Timing::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<bool>("summaryOnly", false);
+      desc.addUntracked<bool>("useJobReport", true);
+      descriptions.add("Timing", desc);
     }
 
     void Timing::postBeginJob()

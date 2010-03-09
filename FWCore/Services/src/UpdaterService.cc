@@ -1,6 +1,8 @@
 #include "FWCore/Services/interface/UpdaterService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 #include "DataFormats/Common/interface/Trie.h"
@@ -12,6 +14,11 @@ UpdaterService::UpdaterService(const edm::ParameterSet & cfg, edm::ActivityRegis
 }
 
 UpdaterService::~UpdaterService(){
+}
+
+void UpdaterService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.add("UpdaterService", desc);
 }
 
 void UpdaterService::init(const edm::EventID& eId, const edm::Timestamp&){

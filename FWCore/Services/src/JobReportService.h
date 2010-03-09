@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReportService.h,v 1.1 2006/05/02 02:45:48 wmtan Exp $
+// $Id: JobReportService.h,v 1.2 2007/06/14 21:03:39 wmtan Exp $
 //
 
 #include <string>
@@ -29,6 +29,8 @@ through the MessageLogger.
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
+  class ConfigurationDescriptions;
+
   namespace service {
     class JobReportService : public JobReport {
     public:
@@ -46,6 +48,7 @@ namespace edm {
 
       void frameworkShutdownOnFailure();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     };
   }
 }

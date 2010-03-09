@@ -15,6 +15,7 @@ namespace edm {
   class ActivityRegistry;
   class Event;
   class EventSetup;
+  class ConfigurationDescriptions;
 
   namespace service {
 
@@ -27,6 +28,7 @@ namespace edm {
     UnixSignalService(edm::ParameterSet const& ps, edm::ActivityRegistry& ac); 
     ~UnixSignalService();
 
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   }; // class UnixSignalService
   }  // end of namespace service
 }    // end of namespace edm

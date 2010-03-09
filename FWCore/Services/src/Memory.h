@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.6 2008/06/20 20:55:48 fischler Exp $
+// $Id: Memory.h,v 1.7 2009/02/12 11:53:17 ngarcian Exp $
 //
 // Change Log
 //
@@ -29,6 +29,7 @@ namespace edm {
   class Event;
   class EventSetup;
   class ModuleDescription;
+  class ConfigurationDescriptions;
 
   namespace service {
     struct procInfo
@@ -53,7 +54,9 @@ namespace edm {
 
       SimpleMemoryCheck(const ParameterSet&,ActivityRegistry&);
       ~SimpleMemoryCheck();
-      
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
       void preSourceConstruction(const ModuleDescription&);
       void postSourceConstruction(const ModuleDescription&);
       void postSource();

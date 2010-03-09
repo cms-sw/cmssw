@@ -3,6 +3,8 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/GlobalMutex.h"
 //#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 #include <algorithm>
@@ -13,8 +15,8 @@ LockService::LockService(const ParameterSet& iPS,
 			 ActivityRegistry& reg):
   lock_(*getGlobalMutex()),
   locker_(),
-  labels_(iPS.getUntrackedParameter<Labels>("labels",Labels())),
-  lockSources_(iPS.getUntrackedParameter<bool>("lockSources",true))
+  labels_(iPS.getUntrackedParameter<Labels>("labels")),
+  lockSources_(iPS.getUntrackedParameter<bool>("lockSources"))
 {
   reg.watchPreSourceConstruction(this,&LockService::preSourceConstruction);
   reg.watchPostSourceConstruction(this,&LockService::postSourceConstruction);
@@ -37,6 +39,17 @@ LockService::LockService(const ParameterSet& iPS,
 LockService::~LockService()
 {
 }
+
+void LockService::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription desc;
+  std::vector<std::string> defaultVector;
+  desc.addUntracked<std::vector<std::string> >("labels",defaultVector);
+  desc.addUntracked<bool>("lockSources",true);
+  descriptions.add("LockService", desc);
+}
+
+
 void LockService::preSourceConstruction(const ModuleDescription& desc)
 {
   if(!labels_.empty() &&

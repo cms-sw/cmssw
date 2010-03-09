@@ -6,12 +6,14 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Profiling.cc,v 1.4 2007/05/14 19:25:43 paterno Exp $
+// $Id: Profiling.cc,v 1.5 2007/06/14 21:03:39 wmtan Exp $
 //
 
 #include "FWCore/Services/src/Profiling.h"
 #include "FWCore/Services/src/SimpleProfiler.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
   namespace service {
@@ -26,6 +28,11 @@ namespace edm {
 
     SimpleProfiling::~SimpleProfiling()
     {
+    }
+
+    void SimpleProfiling::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.add("SimpleProfiling", desc);
     }
 
     void SimpleProfiling::postBeginJob()

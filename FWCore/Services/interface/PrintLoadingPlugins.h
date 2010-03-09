@@ -20,7 +20,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 13 11:17:02 EST 2007
-// $Id: PrintLoadingPlugins.h,v 1.1 2008/01/14 18:14:24 chrjones Exp $
+// $Id: PrintLoadingPlugins.h,v 1.2 2008/01/18 20:10:30 wmtan Exp $
 //
 
 // system include files
@@ -28,6 +28,10 @@
 // user include files
 
 // forward declarations
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class PrintLoadingPlugins
 {
@@ -43,6 +47,7 @@ class PrintLoadingPlugins
        // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       // ---------- member functions ---------------------------
 

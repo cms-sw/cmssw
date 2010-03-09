@@ -15,11 +15,15 @@
 */
 //
 // Original Author:  David Dagenhart
-// $Id$
+// $Id: DummyServiceE0.h,v 1.1 2007/02/14 20:45:13 wdd Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 namespace testserviceregistry {
 
@@ -29,7 +33,12 @@ namespace testserviceregistry {
   // depended on the type and I want to be sure this is not
   // true anymore.
 
-   class DummyServiceE0
+   class DummyServiceBase {
+   public:
+     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+   };
+
+   class DummyServiceE0 : public DummyServiceBase
    {
    public:
       DummyServiceE0(const edm::ParameterSet&,edm::ActivityRegistry&);
@@ -38,7 +47,7 @@ namespace testserviceregistry {
       void postEndJob();
    };
 
-   class DummyServiceA1
+   class DummyServiceA1 : public DummyServiceBase
    {
    public:
       DummyServiceA1(const edm::ParameterSet&,edm::ActivityRegistry&);
@@ -47,7 +56,7 @@ namespace testserviceregistry {
       void postEndJob();
    };
 
-   class DummyServiceD2
+   class DummyServiceD2 : public DummyServiceBase
    {
    public:
       DummyServiceD2(const edm::ParameterSet&,edm::ActivityRegistry&);
@@ -56,7 +65,7 @@ namespace testserviceregistry {
       void postEndJob();
    };
 
-   class DummyServiceB3
+   class DummyServiceB3 : public DummyServiceBase
    {
    public:
       DummyServiceB3(const edm::ParameterSet&,edm::ActivityRegistry&);
@@ -65,7 +74,7 @@ namespace testserviceregistry {
       void postEndJob();
    };
 
-   class DummyServiceC4
+   class DummyServiceC4 : public DummyServiceBase
    {
    public:
       DummyServiceC4(const edm::ParameterSet&,edm::ActivityRegistry&);

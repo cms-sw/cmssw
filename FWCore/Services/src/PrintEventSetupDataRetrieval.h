@@ -30,6 +30,8 @@
 
 // forward declarations
 namespace edm {
+  class ConfigurationDescriptions;
+
    class PrintEventSetupDataRetrieval {
       
    public:
@@ -38,6 +40,7 @@ namespace edm {
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       // ---------- member functions ---------------------------
       void postProcessEvent(Event const&, EventSetup const&);

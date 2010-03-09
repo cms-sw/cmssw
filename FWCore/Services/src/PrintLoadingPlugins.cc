@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec 13 15:00:49 EST 2007
-// $Id: PrintLoadingPlugins.cc,v 1.1 2008/01/14 18:14:31 chrjones Exp $
+// $Id: PrintLoadingPlugins.cc,v 1.2 2008/01/18 20:10:31 wmtan Exp $
 //
 
 // system include files
@@ -18,6 +18,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginInfo.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
@@ -60,6 +62,11 @@ PrintLoadingPlugins::PrintLoadingPlugins()
 
 PrintLoadingPlugins::~PrintLoadingPlugins()
 {
+}
+
+void PrintLoadingPlugins::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.add("PrintLoadingPlugins", desc);
 }
 
 //

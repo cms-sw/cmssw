@@ -9,6 +9,8 @@ namespace edm {
 }
 
 namespace edm {
+  class ConfigurationDescriptions;
+
 namespace service {
 class InitRootHandlers : public RootHandlers
 {
@@ -16,6 +18,8 @@ class InitRootHandlers : public RootHandlers
 public:
   InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry & activity);
   virtual ~InitRootHandlers ();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   virtual void disableErrorHandler_();

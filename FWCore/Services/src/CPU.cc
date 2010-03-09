@@ -18,6 +18,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -81,7 +83,7 @@ namespace edm {
     CPU::CPU(const ParameterSet& iPS, ActivityRegistry&iRegistry):
 	totalNumberCPUs_(0),
 	averageCoreSpeed_(0.0),
-	reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties",false))
+	reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties"))
     {
 	iRegistry.watchPostEndJob(this,&CPU::postEndJob);
     }
@@ -89,6 +91,12 @@ namespace edm {
 
     CPU::~CPU()
     {
+    }
+
+    void CPU::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<bool>("reportCPUProperties", false);
+      descriptions.add("CPU", desc);
     }
 
 

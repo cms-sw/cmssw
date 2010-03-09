@@ -8,6 +8,7 @@ namespace edm {
   class ParameterSet;
   class EventID;
   class TimeStamp;
+  class ConfigurationDescriptions;
 }
 
 #include <map>
@@ -17,6 +18,8 @@ class UpdaterService {
  public:
   UpdaterService(const edm::ParameterSet & cfg, edm::ActivityRegistry & r );
   ~UpdaterService();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   void init(const edm::EventID&, const edm::Timestamp&); //preEvent
   //  void initModule(const edm::ModuleDescription&); //premodule

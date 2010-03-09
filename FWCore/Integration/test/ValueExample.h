@@ -18,14 +18,11 @@
 //         Created:  Mon Sep  5 19:51:59 EDT 2005
 //
 
-// system include files
-
-// user include files
 namespace edm {
   class ParameterSet;
+  class ConfigurationDescriptions;
 }
 
-// forward declarations
 class ValueExample
 {
    
@@ -37,7 +34,8 @@ public:
    int value() const { return value_; }
    
    // ---------- static member functions --------------------
-   
+   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
    // ---------- member functions ---------------------------
    
 private:

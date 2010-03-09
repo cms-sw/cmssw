@@ -8,6 +8,8 @@
 #include "DataFormats/Provenance/interface/TransientStreamer.h"
 #include "DataFormats/Common/interface/CacheStreamers.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <string.h>
 #include <sstream>
@@ -150,9 +152,9 @@ namespace edm {
 namespace service {
 InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry & activity)
   : RootHandlers(),
-    unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", false)),
-    resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler", true)),
-    autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader", true))
+    unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler")),
+    resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler")),
+    autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader"))
 {
 
   if(unloadSigHandler_) {
@@ -206,6 +208,14 @@ InitRootHandlers::~InitRootHandlers () {
     TFile * f = dynamic_cast<TFile *>(iter.Next());
     if(f) f->Close();
   }
+}
+
+void InitRootHandlers::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<bool>("UnloadRootSigHandler", false);
+  desc.addUntracked<bool>("ResetRootErrHandler", true);
+  desc.addUntracked<bool>("AutoLibraryLoader", true);
+  descriptions.add("InitRootHandlers", desc);
 }
 
 void

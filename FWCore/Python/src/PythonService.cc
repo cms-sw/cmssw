@@ -18,6 +18,8 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 //
 // constructor
@@ -122,4 +124,10 @@ void PythonService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
        pythonToCppException("RuntimeError");
     }
 
+}
+
+void PythonService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("fileName");
+    descriptions.addDefault(desc);
 }

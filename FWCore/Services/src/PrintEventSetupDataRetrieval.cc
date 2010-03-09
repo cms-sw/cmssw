@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 //
@@ -34,15 +36,15 @@ namespace edm {
 //
    PrintEventSetupDataRetrieval::PrintEventSetupDataRetrieval(const ParameterSet& iPS,
                                                               ActivityRegistry&iRegistry):
-   m_printProviders(iPS.getUntrackedParameter<bool>("printProviders",false))
+   m_printProviders(iPS.getUntrackedParameter<bool>("printProviders"))
    {
-      if(iPS.getUntrackedParameter<bool>("checkAfterBeginRun",false)) {
+      if(iPS.getUntrackedParameter<bool>("checkAfterBeginRun")) {
          iRegistry.watchPostBeginRun(this, &PrintEventSetupDataRetrieval::postBeginRun);
       }
-      if(iPS.getUntrackedParameter<bool>("checkAfterBeginLumi",false)) {
+      if(iPS.getUntrackedParameter<bool>("checkAfterBeginLumi")) {
          iRegistry.watchPostBeginLumi(this, &PrintEventSetupDataRetrieval::postBeginLumi);
       }
-      if(iPS.getUntrackedParameter<bool>("checkAfterEvent",true)) {
+      if(iPS.getUntrackedParameter<bool>("checkAfterEvent")) {
          iRegistry.watchPostProcessEvent(this, &PrintEventSetupDataRetrieval::postProcessEvent);
       }
    }
@@ -55,6 +57,15 @@ namespace edm {
    //PrintEventSetupDataRetrieval::~PrintEventSetupDataRetrieval()
    //{
    //}
+
+   void PrintEventSetupDataRetrieval::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<bool>("printProviders",false);
+      desc.addUntracked<bool>("checkAfterBeginRun",false);
+      desc.addUntracked<bool>("checkAfterBeginLumi",false);
+      desc.addUntracked<bool>("checkAfterEvent",true);
+      descriptions.add("PrintEventSetupDataRetrieval", desc);
+   }
 
 //
 // assignment operators

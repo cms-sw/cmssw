@@ -24,6 +24,8 @@
 #include "boost/thread/mutex.hpp"
 #include "boost/shared_ptr.hpp"
 namespace edm {
+  class ConfigurationDescriptions;
+
   namespace rootfix {
   
     class LockService
@@ -32,6 +34,8 @@ namespace edm {
       LockService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~LockService();
       
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
       boost::mutex& getLock() { return lock_; }
       
       void postBeginJob();

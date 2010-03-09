@@ -6,11 +6,13 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReportService.cc,v 1.3 2006/04/29 21:26:45 evansde Exp $
+// $Id: JobReportService.cc,v 1.1 2006/05/02 02:45:48 wmtan Exp $
 //
 
 
 #include "FWCore/Services/src/JobReportService.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 
@@ -57,6 +59,12 @@ namespace edm {
       // postEndJob() and frameworkShutdownOnFailure(), so that common
       // elements are reported through common code.
       impl()->flushFiles();
+    }
+
+    void
+    JobReportService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.addDefault(desc);
     }
   } // namespace service
 } //namspace edm

@@ -19,12 +19,16 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
+  class ConfigurationDescriptions;
+
   namespace service {
     class CPU
     {
     public:
       CPU(const ParameterSet&,ActivityRegistry&);
       ~CPU();
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       sigc::signal<void, const ModuleDescription&, double> newMeasurementSignal;
     private:

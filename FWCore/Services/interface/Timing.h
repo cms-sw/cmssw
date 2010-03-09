@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.h,v 1.6 2007/03/04 05:55:26 wmtan Exp $
+// $Id: Timing.h,v 1.7 2009/02/12 11:53:17 ngarcian Exp $
 //
 
 /*
@@ -30,12 +30,16 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
+  class ConfigurationDescriptions;
+
   namespace service {
     class Timing
     {
     public:
       Timing(const ParameterSet&,ActivityRegistry&);
       ~Timing();
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       sigc::signal<void, const ModuleDescription&, double> newMeasurementSignal;
     private:

@@ -32,6 +32,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/MallocOpts.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <malloc.h>
 #include <sstream>
@@ -187,15 +189,15 @@ namespace edm {
     , current_(&a_)
     , previous_(&b_)
     , pg_size_(sysconf(_SC_PAGESIZE)) // getpagesize()
-    , num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal",1))
-    , showMallocInfo(iPS.getUntrackedParameter<bool>("showMallocInfo",false))
+    , num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal"))
+    , showMallocInfo(iPS.getUntrackedParameter<bool>("showMallocInfo"))
     , oncePerEventMode
-      	(iPS.getUntrackedParameter<bool>("oncePerEventMode",false))
+      	(iPS.getUntrackedParameter<bool>("oncePerEventMode"))
     , count_()
     , growthRateVsize_()
     , growthRateRss_()
     , moduleSummaryRequested
-        (iPS.getUntrackedParameter<bool>("moduleMemorySummary",false))
+        (iPS.getUntrackedParameter<bool>("moduleMemorySummary"))
 								// changelog 2
     {
       // pg_size = (double)getpagesize();
@@ -260,10 +262,10 @@ namespace edm {
       edm::MallocOptionSetter& mopts = edm::getGlobalOptionSetter();
       
       opt_type 
-	p_mmap_max=iPS.getUntrackedParameter<opt_type>("M_MMAP_MAX",-1),
-	p_trim_thr=iPS.getUntrackedParameter<opt_type>("M_TRIM_THRESHOLD",-1),
-	p_top_pad=iPS.getUntrackedParameter<opt_type>("M_TOP_PAD",-1),
-	p_mmap_thr=iPS.getUntrackedParameter<opt_type>("M_MMAP_THRESHOLD",-1);
+	p_mmap_max=iPS.getUntrackedParameter<int>("M_MMAP_MAX"),
+	p_trim_thr=iPS.getUntrackedParameter<int>("M_TRIM_THRESHOLD"),
+	p_top_pad=iPS.getUntrackedParameter<int>("M_TOP_PAD"),
+	p_mmap_thr=iPS.getUntrackedParameter<int>("M_MMAP_THRESHOLD");
 	  
       if(p_mmap_max>=0) mopts.set_mmap_max(p_mmap_max);
       if(p_trim_thr>=0) mopts.set_trim_thr(p_trim_thr);
@@ -279,7 +281,7 @@ namespace edm {
 	    << mopts.error_message(); 
 	}
 
-      if(iPS.getUntrackedParameter<bool>("dump",false)==true)
+      if(iPS.getUntrackedParameter<bool>("dump")==true)
         {
 	  edm::MallocOpts mo = mopts.get();
 	  LogWarning("MemoryCheck") 
@@ -292,6 +294,20 @@ namespace edm {
 #ifdef LINUX
       close(fd_);
 #endif
+    }
+
+    void SimpleMemoryCheck::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<int>("ignoreTotal",1);
+      desc.addUntracked<bool>("showMallocInfo",false);
+      desc.addUntracked<bool>("oncePerEventMode",false);
+      desc.addUntracked<bool>("moduleMemorySummary",false);
+      desc.addUntracked<int>("M_MMAP_MAX",-1);
+      desc.addUntracked<int>("M_TRIM_THRESHOLD",-1);
+      desc.addUntracked<int>("M_TOP_PAD",-1);
+      desc.addUntracked<int>("M_MMAP_THRESHOLD",-1);
+      desc.addUntracked<bool>("dump",false);
+      descriptions.add("SimpleMemoryCheck", desc);
     }
 
     void SimpleMemoryCheck::postBeginJob()

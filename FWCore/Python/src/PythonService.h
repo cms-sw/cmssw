@@ -26,8 +26,9 @@
 #include "FWCore/Python/src/EventWrapper.h"
 #include "FWCore/Python/src/PythonManager.h"
 
-
-
+namespace edm {
+   class ConfigurationDescriptions;
+}
 
 class PythonService {
     public:
@@ -37,7 +38,9 @@ class PythonService {
         void postEndJob();
         void preProcessEvent(const edm::EventID&, const edm::Timestamp&);
         void postProcessEvent(const edm::Event&, const edm::EventSetup&);
-		
+
+        static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
 	private:
 	    PythonManagerHandle handle_;
 		boost::python::object service_;
