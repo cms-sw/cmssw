@@ -54,7 +54,7 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
    bool whiteBg = rnrCtx.ColorSet().Background().GetColorIndex() == kWhite;
    UInt_t& ttid = whiteBg ? ttid_white : ttid_black;
 
-   if ( whiteBg == false && ttid == 0 || whiteBg && ttid == 0)
+   if ( (whiteBg == false && ttid == 0) || (whiteBg && ttid == 0))
    {
       TImage* imgs[3];
       TString base =   whiteBg ? "White" : "Black";  
@@ -163,32 +163,31 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
          glEnd();
       }
       glPopName();
-   }
-   glPopMatrix();
+      glPopMatrix();
 
-   
-   // delete
-   glPushName(7);
-   TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 60);
-   glTranslatef(0, -a, 0);
-   glBegin(GL_QUADS);
-   glVertex3f( 0, 0, z);
-   glVertex3f( a, 0, z);
-   glVertex3f( a, a, z);
-   glVertex3f( 0, a, z);
-   glEnd();
-   {
-      glBegin(GL_LINES);
-      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 40);
-      Float_t s = a/3;
-      glVertex3f( s, s, z);
-      glVertex3f( a-s, a-s, z);
-      glVertex3f( s, a-s, z);
-      glVertex3f( a-s, s, z);
+      // delete
+      glPushName(7);
+      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 60);
+      glTranslatef(0, -a, 0);
+      glBegin(GL_QUADS);
+      glVertex3f( 0, 0, z);
+      glVertex3f( a, 0, z);
+      glVertex3f( a, a, z);
+      glVertex3f( 0, a, z);
       glEnd();
+      {
+         glBegin(GL_LINES);
+         TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 40);
+         Float_t s = a/3;
+         glVertex3f( s, s, z);
+         glVertex3f( a-s, a-s, z);
+         glVertex3f( s, a-s, z);
+         glVertex3f( a-s, s, z);
+         glEnd();
+      }
+      glPopName();   
    }
-   glPopName();
-   
+
    glEnable(GL_DEPTH_TEST);
    glMatrixMode(GL_PROJECTION);
    glPopMatrix();
