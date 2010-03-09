@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.28 2010/02/15 21:54:09 dellaric Exp $
+// $Id: Numbers.h,v 1.29 2010/02/16 10:53:17 dellaric Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.28 $
-  \date $Date: 2010/02/15 21:54:09 $
+  \version $Revision: 1.29 $
+  \date $Date: 2010/02/16 10:53:17 $
 */
 
 #ifndef Numbers_H
@@ -14,7 +14,6 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
-#include <map>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -118,8 +117,8 @@ private:
   static const EcalElectronicsMapping* map;
   static const EcalTrigTowerConstituentsMap* mapTT;
 
-  static std::map<int, std::vector<DetId> > crystalsTCC_;
-  static std::map<int, std::vector<DetId> > crystalsDCC_;
+  static std::vector<DetId> crystalsTCC_[100*108];
+  static std::vector<DetId> crystalsDCC_[100* 54];
 
 };
 

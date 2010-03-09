@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.70 2010/02/16 10:53:18 dellaric Exp $
+// $Id: Numbers.cc,v 1.71 2010/03/08 20:55:39 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.70 $
-  \date $Date: 2010/02/16 10:53:18 $
+  \version $Revision: 1.71 $
+  \date $Date: 2010/03/08 20:55:39 $
 */
 
 #include <sstream>
@@ -35,8 +35,8 @@
 const EcalElectronicsMapping* Numbers::map = 0;
 const EcalTrigTowerConstituentsMap* Numbers::mapTT = 0;
 
-std::map<int, std::vector<DetId> > Numbers::crystalsTCC_;
-std::map<int, std::vector<DetId> > Numbers::crystalsDCC_;
+std::vector<DetId> Numbers::crystalsTCC_[100*108];
+std::vector<DetId> Numbers::crystalsDCC_[100* 54];
 
 bool Numbers::init = false;
 
@@ -707,16 +707,13 @@ std::vector<DetId>* Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std
     int itcc = Numbers::map->TCCid(id);
     int itt = Numbers::map->iTT(id);
 
-    int index = 100*itcc + itt;
+    int index = 100*(itcc-1) + (itt-1);
 
-    std::map<int, std::vector<DetId> >::iterator iter;
-    iter = Numbers::crystalsTCC_.find(index);
-
-    if ( iter == Numbers::crystalsTCC_.end() ) {
-      iter = Numbers::crystalsTCC_.insert(Numbers::crystalsTCC_.begin(), std::make_pair(index, Numbers::map->ttConstituents( itcc, itt )));
+    if ( Numbers::crystalsTCC_[index].size() == 0 ) {
+      Numbers::crystalsTCC_[index] = Numbers::map->ttConstituents( itcc, itt );
     }
 
-    return &(iter->second);
+    return &(Numbers::crystalsTCC_[index]);
 
   } else {
 
@@ -787,16 +784,13 @@ std::vector<DetId>* Numbers::crystals( int idcc, int itt ) throw( std::runtime_e
 
   if( Numbers::map ) {
 
-    int index = 100*idcc + itt;
+    int index = 100*(idcc-1) + (itt-1);
 
-    std::map<int, std::vector<DetId> >::iterator iter;
-    iter = Numbers::crystalsDCC_.find(index);
-
-    if ( iter == Numbers::crystalsDCC_.end() ) {
-      iter = Numbers::crystalsDCC_.insert(Numbers::crystalsDCC_.begin(), std::make_pair(index, Numbers::map->dccTowerConstituents( idcc, itt )));
+    if ( Numbers::crystalsDCC_[index].size() == 0 ) {
+      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents( idcc, itt );
     }
 
-    return &(iter->second);
+    return &(Numbers::crystalsDCC_[index]);
 
   } else {
 
