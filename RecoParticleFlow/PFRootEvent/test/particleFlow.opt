@@ -5,7 +5,6 @@ root outtree 1
 //colin	mode 1
 
 root file ../../Configuration/test/display.root
-
 // filter ------------------------------------------------------------
 
 // filter   nparticles  1
@@ -448,19 +447,35 @@ evolution	etaCorrection		1.01   -1.02e-02 5.17e-02 0.563 -0.425 	0.110
 
 // print rechits yes/no
 print rechits  0
+// print rechits energy threshold
+print rechits_emin 1.0
+
 // print clusters yes/no
 print clusters 0
+// print cluster energy threshold
+print clusters_emin 1.0
+
 // print particle flow blocks yes/no
 print PFBlocks     0
+
 // print reconstructed particles (PFCandidates) yes/no
 print PFCandidates  0
+// print PFCandidates pt threshold
+print PFCandidates_ptmin  1.0
+
 // print jets yes/no
 print jets 0
 print ptjets 100.
+
 //print Sim Particles yes/no
 print simParticles 0
+// print sim particles pt threshold
+print simParticles_ptmin 1.0
+
 // print Gen particles yes/no
 print genParticles 0
+// print genParticles pt threshold
+print genParticles_ptmin 1.0
 
 
 
