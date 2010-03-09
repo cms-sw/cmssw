@@ -1,6 +1,0 @@
-<use name=FWCore/ParameterSet>
-
-<export>
-   <lib name=TopQuarkAnalysisTopSkimming>
-   <use name=FWCore/ParameterSet>
-</export>
