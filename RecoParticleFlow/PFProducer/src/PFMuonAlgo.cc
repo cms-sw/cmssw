@@ -241,62 +241,72 @@ PFMuonAlgo::isGlobalLooseMuon( const reco::MuonRef& muonRef ) {
   reco::TrackRef standAloneMu = muonRef->standAloneMuon();
   reco::TrackRef combinedMu = muonRef->combinedMuon();
   reco::TrackRef trackerMu = muonRef->track();
-  
-
-  bool station =
-    muon::isGoodMuon(*muonRef,muon::TMOneStationTight);
-
-  bool nmuonhits =
-    standAloneMu->hitPattern().numberOfValidMuonDTHits() +
-    2*standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 12;
-
-  // Lot's of STA (! Tracker) that maybe could be recovered
-  //if(!muonRef->isTrackerMuon() && nmuonhits && !isMuon(muonRef)) std::cout<<" STALOOSE? "<<muonRef->pt()<<std::endl;
-
-  //if(trackerMu->pt() < 20. || combinedMu->pt() < 20. || standAloneMu->pt() < 20.) return false;
-
-  bool quality = station && nmuonhits && combinedMu->normalizedChi2() < 100.;
  
- if ( !quality ) return false;
-  
-  /* 
-  std::cout << "This is a loose muon ! Tracker muon ? " << muonRef->isTrackerMuon() << std::endl
-	    << " pt (STA/TRA) : " << standAloneMu->pt() 
-	    << " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
-	    << " and " << trackerMu->pt() 
-	    << " +/- " << trackerMu->ptError()/trackerMu->pt() 
-	    << " and " << combinedMu->pt() 
-	    << " +/- " << combinedMu->ptError()/combinedMu->pt() 
-	    << " eta : " << standAloneMu->eta() << std::endl
-	    << " DT Hits : " << standAloneMu->hitPattern().numberOfValidMuonDTHits()
-	    << "/" << standAloneMu->hitPattern().numberOfLostMuonDTHits()
-	    << " CSC Hits : " << standAloneMu->hitPattern().numberOfValidMuonCSCHits()
-	    << "/" << standAloneMu->hitPattern().numberOfLostMuonCSCHits()
-	    << " RPC Hits : " << standAloneMu->hitPattern().numberOfValidMuonRPCHits()
-	    << "/" << standAloneMu->hitPattern().numberOfLostMuonRPCHits() << std::endl
-	    << " chi**2 STA : " << standAloneMu->normalizedChi2()
-	    << " chi**2 GBL : " << combinedMu->normalizedChi2()
-	    << std::endl 
-	    << "TMLastStationLoose               "
-	    << muon::isGoodMuon(*muonRef,muon::TMLastStationLoose) << std::endl       
-	    << "TMLastStationTight               "
-	    << muon::isGoodMuon(*muonRef,muon::TMLastStationTight) << std::endl    
-	    << "TM2DCompatibilityLoose           "
-	    << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityLoose) << std::endl 
-	    << "TM2DCompatibilityTight           "
-	    << muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight) << std::endl
-	    << "TMOneStationLoose                "
-	    << muon::isGoodMuon(*muonRef,muon::TMOneStationLoose) << std::endl       
-	    << "TMOneStationTight                "
-	    << muon::isGoodMuon(*muonRef,muon::TMOneStationTight) << std::endl       
-	    << "TMLastStationOptimizedLowPtLoose " 
-	    << muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtLoose) << std::endl
-	    << "TMLastStationOptimizedLowPtTight " 
-	    << muon::isGoodMuon(*muonRef,muon::TMLastStationOptimizedLowPtTight) << std::endl 
-	    << std::endl;
-  */
+  unsigned nMuonHits =
+      standAloneMu->hitPattern().numberOfValidMuonDTHits() +
+      2*standAloneMu->hitPattern().numberOfValidMuonCSCHits();
+ 
+   bool quality = false;
 
-  return true;
+  if ( muonRef->isTrackerMuon() ){
+
+    
+    bool onestation =
+      muon::isGoodMuon(*muonRef,muon::TMOneStationTight);
+    
+    bool laststation =
+      muon::isGoodMuon(*muonRef,muon::TMLastStationAngTight);
+    
+    
+    const reco::Track& track = *trackerMu;
+    unsigned nTrackerHits =  track.hitPattern().numberOfValidTrackerHits();
+    
+    
+    // Lot's of STA (! Tracker) that maybe could be recovered
+    //if(!muonRef->isTrackerMuon() && nmuonhits && !isMuon(muonRef)) std::cout<<" STALOOSE? "<<muonRef->pt()<<std::endl;
+    
+    //if(trackerMu->pt() < 20. || combinedMu->pt() < 20. || standAloneMu->pt() < 20.) return false;
+    
+    
+    quality = ((onestation && nMuonHits > 12) || (laststation && nTrackerHits > 12))  && combinedMu->normalizedChi2() < 100.;
+    
+  }
+  else{
+
+    // Check the quality of the stand-alone muon : 
+    // good chi**2 and large number of hits and good pt error
+    if (  nMuonHits <=12  ||
+	  standAloneMu->normalizedChi2() > 10. || 
+	  standAloneMu->ptError()/standAloneMu->pt() > 0.20 ) {
+      quality = false;
+    } 
+    else { 
+      // If the stand-alone muon is good, check the global muon
+      if ( combinedMu->normalizedChi2() > standAloneMu->normalizedChi2() ) {
+	// If the combined muon is worse than the stand-alone, it 
+	// means that either the corresponding tracker track was not 
+	// reconstructed, or that the sta muon comes from a late 
+	// pion decay (hence with a momentum smaller than the track)
+	// Take the stand-alone muon only if its momentum is larger
+	// than that of the track
+	
+	if(standAloneMu->pt() > trackerMu->pt() || combinedMu->normalizedChi2()<5.) quality =  true;
+	
+      } 
+      else { 
+	// If the combined muon is better (and good enough), take the 
+	// global muon
+	if(combinedMu->ptError()/combinedMu->pt() < std::min(0.20,standAloneMu->ptError()/standAloneMu->pt())) 
+	  quality = true;
+	
+      }
+    }      
+    
+    //std::cout<<" STA qual =  "<<quality<<" nMuonHits "<<nMuonHits<<" chi2 "<<standAloneMu->normalizedChi2()<<" sta err "<<standAloneMu->ptError()/standAloneMu->pt()<<" STA pt "<<standAloneMu->pt()<<" TR pt "<<trackerMu->pt()<<" combined pt "<<combinedMu->pt()<<std::endl;
+  }
+  
+
+  return quality;
 
 }
 
