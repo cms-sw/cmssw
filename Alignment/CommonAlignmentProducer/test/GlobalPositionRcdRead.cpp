@@ -39,9 +39,12 @@ void GlobalPositionRcdRead::analyze(const edm::Event& evt, const edm::EventSetup
   edm::ESHandle<Alignments> globalPositionRcd;
   evtSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
   
-  std::cout << "Expecting entries in " << DetId(DetId::Tracker).rawId() << " " 
-	    << DetId(DetId::Muon).rawId() << " " << DetId(DetId::Ecal).rawId() << " " 
-	    << DetId(DetId::Hcal).rawId() << std::endl;
+  std::cout << "Expecting entries in " 
+	    << DetId(DetId::Tracker).rawId() << " " 
+	    << DetId(DetId::Muon).rawId() << " " 
+	    << DetId(DetId::Ecal).rawId() << " " 
+	    << DetId(DetId::Hcal).rawId() << " " 
+	    << DetId(DetId::Calo).rawId() << std::endl;
   for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd->m_align.begin();
        i != globalPositionRcd->m_align.end();  ++i) {
     std::cout << "entry " << i->rawId() 

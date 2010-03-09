@@ -54,6 +54,14 @@ process.GlobalPositionRcdWrite = cms.EDAnalyzer("GlobalPositionRcdWrite",
         x = cms.double(0.0),
         z = cms.double(0.0),
         gamma = cms.double(0.0)
+    ),
+    calo = cms.PSet(
+        beta = cms.double(0.0),
+        alpha = cms.double(0.0),
+        y = cms.double(0.0),
+        x = cms.double(0.0),
+        z = cms.double(0.0),
+        gamma = cms.double(0.0)
     )
 )
 

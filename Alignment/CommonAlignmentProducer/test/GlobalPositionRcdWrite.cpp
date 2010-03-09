@@ -26,13 +26,14 @@ class  GlobalPositionRcdWrite : public edm::EDAnalyzer {
          , m_muon(iConfig.getParameter<edm::ParameterSet>("muon"))
          , m_ecal(iConfig.getParameter<edm::ParameterSet>("ecal"))
          , m_hcal(iConfig.getParameter<edm::ParameterSet>("hcal"))
+         , m_calo(iConfig.getParameter<edm::ParameterSet>("calo"))
 	 , nEventCalls_(0)
       {};
       ~GlobalPositionRcdWrite() {}
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
 
    private:
-      edm::ParameterSet m_tracker, m_muon, m_ecal, m_hcal;
+      edm::ParameterSet m_tracker, m_muon, m_ecal, m_hcal, m_calo;
   unsigned int nEventCalls_;
 };
   
@@ -75,6 +76,13 @@ void GlobalPositionRcdWrite::analyze(const edm::Event& evt, const edm::EventSetu
 						   m_hcal.getParameter<double>("beta"),
 						   m_hcal.getParameter<double>("gamma")),
 		       DetId(DetId::Hcal).rawId());
+   AlignTransform calo(AlignTransform::Translation(m_calo.getParameter<double>("x"),
+						   m_calo.getParameter<double>("y"),
+						   m_calo.getParameter<double>("z")),
+		       AlignTransform::EulerAngles(m_calo.getParameter<double>("alpha"),
+						   m_calo.getParameter<double>("beta"),
+						   m_calo.getParameter<double>("gamma")),
+		       DetId(DetId::Calo).rawId());
 
 
    std::cout << "Tracker (" << tracker.rawId() << ") at " << tracker.translation() 
@@ -93,10 +101,15 @@ void GlobalPositionRcdWrite::analyze(const edm::Event& evt, const edm::EventSetu
 	     << " " << hcal.rotation().eulerAngles() << std::endl;
    std::cout << hcal.rotation() << std::endl;
 
+   std::cout << "Calo (" << calo.rawId() << ") at " << calo.translation()
+	     << " " << calo.rotation().eulerAngles() << std::endl;
+   std::cout << calo.rotation() << std::endl;
+
    globalPositions->m_align.push_back(tracker);
    globalPositions->m_align.push_back(muon);
    globalPositions->m_align.push_back(ecal);
    globalPositions->m_align.push_back(hcal);
+   globalPositions->m_align.push_back(calo);
 
    std::cout << "Uploading to the database..." << std::endl;
 
