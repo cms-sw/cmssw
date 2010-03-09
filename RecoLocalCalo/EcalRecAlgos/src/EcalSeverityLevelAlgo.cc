@@ -6,7 +6,7 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 const EcalRecHitCollection & recHits, 
                 const EcalChannelStatus & chStatus,
                 SpikeId sp,
-                float threshold
+                float spIdThreshold
                 )
 {
         // get DB flag
@@ -27,7 +27,9 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 }
         } else {
                 // the channel is in the recHit collection
-                if ( spikeFromNeighbours(id, recHits) > threshold  ) return kWeird;
+                // .. is it a spike?
+                if ( spikeFromNeighbours(id, recHits) > spIdThreshold  ) return kWeird;
+                // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
         }
         return 0;
@@ -132,6 +134,11 @@ float EcalSeverityLevelAlgo::swissCross( const DetId id, const EcalRecHitCollect
                 float s4 = 0;
                 float e1 = recHitEnergy( id, recHits );
                 float approxEta = 0.017453292519943295 * ebId.ieta();
+                // avoid recHits at |eta|=85 where one side of the neighbours is missing
+                // (may improve considering also eta module borders, but no
+                // evidence for the time being that there the performance is
+                // different)
+                if ( abs(ebId.ieta())==85 ) return 0;
                 // select recHits above 5 GeV 
                 if ( e1 / cosh( approxEta ) < 5 ) return 0;
                 s4 += recHitEnergy( id, recHits,  1,  0 );
