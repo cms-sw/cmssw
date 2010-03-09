@@ -1,4 +1,4 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.20 2010/03/05 22:50:27 andrey Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.21 2010/03/06 01:28:56 andrey Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -44,7 +44,6 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   virtual void beginJob() ;
   virtual void endJob() ;
  private:
-  //double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint);
   
   double RecalibFactor(HcalDetId id);
 
@@ -121,10 +120,9 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
   parameters_.loadParameters( parameters );
   trackAssociator_.useDefaultPropagator();
 
-
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");
-  EcalCone_=iConfig.getParameter<double>("EcalCone");
   calibrationConeSize_=iConfig.getParameter<double>("calibrationConeSize");
+  EcalCone_=iConfig.getParameter<double>("EcalCone");
 
 }
 
@@ -141,10 +139,7 @@ double  HcalCorrPFCalculation::RecalibFactor(HcalDetId id)
   return factor;
 }
 
-HcalCorrPFCalculation::~HcalCorrPFCalculation() {
-
-  
-}
+HcalCorrPFCalculation::~HcalCorrPFCalculation() {}
 
 void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 
@@ -370,7 +365,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       
       if (gPointHcal.x()==0 && gPointHcal.y()==0 && gPointHcal.z()==0)
-	{cout <<"gPointHcal is Zero!"<<endl; continue;}
+	{/*cout <<"gPointHcal is Zero!"<<endl;*/ continue;}
 
 
       float etahcal=gPointHcal.eta();
@@ -380,7 +375,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	
       //cout <<gPointHcal.x() <<"   "<<gPointHcal.y() <<"   "<<gPointHcal.z()<<"    "<<gPointHcal.eta()<<"  "<<gPointHcal.phi()<<"   "<<ietatrue<<"   "<<iphitrue <<endl;
       
-      if (ietatrue==100 || iphitrue==-10) {cout<<"ietatrue: "<<ietatrue<<"   iphitrue: "<<iphitrue<<"  etahcal: "<<etahcal<<"  phihcal: "<<phihcal<<endl;}
+      //      if (ietatrue==100 || iphitrue==-10) {cout<<"ietatrue: "<<ietatrue<<"   iphitrue: "<<iphitrue<<"  etahcal: "<<etahcal<<"  phihcal: "<<phihcal<<endl;}
 	
       
       
@@ -635,7 +630,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
 
       /* ------------- -   Track-MC matching      ------------    - */
-      delRmc=33;
+      delRmc = 5; //
       float delR_track_particle = 100;
       for (reco::TrackCollection::const_iterator track1=generalTracks->begin(); track1!=generalTracks->end(); track1++)
 	{
@@ -724,7 +719,7 @@ void HcalCorrPFCalculation::beginJob(){
   enEcalB = fs->make<TH1F>("enEcalB", "enEcalB", 500, -5,50); 
   enEcalE = fs->make<TH1F>("enEcalE", "enEcalE", 500, -5,50); 
 
- pfTree = fs->make<TTree>("pfTree", "Tree for pf info");
+ pfTree = new TTree("pfTree", "Tree for pf info");
 
  pfTree->Branch("eEcalCone", &eEcalCone, "eEcalCone/F");
  pfTree->Branch("eHcalCone", &eHcalCone, "eHcalCone/F");

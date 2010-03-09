@@ -14,7 +14,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.20 2010/01/29 19:58:02 andrey Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.21 2010/03/05 22:50:28 andrey Exp $
 //
 //
 
@@ -345,6 +345,9 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       PyTrkHcal = trackMomAtHcal.y();
       PzTrkHcal = trackMomAtHcal.z();
       */
+PxTrkHcal=0;
+PyTrkHcal=0;
+PzTrkHcal=0;
 
       GlobalPoint gPointEcal(xTrkEcal,yTrkEcal,zTrkEcal);
       GlobalPoint gPointHcal(xTrkHcal,yTrkHcal,zTrkHcal);

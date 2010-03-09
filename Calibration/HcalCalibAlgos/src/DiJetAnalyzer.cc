@@ -214,7 +214,11 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  
    probeJetEmFrac = emEnergy/jet2.energy();
    
-   tree->Fill(); 
+PxTrkHcal = 0;
+PyTrkHcal = 0;
+PzTrkHcal = 0;
+  
+ tree->Fill(); 
  
 }
 

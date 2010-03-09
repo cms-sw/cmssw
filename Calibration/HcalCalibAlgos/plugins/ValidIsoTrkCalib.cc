@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.11 2010/01/29 19:58:02 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.12 2010/03/05 22:50:27 andrey Exp $
 //
 
 // system include files
@@ -793,31 +793,14 @@ ValidIsoTrkCalib::beginJob()
  //  rootFile = new TFile(outputFileName_.c_str(),"RECREATE");
  
  //@@@@@@@@@@@@@
-  TFileDirectory ValDir = fs->mkdir("Validation");
+  //TFileDirectory ValDir = fs->mkdir("Validation");
  
  nTracks = fs->make<TH1F>("nTracks","general;number of general tracks",11,-0.5,10.5);
 
   
- tTree = new TTree("tTree", "Tree for gen info"); 
+ tTree = fs->make<TTree>("tTree", "Tree for gen info"); 
 
-  if(takeGenTracks_) { 
-    tTree->Branch("gen", &gen, "gen/I");
-    tTree->Branch("iso", &iso, "iso/I");
-    tTree->Branch("pix", &pix, "pix/I");
-    tTree->Branch("genPt", genPt, "genPt[gen]/F");
-    tTree->Branch("genPhi", genPhi, "genPhi[gen]/F");
-    tTree->Branch("genEta", genEta, "genEta[gen]/F");
-    
-    tTree->Branch("isoPt", isoPt, "isoPt[iso]/F");
-    tTree->Branch("isoPhi", isoPhi, "isoPhi[iso]/F");
-    tTree->Branch("isoEta", isoEta, "isoEta[iso]/F");
-    
-    tTree->Branch("pixPt", pixPt, "pixPt[pix]/F");
-    tTree->Branch("pixPhi", pixPhi, "pixPhi[pix]/F");
-    tTree->Branch("pixEta", pixEta, "pixEta[pix]/F");
-  }
-
-  fTree = new TTree("fTree", "Tree for IsoTrack Calibration"); 
+  fTree = fs->make<TTree>("fTree", "Tree for IsoTrack Calibration"); 
    
   fTree->Branch("eventNumber", &eventNumber, "eventNumber/I");
   fTree->Branch("runNumber", &runNumber, "runNumber/I");
@@ -866,6 +849,24 @@ ValidIsoTrkCalib::beginJob()
     fTree->Branch("xTrkHcal", &xTrkHcal, "xTrkHcal/F");
     fTree->Branch("yTrkHcal", &yTrkHcal, "yTrkHcal/F");
     fTree->Branch("zTrkHcal", &zTrkHcal, "zTrkHcal/F");
+
+  if(takeGenTracks_) { 
+    tTree->Branch("gen", &gen, "gen/I");
+    tTree->Branch("iso", &iso, "iso/I");
+    tTree->Branch("pix", &pix, "pix/I");
+    tTree->Branch("genPt", genPt, "genPt[gen]/F");
+    tTree->Branch("genPhi", genPhi, "genPhi[gen]/F");
+    tTree->Branch("genEta", genEta, "genEta[gen]/F");
+    
+    tTree->Branch("isoPt", isoPt, "isoPt[iso]/F");
+    tTree->Branch("isoPhi", isoPhi, "isoPhi[iso]/F");
+    tTree->Branch("isoEta", isoEta, "isoEta[iso]/F");
+    
+    tTree->Branch("pixPt", pixPt, "pixPt[pix]/F");
+    tTree->Branch("pixPhi", pixPhi, "pixPhi[pix]/F");
+    tTree->Branch("pixEta", pixEta, "pixEta[pix]/F");
+  }
+
 
 }
 

@@ -31,7 +31,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff")
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_cff")
 #process.IsoProd.SkipNeutralIsoCheck = cms.untracked.bool(True)
-process.IsoProd.MinTrackP = cms.double(4.0)
+#process.IsoProd.MinTrackP = cms.double(4.0)
 
 process.isoHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 
@@ -55,13 +55,13 @@ process.source = cms.Source("PoolSource",
 
 #@FNAL: 
 #Rel325
-'/store/user/andrey/SinglePions_50GeV_Rel352_v3/SinglePions_50GeV_Rel352_v3/791ecbb28bc75b5af691fc4b56276304/SinglePionMinus_50_1.root',
+#'/store/user/andrey/SinglePions_50GeV_Rel352_v3/SinglePions_50GeV_Rel352_v3/791ecbb28bc75b5af691fc4b56276304/SinglePionMinus_50_1.root',
 #'/store/user/andrey/SinglePions_50GeV_Rel352_v3/SinglePions_50GeV_Rel352_v3/791ecbb28bc75b5af691fc4b56276304/SinglePionMinus_50_8.root',     
 #'/store/user/andrey/SinglePions_50GeV_Rel352_v3/SinglePions_50GeV_Rel352_v3/791ecbb28bc75b5af691fc4b56276304/SinglePionMinus_50_7.root',
 #'/store/user/andrey/SinglePions_50GeV_Rel352_v3/SinglePions_50GeV_Rel352_v3/791ecbb28bc75b5af691fc4b56276304/SinglePionMinus_50_6.root',
 
 #Rel314
-#'/store/user/andrey/SinglePion_50GeV_314/SinglePion_50GeV_314/0d8aafd1bbf7b6158b7a4e52f0fb00b6/SinglePion_50GeV_314_9.root',
+'/store/user/andrey/SinglePion_50GeV_314/SinglePion_50GeV_314/0d8aafd1bbf7b6158b7a4e52f0fb00b6/SinglePion_50GeV_314_9.root',
 
 #'/store/data/BeamCommissioning09/MinimumBias/RECO/rereco_FIRSTCOLL_v1/0083/FE5EDBBC-7DD9-DE11-9589-001A92971B64.root',     
 #'/store/data/BeamCommissioning09/MinimumBias/RECO/rereco_FIRSTCOLL_v1/0083/FAE7D85F-8AD9-DE11-A342-0026189438C4.root',
@@ -90,8 +90,8 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('ValidFile_XX.root')
 )
 
-#process.p = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.ValidationIsoTrk)
-process.p = cms.Path(process.IsoProd*process.ValidationIsoTrk)
+process.p = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.ValidationIsoTrk)
+#process.p = cms.Path(process.IsoProd*process.ValidationIsoTrk)
 #process.p = cms.Path(process.ValidationIsoTrk)
 
 
