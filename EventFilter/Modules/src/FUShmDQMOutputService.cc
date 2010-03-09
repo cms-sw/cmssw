@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.16 2010/02/15 13:43:16 meschi Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.17 2010/03/05 16:51:00 meschi Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -57,9 +57,9 @@ uint32 FUShmDQMOutputService::fuGuidValue_ = 0;
 FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
                                    edm::ActivityRegistry &actReg)
   : evf::ServiceWeb("FUShmDQMOutputService")
+  , updateNumber_(0)
   , shmBuffer_(0)
   , nbUpdates_(0)
-  , updateNumber_(0)
 {
 
   // specify the routine to be called after event processing.  This routine
@@ -196,9 +196,10 @@ void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::Eve
     }
 //   std::cout << getpid() << ": :" //<< gettid() 
 // 	    << ":DQMOutputService sending update for lumiSection " << thisLumiSection << std::endl;
-  // CAlculate the update ID and lumi ID for this update
-  int fullLsDelta = (int) (thisLumiSection - firstLumiSectionSeen_);
-  double fullUpdateRatio = ((double) fullLsDelta) / lumiSectionsPerUpdate_;
+  // Calculate the update ID and lumi ID for this update
+  // fullUpdateRatio and fullLsDelta are unused. comment out the calculation.
+  //int fullLsDelta = (int) (thisLumiSection - firstLumiSectionSeen_);
+  //double fullUpdateRatio = ((double) fullLsDelta) / lumiSectionsPerUpdate_;
   // this is the update number starting from zero
 
   // this is the actual luminosity section number for the beginning lumi section of this update
