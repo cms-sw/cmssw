@@ -106,7 +106,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["CSCHaloData_InnerMostTrackHitXY"]  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
     ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
     ME["CSCHaloData_InnerMostTrackHitRPlusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
-    ME["CSCHaloData_InnerMostTrackHitRMinusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -400, -1200, 400, -0.5, 799.5 );
+    ME["CSCHaloData_InnerMostTrackHitRMinusZ"] = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
     ME["CSCHaloData_InnerMostTrackHitiPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
     ME["CSCHaloData_L1HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
     ME["CSCHaloData_L1HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
