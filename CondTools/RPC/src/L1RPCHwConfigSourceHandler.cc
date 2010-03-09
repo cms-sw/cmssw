@@ -7,17 +7,10 @@ popcon::L1RPCHwConfigSourceHandler::L1RPCHwConfigSourceHandler(const edm::Parame
   m_name(ps.getUntrackedParameter<std::string>("name","L1RPCHwConfigSourceHandler")),
   m_dummy(ps.getUntrackedParameter<int>("WriteDummy",0)),
   m_validate(ps.getUntrackedParameter<int>("Validate",0)),
-  m_firstBX(ps.getUntrackedParameter<int>("FirstBX",0)),
-  m_lastBX(ps.getUntrackedParameter<int>("LastBX",0)),
   m_disableCrates(ps.getUntrackedParameter<std::vector<int> >("DisabledCrates")),
   m_disableTowers(ps.getUntrackedParameter<std::vector<int> >("DisabledTowers")),
   m_connect(ps.getUntrackedParameter<std::string>("OnlineConn","")),
-  m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath",".")),
-  m_host(ps.getUntrackedParameter<std::string>("OnlineDBHost","oracms.cern.ch")),
-  m_sid(ps.getUntrackedParameter<std::string>("OnlineDBSID","omds")),
-  m_user(ps.getUntrackedParameter<std::string>("OnlineDBUser","RPC_CONFIGURATION")),
-  m_pass(ps.getUntrackedParameter<std::string>("OnlineDBPass","****")),
-  m_port(ps.getUntrackedParameter<int>("OnlineDBPort",10121))
+  m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath","."))
 {
 }
 
@@ -55,8 +48,6 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
 
 // now construct new object from online DB
   disabledDevs =  new L1RPCHwConfig();
-  disabledDevs->setFirstBX(m_firstBX);
-  disabledDevs->setLastBX(m_lastBX);
       if (m_dummy==1) {
         std::vector<int>::iterator crIt = m_disableCrates.begin();
         for (; crIt!=m_disableCrates.end(); ++crIt){
@@ -67,13 +58,8 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
           disabledDevs->enableTower(*twIt,false);
         }
       } else {
-        if (m_connect=="") {
-          ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
-          readHwConfig0();
-        } else {
-          ConnectOnlineDB(m_connect,m_authpath);
-          readHwConfig1();
-        }
+        ConnectOnlineDB(m_connect,m_authpath);
+        readHwConfig1();
         DisconnectOnlineDB();
       }
 
@@ -91,16 +77,6 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
         std::cout << "L1RPCHwConfigSourceHandler: L1RPCHwConfigSourceHandler::getNewObjects ends\n";
 }
 
-void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(string host, string sid, string user, string pass, int port=10121)
-{
-  stringstream ss;
-  ss << "//" << host << ":" << port << "/" << sid;
-  cout << "L1RPCHwConfigSourceHandler: connecting to " << host << "..." << flush;
-  env = Environment::createEnvironment(Environment::OBJECT);
-  conn = env->createConnection(user, pass, ss.str());
-  cout << "Done." << endl;
-}
-
 void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(string connect, string authPath)
 {
   cout << "L1RPCHwConfigSourceHandler: connecting to " << connect << "..." << flush;
@@ -116,103 +92,11 @@ void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(string connect, string 
 
 void popcon::L1RPCHwConfigSourceHandler::DisconnectOnlineDB()
 {
-  if (m_connect=="") {
-    env->terminateConnection(conn);
-    Environment::terminateEnvironment(env);
-  } else {
-    connection->disconnect() ;
-    delete connection ;
-    delete session ;
-  }
+  connection->disconnect() ;
+  delete connection ;
+  delete session ;
 }
 
-void popcon::L1RPCHwConfigSourceHandler::readHwConfig0()
-{
-  Statement* stmt = conn->createStatement();
-  string sqlQuery ="";
-  cout << endl <<"L1RPCHwConfigSourceHandler: start to build L1RPC Hw Config..." << flush << endl << endl;
-
-// get disabled crates and translate into towers/sectors/segments
-  sqlQuery = "select tb.towerto, tb.towerfrom, tb.sector ";
-  sqlQuery += "from CRATEDISABLED cd, CRATE c, BOARD b, TRIGGERBOARD tb "; 
-  sqlQuery += "where c.crateid=cd.crate_crateid and b.crate_crateid=c.crateid and b.boardid=tb.triggerboardid and c.type='TRIGGERCRATE' ";
-  sqlQuery += "order by tb.towerto, tb.sector ";
-  stmt->setSQL(sqlQuery.c_str());
-  ResultSet* rset = stmt->executeQuery();
-  while (rset->next()) {
-//    std::cout<<"  found board on disabled crate..."<<std::endl;
-    int sector=atoi((rset->getString(3)).c_str());
-    int first=atoi((rset->getString(1)).c_str());
-    int last=atoi((rset->getString(2)).c_str());
-    for (int iTower=first; iTower<=last; iTower++) {
-      for (int jSegment=0; jSegment<12; jSegment++) {
-        disabledDevs->enablePAC(iTower,sector,jSegment,false);
-      }
-    }
-  }
-
-// get disabled triggerboards and translate into towers/sectors/segments
-  sqlQuery = "select tb.towerto, tb.towerfrom, tb.sector ";
-  sqlQuery += "from BOARDDISABLED bd, BOARD b, TRIGGERBOARD tb ";
-  sqlQuery += "where b.boardid=bd.board_boardid and b.boardid=tb.triggerboardid ";
-  sqlQuery += "order by tb.towerto, tb.sector ";
-  stmt->setSQL(sqlQuery.c_str());
-  rset = stmt->executeQuery();
-  while (rset->next()) {
-//    std::cout<<"  found disabled board..."<<std::endl;
-    int sector=atoi((rset->getString(3)).c_str());
-    int first=atoi((rset->getString(1)).c_str());
-    int last=atoi((rset->getString(2)).c_str());
-    for (int iTower=first; iTower<=last; iTower++) {
-      for (int jSegment=0; jSegment<12; jSegment++) {
-        disabledDevs->enablePAC(iTower,sector,jSegment,false);
-      }
-    }
-  }
-
-// get disabled links - this is not usable here
-/*
-  sqlQuery = "select tb.towerto, tb.towerfrom, tb.sector, l.triggerboardinputnum ";
-  sqlQuery += "from LINKDISABLED ld, LINKCONN l, TRIGGERBOARD tb ";
-  sqlQuery += " where ld.link_linkconnid=l.linkconnid and l.tb_triggerboardid=tb.triggerboardid ";
-  sqlQuery += "order by tb.towerto, tb.sector, l.triggerboardinputnum ";
-  stmt->setSQL(sqlQuery.c_str());
-  rset = stmt->executeQuery();
-  while (rset->next()) {
-    int sector=atoi((rset->getString(3)).c_str());
-    int first=atoi((rset->getString(1)).c_str());
-    int last=atoi((rset->getString(2)).c_str());
-    for (int iTower=first; iTower<=last; iTower++) {
-      for (int jSegment=0; jSegment<12; jSegment++) {
-        disabledDevs->enablePAC(iTower,sector,jSegment,false);
-      }
-    }
-  } */
-
-// get disabled chips and translate into towers/sectors
-// for the moment assume that chip position 8 corresponds to lowest tower number
-// and so on, ignoring bogus chip at position 11 if given TB operates 3 towers.
-  sqlQuery = "select tb.towerto, tb.towerfrom, tb.sector, c.position ";
-  sqlQuery += "from CHIPDISABLED cd, CHIP c, BOARD b, TRIGGERBOARD tb ";
-  sqlQuery += " where cd.chip_chipid=c.chipid and c.board_boardid=b.boardid and b.boardid=tb.triggerboardid and c.type='PAC' ";
-  sqlQuery += "order by tb.towerto, tb.sector, c.position ";
-  stmt->setSQL(sqlQuery.c_str());
-  rset = stmt->executeQuery();
-  while (rset->next()) {
-//    std::cout<<"  found disabled chip, not sure what to do with it..."<<std::endl;
-    int sector=atoi((rset->getString(3)).c_str());
-    int first=atoi((rset->getString(1)).c_str());
-    int last=atoi((rset->getString(2)).c_str());
-    int chipPos=rset->getInt(4);
-    int tower=first+chipPos-8;
-    if (tower<=last) {
-      for (int jSegment=0; jSegment<12; jSegment++) {
-        disabledDevs->enablePAC(tower,sector,jSegment,false);
-      } 
-    }
-  }
-}
-    
 void popcon::L1RPCHwConfigSourceHandler::readHwConfig1()
 {
   coralTr->start( true );
@@ -352,10 +236,6 @@ int popcon::L1RPCHwConfigSourceHandler::Compare2Configs(Ref set1, L1RPCHwConfig*
 
   if (set1->size() != set2->size()) {
     std::cout<<" Number of disabled devices changed "<<std::endl;
-    return 1;
-  }
-  if ( set1->getFirstBX() != set2->getFirstBX() || set1->getLastBX() != set2->getLastBX() ) {
-    std::cout<<" BX range changed "<<std::endl;
     return 1;
   }
   for (int tower=-16; tower<17; tower++) {
