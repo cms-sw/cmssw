@@ -17,36 +17,35 @@ int main(){
   std::auto_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create("CMSRunSummary2DB",con));
   runptr->setSource("oracle://cms_omds_lb/CMS_RUNINFO");
   runptr->setAuthPath(authpath);
-  runptr->retrieveData(129265);
-  
+  runptr->retrieveData(124025);
   //
   //fill hlt conf data
   //
   std::cout<<"fill out conf data"<<std::endl;
   std::auto_ptr<lumi::DataPipe> confptr(lumi::DataPipeFactory::get()->create("HLTConf2DB",con));
-  confptr->setSource("oracle://cms_omds_lb/CMS_HLT");
+  confptr->setSource("oracle://cms_omds_lb/CMS_HLT_V0");
   confptr->setAuthPath(authpath);
-  confptr->retrieveData(129265);
-  
+  confptr->retrieveData(124025);
+
   //fill lhx data
+
   std::auto_ptr<lumi::DataPipe> ptr(lumi::DataPipeFactory::get()->create("Lumi2DB",con));
   ptr->setAuthPath(authpath);
   ptr->setSource("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
   ptr->retrieveData(124025);
-  
   //fill trg data
   std::cout<<"fill out trg data"<<std::endl;
   std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB",con));
   trgptr->setAuthPath(authpath);
   trgptr->setSource("oracle://cms_omds_lb/CMS_GT_MON");
-  trgptr->retrieveData(129265);
-    
+  trgptr->retrieveData(124025);
   //fill hlt scaler data
+  
   std::cout<<"fill out hlt data"<<std::endl;
   std::auto_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create("HLT2DB",con));
   hltptr->setSource("oracle://cms_omds_lb/CMS_RUNINFO");
   hltptr->setAuthPath(authpath);
-  hltptr->retrieveData(129265);
-
+  hltptr->retrieveData(124025);
+  
   return 0;
 }

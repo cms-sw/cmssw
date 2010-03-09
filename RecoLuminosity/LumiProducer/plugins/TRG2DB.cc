@@ -429,7 +429,7 @@ namespace lumi{
       coral::AttributeList trgData;
       trgData.extend<unsigned long long>("TRG_ID");
       trgData.extend<unsigned int>("RUNNUM");
-      trgData.extend<unsigned int>("CMSLUMINUM");
+      trgData.extend<unsigned int>("CMSLSNUM");
       trgData.extend<unsigned int>("BITNUM");
       trgData.extend<std::string>("BITNAME");
       trgData.extend<unsigned int>("COUNT");
@@ -440,7 +440,7 @@ namespace lumi{
       
       unsigned long long& trg_id=trgData["TRG_ID"].data<unsigned long long>();
       unsigned int& trgrunnum=trgData["RUNNUM"].data<unsigned int>();
-      unsigned int& cmsluminum=trgData["CMSLUMINUM"].data<unsigned int>();
+      unsigned int& cmslsnum=trgData["CMSLSNUM"].data<unsigned int>();
       unsigned int& bitnum=trgData["BITNUM"].data<unsigned int>();
       std::string& bitname=trgData["BITNAME"].data<std::string>();
       unsigned int& count=trgData["COUNT"].data<unsigned int>();
@@ -464,7 +464,7 @@ namespace lumi{
 	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
 	  deadtime=*deadIt;
 	  trgrunnum = runnumber;
-	  cmsluminum = cmslscount;
+	  cmslsnum = cmslscount;
 	  bitnum=trgbitcount;
 	  bitname=algonames[trgbitcount];
 	  count=*algoBitIt;
@@ -478,7 +478,7 @@ namespace lumi{
 	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
 	  deadtime=*deadIt;
 	  trgrunnum = runnumber;
-	  cmsluminum = cmslscount;
+	  cmslsnum = cmslscount;
 	  bitnum=trgbitcount;
 	  bitname=technames[trgbitcount-lumi::N_TRGALGOBIT];
 	  count=*techBitIt;

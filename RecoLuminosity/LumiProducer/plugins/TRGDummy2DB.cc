@@ -58,7 +58,7 @@ namespace lumi{
       coral::AttributeList trgData;
       trgData.extend("TRG_ID",typeid(unsigned long long));
       trgData.extend("RUNNUM",typeid(unsigned int));
-      trgData.extend("CMSLUMINUM",typeid(unsigned int));
+      trgData.extend("CMSLSNUM",typeid(unsigned int));
       trgData.extend("BITNUM",typeid(unsigned int));
       trgData.extend("BITNAME",typeid(std::string));
       trgData.extend("COUNT",typeid(unsigned int));
@@ -68,7 +68,7 @@ namespace lumi{
       //loop over lumi LS
       unsigned long long& trg_id=trgData["TRG_ID"].data<unsigned long long>();
       unsigned int& trgrunnum=trgData["RUNNUM"].data<unsigned int>();
-      unsigned int& cmsluminum=trgData["CMSLUMINUM"].data<unsigned int>();
+      unsigned int& cmslsnum=trgData["CMSLSNUM"].data<unsigned int>();
       unsigned int& bitnum=trgData["BITNUM"].data<unsigned int>();
       std::string& bitname=trgData["BITNAME"].data<std::string>();
       unsigned int& count=trgData["COUNT"].data<unsigned int>();
@@ -79,7 +79,7 @@ namespace lumi{
 	for(unsigned int j=0;j<(lumi::N_TRGALGOBIT+lumi::N_TRGTECHBIT);++j){ //total n of trg bits
 	  trg_id = idg.generateNextIDForTable(LumiNames::trgTableName());
 	  trgrunnum = runnum;
-	  cmsluminum = i;
+	  cmslsnum = i;
 	  bitnum=j;
 	  char c[10];
 	  if(j>(lumi::N_TRGALGOBIT-1)){

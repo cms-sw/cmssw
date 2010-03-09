@@ -42,6 +42,7 @@ namespace lumi{
   HLTConf2DB::HLTConf2DB( const std::string& dest):DataPipe(dest){}
   void HLTConf2DB::retrieveData( unsigned int runnumber ){
     std::string runinfoschema("CMS_RUNINFO");
+    //std::string hltschema("CMS_HLT_V0");
     std::string hltschema("CMS_HLT");
     std::string runsessiontable("RUNSESSION_PARAMETER");
     //
@@ -105,7 +106,7 @@ namespace lumi{
       delete svc;
       throw er;
     }
-    coral::ISchema& confSchemaHandle=srcsession->schema(hltschema);
+    coral::ISchema& confSchemaHandle=srcsession->nominalSchema();
     try{
       //srcsession->transaction().start(true);
       if( !confSchemaHandle.existsTable("PATHS") || !confSchemaHandle.existsTable("STRINGPARAMVALUES") || !confSchemaHandle.existsTable("PARAMETERS") || !confSchemaHandle.existsTable("SUPERIDPARAMETERASSOC") || !confSchemaHandle.existsTable("MODULES") || !confSchemaHandle.existsTable("MODULETEMPLATES") || !confSchemaHandle.existsTable("PATHMODULEASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONPATHASSOC") || !confSchemaHandle.existsTable("CONFIGURATIONS") ){

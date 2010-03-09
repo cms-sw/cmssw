@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-VERSION='1.00'
+VERSION='1.01'
 import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper
@@ -65,11 +65,11 @@ def recordedLumiForRun(dbsession,c,runnum):
     #
     #LS_length=25e-9*numorbit*3564(sec)
     #LS deadfraction=deadtimecount/(numorbit*3564) 
-    #select distinct lumisummary.instlumi*trg.deadtime/(lumisummary.numorbit*3564) as deadfraction from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=1 and trg.cmsluminum=1;
+    #select distinct lumisummary.instlumi*trg.deadtime/(lumisummary.numorbit*3564) as deadfraction from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=1 and trg.cmslsnum=1;
     #
     #let oracle do everything!
     #
-    #select sum( lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmsluminum and lumisummary.cmsalive=1 and trg.bitnum=0;
+    #select sum( lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmslsnum and lumisummary.cmsalive=1 and trg.bitnum=0;
     #multiply query result by norm factor, attach unit
     #7.368e-5*16400.0=1.2083520000000001
     recorded=0.0
@@ -88,7 +88,7 @@ def recordedLumiForRun(dbsession,c,runnum):
         queryCondition["lumiversion"].setData(c.LUMIVERSION)
         queryCondition["alive"].setData(True)
         queryCondition["bitnum"].setData(0)
-        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
+        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
         query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
         result=coral.AttributeList()
         result.extend("recorded","float")
@@ -142,7 +142,7 @@ def recordedLumiForRange(dbsession,c,inputfile):
                 queryCondition[str(l)].setData(int(l))
             o=[':'+x for x in LSlistStr]
             inClause='('+','.join(o)+')'
-            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
+            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
             cursor=query.execute()
             while cursor.next():
                 recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()
@@ -205,16 +205,16 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
             hltprescCondition=coral.AttributeList()
             hltprescCondition.extend('runnumber','unsigned int')
             hltprescCondition.extend('pathname','string')
-            hltprescCondition.extend('cmsluminum','unsigned int')
+            hltprescCondition.extend('cmslsnum','unsigned int')
             hltprescCondition.extend('inf','unsigned int')
             hltprescResult=coral.AttributeList()
             hltprescResult.extend('hltprescale','unsigned int')
             hltprescQuery.defineOutput(hltprescResult)
             hltprescCondition['runnumber'].setData(int(runnum))
             hltprescCondition['pathname'].setData(h[0])
-            hltprescCondition['cmsluminum'].setData(1)
+            hltprescCondition['cmslsnum'].setData(1)
             hltprescCondition['inf'].setData(0)
-            hltprescQuery.setCondition("RUNNUM =:runnumber AND PATHNAME =:pathname and CMSLUMINUM =:cmsluminum and PRESCALE !=:inf",hltprescCondition)
+            hltprescQuery.setCondition("RUNNUM =:runnumber AND PATHNAME =:pathname and CMSLSNUM =:cmslsnum and PRESCALE !=:inf",hltprescCondition)
             cursor=hltprescQuery.execute()
             while cursor.next():
                 hltprescale=cursor.currentRow()['hltprescale'].data()
@@ -229,7 +229,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         for myhltpath,(myl1bitname,myhltprescale) in finalhltData.items():
             #print 'querying here ',myhltpath,myl1bitname,myhltprescale
             trgQuery=schema.tableHandle(nameDealer.trgTableName()).newQuery()
-            trgQuery.addToOutputList("CMSLUMINUM","cmsluminum")
+            trgQuery.addToOutputList("CMSLSNUM","cmslsnum")
             trgQuery.addToOutputList("PRESCALE","trgprescale")
             trgQuery.addToOutputList("DEADTIME","trgdeadtime")
             trgQueryCondition=coral.AttributeList()
@@ -238,15 +238,15 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
             trgQueryCondition['runnumber'].setData(int(runnum))
             trgQueryCondition['bitname'].setData(myl1bitname)
             trgResult=coral.AttributeList()
-            trgResult.extend("cmsluminum","unsigned int")
+            trgResult.extend("cmslsnum","unsigned int")
             trgResult.extend("trgprescale","unsigned int")
             trgResult.extend("trgdeadtime","unsigned long long")
             trgQuery.defineOutput(trgResult)
-            trgQuery.setCondition("RUNNUM =:runnumber AND BITNAME =:bitname order by CMSLUMINUM",trgQueryCondition)
+            trgQuery.setCondition("RUNNUM =:runnumber AND BITNAME =:bitname order by CMSLSNUM",trgQueryCondition)
             cursor=trgQuery.execute()
             counter=0
             while cursor.next():
-                trglsnum=cursor.currentRow()['cmsluminum'].data()
+                trglsnum=cursor.currentRow()['cmslsnum'].data()
                 trgprescale=cursor.currentRow()['trgprescale'].data()
                 trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
                 #print myhltpath,myl1bitname,myhltprescale,trgprescale
@@ -273,7 +273,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         queryCondition["lumiversion"].setData(c.LUMIVERSION)
         queryCondition["alive"].setData(True)
         queryCondition["bitnum"].setData(0)
-        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
+        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
         query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
         result=coral.AttributeList()
         result.extend("recorded","float")
@@ -344,7 +344,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
                 queryCondition[str(l)].setData(int(l))
             o=[':'+x for x in LSlistStr]
             inClause='('+','.join(o)+')'
-            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLUMINUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
+            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
             cursor=query.execute()
             while cursor.next():
                 recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()*c.NORM
@@ -392,16 +392,16 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
                 hltprescCondition=coral.AttributeList()
                 hltprescCondition.extend('runnumber','unsigned int')
                 hltprescCondition.extend('pathname','string')
-                hltprescCondition.extend('cmsluminum','unsigned int')
+                hltprescCondition.extend('cmslsnum','unsigned int')
                 hltprescCondition.extend('inf','unsigned int')
                 hltprescResult=coral.AttributeList()
                 hltprescResult.extend('hltprescale','unsigned int')
                 hltprescQuery.defineOutput(hltprescResult)
                 hltprescCondition['runnumber'].setData(int(runnumstr))
                 hltprescCondition['pathname'].setData(h[0])
-                hltprescCondition['cmsluminum'].setData(1)
+                hltprescCondition['cmslsnum'].setData(1)
                 hltprescCondition['inf'].setData(0)
-                hltprescQuery.setCondition("RUNNUM =:runnumber AND PATHNAME =:pathname and CMSLUMINUM =:cmsluminum and PRESCALE !=:inf",hltprescCondition)
+                hltprescQuery.setCondition("RUNNUM =:runnumber AND PATHNAME =:pathname and CMSLSNUM =:cmslsnum and PRESCALE !=:inf",hltprescCondition)
                 cursor=hltprescQuery.execute()
                 while cursor.next():
                     hltprescale=cursor.currentRow()['hltprescale'].data()
@@ -414,7 +414,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
             schema=dbsession.nominalSchema()
             for myhltpath,(myl1bitname,myhltprescale) in finalhltData.items():
                 trgQuery=schema.tableHandle(nameDealer.trgTableName()).newQuery()
-                trgQuery.addToOutputList("CMSLUMINUM","cmsluminum")
+                trgQuery.addToOutputList("CMSLSNUM","cmslsnum")
                 trgQuery.addToOutputList("PRESCALE","trgprescale")
                 trgQuery.addToOutputList("DEADTIME","trgdeadtime")
                 trgQueryCondition=coral.AttributeList()
@@ -423,15 +423,15 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
                 trgQueryCondition['runnumber'].setData(int(runnumstr))
                 trgQueryCondition['bitname'].setData(myl1bitname)
                 trgResult=coral.AttributeList()
-                trgResult.extend("cmsluminum","unsigned int")
+                trgResult.extend("cmslsnum","unsigned int")
                 trgResult.extend("trgprescale","unsigned int")
                 trgResult.extend("trgdeadtime","unsigned long long")
                 trgQuery.defineOutput(trgResult)
-                trgQuery.setCondition("RUNNUM =:runnumber AND BITNAME =:bitname order by CMSLUMINUM",trgQueryCondition)
+                trgQuery.setCondition("RUNNUM =:runnumber AND BITNAME =:bitname order by CMSLSNUM",trgQueryCondition)
                 cursor=trgQuery.execute()
                 counter=0
                 while cursor.next():
-                    trglsnum=cursor.currentRow()['cmsluminum'].data()
+                    trglsnum=cursor.currentRow()['cmslsnum'].data()
                     trgprescale=cursor.currentRow()['trgprescale'].data()
                     trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
                     if counter==0:

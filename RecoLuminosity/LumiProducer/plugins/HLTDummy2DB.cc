@@ -50,7 +50,7 @@ namespace lumi{
       coral::AttributeList hltData;
       hltData.extend<unsigned long long>("HLT_ID");
       hltData.extend<unsigned int>("RUNNUM");
-      hltData.extend<unsigned int>("CMSLUMINUM");
+      hltData.extend<unsigned int>("CMSLSNUM");
       hltData.extend<std::string>("PATHNAME");
       hltData.extend<unsigned long long>("INPUTCOUNT");
       hltData.extend<unsigned long long>("ACCEPTCOUNT");
@@ -59,7 +59,7 @@ namespace lumi{
       //loop over lumi LS
       unsigned long long& hlt_id=hltData["HLT_ID"].data<unsigned long long>();
       unsigned int& hltrunnum=hltData["RUNNUM"].data<unsigned int>();
-      unsigned int& cmsluminum=hltData["CMSLUMINUM"].data<unsigned int>();
+      unsigned int& cmslsnum=hltData["CMSLSNUM"].data<unsigned int>();
       std::string& pathname=hltData["PATHNAME"].data<std::string>();
       unsigned long long& inputcount=hltData["INPUTCOUNT"].data<unsigned long long>();
       unsigned long long& acceptcount=hltData["ACCEPTCOUNT"].data<unsigned long long>();
@@ -69,7 +69,7 @@ namespace lumi{
 	for(unsigned int j=1;j<165;++j){
 	  hlt_id = idg.generateNextIDForTable(LumiNames::hltTableName());
 	  hltrunnum = runnum;
-	  cmsluminum = i;
+	  cmslsnum = i;
 	  char c[10];
 	  ::sprintf(c,"%d",j);
 	  pathname=std::string("FakeHLTPath_")+std::string(c);

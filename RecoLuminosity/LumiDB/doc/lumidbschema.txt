@@ -3,11 +3,11 @@ Glossary: FK=Foreign Key, PK=Primary Key
 
 ========
 table 1:  CMSRUNSUMMARY 
-columns:  runnum(uint32,PK),   NOT NULL
-          fillnum(uint32),  
-          sequence(string),
-          hltkey(string),
-          physicsbiton(string), "1:3,4:6,9:179"     
+columns:  runnum(uint32,PK), NOT NULL
+          fillnum(uint32),   NOT NULL
+          sequence(string),  NOT NULL
+          hltkey(string),    NOT NULL
+          physicsbiton(string), "1:3,4:6,9:179" or ""    
 
 =======
 table 2:  LUMISUMMARY (insert one row per run+lumiLS+lumiversion from LUMI_RAW file)
@@ -26,7 +26,7 @@ columns:
           startorbit(uint32),        NOT NULL
           numorbit(uint32),          NOT NULL 
           lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
-	  
+
 ======
 table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
 columns: 
@@ -42,7 +42,7 @@ table 4:  TRG (insert 192 rows per run+cmsls/populate from GT-DB)
 columns:  
           trg_id(uint64, PK),   NOT NULL
           runnum(uint32),       NOT NULL
-          cmsluminum(uint32),   NOT NULL 
+          cmslsnum(uint32),     NOT NULL 
                                //lumi section id taken by cmsdaq,count from 1
           bitnum(uint32),       NOT NULL //range : 0-127 algo;128-192 tech
           bitname(string),      NOT NULL
@@ -55,7 +55,7 @@ columns:
 table 5: HLT (insert n-hltpath rows per run+cmsls/populate from RunInfo-HLT)
          hlt_id(uint64, PK),    NOT NULL
 	 runnum(uint32),        NOT NULL
-         cmsluminum(uint32),    NOT NULL
+         cmslsnum(uint32),    NOT NULL
          pathname(string),      NOT NULL
          inputcount(uint32),    NOT NULL
          acceptcount(uint32),   NOT NULL

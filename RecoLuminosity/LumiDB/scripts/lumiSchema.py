@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-VERSION='1.00'
+VERSION='1.01'
 import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,dbUtil,nameDealer
@@ -56,7 +56,7 @@ def createLumi(dbsession):
     trg.setName( nameDealer.trgTableName() )
     trg.insertColumn('TRG_ID','unsigned long long')
     trg.insertColumn('RUNNUM','unsigned int')
-    trg.insertColumn('CMSLUMINUM','unsigned int')
+    trg.insertColumn('CMSLSNUM','unsigned int')
     trg.insertColumn('BITNUM','unsigned int')
     trg.insertColumn('BITNAME','string')
     trg.insertColumn('COUNT','unsigned int')
@@ -71,7 +71,7 @@ def createLumi(dbsession):
     hlt.setName( nameDealer.hltTableName() )
     hlt.insertColumn( 'HLT_ID','unsigned long long')
     hlt.insertColumn( 'RUNNUM','unsigned int')
-    hlt.insertColumn( 'CMSLUMINUM','unsigned int')
+    hlt.insertColumn( 'CMSLSNUM','unsigned int')
     hlt.insertColumn( 'PATHNAME','string')
     hlt.insertColumn( 'INPUTCOUNT','unsigned int')
     hlt.insertColumn( 'ACCEPTCOUNT','unsigned int')

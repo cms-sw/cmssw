@@ -165,7 +165,7 @@ namespace lumi{
       coral::AttributeList hltData;
       hltData.extend("HLT_ID",typeid(unsigned long long));
       hltData.extend("RUNNUM",typeid(unsigned int));
-      hltData.extend("CMSLUMINUM",typeid(unsigned int));
+      hltData.extend("CMSLSNUM",typeid(unsigned int));
       hltData.extend("PATHNAME",typeid(std::string));
       hltData.extend("INPUTCOUNT",typeid(unsigned int));
       hltData.extend("ACCEPTCOUNT",typeid(unsigned int));
@@ -174,7 +174,7 @@ namespace lumi{
       //loop over lumi LS
       unsigned long long& hlt_id=hltData["HLT_ID"].data<unsigned long long>();
       unsigned int& hltrunnum=hltData["RUNNUM"].data<unsigned int>();
-      unsigned int& cmsluminum=hltData["CMSLUMINUM"].data<unsigned int>();
+      unsigned int& cmslsnum=hltData["CMSLSNUM"].data<unsigned int>();
       std::string& pathname=hltData["PATHNAME"].data<std::string>();
       unsigned int& inputcount=hltData["INPUTCOUNT"].data<unsigned int>();
       unsigned int& acceptcount=hltData["ACCEPTCOUNT"].data<unsigned int>();
@@ -190,7 +190,7 @@ namespace lumi{
 	for(pathIt=pathBeg;pathIt!=pathEnd;++pathIt){
 	  hlt_id = idg.generateNextIDForTable(LumiNames::hltTableName());
 	  hltrunnum = runnumber;
-	  cmsluminum = pathIt->cmsluminr;
+	  cmslsnum = pathIt->cmsluminr;
 	  pathname = pathIt->pathname;
 	  inputcount = pathIt->hltinput;
 	  acceptcount = pathIt->hltaccept;
