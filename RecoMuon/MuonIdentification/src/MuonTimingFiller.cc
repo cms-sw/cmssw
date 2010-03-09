@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.5 2009/10/19 16:40:59 ptraczyk Exp $
+// $Id: MuonTimingFiller.cc,v 1.7 2009/10/20 13:00:16 ptraczyk Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 //
 // constructors and destructor
@@ -195,10 +196,13 @@ MuonTimingFiller::addEcalTime( const reco::Muon& muon,
     muonE = muon.calEnergy();
   
   // Cut on the crystal energy and restrict to the ECAL barrel for now
-  if (muonE.emMax<ecalEcut_ || fabs(muon.eta())>1.5) return;    
+//  if (muonE.emMax<ecalEcut_ || fabs(muon.eta())>1.5) return;    
+  if (muonE.emMax<ecalEcut_) return;    
   
   // A simple parametrization of the error on the ECAL time measurement
-  double emErr = errorEB_/muonE.emMax;
+  double emErr;
+  if (muonE.ecal_id.subdetId()==EcalBarrel) emErr= errorEB_/muonE.emMax; else
+    emErr=errorEE_/muonE.emMax;
   double hitWeight = 1/(emErr*emErr);
         
   cmbSeq.local_t0.push_back(muonE.ecal_time);
