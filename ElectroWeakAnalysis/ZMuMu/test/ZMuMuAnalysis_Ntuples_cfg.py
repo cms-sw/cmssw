@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-    "file:../../Skimming/test/testZMuMuSubskimUserData.root"    
+    "file:testZMuMuSubskimUserData.root"    
 
     )
                             )

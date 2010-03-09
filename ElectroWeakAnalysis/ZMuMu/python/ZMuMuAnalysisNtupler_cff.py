@@ -32,35 +32,8 @@ zGolden=(
     cms.PSet(
     tag = cms.untracked.string("Dau2dB"),
     quantity = cms.untracked.string("daughter(1).masterClone.dB")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau1CombinedIso"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userIso(0)")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau1relCombinedIso"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userIso(1)")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau1UserDummy"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('dummy')")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("zDau1dxyFromBS"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dxyFromBS')")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("zDau1dzFromBS"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dzFromBS')")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("zDau1dxyFromPV"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dxyFromPV')")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("zDau1dzFromPV"),
-    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dzFromPV')")
     )
+        
     )
 
 zMuTrk=(
@@ -75,8 +48,12 @@ zMuTrk=(
     cms.PSet(
     tag = cms.untracked.string("Dau2Chi2"),
     quantity = cms.untracked.string("daughter(1).masterClone.track.normalizedChi2")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau2dzFromPV"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dzFromPV')")
     )
-    
+        
     )
 
 goodZToMuMuEdmNtuple = cms.EDProducer(
@@ -165,7 +142,64 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     cms.PSet(
     tag = cms.untracked.string("Dau1dB"),
     quantity = cms.untracked.string("daughter(0).masterClone.dB")
-    )
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1CombinedIso"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userIso(0)")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1relCombinedIso"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userIso(1)")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dxyFromBS"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dxyFromBS')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dzFromBS"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dzFromBS')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dxyFromPV"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dxyFromPV')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1dzFromPV"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_dzFromPV')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau1HLTBit"),
+    quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTBit')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau2HLTBit"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTBit')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2CombinedIso"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userIso(0)")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2relCombinedIso"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userIso(1)")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau2dxyFromBS"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dxyFromBS')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau2dzFromBS"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dzFromBS')")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("zDau2dxyFromPV"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dxyFromPV')")
+    ),
+    #cms.PSet(
+    #tag = cms.untracked.string("zDau2dzFromPV"),
+    #quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dzFromPV')")
+    #)
+
     )
     
     )
@@ -195,12 +229,12 @@ goodZToMuMuPathLoose.setLabel("goodZToMuMuEdmLoose")
 #goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuOneStandAloneEdmNtupleLoose)
 #goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
 
-#goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-#goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
-#goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
-#goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
-#goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
-#goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
+goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
+goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
+goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
+goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
+goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
+goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 ntuplesOut = cms.OutputModule(
     "PoolOutputModule",
@@ -210,7 +244,7 @@ ntuplesOut = cms.OutputModule(
       "keep *_goodZToMuMuEdmNtupleLoose_*_*",
       #"keep *_goodZToMuMuSameChargeEdmNtupleLoose_*_*",
       #"keep *_goodZToMuMuOneStandAloneEdmNtupleLoose_*_*",
-      #"keep *_goodZToMuMuOneTrackEdmNtupleLoose_*_*"
+      "keep *_goodZToMuMuOneTrackEdmNtupleLoose_*_*"
       
     )
     )
