@@ -1,24 +1,13 @@
-# /dev/CMSSW_3_5_0/HIon/V40 (CMSSW_3_5_3)
+# /dev/CMSSW_3_5_0/HIon/V41 (CMSSW_3_5_3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V40')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V41')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  A = cms.vstring( 'MinimumBias',
-    'Cosmics',
-    'HcalHPDNoise',
-    'RandomTriggers',
-    'HcalNZS',
-    'ZeroBias' ),
-  EventDisplay = cms.vstring(  ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -26,16 +15,20 @@ streams = cms.PSet(
     'FEDMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' )
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
+  EventDisplay = cms.vstring(  ),
+  A = cms.vstring( 'Cosmics',
+    'HcalHPDNoise',
+    'RandomTriggers',
+    'HcalNZS',
+    'ZeroBias',
+    'MinimumBias' ),
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
-  OfflineMonitor = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  ),
-  HcalNZS = cms.vstring(  ),
-  ZeroBias = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
@@ -43,7 +36,14 @@ datasets = cms.PSet(
   FEDMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  )
+  AlCaP0 = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  RandomTriggers = cms.vstring(  ),
+  HcalNZS = cms.vstring(  ),
+  ZeroBias = cms.vstring(  ),
+  MinimumBias = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1670,6 +1670,7 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
 )
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
+    maxNumberOfClusters = cms.int32( 10000 ),
     payloadType = cms.string( "HLT" ),
     ChannelThreshold = cms.int32( 1000 ),
     SeedThreshold = cms.int32( 1000 ),

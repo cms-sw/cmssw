@@ -1,23 +1,13 @@
-# /dev/CMSSW_3_5_0/HLT/V114 (CMSSW_3_5_3)
+# /dev/CMSSW_3_5_0/HLT/V117 (CMSSW_3_5_3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V114')
+  tableName = cms.string('/dev/CMSSW_3_5_0/HLT/V117')
 )
 
 streams = cms.PSet( 
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
-  DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
-  A = cms.vstring( 'MinimumBias',
-    'Cosmics',
-    'HcalHPDNoise',
-    'RandomTriggers',
-    'HcalNZS',
-    'ZeroBias' ),
-  EventDisplay = cms.vstring(  ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -26,9 +16,32 @@ streams = cms.PSet(
   Offline = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' )
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  DQM = cms.vstring(  ),
+  HLTDQM = cms.vstring(  ),
+  EventDisplay = cms.vstring(  ),
+  A = cms.vstring( 'Cosmics',
+    'HcalHPDNoise',
+    'RandomTriggers',
+    'HcalNZS',
+    'ZeroBias',
+    'MinimumBias' )
 )
 datasets = cms.PSet( 
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNormalisation' ),
+  EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
+  TestEnables = cms.vstring( 'HLT_Calibration' ),
+  LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
+  FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_L1MuOpen',
+    'HLT_L1Mu',
+    'HLT_ZeroBias' ),
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
+  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
+    'AlCa_EcalPi0_8E29' ),
   OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
@@ -144,6 +157,38 @@ datasets = cms.PSet(
     'HLT_L1SingleForJet2_NoBPTX',
     'HLT_L1SingleForJet4_NoBPTX',
     'HLT_L1SingleTauJet' ),
+  Cosmics = cms.vstring( 'HLT_L1DoubleMuOpen',
+    'HLT_L1Mu20',
+    'HLT_L1Mu',
+    'HLT_L1MuOpen',
+    'HLT_TkMu3_NoVertex',
+    'HLT_L2Mu0_NoVertex',
+    'HLT_DoubleMu0',
+    'HLT_DoubleMu3',
+    'HLT_Mu3',
+    'HLT_Mu5',
+    'HLT_Mu9',
+    'HLT_IsoMu3',
+    'HLT_L2Mu9',
+    'HLT_L2Mu11',
+    'HLT_TrackerCosmics',
+    'HLT_RPCBarrelCosmics',
+    'HLT_CSCBeamHaloRing2or3',
+    'HLT_CSCBeamHaloOverlapRing2',
+    'HLT_CSCBeamHaloOverlapRing1',
+    'HLT_CSCBeamHalo',
+    'HLT_L1MuOpen_NoBPTX',
+    'HLT_Activity_DT' ),
+  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
+    'HLT_GlobalRunHPDNoise' ),
+  RandomTriggers = cms.vstring( 'HLT_Random' ),
+  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
+    'HLT_HcalPhiSym' ),
+  ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
+    'HLT_L1_BPTX_MinusOnly',
+    'HLT_L1_BPTX',
+    'HLT_Physics',
+    'HLT_ZeroBias' ),
   MinimumBias = cms.vstring( 'HLT_DoubleLooseIsoTau15',
     'HLT_SingleLooseIsoTau20',
     'HLT_DoublePhoton10_L1R',
@@ -228,52 +273,7 @@ datasets = cms.PSet(
     'HLT_L1SingleEG2_NoBPTX',
     'HLT_L1SingleForJet2_NoBPTX',
     'HLT_L1SingleForJet4_NoBPTX',
-    'HLT_L1SingleTauJet' ),
-  Cosmics = cms.vstring( 'HLT_L1DoubleMuOpen',
-    'HLT_L1Mu20',
-    'HLT_L1Mu',
-    'HLT_L1MuOpen',
-    'HLT_TkMu3_NoVertex',
-    'HLT_L2Mu0_NoVertex',
-    'HLT_DoubleMu0',
-    'HLT_DoubleMu3',
-    'HLT_Mu3',
-    'HLT_Mu5',
-    'HLT_Mu9',
-    'HLT_IsoMu3',
-    'HLT_L2Mu9',
-    'HLT_L2Mu11',
-    'HLT_TrackerCosmics',
-    'HLT_RPCBarrelCosmics',
-    'HLT_CSCBeamHaloRing2or3',
-    'HLT_CSCBeamHaloOverlapRing2',
-    'HLT_CSCBeamHaloOverlapRing1',
-    'HLT_CSCBeamHalo',
-    'HLT_L1MuOpen_NoBPTX',
-    'HLT_Activity_DT' ),
-  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
-    'HLT_GlobalRunHPDNoise' ),
-  RandomTriggers = cms.vstring( 'HLT_Random' ),
-  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
-    'HLT_HcalPhiSym' ),
-  ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
-    'HLT_L1_BPTX_MinusOnly',
-    'HLT_L1_BPTX',
-    'HLT_Physics',
-    'HLT_ZeroBias' ),
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNormalisation' ),
-  EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
-  TestEnables = cms.vstring( 'HLT_Calibration' ),
-  LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
-  FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
-  ExpressPhysics = cms.vstring( 'HLT_MET100',
-    'HLT_L1MuOpen',
-    'HLT_L1Mu',
-    'HLT_ZeroBias' ),
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
-    'AlCa_EcalPi0_8E29' )
+    'HLT_L1SingleTauJet' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1256,6 +1256,7 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
 )
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
+    maxNumberOfClusters = cms.int32( 10000 ),
     payloadType = cms.string( "HLT" ),
     ChannelThreshold = cms.int32( 1000 ),
     SeedThreshold = cms.int32( 1000 ),
@@ -1312,7 +1313,8 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
     minChamberLayers = cms.int32( 6 ),
     minDDUBX = cms.int32( 9 ),
     maxDDUBX = cms.int32( 14 ),
-    minActiveChambs = cms.int32( 1 )
+    minActiveChambs = cms.int32( 1 ),
+    activeSectors = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 )
 )
 hltVetoL1SingleEG2 = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -8844,12 +8846,12 @@ hltMuBLifetimeIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
     IsolatorPSet = cms.PSet(  )
 )
-hltBLifetimeHighestEtJets = cms.EDProducer( "LargestEtCaloJetSelector",
+hltBLifetimeHighestEtJets = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBLifetimeL25Jets = cms.EDProducer( "EtMinCaloJetSelector",
+hltBLifetimeL25Jets = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltBLifetimeHighestEtJets" ),
     filter = cms.bool( False ),
     etMin = cms.double( 35.0 )
@@ -9031,12 +9033,12 @@ hltMuBSoftIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     DepTag = cms.VInputTag( 'hltL2MuonIsolations' ),
     IsolatorPSet = cms.PSet(  )
 )
-hltBSoftmuonHighestEtJets = cms.EDProducer( "LargestEtCaloJetSelector",
+hltBSoftmuonHighestEtJets = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltIterativeCone5CaloJets" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 2 )
 )
-hltBSoftmuonL25Jets = cms.EDProducer( "EtMinCaloJetSelector",
+hltBSoftmuonL25Jets = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltBSoftmuonHighestEtJets" ),
     filter = cms.bool( False ),
     etMin = cms.double( 20.0 )
@@ -9941,12 +9943,12 @@ hltBJet50U = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
 )
-hltSelector4JetsU = cms.EDProducer( "LargestEtCaloJetSelector",
+hltSelector4JetsU = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltMCJetCorJetIcone5HF07" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBLifetimeL25JetsStartupU = cms.EDProducer( "EtMinCaloJetSelector",
+hltBLifetimeL25JetsStartupU = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4JetsU" ),
     filter = cms.bool( False ),
     etMin = cms.double( 15.0 )
@@ -10099,12 +10101,12 @@ hltBJet80 = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
 )
-hltSelector4JetsRegional = cms.EDProducer( "LargestEtCaloJetSelector",
+hltSelector4JetsRegional = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltMCJetCorJetIcone5Regional" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBLifetimeL25JetsStartup = cms.EDProducer( "EtMinCaloJetSelector",
+hltBLifetimeL25JetsStartup = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4JetsRegional" ),
     filter = cms.bool( False ),
     etMin = cms.double( 30.0 )
@@ -10276,7 +10278,7 @@ hltBJet10U = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
 )
-hltBSoftMuonL25JetsU = cms.EDProducer( "EtMinCaloJetSelector",
+hltBSoftMuonL25JetsU = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4JetsU" ),
     filter = cms.bool( False ),
     etMin = cms.double( 10.0 )
@@ -10346,12 +10348,12 @@ hltBJet20 = cms.EDFilter( "HLT1CaloBJet",
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
 )
-hltSelector4Jets = cms.EDProducer( "LargestEtCaloJetSelector",
+hltSelector4Jets = cms.EDFilter( "LargestEtCaloJetSelector",
     src = cms.InputTag( "hltMCJetCorJetIcone5" ),
     filter = cms.bool( False ),
     maxNumber = cms.uint32( 4 )
 )
-hltBSoftMuonL25Jets = cms.EDProducer( "EtMinCaloJetSelector",
+hltBSoftMuonL25Jets = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltSelector4Jets" ),
     filter = cms.bool( False ),
     etMin = cms.double( 20.0 )
@@ -11567,7 +11569,7 @@ hltIsolPixelTrackL3FilterHB8E29 = cms.EDFilter( "HLTPixelIsolTrackFilter",
     MinEtaTrack = cms.double( 0.0 ),
     filterTrackEnergy = cms.bool( True ),
     MinEnergyTrack = cms.double( 20.0 ),
-    NMaxTrackCandidates = cms.int32( 15 ),
+    NMaxTrackCandidates = cms.int32( 10 ),
     DropMultiL2Event = cms.bool( False )
 )
 hltL1sIsoTrack1E31 = cms.EDFilter( "HLTLevel1GTSeed",
