@@ -1198,9 +1198,9 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("print", "PFCandidates_ptmin", printPFCandidatesPtMin_ );
   
   printPFJets_ = true;
-  printPFPt_ = 0.;
+  printPFJetsPtMin_ = 0.;
   options_->GetOpt("print", "jets", printPFJets_ );
-  options_->GetOpt("print", "ptjets", printPFPt_ );
+  options_->GetOpt("print", "jets_ptmin", printPFJetsPtMin_ );
  
   printSimParticles_ = true;
   printSimParticlesPtMin_ = 0.;
@@ -3519,13 +3519,13 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
     out<<"Jets  ====================================================="<<endl;
     out<<"Particle Flow: "<<endl;
     for(unsigned i=0; i<pfJets_.size(); i++) {      
-      if (pfJets_[i].pt() > printPFPt_ )
+      if (pfJets_[i].pt() > printPFJetsPtMin_ )
 	out<<i<<pfJets_[i].print()<<endl;
     }    
     out<<endl;
     out<<"Generated: "<<endl;
     for(unsigned i=0; i<genJets_.size(); i++) {
-      if (genJets_[i].pt() > printPFPt_ )
+      if (genJets_[i].pt() > printPFJetsPtMin_ )
 	out<<i<<genJets_[i].print()<<endl;
       // <<" invisible energy = "<<genJets_[i].invisibleEnergy()<<endl;
     }        
