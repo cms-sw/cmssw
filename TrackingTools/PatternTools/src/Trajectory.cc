@@ -2,6 +2,7 @@
 #include "boost/intrusive_ptr.hpp" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
@@ -173,16 +174,22 @@ void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
 	  hitB = itm->recHit()->transientHits()[1];
 	}
 
-	if( (scalar>0 && direction()==alongMomentum) ||
+	if( (scalar>=0 && direction()==alongMomentum) ||
 	    (scalar<0 && direction()==oppositeToMomentum)){
 	  hits.push_back(hitA);
 	  hits.push_back(hitB);
-	}else if( (scalar>0 && direction()== oppositeToMomentum) ||
+	}else if( (scalar>=0 && direction()== oppositeToMomentum) ||
 		  (scalar<0 && direction()== alongMomentum)){
 	  hits.push_back(hitB);
 	  hits.push_back(hitA);
-	}else
-	  throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");	
+	}else {
+	  //throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");	
+          edm::LogError("Trajectory_recHitsV_UndefinedTrackDirection") << 
+                "Error in Trajectory::recHitsV: scalar = " << scalar << 
+                ", direction = " << (direction()==alongMomentum ? "along" : (direction()==oppositeToMomentum ? "opposite" : "undefined")) << "\n";
+          hits.push_back(hitA);
+          hits.push_back(hitB);
+        }         
       }else if(typeid(*(itm->recHit()->hit())) == typeid(ProjectedSiStripRecHit2D)){
 	//hits.push_back(itm->recHit()->transientHits()[0]);	//Use 2D SiStripRecHit
 	if(!itm->recHit()->transientHits()[0]->detUnit()->type().isEndcap()){
