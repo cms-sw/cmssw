@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.22 2010/02/14 20:56:23 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.23 2010/02/16 07:52:38 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.22 $
-  \date $Date: 2010/02/14 20:56:23 $
+  \version $Revision: 1.23 $
+  \date $Date: 2010/02/16 07:52:38 $
 */
 
 #ifdef WITH_ECAL_COND_DB
@@ -35,7 +35,7 @@
 #include <regex.h>
 #include <string.h>
 
-int  EcalErrorMask::runNb_ = -1;
+int EcalErrorMask::runNb_ = -1;
 #ifdef WITH_ECAL_COND_DB
 std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_;
 std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_;
