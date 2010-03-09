@@ -58,19 +58,23 @@ FWEventAnnotation::updateOverlayText()
 
    if (m_event && m_level)
    {
-      fText += "\nDate recorded:";
+      fText += "\nData recorded: ";
       fText += fw::getLocalTime( *m_event );
       fText += "\nRun/Event: ";
       fText += m_event->id().run();
-      fText += "/ ";
+      fText += " / ";
       fText += m_event->id().event();
       if ( m_level > 1)
       {
-         fText += "\nadd more info for level = 2";
+         fText += "\nLumi section: ";
+	 fText += m_event->luminosityBlock();
       }
       if ( m_level > 2)
       {
-         fText += "\nadd even for more info for level = 3";
+         fText += "\nOrbit/Crossing: ";
+	 fText += m_event->orbitNumber();
+	 fText += " / ";
+	 fText += m_event->bunchCrossing();
       }
    }
    fParent->RequestDraw();
