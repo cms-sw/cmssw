@@ -297,7 +297,7 @@ bool Pythia6Hadronizer::generatePartonsAndHadronize()
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
 
    FortranCallback::getInstance()->resetIterationsPerEvent();
-   
+      
    // generate event with Pythia6
    //
    
@@ -672,12 +672,15 @@ bool Pythia6Hadronizer::declareStableParticles( std::vector<int> pdg )
       int PyID = HepPID::translatePDTtoPythia( pdg[i] );
       // int PyID = pdg[i]; 
       int pyCode = pycomp_( PyID );
-      std::ostringstream pyCard ;
-      pyCard << "MDCY(" << pyCode << ",1)=0";
+      if ( pyCode > 0 )
+      {
+         std::ostringstream pyCard ;
+         pyCard << "MDCY(" << pyCode << ",1)=0";
 /* this is a test printout... 
-      std::cout << pyCard.str() << std::endl; 
+         std::cout << "pdg= " << pdg[i] << " " << pyCard.str() << std::endl; 
 */
-      call_pygive( pyCard.str() );
+         call_pygive( pyCard.str() );
+      }
    }
       
    return true;
