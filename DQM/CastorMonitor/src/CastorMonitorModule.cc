@@ -167,7 +167,7 @@ void CastorMonitorModule::beginJob(){
   
 
      ////---- create EventProduct histogram
-    dbe_->setCurrentFolder(rootFolder_+"EventInfo");
+    dbe_->setCurrentFolder(rootFolder_+"CastorEventProducts");
     CastorEventProduct =dbe_->book2D("CastorEventProduct","CastorEventProduct",3,0,3,1,0,1);
     TH2F* hCastorEventProduct =CastorEventProduct->getTH2F();
     hCastorEventProduct->GetXaxis()->SetBinLabel(1,"RawData");
