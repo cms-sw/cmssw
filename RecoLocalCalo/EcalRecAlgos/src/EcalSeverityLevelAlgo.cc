@@ -62,7 +62,7 @@ int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus )
                 return kRecovered;
         } else if ( rhFlag == EcalRecHit::kDead
                  || rhFlag == EcalRecHit::kSaturated
-                 || rhFlag == EcalRecHit::kFake
+                 //|| rhFlag == EcalRecHit::kFake // will be uncommented when validated
                  || rhFlag == EcalRecHit::kFakeNeighbours
                  || rhFlag == EcalRecHit::kKilled ) {
                 // recovery failed (or not tried) or signal is fake or channel
