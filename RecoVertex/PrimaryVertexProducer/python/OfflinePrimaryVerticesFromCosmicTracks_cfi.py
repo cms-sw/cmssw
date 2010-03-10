@@ -9,15 +9,17 @@ offlinePrimaryVerticesFromCosmicTracks = cms.EDProducer("PrimaryVertexProducer",
     ),
     verbose = cms.untracked.bool(False),
     algorithm = cms.string('AdaptiveVertexFitter'),
+    minNdof  = cms.double(0.0),
     TkFilterParameters = cms.PSet(
         maxNormalizedChi2 = cms.double(5.0),
-        minSiliconHits = cms.int32(7), ## hits > 7
+        minSiliconLayersWithHits = cms.int32(7), ## hits > 7
 
         maxD0Significance = cms.double(5.0), ## keep most primary tracks
 
         minPt = cms.double(0.0), ## better for softish events
 
-        minPixelHits = cms.int32(2) ## hits > 2
+        minPixelLayersWithHits = cms.int32(2), ## hits > 2
+        trackQuality = cms.string("any")
 
     ),
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
@@ -34,7 +36,7 @@ offlinePrimaryVerticesFromCosmicTracks = cms.EDProducer("PrimaryVertexProducer",
     ),
     TkClusParameters = cms.PSet(
         algorithm   = cms.string("gap"),
-        TkGapClusParameter = cms.PSet( 
+        TkGapClusParameters = cms.PSet( 
             zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
         )
     )
