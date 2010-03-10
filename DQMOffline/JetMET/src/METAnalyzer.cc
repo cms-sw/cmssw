@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/02 02:12:01 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/03/04 05:40:36 $
+ *  $Revision: 1.21 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -14,9 +14,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//#include "DataFormats/METReco/interface/METCollection.h"
-//#include "DataFormats/METReco/interface/MET.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -234,11 +231,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   me[DirName+"/SumET"]              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,500,0,2000);
   me[DirName+"/SumET"]->setAxisTitle("SumET [GeV]",1);
 
-  //me[DirName+"/MEx"]                = _dbe->book1D("METTask_MEx",   "METTask_MEx"   ,500,-500,500);
-  //me[DirName+"/MEx"]->setAxisTitle("MEx [GeV]",1);
-  //me[DirName+"/MEy"]                = _dbe->book1D("METTask_MEy",   "METTask_MEy"   ,500,-500,500);
-  //me[DirName+"/MEy"]->setAxisTitle("MEy [GeV]",1);
-
   me[DirName+"/MET_logx"]           = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx"   ,40,-1.,7.);
   me[DirName+"/MET_logx"]->setAxisTitle("log(MET) [GeV]",1);
   me[DirName+"/SumET_logx"]         = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx" ,40,-1.,7.);
@@ -293,25 +285,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 // ***********************************************************
 void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
-  //
-  //--- htlConfig_
-  
-//   hltConfig_.init(processname_);
-//   if (!hltConfig_.init(processname_)) {
-//     processname_ = "FU";
-//     if (!hltConfig_.init(processname_)){
-//       LogDebug("METAnalyzer") << "HLTConfigProvider failed to initialize.";
-//     }
-//   }
-
-//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighPtJet) << std::endl;
-//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowPtJet)  << std::endl;
-//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighMET)   << std::endl;
-//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowMET)    << std::endl;
-//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Ele)       << std::endl;
-//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Muon)      << std::endl;
-//   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_PhysDec)   << std::endl;
 
 }
 

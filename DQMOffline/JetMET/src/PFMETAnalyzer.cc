@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/03/02 02:12:27 $
+ *  $Revision: 1.19 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -11,8 +11,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-//#include "DataFormats/METReco/interface/PFMET.h"
-//#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -265,25 +263,6 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
 // ***********************************************************
 void PFMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
-  //
-  //--- htlConfig_
-  
-  //   hltConfig_.init(processname_);
-  //   if (!hltConfig_.init(processname_)) {
-  //     processname_ = "FU";
-  //     if (!hltConfig_.init(processname_)){
-  //       LogDebug("PFMETAnalyzer") << "HLTConfigProvider failed to initialize.";
-  //     }
-  //   }
-
-  //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighPtJet) << std::endl;
-  //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowPtJet)  << std::endl;
-  //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighMET)   << std::endl;
-  //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowMET)    << std::endl;
-  //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Ele)       << std::endl;
-  //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Muon)      << std::endl;
-  //   if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_PhysDec)   << std::endl;
 
 }
 

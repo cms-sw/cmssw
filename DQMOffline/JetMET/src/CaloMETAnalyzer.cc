@@ -1,17 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/02 02:12:06 $
- *  $Revision: 1.33 $
+ *  $Date: 2010/03/04 05:40:43 $
+ *  $Revision: 1.34 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
 
 #include "DQMOffline/JetMET/interface/CaloMETAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
-
-//#include "DataFormats/METReco/interface/CaloMET.h"
-//#include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -316,39 +313,11 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
 
   }
 
-  // Look at all MonitorElements
-  //   std::vector<std::string> MEs = _dbe->getMEs();
-  //   for(unsigned int i=0;i<MEs.size();i++) {
-  //     MonitorElement *me = _dbe->get(MEs[i]);
-  //     TH1F *tme     = me->getTH1F();
-  //     tme->SetOptStats(111111);
-  //   }
-
 }
 
 // ***********************************************************
 void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
-  //
-  //--- htlConfig_
-  /*
-  hltConfig_.init(processname_);
-  if (!hltConfig_.init(processname_)) {
-    processname_ = "FU";
-    if (!hltConfig_.init(processname_)){
-      LogDebug("CaloMETAnalyzer") << "HLTConfigProvider failed to initialize.";
-    }
-  }
-
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighPtJet) << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowPtJet)  << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighMET)   << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowMET)    << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Ele)       << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Muon)      << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_PhysDec)      << std::endl;
-  */
 
 }
 
