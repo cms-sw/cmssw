@@ -34,8 +34,8 @@ class EcalSeverityLevelAlgo {
                  */
                 static float spikeFromNeighbours( const DetId id,
                                                   const EcalRecHitCollection &,
-                                                  float recHitEtThreshold = 5.,
-                                                  SpikeId spId = kSwissCross
+                                                  float recHitEtThreshold,
+                                                  SpikeId spId
                                                   );
 
                 /** ratio between the crystal energy and the energy in the 3x3

@@ -6,7 +6,7 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
                 const EcalRecHitCollection & recHits, 
                 const EcalChannelStatus & chStatus,
                 float recHitEtThreshold,
-                SpikeId sp,
+                SpikeId spId,
                 float spIdThreshold
                 )
 {
@@ -29,7 +29,7 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
         } else {
                 // the channel is in the recHit collection
                 // .. is it a spike?
-                if ( spikeFromNeighbours(id, recHits, recHitEtThreshold) > spIdThreshold  ) return kWeird;
+                if ( spikeFromNeighbours(id, recHits, recHitEtThreshold, spId) > spIdThreshold  ) return kWeird;
                 // .. not a spike, return the normal severity level
                 return severityLevel( *it, chStatus );
         }
