@@ -3,6 +3,7 @@ HLT_Activity_PixelClusters
 HLT_Activity_Ecal
 HLT_Activity_EcalREM
 HLT_Activity_DT
+HLT_Activity_DT_Tuned
 HLT_SplashEcalSumET
 HLT_L1Jet6U
 HLT_L1Jet6U_NoBPTX
