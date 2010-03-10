@@ -56,15 +56,15 @@ castorHists.meRECHIT_T_all = m_dbe->book1D("CastorRecHit Times- above threshold 
 ////---- 1D energy map
 castorHists.meRECHIT_MAP_CHAN_E = m_dbe->book1D("CastorRecHit Energy in each channel- above threshold","CastorRecHit Energy in each channel- above threshold",224,0,224);
 ////---- 2D energy map
-castorHists.meRECHIT_MAP_CHAN_E2D = m_dbe->book2D("CastorRecHit 2D Energy Map- above threshold","CastorRecHit 2D Energy Map- above threshold",14, 0.5,14.5, 16, 0.5,16.5);
+castorHists.meRECHIT_MAP_CHAN_E2D = m_dbe->book2D("CastorRecHit 2D Energy Map- above threshold","CastorRecHit 2D Energy Map- above threshold",14, 0,14, 16, 0,16);
 ////---- energy in modules    
-castorHists.meRECHIT_E_modules = m_dbe->book1D("CastorRecHit Energy in modules- above threshold","CastorRecHit Energy in modules- above threshold", 14, 0.5, 14.5);
+castorHists.meRECHIT_E_modules = m_dbe->book1D("CastorRecHit Energy in modules- above threshold","CastorRecHit Energy in modules- above threshold", 14, 0, 14);
 ////---- energy in sectors    
-castorHists.meRECHIT_E_sectors = m_dbe->book1D("CastorRecHit Energy in sectors- above threshold","CastorRecHit Energy in sectors- above threshold", 16, 0.5, 16.5);
+castorHists.meRECHIT_E_sectors = m_dbe->book1D("CastorRecHit Energy in sectors- above threshold","CastorRecHit Energy in sectors- above threshold", 16, 0, 16);
 ////---- number of rechits in modules    
-castorHists.meRECHIT_N_modules = m_dbe->book1D("Number of CastorRecHits in modules- above threshold","Number of CastorRecHits in modules- above threshold", 14, 0.5, 14.5);
+castorHists.meRECHIT_N_modules = m_dbe->book1D("Number of CastorRecHits in modules- above threshold","Number of CastorRecHits in modules- above threshold", 14, 0, 14);
 ////---- number of rechist in sectors    
-castorHists.meRECHIT_N_sectors = m_dbe->book1D("Number of CastorRecHits in sectors- above threshold","Number of CastorRecHits in sectors- above threshold", 16, 0.5, 16.5);
+castorHists.meRECHIT_N_sectors = m_dbe->book1D("Number of CastorRecHits in sectors- above threshold","Number of CastorRecHits in sectors- above threshold", 16, 0, 16);
 ////---- occupancy
  castorHists.meCastorRecHitsOccupancy = m_dbe->book2D("CastorRecHits occupancy- sector vs module", "CastorRecHits occupancy- sector vs module", 14, 0.5,14.5, 16, 0.5,16.5);
 TH2F* CastorRecHitsOccupancy =castorHists.meCastorRecHitsOccupancy->getTH2F();
@@ -181,17 +181,17 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
       ////---- fill energy vs channel     
       castorHists.meRECHIT_MAP_CHAN_E->Fill(channel,energy);
       ////---- fill 2D energy map
-      castorHists.meRECHIT_MAP_CHAN_E2D->Fill(module,sector,energy);
+      castorHists.meRECHIT_MAP_CHAN_E2D->Fill(module-1,sector-1,energy);
       ////---- fill energy in modules
-      castorHists.meRECHIT_E_modules->Fill(module, energy);
+      castorHists.meRECHIT_E_modules->Fill(module-1, energy);
       ////---- fill energy in sectors
-      castorHists.meRECHIT_E_sectors->Fill(sector, energy);
+      castorHists.meRECHIT_E_sectors->Fill(sector-1, energy);
       ////---- fill number of rechits in modules
-      castorHists.meRECHIT_N_modules->Fill(module);
+      castorHists.meRECHIT_N_modules->Fill(module-1);
       ////---- fill number of rechits in sectors
-      castorHists.meRECHIT_N_sectors->Fill(sector);
+      castorHists.meRECHIT_N_sectors->Fill(sector-1);
       ////---- fill occupancy
-      castorHists.meCastorRecHitsOccupancy->Fill(module,sector);
+      castorHists.meCastorRecHitsOccupancy->Fill(module-1,sector-1);
      }
     
       ////---- do histograms per channel once per 100 events     
