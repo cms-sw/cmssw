@@ -180,7 +180,7 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     # add modules to process
     setattr(process, "pat"         + patLabel, producer)
     setattr(process, "selectedPat" + patLabel, filter)
-    setattr(process, "cleanPat"    + patLabel, counter)
+    setattr(process, "countPat"    + patLabel, counter)
     # insert into sequence
     process.patCandidates.replace(process.patCandidateSummary, producer+process.patCandidateSummary)
     process.selectedPatCandidates.replace(process.selectedPatCandidateSummary, filter + process.selectedPatCandidateSummary)
