@@ -39,6 +39,8 @@ private:
   InputTag dimuons_;
   float isocut_, etacut_, ptcut_, minZmass_, maxZmass_;
   float dRConeVeto_, ptThresholdVeto_, dRIsolationCone_;
+  TH1F * h_muFromZ_pt_;
+  TH1F * h_muFromZ_eta_;
   TH1F * h_zMuMu_mass_;
   TH1F * h_zMuMuMatched_mass_;
   TH1F * h_zMuMuMC_mass_;
@@ -56,6 +58,8 @@ ZMuMuTutorialAnalyzer::ZMuMuTutorialAnalyzer(const edm::ParameterSet& pset) :
   dRIsolationCone_( pset.getParameter<double>( "dRIsolationCone" ))
  {
   edm::Service<TFileService> fs;
+  h_muFromZ_pt_ = fs->make<TH1F>( "muPt", "mu pT(GeV/c)", 200, 0., 200. );
+  h_muFromZ_eta_ = fs->make<TH1F>( "muEta", "mu eta", 100, -2.5, 2.5 );
   h_zMuMu_mass_ = fs->make<TH1F>( "ZMuMumass", "ZMuMu mass(GeV)", 200, 0., 200. );
   h_zMuMuMatched_mass_ = fs->make<TH1F>( "ZMuMuMatchedmass", "ZMuMu mass(GeV)", 200, 0., 200. );
   h_zMuMuMC_mass_ = fs->make<TH1F>( "ZMuMuMCmass", "ZMuMu mass(GeV)", 200, 0., 200. );
@@ -100,7 +104,9 @@ void ZMuMuTutorialAnalyzer::analyze(const edm::Event& event, const edm::EventSet
 	continue;
 
       // Accessing pre-computed tracker isolation
-      float trackerIsoMu0 = muonDau0.trackIso();
+      // Note: if you want the POG-defined isolation you must use muonDau0.trackIso();
+      float trackerIsoMu0 = muonDau0.userIsolation(pat::TrackIso);
+
       // Another possibility: compute tracker isolation from IsoDeposit
       // Accessing tracker IsoDeposits collection around the muon
       const pat::IsoDeposit * trackIsodeposit = muonDau1.trackIsoDeposit();
@@ -124,6 +130,10 @@ void ZMuMuTutorialAnalyzer::analyze(const edm::Event& event, const edm::EventSet
 
       goodZMuMu++;
       h_zMuMu_mass_->Fill( dimuonCand.mass() );
+      h_muFromZ_pt_->Fill( ptMu0 );
+      h_muFromZ_pt_->Fill( ptMu1 );
+      h_muFromZ_eta_->Fill( etaMu0 );
+      h_muFromZ_eta_->Fill( etaMu1 );
 
       bool isMCMatchedZMuMu = false;
 
