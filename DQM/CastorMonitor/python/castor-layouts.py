@@ -2,12 +2,12 @@ def castorlayout(i, p, *rows): i["Castor/Layouts/" + p] = DQMItem(layout=rows)
 
 
 castorlayout(dqmitems, "CASTOR Channel Status",
-           [{ 'path': "Castor/EventInfo/reportSummaryMap - CASTOR Channel Status",
+           [{ 'path': "Castor/EventInfo/reportSummaryMap",
              'description':"1 - OK, 0 - dead, -1 - noisy"}]
            )
 
 castorlayout(dqmitems, "CASTOR event products",
-           [{ 'path': "Castor/EventInfo/CastorEventProduct",
+           [{ 'path': "Castor/CastorEventProducts/CastorEventProduct",
              'description':"check whether CASTOR objects are present in the events"}]
            )
               
