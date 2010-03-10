@@ -49,7 +49,11 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
         ), 
         cms.PSet(
             bTagSimpleSVAnalysisBlock,
-            label = cms.InputTag("simpleSecondaryVertexBJetTags")
+            label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags")
+        ), 
+        cms.PSet(
+            bTagSimpleSVAnalysisBlock,
+            label = cms.InputTag("simpleSecondaryVertexHighPurBJetTags")
         ), 
         cms.PSet(
             bTagGenericAnalysisBlock,

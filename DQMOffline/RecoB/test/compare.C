@@ -34,7 +34,8 @@ void drawAll()
   algos.push_back("trackCountingHighEffBJetTags");
   algos.push_back("jetProbabilityBJetTags");
   algos.push_back("jetBProbabilityBJetTags");
-  algos.push_back("simpleSecondaryVertexBJetTags");
+  algos.push_back("simpleSecondaryVertexHighEffBJetTags");
+  algos.push_back("simpleSecondaryVertexHighPurBJetTags");
   algos.push_back("combinedSecondaryVertexBJetTags");
   algos.push_back("combinedSecondaryVertexMVABJetTags");
   algos.push_back("softMuonBJetTags");
