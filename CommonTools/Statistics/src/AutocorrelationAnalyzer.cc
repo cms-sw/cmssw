@@ -25,7 +25,7 @@ double AutocorrelationAnalyzer::covariance(int i, int j)
 {
   if(!calculated_) calculate();
   assert(i<=theSize && j<=theSize);
-  return theCovariances(i-1,j-1);
+  return theCovariances(i+1,j+1);
 }
 
 
@@ -33,7 +33,7 @@ double AutocorrelationAnalyzer::correlation(int i, int j)
 {
   if(!calculated_) calculate();
   assert(i<=theSize && j<=theSize);
-  return theCorrelations(i-1,j-1);
+  return theCorrelations(i+1,j+1);
 }
 
 
