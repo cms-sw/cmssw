@@ -71,8 +71,8 @@ bool EcalTBDaqSimpleFile::getEventData(FedDataPair& data) {
 
     // allocate max memory allowed, use only what needed
     int len=0;
-    ulong* buf = new ulong [EcalTBDaqFile::maxEventSizeInBytes_];
-    ulong* tmp=buf;
+    uint* buf = new uint [EcalTBDaqFile::maxEventSizeInBytes_];
+    uint* tmp=buf;
 
     // importing data word by word
     for ( int i=0; i< EcalTBDaqFile::maxEventSizeInBytes_/4; ++i) {
