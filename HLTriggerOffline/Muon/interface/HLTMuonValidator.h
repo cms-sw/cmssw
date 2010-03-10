@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/02/14 15:34:18 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/02/20 20:59:56 $
+ *  $Revision: 1.7 $
  *  \author  J. Klukas, M. Vander Donckt, J. Alcaraz
  */
 
@@ -31,6 +31,8 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -59,6 +61,7 @@ class HLTMuonValidator : public edm::EDAnalyzer {
  public:
   HLTMuonValidator(const edm::ParameterSet &);
   virtual void beginJob();
+  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
   virtual void analyze(const edm::Event &, const edm::EventSetup &);
 
  private:
@@ -132,6 +135,8 @@ class HLTMuonValidator : public edm::EDAnalyzer {
 
   StringCutObjectSelector<reco::GenParticle> * genMuonSelector_;
   StringCutObjectSelector<reco::Muon       > * recMuonSelector_;
+
+  HLTConfigProvider hltConfig_;
 
   DQMStore* dbe_;
   std::map<std::string, MonitorElement *> elements_;
