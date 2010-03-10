@@ -5,54 +5,39 @@
 
 using namespace std;
 
-WPlusJetsEventSelector::WPlusJetsEventSelector( 
-    edm::InputTag const & muonTag,
-    edm::InputTag const & electronTag,
-    edm::InputTag const & jetTag,
-    edm::InputTag const & metTag,
-    edm::InputTag const & trigTag,
-    boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor> & muonIdTight,
-    boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor> & electronIdTight,
-    boost::shared_ptr<JetIDSelectionFunctor> & jetIdTight,
-    boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor> & muonIdLoose,
-    boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor> & electronIdLoose,
-    boost::shared_ptr<JetIDSelectionFunctor> & jetIdLoose,
-    int minJets,
-    bool muPlusJets,
-    bool ePlusJets,
-    double muPtMin       , double muEtaMax,
-    double elePtMin      , double eleEtaMax,
-    double muPtMinLoose  , double muEtaMaxLoose,
-    double elePtMinLoose , double eleEtaMaxLoose,
-    double jetPtMin      , double jetEtaMax
-    ) :
+WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params ) :
   EventSelector(),
-  muonTag_(muonTag),
-  electronTag_(electronTag),
-  jetTag_(jetTag),
-  metTag_(metTag),
-  trigTag_(trigTag),
-  muonIdTight_(muonIdTight),
-  electronIdTight_(electronIdTight),
-  jetIdTight_(jetIdTight),
-  muonIdLoose_(muonIdLoose),
-  electronIdLoose_(electronIdLoose),
-  jetIdLoose_(jetIdLoose),
-  minJets_(minJets),
-  muPlusJets_(muPlusJets),
-  ePlusJets_(ePlusJets),
-  muPtMin_(muPtMin), muEtaMax_(muEtaMax),
-  elePtMin_(elePtMin), eleEtaMax_(eleEtaMax),
-  muPtMinLoose_(muPtMinLoose), muEtaMaxLoose_(muEtaMaxLoose),
-  elePtMinLoose_(elePtMinLoose), eleEtaMaxLoose_(eleEtaMaxLoose),
-  jetPtMin_(jetPtMin), jetEtaMax_(jetEtaMax), jetScale_(1.0)
+  muonTag_         (params.getParameter<edm::InputTag>("muonSrc") ),
+  electronTag_     (params.getParameter<edm::InputTag>("electronSrc") ),
+  jetTag_          (params.getParameter<edm::InputTag>("jetSrc") ),
+  metTag_          (params.getParameter<edm::InputTag>("metSrc") ),  
+  trigTag_         (params.getParameter<edm::InputTag>("trigSrc") ),  
+  muonIdTight_     (params.getParameter<edm::ParameterSet>("muonIdTight") ),
+  electronIdTight_ (params.getParameter<edm::ParameterSet>("electronIdTight") ),
+  muonIdLoose_     (params.getParameter<edm::ParameterSet>("muonIdLoose") ),
+  electronIdLoose_ (params.getParameter<edm::ParameterSet>("electronIdLoose") ),
+  jetIdLoose_      (params.getParameter<edm::ParameterSet>("jetIdLoose") ),
+  minJets_         (params.getParameter<int> ("minJets") ),
+  muPlusJets_      (params.getParameter<bool>("muPlusJets") ),
+  ePlusJets_       (params.getParameter<bool>("ePlusJets") ),
+  muPtMin_         (params.getParameter<double>("muPtMin")), 
+  muEtaMax_        (params.getParameter<double>("muEtaMax")), 
+  elePtMin_        (params.getParameter<double>("elePtMin")), 
+  eleEtaMax_       (params.getParameter<double>("eleEtaMax")), 
+  muPtMinLoose_    (params.getParameter<double>("muPtMinLoose")), 
+  muEtaMaxLoose_   (params.getParameter<double>("muEtaMaxLoose")), 
+  elePtMinLoose_   (params.getParameter<double>("elePtMinLoose")), 
+  eleEtaMaxLoose_  (params.getParameter<double>("eleEtaMaxLoose")), 
+  jetPtMin_        (params.getParameter<double>("jetPtMin")), 
+  jetEtaMax_       (params.getParameter<double>("jetEtaMax")), 
+  jetScale_        (params.getParameter<double>("jetScale"))
 {
   // make the bitset
   push_back( "Inclusive"      );
   push_back( "Trigger"        );
   push_back( ">= 1 Lepton"    );
   push_back( "== 1 Lepton"    );
-  push_back( "Tight Jet Cuts", minJets );
+  push_back( "Tight Jet Cuts", minJets_ );
   push_back( "MET Cut"        );
   push_back( "Z Veto"         );
   push_back( "Conversion Veto");
@@ -102,7 +87,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
   event.getByLabel (metTag_, metHandle);
 
   edm::Handle<pat::TriggerEvent> triggerEvent;
-  event.getByLabel(edm::InputTag("patTriggerEvent"), triggerEvent);
+  event.getByLabel(trigTag_, triggerEvent);
 
 
   int nGlobalMuons = 0;
@@ -112,16 +97,15 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
     if ( imuon->isGlobalMuon() ) {
       ++nGlobalMuons;
       // Tight cuts
-      std::strbitset iret = muonIdTight_->getBitTemplate();
+      bool passTight = muonIdTight_(*imuon);
       if ( imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
-	   (*muonIdTight_)(*imuon, iret) ) {
-	selectedMuons_.push_back( *imuon );
+	   passTight ) {
+	selectedMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
       } else {
 	// Loose cuts
-	std::strbitset iret = muonIdLoose_->getBitTemplate();
 	if ( imuon->pt() > muPtMinLoose_ && fabs(imuon->eta()) < muEtaMaxLoose_ && 
-	     (*muonIdLoose_)(*imuon, iret) ) {
-	  looseMuons_.push_back( *imuon );
+	     muonIdLoose_(*imuon) ) {
+	  looseMuons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Muon>( muonHandle, imuon - muonBegin ) ) );
 	}
       }
     }
@@ -133,17 +117,15 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
 	ielectron != electronEnd; ++ielectron ) {
     ++nElectrons;
     // Tight cuts
-    std::strbitset iret = electronIdTight_->getBitTemplate();
     if ( ielectron->pt() > elePtMin_ && fabs(ielectron->eta()) < eleEtaMax_ && 
-	 (*electronIdTight_)(*ielectron, iret) &&
+	 electronIdTight_(*ielectron) &&
 	 ielectron->electronID( "eidRobustTight" ) > 0  ) {
-      selectedElectrons_.push_back( *ielectron );
+      selectedElectrons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Electron>( electronHandle, ielectron - electronBegin ) ) );
     } else {
       // Loose cuts
-      std::strbitset iret = electronIdLoose_->getBitTemplate();
       if ( ielectron->pt() > elePtMinLoose_ && fabs(ielectron->eta()) < eleEtaMaxLoose_ && 
-	   (*electronIdLoose_)(*ielectron, iret) ) {
-	looseElectrons_.push_back( *ielectron );
+	   electronIdLoose_(*ielectron) ) {
+	looseElectrons_.push_back( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Electron>( electronHandle, ielectron - electronBegin ) ) );
       }
     }
   }
@@ -151,20 +133,19 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, std::str
   for ( std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
 	  jetEnd = jetHandle->end(), ijet = jetBegin;
 	ijet != jetEnd; ++ijet ) {
-    std::strbitset iret = jetIdTight_->getBitTemplate();
 
-    pat::Jet scaledJet = pat::Jet(*ijet);
-    scaledJet.scaleEnergy(jetScale_);
+    reco::ShallowClonePtrCandidate scaledJet ( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Jet>( jetHandle, ijet - jetBegin ),
+									       ijet->charge(),
+									       ijet->p4() * jetScale_ ) );
     
-//     if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && (*jetIdTight_)(scaledJet, iret) ) {
-    if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ ) {
+    if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && jetIdLoose_(*ijet) ) {
       selectedJets_.push_back( scaledJet );
       if ( muPlusJets_ ) {
 	cleanedJets_.push_back( scaledJet );
       } else {
 	//Remove some jets
 	bool indeltaR = false;
-	for( std::vector<pat::Electron>::const_iterator electronBegin = selectedElectrons_.begin(),
+	for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
 	       electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
 	     ielectron != electronEnd; ++ielectron )
 	  if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < dR_ )

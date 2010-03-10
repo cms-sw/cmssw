@@ -11,40 +11,22 @@
 #include "PhysicsTools/SelectorUtils/interface/ElectronVPlusJetsIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/MuonVPlusJetsIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
 class WPlusJetsEventSelector : public EventSelector {
  public:
-  WPlusJetsEventSelector(
-   edm::InputTag const & muonTag,
-   edm::InputTag const & electronTag,
-   edm::InputTag const & jetTag,
-   edm::InputTag const & metTag,
-   edm::InputTag const & trigTag,
-   boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor> & muonIdTight,
-   boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor> & electronIdTight,
-   boost::shared_ptr<JetIDSelectionFunctor> & jetIdTight,
-   boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor> & muonIdLoose,
-   boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor> & electronIdLoose,
-   boost::shared_ptr<JetIDSelectionFunctor> & jetIdLoose,
-   int minJets,
-   bool muPlusJets,
-   bool ePlusJets,
-   double muPtMin       , double muEtaMax,
-   double elePtMin      , double eleEtaMax,
-   double muPtMinLoose  , double muEtaMaxLoose,
-   double elePtMinLoose , double eleEtaMaxLoose,
-   double jetPtMin      , double jetEtaMax
-			  );
+  WPlusJetsEventSelector( edm::ParameterSet const & params );
 
   virtual void scaleJets(double scale) {jetScale_ = scale;}
   
   virtual bool operator()( edm::EventBase const & t, std::strbitset & ret);
   using EventSelector::operator();
 
-  std::vector<pat::Jet>      const & selectedJets     () const { return selectedJets_;     } 
-  std::vector<pat::Jet>      const & cleanedJets      () const { return cleanedJets_;      } 
-  std::vector<pat::Electron> const & selectedElectrons() const { return selectedElectrons_;}
-  std::vector<pat::Muon>     const & selectedMuons    () const { return selectedMuons_;    }
+  std::vector<reco::ShallowClonePtrCandidate> const & selectedJets     () const { return selectedJets_;     } 
+  std::vector<reco::ShallowClonePtrCandidate> const & cleanedJets      () const { return cleanedJets_;      } 
+  std::vector<reco::ShallowClonePtrCandidate> const & selectedElectrons() const { return selectedElectrons_;}
+  std::vector<reco::ShallowClonePtrCandidate> const & selectedMuons    () const { return selectedMuons_;    }
  
  protected: 
 
@@ -54,22 +36,20 @@ class WPlusJetsEventSelector : public EventSelector {
   edm::InputTag               metTag_;
   edm::InputTag               trigTag_;
 
-  std::vector<pat::Jet>       selectedJets_;
-  std::vector<pat::Muon>      selectedMuons_;
-  std::vector<pat::Electron>  selectedElectrons_;
-  std::vector<pat::Muon>      looseMuons_;
-  std::vector<pat::Electron>  looseElectrons_;
-  std::vector<pat::MET>       selectedMETs_;
-  std::vector<pat::Jet>       cleanedJets_;
-  std::vector<pat::Electron>  selectedElectrons2_;
+  std::vector<reco::ShallowClonePtrCandidate> selectedJets_;
+  std::vector<reco::ShallowClonePtrCandidate> selectedMuons_;
+  std::vector<reco::ShallowClonePtrCandidate> selectedElectrons_;
+  std::vector<reco::ShallowClonePtrCandidate> looseMuons_;
+  std::vector<reco::ShallowClonePtrCandidate> looseElectrons_;
+  std::vector<reco::ShallowClonePtrCandidate> selectedMETs_;
+  std::vector<reco::ShallowClonePtrCandidate> cleanedJets_;
+  std::vector<reco::ShallowClonePtrCandidate> selectedElectrons2_;
 
-  boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor>      muonIdTight_;
-  boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor>  electronIdTight_;
-  boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor>  electronIdTight2_;
-  boost::shared_ptr<JetIDSelectionFunctor>                jetIdTight_;
-  boost::shared_ptr<MuonVPlusJetsIDSelectionFunctor>      muonIdLoose_;
-  boost::shared_ptr<ElectronVPlusJetsIDSelectionFunctor>  electronIdLoose_;
-  boost::shared_ptr<JetIDSelectionFunctor>                jetIdLoose_;
+  MuonVPlusJetsIDSelectionFunctor      muonIdTight_;
+  ElectronVPlusJetsIDSelectionFunctor  electronIdTight_;
+  MuonVPlusJetsIDSelectionFunctor      muonIdLoose_;
+  ElectronVPlusJetsIDSelectionFunctor  electronIdLoose_;
+  JetIDSelectionFunctor                jetIdLoose_;
 
   int minJets_;
   double dR_;
