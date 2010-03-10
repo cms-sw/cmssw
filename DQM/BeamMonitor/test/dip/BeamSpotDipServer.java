@@ -16,7 +16,7 @@ public class BeamSpotDipServer
 extends Thread
 implements Runnable,DipPublicationErrorHandler
 {
-  public final static boolean overwriteFlag = true; //if true, flag with flags[0]
+  public final static boolean overwriteQuality = true; //if true, upload qualities[0]
   public final static boolean publishStatErrors = false;
   public final static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public final static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
@@ -26,7 +26,7 @@ implements Runnable,DipPublicationErrorHandler
   public final static int rad2urad = 1000000;
   public final static int cm2um = 10000;
   public final static int cm2mm = 10;
-  public final static String[] flags = {"Uncertain","Bad","Good"};
+  public final static String[] qualities = {"Uncertain","Bad","Good"};
 
   DipFactory dip;
   DipData messageCMS;
@@ -37,7 +37,7 @@ implements Runnable,DipPublicationErrorHandler
   String startTime;
   String endTime;
   String lumiRange;
-  String flag;
+  String quality;
   int type;
   float x;
   float y;
@@ -100,7 +100,7 @@ implements Runnable,DipPublicationErrorHandler
     try
     {
       int lsCount = 0;
-      flag = flags[0];
+      quality = qualities[0];
       try
       {
 	File logFile1 = new File(sourceFile1);
@@ -126,7 +126,7 @@ implements Runnable,DipPublicationErrorHandler
 	    upResult2 = false;
 
 	    if (fileLength1 < filePointer1) {
-		System.err.println("New Run Started");
+		System.out.println("New Run Started");
 		myFile1 = new RandomAccessFile(logFile1,"r");
 		filePointer1 = 0;
 		lsCount = 0;
@@ -181,7 +181,7 @@ implements Runnable,DipPublicationErrorHandler
 	      messageCMS.insert("startTime",startTime);
 	      messageCMS.insert("endTime",endTime);
 	      messageCMS.insert("lumiRange",lumiRange);
-	      messageCMS.insert("flag",flag);
+	      messageCMS.insert("quality",quality);
 	      messageCMS.insert("type",type); //Unknown=-1, Fake=0, Tracker=2(Good)
 	      messageCMS.insert("x",x);
 	      messageCMS.insert("y",y);
@@ -221,15 +221,15 @@ implements Runnable,DipPublicationErrorHandler
 	      DipTimestamp zeit = new DipTimestamp(epoch);
 	      publicationCMS.send(messageCMS, zeit);
 	      publicationLHC.send(messageLHC, zeit);
-	      if (overwriteFlag ) {
+	      if (overwriteQuality ) {
 		  publicationCMS.setQualityUncertain("Overwritten Temporarily");
 		  publicationLHC.setQualityUncertain("Overwritten Temporarily");
 	      }
-	      else if (flag == flags[0]) {
+	      else if (quality == qualities[0]) {
 		  publicationCMS.setQualityUncertain();
 		  publicationLHC.setQualityUncertain();
 	      }
-	      else if (flag == flags[1]) {
+	      else if (quality == qualities[1]) {
 		  publicationCMS.setQualityBad();
 		  publicationLHC.setQualityBad();
 	      }
@@ -285,9 +285,9 @@ implements Runnable,DipPublicationErrorHandler
 		break;
 	    case 5:
 		type = new Integer(tmp[1]);
-		if (overwriteFlag) flag = flags[0];
-		else if (type >= 2)	flag = flags[2];
-		else flag = flags[1];
+		if (overwriteQuality) quality = qualities[0];
+		else if (type >= 2)	quality = qualities[2];
+		else quality = qualities[1];
 		break;
 	    case 6:
 		x = new Float(tmp[1]);
