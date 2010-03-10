@@ -9,8 +9,6 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
 #include <HepMC/PdfInfo.h>
-#include <HepMC/IO_ExtendedAscii.h>
-#include <HepMC/IO_BaseClass.h>
 
 #include <ThePEG/Repository/Repository.h>
 #include <ThePEG/EventRecord/Event.h>
