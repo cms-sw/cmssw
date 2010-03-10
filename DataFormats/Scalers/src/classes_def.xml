@@ -6,6 +6,7 @@
   <class name="Level1TriggerRates"/>
   <class name="LumiScalers"/>
   <class name="DcsStatus"/>
+  <class name="EventCounter0"/>
   <class name="BeamSpotOnline"/>
   <class name="TimeSpec"/>
   <class name="std::vector<L1AcceptBunchCrossing>"/>
@@ -15,6 +16,7 @@
   <class name="std::vector<Level1TriggerRates>"/>
   <class name="std::vector<LumiScalers>"/>
   <class name="std::vector<DcsStatus>"/>
+  <class name="std::vector<EventCounter0>"/>
   <class name="std::vector<BeamSpotOnline>"/>
   <class name="edm::RefProd<L1AcceptBunchCrossing>"/>
   <class name="edm::RefProd<L1TriggerScalers>"/>
@@ -23,6 +25,7 @@
   <class name="edm::RefProd<Level1TriggerRates>"/>
   <class name="edm::RefProd<LumiScalers>"/>
   <class name="edm::RefProd<DcsStatus>"/>
+  <class name="edm::RefProd<EventCounter0>"/>
   <class name="edm::RefProd<BeamSpotOnline>"/>
   <class name="edm::Wrapper<L1AcceptBunchCrossing>"/>
   <class name="edm::Wrapper<L1TriggerScalers>"/>
@@ -31,6 +34,7 @@
   <class name="edm::Wrapper<Level1TriggerRates>"/>
   <class name="edm::Wrapper<LumiScalers>"/>
   <class name="edm::Wrapper<DcsStatus>"/>
+  <class name="edm::Wrapper<EventCounter0>"/>
   <class name="edm::Wrapper<BeamSpotOnline>"/>
   <class name="edm::Wrapper<std::vector<L1AcceptBunchCrossing>>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerScalers>>"/>
@@ -39,5 +43,6 @@
   <class name="edm::Wrapper<std::vector<Level1TriggerRates>>"/>
   <class name="edm::Wrapper<std::vector<LumiScalers>>"/>
   <class name="edm::Wrapper<std::vector<DcsStatus>>"/>
+  <class name="edm::Wrapper<std::vector<EventCounter0>>"/>
   <class name="edm::Wrapper<std::vector<BeamSpotOnline>>"/>
 </lcgdict>
