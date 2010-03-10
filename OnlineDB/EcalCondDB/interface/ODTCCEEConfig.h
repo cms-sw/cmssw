@@ -37,6 +37,9 @@ class ODTCCEEConfig : public IODConfig {
   inline void setTriggerPos(int id) { m_trigpos = id; }
   inline int getTrigPos() const { return m_trigpos; }
 
+  inline void setSLBLatency(int id) { m_slb = id; }
+  inline int getSLBLatency() const { return m_slb; }
+
   inline void setTCCClob(unsigned char* x) { m_tcc_ee_clob = x; }
   inline unsigned char* getTCCClob() const { return m_tcc_ee_clob; }
 
@@ -70,6 +73,7 @@ class ODTCCEEConfig : public IODConfig {
   std::string  m_test_url;
   int  m_ntest;
   int  m_trigpos;
+  int  m_slb;
   unsigned int m_size;
 };
 
