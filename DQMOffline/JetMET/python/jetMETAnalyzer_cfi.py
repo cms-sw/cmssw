@@ -32,8 +32,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     DoJetAnalysis              = cms.untracked.bool(True),
     DoJetCleaning              = cms.untracked.bool(True),
-    DoIterativeCone            = cms.untracked.bool(False),
-    DoSisCone            = cms.untracked.bool(False),                               
+    DoIterativeCone            = cms.untracked.bool(True),
+    DoSisCone                  = cms.untracked.bool(False),                               
 
     DoJetPtAnalysis            = cms.untracked.bool(False),                           
     DoJetPtCleaning            = cms.untracked.bool(False),                           

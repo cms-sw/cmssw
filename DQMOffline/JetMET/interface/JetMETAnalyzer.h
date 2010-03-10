@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2010/03/02 01:12:28 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/03/04 16:31:52 $
+ *  $Revision: 1.17 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -87,6 +87,8 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::InputTag _theVertexLabel;
   edm::InputTag _theGTLabel;
   std::string _hlt_PhysDec;
+
+  bool _hlt_initialized;
 
   std::vector<unsigned > _techTrigsAND;
   std::vector<unsigned > _techTrigsOR;

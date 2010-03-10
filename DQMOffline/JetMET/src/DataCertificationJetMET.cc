@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.36 2010/01/18 21:03:51 sturdy Exp $
+// $Id: DataCertificationJetMET.cc,v 1.37 2010/01/20 19:09:09 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -288,18 +288,18 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //----------------------------------------------------------------
 
   std::string Jet_Tag_L2[NJetAlgo];
-  Jet_Tag_L2[0] = "JetMET_Jet_ICone";
-  Jet_Tag_L2[1] = "JetMET_Jet_SISCone";
+  Jet_Tag_L2[0] = "JetMET_Jet_AntiKt";
+  Jet_Tag_L2[1] = "JetMET_Jet_ICone";
   Jet_Tag_L2[2] = "JetMET_Jet_PFlow";
   Jet_Tag_L2[3] = "JetMET_Jet_JPT";
 
   std::string Jet_Tag_L3[NJetAlgo][NL3JFlags];
-  Jet_Tag_L3[0][0] = "JetMET_Jet_ICone_Barrel";
-  Jet_Tag_L3[0][1] = "JetMET_Jet_ICone_EndCap";
-  Jet_Tag_L3[0][2] = "JetMET_Jet_ICone_Forward";
-  Jet_Tag_L3[1][0] = "JetMET_Jet_SISCone_Barrel";
-  Jet_Tag_L3[1][1] = "JetMET_Jet_SISCone_EndCap";
-  Jet_Tag_L3[1][2] = "JetMET_Jet_SISCone_Forward";
+  Jet_Tag_L3[1][0] = "JetMET_Jet_AntiKt_Barrel";
+  Jet_Tag_L3[1][1] = "JetMET_Jet_AntiKt_EndCap";
+  Jet_Tag_L3[1][2] = "JetMET_Jet_AntiKt_Forward";
+  Jet_Tag_L3[1][0] = "JetMET_Jet_ICone_Barrel";
+  Jet_Tag_L3[1][1] = "JetMET_Jet_ICone_EndCap";
+  Jet_Tag_L3[1][2] = "JetMET_Jet_ICone_Forward";
   Jet_Tag_L3[2][0] = "JetMET_Jet_PFlow_Barrel";
   Jet_Tag_L3[2][1] = "JetMET_Jet_PFlow_EndCap";
   Jet_Tag_L3[2][2] = "JetMET_Jet_PFlow_Forward";
@@ -394,8 +394,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
         newHistoName = "JetMET/Jet/AntiKtJets/";
     }
     if (iAlgo == 1) {
-        refHistoName = "JetMET/Jet/SISConeJets/";
-        newHistoName = "JetMET/Jet/SISConeJets/";
+        refHistoName = "JetMET/Jet/IterativeConeJets/";
+        newHistoName = "JetMET/Jet/IterativeConeJets/";
     }
     if (iAlgo == 2) {
         refHistoName = "JetMET/Jet/PFJets/";
@@ -406,6 +406,9 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
         newHistoName = "JetMET/Jet/JPTJets/";
     }
 
+    // Check if this folder exists. If not, skip.
+    if (!dbe_->containsAnyMonitorable(newHistoName)) continue;
+    
     // ----------------
     // --- Layer 2
 
@@ -432,6 +435,8 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 				   << ") Result = " << test_Pt << std::endl;    
       }
     }
+
+    std::cout << "ccc" << std::endl;
 
     meNew = dbe_->get(newHistoName+"Eta");
     if (meNew->getRootObject() && meNew->getRefRootObject()) {

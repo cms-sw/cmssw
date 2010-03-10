@@ -180,7 +180,45 @@ void JetMETDQMOfflineClient::runClient_()
   // Jet
   /////////////////////////
    
-  // -- place holder
+  dbe_->setCurrentFolder(dirName_+"/"+dirNameJet_);
+
+  MonitorElement *hPassFraction;
+
+  // Look at all folders (JetMET/Jet/AntiKtJets,JetMET/Jet/CleanedAntiKtJets, etc)
+  fullPathDQMFolders.clear();
+  fullPathDQMFolders = dbe_->getSubdirs();
+  for(unsigned int i=0;i<fullPathDQMFolders.size();i++) {
+
+    if (verbose_) std::cout << fullPathDQMFolders[i] << std::endl;      
+    dbe_->setCurrentFolder(fullPathDQMFolders[i]);
+
+    std::vector<std::string> getMEs = dbe_->getMEs();
+
+    vector<string>::const_iterator cii;
+    for(cii=getMEs.begin(); cii!=getMEs.end(); cii++) {
+      if ((*cii).find("JIDPassFractionVS")!=string::npos){  // Look for MEs with "JIDPassFractionVS"
+	me = dbe_->get(fullPathDQMFolders[i]+"/"+(*cii));
+
+	if ( me ) {
+	if ( me->getRootObject() ) {
+	  TProfile *tpro = (TProfile*) me->getRootObject();
+	  TH1F *tPassFraction = new TH1F(((*cii)+"_binom").c_str(),((*cii)+"_binom").c_str(),
+	    tpro->GetNbinsX(),tpro->GetBinLowEdge(1),tpro->GetBinLowEdge(tpro->GetNbinsX()+1));
+	  for (int ibin=0; ibin<tpro->GetNbinsX(); ibin++){
+	    double nentries = tpro->GetBinEntries(ibin+1);
+	    double epsilon  = tpro->GetBinContent(ibin+1);
+	    if (epsilon>1. || epsilon<0.) continue;
+	    tPassFraction->SetBinContent(ibin+1,epsilon);                        // 
+	    tPassFraction->SetBinError(ibin+1,pow(nentries*epsilon*(1.-epsilon),0.5)); // binomial error
+	  }
+	  hPassFraction      = dbe_->book1D(tPassFraction->GetName(),tPassFraction);
+
+	} // me->getRootObject()
+	} // me
+      } // if find
+    }   // cii-loop
+
+  } // i-loop 
 
 }
 

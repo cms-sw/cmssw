@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/04 16:31:53 $
- *  $Revision: 1.51 $
+ *  $Date: 2010/03/09 18:12:25 $
+ *  $Revision: 1.52 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -321,12 +321,12 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   //--- htlConfig_
   //processname_="HLT";
   bool changed(true);
-  hlt_initialized = hltConfig_.init(iRun,iSetup,processname_,changed);
-  if (!hlt_initialized) {
+  _hlt_initialized = hltConfig_.init(iRun,iSetup,processname_,changed);
+  if (!_hlt_initialized) {
   //if (!hltConfig_.init(iRun,iSetup,processname_,changed)) {
     processname_ = "FU";
-    hlt_initialized = hltConfig_.init(iRun,iSetup,processname_,changed);
-    if(!hlt_initialized){
+    _hlt_initialized = hltConfig_.init(iRun,iSetup,processname_,changed);
+    if(!_hlt_initialized){
       //if (!hltConfig_.init(iRun,iSetup,processname_,changed)){
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
@@ -334,7 +334,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
   hltpathME = 0;
   physdecME = 0;
-  if (hlt_initialized) {
+  if (_hlt_initialized) {
   //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
     if (hltConfig_.size()){
       dbe->setCurrentFolder("JetMET");
