@@ -5,6 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
@@ -12,11 +13,33 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
   enum Version_t { SUMMER08, N_VERSIONS };
 
+  ElectronVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters ){
+    std::string versionStr = parameters.getParameter<std::string>("version");
+    if ( versionStr == "SUMMER08" ) {
+      initialize( SUMMER08, 
+		  parameters.getParameter<double>("D0"),
+		  parameters.getParameter<double>("RelIso") );
+      if ( parameters.exists("cutsToIgnore") )
+	setIgnoredCuts( parameters.getParameter<std::vector<std::string> >("cutsToIgnore") );
+
+    } else {
+      throw cms::Exception("InvalidInput") << "Expect version to be one of SUMMER08, FIRSTDATA," << std::endl;
+    }
+		
+  }
+
   ElectronVPlusJetsIDSelectionFunctor( Version_t version,
 				       double d0 = 0.2,
-				       double reliso = 0.1) :
-  version_(version)
+				       double reliso = 0.1) {
+    initialize( version, d0, reliso );
+  }
+
+  void initialize( Version_t version,
+		   double d0 = 0.2,
+		   double reliso = 0.1)
   {
+    version_ = version;
+
     push_back("D0",        d0);
     push_back("RelIso",    reliso);
     

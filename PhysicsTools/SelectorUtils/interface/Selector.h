@@ -10,11 +10,12 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.2 2010/01/12 22:43:17 srappocc Exp $
+  \version  $Id: Selector.h,v 1.3 2010/02/10 20:06:25 srappocc Exp $
 */
 
 
 #include "PhysicsTools/SelectorUtils/interface/strbitset.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <functional>
 
@@ -38,7 +39,6 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     cutFlow_.clear();
     retInternal_ = getBitTemplate();
   }
-
   virtual ~Selector() {}
 
   /// This is the registration of an individual cut string
@@ -48,6 +48,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     // bits_ does that.
     cutFlow_.push_back( cut_flow_item(s,0) );
   }
+
 
   /// This is the registration of an individual cut string, with an int cut value
   virtual void push_back( std::string s, int cut) {
@@ -116,6 +117,15 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   /// ignore the cut at index "s"
   bool ignoreCut( std::string s ) const {
     return bits_[s] == false;
+  }
+
+  /// set the bits to ignore from a vector
+  void setIgnoredCuts( std::vector<std::string> const & bitsToIgnore ) {
+    for ( std::vector<std::string>::const_iterator ignoreBegin = bitsToIgnore.begin(),
+	    ignoreEnd = bitsToIgnore.end(), ibit = ignoreBegin;
+	  ibit != ignoreEnd; ++ibit ) {
+      set(*ibit, false );
+    }
   }
 
   /// Passing cuts
