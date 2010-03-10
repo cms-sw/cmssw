@@ -6,9 +6,6 @@
 //#include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
-
-
-
 EcalCoder::EcalCoder( bool                                 addNoise    , 
 		      CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise ,
 		      CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise     ) :
