@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.25 2009/12/09 21:34:50 wehrlilu Exp $
+// $Id: SiPixelClusterModule.cc,v 1.26 2009/12/09 21:36:11 wehrlilu Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -486,22 +486,24 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon) {
+int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, const TrackerGeometry* tracker,bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon, bool twoD, bool reducedSet, bool smileyon) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   
   edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
+  unsigned int numberOfClusters = 0;
+  unsigned int numberOfFpixClusters = 0;
   
   if( isearch != input.end() ) {  // Not an empty iterator
 
-    unsigned int numberOfClusters = 0;
     
     // Look at clusters now
     edmNew::DetSet<SiPixelCluster>::const_iterator  di;
     //for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
     for(di = isearch->begin(); di != isearch->end(); di++) {
       numberOfClusters++;
+      if(endcap) numberOfFpixClusters++;
       float charge = 0.001*(di->charge()); // total charge of cluster
       float x = di->x();                   // barycenter x position
       float y = di->y();                   // barycenter y position
@@ -681,5 +683,6 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
   
   
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
+  return numberOfFpixClusters;
   
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.22 2010/01/07 16:46:17 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.23 2010/01/11 16:18:43 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -57,7 +57,8 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
-  smileyOn(conf_.getUntrackedParameter<bool>("smileyOn",false) )
+  smileyOn(conf_.getUntrackedParameter<bool>("smileyOn",false) ),
+  bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",100) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelClusterSource::SiPixelClusterSource: Got DQM BackEnd interface"<<endl;
@@ -94,6 +95,9 @@ void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iS
 
   if(firstRun){
     eventNo = 0;
+    lumSec = 0;
+    nLumiSecs = 0;
+    nBigEvents = 0;
     // Build map
     buildStructure(iSetup);
     // Book Monitoring Elements
@@ -127,15 +131,36 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   const TrackerGeometry* tracker = &(* pDD);
 //  const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
 
+  //float iOrbitSec = iEvent.orbitNumber()/11223.;
+  //int bx = iEvent.bunchCrossing();
+  //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
+  int lumiSection = (int)iEvent.luminosityBlock();
+  int nEventFpixClusters = 0;
 
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input, tracker,  modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet, smileyOn);
+    int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  modOn, 
+                                                           ladOn, layOn, phiOn, 
+                                                           bladeOn, diskOn, ringOn, 
+							   twoDimOn, reducedSet, smileyOn);
+    nEventFpixClusters = nEventFpixClusters + numberOfFpixClusters;    
     
   }
 
+//  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
+//  if(nEventFpixClusters>bigEventSize) nBigEvents++;
+//  if(nLumiSecs%5==0){
+
+  if(nEventFpixClusters>bigEventSize){
+    MonitorElement* me = theDMBE->get("Pixel/bigFpixClusterEventRate");
+    if(me){ 
+      me->Fill(lumiSection,1./23.);    
+    }
+  }
+  //std::cout<<"nEventFpixClusters: "<<nEventFpixClusters<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
+  
   // slow down...
   if(slowDown) usleep(10000);
   
@@ -206,6 +231,13 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 void SiPixelClusterSource::bookMEs(){
   
+  // Get DQM interface
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
+  theDMBE->setCurrentFolder("Pixel");
+  char title[80]; sprintf(title, "Rate of events with >%i FPIX clusters;LumiSection;Rate of large FPIX events per LS [Hz]",bigEventSize);
+  bigFpixClusterEventRate = theDMBE->book1D("bigFpixClusterEventRate",title,2000,0.,2000.);
+
+
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
     
   SiPixelFolderOrganizer theSiPixelFolder;
