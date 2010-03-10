@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2009/03/26 15:53:37 $ 
+ **  $Date: 2010/01/11 09:41:12 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -37,12 +37,6 @@ PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset )
     endcapEcalHits_     = pset.getParameter<edm::InputTag>("endcapEcalHits");
 
 
-    triggerResultsHLT_     = pset.getParameter<edm::InputTag>("triggerResultsHLT");
-    triggerResultsFU_     = pset.getParameter<edm::InputTag>("triggerResultsFU");
-
-
-
-    useTriggerFiltering_= pset.getParameter<bool>("useTriggerFiltering");
     standAlone_         = pset.getParameter<bool>("standAlone");
 
  
@@ -88,9 +82,6 @@ PiZeroAnalyzer::~PiZeroAnalyzer() {
 void PiZeroAnalyzer::beginJob()
 {
   
-  hltConfig_.init("HLT");
-
-  
 
   nEvt_=0;
   nEntry_=0;
@@ -122,8 +113,7 @@ void PiZeroAnalyzer::beginJob()
     currentFolder_ << "Egamma/PiZeroAnalyzer/";
     dbe_->setCurrentFolder(currentFolder_.str());
 
-    //Triggers passed
-    h_triggers_ = dbe_->book1D("Triggers","Triggers Passed",500,0,500);
+
     
 
     hMinvPi0EB_ = dbe_->book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
@@ -161,20 +151,6 @@ void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   LogInfo("PiZeroAnalyzer") << "PiZeroAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
  
 
-  // Get the trigger information
-  edm::Handle<edm::TriggerResults> triggerResultsHandle;
-  e.getByLabel(triggerResultsHLT_,triggerResultsHandle);
-  if(!triggerResultsHandle.isValid()) {
-    edm::LogInfo("PhotonProducer") << "Error! Can't get the product "<<triggerResultsHLT_.label() << endl;; 
-    e.getByLabel(triggerResultsFU_,triggerResultsHandle); 
-    if(!triggerResultsHandle.isValid()) {
-       edm::LogInfo("PhotonProducer") << "Error! Can't get the product  "<<triggerResultsFU_.label()<< endl;; 
-      return;
-    }
-  }
-  const edm::TriggerResults *triggerResults = triggerResultsHandle.product();
-
-
   // Get EcalRecHits
   bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
@@ -192,53 +168,7 @@ void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
     validEcalRecHits=false; 
   }
-
-
-
-
-  //  seeing if a jet trigger path was accepted
-
-
-  //  getting jet-related triggers from the event
-  vector<string> triggerNames;
-  for(uint i=0;i<hltConfig_.size();++i){
-    string trigger = hltConfig_.triggerName(i);
-    if( trigger.find ("Jet") != std::string::npos)
-      triggerNames.push_back(trigger);
-  }
-  
-
-  //setting triggers histo bin labels
-    TH1 *triggers = h_triggers_->getTH1();
-  if(nEvt_ == 1){
-    for(uint i=0;i<triggerNames.size();++i){
-      string trigger = triggerNames[i];
-      triggers->GetXaxis()->SetBinLabel(i+1,trigger.c_str());
-    }
-    triggers->GetXaxis()->SetRangeUser(0,triggerNames.size()-1);
-  }
-
-  //cutting out non-jet triggered events
-  int AcceptsSum = 0;
-  for (uint i=0; i<triggerNames.size();++i){
-    const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerNames[i])); 
-    if (triggerIndex < hltConfig_.size() ){
-      AcceptsSum += triggerResults->accept(triggerIndex);
-    }
-  }
-  if (AcceptsSum == 0 && useTriggerFiltering_) return;
  
-
-  //  fill trigger histogram with which paths are accepted
-  for (uint i=0; i<triggerNames.size();++i){
-    const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerNames[i]));
-    if (triggerIndex < hltConfig_.size() ){
-      if (triggerResults->accept(triggerIndex)) h_triggers_->Fill(i);
-    }
-  }
-
-
-
   if (validEcalRecHits) makePizero(esup,  barrelHitHandle, endcapHitHandle);
 
 

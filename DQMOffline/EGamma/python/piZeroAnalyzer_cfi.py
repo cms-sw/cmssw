@@ -9,11 +9,7 @@ piZeroAnalysis = cms.EDAnalyzer("PiZeroAnalyzer",
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
                                 
 
-    triggerResultsHLT = cms.InputTag("TriggerResults","","HLT"),
-    triggerResultsFU = cms.InputTag("TriggerResults","","FU"),
-                                
 
-    useTriggerFiltering = cms.bool(True),                             
     standAlone = cms.bool(False),
 
                                 

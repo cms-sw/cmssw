@@ -16,9 +16,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 /// EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
@@ -65,7 +62,7 @@
  **  
  **
  **  $Id: PiZeroAnalyzer
- **  $Date: 2010/01/11 09:40:43 $ 
+ **  $Date: 2010/01/12 13:50:25 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -117,11 +114,6 @@ class PiZeroAnalyzer : public edm::EDAnalyzer
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;  
 
-  edm::InputTag triggerSummary_;
-  edm::InputTag triggerResultsHLT_;
-  edm::InputTag triggerResultsFU_;
-
-  HLTConfigProvider hltConfig_;
 
 
   double minPhoEtCut_;
@@ -130,7 +122,7 @@ class PiZeroAnalyzer : public edm::EDAnalyzer
   int numberOfSteps_;
 
 
-  bool useTriggerFiltering_;
+
   bool standAlone_;
 
 
@@ -162,8 +154,6 @@ class PiZeroAnalyzer : public edm::EDAnalyzer
 
   std::stringstream currentFolder_;
    
-  MonitorElement*  h_triggers_;
-
 
   MonitorElement*  hMinvPi0EB_;
   MonitorElement*  hPt1Pi0EB_;

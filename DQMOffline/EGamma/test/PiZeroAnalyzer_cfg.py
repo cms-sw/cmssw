@@ -17,13 +17,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
+        '/store/relval/CMSSW_3_6_0_pre2/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V24-v1/0001/364E7B38-6F27-DF11-91A9-0026189438D4.root',
+        '/store/relval/CMSSW_3_6_0_pre2/RelValSingleGammaPt35/GEN-SIM-RECO/MC_3XY_V24-v1/0000/48AE643B-0727-DF11-99FB-001731AF66F5.root'
 
-        '/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_30X_v1/0005/227BFA61-D5DD-DD11-88CE-001617C3B66C.root',
-        '/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_30X_v1/0005/780BFC49-41DE-DD11-ABB7-000423D99896.root',
-        '/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_30X_v1/0005/B6C941C9-D5DD-DD11-8F1A-001D09F25479.root',
-        '/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_30X_v1/0005/C670EC9F-D4DD-DD11-9476-000423D98930.root',
-        '/store/relval/CMSSW_3_0_0_pre6/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_30X_v1/0005/CC9494FF-D4DD-DD11-95A9-001D09F28EC1.root'
 
+       
 
 ##    '/store/relval/CMSSW_3_0_0_pre6/RelValSingleGammaPt35/GEN-SIM-RECO/IDEAL_30X_v1/0005/98C45436-41DE-DD11-9B91-000423D95220.root'
 
@@ -48,7 +46,6 @@ from DQMOffline.EGamma.piZeroAnalyzer_cfi import *
 piZeroAnalysis.OutputMEsInRootFile = cms.bool(True)
 piZeroAnalysis.OutputFileName = 'DQMPiZeros.root'
 piZeroAnalysis.Verbosity = cms.untracked.int32(0)
-piZeroAnalysis.useTriggerFiltering = cms.bool(False)
 piZeroAnalysis.standAlone = cms.bool(True)
 
 
