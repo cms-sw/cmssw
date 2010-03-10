@@ -40,15 +40,21 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
 
   CastorBaseMonitor::setup(ps,dbe);
 
+   offline_ = ps.getUntrackedParameter<bool>("OfflineMode", false); 
+   nThreshold_ = ps.getUntrackedParameter<double>("nThreshold", 0);
+   dThreshold_ = ps.getUntrackedParameter<double>("dThreshold", 0);
+
   if ( m_dbe !=NULL ) {    
     ////---- create ReportSummary Map 
     m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
     meEVT_ = m_dbe->bookInt("Event Number"); 
-    reportSummaryMap = m_dbe->book2D("reportSummaryMap - CASTOR Channel Status","reportSummaryMap - CASTOR Channel Status",14,-0.5,13.5,16,-0.5,15.5);
-    TH2F* h_reportSummaryMap =reportSummaryMap->getTH2F();
-    h_reportSummaryMap->SetOption("textcolz");
-    h_reportSummaryMap->GetXaxis()->SetTitle("module");
-    h_reportSummaryMap->GetYaxis()->SetTitle("sector");
+    reportSummaryMap = m_dbe->book2D("reportSummaryMap","reportSummaryMap",14,0.0,14.0,16,0.0,16.0);
+    if(offline_){
+      h_reportSummaryMap =reportSummaryMap->getTH2F();
+      h_reportSummaryMap->SetOption("textcolz");
+      h_reportSummaryMap->GetXaxis()->SetTitle("module");
+      h_reportSummaryMap->GetYaxis()->SetTitle("sector");
+    }
    } 
 
   else{
@@ -56,9 +62,6 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
  }
 
   // baseFolder_ = rootFolder_+"CastorChannelQualityMonitor";
-
-   nThreshold_ = ps.getUntrackedParameter<double>("nThreshold", 0);
-   dThreshold_ = ps.getUntrackedParameter<double>("dThreshold", 0);
 
   if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup (start)" << endl;
 
@@ -129,14 +132,17 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
   
   }
 
+ ////---- increment here 
   ievt_++;
 
- ////---- update reportSummarymap every 100 events
- if(ievt_ % 10 == 0) {
-   ////--- reset the SummaryMap
-   //reportSummaryMap->setResetMe(true);
-   reportSummaryMap->Reset();
-   int status = -99;
+ ////---- update reportSummarymap every 500 events
+ if( ievt_ == 25 || ievt_ % 500 == 0) {
+   
+    int status = -99;
+
+   ////---- reset the reportSummaryMap just in Offline mode 
+   if(offline_) reportSummaryMap->Reset();
+  
    ////---- look at the values in the arrays
   for (int module=0; module<14; module++){
     for (int sector=0; sector<16; sector++){
@@ -145,10 +151,10 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
    int counter2= aboveDThreshold[module][sector];  //counter2 defines how many times the energy was below a dthreshold
   
     if( double(counter1/ievt_) > 0.85 ) ////--- channel is noisy (85% of cases energy was above NoisyThreshold)
-    status= -1;
+      status= 0;   
   
-   if( double(counter2/ievt_) > 0.85 )   ////--- channel is dead (85% of cases energy was below dThreshold)
-    status= 0;
+    if( double(counter2/ievt_) > 0.85 )   ////--- channel is dead (85% of cases energy was below dThreshold)
+      {status= -1; cout << "!!! dChannels ===> module="<< module << " sector="<< sector << endl;}
  
    if( double(counter1/ievt_) < 0.85 && double(counter2/ievt_) <  0.85 ) ////---- channel is good
         status= 1;
@@ -158,9 +164,9 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
         << counter1 << " => counter2=" << counter2 << " events="<< ievt_ 
         << " > ==> STATUS=" << status <<endl;
 
-    ////---- fill the reportSummaryMap
+   ////---- fill reportSummaryMap  
     reportSummaryMap->Fill(module,sector,status);
-
+    //h_reportSummaryMap->SetBinContent(module,sector,status);
       }
     }
   }
