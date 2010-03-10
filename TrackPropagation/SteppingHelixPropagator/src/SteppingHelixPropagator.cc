@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2010/02/12 11:09:15 $
- *  $Revision: 1.68 $
+ *  $Date: 2010/03/07 20:29:02 $
+ *  $Revision: 1.69 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.68 2010/02/12 11:09:15 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.69 2010/03/07 20:29:02 slava77 Exp $
 //
 //
 
@@ -418,6 +418,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     }
     //! define a fast-skip distance: should be the shortest of a possible step or distance
     double fastSkipDist = fabs(dist) > fabs(tanDist) ? tanDist : dist;
+    double fastSkipTanDist = fabs(dist) < fabs(tanDist) ? tanDist : dist;
 
     if (propagationDirection() == anyDirection){
       dir = refDirection;
@@ -432,7 +433,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
     if (useMagVolumes_ && ! (fabs(dist) < fabs(epsilon))){//need to know the general direction
       if (tanDistMagNextCheck < 0){
-	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(fastSkipDist), expectNewMagVolume);
+	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(fastSkipDist), expectNewMagVolume, fabs(tanDist));
 	// constrain allowed path for a tangential approach
 	if (fabs(tanDistMag) > 4.*(fabs(distMag)) ) tanDistMag *= tanDistMag == 0 ? 0 : fabs(distMag/tanDistMag*4.);
 
@@ -441,7 +442,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	if (tanDistMagNextCheck >  defaultStep_*20. 
 	    || fabs(dist) < fabs(distMag)
 	    || resultToMag ==SteppingHelixStateInfo::INACC) 
-	  tanDistMagNextCheck  = defaultStep_*20 > fabs(fastSkipDist) ? fabs(fastSkipDist) : defaultStep_*20;;	
+	  tanDistMagNextCheck  = defaultStep_*20 > fabs(fastSkipDist) ? fabs(fastSkipDist) : defaultStep_*20;	
 	if (resultToMag != SteppingHelixStateInfo::INACC 
 	    && resultToMag != SteppingHelixStateInfo::OK) tanDistMagNextCheck = -1;
       } else {
@@ -1940,7 +1941,7 @@ SteppingHelixPropagator::Result
 SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
 					PropagationDirection dir,
 					double& dist, double& tanDist,
-					double fastSkipDist, bool expectNewMagVolume) const{
+					double fastSkipDist, bool expectNewMagVolume, double maxStep) const{
 
   static const std::string metname = "SteppingHelixPropagator";
   Result result = SteppingHelixStateInfo::NOT_IMPLEMENTED;
@@ -2056,8 +2057,11 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     //keep those in right direction for later use
     if (resultToFace[iFace] == SteppingHelixStateInfo::OK){
       double invDTFPosiF = 1./(1e-32+fabs(tanDistToFace[iFace]));
-      bool isNearParallel = fabs(distToFace[iFace])*invDTFPosiF*invDTFPosiF < 0.1/curP
-	&& fabs(distToFace[iFace])*invDTFPosiF < 0.05;
+      double dSlope = fabs(distToFace[iFace])*invDTFPosiF;
+      double maxStepL = maxStep> 100 ? 100 : maxStep; if (maxStepL < 10) maxStepL = 10.;
+      bool isNearParallel = fabs(tanDistToFace[iFace]) + 100.*curP*dSlope < maxStepL //
+	//a better choice is to use distance to next check of mag volume instead of 100cm; the last is for ~1.5arcLength(4T)+tandistance< maxStep
+	&& dSlope < 0.15 ; //
       if (refDirectionToFace[iFace] == dir || isNearParallel){
 	if (isNearParallel) nearParallels++;
 	iFDestSorted[nDestSorted] = iFace;
