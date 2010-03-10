@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/02/14 15:36:59 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/02/14 19:19:48 $
+ *  $Revision: 1.16 $
  */
 
 
@@ -14,7 +14,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
@@ -69,23 +68,36 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet & pset)
 void 
 HLTMuonValidator::beginJob() 
 {
+}
 
-  HLTConfigProvider hltConfig;
-  if (!hltConfig.init(hltProcessName_)) {
+
+
+void 
+HLTMuonValidator::beginRun(const Run & iRun, const EventSetup & iSetup) 
+{
+
+  static int runNumber = 0;
+  runNumber++;
+
+  bool changedConfig;
+  if (!hltConfig_.init(iRun, iSetup, hltProcessName_, changedConfig)) {
     LogError("Initialization of HLTConfigProvider failed!!"); 
     return;
   }
-  vector<string> validTriggerNames = hltConfig.triggerNames();
+  if (runNumber > 1 && changedConfig)
+    LogWarning("The HLT configuration changed... results might get funky.");
+
+  vector<string> validTriggerNames = hltConfig_.triggerNames();
 
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
     TPRegexp pattern(hltPathsToCheck_[i]);
     for (size_t j = 0; j < validTriggerNames.size(); j++)
       if (TString(validTriggerNames[j]).Contains(pattern))
         hltPaths_.insert(validTriggerNames[j]);
+    // Add fake HLT path where we bypass all filters
+    if (TString("NoFilters").Contains(pattern))
+      hltPaths_.insert("NoFilters");
   }
-
-  // Add fake HLT path where we bypass all filters
-  hltPaths_.insert("NoFilters");
 
 }
 
@@ -95,9 +107,7 @@ void
 HLTMuonValidator::initializeHists(vector<string> sources)
 {
 
-  HLTConfigProvider hltConfig;
-  hltConfig.init(hltProcessName_);
-  vector<string> validTriggerNames = hltConfig.triggerNames();
+  vector<string> validTriggerNames = hltConfig_.triggerNames();
 
   set<string>::iterator iPath;
   TPRegexp suffixPtCut("[0-9]+$");
@@ -106,7 +116,7 @@ HLTMuonValidator::initializeHists(vector<string> sources)
  
     string path = * iPath;
     vector<string> moduleLabels;
-    if (path != "NoFilters") moduleLabels = hltConfig.moduleLabels(path);
+    if (path != "NoFilters") moduleLabels = hltConfig_.moduleLabels(path);
 
     for (size_t i = 0; i < moduleLabels.size(); i++)
       if (moduleLabels[i].find("Filtered") != string::npos)
