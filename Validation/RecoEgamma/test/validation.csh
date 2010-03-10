@@ -17,19 +17,19 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_5_0
-setenv CMSSWver2 3_5_2
-setenv OLDRELEASE 350
-setenv NEWRELEASE 352
+setenv CMSSWver1 3_5_2
+setenv CMSSWver2 3_6_0
+setenv OLDRELEASE 352
+setenv NEWRELEASE 360
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv NEWPRERELEASE pre2
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
 setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
