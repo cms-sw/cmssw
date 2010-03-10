@@ -407,6 +407,15 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   myGrid.setPulledPadSurvivalProbability(pulledPadSurvivalProbability_);
   myGrid.setCrackPadSurvivalProbability(crackPadSurvivalProbability_);
   myGrid.setRadiusFactor(radiusFactor_);
+  // tuned radius factor behind the preshower
+  if(onLayer1 || onLayer2)
+    {
+      myGrid.setRadiusFactor(radiusFactorBehindPreshower_);
+    }
+  else // otherwise use the normal radius factor
+    {
+      myGrid.setRadiusFactor(radiusFactor_);
+    }
   myGrid.setPreshowerPresent(simulatePreshower_);
   
   // The shower simulation
@@ -1168,6 +1177,7 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   RCFactor_ = ECALparameters.getParameter<double>("RCFactor");
   RTFactor_ = ECALparameters.getParameter<double>("RTFactor");
   radiusFactor_ = ECALparameters.getParameter<double>("RadiusFactor");
+  radiusFactorBehindPreshower_ = ECALparameters.getParameter<double>("RadiusFactorBehindPreshower");
   simulatePreshower_ = ECALparameters.getParameter<bool>("SimulatePreshower");
 
   if(gridSize_ <1) gridSize_= 7;

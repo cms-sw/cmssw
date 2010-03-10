@@ -20,6 +20,7 @@ FamosCalorimetryBlock = cms.PSet(
             GridSize = cms.int32(7),
             # change globally the Moliere radius 
             RadiusFactor = cms.double(1.096),
+            RadiusFactorBehindPreshower = cms.double(1.26),
             Debug = cms.untracked.bool(False),
             #SpotFraction < 0 <=> deactivated. In the case, CoreIntervals and 
             #TailIntervals are used   
