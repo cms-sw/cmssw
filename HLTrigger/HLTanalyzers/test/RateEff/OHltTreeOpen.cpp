@@ -1066,33 +1066,39 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   /* Clean up tau code: remove study triggers, _L2R triggers become standard and are removed from names */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau20") == 0) {        
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHltTauL2SCPassed(20.,0.,0,0.,0,30.,70.)>=1) { 
+      if(OpenHltTauL2SCPassed(20.,0.,0,0.,0, 20.,30.)>=1) { //Thresholds are for UNcorrected L1 jets in 8E29
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }        
     }        
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHltTauL2SCPassed(15.,0.,0,0.,0,40.,100.)>=2) { 
+      if(OpenHltTauL2SCPassed(15.,0.,0,0.,0,14.,30.)>=2) { //Thresholds are for UNcorrected L1 jets in 8E29
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       } 
     } 
-  } 
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau20_Trk5") == 0) {        
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1,30.,70.)>=1) { 
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
-      }        
-    }        
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau20") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHltTauL2SCPassed(20.,0.,0,0.,0,14.,30.)>=2) { //Thresholds are for UNcorrected L1 jets in 8E29
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau30_Trk5") == 0) {         
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {  
-      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1,30.,70.)>=1) { 
+      if(OpenHltTauL2SCPassed(30.,5.,0,0.,1,40.,100.)>=1) { 
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }       
       }         
     }         
   } 
-
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau35_Trk5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      if(OpenHltTauL2SCPassed(35.,5.,0,0.,1,40.,100.)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
   // 1 Leg L3 isolation - prototype version from Chi-Nhan
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -1101,15 +1107,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     } 
   }
-  
-  // No isolation version
-  // else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
-  //  if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-  //    if(OpenHltTauL2SCPassed(15.,5.,0,0.,0)>=2) { 
-  //	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
-  //    } 
-  //  } 
-  //}
+
   /* End: Taus */
 
   /* BTag */
@@ -1419,6 +1417,12 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if(OpenHlt1L2MuonPassed(3.,5.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
     } 
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu10_Photon9_L1R") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1L2MuonPassed(3.,10.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5_Photon11_L1R") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
