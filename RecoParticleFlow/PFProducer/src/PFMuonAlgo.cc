@@ -440,7 +440,7 @@ PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
       / (trackerMu->ptError()/trackerMu->pt()); 	 
     //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
     std::cout<<" ratio "<<ratio<<" combined mu pt "<<combinedMu->pt()<<std::endl;
-    bool quality3 =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta <  3.;
+    //bool quality3 =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta <  3.;
   }
 
 
