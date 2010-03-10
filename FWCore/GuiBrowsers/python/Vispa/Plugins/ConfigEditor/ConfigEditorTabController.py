@@ -12,12 +12,19 @@ from Vispa.Share.ThreadChain import ThreadChain
 from Vispa.Plugins.Browser.BrowserTabController import BrowserTabController
 from Vispa.Views.WidgetView import WidgetView
 from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import ConfigEditorBoxView,ConnectionStructureView,SequenceStructureView
+from Vispa.Gui.TextDialog import TextDialog
 
 try:
     from FWCore.GuiBrowsers.DOTExport import DotExport
     import_dotexport_error=None
 except Exception,e:
     import_dotexport_error=(str(e),exception_traceback())
+
+try:
+    from Vispa.Plugins.EdmBrowser.EventContentDialog import EventContentDialog
+    event_content_error=None
+except Exception,e:
+    event_content_error=(str(e),exception_traceback())
 
 try:
     from ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
@@ -50,6 +57,10 @@ class ConfigEditorTabController(BrowserTabController):
         self._configMenu.addAction(self._dumpAction)
         self._dotExportAction = self.plugin().application().createAction('&Export dot graphic...', self.exportDot, "Ctrl+G")
         self._configMenu.addAction(self._dotExportAction)
+        self._historyAction = self.plugin().application().createAction('&Show history...', self.history, "Ctrl+H")
+        self._configMenu.addAction(self._historyAction)
+        self._eventContentAction = self.plugin().application().createAction('&Browse event content...', self.eventContent, "Ctrl+Shift+C")
+        self._configMenu.addAction(self._eventContentAction)
         self._configMenu.addSeparator()
         self._editorAction = self.plugin().application().createAction('&Edit using ConfigEditor', self.startEditMode, "F8")
         self._configMenu.addAction(self._editorAction)
@@ -64,9 +75,6 @@ class ConfigEditorTabController(BrowserTabController):
     
     def dotExportAction(self):
         return self._dotExportAction
-    
-    def dumpAction(self):
-        return self._dumpAction
     
     def updateViewMenu(self):
         BrowserTabController.updateViewMenu(self)
@@ -165,9 +173,9 @@ class ConfigEditorTabController(BrowserTabController):
         """ Dump python configuration to file """
         logging.debug(__name__ + ": dumpPython")
         dump = self.dataAccessor().dumpPython()
-        if dump == "":
-            logging.error(self.__class__.__name__ +": dumpPython() - "+"Cannot dump this config because it does not 'process'.\nNote that only 'cfg' files contain a 'process'.)")
-            self.plugin().application().errorMessage("Cannot dump this config because it does not 'process'.\nNote that only 'cfg' files contain a 'process'.)")
+        if dump == None:
+            logging.error(self.__class__.__name__ +": dumpPython() - "+"Cannot dump this config because it does not contain a 'process'.\nNote that only 'cfg' files contain a 'process'.")
+            self.plugin().application().errorMessage("Cannot dump this config because it does not contain a 'process'.\nNote that only 'cfg' files contain a 'process'.")
             return None
         filter = QString("")
         if not fileName:
@@ -182,6 +190,28 @@ class ConfigEditorTabController(BrowserTabController):
             text_file = open(name + "." + ext.lower(), "w")
             text_file.write(dump)
             text_file.close()
+
+    def history(self):
+        """ Show config history """
+        logging.debug(__name__ + ": history")
+        history = self.dataAccessor().history()
+        if history == None:
+            logging.error(self.__class__.__name__ +": history() - "+"Cannot show config history because it does not contain a 'process'.\nNote that only 'cfg' files contain a 'process'.")
+            self.plugin().application().errorMessage("Cannot show config history because it does not contain 'process'.\nNote that only 'cfg' files contain a 'process'.")
+            return None
+        dialog=TextDialog(self.tab(), "Configuration history", history, True, "This window lists the parameter changes and tools applied in this configuration file before it was loaded into ConfigEditor.")
+        dialog.exec_()
+
+    def eventContent(self):
+        """ Open event content dialog """
+        logging.debug(__name__ + ": eventContent")
+        if event_content_error!=None:
+            logging.error(__name__ + ": Could not import EventContentDialog: "+event_content_error[1])
+            self.plugin().application().errorMessage("Could not import EventContentDialog (see logfile for details):\n"+event_content_error[0])
+            return
+        dialog=EventContentDialog(self.tab(),"This dialog let's you check if the input needed by your configuration file is in a dataformat or edm root file. You can compare either to a dataformat definition from a txt file (e.g. RECO_3_3_0) or any edm root file by selecting an input file.\n\nBranches that are used as input by your configuration but not present in the dataformat or file are marked in red.\nBranches that are newly created by your configuration are marked in green.")
+        dialog.setConfigDataAccessor(self.dataAccessor())
+        dialog.exec_()
 
     def loadIni(self):
         """ read options from ini """
@@ -261,8 +291,10 @@ class ConfigEditorTabController(BrowserTabController):
             if not Application.NO_PROCESS_EVENTS:
                 QCoreApplication.instance().processEvents()
         if thread.returnValue():
-            if not self.dataAccessor().process() and self.dumpAction().isEnabled()==True:
-                self.dumpAction().setEnabled(False)
+            self._dumpAction.setEnabled(self.dataAccessor().process()!=None)
+            self._historyAction.setEnabled(self.dataAccessor().process()!=None)
+            self._eventContentAction.setEnabled(self.dataAccessor().process()!=None)
+            self._editorAction.setEnabled(self.dataAccessor().process()!=None)
             if self.plugin().application().commandLineOptions().saveimage:
                 self.tab().centerView().updateConnections()
                 self.saveImage(self.plugin().application().commandLineOptions().saveimage)

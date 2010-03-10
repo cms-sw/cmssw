@@ -11,7 +11,7 @@ class BranchTableView(TableView):
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
         TableView.__init__(self,parent)
-        self.setColumns(["Type","Module","Product","Process"])
+        self.setColumns(["Type","Label","Product","Process"])
         self._firstColumn=0
         self._autosizeColumns=False
         self._sortingFlag=True

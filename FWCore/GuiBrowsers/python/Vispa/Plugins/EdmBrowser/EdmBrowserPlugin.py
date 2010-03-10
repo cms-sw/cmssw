@@ -68,6 +68,9 @@ class EdmBrowserPlugin(EventBrowserPlugin):
         self._hideUnderscorePropertiesAction.setChecked(True)
         self._viewMenu.addAction(self._hideUnderscorePropertiesAction)
         self._viewMenu.addSeparator()
+        self._eventContentAction = self.application().createAction('&Browse event content...', self._eventContent, "Ctrl+Shift+C")
+        self._viewMenu.addAction(self._eventContentAction)
+        self._viewMenu.addSeparator()
 
     def filterBranchesAction(self):
         return self._filterBranchesAction
@@ -77,6 +80,15 @@ class EdmBrowserPlugin(EventBrowserPlugin):
             self.application().currentTabController().toggleFilterBranches()
         except NoCurrentTabControllerException:
             logging.warning(self.__class__.__name__ + ": _filterBranches() - No tab controller found.")
+
+    def eventContentAction(self):
+        return self._eventContentAction
+
+    def _eventContent(self):
+        try:
+            self.application().currentTabController().eventContent()
+        except NoCurrentTabControllerException:
+            logging.warning(self.__class__.__name__ + ": _eventContent() - No tab controller found.")
 
     def hideUnderscorePropertiesAction(self):
         return self._hideUnderscorePropertiesAction

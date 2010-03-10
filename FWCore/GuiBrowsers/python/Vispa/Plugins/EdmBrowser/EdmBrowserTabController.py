@@ -1,9 +1,11 @@
 import logging
+import os.path
 
 from PyQt4.QtCore import SIGNAL,QPoint
 from PyQt4.QtGui import QInputDialog,QMenu
 
 from Vispa.Plugins.EventBrowser.EventBrowserTabController import EventBrowserTabController
+from Vispa.Plugins.EdmBrowser.EventContentDialog import EventContentDialog
 
 class EdmBrowserTabController(EventBrowserTabController):
     
@@ -15,7 +17,7 @@ class EdmBrowserTabController(EventBrowserTabController):
     def staticSupportedFileTypes():
         """ Returns supported file type: root.
         """
-        return [('root', 'EDM root file')]
+        return [('root', 'EDM root file'), ('txt', 'Dataformat file')]
     staticSupportedFileTypes = staticmethod(staticSupportedFileTypes)
     
     def updateViewMenu(self):
@@ -100,3 +102,12 @@ class EdmBrowserTabController(EventBrowserTabController):
         ini.set("edm", "filter branches", self.dataAccessor().filterBranches())
         ini.set("edm", "underscore properties", self.dataAccessor().underscoreProperties())
         self.plugin().application().writeIni()
+
+    def eventContent(self):
+        """ Open event content dialog """
+        logging.debug(__name__ + ": eventContent")
+        dialog=EventContentDialog(self.tab(),"This dialog let's you compare the contents of your edm root file with another dataformat / edm root file. You can compare either to a dataformat definition from a txt file (e.g. RECO_3_3_0) or any edm root file by selecting an input file.")
+        branches=[branch[0].split("_") for branch in self.dataAccessor().filteredBranches()]
+        name = os.path.splitext(os.path.basename(self._filename))[0]
+        dialog.setEventContent(name,branches)
+        dialog.exec_()

@@ -1,4 +1,5 @@
 import logging
+import os.path
 
 from PyQt4.QtGui import QColor
 
@@ -333,7 +334,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         else:
             properties+=[("Category","Branch info","")]
             properties+=[("String","Type",branchlabel.split("_")[0])]
-            properties+=[("String","Module",branchlabel.split("_")[1])]
+            properties+=[("String","Label",branchlabel.split("_")[1])]
             properties+=[("String","Product",branchlabel.split("_")[2])]
             properties+=[("String","Process",branchlabel.split("_")[3])]
 
@@ -430,6 +431,8 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         if isinstance(object,BranchDummy):
             if hasattr(object,"product"):
                 return object.product
+            if not self._events:
+                return object
             try:
                 self._events.getByLabel(object.branchtuple[2],object.branchtuple[3],object.branchtuple[4],object.branchtuple[1])
                 if object.branchtuple[1].isValid():
@@ -471,7 +474,8 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         self._edmMotherRelations={}
         self._edmDaughterRelations={}
         self._edmChildrenObjects={}
-        self._events.to(self._eventIndex)
+        if self._events:
+            self._events.to(self._eventIndex)
         self._dataObjects=[]
         i=0
         for branchtuple in self._filteredBranches:
@@ -481,7 +485,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
             if not self._readOnDemand:
                 self.read(branch,self.maxLevels)
             i+=1
-        if self._filterBranches:
+        if self._filterBranches and self._events:
             self.setFilterBranches(True)
         return True
     
@@ -497,17 +501,27 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
     def open(self, filename=None):
         """ Open edm file and show first event """
         self._filename=filename
-        self._events = Events(self._filename)
-        self._numEvents=self._events.size()
-        branches=self._events.object().getBranchDescriptions()
         self._branches=[]
-        for branch in branches:
-            try:
-                branchname=branch.friendlyClassName()+"_"+branch.moduleLabel()+"_"+branch.productInstanceName()+"_"+branch.processName()
-                handle=Handle(branch.fullClassName())
-                self._branches+=[(branchname,handle,branch.moduleLabel(),branch.productInstanceName(),branch.processName())]
-            except Exception, e:
-                logging.warning("Cannot read branch "+branchname+":"+str(e))
+        if os.path.splitext(filename)[1].lower()==".txt":
+            file = open(filename)
+            for line in file.readlines():
+                if "\"" in line:
+                    linecontent=[l.strip(" \n").rstrip(".") for l in line.split("\"")]
+                    self._branches+=[(linecontent[0]+"_"+linecontent[1]+"_"+linecontent[3]+"_"+linecontent[5],None,linecontent[1],linecontent[3],linecontent[5])]
+                else:
+                    linecontent=line.strip("\n").split("_")
+                    self._branches+=[(linecontent[0]+"_"+linecontent[1]+"_"+linecontent[2]+"_"+linecontent[3],None,linecontent[1],linecontent[2],linecontent[3])]
+        elif os.path.splitext(filename)[1].lower()==".root":
+            self._events = Events(self._filename)
+            self._numEvents=self._events.size()
+            branches=self._events.object().getBranchDescriptions()
+            for branch in branches:
+                try:
+                    branchname=branch.friendlyClassName()+"_"+branch.moduleLabel()+"_"+branch.productInstanceName()+"_"+branch.processName()
+                    handle=Handle(branch.fullClassName())
+                    self._branches+=[(branchname,handle,branch.moduleLabel(),branch.productInstanceName(),branch.processName())]
+                except Exception, e:
+                    logging.warning("Cannot read branch "+branchname+":"+str(e))
         self._branches.sort(lambda x, y: cmp(x[0], y[0]))
         self._filteredBranches=self._branches[:]
         return self.goto(1)
@@ -602,16 +616,22 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         return self._filterBranches
     
     def setFilterBranches(self,check):
+        if not self._events:
+            return True
         self._filterBranches=check
         if check:
             for branch in self._dataObjects[:]:
                 result=self.read(branch,0)
                 if isinstance(result,BranchDummy):
                     self._dataObjects.remove(result)
-                if hasattr(result,"unreadable") or hasattr(result,"invalid"):
+                if hasattr(result,"invalid"):
                     self._filteredBranches.remove(result.branchtuple)
             return True
         else:
             self._filteredBranches=self._branches[:]
             self.goto(self.eventNumber())
             return False
+
+    def filteredBranches(self):
+        return self._filteredBranches
+    

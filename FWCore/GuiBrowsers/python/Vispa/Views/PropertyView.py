@@ -2,13 +2,14 @@ import logging
 import sys
 
 from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication,QSize
-from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QDialog,QGridLayout,QIcon,QHeaderView,QMessageBox
+from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QGridLayout,QIcon,QHeaderView,QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Main.AbstractTab import AbstractTab
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 from Vispa.Views.AbstractView import AbstractView
 from Vispa.Share.ThreadChain import ThreadChain
+from Vispa.Gui.TextDialog import TextDialog
 
 class ClosableProperty(QWidget):
     def __init__(self,property):
@@ -778,30 +779,6 @@ class TextEditWithButtonProperty(Property, QWidget):
         if event.key()==Qt.Key_Escape:
             self.setValue(self._originalValue)
 
-### QDialog object to edit property value by editing text by using an editor window
-            
-class EditDialog(QDialog):
-    def __init__(self, parent=None,text=""):
-        super(EditDialog,self).__init__(parent)
-        self.setWindowTitle("Edit property...")
-        self.resize(500,300)
-        self.text=text
-        self.ok = QPushButton('Ok', self)
-        self.connect(self.ok, SIGNAL('clicked()'), self.accept)
-        self.cancel = QPushButton('Cancel', self)
-        self.connect(self.cancel, SIGNAL('clicked()'), self.reject)
-        self.edit=QTextEdit()
-        self.edit.setPlainText(self.text)
-        layout=QGridLayout()
-        layout.addWidget(self.edit,0,0,1,3)
-        layout.addWidget(self.ok,1,0)
-        layout.addWidget(self.cancel,1,2)
-        self.setLayout(layout)
-        self.edit.setFocus()
-        self.edit.moveCursor(QTextCursor.End)
-    def getText(self):
-        return self.edit.toPlainText().toAscii()
-          
 
 class StringProperty(TextEditWithButtonProperty):
     """ Property which holds an editable text.
@@ -839,7 +816,7 @@ class StringProperty(TextEditWithButtonProperty):
             self._textEdit.moveCursor(QTextCursor.End)
             self.emit(SIGNAL('updatePropertyHeight'),self)
         else:
-            dialog=EditDialog(self,self.strValue())
+            dialog=TextDialog(self,"Edit property...",self.strValue())
             if dialog.exec_():
                 textEdit=dialog.getText()
                 self.setValue(textEdit)
