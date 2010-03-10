@@ -66,6 +66,8 @@ namespace edm {
     void respondToCloseInputFile(FileBlock const& fb);
     bool shouldWeCloseFile() const;
 
+    std::string const& fileName() const {return file_;}
+
   private:
 
     //-------------------------------

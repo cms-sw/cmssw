@@ -66,6 +66,12 @@ namespace edm {
     // configuration by reading this source code.
     pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
   }
+  
+
+  std::string const& PoolOutputModule::currentFileName() const {
+    return rootOutputFile_->fileName();
+  }
+
 
   PoolOutputModule::AuxItem::AuxItem() :
 	basketSize_(BranchDescription::invalidBasketSize) {}

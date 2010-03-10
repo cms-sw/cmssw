@@ -41,6 +41,9 @@ namespace edm {
     unsigned int const& maxFileSize() const {return maxFileSize_;}
     int const& inputFileCount() const {return inputFileCount_;}
     int const& whyNotFastClonable() const {return whyNotFastClonable_;}
+
+    std::string const& currentFileName() const;
+
     using OutputModule::selectorConfig;
 
     struct AuxItem {
@@ -88,11 +91,11 @@ namespace edm {
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
     virtual bool shouldWeCloseFile() const;
+    virtual void write(EventPrincipal const& e);
   private:
     virtual void openFile(FileBlock const& fb);
     virtual void respondToOpenInputFile(FileBlock const& fb);
     virtual void respondToCloseInputFile(FileBlock const& fb);
-    virtual void write(EventPrincipal const& e);
     virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     virtual void writeRun(RunPrincipal const& r);
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
