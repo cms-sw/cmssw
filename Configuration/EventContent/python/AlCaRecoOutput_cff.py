@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2009/03/26 15:35:07 $ by $Author: argiro $
+# last update: $Date: 2009/03/28 14:03:36 $ by $Author: argiro $
 ###############################################################
 # Tracker Alignment
 ###############################################################
@@ -82,4 +82,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHalo_Output_cff import *
 # RPC calibration
 ###############################################################
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_Output_cff import *
+###############################################################
+# DT calibration
+###############################################################
+from CalibMuon.DTCalibration.ALCARECODtCalib_Output_cff import *
 
