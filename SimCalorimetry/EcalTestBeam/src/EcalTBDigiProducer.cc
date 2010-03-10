@@ -79,7 +79,7 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
       }
     }
   }
-  theNoiseMatrix = new EcalCorrelatedNoiseMatrix(thisMatrix);
+  theNoiseMatrix = new EcalCorrMatrix(thisMatrix);
 
   theCorrNoise = new CorrelatedNoisifier<EcalCorrMatrix>(thisMatrix);
 
