@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-### Scaling factors obtained using CRAFT08 data on top of version 090601.
+### Scaling factors obtained using CRAFT08 + CRAFT09 data on top of version 090601.
 
 fieldScaling = cms.PSet(
   scalingVolumes = cms.vint32(
@@ -26,20 +26,20 @@ fieldScaling = cms.PSet(
 scalingFactors = cms.vdouble(
     # Barrel yoke plates
     1,1,               #TC
-    0.935517,          #YB-2/1
-    0.956464,0.956464, #YB-1/1
-    0.935383,          #YB0/1
-    0.956464,0.956464, #YB+1/1
-    0.935517,          #YB+2/1
-    0.981935,          #YB-2/2
-    0.949556,0.949556, #YB-1/2
-    0.961469,          #YB0/2
-    0.949556,0.949556, #YB+1/2
-    0.981935,          #YB+2/2
-    0.862724,          #YB-2/3
-    0.921487,0.921487, #YB-1/3
-    0.912362,          #YB0/3
-    0.921487,0.921487, #YB+1/3
-    0.862724           #YB+2/3
+    0.945721,          #YB-2/1
+    0.958026,0.958026, #YB-1/1
+    0.933539,          #YB0/1
+    0.958026,0.958026, #YB+1/1
+    0.945721,          #YB+2/1
+    0.987094,          #YB-2/2
+    0.952123,0.952123, #YB-1/2
+    0.964203,          #YB0/2
+    0.952123,0.952123, #YB+1/2
+    0.987094,          #YB+2/2
+    0.871933,          #YB-2/3
+    0.923347,0.923347, #YB-1/3
+    0.913604,          #YB0/3
+    0.923347,0.923347, #YB+1/3
+    0.871933           #YB+2/3
     )
 )
