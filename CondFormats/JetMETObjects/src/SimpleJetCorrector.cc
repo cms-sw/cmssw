@@ -27,6 +27,18 @@ SimpleJetCorrector::SimpleJetCorrector(const std::string& fDataFile, const std::
   if (mParameters->definitions().isResponse())
     mInvertVar = findInvertVar(); 
 }
+//------------------------------------------------------------------------
+//--- SimpleJetCorrector constructor -------------------------------------
+//--- reads arguments from a file ----------------------------------------
+//------------------------------------------------------------------------
+SimpleJetCorrector::SimpleJetCorrector(const JetCorrectorParameters& fParameters)
+{
+  mParameters      = new JetCorrectorParameters(fParameters);
+  mFunc            = new TFormula("function",((mParameters->definitions()).formula()).c_str());
+  mDoInterpolation = false;
+  if (mParameters->definitions().isResponse())
+    mInvertVar = findInvertVar();
+}
 //------------------------------------------------------------------------ 
 //--- SimpleJetCorrector destructor --------------------------------------
 //------------------------------------------------------------------------

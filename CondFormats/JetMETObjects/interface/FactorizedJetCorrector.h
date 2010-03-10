@@ -10,6 +10,7 @@
 #include <string>
 
 class SimpleJetCorrector;
+class JetCorrectorParameters;
 
 class FactorizedJetCorrector
 {
@@ -19,6 +20,7 @@ class FactorizedJetCorrector
     FactorizedJetCorrector();
     //FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags);
     FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions="");
+    FactorizedJetCorrector(const JetCorrectorParameters& fParameters, const std::string& fLevel);
     ~FactorizedJetCorrector();
     void setJetEta      (float fEta);
     void setJetPt       (float fPt); 

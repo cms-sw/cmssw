@@ -63,6 +63,50 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
   mIsAddLepToJetset = false;
   initCorrectors(fLevels, fFiles, fOptions);       
 }
+//------------------------------------------------------------------------
+//--- FactorizedJetCorrector constructor ---------------------------------
+//------------------------------------------------------------------------
+FactorizedJetCorrector::FactorizedJetCorrector(const JetCorrectorParameters& fParameters, const std::string& fLevel)
+{
+  mJetEta = -9999;
+  mJetPt  = -9999;
+  mJetPhi = -9999;
+  mJetE   = -9999;
+  mJetEMF = -9999;
+  mLepPx  = -9999;
+  mLepPy  = -9999;
+  mLepPz  = -9999;
+  mAddLepToJet      = false;
+  mIsJetEset        = false;
+  mIsJetPtset       = false;
+  mIsJetPhiset      = false;
+  mIsJetEtaset      = false;
+  mIsJetEMFset      = false;
+  mIsLepPxset       = false;
+  mIsLepPyset       = false;
+  mIsLepPzset       = false;
+  mIsAddLepToJetset = false;
+
+  if (fLevel == "L1")
+    mLevels.push_back(kL1);
+  else if (fLevel == "L2")
+    mLevels.push_back(kL2);
+  else if (fLevel == "L3")
+    mLevels.push_back(kL3);
+  else if (fLevel == "L4")
+    mLevels.push_back(kL4);
+  else if (fLevel == "L5")
+    mLevels.push_back(kL5);
+  else if (fLevel == "L6")
+    mLevels.push_back(kL6);
+  else if (fLevel == "L7")
+    mLevels.push_back(kL7);
+
+  mCorrectors.push_back(new SimpleJetCorrector(fParameters));
+  mBinTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().binVar()));
+  mParTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().parVar()));
+}
+
 //------------------------------------------------------------------------ 
 //--- FactorizedJetCorrector destructor ----------------------------------
 //------------------------------------------------------------------------

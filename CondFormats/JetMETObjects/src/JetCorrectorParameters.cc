@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.5 2009/11/11 13:36:25 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.6 2009/11/12 12:12:55 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -317,4 +317,10 @@ void JetCorrectorParameters::printFile(const std::string& fFileName) const
 }
 
 
+//#include "FWCore/Framework/interface/EventSetup.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
+//#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Utilities/interface/typelookup.h"
+ 
+TYPELOOKUP_DATA_REG(JetCorrectorParameters);
 

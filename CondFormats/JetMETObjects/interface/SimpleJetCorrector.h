@@ -15,6 +15,7 @@ class SimpleJetCorrector
   //-------- Constructors --------------
   SimpleJetCorrector();
   SimpleJetCorrector(const std::string& fDataFile, const std::string& fOption = "");
+  SimpleJetCorrector(const JetCorrectorParameters& fParameters);
   //-------- Destructor -----------------
   ~SimpleJetCorrector();
   //-------- Member functions -----------
