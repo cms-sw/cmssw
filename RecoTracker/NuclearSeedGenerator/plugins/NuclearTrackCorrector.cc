@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.cc,v 1.10 2009/03/04 13:34:27 vlimant Exp $
+// $Id: NuclearTrackCorrector.cc,v 1.11 2009/07/03 00:35:22 mangano Exp $
 //
 //
 
@@ -25,6 +25,8 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace std;
@@ -108,8 +110,9 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // Correct the trajectories (Remove trajectory's hits that are located after the nuclear interacion)
   // --------------------------------------------------------------------------------------------------
   if(verbosity>=1){
-  printf("Number of trajectories                    = %i\n",m_TrajectoryCollection.size() );
-  printf("Number of nuclear interactions            = %i\n",m_NuclearInteractionCollection.size() );
+    LogDebug("NuclearTrackCorrector")
+      <<"Number of trajectories                    = "<<m_TrajectoryCollection.size() <<std::endl
+      <<"Number of nuclear interactions            = "<<m_NuclearInteractionCollection.size();
   }
 
   std::map<reco::TrackRef,TrajectoryRef> m_TrackToTrajMap; 
@@ -216,7 +219,7 @@ bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const Traje
 
         // Look all the Hits of the trajectory and keep only Hits before seeds
         Trajectory::DataContainer Measurements = trajRef->measurements();
-        if(verbosity>=2)printf("Size of Measurements  = %i\n",Measurements.size() );
+        if(verbosity>=2)LogDebug("NuclearTrackCorrector")<<"Size of Measurements  = "<<Measurements.size();
 
         for(unsigned int m=Measurements.size()-1 ;m!=(unsigned int)-1 ; m--){
 
