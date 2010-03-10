@@ -5,4 +5,4 @@
 using edm::PoolOutputModule;
 using edm::TimeoutPoolOutputModule;
 DEFINE_FWK_MODULE(PoolOutputModule);
-DEFINE_ANOTHER_FWK_MODULE(TimeoutPoolOutputModule);
+DEFINE_FWK_MODULE(TimeoutPoolOutputModule);
