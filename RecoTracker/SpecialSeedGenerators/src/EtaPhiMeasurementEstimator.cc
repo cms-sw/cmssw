@@ -23,4 +23,34 @@ EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
     return std::make_pair(false, 0.0);
 }
 
+bool EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
+				   const BoundPlane& plane) const {
+
+  double dEta = fabs(tsos.globalPosition().eta() - plane.position().eta());
+  double dPhi = deltaPhi< double > (tsos.globalPosition().phi(), plane.position().phi());
+
+  LogDebug("EtaPhiMeasurementEstimator")<< "The state to compare with is \n"<< tsos << "\n"
+					<< "The plane position center is: " << plane.position() << "\n"
+					<< "the deta = " << thedEta << " --- the dPhi = " << thedPhi << "\n"
+					<< "deta = "<< fabs(dEta)<< " --- dPhi = "<<fabs(dPhi);
+
+  if (fabs(dEta) < thedEta && fabs(dPhi) <thedPhi)
+    return true;
+  else
+    return false;
+}
+
+MeasurementEstimator::Local2DVector EtaPhiMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
+					const BoundPlane& plane) const {
+
+  //double tsosR   = tsos.globalPosition().R();
+
+  //  double xDisplacement = sin(thedPhi)*tsosR;
+  //double yDisplacement = cos(theta)*tsosR;
+
+  //return Local2DVector(15., 15.);
+  return  Local2DVector(30., 30.);
+  //return  Local2DVector(50., 50.);
+  //return  Local2DVector(150., 150.);
+}
 

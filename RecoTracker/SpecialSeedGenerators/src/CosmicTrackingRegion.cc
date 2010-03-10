@@ -5,6 +5,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -15,13 +16,9 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitEtaCheck.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -36,15 +33,13 @@
 template <class T> T sqr( T t) {return t*t;}
 
 
-using namespace PixelRecoUtilities;
 using namespace std;
 using namespace ctfseeding; 
 
 
-TrackingRegion::Hits CosmicTrackingRegion::hits(
-						    const edm::Event& ev,
-						    const edm::EventSetup& es,
-						    const  ctfseeding::SeedingLayer* layer) const
+TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
+						const edm::EventSetup& es,
+						const  ctfseeding::SeedingLayer* layer) const
 {
 
   //get and name collections
@@ -55,9 +50,7 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(
 
   //detector layer
   const DetLayer * detLayer = layer->detLayer();
-  LogDebug("CosmicTrackingRegion") << "Looking at hits on layer ...... " << detLayer;
- 
-  //estimator
+  LogDebug("CosmicTrackingRegion") << "Looking at hits on subdet/layer " << layer->name();
   EtaPhiMeasurementEstimator est(0.3,0.3);
 
   //magnetic field
@@ -68,11 +61,12 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(
   //region
   const GlobalPoint vtx = origin();
   GlobalVector dir = direction();
-  LogDebug("CosmicTrackingRegion") 
-    <<" the initial region characteristics are:\n"
-    << "Direction = (" << dir.x() << "; " << dir.y() << "; " << dir.z() << ") "  << "\n"
-    << "Origin    = (" << vtx.x() << "; " << vtx.y() << "; " << vtx.z() << ") ";
-  
+  LogDebug("CosmicTrackingRegion") <<"The initial region characteristics are:" << "\n"
+				   <<" Origin    = " << origin() << "\n"
+				   <<" Direction = " << direction() << "\n" 
+				   <<" Eta = " << origin().eta()  << "\n" 
+				   <<" Phi = " << origin().phi();
+     
   //trajectory state on surface
   float phi = dir.phi();
   Surface::RotationType rot( sin(phi), -cos(phi),           0,
@@ -83,14 +77,14 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(
   FreeTrajectoryState fts( GlobalTrajectoryParameters(vtx, dir, 1, magField) );
   TrajectoryStateOnSurface tsos(fts, *surface);
   LogDebug("CosmicTrackingRegion") 
-    << "The state used to find measurement with the measurement tracker is:\n" << tsos << "\n";
+    << "The state used to find measurement with the measurement tracker is:\n" << tsos;
 
   //propagator
-  StraightLinePropagator prop( magField, alongMomentum);
+  //StraightLinePropagator prop( magField, alongMomentum);
+  AnalyticalPropagator prop( magField, alongMomentum);
 
-
-  //propagation
-  //+++++++++++
+  //propagation verification
+  //+++++++++++++++++++++++++
 
   //action
   TrajectoryStateOnSurface stateOnLayer = prop.propagate( *tsos.freeState(),
@@ -98,12 +92,20 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(
   
   //debug
   if (stateOnLayer.isValid()){
-    LogDebug("CosmicTrackingRegion") << "The initial state propagates to the layer surface: \n" << stateOnLayer;
+    LogDebug("CosmicTrackingRegion") << "The initial state propagates to the layer surface: \n" << stateOnLayer
+    << "R   = " << stateOnLayer.globalPosition().perp() << "\n"
+    << "Eta = " << stateOnLayer.globalPosition().eta() << "\n"
+    << "Phi = " << stateOnLayer.globalPosition().phi();
+
   }
   else{
     LogDebug("CosmicTrackingRegion") << "The initial state does not propagate to the layer surface.";
   }
 
+  
+  typedef DetLayer::DetWithState DetWithState;
+  vector<DetWithState> compatDets = detLayer->compatibleDets(tsos, prop, est);
+  LogDebug("CosmicTrackingRegion") << "Compatible dets = " << compatDets.size();
   
 
   //get hits
@@ -116,18 +118,15 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(
   measurementTracker->update(ev);
   LayerMeasurements lm(measurementTracker);
   vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, est);
-  LogDebug("CosmicTrackingRegion") 
-    << "Number of Trajectory measurements = " << meas.size()
-    <<" but the last one is always an invalid hit, by construction.";
+  LogDebug("CosmicTrackingRegion") << "Number of Trajectory measurements = " << meas.size()
+				   <<" but the last one is always an invalid hit, by construction.";
 
   //trajectory measurement
   typedef vector<TrajectoryMeasurement>::const_iterator IM;
   for (IM im = meas.begin(); im != meas.end(); im++) {//loop on measurement tracker
     TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
     if (ptrHit->isValid()) { 
-      LogDebug("CosmicTrackingRegion") 
-	<< "Hit found in the region at position: "<<ptrHit->globalPosition();
-      //<< " detector: "<< DetIdInfo::info(ptrHit->hit()->geographicalId());
+      LogDebug("CosmicTrackingRegion") << "Hit found in the region at position: "<<ptrHit->globalPosition();
 	result.push_back(  ptrHit );
     }//end if isValid()
     else LogDebug("CosmicTrackingRegion") << "No valid hit";

@@ -42,7 +42,10 @@ regionalCosmicMuonSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
            layerList = cms.vstring(#'TOB6+TOB5+TOB4',
                                    'TOB5+TOB6',
                                    'TOB4+TOB6', 
-                                   'TOB4+TOB5'
+                                   'TOB4+TOB5',
+                                   'TOB3+TOB6',
+                                   'TOB3+TOB5',
+                                   'TOB3+TOB4',
                                    )
            ),
         ##PropagationDirection = cms.string('alongMomentum'),
@@ -108,6 +111,6 @@ def addTECLayers(module):
             "TEC8"+side+"+TEC9"+side
             ])
 #from cosmicLayers import addTECLayers
-addTECLayers(regionalCosmicMuonSeeds)
+#addTECLayers(regionalCosmicMuonSeeds)
 regionalCosmicMuonSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList = reverseHit(regionalCosmicMuonSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList)
 

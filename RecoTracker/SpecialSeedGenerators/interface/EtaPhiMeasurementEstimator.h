@@ -9,7 +9,7 @@
  *
  *  $Date: 2007/05/09 14:05:13 $
  *  $Revision: 1.3 $
- *  \author todorov, cerati
+ *  tschudi
  */
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
@@ -26,6 +26,12 @@ public:
 
   std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
 				  const TransientTrackingRecHit&) const;
+
+  virtual bool estimate(const TrajectoryStateOnSurface& tsos,
+			const BoundPlane& plane) const;
+
+  virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
+						   const BoundPlane& plane) const;
 
   EtaPhiMeasurementEstimator* clone() const {
     return new EtaPhiMeasurementEstimator(*this);
