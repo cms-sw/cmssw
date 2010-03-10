@@ -28,13 +28,14 @@ class cosmics(Scenario):
     """
 
 
-    def promptReco(self, globalTag, skims =[], writeTiers = ['RECO','ALCA']):
+    def promptReco(self, globalTag, writeTiers = ['RECO','ALCA']):
         """
         _promptReco_
 
         Cosmic data taking prompt reco
 
         """
+        skims = []
         if len(skims) >0:
           step = ',ALCAPRODUCER:'
           for skim in skims:

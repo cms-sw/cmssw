@@ -39,7 +39,7 @@ class Scenario(object):
 
 
 
-    def promptReco(self, globalTag, skims = [], writeTiers = ['RECO,ALCA']):
+    def promptReco(self, globalTag, writeTiers = ['RECO,ALCA']):
         """
         _installPromptReco_
 
