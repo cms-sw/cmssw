@@ -33,6 +33,7 @@ class ScalersRaw
     N_L1_TEST_TRIGGERS_v1 = 64,
     N_LUMI_OCC_v1         = 2,
     N_BX_v2               = 4,
+    N_SPARE_v5            = 5,
     SCALERS_FED_ID        = 735
   };
 };
@@ -232,6 +233,8 @@ struct ScalersEventRecordRaw_v5
   struct LumiScalersRaw_v1    lumi;
   struct BeamSpotOnlineRaw_v4 beamSpotOnline;
   struct DcsStatusRaw_v4      dcsStatus;
+  unsigned long long ec0;
+  unsigned long long spare[ScalersRaw::N_SPARE_v5];
   unsigned long long bx[ScalersRaw::N_BX_v2];
   unsigned long long trailer;
 };
