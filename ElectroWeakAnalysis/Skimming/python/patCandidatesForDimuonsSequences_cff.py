@@ -96,21 +96,6 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT" )
 patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 
-#muonTriggerMatchHLTMu9 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-#    src     = cms.InputTag( "selectedLayer1Muons" ),
-#    matched = cms.InputTag( "patTrigger" ),
-#    andOr          = cms.bool( False ),
-#    filterIdsEnum  = cms.vstring( 'TriggerMuon' ),
-#    filterIds      = cms.vint32( 83 ),
-#    filterLabels   = cms.vstring( '*' ),
-#    pathNames      = cms.vstring( 'HLT_Mu9' ),
-#    collectionTags = cms.vstring( '*' ),
-#    maxDPtRel = cms.double( 1.0 ),
-#    maxDeltaR = cms.double( 0.2 ),
-#    resolveAmbiguities    = cms.bool( True ),
-#    resolveByMatchQuality = cms.bool( False )
-#)
-
 muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
     src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
@@ -123,7 +108,7 @@ muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
     maxDPtRel = cms.double( 1.0 ),
     maxDeltaR = cms.double( 0.2 ),
     resolveAmbiguities    = cms.bool( True ),
-    resolveByMatchQuality = cms.bool( False )
+    resolveByMatchQuality = cms.bool( True )
 )
 
 from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
