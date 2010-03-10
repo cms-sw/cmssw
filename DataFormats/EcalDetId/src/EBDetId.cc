@@ -5,6 +5,9 @@
 #include <algorithm>
 const int EBDetId::kModuleBoundaries[4] = { 25, 45, 65, 85 };
 
+// pi / 180.
+const float EBDetId::crystalUnitToEta = 0.017453292519943295;
+
 EBDetId
 EBDetId::unhashIndex( int hi )  
 {
@@ -195,6 +198,14 @@ int EBDetId::distancePhi(const EBDetId& a,const EBDetId& b)
     return abs(a.iphi()-b.iphi());
 }
 
+float EBDetId::approxEta( const DetId id ) {
+        if( id.subdetId() == EcalBarrel ) {
+                EBDetId ebId( id );
+                return ebId.approxEta();
+        } else {
+                return 0;
+        }
+}
   
 std::ostream& operator<<(std::ostream& s,const EBDetId& id) {
   return s << "(EB ieta " << id.ieta() << ", iphi" << id.iphi() 
