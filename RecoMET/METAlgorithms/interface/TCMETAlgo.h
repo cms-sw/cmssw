@@ -93,7 +93,6 @@ class TCMETAlgo
   double  maxeta_;
   double  maxchi2_;
   double  minhits_;
-  double  maxd0_;
   double  maxPtErr_;
   double  radius_;
   double  zdist_;
