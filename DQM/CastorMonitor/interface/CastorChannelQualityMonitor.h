@@ -48,7 +48,7 @@ public:
 private:
 
  int ievt_;
-int module ; int sector; double energy ;
+ int module ; int sector; double energy ;
 
  std::string histo;
 
@@ -57,9 +57,10 @@ int module ; int sector; double energy ;
  int aboveNoisyThreshold [14][16];
  int     aboveDThreshold [14][16];
 
+ bool offline_;
  MonitorElement* meEVT_;
  MonitorElement* reportSummaryMap;
- 
+ TH2F* h_reportSummaryMap;
 
 };
 
