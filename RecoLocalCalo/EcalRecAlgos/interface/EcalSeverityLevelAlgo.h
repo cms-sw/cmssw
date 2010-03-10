@@ -41,12 +41,12 @@ class EcalSeverityLevelAlgo {
                 /** ratio between the crystal energy and the energy in the 3x3
                  *  matrix of crystal
                  */
-                static float E1OverE9( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold );
+                static float E1OverE9( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold = 0. );
 
                 /** 1 - the ratio between the energy in the swiss cross around
                  * a crystal and the crystal energy (also called S4/S1, Rook)
                  */
-                static float swissCross( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold );
+                static float swissCross( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold = 0. );
 
         private:
 
