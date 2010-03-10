@@ -4,7 +4,7 @@ using namespace rpcrawtodigi;
 
 bool ErrorRDDM::matchType(const DataRecord & record)
 {
-  return ( RDDM_TYPE_FLAG == (record.data() >> RDDM_TYPE_SHIFT) ); 
+  return ( RDDM_TYPE_FLAG == (unsigned int)(record.data() >> RDDM_TYPE_SHIFT) ); 
 }
 
 unsigned int ErrorRDDM::rmb() const
