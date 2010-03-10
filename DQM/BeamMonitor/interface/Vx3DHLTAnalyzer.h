@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.2 2010/03/06 21:38:57 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.3 2010/03/09 20:01:56 dinardo Exp $
 //
 //
 
@@ -44,6 +44,11 @@ using namespace std;
 vector<double> xVxValues;
 vector<double> yVxValues;
 vector<double> zVxValues;
+int counterVx;         // Counts the number of vertices taken into account for the fit
+double maxTransRadius; // Max transverse radius in which the vertices must be [cm]
+double maxLongLength;  // Max longitudinal length in which the vertices must be [cm]
+double xPos,yPos,zPos; // x,y,z approximate positions of the beam spot
+double pi;
 
 
 class Vx3DHLTAnalyzer : public edm::EDAnalyzer {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.14 2010/03/06 21:38:39 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.16 2010/03/09 20:01:45 dinardo Exp $
 //
 //
 
@@ -102,7 +102,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	    reportSummaryMap->Fill(0.5, 0.5, 1.0);
 	  }
       }
-
+      
       runNumber = iEvent.id().run();
     }
 }
@@ -114,7 +114,6 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
   double coef,det;
   double tmp,sumlog = 0.;
   double dim = 3.;
-  double pi = 3.141592653589793238;
 
 //   par[0] = K(0,0)
 //   par[1] = K(1,1)
@@ -133,21 +132,26 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 // K = Covariance Matrix
 // M = K^-1
 
-  det = fabs(par[0])*(fabs(par[1])*fabs(par[2])-par[4]*par[4]) - par[3]*(par[3]*fabs(par[2])-par[5]*par[4]) + par[5]*(par[3]*par[4]-par[5]*fabs(par[1]));
+  det = fabs(fabs(par[0])*(fabs(par[1])*fabs(par[2])-par[4]*par[4]) - par[3]*(par[3]*fabs(par[2])-par[5]*par[4]) + par[5]*(par[3]*par[4]-par[5]*fabs(par[1])));
   a   = (fabs(par[1]*par[2]) - par[4]*par[4]) / det;
   b   = (fabs(par[0]*par[2]) - par[5]*par[5]) / det;
   c   = (fabs(par[0]*par[1]) - par[3]*par[3]) / det;
   d   = (par[5]*par[4] - par[3]*fabs(par[2])) / det;
   e   = (par[5]*par[3] - par[4]*fabs(par[0])) / det;
   f   = (par[3]*par[4] - par[5]*fabs(par[1])) / det;
-  coef = 1. / sqrt(powf(2.*pi,dim)*fabs(det));
+  coef = 1. / sqrt(powf(2.*pi,dim)*det);
 
+  counterVx = 0;
   for (unsigned int i = 0; i < xVxValues.size(); i++)
     {
-      tmp = coef * exp(-1./2.*(a*(xVxValues[i]-par[6])*(xVxValues[i]-par[6]) + b*(yVxValues[i]-par[7])*(yVxValues[i]-par[7]) + c*(zVxValues[i]-par[8])*(zVxValues[i]-par[8]) +
-			       2.*d*(xVxValues[i]-par[6])*(yVxValues[i]-par[7]) + 2.*e*(yVxValues[i]-par[7])*(zVxValues[i]-par[8]) + 2.*f*(xVxValues[i]-par[6])*(zVxValues[i]-par[8])));
-      (tmp != 0.) ? sumlog += log(tmp) : sumlog += 0.;
-    }
+      if ((sqrt((xVxValues[i]-xPos)*(xVxValues[i]-xPos) + (yVxValues[i]-yPos)*(yVxValues[i]-yPos)) <= maxTransRadius) && (fabs(zVxValues[i]-zPos) <= maxLongLength))
+	{
+	  tmp = coef * exp(-1./2.*(a*(xVxValues[i]-par[6])*(xVxValues[i]-par[6]) + b*(yVxValues[i]-par[7])*(yVxValues[i]-par[7]) + c*(zVxValues[i]-par[8])*(zVxValues[i]-par[8]) +
+				   2.*d*(xVxValues[i]-par[6])*(yVxValues[i]-par[7]) + 2.*e*(yVxValues[i]-par[7])*(zVxValues[i]-par[8]) + 2.*f*(xVxValues[i]-par[6])*(zVxValues[i]-par[8])));
+	  (tmp != 0.) ? sumlog += log(tmp) : sumlog += 0.;
+	  counterVx++;
+	}
+    } 
   
   fval = -1./2. * sumlog; 
 }
@@ -290,14 +294,17 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
       if (dataFromFit == true)
 	{
-	  double pi = 3.141592653589793238;
 	  unsigned int nParams = 9;
+	  double nSigma = 4.;
 
 	  TFitterMinuit* Gauss3D = new TFitterMinuit(nParams);
 	  Gauss3D->SetPrintLevel(0);
 // 	  Gauss3D->SetStrategy(0);
 	  Gauss3D->SetFCN(Gauss3DFunc);
-      
+      	  double arglist[2];
+	  arglist[0] = 10000; // Max number of function calls
+	  arglist[1] = 1e-5;  // Tolerance on likelihood
+
 	  // arg3 - first guess of parameter value
 	  // arg4 – step of the parameter
 	  Gauss3D->SetParameter(0,"var x ", Vx_X->getTH1()->GetRMS()*Vx_X->getTH1()->GetRMS(), 0.0005, 0, 0);
@@ -310,32 +317,46 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  Gauss3D->SetParameter(7,"mean y", Vx_Y->getTH1()->GetMean(), 0.0005, 0, 0);
 	  Gauss3D->SetParameter(8,"mean z", Vx_Z->getTH1()->GetMean(), 0.0005, 0, 0);
 
-	  double arglist[2];
-	  arglist[0] = 10000; // Number of function calls
-	  arglist[1] = 1e-5;  // Tolerance on likelihood
+	  maxTransRadius = nSigma * sqrt(Vx_X->getTH1()->GetRMS()*Vx_X->getTH1()->GetRMS() + Vx_Y->getTH1()->GetRMS()*Vx_Y->getTH1()->GetRMS());
+	  maxLongLength = nSigma * Vx_Z->getTH1()->GetRMS();
+	  xPos = Vx_X->getTH1()->GetMean();
+	  yPos = Vx_Y->getTH1()->GetMean();
+	  zPos = Vx_Z->getTH1()->GetMean();
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-// 	  cout << "goodData: " << goodData << endl;
-// 	  cout << "sigma x: " << sqrt(Gauss3D->GetParameter(0)) << endl;
-// 	  cout << "sigma y: " << sqrt(Gauss3D->GetParameter(1)) << endl;
-// 	  cout << "sigma z: " << sqrt(Gauss3D->GetParameter(2)) << endl;
-// 	  cout << "dxdz --> " << 90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2))) << endl;
-// 	  cout << "dydz --> " << 90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2))) << endl;
 
-	  dxdzlumi->ShiftFillLast(90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2))), 0.0, nLumiReset);
-	  dydzlumi->ShiftFillLast(90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2))), 0.0, nLumiReset);
+	  double amin,edm,errdef;
+	  int nvpar,nparx;
+	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+	  if (isnan(edm) == true) goodData = -1;
+	  for (unsigned int i = 0; i < nParams; i++) if (isnan(Gauss3D->GetParError(i)) == true) { goodData = -1; break; }
 
-	  vals.push_back(Gauss3D->GetParameter(6));
-	  vals.push_back(Gauss3D->GetParameter(7));
-	  vals.push_back(Gauss3D->GetParameter(8));
-	  vals.push_back(Gauss3D->GetParameter(0));
-	  vals.push_back(Gauss3D->GetParameter(1));
-	  vals.push_back(Gauss3D->GetParameter(2));
-	  vals.push_back(90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2))));
-	  vals.push_back(90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2))));
+	  if (goodData == 0)
+	    {
+// 	      cout << "N vertices: " << xVxValues.size() << endl;
+// 	      cout << "counterVx: " << counterVx << endl;
+// 	      cout << "goodData: " << goodData << endl;
+// 	      cout << "sigma x: " << sqrt(fabs(Gauss3D->GetParameter(0))) << endl;
+// 	      cout << "sigma y: " << sqrt(fabs(Gauss3D->GetParameter(1))) << endl;
+// 	      cout << "sigma z: " << sqrt(fabs(Gauss3D->GetParameter(2))) << endl;
+// 	      cout << "dxdz --> " << 90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2)))) << endl;
+// 	      cout << "dydz --> " << 90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2)))) << endl;
+	      
+	      dxdzlumi->ShiftFillLast(90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2)))), 0.0, nLumiReset);
+	      dydzlumi->ShiftFillLast(90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2)))), 0.0, nLumiReset);
+	      
+	      vals.push_back(Gauss3D->GetParameter(6));
+	      vals.push_back(Gauss3D->GetParameter(7));
+	      vals.push_back(Gauss3D->GetParameter(8));
+	      vals.push_back(sqrt(fabs(Gauss3D->GetParameter(0))));
+	      vals.push_back(sqrt(fabs(Gauss3D->GetParameter(1))));
+	      vals.push_back(sqrt(fabs(Gauss3D->GetParameter(2))));
+	      vals.push_back(90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2)))));
+	      vals.push_back(90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2)))));
+	    }
 
 	  delete Gauss3D;
 
-	  if (Vx_X->getTH1F()->GetEntries() < minNentries) goodData = -1;
+	  if (counterVx < minNentries) goodData = -1;
 	}
       else
 	{
@@ -496,12 +517,14 @@ void Vx3DHLTAnalyzer::beginJob()
       dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
     }
 
-  runNumber = 0;
-  lumiCounter = 0;
+  runNumber      = 0;
+  lumiCounter    = 0;
   beginTimeOfFit = 0;
-  endTimeOfFit = 0;
+  endTimeOfFit   = 0;
   beginLumiOfFit = 0;
-  endLumiOfFit = 0;
+  endLumiOfFit   = 0;
+
+  pi = 3.141592653589793238;
 }
 
 
