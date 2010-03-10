@@ -9,6 +9,15 @@
 <use name=RecoVertex/BeamSpotProducer>
 <use name=DataFormats/VertexReco>
 
-<library file=*.cc name=BeamMonitorPlugins>
+<library file=BeamMonitor.cc name=BeamMonitor>
 	<flags EDM_PLUGIN=1>
 </library>
+
+<library file=BeamConditionsMonitor.cc name=BeamConditionsMonitor>
+        <flags EDM_PLUGIN=1>
+</library>
+
+<library file=Vx3DHLTAnalyzer.cc name=Vx3DHLTAnalyzer>
+        <flags EDM_PLUGIN=1>
+</library>
+
