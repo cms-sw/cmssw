@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.16 2010/03/09 20:01:45 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.17 2010/03/10 11:30:08 dinardo Exp $
 //
 //
 
@@ -108,6 +108,24 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 }
 
 
+static char* formatTime(const time_t t)
+{
+#define CET (+1)
+  
+  static  char ts[] = "yyyy-Mm-dd hh:mm:ss     ";
+  tm * ptm;
+  ptm = gmtime (&t);
+  sprintf(ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year, ptm->tm_mon+1,ptm->tm_mday, (ptm->tm_hour+CET)%24, ptm->tm_min, ptm->tm_sec);
+  
+#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
+  unsigned int b = strlen(ts);
+  while (ts[--b] == ' ') ts[b] = 0;
+#endif
+
+  return ts;
+}
+
+
 void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*iflag*/)
 {
   double a,b,c,d,e,f;
@@ -175,20 +193,8 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       vector<double>::const_iterator it = vals->begin();
 
       outputFile << "Runnumber " << runNumber << endl;
-      outputFile << "BeginTimeOfFit ";
-      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_year << "-";
-      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_mon+1 << "-";
-      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_mday << " ";
-      outputFile << (gmtime((const time_t*)&beginTimeOfFit)->tm_hour+1)%24 << ":";
-      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_min << ":";
-      outputFile << gmtime((const time_t*)&beginTimeOfFit)->tm_sec << endl;
-      outputFile << "EndTimeOfFit ";
-      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_year << "-";
-      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_mon+1 << "-";
-      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_mday << " ";
-      outputFile << (gmtime((const time_t*)&endTimeOfFit)->tm_hour+1)%24 << ":";
-      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_min << ":";
-      outputFile << gmtime((const time_t*)&endTimeOfFit)->tm_sec << endl;
+      outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit) << endl;
+      outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit) << endl;
       outputFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
       outputFile << "Type 3" << endl; // 3D Vertexing with Pixel Tracks = type 3
 
@@ -235,7 +241,6 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       outputFile << "EmittanceX 0.0" << endl;
       outputFile << "EmittanceY 0.0" << endl;
       outputFile << "BetaStar 0.0" << endl;
-      outputFile << "\n" << endl;
 
       outputFile.close();
     }
@@ -338,11 +343,11 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 // 	      cout << "sigma x: " << sqrt(fabs(Gauss3D->GetParameter(0))) << endl;
 // 	      cout << "sigma y: " << sqrt(fabs(Gauss3D->GetParameter(1))) << endl;
 // 	      cout << "sigma z: " << sqrt(fabs(Gauss3D->GetParameter(2))) << endl;
-// 	      cout << "dxdz --> " << 90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2)))) << endl;
-// 	      cout << "dydz --> " << 90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2)))) << endl;
+// 	      cout << "dxdz --> " << tan(acos(pi/2. - Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2))))) << endl;
+// 	      cout << "dydz --> " << tan(acos(pi/2. - Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2))))) << endl;
 	      
-	      dxdzlumi->ShiftFillLast(90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2)))), 0.0, nLumiReset);
-	      dydzlumi->ShiftFillLast(90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2)))), 0.0, nLumiReset);
+	      dxdzlumi->ShiftFillLast(tan(acos(pi/2. - Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2))))), 0.0, nLumiReset);
+	      dydzlumi->ShiftFillLast(tan(acos(pi/2. - Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2))))), 0.0, nLumiReset);
 	      
 	      vals.push_back(Gauss3D->GetParameter(6));
 	      vals.push_back(Gauss3D->GetParameter(7));
@@ -350,8 +355,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	      vals.push_back(sqrt(fabs(Gauss3D->GetParameter(0))));
 	      vals.push_back(sqrt(fabs(Gauss3D->GetParameter(1))));
 	      vals.push_back(sqrt(fabs(Gauss3D->GetParameter(2))));
-	      vals.push_back(90 - 180. / pi * acos(Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2)))));
-	      vals.push_back(90 - 180. / pi * acos(Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2)))));
+	      vals.push_back(tan(acos(pi/2. - Gauss3D->GetParameter(5)/sqrt(fabs(Gauss3D->GetParameter(0)*Gauss3D->GetParameter(2))))));
+	      vals.push_back(tan(acos(pi/2. - Gauss3D->GetParameter(4)/sqrt(fabs(Gauss3D->GetParameter(1)*Gauss3D->GetParameter(2))))));
 	    }
 
 	  delete Gauss3D;
