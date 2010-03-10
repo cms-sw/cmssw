@@ -85,7 +85,7 @@ void PhotonCoreProducer::produce(edm::Event& theEvent, const edm::EventSetup& th
   edm::Handle<reco::ConversionCollection> conversionHandle; 
   theEvent.getByLabel(conversionProducer_, conversionHandle);
   if (!conversionHandle.isValid()) {
-    edm::LogError("PhotonCoreProducer") << "Error! Can't get the product "<< conversionProducer_.label() << "\n" ;
+    //edm::LogError("PhotonCoreProducer") << "Error! Can't get the product "<< conversionProducer_.label() << "\n" ;
     validConversions_=false;
   }
  
