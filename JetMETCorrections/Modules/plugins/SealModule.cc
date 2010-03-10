@@ -21,6 +21,11 @@
 
 REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
 
+#include "CondFormats/DataRecord/interface/JetCorrectorParametersRecord.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+REGISTER_PLUGIN(JetCorrectorParametersRecord,JetCorrectorParameters);
+
+
 using namespace cms;
 using namespace reco;
 
