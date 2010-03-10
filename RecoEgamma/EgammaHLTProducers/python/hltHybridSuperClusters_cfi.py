@@ -29,6 +29,8 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     l1TagNonIsolated = cms.InputTag("l1extraParticles","NonIsolated"),
     posCalc_t0 = cms.double(7.4),
     l1LowerThrIgnoreIsolation = cms.double(999.0),
+    # flags to be excluded
+    RecHitFlagToBeExcluded = cms.vint32(),
     # input collection
     ecalhitproducer = cms.InputTag("ecalRecHit")
 )

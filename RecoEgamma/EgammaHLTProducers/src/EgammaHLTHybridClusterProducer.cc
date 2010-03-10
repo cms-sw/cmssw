@@ -84,6 +84,7 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
                                    ps.getParameter<double>("ethresh"),
                                    ps.getParameter<double>("eseed"),
                                    ps.getParameter<double>("ewing"),
+                                   ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded"),
                                    posCalculator_,
                                    debugL);
 
