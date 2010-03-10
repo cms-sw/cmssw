@@ -241,12 +241,24 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
   
   float chargedHadronEnergy=0.;
   float neutralHadronEnergy=0.;
+  float photonEnergy=0.;
+  float electronEnergy=0.;
+  float muonEnergy=0.;
+  float HFHadronEnergy=0.;
+  float HFEMEnergy=0.;
+  int   chargedHadronMultiplicity=0;
+  int   neutralHadronMultiplicity=0;
+  int   photonMultiplicity=0;
+  int   electronMultiplicity=0;
+  int   muonMultiplicity=0;
+  int   HFHadronMultiplicity=0;
+  int   HFEMMultiplicity=0;
+
   float chargedEmEnergy=0.;
   float neutralEmEnergy=0.;
   float chargedMuEnergy=0.;
   int   chargedMultiplicity=0;
   int   neutralMultiplicity=0;
-  int   muonMultiplicity=0;
   
   vector<reco::CandidatePtr>::const_iterator itParticle;
   for (itParticle=particles.begin();itParticle!=particles.end();++itParticle){
@@ -259,32 +271,51 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
       switch (PFCandidate::ParticleType(pfCand->particleId())) {
       case PFCandidate::h:       // charged hadron
 	chargedHadronEnergy += pfCand->energy();
+	chargedHadronMultiplicity++;
 	chargedMultiplicity++;
 	break;
-	
+
+      case PFCandidate::h0 :    // neutral hadron
+	neutralHadronEnergy += pfCand->energy();
+	neutralHadronMultiplicity++;
+	neutralMultiplicity++;
+      break;
+
+      case PFCandidate::gamma:   // photon
+	photonEnergy += pfCand->energy();
+	photonMultiplicity++;
+	neutralEmEnergy += pfCand->energy();
+	neutralMultiplicity++;
+      break;
+
       case PFCandidate::e:       // electron 
+	electronEnergy += pfCand->energy();
+	electronMultiplicity++;
 	chargedEmEnergy += pfCand->energy(); 
 	chargedMultiplicity++;
 	break;
-	
+
       case PFCandidate::mu:      // muon
+	muonEnergy += pfCand->energy();
+	muonMultiplicity++;
 	chargedMuEnergy += pfCand->energy();
 	chargedMultiplicity++;
-	muonMultiplicity++;
 	break;
-	
-      case PFCandidate::gamma:   // photon
+
+      case PFCandidate::h_HF :    // hadron in HF
+	HFHadronEnergy += pfCand->energy();
+	HFHadronMultiplicity++;
+	neutralMultiplicity++;
+	break;
+
       case PFCandidate::egamma_HF :    // electromagnetic in HF
+	HFEMEnergy += pfCand->energy();
+	HFEMMultiplicity++;
 	neutralEmEnergy += pfCand->energy();
 	neutralMultiplicity++;
 	break;
 	
-      case PFCandidate::h0 :    // neutral hadron
-      case PFCandidate::h_HF :    // hadron in HF
-	neutralHadronEnergy += pfCand->energy();
-	neutralMultiplicity++;
-	break;
-	
+
       default:
 	edm::LogWarning("DataNotFound") <<"reco::makePFJetSpecific: Unknown PFCandidate::ParticleType: "
 					<<pfCand->particleId()<<" is ignored\n";
@@ -299,12 +330,25 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
   
   pfJetSpecific->mChargedHadronEnergy=chargedHadronEnergy;
   pfJetSpecific->mNeutralHadronEnergy= neutralHadronEnergy;
+  pfJetSpecific->mPhotonEnergy= photonEnergy;
+  pfJetSpecific->mElectronEnergy= electronEnergy;
+  pfJetSpecific->mMuonEnergy= muonEnergy;
+  pfJetSpecific->mHFHadronEnergy= HFHadronEnergy;
+  pfJetSpecific->mHFEMEnergy= HFEMEnergy;
+
+  pfJetSpecific->mChargedHadronMultiplicity=chargedHadronMultiplicity;
+  pfJetSpecific->mNeutralHadronMultiplicity= neutralHadronMultiplicity;
+  pfJetSpecific->mPhotonMultiplicity= photonMultiplicity;
+  pfJetSpecific->mElectronMultiplicity= electronMultiplicity;
+  pfJetSpecific->mMuonMultiplicity= muonMultiplicity;
+  pfJetSpecific->mHFHadronMultiplicity= HFHadronMultiplicity;
+  pfJetSpecific->mHFEMMultiplicity= HFEMMultiplicity;
+
   pfJetSpecific->mChargedEmEnergy=chargedEmEnergy;
   pfJetSpecific->mChargedMuEnergy=chargedMuEnergy;
   pfJetSpecific->mNeutralEmEnergy=neutralEmEnergy;
   pfJetSpecific->mChargedMultiplicity=chargedMultiplicity;
   pfJetSpecific->mNeutralMultiplicity=neutralMultiplicity;
-  pfJetSpecific->mMuonMultiplicity=muonMultiplicity;
 
   return true;
 }

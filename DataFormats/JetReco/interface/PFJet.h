@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.18 2008/07/30 23:10:04 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.19 2009/11/13 17:28:40 cbern Exp $
  ************************************************************/
 
 
@@ -23,23 +23,52 @@ class PFJet : public Jet {
  public:
   struct Specific {
     Specific () :
-	 mChargedHadronEnergy (0),
-	 mNeutralHadronEnergy (0),
-	 mChargedEmEnergy (0),
-	 mChargedMuEnergy (0),
-	 mNeutralEmEnergy (0),
-	 mChargedMultiplicity (0),
-	 mNeutralMultiplicity (0),
-	 mMuonMultiplicity (0)
+       mChargedHadronEnergy (0),
+       mNeutralHadronEnergy (0),
+       mPhotonEnergy (0),
+       mElectronEnergy (0),
+       mMuonEnergy (0),
+       mHFHadronEnergy (0),
+       mHFEMEnergy (0),
+
+       mChargedHadronMultiplicity (0),
+       mNeutralHadronMultiplicity (0),
+       mPhotonMultiplicity (0),
+       mElectronMultiplicity (0),
+       mMuonMultiplicity (0),
+       mHFHadronMultiplicity (0),
+       mHFEMMultiplicity (0),
+
+       mChargedEmEnergy (0),
+       mChargedMuEnergy (0),
+       mNeutralEmEnergy (0),
+       
+       mChargedMultiplicity (0),
+       mNeutralMultiplicity (0)
     {}
     float mChargedHadronEnergy;
     float mNeutralHadronEnergy;
+    float mPhotonEnergy;
+    float mElectronEnergy;
+    float mMuonEnergy;
+    float mHFHadronEnergy;
+    float mHFEMEnergy;
+
+    int mChargedHadronMultiplicity;
+    int mNeutralHadronMultiplicity;
+    int mPhotonMultiplicity;
+    int mElectronMultiplicity;
+    int mMuonMultiplicity;
+    int mHFHadronMultiplicity;
+    int mHFEMMultiplicity;
+
+    //old (deprecated) data members
+    //kept only for backwards compatibility:
     float mChargedEmEnergy;
     float mChargedMuEnergy;
     float mNeutralEmEnergy;
     int mChargedMultiplicity;
     int mNeutralMultiplicity;
-    int mMuonMultiplicity;
  };
   
   /** Default constructor*/
@@ -66,6 +95,42 @@ class PFJet : public Jet {
   float neutralHadronEnergy () const {return m_specific.mNeutralHadronEnergy;}
   /// neutralHadronEnergyFraction
   float neutralHadronEnergyFraction () const {return neutralHadronEnergy () / energy ();}
+  /// photonEnergy 
+  float photonEnergy () const {return m_specific.mPhotonEnergy;}
+  /// photonEnergyFraction
+  float photonEnergyFraction () const {return photonEnergy () / energy ();}
+  /// electronEnergy 
+  float electronEnergy () const {return m_specific.mElectronEnergy;}
+  /// electronEnergyFraction
+  float electronEnergyFraction () const {return electronEnergy () / energy ();}
+  /// muonEnergy 
+  float muonEnergy () const {return m_specific.mMuonEnergy;}
+  /// muonEnergyFraction
+  float muonEnergyFraction () const {return muonEnergy () / energy ();}
+  /// HFHadronEnergy 
+  float HFHadronEnergy () const {return m_specific.mHFHadronEnergy;}
+  /// HFHadronEnergyFraction
+  float HFHadronEnergyFraction () const {return HFHadronEnergy () / energy ();}
+  /// HFEMEnergy 
+  float HFEMEnergy () const {return m_specific.mHFEMEnergy;}
+  /// HFEMEnergyFraction
+  float HFEMEnergyFraction () const {return HFEMEnergy () / energy ();}
+
+  /// chargedHadronMultiplicity
+  int chargedHadronMultiplicity () const {return m_specific.mChargedHadronMultiplicity;}
+  /// neutralHadronMultiplicity
+  int neutralHadronMultiplicity () const {return m_specific.mNeutralHadronMultiplicity;}
+  /// photonMultiplicity
+  int photonMultiplicity () const {return m_specific.mPhotonMultiplicity;}
+  /// electronMultiplicity
+  int electronMultiplicity () const {return m_specific.mElectronMultiplicity;}
+  /// muonMultiplicity
+  int muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
+  /// HFHadronMultiplicity
+  int HFHadronMultiplicity () const {return m_specific.mHFHadronMultiplicity;}
+  /// HFEMMultiplicity
+  int HFEMMultiplicity () const {return m_specific.mHFEMMultiplicity;}
+
   /// chargedEmEnergy
   float chargedEmEnergy () const {return m_specific.mChargedEmEnergy;}
   /// chargedEmEnergyFraction
@@ -78,12 +143,11 @@ class PFJet : public Jet {
   float neutralEmEnergy () const {return m_specific.mNeutralEmEnergy;}
   /// neutralEmEnergyFraction
   float neutralEmEnergyFraction () const {return neutralEmEnergy () / energy ();}
+  
   /// chargedMultiplicity
   int chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
   /// neutralMultiplicity
   int neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
-  /// muonMultiplicity
-  int muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
 
 
   /// get specific constituent

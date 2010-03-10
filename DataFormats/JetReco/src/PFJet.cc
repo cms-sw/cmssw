@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.15 2008/07/30 23:10:04 fedor Exp $
+// $Id: PFJet.cc,v 1.16 2009/11/13 17:28:40 cbern Exp $
 #include <sstream>
 #include <typeinfo>
 
@@ -85,6 +85,13 @@ std::string PFJet::print () const {
   std::ostringstream out;
   out << Jet::print () // generic jet info
       << "    PFJet specific:" << std::endl
+      << "      charged hadron energy/multiplicity: " << chargedHadronEnergy () << '/' << chargedHadronMultiplicity () << std::endl
+      << "      neutral hadron energy/multiplicity: " << neutralHadronEnergy () << '/' << neutralHadronMultiplicity () << std::endl
+      << "      photon energy/multiplicity: " << photonEnergy () << '/' << photonMultiplicity () << std::endl
+      << "      electron energy/multiplicity: " << electronEnergy () << '/' << electronMultiplicity () << std::endl
+      << "      muon energy/multiplicity: " << muonEnergy () << '/' << muonMultiplicity () << std::endl
+      << "      HF Hadron energy/multiplicity: " << HFHadronEnergy () << '/' << HFHadronMultiplicity () << std::endl
+      << "      HF EM particle energy/multiplicity: " << HFEMEnergy () << '/' << HFEMMultiplicity () << std::endl
       << "      charged/neutral hadrons energy: " << chargedHadronEnergy () << '/' << neutralHadronEnergy () << std::endl
       << "      charged/neutral em energy: " << chargedEmEnergy () << '/' << neutralEmEnergy () << std::endl
       << "      charged muon energy: " << chargedMuEnergy () << '/' << std::endl
@@ -107,10 +114,14 @@ std::ostream& reco::operator<<(std::ostream& out, const reco::PFJet& jet) {
   if(out) {
     out<<"PFJet "
        <<"(pt, eta, phi) = "<<jet.pt()<<","<<jet.eta()<<","<<jet.phi()
-       <<"  (CHEF,NHEF,GEF) = "
+       <<"  (Rch,Rnh,Rgamma,Re,Rmu,RHFHad,RHFEM) = "
        <<jet.chargedHadronEnergyFraction()<<","
        <<jet.neutralHadronEnergyFraction()<<","
-       <<jet.neutralEmEnergyFraction();
+       <<jet.photonEnergyFraction()<<","
+       <<jet.electronEnergyFraction()<<","
+       <<jet.muonEnergyFraction()<<","
+       <<jet.HFHadronEnergyFraction()<<","
+       <<jet.HFEMEnergyFraction();
   }
   return out;
 }
