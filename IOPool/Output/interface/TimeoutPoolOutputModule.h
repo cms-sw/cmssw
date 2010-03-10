@@ -1,5 +1,5 @@
-#ifndef Fireworks_IOPoolOutput_TimeoutPoolOutputModule_h
-#define Fireworks_IOPoolOutput_TimeoutPoolOutputModule_h
+#ifndef IOPool_Output_TimeoutPoolOutputModule_h
+#define IOPool_Output_TimeoutPoolOutputModule_h
 
 //////////////////////////////////////////////////////////////////////
 //
