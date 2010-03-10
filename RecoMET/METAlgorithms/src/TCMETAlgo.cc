@@ -116,7 +116,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      if( usePvtxd0_ ){
        event.getByLabel( vertexInputTag_  , VertexHandle  );
        
-       if( event.getByLabel(vertexInputTag_  , VertexHandle )) {
+       if( VertexHandle.isValid() ) {
 	 hasValidVertex = true;
 	 vertexColl = VertexHandle.product();
        } 
@@ -375,7 +375,7 @@ bool TCMETAlgo::isGoodTrack( const reco::TrackRef track ) {
   
      double d0 = 9999.;
 
-     if(usePvtxd0_ && hasValidVertex){
+     if( hasValidVertex ){
         //get d0 corrected for primary vertex
        
        const Point pvtx = Point(vertexColl->begin()->x(),
@@ -487,7 +487,7 @@ void TCMETAlgo::correctMETforTrack( const reco::TrackRef track , TH2D* rf , cons
      else {
        //const TVector3 outerTrackPosition = propagateTrack( track );  //propagate track from vertex to calorimeter face
           
-       if(checkTrackPropagation_ && (outerTrackPosition.Theta() < -9.99 || outerTrackPosition.Phi() > 2 * TMath::Pi() - 0.01   )  ){
+       if(checkTrackPropagation_ && outerTrackPosition.Theta() < -9.99 ){
 	 //fail track propagation check
        }
        else{
@@ -515,7 +515,7 @@ void TCMETAlgo::correctSumEtForTrack( const reco::TrackRef track  , TH2D* rf , c
 
      else {
 
-          if(checkTrackPropagation_ && (outerTrackPosition.Theta() < -9.99 || outerTrackPosition.Phi() > 2 * TMath::Pi() - 0.01 )  ){
+          if(checkTrackPropagation_ && outerTrackPosition.Theta() < -9.99 ){
 	    //fail track propagation check
 	  }
 	  else{
