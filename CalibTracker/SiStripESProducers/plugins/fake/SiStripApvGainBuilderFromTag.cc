@@ -55,20 +55,18 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
       double gainValue = meanGain_;
 
       if( j < inputRangeSize ) {
-        // cout << "Gain from input tag for DetId = " << it->first << " and apv = " << j << endl;
         gainValue = inputApvGain->getApvGain(j, inputRange);
+        // cout << "Gain = " << gainValue <<" from input tag for DetId = " << it->first << " and apv = " << j << endl;
       }
       // else {
       //   cout << "No gain in input tag for DetId = " << it->first << " and apv = " << j << " using value from cfg = " << gainValue << endl;
       // }
-  
-      if(genMode=="default")
-	gainValue=meanGain_;
-      else if ("gaussian") {
-	gainValue = CLHEP::RandGauss::shoot(meanGain_, sigmaGain_);
+
+      if (genMode == "gaussian") {
+	gainValue = CLHEP::RandGauss::shoot(gainValue, sigmaGain_);
 	if(gainValue<=minimumPosValue_) gainValue=minimumPosValue_;
       }
-      else {
+      else if( genMode != "default" ) {
         LogDebug("SiStripApvGain") << "ERROR: wrong genMode specifier : " << genMode << ", please select one of \"default\" or \"gaussian\"" << std::endl;
         exit(1);
       }
