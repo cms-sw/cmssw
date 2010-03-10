@@ -24,9 +24,9 @@ class EcalSeverityLevelAlgo {
                 static int severityLevel( const DetId,
                                           const EcalRecHitCollection &,
                                           const EcalChannelStatus &,
+                                          float recHitEtThreshold = 5.,
                                           SpikeId spId = kSwissCross,
-                                          float spIdThreshold = 0.95,
-                                          float recHitEtThreshold = 5.
+                                          float spIdThreshold = 0.95
                                           );
 
                 /** return the estimator of the signal being a spike
@@ -34,18 +34,19 @@ class EcalSeverityLevelAlgo {
                  */
                 static float spikeFromNeighbours( const DetId id,
                                                   const EcalRecHitCollection &,
+                                                  float recHitEtThreshold = 5.,
                                                   SpikeId spId = kSwissCross
                                                   );
 
                 /** ratio between the crystal energy and the energy in the 3x3
                  *  matrix of crystal
                  */
-                static float E1OverE9( const DetId id, const EcalRecHitCollection & );
+                static float E1OverE9( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold );
 
                 /** 1 - the ratio between the energy in the swiss cross around
                  * a crystal and the crystal energy (also called S4/S1, Rook)
                  */
-                static float swissCross( const DetId id, const EcalRecHitCollection & );
+                static float swissCross( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold );
 
         private:
 
@@ -56,8 +57,9 @@ class EcalSeverityLevelAlgo {
 
                 /** return energy of a recHit (if in the collection)
                  */
-                static float recHitEnergy( const DetId id, const EcalRecHitCollection &recHits );
-                static float recHitEnergy( const DetId id, const EcalRecHitCollection & recHits, int dEta, int dPhi );
+                static float recHitE( const DetId id, const EcalRecHitCollection &recHits );
+                static float recHitApproxEt( const DetId id, const EcalRecHitCollection &recHits );
+                static float recHitE( const DetId id, const EcalRecHitCollection & recHits, int dEta, int dPhi );
 };
 
 #endif
