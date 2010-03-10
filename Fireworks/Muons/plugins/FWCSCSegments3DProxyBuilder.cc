@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegments3DProxyBuilder.cc,v 1.1 2009/05/14 20:29:26 yanjuntu Exp $
+// $Id: FWCSCSegments3DProxyBuilder.cc,v 1.2 2010/02/26 10:28:40 eulisse Exp $
 //
 
 // system include files
@@ -17,7 +17,6 @@
 #include "TEveGeoNode.h"
 #include "TEveElement.h"
 #include "TEveCompound.h"
-#include "TEvePointSet.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"

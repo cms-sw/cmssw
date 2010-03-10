@@ -51,14 +51,6 @@ FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    {
       return;
    }
-   TEveCompound* compund = new TEveCompound("csc compound", "cscRechits");
-   compund->OpenCompound();
-   
-   TEveStraightLineSet* rechitSet = new TEveStraightLineSet("CSC RecHit2D Collection");
-   rechitSet->SetMainColor(iItem->defaultDisplayProperties().color());
-   rechitSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-   rechitSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
-   compund->AddElement(rechitSet);
 
    unsigned int index = 0;
    for(CSCRecHit2DCollection::id_iterator chId = collection->id_begin(), chIdEnd = collection->id_end();
@@ -71,10 +63,23 @@ FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
          continue;
       }
 
+      std::stringstream s;
+      s << "chamber" << index;
+
       CSCRecHit2DCollection::range range = collection->get(*chId);
       for(CSCRecHit2DCollection::const_iterator it = range.first;
 	  it != range.second; ++it)
       {
+	 TEveCompound* compund = new TEveCompound("csc compound", "cscRechits");
+	 compund->OpenCompound();
+	 tList->AddElement(compund);
+  
+	 TEveStraightLineSet* rechitSet = new TEveStraightLineSet(s.str().c_str());
+	 rechitSet->SetMainColor(iItem->defaultDisplayProperties().color());
+	 rechitSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+	 rechitSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
+	 compund->AddElement(rechitSet);
+	 
 	 Float_t x = it->localPosition().x();
 	 Float_t y = it->localPosition().y();
 	 Float_t z = 0.0;
@@ -99,7 +104,6 @@ FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 	 rechitSet->AddLine(globalV1Point[0], globalV1Point[1], globalV1Point[2], globalV2Point[0], globalV2Point[1], globalV2Point[2]);
       }
    }
-   tList->AddElement(compund);
 }
 
 REGISTER_FW3DDATAPROXYBUILDER(FWCSCRecHits3DProxyBuilder, CSCRecHit2DCollection, "CSC Rec Hits");
