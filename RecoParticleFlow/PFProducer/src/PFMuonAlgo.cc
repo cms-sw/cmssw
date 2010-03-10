@@ -218,14 +218,16 @@ PFMuonAlgo::isTrackerTightMuon( const reco::MuonRef& muonRef ) {
   
   if(nTrackerHits<=12) return false;
 
-  if(trackerMu->ptError()/trackerMu->pt() > 0.20) return false;
-
   bool isAllArbitrated = muon::isGoodMuon(*muonRef,muon::AllArbitrated);
   
   bool isTM2DCompatibilityTight = muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight);
 
   if(!isAllArbitrated || !isTM2DCompatibilityTight)  return false;
 
+  if((trackerMu->ptError()/trackerMu->pt() > 0.10)){
+    //std::cout<<" PT ERROR > 10 % "<< trackerMu->pt() <<std::endl;
+    return false;
+  }
   return true;
   
 }
