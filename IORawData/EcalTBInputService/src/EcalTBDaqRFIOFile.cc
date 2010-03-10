@@ -24,6 +24,7 @@ using namespace edm;
 
 EcalTBDaqRFIOFile::EcalTBDaqRFIOFile(const std::string& filename, const bool& isBinary) : filename_(filename), isBinary_(isBinary)
 {
+  char *r = const_cast<char *>("r"); // avoids compiler warnings
   if ( isBinary_ )
     {
       // case of binary input data file
@@ -34,7 +35,7 @@ EcalTBDaqRFIOFile::EcalTBDaqRFIOFile(const std::string& filename, const bool& is
 	  LogError("EcalTBDaqRFIOFile") << "@SUB=EcalTBDaqRFIOFile::initialize" << "the input file: " << filename << " cannot be opened. Exiting program... " ;
 	  exit(1);
 	}
-      infile_ = rfio_fopen((char*)filename.c_str(), "r");
+      infile_ = rfio_fopen((char*)filename.c_str(), r);
     }// end if binary
 
   else
@@ -46,7 +47,7 @@ EcalTBDaqRFIOFile::EcalTBDaqRFIOFile(const std::string& filename, const bool& is
           LogError("EcalTBDaqRFIOFile") << "@SUB=EcalTBDaqRFIOFile::initialize" << "the input file: " << filename << " cannot be opened. Exiting program... " ;
           exit(1);
         }
-      infile_ = rfio_fopen((char*)filename.c_str(), "r");
+      infile_ = rfio_fopen((char*)filename.c_str(), r);
     }// end if not binary
 }
 
@@ -97,8 +98,8 @@ bool EcalTBDaqRFIOFile::getEventData(FedDataPair& data) {
 
     // allocate max memory allowed, use only what needed
     int len=0;
-    ulong* buf = new ulong [EcalTBDaqFile::maxEventSizeInBytes_];
-    ulong* tmp=buf;
+    uint* buf = new uint [EcalTBDaqFile::maxEventSizeInBytes_];
+    uint* tmp=buf;
 
     // importing data word by word
     for ( int i=0; i< EcalTBDaqFile::maxEventSizeInBytes_/4; ++i) {
