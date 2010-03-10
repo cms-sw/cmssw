@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.20 2009/12/14 22:22:49 wmtan Exp $
+// $Id: DumpGeom.cc,v 1.21.2.3 2010/03/03 10:08:28 yana Exp $
 //
 //
 
@@ -75,6 +75,9 @@
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/MuonNumbering/interface/RPCNumberingScheme.h>
+#include <CondFormats/GeometryObjects/interface/RecoIdealGeometry.h>
+#include <CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h>
+#include <Geometry/CSCGeometryBuilder/src/CSCGeometryParsFromDD.h>
 
 #include <Geometry/TrackerNumberingBuilder/interface/GeometricDet.h>
 
@@ -90,6 +93,7 @@
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -216,7 +220,7 @@ TGeoCombiTrans* createPlacement(const DDRotationMatrix& iRot,
 
 TGeoShape* 
 DumpGeom::createShape(const std::string& iName,
-	    const DDSolid& iSolid)
+		      const DDSolid& iSolid)
 {
    TGeoShape* rSolid= nameToShape_[iName];
    if(0==rSolid) {
@@ -538,6 +542,34 @@ void DumpGeom::mapDTGeometry(const DDCompactView& cview,
  **/
 void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
 			     const MuonDDDConstants& muonConstants) {
+
+  // use of new code factoring of the Builder to be used by the Reco DB.
+  RecoIdealGeometry rig;
+  // not sure I need this... but DO need it to build the actual geometry.
+  CSCRecoDigiParameters rdp;
+  
+  // simple class just really a method to get the parameters... but I want this method
+  // available to classes other than CSCGeometryBuilderFromDDD so... simple class...
+  CSCGeometryParsFromDD cscp;
+  if ( ! cscp.build(&cview, muonConstants, rig, rdp) ) {
+    throw cms::Exception("CSCGeometryBuilderFromDDD", "Failed to build the necessary objects from the DDD");
+  }
+ 
+  const std::vector<DetId>& did = rig.detIds();
+  std::vector<double> trans, rot;
+  unsigned int rid;
+  for ( size_t it = 0; it < did.size(); ++it ) {
+    trans = rig.translation(it);
+    rot = rig.rotation(it);
+    rid = did[it].rawId();
+//     std::cout << rid << " trans ";
+//     for ( size_t tr = 0; tr < 3 ; ++tr ) std::cout << trans[tr] << " ";
+//     std::cout << " rot " ;
+//     for ( size_t ri = 0; ri < 9 ; ++ri ) std::cout << rot[ri] << " ";
+//     std::cout << std::endl;
+  }
+  std::cout << " size = " << did.size() << std::endl;
+
   std::string myName="DumpCSCGeom";
   std::string attribute = "MuStructure"; 
   std::string value     = "MuonEndcapCSC";
@@ -578,10 +610,138 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
     CSCNumberingScheme mens(muonConstants);
     int id = mens.baseNumberToUnitNumber( mbn );
     CSCDetId chamberId(id);
+
+    DetId searchId (chamberId);
+    std::vector<DetId>::const_iterator findIt = std::find(did.begin(), did.end(), searchId);
+    if ( findIt == did.end() ) std::cout << "DID NOT find chamber DetId in RecoIdealGeometry object." << std::endl;
+    else std::cout << "Found chamber DetID in RecoIdealGeometry object" << std::endl;
     // The above gives you the CHAMBER DetID but not the LAYER.
     // For CSCs the layers are built from specpars of the chamber.
     // I will try to do the same here without actually building
     // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
+    // We don't need layers for now, till we get geometry for them fixed
+    int jend   = chamberId.endcap();
+    int jstat  = chamberId.station();
+    int jring  = chamberId.ring();
+    int jch    = chamberId.chamber();
+
+    /**
+    int localZwrtGlobalZ = +1;
+    if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
+    int globalZ = +1;
+    if ( jend == 2 ) globalZ = -1;
+//     int localZwrtGlobalZ = +1;
+//     if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
+
+
+    LogTrace(myName) << myName << ": layerSeparation=" << layerSeparation
+                     << ", zAF-zAverageAGV="  << zAverageAGVtoAF
+                     << ", localZwrtGlobalZ=" << localZwrtGlobalZ
+                     << ", gtran[2]=" << gtran[2] ;
+
+    for ( short j = 1; j <= 6; ++j ) {
+
+      CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
+
+      // extra-careful check that we haven't already built this layer
+      const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
+
+      if ( cLayer == 0 ) {
+
+      // build the layer - need the chamber's specs and an appropriate layer-geometry
+         const CSCChamberSpecs* aSpecs = chamber->specs();
+         const CSCLayerGeometry* geom = 
+                    (j%2 != 0) ? aSpecs->oddLayerGeometry( jend ) : 
+                                 aSpecs->evenLayerGeometry( jend );
+
+        // Build appropriate BoundPlane, based on parent chamber, with gas gap as thickness
+
+	// centre of chamber is at global z = gtran[2]
+        float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
+
+        BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
+        BoundPlane::PositionType layerPosition( gtran[0], gtran[1], zlayer );
+	//        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( *geom );
+	//std::vector<float> dims = bounds->parameters(); // returns hb, ht, d, a
+	std::vector<float> dims = geom->parameters(); // returns hb, ht, d, a
+        dims[2] = layerThickness/2.; // half-thickness required and note it is 3rd value in vector
+	//        delete bounds;        
+	//        bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
+        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
+        BoundPlane::BoundPlanePointer plane = BoundPlane::build(layerPosition, chamberRotation, bounds);
+	delete bounds;
+
+        CSCLayer* layer = new CSCLayer( plane, layerId, chamber, geom );
+
+        LogTrace(myName) << myName << ": Create layer E" << jend << " S" << jstat 
+	            << " R" << jring << " C" << jch << " L" << j
+                    << " z=" << zlayer
+		     << " t=" << layerThickness << " or " << layer->surface().bounds().thickness()
+		         << " adr=" << layer << " layerGeom adr=" << geom ;
+
+        chamber->addComponent(j, layer); 
+        theGeometry->addLayer( layer );
+      }
+      else {
+        edm::LogError(myName) << ": ERROR, layer " << j <<
+            " for chamber = " << ( chamber->id() ) <<
+            " already exists: layer address=" << cLayer <<
+            " chamber address=" << chamber << "\n";
+      }
+
+    } // layer construction within chamber
+
+     **/
+    // Create the component layers of this chamber   
+    // We're taking the z as the z of the wire plane within the layer (middle of gas gap)
+
+    // Specify global z of layer by offsetting from centre of chamber: since layer 1 
+    // is nearest to IP in stations 1/2 but layer 6 is nearest in stations 3/4, 
+    // we need to adjust sign of offset appropriately...
+    int localZwrtGlobalZ = +1;
+    if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
+    int globalZ = +1;
+    if ( jend == 2 ) globalZ = -1;
+    for ( short j = 1; j <= 6; ++j ) {
+      std::string layerName = name;
+      CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
+
+      DetId searchId2 (layerId);
+      std::vector<DetId>::const_iterator findIt = std::find(did.begin(), did.end(), searchId2);
+      if ( findIt == did.end() ) std::cout << "DID NOT find layer DetId in RecoIdealGeometry object." << std::endl;
+      else std::cout << "Found layer DetID in RecoIdealGeometry object" << std::endl;
+
+      // centre of chamber is at global z = gtran[2]
+      // centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
+      // NOT USED RIGHT NOW float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
+
+      unsigned int rawid = layerId.rawId();
+
+      // COULD MODIFY name so that we have the "fake/hack" layer name since we don't know what it is at 
+      // this point.  THERE MAY BE A FIX to this by iterating separately over a different filter 
+      // which looks at the layers only.  Anyway, there is a real pain here in that we can not do this
+      // right now anyway because of the depth (level_) limit in root software the "Woops!!!" error.
+      // mf:ME11AlumFrame is the name of the chamber, then ME11 or ME1A is the layer... can not dist...
+      //   names are ?  ME1A_ActiveGasVol?
+      //   names are ?  ME11_ActiveGasVol?
+      //  OR ME11_Layer?  I choose the layer name.
+      std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
+      std::string prefName = (fview.logicalPart().name().name()).substr(0,4);
+      //ME21FR4Body 1
+      //      10 mf:ME11PolycarbPanel 1 Trapezoid
+      layerName += "/mf:" + prefName + "FR4Body_1/mf:" + prefName + "PolycarbPanel_1/mf:" + prefName + "Layer_"; //"_ActiveGasVol_";
+      std::ostringstream ostr;
+      ostr << j;
+      layerName += ostr.str();
+      idToName_[rawid] = layerName;
+      std::cout << "chamber id: " << rawid << " \tname: " << layerName << std::endl;
+
+      // same rotation as chamber
+      // same x and y as chamber
+      // layerPosition( gtran[0], gtran[1], zlayer );
+
+
+    } // layer construction within chamber
 
      idToName_[chamberId.rawId()] = Info(name);
      //     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
@@ -589,7 +749,8 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
      //  If it's ME11 you need to have two detId's per chamber. This is how to construct the detId
      //  copied from the CSCGeometryBuilder code.
      int jstation = chamberId.station();
-     int jring    = chamberId.ring();
+     // int
+     jring    = chamberId.ring();
      int jchamber = chamberId.chamber();
      int jendcap  = chamberId.endcap();
      if ( jstation==1 && jring==1 ) {
@@ -619,7 +780,8 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
   DDExpandedView expv(cview);
   int id;
   for ( ; git != egit; ++git ) {
-    expv.goTo( (*git)->navpos() );
+    //    expv.goTo( (*git)->navpos() );
+    expv.goTo( (*git)->navType() );
 
     std::stringstream s;
     s << "/cms:World_1";
@@ -755,7 +917,7 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
 
   // preshower
   {
-  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+    const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
     // This code comes from CaloGeometryLoader and must be updated when CaloGeometryLoader changes.
     // it is cut-pasted (logic wise).
     DDSpecificsFilter filter;
@@ -805,17 +967,57 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
     }
 
   }
+  // HcalBarrel
+  {
+    std::vector<DetId> ids = cg.getValidDetIds(DetId::Hcal, HcalBarrel); //HB
+    for(std::vector<DetId>::const_iterator id = ids.begin(), idEnd = ids.end(); id != idEnd; ++id){
+      const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners());
+      idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
+    }
+  }
+  // HcalEndcap
+  {
+    std::vector<DetId> ids = cg.getValidDetIds(DetId::Hcal, HcalEndcap); //HE
+    for(std::vector<DetId>::const_iterator id = ids.begin(), idEnd = ids.end(); id != idEnd; ++id){
+      const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners());
+      idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
+    }
+  }
+  // HcalOuter
+  {
+    std::vector<DetId> ids = cg.getValidDetIds(DetId::Hcal, HcalOuter); //HO
+    for(std::vector<DetId>::const_iterator id = ids.begin(), idEnd = ids.end(); id != idEnd; ++id){
+      const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners());
+      idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
+    }
+  }
+  // HcalForward
+  {
+    std::vector<DetId> ids = cg.getValidDetIds(DetId::Hcal, HcalForward); //HF
+    for(std::vector<DetId>::const_iterator id = ids.begin(), idEnd = ids.end(); id != idEnd; ++id){
+      const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners());
+      idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
+    }
+  }
+
   // Fill reco geometry
   {
     std::vector<DetId> ids = cg.getValidDetIds(DetId::Ecal, EcalBarrel);//EB
-    for(std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id){
+    for(std::vector<DetId>::const_iterator id = ids.begin(), idEnd = ids.end(); id != idEnd; ++id){
       const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners()) ;
       idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
     }
   }
   {
     std::vector<DetId> ids = cg.getValidDetIds(DetId::Ecal, EcalEndcap);//EE
-    for(std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id){
+    for(std::vector<DetId>::const_iterator id = ids.begin(), idEnd = ids.end(); id != idEnd; ++id){
+      const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners()) ;
+      idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
+    }
+  }
+  {
+    std::vector<DetId> ids = cg.getValidDetIds(DetId::Ecal, EcalPreshower);//ES
+    for(std::vector<DetId>::const_iterator id = ids.begin(), idEnd = ids.end(); id != idEnd; ++id){
       const CaloCellGeometry::CornersVec& cor (cg.getSubdetectorGeometry(*id)->getGeometry(*id)->getCorners()) ;
       idToName_[id->rawId()].fillPoints(cor.begin(),cor.end());
     }

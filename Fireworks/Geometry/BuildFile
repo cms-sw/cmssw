@@ -8,6 +8,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/EcalAlgo>
 <use name=Geometry/EcalCommonData>
+<use name=Geometry/CSCGeometryBuilder>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/EcalDetId>
 <use name=rootgpad>
