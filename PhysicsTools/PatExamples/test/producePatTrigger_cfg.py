@@ -17,7 +17,7 @@ process.options.wantSummary = False # to suppress the long output at the end of 
 # PAT trigger
 process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff" )
 process.muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRLessByR",
-    src     = cms.InputTag( "selectedLayer1Muons" ),
+    src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( 'TriggerMuon' ),
@@ -31,9 +31,9 @@ process.muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRLessByR",
     resolveByMatchQuality = cms.bool( True )
 )
 process.patTriggerMatcher += process.muonTriggerMatchHLTMuons
-process.patTriggerMatcher.remove( process.patTriggerElectronMatcher )
-process.patTriggerMatcher.remove( process.patTriggerMuonMatcher )
-process.patTriggerMatcher.remove( process.patTriggerTauMatcher )
+process.patTriggerMatcher.remove( process.patTriggerMatcherElectron )
+process.patTriggerMatcher.remove( process.patTriggerMatcherMuon )
+process.patTriggerMatcher.remove( process.patTriggerMatcherTau )
 process.patTriggerEvent.patTriggerMatches = [ "muonTriggerMatchHLTMuons" ]
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTrigger
 switchOnTrigger( process )
