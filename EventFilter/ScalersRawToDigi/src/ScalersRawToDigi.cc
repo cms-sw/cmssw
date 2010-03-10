@@ -146,7 +146,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     {
       EventCounter0 eventCounter0(0,(unsigned long long *)(&(raw->ec0)));
       pEventCounter0->push_back(eventCounter0);
-      std::cout << eventCounter0 << std::endl;
     }
   }
   iEvent.put(pOldTrigger); 
