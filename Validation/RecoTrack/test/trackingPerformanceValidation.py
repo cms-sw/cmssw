@@ -5,65 +5,69 @@ import sys
 import fileinput
 import string
 
-##########################################################################
-##########################################################################
-######### User variables
+#########################################################
+########### User Defined Variables (BEGIN) ##############
 
-#Reference release
 
-RefRelease='CMSSW_3_4_0_pre5'
+### Reference release
+RefRelease='CMSSW_3_5_0'
 
-#Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_4_0_pre6'
+### Relval release (set if different from $CMSSW_VERSION)
+NewRelease='CMSSW_3_5_3'
 
-# startup and ideal sample list
+### startup and ideal sample list
 
-#This are the standard relvals (startup)
+### This is the list of STARTUP-conditions relvals 
 startupsamples= [
     'RelValTTbar', 
-#    'RelValMinBias', 
-#    'RelValQCD_Pt_3000_3500'
+    'RelValMinBias', 
+    'RelValQCD_Pt_3000_3500'
 ]
+### the list can be empty if you want to skip the validation for all the samples
+### startupsamples= []
 
-#This is pileup sample
-#startupsamples= ['RelValTTbar_Tauola']
+### This is the list of startup relvals (with PileUP)
+### startupsamples= ['RelValTTbar_Tauola']
 
-#to skip startup samples:
-#startupsamples= []
 
-#This are the standard relvals (ideal)
+### This is the list of IDEAL-conditions relvals 
 idealsamples= [
-#    'RelValSingleMuPt1', 
-#    'RelValSingleMuPt10', 
-#    'RelValSingleMuPt100', 
-#    'RelValSinglePiPt1', 
-#    'RelValSinglePiPt10', 
-#    'RelValSinglePiPt100', 
-#    'RelValSingleElectronPt35', 
-#    'RelValTTbar', 
-#    'RelValQCD_Pt_3000_3500',
-#    'RelValMinBias'
+'RelValMinBias',   ### list of samples to be validated for each pre-release  
+'RelValQCD_Pt_3000_3500',
+'RelValSingleElectronPt35', 
+'RelValTTbar', 
+'RelValSingleMuPt10', 
+'RelValSingleMuPt100', 
+### additional samples to be validated for each mayor release
+# 'RelValSingleMuPt1', 
+# 'RelValSinglePiPt1', 
+# 'RelValSinglePiPt10', 
+# 'RelValSinglePiPt100', 
+#    
 ]
 
-#This is pileup sample
-#idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
-
-#summer09 preproduction (the character '-' must be avoided)
-#idealsamples= ['InclusiveMu5_Pt250__Summer09', 'InclusiveMu5_Pt50__Summer09', 'MinBias_herwig__Summer09', 'TTbar__Summer09']
-
-#to skip ideal samples:
-#idealsamples= []
-
-#idealsamples= ['RelValSingleMuPt10']
+### Sample version: v1,v2,etc..
+Version='v1'
 
 
-# track algorithm name and quality. Can be a list.
-Algos= ['ootb']
-#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
-Qualities=['']
-#Qualities=['', 'highPurity']
+### Ideal and Statup tags
+IdealTag='MC_3XY_V24'
+StartupTag='START3X_V24'
 
-#Leave unchanged unless the track collection name changes
+RefIdealTag='MC_3XY_V21'
+RefStartupTag='START3X_V21'
+### PileUp: "PU" . No PileUp: "noPU"
+PileUp='noPU'
+
+
+
+### Track algorithm name and quality. Can be a list.
+### Algos= ['ootb']
+Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
+### Qualities=['']
+Qualities=['', 'highPurity']
+
+### Leave unchanged unless the track collection name changes
 Tracksname=''
 
 # Sequence. Possible values:
@@ -80,47 +84,56 @@ Tracksname=''
 Sequence='harvesting'
 
 
-# Ideal and Statup tags
-IdealTag='MC_3XY_V14'
-StartupTag='STARTUP3X_V14'
 
-# PileUp: PU . No PileUp: noPU
-PileUp='noPU'
-
-# Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='MC_3XY_V12_'+PileUp
-StartupReferenceSelection='STARTUP3X_V11_'+PileUp
-
-# Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
+### Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
-#NewSelectionLabel='test2_logpt'
 
 
-#Reference and new repository
+### Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-#NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-NewRepository = 'new'
+NewRepository = 'new' # copy output into a local folder
 
+### use the following repository only if you have AFS privileges and you know what you are doing
+### NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
+
+### for preproduction samples:
+### RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
+### NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
+
+
+
+### AFS location of central harvesting output. It can be used to avoid running the harvesting by yourself
 castorHarvestedFilesDirectory='/castor/cern.ch/user/n/nuno/relval/harvest/'
 
-#for preproduction samples:
-#RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
-#NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
 
-#Default Nevents
+### Default Nevents
 defaultNevents ='-1'
 
-#Put here the number of event to be processed for specific samples (numbers must be strings) if not specified is defaultNevents:
+### Put here the number of event to be processed for specific samples (numbers must be strings) 
+### if not specified is defaultNevents:
 Events={}
-#Events={'RelValTTbar':'100'}
+### Events={'RelValTTbar':'50'}
 
-# template file names. Usually should not be changed.
+### template file names. Usually should not be changed.
 cfg='trackingPerformanceValidation_cfg.py'
 macro='macro/TrackValHistoPublisher.C'
 
+########### User Defined Variables (END) ################
+#########################################################
 
 
-#########################################################################
+
+
+
+### Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
+ReferenceSelection=RefIdealTag+'_'+PileUp
+StartupReferenceSelection=RefStartupTag+'_'+PileUp
+
+
+
+
+
+
 #########################################################################
 ############ Functions
 
@@ -139,7 +152,7 @@ def replace(map, filein, fileout):
 
     
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
-    global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
+    global Sequence, Version, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
     tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom'}
@@ -192,9 +205,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     print 'copy of harvested file from castor for sample ' + sample + ' failed'
                     continue
             #search the primary dataset
-            cmd='dbsql "find  dataset where dataset like *'
-    #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
-            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-RECO* order by dataset.createdate "'
+            cmd='dbsql "find  dataset where dataset like /'
+            cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'-'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
             cmd+='|grep '+sample+'|grep -v test|tail -1'
             print cmd
             dataset= os.popen(cmd).readline().strip()
