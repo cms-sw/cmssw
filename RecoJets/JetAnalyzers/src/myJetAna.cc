@@ -887,8 +887,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // **************************
   // ***  Pass Vertex
   // **************************
-  double VTX;
-  int nVTX;
+  double VTX=0;
+  int nVTX=0;
 
   edm::Handle<reco::VertexCollection> vertexCollection;
   evt.getByLabel("offlinePrimaryVertices", vertexCollection);

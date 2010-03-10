@@ -126,7 +126,7 @@ bool
 myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   double HFThreshold   = 4.0;
-  double HOThreshold   = 1.0;
+  //  double HOThreshold   = 1.0;
 
 
   bool result         = false;
