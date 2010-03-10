@@ -21,12 +21,13 @@ ALCARECOTkAlMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_c
 ALCARECOTkAlMinBias.filter = True ##do not store empty events	
 
 ALCARECOTkAlMinBias.applyBasicCuts = True
+ALCARECOTkAlMinBias.ptMin = 0.65 ##GeV
 ALCARECOTkAlMinBias.pMin = 1.5 ##GeV
 
 
 ALCARECOTkAlMinBias.etaMin = -3.5
 ALCARECOTkAlMinBias.etaMax = 3.5
-ALCARECOTkAlMinBias.nHitMin = 5 ## at least 5 hits required
+ALCARECOTkAlMinBias.nHitMin = 7 ## at least 7 hits required
 ALCARECOTkAlMinBias.GlobalSelector.applyIsolationtest = False
 ALCARECOTkAlMinBias.GlobalSelector.applyGlobalMuonFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyMassrangeFilter = False
