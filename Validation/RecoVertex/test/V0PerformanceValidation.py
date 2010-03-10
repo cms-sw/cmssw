@@ -16,8 +16,12 @@ NewRelease='CMSSW_3_3_6'
 
 # This is a pileup sample
 #startupsamples = ['RelValTTbar_Tauola']
+# This is the full set of STARTUP samples, to be used for timing studies
+startupsamples = ['RelValQCD_Pt_3000_3500', 'RelValTTbar', 'RelValMinBias']
+#startupsamples = ['RelValQCD_Pt_3000_3500', 'RelValMinBias']
+#startupsamples = ['RelValTTbar']
 
-startupsamples = ['RelValQCD_Pt_80_120']
+#$startupsamples = ['RelValQCD_Pt_80_120']
 
 # MC relvals
 #idealsamples = ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', RelValSinglePiPt1']
@@ -54,7 +58,7 @@ StartupReferenceSelection = 'STARTUP3X_V8H_'+PileUp
 #RefRepository = '/afs/cern.ch/cms/performance/'
 RefRepository = '/nfs/data35/cms/drell/val336_newv0prod_full_highPurity'
 # NewRepository contains the files for the new release to be tested
-NewRepository = '/nfs/data35/cms/drell/val336_newv0prod_full_loose'
+NewRepository = '/nfs/data35/cms/drell/val336_newv0prod_full_loose_d01.5_real'
 
 # Default number of events
 defaultNevents = '-1'
@@ -63,11 +67,11 @@ defaultNevents = '-1'
 Events = {}
 
 # template file names, shouldn't need to be changed
-#cfg = 'v0PerformanceValidation_cfg.py'
+cfg = 'v0PerformanceValidation_cfg.py'
 macro = 'macros/V0ValHistoPublisher.C'
 
 #This config is only for testing V0Producer changes.
-cfg = 'v0PerformanceValidation_v0prodtest_cfg.py'
+#cfg = 'v0PerformanceValidation_v0prodtest_cfg.py'
 #cfg = 'v0PerformanceValidation_origV0Prod_cfg.py'
 
 ###################################
