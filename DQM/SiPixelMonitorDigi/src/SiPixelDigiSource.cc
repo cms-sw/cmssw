@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.34 2010/01/07 17:00:02 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.35 2010/01/11 16:17:03 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -115,8 +115,7 @@ void SiPixelDigiSource::endJob(void){
 //------------------------------------------------------------------
 // Method called for every event
 //------------------------------------------------------------------
-void
-SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
   // get input data
@@ -148,7 +147,7 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if(nEventDigis>bigEventSize){
     MonitorElement* me = theDMBE->get("Pixel/bigEventRate");
     if(me){ 
-      me->Fill(lumiSection,1./93.);    
+      me->Fill(lumiSection,1./23.);    
 //      me->setBinContent(lumiSection+1,(float)nBigEvents/(5.*93.));
 //      me->setBinError(lumiSection+1,sqrt(nBigEvents)/(5.*93.));
 //      nBigEvents=0;
@@ -234,7 +233,7 @@ void SiPixelDigiSource::bookMEs(){
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   theDMBE->setCurrentFolder("Pixel");
   char title[80]; sprintf(title, "Rate of events with >%i digis;LumiSection;Rate of large events per LS [Hz]",bigEventSize);
-  bigEventRate = theDMBE->book1D("bigEventRate",title,500,0.,500.);
+  bigEventRate = theDMBE->book1D("bigEventRate",title,2000,0.,2000.);
   //bigEventRate->getTH1F()->SetBit(TH1::kCanRebin);
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
