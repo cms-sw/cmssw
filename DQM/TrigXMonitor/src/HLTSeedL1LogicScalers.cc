@@ -1,5 +1,5 @@
 
-// $Id: HLTSeedL1LogicScalers.cc,v 1.5 2010/02/23 17:20:14 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.cc,v 1.6 2010/03/09 14:36:46 rekovic Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 
@@ -34,9 +34,21 @@ HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
   LogDebug("HLTSeedL1LogicScalers") << "constructor" ;
 
-  fVerbose = iConfig.getUntrackedParameter < bool > ("verbose", false);
-  fL1BeforeMask = iConfig.getUntrackedParameter < bool > ("l1BeforeMask", false);
-  fDQMFolder = iConfig.getUntrackedParameter("DQMFolder", string("HLT/HLTSeedL1LogicScalers/HLT_LogicL1"));
+  // get untracked parameters
+  ///////////////////////////
+  fL1BeforeMask = iConfig.getParameter<bool>("l1BeforeMask");
+  fProcessname  = iConfig.getParameter<std::string>("processname");
+
+  // input tag for GT DAQ product
+  fL1GtDaqReadoutRecordInputTag  = iConfig.getParameter<edm::InputTag>("L1GtDaqReadoutRecordInputTag");
+
+  // input tag for GT lite product
+  fL1GtRecordInputTag = iConfig.getParameter<edm::InputTag>("L1GtRecordInputTag");
+
+  // get untracked parameters
+  ///////////////////////////
+  fDQMFolder    = iConfig.getUntrackedParameter("DQMFolder", string("HLT/HLTSeedL1LogicScalers/HLT_LogicL1"));
+  fMonitorPaths = iConfig.getUntrackedParameter<std::vector<std::string > >("monitorPaths");
 
   fDbe = Service < DQMStore > ().operator->();
 
@@ -47,23 +59,6 @@ HLTSeedL1LogicScalers::HLTSeedL1LogicScalers(const edm::ParameterSet& iConfig)
     fDbe->setCurrentFolder(fDQMFolder);
   }
   
-  fProcessname = iConfig.getUntrackedParameter("processname", string("HLT"));
-
-  // input tag for GT DAQ product
-  fL1GtDaqReadoutRecordInputTag  = iConfig.getParameter<edm::InputTag>("L1GtDaqReadoutRecordInputTag");
-
-  // input tag for GT lite product
-  fL1GtRecordInputTag = iConfig.getParameter<edm::InputTag>("L1GtRecordInputTag");
-
-
-  /*
-  fL1GtLabel = iConfig.getParameter< edm::InputTag >("l1GtLabel");
-  fTriggerResultsLabel = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
-  */
-
-  fMonitorPaths = iConfig.getParameter<std::vector<std::string > >("monitorPaths");
-
-
 }
 
 
