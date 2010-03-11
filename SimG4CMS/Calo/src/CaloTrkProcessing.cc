@@ -198,7 +198,10 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
 	trkInfo->putInHistory();
     } 
   } else {
-    if (putHistory) trkInfo->putInHistory();
+    if (putHistory) {
+      trkInfo->putInHistory();
+      //      trkInfo->setAncestor();
+    }
 #ifdef DebugLog
     LogDebug("CaloSim") << "CaloTrkProcessing Entered for " << id 
 			<< " at stepNumber "<< theTrack->GetCurrentStepNumber()

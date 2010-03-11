@@ -414,7 +414,7 @@ CaloG4Hit* CaloSD::createNewHit() {
         (TrackInformation *)(theTrack->GetUserInformation());
       trkInfo->storeTrack(true);
       trkInfo->putInHistory();
-      trkInfo->setAncestor();
+      //      trkInfo->setAncestor();
 #ifdef DebugLog
       LogDebug("CaloSim") << "CaloSD: set save the track " 
                           << currentID.trackID() << " with Hit";
@@ -640,7 +640,12 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   bool ok   = true;
   if (m_trackManager) {
     tkID = m_trackManager->giveMotherNeeded(aHit->getTrackID());
-    if (tkID == 0) ok = false;
+    if (tkID == 0) {
+      if (m_trackManager->trackExists(aHit->getTrackID())) 
+	tkID = (aHit->getTrackID());
+      else
+	ok = false;
+    }
   } else {
     tkID = aHit->getTrackID();
     ok = false;
