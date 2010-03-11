@@ -31,6 +31,7 @@
   <class name="edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >"/>
   <class name="edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> > >"/>
+  <class name="DTRecSegment4DRef"/>
 </selection>
 <exclusion>
   <class name="edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >">

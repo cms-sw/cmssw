@@ -52,5 +52,7 @@ namespace{
     DTRecSegment4D s4D;
     DTRecSegment4DCollection c4D;
     edm::Wrapper<DTRecSegment4DCollection> dws4D;
+
+    DTRecSegment4DRef ref4D;
   };
 }
