@@ -10,6 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
@@ -35,14 +36,15 @@ class pp(Scenario):
         Proton collision data taking prompt reco
 
         """
-        skims = []
-        if len(skims) >0:
-          step = ',ALCAPRODUCER:'
-          for skim in skims:
-            step += (skim+"+")
-          step = step.rstrip('+')
-        else:
-          step = ''
+
+        skims = ['SiStripCalZeroBias',
+                 'TkAlMinBias',
+                 'TkAlMuonIsolated',
+                 'MuAlCalIsolatedMu',
+                 'MuAlOverlaps',
+                 'HcalCalIsoTrk',
+                 'HcalCalDijets']
+        step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
