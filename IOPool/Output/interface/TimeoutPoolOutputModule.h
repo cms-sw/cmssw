@@ -24,8 +24,11 @@ namespace edm {
     virtual ~TimeoutPoolOutputModule(){};
   protected:
     virtual bool shouldWeCloseFile() const;
+    virtual void write(EventPrincipal const& e);
+
   private:
     mutable time_t m_lastEvent;
+    mutable unsigned int eventsWrittenInCurrentFile;
     mutable int    m_timeout;
   };
 }
