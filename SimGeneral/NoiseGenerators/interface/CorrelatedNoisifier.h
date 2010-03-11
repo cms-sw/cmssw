@@ -28,21 +28,30 @@ class CorrelatedNoisifier
 {
    public:
 
-      CorrelatedNoisifier( const M&                symCorMat , 
+      CorrelatedNoisifier( const M&                symCorMat , //correlation matrix
 			   CLHEP::HepRandomEngine* engine      = 0 ) ;
+
+      CorrelatedNoisifier( CLHEP::HepRandomEngine* engine    ,
+			   const M&                cholDecMat ) ; //decomposition matrix
 
       virtual ~CorrelatedNoisifier() ;
 
       void resetCorrelationMatrix( const M& symCorMat ) ;
 
+      void resetCholDecompMatrix( const M& cholMat ) ;
+
       template<class T>
       void noisify( T& frame ) const ; // applies random noise to frame
+
+      const M& cholMat() const ; // return decomposition
 
    private:
 
       static const double k_precision ; // precision to which 0 & 1 are compared
 
       void init( const M& symCorMat ) ;
+
+      void initChol() ;
 
       bool computeDecomposition( const M& symCorMat ) ;
 

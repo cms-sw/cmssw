@@ -25,11 +25,56 @@ CorrelatedNoisifier<M>::CorrelatedNoisifier( const M&                symCorMat ,
    init( symCorMat ) ;
 }
 
+template<class M> 
+CorrelatedNoisifier<M>::CorrelatedNoisifier( CLHEP::HepRandomEngine* engine    ,
+					     const M&                cholDecMat  ) :
+   m_rangau ( 0 != engine ? new CLHEP::RandGaussQ( *engine ) :
+	      ( !RanGen().isAvailable() ? 0 :
+		new CLHEP::RandGaussQ( RanGen()->getEngine() ) ) ) ,
+   m_H ( cholDecMat )
+{
+   initChol() ;
+}
+
+template<class M>
+void CorrelatedNoisifier<M>::initChol()
+{
+   if( 0 == m_rangau )       
+      throw cms::Exception("Configuration")
+	 << "CorrelatedNoisifier requires the RandomNumberGeneratorService\n"
+	 <<"which is not present in the configuration file.  You must add the service\n"
+	 <<"in the configuration file or remove the modules that require it.";
+
+   M symCorMat ;
+   for ( unsigned int i = 0 ; i < m_H.kRows ; ++i ) 
+   {
+      for ( unsigned int j = 0 ; j < m_H.kRows ; ++j )
+      {
+	 double sum ( 0 ) ;
+	 for( unsigned int k ( 0 ) ; k != m_H.kRows ;++k )
+	 {
+	    const double hik  ( k>i ? 0 : m_H(i,k) ) ;
+	    const double htkj ( k>j ? 0 : m_H(k,j) ) ;
+	    sum += hik*htkj ;
+	 }
+	 symCorMat(i,j) = sum ;
+      }
+   }
+   checkOffDiagonal( symCorMat );
+}
+
 template<class M>
 void CorrelatedNoisifier<M>::resetCorrelationMatrix( const M& symCorMat )
 {
    m_H = ROOT::Math::SMatrixIdentity() ;
    init( symCorMat ) ;
+}
+
+template<class M>
+void CorrelatedNoisifier<M>::resetCholDecompMatrix( const M& cholDecMat )
+{
+   m_H = cholDecMat ;
+   initChol();
 }
 
 template<class M>
@@ -164,4 +209,11 @@ CorrelatedNoisifier<M>::noisify( T& frame ) const
 	 for (unsigned int j = 0; j < i; ++j) frame[i] += m_H(j,i)*agau[j] ;
       }
    }
+}
+
+template<class M> 
+const M&
+CorrelatedNoisifier<M>::cholMat() const
+{
+   return m_H ;
 }
