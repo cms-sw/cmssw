@@ -26,21 +26,24 @@
 
 void fitSlices(TH2*, TF1*);
 
+static bool useFits = false;
 static bool onlySaveTable = false;
 static const int nbinsMax = 40;
 
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeCentralityTable(int nbins = 40, const string label = "hf", const char * tag = "HFhitBins", double MXS = 0.){
+void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char * tag = "HFhitBins"){
 
    // This macro assumes all inefficiency is in the most peripheral bin.
+   double MXS = 0;
    double EFF = 1. - MXS;
 
    // Retrieving data
   int nFiles = 1;
   vector<string> fileNames;
-  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_d20100222/Hydjet_MinBias_4TeV_runs1to300.root");
+  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_2760GeV_d20100305/Hydjet_MinBias_2760GeV_runs1to1000.root");
+  //  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_4TeV_d20100305/Hydjet_MinBias_4TeV_runs1to500.root");
   fwlite::Event event(infile);
   vector<int> runnums;
 
@@ -179,13 +182,6 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
   fitSlices(hNhard,fGaus);
   fitSlices(hb,fGaus);
 
- /*
-  hNpart->FitSlicesY();
-  hNcoll->FitSlicesY();
-  hNhard->FitSlicesY();
-  hb->FitSlicesY();
- */
-
   TH1D* hNpartMean = (TH1D*)gDirectory->Get("hNpart_1");
   TH1D* hNpartSigma = (TH1D*)gDirectory->Get("hNpart_2");
   TH1D* hNcollMean = (TH1D*)gDirectory->Get("hNcoll_1");
@@ -268,13 +264,20 @@ void fitSlices(TH2* hCorr, TF1* func){
    TH1D* hMean = new TH1D(Form("%s_1",hCorr->GetName()),"",nBins,hCorr->GetXaxis()->GetXmin(),hCorr->GetXaxis()->GetXmax());
    TH1D* hSigma = new TH1D(Form("%s_2",hCorr->GetName()),"",nBins,hCorr->GetXaxis()->GetXmin(),hCorr->GetXaxis()->GetXmax());
 
-   for(int i = 1; i < nBins; ++i){
-      TH1D* h = hCorr->ProjectionY(Form("%s_bin%d",hCorr->GetName(),i),i-1,i);
-      h->Fit(func);
-      hMean->SetBinContent(i,func->GetParameter(1));
-      hMean->SetBinError(i,func->GetParError(1));
-      hSigma->SetBinContent(i,func->GetParameter(2));
-      hSigma->SetBinError(i,func->GetParError(2));
+   for(int i = 0; i < nBins; ++i){
+      TH1D* h = hCorr->ProjectionY(Form("%s_bin%d",hCorr->GetName(),i),i,i+1);
+
+	 func->SetParameter(0,h->GetMaximum());
+	 func->SetParameter(1,h->GetMean());
+	 func->SetParameter(2,h->GetRMS());
+
+	 if(useFits) h->Fit(func);
+
+	 hMean->SetBinContent(i,func->GetParameter(1));
+	 hMean->SetBinError(i,func->GetParError(1));
+	 hSigma->SetBinContent(i,func->GetParameter(2));
+	 hSigma->SetBinError(i,func->GetParError(2));
+
       if(onlySaveTable){
 	 h->Delete();
       }

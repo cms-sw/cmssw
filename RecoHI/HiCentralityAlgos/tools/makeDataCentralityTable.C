@@ -32,24 +32,27 @@ static const int nbinsMax = 40;
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
 
-void makeCentralityTable(int nbins = 40, const string label = "hf", const char * tag = "HFhitBins", double MXS = 0.){
+void makeDataCentralityTable(int nbins = 40, const string label = "hf", const char * datatag = "HFhitBins",const char * mctag = "HFhitBinsMC", double EFF = 0.88){
 
    // This macro assumes all inefficiency is in the most peripheral bin.
-   double EFF = 1. - MXS;
-
-   // Retrieving data
+   double MXS = 1. - EFF;
   int nFiles = 1;
   vector<string> fileNames;
   TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_d20100222/Hydjet_MinBias_4TeV_runs1to300.root");
   fwlite::Event event(infile);
   vector<int> runnums;
 
+  // Retrieving data
   // Creating output table
-  TFile* outFile = new TFile("tables.root","update");
-   TDirectory* dir = outFile->mkdir(tag);
+  TFile * centFile = new TFile("../data/CentralityTables.root","update");
+   TDirectory* dir = centFile->mkdir(datatag);
    dir->cd();
 
   TH1D::SetDefaultSumw2();
+  int runMC = 1;
+  CentralityBins::RunMap HFhitBinMap = getCentralityFromFile(centFile,mctag,runMC - 1,runMC + 1);
+  nbins = HFhitBinMap[runMC]->getNbins();
+
   CentralityBins* bins = new CentralityBins("noname","Test tag", nbins);
   bins->table_.reserve(nbins);
 
@@ -107,16 +110,29 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
   cout<<"(";
 
   int bin = 0;
+
+  cout<<"events : "<<events<<endl;
+
   for(int i = 0; i< nbins; ++i){
      // Find the boundary 
-     int offset = (int)(MXS*events);
-     double xsec = events*(1 + MXS);
+
+     cout<<"bin : "<<i<<endl;
+     double xsec = events/EFF;
+     int offset = (int)(MXS*xsec);
+
      // Below should be replaced with an integral
      // when inefficiency is better parametrized 
      // than a step function.
 
-     int entry = (int)(i*(xsec/nbins)) - offset;
-     binboundaries[i] = values[entry];
+     int entry = (int)(i*(xsec/nbins)) - offset + 1;
+
+     cout<<"entry : "<<entry<<endl;
+
+     if(entry >= 0){
+	binboundaries[i] = values[entry];
+     }else{
+	binboundaries[i] = 0;
+     }
 
      cout<<" "<<binboundaries[i];
      if(i < nbins - 1) cout<<",";
@@ -124,132 +140,36 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
   }
   cout<<"-------------------------------------"<<endl;
 
-  // Determining Glauber results in various bins
-  TH2D* hNpart = new TH2D("hNpart","",nbins,binboundaries,500,0,500);
-  TH2D* hNcoll = new TH2D("hNcoll","",nbins,binboundaries,2000,0,2000);
-  TH2D* hNhard = new TH2D("hNhard","",nbins,binboundaries,250,0,250);
-  TH2D* hb = new TH2D("hb","",nbins,binboundaries,300,0,30);
-
-  for(event.toBegin(); !event.atEnd(); ++event){
-     edm::EventBase const & ev = event;
-     edm::Handle<edm::GenHIEvent> mc;
-     ev.getByLabel(edm::InputTag("heavyIon"),mc);
-     edm::Handle<reco::Centrality> cent;
-     ev.getByLabel(edm::InputTag("hiCentrality"),cent);
-
-     double b = mc->b();
-     double npart = mc->Npart();
-     double ncoll = mc->Ncoll();
-     double nhard = mc->Nhard();
-
-     double hf = cent->EtHFhitSum();
-     double hftp = cent->EtHFtowerSumPlus();
-     double hftm = cent->EtHFtowerSumMinus();
-     double eb = cent->EtEBSum();
-     double eep = cent->EtEESumPlus();
-     double eem = cent->EtEESumMinus();
-
-     double parameter = 0;
-
-     if(label.compare("npart") == 0) parameter = npart;
-     if(label.compare("ncoll") == 0) parameter = ncoll;
-     if(label.compare("nhard") == 0) parameter = nhard;
-     if(label.compare("b") == 0) parameter = b;
-     if(label.compare("hf") == 0) parameter = hf;
-     if(label.compare("hft") == 0) parameter = hftp + hftm;
-     if(label.compare("eb") == 0) parameter = eb;
-     if(label.compare("ee") == 0) parameter = eep+eem;
-    
-     hNpart->Fill(parameter,npart);
-     hNcoll->Fill(parameter,ncoll);
-     hNhard->Fill(parameter,nhard);
-     hb->Fill(parameter,b);
-  }
-
-  // Fitting Glauber distributions in bins to get mean and sigma values
-
-
-  TF1* fGaus = new TF1("fb","gaus(0)",0,2); 
-  fGaus->SetParameter(0,1);
-  fGaus->SetParameter(1,0.04);
-  fGaus->SetParameter(2,0.02); 
-  
-  fitSlices(hNpart,fGaus);
-  fitSlices(hNcoll,fGaus);
-  fitSlices(hNhard,fGaus);
-  fitSlices(hb,fGaus);
-
- /*
-  hNpart->FitSlicesY();
-  hNcoll->FitSlicesY();
-  hNhard->FitSlicesY();
-  hb->FitSlicesY();
- */
-
-  TH1D* hNpartMean = (TH1D*)gDirectory->Get("hNpart_1");
-  TH1D* hNpartSigma = (TH1D*)gDirectory->Get("hNpart_2");
-  TH1D* hNcollMean = (TH1D*)gDirectory->Get("hNcoll_1");
-  TH1D* hNcollSigma = (TH1D*)gDirectory->Get("hNcoll_2");
-  TH1D* hNhardMean = (TH1D*)gDirectory->Get("hNhard_1");
-  TH1D* hNhardSigma = (TH1D*)gDirectory->Get("hNhard_2");
-  TH1D* hbMean = (TH1D*)gDirectory->Get("hb_1");
-  TH1D* hbSigma = (TH1D*)gDirectory->Get("hb_2");
-
+  // Retrieving Glauber results in various bins
+  // from input MC centrality table
   cout<<"-------------------------------------"<<endl;
   cout<<"# Bin NpartMean NpartSigma NcollMean NcollSigma bMean bSigma BinEdge"<<endl;
 
-
   // Enter values in table
   for(int i = 0; i < nbins; ++i){
-     bins->table_[nbins-i-1].n_part_mean = hNpartMean->GetBinContent(i);
-     bins->table_[nbins-i-1].n_part_var = hNpartSigma->GetBinContent(i);
-     bins->table_[nbins-i-1].n_coll_mean = hNcollMean->GetBinContent(i);
-     bins->table_[nbins-i-1].n_coll_var = hNcollSigma->GetBinContent(i);
-     bins->table_[nbins-i-1].b_mean = hbMean->GetBinContent(i);
-     bins->table_[nbins-i-1].b_var = hbSigma->GetBinContent(i);
-     bins->table_[nbins-i-1].n_hard_mean = hNhardMean->GetBinContent(i);
-     bins->table_[nbins-i-1].n_hard_var = hNhardSigma->GetBinContent(i);
+     bins->table_[nbins-i-1].n_part_mean = HFhitBinMap[runMC]->NpartMeanOfBin(i);
+     bins->table_[nbins-i-1].n_part_var = HFhitBinMap[runMC]->NpartSigmaOfBin(i); 
+     bins->table_[nbins-i-1].n_coll_mean = HFhitBinMap[runMC]->NcollMeanOfBin(i);
+     bins->table_[nbins-i-1].n_coll_var = HFhitBinMap[runMC]->NcollSigmaOfBin(i);
+     bins->table_[nbins-i-1].b_mean = HFhitBinMap[runMC]->bMeanOfBin(i);
+     bins->table_[nbins-i-1].b_var = HFhitBinMap[runMC]->bSigmaOfBin(i);
+     bins->table_[nbins-i-1].n_hard_mean = HFhitBinMap[runMC]->NhardMeanOfBin(i);
+     bins->table_[nbins-i-1].n_hard_var = HFhitBinMap[runMC]->NhardSigmaOfBin(i);
      bins->table_[nbins-i-1].bin_edge = binboundaries[i];
 
      cout<<i<<" "
-	 <<hNpartMean->GetBinContent(i)<<" "
-	 <<hNpartSigma->GetBinContent(i)<<" "
-	 <<hNcollMean->GetBinContent(i)<<" "
-	 <<hNcollSigma->GetBinContent(i)<<" "
-	 <<hbMean->GetBinContent(i)<<" "
-	 <<hbSigma->GetBinContent(i)<<" "
+	 <<HFhitBinMap[runMC]->NpartMeanOfBin(i)<<" "
+	 <<HFhitBinMap[runMC]->NpartSigmaOfBin(i)<<" "
+	 <<HFhitBinMap[runMC]->NcollMeanOfBin(i)<<" "
+	 <<HFhitBinMap[runMC]->NcollSigmaOfBin(i)<<" "
+	 <<HFhitBinMap[runMC]->bMeanOfBin(i)<<" "
+	 <<HFhitBinMap[runMC]->bSigmaOfBin(i)<<" "
 	 <<binboundaries[i]<<" "
 	 <<endl;
   }
   cout<<"-------------------------------------"<<endl;
 
   // Save the table in output file
-
-  if(onlySaveTable){
-
-     TH1D* hh = (TH1D*)gDirectory->Get("hNpart_0");
-     hh->Delete();
-     hh = (TH1D*)gDirectory->Get("hNcoll_0");
-     hh->Delete();
-     hh = (TH1D*)gDirectory->Get("hNhard_0");
-     hh->Delete();
-     hh = (TH1D*)gDirectory->Get("hb_0");
-     hh->Delete();
-
-     hNpart->Delete();
-     hNpartMean->Delete();
-     hNpartSigma->Delete();
-     hNcoll->Delete();
-     hNcollMean->Delete();
-     hNcollSigma->Delete();
-     hNhard->Delete();
-     hNhardMean->Delete();
-     hNhardSigma->Delete();
-     hb->Delete();
-     hbMean->Delete();
-     hbSigma->Delete();
-  }
-  
   for(int i = 0; i < runnums.size(); ++i){
      CentralityBins* binsForRun = (CentralityBins*) bins->Clone();
      binsForRun->SetName(Form("run%d",runnums[i]));
@@ -257,7 +177,7 @@ void makeCentralityTable(int nbins = 40, const string label = "hf", const char *
   }
   
   bins->Delete();
-  outFile->Write();
+  centFile->Write();
   
 }
 
