@@ -1,5 +1,7 @@
 #include "IOPool/Output/interface/TimeoutPoolOutputModule.h"
 #include "IOPool/Output/src/RootOutputFile.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 namespace edm {
 
   void TimeoutPoolOutputModule::write(EventPrincipal const& e) {
@@ -17,7 +19,7 @@ namespace edm {
   bool TimeoutPoolOutputModule::shouldWeCloseFile() const {
     time_t now(time(NULL));
     if ( PoolOutputModule::shouldWeCloseFile() ) {
-      std::cout <<" TimeoutPoolOutputMOdule Closing file "<< currentFileName()<< " with "<< eventsWrittenInCurrentFile  <<" events."<<std::endl;
+      edm::LogVerbatim("TimeoutPoolOutputModule")  <<" Closing file "<< currentFileName()<< " with "<< eventsWrittenInCurrentFile  <<" events.";
       eventsWrittenInCurrentFile = 0;
       m_lastEvent = now;
       return true;
@@ -31,7 +33,7 @@ namespace edm {
     if (m_timeout == 15) m_timeout = 30;
     if (m_timeout == -1) m_timeout = 15;
     
-    std::cout <<" TimeoutPoolOutputMOdule Closing file "<< currentFileName()<< " with "<< eventsWrittenInCurrentFile  <<" events."<<std::endl;
+    edm::LogVerbatim("TimeoutPoolOutputModule")  <<" Closing file "<< currentFileName()<< " with "<< eventsWrittenInCurrentFile  <<" events.";
     eventsWrittenInCurrentFile = 0;
     return true;
   }
