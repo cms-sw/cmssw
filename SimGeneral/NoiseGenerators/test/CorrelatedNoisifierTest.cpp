@@ -33,40 +33,55 @@ int main()
       }
    }
    CLHEP::HepJamesRandom  engine;
-   CorrelatedNoisifier<math::ErrorD<10>::type> noisifier(input, &engine);
-   AutocorrelationAnalyzer analyzer(10);
 
-   const unsigned int nTotal = 1000000;
-   for( unsigned int i=0; i<nTotal; ++i ) 
-   {
-      std::vector<double> samples(10);
-      noisifier.noisify(samples);
-      analyzer.analyze(samples);
-   }
+   typedef math::ErrorD<10>::type MatType ;
+   typedef CorrelatedNoisifier<MatType> Noisifier ;   
 
-   double big ( -999 ) ;
-   math::ErrorD<10>::type ratdif ;
-   for (int k = 0; k < 10; k++) 
+   MatType chol ;
+
+   for( unsigned int itry ( 0 ) ; itry != 2 ; ++itry )
    {
-      for (int kk = k; kk < 10; kk++) 
+//      Noisifier noisifier ( input, &engine ) ;
+      Noisifier noisifier ( 0 == itry ?
+			       Noisifier(input, &engine) :
+				  Noisifier( &engine, chol ) );
+
+      if( 0 == itry ) chol = noisifier.cholMat() ;
+
+      AutocorrelationAnalyzer analyzer(10);
+
+      const unsigned int nTotal = 1000000;
+      for( unsigned int i=0; i<nTotal; ++i ) 
       {
-	 const double diff ( input(k,kk)-analyzer.correlation(k,kk) ) ;
-	 ratdif(k,kk) = diff/input(k,kk) ;
-	 if( fabs( ratdif(k,kk) ) > big ) big = fabs( ratdif(k,kk) ) ;
+	 std::vector<double> samples(10);
+	 noisifier.noisify(samples);
+	 analyzer.analyze(samples);
       }
+
+      double big ( -999 ) ;
+      math::ErrorD<10>::type ratdif ;
+      for (int k = 0; k < 10; k++) 
+      {
+	 for (int kk = k; kk < 10; kk++) 
+	 {
+	    const double diff ( input(k,kk)-analyzer.correlation(k,kk) ) ;
+	    ratdif(k,kk) = diff/input(k,kk) ;
+	    if( fabs( ratdif(k,kk) ) > big ) big = fabs( ratdif(k,kk) ) ;
+	 }
+      }
+
+      std::cout<<"In "<<nTotal<<" trials, the biggest fractional deviation\n"
+	       <<"of observed correlations from input correlations ="
+	       <<big<<std::endl ;
+
+      std::cout << std::endl << "Initial correlations:" << "\n" 
+		<< input << std::endl;;
+
+      std::cout << analyzer << std::endl;
+
+      std::cout<< ratdif<<std::endl;
+      std::cout << std::endl << "\nSQUARE of initial matrix:\n" << input*input<<std::endl ;
    }
-
-   std::cout<<"In "<<nTotal<<" trials, the biggest fractional deviation\n"
-	    <<"of observed correlations from input correlations ="
-	    <<big<<std::endl ;
-
-   std::cout << std::endl << "Initial correlations:" << "\n" 
-	     << input << std::endl;;
-
-   std::cout << analyzer << std::endl;
-
-   std::cout<< ratdif<<std::endl;
-   std::cout << std::endl << "\nSQUARE of initial matrix:\n" << input*input<<std::endl ;
 }
 
 
