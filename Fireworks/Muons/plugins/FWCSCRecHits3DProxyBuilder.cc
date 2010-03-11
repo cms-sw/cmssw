@@ -56,13 +56,6 @@ FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    for(CSCRecHit2DCollection::id_iterator chId = collection->id_begin(), chIdEnd = collection->id_end();
        chId != chIdEnd; ++chId, ++index)
    {
-      const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(*chId);
-      if(!matrix) {
-         std::cout << "ERROR: failed get geometry of CSC layer with det id: " <<
-	   (*chId) << std::endl;
-         continue;
-      }
-
       std::stringstream s;
       s << "chamber" << index;
 
@@ -79,6 +72,13 @@ FWCSCRecHits3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 	 rechitSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
 	 rechitSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
 	 compund->AddElement(rechitSet);
+
+	 const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(*chId);
+	 if(!matrix) {
+	    std::cout << "ERROR: failed get geometry of CSC layer with det id: " <<
+	       (*chId) << std::endl;
+	    continue;
+	 }
 	 
 	 Float_t x = it->localPosition().x();
 	 Float_t y = it->localPosition().y();
