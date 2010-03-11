@@ -95,7 +95,6 @@ using namespace std;
 using namespace reco;
 
 WMuNuValidator::WMuNuValidator( const ParameterSet & cfg ) :
-      // Fast selection (no histograms or book-keeping)
       fastOption_(cfg.getUntrackedParameter<bool> ("FastOption", false)),
 
       // Input collections
@@ -138,13 +137,11 @@ void WMuNuValidator::beginJob() {
       nall = 0;
       nsel = 0;
 
-      if (!fastOption_) {
             nrec = 0;
             niso = 0;
             nhlt = 0;
             nmet = 0;
             init_histograms();
-      }
 }
 
 void WMuNuValidator::init_histograms() {
@@ -184,6 +181,10 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "TKMU%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Tracker-muon flag (for global muons)");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,2,-0.5,1.5);
+
+            snprintf(chname, 255, "GOODEWKMU%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Quality-muon flag");
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,2,-0.5,1.5);
 
             snprintf(chname, 255, "ISO%s", chsuffix[i].data());
@@ -231,11 +232,23 @@ void WMuNuValidator::init_histograms() {
             snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,10,-0.5,9.5);
 
+            snprintf(chname, 255, "DiMuonMass%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "DiMuonMass");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0,200);
+
+            snprintf(chname, 255, "DiMuonSaMass%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "DiMuonSaMass");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0,200);
+
+            snprintf(chname, 255, "DiMuonSaSaMass%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "DiMuonSaSaMass");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0,200);
       }
+            h1_["PTZCUT_LASTCUT"]=  subDir[1]->make<TH1D>("PTZCUT_LASTCUT","Global pt for Muons in Z",100,0.,100.);
+
 }
 
 void WMuNuValidator::fill_histogram(const char* name, const double& var) {
-      if (fastOption_) return;
       h1_[name]->Fill(var);
 }
 
@@ -368,13 +381,39 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       // Loop to reject/control Z->mumu is done separately
       unsigned int nmuonsForZ1 = 0;
       unsigned int nmuonsForZ2 = 0;
+      if (muonCollectionSize>1){
+
       for (unsigned int i=0; i<muonCollectionSize; i++) {
-            const Muon& mu = muonCollection->at(i);
+      LogTrace("") << ">>> Looking for Z!";
+     
+       const Muon& mu = muonCollection->at(i);
             if (!mu.isGlobalMuon()) continue;
             double pt = mu.pt();
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
+                  for (unsigned int j=0; j<muonCollectionSize; j++) {
+                        if (i==j) continue;
+                        const Muon& mu2 = muonCollection->at(j);
+                         // Glb + Glb
+                         if ( mu2.isGlobalMuon()&&j>i ){
+                              const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+                               fill_histogram("DiMuonMass_BEFORECUTS",ZRecoGlb.mass());
+                        }
+                       // Glb + StandAlone
+                         if (  mu2.isStandAloneMuon() ){
+                              const math::XYZTLorentzVector ZRecoSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                              fill_histogram("DiMuonSaMass_BEFORECUTS",ZRecoSta.mass());
+                         }    
+                        // StandAlone + StandAlone
+                         if ( mu2.isStandAloneMuon() &&j>i  ){
+                        const math::XYZTLorentzVector ZRecoSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                              fill_histogram("DiMuonSaSaMass_BEFORECUTS",ZRecoSta.mass());
+                        }
+                  }
       }
+      } 
+
+
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
       fill_histogram("NZ1_BEFORECUTS",nmuonsForZ1);
@@ -398,9 +437,8 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
       // Start counting, reject already events if possible (under FastOption flag)
       nall++;
-      if (fastOption_ && !trigger_fired) return false;
-      if (fastOption_ && nmuonsForZ1>=1 && nmuonsForZ2>=2) return false;
-      if (fastOption_ && njets>nJetMax_) return false;
+      bool selectZ=false;
+      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) selectZ=true;
 
       // Histograms per event shouldbe done only once, so keep track of them
       bool hlt_hist_done = false;
@@ -412,6 +450,8 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
       // Central W->mu nu selection criteria
       const int NFLAGS = 13;
       bool muon_sel[NFLAGS];
+      bool muon4Z=true;
+
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             for (int j=0; j<NFLAGS; ++j) {
                   muon_sel[j] = false;
@@ -431,9 +471,10 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt>ptCut_) muon_sel[0] = true; 
-            else if (fastOption_) continue;
             if (fabs(eta)<etaCut_) muon_sel[1] = true; 
-            else if (fastOption_) continue;
+
+            if (pt<ptThrForZ1_) { muon4Z = false;}
+            //if (fabs(eta)>=etaCut_) { muon4Z = false;}
 
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
@@ -443,13 +484,9 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             double trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
-            else if (fastOption_) continue;
             if (muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)) muon_sel[3] = true; 
-            else if (fastOption_) continue;
             if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
-            else if (fastOption_) continue;
             if (mu.isTrackerMuon()) muon_sel[5] = true; 
-            else if (fastOption_) continue;
 
             fill_histogram("PT_BEFORECUTS",pt);
             fill_histogram("ETA_BEFORECUTS",eta);
@@ -459,6 +496,9 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             fill_histogram("ValidMuonHits_BEFORECUTS",validmuonhits);
             fill_histogram("TKMU_BEFORECUTS",mu.isTrackerMuon());
 
+            bool quality = muon_sel[4]*muon_sel[2]* muon_sel[3]* muon_sel[5];
+            fill_histogram("GOODEWKMU_BEFORECUTS",quality);
+
             // Isolation cuts
             double isovar = mu.isolationR03().sumPt;
             if (isCombinedIso_) {
@@ -467,13 +507,14 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             }
             if (isRelativeIso_) isovar /= pt;
             if (isovar<isoCut03_) muon_sel[6] = true; 
-            else if (fastOption_) continue;
+            if (isovar>=isoCut03_) { muon4Z = false;}
+
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
             fill_histogram("ISO_BEFORECUTS",isovar);
 
             // HLT (not mtched to muon for the time being)
             if (trigger_fired) muon_sel[7] = true; 
-            else if (fastOption_) continue;
+            else { muon4Z = false;}
 
             // MET/MT cuts
             double w_et = met_et+ mu.pt();
@@ -484,10 +525,8 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
             if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true; 
-            else if (fastOption_) continue;
             fill_histogram("MT_BEFORECUTS",massT);
             if (met_et>metMin_ && met_et<metMax_) muon_sel[9] = true; 
-            else if (fastOption_) continue;
 
             // Acoplanarity cuts
             Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
@@ -496,19 +535,12 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             acop = M_PI - acop;
             LogTrace("") << "\t... acoplanarity: " << acop;
             if (acop<acopCut_) muon_sel[10] = true; 
-            else if (fastOption_) continue;
             fill_histogram("ACOP_BEFORECUTS",acop);
 
             // Remaining flags (from global event information)
             if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true; 
-            else if (fastOption_) continue;
             if (njets<=nJetMax_) muon_sel[12] = true; 
-            else if (fastOption_) continue;
 
-            if (fastOption_) {
-                  all_sel = true;
-                  break;
-            } else {
               // Collect necessary flags "per muon"
               int flags_passed = 0;
               bool rec_sel_this = true;
@@ -551,6 +583,8 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         fill_histogram("NHITS_LASTCUT",trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 
                         fill_histogram("TKMU_LASTCUT",mu.isTrackerMuon());
+                  if (!muon_sel[2]||!muon_sel[3] || !muon_sel[4] || !muon_sel[5] || flags_passed==NFLAGS) 
+                        fill_histogram("GOODEWKMU_LASTCUT",muon_sel[4]*muon_sel[2]* muon_sel[3]* muon_sel[5]);
                   if (!muon_sel[6] || flags_passed==NFLAGS) 
                         fill_histogram("ISO_LASTCUT",isovar);
                   if (!muon_sel[7] || flags_passed==NFLAGS) 
@@ -573,17 +607,54 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         if (!njets_hist_done) fill_histogram("NJETS_LASTCUT",njets);
                         njets_hist_done = true;
               }
+
+            // The cases in which the event is rejected as a Z are considered independently:
+            if ( muon4Z && selectZ){
+                   bool usedMuon=false;
+                   // Plots for 2 muons
+                   for (unsigned int j=0; j<muonCollectionSize; j++) {
+                        if (i==j) continue;
+                         const Muon& mu2 = muonCollection->at(j);
+                                    double pt2 = mu2.pt();
+                                    double isovar2 = mu2.isolationR03().sumPt;
+                                    if (isCombinedIso_) {
+                                          isovar2 += mu2.isolationR03().emEt;
+                                          isovar2 += mu2.isolationR03().hadEt;
+                                    }
+                                    if (isRelativeIso_) isovar2 /= pt2;
+
+                          if (pt2<=ptThrForZ1_ || isovar2>=isoCut03_) continue;
+
+             // Glb + Glb
+             if ( mu2.isGlobalMuon()&&j>i ){
+                  const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+                         fill_histogram("DiMuonMass_LASTCUT",ZRecoGlb.mass());
+                         if(!usedMuon){fill_histogram("PTZCUT_LASTCUT",mu.pt()); usedMuon=true;}
+             }
+                 // Glb + StandAlone
+             if (  mu2.isStandAloneMuon() ){
+                  const math::XYZTLorentzVector ZRecoSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                        fill_histogram("DiMuonSaMass_LASTCUT",ZRecoSta.mass());
+             }
+
+                 // StandAlone + StandAlone
+             if ( mu2.isStandAloneMuon() &&j>i  ){
+                  const math::XYZTLorentzVector ZRecoStaSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                        fill_histogram("DiMuonSaSaMass_LASTCUT",ZRecoStaSta.mass());
+             }
+
+
+            }
+
             }
 
       }
 
       // Collect final flags
-      if (!fastOption_) {     
             if (rec_sel) nrec++;
             if (iso_sel) niso++;
             if (hlt_sel) nhlt++;
             if (met_sel) nmet++;
-      }
 
       if (all_sel) {
             nsel++;
