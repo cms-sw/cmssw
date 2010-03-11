@@ -19,11 +19,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
-
-#include "CondFormats/DataRecord/interface/JetCorrectorParametersRecord.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-REGISTER_PLUGIN(JetCorrectorParametersRecord,JetCorrectorParameters);
+REGISTER_PLUGIN(JetCorrectionsRecord,JetCorrectorParameters);
 
 
 using namespace cms;
@@ -46,14 +43,14 @@ DEFINE_FWK_EVENTSETUP_SOURCE(JetCorrectionServiceChain);
 DEFINE_JET_CORRECTION_SERVICE (LXXXCorrector, LXXXCorrectionService);
 
 //--------------- L1 fastjet UE&PU subtraction correction service --
-DEFINE_JET_CORRECTION_SERVICE (L1FastjetCorrector, L1FastjetCorrectionService);
+//DEFINE_JET_CORRECTION_SERVICE (L1FastjetCorrector, L1FastjetCorrectionService);
 
 //---------------  L6 SLB correction service -----------------------
-DEFINE_JET_CORRECTION_SERVICE (L6SLBCorrector, L6SLBCorrectionService);
+//DEFINE_JET_CORRECTION_SERVICE (L6SLBCorrector, L6SLBCorrectionService);
 
 //--------------- Zero suppression correction service --------------
-DEFINE_JET_CORRECTION_SERVICE (ZSPJetCorrector, ZSPJetCorrectionService);
+//DEFINE_JET_CORRECTION_SERVICE (ZSPJetCorrector, ZSPJetCorrectionService);
 
 //--------------- JPT correction service ---------------------------
-DEFINE_JET_CORRECTION_SERVICE (JetPlusTrackCorrector, JetPlusTrackCorrectionService);
+//DEFINE_JET_CORRECTION_SERVICE (JetPlusTrackCorrector, JetPlusTrackCorrectionService);
 
