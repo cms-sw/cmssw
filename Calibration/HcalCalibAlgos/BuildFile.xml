@@ -1,4 +1,6 @@
 <use   name="root"/>
+<use   name="rootgraphics"/>
+<use   name="rootminuit"/>
 <use   name="rootrflx"/>
 <use   name="hepmc"/>
 <use   name="FWCore/Framework"/>
@@ -8,26 +10,21 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/DetId"/>
-<use   name="DataFormats/HcalCalibObjects"/>
-<use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/HcalRecHit"/>
-<use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
-<use   name="Geometry/EcalAlgo"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="CondTools/Hcal"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="TrackingTools/TrackAssociator"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="Calibration/Tools"/>
-<use   name="DataFormats/HcalIsolatedTrack"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>
 </export>
+
+
