@@ -16,6 +16,7 @@ namespace edm {
 
   bool TimeoutPoolOutputModule::shouldWeCloseFile() const {
     if ( PoolOutputModule::shouldWeCloseFile() ) {
+      std::cout <<" TimeoutPoolOutputMOdule Closing file "<< currentFileName()<< " with "<< eventsWrittenInCurrentFile  <<" events."<<std::endl;
       eventsWrittenInCurrentFile = 0;
       return true;
     }
