@@ -5,8 +5,8 @@
  *
  *  The single EDProduct containing the HLT Prescale Table
  *
- *  $Date: 2010/02/24 11:57:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/24 14:09:23 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -66,7 +66,7 @@ namespace trigger
      set_(set), labels_(labels), table_(table) {
       /// checking consistency
       const unsigned int n(labels_.size());
-      assert (set_<n);
+      assert((((set_==0)&&(n==0)) || (set_<n)));
       const map<string,vector<unsigned int> >::const_iterator ib(table_.begin());
       const map<string,vector<unsigned int> >::const_iterator ie(table_.end());
       for (map<string,vector<unsigned int> >::const_iterator it=ib; it!=ie; ++it) {
