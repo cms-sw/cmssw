@@ -6,7 +6,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/PFCandProducer/plugins/PtMinPFCandidateSelectorDefinition.h"
+#include "PhysicsTools/PFCandProducer/interface/PtMinPFCandidateSelectorDefinition.h"
 
 typedef ObjectSelector<PtMinPFCandidateSelectorDefinition> PtMinPFCandidateSelector;
 
