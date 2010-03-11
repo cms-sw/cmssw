@@ -4,7 +4,7 @@
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
-
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 //----- classes declaration -----------------------------------
 namespace edm 
@@ -17,7 +17,7 @@ class LXXXCorrector : public JetCorrector
 {
   public:
     //----- constructor ---------------------------------------
-    LXXXCorrector(const edm::ParameterSet& fParameters);
+    LXXXCorrector(const JetCorrectorParameters& fParameters, const std::string& level);
 
     //----- destructor ----------------------------------------
     virtual ~LXXXCorrector();

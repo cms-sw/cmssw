@@ -17,60 +17,42 @@ using namespace std;
 //------------------------------------------------------------------------ 
 //--- LXXXCorrector constructor ------------------------------------------
 //------------------------------------------------------------------------
-LXXXCorrector::LXXXCorrector(const edm::ParameterSet& fConfig) 
+LXXXCorrector::LXXXCorrector(const JetCorrectorParameters& fConfig, const std::string& level)
 {
-  string level(fConfig.getParameter<string>("level"));
-  string era(fConfig.getParameter<string>("era"));
-  string algorithm(fConfig.getParameter<string>("algorithm"));
-  string section(fConfig.getUntrackedParameter<string>("section",""));  
-  bool   debug (fConfig.getUntrackedParameter<bool>("debug",false));
-  
-  string fileName("CondFormats/JetMETObjects/data/");
-
-  if (!era.empty()) fileName += era + "_";
-  fileName += level;
-  if (!algorithm.empty()) fileName += "_" + algorithm;
-  fileName += ".txt";
-  if (debug)
-    edm::LogInfo("FileName")<<"initialize from "<<fileName;
-    
-  edm::FileInPath fip(fileName); 
-
   if (level == "L1Offset")
-    {
-      mLevel = 1;
-      mCorrector = new FactorizedJetCorrector("L1",fip.fullPath());
-    }
+  {
+    mLevel = 1;
+    mCorrector = new FactorizedJetCorrector(fConfig, "L1");
+  }
   else if (level == "L2Relative")
     {
       mLevel = 2;
-      mCorrector = new FactorizedJetCorrector("L2",fip.fullPath());
+      mCorrector = new FactorizedJetCorrector(fConfig,"L2");
     }
   else if (level == "L3Absolute")
     {
       mLevel = 3;  
-      mCorrector = new FactorizedJetCorrector("L3",fip.fullPath());
+      mCorrector = new FactorizedJetCorrector(fConfig,"L3");
     }
   else if (level == "L4EMF")
     {
       mLevel = 4;
-      mCorrector = new FactorizedJetCorrector("L4",fip.fullPath());
+      mCorrector = new FactorizedJetCorrector(fConfig,"L4");
     }
   else if (level == "L5Flavor")
     {
       mLevel = 5;
-      string option = "Flavor:"+section;
-      mCorrector = new FactorizedJetCorrector("L5",fip.fullPath(),option);
+      mCorrector = new FactorizedJetCorrector(fConfig,"L5");
     }
   else if (level == "L7Parton")
     {
       mLevel = 7;
-      string option = "Parton:"+section;
-      mCorrector = new FactorizedJetCorrector("L7",fip.fullPath(),option);
+      mCorrector = new FactorizedJetCorrector(fConfig,"L7");
     }
   else
     throw cms::Exception("LXXXCorrector")<<" unknown correction level "<<level; 
 }
+
 //------------------------------------------------------------------------ 
 //--- LXXXCorrector destructor -------------------------------------------
 //------------------------------------------------------------------------
