@@ -64,6 +64,14 @@ zGolden=(
     cms.PSet(
     tag = cms.untracked.string("Dau2TrkChi2"),
     quantity = cms.untracked.string("daughter(1).masterClone.innerTrack.normalizedChi2")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2MuEnergyHad"),
+    quantity = cms.untracked.string("daughter(1).masterClone.calEnergy.had")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau2MuEnergyEm"),
+    quantity = cms.untracked.string("daughter(1).masterClone.calEnergy.em")
     )
        
         
@@ -271,6 +279,14 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     cms.PSet(
     tag = cms.untracked.string("Dau1TrkChi2"),
     quantity = cms.untracked.string("daughter(0).masterClone.innerTrack.normalizedChi2")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1MuEnergyHad"),
+    quantity = cms.untracked.string("daughter(0).masterClone.calEnergy.had")
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("Dau1MuEnergyEm"),
+    quantity = cms.untracked.string("daughter(0).masterClone.calEnergy.em")
     )
 
     )
