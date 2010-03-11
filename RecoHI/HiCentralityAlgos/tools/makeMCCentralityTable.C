@@ -35,10 +35,6 @@ bool descend(float i,float j) { return (i<j); }
 
 void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char * tag = "HFhitBins"){
 
-   // This macro assumes all inefficiency is in the most peripheral bin.
-   double MXS = 0;
-   double EFF = 1. - MXS;
-
    // Retrieving data
   int nFiles = 1;
   vector<string> fileNames;
@@ -112,13 +108,7 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
   int bin = 0;
   for(int i = 0; i< nbins; ++i){
      // Find the boundary 
-     int offset = (int)(MXS*events);
-     double xsec = events*(1 + MXS);
-     // Below should be replaced with an integral
-     // when inefficiency is better parametrized 
-     // than a step function.
-
-     int entry = (int)(i*(xsec/nbins)) - offset;
+     int entry = (int)(i*(events/nbins));
      binboundaries[i] = values[entry];
 
      cout<<" "<<binboundaries[i];

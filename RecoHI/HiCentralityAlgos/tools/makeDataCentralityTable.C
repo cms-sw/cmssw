@@ -18,6 +18,8 @@
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
@@ -28,6 +30,7 @@ void fitSlices(TH2*, TF1*);
 
 static bool onlySaveTable = false;
 static const int nbinsMax = 40;
+static bool doTrigger = true;
 
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
@@ -70,6 +73,12 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
     ev.getByLabel(edm::InputTag("heavyIon"),mc);
     edm::Handle<reco::Centrality> cent;
     ev.getByLabel(edm::InputTag("hiCentrality"),cent);
+
+    edm::Handle<edm::TriggerResults> trig;
+    ev.getByLabel(edm::InputTag("TriggerResults","","HLT"),trig);
+
+    bool t = trig->at(6).accept();
+    if(doTrigger && !t) continue;
 
     double b = mc->b();
     double npart = mc->Npart();
