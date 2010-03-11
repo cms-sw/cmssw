@@ -567,6 +567,7 @@ int main( int argc, char **argv )
 	std::vector<uint32_t> omds_iovs;
 	std::vector<uint32_t> pool_iovs;
 	m.getListOfOmdsIovs(omds_iovs, _tag);
+
 	m.getListOfPoolIovs(pool_iovs, _tag, pool_connect_string, pool_auth_path);
 	int n_iovs = m.getListOfNewIovs(_iovs,
 					omds_iovs,
@@ -578,6 +579,14 @@ int main( int argc, char **argv )
 	  std::cout << "HcalO2OManager: O2O is not needed, the tag is up to date" << std::endl;
 	}
 	else{
+	  // Report a new POOL tag. This will be picked up by the o2o.py script,
+	  // and the corresponding IOV in the offline tag will be changed to 1
+	  // because the first IOV in the offline tag must always be 1.
+	  // In some cases, special actions are taken by the o2o script
+	  // for the very first payload in a new tag.
+	  if (pool_iovs.size()==0){
+	    cout << "NEW_POOL_TAG_TRUE: " << _tag << std::endl;
+	  }
 	  for (std::vector<uint32_t>::const_iterator iov = _iovs.begin();
 	       iov != _iovs.end();
 	       ++iov){

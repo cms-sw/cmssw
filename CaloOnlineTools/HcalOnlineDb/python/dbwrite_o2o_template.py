@@ -11,7 +11,7 @@ process.MessageLogger=cms.Service("MessageLogger",
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = cms.string('CONNECT_STRING')
-process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('POOL_AUTH_PATH')
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
@@ -24,7 +24,7 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
     object = cms.string('CONDITION_TYPE'),
     tag = cms.string('OMDS_CONDITION_TAG'),
-    version = cms.string('dummy-obsolete'),
+    version = cms.string('fakeversion'),
     subversion = cms.int32(1),
     iov_begin = cms.int32(OMDS_IOV),
     accessor = cms.string('OMDS_ACCESSOR_STRING'),
@@ -44,7 +44,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
          ))
 )
 
-process.mytest = cms.EDAnalyzer("HcalChannelQualityPopConAnalyzer",
+process.mytest = cms.EDAnalyzer("HcalCONDITION_TYPEPopConAnalyzer",
     record = cms.string('POOL_RECORD'),
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
