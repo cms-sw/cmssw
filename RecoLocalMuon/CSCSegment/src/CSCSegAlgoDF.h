@@ -120,10 +120,8 @@ private:
   void updateParameters(void);
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
-  CLHEP::HepMatrix derivativeMatrix(void) const;
-  AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
-  void flipErrors(AlgebraicSymMatrix&) const;
+
 
   // Member variables
   const std::string myName; 

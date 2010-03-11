@@ -18,7 +18,6 @@
  *  \authors S. Stoynev - NU
  *           I. Bloch   - FNAL
  *           E. James   - FNAL
- *           A. Sakharov - WSU (extensive revision to handle wierd segments)
  *
  */
 
@@ -99,7 +98,6 @@ private:
   void fitSlopes(void);
   void fillChiSquared(void);
   void fillLocalDirection(void);
-  void doSlopesAndChi2(void);
 
   bool isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain);
 
@@ -107,9 +105,6 @@ private:
   AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
   void flipErrors(AlgebraicSymMatrix&) const;
-
-  void correctTheCovX(void);
-  void correctTheCovMatrix(CLHEP::HepMatrix &IC);
   // Member variables
   const std::string myName; 
   const CSCChamber* theChamber;
@@ -158,7 +153,6 @@ private:
   float       protoSlope_v;
   LocalPoint  protoIntercept;		
   double      protoChi2;
-  double      protoNDF;
   LocalVector protoDirection;
 
   // input from .cfi file
@@ -191,25 +185,6 @@ private:
   double  curvePenaltyThreshold;
   double  curvePenalty;
   CSCSegAlgoShowering* showering_;
-  //
-  /// Correct the Error Matrix
-  bool correctCov_;              /// Allow to correct the error matrix
-  double protoChiUCorrection;
-  std::vector<double> e_Cxx;
-  double chi2Norm_2D_;               /// Chi^2 normalization for the corrected fit
-  double chi2Norm_3D_;               /// Chi^2 normalization for the initial fit
-  unsigned maxContrIndex;       /// The index of the worst x RecHit in Chi^2-X method
-  bool prePrun_;                 /// Allow to prun a (rechit in a) segment in segment buld method
-                                /// once it passed through Chi^2-X and  protoChiUCorrection
-                                /// is big
-  double prePrunLimit_;          /// The upper limit of protoChiUCorrection to apply prePrun
-  /// Correct the error matrix for the condition number
-  double condSeed1_, condSeed2_;  /// The correction parameters
-  bool covToAnyNumber_;          /// Allow to use any number for covariance (by hand)
-  bool covToAnyNumberAll_;       /// Allow to use any number for covariance for all RecHits
-  double covAnyNumber_;          /// The number to fource the Covariance
-  bool passCondNumber;          /// Passage the condition number calculations
-  bool passCondNumber_2;          /// Passage the condition number calculations
 };
 
 #endif
