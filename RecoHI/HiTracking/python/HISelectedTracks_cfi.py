@@ -7,7 +7,7 @@ hiSelectedTracks = cms.EDProducer("AnalyticalTrackSelector",
                            
     vertices = cms.InputTag("hiSelectedVertex"),
     vtxNumber = cms.int32(-1),
-    vtxTracks = cms.uint32(0), ## at least 3 tracks by default
+    vtxNdof = cms.double(0.),       ## 3D: ndof=2*sum(weights)-3; 1D: ndof=tracks-1 (default=2)
     vtxChi2Prob = cms.double(0.01), ## at least 1% chi2nprobability (if it has a chi2)
 
     copyTrajectories = cms.untracked.bool(True),  ## false by default, needed by TrackClusterRemover
@@ -27,6 +27,7 @@ hiSelectedTracks = cms.EDProducer("AnalyticalTrackSelector",
     # Impact parameter absolute cuts.
     max_d0 = cms.double(100.),
     max_z0 = cms.double(100.),
+    nSigmaZ = cms.double(3.),   ## now configurable  
 
     # Cuts on numbers of layers with hits/3D hits/lost hits. 
     minNumberLayers = cms.uint32(7),
