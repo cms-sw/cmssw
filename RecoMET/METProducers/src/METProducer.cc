@@ -81,14 +81,17 @@ namespace cms
 	int rfType_               = iConfig.getParameter<int>("rf_type");
 	bool correctShowerTracks_ = iConfig.getParameter<bool>("correctShowerTracks"); 
 
-	if( rfType_ == 1 )
-	     responseFunction_ = (*ALGO.getResponseFunction_fit());
-	else if( rfType_ == 2 )
-	     responseFunction_ = (*ALGO.getResponseFunction_mode());
-
-	if(correctShowerTracks_)
-	  showerRF_ = (*ALGO.getResponseFunction_shower());
-	
+	if(correctShowerTracks_){
+	  showerRF_ =         (*ALGO.getResponseFunction_shower());
+	  responseFunction_ = (*ALGO.getResponseFunction_noshower());
+	}else{
+	  
+	  if( rfType_ == 1 )
+	    responseFunction_ = (*ALGO.getResponseFunction_fit());
+	  else if( rfType_ == 2 )
+	    responseFunction_ = (*ALGO.getResponseFunction_mode());
+	  
+	}
       }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 

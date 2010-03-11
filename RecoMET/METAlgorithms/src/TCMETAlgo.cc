@@ -66,6 +66,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      usePvtxd0_              = iConfig.getParameter<bool>  ("usePvtxd0");
      nMinOuterHits_          = iConfig.getParameter<int>   ("nMinOuterHits");
      scaleShowerRF_          = iConfig.getParameter<double>("scaleShowerRF");
+     scaleNoShowerRF_        = iConfig.getParameter<double>("scaleNoShowerRF");
      usedeltaRRejection_     = iConfig.getParameter<bool>  ("usedeltaRRejection");
      deltaRShower_           = iConfig.getParameter<double>("deltaRShower");
      radius_                 = iConfig.getParameter<double>("radius");
@@ -576,6 +577,7 @@ TVector3 TCMETAlgo::propagateTrack( const reco::TrackRef track ) {
 }
 
 // ------------ single pion response function from shower track-----
+
 TH2D* TCMETAlgo::getResponseFunction_shower() {
 
   //set shower RF to standard RF X scaleShowerRF_
@@ -584,7 +586,18 @@ TH2D* TCMETAlgo::getResponseFunction_shower() {
   return hrf;
 }
 
+// ------------ single pion response function from shower track-----
+
+TH2D* TCMETAlgo::getResponseFunction_noshower() {
+
+  //set no shower RF to standard RF X scaleNoShowerRF_
+  TH2D *hrf = getResponseFunction_fit();
+  hrf -> Scale(scaleNoShowerRF_);
+  return hrf;
+}
+
 // ------------ single pion response function from fit  ------------
+
 TH2D* TCMETAlgo::getResponseFunction_fit() {
      
      Double_t xAxis1[53] = {-2.5, -2.322, -2.172, -2.043, -1.93, -1.83, 

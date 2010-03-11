@@ -56,6 +56,7 @@ class TCMETAlgo
   TH2D* getResponseFunction_fit ( );
   TH2D* getResponseFunction_mode ( );
   TH2D* getResponseFunction_shower ( );
+  TH2D* getResponseFunction_noshower ( );
  private:
   double met_x;
   double met_y;
@@ -86,6 +87,7 @@ class TCMETAlgo
   int     rfType_;
   int     nMinOuterHits_;
   double  scaleShowerRF_;
+  double  scaleNoShowerRF_;
   double  usedeltaRRejection_;
   double  deltaRShower_;
   double  minpt_;
