@@ -36,8 +36,7 @@ ca4CaloJetsPUCorr           =ca4CaloJets.clone           (doPUOffsetCorr = doPil
 ca6CaloJetsPUCorr           =ca6CaloJets.clone           (doPUOffsetCorr = doPileup)
 
 
-recoJets   =cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
-                         kt4CaloJets+kt6CaloJets+
+recoJets   =cms.Sequence(kt4CaloJets+kt6CaloJets+
                          iterativeCone5CaloJets+
                          ak5CaloJets+ak7CaloJets)
 
