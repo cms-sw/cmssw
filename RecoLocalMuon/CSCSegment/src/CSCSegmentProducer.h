@@ -4,8 +4,8 @@
 /** \class CSCSegmentProducer 
  * Produces a collection of CSCSegment's in endcap muon CSCs. 
  *
- * $Date: 2006/08/01 15:26:03 $
- * $Revision: 1.4 $
+ * $Date: 2010/02/11 00:14:04 $
+ * $Revision: 1.5 $
  * \author M. Sani
  */
 
@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class CSCSegmentBuilder; 
 

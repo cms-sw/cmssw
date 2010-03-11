@@ -238,7 +238,9 @@ CSCSegment CSCSegAlgoShowering::showerSeg( const CSCChamber* aChamber, ChamberHi
   
   // Error matrix
   AlgebraicSymMatrix protoErrors = calculateError();     
- 
+  // but reorder components to match what's required by TrackingRecHit interface
+  // i.e. slopes first, then positions
+  flipErrors( protoErrors );
   
   //Flag the segment with chi12 of -1 of the segment isn't pointing toward origin      
   if (dTheta > maxDTheta || dPhi > maxDPhi) {
@@ -462,64 +464,92 @@ void CSCSegAlgoShowering::compareProtoSegment(const CSCRecHit2D* h, int layer) {
   }
 }
 
+AlgebraicSymMatrix CSCSegAlgoShowering::weightMatrix() const {
+
+  std::vector<const CSCRecHit2D*>::const_iterator it;
+  int nhits = protoSegment.size();
+  AlgebraicSymMatrix matrix(2*nhits, 0);
+  int row = 0;
+
+  for (it = protoSegment.begin(); it != protoSegment.end(); ++it) {
+
+    const CSCRecHit2D& hit = (**it);
+    ++row;
+    matrix(row, row)   = hit.localPositionError().xx();
+    matrix(row, row+1) = hit.localPositionError().xy();
+    ++row;
+    matrix(row, row-1) = hit.localPositionError().xy();
+    matrix(row, row)   = hit.localPositionError().yy();
+  }
+  int ierr;
+  matrix.invert(ierr);
+  return matrix;
+}
+
+
+CLHEP::HepMatrix CSCSegAlgoShowering::derivativeMatrix() const {
+
+  ChamberHitContainer::const_iterator it;
+  int nhits = protoSegment.size();
+  CLHEP::HepMatrix matrix(2*nhits, 4);
+  int row = 0;
+
+  for(it = protoSegment.begin(); it != protoSegment.end(); ++it) {
+
+    const CSCRecHit2D& hit = (**it);
+    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
+    GlobalPoint gp = layer->toGlobal(hit.localPosition());
+    LocalPoint lp = theChamber->toLocal(gp);
+    float z = lp.z();
+    ++row;
+    matrix(row, 1) = 1.;
+    matrix(row, 3) = z;
+    ++row;
+    matrix(row, 2) = 1.;
+    matrix(row, 4) = z;
+  }
+  return matrix;
+}
 
 /* calculateError
  *
  */
 AlgebraicSymMatrix CSCSegAlgoShowering::calculateError() const {
 
-  // Blightly assume the following never fails
- 
-  std::vector<const CSCRecHit2D*>::const_iterator it;
-  int nhits = protoSegment.size();
-  int ierr; 
+  AlgebraicSymMatrix weights = weightMatrix();
+  AlgebraicMatrix A = derivativeMatrix();
 
-  AlgebraicSymMatrix weights(2*nhits, 0);
-  AlgebraicMatrix A(2*nhits, 4);
+  // (AT W A)^-1
+  // from http://www.phys.ufl.edu/~avery/fitting.html, part I
+  int ierr;
+  AlgebraicSymMatrix result = weights.similarityT(A);
+  result.invert(ierr);
 
-  int row = 0;  
-  for (it = protoSegment.begin(); it != protoSegment.end(); ++it) {
-    const CSCRecHit2D& hit = (**it);
-    const CSCLayer* layer = theChamber->layer(hit.cscDetId().layer());
-    GlobalPoint gp = layer->toGlobal(hit.localPosition());      
-    LocalPoint lp = theChamber->toLocal(gp); 
-    float z = lp.z();
-    ++row;
-    weights(row, row)   = hit.localPositionError().xx();
-    weights(row, row+1) = hit.localPositionError().xy();
-    A(row, 1) = 1.;
-    A(row, 3) = z;
-    ++row;
-    weights(row, row-1) = hit.localPositionError().xy();
-    weights(row, row)   = hit.localPositionError().yy();
-    A(row, 2) = 1.;
-    A(row, 4) = z;
-  }
-  weights.invert(ierr);
+  // blithely assuming the inverting never fails...
+  return result;
+}
 
-  AlgebraicSymMatrix a = weights.similarityT(A);
-  a.invert(ierr);
-    
-  // but reorder components to match what's required by TrackingRecHit interface 
-  // i.e. slopes first, then positions 
-    
-  AlgebraicSymMatrix hold( a ); 
-    
-  // errors on slopes into upper left 
-  a(1,1) = hold(3,3); 
-  a(1,2) = hold(3,4); 
-  a(2,1) = hold(4,3); 
-  a(2,2) = hold(4,4); 
-    
-  // errors on positions into lower right 
-  a(3,3) = hold(1,1); 
-  a(3,4) = hold(1,2); 
-  a(4,3) = hold(2,1); 
-  a(4,4) = hold(2,2); 
-    
-  // off-diagonal elements remain unchanged 
-  return a;    
-} 
+void CSCSegAlgoShowering::flipErrors( AlgebraicSymMatrix& a ) const {
+
+  // The CSCSegment needs the error matrix re-arranged
+
+  AlgebraicSymMatrix hold( a );
+
+  // errors on slopes into upper left
+  a(1,1) = hold(3,3);
+  a(1,2) = hold(3,4);
+  a(2,1) = hold(4,3);
+  a(2,2) = hold(4,4);
+
+  // errors on positions into lower right
+  a(3,3) = hold(1,1);
+  a(3,4) = hold(1,2);
+  a(4,3) = hold(2,1);
+  a(4,4) = hold(2,2);
+
+  // off-diagonal elements remain unchanged
+
+}
 
 // Try to clean up segments by quickly looking at residuals
 void CSCSegAlgoShowering::pruneFromResidual(){
