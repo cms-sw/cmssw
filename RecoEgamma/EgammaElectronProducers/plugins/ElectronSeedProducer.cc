@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.12 2009/12/14 23:43:46 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.13 2010/01/29 21:26:54 chamont Exp $
 //
 //
 
@@ -148,10 +148,10 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     edm::Handle<SuperClusterCollection> clusters ;
     if (e.getByLabel(superClusters_[i],clusters))
      {
-	  SuperClusterRefVector clusterRefs ;
-	  filterClusters(clusters,/*mhbhe_,*/clusterRefs) ;
-	  if ((fromTrackerSeeds_) && (prefilteredSeeds_))
-	   { filterSeeds(e,iSetup,clusterRefs) ; }
+      SuperClusterRefVector clusterRefs ;
+      filterClusters(clusters,/*mhbhe_,*/clusterRefs) ;
+      if ((fromTrackerSeeds_) && (prefilteredSeeds_))
+       { filterSeeds(e,iSetup,clusterRefs) ; }
       matcher_->run(e,iSetup,clusterRefs,theInitialSeedColl,*seeds) ;
      }
    }
@@ -193,14 +193,14 @@ void ElectronSeedProducer::filterClusters
 //       { continue ; }
 //      sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
        double had;
-       bool HoEveto = false;
+       bool HoeVeto = false;
        if (applyHOverECut_==true) {
          had=hcalHelper_->hcalESum(scl);
-         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
-         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scl.energy()<maxHOverEBarrel_)) HoEveto=true;
-         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scl.energy()<maxHOverEEndcaps_)) HoEveto=true;
+         int detector = scl.seed()->seed().subdetId() ;
+         if (detector==EcalBarrel && (had<maxHBarrel_ || had/scl.energy()<maxHOverEBarrel_)) HoeVeto=true;
+         else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scl.energy()<maxHOverEEndcaps_)) HoeVeto=true;
        }
-       if (!applyHOverECut_ || HoEveto) sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
+       if (!applyHOverECut_ || HoeVeto) sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
      }
    }
   LogDebug("ElectronSeedProducer")<<"Filtered out "<<sclRefs.size()<<" superclusters from "<<superClusters->size() ;

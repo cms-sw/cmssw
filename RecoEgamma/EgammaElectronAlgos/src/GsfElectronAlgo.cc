@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.90 2010/02/25 19:08:14 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.91 2010/02/25 22:23:33 chamont Exp $
 //
 //
 
@@ -555,7 +555,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     double had = (*e1)->hcalOverEcal()*(*e1)->superCluster()->energy();
     bool HoEveto = false;
     const reco::CaloCluster & seedCluster = *((*e1)->superCluster()->seed()) ;
-    int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
+    int detector = seedCluster.seed().subdetId() ;
     if (detector==EcalBarrel && (had<maxHBarrel_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrel_)) HoEveto=true;
     else if (detector==EcalEndcap && (had<maxHEndcaps_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcaps_)) HoEveto=true;
     if ( eg && !HoEveto ) continue;
@@ -657,7 +657,7 @@ void GsfElectronAlgo::createElectron
   const reco::CaloCluster & seedCluster = *(scRef->seed()) ;
   // seed Xtal
   // temporary, till CaloCluster->seed() is made available
-  DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
+  DetId seedXtalId = seedCluster.seed() ;
 
   // various useful positions and momemtums
   GlobalVector innMom, seedMom, eleMom, sclMom, outMom ;
