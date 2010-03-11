@@ -42,12 +42,12 @@ PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math
   PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(PFChargedHadrCands_,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
 }
-PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const{     
+PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   PFCandidateRefVector filteredPFChargedHadrCands;
   for(PFCandidateRefVector::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
     TrackRef PFChargedHadrCand_track=(**iPFCand).trackRef();
     if (!PFChargedHadrCand_track)continue;
-    if (fabs((*PFChargedHadrCand_track).dz()-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
+    if (fabs((*PFChargedHadrCand_track).dz(myPV.position())-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
   }
   PFCandidateRefVector theFilteredPFCandsInCone=PFCandsInCone(filteredPFChargedHadrCands,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
@@ -138,12 +138,12 @@ pair<PFCandidateRefVector, PFCandidateRefVector> PFTauElementsOperators::PFGamma
   PFCandidateRefVector theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFChargedHadrCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;
 }
-PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const{     
+PFCandidateRefVector PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   PFCandidateRefVector filteredPFChargedHadrCands;
   for(PFCandidateRefVector::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
     TrackRef PFChargedHadrCand_track=(**iPFCand).trackRef();
     if (!PFChargedHadrCand_track)continue;
-    if (fabs((*PFChargedHadrCand_track).dz()-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
+    if (fabs((*PFChargedHadrCand_track).dz(myPV.position())-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
   }
   PFCandidateRefVector theFilteredPFCandsInAnnulus=PFCandsInAnnulus(filteredPFChargedHadrCands,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;

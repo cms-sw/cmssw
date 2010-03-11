@@ -92,10 +92,10 @@ const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& c
   }else return TrackRefVector(); 
   return theFilteredTracksInCone;
 }
-const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z) const{
+const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV) const{
   TrackRefVector theFilteredTracks;
   for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
-    if ((**iTrack).pt()>ptTrackMin && fabs((**iTrack).dz()-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
+    if ((**iTrack).pt()>ptTrackMin && fabs((**iTrack).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
   }  
   TrackRefVector theFilteredTracksInCone;
   if (coneMetric=="DR"){
@@ -164,10 +164,10 @@ const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector
   }
   return theFilteredTracksInAnnulus;
 }
-const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double tracktorefpoint_maxDZ,const double refpoint_Z)const{     
+const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   TrackRefVector theFilteredTracks;
   for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
-    if ((**iTrack).pt()>minPt && fabs((**iTrack).dz()-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
+    if ((**iTrack).pt()>minPt && fabs((**iTrack).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
   }  
   TrackRefVector theFilteredTracksInAnnulus;
   if (outercone_metric=="DR"){

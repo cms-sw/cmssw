@@ -12,6 +12,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 #include "RecoTauTag/TauTagTools/interface/TauElementsOperators.h"
@@ -50,7 +51,7 @@ class PFTauElementsOperators : public TauElementsOperators {
   PFCandidateRefVector PFCandsInCone(const PFCandidateRefVector PFCands,const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const;
   PFCandidateRefVector PFCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const;
   PFCandidateRefVector PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const;
-  PFCandidateRefVector PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const;
+  PFCandidateRefVector PFChargedHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &mPV)const;
   PFCandidateRefVector PFNeutrHadrCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const;
   PFCandidateRefVector PFGammaCandsInCone(const math::XYZVector myVector,const string conemetric,const double conesize,const double minPt)const;
   
@@ -58,7 +59,7 @@ class PFTauElementsOperators : public TauElementsOperators {
   PFCandidateRefVector PFCandsInAnnulus(const PFCandidateRefVector PFCands,const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
   PFCandidateRefVector PFCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
   PFCandidateRefVector PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
-  PFCandidateRefVector PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z)const;
+  PFCandidateRefVector PFChargedHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const;
   PFCandidateRefVector PFNeutrHadrCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
   PFCandidateRefVector PFGammaCandsInAnnulus(const math::XYZVector myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const;
   //Put function to get elements inside ellipse here ... EELL

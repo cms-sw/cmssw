@@ -3,6 +3,7 @@
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoTauTag/TauTagTools/interface/ElementsInCone.h"
 #include "RecoTauTag/TauTagTools/interface/ElementsInAnnulus.h"
@@ -34,10 +35,10 @@ class TauElementsOperators{
   
   // return all Tracks in a cone of metric* "coneMetric" and size "coneSize" around a direction "coneAxis" 
   const TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin)const;
-  const TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z)const;
+  const TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const;
   // return all Tracks in an annulus defined by inner(metric* "innerconeMetric" and size "innerconeSize") and outer(metric* "outerconeMetric" and size "outerconeSize") cones around a direction "coneAxis" 
   const TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double ptTrackMin)const;  
-  const TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z)const;  
+  const TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const string innerconeMetric,const double innerconeSize,const string outerconeMetric,const double outerconeSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const;  
   // return 1 if no/low Tracks activity in an isolation annulus around a leading Track, 0 otherwise; 
   // different possible metrics* for the matching, signal and isolation cones; 
   double discriminatorByIsolTracksN(unsigned int isolationAnnulus_Tracksmaxn)const;
