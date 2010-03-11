@@ -55,8 +55,14 @@ class RunPromptReco:
             print "Configuring to Write out Aod..."
 
         try:
-            process = scenario.promptReco(self.globalTag,
-                                          dataTiers)
+            if len(dataTiers) > 0:
+                # use command line options for data-tiers
+                process = scenario.promptReco(self.globalTag,
+                                              dataTiers)
+            else:
+                # use default data-tiers for current scenario
+                process = scenario.promptReco(self.globalTag)
+                
         except Exception, ex:
             msg = "Error creating Prompt Reco config:\n"
             msg += str(ex)
