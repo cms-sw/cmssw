@@ -18,14 +18,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DQM/HLTEvF/interface/HLTriggerSelector.h"
+//#include "DQM/HLTEvF/interface/HLTriggerSelector.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TH2F.h"
+
+#include "TPRegexp.h" 
+#include "TString.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -56,6 +58,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
 
   configFlag_ = false;
   filterFlag_ = false;
+  hltchange_ = false;
 
   dbe_ = NULL;
   dbe_ = Service < DQMStore > ().operator->();
@@ -97,14 +100,22 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
       // so the paths are mapped into one string that we have to decompose:
       HLTPathNamesKey_ = triggerBits->decompose(listIter->second);
     }
-    //otherwise read HLTPaths from configuration
+    
+    bool initOK = false;
+    initOK = hltConfig_.init(r, iSetup, processName, hltchange_);
+    //Otherwise read paths from configuration
     HLTPathNamesConfig_.clear();
     if(HLTPathNamesConfigPreVal_.size()){
-      //run trigger selection
-      HLTriggerSelector trigSelect(inputTag_,HLTPathNamesConfigPreVal_);
-      HLTPathNamesConfig_.swap(trigSelect.theSelectTriggers);
+      //run trigger config selection
+      if (initOK) {
+	configSelector(HLTPathNamesConfigPreVal_, HLTPathNamesConfig_);
+      }
+      else{
+	LogError("HLTMonBitSummary") << "HLTConfigProvider initialization with process name " 
+				     << processName << " failed." << endl;
+	  }
     }
-
+    
     //check if the two vectors have any common elements    
     vector<int> removePaths;
     for(size_t i=0; i<HLTPathNamesKey_.size(); ++i){
@@ -129,8 +140,8 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
     HLTPathsByIndex_.resize(HLTPathsByName_.size());
 
     
-    if(nValidTriggers_ != HLTPathsByName_.size() && total_!=0 ){
-      LogWarning("HLTMonBitSummary") << "The number of valid triggers has changed since beginning of job." 
+    if( (nValidTriggers_ != HLTPathsByName_.size() || hltchange_) && total_!=0 ){
+      LogWarning("HLTMonBitSummary") << "A change in the HLT configuration has been found." 
 				     << std::endl
 				     << "BitSummary histograms do not support changing configurations."
 				     << std::endl
@@ -143,12 +154,9 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
       nValidTriggers_ = HLTPathsByName_.size();
       nValidConfigTriggers_ = HLTPathNamesConfig_.size();
 
-      //get the configuration
-      HLTConfigProvider hltConfig;
-  
       //get all the filters -
       //only if filterTypes_ is nonempty and only on HLTPathNamesConfig_ paths
-      if( hltConfig.init(processName)){ 
+      if(initOK){ 
 	if(!filterTypes_.empty()){
 	  triggerFilters_.clear();
 	  triggerFilterIndices_.clear();
@@ -158,7 +166,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	    // create a row [0, filter1index, filter2index, etc.]
 	    triggerFilterIndices_.push_back(vector <uint>()); 
       
-	    vector<string> moduleNames = hltConfig.moduleLabels( HLTPathNamesConfig_[i] ); 
+	    vector<string> moduleNames = hltConfig_.moduleLabels( HLTPathNamesConfig_[i] ); 
       
 	    triggerFilters_[i].push_back(HLTPathNamesConfig_[i]);//first entry is trigger name      
 	    triggerFilterIndices_[i].push_back(0);
@@ -171,8 +179,8 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	    vector<string>::const_iterator iDumpModName;
 	    for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
 	      moduleName = *iDumpModName;
-	      moduleType = hltConfig.moduleType(moduleName);
-	      moduleIndex = hltConfig.moduleIndex(HLTPathNamesConfig_[i], moduleName);
+	      moduleType = hltConfig_.moduleType(moduleName);
+	      moduleIndex = hltConfig_.moduleIndex(HLTPathNamesConfig_[i], moduleName);
 	      LogDebug ("HLTMonBitSummary") << "Module"      << numModule
 					    << " is called " << moduleName
 					    << " , type = "  << moduleType
@@ -191,17 +199,20 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	}
       }
       else{
-	LogError("HLTMonBitSummary") << "HLTConfigProvider initialization with process name " 
-				       << processName << " failed." << endl
-				       << "Could not get filter names." << endl;
+	LogError("HLTMonBitSummary") << "HLTConfigProvider initialization has failed."
+				     << " Could not get filter names." << endl;
 	filterFlag_ = true;
       }
 
       //check denominator
       HLTPathDenomName_.clear();
-      if( denominatorWild_.size() != 0 ) HLTPathDenomName_.push_back(denominatorWild_);
-      HLTriggerSelector denomSelect(inputTag_,HLTPathDenomName_);
-      HLTPathDenomName_.swap(denomSelect.theSelectTriggers);
+      HLTPathDenomNamePreVal_.clear();
+      if( denominatorWild_.size() != 0 ) HLTPathDenomNamePreVal_.push_back(denominatorWild_);
+      if(initOK){
+	configSelector(HLTPathDenomNamePreVal_, HLTPathDenomName_);
+      }
+      //HLTriggerSelector denomSelect(r, iSetup, inputTag_,HLTPathDenomName_);
+      //HLTPathDenomName_.swap(denomSelect.theSelectTriggers);
       //for (unsigned int i = 0; i < HLTPathDenomName_.size(); i++)
       //  std::cout << "testing denom: " << HLTPathDenomName_[i] << std::endl;
       if(HLTPathDenomName_.size()==1) denominator_ = HLTPathDenomName_[0];
@@ -474,3 +485,33 @@ void HLTMonBitSummary::endJob() {
   
 }
 
+
+void HLTMonBitSummary::configSelector(std::vector<std::string> selectTriggers, std::vector<std::string > & theSelectTriggers){
+
+  //get the configuration
+  std::vector<std::string> validTriggerNames = hltConfig_.triggerNames(); 
+  
+  bool goodToGo = false;
+  //remove all path names that are not valid
+  while(!goodToGo && selectTriggers.size()!=0){
+    goodToGo=true;
+    for (std::vector<std::string>::iterator j=selectTriggers.begin();j!=selectTriggers.end();++j){
+      bool goodOne = false;
+      //check if trigger name is valid
+      //use of wildcard
+      TPRegexp wildCard(*j);
+      //std::cout << "wildCard.GetPattern() = " << wildCard.GetPattern() << std::endl;
+      for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
+	if (TString(validTriggerNames[i]).Contains(wildCard)){ 
+	  goodOne = true;
+	  if (find(theSelectTriggers.begin(),
+		   theSelectTriggers.end(), 
+		   validTriggerNames[i])==theSelectTriggers.end()){
+	    //std::cout << "wildcard trigger = " << validTriggerNames[i] << std::endl;
+	    theSelectTriggers.push_back( validTriggerNames[i] ); //add it after duplicate check.
+	  }
+	}
+      }
+    }
+  }//while
+}
