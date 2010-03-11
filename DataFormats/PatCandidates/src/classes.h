@@ -143,6 +143,7 @@ namespace {
   edm::reftobase::VectorHolder<reco::Candidate, pat::PFParticleRefVector>	rb_cand_vh_p_pfp;
   edm::reftobase::VectorHolder<reco::Candidate, pat::GenericParticleRefVector>	rb_cand_vh_p_gp;
   */
+  edm::reftobase::VectorHolder<reco::Candidate, pat::CompositeCandidateRefVector>	rb_cand_vh_p_cc;
     /*   With indirect holder (RefVectorHolder)   */
   /*  
   edm::reftobase::RefVectorHolder<pat::ElectronRefVector>	 rb_rvh_p_e;
@@ -155,6 +156,7 @@ namespace {
   edm::reftobase::RefVectorHolder<pat::PFParticleRefVector>	 rb_rvh_p_pfp;
   edm::reftobase::RefVectorHolder<pat::GenericParticleRefVector> rb_rvh_p_gp;
   */
+  edm::reftobase::RefVectorHolder<pat::CompositeCandidateRefVector> rb_rvh_p_cc;
 
   /*   RefToBase<AODType> from PATObjects. In addition to the ones for Candidate    */
   /*  

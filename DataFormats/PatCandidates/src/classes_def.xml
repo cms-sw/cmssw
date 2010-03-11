@@ -148,6 +148,11 @@
   <class name="edm::reftobase::RefHolder<pat::CompositeCandidateRef>" />
   <class name="edm::reftobase::RefHolder<pat::PFParticleRef>" />
   <class name="edm::reftobase::RefHolder<pat::GenericParticleRef>" />
+ 
+
+ <!-- RefToBaseVector<Candidate> from PATObjetcs  -->
+ <class name="edm::reftobase::RefVectorHolder<pat::CompositeCandidateRefVector>" />
+ <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::CompositeCandidateRefVector>" />
 
   <!-- ==========================================================================================================================
               PAT Dataformats beyond PatObjects
