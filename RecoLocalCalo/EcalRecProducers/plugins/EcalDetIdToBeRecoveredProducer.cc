@@ -17,6 +17,9 @@
 
 #include <set>
 
+#include <sys/types.h>
+#include <signal.h>
+
 EcalDetIdToBeRecoveredProducer::EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps)
 {
         // SRP collections
@@ -292,11 +295,11 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
             
             if (subdet == EcalBarrel) { // elId pointing to TT
               // get list of crystals corresponding to TT
-              const EcalTrigTowerDetId ttId(detId);
+              const EcalTrigTowerDetId ttId( ttMap_->towerOf(detId) );
               const std::vector<DetId>& vid = ttMap_->constituentsOf(ttId);
               
               for (size_t j = 0; j < vid.size(); ++j) {
-                const EBDetId ebdi(vid[i]);
+                const EBDetId ebdi(vid[j]);
                 if (include(ebSrpDetId, ebdi)) {
                   ebDetIdToRecover->insert(ebdi);
                   ebTTDetIdToRecover->insert(ebdi.tower());
