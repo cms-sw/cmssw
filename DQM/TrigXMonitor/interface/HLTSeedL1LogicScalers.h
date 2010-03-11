@@ -13,7 +13,7 @@
 //
 // Original Author:   Vladimir  Rekovic
 //         Created:  Tue Feb  9 15:15:20 CET 2010
-// $Id: HLTSeedL1LogicScalers.h,v 1.2 2010/02/22 12:59:09 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.h,v 1.3 2010/02/25 17:34:01 wdd Exp $
 //
 //
 
@@ -65,7 +65,6 @@ class HLTSeedL1LogicScalers : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-      bool fVerbose;
       bool fL1BeforeMask;
       std::string fDQMFolder;
       std::string fProcessname;
