@@ -6,10 +6,10 @@ import fileinput
 import string
 
 # Reference release
-RefRelease='CMSSW_3_3_6'
+RefRelease='CMSSW_3_6_0_pre1'
 
 # RelVal release (only set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_3_6'
+NewRelease='CMSSW_3_6_0_pre1'
 
 # Startup and ideal samples list
 #startupsamples = ['RelValTTbar', 'RelValMinBias', 'RelValQCD_Pt_3000_3500', 'RelValQCD_Pt_80_120']
@@ -17,9 +17,10 @@ NewRelease='CMSSW_3_3_6'
 # This is a pileup sample
 #startupsamples = ['RelValTTbar_Tauola']
 # This is the full set of STARTUP samples, to be used for timing studies
-startupsamples = ['RelValQCD_Pt_3000_3500', 'RelValTTbar', 'RelValMinBias']
+#startupsamples = ['RelValQCD_Pt_3000_3500', 'RelValTTbar', 'RelValMinBias']
 #startupsamples = ['RelValQCD_Pt_3000_3500', 'RelValMinBias']
 #startupsamples = ['RelValTTbar']
+startupsamples = []
 
 #$startupsamples = ['RelValQCD_Pt_80_120']
 
@@ -31,8 +32,8 @@ startupsamples = ['RelValQCD_Pt_3000_3500', 'RelValTTbar', 'RelValMinBias']
 idealsamples = []
 
 # New samples array for 3_X_X
-#mcsamples = ['RelValQCD_Pt_80_120']
-mcsamples = []
+mcsamples = ['RelValTTbar']
+#mcsamples = []
 
 Sequence = 'only_validation'
 #Sequence = 'harvesting'
@@ -56,9 +57,9 @@ StartupReferenceSelection = 'STARTUP3X_V8H_'+PileUp
 
 # This is where the reference samples are stored
 #RefRepository = '/afs/cern.ch/cms/performance/'
-RefRepository = '/nfs/data35/cms/drell/val336_newv0prod_full_highPurity'
+RefRepository = '/nfs/data35/cms/drell/val360pre1'
 # NewRepository contains the files for the new release to be tested
-NewRepository = '/nfs/data35/cms/drell/val336_newv0prod_full_loose_d01.5_real'
+NewRepository = '/nfs/data35/cms/drell/val360pre1'
 
 # Default number of events
 defaultNevents = '-1'
