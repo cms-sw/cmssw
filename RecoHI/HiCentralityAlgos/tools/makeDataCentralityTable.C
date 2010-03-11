@@ -116,30 +116,16 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
   double integral = 0;
   int currentbin = 0;
   for(int iv = 0; iv < events && currentbin < nbins; ++iv){
-     cout<<"a"<<endl;
      double val = values[iv];  
-     cout<<"b"<<endl;
-
      integral += val / hEff->GetBinContent(hEff->FindBin(val));
-     cout<<"c"<<endl;
-
      if(integral > (int)(currentbin*(events/nbins))){
-	cout<<"d"<<endl;
-
 	binboundaries[currentbin] = val;
-	cout<<"e"<<endl;
-
 	cout<<" "<<val;
-
 	if(currentbin < nbins - 1) cout<<",";
 	else cout<<")"<<endl;
 
-	cout<<"g"<<endl;
 	currentbin++;
-	cout<<"h"<<endl;
-
      }
-     cout<<"i"<<endl;
   }
   cout<<"-------------------------------------"<<endl;
 
