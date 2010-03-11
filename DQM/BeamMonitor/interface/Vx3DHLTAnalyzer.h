@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.3 2010/03/09 20:01:56 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.4 2010/03/10 11:30:18 dinardo Exp $
 //
 //
 
@@ -35,6 +35,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <iostream>
+#include <fstream>
 #include <vector>
 
 
@@ -61,12 +63,14 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
+      virtual int MyFit(vector<double>* vals);
+      virtual void reset();
       virtual void writeToFile(vector<double>* vals,
-			       string fileName,
 			       edm::TimeValue_t BeginTimeOfFit,
 			       edm::TimeValue_t EndTimeOfFit,
 			       unsigned int BeginLumiOfFit,
-			       unsigned int EndLumiOfFit);
+			       unsigned int EndLumiOfFit,
+			       int dataType);
       virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 					const edm::EventSetup& iSetup);
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
@@ -74,6 +78,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
 
       // cfg file parameters
       edm::InputTag vertexCollection;
+      bool debugMode;
       unsigned int nLumiReset;
       bool dataFromFit;
       int minNentries;
@@ -116,6 +121,8 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* reportSummaryMap;
       
       // Internal variables
+      ofstream outputFile;
+      ofstream outputDebugFile;
       unsigned int runNumber;
       unsigned int lumiCounter;
       edm::TimeValue_t beginTimeOfFit;

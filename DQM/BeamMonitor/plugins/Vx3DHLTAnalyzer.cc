@@ -89,8 +89,6 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
       if (runNumber != iEvent.id().run())
 	{
 	  outputFile.open(fileName.c_str(), ios::out);
-	  outputFile.close();
-	  outputFile.open(fileName.c_str(), ios::app);
 
 	  if (debugMode == true)
 	    {
