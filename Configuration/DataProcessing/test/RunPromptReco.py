@@ -20,6 +20,7 @@ class RunPromptReco:
         self.scenario = None
         self.writeReco = False
         self.writeAlca = False
+        self.writeAlcareco = False
         self.writeAod = False
         self.globalTag = 'UNSPECIFIED::All'
         self.inputLFN = None
