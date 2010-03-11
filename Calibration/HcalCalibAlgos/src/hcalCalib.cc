@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.4 2009/03/22 15:12:58 anastass Exp $
+// $Id: hcalCalib.cc,v 1.5 2009/10/26 01:48:57 anastass Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -446,7 +446,7 @@ void hcalCalib::Terminate() {
  
     if (CALIB_TYPE=="ISO_TRACK") {
       Int_t ind = refIEtaIPhi[i].first;  
-      ind = (ind<0)? ind +=24 : ind +=23;
+      (ind<0) ? (ind +=24) : (ind +=23);
       if (ind>=0 && ind<48) {
 	h1_corRespIEta[ind]->Fill(corResp);  
       }

@@ -13,8 +13,8 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Sat Jul  7 09:51:31 CEST 2007
-// $Id: HOCalibAnalyzer.cc,v 1.8 2010/01/11 16:40:14 kodolova Exp $
-// $Id: HOCalibAnalyzer.cc,v 1.8 2010/01/11 16:40:14 kodolova Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.9 2010/01/25 22:13:27 hegner Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.9 2010/01/25 22:13:27 hegner Exp $
 //
 //
 
@@ -722,7 +722,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 	if (phmn <=0) phmn = nphimx+phmn;
 	if (phmx <=0) phmx = nphimx+phmx;
 	
-	if ((j==2 & i==routmx) || (j!=2 & i==rout12mx)) {
+	if ((j==2 && i==routmx) || (j!=2 && i==rout12mx)) {
 	  sprintf(title, "sig_ring%i_allrm", j-2);
 	  sprintf(name, "sig_ring%i_allrm", j-2);
 	} else {
@@ -730,7 +730,7 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
 	  sprintf(name, "sig_ring%i_rout%i", j-2,i+1);
 	}
 	com_sigrsg[j][i] = fs->make<TH1F>(name, title, nbin, alow, ahigh);
-	if ((j==2 & i==routmx) || (j!=2 & i==rout12mx)) {
+	if ((j==2 && i==routmx) || (j!=2 && i==rout12mx)) {
 	  sprintf(title, "ped_ring%i_allrm", j-2);
 	  sprintf(name, "ped_ring%i_allrm", j-2);
 	} else {

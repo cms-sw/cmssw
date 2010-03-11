@@ -33,7 +33,7 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0, vector<int> detvec,vecto
    {
      newfile[i]=newfile0[i];
    }
-   char* fend="\0";
+   char const* fend="\0";
    newfile[nn] = *fend;
 
    cout<<" New file "<<newfile<<endl;
