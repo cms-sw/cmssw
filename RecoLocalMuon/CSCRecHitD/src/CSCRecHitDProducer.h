@@ -18,7 +18,7 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Utilities/interface/InputTag.h>
+#include <FWCore/ParameterSet/interface/InputTag.h>
 
 class CSCRecHitDBuilder; 
 class CSCRecoConditions;
@@ -36,7 +36,6 @@ public:
   // Counting events processed
   unsigned iRun; 
   bool useCalib;
-  bool useStaticPedestals;
 
   edm::InputTag stripDigiTag_;
   edm::InputTag wireDigiTag_;
