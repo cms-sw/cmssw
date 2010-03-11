@@ -1492,7 +1492,9 @@ std::vector<PrimaryVertexAnalyzer4PU::SimEvent> PrimaryVertexAnalyzer4PU::getSim
       e.eventId=it->eventId();
       event=simEvt.size();
       const TrackingVertex *parentVertex= it->parentVertex().get();
-      cout << it->eventId().bunchCrossing() << "," <<  it->eventId().event() << " z="<< it->vz() << " " << parentVertex->eventId().bunchCrossing() << ","  <<parentVertex->eventId().event() << " z=" << parentVertex->position().z() << endl;
+      if(DEBUG_){
+	cout << it->eventId().bunchCrossing() << "," <<  it->eventId().event() << " z="<< it->vz() << " " << parentVertex->eventId().bunchCrossing() << ","  <<parentVertex->eventId().event() << " z=" << parentVertex->position().z() << endl;
+      }
       if (it->eventId()==parentVertex->eventId()){
 	e.x=it->vx(); e.y=it->vy(); e.z=it->vz();
       }else{
@@ -1561,13 +1563,14 @@ std::vector<PrimaryVertexAnalyzer4PU::SimEvent> PrimaryVertexAnalyzer4PU::getSim
     }
 
 
-    
-    cout << i <<"  )   nTP="  << simEvt[i].tp.size()
-	 << "   z=" <<  simEvt[i].z
-	 << "    recTrks="  << simEvt[i].tk.size() 
-	 << "    recTrksPrim="  << simEvt[i].tkprim.size() 
-	 << "   zfit=" << simEvt[i].zfit
-	 << endl;
+    if(DEBUG_){
+      cout << i <<"  )   nTP="  << simEvt[i].tp.size()
+	   << "   z=" <<  simEvt[i].z
+	   << "    recTrks="  << simEvt[i].tk.size() 
+	   << "    recTrksPrim="  << simEvt[i].tkprim.size() 
+	   << "   zfit=" << simEvt[i].zfit
+	   << endl;
+    }
   }
  
   return simEvt;
@@ -2279,7 +2282,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollectionTP(std::map<std::string, T
 	evmatch=ev->eventId;
 	matchFound=true;
       }
-      cout << "nmatchany=" << nmatchany << " n=" << n << "  v-size=" << v->tracksSize() << " recPurity=" <<  n/v->tracksSize() << " signal=" << isSignal << endl;
+      //      cout << "nmatchany=" << nmatchany << " n=" << n << "  v-size=" << v->tracksSize() << " recPurity=" <<  n/v->tracksSize() << " signal=" << isSignal << endl;
       if(nmatchany>0){
 	Fill(h,"recPurity", n/v->tracksSize(), (isSignal) );
       }
@@ -2777,7 +2780,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
   if(nrec4>0) { Fill(h,"eff0ndof4vsntsel",nseltrks,1.);}else{ Fill(h,"eff0ndof4vsntsel",nseltrks,0.);}
   if(nrec8>0) { Fill(h,"eff0ndof8vsntsel",nseltrks,1.);}else{ Fill(h,"eff0ndof8vsntsel",nseltrks,0.);}
 
-  if(nrec>1) {
+  if((nrec>1)&&(DEBUG_)) {
     cout << "multivertex event" << endl;
     dumpThisEvent_=true;
   }
@@ -3002,11 +3005,11 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 	for(trackit_t t=v1->tracks_begin(); t!=v1->tracks_end(); t++){ if(v1->trackWeight(*t)>0.5) fillTrackHistos(h,"PUfake",**t, &(*v1));   }
       }
       
-      if ((v->ndof()>8) && (v1->ndof()>8) && (fabs(z0-z1)>1.0)){
-	cout << "PU candidate " << run_ << " " << event_ << " " << message <<  " zdiff=" <<z0-z1 << endl;
-	cerr << "PU candidate " << run_ << " "<<  event_ << " " << message <<  endl;
-	dumpThisEvent_=true;
-      }
+//       if ((v->ndof()>8) && (v1->ndof()>8) && (fabs(z0-z1)>1.0)){
+// 	cout << "PU candidate " << run_ << " " << event_ << " " << message <<  " zdiff=" <<z0-z1 << endl;
+// 	cerr << "PU candidate " << run_ << " "<<  event_ << " " << message <<  endl;
+// 	dumpThisEvent_=true;
+//       }
 
     }
 
