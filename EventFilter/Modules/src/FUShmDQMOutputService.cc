@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.17 2010/03/05 16:51:00 meschi Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.18 2010/03/09 23:53:23 wmtan Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -139,7 +139,13 @@ void FUShmDQMOutputService::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
 void FUShmDQMOutputService::publish(xdata::InfoSpace *is)
 {
-  is->fireItemAvailable("nbDqmUpdates",&nbUpdates_);
+  try{
+    is->fireItemAvailable("nbDqmUpdates",&nbUpdates_);
+  }
+  catch(xdata::exception::Exception &e){
+    edm::LogInfo("FUShmDQMOutputService")
+      << " exception when publishing to InfoSpace "; 
+  } 
 }
 
 void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::EventSetup const &es)
