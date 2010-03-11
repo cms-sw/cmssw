@@ -69,8 +69,9 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
   double myCaloTau_refInnerPosition_z=0.;
   if(myleadTk.isNonnull()){
     myCaloTau.setleadTrack(myleadTk);
-    double myleadTkDZ=(*myleadTk).dz();
-    if(TransientTrackBuilder_!=0){ 
+    double myleadTkDZ=(*myleadTk).dz(myPV.position());
+    if(TransientTrackBuilder_!=0)
+    { 
       const TransientTrack myleadTransientTk=TransientTrackBuilder_->build(&(*myleadTk));
       GlobalVector myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
       if(IPTools::signedTransverseImpactParameter(myleadTransientTk,myCaloJetdir,myPV).first)
@@ -123,7 +124,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
     if (UseTrackLeadTrackDZconstraint_){
       TrackRefVector myTksbis;
       for (TrackRefVector::const_iterator iTrack=myTks.begin();iTrack!=myTks.end();++iTrack) {
-	if (fabs((**iTrack).dz()-myleadTkDZ)<=TrackLeadTrack_maxDZ_) myTksbis.push_back(*iTrack);
+	if (fabs((**iTrack).dz(myPV.position())-myleadTkDZ)<=TrackLeadTrack_maxDZ_) myTksbis.push_back(*iTrack);
       }
       myTks=myTksbis;
     }
@@ -135,7 +136,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
     double myECALIsolConeSize=myCaloTauElementsOperators.computeConeSize(myECALIsolConeSizeTFormula,ECALIsolConeSize_min_,ECALIsolConeSize_max_);     	
 
     TrackRefVector mySignalTks;
-    if (UseTrackLeadTrackDZconstraint_) mySignalTks=myCaloTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
+    if (UseTrackLeadTrackDZconstraint_) mySignalTks=myCaloTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ, myPV);
     else mySignalTks=myCaloTauElementsOperators.tracksInCone((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,Track_minPt_);
     myCaloTau.setsignalTracks(mySignalTks);
     
@@ -153,7 +154,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
     myCaloTau.setsignalTracksInvariantMass(mySignalTksInvariantMass.mass());
     
     TrackRefVector myIsolTks;
-    if (UseTrackLeadTrackDZconstraint_) myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,IsolationTrack_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ);
+    if (UseTrackLeadTrackDZconstraint_) myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,IsolationTrack_minPt_,TrackLeadTrack_maxDZ_,myleadTkDZ, myPV);
     else myIsolTks=myCaloTauElementsOperators.tracksInAnnulus((*myleadTk).momentum(),TrackerSignalConeMetric_,myTrackerSignalConeSize,TrackerIsolConeMetric_,myTrackerIsolConeSize,IsolationTrack_minPt_);
     myIsolTks = TauTagTools::filteredTracksByNumTrkHits(myIsolTks,IsolationTrack_minHits_);
     myCaloTau.setisolationTracks(myIsolTks);
