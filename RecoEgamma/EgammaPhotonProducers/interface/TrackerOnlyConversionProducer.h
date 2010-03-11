@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/02/18 10:56:05 $
- **  $Revision: 1.11 $
+ **  $Date: 2010/03/08 10:52:16 $
+ **  $Revision: 1.10 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -158,7 +158,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       double maxChi2Left_, maxChi2Right_;//5. 5. for track chi2 quality
       double minHitsLeft_, minHitsRight_;//5 2 for track hits quality 
 
-      double deltaCotTheta_, deltaPhi_, minApproach_;//0.02 0.2 for track pair open angle and > -0.1 cm
+      double deltaCotTheta_, deltaPhi_, minApproachLow_, minApproachHigh_;//0.02 0.2 for track pair open angle and > -0.1 cm
 
       double maxDistance_, maxOfInitialValue_;
       int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex

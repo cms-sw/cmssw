@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.28 2010/02/22 08:21:26 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.18 2010/03/05 17:21:34 nancy Exp $
 //
 //
 
@@ -123,9 +123,10 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 	deltaCotTheta_ = iConfig.getParameter<double>("DeltaCotTheta");
     if (allowDeltaPhi_)
 	deltaPhi_ = iConfig.getParameter<double>("DeltaPhi");
-    if (allowMinApproach_)
-	minApproach_ = iConfig.getParameter<double>("MinApproach");
-
+    if (allowMinApproach_) {
+	minApproachLow_ = iConfig.getParameter<double>("MinApproachLow");
+	minApproachHigh_ = iConfig.getParameter<double>("MinApproachHigh");
+    }
     // if allow single track collection, by default False
     allowSingleLeg_ = iConfig.getParameter<bool>("AllowSingleLeg");
     rightBC_ = iConfig.getParameter<bool>("AllowRightBC");
@@ -397,7 +398,7 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     if (allowMinApproach_){
 	const double distance = getMinApproach(tk_l, tk_r, magField);
 
-	if (distance < minApproach_ || distance >1.) return false;
+	if (distance < minApproachLow_ || distance > minApproachHigh_) return false;
 	else
 	    appDist = distance;
     }
