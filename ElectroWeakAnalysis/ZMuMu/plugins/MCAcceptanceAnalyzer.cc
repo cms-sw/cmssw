@@ -127,7 +127,7 @@ void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
 	*/
       }
       // to avoid double counting 
-      if (selectZ==3 & selectMC==3) break;
+      if ((selectZ==3) && (selectMC==3)) break;
     }
    }
 
