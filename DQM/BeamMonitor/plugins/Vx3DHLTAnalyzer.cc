@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.18 2010/03/10 13:40:30 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.21 2010/03/11 13:09:35 dinardo Exp $
 //
 //
 
@@ -84,15 +84,13 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
       if (debugMode == true)
 	{
 	  stringstream debugFile;
-      
+	  string tmp(fileName);
+
 	  if (outputDebugFile.is_open() == true) outputDebugFile.close();
-	  debugFile << fileName;
-	  debugFile.str()[strlen(fileName.c_str())-1] = '\0';
-	  debugFile.str()[strlen(fileName.c_str())-2] = '\0';
-	  debugFile.str()[strlen(fileName.c_str())-3] = '\0';
-	  debugFile.str()[strlen(fileName.c_str())-4] = '\0';
-	  debugFile << "_" << iEvent.id().run() << ".txt";
-	  cout << debugFile.str().c_str() << endl;
+	  tmp.erase(strlen(fileName.c_str())-4,4);
+	  debugFile << tmp.c_str() << "_Run" << iEvent.id().run() << ".txt";
+	  outputDebugFile.open(debugFile.str().c_str(), ios::out);
+	  outputDebugFile.close();
 	  outputDebugFile.open(debugFile.str().c_str(), ios::app);
 	}
     }
@@ -191,9 +189,9 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 {
   unsigned int nParams = 9;
 
-  if ((vals != NULL) && (vals->size() == nParams))
+  if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigma = 4.;      
+      double nSigma = 3.;
       double arglist[2];
       double amin,edm,errdef;
       double det;
@@ -203,7 +201,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       vector<double>::const_iterator it = vals->begin();
 
       TFitterMinuit* Gauss3D = new TFitterMinuit(nParams);
-      Gauss3D->SetPrintLevel(3);
+      Gauss3D->SetPrintLevel(0);
       // 	  Gauss3D->SetStrategy(0);
       Gauss3D->SetFCN(Gauss3DFunc);
       arglist[0] = 10000; // Max number of function calls
@@ -228,48 +226,36 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       zPos = *(it+8);
 
       goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-      Gauss3D->ExecuteCommand("MINOS",arglist,2);
-      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
 
       Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       if (isnan(edm) == true) goodData = -1;
       for (unsigned int i = 0; i < nParams; i++) if (isnan(Gauss3D->GetParError(i)) == true) { goodData = -1; break; }
 
-      vals->operator[](0) = Gauss3D->GetParameter(0);
-      vals->operator[](1) = Gauss3D->GetParameter(1);
-      vals->operator[](2) = Gauss3D->GetParameter(2);
-      vals->operator[](3) = Gauss3D->GetParameter(3);
-      vals->operator[](4) = Gauss3D->GetParameter(4);
-      vals->operator[](5) = Gauss3D->GetParameter(5);
-      vals->operator[](6) = Gauss3D->GetParameter(6);
-      vals->operator[](7) = Gauss3D->GetParameter(7);
-      vals->operator[](8) = Gauss3D->GetParameter(8);
-	  
+      for (unsigned int i = 0; i < nParams; i++)
+	{
+	  vals->operator[](i) = Gauss3D->GetParameter(i);
+	  vals->operator[](i+nParams) = Gauss3D->GetParError(i);
+	}
+
       det = fabs(*(it+0))*(fabs(*(it+1))*fabs(*(it+2))-(*(it+4))*(*(it+4))) - (*(it+3))*((*(it+3))*fabs(*(it+2))-(*(it+5))*(*(it+4))) + (*(it+5))*((*(it+3))*(*(it+4))-(*(it+5))*fabs(*(it+1)));
 
       if ((goodData != 0) || (det < 0.))
 	{
-	  Gauss3D->SetParameter(3,"cov xy", 0.0, 0.0001, 0, 0);
-	  Gauss3D->SetParameter(4,"cov yz", 0.0, 0.0001, 0, 0);
-	  Gauss3D->SetParameter(5,"cov xz", 0.0, 0.0001, 0, 0);
+	  Gauss3D->SetParameter(3,"cov xy", 0.0, 0.0005, 0, 0);
+	  Gauss3D->SetParameter(4,"cov yz", 0.0, 0.0005, 0, 0);
+	  Gauss3D->SetParameter(5,"cov xz", 0.0, 0.0005, 0, 0);
 
-	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-	  Gauss3D->ExecuteCommand("MINOS",arglist,2);
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
 
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 	  if (isnan(edm) == true) goodData = -1;
 	  for (unsigned int i = 0; i < nParams; i++) if (isnan(Gauss3D->GetParError(i)) == true) { goodData = -1; break; }
 	  
-	  vals->operator[](0) = Gauss3D->GetParameter(0);
-	  vals->operator[](1) = Gauss3D->GetParameter(1);
-	  vals->operator[](2) = Gauss3D->GetParameter(2);
-	  vals->operator[](3) = Gauss3D->GetParameter(3);
-	  vals->operator[](4) = Gauss3D->GetParameter(4);
-	  vals->operator[](5) = Gauss3D->GetParameter(5);
-	  vals->operator[](6) = Gauss3D->GetParameter(6);
-	  vals->operator[](7) = Gauss3D->GetParameter(7);
-	  vals->operator[](8) = Gauss3D->GetParameter(8);
+	  for (unsigned int i = 0; i < nParams; i++)
+	    {
+	      vals->operator[](i) = Gauss3D->GetParameter(i);
+	      vals->operator[](i+nParams) = Gauss3D->GetParError(i);
+	    }
 	  
 	  det = fabs(*(it+0))*(fabs(*(it+1))*fabs(*(it+2))-(*(it+4))*(*(it+4))) - (*(it+3))*((*(it+3))*fabs(*(it+2))-(*(it+5))*(*(it+4))) + (*(it+5))*((*(it+3))*(*(it+4))-(*(it+5))*fabs(*(it+1)));
 
@@ -321,7 +307,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 
   outputFile.open(fileName.c_str(), ios::out);
 
-  if ((outputFile.is_open() == true) && (vals != NULL) && (vals->size() == 8))
+  if ((outputFile.is_open() == true) && (vals != NULL) && (vals->size() == 8*2))
     {
       vector<double>::const_iterator it = vals->begin();
 
@@ -345,33 +331,33 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       outputFile << "Z0 " << BufferString.str().c_str() << endl;
       BufferString.str("");
 
-      BufferString << *(it+5);
+      BufferString << *(it+3);
       outputFile << "sigmaZ0 " << BufferString.str().c_str() << endl;
       BufferString.str("");
 
-      BufferString << *(it+6);
+      BufferString << *(it+4);
       outputFile << "dxdz " << BufferString.str().c_str() << endl;
       BufferString.str("");
 
-      BufferString << *(it+7);
+      BufferString << *(it+5);
       outputFile << "dydz " << BufferString.str().c_str() << endl;
       BufferString.str("");
 
-      BufferString << *(it+3);
+      BufferString << *(it+6);
       outputFile << "BeamWidthX " << BufferString.str().c_str() << endl;
       BufferString.str("");
 
-      BufferString << *(it+4);
+      BufferString << *(it+7);
       outputFile << "BeamWidthY " << BufferString.str().c_str() << endl;
       BufferString.str("");
 
-      outputFile << "Cov(0,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputFile << "Cov(1,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputFile << "Cov(2,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputFile << "Cov(3,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputFile << "Cov(4,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputFile << "Cov(5,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputFile << "Cov(6,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
+      outputFile << "Cov(0,j) " << *(it+8) << " 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
+      outputFile << "Cov(1,j) 0.0 " << *(it+9) << " 0.0 0.0 0.0 0.0 0.0" << endl;
+      outputFile << "Cov(2,j) 0.0 0.0 " << *(it+10) << " 0.0 0.0 0.0 0.0" << endl;
+      outputFile << "Cov(3,j) 0.0 0.0 0.0 " << *(it+11) << " 0.0 0.0 0.0" << endl;
+      outputFile << "Cov(4,j) 0.0 0.0 0.0 0.0 " << *(it+12) << " 0.0 0.0" << endl;
+      outputFile << "Cov(5,j) 0.0 0.0 0.0 0.0 0.0 " << *(it+13) << " 0.0" << endl;
+      outputFile << "Cov(6,j) 0.0 0.0 0.0 0.0 0.0 0.0 " << ((*(it+14))+(*(it+15)))/2. << endl;
 
       outputFile << "EmittanceX 0.0" << endl;
       outputFile << "EmittanceY 0.0" << endl;
@@ -379,7 +365,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
     }
   outputFile.close();
 
-  if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != NULL) && (vals->size() == 8))
+  if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != NULL) && (vals->size() == 8*2))
     {
       vector<double>::const_iterator it = vals->begin();
 	  
@@ -403,33 +389,33 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       outputDebugFile << "Z0 " << BufferString.str().c_str() << endl;
       BufferString.str("");
 	  
-      BufferString << *(it+5);
+      BufferString << *(it+3);
       outputDebugFile << "sigmaZ0 " << BufferString.str().c_str() << endl;
       BufferString.str("");
 	  
-      BufferString << *(it+6);
+      BufferString << *(it+4);
       outputDebugFile << "dxdz " << BufferString.str().c_str() << endl;
       BufferString.str("");
 	  
-      BufferString << *(it+7);
+      BufferString << *(it+5);
       outputDebugFile << "dydz " << BufferString.str().c_str() << endl;
       BufferString.str("");
 	  
-      BufferString << *(it+3);
+      BufferString << *(it+6);
       outputDebugFile << "BeamWidthX " << BufferString.str().c_str() << endl;
       BufferString.str("");
 	  
-      BufferString << *(it+4);
+      BufferString << *(it+7);
       outputDebugFile << "BeamWidthY " << BufferString.str().c_str() << endl;
       BufferString.str("");
 	  
-      outputDebugFile << "Cov(0,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputDebugFile << "Cov(1,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputDebugFile << "Cov(2,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputDebugFile << "Cov(3,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputDebugFile << "Cov(4,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputDebugFile << "Cov(5,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
-      outputDebugFile << "Cov(6,j) 0.0 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
+      outputDebugFile << "Cov(0,j) " << *(it+8) << " 0.0 0.0 0.0 0.0 0.0 0.0" << endl;
+      outputDebugFile << "Cov(1,j) 0.0 " << *(it+9) << " 0.0 0.0 0.0 0.0 0.0" << endl;
+      outputDebugFile << "Cov(2,j) 0.0 0.0 " << *(it+10) << " 0.0 0.0 0.0 0.0" << endl;
+      outputDebugFile << "Cov(3,j) 0.0 0.0 0.0 " << *(it+11) << " 0.0 0.0 0.0" << endl;
+      outputDebugFile << "Cov(4,j) 0.0 0.0 0.0 0.0 " << *(it+12) << " 0.0 0.0" << endl;
+      outputDebugFile << "Cov(5,j) 0.0 0.0 0.0 0.0 0.0 " << *(it+13) << " 0.0" << endl;
+      outputDebugFile << "Cov(6,j) 0.0 0.0 0.0 0.0 0.0 0.0 " << ((*(it+14))+(*(it+15)))/2. << endl;
 	  
       outputDebugFile << "EmittanceX 0.0" << endl;
       outputDebugFile << "EmittanceY 0.0" << endl;
@@ -455,7 +441,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 {
   int goodData = -1;
 
-  if ((lumiCounter%nLumiReset == 0) && (nLumiReset != 0))
+  if ((lumiCounter%nLumiReset == 0) && (nLumiReset != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
     {
       TF1* Gauss = new TF1("Gauss", "gaus");
 
@@ -467,23 +453,22 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       sYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS(), Vx_Y->getTH1F()->GetRMSError(), nLumiReset);
       sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), nLumiReset);
       
-      Gauss->SetParameters(Vx_X->getTH1()->GetMaximum(), Vx_X->getTH1()->GetMean(), Vx_X->getTH1()->GetRMS());
-      Vx_X->getTH1()->Fit("Gauss","L");
-      // 	  Vx_X->getTH1()->Fit("Gauss","LQN0");
-      RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2),
-				 (Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
-											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
-      Gauss->SetParameters(Vx_Y->getTH1()->GetMaximum(), Vx_Y->getTH1()->GetMean(), Vx_Y->getTH1()->GetRMS());
-      Vx_Y->getTH1()->Fit("Gauss","L");
-      RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2),
-				 (Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
-											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
-      Gauss->SetParameters(Vx_Z->getTH1()->GetMaximum(), Vx_Z->getTH1()->GetMean(), Vx_Z->getTH1()->GetRMS());
-      Vx_Z->getTH1()->Fit("Gauss","L");
-      RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2),
-				 (Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2)) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
-											     powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
-
+//       Gauss->SetParameters(Vx_X->getTH1()->GetMaximum(), Vx_X->getTH1()->GetMean(), Vx_X->getTH1()->GetRMS());
+//       Vx_X->getTH1()->Fit("Gauss","LQN0");
+//       RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2),
+// 				 Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
+// 											   powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
+//       Gauss->SetParameters(Vx_Y->getTH1()->GetMaximum(), Vx_Y->getTH1()->GetMean(), Vx_Y->getTH1()->GetRMS());
+//       Vx_Y->getTH1()->Fit("Gauss","LQN0");
+//       RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2),
+// 				 Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
+// 											   powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
+//       Gauss->SetParameters(Vx_Z->getTH1()->GetMaximum(), Vx_Z->getTH1()->GetMean(), Vx_Z->getTH1()->GetRMS());
+//       Vx_Z->getTH1()->Fit("Gauss","LQN0");
+//       RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2),
+// 				 Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
+// 											   powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
+      
       // Write the 8 beam spot parameters into a file
       endTimeOfFit = lumiBlock.endTime().value();
       endLumiOfFit = lumiBlock.luminosityBlock();
@@ -491,6 +476,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
       if (dataFromFit == true)
 	{
+	  unsigned int nParams = 9;
 	  double dxdz, dydz;
 	  vector<double> fitResults;
 
@@ -503,46 +489,57 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  fitResults.push_back(Vx_X->getTH1()->GetMean());
 	  fitResults.push_back(Vx_Y->getTH1()->GetMean());
 	  fitResults.push_back(Vx_Z->getTH1()->GetMean());
-
+	  for (unsigned int i = 0; i < nParams; i++) fitResults.push_back(0.0);
+	  
 	  goodData = MyFit(&fitResults);
 	  	      
+// 	  cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0+nParams] << endl;
+// 	  cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
+// 	  cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
+// 	  cout << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3+nParams] << endl;
+// 	  cout << "cov yz --> " << fitResults[4] << " +/- " << fitResults[4+nParams] << endl;
+// 	  cout << "cov xz --> " << fitResults[5] << " +/- " << fitResults[5+nParams] << endl;
+// 	  cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6+nParams] << endl;
+// 	  cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7+nParams] << endl;
+// 	  cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8+nParams] << endl;
+	  
 	  if (goodData == 0)
 	    {		 
 	      dxdz = (fitResults[3]*fitResults[4] + fitResults[5]*(fitResults[2] - fitResults[1])) / ((fitResults[2]-fitResults[1])*(fitResults[2]-fitResults[0]) - fitResults[3]*fitResults[3]);
 	      dydz = (fitResults[3]*fitResults[5] + fitResults[4]*(fitResults[2] - fitResults[0])) / ((fitResults[2]-fitResults[1])*(fitResults[2]-fitResults[0]) - fitResults[3]*fitResults[3]);
 
-	      cout << "N vertices: " << xVxValues.size() << endl;
-	      cout << "counterVx: " << counterVx << endl;
-	      cout << "goodData: " << goodData << endl;
-	      cout << "sigma x: " << sqrt(fabs(fitResults[0])) << endl;
-	      cout << "sigma y: " << sqrt(fabs(fitResults[1])) << endl;
-	      cout << "sigma z: " << sqrt(fabs(fitResults[2])) << endl;
-	      cout << "dxdz --> " << dxdz << endl;
-	      cout << "dydz --> " << dydz << endl;
- 
+	      RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / sqrt(fabs(fitResults[0])),
+					 Vx_X->getTH1F()->GetRMS() / sqrt(fabs(fitResults[0])) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
+												      fabs(fitResults[0+nParams]) / fabs(fitResults[0])), nLumiReset);
+	      RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / sqrt(fabs(fitResults[1])),
+					 Vx_Y->getTH1F()->GetRMS() / sqrt(fabs(fitResults[1])) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
+												      fabs(fitResults[1+nParams]) / fabs(fitResults[1])), nLumiReset);
+	      RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / sqrt(fabs(fitResults[2])),
+					 Vx_Z->getTH1F()->GetRMS() / sqrt(fabs(fitResults[2])) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
+												      fabs(fitResults[2+nParams]) / fabs(fitResults[2])), nLumiReset);
+	      
 	      dxdzlumi->ShiftFillLast(dxdz, 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
 	      dydzlumi->ShiftFillLast(dydz, 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
 		  
 	      vals.push_back(fitResults[6]);
 	      vals.push_back(fitResults[7]);
 	      vals.push_back(fitResults[8]);
-	      vals.push_back(sqrt(fabs(fitResults[0])));
-	      vals.push_back(sqrt(fabs(fitResults[1])));
 	      vals.push_back(sqrt(fabs(fitResults[2])));
 	      vals.push_back(dxdz);
-	      vals.push_back(dydz);	      
+	      vals.push_back(dydz);
+	      vals.push_back(sqrt(fabs(fitResults[0])));
+	      vals.push_back(sqrt(fabs(fitResults[1])));
+
+	      vals.push_back(fitResults[6+nParams]*fitResults[6+nParams]);
+	      vals.push_back(fitResults[7+nParams]*fitResults[7+nParams]);
+	      vals.push_back(fitResults[8+nParams]*fitResults[8+nParams]);
+	      vals.push_back(fabs(fitResults[2+nParams]));
+	      vals.push_back(0.0);
+	      vals.push_back(0.0);
+	      vals.push_back(fabs(fitResults[0+nParams]));
+	      vals.push_back(fabs(fitResults[1+nParams]));
 	    }
-	  else
-	    {
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
-	      vals.push_back(0.0);
-	    }
+	  else for (unsigned int i = 0; i < 8*2; i++) vals.push_back(0.0);
 
 	  fitResults.clear();
 	}
@@ -554,11 +551,20 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  vals.push_back(Vx_X->getTH1F()->GetMean());
 	  vals.push_back(Vx_Y->getTH1F()->GetMean());
 	  vals.push_back(Vx_Z->getTH1F()->GetMean());
-	  vals.push_back(Vx_X->getTH1F()->GetRMS());
-	  vals.push_back(Vx_Y->getTH1F()->GetRMS());
 	  vals.push_back(Vx_Z->getTH1F()->GetRMS());
 	  vals.push_back(0.);
 	  vals.push_back(0.);
+	  vals.push_back(Vx_X->getTH1F()->GetRMS());
+	  vals.push_back(Vx_Y->getTH1F()->GetRMS());
+
+	  vals.push_back(Vx_X->getTH1F()->GetMeanError()*Vx_X->getTH1F()->GetMeanError());
+	  vals.push_back(Vx_Y->getTH1F()->GetMeanError()*Vx_Y->getTH1F()->GetMeanError());
+	  vals.push_back(Vx_Z->getTH1F()->GetMeanError()*Vx_Z->getTH1F()->GetMeanError());
+	  vals.push_back(Vx_Z->getTH1F()->GetRMSError()*Vx_Z->getTH1F()->GetRMSError());
+	  vals.push_back(0.);
+	  vals.push_back(0.);
+	  vals.push_back(Vx_X->getTH1F()->GetRMSError()*Vx_X->getTH1F()->GetRMSError());
+	  vals.push_back(Vx_Y->getTH1F()->GetRMSError()*Vx_Y->getTH1F()->GetRMSError());
 	}
 
       if (goodData == 0)
