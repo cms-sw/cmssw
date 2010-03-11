@@ -85,14 +85,17 @@ void TrackingAction::PostUserTrackingAction(const G4Track * aTrack)
           currentTrack_->checkAtEnd(aTrack);  // check with end-of-track information
           eventAction_->addTrack(currentTrack_, true, withAncestor);
 #ifdef DebugLog
-	  LogDebug("SimTrackManager") << "TrackingAction addTrack "  << currentTrack_->trackID() << " saved with " << true << " and " << withAncestor;
+	  math::XYZVectorD pos((aTrack->GetStep()->GetPostStepPoint()->GetPosition()).x(),
+			       (aTrack->GetStep()->GetPostStepPoint()->GetPosition()).y(),
+			       (aTrack->GetStep()->GetPostStepPoint()->GetPosition()).z());
+	  LogDebug("SimTrackManager") << "TrackingAction addTrack "  << currentTrack_->trackID() << " added with " << true << " and " << withAncestor << " at " << pos;
 #endif
         }
       else
         {
           eventAction_->addTrack(currentTrack_, false, false);
 #ifdef DebugLog
-	  LogDebug("SimTrackManager") << "TrackingAction addTrack " << currentTrack_->trackID() << " saved with " << false << " and " << false;
+	  LogDebug("SimTrackManager") << "TrackingAction addTrack " << currentTrack_->trackID() << " added with " << false << " and " << false;
 #endif
           delete currentTrack_;
         }

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.18 2009/03/12 10:14:16 fabiocos Exp $
+// $Id: SimTrackManager.cc,v 1.19 2009/06/10 08:20:27 fabiocos Exp $
 //
 
 // system include files
@@ -101,14 +101,16 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory * trkWHist)
   
   TrackContainer::const_iterator tk_itr = std::lower_bound((*m_trksForThisEvent).begin(),(*m_trksForThisEvent).end(),
                                                            parent,SimTrackManager::StrictWeakOrdering());
-  TrackWithHistory * tempTk = new TrackWithHistory(**tk_itr);
+
+  TrackWithHistory * tempTk = *tk_itr;
+  //  TrackWithHistory * tempTk = new TrackWithHistory(**tk_itr);
   if (tk_itr!=m_trksForThisEvent->end() && (*tk_itr)->trackID()==parent) { 
     parentExists=true;  
   }
   
   if (parentExists) saveTrackAndItsBranch(tempTk);
   
-  delete tempTk;
+  //  delete tempTk;
   
 }
 
@@ -275,17 +277,24 @@ void SimTrackManager::cleanTracksWithHistory(){
                                   << " status " << (*m_trksForThisEvent)[it]->saved();
 #endif  
 
-  unsigned int num = lastTrack;
   for (unsigned int it = lastTrack; it < m_trksForThisEvent->size(); it++)
     {
       TrackWithHistory * t = (*m_trksForThisEvent)[it];
       if (t->saved()) saveTrackAndItsBranch(t);
+    }
+  unsigned int num = lastTrack;
+  for (unsigned int it = lastTrack; it < m_trksForThisEvent->size(); it++)
+    {
+      TrackWithHistory * t = (*m_trksForThisEvent)[it];
       int g4ID = t->trackID();
       if (t->saved() == true)
         {
           if (it>num) (*m_trksForThisEvent)[num] = t;
           num++;
-          for (unsigned int itr=0; itr<idsave.size(); itr++) { if ((idsave[itr]).first == g4ID) { (idsave[itr]).second = g4ID; break; } }
+	  for (unsigned int itr=0; itr<idsave.size(); itr++) { 
+	    if ((idsave[itr]).first == g4ID) { 
+	      (idsave[itr]).second = g4ID; break; } 
+	  }
         }
       else 
         {	

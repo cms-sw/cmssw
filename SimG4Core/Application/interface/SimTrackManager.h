@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.11 2009/03/12 10:14:15 fabiocos Exp $
+// $Id: SimTrackManager.h,v 1.12 2009/06/10 08:20:27 fabiocos Exp $
 //
 
 // system include files
@@ -85,7 +85,17 @@ public:
   int giveMotherNeeded(int i) const { 
     int theResult = 0;
     for (unsigned int itr=0; itr<idsave.size(); itr++) { if ((idsave[itr]).first == i) { theResult = (idsave[itr]).second; break; } }
-    return theResult ; }
+    return theResult ; 
+  }
+  bool trackExists(unsigned int i) const {
+    bool flag = false;
+    for (unsigned int itr=0; itr<(*m_trksForThisEvent).size(); ++itr) {
+      if ((*m_trksForThisEvent)[itr]->trackID() == i) {
+	flag = true; break;
+      }
+    }
+    return flag;
+  }
   void cleanTracksWithHistory();
   void setLHCTransportLink( const edm::LHCTransportLinkContainer * thisLHCTlink ) { theLHCTlink = thisLHCTlink; }
 

@@ -7,6 +7,8 @@
 
 #include "G4Track.hh"
 
+//#define DebugLog
+
 NewTrackAction::NewTrackAction() {}
 
 void NewTrackAction::primary(const G4Track * aTrack) const {
@@ -27,6 +29,9 @@ void NewTrackAction::secondary(G4Track * aSecondary,const G4Track & mother, int 
   TrackInformationExtractor extractor;
   const TrackInformation & motherInfo(extractor(mother));
   addUserInfoToSecondary(aSecondary,motherInfo,flag);
+#ifdef DebugLog
+  LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother " << mother.GetTrackID();
+#endif
 }
 
 void NewTrackAction::addUserInfoToPrimary(G4Track * aTrack) const {
