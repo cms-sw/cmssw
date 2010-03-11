@@ -1,5 +1,20 @@
 // -*- C++ -*-
-// $Id: FWSiStrip3DProxyBuilder.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
+//
+// Package:     Core
+// Class  :     FWSiStripClusterRPZProxyBuilder
+//
+/**\class FWSiStripClusterRPZProxyBuilder FWSiStripClusterRPZProxyBuilder.h Fireworks/Core/interface/FWSiStripClusterRPZProxyBuilder.h
+
+   Description: <one line class summary>
+
+   Usage:
+    <usage>
+
+ */
+//
+// Original Author:
+//         Created:  Thu Dec  6 18:01:21 PST 2007
+// $Id: FWSiStripClusterRPZProxyBuilder.cc,v 1.1.2.1 2010/03/03 10:02:13 mccauley Exp $
 //
 
 // system include files
@@ -10,33 +25,35 @@
 
 // user include files
 #include "Fireworks/Tracks/interface/TrackUtils.h"
-#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
+
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
-
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-class FWSiStrip3DProxyBuilder : public FW3DDataProxyBuilder
+class FWSiStripClusterRPZProxyBuilder : public FWRPZDataProxyBuilder
 {
+
 public:
-   FWSiStrip3DProxyBuilder() {
+   FWSiStripClusterRPZProxyBuilder() {
    }
-   virtual ~FWSiStrip3DProxyBuilder() {
+   virtual ~FWSiStripClusterRPZProxyBuilder() {
    }
    REGISTER_PROXYBUILDER_METHODS();
 private:
    virtual void build(const FWEventItem* iItem, TEveElementList** product);
-   FWSiStrip3DProxyBuilder(const FWSiStrip3DProxyBuilder&);    // stop default
-   const FWSiStrip3DProxyBuilder& operator=(const FWSiStrip3DProxyBuilder&);    // stop default
+
+   FWSiStripClusterRPZProxyBuilder(const FWSiStripClusterRPZProxyBuilder&);    // stop default
+
+   const FWSiStripClusterRPZProxyBuilder& operator=(const FWSiStripClusterRPZProxyBuilder&);    // stop default
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
    void applyChangesToAllModels(TEveElement* iElements);
 };
 
-
-void FWSiStrip3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiStripClusterRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -80,37 +97,37 @@ void FWSiStrip3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
             list->AddElement(shape);
          }
       }
+
       gEve->AddElement(list,tList);
 /////////////////////////////////////////////////////	   
 //LatB
-	   static int C2D=1;
+	   static int C2D=0;
 	   static int PRINT=0;
 	   if (C2D) {
-			if (PRINT) std::cout<<"SiStripCluster  "<<index<<", "<<title<<std::endl;
-			TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
-			for(edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
-				short fs = (*ic).firstStrip ();
-				double bc = (*ic).barycenter();
-				TVector3 point, pointA, pointB; fireworks::localSiStrip(point, pointA, pointB, bc, id, iItem);
-				if (PRINT) std::cout<<"SiStripCluster first strip "<<fs<<", bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
-				scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
-				scposition->SetLineColor(kRed);
-			}
-			gEve->AddElement(scposition,tList);
+		   if (PRINT) std::cout<<"SiStripCluster  "<<index<<", "<<title<<std::endl;
+		   TEveStraightLineSet *scposition = new TEveStraightLineSet(title);
+		   for(edmNew::DetSet<SiStripCluster>::const_iterator ic = set->begin (); ic != set->end (); ++ic) { 
+			   short fs = (*ic).firstStrip ();
+			   double bc = (*ic).barycenter();
+			   TVector3 point, pointA, pointB; fireworks::localSiStrip(point, pointA, pointB, bc, id, iItem);
+			   if (PRINT) std::cout<<"SiStripCluster first strip "<<fs<<", bary center "<<bc<<", phi "<<point.Phi()<<std::endl;
+			   scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), pointB.X(), pointB.Y(), pointB.Z());
+			   scposition->SetLineColor(kRed);
+		   }
+		   gEve->AddElement(scposition,tList);
 	   }
 /////////////////////////////////////////////////////	   
-	   
    }
 }
 
 void
-FWSiStrip3DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiStripClusterRPZProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-FWSiStrip3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiStripClusterRPZProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
@@ -121,5 +138,4 @@ FWSiStrip3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
       iElements->ElementChanged();
    }
 }
-
-REGISTER_FW3DDATAPROXYBUILDER(FWSiStrip3DProxyBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWSiStripClusterRPZProxyBuilder,edmNew::DetSetVector<SiStripCluster>,"SiStrip");

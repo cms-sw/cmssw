@@ -2,7 +2,7 @@
 // $Id: TracksRecHitsUtil.cc,v 1.2 2009/01/16 10:37:00 amraktad
 //
 
-#include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
+#include "Fireworks/Tracks/interface/TracksRecHitsUtil.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "TEveManager.h"

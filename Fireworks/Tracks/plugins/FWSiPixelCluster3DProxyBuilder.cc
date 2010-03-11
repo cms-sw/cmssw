@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixel3DProxyBuilder.cc,v 1.5 2009/12/11 08:02:51 latb Exp $
+// $Id: FWSiPixelCluster3DProxyBuilder.cc,v 1.1.2.1 2010/03/03 10:02:36 mccauley Exp $
 //
 
 // system include files
@@ -34,18 +34,18 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
-class FWSiPixel3DProxyBuilder : public FW3DDataProxyBuilder
+class FWSiPixelCluster3DProxyBuilder : public FW3DDataProxyBuilder
 {
 public:
-   FWSiPixel3DProxyBuilder() {
+   FWSiPixelCluster3DProxyBuilder() {
    }
-   virtual ~FWSiPixel3DProxyBuilder() {
+   virtual ~FWSiPixelCluster3DProxyBuilder() {
    }
    REGISTER_PROXYBUILDER_METHODS();
 private:
    virtual void build(const FWEventItem* iItem, TEveElementList** product);
-   FWSiPixel3DProxyBuilder(const FWSiPixel3DProxyBuilder&);    // stop default
-   const FWSiPixel3DProxyBuilder& operator=(const FWSiPixel3DProxyBuilder&);    // stop default
+   FWSiPixelCluster3DProxyBuilder(const FWSiPixelCluster3DProxyBuilder&);    // stop default
+   const FWSiPixelCluster3DProxyBuilder& operator=(const FWSiPixelCluster3DProxyBuilder&);    // stop default
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
    void applyChangesToAllModels(TEveElement* iElements);
 
@@ -54,7 +54,7 @@ protected:
    virtual Mode getMode() { return Clusters; }
 };
 
-void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiPixelCluster3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
    Color_t color = iItem->defaultDisplayProperties().color();
@@ -136,13 +136,13 @@ void FWSiPixel3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
 }
 
 void
-FWSiPixel3DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiPixelCluster3DProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-FWSiPixel3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiPixelCluster3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
@@ -154,14 +154,14 @@ FWSiPixel3DProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-class FWSiPixelMod3DProxyBuilder : public FWSiPixel3DProxyBuilder {
+class FWSiPixelClusterMod3DProxyBuilder : public FWSiPixelCluster3DProxyBuilder {
 public:
-   FWSiPixelMod3DProxyBuilder() {}
-    ~FWSiPixelMod3DProxyBuilder() {}
+   FWSiPixelClusterMod3DProxyBuilder() {}
+    ~FWSiPixelClusterMod3DProxyBuilder() {}
    REGISTER_PROXYBUILDER_METHODS();
 protected:
     virtual Mode getMode() { return Modules; }
 };
 
-REGISTER_FW3DDATAPROXYBUILDER(FWSiPixel3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");
-REGISTER_FW3DDATAPROXYBUILDER(FWSiPixelMod3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets");
+REGISTER_FW3DDATAPROXYBUILDER(FWSiPixelCluster3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");
+REGISTER_FW3DDATAPROXYBUILDER(FWSiPixelClusterMod3DProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets");

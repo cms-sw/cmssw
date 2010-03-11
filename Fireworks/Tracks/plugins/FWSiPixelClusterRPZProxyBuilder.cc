@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:     Core
-// Class  :     FWSiPixeRPZProxyBuilder
+// Class  :     FWSiPixeClusterRPZProxyBuilder
 //
-/**\class FWSiPixeRPZProxyBuilder FWSiPixeRPZProxyBuilder.h Fireworks/Core/interface/FWSiPixeRPZProxyBuilder.h
+/**\class FWSiPixelClusterRPZProxyBuilder FWSiPixelClusterRPZProxyBuilder.h Fireworks/Core/interface/FWSiPixelClusterRPZProxyBuilder.h
 
    Description: <one line class summary>
 
@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelRPZProxyBuilder.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
+// $Id: FWSiPixelClusterRPZProxyBuilder.cc,v 1.1.2.1 2010/03/03 10:02:36 mccauley Exp $
 //
 
 // system include files
@@ -32,20 +32,20 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
-class FWSiPixeRPZProxyBuilder : public FWRPZDataProxyBuilder
+class FWSiPixelClusterRPZProxyBuilder : public FWRPZDataProxyBuilder
 {
 public:
-   FWSiPixeRPZProxyBuilder() {
+   FWSiPixelClusterRPZProxyBuilder() {
    }
-   virtual ~FWSiPixeRPZProxyBuilder() {
+   virtual ~FWSiPixelClusterRPZProxyBuilder() {
    }
    REGISTER_PROXYBUILDER_METHODS();
 private:
    virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
-   FWSiPixeRPZProxyBuilder(const FWSiPixeRPZProxyBuilder&);    // stop default
+   FWSiPixelClusterRPZProxyBuilder(const FWSiPixelClusterRPZProxyBuilder&);    // stop default
 
-   const FWSiPixeRPZProxyBuilder& operator=(const FWSiPixeRPZProxyBuilder&);    // stop default
+   const FWSiPixelClusterRPZProxyBuilder& operator=(const FWSiPixelClusterRPZProxyBuilder&);    // stop default
 
    void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
    void applyChangesToAllModels(TEveElement* iElements);
@@ -55,7 +55,7 @@ protected:
    virtual Mode getMode() { return Clusters; }
 };
 
-void FWSiPixeRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+void FWSiPixelClusterRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
    Color_t color = iItem->defaultDisplayProperties().color();
@@ -115,13 +115,13 @@ void FWSiPixeRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
 }
 
 void
-FWSiPixeRPZProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+FWSiPixelClusterRPZProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    applyChangesToAllModels(iElements);
 }
 
 void
-FWSiPixeRPZProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+FWSiPixelClusterRPZProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
 {
    if(0!=iElements && item() && item()->size()) {
       //make the bad assumption that everything is being changed indentically
@@ -133,14 +133,14 @@ FWSiPixeRPZProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
    }
 }
 
-class FWSiPixeModRPZProxyBuilder : public FWSiPixeRPZProxyBuilder {
+class FWSiPixelClusterModRPZProxyBuilder : public FWSiPixelClusterRPZProxyBuilder {
 public:
-    FWSiPixeModRPZProxyBuilder() {}
-    ~FWSiPixeModRPZProxyBuilder() {}
+    FWSiPixelClusterModRPZProxyBuilder() {}
+    ~FWSiPixelClusterModRPZProxyBuilder() {}
    REGISTER_PROXYBUILDER_METHODS();
 protected:
     virtual Mode getMode() { return Modules; }
 };
 
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWSiPixeRPZProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");
-REGISTER_FWRPZDATAPROXYBUILDERBASE(FWSiPixeModRPZProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWSiPixelClusterRPZProxyBuilder,SiPixelClusterCollectionNew,"SiPixel");
+REGISTER_FWRPZDATAPROXYBUILDERBASE(FWSiPixelClusterModRPZProxyBuilder,SiPixelClusterCollectionNew,"SiPixelDets");

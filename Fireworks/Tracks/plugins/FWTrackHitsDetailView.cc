@@ -34,7 +34,7 @@
 #include "Fireworks/Core/interface/FWMagField.h"
 
 #include "Fireworks/Tracks/plugins/FWTrackHitsDetailView.h"
-#include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
+#include "Fireworks/Tracks/interface/TracksRecHitsUtil.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ():

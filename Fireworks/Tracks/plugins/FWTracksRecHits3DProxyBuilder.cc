@@ -4,7 +4,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
-#include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
+#include "Fireworks/Tracks/interface/TracksRecHitsUtil.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
