@@ -47,7 +47,7 @@ class RunPromptReco:
         if self.writeReco:
             dataTiers.append("RECO")
             print "Configuring to Write out Reco..."
-        if self.writeAlca:
+        if self.writeAlcareco:
             dataTiers.append("ALCARECO")
             print "Configuring to Write out Alca..."
         if self.writeAod:
@@ -75,7 +75,7 @@ class RunPromptReco:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "alca", "aod",
+    valid = ["scenario=", "reco", "alcareco", "aod",
              "global-tag=", "lfn="]
     usage = """RunPromptReco.py <options>"""
     try:
@@ -93,8 +93,8 @@ if __name__ == '__main__':
             recoinator.scenario = arg
         if opt == "--reco":
             recoinator.writeReco = True
-        if opt == "--alca":
-            recoinator.writeAlca = True
+        if opt == "--alcareco":
+            recoinator.writeAlcareco = True
         if opt == "--aod":
             recoinator.writeAod = True
         if opt == "--global-tag":
