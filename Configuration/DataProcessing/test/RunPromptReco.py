@@ -48,7 +48,7 @@ class RunPromptReco:
             dataTiers.append("RECO")
             print "Configuring to Write out Reco..."
         if self.writeAlca:
-            dataTiers.append("ALCA")
+            dataTiers.append("ALCARECO")
             print "Configuring to Write out Alca..."
         if self.writeAod:
             dataTiers.append("AOD")

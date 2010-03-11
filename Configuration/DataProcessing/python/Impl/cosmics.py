@@ -28,7 +28,7 @@ class cosmics(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO','ALCA']):
+    def promptReco(self, globalTag, writeTiers = ['RECO','ALCARECO']):
         """
         _promptReco_
 
@@ -65,7 +65,7 @@ class cosmics(Scenario):
         cb.prepare()
 
         for tier in writeTiers: 
-          addOutputModule(process, tier, "RECO")        
+          addOutputModule(process, tier, tier)        
  
         return process
 
