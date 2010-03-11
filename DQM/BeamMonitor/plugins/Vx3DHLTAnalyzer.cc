@@ -76,37 +76,28 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
   Handle<VertexCollection> Vx3DCollection;
   iEvent.getByLabel(vertexCollection,Vx3DCollection);
 
-  if ((runNumber != iEvent.id().run()) && (outputFile.is_open() == true))
+  if (runNumber != iEvent.id().run())
     {
-      outputFile.close();
-      if (debugMode == true) outputDebugFile.close();      
       reset();
+      runNumber = iEvent.id().run();
+
+      if (debugMode == true)
+	{
+	  stringstream debugFile;
+      
+	  if (outputDebugFile.is_open() == true) outputDebugFile.close();
+	  debugFile << fileName;
+	  debugFile.str()[strlen(fileName.c_str())-1] = '\0';
+	  debugFile.str()[strlen(fileName.c_str())-2] = '\0';
+	  debugFile.str()[strlen(fileName.c_str())-3] = '\0';
+	  debugFile.str()[strlen(fileName.c_str())-4] = '\0';
+	  debugFile << "_" << iEvent.id().run() << ".txt";
+	  cout << debugFile.str().c_str() << endl;
+	  outputDebugFile.open(debugFile.str().c_str(), ios::app);
+	}
     }
   else if (beginTimeOfFit != 0)
     {
-      stringstream debugFile;
-
-      if (runNumber != iEvent.id().run())
-	{
-	  outputFile.open(fileName.c_str(), ios::out);
-
-	  if (debugMode == true)
-	    {
-	      debugFile << fileName;
-	      debugFile.str()[strlen(fileName.c_str())-1] = '\0';
-	      debugFile.str()[strlen(fileName.c_str())-2] = '\0';
-	      debugFile.str()[strlen(fileName.c_str())-3] = '\0';
-	      debugFile.str()[strlen(fileName.c_str())-4] = '\0';
-	      debugFile << "_" << iEvent.id().run() << ".txt";
-	      cout << debugFile.str().c_str() << endl;
-	      outputDebugFile.open(debugFile.str().c_str(), ios::out);
-	      outputDebugFile.close();
-	      outputDebugFile.open(debugFile.str().c_str(), ios::app);
-	    }
-	  
-	  runNumber = iEvent.id().run();
-	}
-
       for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 	
 	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false))
@@ -327,7 +318,9 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 {
   stringstream BufferString;
   BufferString.precision(5);
-  
+
+  outputFile.open(fileName.c_str(), ios::out);
+
   if ((outputFile.is_open() == true) && (vals != NULL) && (vals->size() == 8))
     {
       vector<double>::const_iterator it = vals->begin();
@@ -384,6 +377,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       outputFile << "EmittanceY 0.0" << endl;
       outputFile << "BetaStar 0.0" << endl;
     }
+  outputFile.close();
 
   if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != NULL) && (vals->size() == 8))
     {
