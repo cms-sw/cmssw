@@ -1,5 +1,5 @@
 //
-//  File: BeamSpotDipServer.java   (W.Badgett, G.Y.Jeng)
+//  File: BeamPixelDipServer.java   (W.Badgett, G.Y.Jeng)
 //
 
 package cms.dip.tracker.beamspot;
@@ -10,21 +10,24 @@ import java.util.Random;
 import java.io.*;
 import java.text.*;
 import java.util.Date;
+import java.util.BitSet;
 
 public class BeamPixelDipServer
 extends Thread
 implements Runnable,DipPublicationErrorHandler
 {
+  public final static boolean appendRcd = false; //if true, appending latest results
   public final static boolean overwriteQuality = true; //if true, change quality to qualities[0]
   public final static boolean publishStatErrors = false;
   public final static String subjectCMS = "dip/CMS/Tracker/BeamPixel";
   public final static String subjectLHC = "dip/CMS/LHCTEST/LuminousRegion";
   public final static String sourceFile = "/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt";
-  public final static int msPerLS = 23000; // ms
+  public final static int secPerLS = 23;
   public final static int rad2urad = 1000000;
   public final static int cm2um = 10000;
   public final static int cm2mm = 10;
   public final static String[] qualities = {"Uncertain","Bad","Good"};
+  public final static int[] idleLS = {5,10}; //LumiSections
 
   DipFactory dip;
   DipData messageCMS;
@@ -60,11 +63,13 @@ implements Runnable,DipPublicationErrorHandler
   boolean keepRunning;
   Random random = new Random((long)0xadeadcdf);
   long lastFitTime = 0;
-  int lastLine = 0;
+  BitSet alive = new BitSet(8);
+  int idleTime = 0;
 
   public void handleException(DipPublication publication,
 			      DipException e)
   {
+    System.out.println("handleException: " + getDateTime());
     System.out.println("Error handler for " + 
 		       publication.getTopicName() + 
 		       " called because " + e.getMessage());
@@ -79,6 +84,7 @@ implements Runnable,DipPublicationErrorHandler
     {
       dip = Dip.create("CmsBeamPixel_"+now.getTime());
 
+      System.out.println("Server Started at " + getDateTime());
       System.out.println("Making publication " + subjectCMS);
       publicationCMS = dip.createDipPublication(subjectCMS, this);
       messageCMS = dip.createDipData();
@@ -91,6 +97,7 @@ implements Runnable,DipPublicationErrorHandler
     }
     catch ( DipException e )
     {
+      System.err.println("DipException: " + getDateTime());
       keepRunning = false;
     }
 
@@ -100,47 +107,68 @@ implements Runnable,DipPublicationErrorHandler
     {
       File logFile = new File(sourceFile);
       logFile.createNewFile();
-      String commands = "chmod a+w " + sourceFile;
-      Process proc1 = Runtime.getRuntime().exec(commands);
-      RandomAccessFile myFile = new RandomAccessFile(logFile,"r");
       long filePointer = logFile.length();
+      RandomAccessFile myFile;
 
       while (keepRunning)
       {
 	try
 	{
-	  logFile.createNewFile();
-	  proc1 = Runtime.getRuntime().exec(commands);
+	  if (logFile.createNewFile()) {
+	      String commands = "chmod a+w " + sourceFile;
+	      Process proc1 = Runtime.getRuntime().exec(commands);
+	  }
+	  myFile = new RandomAccessFile(logFile,"r");
 	  long fileLength = logFile.length();
 
 	  if (fileLength < filePointer) {
-	      System.err.println("New Run Started");
-	      myFile = new RandomAccessFile( logFile, "r" );
+	      System.out.println("New Run Started");
 	      filePointer = 0;
 	      lsCount = 0;
+	      myFile.close();
 	      continue;
 	  }
 	  else if (fileLength == filePointer) {
+	      myFile.close();
 	      if (lsCount%60 == 0)
 		  System.out.println("Waiting for data...");
-	      try { Thread.sleep(msPerLS/23); }
+	      try { Thread.sleep(1000); }//every sec
 	      catch(InterruptedException e) {
+		  System.err.println("InterruptedException: " + getDateTime());
+		  e.printStackTrace();
 		  keepRunning = false;
 	      }
 	      lsCount++;
-	      if (lsCount%300 == 0) {
-		  fakeRcd();
-		  publishRcd("Bad","No record available",false,false);
+	      idleTime++;
+	      if ((lsCount < idleLS[1]*secPerLS) && (lsCount%(idleLS[0]*secPerLS) == 0)) {//fist time out
+		  if (!alive.get(1)) alive.flip(1);
+		  if(!alive.get(7)) fakeRcd();
+		  else trueRcd();
+		  if(!alive.get(2)) publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
+		  else publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+	      }
+	      else if (lsCount%(idleLS[1]*secPerLS) == 0) {//second time out
+		  if (!alive.get(2)) alive.flip(2);
+		  if(!alive.get(7)) fakeRcd();
+		  else trueRcd();
+		  publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+		  lsCount = 0;
 	      }
 	      continue;
 	  }
 	  else {
 	      System.out.println("Read new record from " + sourceFile);
-	      filePointer = readRcd(myFile,filePointer);
+	      if (appendRcd) filePointer = readRcd(myFile,filePointer);
+	      else filePointer = readRcd(myFile,0);
 	      trueRcd();
+	      myFile.close();
 	      lsCount = 0;
+	      idleTime = 0;
+	      alive.clear();
+	      alive.flip(7);
 	  }
 	} catch (Exception e){
+	    System.err.println("Exception: " + getDateTime());
 	    e.printStackTrace();
 	}
 	if (overwriteQuality) publishRcd(qualities[0],"Testing",true,true);
@@ -148,11 +176,12 @@ implements Runnable,DipPublicationErrorHandler
 	else publishRcd(quality,"",true,true);
       }
     } catch (IOException e) {
+	System.err.println("IOException: " + getDateTime());
 	e.printStackTrace();
     };
   }
 
-  public long readRcd(RandomAccessFile file_, long filePointer_)
+  private long readRcd(RandomAccessFile file_, long filePointer_)
   {
     int nthLnInRcd = 0;
     String record = new String();
@@ -168,7 +197,7 @@ implements Runnable,DipPublicationErrorHandler
 	case 1:
 	    if (!record.startsWith("Run")){
 		System.out.println("BeamFitResults text file may be corrupted.");
-		System.out.println("Stopping BeamSpot DIP Server!");
+		System.out.println("Stopping BeamPixel DIP Server!");
 		System.exit(0);
 	    }
 	    runnum = new Integer(tmp[1]);
@@ -256,12 +285,13 @@ implements Runnable,DipPublicationErrorHandler
       filePointer_ = file_.getFilePointer();
     }
     catch (IOException e) {
+	System.err.println("IOException: " + getDateTime());
 	e.printStackTrace();
     }
     return filePointer_;
   }
 
-  public void trueRcd()
+  private void trueRcd()
   {
    try
    {
@@ -304,12 +334,13 @@ implements Runnable,DipPublicationErrorHandler
      messageLHC.insert("Centroid",Centroid);
      messageLHC.insert("Tilt",Tilt);
    } catch (DipException e){
-       System.out.println("Failed to send data because " + e.getMessage());
+       System.err.println("DipException: " + getDateTime());
+       System.err.println("Failed to send data because " + e.getMessage());
        e.printStackTrace();
    }
   }
 
-  public void fakeRcd()
+  private void fakeRcd()
   {
    try
    {
@@ -328,12 +359,13 @@ implements Runnable,DipPublicationErrorHandler
      messageLHC.insert("Centroid",Centroid);
      messageLHC.insert("Tilt",Tilt);
    } catch (DipException e){
-       System.out.println("Failed to send data because " + e.getMessage());
+       System.err.println("DipException: " + getDateTime());
+       System.err.println("Failed to send data because " + e.getMessage());
        e.printStackTrace();
    }
   }
 
-  public void publishRcd(String qlty_,String err_, boolean pubCMS_, boolean fitTime_)
+  private void publishRcd(String qlty_,String err_, boolean pubCMS_, boolean fitTime_)
   {
    try
    {
@@ -350,7 +382,8 @@ implements Runnable,DipPublicationErrorHandler
       if(pubCMS_) publicationCMS.send(messageCMS, zeit);
       publicationLHC.send(messageLHC, zeit);
      } catch (ParseException e) {
-	 System.out.println("Publishing failed due to time parsing because " + e.getMessage());
+	 System.err.println("ParseException: " + getDateTime());
+	 System.err.println("Publishing failed due to time parsing because " + e.getMessage());
 	 e.printStackTrace();
      }
 
@@ -363,11 +396,18 @@ implements Runnable,DipPublicationErrorHandler
 	  publicationLHC.setQualityBad(err_);
       }
    } catch (DipException e){
-       System.out.println("Failed to send data because " + e.getMessage());
+       System.err.println("DipException: " + getDateTime());
+       System.err.println("Failed to send data because " + e.getMessage());
        e.printStackTrace();
    }
   }
 
+  private String getDateTime()
+  {
+    DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+    Date date = new Date();
+    return dateFormat.format(date);
+  }
 
   public static void main(String args[])
   {
