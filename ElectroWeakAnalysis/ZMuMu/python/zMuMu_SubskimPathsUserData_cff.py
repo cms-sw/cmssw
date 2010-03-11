@@ -5,9 +5,9 @@ from ElectroWeakAnalysis.Skimming.patCandidatesForZMuMuSubskim_cff import *
 from ElectroWeakAnalysis.ZMuMu.zMuMuMuonUserData import *
 from ElectroWeakAnalysis.ZMuMu.dimuonsUserData_cfi import *
 from ElectroWeakAnalysis.ZMuMu.dimuonsOneTrackUserData_cfi import *
-from ElectroWeakAnalysis.Skimming.dimuonsGlobal_cfi import *
+from ElectroWeakAnalysis.ZMuMu.dimuonsGlobal_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneStandAloneMuon_cfi import *
-from ElectroWeakAnalysis.Skimming.dimuonsFilter_cfi import *
+from ElectroWeakAnalysis.ZMuMu.dimuonsFilter_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrackFilter_cfi import *
 
 dimuonsPath = cms.Path(
@@ -15,6 +15,7 @@ dimuonsPath = cms.Path(
     goodMuonRecoForDimuon *
     userDataMuons*
     dimuons *
+    userDataDimuons*
     dimuonsGlobal *
     dimuonsOneStandAloneMuon *
     dimuonsFilter    
