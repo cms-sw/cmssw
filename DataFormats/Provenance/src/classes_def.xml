@@ -86,4 +86,9 @@
  <class name="ROOT::TSchemaHelper"/>
  <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
+ 
+ <class name="ConditionsInEventBlock"/>
+ <class name="ConditionsInRunBlock"/>
+ <class name="ConditionsInLumiBlock"/>
+
 </lcgdict>

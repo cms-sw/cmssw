@@ -50,6 +50,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
+#include "DataFormats/Provenance/interface/ConditionsInEdm.h"
 
 namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
@@ -90,5 +91,12 @@ namespace {
   std::vector<edm::RunLumiEntryInfo> dummyVectorRunLumiEntryInfo;
 
   std::pair<edm::ModuleDescriptionID, edm::ModuleDescription> dummyPairMod;
+
+  ConditionsInLumiBlock dum1;
+    //  edm::Wrapper<ConditionsInLumiBlock> dum11;
+  ConditionsInRunBlock dum2;
+    //  edm::Wrapper<ConditionsInRunBlock> dum21;
+  ConditionsInEventBlock dum3;
+    //  edm::Wrapper<ConditionsInEventBlock> dum31;
 };
 }

@@ -20,3 +20,7 @@ DEFINE_FWK_MODULE(L1GtTextToRaw);
 DEFINE_FWK_MODULE(L1GTEvmDigiToRaw);
 DEFINE_FWK_MODULE(L1GlobalTriggerEvmRawToDigi);
 DEFINE_FWK_MODULE(L1GlobalTriggerRecordProducer);
+
+#include "EventFilter/L1GlobalTriggerRawToDigi/interface/ConditionDumperInEdm.h"
+
+DEFINE_FWK_MODULE(ConditionDumperInEdm);
