@@ -31,6 +31,7 @@ void fitSlices(TH2*, TF1*);
 static bool onlySaveTable = false;
 static const int nbinsMax = 40;
 static bool doTrigger = true;
+static int trigNum = 1; // 6 for Hydjet 2.8 TeV sample
 
 using namespace std;
 bool descend(float i,float j) { return (i<j); }
@@ -41,21 +42,21 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
    double MXS = 1. - EFF;
   int nFiles = 1;
   vector<string> fileNames;
-  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_d20100222/Hydjet_MinBias_4TeV_runs1to300.root");
+  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_4TeV_d20100305/Hydjet_MinBias_4TeV_runs1to500.root");
   fwlite::Event event(infile);
   vector<int> runnums;
 
   // Retrieving data
   // Creating output table
   TFile * centFile = new TFile("../data/CentralityTables.root","update");
-   TDirectory* dir = centFile->mkdir(datatag);
-   dir->cd();
+  TH1* hEff = (TH1*)centFile->Get(Form("%s/hEff",mctag));
+  TDirectory* dir = centFile->mkdir(datatag);
+  dir->cd();
 
   TH1D::SetDefaultSumw2();
   int runMC = 1;
   CentralityBins::RunMap HFhitBinMap = getCentralityFromFile(centFile,mctag,runMC - 1,runMC + 1);
   nbins = HFhitBinMap[runMC]->getNbins();
-
   CentralityBins* bins = new CentralityBins("noname","Test tag", nbins);
   bins->table_.reserve(nbins);
 
@@ -73,25 +74,21 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
     ev.getByLabel(edm::InputTag("heavyIon"),mc);
     edm::Handle<reco::Centrality> cent;
     ev.getByLabel(edm::InputTag("hiCentrality"),cent);
-
     edm::Handle<edm::TriggerResults> trig;
     ev.getByLabel(edm::InputTag("TriggerResults","","HLT"),trig);
 
-    bool t = trig->at(6).accept();
+    bool t = trig->at(trigNum).accept();
     if(doTrigger && !t) continue;
-
     double b = mc->b();
     double npart = mc->Npart();
     double ncoll = mc->Ncoll();
     double nhard = mc->Nhard();
-
     double hf = cent->EtHFhitSum();
     double hftp = cent->EtHFtowerSumPlus();
     double hftm = cent->EtHFtowerSumMinus();
     double eb = cent->EtEBSum();
     double eep = cent->EtEESumPlus();
     double eem = cent->EtEESumMinus();
-
     double parameter = 0;
     if(label.compare("npart") == 0) parameter = npart;
     if(label.compare("ncoll") == 0) parameter = ncoll;
@@ -101,9 +98,7 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
     if(label.compare("hft") == 0) parameter = hftp + hftm;
     if(label.compare("eb") == 0) parameter = eb;
     if(label.compare("ee") == 0) parameter = eep+eem;
-
     values.push_back(parameter);
-    
     int run = event.id().run();
     if(runnums.size() == 0 || runnums[runnums.size()-1] != run) runnums.push_back(run);
   }
@@ -118,34 +113,33 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
   cout<<label.data()<<" based cuts are : "<<endl;
   cout<<"(";
 
-  int bin = 0;
+  double integral = 0;
+  int currentbin = 0;
+  for(int iv = 0; iv < events && currentbin < nbins; ++iv){
+     cout<<"a"<<endl;
+     double val = values[iv];  
+     cout<<"b"<<endl;
 
-  cout<<"events : "<<events<<endl;
+     integral += val / hEff->GetBinContent(hEff->FindBin(val));
+     cout<<"c"<<endl;
 
-  for(int i = 0; i< nbins; ++i){
-     // Find the boundary 
+     if(integral > (int)(currentbin*(events/nbins))){
+	cout<<"d"<<endl;
 
-     cout<<"bin : "<<i<<endl;
-     double xsec = events/EFF;
-     int offset = (int)(MXS*xsec);
+	binboundaries[currentbin] = val;
+	cout<<"e"<<endl;
 
-     // Below should be replaced with an integral
-     // when inefficiency is better parametrized 
-     // than a step function.
+	cout<<" "<<val;
 
-     int entry = (int)(i*(xsec/nbins)) - offset + 1;
+	if(currentbin < nbins - 1) cout<<",";
+	else cout<<")"<<endl;
 
-     cout<<"entry : "<<entry<<endl;
+	cout<<"g"<<endl;
+	currentbin++;
+	cout<<"h"<<endl;
 
-     if(entry >= 0){
-	binboundaries[i] = values[entry];
-     }else{
-	binboundaries[i] = 0;
      }
-
-     cout<<" "<<binboundaries[i];
-     if(i < nbins - 1) cout<<",";
-     else cout<<")"<<endl;
+     cout<<"i"<<endl;
   }
   cout<<"-------------------------------------"<<endl;
 
