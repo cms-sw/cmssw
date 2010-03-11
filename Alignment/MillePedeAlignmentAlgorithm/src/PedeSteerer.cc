@@ -1,10 +1,10 @@
-/**
+ /**
  * \file PedeSteerer.cc
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.27 $
- *  $Date: 2009/02/24 13:44:06 $
+ *  $Revision: 1.28 $
+ *  $Date: 2009/06/24 12:59:18 $
  *  (last update by $Author: flucke $)
  */
 
@@ -44,6 +44,8 @@
 // from ROOT
 #include <TSystem.h>
 #include <TMath.h>
+
+#include <iostream>
 
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
 			 AlignmentParameterStore *store, const PedeLabeler *labels,
@@ -706,6 +708,12 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
   const std::string nameMasterSteer(this->fileName("Master"));
   std::ofstream *mainSteerPtr = this->createSteerFile(nameMasterSteer, false);
   if (!mainSteerPtr) return "";
+
+  // add external steering files, if any
+  std::vector<std::string> addfiles =  myConfig.getParameter<std::vector<std::string> >("additionalSteerFiles");
+  mySteeringFiles.insert(mySteeringFiles.end(),
+		  addfiles.begin(),
+		  addfiles.end());
 
   // add steering files to master steering file
   std::ofstream &mainSteerRef = *mainSteerPtr;
