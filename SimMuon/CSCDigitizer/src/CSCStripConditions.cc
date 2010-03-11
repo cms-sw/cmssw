@@ -1,5 +1,14 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 
+#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.icc"
+
+template class CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix > ;
+
+template
+void
+CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix >::noisify(CSCAnalogSignal&) const ;
+
+
 CSCStripConditions::CSCStripConditions()
   : theNoisifier(0),
     theRandGaussQ(0)

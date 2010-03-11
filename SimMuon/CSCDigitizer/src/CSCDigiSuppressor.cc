@@ -7,7 +7,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include <algorithm>
+
 
 CSCDigiSuppressor::CSCDigiSuppressor(const edm::ParameterSet& ps)
 : theLCTLabel(ps.getParameter<std::string>("lctLabel")),
