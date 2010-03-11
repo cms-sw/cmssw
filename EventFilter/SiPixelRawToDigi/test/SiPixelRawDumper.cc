@@ -2,6 +2,7 @@
  *  Plug-in module that dump raw data file 
  *  for pixel subdetector
  *  Added class to interpret the data d.k. 30/10/08
+ * Adapt for v352
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -22,8 +23,8 @@
 #include <iostream>
 using namespace std;
 
-const bool printErrors = true;
-const bool printData = true;
+const bool printErrors  = true;
+const bool printData    = true;
 const bool printHeaders = false;
 
 // Include the helper decoding class
@@ -32,35 +33,43 @@ class MyDecode {
 public:
   MyDecode() {}
   ~MyDecode() {}
-  static int error(int error);
-  static int data(int error);
-  static int header(unsigned long long word64);
-  static int trailer(unsigned long long word64);
+  static int error(int error, bool print=false);
+  static int data(int error, bool print=false);
+  static int header(unsigned long long word64, bool print);
+  static int trailer(unsigned long long word64, bool print);
 private:
 };
 /////////////////////////////////////////////////////////////////////////////
-int MyDecode::header(unsigned long long word64) {
+int MyDecode::header(unsigned long long word64, bool print) {
   int fed_id=(word64>>8)&0xfff;
   int event_id=(word64>>32)&0xffffff;
   unsigned int bx_id=(word64>>20)&0xfff;
-  cout<<" Header "<<" for FED "
-      <<fed_id<<" event "<<event_id<<" bx "<<bx_id<<endl;
+//   if(bx_id!=101) {
+//     cout<<" Header "<<" for FED "
+// 	<<fed_id<<" event "<<event_id<<" bx "<<bx_id<<endl;
+//     int dummy=0;
+//     cout<<" : ";
+//     cin>>dummy;
+//   }
+  if(print) cout<<" Header "<<" for FED "
+		<<fed_id<<" event "<<event_id<<" bx "<<bx_id<<endl;
+
   return event_id;
 }
 //
-int MyDecode::trailer(unsigned long long word64) {
+int MyDecode::trailer(unsigned long long word64, bool print) {
   int slinkLength = int( (word64>>32) & 0xffffff );
   int crc         = int( (word64&0xffff0000)>>16 );
   int tts         = int( (word64&0xf0)>>4);
   int slinkError  = int( (word64&0xf00)>>8);
-  cout<<" Trailer "<<" len "<<slinkLength
-      <<" tts "<<tts<<" error "<<slinkError<<" crc "<<hex<<crc<<dec<<endl;
+  if(print) cout<<" Trailer "<<" len "<<slinkLength
+		<<" tts "<<tts<<" error "<<slinkError<<" crc "<<hex<<crc<<dec<<endl;
   return slinkLength;
 }
 //
 // Decode error FIFO
 // Works for both, the error FIFO and the SLink error words. d.k. 25/04/07
-int MyDecode::error(int word) {
+int MyDecode::error(int word, bool print) {
   int status = -1;
   const unsigned int  errorMask      = 0x3e00000;
   const unsigned int  dummyMask      = 0x03600000;
@@ -98,59 +107,61 @@ int MyDecode::error(int word) {
      unsigned int index = (word & 0x1F);  // index within a group of 4/5
      unsigned int chip = (word& BlkNumMask)>>8;
      int offset = offsets[chip];
-     cout<<"Timeout Error- channels: ";
-     for(int i=0;i<5;i++) {
-       if( (index & 0x1) != 0) {
-         int chan = offset + i + 1;
-         cout<<chan<<" ";
+     if(printErrors) {
+       cout<<"Timeout Error- channels: ";
+       for(int i=0;i<5;i++) {
+	 if( (index & 0x1) != 0) {
+	   int chan = offset + i + 1;
+	   cout<<chan<<" ";
+	 }
+	 index = index >> 1;
        }
-       index = index >> 1;
+       cout<<endl;
      }
-     cout<<endl;
      //end of timeout  chip and channel decoding
 
    } else if( (word&errorMask) == eventNumError ) { // EVENT NUMBER ERROR
      unsigned int channel =  (word & channelMask) >>26;
      unsigned int tbm_event   =  (word & tbmEventMask);
 
-     cout<<"Event Number Error- channel: "<<channel<<" tbm event nr. "
-         <<tbm_event<<endl;
+     if(printErrors) cout<<"Event Number Error- channel: "<<channel<<" tbm event nr. "
+			 <<tbm_event<<endl;
 
    } else if( ((word&errorMask) == trailError)) {
     unsigned int channel =  (word & channelMask) >>26;
     unsigned int tbm_status   =  (word & tbmStatusMask);
     if(word & RocErrMask)
-      cout<<"Number of Rocs Error- "<<"channel: "<<channel<<" "<<endl;
+      if(printErrors) cout<<"Number of Rocs Error- "<<"channel: "<<channel<<" "<<endl;
     if(word & FsmErrMask)
-      cout<<"Finite State Machine Error- "<<"channel: "<<channel
-          <<" Error status:0x"<<hex<< ((word & FsmErrMask)>>9)<<dec<<" "<<endl;
+      if(printErrors) cout<<"Finite State Machine Error- "<<"channel: "<<channel
+			  <<" Error status:0x"<<hex<< ((word & FsmErrMask)>>9)<<dec<<" "<<endl;
     if(word & overflowMask)
-      cout<<"Overflow Error- "<<"channel: "<<channel<<" "<<endl;
+      if(printErrors) cout<<"Overflow Error- "<<"channel: "<<channel<<" "<<endl;
     //if(!((word & RocErrMask)|(word & FsmErrMask)|(word & overflowMask)))
     if(tbm_status!=0)
-      cout<<"Trailer Error- "<<"channel: "<<channel<<" TBM status:0x"
-          <<hex<<tbm_status<<dec<<" "<<endl;
+      if(printErrors) cout<<"Trailer Error- "<<"channel: "<<channel<<" TBM status:0x"
+			  <<hex<<tbm_status<<dec<<" "<<endl;
 
   } else if((word&errorMask)==fifoError) {
-    if(word & Fif2NFMask) cout<<"A fifo 2 is Nearly full- ";
-    if(word & TrigNFMask) cout<<"The trigger fifo is nearly Full - ";
-    if(word & ChnFifMask) cout<<"fifo-1 is nearly full for channel"<<(word & ChnFifMask);
-    cout<<endl;
-
+    if(printErrors) { 
+      if(word & Fif2NFMask) cout<<"A fifo 2 is Nearly full- ";
+      if(word & TrigNFMask) cout<<"The trigger fifo is nearly Full - ";
+      if(word & ChnFifMask) cout<<"fifo-1 is nearly full for channel"<<(word & ChnFifMask);
+      cout<<endl;
+    }
   } else {
     cout<<" Unknown error?";
   }
 
   //unsigned int event   =  (word & eventNumMask) >>13;
   //unsigned int tbm_status   =  (word & tbmStatusMask);
-
   //if(event>0) cout<<":event: "<<event;
   //cout<<endl;
 
   return status;
 }
 ///////////////////////////////////////////////////////////////////////////
-int MyDecode::data(int word) {
+int MyDecode::data(int word, bool print) {
   const bool CHECK_PIXELS = true;
   //const bool PRINT_PIXELS = printData;
   const bool PRINT_PIXELS = true;
@@ -208,21 +219,43 @@ public:
   /// dtor
   virtual ~SiPixelRawDumper() {}
 
-  void beginJob() {countEvents=0;}
+  void beginJob();
+
+  //void beginRun( const edm::EventSetup& ) {}
 
   // end of job 
-  void endJob() {cout<<" Total events " <<countEvents<<endl;}
+  void endJob();
 
   /// get data, convert to digis attach againe to Event
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
   edm::ParameterSet theConfig;
-  int countEvents;
+  int countEvents, countAllEvents;
+  float sumPixels, sumFedPixels[40];
 };
 
-void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es) 
-{
+void SiPixelRawDumper::endJob() {
+  if(countEvents>0) {
+    sumPixels /= float(countEvents);
+    for(int i=0;i<40;++i) sumFedPixels[i] /= float(countEvents);
+  }
+    
+  cout<<" Total/non-empty events " <<countAllEvents<<" / "<<countEvents<<" average number of pixels "<<sumPixels<<endl;
+
+  for(int i=0;i<40;++i) cout<<sumFedPixels[i]<<" ";
+  cout<<endl;
+  
+}
+
+void SiPixelRawDumper::beginJob() {
+  countEvents=0;
+  countAllEvents=0;
+  sumPixels=0.;
+  for(int i=0;i<40;++i) sumFedPixels[i]=0;
+}
+
+void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
 
   edm::Handle<FEDRawDataCollection> buffers;
   static std::string label = theConfig.getUntrackedParameter<std::string>("InputLabel","source");
@@ -240,10 +273,14 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   typedef uint32_t Word32;
   typedef uint64_t Word64;
   int status=0;
+  int countPixels=0;
+  int countErrors=0;
+  int eventId = -1;
 
-  countEvents++;
+  countAllEvents++;
   if(printHeaders) cout<<" Event = "<<countEvents<<endl;
 
+  // Loop over FEDs
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
     LogDebug("SiPixelRawDumper")<< " GET DATA FOR FED: " <<  fedId ;
     if(printHeaders) cout<<" For FED = "<<fedId<<endl;
@@ -254,36 +291,66 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     //get event data for this fed
     const FEDRawData& rawData = buffers->FEDData( fedId );
 
-    //cout<<" size "<<rawData.size()<<endl;
-
     int nWords = rawData.size()/sizeof(Word64);
+    //cout<<" size "<<nWords<<endl;
 
     // check headers
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); 
     //cout<<hex<<*header<<dec<<endl;
-    if(printHeaders) status = MyDecode::header(*header);
+    eventId = MyDecode::header(*header, printHeaders);
     //if(fedId = fedIds.first) 
 
     const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);
     //cout<<hex<<*trailer<<dec<<endl;
-    if(printHeaders) status = MyDecode::trailer(*trailer);
+    status = MyDecode::trailer(*trailer,printHeaders);
 
-    //header--;
+    int countPixelsInFed=0;
+    int countErrorsInFed=0;
+    // Loop over payload words
     for (const Word64* word = header+1; word != trailer; word++) {
       static const Word64 WORD32_mask  = 0xffffffff;
       Word32 w1 =  *word       & WORD32_mask;
-      status = MyDecode::data(w1);
+      status = MyDecode::data(w1,printData);
+      if(status>0) {
+	countPixels++;
+	countPixelsInFed++;
+      } else if(status<0) countErrorsInFed++;
       Word32 w2 =  *word >> 32 & WORD32_mask;
-      status = MyDecode::data(w2);
+      status = MyDecode::data(w2,printData);
+      if(status>0) {
+	countPixels++;
+	countPixelsInFed++;
+      } else if(status<0) countErrorsInFed++;
       //cout<<hex<<w1<<" "<<w2<<dec<<endl;
+    } // loop over words
 
-    }
+    countErrors += countErrorsInFed;
 
     //convert data to digi (dummy for the moment)
     formatter.interpretRawData( dummyErrorBool, fedId, rawData, digis, errors);
     //cout<<dummyErrorBool<<" "<<digis.size()<<" "<<errors.size()<<endl;
-  }
 
+    if(countPixelsInFed>0)  {
+      sumFedPixels[fedId] += countPixelsInFed;
+    }
+
+ //    if(fedId == fedIds.first || countPixelsInFed>0 || countErrorsInFed>0 )  {
+//       eventId = MyDecode::header(*header, true);
+//       if(countPixelsInFed>0 || countErrorsInFed>0 ) cout<<"fed "<<fedId<<" pix "<<countPixelsInFed<<" err "<<countErrorsInFed<<endl;
+//       status = MyDecode::trailer(*trailer,true);
+//     }
+
+  } // loop over feds
+
+  if(countPixels>0) {
+    //cout<<"EVENT: "<<countEvents<<" "<<eventId<<" pixels "<<countPixels<<" errors "<<countErrors<<endl;
+    sumPixels += countPixels;
+    countEvents++;
+    //int dummy=0;
+    //cout<<" : ";
+    //cin>>dummy;
+  }
+ 
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
