@@ -2,7 +2,7 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/FWLite/interface/MultiChainEvent.h"
-#include "PhysicsTools/PatExamples/interface/WPlusJetsEventSelector.h"
+#include "PhysicsTools/SelectorUtils/interface/WPlusJetsEventSelector.h"
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
