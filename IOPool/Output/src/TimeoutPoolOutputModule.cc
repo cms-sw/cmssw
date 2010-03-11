@@ -15,12 +15,13 @@ namespace edm {
   {  }
 
   bool TimeoutPoolOutputModule::shouldWeCloseFile() const {
+    time_t now(time(NULL));
     if ( PoolOutputModule::shouldWeCloseFile() ) {
       std::cout <<" TimeoutPoolOutputMOdule Closing file "<< currentFileName()<< " with "<< eventsWrittenInCurrentFile  <<" events."<<std::endl;
       eventsWrittenInCurrentFile = 0;
+      m_lastEvent = now;
       return true;
     }
-    time_t now(time(NULL));
     //    std::cout <<" Events "<< eventsWrittenInCurrentFile<<" time "<< now - m_lastEvent<<std::endl;
     if (eventsWrittenInCurrentFile==0) return false;
     if ( now - m_lastEvent < m_timeout ) return false;
