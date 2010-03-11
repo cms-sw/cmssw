@@ -22,6 +22,7 @@
 CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : 
   iRun( 0 ),   
   useCalib( ps.getParameter<bool>("CSCUseCalibrations") ),
+  useStaticPedestals( ps.getParameter<bool>("CSCUseStaticPedestals") ),
   stripDigiTag_( ps.getParameter<edm::InputTag>("stripDigiTag") ),
   wireDigiTag_(  ps.getParameter<edm::InputTag>("wireDigiTag") )
 
@@ -52,7 +53,7 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   recHitBuilder_->setGeometry( pgeom );
 
   // access conditions data for this event 
-  if ( useCalib ) {  
+  if ( useCalib || useStaticPedestals ) {  
     recoConditions_->initializeEvent( setup ); 
   }
 	

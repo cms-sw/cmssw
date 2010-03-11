@@ -44,7 +44,9 @@ std::vector<CSCWireHit> CSCHitFromWireOnly::runWire( const CSCDetId& id, const C
     
     const CSCWireDigi wdigi = *it;
 
-
+    if(isDeadWG( id, wdigi.getWireGroup())){ 	 
+      continue; 	 
+    }
     if ( any_digis ) {
       any_digis = false;
       makeWireCluster( wdigi );

@@ -155,8 +155,9 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     float xWithinChamber = lp11.x();
     quality = 0;
     if(layergeom_->inside(lp11 )){// save time; this hit is to be discarded anyway - see isHitInFiducial(...)
+
       xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, 
-                     		xWithinChamber,
+         			xWithinChamber,
 				stripWidth, tpeak, positionWithinTheStrip, 
 				sigmaWithinTheStrip, quality);
     }				
