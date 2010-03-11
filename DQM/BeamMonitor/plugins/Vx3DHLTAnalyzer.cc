@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.21 2010/03/11 13:09:35 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.22 2010/03/11 18:22:47 dinardo Exp $
 //
 //
 
@@ -432,7 +432,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock,
       beginTimeOfFit = lumiBlock.beginTime().value();
       beginLumiOfFit = lumiBlock.luminosityBlock();
     }
-  else lumiCounter++;
+  lumiCounter++;
 }
 
 
