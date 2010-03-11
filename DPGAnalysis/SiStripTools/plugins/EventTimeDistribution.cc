@@ -69,6 +69,7 @@ class EventTimeDistribution : public edm::EDAnalyzer {
   const double _binsize;
 
   TH1F* _dbx;
+  TH1F* _bx;
   TH1F* _bxincycle;
   TH2F* _dbxvsbx;
   TH2F* _orbitvsbx;
@@ -139,6 +140,7 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    // improve the matchin between default and actual partitions
    
    _dbx->Fill(he->deltaBX());
+   _bx->Fill(iEvent.bunchCrossing());
    _bxincycle->Fill(tbx%70);
    _dbxvsbx->Fill(tbx%70,he->deltaBX());
    _orbitvsbx->Fill(tbx%70,iEvent.orbitNumber());
@@ -157,6 +159,7 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   TFileDirectory subrun = tfserv->mkdir(dirname);
 
   _dbx = subrun.make<TH1F>("dbx","dbx",1000,-0.5,999.5);
+  _bx = subrun.make<TH1F>("bx","BX number",3564,-0.5,3563.5);
   _bxincycle = subrun.make<TH1F>("bxcycle","bxcycle",70,-0.5,69.5);
   _dbxvsbx = subrun.make<TH2F>("dbxvsbx","dbxvsbx",70,-0.5,69.5,1000,-0.5,999.5);
   _orbitvsbx = subrun.make<TH2F>("orbitvsbx","orbitvsbx",70,-0.5,69.5,3600,0,11223*_binsize*3600);

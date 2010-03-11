@@ -38,6 +38,7 @@
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -162,6 +163,8 @@ LargeEvents<T>::endJob() {
 //define this as a plug-in
 typedef LargeEvents<edm::DetSetVector<SiStripDigi> > LargeSiStripDigiEvents;
 typedef LargeEvents<edmNew::DetSetVector<SiStripCluster> > LargeSiStripClusterEvents;
+typedef LargeEvents<edmNew::DetSetVector<SiPixelCluster> > LargeSiPixelClusterEvents;
 
 DEFINE_FWK_MODULE(LargeSiStripDigiEvents);
 DEFINE_FWK_MODULE(LargeSiStripClusterEvents);
+DEFINE_FWK_MODULE(LargeSiPixelClusterEvents);
