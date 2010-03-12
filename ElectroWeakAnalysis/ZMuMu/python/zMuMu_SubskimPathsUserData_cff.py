@@ -6,9 +6,9 @@ from ElectroWeakAnalysis.ZMuMu.zMuMuMuonUserData import *
 from ElectroWeakAnalysis.ZMuMu.dimuonsUserData_cfi import *
 from ElectroWeakAnalysis.ZMuMu.dimuonsOneTrackUserData_cfi import *
 from ElectroWeakAnalysis.ZMuMu.dimuonsGlobal_cfi import *
-from ElectroWeakAnalysis.Skimming.dimuonsOneStandAloneMuon_cfi import *
+from ElectroWeakAnalysis.ZMuMu.dimuonsOneStandAloneMuonUserData_cfi import *
 from ElectroWeakAnalysis.ZMuMu.dimuonsFilter_cfi import *
-from ElectroWeakAnalysis.Skimming.dimuonsOneTrackFilter_cfi import *
+from ElectroWeakAnalysis.ZMuMu.dimuonsOneTrackFilterUserData_cfi import *
 
 dimuonsPath = cms.Path(
     dimuonsHLTFilter *
@@ -26,6 +26,7 @@ dimuonsOneTrackPath = cms.Path(dimuonsHLTFilter+
                                userDataMuons*
                                userDataTracks*
                                dimuonsOneTrack*
+                               userDataDimuonsOneTrack*
                                dimuonsOneTrackFilter
 )
 

@@ -4,6 +4,8 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 
 import copy
 
+
+
 zGolden=(
     cms.PSet(
     tag = cms.untracked.string("Dau2NofHit"),
@@ -72,9 +74,12 @@ zGolden=(
     cms.PSet(
     tag = cms.untracked.string("Dau2MuEnergyEm"),
     quantity = cms.untracked.string("daughter(1).masterClone.calEnergy.em")
-    )
-       
-        
+    ),
+    cms.PSet(
+    tag = cms.untracked.string("TruePt"),
+    quantity = cms.untracked.string("userFloat('TruePt')")
+    ),
+                
     )
 
 zMuTrk=(
@@ -249,14 +254,6 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTBit')")
     ),
     cms.PSet(
-    tag = cms.untracked.string("Dau2CombinedIso"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userIso(0)")
-    ),
-    cms.PSet(
-    tag = cms.untracked.string("Dau2relCombinedIso"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userIso(1)")
-    ),
-    cms.PSet(
     tag = cms.untracked.string("Dau2dxyFromBS"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dxyFromBS')")
     ),
@@ -287,8 +284,29 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     cms.PSet(
     tag = cms.untracked.string("Dau1MuEnergyEm"),
     quantity = cms.untracked.string("daughter(0).masterClone.calEnergy.em")
-    )
-
+    ),
+    #cms.PSet(
+    #tag = cms.untracked.string("TrueMass"),
+    #quantity = cms.untracked.string("userFloat('TrueMass')")
+    #)#,
+    #cms.PSet(
+    #tag = cms.untracked.string("TruePt"),
+    #quantity = cms.untracked.string("userFloat('TruePt')")
+    #),
+    
+    #cms.PSet(
+    #tag = cms.untracked.string("TrueEta"),
+    #quantity = cms.untracked.string("userFloat('TrueEta')")
+    #),
+    #cms.PSet(
+    #tag = cms.untracked.string("TruePhi"),
+    #quantity = cms.untracked.string("userFloat('TruePhi')")
+    #),
+    #cms.PSet(
+    #tag = cms.untracked.string("TrueY"),
+    #quantity = cms.untracked.string("userFloat('TrueY')")
+    #)
+    
     )
     
     )

@@ -39,7 +39,7 @@ process.source = cms.Source("PoolSource",
 
 
 
-process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff")
+process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequencesUserData_cff")
 
 process.TFileService = cms.Service(
     "TFileService",
