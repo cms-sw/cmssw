@@ -174,14 +174,17 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
    int n_alcts=0;
    int expected = 3;
    if (isMC) expected = 6;
-   for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++) {
-     const CSCALCTDigiCollection::Range& range =(*j).second;
-     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
-       if((*digiIt).isValid() && ((*digiIt).getBX() < (expected-1) )){
-	 n_alcts++;
+   if(TheALCTs.isValid())
+     {
+       for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++) {
+	 const CSCALCTDigiCollection::Range& range =(*j).second;
+	 for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+	   if((*digiIt).isValid() && ((*digiIt).getBX() < (expected-1) )){
+	     n_alcts++;
+	   }
+	 }
        }
      }
-   }
    TheCSCHaloData.SetNOutOfTimeTriggers(n_alcts);
 
    // Loop over the CSCRecHit2D collection to look for out-of-time recHits
