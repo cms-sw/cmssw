@@ -144,6 +144,12 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
   if (nit == 0) {
     if (eq>theMaxInitial) return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   }
+  if( isnan(eq) ){
+	  LogDebug("KinematicConstrainedVertexFitter")
+	  << "catched NaN.\n";
+	  return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
+  }
+
   refCCov = lRes.first.second;
   nit++;
  }while(nit<theMaxStep && eq>theMaxDiff);
