@@ -3,6 +3,9 @@
 
 #include <cmath>
 
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+
 namespace reco {
    class MuonSegmentMatch {
       public:
@@ -36,6 +39,10 @@ namespace reco {
          bool isMask( unsigned int flag = Arbitrated ) const { return mask & flag; }
          void setMask( unsigned int flag ) { if(!(mask & flag)) mask += flag; }
          float t0;
+
+         DTRecSegment4DRef  dtSegmentRef;
+         CSCSegmentRef      cscSegmentRef;
+
       MuonSegmentMatch():x(0),y(0),xErr(0),yErr(0),dXdZ(0),dYdZ(0),
       dXdZErr(0),dYdZErr(0) {}
 
