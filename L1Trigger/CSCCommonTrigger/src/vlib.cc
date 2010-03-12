@@ -5,7 +5,7 @@
 
 globcontrol glc;
 
-char* obnames[] = 
+char const* obnames[] = 
 {
 	"none "   , 
 	"reg "    ,
@@ -63,7 +63,8 @@ Signal::Signal(const char* sval)
 	create();
 	mode = mnum;
 	string val = sval;
-	int bits, i;
+	int bits;
+        unsigned int i;
 	char radix;
 	rval value = 0;
 	int dig;
@@ -74,8 +75,8 @@ Signal::Signal(const char* sval)
 	case 'h':
 	case 'H': 
 //		sscanf (val.c_str(), "%d'%c%x", &bits, &radix, &value);
-		for (i = 0; val[i] != 'h' && val[i] != 'H'; i++);
-		for (; i < val.length(); i++)
+		for (i = 0; val[i] != 'h' && val[i] != 'H'; ++i);
+		for (; i < val.length(); ++i)
 		{
 			switch (val[i])
 			{
@@ -122,13 +123,13 @@ Signal::Signal(const char* sval)
 		break;
 	case 'd':
 	case 'D': 
-		sscanf (val.c_str(), "%d'%c%d", &bits, &radix, &value);
+		sscanf (val.c_str(), "%d'%c%d", &bits, &radix, reinterpret_cast<int *>(&value));
 		break;
 	case 'o': 
 	case 'O': 
 //		sscanf (val.c_str(), "%d'%c%o", &bits, &radix, &value);
-		for (i = 0; val[i] != 'o' && val[i] != 'O'; i++);
-		for (; i < val.length(); i++)
+		for (i = 0; val[i] != 'o' && val[i] != 'O'; ++i);
+		for (; i < val.length(); ++i)
 		{
 			switch (val[i])
 			{
@@ -158,8 +159,8 @@ Signal::Signal(const char* sval)
 	case 'b': 
 	case 'B': 
 		
-		for (i = 0; val[i] != 'b' && val[i] != 'B'; i++);
-		for (; i < val.length(); i++)
+		for (i = 0; val[i] != 'b' && val[i] != 'B'; ++i);
+		for (; i < val.length(); ++i)
 		{
 			switch (val[i])
 			{
@@ -466,7 +467,7 @@ Signal rxor (Signal arg)
 #endif
 	tr = (arg.getval()) & arg.mask;
 	t.r = 0;
-	for (i = 0; i < arg.h-arg.l+1; i++) 
+	for (i = 0; i < arg.h-arg.l+1; ++i) 
 	{
 		t.r = ((tr & 1) != 0) ? !t.r : t.r;
 		tr = tr >> 1;
@@ -929,7 +930,7 @@ void memory::reg (int high, int low, int nup, int ndown, const char* rname)
 	if (r == NULL)
 	{
 		r = new Signal [up - down + 1];
-		for (i = 0; i <= up - down; i++)
+		for (i = 0; i <= up - down; ++i)
 		{
 			r[i].initreg(high, low, "");
 			r[i].setr(0);
@@ -937,7 +938,7 @@ void memory::reg (int high, int low, int nup, int ndown, const char* rname)
 	}
 	else
 	{
-		for (i = 0; i <= up - down; i++)
+		for (i = 0; i <= up - down; ++i)
 		{
 			r[i].initreg(high, low, "");
 		}
@@ -985,7 +986,7 @@ Signal& memory::operator[] (Signal i)
 
 void module::create()
 {
-	for (int i = 0; i < sizeof(outreg)/sizeof(Signal*); i++) outreg[i] = NULL;
+	for (unsigned int i = 0; i < sizeof(outreg)/sizeof(Signal*); ++i) outreg[i] = NULL;
 	outregn = 0;
 	runperiod = NULL;
 }
@@ -997,7 +998,7 @@ module::module()
 
 module::~module()
 {
-	for (int i = 0; i < sizeof(outreg)/sizeof(Signal*); i++)
+	for (unsigned int i = 0; i < sizeof(outreg)/sizeof(Signal*); ++i)
 	{
 		if (outreg[i] != NULL)
 			delete outreg[i];
@@ -1156,8 +1157,8 @@ Signal module::ifelse(Signal condition, Signal iftrue, Signal iffalse)
 
 void function::makemask(int hpar, int lpar) 
 {
-	int i;
-	int lng = hpar - lpar + 1;
+	//int i;
+	unsigned int lng = hpar - lpar + 1;
 	
 	if (lng < Sizeofrval * 8) 
 		mask = (1LL << lng) - 1;
@@ -1254,7 +1255,7 @@ void globcontrol::Print()
 	if (functiondecl == 0)
 	{
 		Indent();
-		for (i = 0; i < npar; i++)
+		for (i = 0; i < npar; ++i)
 		{
 			cout << endl;
 			cout << getmargin();
@@ -1267,7 +1268,7 @@ void globcontrol::Print()
 	Indent();
 	cout << "\n";
 
-	for (i = 0; i < ndecl; i++)
+	for (i = 0; i < ndecl; ++i)
 	{
 		cout << glc.getmargin() << decls[i];
 	}
@@ -1285,7 +1286,7 @@ string& globcontrol::PrintIO(bool col)
 	outln = "";
 	if (ndio > 0)
 	{
-		for (i = 0; i < ndio; i++)
+		for (i = 0; i < ndio; ++i)
 		{
 			if (col) 
 			{
@@ -1306,7 +1307,7 @@ void globcontrol::PrepMargin()
 
 	int i;
 	margin = "";
-	for (i = 0; i < indpos; i++)
+	for (i = 0; i < indpos; ++i)
 	{
 		margin += "    ";
 	}
