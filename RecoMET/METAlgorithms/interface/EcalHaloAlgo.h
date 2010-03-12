@@ -30,7 +30,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 //#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
