@@ -77,13 +77,9 @@ void TaggingVariablePlotter::analyzeTag (const TaggingVariableList &vars,
 	for(vector<VariableConfig>::const_iterator iter = variables.begin();
 	    iter != variables.end(); iter++) {
 		std::vector<TaggingValue> values;
-		try {
-			values = vars.getList(iter->var);
-		} catch(edm::Exception e) {
-			// variable does not exist
-			// it is ok for multi-appearance variables
+		values = vars.getList(iter->var, false);
+		if (values.empty())
 			continue;
-		}
 
 		unsigned int size = values.size();
 		for(std::vector<VariableConfig::Plot>::const_iterator plot =

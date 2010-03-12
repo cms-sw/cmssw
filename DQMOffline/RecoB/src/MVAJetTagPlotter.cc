@@ -69,15 +69,8 @@ void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfo
 
 	categoryPlotters[0]->analyzeTag(vars, jetFlavour);
 	if (categoryVariable != btau::lastTaggingVariable) {
-		
-		unsigned int cat;
-		try {
-			cat = (unsigned int)vars.get(categoryVariable) + 1;
-		} catch(edm::Exception e) {
-			// no category for this jet tag
-			// this means the jet didn't pass any cuts, ignore
-			return;
-		}
+		unsigned int cat =
+			(unsigned int)(vars.get(categoryVariable, -1) + 1);
 		if (cat >= 1 && cat < categoryPlotters.size())
 			categoryPlotters[cat]->analyzeTag(vars, jetFlavour);
 	}
