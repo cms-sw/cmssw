@@ -1,591 +1,545 @@
-#ifndef DQMOFFLINE_TRIGGER_JETMETHLTOFFLINESOURCE
-#define DQMOFFLINE_TRIGGER_JETMETHLTOFFLINESOURCE
-
-// -*- C++ -*-
-//
-// Package:    JetMETHLTOffline
-// Class:      JetMETHLTOffline
-// 
 /*
- Description: This is a DQM source meant to plot high-level HLT trigger 
- quantities as stored in the HLT results object TriggerResults for the JetMET triggers
+  New version of HLT Offline DQM code for JetMET
+  responsible: Sunil Bansal, Shabnam jabeen 
+
 */
 
-//
-// Originally create by:  Kenichi Hatakeyama
-//                        April 2009
-// Owned by:              Shabnam Jabeen
-//
-//
 
+#ifndef JetMETHLTOfflineSource_H
+#define JetMETHLTOfflineSource_H
+
+// system include files
 #include <memory>
 #include <unistd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/Common/interface/Handle.h"
+
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
-
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
-
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
+class PtSorter {
+ public:
+   template <class T> bool operator() ( const T& a, const T& b ) {
+     return ( a.pt() > b.pt() );
+   }
+ };
 
 class JetMETHLTOfflineSource : public edm::EDAnalyzer {
- 
- private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
+   public:
+      explicit JetMETHLTOfflineSource(const edm::ParameterSet&);
+      ~JetMETHLTOfflineSource();
 
-  //--- Monitoring elements start
-  MonitorElement* dqmErrsMonElem_; //monitors DQM errors (ie failing to get trigger info, etc)
 
-  //---
+   private:
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
-  bool debug_;
-  bool verbose_;
+      // BeginRun
+      void beginRun(const edm::Run& run, const edm::EventSetup& c);
+     
+      void histobooking( const edm::EventSetup& c);
 
-  //---
-  edm::InputTag triggerResultsLabel_;
-  edm::InputTag triggerSummaryLabel_;
+      // EndRun
+      void endRun(const edm::Run& run, const edm::EventSetup& c);
+      
 
-  HLTConfigProvider hltConfig_;
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+				const edm::EventSetup& c) ;
 
-  std::string processname_;
+      /// DQM Client Diagnostic
+	void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+				const edm::EventSetup& c);
 
-  //---
+        virtual bool isBarrel(double eta);
+        virtual bool isEndCap(double eta); 
+        virtual bool isForward(double eta);
+        virtual bool validPathHLT(std::string path);
+        virtual bool isHLTPathAccepted(std::string pathName);
+        virtual bool isTriggerObjectFound(std::string objectName);
+        virtual void EffCalc(MonitorElement *numME, MonitorElement *denomME, MonitorElement *effME);
+        virtual void fillMEforMonTriggerSummary();
+        virtual void fillMEforMonAllTrigger();
+        virtual void fillMEforMonAllTriggerwrtMuonTrigger();
+   
+        virtual void fillMEforEffAllTrigger();
+        virtual void fillMEforEffWrtMuTrigger();
+        virtual void fillMEforEffWrtMBTrigger();
+        virtual void fillMEforTriggerNTfired();
+      // ----------member data --------------------------- 
+      int nev_;
+      DQMStore * dbe;
+
+      MonitorElement* total_;
+
+
+      std::vector<std::string>  MuonTrigPaths_;
+      std::vector<std::string>  MBTrigPaths_;
+      std::vector<int>  prescUsed_;
+
+
+      std::string dirname_;
+      std::string processname_;
+      bool verbose_;
+      bool plotAll_;
+      bool plotAllwrtMu_;
+      bool plotEff_ ; 
+      
+      edm::InputTag triggerSummaryLabel_;
+      edm::InputTag triggerResultsLabel_;
+      edm::InputTag caloJetsTag_;
+      edm::InputTag caloMETTag_;
+      edm::Handle<reco::CaloJetCollection> calojetColl_;
+      edm::Handle<reco::CaloMETCollection> calometColl_;
+      CaloJetCollection calojet; 
+      HLTConfigProvider hltConfig_;
+      edm::Handle<edm::TriggerResults> triggerResults_;
+      edm::TriggerNames triggerNames_; // TriggerNames class
+      edm::Handle<trigger::TriggerEvent> triggerObj_;
+      // data across paths
+      MonitorElement* scalersSelect;
+      // helper class to store the data path
+
+      class PathInfo {
+	PathInfo():
+	  pathIndex_(-1), prescaleUsed_(-1),denomPathName_("unset"), pathName_("unset"), l1pathName_("unset"), filterName_("unset"), DenomfilterName_("unset"), processName_("unset"), objectType_(-1), triggerType_("unset")
+	  {};
+      public:
+	void setHistos( 
+		       MonitorElement* const N, 
+                       MonitorElement* const Pt, 
+                       MonitorElement* const PtBarrel,
+                       MonitorElement* const PtEndcap,
+                       MonitorElement* const PtForward,
+                       MonitorElement* const Eta,
+                       MonitorElement* const Phi, 
+                       MonitorElement* const EtaPhi, 
+                       MonitorElement* const N_L1,
+                       MonitorElement* const Pt_L1,
+                       MonitorElement* const PtBarrel_L1,
+                       MonitorElement* const PtEndcap_L1,
+                       MonitorElement* const PtForward_L1,
+                       MonitorElement* const Eta_L1,
+                       MonitorElement* const Phi_L1,
+                       MonitorElement* const EtaPhi_L1,
+                       MonitorElement* const N_HLT,
+                       MonitorElement* const Pt_HLT,
+                       MonitorElement* const PtBarrel_HLT,
+                       MonitorElement* const PtEndcap_HLT,
+                       MonitorElement* const PtForward_HLT,
+                       MonitorElement* const Eta_HLT,
+                       MonitorElement* const Phi_HLT,
+                       MonitorElement* const EtaPhi_HLT, 
+
+                       MonitorElement* const PtResolution_L1HLT,
+                       MonitorElement* const EtaResolution_L1HLT,
+                       MonitorElement* const PhiResolution_L1HLT, 
+                       MonitorElement* const PtResolution_L1RecObj,
+                       MonitorElement* const EtaResolution_L1RecObj,
+                       MonitorElement* const PhiResolution_L1RecObj,
+                       MonitorElement* const PtResolution_HLTRecObj,
+                       MonitorElement* const EtaResolution_HLTRecObj,
+                       MonitorElement* const PhiResolution_HLTRecObj,
+
+                       MonitorElement* const PtCorrelation_L1HLT,
+                       MonitorElement* const EtaCorrelation_L1HLT,
+                       MonitorElement* const PhiCorrelation_L1HLT,
+                       MonitorElement* const PtCorrelation_L1RecObj,
+                       MonitorElement* const EtaCorrelation_L1RecObj,
+                       MonitorElement* const PhiCorrelation_L1RecObj,
+                       MonitorElement* const PtCorrelation_HLTRecObj,
+                       MonitorElement* const EtaCorrelation_HLTRecObj,
+                       MonitorElement* const PhiCorrelation_HLTRecObj
+
+
+                       )    
+
+          {
+                       N_             =N;
+                       Pt_            =Pt;
+                       PtBarrel_      =PtBarrel;
+                       PtEndcap_      =PtEndcap;
+                       PtForward_     =PtForward;
+                       Eta_           =Eta;
+                       Phi_           =Phi;
+                       EtaPhi_        =EtaPhi;
+                       N_L1_          =N_L1;
+                       Pt_L1_         =Pt_L1;
+                       PtBarrel_L1_   =PtBarrel_L1;
+                       PtEndcap_L1_   =PtEndcap_L1;
+                       PtForward_L1_  =PtForward_L1;
+                       Eta_L1_        =Eta_L1;
+                       Phi_L1_        =Phi_L1;
+                       EtaPhi_L1_     =EtaPhi_L1 ;
+                       N_HLT_         =N_HLT;
+                       Pt_HLT_        =Pt_HLT;
+                       PtBarrel_HLT_  =PtBarrel_HLT;
+                       PtEndcap_HLT_  =PtEndcap_HLT;
+                       PtForward_HLT_ =PtForward_HLT;
+                       Eta_HLT_       =Eta_HLT;
+                       Phi_HLT_       =Phi_HLT;
+                       EtaPhi_HLT_    =EtaPhi_HLT ;
+
+                       PtResolution_L1HLT_  =PtResolution_L1HLT;
+                       EtaResolution_L1HLT_ =EtaResolution_L1HLT;
+                       PhiResolution_L1HLT_ =PhiResolution_L1HLT;
+                       PtResolution_L1RecObj_  =PtResolution_L1RecObj;
+                       EtaResolution_L1RecObj_ =EtaResolution_L1RecObj;
+                       PhiResolution_L1RecObj_ =PhiResolution_L1RecObj;
+                       PtResolution_HLTRecObj_ =PtResolution_HLTRecObj;
+                       EtaResolution_HLTRecObj_=EtaResolution_HLTRecObj;
+                       PhiResolution_HLTRecObj_=PhiResolution_HLTRecObj;
   
-  edm::InputTag l1ExtraTaus_;
-  edm::InputTag l1ExtraCJets_;
-  edm::InputTag l1ExtraFJets_;
+                       PtCorrelation_L1HLT_  =PtCorrelation_L1HLT;
+                       EtaCorrelation_L1HLT_ =EtaCorrelation_L1HLT;
+                       PhiCorrelation_L1HLT_ =PhiCorrelation_L1HLT;
+                       PtCorrelation_L1RecObj_  =PtCorrelation_L1RecObj;
+                       EtaCorrelation_L1RecObj_ =EtaCorrelation_L1RecObj;
+                       PhiCorrelation_L1RecObj_ =PhiCorrelation_L1RecObj;
+                       PtCorrelation_HLTRecObj_ =PtCorrelation_HLTRecObj;
+                       EtaCorrelation_HLTRecObj_=EtaCorrelation_HLTRecObj;
+                       PhiCorrelation_HLTRecObj_=PhiCorrelation_HLTRecObj;
 
-  edm::InputTag caloJetsTag_;
-  edm::InputTag caloMETTag_;
+	};
+        void setDgnsHistos(
+                       MonitorElement* const JetSize,
+                       MonitorElement* const JetPt,  
+                       MonitorElement* const JetEta,  
+                       MonitorElement* const EtavsPt1,
+                       MonitorElement* const EtavsPt2,
+                       MonitorElement* const Pt12,
+                       MonitorElement* const Eta12                      
 
-  //---
- 
-  std::string  hltTag_;
-  std::string dirName_;
+        )
+        {
+                      JetSize_      = JetSize;
+                      JetPt_        = JetPt;
+                      JetEta_       = JetEta;
+                      EtavsPt1_     = EtavsPt1;
+                      EtavsPt2_     = EtavsPt2;
+                      Pt12_         = Pt12;
+                      Eta12_        = Eta12;
 
-  //---
+      };
+        void setEffHistos(
+                       MonitorElement* const NumeratorPt,
+                       MonitorElement* const NumeratorPtBarrel,
+                       MonitorElement* const NumeratorPtEndcap,
+                       MonitorElement* const NumeratorPtForward,
+                       MonitorElement* const NumeratorEta,
+                       MonitorElement* const NumeratorPhi,
+                       MonitorElement* const NumeratorEtaPhi,
+                       MonitorElement* const DenominatorPt,
+                       MonitorElement* const DenominatorPtBarrel,
+                       MonitorElement* const DenominatorPtEndcap,
+                       MonitorElement* const DenominatorPtForward,
+                       MonitorElement* const DenominatorEta,
+                       MonitorElement* const DenominatorPhi,
+                       MonitorElement* const DenominatorEtaPhi,
+     
+                       MonitorElement* const Eff_Pt,
+                       MonitorElement* const Eff_PtBarrel,  
+                       MonitorElement* const Eff_PtEndcap,
+                       MonitorElement* const Eff_PtForward,
+                       MonitorElement* const Eff_Eta,  
+                       MonitorElement* const Eff_Phi
+)
+{
+                       NumeratorPt_            =NumeratorPt;
+                       NumeratorPtBarrel_      =NumeratorPtBarrel;
+                       NumeratorPtEndcap_      =NumeratorPtEndcap;
+                       NumeratorPtForward_     =NumeratorPtForward;
+                       NumeratorEta_           =NumeratorEta;
+                       NumeratorPhi_           =NumeratorPhi;
+                       NumeratorEtaPhi_        =NumeratorEtaPhi; 
+                       DenominatorPt_            =DenominatorPt;
+                       DenominatorPtBarrel_      =DenominatorPtBarrel;
+                       DenominatorPtEndcap_      =DenominatorPtEndcap;
+                       DenominatorPtForward_     =DenominatorPtForward;
+                       DenominatorEta_           =DenominatorEta;
+                       DenominatorPhi_           =DenominatorPhi;
+                       DenominatorEtaPhi_        =DenominatorEtaPhi;
 
-  edm::Handle<edm::TriggerResults> triggerResults_;
-  edm::TriggerNames const* triggerNames_;
+                       Eff_Pt_                   =Eff_Pt;
+                       Eff_PtBarrel_             =Eff_PtBarrel;  
+                       Eff_PtEndcap_             =Eff_PtEndcap;
+                       Eff_PtForward_            =Eff_PtForward;
+                       Eff_Eta_                  =Eff_Eta;    
+                       Eff_Phi_                  =Eff_Phi;
 
-  edm::Handle<trigger::TriggerEvent> triggerObj_;
-  
-  edm::Handle<reco::CaloJetCollection> calojetColl_;
-  edm::Handle<reco::CaloMETCollection> calometColl_;
+          }; 
+	~PathInfo() {};
+        PathInfo(int prescaleUsed, std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string DenomfilterName, std::string processName, size_t type, std::string triggerType):
+          prescaleUsed_(prescaleUsed),denomPathName_(denomPathName), pathName_(pathName), l1pathName_(l1pathName), filterName_(filterName), DenomfilterName_(DenomfilterName), processName_(processName), objectType_(type), triggerType_(triggerType){};
+       
+        MonitorElement * getMEhisto_N() { return N_;}
+        MonitorElement * getMEhisto_Pt() { return Pt_;}
+        MonitorElement * getMEhisto_PtBarrel() { return PtBarrel_;}
+        MonitorElement * getMEhisto_PtEndcap() { return PtEndcap_;}
+        MonitorElement * getMEhisto_PtForward() { return PtForward_;}
+        MonitorElement * getMEhisto_Eta() { return Eta_; }
+        MonitorElement * getMEhisto_Phi() { return Phi_; }
+        MonitorElement * getMEhisto_EtaPhi() { return EtaPhi_; }
+        
+        MonitorElement * getMEhisto_N_L1() { return N_L1_;}
+        MonitorElement * getMEhisto_Pt_L1() { return Pt_L1_;}
+        MonitorElement * getMEhisto_PtBarrel_L1() { return PtBarrel_L1_;}
+        MonitorElement * getMEhisto_PtEndcap_L1() { return PtEndcap_L1_;}
+        MonitorElement * getMEhisto_PtForward_L1() { return PtForward_L1_;}
+        MonitorElement * getMEhisto_Eta_L1() { return Eta_L1_; }
+        MonitorElement * getMEhisto_Phi_L1() { return Phi_L1_; }
+        MonitorElement * getMEhisto_EtaPhi_L1() { return EtaPhi_L1_; } 
 
-  //disabling copying/assignment (copying this class would be bad, mkay)
-  JetMETHLTOfflineSource(const JetMETHLTOfflineSource& rhs){}
-  JetMETHLTOfflineSource& operator=(const JetMETHLTOfflineSource& rhs){return *this;}
+        MonitorElement * getMEhisto_N_HLT() { return N_HLT_;}
+        MonitorElement * getMEhisto_Pt_HLT() { return Pt_HLT_;}
+        MonitorElement * getMEhisto_PtBarrel_HLT() { return PtBarrel_HLT_;}
+        MonitorElement * getMEhisto_PtEndcap_HLT() { return PtEndcap_HLT_;}
+        MonitorElement * getMEhisto_PtForward_HLT() { return PtForward_HLT_;}
+        MonitorElement * getMEhisto_Eta_HLT() { return Eta_HLT_; }
+        MonitorElement * getMEhisto_Phi_HLT() { return Phi_HLT_; }
+        MonitorElement * getMEhisto_EtaPhi_HLT() { return EtaPhi_HLT_; }
 
- public:
-  explicit JetMETHLTOfflineSource(const edm::ParameterSet& );
-  virtual ~JetMETHLTOfflineSource();
-  
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        MonitorElement * getMEhisto_PtResolution_L1HLT() { return PtResolution_L1HLT_;}
+        MonitorElement * getMEhisto_EtaResolution_L1HLT() { return EtaResolution_L1HLT_;}
+        MonitorElement * getMEhisto_PhiResolution_L1HLT() { return PhiResolution_L1HLT_;}
+        MonitorElement * getMEhisto_PtResolution_L1RecObj() { return PtResolution_L1RecObj_;}
+        MonitorElement * getMEhisto_EtaResolution_L1RecObj() { return EtaResolution_L1RecObj_;}
+        MonitorElement * getMEhisto_PhiResolution_L1RecObj() { return PhiResolution_L1RecObj_;}
+        MonitorElement * getMEhisto_PtResolution_HLTRecObj() { return PtResolution_HLTRecObj_;}
+        MonitorElement * getMEhisto_EtaResolution_HLTRecObj() { return EtaResolution_HLTRecObj_;}
+        MonitorElement * getMEhisto_PhiResolution_HLTRecObj() { return PhiResolution_HLTRecObj_;}
+   
+        MonitorElement * getMEhisto_PtCorrelation_L1HLT() { return PtCorrelation_L1HLT_;}
+        MonitorElement * getMEhisto_EtaCorrelation_L1HLT() { return EtaCorrelation_L1HLT_;}
+        MonitorElement * getMEhisto_PhiCorrelation_L1HLT() { return PhiCorrelation_L1HLT_;}
+        MonitorElement * getMEhisto_PtCorrelation_L1RecObj() { return PtCorrelation_L1RecObj_;}
+        MonitorElement * getMEhisto_EtaCorrelation_L1RecObj() { return EtaCorrelation_L1RecObj_;}
+        MonitorElement * getMEhisto_PhiCorrelation_L1RecObj() { return PhiCorrelation_L1RecObj_;}
+        MonitorElement * getMEhisto_PtCorrelation_HLTRecObj() { return PtCorrelation_HLTRecObj_;}
+        MonitorElement * getMEhisto_EtaCorrelation_HLTRecObj() { return EtaCorrelation_HLTRecObj_;}
+        MonitorElement * getMEhisto_PhiCorrelation_HLTRecObj() { return PhiCorrelation_HLTRecObj_;}
 
-  virtual std::string getNumeratorTrigger(const std::string& name);
-  virtual std::string getDenominatorTrigger(const std::string& name);
-  virtual std::string getTriggerEffLevel(const std::string& name);
-  double getTriggerThreshold(const std::string& name);
+        MonitorElement * getMEhisto_NumeratorPt() { return NumeratorPt_;}
+        MonitorElement * getMEhisto_NumeratorPtBarrel() { return NumeratorPtBarrel_;}
+        MonitorElement * getMEhisto_NumeratorPtEndcap() { return NumeratorPtEndcap_;}
+        MonitorElement * getMEhisto_NumeratorPtForward() { return NumeratorPtForward_;}
+        MonitorElement * getMEhisto_NumeratorEta() { return NumeratorEta_; }
+        MonitorElement * getMEhisto_NumeratorPhi() { return NumeratorPhi_; }
+        MonitorElement * getMEhisto_NumeratorEtaPhi() { return NumeratorEtaPhi_; } 
+        MonitorElement * getMEhisto_DenominatorPt() { return DenominatorPt_;}
+        MonitorElement * getMEhisto_DenominatorPtBarrel() { return DenominatorPtBarrel_;}
+        MonitorElement * getMEhisto_DenominatorPtEndcap() { return DenominatorPtEndcap_;}
+        MonitorElement * getMEhisto_DenominatorPtForward() { return DenominatorPtForward_;}
+        MonitorElement * getMEhisto_DenominatorEta() { return DenominatorEta_; }
+        MonitorElement * getMEhisto_DenominatorPhi() { return DenominatorPhi_; }
+        MonitorElement * getMEhisto_DenominatorEtaPhi() { return DenominatorEtaPhi_; }
 
-  virtual void fillMEforEffSingleJet();
-  virtual void fillMEforEffDiJetAve();
-  virtual void fillMEforEffMET();
-  virtual void fillMEforEffMHT();
+        MonitorElement * getMEhisto_Eff_Pt() { return Eff_Pt_;}
+        MonitorElement * getMEhisto_Eff_PtBarrel() { return Eff_PtBarrel_;}
+        MonitorElement * getMEhisto_Eff_PtEndcap() { return Eff_PtEndcap_;}
+        MonitorElement * getMEhisto_Eff_PtForward() { return Eff_PtForward_;}
+        MonitorElement * getMEhisto_Eff_Eta() { return Eff_Eta_;}
+        MonitorElement * getMEhisto_Eff_Phi() { return Eff_Phi_;}
 
-  virtual void bookMEforEffSingleJet();
-  virtual void bookMEforEffDiJetAve();
-  virtual void bookMEforEffMET();
-  virtual void bookMEforEffMHT();
+        MonitorElement * getMEhisto_JetSize() {return JetSize_;}
+        MonitorElement * getMEhisto_JetPt() {return JetPt_;}
+        MonitorElement * getMEhisto_JetEta() {return JetEta_;}
+        MonitorElement * getMEhisto_EtavsPt1(){return EtavsPt1_;}
+        MonitorElement * getMEhisto_EtavsPt2(){return EtavsPt2_;}
+        MonitorElement * getMEhisto_Pt12() {return Pt12_;}
+        MonitorElement * getMEhisto_Eta12() {return Eta12_;}
 
-  virtual void fillMEforMonSingleJet();
-  virtual void fillMEforMonDiJetAve();
-  virtual void fillMEforMonMET();
-  virtual void fillMEforMonMHT();
+	const std::string getLabel(void ) const {
+	  return filterName_;
+	}
+	const std::string getDenomLabel(void ) const {
+	  return DenomfilterName_;
+	}
+	
+	void setLabel(std::string labelName){
+	  filterName_ = labelName;
+          return;
+	}
+	void setDenomLabel(std::string labelName){
+	  DenomfilterName_ = labelName;
+          return;
+	}
+	const std::string getPath(void ) const {
+	  return pathName_;
+	}
+	const std::string getl1Path(void ) const {
+	  return l1pathName_;
+	}
+	const std::string getDenomPath(void ) const {
+	  return denomPathName_;
+	}
+	const int getprescaleUsed(void) const {
+	  return prescaleUsed_;
+	}
+	const std::string getProcess(void ) const {
+	  return processName_;
+	}
+	const int getObjectType(void ) const {
+	  return objectType_;
+	}
+        const std::string getTriggerType(void ) const {
+          return triggerType_;
+        }    
+        
 
-  virtual void bookMEforMonSingleJet();
-  virtual void bookMEforMonDiJetAve();
-  virtual void bookMEforMonMET();
-  virtual void bookMEforMonMHT();
-
-  virtual bool isBarrel(double eta);
-  virtual bool isEndCap(double eta);
-  virtual bool isForward(double eta);
-
-  virtual bool validPathHLT(std::string path);
-
-  virtual bool isHLTPathAccepted(std::string pathName);
-  virtual bool isTriggerObjectFound(std::string objectName);
-
- private:
-  //
-  //--- helper class to store the data path ----------
-   class PathInfo { 
-     PathInfo(): 
-       denomPathName_("unset"),
-       denomPathNameL1s_("unset"),
-       denomPathNameHLT_("unset"),
-       pathName_("unset"),
-       pathNameL1s_("unset"),
-       pathNameHLT_("unset")
-       //processName_("unset"), 
-       //objectType_(-1),
-       //ptmin_(0.), 
-       //ptmax_(0.)
-       {}; 
-   public: 
-      void setHistos(  
- 		    MonitorElement* const NumeratorPt,  
- 		    MonitorElement* const NumeratorPtBarrel,  
- 		    MonitorElement* const NumeratorPtEndCap,  
- 		    MonitorElement* const NumeratorPtForward,  
- 		    MonitorElement* const NumeratorEta,  
- 		    MonitorElement* const NumeratorPhi,  
- 		    MonitorElement* const NumeratorEtaPhi,  
- 		    MonitorElement* const EmulatedNumeratorPt,  
- 		    MonitorElement* const EmulatedNumeratorPtBarrel,  
- 		    MonitorElement* const EmulatedNumeratorPtEndCap,  
- 		    MonitorElement* const EmulatedNumeratorPtForward,  
- 		    MonitorElement* const EmulatedNumeratorEta,  
- 		    MonitorElement* const EmulatedNumeratorPhi,  
- 		    MonitorElement* const EmulatedNumeratorEtaPhi,  
- 		    MonitorElement* const DenominatorPt,  
- 		    MonitorElement* const DenominatorPtBarrel,  
- 		    MonitorElement* const DenominatorPtEndCap,  
- 		    MonitorElement* const DenominatorPtForward,  
- 		    MonitorElement* const DenominatorEta,  
- 		    MonitorElement* const DenominatorPhi,  
- 		    MonitorElement* const DenominatorEtaPhi, 
- 		    MonitorElement* const NumeratorPtHLT,  
- 		    MonitorElement* const NumeratorPtHLTBarrel,  
- 		    MonitorElement* const NumeratorPtHLTEndCap,  
- 		    MonitorElement* const NumeratorPtHLTForward,  
- 		    MonitorElement* const NumeratorEtaHLT,  
- 		    MonitorElement* const NumeratorPhiHLT,  
- 		    MonitorElement* const NumeratorEtaPhiHLT,  
- 		    MonitorElement* const EmulatedNumeratorPtHLT,  
- 		    MonitorElement* const EmulatedNumeratorPtHLTBarrel,  
- 		    MonitorElement* const EmulatedNumeratorPtHLTEndCap,  
- 		    MonitorElement* const EmulatedNumeratorPtHLTForward,  
- 		    MonitorElement* const EmulatedNumeratorEtaHLT,  
- 		    MonitorElement* const EmulatedNumeratorPhiHLT,  
- 		    MonitorElement* const EmulatedNumeratorEtaPhiHLT,  
- 		    MonitorElement* const DenominatorPtHLT,  
- 		    MonitorElement* const DenominatorPtHLTBarrel,  
- 		    MonitorElement* const DenominatorPtHLTEndCap,  
- 		    MonitorElement* const DenominatorPtHLTForward,  
- 		    MonitorElement* const DenominatorEtaHLT,  
- 		    MonitorElement* const DenominatorPhiHLT,  
- 		    MonitorElement* const DenominatorEtaPhiHLT) 
-      { 
-        NumeratorPt_ 	 =NumeratorPt; 	 
-        NumeratorPtBarrel_ 	 =NumeratorPtBarrel; 	 
-        NumeratorPtEndCap_ 	 =NumeratorPtEndCap; 	 
-        NumeratorPtForward_ 	 =NumeratorPtForward; 	 
-        NumeratorEta_ 	 =NumeratorEta; 	 
-        NumeratorPhi_ 	 =NumeratorPhi; 	 
-        NumeratorEtaPhi_  =NumeratorEtaPhi;  
-        EmulatedNumeratorPt_ 	 =EmulatedNumeratorPt; 	 
-        EmulatedNumeratorPtBarrel_ 	 =EmulatedNumeratorPtBarrel; 	 
-        EmulatedNumeratorPtEndCap_ 	 =EmulatedNumeratorPtEndCap; 	 
-        EmulatedNumeratorPtForward_ 	 =EmulatedNumeratorPtForward; 	 
-        EmulatedNumeratorEta_ 	 =EmulatedNumeratorEta; 	 
-        EmulatedNumeratorPhi_ 	 =EmulatedNumeratorPhi; 	 
-        EmulatedNumeratorEtaPhi_  =EmulatedNumeratorEtaPhi;  
-        DenominatorPt_    =DenominatorPt; 	 
-        DenominatorPtBarrel_    =DenominatorPtBarrel; 	 
-        DenominatorPtEndCap_    =DenominatorPtEndCap; 	 
-        DenominatorPtForward_    =DenominatorPtForward; 	 
-        DenominatorEta_   =DenominatorEta; 	 
-        DenominatorPhi_   =DenominatorPhi; 	 
-        DenominatorEtaPhi_=DenominatorEtaPhi; 
-        NumeratorPtHLT_ 	 =NumeratorPtHLT; 	 
-        NumeratorPtHLTBarrel_ 	 =NumeratorPtHLTBarrel; 	 
-        NumeratorPtHLTEndCap_ 	 =NumeratorPtHLTEndCap; 	 
-        NumeratorPtHLTForward_ 	 =NumeratorPtHLTForward; 	 
-        NumeratorEtaHLT_ 	 =NumeratorEtaHLT; 	 
-        NumeratorPhiHLT_ 	 =NumeratorPhiHLT; 	 
-        NumeratorEtaPhiHLT_  =NumeratorEtaPhiHLT;  
-        EmulatedNumeratorPtHLT_ 	 =EmulatedNumeratorPtHLT; 	 
-        EmulatedNumeratorPtHLTBarrel_ 	 =EmulatedNumeratorPtHLTBarrel; 	 
-        EmulatedNumeratorPtHLTEndCap_ 	 =EmulatedNumeratorPtHLTEndCap; 	 
-        EmulatedNumeratorPtHLTForward_ 	 =EmulatedNumeratorPtHLTForward; 	 
-        EmulatedNumeratorEtaHLT_ 	 =EmulatedNumeratorEtaHLT; 	 
-        EmulatedNumeratorPhiHLT_ 	 =EmulatedNumeratorPhiHLT; 	 
-        EmulatedNumeratorEtaPhiHLT_  =EmulatedNumeratorEtaPhiHLT;  
-        DenominatorPtHLT_    =DenominatorPtHLT; 	 
-        DenominatorPtHLTBarrel_    =DenominatorPtHLTBarrel; 	 
-        DenominatorPtHLTEndCap_    =DenominatorPtHLTEndCap; 	 
-        DenominatorPtHLTForward_    =DenominatorPtHLTForward; 	 
-        DenominatorEtaHLT_   =DenominatorEtaHLT; 	 
-        DenominatorPhiHLT_   =DenominatorPhiHLT; 	 
-        DenominatorEtaPhiHLT_=DenominatorEtaPhiHLT; 
-      }; 
-     ~PathInfo() {};
-     PathInfo(std::string denomPathName, 
-	      std::string pathName,
-	      std::string trigEffLevel,
-	      double trigThreshold):
-	      //std::string processName,
-	      //size_t type, 
-	      //float ptmin,
-	      //float ptmax):
-       denomPathName_(denomPathName), 
-       pathName_(pathName),
-       trigEffLevel_(trigEffLevel),
-       trigThreshold_(trigThreshold)
-       //processName_(processName), 
-       //objectType_(type),
-       //ptmin_(ptmin), 
-       //ptmax_(ptmax)
-	 {
-	 };
-       float getPtMin() const { return ptmin_; } 
-       float getPtMax() const { return ptmax_; }
-       int type()       const { return objectType_; } 
-       std::string getDenomPathName() { return denomPathName_; }
-       std::string getPathName()      { return pathName_; }
-       std::string getTrigEffLevel()  { return trigEffLevel_;}
-       std::string getPathNameAndLevel() { return trigEffLevel_+"_"+pathName_;}
-       double      getTrigThreshold()  { return trigThreshold_;}
-       std::string getPathNameL1s()   { return pathNameL1s_;}
-       std::string getPathNameHLT()   { return pathNameHLT_;}
-       void setPathNameL1s(std::string input) { pathNameL1s_=input;}
-       void setPathNameHLT(std::string input) { pathNameHLT_=input;}
-       std::string getDenomPathNameL1s()   { return denomPathNameL1s_;}
-       std::string getDenomPathNameHLT()   { return denomPathNameHLT_;}
-       void setDenomPathNameL1s(std::string input) { denomPathNameL1s_=input;}
-       void setDenomPathNameHLT(std::string input) { denomPathNameHLT_=input;}
-
-       MonitorElement * getMENumeratorPt()     { return NumeratorPt_;}
-       MonitorElement * getMENumeratorPtBarrel()     { return NumeratorPtBarrel_;}
-       MonitorElement * getMENumeratorPtEndCap()     { return NumeratorPtEndCap_;}
-       MonitorElement * getMENumeratorPtForward()    { return NumeratorPtForward_;}
-       MonitorElement * getMENumeratorEta()    { return NumeratorEta_;}
-       MonitorElement * getMENumeratorPhi()    { return NumeratorPhi_;}
-       MonitorElement * getMENumeratorEtaPhi() { return NumeratorEtaPhi_;}
-
-       MonitorElement * getMEEmulatedNumeratorPt()     { return EmulatedNumeratorPt_;}
-       MonitorElement * getMEEmulatedNumeratorPtBarrel()     { return EmulatedNumeratorPtBarrel_;}
-       MonitorElement * getMEEmulatedNumeratorPtEndCap()     { return EmulatedNumeratorPtEndCap_;}
-       MonitorElement * getMEEmulatedNumeratorPtForward()    { return EmulatedNumeratorPtForward_;}
-       MonitorElement * getMEEmulatedNumeratorEta()    { return EmulatedNumeratorEta_;}
-       MonitorElement * getMEEmulatedNumeratorPhi()    { return EmulatedNumeratorPhi_;}
-       MonitorElement * getMEEmulatedNumeratorEtaPhi() { return EmulatedNumeratorEtaPhi_;}
-
-       MonitorElement * getMEDenominatorPt()     { return DenominatorPt_;}
-       MonitorElement * getMEDenominatorPtBarrel()     { return DenominatorPtBarrel_;}
-       MonitorElement * getMEDenominatorPtEndCap()     { return DenominatorPtEndCap_;}
-       MonitorElement * getMEDenominatorPtForward()    { return DenominatorPtForward_;}
-       MonitorElement * getMEDenominatorEta()    { return DenominatorEta_;}
-       MonitorElement * getMEDenominatorPhi()    { return DenominatorPhi_;}
-       MonitorElement * getMEDenominatorEtaPhi() { return DenominatorEtaPhi_;}
-
-       MonitorElement * getMENumeratorPtHLT()     { return NumeratorPtHLT_;}
-       MonitorElement * getMENumeratorPtHLTBarrel()     { return NumeratorPtHLTBarrel_;}
-       MonitorElement * getMENumeratorPtHLTEndCap()     { return NumeratorPtHLTEndCap_;}
-       MonitorElement * getMENumeratorPtHLTForward()    { return NumeratorPtHLTForward_;}
-       MonitorElement * getMENumeratorEtaHLT()    { return NumeratorEtaHLT_;}
-       MonitorElement * getMENumeratorPhiHLT()    { return NumeratorPhiHLT_;}
-       MonitorElement * getMENumeratorEtaPhiHLT() { return NumeratorEtaPhiHLT_;}
-
-       MonitorElement * getMEEmulatedNumeratorPtHLT()     { return EmulatedNumeratorPtHLT_;}
-       MonitorElement * getMEEmulatedNumeratorPtHLTBarrel()     { return EmulatedNumeratorPtHLTBarrel_;}
-       MonitorElement * getMEEmulatedNumeratorPtHLTEndCap()     { return EmulatedNumeratorPtHLTEndCap_;}
-       MonitorElement * getMEEmulatedNumeratorPtHLTForward()    { return EmulatedNumeratorPtHLTForward_;}
-       MonitorElement * getMEEmulatedNumeratorEtaHLT()    { return EmulatedNumeratorEtaHLT_;}
-       MonitorElement * getMEEmulatedNumeratorPhiHLT()    { return EmulatedNumeratorPhiHLT_;}
-       MonitorElement * getMEEmulatedNumeratorEtaPhiHLT() { return EmulatedNumeratorEtaPhiHLT_;}
-
-       MonitorElement * getMEDenominatorPtHLT()     { return DenominatorPtHLT_;}
-       MonitorElement * getMEDenominatorPtHLTBarrel()     { return DenominatorPtHLTBarrel_;}
-       MonitorElement * getMEDenominatorPtHLTEndCap()     { return DenominatorPtHLTEndCap_;}
-       MonitorElement * getMEDenominatorPtHLTForward()    { return DenominatorPtHLTForward_;}
-       MonitorElement * getMEDenominatorEtaHLT()    { return DenominatorEtaHLT_;}
-       MonitorElement * getMEDenominatorPhiHLT()    { return DenominatorPhiHLT_;}
-       MonitorElement * getMEDenominatorEtaPhiHLT() { return DenominatorEtaPhiHLT_;}
-
-   bool operator==(const std::string v)
+        const edm::InputTag getTag(void) const{
+	  edm::InputTag tagName(filterName_,"",processName_);
+          return tagName;
+	}
+	const edm::InputTag getDenomTag(void) const{
+	  edm::InputTag tagName(DenomfilterName_,"",processName_);
+          return tagName;
+	}
+     bool operator==(const std::string v)
    {
      return v==pathName_;
-   }
-   private:
-       std::string denomPathName_;
-       std::string denomPathNameL1s_;
-       std::string denomPathNameHLT_;
-       std::string pathName_;
-       std::string pathNameL1s_;
-       std::string pathNameHLT_;
-       //std::string processName_;
-       std::string trigEffLevel_;
-       double trigThreshold_;
-       int objectType_;
-       float ptmin_, ptmax_;
-     
-       // we don't own this data 
-       MonitorElement *NumeratorPt_; 
-       MonitorElement *NumeratorPtBarrel_; 
-       MonitorElement *NumeratorPtEndCap_; 
-       MonitorElement *NumeratorPtForward_; 
-       MonitorElement *NumeratorEta_;
-       MonitorElement *NumeratorPhi_;
-       MonitorElement *NumeratorEtaPhi_;
-       MonitorElement *EmulatedNumeratorPt_; 
-       MonitorElement *EmulatedNumeratorPtBarrel_; 
-       MonitorElement *EmulatedNumeratorPtEndCap_; 
-       MonitorElement *EmulatedNumeratorPtForward_; 
-       MonitorElement *EmulatedNumeratorEta_;
-       MonitorElement *EmulatedNumeratorPhi_;
-       MonitorElement *EmulatedNumeratorEtaPhi_;
-       MonitorElement *DenominatorPt_;
-       MonitorElement *DenominatorPtBarrel_;
-       MonitorElement *DenominatorPtEndCap_;
-       MonitorElement *DenominatorPtForward_;
-       MonitorElement *DenominatorEta_;
-       MonitorElement *DenominatorPhi_;
-       MonitorElement *DenominatorEtaPhi_;
+   } 
+      private:
+          int pathIndex_;
+          int prescaleUsed_;
+          std::string denomPathName_;
+          std::string pathName_;
+          std::string l1pathName_;
+          std::string filterName_;
+          std::string DenomfilterName_;
+          std::string processName_;
+          int objectType_;
+          std::string triggerType_;
 
-       MonitorElement *NumeratorPtHLT_; 
-       MonitorElement *NumeratorPtHLTBarrel_; 
-       MonitorElement *NumeratorPtHLTEndCap_; 
-       MonitorElement *NumeratorPtHLTForward_; 
-       MonitorElement *NumeratorEtaHLT_;
-       MonitorElement *NumeratorPhiHLT_;
-       MonitorElement *NumeratorEtaPhiHLT_;
-       MonitorElement *EmulatedNumeratorPtHLT_; 
-       MonitorElement *EmulatedNumeratorPtHLTBarrel_; 
-       MonitorElement *EmulatedNumeratorPtHLTEndCap_; 
-       MonitorElement *EmulatedNumeratorPtHLTForward_; 
-       MonitorElement *EmulatedNumeratorEtaHLT_;
-       MonitorElement *EmulatedNumeratorPhiHLT_;
-       MonitorElement *EmulatedNumeratorEtaPhiHLT_;
-       MonitorElement *DenominatorPtHLT_;
-       MonitorElement *DenominatorPtHLTBarrel_;
-       MonitorElement *DenominatorPtHLTEndCap_;
-       MonitorElement *DenominatorPtHLTForward_;
-       MonitorElement *DenominatorEtaHLT_;
-       MonitorElement *DenominatorPhiHLT_;
-       MonitorElement *DenominatorEtaPhiHLT_;
-              
-   };
+          MonitorElement*  N_;
+          MonitorElement*  Pt_;
+          MonitorElement*  PtBarrel_;
+          MonitorElement*  PtEndcap_;
+          MonitorElement*  PtForward_;
+          MonitorElement*  Eta_;
+          MonitorElement*  Phi_;
+          MonitorElement*  EtaPhi_;
+          MonitorElement*  N_L1_;
+          MonitorElement*  Pt_L1_;
+          MonitorElement*  PtBarrel_L1_;
+          MonitorElement*  PtEndcap_L1_;
+          MonitorElement*  PtForward_L1_;
+          MonitorElement*  Eta_L1_;
+          MonitorElement*  Phi_L1_;
+          MonitorElement*  EtaPhi_L1_;
+          MonitorElement*  N_HLT_;
+          MonitorElement*  Pt_HLT_;
+          MonitorElement*  PtBarrel_HLT_;
+          MonitorElement*  PtEndcap_HLT_;
+          MonitorElement*  PtForward_HLT_;
+          MonitorElement*  Eta_HLT_;
+          MonitorElement*  Phi_HLT_;
+          MonitorElement*  EtaPhi_HLT_;
+
+          MonitorElement*  PtResolution_L1HLT_;
+          MonitorElement*  EtaResolution_L1HLT_;
+          MonitorElement*  PhiResolution_L1HLT_;
+          MonitorElement*  PtResolution_L1RecObj_;
+          MonitorElement*  EtaResolution_L1RecObj_;
+          MonitorElement*  PhiResolution_L1RecObj_;
+          MonitorElement*  PtResolution_HLTRecObj_;
+          MonitorElement*  EtaResolution_HLTRecObj_;
+          MonitorElement*  PhiResolution_HLTRecObj_;
+          MonitorElement*  PtCorrelation_L1HLT_;
+          MonitorElement*  EtaCorrelation_L1HLT_;
+          MonitorElement*  PhiCorrelation_L1HLT_;
+          MonitorElement*  PtCorrelation_L1RecObj_;
+          MonitorElement*  EtaCorrelation_L1RecObj_;
+          MonitorElement*  PhiCorrelation_L1RecObj_;
+          MonitorElement*  PtCorrelation_HLTRecObj_;
+          MonitorElement*  EtaCorrelation_HLTRecObj_;
+          MonitorElement*  PhiCorrelation_HLTRecObj_;
+          
+          MonitorElement*  NumeratorPt_;
+          MonitorElement*  NumeratorPtBarrel_;
+          MonitorElement*  NumeratorPtEndcap_;
+          MonitorElement*  NumeratorPtForward_;
+          MonitorElement*  NumeratorEta_;
+          MonitorElement*  NumeratorPhi_;
+          MonitorElement*  NumeratorEtaPhi_;
+          MonitorElement*  DenominatorPt_;
+          MonitorElement*  DenominatorPtBarrel_;
+          MonitorElement*  DenominatorPtEndcap_;
+          MonitorElement*  DenominatorPtForward_;
+          MonitorElement*  DenominatorEta_;
+          MonitorElement*  DenominatorPhi_;
+          MonitorElement*  DenominatorEtaPhi_;
+
+          MonitorElement*  Eff_Pt_;
+          MonitorElement*  Eff_PtBarrel_;
+          MonitorElement*  Eff_PtEndcap_;
+          MonitorElement*  Eff_PtForward_;
+          MonitorElement*  Eff_Eta_;
+          MonitorElement*  Eff_Phi_;
+
+          MonitorElement*  JetSize_;
+          MonitorElement*  JetPt_;
+          MonitorElement*  JetEta_;
+          MonitorElement*  EtavsPt1_;
+          MonitorElement*  EtavsPt2_;
+          MonitorElement*  Pt12_;
+          MonitorElement*  Eta12_;
+        };
    
-   // simple collection 
+       // simple collection 
    class PathInfoCollection: public std::vector<PathInfo> {
    public:
      PathInfoCollection(): std::vector<PathInfo>()
        {};
        std::vector<PathInfo>::iterator find(std::string pathName) {
-	 return std::find(begin(), end(), pathName);
+        return std::find(begin(), end(), pathName);
        }
    };
-   //PathInfoCollection hltPaths_;
 
-   // list of trigger paths for getting efficiencies
-   PathInfoCollection HLTPathsEffSingleJet_;
-   PathInfoCollection HLTPathsEffDiJetAve_;
-   PathInfoCollection HLTPathsEffMET_;
-   PathInfoCollection HLTPathsEffMHT_;
+      PathInfoCollection hltPathsAll_;
+      PathInfoCollection hltPathsEff_;
+      PathInfoCollection hltPathsEffWrtMu_;
+      PathInfoCollection hltPathsEffWrtMB_;
+      PathInfoCollection hltPathsWrtMu_;
+      PathInfoCollection hltPathsNTfired_;
+      
+      MonitorElement* rate_All;
+      MonitorElement* rate_AllWrtMu;
+      MonitorElement* rate_AllWrtMB;
 
-   //
-   //--- helper class to store the data path ----------
-   class PathHLTMonInfo { 
-     PathHLTMonInfo(): 
-       pathName_("unset")
-       //processName_("unset"), 
-       //objectType_(-1),
-       //ptmin_(0.), 
-       //ptmax_(0.)
-       {}; 
-   public: 
-      void setHistos(  
- 		    MonitorElement* const Pt,  
- 		    MonitorElement* const PtBarrel,  
- 		    MonitorElement* const PtEndCap,  
- 		    MonitorElement* const PtForward,  
- 		    MonitorElement* const Eta,  
- 		    MonitorElement* const Phi,  
- 		    MonitorElement* const EtaPhi,  
- 		    MonitorElement* const PtHLT,  
- 		    MonitorElement* const PtHLTBarrel,  
- 		    MonitorElement* const PtHLTEndCap,  
- 		    MonitorElement* const PtHLTForward,  
- 		    MonitorElement* const EtaHLT,  
- 		    MonitorElement* const PhiHLT,  
- 		    MonitorElement* const EtaPhiHLT,
-                    MonitorElement* const PtL1s,  
- 		    MonitorElement* const PtL1sBarrel,  
- 		    MonitorElement* const PtL1sEndCap,  
- 		    MonitorElement* const PtL1sForward,  
- 		    MonitorElement* const EtaL1s,  
- 		    MonitorElement* const PhiL1s,  
- 		    MonitorElement* const EtaPhiL1s) 
-      { 
-        Pt_ 	         =Pt; 	 
-        PtBarrel_ 	 =PtBarrel; 	 
-        PtEndCap_ 	 =PtEndCap; 	 
-        PtForward_ 	 =PtForward; 	 
-        Eta_ 	         =Eta; 	 
-        Phi_ 	         =Phi; 	 
-        EtaPhi_         =EtaPhi;  
-
-        PtHLT_ 	 =PtHLT; 	 
-        PtHLTBarrel_ 	 =PtHLTBarrel; 	 
-        PtHLTEndCap_ 	 =PtHLTEndCap; 	 
-        PtHLTForward_ 	 =PtHLTForward; 	 
-        EtaHLT_ 	 =EtaHLT; 	 
-        PhiHLT_ 	 =PhiHLT; 	 
-        EtaPhiHLT_      =EtaPhiHLT;  
-
-        PtL1s_ 	 =PtL1s; 	 
-        PtL1sBarrel_ 	 =PtL1sBarrel; 	 
-        PtL1sEndCap_ 	 =PtL1sEndCap; 	 
-        PtL1sForward_ 	 =PtL1sForward; 	 
-        EtaL1s_ 	 =EtaL1s; 	 
-        PhiL1s_ 	 =PhiL1s; 	 
-        EtaPhiL1s_      =EtaPhiL1s;  
-      }; 
-     ~PathHLTMonInfo() {};
-     PathHLTMonInfo(std::string pathName):
-	      //std::string processName,
-	      //size_t type, 
-	      //float ptmin,
-	      //float ptmax):
-       pathName_(pathName)
-       //processName_(processName), 
-       //objectType_(type),
-       //ptmin_(ptmin), 
-       //ptmax_(ptmax)
-	 {
-	 };
-       float getPtMin() const { return ptmin_; } 
-       float getPtMax() const { return ptmax_; }
-       int type()       const { return objectType_; } 
-       std::string getPathName()      { return pathName_; }
-       std::string getPathNameL1s()   { return pathNameL1s_;}
-       std::string getPathNameHLT()   { return pathNameHLT_;}
-       void setPathNameL1s(std::string input) { pathNameL1s_=input;}
-       void setPathNameHLT(std::string input) { pathNameHLT_=input;}
-
-       MonitorElement * getMEPt()     { return Pt_;}
-       MonitorElement * getMEPtBarrel()     { return PtBarrel_;}
-       MonitorElement * getMEPtEndCap()     { return PtEndCap_;}
-       MonitorElement * getMEPtForward()    { return PtForward_;}
-       MonitorElement * getMEEta()    { return Eta_;}
-       MonitorElement * getMEPhi()    { return Phi_;}
-       MonitorElement * getMEEtaPhi() { return EtaPhi_;}
-
-       MonitorElement * getMEPtHLT()     { return PtHLT_;}
-       MonitorElement * getMEPtHLTBarrel()     { return PtHLTBarrel_;}
-       MonitorElement * getMEPtHLTEndCap()     { return PtHLTEndCap_;}
-       MonitorElement * getMEPtHLTForward()    { return PtHLTForward_;}
-       MonitorElement * getMEEtaHLT()    { return EtaHLT_;}
-       MonitorElement * getMEPhiHLT()    { return PhiHLT_;}
-       MonitorElement * getMEEtaPhiHLT() { return EtaPhiHLT_;}
-
-       MonitorElement * getMEPtL1s()     { return PtL1s_;}
-       MonitorElement * getMEPtL1sBarrel()     { return PtL1sBarrel_;}
-       MonitorElement * getMEPtL1sEndCap()     { return PtL1sEndCap_;}
-       MonitorElement * getMEPtL1sForward()    { return PtL1sForward_;}
-       MonitorElement * getMEEtaL1s()    { return EtaL1s_;}
-       MonitorElement * getMEPhiL1s()    { return PhiL1s_;}
-       MonitorElement * getMEEtaPhiL1s() { return EtaPhiL1s_;}
-
-   bool operator==(const std::string v)
-   {
-     return v==pathName_;
-   }
-   private:
-       std::string pathName_;
-       std::string pathNameL1s_;
-       std::string pathNameHLT_;
-       //std::string processName_;
-       int objectType_;
-       float ptmin_, ptmax_;
+      MonitorElement* correlation_All;
+      MonitorElement* correlation_AllWrtMu;
+      MonitorElement* correlation_AllWrtMB;
      
-       // we don't own this data 
-       MonitorElement *Pt_; 
-       MonitorElement *PtBarrel_; 
-       MonitorElement *PtEndCap_; 
-       MonitorElement *PtForward_; 
-       MonitorElement *Eta_;
-       MonitorElement *Phi_;
-       MonitorElement *EtaPhi_;
 
-       MonitorElement *PtHLT_; 
-       MonitorElement *PtHLTBarrel_; 
-       MonitorElement *PtHLTEndCap_; 
-       MonitorElement *PtHLTForward_; 
-       MonitorElement *EtaHLT_;
-       MonitorElement *PhiHLT_;
-       MonitorElement *EtaPhiHLT_;
-       
-       MonitorElement *PtL1s_; 
-       MonitorElement *PtL1sBarrel_; 
-       MonitorElement *PtL1sEndCap_; 
-       MonitorElement *PtL1sForward_; 
-       MonitorElement *EtaL1s_;
-       MonitorElement *PhiL1s_;
-       MonitorElement *EtaPhiL1s_;
-       
-   };
-   
-   // simple collection 
-   class PathHLTMonInfoCollection: public std::vector<PathHLTMonInfo> {
-   public:
-     PathHLTMonInfoCollection(): std::vector<PathHLTMonInfo>()
-       {};
-       std::vector<PathHLTMonInfo>::iterator find(std::string pathName) {
-	 return std::find(begin(), end(), pathName);
-       }
-   };
-   //PathHLTMonInfoCollection hltMonPaths_;
-
-   PathHLTMonInfoCollection HLTPathsMonSingleJet_;
-   PathHLTMonInfoCollection HLTPathsMonDiJetAve_;
-   PathHLTMonInfoCollection HLTPathsMonMET_;
-   PathHLTMonInfoCollection HLTPathsMonMHT_;
-
- public:
-   PathInfoCollection fillL1andHLTModuleNames(PathInfoCollection hltPaths, 
-				       std::string L1ModuleName, std::string HLTModuleName);
-   PathHLTMonInfoCollection fillL1andHLTModuleNames(PathHLTMonInfoCollection hltPaths, 
-				       std::string L1ModuleName, std::string HLTModuleName);
-   virtual bool isTrigAcceptedEmulatedSingleJet(PathInfo v);
-   virtual bool isTrigAcceptedEmulatedDiJetAve(PathInfo v);
-   virtual bool isTrigAcceptedEmulatedMET(PathInfo v);
-
+      MonitorElement* rate_Eff;
+      MonitorElement* rate_Denominator;
+      MonitorElement* rate_Numerator;
+	
+	
 };
- 
 #endif
+
