@@ -379,7 +379,7 @@ MELaserPrim::fillHistograms()
   nentries = pn_tree->GetEntriesFast();
   assert( nentries%2==0 );
   //  cout << "nentries=" << nentries << endl;
-  int module_, pn_[2];
+  int module_(0), pn_[2];
   int id1_(_sm), id2_(0);
   int logic_id_(0);
   
