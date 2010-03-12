@@ -1,0 +1,6 @@
+<bin   name="testRandomNumberGenerators" file="testRandomNumberGenerators.cpp">
+  <use   name="clhep"/>
+  <use   name="rootcore"/>
+  <use   name="roothistmatrix"/>
+  <use   name="geant4core"/>
+</bin>

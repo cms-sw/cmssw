@@ -30,7 +30,8 @@ namespace edm {
   class Timestamp;
   class Event;
   class EventSetup;
-  
+  class ConfigurationDescriptions;
+
   namespace service {
 
     class RandomNumberGeneratorService : public RandomNumberGenerator
@@ -40,6 +41,8 @@ namespace edm {
 
       RandomNumberGeneratorService(const ParameterSet& iPSet, ActivityRegistry& iRegistry);
       virtual ~RandomNumberGeneratorService();
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
       virtual CLHEP::HepRandomEngine& getEngine() const;    
 

@@ -16,6 +16,8 @@
 #include <fstream>
 #include <limits>
 #include <unistd.h>
+#include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -25,6 +27,9 @@
 #include "CLHEP/Random/RanecuEngine.h"
 #include "CLHEP/Random/engineIDulong.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterWildcard.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -51,11 +56,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   restoreFileName_(std::string()),
   oldStyle_(false)
 {
-
-  std::string labels;
   std::vector<uint32_t> seeds;
-  PSet  empty_PSet;
-  VString  empty_VString;
   Vuint32  empty_Vuint32;
 
   // Record the names of the files to use to store engine states at the end of
@@ -64,8 +65,8 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   saveFileName_    = iPSet.getUntrackedParameter<std::string>("saveFileName",   std::string());
   restoreFileName_ = iPSet.getUntrackedParameter<std::string>("restoreFileName",std::string());
 
-// The saveFileName and must correspond to a file name without any path specification.
-// Throw if that is not true.
+  // The saveFileName and must correspond to a file name without any path specification.
+  // Throw if that is not true.
   if(!saveFileName_.empty() && (saveFileName_.find("/") != std::string::npos)) {
     std::ostringstream sstr;
     sstr << "Configuration: The saveFileName parameter " << saveFileName_ << "\n" 
@@ -74,72 +75,28 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     throw except;
   }     
 
-// Check if the configuration file is still expressed in the old style.
-// We do this by looking for a PSet named moduleSeeds.  That parameter is 
-// unique to an old style cfg file.
+  // Check if the configuration file is still expressed in the old style.
+  // We do this by looking for a PSet named moduleSeeds or a parameter named
+  // sourceSeed.  Those parameters are unique to an old style cfg file.
 
-  VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
-  for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
-    if(*it == std::string("moduleSeeds")) oldStyle_ = true;
-  }
-
-// If only the source needs a random engine, there won't be a PSet named moduleSeeds and
-// this test will fail.  To cover that case, look for a sourceSeed parameter as well.  
-
-  if(iPSet.getUntrackedParameter<uint32_t>("sourceSeed",0) != 0) oldStyle_ = true;
+  if (iPSet.exists("moduleSeeds") || iPSet.exists("sourceSeed")) oldStyle_ = true;
       
   if(oldStyle_) {
     oldStyleConfig(iPSet);
-  } else {
-
-// We have a new style configuration file. deal with it here.
-// Loop over parameters of type ParameterSet and look for things
-// that should not appear in new-style cfg files. If any are found,
-// it means the user has supplied a mixture of new- and old-style
-// configuration parameters that can't possibly work correctly.
+  }
+  else {
 
     bool source;
     std::string engineName;
     uint32_t initialSeed;
     std::vector<uint32_t> initialSeedSet;
 
-    std::string sourceEngine = iPSet.getUntrackedParameter<std::string>("sourceEngine",std::string(""));
-    if(!sourceEngine.empty()) {
-      throw edm::Exception(edm::errors::Configuration)
-        << "sourceEngine is obsolete for new-style configuration files." 
-        << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
-    }
-
-    uint32_t sourceSeed = iPSet.getUntrackedParameter<uint32_t>("sourceSeed",0);
-    if(sourceSeed != 0) {
-      throw edm::Exception(edm::errors::Configuration)
-        << "sourceSeed is obsolete for new-style configuration files." 
-        << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
-    }
-
-    std::vector<uint32_t> sourceSeedVector = iPSet.getUntrackedParameter<std::vector<uint32_t> >("sourceSeedVector",empty_Vuint32);
-    if(!sourceSeedVector.empty()) {
-      throw edm::Exception(edm::errors::Configuration)
-        << "sourceSeedVector is obsolete for new-style configuration files." 
-        << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
-    }
-
     VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
     for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
+
       source = false;
-      if(*it == std::string("moduleEngines")) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "moduleEngines is obsolete for new-style configuration files." 
-          << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
-      }
   
-      if(*it == std::string("moduleSeedVectors")) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "moduleSeedVectors is obsolete for new-style configuration files." 
-          << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
-      }
-  
-  // Deal with a source engine here
+      // Deal with a source engine here
       if(*it == std::string("theSource")) source = true;
   
       PSet secondary = iPSet.getParameter<edm::ParameterSet>(*it);
@@ -150,7 +107,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
           << " does not correspond to a supported engine." ;
       }
   
-  // For the CLHEP::RanecuEngine case, require a seed set containing exactly two seeds.
+      // For the CLHEP::RanecuEngine case, require a seed set containing exactly two seeds.
   
       if(engineName == std::string("RanecuEngine")) {
         if(secondary.exists("initialSeedSet")) {
@@ -194,13 +151,12 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
             << "No initialSeedSet was supplied for engine " << engineName
             << ". Aborting." ;
         }
-  
-  // For the other engines, require one seed each as follows:
-  //   If a single seed is offered, accept it unconditionally.
-  //   If a seed set is offered use the first element of the set unconditionally.
-  //   If both are offered, preferentially use the first element of the set.
-  
-      } else {
+      }
+      // For the other engines, require one seed each as follows:
+      //   If a single seed is offered, accept it unconditionally.
+      //   If a seed set is offered use the first element of the set unconditionally.
+      //   If both are offered, preferentially use the first element of the set.
+      else {
         initialSeed = 0;
         if(secondary.exists("initialSeed"))  {
           initialSeed = secondary.getUntrackedParameter<uint32_t>("initialSeed",0);
@@ -280,6 +236,37 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
 }
 
 RandomNumberGeneratorService::~RandomNumberGeneratorService() {
+}
+
+void
+RandomNumberGeneratorService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+
+  std::string emptyString;
+  desc.addUntracked<std::string>("restoreStateLabel", emptyString);
+  desc.addUntracked<std::string>("saveFileName", emptyString);
+  desc.addUntracked<std::string>("restoreFileName", emptyString);
+
+  edm::ParameterSetDescription val;
+  // When the migration away from the deprecated interface is complete it would be better
+  // to change the next line to a declaration of a single parameter named initialSeed instead
+  // of being a wildcard.  Also the next two lines might also be combined with an "exclusive or"
+  // operator.
+  val.addWildcardUntracked<uint32_t>("*")->setComment("In the new interface, this wildcard will "
+    "match either nothing or one parameter named initialSeed.  Either initialSeed will exist or "
+    "initialSeedSet will exist but not both.  In the old deprecated interface, this will match "
+    "parameters with the names being the module labels and the values being the seeds");
+  val.addOptionalUntracked<std::vector<uint32_t> >("initialSeedSet")->setComment("New interface only");
+  val.addOptionalUntracked<std::string>("engineName",std::string("HepJamesRandom"))->setComment("New interface only");
+
+  edm::ParameterWildcard<edm::ParameterSetDescription> wnode("*", edm::RequireZeroOrMore, true, val);
+  wnode.setComment("In the new interface, the name of each ParameterSet will be the associated module label. "
+    "In the old deprecated interface there will be one ParameterSet named moduleSeeds");
+  desc.addNode(wnode);
+
+  desc.addOptionalUntracked<uint32_t>("sourceSeed");
+
+  descriptions.add("RandomNumberGeneratorService", desc);
 }
 
 CLHEP::HepRandomEngine& 
@@ -1154,70 +1141,36 @@ std::string RandomNumberGeneratorService::constructSaveFileName()
 void
 RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
 {
-  std::string labels;
   std::vector<uint32_t> seeds;
-  PSet  empty_PSet;
-  VString  empty_VString;
-  Vuint32  empty_Vuint32;
-
-  std::string engineName;
 
   VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
   for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
-    if(*it == std::string("theSource")) {
+    if(*it != std::string("moduleSeeds")) {
       throw edm::Exception(edm::errors::Configuration)
-        << "PSet theSource is not recognized for old-style configuration files." 
-        << "\nYou must be consistent in your use of new- or old-style cfg format"
-        << "\nfor the RandomNumberGeneratorService." ;
+        << "RandomNumberGeneratorService supports two configuration interfaces.\n" 
+        << "One is old and deprecated, but still supported for backward compatibility\n"
+        << "reasons. It is illegal to mix parameters for both the old and new service\n"
+        << "interface in the same ParameterSet. It is assumed the old interface is being\n"
+        << "used if the parameters moduleSeeds or sourceSeed exist.  In that case it is\n"
+        << "illegal to have any other nested ParameterSets. This exception was thrown\n"
+        << "because that happened.\n";
     }
   }
 
-  // If there is more than one seed required to initialize the engine type you want to use,
-  // the vector form must be used.  Otherwise, either works.  The default engine only requires
-  // one seed.  If both the vector seed and single seed commands appear in the configuration
-  // file, then the vector form gets used and the other ignored.
-
-  if(iPSet.exists("sourceSeedVector")) {
-    seeds = iPSet.getUntrackedParameter<std::vector<uint32_t> >("sourceSeedVector");
-  // If there is no vector look for a single seed
-  } else if(iPSet.exists("sourceSeed")) {
-      uint32_t seed = iPSet.getUntrackedParameter<uint32_t>("sourceSeed");
-      seeds.push_back(seed);
-  }
-
-  // If you find seed(s) for the source, save it
-  if (seeds.size() > 0) {
+  if (iPSet.exists("sourceSeed")) {
+    uint32_t seed = iPSet.getUntrackedParameter<uint32_t>("sourceSeed");
+    seeds.push_back(seed);
     seedMap_[sourceLabel] = seeds;
   }
 
-  if(iPSet.exists("moduleSeedVectors")) {
-    const edm::ParameterSet& moduleSeedVectors = iPSet.getParameter<edm::ParameterSet>("moduleSeedVectors");
-    
-    std::vector<std::string> names = moduleSeedVectors.getParameterNames();
-    for(std::vector<std::string>::const_iterator itName = names.begin(), itNameEnd = names.end(); itName != itNameEnd; ++itName) {
-
-      if(seedMap_.find(*itName) == seedMap_.end()) {
-        if(moduleSeedVectors.exists(*itName)) {
-          seeds = moduleSeedVectors.getUntrackedParameter<std::vector<uint32_t> >(*itName);
-          if (seeds.size() > 0) {
-            seedMap_[*itName] = seeds;
-          }
-        }
-      }
-    }
-        // If there is something wrong, skip it. If this random engine or seed is actually needed
-        // an exception will be thrown when the engine or seed is requested and not available
-  }
-    // It is OK if this is missing.
-
   if(iPSet.exists("moduleSeeds")) {
-    const edm::ParameterSet& moduleSeeds = iPSet.getParameter<edm::ParameterSet>("moduleSeeds");
+    const edm::ParameterSet moduleSeeds = iPSet.getParameter<edm::ParameterSet>("moduleSeeds");
     
     std::vector<std::string> names = moduleSeeds.getParameterNames();
     for(std::vector<std::string>::const_iterator itName = names.begin(), itNameEnd = names.end();
                                                  itName != itNameEnd; ++itName) {
 
-    // If we already have a seed vector for this label ignore this one
+      // If we already have a seed vector for this label ignore this one
       if (seedMap_.find(*itName) == seedMap_.end()) {
 
         if(moduleSeeds.exists(*itName)) {
@@ -1226,116 +1179,28 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
           seeds.push_back(seed);
           seedMap_[*itName] = seeds;
         }
-        // If there is something wrong, skip it, if this random engine or seed is actually needed
-        // an exception will be thrown when the engine or seed is requested and not available
       }
     }  
   }
 
-    // It is OK if this is missing.
-
-  // Loop over the engines where the seed(s) were specified and see
-  // if the engine is also specified.  If not, default to CLHEP::HepJamesRandom.
-  // Create the engines and fill the map.
-
   for (std::map<std::string, std::vector<uint32_t> >::iterator seedIter  = seedMap_.begin();
                                                                seedIter != seedMap_.end();
                                                              ++seedIter) {
+    std::string outputString = "the module with label \"";
+    outputString += seedIter->first;
+    outputString += "\"";
+    if (seedIter->first == sourceLabel) outputString = "the source";
 
-    // Initialize with default engine
-    std::string engineName = "HepJamesRandom";
-
-    // Go see if this module name already appears in the engineMap_ as a consequence of
-    // the new cfg format. Enter this engine only if it isn't already there.
-    if(engineMap_.find(seedIter->first) == engineMap_.end()) {
- 
-      if (seedIter->first == sourceLabel) {
-        if(iPSet.exists("sourceEngine")) {
-          engineName = iPSet.getUntrackedParameter<std::string>("sourceEngine");
-        }
-      } else if(iPSet.exists("moduleEngines")) {
-        const edm::ParameterSet& moduleEngines = iPSet.getParameter<edm::ParameterSet>("moduleEngines");
-        if(moduleEngines.exists(seedIter->first)) {
-          engineName = moduleEngines.getUntrackedParameter<std::string>(seedIter->first);
-        }
-      }
-      // OK if none, use default
-
-      std::string outputString = "the module with label \"";
-      outputString += seedIter->first;
-      outputString += "\"";
-      if (seedIter->first == sourceLabel) outputString = "the source";
-
-      if (engineName == "HepJamesRandom") {
-
-        if (seedIter->second.size() != 1) {
-          throw edm::Exception(edm::errors::Configuration)
-            << "HepJamesRandom engine requires 1 seed and "
-            << seedIter->second.size()
-            << " seeds were\n"
-            << "specified in the configuration file for "
-            << outputString << ".";
-        }
-
-        if (seedIter->second[0] > 900000000) {
-          throw edm::Exception(edm::errors::Configuration)
-            << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
-            << "The seed passed to the RandomNumberGenerationService from the\n"
-               "configuration file was " << seedIter->second[0]
-            << " or negative or larger\n"
-               "than a 32 bit unsigned integer.  This was for "
-            << outputString << ".";
-        }
-        long seedL = static_cast<long>(seedIter->second[0]);
-        engineMap_[seedIter->first] = boost::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL));
-      } else if (engineName == "RanecuEngine") {
-
-        if (seedIter->second.size() != 2) {
-          throw edm::Exception(edm::errors::Configuration)
-            << "RanecuEngine requires 2 seeds and "
-            << seedIter->second.size()
-            << " seeds were\n"
-            << "specified in the configuration file for "
-            << outputString << ".";
-        }
-
-        if (seedIter->second[0] > std::numeric_limits<uint32_t>::max() ||
-            seedIter->second[1] > std::numeric_limits<uint32_t>::max()) {  // They need to fit in a 31 bit integer
-          throw edm::Exception(edm::errors::Configuration)
-            << "The CLHEP::RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << ".\n"
-            << "The seeds passed to the RandomNumberGenerationService from the\n"
-   	       "configuration file were " << seedIter->second[0] << " and " << seedIter->second[1]
-            << " (or one was negative\nor larger "
-               "than a 32 bit unsigned integer).\nThis was for "
-            << outputString << ".";
-        }
-        long seedL[2];
-        seedL[0] = static_cast<long>(seedIter->second[0]);
-        seedL[1] = static_cast<long>(seedIter->second[1]);
-        boost::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::RanecuEngine());
-        engine->setSeeds(seedL, 0);
-        engineMap_[seedIter->first] = engine;
-
-      } else if (engineName == "TRandom3") {
-
-        if (seedIter->second.size() != 1) {
-          throw edm::Exception(edm::errors::Configuration)
-            << "TRandom3 engine requires 1 seed and "
-            << seedIter->second.size()
-            << " seeds were\n"
-            << "specified in the configuration file for "
-            << outputString << ".";
-        }
-        long seedL = static_cast<long>(seedIter->second[0]);
-        engineMap_[seedIter->first] = boost::shared_ptr<CLHEP::HepRandomEngine>(new TRandomAdaptor(seedL));
-      } else {
-        throw edm::Exception(edm::errors::Configuration)
-          << "The configuration file requested the RandomNumberGeneratorService\n"
-             "create an unknown random engine type named \""
-          << engineName
-          << "\"\nfor " << outputString
-          << "\nCurrently the only valid types are CLHEP::HepJamesRandom, CLHEP::RanecuEngine and TRandom3";
-      }
+    if (seedIter->second[0] > 900000000) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+        << "The seed passed to the RandomNumberGenerationService from the\n"
+           "configuration file was " << seedIter->second[0]
+        << " or negative or larger\n"
+           "than a 32 bit unsigned integer.  This was for "
+        << outputString << ".";
     }
+    long seedL = static_cast<long>(seedIter->second[0]);
+    engineMap_[seedIter->first] = boost::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL));
   }
 }
