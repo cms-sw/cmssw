@@ -63,7 +63,7 @@ namespace lumi{
 	char c[10];
 	::sprintf(c,"-%d",i);
 	hltpathname=std::string("FakeHLTPATH_")+std::string(c);
-	l1seed==std::string("FakeL1SeedExpression_")+std::string(c);
+	l1seed=std::string("FakeL1SeedExpression_")+std::string(c);
 	hltconfInserter->processNextIteration();
       }
       hltconfInserter->flush();
