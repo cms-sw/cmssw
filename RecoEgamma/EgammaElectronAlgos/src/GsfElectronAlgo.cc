@@ -555,7 +555,7 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     double had = (*e1)->hcalOverEcal()*(*e1)->superCluster()->energy();
     bool HoEveto = false;
     const reco::CaloCluster & seedCluster = *((*e1)->superCluster()->seed()) ;
-    int detector = seedCluster.seed().subdetId() ;
+    int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
     if (detector==EcalBarrel && (had<maxHBarrel_ || (had/(*e1)->superCluster()->energy())<maxHOverEBarrel_)) HoEveto=true;
     else if (detector==EcalEndcap && (had<maxHEndcaps_ || (had/(*e1)->superCluster()->energy())<maxHOverEEndcaps_)) HoEveto=true;
     if ( eg && !HoEveto ) continue;
@@ -657,7 +657,7 @@ void GsfElectronAlgo::createElectron
   const reco::CaloCluster & seedCluster = *(scRef->seed()) ;
   // seed Xtal
   // temporary, till CaloCluster->seed() is made available
-  DetId seedXtalId = seedCluster.seed() ;
+  DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
 
   // various useful positions and momemtums
   GlobalVector innMom, seedMom, eleMom, sclMom, outMom ;
