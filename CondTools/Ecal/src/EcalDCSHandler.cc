@@ -101,7 +101,7 @@ uint16_t  popcon::EcalDCSHandler::updateHV( RunDCSHVDat* hv, uint16_t dbStatus) 
   
 
   uint16_t hv_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVSTATUS ) ) ;
-  uint16_t hv_time_off_dbstatus = 0; // ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVTIMESTATUS ) ) ;
+  // uint16_t hv_time_off_dbstatus = 0; // ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVTIMESTATUS ) ) ;
   uint16_t hv_nomi_off_dbstatus = ( dbStatus & (1 << EcalDCSTowerStatusHelper::HVNOMINALSTATUS ) ) ;
   if(hv_off_dbstatus>0) hv_off_dbstatus=1;
   //  if(hv_time_off_dbstatus>0) hv_time_off_dbstatus=1;
