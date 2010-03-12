@@ -273,7 +273,7 @@ for stream in streams:
   dumpStream(stream)
 
 # process the DQM outputs (for which no stream is defined)
-nostreams = [ 'DQM', 'HLTDQM' ]
+nostreams = [ 'DQM', 'HLTDQM', 'EventDisplay' ]
 
 for stream in nostreams:
   dumpOutput(stream)
