@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.27 2010/02/17 17:47:25 wmtan Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.28 2010/03/03 08:51:19 rekovic Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/source"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -8,6 +8,8 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     ptMax = cms.untracked.double(100.0),
     ptMin = cms.untracked.double(0.0),
 		Nbins = cms.untracked.uint32(50),
+		NLuminositySegments= cms.untracked.uint32(2000),
+		NbinsOneOverEt = cms.untracked.uint32(10000),
 
 		muonEtaMax = cms.untracked.double(2.1),
     muonDRMatch = cms.untracked.double(0.3),
