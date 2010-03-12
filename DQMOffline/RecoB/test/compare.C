@@ -38,22 +38,23 @@ void drawAll()
   algos.push_back("simpleSecondaryVertexHighPurBJetTags");
   algos.push_back("combinedSecondaryVertexBJetTags");
   algos.push_back("combinedSecondaryVertexMVABJetTags");
+  algos.push_back("ghostTrackBJetTags");
   algos.push_back("softMuonBJetTags");
   algos.push_back("softMuonNoIPBJetTags");
   algos.push_back("softElectronBJetTags");
 
   files.push_back(_file1);
   files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
- files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
+  files.push_back(_file1);
 
 
   TLegend * leg = new TLegend(0.4,0.4,0.6,0.6);

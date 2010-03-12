@@ -19,11 +19,12 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
     bTagCommonBlock,
     finalizeOnly = cms.bool(False),
     finalizePlots = cms.bool(True),
-    tagConfig = cms.VPSet(cms.PSet(
-        bTagTrackIPAnalysisBlock,
-        type = cms.string('TrackIP'),
-        label = cms.InputTag("impactParameterTagInfos")
-    ), 
+    tagConfig = cms.VPSet(
+        cms.PSet(
+            bTagTrackIPAnalysisBlock,
+            type = cms.string('TrackIP'),
+            label = cms.InputTag("impactParameterTagInfos")
+        ), 
         cms.PSet(
             bTagCombinedSVAnalysisBlock,
             ipTagInfos = cms.InputTag("impactParameterTagInfos"),
@@ -64,10 +65,14 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
             label = cms.InputTag("combinedSecondaryVertexMVABJetTags")
         ), 
         cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("ghostTrackBJetTags")
+        ), 
+        cms.PSet(
             bTagSoftLeptonAnalysisBlock,
             label = cms.InputTag("softMuonBJetTags")
         ),
-                            cms.PSet(
+        cms.PSet(
             bTagSoftLeptonByIPAnalysisBlock,
             label = cms.InputTag("softMuonByIP3dBJetTags")
         ), 
@@ -75,7 +80,7 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
             bTagSoftLeptonByPtAnalysisBlock,
             label = cms.InputTag("softMuonByPtBJetTags")
         ) 
-        ),
+    ),
     mcPlots = cms.bool(False)
 )
 
