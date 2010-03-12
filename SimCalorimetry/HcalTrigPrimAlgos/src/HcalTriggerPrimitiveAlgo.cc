@@ -304,7 +304,7 @@ void HcalTriggerPrimitiveAlgo::runFEFormatError(const FEDRawDataCollection* rawr
                                                 ){
   std::set<uint32_t> FrontEndErrors;
 
-  for(int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; ++i) {
+  for(int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; ++i) {
     const FEDRawData& raw = rawraw->FEDData(i);
     if (raw.size()<12) continue;
     const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
@@ -321,7 +321,7 @@ void HcalTriggerPrimitiveAlgo::runFEFormatError(const FEDRawDataCollection* rawr
         bool valid =false;
         for(int fchan=0; fchan<3 && !valid; fchan++) {
           for(int fib=0; fib<9 && !valid; fib++) {
-            HcalElectronicsId eid(fchan,fib,spigot,dccid-FEDNumbering::getHcalFEDIds().first);
+            HcalElectronicsId eid(fchan,fib,spigot,dccid-FEDNumbering::MINHCALFEDID);
             eid.setHTR(htr.readoutVMECrateId(),htr.htrSlot(),htr.htrTopBottom());
             DetId detId = emap->lookup(eid);
             if(detId.null()) continue;
