@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.40 2009/10/09 12:49:56 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.41 2009/10/19 22:26:09 dmytro Exp $
 //
 //
 
@@ -814,16 +814,22 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 	   // Get the range for the corresponding segments
 	   DTRecSegment4DCollection::range  range = dtSegments->get(chamber->id());
 	   // Loop over the segments of this chamber
-	   for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++)
-	     addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
+	   for (DTRecSegment4DCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+	     if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+                matchedChamber->segments.back().dtSegmentRef = DTRecSegment4DRef(dtSegments, segment - dtSegments->begin());
+             }
+           }
 	}else{
 	   // CSC Chamber
 	   if(const CSCChamber* chamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
 	      // Get the range for the corresponding segments
 	      CSCSegmentCollection::range  range = cscSegments->get(chamber->id());
 	      // Loop over the segments
-	      for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++)
-		 addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters);
+	      for (CSCSegmentCollection::const_iterator segment = range.first; segment!=range.second; segment++) {
+		 if (addTAMuonSegmentMatch(*matchedChamber, &(*segment), parameters)) {
+                     matchedChamber->segments.back().cscSegmentRef = CSCSegmentRef(cscSegments, segment - cscSegments->begin());
+                 }
+              }
 	   }else{
 	      throw cms::Exception("FatalError") << "Failed to cast GeomDet object to either DTChamber or CSCChamber. Who is this guy anyway?\n";
 	   }
@@ -833,7 +839,7 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
 }
 
 
-void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedChamber,
+bool TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedChamber,
 					  const RecSegment* segment,
 					  const AssociatorParameters& parameters)
 {
@@ -920,6 +926,8 @@ void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
       }
       matchedChamber.segments.push_back(muonSegment);
    }
+
+   return isGood;
 }
 
 //********************** NON-CORE CODE ******************************//

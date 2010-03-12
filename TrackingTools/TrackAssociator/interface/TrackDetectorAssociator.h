@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.15.2.1 2009/07/01 10:04:16 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.16 2009/09/06 16:39:11 dmytro Exp $
 //
 //
 
@@ -153,7 +153,7 @@ class TrackDetectorAssociator {
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
    
-   void addTAMuonSegmentMatch(TAMuonChamberMatch&,
+   bool addTAMuonSegmentMatch(TAMuonChamberMatch&,
 			    const RecSegment*,
 			    const AssociatorParameters&);
    

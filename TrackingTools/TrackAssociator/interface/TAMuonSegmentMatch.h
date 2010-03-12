@@ -3,6 +3,8 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 class TAMuonSegmentMatch {
  public:
@@ -19,5 +21,7 @@ class TAMuonSegmentMatch {
    float  t0;
    bool   hasZed;
    bool   hasPhi;
+   DTRecSegment4DRef  dtSegmentRef;
+   CSCSegmentRef      cscSegmentRef;
 };
 #endif
