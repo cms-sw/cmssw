@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2009/09/21 00:55:32 $
- *  $Revision: 1.33 $
+ *  $Date: 2010/03/12 19:03:09 $
+ *  $Revision: 1.34.2.1 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -25,9 +25,6 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {

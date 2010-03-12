@@ -15,8 +15,7 @@ hltL3TrajectorySeedFromL2 = cms.EDProducer("TSGFromL2Muon",
     #ServiceParameters
     MuonServiceProxy,
 #    tkSeedGenerator = cms.string('TSGFromCombinedHits'),
-    TkSeedGenerator = TSGsBlock.TSGForRoadSearchOI,                                         
-    UseTFileService = cms.untracked.bool(False),
+    TkSeedGenerator = TSGsBlock.TSGForRoadSearchOI,
     MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
     #this should not exist there !
     PtCut = cms.double(1.0),

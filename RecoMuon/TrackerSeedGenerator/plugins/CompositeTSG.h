@@ -13,8 +13,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
-#include <TH1.h>
-
 class TrackingRegion;
 class MuonServiceProxy;
 
@@ -36,12 +34,10 @@ public:
   virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &) =0;
 
  protected:
-  bool useTFileService_;
 
   uint nTSGs() { return theTSGs.size();}
   std::vector<TrackerSeedGenerator*> theTSGs;
   std::vector<std::string> theNames;
-  std::vector<TH1F*> theHistos;
   std::string theCategory;
 
   const MuonServiceProxy * theProxyService;

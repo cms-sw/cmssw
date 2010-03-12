@@ -23,7 +23,6 @@ void CombinedTSG::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRe
       theTSGs[iTSG]->trackerSeeds(muonTrackCand,region,tmpResult);
       //vector of seeds
       result.insert(result.end(),tmpResult.begin(),tmpResult.end());
-      if(theHistos[iTSG]) theHistos[iTSG]->Fill(tmpResult.size());
     }
   }
 }

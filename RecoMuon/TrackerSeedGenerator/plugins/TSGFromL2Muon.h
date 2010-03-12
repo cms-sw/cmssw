@@ -12,7 +12,6 @@ class MuonServiceProxy;
 class TrackerSeedGenerator;
 class MuonTrackingRegionBuilder;
 class TrackerSeedCleaner;
-class TH1F;
 
 //
 // generate seeds corresponding to L2 muons
@@ -29,16 +28,11 @@ private:
   edm::ParameterSet theConfig;
   edm::InputTag theL2CollectionLabel;
 
-  bool useTFileService_;
-
   MuonServiceProxy* theService;
   double thePtCut,thePCut;
   MuonTrackingRegionBuilder* theRegionBuilder;
   TrackerSeedGenerator* theTkSeedGenerator;
   TrackerSeedCleaner* theSeedCleaner;
 
-  TH1F* h_nSeedPerTrack;
-  TH1F* h_nGoodSeedPerTrack;
-  TH1F* h_nGoodSeedPerEvent;
 };
 #endif

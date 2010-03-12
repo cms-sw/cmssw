@@ -12,6 +12,5 @@ void SeparatingTSG::trackerSeeds(const TrackCand & muonTrackCand, const Tracking
     std::vector<TrajectorySeed>  tmpResult;
     theTSGs[sel]->trackerSeeds(muonTrackCand,region,tmpResult);
     result.insert(result.end(),tmpResult.begin(),tmpResult.end());
-    if(theHistos[sel]) theHistos[sel]->Fill(tmpResult.size());
   }
 }
