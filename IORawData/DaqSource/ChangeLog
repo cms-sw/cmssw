@@ -1,3 +1,8 @@
+2010-03-12  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-03 
+	* Migration of test away from getter functions of FEDNumbering
+
 2010-03-05  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-09-02 (V01-09-01 used by Bill for cosmethics)
