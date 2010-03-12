@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMaker.h,v 1.7 2007/04/09 22:47:15 chrjones Exp $
+// $Id: ServiceMaker.h,v 1.8 2010/01/19 22:37:05 wdd Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ namespace edm {
 
    
    namespace serviceregistry {
+      
       template<class T, class TConcrete >
       struct MakerBase {
          typedef T interface_t;
@@ -93,6 +94,11 @@ public:
             return oSM.put(ptr);
          }
          
+         virtual bool saveConfiguration() const
+         {
+            return ServiceMakerBase::testSaveConfiguration(static_cast<typename TMaker::concrete_t const *>(0));
+         }
+
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
@@ -101,7 +107,7 @@ private:
          ServiceMaker(const ServiceMaker&); // stop default
          
          const ServiceMaker& operator=(const ServiceMaker&); // stop default
-         
+                  
          // ---------- member data --------------------------------
          
       };

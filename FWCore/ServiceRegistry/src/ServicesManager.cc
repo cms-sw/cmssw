@@ -43,7 +43,10 @@ bool
 ServicesManager::MakerHolder::add(ServicesManager& oManager) const
 {
    if(!wasAdded_) {
-      return wasAdded_ = maker_->make(*pset_, *registry_, oManager);
+      wasAdded_ = maker_->make(*pset_, *registry_, oManager);
+      if(wasAdded_ && maker_->saveConfiguration()) {
+         pset_->addUntrackedParameter("@save_config",true);
+      }
    }
    return wasAdded_;
 }

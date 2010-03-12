@@ -626,6 +626,14 @@ namespace edm {
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
 
+    //see if any of the Services have to have their PSets stored
+    for(std::vector<ParameterSet>::const_iterator it = pServiceSets->begin(), itEnd = pServiceSets->end();
+        it != itEnd;
+        ++it) {
+      if(it->exists("@save_config")) {
+        parameterSet->addParameter(it->getParameter<std::string>("@service_type"),*it);
+      }
+    }
     // Copy slots that hold all the registered callback functions like
     // PostBeginJob into an ActivityRegistry that is owned by EventProcessor
     tempToken.copySlotsTo(*actReg_); 

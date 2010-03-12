@@ -42,6 +42,7 @@ class testeventprocessor: public CppUnit::TestFixture
   CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST(endpathTest);
   CPPUNIT_TEST(asyncTest);
+  CPPUNIT_TEST(serviceConfigSaveTest);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -60,6 +61,7 @@ class testeventprocessor: public CppUnit::TestFixture
   void activityRegistryTest();
   void moduleFailureTest();
   void endpathTest();
+  void serviceConfigSaveTest();
 
   void asyncTest();
   bool asyncRunAsync(edm::EventProcessor& ep);
@@ -840,6 +842,24 @@ testeventprocessor::moduleFailureTest()
   }
 }
 
+void
+testeventprocessor::serviceConfigSaveTest()
+{
+   std::string configuration(
+                             "import FWCore.ParameterSet.Config as cms\n"
+                             "process = cms.Process('p')\n"
+                             "process.add_(cms.Service('DummyStoreConfigService'))\n"
+                             "process.maxEvents = cms.untracked.PSet(\n"
+                             "    input = cms.untracked.int32(5))\n"
+                             "process.source = cms.Source('EmptySource')\n"
+                             "process.m1 = cms.EDProducer('TestMod',\n"
+                             "   ivalue = cms.int32(-3))\n"
+                             "process.p1 = cms.Path(process.m1)\n");
+   
+   edm::EventProcessor proc(configuration, true);
+   edm::ParameterSet topPset( edm::getProcessParameterSet());
+   CPPUNIT_ASSERT(topPset.existsAs<edm::ParameterSet>("DummyStoreConfigService",true));
+}
 void
 testeventprocessor::endpathTest()
 {
