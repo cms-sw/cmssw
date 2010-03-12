@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.49 2009/11/13 15:48:15 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.50 2010/01/11 20:28:45 jribnik Exp $
 //
 //
 
@@ -717,6 +717,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     matchedSegment.dYdZErr = segment->segmentLocalErrorDyDz>0?sqrt(segment->segmentLocalErrorDyDz):0;
 	     matchedSegment.t0 = segment->t0;
 	     matchedSegment.mask = 0;
+             matchedSegment.dtSegmentRef  = segment->dtSegmentRef;
+             matchedSegment.cscSegmentRef = segment->cscSegmentRef;
         matchedSegment.hasZed_ = segment->hasZed;
         matchedSegment.hasPhi_ = segment->hasPhi;
 	     // test segment
