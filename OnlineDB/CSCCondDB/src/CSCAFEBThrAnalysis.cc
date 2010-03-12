@@ -240,7 +240,10 @@ void CSCAFEBThrAnalysis::done() {
 
   //This is for DB transfer
   CSCobject *cn = new CSCobject();
-  condbon *dbon = new condbon();
+  // Unused variable dbon caused compiler warning.
+  //condbon *dbon = new condbon();
+  new condbon(); 
+  // Note:  cn and dbon pointers are never freed, I think. This leaks memory!!!
   
   std::map<int, std::vector<std::vector<int> > >::iterator mwiredacIt;
   std::map<int, std::vector<std::vector<float> > >::iterator mresfordbIt;
