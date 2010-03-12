@@ -8,7 +8,8 @@
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "PhysicsTools/PFCandProducer/interface/PtMinPFCandidateSelectorDefinition.h"
 
-typedef ObjectSelector<PtMinPFCandidateSelectorDefinition> PtMinPFCandidateSelector;
+
+typedef ObjectSelector<pf2pat::PtMinPFCandidateSelectorDefinition> PtMinPFCandidateSelector;
 
 DEFINE_FWK_MODULE(PtMinPFCandidateSelector);
 

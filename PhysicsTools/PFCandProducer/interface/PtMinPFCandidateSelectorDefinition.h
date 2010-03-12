@@ -3,36 +3,45 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "PhysicsTools/PFCandProducer/plugins/PFCandidateSelectorDefinition.h"
+#include "PhysicsTools/PFCandProducer/interface/PFCandidateSelectorDefinition.h"
 
-struct PtMinPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
+namespace pf2pat {
 
-  PtMinPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
-  ptMin_( cfg.getParameter< double >( "ptMin" ) ) { }
-
-  void select( const HandleToCollection & hc, 
-	       const edm::Event & e,
-	       const edm::EventSetup& s) {
-    selected_.clear();
+  class PtMinPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
     
-    assert( hc.isValid() );
+  public:
+    PtMinPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg ) :
+      ptMin_( cfg.getParameter< double >( "ptMin" ) ) { }
     
     
-    unsigned key=0;
-    for( collection::const_iterator pfc = hc->begin(); 
-         pfc != hc->end(); ++pfc, ++key) {
+    void select( const HandleToCollection & hc, 
+		 const edm::EventBase & e,
+		 const edm::EventSetup& s
+		 ) {
+      selected_.clear();
+    
+      assert( hc.isValid() );
+    
+    
+      unsigned key=0;
+      for( collection::const_iterator pfc = hc->begin(); 
+	   pfc != hc->end(); ++pfc, ++key) {
 
-      if( pfc->pt() > ptMin_ ) {
-	selected_.push_back( reco::PFCandidate(*pfc) );
-	reco::PFCandidatePtr ptrToMother( hc, key );
-        selected_.back().setSourceCandidatePtr( ptrToMother );
+ 	if( pfc->pt() > ptMin_ ) {
+	  selected_.push_back( reco::PFCandidate(*pfc) );
+	  reco::PFCandidatePtr ptrToMother( hc, key );
+	  selected_.back().setSourceCandidatePtr( ptrToMother );
 
+	}
       }
     }
-  }
 
-private:
-  double ptMin_;
-};
+/*     const container& selected() const {return selected_;} */
+
+    private:
+      double ptMin_;
+  };
+
+}
 
 #endif

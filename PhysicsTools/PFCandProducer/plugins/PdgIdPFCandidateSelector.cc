@@ -8,6 +8,6 @@
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "PhysicsTools/PFCandProducer/interface/PdgIdPFCandidateSelectorDefinition.h"
 
-typedef ObjectSelector<PdgIdPFCandidateSelectorDefinition> PdgIdPFCandidateSelector;
+typedef ObjectSelector<pf2pat::PdgIdPFCandidateSelectorDefinition> PdgIdPFCandidateSelector;
 
 DEFINE_FWK_MODULE(PdgIdPFCandidateSelector);

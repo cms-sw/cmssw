@@ -8,6 +8,6 @@
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "PhysicsTools/PFCandProducer/interface/IsolatedPFCandidateSelectorDefinition.h"
 
-typedef ObjectSelector<IsolatedPFCandidateSelectorDefinition> IsolatedPFCandidateSelector;
+typedef ObjectSelector<pf2pat::IsolatedPFCandidateSelectorDefinition> IsolatedPFCandidateSelector;
 
 DEFINE_FWK_MODULE(IsolatedPFCandidateSelector);
