@@ -2,7 +2,7 @@
  *
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/19 12:00:00 $
+ *  $Date: 2009/03/26 14:11:04 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -280,7 +280,7 @@ void DTCompactMapWriter::buildSteering( std::istream& jobDesc ) {
       // go to command value
       ptr_line += ++off_equal;
       // exit loop at end of description file
-      if ( jobEnd = ( key == "end" ) ) break;
+      if ( (jobEnd = ( key == "end" ) ) ) break;
       // get description command value
       while ( *ptr_line == ' ' ) ptr_line++;
       std::string val( ptr_line );
