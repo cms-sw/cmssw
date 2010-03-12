@@ -6,7 +6,6 @@
 <use name=Alignment/ReferenceTrajectories>
 <use name=Alignment/TrackerAlignment>
 <use name=Alignment/SurveyAnalysis>
-<use name=DataFormats/Alignment>
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/GeometryVector>
