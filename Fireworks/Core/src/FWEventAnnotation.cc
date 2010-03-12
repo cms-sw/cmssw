@@ -13,21 +13,20 @@
 #include <KeySymbols.h>
 
 #include "Fireworks/Core/interface/FWEventAnnotation.h"
-#include "Fireworks/Core/src/FWCheckBoxIcon.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
 
-FWEventAnnotation::FWEventAnnotation(TGLViewerBase *view,  FWParameterizable* confParent):
+FWEventAnnotation::FWEventAnnotation(TGLViewerBase *view):
    TGLAnnotation(view, "Event Info", 0.05, 0.95),
    m_event(0),
    m_level(1)
 {
    SetRole(TGLOverlayElement::kViewer);
-
    SetUseColorSet(true);
-   SetTextSize(0.03);
+   fAllowClose = false;
 }
 
 FWEventAnnotation::~FWEventAnnotation()
@@ -85,5 +84,39 @@ FWEventAnnotation::Render(TGLRnrCtx& rnrCtx)
 {
    if (m_level)
       TGLAnnotation::Render(rnrCtx);
+}
+
+//______________________________________________________________________________
+
+void
+FWEventAnnotation::addTo(FWConfiguration& iTo) const
+{
+   std::stringstream s;
+   s<<fTextSize;
+   iTo.addKeyValue("EventInfoTextSize",FWConfiguration(s.str()));
+
+   std::stringstream x;
+   x<<fPosX;
+   iTo.addKeyValue("EventInfoPosX",FWConfiguration(x.str()));
+
+   std::stringstream y;
+   y<<fPosY;
+   iTo.addKeyValue("EventInfoPosY",FWConfiguration(y.str()));
+}
+
+void
+FWEventAnnotation::setFrom(const FWConfiguration& iFrom) 
+{
+   const FWConfiguration* value;
+
+   value = iFrom.valueForKey("EventInfoTextSize");
+   if (value) fTextSize = atof(value->value().c_str());
+
+   value = iFrom.valueForKey("EventInfoPosX");
+   if (value) fPosX = atof(value->value().c_str());
+
+   value = iFrom.valueForKey("EventInfoPosY");
+   if (value) fPosY = atof(value->value().c_str());
+
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.26 2009/12/11 13:57:52 amraktad Exp $
+// $Id: FW3DView.cc,v 1.27 2010/03/08 12:34:25 amraktad Exp $
 //
 
 // system include files
@@ -124,7 +124,7 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    ctxHand->setPickCameraCenter(true);
    m_viewContextMenu.reset(ctxHand);
    
-   m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer, this);
+   m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer);
    m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
  
    TGLEmbeddedViewer* ev = m_embeddedViewer;
@@ -212,6 +212,10 @@ FW3DView::addTo(FWConfiguration& iTo) const
       osValue << *m_cameraFOV;
       iTo.addKeyValue("Plain3D FOV",FWConfiguration(osValue.str()));
    }
+   { 
+      assert ( m_overlayEventInfo );
+      m_overlayEventInfo->addTo(iTo);
+   }
 }
 
 //______________________________________________________________________________
@@ -254,6 +258,11 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
       std::istringstream s(value->value());
       s>>*m_cameraFOV;
    }
+   {
+      assert( m_overlayEventInfo);
+      m_overlayEventInfo->setFrom(iFrom);
+   }
+
    gEve->Redraw3D();
 }
 

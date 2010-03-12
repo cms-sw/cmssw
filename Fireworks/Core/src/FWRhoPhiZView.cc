@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.55 2010/03/05 19:44:35 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.56 2010/03/08 12:34:52 amraktad Exp $
 //
 
 #define private public
@@ -172,7 +172,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
 
    gEve->AddElement(m_projMgr.get(), ns);
 
-   m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer, this);
+   m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer);
    m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
    m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
@@ -357,6 +357,10 @@ FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
       assert( value );
       std::istringstream s(value->value());
       s>>((*m_cameraMatrix)[i]);
+   }
+   {
+      assert( m_overlayEventInfo);
+      m_overlayEventInfo->setFrom(iFrom);
    }
    m_viewer->GetGLViewer()->RequestDraw();
 }

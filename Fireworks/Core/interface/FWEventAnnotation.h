@@ -2,22 +2,25 @@
 #define Fireworks_Core_FWEventAnnotation_h
 
 #include "TGLAnnotation.h"
-//#include "TGFontManager.h"
+class FWConfiguration;
 
-#include "Fireworks/Core/interface/FWLongParameter.h"
 
 namespace fwlite {
    class Event;
 }
 
-class FWEventAnnotation :public TGLAnnotation
+class FWEventAnnotation : public TGLAnnotation
 {
 public:
-   FWEventAnnotation(TGLViewerBase *view, FWParameterizable* confParent);
+   FWEventAnnotation(TGLViewerBase *view);
    virtual ~FWEventAnnotation();
 
    virtual void   Render(TGLRnrCtx& rnrCtx);
 
+   //configuration management interface
+   virtual void addTo(FWConfiguration&) const;
+   virtual void setFrom(const FWConfiguration&);
+  
    void setLevel(long x);
    void setEvent();
   
