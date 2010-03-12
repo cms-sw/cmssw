@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.4 2010/03/10 11:30:18 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.5 2010/03/11 12:50:06 dinardo Exp $
 //
 //
 
@@ -125,6 +125,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       ofstream outputDebugFile;
       unsigned int runNumber;
       unsigned int lumiCounter;
+      unsigned int maxLumiIntegration;
       edm::TimeValue_t beginTimeOfFit;
       edm::TimeValue_t endTimeOfFit;
       unsigned int beginLumiOfFit;

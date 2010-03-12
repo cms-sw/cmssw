@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.24 2010/03/12 12:35:31 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.25 2010/03/12 13:42:39 dinardo Exp $
 //
 //
 
@@ -142,6 +142,7 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
   double coef,det;
   double tmp,sumlog = 0.;
   double dim = 3.;
+  double precision = 1.e-8;
 
 //   par[0] = K(0,0)
 //   par[1] = K(1,1)
@@ -161,8 +162,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 // M = K^-1
 
   det = fabs(par[0])*(fabs(par[1])*fabs(par[2])-par[4]*par[4]) - par[3]*(par[3]*fabs(par[2])-par[5]*par[4]) + par[5]*(par[3]*par[4]-par[5]*fabs(par[1]));
-  if ((det >= 0.) && (det < 1.e-9)) det = 1.e-9;
-  else if ((det < 0.) && (det > 1.e-9)) det = -1.e-9;
+  if ((det >= 0.) && (det < precision)) det = precision;
+  else if ((det < 0.) && (det > -precision)) det = -precision;
   a   = (fabs(par[1]*par[2]) - par[4]*par[4]) / det;
   b   = (fabs(par[0]*par[2]) - par[5]*par[5]) / det;
   c   = (fabs(par[0]*par[1]) - par[3]*par[3]) / det;
@@ -178,7 +179,7 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	{
 	  tmp = coef * exp(-1./2.*(a*(xVxValues[i]-par[6])*(xVxValues[i]-par[6]) + b*(yVxValues[i]-par[7])*(yVxValues[i]-par[7]) + c*(zVxValues[i]-par[8])*(zVxValues[i]-par[8]) +
 				   2.*d*(xVxValues[i]-par[6])*(yVxValues[i]-par[7]) + 2.*e*(yVxValues[i]-par[7])*(zVxValues[i]-par[8]) + 2.*f*(xVxValues[i]-par[6])*(zVxValues[i]-par[8])));
-	  (tmp >= 1.e-9) ? sumlog += log(tmp) : sumlog += log(1.e-9);
+	  (tmp >= precision) ? sumlog += log(tmp) : sumlog += log(precision);
 	  counterVx++;
 	}
     } 
@@ -587,6 +588,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
+
+	  if (lumiCounter == maxLumiIntegration) reset();
 	}
 
       vals.clear();
@@ -700,6 +703,7 @@ void Vx3DHLTAnalyzer::beginJob()
 
   reset();
   runNumber = 0;
+  maxLumiIntegration = 10;
   pi = 3.141592653589793238;
 }
 
