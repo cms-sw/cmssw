@@ -9,6 +9,7 @@
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/CSCGeometry"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <export>
