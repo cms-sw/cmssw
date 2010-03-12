@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.4 2009/06/30 14:24:40 chamont Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.5 2010/01/29 21:15:05 chamont Exp $
 //
 //
 
@@ -36,8 +36,8 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Common/interface/Handle.h"
+//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+//#include "DataFormats/Common/interface/Handle.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -48,8 +48,6 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include <vector>
@@ -58,9 +56,12 @@
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
+      useRecoVertex_(pset.getParameter<bool>("useRecoVertex")),
+      verticesTag_(pset.getParameter<edm::InputTag>("vertices")),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
+      deltaZ1WithVertex_(pset.getParameter<double>("deltaZ1WithVertex")),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
       phimin2_(pset.getParameter<double>("PhiMin2")),
       phimax2_(pset.getParameter<double>("PhiMax2")),
@@ -168,14 +169,10 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
 
   // get the beamspot from the Event:
   e.getByType(theBeamSpot);
-
-  // define 1st z window
-  double sigmaZ=theBeamSpot->sigmaZ();
-  double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
-  double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
-  zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
-
+  
+  // if required get the vertices
+  if (useRecoVertex_) e.getByLabel(verticesTag_,theVertices);
+    
   if (!fromTrackerSeeds_)
    { theMeasurementTracker->update(e) ; }
 
@@ -199,14 +196,8 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
   GlobalPoint clusterPos(seedCluster->position().x(),
 			 seedCluster->position().y(),
 			 seedCluster->position().z());
-
-  const GlobalPoint
-   vertexPos(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
   LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
   LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
-
-  myMatchEle->set1stLayerZRange(zmin1_,zmax1_);
-  myMatchPos->set1stLayerZRange(zmin1_,zmax1_);
 
   if (dynamicphiroad_)
     {
@@ -234,81 +225,196 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
 
   PropagationDirection dir = alongMomentum;
 
-   // try electron
-  double aCharge=-1.;
+  if (!useRecoVertex_) { // here use the beam spot position
+    double sigmaZ=theBeamSpot->sigmaZ();
+    double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
+    double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+    zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
+    zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
 
-  if (!fromTrackerSeeds_) {
-    std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits =
-      myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
+    GlobalPoint vertexPos(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
 
-    float vertexZ = myMatchEle->getVertex();
-    GlobalPoint eleVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),vertexZ);
+    myMatchEle->set1stLayerZRange(zmin1_,zmax1_);
+    myMatchPos->set1stLayerZRange(zmin1_,zmax1_);
 
-    if (!elePixelHits.empty() ) {
-      LogDebug("ElectronSeedGenerator") << "seedsFromThisCluster: electron compatible hits found ";
+    // try electron
+    double aCharge=-1.;
 
-      std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
+    if (!fromTrackerSeeds_) {
+      std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits =
+	myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
 
-      for (v = elePixelHits.begin(); v != elePixelHits.end(); v++) {
-	(*v).first.invert();
-	bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,eleVertex);
-	if (valid) {
-	  reco::ElectronSeed s(*pts_,recHits_,dir) ;
-	  s.setCaloCluster(reco::ElectronSeed::CaloClusterRef(seedCluster)) ;
-	  result.push_back(s);
-	  delete pts_;
-	  pts_=0;
+      float vertexZ = myMatchEle->getVertex();
+      GlobalPoint eleVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),vertexZ);
+
+      if (!elePixelHits.empty() ) {
+	LogDebug("ElectronSeedGenerator") << "seedsFromThisCluster: electron compatible hits found ";
+
+	std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
+
+	for (v = elePixelHits.begin(); v != elePixelHits.end(); v++) {
+	  (*v).first.invert();
+	  bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,eleVertex);
+	  if (valid) {
+	    reco::ElectronSeed s(*pts_,recHits_,dir) ;
+	    s.setCaloCluster(reco::ElectronSeed::CaloClusterRef(seedCluster)) ;
+	    result.push_back(s);
+	    delete pts_;
+	    pts_=0;
+	  }
 	}
       }
+    } else {
+      std::vector<SeedWithInfo> elePixelSeeds=
+	myMatchEle->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
+	std::vector<SeedWithInfo>::iterator s;
+	for (s = elePixelSeeds.begin(); s != elePixelSeeds.end(); s++) {
+    	    reco::ElectronSeed seed(s->seed()) ;
+            reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+            seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+		result.push_back(seed);
+	}
     }
-  } else {
-    std::vector<SeedWithInfo> elePixelSeeds=
-      myMatchEle->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
+
+    // try positron
+    aCharge=1.;
+
+    if (!fromTrackerSeeds_) {
+      std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits =
+	myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
+
+      float vertexZ = myMatchPos->getVertex();
+      GlobalPoint posVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),vertexZ);
+
+      if (!posPixelHits.empty() ) {
+	LogDebug("ElectronSeedGenerator") << "seedsFromThisCluster: positron compatible hits found ";
+
+	std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
+	for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
+	  bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
+	  if (valid) {
+		    reco::ElectronSeed s(*pts_,recHits_,dir) ;
+		    s.setCaloCluster(reco::ElectronSeed::CaloClusterRef(seedCluster)) ;
+	    result.push_back(s);
+	    delete pts_;
+	    pts_=0;
+	  }
+	}
+      }
+    } else {
+      std::vector<SeedWithInfo> posPixelSeeds=
+	myMatchPos->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
       std::vector<SeedWithInfo>::iterator s;
-      for (s = elePixelSeeds.begin(); s != elePixelSeeds.end(); s++) {
-    	  reco::ElectronSeed seed(s->seed()) ;
-          reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-          seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
-	      result.push_back(seed);
+      for (s = posPixelSeeds.begin(); s != posPixelSeeds.end(); s++) {
+  	    reco::ElectronSeed seed(s->seed()) ;
+	reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+	seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+	result.push_back(seed);
       }
-  }
+    }
+  
+  } else { // here we use the reco vertices
+    
+    const  std::vector<reco::Vertex> * vtxCollection = theVertices.product() ;
+    std::vector<reco::Vertex>::const_iterator vtxIter ;
+    for (vtxIter = vtxCollection->begin(); vtxIter != vtxCollection->end() ; vtxIter++) {     
 
-  // try positron
-  aCharge=1.;
+      GlobalPoint vertexPos(vtxIter->position().x(),vtxIter->position().y(),vtxIter->position().z());
+      if (vertexPos.z()==theBeamSpot->position().z()) { // in case vetex not found
+	double sigmaZ=theBeamSpot->sigmaZ();
+	double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
+	double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+	zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
+	zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
+      } else { // a vertex has been recoed
+        zmin1_=vtxIter->position().z()-deltaZ1WithVertex_;
+        zmax1_=vtxIter->position().z()+deltaZ1WithVertex_;
+	double sigmaZ=theBeamSpot->sigmaZ();
+	double sigmaZ0Error=theBeamSpot->sigmaZ0Error();
+	double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+	zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
+	zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
+      }
 
-  if (!fromTrackerSeeds_) {
-    std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits =
-      myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
+      myMatchEle->set1stLayerZRange(zmin1_,zmax1_);
+      myMatchPos->set1stLayerZRange(zmin1_,zmax1_);
+      
+      myMatchEle->setUseRecoVertex(true); //Hit matchers need to know that the vertex is known
+      myMatchPos->setUseRecoVertex(true);
+      
+      // try electron
+      double aCharge=-1.;
 
-    float vertexZ = myMatchPos->getVertex();
-    GlobalPoint posVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),vertexZ);
+      if (!fromTrackerSeeds_) {
+	std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits =
+	  myMatchEle->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
 
-    if (!posPixelHits.empty() ) {
-      LogDebug("ElectronSeedGenerator") << "seedsFromThisCluster: positron compatible hits found ";
+	if (!elePixelHits.empty() ) {
+	  LogDebug("ElectronSeedGenerator") << "seedsFromThisCluster: electron compatible hits found ";
 
-      std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
-      for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
-	bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
-	if (valid) {
-		  reco::ElectronSeed s(*pts_,recHits_,dir) ;
-		  s.setCaloCluster(reco::ElectronSeed::CaloClusterRef(seedCluster)) ;
-	  result.push_back(s);
-	  delete pts_;
-	  pts_=0;
+	  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
+
+	  for (v = elePixelHits.begin(); v != elePixelHits.end(); v++) {
+	    (*v).first.invert();
+	    bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,vertexPos);
+	    if (valid) {
+	      reco::ElectronSeed s(*pts_,recHits_,dir) ;
+	      s.setCaloCluster(reco::ElectronSeed::CaloClusterRef(seedCluster)) ;
+	      result.push_back(s);
+	      delete pts_;
+	      pts_=0;
+	    }
+	  }
+	}
+      } else {
+	std::vector<SeedWithInfo> elePixelSeeds=
+	  myMatchEle->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
+	  std::vector<SeedWithInfo>::iterator s;
+	  for (s = elePixelSeeds.begin(); s != elePixelSeeds.end(); s++) {
+    	      reco::ElectronSeed seed(s->seed()) ;
+              reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+              seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+		  result.push_back(seed);
+	  }
+      }
+
+      // try positron
+      aCharge=1.;
+
+      if (!fromTrackerSeeds_) {
+	std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits =
+	  myMatchPos->compatibleHits(clusterPos,vertexPos, clusterEnergy, aCharge);
+
+	if (!posPixelHits.empty() ) {
+	  LogDebug("ElectronSeedGenerator") << "seedsFromThisCluster: positron compatible hits found ";
+
+	  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
+	  for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
+	    bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,vertexPos);
+	    if (valid) {
+		      reco::ElectronSeed s(*pts_,recHits_,dir) ;
+		      s.setCaloCluster(reco::ElectronSeed::CaloClusterRef(seedCluster)) ;
+	      result.push_back(s);
+	      delete pts_;
+	      pts_=0;
+	    }
+	  }
+	}
+      } else {
+	std::vector<SeedWithInfo> posPixelSeeds=
+	  myMatchPos->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
+	std::vector<SeedWithInfo>::iterator s;
+	for (s = posPixelSeeds.begin(); s != posPixelSeeds.end(); s++) {
+  	      reco::ElectronSeed seed(s->seed()) ;
+	  reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
+	  seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+	  result.push_back(seed);
 	}
       }
-    }
-  } else {
-    std::vector<SeedWithInfo> posPixelSeeds=
-      myMatchPos->compatibleSeeds(theInitialSeedColl,clusterPos,vertexPos, clusterEnergy, aCharge);
-    std::vector<SeedWithInfo>::iterator s;
-    for (s = posPixelSeeds.begin(); s != posPixelSeeds.end(); s++) {
-  	  reco::ElectronSeed seed(s->seed()) ;
-      reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-      seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
-      result.push_back(seed);
-    }
+    
+    }     
   }
+  
   return ;
 }
 

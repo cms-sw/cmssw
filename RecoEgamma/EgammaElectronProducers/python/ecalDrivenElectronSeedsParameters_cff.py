@@ -6,6 +6,8 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     fromTrackerSeeds = cms.bool(True),
     initialSeeds = cms.InputTag("newCombinedSeeds"),
     preFilteredSeeds = cms.bool(False),
+    useRecoVertex = cms.bool(False),
+    vertices = cms.InputTag("offlinePrimaryVerticesWithBS"),
     dynamicPhiRoad = cms.bool(True),
     searchInTIDTEC = cms.bool(True), ##  possibility to inhibit extended forward coverage
 
@@ -29,7 +31,8 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     hOverEPtMin = cms.double(0.),
     
     # r/z windows
-    nSigmasDeltaZ1 = cms.double(5.),
+    nSigmasDeltaZ1 = cms.double(5.), ## in case beam spot is used for the matching
+    deltaZ1WithVertex = cms.double(0.5), ## in case reco vertex is used for the matching
     z2MinB = cms.double(-0.09),
     z2MaxB = cms.double(0.09),
     r2MinF = cms.double(-0.15),

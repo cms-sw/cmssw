@@ -20,6 +20,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
@@ -64,10 +66,14 @@ class ElectronSeedGenerator
   bool dynamicphiroad_;
   bool fromTrackerSeeds_;
   //  edm::InputTag initialSeeds_;
+  bool useRecoVertex_;
+  edm::Handle<std::vector<reco::Vertex> > theVertices;
+  edm::InputTag verticesTag_;
 
   float lowPtThreshold_;
   float highPtThreshold_;
-  float nSigmasDeltaZ1_;
+  float nSigmasDeltaZ1_; // first z window size if not using the reco vertex
+  float deltaZ1WithVertex_; // first z window size when using the reco vertex
   float sizeWindowENeg_;
   float phimin2_,phimax2_;
   float deltaPhi1Low_, deltaPhi1High_;
@@ -81,7 +87,7 @@ class ElectronSeedGenerator
 
   //  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
   TrajectorySeedCollection* theInitialSeedColl;
-
+  
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<TrackerGeometry>              theTrackerGeometry;
   //edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;

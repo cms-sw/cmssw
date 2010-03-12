@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.23 2009/05/27 07:31:22 fabiocos Exp $
+// $Id: PixelHitMatcher.h,v 1.25 2009/05/27 14:08:25 fabiocos Exp $
 //
 //
 
@@ -151,6 +151,7 @@ class PixelHitMatcher{
   void set2ndLayer (float dummyphi2min, float dummyphi2max);
  
   float getVertex();
+  void setUseRecoVertex(bool val);
 
  private:
 
@@ -172,8 +173,9 @@ class PixelHitMatcher{
   const TrackerGeometry * theTrackerGeometry;
 
   float vertex_;
-
+  
   bool searchInTIDTEC_;
+  bool useRecoVertex_;
   std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
   std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
 };
