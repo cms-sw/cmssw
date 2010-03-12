@@ -42,9 +42,10 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              # recHit times are in [ns]
                              RecHitTime0 = cms.double(200.), 
                              RecHitTimeWindow = cms.double(10000.),
+
                              # If this is MC, the expected collision bx will be 6 instead of 3
-                             IsMC = cms.bool(False)
-                             
+                             #IsMC = cms.bool(False)
+                             ExpectedBX = cms.int32(3)
                              )
 
 

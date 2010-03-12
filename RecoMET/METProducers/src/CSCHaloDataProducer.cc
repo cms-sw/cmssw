@@ -37,13 +37,13 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   CSCAlgo.SetMinMaxInnerRadius( (float) iConfig.getParameter<double>("InnerRMinParam") ,  (float) iConfig.getParameter<double>("InnerRMaxParam") );
   CSCAlgo.SetMinMaxOuterRadius( (float) iConfig.getParameter<double>("OuterRMinParam"), (float) iConfig.getParameter<double>("OuterRMaxParam"));
   CSCAlgo.SetNormChi2Threshold( (float) iConfig.getParameter<double>("NormChi2Param") );
-  CSCAlgo.SetIsMC( (bool) iConfig.getParameter<bool>("IsMC") );
+ 
+  CSCAlgo.SetExpectedBX( (short int) iConfig.getParameter<int>("ExpectedBX") );
+  
   CSCAlgo.SetRecHitTime0( (float) iConfig.getParameter<double>("RecHitTime0") );
   CSCAlgo.SetRecHitTimeWindow( (float) iConfig.getParameter<double>("RecHitTimeWindow") );
 
   produces<CSCHaloData>();
-
-  
 }
 
 void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
@@ -85,8 +85,6 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);
   return;
-
-  
 }
 
 void CSCHaloDataProducer::beginJob(){return;}
