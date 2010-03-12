@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.42 2010/02/18 20:50:36 wdd Exp $
+// $Id: FourVectorHLTOffline.h,v 1.43 2010/03/12 11:02:05 rekovic Exp $
 //
 //
 
@@ -121,10 +121,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void fillHltMatrix(vector<std::string>, const edm::TriggerNames & triggerNames);
+      void fillHltMatrix(const edm::TriggerNames & triggerNames);
       void setupHltMatrix(std::string label, vector<std::string>  paths);
       void setupHltLsPlots();
       void setupHltBxPlots();
+      void countHLTPathHitsEndLumiBlock(const int& lumi);
+      void countHLTGroupHitsEndLumiBlock(const int& lumi);
 
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
@@ -157,6 +159,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::string pathsSummaryFilterCountsFolder_;
       std::string pathsSummaryHLTPathsPerLSFolder_;
       std::string pathsIndividualHLTPathsPerLSFolder_;
+      std::string pathsSummaryHLTPathsPerBXFolder_;
+
+      std::vector<std::string> groupName;
 
       unsigned int nLS_; 
 
@@ -203,6 +208,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector <std::vector <std::string> > triggerFilters_;
       std::vector <std::vector <uint> > triggerFilterIndices_;
       std::vector <std::pair<std::string, int> > fPathTempCountPair;
+      std::vector <std::pair<std::string, int> > fGroupTempCountPair;
 
       std::vector<std::string> specialPaths_;
 
