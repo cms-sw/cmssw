@@ -10,7 +10,7 @@
 #include "TLegend.h"
 
 int printUsage(){
-    printf("Usage: WMuNuValidatorMacro [-lbh] 'root_file_to_validate' 'reference_root_file' 'directory_name'\n\n");
+    printf("Usage: WMuNuMuValidatorMacro [-lbh] 'root_file_to_validate' 'reference_root_file' 'directory_name'\n\n");
 
     printf("\tOptions:\t -l ==> linear scale for Y axes (default is log-scale)\n");
     printf("\t        \t -b ==> run in batch (no graphics)\n");
@@ -21,8 +21,8 @@ int printUsage(){
     printf("\tInput files:\t Created via '*Validator.py' configuration files in:\n");
     printf("\t            \t   $CMSSW_BASE/src/ElectroWeakAnalysis/WMuNu/test/\n\n");
 
-    printf("\tOutput: \t Canvases: './WMuNuValidation_$CMSSW_VERSION_*.root'\n");
-    printf("\t        \t Gifs:     './WMuNuValidation_$CMSSW_VERSION_*.gif'\n\n");
+    printf("\tOutput: \t Canvases: './WMuNuMuValidation_$CMSSW_VERSION_*.root'\n");
+    printf("\t        \t Gifs:     './WMuNuMuValidation_$CMSSW_VERSION_*.gif'\n\n");
 
     return 1;
 }
@@ -59,7 +59,7 @@ int main(int argc, char** argv){
   TRint* app = new TRint("CMS Root Application", 0, 0);
 
   TString cmssw_version = gSystem->Getenv("CMSSW_VERSION");
-  TString chsample = "WMuNu";
+  TString chsample = "WMuNuMu";
   TString chtitle = chsample + " validation for " + cmssw_version;
 
   //TCanvas* c1 = new TCanvas("c1",chtitle.Data());
@@ -130,7 +130,7 @@ int main(int argc, char** argv){
 
             if(normalize) {hr->DrawNormalized("hist",h1->Integral());}
             else{hr->Draw("hist");}
-            h1->Draw("same,p");
+            h1->Draw("sames,p");
 
             leg->Clear();
             leg->AddEntry(h1,"Skim","L");
@@ -190,7 +190,7 @@ int main(int argc, char** argv){
 //            h1->Draw();
             if(normalize) {hr->DrawNormalized("hist",h1->Integral());}
             else{hr->Draw("hist");}
-            h1->Draw("same,p");
+            h1->Draw("sames,p");
 
 
             leg->Clear();
