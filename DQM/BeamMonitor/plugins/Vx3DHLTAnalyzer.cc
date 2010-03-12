@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.23 2010/03/11 19:10:17 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.24 2010/03/12 12:35:31 dinardo Exp $
 //
 //
 
@@ -161,7 +161,8 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 // M = K^-1
 
   det = fabs(par[0])*(fabs(par[1])*fabs(par[2])-par[4]*par[4]) - par[3]*(par[3]*fabs(par[2])-par[5]*par[4]) + par[5]*(par[3]*par[4]-par[5]*fabs(par[1]));
-  if (det < 1.e-6) det = 1.e-6;
+  if ((det >= 0.) && (det < 1.e-9)) det = 1.e-9;
+  else if ((det < 0.) && (det > 1.e-9)) det = -1.e-9;
   a   = (fabs(par[1]*par[2]) - par[4]*par[4]) / det;
   b   = (fabs(par[0]*par[2]) - par[5]*par[5]) / det;
   c   = (fabs(par[0]*par[1]) - par[3]*par[3]) / det;
@@ -177,7 +178,7 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	{
 	  tmp = coef * exp(-1./2.*(a*(xVxValues[i]-par[6])*(xVxValues[i]-par[6]) + b*(yVxValues[i]-par[7])*(yVxValues[i]-par[7]) + c*(zVxValues[i]-par[8])*(zVxValues[i]-par[8]) +
 				   2.*d*(xVxValues[i]-par[6])*(yVxValues[i]-par[7]) + 2.*e*(yVxValues[i]-par[7])*(zVxValues[i]-par[8]) + 2.*f*(xVxValues[i]-par[6])*(zVxValues[i]-par[8])));
-	  (tmp != 0.) ? sumlog += log(tmp) : sumlog += 0.;
+	  (tmp >= 1.e-9) ? sumlog += log(tmp) : sumlog += log(1.e-9);
 	  counterVx++;
 	}
     } 
@@ -192,7 +193,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigma = 4.;
+      double nSigma = 3.;
       double arglist[2];
       double amin,edm,errdef;
       double det;
@@ -202,7 +203,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       vector<double>::const_iterator it = vals->begin();
 
       TFitterMinuit* Gauss3D = new TFitterMinuit(nParams);
-      Gauss3D->SetPrintLevel(3);
+      Gauss3D->SetPrintLevel(0);
       // 	  Gauss3D->SetStrategy(0);
       Gauss3D->SetFCN(Gauss3DFunc);
       arglist[0] = 10000; // Max number of function calls
