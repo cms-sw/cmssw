@@ -90,10 +90,9 @@ class CSCHaloAlgo {
   void SetMinMaxOuterRadius(float min, float max) { min_outer_radius = min; max_outer_radius = max;}
   void SetDphiThreshold(float x) { dphi_threshold = x;}
   void SetNormChi2Threshold(float x) { norm_chi2_threshold = x;}
-  void SetIsMC(bool x) { isMC = x; }
   void SetRecHitTime0(float x) { recHit_t0 = x;}
   void SetRecHitTimeWindow(float x) { recHit_twindow = x; }
-
+  void SetExpectedBX(int x) { expected_BX = x ;}
 
  private:
   float deta_threshold;
@@ -105,8 +104,7 @@ class CSCHaloAlgo {
   float norm_chi2_threshold;
   float recHit_t0;
   float recHit_twindow;
-
-  bool isMC;
+  int expected_BX;
 
 };
 
