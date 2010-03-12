@@ -1534,7 +1534,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	  bool isTrack = elements[it->second.first].muonRef()->isTrackerMuon();
 	  double trackMomentum = elements[it->second.first].trackRef()->p();
-	  double trackPt = elements[it->second.first].trackRef()->pt();
+// 	  double trackPt = elements[it->second.first].trackRef()->pt();
 	  /* // 20 GeV cut on loose muon selection, now in PFMuon Algo
 	  if(PFMuonAlgo::isGlobalLooseMuon( elements[it->second.first].muonRef() )) {
 	    double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
