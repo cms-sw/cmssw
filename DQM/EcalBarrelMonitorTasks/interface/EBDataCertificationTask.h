@@ -55,10 +55,16 @@ bool mergeRuns_;
 TH2F *hDQM_;
 TH2F *hDAQ_;
 TH2F *hDCS_;
+TH1F *hIntegrityByLumi_;
+TH1F *hFrontendByLumi_;
+TH1F *hDCSByLumi_;
 
 MonitorElement* meEBDataCertificationSummary_;
 MonitorElement* meEBDataCertification_[36];
 MonitorElement* meEBDataCertificationSummaryMap_;
+
+MonitorElement* meDataQualityByLumi_;
+MonitorElement* meDCSQualityByLumi_;
 
 };
 

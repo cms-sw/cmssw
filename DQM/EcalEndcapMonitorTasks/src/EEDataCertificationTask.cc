@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,10 +42,15 @@ EEDataCertificationTask::EEDataCertificationTask(const ParameterSet& ps) {
   for (int i = 0; i < 18; i++) {
     meEEDataCertification_[i] = 0;
   }
+  meDataQualityByLumi_ = 0;
+  meDCSQualityByLumi_ = 0;
 
   hDQM_ = 0;
   hDAQ_ = 0;
   hDCS_ = 0;
+  hIntegrityByLumi_ = 0;
+  hFrontendByLumi_ = 0;
+  hDCSByLumi_ = 0;
 
 }
 
@@ -68,7 +74,7 @@ void EEDataCertificationTask::beginJob(void){
     meEEDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
     meEEDataCertificationSummaryMap_->setAxisTitle("jx", 1);
     meEEDataCertificationSummaryMap_->setAxisTitle("jy", 2);
-    
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
 
     for (int i = 0; i < 18; i++) {
@@ -76,6 +82,18 @@ void EEDataCertificationTask::beginJob(void){
       meEEDataCertification_[i] = dqmStore_->bookFloat(histo);
       meEEDataCertification_[i]->Fill(0.0);
     }
+
+    sprintf(histo, "data quality by lumi");
+    meDataQualityByLumi_ = dqmStore_->bookFloat(histo);
+    meDataQualityByLumi_->setLumiFlag();
+    meDataQualityByLumi_->Fill(-1.0);
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
+
+    sprintf(histo, "DCS quality by lumi");
+    meDCSQualityByLumi_ = dqmStore_->bookFloat(histo);
+    meDCSQualityByLumi_->setLumiFlag();
+    meDCSQualityByLumi_->Fill(-1.0);
 
   }
 
@@ -177,6 +195,37 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     }
   }
 
+  // evaluate the quality of observables checked by lumi
+  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi").c_str());
+  me = dqmStore_->get(histo);
+  hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
+
+  sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi").c_str());
+  me = dqmStore_->get(histo);
+  hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
+  
+  sprintf(histo, (prefixME_ + "/EventInfo/EE weighted DCS errors by lumi").c_str());
+  me = dqmStore_->get(histo);
+  hDCSByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hDCSByLumi_ );
+
+  float integrityErrSum, frontendErrSum, dcsErrSum;
+  integrityErrSum = frontendErrSum = dcsErrSum = 0.;
+  for ( int i=0; i<18; i++) {
+    if( hIntegrityByLumi_ ) integrityErrSum += hIntegrityByLumi_->GetBinContent(i+1);
+    if( hFrontendByLumi_ ) frontendErrSum += hFrontendByLumi_->GetBinContent(i+1);
+    if ( hDCSByLumi_ ) dcsErrSum += hDCSByLumi_->GetBinContent(i+1);
+  }
+
+  float integrityQual = 1.0;
+  if ( hIntegrityByLumi_ ) integrityQual = 1.0 - integrityErrSum / 18. / hIntegrityByLumi_->GetBinContent(0);
+  float frontendQual = 1.0;
+  if ( hFrontendByLumi_ ) frontendQual = 1.0 - frontendErrSum / 18. / hFrontendByLumi_->GetBinContent(0);
+  float dcsQual = 1.0;
+  if ( hDCSByLumi_ ) dcsQual = 1.0 - dcsErrSum / 18.;
+
+  if( meDataQualityByLumi_ ) meDataQualityByLumi_->Fill(min(integrityQual,frontendQual));
+  if( meDCSQualityByLumi_ ) meDCSQualityByLumi_->Fill(dcsQual);
+
 }
 
 void EEDataCertificationTask::reset(void) {
@@ -188,25 +237,45 @@ void EEDataCertificationTask::reset(void) {
   }
 
   if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->Reset();
+
+  if ( meDataQualityByLumi_ ) meDataQualityByLumi_->Reset();
+  if ( meDCSQualityByLumi_ ) meDCSQualityByLumi_->Reset();
   
 }
 
 
 void EEDataCertificationTask::cleanup(void){
   
+  if ( cloneME_ ) {
+    if( hDQM_ ) delete hDQM_;
+    if( hDAQ_ ) delete hDAQ_;
+    if( hDCS_ ) delete hDCS_;
+    if( hIntegrityByLumi_ ) delete hIntegrityByLumi_;
+    if( hFrontendByLumi_ ) delete hFrontendByLumi_;
+    if( hDCSByLumi_ ) delete hDCSByLumi_;
+  }
+  hDQM_ = 0;
+  hDAQ_ = 0;
+  hDCS_ = 0;
+  hIntegrityByLumi_ = 0;
+  hFrontendByLumi_ = 0;
+  hDCSByLumi_  = 0;
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
     
     if ( meEEDataCertificationSummary_ ) dqmStore_->removeElement( meEEDataCertificationSummary_->getName() );
-
     if ( meEEDataCertificationSummaryMap_ ) dqmStore_->removeElement( meEEDataCertificationSummaryMap_->getName() );
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
-
     for (int i = 0; i < 18; i++) {
       if ( meEEDataCertification_[i] ) dqmStore_->removeElement( meEEDataCertification_[i]->getName() );
     }
+    if ( meDataQualityByLumi_ ) dqmStore_->removeElement( meDataQualityByLumi_->getName() );
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
+    if ( meDCSQualityByLumi_ ) dqmStore_->removeElement( meDCSQualityByLumi_->getName() );
 
   }
 
