@@ -109,6 +109,12 @@ void MuonResiduals6DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
 	fval += -weight * MuonResidualsFitter_logROOTVoigt(resslopeX, slopeXpeak, slopeXsigma, slopeXgamma);
 	fval += -weight * MuonResidualsFitter_logROOTVoigt(resslopeY, slopeYpeak, slopeYsigma, slopeYgamma);
       }
+      else if (fitter->residualsModel() == MuonResidualsFitter::kGaussPowerTails) {
+        fval += -weight * MuonResidualsFitter_logGaussPowerTails(residX, residXpeak, resXsigma);
+        fval += -weight * MuonResidualsFitter_logGaussPowerTails(residY, residYpeak, resYsigma);
+        fval += -weight * MuonResidualsFitter_logGaussPowerTails(resslopeX, slopeXpeak, slopeXsigma);
+        fval += -weight * MuonResidualsFitter_logGaussPowerTails(resslopeY, slopeYpeak, slopeYsigma);
+      }
       else { assert(false); }
 
     }
@@ -325,7 +331,7 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali) {
   num.push_back(kResSlopeYSigma); name.push_back(std::string("ResSlopeYSigma")); start.push_back(resslopey_stdev); step.push_back(0.01*resslopey_stdev);     low.push_back(0.);   high.push_back(0.);
   num.push_back(kAlphaX);         name.push_back(std::string("AlphaX"));         start.push_back(alphax_estimate); step.push_back(0.01*resslopex_stdev);     low.push_back(0.);   high.push_back(0.);
   num.push_back(kAlphaY);         name.push_back(std::string("AlphaY"));         start.push_back(alphay_estimate); step.push_back(0.01*resslopey_stdev);     low.push_back(0.);   high.push_back(0.);
-  if (residualsModel() != kPureGaussian) {
+  if (residualsModel() != kPureGaussian && residualsModel() != kGaussPowerTails) {
   num.push_back(kResidXGamma);    name.push_back(std::string("ResidXGamma"));    start.push_back(0.1*residx_stdev);    step.push_back(0.01*residx_stdev);    low.push_back(0.);   high.push_back(0.);
   num.push_back(kResidYGamma);    name.push_back(std::string("ResidYGamma"));    start.push_back(0.1*residy_stdev);    step.push_back(0.01*residy_stdev);    low.push_back(0.);   high.push_back(0.);
   num.push_back(kResSlopeXGamma); name.push_back(std::string("ResSlopeXGamma")); start.push_back(0.1*resslopex_stdev); step.push_back(0.01*resslopex_stdev); low.push_back(0.);   high.push_back(0.);
@@ -526,6 +532,16 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     fit_dxdz->SetParameters(MuonResiduals6DOFFitter_sum_of_weights * (max_dxdz - min_dxdz)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeXSigma), 1000.*value(kResSlopeXGamma));
     fit_dydz = new TF1(name_dydz.str().c_str(), MuonResidualsFitter_ROOTVoigt_TF1, min_dydz, max_dydz, 4);
     fit_dydz->SetParameters(MuonResiduals6DOFFitter_sum_of_weights * (max_dydz - min_dydz)/100., -1000.*value(kAlignPhiX), 1000.*value(kResSlopeYSigma), 1000.*value(kResSlopeYGamma));
+  }
+  else if (residualsModel() == kGaussPowerTails) {
+    fit_x = new TF1(name_x.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_x, max_x, 3);
+    fit_x->SetParameters(MuonResiduals6DOFFitter_sum_of_weights * (max_x - min_x)/100., 10.*value(kAlignX), 10.*value(kResidXSigma));
+    fit_y = new TF1(name_y.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_y, max_y, 3);
+    fit_y->SetParameters(MuonResiduals6DOFFitter_sum_of_weights * (max_y - min_y)/100., 10.*value(kAlignY), 10.*value(kResidYSigma));
+    fit_dxdz = new TF1(name_dxdz.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_dxdz, max_dxdz, 3);
+    fit_dxdz->SetParameters(MuonResiduals6DOFFitter_sum_of_weights * (max_dxdz - min_dxdz)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeXSigma));
+    fit_dydz = new TF1(name_dydz.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_dydz, max_dydz, 3);
+    fit_dydz->SetParameters(MuonResiduals6DOFFitter_sum_of_weights * (max_dydz - min_dydz)/100., -1000.*value(kAlignPhiX), 1000.*value(kResSlopeYSigma));
   }
   else { assert(false); }
 

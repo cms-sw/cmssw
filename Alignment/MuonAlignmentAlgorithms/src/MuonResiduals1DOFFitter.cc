@@ -36,6 +36,9 @@ void MuonResiduals1DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
       else if (fitter->residualsModel() == MuonResidualsFitter::kROOTVoigt) {
 	fval += -weight * MuonResidualsFitter_logROOTVoigt(residual, residpeak, residsigma, residgamma);
       }
+      else if (fitter->residualsModel() == MuonResidualsFitter::kGaussPowerTails) {
+        fval += -weight * MuonResidualsFitter_logGaussPowerTails(residual, residpeak, residsigma);
+      }
       else { assert(false); }
 
     }
@@ -125,7 +128,7 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
   num.push_back(kAlign);          name.push_back(std::string("Align"));          start.push_back(resid_mean);      step.push_back(0.01*resid_stdev);    low.push_back(0.);   high.push_back(0.);
   }
   num.push_back(kSigma);          name.push_back(std::string("Sigma"));          start.push_back(resid_stdev);     step.push_back(0.01*resid_stdev);    low.push_back(0.);   high.push_back(0.);
-  if (residualsModel() != kPureGaussian) {
+  if (residualsModel() != kPureGaussian && residualsModel() != kGaussPowerTails) {
   num.push_back(kGamma);          name.push_back(std::string("Gamma"));          start.push_back(0.1*resid_stdev); step.push_back(0.01*resid_stdev);    low.push_back(0.);   high.push_back(0.);
   }
 
@@ -156,6 +159,10 @@ double MuonResiduals1DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   else if (residualsModel() == kROOTVoigt) {
     fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_ROOTVoigt_TF1, min_residual, max_residual, 4);
     fit_residual->SetParameters(MuonResiduals1DOFFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlign), 10.*value(kSigma), 10.*value(kGamma));
+  }
+  else if (residualsModel() == kGaussPowerTails) {
+    fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_residual, max_residual, 3);
+    fit_residual->SetParameters(MuonResiduals1DOFFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlign), 10.*value(kSigma));
   }
   else { assert(false); }
 

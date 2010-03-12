@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
 
 /** \class MuonResidualsAngleFitter
- *  $Date: 2009/10/07 20:44:37 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/08 03:44:24 $
+ *  $Revision: 1.9 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -32,7 +32,7 @@ public:
   int type() const { return MuonResidualsFitter::kAngleFitter; };
 
   int npar() {
-    if (residualsModel() == kPureGaussian) return kNPar - 1;
+    if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 1;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);

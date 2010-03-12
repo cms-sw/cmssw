@@ -206,6 +206,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
    if (m_residualsModel == std::string("pureGaussian")) residualsModel = MuonResidualsFitter::kPureGaussian;
    else if (m_residualsModel == std::string("powerLawTails")) residualsModel = MuonResidualsFitter::kPowerLawTails;
    else if (m_residualsModel == std::string("ROOTVoigt")) residualsModel = MuonResidualsFitter::kROOTVoigt;
+   else if (m_residualsModel == std::string("GaussPowerTails")) residualsModel = MuonResidualsFitter::kGaussPowerTails;
    else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized residualsModel: \"" << m_residualsModel << "\"" << std::endl;
 
    edm::ESHandle<CSCGeometry> cscGeometry;
@@ -822,7 +823,7 @@ void MuonAlignmentFromReference::terminate() {
 
 	    double gammaresid_value, gammaresid_error, gammaresid_antisym, gammaresslope_value, gammaresslope_error, gammaresslope_antisym;
 	    gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
-	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian && fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails) {
 	      gammaresid_value = fitter->second->value(MuonResiduals5DOFFitter::kResidGamma);
 	      gammaresid_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kResidGamma);
 	      gammaresid_antisym = fitter->second->antisym(MuonResiduals5DOFFitter::kResidGamma);
@@ -843,7 +844,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << "                           " << loglikelihood << ", " << numsegments << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
 	      report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", " << sigmaresid_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
-	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian && fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails) {
 		report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
 		report << "reports[-1].gammaresslope = ValErr(" << gammaresslope_value << ", " << gammaresslope_error << ", " << gammaresslope_antisym << ")" << std::endl;
 	      }
@@ -943,7 +944,7 @@ void MuonAlignmentFromReference::terminate() {
 
 	    double gammax_value, gammax_error, gammax_antisym, gammay_value, gammay_error, gammay_antisym, gammadxdz_value, gammadxdz_error, gammadxdz_antisym, gammadydz_value, gammadydz_error, gammadydz_antisym;
 	    gammax_value = gammax_error = gammax_antisym = gammay_value = gammay_error = gammay_antisym = gammadxdz_value = gammadxdz_error = gammadxdz_antisym = gammadydz_value = gammadydz_error = gammadydz_antisym = 0.;
-	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian && fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails) {
 	      gammax_value = fitter->second->value(MuonResiduals6DOFFitter::kResidXGamma);
 	      gammax_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kResidXGamma);
 	      gammax_antisym = fitter->second->antisym(MuonResiduals6DOFFitter::kResidXGamma);
@@ -974,7 +975,7 @@ void MuonAlignmentFromReference::terminate() {
 	      report << "reports[-1].sigmay = ValErr(" << sigmay_value << ", " << sigmay_error << ", " << sigmay_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmadxdz = ValErr(" << sigmadxdz_value << ", " << sigmadxdz_error << ", " << sigmadxdz_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmadydz = ValErr(" << sigmadydz_value << ", " << sigmadydz_error << ", " << sigmadydz_antisym << ")" << std::endl;
-	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian && fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails) {
 		report << "reports[-1].gammax = ValErr(" << gammax_value << ", " << gammax_error << ", " << gammax_antisym << ")" << std::endl;
 		report << "reports[-1].gammay = ValErr(" << gammay_value << ", " << gammay_error << ", " << gammay_antisym << ")" << std::endl;
 		report << "reports[-1].gammadxdz = ValErr(" << gammadxdz_value << ", " << gammadxdz_error << ", " << gammadxdz_antisym << ")" << std::endl;
@@ -1077,7 +1078,7 @@ void MuonAlignmentFromReference::terminate() {
 
 	    double gammaresid_value, gammaresid_error, gammaresid_antisym, gammaresslope_value, gammaresslope_error, gammaresslope_antisym;
 	    gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
-	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	    if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian && fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails) {
 	      gammaresid_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResidGamma);
 	      gammaresid_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kResidGamma);
 	      gammaresid_antisym = fitter->second->antisym(MuonResiduals6DOFrphiFitter::kResidGamma);
@@ -1098,7 +1099,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << "                           " << loglikelihood << ", " << numsegments << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
 	      report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", " << sigmaresid_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
-	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
+	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian && fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails) {
 		report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
 		report << "reports[-1].gammaresslope = ValErr(" << gammaresslope_value << ", " << gammaresslope_error << ", " << gammaresslope_antisym << ")" << std::endl;
 	      }

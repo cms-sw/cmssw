@@ -93,6 +93,10 @@ void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, doubl
 	fval += -weight * MuonResidualsFitter_logROOTVoigt(residual, residpeak, residsigma, residgamma);
 	fval += -weight * MuonResidualsFitter_logROOTVoigt(resslope, resslopepeak, resslopesigma, resslopegamma);
       }
+      else if (fitter->residualsModel() == MuonResidualsFitter::kGaussPowerTails) {
+        fval += -weight * MuonResidualsFitter_logGaussPowerTails(residual, residpeak, residsigma);
+        fval += -weight * MuonResidualsFitter_logGaussPowerTails(resslope, resslopepeak, resslopesigma);
+      }
       else { assert(false); }
 
     }
@@ -238,7 +242,7 @@ bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali) {
   num.push_back(kResidSigma);     name.push_back(std::string("ResidSigma"));     start.push_back(resid_stdev);     step.push_back(0.01*resid_stdev);         low.push_back(0.);   high.push_back(0.);
   num.push_back(kResSlopeSigma);  name.push_back(std::string("ResSlopeSigma"));  start.push_back(resslope_stdev);  step.push_back(0.01*resslope_stdev);      low.push_back(0.);   high.push_back(0.);
   num.push_back(kAlpha);          name.push_back(std::string("Alpha"));          start.push_back(alpha_estimate);  step.push_back(0.01*resslope_stdev);      low.push_back(0.);   high.push_back(0.);
-  if (residualsModel() != kPureGaussian) {
+  if (residualsModel() != kPureGaussian && residualsModel() != kGaussPowerTails) {
   num.push_back(kResidGamma);     name.push_back(std::string("ResidGamma"));     start.push_back(0.1*resid_stdev);     step.push_back(0.01*resid_stdev);     low.push_back(0.);   high.push_back(0.);
   num.push_back(kResSlopeGamma);  name.push_back(std::string("ResSlopeGamma"));  start.push_back(0.1*resslope_stdev);  step.push_back(0.01*resslope_stdev);  low.push_back(0.);   high.push_back(0.);
   }
@@ -338,6 +342,12 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
     fit_residual->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma), 10.*value(kResidGamma));
     fit_resslope = new TF1(name_resslope.str().c_str(), MuonResidualsFitter_ROOTVoigt_TF1, min_resslope, max_resslope, 4);
     fit_resslope->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma), 1000.*value(kResSlopeGamma));
+  }
+  else if (residualsModel() == kGaussPowerTails) {
+    fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_residual, max_residual, 3);
+    fit_residual->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma));
+    fit_resslope = new TF1(name_resslope.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_resslope, max_resslope, 3);
+    fit_resslope->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma));
   }
   else { assert(false); }
 

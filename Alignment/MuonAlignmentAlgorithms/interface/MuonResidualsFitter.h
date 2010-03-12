@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2010/01/06 15:38:44 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/02/11 19:11:56 $
+ *  $Revision: 1.14 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -29,7 +29,8 @@ public:
   enum {
     kPureGaussian,
     kPowerLawTails,
-    kROOTVoigt
+    kROOTVoigt,
+    kGaussPowerTails
   };
 
   enum {
@@ -44,7 +45,7 @@ public:
 
   MuonResidualsFitter(int residualsModel, int minHits, bool weightAlignment=true)
     : m_residualsModel(residualsModel), m_minHits(minHits), m_weightAlignment(weightAlignment), m_printLevel(0), m_strategy(2), m_loglikelihood(0.) {
-    if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  m_residualsModel != kROOTVoigt) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
+    if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  m_residualsModel != kROOTVoigt  &&  m_residualsModel != kGaussPowerTails) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
   };
 
   virtual ~MuonResidualsFitter() {
@@ -151,6 +152,8 @@ double MuonResidualsFitter_logPowerLawTails(double residual, double center, doub
 Double_t MuonResidualsFitter_powerLawTails_TF1(Double_t *xvec, Double_t *par);
 double MuonResidualsFitter_logROOTVoigt(double residual, double center, double sigma, double gamma);
 Double_t MuonResidualsFitter_ROOTVoigt_TF1(Double_t *xvec, Double_t *par);
+double MuonResidualsFitter_logGaussPowerTails(double residual, double center, double sigma);
+Double_t MuonResidualsFitter_GaussPowerTails_TF1(Double_t *xvec, Double_t *par);
 void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag);
 void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag);
 

@@ -98,6 +98,21 @@ Double_t MuonResidualsFitter_ROOTVoigt_TF1(Double_t *xvec, Double_t *par) {
   return par[0] * TMath::Voigt(xvec[0] - par[1], fabs(par[2]), fabs(par[3])*2.);
 }
 
+double MuonResidualsFitter_logGaussPowerTails(double residual, double center, double sigma) {
+  double x = residual-center;
+  double s = fabs(sigma);
+  double m = 2*s;
+  double a = pow(m,4)*exp(-2);
+  double n = sqrt(2*M_PI)*s*erf(sqrt(2))+2*a*pow(m,-3)/3;
+
+  if (fabs(x)<m) return -x*x/(2*s*s) - log(n);
+  else return log(a) -4*log(fabs(x)) - log(n);
+}
+
+Double_t MuonResidualsFitter_GaussPowerTails_TF1(Double_t *xvec, Double_t *par) {
+  return par[0] * exp(MuonResidualsFitter_logGaussPowerTails(xvec[0], par[1], par[2]));
+}
+
 double MuonResidualsFitter_integrate_pureGaussian(double low, double high, double center, double sigma) {
   return (erf((high + center) / sqrt(2.) / sigma) - erf((low + center) / sqrt(2.) / sigma)) * exp(0.5/sigma/sigma) / 2.;
 }

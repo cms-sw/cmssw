@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals5DOFFitter
  *  $Date: Fri Apr 17 15:29:54 CDT 2009
- *  $Revision: 1.2 $ 
+ *  $Revision: 1.3 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -41,7 +41,7 @@ public:
   int type() const { return MuonResidualsFitter::k5DOF; };
 
   int npar() {
-    if (residualsModel() == kPureGaussian) return kNPar - 2;
+    if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 2;
     else if (residualsModel() == kPowerLawTails) return kNPar;
     else if (residualsModel() == kROOTVoigt) return kNPar;
     else assert(false);

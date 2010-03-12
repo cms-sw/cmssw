@@ -32,6 +32,9 @@ void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, doubl
     else if (fitter->residualsModel() == MuonResidualsFitter::kROOTVoigt) {
       fval += -MuonResidualsFitter_logROOTVoigt(residual, center, par[MuonResidualsPositionFitter::kSigma], par[MuonResidualsPositionFitter::kGamma]);
     }
+    else if (fitter->residualsModel() == MuonResidualsFitter::kGaussPowerTails) {
+      fval += -MuonResidualsFitter_logGaussPowerTails(residual, center, par[MuonResidualsPositionFitter::kSigma]);
+    }
     else { assert(false); }
   }
 }
@@ -103,7 +106,7 @@ bool MuonResidualsPositionFitter::fit(Alignable *ali) {
   parNum.push_back(kPhiz);        parName.push_back(std::string("phiz"));      	 start.push_back(0.);       step.push_back(0.1);             low.push_back(0.);    high.push_back(0.);
   parNum.push_back(kScattering);  parName.push_back(std::string("scattering"));  start.push_back(0.);       step.push_back(0.1*1000.);       low.push_back(0.);    high.push_back(0.);
   parNum.push_back(kSigma);       parName.push_back(std::string("sigma"));       start.push_back(stdev);  step.push_back(0.1*stdev);     low.push_back(0.);    high.push_back(0.);
-  if (residualsModel() != kPureGaussian) {
+  if (residualsModel() != kPureGaussian && residualsModel() != kGaussPowerTails) {
   parNum.push_back(kGamma);       parName.push_back(std::string("gamma"));       start.push_back(stdev);  step.push_back(0.1*stdev);     low.push_back(0.);    high.push_back(0.);
   }
 
@@ -149,6 +152,11 @@ double MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir, 
   else if (residualsModel() == kROOTVoigt) {
     narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_ROOTVoigt_TF1, -100., 100., 4);
     narrowed_fit->SetParameters(scale_factor, value(kPosition) * 10., value(kSigma) * 10., value(kGamma) * 10.);
+    narrowed_fit->Write();
+  }
+  else if (residualsModel() == kGaussPowerTails) {
+    narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, -100., 100., 3);
+    narrowed_fit->SetParameters(scale_factor, value(kPosition) * 10., value(kSigma) * 10.);
     narrowed_fit->Write();
   }
 
