@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.36 2009/10/20 16:45:05 chamont Exp $
+// $Id: PixelHitMatcher.cc,v 1.37 2010/03/12 13:18:47 charlot Exp $
 //
 //
 
@@ -288,32 +288,36 @@ PixelHitMatcher::compatibleHits
   // now we have the vector of all valid measurements of the first point
   for (unsigned i=0; i<validMeasurements.size(); i++){
 
-    const DetLayer* newLayer = theGeometricSearchTracker->detLayer(validMeasurements[i].recHit()->det()->geographicalId());
+    const DetLayer * newLayer = theGeometricSearchTracker->detLayer(validMeasurements[i].recHit()->det()->geographicalId());
 
-    double zVertex;
-    if (i==0) {
-      if (!useRecoVertex_) { // we don't know the z vertex position, get it from linear extrapolation
-	// compute the z vertex from the cluster point and the found pixel hit
-	double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
-	  validMeasurements[i].recHit()->localPosition()).z();
-	double pxHit1x = validMeasurements[i].recHit()->det()->surface().toGlobal(
-	  validMeasurements[i].recHit()->localPosition()).x();
-	double pxHit1y = validMeasurements[i].recHit()->det()->surface().toGlobal(
-	  validMeasurements[i].recHit()->localPosition()).y();
-	double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
-	r1diff=sqrt(r1diff);
-	double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
-	r2diff=sqrt(r2diff);
-	zVertex = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
-	vertex_ = zVertex;
-       } else { // here we use the reco vertex z position
-	zVertex = vprim.z();
-	vertex_ = zVertex;
-      }
-    }
-    GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertex);
-    GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal(
-										 validMeasurements[i].recHit()->localPosition()));
+    double zVertex ;
+    if (!useRecoVertex_)
+     {
+      // we don't know the z vertex position, get it from linear extrapolation
+      // compute the z vertex from the cluster point and the found pixel hit
+      double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
+        validMeasurements[i].recHit()->localPosition()).z();
+      double pxHit1x = validMeasurements[i].recHit()->det()->surface().toGlobal(
+        validMeasurements[i].recHit()->localPosition()).x();
+      double pxHit1y = validMeasurements[i].recHit()->det()->surface().toGlobal(
+        validMeasurements[i].recHit()->localPosition()).y();
+      double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y());
+      r1diff=sqrt(r1diff);
+      double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y);
+      r2diff=sqrt(r2diff);
+      zVertex = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+     }
+    else
+     {
+      // here we use the reco vertex z position
+      zVertex = vprim.z();
+     }
+
+    if (i==0)
+     { vertex_ = zVertex; }
+
+    GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertex) ;
+    GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal( validMeasurements[i].recHit()->localPosition() ) ) ;
 
     FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
 
@@ -444,8 +448,8 @@ PixelHitMatcher::compatibleSeeds
              DetId id2=(*it).geographicalId();
 	     const GeomDet *geomdet2=theTrackerGeometry->idToDet((*it).geographicalId());
 	     TrajectoryStateOnSurface tsos2;
-             
-	     double zVertex;	     
+
+	     double zVertex;
 	     if (!useRecoVertex_) { // we don't know the z vertex position, get it from linear extrapolation
 	       // compute the z vertex from the cluster point and the found pixel hit
 	       double pxHit1z = hitPos.z();
