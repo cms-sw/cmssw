@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.33 2010/03/03 19:56:47 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.34 2010/03/03 20:17:47 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -165,6 +165,10 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   h1cutFlow->GetXaxis()->SetBinLabel(8,"z_{0}");
   h1cutFlow->GetXaxis()->SetBinLabel(9,"p_{T}");
   resetCutFlow();
+
+  // Primary vertex fitter
+  MyPVFitter = new PVFitter(iConfig);
+
 }
 
 BeamFitter::~BeamFitter() {
@@ -212,26 +216,25 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   edm::Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
 
+  //------ Primary Vertices
   edm::Handle< edm::View<reco::Vertex> > PVCollection;
-
   bool hasPVs = false;
   edm::View<reco::Vertex> pv;
   if ( iEvent.getByLabel("offlinePrimaryVertices", PVCollection ) ) {
       pv = *PVCollection;
       hasPVs = true;
   }
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  //------
 
+  //------ Beam Spot in current event
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   const reco::BeamSpot *refBS =  0;
   if ( iEvent.getByLabel("offlineBeamSpot",recoBeamSpotHandle) )
       refBS = recoBeamSpotHandle.product();
+  //-------
   
   const reco::TrackCollection *tracks = TrackCollection.product();
-
-  //const edm::View<reco::Vertex> &pv = *PVCollection;
-
-  //const reco::BeamSpot *refBS = recoBeamSpotHandle.product();
-
+  
   double eventZ = 0;
   double averageZ = 0;
 
@@ -285,14 +288,14 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     
     if (! isMuon_ ) {
       if (quality_.size()!=0) {
-	fquality = false;
-	for (unsigned int i = 0; i<quality_.size();++i) {
-	  if(debug_) std::cout << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
-	  if (track->quality(quality_[i])) {
-	    fquality = true;
-	    break;
-	  }
-	}
+          fquality = false;
+          for (unsigned int i = 0; i<quality_.size();++i) {
+              if(debug_) std::cout << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
+              if (track->quality(quality_[i])) {
+                  fquality = true;
+                  break;
+              }
+          }
       }
       
       
@@ -312,9 +315,11 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     
         for ( size_t ipv=0; ipv != pv.size(); ++ipv ) {
 
-            if (! pv[ipv].isFake()) fpvValid = true;
+            if (! pv[ipv].isFake() ) fpvValid = true;
       
-            if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); }
+            if ( ipv==0 && !pv[0].isFake() ) { fpvx = pv[0].x(); fpvy = pv[0].y(); fpvz = pv[0].z(); } // fix this later
+
+            
         }
     
     }
@@ -342,8 +347,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 			std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
 		      }
 		      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
-		      BSTrk.setVx(fvx);
-		      BSTrk.setVy(fvy);
+		      //BSTrk.setVx(fvx);
+		      //BSTrk.setVy(fvy);
 		      fBSvector.push_back(BSTrk);
 		      averageZ += fz0;
 		    }
@@ -371,6 +376,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   for (unsigned int i=0; i < sizeof(countPass)/sizeof(countPass[0]); i++) 
     h1cutFlow->SetBinContent(i+1,countPass[i]);
 
+  MyPVFitter->readEvent(iEvent);
+
 }
 
 bool BeamFitter::runFitter() {
@@ -388,6 +395,32 @@ bool BeamFitter::runFitter() {
     if (inputBeamWidth_ > 0 ) myalgo->SetInputBeamWidth( inputBeamWidth_ );
 	
     fbeamspot = myalgo->Fit();
+
+    if ( MyPVFitter->runFitter() ) {
+
+      fbeamspot.setBeamWidthX( MyPVFitter->getWidthX() );
+      fbeamspot.setBeamWidthY( MyPVFitter->getWidthY() );
+      // to pass errors I have to create another beam spot object
+      reco::BeamSpot::CovarianceMatrix matrix;
+      for (int j = 0 ; j < 7 ; ++j) {
+          for(int k = j ; k < 7 ; ++k) {
+              matrix(j,k) = fbeamspot.covariance(j,k);
+          }
+      }
+      matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
+      
+      reco::BeamSpot tmpbs(reco::BeamSpot::Point(fbeamspot.x0(), fbeamspot.y0(), fbeamspot.z0()),
+                     fbeamspot.sigmaZ(),
+                     fbeamspot.dxdz(),
+                     fbeamspot.dydz(),
+                     fbeamspot.BeamWidthX(),
+                     matrix,
+                     fbeamspot.type() );
+      tmpbs.setBeamWidthY( fbeamspot.BeamWidthY() );
+
+      fbeamspot = tmpbs;
+      
+    }
 
     if(writeTxt_) dumpTxtFile();
 
@@ -418,6 +451,7 @@ bool BeamFitter::runFitter() {
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
   }
+
   return fit_ok;
 }
 

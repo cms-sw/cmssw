@@ -52,11 +52,11 @@ process.source = cms.Source("PoolSource",
 
 '/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/BAEF02C0-0BED-DE11-9EBA-00261894392F.root',
 '/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/A461CC43-03ED-DE11-8E44-00304867BFF2.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/8A29D1B9-07ED-DE11-BDFD-002618943843.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/26BC3350-03ED-DE11-9683-002618943885.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/24E9A529-14ED-DE11-99C2-00304867C034.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/24597050-03ED-DE11-A701-00261894389D.root',
-'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0001/F8B5CB1B-01ED-DE11-8529-003048678FAE.root'
+'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/8A29D1B9-07ED-DE11-BDFD-002618943843.root'
+#'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/26BC3350-03ED-DE11-9683-002618943885.root',
+#'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/24E9A529-14ED-DE11-99C2-00304867C034.root',
+#'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0002/24597050-03ED-DE11-A701-00261894389D.root',
+#'/store/data/BeamCommissioning09/MinimumBias/RECO/Dec19thReReco_341_v1/0001/F8B5CB1B-01ED-DE11-8529-003048678FAE.root'
 
 	#'file:FirstEvent.root'
 #'/store/mc/Summer09/MinBias/ALCARECO/StreamTkAlMinBias-334_DESIGN_3X_V8A_v1/0082/22F2A8A8-8BD8-DE11-A2FE-00248C0BE01E.root',
@@ -93,10 +93,20 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 )')
 
+#### remove beam scraping events
+process.noScraping= cms.EDFilter("FilterOutScraping",
+    applyfilter = cms.untracked.bool(True),
+    debugOn = cms.untracked.bool(False), ## Or 'True' to get some per-event info
+    numtrack = cms.untracked.uint32(10),
+    thresh = cms.untracked.double(0.20)
+)
+
 process.p = cms.Path(process.hltLevel1GTSeed + process.d0_phi_analyzer)
 process.MessageLogger.debugModules = ['BeamSpotAnalyzer']
 
 #######################
+
+
 
 # run over STA muons
 #process.d0_phi_analyzer.BeamFitter.TrackCollection = cms.untracked.InputTag('ALCARECOTkAlMinBias') #,'UpdatedAtVtx')
@@ -110,11 +120,12 @@ process.d0_phi_analyzer.BeamFitter.MinimumPt = 1.0
 process.d0_phi_analyzer.BeamFitter.MaximumImpactParameter = 1.0 #5.0
 process.d0_phi_analyzer.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
 #process.d0_phi_analyzer.BeamFitter.TrackQuality = cms.untracked.vstring("highPurity")
-process.d0_phi_analyzer.BeamFitter.InputBeamWidth = 0.0400
+#process.d0_phi_analyzer.BeamFitter.InputBeamWidth = 0.0400
+process.d0_phi_analyzer.BeamFitter.InputBeamWidth = -1
 process.d0_phi_analyzer.BeamFitter.Debug = True
 #########################
-process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_124120_v4.txt'
-process.d0_phi_analyzer.BeamFitter.OutputFileName = 'run124120_all_v4.root' #AtVtx10000.root'
+process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_124120_vpv2.txt'
+process.d0_phi_analyzer.BeamFitter.OutputFileName = 'run124120_all_vpv2.root' #AtVtx10000.root'
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
 
 # fit as function of lumi sections

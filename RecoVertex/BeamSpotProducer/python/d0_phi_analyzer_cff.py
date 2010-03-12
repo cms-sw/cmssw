@@ -28,6 +28,22 @@ d0_phi_analyzer = cms.EDAnalyzer("BeamSpotAnalyzer",
         InputBeamWidth = cms.untracked.double(-1.0), ## if -1 use the value calculated by the analyzer
 	FractionOfFittedTrks = cms.untracked.double(0.9),
 	MinimumInputTracks = cms.untracked.int32(100)
+     ),
+     PVFitter = cms.PSet(
+        Debug = cms.untracked.bool(False),
+	Apply3DFit = cms.untracked.bool(False),
+        VertexCollection = cms.untracked.InputTag('offlinePrimaryVertices'),
+        #WriteAscii = cms.untracked.bool(True),
+        #AsciiFileName = cms.untracked.string('PVFit.txt'),
+        minNrVerticesForFit = cms.untracked.uint32(100),
+        minVertexNdf = cms.untracked.double(4.),
+        maxVertexNormChi2 = cms.untracked.double(10.),
+        minVertexNTracks = cms.untracked.uint32(0),
+        minVertexMeanWeight = cms.untracked.double(0.5),
+        maxVertexR = cms.untracked.double(2),
+        maxVertexZ = cms.untracked.double(10),
+        errorScale = cms.untracked.double(0.9),
+        nSigmaCut = cms.untracked.double(5.)
      )
 )
 

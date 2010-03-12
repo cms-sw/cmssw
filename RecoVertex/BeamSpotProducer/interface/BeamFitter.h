@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.16 2010/02/11 00:11:56 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.17 2010/02/20 02:49:00 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -21,6 +21,8 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
+#include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
+
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
@@ -148,6 +150,9 @@ class BeamFitter {
   TH1F *h1vz_event;
   TH1F *h1cutFlow;
   int countPass[9];
+
+  PVFitter *MyPVFitter;
+
 };
 
 #endif
