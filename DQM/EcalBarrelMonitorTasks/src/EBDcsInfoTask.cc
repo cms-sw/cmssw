@@ -66,7 +66,7 @@ void EBDcsInfoTask::beginJob(void){
     // checking the number of DCS errors in each DCC for each lumi
     // tower error is weighted by 1/68
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "weighted DCS errors");
+    sprintf(histo, "EB weighted DCS errors by lumi");
     meDcsErrorsByLumi_ = dqmStore_->book1D(histo, histo, 36, 1., 37.);
     meDcsErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 36; i++) {
@@ -100,7 +100,8 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   }
 
   if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
-  
+  eventsInLumi_ = 0;
+
 }
 
 void EBDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
@@ -137,6 +138,7 @@ void EBDcsInfoTask::reset(void) {
 
   if ( meEBDcsActiveMap_ ) meEBDcsActiveMap_->Reset();
   if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
+  eventsInLumi_ = 0;
 
 }
 
@@ -165,6 +167,8 @@ void EBDcsInfoTask::cleanup(void){
 
 void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
 
+  eventsInLumi_++;
+
   Handle<DcsStatusCollection> dcsh;
 
   if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
@@ -192,8 +196,8 @@ void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){
 
 void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
 
-  // fill bin 0 with 1 (for consistency with event-based tasks)
-  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(0.);
+  // fill bin 0 with number of processed events in the lumi section
+  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(eventsInLumi_);
 
   float readySum[36];
   for ( int ism = 0; ism < 36; ism++ ) readySum[ism] = 0;

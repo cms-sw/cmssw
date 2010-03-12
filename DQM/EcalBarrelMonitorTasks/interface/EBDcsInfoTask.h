@@ -66,6 +66,8 @@ MonitorElement* meDcsErrorsByLumi_;
 int readyRun[72][34];
 int readyLumi[72][34];
 
+int eventsInLumi_;
+
 };
 
 #endif

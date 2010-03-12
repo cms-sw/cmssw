@@ -68,7 +68,7 @@ void EEDcsInfoTask::beginJob(void){
     // checking the number of DCS errors in each DCC for each lumi
     // tower error is weighted by 1/34
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "weighted DCS errors");
+    sprintf(histo, "EE weighted DCS errors by lumi");
     meDcsErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1., 19.);
     meDcsErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 18; i++) {
@@ -102,6 +102,7 @@ void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   }
 
   if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
+  eventsInLumi_ =0;
 
 }
 
@@ -139,7 +140,8 @@ void EEDcsInfoTask::reset(void) {
 
   if ( meEEDcsActiveMap_ ) meEEDcsActiveMap_->Reset();
   if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
-  
+  eventsInLumi_ = 0;
+
 }
 
 
@@ -197,8 +199,8 @@ void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){
 
 void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
 
-  // fill bin 0 with 1 (for consistency with event-based tasks)
-  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(0.);
+  // fill bin 0 with number of processed events in the lumi section
+  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(eventsInLumi_);
 
   float readySum[18];
   int nValidChannels[18];
