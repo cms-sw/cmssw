@@ -142,11 +142,20 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
    {
       // resize button
       glPushMatrix();
+      glBegin(GL_QUADS);
+      Float_t a = fSize * vp.Width();
+      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 95);
+      glTexCoord2f(0, 1); glVertex3f( 0, -a, z);
+      glTexCoord2f(1, 1); glVertex3f( a, -a, z);
+      glTexCoord2f(1, 0); glVertex3f( a,  0, z);
+      glTexCoord2f(0, 0); glVertex3f( 0,  0, z);  
+      glEnd();
+
       glTranslatef(a, -a, 0);
-      a *= 0.15;
+      a *= 0.2;
       z = 0.95;
       glPushName(kResize);
-      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 70);
+      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 100);
       glBegin(GL_QUADS);
       glVertex3f( 0, 0, z);
       glVertex3f( 0, a, z);
@@ -167,7 +176,7 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
 
       // delete
       glPushName(7);
-      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 60);
+      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 100);
       glTranslatef(0, -a, 0);
       glBegin(GL_QUADS);
       glVertex3f( 0, 0, z);
