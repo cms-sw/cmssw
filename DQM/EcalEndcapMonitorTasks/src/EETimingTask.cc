@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/02/16 11:01:50 $
- * $Revision: 1.57 $
+ * $Date: 2010/03/04 10:44:20 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
@@ -392,20 +392,16 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
           if ( et > 0.600 ) {
             if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
+            if ( meTime ) meTime->Fill(yval);
+            if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
 
-            // exclude the noisiest region around the hole from 1D
-            if ( fabs(ix-50) >= 5 && fabs(ix-50) <= 10 && fabs(iy-50) >= 5 && fabs(iy-50) <= 10 ) {
-              if ( meTime ) meTime->Fill(yval);
-              if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
-              sumTime_hithr[iz] += yval;
-              n_hithr[iz]++;
-            }
+            if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
+            if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
+            if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
 
+            sumTime_hithr[iz] += yval;
+            n_hithr[iz]++;
           }
-
-          if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
-          if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
-          if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
         
         }
 
