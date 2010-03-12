@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.25 2009/05/27 08:34:32 azzi Exp $
+// $Id: MuonSimHitProducer.cc,v 1.26 2009/05/27 15:09:25 azzi Exp $
 //
 //
 
@@ -288,10 +288,10 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       std::cout << "Propagating " << propagatedState << std::endl;
 #endif
 
-      // Strating momentum
+      // Starting momentum
       double pi = propagatedState.globalMomentum().mag(); 
 
-      // Propgate with material effects (dE/dx average only)
+      // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
       const SteppingHelixStateInfo& shsDest = 
 	((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface());
@@ -378,6 +378,15 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
             double thickness = det->surface().bounds().thickness();
             LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
             lmom = lmom.unit()*propagatedState.localMomentum().mag();
+
+	    // Factor that takes into account the (rec)hits lost because of delta's, etc.:
+	    // (Not fully satisfactory patch, but it seems to work...)
+	    double pmu = lmom.mag();
+	    double kDT = 0.402;
+	    double fDT = -4.713;
+	    double theDTHitIneff = pmu>0? exp(kDT*log(pmu)+fDT):0.;
+	    if (random->flatShoot()<theDTHitIneff) continue;
+
             double eloss = 0;
             double pz = fabs(lmom.z());
             LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
@@ -425,7 +434,16 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           double thickness = det->surface().bounds().thickness(); // this one works much better...
           LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
           lmom = lmom.unit()*propagatedState.localMomentum().mag();
-          double eloss = 0;
+ 	   
+	  // Factor that takes into account the (rec)hits lost because of delta's, etc.:
+	  // (Not fully satisfactory patch, but it seems to work...)
+	  double pmu = lmom.mag();
+	  double kCSC = 0.241;
+	  double fCSC = -3.335;
+	  double theCSCHitIneff = pmu>0? exp(kCSC*log(pmu)+fCSC):0.;
+	  if (random->flatShoot()<theCSCHitIneff) continue;
+
+	  double eloss = 0;
           double pz = fabs(lmom.z());
           LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
           LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
@@ -476,7 +494,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           int trkid = mySimTrack.trackId();
           unsigned int id = rid.rawId();
 	  short unsigned int processType = 2;
-	    PSimHit hit(entry,exit,lmom.mag(),
+	  PSimHit hit(entry,exit,lmom.mag(),
                       tof+dtof,eloss,pid,id,trkid,lmom.theta(),lmom.phi(),processType);
           theRPCHits.push_back(hit);
         }
