@@ -16,7 +16,7 @@
 //
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
-// $Id: Run.h,v 1.2 2010/02/12 15:20:14 ewv Exp $
+// $Id: Run.h,v 1.3 2010/02/16 16:28:21 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -84,6 +84,7 @@ namespace fwlite {
                                                     const char*) const;
 
          // This function should only be called by fwlite::Handle<>
+         using fwlite::RunBase::getByLabel;
          virtual bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
          //void getByBranchName(const std::type_info&, const char*, void*&) const;
 

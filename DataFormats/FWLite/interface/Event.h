@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.31 2010/02/16 20:38:18 ewv Exp $
+// $Id: Event.h,v 1.32 2010/02/18 20:44:57 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -92,6 +92,7 @@ namespace fwlite {
                                                     const char*) const;
 
          // This function should only be called by fwlite::Handle<>
+         using fwlite::EventBase::getByLabel;
          virtual bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
          //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
