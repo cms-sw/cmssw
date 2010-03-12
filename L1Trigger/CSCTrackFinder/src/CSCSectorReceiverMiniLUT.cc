@@ -71,7 +71,7 @@ global_eta_data CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(unsigned short end
   unsigned short int lclPhi = ((theadd >> 6)  & 0x3);
   unsigned short int WG     = ((theadd >> 8)  & 0x7f);
   
-  int eta_temp, eta_min, eta_max;
+  int eta_temp=999, eta_min=999, eta_max=999;
   
   if((cscid > 0) && (cscid <= 9) && (WG < CSCConstants::MAX_NUM_WIRES))
     {

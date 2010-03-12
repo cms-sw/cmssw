@@ -96,7 +96,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   trigger_on_MB1a = -1;
   trigger_on_MB1d = -1;
   singlesTrackPt  = -1;
-  singlesTrackOutput = -1;
+  singlesTrackOutput = 999;
   rescaleSinglesPhi  = -1;
 
   if(initializeFromPSet) readParameters(pset);

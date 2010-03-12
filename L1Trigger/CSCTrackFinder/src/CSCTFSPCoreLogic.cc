@@ -356,7 +356,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 	outArray[bx][4][0] = io->me1idM, outArray[bx][4][1] = io->me2idM, outArray[bx][4][2] = io->me3idM, outArray[bx][4][3] = io->me4idM, outArray[bx][4][4] = io->mb1idM, outArray[bx][4][5] = io->mb2idM;
 	 	outArray[bx][5][0] = io->me1idL, outArray[bx][5][1] = io->me2idL, outArray[bx][5][2] = io->me3idL, outArray[bx][5][3] = io->me4idL, outArray[bx][5][4] = io->mb1idL, outArray[bx][5][5] = io->mb2idL;
 	 		
-		if( 0 != io->mb1aVp | io->mb1bVp | io->mb1cVp | io->mb1dVp) orDtIn = true;
+		if( 0 != (io->mb1aVp | io->mb1bVp | io->mb1cVp | io->mb1dVp)) orDtIn = true;
 		
 		++bx;
 	}
