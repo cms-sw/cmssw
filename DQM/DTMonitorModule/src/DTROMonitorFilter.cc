@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/10 14:56:27 $
+ *  $Date: 2009/05/20 16:12:45 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
@@ -36,8 +36,8 @@ bool DTROMonitorFilter::filter(edm::Event& event, const edm::EventSetup& setup) 
   
 
   // Loop over the DT FEDs
-  static int FEDIDmin = FEDNumbering::getDTFEDIds().first;
-  static int FEDIDMax = FEDNumbering::getDTFEDIds().second;
+  int FEDIDmin = FEDNumbering::MINDTFEDID;
+  int FEDIDMax = FEDNumbering::MAXDTFEDID;
 
   // Definitions
   static const int wordSize_32 = 4;

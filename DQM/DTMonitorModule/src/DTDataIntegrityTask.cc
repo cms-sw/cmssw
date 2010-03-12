@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2009/10/19 15:51:39 $
- * $Revision: 1.61 $
+ * $Date: 2009/11/15 11:58:53 $
+ * $Revision: 1.62 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -1202,8 +1202,8 @@ void DTDataIntegrityTask::postBeginJob() {
 
   
   // Loop over the DT FEDs
-  int FEDIDmin = FEDNumbering::getDTFEDIds().first;
-  int FEDIDMax = FEDNumbering::getDTFEDIds().second;
+  int FEDIDmin = FEDNumbering::MINDTFEDID;
+  int FEDIDMax = FEDNumbering::MAXDTFEDID;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << " FEDS: " << FEDIDmin  << " to " <<  FEDIDMax << " in the RO" << endl;
