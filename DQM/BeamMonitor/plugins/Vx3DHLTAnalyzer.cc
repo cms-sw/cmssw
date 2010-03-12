@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.22 2010/03/11 18:22:47 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.23 2010/03/11 19:10:17 dinardo Exp $
 //
 //
 
@@ -161,6 +161,7 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 // M = K^-1
 
   det = fabs(par[0])*(fabs(par[1])*fabs(par[2])-par[4]*par[4]) - par[3]*(par[3]*fabs(par[2])-par[5]*par[4]) + par[5]*(par[3]*par[4]-par[5]*fabs(par[1]));
+  if (det < 1.e-6) det = 1.e-6;
   a   = (fabs(par[1]*par[2]) - par[4]*par[4]) / det;
   b   = (fabs(par[0]*par[2]) - par[5]*par[5]) / det;
   c   = (fabs(par[0]*par[1]) - par[3]*par[3]) / det;
@@ -191,7 +192,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigma = 3.;
+      double nSigma = 4.;
       double arglist[2];
       double amin,edm,errdef;
       double det;
@@ -201,7 +202,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       vector<double>::const_iterator it = vals->begin();
 
       TFitterMinuit* Gauss3D = new TFitterMinuit(nParams);
-      Gauss3D->SetPrintLevel(0);
+      Gauss3D->SetPrintLevel(3);
       // 	  Gauss3D->SetStrategy(0);
       Gauss3D->SetFCN(Gauss3DFunc);
       arglist[0] = 10000; // Max number of function calls
@@ -493,6 +494,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  
 	  goodData = MyFit(&fitResults);
 	  	      
+//  	  cout << "Used vertices: " << counterVx << endl;
 // 	  cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0+nParams] << endl;
 // 	  cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
 // 	  cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
@@ -570,6 +572,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       if (goodData == 0)
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
+// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(1.0);
 	  reportSummaryMap->Fill(0.5, 0.5, 1.0);
@@ -579,6 +582,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       else
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
+// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
