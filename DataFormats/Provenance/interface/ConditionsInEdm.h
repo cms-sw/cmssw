@@ -1,4 +1,6 @@
 
+namespace edm{
+
 class ConditionsInLumiBlock{
   public:
     boost::uint16_t beamMomentum;
@@ -34,3 +36,4 @@ class ConditionsInLumiBlock{
     boost::uint16_t bstMasterStatus;
     boost::uint32_t turnCountNumber;
   };
+}

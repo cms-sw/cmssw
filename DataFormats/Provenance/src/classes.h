@@ -1,3 +1,4 @@
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -92,11 +93,9 @@ namespace {
 
   std::pair<edm::ModuleDescriptionID, edm::ModuleDescription> dummyPairMod;
 
-  ConditionsInLumiBlock dum1;
-    //  edm::Wrapper<ConditionsInLumiBlock> dum11;
-  ConditionsInRunBlock dum2;
-    //  edm::Wrapper<ConditionsInRunBlock> dum21;
-  ConditionsInEventBlock dum3;
-    //  edm::Wrapper<ConditionsInEventBlock> dum31;
+  edm::ConditionsInLumiBlock dum1;
+  edm::ConditionsInRunBlock dum2;
+  edm::ConditionsInEventBlock dum3;
+
 };
 }
