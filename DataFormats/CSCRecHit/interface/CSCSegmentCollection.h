@@ -5,7 +5,7 @@
  *
  * The collection of CSCSegment's. See \ref CSCSegmentCollection.h for details.
  *
- *  $Date: 2006/06/14 12:08:04 $
+ *  $Date: 2006/06/26 13:15:10 $
  *  \author Matteo Sani
  */
 
@@ -17,6 +17,9 @@
 #include <DataFormats/Common/interface/OwnVector.h>
 
 typedef edm::RangeMap <CSCDetId, edm::OwnVector<CSCSegment> > CSCSegmentCollection;
+
+#include <DataFormats/Common/interface/Ref.h>
+typedef edm::Ref<CSCSegmentCollection> CSCSegmentRef;
 
 //typedef std::vector<CSCSegment> CSCSegmentCollection; 
 	

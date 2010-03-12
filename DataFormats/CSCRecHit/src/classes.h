@@ -15,5 +15,6 @@ namespace{
     edm::Wrapper<CSCRecHit2DCollection> dwc;
     CSCSegmentCollection seg;    
     edm::Wrapper<CSCSegmentCollection> dwc1;
+    CSCSegmentRef ref;    
   };
 }
