@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.26 2009/05/27 15:09:25 azzi Exp $
+// $Id: MuonSimHitProducer.cc,v 1.27 2010/03/12 10:21:08 aperrott Exp $
 //
 //
 
@@ -382,8 +382,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	    // Factor that takes into account the (rec)hits lost because of delta's, etc.:
 	    // (Not fully satisfactory patch, but it seems to work...)
 	    double pmu = lmom.mag();
-	    double kDT = 0.402;
-	    double fDT = -4.713;
+	    double kDT = 0.342;
+	    double fDT = -4.597;
 	    double theDTHitIneff = pmu>0? exp(kDT*log(pmu)+fDT):0.;
 	    if (random->flatShoot()<theDTHitIneff) continue;
 
@@ -438,8 +438,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	  // Factor that takes into account the (rec)hits lost because of delta's, etc.:
 	  // (Not fully satisfactory patch, but it seems to work...)
 	  double pmu = lmom.mag();
-	  double kCSC = 0.241;
-	  double fCSC = -3.335;
+	  double kCSC = 0.200;
+	  double fCSC = -3.199;
 	  double theCSCHitIneff = pmu>0? exp(kCSC*log(pmu)+fCSC):0.;
 	  if (random->flatShoot()<theCSCHitIneff) continue;
 
