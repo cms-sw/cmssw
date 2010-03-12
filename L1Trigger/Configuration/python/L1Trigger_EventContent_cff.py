@@ -16,6 +16,7 @@ L1TriggerRAWDEBUG = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
         'keep *_l1GtRecord_*_*', 
         'keep *_l1GtTriggerMenuLite_*_*',
+        'keep *_conditionsInEdm_*_*',
         'keep *_l1extraParticles_*_*')
 )
 
@@ -25,6 +26,7 @@ L1TriggerRECO = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
         'keep *_l1GtRecord_*_*', 
         'keep *_l1GtTriggerMenuLite_*_*',
+        'keep *_conditionsInEdm_*_*',
         'keep *_l1extraParticles_*_*',
         'keep L1MuGMTReadoutCollection_gtDigis_*_*',
         'keep L1GctEmCand*_gctDigis_*_*',
@@ -47,6 +49,7 @@ L1TriggerAOD = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
         'keep *_l1GtRecord_*_*', 
         'keep *_l1GtTriggerMenuLite_*_*',
+        'keep *_conditionsInEdm_*_*',
         'keep *_l1extraParticles_*_*',
         'keep LumiSummary_lumiProducer_*_*')
 )
@@ -77,6 +80,7 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_gtEvmDigis_*_*',
         'keep *_l1GtRecord_*_*', 
         'keep *_l1GtTriggerMenuLite_*_*',
+        'keep *_conditionsInEdm_*_*',
         'keep *_l1extraParticles_*_*',
         'keep LumiDetails_lumiProducer_*_*',
         'keep LumiSummary_lumiProducer_*_*')

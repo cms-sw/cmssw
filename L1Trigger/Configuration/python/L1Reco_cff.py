@@ -18,9 +18,13 @@ from EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi import *
 # L1GtTriggerMenuLite
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtTriggerMenuLite_cfi import *
 
+# conditions in edm
+import EventFilter.L1GlobalTriggerRawToDigi.ConditionDumperInEdm
+conditionsInEdm = EventFilter.L1GlobalTriggerRawToDigi.ConditionDumperInEdm.conditionDumperInEdm.clone()
+
 # sequences
 
 L1Reco_L1Extra = cms.Sequence(l1extraParticles)
 L1Reco_L1Extra_L1GtRecord = cms.Sequence(l1extraParticles+l1GtRecord)
 #
-L1Reco = cms.Sequence(l1extraParticles+l1GtTriggerMenuLite)
+L1Reco = cms.Sequence(l1extraParticles+l1GtTriggerMenuLite+conditionsInEdm)
