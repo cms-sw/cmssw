@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/12/11 20:33:04 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/02/03 16:58:24 $
+ *  $Revision: 1.13 $
  *  \author M. Zanetti
  */
 
@@ -98,7 +98,7 @@ int DTROS25FileReader::fillRawData(EventID& eID,
     int adjustment = (eventDataSize/4)%2 == 1 ? 4 : 0; 
 
     // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data->FEDData( FEDNumbering::getDTFEDIds().first );
+    FEDRawData& fedRawData = data->FEDData( FEDNumbering::MINDTFEDID );
     fedRawData.resize(eventDataSize+adjustment);
     
     copy(reinterpret_cast<unsigned char*>(&eventData[0]),

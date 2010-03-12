@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/12/11 20:33:04 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/02/03 16:58:24 $
+ *  $Revision: 1.15 $
  *  \author M. Zanetti
  */
 
@@ -107,7 +107,7 @@ int DTROS8FileReader::fillRawData(EventID& eID,
 
 
     // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data->FEDData( FEDNumbering::getDTFEDIds().first );
+    FEDRawData& fedRawData = data->FEDData( FEDNumbering::MINDTFEDID );
     fedRawData.resize(eventDataSize+adjustment);
     
     // I pass only the ROS data to the Event

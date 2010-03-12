@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2010/01/15 19:25:27 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/02/03 16:58:24 $
+ *  $Revision: 1.21 $
  *  \author M. Zanetti
  */
 
@@ -151,7 +151,7 @@ int DTDDUFileReader::fillRawData(EventID& eID,
     if ( dduID<770 || dduID > 775 ) {
       cout<<"[DTDDUFileReader]: ERROR. DDU ID out of range. DDU id="<<dduID<<endl;
       // The FED ID is always the first in the DT range
-      dduID = FEDNumbering::getDTFEDIds().first;
+      dduID = FEDNumbering::MINDTFEDID;
     } 
     FEDRawData& fedRawData = data->FEDData( dduID );
     fedRawData.resize(eventDataSize);
