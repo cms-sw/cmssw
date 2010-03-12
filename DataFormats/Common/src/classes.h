@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/MergeableCounter.h"
+#include "DataFormats/Provenance/interface/ConditionsInEdm.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
@@ -76,5 +77,9 @@ namespace {
     edm::Wrapper<std::vector<edm::EventAuxiliary> > wvea;
     edm::Wrapper<std::vector<edm::ErrorSummaryEntry> > wves;
     edm::Wrapper<edm::MergeableCounter> mc;
+
+    edm::Wrapper<edm::ConditionsInLumiBlock> dum11;
+    edm::Wrapper<edm::ConditionsInRunBlock> dum21;
+    edm::Wrapper<edm::ConditionsInEventBlock> dum31;
   };
 }

@@ -91,4 +91,9 @@
  <class name="edm::Wrapper<std::vector<edm::ErrorSummaryEntry> >"/>
  <class name="edm::MergeableCounter"/>
  <class name="edm::Wrapper<edm::MergeableCounter>"/>
+
+ <class name="edm::Wrapper<edm::ConditionsInEventBlock>"/>
+ <class name="edm::Wrapper<edm::ConditionsInRunBlock>"/>
+ <class name="edm::Wrapper<edm::ConditionsInLumiBlock>"/>
+
 </lcgdict>
