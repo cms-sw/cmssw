@@ -1,14 +1,12 @@
-<use name=root>
+<use name=roothistmatrix>
 <use name=Alignment/CommonAlignment>
-<use name=Alignment/CommonAlignmentParametrization>
 <use name=DataFormats/MuonDetId>
 <use name=DataFormats/SiStripDetId>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
-<use name=Geometry/DTGeometry>
 <export>
   <lib name=AlignmentSurveyAnalysis>
-  <use name=root>
+  <use name=roothistmatrix>
   <use name=Alignment/CommonAlignment>
 </export>
