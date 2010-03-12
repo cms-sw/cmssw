@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/12/09 21:08:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/01/11 16:14:28 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -68,22 +68,34 @@ int DaqFakeReader::fillRawData(EventID& eID,
       eventNum++;
       // FIXME:
       
-      fillFEDs(FEDNumbering::getSiPixelFEDIds(), eID, tstamp, *data, meansize, width);
-      fillFEDs(FEDNumbering::getSiStripFEDIds(), eID, tstamp, *data, meansize, width);
-      
-      fillFEDs(FEDNumbering::getDTFEDIds(), eID, tstamp, *data, meansize, width);
-      fillFEDs(FEDNumbering::getCSCFEDIds(), eID, tstamp, *data, meansize, width);
-      fillFEDs(FEDNumbering::getRPCFEDIds(), eID, tstamp, *data, meansize, width);
-      
-      fillFEDs(FEDNumbering::getEcalFEDIds(), eID, tstamp, *data, meansize, width);
-      fillFEDs(FEDNumbering::getHcalFEDIds(), eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::MINSiPixelFEDID,
+	       FEDNumbering::MAXSiPixelFEDID, 
+	       eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::MINSiStripFEDID, 
+	       FEDNumbering::MAXSiStripFEDID, 
+	       eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::MINDTFEDID, 
+	       FEDNumbering::MAXDTFEDID, 
+	       eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::MINCSCFEDID, 
+	       FEDNumbering::MAXCSCFEDID, 
+	       eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::MINRPCFEDID,
+	       FEDNumbering::MAXRPCFEDID, 
+	       eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::MINEcalFEDID, 
+	       FEDNumbering::MAXEcalFEDID, 
+	       eID, tstamp, *data, meansize, width);
+      fillFEDs(FEDNumbering::MINHcalFEDID, 
+	       FEDNumbering::MAXHcalFEDID, 
+	       eID, tstamp, *data, meansize, width);
     }
   return 1;
 }
 
 
 //______________________________________________________________________________
-void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
+void DaqFakeReader::fillFEDs(const int fedmin, const int fedmax,
 			     EventID& eID,
 			     Timestamp& tstamp, 
 			     FEDRawDataCollection& data,
@@ -92,7 +104,7 @@ void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
 {
   
   // FIXME: last ID included?
-  for (int fedId = fedRange.first; fedId <= fedRange.second; ++fedId ) {
+  for (int fedId = fedmin; fedId <= fedmax; ++fedId ) {
     
     // Generate size...
     float logsiz = CLHEP::RandGauss::shoot(std::log(meansize),
