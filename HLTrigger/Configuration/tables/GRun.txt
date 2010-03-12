@@ -8,6 +8,8 @@ HLT_Activity_DT_Tuned
 HLT_SplashEcalSumET
 HLT_L1Jet6U
 HLT_L1Jet6U_NoBPTX
+HLT_L1Jet10U
+HLT_L1Jet10U_NoBPTX
 HLT_Jet15U
 HLT_Jet30U
 HLT_Jet50U
@@ -15,10 +17,11 @@ HLT_DiJetAve15U_8E29
 HLT_DiJetAve30U_8E29
 HLT_DoubleJet15U_ForwardBackward
 HLT_L1SingleCenJet
+HLT_L1SingleCenJet_NoBPTX
 HLT_L1SingleForJet
-HLT_L1SingleForJet2_NoBPTX
-HLT_L1SingleForJet4_NoBPTX
+HLT_L1SingleForJet_NoBPTX
 HLT_L1SingleTauJet
+HLT_L1SingleTauJet_NoBPTX
 HLT_FwdJet20U
 HLT_QuadJet15U
 HLT_L1MET20
