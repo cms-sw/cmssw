@@ -34,10 +34,10 @@ class ElectronSeed : public TrajectorySeed
     typedef edm::Ref<TrackCollection> CtfTrackRef ;
 
     static std::string const & name()
-    {
+     {
       static std::string const name_("ElectronSeed") ;
       return name_;
-    }
+     }
 
     //! Construction of base attributes
     ElectronSeed() ;
@@ -49,8 +49,14 @@ class ElectronSeed : public TrajectorySeed
     //! Set additional info
     void setCtfTrack( const CtfTrackRef & ) ;
     void setCaloCluster( const CaloClusterRef &,
-      int subDet2 =0, float dRz2 =std::numeric_limits<float>::infinity(),
-      float dPhi2 =std::numeric_limits<float>::infinity() ) ;
+        int subDet2 =0,
+        float dRz2 =std::numeric_limits<float>::infinity(),
+        float dPhi2 =std::numeric_limits<float>::infinity(),
+        int subDet1 =0,
+        float dRz1 =std::numeric_limits<float>::infinity(),
+        float dPhi1 =std::numeric_limits<float>::infinity(),
+        float hoe1 =std::numeric_limits<float>::infinity(),
+        float hoe2 =std::numeric_limits<float>::infinity() ) ;
 
     //! Accessors
     CtfTrackRef ctfTrack() const { return ctfTrack_ ; }
@@ -58,6 +64,11 @@ class ElectronSeed : public TrajectorySeed
     int subDet2() const { return subDet2_ ; }
     float dRz2() const { return dRz2_ ; }
     float dPhi2() const { return dPhi2_ ; }
+    int subDet1() const { return subDet1_ ; }
+    float dRz1() const { return dRz1_ ; }
+    float dPhi1() const { return dPhi1_ ; }
+    float hoe1() const { return hcalDepth1OverEcal_ ; }
+    float hoe2() const { return hcalDepth2OverEcal_ ; }
 
     //! Utility
     TrackCharge getCharge() const { return startingState().parameters().charge() ; }
@@ -72,6 +83,11 @@ class ElectronSeed : public TrajectorySeed
     int subDet2_ ;
     float dRz2_ ;
     float dPhi2_ ;
+    int subDet1_ ;
+    float dRz1_ ;
+    float dPhi1_ ;
+    float hcalDepth1OverEcal_ ; // hcal over ecal seed cluster energy using first hcal depth
+    float hcalDepth2OverEcal_ ; // hcal over ecal seed cluster energy using 2nd hcal depth
     bool isEcalDriven_ ;
     bool isTrackerDriven_ ;
 
