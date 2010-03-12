@@ -38,10 +38,10 @@ void driver1()
 void driver2()
 {
   ub1 qa[MAXLEN+1], qb[MAXLEN+2], *a = &qa[0], *b = &qb[1];
-  ub8 c[HASHSTATE], d[HASHSTATE], i, j=0, k, l, m, z;
+  ub8 c[HASHSTATE], d[HASHSTATE], i=0, j=0, k=0, l=0, m=0, z=0;
   ub8 e[HASHSTATE],f[HASHSTATE],g[HASHSTATE],h[HASHSTATE];
   ub8 x[HASHSTATE],y[HASHSTATE];
-  ub8 hlen;
+  ub8 hlen=0;
 
   printf("No more than %d trials should ever be needed \n",MAXPAIR/2);
   for (hlen=0; hlen < MAXLEN; ++hlen)
@@ -86,7 +86,7 @@ void driver2()
 	  {
 	     printf("Some bit didn't change: ");
 	     printf("%.8lx %.8lx %.8lx %.8lx %.8lx %.8lx  ",
-	            e[0],f[0],g[0],h[0],x[0],y[0]);
+	            (unsigned long)e[0],(unsigned long)f[0],(unsigned long)g[0],(unsigned long)h[0],(unsigned long)x[0],(unsigned long)y[0]);
 	     printf("i %ld j %ld m %ld len %ld\n",
 	            (ub4)i,(ub4)j,(ub4)m,(ub4)hlen);
 	  }
@@ -152,7 +152,7 @@ void driver3()
       y = hash(b, len, (ub8)1);
       if ((ref != x) || (ref != y)) 
       {
-	printf("alignment error: %.8lx %.8lx %.8lx %ld %ld\n",ref,x,y,h,i);
+	printf("alignment error: %.8lx %.8lx %.8lx %ld %ld\n",(unsigned long)ref,(unsigned long)x,(unsigned long)y,(long)h,(long)i);
       }
     }
   }
