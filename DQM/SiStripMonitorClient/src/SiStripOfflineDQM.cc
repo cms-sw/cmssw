@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.32 2009/11/05 21:06:22 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.33 2010/01/13 11:09:53 dutta Exp $
 //
 //
 
@@ -126,8 +126,8 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
     if ( sumFED.isValid() ) {
 
       const FEDNumbering numbering;
-      const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-      const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
+      const int siStripFedIdMin = numbering.MINSiStripFEDID;
+      const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
       
       vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {

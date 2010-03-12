@@ -120,8 +120,8 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
 
   nFEDConnected = 0;
   const FEDNumbering numbering;
-  const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-  const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
+  const int siStripFedIdMin = numbering.MINSiStripFEDID;
+  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   if( eSetup.find( recordKey ) != 0) {
