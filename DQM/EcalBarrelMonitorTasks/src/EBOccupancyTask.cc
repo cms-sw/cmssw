@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2010/02/12 21:32:58 $
- * $Revision: 1.83 $
+ * $Date: 2010/02/16 11:01:42 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -62,6 +62,7 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
     meEBRecHitEnergy_[i] = 0;
+    meSpectrum_[i] = 0;
   }
 
   meEBRecHitSpectrum_ = 0;
@@ -128,6 +129,7 @@ void EBOccupancyTask::reset(void) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
     if ( meEBRecHitEnergy_[i] ) meEBRecHitEnergy_[i]->Reset();
+    if ( meSpectrum_[i] ) meSpectrum_[i]->Reset();
   }
 
   if ( meEBRecHitSpectrum_ ) meEBRecHitSpectrum_->Reset();
@@ -181,11 +183,16 @@ void EBOccupancyTask::setup(void){
       dqmStore_->tag(meOccupancyMem_[i], i+1);
 
       sprintf(histo, "EBOT rec hit energy %s", Numbers::sEB(i+1).c_str());
-      meEBRecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meEBRecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 100, 0., 100., "s");
       meEBRecHitEnergy_[i]->setAxisTitle("ieta", 1);
       meEBRecHitEnergy_[i]->setAxisTitle("iphi", 2);
       meEBRecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
       dqmStore_->tag(meEBRecHitEnergy_[i], i+1);
+
+      sprintf(histo, "EBOT energy spectrum %s", Numbers::sEB(i+1).c_str());
+      meSpectrum_[i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[i]->setAxisTitle("energy (GeV)", 1);
+      dqmStore_->tag(meSpectrum_[i], i+1);
     }
 
     sprintf(histo, "EBOT rec hit spectrum");
@@ -290,6 +297,8 @@ void EBOccupancyTask::cleanup(void){
       meOccupancyMem_[i] = 0;
       if ( meEBRecHitEnergy_[i] ) dqmStore_->removeElement( meEBRecHitEnergy_[i]->getName() );
       meEBRecHitEnergy_[i] = 0;
+      if ( meSpectrum_[i] ) dqmStore_->removeElement( meSpectrum_[i]->getName() );
+      meSpectrum_[i] = 0;
     }
 
     if ( meEBRecHitSpectrum_ ) dqmStore_->removeElement( meEBRecHitSpectrum_->getName() );
@@ -541,12 +550,12 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
           if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
           if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
           
-          if ( meEBRecHitEnergy_[ism-1] ) meEBRecHitEnergy_[ism-1]->Fill( xie, xip, rechitItr->energy() );
-
         }
 
-        if ( rechitItr->recoFlag() == EcalRecHit::kGood ) {
-          meEBRecHitSpectrum_->Fill( rechitItr->energy() );
+        if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
+          if ( meEBRecHitEnergy_[ism-1] ) meEBRecHitEnergy_[ism-1]->Fill( xie, xip, rechitItr->energy() );
+          if ( meSpectrum_[ism-1] ) meSpectrum_[ism-1]->Fill( rechitItr->energy() );
+          if ( meEBRecHitSpectrum_ ) meEBRecHitSpectrum_->Fill( rechitItr->energy() );
         }
 
       }

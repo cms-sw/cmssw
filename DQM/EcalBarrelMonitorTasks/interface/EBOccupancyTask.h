@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.23 $
+ * $Date: 2009/12/08 10:34:44 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -77,9 +77,9 @@ MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];
 MonitorElement* meOccupancyMem_[36];
 MonitorElement* meEBRecHitEnergy_[36];
+MonitorElement* meSpectrum_[36];
 
 MonitorElement* meEBRecHitSpectrum_;
-
 MonitorElement* meEBDigiOccupancy_;
 MonitorElement* meEBDigiOccupancyProjEta_;
 MonitorElement* meEBDigiOccupancyProjPhi_;

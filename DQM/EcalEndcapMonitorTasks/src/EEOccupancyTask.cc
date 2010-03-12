@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/02/16 10:53:19 $
- * $Revision: 1.69 $
+ * $Date: 2010/02/16 11:01:50 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -64,6 +64,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
     meEERecHitEnergy_[i] = 0;
+    meSpectrum_[i] = 0;
   }
 
   meEERecHitSpectrum_[0] = 0;
@@ -160,6 +161,7 @@ void EEOccupancyTask::reset(void) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
     if ( meEERecHitEnergy_[i] ) meEERecHitEnergy_[i]->Reset(); 
+    if ( meSpectrum_[i] ) meSpectrum_[i]->Reset();
   }
 
   if ( meEERecHitSpectrum_[0] ) meEERecHitSpectrum_[0]->Reset();
@@ -242,6 +244,11 @@ void EEOccupancyTask::setup(void){
       meEERecHitEnergy_[i]->setAxisTitle("jy", 2);
       meEERecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
       dqmStore_->tag(meEERecHitEnergy_[i], i+1);
+
+      sprintf(histo, "EEOT energy spectrum %s", Numbers::sEE(i+1).c_str());
+      meSpectrum_[i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrum_[i]->setAxisTitle("energy (GeV)", 1);
+      dqmStore_->tag(meSpectrum_[i], i+1);
     }
 
     sprintf(histo, "EEOT rec hit spectrum EE -");
@@ -440,6 +447,8 @@ void EEOccupancyTask::cleanup(void){
       meOccupancyMem_[i] = 0;
       if ( meEERecHitEnergy_[i] ) dqmStore_->removeElement( meEERecHitEnergy_[i]->getName() );
       meEERecHitEnergy_[i] = 0;
+      if ( meSpectrum_[i] ) dqmStore_->removeElement( meSpectrum_[i]->getName() );
+      meSpectrum_[i] = 0;
     }
 
     if ( meEERecHitSpectrum_[0] ) dqmStore_->removeElement( meEERecHitSpectrum_[0]->getName() );
@@ -782,11 +791,11 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
             if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( phi );
           }
           
-          if ( meEERecHitEnergy_[ism-1] ) meEERecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
-
         }
 
-        if ( rechitItr->recoFlag() == EcalRecHit::kGood ) {
+        if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
+          if ( meEERecHitEnergy_[ism-1] ) meEERecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
+          if ( meSpectrum_[ism-1] ) meSpectrum_[ism-1]->Fill( rechitItr->energy() );
           if (  ism >= 1 && ism <= 9  ) meEERecHitSpectrum_[0]->Fill( rechitItr->energy() );
           else meEERecHitSpectrum_[1]->Fill( rechitItr->energy() );
         }
