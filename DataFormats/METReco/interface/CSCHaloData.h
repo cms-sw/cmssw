@@ -44,9 +44,9 @@ namespace reco {
     bool CSCHaloHLTAccept() const {return HLTAccept;}
 
     // Number of chamber-level triggers with non-collision timing
-    int NOutOfTimeTriggers() const {return nOutOfTimeTriggers;}
+    short int NOutOfTimeTriggers() const {return nOutOfTimeTriggers;}
     // Number of CSCRecHits with non-collision timing
-    int NOutOfTimeHits() const {return nOutOfTimeHits;}
+    short int NOutOfTimeHits() const {return nOutOfTimeHits;}
 
     // Get Reference to the Tracks
     edm::RefVector<reco::TrackCollection>& GetTracks(){return TheTrackRefs;}
@@ -56,9 +56,9 @@ namespace reco {
     void SetNumberOfHaloTriggers(int PlusZ,  int MinusZ ){ nTriggers_PlusZ =PlusZ; nTriggers_MinusZ = MinusZ ;}
 
     // Set number of chamber-level triggers with non-collision timing
-    void SetNOutOfTimeTriggers(int num){ nOutOfTimeTriggers = num ;}
+    void SetNOutOfTimeTriggers(short int num){ nOutOfTimeTriggers = num ;}
     // Set number of CSCRecHits with non-collision timing
-    void SetNOutOfTimeHits(int num){ nOutOfTimeHits = num ;}
+    void SetNOutOfTimeHits(short int num){ nOutOfTimeHits = num ;}
 
     // Set HLT Bit
     void SetHLTBit(bool status) { HLTAccept = status ;} 
@@ -83,9 +83,9 @@ namespace reco {
     int nTracks_MinusZ;
 
     // number of  out-of-time chamber-level triggers (assumes the event triggered at the bx of the beam crossing)
-    int nOutOfTimeTriggers;
+    short int nOutOfTimeTriggers;
     // number of out-of-time CSCRecHit2Ds (assumes the event triggered at the bx of the beam crossing)
-    int nOutOfTimeHits;
+    short int nOutOfTimeHits;
 
   };
   
