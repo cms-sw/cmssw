@@ -2,6 +2,7 @@
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/JetReco"/>
+<use   name="RecoJets/JetProducers"/>
 <use   name="rootmath"/>
 <use   name="FWCore/ParameterSet"/>
 <use name="fastjet">
