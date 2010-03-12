@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2010/01/11 16:14:28 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/03/12 14:24:24 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -83,11 +83,11 @@ int DaqFakeReader::fillRawData(EventID& eID,
       fillFEDs(FEDNumbering::MINRPCFEDID,
 	       FEDNumbering::MAXRPCFEDID, 
 	       eID, tstamp, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINEcalFEDID, 
-	       FEDNumbering::MAXEcalFEDID, 
+      fillFEDs(FEDNumbering::MINECALFEDID, 
+	       FEDNumbering::MAXECALFEDID, 
 	       eID, tstamp, *data, meansize, width);
-      fillFEDs(FEDNumbering::MINHcalFEDID, 
-	       FEDNumbering::MAXHcalFEDID, 
+      fillFEDs(FEDNumbering::MINHCALFEDID, 
+	       FEDNumbering::MAXHCALFEDID, 
 	       eID, tstamp, *data, meansize, width);
     }
   return 1;
