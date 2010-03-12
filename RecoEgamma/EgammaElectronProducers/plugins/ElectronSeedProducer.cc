@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.13 2010/01/29 21:26:54 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.14 2010/03/11 22:51:26 chamont Exp $
 //
 //
 
@@ -196,7 +196,7 @@ void ElectronSeedProducer::filterClusters
        bool HoeVeto = false;
        if (applyHOverECut_==true) {
          had=hcalHelper_->hcalESum(scl);
-         int detector = scl.seed()->seed().subdetId() ;
+         int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scl.energy()<maxHOverEBarrel_)) HoeVeto=true;
          else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scl.energy()<maxHOverEEndcaps_)) HoeVeto=true;
        }
