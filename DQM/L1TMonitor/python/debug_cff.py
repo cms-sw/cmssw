@@ -4,7 +4,7 @@ d0 = cms.EDAnalyzer("EventContentAnalyzer",
     verbose = cms.untracked.bool(False)
 )
 
-d1 = cms.EDFilter("DumpFEDRawDataProduct",
+d1 = cms.EDAnalyzer("DumpFEDRawDataProduct",
     #untracked vint32 feds = { 745 }
     dumpPayload = cms.untracked.bool(False)
 )

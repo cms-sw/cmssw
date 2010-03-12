@@ -53,31 +53,32 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
+  //cout << "(int)DoCosmics_ = " << (int)DoCosmics_ << endl;
   //cout << "(int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
   //cout << "field_magnitude = " << field_magnitude << endl;
-  
+  //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
+
   // ggiurgiu@fnal.gov, 12/17/2008: use configuration parameter to decide between DB or text file template access
+
   if ( LoadTemplatesFromDB_ )
-    {
-      // Initialize template store to the selected ID [Morris, 6/25/08]  
-      if ( !templ_.pushfile( *templateDBobject_) )
-	throw cms::Exception("PixelCPETemplateReco") 
-	  << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
-	  << (*templateDBobject_).version() << "\n\n";
-    }
+	{
+		// Initialize template store to the selected ID [Morris, 6/25/08]  
+		if ( !templ_.pushfile( *templateDBobject_) )
+			throw cms::Exception("PixelCPETemplateReco") << "\nERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " << (*templateDBobject_).version() << "\n\n";
+	}
   else 
-    {
-      if ( !templ_.pushfile( templID_ ) )
-	throw cms::Exception("PixelCPETemplateReco") 
-	  << "\nERROR: Templates not loaded correctly from text file. Reconstruction will fail.\n\n";
-    }
-  
+	{
+		if ( !templ_.pushfile( templID_ ) )
+			throw cms::Exception("PixelCPETemplateReco") 
+				<< "\nERROR: Templates not loaded correctly from text file. Reconstruction will fail.\n\n";
+	}
+						
   speed_ = conf.getParameter<int>( "speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") <<
     "Template speed = " << speed_ << "\n";
   
   UseClusterSplitter_ = conf.getParameter<bool>("UseClusterSplitter");
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -235,6 +236,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   Frame detFrame( theDet->surface().position(), theDet->surface().rotation() );
   LocalVector Bfield = detFrame.toLocal( bfield );
   float locBz = Bfield.z();
+  //cout << "locBz = " << locBz << endl;
     
   ierr =
     PixelTempReco2D( ID, cotalpha_, cotbeta_,
@@ -244,9 +246,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 		     templYrec_, templSigmaY_, templProbY_,
 		     templXrec_, templSigmaX_, templProbX_, 
 		     templQbin_, 
-		     speed_,
-		     templProbQ_
-		     );
+		     speed_ );
 
   // ******************************************************************
 

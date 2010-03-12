@@ -1,7 +1,7 @@
 #include <cassert>
 #include <boost/foreach.hpp>
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -11,12 +11,9 @@
 namespace triggerExpression {
 
 // define the result of the module from the HLT reults
-bool HLTReader::operator()(const Data & data) {
+bool HLTReader::operator()(const Data & data) const {
   if (not data.hasHLT())
     return false;
-
-  if (data.hltConfigurationUpdated())
-    init(data);
 
   typedef std::pair<std::string, unsigned int> value_type;
   BOOST_FOREACH(const value_type & trigger, m_triggers)
@@ -27,7 +24,6 @@ bool HLTReader::operator()(const Data & data) {
 }
 
 void HLTReader::dump(std::ostream & out) const {
-  //out << "[" << m_pattern << "=";
   if (m_triggers.size() == 0) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
@@ -38,18 +34,15 @@ void HLTReader::dump(std::ostream & out) const {
       out << " OR " << m_triggers[i].first;
     out << ")";
   }
-  //out << "]";
 }
 
 // (re)initialize the module
 void HLTReader::init(const Data & data) {
-
-  const edm::TriggerNames & hltMenu = data.hltMenu();
-
   // clear the previous configuration
   m_triggers.clear();
 
   // check if the pattern has is a glob expression, or a single trigger name
+  const edm::TriggerNames & hltMenu = data.hltMenu();
   if (not edm::is_glob(m_pattern)) {
     // no wildcard expression
     unsigned int index = hltMenu.triggerIndex(m_pattern);
@@ -59,7 +52,7 @@ void HLTReader::init(const Data & data) {
       if (data.shouldThrow())
         throw cms::Exception("Configuration") << "requested HLT path \"" << m_pattern << "\" does not exist";
       else
-        edm::LogInfo("Configuration") << "requested HLT path \"" << m_pattern << "\" does not exist";
+        edm::LogWarning("Configuration") << "requested HLT path \"" << m_pattern << "\" does not exist";
   } else {
     // expand wildcards in the pattern
     const std::vector< std::vector<std::string>::const_iterator > & matches = edm::regexMatch(hltMenu.triggerNames(), m_pattern);
@@ -68,7 +61,7 @@ void HLTReader::init(const Data & data) {
       if (data.shouldThrow())
         throw cms::Exception("Configuration") << "requested m_pattern \"" << m_pattern <<  "\" does not match any HLT paths";
       else
-        edm::LogInfo("Configuration") << "requested m_pattern \"" << m_pattern <<  "\" does not match any HLT paths";
+        edm::LogWarning("Configuration") << "requested m_pattern \"" << m_pattern <<  "\" does not match any HLT paths";
     } else {
       // store indices corresponding to the matching triggers
       BOOST_FOREACH(const std::vector<std::string>::const_iterator & match, matches) {

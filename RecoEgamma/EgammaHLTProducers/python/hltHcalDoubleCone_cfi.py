@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltHcalDoubleCone = cms.EDFilter("EgammaHLTHcalIsolationDoubleConeProducers",
+hltHcalDoubleCone = cms.EDProducer("EgammaHLTHcalIsolationDoubleConeProducers",
     egHcalIsoConeSize = cms.double(0.3),
     hbRecHitProducer = cms.InputTag("hbhereco"),
     egHcalExclusion = cms.double(0.15),

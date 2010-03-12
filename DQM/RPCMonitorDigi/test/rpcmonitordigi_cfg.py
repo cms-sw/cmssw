@@ -5,12 +5,10 @@ process = cms.Process("RPCDQM")
 
 ############# Source File ########################
 process.source = cms.Source("PoolSource",
-    moduleLogName = cms.untracked.string('source'),
- #   fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/659/50CD2EE7-79AF-DD11-918C-000423D9870C.root ')
-     fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/664/1CE1633D-87AF-DD11-AD95-000423D98B08.root')
+    fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/664/1CE1633D-87AF-DD11-AD95-000423D98B08.root')
 )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(15000))
 
 
 ################ Condition ######################
@@ -69,7 +67,7 @@ process.load("DQM.RPCMonitorClient.RPCDataCertification_cfi")
 
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
-process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest ")
+process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest")
 #process.rpcdqmclient.DiagnosticGlobalPrescale = cms.untracked.int32(5)
 process.rpcdqmclient.NumberOfEndcapDisks  = cms.untracked.int32(3)
 
@@ -79,7 +77,7 @@ process.load("DQM.RPCMonitorClient.RPCFEDIntegrity_cfi")
 process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 ################# Quality Tests #########################
-process.qTesterRPC = cms.EDFilter("QualityTester",
+process.qTesterRPC = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1)
 )

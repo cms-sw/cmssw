@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h" 	 
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"

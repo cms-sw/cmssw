@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"

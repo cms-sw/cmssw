@@ -1,5 +1,5 @@
 /**
- * $Id: SharedResources.cc,v 1.5 2009/08/28 16:41:26 mommsen Exp $
+ * $Id: SharedResources.cc,v 1.7 2010/03/03 15:22:23 mommsen Exp $
 /// @file: SharedResources.cc
  */
 
@@ -14,6 +14,11 @@
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 #include "xcept/tools.h"
+
+#include <fstream>
+#include <iostream>
+#include <unistd.h>
+
 
 namespace stor
 {
@@ -61,9 +66,10 @@ namespace stor
   {
     std::ostringstream fname_oss;
     fname_oss << "/tmp/storage_manager_debug_" << 
-      _configuration->getDiskWritingParams()._smInstanceString;
+      _configuration->getDiskWritingParams()._smInstanceString <<
+      "_" << getpid();
     const std::string fname = fname_oss.str();
-    std::ofstream f( fname.c_str() );
+    std::ofstream f( fname.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );
     if( f.is_open() )
     {
       try

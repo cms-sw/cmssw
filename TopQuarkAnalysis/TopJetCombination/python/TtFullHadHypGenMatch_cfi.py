@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 ttFullHadHypGenMatch = cms.EDProducer("TtFullHadHypGenMatch",
     ## jet input
-    jets  = cms.InputTag("selectedLayer1Jets"),
+    jets  = cms.InputTag("selectedPatJets"),
     ## gen match hypothesis input
     match = cms.InputTag("ttFullHadJetPartonMatch"),
     ## specify jet correction level as,

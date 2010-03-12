@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.11 2009/10/27 14:38:20 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.12 2009/12/04 19:59:43 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -349,7 +349,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 		 //std::cout<<"z0="<<iparam->z0()<<"; sigZ0="<<iparam->sigz0()<<std::endl;
 	}
 
-	h1z->Fit("gaus","Q0");
+	h1z->Fit("gaus","QLM0");
 	//std::cout << "fitted "<< std::endl;
 	
 	TF1 *fgaus = h1z->GetFunction("gaus");

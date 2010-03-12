@@ -178,7 +178,7 @@ void PixelTripletHLTGenerator::hitTriplets(
       } 
     }
   }
-  if (result.size() >= theMaxTriplets) edm::LogWarning("PixelTripletHLTGenerator - number of triples exceed maximum, truncated");
+  if (result.size() >= theMaxTriplets) edm::LogWarning("PixelTripletHLTGenerator") << "number of triplets exceed maximum, truncated";
 
   delete [] thirdHitMap;
 }

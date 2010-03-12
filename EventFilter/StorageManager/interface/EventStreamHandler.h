@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: EventStreamHandler.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: EventStreamHandler.h 
 
 #ifndef StorageManager_EventStreamHandler_h
@@ -22,8 +22,8 @@ namespace stor {
    * Handle one event stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/28 16:41:49 $
    */
   
   class EventStreamHandler : public StreamHandler
@@ -42,18 +42,24 @@ namespace stor {
     /**
      * Return the stream label
      */
-    virtual const std::string streamLabel() const
+    virtual std::string streamLabel() const
     { return _streamConfig.streamLabel(); }
+
+    /**
+     * Return the fraction-to-disk parameter
+     */
+    virtual double fractionToDisk() const
+    { return _streamConfig.fractionToDisk(); }
 
     /**
      * Return a new file handler for the provided event
      */    
-    virtual const FileHandlerPtr newFileHandler(const I2OChain& event);
+    virtual FileHandlerPtr newFileHandler(const I2OChain& event);
 
     /**
      * Return the maximum file size for the stream in MB
      */
-    virtual const int getStreamMaxFileSize() const
+    virtual int getStreamMaxFileSize() const
     { return _streamConfig.maxFileSizeMB(); }
 
 

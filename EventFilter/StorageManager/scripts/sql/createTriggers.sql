@@ -56,17 +56,20 @@ BEGIN
           BEGIN
              LOCK TABLE SM_INSTANCES IN EXCLUSIVE MODE;
              UPDATE SM_INSTANCES
-                 SET N_CREATED = N_CREATED + 1
-              WHERE RUNNUMBER = :NEW.RUNNUMBER AND INSTANCE = :NEW.INSTANCE;
+                 SET N_CREATED = N_CREATED + 1,
+                     INSTANCE  =:NEW.INSTANCE
+              WHERE RUNNUMBER = :NEW.RUNNUMBER AND HOSTNAME = :NEW.HOSTNAME;
              IF SQL%ROWCOUNT = 0 THEN
                  INSERT INTO SM_INSTANCES (
                      RUNNUMBER,
                      INSTANCE,
+                     HOSTNAME, 
                      N_CREATED,
                      SETUPLABEL)
                  VALUES (
                      :NEW.RUNNUMBER,
                      :NEW.INSTANCE,
+                     :NEW.HOSTNAME,
                      1,
                      :NEW.SETUPLABEL);
 	     END IF;

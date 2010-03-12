@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.28 2009/08/25 14:12:36 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.30 2010/02/20 20:59:08 wmtan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -110,6 +110,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     //printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
+    dqm_(0),
     cablingCacheId_(0)
 {
   //print config to debug log
@@ -208,22 +209,37 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck(fedData);
  
     //check for problems and fill detailed histograms
+    std::vector<uint16_t> lMedians;
+    bool lDoMeds = fedHists_.cmHistosEnabled();
+
     lFedErrors.fillFEDErrors(fedData,
 			     lFullDebug,
 			     printDebug_,
 			     lNChannelMonitoring,
-			     lNChannelUnpacker
+			     lNChannelUnpacker,
+			     lMedians,
+			     lDoMeds
 			     );
-
 
 
     lFedErrors.incrementFEDCounters();
     fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);
 
+
     bool lFailMonitoringFEDcheck = lFedErrors.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
 
-   
+    //fill CM histograms
+    if (lDoMeds && !lFailMonitoringFEDcheck) {
+
+      //get CM values
+      for (unsigned int iCh(0); iCh < static_cast<unsigned int>(lMedians.size()/2.); iCh++){
+	fedHists_.fillCMHistograms(lMedians.at(2*iCh),lMedians.at(2*iCh+1));
+
+      }
+    }//valid to fill medians
+
+
     //sanity check: if something changed in the unpacking code 
     //but wasn't propagated here
     //print only the summary, and more info if printDebug>1

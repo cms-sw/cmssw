@@ -25,6 +25,6 @@ l1GtRsObjectKeysOnline.subsystemLabel = "GT"
 from CondTools.L1Trigger.L1TriggerKeyOnline_cfi import *
 L1TriggerKeyOnline.subsystemLabels = cms.vstring( 'DTTF',
                                                   'RCT_',
-#                                                  'GCT',
+                                                  'GCT',
                                                   'L1MuGMT',
                                                   'GT' )

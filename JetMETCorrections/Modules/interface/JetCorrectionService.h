@@ -4,7 +4,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: JetCorrectionService.h,v 1.1 2009/09/24 13:18:55 bainbrid Exp $
+// $Id: JetCorrectionService.icc,v 1.1 2007/01/18 01:35:12 fedor Exp $
 //
 //
 
@@ -26,40 +26,30 @@
 typedef JetCorrectionService <corrector_>  name_; \
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(name_)
 
-
 // Correction Service itself
 template <class Corrector>
-class JetCorrectionService : public edm::ESProducer,
-			     public edm::EventSetupRecordIntervalFinder
-{
-  // member data
+class JetCorrectionService : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 private:
   boost::shared_ptr<JetCorrector> mCorrector;
-
-  // construction / destruction
 public:
-  JetCorrectionService(const edm::ParameterSet& fParameters) 
-    : mCorrector(new Corrector(fParameters))
+  JetCorrectionService (const edm::ParameterSet& fParameters) 
+    : mCorrector (new Corrector (fParameters))
   {
-    std::string label(fParameters.getParameter<std::string>("@module_label"));
-    
+    std::string label = fParameters.template getParameter <std::string> ("label");
     setWhatProduced(this, label);
     findingRecord <JetCorrectionsRecord> ();
   }
   
   ~JetCorrectionService () {}
-  
-  // member functions
-  boost::shared_ptr<JetCorrector> produce(const JetCorrectionsRecord&) {
+
+  boost::shared_ptr<JetCorrector> produce( const JetCorrectionsRecord& ) {
     return mCorrector;
   }
   
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, 
 		      const edm::IOVSyncValue&, 
-		      edm::ValidityInterval& fIOV)
-  {
-    fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-				 edm::IOVSyncValue::endOfTime()); // anytime
+		      edm::ValidityInterval& fIOV) {
+    fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime()); // anytime
   }
 };
 

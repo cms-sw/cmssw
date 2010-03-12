@@ -19,7 +19,7 @@ class RPCMon_SS_Dbx_Global : public edm::EDAnalyzer {
       ~RPCMon_SS_Dbx_Global();
 
    private:
-      virtual void beginJob(const edm::EventSetup&);
+      virtual void beginJob();
       void beginRun(const edm::Run& , const edm::EventSetup& );
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();

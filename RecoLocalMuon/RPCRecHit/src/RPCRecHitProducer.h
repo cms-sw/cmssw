@@ -4,8 +4,8 @@
 /** \class RPCRecHitProducer
  *  Module for RPCRecHit production. 
  *  
- *  $Date: 2008/10/14 09:12:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/12/04 16:13:52 $
+ *  $Revision: 1.4 $
  *  \author M. Maggim -- INFN Bari
  */
 
@@ -19,7 +19,7 @@
 #include <map>
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"

@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2009/02/09 19:46:44 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/06/20 16:56:37 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -75,12 +75,19 @@ namespace trigger
 
     /// setters
     void addObjects(const TriggerObjectCollection& triggerObjects) {triggerObjects_.insert(triggerObjects_.end(), triggerObjects.begin(), triggerObjects.end());}
+
     void addCollections(const std::vector<edm::InputTag>& collectionTags, const Keys& collectionKeys) {
       assert(collectionTags.size()==collectionKeys.size());
       const trigger::size_type n(collectionTags.size());
       for (trigger::size_type i=0; i!=n; ++i) {
 	collectionTags_.push_back(collectionTags[i].encode());
       }
+      collectionKeys_.insert(collectionKeys_.end(), collectionKeys.begin(), collectionKeys.end());
+    }
+
+    void addCollections(const std::vector<std::string>& collectionTags, const Keys& collectionKeys) {
+      assert(collectionTags.size()==collectionKeys.size());
+      collectionTags_.insert(collectionTags_.end(), collectionTags.begin(), collectionTags.end());
       collectionKeys_.insert(collectionKeys_.end(), collectionKeys.begin(), collectionKeys.end());
     }
 

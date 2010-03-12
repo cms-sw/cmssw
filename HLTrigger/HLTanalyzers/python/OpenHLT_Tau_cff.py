@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 #from HLTrigger.Configuration.HLT_8E29_cff import *
@@ -18,7 +19,7 @@ hltTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
-hltCaloTowersCentral1 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral1 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(0),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
@@ -26,7 +27,7 @@ hltCaloTowersCentral1 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
 )
-hltCaloTowersCentral2 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral2 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(1),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
@@ -34,7 +35,7 @@ hltCaloTowersCentral2 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
 )
-hltCaloTowersCentral3 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral3 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(2),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
@@ -42,7 +43,7 @@ hltCaloTowersCentral3 = cms.EDFilter("CaloTowerCreatorForTauHLT",
     UseTowersInCone = cms.double(0.8),
     minimumEt = cms.double(0.5)
 )
-hltCaloTowersCentral4 = cms.EDFilter("CaloTowerCreatorForTauHLT",
+hltCaloTowersCentral4 = cms.EDProducer("CaloTowerCreatorForTauHLT",
     towers = cms.InputTag("hltTowerMakerForAll"),
     TauId = cms.int32(3),
     TauTrigger = cms.InputTag("hltL1extraParticles","Central"),
@@ -191,17 +192,7 @@ crystalThresholdEE = cms.double( 0.45 ),
       outerCone = cms.double( 0.5 )
     )
 )
-openhltL2TauRelaxingIsolationSelector = cms.EDProducer( "L2TauRelaxingIsolationSelector",
-    L2InfoAssociation = cms.InputTag( 'openhltL2TauIsolationProducer'),
-    MinJetEt = cms.double( 15.0 ),
-    SeedTowerEt = cms.double( -10.0 ),
-    EcalIsolationEt = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    TowerIsolationEt = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    NumberOfClusters = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    ClusterPhiRMS = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    ClusterEtaRMS = cms.vdouble( 1000.0, 0.0, 0.0 ),
-    ClusterDRRMS = cms.vdouble( 1000.0, 0.0, 0.0 )
-)
+
 openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
                                           ClusterCheckPSet = cms.PSet(
     MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
@@ -218,7 +209,7 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         originRadius = cms.double( 0.2 ),
         originHalfLength = cms.double( 0.2 ),
         precise = cms.bool( True ),
-        JetSrc = cms.InputTag( 'openhltL2TauRelaxingIsolationSelector','Isolated' ),
+        JetSrc = cms.InputTag( 'openhltL2TauJets' ),
         vertexSrc = cms.InputTag( "hltPixelVertices" )
       )
     ),
@@ -263,7 +254,7 @@ openhltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" )
 )
 openhltL25TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
-    jets = cms.InputTag( 'openhltL2TauRelaxingIsolationSelector','Isolated' ),
+    jets = cms.InputTag( 'openhltL2TauJets' ),
     tracks = cms.InputTag( "openhltL25TauCtfWithMaterialTracks" ),
     coneSize = cms.double( 0.5 )
 )

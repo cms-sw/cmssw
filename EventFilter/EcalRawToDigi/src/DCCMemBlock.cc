@@ -304,8 +304,8 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
     if (NUMB_SM_EB_MIN_MIN <= activeSM && activeSM <= NUMB_SM_EB_PLU_MAX) {
       subdet = EcalBarrel;
     }
-    else if(NUMB_SM_EE_MIN_MIN <= activeSM && activeSM <= NUMB_SM_EE_MIN_MAX ||
-            NUMB_SM_EE_PLU_MIN <= activeSM && activeSM <= NUMB_SM_EE_PLU_MAX) {
+    else if( (NUMB_SM_EE_MIN_MIN <= activeSM && activeSM <= NUMB_SM_EE_MIN_MAX) ||
+            (NUMB_SM_EE_PLU_MIN <= activeSM && activeSM <= NUMB_SM_EE_PLU_MAX) ) {
       subdet = EcalEndcap;
     }
     else {

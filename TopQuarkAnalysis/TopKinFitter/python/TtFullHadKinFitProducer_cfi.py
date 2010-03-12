@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
-    jets = cms.InputTag("selectedLayer1Jets"),
+    jets = cms.InputTag("selectedPatJets"),
 
     # ------------------------------------------------
     # maximum number of jets to be considered in the
@@ -34,10 +34,19 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     bTags               = cms.uint32(2), # if set to 1 also tries to take 2 if possible
 
     # ------------------------------------------------
-    # use corrected energies for jets (not perfectly implemented)
+    ## specify jet correction level as
+    ## No Correction : raw                                     
+    ## L1Offset      : off
+    ## L2Relative    : rel
+    ## L3Absolute    : abs
+    ## L4Emf         : emf
+    ## L5Hadron      : had
+    ## L6UE          : ue
+    ## L7Parton      : part
+    ## a flavor specification will be
+    ## added automatically, when chosen
     # ------------------------------------------------
-    corL = cms.string("abs"),
-    corB = cms.string("abs"),
+    jetCorrectionLevel = cms.string("abs"),
                                       
     # ------------------------------------------------
     # settings for the KinFitter

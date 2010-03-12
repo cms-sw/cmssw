@@ -18,10 +18,9 @@ public:
   CSCTFPtLUT(const edm::EventSetup& c);
 ///
 
-  CSCTFPtLUT(const edm::ParameterSet&,
-	     const L1MuTriggerScales* scales,
-	     const L1MuTriggerPtScale* ptScale);
-
+    CSCTFPtLUT(const edm::ParameterSet&,
+	       const L1MuTriggerScales* scales,
+	       const L1MuTriggerPtScale* ptScale);
   CSCTFPtLUT(const CSCTFPtLUT&);
   ~CSCTFPtLUT() { if(pt_lut) delete pt_lut; pt_lut = NULL; }
 
@@ -46,7 +45,7 @@ public:
   const L1MuTriggerPtScale* trigger_ptscale;
   CSCTFPtMethods ptMethods;
 
-  bool read_pt_lut, isBinary, isBeamStartConf;
+  bool read_pt_lut, isBinary;
   edm::FileInPath pt_lut_file;
   unsigned pt_method, lowQualityFlag;
 

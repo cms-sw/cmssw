@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -66,8 +66,8 @@ class HLTriggerSelector {
 	return false;
     }
     
-    theTriggerNames.init(*tResults);
-    
+    const edm::TriggerNames & theTriggerNames = iEvent.triggerNames(*tResults);
+ 
     for (uint i=0;i!=theSelectTriggers.size();++i){
       uint index = theTriggerNames.triggerIndex( theSelectTriggers[i] );
       if ( index < tResults->size() && tResults->accept( index )) return true;
@@ -76,7 +76,6 @@ class HLTriggerSelector {
   }
 
   // private:
-  edm::TriggerNames theTriggerNames ;
   edm::InputTag theTriggerResulTag;
   std::vector<std::string> theSelectTriggers;
 

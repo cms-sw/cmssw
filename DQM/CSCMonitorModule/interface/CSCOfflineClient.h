@@ -94,12 +94,12 @@ class CSCOfflineClient: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
   protected:
 
     void beginJob() { }
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
+    void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
     void setup() { }
     void analyze(const edm::Event& e, const edm::EventSetup& c) { }
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }
-    void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
-    void endRun(const edm::Run& r, const edm::EventSetup& c) { }
+    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { } 
+    void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
+    void endRun(const edm::Run& r, const edm::EventSetup& c);
     void endJob() { }
 
 };

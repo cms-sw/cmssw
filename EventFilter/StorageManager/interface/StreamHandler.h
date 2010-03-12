@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.7 2009/09/17 11:04:43 mommsen Exp $
+// $Id: StreamHandler.h,v 1.8 2009/10/13 15:08:33 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/09/17 11:04:43 $
+   * $Revision: 1.8 $
+   * $Date: 2009/10/13 15:08:33 $
    */
   
   class StreamHandler
@@ -66,27 +66,32 @@ namespace stor {
     /**
      * Return the stream label
      */
-    virtual const std::string streamLabel() const = 0;
+    virtual std::string streamLabel() const = 0;
+
+    /**
+     * Return the fraction-to-disk parameter
+     */
+    virtual double fractionToDisk() const = 0;
 
     /**
      * Return a new file handler for the provided event
      */    
-    virtual const FileHandlerPtr newFileHandler(const I2OChain& event) = 0;
+    virtual FileHandlerPtr newFileHandler(const I2OChain& event) = 0;
 
     /**
      * Return a new file record for the event
      */    
-    const FilesMonitorCollection::FileRecordPtr getNewFileRecord(const I2OChain& event);
+    FilesMonitorCollection::FileRecordPtr getNewFileRecord(const I2OChain& event);
 
     /**
      * Return the maximum file size for the stream in MB
      */
-    virtual const int getStreamMaxFileSize() const = 0;
+    virtual int getStreamMaxFileSize() const = 0;
 
     /**
      * Return the maximum file size in bytes
      */
-    const unsigned long long getMaxFileSize() const;
+    unsigned long long getMaxFileSize() const;
 
 
   private:
@@ -94,33 +99,33 @@ namespace stor {
     /**
      * Get the file handler responsible for the event
      */    
-    const FileHandlerPtr getFileHandler(const I2OChain& event);
+    FileHandlerPtr getFileHandler(const I2OChain& event);
 
     /**
      * Return true if the file would become too large when
      * adding dataSize in Bytes
      */    
-    const bool fileTooLarge(const FileHandlerPtr, const unsigned long& dataSize) const;
+    bool fileTooLarge(const FileHandlerPtr, const unsigned long& dataSize) const;
 
     /**
      * Get path w/o working directory
      */    
-    const std::string getBaseFilePath(const uint32& runNumber, uint32_t fileCount) const;
+    std::string getBaseFilePath(const uint32& runNumber, uint32_t fileCount) const;
 
     /**
      * Get file system string
      */    
-    const std::string getFileSystem(const uint32& runNumber, uint32_t fileCount) const;
+    std::string getFileSystem(const uint32& runNumber, uint32_t fileCount) const;
 
     /**
      * Get the core file name
      */    
-    const std::string getCoreFileName(const uint32& runNumber, const uint32& lumiSection) const;
+    std::string getCoreFileName(const uint32& runNumber, const uint32& lumiSection) const;
     
     /**
      * Get the instance count of this core file name
      */    
-    const unsigned int getFileCounter(const std::string& coreFileName);
+    unsigned int getFileCounter(const std::string& coreFileName);
 
 
   protected:

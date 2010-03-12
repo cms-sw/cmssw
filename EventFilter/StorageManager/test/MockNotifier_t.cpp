@@ -15,7 +15,7 @@ int main()
   boost::shared_ptr<StatisticsReporter> sr;
   sr.reset( new StatisticsReporter( app, 0 ) );
 
-  XCEPT_DECLARE( stor::exception::UnwantedEvent, xcept,
+  XCEPT_DECLARE( stor::exception::UnwantedEvents, xcept,
 		 "Event is not tagged for any stream or consumer" );
   sr->alarmHandler()->notifySentinel( AlarmHandler::ERROR, xcept );
 

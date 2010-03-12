@@ -9,7 +9,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class L1TScalersSCAL: public edm::EDAnalyzer
 {

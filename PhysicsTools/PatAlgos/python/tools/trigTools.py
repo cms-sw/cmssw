@@ -8,7 +8,7 @@ class SwitchOnTrigger(ConfigToolBase):
     """ Enables trigger information in PAT
     """    
     _label='switchOnTrigger'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -38,7 +38,7 @@ class SwitchOnTriggerStandAlone(ConfigToolBase):
     """
     """
     _label='switchOnTriggerStandAlone'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -68,7 +68,7 @@ class SwitchOnTriggerAll(ConfigToolBase):
     """
     """
     _label='switchOnTriggerAll'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)
@@ -92,7 +92,7 @@ class SwitchOnTriggerMatchEmbedding(ConfigToolBase):
     """
     """
     _label='switchOnTriggerMatchEmbedding'    
-    _defaultParameters={}
+    _defaultParameters=dicttypes.SortedKeysDict()
     _path = path
     def __init__(self):
         ConfigToolBase.__init__(self)

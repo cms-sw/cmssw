@@ -1,0 +1,16 @@
+Random:
+	HLT_Random
+
+Cosmics:
+	HLT_L1_BPTX
+	HLT_Physics
+
+BeamHalo:
+	HLT_SplashEcalSumET	
+	HLT_L1SingleEG20	
+	HLT_Activity_L1A	
+	HLT_CSCBeamHalo
+
+HcalNZS:
+	HLT_HcalNZS
+

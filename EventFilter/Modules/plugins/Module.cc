@@ -12,6 +12,6 @@ using namespace edm::serviceregistry;
 
 typedef AllArgsMaker<FUShmDQMOutputService> dssMaker;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(ShmStreamConsumer);
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(FUShmDQMOutputService,dssMaker);
+
+DEFINE_FWK_MODULE(ShmStreamConsumer);
+DEFINE_FWK_SERVICE_MAKER(FUShmDQMOutputService,dssMaker);

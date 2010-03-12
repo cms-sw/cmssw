@@ -13,7 +13,7 @@ import subprocess
 from PyQt4.QtCore import SIGNAL,qVersion,QString,QVariant, Qt
 from PyQt4.QtGui import QApplication,QMenu,QPixmap,QAction,QFileDialog,QIcon,QMessageBox
 
-from Vispa.Main.Directories import logDirectory,pluginDirectory,baseDirectory,homeDirectory,iniFileName,applicationName,docDirectory
+from Vispa.Main.Directories import logDirectory,pluginDirectory,baseDirectory,homeDirectory,iniFileName,applicationName,docDirectory,websiteUrl
 from Vispa.Main.MainWindow import MainWindow
 from Vispa.Main.AbstractTab import AbstractTab
 from Vispa.Main.Filetype import Filetype

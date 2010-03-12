@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.8 2010/03/02 10:47:28 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -14,7 +14,7 @@ using namespace stor;
 StreamsMonitorCollection::StreamsMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
-_timeWindowForRecentResults(300),
+_timeWindowForRecentResults(30),
 _allStreamsFileCount(updateInterval, _timeWindowForRecentResults),
 _allStreamsVolume(updateInterval, _timeWindowForRecentResults),
 _allStreamsBandwidth(updateInterval, _timeWindowForRecentResults)
@@ -116,6 +116,8 @@ void StreamsMonitorCollection::do_updateInfoSpaceItems()
   _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
   _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
   _bandwidthToDisk = static_cast<xdata::Double>(allStreamsVolumeStats.getValueRate(MonitoredQuantity::RECENT));
+
+  boost::mutex::scoped_lock sl(_streamRecordsMutex);
 
   _streamNames.clear();
   _eventsPerStream.clear();

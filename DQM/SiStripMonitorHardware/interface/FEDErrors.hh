@@ -85,6 +85,8 @@ public:
     bool Missing;
     bool BadMajorityAddress;
     int TimeDifference;
+    unsigned int Apve;
+    unsigned int FeMaj;
   };
 
   struct ChannelLevelErrors {
@@ -122,15 +124,25 @@ public:
   //perform a sanity check with unpacking code check
   bool failUnpackerFEDCheck(const FEDRawData & fedData);
 
-
   //return true if there were no errors at the level they are analysing
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
+  bool fillFatalFEDErrors(const FEDRawData& aFedData,
+			  const unsigned int aPrintDebug);
+
+  //expensive check: fatal but kept separate
+  bool fillCorruptBuffer(const sistrip::FEDBuffer* aBuffer);
+
+  //FE/Channel check: rate of channels with error (only considering connected channels)
+  float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer);
+
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
 		     bool & aFullDebug,
 		     const unsigned int aPrintDebug,
 		     unsigned int & aCounterMonitoring,
-		     unsigned int & aCounterUnpacker
+		     unsigned int & aCounterUnpacker,
+		     std::vector<uint16_t> & aMedians,
+		     const bool aDoMeds
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
@@ -139,7 +151,9 @@ public:
 			 bool & aFullDebug,
 			 const unsigned int aPrintDebug,
 			 unsigned int & aCounterMonitoring,
-			 unsigned int & aCounterUnpacker
+			 unsigned int & aCounterUnpacker,
+			 std::vector<uint16_t> & aMedians,
+			 const bool aDoMeds
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer

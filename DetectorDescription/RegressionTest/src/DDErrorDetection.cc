@@ -20,17 +20,13 @@ template class DDI::Singleton<std::map<std::string,std::set<DDRotation> > >;
 template class DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >;
 //*****
 
-DDErrorDetection::DDErrorDetection( )
+DDErrorDetection::DDErrorDetection()
 {
   scan();
 }
-// maybe later
-// DDErrorDetection::DDErrorDetection( const DDCompactView& cpv )
-// {
-//   scan(cpv);
-// }
 
-void DDErrorDetection::scan( )
+
+void DDErrorDetection::scan()
 {
   cout << "DDErrorDetection::scan(): Scanning for DDD errors ..." << flush;
   
@@ -57,13 +53,17 @@ void DDErrorDetection::warnings()
 {
 }
 
+
+
+
+
 // ddname as string, set<edges>
-const map<string, set<DDLogicalPart> > & DDErrorDetection::lp_cpv( const DDCompactView & cpv)
+const map<string, set<DDLogicalPart> > & DDErrorDetection::lp_cpv()
 {
   static map<string, set<DDLogicalPart> > result_;
   if (result_.size()) return result_;
   
-  //  DDCompactView cpv;
+  DDCompactView cpv;
   const DDCompactView::graph_type & g = cpv.graph();
   
   map<string, set<DDLogicalPart> >::const_iterator it(lp_err::instance().begin()),
@@ -218,7 +218,7 @@ const map<DDSolid,set<DDSolid> > & DDErrorDetection::so()
 }
 
 
-void DDErrorDetection::report(const DDCompactView& cpv, ostream & o)
+void DDErrorDetection::report(ostream & o)
 {
   
   o << endl << endl << "---> DDD ERROR REPORT <---" << endl << endl;
@@ -237,7 +237,7 @@ void DDErrorDetection::report(const DDCompactView& cpv, ostream & o)
  
   o << "A) LogicalParts that have missing definitions but are used in the geometr. hierarchy (PosParts):" << endl
     << "   Format: namespace:name: [name of child]*" << endl;
-  o << lp_cpv(cpv) << endl;
+  o << lp_cpv() << endl;
   
   o << "B) Detailed report on Materials:" << endl;
   const vector<pair<string,DDName> > & res = ma();

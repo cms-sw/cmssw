@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>

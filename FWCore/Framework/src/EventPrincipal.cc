@@ -47,7 +47,7 @@ namespace edm {
     luminosityBlockPrincipal_ = lbp;
     history_ = history;
 
-    if (productRegistry().productProduced(InEvent)) {
+    if (productRegistry().anyProductProduced()) {
       addToProcessHistory();
     }
 

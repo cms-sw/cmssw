@@ -264,7 +264,7 @@ void JPTRootAnalysis::Loop()
       // if (Cut(ientry) < 0) continue;
       for(Int_t ih = 0; ih < nh; ih++) {
 	if(EtGen1 >= xbins[ih] && EtGen1 < xbins[ih+1] 
-	   && DRMAXgjet1 < 0.3
+	   && DRMAXgjet1 < 0.3 
 	   && fabs(EtaGen1) > etaMin && fabs(EtaGen1) <= etaMax) {
 	  if(EtRaw1/EtGen1 > 0.1) {
 
@@ -289,7 +289,7 @@ void JPTRootAnalysis::Loop()
 	  }
 	}
 	if(EtGen2 >= xbins[ih] && EtGen2 < xbins[ih+1] 
-	   && DRMAXgjet2 < 0.3
+	   && DRMAXgjet2 < 0.3 
 	   && fabs(EtaGen2) > etaMin && fabs(EtaGen2) <= etaMax) {
 	  if(EtRaw2/EtGen2 > 0.1) {
 
@@ -356,13 +356,6 @@ void JPTRootAnalysis::Loop()
      Double_t EbinCenter = xaxisRes->GetBinCenter(ih+1);
      cout <<" bin center = " << EbinCenter << endl;
 
-     Double_t mean = 1000.;
-     Double_t meanErr = 1000.;
-     Double_t sigma = 1000.;
-     Double_t sigmaErr = 1000.;
-     Float_t resolution = 1000.;
-     Float_t resolutionErr = 1000.;
-     
      c1->cd(1);
      // JPT
      // get bin with max content
@@ -375,26 +368,16 @@ void JPTRootAnalysis::Loop()
      hEtJPT[ih]->Fit("gaus","","",rFitMin,rFitMax);
      TF1 *fit = hEtJPT[ih]->GetFunction("gaus"); 
      gStyle->SetOptFit();
-     mean = 1000.;
-     meanErr = 1000.;
-     sigma = 1000.;
-     sigmaErr = 1000.;
-     resolution = 1000.;
-     resolutionErr = 1000.;
-     if ( fit ) {
-       mean  = fit->GetParameter(1);
-       meanErr  = fit->GetParError(1);
-       sigma = fit->GetParameter(2);
-       sigmaErr = fit->GetParError(2);
-       if ( mean > 0. ) { resolution = sigma/mean; }
-       if ( mean > 0. && sigma > 0. ) {
-	 resolutionErr = resolution * sqrt((meanErr/mean)*(meanErr/mean) + (sigmaErr/sigma)*(sigmaErr/sigma));
-       }
-     }
-     if ( resolution < 999. ) hResJPT->Fill(EbinCenter,resolution);
-     if ( resolutionErr < 999. ) hResJPT->SetBinError(ih+1,resolutionErr);    
-     if ( mean < 999. ) hScaleJPT->Fill(EbinCenter,mean);
-     if ( meanErr < 999. ) hScaleJPT->SetBinError(ih+1,meanErr);    
+     Double_t mean  = fit->GetParameter(1);
+     Double_t meanErr  = fit->GetParError(1);
+     Double_t sigma = fit->GetParameter(2);
+     Double_t sigmaErr = fit->GetParError(2);
+     Float_t resolution = sigma/mean;
+     Float_t resolutionErr = resolution * sqrt((meanErr/mean)*(meanErr/mean) + (sigmaErr/sigma)*(sigmaErr/sigma));
+     hResJPT->Fill(EbinCenter,resolution);
+     hResJPT->SetBinError(ih+1,resolutionErr);    
+     hScaleJPT->Fill(EbinCenter,mean);
+     hScaleJPT->SetBinError(ih+1,meanErr);    
 
      c1->cd(2);
      // ZSP
@@ -407,26 +390,16 @@ void JPTRootAnalysis::Loop()
      rFitMax = binCenter + 2.0 * rms;
      hEtZSP[ih]->Fit("gaus","","",rFitMin,rFitMax);
      fit = hEtZSP[ih]->GetFunction("gaus"); 
-     mean = 1000.;
-     meanErr = 1000.;
-     sigma = 1000.;
-     sigmaErr = 1000.;
-     resolution = 1000.;
-     resolutionErr = 1000.;
-     if ( fit ) {
-       mean  = fit->GetParameter(1);
-       meanErr  = fit->GetParError(1);
-       sigma = fit->GetParameter(2);
-       sigmaErr = fit->GetParError(2);
-       if ( mean > 0. ) { resolution = sigma/mean; }
-       if ( mean > 0. && sigma > 0. ) {
-	 resolutionErr = resolution * sqrt((meanErr/mean)*(meanErr/mean) + (sigmaErr/sigma)*(sigmaErr/sigma));
-       }
-     }
-     if ( resolution < 999. ) hResZSP->Fill(EbinCenter,resolution);
-     if ( resolutionErr < 999. ) hResZSP->SetBinError(ih+1,resolutionErr);    
-     if ( mean < 999. ) hScaleZSP->Fill(EbinCenter,mean);
-     if ( meanErr < 999. ) hScaleZSP->SetBinError(ih+1,meanErr);    
+     mean  = fit->GetParameter(1);
+     meanErr  = fit->GetParError(1);
+     sigma = fit->GetParameter(2);
+     sigmaErr = fit->GetParError(2);
+     resolution = sigma/mean;
+     resolutionErr = resolution * sqrt((meanErr/mean)*(meanErr/mean) + (sigmaErr/sigma)*(sigmaErr/sigma));
+     hResZSP->Fill(EbinCenter,resolution);
+     hResZSP->SetBinError(ih+1,resolutionErr);    
+     hScaleZSP->Fill(EbinCenter,mean);
+     hScaleZSP->SetBinError(ih+1,meanErr);    
 
      /*
      c1->cd(3);
@@ -463,27 +436,17 @@ void JPTRootAnalysis::Loop()
      rFitMax = binCenter + 2.0 * rms;
      hEtRaw[ih]->Fit("gaus","","",rFitMin,rFitMax);
      fit = hEtRaw[ih]->GetFunction("gaus"); 
-     mean = 1000.;
-     meanErr = 1000.;
-     sigma = 1000.;
-     sigmaErr = 1000.;
-     resolution = 1000.;
-     resolutionErr = 1000.;
-     if ( fit ) {
-       mean  = fit->GetParameter(1);
-       meanErr  = fit->GetParError(1);
-       sigma = fit->GetParameter(2);
-       sigmaErr = fit->GetParError(2);
-       if ( mean > 0. ) { resolution = sigma/mean; }
-       if ( mean > 0. && sigma > 0. ) {
-	 resolutionErr = resolution * sqrt((meanErr/mean)*(meanErr/mean) + (sigmaErr/sigma)*(sigmaErr/sigma));
-       }
-     }
-     if ( resolution < 999. ) hResRaw->Fill(EbinCenter,resolution);
-     if ( resolutionErr < 999. ) hResRaw->SetBinError(ih+1, resolutionErr);    
-     if ( mean < 999. ) hScaleRaw->Fill(EbinCenter,mean);
-     if ( meanErr < 999. ) hScaleRaw->SetBinError(ih+1,meanErr);
-     sprintf(name,"hCalo1_%d.eps",ih);
+     mean  = fit->GetParameter(1);
+     meanErr  = fit->GetParError(1);
+     sigma = fit->GetParameter(2);
+     sigmaErr = fit->GetParError(2);
+     resolution = sigma/mean;
+     resolutionErr = resolution * sqrt((meanErr/mean)*(meanErr/mean) + (sigmaErr/sigma)*(sigmaErr/sigma));
+     hResRaw->Fill(EbinCenter,resolution);
+     hResRaw->SetBinError(ih+1, resolutionErr);    
+     hScaleRaw->Fill(EbinCenter,mean);
+     hScaleRaw->SetBinError(ih+1,meanErr);
+     sprintf(name,"hCalo1_%d.gif",ih);
      c1->SaveAs(name);
    }
    /*
@@ -516,7 +479,7 @@ void JPTRootAnalysis::Loop()
    leg->Draw();  
    t->DrawLatex(40,0.42,"CMSSW160, Z+jets. |#eta ^{jet}|< 1.4");
 
-   c3->SaveAs("resRawZSPJPT.eps");
+   c3->SaveAs("resRawZSPJPT.gif");
    c3->SaveAs("resRawZSPJPT.eps");
    */
 
@@ -566,7 +529,7 @@ void JPTRootAnalysis::Loop()
    t->DrawLatex(25,0.42,"CMSSW219");
    t->DrawLatex(25,0.40,"RelVal QCD 80-120 GeV, |#eta ^{jet}|< 1.0");
 
-   c40->SaveAs("resJPT219.eps");
+   c40->SaveAs("resJPT219.gif");
 
    /*
    TCanvas* c1 = new TCanvas("X","Y",1);
@@ -605,7 +568,7 @@ void JPTRootAnalysis::Loop()
    leg->Draw();  
    t->DrawLatex(40,1.12,"CMSSW160, Z+jets. |#eta ^{jet}|< 1.4");
 
-   c1->SaveAs("ScaleRawZSPJPT.eps");
+   c1->SaveAs("ScaleRawZSPJPT.gif");
    c1->SaveAs("ScaleRawZSPJPT.eps");
    */
 
@@ -643,7 +606,7 @@ void JPTRootAnalysis::Loop()
    t->DrawLatex(25,1.12,"CMSSW219");
    t->DrawLatex(25,1.06,"RelVal QCD 80-120 GeV, |#eta ^{jet}|< 1.0");
 
-   c20->SaveAs("ScaleJPT219.eps");
+   c20->SaveAs("ScaleJPT219.gif");
 
    /*
    TCanvas* c10 = new TCanvas("X","Y",1);
@@ -664,6 +627,6 @@ void JPTRootAnalysis::Loop()
    //   hDR->GetXaxis()->SetTitle("#Delta R");
    //   hDR->GetYaxis()->SetTitle("Nev");
    //   hDR->Draw("hist");
-   c10->SaveAs("JetEtEta.eps");
+   c10->SaveAs("JetEtEta.gif");
    */
 }

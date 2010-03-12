@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DQMEventConsumerRegistrationInfo.h,v 1.4 2009/09/16 09:53:23 dshpakov Exp $
 /// @file: DQMEventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_DQMEventConsumerRegistrationInfo_h
@@ -16,9 +16,9 @@ namespace stor
   /**
    * Holds the registration information for a DQM event consumer.
    *
-   * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Author: dshpakov $
+   * $Revision: 1.4 $
+   * $Date: 2009/09/16 09:53:23 $
    */
 
   class DQMEventConsumerRegistrationInfo : public RegistrationInfoBase
@@ -30,7 +30,7 @@ namespace stor
      */
     DQMEventConsumerRegistrationInfo( const std::string& consumerName,
                                       const std::string& topLevelFolderName,
-                                      const size_t& queueSize,
+                                      const int& queueSize,
                                       const enquing_policy::PolicyTag& policy,
                                       const utils::duration_t& secondsToStale,
                                       const std::string& remoteHost );
@@ -57,7 +57,7 @@ namespace stor
     virtual std::string do_consumerName() const;
     virtual ConsumerID do_consumerId() const;
     virtual void do_setConsumerID(ConsumerID const& id);
-    virtual size_t do_queueSize() const;
+    virtual int do_queueSize() const;
     virtual enquing_policy::PolicyTag do_queuePolicy() const;
     virtual utils::duration_t do_secondsToStale() const;
 

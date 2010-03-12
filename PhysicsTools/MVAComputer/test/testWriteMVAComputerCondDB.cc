@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -223,5 +223,4 @@ void testWriteMVAComputerCondDB::endJob()
 }
 
 // define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testWriteMVAComputerCondDB);
+DEFINE_FWK_MODULE(testWriteMVAComputerCondDB);

@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.h,v 1.5 2009/09/16 11:04:22 mommsen Exp $
+// $Id: DQMEventRecord.h,v 1.9 2010/03/04 16:58:35 mommsen Exp $
 /// @file: DQMEventRecord.h 
 
 #ifndef StorageManager_DQMEventRecord_h
@@ -11,6 +11,7 @@
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/DQMInstance.h"
 #include "EventFilter/StorageManager/interface/DQMKey.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
@@ -18,15 +19,14 @@
 namespace stor {
 
   class DQMEventMonitorCollection;
-  class QueueID;
 
 
   /**
    * Class holding information for one DQM event
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.9 $
+   * $Date: 2010/03/04 16:58:35 $
    */
 
   class DQMEventRecord : public DQMInstance
@@ -61,13 +61,19 @@ namespace stor {
       /**
        * Returns true if there is no DQM event message view available
        */
-      bool empty() const
+      inline bool empty() const
       { return ( _entry->buffer.empty() ); }
+
+      /**
+       * Returns the memory usage of the stored event msg view in bytes
+       */
+      inline size_t memoryUsed() const
+      { return _entry->buffer.size() + _entry->dqmConsumers.size()*sizeof(QueueID); }
 
       /**
        * Returns the size of the stored event msg view in bytes
        */
-      unsigned long totalDataSize() const
+      inline unsigned long totalDataSize() const
       { return _entry->buffer.size(); }
 
       // We use here a shared_ptr to avoid copying the whole
@@ -120,8 +126,8 @@ namespace stor {
 
     std::vector<QueueID> _dqmConsumers;
     std::string _releaseTag;
-    unsigned int _updateCount; //incremented for each new event being added.
-                               //Note that nUpdates_ is incremented for each folder
+
+    unsigned int _sentEvents;
   };
 
   typedef boost::shared_ptr<DQMEventRecord> DQMEventRecordPtr;

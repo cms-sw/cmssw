@@ -19,7 +19,7 @@ public:
   //  Hector();
   virtual ~RecoProducerFP420();
 
-  std::vector<RecoFP420> reconstruct(int,double,double,double,double,double,double);
+  std::vector<RecoFP420> reconstruct(int,double,double,double,double);
 
 private:
   edm::ParameterSet conf_;
@@ -28,6 +28,10 @@ private:
   int verbosity;
 
   double length;
+  double m_rpp420_f;
+  double m_rpp420_b;
+  double m_zreff;
+  double m_zrefb;
   double m_x0, m_y0, m_q2, m_e;
   double m_tx0, m_ty0;
   // Hector

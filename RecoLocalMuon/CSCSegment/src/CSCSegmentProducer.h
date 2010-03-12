@@ -4,8 +4,8 @@
 /** \class CSCSegmentProducer 
  * Produces a collection of CSCSegment's in endcap muon CSCs. 
  *
- * $Date: 2006/05/08 17:45:31 $
- * $Revision: 1.3 $
+ * $Date: 2006/08/01 15:26:03 $
+ * $Revision: 1.4 $
  * \author M. Sani
  */
 

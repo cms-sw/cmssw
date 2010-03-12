@@ -20,6 +20,16 @@
 
 namespace cscdqm {
 
+  /**
+   * @brief  Common Local and Global DQM function to be called before processing Event
+   */
+  void EventProcessor::preProcessEvent() {
+
+    config->incNEvents();
+    EmuEventDisplayWasReset = false;
+
+  }
+
 #ifdef DQMLOCAL
 
 
@@ -33,7 +43,8 @@ namespace cscdqm {
    */
   void EventProcessor::processEvent(const char* data, const int32_t dataSize, const uint32_t errorStat, const int32_t nodeNumber) {
 
-    config->incNEvents();
+    preProcessEvent();
+
     config->incNEventsCSC();
 
     MonitorObject* me = 0;
@@ -118,7 +129,7 @@ namespace cscdqm {
    */
   void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag) {
 
-    config->incNEvents();
+    preProcessEvent();
 
     bCSCEventCounted = false;
 

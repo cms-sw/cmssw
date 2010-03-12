@@ -311,13 +311,17 @@ namespace edm {
     FDEBUG(5) << "Got event: " << sd->aux().id() << " " << sd->products().size() << std::endl;
     if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sd->aux().run()) {
       newRun_ = newLumi_ = true;
-      setRunAuxiliary(new RunAuxiliary(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp()));
+      RunAuxiliary* runAuxiliary = new RunAuxiliary(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp());
+      runAuxiliary->setProcessHistoryID(sd->processHistory().id());
+      setRunAuxiliary(runAuxiliary);
       readAndCacheRun();
       setRunPrematurelyRead();
     }
     if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
-      
-      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(runAuxiliary()->run(), eventView.lumi(), sd->aux().time(), Timestamp::invalidTimestamp()));
+      LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
+        new LuminosityBlockAuxiliary(runAuxiliary()->run(), eventView.lumi(), sd->aux().time(), Timestamp::invalidTimestamp());
+      luminosityBlockAuxiliary->setProcessHistoryID(sd->processHistory().id());
+      setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
       newLumi_ = true;
       readAndCacheLumi();
       setLumiPrematurelyRead();

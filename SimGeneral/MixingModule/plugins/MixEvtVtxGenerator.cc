@@ -1,14 +1,14 @@
 #ifndef HI_MixEvtVtxGenerator_H
 #define HI_MixEvtVtxGenerator_H
 /*
-*   $Date: 2009/08/03 09:41:55 $
+*   $Date: 2009/08/13 14:18:13 $
 *   $Revision: 1.1 $
 */
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

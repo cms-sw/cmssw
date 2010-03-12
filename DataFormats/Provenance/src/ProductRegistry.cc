@@ -37,6 +37,7 @@ namespace edm {
       frozen_(false),
       constProductList_(),
       productProduced_(),
+      anyProductProduced_(false),
       productLookup_(),
       elementLookup_() {
 	for (size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;

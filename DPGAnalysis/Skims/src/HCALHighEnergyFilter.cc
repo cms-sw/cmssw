@@ -13,7 +13,7 @@
 //
 // Original Author:  Kenneth Case Rossato
 //         Created:  Tue Aug 19 16:13:10 CEST 2008
-// $Id: HCALHighEnergyFilter.cc,v 1.2 2009/03/25 10:37:48 rossato Exp $
+// $Id: HCALHighEnergyFilter.cc,v 1.3 2009/12/18 00:03:10 wmtan Exp $
 //
 //
 
@@ -32,7 +32,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 //#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 //#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"

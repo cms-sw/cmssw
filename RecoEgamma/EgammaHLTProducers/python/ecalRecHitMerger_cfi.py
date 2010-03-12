@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalRecHitMerger = cms.EDFilter("EcalRecHitsMerger",
+ecalRecHitMerger = cms.EDProducer("EcalRecHitsMerger",
     EgammaSource_EB = cms.untracked.InputTag("ecalRegionalEgammaRecHitTmp","EcalRecHitsEB"),
     MuonsSource_EB = cms.untracked.InputTag("ecalRegionalMuonsRecHitTmp","EcalRecHitsEB"),
     JetsSource_EB = cms.untracked.InputTag("ecalRegionalJetsRecHitTmp","EcalRecHitsEB"),

@@ -3,28 +3,23 @@
 
 #include <vector>
 #include "IORawData/CaloPatterns/interface/HcalFiberPattern.h"
-#include "FWCore/Framework/interface/ConfigurableInputSource.h"
-
-class HcalElectronicsMap;
+#include "FWCore/Framework/interface/EDProducer.h"
 
 /** \class HcalPatternSource
   *  
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/09/29 17:57:40 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
-class HcalPatternSource : public edm::ConfigurableInputSource {
+class HcalPatternSource : public edm::EDProducer {
 public:
-  HcalPatternSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc);
-protected:
-  virtual void beginJob(edm::EventSetup const& es);
-  virtual bool produce(edm::Event & e);
+  HcalPatternSource(const edm::ParameterSet & pset);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:  
   void loadPatterns(const std::string& patspec);
   void loadPatternFile(const std::string& filename);
   std::vector<int> bunches_;
   std::vector<HcalFiberPattern> patterns_;
-  const HcalElectronicsMap* elecmap_;
   int presamples_, samples_;
 };
 

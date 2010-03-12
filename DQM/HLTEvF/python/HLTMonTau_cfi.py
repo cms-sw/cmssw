@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltTauDQMProcess = "HLT"
 
-hltTauMonitor = cms.EDFilter("HLTTauDQMSource",
+hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
@@ -105,7 +105,7 @@ hltTauMonitor = cms.EDFilter("HLTTauDQMSource",
 
 
 
-hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
+hltTauElectronMonitor = cms.EDAnalyzer("HLTTauDQMSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),

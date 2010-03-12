@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.51 $
+ * $Date: 2009/11/29 12:30:10 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -248,13 +248,8 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
       }
 
-      LogDebug("EECosmicTask") << " det id = " << id;
-      LogDebug("EECosmicTask") << " sm, ix, iy " << ism << " " << ix << " " << iy;
-
       float xval = hitItr->energy();
       if ( xval <= 0. ) xval = 0.0;
-
-      LogDebug("EECosmicTask") << " hit energy " << xval;
 
       // look for the seeds
       float e3x3 = 0.;

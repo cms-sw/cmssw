@@ -42,7 +42,7 @@ class ConfigEditorTab(BrowserTab):
         self._maximizeButton.setText("^")
         self._maximizeButton.setCheckable(True)
 
-        self._centerViewToolBarId = self.toolBar().addSection(SplitterToolBar.ALIGNMENT_RIGHT)
+        self._centerViewToolBarId = self.toolBar().addSection(SplitterToolBar.ALIGNMENT_CENTER)
         self.toolBar().addWidgetToSection(self._minimizeButton, self._centerViewToolBarId)
         self.toolBar().addWidgetToSection(self._originalButton, self._centerViewToolBarId)
         self.toolBar().addWidgetToSection(self._maximizeButton, self._centerViewToolBarId)

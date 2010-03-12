@@ -3,48 +3,46 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("FP420Test")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load('Configuration/StandardSequences/Generator_cff')
-
-#process.load('Configuration/StandardSequences/VtxSmearedEarly10TeVCollision_cff')
-process.load('Configuration/StandardSequences/VtxSmearedGauss_cff')
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.load("Geometry.FP420CommonData.FP420GeometryXML_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO'),
+        noLineBreaks = cms.untracked.bool(True)
+    ),
+    destinations = cms.untracked.vstring('cout')
+)
 
-process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
-
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-    oncePerEventMode = cms.untracked.bool(True),
-    ignoreTotal = cms.untracked.int32(1)
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    moduleSeeds = cms.PSet(
+        g4SimHits = cms.untracked.uint32(11),
+        mix = cms.untracked.uint32(12345),
+        VtxSmeared = cms.untracked.uint32(98765432)
+    ),
+    sourceSeed = cms.untracked.uint32(123456789)
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
-# Input source
-process.source = cms.Source("EmptySource")
-process.generator = cms.EDProducer("FlatRandomEGunProducer",
-    PGunParameters = cms.PSet(
-        PartID = cms.vint32(2212),
-        MaxEta = cms.double(9.9),
-#        MaxPhi = cms.double(3.227),
-        MaxPhi = cms.double(3.1),
-        MinEta = cms.double(8.7),
-        MinE = cms.double(6930.0),
-#        MinPhi = cms.double(3.053),
-        MinPhi = cms.double(-3.1),
-        MaxE = cms.double(7000.0)
+process.source = cms.Source("FlatRandomEGunSource",
+    PGunParameters = cms.untracked.PSet(
+        PartID = cms.untracked.vint32(2212),
+        MaxEta = cms.untracked.double(9.9),
+#        MaxPhi = cms.untracked.double(3.227),
+        MaxPhi = cms.untracked.double(3.1),
+        MinEta = cms.untracked.double(8.7),
+        MinE = cms.untracked.double(6930.0),
+#        MinPhi = cms.untracked.double(3.053),
+        MinPhi = cms.untracked.double(-3.1),
+        MaxE = cms.untracked.double(7000.0)
     ),
-    Verbosity = cms.untracked.int32(0),
-    psethack = cms.string('single protons'),
-    AddAntiParticle = cms.bool(False),
-    firstRun = cms.untracked.uint32(1)
-                           )
-
-ProductionFilterSequence = cms.Sequence(process.generator)
+    Verbosity = cms.untracked.int32(0)
+)
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simfp420event.root')
@@ -54,7 +52,7 @@ process.Timing = cms.Service("Timing")
 
 process.Tracer = cms.Service("Tracer")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 # first row of sensors
 #process.VtxSmeared.MeanX = -1.0

@@ -390,6 +390,7 @@ public :
   Int_t           L1_SingleTauJet60; 
   Int_t           L1_SingleTauJet80; 
   Int_t           L1_TripleJet30; 
+  Int_t           L1_ZeroBias;  
 
   // ccla - L1 Technical bits (06Dec09)
   Int_t           L1Tech_BPTX_minus_v0;
@@ -643,6 +644,7 @@ public :
   Int_t  HLT_TechTrigHCALNoise;
   Int_t  HLT_HcalNZS_8E29;
   Int_t  HLT_HcalPhiSym;
+  Int_t  HLT_HcalNZS;
 
   // Add-ons for Circulation beam v2 (2009Nov18)
   Int_t           HLT_DTErrors;
@@ -663,6 +665,9 @@ public :
   Int_t           HLT_MinBiasBSC_OR;
   Int_t           HLT_HighMultiplicityBSC;
 
+  // Splash Feb 2010
+  Int_t          HLT_SplashEcalSumET;
+  Int_t          HLT_L1SingleEG20;
 
   // Add-ons for Circulation beam v2 (2009Nov18)
   TBranch        *b_HLT_DTErrors;   //!
@@ -1034,6 +1039,7 @@ public :
   TBranch        *b_L1_SingleTauJet60;   //! 
   TBranch        *b_L1_SingleTauJet80;   //! 
   TBranch        *b_L1_TripleJet30;   //! 
+  TBranch        *b_L1_ZeroBias;   //!
 
   // ccla - L1 Technical bits  (06Dec09)
   TBranch        *b_L1Tech_BPTX_minus_v0;   //!
@@ -1276,8 +1282,12 @@ public :
   TBranch        *b_HLT_MinBiasPixel_SingleTrack;
   TBranch        *b_HLT_TechTrigHCALNoise;
   TBranch        *b_HLT_HcalNZS_8E29;
+  TBranch        *b_HLT_HcalNZS;
   TBranch        *b_HLT_HcalPhiSym;
 
+  // Splash Feb 2010
+  TBranch        *b_HLT_SplashEcalSumET;
+  TBranch        *b_HLT_L1SingleEG20;
 
   // Cut on mu quality
   Int_t           NL1OpenMu;
@@ -1375,7 +1385,7 @@ public :
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
-  int OHltTree::GetNLumiSections() {
+  int GetNLumiSections() {
     return nLumiSections;
   }
 
@@ -1856,6 +1866,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet60", &L1_SingleTauJet60, &b_L1_SingleTauJet60); 
   fChain->SetBranchAddress("L1_SingleTauJet80", &L1_SingleTauJet80, &b_L1_SingleTauJet80); 
   fChain->SetBranchAddress("L1_TripleJet30", &L1_TripleJet30, &b_L1_TripleJet30); 
+  fChain->SetBranchAddress("L1_ZeroBias", &L1_ZeroBias, &b_L1_ZeroBias);
 
   // ccla - L1 Technical bits  (06Dec09)
   fChain->SetBranchAddress("L1Tech_BPTX_minus.v0", &L1Tech_BPTX_minus_v0, &b_L1Tech_BPTX_minus_v0);
@@ -2098,7 +2109,9 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &HLT_MinBiasPixel_SingleTrack, &b_HLT_MinBiasPixel_SingleTrack);
   fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &HLT_TechTrigHCALNoise, &b_HLT_TechTrigHCALNoise);
   fChain->SetBranchAddress("HLT_HcalNZS_8E29", &HLT_HcalNZS_8E29, &b_HLT_HcalNZS_8E29);
+  fChain->SetBranchAddress("HLT_HcalNZS", &HLT_HcalNZS, &b_HLT_HcalNZS);
   fChain->SetBranchAddress("HLT_HcalPhiSym", &HLT_HcalPhiSym, &b_HLT_HcalPhiSym);
+  fChain->SetBranchAddress("HLT_SplashEcalSumET", &HLT_SplashEcalSumET, &b_HLT_SplashEcalSumET);
 
 
   //
@@ -2174,6 +2187,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet60", &map_BitOfStandardHLTPath["L1_SingleTauJet60"], &b_L1_SingleTauJet60); 
   fChain->SetBranchAddress("L1_SingleTauJet80", &map_BitOfStandardHLTPath["L1_SingleTauJet80"], &b_L1_SingleTauJet80); 
   fChain->SetBranchAddress("L1_TripleJet30", &map_BitOfStandardHLTPath["L1_TripleJet30"], &b_L1_TripleJet30); 
+  fChain->SetBranchAddress("L1_ZeroBias", &map_BitOfStandardHLTPath["L1_ZeroBias"], &b_L1_ZeroBias);
 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
@@ -2359,6 +2373,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MinBiasPixel_SingleTrack", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_SingleTrack"], &b_HLT_MinBiasPixel_SingleTrack);
   fChain->SetBranchAddress("HLT_TechTrigHCALNoise", &map_BitOfStandardHLTPath["HLT_TechTrigHCALNoise"], &b_HLT_TechTrigHCALNoise);
   fChain->SetBranchAddress("HLT_HcalNZS_8E29", &map_BitOfStandardHLTPath["HLT_HcalNZS_8E29"], &b_HLT_HcalNZS_8E29);
+  fChain->SetBranchAddress("HLT_HcalNZS", &map_BitOfStandardHLTPath["HLT_HcalNZS"], &b_HLT_HcalNZS);
   fChain->SetBranchAddress("HLT_HcalPhiSym", &map_BitOfStandardHLTPath["HLT_HcalPhiSym"], &b_HLT_HcalPhiSym);
 
   
@@ -2397,6 +2412,10 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MinBiasBSC", &map_BitOfStandardHLTPath["HLT_MinBiasBSC"], &b_HLT_MinBiasBSC);
   fChain->SetBranchAddress("HLT_MinBiasBSC_OR", &map_BitOfStandardHLTPath["HLT_MinBiasBSC_OR"], &b_HLT_MinBiasBSC_OR);
   fChain->SetBranchAddress("HLT_HighMultiplicityBSC", &map_BitOfStandardHLTPath["HLT_HighMultiplicityBSC"], &b_HLT_HighMultiplicityBSC);
+
+  // Splash Feb 2010
+  fChain->SetBranchAddress("HLT_SplashEcalSumET", &map_BitOfStandardHLTPath["HLT_SplashEcalSumET"], &b_HLT_SplashEcalSumET);
+  fChain->SetBranchAddress("HLT_L1SingleEG20", &map_BitOfStandardHLTPath["HLT_L1SingleEG20"], &b_HLT_L1SingleEG20);
   
   Notify();
 }

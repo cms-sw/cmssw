@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
     annotation = cms.untracked.string('promptCollisionReco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -82,9 +82,6 @@ process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
 process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=1000
 process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 5000
 process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
-process.dedxTruncated40.UsePixel = cms.bool(False)
-process.dedxMedian.UsePixel = cms.bool(False)
-process.dedxHarmonic2.UsePixel = cms.bool(False)
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 

@@ -37,6 +37,8 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     set("HCalVeto");
     set("RelIso");
 
+
+    retInternal_ = getBitTemplate();
   }
 
   // Allow for multiple definitions of the cuts. 
@@ -49,9 +51,14 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     }
   }
 
+  using Selector<pat::Muon>::operator();
+
   // cuts based on craft 08 analysis. 
   bool summer08Cuts( const pat::Muon & muon, std::strbitset & ret)
   {
+
+    ret.set(false);
+
     double norm_chi2 = muon.normChi2();
     double corr_d0 = muon.dB();
     int nhits = static_cast<int>( muon.numberOfValidHits() );
@@ -72,6 +79,8 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     if ( hcalVeto      <  cut("HCalVeto",double())|| ignoreCut("HCalVeto")) passCut(ret, "HCalVeto");
     if ( ecalVeto      <  cut("ECalVeto",double())|| ignoreCut("ECalVeto")) passCut(ret, "ECalVeto");
     if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso")  ) passCut(ret, "RelIso" );
+
+    setIgnored(ret);
 
     return (bool)ret;
   }

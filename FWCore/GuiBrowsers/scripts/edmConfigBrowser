@@ -39,6 +39,8 @@ except Exception,e:
 
 qt_plugins_path=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/../../../external/qt/4.5.0-cms2/plugins"))
 QCoreApplication.addLibraryPath(qt_plugins_path)
+qt_plugins_path=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/../../../external/qt/4.5.2-cms2/plugins"))
+QCoreApplication.addLibraryPath(qt_plugins_path)
 
 setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigBrowser')
 
@@ -46,7 +48,7 @@ from Vispa.Main.Application import *
 from Vispa.Plugins.ConfigEditor.ConfigEditorPlugin import *
 
 if __name__ == "__main__":
-    if not os.path.isdir(preferencesDirectory):
+    if not os.path.exists(preferencesDirectory):
         print "Preferences Directory not found. Creating it under "+preferencesDirectory
         try:
             os.mkdir(preferencesDirectory)

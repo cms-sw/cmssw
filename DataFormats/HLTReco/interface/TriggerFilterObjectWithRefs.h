@@ -13,8 +13,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2009/03/17 16:21:34 $
- *  $Revision: 1.13.2.1 $
+ *  $Date: 2009/03/17 16:22:58 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -73,6 +73,11 @@ namespace trigger
       for (trigger::size_type i=0; i!=n; ++i) {
 	collectionTags[i]=edm::InputTag(collectionTags_[i]);
       }
+    }
+
+    /// low-level technical accessor
+    const std::vector<std::string>& getCollectionTagsAsStrings() const {
+      return collectionTags_;
     }
 
     /// utility

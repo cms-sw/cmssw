@@ -7,7 +7,7 @@ using edm::EventStreamHttpReader;
 using edm::OnlineHttpReader;
 using edm::DQMHttpSource;
 
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(EventStreamHttpReader);
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(OnlineHttpReader);
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(DQMHttpSource);
+DEFINE_FWK_INPUT_SOURCE(EventStreamHttpReader);
+DEFINE_FWK_INPUT_SOURCE(OnlineHttpReader);
+DEFINE_FWK_INPUT_SOURCE(DQMHttpSource);
 

@@ -5,5 +5,5 @@ hltEcalTowerFilter = cms.EDFilter( "HLTEcalTowerFilter",
    saveTag  = cms.untracked.bool( False ),
    MinE   = cms.double( 10.0 ),
    MaxEta = cms.double( 3.0 ),
-   MinN   = cms.uint32( 1 )
+   MinN   = cms.int32( 1 )
 )

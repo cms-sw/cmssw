@@ -19,8 +19,8 @@ def initCondDBSource( process,
                                               cms.PSet(
         record = cms.string('L1TriggerKeyRcd'),
         tag = cms.string('L1TriggerKey_' + tagBase)
-        )),
-                            BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
+        ))
+#                            BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
                             )
     process.l1conddb.DBParameters.authenticationPath = inputDBAuth
 

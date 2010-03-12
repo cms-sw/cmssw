@@ -33,7 +33,7 @@ process.source = cms.Source("EmptySource",
     maxEvents = cms.untracked.int32(10)
 )
 
-process.dump = cms.EDFilter("L1MuGMTDump",
+process.dump = cms.EDAnalyzer("L1MuGMTDump",
     GMTInputTag = cms.untracked.InputTag("l1GtUnpack")
 )
 

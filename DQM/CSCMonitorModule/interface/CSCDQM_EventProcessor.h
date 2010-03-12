@@ -94,8 +94,11 @@ namespace cscdqm {
       const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, MonitorObject*& me);
       const bool getCSCHisto(const HistoId& histo, const HwId& crateID, const HwId& dmbSlot, const HwId& adId, MonitorObject*& me);
       const bool getParHisto(const HistoId& histo, MonitorObject*& me);
+      void preProcessEvent();
 
       const bool getCSCFromMap(const unsigned int& crateId, const unsigned int& dmbId, unsigned int& cscType, unsigned int& cscPosition) const;
+      void setEmuEventDisplayBit(MonitorObject*& mo, unsigned int x, unsigned int y, unsigned int bit);
+      void resetEmuEventDisplays();
 
       /** Pointer to Global Configuration */
       Configuration* config;
@@ -108,6 +111,7 @@ namespace cscdqm {
       uint32_t BXN;
       bool fFirstEvent;
       bool fCloseL1As; // Close L1A bit from DDU Trailer
+      bool EmuEventDisplayWasReset;
       
 // ===================================================================================================
 // Local ONLY stuff 

@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2009/11/29 23:27:09 $
- * $Revision: 1.21 $
+ * $Date: 2009/12/11 19:18:28 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
  */
@@ -70,7 +70,9 @@ edm::InputTag BasicClusterCollection_;
 edm::InputTag SuperClusterCollection_;
 edm::InputTag EcalRecHitCollection_;
 
-MonitorElement* meBCEne_, *meBCNum_, *meBCSiz_;
+MonitorElement* meBCEne_;
+MonitorElement* meBCNum_;
+MonitorElement* meBCSiz_;
 
 MonitorElement* meBCEneFwdMap_, *meBCNumFwdMap_, *meBCETFwdMap_, *meBCSizFwdMap_;
 MonitorElement* meBCEneFwdMapProjEta_, *meBCNumFwdMapProjEta_, *meBCETFwdMapProjEta_, *meBCSizFwdMapProjEta_;
@@ -80,7 +82,9 @@ MonitorElement* meBCEneBwdMap_, *meBCNumBwdMap_, *meBCETBwdMap_, *meBCSizBwdMap_
 MonitorElement* meBCEneBwdMapProjEta_, *meBCNumBwdMapProjEta_, *meBCETBwdMapProjEta_, *meBCSizBwdMapProjEta_;
 MonitorElement* meBCEneBwdMapProjPhi_, *meBCNumBwdMapProjPhi_, *meBCETBwdMapProjPhi_, *meBCSizBwdMapProjPhi_;
 
-MonitorElement* meSCEne_, *meSCNum_, *meSCSiz_;  
+MonitorElement* meSCEne_;
+MonitorElement* meSCNum_;
+MonitorElement* meSCSiz_;  
 
 MonitorElement* meSCCrystalSiz_;
 MonitorElement* meSCSeedEne_;
@@ -90,7 +94,9 @@ MonitorElement* meSCEneLowScale_;
 MonitorElement* meSCSeedMapOcc_[2];
 MonitorElement* meSCMapSingleCrystal_[2];
 
-MonitorElement* mes1s9_, *mes9s25_;
+MonitorElement* mes1s9_;
+MonitorElement* mes1s9thr_;
+MonitorElement* mes9s25_;
 MonitorElement* meInvMassPi0_;
 MonitorElement* meInvMassJPsi_;
 MonitorElement* meInvMassZ0_;

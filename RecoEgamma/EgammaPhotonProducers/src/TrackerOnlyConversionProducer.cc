@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.24 2010/01/22 16:59:36 hlliu Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.26 2010/02/15 17:45:50 hlliu Exp $
 //
 //
 
@@ -48,6 +48,7 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 //Kinematic constraint vertex fitter
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
@@ -245,7 +246,7 @@ bool TrackerOnlyConversionProducer::getMatchedBC(const std::multimap<double, rec
 	    bc != bcMap.upper_bound(track_eta + halfWayEta_); ++bc){//use eta map to select possible BC collection then loop in
 	const reco::CaloClusterPtr& ebc = bc->second;
 	const double delta_eta = track_eta-(ebc->position().eta());
-	const double delta_phi = map_phi2(track_phi-(ebc->position().phi()));
+	const double delta_phi = reco::deltaPhi(track_phi, (ebc->position().phi()));
 	if (fabs(delta_eta)<dEtaTkBC_ && fabs(delta_phi)<dPhiTkBC_){
 	    if (fabs(min_eta)>fabs(delta_eta) && fabs(min_phi)>fabs(delta_phi)){//take the closest to track BC
 		min_eta = delta_eta;
@@ -275,7 +276,7 @@ bool TrackerOnlyConversionProducer::getMatchedBC(const reco::CaloClusterPtrVecto
 	    bc != bcMap.end(); ++bc){//use eta map to select possible BC collection then loop in
 	const reco::CaloClusterPtr& ebc = (*bc);
 	const double delta_eta = track_eta-(ebc->position().eta());
-	const double delta_phi = map_phi2(track_phi-(ebc->position().phi()));
+	const double delta_phi = reco::deltaPhi(track_phi, (ebc->position().phi()));
 	if (fabs(delta_eta)<dEtaTkBC_ && fabs(delta_phi)<dPhiTkBC_){
 	    if (fabs(min_eta)>fabs(delta_eta) && fabs(min_phi)>fabs(delta_phi)){//take the closest to track BC
 		min_eta = delta_eta;
@@ -309,10 +310,7 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     if (allowDeltaPhi_){
 	const double phi_l = tk_l->innerMomentum().phi();
 	const double phi_r = tk_r->innerMomentum().phi();
-	double dPhi = phi_l - phi_r;
-	dPhi = fmod(dPhi, Geom::twoPi());//mod to +-twoPi
-	//if (dPhi<1.0*Geom::pi()) dPhi+=Geom::twoPi();
-	//if (dPhi>= Geom::pi()) dPhi-=Geom::twoPi();
+	double dPhi = reco::deltaPhi(phi_l, phi_r);
 
 	if (fabs(dPhi) > deltaPhi_) return false;//Delta Phi cut for pair
     }
@@ -612,7 +610,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		reco::Vertex the_vertex;//by default it is invalid
 		//if allow vertex and there is a vertex, go vertex finding, otherwise
 		if (allowVertex_) {
-		    const bool found_vertex = checkVertex((*ll), right, magField, the_vertex);
+		    checkVertex((*ll), right, magField, the_vertex);
 		}
 		right_candidates.push_back(rr->second);
 		right_candidate_theta.push_back(right->innerMomentum().Theta());

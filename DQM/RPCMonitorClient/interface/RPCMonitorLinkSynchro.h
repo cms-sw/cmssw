@@ -22,7 +22,7 @@ class RPCMonitorLinkSynchro : public edm::EDAnalyzer {
 public:
   explicit RPCMonitorLinkSynchro( const edm::ParameterSet& cfg);
   virtual ~RPCMonitorLinkSynchro();
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);  
   virtual void endJob();

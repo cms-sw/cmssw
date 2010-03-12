@@ -14,11 +14,11 @@ dqmInfoDT = cms.EDFilter("DQMEventInfo",
 
 
 dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
-    dqmOnly = cms.untracked.bool(True),
     dataType = cms.string('DDU'),
-    useStandardFEDid = cms.untracked.bool(True),
-    fedbyType = cms.untracked.bool(False),
-    inputLabel = cms.untracked.InputTag('source'),
+    inputLabel = cms.InputTag('source'),
+    fedbyType = cms.bool(False),
+    useStandardFEDid = cms.bool(True),
+    dqmOnly = cms.bool(True),                       
     readOutParameters = cms.PSet(
         debug = cms.untracked.bool(False),
         rosParameters = cms.PSet(

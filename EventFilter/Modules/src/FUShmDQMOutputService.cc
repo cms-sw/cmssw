@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.14 2009/07/08 13:33:45 meschi Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.16 2010/02/15 13:43:16 meschi Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -32,6 +32,8 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "TClass.h"
 #include "zlib.h"
+#include <unistd.h>
+#include <sys/types.h>
 
 using namespace std;
 
@@ -53,15 +55,17 @@ uint32 FUShmDQMOutputService::fuGuidValue_ = 0;
  * FUShmDQMOutputService constructor.
  */
 FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
-                                   edm::ActivityRegistry &actReg):
-  shmBuffer_(0)
+                                   edm::ActivityRegistry &actReg)
+  : evf::ServiceWeb("FUShmDQMOutputService")
+  , shmBuffer_(0)
+  , nbUpdates_(0)
+  , updateNumber_(0)
 {
-  if (DSS_DEBUG) {cout << "FUShmDQMOutputService Constructor" << endl;}
 
   // specify the routine to be called after event processing.  This routine
   // will be used to periodically fetch monitor elements from the DQM
   // backend and write out to shared memory for sending to the storage manager.
-  actReg.watchPostProcessEvent(this, &FUShmDQMOutputService::postEventProcessing);
+  actReg.watchPostEndLumi(this, &FUShmDQMOutputService::postEndLumi);
 
   // specify the routine to be called after the input source has been
   // constructed.  This routine will be used to initialize our connection
@@ -76,22 +80,6 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
   // be used to disconnect from the SM, if needed, and any other shutdown
   // tasks that are needed.??
   actReg.watchPostEndJob(this, &FUShmDQMOutputService::postEndJobProcessing);
-
-  // helpful callbacks when trying to understand the signals that are
-  // available to framework services
-  if (DSS_DEBUG >= 2) {
-    actReg.watchPostBeginJob(this, &FUShmDQMOutputService::postBeginJobProcessing);
-    actReg.watchPreSource(this, &FUShmDQMOutputService::preSourceProcessing);
-    actReg.watchPostSource(this, &FUShmDQMOutputService::postSourceProcessing);
-    actReg.watchPreModule(this, &FUShmDQMOutputService::preModuleProcessing);
-    actReg.watchPostModule(this, &FUShmDQMOutputService::postModuleProcessing);
-    actReg.watchPreSourceConstruction(this,
-           &FUShmDQMOutputService::preSourceConstructionProcessing);
-    actReg.watchPreModuleConstruction(this,
-           &FUShmDQMOutputService::preModuleConstructionProcessing);
-    actReg.watchPostModuleConstruction(this,
-           &FUShmDQMOutputService::postModuleConstructionProcessing);
-  }
 
   // set internal values from the parameter set
   int initialSize =
@@ -142,35 +130,36 @@ FUShmDQMOutputService::FUShmDQMOutputService(const edm::ParameterSet &pset,
  */
 FUShmDQMOutputService::~FUShmDQMOutputService(void)
 {
-  if (DSS_DEBUG) {cout << "FUShmDQMOutputService Destructor" << endl;}
   shmdt(shmBuffer_);
 }
 
-/**
- * Callback to be used after event processing has finished.  (The
- * "post event" signal is generated after all of the analysis modules
- * have run <b>and</b> any output modules have run.)  This routine is
- * used to periodically gather monitor elements from the DQM backend
- * and send them to the storage manager.
- */
-void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
-                                           const edm::EventSetup &eventSetup)
+void FUShmDQMOutputService::defaultWebPage(xgi::Input *in, xgi::Output *out)
+{
+}
+
+void FUShmDQMOutputService::publish(xdata::InfoSpace *is)
+{
+  is->fireItemAvailable("nbDqmUpdates",&nbUpdates_);
+}
+
+void FUShmDQMOutputService::postEndLumi(edm::LuminosityBlock const &lb, edm::EventSetup const &es)
 {
   std::string dqm = "DQM";
-  std::string in = "IN";
+  std::string in = "INPUT";
   evf::MicroStateService *mss = 0;
   try{
     mss = edm::Service<evf::MicroStateService>().operator->();
+    if(mss) mss->setMicroState(dqm);
   }
   catch(...) { 
     edm::LogError("FUShmDQMOutputService")<< "exception when trying to get service MicroStateService";
   }
-
+  
 
   // fake the luminosity section if we don't want to use the real one
   unsigned int thisLumiSection = 0;
   if(lumiSectionInterval_ == 0)
-    thisLumiSection = event.luminosityBlock();
+    thisLumiSection = lb.luminosityBlock();
   else {
     // match the code in Event output module to get the same (almost) lumi number
     struct timeval now;
@@ -181,13 +170,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
     if(lumiSectionInterval_ > 0) thisLumiSection = static_cast<uint32>(timeInSec/lumiSectionInterval_);
   }
 
-  if (DSS_DEBUG) {
-    cout << "FUShmDQMOutputService::postEventProcessing called, event number "
-         << event.id().event() << ", lumi section "
-         << thisLumiSection << endl;
-  }
-
-  // special handling for the first event
+   // special handling for the first event
   if (initializationIsNeeded_) {
     initializationIsNeeded_ = false;
     lumiSectionOfPreviousUpdate_ = thisLumiSection;
@@ -202,26 +185,24 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
     timeInSecSinceUTC_ = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec)/1000000.0);
   }
 
-  // We send a DQMEvent when the correct number of luminosity sections have passed
-  // but this will occur here for the first event of a new lumi section which
-  // means the data for the first event of this new lumi section is always added to the
-  // to the DQM data for the update for the previous lumi section - beware!
-  // Can only correct in this postEventProcessing stage if we knew this is the last
-  // event of a lumi section. (There is no preEventProcessing possibility?)
-
-  // only continue if the correct number of luminosity sections have passed
-  int lsDelta = (int) (thisLumiSection - lumiSectionOfPreviousUpdate_);
-  double updateRatio = ((double) lsDelta) / lumiSectionsPerUpdate_;
-  if (updateRatio < 1.0) {return;}
-  if(mss) mss->setMicroState(dqm);
+  //  std::cout << getpid() << ": :" //<< gettid() 
+  //	    << ":DQMOutputService check if have to send update for lumiSection " << thisLumiSection << std::endl;
+  if(thisLumiSection%4!=0) 
+    {
+//       std::cout << getpid() << ": :" //<< gettid() 
+// 		<< ":DQMOutputService skipping update for lumiSection " << thisLumiSection << std::endl;
+      if(mss) mss->setMicroState(in);
+      return;
+    }
+//   std::cout << getpid() << ": :" //<< gettid() 
+// 	    << ":DQMOutputService sending update for lumiSection " << thisLumiSection << std::endl;
   // CAlculate the update ID and lumi ID for this update
   int fullLsDelta = (int) (thisLumiSection - firstLumiSectionSeen_);
   double fullUpdateRatio = ((double) fullLsDelta) / lumiSectionsPerUpdate_;
   // this is the update number starting from zero
-  uint32 updateNumber = -1 + (uint32) fullUpdateRatio;
+
   // this is the actual luminosity section number for the beginning lumi section of this update
-  unsigned int lumiSectionTag = firstLumiSectionSeen_ +
-    ((int) (updateNumber * lumiSectionsPerUpdate_));
+  unsigned int lumiSectionTag = thisLumiSection;
 
   // retry the lookup of the backend interface, if needed
   if (bei == NULL) {
@@ -279,9 +260,9 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
 
     // create the message
     DQMEventMsgBuilder dqmMsgBuilder(&messageBuffer_[0], messageBuffer_.size(),
-                                     event.id().run(), event.id().event(),
-				     event.time(),
-                                     lumiSectionTag, updateNumber,
+                                     lb.run(), lb.luminosityBlock(),
+				     lb.endTime(),
+                                     lumiSectionTag, updateNumber_,
                                      edm::getReleaseVersion(), dirName,
                                      toTable);
 
@@ -299,58 +280,20 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
 
     // send the message
     writeShmDQMData(dqmMsgBuilder);
-  if(mss) mss->setMicroState(in);
-    // test deserialization
-    if (DSS_DEBUG >= 3) {
-      DQMEventMsgView dqmEventView(&messageBuffer_[0]);
-      std::cout << "  DQM Message data:" << std::endl; 
-      std::cout << "    protocol version = "
-                << dqmEventView.protocolVersion() << std::endl; 
-      std::cout << "    header size = "
-                << dqmEventView.headerSize() << std::endl; 
-      std::cout << "    run number = "
-                << dqmEventView.runNumber() << std::endl; 
-      std::cout << "    event number = "
-                << dqmEventView.eventNumberAtUpdate() << std::endl; 
-      std::cout << "    lumi section = "
-                << dqmEventView.lumiSection() << std::endl; 
-      std::cout << "    update number = "
-                << dqmEventView.updateNumber() << std::endl; 
-      std::cout << "    compression flag = "
-                << dqmEventView.compressionFlag() << std::endl; 
-      std::cout << "    reserved word = "
-                << dqmEventView.reserved() << std::endl; 
-      std::cout << "    release tag = "
-                << dqmEventView.releaseTag() << std::endl; 
-      std::cout << "    top folder name = "
-                << dqmEventView.topFolderName() << std::endl; 
-      std::cout << "    sub folder count = "
-                << dqmEventView.subFolderCount() << std::endl; 
-      std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
-        deserializeWorker_.deserializeDQMEvent(dqmEventView);
-      DQMEvent::TObjectTable::const_iterator toIter;
-      for (toIter = toTablePtr->begin();
-           toIter != toTablePtr->end(); toIter++) {
-        std::string subFolderName = toIter->first;
-        std::cout << "  folder = " << subFolderName << std::endl;
-        std::vector<TObject *> toList = toIter->second;
-        for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
-          TObject *toPtr = toList[tdx];
-          string cls = toPtr->IsA()->GetName();
-          string nm = toPtr->GetName();
-          std::cout << "    TObject class = " << cls
-                    << ", name = " << nm << std::endl;
-        }
-      }
-    }
-  }
+//     std::cout << getpid() << ": :" // << gettid() 
+// 	      << ":DQMOutputService DONE sending update for lumiSection " << thisLumiSection << std::endl;
+    if(mss) mss->setMicroState(in);
 
+  }
+  
   // reset monitor elements that have requested it
   // TODO - enable this
   //bei->doneSending(true, true);
-
+  
   // update the "previous" lumi section
   lumiSectionOfPreviousUpdate_ = thisLumiSection;
+  nbUpdates_++;
+  updateNumber_++;
 }
 
 /**
@@ -359,10 +302,6 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
  */
 void FUShmDQMOutputService::postSourceConstructionProcessing(const edm::ModuleDescription &moduleDesc)
 {
-  if (DSS_DEBUG) {
-    cout << "FUShmDQMOutputService::postSourceConstructionProcessing called for "
-         << moduleDesc.moduleName() << endl;
-  }
 
   bei = edm::Service<DQMStore>().operator->();
 }
@@ -374,11 +313,8 @@ void FUShmDQMOutputService::postSourceConstructionProcessing(const edm::ModuleDe
 void FUShmDQMOutputService::preBeginRun(const edm::RunID &runID,
                                         const edm::Timestamp &timestamp)
 {
-  if (DSS_DEBUG) {
-    cout << "FUShmDQMOutputService::preBeginRun called, run number "
-         << runID.run() << endl;
-  }
-
+  nbUpdates_ = 0;
+  updateNumber_ = 0;
   initializationIsNeeded_ = true;
 }
 
@@ -388,9 +324,6 @@ void FUShmDQMOutputService::preBeginRun(const edm::RunID &runID,
  */
 void FUShmDQMOutputService::postEndJobProcessing()
 {
-  if (DSS_DEBUG) {
-    cout << "FUShmDQMOutputService::postEndJobProcessing called" << endl;
-  }
   // since the service is not destroyed we need to take care of endjob items here
   initializationIsNeeded_ = true;
 }
@@ -412,9 +345,9 @@ void FUShmDQMOutputService::findMonitorElements(DQMEvent::TObjectTable &toTable,
   std::vector<TObject *> updateTOList;
   for (int idx = 0; idx < (int) localMEList.size(); idx++) {
     MonitorElement *mePtr = localMEList[idx];
-    if (mePtr->wasUpdated()) {
-      updateTOList.push_back(mePtr->getRootObject());
-    }
+    //    if (mePtr->wasUpdated()) { // @@EM send updated and not (to be revised)
+    updateTOList.push_back(mePtr->getRootObject());
+      //    }
   }
   if (updateTOList.size() > 0) {
     toTable[folderPath] = updateTOList;
@@ -456,9 +389,6 @@ void FUShmDQMOutputService::writeShmDQMData(DQMEventMsgBuilder const& dqmMsgBuil
   uLong crc = crc32(0L, Z_NULL, 0);
   Bytef* buf = (Bytef*)topFolder.data();
   crc = crc32(crc, buf, topFolder.length());
-  if (DSS_DEBUG) {
-    std::cout << "Folder = " << topFolder << " crc = " << crc << std::endl;
-  }
 
   if(!shmBuffer_) {
     edm::LogError("FUDQMShmOutputService") 
@@ -471,100 +401,7 @@ void FUShmDQMOutputService::writeShmDQMData(DQMEventMsgBuilder const& dqmMsgBuil
 
 }
 
-/**
- * Callback for when the begin job operation is finishing.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::postBeginJobProcessing()
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::postBeginJobProcessing called" << endl;
-  }
-}
 
-/**
- * Callback for when the input source is about to read or generate a
- * physics event.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::preSourceProcessing()
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::preSourceProcessing called" << endl;
-  }
-}
-
-/**
- * Callback for when the input source has finished reading or generating a
- * physics event.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::postSourceProcessing()
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::postSourceProcessing called" << endl;
-  }
-}
-
-/**
- * Callback to be used before an analysis module begins its processing.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::preModuleProcessing(const edm::ModuleDescription &moduleDesc)
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::preModuleProcessing called for "
-         << moduleDesc.moduleName() << endl;
-  }
-}
-
-/**
- * Callback to be used after an analysis module has completed its processing.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::postModuleProcessing(const edm::ModuleDescription &moduleDesc)
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::postModuleProcessing called for "
-         << moduleDesc.moduleName() << endl;
-  }
-}
-
-/**
- * Callback to be used before the input source is constructed.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::preSourceConstructionProcessing(const edm::ModuleDescription &moduleDesc)
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::preSourceConstructionProcessing called for "
-         << moduleDesc.moduleName() << endl;
-  }
-}
-
-/**
- * Callback to be used before analysis modules are constructed.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::preModuleConstructionProcessing(const edm::ModuleDescription &moduleDesc)
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::preModuleConstructionProcessing called for "
-         << moduleDesc.moduleName() << endl;
-  }
-}
-
-/**
- * Callback to be used after analysis modules have been constructed.
- * Currently, this routine is only used for diagnostics.
- */
-void FUShmDQMOutputService::postModuleConstructionProcessing(const edm::ModuleDescription &moduleDesc)
-{
-  if (DSS_DEBUG >= 2) {
-    cout << "FUShmDQMOutputService::postModuleConstructionProcessing called for "
-         << moduleDesc.moduleName() << endl;
-  }
-}
 
 bool FUShmDQMOutputService::attachToShm()
 {
