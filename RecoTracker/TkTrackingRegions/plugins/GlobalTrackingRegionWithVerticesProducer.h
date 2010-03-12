@@ -57,15 +57,14 @@ public:
       edm::Handle<reco::VertexCollection> vertexCollection;
       ev.getByLabel(vertexCollName,vertexCollection);
 
-      if(vertexCollection->size() > 0) {
-	for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
+      for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
+          if (iV->isFake() || !iV->isValid()) continue;
 	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
 	  double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
 	  result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise) );
-	}
       }
       
-      else {
+      if (result.empty()) {
         result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise) );
       }
     }
