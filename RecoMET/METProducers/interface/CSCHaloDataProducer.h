@@ -56,6 +56,8 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
@@ -144,6 +146,7 @@ namespace reco
     
     //Digi Level
     edm::InputTag IT_L1MuGMTReadout;
+    edm::InputTag IT_ALCT;
 
     //HLT
     edm::InputTag IT_HLTResult;
@@ -157,6 +160,8 @@ namespace reco
     edm::InputTag IT_CSCSegment;
     edm::InputTag IT_Muon;
     edm::InputTag IT_SA;
+
+
   };
 }
 

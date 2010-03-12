@@ -29,13 +29,17 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   IT_CosmicMuon = iConfig.getParameter<edm::InputTag>("CosmicMuonLabel"); 
   IT_Muon = iConfig.getParameter<edm::InputTag>("MuonLabel");
   IT_SA   = iConfig.getParameter<edm::InputTag>("SALabel"); 
-  
+  IT_ALCT = iConfig.getParameter<edm::InputTag>("ALCTDigiLabel"); 
+
   // Cosmic track selection parameters
   CSCAlgo.SetDetaThreshold( (float) iConfig.getParameter<double>("DetaParam"));
   CSCAlgo.SetDphiThreshold( (float) iConfig.getParameter<double>("DphiParam"));
   CSCAlgo.SetMinMaxInnerRadius( (float) iConfig.getParameter<double>("InnerRMinParam") ,  (float) iConfig.getParameter<double>("InnerRMaxParam") );
   CSCAlgo.SetMinMaxOuterRadius( (float) iConfig.getParameter<double>("OuterRMinParam"), (float) iConfig.getParameter<double>("OuterRMaxParam"));
   CSCAlgo.SetNormChi2Threshold( (float) iConfig.getParameter<double>("NormChi2Param") );
+  CSCAlgo.SetIsMC( (bool) iConfig.getParameter<bool>("IsMC") );
+  CSCAlgo.SetRecHitTime0( (float) iConfig.getParameter<double>("RecHitTime0") );
+  CSCAlgo.SetRecHitTimeWindow( (float) iConfig.getParameter<double>("RecHitTimeWindow") );
 
   produces<CSCHaloData>();
 
@@ -64,6 +68,10 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle < L1MuGMTReadoutCollection > TheL1GMTReadout ;
   iEvent.getByLabel (IT_L1MuGMTReadout, TheL1GMTReadout);
 
+  //Get Chamber Anode Trigger Information
+  edm::Handle<CSCALCTDigiCollection> TheALCTs;
+  iEvent.getByLabel (IT_ALCT, TheALCTs);
+
   //Get HLT Results                                                                                                                                                       
   edm::Handle<edm::TriggerResults> TheHLTResults;
   iEvent.getByLabel( IT_HLTResult , TheHLTResults);
@@ -73,7 +81,7 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
     triggerNames = &iEvent.triggerNames(*TheHLTResults);
   }
 
-  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames) ) );
+  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames, TheALCTs) ) );
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);
   return;

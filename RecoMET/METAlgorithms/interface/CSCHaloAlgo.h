@@ -24,6 +24,8 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
@@ -80,7 +82,7 @@ class CSCHaloAlgo {
  public:
   CSCHaloAlgo();
   ~CSCHaloAlgo(){}
-  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout, edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames);
+  reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout, edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs);
   std::vector<edm::InputTag> vIT_HLTBit;
 
   void SetDetaThreshold(float x ){ deta_threshold = x;}
@@ -88,6 +90,11 @@ class CSCHaloAlgo {
   void SetMinMaxOuterRadius(float min, float max) { min_outer_radius = min; max_outer_radius = max;}
   void SetDphiThreshold(float x) { dphi_threshold = x;}
   void SetNormChi2Threshold(float x) { norm_chi2_threshold = x;}
+  void SetIsMC(bool x) { isMC = x; }
+  void SetRecHitTime0(float x) { recHit_t0 = x;}
+  void SetRecHitTimeWindow(float x) { recHit_twindow = x; }
+
+
  private:
   float deta_threshold;
   float min_inner_radius;
@@ -96,6 +103,11 @@ class CSCHaloAlgo {
   float max_outer_radius;
   float dphi_threshold;
   float norm_chi2_threshold;
+  float recHit_t0;
+  float recHit_twindow;
+
+  bool isMC;
+
 };
 
 #endif

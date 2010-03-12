@@ -20,9 +20,12 @@ CSCHaloAlgo::CSCHaloAlgo()
   max_outer_radius = 9999.;
   dphi_threshold = 999.;
   norm_chi2_threshold = 999.;
+  recHit_t0=200;
+  recHit_twindow=500;
+
 }
 
-reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames)
+reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm::Handle<reco::TrackCollection>& TheCSCTracks, edm::Handle<CSCSegmentCollection>& TheCSCSegments, edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,edm::Handle<edm::TriggerResults>& TheHLTResults, const edm::TriggerNames * triggerNames, const edm::Handle<CSCALCTDigiCollection>& TheALCTs)
 {
   reco::CSCHaloData TheCSCHaloData;
   if( TheCSCTracks.isValid() )
@@ -164,6 +167,46 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 	 }
        TheCSCHaloData.SetNumberOfHaloTriggers(PlusZ, MinusZ);
      }
+
+   // Loop over CSCALCTDigi collection to look for out-of-time chamber triggers 
+   // A collision muon in real data should only have ALCTDigi::getBX() = 3 ( in MC, it will be 6 )
+   // Note that there could be two ALCTs per chamber 
+   int n_alcts=0;
+   int expected = 3;
+   if (isMC) expected = 6;
+   for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++) {
+     const CSCALCTDigiCollection::Range& range =(*j).second;
+     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
+       if((*digiIt).isValid() && ((*digiIt).getBX() < (expected-1) )){
+	 n_alcts++;
+       }
+     }
+   }
+   TheCSCHaloData.SetNOutOfTimeTriggers(n_alcts);
+
+   // Loop over the CSCRecHit2D collection to look for out-of-time recHits
+   // Out-of-time is defined as tpeak outside [t_0 + TOF - t_window, t_0 + TOF + t_window]
+   // where t_0 and t_window are configurable parameters
+   int n_recHits = 0;
+   CSCRecHit2DCollection::const_iterator dRHIter;
+   for (dRHIter = TheCSCRecHits->begin(); dRHIter != TheCSCRecHits->end(); dRHIter++) {
+     if ( !((*dRHIter).isValid()) ) continue;  // only interested in valid hits
+     CSCDetId idrec = (CSCDetId)(*dRHIter).cscDetId();
+     float RHTime = (*dRHIter).tpeak();
+     LocalPoint rhitlocal = (*dRHIter).localPosition();
+     const CSCChamber* chamber = TheCSCGeometry.chamber(idrec);
+     GlobalPoint globalPosition = chamber->toGlobal(rhitlocal);
+     float globX = globalPosition.x();
+     float globY = globalPosition.y();
+     float globZ = globalPosition.z();
+     float TOF = (sqrt(globX*globX+ globY*globY + globZ*globZ))/29.9792458 ; //cm -> ns
+     if ( (RHTime < (recHit_t0 + TOF - recHit_twindow)) || (RHTime > (recHit_t0 + TOF + recHit_twindow)) ){
+       n_recHits++;
+     }
+
+   }
+   TheCSCHaloData.SetNOutOfTimeHits(n_recHits);
+
    return TheCSCHaloData;
 }
 
