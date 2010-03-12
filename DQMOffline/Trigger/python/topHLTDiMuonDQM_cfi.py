@@ -5,7 +5,7 @@ topHLTDiMuonDQM = cms.EDAnalyzer("TopHLTDiMuonDQM",
     ### Select a level: TEV, L1 or L3
     ### 
     Level          = cms.untracked.string('TEV'),
-    monitorName    = cms.untracked.string('Physics/Top/HLTDiMuon'),
+    monitorName    = cms.untracked.string('HLT/Top/HLTDiMuon'),
     ### 
     TriggerResults = cms.InputTag('TriggerResults',        '','HLT'),
     TriggerEvent   = cms.InputTag('hltTriggerSummaryAOD',  '','HLT'),
