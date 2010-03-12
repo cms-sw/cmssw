@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_FastJetProducer
-#define PhysicsTools_PFCandProducer_FastJetProducer
+#ifndef PhysicsTools_PFCandProducer_FastJetAlgo
+#define PhysicsTools_PFCandProducer_FastJetAlgo
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -16,21 +16,23 @@ namespace pf2pat {
 
   //COLIN change name to FastJetAlgo
 
-  class FastJetProducer {
+  class FastJetAlgo {
 
   public:
     typedef std::vector< fastjet::PseudoJet > PseudoJetCollection;
     typedef PseudoJetCollection::const_iterator PJI;
-
+    
+    // template it?
     typedef reco::PFCandidate           InputType;
     typedef std::vector<InputType>      InputCollection; 
     typedef edm::Handle< InputCollection > InputHandle;
 
+    // template it?
     typedef reco::PFJet           JetType;
     typedef std::vector<JetType>  JetCollection; 
     typedef JetCollection::const_iterator JI;
 
-    FastJetProducer( const edm::ParameterSet& ps ); 
+    FastJetAlgo( const edm::ParameterSet& ps ); 
     
     /// get jet definition from parameter set
     void setJetDefinition( const edm::ParameterSet& ps);  
@@ -52,7 +54,8 @@ namespace pf2pat {
     
   private:
     /// convert input elements from CMSSW (e.g. PFCandidates) 
-    /// into fastjet input. could be a function template. 
+    /// into fastjet input. 
+    /// InputType could be a template parameter of the class
     void recoToFastJet(const InputCollection& inputColl); 
 
     /// run fast jet
@@ -61,7 +64,8 @@ namespace pf2pat {
     /// convert fastjet output to RECO data format (e.g. PFJet)
     const JetCollection& fastJetToReco();
 
-    /// build a JetType (e.g. PFJet) from a pseudo-jet
+    /// build a JetType (e.g. PFJet) from a pseudo-jet. Jet type
+    /// could be a template parameter of the class. 
     JetType makeJet( const fastjet::PseudoJet& pseudoJet) const;
 
     /// build the vector< Ptr<Candidate> > pointing to constituents

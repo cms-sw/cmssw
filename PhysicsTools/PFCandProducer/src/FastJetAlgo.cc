@@ -1,4 +1,4 @@
-#include "PhysicsTools/PFCandProducer/interface/FastJetProducer.h"
+#include "PhysicsTools/PFCandProducer/interface/FastJetAlgo.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -14,18 +14,18 @@ using namespace fastjet;
 using namespace std;
 
 
-FastJetProducer::FastJetProducer( const edm::ParameterSet& ps ) 
+FastJetAlgo::FastJetAlgo( const edm::ParameterSet& ps ) 
   : clusterSequence_(0) {
   setJetDefinition( ps ); 
 }
 
-void FastJetProducer::setJetDefinition( const edm::ParameterSet& ps) {
+void FastJetAlgo::setJetDefinition( const edm::ParameterSet& ps) {
   // here extract parameter set info to make the jet definition
   JetDefinition jetDef( kt_algorithm, 0.5);
   setJetDefinition( jetDef ); 
 }
 
-const FastJetProducer::JetCollection& FastJetProducer::produce( const FastJetProducer::InputHandle& inputHandle) {
+const FastJetAlgo::JetCollection& FastJetAlgo::produce( const FastJetAlgo::InputHandle& inputHandle) {
   
   // the input handle will be necessary to build the Ptrs to the jet constituents.
   inputHandle_ = inputHandle;
@@ -35,7 +35,7 @@ const FastJetProducer::JetCollection& FastJetProducer::produce( const FastJetPro
   return fastJetToReco(); 
 }
 
-void FastJetProducer::recoToFastJet(const FastJetProducer::InputCollection& inputColl) {
+void FastJetAlgo::recoToFastJet(const FastJetAlgo::InputCollection& inputColl) {
   input_.clear();
   typedef InputCollection::const_iterator II;
 
@@ -46,7 +46,7 @@ void FastJetProducer::recoToFastJet(const FastJetProducer::InputCollection& inpu
   }
 }
 
-void  FastJetProducer::runJetClustering() {
+void  FastJetAlgo::runJetClustering() {
   output_.clear();
   if(clusterSequence_) delete clusterSequence_;
   clusterSequence_ = new ClusterSequence(input_, jetDefinition_);
@@ -57,7 +57,7 @@ void  FastJetProducer::runJetClustering() {
 
 
 
-const FastJetProducer::JetCollection& FastJetProducer::fastJetToReco() {
+const FastJetAlgo::JetCollection& FastJetAlgo::fastJetToReco() {
   
   jetCollection_.clear();
 
@@ -69,7 +69,7 @@ const FastJetProducer::JetCollection& FastJetProducer::fastJetToReco() {
 }
 
 
-FastJetProducer::JetType FastJetProducer::makeJet( const PseudoJet& pseudoJet) const {
+FastJetAlgo::JetType FastJetAlgo::makeJet( const PseudoJet& pseudoJet) const {
   
   reco::Particle::LorentzVector p4( pseudoJet.px(), 
 				    pseudoJet.py(),
@@ -86,7 +86,7 @@ FastJetProducer::JetType FastJetProducer::makeJet( const PseudoJet& pseudoJet) c
 }
   
 
-reco::Jet::Constituents FastJetProducer::makeConstituents(const fastjet::PseudoJet& pseudoJet) const {
+reco::Jet::Constituents FastJetAlgo::makeConstituents(const fastjet::PseudoJet& pseudoJet) const {
   
   reco::Jet::Constituents ptrsToConstituents; 
   
@@ -100,7 +100,7 @@ reco::Jet::Constituents FastJetProducer::makeConstituents(const fastjet::PseudoJ
 }
 
 
-void FastJetProducer::printPseudoJets( ostream& out) const {
+void FastJetAlgo::printPseudoJets( ostream& out) const {
 
 //   cout<<"Jet Definition:"<<endl;
 //   cout<<jetDefinition_;
@@ -117,7 +117,7 @@ void FastJetProducer::printPseudoJets( ostream& out) const {
 }
 
 
-void FastJetProducer::printJets( ostream& out) const {
+void FastJetAlgo::printJets( ostream& out) const {
 
 //   cout<<"Jet Definition:"<<endl;
 //   cout<<jetDefinition_;
