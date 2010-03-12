@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.60 2010/01/27 15:01:10 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.61 2010/02/18 20:50:36 wdd Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -10,6 +10,7 @@
 
 using namespace edm;
 using namespace trigger;
+using namespace std;
 
 FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   resetMe_(true),  currentRun_(-99)
@@ -39,6 +40,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
   ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
+  nBinsOneOverEt_ = iConfig.getUntrackedParameter<unsigned int>("NbinsOneOverEt",10000);
   nLS_   = iConfig.getUntrackedParameter<unsigned int>("NLumSegs",500);
 
   
@@ -188,17 +190,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    }
   }
   triggerResults_ = triggerResults;
-  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);  
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
-  edm::Handle<TriggerEvent> triggerObj;
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
-  if(!triggerObj.isValid()) {
+  iEvent.getByLabel(triggerSummaryLabel_,fTriggerObj); 
+  if(!fTriggerObj.isValid()) {
 
     edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerSummaryLabelFU,triggerObj);
+    iEvent.getByLabel(triggerSummaryLabelFU,fTriggerObj);
 
-    if(!triggerObj.isValid()) {
+    if(!fTriggerObj.isValid()) {
 
       edm::LogInfo("FourVectorHLTOffline") << "TriggerEvent not found, " "skipping event"; 
       return;
@@ -240,75 +241,49 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel("gsfElectrons",gsfElectrons); 
-  if(!gsfElectrons.isValid()) { 
-
+  if(!gsfElectrons.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "gsfElectrons not found, ";
-      //"skipping event"; 
-      //return;
-  }
 
   edm::Handle<reco::CaloTauCollection> tauHandle;
   iEvent.getByLabel("caloRecoTauProducer",tauHandle);
-  if(!tauHandle.isValid()) { 
+  if(!tauHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "tauHandle not found, ";
-      //"skipping event"; 
-      //return;
-  }
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
   iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
-  if(!jetHandle.isValid()) { 
+  if(!jetHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "jetHandle not found, ";
-      //"skipping event"; 
-      //return;
-  }
  
    // Get b tag information
  edm::Handle<reco::JetTagCollection> bTagIPHandle;
  iEvent.getByLabel("jetProbabilityBJetTags", bTagIPHandle);
- if (!bTagIPHandle.isValid()) {
+ if (!bTagIPHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "mTagIPHandle trackCountingHighEffJetTags not found, ";
-      //"skipping event"; 
-      //return;
-  }
 
    // Get b tag information
  edm::Handle<reco::JetTagCollection> bTagMuHandle;
  iEvent.getByLabel("softMuonBJetTags", bTagMuHandle);
- if (!bTagMuHandle.isValid()) {
+ if (!bTagMuHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "bTagMuHandle  not found, ";
-      //"skipping event"; 
-      //return;
-  }
 
   edm::Handle<reco::CaloMETCollection> metHandle;
   iEvent.getByLabel("met",metHandle);
-  if(!metHandle.isValid()) { 
+  if(!metHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "metHandle not found, ";
-      //"skipping event"; 
-      //return;
-  }
 
   edm::Handle<reco::PhotonCollection> photonHandle;
   iEvent.getByLabel("photons",photonHandle);
-  if(!photonHandle.isValid()) { 
+  if(!photonHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "photonHandle not found, ";
-      //"skipping event"; 
-      //return;
-  }
 
   edm::Handle<reco::TrackCollection> trackHandle;
   iEvent.getByLabel("pixelTracks",trackHandle);
-  if(!trackHandle.isValid()) { 
+  if(!trackHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "trackHandle not found, ";
-      //"skipping event"; 
-      //return;
-  }
 
-  const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
-
+  // ---------------------
   // Monitors
-  // ---------------
+  // ---------------------
 
   // electron Monitor
   objMonData<reco::GsfElectronCollection> eleMon;
@@ -405,6 +380,26 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   metMon.pushL1TriggerType(TriggerL1ETM);
 
+  // tet Monitor
+  objMonData<reco::CaloMETCollection> tetMon;
+  tetMon.setReco(metHandle);
+  //tetMon.setLimits(tetEtaMax_=999., tetEtMin_=10, tetDRMatch_=999);
+  tetMon.setLimits(999., 10., 999.);
+  
+  tetMon.pushTriggerType(TriggerTET);
+
+  tetMon.pushL1TriggerType(TriggerL1ETT);
+
+  // generic Monitor
+  objMonData<reco::CaloMETCollection> genMon;
+  genMon.setReco(metHandle);
+  //tetMon.setLimits(tetEtaMax_=999., tetEtMin_=10, tetDRMatch_=999);
+  genMon.setLimits(999., 10., 999.);
+  
+  genMon.pushTriggerType(TriggerTET);
+
+  genMon.pushL1TriggerType(TriggerL1ETT);
+
 
   // vector to hold monitors 
   // interface is through virtual class BaseMonitor
@@ -419,6 +414,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   monitors.push_back(&jetMon);
   monitors.push_back(&btagMon);
   monitors.push_back(&metMon);
+  monitors.push_back(&tetMon);
 
   int bx = iEvent.bunchCrossing();
   /*
@@ -541,114 +537,99 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      // if cannot find moniotor for the path, go to next path
      if(!mon) continue;
 
+     // attach this path to mon
+     mon->setPath(v);
+
      // clear sets of matched objects
      mon->clearSets();
 
      int triggertype = 0;     
      triggertype = v->getObjectType();
 
+     // monitor offline (RECO objects)
+     /////////////////////////////////
+     mon->monitorOffline();
+
+     // monitor L1 (only if L1 passed and can fid GTSeed)
+     ////////////////////////////////////////////////////
      bool l1accept = false;
      edm::InputTag l1testTag(v->getl1Path(),"",processname_);
-     const int l1index = triggerObj->filterIndex(l1testTag);
+     const int l1Index = fTriggerObj->filterIndex(l1testTag);
      
 
-     if ( l1index >= triggerObj->sizeFilters() ) {
+     if ( l1Index >= fTriggerObj->sizeFilters() ) {
 
-       edm::LogInfo("FourVectorHLTOffline") << "no index "<< l1index << " of that name " << v->getl1Path() << "\t" << "\t" << l1testTag;
-       continue; // not in this event
+       LogTrace("FourVectorHLTOffline") << "Cannot find L1GTSeed of the path " << v->getPath() << endl;
+       LogTrace("FourVectorHLTOffline") << "\t L1GTSeed name = " << v->getl1Path() << endl;
+       LogTrace("FourVectorHLTOffline") <<  "\t tried with tag " << l1testTag << endl;
+       LogTrace("FourVectorHLTOffline") <<"\t module index = "<< l1Index << endl;
 
-     }
+     } 
 
-     const trigger::Vids & idtype = triggerObj->filterIds(l1index);
-     const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
-     l1accept = l1k.size() > 0;
-     //LogTrace("FourVectorHLTOffline") << " triggertype = " << triggertype << " TriggerMuon  " <<  TriggerMuon << "   l1accept = " << l1accept << endl;
-     //if (l1k.size() == 0) cout << v->getl1Path() << endl;
-     //l1accept = true;
+	   // monitor L1 object
+	   mon->monitorL1(l1Index, this);
+	
+	   // fill matching b/w Offline and L1 objects
+	   mon->fillL1Match(this);
+	
+    // monitor Online (only if HLT passed)
+    //////////////////////////////////////
+	  bool numpassed = false;
 
-     mon->monitorDenominator(v, l1accept, idtype, l1k, toc);
-     mon->fillL1Match(this);
-
-    // did we pass the numerator path?
-    bool numpassed = false;
-
+    // did we pass the numerator path, i.e. HLT path?
     for(int i = 0; i < npath; ++i) {
 
       if (triggerNames.triggerName(i) == v->getPath() && triggerResults->accept(i)) numpassed = true;
 
     }
 
-    if (numpassed)
-    { 
+    if (!numpassed) continue;
 
-      if (!l1accept) {
+    if (!l1accept) {
 
-            edm::LogInfo("FourVectorHLTOffline") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
+          edm::LogWarning("FourVectorHLTOffline") 
+            << "This should not happen.  HLT passed, but L1 Seed not passed for hlt path "<< endl 
+            << "HLT path: " << v->getPath() << "\t HLTLevel1GTSeed: " << v->getl1Path();
+
+    }
+
+    // fill scaler histograms
+    edm::InputTag filterTag = v->getTag();
+
+    // loop through indices and see if the filter is 
+    // on the list of filters used by this path
+    //----------------------------------------------
+    if (v->getLabel() == "dummy"){
+    const vector<string> filterLabels = hltConfig_.moduleLabels(v->getPath());
+
+    //loop over labels
+    for (vector<string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++) {
+
+      edm::InputTag testTag(*labelIter,"",processname_);
+
+      int testindex = fTriggerObj->filterIndex(testTag);
+
+      // last match wins...
+      if ( !(testindex >= fTriggerObj->sizeFilters()) ) {
+
+        filterTag = testTag; 
+        v->setLabel(*labelIter);}
 
       }
 
-      // fill scaler histograms
-      edm::InputTag filterTag = v->getTag();
-
-      // loop through indices and see if the filter is on the list of filters used by this path
-      
-      if (v->getLabel() == "dummy"){
-      const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
-
-      //loop over labels
-      for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++) {
-
-        //cout << v->getPath() << "\t" << *labelIter << endl;
-        // last match wins...
-        edm::InputTag testTag(*labelIter,"",processname_);
-        //           cout << v->getPath() << "\t" << testTag.label() << "\t" << testTag.process() << endl;
-        int testindex = triggerObj->filterIndex(testTag);
-        if ( !(testindex >= triggerObj->sizeFilters()) ) {
-
-          //cout << "found one! " << v->getPath() << "\t" << testTag.label() << endl; 
-          filterTag = testTag; v->setLabel(*labelIter);}
-        }
-
-      } // end for
+    } // end for
   
-      const int index = triggerObj->filterIndex(filterTag);
-      if ( index >= triggerObj->sizeFilters() ) {
+    const int hltIndex = fTriggerObj->filterIndex(filterTag);
+    if ( hltIndex >= fTriggerObj->sizeFilters() ) {
 
-      //cout << "WTF no index "<< index << " of that name "
-      //<< filterTag << endl;
-        continue; // not in this event
+      LogTrace("FourVectorHLTOffline") << "WTF no index "<< index << " of that name " << filterTag << endl;
+      continue; // not in this event
 
-      }
+    }
 
-      const trigger::Keys & k = triggerObj->filterKeys(index);
-      //      const trigger::Vids & idtype = triggerObj->filterIds(index);
-      // assume for now the first object type is the same as all objects in the collection
-      //    cout << filterTag << "\t" << idtype.size() << "\t" << k.size() << endl;
-      //     cout << "path " << v->getPath() << " trigger type "<<triggertype << endl;
-      //if (k.size() > 0) v->getNOnHisto()->Fill(k.size());
+    mon->monitorOnline(hltIndex, l1Index, this);
 
-
-      unsigned int NOnCount=0;
-
-      // Loop over HLT objects
-      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-
-
-        mon->monitorOnline(idtype, l1k, ki, toc, NOnCount);
-
-      } // online object loop
-
-      if(NOnCount>0) v->getNOnHisto()->Fill(NOnCount);
-
-
-        
-      mon->fillOnlineMatch(this, l1k, toc);
-
-      //mon->monitorOffline(this);
-      //mon->fillOffMatch(this);
-
-    } //numpassed
-
+    mon->fillOnlineMatch(l1Index, this);
 
    } //denompassed
 
@@ -694,12 +675,13 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
   LogDebug("FourVectorHLTOffline") << "beginRun, run " << run.id();
   
   // HLT config does not change within runs!
+  bool changed=false;
  
-  if (!hltConfig_.init(processname_)) {
+  if (!hltConfig_.init(run, c, processname_, changed)) {
 
     processname_ = "FU";
 
-    if (!hltConfig_.init(processname_)){
+    if (!hltConfig_.init(run, c, processname_, changed)){
 
       LogDebug("FourVectorHLTOffline") << "HLTConfigProvider failed to initialize.";
 
@@ -822,6 +804,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
         if (pathname.find("SumET") != std::string::npos) 
           objectType = trigger::TriggerTET;    
         if (pathname.find("HT") != std::string::npos) 
+          objectType = trigger::TriggerTET;    
+        if (pathname == "HLT_MinBias") 
           objectType = trigger::TriggerTET;    
         if (pathname.find("Jet") != std::string::npos) 
           objectType = trigger::TriggerJet;    
@@ -1098,7 +1082,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     // now set up all of the histos for each path-denom
     for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) {
 
-      MonitorElement *NOn, *onEtOn, *onEtavsonPhiOn=0;
+      MonitorElement *NOn, *onEtOn, *onOneOverEtOn, *onEtavsonPhiOn=0;
       MonitorElement *NOff, *offEtOff, *offEtavsoffPhiOff=0;
       MonitorElement *NL1, *l1EtL1, *l1Etavsl1PhiL1=0;
       MonitorElement *NL1On, *l1EtL1On, *l1Etavsl1PhiL1On=0;
@@ -1194,6 +1178,11 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        histoname = labelname+"_onEtOn";
        title = labelname+" onE_t online";
        onEtOn =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
+       
+       histoname = labelname+"_onOneOverEtOn";
+       title = labelname+" 1 / onE_t online";
+       onOneOverEtOn =  dbe->book1D(histoname.c_str(), title.c_str(),nBinsOneOverEt_, 0, 1);
+       onOneOverEtOn->setAxisTitle("HLT 1/Et [1/GeV]");
        
        histoname = labelname+"_offEtOff";
        title = labelname+" offE_t offline";
@@ -1350,7 +1339,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        tempME->setAxisTitle("Luminosity Section");
 
 
-       v->setHistos( NOn, onEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On, filters
+       v->setHistos( NOn, onEtOn, onOneOverEtOn, onEtavsonPhiOn, NOff, offEtOff, offEtavsoffPhiOff, NL1, l1EtL1, l1Etavsl1PhiL1, NL1On, l1EtL1On, l1Etavsl1PhiL1On, NL1Off, offEtL1Off, offEtavsoffPhiL1Off, NOnOff, offEtOnOff, offEtavsoffPhiOnOff, NL1OnUM, l1EtL1OnUM, l1Etavsl1PhiL1OnUM, NL1OffUM, offEtL1OffUM, offEtavsoffPhiL1OffUM, NOnOffUM, offEtOnOffUM, offEtavsoffPhiOnOffUM, offDRL1Off, offDROnOff, l1DRL1On, filters
 );
 
 
@@ -1556,12 +1545,11 @@ void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string>
 
 }
 
-void FourVectorHLTOffline::fillHltMatrix(vector<std::string> name,
-                                         const edm::TriggerNames & triggerNames) {
+void FourVectorHLTOffline::fillHltMatrix(vector<std::string> name, const edm::TriggerNames & triggerNames) {
 
-string fullPathToME; 
+ string fullPathToME; 
 
-for (unsigned int mi=0;mi<name.size();mi++) {
+ for (unsigned int mi=0;mi<name.size();mi++) {
 
   fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+name[mi]+"_PassPass";
   MonitorElement* ME_2d = dbe_->get(fullPathToME);
