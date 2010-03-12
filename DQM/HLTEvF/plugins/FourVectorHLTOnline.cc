@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.29 2010/02/16 17:03:13 wmtan Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.30 2010/02/17 22:53:25 wdd Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -934,17 +934,26 @@ FourVectorHLTOnline::endJob()
 void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   LogDebug("FourVectorHLTOnline") << "beginRun, run " << run.id();
-// HLT config does not change within runs!
+
+  // HLT config does not change within runs!
+
+  bool changed=false;
  
-  if (!hltConfig_.init(processname_)) {
+  if (!hltConfig_.init(run, c, processname_, changed)) {
+
     processname_ = "FU";
-    if (!hltConfig_.init(processname_)){
-  LogDebug("FourVectorHLTOnline") << "HLTConfigProvider failed to initialize.";
+
+    if (!hltConfig_.init(run, c, processname_, changed)){
+
+      LogDebug("FourVectorHLTOffline") << "HLTConfigProvider failed to initialize.";
+
     }
+
     // check if trigger name in (new) config
-    //	cout << "Available TriggerNames are: " << endl;
-    //	hltConfig_.dump("Triggers");
-      }
+    //  cout << "Available TriggerNames are: " << endl;
+    //  hltConfig_.dump("Triggers");
+  }
+
 
 
   if (1)
