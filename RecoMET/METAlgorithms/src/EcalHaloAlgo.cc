@@ -151,10 +151,12 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   for(reco::SuperClusterCollection::const_iterator cluster = TheSuperClusters->begin() ; cluster != TheSuperClusters->end() ; cluster++ )
     {
       /* R. Remington :  Commenting out until we debug the showerRoundness() function for 34X. 
- 
-	 if( abs(cluster->eta()) <= 1.47 )
+       */
+      if( abs(cluster->eta()) <= 1.47 && cluster->energy() > 5.0)
 	{ 
-	  vector<float> shapes = EcalClusterTools::showerRoundness( *cluster, &(*TheEBRecHits.product()) );
+	  //vector<float> shapes = EcalClusterTools::showerRoundness( *cluster, &(*TheEBRecHits.product()) );
+	  //EcalClusterTools ECT;
+	  vector<float> shapes = EcalClusterTools::roundnessBarrelSuperClusters( *cluster, (*TheEBRecHits.product()));
 	  float roundness = shapes[0];
 	  float angle = shapes[1];
 	  
@@ -173,11 +175,8 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  vShowerShapes_Roundness.push_back(-1.);
 	  vShowerShapes_Angle.push_back(-1.);
 	}
-      */
-      
-      
-      vShowerShapes_Roundness.push_back(-1.);         
-      vShowerShapes_Angle.push_back(-1.);      
+      //vShowerShapes_Roundness.push_back(-1.);         
+      //vShowerShapes_Angle.push_back(-1.);      
     }
   
   edm::ValueMap<float>::Filler TheRoundnessFiller( TheEcalHaloData.GetShowerShapesRoundness() );
