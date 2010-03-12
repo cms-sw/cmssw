@@ -22,12 +22,16 @@
 //
 ConditionDumperInEdm::ConditionDumperInEdm(const edm::ParameterSet& iConfig)
 {
+  
+  gtEvmDigisLabel_ = iConfig.getParameter<edm::InputTag>("gtEvmDigisLabel");
+
+
   //per LUMI products
-  produces<ConditionsInLumiBlock,edm::InLumi>();
+  produces<edm::ConditionsInLumiBlock,edm::InLumi>();
   //per RUN products
-  produces<ConditionsInRunBlock,edm::InRun>();
+  produces<edm::ConditionsInRunBlock,edm::InRun>();
   //per EVENT products
-  produces<ConditionsInEventBlock>();
+  produces<edm::ConditionsInEventBlock>();
 
 }
 
@@ -43,7 +47,7 @@ ConditionDumperInEdm::~ConditionDumperInEdm()
 void ConditionDumperInEdm::beginLuminosityBlock(edm::LuminosityBlock&lumi, edm::EventSetup const&setup){
 }
 void ConditionDumperInEdm::endLuminosityBlock(edm::LuminosityBlock&lumi, edm::EventSetup const&setup){
-  std::auto_ptr<ConditionsInLumiBlock> lumiOut( new ConditionsInLumiBlock(lumiBlock_));
+  std::auto_ptr<edm::ConditionsInLumiBlock> lumiOut( new edm::ConditionsInLumiBlock(lumiBlock_));
   lumi.put( lumiOut );
 }
 
@@ -60,7 +64,7 @@ void ConditionDumperInEdm::endRun(edm::Run& run , const edm::EventSetup& setup){
     runBlock_.BAvgCurrent=sum->m_avg_current;
   }
 
-  std::auto_ptr<ConditionsInRunBlock> outBlock(new ConditionsInRunBlock(runBlock_));
+  std::auto_ptr<edm::ConditionsInRunBlock> outBlock(new edm::ConditionsInRunBlock(runBlock_));
   run.put(outBlock);
 }
 
@@ -71,7 +75,7 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //get the L1 object 
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecordData;
-  iEvent.getByLabel("gtEvmDigis", gtReadoutRecordData);
+  iEvent.getByLabel(gtEvmDigisLabel_, gtReadoutRecordData);
 
   const L1GtfeExtWord& gtfeBlockData = gtReadoutRecordData->gtfeWord();
 
@@ -90,7 +94,7 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   eventBlock_. bstMasterStatus= gtfeBlockData.bstMasterStatus() ;
   eventBlock_.turnCountNumber = gtfeBlockData.turnCountNumber();
 
-  std::auto_ptr<ConditionsInEventBlock> eventOut( new ConditionsInEventBlock(eventBlock_));
+  std::auto_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
   iEvent.put( eventOut );
 }
 
