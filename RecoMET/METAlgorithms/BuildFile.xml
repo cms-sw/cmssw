@@ -8,6 +8,7 @@
 <use   name="MagneticField/Engine"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/CSCGeometry"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <export>
