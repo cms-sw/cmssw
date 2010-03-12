@@ -67,6 +67,8 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
   // Determining bins of cross section
   // loop over events
   unsigned int events=0;
+  double xsec = 0;
+
   for(event.toBegin(); !event.atEnd(); ++event, ++events){
      edm::EventBase const & ev = event;
     if( events % 100 == 0 ) cout<<"Processing event : "<<events<<endl;
@@ -99,6 +101,10 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
     if(label.compare("eb") == 0) parameter = eb;
     if(label.compare("ee") == 0) parameter = eep+eem;
     values.push_back(parameter);
+
+    // Calculate corrected cross section
+    xsec += parameter / hEff->GetBinContent(hEff->FindBin(val));
+
     int run = event.id().run();
     if(runnums.size() == 0 || runnums[runnums.size()-1] != run) runnums.push_back(run);
   }
@@ -118,7 +124,7 @@ void makeDataCentralityTable(int nbins = 40, const string label = "hf", const ch
   for(int iv = 0; iv < events && currentbin < nbins; ++iv){
      double val = values[iv];  
      integral += val / hEff->GetBinContent(hEff->FindBin(val));
-     if(integral > (int)(currentbin*(events/nbins))){
+     if(integral > (int)(currentbin*(xsec/nbins))){
 	binboundaries[currentbin] = val;
 	cout<<" "<<val;
 	if(currentbin < nbins - 1) cout<<",";
