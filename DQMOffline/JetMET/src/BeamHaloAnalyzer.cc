@@ -114,6 +114,9 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     ME["CSCHaloData_L1HaloTriggers"]  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
     ME["CSCHaloData_HLHaloTriggers"]  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
     ME["CSCHaloData_CaloPointingHaloTrackMultiplicity"] = dqm->book1D("CSCHaloData_CaloPointingHaloTrackMultiplicity","", 10, -0.5, 9.5 );
+    ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
+    ME["CSCHaloData_NOutOfTimeTriggers"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
+    ME["CSCHaloData_NOutOfTimeHits"]  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
 
     // GlobalHaloData
     dqm->setCurrentFolder(FolderName+"/GlobalHaloData");
@@ -396,6 +399,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       ME["CSCHaloData_TrackMultiplicityMEPlus"] ->Fill ( CSCData.NumberOfHaloTracks(1) );
       ME["CSCHaloData_TrackMultiplicityMEMinus"] ->Fill ( CSCData.NumberOfHaloTracks(-1) );
       ME["CSCHaloData_TrackMultiplicity"]->Fill( CSCData.GetTracks().size() );
+      ME["CSCHaloData_NOutOfTimeTriggers"]->Fill( CSCData.NOutOfTimeTriggers() );
+      ME["CSCHaloData_NOutOfTimeHits"]->Fill( CSCData.NOutOfTimeHits() );
+      ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]->Fill( CSCData.NOutOfTimeTriggers(), CSCData.NumberOfHaloTriggers() >0 );
     }
 
   //Get EcalHaloData 
