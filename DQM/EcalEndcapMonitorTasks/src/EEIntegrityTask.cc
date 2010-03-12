@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2010/02/16 10:53:19 $
- * $Revision: 1.48 $
+ * $Date: 2010/03/05 18:22:18 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
  */
@@ -143,7 +143,7 @@ void EEIntegrityTask::setup(void){
     // crystal integrity error is weighted by 1/850
     // tower integrity error is weighted by 1/34
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "EEIT weighted integrity errors");
+    sprintf(histo, "EEIT weighted integrity errors by lumi");
     meIntegrityErrorsByLumi = dqmStore_->book1D(histo, histo, 18, 1., 19.);
     meIntegrityErrorsByLumi->setLumiFlag();
     for (int i = 0; i < 18; i++) {

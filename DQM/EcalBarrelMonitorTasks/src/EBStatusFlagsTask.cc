@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.23 $
+ * $Date: 2010/03/05 18:22:18 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -191,7 +191,7 @@ void EBStatusFlagsTask::setup(void){
     // checking the number of front-end errors in each DCC for each lumi
     // tower error is weighted by 1/68
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "EBSFT weighted front-end errors");
+    sprintf(histo, "EBSFT weighted frontend errors by lumi");
     meFEchErrorsByLumi_ = dqmStore_->book1D(histo, histo, 36, 1., 37.);
     meFEchErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 36; i++) {
