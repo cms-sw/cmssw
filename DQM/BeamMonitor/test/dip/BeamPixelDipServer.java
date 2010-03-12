@@ -18,7 +18,7 @@ implements Runnable,DipPublicationErrorHandler
 {
   public final static boolean appendRcd = false; //if true, appending latest results
   public final static boolean overwriteQuality = true; //if true, change quality to qualities[0]
-  public final static boolean publishStatErrors = false;
+  public final static boolean publishStatErrors = true;
   public final static String subjectCMS = "dip/CMS/Tracker/BeamPixel";
   public final static String subjectLHC = "dip/CMS/LHCTEST/LuminousRegion";
   public final static String sourceFile = "/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt";
@@ -27,7 +27,7 @@ implements Runnable,DipPublicationErrorHandler
   public final static int cm2um = 10000;
   public final static int cm2mm = 10;
   public final static String[] qualities = {"Uncertain","Bad","Good"};
-  public final static int[] idleLS = {5,10}; //LumiSections
+  public final static int[] timeoutLS = {5,10}; //LumiSections
 
   DipFactory dip;
   DipData messageCMS;
@@ -122,7 +122,7 @@ implements Runnable,DipPublicationErrorHandler
 	  long fileLength = logFile.length();
 
 	  if (fileLength < filePointer) {
-	      System.out.println("New Run Started");
+	      //System.out.println("New Run Started");
 	      filePointer = 0;
 	      lsCount = 0;
 	      myFile.close();
@@ -130,7 +130,7 @@ implements Runnable,DipPublicationErrorHandler
 	  }
 	  else if (fileLength == filePointer) {
 	      myFile.close();
-	      if (lsCount%60 == 0)
+	      if (lsCount != 0 && lsCount%60 == 0)
 		  System.out.println("Waiting for data...");
 	      try { Thread.sleep(1000); }//every sec
 	      catch(InterruptedException e) {
@@ -140,14 +140,14 @@ implements Runnable,DipPublicationErrorHandler
 	      }
 	      lsCount++;
 	      idleTime++;
-	      if ((lsCount < idleLS[1]*secPerLS) && (lsCount%(idleLS[0]*secPerLS) == 0)) {//fist time out
+	      if ((lsCount < timeoutLS[1]*secPerLS) && (lsCount%(timeoutLS[0]*secPerLS) == 0)) {//fist time out
 		  if (!alive.get(1)) alive.flip(1);
 		  if(!alive.get(7)) fakeRcd();
 		  else trueRcd();
 		  if(!alive.get(2)) publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
 		  else publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
 	      }
-	      else if (lsCount%(idleLS[1]*secPerLS) == 0) {//second time out
+	      else if (lsCount%(timeoutLS[1]*secPerLS) == 0) {//second time out
 		  if (!alive.get(2)) alive.flip(2);
 		  if(!alive.get(7)) fakeRcd();
 		  else trueRcd();
