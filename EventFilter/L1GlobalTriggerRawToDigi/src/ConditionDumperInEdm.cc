@@ -3,13 +3,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
 
@@ -76,6 +69,18 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //get the L1 object 
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecordData;
   iEvent.getByLabel(gtEvmDigisLabel_, gtReadoutRecordData);
+
+  if (!gtReadoutRecordData.isValid()) {
+      LogDebug("ConditionDumperInEdm")
+              << "\nWarning: L1GlobalTriggerEvmReadoutRecord with input tag " << gtEvmDigisLabel_
+              << "\nrequested in configuration, but not found in the event."
+              << "\nNo BST quantities retrieved." << std::endl;
+
+      std::auto_ptr<edm::ConditionsInEventBlock> eventOut( new edm::ConditionsInEventBlock(eventBlock_));
+      iEvent.put( eventOut );
+
+      return;
+  }
 
   const L1GtfeExtWord& gtfeBlockData = gtReadoutRecordData->gtfeWord();
 
