@@ -6,20 +6,26 @@ using namespace cms;
 using namespace reco;
 
 CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
-  CompoundJetProducer( conf ),
-  alg_(src_,
-       conf.getParameter<int>("algorithm"),                    // 0 = KT, 1 = CA, 2 = anti-KT
-       conf.getParameter<double>("inputEtMin"),                // seed threshold
-       conf.getParameter<double>("centralEtaCut"),             // eta for defining "central" jets
-       conf.getParameter<double>("sumEtEtaCut"),               // eta for event SumEt
-       conf.getParameter<double>("jetPtMin"),                  // min jet pt
-       conf.getParameter<double>("etFrac"),                    // fraction of event sumEt / 2 for a jet to be considered "hard"
-       conf.getParameter<bool>  ("useAdjacency"),              // veto adjacent subjets
-       conf.getParameter<bool>  ("useMaxTower"),               // use max tower as adjacency criterion, otherwise use centroid
-       conf.getParameter<std::vector<double> > ("ptBins"),     // pt bins over which cuts may vary
-       conf.getParameter<std::vector<double> >("rBins"),       // cone size bins,
-       conf.getParameter<std::vector<double> >("ptFracBins"),  // fraction of hard jet that subjet must have
-       conf.getParameter<std::vector<double> >("nCellBins")       // number of cells to consider two subjets adjacent
+       CompoundJetProducer( conf ),
+  	   alg_(src_,
+       conf.getParameter<bool>  ("verbose"),              
+       conf.getParameter<int>	("algorithm"),                  // 0 = KT, 1 = CA, 2 = anti-KT
+       conf.getParameter<int>   ("useAdjacency"),              	// choose adjacency requirement:
+				                                                //  0 = no adjacency
+                				                                //  1 = deltar adjacency 
+                                				                //  2 = modified adjacency
+                                                				//  3 = calotower neirest neigbor based adjacency (untested)
+       conf.getParameter<double>("centralEtaCut"),             	// eta for defining "central" jets
+       conf.getParameter<double>("jetPtMin"),                  	// min jet pt
+       conf.getParameter<std::vector<double> >("sumEtBins"),    // sumEt bins over which cuts may vary. vector={bin 0 lower bound, bin 1 lower bound, ...} 
+       conf.getParameter<std::vector<double> >("rBins"),       	// Jet distance paramter R. R values depend on sumEt bins.
+       conf.getParameter<std::vector<double> >("ptFracBins"),  	// fraction of hard jet pt that subjet must have (deltap)
+       conf.getParameter<std::vector<double> >("deltarBins"),  	// Applicable only if useAdjacency=1. deltar adjacency values for each sumEtBin
+       conf.getParameter<std::vector<double> >("nCellBins"),	// Applicable only if useAdjacency=3. number of cells to consider two subjets adjacent
+       conf.getParameter<double>("inputEtMin"),                	// seed threshold - NOT USED
+       conf.getParameter<bool>  ("useMaxTower"),               	// use max tower as adjacency criterion, otherwise use centroid - NOT USED
+       conf.getParameter<double>("sumEtEtaCut"),               	// eta for event SumEt - NOT USED
+       conf.getParameter<double>("etFrac")                    	// fraction of event sumEt / 2 for a jet to be considered "hard" -NOT USED
        )
 {}
 
