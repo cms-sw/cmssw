@@ -1,5 +1,6 @@
 #include "RecoVertex/KinematicFit/interface/VertexKinematicConstraint.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 VertexKinematicConstraint::VertexKinematicConstraint()
 {}
@@ -32,6 +33,11 @@ AlgebraicVector VertexKinematicConstraint::value(const vector<KinematicState> st
    double field = i->magneticField()->inInverseGeV(pos).z();
    double a_i = -0.29979246*ch*field;
    double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
+   if(fabs(j)>1.0){
+	   LogDebug("VertexKinematicConstraint")
+       << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
+   }
+	  
  
 //vector of values  
    vl(num_r*2 +1) = d_y*mom.x() - d_x*mom.y() -a_i*(d_x*d_x + d_y*d_y)/2;
@@ -74,6 +80,11 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const vector<Kin
    double r_y = d_x - 2* mom.y()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
    double s = 1/(pt*pt*sqrt(1 - j*j)); 
 
+   if(fabs(j)>1.0){
+	   LogDebug("VertexKinematicConstraint")
+	   << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
+   }
+	  
 //D Jacobian matrix  
    el_part_d(1,1) =  mom.y() + a_i*d_x;
    el_part_d(1,2) = -mom.x() + a_i*d_y;
