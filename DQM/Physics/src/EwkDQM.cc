@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/20 20:58:48 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/02/25 17:09:48 $
+ *  $Revision: 1.14 $
  *  \author Michael B. Anderson, University of Wisconsin-Madison
  *  \author Will Parker, University of Wisconsin-Madison
  */
@@ -34,9 +34,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-// Trigger stuff
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TLorentzVector.h"
@@ -60,6 +58,10 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
   theElectronCollectionLabel  = parameters.getParameter<InputTag>("electronCollection");
   theCaloJetCollectionLabel   = parameters.getParameter<InputTag>("caloJetCollection");
   theCaloMETCollectionLabel   = parameters.getParameter<InputTag>("caloMETCollection");
+  
+  // just to initialize
+  isValidHltConfig_ = false;
+
 }
 
 EwkDQM::~EwkDQM() { 
@@ -109,15 +111,34 @@ void EwkDQM::beginJob() {
 }
 
 
+
+///
+///
+///
+void EwkDQM::beginRun( const edm::Run& theRun, const edm::EventSetup& theSetup ) {
+  
+  // passed as parameter to HLTConfigProvider::init(), not yet used
+  bool isConfigChanged = false;
+  
+  // isValidHltConfig_ used to short-circuit analyze() in case of problems
+  const std::string hltProcessName( "HLT" );
+  isValidHltConfig_ = hltConfigProvider_.init( theRun, theSetup, hltProcessName, isConfigChanged );
+
+}
+
+
 void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
+
+  // short-circuit if hlt problems
+  if( ! isValidHltConfig_ ) return;
+
 
   LogTrace(logTraceName)<<"Analysis of event # ";
   // Did it pass certain HLT path?
   Handle<TriggerResults> HLTresults;
   iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
   if ( !HLTresults.isValid() ) return;
-  HLTConfigProvider hltConfig;
-  hltConfig.init("HLT");
+
   //unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
   //unsigned int triggerIndex_muon = hltConfig.triggerIndex(theMuonTriggerPathToPass);
   bool passed_electron_HLT = true;

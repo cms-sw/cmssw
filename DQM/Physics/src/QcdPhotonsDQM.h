@@ -6,14 +6,18 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/09/08 20:04:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/01/04 14:46:10 $
+ *  $Revision: 1.9 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+// Trigger stuff
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
@@ -32,6 +36,9 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   /// Inizialize parameters for histo binning
   void beginJob();
 
+  ///
+  void beginRun( const edm::Run& , const edm::EventSetup& );
+
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -46,6 +53,10 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   DQMStore* theDbe;
+
+  HLTConfigProvider hltConfigProvider_;
+  bool isValidHltConfig_;
+
   // Switch for verbosity
   std::string logTraceName;
 

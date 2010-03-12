@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/20 20:58:55 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/02/25 17:09:49 $
+ *  $Revision: 1.19 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -25,9 +25,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
-// Trigger stuff
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 
 #include <vector>
 
@@ -51,6 +49,10 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   theMinPhotonEt              = parameters.getParameter<int>("minPhotonEt");
   theRequirePhotonFound       = parameters.getParameter<bool>("requirePhotonFound");
   thePlotMaxEt                = parameters.getParameter<double>("plotMaxEt");
+
+  // just to initialize
+  isValidHltConfig_ = false;
+
 }
 
 QcdPhotonsDQM::~QcdPhotonsDQM() { 
@@ -98,8 +100,27 @@ void QcdPhotonsDQM::beginJob() {
 }
 
 
+///
+///
+///
+void QcdPhotonsDQM::beginRun( const edm::Run &r, const edm::EventSetup &iSetup ) {
+
+  // passed as parameter to HLTConfigProvider::init(), not yet used
+  bool isConfigChanged = false;
+
+  // isValidHltConfig_ used to short-circuit analyze() in case of problems
+  isValidHltConfig_ = hltConfigProvider_.init( r, iSetup, theHltMenu, isConfigChanged );
+
+}
+
+
 void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
+  // short-circuit if hlt problems
+  if( ! isValidHltConfig_ ) return;
+
+
+  
   LogTrace(logTraceName)<<"Analysis of event # ";
 
   ////////////////////////////////////////////////////////////////////
@@ -107,8 +128,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   Handle<TriggerResults> HLTresults;
   iEvent.getByLabel(InputTag(theTriggerResultsCollection, "", theHltMenu), HLTresults); 
   if (!HLTresults.isValid()) return;
-  HLTConfigProvider hltConfig;
-  hltConfig.init(theHltMenu);
+
   unsigned int triggerIndex; // index of trigger path
   bool passed_HLT;
 
@@ -116,14 +136,14 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   //  increment that bin in the trigger plot
   for (unsigned int i=0; i<thePlotTheseTriggersToo.size(); i++) {
     passed_HLT = false;
-    triggerIndex = hltConfig.triggerIndex(thePlotTheseTriggersToo[i]);
+    triggerIndex = hltConfigProvider_.triggerIndex(thePlotTheseTriggersToo[i]);
     if (triggerIndex < HLTresults->size()) passed_HLT = HLTresults->accept(triggerIndex);
     if (passed_HLT) h_triggers_passed->Fill(i);
   }
 
   // Quit if the event did not pass the HLT path we care about
   passed_HLT = false;
-  triggerIndex = hltConfig.triggerIndex(theTriggerPathToPass); // index of trigger path
+  triggerIndex = hltConfigProvider_.triggerIndex(theTriggerPathToPass); // index of trigger path
   if (triggerIndex < HLTresults->size()) passed_HLT = HLTresults->accept(triggerIndex);
   if (!passed_HLT) return;
   ////////////////////////////////////////////////////////////////////
