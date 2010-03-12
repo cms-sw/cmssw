@@ -46,31 +46,35 @@ class CATopJetAlgorithm{
   /** Constructor
   */
   CATopJetAlgorithm(edm::InputTag mSrc,
+			bool   verbose,
 		    int algorithm,
-		    double seedThreshold,            
+		    int useAdjacency,
 		    double centralEtaCut,            
-		    double sumEtEtaCut,              
 		    double ptMin,                    
-		    double etFrac,            
-		    bool   useAdjacency,
-		    bool   useMaxTower,
-		    const std::vector<double> & ptBins,      
+		    const std::vector<double> & sumEtBins,      
 		    const std::vector<double> & rBins,       
 		    const std::vector<double> & ptFracBins,  
-		    const std::vector<double> & nCellBins) :
+			const std::vector<double> & deltarBins,
+		    const std::vector<double> & nCellBins,
+			double seedThreshold,            
+			bool   useMaxTower,
+		    double sumEtEtaCut,
+		    double etFrac) :
     mSrc_          (mSrc          ),
+    verbose_   	   (verbose       ),
     algorithm_     (algorithm     ),
-    seedThreshold_ (seedThreshold ), 
-    centralEtaCut_ (centralEtaCut ), 
-    sumEtEtaCut_   (sumEtEtaCut   ),   
-    ptMin_         (ptMin         ),         
-    etFrac_        (etFrac        ),
     useAdjacency_  (useAdjacency  ),
-    useMaxTower_   (useMaxTower   ),
-    ptBins_        (ptBins        ),        
+    centralEtaCut_ (centralEtaCut ), 
+    ptMin_         (ptMin         ),         
+    sumEtBins_     (sumEtBins     ),        
     rBins_         (rBins         ),         
-    ptFracBins_    (ptFracBins    ),    
-    nCellBins_     (nCellBins     )
+    ptFracBins_    (ptFracBins    ),  
+	deltarBins_    (deltarBins    ),
+    nCellBins_     (nCellBins     ),
+    seedThreshold_ (seedThreshold ), 
+    useMaxTower_   (useMaxTower   ),
+    sumEtEtaCut_   (sumEtEtaCut   ),   
+    etFrac_        (etFrac        )
       { }
 
     /// Find the ProtoJets from the collection of input Candidates.
@@ -79,26 +83,32 @@ class CATopJetAlgorithm{
 	      edm::EventSetup const & c
 	      );
 
-
  private:
 
-  edm::InputTag       mSrc_;          //<! calo tower input source
-  int                 algorithm_;     //<! 0 = KT, 1 = CA, 2 = anti-KT
-  double              seedThreshold_; //<! calo tower seed threshold                                           
-  double              centralEtaCut_; //<! eta for defining "central" jets                                     
-  double              sumEtEtaCut_;   //<! eta for event SumEt                                                 
-  double              ptMin_;	      //<! lower pt cut on which jets to reco                                  
-  double              etFrac_;	      //<! fraction of event sumEt / 2 for a jet to be considered "hard"  
-  bool                useAdjacency_;  //<! veto adjacent subjets
-  bool                useMaxTower_;   //<! use max tower for jet adjacency criterion, false is to use the centroid
-  std::vector<double> ptBins_;	      //<! pt bins over which cuts vary                                        
-  std::vector<double> rBins_;	      //<! cone size bins                                                      
-  std::vector<double> ptFracBins_;    //<! fraction of full jet pt for a subjet to be consider "hard"          
-  std::vector<double> nCellBins_;     //<! number of cells apart for two subjets to be considered "independent"
-  std::string         jetType_;       //<! CaloJets or GenJets
+  edm::InputTag       mSrc_;          			//<! calo tower input source
+  bool				  verbose_;                 //<!
+  int                 algorithm_;     			//<! 0 = KT, 1 = CA, 2 = anti-KT
+  int                 useAdjacency_;  			//<! choose adjacency requirement:
+  												//<! 	0 = no adjacency
+												//<! 	1 = deltar adjacency 
+												//<! 	2 = modified adjacency
+												//<! 	3 = calotower neirest neigbor based adjacency (untested)
+  double              centralEtaCut_; 			//<! eta for defining "central" jets                                     
+  double              ptMin_;	      			//<! lower pt cut on which jets to reco                                  
+  std::vector<double> sumEtBins_;	      		//<! sumEt bins over which cuts vary. vector={bin 0 lower bound, bin 1 lower bound, ...}   
+  std::vector<double> rBins_;	      			//<! Jet distance paramter R. R values depend on sumEt bins.         
+  std::vector<double> ptFracBins_;   			//<! deltap = fraction of full jet pt for a subjet to be consider "hard". 
+  std::vector<double> deltarBins_;              //<! Applicable only if useAdjacency=1. deltar adjacency values for each sumEtBin
+  std::vector<double> nCellBins_;     			//<! Applicable only if useAdjacency=3. number of cells apart for two subjets to be considered "independent"
+  // NOT USED:
+  double              seedThreshold_; 			//<! calo tower seed threshold - NOT USED 
+  bool                useMaxTower_;   			//<! use max tower for jet adjacency criterion, false is to use the centroid - NOT USED
+  double              sumEtEtaCut_;   			//<! eta for event SumEt - NOT USED                                 
+  double              etFrac_;	      			//<! fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED 
+  std::string         jetType_;       			//<! CaloJets or GenJets - NOT USED
+
 
   // Decide if the two jets are in adjacent cells    
-
   bool adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 
 		     const std::vector<fastjet::PseudoJet> & cell_particles,
 		     const CaloSubdetectorGeometry  * fTowerGeometry,
@@ -130,7 +140,7 @@ class CATopJetAlgorithm{
 		    const fastjet::ClusterSequence & theClusterSequence, 
 		    const std::vector<fastjet::PseudoJet> & cell_particles,
 		    const CaloSubdetectorGeometry  * fTowerGeometry,
-		    double ptHard, double nCellMin,
+		    double ptHard, double nCellMin, double deltarcut,
 		    fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
 		    std::vector<fastjet::PseudoJet> & leftovers) const;
 
