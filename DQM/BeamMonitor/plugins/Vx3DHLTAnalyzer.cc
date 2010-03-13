@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.26 2010/03/12 14:19:37 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.27 2010/03/13 17:54:39 dinardo Exp $
 //
 //
 
@@ -744,7 +744,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       if (goodData == 0)
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
-	  outputDebugFile << "Used vertices: " << counterVx << endl;
+// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(1.0);
 	  reportSummaryMap->Fill(0.5, 0.5, 1.0);
@@ -754,7 +754,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       else
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
-	  outputDebugFile << "Used vertices: " << counterVx << endl;
+// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
