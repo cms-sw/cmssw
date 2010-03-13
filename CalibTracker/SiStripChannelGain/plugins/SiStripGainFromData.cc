@@ -934,7 +934,7 @@ SiStripGainFromData::algoEndJob() {
 
       FILE* Gains = fopen(OutputGains.c_str(),"w");
       fprintf(Gains,"NEvents = %i\n",NEvent);
-      fprintf(Gains,"Number of APVs = %i\n",APVsColl.size());
+      fprintf(Gains,"Number of APVs = %lu\n",APVsColl.size());
       fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD));
       for(std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
          stAPVGain* APV = *it;
