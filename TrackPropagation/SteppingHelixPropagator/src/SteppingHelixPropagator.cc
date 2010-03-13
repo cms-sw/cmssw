@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2010/03/07 20:29:02 $
- *  $Revision: 1.69 $
+ *  $Date: 2010/03/10 22:35:20 $
+ *  $Revision: 1.70 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.69 2010/03/07 20:29:02 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.70 2010/03/10 22:35:20 slava77 Exp $
 //
 //
 
@@ -220,11 +220,11 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   }
   setIState(sStart);
   
-  GlobalPoint rPlane = pDest.position();
-  GlobalVector nPlane(pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz());
+  Point rPlane(pDest.position().x(), pDest.position().y(), pDest.position().z());
+  Vector nPlane(pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz()); nPlane /= nPlane.mag();
 
-  double pars[6] = { pDest.position().x(), pDest.position().y(), pDest.position().z(),
-		     pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz() };
+  double pars[6] = { rPlane.x(), rPlane.y(), rPlane.z(),
+		     nPlane.x(), nPlane.y(), nPlane.z() };
   
   propagate(PLANE_DT, pars);
   
@@ -418,7 +418,6 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     }
     //! define a fast-skip distance: should be the shortest of a possible step or distance
     double fastSkipDist = fabs(dist) > fabs(tanDist) ? tanDist : dist;
-    double fastSkipTanDist = fabs(dist) < fabs(tanDist) ? tanDist : dist;
 
     if (propagationDirection() == anyDirection){
       dir = refDirection;
@@ -929,10 +928,10 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     }
 
     Vector bHat = svCurrent.bf; bHat *= 1./b0; //bHat.mag();
-    bool bAlongZ = fabs(bHat.z()) > 0.9999;
+    //    bool bAlongZ = fabs(bHat.z()) > 0.9999;
 
     Vector btVec(bHat.cross(tau)); // for balong z btVec.z()==0
-    double tauB = bAlongZ ? tau.z()*bHat.z() : tau.dot(bHat);
+    double tauB =  tau.dot(bHat);
     Vector bbtVec(bHat*tauB - tau); // (-tau.x(), -tau.y(), 0)
 
     //don't need it here    tauNext = tau + bbtVec*oneLessCosPhi - btVec*sinPhi;
@@ -1022,9 +1021,9 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     }
 
     bHat = bf; bHat *= 1./b0;// as above =1./bHat.mag();
-    bAlongZ = fabs(bHat.z()) > 0.9999;
+    //    bAlongZ = fabs(bHat.z()) > 0.9999;
     btVec = bHat.cross(tau); // for b||z (-tau.y(), tau.x() ,0)
-    tauB = bAlongZ ? tau.z()*bHat.z() : tau.dot(bHat);
+    tauB = tau.dot(bHat);
     bbtVec = bHat*tauB - tau; //bHat.cross(btVec); for b||z: (-tau.x(), -tau.y(), 0)
 
     tauNext = bbtVec*oneLessCosPhi; tauNext -= btVec*sinPhi;     tauNext += tau; //for b||z tauNext.z() == tau.z()
@@ -1719,12 +1718,14 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       Point rPlane(pars[0], pars[1], pars[2]);
       Vector nPlane(pars[3], pars[4], pars[5]);
       
-      bool pVertical = fabs(pars[5])>0.9999;
 
-      double dRDotN = pVertical? (sv.r3.z() - rPlane.z())*nPlane.z() :(sv.r3 - rPlane).dot(nPlane);
-      
+      // unfortunately this doesn't work: the numbers are too large
+      //      bool pVertical = fabs(pars[5])>0.9999;
+      //      double dRDotN = pVertical? (sv.r3.z() - rPlane.z())*nPlane.z() :(sv.r3 - rPlane).dot(nPlane);
+      double dRDotN = (sv.r3.x()-rPlane.x())*nPlane.x() + (sv.r3.y()-rPlane.y())*nPlane.y() + (sv.r3.z()-rPlane.z())*nPlane.z();//(sv.r3 - rPlane).dot(nPlane);
+
       dist = fabs(dRDotN);
-      if (fabs(dist) > fastSkipDist){
+      if (dist > fastSkipDist){
 	result = SteppingHelixStateInfo::INACC;
 	break;
       }
@@ -1732,7 +1733,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       double p0 = curP;
       double p0Inv = 1./p0;
       Vector tau(sv.p3); tau *=p0Inv; 
-      double tN = pVertical ? tau.z()*nPlane.z() : tau.dot(nPlane);
+      double tN =  tau.dot(nPlane);
       refDirection = tN*dRDotN < 0. ?
 	alongMomentum : oppositeToMomentum;
       double b0 = sv.bf.mag();
@@ -1748,12 +1749,12 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	double b0Inv = 1./b0;
 	double tNInv = 1./tN;
 	Vector bHat(sv.bf); bHat *=b0Inv;
-	double bHatN = pVertical ? bHat.z()*nPlane.z() : bHat.dot(nPlane);
+	double bHatN = bHat.dot(nPlane);
 	double cosPB = bHat.dot(tau);
 	double kVal = 2.99792458e-3*sv.q*p0Inv*b0;
 	double aVal = tanDist*kVal;
 	Vector lVec = bHat.cross(tau);
-	double bVal = pVertical ? lVec.z()*nPlane.z()*tNInv : lVec.dot(nPlane)*tNInv;
+	double bVal = lVec.dot(nPlane)*tNInv;
 	if (fabs(aVal*bVal)< 0.3){
 	  double cVal = 1. - bHatN*cosPB*tNInv; // - sv.bf.cross(lVec).dot(nPlane)*b0Inv*tNInv; //1- bHat_n*bHat_tau/tau_n;
           double aacVal = cVal*aVal*aVal;
@@ -2000,9 +2001,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     double pars[6] = {0,0,0,0,0,0};
     DestType dType = UNDEFINED_DT;
     if (cPlane != 0){
-      GlobalPoint rPlane = cPlane->position();
+      Point rPlane(cPlane->position().x(),cPlane->position().y(),cPlane->position().z());
       // = cPlane->toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
-      GlobalVector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz());
+      Vector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz()); nPlane /= nPlane.mag();
       
       if (sv.r3.z() < 0 || !vbField_->isZSymmetric() ){
 	pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = rPlane.z();
