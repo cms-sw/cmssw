@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.25 2010/03/12 13:42:39 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.26 2010/03/12 14:19:37 dinardo Exp $
 //
 //
 
@@ -142,7 +142,7 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
   double coef,det;
   double tmp,sumlog = 0.;
   double dim = 3.;
-  double precision = 1.e-8;
+  double precision = 1.e-9;
 
 //   par[0] = K(0,0)
 //   par[1] = K(1,1)
@@ -191,15 +191,23 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 {
   unsigned int nParams = 9;
-
+ 
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigma = 3.;
-      double arglist[2];
-      double amin,edm,errdef;
+      double nSigma = 4.;
+      double varFactor = 4./9.; // It takes into account the difference between the RMS and sigma (RMS usually greater than sigma)
+      double parDistance = 0.01;
       double det;
-      int nvpar,nparx;
+      double bestEdm = 1.;
+      double deltaMean;
+      int bestMovementX = 1;
+      int bestMovementY = 1;
+      int bestMovementZ = 1;
       int goodData;
+
+      double arglist[2];
+      double amin,errdef,edm;
+      int nvpar,nparx;
       
       vector<double>::const_iterator it = vals->begin();
 
@@ -208,63 +216,257 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       // 	  Gauss3D->SetStrategy(0);
       Gauss3D->SetFCN(Gauss3DFunc);
       arglist[0] = 10000; // Max number of function calls
-      arglist[1] = 1e-5;  // Tolerance on likelihood
+      arglist[1] = 1e-6;  // Tolerance on likelihood
 
+//       cout << "\n@@@ START FITTING @@@" << endl;
+
+      // @@@ Fit at X-deltaMean | X | X+deltaMean @@@
+      bestEdm = 1.;
+      for (int i = 0; i < 3; i++)
+	{
+	  deltaMean = (double(i)-1.)*sqrt((*(it+0))*varFactor);
+// 	  cout << "deltaMean --> " << deltaMean << endl;
+
+	  Gauss3D->Clear();
+
+	  // arg3 - first guess of parameter value
+	  // arg4 - step of the parameter
+	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0, 0);
+	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0, 0);
+	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0, 0);
+	  Gauss3D->SetParameter(6,"mean x", *(it+6)+deltaMean, parDistance, 0, 0);
+	  Gauss3D->SetParameter(7,"mean y", *(it+7), parDistance, 0, 0);
+	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0, 0);
+
+	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  xPos = Gauss3D->GetParameter(6);
+	  yPos = Gauss3D->GetParameter(7);
+	  zPos = Gauss3D->GetParameter(8);
+
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
+	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+
+	  if (isnan(edm) == true) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  if (goodData == 0)
+	    {
+	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+	      if (det < 0.) goodData = -1;
+	    }
+
+	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementX = i; }
+	}
+//       cout << "Found bestMovementX --> " << bestMovementX << endl;
+
+      // @@@ Fit at Y-deltaMean | Y | Y+deltaMean @@@
+      bestEdm = 1.;
+      for (int i = 0; i < 3; i++)
+	{
+	  deltaMean = (double(i)-1.)*sqrt((*(it+1))*varFactor);
+// 	  cout << "deltaMean --> " << deltaMean << endl;
+// 	  cout << "deltaMean X --> " << (double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor) << endl;
+
+	  Gauss3D->Clear();
+
+	  // arg3 - first guess of parameter value
+	  // arg4 - step of the parameter
+	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0, 0);
+	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0, 0);
+	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0, 0);
+	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance, 0, 0);
+	  Gauss3D->SetParameter(7,"mean y", *(it+7)+deltaMean, parDistance, 0, 0);
+	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0, 0);
+
+	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  xPos = Gauss3D->GetParameter(6);
+	  yPos = Gauss3D->GetParameter(7);
+	  zPos = Gauss3D->GetParameter(8);
+
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
+	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+
+	  if (isnan(edm) == true) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  if (goodData == 0)
+	    {
+	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+	      if (det < 0.) goodData = -1;
+	    }
+
+	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementY = i; }
+	}
+//       cout << "Found bestMovementY --> " << bestMovementY << endl;
+
+      // @@@ Fit at Z-deltaMean | Z | Z+deltaMean @@@
+      bestEdm = 1.;
+      for (int i = 0; i < 3; i++)
+	{
+	  deltaMean = (double(i)-1.)*sqrt((*(it+2))*varFactor);
+// 	  cout << "deltaMean --> " << deltaMean << endl;
+// 	  cout << "deltaMean X --> " << (double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor) << endl;
+// 	  cout << "deltaMean Y --> " << (double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor) << endl;
+
+	  Gauss3D->Clear();
+
+	  // arg3 - first guess of parameter value
+	  // arg4 - step of the parameter
+	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0, 0);
+	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0, 0);
+	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0, 0);
+	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0, 0);
+	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance, 0, 0);
+	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0, 0);
+	  Gauss3D->SetParameter(8,"mean z", *(it+8)+deltaMean, parDistance, 0, 0);
+
+	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  xPos = Gauss3D->GetParameter(6);
+	  yPos = Gauss3D->GetParameter(7);
+	  zPos = Gauss3D->GetParameter(8);
+
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
+	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+
+	  if (isnan(edm) == true) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  if (goodData == 0)
+	    {
+	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+	      if (det < 0.) goodData = -1;
+	    }
+
+	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementZ = i; }
+	}
+//       cout << "Found bestMovementZ --> " << bestMovementZ << endl;
+
+      Gauss3D->Clear();
+
+      // @@@ FINAL FIT @@@
       // arg3 - first guess of parameter value
       // arg4 - step of the parameter
-      Gauss3D->SetParameter(0,"var x ", *(it+0), 0.0005, 0, 0);
-      Gauss3D->SetParameter(1,"var y ", *(it+1), 0.0005, 0, 0);
-      Gauss3D->SetParameter(2,"var z ", *(it+2), 0.0005, 0, 0);
-      Gauss3D->SetParameter(3,"cov xy", *(it+3), 0.0001, 0, 0);
-      Gauss3D->SetParameter(4,"cov yz", *(it+4), 0.0001, 0, 0);
-      Gauss3D->SetParameter(5,"cov xz", *(it+5), 0.0001, 0, 0);
-      Gauss3D->SetParameter(6,"mean x", *(it+6), 0.0005, 0, 0);
-      Gauss3D->SetParameter(7,"mean y", *(it+7), 0.0005, 0, 0);
-      Gauss3D->SetParameter(8,"mean z", *(it+8), 0.0005, 0, 0);
-
-      maxTransRadius = nSigma * sqrt(*(it+0) + *(it+1));
-      maxLongLength  = nSigma * sqrt(*(it+2));
-      xPos = *(it+6);
-      yPos = *(it+7);
-      zPos = *(it+8);
-
-      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-
+      Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance, 0, 0);
+      Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance, 0, 0);
+      Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance, 0, 0);
+      Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance, 0, 0);
+      Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance, 0, 0);
+      Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance, 0, 0);
+      Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance, 0, 0);
+      Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0, 0);
+      Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance, 0, 0);
+      
+      maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+      maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+      xPos = Gauss3D->GetParameter(6);
+      yPos = Gauss3D->GetParameter(7);
+      zPos = Gauss3D->GetParameter(8);
+      
+      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
       Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+      
       if (isnan(edm) == true) goodData = -1;
-      for (unsigned int i = 0; i < nParams; i++) if (isnan(Gauss3D->GetParError(i)) == true) { goodData = -1; break; }
-
-      for (unsigned int i = 0; i < nParams; i++)
+      else if (counterVx < minNentries) goodData = -1;
+      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+      if (goodData != 0)
 	{
-	  vals->operator[](i) = Gauss3D->GetParameter(i);
-	  vals->operator[](i+nParams) = Gauss3D->GetParError(i);
+	  Gauss3D->Clear();
+	  
+// 	  cout << "FIT WITH ENLARGED PARAMETER DISTANCES" << endl;      
+	  // @@@ FINAL FIT WITH ENLARGED PARAMETER DISTANCES @@@
+	  // arg3 - first guess of parameter value
+	  // arg4 - step of the parameter
+	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*100., 0, 0);
+	  Gauss3D->SetParameter(3,"cov xy", *(it+3), parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(4,"cov yz", *(it+4), parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(5,"cov xz", *(it+5), parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*5., 0, 0);
+	  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*50., 0, 0);
+      
+	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  xPos = Gauss3D->GetParameter(6);
+	  yPos = Gauss3D->GetParameter(7);
+	  zPos = Gauss3D->GetParameter(8);
+      
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
+	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+      
+	  if (isnan(edm) == true) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  if (goodData != 0)
+	    {
+	      Gauss3D->Clear();
+	  
+// 	      cout << "FIT WITH FURTHER ENLARGED PARAMETER DISTANCES" << endl;      
+	      // @@@ FINAL FIT WITH FURTHER ENLARGED PARAMETER DISTANCES @@@
+	      // arg3 - first guess of parameter value
+	      // arg4 - step of the parameter
+	      Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*500., 0, 0);
+	      Gauss3D->SetParameter(3,"cov xy", 0.0, parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(4,"cov yz", 0.0, parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(5,"cov xz", 0.0, parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*10., 0, 0);
+	      Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*100., 0, 0);
+      
+	      maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	      maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	      xPos = Gauss3D->GetParameter(6);
+	      yPos = Gauss3D->GetParameter(7);
+	      zPos = Gauss3D->GetParameter(8);
+      
+	      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
+	      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+      
+	      if (isnan(edm) == true) goodData = -1;
+	      else if (counterVx < minNentries) goodData = -1;
+	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	    }
 	}
 
-      det = fabs(*(it+0))*(fabs(*(it+1))*fabs(*(it+2))-(*(it+4))*(*(it+4))) - (*(it+3))*((*(it+3))*fabs(*(it+2))-(*(it+5))*(*(it+4))) + (*(it+5))*((*(it+3))*(*(it+4))-(*(it+5))*fabs(*(it+1)));
-
-      if ((goodData != 0) || (det < 0.))
+      if (goodData == 0)
 	{
-	  Gauss3D->SetParameter(3,"cov xy", 0.0, 0.0005, 0, 0);
-	  Gauss3D->SetParameter(4,"cov yz", 0.0, 0.0005, 0, 0);
-	  Gauss3D->SetParameter(5,"cov xz", 0.0, 0.0005, 0, 0);
-
-	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
-
-	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
-	  if (isnan(edm) == true) goodData = -1;
-	  for (unsigned int i = 0; i < nParams; i++) if (isnan(Gauss3D->GetParError(i)) == true) { goodData = -1; break; }
-	  
 	  for (unsigned int i = 0; i < nParams; i++)
 	    {
 	      vals->operator[](i) = Gauss3D->GetParameter(i);
 	      vals->operator[](i+nParams) = Gauss3D->GetParError(i);
 	    }
-	  
-	  det = fabs(*(it+0))*(fabs(*(it+1))*fabs(*(it+2))-(*(it+4))*(*(it+4))) - (*(it+3))*((*(it+3))*fabs(*(it+2))-(*(it+5))*(*(it+4))) + (*(it+5))*((*(it+3))*(*(it+4))-(*(it+5))*fabs(*(it+1)));
-
-	  if ((counterVx < minNentries) || (det < 0.)) goodData = -1;
+	  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+	    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+	    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+	  if (det < 0.) goodData = -1;
+	  else
+	    for (unsigned int i = 0; i < nParams; i++)
+	      {
+		vals->operator[](i) = Gauss3D->GetParameter(i);
+		vals->operator[](i+nParams) = Gauss3D->GetParError(i);
+	      }
 	}
-
+      
       delete Gauss3D;
       return goodData;
     }
@@ -442,44 +644,17 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock,
 void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 					 const EventSetup& iSetup)
 {
-  int goodData = -1;
+  unsigned int nParams = 9;
+  int goodData;
 
   if ((lumiCounter%nLumiReset == 0) && (nLumiReset != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
-    {
-      TF1* Gauss = new TF1("Gauss", "gaus");
-
-      mXlumi->ShiftFillLast(Vx_X->getTH1F()->GetMean(), Vx_X->getTH1F()->GetMeanError(), nLumiReset);
-      mYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetMean(), Vx_Y->getTH1F()->GetMeanError(), nLumiReset);
-      mZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetMean(), Vx_Z->getTH1F()->GetMeanError(), nLumiReset);
-      
-      sXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS(), Vx_X->getTH1F()->GetRMSError(), nLumiReset);
-      sYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS(), Vx_Y->getTH1F()->GetRMSError(), nLumiReset);
-      sZlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS(), Vx_Z->getTH1F()->GetRMSError(), nLumiReset);
-      
-//       Gauss->SetParameters(Vx_X->getTH1()->GetMaximum(), Vx_X->getTH1()->GetMean(), Vx_X->getTH1()->GetRMS());
-//       Vx_X->getTH1()->Fit("Gauss","LQN0");
-//       RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2),
-// 				 Vx_X->getTH1F()->GetRMS() / Gauss->GetParameter(2) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
-// 											   powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
-//       Gauss->SetParameters(Vx_Y->getTH1()->GetMaximum(), Vx_Y->getTH1()->GetMean(), Vx_Y->getTH1()->GetRMS());
-//       Vx_Y->getTH1()->Fit("Gauss","LQN0");
-//       RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2),
-// 				 Vx_Y->getTH1F()->GetRMS() / Gauss->GetParameter(2) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
-// 											   powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
-//       Gauss->SetParameters(Vx_Z->getTH1()->GetMaximum(), Vx_Z->getTH1()->GetMean(), Vx_Z->getTH1()->GetRMS());
-//       Vx_Z->getTH1()->Fit("Gauss","LQN0");
-//       RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2),
-// 				 Vx_Z->getTH1F()->GetRMS() / Gauss->GetParameter(2) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
-// 											   powf(Gauss->GetParError(2) / Gauss->GetParError(2),2.)), nLumiReset);
-      
-      // Write the 8 beam spot parameters into a file
+    {            
       endTimeOfFit = lumiBlock.endTime().value();
       endLumiOfFit = lumiBlock.luminosityBlock();
       vector<double> vals;
 
       if (dataFromFit == true)
 	{
-	  unsigned int nParams = 9;
 	  double dxdz, dydz;
 	  vector<double> fitResults;
 
@@ -494,9 +669,10 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  fitResults.push_back(Vx_Z->getTH1()->GetMean());
 	  for (unsigned int i = 0; i < nParams; i++) fitResults.push_back(0.0);
 	  
-	  goodData = MyFit(&fitResults);
-	  	      
-//  	  cout << "Used vertices: " << counterVx << endl;
+	  goodData = MyFit(&fitResults);	  	      
+
+// 	  cout << "goodData --> " << goodData << endl;
+//  	  cout << "Used vertices --> " << counterVx << endl;
 // 	  cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0+nParams] << endl;
 // 	  cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
 // 	  cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
@@ -506,24 +682,11 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 // 	  cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6+nParams] << endl;
 // 	  cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7+nParams] << endl;
 // 	  cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8+nParams] << endl;
-	  
+
 	  if (goodData == 0)
 	    {		 
 	      dxdz = (fitResults[3]*fitResults[4] + fitResults[5]*(fitResults[2] - fitResults[1])) / ((fitResults[2]-fitResults[1])*(fitResults[2]-fitResults[0]) - fitResults[3]*fitResults[3]);
 	      dydz = (fitResults[3]*fitResults[5] + fitResults[4]*(fitResults[2] - fitResults[0])) / ((fitResults[2]-fitResults[1])*(fitResults[2]-fitResults[0]) - fitResults[3]*fitResults[3]);
-
-	      RMSsigXlumi->ShiftFillLast(Vx_X->getTH1F()->GetRMS() / sqrt(fabs(fitResults[0])),
-					 Vx_X->getTH1F()->GetRMS() / sqrt(fabs(fitResults[0])) * sqrt(powf(Vx_X->getTH1F()->GetRMSError() / Vx_X->getTH1F()->GetRMS(),2.) +
-												      fabs(fitResults[0+nParams]) / fabs(fitResults[0])), nLumiReset);
-	      RMSsigYlumi->ShiftFillLast(Vx_Y->getTH1F()->GetRMS() / sqrt(fabs(fitResults[1])),
-					 Vx_Y->getTH1F()->GetRMS() / sqrt(fabs(fitResults[1])) * sqrt(powf(Vx_Y->getTH1F()->GetRMSError() / Vx_Y->getTH1F()->GetRMS(),2.) +
-												      fabs(fitResults[1+nParams]) / fabs(fitResults[1])), nLumiReset);
-	      RMSsigXlumi->ShiftFillLast(Vx_Z->getTH1F()->GetRMS() / sqrt(fabs(fitResults[2])),
-					 Vx_Z->getTH1F()->GetRMS() / sqrt(fabs(fitResults[2])) * sqrt(powf(Vx_Z->getTH1F()->GetRMSError() / Vx_Z->getTH1F()->GetRMS(),2.) +
-												      fabs(fitResults[2+nParams]) / fabs(fitResults[2])), nLumiReset);
-	      
-	      dxdzlumi->ShiftFillLast(dxdz, 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
-	      dydzlumi->ShiftFillLast(dydz, 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
 		  
 	      vals.push_back(fitResults[6]);
 	      vals.push_back(fitResults[7]);
@@ -549,32 +712,39 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	}
       else
 	{
-	  if (Vx_X->getTH1F()->GetEntries() >= minNentries) goodData = 0;
-	  else goodData = -1;
-
-	  vals.push_back(Vx_X->getTH1F()->GetMean());
-	  vals.push_back(Vx_Y->getTH1F()->GetMean());
-	  vals.push_back(Vx_Z->getTH1F()->GetMean());
-	  vals.push_back(Vx_Z->getTH1F()->GetRMS());
-	  vals.push_back(0.);
-	  vals.push_back(0.);
-	  vals.push_back(Vx_X->getTH1F()->GetRMS());
-	  vals.push_back(Vx_Y->getTH1F()->GetRMS());
-
-	  vals.push_back(Vx_X->getTH1F()->GetMeanError()*Vx_X->getTH1F()->GetMeanError());
-	  vals.push_back(Vx_Y->getTH1F()->GetMeanError()*Vx_Y->getTH1F()->GetMeanError());
-	  vals.push_back(Vx_Z->getTH1F()->GetMeanError()*Vx_Z->getTH1F()->GetMeanError());
-	  vals.push_back(Vx_Z->getTH1F()->GetRMSError()*Vx_Z->getTH1F()->GetRMSError());
-	  vals.push_back(0.);
-	  vals.push_back(0.);
-	  vals.push_back(Vx_X->getTH1F()->GetRMSError()*Vx_X->getTH1F()->GetRMSError());
-	  vals.push_back(Vx_Y->getTH1F()->GetRMSError()*Vx_Y->getTH1F()->GetRMSError());
+	  if (Vx_X->getTH1F()->GetEntries() >= minNentries)
+	    {
+	    goodData = 0;
+	    
+	    vals.push_back(Vx_X->getTH1F()->GetMean());
+	    vals.push_back(Vx_Y->getTH1F()->GetMean());
+	    vals.push_back(Vx_Z->getTH1F()->GetMean());
+	    vals.push_back(Vx_Z->getTH1F()->GetRMS());
+	    vals.push_back(0.);
+	    vals.push_back(0.);
+	    vals.push_back(Vx_X->getTH1F()->GetRMS());
+	    vals.push_back(Vx_Y->getTH1F()->GetRMS());
+	    
+	    vals.push_back(Vx_X->getTH1F()->GetMeanError()*Vx_X->getTH1F()->GetMeanError());
+	    vals.push_back(Vx_Y->getTH1F()->GetMeanError()*Vx_Y->getTH1F()->GetMeanError());
+	    vals.push_back(Vx_Z->getTH1F()->GetMeanError()*Vx_Z->getTH1F()->GetMeanError());
+	    vals.push_back(Vx_Z->getTH1F()->GetRMSError()*Vx_Z->getTH1F()->GetRMSError());
+	    vals.push_back(0.);
+	    vals.push_back(0.);
+	    vals.push_back(Vx_X->getTH1F()->GetRMSError()*Vx_X->getTH1F()->GetRMSError());
+	    vals.push_back(Vx_Y->getTH1F()->GetRMSError()*Vx_Y->getTH1F()->GetRMSError());
+	    }
+	  else
+	    {
+	      goodData = -1;
+	      for (unsigned int i = 0; i < 8*2; i++) vals.push_back(0.0);
+	    }
 	}
 
       if (goodData == 0)
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
-// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
+	  outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(1.0);
 	  reportSummaryMap->Fill(0.5, 0.5, 1.0);
@@ -584,7 +754,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       else
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
-// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
+	  outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
@@ -592,8 +762,18 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  if (lumiCounter == maxLumiIntegration) reset();
 	}
 
+      mXlumi->ShiftFillLast(vals[0], vals[0+nParams], nLumiReset);
+      mYlumi->ShiftFillLast(vals[1], vals[1+nParams], nLumiReset);
+      mZlumi->ShiftFillLast(vals[2], vals[2+nParams], nLumiReset);
+      
+      sXlumi->ShiftFillLast(vals[6], vals[6+nParams], nLumiReset);
+      sYlumi->ShiftFillLast(vals[7], vals[7+nParams], nLumiReset);
+      sZlumi->ShiftFillLast(vals[3], vals[3+nParams], nLumiReset);
+      
+      dxdzlumi->ShiftFillLast(vals[4], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dydzlumi->ShiftFillLast(vals[5], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      
       vals.clear();
-      delete Gauss;
     }
   else if (nLumiReset == 0) lumiCounter = 0;
 }
@@ -656,20 +836,6 @@ void Vx3DHLTAnalyzer::beginJob()
       dydzlumi->setAxisTitle("Lumisection [#]",1);
       dydzlumi->setAxisTitle("dydz [deg]",2);
       dydzlumi->getTH1()->SetOption("E1");
-
-      RMSsigXlumi = dbe->book1D("RMS_over_sigma X vs lumi", "RMS_{x}/\\sigma_{x} vs. Lumisection", 50, 0.5, 50.5);
-      RMSsigYlumi = dbe->book1D("RMS_over_sigma Y vs lumi", "RMS_{y}/\\sigma_{y} vs. Lumisection", 50, 0.5, 50.5);
-      RMSsigZlumi = dbe->book1D("RMS_over_sigma Z vs lumi", "RMS_{z}/\\sigma_{z} vs. Lumisection", 50, 0.5, 50.5);
-
-      RMSsigXlumi->setAxisTitle("Lumisection [#]",1);
-      RMSsigXlumi->setAxisTitle("RMS_{x}/\\sigma_{x}",2);
-      RMSsigXlumi->getTH1()->SetOption("E1");
-      RMSsigYlumi->setAxisTitle("Lumisection [#]",1);
-      RMSsigYlumi->setAxisTitle("RMS_{y}/\\sigma_{y}",2);
-      RMSsigYlumi->getTH1()->SetOption("E1");
-      RMSsigZlumi->setAxisTitle("Lumisection [#]",1);
-      RMSsigZlumi->setAxisTitle("RMS_{z}/\\sigma_{z}",2);
-      RMSsigZlumi->getTH1()->SetOption("E1");
 
       Vx_ZX = dbe->book2D("Vertex_ZX", "Primary Vertex ZX Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2.);
       Vx_ZY = dbe->book2D("Vertex_ZY", "Primary Vertex ZY Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
