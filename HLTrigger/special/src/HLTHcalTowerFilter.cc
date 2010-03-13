@@ -88,7 +88,7 @@ HLTHcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
    }
 
    // filter decision
-   bool accept(n<=max_N_);
+   bool accept(n<max_N_);
 
    // put filter object into the Event
    event.put(filterobject);
