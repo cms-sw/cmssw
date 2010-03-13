@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.5 2010/01/29 21:15:05 chamont Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.6 2010/03/12 13:18:47 charlot Exp $
 //
 //
 
@@ -56,12 +56,12 @@
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
-      useRecoVertex_(pset.getParameter<bool>("useRecoVertex")),
-      verticesTag_(pset.getParameter<edm::InputTag>("vertices")),
+      useRecoVertex_(false),
+      verticesTag_("offlinePrimaryVerticesWithBS"),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
       nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
-      deltaZ1WithVertex_(pset.getParameter<double>("deltaZ1WithVertex")),
+      deltaZ1WithVertex_(0.5),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
       phimin2_(pset.getParameter<double>("PhiMin2")),
       phimax2_(pset.getParameter<double>("PhiMax2")),
@@ -72,9 +72,17 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
       thePropagator(0), theMeasurementTracker(0),
       theSetup(0), pts_(0),
       cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
-{
-     // Instantiate the pixel hit matchers
+ {
+  // use of reco vertex
+  if (pset.exists("useRecoVertex"))
+   { useRecoVertex_ = pset.getParameter<bool>("useRecoVertex") ; }
+  if (pset.exists("vertices"))
+   { verticesTag_ = pset.getParameter<edm::InputTag>("vertices") ; }
+  if (pset.exists("deltaZ1WithVertex"))
+   { deltaZ1WithVertex_ = pset.getParameter<double>("deltaZ1WithVertex") ; }
 
+
+  // Instantiate the pixel hit matchers
   myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"),
 				    pset.getParameter<double>("ePhiMax1"),
 				    pset.getParameter<double>("PhiMin2"),
@@ -169,10 +177,10 @@ void  ElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, co
 
   // get the beamspot from the Event:
   e.getByType(theBeamSpot);
-  
+
   // if required get the vertices
   if (useRecoVertex_) e.getByLabel(verticesTag_,theVertices);
-    
+
   if (!fromTrackerSeeds_)
    { theMeasurementTracker->update(e) ; }
 
@@ -312,12 +320,12 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
 	result.push_back(seed);
       }
     }
-  
+
   } else { // here we use the reco vertices
-    
+
     const  std::vector<reco::Vertex> * vtxCollection = theVertices.product() ;
     std::vector<reco::Vertex>::const_iterator vtxIter ;
-    for (vtxIter = vtxCollection->begin(); vtxIter != vtxCollection->end() ; vtxIter++) {     
+    for (vtxIter = vtxCollection->begin(); vtxIter != vtxCollection->end() ; vtxIter++) {
 
       GlobalPoint vertexPos(vtxIter->position().x(),vtxIter->position().y(),vtxIter->position().z());
       if (vertexPos.z()==theBeamSpot->position().z()) { // in case vetex not found
@@ -338,10 +346,10 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
 
       myMatchEle->set1stLayerZRange(zmin1_,zmax1_);
       myMatchPos->set1stLayerZRange(zmin1_,zmax1_);
-      
+
       myMatchEle->setUseRecoVertex(true); //Hit matchers need to know that the vertex is known
       myMatchPos->setUseRecoVertex(true);
-      
+
       // try electron
       double aCharge=-1.;
 
@@ -411,10 +419,10 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
 	  result.push_back(seed);
 	}
       }
-    
-    }     
+
+    }
   }
-  
+
   return ;
 }
 
