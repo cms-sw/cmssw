@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
@@ -35,7 +35,7 @@ using namespace edm;
 
 RPCMonitorRaw::~RPCMonitorRaw() { LogTrace("") << "RPCMonitorRaw destructor"; }
 
-void RPCMonitorRaw::beginJob( const edm::EventSetup& )
+void RPCMonitorRaw::beginJob()
 {
 
 // Get DQM interface

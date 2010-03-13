@@ -21,6 +21,8 @@
 <use name=DataFormats/FEDRawData>
 
 <use name=CondFormats/RunInfo>
+<use name=Utilities/Timing>
+
 
 <export>
   <lib name=DQMRPCMonitorClient> 
