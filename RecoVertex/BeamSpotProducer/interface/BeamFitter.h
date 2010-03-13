@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.17 2010/02/20 02:49:00 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.18 2010/03/12 21:45:35 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -43,7 +43,7 @@ class BeamFitter {
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
-  void dumpTxtFile();
+  void dumpTxtFile(std::string &,bool);
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }
@@ -65,11 +65,14 @@ class BeamFitter {
   reco::BeamSpot fbeamspot;
   BSFitter *fmyalgo;
   std::ofstream fasciiFile;
+  std::ofstream fasciiFileBak;
 
   bool debug_;
   edm::InputTag tracksLabel_;
   bool writeTxt_;
+  bool writeTxtBak_;
   std::string outputTxt_;
+  std::string outputTxtBak_;
   double trk_MinpT_;
   double trk_MaxZ_;
   double trk_MaxEta_;
@@ -145,6 +148,10 @@ class BeamFitter {
   double fsigmaZErr;
   double fdxdzErr;
   double fdydzErr;
+  double fwidthX;
+  double fwidthY;
+  double fwidthXErr;
+  double fwidthYErr;
 
   TH1F *h1ntrks;
   TH1F *h1vz_event;

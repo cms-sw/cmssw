@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.34 2010/03/03 20:17:47 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.35 2010/03/12 21:45:36 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -53,6 +53,8 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   tracksLabel_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<edm::InputTag>("TrackCollection");
   writeTxt_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteAscii");
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
+  writeTxtBak_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("BackupAscii");
+  outputTxtBak_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("BackupFileName");
   saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveNtuple");
   saveBeamFit_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveFitResults");
   isMuon_            = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("IsMuonCollection");
@@ -74,10 +76,6 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
     algorithm_.push_back(reco::TrackBase::algoByName(trk_Algorithm_[j]));
   for (unsigned int j=0;j<trk_Quality_.size();j++)
     quality_.push_back(reco::TrackBase::qualityByName(trk_Quality_[j]));
-
-  //dump to file
-  if (writeTxt_)
-    fasciiFile.open(outputTxt_.c_str());
   
   if (saveNtuple_ || saveBeamFit_) {
     outputfilename_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("OutputFileName");
@@ -139,6 +137,10 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
     ftreeFit_->Branch("sigmaZErr",&fsigmaZErr,"fsigmaZErr/D");
     ftreeFit_->Branch("dxdzErr",&fdxdzErr,"fdxdzErr/D");
     ftreeFit_->Branch("dydzErr",&fdydzErr,"fdydzErr/D");
+    ftreeFit_->Branch("widthX",&fwidthX,"fwidthX/D");
+    ftreeFit_->Branch("widthY",&fwidthY,"fwidthY/D");
+    ftreeFit_->Branch("widthXErr",&fwidthXErr,"fwidthXErr/D");
+    ftreeFit_->Branch("widthYErr",&fwidthYErr,"fwidthYErr/D");
   }
   
   fBSvector.clear();
@@ -192,6 +194,19 @@ BeamFitter::~BeamFitter() {
 void BeamFitter::readEvent(const edm::Event& iEvent)
 {
 
+  //open txt files at begin of run
+  if (frun == -1) {
+    if (writeTxt_)
+      fasciiFile.open(outputTxt_.c_str());
+    if (writeTxtBak_) {
+      std::string tmpname = outputTxtBak_;
+      char index[15];
+      sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
+      tmpname.insert(outputTxtBak_.length()-4,index);
+      fasciiFileBak.open(tmpname.c_str());
+      outputTxtBak_ = tmpname;
+    }
+  }
   frun = iEvent.id().run();
   edm::TimeValue_t ftimestamp = iEvent.time().value();
   edm::TimeValue_t fdenom = pow(2,32);
@@ -201,17 +216,11 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   if (fbeginLumiOfFit == -1) sprintf(fbeginTimeOfFit,"%s",fendTimeOfFit);
 
-//   std::cout << ftmptime << " seconds and " << time_t(ftimestamp);
-//   std::cout << " micro-seconds elapsed since Jan 1, 1970 00:00:00" << std::endl;
-//   std::cout << fbeginTimeOfFit << std::endl;
-//   std::cout << fendTimeOfFit << std::endl;
-
   flumi = iEvent.luminosityBlock();
   frunFit = frun;
 
   if (fbeginLumiOfFit == -1 || fbeginLumiOfFit > flumi) fbeginLumiOfFit = flumi;
   if (fendLumiOfFit == -1 || fendLumiOfFit < flumi) fendLumiOfFit = flumi;
-//   std::cout << "flumi = " <<flumi<<"; fbeginLumiOfFit = " << fbeginLumiOfFit <<"; fendLumiOfFit = "<<fendLumiOfFit<<std::endl;
 
   edm::Handle<reco::TrackCollection> TrackCollection;
   iEvent.getByLabel(tracksLabel_, TrackCollection);
@@ -393,7 +402,7 @@ bool BeamFitter::runFitter() {
     myalgo->SetConvergence( convergence_ );
     myalgo->SetMinimumNTrks(min_Ntrks_);
     if (inputBeamWidth_ > 0 ) myalgo->SetInputBeamWidth( inputBeamWidth_ );
-	
+
     fbeamspot = myalgo->Fit();
 
     if ( MyPVFitter->runFitter() ) {
@@ -422,11 +431,12 @@ bool BeamFitter::runFitter() {
       
     }
 
-    if(writeTxt_) dumpTxtFile();
+    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,false); // for DQM/DIP
+    if(writeTxtBak_ && fasciiFileBak.is_open()) dumpTxtFile(outputTxtBak_,true); // for debug
 
     // retrieve histogram for Vz
     h1z = (TH1F*) myalgo->GetVzHisto();
-		
+
     delete myalgo;
     if ( fbeamspot.type() != 0 ) {// not Fake
       fit_ok = true;
@@ -437,12 +447,16 @@ bool BeamFitter::runFitter() {
 	fsigmaZ = fbeamspot.sigmaZ();
 	fdxdz = fbeamspot.dxdz();
 	fdydz = fbeamspot.dydz();
+	fwidthX = fbeamspot.BeamWidthX();
+	fwidthY = fbeamspot.BeamWidthY();
 	fxErr = fbeamspot.x0Error();
 	fyErr = fbeamspot.y0Error();
 	fzErr = fbeamspot.z0Error();
 	fsigmaZErr = fbeamspot.sigmaZ0Error();
 	fdxdzErr = fbeamspot.dxdzError();
 	fdydzErr = fbeamspot.dydzError();
+	fwidthXErr = fbeamspot.BeamWidthXError();
+	fwidthYErr = fbeamspot.BeamWidthYError();
 	ftreeFit_->Fill();
       }
     }
@@ -455,43 +469,49 @@ bool BeamFitter::runFitter() {
   return fit_ok;
 }
 
-void BeamFitter::dumpTxtFile(){
+void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
+  std::ofstream outFile;
+  if (!append)
+    outFile.open(fileName.c_str());
+  else
+    outFile.open(fileName.c_str(),std::ios::app);
 
-  fasciiFile << "Runnumber " << frun << std::endl;
-  fasciiFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
-  fasciiFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
-  fasciiFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
-  fasciiFile << "Type " << fbeamspot.type() << std::endl;
-  fasciiFile << "X0 " << fbeamspot.x0() << std::endl;
-  fasciiFile << "Y0 " << fbeamspot.y0() << std::endl;
-  fasciiFile << "Z0 " << fbeamspot.z0() << std::endl;
-  fasciiFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
-  fasciiFile << "dxdz " << fbeamspot.dxdz() << std::endl;
-  fasciiFile << "dydz " << fbeamspot.dydz() << std::endl;
+  outFile << "Runnumber " << frun << std::endl;
+  outFile << "BeginTimeOfFit " << fbeginTimeOfFit << std::endl;
+  outFile << "EndTimeOfFit " << fendTimeOfFit << std::endl;
+  outFile << "LumiRange " << fbeginLumiOfFit << " - " << fendLumiOfFit << std::endl;
+  outFile << "Type " << fbeamspot.type() << std::endl;
+  outFile << "X0 " << fbeamspot.x0() << std::endl;
+  outFile << "Y0 " << fbeamspot.y0() << std::endl;
+  outFile << "Z0 " << fbeamspot.z0() << std::endl;
+  outFile << "sigmaZ0 " << fbeamspot.sigmaZ() << std::endl;
+  outFile << "dxdz " << fbeamspot.dxdz() << std::endl;
+  outFile << "dydz " << fbeamspot.dydz() << std::endl;
   if (inputBeamWidth_ > 0 ) {
-    fasciiFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
-    fasciiFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
+    outFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
+    outFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
   } else {
-    fasciiFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
-    fasciiFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
+    outFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
+    outFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
   }
 	
   for (int i = 0; i<6; ++i) {
-    fasciiFile << "Cov("<<i<<",j) ";
+    outFile << "Cov("<<i<<",j) ";
     for (int j=0; j<7; ++j) {
-      fasciiFile << fbeamspot.covariance(i,j) << " ";
+      outFile << fbeamspot.covariance(i,j) << " ";
     }
-    fasciiFile << std::endl;
+    outFile << std::endl;
   }
   // beam width error
   if (inputBeamWidth_ > 0 ) {
-    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
+    outFile << "Cov(6,j) 0 0 0 0 0 0 " << "1e-4" << std::endl;
   } else {
-    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
+    outFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
   }
-  fasciiFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
-  fasciiFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
-  fasciiFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+  outFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
+  outFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
+  outFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+  outFile.close();
 }
 
 void BeamFitter::write2DB(){
