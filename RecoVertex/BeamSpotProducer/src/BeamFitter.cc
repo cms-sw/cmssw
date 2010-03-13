@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.35 2010/03/12 21:45:36 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.36 2010/03/13 15:11:12 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -152,6 +152,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   fquality = falgo = true;
   fpvValid = true;
   fpvx = fpvy = fpvz = 0;
+  fitted_ = false;
   
   //debug histograms
   h1ntrks = new TH1F("h1ntrks","number of tracks per event",50,0,50);
@@ -176,7 +177,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 BeamFitter::~BeamFitter() {
   if (saveNtuple_) {
     file_->cd();
-    if (h1z) h1z->Write();
+    if (fitted_ && h1z) h1z->Write();
     h1ntrks->Write();
     h1vz_event->Write();
     if (h1cutFlow) h1cutFlow->Write();
@@ -356,8 +357,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 			std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
 		      }
 		      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
-		      //BSTrk.setVx(fvx);
-		      //BSTrk.setVy(fvy);
+		      BSTrk.setVx(fvx);
+		      BSTrk.setVy(fvy);
 		      fBSvector.push_back(BSTrk);
 		      averageZ += fz0;
 		    }
@@ -465,7 +466,7 @@ bool BeamFitter::runFitter() {
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
   }
-
+  fitted_ = true;
   return fit_ok;
 }
 

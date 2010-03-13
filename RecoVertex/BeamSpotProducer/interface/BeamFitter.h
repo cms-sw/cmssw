@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.18 2010/03/12 21:45:35 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.19 2010/03/13 15:11:12 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -89,7 +89,8 @@ class BeamFitter {
   int ftotal_tracks;
   int min_Ntrks_;
   bool isMuon_;
-  
+  bool fitted_;
+
   // ntuple
   TH1F* h1z;
   bool saveNtuple_;
