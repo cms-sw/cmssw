@@ -129,16 +129,16 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     hadTiming_HB = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HB" ) ;
-    emEnergyTiming_HB = dbe_->book2D(histo, histo, 400, 0. , 4000., 200, -100., 100.  ) ;
+    emEnergyTiming_HB = dbe_->book2D(histo, histo, 4000, 0. , 4000., 200, -100., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HB" ) ;
-    hadEnergyTiming_HB = dbe_->book2D(histo, histo, 400, 0. , 4000., 200, -100., 100. ) ;
+    hadEnergyTiming_HB = dbe_->book2D(histo, histo, 4000, 0. , 4000., 200, -100., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HB" ) ;
-    emEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 400, 0. , 4000., 200, -100., 100.  ) ;
+    emEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 4000, 0. , 4000., 200, -100., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HB" ) ;
-    hadEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 400, 0. , 4000., 200, -100., 100. ) ;
+    hadEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 4000, 0. , 4000., 200, -100., 100. ) ;
   }
 
   if( isub == 2 || isub == 0) {
@@ -189,16 +189,16 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     hadTiming_HE = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HE" ) ;
-    emEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 2000., 200, -100., 100.  ) ;
+    emEnergyTiming_HE = dbe_->book2D(histo, histo, 2000, 0. , 2000., 200, -100., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HE" ) ;
-    hadEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 2000., 200, -100., 100. ) ;
+    hadEnergyTiming_HE = dbe_->book2D(histo, histo, 2000, 0. , 2000., 200, -100., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HE" ) ;
-    emEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 2000., 200, -100., 100.  ) ;
+    emEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 2000, 0. , 2000., 200, -100., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HE" ) ;
-    hadEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 2000., 200, -100., 100. ) ;
+    hadEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 2000, 0. , 2000., 200, -100., 100. ) ;
   }
 
 
@@ -250,16 +250,16 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
     hadTiming_HF = dbe_->book1D(histo, histo, 200, -100., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HF" ) ;
-    emEnergyTiming_HF = dbe_->book2D(histo, histo, 100, 0. , 500., 200, -100., 100.  ) ;
+    emEnergyTiming_HF = dbe_->book2D(histo, histo, 500, 0. , 500., 200, -100., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HF" ) ;
-    hadEnergyTiming_HF = dbe_->book2D(histo, histo, 100, 0. , 500., 200, -100., 100. ) ;
+    hadEnergyTiming_HF = dbe_->book2D(histo, histo, 500, 0. , 500., 200, -100., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HF" ) ;
-    emEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 100, 0. , 500., 200, -100., 100.  ) ;
+    emEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 500, 0. , 500., 200, -100., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HF" ) ;
-    hadEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 100, 0. , 500., 200, -100., 100. ) ;
+    hadEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 500, 0. , 500., 200, -100., 100. ) ;
   }
 
 }
