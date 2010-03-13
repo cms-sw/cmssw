@@ -15,12 +15,22 @@ hltMonMuDQM = cms.EDAnalyzer("HLTMuonDQMSource",
     	# L2 muon
 	cms.PSet(
 		directoryName = cms.string('L2PassThrough'),
-		triggerBits = cms.vstring('HLT_L2Mu3','HLT_L2Mu9','HLT_L2Mu0_NoVertex')
+		triggerBits = cms.vstring('HLT_L2Mu9','HLT_L2Mu11')
 	),
     	# L3 muon
 	cms.PSet(
 		directoryName = cms.string('L3Triggers'),
-		triggerBits = cms.vstring('HLT_Mu3','HLT_Mu5','HLT_Mu9','HLT_TkMu3_NoVertex')
+		triggerBits = cms.vstring('HLT_Mu3','HLT_Mu5','HLT_Mu9')
+	),
+    	# DoubleMu
+	cms.PSet(
+		directoryName = cms.string('DoubleMu'),
+		triggerBits = cms.vstring('HLT_L1DoubleMuOpen','HLT_DoubleMu0','HLT_DoubleMu3')
+	),
+	# No tracker
+	cms.PSet(
+		directoryName = cms.string('Cosmics'),
+		triggerBits = cms.vstring('HLT_L2Mu0_NoVertex','HLT_TkMu3_NoVertex')
 	)
     	# JetStream
 	#cms.PSet(
