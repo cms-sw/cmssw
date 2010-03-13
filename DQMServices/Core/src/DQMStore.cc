@@ -181,6 +181,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
+  initQCriterion<ValToMean>(qalgos_);
 }
 
 DQMStore::~DQMStore(void)

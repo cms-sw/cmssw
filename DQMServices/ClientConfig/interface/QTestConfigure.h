@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2008/05/13 13:12:00 $
- *  $Revision: 1.8.2.6 $
+ *  $Date: 2008/05/14 12:38:46 $
+ *  $Revision: 1.9 $
  *  \author Ilaria Segoni
   */
 
@@ -85,6 +85,9 @@ class QTestConfigure{
 //  void EnableContentsWithinExpectedASTest(std::string testName,
 //                                        std::map<std::string,std::string> params,DQMStore * bei);
 
+  ///Creates ValToMean test
+  void EnableValToMeanTest(std::string testName,
+                           std::map<std::string,std::string> params,DQMStore * bei); 
 
  private:
   std::vector<std::string> testsConfigured;

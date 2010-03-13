@@ -1247,3 +1247,134 @@ void MeanWithinExpected::useRMS()
   useRMS_ = true;
   useSigma_ = useRange_ = false;
 }
+
+//----------------------------------------------------------------//
+//------------------------  ValToMean  ---------------------------//
+//----------------------------------------------------------------//
+/* 
+Test for TProfile2D
+For each x bin, the median value is calculated and then each value is compared with the median.
+This procedure is repeated for each x-bin of the 2D profile
+The parameters used for this comparison are:
+MinRel and MaxRel to identify outliers wrt the median value
+An absolute value (MinAbs, MaxAbs) on the median is used to identify a full region out of specification 
+*/
+float ValToMean::runTest(const MonitorElement *me){
+  int32_t nbins=0, failed=0;
+  badChannels_.clear();
+
+  if (!me)
+    return -1;
+  if (!me->getRootObject())
+    return -1;
+  TH1* h=0;
+
+  if (verbose_>1){
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on "
+              << me-> getFullname() << "\n";
+    std::cout << "\tMin = " << _min << "; Max = " << _max << "\n";
+    std::cout << "\tMinMedian = " << _minMed << "; MaxMedian = " << _maxMed << "\n";
+    std::cout << "\tUseEmptyBins = " << (_emptyBins?"Yes":"No" )<< "\n";
+  }
+
+  if (me->kind()==MonitorElement::DQM_KIND_TPROFILE2D)
+    {
+      h  = me->getTProfile2D(); // access Test histo
+    }
+  else
+    {
+      if (verbose_>0) 
+        std::cout << "QTest:ContentsWithinExpected" 
+	 << " ME does not contain TPROFILE2D, exiting\n"; 
+      return -1;
+    }
+  
+  nBinsX = h->GetNbinsX();
+  nBinsY = h->GetNbinsY();
+  int entries;
+  float median = 0.0;
+
+  //Median calculated with partially sorted vector
+  for (int binX = 1; binX <= nBinsX; binX++ ){
+    reset();
+    // Fill vector
+    for (int binY = 1; binY <= nBinsY; binY++){
+      int bin = h->GetBin(binX, binY);
+      double content = (double)h->GetBinContent(bin);
+      entries = me->getTProfile2D()->GetBinEntries(bin);
+      if ( content == 0 && !_emptyBins)
+	continue;
+      binValues.push_back(content);
+    }
+    if (binValues.empty())
+      continue;
+    nbins+=binValues.size();
+
+    //calculate median
+    if(binValues.size()>0){
+      int medPos = (int)binValues.size()/2;
+      nth_element(binValues.begin(),binValues.begin()+medPos,binValues.end());
+      median = *(binValues.begin()+medPos);
+    }
+
+    // if median == 0, use the absolute cut
+    if(median == 0){
+      if (verbose_ > 0){
+        std::cout << "QTest: Median is 0; the fixed cuts: [" << _minMed << "; " << _maxMed << "]  are used\n";
+      }
+      for(int  binY = 1; binY <= nBinsY; binY++){
+        int bin = h->GetBin(binX, binY);
+        double content = (double)h->GetBinContent(bin);
+	entries = me->getTProfile2D()->GetBinEntries(bin);
+	if ( entries == 0 )
+          continue;
+	if (content > _maxMed || content < _minMed){ 
+	    DQMChannel chan(binX,binY, 0, content, h->GetBinError(bin));
+	    badChannels_.push_back(chan);
+	    failed++;
+	}
+      }
+      continue;
+    }
+     
+    // If median is off the absolute cuts, declare everything bad (if bin has non zero entries)
+    if(median > _maxMed || median < _minMed){
+      for(int  binY = 1; binY <= nBinsY; binY++){
+        int bin = h->GetBin(binX, binY);
+        double content = (double)h->GetBinContent(bin);
+	entries = me->getTProfile2D()->GetBinEntries(bin);
+         if ( entries == 0 )
+          continue;
+	 DQMChannel chan(binX,binY, 0, content/median, h->GetBinError(bin));
+	 badChannels_.push_back(chan);
+	 failed++;
+      }
+      continue;
+    }
+
+    // Test itself  
+    float minCut = median*_min;
+    float maxCut = median*_max;
+    for(int  binY = 1; binY <= nBinsY; binY++){
+        int bin = h->GetBin(binX, binY);
+        double content = (double)h->GetBinContent(bin);
+	entries = me->getTProfile2D()->GetBinEntries(bin);
+        if ( entries == 0 )
+          continue;
+        if (content > maxCut || content < minCut){
+          DQMChannel chan(binX,binY, 0, content/median, h->GetBinError(bin));
+          badChannels_.push_back(chan);
+          failed++;
+        }
+    }
+  }
+
+  if (nbins==0){
+    if (verbose_ > 0)
+      std::cout << "QTest:ValToMean: Histogram is empty" << std::endl;
+    return 1.;
+    }
+  return 1 - (float)failed/nbins;
+}
+
+

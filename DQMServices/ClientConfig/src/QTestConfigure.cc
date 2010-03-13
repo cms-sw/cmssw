@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2008/11/11 17:01:11 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/05/05 07:58:48 $
+ *  $Revision: 1.20 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -42,6 +42,8 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 
                 if(!std::strcmp(testType.c_str(),ContentsWithinExpected::getAlgoName().c_str())) this->EnableContentsWithinExpectedTest(testName, params, bei);
 //              if(!std::strcmp(testType.c_str(),ContentsWithinExpectedAS::getAlgoName().c_str())) this->EnableContentsWithinExpectedASTest(testName, params, bei);
+
+                if(!std::strcmp(testType.c_str(),ValToMean::getAlgoName().c_str())) this->EnableValToMeanTest(testName, params, bei);
 
 	}
 	
@@ -240,6 +242,26 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map
 	
 	
 }
+
+void QTestConfigure::EnableValToMeanTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei)
+{
+  QCriterion *qc1;
+  if(! bei->getQCriterion(testName)) {
+    testsConfigured.push_back(testName);
+    qc1 = bei->createQTest(ValToMean::getAlgoName(),testName);
+  } else {
+    qc1 = bei->getQCriterion(testName);
+  }
+  ValToMean* vtm = (ValToMean*) qc1;
+  vtm->setMin((double)atof(params["MinRel"].c_str()));
+  vtm->setMax((double)atof(params["MaxRel"].c_str()));
+  vtm->setEmptyBins((int)atoi(params["UseEmptyBins"].c_str()));
+  vtm->setMinMedian((double)atof(params["MinAbs"].c_str()));
+  vtm->setMaxMedian((double)atof(params["MaxAbs"].c_str()));
+  vtm->setWarningProb((double)atof(params["warning"].c_str()));
+  vtm->setErrorProb((double)atof(params["error"].c_str()));
+}
+
 /*
 void QTestConfigure::EnableMostProbableLandauTest( 
        const std::string                        &roTEST_NAME,
