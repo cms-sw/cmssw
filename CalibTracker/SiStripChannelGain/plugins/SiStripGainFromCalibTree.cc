@@ -595,7 +595,7 @@ void SiStripGainFromCalibTree::storeOnTree()
    fprintf(Gains,"NEvents   = %i\n",NEvent);
    fprintf(Gains,"NTracks   = %i\n",NTrack);
    fprintf(Gains,"NClusters = %i\n",NCluster);
-   fprintf(Gains,"Number of APVs = %lu\n",APVsColl.size());
+   fprintf(Gains,"Number of APVs = %lu\n",static_cast<unsigned long>(APVsColl.size()));
    fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD));
 
    for(unsigned int a=0;a<APVsCollOrdered.size();a++){
