@@ -32,8 +32,6 @@ tcMet = cms.EDProducer("METProducer",
                        isCosmics = cms.bool(False),
                        rf_type = cms.int32(1),
                        correctShowerTracks = cms.bool(False),
-                       scaleShowerRF = cms.double(0.9),
-                       scaleNoShowerRF = cms.double(1.02), 
                        usePvtxd0 = cms.bool(False),
                        nMinOuterHits = cms.int32(2),
                        usedeltaRRejection = cms.bool(False),
@@ -42,8 +40,13 @@ tcMet = cms.EDProducer("METProducer",
                        radius  = cms.double(130.),
                        zdist  = cms.double(314.),
                        corner = cms.double(1.479),
-                       d0cuta = cms.double(0.1),
-                       d0cutb = cms.double(0.) 
+                       d0cuta = cms.double(0.015),
+                       d0cutb = cms.double(0.5),
+                       maxd0cut = cms.double(0.3),
+                       chi2_tight_max = cms.double(3.0),
+                       nhits_tight_min = cms.double(11),
+                       ptErr_tight_max = cms.double(0.1),
+                       maxTrackAlgo = cms.int32(8)
                        )
 
 

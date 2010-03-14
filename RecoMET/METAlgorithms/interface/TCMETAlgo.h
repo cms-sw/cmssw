@@ -84,10 +84,13 @@ class TCMETAlgo
   
   double  d0cuta_;
   double  d0cutb_;
+  double  maxd0cut_;
+  double  maxchi2_tight_;
+  double  minhits_tight_;
+  double  maxPtErr_tight_;
   int     rfType_;
   int     nMinOuterHits_;
-  double  scaleShowerRF_;
-  double  scaleNoShowerRF_;
+  int     maxTrackAlgo_;
   double  usedeltaRRejection_;
   double  deltaRShower_;
   double  minpt_;
