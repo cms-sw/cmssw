@@ -1,4 +1,5 @@
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
+#include "DataFormats/RPCDigi/interface/ReadoutError.h"
 #include "DataFormats/RPCDigi/interface/DataRecord.h"
 #include "DataFormats/RPCDigi/interface/RecordSLD.h"
 #include "DataFormats/RPCDigi/interface/ErrorRDDM.h"
@@ -15,6 +16,31 @@ using namespace std;
 
 typedef std::map< std::pair<int,int>, int >::const_iterator IT;
 
+int RPCRawDataCounts::fedBxRecords(int fedId) const
+{
+  int type= DataRecord::StartOfBXData;
+  IT im = theRecordTypes.find(make_pair(fedId,type));
+  return (im==theRecordTypes.end())? 0 : im->second;
+}
+
+int  RPCRawDataCounts::fedFormatErrors(int fedId) const
+{
+  for (IT im=theReadoutErrors.begin(); im != theReadoutErrors.end(); ++im) {
+    if (im->first.first != fedId) continue;
+    if (im->first.second > ReadoutError::NoProblem && im->first.second <= ReadoutError::InconsistentDataSize) return 1; 
+  }
+  return 0;
+}
+
+int  RPCRawDataCounts::fedErrorRecords(int fedId) const
+{
+  for (IT im=theRecordTypes.begin(); im != theRecordTypes.end(); ++im) {
+    if (im->first.first != fedId) continue;
+    if (im->first.second > DataRecord::Empty) return 1; 
+  }
+  return 0;
+}
+
 void RPCRawDataCounts::addDccRecord(int fed, const rpcrawtodigi::DataRecord & record, int weight)
 {
   DataRecord::DataRecordType type = record.type();
@@ -29,9 +55,13 @@ void RPCRawDataCounts::addDccRecord(int fed, const rpcrawtodigi::DataRecord & re
   theRecordTypes[ make_pair(fed,type) ] += weight;
 }
 
+
+
+
+
 void RPCRawDataCounts::addReadoutError(int fed, const rpcrawtodigi::ReadoutError & e, int weight)
 {
-  theReadoutErrors[ make_pair(fed,e.type()) ] +=  weight;
+  theReadoutErrors[ make_pair(fed,e.rawCode()) ] +=  weight;
 }
 
 void RPCRawDataCounts::operator+= (const RPCRawDataCounts & o)

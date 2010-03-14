@@ -1,6 +1,7 @@
 #ifndef DataFormats_RPCDigi_ReadoutError_H
 #define DataFormats_RPCDigi_ReadoutError_H
 
+#include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 #include <string>
 
 namespace rpcrawtodigi { 
@@ -20,16 +21,21 @@ public:
       EOD = 9 
   };
 
-  explicit ReadoutError(const ReadoutErrorType & type = NoProblem) : theType(type) { }
+  explicit ReadoutError(unsigned int rawCode=0) : theError(rawCode) {}
 
-  ReadoutErrorType type() const { return theType; }
+  ReadoutError(const LinkBoardElectronicIndex&, const ReadoutErrorType&);
+
+  ReadoutErrorType type() const;
+  LinkBoardElectronicIndex where() const;
 
   static std::string name(const ReadoutErrorType & code);
 
-  std::string name() const { return name(theType); }
+  std::string name() const { return name(type()); }
+
+  unsigned int rawCode() const { return theError;}
 
 private:
-  ReadoutErrorType theType;
+  unsigned int theError;
 };
 
 }

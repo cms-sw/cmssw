@@ -18,9 +18,13 @@ public:
   void operator+= (const RPCRawDataCounts& );
   std::string print() const;
 
+  int fedBxRecords(int fedId) const; 
+  int fedFormatErrors(int fedId) const;
+  int fedErrorRecords(int fedId) const;
+
 private:
 
-  friend class  RPCRawDataCountsHistoMaker;
+  friend class  RPCMonitorRaw;
   std::map< std::pair<int,int>, int> theRecordTypes;
   std::map< std::pair<int,int>, int> theReadoutErrors; 
   std::map< std::pair<int,int>, int> theGoodEvents;
