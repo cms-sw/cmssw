@@ -2,15 +2,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
+#include <DQM/RPCMonitorClient/interface/RPCFEDIntegrity.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCFEDIntegrity);
 
+#include <DQM/RPCMonitorClient/interface/RPCMonitorRaw.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCMonitorRaw);
 
-//Used to read ME from ROOT files
-#include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
-DEFINE_FWK_MODULE(ReadMeFromFile);
-
-//General Client
-#include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
-DEFINE_FWK_MODULE(RPCDqmClient);
-
-
+#include <DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h>
+DEFINE_ANOTHER_FWK_MODULE(RPCMonitorLinkSynchro);
 

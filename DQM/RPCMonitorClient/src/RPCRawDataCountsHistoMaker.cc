@@ -12,8 +12,6 @@ using namespace rpcrawtodigi;
 using namespace std;
 
 
-typedef std::map< std::pair<int,int>, int >::const_iterator IT;
-
 TH1F * RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(int fedId) {
   ostringstream str;
   str <<"readoutErrors_"<<fedId;
@@ -37,47 +35,15 @@ TH1F * RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(int fedId) {
   return result;
 }
 
-
- map< pair<int,int>, int > RPCRawDataCountsHistoMaker::readoutErrors(void){
-
-   return theCounts.theReadoutErrors;   
+TH2F * RPCRawDataCountsHistoMaker::emptyReadoutErrorMapHisto(int fedId, int type) {
+  ostringstream str;
+  ReadoutError::ReadoutErrorType code =  static_cast<ReadoutError::ReadoutErrorType>(type);
+  str <<"errors_"<<ReadoutError::name(code)<<"_"<<fedId;
+  TH2F * result = new TH2F(str.str().c_str(),str.str().c_str(), 36,-0.5,35.5, 18,-0.5,17.5);
+  result->GetXaxis()->SetNdivisions(512);
+  result->GetYaxis()->SetNdivisions(505);
+  result->SetXTitle("rmb");
+  result->SetYTitle("link");
+  result->SetStats(0);
+  return result;
 }
-
-
- map< pair<int,int>, int > RPCRawDataCountsHistoMaker::recordTypes(void){
-
-   return theCounts.theRecordTypes;   
-}
-
-
-
-
-void RPCRawDataCountsHistoMaker::fillRecordTypeHisto(int fedId, TH1F* histo) const
-{
-  for (IT irt=theCounts.theRecordTypes.begin(); irt != theCounts.theRecordTypes.end(); ++irt) {
-    if (irt->first.first != fedId) continue;
-    histo->Fill(irt->first.second,irt->second);
-  }
-}
-
-void RPCRawDataCountsHistoMaker::fillReadoutErrorHisto(int fedId, TH1F* histo) const
-{
-  for (IT ire=theCounts.theReadoutErrors.begin(); ire != theCounts.theReadoutErrors.end(); ++ire) {
-    if (ire->first.first != fedId) continue;
-    histo->Fill(ire->first.second,ire->second);
-  }
-}
-
-void RPCRawDataCountsHistoMaker::fillGoodEventsHisto(TH2F* histo) const
-{
-   for (IT it = theCounts.theGoodEvents.begin(); it != theCounts.theGoodEvents.end(); ++it)
-       histo->Fill(it->first.second, it->first.first, it->second);
-}
-
-void RPCRawDataCountsHistoMaker::fillBadEventsHisto(TH2F* histo) const
-{
-   for (IT it = theCounts.theBadEvents.begin(); it != theCounts.theBadEvents.end(); ++it)
-       histo->Fill(it->first.second, it->first.first, it->second);
-}
-
-

@@ -58,15 +58,15 @@ void RPCMonitorLinkSynchro::endLuminosityBlock(const LuminosityBlock& ls, const 
 
 //  LogTrace("") << "RPCMonitorLinkSynchro END OF LUMI BLOCK CALLED!";
 
-  for (unsigned int i=0;i<3;++i)me_notComplete[i]->update();
-
   RPCLinkSynchroHistoMaker hm(theSynchroStat);
+  hm.fill(me_delaySummary->getTH1F(), me_delaySpread->getTH2F(), me_topOccup->getTH2F(), me_topSpread->getTH2F());
 
-  hm.fillDelaySpreadHisto(me_delaySpread->getTH2F());
-  me_delaySpread->update();
-  
-  hm.fillDelayHisto(me_delaySummary->getTH1F());
-  me_delaySummary->update();
+//  hm.fillDelaySpreadHisto(me_delaySpread->getTH2F());
+//  hm.fillDelayHisto(me_delaySummary->getTH1F());
+
+//  me_delaySummary->update();
+//  me_delaySpread->update();
+//  for (unsigned int i=0;i<3;++i)me_notComplete[i]->update();
 }
 
 void RPCMonitorLinkSynchro::beginJob()
@@ -88,18 +88,28 @@ void RPCMonitorLinkSynchro::beginJob()
     me_notComplete[0]->getTH2F()->GetYaxis()->SetNdivisions(505);
     me_notComplete[0]->getTH2F()->SetStats(0);
   }
+  me_topOccup  = dmbe->book2D("topOccup","Top10 LinkBoard occupancy",8,-0.5,7.5, 10,0.,10.);
+  me_topSpread = dmbe->book2D("topSpread","Top10 LinkBoard delay spread",8,-0.5,7.5, 10,0.,10.);
+  me_topOccup->getTH2F()->GetXaxis()->SetNdivisions(110);
+  me_topSpread->getTH2F()->GetXaxis()->SetNdivisions(110);
+  me_topOccup->getTH2F()->SetStats(0);
+  me_topSpread->getTH2F()->SetStats(0);
 
 }
 
 
 void RPCMonitorLinkSynchro::endJob()
 {
+//  RPCLinkSynchroHistoMaker hm(theSynchroStat);
+//  hm.fill();
   bool writeHistos = theConfig.getUntrackedParameter<bool>("writeHistograms", false);
   if (writeHistos) {
     std::string histoFile = theConfig.getUntrackedParameter<std::string>("histoFileName");
     TFile f(histoFile.c_str(),"RECREATE");
     me_delaySummary->getTH1F()->Write();
     me_delaySpread->getTH2F()->Write();
+    me_topOccup->getTH2F()->Write();
+    me_topSpread->getTH2F()->Write();
     for (unsigned int i=0;i<=2;i++) me_notComplete[i]->getTH2F()->Write();
 //    hCPU.Write();
     edm::LogInfo(" END JOB, histos saved!");
