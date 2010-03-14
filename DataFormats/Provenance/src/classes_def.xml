@@ -23,6 +23,8 @@
  <class name="std::pair<edm::BranchID, std::set<edm::BranchID> >"/>
  <class name="std::vector<edm::BranchID>"/>
  <class name="std::vector<edm::ProductID>"/>
+ <class name="std::pair<edm::ProductID, unsigned int>" />
+ <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>
  <class name="std::vector<std::vector<std::vector<edm::EventID> > > "/>
@@ -87,8 +89,4 @@
  <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
  
- <class name="edm::ConditionsInEventBlock"/>
- <class name="edm::ConditionsInRunBlock"/>
- <class name="edm::ConditionsInLumiBlock"/>
-
 </lcgdict>

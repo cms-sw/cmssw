@@ -51,7 +51,6 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
-#include "DataFormats/Provenance/interface/ConditionsInEdm.h"
 
 namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
@@ -82,6 +81,8 @@ namespace {
   std::vector<std::vector<std::vector<edm::EventID> > > dummyVectorVectorVectorEventID;
   std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
   std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
+  std::pair<edm::ProductID, unsigned int> ppui1;
+  std::vector<std::pair<edm::ProductID, unsigned int> > vppui1;
 
   std::vector<TFormula*> dummyvtfp;
 
@@ -92,10 +93,5 @@ namespace {
   std::vector<edm::RunLumiEntryInfo> dummyVectorRunLumiEntryInfo;
 
   std::pair<edm::ModuleDescriptionID, edm::ModuleDescription> dummyPairMod;
-
-  edm::ConditionsInLumiBlock dum1;
-  edm::ConditionsInRunBlock dum2;
-  edm::ConditionsInEventBlock dum3;
-
 };
 }
