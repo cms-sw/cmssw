@@ -645,6 +645,16 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaa(1);
 {
   FWConfiguration topaaaa(0);
+  topaaaa.addValue("2");
+  topaaa.addKeyValue("Overlay Event Info", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Show Logo", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
   topaaa.addKeyValue("Calo compression", topaaaa);
 }
@@ -682,11 +692,6 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
   topaaa.addKeyValue("Smooth line", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("event info", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -782,6 +787,36 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
   topaaa.addKeyValue("cameraMatrix15Rho Phi", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.03");
+  topaaa.addKeyValue("EventInfoTextSize", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.170507");
+  topaaa.addKeyValue("EventInfoPosX", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.97368");
+  topaaa.addKeyValue("EventInfoPosY", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.110995");
+  topaaa.addKeyValue("LogoSize", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.0284567");
+  topaaa.addKeyValue("LogoPosX", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.972714");
+  topaaa.addKeyValue("LogoPosY", topaaaa);
 }
   topaa.addKeyValue("Rho Phi", topaaa);
 }
@@ -1063,6 +1098,16 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaa(1);
 {
   FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Overlay Event Info", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Logo", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
   topaaa.addKeyValue("Calo compression", topaaaa);
 }
@@ -1100,11 +1145,6 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
   topaaa.addKeyValue("Smooth line", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
-  topaaa.addKeyValue("event info", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -1190,6 +1230,36 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
   topaaa.addKeyValue("cameraMatrix15Rho Z", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.03");
+  topaaa.addKeyValue("EventInfoTextSize", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.05");
+  topaaa.addKeyValue("EventInfoPosX", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.95");
+  topaaa.addKeyValue("EventInfoPosY", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.2");
+  topaaa.addKeyValue("LogoSize", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.02");
+  topaaa.addKeyValue("LogoPosX", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.98");
+  topaaa.addKeyValue("LogoPosY", topaaaa);
 }
   topaa.addKeyValue("Rho Z", topaaa);
 }
@@ -1511,6 +1581,16 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0");
+  topaaa.addKeyValue("Overlay Event Info", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
+  topaaa.addKeyValue("Show Logo", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0");
   topaaa.addKeyValue("Show Muon Barrel", topaaaa);
 }
 {
@@ -1718,6 +1798,36 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("7.50012");
   topaaa.addKeyValue("Plain3D FOV", topaaaa);
 }
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.03");
+  topaaa.addKeyValue("EventInfoTextSize", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.05");
+  topaaa.addKeyValue("EventInfoPosX", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.95");
+  topaaa.addKeyValue("EventInfoPosY", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.2");
+  topaaa.addKeyValue("LogoSize", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.02");
+  topaaa.addKeyValue("LogoPosX", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.98");
+  topaaa.addKeyValue("LogoPosY", topaaaa);
+}
   topaa.addKeyValue("3D", topaaa);
 }
 {
@@ -1820,12 +1930,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1001");
+  topaaaaa.addValue("1004");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("73");
+  topaaaaa.addValue("72");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
@@ -1868,12 +1978,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1003");
+  topaaaaa.addValue("1004");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("408");
+  topaaaaa.addValue("410");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
