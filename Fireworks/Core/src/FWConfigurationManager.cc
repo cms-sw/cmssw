@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:32 EST 2008
-// $Id: FWConfigurationManager.cc,v 1.7 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWConfigurationManager.cc,v 1.8 2009/06/29 19:16:28 amraktad Exp $
 //
 
 // system include files
@@ -106,14 +106,16 @@ FWConfigurationManager::writeToFile(const std::string& iName) const
    {
       ofstream file(iName.c_str());
       if(not file) {
-         std::string message("unable to open file ");
+         std::string message("unable to open file %s ", iName.c_str());
+         fflush(stdout);
          message += iName;
          throw std::runtime_error(message.c_str());
       }
       FWConfiguration top;
       to(top);
 
-      printf("Writing to file...\n");
+      printf("Writing to file %s ...\n", iName.c_str());
+      fflush(stdout);
       const std::string topName("top");
       file <<"FWConfiguration* fwConfig() {\n"
            <<"  FWConfiguration* "<<topName<<"_p = new FWConfiguration("<<top.version()<<");\n"
