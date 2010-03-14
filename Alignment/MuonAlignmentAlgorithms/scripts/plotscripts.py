@@ -1,14 +1,41 @@
 import ROOT, array, os, re, random
 from math import *
+import time
+
+# python 2.6 has json modue; <2.6 could use simplejson
+try:
+  import json
+except ImportError:
+  import simplejson as json
+
+# my common muon types structures
+from mutypes import *
+
 
 #############################################################
-# Convenience functions (we'll add more)
+# Convenience functions
 
 def wheelm2only(dt, wheel, station, sector): return dt == "DT" and wheel == -2
 def wheelm1only(dt, wheel, station, sector): return dt == "DT" and wheel == -1
 def wheel0only(dt, wheel, station, sector): return dt == "DT" and wheel == 0
 def wheelp1only(dt, wheel, station, sector): return dt == "DT" and wheel == 1
 def wheelp2only(dt, wheel, station, sector): return dt == "DT" and wheel == 2
+
+def wheelLetter(wheel):
+  if   wheel == -2: return "A"
+  elif wheel == -1: return "B"
+  elif wheel ==  0: return "C"
+  elif wheel == +1: return "D"
+  elif wheel == +2: return "E"
+  else: raise Exception
+
+def wheelNumber(wheell):
+  if   wheell == "A": return -2
+  elif wheell == "B": return -1
+  elif wheell == "C": return 0
+  elif wheell == "D": return 1
+  elif wheell == "E": return 2
+  else: raise Exception
 
 def mean(xlist):
   s, n = 0., 0.
@@ -1109,13 +1136,159 @@ signConventions = {
 ("CSC", 2, 4, 2, 36): (1, 1, -1, 526.5, -0.174533, -1037.34),
 }
 
-def DBMC(database, reports, window=10., selection=None, phi=False, color=ROOT.kBlue-8, style=1, bins=50, normalized=False, getvalues=False, name=""):
+phiedges_me11 = [
+    0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
+    1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094,
+    2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839,
+    -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362,
+    -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838,
+    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153]
+phiedges_me12 = [
+    0.087266462599716474, 0.26179938297741073, 0.43633231700542385, 0.61086526005981812, 0.78539815872971441, 0.95993109326461523,
+    1.1344639919345114, 1.3089969349889057, 1.4835298690169187, 1.6580627893946129, 1.8325957097723073, 2.0071286438003204, 
+    2.1816615868547147, 2.3561944855246111, 2.5307274200595118, 2.7052603187294082, 2.879793261783802, 3.0543261958118153, 
+    -3.0543261909900767, -2.8797932706123825, -2.7052603365843693, -2.5307273935299754, -2.356194494860079, -2.1816615603251783,
+    -2.0071286616552819, -1.8325957186008877, -1.6580627845728746, -1.4835298641951802, -1.308996943817486, -1.1344640097894729,
+    -0.95993106673507855, -0.78539816806518226, -0.61086523353028144, -0.43633233486038514, -0.26179939180599088, -0.087266457777977771]
+phiedges_me13 = [
+    0.087266462599716474, 0.26179938235213535, 0.43633230952414037, 0.61086523916470359, 0.78539817763669606, 0.95993107435763347,
+    1.1344640128296259, 1.3089969424701891, 1.4835298696421941, 1.6580627893946129, 1.832595709147032, 2.0071286363190368,
+    2.1816615659596001, 2.3561945044315924, 2.53072740115253, 2.7052603396245227, 2.8797932692650856, 3.0543261964370907,
+    -3.0543261909900767, -2.8797932712376579, -2.7052603440656529, -2.53072741442509, -2.3561944759530973, -2.1816615792321596,
+    -2.0071286407601674, -1.8325957111196041, -1.6580627839475992, -1.4835298641951802, -1.3089969444427614, -1.1344640172707563,
+    -0.95993108763019308, -0.7853981491582005, -0.61086525243726308, -0.43633231396527061, -0.2617993843247074, -0.087266457152702412]
+phiedges_me14 = [
+    0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132,
+    1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094,
+    2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839,
+    -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362,
+    -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838,
+    -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153]
+phiedges_me21 = [
+    0.26179938481428705, 0.6108652193791777, 0.95993108859688125, 1.3089969578145848, 1.6580627923794755, 2.0071286538798305,
+    2.356194498693418, 2.7052603320901376, 3.0543261769037247, -2.8797932687755066, -2.5307274342106156, -2.1816615649929121,
+    -1.8325956957752083, -1.4835298612103178, -1.1344639997099626, -0.78539815489637521, -0.43633232149965551, -0.087266476686068212]
+phiedges_me22 = [
+    0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
+    2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
+    -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
+    -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
+phiedges_me31 = [
+    0.26179938498198485, 0.61086523665761272, 0.95993108859688125, 1.3089969405361499, 1.6580627922117777, 2.0071286313120122,
+    2.3561944778405319, 2.7052603529430232, 3.0543261994715434, -2.8797932686078087, -2.530727416932181, -2.1816615649929121,
+    -1.8325957130536434, -1.4835298613780155, -1.1344640222777811, -0.78539817574926085, -0.43633230064676976, -0.087266454118249653]
+phiedges_me32 = [
+    0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
+    2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
+    -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
+    -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
+phiedges_me41 = [
+    0.26179938879942166, 0.61086525092924071, 0.95993108859688125, 1.3089969262645218, 1.6580627883943408, 2.0071286288299772, 
+    2.3561945088997609, 2.7052603218837943, 3.0543262019535784, -2.8797932647903717, -2.5307274026605526, -2.1816615649929121, 
+    -1.8325957273252713, -1.4835298651954525, -1.1344640247598159, -0.785398144690032, -0.43633233170599861, -0.087266451636214853]
+phiedges_me42 = [
+    0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153,
+    1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993,
+    2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605,
+    -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419,
+    -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943,
+    -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
+
+phiedges1 = [
+    0.35228048120123945, 0.87587781482541827, 1.3994776462193192, 1.923076807996136, 2.4466741416203148, 2.970273973014216,
+    -2.7893121723885534, -2.2657148387643748, -1.7421150073704739, -1.2185158455936571, -0.69491851196947851, -0.17131868057557731]
+phiedges2 = [
+    0.22000706229660855, 0.74360690430428489, 1.267204926935573, 1.7908033890915052, 2.3144032310991816, 2.8380012537304697,
+    -2.9215855912931841, -2.3979857492855081, -1.8743877266542202, -1.3507892644982882, -0.82718942249061178, -0.30359139985932365]
+phiedges3 = [
+    0.29751957124275596, 0.82111826253905784, 1.3447162969496083, 1.8683158980376524, 2.3919145893339548, 2.915512623744505,
+    -2.844073082347037, -2.3204743910507353, -1.7968763566401849, -1.2732767555521407, -0.74967806425583894, -0.22608002984528835]
+phiedges4 = [
+    3.0136655290752188, -2.7530905195097337, -2.2922883025568734, -1.9222915077192773, -1.5707963267948966, -1.2193011458705159,
+    -0.84930435103291968, -0.38850213408005951, 0.127927124514574, 0.65152597487624719, 1.1322596819239259, 1.5707963267948966, 
+    2.0093329716658674, 2.4900666787135459]
+
+######################################################################################################
+
+def philines(station, window, abscissa):
+    global philine_tlines
+    philine_tlines = []
+    if station == "me11": phiedges = phiedges_me11
+    if station == "me12": phiedges = phiedges_me12
+    if station == "me13": phiedges = phiedges_me13
+    if station == "me14": phiedges = phiedges_me14
+    if station == "me21": phiedges = phiedges_me21
+    if station == "me22": phiedges = phiedges_me22
+    if station == "me31": phiedges = phiedges_me31
+    if station == "me32": phiedges = phiedges_me32
+    if station == "me41": phiedges = phiedges_me41
+    if station == "me42": phiedges = phiedges_me42
+    if station == 1: phiedges = phiedges1
+    if station == 2: phiedges = phiedges2
+    if station == 3: phiedges = phiedges3
+    if station == 4: phiedges = phiedges4
+    for phi in phiedges:
+        if abscissa is None or abscissa[0] < phi < abscissa[1]:
+            philine_tlines.append(ROOT.TLine(phi, -window, phi, window))
+            philine_tlines[-1].SetLineStyle(2)
+            philine_tlines[-1].Draw()
+    if station in (1, 2, 3, 4):
+        philine_labels = []
+        phiedges = phiedges[:]
+        phiedges.sort()
+        if station in (1, 2, 3):
+            labels = [" 8", " 9", "10", "11", "12", " 1", " 2", " 3", " 4", " 5", " 6"]
+            phiedges = phiedges[1:]
+        else: 
+            labels = [" 7", " 8", " 9", "14", "10", "11", "12", " 1", " 2", " 3", "13", " 4", " 5", " 6"]
+        for phi, label in zip(phiedges, labels):
+            littlebit = 0.
+            if label in (" 7", " 9", "14", "10", "11"): littlebit = 0.05
+            philine_labels.append(ROOT.TText(phi-0.35+littlebit, -0.9*window, label)); philine_labels[-1].Draw()
+        philine_labels.append(ROOT.TText(-2.9, -0.75*window, "Sector:")); philine_labels[-1].Draw()
+
+def zlines(window, abscissa):
+    global zline_tlines
+    zline_tlines = []
+    for z in -401.625, -133.875, 133.875, 401.625:
+        if abscissa is None or abscissa[0] < z < abscissa[1]:
+            zline_tlines.append(ROOT.TLine(z, -window, z, window))
+            zline_tlines[-1].SetLineStyle(2)
+            zline_tlines[-1].Draw()
+    zline_labels = []
+    zline_labels.append(ROOT.TText(-550, -0.9*window, "-2"))
+    zline_labels.append(ROOT.TText(-300, -0.9*window, "-1"))
+    zline_labels.append(ROOT.TText(-10, -0.9*window, "0"))
+    zline_labels.append(ROOT.TText(250, -0.9*window, "+1"))
+    zline_labels.append(ROOT.TText(500, -0.9*window, "+2"))
+    for z in zline_labels: z.Draw()
+    zline_labels.append(ROOT.TText(-600, -0.75*window, "Wheel:")); zline_labels[-1].Draw()
+
+def rlines(disk, window, abscissa):
+    global rline_tlines
+    rline_tlines = []
+    if disk == 1: rl = [150., 270., 480.]
+    else: rl = [350.]
+    for r in rl:
+        if abscissa is None or abscissa[0] < r < abscissa[1]:
+            rline_tlines.append(ROOT.TLine(r, -window, r, window))
+            rline_tlines[-1].SetLineStyle(2)
+            rline_tlines[-1].Draw()
+
+######################################################################################################
+
+def DBMC(database, reports, window=10., selection=None, phi=False, 
+         color=ROOT.kBlue-8, style=1, bins=50, normalized=False, getvalues=False, name=""):
     return DBdiff(database, None, reports, None, window, selection, phi, color, style, bins, normalized, getvalues, name)
 
-def DBdiff(database1, database2, reports1, reports2, window=10., selection=None, phi=False, color=ROOT.kBlue-8, style=1, bins=50, normalized=False, getvalues=False, name="tmp"):
+def DBdiff(database1, database2, reports1, reports2, window=10., selection=None, phi=False, color=ROOT.kBlue-8,
+           style=1, bins=50, normalized=False, getvalues=False, name="tmp"):
     tdrStyle.SetOptStat("emrou")
     tdrStyle.SetStatW(0.40)
-    tdrStyle.SetStatFontSize(0.05)
 
     if phi:
         hx = ROOT.TH1F("%s_phi" % name, "", bins, -window, window)
@@ -1131,7 +1304,8 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
         if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             if reports2 is None:
                 r2 = Report(r1.chamberId, r1.postal_address, r1.name)
-                r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 0., 0., 0., 0.)
+                r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 
+                    ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 0., 0., 0., 0.)
             else:
                 found = False
                 for r2 in reports2:
@@ -1163,7 +1337,8 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                         db2 = database2.csc[r1.postal_address[1:]]
 
             if found and r1.status == "PASS" and r2.status == "PASS":
-                if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
+                if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and \
+                   r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
                     if normalized:
                         fill = (db1.x - db2.x)/sqrt(r1.deltax.error**2 + r2.deltax.error**2) * signConventions[r1.postal_address][0]
                     else:
@@ -1175,7 +1350,8 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                     if getvalues not in (False, None):
                         getvalues["x"].append((fill, 10. * sqrt(r1.deltax.error**2 + r2.deltax.error**2)))
 
-                if r1.deltay is not None and r2.deltay is not None and r1.deltay.error is not None and r2.deltay.error is not None and (r1.deltay.error**2 + r2.deltay.error**2) > 0.:
+                if r1.deltay is not None and r2.deltay is not None and r1.deltay.error is not None and \
+                   r2.deltay.error is not None and (r1.deltay.error**2 + r2.deltay.error**2) > 0.:
                     if normalized:
                         fill = (db1.y - db2.y)/sqrt(r1.deltay.error**2 + r2.deltay.error**2) * signConventions[r1.postal_address][1]
                     else:
@@ -1184,7 +1360,8 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                     if getvalues not in (False, None):
                         getvalues["y"].append((fill, 10. * sqrt(r1.deltay.error**2 + r2.deltay.error**2)))
 
-                if r1.deltaz is not None and r2.deltaz is not None and r1.deltaz.error is not None and r2.deltaz.error is not None and (r1.deltaz.error**2 + r2.deltaz.error**2) > 0.:
+                if r1.deltaz is not None and r2.deltaz is not None and r1.deltaz.error is not None and \
+                   r2.deltaz.error is not None and (r1.deltaz.error**2 + r2.deltaz.error**2) > 0.:
                     if normalized:
                         fill = (db1.z - db2.z)/sqrt(r1.deltaz.error**2 + r2.deltaz.error**2) * signConventions[r1.postal_address][2]
                     else:
@@ -1193,7 +1370,8 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                     if getvalues not in (False, None):
                         getvalues["z"].append((fill, 10. * sqrt(r1.deltaz.error**2 + r2.deltaz.error**2)))
 
-                if r1.deltaphix is not None and r2.deltaphix is not None and r1.deltaphix.error is not None and r2.deltaphix.error is not None and (r1.deltaphix.error**2 + r2.deltaphix.error**2) > 0.:
+                if r1.deltaphix is not None and r2.deltaphix is not None and r1.deltaphix.error is not None and \
+                   r2.deltaphix.error is not None and (r1.deltaphix.error**2 + r2.deltaphix.error**2) > 0.:
                     if normalized:
                         fill = (db1.phix - db2.phix)/sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2)
                     else:
@@ -1202,7 +1380,8 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                     if getvalues not in (False, None):
                         getvalues["phix"].append((fill, 10. * sqrt(r1.deltaphix.error**2 + r2.deltaphix.error**2)))
 
-                if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
+                if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and \
+                   r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
                     if normalized:
                         fill = (db1.phiy - db2.phiy)/sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)
                     else:
@@ -1211,7 +1390,8 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
                     if getvalues not in (False, None):
                         getvalues["phiy"].append((fill, 10. * sqrt(r1.deltaphiy.error**2 + r2.deltaphiy.error**2)))
 
-                if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
+                if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and \
+                   r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
                     if normalized:
                         fill = (db1.phiz - db2.phiz)/sqrt(r1.deltaphiz.error**2 + r2.deltaphiz.error**2)
                     else:
@@ -1259,7 +1439,7 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
             f.SetLineColor(ROOT.kBlue)
         for h, f in (hx, fx), (hy, fy), (hz, fz), (hphix, fphix), (hphiy, fphiy), (hphiz, fphiz):
             h.SetAxisRange(0, 1.1*max(h.GetMaximum(), f.GetMaximum()), "Y")
-        c1.Clear()
+	c1.Clear()
         c1.Divide(3, 2)
         c1.GetPad(1).cd(); hx.Draw(); fx.Draw("same")
         c1.GetPad(2).cd(); hy.Draw(); fy.Draw("same")
@@ -1282,7 +1462,7 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
 def DBMCVersus(quantity, versus, database, reports, window=10., selection=None, color=ROOT.kBlack):
     return DBdiffVersus(quantity, versus, database, None, reports, None, window, selection, color)
 
-def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, window=10., selection=None, color=ROOT.kBlack):
+def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, windwselection=None, color=ROOT.kBlack):
     tdrStyle.SetOptStat("")
 
     domain = []
@@ -1293,7 +1473,8 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
         if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             if reports2 is None:
                 r2 = Report(r1.chamberId, r1.postal_address, r1.name)
-                r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 0., 0., 0.)
+                r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 
+                                  ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 0., 0., 0.)
             else:
                 found = False
                 for r2 in reports2:
@@ -1328,43 +1509,52 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
                 okay = False
 
                 if quantity == "phi":
-                    if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
+                    if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and \
+                       r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
                         okay = True
-                        values.append((db1.x - db2.x)/signConventions[r1.postal_address][3] * 1000. * signConventions[r1.postal_address][0])
-                        errors.append((r1.deltax.error**2 + r2.deltax.error**2)/signConventions[r1.postal_address][3] * 1000. * signConventions[r1.postal_address][0])
+                        values.append((db1.x - db2.x)/
+                                      signConventions[r1.postal_address][3] * 1000. * signConventions[r1.postal_address][0])
+                        errors.append((r1.deltax.error**2 + r2.deltax.error**2)/
+                                      signConventions[r1.postal_address][3] * 1000. * signConventions[r1.postal_address][0])
 
                 elif quantity == "x":
-                    if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
+                    if r1.deltax is not None and r2.deltax is not None and r1.deltax.error is not None and \
+                       r2.deltax.error is not None and (r1.deltax.error**2 + r2.deltax.error**2) > 0.:
                         okay = True
                         values.append((db1.x - db2.x) * 10. * signConventions[r1.postal_address][0])
                         errors.append((r1.deltax.error**2 + r2.deltax.error**2) * 10. * signConventions[r1.postal_address][0])
 
                 elif quantity == "y":
-                    if r1.deltay is not None and r2.deltay is not None and r1.deltay.error is not None and r2.deltay.error is not None and (r1.deltay.error**2 + r2.deltay.error**2) > 0.:
+                    if r1.deltay is not None and r2.deltay is not None and r1.deltay.error is not None and \
+                       r2.deltay.error is not None and (r1.deltay.error**2 + r2.deltay.error**2) > 0.:
                         okay = True
                         values.append((db1.y - db2.y) * 10. * signConventions[r1.postal_address][1])
                         errors.append((r1.deltay.error**2 + r2.deltay.error**2) * 10. * signConventions[r1.postal_address][1])
 
                 elif quantity == "z":
-                    if r1.deltaz is not None and r2.deltaz is not None and r1.deltaz.error is not None and r2.deltaz.error is not None and (r1.deltaz.error**2 + r2.deltaz.error**2) > 0.:
+                    if r1.deltaz is not None and r2.deltaz is not None and r1.deltaz.error is not None and \
+                       r2.deltaz.error is not None and (r1.deltaz.error**2 + r2.deltaz.error**2) > 0.:
                         okay = True
                         values.append((db1.z - db2.z) * 10. * signConventions[r1.postal_address][2])
                         errors.append((r1.deltaz.error**2 + r2.deltaz.error**2) * 10. * signConventions[r1.postal_address][2])
 
                 elif quantity == "phix":
-                    if r1.deltaphix is not None and r2.deltaphix is not None and r1.deltaphix.error is not None and r2.deltaphix.error is not None and (r1.deltaphix.error**2 + r2.deltaphix.error**2) > 0.:
+                    if r1.deltaphix is not None and r2.deltaphix is not None and r1.deltaphix.error is not None and \
+                       r2.deltaphix.error is not None and (r1.deltaphix.error**2 + r2.deltaphix.error**2) > 0.:
                         okay = True
                         values.append((db1.phix - db2.phix) * 1000.)
                         errors.append((r1.deltaphix.error**2 + r2.deltaphix.error**2) * 1000.)
 
                 elif quantity == "phiy":
-                    if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
+                    if r1.deltaphiy is not None and r2.deltaphiy is not None and r1.deltaphiy.error is not None and \
+                       r2.deltaphiy.error is not None and (r1.deltaphiy.error**2 + r2.deltaphiy.error**2) > 0.:
                         okay = True
                         values.append((db1.phiy - db2.phiy) * 1000.)
                         errors.append((r1.deltaphiy.error**2 + r2.deltaphiy.error**2) * 1000.)
 
                 elif quantity == "phiz":
-                    if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
+                    if r1.deltaphiz is not None and r2.deltaphiz is not None and r1.deltaphiz.error is not None and \
+                       r2.deltaphiz.error is not None and (r1.deltaphiz.error**2 + r2.deltaphiz.error**2) > 0.:
                         okay = True
                         values.append((db1.phiz - db2.phiz) * 1000.)
                         errors.append((r1.deltaphiz.error**2 + r2.deltaphiz.error**2) * 1000.)
@@ -1402,7 +1592,8 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
     if len(domain) == 0:
         tgraph = ROOT.TGraphErrors(0)
     else:
-        tgraph = ROOT.TGraphErrors(len(domain), array.array("d", domain), array.array("d", values), array.array("d", [0.]*len(domain)), array.array("d", errors))
+        tgraph = ROOT.TGraphErrors(len(domain), array.array("d", domain), array.array("d", values), 
+                                                array.array("d", [0.]*len(domain)), array.array("d", errors))
     tgraph.SetMarkerColor(color)
     tgraph.SetLineColor(color)
 
@@ -1412,10 +1603,248 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
 
 ######################################################################################################
 
-def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, r1text=" before", r2text=" after", which="median"):
+def idToPostalAddress(id):
+  # only len==9 ids can correspond to valid postal address
+  if len(id)!=9: return None
+  if id[0:2]=="MB":
+    #print id
+    pa = ("DT", int(id[2:4]), int(id[5]), int(id[7:9]))
+    #print pa
+    if pa[1]<-2 or pa[1]>2: return None
+    if pa[2]>4: return None
+    if pa[3]<1 or pa[3]>14 or (pa[3]==4 and pa[3]>12): return None
+    return pa
+  elif id[0:2]=="ME":
+    if id[2]=="+": ec=1
+    elif id[2]=="-": ec=2
+    else: return None
+    pa = ("CSC", ec, int(id[3]), int(id[5]), int(id[7:9]))
+    if pa[2]<1 or pa[2]>4: return None
+    if pa[3]<1 or pa[3]>4 or (pa[2]>1 and pa[3]>2): return None
+    if pa[4]<1 or pa[4]>36 or (pa[2]>1 and pa[3]==1 and pa[4]>18): return None
+    return pa
+  else: return None
+
+
+def postalAddressToId(postal_address):
+  if postal_address[0] == "DT":
+    wheel, station, sector = postal_address[1:]
+    w = "%+d"%wheel
+    if w=="+0": w = "-0"
+    return "MB%s/%d/%02d" % (w, station, sector)
+  elif postal_address[0] == "CSC":
+    endcap, station, ring, chamber = postal_address[1:]
+    if endcap != 1: station = -1 * abs(station)
+    return "ME%+d/%d/%02d" % (station, ring, chamber)
+
+
+def nameToId(name):
+  if name[0:2] == "MB":
+    wh = name[4]
+    if   wh == "A": w = "-2"
+    elif wh == "B": w = "-1"
+    elif wh == "C": w = "-0"
+    elif wh == "D": w = "+1"
+    elif wh == "E": w = "+2"
+    else: return ""
+    station = name[7]
+    sector = name[11:13]
+    return "MB%s/%s/%s" % (w, station, sector)
+  elif name[0:2] == "ME":
+    if name[2]=="p": endcap = "+"
+    elif name[2]=="m": endcap = "-"
+    else: return ""
+    station = name[3]
+    ring = name[4]
+    chamber = name[6:8]
+    return "ME%s%s/%s/%s" % (endcap, station, ring, chamber)
+
+
+def availableCellsDT(reports):
+  dts = []
+  # DT wheels
+  for iwheel in DT_TYPES:
+    if iwheel[1]=="ALL": continue
+    dts.append(iwheel[0])
+  # DT wheel & station
+  for wheel in DT_TYPES:
+    if wheel[1]=="ALL": continue
+    for station in wheel[2]:
+      dts.append(wheel[0]+'/'+station[1])
+  # DT station & sector 
+  for wheel in DT_TYPES:
+    if wheel[1]!="ALL": continue
+    for station in wheel[2]:
+      for sector in range(1,station[2]+1):
+        ssector = "%02d" % sector
+        dts.append(wheel[0]+'/'+station[1]+'/'+ssector)
+  # DT chambers
+  for wheel in DT_TYPES:
+    if wheel[1]=="ALL": continue
+    for station in wheel[2]:
+      for sector in range(1,station[2]+1):
+        ssector = "%02d" % sector
+        label = "MBwh%sst%ssec%s" % (wheelLetter(int(wheel[1])),station[1],ssector)
+        found = False
+        for r in reports:
+          if r.name == label:
+            found = True
+            break
+        if not found: continue
+        if r.status == "TOOFEWHITS" and r.posNum+r.negNum==0: continue
+        if r.status == "NOFIT": continue
+        dts.append(wheel[0]+'/'+station[1]+'/'+ssector)
+  return dts
+
+
+def availableCellsCSC(reports):
+  cscs = []
+  # CSC station & ring 
+  for endcap in CSC_TYPES:
+    for station in endcap[2]:
+      for ring in station[2]:
+        if ring[1]=="ALL": continue
+        #label = "CSCvsphi_me%s%s%s" % (endcap[1], station[1], ring[1])
+        cscs.append("%s%s/%s" % (endcap[0], station[1],ring[1]))
+  # CSC station and chamber
+  for endcap in CSC_TYPES:
+    for station in endcap[2]:
+      for ring in station[2]:
+        if ring[1]!="ALL": continue
+        for chamber in range(1,ring[2]+1):
+          #label = "CSCvsr_me%s%sch%02d" % (endcap[1], station[1], chamber)
+          cscs.append("%s%s/ALL/%02d" % (endcap[0], station[1],chamber))
+  # CSC chambers
+  for endcap in CSC_TYPES:
+    for station in endcap[2]:
+      for ring in station[2]:
+        if ring[1]=="ALL": continue
+        for chamber in range(1,ring[2]+1):
+          # exclude non instrumented ME4/2 
+          if station[1]=="4" and ring[1]=="2":
+            if endcap[1]=="m": continue
+            if chamber<9 or chamber>13: continue
+          schamber = "%02d" % chamber
+          label = "ME%s%s%s_%s" % (endcap[1], station[1], ring[1], schamber)
+          cscs.append(endcap[0]+station[1]+'/'+ring[1]+'/'+schamber)
+  return cscs
+
+
+DQM_SEVERITY = [
+  {"idx":0, "name": "NONE", "color": "lightgreen", "hex":"#90EE90"},
+  {"idx":1, "name": "LOWSTAT05", "color": "lightgreen", "hex":"#96D953"},
+  {"idx":2, "name": "LOWSTAT075", "color": "lightgreen", "hex":"#94E26F"},
+  {"idx":3, "name": "LOWSTAT1", "color": "yellowgreen", "hex":"#9ACD32"},
+  {"idx":4, "name": "LOWSTAT", "color": "yellow", "hex":"#FFFF00"},
+  {"idx":5, "name": "TOLERABLE", "color": "lightpink", "hex":"#FFB6C1"},
+  {"idx":6, "name": "SEVERE", "color": "orange", "hex":"#FFA500"},
+  {"idx":7, "name": "CRITICAL", "color": "red", "hex":"#FF0000"}];
+
+
+def testEntry(testID,scope,descr,severity):
+  s = 0
+  for sev in DQM_SEVERITY:
+    if sev["name"]==severity: s = sev["idx"]
+  return {"testID":testID,"scope":scope,"descr":descr,"severity":s}
+
+def doTestsForReport(cells,reports):
+  res = []
+  for c in cells:
+    # can a cell be converted to a chamber postal address?
+    postal_address = idToPostalAddress(c)
+    if not postal_address: continue
+    
+    # is this chamber in _report?
+    found = False
+    for r in reports:
+      if r.postal_address == postal_address:
+        found = True
+        break
+    if not found: continue
+
+    # chamber's tests result
+    cres = []
+    scope = postal_address[0]
+    
+    # noting could be done if fitting fails
+    if r.status == "FAIL" or r.status == "MINUITFAIL":
+      cres.append(testEntry("FAILURE",scope,r.status+" failure","CRITICAL"))
+      res.append({"objID":c, "name":c, "list":cres})
+      continue
+
+    # noting could be done if TOOFEWHITS
+    nseg = r.posNum + r.negNum
+    if r.status == "TOOFEWHITS" and nseg>0:
+      cres.append(testEntry("LOW_STAT",scope,"low stat, #segments=%d"%nseg,"LOWSTAT"))
+      res.append({"objID":c, "name":c, "list":cres})
+      continue
+
+    # set shades of light green according to sidma(dx)
+    sdx = 10.*r.deltax.error
+    if sdx>0.5:
+      if sdx<0.75: cres.append(testEntry("LOW_STAT_DDX05",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT05"))
+      elif sdx<1.: cres.append(testEntry("LOW_STAT_DDX075",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT075"))
+      else: cres.append(testEntry("LOW_STAT_DDX1",scope,"low stat, delta(dx)=%f #segments=%d" % (sdx,nseg),"LOWSTAT1"))
+
+    # check chi2
+    if r.redchi2 > 2.5:
+      cres.append(testEntry("BIG_CHI2",scope,"chi2=%f>2.5" % r.redchi2,"TOLERABLE"))
+
+    # check medians
+    medx, meddx = 10.*r.median_x, 1000.*r.median_dxdz
+    #medy, meddy = 10.*r.median_y, 1000.*r.median_dydz
+    if medx>2:  cres.append(testEntry("BIG_MED_X",scope,"median dx=%f>2 mm"%medx,"SEVERE"))
+    #if medy>3: cres.append(testEntry("BIG_MED_Y",scope,"median dy=%f>3 mm"%medy,"SEVERE"))
+    if meddx>2: cres.append(testEntry("BIG_MED_DXDZ",scope,"median d(dx/dz)=%f>2 mrad"%meddx,"SEVERE"))
+    #if meddy>3: cres.append(testEntry("BIG_MED_DYDZ",scope,"median d(dy/dz)=%f>3 mrad"%meddy,"SEVERE"))
+
+    # check residuals far from zero
+    dx, ddx = 10.*r.deltax.value, 1000.*r.deltaphix.value
+    #dy, ddy = 10.*r.deltay.value, 1000.*r.deltaphiy.value
+    if dx>0.3:   cres.append(testEntry("BIG_DX",scope,"dx=%f>0.3 mm"%dx,"CRITICAL"))
+    if ddx>0.03: cres.append(testEntry("BIG_DX",scope,"dphix=%f>0.03 mrad"%ddx,"CRITICAL"))
+
+    if len(cres)>0: res.append({"objID":c, "name":c, "list":cres})
+
+  return res
+
+
+def doTests(reports,fname_base, fname_dqm, run_name):
+  # find available baseline
+  dts = availableCellsDT(reports)
+  cscs = availableCellsCSC(reports)
+  mulist = ['Run: '+run_name,['ALL',['MU']],['DT',dts],['CSC',cscs]]
+  ff = open(fname_base,mode="w")
+  print >>ff, "var MU_LIST = ["
+  json.dump(mulist,ff)
+  print >>ff, "];"
+  ff.close()
+  
+  rall = doTestsForReport(dts,reports)
+  rall.extend(doTestsForReport(cscs,reports))
+  lt = time.localtime(time.time())
+  lts = "%04d-%02d-%02d %02d:%02d:%02d %s" % (lt[0], lt[1], lt[2], lt[3], lt[4], lt[5], time.tzname[1])
+  dqm_report = {"run":run_name, "genDate": lts, "report":rall}
+  ff = open(fname_dqm,mode="w")
+  print >>ff, "var DQM_REPORT = "
+  json.dump(dqm_report,ff)
+  #print >>ff, "];"
+  ff.close()
+
+
+######################################################################################################
+
+def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., 
+                ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, 
+                r1text=" before", r2text=" after", which="median"):
     tdrStyle.SetOptStat("emrou")
     tdrStyle.SetStatW(0.40)
     tdrStyle.SetStatFontSize(0.05)
+
+    global hmediandxdz_after, hmediandxdz_aftercopy, hmediandxdz_before, hmediandxdz_beforecopy, \
+           hmediandydz_after, hmediandydz_aftercopy, hmediandydz_before, hmediandydz_beforecopy, \
+           hmedianx_after, hmedianx_aftercopy, hmedianx_before, hmedianx_beforecopy, \
+           hmediany_after, hmediany_aftercopy, hmediany_before, hmediany_beforecopy, tlegend 
 
     hmedianx_before = ROOT.TH1F("hmedianx_before", "", binsx, -windowx, windowx)
     hmediany_before = ROOT.TH1F("hmediany_before", "", binsy, -windowy, windowy)
@@ -1565,116 +1994,49 @@ def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilin
     hmediandydz_beforecopy.Draw("same")
     hmediandydz_after.Draw("axissame")
 
-    return hmediandxdz_after, hmediandxdz_aftercopy, hmediandxdz_before, hmediandxdz_beforecopy, hmediandydz_after, hmediandydz_aftercopy, hmediandydz_before, hmediandydz_beforecopy, hmedianx_after, hmedianx_aftercopy, hmedianx_before, hmedianx_beforecopy, hmediany_after, hmediany_aftercopy, hmediany_before, hmediany_beforecopy, tlegend 
+    return hmediandxdz_after, hmediandxdz_aftercopy, hmediandxdz_before, hmediandxdz_beforecopy, \
+           hmediandydz_after, hmediandydz_aftercopy, hmediandydz_before, hmediandydz_beforecopy, \
+           hmedianx_after, hmedianx_aftercopy, hmedianx_before, hmedianx_beforecopy, \
+           hmediany_after, hmediany_aftercopy, hmediany_before, hmediany_beforecopy, tlegend 
 
 ######################################################################################################
 
-phiedges_me11 = [0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132, 1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094, 2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839, -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362, -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838, -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153]
-phiedges_me12 = [0.087266462599716474, 0.26179938297741073, 0.43633231700542385, 0.61086526005981812, 0.78539815872971441, 0.95993109326461523, 1.1344639919345114, 1.3089969349889057, 1.4835298690169187, 1.6580627893946129, 1.8325957097723073, 2.0071286438003204, 2.1816615868547147, 2.3561944855246111, 2.5307274200595118, 2.7052603187294082, 2.879793261783802, 3.0543261958118153, -3.0543261909900767, -2.8797932706123825, -2.7052603365843693, -2.5307273935299754, -2.356194494860079, -2.1816615603251783, -2.0071286616552819, -1.8325957186008877, -1.6580627845728746, -1.4835298641951802, -1.308996943817486, -1.1344640097894729, -0.95993106673507855, -0.78539816806518226, -0.61086523353028144, -0.43633233486038514, -0.26179939180599088, -0.087266457777977771]
-phiedges_me13 = [0.087266462599716474, 0.26179938235213535, 0.43633230952414037, 0.61086523916470359, 0.78539817763669606, 0.95993107435763347, 1.1344640128296259, 1.3089969424701891, 1.4835298696421941, 1.6580627893946129, 1.832595709147032, 2.0071286363190368, 2.1816615659596001, 2.3561945044315924, 2.53072740115253, 2.7052603396245227, 2.8797932692650856, 3.0543261964370907, -3.0543261909900767, -2.8797932712376579, -2.7052603440656529, -2.53072741442509, -2.3561944759530973, -2.1816615792321596, -2.0071286407601674, -1.8325957111196041, -1.6580627839475992, -1.4835298641951802, -1.3089969444427614, -1.1344640172707563, -0.95993108763019308, -0.7853981491582005, -0.61086525243726308, -0.43633231396527061, -0.2617993843247074, -0.087266457152702412]
-phiedges_me14 = [0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132, 1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094, 2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839, -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362, -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838, -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153]
-phiedges_me21 = [0.26179938481428705, 0.6108652193791777, 0.95993108859688125, 1.3089969578145848, 1.6580627923794755, 2.0071286538798305, 2.356194498693418, 2.7052603320901376, 3.0543261769037247, -2.8797932687755066, -2.5307274342106156, -2.1816615649929121, -1.8325956957752083, -1.4835298612103178, -1.1344639997099626, -0.78539815489637521, -0.43633232149965551, -0.087266476686068212]
-phiedges_me22 = [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153, 1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993, 2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605, -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419, -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943, -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
-phiedges_me31 = [0.26179938498198485, 0.61086523665761272, 0.95993108859688125, 1.3089969405361499, 1.6580627922117777, 2.0071286313120122, 2.3561944778405319, 2.7052603529430232, 3.0543261994715434, -2.8797932686078087, -2.530727416932181, -2.1816615649929121, -1.8325957130536434, -1.4835298613780155, -1.1344640222777811, -0.78539817574926085, -0.43633230064676976, -0.087266454118249653]
-phiedges_me32 = [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153, 1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993, 2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605, -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419, -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943, -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
-phiedges_me41 = [0.26179938879942166, 0.61086525092924071, 0.95993108859688125, 1.3089969262645218, 1.6580627883943408, 2.0071286288299772, 2.3561945088997609, 2.7052603218837943, 3.0543262019535784, -2.8797932647903717, -2.5307274026605526, -2.1816615649929121, -1.8325957273252713, -1.4835298651954525, -1.1344640247598159, -0.785398144690032, -0.43633233170599861, -0.087266451636214853]
-phiedges_me42 = [0.087266462599716474, 0.26179938871066555, 0.43633231557670243, 0.61086524129631259, 0.785398172964478, 0.95993107902985153, 1.1344640106980168, 1.308996936417627, 1.483529863283664, 1.6580627893946129, 1.8325957155055621, 2.0071286423715993, 2.1816615680912093, 2.3561944997593747, 2.5307274058247482, 2.7052603374929136, 2.8797932632125236, 3.0543261900785605, -3.0543261909900767, -2.8797932648791278, -2.7052603380130908, -2.5307274122934809, -2.3561944806253154, -2.1816615745599419, -2.0071286428917765, -1.8325957171721663, -1.6580627903061294, -1.4835298641951802, -1.3089969380842312, -1.1344640112181943, -0.95993108549858397, -0.78539815383041856, -0.61086524776504503, -0.43633231609687961, -0.26179939037726946, -0.087266463511232586]
-
-phiedges1 = [0.35228048120123945, 0.87587781482541827, 1.3994776462193192, 1.923076807996136, 2.4466741416203148, 2.970273973014216, -2.7893121723885534, -2.2657148387643748, -1.7421150073704739, -1.2185158455936571, -0.69491851196947851, -0.17131868057557731]
-phiedges2 = [0.22000706229660855, 0.74360690430428489, 1.267204926935573, 1.7908033890915052, 2.3144032310991816, 2.8380012537304697, -2.9215855912931841, -2.3979857492855081, -1.8743877266542202, -1.3507892644982882, -0.82718942249061178, -0.30359139985932365]
-phiedges3 = [0.29751957124275596, 0.82111826253905784, 1.3447162969496083, 1.8683158980376524, 2.3919145893339548, 2.915512623744505, -2.844073082347037, -2.3204743910507353, -1.7968763566401849, -1.2732767555521407, -0.74967806425583894, -0.22608002984528835]
-phiedges4 = [3.0136655290752188, -2.7530905195097337, -2.2922883025568734, -1.9222915077192773, -1.5707963267948966, -1.2193011458705159, -0.84930435103291968, -0.38850213408005951, 0.127927124514574, 0.65152597487624719, 1.1322596819239259, 1.5707963267948966, 2.0093329716658674, 2.4900666787135459]
-
-def philines(station, window, abscissa):
-    global philine_tlines, philine_labels
-    philine_tlines = []
-    if station == "me11": phiedges = phiedges_me11
-    if station == "me12": phiedges = phiedges_me12
-    if station == "me13": phiedges = phiedges_me13
-    if station == "me14": phiedges = phiedges_me14
-    if station == "me21": phiedges = phiedges_me21
-    if station == "me22": phiedges = phiedges_me22
-    if station == "me31": phiedges = phiedges_me31
-    if station == "me32": phiedges = phiedges_me32
-    if station == "me41": phiedges = phiedges_me41
-    if station == "me42": phiedges = phiedges_me42
-    if station == 1: phiedges = phiedges1
-    if station == 2: phiedges = phiedges2
-    if station == 3: phiedges = phiedges3
-    if station == 4: phiedges = phiedges4
-    for phi in phiedges:
-        if abscissa is None or abscissa[0] < phi < abscissa[1]:
-            philine_tlines.append(ROOT.TLine(phi, -window, phi, window))
-            philine_tlines[-1].SetLineStyle(2)
-            philine_tlines[-1].Draw()
-    if station in (1, 2, 3, 4):
-        philine_labels = []
-        phiedges = phiedges[:]
-        phiedges.sort()
-        if station in (1, 2, 3):
-            labels = [" 8", " 9", "10", "11", "12", " 1", " 2", " 3", " 4", " 5", " 6"]
-            phiedges = phiedges[1:]
-        else: 
-            labels = [" 7", " 8", " 9", "14", "10", "11", "12", " 1", " 2", " 3", "13", " 4", " 5", " 6"]
-        for phi, label in zip(phiedges, labels):
-            littlebit = 0.
-            if label in (" 7", " 9", "14", "10", "11"): littlebit = 0.05
-            philine_labels.append(ROOT.TText(phi-0.35+littlebit, -0.9*window, label)); philine_labels[-1].Draw()
-        philine_labels.append(ROOT.TText(-2.9, -0.75*window, "Sector:")); philine_labels[-1].Draw()
-
-def zlines(window, abscissa):
-    global zline_tlines, zline_labels
-    zline_tlines = []
-    for z in -401.625, -133.875, 133.875, 401.625:
-        if abscissa is None or abscissa[0] < z < abscissa[1]:
-            zline_tlines.append(ROOT.TLine(z, -window, z, window))
-            zline_tlines[-1].SetLineStyle(2)
-            zline_tlines[-1].Draw()
-    zline_labels = []
-    zline_labels.append(ROOT.TText(-550, -0.9*window, "-2"))
-    zline_labels.append(ROOT.TText(-300, -0.9*window, "-1"))
-    zline_labels.append(ROOT.TText(-10, -0.9*window, "0"))
-    zline_labels.append(ROOT.TText(250, -0.9*window, "+1"))
-    zline_labels.append(ROOT.TText(500, -0.9*window, "+2"))
-    for z in zline_labels: z.Draw()
-    zline_labels.append(ROOT.TText(-600, -0.75*window, "Wheel:")); zline_labels[-1].Draw()
-
-def rlines(disk, window, abscissa):
-    global rline_tlines
-    rline_tlines = []
-    if disk == 1: rl = [150., 270., 480.]
-    else: rl = [350.]
-    for r in rl:
-        if abscissa is None or abscissa[0] < r < abscissa[1]:
-            rline_tlines.append(ROOT.TLine(r, -window, r, window))
-            rline_tlines[-1].SetLineStyle(2)
-            rline_tlines[-1].Draw()
-
-def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", widebins=False, fitsine=False, fitline=False, reset_palette=True):
+def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", 
+            widebins=False, fitsine=False, fitline=False, reset_palette=False):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptStat(0)
+    #tdrStyle.SetOptStat("emrou")
     tdrStyle.SetOptFit(0)
     tdrStyle.SetTitleFontSize(0.05)
-
+    tdrStyle.SetPadRightMargin(0.1) # to see the pallete labels on the left
+    
     c1.Clear()
+    c1.ResetAttPad()
+    
     if reset_palette: set_palette("blues")
     global hist, hist2d, hist2dweight, tline1, tline2, tline3
-    prof = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_prof" % (name, param)).Clone()
-    profPos = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_profPos" % (name, param)).Clone()
-    profNeg = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_profNeg" % (name, param)).Clone()
-    weights = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_weights" % (name, param)).Clone()
-    valweights = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_valweights" % (name, param)).Clone()
-    hist2d = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_2d" % (name, param)).Clone()
-    hist2dweight = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_2dweight" % (name, param)).Clone()
+    
+    hdir = "AlignmentMonitorMuonSystemMap1D/iter1/"
+    hpref= "%s_%s" % (name, param)
+    hhh  = hdir+hpref
+
+    prof = tfiles[0].Get(hhh+"_prof").Clone(hpref+"_prof_")
+    profPos = tfiles[0].Get(hhh+"_profPos").Clone(hpref+"_profPos_")
+    profNeg = tfiles[0].Get(hhh+"_profNeg").Clone(hpref+"_profNeg_")
+    weights = tfiles[0].Get(hhh+"_weights").Clone(hpref+"_weights_")
+    valweights = tfiles[0].Get(hhh+"_valweights").Clone(hpref+"_valweights_")
+    hist2d = tfiles[0].Get(hhh+"_2d").Clone(hpref+"_2d_")
+    hist2dweight = tfiles[0].Get(hhh+"_2dweight").Clone(hpref+"_2dweight_")
+    
     for tfile in tfiles[1:]:
-        prof.Add(tfile.Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_prof" % (name, param)))
-        profPos.Add(tfile.Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_profPos" % (name, param)))
-        profNeg.Add(tfile.Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_profNeg" % (name, param)))
-        weights.Add(tfile.Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_weights" % (name, param)))
-        valweights.Add(tfile.Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_valweights" % (name, param)))
-        hist2d.Add(tfile.Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_2d" % (name, param)))
-        hist2dweight.Add(tfile.Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_2dweight" % (name, param)))
+        prof.Add(tfile.Get(hhh+"_prof"))
+        profPos.Add(tfile.Get(hhh+"_profPos"))
+        profNeg.Add(tfile.Get(hhh+"_profNeg"))
+        weights.Add(tfile.Get(hhh+"_weights"))
+        valweights.Add(tfile.Get(hhh+"_valweights"))
+        hist2d.Add(tfile.Get(hhh+"_2d"))
+        hist2dweight.Add(tfile.Get(hhh+"_2dweight"))
 
     if mode == "plain":
         hist = prof
@@ -1770,7 +2132,8 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     if fitsine:
         hist2d.GetFunction("f").Draw("same")
         global fitsine_ttext
-        fitsine_ttext = ROOT.TText(-1., 0.8*window, "%.3g + %.3g sin(phi) + %.3g cos(phi)" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
+        fitsine_ttext = ROOT.TText(-1., 0.8*window, 
+                "%.3g + %.3g sin(phi) + %.3g cos(phi)" % (fitsine_const[0], fitsine_sin[0], fitsine_cos[0]))
         fitsine_ttext.SetTextColor(ROOT.kRed)
         fitsine_ttext.Draw()
     if fitline:
@@ -1778,9 +2141,11 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
         global fitline_ttext
         if "vsz" in name: which = "Z"
         elif "vsr" in name: which = "R"
-        fitline_ttext = ROOT.TText(hist.GetBinCenter(hist.GetNbinsX()/2), 0.8*window, "%.3g + %.3g %s" % (fitline_const[0], fitline_linear[0], which))
+        fitline_ttext = ROOT.TText(hist.GetBinCenter(hist.GetNbinsX()/2), 
+                0.8*window, "%.3g + %.3g %s" % (fitline_const[0], fitline_linear[0], which))
         fitline_ttext.SetTextColor(ROOT.kRed)
         fitline_ttext.Draw()
+    ROOT.gPad.RedrawAxis()
 
     if "vsphi" in name: 
         if ("mem11" in name or "mep11" in name) and not widebins: philines("me11", window, abscissa)
@@ -1828,6 +2193,14 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
             tline1 = ROOT.TLine(abscissa[0], 0, abscissa[1], 0); tline1.Draw()
             tline2 = ROOT.TLine(abscissa[0], -window, abscissa[1], -window); tline2.SetLineWidth(2); tline2.Draw()
             tline3 = ROOT.TLine(abscissa[0], window, abscissa[1], window); tline3.Draw()
+
+    ROOT.SetOwnership(hist,False)
+    ROOT.SetOwnership(hist2d,False)
+    ROOT.SetOwnership(hist2dweight,False)
+    ROOT.SetOwnership(tline1,False)
+    ROOT.SetOwnership(tline2,False)
+    ROOT.SetOwnership(tline3,False)
+
 
 def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False, title="", fitgauss=False, reset_palette=True):
     tdrStyle.SetOptTitle(1)
@@ -1879,7 +2252,8 @@ def curvatureplot(tfiles, name, param, mode="from2d", window=15., widebins=False
         global fitgauss_diff, fitgauss_chi2, fitgauss_ndf
 #         fitter = ROOT.TVirtualFitter.GetFitter()
 #         fitgauss_diff = hist.GetFunction("f").GetParameter(0) - hist.GetFunction("f").GetParameter(1), \
-#                         sqrt(hist.GetFunction("f").GetParError(0)**2 + hist.GetFunction("f").GetParError(1)**2 + 2.*fitter.GetCovarianceMatrixElement(0, 1))
+#                         sqrt(hist.GetFunction("f").GetParError(0)**2 + \ 
+#                         hist.GetFunction("f").GetParError(1)**2 + 2.*fitter.GetCovarianceMatrixElement(0, 1))
         fitgauss_diff = hist.GetFunction("f").GetParameter(1), hist.GetFunction("f").GetParError(1)
         fitgauss_chi2 = hist.GetFunction("f").GetChisquare()
         fitgauss_ndf = hist.GetFunction("f").GetNDF()
@@ -1931,7 +2305,8 @@ def curvatureDTsummary(tfiles, window=15., pdgSfactor=False):
     differrs = {-2: [], -1: [], 0: [], 1: [], 2: []}
     for wheelstr, wheel in ("m2", "-2"), ("m1", "-1"), ("z", "0"), ("p1", "+1"), ("p2", "+2"):
         for sector in "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12":
-            curvatureplot(tfiles, "wheel%s_sector%s" % (wheelstr, sector), "deltax", title="Wheel %s, sector %s" % (wheel, sector), fitgauss=True, reset_palette=False)
+            curvatureplot(tfiles, "wheel%s_sector%s" % (wheelstr, sector), "deltax", 
+                    title="Wheel %s, sector %s" % (wheel, sector), fitgauss=True, reset_palette=False)
             if fitgauss_diff[1] < window:
                 uncertainty = fitgauss_diff[1]
                 if pdgSfactor and (fitgauss_chi2/fitgauss_ndf) > 1.: uncertainty *= sqrt(fitgauss_chi2/fitgauss_ndf)
@@ -1947,11 +2322,16 @@ def curvatureDTsummary(tfiles, window=15., pdgSfactor=False):
     h.GetXaxis().CenterTitle()
     h.GetYaxis().CenterTitle()
 
-    gm2 = ROOT.TGraphErrors(len(phis[-2]), array.array("d", phis[-2]), array.array("d", diffs[-2]), array.array("d", [0.]*len(phis[-2])), array.array("d", differrs[-2]))
-    gm1 = ROOT.TGraphErrors(len(phis[-1]), array.array("d", phis[-1]), array.array("d", diffs[-1]), array.array("d", [0.]*len(phis[-1])), array.array("d", differrs[-1]))
-    gz = ROOT.TGraphErrors(len(phis[0]), array.array("d", phis[0]), array.array("d", diffs[0]), array.array("d", [0.]*len(phis[0])), array.array("d", differrs[0]))
-    gp1 = ROOT.TGraphErrors(len(phis[1]), array.array("d", phis[1]), array.array("d", diffs[1]), array.array("d", [0.]*len(phis[1])), array.array("d", differrs[1]))
-    gp2 = ROOT.TGraphErrors(len(phis[2]), array.array("d", phis[2]), array.array("d", diffs[2]), array.array("d", [0.]*len(phis[2])), array.array("d", differrs[2]))
+    gm2 = ROOT.TGraphErrors(len(phis[-2]), array.array("d", phis[-2]), array.array("d", diffs[-2]), 
+            array.array("d", [0.]*len(phis[-2])), array.array("d", differrs[-2]))
+    gm1 = ROOT.TGraphErrors(len(phis[-1]), array.array("d", phis[-1]), array.array("d", diffs[-1]), 
+            array.array("d", [0.]*len(phis[-1])), array.array("d", differrs[-1]))
+    gz = ROOT.TGraphErrors(len(phis[0]), array.array("d", phis[0]), array.array("d", diffs[0]), 
+            array.array("d", [0.]*len(phis[0])), array.array("d", differrs[0]))
+    gp1 = ROOT.TGraphErrors(len(phis[1]), array.array("d", phis[1]), array.array("d", diffs[1]), 
+            array.array("d", [0.]*len(phis[1])), array.array("d", differrs[1]))
+    gp2 = ROOT.TGraphErrors(len(phis[2]), array.array("d", phis[2]), array.array("d", diffs[2]), 
+            array.array("d", [0.]*len(phis[2])), array.array("d", differrs[2]))
 
     gm2.SetMarkerStyle(21); gm2.SetMarkerColor(ROOT.kRed); gm2.SetLineColor(ROOT.kRed)
     gm1.SetMarkerStyle(22); gm1.SetMarkerColor(ROOT.kBlue); gm1.SetLineColor(ROOT.kBlue)
@@ -1976,6 +2356,7 @@ def curvatureDTsummary(tfiles, window=15., pdgSfactor=False):
     gp1.Draw("p")
     gp2.Draw("p")
 
+
 def getname(r):
     if r.postal_address[0] == "DT":
         wheel, station, sector = r.postal_address[1:]
@@ -1985,12 +2366,29 @@ def getname(r):
         if endcap != 1: station = -1 * abs(station)
         return "CSC ME%d/%d chamber %d" % (station, ring, chamber)
 
+ddt=[0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+def clearDDT():
+    for i in range(0,15):
+        ddt[i]=0.
+
+def printDeltaTs():
+    n = 0
+    for t in ddt:
+        if n==0 or n==7 or n==15: print "%d calls" % t
+        else: print "%d : %0.3f ms" % (n,t*1000.0)
+        n += 1
+
 def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
-    plotDirectory = "MuonAlignmentFromReference"
+    t1 = time.time()
+    ddt[0] += 1
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(1)
     tdrStyle.SetTitleFontSize(0.1)
     tdrStyle.SetOptStat(0)
+    tdrStyle.SetHistMinimumZero()
+
+    c1.Clear()
+    c1.ResetAttPad()
 
     found = False
     for r in reports:
@@ -1998,47 +2396,64 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
             found = True
             break
     if not found: raise Exception, "Not a valid name"
-    if r.status == "FAIL": raise Exception, "Fit failed"
+    if r.status == "FAIL":
+        #raise Exception, "Fit failed"
+        print "Fit failed"
+        c1.Clear()
+        return
     
     Pos = "Pos"; Neg = "Neg"
     if not twobin:
         Pos = ""; Neg = ""
 
-    chamber_x = tfile.Get("%s/%s%s_x" % (plotDirectory, name, Pos))
-    chamber_x_fit = tfile.Get("%s/%s%s_x_fit" % (plotDirectory, name, Pos))
-    chamber_y = tfile.Get("%s/%s%s_y" % (plotDirectory, name, Pos))
-    chamber_y_fit = tfile.Get("%s/%s%s_y_fit" % (plotDirectory, name, Pos))
-    chamber_dxdz = tfile.Get("%s/%s%s_dxdz" % (plotDirectory, name, Pos))
-    chamber_dxdz_fit = tfile.Get("%s/%s%s_dxdz_fit" % (plotDirectory, name, Pos))
-    chamber_dydz = tfile.Get("%s/%s%s_dydz" % (plotDirectory, name, Pos))
-    chamber_dydz_fit = tfile.Get("%s/%s%s_dydz_fit" % (plotDirectory, name, Pos))
-    chamber_alphax = tfile.Get("%s/%s%s_alphax" % (plotDirectory, name, Pos))
-    chamber_alphax_fit = tfile.Get("%s/%s%s_alphax_fit" % (plotDirectory, name, Pos))
-    chamber_alphay = tfile.Get("%s/%s%s_alphay" % (plotDirectory, name, Pos))
-    chamber_alphay_fit = tfile.Get("%s/%s%s_alphay_fit" % (plotDirectory, name, Pos))
-    chamber_x_fit2 = tfile.Get("%s/%s%s_x_fit" % (plotDirectory, name, Neg))
-    chamber_y_fit2 = tfile.Get("%s/%s%s_y_fit" % (plotDirectory, name, Neg))
-    chamber_dxdz_fit2 = tfile.Get("%s/%s%s_dxdz_fit" % (plotDirectory, name, Neg))
-    chamber_dydz_fit2 = tfile.Get("%s/%s%s_dydz_fit" % (plotDirectory, name, Neg))
-    chamber_alphax_fit2 = tfile.Get("%s/%s%s_alphax_fit" % (plotDirectory, name, Neg))
-    chamber_alphay_fit2 = tfile.Get("%s/%s%s_alphay_fit" % (plotDirectory, name, Neg))
+    pdirPos = "MuonAlignmentFromReference/%s%s" % (name, Pos)
+    pdirNeg = "MuonAlignmentFromReference/%s%s" % (name, Neg)
 
-    if chamber_x is None:
-        chamber_x = tfile.Get("%s/%s%s_residual" % (plotDirectory, name, Pos))
-        chamber_x_fit = tfile.Get("%s/%s%s_residual_fit" % (plotDirectory, name, Pos))
-        chamber_dxdz = tfile.Get("%s/%s%s_resslope" % (plotDirectory, name, Pos))
-        chamber_dxdz_fit = tfile.Get("%s/%s%s_resslope_fit" % (plotDirectory, name, Pos))
-        chamber_alphax = tfile.Get("%s/%s%s_alpha" % (plotDirectory, name, Pos))
-        chamber_alphax_fit = tfile.Get("%s/%s%s_alpha_fit" % (plotDirectory, name, Pos))
-        chamber_x_fit2 = tfile.Get("%s/%s%s_residual_fit" % (plotDirectory, name, Neg))
-        chamber_dxdz_fit2 = tfile.Get("%s/%s%s_resslope_fit" % (plotDirectory, name, Neg))
-        chamber_alphax_fit2 = tfile.Get("%s/%s%s_alpha_fit" % (plotDirectory, name, Neg))
+    t2 = time.time()
+    ddt[1] = 1./ddt[0]*((ddt[0]-1)*ddt[1] + t2-t1)
+
+    chamber_x = tfile.Get(pdirPos+"_x")
+    chamber_x_fit = tfile.Get(pdirPos+"_x_fit")
+    chamber_y = tfile.Get(pdirPos+"_y")
+    chamber_y_fit = tfile.Get(pdirPos+"_y_fit")
+    chamber_dxdz = tfile.Get(pdirPos+"_dxdz")
+    chamber_dxdz_fit = tfile.Get(pdirPos+"_dxdz_fit")
+    chamber_dydz = tfile.Get(pdirPos+"_dydz")
+    chamber_dydz_fit = tfile.Get(pdirPos+"_dydz_fit")
+    chamber_alphax = tfile.Get(pdirPos+"_alphax")
+    chamber_alphax_fit = tfile.Get(pdirPos+"_alphax_fit")
+    chamber_alphay = tfile.Get(pdirPos+"_alphay")
+    chamber_alphay_fit = tfile.Get(pdirPos+"_alphay_fit")
+    chamber_x_fit2 = tfile.Get(pdirNeg+"_x_fit")
+    chamber_y_fit2 = tfile.Get(pdirNeg+"_y_fit")
+    chamber_dxdz_fit2 = tfile.Get(pdirNeg+"_dxdz_fit")
+    chamber_dydz_fit2 = tfile.Get(pdirNeg+"_dydz_fit")
+    chamber_alphax_fit2 = tfile.Get(pdirNeg+"_alphax_fit")
+    chamber_alphay_fit2 = tfile.Get(pdirNeg+"_alphay_fit")
+
+    if not chamber_x:
+        chamber_x = tfile.Get(pdirPos+"_residual")
+        chamber_x_fit = tfile.Get(pdirPos+"_residual_fit")
+        chamber_dxdz = tfile.Get(pdirPos+"_resslope")
+        chamber_dxdz_fit = tfile.Get(pdirPos+"_resslope_fit")
+        chamber_alphax = tfile.Get(pdirPos+"_alpha")
+        chamber_alphax_fit = tfile.Get(pdirPos+"_alpha_fit")
+        chamber_x_fit2 = tfile.Get(pdirNeg+"_residual_fit")
+        chamber_dxdz_fit2 = tfile.Get(pdirNeg+"_resslope_fit")
+        chamber_alphax_fit2 = tfile.Get(pdirNeg+"_alpha_fit")
+
+    if not chamber_x:
+        print "Can't find neither "+pdirPos+"_x  nor "+pdirPos+"_residual"
+        return
+
+    t3 = time.time()
+    ddt[2] = 1./ddt[0]*((ddt[0]-1)*ddt[2] + t3-t2)
 
     ####
     chamber_x.SetAxisRange(-30., 30., "X")
     chamber_dxdz.SetAxisRange(-50., 50., "X")
-    if chamber_y is not None:
-        chamber_y.SetAxisRange(-50., 50., "X")
+    if not not chamber_y:
+        chamber_y.SetAxisRange(-150., 150., "X")
         chamber_dydz.SetAxisRange(-200., 200., "X")
     ####
 
@@ -2046,7 +2461,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
     chamber_dxdz.SetXTitle("Local dx/dz residual (mrad)")
     chamber_alphax.SetXTitle("Local dx/dz residual (mrad)")
     chamber_alphax.SetYTitle("Local x residual (mm)")
-    if chamber_y is not None:
+    if not not chamber_y:
         chamber_y.SetXTitle("Local y residual (mm)")
         chamber_dydz.SetXTitle("Local dy/dz residual (mrad)")
         chamber_alphay.SetXTitle("Local dy/dz residual (mrad)")
@@ -2057,8 +2472,12 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_alphax.SetXTitle("Local d(r#phi)/dz residual (mrad)")
         chamber_alphax.SetYTitle("Local r#phi residual (mm)")
 
-    for h in chamber_x, chamber_dxdz, chamber_alphax, chamber_alphax, chamber_y, chamber_dydz, chamber_alphay, chamber_alphay:
-        if h is not None:
+    t4 = time.time()
+    ddt[3] = 1./ddt[0]*((ddt[0]-1)*ddt[3] + t4-t3)
+
+    for h in chamber_x, chamber_dxdz, chamber_alphax, chamber_alphax, \
+             chamber_y, chamber_dydz, chamber_alphay, chamber_alphay:
+        if not not h:
             h.GetXaxis().CenterTitle()
             h.GetYaxis().CenterTitle()
             h.GetXaxis().SetLabelSize(0.05)
@@ -2068,11 +2487,15 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
             h.GetXaxis().SetTitleOffset(0.9)
             h.GetYaxis().SetTitleOffset(0.9)
 
-    for f in chamber_x_fit2, chamber_y_fit2, chamber_dxdz_fit2, chamber_dydz_fit2, chamber_alphax_fit2, chamber_alphay_fit2:
-        if f is not None:
+    for f in chamber_x_fit2, chamber_y_fit2, chamber_dxdz_fit2, chamber_dydz_fit2, \
+             chamber_alphax_fit2, chamber_alphay_fit2:
+        if not not f:
             f.SetLineColor(4)
 
-    if chamber_y is not None:
+    t5 = time.time()
+    ddt[4] = 1./ddt[0]*((ddt[0]-1)*ddt[4] + t5-t4)
+
+    if not not chamber_y:
         c1.Clear()
         c1.Divide(3, 2)
         chamber_x.SetTitle(getname(r))
@@ -2127,7 +2550,14 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         if not suppressblue: chamber_alphax_fit2.Draw("same")
         chamber_alphax_fit.Draw("same")
 
+    t6 = time.time()
+    ddt[5] = 1./ddt[0]*((ddt[0]-1)*ddt[5] + t6-t5)
+    ddt[6] = 1./ddt[0]*((ddt[0]-1)*ddt[6] + t6-t1)
+
+
 def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
+    t1 = time.time()
+    ddt[7] += 1
     global label1, label2, label3, label4, label5, label6, label7, label8, label9
     plotDirectory = "MuonAlignmentFromReference"
     tdrStyle.SetOptTitle(1)
@@ -2135,103 +2565,126 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
     tdrStyle.SetTitleFontSize(0.1)
     tdrStyle.SetOptStat(0)
 
+    c1.Clear()
+    c1.ResetAttPad()
+
     found = False
     for r in reports:
         if r.name == name:
             found = True
             break
     if not found: raise Exception, "Not a valid name"
-    if r.status == "FAIL": raise Exception, "Fit failed"
+
+    if r.status == "FAIL":
+        #raise Exception, "Fit failed"
+        print "Fit failed"
+        c1.Clear()
+        return
 
     Pos = "Pos"; Neg = "Neg"
     if not twobin:
         Pos = ""; Neg = ""
 
-    global chamber_x_trackx, chamber_x_trackx_fit, chamber_y_trackx, chamber_y_trackx_fit, chamber_dxdz_trackx, chamber_dxdz_trackx_fit, chamber_dydz_trackx, chamber_dydz_trackx_fit, chamber_x_trackx_fit2, chamber_y_trackx_fit2, chamber_dxdz_trackx_fit2, chamber_dydz_trackx_fit2
-    global chamber_x_tracky, chamber_x_tracky_fit, chamber_y_tracky, chamber_y_tracky_fit, chamber_dxdz_tracky, chamber_dxdz_tracky_fit, chamber_dydz_tracky, chamber_dydz_tracky_fit, chamber_x_tracky_fit2, chamber_y_tracky_fit2, chamber_dxdz_tracky_fit2, chamber_dydz_tracky_fit2
-    global chamber_x_trackdxdz, chamber_x_trackdxdz_fit, chamber_y_trackdxdz, chamber_y_trackdxdz_fit, chamber_dxdz_trackdxdz, chamber_dxdz_trackdxdz_fit, chamber_dydz_trackdxdz, chamber_dydz_trackdxdz_fit, chamber_x_trackdxdz_fit2, chamber_y_trackdxdz_fit2, chamber_dxdz_trackdxdz_fit2, chamber_dydz_trackdxdz_fit2
-    global chamber_x_trackdydz, chamber_x_trackdydz_fit, chamber_y_trackdydz, chamber_y_trackdydz_fit, chamber_dxdz_trackdydz, chamber_dxdz_trackdydz_fit, chamber_dydz_trackdydz, chamber_dydz_trackdydz_fit, chamber_x_trackdydz_fit2, chamber_y_trackdydz_fit2, chamber_dxdz_trackdydz_fit2, chamber_dydz_trackdydz_fit2
+    pdirPos = "MuonAlignmentFromReference/%s%s" % (name, Pos)
+    pdirNeg = "MuonAlignmentFromReference/%s%s" % (name, Neg)
 
-    chamber_x_trackx = tfile.Get("%s/%s%s_x_trackx" % (plotDirectory, name, Pos))
-    chamber_x_trackx_fit = tfile.Get("%s/%s%s_x_trackx_fitline" % (plotDirectory, name, Pos))
-    chamber_y_trackx = tfile.Get("%s/%s%s_y_trackx" % (plotDirectory, name, Pos))
-    chamber_y_trackx_fit = tfile.Get("%s/%s%s_y_trackx_fitline" % (plotDirectory, name, Pos))
-    chamber_dxdz_trackx = tfile.Get("%s/%s%s_dxdz_trackx" % (plotDirectory, name, Pos))
-    chamber_dxdz_trackx_fit = tfile.Get("%s/%s%s_dxdz_trackx_fitline" % (plotDirectory, name, Pos))
-    chamber_dydz_trackx = tfile.Get("%s/%s%s_dydz_trackx" % (plotDirectory, name, Pos))
-    chamber_dydz_trackx_fit = tfile.Get("%s/%s%s_dydz_trackx_fitline" % (plotDirectory, name, Pos))
-    chamber_x_trackx_fit2 = tfile.Get("%s/%s%s_x_trackx_fitline" % (plotDirectory, name, Neg))
-    chamber_y_trackx_fit2 = tfile.Get("%s/%s%s_y_trackx_fitline" % (plotDirectory, name, Neg))
-    chamber_dxdz_trackx_fit2 = tfile.Get("%s/%s%s_dxdz_trackx_fitline" % (plotDirectory, name, Neg))
-    chamber_dydz_trackx_fit2 = tfile.Get("%s/%s%s_dydz_trackx_fitline" % (plotDirectory, name, Neg))
+    global chamber_x_trackx, chamber_x_trackx_fit, chamber_y_trackx, chamber_y_trackx_fit, \
+        chamber_dxdz_trackx, chamber_dxdz_trackx_fit, chamber_dydz_trackx, chamber_dydz_trackx_fit, \
+        chamber_x_trackx_fit2, chamber_y_trackx_fit2, chamber_dxdz_trackx_fit2, chamber_dydz_trackx_fit2
+    global chamber_x_tracky, chamber_x_tracky_fit, chamber_y_tracky, chamber_y_tracky_fit, \
+        chamber_dxdz_tracky, chamber_dxdz_tracky_fit, chamber_dydz_tracky, chamber_dydz_tracky_fit, \
+        chamber_x_tracky_fit2, chamber_y_tracky_fit2, chamber_dxdz_tracky_fit2, chamber_dydz_tracky_fit2
+    global chamber_x_trackdxdz, chamber_x_trackdxdz_fit, chamber_y_trackdxdz, chamber_y_trackdxdz_fit, \
+        chamber_dxdz_trackdxdz, chamber_dxdz_trackdxdz_fit, chamber_dydz_trackdxdz, chamber_dydz_trackdxdz_fit, \
+        chamber_x_trackdxdz_fit2, chamber_y_trackdxdz_fit2, chamber_dxdz_trackdxdz_fit2, chamber_dydz_trackdxdz_fit2
+    global chamber_x_trackdydz, chamber_x_trackdydz_fit, chamber_y_trackdydz, chamber_y_trackdydz_fit, \
+        chamber_dxdz_trackdydz, chamber_dxdz_trackdydz_fit, chamber_dydz_trackdydz, chamber_dydz_trackdydz_fit, \
+        chamber_x_trackdydz_fit2, chamber_y_trackdydz_fit2, chamber_dxdz_trackdydz_fit2, chamber_dydz_trackdydz_fit2
 
-    chamber_x_tracky = tfile.Get("%s/%s%s_x_tracky" % (plotDirectory, name, Pos))
-    chamber_x_tracky_fit = tfile.Get("%s/%s%s_x_tracky_fitline" % (plotDirectory, name, Pos))
-    chamber_y_tracky = tfile.Get("%s/%s%s_y_tracky" % (plotDirectory, name, Pos))
-    chamber_y_tracky_fit = tfile.Get("%s/%s%s_y_tracky_fitline" % (plotDirectory, name, Pos))
-    chamber_dxdz_tracky = tfile.Get("%s/%s%s_dxdz_tracky" % (plotDirectory, name, Pos))
-    chamber_dxdz_tracky_fit = tfile.Get("%s/%s%s_dxdz_tracky_fitline" % (plotDirectory, name, Pos))
-    chamber_dydz_tracky = tfile.Get("%s/%s%s_dydz_tracky" % (plotDirectory, name, Pos))
-    chamber_dydz_tracky_fit = tfile.Get("%s/%s%s_dydz_tracky_fitline" % (plotDirectory, name, Pos))
-    chamber_x_tracky_fit2 = tfile.Get("%s/%s%s_x_tracky_fitline" % (plotDirectory, name, Neg))
-    chamber_y_tracky_fit2 = tfile.Get("%s/%s%s_y_tracky_fitline" % (plotDirectory, name, Neg))
-    chamber_dxdz_tracky_fit2 = tfile.Get("%s/%s%s_dxdz_tracky_fitline" % (plotDirectory, name, Neg))
-    chamber_dydz_tracky_fit2 = tfile.Get("%s/%s%s_dydz_tracky_fitline" % (plotDirectory, name, Neg))
+    chamber_x_trackx = tfile.Get(pdirPos+"_x_trackx")
+    chamber_x_trackx_fit = tfile.Get(pdirPos+"_x_trackx_fitline")
+    chamber_y_trackx = tfile.Get(pdirPos+"_y_trackx")
+    chamber_y_trackx_fit = tfile.Get(pdirPos+"_y_trackx_fitline")
+    chamber_dxdz_trackx = tfile.Get(pdirPos+"_dxdz_trackx")
+    chamber_dxdz_trackx_fit = tfile.Get(pdirPos+"_dxdz_trackx_fitline")
+    chamber_dydz_trackx = tfile.Get(pdirPos+"_dydz_trackx")
+    chamber_dydz_trackx_fit = tfile.Get(pdirPos+"_dydz_trackx_fitline")
+    chamber_x_trackx_fit2 = tfile.Get(pdirNeg+"_x_trackx_fitline")
+    chamber_y_trackx_fit2 = tfile.Get(pdirNeg+"_y_trackx_fitline")
+    chamber_dxdz_trackx_fit2 = tfile.Get(pdirNeg+"_dxdz_trackx_fitline")
+    chamber_dydz_trackx_fit2 = tfile.Get(pdirNeg+"_dydz_trackx_fitline")
 
-    chamber_x_trackdxdz = tfile.Get("%s/%s%s_x_trackdxdz" % (plotDirectory, name, Pos))
-    chamber_x_trackdxdz_fit = tfile.Get("%s/%s%s_x_trackdxdz_fitline" % (plotDirectory, name, Pos))
-    chamber_y_trackdxdz = tfile.Get("%s/%s%s_y_trackdxdz" % (plotDirectory, name, Pos))
-    chamber_y_trackdxdz_fit = tfile.Get("%s/%s%s_y_trackdxdz_fitline" % (plotDirectory, name, Pos))
-    chamber_dxdz_trackdxdz = tfile.Get("%s/%s%s_dxdz_trackdxdz" % (plotDirectory, name, Pos))
-    chamber_dxdz_trackdxdz_fit = tfile.Get("%s/%s%s_dxdz_trackdxdz_fitline" % (plotDirectory, name, Pos))
-    chamber_dydz_trackdxdz = tfile.Get("%s/%s%s_dydz_trackdxdz" % (plotDirectory, name, Pos))
-    chamber_dydz_trackdxdz_fit = tfile.Get("%s/%s%s_dydz_trackdxdz_fitline" % (plotDirectory, name, Pos))
-    chamber_x_trackdxdz_fit2 = tfile.Get("%s/%s%s_x_trackdxdz_fitline" % (plotDirectory, name, Neg))
-    chamber_y_trackdxdz_fit2 = tfile.Get("%s/%s%s_y_trackdxdz_fitline" % (plotDirectory, name, Neg))
-    chamber_dxdz_trackdxdz_fit2 = tfile.Get("%s/%s%s_dxdz_trackdxdz_fitline" % (plotDirectory, name, Neg))
-    chamber_dydz_trackdxdz_fit2 = tfile.Get("%s/%s%s_dydz_trackdxdz_fitline" % (plotDirectory, name, Neg))
+    chamber_x_tracky = tfile.Get(pdirPos+"_x_tracky")
+    chamber_x_tracky_fit = tfile.Get(pdirPos+"_x_tracky_fitline")
+    chamber_y_tracky = tfile.Get(pdirPos+"_y_tracky")
+    chamber_y_tracky_fit = tfile.Get(pdirPos+"_y_tracky_fitline")
+    chamber_dxdz_tracky = tfile.Get(pdirPos+"_dxdz_tracky")
+    chamber_dxdz_tracky_fit = tfile.Get(pdirPos+"_dxdz_tracky_fitline")
+    chamber_dydz_tracky = tfile.Get(pdirPos+"_dydz_tracky")
+    chamber_dydz_tracky_fit = tfile.Get(pdirPos+"_dydz_tracky_fitline")
+    chamber_x_tracky_fit2 = tfile.Get(pdirNeg+"_x_tracky_fitline")
+    chamber_y_tracky_fit2 = tfile.Get(pdirNeg+"_y_tracky_fitline")
+    chamber_dxdz_tracky_fit2 = tfile.Get(pdirNeg+"_dxdz_tracky_fitline")
+    chamber_dydz_tracky_fit2 = tfile.Get(pdirNeg+"_dydz_tracky_fitline")
 
-    chamber_x_trackdydz = tfile.Get("%s/%s%s_x_trackdydz" % (plotDirectory, name, Pos))
-    chamber_x_trackdydz_fit = tfile.Get("%s/%s%s_x_trackdydz_fitline" % (plotDirectory, name, Pos))
-    chamber_y_trackdydz = tfile.Get("%s/%s%s_y_trackdydz" % (plotDirectory, name, Pos))
-    chamber_y_trackdydz_fit = tfile.Get("%s/%s%s_y_trackdydz_fitline" % (plotDirectory, name, Pos))
-    chamber_dxdz_trackdydz = tfile.Get("%s/%s%s_dxdz_trackdydz" % (plotDirectory, name, Pos))
-    chamber_dxdz_trackdydz_fit = tfile.Get("%s/%s%s_dxdz_trackdydz_fitline" % (plotDirectory, name, Pos))
-    chamber_dydz_trackdydz = tfile.Get("%s/%s%s_dydz_trackdydz" % (plotDirectory, name, Pos))
-    chamber_dydz_trackdydz_fit = tfile.Get("%s/%s%s_dydz_trackdydz_fitline" % (plotDirectory, name, Pos))
-    chamber_x_trackdydz_fit2 = tfile.Get("%s/%s%s_x_trackdydz_fitline" % (plotDirectory, name, Neg))
-    chamber_y_trackdydz_fit2 = tfile.Get("%s/%s%s_y_trackdydz_fitline" % (plotDirectory, name, Neg))
-    chamber_dxdz_trackdydz_fit2 = tfile.Get("%s/%s%s_dxdz_trackdydz_fitline" % (plotDirectory, name, Neg))
-    chamber_dydz_trackdydz_fit2 = tfile.Get("%s/%s%s_dydz_trackdydz_fitline" % (plotDirectory, name, Neg))
+    chamber_x_trackdxdz = tfile.Get(pdirPos+"_x_trackdxdz")
+    chamber_x_trackdxdz_fit = tfile.Get(pdirPos+"_x_trackdxdz_fitline")
+    chamber_y_trackdxdz = tfile.Get(pdirPos+"_y_trackdxdz")
+    chamber_y_trackdxdz_fit = tfile.Get(pdirPos+"_y_trackdxdz_fitline")
+    chamber_dxdz_trackdxdz = tfile.Get(pdirPos+"_dxdz_trackdxdz")
+    chamber_dxdz_trackdxdz_fit = tfile.Get(pdirPos+"_dxdz_trackdxdz_fitline")
+    chamber_dydz_trackdxdz = tfile.Get(pdirPos+"_dydz_trackdxdz")
+    chamber_dydz_trackdxdz_fit = tfile.Get(pdirPos+"_dydz_trackdxdz_fitline")
+    chamber_x_trackdxdz_fit2 = tfile.Get(pdirNeg+"_x_trackdxdz_fitline")
+    chamber_y_trackdxdz_fit2 = tfile.Get(pdirNeg+"_y_trackdxdz_fitline")
+    chamber_dxdz_trackdxdz_fit2 = tfile.Get(pdirNeg+"_dxdz_trackdxdz_fitline")
+    chamber_dydz_trackdxdz_fit2 = tfile.Get(pdirNeg+"_dydz_trackdxdz_fitline")
 
-    if chamber_x_trackx is None:
-        chamber_x_trackx = tfile.Get("%s/%s%s_residual_trackx" % (plotDirectory, name, Pos))
-        chamber_x_trackx_fit = tfile.Get("%s/%s%s_residual_trackx_fitline" % (plotDirectory, name, Pos))
-        chamber_dxdz_trackx = tfile.Get("%s/%s%s_resslope_trackx" % (plotDirectory, name, Pos))
-        chamber_dxdz_trackx_fit = tfile.Get("%s/%s%s_resslope_trackx_fitline" % (plotDirectory, name, Pos))
-        chamber_x_trackx_fit2 = tfile.Get("%s/%s%s_residual_trackx_fitline" % (plotDirectory, name, Neg))
-        chamber_dxdz_trackx_fit2 = tfile.Get("%s/%s%s_resslope_trackx_fitline" % (plotDirectory, name, Neg))
+    chamber_x_trackdydz = tfile.Get(pdirPos+"_x_trackdydz")
+    chamber_x_trackdydz_fit = tfile.Get(pdirPos+"_x_trackdydz_fitline")
+    chamber_y_trackdydz = tfile.Get(pdirPos+"_y_trackdydz")
+    chamber_y_trackdydz_fit = tfile.Get(pdirPos+"_y_trackdydz_fitline")
+    chamber_dxdz_trackdydz = tfile.Get(pdirPos+"_dxdz_trackdydz")
+    chamber_dxdz_trackdydz_fit = tfile.Get(pdirPos+"_dxdz_trackdydz_fitline")
+    chamber_dydz_trackdydz = tfile.Get(pdirPos+"_dydz_trackdydz")
+    chamber_dydz_trackdydz_fit = tfile.Get(pdirPos+"_dydz_trackdydz_fitline")
+    chamber_x_trackdydz_fit2 = tfile.Get(pdirNeg+"_x_trackdydz_fitline")
+    chamber_y_trackdydz_fit2 = tfile.Get(pdirNeg+"_y_trackdydz_fitline")
+    chamber_dxdz_trackdydz_fit2 = tfile.Get(pdirNeg+"_dxdz_trackdydz_fitline")
+    chamber_dydz_trackdydz_fit2 = tfile.Get(pdirNeg+"_dydz_trackdydz_fitline")
 
-        chamber_x_tracky = tfile.Get("%s/%s%s_residual_tracky" % (plotDirectory, name, Pos))
-        chamber_x_tracky_fit = tfile.Get("%s/%s%s_residual_tracky_fitline" % (plotDirectory, name, Pos))
-        chamber_dxdz_tracky = tfile.Get("%s/%s%s_resslope_tracky" % (plotDirectory, name, Pos))
-        chamber_dxdz_tracky_fit = tfile.Get("%s/%s%s_resslope_tracky_fitline" % (plotDirectory, name, Pos))
-        chamber_x_tracky_fit2 = tfile.Get("%s/%s%s_residual_tracky_fitline" % (plotDirectory, name, Neg))
-        chamber_dxdz_tracky_fit2 = tfile.Get("%s/%s%s_resslope_tracky_fitline" % (plotDirectory, name, Neg))
+    if not chamber_x_trackx:
+        chamber_x_trackx = tfile.Get(pdirPos+"_residual_trackx")
+        chamber_x_trackx_fit = tfile.Get(pdirPos+"_residual_trackx_fitline")
+        chamber_dxdz_trackx = tfile.Get(pdirPos+"_resslope_trackx")
+        chamber_dxdz_trackx_fit = tfile.Get(pdirPos+"_resslope_trackx_fitline")
+        chamber_x_trackx_fit2 = tfile.Get(pdirNeg+"_residual_trackx_fitline")
+        chamber_dxdz_trackx_fit2 = tfile.Get(pdirNeg+"_resslope_trackx_fitline")
 
-        chamber_x_trackdxdz = tfile.Get("%s/%s%s_residual_trackdxdz" % (plotDirectory, name, Pos))
-        chamber_x_trackdxdz_fit = tfile.Get("%s/%s%s_residual_trackdxdz_fitline" % (plotDirectory, name, Pos))
-        chamber_dxdz_trackdxdz = tfile.Get("%s/%s%s_resslope_trackdxdz" % (plotDirectory, name, Pos))
-        chamber_dxdz_trackdxdz_fit = tfile.Get("%s/%s%s_resslope_trackdxdz_fitline" % (plotDirectory, name, Pos))
-        chamber_x_trackdxdz_fit2 = tfile.Get("%s/%s%s_residual_trackdxdz_fitline" % (plotDirectory, name, Neg))
-        chamber_dxdz_trackdxdz_fit2 = tfile.Get("%s/%s%s_resslope_trackdxdz_fitline" % (plotDirectory, name, Neg))
+        chamber_x_tracky = tfile.Get(pdirPos+"_residual_tracky")
+        chamber_x_tracky_fit = tfile.Get(pdirPos+"_residual_tracky_fitline")
+        chamber_dxdz_tracky = tfile.Get(pdirPos+"_resslope_tracky")
+        chamber_dxdz_tracky_fit = tfile.Get(pdirPos+"_resslope_tracky_fitline")
+        chamber_x_tracky_fit2 = tfile.Get(pdirNeg+"_residual_tracky_fitline")
+        chamber_dxdz_tracky_fit2 = tfile.Get(pdirNeg+"_resslope_tracky_fitline")
 
-        chamber_x_trackdydz = tfile.Get("%s/%s%s_residual_trackdydz" % (plotDirectory, name, Pos))
-        chamber_x_trackdydz_fit = tfile.Get("%s/%s%s_residual_trackdydz_fitline" % (plotDirectory, name, Pos))
-        chamber_dxdz_trackdydz = tfile.Get("%s/%s%s_resslope_trackdydz" % (plotDirectory, name, Pos))
-        chamber_dxdz_trackdydz_fit = tfile.Get("%s/%s%s_resslope_trackdydz_fitline" % (plotDirectory, name, Pos))
-        chamber_x_trackdydz_fit2 = tfile.Get("%s/%s%s_residual_trackdydz_fitline" % (plotDirectory, name, Neg))
-        chamber_dxdz_trackdydz_fit2 = tfile.Get("%s/%s%s_resslope_trackdydz_fitline" % (plotDirectory, name, Neg))
+        chamber_x_trackdxdz = tfile.Get(pdirPos+"_residual_trackdxdz")
+        chamber_x_trackdxdz_fit = tfile.Get(pdirPos+"_residual_trackdxdz_fitline")
+        chamber_dxdz_trackdxdz = tfile.Get(pdirPos+"_resslope_trackdxdz")
+        chamber_dxdz_trackdxdz_fit = tfile.Get(pdirPos+"_resslope_trackdxdz_fitline")
+        chamber_x_trackdxdz_fit2 = tfile.Get(pdirNeg+"_residual_trackdxdz_fitline")
+        chamber_dxdz_trackdxdz_fit2 = tfile.Get(pdirNeg+"_resslope_trackdxdz_fitline")
+
+        chamber_x_trackdydz = tfile.Get(pdirPos+"_residual_trackdydz")
+        chamber_x_trackdydz_fit = tfile.Get(pdirPos+"_residual_trackdydz_fitline")
+        chamber_dxdz_trackdydz = tfile.Get(pdirPos+"_resslope_trackdydz")
+        chamber_dxdz_trackdydz_fit = tfile.Get(pdirPos+"_resslope_trackdydz_fitline")
+        chamber_x_trackdydz_fit2 = tfile.Get(pdirNeg+"_residual_trackdydz_fitline")
+        chamber_dxdz_trackdydz_fit2 = tfile.Get(pdirNeg+"_resslope_trackdydz_fitline")
+
+    if not chamber_x_trackx:
+        print "Can't find neither "+pdirPos+"_residual  nor "+pdirPos+"_residual_trackx"
+        return
 
     chamber_x_trackx = chamber_x_trackx.Clone()
     chamber_dxdz_trackx = chamber_dxdz_trackx.Clone()
@@ -2242,7 +2695,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
     chamber_x_trackdydz = chamber_x_trackdydz.Clone()
     chamber_dxdz_trackdydz = chamber_dxdz_trackdydz.Clone()
 
-    if chamber_y_trackx is not None:
+    if not not chamber_y_trackx:
         chamber_y_trackx = chamber_y_trackx.Clone()
         chamber_dydz_trackx = chamber_dydz_trackx.Clone()
         chamber_y_tracky = chamber_y_tracky.Clone()
@@ -2252,58 +2705,64 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         chamber_y_trackdydz = chamber_y_trackdydz.Clone()
         chamber_dydz_trackdydz = chamber_dydz_trackdydz.Clone()
 
-    if chamber_y_trackx is not None:
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_trackx" % (plotDirectory, name, Neg))); chamber_x_trackx.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_trackx" % (plotDirectory, name, Neg))); chamber_dxdz_trackx.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_tracky" % (plotDirectory, name, Neg))); chamber_x_tracky.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_tracky" % (plotDirectory, name, Neg))); chamber_dxdz_tracky.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_trackdxdz" % (plotDirectory, name, Neg))); chamber_x_trackdxdz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_trackdxdz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdxdz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_trackdydz" % (plotDirectory, name, Neg))); chamber_x_trackdydz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_trackdydz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdydz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_trackx" % (plotDirectory, name, Neg))); chamber_y_trackx.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_trackx" % (plotDirectory, name, Neg))); chamber_dydz_trackx.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_tracky" % (plotDirectory, name, Neg))); chamber_y_tracky.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_tracky" % (plotDirectory, name, Neg))); chamber_dydz_tracky.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_trackdxdz" % (plotDirectory, name, Neg))); chamber_y_trackdxdz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_trackdxdz" % (plotDirectory, name, Neg))); chamber_dydz_trackdxdz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_trackdydz" % (plotDirectory, name, Neg))); chamber_y_trackdydz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_trackdydz" % (plotDirectory, name, Neg))); chamber_dydz_trackdydz.Merge(tlist)
+    if not not chamber_y_trackx:
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_x_trackx")); chamber_x_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dxdz_trackx")); chamber_dxdz_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_x_tracky")); chamber_x_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dxdz_tracky")); chamber_dxdz_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_x_trackdxdz")); chamber_x_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dxdz_trackdxdz")); chamber_dxdz_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_x_trackdydz")); chamber_x_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dxdz_trackdydz")); chamber_dxdz_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_y_trackx")); chamber_y_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dydz_trackx")); chamber_dydz_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_y_tracky")); chamber_y_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dydz_tracky")); chamber_dydz_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_y_trackdxdz")); chamber_y_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dydz_trackdxdz")); chamber_dydz_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_y_trackdydz")); chamber_y_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_dydz_trackdydz")); chamber_dydz_trackdydz.Merge(tlist)
     else:
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_trackx" % (plotDirectory, name, Neg))); chamber_x_trackx.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_trackx" % (plotDirectory, name, Neg))); chamber_dxdz_trackx.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_tracky" % (plotDirectory, name, Neg))); chamber_x_tracky.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_tracky" % (plotDirectory, name, Neg))); chamber_dxdz_tracky.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_trackdxdz" % (plotDirectory, name, Neg))); chamber_x_trackdxdz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_trackdxdz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdxdz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_trackdydz" % (plotDirectory, name, Neg))); chamber_x_trackdydz.Merge(tlist)
-        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_trackdydz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_residual_trackx")); chamber_x_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_resslope_trackx")); chamber_dxdz_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_residual_tracky")); chamber_x_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_resslope_tracky")); chamber_dxdz_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_residual_trackdxdz")); chamber_x_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_resslope_trackdxdz")); chamber_dxdz_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_residual_trackdydz")); chamber_x_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get(pdirNeg+"_resslope_trackdydz")); chamber_dxdz_trackdydz.Merge(tlist)
 
-    chamber_x_trackx.SetAxisRange(-14.99, 14.99, "Y")
-    chamber_dxdz_trackx.SetAxisRange(-7.5, 7.5, "Y")
-    chamber_x_tracky.SetAxisRange(-14.99, 14.99, "Y")
-    chamber_dxdz_tracky.SetAxisRange(-7.5, 7.5, "Y")
-    chamber_x_trackdxdz.SetAxisRange(-14.99, 14.99, "Y")
-    chamber_dxdz_trackdxdz.SetAxisRange(-7.5, 7.5, "Y")
-    chamber_x_trackdydz.SetAxisRange(-14.99, 14.99, "Y")
-    chamber_dxdz_trackdydz.SetAxisRange(-7.5, 7.5, "Y")
+    rr1=19.99
+    rr2=9.99
+    chamber_x_trackx.SetAxisRange(-rr1, rr1, "Y")
+    chamber_dxdz_trackx.SetAxisRange(-rr2, rr2, "Y")
+    chamber_x_tracky.SetAxisRange(-rr1, rr1, "Y")
+    chamber_dxdz_tracky.SetAxisRange(-rr2, rr2, "Y")
+    chamber_x_trackdxdz.SetAxisRange(-rr1, rr1, "Y")
+    chamber_dxdz_trackdxdz.SetAxisRange(-rr2, rr2, "Y")
+    chamber_x_trackdydz.SetAxisRange(-rr1, rr1, "Y")
+    chamber_dxdz_trackdydz.SetAxisRange(-rr2, rr2, "Y")
 
-    if chamber_y_trackx is not None:
-        chamber_y_trackx.SetAxisRange(-24.99, 24.99, "Y")
-        chamber_dydz_trackx.SetAxisRange(-24.99, 24.99, "Y")
-        chamber_y_tracky.SetAxisRange(-24.99, 24.99, "Y")
-        chamber_dydz_tracky.SetAxisRange(-24.99, 24.99, "Y")
-        chamber_y_trackdxdz.SetAxisRange(-24.99, 24.99, "Y")
-        chamber_dydz_trackdxdz.SetAxisRange(-24.99, 24.99, "Y")
-        chamber_y_trackdydz.SetAxisRange(-24.99, 24.99, "Y")
-        chamber_dydz_trackdydz.SetAxisRange(-24.99, 24.99, "Y")
+    rr3=49.99
+    if not not chamber_y_trackx:
+        chamber_y_trackx.SetAxisRange(-rr3, rr3, "Y")
+        chamber_dydz_trackx.SetAxisRange(-rr3, rr3, "Y")
+        chamber_y_tracky.SetAxisRange(-rr3, rr3, "Y")
+        chamber_dydz_tracky.SetAxisRange(-rr3, rr3, "Y")
+        chamber_y_trackdxdz.SetAxisRange(-rr3, rr3, "Y")
+        chamber_dydz_trackdxdz.SetAxisRange(-rr3, rr3, "Y")
+        chamber_y_trackdydz.SetAxisRange(-rr3, rr3, "Y")
+        chamber_dydz_trackdydz.SetAxisRange(-rr3, rr3, "Y")
 
-    for h in chamber_x_trackx, chamber_y_trackx, chamber_dxdz_trackx, chamber_dydz_trackx, chamber_x_tracky, chamber_y_tracky, chamber_dxdz_tracky, chamber_dydz_tracky, chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz, chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
-        if h is not None:
+    for h in chamber_x_trackx, chamber_y_trackx, chamber_dxdz_trackx, chamber_dydz_trackx, \
+             chamber_x_tracky, chamber_y_tracky, chamber_dxdz_tracky, chamber_dydz_tracky, \
+             chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz, \
+             chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
+        if not not h:
             h.SetMarkerStyle(20)
             h.SetMarkerSize(0.5)
-            h.GetXaxis().SetLabelSize(0.13)
-            h.GetYaxis().SetLabelSize(0.13)
+            h.GetXaxis().SetLabelSize(0.12)
+            h.GetYaxis().SetLabelSize(0.12)
             h.GetXaxis().SetNdivisions(505)
             h.GetYaxis().SetNdivisions(505)
             h.GetXaxis().SetLabelOffset(0.03)
@@ -2311,222 +2770,304 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
 
     trackdxdz_minimum, trackdxdz_maximum = None, None
     for h in chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz:
-        if h is not None:
+        if not not h:
             for i in xrange(1, h.GetNbinsX()+1):
-                if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and h.GetBinContent(i) + h.GetBinError(i) > -10.:
-                    if trackdxdz_minimum is None or trackdxdz_minimum > h.GetBinCenter(i): trackdxdz_minimum = h.GetBinCenter(i)
-                    if trackdxdz_maximum < h.GetBinCenter(i): trackdxdz_maximum = h.GetBinCenter(i)
-    if trackdxdz_minimum is not None and trackdxdz_maximum is not None:
+                if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and \
+                   h.GetBinContent(i) + h.GetBinError(i) > -10.:
+                    if not trackdxdz_minimum or trackdxdz_minimum > h.GetBinCenter(i): 
+                        trackdxdz_minimum = h.GetBinCenter(i)
+                    if trackdxdz_maximum < h.GetBinCenter(i): 
+                        trackdxdz_maximum = h.GetBinCenter(i)
+    if not not trackdxdz_minimum and not not trackdxdz_maximum:
         for h in chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz:
-            if h is not None:
+            if not not h:
                 h.SetAxisRange(trackdxdz_minimum, trackdxdz_maximum, "X")
 
     trackdydz_minimum, trackdydz_maximum = None, None
     for h in chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
-        if h is not None:
+        if not not h:
             for i in xrange(1, h.GetNbinsX()+1):
-                if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and h.GetBinContent(i) + h.GetBinError(i) > -10.:
-                    if trackdydz_minimum is None or trackdydz_minimum > h.GetBinCenter(i): trackdydz_minimum = h.GetBinCenter(i)
-                    if trackdydz_maximum < h.GetBinCenter(i): trackdydz_maximum = h.GetBinCenter(i)
-    if trackdydz_minimum is not None and trackdydz_maximum is not None:
+                if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and \
+                   h.GetBinContent(i) + h.GetBinError(i) > -10.:
+                    if not trackdydz_minimum or trackdydz_minimum > h.GetBinCenter(i): 
+                        trackdydz_minimum = h.GetBinCenter(i)
+                    if trackdydz_maximum < h.GetBinCenter(i): 
+                        trackdydz_maximum = h.GetBinCenter(i)
+    if not not trackdydz_minimum and not not trackdydz_maximum:
         for h in chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
-            if h is not None:
+            if not not h:
                 h.SetAxisRange(trackdydz_minimum, trackdydz_maximum, "X")
 
-    for f in chamber_x_trackx_fit2, chamber_y_trackx_fit2, chamber_dxdz_trackx_fit2, chamber_dydz_trackx_fit2, chamber_x_tracky_fit2, chamber_y_tracky_fit2, chamber_dxdz_tracky_fit2, chamber_dydz_tracky_fit2, chamber_x_trackdxdz_fit2, chamber_y_trackdxdz_fit2, chamber_dxdz_trackdxdz_fit2, chamber_dydz_trackdxdz_fit2, chamber_x_trackdydz_fit2, chamber_y_trackdydz_fit2, chamber_dxdz_trackdydz_fit2, chamber_dydz_trackdydz_fit2:
-        if f is not None:
+    for f in chamber_x_trackx_fit2, chamber_y_trackx_fit2, chamber_dxdz_trackx_fit2, chamber_dydz_trackx_fit2, \
+             chamber_x_tracky_fit2, chamber_y_tracky_fit2, chamber_dxdz_tracky_fit2, chamber_dydz_tracky_fit2, \
+             chamber_x_trackdxdz_fit2, chamber_y_trackdxdz_fit2, chamber_dxdz_trackdxdz_fit2, chamber_dydz_trackdxdz_fit2, \
+             chamber_x_trackdydz_fit2, chamber_y_trackdydz_fit2, chamber_dxdz_trackdydz_fit2, chamber_dydz_trackdydz_fit2:
+        if not not f:
             f.SetLineColor(4)
 
-    if chamber_y_trackx is not None:
+    if not not chamber_y_trackx:
         c1.Clear()
-        c1.Divide(5, 5, 1e-5, 1e-5)
+        #c1.Divide(5, 5, 1e-5, 1e-5)
+        pads = [None]
+        pads.append(ROOT.TPad("p1" ,"",0.00,0.78,0.07,1.00,0,0,0))
+        pads.append(ROOT.TPad("p2" ,"",0.07,0.78,0.34,1.00,0,0,0))
+        pads.append(ROOT.TPad("p3" ,"",0.34,0.78,0.56,1.00,0,0,0))
+        pads.append(ROOT.TPad("p4" ,"",0.56,0.78,0.78,1.00,0,0,0))
+        pads.append(ROOT.TPad("p5" ,"",0.78,0.78,1.00,1.00,0,0,0))
+        pads.append(ROOT.TPad("p6" ,"",0.00,0.56,0.07,0.78,0,0,0))
+        pads.append(ROOT.TPad("p7" ,"",0.07,0.56,0.34,0.78,0,0,0))
+        pads.append(ROOT.TPad("p8" ,"",0.34,0.56,0.56,0.78,0,0,0))
+        pads.append(ROOT.TPad("p9" ,"",0.56,0.56,0.78,0.78,0,0,0))
+        pads.append(ROOT.TPad("p10","",0.78,0.56,1.00,0.78,0,0,0))
+        pads.append(ROOT.TPad("p11","",0.00,0.34,0.07,0.56,0,0,0))
+        pads.append(ROOT.TPad("p12","",0.07,0.34,0.34,0.56,0,0,0))
+        pads.append(ROOT.TPad("p13","",0.34,0.34,0.56,0.56,0,0,0))
+        pads.append(ROOT.TPad("p14","",0.56,0.34,0.78,0.56,0,0,0))
+        pads.append(ROOT.TPad("p15","",0.78,0.34,1.00,0.56,0,0,0))
+        pads.append(ROOT.TPad("p16","",0.00,0.07,0.07,0.34,0,0,0))
+        pads.append(ROOT.TPad("p17","",0.07,0.07,0.34,0.34,0,0,0))
+        pads.append(ROOT.TPad("p18","",0.34,0.07,0.56,0.34,0,0,0))
+        pads.append(ROOT.TPad("p19","",0.56,0.07,0.78,0.34,0,0,0))
+        pads.append(ROOT.TPad("p20","",0.78,0.07,1.00,0.34,0,0,0))
+        pads.append(ROOT.TPad("p21","",0.00,0.00,0.07,0.07,0,0,0))
+        pads.append(ROOT.TPad("p22","",0.07,0.00,0.34,0.07,0,0,0))
+        pads.append(ROOT.TPad("p23","",0.34,0.00,0.56,0.07,0,0,0))
+        pads.append(ROOT.TPad("p24","",0.56,0.00,0.78,0.07,0,0,0))
+        pads.append(ROOT.TPad("p25","",0.78,0.00,1.00,0.07,0,0,0))
+        for p in pads:
+          if not not p:
+            p.Draw()
+            ROOT.SetOwnership(p,False)
 
-        label1 = ROOT.TPaveLabel(0, 0, 1, 1, "x residuals (mm)")
-        label2 = ROOT.TPaveLabel(0, 0, 1, 1, "y residuals (mm)")
-        label3 = ROOT.TPaveLabel(0, 0, 1, 1, "dx/dz residuals (mrad)")
-        label4 = ROOT.TPaveLabel(0, 0, 1, 1, "dy/dz residuals (mrad)")
-        label5 = ROOT.TPaveLabel(0, 0.5, 1, 1, "x position (cm)")
-        label6 = ROOT.TPaveLabel(0, 0.5, 1, 1, "y position (cm)")
-        label7 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dx/dz angle (rad)")
-        label8 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dy/dz angle (rad)")
-        label9 = ROOT.TPaveLabel(0, 0, 1, 1, getname(r))
+        label1 = ROOT.TPaveLabel(0, 0, 1, 1, "x residuals (mm)","")
+        label2 = ROOT.TPaveLabel(0, 0, 1, 1, "y residuals (mm)","")
+        label3 = ROOT.TPaveLabel(0, 0, 1, 1, "dx/dz residuals (mrad)","")
+        label4 = ROOT.TPaveLabel(0, 0, 1, 1, "dy/dz residuals (mrad)","")
+        label5 = ROOT.TPaveLabel(0, 0, 1, 1, "x position (cm)","")
+        label6 = ROOT.TPaveLabel(0, 0, 1, 1, "y position (cm)","")
+        label7 = ROOT.TPaveLabel(0, 0, 1, 1, "dx/dz angle (rad)","")
+        label8 = ROOT.TPaveLabel(0, 0, 1, 1, "dy/dz angle (rad)","")
+        label9 = ROOT.TPaveLabel(0, 0.85, 1, 1, getname(r),"NDC")
 
         for l in label1, label2, label3, label4, label5, label6, label7, label8, label9:
             l.SetBorderSize(0)
             l.SetFillColor(ROOT.kWhite)
 
-        label9.SetTextAngle(30)
+        for l in label1, label2, label3, label4:
+            l.SetTextAngle(90)
+            l.SetTextSize(0.09)
+        
+        #label9.SetTextAngle(30)
+        label9.SetTextSize(0.59)
 
-        c1.GetPad(1).cd(); label1.Draw()
-        c1.GetPad(6).cd(); label2.Draw()
-        c1.GetPad(11).cd(); label3.Draw()
-        c1.GetPad(16).cd(); label4.Draw()
-        c1.GetPad(22).cd(); label5.Draw()
-        c1.GetPad(23).cd(); label6.Draw()
-        c1.GetPad(24).cd(); label7.Draw()
-        c1.GetPad(25).cd(); label8.Draw()
-        c1.GetPad(21).cd(); label9.Draw()
+        pads[1].cd(); label1.Draw()
+        pads[6].cd(); label2.Draw()
+        pads[11].cd(); label3.Draw()
+        pads[16].cd(); label4.Draw()
+        pads[22].cd(); label5.Draw()
+        pads[23].cd(); label6.Draw()
+        pads[24].cd(); label7.Draw()
+        pads[25].cd(); label8.Draw()
 
-        c1.GetPad(2).SetRightMargin(1e-5)
-        c1.GetPad(2).SetBottomMargin(1e-5)
-        c1.GetPad(3).SetLeftMargin(1e-5)
-        c1.GetPad(3).SetRightMargin(1e-5)
-        c1.GetPad(3).SetBottomMargin(1e-5)
-        c1.GetPad(4).SetLeftMargin(1e-5)
-        c1.GetPad(4).SetRightMargin(1e-5)
-        c1.GetPad(4).SetBottomMargin(1e-5)
-        c1.GetPad(5).SetLeftMargin(1e-5)
-        c1.GetPad(5).SetBottomMargin(1e-5)
+        pads[2].SetRightMargin(1e-5)
+        pads[2].SetBottomMargin(1e-5)
+        pads[2].SetLeftMargin(0.17)
+        pads[3].SetLeftMargin(1e-5)
+        pads[3].SetRightMargin(1e-5)
+        pads[3].SetBottomMargin(1e-5)
+        pads[4].SetLeftMargin(1e-5)
+        pads[4].SetRightMargin(1e-5)
+        pads[4].SetBottomMargin(1e-5)
+        pads[5].SetLeftMargin(1e-5)
+        pads[5].SetBottomMargin(1e-5)
 
-        c1.GetPad(7).SetRightMargin(1e-5)
-        c1.GetPad(7).SetBottomMargin(1e-5)
-        c1.GetPad(7).SetTopMargin(1e-5)
-        c1.GetPad(8).SetLeftMargin(1e-5)
-        c1.GetPad(8).SetRightMargin(1e-5)
-        c1.GetPad(8).SetBottomMargin(1e-5)
-        c1.GetPad(8).SetTopMargin(1e-5)
-        c1.GetPad(9).SetLeftMargin(1e-5)
-        c1.GetPad(9).SetRightMargin(1e-5)
-        c1.GetPad(9).SetBottomMargin(1e-5)
-        c1.GetPad(9).SetTopMargin(1e-5)
-        c1.GetPad(10).SetLeftMargin(1e-5)
-        c1.GetPad(10).SetBottomMargin(1e-5)
-        c1.GetPad(10).SetTopMargin(1e-5)
+        pads[7].SetRightMargin(1e-5)
+        pads[7].SetBottomMargin(1e-5)
+        pads[7].SetTopMargin(1e-5)
+        pads[7].SetLeftMargin(0.17)
+        pads[8].SetLeftMargin(1e-5)
+        pads[8].SetRightMargin(1e-5)
+        pads[8].SetBottomMargin(1e-5)
+        pads[8].SetTopMargin(1e-5)
+        pads[9].SetLeftMargin(1e-5)
+        pads[9].SetRightMargin(1e-5)
+        pads[9].SetBottomMargin(1e-5)
+        pads[9].SetTopMargin(1e-5)
+        pads[10].SetLeftMargin(1e-5)
+        pads[10].SetBottomMargin(1e-5)
+        pads[10].SetTopMargin(1e-5)
 
-        c1.GetPad(12).SetRightMargin(1e-5)
-        c1.GetPad(12).SetBottomMargin(1e-5)
-        c1.GetPad(12).SetTopMargin(1e-5)
-        c1.GetPad(13).SetLeftMargin(1e-5)
-        c1.GetPad(13).SetRightMargin(1e-5)
-        c1.GetPad(13).SetBottomMargin(1e-5)
-        c1.GetPad(13).SetTopMargin(1e-5)
-        c1.GetPad(14).SetLeftMargin(1e-5)
-        c1.GetPad(14).SetRightMargin(1e-5)
-        c1.GetPad(14).SetBottomMargin(1e-5)
-        c1.GetPad(14).SetTopMargin(1e-5)
-        c1.GetPad(15).SetLeftMargin(1e-5)
-        c1.GetPad(15).SetBottomMargin(1e-5)
-        c1.GetPad(15).SetTopMargin(1e-5)
+        pads[12].SetRightMargin(1e-5)
+        pads[12].SetBottomMargin(1e-5)
+        pads[12].SetTopMargin(1e-5)
+        pads[12].SetLeftMargin(0.17)
+        pads[13].SetLeftMargin(1e-5)
+        pads[13].SetRightMargin(1e-5)
+        pads[13].SetBottomMargin(1e-5)
+        pads[13].SetTopMargin(1e-5)
+        pads[14].SetLeftMargin(1e-5)
+        pads[14].SetRightMargin(1e-5)
+        pads[14].SetBottomMargin(1e-5)
+        pads[14].SetTopMargin(1e-5)
+        pads[15].SetLeftMargin(1e-5)
+        pads[15].SetBottomMargin(1e-5)
+        pads[15].SetTopMargin(1e-5)
 
-        c1.GetPad(17).SetRightMargin(1e-5)
-        c1.GetPad(17).SetTopMargin(1e-5)
-        c1.GetPad(18).SetLeftMargin(1e-5)
-        c1.GetPad(18).SetRightMargin(1e-5)
-        c1.GetPad(18).SetTopMargin(1e-5)
-        c1.GetPad(19).SetLeftMargin(1e-5)
-        c1.GetPad(19).SetRightMargin(1e-5)
-        c1.GetPad(19).SetTopMargin(1e-5)
-        c1.GetPad(20).SetLeftMargin(1e-5)
-        c1.GetPad(20).SetTopMargin(1e-5)
+        pads[17].SetRightMargin(1e-5)
+        pads[17].SetTopMargin(1e-5)
+        pads[17].SetLeftMargin(0.17)
+        pads[18].SetLeftMargin(1e-5)
+        pads[18].SetRightMargin(1e-5)
+        pads[18].SetTopMargin(1e-5)
+        pads[19].SetLeftMargin(1e-5)
+        pads[19].SetRightMargin(1e-5)
+        pads[19].SetTopMargin(1e-5)
+        pads[20].SetLeftMargin(1e-5)
+        pads[20].SetTopMargin(1e-5)
         
         chamber_x_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
-        chamber_x_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_x_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_x_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_tracky.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_y_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
-        chamber_y_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_y_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_y_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_y_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_y_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_y_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_tracky.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_dxdz_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
-        chamber_dxdz_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_dxdz_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_dxdz_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_dxdz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_dxdz_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_dxdz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_tracky.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        
         # chamber_dydz_trackx
         chamber_dydz_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_dydz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_dydz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
 
-        c1.GetPad(2).cd()
+        pads[2].cd()
         chamber_x_trackx.Draw("e1")
         if not suppressblue: chamber_x_trackx_fit2.Draw("samel")
         chamber_x_trackx_fit.Draw("samel")
+        #label99 = ROOT.TPaveLabel(0, 0.8, 1, 1, getname(r),"NDC")
+        print getname(r)
+        #label99 = ROOT.TPaveLabel(0, 0.8, 1, 1, "aaa","NDC")
+        label9.Draw()
+        #pads[2].Modified()
         
-        c1.GetPad(3).cd()
+        pads[3].cd()
         chamber_x_tracky.Draw("e1")
         if not suppressblue: chamber_x_tracky_fit2.Draw("samel")
         chamber_x_tracky_fit.Draw("samel")
         
-        c1.GetPad(4).cd()
+        pads[4].cd()
         chamber_x_trackdxdz.Draw("e1")
         if not suppressblue: chamber_x_trackdxdz_fit2.Draw("samel")
         chamber_x_trackdxdz_fit.Draw("samel")
         
-        c1.GetPad(5).cd()
+        pads[5].cd()
         chamber_x_trackdydz.Draw("e1")
         if not suppressblue: chamber_x_trackdydz_fit2.Draw("samel")
         chamber_x_trackdydz_fit.Draw("samel")
         
-        c1.GetPad(7).cd()
+        pads[7].cd()
         chamber_y_trackx.Draw("e1")
         if not suppressblue: chamber_y_trackx_fit2.Draw("samel")
         chamber_y_trackx_fit.Draw("samel")
         
-        c1.GetPad(8).cd()
+        pads[8].cd()
         chamber_y_tracky.Draw("e1")
         if not suppressblue: chamber_y_tracky_fit2.Draw("samel")
         chamber_y_tracky_fit.Draw("samel")
         
-        c1.GetPad(9).cd()
+        pads[9].cd()
         chamber_y_trackdxdz.Draw("e1")
         if not suppressblue: chamber_y_trackdxdz_fit2.Draw("samel")
         chamber_y_trackdxdz_fit.Draw("samel")
         
-        c1.GetPad(10).cd()
+        pads[10].cd()
         chamber_y_trackdydz.Draw("e1")
         if not suppressblue: chamber_y_trackdydz_fit2.Draw("samel")
         chamber_y_trackdydz_fit.Draw("samel")
         
-        c1.GetPad(12).cd()
+        pads[12].cd()
         chamber_dxdz_trackx.Draw("e1")
         if not suppressblue: chamber_dxdz_trackx_fit2.Draw("samel")
         chamber_dxdz_trackx_fit.Draw("samel")
         
-        c1.GetPad(13).cd()
+        pads[13].cd()
         chamber_dxdz_tracky.Draw("e1")
         if not suppressblue: chamber_dxdz_tracky_fit2.Draw("samel")
         chamber_dxdz_tracky_fit.Draw("samel")
         
-        c1.GetPad(14).cd()
+        pads[14].cd()
         chamber_dxdz_trackdxdz.Draw("e1")
         if not suppressblue: chamber_dxdz_trackdxdz_fit2.Draw("samel")
         chamber_dxdz_trackdxdz_fit.Draw("samel")
         
-        c1.GetPad(15).cd()
+        pads[15].cd()
         chamber_dxdz_trackdydz.Draw("e1")
         if not suppressblue: chamber_dxdz_trackdydz_fit2.Draw("samel")
         chamber_dxdz_trackdydz_fit.Draw("samel")
         
-        c1.GetPad(17).cd()
+        pads[17].cd()
         chamber_dydz_trackx.Draw("e1")
         if not suppressblue: chamber_dydz_trackx_fit2.Draw("samel")
         chamber_dydz_trackx_fit.Draw("samel")
         
-        c1.GetPad(18).cd()
+        pads[18].cd()
         chamber_dydz_tracky.Draw("e1")
         if not suppressblue: chamber_dydz_tracky_fit2.Draw("samel")
         chamber_dydz_tracky_fit.Draw("samel")
         
-        c1.GetPad(19).cd()
+        pads[19].cd()
         chamber_dydz_trackdxdz.Draw("e1")
         if not suppressblue: chamber_dydz_trackdxdz_fit2.Draw("samel")
         chamber_dydz_trackdxdz_fit.Draw("samel")
         
-        c1.GetPad(20).cd()
+        pads[20].cd()
         chamber_dydz_trackdydz.Draw("e1")
         if not suppressblue: chamber_dydz_trackdydz_fit2.Draw("samel")
         chamber_dydz_trackdydz_fit.Draw("samel")
 
     else:
         c1.Clear()
-        c1.Divide(5, 3, 1e-5, 1e-5)
+        #c1.Divide(5, 3, 1e-5, 1e-5)
+        pads = [None]
+        pads.append(ROOT.TPad("p1" ,"",0.00,0.55,0.07,1.00,0,0,0))
+        pads.append(ROOT.TPad("p2" ,"",0.07,0.55,0.34,1.00,0,0,0))
+        pads.append(ROOT.TPad("p3" ,"",0.34,0.55,0.56,1.00,0,0,0))
+        pads.append(ROOT.TPad("p4" ,"",0.56,0.55,0.78,1.00,0,0,0))
+        pads.append(ROOT.TPad("p5" ,"",0.78,0.55,1.00,1.00,0,0,0))
+        pads.append(ROOT.TPad("p6" ,"",0.00,0.1,0.07,0.55,0,0,0))
+        pads.append(ROOT.TPad("p7" ,"",0.07,0.1,0.34,0.55,0,0,0))
+        pads.append(ROOT.TPad("p8" ,"",0.34,0.1,0.56,0.55,0,0,0))
+        pads.append(ROOT.TPad("p9" ,"",0.56,0.1,0.78,0.55,0,0,0))
+        pads.append(ROOT.TPad("p10","",0.78,0.1,1.00,0.55,0,0,0))
+        pads.append(ROOT.TPad("p11","",0.00,0.,0.07,0.1,0,0,0))
+        pads.append(ROOT.TPad("p12","",0.07,0.,0.34,0.1,0,0,0))
+        pads.append(ROOT.TPad("p13","",0.34,0.,0.56,0.1,0,0,0))
+        pads.append(ROOT.TPad("p14","",0.56,0.,0.78,0.1,0,0,0))
+        pads.append(ROOT.TPad("p15","",0.78,0.,1.00,0.1,0,0,0))
+        for p in pads:
+          if not not p:
+            p.Draw()
+            ROOT.SetOwnership(p,False)
 
         label1 = ROOT.TPaveLabel(0, 0, 1, 1, "x residuals (mm)")
         label2 = ROOT.TPaveLabel(0, 0, 1, 1, "dx/dz residuals (mrad)")
-        label3 = ROOT.TPaveLabel(0, 0.5, 1, 1, "x position (cm)")
-        label4 = ROOT.TPaveLabel(0, 0.5, 1, 1, "y position (cm)")
-        label5 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dx/dz angle (rad)")
-        label6 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dy/dz angle (rad)")
-        label9 = ROOT.TPaveLabel(0, 0.5, 1, 1, getname(r))
+        label3 = ROOT.TPaveLabel(0, 0.3, 1, 1, "x position (cm)")
+        label4 = ROOT.TPaveLabel(0, 0.3, 1, 1, "y position (cm)")
+        label5 = ROOT.TPaveLabel(0, 0.3, 1, 1, "dx/dz angle (rad)")
+        label6 = ROOT.TPaveLabel(0, 0.3, 1, 1, "dy/dz angle (rad)")
+        label9 = ROOT.TPaveLabel(0, 0.85, 1, 1, getname(r),"NDC")
 
         if name[0:2] == "ME":
             label1 = ROOT.TPaveLabel(0, 0, 1, 1, "r#phi residuals (mm)")
@@ -2536,86 +3077,98 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
             l.SetBorderSize(0)
             l.SetFillColor(ROOT.kWhite)
 
-        label9.SetTextAngle(30)
+        for l in label1, label2:
+            l.SetTextAngle(90)
+            l.SetTextSize(0.09)
 
-        c1.GetPad(1).cd(); label1.Draw()
-        c1.GetPad(6).cd(); label2.Draw()
-        c1.GetPad(12).cd(); label3.Draw()
-        c1.GetPad(13).cd(); label4.Draw()
-        c1.GetPad(14).cd(); label5.Draw()
-        c1.GetPad(15).cd(); label6.Draw()
-        c1.GetPad(11).cd(); label9.Draw()
+        #label9.SetTextAngle(30)
+        label9.SetTextSize(0.29)
 
-        c1.GetPad(2).SetRightMargin(1e-5)
-        c1.GetPad(2).SetBottomMargin(1e-5)
-        c1.GetPad(3).SetLeftMargin(1e-5)
-        c1.GetPad(3).SetRightMargin(1e-5)
-        c1.GetPad(3).SetBottomMargin(1e-5)
-        c1.GetPad(4).SetLeftMargin(1e-5)
-        c1.GetPad(4).SetRightMargin(1e-5)
-        c1.GetPad(4).SetBottomMargin(1e-5)
-        c1.GetPad(5).SetLeftMargin(1e-5)
-        c1.GetPad(5).SetBottomMargin(1e-5)
+        pads[1].cd(); label1.Draw()
+        pads[6].cd(); label2.Draw()
+        pads[12].cd(); label3.Draw()
+        pads[13].cd(); label4.Draw()
+        pads[14].cd(); label5.Draw()
+        pads[15].cd(); label6.Draw()
+        #pads[11].cd(); label9.Draw()
 
-        c1.GetPad(7).SetRightMargin(1e-5)
-        c1.GetPad(7).SetTopMargin(1e-5)
-        c1.GetPad(8).SetLeftMargin(1e-5)
-        c1.GetPad(8).SetRightMargin(1e-5)
-        c1.GetPad(8).SetTopMargin(1e-5)
-        c1.GetPad(9).SetLeftMargin(1e-5)
-        c1.GetPad(9).SetRightMargin(1e-5)
-        c1.GetPad(9).SetTopMargin(1e-5)
-        c1.GetPad(10).SetLeftMargin(1e-5)
-        c1.GetPad(10).SetTopMargin(1e-5)
+        pads[2].SetRightMargin(1e-5)
+        pads[2].SetBottomMargin(1e-5)
+        pads[3].SetLeftMargin(1e-5)
+        pads[3].SetRightMargin(1e-5)
+        pads[3].SetBottomMargin(1e-5)
+        pads[4].SetLeftMargin(1e-5)
+        pads[4].SetRightMargin(1e-5)
+        pads[4].SetBottomMargin(1e-5)
+        pads[5].SetLeftMargin(1e-5)
+        pads[5].SetBottomMargin(1e-5)
+
+        pads[7].SetRightMargin(1e-5)
+        pads[7].SetTopMargin(1e-5)
+        pads[8].SetLeftMargin(1e-5)
+        pads[8].SetRightMargin(1e-5)
+        pads[8].SetTopMargin(1e-5)
+        pads[9].SetLeftMargin(1e-5)
+        pads[9].SetRightMargin(1e-5)
+        pads[9].SetTopMargin(1e-5)
+        pads[10].SetLeftMargin(1e-5)
+        pads[10].SetTopMargin(1e-5)
 
         chamber_x_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
-        chamber_x_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_x_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
-        chamber_x_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_tracky.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
         # chamber_dxdz_trackx
         chamber_dxdz_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_dxdz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
         chamber_dxdz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
 
-        c1.GetPad(2).cd()
+        pads[2].cd()
         chamber_x_trackx.Draw("e1")
         if not suppressblue: chamber_x_trackx_fit2.Draw("samel")
         chamber_x_trackx_fit.Draw("samel")
+        label9.Draw()
         
-        c1.GetPad(3).cd()
+        pads[3].cd()
         chamber_x_tracky.Draw("e1")
         if not suppressblue: chamber_x_tracky_fit2.Draw("samel")
         chamber_x_tracky_fit.Draw("samel")
         
-        c1.GetPad(4).cd()
+        pads[4].cd()
         chamber_x_trackdxdz.Draw("e1")
         if not suppressblue: chamber_x_trackdxdz_fit2.Draw("samel")
         chamber_x_trackdxdz_fit.Draw("samel")
         
-        c1.GetPad(5).cd()
+        pads[5].cd()
         chamber_x_trackdydz.Draw("e1")
         if not suppressblue: chamber_x_trackdydz_fit2.Draw("samel")
         chamber_x_trackdydz_fit.Draw("samel")
         
-        c1.GetPad(7).cd()
+        pads[7].cd()
         chamber_dxdz_trackx.Draw("e1")
         if not suppressblue: chamber_dxdz_trackx_fit2.Draw("samel")
         chamber_dxdz_trackx_fit.Draw("samel")
         
-        c1.GetPad(8).cd()
+        pads[8].cd()
         chamber_dxdz_tracky.Draw("e1")
         if not suppressblue: chamber_dxdz_tracky_fit2.Draw("samel")
         chamber_dxdz_tracky_fit.Draw("samel")
         
-        c1.GetPad(9).cd()
+        pads[9].cd()
         chamber_dxdz_trackdxdz.Draw("e1")
         if not suppressblue: chamber_dxdz_trackdxdz_fit2.Draw("samel")
         chamber_dxdz_trackdxdz_fit.Draw("samel")
         
-        c1.GetPad(10).cd()
+        pads[10].cd()
         chamber_dxdz_trackdydz.Draw("e1")
         if not suppressblue: chamber_dxdz_trackdydz_fit2.Draw("samel")
         chamber_dxdz_trackdydz_fit.Draw("samel")
+
+    tn = time.time()
+    ddt[8] = 1./ddt[7]*((ddt[7]-1)*ddt[8] + tn-t1)
 
 ##################################################################################
 
@@ -2630,16 +3183,12 @@ def segdiff(tfiles, component, pair, **args):
 
     if component[0:2] == "dt":
         wheel = args["wheel"]
-        if wheel == -2: wheelletter = "A"
-        elif wheel == -1: wheelletter = "B"
-        elif wheel ==  0: wheelletter = "C"
-        elif wheel == +1: wheelletter = "D"
-        elif wheel == +2: wheelletter = "E"
-        else: raise Exception
+        wheelletter = wheelLetter(wheel)
         sector = args["sector"]
         profname = "%s_%s_%02d_%s" % (component, wheelletter, sector, str(pair))
         posname = "pos" + profname
         negname = "neg" + profname
+        #print profname
 
         station1 = int(str(pair)[0])
         station2 = int(str(pair)[1])
@@ -2652,7 +3201,42 @@ def segdiff(tfiles, component, pair, **args):
         while (phi < -pi): phi += 2.*pi
         while (phi > pi): phi -= 2.*pi
 
-    elif component[0:3] == "csc": raise Exception
+    elif component[0:3] == "csc":
+        endcap = args["endcap"]
+        if endcap=="m":
+            endcapnum=2
+            endcapsign="-"
+        elif endcap=="p":
+            endcapnum=1
+            endcapsign="+"
+        else: raise Exception
+        
+        ring = args["ring"]
+        if ring>2 or ring<1: raise Exception
+        station1 = int(str(pair)[0])
+        station2 = int(str(pair)[1])
+        if   ring==1: ringname="inner"
+        elif ring==2: ringname="outer"
+        else: raise Exception
+        
+        chamber = args["chamber"]
+        if (ring==1 and chamber>18) or (ring==2 and chamber>36): raise Exception
+        
+        profname = "csc%s_%s_%s_%02d_%s" % (ringname,component[4:], endcap, chamber, str(pair))
+        posname = "pos" + profname
+        negname = "neg" + profname
+        #print profname
+
+        station1 = int(str(pair)[0])
+        station2 = int(str(pair)[1])
+        phi1 = signConventions["CSC", endcapnum, station1, ring, chamber][4]
+        phi2 = signConventions["CSC", endcapnum, station1, ring, chamber][4]
+        if abs(phi1 - phi2) > 1.:
+            if phi1 > phi2: phi1 -= 2.*pi
+            else: phi1 += 2.*pi
+        phi = (phi1 + phi2) / 2.
+        while (phi < -pi): phi += 2.*pi
+        while (phi > pi): phi -= 2.*pi
 
     else: raise Exception
 
@@ -2660,14 +3244,15 @@ def segdiff(tfiles, component, pair, **args):
     else: window = 5.
 
     global tmpprof, tmppos, tmpneg
-    tmpprof = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % profname).Clone()
+    pdir = "AlignmentMonitorSegmentDifferences/iter1/"
+    tmpprof = tfiles[0].Get(pdir + profname).Clone()
     tmpprof.SetMarkerStyle(8)
-    tmppos = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname).Clone()
-    tmpneg = tfiles[0].Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname).Clone()
+    tmppos = tfiles[0].Get(pdir + posname).Clone()
+    tmpneg = tfiles[0].Get(pdir + negname).Clone()
     for tfile in tfiles[1:]:
-        tmpprof.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % profname))
-        tmppos.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % posname))
-        tmpneg.Add(tfile.Get("AlignmentMonitorSegmentDifferences/iter1/%s" % negname))
+        tmpprof.Add(tfile.Get(pdir + profname))
+        tmppos.Add(tfile.Get(pdir + posname))
+        tmpneg.Add(tfile.Get(pdir + negname))
 
     for i in xrange(1, tmpprof.GetNbinsX()+1):
         if tmpprof.GetBinError(i) < 1e-5:
@@ -2698,17 +3283,25 @@ def segdiff(tfiles, component, pair, **args):
         tmppos.SetXTitle("#Deltady/dz^{local} (mrad)")
         tmpneg.SetXTitle("#Deltady/dz^{local} (mrad)")
         f.SetParNames("#Deltady/dz^{local}_{0}", "Slope")
+    if component == "csc_resid":
+        tmpprof.SetYTitle("#Delta(r#phi)^{local} (mm)")
+        tmppos.SetXTitle("#Delta(r#phi)^{local} (mm)")
+        tmpneg.SetXTitle("#Delta(r#phi)^{local} (mm)")
+        f.SetParNames("#Delta(r#phi)^{local}_{0}", "Slope")
+    if component == "csc_slope":
+        tmpprof.SetYTitle("#Deltad(r#phi)/dz^{local} (mrad)")
+        tmppos.SetXTitle("#Deltad(r#phi)/dz^{local} (mrad)")
+        tmpneg.SetXTitle("#Deltad(r#phi)/dz^{local} (mrad)")
+        f.SetParNames("#Deltad(r#phi)/dz^{local}_{0}", "Slope")
+    
     tmpprof.GetXaxis().CenterTitle()
     tmpprof.GetYaxis().CenterTitle()
     tmppos.GetXaxis().CenterTitle()
     tmpneg.GetXaxis().CenterTitle()
     if component[0:2] == "dt":
-        if int(pair) == 12: tmpprof.SetTitle("MB1 - MB2, wheel %d, sector %02d" % (int(wheel), int(sector)))
-        if int(pair) == 23: tmpprof.SetTitle("MB2 - MB3, wheel %d, sector %02d" % (int(wheel), int(sector)))
-        if int(pair) == 34: tmpprof.SetTitle("MB3 - MB4, wheel %d, sector %02d" % (int(wheel), int(sector)))
-
-    elif component[0:3] == "csc": raise Exception
-
+        tmpprof.SetTitle("MB%d - MB%d, wheel %d, sector %02d" % (station1, station2, int(wheel), int(sector)))
+    elif component[0:3] == "csc":
+        tmpprof.SetTitle("ME%d - ME%d, for ME%s%d/%d/%d" % (station1, station2, endcapsign, station2, ring, chamber))
     else: raise Exception
 
     tmppos.SetTitle("Positive muons")
@@ -2722,20 +3315,27 @@ def segdiff(tfiles, component, pair, **args):
     c1.GetPad(2).cd()
     c1.GetPad(2).Divide(1, 2)
     c1.GetPad(2).GetPad(1).cd()
-    f = ROOT.TF1("gausR", "[0]*exp(-(x - [1])**2 / 2. / [2]**2) / sqrt(2.*3.1415926) / [2]", tmppos.GetMean() - tmppos.GetRMS(), tmppos.GetMean() + tmppos.GetRMS())
+    tmppos.Draw()
+    f = ROOT.TF1("gausR", "[0]*exp(-(x - [1])**2 / 2. / [2]**2) / sqrt(2.*3.1415926) / [2]", 
+                 tmppos.GetMean() - tmppos.GetRMS(), tmppos.GetMean() + tmppos.GetRMS())
     f.SetParameters(tmppos.GetEntries() * ((10. - -10.)/100.), tmppos.GetMean(), tmppos.GetRMS())
     f.SetParNames("Constant", "Mean", "Sigma")
     fit2 = tmppos.Fit("gausR", "qR")
     c1.GetPad(2).GetPad(2).cd()
-    f = ROOT.TF1("gausR", "[0]*exp(-(x - [1])**2 / 2. / [2]**2) / sqrt(2.*3.1415926) / [2]", tmpneg.GetMean() - tmpneg.GetRMS(), tmpneg.GetMean() + tmpneg.GetRMS())
+    tmpneg.Draw()
+    f = ROOT.TF1("gausR", "[0]*exp(-(x - [1])**2 / 2. / [2]**2) / sqrt(2.*3.1415926) / [2]", 
+                 tmpneg.GetMean() - tmpneg.GetRMS(), tmpneg.GetMean() + tmpneg.GetRMS())
     f.SetParameters(tmpneg.GetEntries() * ((10. - -10.)/100.), tmpneg.GetMean(), tmpneg.GetRMS())
     f.SetParNames("Constant", "Mean", "Sigma")
     fit3 = tmpneg.Fit("gausR", "qR")
 
     fitresult1 = None, None
-    if fit1 == 0: fitresult1 = tmpprof.GetFunction("p1").GetParameter(0), tmpprof.GetFunction("p1").GetParError(0)
+    if fit1 == 0:
+        fitresult1 = tmpprof.GetFunction("p1").GetParameter(0), tmpprof.GetFunction("p1").GetParError(0)
     fitresult2 = None, None
-    if fit2 == 0 and fit3 == 0: fitresult2 = (tmppos.GetFunction("gausR").GetParameter(1) + tmpneg.GetFunction("gausR").GetParameter(1)) / 2., sqrt(tmppos.GetFunction("gausR").GetParError(1)**2 + tmpneg.GetFunction("gausR").GetParError(1)**2) / 2.
+    if fit2 == 0 and fit3 == 0:
+        fitresult2 = (tmppos.GetFunction("gausR").GetParameter(1) + tmpneg.GetFunction("gausR").GetParameter(1)) / 2., \
+                     sqrt(tmppos.GetFunction("gausR").GetParError(1)**2 + tmpneg.GetFunction("gausR").GetParError(1)**2) / 2.
     return phi, fitresult1[0], fitresult1[1], fitresult2[0], fitresult2[1], fit1, fit2, fit3
 
 def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()):
@@ -2795,22 +3395,36 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
                         gtemp_34_err2.append(err2)
 
     if len(gtemp_12_phi) > 0:
-        gtemp_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val), array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err))
-        gtemp2_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val2), array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err2))
+        gtemp_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val), 
+                                     array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err))
+        gtemp2_12 = ROOT.TGraphErrors(len(gtemp_12_phi), array.array("d", gtemp_12_phi), array.array("d", gtemp_12_val2), 
+                                      array.array("d", [0.] * len(gtemp_12_phi)), array.array("d", gtemp_12_err2))
     if len(gtemp_23_phi) > 0:
-        gtemp_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val), array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err))
-        gtemp2_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val2), array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err2))
+        gtemp_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val), 
+                                     array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err))
+        gtemp2_23 = ROOT.TGraphErrors(len(gtemp_23_phi), array.array("d", gtemp_23_phi), array.array("d", gtemp_23_val2), 
+                                      array.array("d", [0.] * len(gtemp_23_phi)), array.array("d", gtemp_23_err2))
     if len(gtemp_34_phi) > 0:
-        gtemp_34 = ROOT.TGraphErrors(len(gtemp_34_phi), array.array("d", gtemp_34_phi), array.array("d", gtemp_34_val), array.array("d", [0.] * len(gtemp_34_phi)), array.array("d", gtemp_34_err))
-        gtemp2_34 = ROOT.TGraphErrors(len(gtemp_34_phi), array.array("d", gtemp_34_phi), array.array("d", gtemp_34_val2), array.array("d", [0.] * len(gtemp_34_phi)), array.array("d", gtemp_34_err2))
+        gtemp_34 = ROOT.TGraphErrors(len(gtemp_34_phi), array.array("d", gtemp_34_phi), array.array("d", gtemp_34_val), 
+                                     array.array("d", [0.] * len(gtemp_34_phi)), array.array("d", gtemp_34_err))
+        gtemp2_34 = ROOT.TGraphErrors(len(gtemp_34_phi), array.array("d", gtemp_34_phi), array.array("d", gtemp_34_val2), 
+                                      array.array("d", [0.] * len(gtemp_34_phi)), array.array("d", gtemp_34_err2))
 
-    gtemp_12.SetMarkerStyle(20);  gtemp_12.SetMarkerSize(1.);  gtemp_12.SetMarkerColor(ROOT.kBlue);  gtemp_12.SetLineColor(ROOT.kBlue)
-    gtemp2_12.SetMarkerStyle(24); gtemp2_12.SetMarkerSize(1.); gtemp2_12.SetMarkerColor(ROOT.kBlue); gtemp2_12.SetLineColor(ROOT.kBlue)
-    gtemp_23.SetMarkerStyle(21);  gtemp_23.SetMarkerSize(1.);  gtemp_23.SetMarkerColor(ROOT.kRed);   gtemp_23.SetLineColor(ROOT.kRed)
-    gtemp2_23.SetMarkerStyle(25); gtemp2_23.SetMarkerSize(1.); gtemp2_23.SetMarkerColor(ROOT.kRed);  gtemp2_23.SetLineColor(ROOT.kRed)
-    if component[:4] == "dt13":
-        gtemp_34.SetMarkerStyle(22);  gtemp_34.SetMarkerSize(1.25);  gtemp_34.SetMarkerColor(ROOT.kGreen+2);  gtemp_34.SetLineColor(ROOT.kGreen+2)
-        gtemp2_34.SetMarkerStyle(26); gtemp2_34.SetMarkerSize(1.25); gtemp2_34.SetMarkerColor(ROOT.kGreen+2); gtemp2_34.SetLineColor(ROOT.kGreen+2)
+    if len(gtemp_12_phi) > 0:
+        gtemp_12.SetMarkerStyle(20);  gtemp_12.SetMarkerSize(1.);  
+        gtemp_12.SetMarkerColor(ROOT.kBlue);  gtemp_12.SetLineColor(ROOT.kBlue)
+        gtemp2_12.SetMarkerStyle(24); gtemp2_12.SetMarkerSize(1.); 
+        gtemp2_12.SetMarkerColor(ROOT.kBlue); gtemp2_12.SetLineColor(ROOT.kBlue)
+    if len(gtemp_23_phi) > 0:
+        gtemp_23.SetMarkerStyle(21);  gtemp_23.SetMarkerSize(1.);  
+        gtemp_23.SetMarkerColor(ROOT.kRed);   gtemp_23.SetLineColor(ROOT.kRed)
+        gtemp2_23.SetMarkerStyle(25); gtemp2_23.SetMarkerSize(1.); 
+        gtemp2_23.SetMarkerColor(ROOT.kRed);  gtemp2_23.SetLineColor(ROOT.kRed)
+    if len(gtemp_34_phi) > 0 and component[:4] == "dt13":
+        gtemp_34.SetMarkerStyle(22);  gtemp_34.SetMarkerSize(1.25);  
+        gtemp_34.SetMarkerColor(ROOT.kGreen+2);  gtemp_34.SetLineColor(ROOT.kGreen+2)
+        gtemp2_34.SetMarkerStyle(26); gtemp2_34.SetMarkerSize(1.25); 
+        gtemp2_34.SetMarkerColor(ROOT.kGreen+2); gtemp2_34.SetLineColor(ROOT.kGreen+2)
 
     if wheel == 0: htemp.SetTitle("Wheel %d" % wheel)
     else: htemp.SetTitle("Wheel %+d" % wheel)
@@ -2845,6 +3459,10 @@ def segdiffvsphi(tfiles, reports, component, wheel, window=5., excludesectors=()
         tlegend.AddEntry(gtemp_23, "MB2 - MB3 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_23_val), stdev(gtemp_23_val)), "pl")
     if len(gtemp_34_phi) > 0:
         tlegend.AddEntry(gtemp_34, "MB3 - MB4 (mean: %4.2f, RMS: %4.2f)" % (mean(gtemp_34_val), stdev(gtemp_34_val)), "pl")
-    tlegend.AddEntry(gtemp_12, "total mean: %4.2f, total RMS: %4.2f" % (mean(gtemp_12_val + gtemp_23_val + gtemp_34_val), stdev(gtemp_12_val + gtemp_23_val + gtemp_34_val)), "")
+    if len(gtemp_12_phi) > 0:
+        tlegend.AddEntry(gtemp_12, "total mean: %4.2f, total RMS: %4.2f" % \
+                                   (mean(gtemp_12_val + gtemp_23_val + gtemp_34_val), 
+                                   stdev(gtemp_12_val + gtemp_23_val + gtemp_34_val)), "")
     tlegend.Draw()
+
 
