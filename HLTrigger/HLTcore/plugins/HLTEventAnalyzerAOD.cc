@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/16 11:03:37 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/02/19 14:26:53 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -62,6 +62,10 @@ HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSet
 	  hltConfig_.dump("Triggers");
 	}
       }
+      hltConfig_.dump("Streams");
+      hltConfig_.dump("Datasets");
+      hltConfig_.dump("PrescaleTable");
+      hltConfig_.dump("ProcessPSet");
     }
   } else {
     cout << "HLTEventAnalyzerAOD::analyze:"
