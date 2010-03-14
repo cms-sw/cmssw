@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.22 2009/10/08 17:44:40 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.23 2009/11/21 22:25:04 chrjones Exp $
 //
 
 // system include files
@@ -71,6 +71,7 @@ static const float s_forWhite[][3] ={
 { 0.60, 0.06, 0.23 }, //burgundy
 {0.65, 0.92, 0.17}, //lime{ 0.99, 1.00, 0.39 },
 
+{ 0.85, 0.85, 0.58 },
 { 0.87, 0.72, 0.92 },
 { 0.99, 0.88, 0.59 },
 { 0.79, 0.72, 0.90 },
