@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id$
+// $Id: HcalO2OManager.cc,v 1.30 2010/03/07 23:01:33 kukartse Exp $
 //
 
 
@@ -68,7 +68,10 @@ std::vector<std::string> HcalO2OManager::getListOfPoolTags(std::string connect, 
   std::cout << "===> WARNING! auth_path is specified as " << auth_path;
   std::cout << " but is not used explicitely. Is it being used at all?"  << std::endl;
   cond::DbConnection conn;
-  conn.configure( cond::CmsDefaults );
+  //conn.configure( cond::CmsDefaults );
+  conn.configuration().setAuthenticationPath(auth_path);
+  //conn.configuration().setMessageLevel( coral::Debug );
+  conn.configure();
   cond::DbSession session = conn.createSession();
   session.open(connect);
   std::vector<std::string> alltags;
@@ -100,7 +103,10 @@ int HcalO2OManager::getListOfPoolIovs(std::vector<uint32_t> & out,
   std::cout << " but is not used explicitely. Is it being used at all?"  << std::endl;
   bool details=false;
   cond::DbConnection conn;
-  conn.configure( cond::CmsDefaults );
+  //conn.configure( cond::CmsDefaults );
+  conn.configuration().setAuthenticationPath(auth_path);
+  //conn.configuration().setMessageLevel( coral::Debug );
+  conn.configure();
   cond::DbSession session = conn.createSession();
   session.open(connect);
   out.clear();

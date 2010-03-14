@@ -22,10 +22,8 @@ import subprocess
 #
 #
 mode = 'online'
-#input_pool_connect_string = "oracle://CMSDEVR_LB/CMS_COND_HCAL"    # read list of tags/iovs from
-input_pool_connect_string = "sqlite_file:test_o2o.db"    # read list of tags/iovs from
-#output_pool_connect_string = "oracle://CMSDEVR_LB/CMS_COND_HCAL"   # where to write changes
-output_pool_connect_string = "sqlite_file:test_o2o.db"   # where to write changes
+input_pool_connect_string = "oracle://CMSDEVR_LB/CMS_COND_HCAL"    # read list of tags/iovs from
+output_pool_connect_string = "oracle://CMSDEVR_LB/CMS_COND_HCAL"   # where to write changes
 pool_auth_path = "/nfshome0/popcondev/conddb"
 pool_logconnect = "sqlite_file:log.db"                   # pool log DB file
 omds_accessor_string = "occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44"
