@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.20 2010/01/25 16:57:37 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.21 2010/01/25 17:00:37 amraktad Exp $
 //
 
 // system include files
@@ -28,7 +28,6 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/CmsAnnotation.h"
 
 //
 // constants, enums and typedefs
@@ -75,11 +74,6 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    m_saveImageButton= new TGTextButton(this,"Save Image ...");
    AddFrame(m_saveImageButton);
    m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
-   // logo
-   m_logo = new TGTextButton(this, "Add Logo");
-   AddFrame(m_logo);
-   m_logo->Connect("Clicked()","CmsShowViewPopup",this,"addLogo()");
-
 
   // content frame
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
@@ -206,16 +200,7 @@ CmsShowViewPopup::backgroundColorWasChanged()
    }
 }
 
-void
-CmsShowViewPopup::addLogo()
-{
-   TEveViewer* ev = dynamic_cast<TEveViewer*>(m_eveWindow); 	 
-   if (ev)
-   {
-      new CmsAnnotation(ev->GetGLViewer(), 0.7, 0.7);
-      ev->GetGLViewer()->RequestDraw();
-   }
-}
+
 // Const member functions
 //
 

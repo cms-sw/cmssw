@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.14 2009/12/01 20:54:51 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.15 2010/01/25 13:33:37 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,6 @@ public:
    void saveImage();
    void changeBackground();
    void backgroundColorWasChanged();
-   void addLogo();
    TEveWindow* getEveWindow() const { return m_eveWindow; }
 
    sigc::signal<void> closed_;
