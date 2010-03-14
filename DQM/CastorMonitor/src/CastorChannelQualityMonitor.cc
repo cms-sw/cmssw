@@ -47,7 +47,7 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
   if ( m_dbe !=NULL ) {    
     ////---- create ReportSummary Map 
     m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
-    meEVT_ = m_dbe->bookInt("Event Number"); 
+    reportSummary    = m_dbe->bookFloat("reportSummary");
     reportSummaryMap = m_dbe->book2D("reportSummaryMap","reportSummaryMap",14,0.0,14.0,16,0.0,16.0);
     if(offline_){
       h_reportSummaryMap =reportSummaryMap->getTH2F();
@@ -55,6 +55,9 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
       h_reportSummaryMap->GetXaxis()->SetTitle("module");
       h_reportSummaryMap->GetYaxis()->SetTitle("sector");
     }
+    
+    m_dbe->setCurrentFolder(rootFolder_+"EventInfo/reportSummaryContents");
+    overallStatus = m_dbe->bookFloat("fraction of good channels");
    } 
 
   else{
@@ -102,9 +105,6 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
      cout << "CastorChannelQualityMonitor: Dead Threshold is set to: " << dThreshold_ << endl;
     }
 
-  ////---- fill the event number
-  meEVT_->Fill(ievt_);
-
   module = -1;  sector = -1; energy = -1.;
   
  ////---- loop over RecHits 
@@ -138,10 +138,10 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
  ////---- update reportSummarymap every 500 events
  if( ievt_ == 25 || ievt_ % 500 == 0) {
    
-    int status = -99;
+   int status = -99; int numOK = 0; 
 
-   ////---- reset the reportSummaryMap just in Offline mode 
-   if(offline_) reportSummaryMap->Reset();
+     ////---- reset the reportSummaryMap 
+    // if(offline_) reportSummaryMap->Reset();
   
    ////---- look at the values in the arrays
   for (int module=0; module<14; module++){
@@ -165,12 +165,15 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
         << " > ==> STATUS=" << status <<endl;
 
    ////---- fill reportSummaryMap  
-    reportSummaryMap->Fill(module,sector,status);
-    //h_reportSummaryMap->SetBinContent(module,sector,status);
+   // reportSummaryMap->Fill(module,sector,status);
+   reportSummaryMap->getTH2F()->SetBinContent(module+1,sector+1,status);
+   if (status == 1) numOK++;
       }
     }
+ ////--- calculate the fraction of good channels and fill it in
+  double fraction=double(numOK)/224;
+  overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   }
-  
    return;
 } 
  

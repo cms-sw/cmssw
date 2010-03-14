@@ -168,6 +168,7 @@ void CastorMonitorModule::beginJob(){
 
      ////---- create EventProduct histogram
     dbe_->setCurrentFolder(rootFolder_+"CastorEventProducts");
+    meEVT_ = dbe_->bookInt("Event Number"); 
     CastorEventProduct =dbe_->book2D("CastorEventProduct","CastorEventProduct",3,0,3,1,0,1);
     TH2F* hCastorEventProduct =CastorEventProduct->getTH2F();
     hCastorEventProduct->GetXaxis()->SetBinLabel(1,"RawData");
@@ -497,11 +498,15 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   
 
 
-
-
   if(fVerbosity>0 && ievt_%100 == 0)
     cout << "CastorMonitorModule: processed " << ievt_ << " events" << endl;
   
+
+ ////---- fill the event number
+  meEVT_->Fill(ievt_);
+
+
+
   return;
 }
 
@@ -573,34 +578,33 @@ void CastorMonitorModule::CheckCastorStatus(const FEDRawDataCollection& RawData,
 					       const CastorDigiCollection& CastorDigi
 		         		     )
 {
-  vector<int> fedUnpackList;
-
-   ////---- NO getCastorFEDIds() at the moment
-  for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++) 
-    {
-      fedUnpackList.push_back(i);
-    }
   
-  for (vector<int>::const_iterator i=fedUnpackList.begin(); i!=fedUnpackList.end();++i) 
-    {
-      const FEDRawData& fed = RawData.FEDData(*i);
-      if (fed.size()<12) continue; //-- Was 16 !
-      
+  ////---- comment this out, since it is anyway out of use  now
+  //vector<int> fedUnpackList;
+  ////---- NO getCastorFEDIds() at the moment
+  // for (int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; i++) 
+  //   {
+  //     fedUnpackList.push_back(i);
+  //   }
+  // for (vector<int>::const_iterator i=fedUnpackList.begin(); i!=fedUnpackList.end();++i) 
+  //   {
+  //     const FEDRawData& fed = RawData.FEDData(*i);
+  //     if (fed.size()<12) continue; //-- Was 16 !      
       ////---- get the DCC header - NO CastorDCCHeader at the moment
-      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
-      if (!dccHeader) return;
-      int dccid=dccHeader->getSourceId();
+  //     const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+  //    if (!dccHeader) return;
+  //    int dccid=dccHeader->getSourceId();
     
-      ////---- check for CASTOR
-      ////---- Castor FED numbering of DCCs= [690 -693]  
-      if (dccid >= 690 && dccid <=693){
-	if ( CastorDigi.size()>0){
-	  meCASTOR_->Fill(1); 
-	 }
-	else {meCASTOR_->Fill(0);  }  
-      }
-      else{ meCASTOR_->Fill(-1); }
-    }
+   ////---- check for CASTOR
+  //     ////---- Castor FED numbering of DCCs= [690 -693]  
+  //    if (dccid >= 690 && dccid <=693){
+  //	if ( CastorDigi.size()>0){
+  //	  meCASTOR_->Fill(1); 
+  //	 }
+  //	else {meCASTOR_->Fill(0);  }  
+  //     }
+  //    else{ meCASTOR_->Fill(-1); }
+  //  }
   return;
 }
 

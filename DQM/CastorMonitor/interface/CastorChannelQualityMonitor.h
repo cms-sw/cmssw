@@ -58,9 +58,11 @@ private:
  int     aboveDThreshold [14][16];
 
  bool offline_;
- MonitorElement* meEVT_;
- MonitorElement* reportSummaryMap;
- TH2F* h_reportSummaryMap;
+ MonitorElement* reportSummary;
+ MonitorElement* reportSummaryMap;  TH2F* h_reportSummaryMap;
+ MonitorElement* overallStatus;
+
+
 
 };
 

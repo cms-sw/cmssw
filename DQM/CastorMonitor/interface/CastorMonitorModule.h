@@ -172,6 +172,7 @@ public:
   MonitorElement* meQuality_;
   MonitorElement* CastorEventProduct;
   
+
   ////---- define monitors
   CastorMonitorSelector*    evtSel_;
   CastorRecHitMonitor*      RecHitMon_;
@@ -180,6 +181,7 @@ public:
   CastorLEDMonitor*         LedMon_;
   CastorPSMonitor*          PSMon_;
   
+  MonitorElement* meEVT_;
 
   edm::ESHandle<CastorDbService> conditions_;
   const CastorElectronicsMap*    readoutMap_;
