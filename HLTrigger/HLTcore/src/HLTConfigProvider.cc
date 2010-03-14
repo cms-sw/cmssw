@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/11 12:40:08 $
- *  $Revision: 1.39 $
+ *  $Date: 2010/03/12 16:30:54 $
+ *  $Revision: 1.40 $
  *
  *  \author Martin Grunewald
  *
@@ -376,12 +376,12 @@ void HLTConfigProvider::extract()
 
    // Check various possibilities to get the HLT prescale sets:
    string prescaleName("");
-   if (processPSet_.exists("PrescaleService")) {
-     prescaleName="PrescaleService";
-   } else if ( processPSet_.exists("PrescaleTable")) {
-     prescaleName="PrescaleTable";
-   } else if ( processPSet_.exists("@prescale_table")) {
-     prescaleName="@prescale_table";
+   const string preS("PrescaleService");
+   const string preT("PrescaleTable");
+   if (processPSet_.exists(preS)) {
+     prescaleName=preS;
+   } else if ( processPSet_.exists(preT)) {
+     prescaleName=preT;
    }
    if (prescaleName=="") {
      hltPrescaleTable_=HLTPrescaleTable();
