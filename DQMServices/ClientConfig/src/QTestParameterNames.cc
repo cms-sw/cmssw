@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2008/11/11 17:01:11 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/03/13 16:47:56 $
+ *  $Revision: 1.11 $
  *  \author Ilaria Segoni
  */
  
@@ -29,7 +29,7 @@ QTestParameterNames::QTestParameterNames(){
         this->constructMap(ContentsWithinExpectedROOT::getAlgoName(), "minMean", "maxMean", "minRMS", "maxRMS", "toleranceMean", "minEntries", "useEmptyBins");
         //this->constructMap(ContentsWithinExpectedASROOT::getAlgoName(), "minCont", "maxCont"); 
 
-	this->constructMap(ValToMeanROOT::getAlgoName(), "MinRel", "MaxRel", "UseEmptyBins", "MinAbs", "MaxAbs");
+	this->constructMap(CompareToMedianROOT::getAlgoName(), "MinRel", "MaxRel", "UseEmptyBins", "MinAbs", "MaxAbs");
 
 }
   

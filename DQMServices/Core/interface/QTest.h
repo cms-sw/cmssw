@@ -29,7 +29,7 @@ class FlatOccupancy1d;			typedef FlatOccupancy1d RuleFlatOccupancy1d; typedef Fl
 class FixedFlatOccupancy1d;		typedef FixedFlatOccupancy1d RuleFixedFlatOccupancy1d; typedef FixedFlatOccupancy1d FixedFlatOccupancy1dROOT;
 class CSC01;				typedef CSC01 RuleCSC01; typedef CSC01 CSC01ROOT;
 class AllContentAlongDiagonal;		typedef AllContentAlongDiagonal RuleAllContentAlongDiagonal; typedef AllContentAlongDiagonal AllContentAlongDiagonalROOT;
-class ValToMean;                        typedef ValToMean ValToMeanROOT;
+class CompareToMedian;                        typedef CompareToMedian CompareToMedianROOT;
 
 /** Base class for quality tests run on Monitoring Elements;
 
@@ -590,12 +590,12 @@ protected:
   int result;
 };
 
-//======================== ValToMean ====================//
-class ValToMean : public SimpleTest
+//======================== CompareToMedian ====================//
+class CompareToMedian : public SimpleTest
 {
 public:
   //Initialize for TProfile, colRings
-  ValToMean(const std::string &name) : SimpleTest(name,true){
+  CompareToMedian(const std::string &name) : SimpleTest(name,true){
     this->_min = 0.2;
     this->_max = 3.0;
     this->_emptyBins = 0;
@@ -606,9 +606,9 @@ public:
     setAlgoName( getAlgoName() );
   };
 
-  ~ValToMean(){};
+  ~CompareToMedian(){};
 
-  static std::string getAlgoName(void) { return "ValToMean"; }
+  static std::string getAlgoName(void) { return "CompareToMedian"; }
 
   float runTest(const MonitorElement *me);
   void setMin(float min){_min = min;};

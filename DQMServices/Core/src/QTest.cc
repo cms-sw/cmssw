@@ -1249,7 +1249,7 @@ void MeanWithinExpected::useRMS()
 }
 
 //----------------------------------------------------------------//
-//------------------------  ValToMean  ---------------------------//
+//------------------------  CompareToMedian  ---------------------------//
 //----------------------------------------------------------------//
 /* 
 Test for TProfile2D
@@ -1259,7 +1259,7 @@ The parameters used for this comparison are:
 MinRel and MaxRel to identify outliers wrt the median value
 An absolute value (MinAbs, MaxAbs) on the median is used to identify a full region out of specification 
 */
-float ValToMean::runTest(const MonitorElement *me){
+float CompareToMedian::runTest(const MonitorElement *me){
   int32_t nbins=0, failed=0;
   badChannels_.clear();
 
@@ -1371,7 +1371,7 @@ float ValToMean::runTest(const MonitorElement *me){
 
   if (nbins==0){
     if (verbose_ > 0)
-      std::cout << "QTest:ValToMean: Histogram is empty" << std::endl;
+      std::cout << "QTest:CompareToMedian: Histogram is empty" << std::endl;
     return 1.;
     }
   return 1 - (float)failed/nbins;
