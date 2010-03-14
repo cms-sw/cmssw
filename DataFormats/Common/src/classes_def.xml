@@ -74,8 +74,6 @@
    <field name="fixed_" transient="true"/>
  </class>
  <class name="edm::RangeMap<int,std::vector<float>,edm::CopyPolicy<float> >"/>
- <class name="std::pair<edm::ProductID, unsigned int>" />
- <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
  <class name="edm::ValueMap<int>" />
  <class name="edm::ValueMap<unsigned int>" />
  <class name="edm::ValueMap<bool>" />
@@ -92,6 +90,9 @@
  <class name="edm::MergeableCounter"/>
  <class name="edm::Wrapper<edm::MergeableCounter>"/>
 
+ <class name="edm::ConditionsInEventBlock"/>
+ <class name="edm::ConditionsInRunBlock"/>
+ <class name="edm::ConditionsInLumiBlock"/>
  <class name="edm::Wrapper<edm::ConditionsInEventBlock>"/>
  <class name="edm::Wrapper<edm::ConditionsInRunBlock>"/>
  <class name="edm::Wrapper<edm::ConditionsInLumiBlock>"/>

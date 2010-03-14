@@ -6,7 +6,6 @@
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
@@ -24,7 +23,7 @@
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/MergeableCounter.h"
-#include "DataFormats/Provenance/interface/ConditionsInEdm.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
@@ -67,7 +66,6 @@ namespace {
     
     std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>  dummyDSTVItemVector;
 
-    std::pair<edm::ProductID, unsigned int> ppui1;
     edm::Wrapper<edm::ValueMap<int> > wvm1;
     edm::Wrapper<edm::ValueMap<unsigned int> > wvm2;
     edm::Wrapper<edm::ValueMap<bool> > wvm3;
