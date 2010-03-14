@@ -8,11 +8,5 @@ PrescaleService = cms.Service("PrescaleService",
       )
     ),
     lvl1Labels       = cms.vstring('default'),
-    lvl1DefaultLabel = cms.untracked.string('default'),
-#
-# The following is a special Service class parameter. Its value (if !="")
-# denotes the name of a new PSet to store the Service configuration, which
-# will be inserted into the ProcessPSet.
-#
-    saveConfigTo_    = cms.string("@prescale_table")
+    lvl1DefaultLabel = cms.untracked.string('default')
 )

@@ -3,6 +3,7 @@
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/SaveConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h" 
 
 
@@ -19,7 +20,7 @@ namespace edm {
   class Timestamp;
   namespace service {
 
-    class PrescaleService
+    class PrescaleService : public edm::serviceregistry::SaveConfiguration
     {
     public:
       //
