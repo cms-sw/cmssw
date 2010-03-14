@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.13 2010/03/03 17:19:58 eulisse Exp $
+// $Id: FWTableViewManager.cc,v 1.14 2010/03/04 18:06:18 eulisse Exp $
 //
 
 // system include files
@@ -392,7 +392,6 @@ const std::string FWTableViewManager::kConfigTypeNames = "typeNames";
 void 
 FWTableViewManager::addTo (FWConfiguration &iTo) const
 {
-   std::cout << "writing configuration" << std::endl;
    // if there are views, it's the job of the first view to store
    // the configuration (this is to avoid ordering problems in the
    // case of multiple views)

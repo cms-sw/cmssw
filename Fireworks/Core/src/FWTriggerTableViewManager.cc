@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTriggerTableViewManager.cc,v 1.9 2009/09/24 14:55:25 chrjones Exp $
+// $Id: FWTriggerTableViewManager.cc,v 1.1 2009/10/06 18:56:06 dmytro Exp $
 //
 
 // system include files
@@ -179,7 +179,6 @@ const std::string FWTriggerTableViewManager::kConfigTypeNames = "typeNames";
 
 void FWTriggerTableViewManager::addTo (FWConfiguration &iTo) const
 {
-   std::cout << "writing configuration" << std::endl;
    // if there are views, it's the job of the first view to store
    // the configuration (this is to avoid ordering problems in the
    // case of multiple views)
