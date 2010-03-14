@@ -45,9 +45,11 @@ private:
     void increment(unsigned int bxDiff);
     void set(unsigned int bxDiff);
     unsigned int firstHit() const;
+
     double rms() const;
     double mean() const;
     unsigned int sum() const { return mom0(); }
+
     std::string print() const;
     const std::vector<unsigned int> & counts() const { return theCounts; }
     bool operator==(const SynchroCounts &) const;

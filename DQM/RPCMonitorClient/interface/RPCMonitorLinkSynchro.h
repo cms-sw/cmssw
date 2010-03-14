@@ -34,6 +34,8 @@ private:
 
   MonitorElement* me_delaySummary;
   MonitorElement* me_delaySpread;
+  MonitorElement* me_topOccup;
+  MonitorElement* me_topSpread;
   MonitorElement* me_notComplete[3];
 
 };

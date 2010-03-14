@@ -23,7 +23,7 @@ public:
   virtual ~RPCFEDIntegrity();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginJob();
 
   //Begin Run
    void beginRun(const edm::Run& r, const edm::EventSetup& c);
@@ -59,10 +59,6 @@ public:
 
   enum fedHisto{Entries, Fatal, NonFatal};
 
-
-
-  std::map< std::pair<int,int>, int > readoutErrors_;
-  std::map< std::pair<int,int>, int > recordTypes_;
   MonitorElement * fedMe_[3];
 
   int  numOfFED_ ,  minFEDNum_ ,  maxFEDNum_ ;

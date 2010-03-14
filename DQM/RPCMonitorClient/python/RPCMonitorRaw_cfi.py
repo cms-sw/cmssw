@@ -2,6 +2,5 @@ import FWCore.ParameterSet.Config as cms
 
 
 rpcMonitorRaw = cms.EDAnalyzer("RPCMonitorRaw",
-  writeHistograms = cms.untracked.bool(False),
-  histoFileName = cms.untracked.string('rpcMonitorRaw.root')
+  watchedErrors = cms.untracked.vint32(8,9)
 )

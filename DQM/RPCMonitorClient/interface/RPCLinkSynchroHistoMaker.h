@@ -16,6 +16,7 @@ public:
   RPCLinkSynchroHistoMaker(const RPCLinkSynchroStat & a) : theLinkStat(a) {}
   void fillDelaySpreadHisto(TH2F* histo);
   void fillDelayHisto(TH1F* histo);
+  void fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTopOccup, TH2F* hTopSpread) const;
     
 private:
   const RPCLinkSynchroStat & theLinkStat;
