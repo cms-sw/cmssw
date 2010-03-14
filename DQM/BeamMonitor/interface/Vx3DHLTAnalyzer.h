@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.6 2010/03/12 14:19:48 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.7 2010/03/13 17:54:57 dinardo Exp $
 //
 //
 
@@ -126,6 +126,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       edm::TimeValue_t endTimeOfFit;
       unsigned int beginLumiOfFit;
       unsigned int endLumiOfFit;
+      bool internalDebug;
 };
 
 #endif

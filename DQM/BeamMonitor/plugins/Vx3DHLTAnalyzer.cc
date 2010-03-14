@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.27 2010/03/13 17:54:39 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.28 2010/03/13 17:57:13 dinardo Exp $
 //
 //
 
@@ -190,6 +190,10 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 
 int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 {
+  // RETURN CODE:
+  //  0 == OK
+  // -2 == NO OK - not enough "minNentries"
+  // Any other number == NO OK
   unsigned int nParams = 9;
  
   if ((vals != NULL) && (vals->size() == nParams*2))
@@ -212,20 +216,21 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       vector<double>::const_iterator it = vals->begin();
 
       TFitterMinuit* Gauss3D = new TFitterMinuit(nParams);
-      Gauss3D->SetPrintLevel(0);
+      if (internalDebug == true) Gauss3D->SetPrintLevel(3);
+      else Gauss3D->SetPrintLevel(0);
       // 	  Gauss3D->SetStrategy(0);
       Gauss3D->SetFCN(Gauss3DFunc);
       arglist[0] = 10000; // Max number of function calls
       arglist[1] = 1e-6;  // Tolerance on likelihood
 
-//       cout << "\n@@@ START FITTING @@@" << endl;
+      if (internalDebug == true) cout << "\n@@@ START FITTING @@@" << endl;
 
       // @@@ Fit at X-deltaMean | X | X+deltaMean @@@
       bestEdm = 1.;
       for (int i = 0; i < 3; i++)
 	{
 	  deltaMean = (double(i)-1.)*sqrt((*(it+0))*varFactor);
-// 	  cout << "deltaMean --> " << deltaMean << endl;
+	  if (internalDebug == true) cout << "deltaMean --> " << deltaMean << endl;
 
 	  Gauss3D->Clear();
 
@@ -251,7 +256,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -2;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
@@ -263,15 +268,18 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
 	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementX = i; }
 	}
-//       cout << "Found bestMovementX --> " << bestMovementX << endl;
+      if (internalDebug == true) cout << "Found bestMovementX --> " << bestMovementX << endl;
 
       // @@@ Fit at Y-deltaMean | Y | Y+deltaMean @@@
       bestEdm = 1.;
       for (int i = 0; i < 3; i++)
 	{
 	  deltaMean = (double(i)-1.)*sqrt((*(it+1))*varFactor);
-// 	  cout << "deltaMean --> " << deltaMean << endl;
-// 	  cout << "deltaMean X --> " << (double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor) << endl;
+	  if (internalDebug == true)
+	    {
+	      cout << "deltaMean --> " << deltaMean << endl;
+	      cout << "deltaMean X --> " << (double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor) << endl;
+	    }
 
 	  Gauss3D->Clear();
 
@@ -297,7 +305,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -2;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
@@ -309,16 +317,19 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
 	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementY = i; }
 	}
-//       cout << "Found bestMovementY --> " << bestMovementY << endl;
+      if (internalDebug == true) cout << "Found bestMovementY --> " << bestMovementY << endl;
 
       // @@@ Fit at Z-deltaMean | Z | Z+deltaMean @@@
       bestEdm = 1.;
       for (int i = 0; i < 3; i++)
 	{
 	  deltaMean = (double(i)-1.)*sqrt((*(it+2))*varFactor);
-// 	  cout << "deltaMean --> " << deltaMean << endl;
-// 	  cout << "deltaMean X --> " << (double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor) << endl;
-// 	  cout << "deltaMean Y --> " << (double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor) << endl;
+	  if (internalDebug == true)
+	    {
+	      cout << "deltaMean --> " << deltaMean << endl;
+	      cout << "deltaMean X --> " << (double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor) << endl;
+	      cout << "deltaMean Y --> " << (double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor) << endl;
+	    }
 
 	  Gauss3D->Clear();
 
@@ -344,7 +355,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -2;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
@@ -356,7 +367,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 
 	  if ((goodData == 0) && (edm < bestEdm)) { bestEdm = edm; bestMovementZ = i; }
 	}
-//       cout << "Found bestMovementZ --> " << bestMovementZ << endl;
+      if (internalDebug == true) cout << "Found bestMovementZ --> " << bestMovementZ << endl;
 
       Gauss3D->Clear();
 
@@ -383,14 +394,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
       if (isnan(edm) == true) goodData = -1;
-      else if (counterVx < minNentries) goodData = -1;
+      else if (counterVx < minNentries) goodData = -2;
       else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-      if (goodData != 0)
+      if ((goodData != 0) && (goodData != -2))
 	{
 	  Gauss3D->Clear();
 	  
-// 	  cout << "FIT WITH ENLARGED PARAMETER DISTANCES" << endl;      
-	  // @@@ FINAL FIT WITH ENLARGED PARAMETER DISTANCES @@@
+	  if (internalDebug == true) cout << "FIT WITH ENLARGED PARAMETER DISTANCES - STEP 1" << endl;      
+	  // @@@ FIT WITH ENLARGED PARAMETER DISTANCES - STEP 1 @@@
 	  // arg3 - first guess of parameter value
 	  // arg4 - step of the parameter
 	  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*5., 0, 0);
@@ -413,14 +424,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
 	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -1;
+	  else if (counterVx < minNentries) goodData = -2;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
-	  if (goodData != 0)
+	  if ((goodData != 0) && (goodData != -2))
 	    {
 	      Gauss3D->Clear();
 	  
-// 	      cout << "FIT WITH FURTHER ENLARGED PARAMETER DISTANCES" << endl;      
-	      // @@@ FINAL FIT WITH FURTHER ENLARGED PARAMETER DISTANCES @@@
+	      if (internalDebug == true) cout << "FIT WITH ENLARGED PARAMETER DISTANCES - STEP 2" << endl;      
+	      // @@@ FIT WITH ENLARGED PARAMETER DISTANCES - STEP 2 @@@
 	      // arg3 - first guess of parameter value
 	      // arg4 - step of the parameter
 	      Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*10., 0, 0);
@@ -443,8 +454,39 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
 	      if (isnan(edm) == true) goodData = -1;
-	      else if (counterVx < minNentries) goodData = -1;
+	      else if (counterVx < minNentries) goodData = -2;
 	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      if ((goodData != 0) && (goodData != -2))
+		{
+		  Gauss3D->Clear();
+	  
+		  if (internalDebug == true) cout << "FIT WITH ENLARGED PARAMETER DISTANCES - STEP 3" << endl;      
+		  // @@@ FIT WITH ENLARGED PARAMETER DISTANCES - STEP 3 @@@
+		  // arg3 - first guess of parameter value
+		  // arg4 - step of the parameter
+		  Gauss3D->SetParameter(0,"var x ", *(it+0)*varFactor, parDistance*100., 0, 0);
+		  Gauss3D->SetParameter(1,"var y ", *(it+1)*varFactor, parDistance*100., 0, 0);
+		  Gauss3D->SetParameter(2,"var z ", *(it+2)*varFactor, parDistance*500., 0, 0);
+		  Gauss3D->SetParameter(3,"cov xy", 0.0, parDistance*10., 0, 0);
+		  Gauss3D->SetParameter(4,"cov yz", 0.0, parDistance*10., 0, 0);
+		  Gauss3D->SetParameter(5,"cov xz", 0.0, parDistance*10., 0, 0);
+		  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*100., 0, 0);
+		  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*100., 0, 0);
+		  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*500., 0, 0);
+      
+		  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+		  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+		  xPos = Gauss3D->GetParameter(6);
+		  yPos = Gauss3D->GetParameter(7);
+		  zPos = Gauss3D->GetParameter(8);
+      
+		  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
+		  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
+      
+		  if (isnan(edm) == true) goodData = -1;
+		  else if (counterVx < minNentries) goodData = -2;
+		  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+		}
 	    }
 	}
 
@@ -671,17 +713,20 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  
 	  goodData = MyFit(&fitResults);	  	      
 
-// 	  cout << "goodData --> " << goodData << endl;
-//  	  cout << "Used vertices --> " << counterVx << endl;
-// 	  cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0+nParams] << endl;
-// 	  cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
-// 	  cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
-// 	  cout << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3+nParams] << endl;
-// 	  cout << "cov yz --> " << fitResults[4] << " +/- " << fitResults[4+nParams] << endl;
-// 	  cout << "cov xz --> " << fitResults[5] << " +/- " << fitResults[5+nParams] << endl;
-// 	  cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6+nParams] << endl;
-// 	  cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7+nParams] << endl;
-// 	  cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8+nParams] << endl;
+	  if (internalDebug == true) 
+	    {
+	      cout << "goodData --> " << goodData << endl;
+	      cout << "Used vertices --> " << counterVx << endl;
+	      cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0+nParams] << endl;
+	      cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
+	      cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
+	      cout << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3+nParams] << endl;
+	      cout << "cov yz --> " << fitResults[4] << " +/- " << fitResults[4+nParams] << endl;
+	      cout << "cov xz --> " << fitResults[5] << " +/- " << fitResults[5+nParams] << endl;
+	      cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6+nParams] << endl;
+	      cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7+nParams] << endl;
+	      cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8+nParams] << endl;
+	    }
 
 	  if (goodData == 0)
 	    {		 
@@ -736,15 +781,20 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	    }
 	  else
 	    {
-	      goodData = -1;
+	      goodData = -2;
 	      for (unsigned int i = 0; i < 8*2; i++) vals.push_back(0.0);
 	    }
 	}
 
-      if (goodData == 0)
+      // "goodData" CODE:
+      //  0 == OK --> Reset
+      // -2 == NO OK - not enough "minNentries" --> Wait for more lumisections
+      // Any other number == NO OK --> Reset
+
+      if (goodData != -2)
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
-// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
+	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(1.0);
 	  reportSummaryMap->Fill(0.5, 0.5, 1.0);
@@ -754,7 +804,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       else
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
-// 	  outputDebugFile << "Used vertices: " << counterVx << endl;
+	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
@@ -871,6 +921,7 @@ void Vx3DHLTAnalyzer::beginJob()
   runNumber = 0;
   maxLumiIntegration = 10;
   pi = 3.141592653589793238;
+  internalDebug = false;
 }
 
 
