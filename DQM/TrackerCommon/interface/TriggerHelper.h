@@ -7,7 +7,7 @@
 // Package:    DQM/TrackerCommon
 // Class:      TriggerHelper
 //
-// $Id: TriggerHelper.h,v 1.11 2010/03/07 18:36:01 vadler Exp $
+// $Id: TriggerHelper.h,v 1.5 2010/03/03 14:37:34 vadler Exp $
 //
 /**
   \class    TriggerHelper TriggerHelper.h "DQM/TrackerCommon/interface/TriggerHelper.h"
@@ -16,15 +16,18 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: TriggerHelper.h,v 1.11 2010/03/07 18:36:01 vadler Exp $
+  \version  $Id: TriggerHelper.h,v 1.5 2010/03/03 14:37:34 vadler Exp $
 */
 
 
 #include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -33,9 +36,11 @@
 
 class TriggerHelper {
 
-    L1GtUtils         l1Gt_;
-    HLTConfigProvider hltConfig_;
-    bool              hltConfigInit_;
+    // Utility classes
+    edm::ESWatcher< AlCaRecoTriggerBitsRcd > * watchDB_;
+    L1GtUtils                                  l1Gt_;
+    HLTConfigProvider                          hltConfig_;
+    bool                                       hltConfigInit_;
     // Configuration parameters
     bool andOr_;
     bool               andOrDcs_;
@@ -44,13 +49,16 @@ class TriggerHelper {
     bool               errorReplyDcs_;
     bool                       andOrGt_;
     edm::InputTag              gtInputTag_;
+    std::string                gtDBKey_;
     std::vector< std::string > gtLogicalExpressions_;
     bool                       errorReplyGt_;
     bool                       andOrL1_;
+    std::string                l1DBKey_;
     std::vector< std::string > l1LogicalExpressions_;
     bool                       errorReplyL1_;
     bool                       andOrHlt_;
     edm::InputTag              hltInputTag_;
+    std::string                hltDBKey_;
     std::vector< std::string > hltLogicalExpressions_;
     bool                       errorReplyHlt_;
     // Switches
@@ -59,14 +67,18 @@ class TriggerHelper {
     bool onGt_;
     bool onL1_;
     bool onHlt_;
+    // Member constants
+    const std::string configError_;
 
   public:
 
     // Constructors and destructor
     TriggerHelper( const edm::ParameterSet & config ); // To be called from the ED module's c'tor
-    ~TriggerHelper() {};
+    ~TriggerHelper();
 
     // Public methods
+    bool on()  { return     on_  ; }
+    bool off() { return ( ! on_ ); }
     void initRun( const edm::Run & run, const edm::EventSetup & setup );    // To be called from beginRun() methods
     bool accept( const edm::Event & event, const edm::EventSetup & setup ); // To be called from analyze/filter() methods
 
@@ -91,6 +103,7 @@ class TriggerHelper {
     bool acceptHltLogicalExpression( const edm::Handle< edm::TriggerResults > & hltTriggerResults, std::string hltLogicalExpression ) const;
 
     // Algos
+    std::vector< std::string > expressionsFromDB( const std::string & key, const edm::EventSetup & setup );
     bool negate( std::string & word ) const;
 
 };
