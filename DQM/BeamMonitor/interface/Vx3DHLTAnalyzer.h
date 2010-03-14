@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.7 2010/03/13 17:54:57 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.8 2010/03/14 11:30:45 dinardo Exp $
 //
 //
 
@@ -62,7 +62,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
    private:
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual unsigned int HitCounter(const edm::Event& iEvent);
       virtual int MyFit(vector<double>* vals);
       virtual void reset();
       virtual void writeToFile(vector<double>* vals,
@@ -75,6 +75,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
 					const edm::EventSetup& iSetup);
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
+      virtual void endJob();
 
       // cfg file parameters
       edm::InputTag vertexCollection;
@@ -113,6 +114,8 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* Vx_ZX_profile;
       MonitorElement* Vx_ZY_profile;
 
+      MonitorElement* hitCounter;
+
       MonitorElement* reportSummary;
       MonitorElement* reportSummaryMap;
       
@@ -121,6 +124,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       ofstream outputDebugFile;
       unsigned int runNumber;
       unsigned int lumiCounter;
+      unsigned int totalHits;
       unsigned int maxLumiIntegration;
       edm::TimeValue_t beginTimeOfFit;
       edm::TimeValue_t endTimeOfFit;

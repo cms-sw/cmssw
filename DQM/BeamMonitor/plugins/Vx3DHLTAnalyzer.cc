@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.28 2010/03/13 17:57:13 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.29 2010/03/14 11:30:32 dinardo Exp $
 //
 //
 
@@ -96,6 +96,8 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
     }
   else if (beginTimeOfFit != 0)
     {
+      totalHits += HitCounter(iEvent);
+
       for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 	
 	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false))
@@ -117,6 +119,20 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	  }
       }      
     }
+}
+
+
+unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
+{
+  edm::Handle<SiPixelRecHitCollection> rechitspixel;
+  iEvent.getByLabel("siPixelRecHits",rechitspixel);
+
+  unsigned int counter = 0;
+  
+  for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
+    for (edmNew::DetSet<SiPixelRecHit>::const_iterator h = j->begin(); h != j->end(); h++) counter = counter + h->cluster()->size();	  
+  
+  return counter;
 }
 
 
@@ -535,6 +551,7 @@ void Vx3DHLTAnalyzer::reset()
   zVxValues.clear();
 
   lumiCounter    = 0;
+  totalHits      = 0;
   beginTimeOfFit = 0;
   endTimeOfFit   = 0;
   beginLumiOfFit = 0;
@@ -695,6 +712,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       endLumiOfFit = lumiBlock.luminosityBlock();
       vector<double> vals;
 
+      hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), (int)(lumiCounter/nLumiReset)*nLumiReset);
+
       if (dataFromFit == true)
 	{
 	  double dxdz, dydz;
@@ -812,20 +831,20 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  if (lumiCounter == maxLumiIntegration) reset();
 	}
 
-      mXlumi->ShiftFillLast(vals[0], vals[0+nParams], nLumiReset);
-      mYlumi->ShiftFillLast(vals[1], vals[1+nParams], nLumiReset);
-      mZlumi->ShiftFillLast(vals[2], vals[2+nParams], nLumiReset);
+      mXlumi->ShiftFillLast(vals[0], vals[0+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mYlumi->ShiftFillLast(vals[1], vals[1+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mZlumi->ShiftFillLast(vals[2], vals[2+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
       
-      sXlumi->ShiftFillLast(vals[6], vals[6+nParams], nLumiReset);
-      sYlumi->ShiftFillLast(vals[7], vals[7+nParams], nLumiReset);
-      sZlumi->ShiftFillLast(vals[3], vals[3+nParams], nLumiReset);
+      sXlumi->ShiftFillLast(vals[6], vals[6+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sYlumi->ShiftFillLast(vals[7], vals[7+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sZlumi->ShiftFillLast(vals[3], vals[3+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
       
       dxdzlumi->ShiftFillLast(vals[4], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
       dydzlumi->ShiftFillLast(vals[5], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
       
       vals.clear();
     }
-  else if (nLumiReset == 0) lumiCounter = 0;
+  else if (nLumiReset == 0) { lumiCounter = 0; hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), 1); totalHits = 0; }
 }
 
 
@@ -908,6 +927,12 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_ZY_profile = dbe->bookProfile("ZY profile","ZY Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(yRange/yStep/20.), -yRange/2., yRange/2., "");
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
+
+      hitCounter = dbe->book1D("pixelHits vs lumi", "# pixel-hits vs. Lumisection", 50, 0.5, 50.5);
+
+      hitCounter->setAxisTitle("Lumisection [#]",1);
+      hitCounter->setAxisTitle("# pixel-hits [#]",2);
+      hitCounter->getTH1()->SetOption("E1");
 
       dbe->setCurrentFolder("BeamPixel/EventInfo");
       reportSummary = dbe->bookFloat("reportSummary");

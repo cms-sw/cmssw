@@ -8,6 +8,7 @@
 <use name=CondFormats/BeamSpotObjects>
 <use name=RecoVertex/BeamSpotProducer>
 <use name=DataFormats/VertexReco>
+<use name=TrackingTools/PatternTools>
 
 <library file=BeamMonitor.cc name=BeamMonitor>
 	<flags EDM_PLUGIN=1>
