@@ -1,3 +1,6 @@
+#include <sstream>
+#include <KeySymbols.h>
+
 #include "TGLIncludes.h"
 #include "TROOT.h"
 #include "TColor.h"
@@ -9,25 +12,23 @@
 #include "TObjString.h"
 #include "TGLViewer.h"
 #include "TMath.h"
-
-
 #include "TImage.h"
-#include <KeySymbols.h>
 
 #include "Fireworks/Core/interface/CmsAnnotation.h"
-#include "Fireworks/Core/interface/FWGUIManager.h"
-//# #include "Fireworks/Core/src/FWGUIManager.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
 
 CmsAnnotation::CmsAnnotation(TGLViewerBase *parent, Float_t posx, Float_t posy) :
    TGLOverlayElement(TGLOverlayElement::kUser),
-
+   fVisible(true),
    fPosX(posx), fPosY(posy),
    fMouseX(0),  fMouseY(0),
    fDrag(kNone),
    fParent(0),
    fSize(0.2),
-   fActive(false)
+   fSizeDrag(0.0),
+   fActive(false),
+   fAllowDestroy(false)
 {
    // Constructor.
    // Create annotation as plain text
@@ -47,7 +48,11 @@ CmsAnnotation::~CmsAnnotation()
 
 void
 CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
-{
+{ 
+   if (fVisible == 0 ||
+       rnrCtx.GetCamera()->RefViewport().Width() == 0 || 
+       rnrCtx.GetCamera()->RefViewport().Height() == 0 ) return;
+   
    static UInt_t ttid_black = 0;
    static UInt_t ttid_white = 0;
      
@@ -127,7 +132,7 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
    TGLUtil::Color(rnrCtx.ColorSet().Background().GetColorIndex());
    glBegin(GL_QUADS);
    Float_t z =  0.9;
-   Float_t a = fSize * vp.Width();
+   Float_t a = fSize * vp.Height();
    glTexCoord2f(0, 1); glVertex3f( 0, -a, z);
    glTexCoord2f(1, 1); glVertex3f( a, -a, z);
    glTexCoord2f(1, 0); glVertex3f( a,  0, z);
@@ -143,7 +148,7 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
       // resize button
       glPushMatrix();
       glBegin(GL_QUADS);
-      Float_t a = fSize * vp.Width();
+      Float_t a = fSize * vp.Height();
       TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 95);
       glTexCoord2f(0, 1); glVertex3f( 0, -a, z);
       glTexCoord2f(1, 1); glVertex3f( a, -a, z);
@@ -175,26 +180,29 @@ CmsAnnotation::Render(TGLRnrCtx& rnrCtx)
       glPopMatrix();
 
       // delete
-      glPushName(7);
-      TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 100);
-      glTranslatef(0, -a, 0);
-      glBegin(GL_QUADS);
-      glVertex3f( 0, 0, z);
-      glVertex3f( a, 0, z);
-      glVertex3f( a, a, z);
-      glVertex3f( 0, a, z);
-      glEnd();
+      if (fAllowDestroy)
       {
-         glBegin(GL_LINES);
-         TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 40);
-         Float_t s = a/3;
-         glVertex3f( s, s, z);
-         glVertex3f( a-s, a-s, z);
-         glVertex3f( s, a-s, z);
-         glVertex3f( a-s, s, z);
+         glPushName(7);
+         TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 100);
+         glTranslatef(0, -a, 0);
+         glBegin(GL_QUADS);
+         glVertex3f( 0, 0, z);
+         glVertex3f( a, 0, z);
+         glVertex3f( a, a, z);
+         glVertex3f( 0, a, z);
          glEnd();
+         {
+            glBegin(GL_LINES);
+            TGLUtil::ColorTransparency(rnrCtx.ColorSet().Markup().GetColorIndex(), 40);
+            Float_t s = a/3;
+            glVertex3f( s, s, z);
+            glVertex3f( a-s, a-s, z);
+            glVertex3f( s, a-s, z);
+            glVertex3f( a-s, s, z);
+            glEnd();
+         }
+         glPopName();   
       }
-      glPopName();   
    }
 
    glEnable(GL_DEPTH_TEST);
@@ -224,6 +232,7 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
          fMouseX = event->fX;
          fMouseY = event->fY;
          fDrag = (recID == kResize) ? kResize : kMove;
+         fSizeDrag = fSize;
          return kTRUE;
       }
       case kButtonRelease:
@@ -248,8 +257,8 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
                fMouseX = event->fX;
                fMouseY = event->fY;
 
-               Float_t w = fSize;
-               Float_t h = fSize*vp.Aspect();
+               Float_t h = fSize;
+               Float_t w = fSize/vp.Aspect();
 
                // Make sure we don't go offscreen (use fDraw variables set in draw)
                if (fPosX < 0)
@@ -263,13 +272,16 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
             }
             else
             {
-               fMouseX = event->fX;
-               fMouseY = event->fY;
-               Float_t dX = (Float_t)(fMouseX) / vp.Width() - fPosX;
-               Float_t dY = 1.0f - (Float_t)(fMouseY) / vp.Height() + fPosY + 0.5f*fSize;
-               fSize = TMath::Min(dX, dY);
-               fSize = TMath::Max(fSize, 0.05f); // lock above min
-               fSize = TMath::Min(fSize, 0.50f); // lock below max
+               using namespace TMath;
+               Float_t oovpw = 1.0f / vp.Width(), oovph = 1.0f / vp.Height();
+               
+               Float_t xw = oovpw * Min(Max(0, event->fX), vp.Width());
+               Float_t yw = oovph * Min(Max(0, vp.Height() - event->fY), vp.Height());
+               
+               Float_t rx = Max((xw - fPosX) / (oovpw * fMouseX - fPosX), 0.0f);
+               Float_t ry = Max((yw - fPosY) / (oovph*(vp.Height() - fMouseY) - fPosY), 0.0f);
+               
+               fSize  = Max(fSizeDrag * Min(rx, ry), 0.01f);               
             }
          }
          return kTRUE;
@@ -296,4 +308,45 @@ void CmsAnnotation::MouseLeave()
    // Mouse has left overlay area.
 
    fActive = kFALSE;
+}
+
+
+//______________________________________________________________________
+void CmsAnnotation::setVisible(Bool_t x)
+{
+   fVisible = x;
+   fParent->RequestDraw();
+}
+
+//______________________________________________________________________________
+
+void
+CmsAnnotation::addTo(FWConfiguration& iTo) const
+{
+   std::stringstream s;
+   s<<fSize;
+   iTo.addKeyValue("LogoSize",FWConfiguration(s.str()));
+   
+   std::stringstream x;
+   x<<fPosX;
+   iTo.addKeyValue("LogoPosX",FWConfiguration(x.str()));
+   
+   std::stringstream y;
+   y<<fPosY;
+   iTo.addKeyValue("LogoPosY",FWConfiguration(y.str()));
+}
+
+void
+CmsAnnotation::setFrom(const FWConfiguration& iFrom) 
+{
+   const FWConfiguration* value;
+   value = iFrom.valueForKey("LogoSize");
+   if (value) fSize = atof(value->value().c_str());
+   
+   value = iFrom.valueForKey("LogoPosX");
+   if (value) fPosX = atof(value->value().c_str());
+   
+   value = iFrom.valueForKey("LogoPosY");
+   if (value) fPosY = atof(value->value().c_str());
+   
 }
