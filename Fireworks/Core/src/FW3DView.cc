@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.27 2010/03/08 12:34:25 amraktad Exp $
+// $Id: FW3DView.cc,v 1.28 2010/03/12 20:07:52 amraktad Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWEventAnnotation.h"
+#include "Fireworks/Core/interface/CmsAnnotation.h"
 
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
@@ -97,6 +98,7 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_trackerEndcapElements(0),
 
    m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
+   m_drawCMSLogo(this,"Show Logo",false),
    m_showMuonBarrel(this, "Show Muon Barrel", false ),
    m_showMuonEndcap(this, "Show Muon Endcap", false),
    m_showPixelBarrel(this, "Show Pixel Barrel", false ),
@@ -126,7 +128,10 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    
    m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer);
    m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
- 
+   
+   m_overlayLogo = new CmsAnnotation(m_embeddedViewer, 0.02, 0.98);
+   m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible,m_overlayLogo, _1));
+   
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
@@ -216,6 +221,10 @@ FW3DView::addTo(FWConfiguration& iTo) const
       assert ( m_overlayEventInfo );
       m_overlayEventInfo->addTo(iTo);
    }
+   { 
+      assert ( m_overlayLogo );
+      m_overlayLogo->addTo(iTo);
+   }      
 }
 
 //______________________________________________________________________________
@@ -262,7 +271,11 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
       assert( m_overlayEventInfo);
       m_overlayEventInfo->setFrom(iFrom);
    }
-
+   {
+      assert( m_overlayLogo);
+      m_overlayLogo->setFrom(iFrom);
+   }
+   
    gEve->Redraw3D();
 }
 

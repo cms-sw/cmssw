@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.26 2010/03/05 19:44:35 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.27 2010/03/08 12:34:52 amraktad Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@ class TEveScene;
 class TEveProjectionAxes;
 class TEveWindowSlot;
 class FWEventAnnotation;
+class CmsAnnotation;
 class FWRhoPhiZViewManager;
 class FWViewContextMenuHandlerGL;
 
@@ -102,10 +103,12 @@ private:
    double m_caloScale;
    FWEvePtr<TEveProjectionAxes> m_axes;
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
-   FWEventAnnotation* m_overlayEventInfo;
+   FWEventAnnotation* m_overlayEventInfo;   
+   CmsAnnotation*     m_overlayLogo;
 
    // parameters
    FWLongParameter    m_overlayEventInfoLevel;
+   FWBoolParameter    m_drawCMSLogo;
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
    FWBoolParameter    m_showProjectionAxes;

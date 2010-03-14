@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.56 2010/03/08 12:34:52 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.57 2010/03/12 20:07:52 amraktad Exp $
 //
 
 #define private public
@@ -54,6 +54,7 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 
 #include "Fireworks/Core/interface/FWEventAnnotation.h"
+#include "Fireworks/Core/interface/CmsAnnotation.h"
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
 #include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
@@ -106,7 +107,9 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_caloScale(1),
    m_axes(),
    m_overlayEventInfo(0),
+   m_overlayLogo(0),
    m_overlayEventInfoLevel(this, "Overlay Event Info", 1l, 0l, 3l),
+   m_drawCMSLogo(this,"Show Logo",false),
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
    m_showProjectionAxes(this,"Show projection axes", false),
@@ -171,9 +174,11 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    ns->AddElement(m_axes.get());
 
    gEve->AddElement(m_projMgr.get(), ns);
-
+   
    m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer);
    m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
+   m_overlayLogo = new CmsAnnotation(m_embeddedViewer, 0.02, 0.98);
+   m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible,m_overlayLogo, _1));
    m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
@@ -362,6 +367,10 @@ FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
       assert( m_overlayEventInfo);
       m_overlayEventInfo->setFrom(iFrom);
    }
+   {
+      assert( m_overlayLogo);
+      m_overlayLogo->setFrom(iFrom);
+   }
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
@@ -405,6 +414,14 @@ FWRhoPhiZView::addTo(FWConfiguration& iTo) const
       osValue << (*m_cameraMatrix)[i];
       iTo.addKeyValue(matrixName+osIndex.str()+typeName(),FWConfiguration(osValue.str()));
    }
+   { 
+      assert ( m_overlayEventInfo );
+      m_overlayEventInfo->addTo(iTo);
+   }
+   { 
+      assert ( m_overlayLogo );
+      m_overlayLogo->addTo(iTo);
+   }   
 }
 
 void

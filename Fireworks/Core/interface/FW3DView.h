@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.13 2009/12/11 13:57:52 amraktad Exp $
+// $Id: FW3DView.h,v 1.14 2010/03/08 12:34:26 amraktad Exp $
 //
 
 // system include files
@@ -41,11 +41,11 @@ class FW3DViewManager;
 class DetIdToMatrix;
 class TEveWindowSlot;
 class FWEventAnnotation;
+class CmsAnnotation;
 class FWViewContextMenuHandlerGL;
 
 class FW3DView : public FWViewBase
 {
-
 public:
    FW3DView(TEveWindowSlot*, TEveElementList*);
    virtual ~FW3DView();
@@ -88,7 +88,8 @@ private:
    TEveScene* m_scene;
    TEveScene* m_detectorScene;
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
-   FWEventAnnotation* m_overlayEventInfo;
+   FWEventAnnotation* m_overlayEventInfo; 
+   CmsAnnotation*     m_overlayLogo;
 
    TGLMatrix* m_cameraMatrix;
    TGLMatrix* m_cameraMatrixBase;
@@ -105,6 +106,7 @@ private:
 
    // parameters
    FWLongParameter m_overlayEventInfoLevel;
+   FWBoolParameter    m_drawCMSLogo;
    FWBoolParameter m_showMuonBarrel;
    FWBoolParameter m_showMuonEndcap;
    FWBoolParameter m_showPixelBarrel;
