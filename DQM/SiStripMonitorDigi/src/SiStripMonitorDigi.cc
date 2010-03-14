@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.56 2010/02/21 21:13:41 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.57 2010/03/07 18:56:17 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,6 +48,8 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   SubDetPhasePartMap["TOB"]="TO";
   SubDetPhasePartMap["TEC"]="TP";
 
+  // get Digi Producer List   
+  digiProducerList = conf_.getParameter<std::vector<edm::InputTag> >("DigiProducersList");
 
   //get on/off option for every cluster from cfi
   edm::ParameterSet ParametersNumberOfDigis =  conf_.getParameter<edm::ParameterSet>("TH1NumberOfDigis");
@@ -234,22 +236,14 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   eventNb++;
   float iOrbitSec      = iEvent.orbitNumber()/11223.0;
 
-  // get all digi collections
-  //edm::Handle< edm::DetSetVector<SiStripDigi> > digi_detsetvektor;
-  typedef std::vector<edm::ParameterSet> Parameters;
-  Parameters DigiProducersList = conf_.getParameter<Parameters>("DigiProducersList");
-  Parameters::iterator itDigiProducersList = DigiProducersList.begin();
-  int icoll = 0;
-  for(; itDigiProducersList != DigiProducersList.end(); ++itDigiProducersList ) {
-    digi_detset_vector[icoll] = 0;  
-    std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
-    std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
+  digi_detset_handles.clear();
+  for(vector<edm::InputTag>::iterator itDigiProducerList = digiProducerList.begin();
+     itDigiProducerList != digiProducerList.end(); ++itDigiProducerList ) {
 
     edm::Handle< edm::DetSetVector<SiStripDigi> > digi_handle;
 
-    iEvent.getByLabel(digiProducer,digiLabel,digi_handle);
-    if (digi_handle.isValid()) digi_detset_vector[icoll] = digi_handle.product();
-    icoll++;
+    iEvent.getByLabel((*itDigiProducerList),digi_handle);
+    if (digi_handle.isValid()) digi_detset_handles.push_back(digi_handle.product());
   }    
   int nTotDigiTIB = 0; 
   int nTotDigiTOB = 0;
@@ -284,8 +278,12 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       ModMEs local_modmes = pos->second;
 	
       // search  digis of detid
-      edm::DetSet<SiStripDigi> digi_detset;  
-      int ndigi_det = getDigiSource(detid, digi_detset); 
+      int loc = getDigiSourceIndex(detid); 
+      
+      int ndigi_det = 0;
+      if (loc > -1) ndigi_det = (*(digi_detset_handles[loc]))[detid].size();
+
+
       // no digis for this detector module, so fill histogram with 0
       if(Mod_On_ && moduleswitchnumdigison && (local_modmes.NumberOfDigis != NULL))
 	(local_modmes.NumberOfDigis)->Fill(ndigi_det); 
@@ -296,6 +294,8 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (digitkhistomapon) tkmapdigi->fill(detid,ndigi_det);
 
       if (ndigi_det == 0) continue; // no digis for this detid => jump to next step of loop
+      
+      const edm::DetSet<SiStripDigi> & digi_detset = (*(digi_detset_handles[loc]))[detid]; 
      
       ndigi_layer += ndigi_det;	
       // ADCs
@@ -304,8 +304,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       
 
       // Check if these parameters are really needed
-      SiStripHistoId hidmanager;
-      std::string label = hidmanager.getSubdetid(detid, false);
       float det_occupancy = 0.0;
       
       for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
@@ -460,7 +458,6 @@ void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
 //------------------------------------------------------------------------------------------
 MonitorElement* SiStripMonitorDigi::bookMETrend(const char* ParameterSetLabel, const char* HistoName)
 {
-  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   edm::ParameterSet ParametersTrend =  conf_.getParameter<edm::ParameterSet>("Trending");
   MonitorElement* me = dqmStore_->bookProfile(HistoName,HistoName,
 					      ParametersTrend.getParameter<int32_t>("Nbins"),
@@ -482,7 +479,7 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(const char* ParameterSetLabel, c
 //------------------------------------------------------------------------------------------
 MonitorElement* SiStripMonitorDigi::bookME1D(const char* ParameterSetLabel, const char* HistoName)
 {
-  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+  edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return dqmStore_->book1D(HistoName,HistoName,
 			   Parameters.getParameter<int32_t>("Nbinx"),
 			   Parameters.getParameter<double>("xmin"),
@@ -700,21 +697,16 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
 //
 // -- Get DetSet vector for a given Detector
 //
-int SiStripMonitorDigi::getDigiSource(uint32_t id, edm::DetSet<SiStripDigi>& digi_detset) {
-  int nDigi = 0;
-  for (unsigned int ival = 0; ival < 4; ival++) {
-    edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detset_vector[ival]->find(id); 
-    if(isearch == digi_detset_vector[ival]->end()) nDigi = 0;
-    else {
-      //digi_detset is a structure
-      //digi_detset.data is a std::vector<SiStripDigi>
-      //digi_detset.id is uint32_t
-      digi_detset = (*(digi_detset_vector[ival]))[id];
-      nDigi = digi_detset.size();
-      return nDigi;
+int SiStripMonitorDigi::getDigiSourceIndex(uint32_t id) {
+  int location = -1;
+  for (unsigned int ival = 0; ival <  digi_detset_handles.size(); ++ival){
+    edm::DetSetVector<SiStripDigi>::const_iterator isearch = digi_detset_handles[ival]->find(id); 
+    if(isearch != digi_detset_handles[ival]->end()) {
+      location = ival;
+      break;
     }
   }
-  return nDigi;
+  return location;
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripMonitorDigi);

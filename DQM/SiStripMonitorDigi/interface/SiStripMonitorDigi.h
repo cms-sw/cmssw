@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.21 2010/01/24 20:29:36 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.22 2010/03/07 18:56:17 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -83,11 +83,12 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   void createLayerMEs(std::string label, int ndet);
   void createSubDetMEs(std::string label);
   void createSubDetTH2(std::string label);
-  int getDigiSource(uint32_t id, edm::DetSet<SiStripDigi>& digi_detset);
+  int getDigiSourceIndex(uint32_t id);
       
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
+  std::vector<edm::InputTag> digiProducerList;
   std::map<uint32_t, ModMEs> DigiMEs; // uint32_t me_type: 1=#digis/module; 2=adcs of hottest strip/module; 3= adcs of coolest strips/module.
   bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, calculate_strip_occupancy, reset_each_run;
   unsigned long long m_cacheID_;
@@ -97,13 +98,11 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
        
-  edm::ParameterSet Parameters;
-  
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   TString name;
   SiStripFolderOrganizer folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
-  const edm::DetSetVector<SiStripDigi> *digi_detset_vector[4];
+  std::vector<const edm::DetSetVector<SiStripDigi> *> digi_detset_handles;
 
   std::vector<uint32_t> ModulesToBeExcluded_;
 

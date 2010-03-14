@@ -4,10 +4,12 @@ import FWCore.ParameterSet.Config as cms
 SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
                                   
     # add digi producers same way as Domenico in SiStripClusterizer
-    DigiProducersList = cms.VPSet(cms.PSet( DigiLabel = cms.string('ZeroSuppressed'), DigiProducer = cms.string('siStripDigis') ), 
-                        cms.PSet( DigiLabel = cms.string('VirginRaw'), DigiProducer = cms.string('siStripZeroSuppression') ), 
-                        cms.PSet( DigiLabel = cms.string('ProcessedRaw'), DigiProducer = cms.string('siStripZeroSuppression') ), 
-                        cms.PSet( DigiLabel = cms.string('ScopeMode'), DigiProducer = cms.string('siStripZeroSuppression') )
+   
+    DigiProducersList = cms.VInputTag(
+      cms.InputTag('siStripDigis','ZeroSuppressed'),
+      cms.InputTag('siStripZeroSuppression','VirginRaw'),
+      cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
+      cms.InputTag('siStripZeroSuppression','ScopeMode')
     ),
 
     TH1ADCsCoolestStrip = cms.PSet(
