@@ -10,6 +10,7 @@ process.MessageLogger.categories.append('HLTEventAnalyzerRAW')
 process.MessageLogger.categories.append('L1GtTrigReport')
 process.MessageLogger.categories.append('HLTrigReport')
 process.MessageLogger.categories.append('HLTSummaryFilter')
+process.MessageLogger.categories.append('HLTConfigProvider')
 
 # process.Timing = cms.Service("Timing")
 
