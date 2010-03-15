@@ -105,6 +105,7 @@ AlCa_EcalPhiSym
 AlCa_EcalPi0_8E29
 AlCa_EcalEta_8E29
 AlCa_RPCMuonNoHits
+AlCa_RPCMuonNoTriggers
 AlCa_RPCMuonNormalisation
 HLT_DTErrors
 HLT_Calibration
