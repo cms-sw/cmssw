@@ -60,18 +60,10 @@ void FWSiStripDigiRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 
     const uint32_t& detID = ds.id;
     DetId detid(detID);
-    
-    if ( iItem->getGeom() )
-    {
-      const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(detid);
-    }
       
     for ( edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
           idigi != idigiEnd; ++idigi )        
     {
-      int strip = static_cast<int>((*idigi).strip());
-      int adc   = static_cast<int>((*idigi).adc());
-
       TEvePointSet* pointSet = new TEvePointSet();
       pointSet->SetMarkerSize(2);
       pointSet->SetMarkerStyle(2);
