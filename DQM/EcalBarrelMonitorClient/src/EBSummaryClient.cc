@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/12/11 16:08:54 $
- * $Revision: 1.202 $
+ * $Date: 2010/01/25 21:12:24 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  *
 */
@@ -1726,13 +1726,13 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) {
 
-              MonitorElement *mea01 = eblc->mea01_[ism-1];
-              MonitorElement *met01 = eblc->met01_[ism-1];
-              MonitorElement *meaopn01 = eblc->meaopn01_[ism-1];
+              MonitorElement* mea01 = eblc->mea01_[ism-1];
+              MonitorElement* met01 = eblc->met01_[ism-1];
+              MonitorElement* meaopn01 = eblc->meaopn01_[ism-1];
 
               if( mea01 && met01 && meaopn01 ) {
                 meLaserL1Ampl_->Fill( ism, mea01->getBinContent( chan+1 ) );
-                meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
+                if( met01->getBinContent( chan+1 ) > 0. ) meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
                 meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( chan+1 ) );
               }
 
@@ -1750,13 +1750,13 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) {
 
-              MonitorElement *mea02 = eblc->mea02_[ism-1];
-              MonitorElement *met02 = eblc->met02_[ism-1];
-              MonitorElement *meaopn02 = eblc->meaopn02_[ism-1];
+              MonitorElement* mea02 = eblc->mea02_[ism-1];
+              MonitorElement* met02 = eblc->met02_[ism-1];
+              MonitorElement* meaopn02 = eblc->meaopn02_[ism-1];
 
               if( mea02 && met02 && meaopn02 ) {
                 meLaserL2Ampl_->Fill( ism, mea02->getBinContent( chan+1 ) );
-                meLaserL2Timing_->Fill( ism, met02->getBinContent( chan+1 ) );
+                if( met02->getBinContent( chan+1 ) > 0. ) meLaserL2Timing_->Fill( ism, met02->getBinContent( chan+1 ) );
                 meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( chan+1 ) );
               }
 
@@ -1774,13 +1774,13 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) {
 
-              MonitorElement *mea03 = eblc->mea03_[ism-1];
-              MonitorElement *met03 = eblc->met03_[ism-1];
-              MonitorElement *meaopn03 = eblc->meaopn03_[ism-1];
+              MonitorElement* mea03 = eblc->mea03_[ism-1];
+              MonitorElement* met03 = eblc->met03_[ism-1];
+              MonitorElement* meaopn03 = eblc->meaopn03_[ism-1];
 
               if( mea03 && met03 && meaopn03 ) {
                 meLaserL3Ampl_->Fill( ism, mea03->getBinContent( chan+1 ) );
-                meLaserL3Timing_->Fill( ism, met03->getBinContent( chan+1 ) );
+                if( met03->getBinContent( chan+1 ) > 0. ) meLaserL3Timing_->Fill( ism, met03->getBinContent( chan+1 ) );
                 meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( chan+1 ) );
               }
 
@@ -1798,13 +1798,13 @@ void EBSummaryClient::analyze(void) {
             // exclude channels without laser data (yellow in the quality map)
             if( xval != 2 && xval != 5 ) {
 
-              MonitorElement *mea04 = eblc->mea04_[ism-1];
-              MonitorElement *met04 = eblc->met04_[ism-1];
-              MonitorElement *meaopn04 = eblc->meaopn04_[ism-1];
+              MonitorElement* mea04 = eblc->mea04_[ism-1];
+              MonitorElement* met04 = eblc->met04_[ism-1];
+              MonitorElement* meaopn04 = eblc->meaopn04_[ism-1];
 
               if( mea04 && met04 && meaopn04 ) {
                 meLaserL4Ampl_->Fill( ism, mea04->getBinContent( chan+1 ) );
-                meLaserL4Timing_->Fill( ism, met04->getBinContent( chan+1 ) );
+                if( met04->getBinContent( chan+1 ) > 0. ) meLaserL4Timing_->Fill( ism, met04->getBinContent( chan+1 ) );
                 meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( chan+1 ) );
               }
 
