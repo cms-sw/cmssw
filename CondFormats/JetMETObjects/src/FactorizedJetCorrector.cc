@@ -66,7 +66,7 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const
 //------------------------------------------------------------------------
 //--- FactorizedJetCorrector constructor ---------------------------------
 //------------------------------------------------------------------------
-FactorizedJetCorrector::FactorizedJetCorrector(const JetCorrectorParameters& fParameters, const std::string& fLevel)
+FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorParameters>& fParameters)
 {
   mJetEta = -9999;
   mJetPt  = -9999;
@@ -86,25 +86,27 @@ FactorizedJetCorrector::FactorizedJetCorrector(const JetCorrectorParameters& fPa
   mIsLepPyset       = false;
   mIsLepPzset       = false;
   mIsAddLepToJetset = false;
-
-  if (fLevel == "L1")
-    mLevels.push_back(kL1);
-  else if (fLevel == "L2")
-    mLevels.push_back(kL2);
-  else if (fLevel == "L3")
-    mLevels.push_back(kL3);
-  else if (fLevel == "L4")
-    mLevels.push_back(kL4);
-  else if (fLevel == "L5")
-    mLevels.push_back(kL5);
-  else if (fLevel == "L6")
-    mLevels.push_back(kL6);
-  else if (fLevel == "L7")
-    mLevels.push_back(kL7);
-
-  mCorrectors.push_back(new SimpleJetCorrector(fParameters));
-  mBinTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().binVar()));
-  mParTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().parVar()));
+  for(unsigned i=0;i<fParameters.size();i++)
+    {
+      std::string ss = fParameters[i].definitions().level();
+      if (ss == "L1Offset")
+        mLevels.push_back(kL1);
+      else if (ss == "L2Relative")
+        mLevels.push_back(kL2);
+      else if (ss == "L3Absolute")
+        mLevels.push_back(kL3);
+      else if (ss == "L4EMF")
+        mLevels.push_back(kL4);
+      else if (ss == "L5Flavor")
+        mLevels.push_back(kL5);
+      else if (ss == "L6SLB")
+        mLevels.push_back(kL6);
+      else if (ss == "L7Parton")
+        mLevels.push_back(kL7);
+      mCorrectors.push_back(new SimpleJetCorrector(fParameters[i]));
+      mBinTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().binVar()));
+      mParTypes.push_back(mapping(mCorrectors[0]->parameters().definitions().parVar()));
+    }  
 }
 
 //------------------------------------------------------------------------ 
@@ -124,19 +126,19 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
   std::vector<std::string> tmp = parseLevels(removeSpaces(fLevels));
   for(unsigned i=0;i<tmp.size();i++)
     {
-      if (tmp[i] == "L1")
+      if (tmp[i] == "L1Offset")
         mLevels.push_back(kL1);
-      else if (tmp[i] == "L2")
+      else if (tmp[i] == "L2Relative")
         mLevels.push_back(kL2);
-      else if (tmp[i] == "L3")
+      else if (tmp[i] == "L3Absolute")
         mLevels.push_back(kL3);
-      else if (tmp[i] == "L4")
+      else if (tmp[i] == "L4EMF")
         mLevels.push_back(kL4);
-      else if (tmp[i] == "L5")
+      else if (tmp[i] == "L5Flavor")
         mLevels.push_back(kL5);
-      else if (tmp[i] == "L6")
+      else if (tmp[i] == "L6SLB")
         mLevels.push_back(kL6);
-      else if (tmp[i] == "L7")
+      else if (tmp[i] == "L7Parton")
         mLevels.push_back(kL7);
       else
         {
@@ -148,8 +150,8 @@ void FactorizedJetCorrector::initCorrectors(const std::string& fLevels, const st
   //---- Read the parameter filenames string and parse the requested sub-correction tags.
   std::vector<std::string> Files = parseLevels(removeSpaces(fFiles));
   //---- Read the Options string and define the FlavorOption and PartonOption.
-  std::string FlavorOption = parseOption(removeSpaces(fOptions),"Flavor");
-  std::string PartonOption = parseOption(removeSpaces(fOptions),"Parton");
+  std::string FlavorOption = parseOption(removeSpaces(fOptions),"L5Flavor");
+  std::string PartonOption = parseOption(removeSpaces(fOptions),"L7Parton");
   //---- Check the consistency between tags and requested sub-corrections. 
   checkConsistency(tmp,Files);  
   //---- Create instances of the requested sub-correctors.
@@ -366,7 +368,7 @@ std::vector<float> FactorizedJetCorrector::fillVector(std::vector<VarTypes> fVar
         {
           if (!mIsJetPhiset) 
             handleError("FactorizedJetCorrector","jet phi is not set");
-          result.push_back(mJetPt);
+          result.push_back(mJetPhi);
         }
       else if (fVarTypes[i] == kJetE) 
         {

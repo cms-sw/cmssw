@@ -18,9 +18,8 @@ class FactorizedJetCorrector
     enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kRelLepPt,kPtRel};
     enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7};
     FactorizedJetCorrector();
-    //FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags);
     FactorizedJetCorrector(const std::string& fLevels, const std::string& fTags, const std::string& fOptions="");
-    FactorizedJetCorrector(const JetCorrectorParameters& fParameters, const std::string& fLevel);
+    FactorizedJetCorrector(const std::vector<JetCorrectorParameters>& fParameters);
     ~FactorizedJetCorrector();
     void setJetEta      (float fEta);
     void setJetPt       (float fPt); 
