@@ -1,53 +1,53 @@
-# /dev/CMSSW_3_5_0/HIon/V47 (CMSSW_3_5_3_HLT1)
+# /dev/CMSSW_3_5_5/HIon/V4 (CMSSW_3_5_3_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V47')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V4')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
-  RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
   DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'MinimumBias',
-    'Cosmics',
+  A = cms.vstring( 'RandomTriggers',
+    'MinimumBias',
     'HcalHPDNoise',
-    'RandomTriggers',
     'HcalNZS',
-    'ZeroBias' ),
+    'ZeroBias',
+    'Cosmics' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  HLTDQM = cms.vstring(  ),
   Offline = cms.vstring(  )
 )
 process.datasets = cms.PSet( 
-  RPCMonitor = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  ZeroBias = cms.vstring(  )
+  ZeroBias = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -1659,6 +1659,7 @@ process.hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( True ),
+    invert = cms.bool( False ),
     bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x70000 ),
@@ -2446,10 +2447,10 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDoubleMu',
-  'HLT_HIJet35U',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIJet35U',
   'HLT_HIMinBiasCalo',
-  'HLT_HIPhoton15' ) ),
+  'HLT_HIPhoton15',
+  'HLT_HIDoubleMu' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -2533,7 +2534,8 @@ process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*' )
 )
 
-process.HLTBeginSequenceBPTX = cms.Sequence( process.hltTriggerType + process.hltL1EventNumber + process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles + process.hltBPTXCoincidence + process.hltOfflineBeamSpot )
+process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
+process.HLTBeginSequenceBPTX = cms.Sequence( process.hltTriggerType + process.hltL1EventNumber + process.HLTL1UnpackerSequence + process.hltBPTXCoincidence + process.hltOfflineBeamSpot )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
 process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfreco + process.hltHoreco )
 process.HLTDoCaloSequence = cms.Sequence( process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.HLTDoLocalHcalSequence + process.hltTowerMakerForAll )

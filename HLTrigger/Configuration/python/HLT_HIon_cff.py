@@ -1,49 +1,49 @@
-# /dev/CMSSW_3_5_0/HIon/V47 (CMSSW_3_5_3_HLT1)
+# /dev/CMSSW_3_5_5/HIon/V4 (CMSSW_3_5_3_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_0/HIon/V47')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V4')
 )
 
 streams = cms.PSet( 
-  RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
   DQM = cms.vstring(  ),
-  HLTDQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'MinimumBias',
-    'Cosmics',
+  A = cms.vstring( 'RandomTriggers',
+    'MinimumBias',
     'HcalHPDNoise',
-    'RandomTriggers',
     'HcalNZS',
-    'ZeroBias' ),
+    'ZeroBias',
+    'Cosmics' ),
+  HLTMON = cms.vstring( 'OfflineMonitor' ),
+  HLTDQM = cms.vstring(  ),
   Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
-  RPCMonitor = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  ZeroBias = cms.vstring(  )
+  ZeroBias = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  OfflineMonitor = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -997,6 +997,7 @@ hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
 hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     ignoreL1Mask = cms.bool( True ),
+    invert = cms.bool( False ),
     bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x70000 ),
@@ -1782,7 +1783,8 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 
-HLTBeginSequenceBPTX = cms.Sequence( hltTriggerType + hltL1EventNumber + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltBPTXCoincidence + hltOfflineBeamSpot )
+HLTL1UnpackerSequence = cms.Sequence( hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles )
+HLTBeginSequenceBPTX = cms.Sequence( hltTriggerType + hltL1EventNumber + HLTL1UnpackerSequence + hltBPTXCoincidence + hltOfflineBeamSpot )
 HLTEndSequence = cms.Sequence( hltBoolEnd )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
 HLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + HLTDoLocalHcalSequence + hltTowerMakerForAll )
