@@ -6,29 +6,38 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+
+namespace edm {
+  class EventSetup;
+}
+
 namespace ipf2pat {
   
   template< typename Selector, typename CollectionType >
   class ObjectSelector {
   public:
-    ObjectSelector(const edm::ParameterSet& ps) : selector_(ps) {}
+    ObjectSelector(const edm::ParameterSet& ps) : 
+      eventSetupPtr_(0),
+      selector_(ps) {}
       
-      const CollectionType& select( const edm::Handle<CollectionType>& handleToCollection,
-				    const edm::EventBase& event ) {
-	/*       static edm::Event e;  */
-	static edm::EventSetup s; 
-	
-	selector_.select( handleToCollection, event, s);
-	return selector_.selected();
+  
+    const CollectionType& select( const edm::Handle<CollectionType>& handleToCollection,
+				  const edm::EventBase& event ) {
+      /*       static edm::Event e;  */      
+      selector_.select( handleToCollection, event, *eventSetupPtr_ );
+      return selector_.selected();
     }
 
       
   private:
+    const edm::EventSetup* eventSetupPtr_;
 
     Selector selector_;
   }; 
+  
 
 }
+
 
 
 #endif 
