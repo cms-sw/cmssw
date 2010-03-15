@@ -193,6 +193,8 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   ofstream* out;
   double DumpMET;
 
+  bool StandardDQM;
+
   // DAQ Tools
   DQMStore* dqm;
   std::map<std::string , MonitorElement*> ME;
