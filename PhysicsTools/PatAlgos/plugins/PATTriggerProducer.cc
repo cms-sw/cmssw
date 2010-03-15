@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.10 2010/02/28 13:47:53 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.11 2010/03/08 10:50:24 vadler Exp $
 //
 
 
@@ -49,14 +49,14 @@ PATTriggerProducer::PATTriggerProducer( const edm::ParameterSet & iConfig ) :
 {
 
   // L1 configuration parameters (backwards compatible)
-  if ( iConfig.exists( "l1ExtraMu" ) )      tagL1ExtraMu_ = iConfig.getParameter< edm::InputTag >( "l1ExtraMu" );
+  if ( iConfig.exists( "l1ExtraMu" ) )      tagL1ExtraMu_      = iConfig.getParameter< edm::InputTag >( "l1ExtraMu" );
   if ( iConfig.exists( "l1ExtraNoIsoEG" ) ) tagL1ExtraNoIsoEG_ = iConfig.getParameter< edm::InputTag >( "l1ExtraNoIsoEG" );
-  if ( iConfig.exists( "l1ExtraIsoEG" ) )   tagL1ExtraIsoEG_ = iConfig.getParameter< edm::InputTag >( "l1ExtraIsoEG" );
-  if ( iConfig.exists( "l1ExtraCenJet" ) )  tagL1ExtraCenJet_ = iConfig.getParameter< edm::InputTag >( "l1ExtraCenJet" );
-  if ( iConfig.exists( "l1ExtraForJet" ) )  tagL1ExtraForJet_ = iConfig.getParameter< edm::InputTag >( "l1ExtraForJet" );
-  if ( iConfig.exists( "l1ExtraTauJet" ) )  tagL1ExtraTauJet_ = iConfig.getParameter< edm::InputTag >( "l1ExtraTauJet" );
-  if ( iConfig.exists( "l1ExtraETM" ) )     tagL1ExtraETM_ = iConfig.getParameter< edm::InputTag >( "l1ExtraETM" );
-  if ( iConfig.exists( "l1ExtraHTM" ) )     tagL1ExtraHTM_ = iConfig.getParameter< edm::InputTag >( "l1ExtraHTM" );
+  if ( iConfig.exists( "l1ExtraIsoEG" ) )   tagL1ExtraIsoEG_   = iConfig.getParameter< edm::InputTag >( "l1ExtraIsoEG" );
+  if ( iConfig.exists( "l1ExtraCenJet" ) )  tagL1ExtraCenJet_  = iConfig.getParameter< edm::InputTag >( "l1ExtraCenJet" );
+  if ( iConfig.exists( "l1ExtraForJet" ) )  tagL1ExtraForJet_  = iConfig.getParameter< edm::InputTag >( "l1ExtraForJet" );
+  if ( iConfig.exists( "l1ExtraTauJet" ) )  tagL1ExtraTauJet_  = iConfig.getParameter< edm::InputTag >( "l1ExtraTauJet" );
+  if ( iConfig.exists( "l1ExtraETM" ) )     tagL1ExtraETM_     = iConfig.getParameter< edm::InputTag >( "l1ExtraETM" );
+  if ( iConfig.exists( "l1ExtraHTM" ) )     tagL1ExtraHTM_     = iConfig.getParameter< edm::InputTag >( "l1ExtraHTM" );
 
   if ( tagTriggerResults_.process().empty() ) {
     tagTriggerResults_ = edm::InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), nameProcess_ );
