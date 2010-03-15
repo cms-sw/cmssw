@@ -170,8 +170,8 @@ if options.dt or not ( options.dt or options.csc):
 if options.csc or not ( options.dt or options.csc):
   DO_CSC = True
 
-if not (options.all or options.map or options.segdiff or options.fit or options.median):
-  print "\nOptions must include either -a or any of the following: --map, --segdiff, --fit, --median. Exiting..."
+if not (options.all or options.map or options.segdiff or options.fit or options.median or options.diagnostic):
+  print "\nOptions must include either -a or any of the following: --map, --segdiff, --fit, --median, --diagnostic. Exiting..."
   sys.exit()
 
 DO_MAP = False
@@ -209,7 +209,7 @@ if options.diagnostic: allOptions += " --diagnostic"
 print sys.argv[0]+" "+allOptions
 
 
-QUICKTESTN=999
+QUICKTESTN=10000
 
 
 
