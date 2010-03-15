@@ -31,11 +31,13 @@
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
 //Gflash Hadronic Model
-#include "SimG4Core/GFlash/interface/GflashHadronShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashPiKShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashProtonShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashAntiProtonShowerProfile.h"
-
+#include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashProtonShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashAntiProtonShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashTrajectoryPoint.h"
+#include "SimGeneral/GFlash/interface/GflashHit.h"
+#include "SimGeneral/GFlash/interface/Gflash3Vector.h"
 // STL headers 
 #include <vector>
 #include <iostream>
@@ -797,19 +799,70 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       else if (hdSimMethod_ == 2 ) {
 	//        std::cout << "Using GflashHadronShowerProfile hdSimMethod_ == 2" << std::endl;
 
+        //dynamically loading a corresponding profile by the particle type
+        int particleType = myTrack.type();
         theProfile = thePiKProfile;
-        theProfile->getGflashShowino()->initialize(myTrack,3.8,random);
-        theProfile->loadParameters();
-        theProfile->initFastSimCaloHit(&myGrid,&myHcalHitMaker);
-        theProfile->hadronicParameterization();
-        status = true;
+        if(particleType == -2212) theProfile = theAntiProtonProfile;
+        else if(particleType == 2212) theProfile = theProtonProfile;
 
+        //input variables for GflashHadronShowerProfile
+        int showerType = 99 + myTrack.onEcal();
+        double globalTime = 150.0; // a temporary reference hit time in nanosecond
+        float charge = (float)(myTrack.charge());
+        Gflash3Vector gfpos(trackPosition.X(),trackPosition.Y(),trackPosition.Z());
+        Gflash3Vector gfmom(moment.X(),moment.Y(),moment.Z());
+
+        theProfile->initialize(showerType,eGen,globalTime,charge,gfpos,gfmom);
+        theProfile->loadParameters();
+        theProfile->hadronicParameterization();
+
+        //make hits
+	std::vector<GflashHit>& gflashHitList = theProfile->getGflashHitList();
+	std::vector<GflashHit>::const_iterator spotIter    = gflashHitList.begin();
+	std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
+
+	Gflash::CalorimeterNumber whichCalor = Gflash::kNULL;
+        bool result;
+
+        for( ; spotIter != spotIterEnd; spotIter++){
+
+          double pathLength = theProfile->getGflashShowino()->getPathLengthAtShower()
+            + (30*100/eGen)*(spotIter->getTime() - globalTime);
+
+          double currentDepth = std::max(0.0,pathLength - theProfile->getGflashShowino()->getPathLengthOnEcal());
+
+          //find the the showino position at the currentDepth
+          GflashTrajectoryPoint trajectoryPoint;
+          theProfile->getGflashShowino()->getHelix()->getGflashTrajectoryPoint(trajectoryPoint,pathLength);
+          Gflash3Vector positionAtCurrentDepth = trajectoryPoint.getPosition();
+          //find radial distrance
+          Gflash3Vector lateralDisplacement = positionAtCurrentDepth - spotIter->getPosition()/CLHEP::cm;
+          double rShower = lateralDisplacement.r();
+          double azimuthalAngle = lateralDisplacement.phi();
+
+          whichCalor = Gflash::getCalorimeterNumber(positionAtCurrentDepth);
+
+          if(whichCalor==Gflash::kESPM || whichCalor==Gflash::kENCA) {
+            bool statusPad = myGrid.getPads(currentDepth,true);
+            if(!statusPad) continue;
+            myGrid.setSpotEnergy(1.2*spotIter->getEnergy()/CLHEP::GeV);
+            result = myGrid.addHit(rShower/Gflash::intLength[Gflash::kESPM],azimuthalAngle,0);
+          }
+          else if(whichCalor==Gflash::kHB || whichCalor==Gflash::kHE) {
+            bool setHDdepth = myHcalHitMaker.setDepth(currentDepth,true);
+            if(!setHDdepth) continue;
+            myHcalHitMaker.setSpotEnergy(1.4*spotIter->getEnergy()/CLHEP::GeV);
+            result = myHcalHitMaker.addHit(rShower/Gflash::intLength[Gflash::kHB],azimuthalAngle,0);
+          }
+        }
+        status = true;
       }
       else {
 	edm::LogInfo("FastSimulationCalorimetry") << " SimMethod " << hdSimMethod_ <<" is NOT available ";
       }
     }
-    
+
+
     if(status) {
 
       // Here to switch between simple formulae and parameterized response
