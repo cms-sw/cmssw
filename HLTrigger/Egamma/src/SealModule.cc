@@ -31,7 +31,7 @@
 #include "HLTrigger/Egamma/interface/HLTEgammaCaloIsolFilterPairs.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaTriggerFilterObjectWrapper.h"
 #include "HLTrigger/Egamma/interface/HLTElectronEtFilter.h"
-
+#include "HLTrigger/Egamma/interface/HLTEgammaDoubleEtDeltaPhiFilter.h"
 
 DEFINE_FWK_MODULE(HLTEgammaGenericFilter);
 DEFINE_FWK_MODULE(HLTEgammaEtFilter);
@@ -60,3 +60,4 @@ DEFINE_FWK_MODULE(HLTEgammaEtFilterPairs);
 DEFINE_FWK_MODULE(HLTEgammaCaloIsolFilterPairs);
 DEFINE_FWK_MODULE(HLTEgammaTriggerFilterObjectWrapper);
 DEFINE_FWK_MODULE(HLTElectronEtFilter);
+DEFINE_FWK_MODULE(HLTEgammaDoubleEtDeltaPhiFilter);
