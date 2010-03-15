@@ -31,32 +31,36 @@ class  JetCorrectorDBWriter : public edm::EDAnalyzer
 };
 
 // Constructor
-JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet) :
-  inputTxtFile(pSet.getUntrackedParameter<std::string>("inputTxtFile")),
-  label(pSet.getUntrackedParameter<std::string>("label")),
-  option(pSet.getUntrackedParameter<std::string>("option"))
-{}
+JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet)
+{
+  inputTxtFile = pSet.getUntrackedParameter<std::string>("inputTxtFile");
+  label        = pSet.getUntrackedParameter<std::string>("label");
+  option       = pSet.getUntrackedParameter<std::string>("option");
+}
 
 // Begin Job
 void JetCorrectorDBWriter::beginJob()
 {
-
+  std::string path("CondFormats/JetMETObjects/data/");
+  edm::FileInPath fip(path+inputTxtFile);
   // create the parameter object from file 
-  JetCorrectorParameters * payload = new JetCorrectorParameters(inputTxtFile,option);
+  JetCorrectorParameters * payload = new JetCorrectorParameters(fip.fullPath(),option);
 
   // create a name for the payload 
-  std::string payloadLabel = label + option;
+  std::string payloadLabel(label);
+  if (!option.empty())
+    payloadLabel += "_"+option;
 
   // now write it into the DB
   edm::Service<cond::service::PoolDBOutputService> s;
-  if (s.isAvailable()) {
-    if (s->isNewTagRequest(payloadLabel)) {
-      s->createNewIOV<JetCorrectorParameters>(payload, s->beginOfTime(), s->endOfTime(), payloadLabel);
-    }else {
-      s->appendSinceTime<JetCorrectorParameters>(payload, 111, payloadLabel);
+  if (s.isAvailable()) 
+    {
+      if (s->isNewTagRequest(payloadLabel)) 
+        s->createNewIOV<JetCorrectorParameters>(payload, s->beginOfTime(), s->endOfTime(), payloadLabel);
+      else 
+        s->appendSinceTime<JetCorrectorParameters>(payload, 111, payloadLabel);
     }
-  }
-  std::cout << "payload label: " << payloadLabel << std::endl;
+  std::cout << "Wrote in CondDB payload label: " << payloadLabel << std::endl;
 }
 
 
