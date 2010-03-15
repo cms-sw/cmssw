@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2009/05/20 14:17:28 $
- * $Revision: 1.30 $
+ * $Date: 2010/01/05 10:15:46 $
+ * $Revision: 1.31 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -60,6 +60,11 @@ void DTDataIntegrityTest::beginJob(){
   summaryHisto = dbe->book2D("DataIntegritySummary","Summary Data Integrity",12,1,13,5,-2,3);
   summaryHisto->setAxisTitle("Sector",1);
   summaryHisto->setAxisTitle("Wheel",2);
+
+  dbe->setCurrentFolder("DT/00-DataIntegrity");
+  summaryTDCHisto = dbe->book2D("DataIntegrityTDCSummary","TDC Summary Data Integrity",12,1,13,5,-2,3);
+  summaryTDCHisto->setAxisTitle("Sector",1);
+  summaryTDCHisto->setAxisTitle("Wheel",2);
 
   dbe->setCurrentFolder("DT/00-DataIntegrity");
   glbSummaryHisto = dbe->book2D("DataIntegrityGlbSummary","Summary Data Integrity",12,1,13,5,-2,3);
@@ -169,6 +174,15 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	     result = 2;
 	   }
 	   summaryHisto->setBinContent(sectorNumber,wheelNumber+3,result);
+	   int tdcResult = -2;
+	   // FIXME check that this is the right range
+	   float nTDCErrors = histo_FEDSummary->Integral(15,15,rosNumber,rosNumber); 
+	   if(nTDCErrors == 0) { // no errors
+	     tdcResult = 0;
+	   } else { // there are errors
+	     tdcResult = 2;
+	   }
+	   summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,tdcResult);
 	   // FIXME: different errors should have different weights
 	   float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
 	   glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,sectPerc);
