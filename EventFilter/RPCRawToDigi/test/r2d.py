@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("RPCR2D")
 
 process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
-process.RPCCabling.connect = 'sqlite_file:RPCEMap.db'
+process.RPCCabling.connect = 'sqlite_file:RPCEMap2.db'
 process.load("EventFilter.RPCRawToDigi.rpcUnpacker_cfi")
 
 # set maxevents; -1 -> take all
@@ -24,4 +24,4 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.p = cms.Path(process.rpcunpacker)
-process.ep = cms.EndPath(process.out)
+#process.ep = cms.EndPath(process.out)

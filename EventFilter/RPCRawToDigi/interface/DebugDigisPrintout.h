@@ -10,9 +10,9 @@ namespace rpcrawtodigi {
   class DebugDigisPrintout {
 
     struct MyDigi { 
-       uint32_t det; int strip; 
+       uint32_t det; int strip; int bx; 
        bool operator==(const MyDigi&o) const {
-         return (det==o.det && strip==o.strip);
+         return (det==o.det && strip==o.strip && bx==o.bx);
        } 
        bool operator< (const MyDigi&o) const { 
          if (this->det < o.det) return true;
@@ -40,7 +40,7 @@ namespace rpcrawtodigi {
         for (std::vector<RPCDigi>::const_iterator  id = range.first; id != range.second; id++) {
           nDigisAll++;
           const RPCDigi & digi = (*id);
-          MyDigi myDigi = { rawDetId, digi.strip() };
+          MyDigi myDigi = { rawDetId, digi.strip(), digi.bx() };
           if (myDigis.end() == std::find(myDigis.begin(), myDigis.end(), myDigi)) 
               myDigis.push_back(myDigi);
         } 
@@ -48,7 +48,7 @@ namespace rpcrawtodigi {
       std::sort(myDigis.begin(),myDigis.end());
       str << " dets: "<<nDet<<" allDigis: "<<nDigisAll<<" unigueDigis: "<<myDigis.size()<<std::endl;
       for (std::vector<MyDigi>::const_iterator it = myDigis.begin(); it != myDigis.end(); ++it)
-           str << "debugDIGI: "<< it->det<<", "<<it->strip<<std::endl;
+           str << "debugDIGI: "<< it->det<<", "<<it->strip<<", "<<it->bx<<std::endl;
       return str.str();
     }
   };

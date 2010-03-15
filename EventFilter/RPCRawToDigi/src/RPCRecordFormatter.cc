@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2009/01/24 00:24:26 $
- *  $Revision: 1.41 $
+ *  $Date: 2009/03/24 23:11:38 $
+ *  $Revision: 1.42 $
  *
  * \author Ilaria Segoni
  */
@@ -94,8 +94,6 @@ int RPCRecordFormatter::recordUnpack(
 
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
   ReadoutError error;
-  int triggerBX = event.triggerBx();
-  int currentBX = event.recordBX().bx();
   int currentRMB = event.recordSLD().rmb(); 
   int currentTbLinkInputNumber = event.recordSLD().tbLinkInputNumber();
 
@@ -105,10 +103,9 @@ int RPCRecordFormatter::recordUnpack(
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
   eleIndex.lbNumInLink = event.recordCD().lbInLink();
 
-  if(synchro) synchro->push_back( make_pair(eleIndex,event.dataToTriggerDelay() ));
 
   if( event.recordCD().eod() ) {
-     if(counter) counter->addReadoutError(currentFED, ReadoutError(ReadoutError::EOD));
+     if(counter) counter->addReadoutError(currentFED, ReadoutError(eleIndex,ReadoutError::EOD));
   }
 
   if(readoutMapping == 0) return error.type();
@@ -119,17 +116,19 @@ int RPCRecordFormatter::recordUnpack(
               << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
               << " lbNumInLink: "<<eleIndex.lbNumInLink;
-    error = ReadoutError(ReadoutError::InvalidLB);
+    error = ReadoutError(eleIndex,ReadoutError::InvalidLB);
     if(counter) counter->addReadoutError(currentFED,error );
     return error.type();
   }
 
+
   std::vector<int> packStrips = event.recordCD().packedStrips();
   if (packStrips.size() ==0) {
-    error = ReadoutError(ReadoutError::EmptyPackedStrips);
+    error = ReadoutError(eleIndex,ReadoutError::EmptyPackedStrips);
     if(counter) counter->addReadoutError(currentFED, error);
     return error.type();
   }
+
   for(std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
 
     RPCReadOutMapping::StripInDetUnit duFrame = 
@@ -139,19 +138,19 @@ int RPCRecordFormatter::recordUnpack(
     int geomStrip = duFrame.second;
     if (!rawDetId) {
       if (debug) LogTrace("") << " ** PROBLEM ** no rawDetId, skip at least part of CD data";
-      error = ReadoutError(ReadoutError::InvalidDetId);
+      error = ReadoutError(eleIndex,ReadoutError::InvalidDetId);
       if (counter) counter->addReadoutError(currentFED, error);
       continue;
     }
     if (geomStrip==0) {
       if(debug) LogTrace("") <<" ** PROBLEM ** no strip found";
-      error = ReadoutError(ReadoutError::InvalidStrip);
+      error = ReadoutError(eleIndex,ReadoutError::InvalidStrip);
       if (counter) counter->addReadoutError(currentFED, error);
       continue;
     }
 
     // Creating RPC digi
-    RPCDigi digi(geomStrip,currentBX-triggerBX);
+    RPCDigi digi(geomStrip,event.dataToTriggerDelay()-3);
 
     /// Committing digi to the product
     if (debug) {
@@ -159,6 +158,18 @@ int RPCRecordFormatter::recordUnpack(
       LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
     }
     if (prod) prod->insertDigi(RPCDetId(rawDetId),digi);
+
+//    if (RPCDetId(rawDetId).region() == -1 ) {
+//       RPCDetId det(rawDetId);
+//       if (det.ring()==    2 ) takeIt = true;
+//       if (det.station() == 1) 
+//       takeIt = true;
+//     LogInfo("RPCRecordFormatter") <<"ENDCAP Region: "<<det.region()<<" disk: "<<det.station()<<" ring: "<<det.ring() <<" sector: "<<det.sector()<<" digiBX: "<<digi.bx()<< std::endl;
+//   }
+
   }
+
+  if(synchro) synchro->push_back( make_pair(eleIndex,event.dataToTriggerDelay() ));
+
   return error.type();
 }

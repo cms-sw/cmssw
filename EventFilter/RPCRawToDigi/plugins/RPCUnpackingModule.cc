@@ -161,6 +161,8 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
       }
       LogTrace("") << str.str();
     }
+//    if (triggerBX != 51) continue;
+//    if (triggerBX != 2316) continue;
     EventRecords event(triggerBX);
     for (const Word64* word = header+1; word != trailer; word++) {
       for( int iRecord=1; iRecord<=4; iRecord++){
@@ -184,7 +186,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
         }
         producedRawDataCounts->addDccRecord(fedId, record);
         int statusTMP = 0;
-        if (event.complete()) statusTMP= 
+        if (event.complete() ) statusTMP= 
             interpreter.recordUnpack( event, 
             producedRPCDigis.get(), producedRawDataCounts.get(), producedRawSynchoCounts.get()); 
         if (statusTMP != 0) status = statusTMP;
