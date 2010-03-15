@@ -4,6 +4,8 @@
 #include "TMath.h"
 #include "TGraph.h"
 
+#include <iostream>
+
 // fit function
 Double_t fitf(Double_t *x, Double_t *par) {
 
@@ -18,9 +20,7 @@ Double_t fitf(Double_t *x, Double_t *par) {
   return v;
 }
 
-ESRecHitFitAlgo::ESRecHitFitAlgo(int pedestal, double MIPADC, double MIPkeV) : 
-  ped_(pedestal), MIPADC_(MIPADC), MIPkeV_(MIPkeV) 
-{
+ESRecHitFitAlgo::ESRecHitFitAlgo() {
 
   fit_ = new TF1("fit", fitf, -200, 200, 2);
   fit_->SetParameters(50, 10);
@@ -31,7 +31,7 @@ ESRecHitFitAlgo::~ESRecHitFitAlgo() {
   delete fit_;
 }
 
-double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi) const {
+double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) const {
   
   double *fitresults = new double[3];
   double adc[3];  
@@ -41,13 +41,18 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi) const {
   tx[2] = 45.;
 
   for (int i=0; i<digi.size(); i++) 
-    adc[i] = digi.sample(i).adc() - ped_;
+    adc[i] = digi.sample(i).adc() - ped;
 
   double status = 0;
-  if (adc[0] > 20) status = 1;
-  if (adc[1] < 0 || adc[2] < 0) status = 1;
-  if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
-  if (adc[2] > adc[1]) status = 1;  
+  if (adc[0] > 20) status = 14;
+  if (adc[1] < 0 || adc[2] < 0) status = 10;
+  if (adc[0] > adc[1] || adc[0] > adc[2]) status = 8;
+  if (adc[2] > adc[1] || adc[2] > adc[0]) status = 9;  
+  double r12 = (adc[1] != 0) ? adc[0]/adc[1] : 99999;
+  double r23 = (adc[2] != 0) ? adc[1]/adc[2] : 99999;
+  if (r12 > ratioCuts_.getR12High()) status = 5;
+  if (r23 > ratioCuts_.getR23High()) status = 6;
+  if (r23 < ratioCuts_.getR23Low()) status = 7;
 
   if (int(status) == 0) {
     double para[10];
@@ -56,8 +61,13 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi) const {
     gr->Fit("fit", "MQ");
     fit_->GetParameters(para); 
     fitresults[0] = para[0]; 
-    fitresults[1] = para[1]; 
+    fitresults[1] = para[1];  
     delete gr;
+
+    if (adc[1] > 2800 && adc[2] > 2800) status = 11;
+    else if (adc[1] > 2800) status = 12;
+    else if (adc[2] > 2800) status = 13;
+
   } else {
     fitresults[0] = 0;
     fitresults[1] = -999;
@@ -67,17 +77,23 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi) const {
 }
 
 EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
+  
+  ESPedestals::const_iterator it_ped = peds_.find(digi.id());
+  
+  ESIntercalibConstantMap::const_iterator it_mip = mips_.getMap().find(digi.id());
+
+  ESChannelStatusMap::const_iterator it_status = channelStatus_.getMap().find(digi.id());
 
   double* results;
 
-  results = EvalAmplitude(digi);
+  results = EvalAmplitude(digi, it_ped->getMean());
+
   double energy = results[0];
   double t0 = results[1];
   int status = (int) results[2];
   delete results;
 
-  energy *= MIPkeV_/MIPADC_;
-  energy /= 1000000.;
+  energy *= MIPGeV_/(*it_mip);
 
   DetId detId = digi.id();
 
@@ -85,10 +101,31 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
 
   EcalRecHit rechit(digi.id(), energy, t0);
 
-  if (status == 0) 
-    rechit.setRecoFlag(EcalRecHit::kGood);
-  else 
-    rechit.setRecoFlag(EcalRecHit::kPoorReco);
+  if (it_status->getStatusCode() == 1) {
+  } else {
+    if (status == 0) 
+      rechit.setRecoFlag(EcalRecHit::kGood);
+    else if (status == 5) 
+      rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor12);
+    else if (status == 6) 
+      rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor23Upper);
+    else if (status == 7) 
+      rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor23Lower);
+    else if (status == 8) 
+      rechit.setRecoFlag(EcalRecHit::kESTS1Largest);
+    else if (status == 9) 
+      rechit.setRecoFlag(EcalRecHit::kESTS3Largest);
+    else if (status == 10) 
+      rechit.setRecoFlag(EcalRecHit::kESTS3Negative);
+    else if (status == 11) 
+      rechit.setRecoFlag(EcalRecHit::kESSaturated);
+    else if (status == 12) 
+      rechit.setRecoFlag(EcalRecHit::kESTS2Saturated);
+    else if (status == 13) 
+      rechit.setRecoFlag(EcalRecHit::kESTS3Saturated);
+    else if (status == 14) 
+      rechit.setRecoFlag(EcalRecHit::kESTS13Sigmas);
+  }
 
   return rechit;
 }
