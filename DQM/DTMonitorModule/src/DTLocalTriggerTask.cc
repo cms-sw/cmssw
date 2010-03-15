@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2009/09/24 06:52:24 $
- * $Revision: 1.36 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.37 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -99,9 +99,9 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
     vector<string>::const_iterator trigSrcEnd = trigSources.end();
    
     if(parameters.getUntrackedParameter<bool>("process_dcc", true)) {
-      bookCMSHistos("DCC_ErrorsChamberID");
+      bookBarrelHistos("DCC_ErrorsChamberID");
     }
-    
+
     if (tpMode) {
       for (int stat=1;stat<5;++stat){
 	for (int wh=-2;wh<3;++wh){
@@ -124,6 +124,10 @@ void DTLocalTriggerTask::beginRun(const edm::Run& run, const edm::EventSetup& co
     else {
       for (;trigSrcIt!=trigSrcEnd;++trigSrcIt){
 	for (int wh=-2;wh<3;++wh){
+	  if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
+	      parameters.getUntrackedParameter<bool>("process_ros", true)){ // DCC+DDU data
+	    bookWheelHistos(wh,"COM_BXDiff"+(*trigSrcIt));
+	  }
 	  for (int sect=1;sect<13;++sect){
 	    for (int stat=1;stat<5;++stat){
 	      DTChamberId dtChId(wh,stat,sect);
@@ -299,7 +303,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 }
 
 
-void DTLocalTriggerTask::bookCMSHistos(string histoTag) {
+void DTLocalTriggerTask::bookBarrelHistos(string histoTag) {
 
   bool isDCC = histoTag.substr(0,3) == "DCC";
   dbe->setCurrentFolder(topFolder(isDCC));
@@ -472,6 +476,30 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
       return ;
     }
 
+  }
+
+}
+
+void DTLocalTriggerTask::bookWheelHistos(int wh, string histoTag) {
+  
+  stringstream wheel; wheel << wh;	
+
+  string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
+  bool isDCC = histoTag.substr(0,3) == "DCC"; 
+
+  dbe->setCurrentFolder(topFolder(isDCC) + "Wheel" + wheel.str() + "/");
+
+  string histoName = histoTag + "_W" + wheel.str();
+    
+  LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: booking " << topFolder(isDCC) 
+						       << "Wheel" << wheel.str() << "/" << histoName << endl;
+    
+  if( histoType.find("BXDiff") != string::npos ){
+    MonitorElement *me = dbe->bookProfile2D(histoName,"DDU-DCC BX Difference",12,1,13,4,1,5,0.,20.);
+    me->setAxisTitle("Sector",1);
+    me->setAxisTitle("station",2);
+    (wheelHistos[wh])[histoTag] = me;
+    return ;
   }
 
 }
@@ -950,6 +978,12 @@ void DTLocalTriggerTask::runDDUvsDCCAnalysis(string& trigsrc){
 	  if (innerME.find("COM_QualDDUvsQualDCC"+trigsrc) == innerME.end())
 	    bookHistos(id,"LocalTriggerPhi","COM_QualDDUvsQualDCC"+trigsrc);
 	  innerME.find("COM_QualDDUvsQualDCC"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc],dduphcode_best[wh+3][st][sc]);
+	  if ( (phcode_best[wh+3][st][sc]>-1 && phcode_best[wh+3][st][sc]<7) &&
+	       (dduphcode_best[wh+3][st][sc]>-1 && dduphcode_best[wh+3][st][sc]<7) ){
+	    int bxDDU = iphbestddu[wh+3][st][sc]->bx() - iphbestddu[wh+3][st][sc]->secondTrack();
+	    int bxDCC = iphbest[wh+3][st][sc]->bxNum() - iphbest[wh+3][st][sc]->Ts2Tag();
+	    (wheelHistos[wh]).find("COM_BXDiff"+trigsrc)->second->Fill(sc,st,bxDDU-bxDCC);
+	  }
 	}
       }
     }

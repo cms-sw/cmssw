@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2009/07/29 10:30:30 $
- * $Revision: 1.2 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -65,7 +65,10 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
 
   /// Book the histograms
-  void bookCMSHistos(std::string histoTag);
+  void bookWheelHistos(int wh, std::string histoTag );
+
+  /// Book the histograms
+  void bookBarrelHistos(std::string histoTag);
   
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
@@ -124,6 +127,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   edm::ESHandle<DTGeometry> muonGeom;
   DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > digiHistos;
+  std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
   
   MonitorElement* dcc_IDDataErrorPlot;
 };
