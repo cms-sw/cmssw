@@ -1,6 +1,6 @@
 #include "DQMOffline/Trigger/interface/EgHLTOffHelper.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -26,7 +26,7 @@ OffHelper::~OffHelper()
   if(hltPhoTrkIsolAlgo_) delete hltPhoTrkIsolAlgo_;
 }
 
-void OffHelper::setup(const edm::ParameterSet& conf,const std::vector<std::string>& hltFiltersUsed)
+void OffHelper::setup(const edm::ParameterSet& conf)
 {
 
   ecalRecHitsEBTag_ = conf.getParameter<edm::InputTag>("BarrelRecHitCollection");
@@ -82,8 +82,18 @@ void OffHelper::setup(const edm::ParameterSet& conf,const std::vector<std::strin
   calHLTEleTrkIsol_ = conf.getParameter<bool>("calHLTEleTrkIsol");
   calHLTPhoTrkIsol_ = conf.getParameter<bool>("calHLTPhoTrkIsol");
  
+  trigCutParams_ = conf.getParameter<std::vector<edm::ParameterSet> >("triggerCuts"); //setupTriggers used to be in this function but had to be moved due to HLTConfigChanges (has to be called beginRun) so we have to save this for later.
 
+  hltEleTrkIsolAlgo_ = new EgammaHLTTrackIsolation(hltEleTrkIsolPtMin_,hltEleTrkIsolOuterCone_,hltEleTrkIsolZSpan_,hltEleTrkIsolRSpan_,hltEleTrkIsolInnerCone_);
+  hltPhoTrkIsolAlgo_ = new EgammaHLTTrackIsolation(hltPhoTrkIsolPtMin_,hltPhoTrkIsolOuterCone_,hltPhoTrkIsolZSpan_,hltPhoTrkIsolRSpan_,hltPhoTrkIsolInnerCone_);
+ 					       
 
+}
+
+//this code was taken out of OffHelper::setup due to HLTConfigProvider changes
+//it still assumes that this is called only once
+void OffHelper::setupTriggers(const HLTConfigProvider& hltConfig,const std::vector<std::string>& hltFiltersUsed)
+{
   hltFiltersUsed_ = hltFiltersUsed; //expensive but only do this once and faster ways could make things less clear
   //now work out how many objects are requires to pass filter for it to accept
   hltFiltersUsedWithNrCandsCut_.clear();
@@ -93,13 +103,14 @@ void OffHelper::setup(const edm::ParameterSet& conf,const std::vector<std::strin
 
   //now loading the cuts for every trigger into our vector which stores them
   //only load cuts for triggers that are in hltFiltersUsed
-  std::vector<edm::ParameterSet> trigCutParam(conf.getParameter<std::vector<edm::ParameterSet> >("triggerCuts"));
-  for(size_t trigNr=0;trigNr<trigCutParam.size();trigNr++) {
-    std::string trigName = trigCutParam[trigNr].getParameter<std::string>("trigName");
+  
+  for(size_t trigNr=0;trigNr<trigCutParams_.size();trigNr++) {
+    std::string trigName = trigCutParams_[trigNr].getParameter<std::string>("trigName");
     if(std::find(hltFiltersUsed_.begin(),hltFiltersUsed_.end(),trigName)!=hltFiltersUsed_.end()){ //perhaps I should sort hltFiltersUsed_....
-      trigCuts_.push_back(std::make_pair(TrigCodes::getCode(trigName),OffEgSel(trigCutParam[trigNr])));
+      trigCuts_.push_back(std::make_pair(TrigCodes::getCode(trigName),OffEgSel(trigCutParams_[trigNr])));
     }
   }
+  trigCutParams_.clear();//dont need it any more, get rid of it
 
   //to make my life difficult, the scaled l1 paths are special
   //and arent stored in trigger event
@@ -116,20 +127,15 @@ void OffHelper::setup(const edm::ParameterSet& conf,const std::vector<std::strin
     }
   }
 
-  egHLT::trigTools::translateFiltersToPathNames(l1PreScaledFilters_,l1PreScaledPaths_,hltTag_);
+  egHLT::trigTools::translateFiltersToPathNames(hltConfig,l1PreScaledFilters_,l1PreScaledPaths_);
   if(l1PreScaledPaths_.size()==l1PreScaledFilters_.size()){
     for(size_t pathNr=0;pathNr<l1PreScaledPaths_.size();pathNr++){
      
-      std::string l1SeedFilter =egHLT::trigTools::getL1SeedFilterOfPath(l1PreScaledPaths_[pathNr],hltTag_);
+      std::string l1SeedFilter =egHLT::trigTools::getL1SeedFilterOfPath(hltConfig,l1PreScaledPaths_[pathNr]);
      
       l1PreAndSeedFilters_.push_back(std::make_pair(l1PreScaledFilters_[pathNr],l1SeedFilter));
     }
   }
-
-  hltEleTrkIsolAlgo_ = new EgammaHLTTrackIsolation(hltEleTrkIsolPtMin_,hltEleTrkIsolOuterCone_,hltEleTrkIsolZSpan_,hltEleTrkIsolRSpan_,hltEleTrkIsolInnerCone_);
-  hltPhoTrkIsolAlgo_ = new EgammaHLTTrackIsolation(hltPhoTrkIsolPtMin_,hltPhoTrkIsolOuterCone_,hltPhoTrkIsolZSpan_,hltPhoTrkIsolRSpan_,hltPhoTrkIsolInnerCone_);
- 					       
-
 }
 
 int OffHelper::makeOffEvt(const edm::Event& edmEvent,const edm::EventSetup& setup,egHLT::OffEvt& offEvent)

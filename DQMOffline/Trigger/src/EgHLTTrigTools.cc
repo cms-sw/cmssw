@@ -61,14 +61,12 @@ int trigTools::getMinNrObjsRequiredByFilter(const std::string& filterName)
   return -1;
 }
  
+
 //this looks into the HLT config and fills a sorted vector with the last filter of all HLT triggers
 //it assumes this filter is either the last (in the case of ES filters) or second to last in the sequence
-void trigTools::getActiveFilters(std::vector<std::string>& activeFilters,const std::string& hltTag)
+void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters)
 {
   activeFilters.clear();
-  
-  HLTConfigProvider hltConfig;
-  hltConfig.init(hltTag);
 
   for(size_t pathNr=0;pathNr<hltConfig.size();pathNr++){
     const std::string& pathName = hltConfig.triggerName(pathNr);
@@ -138,10 +136,9 @@ private:
   bool keyLess(const std::pair<std::string,std::string>::first_type& k1,const std::pair<std::string,std::string>::first_type& k2)const{return k1<k2;}
 };
 
-void trigTools::translateFiltersToPathNames(const std::vector<std::string>& filters,std::vector<std::string>& paths,const std::string& hltTag)
+void trigTools::translateFiltersToPathNames(const HLTConfigProvider& hltConfig,const std::vector<std::string>& filters,std::vector<std::string>& paths)
 {
-  HLTConfigProvider hltConfig;
-  hltConfig.init(hltTag);
+  
   paths.clear();
   std::vector<std::pair<std::string,std::string> > filtersAndPaths;
 
@@ -172,11 +169,8 @@ void trigTools::translateFiltersToPathNames(const std::vector<std::string>& filt
 
 }
 
-std::string trigTools::getL1SeedFilterOfPath(const std::string& path,const std::string& hltTag)
+std::string trigTools::getL1SeedFilterOfPath(const HLTConfigProvider& hltConfig,const std::string& path)
 {
-  HLTConfigProvider hltConfig;
-  hltConfig.init(hltTag);
- 
   const std::vector<std::string>& modules = hltConfig.moduleLabels(path);
 
   for(size_t moduleNr=0;moduleNr<modules.size();moduleNr++){

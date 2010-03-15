@@ -93,6 +93,7 @@ void TopElectronHLTOfflineSource::endJob()
 }
 void TopElectronHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
+  hltConfigValid_=hltConfig_.init(run,c,hltTag_,hltConfigChanged_);
 }
 void TopElectronHLTOfflineSource::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
@@ -106,17 +107,15 @@ void TopElectronHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::E
 	if(!iEvent.getByLabel(triggerResultsLabel_, hltResults) || !hltResults.product()) return; //bail if we didnt get trigger results
       
 
-	HLTConfigProvider hltConfig;
-	bool changed;
-	if (!hltConfig.init(iEvent,hltTag_,changed))
-		return;
+	
+	if (!hltConfigValid_) return;
 	
 	std::vector<bool> superTriggerAccepts;
 	std::vector<bool> electronTriggerAccepts;
 	
 	for (size_t i = 0; i < superTriggerNames_.size(); ++i)
 	{
-		unsigned int triggerIndex( hltConfig.triggerIndex(superTriggerNames_[i]) );
+		unsigned int triggerIndex( hltConfig_.triggerIndex(superTriggerNames_[i]) );
 		bool accept = false;
 		
 		if (triggerIndex < hltResults->size())
@@ -129,7 +128,7 @@ void TopElectronHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::E
 	
 	for (size_t i = 0; i < electronTriggerNames_.size(); ++i)
 	{
-		unsigned int triggerIndex( hltConfig.triggerIndex(electronTriggerNames_[i]) );
+		unsigned int triggerIndex( hltConfig_.triggerIndex(electronTriggerNames_[i]) );
 		bool accept = false;
 		
 		if (triggerIndex < hltResults->size())

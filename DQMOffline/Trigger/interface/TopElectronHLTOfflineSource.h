@@ -1,28 +1,9 @@
 #ifndef DQMOFFLINE_TRIGGER_TOPELECTRONHLTOFFLINESOURCE
 #define DQMOFFLINE_TRIGGER_TOPELECTRONHLTOFFLINESOURCE
 
-// -*- C++ -*-
-//
-// Package:    EgammaHLTOffline
-// Class:      EgammaHLTOffline
-// 
-/*
-  Description: This is a DQM source meant to plot high-level HLT trigger 
-  quantities as stored in the HLT results object TriggerResults for the Egamma triggers
 
-  Notes:
-  Currently I would like to plot simple histograms of three seperate types of variables
-  1) global event quantities: eg nr of electrons
-  2) di-object quanities: transverse mass, di-electron mass
-  3) single object kinematic and id variables: eg et,eta,isolation
-
-*/
-//
-// Original Author:  Sam Harper
-//         Created:  June 2008
-// 
-//
-//
+// Original Author:  Sarah Boutle
+//         Created:  Jan 2010
 
 //#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -39,6 +20,8 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class TopElectronHLTOfflineSource : public edm::EDAnalyzer 
 {
@@ -191,6 +174,10 @@ class TopElectronHLTOfflineSource : public edm::EDAnalyzer
   double extraIdCutsSigmaEta_;
   double extraIdCutsSigmaPhi_;
   double extraIdCutsDzPV_;
+
+  bool hltConfigChanged_;
+  bool hltConfigValid_;
+  HLTConfigProvider hltConfig_; 
 };
 
 

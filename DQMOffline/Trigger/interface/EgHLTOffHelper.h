@@ -45,9 +45,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EgammaHLTTrackIsolation;
+class HLTConfigProvider;
 
 namespace egHLT {
 
@@ -144,6 +145,7 @@ namespace egHLT {
     bool calHLTPhoTrkIsol_;
     
     
+    std::vector<edm::ParameterSet> trigCutParams_; //probably the least bad option
 
   private: //disabling copy / assignment
     OffHelper& operator=(const OffHelper& rhs){return *this;}
@@ -153,7 +155,8 @@ namespace egHLT {
     OffHelper():eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
     ~OffHelper();
     
-    void setup(const edm::ParameterSet& conf,const std::vector<std::string>& hltFiltersUsed);
+    void setup(const edm::ParameterSet& conf);
+    void setupTriggers(const HLTConfigProvider& config,const std::vector<std::string>& hltFiltersUsed);
 
     //int is the error code, 0 = no error
     //it should never throw, print to screen or crash, this is the only error reporting it does

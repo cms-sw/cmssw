@@ -11,7 +11,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/Run.h"
-
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -22,9 +22,9 @@
 using namespace egHLT;
 
 EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
-  nrEventsProcessed_(0)
+  nrEventsProcessed_(0),isSetup_(false)
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->(); //only one chance to get this, if we every have another shot, remember to check isSetup is okay
   if (!dbe_) {
     //our one and only error message ever logged
     edm::LogInfo("EgHLTOfflineSource") << "unable to get DQMStore service?";
@@ -43,31 +43,14 @@ EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
   phoTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("phoTightLooseTrigNames");
   diPhoTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("diPhoTightLooseTrigNames"); 
 
-  bool filterInactiveTriggers =iConfig.getParameter<bool>("filterInactiveTriggers");
-  if(filterInactiveTriggers){
-    std::vector<std::string> activeFilters;
-    std::string hltTag = iConfig.getParameter<std::string>("hltTag");
-    trigTools::getActiveFilters(activeFilters,hltTag);
-    
-    trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
-    trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
-    trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);
-    trigTools::filterInactiveTightLooseTriggers(diEleTightLooseTrigNames_,activeFilters);
-    trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activeFilters);
-    trigTools::filterInactiveTightLooseTriggers(diPhoTightLooseTrigNames_,activeFilters);				    
-  }
-
-
-  std::vector<std::string> hltFiltersUsed;
-  getHLTFilterNamesUsed(hltFiltersUsed);
-  TrigCodes::setCodes(hltFiltersUsed);
-  offEvtHelper_.setup(iConfig,hltFiltersUsed);
-  
+  filterInactiveTriggers_ =iConfig.getParameter<bool>("filterInactiveTriggers");
+  hltTag_ = iConfig.getParameter<std::string>("hltTag");
+ 
   
   dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgHLTOfflineSource_" + iConfig.getParameter<std::string>("@module_label");
 
  
-  
+  offEvtHelper_.setup(iConfig);
 
 }
 
@@ -91,47 +74,12 @@ EgHLTOfflineSource::~EgHLTOfflineSource()
 
 void EgHLTOfflineSource::beginJob()
 {
-  if(!dbe_) return;
-
-  dbe_->setCurrentFolder(dirName_);
-  //the one monitor element the source fills directly
-  dqmErrsMonElem_ =dbe_->book1D("dqmErrors","EgHLTOfflineSource Errors",101,-0.5,100.5);
-  nrEventsProcessedMonElem_ = dbe_->bookInt("nrEventsProcessed");
-  
-
-  //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
-  for(size_t i=0;i<eleHLTFilterNames_.size();i++) addEleTrigPath(eleHLTFilterNames_[i]);
-  for(size_t i=0;i<phoHLTFilterNames_.size();i++) addPhoTrigPath(phoHLTFilterNames_[i]);
- 
-  //efficiencies of one trigger path relative to another
-  MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
-					///	new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
-  MonElemFuncs::initTightLooseTrigHistsTrigCuts(eleMonElems_,eleTightLooseTrigNames_,binData_);
-
-  ;
-  MonElemFuncs::initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,"pho");
-    //	new EgHLTDQMVarCut<OffPho>(cutMasks_.stdPho,&OffPho::cutCode)); 
-  MonElemFuncs::initTightLooseTrigHistsTrigCuts(phoMonElems_,phoTightLooseTrigNames_,binData_);
-
-  //di-object triggers
-  MonElemFuncs::initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,"gsfEle");
-					//	new EgDiEleCut(cutMasks_.stdEle,&OffEle::cutCode));
-  MonElemFuncs::initTightLooseTrigHists(phoMonElems_,diPhoTightLooseTrigNames_,binData_,"pho");
-					//				new EgDiPhoCut(cutMasks_.stdPho,&OffPho::cutCode));
-
-  MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(eleMonElems_,diEleTightLooseTrigNames_,binData_);
-  MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(phoMonElems_,diPhoTightLooseTrigNames_,binData_);
-
-
-  //tag and probe trigger efficiencies
-  //this is to do measure the trigger efficiency with respect to a fully selected offline electron
-  //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
-  MonElemFuncs::initTrigTagProbeHists(eleMonElems_,eleHLTFilterNames_,cutMasks_.trigTPEle,binData_);
-  
-  //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
-  // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
-
-
+  if(dbe_) {
+    dbe_->setCurrentFolder(dirName_);
+    //the one monitor element the source fills directly
+    dqmErrsMonElem_ =dbe_->book1D("dqmErrors","EgHLTOfflineSource Errors",101,-0.5,100.5);
+    nrEventsProcessedMonElem_ = dbe_->bookInt("nrEventsProcessed");
+  }
 }
 
 void EgHLTOfflineSource::endJob() 
@@ -139,9 +87,62 @@ void EgHLTOfflineSource::endJob()
   //  LogDebug("EgHLTOfflineSource") << "ending job";
 }
 
+//due to changes in HLTConfigProvider to be called at beginRun rather then beginJob, I moved everything from beginJob here and ensure that it is only called once
+//if the HLTConfig changes during the job, the results are "un predicable" but in practice should be fine
+//the HLTConfig is used for working out which triggers are active, working out which filternames correspond to paths and L1 seeds
+//assuming those dont change for E/g it *should* be fine 
 void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  //LogDebug("EgHLTOfflineSource") << "beginRun, run " << run.id();
+  if(dbe_ && !isSetup_){
+
+    HLTConfigProvider hltConfig;
+    bool changed=false;
+    hltConfig.init(run,c,hltTag_,changed);
+    if(filterInactiveTriggers_) filterTriggers(hltConfig);
+
+    std::vector<std::string> hltFiltersUsed;
+    getHLTFilterNamesUsed(hltFiltersUsed);
+    TrigCodes::setCodes(hltFiltersUsed);
+   
+    offEvtHelper_.setupTriggers(hltConfig,hltFiltersUsed);
+
+    //now book ME's
+
+    //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
+    for(size_t i=0;i<eleHLTFilterNames_.size();i++) addEleTrigPath(eleHLTFilterNames_[i]);
+    for(size_t i=0;i<phoHLTFilterNames_.size();i++) addPhoTrigPath(phoHLTFilterNames_[i]);
+    
+    //efficiencies of one trigger path relative to another
+    MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
+    ///	new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
+    MonElemFuncs::initTightLooseTrigHistsTrigCuts(eleMonElems_,eleTightLooseTrigNames_,binData_);
+      
+   
+    MonElemFuncs::initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,"pho");
+    //	new EgHLTDQMVarCut<OffPho>(cutMasks_.stdPho,&OffPho::cutCode)); 
+    MonElemFuncs::initTightLooseTrigHistsTrigCuts(phoMonElems_,phoTightLooseTrigNames_,binData_);
+      
+    //di-object triggers
+    MonElemFuncs::initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,"gsfEle");
+    //	new EgDiEleCut(cutMasks_.stdEle,&OffEle::cutCode));
+    MonElemFuncs::initTightLooseTrigHists(phoMonElems_,diPhoTightLooseTrigNames_,binData_,"pho");
+    //				new EgDiPhoCut(cutMasks_.stdPho,&OffPho::cutCode));
+    
+    MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(eleMonElems_,diEleTightLooseTrigNames_,binData_);
+    MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(phoMonElems_,diPhoTightLooseTrigNames_,binData_);
+
+    
+    //tag and probe trigger efficiencies
+    //this is to do measure the trigger efficiency with respect to a fully selected offline electron
+    //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
+    MonElemFuncs::initTrigTagProbeHists(eleMonElems_,eleHLTFilterNames_,cutMasks_.trigTPEle,binData_);
+    
+    //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
+    // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
+
+    isSetup_=true;
+    
+  }
 }
 
 
@@ -255,4 +256,19 @@ void EgHLTOfflineSource::getHLTFilterNamesUsed(std::vector<std::string>& filterN
   //right all the triggers are inserted once and only once in the set, convert to vector
   //very lazy, create a new vector so can use the constructor and then use swap to transfer
   std::vector<std::string>(filterNameSet.begin(),filterNameSet.end()).swap(filterNames);
+}
+
+void EgHLTOfflineSource::filterTriggers(const HLTConfigProvider& hltConfig)
+{
+  
+  std::vector<std::string> activeFilters;
+  
+  trigTools::getActiveFilters(hltConfig,activeFilters);
+  
+  trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+  trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
+  trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);
+  trigTools::filterInactiveTightLooseTriggers(diEleTightLooseTrigNames_,activeFilters);
+  trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activeFilters);
+  trigTools::filterInactiveTightLooseTriggers(diPhoTightLooseTrigNames_,activeFilters);				    
 }
