@@ -16,8 +16,8 @@ class FactorizedJetCorrector;
 class LXXXCorrector : public JetCorrector 
 {
   public:
-    //----- constructor ---------------------------------------
-    LXXXCorrector(const JetCorrectorParameters& fParameters, const std::string& level);
+    //----- constructors---------------------------------------
+    LXXXCorrector(const JetCorrectorParameters& fConfig, const edm::ParameterSet& fParameters);   
 
     //----- destructor ----------------------------------------
     virtual ~LXXXCorrector();

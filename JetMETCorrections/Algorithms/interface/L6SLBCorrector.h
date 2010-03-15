@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
-
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 
@@ -22,7 +22,7 @@ class L6SLBCorrector : public JetCorrector
   // construction / destruction
   //
 public:
-  L6SLBCorrector (const edm::ParameterSet& fParameters);
+  L6SLBCorrector (const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig);
   virtual ~L6SLBCorrector ();
   
 

@@ -28,24 +28,15 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-L6SLBCorrector::L6SLBCorrector(const edm::ParameterSet& fConfig)
+L6SLBCorrector::L6SLBCorrector(const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig)
   : addMuonToJet_(fConfig.getParameter<bool>("addMuonToJet"))
   , srcBTagInfoElec_(fConfig.getParameter<edm::InputTag>("srcBTagInfoElectron"))
   , srcBTagInfoMuon_(fConfig.getParameter<edm::InputTag>("srcBTagInfoMuon"))
   , corrector_(0)
 {
-  string era(fConfig.getParameter<string>("era"));
-  string level("L6SLB");
-  string algorithm(fConfig.getParameter<string>("algorithm"));
-  string fileName("CondFormats/JetMETObjects/data/");
-  if (!era.empty()) fileName += era + "_";
-  fileName += level;
-  if (!algorithm.empty()) fileName += "_" + algorithm;
-  fileName += ".txt";
-  
-  edm::FileInPath fip(fileName);
-  
-  corrector_ = new FactorizedJetCorrector("L6",fip.fullPath());
+  vector<JetCorrectorParameters> vParam;
+  vParam.push_back(fParam);
+  corrector_ = new FactorizedJetCorrector(vParam);
 }
 
 //______________________________________________________________________________

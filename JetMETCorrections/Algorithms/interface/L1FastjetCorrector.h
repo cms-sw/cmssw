@@ -11,13 +11,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 class L1FastjetCorrector : public JetCorrector
 {
 public:
   // construction / destruction
-  L1FastjetCorrector(const edm::ParameterSet& fParameters);
+  L1FastjetCorrector(const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig);
   virtual ~L1FastjetCorrector();
   
 public:

@@ -17,42 +17,27 @@ using namespace std;
 //------------------------------------------------------------------------ 
 //--- LXXXCorrector constructor ------------------------------------------
 //------------------------------------------------------------------------
-LXXXCorrector::LXXXCorrector(const JetCorrectorParameters& fConfig, const std::string& level)
+LXXXCorrector::LXXXCorrector(const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig) 
 {
+  string level = fParam.definitions().level();
   if (level == "L1Offset")
-  {
     mLevel = 1;
-    mCorrector = new FactorizedJetCorrector(fConfig, "L1");
-  }
   else if (level == "L2Relative")
-    {
-      mLevel = 2;
-      mCorrector = new FactorizedJetCorrector(fConfig,"L2");
-    }
+    mLevel = 2;
   else if (level == "L3Absolute")
-    {
-      mLevel = 3;  
-      mCorrector = new FactorizedJetCorrector(fConfig,"L3");
-    }
+    mLevel = 3;  
   else if (level == "L4EMF")
-    {
-      mLevel = 4;
-      mCorrector = new FactorizedJetCorrector(fConfig,"L4");
-    }
+    mLevel = 4;
   else if (level == "L5Flavor")
-    {
-      mLevel = 5;
-      mCorrector = new FactorizedJetCorrector(fConfig,"L5");
-    }
+    mLevel = 5;
   else if (level == "L7Parton")
-    {
-      mLevel = 7;
-      mCorrector = new FactorizedJetCorrector(fConfig,"L7");
-    }
+    mLevel = 7;
   else
     throw cms::Exception("LXXXCorrector")<<" unknown correction level "<<level; 
+  vector<JetCorrectorParameters> vParam;
+  vParam.push_back(fParam);
+  mCorrector = new FactorizedJetCorrector(vParam);
 }
-
 //------------------------------------------------------------------------ 
 //--- LXXXCorrector destructor -------------------------------------------
 //------------------------------------------------------------------------
@@ -65,24 +50,19 @@ LXXXCorrector::~LXXXCorrector()
 //------------------------------------------------------------------------
 double LXXXCorrector::correction(const LorentzVector& fJet) const 
 {
-  // L1Offset correction is binned in eta and is a function of energy
-  if (mLevel == 1)
-    {
-      mCorrector->setJetEta(fJet.eta()); 
-      mCorrector->setJetE(fJet.energy());
-    }
-  // L2,L3,L5,L7 corrections are binned in eta and are a function of pt
-  else if (mLevel == 2 || mLevel == 3 || mLevel == 5 || mLevel == 7)
-    {
-      mCorrector->setJetEta(fJet.eta()); 
-      mCorrector->setJetPt(fJet.pt());
-    }
   // L4 correction requires more information that a simple 4-vector
-  else if (mLevel == 4)
+  if (mLevel == 4)
     {
       throw cms::Exception("Invalid jet type") << "L4EMFCorrection is applicable to CaloJets only";
       return 1;
     }
+  else
+    {
+      mCorrector->setJetEta(fJet.eta()); 
+      mCorrector->setJetE(fJet.energy());
+      mCorrector->setJetPt(fJet.pt());
+      mCorrector->setJetPhi(fJet.phi());
+    } 
   return mCorrector->getCorrection();
 }
 //------------------------------------------------------------------------ 

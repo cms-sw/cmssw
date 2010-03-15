@@ -20,7 +20,7 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-L1FastjetCorrector::L1FastjetCorrector (const edm::ParameterSet& fConfig)
+L1FastjetCorrector::L1FastjetCorrector (const JetCorrectorParameters& fParam, const edm::ParameterSet& fConfig)
   : srcMedianPt_(fConfig.getParameter<edm::InputTag>("srcMedianPt"))
 {
   
