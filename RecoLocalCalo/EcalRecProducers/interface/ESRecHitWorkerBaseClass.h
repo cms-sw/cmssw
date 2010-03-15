@@ -3,10 +3,10 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 namespace edm {
         class Event;
-        class EventSetup;
         class ParameterSet;
 }
 
