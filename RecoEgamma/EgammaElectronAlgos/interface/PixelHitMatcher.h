@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.25 2009/05/27 14:08:25 fabiocos Exp $
+// $Id: PixelHitMatcher.h,v 1.26 2010/03/12 13:18:45 charlot Exp $
 //
 //
 
@@ -103,14 +103,18 @@ class SeedWithInfo
  {
   public :
   
-    SeedWithInfo( TrajectorySeed seed, int subDet2, float dRz2, float dPhi2 )
-     : seed_(seed), subDet2_(subDet2), dRz2_(dRz2), dPhi2_(dPhi2) {}
+    SeedWithInfo( TrajectorySeed seed, int subDet2, float dRz2, float dPhi2 , int subDet1, float dRz1, float dPhi1)
+     : seed_(seed), subDet2_(subDet2), dRz2_(dRz2), dPhi2_(dPhi2), subDet1_(subDet1),
+     dRz1_(dRz1), dPhi1_(dPhi1) {}
      
     const TrajectorySeed & seed() { return seed_ ; }
     
     int subDet2() { return subDet2_ ; }
     float dRz2() { return dRz2_ ; }
     float dPhi2() { return dPhi2_ ; }
+    int subDet1() { return subDet1_ ; }
+    float dRz1() { return dRz1_ ; }
+    float dPhi1() { return dPhi1_ ; }
     
   private :
   
@@ -118,6 +122,9 @@ class SeedWithInfo
     int subDet2_ ;
     float dRz2_ ;
     float dPhi2_ ;
+    int subDet1_ ;
+    float dRz1_ ;
+    float dPhi1_ ;
  } ;
 
 class PixelHitMatcher{  

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedGenerator.cc,v 1.6 2010/03/12 13:18:47 charlot Exp $
+// $Id: ElectronSeedGenerator.cc,v 1.7 2010/03/13 20:46:32 chamont Exp $
 //
 //
 
@@ -279,7 +279,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
 	for (s = elePixelSeeds.begin(); s != elePixelSeeds.end(); s++) {
     	    reco::ElectronSeed seed(s->seed()) ;
             reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-            seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+            seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
 		result.push_back(seed);
 	}
     }
@@ -316,7 +316,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
       for (s = posPixelSeeds.begin(); s != posPixelSeeds.end(); s++) {
   	    reco::ElectronSeed seed(s->seed()) ;
 	reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-	seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+	seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
 	result.push_back(seed);
       }
     }
@@ -381,7 +381,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
 	  for (s = elePixelSeeds.begin(); s != elePixelSeeds.end(); s++) {
     	      reco::ElectronSeed seed(s->seed()) ;
               reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-              seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+              seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
 		  result.push_back(seed);
 	  }
       }
@@ -415,7 +415,7 @@ void ElectronSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClusterCol
 	for (s = posPixelSeeds.begin(); s != posPixelSeeds.end(); s++) {
   	      reco::ElectronSeed seed(s->seed()) ;
 	  reco::ElectronSeed::CaloClusterRef caloCluster(seedCluster) ;
-	  seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2()) ;
+	  seed.setCaloCluster(caloCluster,s->subDet2(),s->dRz2(),s->dPhi2(),s->subDet1(),s->dRz1(),s->dPhi1()) ;
 	  result.push_back(seed);
 	}
       }

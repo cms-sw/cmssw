@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.37 2010/03/12 13:18:47 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.38 2010/03/12 14:54:02 chamont Exp $
 //
 //
 
@@ -439,6 +439,10 @@ PixelHitMatcher::compatibleSeeds
              PhiCheck phiCheck(xmeas.phi()) ;
              if (!phiCheck(hitPos.phi())) continue ;
 
+             int subDet1 = id.subdetId() ;
+	     float dRz1 = (subDet1%2==1)?(hitPos.z()-tsos1.globalPosition().z()):(hitPos.perp()-tsos1.globalPosition().perp()) ;
+             float dPhi1 = PhiCheck::normalize(hitPos.phi() - tsos1.globalPosition().phi()) ;
+
 	     // now second Hit
 	     //CC@@
 	     //it++;
@@ -496,7 +500,7 @@ PixelHitMatcher::compatibleSeeds
         	 int subDet2 = id2.subdetId() ;
 		 float dRz2 = (subDet2%2==1)?(hitPos2.z()-tsos2.globalPosition().z()):(hitPos2.perp()-tsos2.globalPosition().perp()) ;
         	 float dPhi2 = PhiCheck::normalize(hitPos2.phi() - tsos2.globalPosition().phi()) ;
-		 result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2)) ;
+		 result.push_back(SeedWithInfo((*seeds)[i],subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
 		}
 	     }
 

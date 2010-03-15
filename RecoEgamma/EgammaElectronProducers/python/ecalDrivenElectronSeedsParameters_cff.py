@@ -32,7 +32,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     
     # r/z windows
     nSigmasDeltaZ1 = cms.double(5.), ## in case beam spot is used for the matching
-    deltaZ1WithVertex = cms.double(0.5), ## in case reco vertex is used for the matching
+    deltaZ1WithVertex = cms.double(25.), ## in case reco vertex is used for the matching
     z2MinB = cms.double(-0.09),
     z2MaxB = cms.double(0.09),
     r2MinF = cms.double(-0.15),
