@@ -8,73 +8,61 @@
 <library file=HLTConfDummy2DB.cc name=HLTConfDummy2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=HLTConf2DB.cc name=HLTConf2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>	
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=HLTDummy2DB.cc name=HLTDummy2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=HLT2DB.cc name=HLT2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=LumiDummy2DB.cc name=LumiDummy2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=Lumi2DB.cc name=Lumi2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>	
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <use name=rootcore>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=CMSRunSummaryDummy2DB.cc name=CMSRunSummaryDummy2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=CMSRunSummary2DB.cc name=CMSRunSummary2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <use name=rootcore>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=TRGDummy2DB.cc name=TRGDummy2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
 <library file=TRG2DB.cc name=TRG2DB>
   <use name=RecoLuminosity/LumiProducer>
   <use name=FWCore/PluginManager>
-  <use name=CoralBase>
-  <use name=RelationalAccess>
   <flags EDM_PLUGIN=1>
 </library>
-
+<library file=LumiProducer.cc name=LumiProducer>
+  <use name=RecoLuminosity/LumiProducer>
+  <use name=FWCore/PluginManager>
+  <use name=DataFormats/Provenance>
+  <use name=DataFormats/Luminosity>
+  <use name=CondFormats/Luminosity>
+  <use name=CondFormats/DataRecord>
+  <flags EDM_PLUGIN=1>
+</library>

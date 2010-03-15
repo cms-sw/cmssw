@@ -1,9 +1,6 @@
 <use name=FWCore/Framework>
-<use name=DataFormats/Provenance>
-<use name=DataFormats/Luminosity>
-<use name=CondFormats/Luminosity>
-<use name=CondFormats/DataRecord>
-<use name=FWCore/PluginManager>
+<use name=CoralBase>
+<use name=RelationalAccess>
 <export>
    <lib name=RecoLuminosityLumiProducer>
 </export>
