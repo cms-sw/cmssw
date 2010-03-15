@@ -231,7 +231,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
          else output[ibin] = 0;
       }
       else { // No peak finding, just output running sum
-         output[ibin] = sum[idx];               
+         output[ibin] = std::min<unsigned int>(sum[idx],0x3FF);
          finegrain[ibin] = msb[idx];
       }
 
