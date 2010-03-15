@@ -45,17 +45,17 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                                             'TimingErrorBit'),
                   ChannelStatus = cms.vstring('')
                 ),
-        cms.PSet( Level = cms.int32(10),
+        cms.PSet( Level = cms.int32(12),
+                  RecHitFlags = cms.vstring(''),
+                  ChannelStatus = cms.vstring('HcalCellCaloTowerMask')
+                ),
+        cms.PSet( Level = cms.int32(15),
                   RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('HcalCellHot')
                 ),
         cms.PSet( Level = cms.int32(20),
                   RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
-                ),
-        cms.PSet( Level = cms.int32(9999),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('HcalCellCaloTowerMask')
                 )
         ),
     RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),
