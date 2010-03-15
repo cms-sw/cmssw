@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
+#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
@@ -26,7 +27,7 @@ class RPCQualityTests : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
@@ -41,6 +42,7 @@ class RPCQualityTests : public edm::EDAnalyzer {
       int nevents_;
 
       DQMStore * dbe_ ;
+      DQMOldReceiver * mui_;
 
       std::string hostName_;
       int hostPort_;

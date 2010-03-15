@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2009/05/12 12:58:50 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/02/05 14:34:53 $
+ *  $Revision: 1.13.2.1.4.1 $
  *  \author Anna Cimmino
  *   
  */
@@ -38,13 +38,11 @@ public:
   virtual ~RPCEventSummary();
 
   /// BeginJob
-  void beginJob(const edm::EventSetup& iSetup);
+  void beginJob();
 
   //Begin Run
    void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
-   //End Run
-   void endRun(const edm::Run& r, const edm::EventSetup& c);
   
   /// Begin Lumi block 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
@@ -59,21 +57,24 @@ public:
   
  private:
   
+  void fillWithDefaultValue(float );
+  float findRPCFED(const edm::EventSetup& );
+
   std::string eventInfoPath_, prefixDir_;
 
-  bool tier0_;  
   bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
-
   bool init_;
   DQMStore* dbe_;
- 
+  int event_;
+
   int nLumiSegs_;
   std::string globalFolder_;
-  
-  int numberDisk_;
+  float defaultValue_;
 
-
+  std::pair<int, int> FEDRange_;
+  int numberOfDisks_;  
+  int NumberOfFeds_;
   enum RPCQualityFlags{DEAD = 6, PARTIALLY_DEAD=5};
 
 };

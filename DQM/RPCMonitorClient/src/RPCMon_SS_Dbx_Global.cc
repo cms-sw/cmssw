@@ -62,10 +62,16 @@ void RPCMon_SS_Dbx_Global::beginRun(const Run& r, const EventSetup& c){
 void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetup) {
 
  edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByType(rpcDigis);
+ try {
+ iEvent.getByType(rpcDigis);
+ }catch(...) { return;  } 
+
 
  edm::ESHandle<RPCGeometry> pDD;
+ try {
  iSetup.get<MuonGeometryRecord>().get( pDD );
+ }catch(...) { return;  } 
+
  rpcdqm::utils rpcUtils;
  
  RPCDigiCollection::DigiRangeIterator detUnitIt;
