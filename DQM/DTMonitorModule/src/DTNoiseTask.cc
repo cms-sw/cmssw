@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/08/25 21:32:48 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.18 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -316,11 +316,14 @@ void DTNoiseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Event
 	// revert back to # of entries
 	noise_root->Scale(normalization);
     }
-    // set the # of events analyzed until this update
-    LogVerbatim("DTNoiseTask")  << "          Update for events: " << evtNumber << endl;
-    mapEvt[chId] = evtNumber;
-    // update the rate
-    normalization = double( 1e-9*upperLimit*evtNumber);
-    noise_root->Scale(1./normalization);
+    //check that event analyzed != 0 might happen oline
+    if (evtNumber) {
+      // set the # of events analyzed until this update
+      LogVerbatim("DTNoiseTask")  << "          Update for events: " << evtNumber << endl;
+      mapEvt[chId] = evtNumber;
+      // update the rate
+      normalization = double( 1e-9*upperLimit*evtNumber);
+      noise_root->Scale(1./normalization);
+    }
   }
 }
