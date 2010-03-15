@@ -28,7 +28,7 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 # -----------------------------------------------------------------------------
 
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
-    ConfDb = cms.untracked.string('cms_trk_tkcc/PASSWORD@cms_omds_nolb'),
+    ConfDb = cms.untracked.string('cms_trk_r/PASSWORD@cms_omds_tunnel'),
     TNS_ADMIN = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
@@ -78,7 +78,7 @@ process.source = cms.Source("EmptySource",
 # -----------------------------------------------------------------------------
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND')
+process.CondDBCommon.connect = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R')
 
 # -----------------------------------------------------------------------------
 # Define our ModuleHVBuilder process.  
@@ -101,9 +101,9 @@ process.CondDBCommon.connect = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PV
 
 process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
-    onlineDB = cms.string('oracle://cms_omds_nolb/CMS_TRK_DCS_PVSS_COND'),
-    authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
-    # authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
+    onlineDB = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R'),
+    #authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
+    authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
     
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
     #     Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
@@ -131,11 +131,11 @@ process.SiStripDetVOffBuilder = cms.Service(
     DetIdListFile = cms.string('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
 
     # Threshold to consider an HV channel on
-    HighVoltageOnThreshold = cms.double(0.97)
+    HighVoltageOnThreshold = cms.double(0.97),
 
     # Leave empty if you want to use the db
-    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat")
-    ExcludedDetIdListFile = cms.string('CalibTracker/SiStripCommon/data/ExcludedSiStripDetInfo.dat'),
+    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat"),
+    ExcludedDetIdListFile = cms.string('CalibTracker/SiStripDCS/data/ExcludedSiStripDetInfo.dat')
 )
 
 # -----------------------------------------------------------------------------
