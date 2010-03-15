@@ -1534,7 +1534,8 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
  
 
   if (verbose_) cout << "End BeginRun ---------------- " << endl;
- }
+ 
+}
 
 //--------------------------------------------------------
 void HLTJetMETDQMSource::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
