@@ -4,11 +4,15 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("RPCDQM")
 
 ############# Source File ########################
+
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Commissioning08/Cosmics/RECO/v1/000/070/664/1CE1633D-87AF-DD11-AD95-000423D98B08.root')
+#      fileNames = cms.untracked.vstring('/store/data/Commissioning10/Cosmics/RAW/v1/000/125/838/702BD989-F60B-DF11-A49C-0030487CD77E.root')
+      fileNames = cms.untracked.vstring('/store/data/Commissioning10/Cosmics/RECO/v1/000/125/838/C6D4F60E-FA0B-DF11-BA84-003048D37560.root')
+#      fileNames = cms.untracked.vstring('/store/data/Commissioning10/RandomTriggers/RAW/v3/000/128/736/0C1ED6D3-311E-DF11-B20E-000423D99EEE.root')
+
 )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(15000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 
 ################ Condition ######################
@@ -29,17 +33,20 @@ process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 
-
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ##### RAW to DIGI #####
-process.rpcunpacker = cms.EDProducer("RPCUnpackingModule",
-    InputLabel = cms.untracked.InputTag("source"),
+
+process.rpcunpacker = cms.EDFilter("RPCUnpackingModule",
+    InputLabel = cms.InputTag("source"),
     doSynchro = cms.bool(False)
 )
+process.load("EventFilter.RPCRawToDigi.RPCFrontierCabling_cfi")
+
 
 ########## RecHits ##########################
 process.load("RecoLocalMuon.RPCRecHit.rpcRecHits_cfi")
+#process.rpcRecHits.rpcDigiLabel ='rpcunpacker'
 process.rpcRecHits.rpcDigiLabel = 'muonRPCDigis'
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
@@ -68,16 +75,17 @@ process.load("DQM.RPCMonitorClient.RPCDataCertification_cfi")
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
 process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest")
-#process.rpcdqmclient.DiagnosticGlobalPrescale = cms.untracked.int32(5)
+process.rpcdqmclient.DiagnosticGlobalPrescale = cms.untracked.int32(1)
 process.rpcdqmclient.NumberOfEndcapDisks  = cms.untracked.int32(3)
 
 ################### FED ##################################
 process.load("DQM.RPCMonitorClient.RPCMonitorRaw_cfi")
 process.load("DQM.RPCMonitorClient.RPCFEDIntegrity_cfi")
+process.rpcFEDIntegrity.RPCRawCountsInputTag = 'provaDiNoCrash'
 process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 ################# Quality Tests #########################
-process.qTesterRPC = cms.EDAnalyzer("QualityTester",
+process.qTesterRPC = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1)
 )
@@ -87,13 +95,47 @@ process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
 
 ############### Output Module ######################
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('RPCDQM.root')
+   fileName = cms.untracked.string('RPCDQM.root'),
+   outputCommands = cms.untracked.vstring("keep *")
 )
 
-                               
+
+
+############# Message Logger ####################
+process.MessageLogger = cms.Service("MessageLogger",
+     debugModules = cms.untracked.vstring('*'),
+     cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG')
+    ),
+     destinations = cms.untracked.vstring('cout')
+ )
+
+
+
+
+################ Memory check ##################
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+ #       ignoreTotal = cms.untracked.int32(1) ## default is one
+#) 
+
+#################Timing ###############
+#process.Timing = cms.Service("Timing")
+#process.options = cms.untracked.PSet(
+ #        wantSummary = cms.untracked.bool(True)
+#)
+
+
+#process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
+#process.TimerService = cms.Service("TimerService", useCPUtime = cms.untracked.bool(True))
+
+
 ############# Path ########################
 
-process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
 
+#process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.dqmSaver)
+
+process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.rpcFEDIntegrity*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
+
+#process.e = cms.EndPath(process.out)
 
 

@@ -150,8 +150,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 
   counter++;
   LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;
-  
-  RPCEvents -> Fill(1);
+
 
   /// Digis
   Handle<RPCDigiCollection> rpcdigis;
@@ -162,7 +161,9 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
   iEvent.getByType(rpcHits);
 
   map<int,int> bxMap;
- 
+
+  if(rpcdigis->begin() !=  rpcdigis->end() )  RPCEvents -> Fill(1);
+
   //Loop on digi collection
   for( RPCDigiCollection::DigiRangeIterator collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
   
