@@ -16,12 +16,15 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/DataRecord/interface/JetCorrectorParametersRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 // macro to define instance of JetCorrectionService
 #define DEFINE_JET_CORRECTION_SERVICE(corrector_, name_ ) \
@@ -34,48 +37,70 @@ template <class Corrector>
 class JetCorrectionService : public edm::ESProducer,
 			     public edm::EventSetupRecordIntervalFinder
 {
-  // member data
-private:
-  boost::shared_ptr<JetCorrector> mCorrector;
-  std::string level;
-  std::string label;
-  std::string algorithm;
-  std::string name;
-  std::string section;
-  std::string payload_name;
-  // construction / destruction
-public:
-  JetCorrectionService(const edm::ParameterSet& fParameters) : 
-    level(fParameters.getParameter<std::string>("level")),
-    label(fParameters.getParameter<std::string>("label")),
-    algorithm(fParameters.getParameter<std::string>("algorithm")),
-    name(fParameters.getParameter<std::string>("@module_label")),
-    section(fParameters.getParameter<std::string>("section"))
-  {
-    setWhatProduced(this, name);
-    findingRecord <JetCorrectionsRecord> ();
-    // derive the overall string to look for
-    payload_name = level;
-    if (!algorithm.empty()) payload_name += "_" + algorithm + "_" + section;
-  }
-  
-  ~JetCorrectionService () {}
-  
-  // member functions
-  boost::shared_ptr<JetCorrector> produce(const JetCorrectionsRecord& iRecord) {
-    edm::ESHandle<JetCorrectorParameters> params;
-    iRecord.get(payload_name,params);    
-    boost::shared_ptr<JetCorrector> theCorrector(new Corrector(*params, level)); 
-    return theCorrector;
-  }
-  
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, 
-		      const edm::IOVSyncValue&, 
-		      edm::ValidityInterval& fIOV)
-  {
-    fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),
-				 edm::IOVSyncValue::endOfTime()); // anytime
-  }
+  private:
+    //boost::shared_ptr<JetCorrector> mCorrector;
+    edm::ParameterSet mParameterSet;
+    std::string mLevel;
+    std::string mEra;
+    std::string mAlgo;
+    std::string mSection;
+    std::string mPayloadName;
+    bool mUseCondDB;
+
+  public:
+    //------------- construction ---------------------------------------
+    JetCorrectionService(const edm::ParameterSet& fConfig) : mParameterSet(fConfig) 
+      {
+        std::string label = fConfig.getParameter<std::string>("@module_label"); 
+        mLevel            = fConfig.getParameter<std::string>("level");
+        mEra              = fConfig.getParameter<std::string>("era");
+        mAlgo             = fConfig.getParameter<std::string>("algorithm");
+        mSection          = fConfig.getParameter<std::string>("section");
+        mUseCondDB        = fConfig.getUntrackedParameter<bool>("useCondDB",false);
+        mPayloadName      = mLevel;
+        
+        if (!mAlgo.empty())
+          mPayloadName += "_"+mAlgo;
+        if (!mSection.empty())
+          mPayloadName += "_"+mSection; 
+        setWhatProduced(this, label);
+        findingRecord <JetCorrectionsRecord> ();
+        
+      }
+    //------------- destruction ----------------------------------------
+    ~JetCorrectionService () {}
+    //------------- member functions -----------------------------------
+    boost::shared_ptr<JetCorrector> produce(const JetCorrectionsRecord& iRecord) 
+      {
+        if (mUseCondDB)
+          {
+            edm::ESHandle<JetCorrectorParameters> JetCorPar;
+            JetCorrectorParametersRecord iRec;
+            iRecord.get(mPayloadName,JetCorPar); 
+            boost::shared_ptr<JetCorrector> mCorrector(new Corrector(*JetCorPar,mParameterSet));
+            return mCorrector;
+          }
+        else
+          {
+            std::string fileName("CondFormats/JetMETObjects/data/");
+            if (!mEra.empty())
+              fileName += mEra;
+            if (!mLevel.empty())
+              fileName += "_"+mLevel;
+            if (!mAlgo.empty())
+              fileName += "_"+mAlgo;
+            fileName += ".txt";
+            std::cout<<"Parameter File: "<<fileName<<std::endl;
+            edm::FileInPath fip(fileName);
+            JetCorrectorParameters *tmpJetCorPar = new JetCorrectorParameters(fip.fullPath(),mSection);
+            boost::shared_ptr<JetCorrector> mCorrector(new Corrector(*tmpJetCorPar,mParameterSet));
+            return mCorrector;
+          }
+      }
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,const edm::IOVSyncValue&,edm::ValidityInterval& fIOV)
+      {
+        fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime()); // anytime
+      }
 };
 
 #endif
