@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/02/28 20:10:04 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/03/04 09:15:47 $
+ *  $Revision: 1.27 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -72,13 +72,25 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
    * This method performs all needed operations on the muon pair. It reads the muons from SavedPair and uses the iev
    * counter to keep track of the event number. The iev is incremented internally and reset to 0 in startingNewLoop.
    */
-  virtual edm::EDLooper::Status duringFastLoop();
+  virtual void duringFastLoop();
 
   template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks );
  private:
 
  protected:
+  /**
+   * Selects the muon pairs and fills the SavedPair and (if needed) the genPair vector.
+   * This version reads the events from the edm root file and performs a selection of the muons according to the parameters in the cfg.
+   */
+  void selectMuons(const edm::Event & event);
+  /**
+   * Selects the muon pairs and fills the SavedPair and (if needed) the genPair vector.
+   * This version reads the events from a tree in the file specified in the cfg. The tree only contains one muon pair per event. This
+   * means that no selection is performed and we use preselected muons.
+   */
+  void selectMuons(const int maxEvents, const TString & treeFileName);
+
   /// Template method used to fill the track collection starting from reco::muons or pat::muons
   template<typename T>
   void takeSelectedMuonType(const T & muon, vector<reco::Track> & tracks);
@@ -130,6 +142,13 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   edm::InputTag simTracksCollection_;
   bool PATmuons_;
   string genParticlesName_;
+
+  // Input Root Tree file name. If empty events are read from the edm root file.
+  string inputRootTreeFileName_;
+  // Output Root Tree file name. If not empty events are dumped to this file at the end of the last iteration.
+  string outputRootTreeFileName_;
+  // Maximum number of events from root tree. It works in the same way as the maxEvents to configure a input source.
+  int maxEventsFromRootTree_;
 };
 
 template<typename T>

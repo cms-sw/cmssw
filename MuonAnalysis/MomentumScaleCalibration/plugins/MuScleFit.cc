@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/01/21 15:51:45 $
-//  $Revision: 1.70 $
+//  $Date: 2010/03/04 09:15:47 $
+//  $Revision: 1.71 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -108,7 +108,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 #include "HepPDT/defs.h"
 #include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
@@ -135,6 +134,7 @@
 #endif
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
 
 // To read likelihood distributions from the database.
 	//#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
@@ -322,6 +322,10 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 
   MuScleFitUtils::normalizeLikelihoodByEventNumber_ = pset.getUntrackedParameter<bool>("NormalizeLikelihoodByEventNumber", true);
   if (debug_>0) cout << "End of MuScleFit constructor" << endl;
+
+  inputRootTreeFileName_ = pset.getParameter<string>("InputRootTreeFileName");
+  outputRootTreeFileName_ = pset.getParameter<string>("OutputRootTreeFileName");
+  maxEventsFromRootTree_ = pset.getParameter<int>("MaxEventsFromRootTree");
 }
 
 // Destructor
@@ -329,6 +333,23 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 MuScleFit::~MuScleFit () {
   if (debug_>0) cout << "[MuScleFit]: Destructor" << endl;
   cout << "Total number of analyzed events = " << totalEvents_ << endl;
+
+  if( !(outputRootTreeFileName_.empty()) ) {
+    // Save the events to a root tree unless we are reading from the edm root file and the SavedPair size is different from the totalEvents_
+    if( !(inputRootTreeFileName_.empty() && (int(MuScleFitUtils::SavedPair.size()) != totalEvents_)) ) {
+      cout << "Saving muon pairs to root tree" << endl;
+      RootTreeHandler rootTreeHandler;
+      if( MuScleFitUtils::speedup ) {
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair));
+      }
+      else {
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), &(MuScleFitUtils::genPair));
+      }
+    }
+    else {
+      cout << "ERROR: events in the vector = " << MuScleFitUtils::SavedPair.size() << " != totalEvents = " << totalEvents_ << endl;
+    }
+  }
 }
 
 // Begin job
@@ -337,7 +358,7 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 // void MuScleFit::beginOfJob () {
 
   //if(maxLoopNumber>1)
-    readProbabilityDistributionsFromFile();
+  readProbabilityDistributionsFromFile();
 
   if (debug_>0) cout << "[MuScleFit]: beginOfJob" << endl;
 
@@ -392,17 +413,32 @@ void MuScleFit::startingNewLoop( unsigned int iLoop )
 // -------------------
 edm::EDLooper::Status MuScleFit::endOfLoop( const edm::EventSetup& eventSetup, unsigned int iLoop )
 {
-  endOfFastLoop(iLoop);
+  unsigned int iFastLoop = 1;
 
-  unsigned int iFastLoop = iLoop;
+  // Read the events from the root tree if requested
+  if( !(inputRootTreeFileName_.empty()) ) {
+    selectMuons(maxEventsFromRootTree_, inputRootTreeFileName_);
+    // When reading from local file all the loops are done here
+    totalEvents_ = MuScleFitUtils::SavedPair.size();
+    iFastLoop = 0;
+  }
+  else {
+    endOfFastLoop(iLoop);
+  }
+
   // If a fastLoop is required we do all the remaining iterations here
   if( fastLoop == true ) {
-    // The first iteration was already done, start from 1
-    for( iFastLoop=1; iFastLoop<maxLoopNumber; ++iFastLoop ) {
+    for( ; iFastLoop<maxLoopNumber; ++iFastLoop ) {
 
       cout << "Starting fast loop number " << iFastLoop << endl;
 
-      startingNewLoop(iFastLoop);
+      // In the first loop is called by the framework
+      if( iFastLoop > 0 ) {
+        startingNewLoop(iFastLoop);
+      }
+
+      // vector<pair<lorentzVector,lorentzVector> >::const_iterator it = MuScleFitUtils::SavedPair.begin();
+      // for( ; it != SavedPair.end(); ++it ) {
       while( iev<totalEvents_ ) {
         cout << "Fast looping on event number " << iev << endl;
         // This reads muons from SavedPair using iev to keep track of the event
@@ -474,143 +510,15 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
   // ----------------------------------------------------------------------------------------------
   if( loopCounter == 0 ) {
 
-    ++totalEvents_;
-
-    recMu1 = reco::Particle::LorentzVector(0,0,0,0);
-    recMu2 = reco::Particle::LorentzVector(0,0,0,0);
-
-    vector<reco::LeafCandidate> muons;
-    if( theMuonType_<4 || theMuonType_==10 ) { // Muons (glb,sta,trk)
-      vector<reco::Track> tracks;
-      if( PATmuons_ == true ) {
-        Handle<pat::MuonCollection> allMuons;
-        event.getByLabel( theMuonLabel_, allMuons );
-        for( vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-          takeSelectedMuonType(muon, tracks);
-        }
-        muons = fillMuonCollection(tracks);
-      }
-      else {
-        Handle<reco::MuonCollection> allMuons;
-        event.getByLabel (theMuonLabel_, allMuons);
-        for( vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-          takeSelectedMuonType(muon, tracks);
-        }
-        muons = fillMuonCollection(tracks);
-      }
-    }
-    else if(theMuonType_==4){  //CaloMuons
-      Handle<reco::CaloMuonCollection> caloMuons;
-      event.getByLabel (theMuonLabel_, caloMuons);
-      vector<reco::Track> tracks;
-      for (vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
-	tracks.push_back(*(muon->track()));
-      }
-      muons = fillMuonCollection(tracks);
-    }
-
-    else if (theMuonType_==5) { // Inner tracker tracks
-      Handle<reco::TrackCollection> tracks;
-      event.getByLabel (theMuonLabel_, tracks);
-      muons = fillMuonCollection(*tracks);
-    }
-
-    plotter->fillRec(muons);
-    // Compare reco with mc
-    // if( loopCounter == 0 && !MuScleFitUtils::speedup ) plotter->fillRecoVsGen(muons, evtMC);
-
-    // Find the two muons from the resonance, and set ResFound bool
-    // ------------------------------------------------------------
-    pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes =
-      MuScleFitUtils::findBestRecoRes(muons);
-    if (MuScleFitUtils::ResFound) {
-      if (debug_>0) {
-	cout <<setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " "
-	     << (recMuFromBestRes.second).Pt() << endl;
-	cout << "recMu1 = " << recMu1 << endl;
-	cout << "recMu2 = " << recMu2 << endl;
-      }
-      recMu1 = recMuFromBestRes.first;
-      recMu2 = recMuFromBestRes.second;
-      if (debug_>0) {
-	cout << "after recMu1 = " << recMu1 << endl;
-	cout << "after recMu2 = " << recMu2 << endl;
-	cout << "mu1.pt = " << recMu1.Pt() << endl;
-	cout << "mu2.pt = " << recMu2.Pt() << endl;
-      }
-      MuScleFitUtils::SavedPair.push_back( make_pair( recMu1, recMu2 ) );
-    } else {
-      MuScleFitUtils::SavedPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-    }
-
-    // ------- //
-    // MC info //
-    // ------- //
-
-    // NB we skip the simulation part if we are in a hurry
-    if (!MuScleFitUtils::speedup) {
-      // Find and store in histograms the generated and simulated resonance and muons
-      // ----------------------------------------------------------------------------
-      Handle<HepMCProduct> evtMC;
-      Handle<SimTrackContainer> simTracks;
-      Handle<GenParticleCollection> genParticles;
-
-      // Fill gen information only in the first loop
-      ifHepMC=false;
-      ifGenPart=false;
-
-      event.getByLabel( genParticlesName_, evtMC );
-      if( evtMC.isValid() ) {
-
-        MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(evtMC) );
-
-        plotter->fillGen2(evtMC, MuScleFitUtils::sherpa_);
-        ifHepMC = true;
-      }
-      else {
-        // cout << "HepMCProduct non existent. Trying with genParticles" << endl;
-        event.getByLabel( genParticlesName_, genParticles );
-        if( genParticles.isValid() ) {
-
-          MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(genParticles) );
-
-          plotter->fillGen1(genParticles);
-          ifGenPart=true;
-          if (debug_>0) cout << "Found genParticles" << endl;
-        }
-        else {
-          // cout << "GenParticles non existent" << endl;
-          cout<<"ERROR "<<"non generation info and speedup true!!!!!!!!!!!!"<<endl;
-          // Fill it in any case, otherwise it will not be in sync with the event number
-          MuScleFitUtils::genPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-        }
-      }
-
-      if( compareToSimTracks_ ) {
-        bool simTracksFound = false;
-        event.getByLabel(simTracksCollection_, simTracks);
-        if( simTracks.isValid() ) {
-          plotter->fillSim(simTracks);
-          if(ifHepMC) {
-
-            MuScleFitUtils::simPair.push_back( MuScleFitUtils::findSimMuFromRes(evtMC,simTracks) );
-            simTracksFound = true;
-            plotter->fillGenSim(evtMC,simTracks);
-          }
-        }
-        else {
-          cout << "SimTracks not existent" << endl;
-        }
-        if( !simTracksFound ) {
-          MuScleFitUtils::simPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-        }
-      }
+    if( !fastLoop || inputRootTreeFileName_.empty() ) {
+      // cout << "Reading from edm event" << endl;
+      selectMuons(event);
+      duringFastLoop();
+      ++totalEvents_;
     }
   }
 
-  // Do all the needed operations on the selected muons. The iev is reset to 0 in startingNewLoop and
-  // is incremented at the end of duringFastLoop. It is used to read the muons from SavedPair.
-  return duringFastLoop();
+  return kContinue;
 
 #ifdef USE_CALLGRIND
   CALLGRIND_STOP_INSTRUMENTATION;
@@ -618,7 +526,153 @@ edm::EDLooper::Status MuScleFit::duringLoop( const Event & event, const EventSet
 #endif
 }
 
-edm::EDLooper::Status MuScleFit::duringFastLoop()
+void MuScleFit::selectMuons(const Event & event)
+{
+  recMu1 = reco::Particle::LorentzVector(0,0,0,0);
+  recMu2 = reco::Particle::LorentzVector(0,0,0,0);
+
+  vector<reco::LeafCandidate> muons;
+  if( theMuonType_<4 || theMuonType_==10 ) { // Muons (glb,sta,trk)
+    vector<reco::Track> tracks;
+    if( PATmuons_ == true ) {
+      Handle<pat::MuonCollection> allMuons;
+      event.getByLabel( theMuonLabel_, allMuons );
+      for( vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+        takeSelectedMuonType(muon, tracks);
+      }
+      muons = fillMuonCollection(tracks);
+    }
+    else {
+      Handle<reco::MuonCollection> allMuons;
+      event.getByLabel (theMuonLabel_, allMuons);
+      for( vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+        takeSelectedMuonType(muon, tracks);
+      }
+      muons = fillMuonCollection(tracks);
+    }
+  }
+  else if(theMuonType_==4){  //CaloMuons
+    Handle<reco::CaloMuonCollection> caloMuons;
+    event.getByLabel (theMuonLabel_, caloMuons);
+    vector<reco::Track> tracks;
+    for (vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
+      tracks.push_back(*(muon->track()));
+    }
+    muons = fillMuonCollection(tracks);
+  }
+
+  else if (theMuonType_==5) { // Inner tracker tracks
+    Handle<reco::TrackCollection> tracks;
+    event.getByLabel (theMuonLabel_, tracks);
+    muons = fillMuonCollection(*tracks);
+  }
+
+  plotter->fillRec(muons);
+  // Compare reco with mc
+  // if( loopCounter == 0 && !MuScleFitUtils::speedup ) plotter->fillRecoVsGen(muons, evtMC);
+
+  // Find the two muons from the resonance, and set ResFound bool
+  // ------------------------------------------------------------
+  pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes =
+    MuScleFitUtils::findBestRecoRes(muons);
+  if (MuScleFitUtils::ResFound) {
+    if (debug_>0) {
+      cout <<setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " "
+           << (recMuFromBestRes.second).Pt() << endl;
+      cout << "recMu1 = " << recMu1 << endl;
+      cout << "recMu2 = " << recMu2 << endl;
+    }
+    recMu1 = recMuFromBestRes.first;
+    recMu2 = recMuFromBestRes.second;
+    if (debug_>0) {
+      cout << "after recMu1 = " << recMu1 << endl;
+      cout << "after recMu2 = " << recMu2 << endl;
+      cout << "mu1.pt = " << recMu1.Pt() << endl;
+      cout << "mu2.pt = " << recMu2.Pt() << endl;
+    }
+    MuScleFitUtils::SavedPair.push_back( make_pair( recMu1, recMu2 ) );
+  } else {
+    MuScleFitUtils::SavedPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+  }
+
+  // ------- //
+  // MC info //
+  // ------- //
+
+  // NB we skip the simulation part if we are in a hurry
+  if (!MuScleFitUtils::speedup) {
+    // Find and store in histograms the generated and simulated resonance and muons
+    // ----------------------------------------------------------------------------
+    Handle<HepMCProduct> evtMC;
+    Handle<SimTrackContainer> simTracks;
+    Handle<GenParticleCollection> genParticles;
+
+    // Fill gen information only in the first loop
+    ifHepMC=false;
+    ifGenPart=false;
+
+    event.getByLabel( genParticlesName_, evtMC );
+    if( evtMC.isValid() ) {
+
+      MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(evtMC) );
+
+      plotter->fillGen2(evtMC, MuScleFitUtils::sherpa_);
+      ifHepMC = true;
+    }
+    else {
+      // cout << "HepMCProduct non existent. Trying with genParticles" << endl;
+      event.getByLabel( genParticlesName_, genParticles );
+      if( genParticles.isValid() ) {
+
+        MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(genParticles) );
+
+        plotter->fillGen1(genParticles);
+        ifGenPart=true;
+        if (debug_>0) cout << "Found genParticles" << endl;
+      }
+      else {
+        // cout << "GenParticles non existent" << endl;
+        cout<<"ERROR "<<"non generation info and speedup true!!!!!!!!!!!!"<<endl;
+        // Fill it in any case, otherwise it will not be in sync with the event number
+        MuScleFitUtils::genPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+      }
+    }
+
+    if( compareToSimTracks_ ) {
+      bool simTracksFound = false;
+      event.getByLabel(simTracksCollection_, simTracks);
+      if( simTracks.isValid() ) {
+        plotter->fillSim(simTracks);
+        if(ifHepMC) {
+
+          MuScleFitUtils::simPair.push_back( MuScleFitUtils::findSimMuFromRes(evtMC,simTracks) );
+          simTracksFound = true;
+          plotter->fillGenSim(evtMC,simTracks);
+        }
+      }
+      else {
+        cout << "SimTracks not existent" << endl;
+      }
+      if( !simTracksFound ) {
+        MuScleFitUtils::simPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
+      }
+    }
+  }
+}
+
+void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
+{
+  cout << "Reading muon pairs from Root Tree in " << treeFileName << endl;
+  RootTreeHandler rootTreeHandler;
+  if( MuScleFitUtils::speedup ) {
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair));
+  }
+  else {
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), &(MuScleFitUtils::genPair));
+  }
+}
+
+void MuScleFit::duringFastLoop()
 {
   // On loops>0 the two muons are directly obtained from the SavedMuon array
   // -----------------------------------------------------------------------
@@ -833,7 +887,7 @@ edm::EDLooper::Status MuScleFit::duringFastLoop()
   iev++;
   MuScleFitUtils::iev_++;
 
-  return kContinue;
+  // return kContinue;
 }
 
 bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu){

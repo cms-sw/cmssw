@@ -324,6 +324,17 @@ process.looper = cms.Looper(
     # not need to read all the events again. This is much faster.
     # If you need to read the events in every iteration put this to false.
     # FastLoop = cms.untracked.bool(False),
+
+
+    # Only used when reading events from a root tree
+    MaxEventsFromRootTree = cms.int32(-1)
+
+    # Specify a file if you want to read events from a root tree in a local file.
+    # In this case the input source should be an empty source with 0 events.
+    InputRootTreeFileName = cms.string(""),
+    # Specify the file name where you want to save a root tree with the muon pairs.
+    # Leave empty if no file should be written.
+    OutputRootTreeFileName = cms.string(""),
 )
 
 # Timing information
