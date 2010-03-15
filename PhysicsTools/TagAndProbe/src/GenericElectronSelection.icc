@@ -335,7 +335,7 @@ bool GenericElectronSelection<gsfelectron>::CheckTriggerMatch( edm::Handle<trigg
 
 // --------- method called once each job just before starting event loop  ---
 template<class gsfelectron>
-void GenericElectronSelection<gsfelectron>::beginJob(const edm::EventSetup &eventSetup) 
+void GenericElectronSelection<gsfelectron>::beginJob() 
 {   
   if ( !histogramFile_.empty() ) {
     m_file_ = new TFile(histogramFile_.c_str(),"RECREATE");
