@@ -12,7 +12,6 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -30,7 +29,8 @@ process.streams = cms.PSet(
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
-    'ZeroBias' )
+    'ZeroBias' ),
+  Offline = cms.vstring(  )
 )
 process.datasets = cms.PSet( 
   RPCMonitor = cms.vstring(  ),

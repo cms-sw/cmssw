@@ -65,7 +65,6 @@ for TABLE in $TABLES; do
 done
 ls -l HLT_*_cff.py HLTrigger_EventContent_cff.py
 mv -f HLT_*_cff.py HLTrigger_EventContent_cff.py ../python
-mv ../python/HLT_FULL_cff.py .
 echo
 
 # for things now also in CMSSW CVS:

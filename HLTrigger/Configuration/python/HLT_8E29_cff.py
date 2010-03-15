@@ -8,10 +8,6 @@ HLTConfigVersion = cms.PSet(
 )
 
 streams = cms.PSet( 
-  RPCMON = cms.vstring( 'RPCMonitor' ),
-  Offline = cms.vstring(  ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
@@ -26,14 +22,13 @@ streams = cms.PSet(
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
-    'ZeroBias' )
+    'ZeroBias' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  Offline = cms.vstring(  ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' )
 )
 datasets = cms.PSet( 
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNormalisation' ),
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
-    'AlCa_EcalPi0_8E29' ),
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
@@ -188,7 +183,12 @@ datasets = cms.PSet(
   RandomTriggers = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
     'HLT_HcalPhiSym' ),
-  ZeroBias = cms.vstring( 'HLT_ZeroBias' )
+  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNormalisation' ),
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
+  AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
+    'AlCa_EcalPi0_8E29' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",

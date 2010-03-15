@@ -8,7 +8,6 @@ HLTConfigVersion = cms.PSet(
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
@@ -26,7 +25,8 @@ streams = cms.PSet(
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
-    'ZeroBias' )
+    'ZeroBias' ),
+  Offline = cms.vstring(  )
 )
 datasets = cms.PSet( 
   RPCMonitor = cms.vstring(  ),
