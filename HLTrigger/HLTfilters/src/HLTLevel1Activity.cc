@@ -8,8 +8,8 @@
  *    - use or ignore the L1 trigger mask
  *    - only look at a subset of the L1 bits
  * 
- *  $Date: 2009/11/19 06:21:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/11 00:12:15 $
+ *  $Revision: 1.6 $
  *
  *  \author Andrea Bocci
  *
@@ -43,6 +43,7 @@ private:
   std::vector<bool> m_maskedPhysics;
   std::vector<bool> m_maskedTechnical;
   bool              m_ignoreL1Mask;
+  bool              m_invert;
 
   edm::ESWatcher<L1GtTriggerMaskAlgoTrigRcd> m_watchPhysicsMask;
   edm::ESWatcher<L1GtTriggerMaskTechTrigRcd> m_watchTechnicalMask;
@@ -70,7 +71,8 @@ HLTLevel1Activity::HLTLevel1Activity(const edm::ParameterSet & config) :
   m_selectTechnical(TECHNICAL_BITS_SIZE),
   m_maskedPhysics(PHTSICS_BITS_SIZE),
   m_maskedTechnical(TECHNICAL_BITS_SIZE),
-  m_ignoreL1Mask( config.getParameter<bool>("ignoreL1Mask") )
+  m_ignoreL1Mask(config.getParameter<bool>("ignoreL1Mask")),
+  m_invert(config.getParameter<bool>("invert"))
 {
   unsigned long long low  = config.getParameter<unsigned long long>("physicsLoBits");
   unsigned long long high = config.getParameter<unsigned long long>("physicsHiBits");
@@ -122,20 +124,20 @@ HLTLevel1Activity::filter(edm::Event& event, const edm::EventSetup& setup)
   // access the L1 decisions
   edm::Handle<L1GlobalTriggerReadoutRecord> h_gtReadoutRecord;
   event.getByLabel(m_gtReadoutRecord, h_gtReadoutRecord);
- 
+
   // compare the results with the requested bits, and return true as soon as the first match is found
   BOOST_FOREACH(int bx, m_bunchCrossings) {
     const std::vector<bool> & physics = h_gtReadoutRecord->decisionWord(bx);
     for (unsigned int i = 0; i < PHTSICS_BITS_SIZE; ++i)
       if (m_maskedPhysics[i] and physics[i])
-        return true;
+        return not m_invert;
     const std::vector<bool> & technical = h_gtReadoutRecord->technicalTriggerWord(bx);
     for (unsigned int i = 0; i < TECHNICAL_BITS_SIZE; ++i)
       if (m_maskedTechnical[i] and technical[i])
-        return true;
+        return not m_invert;
   }
  
-  return false; 
+  return m_invert; 
 }
 
 // define as a framework plugin
