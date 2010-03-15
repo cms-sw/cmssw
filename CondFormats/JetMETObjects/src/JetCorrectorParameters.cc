@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.6 2009/11/12 12:12:55 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.7 2010/03/10 17:07:42 hegner Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -26,6 +26,7 @@ JetCorrectorParameters::Definitions::Definitions(const std::vector<std::string>&
     mParVar.push_back(fParVar[i]);
   mFormula    = fFormula;
   mIsResponse = fIsResponse;
+  mLevel      = "";
 }
 //------------------------------------------------------------------------
 //--- JetCorrectorParameters::Definitions constructor --------------------
@@ -59,7 +60,8 @@ JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
           std::stringstream sserr;
           sserr<<"unknown option ("<<ss<<")"; 
           handleError("JetCorrectorParameters::Definitions",sserr.str());
-        } 
+        }
+      mLevel = tokens[npar+nvar+4]; 
     }
 }
 //------------------------------------------------------------------------
@@ -273,6 +275,7 @@ void JetCorrectorParameters::printScreen() const
     std::cout<<"Type (Response or Correction): "<<"Response"<<std::endl;
   else
     std::cout<<"Type (Response or Correction): "<<"Correction"<<std::endl;
+  std::cout<<"Correction Level:              "<<definitions().level()<<std::endl;
   std::cout<<"--------------------------------------------"<<std::endl;
   std::cout<<"------- Bin contents -----------------------"<<std::endl;
   for(unsigned i=0;i<size();i++)
@@ -301,9 +304,10 @@ void JetCorrectorParameters::printFile(const std::string& fFileName) const
     txtFile<<definitions().parVar(i)<<std::setw(11);
   txtFile<<std::setw(definitions().formula().size()+11)<<definitions().formula()<<std::setw(11);
   if (definitions().isResponse())
-    txtFile<<"Response"<<"}"<<"\n";
+    txtFile<<"Response"<<std::setw(11);
   else
-    txtFile<<"Correction"<<"}"<<"\n";
+    txtFile<<"Correction"<<std::setw(11);
+  txtFile<<definitions().level()<<"}"<<"\n";
   for(unsigned i=0;i<size();i++)
     {
       for(unsigned j=0;j<definitions().nBinVar();j++)

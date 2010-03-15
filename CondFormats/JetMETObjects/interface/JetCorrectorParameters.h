@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.4 2009/11/10 16:42:48 schiefer Exp $
+// $Id: JetCorrectorParameters.h,v 1.5 2009/11/11 13:34:12 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -32,10 +32,12 @@ class JetCorrectorParameters
         std::string parVar(unsigned fIndex) const {return mParVar[fIndex];}
         std::string binVar(unsigned fIndex) const {return mBinVar[fIndex];} 
         std::string formula()               const {return mFormula;       }
+        std::string level()                 const {return mLevel;         }
         bool isResponse()                   const {return mIsResponse;    }
       private:
         //-------- Member variables ----------
         bool                     mIsResponse; 
+        std::string              mLevel; 
         std::string              mFormula;
         std::vector<std::string> mParVar;
         std::vector<std::string> mBinVar;
