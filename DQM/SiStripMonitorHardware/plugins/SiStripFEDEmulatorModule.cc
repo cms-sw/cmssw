@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/01/21
-// $Id: SiStripFEDEmulatorModule.cc,v 1.7 2010/03/12 15:05:09 amagnan Exp $
+// $Id: SiStripFEDEmulatorModule.cc,v 1.1 2010/03/12 19:26:37 amagnan Exp $
 //
 
 #include <sstream>
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -293,4 +293,4 @@ namespace sistrip {
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 typedef sistrip::FEDEmulatorModule SiStripFEDEmulatorModule;
-DEFINE_ANOTHER_FWK_MODULE(SiStripFEDEmulatorModule);
+DEFINE_FWK_MODULE(SiStripFEDEmulatorModule);

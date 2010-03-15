@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -184,4 +184,4 @@ namespace sistrip {
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 typedef sistrip::SpyDigiConverterModule SiStripSpyDigiConverterModule;
-DEFINE_ANOTHER_FWK_MODULE(SiStripSpyDigiConverterModule);
+DEFINE_FWK_MODULE(SiStripSpyDigiConverterModule);

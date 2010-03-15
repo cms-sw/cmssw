@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/02/25
-// $Id: SiStripSpyExtractRunModule.cc,v 1.1 2010/02/25 17:15:36 amagnan Exp $
+// $Id: SiStripSpyExtractRunModule.cc,v 1.1 2010/03/12 19:26:37 amagnan Exp $
 //
 
 #include <sstream>
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -167,4 +167,4 @@ namespace sistrip {
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 typedef sistrip::SpyExtractRunModule SiStripSpyExtractRunModule;
-DEFINE_ANOTHER_FWK_MODULE(SiStripSpyExtractRunModule);
+DEFINE_FWK_MODULE(SiStripSpyExtractRunModule);
