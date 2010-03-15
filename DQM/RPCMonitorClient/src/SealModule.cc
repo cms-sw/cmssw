@@ -3,11 +3,11 @@
 
 
 #include <DQM/RPCMonitorClient/interface/RPCFEDIntegrity.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCFEDIntegrity);
+DEFINE_FWK_MODULE(RPCFEDIntegrity);
 
 #include <DQM/RPCMonitorClient/interface/RPCMonitorRaw.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCMonitorRaw);
+DEFINE_FWK_MODULE(RPCMonitorRaw);
 
 #include <DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCMonitorLinkSynchro);
+DEFINE_FWK_MODULE(RPCMonitorLinkSynchro);
 
