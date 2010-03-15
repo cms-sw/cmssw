@@ -12,6 +12,7 @@
 #include "DQM/Physics/src/QcdHighPtDQM.h"
 #include "DQM/Physics/src/TopDiLeptonDQM.h"
 #include "DQM/Physics/src/SusyDQM.h"
+#include "DQM/Physics/src/QcdUeDQM.h"
 
 DEFINE_FWK_MODULE(BPhysicsOniaDQM);
 DEFINE_FWK_MODULE(EwkDQM);
@@ -24,3 +25,4 @@ DEFINE_FWK_MODULE(QcdLowPtDQM);
 DEFINE_FWK_MODULE(QcdHighPtDQM);
 DEFINE_FWK_MODULE(TopDiLeptonDQM);
 DEFINE_FWK_MODULE(RecoSusyDQM);
+DEFINE_FWK_MODULE(QcdUeDQM);
