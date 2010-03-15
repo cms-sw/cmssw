@@ -4,7 +4,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: JetCorrectionService.h,v 1.3 2010/02/25 23:09:09 wmtan Exp $
+// $Id: JetCorrectionService.h,v 1.5 2010/03/15 08:21:59 kkousour Exp $
 //
 //
 
@@ -46,6 +46,7 @@ class JetCorrectionService : public edm::ESProducer,
     std::string mSection;
     std::string mPayloadName;
     bool mUseCondDB;
+    bool mDebug;
 
   public:
     //------------- construction ---------------------------------------
@@ -57,6 +58,7 @@ class JetCorrectionService : public edm::ESProducer,
         mAlgo             = fConfig.getParameter<std::string>("algorithm");
         mSection          = fConfig.getParameter<std::string>("section");
         mUseCondDB        = fConfig.getUntrackedParameter<bool>("useCondDB",false);
+        mDebug            = fConfig.getUntrackedParameter<bool>("debug",false);
         mPayloadName      = mLevel;
         
         if (!mAlgo.empty())
@@ -90,7 +92,8 @@ class JetCorrectionService : public edm::ESProducer,
             if (!mAlgo.empty())
               fileName += "_"+mAlgo;
             fileName += ".txt";
-            std::cout<<"Parameter File: "<<fileName<<std::endl;
+            if (mDebug)
+              std::cout<<"Parameter File: "<<fileName<<std::endl;
             edm::FileInPath fip(fileName);
             JetCorrectorParameters *tmpJetCorPar = new JetCorrectorParameters(fip.fullPath(),mSection);
             boost::shared_ptr<JetCorrector> mCorrector(new Corrector(*tmpJetCorPar,mParameterSet));
