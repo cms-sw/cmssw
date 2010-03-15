@@ -144,6 +144,11 @@ parser.add_option("--skipEvents",
                   type="string",
                   default="0",
                   dest="skipEvents")
+parser.add_option("--validationLabel",
+                  help="if given nonempty string RUNLABEL, diagnostics and creation of plots will be run in the end of the last iteration; the RUNLABEL will be used to mark a run; the results will be put into a RUNLABEL_DATESTAMP.tgz tarball",
+                  type="string",
+                  default="",
+                  dest="validationLabel")
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -177,6 +182,7 @@ minAlignmentHits = str(options.minAlignmentHits)
 combineME11 = str(options.combineME11)
 maxEvents = options.maxEvents
 skipEvents = options.skipEvents
+validationLabel = options.validationLabel
 
 execfile(INPUTFILES)
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
@@ -312,7 +318,6 @@ export ALIGNMENT_AFSDIR=`pwd`
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
-export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s
 export ALIGNMENT_TRACKERALIGNMENT=%(trackeralignment)s
 export ALIGNMENT_TRACKERAPECONNECT=%(trackerAPEconnect)s
@@ -343,15 +348,111 @@ cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(
 
 cd $ALIGNMENT_AFSDIR
 cmsRun %(directory)sconvert-db-to-xml_cfg.py
+
+# if it's 1st or last iteration, combine _plotting.root files into one:
+if [ \"$ALIGNMENT_ITERATION\" == \"1\" ] || [ \"$ALIGNMENT_ITERATION\" == \"%(ITERATIONS)s\" ]; then
+  nfiles=$(ls %(directory)splotting0*.root 2> /dev/null | wc -l)
+  if [ \"$nfiles\" != \"0\" ]; then
+    hadd -f1 %(directory)s%(director)s_plotting.root %(directory)splotting0*.root
+    #if [ $? == 0 ]; then rm %(directory)splotting0*.root; fi
+  fi
+fi
+
 """ % vars())
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
     bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
-    bsubfile.append("cd ..")
-    bsubfile.append("")
+    #bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
+    
+    # after the last iteration (optionally) do diagnostics run
+    if len(validationLabel) and iteration == ITERATIONS:
+        # do we have plotting files created?
+        directory1 = "%s01/" % DIRNAME
+        director1 = directory1[:-1]
+
+        file("%svalidation.sh" % directory, "w").write("""#!/bin/sh
+# %(commandline)s
+
+export ALIGNMENT_CAFDIR=`pwd`
+mkdir files
+mkdir out
+
+cd %(pwd)s
+eval `scramv1 run -sh`
+ALIGNMENT_AFSDIR=`pwd`
+ALIGNMENT_ITERATION=%(iteration)d
+ALIGNMENT_MAPPLOTS=None
+ALIGNMENT_SEGDIFFPLOTS=None
+ALIGNMENT_CURVATUREPLOTS=None
+
+# copy the scripts to CAFDIR
+cd Alignment/MuonAlignmentAlgorithms/scripts/
+cp -f plotscripts.py $ALIGNMENT_CAFDIR/
+cp -f mutypes.py $ALIGNMENT_CAFDIR/
+cp -f alignmentValidation.py $ALIGNMENT_CAFDIR/
+cp -f createTree.py $ALIGNMENT_CAFDIR/
+cd -
+cp Alignment/MuonAlignmentAlgorithms/test/browser/tree* $ALIGNMENT_CAFDIR/out/
+
+# copy the results to CAFDIR
+cp -f %(directory1)s%(director1)s_report.py $ALIGNMENT_CAFDIR/files/
+cp -f %(directory)s%(director)s_report.py $ALIGNMENT_CAFDIR/files/
+cp -f %(directory1)s%(director1)s.root $ALIGNMENT_CAFDIR/files/
+cp -f %(directory)s%(director)s.root $ALIGNMENT_CAFDIR/files/
+if [ -e %(directory1)s%(director1)s_plotting.root ] && [ -e %(directory)s%(director)s_plotting.root ]; then
+  cp -f %(directory1)s%(director1)s_plotting.root $ALIGNMENT_CAFDIR/files/
+  cp -f %(directory)s%(director)s_plotting.root $ALIGNMENT_CAFDIR/files/
+  ALIGNMENT_MAPPLOTS=%(mapplots)s
+  ALIGNMENT_SEGDIFFPLOTS=%(segdiffplots)s
+  ALIGNMENT_CURVATUREPLOTS=%(curvatureplots)s
+fi
+
+cd $ALIGNMENT_CAFDIR/
+echo \" ### Start running ###\"
+date
+
+# do fits and median plots first 
+./alignmentValidation.py -l %(validationLabel)s -i $ALIGNMENT_CAFDIR --i1 files --iN files --i1prefix %(director1)s --iNprefix %(director)s -o $ALIGNMENT_CAFDIR/out  --createDirSructure --dt --csc --fit --median
+
+if [ $ALIGNMENT_MAPPLOTS == \"True\" ]; then
+  ./alignmentValidation.py -l %(validationLabel)s -i $ALIGNMENT_CAFDIR --i1 files --iN files --i1prefix %(director1)s --iNprefix %(director)s -o $ALIGNMENT_CAFDIR/out  --dt --csc --map
+fi
+
+if [ $ALIGNMENT_SEGDIFFPLOTS == \"True\" ]; then
+  ./alignmentValidation.py -l %(validationLabel)s -i $ALIGNMENT_CAFDIR --i1 files --iN files --i1prefix %(director1)s --iNprefix %(director)s -o $ALIGNMENT_CAFDIR/out  --dt --csc --segdiff
+fi                   
+
+if [ $ALIGNMENT_CURVATUREPLOTS == \"True\" ]; then
+  ./alignmentValidation.py -l %(validationLabel)s -i $ALIGNMENT_CAFDIR --i1 files --iN files --i1prefix %(director1)s --iNprefix %(director)s -o $ALIGNMENT_CAFDIR/out  --dt --csc --curvature
+fi
+
+# run simple diagnostic
+./alignmentValidation.py -l %(validationLabel)s -i $ALIGNMENT_CAFDIR --i1 files --iN files --i1prefix %(director1)s --iNprefix %(director)s -o $ALIGNMENT_CAFDIR/out --dt --csc --diagnostic
+
+# fill the tree browser structure: 
+./createTree.py -i $ALIGNMENT_CAFDIR/out
+
+timestamp=`date \"+%%y-%%m-%%d %%H:%%M:%%S\"`
+echo \"%(validationLabel)s (${timestamp})\" > out/label.txt
+
+ls -l out/
+timestamp=`date +%%Y%%m%%d%%H%%M%%S`
+tar czf %(validationLabel)s_${timestamp}.tgz out
+cp -f %(validationLabel)s_${timestamp}.tgz $ALIGNMENT_AFSDIR/
+
+""" % vars())
+        os.system("chmod +x %svalidation.sh" % directory)
+        
+        bsubfile.append("echo %svalidation.sh" % directory)
+        bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
+        bsubfile.append("cd ..")
+        
+    bsubfile.append("")
+
 
 file(options.submitJobs, "w").write("\n".join(bsubfile))
 os.system("chmod +x %s" % options.submitJobs)
+
