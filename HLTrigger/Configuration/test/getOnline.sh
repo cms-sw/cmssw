@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week10/HLT'
+HLT='/online/collisions/2010/week11/HLT'
 
 rm -f OnData_HLT_TEST.py
 rm -f OnLine_HLT_TEST.py
