@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/08 16:28:18 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -182,6 +182,8 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	      << " rate is: " << histo->GetBinContent(sect, sta)/(float)nevents << endl;
 	    if(histo->GetBinContent(sect, sta)/(float)nevents > maxSynchNoiseRate) {
 	      summarySynchNoiseHisto->Fill(sect,wheel,1);
+	    } else {
+	        summarySynchNoiseHisto->Fill(sect,wheel,0);
 	    }
 	  }
 	}
