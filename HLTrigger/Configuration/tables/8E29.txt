@@ -27,9 +27,9 @@ HLT_DoubleMu3
 HLT_Mu0_L1MuOpen
 HLT_Mu3_L1MuOpen
 HLT_Mu5_L1MuOpen
-HLT_Mu0_Track3_Jpsi
-HLT_Mu3_Track3_Jpsi
-HLT_Mu5_Track3_Jpsi
+HLT_Mu0_Track0_Jpsi
+HLT_Mu3_Track0_Jpsi
+HLT_Mu5_Track0_Jpsi
 HLT_L1SingleEG5
 HLT_L1SingleEG8
 HLT_Ele10_LW_L1R
