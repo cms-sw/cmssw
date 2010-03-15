@@ -25,7 +25,7 @@ combineME11 = (os.environ["ALIGNMENT_COMBINEME11"] == "True")
 
 process = cms.Process("ALIGN")
 process.source = cms.Source("EmptySource")
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(0))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.load("Alignment.MuonAlignmentAlgorithms.MuonAlignmentFromReference_cff")
 process.looper.algoConfig.readTemporaryFiles = cms.vstring(*alignmenttmp)
