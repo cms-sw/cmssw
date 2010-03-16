@@ -22,22 +22,6 @@ class FEDNumbering {
 
   virtual ~FEDNumbering(){};
 
-  static std::pair<int,int> getSiPixelFEDIds();
-  static std::pair<int,int> getSiStripFEDIds();
-
-  static std::pair<int,int> getEcalFEDIds();
-  static std::pair<int,int> getHcalFEDIds();
-
-  static std::pair<int,int> getCSCFEDIds();
-  static std::pair<int,int> getCSCTFFEDIds();
-
-  static std::pair<int,int> getDTFEDIds();
-
-  static std::pair<int,int> getRPCFEDIds();
-
-  static std::pair<int,int> getTriggerGTPFEDIds();
-  static std::pair<int,int> getTriggerEGTPFEDIds();
-
   static int lastFEDId();
 
   static void init();
