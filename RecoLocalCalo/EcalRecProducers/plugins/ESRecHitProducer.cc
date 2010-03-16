@@ -68,10 +68,5 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"  
-
-<<<<<<< ESRecHitProducer.cc
-DEFINE_ANOTHER_FWK_MODULE( ESRecHitProducer );
-=======
-#include "FWCore/Framework/interface/MakerMacros.h"                                                                                                            
 DEFINE_FWK_MODULE( ESRecHitProducer );
->>>>>>> 1.4
+
