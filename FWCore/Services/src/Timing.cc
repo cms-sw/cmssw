@@ -2,16 +2,15 @@
 //
 // Package:     Services
 // Class  :     Timing
-// 
+//
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.17 2009/03/18 15:47:15 fischler Exp $
 //
 // Change Log
 //
 // 1 - mf 4/22/08   Facilitate summary output to job report and logs:
-//		    In Timing ctor, default for report_summary_ changed to true 
+//		    In Timing ctor, default for report_summary_ changed to true
 //                  In postEndJob, add output to logger
 //
 // 2 - 2009/01/14 10:29:00, Natalia Garcia Nebot
@@ -21,14 +20,18 @@
 //                - Slowest time per event (cpu and wallclock)
 //
 // 3 - mf 3/18/09  Change use of LogAbsolute to LogImportant
-//		   so that users can throttle the messages 
+//		   so that users can throttle the messages
 //                 for selected destinations.  LogImportant
 //                 is treated at the same level as LogError, so
 //                 by default the behavior will not change, but
 //                 there will now be a way to control the verbosity.
-// 
+//
 // 4 - mf 3/18/09  The per-event output TimeEvent is changed to LogPrint.
 //		   The per-module output TimeModule is changed to LogPrint.
+//
+// 5 - wmtan 2010/03/16
+//		   Fixed the constructor to initialize all data members!
+//		   Standardized coding style
 //
 
 #include "FWCore/Services/interface/Timing.h"
@@ -51,22 +54,20 @@
 namespace edm {
   namespace service {
 
-    static std::string d2str(double d){
+    static std::string d2str(double d) {
 	std::stringstream t;
 	t << d;
 	return t.str();
     }
 
-    static double getTime()
-    {
+    static double getTime() {
       struct timeval t;
-      if(gettimeofday(&t,0)<0)
-	throw cms::Exception("SysCallFailed","Failed call to gettimeofday");
-
-      return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
+      if(gettimeofday(&t, 0) < 0)
+	throw cms::Exception("SysCallFailed", "Failed call to gettimeofday");
+      return static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
     }
 
-    static double getCPU(){
+    static double getCPU() {
 	struct rusage usage;
 	getrusage(RUSAGE_SELF, &usage);
 
@@ -78,45 +79,49 @@ namespace edm {
 	return totalCPUTime;
     }
 
-    Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-      summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
-      report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
-      max_event_time_(0.),
-      min_event_time_(0.),
-      total_event_count_(0)
-     
-    {
-      iRegistry.watchPostBeginJob(this,&Timing::postBeginJob);
-      iRegistry.watchPostEndJob(this,&Timing::postEndJob);
+    Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry) :
+        curr_event_(),
+        curr_job_time_(0.),
+        curr_job_cpu_(0.),
+        curr_event_time_(0.),
+        curr_event_cpu_(0.),
+        curr_module_time_(0.),
+        total_event_cpu_(0.),
+        summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
+        report_summary_(iPS.getUntrackedParameter<bool>("useJobReport")),
+        max_event_time_(0.),
+        max_event_cpu_(0.),
+        min_event_time_(0.),
+        min_event_cpu_(0.),
+        total_event_count_(0) {
+      iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
+      iRegistry.watchPostEndJob(this, &Timing::postEndJob);
 
-      iRegistry.watchPreProcessEvent(this,&Timing::preEventProcessing);
-      iRegistry.watchPostProcessEvent(this,&Timing::postEventProcessing);
+      iRegistry.watchPreProcessEvent(this, &Timing::preEventProcessing);
+      iRegistry.watchPostProcessEvent(this, &Timing::postEventProcessing);
 
-      iRegistry.watchPreModule(this,&Timing::preModule);
-      iRegistry.watchPostModule(this,&Timing::postModule);
+      iRegistry.watchPreModule(this, &Timing::preModule);
+      iRegistry.watchPostModule(this, &Timing::postModule);
     }
 
-
-    Timing::~Timing()
-    {
+    Timing::~Timing() {
     }
 
-    void Timing::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-      edm::ParameterSetDescription desc;
+    void Timing::fillDescriptions(ConfigurationDescriptions& descriptions) {
+      ParameterSetDescription desc;
       desc.addUntracked<bool>("summaryOnly", false);
       desc.addUntracked<bool>("useJobReport", true);
       descriptions.add("Timing", desc);
     }
 
-    void Timing::postBeginJob()
-    {
+    void Timing::postBeginJob() {
       curr_job_time_ = getTime();
       curr_job_cpu_ = getCPU();
       total_event_cpu_ = 0.0;
 
-      //edm::LogInfo("TimeReport")
+      //LogInfo("TimeReport")
       if (not summary_only_) {
-        edm::LogImportant("TimeReport")				// ChangeLog 3
+        LogImportant("TimeReport")				// ChangeLog 3
 	<< "TimeReport> Report activated" << "\n"
 	<< "TimeReport> Report columns headings for events: "
 	<< "eventnum runnum timetaken\n"
@@ -126,21 +131,20 @@ namespace edm {
       }
     }
 
-    void Timing::postEndJob()
-    {
+    void Timing::postEndJob() {
       double total_job_time = getTime() - curr_job_time_;
       double average_event_time = total_job_time / total_event_count_;
 
       double total_job_cpu = getCPU() - curr_job_cpu_;
       double average_event_cpu = total_event_cpu_ / total_event_count_;
 
-      //edm::LogAbsolute("FwkJob")
-      //edm::LogAbsolute("TimeReport")				// Changelog 1
-      edm::LogImportant("TimeReport")				// Changelog 3
+      //LogAbsolute("FwkJob")
+      //LogAbsolute("TimeReport")				// Changelog 1
+      LogImportant("TimeReport")				// Changelog 3
 	<< "TimeReport> Time report complete in "
 	<< total_job_time << " seconds"
 	<< "\n"
-        << " Time Summary: \n" 
+        << " Time Summary: \n"
         << " - Min event:   " << min_event_time_ << "\n"
         << " - Max event:   " << max_event_time_ << "\n"
         << " - Avg event:   " << average_event_time << "\n"
@@ -152,7 +156,7 @@ namespace edm {
         << " - Total job:   " << total_job_cpu << "\n"
         << " - Total event: " << total_event_cpu_ << "\n";
 
-      if (report_summary_){
+      if (report_summary_) {
 	Service<JobReport> reportSvc;
 //	std::map<std::string, double> reportData;
 	std::map<std::string, std::string> reportData;
@@ -170,27 +174,22 @@ namespace edm {
 	reportSvc->reportPerformanceSummary("Timing", reportData);
 //	reportSvc->reportTimingInfo(reportData);
       }
-
     }
 
-    void Timing::preEventProcessing(const edm::EventID& iID,
-				    const edm::Timestamp& iTime)
-    {
+    void Timing::preEventProcessing(EventID const& iID, Timestamp const& iTime) {
       curr_event_ = iID;
       curr_event_time_ = getTime();
       curr_event_cpu_ = getCPU();
-      
     }
 
-    void Timing::postEventProcessing(const Event& e, const EventSetup&)
-    {
+    void Timing::postEventProcessing(Event const& e, EventSetup const&) {
       curr_event_cpu_ = getCPU() - curr_event_cpu_;
       total_event_cpu_ += curr_event_cpu_;
 
       curr_event_time_ = getTime() - curr_event_time_;
-      
+
       if (not summary_only_) {
-        edm::LogPrint("TimeEvent")				// ChangeLog 3
+        LogPrint("TimeEvent")				// ChangeLog 3
 	<< "TimeEvent> "
 	<< curr_event_.event() << " "
 	<< curr_event_.run() << " "
@@ -204,7 +203,7 @@ namespace edm {
 	max_event_cpu_ = curr_event_cpu_;
         min_event_cpu_ = curr_event_cpu_;
       }
-      
+
       if (curr_event_time_ > max_event_time_) max_event_time_ = curr_event_time_;
       if (curr_event_time_ < min_event_time_) min_event_time_ = curr_event_time_;
       if (curr_event_cpu_ > max_event_cpu_) max_event_cpu_ = curr_event_cpu_;
@@ -212,27 +211,24 @@ namespace edm {
       total_event_count_ = total_event_count_ + 1;
     }
 
-    void Timing::preModule(const ModuleDescription&)
-    {
+    void Timing::preModule(ModuleDescription const&) {
       curr_module_time_ = getTime();
     }
 
-    void Timing::postModule(const ModuleDescription& desc)
-    {
+    void Timing::postModule(ModuleDescription const& desc) {
       double t = getTime() - curr_module_time_;
-      //edm::LogInfo("TimeModule")
+      //LogInfo("TimeModule")
       if (not summary_only_) {
-        edm::LogPrint("TimeModule") << "TimeModule> "		// ChangeLog 4
+        LogPrint("TimeModule") << "TimeModule> "		// ChangeLog 4
 	   << curr_event_.event() << " "
 	   << curr_event_.run() << " "
 	   << desc.moduleLabel() << " "
 	   << desc.moduleName() << " "
 	   << t;
       }
-   
-      newMeasurementSignal(desc,t);
+
+      newMeasurementSignal(desc, t);
     }
   }
 }
-
 
