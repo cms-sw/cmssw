@@ -67,7 +67,7 @@ void FlavorJetCorrectionExample::analyze(const edm::Event& fEvent, const edm::Ev
       corrector = bQuarkJetCorrector;
     }
     // get selected correction for the jet
-    double correction = corrector->correction (jet, fEvent, fSetup);
+    double correction = corrector->correction (jet);
     // dump it
     std::cout << "  jet pt/eta/phi: " << jet.pt() << '/' <<  jet.eta() << '/' << jet.phi() 
 	      << " -> correction factor: " << correction 
