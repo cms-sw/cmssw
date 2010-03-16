@@ -19,7 +19,7 @@ HcalNoiseParameterSet = cms.PSet(
     # define problematic RBX
     pMinE = cms.double(100.0),
     pMinRatio = cms.double(0.75),
-    pMaxRatio = cms.double(0.90),
+    pMaxRatio = cms.double(0.85),
     pMinHPDHits = cms.int32(10),
     pMinRBXHits = cms.int32(20),
     pMinHPDNoOtherHits = cms.int32(7),
@@ -33,11 +33,11 @@ HcalNoiseParameterSet = cms.PSet(
 
     # define loose noise cuts
     lMinRatio = cms.double(0.70),
-    lMaxRatio = cms.double(0.91),
+    lMaxRatio = cms.double(0.95),
     lMinHPDHits = cms.int32(17),
     lMinRBXHits = cms.int32(999),
     lMinHPDNoOtherHits = cms.int32(10),
-    lMinZeros = cms.int32(9),
+    lMinZeros = cms.int32(10),
     lMinLowEHitTime = cms.double(-9999.0),
     lMaxLowEHitTime = cms.double(9999.0),
     lMinHighEHitTime = cms.double(-7.0),
@@ -56,7 +56,7 @@ HcalNoiseParameterSet = cms.PSet(
     tMaxHighEHitTime = cms.double(4.0),
 
     # define high level noise cuts
-    hlMaxHPDEMF = cms.double(0.01),
+    hlMaxHPDEMF = cms.double(-9999.0),
     hlMaxRBXEMF = cms.double(0.01)
     )
 
