@@ -1,5 +1,5 @@
 #include "DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -7,7 +7,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +44,7 @@ void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
 {
 // LogTrace("") << "RPCMonitorLinkSynchro::beginRun !!!!" << std::endl;
  if (theCablingWatcher.check(es)) {
-    ESHandle<RPCEMap> readoutMapping;
+    ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
     RPCReadOutMapping * cabling = readoutMapping->convert();
     LogTrace("") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
@@ -84,9 +84,11 @@ void RPCMonitorLinkSynchro::beginJob()
   me_notComplete[1] = dmbe->book2D("notComplete791","FED791: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
   me_notComplete[2] = dmbe->book2D("notComplete792","FED792: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
   for (unsigned int i=0;i<3;++i) {
-    me_notComplete[0]->getTH2F()->GetXaxis()->SetNdivisions(512);
-    me_notComplete[0]->getTH2F()->GetYaxis()->SetNdivisions(505);
-    me_notComplete[0]->getTH2F()->SetStats(0);
+    me_notComplete[i]->getTH2F()->GetXaxis()->SetNdivisions(512);
+    me_notComplete[i]->getTH2F()->GetYaxis()->SetNdivisions(505);
+    me_notComplete[i]->getTH2F()->SetXTitle("rmb");
+    me_notComplete[i]->getTH2F()->SetYTitle("link");
+    me_notComplete[i]->getTH2F()->SetStats(0);
   }
   me_topOccup  = dmbe->book2D("topOccup","Top10 LinkBoard occupancy",8,-0.5,7.5, 10,0.,10.);
   me_topSpread = dmbe->book2D("topSpread","Top10 LinkBoard delay spread",8,-0.5,7.5, 10,0.,10.);
