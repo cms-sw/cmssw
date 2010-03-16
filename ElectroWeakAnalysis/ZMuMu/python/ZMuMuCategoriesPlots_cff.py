@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
+from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequencesUserData_cff import *
 import copy
 
 

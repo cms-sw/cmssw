@@ -4,10 +4,13 @@ import copy
 from ElectroWeakAnalysis.ZMuMu.zSelection_cfi import *
 
 # same charge dimuons....
-dimuonsGlobalSameCharge = cms.EDFilter("CandViewRefSelector",
-    src = cms.InputTag("dimuons"),
+dimuonsGlobalSameCharge = cms.EDFilter(
+    "CandViewRefSelector",
+    ### added UserData
+    src = cms.InputTag("userDataDimuons"),
+    #src = cms.InputTag("dimuons"),
     cut = cms.string('charge!=0 & mass > 0 & daughter(0).isGlobalMuon = 1 & daughter(1).isGlobalMuon = 1')
-)
+    )
 
 
 goodZToMuMuSameChargeLoose = cms.EDFilter(
