@@ -27,6 +27,7 @@ files.push_back("empty.root");
 files.push_back("good.root");
 files.push_back("empty.root");
 files.push_back("good_delta5.root");
+files.push_back("empty.root");
 fwlite::ChainEvent e(files);
 
 int i =0;
