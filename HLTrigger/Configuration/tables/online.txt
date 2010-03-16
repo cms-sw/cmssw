@@ -135,6 +135,7 @@ HLT_EgammaSuperClusterOnly_L1R
 HLT_LogMonitor
 HLT_PhysicsDeclared
 HLT_HighMult40
+DQM_FEDIntegrity
 HLTriggerFinalPath
 DQMOutput
 HLTOutput
