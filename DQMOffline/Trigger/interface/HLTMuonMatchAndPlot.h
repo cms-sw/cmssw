@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/01/12 14:11:19 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/17 17:49:56 $
+ *  $Revision: 1.11 $
  *  
  *  \author  J. Slaunwhite, based on code from Jeff Klukas
  */
@@ -103,9 +103,11 @@ public:
 
   /// Constructor
   HLTMuonMatchAndPlot( const edm::ParameterSet& pset, std::string triggerName,
-                      std::vector<std::string> moduleNames, MuonSelectionStruct inputSelection,
-                      std::string customName,
-                      std::vector<std::string> validTriggers );
+                       std::vector<std::string> moduleNames, MuonSelectionStruct inputSelection,
+                       std::string customName,
+                       std::vector<std::string> validTriggers,
+                       const edm::Run & currentRun,
+                       const edm::EventSetup & currentEventSetup );
 
   // Operations
   virtual void            begin  ( );

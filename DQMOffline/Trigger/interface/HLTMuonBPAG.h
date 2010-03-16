@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/01/12 14:11:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/17 17:49:55 $
+ *  $Revision: 1.4 $
  *  
  *  \author  J. Slaunwhite (modified from above
  */
@@ -72,7 +72,9 @@ public:
                MuonSelectionStruct inputSelection,
                MuonSelectionStruct inputTagSelection,
                std::string customName,
-               std::vector<std::string> validTriggers );
+               std::vector<std::string> validTriggers,
+               const edm::Run & currentRun,
+               const edm::EventSetup & currentEventSetup);
 
   // Operations
   void            begin  ( );
