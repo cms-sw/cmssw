@@ -131,11 +131,13 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
       Cut(TString::Format("allCats==%d",t->getVal())));
     //set the category variables by reading the first event
     const RooArgSet* row = data_bin->get();
+    //get PDF name
+    TString pdfName(((RooCategory*)row->find("_pdfCategory_"))->getLabel());
     //make directory name
     TString dirName = catName;
     dirName.ReplaceAll("{","").ReplaceAll("}","").ReplaceAll(";","__");
-    if(TString(((RooCategory&)(*row)["_pdfCategory_"]).getLabel()).Length() > 0){
-      dirName.Append("__").Append(((RooCategory&)(*row)["_pdfCategory_"]).getLabel());
+    if(pdfName.Length() > 0){
+      dirName.Append("__").Append(pdfName);
     }
     cout<<"Fitting bin:  "<<dirName<<endl;
     //make a directory for each bin
@@ -144,7 +146,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
     RooWorkspace* w = new RooWorkspace();
     //import the data
     w->import(*data_bin);
-    //svae the distribution of variables
+    //save the distribution of variables
     saveDistributionsPlot(w);
     //do the fitting only if there is sufficient number of events
     if(data_bin->numEntries()>0){
@@ -164,7 +166,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
       //note that the category values are coming from data_bin->get(0)
       efficiency.setVal(0);//reset
       efficiency.setAsymError(0,0);
-      doFitEfficiency(w, pdfCategory.getLabel(), efficiency);
+      doFitEfficiency(w, pdfName.Data(), efficiency);
       fitEfficiency.add( RooArgSet(RooArgSet(meanOfVariables, *data_bin->get(0)), efficiency) );
 
       efficiency.setVal(0);//reset
