@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/12 16:30:54 $
- *  $Revision: 1.40 $
+ *  $Date: 2010/03/14 08:18:52 $
+ *  $Revision: 1.41 $
  *
  *  \author Martin Grunewald
  *
@@ -669,7 +669,6 @@ const std::vector<std::string>& HLTConfigProvider::datasetContent(const std::str
   return datasetContent(datasetIndex(dataset));
 }
 
-/*
 unsigned int HLTConfigProvider::prescaleSize() const {
   return hltPrescaleTable_.size();
 }
@@ -690,4 +689,3 @@ unsigned int HLTConfigProvider::prescaleSet() const {
 unsigned int HLTConfigProvider::prescaleValue(const std::string& trigger) const {
   return prescaleValue(prescaleSet(),trigger);
 }
-*/
