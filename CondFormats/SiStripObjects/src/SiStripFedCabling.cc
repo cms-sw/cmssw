@@ -1048,8 +1048,8 @@ void SiStripFedCabling::buildFedCabling( ConnsConstIterRange input ) {
   std::sort( temp.begin(), temp.end() );
   
   // Strip FED ids
-  uint16_t min_id = static_cast<uint16_t>( FEDNumbering::getSiStripFEDIds().first );
-  uint16_t max_id = static_cast<uint16_t>( FEDNumbering::getSiStripFEDIds().second );
+  uint16_t min_id = static_cast<uint16_t>( FEDNumbering::MINSiStripFEDID );
+  uint16_t max_id = static_cast<uint16_t>( FEDNumbering::MAXSiStripFEDID );
   uint16_t nfeds  = max_id - min_id + 1;
   
   // Initialise containers
@@ -1159,7 +1159,7 @@ std::ostream& operator<<( std::ostream& os, const SiStripFedCabling::ConnsRange&
 // -----------------------------------------------------------------------------
 // Returns connection info for FE devices connected to given FED 
 SiStripFedCabling::ConnsConstIterRange SiStripFedCabling::fedConnections( uint16_t fed_id ) const {
-  uint16_t index = fed_id - FEDNumbering::getSiStripFEDIds().first;
+  uint16_t index = fed_id - FEDNumbering::MINSiStripFEDID;
   if ( index < registry_.size() ) { 
     return range( registry_[ index ] ).range();
   } else { return range( registry_[ index ] ).invalid(); }
@@ -1202,7 +1202,7 @@ void SiStripFedCabling::printDebug( std::stringstream& ss ) const {
   std::vector<uint16_t>::const_iterator jfed = feds_.end(); 
   for ( ; ifed != jfed; ++ifed ) {
     
-    uint16_t index = *ifed - FEDNumbering::getSiStripFEDIds().first;
+    uint16_t index = *ifed - FEDNumbering::MINSiStripFEDID;
     if ( index < registry_.size() ) { 
       ConnsRange conns = range( registry_[ index ] );
       
@@ -1273,7 +1273,7 @@ void SiStripFedCabling::terse( std::stringstream& ss ) const {
   std::vector<uint16_t>::const_iterator jfed = feds_.end(); 
   for ( ; ifed != jfed; ++ifed ) {
     
-    uint16_t index = *ifed - FEDNumbering::getSiStripFEDIds().first;
+    uint16_t index = *ifed - FEDNumbering::MINSiStripFEDID;
     if ( index < registry_.size() ) { 
       ConnsRange conns = range( registry_[ index ] ); 
       
@@ -1329,7 +1329,7 @@ void SiStripFedCabling::printSummary( std::stringstream& ss ) const {
   for ( ; ii != jj; ++ii ) { 
 
     // check number of connection objects
-    uint16_t index = *ii - FEDNumbering::getSiStripFEDIds().first;
+    uint16_t index = *ii - FEDNumbering::MINSiStripFEDID;
     if ( index < registry_.size() ) { 
       ConnsRange conns = range( registry_[ index ] ); 
 
