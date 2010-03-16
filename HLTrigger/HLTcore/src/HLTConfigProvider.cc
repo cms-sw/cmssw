@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/16 06:40:41 $
- *  $Revision: 1.42 $
+ *  $Date: 2010/03/16 07:46:30 $
+ *  $Revision: 1.43 $
  *
  *  \author Martin Grunewald
  *
@@ -684,9 +684,10 @@ const std::map<std::string,std::vector<unsigned int> >& HLTConfigProvider::presc
   return hltPrescaleTable_.table();
 }
 
-int HLTConfigProvider::prescaleSet(const edm::Event& iEvent) const {
+int HLTConfigProvider::prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   //  return hltPrescaleTable_.set();
   L1GtUtils l1GtUtils;
+  l1GtUtils.retrieveL1EventSetup(iSetup);
   int errTech(0),errPhys(0);
   int psfTech(0),psfPhys(0);
   psfTech=l1GtUtils.prescaleFactorSetIndex(iEvent,"TechnicalTriggers",errTech);
@@ -699,8 +700,8 @@ int HLTConfigProvider::prescaleSet(const edm::Event& iEvent) const {
     return -1;
   }
 }
-unsigned int HLTConfigProvider::prescaleValue(const edm::Event& iEvent, const std::string& trigger) const {
-  const int set(prescaleSet(iEvent));
+unsigned int HLTConfigProvider::prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const {
+  const int set(prescaleSet(iEvent,iSetup));
   if (set<0) {
     return 1;
   } else {
