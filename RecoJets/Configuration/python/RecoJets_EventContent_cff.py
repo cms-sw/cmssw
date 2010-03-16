@@ -30,7 +30,8 @@ RecoJetsFEVT = cms.PSet(
         'keep *_ic5JetID_*_*','keep *_ic7JetID_*_*',
         'keep *_gk5JetID_*_*','keep *_gk7JetID_*_*',
         'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*',
-        'keep *_ca4JetID_*_*','keep *_ca6JetID_*_*'
+        'keep *_ca4JetID_*_*','keep *_ca6JetID_*_*',
+        'keep *_trackExtrapolator_*_*'
         )
 )
 RecoGenJetsFEVT = cms.PSet(
@@ -71,7 +72,8 @@ RecoJetsRECO = cms.PSet(
         'keep *_ak7JetExtender_*_*',        
         'keep *_ak5JetID_*_*','keep *_ak7JetID_*_*',
         'keep *_ic5JetID_*_*',
-        'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*')
+        'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*',
+        'keep *_trackExtrapolator_*_*')
 )
 RecoGenJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_kt4GenJets_*_*', 
@@ -109,7 +111,8 @@ RecoJetsAOD = cms.PSet(
         'keep *_ak7JetExtender_*_*',       
         'keep *_ak5JetID_*_*','keep *_ak7JetID_*_*',
         'keep *_ic5JetID_*_*',
-        'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*')
+        'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*',
+        'keep *_trackExtrapolator_*_*')
 )
 RecoGenJetsAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_kt4GenJets_*_*', 
