@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.30 2010/03/14 18:34:00 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.32 2010/03/16 17:16:20 dinardo Exp $
 //
 //
 
@@ -272,8 +272,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
-	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -2;
+	  if (counterVx < minNentries) goodData = -2;
+	  else if (isnan(edm) == true) goodData = -1;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
@@ -321,8 +321,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
-	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -2;
+	  if (counterVx < minNentries) goodData = -2;
+	  else if (isnan(edm) == true) goodData = -1;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
@@ -371,8 +371,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
-	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -2;
+	  if (counterVx < minNentries) goodData = -2;
+	  else if (isnan(edm) == true) goodData = -1;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
@@ -410,8 +410,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
       Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
-      if (isnan(edm) == true) goodData = -1;
-      else if (counterVx < minNentries) goodData = -2;
+      if (counterVx < minNentries) goodData = -2;
+      else if (isnan(edm) == true) goodData = -1;
       else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
       if (goodData == 0)
 	{
@@ -447,8 +447,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
-	  if (isnan(edm) == true) goodData = -1;
-	  else if (counterVx < minNentries) goodData = -2;
+	  if (counterVx < minNentries) goodData = -2;
+	  else if (isnan(edm) == true) goodData = -1;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
@@ -484,8 +484,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
 	      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
-	      if (isnan(edm) == true) goodData = -1;
-	      else if (counterVx < minNentries) goodData = -2;
+	      if (counterVx < minNentries) goodData = -2;
+	      else if (isnan(edm) == true) goodData = -1;
 	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	      if (goodData == 0)
 		{
@@ -521,8 +521,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 		  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);	  
 		  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
-		  if (isnan(edm) == true) goodData = -1;
-		  else if (counterVx < minNentries) goodData = -2;
+		  if (counterVx < minNentries) goodData = -2;
+		  else if (isnan(edm) == true) goodData = -1;
 		  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 		  if (goodData == 0)
 		    {
