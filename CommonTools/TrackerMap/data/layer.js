@@ -50,11 +50,32 @@ TrackerLayer.showData = function (evt) {
 	var myPoly = evt.currentTarget;
 	  if (evt.type == "mouseover") {
 		  
-	var myTracker = myPoly.getAttribute("POS");
+	    var myTracker = myPoly.getAttribute("POS");
         var myMessage = myPoly.getAttribute("MESSAGE");
         var separator = myTracker.indexOf("connected");
-        var myTracker2 = myTracker.substring(separator);
-        myTracker = myTracker.substring(0,separator);
+        separator = separator + 15;
+		var fedchannel = myTracker.substring(separator);
+        fedchannel = fedchannel.substring(0,fedchannel.indexOf("/"));
+		var myTracker2 = "FED: "+fedchannel;
+		//var fec
+		var lvId = myPoly.getAttribute("lv");
+		var hvId = myPoly.getAttribute("hv");
+		var fecId = myPoly.getAttribute("fec");
+		var lvRackCrate = Math.floor(lvId/100);
+		var fecCrateSlot = Math.floor(fecId/100000);
+		//alert(fecCrateSlot);
+		var fecCrate = Math.floor(fecCrateSlot/100);
+		var fecSlot = fecCrateSlot - fecCrate*100;
+		myTracker2 = myTracker2 + "    FEC (C/S):  " + fecCrate + "/" + fecSlot; 
+		
+        var lvRack = Math.floor(lvRackCrate/10);
+		
+		var lvCrate = lvRackCrate - lvRack*10;
+		var length = hvId.length;
+		var hvChannel = hvId.substring(length -1,length);
+		//alert(lvRack+" "+lvCrate +" "+hvChannel);
+		myTracker2 = myTracker2 + "    LV  (R/C): " + lvRack + "/" + lvCrate + "    HV :  00" + hvChannel; 
+		myTracker = myTracker.substring(0,separator - 15);
         var myTracker1 = "  value="+myPoly.getAttribute("value");
         myTracker1 = myTracker1+"  count="+myPoly.getAttribute("count");
         var textfield=document.getElementById('line1');
