@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.43 2010/03/12 11:02:05 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.44 2010/03/12 20:47:35 rekovic Exp $
 //
 //
 
@@ -123,10 +123,15 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void endRun(const edm::Run& run, const edm::EventSetup& c);
       void fillHltMatrix(const edm::TriggerNames & triggerNames);
       void setupHltMatrix(std::string label, vector<std::string>  paths);
+
       void setupHltLsPlots();
       void setupHltBxPlots();
       void countHLTPathHitsEndLumiBlock(const int& lumi);
       void countHLTGroupHitsEndLumiBlock(const int& lumi);
+      void countHLTGroupL1HitsEndLumiBlock(const int& lumi);
+      int getTriggerTypeParsePathName(const string& pathname);
+      const std::string getL1ConditionModuleName(const string& pathname);
+      bool hasL1Passed(const string& pathname);
 
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
@@ -161,7 +166,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::string pathsIndividualHLTPathsPerLSFolder_;
       std::string pathsSummaryHLTPathsPerBXFolder_;
 
-      std::vector<std::string> groupName;
+      std::vector<std::string> fGroupName;
 
       unsigned int nLS_; 
 
@@ -209,6 +214,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector <std::vector <uint> > triggerFilterIndices_;
       std::vector <std::pair<std::string, int> > fPathTempCountPair;
       std::vector <std::pair<std::string, int> > fGroupTempCountPair;
+      std::vector <std::pair<std::string, int> > fGroupL1TempCountPair;
+      std::vector <std::pair<std::string, std::vector<string> > > fGroupNamePathsPair;
 
       std::vector<std::string> specialPaths_;
 
@@ -685,6 +692,8 @@ bool objMonData<T>::isTriggerType(int t)
 
   } // end for
 
+  if (t==0) rc = true;
+
   return rc;
 
 }
@@ -916,7 +925,7 @@ template <class T>
 void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVectorHLTOffline* fv)
 {
 
-  if(! isTriggerType(v_->getObjectType()) ) return;
+  //if(! isTriggerType(v_->getObjectType()) ) return;
 
   // Get keys of objects passed by the last filter
   const trigger::Keys & k = fv->fTriggerObj->filterKeys(hltIndex);
