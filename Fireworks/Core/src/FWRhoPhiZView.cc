@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.58 2010/03/14 18:24:24 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.59 2010/03/16 11:51:54 amraktad Exp $
 //
 
 // system include files
@@ -99,7 +99,6 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_compressMuon(this,"Compress detectors",false),
    m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
    m_caloAutoScale(this,"Calo auto scale",false),
-   m_lineWidth(this,"Line width",1.0,1.0,10.0),
    m_showHF(0),
    m_showEndcaps(0),
    m_cameraZoom(0),

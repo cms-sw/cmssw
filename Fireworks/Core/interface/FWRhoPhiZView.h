@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.28 2010/03/14 18:24:24 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.29 2010/03/16 11:51:53 amraktad Exp $
 //
 
 // system include files
@@ -93,8 +93,6 @@ private:
    FWBoolParameter    m_compressMuon;
    FWDoubleParameter  m_caloFixedScale;
    FWBoolParameter    m_caloAutoScale;
-   FWDoubleParameter  m_lineWidth;
-   FWBoolParameter    m_smoothLine;
    FWBoolParameter*   m_showHF;
    FWBoolParameter*   m_showEndcaps;
 
