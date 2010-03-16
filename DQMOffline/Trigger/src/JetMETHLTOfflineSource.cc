@@ -85,7 +85,6 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   using namespace edm;
   using namespace trigger;
   using namespace reco;
-
    //---------- triggerResults ----------
   iEvent.getByLabel(triggerResultsLabel_, triggerResults_);
   if(!triggerResults_.isValid()) {
@@ -113,7 +112,6 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     return;
     
   }
-
   //---------- triggerSummary ----------
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj_);
   if(!triggerObj_.isValid()) {
@@ -125,7 +123,6 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     return;
    }
   }
-
  //------------Offline Objects-------
  bool ValidJetColl_ = iEvent.getByLabel(caloJetsTag_,calojetColl_);
  if(!ValidJetColl_)return;
@@ -137,7 +134,6 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     const CaloMETCollection *calometcol = calometColl_.product();
     const CaloMET met = calometcol->front();
    }   
-   
   fillMEforMonTriggerSummary();
   if(plotAll_)fillMEforMonAllTrigger();
   if(plotAllwrtMu_)fillMEforMonAllTriggerwrtMuonTrigger();
@@ -239,7 +235,8 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
              { 
              if(l1found)
              {
-             if(v->getTriggerType() == "SingleJet_Trigger" && calojetColl_.isValid())
+             
+             if((v->getTriggerType() == "SingleJet_Trigger") && (calojetColl_.isValid()) && calojet.size())
               {
               CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_JetPt()->Fill(jet->pt());
@@ -248,7 +245,7 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
                  
               }// single jet trigger is not fired
 
-            if(v->getTriggerType() == "DiJet_Trigger" && calojetColl_.isValid())
+            if(v->getTriggerType() == "DiJet_Trigger" && calojetColl_.isValid()  && calojet.size())
               {
               v->getMEhisto_JetSize()->Fill(calojet.size()) ;
               if (calojet.size()>=2){
@@ -270,7 +267,7 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
               }
              }// di jet trigger is not fired 
 
-           if(v->getTriggerType() == "MET_Trigger" && calometColl_.isValid())
+           if(v->getTriggerType() == "MET_Trigger" && calometColl_.isValid() )
               {
               const CaloMETCollection *calometcol = calometColl_.product();
               const CaloMET met = calometcol->front();
@@ -295,11 +292,10 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
   } else {
     return;
   }
-
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects()); 
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v )
     {
-     for(int i = 0; i < npath; ++i) {
+     for(int i = 0; i < npath; ++i) { 
        if (triggerNames_.triggerName(i).find(v->getPath()) != std::string::npos && triggerResults_->accept(i))
              {
             std::vector<double>jetPtVec;
@@ -469,7 +465,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                double AveL1Pt = (l1PtVec[0] + l1PtVec[1])/2;
                double AveL1Eta = (l1EtaVec[0] + l1EtaVec[1])/2;
                double L1DelPhi = deltaPhi(l1PhiVec[0],l1PhiVec[1]);
- 
                v->getMEhisto_AveragePt_RecObj()->Fill(AveJetPt);
                v->getMEhisto_AverageEta_RecObj()->Fill(AveJetEta);
                v->getMEhisto_DeltaPhi_RecObj()->Fill(JetDelPhi);
@@ -487,7 +482,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
           
        if(l1TrigBool && !hltTrigBool)
          {
-
          if ( l1Index >= triggerObj_->sizeFilters() ) {
           edm::LogInfo("JetMETHLTOfflineSource") << "no index "<< l1Index << " of that name "<<l1Tag;
            } else {
@@ -801,7 +795,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(){
 }
 
 void JetMETHLTOfflineSource::fillMEforEffAllTrigger(){
-
 int npath;
   if(&triggerResults_) {
     npath = triggerResults_->size();
@@ -824,9 +817,9 @@ int npath;
              if(denompassed){
               ME_Denominator_rate->Fill(denom); 
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-              CaloJetCollection::const_iterator jet = calojet.begin();
-              if(v->getTriggerType() == "SingleJet_Trigger")
+              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_DenominatorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_DenominatorPtEndcap()->Fill(jet->pt());
@@ -835,8 +828,9 @@ int npath;
               v->getMEhisto_DenominatorPhi()->Fill(jet->phi());
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
-              if(v->getTriggerType() == "DiJet_Trigger")
+              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size()>1)
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -855,9 +849,9 @@ int npath;
              {
               ME_Numerator_rate->Fill(num);
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-              CaloJetCollection::const_iterator jet = calojet.begin();
-              if(v->getTriggerType() == "SingleJet_Trigger")
+              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_NumeratorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_NumeratorPtEndcap()->Fill(jet->pt());
@@ -866,8 +860,9 @@ int npath;
               v->getMEhisto_NumeratorPhi()->Fill(jet->phi());
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
-              if(v->getTriggerType() == "DiJet_Trigger")
+              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -884,7 +879,6 @@ int npath;
       }//Numerator is fired
      }//Denominator is fired
      }// trigger under study
-
 
 }
 
@@ -911,9 +905,9 @@ int npath;
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-              CaloJetCollection::const_iterator jet = calojet.begin();
-              if(v->getTriggerType() == "SingleJet_Trigger")
+              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_DenominatorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_DenominatorPtEndcap()->Fill(jet->pt());
@@ -922,8 +916,9 @@ int npath;
               v->getMEhisto_DenominatorPhi()->Fill(jet->phi());
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
-              if(v->getTriggerType() == "DiJet_Trigger")
+              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -941,9 +936,9 @@ int npath;
       if (numpassed)
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-              CaloJetCollection::const_iterator jet = calojet.begin();
-              if(v->getTriggerType() == "SingleJet_Trigger")
+              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_NumeratorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_NumeratorPtEndcap()->Fill(jet->pt());
@@ -952,8 +947,9 @@ int npath;
               v->getMEhisto_NumeratorPhi()->Fill(jet->phi());
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
-              if(v->getTriggerType() == "DiJet_Trigger")     
+              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)     
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++; 
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);  
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -997,9 +993,9 @@ int npath;
 
              if(denompassed){
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-              CaloJetCollection::const_iterator jet = calojet.begin();
-              if(v->getTriggerType() == "SingleJet_Trigger" ) 
+              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size()) 
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_DenominatorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_DenominatorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_DenominatorPtEndcap()->Fill(jet->pt());
@@ -1008,8 +1004,9 @@ int npath;
               v->getMEhisto_DenominatorPhi()->Fill(jet->phi());
               v->getMEhisto_DenominatorEtaPhi()->Fill(jet->eta(),jet->phi());             
               }
-              if(v->getTriggerType() == "DiJet_Trigger" ) 
+              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() >1) 
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               CaloJetCollection::const_iterator jet2 = jet++;
               v->getMEhisto_DenominatorPt()->Fill((jet->pt() + jet2->pt())/2.);  
               v->getMEhisto_DenominatorEta()->Fill((jet->eta() + jet2->eta())/2.);
@@ -1027,9 +1024,9 @@ int npath;
       if (numpassed)
              {
               if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
-              CaloJetCollection::const_iterator jet = calojet.begin();
-              if(v->getTriggerType() == "SingleJet_Trigger" )
+              if(v->getTriggerType() == "SingleJet_Trigger" && calojet.size())
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();
               v->getMEhisto_NumeratorPt()->Fill(jet->pt());
               if (isBarrel(jet->eta()))  v->getMEhisto_NumeratorPtBarrel()->Fill(jet->pt());
               if (isEndCap(jet->eta()))  v->getMEhisto_NumeratorPtEndcap()->Fill(jet->pt());
@@ -1038,8 +1035,9 @@ int npath;
               v->getMEhisto_NumeratorPhi()->Fill(jet->phi());
               v->getMEhisto_NumeratorEtaPhi()->Fill(jet->eta(),jet->phi());
               }
-              if(v->getTriggerType() == "DiJet_Trigger" )
+              if(v->getTriggerType() == "DiJet_Trigger" && calojet.size() > 1)
               {
+              CaloJetCollection::const_iterator jet = calojet.begin();   
               CaloJetCollection::const_iterator jet2 = jet++;
               v->getMEhisto_NumeratorPt()->Fill((jet->pt() + jet2->pt())/2.);
               v->getMEhisto_NumeratorEta()->Fill((jet->eta() + jet2->eta())/2.);
