@@ -81,10 +81,10 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
       {
 	ME["EcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
 	ME["EcalHaloData_PhiWedgeConstituents"] = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
-	ME["EcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
+	//	ME["EcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
 	ME["EcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
 	ME["EcalHaloData_SuperClusterShowerShapes"]  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
-	ME["EcalHaloData_SuperClusterEnergy"] = dqm->book1D("EcalHaloData_SuperClusterEnergy","",100,-0.5,99.5); 
+	ME["EcalHaloData_SuperClusterEnergy"] = dqm->book1D("EcalHaloData_SuperClusterEnergy","",50,-0.5,99.5); 
 	ME["EcalHaloData_SuperClusterNHits"] = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
       }
     else
@@ -110,7 +110,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
       { 
 	ME["HcalHaloData_PhiWedgeMultiplicity"] = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
 	ME["HcalHaloData_PhiWedgeConstituents"] = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
-	ME["HcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
+	//ME["HcalHaloData_PhiWedgeiPhi"]         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
 	ME["HcalHaloData_PhiWedgeZDirectionConfidence"] = dqm->book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
       }
     else
@@ -133,7 +133,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	ME["CSCHaloData_TrackMultiplicity"]  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
 	ME["CSCHaloData_TrackMultiplicityMEPlus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
 	ME["CSCHaloData_TrackMultiplicityMEMinus"]  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
-	ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+	ME["CSCHaloData_InnerMostTrackHitR"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 70, 99.5, 799.5);
 	ME["CSCHaloData_InnerMostTrackHitPhi"]  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
 	ME["CSCHaloData_L1HaloTriggersMEPlus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
 	ME["CSCHaloData_L1HaloTriggersMEMinus"]  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
@@ -223,8 +223,8 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     if(StandardDQM)
       {
 	ME["Extra_CSCTrackInnerOuterDPhi"] = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
-	ME["Extra_CSCTrackInnerOuterDEta"] = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, TMath::Pi() );
-	ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
+	ME["Extra_CSCTrackInnerOuterDEta"] = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, 3.0 );
+	ME["Extra_CSCTrackChi2Ndof"]  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 25, 0, 10);
 	ME["Extra_CSCTrackNHits"]     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
 	ME["Extra_CSCActivityWithMET"]= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
 	ME["Extra_CSCActivityWithMET"]->setBinLabel(1,"Track",1);
@@ -235,7 +235,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	ME["Extra_CSCActivityWithMET"]->setBinLabel(3, "RecHits", 2);
 	ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 1);
 	ME["Extra_CSCActivityWithMET"]->setBinLabel(4, "Nothing", 2);
-	ME["Extra_InnerMostTrackHitR"]  = dqm->book1D("Extra_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+	ME["Extra_InnerMostTrackHitR"]  = dqm->book1D("Extra_InnerMostTrackHitR", "", 70, 99.5, 799.5);
 	ME["Extra_InnerMostTrackHitPhi"]  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
       }
     else 
@@ -493,10 +493,10 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      ME["EcalHaloData_PhiWedgeMaxTime"]     ->Fill( iWedge->MaxTime() );
 	      ME["EcalHaloData_PhiWedgeMinVsMaxTime"]->Fill(iWedge->MinTime() , iWedge->MaxTime() ) ;
 	      ME["EcalHaloData_PhiWedgePlusZDirectionConfidence"]->Fill( iWedge->PlusZDirectionConfidence() );
+	      ME["EcalHaloData_PhiWedgeiPhi"]->Fill(iWedge->iPhi() ) ;
 	    }
 	  ME["EcalHaloData_PhiWedgeZDirectionConfidence"] ->Fill( iWedge->ZDirectionConfidence() );
 	  ME["EcalHaloData_PhiWedgeConstituents"]->Fill( iWedge->NumberOfConstituents() ) ;
-	  ME["EcalHaloData_PhiWedgeiPhi"]->Fill(iWedge->iPhi() ) ;
 	}      
 
       ME["EcalHaloData_PhiWedgeMultiplicity"]->Fill( EcalWedges.size() );
@@ -537,10 +537,10 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      ME["HcalHaloData_PhiWedgeMaxTime"]      ->Fill( iWedge->MaxTime() );
 	      ME["HcalHaloData_PhiWedgePlusZDirectionConfidence"] ->Fill( iWedge->PlusZDirectionConfidence() );
 	      ME["HcalHaloData_PhiWedgeMinVsMaxTime"]  ->Fill( iWedge->MinTime() , iWedge->MaxTime() );
+	      ME["HcalHaloData_PhiWedgeiPhi"]         ->Fill( iWedge->iPhi() );
 	    }	  
 	  
 	  ME["HcalHaloData_PhiWedgeConstituents"] ->Fill( iWedge->NumberOfConstituents() );
-	  ME["HcalHaloData_PhiWedgeiPhi"]         ->Fill( iWedge->iPhi() );
 	  ME["HcalHaloData_PhiWedgeZDirectionConfidence"] ->Fill( iWedge->ZDirectionConfidence() );
 	}
     }
