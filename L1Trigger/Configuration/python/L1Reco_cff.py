@@ -20,7 +20,7 @@ from EventFilter.L1GlobalTriggerRawToDigi.l1GtTriggerMenuLite_cfi import *
 
 # conditions in edm
 import EventFilter.L1GlobalTriggerRawToDigi.conditionDumperInEdm_cfi
-conditionsInEdm = EventFilter.L1GlobalTriggerRawToDigi.ConditionDumperInEdm.conditionDumperInEdm.clone()
+conditionsInEdm = EventFilter.L1GlobalTriggerRawToDigi.conditionDumperInEdm_cfi.conditionDumperInEdm.clone()
 
 # sequences
 
