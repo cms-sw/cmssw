@@ -1,4 +1,4 @@
-# last update: $Date: 2009/03/04 11:20:13 $ by $Author: flucke $
+# last update: $Date: 2009/03/23 18:54:29 $ by $Author: flucke $
 import FWCore.ParameterSet.Config as cms
 
 #_________________________________HLT bits___________________________________________
@@ -20,5 +20,3 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff import *
 # simply add HLT in front of HLT-less paths
 seqALCARECOTkAlCosmicsCTF0THLT = cms.Sequence(ALCARECOTkAlCosmics0THLT+seqALCARECOTkAlCosmicsCTF0T)
 seqALCARECOTkAlCosmicsCosmicTF0THLT = cms.Sequence(ALCARECOTkAlCosmics0THLT+seqALCARECOTkAlCosmicsCosmicTF0T)
-seqALCARECOTkAlCosmicsRS0THLT = cms.Sequence(ALCARECOTkAlCosmics0THLT+seqALCARECOTkAlCosmicsRS0T)
-

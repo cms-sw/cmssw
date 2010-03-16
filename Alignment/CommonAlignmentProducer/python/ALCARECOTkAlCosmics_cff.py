@@ -1,6 +1,6 @@
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/06/19 18:25:55 $ by $Author: flucke $
+# last update: $Date: 2008/10/29 17:28:42 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,12 +34,6 @@ ALCARECOTkAlCosmicsCosmicTF = ALCARECOTkAlCosmicsCTF.clone(
     src = 'cosmictrackfinderP5' ## different for CTF
     )
 
-# AlCaReco for track based alignment using Cosmic muons reconstructed by Road Search Track Finder
-# (same cuts)
-ALCARECOTkAlCosmicsRS = ALCARECOTkAlCosmicsCTF.clone(
-    src = 'rsWithMaterialTracksP5'
-    )
-
 #________________________________Sequences____________________________________
 # Work around since only one filter can be used:
 # Run the RS and CosmicTF filters before CTF filter, but ignore their results.
@@ -51,4 +45,3 @@ ALCARECOTkAlCosmicsRS = ALCARECOTkAlCosmicsCTF.clone(
 # Benedikt tells me it works:
 seqALCARECOTkAlCosmicsCTF = cms.Sequence(ALCARECOTkAlCosmicsCTF)
 seqALCARECOTkAlCosmicsCosmicTF = cms.Sequence(ALCARECOTkAlCosmicsCosmicTF)
-seqALCARECOTkAlCosmicsRS = cms.Sequence(ALCARECOTkAlCosmicsRS)
