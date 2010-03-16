@@ -2,7 +2,7 @@
 #define __PFBlockElement__
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -96,12 +96,12 @@ namespace reco {
     virtual reco::TrackRef trackRef()  const {return reco::TrackRef(); }
     virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
     virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
-    virtual NuclearInteractionRef nuclearRef() const { return NuclearInteractionRef(); }
+    virtual PFDisplacedTrackerVertexRef displacedVertexRef(TrackType trType) const { return PFDisplacedTrackerVertexRef(); }
     virtual ConversionRef    convRef() const { return ConversionRef();}
     virtual MuonRef muonRef() const { return MuonRef(); }
     virtual VertexCompositeCandidateRef V0Ref()  const { return VertexCompositeCandidateRef(); }
-    virtual void setNuclearRef(const NuclearInteractionRef& niref, TrackType trType) { 
-      std::cout << "Error in PFBlockElement::setNuclearRef : this base class method is not implemented" << std::endl;}
+    virtual void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
+      std::cout << "Error in PFBlockElement::setDisplacedVertexRef : this base class method is not implemented" << std::endl;}
     virtual void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
       std::cout << "Error in PFBlockElement::setConversionRef : this base class method is not implemented" << std::endl;}
     virtual void setMuonRef(const MuonRef& muref) { 

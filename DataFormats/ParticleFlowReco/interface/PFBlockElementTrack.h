@@ -62,11 +62,20 @@ namespace reco {
     }
 
     /// \return the nuclear interaction associated
-    NuclearInteractionRef nuclearRef() const { return nuclInterRef_; }
+    PFDisplacedTrackerVertexRef displacedVertexRef(TrackType trType) const {
+      if (trType == T_TO_NUCL)
+	return displacedVertexMotherRef_;
+      
+      return displacedVertexDaughterRef_;
+    }
 
     /// \set the ref to the nuclear interaction
-    void setNuclearRef(const NuclearInteractionRef& niref, TrackType trType) { 
-      nuclInterRef_ = niref; setTrackType(trType,true); 
+    void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
+
+      if (trType == T_TO_NUCL) {
+	displacedVertexMotherRef_ = niref; setTrackType(trType,true);}
+      else if (trType == T_FROM_NUCL) {
+      	displacedVertexDaughterRef_ = niref; setTrackType(trType,true);}
     } 
     
     /// \return reference to the corresponding Muon
@@ -109,8 +118,10 @@ namespace reco {
     math::XYZPointF        positionAtECALEntrance_;
     
     /// reference to the corresponding pf nuclear interaction
-    NuclearInteractionRef  nuclInterRef_;
+    PFDisplacedTrackerVertexRef  displacedVertexMotherRef_;
 
+    PFDisplacedTrackerVertexRef  displacedVertexDaughterRef_;
+                                 
     /// reference to the corresponding muon
     reco::MuonRef muonRef_;
 
