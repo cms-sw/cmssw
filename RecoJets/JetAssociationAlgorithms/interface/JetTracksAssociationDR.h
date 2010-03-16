@@ -1,7 +1,7 @@
 // \class JetTracksAssociationDR
 // Associate jets with tracks by simple "delta R" criteria
 // Fedor Ratnikov (UMd)
-// $Id: JetTracksAssociationDR.h,v 1.3.2.2 2009/02/23 12:59:13 bainbrid Exp $
+// $Id: JetTracksAssociationDR.h,v 1.1 2009/03/30 15:06:33 bainbrid Exp $
 
 #ifndef RecoJets_JetAssociationAlgorithms_JetTracksAssociationDR_h
 #define RecoJets_JetAssociationAlgorithms_JetTracksAssociationDR_h
@@ -73,7 +73,7 @@ class JetTracksAssociationDR {
  protected:
   
   /// Private default constructor
-  JetTracksAssociationDR();
+  JetTracksAssociationDR() {}
   
   /// Threshold used to associate tracks to jets
   double mDeltaR2Threshold;
