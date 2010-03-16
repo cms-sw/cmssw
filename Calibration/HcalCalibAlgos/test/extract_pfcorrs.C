@@ -1,7 +1,6 @@
 
 {
   #include <map>
-  //#include <TMap.h>
 
   gStyle -> SetOptStat(0);
 //  gStyle->SetPalette(1);
@@ -10,15 +9,17 @@
 
 TString imgpath("~/afs/public_html/pfcorrs/v01/");
 
-
  TFile* fcorrs = new TFile("./hcalCorrsFile.root","OPEN");
- TProfile* respcorrs = (TProfile*)fcorrs->Get("corrs2");
+ TProfile* respcorrs = (TProfile*)fcorrs->Get("corrs1");
 
- TFile* tf = new TFile("~/nobackup/arch/hcalCorrPFv5_26.2cm.root","OPEN");
+ TFile* tf = new TFile("~/nobackup/arch/hcalCorrPFv9_35cm.root","OPEN");
  //TFile* tf = new TFile("~/afs/arch/hcalCorrPFv2_26.2cm.root","OPEN");
 //TFile* tf = new TFile("./HcalCorrPF.root","OPEN");
- ofstream new_pfcorrs("newPFcorrs26.2cm.txt");
- ofstream new_pfcorrs_subnoise("newPFcorrsNoiseSubtracted26.2cm.txt");
+ ofstream new_pfcorrs("newPFcorrs.txt");
+ ofstream new_pfcorrs_subnoise("newPFcorrsNoiseSubtracted.txt");
+
+// ofstream new_pfcorrs("newPFcorrs26.2cm.txt");
+// ofstream new_pfcorrs_subnoise("newPFcorrsNoiseSubtracted26.2cm.txt");
   
 
 /*
@@ -218,7 +219,7 @@ TCanvas* c1 = new TCanvas("c1","all",0,0,350,350);
       new_pfcorrs.width(16);
       new_pfcorrs.setf(ios::fixed, ios::floatfield);
       new_pfcorrs.precision(5); 
-      if (sdName!="HO") new_pfcorrs<<CorrValues[iEta]; else new_pfcorrs<<1.0;
+      if (sdName=="HO" || depth==-99) {new_pfcorrs<<value;} else new_pfcorrs<<CorrValues[iEta];
       new_pfcorrs.width(13);
       new_pfcorrs.setf(ios::uppercase);
       new_pfcorrs<<hex<<detId<<endl;
@@ -235,27 +236,10 @@ TCanvas* c1 = new TCanvas("c1","all",0,0,350,350);
       new_pfcorrs_subnoise.width(16);
       new_pfcorrs_subnoise.setf(ios::fixed, ios::floatfield);
       new_pfcorrs_subnoise.precision(5); 
-      if (sdName!="HO")        new_pfcorrs_subnoise<<CorrValuesSubNoise[iEta]; else new_pfcorrs<<1.0;
+      if (sdName=="HO" || depth==-99) {new_pfcorrs_subnoise<<value;} else new_pfcorrs_subnoise<<CorrValues[iEta];
       new_pfcorrs_subnoise.width(13);
       new_pfcorrs_subnoise.setf(ios::uppercase);
       new_pfcorrs_subnoise<<hex<<detId<<endl;
-
-
-/*
-cout.width(16);
-cout<<iEta;
-cout.width(16);
-cout<<iPhi;
-cout.width(16);
-cout<<depth;
-cout.width(16);
-cout<<sdName;
-cout.width(16);
-cout<<value;
-cout.width(16);
-cout<<detId<<endl;
-
-*/
 
     }
 }

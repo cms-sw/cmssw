@@ -26,7 +26,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(200)
 process.load("Calibration.HcalCalibAlgos.isoAnalyzer_cfi")
 #process.isoAnalyzer.AxB = cms.string("7x7")
 process.isoAnalyzer.AxB = cms.string("Cone")
-process.isoAnalyzer.calibrationConeSize = cms.double(26.2)
+process.isoAnalyzer.calibrationConeSize = cms.double(35.) #default 
+#process.isoAnalyzer.calibrationConeSize = cms.double(50.) #use a large cone. will reduce if necessary when run calibration 
 
 process.load("HLTrigger.Timer.timer_cfi")
 

@@ -17,16 +17,18 @@ Int_t sample=0;
   
   label -> SetNDC(); label->SetTextAlign(11); label->SetTextSize(0.05); label->SetTextAngle(90); label->SetTextColor(kRed);
 
-  TCut trqual = "trkQual==1 && numValidTrkHits>13 && (abs(iEta)<17 || numValidTrkStrips>9)";
-  TCut mip_cut = "eECAL<1.";
+  TCut trqual = "(trkQual==1 && abs(etaTrack)<2.4) || abs(etaTrack)>2.4";
+  //  TCut trqual = "trkQual==1 && numValidTrkHits>11 && (abs(iEta)<17 || numValidTrkStrips>9)";
+  TCut mip_cut = "eECAL<10.";
   //TCut neutral_iso_cut ="(eECAL40cm-eECAL09cm)<8";
   TCut neutral_iso_cut ="";
-  TCut hit_dist = "iDr<1.5";
+  TCut hit_dist = "";
   // TCut hit_dist = "delR<18";
   TCut mc_dist = "delRmc<3 || abs(iEta)>23";
-  TCut low_resp_cut = "eHcalCone/eTrack>0.2";
+  TCut low_resp_cut = "";
+  //TCut low_resp_cut = "eHcalCone/eTrack>0.2";
   TCut maxPNearBy = "";
-  //TCut maxPNearBy = "maxPNearBy<2";
+
   
   TCut selection = trqual && neutral_iso_cut && tr_cut && mip_cut && hit_dist && mc_dist && maxPNearBy && low_resp_cut;
   
@@ -192,6 +194,66 @@ hMC -> SetMaximum(1.2);
   label -> Draw();
   c1->SaveAs(imgpath+"p17.png");  
   hMC -> Delete();
+
+  ftreeMC -> Draw("delR>>hMC", selection, "");
+  hMC -> SetTitle("#DeltaR(hotHit, trackHit)");
+  hMC -> SetFillColor(kRed-10);
+  label -> Draw();
+  c1->SaveAs(imgpath+"p18.png");  
+  hMC -> Delete();
+
+  c1 -> SetLogy();
+
+  ftreeMC -> Draw("delRmc>>hMC", "delRmc<1.", "");
+  hMC -> SetTitle("#DeltaR(genTrack, recoTrack)");
+  hMC -> SetFillColor(kRed-10);
+  label -> Draw();
+  c1->SaveAs(imgpath+"p19.png");  
+  hMC -> Delete();
+
+
+  c1 -> SetLogy(0);
+
+  //  ftreeMC -> Draw("etaTrack>>hMC", "(trkQual==1 && abs(etaTrack)<2.4) || abs(etaTrack)>2.4");
+  ftreeMC -> Draw("etaTrack>>hMC", selection);
+  hMC -> SetTitle("eta of MC particle");
+  hMC -> SetFillColor(kRed-10);
+  label -> Draw();
+  c1->SaveAs(imgpath+"p20.png");  
+  hMC -> Delete();
+
+  ftreeMC -> Draw("phiTrack>>hMC", selection, "");
+  hMC -> SetTitle("phi of MC particle");
+  hMC -> SetFillColor(kRed-10);
+  label -> Draw();
+  c1->SaveAs(imgpath+"p21.png");  
+  hMC -> Delete();
+
+
+  ftreeMC -> Draw("etaTrack:etaGPoint>>hMC", selection, "prof");
+  hMC -> SetTitle("etaMC vs etaGPoint");
+  hMC -> SetXTitle("eta");
+  label -> Draw();
+  c1->SaveAs(imgpath+"p22.png");  
+  hMC -> Delete();
+
+  ftreeMC -> Draw("phiTrack:phiGPoint>>hMC", selection, "prof");
+  hMC -> SetTitle("phiMC vs phiGPoint");
+  hMC -> SetXTitle("phi");
+  label -> Draw();
+  c1->SaveAs(imgpath+"p23.png");  
+  hMC -> Delete();
+
+
+  ftreeMC -> Draw("(eECAL40cm-eECAL09cm)>>hMC", selection, "");
+  hMC -> SetTitle("neutral energy");
+  hMC -> SetFillColor(kRed-10);
+  label -> Draw();
+  c1->SaveAs(imgpath+"p24.png");  
+  hMC -> Delete();
+
+
+
 
   fMC->Close();
 

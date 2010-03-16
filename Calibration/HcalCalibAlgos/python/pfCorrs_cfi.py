@@ -9,7 +9,7 @@ hcalPFcorrs = cms.EDAnalyzer("HcalCorrPFCalculation",
 #    ConeRadiusCm = cms.untracked.double(30.),
 
       associationConeSize = cms.double(52.),
-        calibrationConeSize = cms.double(26.2),
+        calibrationConeSize = cms.double(35.),
         trackIsolationCone = cms.double(40.),
         EcalCone = cms.double(10.),
 

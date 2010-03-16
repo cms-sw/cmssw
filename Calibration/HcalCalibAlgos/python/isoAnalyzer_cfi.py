@@ -19,9 +19,11 @@ isoAnalyzer = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
 
         outputFileName = cms.string("output_IsoAnalyzer.root"),
         AxB = cms.string("Cone"),
-        calibrationConeSize = cms.double(26.2),
+        calibrationConeSize = cms.double(50.),
         associationConeSize = cms.double(60),
-#        EcalCone = cms.double(9.),
+        EcalCone = cms.double(9.),
+        EcalConeOuter = cms.double(40.),
+       hottestHitDistance = cms.double(18.),
 
         noOfIterations = cms.int32(10),
         eventWeight = cms.double(2.0),

@@ -13,7 +13,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(5000)
 
 process.load("Calibration.HcalCalibAlgos.pfCorrs_cfi")
-process.hcalPFcorrs.ConeRadiusCm = cms.untracked.double(26.2)
+process.hcalPFcorrs.calibrationConeSize = cms.double(35.)
 
 #process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

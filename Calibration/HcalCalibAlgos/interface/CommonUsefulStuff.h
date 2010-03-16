@@ -1,6 +1,8 @@
 #ifndef CommonUsefulStuff_h
 #define CommonUsefulStuff_h
 
+// $Id: CommonUsefulStuff.h,v 1.2 2010/03/06 18:40:33 andrey Exp $
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,6 +14,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -27,7 +31,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-//#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -214,25 +217,85 @@ inline double getDistInPlane(const GlobalVector trackDirection,
 }
 
 
-
+/*  Function to calculate Ecal Energy in Cone (given in cm) */
 inline double ecalEnergyInCone(const GlobalPoint center, double radius, const EcalRecHitCollection ecalCol, const CaloGeometry *geo)
 {
-
   double eECALcone = 0;
+  std::vector<int> usedHitsEcal; 
+  usedHitsEcal.clear();
+  
   for (std::vector<EcalRecHit>::const_iterator ehit=ecalCol.begin(); ehit!=ecalCol.end(); ehit++)
     {
-
+      //This is a precaution for the case when hitCollection contains duplicats.
+      bool hitIsUsed=false;
+      int hitHashedIndex=-10000;
+      if (ehit->id().subdetId()==EcalBarrel)
+	{
+	  EBDetId did(ehit->id());
+	  hitHashedIndex=did.hashedIndex();
+	}
+      if (ehit->id().subdetId()==EcalEndcap)
+	{
+	  EEDetId did(ehit->id());
+	  hitHashedIndex=did.hashedIndex();
+	}
+      for (uint32_t i=0; i<usedHitsEcal.size(); i++)
+	{
+	  if (usedHitsEcal[i]==hitHashedIndex) hitIsUsed=true;
+	}
+      if (hitIsUsed) continue;
+      usedHitsEcal.push_back(hitHashedIndex);
+      // -----------------------------------------------
+      
       GlobalPoint pos = geo->getPosition((*ehit).detid());
   
       if (getDistInPlaneSimple(center,pos) < radius)
         {
           eECALcone += ehit->energy();
         }
-  
     }
   return eECALcone;
 }
 
+/*  This is another version of ecalEnergy calculation using the getDistInPlaneTrackDir()  */
+inline double ecalEnergyInCone(const GlobalVector trackMom, const GlobalPoint center, double radius, const EcalRecHitCollection ecalCol, const CaloGeometry *geo)
+{
+  
+  double eECALcone = 0;
+  std::vector<int> usedHitsEcal; 
+  usedHitsEcal.clear();
+  for (std::vector<EcalRecHit>::const_iterator ehit=ecalCol.begin(); ehit!=ecalCol.end(); ehit++)
+    {
+      //This is a precaution for the case when hitCollection contains duplicats.
+      bool hitIsUsed=false;
+      int hitHashedIndex=-10000;
+      if (ehit->id().subdetId()==EcalBarrel)
+	{
+	  EBDetId did(ehit->id());
+	  hitHashedIndex=did.hashedIndex();
+	}
+      if (ehit->id().subdetId()==EcalEndcap)
+	{
+	  EEDetId did(ehit->id());
+	  hitHashedIndex=did.hashedIndex();
+	}
+      for (uint32_t i=0; i<usedHitsEcal.size(); i++)
+	{
+	  if (usedHitsEcal[i]==hitHashedIndex) hitIsUsed=true;
+	}
+      if (hitIsUsed) continue;
+      usedHitsEcal.push_back(hitHashedIndex);
+      // -----------------------------------------------
+
+      GlobalPoint pos = geo->getPosition((*ehit).detid());
+  
+      if (getDistInPlaneTrackDir(center, trackMom ,pos) < radius)
+        {
+          eECALcone += ehit->energy();
+        }
+      }
+  return eECALcone;
+}
 
 
 
