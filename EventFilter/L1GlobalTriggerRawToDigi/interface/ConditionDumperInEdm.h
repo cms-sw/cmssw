@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Thu Feb 11 19:46:28 CET 2010
-// $Id: ConditionDumperInEdm.h,v 1.1 2010/03/11 14:46:59 vlimant Exp $
+// $Id: ConditionDumperInEdm.h,v 1.2 2010/03/12 12:55:31 vlimant Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Provenance/interface/ConditionsInEdm.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h"
 
 //
 // class declaration
