@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.125 2010/02/18 14:47:45 mommsen Exp $
+// $Id: StorageManager.cc,v 1.126 2010/03/04 16:58:45 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -41,7 +41,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.125 2010/02/18 14:47:45 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.126 2010/03/04 16:58:45 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -181,8 +181,7 @@ void StorageManager::initializeSharedResources()
     reset(new DQMEventQueue(queueParams._dqmEventQueueSize, queueParams._dqmEventQueueMemoryLimitMB * 1024*1024));
 
   _sharedResources->_statisticsReporter.reset(
-    new StatisticsReporter(this, _sharedResources->_configuration->
-      getWorkerThreadParams()._monitoringSleepSec)
+    new StatisticsReporter(this, _sharedResources)
   );
   _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
   _sharedResources->_diskWriterResources.reset(new DiskWriterResources());

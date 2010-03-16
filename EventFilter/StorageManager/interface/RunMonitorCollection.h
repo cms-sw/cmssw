@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.7 2010/02/09 14:56:18 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.8 2010/02/16 09:58:20 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
@@ -11,6 +11,7 @@
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
+#include "EventFilter/StorageManager/interface/SharedResources.h"
 
 
 namespace stor {
@@ -20,8 +21,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/02/09 14:56:18 $
+   * $Revision: 1.8 $
+   * $Date: 2010/02/16 09:58:20 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -31,7 +32,8 @@ namespace stor {
     RunMonitorCollection
     (
       const utils::duration_t& updateInterval,
-      boost::shared_ptr<AlarmHandler>
+      boost::shared_ptr<AlarmHandler>,
+      SharedResourcesPtr
     );
 
     void configureAlarms(AlarmParams const&);
@@ -95,6 +97,7 @@ namespace stor {
     MonitoredQuantity _eolsSeen;
 
     boost::shared_ptr<AlarmHandler> _alarmHandler;
+    SharedResourcesPtr _sharedResources;
 
     virtual void do_calculateStatistics();
     virtual void do_reset();

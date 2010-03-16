@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.7 2010/02/09 14:54:04 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.8 2010/02/16 09:58:54 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -10,6 +10,7 @@
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
 
 using namespace stor;
@@ -17,7 +18,8 @@ using namespace stor;
 RunMonitorCollection::RunMonitorCollection
 (
   const utils::duration_t& updateInterval,
-  boost::shared_ptr<AlarmHandler> ah
+  boost::shared_ptr<AlarmHandler> ah,
+  SharedResourcesPtr sr
 ) :
 MonitorCollection(updateInterval),
 _eventIDsReceived(updateInterval, 1),
@@ -26,7 +28,8 @@ _unwantedEventIDsReceived(updateInterval, 1),
 _runNumbersSeen(updateInterval, 1),
 _lumiSectionsSeen(updateInterval, 1),
 _eolsSeen(updateInterval, 1),
-_alarmHandler(ah)
+_alarmHandler(ah),
+_sharedResources(sr)
 {}
 
 
@@ -151,7 +154,9 @@ void RunMonitorCollection::alarmUnwantedEvents(UnwantedEventsMap::value_type& va
     std::ostringstream msg;
     msg << "Received " << val.second.count << " events"
       << " not tagged for any stream or consumer."
-      << " Output module id " << val.first.outputModuleId
+      << " Output module " << 
+      _sharedResources->_initMsgCollection->getOutputModuleName(val.first.outputModuleId)
+      << " (id " << val.first.outputModuleId << ")"
       << " HLT trigger bits: ";
 
     // This code snipped taken from evm:EventSelector::acceptEvent

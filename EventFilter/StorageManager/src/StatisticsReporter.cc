@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.15 2010/02/09 14:54:04 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.16 2010/02/16 09:59:18 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -15,6 +15,7 @@
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
@@ -24,12 +25,13 @@ using namespace stor;
 StatisticsReporter::StatisticsReporter
 (
   xdaq::Application *app,
-  const utils::duration_t& monitoringSleepSec
+  SharedResourcesPtr sr
 ) :
 _app(app),
 _alarmHandler(new AlarmHandler(app)),
-_monitoringSleepSec(monitoringSleepSec),
-_runMonCollection(_monitoringSleepSec, _alarmHandler),
+_monitoringSleepSec(sr->_configuration->
+  getWorkerThreadParams()._monitoringSleepSec),
+_runMonCollection(_monitoringSleepSec, _alarmHandler, sr),
 _fragMonCollection(_monitoringSleepSec),
 _filesMonCollection(5*_monitoringSleepSec),
 _streamsMonCollection(_monitoringSleepSec),
