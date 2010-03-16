@@ -50,10 +50,10 @@ RPCGeomServ::name()
 	      os<<"--";
 	    }
 	    else if ( _id->subsector()==2){
-	      os <<"-+";
+	      os <<"-";
 	    }
 	    else if ( _id->subsector()==3){
-	      os <<"+-";
+	      os <<"+";
 	    }
 	    else if ( _id->subsector()==4){
 	      os <<"++";
@@ -145,28 +145,22 @@ RPCGeomServ::shortname()
       }else{
 	if (_id->sector()== 4 && _id->station()==4){
 	  if ( _id->subsector()==1){
-	    os<<",-,--";
+	    os<<"--";
 	  }
 	  else if ( _id->subsector()==2){
-	    os <<"-+";
+	    os <<",-";
 	  }
 	  else if ( _id->subsector()==3){
-	    os <<"+-";
+	    os <<"+";
 	  }
 	  else if ( _id->subsector()==4){
-	    os <<"+,++";
+	    os <<"++";
 	  }
-	}
-	if(_id->station()==3){
+	}else{
 	  if (_id->subsector()==1)
-	    os <<"-";
+	    os <<",-";
 	  else
 	    os <<"+";
-	}else if(_id->station()==4 && _id->sector()!=4){
-	  if (_id->subsector()==1)
-	    os <<",-,--";
-	  else
-	    os <<"+,++";
 	}
       }
       if (_id->roll()==1)
@@ -267,11 +261,11 @@ RPCGeomServ::chambernr()
     //in
     if(_id->layer()==1) {
       
-      if(_id->roll()==1)
+      if(_id->roll()==1)//backward
 	_cnr = 5;
-      if(_id->roll()==3)
+      if(_id->roll()==3)//forward
 	_cnr=6;
-      if(_id->roll()==2)
+      if(_id->roll()==2)//middle
 	_cnr=7;
     }
     //out
@@ -314,7 +308,7 @@ RPCGeomServ::chambernr()
     
     if (_id->sector()== 4) {
       
-      if ( _id->subsector()==1){
+      if ( _id->subsector()==2){//RB4-
 	
 	if(_id->roll()==1)
 	  _cnr=14;
@@ -323,7 +317,7 @@ RPCGeomServ::chambernr()
 	
       }
       
-      if ( _id->subsector()==2){
+      if ( _id->subsector()==3){//RB4+
 	
 	if(_id->roll()==1)
 	  _cnr=16;
@@ -332,7 +326,7 @@ RPCGeomServ::chambernr()
 	
       }
       
-      if ( _id->subsector()==3) {
+      if ( _id->subsector()==1) {//RB4--
 	
 	if(_id->roll()==1)
 	  _cnr=18;
@@ -340,7 +334,7 @@ RPCGeomServ::chambernr()
 	  _cnr=19;
       }
       
-      if ( _id->subsector()==4){
+      if ( _id->subsector()==4){//RB4++
 	
 	if(_id->roll()==1)
 	  _cnr=20;
