@@ -502,10 +502,10 @@ public:
     } else {
       double thisMini[] = {0.97,
                            -0.005, -0.001, -0.001,
-                           -0.005, -0.005, -0.001, -0.0001, -0.00001, -0.000001};
+                           -0.005, -0.1, -0.1, -0.0001, -0.00001, -0.000001};
       double thisMaxi[] = {1.03,
                            0.005, 0.001, 0.001,
-                           0.005, 0.005, 0.001, 0.0001, 0.00001, 0.000001};
+                           0.005, 0.1, 0.1, 0.0001, 0.00001, 0.000001};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }

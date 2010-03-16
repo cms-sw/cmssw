@@ -4,8 +4,8 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2010/01/11 09:31:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/03/04 09:15:41 $
+ *  $Revision: 1.9 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -42,6 +42,11 @@ class MuScleFitPlotter{
   void fillSim(edm::Handle<edm::SimTrackContainer> simTracks);
   void fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks);
   void fillRec(std::vector<reco::LeafCandidate>& muons);
+
+  // Root tree specific
+  void fillRec( const vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs );
+  void fillGen( const vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs );
+
   void fillHistoMap();
   void writeHistoMap();
 

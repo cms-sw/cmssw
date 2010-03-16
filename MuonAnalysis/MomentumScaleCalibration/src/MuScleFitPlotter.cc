@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/11/03 07:34:37 $
-//  $Revision: 1.13 $
+//  $Date: 2010/01/21 15:18:11 $
+//  $Revision: 1.14 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -296,6 +296,46 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC, bool sherpaFlag_)
    mapHisto["hRecMu"]->Fill(muons.size());
  }
 
+/// Used when running on the root tree containing preselected muon pairs
+void MuScleFitPlotter::fillRec( const vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs )
+{
+  vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >::const_iterator muonPair = savedPairs.begin();
+  for( ; muonPair != savedPairs.end(); ++muonPair ) {
+    mapHisto["hRecMu"]->Fill(muonPair->first);
+    mapHisto["hRecMuVSEta"]->Fill(muonPair->first);
+    mapHisto["hRecMu"]->Fill(muonPair->second);
+    mapHisto["hRecMuVSEta"]->Fill(muonPair->second);
+    reco::Particle::LorentzVector Res( muonPair->first+muonPair->second );
+    mapHisto["hRecMuPMuM"]->Fill(Res);
+    mapHisto["hRecMu"]->Fill(savedPairs.size());
+  }
+}
+
+/**
+ * Used when running on the root tree and there is genInfo. <br>
+ * ATTENTION: since we do not have any id information when reading from the root tree, we always
+ * fill the Z histograms by default.
+ */
+void MuScleFitPlotter::fillGen( const vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs )
+{
+  vector<pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >::const_iterator genPair = genPairs.begin();
+  for( ; genPair != genPairs.end(); ++genPair ) {
+    reco::Particle::LorentzVector genRes(genPair->first+genPair->second);
+    mapHisto["hGenResZ"]->Fill(genRes);
+    mapHisto["hGenMu"]->Fill(genPair->first);
+    mapHisto["hGenMuVSEta"]->Fill(genPair->first);
+    mapHisto["hGenMuMuZ"]->Fill(genRes);
+    mapHisto["hGenResVSMuZ"]->Fill( genPair->first, genRes, 1 );
+    mapHisto["hGenResVSMuZ"]->Fill( genPair->second, genRes, -1 );
+    mapHisto["hGenMuMuUpsilon1S"]->Fill(genRes);
+    mapHisto["hGenResVSMuUpsilon1S"]->Fill( genPair->first, genRes, 1 );
+    mapHisto["hGenResVSMuUpsilon1S"]->Fill( genPair->second, genRes, -1 );
+    mapHisto["hGenMuMuJPsi"]->Fill(genRes);
+    mapHisto["hGenResVSMuJPsi"]->Fill( genPair->first, genRes, 1 );
+    mapHisto["hGenResVSMuJPsi"]->Fill( genPair->second, genRes, -1 );
+    mapHisto["hGenResVsSelf"]->Fill( genRes, genRes, 1 );
+  }
+}
 
 // Histogram booking
 // -----------------
