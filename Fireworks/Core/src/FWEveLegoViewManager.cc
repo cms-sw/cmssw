@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.39 2009/11/04 18:09:45 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.40 2010/03/16 12:25:25 amraktad Exp $
 //
 
 // system include files
@@ -198,18 +198,22 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                m_lego->InitMainTrans();
                m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
                m_lego->Set2DMode(TEveCaloLego::kValSize);
-	            m_lego->SetDrawNumberCellPixels(20);
+	       m_lego->SetDrawNumberCellPixels(20);
                m_data->GetEtaBins()->SetTitleFont(120);
                m_data->GetEtaBins()->SetTitle("h");
                m_data->GetPhiBins()->SetTitleFont(120);
                m_data->GetPhiBins()->SetTitle("f");
+               m_data->GetPhiBins()->SetLabelSize(0.02);
+               m_data->GetEtaBins()->SetLabelSize(0.02);
+               m_data->GetPhiBins()->SetTitleSize(0.03);
+               m_data->GetEtaBins()->SetTitleSize(0.03);
                m_elements->AddElement(m_lego);
 
                // add calorimeter boundaries
                m_boundaries = new TEveStraightLineSet("boundaries");
                m_boundaries->SetPickable(kFALSE);
                m_boundaries->SetLineWidth(2);
-	            m_boundaries->SetLineStyle(7);
+               m_boundaries->SetLineStyle(7);
                m_boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
                m_boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
                m_boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
