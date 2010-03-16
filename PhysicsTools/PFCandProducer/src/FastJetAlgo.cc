@@ -21,9 +21,20 @@ FastJetAlgo::FastJetAlgo( const edm::ParameterSet& ps )
 
 void FastJetAlgo::setJetDefinition( const edm::ParameterSet& ps) {
   // here extract parameter set info to make the jet definition
-  JetDefinition jetDef( kt_algorithm, 0.5);
+
+  unsigned algorithm = ps.getParameter<unsigned>("algorithm");
+  double distance = ps.getParameter<double>("distance");
+
+  JetDefinition jetDef( static_cast<JetAlgorithm>(algorithm), distance);
   setJetDefinition( jetDef ); 
 }
+
+
+void FastJetAlgo::setJetDefinition( const fastjet::JetDefinition& jetDef) {
+  cout<<jetDef.description()<<endl;
+  jetDefinition_ = jetDef; 
+}
+
 
 const FastJetAlgo::JetCollection& FastJetAlgo::produce( const FastJetAlgo::InputHandle& inputHandle) {
   

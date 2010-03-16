@@ -37,10 +37,8 @@ namespace pf2pat {
     /// get jet definition from parameter set
     void setJetDefinition( const edm::ParameterSet& ps);  
 
-    /// get user defined jet definition
-    void setJetDefinition( const fastjet::JetDefinition& jetDef) {
-      jetDefinition_ = jetDef; 
-    }
+    /// set user defined jet definition
+    void setJetDefinition( const fastjet::JetDefinition& jetDef);
     
     /// run the jet clustering on the input collection, and produce the reco jets
     const JetCollection& produce( const InputHandle& inputColl); 

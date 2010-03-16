@@ -29,6 +29,7 @@ PFIsoDepositAlgo::produce( const ParticleCollection& toBeIsolated,
   
 
   isoDeposits_.clear();
+  isoDeposits_.reserve( toBeIsolated.size() );
 
   for( unsigned i=0; i<toBeIsolated.size(); i++ ) {
     const reco::PFCandidate& toBeIso = toBeIsolated[i];
