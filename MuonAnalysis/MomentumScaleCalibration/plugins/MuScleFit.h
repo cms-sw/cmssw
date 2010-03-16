@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/03/04 09:15:47 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/03/15 12:19:42 $
+ *  $Revision: 1.28 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -100,6 +100,11 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
   /// Fill the reco vs gen and reco vs sim comparison histograms
   void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const string & inputName, const int charge );
 
+  /// Apply the smearing if needed using the function in MuScleFitUtils
+  void applySmearing( reco::Particle::LorentzVector & mu );
+  /// Apply the bias if needed using the function in MuScleFitUtils
+  void applyBias( reco::Particle::LorentzVector & mu, const int charge );
+
   /**
    * Simple method to check parameters consistency. It aborts the job if the parameters
    * are not consistent.
@@ -165,16 +170,10 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
     MuScleFitUtils::goodmuon++;
     if (debug_>0) cout <<setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
                        << ": initial value   Pt = " << mu.Pt() << endl;
-    if (MuScleFitUtils::SmearType>0) {
-      mu = MuScleFitUtils::applySmearing( mu );
-      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
-                         << ": after smearing  Pt = " << mu.Pt() << endl;
-    }
-    if (MuScleFitUtils::BiasType>0) {
-      mu = MuScleFitUtils::applyBias( mu, track->charge() );
-      if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
-                         << ": after bias      Pt = " << mu.Pt() << endl;
-    }
+
+    applySmearing(mu);
+    applyBias(mu, track->charge());
+
     reco::LeafCandidate muon(track->charge(),mu);
     // Store modified muon
     // -------------------

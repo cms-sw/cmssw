@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/03/04 09:15:47 $
-//  $Revision: 1.71 $
+//  $Date: 2010/03/15 12:19:42 $
+//  $Revision: 1.72 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -670,6 +670,21 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
   else {
     rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), &(MuScleFitUtils::genPair));
   }
+  // Now loop on all the pairs and apply any smearing and bias if needed
+  if( (MuScleFitUtils::SmearType != 0) || (MuScleFitUtils::BiasType != 0) ) {
+    vector<pair<lorentzVector,lorentzVector> >::iterator it = MuScleFitUtils::SavedPair.begin();
+    for( ; it != MuScleFitUtils::SavedPair.end(); ++it ) {
+      // First is always mu-, second mu+
+      applySmearing(it->first);
+      applyBias(it->first, -1);
+      applySmearing(it->second);
+      applyBias(it->second, 1);
+    }
+  }
+  plotter->fillRec(MuScleFitUtils::SavedPair);
+  if( !(MuScleFitUtils::speedup) ) {
+    plotter->fillGen(MuScleFitUtils::genPair);
+  }
 }
 
 void MuScleFit::duringFastLoop()
@@ -913,6 +928,24 @@ void MuScleFit::fillComparisonHistograms( const reco::Particle::LorentzVector & 
   mapHisto_["hResolPhi"+name]->Fill(recMu, MuScleFitUtils::deltaPhiNoFabs(recMu.Phi(), genMu.Phi()), charge);
 
   mapHisto_["hPtRecoVsPt"+inputName]->Fill(genMu.Pt(), recMu.Pt());
+}
+
+void MuScleFit::applySmearing( reco::Particle::LorentzVector & mu )
+{
+  if( MuScleFitUtils::SmearType>0 ) {
+    mu = MuScleFitUtils::applySmearing( mu );
+    if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
+                       << ": after smearing  Pt = " << mu.Pt() << endl;
+  }
+}
+
+void MuScleFit::applyBias( reco::Particle::LorentzVector & mu, const int charge )
+{
+  if( MuScleFitUtils::BiasType>0 ) {
+    mu = MuScleFitUtils::applyBias( mu, charge );
+    if (debug_>0) cout << "Muon #" << MuScleFitUtils::goodmuon
+                       << ": after bias      Pt = " << mu.Pt() << endl;
+  }
 }
 
 // Simple method to check parameters consistency. It aborts the job if the parameters
