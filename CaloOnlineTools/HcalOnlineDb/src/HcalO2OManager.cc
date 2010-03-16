@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.30 2010/03/07 23:01:33 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.31 2010/03/14 20:54:10 kukartse Exp $
 //
 
 
@@ -254,13 +254,29 @@ int HcalO2OManager::getListOfNewIovs(std::vector<uint32_t> & iovs,
 				     const std::vector<uint32_t> & orcon_iovs){
   int result = -1; // default fail
   iovs.clear();
-  if (omds_iovs.size() < orcon_iovs.size()) return result; // more IOVs in ORCON than in OMDS
+
+  // OMDS tag may not have the first IOV=1
+  int _orcon_index_offset = 0;
+  if (omds_iovs.size() > 0 &&
+      orcon_iovs.size() > 0 &&
+      orcon_iovs[0] == 1 &&
+      omds_iovs[0] != 1){
+    std::cout << "HcalO2OManager: First IOV in the OMDS tag is not 1, might not be a problem..." << std::endl;
+    _orcon_index_offset = 1; // skip the first IOV in ORCON because it
+    //                       // is 1 while OMDS doesn't have IOV=1
+  } 
+  if (omds_iovs.size()+_orcon_index_offset < orcon_iovs.size()){
+    std::cout << "HcalO2OManager: too many IOVs in the Pool tag, cannot sync, exiting..." << std::endl;
+    return result;
+  }
   unsigned int _index = 0;
   for (std::vector<uint32_t>::const_iterator _iov = orcon_iovs.begin();
        _iov != orcon_iovs.end();
        ++_iov){
+    if (_orcon_index_offset == 1) continue; // skip first check if first Pool IOV =1 but not OMDS
     _index = (int)(_iov - orcon_iovs.begin());
-    if (omds_iovs[_index] != orcon_iovs[_index]){
+    if (omds_iovs[_index-_orcon_index_offset] != orcon_iovs[_index]){
+      std::cout << "HcalO2OManager: existing IOVs do not match, cannot sync, exiting..." << std::endl;
       return result; // existing IOVs do not match
     }
     ++_index;
