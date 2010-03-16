@@ -31,35 +31,40 @@ namespace fwlite {
 //
 // constructors and destructor
 //
-  ChainEvent::ChainEvent(const std::vector<std::string>& iFileNames):
-  fileNames_(iFileNames),
+ChainEvent::ChainEvent(const std::vector<std::string>& iFileNames):
+  fileNames_(),
   file_(),
   event_(),
   eventIndex_(0),
   accumulatedSize_()
 {
-    Long64_t summedSize=0;
-    accumulatedSize_.reserve(iFileNames.size()+1);
-    for(std::vector<std::string>::const_iterator it= iFileNames.begin(),
-        itEnd = iFileNames.end();
-        it!=itEnd;
-        ++it) {
-       TFile *tfilePtr = TFile::Open(it->c_str());
-       file_ = boost::shared_ptr<TFile>(tfilePtr);
-       gROOT->GetListOfFiles()->Remove(tfilePtr);
-       TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
-       if(0==tree) {
-          throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
-       }
-       // accumulatedSize_ is the entry # at the beginning of this file
-       accumulatedSize_.push_back(summedSize);
-       summedSize += tree->GetEntries();
+  Long64_t summedSize=0;
+  accumulatedSize_.reserve(iFileNames.size()+1);
+  fileNames_.reserve(iFileNames.size());
+    
+  for (std::vector<std::string>::const_iterator it= iFileNames.begin(), itEnd = iFileNames.end();
+      it!=itEnd;
+      ++it) {
+    TFile *tfilePtr = TFile::Open(it->c_str());
+    file_ = boost::shared_ptr<TFile>(tfilePtr);
+    gROOT->GetListOfFiles()->Remove(tfilePtr);
+    TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
+    if (0 == tree) {
+      throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
     }
-    // total accumulated size (last enry + 1) at the end of last file
-    accumulatedSize_.push_back(summedSize);
+    Long64_t nEvents = tree->GetEntries();
+    if (nEvents > 0) { // skip empty files
+      fileNames_.push_back(*it);
+      // accumulatedSize_ is the entry # at the beginning of this file
+      accumulatedSize_.push_back(summedSize);
+      summedSize += nEvents;
+    }
+  }
+  // total accumulated size (last enry + 1) at the end of last file
+  accumulatedSize_.push_back(summedSize);
 
-    if ( iFileNames.size() > 0 )
-      switchToFile(0);
+  if (fileNames_.size() > 0)
+    switchToFile(0);
 }
 
 // ChainEvent::ChainEvent(const ChainEvent& rhs)
