@@ -98,6 +98,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 				  19,20,21,22,23,24,  // s2f02 hf-
 				  1, 2, 3, 4, 5, 6};       // s2f02 hf+
 
+   currentRunEnded_ = true;
    runNumber_       = 0;
    expectedNibbles_ = 0;
 
@@ -106,6 +107,8 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
      //std::cout << "At " << iHLX << " Wedge " << HLXHFMap[iHLX] << std::endl;
      totalNibbles_[iHLX] = 0;
    }
+
+   num4NibblePerLS_ = 16.0;
 
    SetupHists();
    SetupEventInfo();
@@ -442,7 +445,7 @@ HLXMonitor::SetupHists()
    dbe_->setCurrentFolder(monitorName_+"/HistoryRaw");
 
    std::string HistXTitle = "Time (LS)";
-   std::string RecentHistXTitle = "Time (LS/64)";
+   std::string RecentHistXTitle = "Time (LS/16)";
    std::string HistEtSumYTitle = "Average E_{T} Sum";
    std::string HistOccYTitle = "Average Occupancy";
    std::string HistLumiYTitle = "Luminosity";
@@ -747,7 +750,9 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
       // If this is the first time through, set the runNumber ...
       if( runNumber_ != lumiSection.hdr.runNumber ){
+	 if( !currentRunEnded_ && runNumber_ != 0 ) EndRun();
 	 runNumber_ = lumiSection.hdr.runNumber;
+	 currentRunEnded_ = false;
 	 //std::cout << "Run number is: " << runNumber_ << std::endl;
          timeval startruntime;
          gettimeofday(&startruntime,NULL);
@@ -865,8 +870,8 @@ void HLXMonitor::EndRun( bool saveFile )
    
    // Do some things that should be done at the end of the run ...
    if( saveFile && runNumber_ != 0 ){
-      if( int(lumiSectionCount/64) >= (int)MinLSBeforeSave ) SaveDQMFile();
-      else std::cout << "Num LS's (" << int(lumiSectionCount/64) << ") "
+      if( int(lumiSectionCount/num4NibblePerLS_) >= (int)MinLSBeforeSave ) SaveDQMFile();
+      else std::cout << "Num LS's (" << int(lumiSectionCount/num4NibblePerLS_) << ") "
 		     << "is less than required minumum (" << MinLSBeforeSave
 		     << "). File will not be saved!" << std::endl;
    }  
@@ -876,6 +881,7 @@ void HLXMonitor::EndRun( bool saveFile )
    std::cout << "** Here in end run **" << std::endl;
    if(ResetAtNewRun) ResetAll();
    runNumber_ = 0;
+   currentRunEnded_ = true;
    sectionInstantSumEt = 0;
    sectionInstantErrSumEt = 0;
    sectionInstantSumOcc1 = 0;
@@ -899,13 +905,13 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    }
    previousSection = section.hdr.sectionNumber;
 
-   int lsBin = int(lumiSectionCount/64);
-   int lsBinBX = int(lumiSectionCount/64);
+   int lsBin = int(lumiSectionCount/num4NibblePerLS_);
+   int lsBinBX = int(lumiSectionCount/num4NibblePerLS_);
    HistAvgLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
    HistAvgLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
    HistAvgLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
-   //std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
-   //     << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
+   std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
+       << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
 
    //std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
    //     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
@@ -1086,7 +1092,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 		  HistAvgOccBetweenSet2HFP->Fill( lsBin, normOccSet2Between  );
 		  HistAvgOccAboveSet2HFP->Fill( lsBin,   normOccSet2Above    );
 
-		  if( iBX >= (XMIN-1) && iBX <= (XMAX-1) ) BXvsTimeAvgEtSumHFP->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
+		  if( iBX >= (XMIN-1) && iBX <= (XMAX-1) ) BXvsTimeAvgEtSumHFP->Fill(lsBinBX,iBX,normEt/(num4NibblePerLS_*18.0*12.0));
 	       }
 	       else
 	       {
@@ -1098,7 +1104,7 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
 		  HistAvgOccBetweenSet2HFM->Fill( lsBin, normOccSet2Between  );
 		  HistAvgOccAboveSet2HFM->Fill( lsBin,   normOccSet2Above    );
 
-		  if( iBX >= (XMIN-1) && iBX <= (XMAX-1) ) BXvsTimeAvgEtSumHFM->Fill(lsBinBX,iBX,normEt/(64.0*18.0*12.0));
+		  if( iBX >= (XMIN-1) && iBX <= (XMAX-1) ) BXvsTimeAvgEtSumHFM->Fill(lsBinBX,iBX,normEt/(num4NibblePerLS_*18.0*12.0));
 	       }
 
 	       utotal1 += section.occupancy[iHLX].data[set1BelowIndex  ][iBX];
@@ -1304,7 +1310,8 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    double minX = tmpHist->GetBinLowEdge(1);
    double maxX = tmpHist->GetBinLowEdge(tmpHist->GetNbinsX()+1);
 
-   if( lumiSectionCount%64 == 0 ){
+   int inum4NibblePerLS = (int)num4NibblePerLS_;
+   if( lumiSectionCount%inum4NibblePerLS == 0 ){
       double mean1 = MaxInstLumiBX1->getMean();
       double rms1  = MaxInstLumiBX1->getRMS();
       if( rms1 > 0 && mean1-5*rms1 > minX && mean1+5*rms1<maxX ) MaxInstLumiBX1->setAxisRange(mean1-5*rms1,mean1+5*rms1);
@@ -1384,7 +1391,7 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION & section, const edm::Event& e
 	     << section.hdr.runNumber << std::endl;
 
    runId_->Fill( section.hdr.runNumber );
-   lumisecId_->Fill( (int)(section.hdr.sectionNumber/64) + 1 );
+   lumisecId_->Fill( (int)(section.hdr.sectionNumber/num4NibblePerLS_) + 1 );
 
    // Update the total nibbles & the expected number
    expectedNibbles_ += 4;
@@ -1421,7 +1428,8 @@ void HLXMonitor::FillReportSummary(){
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
       unsigned int iWedge = HLXHFMap[iHLX] + 1;
       unsigned int iEta = 2;
-      float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
+      float frac = 0.0;
+      if( expectedNibbles_ > 0 ) frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
       if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
       reportSummaryMap_->setBinContent(iWedge,iEta,frac);
       overall += frac;
