@@ -1,0 +1,51 @@
+<!--
+find doc and examles in
+DQMServices/ClientConfig/test 
+https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
+-->
+
+<TESTSCONFIGURATION>
+
+<QTEST name="efficiencyCheck">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0.1</PARAM>
+        <PARAM name="ymax">1</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+<QTEST name="resolutionCheck">
+        <TYPE>ContentsXRange</TYPE>
+        <PARAM name="xmin">-0.5</PARAM>
+        <PARAM name="xmax">0.5</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+<PARAM name="error">0.1</PARAM>
+<PARAM name="warning">0.2</PARAM>
+</QTEST>
+
+<QTEST name="hasEntries">
+<TYPE>DeadChannel</TYPE>
+<PARAM name="threshold">1</PARAM>
+<PARAM name="error">0.3</PARAM>
+<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<LINK name="HLT/JetMET/RelativeTriggerEff/*_EffPt*">
+      <TestName activate="true">efficiencyCheck</TestName>
+</LINK>
+<LINK name="HLT/JetMET/EffWrtMuTrigger/*_EffPt*">
+      <TestName activate="true">efficiencyCheck</TestName>
+</LINK>
+<LINK name="HLT/JetMET/EffWrtMBTrigger/*_EffPt*">
+      <TestName activate="true">efficiencyCheck</TestName>
+</LINK>
+
+
+<LINK name="HLT/JetMET/MonitorAllTriggers/*Resolution*">
+      <TestName activate="true">resolutionCheck</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>

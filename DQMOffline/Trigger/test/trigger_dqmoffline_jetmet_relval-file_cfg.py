@@ -20,7 +20,10 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
 process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
+process.load("DQMOffline.Trigger.JetMETHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.HLTJetMETQualityTester_cfi")
+process.load("DQMServices.Components.MEtoEDMConverter_cff")
+ 
 # configure HLT
 process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
 process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
@@ -43,7 +46,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames =
-cms.untracked.vstring('/store/relval/CMSSW_3_3_6/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_3XY_V9A-v1/0009/E42A8884-3DE4-DE11-979E-002618943986.root')
+cms.untracked.vstring('/store/relval/CMSSW_3_6_0_pre3/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_36Y_V2-v1/0004/102CC3BD-642F-DF11-811A-003048678F26.root')
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -68,7 +71,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 
 
-process.psource = cms.Path(process.hltLevel1GTSeed*process.jetMETHLTOfflineSource*process.hltJetMETOfflineQualityTests*process.dqmStoreStats) 
+#process.psource = cms.Path(process.hltLevel1GTSeed*process.jetMETHLTOfflineSource*process.hltJetMETOfflineQualityTests*process.dqmStoreStats) 
+process.psource = cms.Path(process.hltLevel1GTSeed*process.jetMETHLTOfflineSource*process.jetMETHLTOfflineClient*process.hltJetMETOfflineQualityTests*process.dqmStoreStats)
 
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
