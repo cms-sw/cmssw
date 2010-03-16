@@ -65,6 +65,8 @@ typedef fit::HistoChiSquare<funct::FunctExpression> ExprChi2;
 typedef fit::HistoPoissonLikelihoodRatio<funct::FunctExpression> ExprPLR;
 
 double fMin, fMax;
+ unsigned int rebinMuMuNoIso ,rebinMuMu =1 , rebinMuMu1HLT , rebinMuMu2HLT , rebinMuTk , rebinMuSa;
+ // assume that the bin size is 1 GeV!!! 
 string ext, region;
 
 template<typename T>
@@ -86,8 +88,7 @@ int main_t(const vector<string> & v_file){
   fit::RootMinuitCommands<ChiSquared> commands("zChi2Fit.txt");
   
   cout << "minuit command file completed" << endl;
-  const unsigned int rebinMuMuNoIso = 2,rebinMuMu = 1, rebinMuMu1HLT = 1, rebinMuMu2HLT = 1, rebinMuTk = 2, rebinMuSa = 10;
-  // assume that the bin size is 1 GeV!!!
+ 
   funct::Constant rebinMuMuNoIsoConst(rebinMuMuNoIso), rebinMuMuConst(rebinMuMu), 
     rebinMuMu1HLTConst(rebinMuMu1HLT), rebinMuMu2HLTConst(rebinMuMu2HLT), 
     rebinMuTkConst(rebinMuTk), rebinMuSaConst(rebinMuSa);
@@ -373,7 +374,7 @@ int main_t(const vector<string> & v_file){
     funZMuMuNoIsoBkg.SetLineWidth(2);
     funZMuMuNoIsoBkg.SetLineStyle(kDashed);
     funZMuMuNoIsoBkg.SetNpx(10000);
-    histoZMuMuNoIso->SetTitle("Z -> #mu + (unmatched) track mass");
+    histoZMuMuNoIso->SetTitle("Z -> #mu #mu Not Iso mass");
     histoZMuMuNoIso->SetXTitle("#mu +  #mu invariant mass (GeV/c^{2})");
     histoZMuMuNoIso->SetYTitle("Events");
     TCanvas *canvas = new TCanvas("canvas");
@@ -468,12 +469,15 @@ int main(int ac, char *av[]) {
     ("input-file,i", po::value<vector<string> >(), "input file")
     ("min,m", po::value<double>(&fMin)->default_value(60), "minimum value for fit range")
     ("max,M", po::value<double>(&fMax)->default_value(120), "maximum value for fit range")
+    ("rebins,R", po::value<vector<unsigned int> >(), "rebins values: rebinMuMu2HLT , rebinMuMu1HLT , rebinMuMuNoIso , rebinMuSa, rebinMuTk")
     ("chi2,c", "perform chi-squared fit")
     ("plr,p", "perform Poisson likelihood-ratio fit")
     ("plot-format,f", po::value<string>(&ext)->default_value("eps"), "output plot format")
     ("detectorRegion,r",po::value<string> (&region)->default_value("all"), "detector region in which muons are detected" );   
   po::positional_options_description p;
   p.add("input-file", -1);
+  p.add("rebins", -1);
+
   
   po::variables_map vm;
   po::store(po::command_line_parser(ac, av).
@@ -492,6 +496,19 @@ int main(int ac, char *av[]) {
   cout << "Input files are: " 
        << vm["input-file"].as< vector<string> >() << "\n";
   vector<string> v_file = vm["input-file"].as< vector<string> >();
+
+
+  if (vm.count("rebins") ) {
+    vector<unsigned int> v_rebin = vm["rebins"].as< vector<unsigned int> >();
+    if (v_rebin.size()!=5){
+      cerr << " please provide 5 numbers in the given order:  rebinMuMu2HLT , rebinMuMu1HLT , rebinMuMuNoIso, rebinMuSa, rebinMuTk \n";
+      return 1;
+    }
+ rebinMuMuNoIso = v_rebin[2], rebinMuMu1HLT = v_rebin[1], rebinMuMu2HLT = v_rebin[0], rebinMuTk = v_rebin[4], rebinMuSa = v_rebin[3];
+  }
+
+
+
 
   bool chi2Fit = vm.count("chi2"), plrFit = vm.count("plr");
   if(!(chi2Fit||plrFit))
