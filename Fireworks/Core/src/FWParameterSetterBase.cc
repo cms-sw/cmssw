@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.7 2010/02/13 14:01:33 eulisse Exp $
+// $Id: FWParameterSetterBase.cc,v 1.8 2010/02/15 09:45:14 eulisse Exp $
 //
 
 // system include files
@@ -113,6 +113,8 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
          name = "FWBoolParameterSetter";
       else if (name == "FWGenericParameter<std::string>")
          name = "FWStringParameterSetter";
+      else if (name == "FWGenericParameter<std::basic_string<char> >")
+         name = "FWStringParameterSetter"; 
       else if (name == "FWGenericParameterWithRange<double>")
          name = "FWDoubleParameterSetter";
       else if (name == "FWGenericParameterWithRange<long int>")
@@ -121,6 +123,7 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
          name = "FWLongParameterSetter";
       else
          name += "Setter";
+      printf("search setter class %s \n", name.c_str());
 
       ROOT::Reflex::Type setterClass( ROOT::Reflex::Type::ByName( name ) );
       if(setterClass == ROOT::Reflex::Type() ) {
