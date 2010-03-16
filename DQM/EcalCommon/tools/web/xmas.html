@@ -1,6 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 TRANSITIONAL//EN">
-<html>
-	<head>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+	
     <title>ECAL OD Monitoring</title>
     <style type="text/css">
 body {
@@ -11,6 +13,19 @@ iframe#ifrm {
     border:1px dashed #ccc;
     width:99%;
     height:100%;
+}
+
+table.playback {
+    color: white;
+}
+
+input.playback {
+    font-size: 13px;
+    width: 55px;
+}
+
+a.activeXmasLink {
+    background-color: red;
 }
 
 div#lnks {
@@ -26,10 +41,7 @@ div#lnks {
 }
 
 
-a:link { color: white; text-decoration: none; }
-a:visited { color: white; text-decoration: none; }
-a:hover { color: white; text-decoration: none; }
-a:active { color: white; text-decoration: none; }
+a:link, a:visited, a:hover, a:active { color: white; text-decoration: none; }
 
 div#loopPagesMessage {
     position:absolute;
@@ -60,17 +72,16 @@ function xmasLink ( title, url ) {
 } 
 
 var xmasLinks=new Array(
-        new xmasLink( "Tree","http://ecalod-xmas.cms:9810/urn:xdaq-application:lid=50/"),
-        new xmasLink( "DCC","http://ecalod-xmas.cms:9811/urn:xdaq-application:lid=50/"),
-        new xmasLink( "TCC","http://ecalod-xmas.cms:9812/urn:xdaq-application:lid=50/"),
-        new xmasLink( "CCS","http://ecalod-xmas.cms:9813/urn:xdaq-application:lid=50/"),
-        new xmasLink( "SLB","http://ecalod-xmas.cms:9814/urn:xdaq-application:lid=50/"),
-        new xmasLink( "SRP","http://ecalod-xmas.cms:9815/urn:xdaq-application:lid=50/"),
-
-        new xmasLink( "Trg","http://ecalod-xmas.cms:9830/urn:xdaq-application:lid=50/"),
-        new xmasLink( "Qpll","http://ecalod-xmas.cms:9831/urn:xdaq-application:lid=50/"),
-        new xmasLink( "Tpg","http://ecalod-xmas.cms:9832/urn:xdaq-application:lid=50/")
-        );
+        new xmasLink( "CCS","http://ecalod-xmas.cms:9813/urn:xdaq-application:service=ccsmonitor/GoCCSs"),
+        new xmasLink( "DCC","http://ecalod-xmas.cms:9811/urn:xdaq-application:service=dccmonitor/GoDCCs"),
+        new xmasLink( "SRP","http://ecalod-xmas.cms:9815/urn:xdaq-application:service=srpmonitor/GoSRPs"),
+        new xmasLink( "TCC","http://ecalod-xmas.cms:9812/urn:xdaq-application:service=tccmonitor/GoTCCs"),
+        new xmasLink( "Trg","http://ecalod-xmas.cms:9830/urn:xdaq-application:service=trgmonitor/"),
+        new xmasLink( "SLB","http://ecalod-xmas.cms:9814/urn:xdaq-application:service=slbmonitor/GoSLBs"),
+        new xmasLink( "Tpg","http://ecalod-xmas.cms:9832/urn:xdaq-application:service=tpgmonitor/"),
+	new xmasLink( "Qpll","http://ecalod-xmas.cms:9831/urn:xdaq-application:service=qpllmonitor/GoQPLLs"),
+        new xmasLink( "Tree","http://ecalod-xmas.cms:9810/urn:xdaq-application:service=treemonitor/")
+	);
 
 
 
@@ -103,7 +114,7 @@ function loadLinks ( )
     var myStr="";
 
     for (i=0; i<xmasLinks.length; i++) {
-        myStr += "<a href='"+xmasLinks[i].url+"' onclick=\"return loadPage("+i+")\">"+xmasLinks[i].title+"</a> ";
+        myStr += "<a href='"+xmasLinks[i].url+"' id='"+xmasLinks[i].title+"Link' class='xmasLink' onclick=\"return loadPage("+i+")\">"+xmasLinks[i].title+"</a> ";
     }
     document.getElementById("loopPagesLinks").innerHTML = myStr;
 
@@ -134,42 +145,48 @@ function loopPages ( )
 }
 
 function nextPage ( ) {
-    currentPageId++;
-    if ( currentPageId == xmasLinks.length ) 
-        currentPageId = 0;
-    document.getElementById("loopPagesMessage").innerHTML = xmasLinks[currentPageId].title;
-    loadIframe('ifrm',xmasLinks[currentPageId].url );
+    loadPage( currentPageId+1 );
 }
 
-    function loadPage( idx ) {
-        if ( idx < 0 || idx >= xmasLinks.length ) 
-            return false;
+function loadPage( idx ) {
 
-        document.getElementById("loopPagesMessage").innerHTML = xmasLinks[idx].title;
-        return loadIframe('ifrm',xmasLinks[idx].url );
-    }
+
+    if ( idx < 0 || idx >= xmasLinks.length ) 
+        return false;
+
+    document.getElementById(xmasLinks[currentPageId].title+"Link").className = "xmasLink";
+
+    document.getElementById("loopPagesMessage").innerHTML = xmasLinks[idx].title;
+    document.getElementById(xmasLinks[idx].title+"Link").className = "activeXmasLink";
+    currentPageId = idx;
+    return loadIframe('ifrm',xmasLinks[idx].url );
+}
 -->
 // ]]>
     </script>
 
-	</head>
-	<body onLoad="loadLinks(); loadPage(0)">
+	</head><body onload="loadLinks(); loadPage(0)">
     <div id="lnks">
-        <table><tr><td>
-        <input type="button" id="loopPagesButton" value="Start" onClick="loopPagesHandler()"> 
-        <input type="button"  value="Next" onClick="nextPage()"> 
-    </td>
-    <td>
-<div id="loopPagesLinks"></div>
-</td>
-</tr>
-</table>
+        <table class='playback'><tbody>
+            <tr>
+                <td>
+                    Playback
+                </td><td>
+                    <input class='playback' id="loopPagesButton" value="Start" onclick="loopPagesHandler()" type="button"> 
+                </td><td>
+                    <input class='playback' value="Next" onclick="nextPage()" type="button"> 
+                </td>
+                <td>
+                    <div id="loopPagesLinks">Loading...</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     </div>
     <div id="theframe">
         <iframe id="ifrm" name="ifrm" src="" scrolling="auto" frameborder="1">
             [Content for browsers that don't support iframes goes here.]
         </iframe>
     </div>
-    <div id="loopPagesMessage">None</div>
-    </body>
-</html>
+    <div id="loopPagesMessage">Loading...</div>
+    </body></html>
