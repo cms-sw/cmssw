@@ -215,7 +215,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
       double nSigmaXY = 4.;
-      double nSigmaZ = 3.;
+      double nSigmaZ  = 4.;
       double varFactor = 4./9.; // It takes into account the difference between the RMS and sigma (RMS usually greater than sigma)
       double parDistance = 0.01;
       double det;
@@ -413,6 +413,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       if (isnan(edm) == true) goodData = -1;
       else if (counterVx < minNentries) goodData = -2;
       else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+      if (goodData == 0)
+	{
+	  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+	    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+	    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+	  if (det < 0.) goodData = -1;
+	}
       if ((goodData != 0) && (goodData != -2))
 	{
 	  Gauss3D->Clear();
@@ -443,6 +450,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  if (isnan(edm) == true) goodData = -1;
 	  else if (counterVx < minNentries) goodData = -2;
 	  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  if (goodData == 0)
+	    {
+	      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+	      if (det < 0.) goodData = -1;
+	    }
 	  if ((goodData != 0) && (goodData != -2))
 	    {
 	      Gauss3D->Clear();
@@ -473,6 +487,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      if (isnan(edm) == true) goodData = -1;
 	      else if (counterVx < minNentries) goodData = -2;
 	      else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      if (goodData == 0)
+		{
+		  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+		    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+		    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+		  if (det < 0.) goodData = -1;
+		}
 	      if ((goodData != 0) && (goodData != -2))
 		{
 		  Gauss3D->Clear();
@@ -503,28 +524,23 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 		  if (isnan(edm) == true) goodData = -1;
 		  else if (counterVx < minNentries) goodData = -2;
 		  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+		  if (goodData == 0)
+		    {
+		      det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
+			Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
+			Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
+		      if (det < 0.) goodData = -1;
+		    }
 		}
 	    }
 	}
 
       if (goodData == 0)
-	{
-	  for (unsigned int i = 0; i < nParams; i++)
-	    {
-	      vals->operator[](i) = Gauss3D->GetParameter(i);
-	      vals->operator[](i+nParams) = Gauss3D->GetParError(i);
-	    }
-	  det = fabs(Gauss3D->GetParameter(0)) * (fabs(Gauss3D->GetParameter(1))*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(4)*Gauss3D->GetParameter(4)) -
-	    Gauss3D->GetParameter(3) * (Gauss3D->GetParameter(3)*fabs(Gauss3D->GetParameter(2)) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(4)) +
-	    Gauss3D->GetParameter(5) * (Gauss3D->GetParameter(3)*Gauss3D->GetParameter(4) - Gauss3D->GetParameter(5)*fabs(Gauss3D->GetParameter(1)));
-	  if (det < 0.) goodData = -1;
-	  else
-	    for (unsigned int i = 0; i < nParams; i++)
-	      {
-		vals->operator[](i) = Gauss3D->GetParameter(i);
-		vals->operator[](i+nParams) = Gauss3D->GetParError(i);
-	      }
-	}
+	for (unsigned int i = 0; i < nParams; i++)
+	  {
+	    vals->operator[](i) = Gauss3D->GetParameter(i);
+	    vals->operator[](i+nParams) = Gauss3D->GetParError(i);
+	  }
       
       delete Gauss3D;
       return goodData;
@@ -811,7 +827,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       // -2 == NO OK - not enough "minNentries" --> Wait for more lumisections
       // Any other number == NO OK --> Reset
 
-      if (goodData != -2)
+      if (goodData == 0)
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
@@ -829,16 +845,17 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
 
-	  if (lumiCounter == maxLumiIntegration) reset();
+	  if (goodData != -2) reset();
+	  else if (lumiCounter == maxLumiIntegration) reset();
 	}
 
-      mXlumi->ShiftFillLast(vals[0], vals[0+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mYlumi->ShiftFillLast(vals[1], vals[1+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mZlumi->ShiftFillLast(vals[2], vals[2+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mXlumi->ShiftFillLast(vals[0], sqrt(vals[0+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mYlumi->ShiftFillLast(vals[1], sqrt(vals[1+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mZlumi->ShiftFillLast(vals[2], sqrt(vals[2+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       
-      sXlumi->ShiftFillLast(vals[6], vals[6+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sYlumi->ShiftFillLast(vals[7], vals[7+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sZlumi->ShiftFillLast(vals[3], vals[3+nParams], (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sXlumi->ShiftFillLast(vals[6], sqrt(vals[6+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sYlumi->ShiftFillLast(vals[7], sqrt(vals[7+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sZlumi->ShiftFillLast(vals[3], sqrt(vals[3+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
       
       dxdzlumi->ShiftFillLast(vals[4], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
       dydzlumi->ShiftFillLast(vals[5], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
