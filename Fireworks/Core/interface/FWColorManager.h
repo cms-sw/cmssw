@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.16 2009/10/05 16:15:25 amraktad Exp $
+// $Id: FWColorManager.h,v 1.17 2009/10/08 17:44:40 amraktad Exp $
 //
 
 // system include files
@@ -48,12 +48,16 @@ public:
    FWColorManager(FWModelChangeManager*);
    virtual ~FWColorManager();
    
+   void initialize(Bool_t limit_palette);
+
    // ---------- const member functions ---------------------
    Color_t background() const {return m_background;}
    Color_t foreground() const {return m_foreground;}
    Bool_t  isColorSetDark() const {return m_background == kBlackIndex;}
    Bool_t  isColorSetLight() const {return m_background == kWhiteIndex;}
  
+   Bool_t  hasLimitedPalette() const {return m_limitPalette;}
+
    Color_t indexToColor(unsigned int) const;
    unsigned int numberOfIndicies() const;
    
@@ -98,7 +102,10 @@ private:
    FWModelChangeManager* m_changeManager;
    
    unsigned int m_startColorIndex;
+   unsigned int m_numColorIndices;
    unsigned int m_startGeomColorIndex;
+
+   Bool_t m_limitPalette;
 };
 
 

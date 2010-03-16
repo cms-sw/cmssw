@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id: FWCollectionSummaryWidget.h,v 1.5 2009/08/20 16:12:34 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.h,v 1.6 2009/09/23 20:33:33 chrjones Exp $
 //
 
 // system include files
@@ -66,6 +66,7 @@ public:
    void setBackgroundToWhite(bool);
    
    void colorChangeRequested(Int_t iColorIndex);
+   void colorChangeRequested(Pixel_t iPix);
    void toggleItemVisible();
    void toggleShowHide();
    void colorClicked();
@@ -91,6 +92,7 @@ private:
    const FWCollectionSummaryWidget& operator=(const FWCollectionSummaryWidget&); // stop default
    
    void createColorPopup();
+   void openRootColorDialog(Color_t iCol);
    void colorTable();
    // ---------- member data --------------------------------
    FWEventItem* m_collection;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.18 2009/09/23 20:33:33 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.19 2009/12/17 17:09:33 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include <boost/bind.hpp>
 #include "TSystem.h"
 #include "TColor.h"
+#include "TGColorDialog.h"
 #include "TGButton.h"
 //#include "TGLabel.h"
 #include "TGButton.h"
@@ -451,6 +452,12 @@ FWCollectionSummaryWidget::colorChangeRequested(Int_t iIndex)
 }
 
 void
+FWCollectionSummaryWidget::colorChangeRequested(Pixel_t iPix)
+{
+   colorChangeRequested(TColor::GetColor(iPix));
+}
+
+void
 FWCollectionSummaryWidget::toggleItemVisible() 
 {
    m_isVisibleCheckBox->setChecked(!m_isVisibleCheckBox->isChecked());
@@ -544,39 +551,70 @@ FWCollectionSummaryWidget::createColorPopup()
    }   
 }
 
+void
+FWCollectionSummaryWidget::openRootColorDialog(Color_t iCol)
+{
+   Int_t   retc;
+   ULong_t pixel = TColor::Number2Pixel(iCol);
+
+   TGColorDialog *cd = new TGColorDialog(gClient->GetDefaultRoot(), this, &retc, &pixel, kFALSE);
+
+   cd->Connect("ColorSelected(Pixel_t)", "FWCollectionSummaryWidget", this, "colorChangeRequested(Pixel_t");
+
+   cd->MapWindow();
+   fClient->WaitForUnmap(cd);
+   cd->DeleteWindow();
+}
+
 void 
-FWCollectionSummaryWidget::colorClicked() {
-   createColorPopup();
-   Window_t wdummy;
-   Int_t ax, ay;
-   gVirtualX->TranslateCoordinates(m_colorSelectWidget->GetId(), gClient->GetDefaultRoot()->GetId(), 0,
-                                   m_colorSelectWidget->GetHeight(), ax, ay, wdummy);
-   m_indexForColor=-1;
-   m_colorPopup->SetName(m_collection->name().c_str());
-   std::vector<Pixel_t> colors;
+FWCollectionSummaryWidget::colorClicked()
+{
    FWColorManager* cm = m_collection->colorManager();
-   for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
+   m_indexForColor=-1;
+
+   if (cm->hasLimitedPalette())
+   {
+      createColorPopup();
+      Window_t wdummy;
+      Int_t ax, ay;
+      gVirtualX->TranslateCoordinates(m_colorSelectWidget->GetId(), gClient->GetDefaultRoot()->GetId(), 0,
+                                      m_colorSelectWidget->GetHeight(), ax, ay, wdummy);
+      m_colorPopup->SetName(m_collection->name().c_str());
+      std::vector<Pixel_t> colors;
+      for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
+         colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
+      }
+      m_colorPopup->ResetColors(colors, cm->backgroundColorIndex()==FWColorManager::kBlackIndex);
+      m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->defaultDisplayProperties().color()));
+      m_colorPopup->PlacePopup(ax, ay, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
    }
-   m_colorPopup->ResetColors(colors, cm->backgroundColorIndex()==FWColorManager::kBlackIndex);
-   m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->defaultDisplayProperties().color()));
-   m_colorPopup->PlacePopup(ax, ay, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
+   else
+   {
+      openRootColorDialog(m_collection->defaultDisplayProperties().color());
+   }
 }
 
 void 
 FWCollectionSummaryWidget::itemColorClicked(int iIndex, Int_t iRootX, Int_t iRootY)
 {
-   createColorPopup();
-   m_indexForColor=iIndex;
-   std::vector<Pixel_t> colors;
    FWColorManager* cm = m_collection->colorManager();
-   for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
+   m_indexForColor=iIndex;
+   if (cm->hasLimitedPalette())
+   {
+      createColorPopup();
+      std::vector<Pixel_t> colors;
+      for(unsigned int index=0; index <cm->numberOfIndicies(); ++index) {
+         colors.push_back((Pixel_t)gVirtualX->GetPixel(cm->indexToColor(index)));
+      }
+      m_colorPopup->ResetColors(colors, cm->backgroundColorIndex()==FWColorManager::kBlackIndex);
+      m_colorPopup->SetName(m_collection->modelName(iIndex).c_str());
+      m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->modelInfo(iIndex).displayProperties().color()));
+      m_colorPopup->PlacePopup(iRootX, iRootY, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
    }
-   m_colorPopup->ResetColors(colors, cm->backgroundColorIndex()==FWColorManager::kBlackIndex);
-   m_colorPopup->SetName(m_collection->modelName(iIndex).c_str());
-   m_colorPopup->SetSelection(gVirtualX->GetPixel(m_collection->modelInfo(iIndex).displayProperties().color()));
-   m_colorPopup->PlacePopup(iRootX, iRootY, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
+   else
+   {
+      openRootColorDialog(m_collection->modelInfo(iIndex).displayProperties().color());
+   }
 }
 
 void 

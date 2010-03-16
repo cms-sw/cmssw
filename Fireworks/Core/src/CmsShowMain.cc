@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.145 2010/01/21 21:01:32 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.146 2010/01/30 18:53:40 chrjones Exp $
 //
 
 // system include files
@@ -105,6 +105,7 @@ static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
 static const char* const kChainCommandOpt = "chain";
 static const char* const kLiveCommandOpt  = "live";
 static const char* const kFieldCommandOpt = "field";
+static const char* const kFreePaletteCommandOpt = "free-palette";
 
 //
 // constructors and destructor
@@ -171,6 +172,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
          (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
          (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
+         (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
          (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFilesOpt, -1);
@@ -220,7 +222,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
       } else {
          if (vm.count(kNoConfigFileOpt)) {
-            printf("No configiguration is loaded, show everything.\n");
+            printf("No configuration is loaded, show everything.\n");
             m_configFileName = "";
          } else {
             m_configFileName = "src/Fireworks/Core/macros/default.fwc";
@@ -237,6 +239,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_geomFileName.append("cmsGeom10.root");
       }
       std::cout << "Geom: " <<  m_geomFileName.c_str() << std::endl;
+
+      // non-restricted palette
+      if (vm.count(kFreePaletteCommandOpt)) {
+         m_colorManager->initialize(false);
+         std::cout << "Palette restriction removed on user request!\n";
+      } else {
+         m_colorManager->initialize(true);
+      }
 
       bool eveMode = vm.count(kEveOpt);
 

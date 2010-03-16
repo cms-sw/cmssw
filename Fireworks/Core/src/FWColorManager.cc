@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.23 2009/11/21 22:25:04 chrjones Exp $
+// $Id: FWColorManager.cc,v 1.24 2010/03/14 22:12:24 matevz Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TGLUtil.h"
 #include "TObjArray.h"
 #include "TMath.h"
+#include "TEveUtil.h"
 #include "TGLViewer.h"
 
 // user include files
@@ -201,31 +202,9 @@ FWColorManager::FWColorManager(FWModelChangeManager* iManager):
 m_gammaOff(0),
 m_background(kBlack),
 m_foreground(kWhite),
-m_changeManager(iManager)
+m_changeManager(iManager),
+m_numColorIndices(0)
 {
-   TObjArray* colorTable = dynamic_cast<TObjArray*>(gROOT->GetListOfColors());
-   m_startColorIndex = static_cast<TColor*>(colorTable->Last())->GetNumber()+1;
-   
-   unsigned int index = m_startColorIndex;
-   //std::cout <<"start color index "<<m_startColorIndex<<std::endl;
-   
-   const float(* itEnd)[3] = s_forBlack+s_size;
-   for(const float(* it)[3] = s_forBlack;
-       it != itEnd;
-       ++it) {
-      //NOTE: this constructor automatically places this color into the gROOT color list
-      //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
-      new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
-   }
-
-   m_startGeomColorIndex = index;
-   itEnd = s_geomForBlack+s_geomSize;
-   for(const float(* it)[3] = s_geomForBlack;
-       it != itEnd;
-       ++it) {
-      //NOTE: this constructor automatically places this color into the gROOT color list
-      new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
-   }   
 }
 
 // FWColorManager::FWColorManager(const FWColorManager& rhs)
@@ -252,13 +231,69 @@ FWColorManager::~FWColorManager()
 //
 // member functions
 
+void FWColorManager::initialize(bool limit_palette)
+{
+   m_limitPalette = limit_palette;
+
+   TObjArray* colorTable = dynamic_cast<TObjArray*>(gROOT->GetListOfColors());
+   if (m_limitPalette)
+   {
+      m_startColorIndex = static_cast<TColor*>(colorTable->Last())->GetNumber()+1;
+      m_numColorIndices = s_size;
+
+      unsigned int index = m_startColorIndex;
+      //std::cout <<"start color index "<<m_startColorIndex<<std::endl;
+   
+      const float(* itEnd)[3] = s_forBlack+s_size;
+      for(const float(* it)[3] = s_forBlack;
+          it != itEnd;
+          ++it) {
+         //NOTE: this constructor automatically places this color into the gROOT color list
+         //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
+         new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
+      }
+
+      m_startGeomColorIndex = index;
+      itEnd = s_geomForBlack+s_geomSize;
+      for(const float(* it)[3] = s_geomForBlack;
+          it != itEnd;
+          ++it) {
+         //NOTE: this constructor automatically places this color into the gROOT color list
+         new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
+      }   
+   }
+   else
+   {
+      // Save default ROOT colors.
+      TEveUtil::SetColorBrightness(0, kFALSE);
+
+      m_startColorIndex = 0;
+      m_numColorIndices = static_cast<TColor*>(colorTable->Last())->GetNumber();
+      m_startGeomColorIndex = m_numColorIndices + 1;
+      unsigned int index    = m_numColorIndices + 1;
+      const float(* itEnd)[3] = s_geomForBlack+s_geomSize;
+      for(const float(* it)[3] = s_geomForBlack;
+          it != itEnd;
+          ++it) {
+         //NOTE: this constructor automatically places this color into the gROOT color list
+         new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
+      }
+   }
+}
+
 void FWColorManager::updateColors()
 {
    if(backgroundColorIndex() == kBlackIndex) {
-      resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
+      if (m_limitPalette)
+         resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
+      else
+         TEveUtil::SetColorBrightness(1.666*m_gammaOff);
       resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
    } else {
-      resetColors(s_forWhite,s_size,m_startColorIndex,  m_gammaOff);
+      if (m_limitPalette)
+         resetColors(s_forWhite,s_size,m_startColorIndex,  m_gammaOff);
+      else
+         TEveUtil::SetColorBrightness(1.666*m_gammaOff - 2.5);
       resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
    }
    FWChangeSentry sentry(*m_changeManager);
@@ -270,6 +305,8 @@ void FWColorManager::updateColors()
 void
 FWColorManager::setBrightness(int b)
 {
+   // Called from CmsShowBrightnessPopup slider where range is set
+   // to: -15, 15.
    m_gammaOff = -b*0.1f;
    updateColors();
 }
@@ -340,7 +377,7 @@ FWColorManager::indexToColor(unsigned int iIndex) const
 unsigned int 
 FWColorManager::numberOfIndicies() const
 {
-   return s_size;
+   return m_numColorIndices;
 }
 
 FWColorManager::BackgroundColorIndex 

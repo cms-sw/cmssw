@@ -11,6 +11,7 @@
 #include "Rtypes.h"
 
 class FWColorManager;
+class TGColorPopup;
 
 enum FWCSelConstants
 {
@@ -162,9 +163,11 @@ public:
 
    void SetColorByIndex(UInt_t iColor, Bool_t iSendSignal);
    void UpdateColors();
+
+   void SetColorByPixel(Pixel_t iPix);
    
    void ColorChosen(Color_t); // *SIGNAL*
-   
+
    ClassDef(FWColorSelect, 0);
 
 };

@@ -343,7 +343,9 @@ void FWColorPopup::ColorBookkeeping(Int_t row)
    UnmapWindow(); // close the popup...
 }
 
+
 //------------------------------FWColorSelect------------------------------//
+
 FWColorSelect::FWColorSelect(const TGWindow *p, 
                              const char* label, 
                              UInt_t index, 
@@ -364,12 +366,15 @@ fColorManager(iManager)
       fPalette.push_back(color);
       colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(color)));
    }
-   
-   fFireworksPopup = new FWColorPopup(gClient->GetDefaultRoot(), fColor);
-   fFireworksPopup->InitContent(fLabel.c_str(), colors);
-   fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Int_t)");
-   fColorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,this));
 
+   if (fColorManager->hasLimitedPalette())
+   {
+      fFireworksPopup = new FWColorPopup(gClient->GetDefaultRoot(), fColor);
+      fFireworksPopup->InitContent(fLabel.c_str(), colors);
+      fFireworksPopup->Connect("ColorBookkeeping(Int_t)","FWColorSelect", this, "CatchSignal(Int_t)");
+   }
+
+   fColorManager->colorsHaveChanged_.connect(boost::bind(&FWColorSelect::UpdateColors,this));
 }
 
 FWColorSelect::~FWColorSelect()
@@ -407,20 +412,37 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
          {
             return kFALSE;
          }
-         Window_t wdummy;
-         Int_t ax, ay;
 
-         std::vector<Pixel_t> colors;
-         colors.reserve(fPalette.size());
-         for(std::vector<Color_t>::const_iterator it=fPalette.begin(), itEnd = fPalette.end();
-             it!=itEnd; ++it) {
-            colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(*it)));
+         if (fColorManager->hasLimitedPalette())
+         {
+            Window_t wdummy;
+            Int_t ax, ay;
+
+            std::vector<Pixel_t> colors;
+            colors.reserve(fPalette.size());
+            for(std::vector<Color_t>::const_iterator it=fPalette.begin(), itEnd = fPalette.end();
+                it!=itEnd; ++it) {
+               colors.push_back(static_cast<Pixel_t>(gVirtualX->GetPixel(*it)));
+            }
+            fFireworksPopup->ResetColors(colors, fColorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
+            fFireworksPopup->SetSelection(static_cast<Pixel_t>(gVirtualX->GetPixel(fPalette[fIndex])));
+
+            gVirtualX->TranslateCoordinates(fId, gClient->GetDefaultRoot()->GetId(), 0, fHeight, ax, ay, wdummy);
+            fFireworksPopup->PlacePopup(ax, ay, fFireworksPopup->GetDefaultWidth(), fFireworksPopup->GetDefaultHeight());
          }
-         fFireworksPopup->ResetColors(colors, fColorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
-         fFireworksPopup->SetSelection(static_cast<Pixel_t>(gVirtualX->GetPixel(fPalette[fIndex])));
-         
-         gVirtualX->TranslateCoordinates(fId, gClient->GetDefaultRoot()->GetId(), 0, fHeight, ax, ay, wdummy);
-         fFireworksPopup->PlacePopup(ax, ay, fFireworksPopup->GetDefaultWidth(), fFireworksPopup->GetDefaultHeight());
+         else
+         {
+            Int_t   retc;
+            ULong_t pixel = TColor::Number2Pixel(fIndex);
+
+            TGColorDialog *cd = new TGColorDialog(gClient->GetDefaultRoot(), this, &retc, &pixel, kFALSE);
+
+            cd->Connect("ColorSelected(Pixel_t)", "FWColorSelect", this, "SetColorByPixel(Pixel_t");
+
+            cd->MapWindow();
+            fClient->WaitForUnmap(cd);
+            cd->DeleteWindow();
+         }
       }
    }
    return kTRUE;
@@ -438,6 +460,13 @@ FWColorSelect::SetColorByIndex(UInt_t iColor, Bool_t iSendSignal)
    }
 }
 
+void FWColorSelect::SetColorByPixel(Pixel_t iPix)
+{
+   fIndex = TColor::GetColor(iPix);
+   SetColor(iPix, kTRUE);
+   ColorChosen(fIndex);
+}
+
 void FWColorSelect::UpdateColors()
 {
    SetColorByIndex(fIndex,kFALSE);
@@ -448,7 +477,7 @@ void FWColorSelect::CatchSignal(Int_t index)
    if(index < static_cast<int>(fPalette.size())) {
       fIndex=index;
       SetColorByIndex(index, kTRUE);
-   }   
+   }
 }
 
 void 
