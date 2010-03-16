@@ -1,6 +1,10 @@
-// $Id: HLTScalersClient.cc,v 1.14 2010/02/02 11:44:20 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.15 2010/02/11 23:55:18 wittich Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.15  2010/02/11 23:55:18  wittich
+// - adapt to shorter Lumi Section length
+// - fix bug in how history of counts was filled
+//
 // Revision 1.14  2010/02/02 11:44:20  wittich
 // more diagnostics for online scalers
 //
@@ -46,6 +50,7 @@ const int kPerHisto = 20;
 /// Constructors
 HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
   recentOverallCountsPerLS_(),
+  recentNormedOverallCountsPerLS_(),
   dbe_(0),
   nLumi_(0),
   currentRate_(0),
@@ -80,7 +85,12 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
 
   hltRate_ = dbe_->book1D("hltRate", "Overall HLT Accept rate vs LS", 
 			  MAX_LUMI_SEG_HLT, -0.5, MAX_LUMI_SEG_HLT-0.5);
+  hltNormRate_ = dbe_->book1D("hltRateNorm", 
+			      "Overall HLT Accept rate per FU vs LS", 
+			      MAX_LUMI_SEG_HLT, -0.5, MAX_LUMI_SEG_HLT-0.5);
   hltCount_= dbe_->book1D("hltCount", "Overall HLT Counts vs LS", 
+			  MAX_LUMI_SEG_HLT, -0.5, MAX_LUMI_SEG_HLT-0.5);
+  hltCountN_= dbe_->book1D("hltCountN", "Overall HLT Counts per LS vs LS", 
 			  MAX_LUMI_SEG_HLT, -0.5, MAX_LUMI_SEG_HLT-0.5);
   mergeCount_= dbe_->book1D("mergeCount", "Number of merge counts vs LS", 
 			    MAX_LUMI_SEG_HLT, -0.5, MAX_LUMI_SEG_HLT-0.5);
@@ -108,39 +118,6 @@ void HLTScalersClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
   missingPathNames_ = true;
   first_ = true;
   LogDebug("HLTScalersClient") << "beginRun, run " << run.id();
-//   std::cout << "BeginRun!!!" << std::endl;
-// //   if (!hltConfig_.init(processName_)) {
-// //     LogDebug("HLTScalersClient") << "HLTConfigProvider failed to initialize.";
-// //   }
-// //   else {
-// //     const unsigned int nTrigs(hltConfig_.size());
-//   unsigned int nTrigs = 200;
-//     // check if trigger name in (new) config
-//     //	cout << "Available TriggerNames are: " << endl;
-//     //	hltConfig_.dump("Triggers");
-//     LogDebug("HLTScalersClient") << "HLTConfigProvider size is " << nTrigs;
-//     for (unsigned int i=0; i < nTrigs; ++i) {
-//       char name[256]; snprintf(name, 256, "p%d", i);
-//       std::string pathname(name);
-//       //std::string pathname = hltConfig_.triggerName(i);
-//       std::cout << "Pathname " << i << " is " <<  pathname << std::endl;
-
-//       //scalerCounters_[i] = 0UL;
-//       rateHistories_[i] = 0; // not really needed but ...
-      
-//       char title[256]; snprintf(title, 256, "Rate: %s (Path %d)", 
-// 				pathname.c_str(), i);
-//       LogDebug("HLTScalersClient") << "name " << i << " is " << pathname ;
-//       rateHistories_[i] = dbe_->book1D(pathname.c_str(), title, MAX_LUMI_SEG_HLT, 
-// 				       -0.5, MAX_LUMI_SEG_HLT-0.5);
-//       snprintf(name, 256, "counts_%s", pathname.c_str());
-//       snprintf(title, 256, "Counts for %s (Path %d)", pathname.c_str(), i);  
-//       countHistories_[i] = dbe_->book1D(name, title, MAX_LUMI_SEG_HLT, 
-// 					-0.5, MAX_LUMI_SEG_HLT-0.5);
-//     } // loop over trigger paths
-
-
-//     //  }
 
 } // beginRun
 
@@ -174,7 +151,9 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       LogDebug("HLTScalersClient") << "cannot get hlt scalers histogram, "
 				   << "bailing out.";
       if ( debug_ )
-	std::cout << "No scalers ? " << std::endl;
+	std::cout << "No scalers ? Looking for " 
+		  << scalHisto
+		  << std::endl;
       return;
     }
   }
@@ -193,16 +172,22 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     currentRate_ = dbe_->book1D("cur_rate", 
 				"current lumi section rate per path",
 				npaths, -0.5, npaths-0.5);
+    currentNormRate_ = dbe_->book1D("cur_rate_norm", 
+				    "current norm. lumi section rate per path",
+				    npaths, -0.5, npaths-0.5);
     recentPathCountsPerLS_.reserve(npaths);
+    recentNormedPathCountsPerLS_.reserve(npaths);
     char rates_subfolder[256]; snprintf(rates_subfolder, 256, "%s/RateHistory",
 					folderName_.c_str());
     char counts_subfolder[256]; snprintf(counts_subfolder, 256, 
 					 "%s/CountHistory", 
 					 folderName_.c_str());
 
-    hltCurrentRate_.reserve(npaths);
-    rateHistories_. reserve(npaths);
-    countHistories_.reserve(npaths);
+    hltCurrentRate_.    reserve(npaths);
+    rateHistories_.     reserve(npaths);
+    countHistories_.    reserve(npaths);
+    hltCurrentNormRate_.reserve(npaths);
+    rateNormHistories_. reserve(npaths);
 
     for (int i = 0; i < npaths; ++i ) {
 
@@ -211,12 +196,16 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       dbe_->setCurrentFolder(rates_subfolder);
       rateHistories_.push_back(dbe_->book1D(name, name, MAX_LUMI_SEG_HLT, 
 					    -0.5, MAX_LUMI_SEG_HLT-0.5));
+      snprintf(name, 256, "nrate_p%03d", i);
+      rateNormHistories_.push_back(dbe_->book1D(name, name, MAX_LUMI_SEG_HLT, 
+						-0.5, MAX_LUMI_SEG_HLT-0.5));
       dbe_->setCurrentFolder(counts_subfolder);
       snprintf(name, 256, "counts_p%03d", i);
       countHistories_.push_back(dbe_->book1D(name, name, MAX_LUMI_SEG_HLT, 
 					     -0.5, MAX_LUMI_SEG_HLT-0.5));
       // prefill the data structures
       recentPathCountsPerLS_.push_back(CountLSFifo_t());
+      recentNormedPathCountsPerLS_.push_back(CountLSFifo_t());
     }
     dbe_->setCurrentFolder(folderName_);
 
@@ -237,6 +226,12 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	       npath_high);
       hltCurrentRate_.push_back(dbe_->book1D(mename, metitle, kPerHisto, 
 					     -0.5 + npath_low, npath_high+0.5));
+      snprintf(mename, 40, "hltScalersNorm_%0d", k);
+      snprintf(metitle, 40, "HLT Normalized Rate - Paths %d to %d", npath_low, 
+	       npath_high);
+      hltCurrentNormRate_.push_back(dbe_->book1D(mename, metitle, kPerHisto, 
+						 -0.5 + npath_low, 
+						 npath_high+0.5));
     }
 
     first_ = false;
@@ -246,42 +241,26 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
 
   if ( missingPathNames_) {
+    // first try the scalers histogram and see if the bin names are set
     for ( int i = 0; i < npaths; ++i ) {
-      // set up the histogram names
-      int whichHisto = i/kPerHisto;
-      int whichBin = i%kPerHisto + 1;
-      char pname[256];
-      snprintf(pname, 256, "%s/path%03d",folderName_.c_str(), i);
-//       LogDebug("HLTScalersClient") << "Looking for path " << pname;
-      MonitorElement *name = dbe_->get(pname);
-      if ( name == 0 ) {
-	snprintf(pname, 256, "%s/raw/path%03d",folderName_.c_str(), i);
-	name = dbe_->get(pname);
-      }
-      std::string sname;
+      // needs to be i+1 since root bins start at 1
+      const char* name = scalers->getTH1()->GetXaxis()->GetBinLabel(i+1);
       if ( name ) {
-	sname = std::string (name->getStringValue());
+	if ( debug_ ) 
+	  std::cout << "path " << i << " name is " << name << std::endl;
+	int whichHisto = i/kPerHisto;
+	int whichBin = i%kPerHisto + 1;
+	char pname[256];
+	hltCurrentRate_[whichHisto]->setBinLabel(whichBin, name);
+	snprintf(pname, 256, "Rate - path %s (Path # %03d)", name, i);
+	rateHistories_[i]->setTitle(pname);
+	currentRate_->setBinLabel(i+1, name);
+	currentNormRate_->setBinLabel(i+1, name);
+
 	missingPathNames_ = false;
       }
-      else {
-	sname = std::string("unknown");
-// 	// PW DEBUG
-// 	std::cout << "Can't find path name for path " << i << std::endl;
-// 	// PW DEBUG
-      }
-      hltCurrentRate_[whichHisto]->setBinLabel(whichBin, sname.c_str());
-      snprintf(pname, 256, "Rate - path %s (Path # %03d)", sname.c_str(), i);
-      rateHistories_[i]->setTitle(pname);
-      currentRate_->setBinLabel(i+1, sname.c_str());
-      scalers->setBinLabel(i+1, sname.c_str());
+    }
 
-      snprintf(pname, 256, "Count - path %s (Path # %03d)", sname.c_str(), i);
-      countHistories_[i]->setTitle(pname);
-    }
-    if ( ! missingPathNames_ ) {
-      if ( debug_ ) 
-	std::cout << "Yaay! found pathnames. " << std::endl;
-    }
   }
 
   // END SETUP
@@ -305,6 +284,21 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     //nL = MAX_LUMI_SEG_HLT;
     nL = nL%MAX_LUMI_SEG_HLT;
   }
+
+  // merging counts
+  double num_fu = -1.0;
+  std::string mergeName(folderName_ + "/raw/hltMerge");
+  MonitorElement *merge = dbe_->get(mergeName);
+  if ( merge != 0 ) {
+    num_fu = merge->getBinContent(1);
+    if ( debug_ ) {
+      std::cout << "Number of received entries: " << num_fu
+		<< std::endl;
+    }
+    mergeCount_->Fill(nL,num_fu);
+  }
+  // end 
+
 
   // evaluate the data
   // loop over current counts
@@ -330,6 +324,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       while ( recentPathCountsPerLS_[i-1].size() > kRateIntegWindow_ ) {
 	recentPathCountsPerLS_[i-1].pop_back();
       }
+
+
       // NB: we do not fill a new entry in the rate histo if we can't 
       // calculate it
       std::pair<double,double> sl =  getSlope_(recentPathCountsPerLS_[i-1]);
@@ -337,12 +333,19 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       //rateHistories_[i-1]->Fill(nL,slope);
       if ( slope > -1 ) {
 	rateHistories_[i-1]->setBinContent(nL,slope);
-	rateHistories_[i-1]->setBinError(nL,slope_err);
 	// set the current rate(s)
 	hltCurrentRate_[(i-1)/kPerHisto]->setBinContent(i%kPerHisto, slope);
-	hltCurrentRate_[(i-1)/kPerHisto]->setBinError(i%kPerHisto, slope_err);
 	currentRate_->setBinContent(i, slope);
-	currentRate_->setBinError(i, slope_err);
+	if ( ! std::isnan(slope_err ) && (slope_err >= 0 ) ) {
+	  currentRate_->setBinError(i, slope_err);
+	  hltCurrentRate_[(i-1)/kPerHisto]->setBinError(i%kPerHisto, slope_err);
+	  rateHistories_[i-1]->setBinError(nL,slope_err);
+	}
+	else {
+	  std::cout << "slope_err is nan for number " << i 
+		    << ", " << slope_err
+		    << std::endl;
+	}
       }
       
     }
@@ -358,6 +361,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     }
   }
+
   ignores_.push_front(localignores);
   while ( ignores_.size() > 3 )
     ignores_.pop_back();
@@ -395,44 +399,53 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
   // end DEBUG
 
-  // test features - might not be available
-  // merging counts
-  std::string mergeName(folderName_ + "/hltMerge");
-  MonitorElement *merge = dbe_->get(mergeName);
-  if ( merge == 0 ) {
-    mergeName = std::string(folderName_ + "/raw/hltMerge");
-    merge = dbe_->get(mergeName);
-  }
-  if ( merge != 0 ) {
-    double mm = merge->getBinContent(1);
+
+  // ------ overall rate normalized - all data
+  std::string overallScalerName(folderName_ + "/raw/hltOverallScalerN");
+  MonitorElement *hltScaler = dbe_->get(overallScalerName);
+  if ( hltScaler != 0 ) {
+    double cnt = hltScaler->getBinContent(1);
+    //hltCountN_->setBinContent(nL,cnt);
+    hltCountN_->Fill(nL,cnt);
     if ( debug_ ) {
-      std::cout << "Number of received entries: " << mm
+      std::cout << "Overall Norm: new => cnt, ls = " 
+		<< cnt << ", " << nL
+		<< ", num_fu = " << num_fu 
 		<< std::endl;
     }
-    mergeCount_->Fill(nL,mm);
+    recentNormedOverallCountsPerLS_.push_front(CountLS_t(nL,
+							 cnt/num_fu));
+    while ( recentNormedOverallCountsPerLS_.size() > 2 ) {
+      recentNormedOverallCountsPerLS_.pop_back();
+    }
+    double slope = cnt / num_fu / SECS_PER_LUMI_SECTION;
+    if ( debug_ )  {
+      std::cout << "Normalized slope = " << slope << std::endl;
+    }
+    hltNormRate_->setBinContent(nL,slope);
   }
-  // end 
-  // overall rate 
-  std::string overallScalerName(folderName_ + "/raw/hltOverallScaler");
-  MonitorElement *hltScaler = dbe_->get(overallScalerName);
+
+  // ---------------------------- overall rate, absolute counts
+  overallScalerName = std::string(folderName_ + "/raw/hltOverallScaler");
+  hltScaler = dbe_->get(overallScalerName);
   if ( hltScaler != 0 ) {
     double current_count = hltScaler->getBinContent(1);
     hltCount_->setBinContent(nL,current_count);
     if ( recentOverallCountsPerLS_.empty() ||
 	 current_count >= recentOverallCountsPerLS_.front().second ) {
       // good data
-      // DEBUG
-      if ( debug_ ) {
-	if ( ! recentOverallCountsPerLS_.empty() ) {
-	  std::cout << "Overall\t-> good one: new => cnt, ls = " 
-		    << current_count << ", " << nL
-		    << ", old = "
-		    << recentOverallCountsPerLS_.front().second << "\t"
-		    << recentOverallCountsPerLS_.front().first 
-		    << std::endl;
-	  // END DEBUG
-	}
-      }
+//       // DEBUG
+//       if ( debug_ ) {
+// 	if ( ! recentOverallCountsPerLS_.empty() ) {
+// 	  std::cout << "Overall\t-> good one: new => cnt, ls = " 
+// 		    << current_count << ", " << nL
+// 		    << ", old = "
+// 		    << recentOverallCountsPerLS_.front().second << "\t"
+// 		    << recentOverallCountsPerLS_.front().first 
+// 		    << std::endl;
+// 	  // END DEBUG
+// 	}
+//       }
       recentOverallCountsPerLS_.push_front(CountLS_t(nL,current_count));
       while ( recentOverallCountsPerLS_.size() > kRateIntegWindow_ ) {
 	recentOverallCountsPerLS_.pop_back();
@@ -441,7 +454,8 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       double slope = sl.first; double slope_err = sl.second;
       if ( slope > -1 ) {
 	hltRate_->setBinContent(nL,slope);
-	hltRate_->setBinError(nL,slope_err);
+	if ( ! std::isnan(slope_err ) && (slope_err >= 0 )  )
+	  hltRate_->setBinError(nL,slope_err);
       }
 
     } // good data
@@ -453,7 +467,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 }
 
 // unused
-void HLTScalersClient::analyze(const edm::Event& e, const edm::EventSetup& c) 
+void HLTScalersClient::analyze(const edm::Event& e, const edm::EventSetup& c ) 
 {
   // nothing to do here
 }
@@ -464,38 +478,47 @@ void HLTScalersClient::analyze(const edm::Event& e, const edm::EventSetup& c)
 std::pair<double,double>
 HLTScalersClient::getSlope_(HLTScalersClient::CountLSFifo_t points)
 {
-  // this is probably total overkill
-  if (points.size() < kRateIntegWindow_ ) 
-    return std::pair<double,double>(-1,0);
-  double xy = 0;
-  double x = 0;
-  double xsq = 0;
-  double y = 0;
-  double n = double(points.size());
-  for ( CountLSFifo_t::iterator i(points.begin());
-	i != points.end(); ++i ) {
-    if ( debug_ ) 
-      std::cout << "x = " << i->first << ", y = " << i->second 
-		<< std::endl;
-    xy += i->first * i->second;
-    x += i->first;
-    xsq += i->first*i->first;
-    y += i->second;
-  }
-  double slope = (n*xy - x*y)/(n*xsq - x*x);
 
-  // now get the uncertainty on the slope. Need intercept for this.
-  double intercept = (xsq*y - xy*x)/(n*xsq-x*x);
-  double sigma_ysq = 0;
-  for ( CountLSFifo_t::iterator i(points.begin());
-	i != points.end(); ++i ) {
-    sigma_ysq += pow(( i->second - slope * i->first  - intercept),2.);
+  double slope, sigma_m;
+  // just do a delta if we just want two bins
+  if ( points.size() == 2 ) {
+    // just do diff and be done with it 
+    double delta_ls = points.front().first - points.back().first;
+    double delta_cnt = points.front().second - points.back().second;
+    slope = delta_cnt / delta_ls ;
+    sigma_m = -1;
   }
-  if ( debug_ ) 
-    std::cout << "chi^2 = " << sigma_ysq << std::endl;
-  sigma_ysq *= 1./(n-2.);
+  else { // do a fit
+    double xy = 0;
+    double x = 0;
+    double xsq = 0;
+    double y = 0;
+    double n = double(points.size());
+    for ( CountLSFifo_t::iterator i(points.begin());
+	  i != points.end(); ++i ) {
+//       if ( debug_ ) 
+// 	std::cout << "x = " << i->first << ", y = " << i->second 
+// 		  << std::endl;
+      xy += i->first * i->second;
+      x += i->first;
+      xsq += i->first*i->first;
+      y += i->second;
+    }
+    slope = (n*xy - x*y)/(n*xsq - x*x);
 
-  double sigma_m = sqrt( n*sigma_ysq/(n*xsq - x*x));
+    // now get the uncertainty on the slope. Need intercept for this.
+    double intercept = (xsq*y - xy*x)/(n*xsq-x*x);
+    double sigma_ysq = 0;
+    for ( CountLSFifo_t::iterator i(points.begin());
+	  i != points.end(); ++i ) {
+      sigma_ysq += pow(( i->second - slope * i->first  - intercept),2.);
+    }
+//     if ( debug_ ) 
+//       std::cout << "chi^2 = " << sigma_ysq << std::endl;
+    sigma_ysq *= 1./(n-2.);
+
+    sigma_m = sqrt( n*sigma_ysq/(n*xsq - x*x));
+  }
 
   //  std::cout << "Slope is " << slope << std::endl;
   slope /= SECS_PER_LUMI_SECTION;

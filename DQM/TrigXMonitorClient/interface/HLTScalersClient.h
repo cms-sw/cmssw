@@ -2,9 +2,13 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.10 2010/02/11 23:55:18 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.11 2010/02/15 17:10:45 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.11  2010/02/15 17:10:45  wittich
+// Allow for longer length runs (2400 ls)
+// this is only in the client
+//
 // Revision 1.10  2010/02/11 23:55:18  wittich
 // - adapt to shorter Lumi Section length
 // - fix bug in how history of counts was filled
@@ -57,6 +61,10 @@ public:
 private:
   std::vector<CountLSFifo_t> recentPathCountsPerLS_;
   CountLSFifo_t recentOverallCountsPerLS_;
+
+  std::vector<CountLSFifo_t> recentNormedPathCountsPerLS_;
+  CountLSFifo_t recentNormedOverallCountsPerLS_;
+
   
 public:
   /// Constructors
@@ -104,8 +112,15 @@ private:
   std::vector<MonitorElement*> hltCurrentRate_;
   MonitorElement *hltRate_; // global rate - any accept
   MonitorElement *hltCount_; // globalCounts
+  MonitorElement *hltCountN_; // globalCounts normalized
   MonitorElement *updates_;
   MonitorElement *mergeCount_;
+
+  // Normalized
+  MonitorElement *hltNormRate_; // global rate - any accept
+  MonitorElement *currentNormRate_;
+  std::vector<MonitorElement*> rateNormHistories_; 
+  std::vector<MonitorElement*> hltCurrentNormRate_;
   
   bool first_, missingPathNames_;
   std::string folderName_;
