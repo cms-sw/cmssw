@@ -33,7 +33,6 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/Scalers/interface/EventCounter0.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 class ScalersRawToDigi : public edm::EDProducer 
@@ -58,7 +57,6 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
   produces<LumiScalersCollection>();
   produces<BeamSpotOnlineCollection>();
   produces<DcsStatusCollection>();
-  produces<EventCounter0Collection>();
   if ( iConfig.exists("scalersInputTag") )
   {
     inputTag_ = iConfig.getParameter<edm::InputTag>("scalersInputTag");
@@ -91,7 +89,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 
   std::auto_ptr<BeamSpotOnlineCollection> pBeamSpotOnline(new BeamSpotOnlineCollection());
   std::auto_ptr<DcsStatusCollection> pDcsStatus(new DcsStatusCollection());
-  std::auto_ptr<EventCounter0Collection> pEventCounter0(new EventCounter0Collection());
 
   /// Take a reference to this FED's data
   const FEDRawData & fedData = rawdata->FEDData(ScalersRaw::SCALERS_FED_ID);
@@ -141,12 +138,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       DcsStatus dcsStatus(fedData.data());
       pDcsStatus->push_back(dcsStatus);
     }
-
-    if ( raw->version >= 5 )
-    {
-      EventCounter0 eventCounter0(0,(unsigned long long *)(&(raw->ec0)));
-      pEventCounter0->push_back(eventCounter0);
-    }
   }
   iEvent.put(pOldTrigger); 
   iEvent.put(pTrigger); 
@@ -154,7 +145,6 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
   iEvent.put(pBunch);
   iEvent.put(pBeamSpotOnline);
   iEvent.put(pDcsStatus);
-  iEvent.put(pEventCounter0);
 }
 
 // Define this as a plug-in

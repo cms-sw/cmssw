@@ -8,7 +8,6 @@
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/Scalers/interface/EventCounter0.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/TimeSpec.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -26,7 +25,6 @@ namespace
     Level1TriggerRates level1TriggerRates;
     LumiScalers lumiScalers;
     DcsStatus dcsStatus;
-    EventCounter0 eventCouner0;
     BeamSpotOnline beamSpotOnline;
 
     edm::Wrapper<L1AcceptBunchCrossing> w_l1AcceptBunchCrossing;
@@ -36,7 +34,6 @@ namespace
     edm::Wrapper<Level1TriggerRates> w_level1TriggerRates;
     edm::Wrapper<LumiScalers> w_lumiScalers;
     edm::Wrapper<DcsStatus> w_dcsStatus;
-    edm::Wrapper<EventCounter0> w_eventCounter0;
     edm::Wrapper<BeamSpotOnline> w_beamSpotOnline;
 
     edm::RefProd<L1AcceptBunchCrossing> l1AcceptBunchCrossingRef ;
@@ -46,7 +43,6 @@ namespace
     edm::RefProd<Level1TriggerRates> level1TriggerRatesRef ;
     edm::RefProd<LumiScalers> lumiScalersRef ;
     edm::RefProd<DcsStatus> dcsStatusRef ;
-    edm::RefProd<EventCounter0> eventCounter0Ref ;
     edm::RefProd<BeamSpotOnline> beamSpotOnlineRef ;
 
     L1AcceptBunchCrossingCollection l1AcceptBunchCrossingCollection;
@@ -70,9 +66,6 @@ namespace
 
     DcsStatusCollection dcsStatusCollection;
     edm::Wrapper<DcsStatusCollection> w_dcsStatusCollection;
-
-    EventCounter0Collection eventCounter0Collection;
-    edm::Wrapper<EventCounter0Collection> w_eventCounter0Collection;
 
     BeamSpotOnlineCollection beamSpotOnlineCollection;
     edm::Wrapper<BeamSpotOnlineCollection> w_beamSpotOnlineCollection;
