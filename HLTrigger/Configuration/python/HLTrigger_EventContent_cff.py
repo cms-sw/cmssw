@@ -8,8 +8,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # as these are used in Configuration/EventContent
 #
-# All else is internal and should not be used directly by non-HLT users.
-#
 HLTriggerRAW = cms.PSet(
     outputCommands = cms.vstring('drop *_hlt*_*_*', 
         'keep *_hltL1GtObjectMap_*_*', 

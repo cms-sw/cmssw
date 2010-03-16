@@ -139,8 +139,6 @@ dump.write('''import FWCore.ParameterSet.Config as cms
 #
 # as these are used in Configuration/EventContent
 #
-# All else is internal and should not be used directly by non-HLT users.
-#
 ''')
 dump.write('HLTriggerRAW = %s\n\n'  % HLTriggerRAW)
 dump.write('HLTriggerRECO = %s\n\n' % HLTriggerRECO)
