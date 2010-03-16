@@ -9,6 +9,8 @@ else if (  $sample == SingleGammaPt35 ) then
 setenv outFileName SingleGammaPt35
 else if (  $sample ==  H130GGgluonfusion ) then
 setenv outFileName H130GGgluonfusion
+else if (  $sample == PhotonJets_Pt_10 ) then
+setenv outFileName  PhotonJets_Pt_10
 else if (  $sample == QCD_Pt_80_120 ) then
 setenv outFileName  QCD_Pt_80_120
 endif
@@ -16,7 +18,7 @@ endif
 setenv confName  PhotonValidator
 
 
-setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_6_0_pre2/src/Validation/RecoEgamma/test
+setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_5_3/src/Validation/RecoEgamma/test
 
 
 echo ${MYWORKDIR}
@@ -35,5 +37,6 @@ echo ${WORKDIR}
 cmsRun  conf.py > & ${outFileName}.log
 #---------------------------------------------------------------
  rfcp   ${outFileName}.log             ${MYOUT}/.
- rfcp   PhotonValidationRelVal360pre2_${outFileName}.root            ${MYOUT}/.
+ rfcp   PhotonValidationRelVal353_${outFileName}.root            ${MYOUT}/.
 
+ 
