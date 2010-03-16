@@ -21,7 +21,7 @@ implements Runnable,DipPublicationErrorHandler
   public final static boolean publishStatErrors = true;
   public final static String subjectCMS = "dip/CMS/Tracker/BeamPixel";
   public final static String subjectLHC = "dip/CMS/LHCTEST/LuminousRegion";
-  public final static String sourceFile = "/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt";
+  public final static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt";
   public final static int secPerLS = 23;
   public final static int rad2urad = 1000000;
   public final static int cm2um = 10000;
@@ -107,28 +107,49 @@ implements Runnable,DipPublicationErrorHandler
     {
       File logFile = new File(sourceFile);
       logFile.createNewFile();
-      long filePointer = logFile.length();
       RandomAccessFile myFile;
+      long filePointer = logFile.length();
+      long lastRcdPointer = logFile.length();
+      long fileLength = logFile.length();
 
       while (keepRunning)
       {
 	try
 	{
-	  if (logFile.createNewFile()) {
-	      String commands = "chmod a+w " + sourceFile;
-	      Process proc1 = Runtime.getRuntime().exec(commands);
-	  }
+	  long tmpTime = logFile.lastModified();
 	  myFile = new RandomAccessFile(logFile,"r");
-	  long fileLength = logFile.length();
 
-	  if (fileLength < filePointer) {
-	      //System.out.println("New Run Started");
-	      filePointer = 0;
-	      lsCount = 0;
+	  if (lastFitTime == 0) { // execute when server starts
 	      myFile.close();
+	      lastFitTime = tmpTime;
+ 	      if (!appendRcd) {
+ 		  fileLength = 0;
+ 		  filePointer = 0;
+ 	      }
 	      continue;
 	  }
-	  else if (fileLength == filePointer) {
+	  else if (tmpTime > lastFitTime) {
+	      lastFitTime = tmpTime;
+	      //lsCount = 0;
+	      if(logFile.length() > 0) {
+		  if(!appendRcd){
+		      filePointer = 0;
+		      fileLength = -1;
+		  }
+		  else
+		      fileLength--;
+	      }
+	      else { // execute when run restarts
+		  if (appendRcd) {
+		      filePointer = 0;
+		      fileLength = 0;
+		  }
+		  myFile.close();
+		  continue;
+	      }
+	  }
+
+	  if (fileLength == filePointer) {
 	      myFile.close();
 	      if (lsCount != 0 && lsCount%60 == 0)
 		  System.out.println("Waiting for data...");
@@ -142,24 +163,39 @@ implements Runnable,DipPublicationErrorHandler
 	      idleTime++;
 	      if ((lsCount < timeoutLS[1]*secPerLS) && (lsCount%(timeoutLS[0]*secPerLS) == 0)) {//fist time out
 		  if (!alive.get(1)) alive.flip(1);
-		  if(!alive.get(7)) fakeRcd();
-		  else trueRcd();
-		  if(!alive.get(2)) publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
-		  else publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+		  if (!alive.get(2)) {
+		      if (!alive.get(7)) fakeRcd();
+		      else trueRcd();
+		      publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
+		  }
+		  else {
+		      fakeRcd();
+		      publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+		  }
 	      }
 	      else if (lsCount%(timeoutLS[1]*secPerLS) == 0) {//second time out
 		  if (!alive.get(2)) alive.flip(2);
-		  if(!alive.get(7)) fakeRcd();
-		  else trueRcd();
+		  //if(!alive.get(7))
+		  fakeRcd();
+		  //else trueRcd();
 		  publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
 		  lsCount = 0;
 	      }
 	      continue;
 	  }
-	  else {
-	      System.out.println("Read new record from " + sourceFile);
+	  else { //read record
+	      System.out.println("Read record from " + sourceFile);
 	      if (appendRcd) filePointer = readRcd(myFile,filePointer);
 	      else filePointer = readRcd(myFile,0);
+	      if (appendRcd && filePointer == lastRcdPointer) {
+		  System.out.println("Old Record! No publishing!");
+		  myFile.close();
+		  fileLength = filePointer;
+		  continue;
+	      }
+	      System.out.println("Publish new record");
+	      fileLength = filePointer;
+	      lastRcdPointer = filePointer;
 	      trueRcd();
 	      myFile.close();
 	      lsCount = 0;
