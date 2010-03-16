@@ -21,6 +21,7 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
 #include "DataFormats/JetReco/interface/JetID.h"
+#include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Common/interface/RefProd.h" 
@@ -187,6 +188,18 @@ namespace {
     std::vector<reco::CaloJet::Specific> v_cj_s;
     std::vector<reco::JPTJet::Specific> v_jptj_s;
     std::vector<reco::PFJet::Specific> v_pj_s;
+
+    reco::TrackExtrapolation xtrp;
+    std::vector<reco::TrackExtrapolation> v_xtrp;
+    edm::Ref<std::vector<reco::TrackExtrapolation> > r_xtrp;
+    edm::RefVector<std::vector<reco::TrackExtrapolation> > rv_xtrp;
+    edm::RefProd<std::vector<reco::TrackExtrapolation> > rp_xtrp;
+    edm::Wrapper<reco::TrackExtrapolation> w_xtrp;
+    edm::Wrapper<std::vector<reco::TrackExtrapolation> > wv_xtrp;
+    edm::Wrapper<edm::Ref<std::vector<reco::TrackExtrapolation> > > wr_xtrp;
+    edm::Wrapper<edm::RefVector<std::vector<reco::TrackExtrapolation> > > wrv_xtrp;
+    edm::Wrapper<edm::RefProd<std::vector<reco::TrackExtrapolation> > > wrp_xtrp;
+
   };
 }
 #endif

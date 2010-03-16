@@ -185,4 +185,16 @@
   <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />
   <class name="std::vector<reco::CaloJet::Specific>" />
   <class name="std::vector<reco::PFJet::Specific>"   />
+
+   <class name="reco::TrackExtrapolation" />
+   <class name="std::vector<reco::TrackExtrapolation>" />
+   <class name="edm::Ref<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>  >" />
+   <class name="edm::RefVector<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>   >" />
+   <class name="edm::RefProd<std::vector<reco::TrackExtrapolation> >" />
+   <class name="edm::Wrapper<reco::TrackExtrapolation>" />
+   <class name="edm::Wrapper<std::vector<reco::TrackExtrapolation> >" />
+   <class name="edm::Wrapper<edm::Ref<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>   > >" />
+   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation> > >" />
+   <class name="edm::Wrapper<edm::RefProd<std::vector<reco::TrackExtrapolation> > >" />
+op
 </lcgdict>
