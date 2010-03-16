@@ -54,7 +54,12 @@ CSCHaloData::CSCHaloData()
   nTracks_PlusZ = 0 ;
   nTracks_MinusZ = 0;
   HLTAccept=false;
+
+  nOutOfTimeTriggers_PlusZ=0;
+  nOutOfTimeTriggers_MinusZ=0;
+  nOutOfTimeHits = 0 ;
 }
+
 int CSCHaloData::NumberOfHaloTriggers(int z) const
 {
   if( z == 1 )
@@ -63,6 +68,16 @@ int CSCHaloData::NumberOfHaloTriggers(int z) const
     return nTriggers_MinusZ;
   else 
     return nTriggers_MinusZ + nTriggers_PlusZ;
+}
+
+short int CSCHaloData::NumberOfOutOfTimeTriggers(int z ) const
+{
+  if( z == 1 ) 
+    return nOutOfTimeTriggers_PlusZ;
+  else if( z == -1 ) 
+    return nOutOfTimeTriggers_MinusZ;
+  else
+    return nOutOfTimeTriggers_PlusZ+nOutOfTimeTriggers_MinusZ;
 }
 
 int CSCHaloData::NumberOfHaloTracks(int z) const 

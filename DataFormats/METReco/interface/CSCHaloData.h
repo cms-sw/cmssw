@@ -37,15 +37,19 @@ namespace reco {
 
     // Number of HaloTriggers in +/- endcap
     int NumberOfHaloTriggers (int z=0) const ;
+    int NHaloTriggers(int z = 0 ) const { return NumberOfHaloTriggers(z);}
     // Number of Halo Tracks in +/-  endcap
     int NumberOfHaloTracks(int z=0) const ;
+    int NHaloTracks(int z=0) const { return NumberOfHaloTracks(z) ;}
 
     // Halo trigger bit from the HLT  
     bool CSCHaloHLTAccept() const {return HLTAccept;}
 
     // Number of chamber-level triggers with non-collision timing
-    short int NOutOfTimeTriggers() const {return nOutOfTimeTriggers;}
+    short int NumberOfOutOfTimeTriggers(int z = 0 ) const;
+    short int NOutOfTimeTriggers(int z = 0) const {return NumberOfOutOfTimeTriggers(z);}
     // Number of CSCRecHits with non-collision timing
+    short int NumberOfOutTimeHits() const { return nOutOfTimeHits;}
     short int NOutOfTimeHits() const {return nOutOfTimeHits;}
 
     // Get Reference to the Tracks
@@ -56,7 +60,7 @@ namespace reco {
     void SetNumberOfHaloTriggers(int PlusZ,  int MinusZ ){ nTriggers_PlusZ =PlusZ; nTriggers_MinusZ = MinusZ ;}
 
     // Set number of chamber-level triggers with non-collision timing
-    void SetNOutOfTimeTriggers(short int num){ nOutOfTimeTriggers = num ;}
+    void SetNOutOfTimeTriggers(short int PlusZ,short int MinusZ){ nOutOfTimeTriggers_PlusZ = PlusZ ; nOutOfTimeTriggers_MinusZ = MinusZ;}
     // Set number of CSCRecHits with non-collision timing
     void SetNOutOfTimeHits(short int num){ nOutOfTimeHits = num ;}
 
@@ -83,7 +87,8 @@ namespace reco {
     int nTracks_MinusZ;
 
     // number of  out-of-time chamber-level triggers (assumes the event triggered at the bx of the beam crossing)
-    short int nOutOfTimeTriggers;
+    short int nOutOfTimeTriggers_PlusZ;
+    short int nOutOfTimeTriggers_MinusZ;
     // number of out-of-time CSCRecHit2Ds (assumes the event triggered at the bx of the beam crossing)
     short int nOutOfTimeHits;
 

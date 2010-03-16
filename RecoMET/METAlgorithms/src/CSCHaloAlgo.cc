@@ -171,27 +171,33 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
    // Loop over CSCALCTDigi collection to look for out-of-time chamber triggers 
    // A collision muon in real data should only have ALCTDigi::getBX() = 3 ( in MC, it will be 6 )
    // Note that there could be two ALCTs per chamber 
-   short int n_alcts=0;
+   short int n_alctsP=0;
+   short int n_alctsM=0;
    if(TheALCTs.isValid())
      {
        for (CSCALCTDigiCollection::DigiRangeIterator j=TheALCTs->begin(); j!=TheALCTs->end(); j++) 
 	 {
 	   const CSCALCTDigiCollection::Range& range =(*j).second;
+	   CSCDetId detId((*j).first.rawId());
 	   for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt)
 	     {
 	       if( (*digiIt).isValid() && ( (*digiIt).getBX() < expected_BX ) )
 		 {
-		   n_alcts++;
+		   if( detId.endcap() == 1 ) 
+		     n_alctsP++;
+		   else if ( detId.endcap() ==  2) 
+		     n_alctsM++;
 		 }
 	     }
 	 }
      }
-   TheCSCHaloData.SetNOutOfTimeTriggers(n_alcts);
+   TheCSCHaloData.SetNOutOfTimeTriggers(n_alctsP,n_alctsM);
 
    // Loop over the CSCRecHit2D collection to look for out-of-time recHits
    // Out-of-time is defined as tpeak outside [t_0 + TOF - t_window, t_0 + TOF + t_window]
    // where t_0 and t_window are configurable parameters
-   short int n_recHits = 0;
+   short int n_recHitsP = 0;
+   short int n_recHitsM = 0;
    if( TheCSCRecHits.isValid() )
      {
        CSCRecHit2DCollection::const_iterator dRHIter;
@@ -209,11 +215,14 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry ,edm:
 	   float TOF = (sqrt(globX*globX+ globY*globY + globZ*globZ))/29.9792458 ; //cm -> ns
 	   if ( (RHTime < (recHit_t0 + TOF - recHit_twindow)) || (RHTime > (recHit_t0 + TOF + recHit_twindow)) )
 	     {
-	       n_recHits++;
+	       if( globZ > 0 ) 
+		 n_recHitsP++;
+	       else
+		 n_recHitsM++;
 	     }
 	 }
      }
-   TheCSCHaloData.SetNOutOfTimeHits(n_recHits);
+   TheCSCHaloData.SetNOutOfTimeHits(n_recHitsP+n_recHitsM);
 
    return TheCSCHaloData;
 }
