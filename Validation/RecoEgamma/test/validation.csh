@@ -18,9 +18,9 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
 setenv CMSSWver1 3_5_2
-setenv CMSSWver2 3_5_3
+setenv CMSSWver2 3_5_4
 setenv OLDRELEASE 352
-setenv NEWRELEASE 353
+setenv NEWRELEASE 354
 
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
@@ -393,6 +393,9 @@ $i->SetStats(0);
 if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
 $i->SetMinimum(0.);
 $i->SetMaximum(0.2);
+}
+else if (  $i==recoEffVsEt ) {
+$i->GetXaxis()->SetRangeUser(0.,100.);
 } else {
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);

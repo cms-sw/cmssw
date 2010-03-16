@@ -18,8 +18,7 @@ endif
 setenv confName  PhotonValidator
 
 
-setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_5_3/src/Validation/RecoEgamma/test
-
+setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_5_4/src/Validation/RecoEgamma/test
 
 echo ${MYWORKDIR}
 
@@ -37,6 +36,10 @@ echo ${WORKDIR}
 cmsRun  conf.py > & ${outFileName}.log
 #---------------------------------------------------------------
  rfcp   ${outFileName}.log             ${MYOUT}/.
+<<<<<<< batchValid.csh
+ rfcp   PhotonValidationRelVal354_${outFileName}.root            ${MYOUT}/.
+=======
  rfcp   PhotonValidationRelVal353_${outFileName}.root            ${MYOUT}/.
+>>>>>>> 1.9
 
  
