@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: QuadJetAnalyzer.cc,v 1.6 2010/01/12 14:11:20 dellaric Exp $
+// $Id: QuadJetAnalyzer.cc,v 1.7 2010/01/22 12:40:33 slaunwhj Exp $
 //
 //
 
@@ -24,6 +24,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -65,14 +70,19 @@ public:
 private:
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void beginRun(edm::Run const& currentRun, edm::EventSetup const& currentEventSetup);
   virtual void endJob() ;
+
   void sortJets (std::vector<const trigger::TriggerObject*> theJets);
 
+  
   int theNumberOfTriggers;
 
   string theHltProcessName;
   
   bool atLeastOneValidTrigger;
+
+  bool useDQMStore;
 
   DQMStore* dbe_;
   MonitorElement * trigjets_n;
@@ -93,21 +103,32 @@ QuadJetAnalyzer::QuadJetAnalyzer(const ParameterSet& pset)
                                 ("TriggerNames");
   theHltProcessName = pset.getParameter<string>("HltProcessName");
 
+  useDQMStore = pset.getUntrackedParameter<bool>("DQMStore", false);
+
   //vector<edm::ParameterSet> customCollection = pset.getParameter<vector<edm::ParameterSet> > ("customCollection");
   //vector<edm::ParameterSet>::iterator iPSet;
 
+  dbe_ = 0;
+  if (useDQMStore  ) {
+    dbe_ = Service<DQMStore>().operator->();
+    //dbe_->setVerbose(3);    
+  }
 
     
-  dbe_ = 0;
-  if ( pset.getUntrackedParameter<bool>("DQMStore", false) ) {
-    dbe_ = Service<DQMStore>().operator->();
-    dbe_->setVerbose(3);    
-  }
   
+  
+}
+
+
+void QuadJetAnalyzer::beginRun(edm::Run const& currentRun, edm::EventSetup const& currentEventSetup) {
+
+
   
   LogTrace ("HLTMuonVal") << "Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
   HLTConfigProvider hltConfig;
-  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
+  bool hltConfigChanged;
+  bool hltConfigInitSuccess = hltConfig.init(currentRun, currentEventSetup, theHltProcessName, hltConfigChanged);
+  
   vector<string> validTriggerNames;
 
   if (hltConfigInitSuccess)
@@ -139,7 +160,9 @@ QuadJetAnalyzer::QuadJetAnalyzer(const ParameterSet& pset)
     }
 
   }
+
 }
+
 
 
 QuadJetAnalyzer::~QuadJetAnalyzer()
@@ -169,7 +192,8 @@ QuadJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(edm::InputTag("TriggerResults::HLT"), HLTR); 
 
   HLTConfigProvider hltConfig;
-  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
+  bool hltConfigChanged;
+  bool hltConfigInitSuccess = hltConfig.init(iEvent.getRun(), iSetup, theHltProcessName, hltConfigChanged);
 
   if (!hltConfigInitSuccess) {
     LogTrace("HLTMuonVal") << "no valid hltConfigProvider, stop analyzing thisevent" << endl;

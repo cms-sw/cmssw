@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/10/23 09:55:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/22 16:16:46 $
+ *  $Revision: 1.7 $
  */
 
 
@@ -60,8 +60,10 @@ HLTMuonBPAG::HLTMuonBPAG
 ( const ParameterSet& pset, string triggerName, vector<string> moduleNames,
   MuonSelectionStruct probeSelection,
   MuonSelectionStruct inputTagSelection, string customName,
-  vector<string> validTriggers)
-  : HLTMuonMatchAndPlot(pset, triggerName, moduleNames, probeSelection, customName, validTriggers),
+  vector<string> validTriggers,
+  const edm::Run & currentRun,
+  const edm::EventSetup & currentEventSetup)  
+  : HLTMuonMatchAndPlot(pset, triggerName, moduleNames, probeSelection, customName, validTriggers, currentRun, currentEventSetup),
     tagSelection(inputTagSelection)
     
 {

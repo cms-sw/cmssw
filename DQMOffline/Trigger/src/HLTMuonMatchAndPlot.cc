@@ -7,14 +7,17 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/11/11 09:16:06 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/01/07 13:18:13 $
+ *  $Revision: 1.15 $
  */
 
 
 #include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlot.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,7 +58,7 @@ double minPtCuts[] = { 0. };
 HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 ( const ParameterSet& pset, string triggerName, vector<string> moduleNames,
   MuonSelectionStruct inputSelection, string customName,
-  vector<string> validTriggers )
+  vector<string> validTriggers, edm::Run const& currentRun, edm::EventSetup const& currentEventSetup )
   :  mySelection(inputSelection), selectedValidTriggers(validTriggers)
 {
 
@@ -73,8 +76,11 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   theHltProcessName  = pset.getParameter<string>("HltProcessName");
 
   LogTrace ("HLTMuonVal") << "HLTMuonMatchAndPlot: Constructor: Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
+
+  
   HLTConfigProvider hltConfig;
-  bool hltConfigInitSuccess = hltConfig.init(theHltProcessName);
+  bool hltConfigChanged;
+  bool hltConfigInitSuccess = hltConfig.init(currentRun, currentEventSetup, theHltProcessName, hltConfigChanged);
 
   theNumberOfObjects = ( TString(triggerName).Contains("Double") ) ? 2 : 1;
   theTriggerName     = triggerName;
@@ -410,9 +416,9 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   theChargeParameters.push_back(-1.5);
   theChargeParameters.push_back(1.5);
 
-  theDRParameters.push_back(25);
+  theDRParameters.push_back(10);
   theDRParameters.push_back(0.0);
-  theDRParameters.push_back(theL3DrCut);
+  theDRParameters.push_back(theL2DrCut);
 
   theChargeFlipParameters.push_back(2);
   theChargeFlipParameters.push_back(-1.0);
@@ -421,11 +427,11 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   theChargeFlipParameters.push_back(-1.0);
   theChargeFlipParameters.push_back(1.0);
 
-  theIsolationParameters.push_back(25);
+  theIsolationParameters.push_back(10);
   theIsolationParameters.push_back(0.0);
   theIsolationParameters.push_back(1.0);
 
-  thePhiParameters0Pi.push_back(50);
+  thePhiParameters0Pi.push_back(10);
   thePhiParameters0Pi.push_back(0);
   thePhiParameters0Pi.push_back(3.2);
 
