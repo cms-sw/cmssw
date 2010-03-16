@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.29 2010/03/14 11:30:32 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.30 2010/03/14 18:34:00 dinardo Exp $
 //
 //
 
@@ -214,7 +214,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
  
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigma = 4.;
+      double nSigmaXY = 4.;
+      double nSigmaZ = 3.;
       double varFactor = 4./9.; // It takes into account the difference between the RMS and sigma (RMS usually greater than sigma)
       double parDistance = 0.01;
       double det;
@@ -262,8 +263,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(7,"mean y", *(it+7), parDistance, 0, 0);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0, 0);
 
-	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
@@ -311,8 +312,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+deltaMean, parDistance, 0, 0);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0, 0);
 
-	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
@@ -361,8 +362,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0, 0);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8)+deltaMean, parDistance, 0, 0);
 
-	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
@@ -400,8 +401,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0, 0);
       Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance, 0, 0);
       
-      maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-      maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+      maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+      maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
       xPos = Gauss3D->GetParameter(6);
       yPos = Gauss3D->GetParameter(7);
       zPos = Gauss3D->GetParameter(8);
@@ -430,8 +431,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*50., 0, 0);
       
-	  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
@@ -460,8 +461,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*100., 0, 0);
       
-	      maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	      maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+	      maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+	      maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
 	      xPos = Gauss3D->GetParameter(6);
 	      yPos = Gauss3D->GetParameter(7);
 	      zPos = Gauss3D->GetParameter(8);
@@ -490,8 +491,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 		  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*100., 0, 0);
 		  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*500., 0, 0);
       
-		  maxTransRadius = nSigma * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-		  maxLongLength  = nSigma * sqrt(Gauss3D->GetParameter(2));
+		  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
+		  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
 		  xPos = Gauss3D->GetParameter(6);
 		  yPos = Gauss3D->GetParameter(7);
 		  zPos = Gauss3D->GetParameter(8);
@@ -784,8 +785,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	    vals.push_back(Vx_Y->getTH1F()->GetMean());
 	    vals.push_back(Vx_Z->getTH1F()->GetMean());
 	    vals.push_back(Vx_Z->getTH1F()->GetRMS());
-	    vals.push_back(0.);
-	    vals.push_back(0.);
+	    vals.push_back(0.0);
+	    vals.push_back(0.0);
 	    vals.push_back(Vx_X->getTH1F()->GetRMS());
 	    vals.push_back(Vx_Y->getTH1F()->GetRMS());
 	    
@@ -793,8 +794,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	    vals.push_back(Vx_Y->getTH1F()->GetMeanError()*Vx_Y->getTH1F()->GetMeanError());
 	    vals.push_back(Vx_Z->getTH1F()->GetMeanError()*Vx_Z->getTH1F()->GetMeanError());
 	    vals.push_back(Vx_Z->getTH1F()->GetRMSError()*Vx_Z->getTH1F()->GetRMSError());
-	    vals.push_back(0.);
-	    vals.push_back(0.);
+	    vals.push_back(0.0);
+	    vals.push_back(0.0);
 	    vals.push_back(Vx_X->getTH1F()->GetRMSError()*Vx_X->getTH1F()->GetRMSError());
 	    vals.push_back(Vx_Y->getTH1F()->GetRMSError()*Vx_Y->getTH1F()->GetRMSError());
 	    }
