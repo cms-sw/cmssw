@@ -834,7 +834,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("10");
+  topaaaa.addValue("8");
   topaaa.addKeyValue("Pixels per bin", topaaaa);
 }
 {
