@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2010/01/05 10:15:46 $
- * $Revision: 1.31 $
+ * $Date: 2010/03/15 09:45:52 $
+ * $Revision: 1.32 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -190,6 +190,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	   if(fedNotReadout) {
 	     // no data in this FED: it is off
 	     summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	     summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
 	     glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
 	   }
 	 }
@@ -200,6 +201,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	 int wheelNumber, sectorNumber;
 	 if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
 	   summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	   summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
 	   glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
 	 } 
        }
