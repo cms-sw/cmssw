@@ -21,7 +21,7 @@
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-
+#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constructors and destructor
@@ -31,9 +31,15 @@ FWEveView::FWEveView(TEveWindowSlot* iParent) :
    m_viewer(),
    m_scene(),
    m_overlayEventInfo(0),
-   m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
+   m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
    m_drawCMSLogo(this,"Show Logo",false),
+   m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l)
+#else
+   m_drawCMSLogo(this,"Show Logo",false),
+   m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
    m_lineWidth(this,"Line width",1.0,1.0,10.0)
+#endif
 {
    m_viewer = new TEveViewer(typeName().c_str());
 
@@ -63,8 +69,10 @@ FWEveView::FWEveView(TEveWindowSlot* iParent) :
    
    m_overlayLogo = new CmsAnnotation(embeddedViewer, 0.02, 0.98);
    m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible,m_overlayLogo, _1));
-   
+ 
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)  
    m_lineWidth.changed_.connect(boost::bind(&FWEveView::lineWidthChanged,this));
+#endif
 }
 
 FWEveView::~FWEveView()
@@ -97,10 +105,17 @@ FWEveView::viewerGL() const
 void
 FWEveView::saveImageTo(const std::string& iName) const
 {
-   bool succeeded = viewerGL()->SavePicture(iName.c_str());
+   bool succeeded = false;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
+   succeeded = viewerGL()->SavePictureScale(iName, m_imageScale.value());
+#else
+   succeeded = viewerGL()->SavePicture(iName.c_str());
+#endif
+
    if(!succeeded) {
       throw std::runtime_error("Unable to save picture");
    }
+   fwLog(fwlog::kInfo) <<  "Saved image " << iName << std::endl;
 }
 
 void
@@ -137,10 +152,11 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
 void
 FWEveView::lineWidthChanged()
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)
    viewerGL()->SetLineScale(m_lineWidth.value());
    viewerGL()->RequestDraw();
+#endif
 }
-
 
 void
 FWEveView::eventEnd()

@@ -55,9 +55,15 @@ private:
    CmsAnnotation*     m_overlayLogo;
 
    // parameters
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
+   FWDoubleParameter   m_imageScale;
+#endif
    FWLongParameter   m_overlayEventInfoLevel;
    FWBoolParameter   m_drawCMSLogo;
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)
    FWDoubleParameter m_lineWidth;
+#endif
 
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
 };
