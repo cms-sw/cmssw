@@ -154,10 +154,6 @@ goodZToMuMuEdmNtuple = cms.EDProducer(
     quantity = cms.untracked.string("daughter(0).masterClone.userFloat('zDau_HLTBit')")
     ),
     cms.PSet(
-    tag = cms.untracked.string("Dau2HLTBit"),
-    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTBit')")
-    ),
-    cms.PSet(
     tag = cms.untracked.string("Dau2dxyFromBS"),
     quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_dxyFromBS')")
     ),
@@ -245,6 +241,10 @@ zGolden=(
     quantity = cms.untracked.string("daughter(1).masterClone.dB")
     ),
     cms.PSet(
+    tag = cms.untracked.string("Dau2HLTBit"),
+    quantity = cms.untracked.string("daughter(1).masterClone.userFloat('zDau_HLTBit')")
+    ),
+    cms.PSet(
     tag = cms.untracked.string("MassSa"),
     quantity = cms.untracked.string("userFloat('MassSa')")
     ),
@@ -329,12 +329,12 @@ goodZToMuMuOneStandAloneEdmNtupleLoose.variables += zGolden
 goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuOneStandAloneEdmNtupleLoose)
 goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
 
-#goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
-#goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
-#goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
-#goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
-#goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
-#goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
+goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
+goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTLoose")
+goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
+goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
+goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
+goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 ntuplesOut = cms.OutputModule(
     "PoolOutputModule",
@@ -344,7 +344,7 @@ ntuplesOut = cms.OutputModule(
       "keep *_goodZToMuMuEdmNtupleLoose_*_*",
       "keep *_goodZToMuMuSameChargeEdmNtupleLoose_*_*",
       "keep *_goodZToMuMuOneStandAloneEdmNtupleLoose_*_*",
-      #"keep *_goodZToMuMuOneTrackEdmNtupleLoose_*_*"
+      "keep *_goodZToMuMuOneTrackEdmNtupleLoose_*_*"
       
     )
     )

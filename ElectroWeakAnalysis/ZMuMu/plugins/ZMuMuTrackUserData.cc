@@ -32,7 +32,6 @@ private:
   
   InputTag src_,beamSpot_, primaryVertices_;
   double alpha_, beta_; 
-  string hltPath_; 
   template<typename T>
   double isolation(const T & t, double alpha, double beta, bool relIso);
 };
@@ -56,8 +55,7 @@ ZMuMuTrackUserData::ZMuMuTrackUserData( const ParameterSet & cfg ):
   alpha_(cfg.getParameter<double>("alpha") ),
   beta_(cfg.getParameter<double>("beta") ), 
   beamSpot_(cfg.getParameter<InputTag>( "beamSpot" ) ),
-  primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ),
-  hltPath_(cfg.getParameter<std::string >("hltPath") ){
+  primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ){
   produces<std::vector<pat::GenericParticle> >();
 }
 
@@ -87,19 +85,10 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
     float zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
     float zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
     float zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );	
-    const pat::TriggerObjectStandAloneCollection muHLTMatches =  tk.triggerObjectMatchesByPath( hltPath_);
-    float muHLTBit;
-    int dimTrig = muHLTMatches.size();
-    if(dimTrig !=0 ){
-      muHLTBit = 1;
-    } else {
-      muHLTBit = 0; 
-    }
     tk.addUserFloat("zDau_dxyFromBS", zDaudxyFromBS);
     tk.addUserFloat("zDau_dzFromBS", zDaudzFromBS);
     tk.addUserFloat("zDau_dxyFromPV", zDaudxyFromPV);
     tk.addUserFloat("zDau_dzFromPV", zDaudzFromPV);
-    tk.addUserFloat("zDau_HLTBit",muHLTBit);
 
   }
 
