@@ -217,10 +217,9 @@ process.validation *= process.saveTauEff #save the output
 process.schedule.append(process.validation)
 
 if options.batchNumber >= 0:
-   newSeed = process.RandomNumberGeneratorService.theSource.initialSeed.value() + options.batchNumber 
-   process.RandomNumberGeneratorService.theSource.initialSeed = cms.untracked.uint32(newSeed)
-   process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(newSeed)
-   print "I'm setting the random seed to ", newSeed
+    newSeed = process.RandomNumberGeneratorService.generator.initialSeed.value() + options.batchNumber 
+    process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(newSeed)
+    print "I'm setting the random seed to ", newSeed
 
 
 process.load("RecoTauTag.Configuration.RecoTauTag_EventContent_cff")
