@@ -1,3 +1,12 @@
+2010-03-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-08-08
+	* Serve DQM updates in time-order, i.e. do not let a newer
+	  update overtake an older one.
+	* Make expectedUpdates configurable for SM proxy.
+	* Fill correct values for processed and discarded DQM events
+	  in infospace.
+
 2010-03-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-08-07
