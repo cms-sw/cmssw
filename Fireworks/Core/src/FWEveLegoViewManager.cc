@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.38 2009/10/26 21:20:41 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.39 2009/11/04 18:09:45 amraktad Exp $
 //
 
 // system include files
@@ -335,5 +335,12 @@ FWEveLegoViewManager::supportedTypesAndRepresentations() const
       }
    }
    return returnValue;
+}
+
+void
+FWEveLegoViewManager::eventEnd()
+{  
+   for ( std::vector<boost::shared_ptr<FWEveLegoView> >::iterator view = m_views.begin(); view != m_views.end(); ++view )  
+      (*view)->eventEnd();
 }
 

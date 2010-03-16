@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.14 2009/07/20 08:48:00 amraktad Exp $
+// $Id: FWEveLegoViewManager.h,v 1.15 2009/07/20 12:50:51 amraktad Exp $
 //
 
 // system include files
@@ -59,6 +59,7 @@ public:
    // ---------- member functions ---------------------------
 
    virtual void newItem(const FWEventItem*);
+   virtual void eventEnd();
 
    FWViewBase* buildView(TEveWindowSlot* iParent);
 
