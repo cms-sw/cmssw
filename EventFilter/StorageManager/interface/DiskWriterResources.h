@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.h,v 1.4 2009/09/16 13:30:47 mommsen Exp $
+// $Id: DiskWriterResources.h,v 1.5 2009/10/13 15:08:33 mommsen Exp $
 /// @file: DiskWriterResources.h 
 
 
@@ -23,8 +23,8 @@ namespace stor
    * and need to be accessed from multiple threads.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.5 $
+   * $Date: 2009/10/13 15:08:33 $
    */
 
   class DiskWriterResources
@@ -91,19 +91,6 @@ namespace stor
     void streamChangeDone();
 
     /**
-     * Requests that the DiskWriter closes all files for the 
-     * specified lumi section.
-     */
-    void requestLumiSectionClosure(const uint32_t lumiSection);
-
-    /**
-     * Checks if a request has been made to close all files for
-     * a lumi section. If it returns true, the argument contains
-     * the lumi section number to be closed.
-     */
-    bool lumiSectionClosureRequested(uint32_t& lumiSection);
-
-    /**
      * Sets the DiskWriter "busy" status to the specified state.
      */
     void setBusy(bool isBusyFlag);
@@ -127,10 +114,7 @@ namespace stor
     bool _streamChangeInProgress;
     boost::condition _streamChangeCondition;
     
-    std::deque<uint32_t> lumiSectionsToClose;
-
     mutable boost::mutex _streamChangeMutex;
-    mutable boost::mutex _lumiSectionMutex;
   };
 
 }

@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.7 2009/12/08 14:12:58 dshpakov Exp $
+// $Id: DiskWriter.h,v 1.8 2010/01/07 18:00:42 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -30,9 +30,9 @@ namespace stor {
    * It gets the next event from the StreamQueue and writes it
    * to the appropriate stream file(s) on disk. 
    *
-   * $Author: dshpakov $
-   * $Revision: 1.7 $
-   * $Date: 2009/12/08 14:12:58 $
+   * $Author: mommsen $
+   * $Revision: 1.8 $
+   * $Date: 2010/01/07 18:00:42 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -84,16 +84,6 @@ namespace stor {
      * or do it now if argument is true
      */    
     void checkForFileTimeOuts(const bool doItNow = false);
-
-    /**
-     * Close all files for expired lumi sections
-     */    
-    void closeFilesForOldLumiSections();
-
-    /**
-     * Close all files belonging to the given lumi section
-     */    
-    void closeFilesForLumiSection(const uint32_t lumiSection);
 
     /**
      * Close all timed-out files

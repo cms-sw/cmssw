@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.18 2010/02/09 14:54:17 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.19 2010/02/11 13:35:41 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -193,28 +193,9 @@ void DiskWriter::checkForFileTimeOuts(const bool doItNow)
     _sharedResources->_configuration->getDiskWritingParams();
   if (doItNow || (now - _lastFileTimeoutCheckTime) > dwParams._fileClosingTestInterval)
   {
-    closeFilesForOldLumiSections();
     closeTimedOutFiles(now);
     _lastFileTimeoutCheckTime = now;
   }
-}
-
-
-void DiskWriter::closeFilesForOldLumiSections()
-{
-  uint32_t lumiSection;
-  if (_sharedResources->_diskWriterResources->
-    lumiSectionClosureRequested(lumiSection))
-  {
-    closeFilesForLumiSection(lumiSection);
-  }
-}
-
-
-void DiskWriter::closeFilesForLumiSection(const uint32_t lumiSection)
-{
-  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
-    boost::bind(&StreamHandler::closeFilesForLumiSection, _1, lumiSection));
 }
 
 
