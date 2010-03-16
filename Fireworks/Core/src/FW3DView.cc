@@ -8,17 +8,9 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.28 2010/03/12 20:07:52 amraktad Exp $
+// $Id: FW3DView.cc,v 1.29 2010/03/14 18:24:24 amraktad Exp $
 //
-
-// system include files
-#include <algorithm>
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/numeric/conversion/converter.hpp>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
 
 // FIXME
 // need camera parameters
@@ -26,46 +18,22 @@
 #include "TGLPerspectiveCamera.h"
 #undef private
 
-
-#include "TRootEmbeddedCanvas.h"
-#include "THStack.h"
-#include "TCanvas.h"
-#include "TClass.h"
-#include "TH2F.h"
-#include "TView.h"
-#include "TColor.h"
-#include "TEveScene.h"
+#include "TGLScenePad.h"
 #include "TGLViewer.h"
-//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
-#define private public
-#include "TGLEmbeddedViewer.h"
-#undef private
-#include "TEveViewer.h"
+
 #include "TEveManager.h"
 #include "TEveElement.h"
-#include "TEveCalo.h"
-#include "TEveElement.h"
-#include "TGLScenePad.h"
-#include "TGeoTube.h"
-#include "TEveWindow.h"
-#include "TGeoArb8.h"
-#include "TEveGeoNode.h"
 #include "TEveScene.h"
-#include <RVersion.h>
+#include "TEveViewer.h"
+#include "TEveGeoNode.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/interface/BuilderUtils.h"
-#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Core/interface/FWEventAnnotation.h"
-#include "Fireworks/Core/interface/CmsAnnotation.h"
 
-#include "Fireworks/Core/interface/FWGLEventHandler.h"
-#include "Fireworks/Core/interface/FWViewContextMenuHandlerGL.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -84,8 +52,7 @@
 // constructors and destructor
 //
 FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
-   m_overlayEventInfo(0),
-
+   FWEveView(iParent),
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
    m_cameraFOV(0),
@@ -97,8 +64,6 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_trackerBarrelElements(0),
    m_trackerEndcapElements(0),
 
-   m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
-   m_drawCMSLogo(this,"Show Logo",false),
    m_showMuonBarrel(this, "Show Muon Barrel", false ),
    m_showMuonEndcap(this, "Show Muon Endcap", false),
    m_showPixelBarrel(this, "Show Pixel Barrel", false ),
@@ -106,56 +71,25 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_showWireFrame(this, "Show Wire Frame", true),
-   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l),
-   m_lineWidth(this,"Line width",1.0,1.0,10.0)
+   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
 {
-   TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
-   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer(0);
-#else
-   m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
-#endif
-
-   iParent->ReplaceWindow(nv);
-
-   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
-   m_embeddedViewer->SetEventHandler(eh);
-   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
-   FWViewContextMenuHandlerGL* ctxHand = new FWViewContextMenuHandlerGL(nv);
-   ctxHand->setPickCameraCenter(true);
-   m_viewContextMenu.reset(ctxHand);
-   
-   m_overlayEventInfo = new FWEventAnnotation(m_embeddedViewer);
-   m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
-   
-   m_overlayLogo = new CmsAnnotation(m_embeddedViewer, 0.02, 0.98);
-   m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible,m_overlayLogo, _1));
-   
-   TGLEmbeddedViewer* ev = m_embeddedViewer;
-   ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
-   m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
-   m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
-   if ( TGLPerspectiveCamera* camera =
-           dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
-      m_cameraFOV = &(camera->fFOV);
-
-   m_viewer=nv;
-   gEve->GetViewers()->AddElement(nv);
-
-   //scenes
-   m_scene = gEve->SpawnNewScene(staticTypeName().c_str());
-   nv->AddScene(m_scene);
+   scene()->SetElementName(staticTypeName().c_str());
+   scene()->AddElement(list);
+   viewer()->SetElementName(staticTypeName().c_str());
 
    m_detectorScene = gEve->SpawnNewScene((staticTypeName()+"detector").c_str());
-   nv->AddScene(m_detectorScene);
+   viewer()->AddScene(m_detectorScene);
    m_detectorScene->GetGLScene()->SetSelectable(kFALSE);
 
-   gEve->AddElement(list,m_scene);
-   gEve->AddToListTree(list, kTRUE);
+   //camera
+   const TGLViewer* v = viewerGL();
+   viewer()->GetGLViewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
+   m_cameraMatrix = const_cast<TGLMatrix*>(&(v->CurrentCamera().GetCamTrans()));
+   m_cameraMatrixBase = const_cast<TGLMatrix*>(&(v->CurrentCamera().GetCamBase()));
+   if ( TGLPerspectiveCamera* camera =
+           dynamic_cast<TGLPerspectiveCamera*>(&(v->CurrentCamera())) )
+      m_cameraFOV = &(camera->fFOV);
 
-   //make sure our defaults are honored
-   showWireFrame();
 
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DView::showMuonBarrel,this));
    m_showMuonEndcap.changed_.connect(boost::bind(&FW3DView::showMuonEndcap,this));
@@ -165,14 +99,11 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DView::showTrackerEndcap,this));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DView::showWireFrame,this));
    m_geomTransparency.changed_.connect(boost::bind(&FW3DView::setTransparency,this));
-   m_lineWidth.changed_.connect(boost::bind(&FW3DView::lineWidthChanged,this));
 }
 
 FW3DView::~FW3DView()
 {
-   m_scene->Destroy();
    m_detectorScene->Destroy();
-   m_viewer->DestroyWindowAndSlot();
 }
 
 void FW3DView::setGeometry(const DetIdToMatrix* geom )
@@ -186,7 +117,7 @@ void
 FW3DView::addTo(FWConfiguration& iTo) const
 {
    // take care of parameters
-   FWConfigurableParameterizable::addTo(iTo);
+   FWEveView::addTo(iTo);
 
    // store camera parameters
 
@@ -217,14 +148,6 @@ FW3DView::addTo(FWConfiguration& iTo) const
       osValue << *m_cameraFOV;
       iTo.addKeyValue("Plain3D FOV",FWConfiguration(osValue.str()));
    }
-   { 
-      assert ( m_overlayEventInfo );
-      m_overlayEventInfo->addTo(iTo);
-   }
-   { 
-      assert ( m_overlayLogo );
-      m_overlayLogo->addTo(iTo);
-   }      
 }
 
 //______________________________________________________________________________
@@ -232,7 +155,7 @@ void
 FW3DView::setFrom(const FWConfiguration& iFrom)
 {
    // take care of parameters
-   FWConfigurableParameterizable::setFrom(iFrom);
+   FWEveView::setFrom(iFrom);
 
    // retrieve camera parameters
 
@@ -267,15 +190,6 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
       std::istringstream s(value->value());
       s>>*m_cameraFOV;
    }
-   {
-      assert( m_overlayEventInfo);
-      m_overlayEventInfo->setFrom(iFrom);
-   }
-   {
-      assert( m_overlayLogo);
-      m_overlayLogo->setFrom(iFrom);
-   }
-   
    gEve->Redraw3D();
 }
 
@@ -499,7 +413,8 @@ FW3DView::showWireFrame( )
       m_detectorScene->GetGLScene()->SetStyle(TGLRnrCtx::kWireFrame);
    else
       m_detectorScene->GetGLScene()->SetStyle(TGLRnrCtx::kFill);
-   m_embeddedViewer->RequestDraw(TGLRnrCtx::kLODHigh);
+
+   viewer()->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
 }
 
 void
@@ -550,26 +465,10 @@ FW3DView::setTransparency( )
    gEve->Redraw3D();
 }
 
-//______________________________________________________________________________
-FWViewContextMenuHandlerBase* 
-FW3DView::contextMenuHandler() const {
-   return (FWViewContextMenuHandlerBase*)m_viewContextMenu.get();
-}
-
-void
-FW3DView::setBackgroundColor(Color_t iColor)
-{
-   FWColorManager::setColorSetViewer(m_viewer->GetGLViewer(), iColor);
-}
 
 //
 // const member functions
 //
-TGFrame*
-FW3DView::frame() const
-{
-   return m_embeddedViewer->GetFrame();
-}
 
 const std::string&
 FW3DView::typeName() const
@@ -577,21 +476,6 @@ FW3DView::typeName() const
    return staticTypeName();
 }
 
-void
-FW3DView::saveImageTo(const std::string& iName) const
-{
-   bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
-   if(!succeeded) {
-      throw std::runtime_error("Unable to save picture");
-   }
-}
-
-void
-FW3DView::lineWidthChanged()
-{
-   m_embeddedViewer->SetLineScale(m_lineWidth.value());
-   m_embeddedViewer->RequestDraw();
-}
 //
 // static member functions
 //
@@ -600,10 +484,4 @@ FW3DView::staticTypeName()
 {
    static std::string s_name("3D");
    return s_name;
-}
-
-void
-FW3DView::eventEnd()
-{
-   m_overlayEventInfo->setEvent();
 }

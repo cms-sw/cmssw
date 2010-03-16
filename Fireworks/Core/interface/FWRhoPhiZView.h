@@ -16,38 +16,29 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.27 2010/03/08 12:34:52 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.28 2010/03/14 18:24:24 amraktad Exp $
 //
 
 // system include files
 #include <string>
-#include "TGLViewer.h"
 #include "TEveProjections.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWViewBase.h"
+#include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
-class TEvePad;
-class TEveViewer;
-class TGLEmbeddedViewer;
 class TEveProjectionManager;
-class TGFrame;
 class TGLMatrix;
 class TEveCalo2D;
-class TEveScene;
 class TEveProjectionAxes;
 class TEveWindowSlot;
-class FWEventAnnotation;
-class CmsAnnotation;
 class FWRhoPhiZViewManager;
-class FWViewContextMenuHandlerGL;
 
 
-class FWRhoPhiZView : public FWViewBase
+class FWRhoPhiZView : public FWEveView
 {
 
 public:
@@ -57,20 +48,16 @@ public:
    virtual ~FWRhoPhiZView();
 
    // ---------- const member functions ---------------------
-   TGFrame* frame() const;
    const std::string& typeName() const;
 
    virtual void addTo(FWConfiguration&) const;
-   virtual void saveImageTo(const std::string& iName) const;
    virtual void setFrom(const FWConfiguration&);
-   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
 
    // ---------- member functions ---------------------------
    void resetCamera();
    void destroyElements();
    void replicateGeomElement(TEveElement*);
    void showProjectionAxes( );
-   void setBackgroundColor(Color_t);
    void eventEnd();
 
    //returns the new element created from this import
@@ -84,27 +71,18 @@ private:
    void updateScaleParameters();
    void updateCalo(TEveElement*, bool dataChanged = false);
    void updateCaloLines(TEveElement*);
-   // void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
-   void lineWidthChanged();
-   void lineSmoothnessChanged();
 
    FWRhoPhiZView(const FWRhoPhiZView&);    // stop default
 
    const FWRhoPhiZView& operator=(const FWRhoPhiZView&);    // stop default
 
    // ---------- member data --------------------------------
-   FWEvePtr<TEveViewer> m_viewer;
-   TGLEmbeddedViewer* m_embeddedViewer;
    FWEvePtr<TEveProjectionManager> m_projMgr;
    TEveProjection::EPType_e m_projType;
    std::vector<TEveElement*> m_geom;
    std::string m_typeName;
-   FWEvePtr<TEveScene> m_scene;
    double m_caloScale;
    FWEvePtr<TEveProjectionAxes> m_axes;
-   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
-   FWEventAnnotation* m_overlayEventInfo;   
-   CmsAnnotation*     m_overlayLogo;
 
    // parameters
    FWLongParameter    m_overlayEventInfoLevel;
@@ -121,7 +99,7 @@ private:
    FWBoolParameter*   m_showEndcaps;
 
    // camera parameters
-   double* m_cameraZoom;
+   double*    m_cameraZoom;
    TGLMatrix* m_cameraMatrix;
 };
 

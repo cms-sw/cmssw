@@ -16,55 +16,46 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.19 2009/11/04 18:09:44 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.20 2010/01/31 20:19:49 amraktad Exp $
 //
 
 // system include files
 #include "Rtypes.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWViewBase.h"
+#include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
-class TGFrame;
-class TGLEmbeddedViewer;
-class TEvePad;
 class TEveViewer;
 class TEveScene;
 class TEveElementList;
 class TEveCaloLegoOverlay;
 class TGLMatrix;
-class TEvwWindowSlot;
-class FWViewContextMenuHandlerGL;
 
-class FWEveLegoView : public FWViewBase
+
+class FWEveLegoView : public FWEveView
 {
-
 public:
    FWEveLegoView(TEveWindowSlot*, TEveElementList*);
    virtual ~FWEveLegoView();
 
    // ---------- const member functions ---------------------
-   TGFrame* frame() const;
-   const std::string& typeName() const;
-   virtual void addTo(FWConfiguration&) const;
 
+   const std::string& typeName() const;
+
+   virtual void addTo(FWConfiguration&) const;
    virtual void setFrom(const FWConfiguration&);
-   virtual void saveImageTo(const std::string& iName) const;
-   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
+
 
    // ---------- static member functions --------------------
    static const std::string& staticTypeName();
 
    // ---------- member functions ---------------------------
    void finishSetup();
-   // set energy thresholds from the parameters
    void setMinEnergy();
-   void setBackgroundColor(Color_t);
-
 
 private:
    FWEveLegoView(const FWEveLegoView&);    // stop default
@@ -81,11 +72,6 @@ private:
    
    
    // ---------- member data --------------------------------
-   FWEvePtr<TEveViewer> m_viewer;
-   TGLEmbeddedViewer* m_embeddedViewer;
-   FWEvePtr<TEveScene> m_scene;
-   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
-
    TEveCaloLego* m_lego;
    TEveCaloLegoOverlay* m_overlay;
    
@@ -98,7 +84,7 @@ private:
    TGLMatrix*  m_cameraMatrixBase;
    TGLMatrix*  m_cameraMatrixRef;
    TGLMatrix*  m_cameraMatrixBaseRef;
-   double m_orthoCameraZoom;
+   double      m_orthoCameraZoom;
    TGLMatrix*  m_orthoCameraMatrix;
    double*     m_orthoCameraZoomRef;
    TGLMatrix*  m_orthoCameraMatrixRef;
