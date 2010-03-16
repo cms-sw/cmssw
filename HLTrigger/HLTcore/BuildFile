@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
+<use name=L1Trigger/GlobalTriggerAnalyzer>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/HLTObjects>
 <use name=CondFormats/DataRecord>

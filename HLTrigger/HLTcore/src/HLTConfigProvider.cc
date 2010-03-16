@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/14 08:18:52 $
- *  $Revision: 1.41 $
+ *  $Date: 2010/03/16 06:40:41 $
+ *  $Revision: 1.42 $
  *
  *  \author Martin Grunewald
  *
@@ -13,6 +13,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include <algorithm>
 #include <iostream>
@@ -683,9 +684,26 @@ const std::map<std::string,std::vector<unsigned int> >& HLTConfigProvider::presc
   return hltPrescaleTable_.table();
 }
 
-unsigned int HLTConfigProvider::prescaleSet() const {
-  return hltPrescaleTable_.set();
+int HLTConfigProvider::prescaleSet(const edm::Event& iEvent) const {
+  //  return hltPrescaleTable_.set();
+  L1GtUtils l1GtUtils;
+  int errTech(0),errPhys(0);
+  int psfTech(0),psfPhys(0);
+  psfTech=l1GtUtils.prescaleFactorSetIndex(iEvent,"TechnicalTriggers",errTech);
+  psfPhys=l1GtUtils.prescaleFactorSetIndex(iEvent,"PhysicsAlgorithms",errPhys);
+  if ( (errTech==0) && (errPhys==0) &&
+       (psfTech>=0) && (psfPhys>=0) && (psfTech==psfPhys) ) {
+    return psfPhys;
+  } else {
+    /// error
+    return -1;
+  }
 }
-unsigned int HLTConfigProvider::prescaleValue(const std::string& trigger) const {
-  return prescaleValue(prescaleSet(),trigger);
+unsigned int HLTConfigProvider::prescaleValue(const edm::Event& iEvent, const std::string& trigger) const {
+  const int set(prescaleSet(iEvent));
+  if (set<0) {
+    return 1;
+  } else {
+    return prescaleValue(static_cast<unsigned int>(set),trigger);
+  }
 }
