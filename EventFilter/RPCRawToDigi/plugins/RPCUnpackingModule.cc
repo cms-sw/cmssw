@@ -1,4 +1,5 @@
 #include "RPCUnpackingModule.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -9,7 +10,7 @@
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
@@ -18,7 +19,6 @@
 
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
-#include "RPCReadOutMappingWithFastSearch.h"
 #include "DataFormats/RPCDigi/interface/DataRecord.h"
 #include "DataFormats/RPCDigi/interface/ReadoutError.h"
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
@@ -61,17 +61,14 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   Handle<FEDRawDataCollection> allFEDRawData; 
   ev.getByLabel(dataLabel_,allFEDRawData); 
 
-  static edm::ESWatcher<RPCEMapRcd> recordWatcher;
-  static RPCReadOutMappingWithFastSearch readoutMappingSearch;
-
-  if (recordWatcher.check(es)) {  
+  if (theRecordWatcher.check(es)) {  
+    if (debug) LogTrace("") << "record has CHANGED!!, (re)initialise readout map!";
     delete theCabling; 
-    ESHandle<RPCEMap> readoutMapping;
-    if (debug) LogTrace("") << "record has CHANGED!!, initialise readout map!";
+    ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
     theCabling = readoutMapping->convert();
+    theReadoutMappingSearch.init(theCabling);
     if (debug) LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl;
-    readoutMappingSearch.init(theCabling);
   }
 
   std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
@@ -84,7 +81,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
     RPCRecordFormatter interpreter = 
-        theCabling ? RPCRecordFormatter(fedId,&readoutMappingSearch) : RPCRecordFormatter(fedId,0);
+        theCabling ? RPCRecordFormatter(fedId,&theReadoutMappingSearch) : RPCRecordFormatter(fedId,0);
     int triggerBX =0;
     int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) continue;
@@ -198,4 +195,5 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   ev.put(producedRPCDigis);  
   ev.put(producedRawDataCounts);
   if (doSynchro_) ev.put(producedRawSynchoCounts);
+
 }

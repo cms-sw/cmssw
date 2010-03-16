@@ -8,8 +8,12 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+#include "RPCReadOutMappingWithFastSearch.h"
 
+
+class RPCReadOutMapping;
 namespace edm { class Event; class EventSetup; }
 
 class RPCUnpackingModule: public edm::EDProducer {
@@ -30,7 +34,10 @@ private:
   edm::InputTag dataLabel_;
   bool doSynchro_; 
   unsigned long eventCounter_;
+
+  edm::ESWatcher<RPCEMapRcd> theRecordWatcher;
   const RPCReadOutMapping* theCabling;
+  RPCReadOutMappingWithFastSearch theReadoutMappingSearch;
 };
 
 
