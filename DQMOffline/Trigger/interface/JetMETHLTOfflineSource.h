@@ -23,7 +23,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -80,7 +80,6 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
         virtual bool validPathHLT(std::string path);
         virtual bool isHLTPathAccepted(std::string pathName);
         virtual bool isTriggerObjectFound(std::string objectName);
-        virtual void EffCalc(MonitorElement *numME, MonitorElement *denomME, MonitorElement *effME);
         virtual void fillMEforMonTriggerSummary();
         virtual void fillMEforMonAllTrigger();
         virtual void fillMEforMonAllTriggerwrtMuonTrigger();
@@ -157,9 +156,6 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
                        MonitorElement* const PtResolution_L1HLT,
                        MonitorElement* const EtaResolution_L1HLT,
                        MonitorElement* const PhiResolution_L1HLT, 
-                       MonitorElement* const PtResolution_L1RecObj,
-                       MonitorElement* const EtaResolution_L1RecObj,
-                       MonitorElement* const PhiResolution_L1RecObj,
                        MonitorElement* const PtResolution_HLTRecObj,
                        MonitorElement* const EtaResolution_HLTRecObj,
                        MonitorElement* const PhiResolution_HLTRecObj,
@@ -167,14 +163,19 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
                        MonitorElement* const PtCorrelation_L1HLT,
                        MonitorElement* const EtaCorrelation_L1HLT,
                        MonitorElement* const PhiCorrelation_L1HLT,
-                       MonitorElement* const PtCorrelation_L1RecObj,
-                       MonitorElement* const EtaCorrelation_L1RecObj,
-                       MonitorElement* const PhiCorrelation_L1RecObj,
                        MonitorElement* const PtCorrelation_HLTRecObj,
                        MonitorElement* const EtaCorrelation_HLTRecObj,
-                       MonitorElement* const PhiCorrelation_HLTRecObj
-
-
+                       MonitorElement* const PhiCorrelation_HLTRecObj,
+                      
+                       MonitorElement* const JetAveragePt,
+                       MonitorElement* const JetAverageEta,  
+                       MonitorElement* const JetPhiDifference,
+                       MonitorElement* const HLTAveragePt,
+                       MonitorElement* const HLTAverageEta,
+                       MonitorElement* const HLTPhiDifference,
+                       MonitorElement* const L1AveragePt,
+                       MonitorElement* const L1AverageEta,
+                       MonitorElement* const L1PhiDifference 
                        )    
 
           {
@@ -206,9 +207,6 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
                        PtResolution_L1HLT_  =PtResolution_L1HLT;
                        EtaResolution_L1HLT_ =EtaResolution_L1HLT;
                        PhiResolution_L1HLT_ =PhiResolution_L1HLT;
-                       PtResolution_L1RecObj_  =PtResolution_L1RecObj;
-                       EtaResolution_L1RecObj_ =EtaResolution_L1RecObj;
-                       PhiResolution_L1RecObj_ =PhiResolution_L1RecObj;
                        PtResolution_HLTRecObj_ =PtResolution_HLTRecObj;
                        EtaResolution_HLTRecObj_=EtaResolution_HLTRecObj;
                        PhiResolution_HLTRecObj_=PhiResolution_HLTRecObj;
@@ -216,32 +214,48 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
                        PtCorrelation_L1HLT_  =PtCorrelation_L1HLT;
                        EtaCorrelation_L1HLT_ =EtaCorrelation_L1HLT;
                        PhiCorrelation_L1HLT_ =PhiCorrelation_L1HLT;
-                       PtCorrelation_L1RecObj_  =PtCorrelation_L1RecObj;
-                       EtaCorrelation_L1RecObj_ =EtaCorrelation_L1RecObj;
-                       PhiCorrelation_L1RecObj_ =PhiCorrelation_L1RecObj;
                        PtCorrelation_HLTRecObj_ =PtCorrelation_HLTRecObj;
                        EtaCorrelation_HLTRecObj_=EtaCorrelation_HLTRecObj;
                        PhiCorrelation_HLTRecObj_=PhiCorrelation_HLTRecObj;
 
+                       JetAveragePt_ = JetAveragePt;
+                       JetAverageEta_ = JetAverageEta;
+                       JetPhiDifference_ = JetPhiDifference;
+                       HLTAveragePt_ = HLTAveragePt;
+                       HLTAverageEta_ = HLTAverageEta;
+                       HLTPhiDifference_ = HLTPhiDifference; 
+                       L1AveragePt_ = L1AveragePt;
+                       L1AverageEta_ = L1AverageEta;
+                       L1PhiDifference_ = L1PhiDifference;
+                       
+
 	};
         void setDgnsHistos(
+                       MonitorElement* const TriggerSummary,
                        MonitorElement* const JetSize,
                        MonitorElement* const JetPt,  
-                       MonitorElement* const JetEta,  
-                       MonitorElement* const EtavsPt1,
-                       MonitorElement* const EtavsPt2,
+                       MonitorElement* const EtavsPt,
+                       MonitorElement* const PhivsPt,
                        MonitorElement* const Pt12,
-                       MonitorElement* const Eta12                      
+                       MonitorElement* const Eta12,
+                       MonitorElement* const Phi12,                      
+                       MonitorElement* const Pt3,
+                       MonitorElement* const Pt12Pt3,
+                       MonitorElement* const Pt12Phi12
 
         )
         {
+                      TriggerSummary_ = TriggerSummary; 
                       JetSize_      = JetSize;
                       JetPt_        = JetPt;
-                      JetEta_       = JetEta;
-                      EtavsPt1_     = EtavsPt1;
-                      EtavsPt2_     = EtavsPt2;
+                      EtavsPt_      = EtavsPt;
+                      PhivsPt_      = PhivsPt;
                       Pt12_         = Pt12;
                       Eta12_        = Eta12;
+                      Phi12_         = Phi12;
+                      Pt3_          = Pt3;
+                      Pt12Pt3_          = Pt12Pt3;
+                      Pt12Phi12_          = Pt12Phi12; 
 
       };
         void setEffHistos(
@@ -258,14 +272,8 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
                        MonitorElement* const DenominatorPtForward,
                        MonitorElement* const DenominatorEta,
                        MonitorElement* const DenominatorPhi,
-                       MonitorElement* const DenominatorEtaPhi,
+                       MonitorElement* const DenominatorEtaPhi
      
-                       MonitorElement* const Eff_Pt,
-                       MonitorElement* const Eff_PtBarrel,  
-                       MonitorElement* const Eff_PtEndcap,
-                       MonitorElement* const Eff_PtForward,
-                       MonitorElement* const Eff_Eta,  
-                       MonitorElement* const Eff_Phi
 )
 {
                        NumeratorPt_            =NumeratorPt;
@@ -283,12 +291,6 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
                        DenominatorPhi_           =DenominatorPhi;
                        DenominatorEtaPhi_        =DenominatorEtaPhi;
 
-                       Eff_Pt_                   =Eff_Pt;
-                       Eff_PtBarrel_             =Eff_PtBarrel;  
-                       Eff_PtEndcap_             =Eff_PtEndcap;
-                       Eff_PtForward_            =Eff_PtForward;
-                       Eff_Eta_                  =Eff_Eta;    
-                       Eff_Phi_                  =Eff_Phi;
 
           }; 
 	~PathInfo() {};
@@ -325,9 +327,6 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
         MonitorElement * getMEhisto_PtResolution_L1HLT() { return PtResolution_L1HLT_;}
         MonitorElement * getMEhisto_EtaResolution_L1HLT() { return EtaResolution_L1HLT_;}
         MonitorElement * getMEhisto_PhiResolution_L1HLT() { return PhiResolution_L1HLT_;}
-        MonitorElement * getMEhisto_PtResolution_L1RecObj() { return PtResolution_L1RecObj_;}
-        MonitorElement * getMEhisto_EtaResolution_L1RecObj() { return EtaResolution_L1RecObj_;}
-        MonitorElement * getMEhisto_PhiResolution_L1RecObj() { return PhiResolution_L1RecObj_;}
         MonitorElement * getMEhisto_PtResolution_HLTRecObj() { return PtResolution_HLTRecObj_;}
         MonitorElement * getMEhisto_EtaResolution_HLTRecObj() { return EtaResolution_HLTRecObj_;}
         MonitorElement * getMEhisto_PhiResolution_HLTRecObj() { return PhiResolution_HLTRecObj_;}
@@ -335,13 +334,20 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
         MonitorElement * getMEhisto_PtCorrelation_L1HLT() { return PtCorrelation_L1HLT_;}
         MonitorElement * getMEhisto_EtaCorrelation_L1HLT() { return EtaCorrelation_L1HLT_;}
         MonitorElement * getMEhisto_PhiCorrelation_L1HLT() { return PhiCorrelation_L1HLT_;}
-        MonitorElement * getMEhisto_PtCorrelation_L1RecObj() { return PtCorrelation_L1RecObj_;}
-        MonitorElement * getMEhisto_EtaCorrelation_L1RecObj() { return EtaCorrelation_L1RecObj_;}
-        MonitorElement * getMEhisto_PhiCorrelation_L1RecObj() { return PhiCorrelation_L1RecObj_;}
         MonitorElement * getMEhisto_PtCorrelation_HLTRecObj() { return PtCorrelation_HLTRecObj_;}
         MonitorElement * getMEhisto_EtaCorrelation_HLTRecObj() { return EtaCorrelation_HLTRecObj_;}
         MonitorElement * getMEhisto_PhiCorrelation_HLTRecObj() { return PhiCorrelation_HLTRecObj_;}
 
+        MonitorElement * getMEhisto_AveragePt_RecObj() {return JetAveragePt_;}
+        MonitorElement * getMEhisto_AverageEta_RecObj() {return JetAverageEta_;}
+        MonitorElement * getMEhisto_DeltaPhi_RecObj() {return JetPhiDifference_;}
+        MonitorElement * getMEhisto_AveragePt_HLTObj() {return HLTAveragePt_;}
+        MonitorElement * getMEhisto_AverageEta_HLTObj() {return HLTAverageEta_;}
+        MonitorElement * getMEhisto_DeltaPhi_HLTObj() {return HLTPhiDifference_;}
+        MonitorElement * getMEhisto_AveragePt_L1Obj() {return L1AveragePt_;}
+        MonitorElement * getMEhisto_AverageEta_L1Obj() {return L1AverageEta_;}
+        MonitorElement * getMEhisto_DeltaPhi_L1Obj() {return L1PhiDifference_;}
+  
         MonitorElement * getMEhisto_NumeratorPt() { return NumeratorPt_;}
         MonitorElement * getMEhisto_NumeratorPtBarrel() { return NumeratorPtBarrel_;}
         MonitorElement * getMEhisto_NumeratorPtEndcap() { return NumeratorPtEndcap_;}
@@ -357,20 +363,17 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
         MonitorElement * getMEhisto_DenominatorPhi() { return DenominatorPhi_; }
         MonitorElement * getMEhisto_DenominatorEtaPhi() { return DenominatorEtaPhi_; }
 
-        MonitorElement * getMEhisto_Eff_Pt() { return Eff_Pt_;}
-        MonitorElement * getMEhisto_Eff_PtBarrel() { return Eff_PtBarrel_;}
-        MonitorElement * getMEhisto_Eff_PtEndcap() { return Eff_PtEndcap_;}
-        MonitorElement * getMEhisto_Eff_PtForward() { return Eff_PtForward_;}
-        MonitorElement * getMEhisto_Eff_Eta() { return Eff_Eta_;}
-        MonitorElement * getMEhisto_Eff_Phi() { return Eff_Phi_;}
-
+        MonitorElement * getMEhisto_TriggerSummary() {return TriggerSummary_;}
         MonitorElement * getMEhisto_JetSize() {return JetSize_;}
         MonitorElement * getMEhisto_JetPt() {return JetPt_;}
-        MonitorElement * getMEhisto_JetEta() {return JetEta_;}
-        MonitorElement * getMEhisto_EtavsPt1(){return EtavsPt1_;}
-        MonitorElement * getMEhisto_EtavsPt2(){return EtavsPt2_;}
+        MonitorElement * getMEhisto_EtavsPt(){return EtavsPt_;}
+        MonitorElement * getMEhisto_PhivsPt(){return PhivsPt_;}
         MonitorElement * getMEhisto_Pt12() {return Pt12_;}
         MonitorElement * getMEhisto_Eta12() {return Eta12_;}
+        MonitorElement * getMEhisto_Phi12() {return Phi12_;}   
+        MonitorElement * getMEhisto_Pt3() {return Pt3_;}
+        MonitorElement * getMEhisto_Pt12Pt3() {return Pt12Pt3_;}
+        MonitorElement * getMEhisto_Pt12Phi12() {return Pt12Phi12_;}
 
 	const std::string getLabel(void ) const {
 	  return filterName_;
@@ -462,21 +465,25 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
           MonitorElement*  PtResolution_L1HLT_;
           MonitorElement*  EtaResolution_L1HLT_;
           MonitorElement*  PhiResolution_L1HLT_;
-          MonitorElement*  PtResolution_L1RecObj_;
-          MonitorElement*  EtaResolution_L1RecObj_;
-          MonitorElement*  PhiResolution_L1RecObj_;
           MonitorElement*  PtResolution_HLTRecObj_;
           MonitorElement*  EtaResolution_HLTRecObj_;
           MonitorElement*  PhiResolution_HLTRecObj_;
           MonitorElement*  PtCorrelation_L1HLT_;
           MonitorElement*  EtaCorrelation_L1HLT_;
           MonitorElement*  PhiCorrelation_L1HLT_;
-          MonitorElement*  PtCorrelation_L1RecObj_;
-          MonitorElement*  EtaCorrelation_L1RecObj_;
-          MonitorElement*  PhiCorrelation_L1RecObj_;
           MonitorElement*  PtCorrelation_HLTRecObj_;
           MonitorElement*  EtaCorrelation_HLTRecObj_;
           MonitorElement*  PhiCorrelation_HLTRecObj_;
+
+          MonitorElement*  JetAveragePt_;
+          MonitorElement*  JetAverageEta_;
+          MonitorElement*  JetPhiDifference_;
+          MonitorElement*  HLTAveragePt_;
+          MonitorElement*  HLTAverageEta_;
+          MonitorElement*  HLTPhiDifference_;
+          MonitorElement*  L1AveragePt_;
+          MonitorElement*  L1AverageEta_;
+          MonitorElement*  L1PhiDifference_;
           
           MonitorElement*  NumeratorPt_;
           MonitorElement*  NumeratorPtBarrel_;
@@ -493,20 +500,17 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
           MonitorElement*  DenominatorPhi_;
           MonitorElement*  DenominatorEtaPhi_;
 
-          MonitorElement*  Eff_Pt_;
-          MonitorElement*  Eff_PtBarrel_;
-          MonitorElement*  Eff_PtEndcap_;
-          MonitorElement*  Eff_PtForward_;
-          MonitorElement*  Eff_Eta_;
-          MonitorElement*  Eff_Phi_;
-
+          MonitorElement*  TriggerSummary_;
           MonitorElement*  JetSize_;
           MonitorElement*  JetPt_;
-          MonitorElement*  JetEta_;
-          MonitorElement*  EtavsPt1_;
-          MonitorElement*  EtavsPt2_;
+          MonitorElement*  EtavsPt_;
+          MonitorElement*  PhivsPt_;
           MonitorElement*  Pt12_;
           MonitorElement*  Eta12_;
+          MonitorElement*  Phi12_; 
+          MonitorElement*  Pt3_;
+          MonitorElement*  Pt12Pt3_;
+          MonitorElement*  Pt12Phi12_;
         };
    
        // simple collection 
@@ -535,9 +539,8 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
       MonitorElement* correlation_AllWrtMB;
      
 
-      MonitorElement* rate_Eff;
-      MonitorElement* rate_Denominator;
-      MonitorElement* rate_Numerator;
+      MonitorElement* ME_Denominator_rate;
+      MonitorElement* ME_Numerator_rate;
 	
 	
 };

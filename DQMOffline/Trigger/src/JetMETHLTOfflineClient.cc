@@ -84,10 +84,61 @@ void JetMETHLTOfflineClient::runClient_()
   std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
 
-    // Move on only if the folder name contains "Eff"
+    // Move on only if the folder name contains "Eff" Or "Trigger Summary"
     if (debug_) std::cout << fullPathHLTFolders[i] << std::endl;
-    if (fullPathHLTFolders[i].find("Eff")!=string::npos) {
+    if ((fullPathHLTFolders[i].find("Eff")!=string::npos)||(fullPathHLTFolders[i].find("TriggerSummary")!=string::npos)) {
       dbe_->setCurrentFolder(fullPathHLTFolders[i]);
+      // Make plot efficinecy plot for trigger rate
+      if(fullPathHLTFolders[i].find("TriggerSummary")!=string::npos)
+       {
+      hltMEs = dbe_->getContents(fullPathHLTFolders[i]);
+      LogDebug("JetMETHLTOfflineClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << endl;
+
+      for(unsigned int k=0;k<hltMEs.size();k++) {
+        if (debug_) std::cout << hltMEs[k]->getName() << std::endl;
+
+        //-----
+        if (hltMEs[k]->getName().find("Numerator")!=string::npos ){
+
+          std::string name = hltMEs[k]->getName();
+          name.erase(0,12); // Removed "ME_Numerator"
+          if (debug_) std::cout <<"==name=="<< name << std::endl;
+          if( name.find("EtaPhi") !=string::npos ) continue; // do not consider EtaPhi 2D plots
+
+          MonitorElement* eff ;
+
+          for(unsigned int l=0;l<hltMEs.size();l++) {
+            if (hltMEs[l]->getName() == "ME_Denominator"+name){
+              // found denominator too
+              bool foundEff=false;
+              for(unsigned int m=0;m<hltMEs.size();m++) {
+                if (hltMEs[m]->getName() == "ME_Eff_"+name){
+                  foundEff=true;
+                  eff = hltMEs[m];
+                  break;
+                }
+              }
+              TH1F* tNumerator   = hltMEs[k]->getTH1F();
+              TH1F* tDenominator = hltMEs[l]->getTH1F();
+
+              std::string title = "Eff_"+hltMEs[k]->getTitle();
+              TH1F* teff = (TH1F*) tNumerator->Clone(title.c_str());
+              teff->Divide(tNumerator,tDenominator,1,1,"B");
+
+              if (foundEff){
+//              *eff->getTH1F()=*teff;
+                eff= dbe_->book1D("ME_Eff_"+name,teff);
+              } else {
+                eff= dbe_->book1D("ME_Eff_"+name,teff);
+              }
+
+            } // Denominator
+          }   // Loop-l
+        }     // Numerator
+
+
+      }       // Loop-k
+       }// Trigger Summary
     } else {
       continue;
     }
@@ -105,25 +156,23 @@ void JetMETHLTOfflineClient::runClient_()
       
       for(unsigned int k=0;k<hltMEs.size();k++) {
 	if (debug_) std::cout << hltMEs[k]->getName() << std::endl;
-	if (debug_) std::cout << hltMEs[k]->getTitle() << std::endl;
 
 	//-----
-	if (hltMEs[k]->getName().find("Numerator")!=string::npos &&
-	    hltMEs[k]->getName().find("Numerator")==0){
+	if (hltMEs[k]->getName().find("Numerator")!=string::npos ){
 
 	  std::string name = hltMEs[k]->getName();
-	  name.erase(0,9); // Removed "Numerator"
+	  name.erase(0,12); // Removed "ME_Numerator"
+          if (debug_) std::cout <<"==name=="<< name << std::endl;
 	  if( name.find("EtaPhi") !=string::npos ) continue; // do not consider EtaPhi 2D plots
 
 	  MonitorElement* eff ;
 
 	  for(unsigned int l=0;l<hltMEs.size();l++) {
-	    if (hltMEs[l]->getName() == "Denominator"+name){
+	    if (hltMEs[l]->getName() == "ME_Denominator"+name){
 	      // found denominator too
-	      
 	      bool foundEff=false;
 	      for(unsigned int m=0;m<hltMEs.size();m++) {
-		if (hltMEs[m]->getName() == "Eff_"+name){
+		if (hltMEs[m]->getName() == "ME_Eff_"+name){
 		  foundEff=true;
 		  eff = hltMEs[m];
 		  break;
@@ -139,55 +188,15 @@ void JetMETHLTOfflineClient::runClient_()
 
 	      if (foundEff){
 // 		*eff->getTH1F()=*teff;
-		eff= dbe_->book1D("Eff_"+name,teff);
+		eff= dbe_->book1D("ME_Eff_"+name,teff);
 	      } else {
-		eff= dbe_->book1D("Eff_"+name,teff);
+		eff= dbe_->book1D("ME_Eff_"+name,teff);
 	      }
 		
 	    } // Denominator
 	  }   // Loop-l
 	}     // Numerator
 
-	//-----
-	if (hltMEs[k]->getName().find("EmulatedNumerator")!=string::npos &&
-	    hltMEs[k]->getName().find("EmulatedNumerator")==0){
-
-	  std::string name = hltMEs[k]->getName();
-	  name.erase(0,17); // Removed "Numerator"
-	  if( name.find("EtaPhi") !=string::npos ) continue; // do not consider EtaPhi 2D plots
-
-	  MonitorElement* eff ;
-
-	  for(unsigned int l=0;l<hltMEs.size();l++) {
-	    if (hltMEs[l]->getName() == "Denominator"+name){
-	      // found denominator too
-	      
-	      bool foundEff=false;
-	      for(unsigned int m=0;m<hltMEs.size();m++) {
-		if (hltMEs[m]->getName() == "EmulatedEff_"+name){
-		  foundEff=true;
-		  eff = hltMEs[m];
-		  break;
-		}
-	      }
-
-	      TH1F* tNumerator   = hltMEs[k]->getTH1F();
-	      TH1F* tDenominator = hltMEs[l]->getTH1F();
-
-	      std::string title = "EmulatedEff_"+hltMEs[k]->getTitle();
-	      TH1F* teff = (TH1F*) tNumerator->Clone(title.c_str());
-	      teff->Divide(tNumerator,tDenominator,1,1,"B");
-
-	      if (foundEff){
-// 		*eff->getTH1F()=*teff;
-		eff= dbe_->book1D("EmulatedEff_"+name,teff);
-	      } else {
-		eff= dbe_->book1D("EmulatedEff_"+name,teff);
-	      }
-		
-	    } // Denominator
-	  }   // Loop-l
-	}     // Numerator
 
       }       // Loop-k
     }         // fullSubPath
