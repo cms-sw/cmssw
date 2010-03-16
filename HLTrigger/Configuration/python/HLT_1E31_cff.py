@@ -1,13 +1,16 @@
-# /dev/CMSSW_3_5_5/1E31/V4 (CMSSW_3_5_3_HLT3)
+# /dev/CMSSW_3_5_5/1E31/V5 (CMSSW_3_5_3_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/1E31/V4')
+  tableName = cms.string('/dev/CMSSW_3_5_5/1E31/V5')
 )
 
 streams = cms.PSet( 
+  Offline = cms.vstring(  ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
@@ -23,12 +26,13 @@ streams = cms.PSet(
     'ZeroBias',
     'Cosmics' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring(  ),
-  Offline = cms.vstring(  ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' )
+  HLTDQM = cms.vstring(  )
 )
 datasets = cms.PSet( 
+  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
+    'AlCa_RPCMuonNormalisation',
+    'AlCa_RPCMuonNoTriggers' ),
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
@@ -62,7 +66,12 @@ datasets = cms.PSet(
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
   ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
-  Cosmics = cms.vstring( 'HLT_TrackerCosmics',
+  Cosmics = cms.vstring( 'HLT_DoubleMu0',
+    'HLT_DoubleMu3',
+    'HLT_Mu5',
+    'HLT_Mu9',
+    'HLT_L2Mu11',
+    'HLT_TrackerCosmics',
     'HLT_RPCBarrelCosmics',
     'HLT_CSCBeamHaloRing2or3',
     'HLT_CSCBeamHaloOverlapRing2',
@@ -70,14 +79,8 @@ datasets = cms.PSet(
     'HLT_CSCBeamHalo',
     'HLT_L1DoubleMuOpen',
     'HLT_L1Mu',
-    'HLT_L1MuOpen',
-    'HLT_DoubleMu0',
-    'HLT_DoubleMu3',
-    'HLT_Mu5',
-    'HLT_Mu9',
-    'HLT_L2Mu11' ),
-  OfflineMonitor = cms.vstring( 'HLT_HighMult40',
-    'HLT_DoubleMu0',
+    'HLT_L1MuOpen' ),
+  OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
     'HLT_L2Mu11',
@@ -109,11 +112,8 @@ datasets = cms.PSet(
     'HLT_L1MuOpen',
     'HLT_MET100',
     'HLT_L1MET20',
-    'HLT_DoubleMu3' ),
-  AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
-  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits',
-    'AlCa_RPCMuonNormalisation',
-    'AlCa_RPCMuonNoTriggers' )
+    'HLT_DoubleMu3',
+    'HLT_HighMult40' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1883,14 +1883,25 @@ hltL1sL1SingleMu20 = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreL1Mu20HQ = cms.EDFilter( "HLTPrescaler" )
-hltL1Mu20HQL1Filtered20 = cms.EDFilter( "HLTMuonL1Filter",
+hltL1Mu20HQL1Filtered20 = cms.EDFilter( "HLTMuonL1RegionalFilter",
     CandTag = cms.InputTag( "hltL1extraParticles" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu20" ),
-    MaxEta = cms.double( 2.5 ),
-    MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     SaveTag = cms.untracked.bool( True ),
-    SelectQualities = cms.vint32( 7 )
+    Cuts = cms.VPSet( 
+      cms.PSet(  EtaRange = cms.vdouble( -2.5, -1.6 ),
+        MinPt = cms.double( 20.0 ),
+        QualityBits = cms.vuint32( 6, 7 )
+      ),
+      cms.PSet(  EtaRange = cms.vdouble( -1.6, 1.6 ),
+        MinPt = cms.double( 20.0 ),
+        QualityBits = cms.vuint32( 7 )
+      ),
+      cms.PSet(  EtaRange = cms.vdouble( 1.6, 2.5 ),
+        MinPt = cms.double( 20.0 ),
+        QualityBits = cms.vuint32( 6, 7 )
+      )
+    )
 )
 hltPreL1Mu30 = cms.EDFilter( "HLTPrescaler" )
 hltL1Mu30L1Filtered30 = cms.EDFilter( "HLTMuonL1Filter",
@@ -7640,7 +7651,7 @@ rpcPointProducer = cms.EDProducer( "RPCPointProducer",
     cscSegments = cms.InputTag( "hltCscSegments" ),
     dt4DSegments = cms.InputTag( "hltDt4DSegments" )
 )
-HLTRPCFilter = cms.EDFilter( "HLTRPCFilter",
+hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
     rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
     rpcDTPoints = cms.InputTag( 'rpcPointProducer','RPCDTExtrapolatedPoints' ),
     rpcCSCPoints = cms.InputTag( 'rpcPointProducer','RPCCSCExtrapolatedPoints' )
@@ -7894,7 +7905,7 @@ HLT_HcalNZS_1E31 = cms.Path( HLTBeginSequenceNZS + hltL1sHcalNZS1E31 + hltPreHca
 AlCa_EcalPhiSym = cms.Path( HLTBeginSequenceBPTX + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltAlCaPhiSymStream + HLTEndSequence )
 AlCa_EcalPi0_1E31 = cms.Path( HLTBeginSequenceBPTX + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalPi01E31 + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaPi0RecHitsFilter + HLTEndSequence )
 AlCa_EcalEta_1E31 = cms.Path( HLTBeginSequenceBPTX + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalEta1E31 + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaEtaRecHitsFilter + HLTEndSequence )
-AlCa_RPCMuonNoHits = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreRPCMuonNoHits + HLTmuonlocalrecoSequence + rpcPointProducer + HLTRPCFilter + HLTEndSequence )
+AlCa_RPCMuonNoHits = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreRPCMuonNoHits + HLTmuonlocalrecoSequence + rpcPointProducer + hltRPCFilter + HLTEndSequence )
 AlCa_RPCMuonNoTriggers = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreRPCMuonNoTriggers + hltRPCMuonNoTriggersL1Filtered0 + HLTmuonlocalrecoSequence + HLTEndSequence )
 AlCa_RPCMuonNormalisation = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpenL1SingleMu0 + hltPreRPCMuonNorma + hltRPCMuonNormaL1Filtered0 + HLTmuonlocalrecoSequence + HLTEndSequence )
 HLT_HighMult40 = cms.Path( HLTBeginSequenceBPTX + hltL1sHighMult40 + hltPreHighMult40 + HLTDoLocalPixelSequence + HLTRecopixelvertexingForMinBiasSequence + hltPixelCands + hlt1HighMult40 + HLTEndSequence )

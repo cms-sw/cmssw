@@ -1,24 +1,24 @@
-# /dev/CMSSW_3_5_5/HIon/V4 (CMSSW_3_5_3_HLT3)
+# /dev/CMSSW_3_5_5/HIon/V5 (CMSSW_3_5_3_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V4')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V5')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
   'TooManyProducts',
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
+  Offline = cms.vstring(  ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
@@ -30,7 +30,7 @@ process.streams = cms.PSet(
     'Cosmics' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring(  ),
-  Offline = cms.vstring(  )
+  RPCMON = cms.vstring( 'RPCMonitor' )
 )
 process.datasets = cms.PSet( 
   EcalLaser = cms.vstring(  ),
@@ -39,7 +39,6 @@ process.datasets = cms.PSet(
   FEDMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   MinimumBias = cms.vstring(  ),
@@ -47,7 +46,8 @@ process.datasets = cms.PSet(
   HcalNZS = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
-  OfflineMonitor = cms.vstring(  )
+  OfflineMonitor = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -2439,10 +2439,10 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIJet35U',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDoubleMu',
+  'HLT_HIJet35U',
   'HLT_HIMinBiasCalo',
-  'HLT_HIPhoton15',
-  'HLT_HIDoubleMu' ) ),
+  'HLT_HIPhoton15' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
