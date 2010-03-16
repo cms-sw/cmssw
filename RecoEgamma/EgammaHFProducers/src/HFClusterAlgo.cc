@@ -121,23 +121,13 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       }
       if (doCluster) { 
 	seeds.push_back(*i);
-<<<<<<< HFClusterAlgo.cc
+
 	bool clusterOk=makeCluster( i->id(),hf, geom,clusShp,Sclus);
 	if (clusterOk) { // cluster is _not_ ok if seed is rejected due to other cuts
 	  clusterShapes.push_back(clusShp);
 	  SuperClusters.push_back(Sclus);
 	}
-=======
-	makeCluster( i->id(),hf, geom,clusShp,Sclus);
-	bool usecluster=true;
-	if(clusShp.eSeL()<.025){
-	  usecluster=false;
-	}
-	if (usecluster){
-	  clusterShapes.push_back(clusShp);
-	  SuperClusters.push_back(Sclus);
-	}
->>>>>>> 1.14
+
       }
     }//end protoseed loop
   }//end if seeCount
@@ -191,7 +181,6 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
       if (phiWrap<0) 
         phiWrap+=72;
       if (phiWrap>72)
-<<<<<<< HFClusterAlgo.cc
         phiWrap-=72;
 
   
@@ -209,6 +198,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 
 	HcalDetId idl(HcalForward,seedid.ieta()+de,phiWrap,1);
 	HcalDetId ids(HcalForward,seedid.ieta()+de,phiWrap,2);
+
 	
 	il=hf.find(idl);
 	is=hf.find(ids);        
@@ -292,82 +282,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	  if ((dp==0)&&(de==0)) {
             s_1=e_short;
           }
-	  
 	}
-=======
-        phiWrap-=72;
-      
-      for (ls=1;ls<=2; ls++){
-        
-        /* Handling of phi-width change problems */
-        if (edge_type1 && de==seedid.zside()) {
-          if (dp==-2) { // we want it in the 3x3
-            phiWrap-=2;
-            if (phiWrap<0) 
-              phiWrap+=72;
-          } 
-          else if (dp==-4) {
-            continue; // but not double counted in 5x5
-          }
-        }
-
-        HcalDetId id(HcalForward,seedid.ieta()+de,phiWrap,ls);
-        i=hf.find(id);
-        
-        DetId Did(id.rawId());
-        usedHits.push_back(Did);
-        
-        if (i==hf.end()) continue;
-        if (i->energy()> m_minTowerEnergy){
-          if (ls==1) {
-            l_5+=i->energy();
-          }
-          
-          if ((ls==1)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)) {
-            l_3+=i->energy();
-          }
-          if ((ls==1)&&(dp==0)&&(de==0)) {
-            l_1=i->energy();
-          }
-          if (ls==2) {
-            s_5+=i->energy();
-          }	  
-          if ((ls==2)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)) {
-            s_3+=i->energy();
-          }
-          if ((ls==2)&&(dp==0)&&(de==0)) {
-            s_1=i->energy();
-          }
-          if ((ls==1)&&(de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(i->energy()>(.5*si->energy()))) {
-            coreCanid.push_back(i->energy());
-          }
-          
-          
-          GlobalPoint p=geom.getPosition(id);
-          
-          double d_p = p.phi()-sp.phi();
-          while (d_p < -M_PI)
-            d_p+=2*M_PI;
-          while (d_p > M_PI)
-            d_p-=2*M_PI;
-          double d_e = p.eta()-sp.eta();
-          if((de>-2)&&(de<2)&&(dp>-4)&&(dp<4)&&(ls==1) && i->energy()>0) {//long only
-            wgt=log((i->energy()));
-            if (wgt>0){
-              w+=wgt;
-              w_e+=(d_e)*wgt;
-              wp_e+=(d_p)*wgt;
-              e_e+=d_e;
-              e_ep+=d_p;
-              sum_energy+=i->energy();
-              w_x+=(p.x())*wgt;//(p.x()-sp.x())*wgt;
-              w_y+=(p.y())*wgt;
-              w_z+=(p.z())*wgt;
-            }
-          }
-        }	
-      }
->>>>>>> 1.14
     }
 
 
