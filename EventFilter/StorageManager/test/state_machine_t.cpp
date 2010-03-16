@@ -105,6 +105,7 @@ void testStateMachine::setUp()
     _app = mockapps::getMockXdaqApplication();
 
     _sr.reset(new SharedResources());
+    _sr->_configuration.reset(new Configuration(_app->getApplicationInfoSpace(), 0));
     _sr->_initMsgCollection.reset(new InitMsgCollection());
     _sr->_diskWriterResources.reset(new MockDiskWriterResources());
     _sr->_dqmEventProcessorResources.reset(new MockDQMEventProcessorResources());
@@ -113,7 +114,7 @@ void testStateMachine::setUp()
     _sr->_registrationQueue.reset(new RegistrationQueue(32));
     _sr->_streamQueue.reset(new StreamQueue(32));
     _sr->_dqmEventQueue.reset(new DQMEventQueue(32));
-    _sr->_statisticsReporter.reset( new StatisticsReporter( _app, 1 ) );
+    _sr->_statisticsReporter.reset( new StatisticsReporter( _app, _sr ) );
     EventConsumerMonitorCollection& ecmc = 
       _sr->_statisticsReporter->getEventConsumerMonitorCollection();
     _sr->_eventConsumerQueueCollection.reset( new EventQueueCollection( ecmc ) );
@@ -125,7 +126,6 @@ void testStateMachine::setUp()
                                                   _app->getApplicationDescriptor(),
                                                   _sr->_statisticsReporter->getDataSenderMonitorCollection()));
 
-    _sr->_configuration.reset(new Configuration(_app->getApplicationInfoSpace(), 0));
     _sr->_registrationCollection.reset(new RegistrationCollection());
   }
 
