@@ -199,7 +199,7 @@ void PFCandidate::setConversionRef(const reco::ConversionRef& ref) {
 
 
 
-void PFCandidate::setNuclearRef(const reco::NuclearInteractionRef& ref) {
+void PFCandidate::setNuclearRef(const reco::PFDisplacedVertexRef& ref) {
 
   if( particleId_ != h ) {
     string err;
@@ -221,6 +221,19 @@ void PFCandidate::setNuclearRef(const reco::NuclearInteractionRef& ref) {
 
   nuclearRef_ = ref;
 }
+
+
+void PFCandidate::setV0MotherRef(const reco::VertexCompositeCandidateRef& ref) {
+
+  v0MotherRef_ = ref;
+
+}
+
+
+
+
+
+
 
 
 void PFCandidate::rescaleMomentum( double rescaleFactor ) {

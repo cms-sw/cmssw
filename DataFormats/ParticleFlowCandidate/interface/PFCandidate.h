@@ -17,9 +17,9 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-// necessary ?
-#include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 namespace reco {
   /**\class PFCandidate
@@ -122,17 +122,24 @@ namespace reco {
     reco::MuonRef muonRef() const { return muonRef_; }    
 
     /// set nuclear interaction reference
-    void setNuclearRef(const reco::NuclearInteractionRef& ref);
+    void setNuclearRef(const reco::PFDisplacedVertexRef& ref);
 
     /// return a reference to the corresponding nuclear interaction,
     /// otherwise, return a null reference
-    reco::NuclearInteractionRef nuclearRef() const { return nuclearRef_; }
+    reco::PFDisplacedVertexRef nuclearRef() const { return nuclearRef_; }
 
     /// set ref to original reco conversion
     void setConversionRef(const reco::ConversionRef& ref);
 
     /// return a reference to the original conversion
     reco::ConversionRef conversionRef() const { return conversionRef_; }
+
+    /// set ref to original reco conversion
+    void setV0MotherRef(const reco::VertexCompositeCandidateRef& ref);
+
+    /// return a reference to the original conversion
+    reco::VertexCompositeCandidateRef v0MotherRef() const { return v0MotherRef_; }
+
 
     /// set corrected Ecal energy 
     void setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
@@ -310,10 +317,12 @@ namespace reco {
 
     reco::MuonRef  muonRef_;
 
-    reco::NuclearInteractionRef nuclearRef_;
+    reco::PFDisplacedVertexRef nuclearRef_;
 
     reco::ConversionRef conversionRef_;
     
+    reco::VertexCompositeCandidateRef v0MotherRef_;
+
     /// corrected ECAL energy
     float       ecalEnergy_;
 
