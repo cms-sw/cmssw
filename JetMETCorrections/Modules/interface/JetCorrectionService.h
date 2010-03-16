@@ -4,7 +4,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: JetCorrectionService.h,v 1.5 2010/03/15 08:21:59 kkousour Exp $
+// $Id: JetCorrectionService.h,v 1.6 2010/03/15 20:24:23 kkousour Exp $
 //
 //
 
@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/DataRecord/interface/JetCorrectorParametersRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
@@ -77,7 +76,6 @@ class JetCorrectionService : public edm::ESProducer,
         if (mUseCondDB)
           {
             edm::ESHandle<JetCorrectorParameters> JetCorPar;
-            JetCorrectorParametersRecord iRec;
             iRecord.get(mPayloadName,JetCorPar); 
             boost::shared_ptr<JetCorrector> mCorrector(new Corrector(*JetCorPar,mParameterSet));
             return mCorrector;

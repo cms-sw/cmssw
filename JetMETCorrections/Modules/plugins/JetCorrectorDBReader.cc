@@ -13,7 +13,7 @@
 //
 // Original Author:  Benedikt Hegner 
 //         Created:  Tue Mar 09 01:32:51 CET 2010
-// $Id: JetCorrectorDBReader.cc,v 1.1 2010/03/10 17:19:51 hegner Exp $
+// $Id: JetCorrectorDBReader.cc,v 1.1 2010/03/15 08:28:21 kkousour Exp $
 //
 //
 
@@ -34,7 +34,6 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "CondFormats/DataRecord/interface/JetCorrectorParametersRecord.h"
 //
 // class declaration
 //
