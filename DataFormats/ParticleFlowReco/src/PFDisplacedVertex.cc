@@ -48,6 +48,24 @@ PFDisplacedVertex::nKindTracks(VertexTrackType T) const {
 }
 
 
+const size_t 
+PFDisplacedVertex::trackPosition(const reco::TrackBaseRef& originalTrack) const {
+  /*
+  const Track refittedTrack = PFDisplacedVertex::refittedTrack(originalTrack);
+
+
+  std::vector<Track>::const_iterator it =
+    find_if(refittedTracks().begin(), refittedTracks().end(), TrackEqual(refittedTrack));
+  if (it==refittedTracks().end())
+    throw cms::Exception("Vertex") << "Refitted track not found in list\n";
+  size_t pos = it - refittedTracks().begin();
+  */
+  size_t pos = 0;
+  return pos;
+
+}
+
+
 const math::XYZTLorentzVector 
 PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted, double mass) const {
 
@@ -74,6 +92,8 @@ PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted
 				      trackRef->innerMomentum().z(),
 				      sqrt(m2 + p2));
       } else {
+
+	//	cout << "m2 " << m2 << endl; 
 
 	double p2 = refittedTracks()[i].momentum().Mag2();
 	P += math::XYZTLorentzVector (refittedTracks()[i].momentum().x(),

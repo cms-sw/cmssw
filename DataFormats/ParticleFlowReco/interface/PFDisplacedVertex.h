@@ -99,6 +99,48 @@ namespace reco {
     const bool isThereNotFromVertexTracks() const
       {return isThereKindTracks(T_NOT_FROM_VERTEX);}
 
+
+
+
+   /// Is a primary track was identified
+    const bool isPrimaryTrack(const reco::TrackBaseRef& originalTrack) const 
+    {
+      size_t itrk = trackPosition(originalTrack);
+      return isTrack(itrk, T_TO_VERTEX);
+    }
+
+    /// Is a secondary track was identified
+    const bool isSecondaryTrack(const reco::TrackBaseRef& originalTrack) const 
+    {
+      size_t itrk = trackPosition(originalTrack);
+      return isTrack(itrk, T_FROM_VERTEX);
+    }
+
+    /// Is a secondary track was identified
+    const bool isMergedTrack(const reco::TrackBaseRef& originalTrack) const 
+    {
+      size_t itrk = trackPosition(originalTrack);
+      return isTrack(itrk, T_MERGED);
+    }
+
+
+    /// Is primary or merged track
+    const bool isIncomingTrack(const reco::TrackBaseRef& originalTrack) const 
+    {
+      size_t itrk = trackPosition(originalTrack);
+      return isTrack(itrk, T_MERGED) || isTrack(itrk, T_TO_VERTEX);
+    }
+ 
+    /// Is secondary track
+    const bool isOutgoingTrack(const reco::TrackBaseRef& originalTrack) const 
+    {
+      size_t itrk = trackPosition(originalTrack);
+      return isTrack(itrk, T_FROM_VERTEX);    
+    }
+
+
+
+
     /// Number of primary tracks was identified
     const int nPrimaryTracks() const
       {return nKindTracks(T_TO_VERTEX);}
@@ -150,6 +192,23 @@ namespace reco {
 
     /// Get the mass with a given hypothesis
     const double getMass2(std::string, double) const;
+
+    const size_t trackPosition(const reco::TrackBaseRef& originalTrack) const;
+
+    const bool isTrack(size_t itrk, VertexTrackType T) const {
+      return  trackTypes_[itrk] == T;
+    }
+
+    /*
+   class TrackEqual {
+   public:
+     TrackEqual( const Track & t) : track_( t ) { }
+       bool operator()( const Track & t ) const { return t.pt()==track_.pt();}
+   private:
+       const Track & track_;
+   };
+    */
+
 
     /// cout function
     friend std::ostream& operator<<( std::ostream& out, const PFDisplacedVertex& co );

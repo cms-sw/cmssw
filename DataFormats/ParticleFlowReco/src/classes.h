@@ -30,8 +30,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"  //Daniele
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"  //Daniele
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
-#
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
@@ -106,6 +106,14 @@ namespace {
     edm::Ref<std::vector<reco::PFNuclearInteraction> >        dummy24;
     edm::RefProd<std::vector<reco::PFNuclearInteraction> >    dummy25;
     edm::RefVector<std::vector<reco::PFNuclearInteraction> >  dummy26;
+
+    reco::PFDisplacedTrackerVertex                                dummy21a;
+    std::vector<reco::PFDisplacedTrackerVertex>                   dummy22a;
+    edm::Wrapper<std::vector<reco::PFDisplacedTrackerVertex> >    dummy23a;
+    edm::Ref<std::vector<reco::PFDisplacedTrackerVertex> >        dummy24a;
+    edm::RefProd<std::vector<reco::PFDisplacedTrackerVertex> >    dummy25a;
+    edm::RefVector<std::vector<reco::PFDisplacedTrackerVertex> >  dummy26a;
+
 
     reco::PFConversionCollection dummy27;
     edm::Wrapper<reco::PFConversionCollection> dummy28;
