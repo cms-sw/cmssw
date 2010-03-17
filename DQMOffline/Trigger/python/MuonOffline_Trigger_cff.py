@@ -7,8 +7,12 @@ from DQMOffline.Trigger.TnPEfficiency_cff import *
 
 from DQMOffline.Trigger.topHLTDiMuonDQM_cfi import *
 
+# muonFullOfflineDQM = cms.Sequence(offlineDQMMuonTrig
+# 								  + topTrigOfflineDQM
+# 								  + topHLTDiMuonAnalyzer
+# 								  + TnPEfficiency)
+
 muonFullOfflineDQM = cms.Sequence(offlineDQMMuonTrig
-								  + topTrigOfflineDQM
-								  + topHLTDiMuonAnalyzer
+								  + topTrigOfflineDQM								  
 								  + TnPEfficiency)
 
