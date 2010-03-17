@@ -15,9 +15,9 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
         			TrackCollection = cms.untracked.InputTag('generalTracks'),
 				IsMuonCollection = cms.untracked.bool(False),
                                 WriteAscii = cms.untracked.bool(False),
-                                AsciiFileName = cms.untracked.string('BeamFit.txt'),
-				BackupAscii = cms.untracked.bool(False),
-				BackupFileName = cms.untracked.string('BeamFit_DEBUG.txt'), ## all results
+                                AsciiFileName = cms.untracked.string('BeamFit.txt'), ## all results
+				WriteDIPAscii = cms.untracked.bool(False),
+				DIPFileName = cms.untracked.string('BeamFitDIP.txt'),
 				SaveNtuple = cms.untracked.bool(False),
 				SaveFitResults = cms.untracked.bool(False),
 				OutputFileName = cms.untracked.string('BeamFit.root'), ## ntuple filename
@@ -59,7 +59,7 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               vxMin = cms.double(-0.5),
                               vxMax = cms.double(0.5),
                               
-                              dzBin = cms.int32(40),
+                              dzBin = cms.int32(80),
                               dzMin = cms.double(-20),
                               dzMax = cms.double(20),
                               
