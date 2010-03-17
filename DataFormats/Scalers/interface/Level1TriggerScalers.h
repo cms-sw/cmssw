@@ -111,6 +111,16 @@ class Level1TriggerScalers
   unsigned long long deadtimeBeamActiveTimeSlot() const 
   { return(deadtimeBeamActiveTimeSlot_);}
 
+  unsigned int lastEventCounter0() const { return(lastEventCounter0_);}
+  unsigned int lastTestEnable() const    { return(lastTestEnable_);}
+  unsigned int lastResync() const        { return(lastResync_);}
+  unsigned int lastStart() const         { return(lastStart_);}
+  unsigned int lastHardReset() const     { return(lastHardReset_);}
+  unsigned int spare0() const            { return(spare0_);}
+  unsigned long long spare1() const      { return(spare1_);}
+  unsigned long long spare2() const      { return(spare2_);}
+  unsigned long long spare3() const      { return(spare3_);}
+
   static double rateLS(unsigned long long counts);
   static double rateLS(unsigned int counts);
   static double percentLS(unsigned long long counts);
@@ -174,6 +184,16 @@ protected:
 
   std::vector<unsigned int> gtAlgoCounts_;
   std::vector<unsigned int> gtTechCounts_;
+
+  unsigned int lastEventCounter0_;
+  unsigned int lastTestEnable_;
+  unsigned int lastResync_;
+  unsigned int lastStart_;
+  unsigned int lastHardReset_;
+  unsigned int spare0_;
+  unsigned long long spare1_;
+  unsigned long long spare2_;
+  unsigned long long spare3_;
 };
 
 

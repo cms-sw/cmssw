@@ -46,7 +46,16 @@ Level1TriggerScalers::Level1TriggerScalers():
   deadtimeBeamActivePartitionController_(0),
   deadtimeBeamActiveTimeSlot_(0),
   gtAlgoCounts_(nLevel1Triggers),
-  gtTechCounts_(nLevel1TestTriggers)
+  gtTechCounts_(nLevel1TestTriggers),
+  lastEventCounter0_(0),
+  lastTestEnable_(0),
+  lastResync_(0),
+  lastStart_(0),
+  lastHardReset_(0),
+  spare0_(0),
+  spare1_(0),
+  spare2_(0),
+  spare3_(0)
 { 
 }
 
@@ -54,8 +63,8 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 { 
   Level1TriggerScalers();
 
-  struct ScalersEventRecordRaw_v3 * raw 
-    = (struct ScalersEventRecordRaw_v3 *)rawData;
+  struct ScalersEventRecordRaw_v5 * raw 
+    = (struct ScalersEventRecordRaw_v5 *)rawData;
 
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
@@ -112,6 +121,31 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 
     for ( int i=0; i<ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++)
     { gtTechCounts_.push_back( raw->trig.gtTechCounts[i]);}
+
+    if ( version_ >= 5 )
+    {
+      lastEventCounter0_ = raw->lastEventCounter0;
+      lastTestEnable_    = raw->lastTestEnable;
+      lastResync_        = raw->lastResync;
+      lastStart_         = raw->lastStart;
+      lastHardReset_     = raw->lastHardReset;
+      spare0_            = raw->spare0;
+      spare1_            = raw->spare[0];
+      spare2_            = raw->spare[1];
+      spare3_            = raw->spare[2];
+    }
+    else
+    {
+      lastEventCounter0_ = 0UL;
+      lastTestEnable_    = 0UL;
+      lastResync_        = 0UL;
+      lastStart_         = 0UL;
+      lastHardReset_     = 0UL;
+      spare0_            = 0UL;
+      spare1_            = 0ULL;
+      spare2_            = 0ULL;
+      spare3_            = 0ULL;
+    }
   }
 }
 
@@ -339,5 +373,29 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 	    (i+(length*3)), gtTechCounts[i+(length*3)]);
     s << line << std::endl;
   }
+
+  if ( c.version() >= 5 )
+  {
+    sprintf(line," LastEventCounter0: %10u  0x%8.8X", c.lastEventCounter0(),
+	    c.lastEventCounter0()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastTestEnable:    %10u  0x%8.8X", c.lastTestEnable(),
+	    c.lastTestEnable()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastResync:        %10u  0x%8.8X", c.lastResync(),
+	    c.lastResync()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastStart:         %10u  0x%8.8X", c.lastStart(),
+	    c.lastStart()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastHardReset:     %10u  0x%8.8X", c.lastHardReset(),
+	    c.lastHardReset()); 
+    s << line << std::endl;
+  }
+
   return s;
 }
