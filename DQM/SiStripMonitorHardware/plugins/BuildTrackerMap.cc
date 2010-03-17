@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.5 2009/11/05 12:23:58 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.6 2010/01/08 14:14:47 amagnan Exp $
 //
 
 #include <sstream>
@@ -134,11 +134,10 @@ BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
 void BuildTrackerMapPlugin::read(bool aMechView){
 
   edm::Service<DQMStore>().operator->()->open(fileName_);  
-  TkHistoMap *tkHistoMap[6];
+  std::vector<TkHistoMap *> tkHistoMap;
 
   unsigned int nHists = tkHistoMapNameVec_.size();
-  assert (nHists <= 6);
-  assert (nHists >= 4);
+  tkHistoMap.resize(nHists,0);
 
   for (unsigned int i(0); i<nHists; i++){
 
@@ -150,98 +149,98 @@ void BuildTrackerMapPlugin::read(bool aMechView){
 
   std::cout << "Maps read with success." << std::endl;
 
-  //get list of detid for which |deltaRMS(APV0-APV1)|>1
-  unsigned int lHistoNumber = 35;
-  TkDetMap lTkDetMap;
-  std::ofstream list,listRms0,listRms1;
-  list.open("./cmBadModuleList.dat",std::ios::out);
-  listRms0.open("./cmBadModuleList_rms0.dat",std::ios::out);
-  listRms1.open("./cmBadModuleList_rms1.dat",std::ios::out);
-  if (!list || !listRms0 || !listRms1) {
-    std::cout << "Warning, can't open output file to write bad module list !" << std::endl;
-    exit(1);
-  }
+//   //get list of detid for which |deltaRMS(APV0-APV1)|>1
+//   unsigned int lHistoNumber = 35;
+//   TkDetMap lTkDetMap;
+//   std::ofstream list,listRms0,listRms1;
+//   list.open("./cmBadModuleList.dat",std::ios::out);
+//   listRms0.open("./cmBadModuleList_rms0.dat",std::ios::out);
+//   listRms1.open("./cmBadModuleList_rms1.dat",std::ios::out);
+//   if (!list || !listRms0 || !listRms1) {
+//     std::cout << "Warning, can't open output file to write bad module list !" << std::endl;
+//     exit(1);
+//   }
 
-  TCanvas *lCan = new TCanvas("lCan","",1);
-  TH1F *p_deltaMean = new TH1F("p_deltaMean",";CM_{mean}(APV0)-CM_{mean}(APV1)",500,-2,2);
-  TH1F *p_deltaRMS = new TH1F("p_deltaRMS",";CM_{RMS}(APV0)-CM_{RMS}(APV1)",500,0,3);
-  TH1F *p_MeanAPV0 = new TH1F("p_MeanAPV0",";CM_{mean}(APV0)",500,100,140);
-  //TH1F *p_MeanAPV1 = new TH1F("p_MeanAPV1",";CM_{mean}(APV1)",500,100,140);
-  TH1F *p_RMSAPV0 = new TH1F("p_RMSAPV0",";CM_{RMS}(APV0)",500,0,10);
-  //TH1F *p_RMSAPV1 = new TH1F("p_RMSAPV1",";CM_{RMS}(APV1)",500,0,10);
+//   TCanvas *lCan = new TCanvas("lCan","",1);
+//   TH1F *p_deltaMean = new TH1F("p_deltaMean",";CM_{mean}(APV0)-CM_{mean}(APV1)",500,-2,2);
+//   TH1F *p_deltaRMS = new TH1F("p_deltaRMS",";CM_{RMS}(APV0)-CM_{RMS}(APV1)",500,0,3);
+//   TH1F *p_MeanAPV0 = new TH1F("p_MeanAPV0",";CM_{mean}(APV0)",500,100,140);
+//   //TH1F *p_MeanAPV1 = new TH1F("p_MeanAPV1",";CM_{mean}(APV1)",500,100,140);
+//   TH1F *p_RMSAPV0 = new TH1F("p_RMSAPV0",";CM_{RMS}(APV0)",500,0,10);
+//   //TH1F *p_RMSAPV1 = new TH1F("p_RMSAPV1",";CM_{RMS}(APV1)",500,0,10);
 
 
 
-  gStyle->SetOptStat(1111111);
+//   gStyle->SetOptStat(1111111);
 
-  for(unsigned int layer=1;layer<lHistoNumber;++layer){
-    std::vector<uint32_t> dets;
-    lTkDetMap.getDetsForLayer(layer,dets);
-    for(size_t i=0;i<dets.size();++i){
-      if(dets[i]>0){
-	//if(tkHistoMap[5]->getEntries(dets[i])>0 && tkHistoMap[5]->getValue(dets[i])) {
-	if(nHists > 3){
-	  if (tkHistoMap[3]->getValue(dets[i]) > 1) {
-	    list << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
-	  }
-	p_deltaRMS->Fill(tkHistoMap[3]->getValue(dets[i]));
-	}
-	p_MeanAPV0->Fill(tkHistoMap[0]->getValue(dets[i]));
-	//p_MeanAPV1->Fill(tkHistoMap[1]->getValue(dets[i]));
-	p_RMSAPV0->Fill(tkHistoMap[1]->getValue(dets[i]));
-	if (tkHistoMap[1]->getValue(dets[i]) > 2)
-	  listRms0 << dets[i] << " " << tkHistoMap[1]->getValue(dets[i]) << std::endl;
-	//p_RMSAPV1->Fill(tkHistoMap[3]->getValue(dets[i]));
-	//if (tkHistoMap[3]->getValue(dets[i]) > 2)
-	//listRms1 << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
+//   for(unsigned int layer=1;layer<lHistoNumber;++layer){
+//     std::vector<uint32_t> dets;
+//     lTkDetMap.getDetsForLayer(layer,dets);
+//     for(size_t i=0;i<dets.size();++i){
+//       if(dets[i]>0){
+// 	//if(tkHistoMap[5]->getEntries(dets[i])>0 && tkHistoMap[5]->getValue(dets[i])) {
+// 	if(nHists > 3){
+// 	  if (tkHistoMap[3]->getValue(dets[i]) > 1) {
+// 	    list << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
+// 	  }
+// 	p_deltaRMS->Fill(tkHistoMap[3]->getValue(dets[i]));
+// 	}
+// 	p_MeanAPV0->Fill(tkHistoMap[0]->getValue(dets[i]));
+// 	//p_MeanAPV1->Fill(tkHistoMap[1]->getValue(dets[i]));
+// 	p_RMSAPV0->Fill(tkHistoMap[1]->getValue(dets[i]));
+// 	if (tkHistoMap[1]->getValue(dets[i]) > 2)
+// 	  listRms0 << dets[i] << " " << tkHistoMap[1]->getValue(dets[i]) << std::endl;
+// 	//p_RMSAPV1->Fill(tkHistoMap[3]->getValue(dets[i]));
+// 	//if (tkHistoMap[3]->getValue(dets[i]) > 2)
+// 	//listRms1 << dets[i] << " " << tkHistoMap[3]->getValue(dets[i]) << std::endl;
 
-	if(nHists > 2) p_deltaMean->Fill(tkHistoMap[2]->getValue(dets[i]));
-      }
-    }
-  }
-  list.close();
-  listRms0.close();
-  listRms1.close();
+// 	if(nHists > 2) p_deltaMean->Fill(tkHistoMap[2]->getValue(dets[i]));
+//       }
+//     }
+//   }
+//   list.close();
+//   listRms0.close();
+//   listRms1.close();
 
-  lCan->cd();
-  p_deltaRMS->Draw();
-  //lCan->Print("./deltaRMStotal.png");
-  lCan->Print("./deltaRMStotal.C");
+//   lCan->cd();
+//   p_deltaRMS->Draw();
+//   //lCan->Print("./deltaRMStotal.png");
+//   lCan->Print("./deltaRMStotal.C");
 
-  p_deltaMean->Draw();
-  lCan->Update();
-  lCan->Print("./deltaMeantotal.C");
+//   p_deltaMean->Draw();
+//   lCan->Update();
+//   lCan->Print("./deltaMeantotal.C");
 
-  TPaveStats *statBox[2] = {0,0};  
-  statBox[0] = (TPaveStats*)p_MeanAPV0->FindObject("stats");
-  //statBox[1] = (TPaveStats*)p_MeanAPV1->FindObject("stats");
+//   TPaveStats *statBox[2] = {0,0};  
+//   statBox[0] = (TPaveStats*)p_MeanAPV0->FindObject("stats");
+//   //statBox[1] = (TPaveStats*)p_MeanAPV1->FindObject("stats");
 
-  p_MeanAPV0->Draw();
-  //p_MeanAPV1->SetLineColor(2);
-  //p_MeanAPV1->Draw("same");
-  if (statBox[0]) statBox[0]->Draw("same");
-  if (statBox[1]) { 
-    statBox[1]->SetLineColor(2);
-    statBox[1]->SetTextColor(2);
-    statBox[1]->Draw("same");
-  }
-  lCan->Update();
-  lCan->Print("./meanAPVstotal.C");
+//   p_MeanAPV0->Draw();
+//   //p_MeanAPV1->SetLineColor(2);
+//   //p_MeanAPV1->Draw("same");
+//   if (statBox[0]) statBox[0]->Draw("same");
+//   if (statBox[1]) { 
+//     statBox[1]->SetLineColor(2);
+//     statBox[1]->SetTextColor(2);
+//     statBox[1]->Draw("same");
+//   }
+//   lCan->Update();
+//   lCan->Print("./meanAPVstotal.C");
 
-  statBox[0] = (TPaveStats*)p_RMSAPV0->FindObject("stats");
-  //statBox[1] = (TPaveStats*)p_RMSAPV1->FindObject("stats");
+//   statBox[0] = (TPaveStats*)p_RMSAPV0->FindObject("stats");
+//   //statBox[1] = (TPaveStats*)p_RMSAPV1->FindObject("stats");
 
-  p_RMSAPV0->Draw();
-  //p_RMSAPV1->SetLineColor(2);
-  //p_RMSAPV1->Draw("same");
-  if (statBox[0]) statBox[0]->Draw("same");
-  if (statBox[1]) { 
-    statBox[1]->SetLineColor(2);
-    statBox[1]->SetTextColor(2);
-    statBox[1]->Draw("same");
-  }
-  lCan->Update();
-  lCan->Print("./rmsAPVstotal.C");
+//   p_RMSAPV0->Draw();
+//   //p_RMSAPV1->SetLineColor(2);
+//   //p_RMSAPV1->Draw("same");
+//   if (statBox[0]) statBox[0]->Draw("same");
+//   if (statBox[1]) { 
+//     statBox[1]->SetLineColor(2);
+//     statBox[1]->SetTextColor(2);
+//     statBox[1]->Draw("same");
+//   }
+//   lCan->Update();
+//   lCan->Print("./rmsAPVstotal.C");
 
 
 }
