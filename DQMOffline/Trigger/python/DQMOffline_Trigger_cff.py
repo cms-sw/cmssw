@@ -65,7 +65,8 @@ from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 # TnP
 from DQMOffline.Trigger.TnPEfficiency_cff import *
 
-offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency)
+#offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency)
+offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*TnPEfficiency)
 
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource*l1temumonitor*l1tmonitor*onlineHLTSource)
  
