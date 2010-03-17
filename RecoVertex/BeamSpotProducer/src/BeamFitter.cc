@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.36 2010/03/13 15:11:12 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.37 2010/03/13 19:43:40 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -53,8 +53,8 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   tracksLabel_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<edm::InputTag>("TrackCollection");
   writeTxt_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteAscii");
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
-  writeTxtBak_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("BackupAscii");
-  outputTxtBak_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("BackupFileName");
+  writeDIPTxt_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteDIPAscii");
+  outputDIPTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
   saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveNtuple");
   saveBeamFit_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveFitResults");
   isMuon_            = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("IsMuonCollection");
@@ -197,15 +197,15 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 
   //open txt files at begin of run
   if (frun == -1) {
-    if (writeTxt_)
-      fasciiFile.open(outputTxt_.c_str());
-    if (writeTxtBak_) {
-      std::string tmpname = outputTxtBak_;
+    if (writeDIPTxt_)
+      fasciiDIP.open(outputDIPTxt_.c_str());
+    if (writeTxt_) {
+      std::string tmpname = outputTxt_;
       char index[15];
       sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
-      tmpname.insert(outputTxtBak_.length()-4,index);
-      fasciiFileBak.open(tmpname.c_str());
-      outputTxtBak_ = tmpname;
+      tmpname.insert(outputTxt_.length()-4,index);
+      fasciiFile.open(tmpname.c_str());
+      outputTxt_ = tmpname;
     }
   }
   frun = iEvent.id().run();
@@ -432,8 +432,8 @@ bool BeamFitter::runFitter() {
       
     }
 
-    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,false); // for DQM/DIP
-    if(writeTxtBak_ && fasciiFileBak.is_open()) dumpTxtFile(outputTxtBak_,true); // for debug
+    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true); // all reaults
+    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false); // for DQM/DIP
 
     // retrieve histogram for Vz
     h1z = (TH1F*) myalgo->GetVzHisto();
@@ -465,6 +465,8 @@ bool BeamFitter::runFitter() {
   else{
     fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
+    if(writeTxt_ && fasciiFile.is_open()) dumpTxtFile(outputTxt_,true);  // all results
+    if(writeDIPTxt_ && fasciiDIP.is_open()) dumpTxtFile(outputDIPTxt_,false);// for DQM/DIP
   }
   fitted_ = true;
   return fit_ok;

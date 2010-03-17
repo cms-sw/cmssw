@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.13 2010/02/09 09:14:50 jengbou Exp $
+ version $Id: BSFitter.cc,v 1.14 2010/03/09 16:03:30 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -430,8 +430,15 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 	//if ( fnthite > 1 ) std::cout << theanswer << std::endl;
 	
 	std::cout << "Total number of successful iterations = " << ( goodfit ? (fnthite+1) : fnthite ) << std::endl;
-	fbeamtype = reco::BeamSpot::Tracker;
-	theanswer.setType(fbeamtype);
+	if (goodfit) {
+	  fbeamtype = reco::BeamSpot::Tracker;
+	  theanswer.setType(fbeamtype);
+	}
+	else {
+	  std::cout << "Fit doesn't converge!!!" << std::endl;
+	  fbeamtype = reco::BeamSpot::Unknown;
+	  theanswer.setType(fbeamtype);
+	}
 	return theanswer;
 }
 

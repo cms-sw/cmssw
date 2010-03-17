@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.19 2010/03/13 15:11:12 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.20 2010/03/13 19:43:39 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -65,14 +65,14 @@ class BeamFitter {
   reco::BeamSpot fbeamspot;
   BSFitter *fmyalgo;
   std::ofstream fasciiFile;
-  std::ofstream fasciiFileBak;
+  std::ofstream fasciiDIP;
 
   bool debug_;
   edm::InputTag tracksLabel_;
   bool writeTxt_;
-  bool writeTxtBak_;
+  bool writeDIPTxt_;
   std::string outputTxt_;
-  std::string outputTxtBak_;
+  std::string outputDIPTxt_;
   double trk_MinpT_;
   double trk_MaxZ_;
   double trk_MaxEta_;
