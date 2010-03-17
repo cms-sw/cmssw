@@ -8,6 +8,18 @@ ALCARECOTkAlJpsiMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
     throw = False # tolerate triggers stated above, but not available
     )
 
+# DCS partitions
+# "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
+# "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
+# "BPIX","FPIX","ESp","ESm"
+import DPGAnalysis.Skims.skim_detstatus_cfi
+ALCARECOTkAlJpsiMuMuDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
+    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX'),
+    ApplyFilter  = cms.bool(True),
+    AndOr        = cms.bool(True),
+    DebugOn      = cms.untracked.bool(False)
+)
+
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlJpsiMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 ALCARECOTkAlJpsiMuMu.filter = True ##do not store empty events
@@ -33,4 +45,4 @@ ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 ALCARECOTkAlJpsiMuMu.TwoBodyDecaySelector.acoplanarDistance = 1 ##radian
 
 
-seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMu)
+seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiMuMuDCSFilter+ALCARECOTkAlJpsiMuMu)

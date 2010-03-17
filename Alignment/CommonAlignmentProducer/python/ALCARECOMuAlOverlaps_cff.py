@@ -8,6 +8,17 @@ ALCARECOMuAlOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
     throw = False # tolerate triggers not available
     )
 
+# DCS partitions
+# "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
+# "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
+# "BPIX","FPIX","ESp","ESm"
+import DPGAnalysis.Skims.skim_detstatus_cfi
+ALCARECOMuAlOverlapsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
+    DetectorType = cms.vstring('CSCp','CSCm'),
+    ApplyFilter  = cms.bool(True),
+    AndOr        = cms.bool(False),
+    DebugOn      = cms.untracked.bool(False)
+)
 
 ALCARECOMuAlOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
     filter = cms.bool(True),
@@ -21,4 +32,4 @@ ALCARECOMuAlOverlapsMuonSelector = Alignment.CommonAlignmentProducer.AlignmentMu
     ptMin = 3.
     )
 
-seqALCARECOMuAlOverlaps = cms.Sequence(ALCARECOMuAlOverlapsHLT+ALCARECOMuAlOverlapsMuonSelector*ALCARECOMuAlOverlaps)
+seqALCARECOMuAlOverlaps = cms.Sequence(ALCARECOMuAlOverlapsHLT+ALCARECOMuAlOverlapsDCSFilter+ALCARECOMuAlOverlapsMuonSelector*ALCARECOMuAlOverlaps)

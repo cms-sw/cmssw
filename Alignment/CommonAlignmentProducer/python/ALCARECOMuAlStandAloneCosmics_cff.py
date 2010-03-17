@@ -8,8 +8,20 @@ ALCARECOMuAlStandAloneCosmicsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHigh
     eventSetupPathsKey = 'MuAlStandAloneCosmics',
     throw = False # tolerate triggers not available
     )
-import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
+# DCS partitions
+# "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
+# "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
+# "BPIX","FPIX","ESp","ESm"
+import DPGAnalysis.Skims.skim_detstatus_cfi
+ALCARECOMuAlStandAloneCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
+    DetectorType = cms.vstring('DT0','DTp','DTm','CSCp','CSCm'),
+    ApplyFilter  = cms.bool(True),
+    AndOr        = cms.bool(False),
+    DebugOn      = cms.untracked.bool(False)
+)
+
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOMuAlStandAloneCosmics = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = "cosmicMuons", #cms.InputTag("cosmicMuons")
     filter = True,
@@ -18,5 +30,5 @@ ALCARECOMuAlStandAloneCosmics = Alignment.CommonAlignmentProducer.AlignmentTrack
     etaMax = 100.0
     )
 
-seqALCARECOMuAlStandAloneCosmics = cms.Sequence(ALCARECOMuAlStandAloneCosmicsHLT + ALCARECOMuAlStandAloneCosmics)
+seqALCARECOMuAlStandAloneCosmics = cms.Sequence(ALCARECOMuAlStandAloneCosmicsHLT + ALCARECOMuAlStandAloneCosmicsDCSFilter + ALCARECOMuAlStandAloneCosmics)
 

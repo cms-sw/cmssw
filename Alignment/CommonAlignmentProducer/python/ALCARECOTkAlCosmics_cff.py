@@ -1,12 +1,24 @@
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/10/29 17:28:42 $ by $Author: flucke $
+# last update: $Date: 2010/03/16 17:08:51 $ by $Author: mussgill $
 
 import FWCore.ParameterSet.Config as cms
 
+# DCS partitions
+# "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
+# "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
+# "BPIX","FPIX","ESp","ESm"
+import DPGAnalysis.Skims.skim_detstatus_cfi
+ALCARECOTkAlCosmicsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
+    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX'),
+    ApplyFilter  = cms.bool(True),
+    AndOr        = cms.bool(True),
+    DebugOn      = cms.untracked.bool(False)
+)
+
 #________________________________Track selection____________________________________
-import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 # AlCaReco for track based alignment using Cosmic muons reconstructed by Combinatorial Track Finder
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlCosmicsCTF = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = 'ctfWithMaterialTracksP5',
     filter = True,

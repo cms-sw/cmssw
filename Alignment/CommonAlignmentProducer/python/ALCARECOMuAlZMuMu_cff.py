@@ -8,6 +8,18 @@ ALCARECOMuAlZMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False # tolerate triggers not available
     )
 
+# DCS partitions
+# "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
+# "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
+# "BPIX","FPIX","ESp","ESm"
+import DPGAnalysis.Skims.skim_detstatus_cfi
+ALCARECOMuAlZMuMuDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
+    DetectorType = cms.vstring('TIBTID','TOB','DT0','DTp','DTm','CSCp','CSCm'),
+    ApplyFilter  = cms.bool(True),
+    AndOr        = cms.bool(True),
+    DebugOn      = cms.untracked.bool(False)
+)
+
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
     applyMassPairFilter = True,
@@ -15,5 +27,5 @@ ALCARECOMuAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.
     maxMassPair = 91. + 10.
     )
 
-seqALCARECOMuAlZMuMu = cms.Sequence(ALCARECOMuAlZMuMuHLT+ALCARECOMuAlZMuMu)
+seqALCARECOMuAlZMuMu = cms.Sequence(ALCARECOMuAlZMuMuHLT+ALCARECOMuAlZMuMuDCSFilter+ALCARECOMuAlZMuMu)
 

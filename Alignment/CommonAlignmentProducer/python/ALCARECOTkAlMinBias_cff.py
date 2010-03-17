@@ -14,7 +14,17 @@ ALCARECOTkAlMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clon
     throw = False # tolerate triggers stated above, but not available
     )
 
-
+# DCS partitions
+# "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
+# "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
+# "BPIX","FPIX","ESp","ESm"
+import DPGAnalysis.Skims.skim_detstatus_cfi
+ALCARECOTkAlMinBiasDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
+    DetectorType = cms.vstring('TIBTID','TOB','TECp','TECm','BPIX','FPIX'),
+    ApplyFilter  = cms.bool(True),
+    AndOr        = cms.bool(True),
+    DebugOn      = cms.untracked.bool(False)
+)
 
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOTkAlMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -34,5 +44,4 @@ ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyMassrangeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyChargeFilter = False
 ALCARECOTkAlMinBias.TwoBodyDecaySelector.applyAcoplanarityFilter = False
 
-seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT*
-~ALCARECOTkAlMinBiasNOTHLT+ALCARECOTkAlMinBias)
+seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT*~ALCARECOTkAlMinBiasNOTHLT+ALCARECOTkAlMinBiasDCSFilter+ALCARECOTkAlMinBias)

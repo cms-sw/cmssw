@@ -8,6 +8,18 @@ ALCARECOMuAlBeamHaloOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighL
     throw = False # tolerate triggers not available
     )
 
+# DCS partitions
+# "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
+# "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
+# "BPIX","FPIX","ESp","ESm"
+import DPGAnalysis.Skims.skim_detstatus_cfi
+ALCARECOMuAlBeamHaloOverlapsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
+    DetectorType = cms.vstring('CSCp','CSCm'),
+    ApplyFilter  = cms.bool(True),
+    AndOr        = cms.bool(False),
+    DebugOn      = cms.untracked.bool(False)
+)
+
 ALCARECOMuAlBeamHaloOverlapsEnergyCut = cms.EDFilter("AlignmentCSCBeamHaloSelectorModule",
     filter = cms.bool(True),
     src = cms.InputTag("cosmicMuons"), # get cosmicMuons from global-run reconstruction
@@ -22,5 +34,5 @@ ALCARECOMuAlBeamHaloOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
     station = cms.int32(0) # all stations: I'll need to split it by station (8 subsamples) offline
 )
 
-seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT + ALCARECOMuAlBeamHaloOverlapsEnergyCut * ALCARECOMuAlBeamHaloOverlaps)
+seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT + ALCARECOMuAlBeamHaloOverlapsDCSFilter + ALCARECOMuAlBeamHaloOverlapsEnergyCut * ALCARECOMuAlBeamHaloOverlaps)
 
