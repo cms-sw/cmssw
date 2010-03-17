@@ -13,7 +13,7 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "SimG4Core/GFlash/interface/GflashHistogram.h"
+#include "SimGeneral/GFlash/interface/GflashHistogram.h"
 
 GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, 
 	       const HepPDT::ParticleDataTable * table_, 
