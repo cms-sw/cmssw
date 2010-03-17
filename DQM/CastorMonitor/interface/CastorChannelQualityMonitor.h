@@ -61,6 +61,7 @@ private:
  MonitorElement* reportSummary;
  MonitorElement* reportSummaryMap;  TH2F* h_reportSummaryMap;
  MonitorElement* overallStatus;
+ double fraction;
 
 
 
