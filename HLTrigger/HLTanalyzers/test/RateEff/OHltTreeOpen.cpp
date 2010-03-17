@@ -713,6 +713,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }       
     }       
   } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleEle10_SW_1EleId_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt2Electron1LegIdPassed(10.,0,9999.,9999.)>=2) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SC15_SW_LooseTrackIso_L1R") == 0) {        
     float Et = 15.; 
     int L1iso = 0;  
@@ -818,6 +825,37 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }          
     } 
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_SW_EleId_LooseTrackIso_L1R") == 0) {
+    float Et = 20.;
+    float Tiso = 8.0;
+    float Hiso = 9999.;
+    float Tisoratio = 0.5;
+    int L1iso = 0;
+    int rc = 0;
+
+    if ( map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      for (int i=0;i<NohEle;i++) {
+        if ( ohEleEt[i] > Et) {
+          if( TMath::Abs(ohEleEta[i]) < 2.65 ) {
+	    if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)
+	      if (ohEleNewSC[i]==1)
+		if (ohElePixelSeeds[i]>0)
+		  if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.)
+		    if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
+		      if ( (TMath::Abs(ohEleEta[i]) < 1.475 && ohEleClusShap[i] < 0.015) ||
+			   (1.475 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.65 && ohEleClusShap[i] < 0.04) )
+			if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )
+			  if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs
+			    rc++;
+          }
+        }
+      }
+      if(rc > 0) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_SW_EleId_LooseTrackIso_L1R") == 0) {    
     float Et = 25.;    
     float Tiso = 8.0;    
@@ -942,6 +980,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }      
     }      
   }       
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon50_L1R") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1PhotonPassed(50.,0,999.,999.,999.,999.)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Photon70_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if(OpenHlt1PhotonPassed(70.,0,999.,999.,999.,999.)>=1) {       
@@ -1102,10 +1147,17 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   // 1 Leg L3 isolation - prototype version from Chi-Nhan
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15_Trk5") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt2Tau1LegL3IsoPassed(15.,5.,0,0.,40.,100.)==1) { 
+      if(OpenHlt2Tau1LegL3IsoPassed(15.,5.,0,0.,30.,70.)==1) { 
   	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
       } 
     } 
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau20_Trk5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt2Tau1LegL3IsoPassed(20.,5.,0,0.,30.,70.)==1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
   }
 
   /* End: Taus */
@@ -1418,6 +1470,12 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
     } 
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu8_Photon9_L1R") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1L2MuonPassed(3.,8.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu10_Photon9_L1R") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if(OpenHlt1L2MuonPassed(3.,10.,2.)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1)
@@ -1454,6 +1512,11 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
     } 
   } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu20_L1SingleJet15") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet20") == 0){ 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0;   
@@ -1508,6 +1571,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }   
     }   
   } 
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu10_HT50") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      if(OpenHltSumHTPassed(50., 30.) == 1) {
+        if(ohMuL2Pt[0] > 10.0) {
+          if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+        }
+      }
+    }
+  }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_LW_L1R_HT150") == 0){ 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
       if(OpenHltSumHTPassed(150., 30.) == 1) { 
@@ -2131,6 +2203,48 @@ int  OHltTree::OpenHlt2ElectronMassWinPassed(float Et, int L1iso, float Hiso, fl
 	return 1;
       else
 	return 0;
+}
+
+int OHltTree::OpenHlt2Electron1LegIdPassed(float Et,int L1iso,float Tiso,float Hiso)
+{
+  int rc = 0;
+  // Loop over all oh electrons
+  for (int i=0;i<NohEle;i++) {
+    if ( ohEleEt[i] > Et) {
+      if( TMath::Abs(ohEleEta[i]) < 2.65 ) {
+        if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05) {
+          if (ohEleNewSC[i]==1) {
+            if (ohElePixelSeeds[i]>0) {
+              if ( (ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) || (Tiso == 9999.)) {
+                if ( ohEleL1iso[i] >= L1iso ) {  // L1iso is 0 or 1
+                  if( ohEleL1Dupl[i] == false) { // remove double-counted L1 SCs
+		    // Loop over all oh electrons
+		    for (int i=0;i<NohEle;i++) {
+		      if ( ohEleEt[i] > Et) {
+			if( TMath::Abs(ohEleEta[i]) < 2.65 )
+			  if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)
+			    if (ohEleNewSC[i]==1)
+			      if (ohElePixelSeeds[i]>0)
+				if ( (ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) || (Tiso == 9999.) )
+				  if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
+				    if ( (TMath::Abs(ohEleEta[i]) < 1.479 && ohEleClusShap[i] < 0.015) ||
+					 (1.479 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.65 && ohEleClusShap[i] < 0.04) )
+				      if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )
+					if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs
+					  rc++;
+		      }
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+  return rc;
 }
 
 int OHltTree::OpenHlt1MuonPassed(double ptl1, double ptl2, double ptl3, double dr, int iso)
