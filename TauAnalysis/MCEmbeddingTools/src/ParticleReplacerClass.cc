@@ -225,10 +225,17 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 			mother_particle_p4+=it->p4();
 
 		reco::Particle::Point production_point = particles.begin()->vertex();
-		GenVertex * decayvtx = new GenVertex(FourVector(production_point.x(),production_point.y(),production_point.z(),0));
+
+                GenVertex* startVtx = new GenVertex(FourVector(production_point.x()*10,production_point.y()*10,production_point.z()*10,0));
+                startVtx->add_particle_in( new GenParticle( FourVector(0,0,7000,7000), 2212, 3 ) );
+                startVtx->add_particle_in( new GenParticle( FourVector(0,0,-7000,7000), 2212, 3 ) );
+
+                GenVertex * decayvtx = new GenVertex(FourVector(production_point.x()*10,production_point.y()*10,production_point.z()*10,0));
+		//GenVertex * decayvtx = new GenVertex(FourVector(production_point.x(),production_point.y(),production_point.z(),0));
 
 		HepMC::GenParticle * mother_particle = new HepMC::GenParticle((FourVector)mother_particle_p4, motherParticleID_, (generatorMode_=="Pythia" ? 3 : 2), Flow(), Polarization(0,0));
-
+                startVtx->add_particle_out(mother_particle);
+        
 		decayvtx->add_particle_in(mother_particle);
 		
 		evt = new HepMC::GenEvent();
@@ -237,6 +244,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 		{
 			decayvtx->add_particle_out(new HepMC::GenParticle((FourVector)it->p4(), it->pdgId(), 1, Flow(), Polarization(0,0)));			
 		}
+		evt->add_vertex(startVtx);
 		evt->add_vertex(decayvtx);
 	}
 	repairBarcodes(evt);

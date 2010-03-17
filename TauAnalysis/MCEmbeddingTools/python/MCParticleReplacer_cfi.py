@@ -14,7 +14,7 @@ newSource = cms.EDProducer("MCParticleReplacer",
     algorithm = cms.string("ParticleGun"), # "ParticleGun", "ZTauTau"
     hepMcMode = cms.string("new"),         # "new" for new HepMCProduct with taus and decay products,
                                            # "replace" for replacing muons in the existing HepMCProcuct
-    verbose = cms.untracked.bool(False),
+    verbose = cms.bool(False),
 
     ParticleGun = cms.PSet(
         gunParticle	      = cms.int32(15),
@@ -39,39 +39,21 @@ newSource = cms.EDProducer("MCParticleReplacer",
     ),
 
     ZTauTau = cms.PSet(
+                    TauolaOptions = cms.PSet(
+                                TauolaPolar,
+                                InputCards = cms.PSet
+                                        (
+                                            pjak1 = cms.int32(0),
+                                            pjak2 = cms.int32(0),
+                                            mdtau = cms.int32(102)
+                                        )
+                                ),
         filterEfficiency = cms.untracked.double(1.0),
         pythiaHepMCVerbosity = cms.untracked.bool(False),
         generatorMode = cms.string("Tauola"),  # "Tauola", "Pythia" (not implemented yet)
-        ExternalDecays = cms.PSet(
-            Tauola = cms.PSet(
-                TauolaPolar,
-                cms.PSet(
-                    InputCards = cms.vstring('TAUOLA = 0 0 102 ! TAUOLA ')      # 114=l+jet, 102=only muons
-                )
-            ),
-            parameterSets = cms.vstring('Tauola')
-        ),
-        PythiaParameters = cms.PSet(
-            pythiaUESettingsBlock,
-            ZtautauParameters = cms.vstring('MSEL         = 11 ', 
-                'MDME( 174,1) = 0    !Z decay into d dbar', 
-                'MDME( 175,1) = 0    !Z decay into u ubar', 
-                'MDME( 176,1) = 0    !Z decay into s sbar', 
-                'MDME( 177,1) = 0    !Z decay into c cbar', 
-                'MDME( 178,1) = 0    !Z decay into b bbar', 
-                'MDME( 179,1) = 0    !Z decay into t tbar', 
-                'MDME( 182,1) = 0    !Z decay into e- e+', 
-                'MDME( 183,1) = 0    !Z decay into nu_e nu_ebar', 
-                'MDME( 184,1) = 0    !Z decay into mu- mu+', 
-                'MDME( 185,1) = 0    !Z decay into nu_mu nu_mubar', 
-                'MDME( 186,1) = 1    !Z decay into tau- tau+', 
-                'MDME( 187,1) = 0    !Z decay into nu_tau nu_taubar', 
-                'CKIN( 1)     = 40.  !(D=2. GeV)', 
-                'CKIN( 2)     = -1.  !(D=-1. GeV)',
-                'MSTJ(28) = 1          ! no tau decays in pythia, use tauola instead'),
-            parameterSets = cms.vstring("pythiaUESettings", "ZtautauParameters")
-        ),
+
     )
+
 )
 
 # Disable tau decays in Pythia for particle gun
