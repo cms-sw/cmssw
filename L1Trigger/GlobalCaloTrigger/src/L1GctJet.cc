@@ -107,16 +107,11 @@ L1GctJetCand L1GctJet::jetCand(const std::vector<lutPtr> luts) const
 /// The two separate Lut outputs
 uint16_t L1GctJet::rank(const lutPtr lut) const
 {
-  return lutValue(lut) >> L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH; 
+  return lutValue(lut); 
 }
 
 unsigned L1GctJet::calibratedEt(const lutPtr lut) const
 {
-  // !!! bugfix !!!
-  // Hardware doesn't use LUT for jet Et calibration when
-  // calculating HTT and HTM. Just send the raw region Et sum.
-  // return lutValue(lut) & ((1 << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH) - 1);
-  // !!! bugfix !!!
   return m_rawsum;
 }
 
@@ -126,7 +121,7 @@ uint16_t L1GctJet::lutValue(const lutPtr lut) const
   uint16_t result; 
   if (m_overFlow) { 
     // Set output values to maximum 
-    result = 0xffff; 
+    result = 0x3f; 
   } else { 
     unsigned addrBits = m_rawsum;
     // Set the MSB for tau jets

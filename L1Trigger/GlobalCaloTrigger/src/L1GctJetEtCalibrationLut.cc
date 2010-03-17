@@ -39,7 +39,7 @@ uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
 {
   static const uint16_t maxEtMask  = static_cast<uint16_t>((1 << JET_ENERGY_BITWIDTH) - 1);
   static const uint16_t tauBitMask = static_cast<uint16_t>( 1 << (JET_ENERGY_BITWIDTH));
-  static const uint16_t ovrFlowOut = 0xffff;
+  static const uint16_t ovrFlowOut = 0x3f;
   uint16_t jetEt = lutAddress & maxEtMask;
   // Check for saturation
   if (jetEt == maxEtMask) {
@@ -49,7 +49,7 @@ uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
     bool tauVeto = ((lutAddress & tauBitMask)==0);
   
     double corrEt = m_lutFunction->correctedEtGeV(uncoEt, etaBin(), tauVeto);
-    return m_lutFunction->correctedEtGct(corrEt) | (m_outputEtScale->rank(corrEt) << JET_ENERGY_BITWIDTH);
+    return m_outputEtScale->rank(corrEt);
   }
 }
 
