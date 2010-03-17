@@ -12,6 +12,7 @@
  *
  */
 
+#include <string>
 #include <vector>
 
 class L1CaloRegion;
