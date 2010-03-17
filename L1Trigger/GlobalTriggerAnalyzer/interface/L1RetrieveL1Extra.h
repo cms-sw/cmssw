@@ -35,7 +35,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 // L1Extra objects
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
