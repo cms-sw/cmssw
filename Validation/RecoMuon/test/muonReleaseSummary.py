@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_5_0_pre5'
-RefVersion='3_5_0_pre3'
+NewVersion='3_6_0_pre3'
+RefVersion='3_6_0_pre2'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -54,13 +54,15 @@ else:
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
-    NewLabel=NewCondition+'_3XY_V20_FastSim'
+    NewLabel=NewCondition+'MC_36Y_V2_FastSim'
+    if (NewCondition=='STARTUP'):
+        NewLabel=NewCondition+'START36_V2_FastSim'
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    NewLabel=NewCondition+'_3XY_V20'
+    NewLabel=NewCondition+'MC_36Y_V2'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'3X_V20'
+        NewLabel=NewCondition+'START36_V2'
     NewFormat='GEN-SIM-RECO'
 
 if (RefFastSim):
