@@ -12,11 +12,16 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring(
 
-'file:/lookarea_SM/Data.00127057.0001.A.storageManager.00.0000.dat'
+'file:/lookarea_SM/Data.00130792.0001.Express.storageManager.00.0000.dat',
+'file:/lookarea_SM/Data.00130792.0021.Express.storageManager.01.0000.dat',
+'file:/lookarea_SM/Data.00130792.0041.Express.storageManager.02.0000.dat',
+'file:/lookarea_SM/Data.00130792.0061.Express.storageManager.03.0000.dat',
+'file:/lookarea_SM/Data.00130792.0081.Express.storageManager.04.0000.dat',
+'file:/lookarea_SM/Data.00130792.0101.Express.storageManager.05.0000.dat'
 
     )
 )
-process.NewEventStreamFileReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_MinBiasBSC','HLT_L1_BSC'))
+#process.NewEventStreamFileReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_MinBiasBSC','HLT_L1_BSC'))
 
 #--------------------------
 # Filters
@@ -46,6 +51,7 @@ process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
 # BeamMonitor
 #-----------------------------
 process.load("DQM.BeamMonitor.BeamMonitor_cff")
+#process.load("DQM.BeamMonitor.BeamMonitor_Cosmics_cff")
 process.load("DQM.BeamMonitor.BeamMonitor_PixelLess_cff")
 process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 
@@ -74,6 +80,9 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+## Cosmic Track Reconstruction
+process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+
 ## Pixelless Tracking
 process.load('RecoTracker/Configuration/RecoTrackerNotStandard_cff')
 process.MeasurementTracker.pixelClusterProducer = cms.string("")
@@ -96,7 +105,9 @@ process.dqmBeamMonitor_pixelless.Debug = True
 process.dqmBeamMonitor_pixelless.BeamFitter.Debug = True
 process.dqmBeamMonitor.BeamFitter.WriteAscii = True
 process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
-process.dqmBeamMonitor.BeamFitter.SaveFitResults = True
+process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
+process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+#process.dqmBeamMonitor.BeamFitter.SaveFitResults = True
 process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
 
 #--------------------------
@@ -107,11 +118,38 @@ process.tracking = cms.Sequence(process.siPixelDigis*process.siStripDigis*proces
 process.monitor = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
 process.tracking_pixelless = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctfTracksPixelLess)
 process.monitor_pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless*process.dqmEnvPixelLess)
+## Cosmic just for testing DQM
+process.tracking_cosmic = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.ctftracksP5)
 
-process.p = cms.Path(process.phystrigger*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+## Cosmic
+process.monitor_cosmic = cms.Sequence(process.dqmBeamMonitor*process.dqmEnv)
+#process.offlinePrimaryVertices.TrackLabel = cms.InputTag("ctfWithMaterialTracksP5")
+
+##FirstStep
+process.tracking_FirstStep = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.firstStep)
+process.dqmBeamMonitor.BeamFitter.TrackCollection = cms.untracked.InputTag('firstStepTracksWithQuality')
+process.offlinePrimaryVertices.TrackLabel = cms.InputTag("firstStepTracksWithQuality")
+
+## Change FirstStep default values
+# Step 0
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 1.2 ## default : 0.8
+process.newTrajectoryFilter.filterPset.minPt = 1.0 ## default : 0.6
+# Step 1
+process.newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 1.2 ## default : 0.9
+process.stepOneTrajectoryFilter.filterPset.minPt = 1.0 ## default : 0.5
+
+process.p = cms.Path(process.gtDigis*process.tracking_FirstStep*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.tracking_cosmic*process.offlinePrimaryVertices*process.monitor_cosmic*process.dqmSaver)
+#process.p = cms.Path(process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+#process.p = cms.Path(process.phystrigger*process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
 #process.p = cms.Path(process.phystrigger*process.tracking_pixelless*process.offlinePrimaryVertices*process.monitor_pixelless*process.dqmSaver)
 # For test
-#process.dqmSaver.dirName = '.'
+process.dqmSaver.dirName = '.'
 #process.p = cms.Path(process.tracking*process.offlinePrimaryVertices*process.monitor*process.dqmSaver)
+
+## summary
+#process.options = cms.untracked.PSet(
+#    wantSummary = cms.untracked.bool(True)
+#    )
 
 

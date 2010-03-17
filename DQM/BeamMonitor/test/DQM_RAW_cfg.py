@@ -12,7 +12,6 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff") ## For Real D
 #process.load("Configuration.StandardSequences.RawToDigi_cff") ## For MC
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.EventContent.EventContent_cff")
 
 ## Pixel less tracking
 process.load('RecoTracker/Configuration/RecoTrackerNotStandard_cff')
@@ -29,7 +28,9 @@ process.dqmBeamMonitor_pixelless.BeamFitter.Debug = True
 
 process.dqmBeamMonitor.BeamFitter.WriteAscii = True
 process.dqmBeamMonitor.BeamFitter.AsciiFileName = 'BeamFitResults.txt'
-process.dqmBeamMonitor.BeamFitter.SaveFitResults = True
+process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
+process.dqmBeamMonitor.BeamFitter.DIPFileName = 'BeamFitResults.txt'
+process.dqmBeamMonitor.BeamFitter.SaveFitResults = False
 process.dqmBeamMonitor.BeamFitter.OutputFileName = 'BeamFitResults.root'
 
 ## Offline PrimaryVertices
@@ -66,11 +67,6 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-'file:F8FD9DD9-A5ED-DE11-AF2C-0030486791AA.root'
-#'/store/data/BeamCommissioning09/MinimumBias/RAW-RECO/SD_AllMinBias-Dec19thSkim_341_v1/0005/F8FD9DD9-A5ED-DE11-AF2C-0030486791AA.root'
-#'dcache:/pnfs/cms/WAX/11/store/relval/CMSSW_3_5_0/RelValProdMinBias/GEN-SIM-RAW/MC_3XY_V21-v1/0013/F41901FF-6113-DF11-ABB9-001A92810ABA.root',
-#'dcache:/pnfs/cms/WAX/11/store/relval/CMSSW_3_5_0/RelValProdMinBias/GEN-SIM-RAW/MC_3XY_V21-v1/0013/8C8AFB46-4E13-DF11-9030-001A92971BB8.root',
-#'dcache:/pnfs/cms/WAX/11/store/relval/CMSSW_3_5_0/RelValProdMinBias/GEN-SIM-RAW/MC_3XY_V21-v1/0013/5692A6AD-4C13-DF11-9D1B-00304867BEC0.root'
 
     )
 )
@@ -88,6 +84,19 @@ process.RecoForDQM_Pixelless = cms.Sequence(process.pretracking_step+process.ctf
 process.RecoForDQM_ALL = cms.Sequence(process.pretracking_step+process.ckftracks+process.ctfTracksPixelLess)
 process.BeamMonitorDQM = cms.Sequence(process.dqmBeamMonitor+process.dqmEnv)
 process.BeamMonitorDQM_Pixelless = cms.Sequence(process.dqmBeamMonitor_pixelless+process.dqmEnvPixelLess)
+
+## Change FirstStep default values
+# Step 0
+#process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 1.2 ## default : 0.8
+#process.newTrajectoryFilter.filterPset.minPt = 1.0 ## default : 0.6
+#process.GroupedCkfTrajectoryBuilder.maxCand = 3 ## default : 5
+#process.GroupedCkfTrajectoryBuilder.minNrOfHitsForRebuild = 6 ## default : 5
+
+# Step 1
+#process.newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 1.2 ## default : 0.9
+#process.stepOneTrajectoryFilter.filterPset.minPt = 1.0 ## default : 0.5
+#process.stepOneCkfTrajectoryBuilder.maxCand = 3 ## default : 5
+#process.stepOneCkfTrajectoryBuilder.minNrOfHitsForRebuild = 6 ## default : 5
 
 process.RecoForDQM_FirstStep = cms.Sequence(process.pretracking_step*process.recopixelvertexing*process.firstStep)
 process.dqmBeamMonitor.BeamFitter.TrackCollection = cms.untracked.InputTag('firstStepTracksWithQuality')
@@ -112,7 +121,7 @@ process.p = cms.Path(process.phystrigger*process.RecoForDQM_FirstStep*process.of
 
 ## DQM settings
 process.DQMStore.verbose = 0
-process.DQM.collectorHost = 'cmslpc16.fnal.gov'
+process.DQM.collectorHost = 'cmslpc15.fnal.gov'
 process.DQM.collectorPort = 9190
 process.dqmSaver.dirName = '.'
 process.dqmSaver.producer = 'Playback'
