@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.63 2010/03/12 20:47:34 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.64 2010/03/16 13:29:16 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -580,7 +580,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     if (!l1accept) {
 
-          edm::LogWarning("FourVectorHLTOffline") 
+          LogDebug("FourVectorHLTOffline") 
             << "This should not happen.  HLT passed, but L1 Seed not passed for hlt path "<< endl 
             << "HLT path: " << v->getPath() << "\t HLTLevel1GTSeed: " << v->getl1Path();
 
