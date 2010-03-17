@@ -79,6 +79,16 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     ids[ijet-jetsBegin].numberOfHits2RPC   = muHelper_.numberOfHits2RPC();
     ids[ijet-jetsBegin].numberOfHits3RPC   = muHelper_.numberOfHits3RPC();
     ids[ijet-jetsBegin].numberOfHitsRPC    = muHelper_.numberOfHitsRPC();
+    
+    ids[ijet-jetsBegin].fEB     = helper_.fEB   ();
+    ids[ijet-jetsBegin].fEE     = helper_.fEE   ();
+    ids[ijet-jetsBegin].fHB     = helper_.fHB   (); 
+    ids[ijet-jetsBegin].fHE     = helper_.fHE   (); 
+    ids[ijet-jetsBegin].fHO     = helper_.fHO   (); 
+    ids[ijet-jetsBegin].fLong   = helper_.fLong ();
+    ids[ijet-jetsBegin].fShort  = helper_.fShort();
+    ids[ijet-jetsBegin].fLS     = helper_.fLSbad   ();
+    ids[ijet-jetsBegin].fHFOOT  = helper_.fHFOOT();
   }
   
   // set up the map

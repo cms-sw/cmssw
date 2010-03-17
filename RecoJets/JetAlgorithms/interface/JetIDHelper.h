@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-
 namespace reco {
 
   namespace helper {
@@ -34,11 +33,20 @@ namespace reco {
       double fHPD()          const    { return    fHPD_;}           
       double fRBX()          const    { return    fRBX_;}           
       int    n90Hits()       const    { return    n90Hits_;}
-      // these are tower based
       double fSubDetector1() const    { return    fSubDetector1_;}  
       double fSubDetector2() const    { return    fSubDetector2_;}  
       double fSubDetector3() const    { return    fSubDetector3_;}  
       double fSubDetector4() const    { return    fSubDetector4_;}  
+      double fEB()           const    { return    fEB_;}
+      double fEE()           const    { return    fEE_;}
+      double fHB()           const    { return    fHB_;}
+      double fHE()           const    { return    fHE_;}
+      double fHO()           const    { return    fHO_;}
+      double fLong()         const    { return    fLong_;}
+      double fShort()        const    { return    fShort_;}
+      double fLSbad()        const    { return    fLS_;}  
+      double fHFOOT()        const    { return    fHFOOT_;}  
+      // these are tower based
       double restrictedEMF() const    { return    restrictedEMF_;}
       int    nHCALTowers()   const    { return    nHCALTowers_;}    
       int    nECALTowers()   const    { return    nECALTowers_;}    
@@ -59,14 +67,13 @@ namespace reco {
 
      
       // helper functions
-      void calculateSubDetectorEnergies( const edm::Event& event, const reco::CaloJet &jet, 
-					 std::vector< double > &subdet_energies );
       void classifyJetComponents( const edm::Event& event, const reco::CaloJet &jet, 
 				  std::vector< double > &energies,
+				  std::vector< double > &subdet_energies,
 				  std::vector< double > &Ecal_energies, std::vector< double > &Hcal_energies, 
 				  std::vector< double > &HO_energies,
 				  std::vector< double > &HPD_energies,  std::vector< double > &RBX_energies,
-				  const bool recHitBased = true, const int iDbg = 0);
+				  double& LS_bad_energy, double& HF_OOT_energy, const int iDbg = 0);
 
       void classifyJetTowers( const edm::Event& event, const reco::CaloJet &jet, 
 			      std::vector< subtower > &subtowers,      
@@ -104,6 +111,13 @@ namespace reco {
       double approximatefHPD_;
       double approximatefRBX_;
       int    hitsInN90_;
+      double approximatefSubDetector1_;
+      double approximatefSubDetector2_;
+      double approximatefSubDetector3_;
+      double approximatefSubDetector4_;
+      
+      double fEB_, fEE_, fHB_, fHE_, fHO_, fLong_, fShort_;
+      double fLS_, fHFOOT_;
       
       bool useRecHits_;
       edm::InputTag hbheRecHitsColl_;
@@ -111,6 +125,8 @@ namespace reco {
       edm::InputTag hfRecHitsColl_;
       edm::InputTag ebRecHitsColl_;
       edm::InputTag eeRecHitsColl_;
+
+      static int sanity_checks_left_;
     };
   }
 }

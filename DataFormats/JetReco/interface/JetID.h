@@ -33,7 +33,13 @@ namespace reco {
       numberOfHits2RPC= 0;
       numberOfHits3RPC= 0;
       numberOfHitsRPC= 0;
+      
+      fEB = fEE = fHB = fHE = fHO = fLong = fShort = 0.0;
+      fLS = fHFOOT = 0.0;
+      
     }
+
+
 
     // hcal+ecal id
     double fHPD; 
@@ -53,6 +59,9 @@ namespace reco {
     int numberOfHits2RPC;
     int numberOfHits3RPC;
     int numberOfHitsRPC;
+    
+    double fEB, fEE, fHB, fHE, fHO, fLong, fShort;
+    double fLS, fHFOOT;
 
   };
 
