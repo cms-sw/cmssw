@@ -11,3 +11,9 @@ mv OnLine_HLT_TEST.py offline_mc.py
 mv OnData_HLT_TEST.py offline_data.py
 ./getHLT.py --process TEST --full --online  --data $HLT TEST
 mv OnData_HLT_TEST.py online_data.py
+
+{
+  head -n1 online_data.py
+  echo
+  edmConfigFromDB --configName $HLT | hltDumpStream 
+} > streams.txt
