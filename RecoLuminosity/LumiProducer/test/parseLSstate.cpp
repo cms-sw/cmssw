@@ -26,7 +26,7 @@
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
-
+#include <boost/regex.hpp>
 #include "RecoLuminosity/LumiProducer/interface/Utils.h"
 
 namespace lumitest{
@@ -132,6 +132,7 @@ int main(int argc,char** argv){
       std::string name=row["NAME"].data<std::string>();
       std::string value=row["STRING_VALUE"].data<std::string>();
       std::cout<<"name: "<<name<<", value: "<<value<<std::endl;
+      
     }
     delete query;
     transaction.commit();
@@ -141,7 +142,8 @@ int main(int argc,char** argv){
     std::cout<<"caught exception "<<er.what()<<std::endl;
     throw er;
   }
-
+  const boost::regex e("%*PHYSICS_DECLARED&(true)|(false)|(N/A)&(true)|(false)|(N/A)%");
+  
   // float number as string for runsection delimiter,
   // "T" for true,"F" for false, "P" for pause
   //
