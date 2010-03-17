@@ -15,9 +15,9 @@ startupConfig = bool(True)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if startupConfig:
-    process.GlobalTag.globaltag = 'STARTUP_31X::All'
+    process.GlobalTag.globaltag = 'STARTUP3X_V8A::All'
 else:
-    process.GlobalTag.globaltag = 'IDEAL_31X::All'
+    process.GlobalTag.globaltag = 'MC_31X_V9::All'
 
 # process.load("L1Trigger.Configuration.L1StartupConfig_cff")
 # but only part of it since I can't get a working set of tags
