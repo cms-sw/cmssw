@@ -21,8 +21,8 @@
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 
 #include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
+#include "SimGeneral/GFlash/interface/GflashEMShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashTrajectoryPoint.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"

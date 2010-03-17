@@ -4,9 +4,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
-#include "SimG4Core/GFlash/interface/GflashTrajectory.h"
-#include "SimG4Core/GFlash/interface/GflashNameSpace.h"
+#include "SimGeneral/GFlash/interface/GflashEMShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashTrajectory.h"
+#include "SimGeneral/GFlash/interface/GflashNameSpace.h"
 
 #include "G4VFastSimulationModel.hh"
 #include "G4ParticleTable.hh"
