@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_5/HIon/V5 (CMSSW_3_5_3_HLT4)
+# /dev/CMSSW_3_5_5/HIon/V6 (CMSSW_3_5_3_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V6')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -17,37 +17,37 @@ process.streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
   DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
-    'MinimumBias',
     'HcalHPDNoise',
     'HcalNZS',
     'ZeroBias',
-    'Cosmics' ),
+    'Cosmics',
+    'MinimumBias' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring(  ),
-  RPCMON = cms.vstring( 'RPCMonitor' )
+  Express = cms.vstring( 'ExpressPhysics' )
 )
 process.datasets = cms.PSet( 
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
-  MinimumBias = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
+  MinimumBias = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  )
+  ExpressPhysics = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -406,6 +406,36 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
       'MagneticField/GeomBuilder/data/MagneticFieldParameters_07_2pi.xml' )
 )
 
+process.hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
+  updator = cms.string( "KFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  estimator = cms.string( "Chi2" ),
+  TTRHBuilder = cms.string( "WithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  maxCand = cms.int32( 1 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( True ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    minimumNumberOfHits = cms.int32( 5 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( 8 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    chargeSignificance = cms.double( -1.0 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 1.0 )
+  )
+)
 process.AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),

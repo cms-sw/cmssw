@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/8E29/V5 (CMSSW_3_5_3_HLT4)
+# /dev/CMSSW_3_5_5/8E29/V6 (CMSSW_3_5_3_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/8E29/V5')
+  tableName = cms.string('/dev/CMSSW_3_5_5/8E29/V6')
 )
 
 streams = cms.PSet( 
@@ -15,18 +15,18 @@ streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnables' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
-    'MinimumBias',
     'HcalHPDNoise',
     'HcalNZS',
     'ZeroBias',
-    'Cosmics' ),
+    'Cosmics',
+    'MinimumBias' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring(  )
+  HLTDQM = cms.vstring(  ),
+  Express = cms.vstring( 'ExpressPhysics' )
 )
 datasets = cms.PSet( 
   AlCaPhiSymEcal = cms.vstring( 'AlCa_EcalPhiSym' ),
@@ -37,14 +37,37 @@ datasets = cms.PSet(
   TestEnables = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring( 'HLT_MET100',
-    'HLT_L1MuOpen',
-    'HLT_L1Mu',
-    'HLT_ZeroBias',
-    'HLT_L1SingleEG5' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
     'AlCa_EcalPi0_8E29' ),
   RandomTriggers = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
+    'HLT_HcalPhiSym' ),
+  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
+  Cosmics = cms.vstring( 'HLT_DoubleMu0',
+    'HLT_DoubleMu3',
+    'HLT_Mu3',
+    'HLT_Mu5',
+    'HLT_Mu9',
+    'HLT_IsoMu3',
+    'HLT_L2Mu9',
+    'HLT_L2Mu11',
+    'HLT_TrackerCosmics',
+    'HLT_RPCBarrelCosmics',
+    'HLT_CSCBeamHaloRing2or3',
+    'HLT_CSCBeamHaloOverlapRing2',
+    'HLT_CSCBeamHaloOverlapRing1',
+    'HLT_CSCBeamHalo',
+    'HLT_Mu0_L1MuOpen',
+    'HLT_Mu0_Track0_Jpsi',
+    'HLT_Mu3_L1MuOpen',
+    'HLT_Mu3_Track0_Jpsi',
+    'HLT_Mu5_L1MuOpen',
+    'HLT_Mu5_Track0_Jpsi',
+    'HLT_L1DoubleMuOpen',
+    'HLT_L1Mu20',
+    'HLT_L1Mu',
+    'HLT_L1MuOpen' ),
   MinimumBias = cms.vstring( 'HLT_QuadJet15U',
     'HLT_DiJetAve30U_8E29',
     'HLT_DiJetAve15U_8E29',
@@ -95,34 +118,6 @@ datasets = cms.PSet(
     'HLT_MET100',
     'HLT_MET45',
     'HLT_L1MET20' ),
-  HcalHPDNoise = cms.vstring(  ),
-  HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
-    'HLT_HcalPhiSym' ),
-  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
-  Cosmics = cms.vstring( 'HLT_DoubleMu0',
-    'HLT_DoubleMu3',
-    'HLT_Mu3',
-    'HLT_Mu5',
-    'HLT_Mu9',
-    'HLT_IsoMu3',
-    'HLT_L2Mu9',
-    'HLT_L2Mu11',
-    'HLT_TrackerCosmics',
-    'HLT_RPCBarrelCosmics',
-    'HLT_CSCBeamHaloRing2or3',
-    'HLT_CSCBeamHaloOverlapRing2',
-    'HLT_CSCBeamHaloOverlapRing1',
-    'HLT_CSCBeamHalo',
-    'HLT_Mu0_L1MuOpen',
-    'HLT_Mu0_Track0_Jpsi',
-    'HLT_Mu3_L1MuOpen',
-    'HLT_Mu3_Track0_Jpsi',
-    'HLT_Mu5_L1MuOpen',
-    'HLT_Mu5_Track0_Jpsi',
-    'HLT_L1DoubleMuOpen',
-    'HLT_L1Mu20',
-    'HLT_L1Mu',
-    'HLT_L1MuOpen' ),
   OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
@@ -201,7 +196,13 @@ datasets = cms.PSet(
     'HLT_Mu3_L1MuOpen',
     'HLT_Mu3_Track0_Jpsi',
     'HLT_Mu5_L1MuOpen',
-    'HLT_Mu5_Track0_Jpsi' )
+    'HLT_Mu5_Track0_Jpsi' ),
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_L1MuOpen',
+    'HLT_L1Mu',
+    'HLT_ZeroBias',
+    'HLT_L1SingleEG5',
+    'HLT_L1DoubleMuOpen' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -243,6 +244,36 @@ essourceSev = cms.ESSource( "EmptyESSource",
   firstValid = cms.vuint32( 1 )
 )
 
+hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
+  updator = cms.string( "KFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  estimator = cms.string( "Chi2" ),
+  TTRHBuilder = cms.string( "WithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  maxCand = cms.int32( 1 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( True ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    minimumNumberOfHits = cms.int32( 5 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( 8 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    chargeSignificance = cms.double( -1.0 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 1.0 )
+  )
+)
 AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
