@@ -1,3 +1,8 @@
+2010-03-17  Konstantinos KOUSOURIS <konstantinos.kousouris@cern.ch>
+
+        * migration to CondDB
+        * JPT migration to RecoJets
+
 2009-11-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* add missing includes to comply with gcc4.4 requirements
