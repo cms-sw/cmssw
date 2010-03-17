@@ -293,13 +293,12 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htMiss = 0;
     unsigned htMPhi = 0;
 
-    if ((((-hxTotal) & 0xff0) != 0) || (((-hyTotal) & 0xff0) != 0)) {
+    if ((((hxTotal) & 0xff0) != 0) || (((hyTotal) & 0xff0) != 0)) {
 
-      double dhx = htComponentGeVForHtMiss(-hxTotal);
-      double dhy = htComponentGeVForHtMiss(-hyTotal);
+      double dhx = htComponentGeVForHtMiss(hxTotal);
+      double dhy = htComponentGeVForHtMiss(hyTotal);
       double dhm = sqrt(dhx*dhx + dhy*dhy);
-      double phi = atan2(dhy, dhx);
-      if (phi < 0) phi += 2.*M_PI;
+      double phi = atan2(dhy, dhx) + M_PI;
 
       htMiss = m_htMissScale->rank(dhm);
       htMPhi = static_cast<unsigned>(phi/M_PI*9.);
@@ -322,7 +321,7 @@ bool gctTestHt::checkHtSums(const L1GlobalCaloTrigger* gct) const
     unsigned htFromInternalJets = 0;
     for (L1GctInternJetDataCollection::const_iterator jet=internalJets.begin();
 	 jet != internalJets.end(); jet++) {
-      if ((jet->bx() == bx+m_bxStart) && (jet->et() > m_jfPars->getHtJetEtThresholdGct())) {
+      if ((jet->bx() == bx+m_bxStart) && (jet->et() >= m_jfPars->getHtJetEtThresholdGct())) {
 	htFromInternalJets += jet->et();
       }
     }
@@ -353,11 +352,11 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
   bool     sumHtmOvrFlo = false;
   for (RawJetsVector::const_iterator jet=jetsFromJf.begin(); jet!=jetsFromJf.end(); jet++) {
     if (jet->bx()==bx && !jet->isNullJet()) {
-//        cout << "found a jet " << jet->rawsum()
+//       cout << "found a jet " << jet->rawsum()
 //   	   << " eta " << jet->globalEta()
 //   	   << " phi " << jet->globalPhi()
-// 	    << (jet->overFlow() ? " overflow set " : " ") 
-// 	    << " bx " << jet->bx() << endl;
+// 	   << (jet->overFlow() ? " overflow set " : " ") 
+// 	   << " bx " << jet->bx() << endl;
       jetList.push_back(*jet);
       // Find jet ht using event setup information
 //       double etJetGeV = jet->rawsum()*m_jetEtScale->linearLsb();
@@ -365,12 +364,12 @@ gctTestHt::rawJetData gctTestHt::rawJetFinderOutput(const L1GctJetFinderBase* jf
 //       unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : m_jfPars->correctedEtGct(htJetGeV));
       unsigned htJet  = ( jet->rawsum()==0x3ff ? 0x3ff : jet->rawsum());
       // Add to total Ht sum
-      if (htJet > m_jfPars->getHtJetEtThresholdGct()) {
+      if (htJet >= m_jfPars->getHtJetEtThresholdGct()) {
 	sumHtt += htJet;
 	sumHttOvrFlo |= (jet->overFlow());
       }
       // Add to missing Ht sum
-      if (htJet > m_jfPars->getMHtJetEtThresholdGct()) {
+      if (htJet >= m_jfPars->getMHtJetEtThresholdGct()) {
 	if (jet->rctPhi() == 0) {
 	  sumHtStrip0 += htJet;
 	}
