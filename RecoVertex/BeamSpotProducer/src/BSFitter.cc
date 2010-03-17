@@ -159,6 +159,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 		if ( ffit_type == "likelihood" || ffit_type == "default" ) {
 
 			reco::BeamSpot::CovarianceMatrix matrix;
+            // we are now fitting Z inside d0phi fitter 
 			// first fit z distribution using a chi2 fit
 			//reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
 			//for (int j = 2 ; j < 4 ; ++j) {
@@ -200,31 +201,30 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			//reco::BeamSpot tmp_z = Fit_z_chi2(inipar);
 			
 			//reco::BeamSpot tmp_d0phi = Fit_d0phi();
-			// log-likelihood fit
 
-            /*
-			double tmp_par[6] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0(),
-								 tmp_z.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz()};
-			reco::BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par);
-
-			if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
-
-				if (ffit_type == "likelihood" ) {
-					std::cout << "BSFitter: Result is non physical. Log-Likelihood fit to extract beam width did not converge." << std::endl;
-				
-					tmp_lh.setType(reco::BeamSpot::Unknown);
-					return tmp_lh;
-				}
-				
-			}
-
+            // log-likelihood fit          
 			if (ffit_type == "likelihood") {
-				return tmp_lh;
+                double tmp_par[7] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_d0phi.z0(),
+                                     tmp_d0phi.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz(),0.0};
+                
+                double tmp_error_par[7];
+                for(int s=0;s<6;s++){ tmp_error_par[s] = pow(matrix(s,s),0.5);}
+                tmp_error_par[6]=0.0;
+                
+                reco::BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par,tmp_error_par);
+                
+                if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
+                    std::cout << "BSFitter: Result is non physical. Log-Likelihood fit to extract beam width did not converge." << std::endl;
+                    tmp_lh.setType(reco::BeamSpot::Unknown);
+                    return tmp_lh;                    
+                }
+                return tmp_lh;
+                
 			} else {
-            */
+            
 				std::cout << "BSFitter: default fit does not extract beam width, assigning a width of zero." << std::endl;
 				return spot;
-                //}
+            }
 			
 			
 		} else if ( ffit_type == "resolution" ) {
@@ -233,11 +233,14 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			this->d0phi_Init();			
 			reco::BeamSpot tmp_d0phi = Fit_d0phi();
 			
-			double tmp_par[6] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0(),
-								 tmp_z.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz()};
-
-			reco::BeamSpot tmp_beam = Fit_d_z_likelihood(tmp_par);
-
+			double tmp_par[7] = {tmp_d0phi.x0(), tmp_d0phi.y0(), tmp_z.z0(),
+								 tmp_z.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz(),0.0};
+            double tmp_error_par[7];
+            for(int s=0;s<6;s++){ tmp_error_par[s] = pow(tmp_par[s],0.5);}
+            tmp_error_par[6]=0.0;
+ 
+			reco::BeamSpot tmp_beam = Fit_d_z_likelihood(tmp_par,tmp_error_par);
+            
 			double tmp_par2[7] = {tmp_beam.x0(), tmp_beam.y0(), tmp_beam.z0(),
 								 tmp_beam.sigmaZ(), tmp_beam.dxdz(), tmp_beam.dydz(),
 								 tmp_beam.BeamWidthX()};
@@ -430,15 +433,15 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 	//if ( fnthite > 1 ) std::cout << theanswer << std::endl;
 	
 	std::cout << "Total number of successful iterations = " << ( goodfit ? (fnthite+1) : fnthite ) << std::endl;
-	if (goodfit) {
-	  fbeamtype = reco::BeamSpot::Tracker;
-	  theanswer.setType(fbeamtype);
-	}
-	else {
-	  std::cout << "Fit doesn't converge!!!" << std::endl;
-	  fbeamtype = reco::BeamSpot::Unknown;
-	  theanswer.setType(fbeamtype);
-	}
+    if (goodfit) {
+        fbeamtype = reco::BeamSpot::Tracker;
+        theanswer.setType(fbeamtype);
+    }
+    else {
+        std::cout << "Fit doesn't converge!!!" << std::endl;
+        fbeamtype = reco::BeamSpot::Unknown;
+        theanswer.setType(fbeamtype);
+    }
 	return theanswer;
 }
 
@@ -562,7 +565,8 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	//LogDebug ("BSFitter") << " d0-phi fit done.";
 	//std::cout<< " d0-phi fit done." << std::endl;
 
-    h1z->Fit("gaus","QLM0");
+	h1z->Fit("gaus","QLM0","",h1z->GetMean() -2.*h1z->GetRMS(),h1z->GetMean() +2.*h1z->GetRMS());
+
 	//std::cout << "fitted "<< std::endl;
 	TF1 *fgaus = h1z->GetFunction("gaus");
 	//std::cout << "got function" << std::endl;
@@ -657,53 +661,193 @@ reco::BeamSpot BSFitter::Fit_d_likelihood(double *inipar) {
 			       matrix,
 			       fbeamtype );
 }
-
 //______________________________________________________________________
-reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar) {
+double BSFitter::scanPDF(double *init_pars, int & tracksfixed, int option){
 
-	//for ( int i =0; i<6; i++ ) {
-	//	std::cout << inipar[i] << std::endl;
-	//}
-	
-	thePDF->SetPDFs("PDFGauss_d*PDFGauss_z");
-	thePDF->SetData(fBSvector);
+   if(option==1)init_pars[6]=0.0005;  //starting value for any given configuration
 
-	MnUserParameters upar;
-	upar.Add("X0",  inipar[0],0.001);
-	upar.Add("Y0",  inipar[1],0.001);
-	upar.Add("Z0",    inipar[2],0.001);
-	upar.Add("sigmaZ",inipar[3],0.001);
-	upar.Add("dxdz",inipar[4],0.001);
-	upar.Add("dydz",inipar[5],0.001);
-	upar.Add("BeamWidthX",0.0020,0.0001);
-	
-	MnMigrad migrad(*thePDF, upar);
-	
-	FunctionMinimum fmin = migrad();
+   //local vairables with initial values
+   double fsqrt2pi=0.0;
+   double d_sig=0.0;
+   double d_dprime=0.0;
+   double d_result=0.0;
+   double z_sig=0.0;
+   double z_result=0.0;
+   double function=0.0;
+   double tot_pdf=0.0;
+   double last_minvalue=1.0e+10;
+   double init_bw=-99.99;
+   int iters=0;
 
-	ff_minimum = fmin.Fval();
-	
-	//std::cout << " eval= " << ff_minimum
-	//		  << "/n params[0]= " << fmin.Parameters().Vec()(0) << std::endl;
-	
-	reco::BeamSpot::CovarianceMatrix matrix;
+  //used to remove tracks if far away from bs by this
+   double DeltadCut=0.1000;
+   if(init_pars[6]<0.0200){DeltadCut=0.0900; } //worked for high 2.36TeV 
+   if(init_pars[6]<0.0100){DeltadCut=0.0700;}  //just a guesss for 7 TeV but one should scan for actual values
 
-	for (int j = 0 ; j < 7 ; ++j) {
-		for(int k = j ; k < 7 ; ++k) {
-			matrix(j,k) = fmin.Error().Matrix()(j,k);
-		}
-	}
-			
-	
-	return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
-						     fmin.Parameters().Vec()(1),
-						     fmin.Parameters().Vec()(2)),
-			       fmin.Parameters().Vec()(3),
-			       fmin.Parameters().Vec()(4),
-			       fmin.Parameters().Vec()(5),
-			       fmin.Parameters().Vec()(6),
-			       matrix,
-			       fbeamtype );
+
+std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
+
+
+if(option==1)iters=500;
+if(option==2)iters=1;
+
+for(int p=0;p<iters;p++){
+
+   if(iters==500)init_pars[6]+=0.0002;
+    tracksfixed=0;
+
+for( iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam)
+       {
+                    fsqrt2pi = sqrt(2.* TMath::Pi());
+                    d_sig = sqrt(init_pars[6]*init_pars[6] + (iparam->sigd0())*(iparam->sigd0()));
+                    d_dprime = iparam->d0() - (   (  (init_pars[0] + iparam->z0()*(init_pars[4]))*sin(iparam->phi0()) )
+                                               - (  (init_pars[1] + iparam->z0()*(init_pars[5]))*cos(iparam->phi0()) ) );
+
+                    //***Remove tracks before the fit which gives low pdf values to blow up the pdf
+                    if(std::abs(d_dprime)<DeltadCut && option==2){ fBSvectorBW.push_back(*iparam);}
+
+                    d_result = (exp(-(d_dprime*d_dprime)/(2.0*d_sig*d_sig)))/(d_sig*fsqrt2pi);
+                    z_sig = sqrt(iparam->sigz0() * iparam->sigz0() + init_pars[3]*init_pars[3]);
+                    z_result = (exp(-((iparam->z0() - init_pars[2])*(iparam->z0() - init_pars[2]))/(2.0*z_sig*z_sig)))/(z_sig*fsqrt2pi);
+                    tot_pdf=z_result*d_result;
+
+                    //for those trcks which gives problems due to very tiny pdf_d values.
+                    //Update: This protection will NOT be used with the dprime cut above but still kept here to get
+                    // the intial value of beam width reasonably
+                    //A warning will appear if there were any tracks with < 10^-5 for pdf_d so that (d-dprime) cut can be lowered
+                    if(d_result < 1.0e-05){ tot_pdf=z_result*1.0e-05;
+                                           //if(option==2)std::cout<<"last Iter  d-d'   =  "<<(std::abs(d_dprime))<<std::endl;
+                                           tracksfixed++; }
+
+                       function = function + log(tot_pdf);
+                       tot_pdf=0.0;
+
+
+       }//loop over tracks
+
+
+       function= -2.0*function;
+       if(function<last_minvalue){init_bw=init_pars[6];
+                                  last_minvalue=function; }
+       function=0.0;
+   }//loop over beam width
+
+   if(init_bw>0) {
+    init_bw=init_bw+(0.20*init_bw); //start with 20 % more
+
+   }
+   else{
+
+        if(option==1){  std::cout<<"scanPDF:====>>>> WARNING***: The initial guess value of Beam width is negative!!!!!!"<<std::endl;
+                        init_bw=0.0200;
+                        std::cout<<"scanPDF:====>>>> Assigning beam width a starting value of "<<init_bw<<"  cm"<<std::endl;
+                    }
+      }
+
+
+    return init_bw;
+
+}
+
+//________________________________________________________________________________
+reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar, double *error_par) {
+
+      int tracksFailed=0;
+
+      //estimate first guess of beam width and tame 20% extra of it to start
+      inipar[6]=scanPDF(inipar,tracksFailed,1);
+      error_par[6]=(inipar[6])*0.20;
+
+
+     //Here remove the tracks which give low pdf and fill into a new vector
+     //std::cout<<"Size of Old vector = "<<(fBSvector.size())<<std::endl;
+     double junk=scanPDF(inipar,tracksFailed,2);
+     //std::cout<<"Size of New vector = "<<(fBSvectorBW.size())<<std::endl;
+
+     //Refill the fBSVector again with new sets of tracks
+     fBSvector.clear();
+     std::vector<BSTrkParameters>::const_iterator iparamBW = fBSvectorBW.begin();
+     for( iparamBW = fBSvectorBW.begin(); iparamBW != fBSvectorBW.end(); ++iparamBW)
+        {          fBSvector.push_back(*iparamBW); 
+        }
+
+
+        thePDF->SetPDFs("PDFGauss_d*PDFGauss_z");
+        thePDF->SetData(fBSvector);
+        MnUserParameters upar;
+
+        upar.Add("X0",  inipar[0],error_par[0]);
+        upar.Add("Y0",  inipar[1],error_par[1]);
+        upar.Add("Z0",    inipar[2],error_par[2]);
+        upar.Add("sigmaZ",inipar[3],error_par[3]);
+        upar.Add("dxdz",inipar[4],error_par[4]);
+        upar.Add("dydz",inipar[5],error_par[5]);
+        upar.Add("BeamWidthX",inipar[6],error_par[6]);
+
+
+        MnMigrad migrad(*thePDF, upar);
+
+        FunctionMinimum fmin = migrad();
+
+      // std::cout<<"-----how the fit evoves------"<<std::endl;
+      // std::cout<<fmin<<std::endl;
+
+        ff_minimum = fmin.Fval();
+
+
+        bool ff_nfcn=fmin.HasReachedCallLimit();
+        bool ff_cov=fmin.HasCovariance();
+        bool testing=fmin.IsValid();
+
+
+        //Print WARNINGS if minimum did not converged
+        if( ! testing )
+             {                std::cout<<"===========>>>>>** WARNING: MINUIT DID NOT CONVERGES PROPERLY !!!!!!"<<std::endl;
+                   if(ff_nfcn)std::cout<<"===========>>>>>** WARNING: No. of Calls Exhausted"<<std::endl;
+                   if(!ff_cov)std::cout<<"===========>>>>>** WARNING: Covariance did not found"<<std::endl;
+             }
+
+    std::cout<<"The Total # Tracks used for beam width fit = "<<(fBSvectorBW.size())<<std::endl;
+
+
+    //Checks after fit is performed 
+    double lastIter_pars[7];
+
+   for(int ip=0;ip<7;ip++){ lastIter_pars[ip]=fmin.Parameters().Vec()(ip);
+                           }
+
+
+
+    tracksFailed=0;
+    double lastIter_scan=scanPDF(lastIter_pars,tracksFailed,2);
+
+   
+    std::cout<<"WARNING: # of tracks which have very low pdf value (pdf_d < 1.0e-05) are  = "<<tracksFailed<<std::endl;
+
+
+
+        //std::cout << " eval= " << ff_minimum
+        //                << "/n params[0]= " << fmin.Parameters().Vec()(0) << std::endl;
+
+        reco::BeamSpot::CovarianceMatrix matrix;
+
+        for (int j = 0 ; j < 7 ; ++j) {
+                for(int k = j ; k < 7 ; ++k) {
+                        matrix(j,k) = fmin.Error().Matrix()(j,k);
+                }
+        }
+
+
+        return reco::BeamSpot( reco::BeamSpot::Point(fmin.Parameters().Vec()(0),
+                                                     fmin.Parameters().Vec()(1),
+                                                     fmin.Parameters().Vec()(2)),
+                               fmin.Parameters().Vec()(3),
+                               fmin.Parameters().Vec()(4),
+                               fmin.Parameters().Vec()(5),
+                               fmin.Parameters().Vec()(6),
+                                                              
+                               matrix,
+                               fbeamtype );
 }
 
 

@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 d0_phi_analyzer = cms.EDAnalyzer("BeamSpotAnalyzer",
     BSAnalyzerParameters = cms.PSet(
         RunAllFitters = cms.bool(False), ## False: run only default fitter
+	RunBeamWidthFit = cms.bool(False), 
         WriteToDB = cms.bool(False), ## do not write results to DB
 	fitEveryNLumi = cms.untracked.int32( -1 ),
 	resetEveryNLumi = cms.untracked.int32( -1 )

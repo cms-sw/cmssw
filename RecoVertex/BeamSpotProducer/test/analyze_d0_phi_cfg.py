@@ -124,9 +124,11 @@ process.d0_phi_analyzer.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
 process.d0_phi_analyzer.BeamFitter.InputBeamWidth = -1
 process.d0_phi_analyzer.BeamFitter.Debug = True
 #########################
-process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_124120_vpv2.txt'
-process.d0_phi_analyzer.BeamFitter.OutputFileName = 'run124120_all_vpv2.root' #AtVtx10000.root'
+process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_124120_vpv4.txt'
+process.d0_phi_analyzer.BeamFitter.OutputFileName = 'run124120_all_vpv3.root' #AtVtx10000.root'
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
+
+#process.d0_phi_analyzer.PVFitter.Apply3DFit = True
 
 # fit as function of lumi sections
 process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = 2

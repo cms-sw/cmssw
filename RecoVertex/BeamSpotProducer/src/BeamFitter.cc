@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.37 2010/03/13 19:43:40 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.38 2010/03/17 19:20:44 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -472,6 +472,49 @@ bool BeamFitter::runFitter() {
   return fit_ok;
 }
 
+bool BeamFitter::runBeamWidthFitter() {
+  bool widthfit_ok = false;
+  // default fit to extract beam spot info
+  if(fBSvector.size() > 1 ){
+    if(debug_){
+      std::cout << "Calculating beam spot positions('d0-phi0' method) and width using llh Fit"<< std::endl;
+      std::cout << ""<<std::endl;
+      std::cout << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
+    }
+        BSFitter *myalgo = new BSFitter( fBSvector );
+        myalgo->SetMaximumZ( trk_MaxZ_ );
+        myalgo->SetConvergence( convergence_ );
+        myalgo->SetMinimumNTrks(min_Ntrks_);
+        if (inputBeamWidth_ > 0 ) myalgo->SetInputBeamWidth( inputBeamWidth_ );
+
+
+   myalgo->SetFitVariable(std::string("d*z"));
+   myalgo->SetFitType(std::string("likelihood"));
+   fbeamWidthFit = myalgo->Fit();
+
+ //Add to .txt file
+  if(writeTxt_){fasciiFile<<"------------------------------------------------   "<<std::endl;
+                fasciiFile<<"Beam width(in cm) from Log-likelihood fit (Here we assume a symmetric beam(SigmaX=SigmaY)!)"<<std::endl;
+                fasciiFile<<"   "<<std::endl;
+                if (inputBeamWidth_ > 0 ) {
+                fasciiFile<< "BeamWidth= " << inputBeamWidth_ << std::endl;
+                } else {
+                fasciiFile << "BeamWidth =  " <<fbeamWidthFit.BeamWidthX() <<" +/- "<<fbeamWidthFit.BeamWidthXError() << std::endl;
+                }
+            }
+
+  delete myalgo;
+
+ if ( fbeamspot.type() != 0 ) // not Fake
+      widthfit_ok = true;
+  }
+  else{
+    fbeamspot.setType(reco::BeamSpot::Fake);
+    if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
+  }
+  return widthfit_ok;
+}
+
 void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
   std::ofstream outFile;
   if (!append)
@@ -599,7 +642,7 @@ void BeamFitter::runAllFitter() {
       std::cout << " d0-phi0 Fit ONLY:" << std::endl;
       std::cout << beam_fit_dphi << std::endl;
     }
-    
+    /*
     myalgo->SetFitVariable(std::string("d*z"));
     myalgo->SetFitType(std::string("likelihood"));
     reco::BeamSpot beam_fit_dz_lh = myalgo->Fit();
@@ -618,6 +661,7 @@ void BeamFitter::runAllFitter() {
       std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
       std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
     }
+    */
   }
   else
     if (debug_) std::cout << "No good track selected! No beam fit!" << std::endl;

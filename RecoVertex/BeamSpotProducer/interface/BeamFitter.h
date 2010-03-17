@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.20 2010/03/13 19:43:39 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.21 2010/03/17 19:20:45 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -38,7 +38,9 @@ class BeamFitter {
 
   void readEvent(const edm::Event& iEvent);
 
-  bool runFitter(); 
+  bool runFitter();
+  bool runBeamWidthFitter();
+  reco::BeamSpot getBeamWidth() { return fbeamWidthFit; }
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
@@ -63,6 +65,7 @@ class BeamFitter {
 
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
+  reco::BeamSpot fbeamWidthFit;
   BSFitter *fmyalgo;
   std::ofstream fasciiFile;
   std::ofstream fasciiDIP;

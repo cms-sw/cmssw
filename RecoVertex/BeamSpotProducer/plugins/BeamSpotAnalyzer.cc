@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.17 2010/02/28 20:05:08 wmtan Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.18 2010/03/03 20:58:24 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -31,7 +31,8 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   runallfitters_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
   fitNLumi_       = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<int>("resetEveryNLumi",-1);
-
+  runbeamwidthfit_  = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunBeamWidthFit");
+  
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
@@ -158,6 +159,12 @@ BeamSpotAnalyzer::endJob() {
 		  }
 
 	  }
+      if ((runbeamwidthfit_)){ 
+                 theBeamFitter->runBeamWidthFitter();
+                 reco::BeamSpot beam_width = theBeamFitter->getBeamWidth();
+                 std::cout <<beam_width<< std::endl;
+      }
+
 	  else std::cout << "[BeamSpotAnalyzer] beamfit fails !!!" << std::endl;
   }
   
