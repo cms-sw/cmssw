@@ -3,8 +3,32 @@
 #include <map>
 #include <cmath>
 #include <stdexcept>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/Attribute.h"
+#include "CoralBase/AttributeSpecification.h"
+#include "CoralBase/Exception.h"
+#include "CoralBase/TimeStamp.h"
+#include "CoralBase/MessageStream.h"
+#include "CoralKernel/Context.h"
+#include "CoralKernel/IHandle.h"
+#include "CoralKernel/IProperty.h"
+#include "CoralKernel/IPropertyManager.h"
+#include "RelationalAccess/AccessMode.h"
+#include "RelationalAccess/ConnectionService.h"
+#include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/IConnectionServiceConfiguration.h"
+#include "RelationalAccess/ITransaction.h"
+#include "RelationalAccess/ITypeConverter.h"
+#include "RelationalAccess/IQuery.h"
+#include "RelationalAccess/ICursor.h"
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ITable.h"
+
 #include "RecoLuminosity/LumiProducer/interface/Utils.h"
+
 namespace lumitest{
   void stringSplit(const std::string& instr, char delim, std::vector<std::string>&results){
     size_t cutAt=0;
@@ -49,8 +73,75 @@ namespace lumitest{
     }
   }
 }
-int main(){
+int main(int argc,char** argv){
+  unsigned int runnumber=0;
+  if(!(runnumber=::atoi(argv[1]))){
+    std::cout<<"must specify the run number"<<std::endl;
+    return 0;
+  }
+  
   //
+  //query runinfo db
+  //
+  //select name,string_value from runsession_parameter where  runnumber=:runnumber and (name like 'CMS.LVL0:RUNSECTION_DELIMITER_LS_%' or name like 'CMS.LVL0:RUNSECTION_DELIMITER_DCSLHCFLAGS_%') order by time; 
+  //
+  std::string serviceName("oracle://cms_omds_lb/CMS_RUNINFO");
+  std::string authName("/afs/cern.ch/user/x/xiezhen/authentication.xml");
+  std::string tabname("RUNSESSION_PARAMETER");
+  try{
+    coral::ConnectionService* conService = new coral::ConnectionService();
+    coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authName);
+    conService->configuration().setAuthenticationService("CORAL/Services/XMLAuthenticationService");
+    conService->configuration().disablePoolAutomaticCleanUp();
+    conService->configuration().setConnectionTimeOut(0);
+    coral::MessageStream::setMsgVerbosity(coral::Error);
+    coral::ISessionProxy* session = conService->connect( serviceName, coral::ReadOnly);
+    coral::ITypeConverter& tpc=session->typeConverter();
+
+    tpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
+    tpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
+    tpc.setCppTypeForSqlType("unsigned long long","NUMBER(20)");    
+    
+    coral::ITransaction& transaction=session->transaction();
+    transaction.start(true); //true means readonly transaction
+    coral::ISchema& schema=session->nominalSchema();
+    if( !schema.existsTable(tabname) ){
+      std::cout<<"table "<<tabname<<" doesn't exist"<<std::endl;
+      return 0;
+    }
+    coral::IQuery* query=schema.tableHandle(tabname).newQuery();
+    coral::AttributeList qoutput;
+    qoutput.extend("NAME",typeid(std::string));
+    qoutput.extend("STRING_VALUE",typeid(std::string));    
+    coral::AttributeList qcondition;
+    qcondition.extend("runnumber",typeid(unsigned int));
+    qcondition.extend("delimiterls",typeid(std::string));
+    qcondition.extend("dcslhcflag",typeid(std::string));
+    qcondition["runnumber"].data<unsigned int>()=runnumber;
+    qcondition["delimiterls"].data<std::string>()="CMS.LVL0:RUNSECTION_DELIMITER_LS_%";
+    qcondition["dcslhcflag"].data<std::string>()="CMS.LVL0:RUNSECTION_DELIMITER_DCSLHCFLAGS_%";
+    query->addToOutputList("NAME");
+    query->addToOutputList("STRING_VALUE");
+    query->setCondition("RUNNUMBER =:runnumber AND (NAME like :delimiterls OR NAME like :dcslhcflag)",qcondition);
+    query->addToOrderList("TIME");
+    query->defineOutput(qoutput);
+    coral::ICursor& cursor=query->execute();
+    while( cursor.next() ){
+      const coral::AttributeList& row=cursor.currentRow();
+      //row.toOutputStream(std::cout)<<std::endl;
+      std::string name=row["NAME"].data<std::string>();
+      std::string value=row["STRING_VALUE"].data<std::string>();
+      std::cout<<"name: "<<name<<", value: "<<value<<std::endl;
+    }
+    delete query;
+    transaction.commit();
+    delete session;
+    delete conService;
+  }catch(const std::exception& er){
+    std::cout<<"caught exception "<<er.what()<<std::endl;
+    throw er;
+  }
+
   // float number as string for runsection delimiter,
   // "T" for true,"F" for false, "P" for pause
   //
