@@ -59,7 +59,7 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
     std::vector<reco::TrackRef> tracksRefColl = convColl[icoll].tracks();
 
     // convert the secondary tracks
-    for(int it = 0; it < tracksRefColl.size(); it++){
+    for(unsigned it = 0; it < tracksRefColl.size(); it++){
 
       reco::TrackRef trackRef = tracksRefColl[it];
 
