@@ -1,3 +1,8 @@
+2010-03-17 Srecko Morovic <Srecko.Morovic@cern.ch>
+	* tag V01-09-05
+	* fix null pointer problem with new parameter
+	* Remi's faster DQM serving
+
 2010-03-01 Srecko Morovic <Srecko.Morovic@cern.ch>
 	* tag V01-09-04
 	* fix possible crash at halting

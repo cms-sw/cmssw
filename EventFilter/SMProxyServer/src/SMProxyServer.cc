@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.39 2010/02/24 21:27:45 smorovic Exp $
+// $Id: SMProxyServer.cc,v 1.40 2010/03/08 17:09:46 mommsen Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -2636,53 +2636,54 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
            << "be caused by an uninitialized DataProcessManager.<br/>"
            << std::endl;
     }
-
-    if(dpm_->getInitMsgCollection().get() != NULL &&
-       dpm_->getInitMsgCollection()->size() > 0)
-    {
-      boost::shared_ptr<InitMsgCollection> initMsgCollection =
-        dpm_->getInitMsgCollection();
-      *out << "<h3>HLT Trigger Paths:</h3>" << std::endl;
-      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-
+    if (dpm_.get()!=NULL) {
+      if(dpm_->getInitMsgCollection().get() != NULL &&
+	  dpm_->getInitMsgCollection()->size() > 0)
       {
-        InitMsgSharedPtr serializedProds = initMsgCollection->getLastElement();
-        InitMsgView initView(&(*serializedProds)[0]);
-        Strings triggerNameList;
-        initView.hltTriggerNames(triggerNameList);
+	boost::shared_ptr<InitMsgCollection> initMsgCollection =
+	  dpm_->getInitMsgCollection();
+	*out << "<h3>HLT Trigger Paths:</h3>" << std::endl;
+	*out << "<table border=\"1\" width=\"100%\">" << std::endl;
 
-        *out << "<tr>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << "Full Trigger List</td>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << InitMsgCollection::stringsToText(triggerNameList, 0)
-             << "</td>" << std::endl;
-        *out << "</tr>" << std::endl;
+	{
+	  InitMsgSharedPtr serializedProds = initMsgCollection->getLastElement();
+	  InitMsgView initView(&(*serializedProds)[0]);
+	  Strings triggerNameList;
+	  initView.hltTriggerNames(triggerNameList);
+
+	  *out << "<tr>" << std::endl;
+	  *out << "  <td align=\"left\" valign=\"top\">"
+	    << "Full Trigger List</td>" << std::endl;
+	  *out << "  <td align=\"left\" valign=\"top\">"
+	    << InitMsgCollection::stringsToText(triggerNameList, 0)
+	    << "</td>" << std::endl;
+	  *out << "</tr>" << std::endl;
+	}
+
+	for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
+	  InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
+	  InitMsgView initView(&(*serializedProds)[0]);
+	  Strings triggerSelectionList;
+	  initView.hltTriggerSelections(triggerSelectionList);
+
+	  *out << "<tr>" << std::endl;
+	  *out << "  <td align=\"left\" valign=\"top\">"
+	    << initView.outputModuleLabel()
+	    << " Output Module</td>" << std::endl;
+	  *out << "  <td align=\"left\" valign=\"top\">"
+	    << InitMsgCollection::stringsToText(triggerSelectionList, 0)
+	    << "</td>" << std::endl;
+	  *out << "</tr>" << std::endl;
+	}
+
+	*out << "</table>" << std::endl;
       }
-
-      for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
-        InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
-        InitMsgView initView(&(*serializedProds)[0]);
-        Strings triggerSelectionList;
-        initView.hltTriggerSelections(triggerSelectionList);
-
-        *out << "<tr>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << initView.outputModuleLabel()
-             << " Output Module</td>" << std::endl;
-        *out << "  <td align=\"left\" valign=\"top\">"
-             << InitMsgCollection::stringsToText(triggerSelectionList, 0)
-             << "</td>" << std::endl;
-        *out << "</tr>" << std::endl;
-      }
-
-      *out << "</table>" << std::endl;
     }
   }
   else
   {
     *out << "<br/>Event server statistics are only available when the "
-         << "SMProxyServer is in the Enabled state.<br/>" << std::endl;
+      << "SMProxyServer is in the Enabled state.<br/>" << std::endl;
   }
 
   *out << "<br/><hr/>" << std::endl;
