@@ -185,11 +185,16 @@ protected:
   std::vector<unsigned int> gtAlgoCounts_;
   std::vector<unsigned int> gtTechCounts_;
 
+  // Orbit counter markers indicating when the last BGO 
+  // command of a particular type was received, relative 
+  // to the last OrbitCounter0 (OC0), for this L1 accept
   unsigned int lastEventCounter0_;
   unsigned int lastTestEnable_;
   unsigned int lastResync_;
   unsigned int lastStart_;
   unsigned int lastHardReset_;
+
+  // For future use
   unsigned int spare0_;
   unsigned long long spare1_;
   unsigned long long spare2_;
