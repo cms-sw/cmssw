@@ -7,7 +7,8 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+//#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +45,7 @@ void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
 {
 // LogTrace("") << "RPCMonitorLinkSynchro::beginRun !!!!" << std::endl;
  if (theCablingWatcher.check(es)) {
-    ESTransientHandle<RPCEMap> readoutMapping;
+    ESHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
     RPCReadOutMapping * cabling = readoutMapping->convert();
     LogTrace("") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
