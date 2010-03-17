@@ -72,11 +72,16 @@ process.load("DQM.RPCMonitorClient.RPCDCSSummary_cfi")
 process.load("DQM.RPCMonitorClient.RPCDaqInfo_cfi")
 process.load("DQM.RPCMonitorClient.RPCDataCertification_cfi")
 
+################# After Pulse ####################
+process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
+
+
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
 process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest")
 process.rpcdqmclient.DiagnosticGlobalPrescale = cms.untracked.int32(1)
 process.rpcdqmclient.NumberOfEndcapDisks  = cms.untracked.int32(3)
+
 
 ################### FED ##################################
 process.load("DQM.RPCMonitorClient.RPCMonitorRaw_cfi")
@@ -134,8 +139,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 #process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.dqmSaver)
 
-process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcFEDIntegrity*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
+process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse*process.rpcFEDIntegrity*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
 
-#process.e = cms.EndPath(process.out)
+process.e = cms.EndPath(process.out)
 
 
