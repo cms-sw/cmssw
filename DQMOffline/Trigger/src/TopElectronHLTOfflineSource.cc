@@ -75,11 +75,11 @@ void TopElectronHLTOfflineSource::beginJob()
 		for (size_t j = 0; j < electronTriggerNames_.size(); ++j)
 		{
 			eleMEs_.push_back(EleMEs(dbe_, electronIdNames_, addExtraId_, superTriggerNames_[i]+"_"+electronTriggerNames_[j]));
-			std::cout <<superTriggerNames_[i]+"_"+electronTriggerNames_[j]<<std::endl;
+			//std::cout <<superTriggerNames_[i]+"_"+electronTriggerNames_[j]<<std::endl;
 			
 		}
 	}
-	std::cout <<"done"<<std::endl;
+	//std::cout <<"done"<<std::endl;
 }
 void TopElectronHLTOfflineSource::setupHistos(std::vector<EleMEs> topEleHists)
 {
