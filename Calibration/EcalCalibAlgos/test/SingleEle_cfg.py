@@ -2,22 +2,24 @@ from FWCore.ParameterSet.Config import *
 
 process = cms.Process("Calibration")
 
-process.extend(include("FWCore/MessageLogger/data/MessageLogger.cfi"))
-process.extend(include("RecoEcal/EgammaClusterProducers/data/geometryForClustering.cff"))
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-     '/store/relval/CMSSW_2_2_0_pre1/RelValZEE/ALCARECO/STARTUP_V7_StreamALCARECOEcalCalElectron_v1/0000/AEEDE438-11B0-DD11-8F7F-001617C3B5D8.root'
-   ),
+#     '/store/relval/CMSSW_2_2_0_pre1/RelValZEE/ALCARECO/STARTUP_V7_StreamALCARECOEcalCalElectron_v1/0000/AEEDE438-11B0-DD11-8F7F-001617C3B5D8.root'
+#     '/store/relval/CMSSW_3_5_0_pre3/RelValZEE/ALCARECO/STARTUP3X_V15_StreamEcalCalElectron-v2/0006/C8EBACB1-2F05-DF11-9B94-0030487A3C9A.root'
+     '/store/relval/CMSSW_3_5_4/RelValZEE/ALCARECO/START3X_V24_EcalCalElectron-v1/0004/2AB6B40D-2D2C-DF11-814B-002618943948.root'
+          ),
     secondaryFileNames = cms.untracked.vstring (
    )
 )
 
 process.CalibFilter = cms.EDFilter("IMASelector",
-	src = cms.InputTag("electronFilter"),
+	src = cms.InputTag("gsfElectrons"),
 	ESCOPinMin=cms.double(0.9),
 	ESCOPinMax=cms.double(1.2),
 	ESeedOPoutMin=cms.double(0.1),
@@ -61,3 +63,11 @@ process.looper = cms.Looper("EcalEleCalibLooper",
 )
 
 process.p = cms.Path(process.CalibFilter)
+
+
+# # per dumpare un cfg esplicitando tutti i load e include
+# # aggiungere al cfg (mio_cfg.py):
+# temp = process.dumpPython()
+# outputfile = file("recoT0DQM_EvContent.py",'w')
+# # poi fai 
+# # python tuo_cfg.py
