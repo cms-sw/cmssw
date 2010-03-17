@@ -108,7 +108,7 @@ public:
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
-    if (readHint != StorageFactory::READ_HINT_UNBUFFERED
+    if (readHint == StorageFactory::READ_HINT_READAHEAD
 	|| cacheHint == StorageFactory::CACHE_HINT_STORAGE)
       mode &= ~IOFlags::OpenUnbuffered;
     else
