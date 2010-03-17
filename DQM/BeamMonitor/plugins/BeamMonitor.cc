@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/04 21:02:12 $
- * $Revision: 1.26 $
+ * $Date: 2010/03/17 20:07:51 $
+ * $Revision: 1.27 $
  *
  */
 
@@ -674,16 +674,19 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 //     }
   }
   else { // FIXME: temporarily fill in previous fitted results
+    if(theBeamFitter->runFitter()){} // Dump fake beam spot for DIP
+    reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
-      cout << "[BeamFitter] No fitting \n" << endl;
-      cout << "Fill previous good fitted results:" << endl;
+      cout << "[BeamMonitor] No fitting \n" << endl;
+      cout << "[BeamMonitor] Output fake beam spot for DIP \n" << endl;
+      cout << bs << endl;
+      cout << "[BeamMonitor] Fill histograms with previous good fitted results:" << endl;
       cout << preBS << endl;
     }
     h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
     hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
     hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
     hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
-
   }
   
   // Fill summary report
