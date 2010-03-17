@@ -16,7 +16,7 @@ public class BeamPixelDipServer
 extends Thread
 implements Runnable,DipPublicationErrorHandler
 {
-  public final static boolean appendRcd = false; //if true, appending latest results
+  public final static boolean verbose = false; 
   public final static boolean overwriteQuality = true; //if true, change quality to qualities[0]
   public final static boolean publishStatErrors = true;
   public final static String subjectCMS = "dip/CMS/Tracker/BeamPixel";
@@ -63,6 +63,7 @@ implements Runnable,DipPublicationErrorHandler
   boolean keepRunning;
   Random random = new Random((long)0xadeadcdf);
   long lastFitTime = 0;
+  long lastModTime = 0;
   BitSet alive = new BitSet(8);
   int idleTime = 0;
 
@@ -103,127 +104,104 @@ implements Runnable,DipPublicationErrorHandler
 
     int lsCount = 0;
     quality = qualities[0];
-    try
+
+    while (keepRunning)
     {
-      File logFile = new File(sourceFile);
-      logFile.createNewFile();
-      RandomAccessFile myFile;
-      long filePointer = logFile.length();
-      long lastRcdPointer = logFile.length();
-      long fileLength = logFile.length();
-
-      while (keepRunning)
+      try
       {
-	try
-	{
-	  long tmpTime = logFile.lastModified();
-	  myFile = new RandomAccessFile(logFile,"r");
-
-	  if (lastFitTime == 0) { // execute when server starts
-	      myFile.close();
-	      lastFitTime = tmpTime;
- 	      if (!appendRcd) {
- 		  fileLength = 0;
- 		  filePointer = 0;
- 	      }
-	      continue;
-	  }
-	  else if (tmpTime > lastFitTime) {
-	      lastFitTime = tmpTime;
-	      //lsCount = 0;
-	      if(logFile.length() > 0) {
-		  if(!appendRcd){
-		      filePointer = 0;
-		      fileLength = -1;
-		  }
-		  else
-		      fileLength--;
-	      }
-	      else { // execute when run restarts
-		  if (appendRcd) {
-		      filePointer = 0;
-		      fileLength = 0;
-		  }
-		  myFile.close();
-		  continue;
-	      }
-	  }
-
-	  if (fileLength == filePointer) {
-	      myFile.close();
-	      if (lsCount != 0 && lsCount%60 == 0)
-		  System.out.println("Waiting for data...");
-	      try { Thread.sleep(1000); }//every sec
-	      catch(InterruptedException e) {
-		  System.err.println("InterruptedException: " + getDateTime());
-		  e.printStackTrace();
-		  keepRunning = false;
-	      }
-	      lsCount++;
-	      idleTime++;
-	      if ((lsCount < timeoutLS[1]*secPerLS) && (lsCount%(timeoutLS[0]*secPerLS) == 0)) {//fist time out
-		  if (!alive.get(1)) alive.flip(1);
-		  if (!alive.get(2)) {
-		      if (!alive.get(7)) fakeRcd();
-		      else trueRcd();
-		      publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
-		  }
-		  else {
-		      fakeRcd();
-		      publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
-		  }
-	      }
-	      else if (lsCount%(timeoutLS[1]*secPerLS) == 0) {//second time out
-		  if (!alive.get(2)) alive.flip(2);
-		  //if(!alive.get(7))
-		  fakeRcd();
-		  //else trueRcd();
-		  publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
-		  lsCount = 0;
-	      }
-	      continue;
-	  }
-	  else { //read record
-	      System.out.println("Read record from " + sourceFile);
-	      if (appendRcd) filePointer = readRcd(myFile,filePointer);
-	      else filePointer = readRcd(myFile,0);
-	      if (appendRcd && filePointer == lastRcdPointer) {
-		  System.out.println("Old Record! No publishing!");
-		  myFile.close();
-		  fileLength = filePointer;
-		  continue;
-	      }
-	      System.out.println("Publish new record");
-	      fileLength = filePointer;
-	      lastRcdPointer = filePointer;
-	      trueRcd();
-	      myFile.close();
-	      lsCount = 0;
-	      idleTime = 0;
-	      alive.clear();
-	      alive.flip(7);
-	  }
-	} catch (Exception e){
-	    System.err.println("Exception: " + getDateTime());
-	    e.printStackTrace();
+        File logFile = new File(sourceFile);
+	logFile.createNewFile();
+	FileReader fr = new FileReader(logFile);
+	BufferedReader br = new BufferedReader(fr);		  
+	lastModTime = logFile.lastModified();
+	if (lastFitTime == 0)
+	    lastFitTime = lastModTime;
+	if (logFile.length() == 0) {
+	    lastFitTime = lastModTime;
+	    if (!alive.get(6)) {
+		System.out.println("New run starts");
+		if (verbose) System.out.println("Initial lastModTime = " + getDateTime(lastModTime));
+		alive.flip(6);
+	    }
 	}
+
+	if (lastModTime > lastFitTime) {
+	    if (verbose) {
+		System.out.println("Time of last fit    = " + getDateTime(lastFitTime));
+		System.out.println("Time of current fit = " + getDateTime(lastModTime));
+	    }
+	    lastFitTime = lastModTime;
+	    if (logFile.length() > 0) {
+		if (verbose) System.out.println("Read record from " + sourceFile);
+		readRcd(br);
+		if (verbose) System.out.println("Publish new record");
+		trueRcd();
+		lsCount = 0;
+		idleTime = 0;
+		alive.clear();
+		alive.flip(7);
+	    }
+	    br.close();
+	    fr.close();
+	}
+	else {
+	    br.close();
+	    fr.close();
+
+	    if (lsCount != 0 && lsCount%60 == 0) {
+		System.out.println("Waiting for data..." + getDateTime());
+	    }
+	    try { Thread.sleep(1000); }//every sec
+	    catch(InterruptedException e) {
+		System.err.println("InterruptedException: " + getDateTime());
+		e.printStackTrace();
+		keepRunning = false;
+	    }
+	    lsCount++;
+	    idleTime++;
+	    if ((lsCount%(timeoutLS[0]*secPerLS) == 0) 
+		&& (lsCount%(timeoutLS[1]*secPerLS) != 0)) {//fist time out
+		if (!alive.get(1)) alive.flip(1);
+		if (!alive.get(2)) {
+		    if (!alive.get(7)) fakeRcd();
+		    else trueRcd();
+		    publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
+		}
+		else {
+		    fakeRcd();
+		    publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+		}
+	    }
+	    else if (lsCount%(timeoutLS[1]*secPerLS) == 0) {//second time out
+		if (!alive.get(2)) alive.flip(2);
+		//if(!alive.get(7))
+		fakeRcd();
+		//else trueRcd();
+		publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+	    }
+	    continue;
+	}
+	// Quality of the publish results
 	if (overwriteQuality) publishRcd(qualities[0],"Testing",true,true);
 	else if (quality == qualities[1]) publishRcd(quality,"BeamFit does not converge",true,true);
 	else publishRcd(quality,"",true,true);
-      }
-    } catch (IOException e) {
-	System.err.println("IOException: " + getDateTime());
-	e.printStackTrace();
-    };
+
+	br.close();
+	fr.close();
+
+      } catch (IOException e) {
+	  System.err.println("IOException: " + getDateTime());
+	  e.printStackTrace();
+      };
+    }
   }
 
-  private long readRcd(RandomAccessFile file_, long filePointer_)
+  private void readRcd(BufferedReader file_)
   {
     int nthLnInRcd = 0;
     String record = new String();
     try
     {
-      file_.seek(filePointer_);
       while ((record = file_.readLine()) != null) {
 	//System.out.println(record);
 	nthLnInRcd ++;
@@ -318,13 +296,12 @@ implements Runnable,DipPublicationErrorHandler
 	    break;
 	}
       }
-      filePointer_ = file_.getFilePointer();
+      file_.close();
     }
     catch (IOException e) {
 	System.err.println("IOException: " + getDateTime());
 	e.printStackTrace();
     }
-    return filePointer_;
   }
 
   private void trueRcd()
@@ -442,6 +419,13 @@ implements Runnable,DipPublicationErrorHandler
   {
     DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
     Date date = new Date();
+    return dateFormat.format(date);
+  }
+
+  private String getDateTime(long epoch)
+  {
+    DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+    Date date = new Date(epoch);
     return dateFormat.format(date);
   }
 
