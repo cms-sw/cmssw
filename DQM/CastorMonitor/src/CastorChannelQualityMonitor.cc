@@ -79,7 +79,7 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
   ////---- initialize the event counter  
   ievt_=0;
   ////---- initialize the fraction of good channels
-  fraction=0; reportSummary->Fill(fraction); overallStatus->Fill(fraction);
+  fraction=0; 
   
   if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup (end)" << endl;
 
@@ -108,6 +108,7 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
     }
 
   module = -1;  sector = -1; energy = -1.;
+  if(ievt_ ==0)  overallStatus->Fill(0); reportSummary->Fill(0); 
   
   
  ////---- loop over RecHits 
