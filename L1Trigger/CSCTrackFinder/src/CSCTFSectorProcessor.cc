@@ -96,7 +96,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   trigger_on_MB1a = -1;
   trigger_on_MB1d = -1;
   singlesTrackPt  = -1;
-  singlesTrackOutput = 999;
+  singlesTrackOutput = -1;
   rescaleSinglesPhi  = -1;
 
   if(initializeFromPSet) readParameters(pset);
@@ -484,7 +484,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
           std::vector<csc::L1Track> tracks = l1_tracks.get();
           for(std::vector<csc::L1Track>::iterator trk=tracks.begin(); trk<tracks.end(); trk++)
              if( trk->BX()         == bx-shift &&
-                 trk->outputLink() == singlesTrackOutput ){
+                 static_cast<int>(trk->outputLink()) == singlesTrackOutput ){
                  coreTrackExists = true;
                  break;
              }
