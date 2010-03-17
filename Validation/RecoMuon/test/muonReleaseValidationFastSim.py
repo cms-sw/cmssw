@@ -10,7 +10,7 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="True"
+FastSimUse="False"
 
 #Release to be validated:
 NewRelease='CMSSW_3_6_0_pre3'
