@@ -33,11 +33,11 @@ FWEveView::FWEveView(TEveWindowSlot* iParent) :
    m_overlayEventInfo(0),
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
-   m_drawCMSLogo(this,"Show Logo",false),
-   m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l)
+   m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
+   m_drawCMSLogo(this,"Show Logo",false)
 #else
+   m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
    m_drawCMSLogo(this,"Show Logo",false),
-   m_overlayEventInfoLevel(this, "Overlay Event Info", 0l, 0l, 3l),
    m_lineWidth(this,"Line width",1.0,1.0,10.0)
 #endif
 {
@@ -65,7 +65,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent) :
    m_viewContextMenu.reset(ctxHand);
    
    m_overlayEventInfo = new FWEventAnnotation(embeddedViewer);
-   m_overlayEventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
+   m_eventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
    
    m_overlayLogo = new CmsAnnotation(embeddedViewer, 0.02, 0.98);
    m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible,m_overlayLogo, _1));

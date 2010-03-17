@@ -58,7 +58,7 @@ private:
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    FWDoubleParameter   m_imageScale;
 #endif
-   FWLongParameter   m_overlayEventInfoLevel;
+   FWLongParameter   m_eventInfoLevel;
    FWBoolParameter   m_drawCMSLogo;
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)
