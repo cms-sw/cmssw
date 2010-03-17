@@ -32,7 +32,7 @@ useRelValSample = True
 #
 # comment/uncomment the next line to choose sample type 
 # (un-commented selects data)
-#useRelValSample=False 
+useRelValSample=False 
 
 if useRelValSample == True :
     
@@ -55,9 +55,9 @@ else :
 
     # data type: StreamFile is not associated to these runs (no available files)
     #           for RAW data, the unpacker sequence RawToDigi will be also run
-    #dataType = 'RAW'
+    dataType = 'RAW'
     #dataType = 'StreamFile'
-    dataType = 'RECO'
+    #dataType = 'RECO'
     
     #runNumber = 123596
     #runNumber = 116035

@@ -55,6 +55,33 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
     m_l1HistLimits.upperBinValue = 0;
     m_l1HistLimits.binThresholds.clear();
 
+
+    // number of objects is independent of the object type
+    // and hardcoded in the actual version
+    if (quantity == "NrObjects") {
+
+        m_l1HistLimits.nrBins = 15;
+        m_l1HistLimits.lowerBinValue = -0.5;
+        m_l1HistLimits.upperBinValue = 14.5;
+
+        m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins + 1);
+
+        for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
+            m_l1HistLimits.binThresholds[iBin] = m_l1HistLimits.lowerBinValue
+                    + iBin * (m_l1HistLimits.upperBinValue
+                            - m_l1HistLimits.lowerBinValue)
+                            / m_l1HistLimits.nrBins;
+
+        }
+
+        // set last bin upper edge
+        m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins]
+                = m_l1HistLimits.upperBinValue;
+
+        return;
+
+    }
+
     switch (l1GtObject) {
         case Mu: {
 
@@ -82,7 +109,9 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                 float lastBinSize = m_l1HistLimits.upperBinValue
                         - m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins - 1];
 
-                if (lastBinSize >= 200) {
+                // limit the size of the last bin to maximum 200 GeV
+                float maxLaxtBinsize = 200;
+                if (lastBinSize >= maxLaxtBinsize) {
                     m_l1HistLimits.upperBinValue
                             = m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins - 1]
                               + 2.* (m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins - 1]
@@ -132,10 +161,10 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                 } else {
                     m_l1HistLimits.nrBins = muScales->getPhiScale()->getNBins();
                     m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * muScales->getPhiScale()->getScaleMin();
                     m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * muScales->getPhiScale()->getScaleMax();
 
                     m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
@@ -143,7 +172,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
 
                     for (int iBin = 0; iBin <= m_l1HistLimits.nrBins; iBin++) {
                         m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::piConversion
+                                = L1GetHistLimits::PiConversion
                                   * muScales->getPhiScale()->getValue(iBin);
                     }
 
@@ -164,11 +193,28 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                 edm::ESHandle<L1CaloEtScale> emScale;
                 m_evSetup.get<L1EmEtScaleRcd>().get(emScale);
 
-                m_l1HistLimits.nrBins = emScale->rankScaleMax();
                 std::vector<double> emThresholds = emScale->getThresholds();
+                m_l1HistLimits.nrBins = emThresholds.size();
                 m_l1HistLimits.lowerBinValue = emThresholds.at(0);
-                m_l1HistLimits.upperBinValue = emThresholds.at(
-                        m_l1HistLimits.nrBins);
+
+                // FIXME high edge retrieval in the scale definition
+                // now, last bin has the same width like the last but one
+                m_l1HistLimits.upperBinValue
+                        = emThresholds[m_l1HistLimits.nrBins - 1]
+                          + (emThresholds[m_l1HistLimits.nrBins - 1]
+                           - emThresholds[m_l1HistLimits.nrBins - 2]);
+
+                m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins + 1);
+
+                for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
+                    m_l1HistLimits.binThresholds[iBin]
+                            = static_cast<float>(emThresholds[iBin]);
+
+                }
+
+                // set last bin upper edge
+                m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins]
+                        = m_l1HistLimits.upperBinValue;
 
             } else if (quantity == "eta" || quantity == "phi") {
                 edm::ESHandle<L1CaloGeometry> caloGeomESH;
@@ -177,27 +223,53 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
 
                 if (quantity == "eta") {
                     m_l1HistLimits.nrBins
-                            = caloGeomScales->numberGctCentralEtaBinsPerHalf()
-                                    + caloGeomScales->numberGctForwardEtaBinsPerHalf();
+                            = 2 * (caloGeomScales->numberGctCentralEtaBinsPerHalf()
+                               + caloGeomScales->numberGctForwardEtaBinsPerHalf());
                     m_l1HistLimits.lowerBinValue
                             = caloGeomScales->globalEtaBinLowEdge(0);
                     m_l1HistLimits.upperBinValue
                             = caloGeomScales->globalEtaBinHighEdge(
-                                    m_l1HistLimits.nrBins);
-                    std::vector<float> etaThresholds(m_l1HistLimits.nrBins);
+                                    m_l1HistLimits.nrBins - 1);
+
+                    m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins + 1);
+
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-                        etaThresholds[iBin]
-                                = caloGeomScales->globalEtaBinLowEdge(iBin); // FIXME last bin
+                        m_l1HistLimits.binThresholds[iBin]
+                                = caloGeomScales->globalEtaBinLowEdge(iBin);
                     }
 
+                    // set last bin upper edge
+                    m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins]
+                            = m_l1HistLimits.upperBinValue;
+
+
+
                 } else {
+
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctEmJetPhiBins();
                     m_l1HistLimits.lowerBinValue
-                            = caloGeomScales->emJetPhiBinLowEdge(0);
+                            = L1GetHistLimits::PiConversion
+                                    * caloGeomScales->emJetPhiBinLowEdge(0);
                     m_l1HistLimits.upperBinValue
-                            = caloGeomScales->emJetPhiBinHighEdge(
-                                    m_l1HistLimits.nrBins - 1);
+                            = L1GetHistLimits::PiConversion
+                                    * caloGeomScales->emJetPhiBinHighEdge(
+                                            m_l1HistLimits.nrBins - 1);
+
+                    m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
+                            + 1);
+
+                    for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
+                        m_l1HistLimits.binThresholds[iBin]
+                                = L1GetHistLimits::PiConversion
+                                        * caloGeomScales->emJetPhiBinLowEdge(iBin);
+
+                    }
+
+                    // last bin upper limit
+                    m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins]
+                            = m_l1HistLimits.upperBinValue;
+
                 }
 
             }
@@ -265,10 +337,10 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctEmJetPhiBins();
                     m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * caloGeomScales->emJetPhiBinLowEdge(0);
                     m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * caloGeomScales->emJetPhiBinHighEdge(
                                             m_l1HistLimits.nrBins - 1);
 
@@ -277,7 +349,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
 
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
                         m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::piConversion
+                                = L1GetHistLimits::PiConversion
                                         * caloGeomScales->emJetPhiBinLowEdge(iBin);
 
                     }
@@ -328,10 +400,10 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctEtSumPhiBins();
                     m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * caloGeomScales->etSumPhiBinLowEdge(0);
                     m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * caloGeomScales->etSumPhiBinHighEdge(
                                             m_l1HistLimits.nrBins - 1);
 
@@ -340,7 +412,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
 
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
                         m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::piConversion
+                                = L1GetHistLimits::PiConversion
                                         * caloGeomScales->etSumPhiBinLowEdge(iBin);
 
                     }
@@ -461,10 +533,10 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctHtSumPhiBins();
                     m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * caloGeomScales->htSumPhiBinLowEdge(0);
                     m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::piConversion
+                            = L1GetHistLimits::PiConversion
                                     * caloGeomScales->htSumPhiBinHighEdge(
                                             m_l1HistLimits.nrBins - 1);
 
@@ -473,7 +545,7 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
 
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
                         m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::piConversion
+                                = L1GetHistLimits::PiConversion
                                         * caloGeomScales->htSumPhiBinLowEdge(iBin);
 
                     }
@@ -492,6 +564,33 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
         }
             break;
         case HfBitCounts: {
+            // there are no scales for HfBitCounts, so one implements a fixed scale
+            // use same values as GCT for 3 bits
+            const unsigned int R3BINS = 8;
+            const float R3MIN = -0.5;
+            const float R3MAX = 7.5;
+
+            m_l1HistLimits.nrBins
+                    = R3BINS;
+            m_l1HistLimits.lowerBinValue
+                    = R3MIN;
+            m_l1HistLimits.upperBinValue
+                    = R3MAX;
+
+            m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
+                    + 1);
+
+            for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
+                m_l1HistLimits.binThresholds[iBin]
+                        = R3MIN + iBin*(R3MAX - R3MIN)/R3BINS;
+
+            }
+
+            // last bin upper limit
+            m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins]
+                    = m_l1HistLimits.upperBinValue;
+
+
 
         }
             break;
@@ -549,7 +648,7 @@ const L1GetHistLimits::L1HistLimits& L1GetHistLimits::l1HistLimits(
     getHistLimits(l1GtObject, quantity);
 
     if (edm::isDebugEnabled()) {
-        LogDebug("L1GetHistLimits") << "\n Histogram limits for L1GtObject"
+        LogDebug("L1GetHistLimits") << "\n Histogram limits for L1GtObject "
                 << l1GtObject << " and quantity " << quantity
                 << "\n  Number of bins:           " << m_l1HistLimits.nrBins
                 << "\n  Lower limit of first bin: "
@@ -557,8 +656,20 @@ const L1GetHistLimits::L1HistLimits& L1GetHistLimits::l1HistLimits(
                 << "\n  Upper limit of last bin:  "
                 << m_l1HistLimits.upperBinValue << std::endl;
 
-        for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-            LogDebug("L1GetHistLimits") << " Bin " << std::right
+        int binThreshSize = static_cast<int>(m_l1HistLimits.binThresholds.size());
+
+        if (binThreshSize != (m_l1HistLimits.nrBins + 1)) {
+
+            LogTrace("L1GetHistLimits")
+                    << "\n Warning: inconsistent nrBins and binThresholds size"
+                    << "\n   Number of bins nrBins = " << m_l1HistLimits.nrBins
+                    << "\n   binThresholds size =    " << binThreshSize
+                    << "\n Please fix the L1GetLimits class.\n\n" << std::endl;
+
+        }
+
+        for (int iBin = 0; iBin < binThreshSize; ++iBin) {
+            LogTrace("L1GetHistLimits") << " Bin " << std::right
                     << std::setw(5) << iBin << ":  "
                     << m_l1HistLimits.binThresholds[iBin] << std::endl;
 
@@ -617,6 +728,7 @@ const L1GetHistLimits::L1HistLimits& L1GetHistLimits::l1HistLimits(
         m_l1HistLimits.binThresholds.clear();
         m_l1HistLimits.binThresholds = binThresh;
 
+        // FIXME last bin untested.
 
     } else {
         m_l1HistLimits.nrBins = 0;
@@ -644,13 +756,26 @@ const L1GetHistLimits::L1HistLimits& L1GetHistLimits::l1HistLimits(
                 << "\n  Upper limit of last bin:  "
                 << m_l1HistLimits.upperBinValue << std::endl;
 
-        for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-            LogDebug("L1GetHistLimits") << " Bin " << std::right
+        int binThreshSize = static_cast<int>(m_l1HistLimits.binThresholds.size());
+
+        if (binThreshSize != (m_l1HistLimits.nrBins + 1)) {
+
+            LogTrace("L1GetHistLimits")
+                    << "\n Warning: inconsistent nrBins and binThresholds size"
+                    << "\n   Number of bins nrBins = " << m_l1HistLimits.nrBins
+                    << "\n   binThresholds size =    " << binThreshSize
+                    << "\n Please fix the L1GetLimits class.\n\n" << std::endl;
+
+        }
+
+        for (int iBin = 0; iBin < binThreshSize; ++iBin) {
+            LogTrace("L1GetHistLimits") << " Bin " << std::right
                     << std::setw(5) << iBin << ":  "
                     << m_l1HistLimits.binThresholds[iBin] << std::endl;
 
         }
     }
+
 
     return m_l1HistLimits;
 
@@ -690,4 +815,4 @@ const std::vector<float>& L1GetHistLimits::l1HistBinThresholds(
 }
 
 // static constant members
-const double L1GetHistLimits::piConversion = 180. / acos(-1.);
+const double L1GetHistLimits::PiConversion = 180. / acos(-1.);

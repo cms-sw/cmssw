@@ -226,7 +226,7 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
 
 void L1GtUtils::getInputTag(const edm::Event& iEvent,
         edm::InputTag& l1GtRecordInputTag,
-        edm::InputTag& l1GtReadoutRecordInputTag) {
+        edm::InputTag& l1GtReadoutRecordInputTag) const {
 
     typedef std::vector<edm::Provenance const*> Provenances;
     Provenances provenances;
@@ -295,8 +295,8 @@ void L1GtUtils::getInputTag(const edm::Event& iEvent,
 
 }
 
-bool L1GtUtils::l1AlgTechTrigBitNumber(const std::string& nameAlgTechTrig,
-        int& triggerAlgTechTrig, int& bitNumber) {
+const bool L1GtUtils::l1AlgTechTrigBitNumber(const std::string& nameAlgTechTrig,
+        int& triggerAlgTechTrig, int& bitNumber) const {
 
     triggerAlgTechTrig = -1;
     bitNumber = -1;
@@ -333,11 +333,11 @@ bool L1GtUtils::l1AlgTechTrigBitNumber(const std::string& nameAlgTechTrig,
 }
 
 
-int L1GtUtils::l1Results(const edm::Event& iEvent,
+const int L1GtUtils::l1Results(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
         const std::string& nameAlgTechTrig, bool& decisionBeforeMask,
-        bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) {
+        bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) const {
 
     // initial values for returned results
     decisionBeforeMask = false;
@@ -628,9 +628,9 @@ int L1GtUtils::l1Results(const edm::Event& iEvent,
 }
 
 
-int L1GtUtils::l1Results(const edm::Event& iEvent,
+const int L1GtUtils::l1Results(const edm::Event& iEvent,
         const std::string& nameAlgTechTrig, bool& decisionBeforeMask,
-        bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) {
+        bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) const {
 
     edm::InputTag l1GtRecordInputTag;
     edm::InputTag l1GtReadoutRecordInputTag;
@@ -658,7 +658,7 @@ int L1GtUtils::l1Results(const edm::Event& iEvent,
 const bool L1GtUtils::decisionBeforeMask(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -675,7 +675,7 @@ const bool L1GtUtils::decisionBeforeMask(const edm::Event& iEvent,
 }
 
 const bool L1GtUtils::decisionBeforeMask(const edm::Event& iEvent,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -695,7 +695,7 @@ const bool L1GtUtils::decisionBeforeMask(const edm::Event& iEvent,
 const bool L1GtUtils::decisionAfterMask(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -712,7 +712,7 @@ const bool L1GtUtils::decisionAfterMask(const edm::Event& iEvent,
 }
 
 const bool L1GtUtils::decisionAfterMask(const edm::Event& iEvent,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -732,7 +732,7 @@ const bool L1GtUtils::decisionAfterMask(const edm::Event& iEvent,
 const bool L1GtUtils::decision(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -749,7 +749,7 @@ const bool L1GtUtils::decision(const edm::Event& iEvent,
 }
 
 const bool L1GtUtils::decision(const edm::Event& iEvent,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -769,7 +769,7 @@ const bool L1GtUtils::decision(const edm::Event& iEvent,
 const int L1GtUtils::prescaleFactor(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -786,7 +786,7 @@ const int L1GtUtils::prescaleFactor(const edm::Event& iEvent,
 }
 
 const int L1GtUtils::prescaleFactor(const edm::Event& iEvent,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -804,7 +804,7 @@ const int L1GtUtils::prescaleFactor(const edm::Event& iEvent,
 const int L1GtUtils::triggerMask(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -821,7 +821,7 @@ const int L1GtUtils::triggerMask(const edm::Event& iEvent,
 }
 
 const int L1GtUtils::triggerMask(const edm::Event& iEvent,
-        const std::string& nameAlgTechTrig, int& errorCode) {
+        const std::string& nameAlgTechTrig, int& errorCode) const {
 
     // initial values
     bool decisionBeforeMask = false;
@@ -837,7 +837,7 @@ const int L1GtUtils::triggerMask(const edm::Event& iEvent,
 }
 
 const int L1GtUtils::triggerMask(const std::string& nameAlgTechTrig,
-        int& errorCode) {
+        int& errorCode) const {
 
     // initial values for returned results
     int triggerMaskValue = -1;
@@ -908,7 +908,7 @@ const int L1GtUtils::triggerMask(const std::string& nameAlgTechTrig,
 const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
         const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& triggerAlgTechTrig, int& errorCode) {
+        const std::string& triggerAlgTechTrig, int& errorCode) const {
 
     // initialize the index to a negative value
     int pfIndexAlgTechTrig = -1;
@@ -1044,7 +1044,7 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
 }
 
 const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
-        const std::string& triggerAlgTechTrig, int& errorCode) {
+        const std::string& triggerAlgTechTrig, int& errorCode) const {
 
     // initialize the index to a negative value
     int pfIndexAlgTechTrig = -1;
@@ -1151,13 +1151,13 @@ const std::vector<unsigned int>& L1GtUtils::triggerMaskSet(
 
 }
 
-const std::string& L1GtUtils::l1TriggerMenu() {
+const std::string& L1GtUtils::l1TriggerMenu() const {
 
     return m_l1GtMenu->gtTriggerMenuName();
 
 }
 
-const std::string& L1GtUtils::l1TriggerMenuImplementation() {
+const std::string& L1GtUtils::l1TriggerMenuImplementation() const {
 
     return m_l1GtMenu->gtTriggerMenuImplementation();
 

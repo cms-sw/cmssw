@@ -73,7 +73,7 @@ public:
         std::vector<float> binThresholds;
     };
 
-    static const double piConversion;
+    static const double PiConversion;
 
 public:
 
