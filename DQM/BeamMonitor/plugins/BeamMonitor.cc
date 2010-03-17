@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/03 21:27:42 $
- * $Revision: 1.25 $
+ * $Date: 2010/03/04 21:02:12 $
+ * $Revision: 1.26 $
  *
  */
 
@@ -566,10 +566,10 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();
   h_nTrk_lumi->ShiftFillLast( theBSvector.size() );
   
-  bool fitted = false;
+  bool doFitting = false;
   if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
     nFits_++;
-    fitted = true;
+    doFitting = true;
   }
 
   if (resetHistos_) {
@@ -600,7 +600,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     }
   }
   nthBSTrk_ = theBSvector.size(); // keep track of num of tracks filled so far
-  if (debug_ && fitted) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
+  if (debug_ && doFitting) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
 
   if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
 
@@ -614,7 +614,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_trk_z0->getTH1()->Fit("fgaus","QLRM","",-1*maxZ_,maxZ_);
   }
 
-  if (fitted && theBeamFitter->runFitter()){
+  if (doFitting && theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     preBS = bs;
     if (debug_) {
@@ -687,7 +687,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
   
   // Fill summary report
-  if (fitted) {
+  if (doFitting) {
     for (int n = 0; n < nFitElements_; n++) {
       reportSummaryContents[n]->Fill( summaryContent_[n] / (float)nFits_ );
     }
