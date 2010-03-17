@@ -36,7 +36,7 @@ hltTauValIdealMonitorMC = cms.EDAnalyzer("HLTTauDQMOfflineSource",
                                         ),
             NTriggeredTaus        = cms.untracked.vuint32(2,1), 
             NTriggeredLeptons     = cms.untracked.vuint32(0,0), 
-            TauType               = cms.untracked.vint32(0,0),
+            TauType               = cms.untracked.vint32(15,15),
             LeptonType            = cms.untracked.vint32(0,0)                            
         ),
         
@@ -143,7 +143,7 @@ hltTauValIdealMonitorPF = cms.EDAnalyzer("HLTTauDQMOfflineSource",
                                         ),
             NTriggeredTaus        = cms.untracked.vuint32(2,1), 
             NTriggeredLeptons     = cms.untracked.vuint32(0,0), 
-            TauType               = cms.untracked.vint32(0,0),
+            TauType               = cms.untracked.vint32(15,15),
             LeptonType            = cms.untracked.vint32(0,0)                            
         ),
         

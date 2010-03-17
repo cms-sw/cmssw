@@ -12,7 +12,7 @@ TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
 
 
 #Create LorentzVectors for offline objects
-TauRefProducer = cms.EDProducer("HLTTauRefProducer",
+TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                                 PFTaus = cms.untracked.PSet(
                                    PFTauDiscriminators = cms.untracked.VInputTag(
@@ -70,7 +70,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 TauRefCombiner = cms.EDProducer("HLTTauRefCombiner",
                                 InputCollections = cms.VInputTag(
                                         cms.InputTag("TauMCProducer","HadronicTauOneAndThreeProng"),
-                                        cms.InputTag("TauRefProducer","PFTaus")
+                                        cms.InputTag("TauRelvalRefProducer","PFTaus")
                                 ),
                                 MatchDeltaR = cms.double(0.15),
                                 OutputCollection = cms.string("")
@@ -79,7 +79,7 @@ TauRefCombiner = cms.EDProducer("HLTTauRefCombiner",
 
 
 
-hltTauRef = cms.Sequence(TauMCProducer*TauRefProducer*TauRefCombiner)
+hltTauRef = cms.Sequence(TauMCProducer*TauRelvalRefProducer*TauRefCombiner)
 
 
 
