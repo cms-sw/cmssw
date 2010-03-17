@@ -8,11 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.10 2009/11/03 19:34:58 amraktad Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.11 2009/11/04 13:30:08 amraktad Exp $
 //
 
 // system include files
-#include <assert.h>
+#include <cassert>
+#include "TColor.h"
+#include "TGColorDialog.h"
 #include "TGMenu.h"
 
 // user include files
@@ -119,17 +121,32 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       }
       case kSetColorMO:
       {
-         createColorPopup();
-         m_colorPopup->SetName("Selected");
-         std::vector<Pixel_t> colors;
-         for(unsigned int index=0; index <m_colorManager->numberOfIndicies(); ++index) {
-            colors.push_back((Pixel_t)gVirtualX->GetPixel(m_colorManager->indexToColor(index)));
-         }
-         m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
          FWModelId id = *(m_selectionManager->selected().begin());
-         m_colorPopup->SetSelection(gVirtualX->GetPixel(id.item()->modelInfo(id.index()).displayProperties().color()));
-         m_colorPopup->PlacePopup(m_x, m_y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
-         
+         if (m_colorManager->hasLimitedPalette())
+         {
+            createColorPopup();
+            m_colorPopup->SetName("Selected");
+            std::vector<Pixel_t> colors;
+            for(unsigned int index=0; index <m_colorManager->numberOfIndicies(); ++index) {
+               colors.push_back((Pixel_t)gVirtualX->GetPixel(m_colorManager->indexToColor(index)));
+            }
+            m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
+            m_colorPopup->SetSelection(gVirtualX->GetPixel(id.item()->modelInfo(id.index()).displayProperties().color()));
+            m_colorPopup->PlacePopup(m_x, m_y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
+         }
+         else
+         {
+            Int_t   retc;
+            Pixel_t pixel = TColor::Number2Pixel(id.item()->modelInfo(id.index()).displayProperties().color());
+
+            TGColorDialog *cd = new TGColorDialog(gClient->GetDefaultRoot(), m_modelPopup, &retc, &pixel, kFALSE);
+
+            cd->Connect("ColorSelected(Pixel_t)", "FWModelContextMenuHandler", this, "colorChangeRequested(Pixel_t");
+
+            cd->MapWindow();
+            gClient->WaitForUnmap(cd);
+            cd->DeleteWindow();
+         }
          break;
       }
       case kOpenObjectControllerMO:
@@ -158,9 +175,10 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          }
          break;
       }
-         break;
+      break;
    }
 }
+
 void 
 FWModelContextMenuHandler::colorChangeRequested(Int_t iIndex)
 {
@@ -173,6 +191,12 @@ FWModelContextMenuHandler::colorChangeRequested(Int_t iIndex)
       const FWDisplayProperties changeProperties(color, it->item()->modelInfo(it->index()).displayProperties().isVisible());
       it->item()->setDisplayProperties(it->index(),changeProperties);
    }
+}
+
+void 
+FWModelContextMenuHandler::colorChangeRequested(Pixel_t iPix)
+{
+   colorChangeRequested(TColor::GetColor(iPix));
 }
 
 void 
@@ -297,7 +321,7 @@ FWModelContextMenuHandler::createColorPopup() const
       
       m_colorPopup = new FWColorPopup(gClient->GetDefaultRoot(), colors.front());
       m_colorPopup->InitContent("", colors);
-      m_colorPopup->Connect("ColorBookkeeping(Int_t)","FWModelContextMenuHandler", const_cast<FWModelContextMenuHandler*>(this), "colorChangeRequested(Int_t)");      
+      m_colorPopup->Connect("ColorBookkeeping(Int_t)","FWModelContextMenuHandler", const_cast<FWModelContextMenuHandler*>(this), "colorChangeRequested(Int_t)");
    }
 }
 

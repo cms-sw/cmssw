@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:02 CDT 2009
-// $Id: FWModelContextMenuHandler.h,v 1.4 2009/11/02 19:32:08 chrjones Exp $
+// $Id: FWModelContextMenuHandler.h,v 1.5 2009/11/03 00:05:03 chrjones Exp $
 //
 
 // system include files
 #include "Rtypes.h"
+#include "GuiTypes.h"
 
 // user include files
 
@@ -53,6 +54,7 @@ public:
    // ---------- member functions ---------------------------
    void chosenItem(Int_t);
    void colorChangeRequested(Int_t);
+   void colorChangeRequested(Pixel_t);
    
    void addViewEntry(const char*, int);
    ClassDef(FWModelContextMenuHandler,0);

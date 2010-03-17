@@ -433,7 +433,7 @@ Bool_t FWColorSelect::HandleButton(Event_t *event)
          else
          {
             Int_t   retc;
-            ULong_t pixel = TColor::Number2Pixel(fIndex);
+            Pixel_t pixel = TColor::Number2Pixel(fIndex);
 
             TGColorDialog *cd = new TGColorDialog(gClient->GetDefaultRoot(), this, &retc, &pixel, kFALSE);
 

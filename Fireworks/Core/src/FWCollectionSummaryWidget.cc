@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.19 2009/12/17 17:09:33 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.20 2010/03/16 20:19:36 matevz Exp $
 //
 
 // system include files
@@ -555,7 +555,7 @@ void
 FWCollectionSummaryWidget::openRootColorDialog(Color_t iCol)
 {
    Int_t   retc;
-   ULong_t pixel = TColor::Number2Pixel(iCol);
+   Pixel_t pixel = TColor::Number2Pixel(iCol);
 
    TGColorDialog *cd = new TGColorDialog(gClient->GetDefaultRoot(), this, &retc, &pixel, kFALSE);
 

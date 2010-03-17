@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 16:25:17 CST 2009
-// $Id: FWCheckBoxIcon.cc,v 1.2 2009/05/01 02:01:34 dmytro Exp $
+// $Id: FWCheckBoxIcon.cc,v 1.3 2009/05/03 05:26:08 elmer Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@
 static
 const TGPicture* checkImage()
 {
-   static const TGPicture* s_picture=gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"check-mark-blackbg.png");
+   static const TGPicture* s_picture=gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"check-mark.png");
    return s_picture;
 }
 
