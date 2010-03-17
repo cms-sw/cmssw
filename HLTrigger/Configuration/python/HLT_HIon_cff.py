@@ -1836,4 +1836,4 @@ HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + 
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( HLTriggerFirstPath, HLT_HIMinBiasCalo, HLT_HIJet35U, HLT_HIPhoton15, HLT_HIDoubleMu, HLTriggerFinalPath, HLTAnalyzerEndpath )
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMinBiasCalo, HLT_HIJet35U, HLT_HIPhoton15, HLT_HIDoubleMu, HLTriggerFinalPath, HLTAnalyzerEndpath) )

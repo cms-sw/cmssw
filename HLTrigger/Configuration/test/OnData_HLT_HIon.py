@@ -51,7 +51,7 @@ process.datasets = cms.PSet(
 )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( 'rfio:/castor/cern.ch/cms/store/data/BeamCommissioning09/ZeroBias/RAW/v1/000/123/734/D28203D4-AFE3-DE11-ADEE-001D09F2527B.root' )
+    fileNames = cms.untracked.vstring( '/store/data/BeamCommissioning09/MinimumBias/RAW/v1/000/124/120/F6ADE109-6BE8-DE11-9680-000423D991D4.root' )
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
