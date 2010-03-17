@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/02/22 14:18:07 $ by $Author: cerminar $
+# last update: $Date: 2010/03/10 10:12:56 $ by $Author: argiro $
 
 # AlCaReco sequence definitions:
 
@@ -118,16 +118,12 @@ pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo*ALCARECOMuAlBeamHalo
 pathALCARECOTkAlLAS = cms.Path(seqALCARECOTkAlLAS*ALCARECOTkAlLASDQM)
 pathALCARECOTkAlCosmicsCTF = cms.Path(seqALCARECOTkAlCosmicsCTF*ALCARECOTkAlCosmicsCTFDQM)
 pathALCARECOTkAlCosmicsCosmicTF = cms.Path(seqALCARECOTkAlCosmicsCosmicTF*ALCARECOTkAlCosmicsCosmicTFDQM)
-pathALCARECOTkAlCosmicsRS = cms.Path(seqALCARECOTkAlCosmicsRS*ALCARECOTkAlCosmicsRSDQM)
 pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T*ALCARECOTkAlCosmicsCTF0TDQM)
 pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0T*ALCARECOTkAlCosmicsCosmicTF0TDQM)
-pathALCARECOTkAlCosmicsRS0T = cms.Path(seqALCARECOTkAlCosmicsRS0T*ALCARECOTkAlCosmicsRS0TDQM)
 pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT*ALCARECOTkAlCosmicsCTFDQM)
 pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT*ALCARECOTkAlCosmicsCosmicTFDQM)
-pathALCARECOTkAlCosmicsRSHLT = cms.Path(seqALCARECOTkAlCosmicsRSHLT*ALCARECOTkAlCosmicsRSDQM)
 pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT*ALCARECOTkAlCosmicsCTF0TDQM)
 pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT*ALCARECOTkAlCosmicsCosmicTF0TDQM)
-pathALCARECOTkAlCosmicsRS0THLT = cms.Path(seqALCARECOTkAlCosmicsRS0THLT*ALCARECOTkAlCosmicsRS0TDQM)
 pathALCARECOMuAlStandAloneCosmics = cms.Path(seqALCARECOMuAlStandAloneCosmics*ALCARECOMuAlStandAloneCosmicsDQM)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
 
@@ -321,7 +317,7 @@ ALCARECOStreamDtCalib = cms.FilteredStream(
 ALCARECOStreamTkAlCosmics = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'TkAlCosmics',
-	paths  = (pathALCARECOTkAlCosmicsCTF,pathALCARECOTkAlCosmicsCosmicTF,pathALCARECOTkAlCosmicsRS),
+	paths  = (pathALCARECOTkAlCosmicsCTF,pathALCARECOTkAlCosmicsCosmicTF),
 	content = OutALCARECOTkAlCosmics.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
@@ -330,7 +326,7 @@ ALCARECOStreamTkAlCosmics = cms.FilteredStream(
 ALCARECOStreamTkAlCosmicsHLT = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'TkAlCosmicsHLT',
-	paths  = (pathALCARECOTkAlCosmicsCTFHLT,pathALCARECOTkAlCosmicsCosmicTFHLT,pathALCARECOTkAlCosmicsRSHLT),
+	paths  = (pathALCARECOTkAlCosmicsCTFHLT,pathALCARECOTkAlCosmicsCosmicTFHLT),
 	content = OutALCARECOTkAlCosmicsHLT.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmicsHLT.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
@@ -339,7 +335,7 @@ ALCARECOStreamTkAlCosmicsHLT = cms.FilteredStream(
 ALCARECOStreamTkAlCosmics0T = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'TkAlCosmics0T',
-	paths  = (pathALCARECOTkAlCosmicsCTF0T,pathALCARECOTkAlCosmicsCosmicTF0T,pathALCARECOTkAlCosmicsRS0T),
+	paths  = (pathALCARECOTkAlCosmicsCTF0T,pathALCARECOTkAlCosmicsCosmicTF0T),
 	content = OutALCARECOTkAlCosmics0T.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics0T.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
@@ -348,7 +344,7 @@ ALCARECOStreamTkAlCosmics0T = cms.FilteredStream(
 ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'TkAlCosmics0THLT',
-	paths  = (pathALCARECOTkAlCosmicsCTF0THLT,pathALCARECOTkAlCosmicsCosmicTF0THLT,pathALCARECOTkAlCosmicsRS0THLT),
+	paths  = (pathALCARECOTkAlCosmicsCTF0THLT,pathALCARECOTkAlCosmicsCosmicTF0THLT),
 	content = OutALCARECOTkAlCosmics0THLT.outputCommands,
 	selectEvents = OutALCARECOTkAlCosmics0THLT.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
