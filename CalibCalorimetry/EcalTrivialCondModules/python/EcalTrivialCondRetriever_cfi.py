@@ -6,7 +6,7 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     producedEcalDAQTowerStatus = cms.untracked.bool(True),
     producedEcalTrgChannelStatus = cms.untracked.bool(True),
     #       Values to get correct noise on RecHit amplitude using 3+5 weights
-    EBpedRMSX12 = cms.untracked.double(1.26),
+    EBpedRMSX12 = cms.untracked.double(1.089),
     weightsForTB = cms.untracked.bool(False),
     # channel status
     channelStatusFile = cms.untracked.string(''),
@@ -21,7 +21,7 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     # by default set all inter calib const to 1.0 if no file provided
     intercalibConstantsFile = cms.untracked.string(''),
     producedEcalWeights = cms.untracked.bool(True),
-    EEpedRMSX12 = cms.untracked.double(2.87),
+    EEpedRMSX12 = cms.untracked.double(2.018),
     producedEcalIntercalibConstants = cms.untracked.bool(True),
     producedEcalIntercalibConstantsMC = cms.untracked.bool(True),
     producedEcalIntercalibErrors = cms.untracked.bool(True),
