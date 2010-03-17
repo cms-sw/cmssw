@@ -62,16 +62,10 @@ void RPCMon_SS_Dbx_Global::beginRun(const Run& r, const EventSetup& c){
 void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetup) {
 
  edm::Handle<RPCDigiCollection> rpcDigis;
- try {
- iEvent.getByType(rpcDigis);
- }catch(...) { return;  } 
-
+  iEvent.getByType(rpcDigis);
 
  edm::ESHandle<RPCGeometry> pDD;
- try {
  iSetup.get<MuonGeometryRecord>().get( pDD );
- }catch(...) { return;  } 
-
  rpcdqm::utils rpcUtils;
  
  RPCDigiCollection::DigiRangeIterator detUnitIt;
@@ -136,7 +130,7 @@ void RPCMon_SS_Dbx_Global::analyze(const Event& iEvent, const EventSetup&  iSetu
 	     name << "Barrel, After Pulse, Diff. bx, Wheel # " << std::setw(2) << std::setfill('+') << id.ring();
 	     me = dbe_->get(globalFolder_ + "/"+tag.str());
 	     if (!me){
-	       me = dbe_->book2D (tag.str(),name.str(),12,0.5,12.5,21,1.0,21.0);
+	       me = dbe_->book2D (tag.str(),name.str(),12,0.5,12.5,21,0.5,21.5);
 	       rpcUtils.labelXAxisSector( me);
 	       rpcUtils.labelYAxisRoll(me, 0, id.ring());
 	     }

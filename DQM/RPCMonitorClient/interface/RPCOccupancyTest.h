@@ -30,16 +30,18 @@ public:
  protected:
   // void OccupancyDist();
   void fillGlobalME(RPCDetId & , MonitorElement *);
- private:
+ 
+private:
   
   std::string globalFolder_;
 
+ 
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
   int prescaleFactor_;
  
   DQMStore* dbe_;
-  int numberOfDisks_;
+  int numberOfDisks_, numberOfRings_;
  
   float rpcevents_;
 
@@ -54,6 +56,10 @@ public:
  
   MonitorElement * AsyMeDDisk[10];      //Left Right Asymetry 
   MonitorElement * NormOccupDDisk[10];
+  MonitorElement * Barrel_OccBySt;
+  MonitorElement * EndCap_OccByRng;
+  MonitorElement * EndCap_OccByDisk ;
+
 };
 
 #endif

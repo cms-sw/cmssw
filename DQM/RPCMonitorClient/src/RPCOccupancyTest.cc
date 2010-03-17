@@ -1,4 +1,5 @@
-#include <cmath>
+/*  \author Anna Cimmino*/
+//#include <cmath>
 #include <sstream>
 #include <DQM/RPCMonitorClient/interface/RPCOccupancyTest.h>
 #include "DQM/RPCMonitorDigi/interface/utils.h"
@@ -7,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+
 
 using namespace edm;
 using namespace std;
@@ -17,6 +19,7 @@ RPCOccupancyTest::RPCOccupancyTest(const ParameterSet& ps ){
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
+
 }
 
 RPCOccupancyTest::~RPCOccupancyTest(){
@@ -28,7 +31,7 @@ void RPCOccupancyTest::beginJob(DQMStore * dbe){
  dbe_=dbe;
 }
 
-void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
+void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
  LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Begin run";
  
  
@@ -113,7 +116,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       
        
       histoName.str("");
-      histoName<<"OccupancyNormByGeoAndEvents_Wheel"<<w;
+      histoName<<"OccupancyNormByEvents_Wheel"<<w;
       me = 0;
       me = dbe_->get( globalFolder_+"/"+ histoName.str());
       if ( 0!=me  ) {
@@ -126,7 +129,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w);
    
       histoName.str("");
-      histoName<<"OccupancyNormByGeoAndEvents_Distribution_Wheel"<<w;   
+      histoName<<"OccupancyNormByEvents_Distribution_Wheel"<<w;   
       me = 0;
       me = dbe_->get( globalFolder_+"/"+ histoName.str());
       if ( 0!=me  ) {
@@ -164,7 +167,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     
     
     histoName.str("");
-    histoName<<"OccupancyNormByGeoAndEvents_Disk"<<w;
+    histoName<<"OccupancyNormByEvents_Disk"<<w;
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {
@@ -177,7 +180,7 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
     rpcUtils.labelYAxisRing( NormOccupDisk[w+offset],numberOfRings_);
     
     histoName.str("");
-    histoName<<"OccupancyNormByGeoAndEvents_Distribution_Disk"<<w;  
+    histoName<<"OccupancyNormByEvents_Distribution_Disk"<<w;  
     me = 0;
     me = dbe_->get( globalFolder_+"/"+ histoName.str());
     if ( 0!=me  ) {
@@ -213,22 +216,15 @@ void RPCOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 
 void RPCOccupancyTest::analyze(const Event& iEvent, const EventSetup& c) {}
 
-void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
-  LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: End of LS transition, performing DQM client operation";
+void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
 
-  // counts number of lumiSegs 
-  int  nLumiSegs = lumiSeg.id().luminosityBlock();
+void RPCOccupancyTest::clientOperation(EventSetup const& iSetup) {
 
-  //check some statements and prescale Factor
-   if(nLumiSegs%prescaleFactor_ != 0) return;
- 
+  LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
 
-   MonitorElement * Events = dbe_->get(globalFolder_ +"/RPCEvents");  
-   rpcevents_ = Events -> getEntries(); 
+   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+   rpcevents_ = RPCEvents -> getEntries(); 
 
-   Barrel_OccBySt = dbe_ -> get("RPC/RecHits/SummaryHistograms/Barrel_OccupancyByStations_Normalized");
-   EndCap_OccByRng = dbe_ -> get("RPC/RecHits/SummaryHistograms/EndCap_OccupancyByRings_Normalized");
-  
    //Clear distributions
 
    //Clear Distributions
@@ -252,11 +248,13 @@ void RPCOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 }
 
 void RPCOccupancyTest::endJob(void) {}
-void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c) {}
+void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c) {}
 
 
 void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
-     if (!myMe) return;
+  
+
+if (!myMe) return;
     
     MonitorElement * AsyMe=NULL;      //Left Right Asymetry 
     MonitorElement * AsyMeD=NULL; 
@@ -363,8 +361,6 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 	  EndCap_OccByDisk -> Fill(detId.region()*detId.station()+3, normoccup);
 	}
     }
-
-
 }
 
 

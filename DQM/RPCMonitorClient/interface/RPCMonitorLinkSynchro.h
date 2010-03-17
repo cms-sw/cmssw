@@ -10,11 +10,12 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 
 
 class MonitorElement;
-namespace edm { class Event; class EventSetup; class Run;}
+class RPCReadOutMapping;
+namespace edm { class Event; class EventSetup; }
 
 
 class RPCMonitorLinkSynchro : public edm::EDAnalyzer {
@@ -22,22 +23,22 @@ public:
   explicit RPCMonitorLinkSynchro( const edm::ParameterSet& cfg);
   virtual ~RPCMonitorLinkSynchro();
   virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);  
   virtual void endJob();
 
 private:
   edm::ParameterSet theConfig;
+
   edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
-  RPCLinkSynchroStat theSynchroStat;
+  const RPCReadOutMapping* theCabling;
+  RPCRawSynchro theSynchro; 
 
   MonitorElement* me_delaySummary;
   MonitorElement* me_delaySpread;
-  MonitorElement* me_topOccup;
-  MonitorElement* me_topSpread;
-  MonitorElement* me_notComplete[3];
-
+//  MonitorElement* me_linksLowStat;
+//  MonitorElement* me_linksBadSynchro;
+//  MonitorElement* me_linksMostNoisy;
 };
 
 #endif

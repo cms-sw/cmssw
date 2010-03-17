@@ -45,7 +45,7 @@ public:
   int prescaleFactor_;
   int numberOfDisks_;
 
-  bool init_;
+  //  bool init_;
   DQMStore* dbe_;
 
   int minEvents;

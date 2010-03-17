@@ -1,10 +1,9 @@
 #ifndef DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
 #define DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
 
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include <string>
 #include <vector>
-#include <map>
 
 
 class TH1F;
@@ -13,12 +12,24 @@ class RPCReadOutMapping;
 
 class RPCLinkSynchroHistoMaker {
 public:
-  RPCLinkSynchroHistoMaker(const RPCLinkSynchroStat & a) : theLinkStat(a) {}
+  RPCLinkSynchroHistoMaker(const RPCRawSynchro&, const RPCReadOutMapping* rm=0);
+  std::string dumpDelays();
   void fillDelaySpreadHisto(TH2F* histo);
-  void fillDelayHisto(TH1F* histo);
-  void fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTopOccup, TH2F* hTopSpread) const;
+//  void fillLinksBadSynchro(TH2F* histo);
+//  void fillLinksLowStat(TH2F* histo);
+//  void fillLinksMostNoisy(TH2F* histo);
     
 private:
-  const RPCLinkSynchroStat & theLinkStat;
+  struct LinkStat { std::string nameLink, nameChamber, namePart; 
+                    double mean, sum, rms; std::vector<int> vectStat; 
+                    std::string print() const; };
+  struct LessVectStatSum{ bool operator()(const LinkStat &o1, const LinkStat& o2); };
+  struct LessVectStatMean{ bool operator()(const LinkStat &o1, const LinkStat& o2); };
+  void makeLinkStats();
+private:
+  const RPCRawSynchro & theRawSynchro;
+  const RPCReadOutMapping * theCabling;
+  bool theUpdated;
+  std::vector<LinkStat> theLinkStat;
 }; 
 #endif
