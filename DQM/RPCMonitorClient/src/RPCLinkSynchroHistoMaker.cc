@@ -6,91 +6,62 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
-bool RPCLinkSynchroHistoMaker::LessVectStatSum::operator() (const RPCLinkSynchroHistoMaker::LinkStat & o1, const RPCLinkSynchroHistoMaker::LinkStat & o2) { return o1.sum < o2.sum; }
-bool RPCLinkSynchroHistoMaker::LessVectStatMean::operator() (const RPCLinkSynchroHistoMaker::LinkStat & o1, const RPCLinkSynchroHistoMaker::LinkStat & o2) { return o1.mean < o2.mean; }
+struct OrderLbSpread { bool operator() (const std::pair<double,unsigned int> & lb1, const std::pair<double,unsigned int> & lb2) { return lb1.first > lb2.first; } };
+struct OrderLbOccup  { bool operator() (const std::pair<unsigned int,unsigned int> & lb1, const std::pair<unsigned int,unsigned int> & lb2) { return lb1.first > lb2.first; } };
 
-
-RPCLinkSynchroHistoMaker::RPCLinkSynchroHistoMaker(
-      const RPCRawSynchro & s,const RPCReadOutMapping* rm)
-    : theRawSynchro(s), theCabling(rm), theUpdated(false)
-{}
-
-string RPCLinkSynchroHistoMaker::LinkStat::print() const
+void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTopOccup, TH2F* hTopSpread) const
 {
-  ostringstream str;
-  str<<nameChamber<<" "<<namePart<<" mean: "<<mean<<" rms: "<<rms<<nameLink<<" counts: "; 
-  for (vector<int>::const_iterator it=vectStat.begin();it!=vectStat.end();++it) str<<" "<<(*it);
-  return str.str();
-}
+  hDelay->Reset();
+  hDelaySpread->Reset();
+  hTopOccup->Reset();
+  hTopSpread->Reset();
 
-void RPCLinkSynchroHistoMaker::makeLinkStats()
-{
-  if (!theCabling) return;
-  if (theUpdated) return; else theUpdated=true;
-  typedef RPCRawSynchro::LBCountMap::const_iterator IT;
-  for (IT im = theRawSynchro.theSynchroCounts.begin(); im != theRawSynchro.theSynchroCounts.end(); ++im) {
-    const LinkBoardSpec* linkBoard = theCabling->location(im->first);
-    if (linkBoard==0) continue;
-    const ChamberLocationSpec & chamber = linkBoard->febs().front().chamber();
-    const FebLocationSpec & feb =  linkBoard->febs().front().feb();
-    unsigned int idx = 0;
-    while (idx < theLinkStat.size()) {
-      if (theLinkStat[idx].nameChamber==chamber.chamberLocationName()&& theLinkStat[idx].namePart == feb.localEtaPartition) break;
-      idx++;
+  typedef vector< pair<unsigned int, unsigned int> > TopOccup;
+  typedef vector< pair<double, unsigned int> > TopSpread;
+  TopOccup topOccup(10,make_pair(0,0));  
+  TopSpread topSpread(10,make_pair(0.,0));
+
+  for (unsigned int idx=0; idx < theLinkStat.theLinkStatMap.size(); ++idx) {
+    const RPCLinkSynchroStat::BoardAndCounts & bc = theLinkStat.theLinkStatMap[idx]; 
+
+    int sum = bc.second.sum();
+    double rms =  bc.second.rms();
+
+    hDelaySpread->Fill(bc.second.mean()-3.,bc.second.rms());
+
+    if (sum==0) continue; 
+    for (int i=0; i<=7; ++i) hDelay->Fill(i-3,bc.second.counts()[i]);
+
+    pair<unsigned int, unsigned int> canOccup =  make_pair(sum, idx);
+    pair<double, unsigned int>      canSpread =  make_pair(rms, idx);
+    TopOccup::iterator io = upper_bound(topOccup.begin(), topOccup.end(), canOccup, OrderLbOccup()); 
+    TopSpread::iterator is = upper_bound(topSpread.begin(), topSpread.end(), canSpread, OrderLbSpread()); 
+    if (io != topOccup.end()) { 
+      topOccup.insert(io,canOccup);
+      topOccup.erase(topOccup.end()-1);
     }
-    if (idx== theLinkStat.size()) {
-      LinkStat linkStat;
-      linkStat.nameLink=im->first.print();
-      linkStat.nameChamber=chamber.chamberLocationName();
-      linkStat.namePart=feb.localEtaPartition;
-      linkStat.vectStat=im->second.counts();
-      linkStat.mean=im->second.mean();
-      linkStat.sum=im->second.sum();
-      linkStat.rms=im->second.rms();
-      theLinkStat.push_back(linkStat);
+    if (is != topSpread.end()) {
+      topSpread.insert(is,canSpread);
+      topSpread.erase(topSpread.end()-1);
     }
   }
-}
 
-string RPCLinkSynchroHistoMaker::dumpDelays() 
-{  
-  makeLinkStats();
-  sort(theLinkStat.begin(), theLinkStat.end(), LessVectStatSum() );
-  std::ostringstream str;
-  str<<endl<<endl<<"GOING TO WRITE: " << endl;
-  for (std::vector<LinkStat>::const_iterator it=theLinkStat.begin(); it != theLinkStat.end(); ++it) str<<it->print()<<endl;
-  return str.str();
-}
+  for (int itop=0; itop<10; itop++) {
+    const RPCLinkSynchroStat::BoardAndCounts & occup  = theLinkStat.theLinkStatMap[topOccup[itop].second];
+    const RPCLinkSynchroStat::BoardAndCounts & spread = theLinkStat.theLinkStatMap[topSpread[itop].second];
+    hTopOccup->GetYaxis()->SetBinLabel(itop+1,occup.first.name().c_str());
+    hTopSpread->GetYaxis()->SetBinLabel(itop+1,spread.first.name().c_str());
+    for (unsigned int icount=0; icount<occup.second.counts().size(); icount++) {
+      hTopOccup->SetBinContent(icount+1, itop+1, float(occup.second.counts()[icount]));
+      hTopSpread->SetBinContent(icount+1, itop+1, float(spread.second.counts()[icount]));
+    }
+  }
+//  for (int j=0; j<10; j++) { cout <<"topSpread["<<j<<"] = "<<topSpread[j].first<<endl; }
+//  for (int j=0; j<10; j++) { cout <<"topOccup["<<j<<"] = "<<topOccup[j].first<<endl; }
 
-void RPCLinkSynchroHistoMaker::fillDelaySpreadHisto(TH2F* histo)
-{
-  makeLinkStats();
-  for (std::vector<LinkStat>::const_iterator it=theLinkStat.begin(); it != theLinkStat.end(); ++it)histo->Fill(it->mean-3.,it->rms);
 }
-
-//void RPCLinkSynchroHistoMaker::fillLinksBadSynchro(TH2F* histo)
-//{
-//  makeLinkStats();
-//  sort( theLinkStat.begin(), theLinkStat.end(), LessVectStatMean() );
-//  for (unsigned int i=1; i<6; ++i) {
-//    if( i > theLinkStat.size() ) break;
-//    histo->GetYaxis()->SetBinLabel(i,theLinkStat[i-1].nameChamber.c_str());
-//    for(unsigned int j=0; j<theLinkStat[i-1].vectStat.size();++j)histo->SetBinContent(j+1,i,theLinkStat[i-1].vectStat[j]);
-//  }
-//}
-//
-//void RPCLinkSynchroHistoMaker::fillLinksLowStat(TH2F* histo)
-//{
-//  makeLinkStats();
-//  sort(theLinkStat.begin(), theLinkStat.end(), LessVectStatSum() );
-//}
-//
-//void RPCLinkSynchroHistoMaker::fillLinksMostNoisy(TH2F* histo)
-//{
-//  makeLinkStats();
-//  sort(theLinkStat.begin(), theLinkStat.end(), LessVectStatSum() );
-//}
 
