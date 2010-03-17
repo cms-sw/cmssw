@@ -32,8 +32,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 //
 // class declaration
 //
