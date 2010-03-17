@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/03/16 07:46:30 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/03/16 08:13:42 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include<string>
 #include<vector>
@@ -50,23 +51,16 @@ class HLTConfigProvider {
 
  private:
 
-  /// call from beginRun
-  bool init(const edm::Run& iRun,                                                  const std::string& processName, bool& changed);
+  /// clear data members - called by init() methods
+  void clear();
 
-  /// call from beginLuminsoityBlock
-  bool init(const edm::LuminosityBlock& iLumiBlock,                                const std::string& processName, bool& changed);
-  bool init(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
-
-  /// call from produce/filter/analyze method
-  bool init(const edm::Event& iEvent,               const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
-
-  /// real init method 
+  /// real init methods
   bool init(const edm::ProcessHistory& iHistory, const std::string& processName, bool& changed);
   bool init(const edm::ProcessHistory& iHistory, const edm::EventSetup& iSetup, const std::string& processName, bool& changed);
-  /// clear data members - called by init() method
-  void clear();
-  /// extract information into data members - called by init() method
+
+  /// extract information into data members - called by init() methods
   void extract();
+  void extract(const edm::EventSetup& iSetup);
 
 
  public:
@@ -170,7 +164,7 @@ class HLTConfigProvider {
     hltL1GTSeeds_(),
     streamNames_(), streamIndex_(), streamContents_(),
     datasetNames_(), datasetIndex_(), datasetContents_(),
-    hltPrescaleTable_() { }
+    hltPrescaleTable_(), l1GtUtils_() { }
 
  private:
 
@@ -195,6 +189,7 @@ class HLTConfigProvider {
   std::vector<std::vector<std::string> > datasetContents_;
 
   trigger::HLTPrescaleTable hltPrescaleTable_;
+  L1GtUtils l1GtUtils_;
 
 };
 #endif
