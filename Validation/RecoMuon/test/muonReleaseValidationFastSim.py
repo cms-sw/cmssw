@@ -10,14 +10,14 @@ import string
 ######### User variables
 
 #Run on FastSim events if true
-FastSimUse="False"
+FastSimUse="True"
 
 #Release to be validated:
-NewRelease='CMSSW_3_5_3'
+NewRelease='CMSSW_3_6_0_pre3'
 
 # startup and ideal sample list
 if (FastSimUse=="True"):
-    startupsamples= ['RelValTTbar_cfi']
+    startupsamples= ['RelValTTbar']
     idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValTTbar']
 else:
     startupsamples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
@@ -59,8 +59,8 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_3XY_V24'
-StartupTagUse='START3X_V24'
+IdealTagUse='MC_36Y_V2'
+StartupTagUse='START36_V2'
 VersionTag='v1'
 #UnwantedTag=''
 
