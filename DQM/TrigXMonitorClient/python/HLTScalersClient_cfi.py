@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # HLT scalers client. wittich 8/08
-# $Id: HLTScalersClient_cfi.py,v 1.3 2009/12/15 20:41:16 wittich Exp $
+# $Id: HLTScalersClient_cfi.py,v 1.4 2010/02/16 17:04:31 wmtan Exp $
 # $Log: HLTScalersClient_cfi.py,v $
+# Revision 1.4  2010/02/16 17:04:31  wmtan
+# Framework header migrations
+#
 # Revision 1.3  2009/12/15 20:41:16  wittich
 # better hlt scalers client
 #
@@ -16,10 +19,10 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 hltsClient = cms.EDAnalyzer("HLTScalersClient",
-  # no configuration yet
   dqmFolder = cms.untracked.string("HLT/HLTScalers_EvF"),
   rateIntegWindow = cms.untracked.uint32(3),
   processName = cms.string("HLT"),
-  debugDump = cms.untracked.bool(False)
+  debugDump = cms.untracked.bool(False),
+  replacePartialUpdates = cms.untracked.bool(True)
 )
 
