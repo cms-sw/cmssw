@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.38 2010/03/17 19:20:44 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.39 2010/03/17 20:31:29 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -406,7 +406,7 @@ bool BeamFitter::runFitter() {
 
     fbeamspot = myalgo->Fit();
 
-    if ( MyPVFitter->runFitter() ) {
+    if ( fbeamspot.type() != 0 && MyPVFitter->runFitter() ) {
 
       fbeamspot.setBeamWidthX( MyPVFitter->getWidthX() );
       fbeamspot.setBeamWidthY( MyPVFitter->getWidthY() );
