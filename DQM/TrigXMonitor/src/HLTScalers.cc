@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.22 2010/02/24 17:43:47 wittich Exp $
+// $Id: HLTScalers.cc,v 1.23 2010/02/25 17:34:01 wdd Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.23  2010/02/25 17:34:01  wdd
+// Central migration of TriggerNames class interface
+//
 // Revision 1.22  2010/02/24 17:43:47  wittich
 // - keep trying to get path names if it doesn't work first time
 // - move the Bx histograms out of raw to the toplevel directory.
@@ -28,16 +31,6 @@
 // - bug fix in L1Scalers
 // - configurable dqm directory in L1SCalers
 // - other minor tweaks in HLTScalers
-//
-// Revision 1.14  2008/09/02 02:37:22  wittich
-// - split L1 code from HLTScalers into L1Scalers
-// - update cfi file accordingly
-// - make sure to cd to correct directory before booking ME's
-//
-// Revision 1.13  2008/08/24 16:34:57  wittich
-// - rate calculation cleanups
-// - fix error logging with LogDebug
-// - report the actual lumi segment number that we think it might be
 //
 
 #include <iostream>
@@ -69,6 +62,7 @@ using namespace edm;
 
 HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   dbe_(0),
+  scalersN_(0),
   scalersException_(0),
   hltCorrelations_(0),
   detailedScalers_(0), 
@@ -76,6 +70,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
 					  std::string("HLT/HLTScalers_EvF"))),
   nProc_(0),
   nLumiBlock_(0),
+  hltOverallScalerN_(0),
   trigResultsSource_( ps.getParameter< edm::InputTag >("triggerResults")),
   resetMe_(true),
   sentPaths_(false),
@@ -117,7 +112,9 @@ void HLTScalers::beginJob(void)
     // fill for ever accepted event 
     hltOverallScaler_ = dbe_->book1D("hltOverallScaler", "HLT Overall Scaler", 
 				     1, 0.5, 1.5);
-
+    hltOverallScalerN_ = dbe_->book1D("hltOverallScalerN", 
+				      "Reset HLT Overall Scaler", 1, 0.5, 1.5);
+    
     // other ME's are now found on the first event of the new run, 
     // when we know more about the HLT configuration.
   
@@ -161,8 +158,9 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 				    maxModules, 0, maxModules-1);
     scalers_ = dbe_->book1D("hltScalers", "HLT scalers",
 			    npath, -0.5, npath-0.5);
+    scalersN_ = dbe_->book1D("hltScalersN", "Reset HLT scalers",
+			     npath, -0.5, npath-0.5);
   
-
     scalersException_ = dbe_->book1D("hltExceptions", "HLT Exception scalers",
 			    npath, -0.5, npath-0.5);
 
@@ -192,11 +190,8 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 	  j !=names.triggerNames().end(); ++j ) {
       
       LogDebug("HLTScalers") << q << ": " << *j ;
-      char pname[256];
-      snprintf(pname, 256, "path%03d", q);
       ++q;
-      MonitorElement *e = dbe_->bookString(pname, *j);
-      hltPathNames_.push_back(e);  // I don't ever use these....
+      scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j->c_str());
       sentPaths_ = true;
     }
   }
@@ -211,6 +206,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
     }
     if ( hltResults->state(i) == hlt::Pass) {
       scalers_->Fill(i);
+      scalersN_->Fill(i);
       hltBxVsPath_->Fill(bx, i);
       accept = true;
       for ( int j = i + 1; j < npath; ++j ) {
@@ -226,9 +222,22 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   }
   if ( accept ) {
     hltOverallScaler_->Fill(1.0);
+    hltOverallScalerN_->Fill(1.0);
     hltBx_->Fill(int(bx));
   }
   
+}
+
+void HLTScalers::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+				      const edm::EventSetup& c)
+{
+  LogDebug("HLTScalers") << "Start of luminosity block." ;
+  // reset the N guys
+  if ( scalersN_ ) 
+    scalersN_->Reset();
+  if ( hltOverallScalerN_ )
+    hltOverallScalerN_->Reset();
+
 }
 
 
@@ -248,7 +257,7 @@ void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
   LogDebug("HLTScalers") << "HLTScalers::beginRun, run "
-		     << run.id();
+			 << run.id();
   if ( currentRun_ != int(run.id().run()) ) {
     resetMe_ = true;
     currentRun_ = run.id().run();

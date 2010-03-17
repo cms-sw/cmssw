@@ -1,12 +1,16 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.15 2010/02/11 00:11:05 wmtan Exp $
+// $Id: HLTScalers.h,v 1.16 2010/02/24 17:43:47 wittich Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.16  2010/02/24 17:43:47  wittich
+// - keep trying to get path names if it doesn't work first time
+// - move the Bx histograms out of raw to the toplevel directory.
+//
 // Revision 1.15  2010/02/11 00:11:05  wmtan
 // Adapt to moved framework header
 //
@@ -75,9 +79,9 @@ public:
   void endRun(const edm::Run& run, const edm::EventSetup& c);
 
   
-//   /// Begin LumiBlock
-//   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-//                             const edm::EventSetup& c) ;
+  /// Begin LumiBlock
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+			    const edm::EventSetup& c) ;
 
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
@@ -90,6 +94,7 @@ public:
 private:
   DQMStore * dbe_;
   MonitorElement *scalers_;
+  MonitorElement *scalersN_;
   MonitorElement *scalersException_;
   MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
@@ -99,9 +104,10 @@ private:
   
   MonitorElement *hltBx_, *hltBxVsPath_;
   MonitorElement *hltOverallScaler_;
+  MonitorElement *hltOverallScalerN_;
   MonitorElement *diagnostic_;
 
-  std::vector<MonitorElement*> hltPathNames_;
+  //std::vector<MonitorElement*> hltPathNames_;
   edm::InputTag trigResultsSource_;
   bool resetMe_, sentPaths_, monitorDaemon_; 
 
