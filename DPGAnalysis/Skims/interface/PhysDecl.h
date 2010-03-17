@@ -40,7 +40,9 @@ private:
   
   bool applyfilter;
   bool debugOn;
-  
+  bool init_;
+  std::vector<std::string>  hlNames_;  // name of each HLT algorithm
+  edm::InputTag hlTriggerResults_;
 };
 
 #endif
