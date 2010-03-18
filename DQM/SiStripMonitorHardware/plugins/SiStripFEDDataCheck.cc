@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.10 2010/02/28 07:55:08 nc302 Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.11 2010/03/03 18:13:37 amagnan Exp $
 //
 //
 #include <memory>
@@ -116,7 +116,7 @@ SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
     checkChannelStatusBits_(iConfig.getUntrackedParameter<bool>("CheckChannelStatus",true)),
     cablingCacheId_(0)
 {
-  if (printDebug_ && !doPayloadChecks_ && (checkChannelLengths_ || checkPacketCodes_ || checkFELengths_ || checkChannelStatusBits_) ) {
+  if (printDebug_ && !doPayloadChecks_ && (checkChannelLengths_ || checkPacketCodes_ || checkFELengths_)) {
     std::stringstream ss;
     ss << "Payload checks are disabled but individual payload checks have been enabled. The following payload checks will be skipped: ";
     if (checkChannelLengths_) ss << "Channel length check, ";
@@ -164,12 +164,12 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
-    lFedErrors.initialise(fedId,cabling_);
+    //third param to false:save time by not initialising anything not used here
+    lFedErrors.initialise(fedId,cabling_,false);
 
 
     //check data exists
-    bool lDataExist = lFedErrors.checkDataPresent(fedData);
-    if (!lDataExist) {
+    if (!fedData.size() || !fedData.data()) {
       fillPresent(fedId,0);
       continue;
     }
@@ -188,19 +188,22 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     else {
       //need to construct full object to go any further
-      buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
-      if (doPayloadChecks_) {
+      if (doPayloadChecks_ || checkChannelStatusBits_) {
+	
+	buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
+	if (doPayloadChecks_) {
 
-        bool channelLengthsOK = checkChannelLengths_ ? buffer->checkChannelLengthsMatchBufferLength() : true;
-	bool channelPacketCodesOK = checkPacketCodes_ ? buffer->checkChannelPacketCodes() : true;
-	bool feLengthsOK = checkFELengths_ ? buffer->checkFEUnitLengths() : true;
-	if ( !channelLengthsOK ||
-	     !channelPacketCodesOK ||
-	     !feLengthsOK ) {
-	  hasFatalErrors = true;
+	  bool channelLengthsOK = checkChannelLengths_ ? buffer->checkChannelLengthsMatchBufferLength() : true;
+	  bool channelPacketCodesOK = checkPacketCodes_ ? buffer->checkChannelPacketCodes() : true;
+	  bool feLengthsOK = checkFELengths_ ? buffer->checkFEUnitLengths() : true;
+	  if ( !channelLengthsOK ||
+	       !channelPacketCodesOK ||
+	       !feLengthsOK ) {
+	    hasFatalErrors = true;
+	  }
 	}
+	if (checkChannelStatusBits_) rateNonFatal = lFedErrors.fillNonFatalFEDErrors(buffer.get(),cabling_);
       }
-      if (checkChannelStatusBits_) rateNonFatal = lFedErrors.fillNonFatalFEDErrors(buffer.get());
     }
 
     if (hasFatalErrors) {

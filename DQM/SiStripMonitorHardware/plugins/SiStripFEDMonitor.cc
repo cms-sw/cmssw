@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.30 2010/02/20 20:59:08 wmtan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.31 2010/02/25 18:56:00 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -204,9 +204,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
       continue;
     }
 
-    //Do exactly same check as unpacker
-    //will be used by channel check in following method fillFEDErrors so need to be called beforehand.
-    bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck(fedData);
+
  
     //check for problems and fill detailed histograms
     std::vector<uint16_t> lMedians;
@@ -221,6 +219,8 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 			     lDoMeds
 			     );
 
+    //check filled in previous method.
+    bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck();
 
     lFedErrors.incrementFEDCounters();
     fedHists_.fillFEDHistograms(lFedErrors,lFullDebug);

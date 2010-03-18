@@ -116,13 +116,14 @@ public:
   ~FEDErrors();
 
   void initialise(const unsigned int aFedID,
-		  const SiStripFedCabling* aCabling);
+		  const SiStripFedCabling* aCabling,
+		  bool initVars = true);
 
   //return false if no data, with or without cabled channels.
   bool checkDataPresent(const FEDRawData& aFedData);
 
   //perform a sanity check with unpacking code check
-  bool failUnpackerFEDCheck(const FEDRawData & fedData);
+  bool failUnpackerFEDCheck();
 
   //return true if there were no errors at the level they are analysing
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
@@ -133,7 +134,8 @@ public:
   bool fillCorruptBuffer(const sistrip::FEDBuffer* aBuffer);
 
   //FE/Channel check: rate of channels with error (only considering connected channels)
-  float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer);
+  float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
+			      const SiStripFedCabling* aCabling = 0);
 
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
@@ -220,9 +222,12 @@ private:
 
   unsigned int fedID_;
 
-  bool connected_[sistrip::FEDCH_PER_FED];
-  unsigned short subDetId_[sistrip::FEUNITS_PER_FED];
+  std::vector<bool> connected_;
+  std::vector<unsigned int> detid_;
+  std::vector<unsigned short> nChInModule_;
 
+  std::vector<unsigned short> subDetId_;
+  
   FECounters feCounter_;
   FEDLevelErrors fedErrors_;
   std::vector<FELevelErrors> feErrors_;

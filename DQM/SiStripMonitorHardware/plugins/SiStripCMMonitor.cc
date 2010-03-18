@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.13 2010/02/20 20:59:06 wmtan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.14 2010/02/25 18:56:00 amagnan Exp $
 //
 
 #include <sstream>
@@ -220,13 +220,23 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
       continue;
     }
 
-    //Do exactly same check as unpacker
-    bool lFailUnpackerFEDcheck = lFedErrors.failUnpackerFEDCheck(fedData);
- 
-    if (lFailUnpackerFEDcheck) continue;
-
     std::auto_ptr<const sistrip::FEDBuffer> buffer;
-    buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
+
+    if (!lFedErrors.fillFatalFEDErrors(fedData,0)) {
+      continue;
+    }
+    else {
+      //need to construct full object to go any further
+      buffer.reset(new sistrip::FEDBuffer(fedData.data(),fedData.size(),true));
+      bool channelLengthsOK = buffer->checkChannelLengthsMatchBufferLength();
+      bool channelPacketCodesOK = buffer->checkChannelPacketCodes();
+      bool feLengthsOK = buffer->checkFEUnitLengths();
+      if ( !channelLengthsOK ||
+	   !channelPacketCodesOK ||
+	   !feLengthsOK ) {
+	continue;
+      }
+    }
 
     std::ostringstream infoStream;
 

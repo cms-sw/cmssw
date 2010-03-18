@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.6 2010/01/08 14:14:47 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.7 2010/03/17 17:29:22 amagnan Exp $
 //
 
 #include <sstream>
@@ -82,6 +82,8 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   std::vector<double> minVal_;
   std::vector<double> maxVal_;
 
+  std::vector<bool> isValidMap_;
+
   edm::ParameterSet pset_;
   std::vector<TrackerMap*> tkmap_;
 
@@ -138,16 +140,26 @@ void BuildTrackerMapPlugin::read(bool aMechView){
 
   unsigned int nHists = tkHistoMapNameVec_.size();
   tkHistoMap.resize(nHists,0);
+  isValidMap_.resize(nHists,true);
 
   for (unsigned int i(0); i<nHists; i++){
 
     tkHistoMap[i] = new TkHistoMap();
     tkHistoMap[i]->loadTkHistoMap(folderName_,tkHistoMapNameVec_.at(i),aMechView);
     
+    std::vector<MonitorElement*>& lMaps = tkHistoMap[i]->getAllMaps();
+    for (unsigned int im(0); im<lMaps.size(); im++){
+      if (!lMaps[im]) {
+	std::cout << " -- Failed to get element " << im << " for map " << i << std::endl;
+	isValidMap_[i] = false;
+      }
+    }
+
+
     tkHistoMapVec_.push_back(tkHistoMap[i]);
   }
 
-  std::cout << "Maps read with success." << std::endl;
+  std::cout << " - Maps read with success." << std::endl;
 
 //   //get list of detid for which |deltaRMS(APV0-APV1)|>1
 //   unsigned int lHistoNumber = 35;
@@ -303,6 +315,10 @@ BuildTrackerMapPlugin::endJob()
     //(pset_,pDD1); 
     lTkMap->setPalette(1);
     lTkMap->showPalette(1);
+    if (!tkHistoMapVec_.at(i) || !isValidMap_.at(i)) {
+      std::cout << "tkHistoMap is invalid for element " << i << "... continuing..." << std::endl;
+      continue;
+    }
     tkHistoMapVec_.at(i)->dumpInTkMap(lTkMap);
 
     //to print all figures to create fancy view
