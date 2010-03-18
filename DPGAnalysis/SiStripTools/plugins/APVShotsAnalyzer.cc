@@ -97,8 +97,9 @@ class APVShotsAnalyzer : public edm::EDAnalyzer {
 
   TkHistoMap *tkhisto,*tkhisto2; 
 
-  sistrip::SpyUtilities utility_;
+  sistrip::SpyUtilities _utility;
 
+  bool _useCabling;
 
 };
 
@@ -117,7 +118,8 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
   _digicollection(iConfig.getParameter<edm::InputTag>("digiCollection")),
   _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed",true)),
   _suffix(iConfig.getParameter<std::string>("mapSuffix")),
-  _nevents(0)
+  _nevents(0),
+  _useCabling(iConfig.getUntrackedParameter<bool>("useCabling",true))
 {
    //now do what ever initialization is needed
 
@@ -145,16 +147,18 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
  _subDetector = tfserv->make<TH1F>("subDets","SubDetector Shot distribution",10,-0.5,9.5);
  _subDetector->GetYaxis()->SetTitle("Shots");
 
- _fed = tfserv->make<TH1F>("fed","FED Shot distribution",440,50,490);
- _fed->GetYaxis()->SetTitle("Shots");
+ if (_useCabling) {
+   _fed = tfserv->make<TH1F>("fed","FED Shot distribution",440,50,490);
+   _fed->GetYaxis()->SetTitle("Shots");
 
- _nShotsVsFED = tfserv->make<TH2F>("nShotsVsFED","Number of Shots per event vs fedid",440,50,490,200,-0.5,199.5);
- _nShotsVsFED->GetXaxis()->SetTitle("fedId");  _nShots->GetYaxis()->SetTitle("Shots");  _nShots->GetZaxis()->SetTitle("Events");
- _nShotsVsFED->StatOverflows(kTRUE);
+   _nShotsVsFED = tfserv->make<TH2F>("nShotsVsFED","Number of Shots per event vs fedid",440,50,490,200,-0.5,199.5);
+   _nShotsVsFED->GetXaxis()->SetTitle("fedId");  _nShots->GetYaxis()->SetTitle("Shots");  _nShots->GetZaxis()->SetTitle("Events");
+   _nShotsVsFED->StatOverflows(kTRUE);
 
- _medianVsFED = tfserv->make<TH2F>("medianVsFED","APV Shot charge median vs fedid",440,50,490,256,-0.5,255.5);
- _medianVsFED->GetXaxis()->SetTitle("fedId");_medianVsFED->GetYaxis()->SetTitle("Charge [ADC]");  _median->GetZaxis()->SetTitle("Shots");
-  
+   _medianVsFED = tfserv->make<TH2F>("medianVsFED","APV Shot charge median vs fedid",440,50,490,256,-0.5,255.5);
+   _medianVsFED->GetXaxis()->SetTitle("fedId");_medianVsFED->GetYaxis()->SetTitle("Charge [ADC]");  _median->GetZaxis()->SetTitle("Shots");
+ }
+
  tkhisto      =new TkHistoMap("ShotMultiplicity","ShotMultiplicity",-1); 
  tkhisto2      =new TkHistoMap("StripMultiplicity","StripMultiplicity",-1); 
 }
@@ -178,9 +182,13 @@ void
 APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   const SiStripDetCabling* lCabling;
 
-   //retrieve cabling
-   const SiStripDetCabling* lCabling = utility_.getDetCabling( iSetup );
+   if (_useCabling){
+     //retrieve cabling
+     lCabling = _utility.getDetCabling( iSetup );
+   }
+   else lCabling = 0;
 
    _nevents++;
 
@@ -190,9 +198,11 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    // loop on detector with digis
 
    int nshots=0;
-   int nshotsperFed[440];
-   for (uint16_t lFed(0); lFed<440; lFed++){
-     nshotsperFed[lFed] = 0;
+   std::vector<int> nshotsperFed;
+
+   const uint16_t lNumFeds = sistrip::FED_ID_MAX-sistrip::FED_ID_MIN+1;
+   if (_useCabling){
+     nshotsperFed.resize(lNumFeds,0);
    }
 
    APVShotFinder apvsf(*digis,_zs);
@@ -204,28 +214,34 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        //get the fedid from the detid
 
        uint32_t det=shot->detId();
-       const std::vector<FedChannelConnection> & conns = lCabling->getConnections( det );
+       if (_useCabling){
+	 const std::vector<FedChannelConnection> & conns = lCabling->getConnections( det );
 
-       if (!(conns.size())) continue;
-       uint16_t lFedId = 0;
-       for (uint32_t ch = 0; ch<conns.size(); ch++) {
-	 lFedId = conns[ch].fedId();
-	 //uint16_t lFedCh = conns[ch].fedCh();
+	 if (!(conns.size())) continue;
+	 uint16_t lFedId = 0;
+	 for (uint32_t ch = 0; ch<conns.size(); ch++) {
+	   lFedId = conns[ch].fedId();
+	   //uint16_t lFedCh = conns[ch].fedCh();
    
+	   if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX){
+	     std::cout << " -- Invalid fedid " << lFedId << " for detid " << det << " connection " << ch << std::endl;
+	     continue;
+	   }
+	   else break;
+	 }
+
 	 if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX){
-	   std::cout << " -- Invalid fedid " << lFedId << " for detid " << det << " connection " << ch << std::endl;
+	   std::cout << " -- No valid fedid (=" << lFedId << ") found for detid " << det << std::endl;
 	   continue;
 	 }
-	 else break;
-       }
+	 ++nshotsperFed[lFedId-sistrip::FED_ID_MIN];
+	 _fed->Fill(lFedId);
+	 _medianVsFED->Fill(lFedId,shot->median());
 
-       if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX){
-	 std::cout << " -- No valid fedid (=" << lFedId << ") found for detid " << det << std::endl;
-	 continue;
+
        }
 
        ++nshots;
-       ++nshotsperFed[lFedId-sistrip::FED_ID_MIN];
 
 
        _whichAPV->Fill(shot->apvNumber());
@@ -235,16 +251,16 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        tkhisto2->fill(det,shot->nStrips());;
        tkhisto->add(det,1);
 
-       _fed->Fill(lFedId);
-       _medianVsFED->Fill(lFedId,shot->median());
 
 
      }
    }
 
    _nShots->Fill(nshots);
-   for (uint16_t lFed(0); lFed<440; lFed++){
-     _nShotsVsFED->Fill(lFed+sistrip::FED_ID_MIN,nshotsperFed[lFed]);
+   if (_useCabling){
+     for (uint16_t lFed(0); lFed<lNumFeds; lFed++){
+       _nShotsVsFED->Fill(lFed+sistrip::FED_ID_MIN,nshotsperFed[lFed]);
+     }
    }
 
    _nShotsVsTime->Fill(iEvent.orbitNumber(),nshots);
