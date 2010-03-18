@@ -34,16 +34,26 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 
 ##
 
 ## reco PV
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'GR09_R_34X_V2::All'
-#process.load("Configuration.StandardSequences.Reconstruction_cff")
-#process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-#process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
-#process.offlinePrimaryVertices.TrackLabel = cms.InputTag("ALCARECOTkAlMinBias") 
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'GR09_R_35X_V3::All'
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi")
+process.offlinePrimaryVertices.TrackLabel = cms.InputTag("ALCARECOTkAlMinBias") 
+
+#### remove beam scraping events
+process.noScraping= cms.EDFilter("FilterOutScraping",
+                                 applyfilter = cms.untracked.bool(True),
+                                 debugOn = cms.untracked.bool(False), ## Or 'True' to get some per-event info
+                                 numtrack = cms.untracked.uint32(10),
+                                 thresh = cms.untracked.double(0.20)
+)
 
 process.p = cms.Path(process.hltLevel1GTSeed +
-                     #process.offlineBeamSpot +
-                     #process.offlinePrimaryVertices+
+                     process.offlineBeamSpot +
+                     process.offlinePrimaryVertices+
+#                     process.noScraping +
                      process.d0_phi_analyzer)
 
 process.MessageLogger.debugModules = ['BeamSpotAnalyzer']
@@ -57,11 +67,12 @@ process.d0_phi_analyzer.BeamFitter.MinimumInputTracks = 2
 process.d0_phi_analyzer.BeamFitter.MinimumPt = 1.0
 process.d0_phi_analyzer.BeamFitter.MaximumImpactParameter = 1.0
 process.d0_phi_analyzer.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
-process.d0_phi_analyzer.BeamFitter.InputBeamWidth = 0.0400
+process.d0_phi_analyzer.BeamFitter.InputBeamWidth = -1 # 0.0400
 process.d0_phi_analyzer.BeamFitter.Debug = True
 #########################
 
 process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_RunBased_Workflow.txt'
+process.d0_phi_analyzer.BeamFitter.AppendRunToFileName = False
 process.d0_phi_analyzer.BeamFitter.OutputFileName = 'BeamFit_RunBased_Workflow.root' 
 process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
 
