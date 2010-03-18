@@ -13,8 +13,8 @@ particleFlow = cms.EDProducer("PFProducer",
     algoType = cms.uint32(0),
 
     # Verbose and debug flags
-    verbose = cms.untracked.bool(False),
-    debug = cms.untracked.bool(False),
+    verbose = cms.untracked.bool(True),
+    debug = cms.untracked.bool(True),
 
     # Use electron identification in PFAlgo
     usePFElectrons = cms.bool(True),
@@ -28,8 +28,17 @@ particleFlow = cms.EDProducer("PFProducer",
     calibPFSCEle_barrel = cms.vdouble(1.0326,-13.71,339.72,0.4862,0.00182,0.36445,1.411,1.0206,0.0059162,-5.14434e-05,1.42516e-07),
     calibPFSCEle_endcap = cms.vdouble(0.9995,-12.313,2.8784,-1.057e-04,10.282,3.059,1.3502e-03,-2.2185,3.4206),
 
-    # Use photon conversion identification in PFAlgo
+
+    # input conversions
+    #Secondary tracks and displaced vertices parameters
+                              
+    rejectTracks_Bad =  cms.bool(True),
+    rejectTracks_Step45 = cms.bool(True),
+
+    usePFNuclearInteractions = cms.bool(False),
     usePFConversions = cms.bool(False),
+    usePFDecays = cms.bool(False),
+
 
     # Treatment of muons : 
     # Expected energy in ECAL and HCAL, and RMS

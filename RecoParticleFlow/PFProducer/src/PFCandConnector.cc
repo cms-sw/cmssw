@@ -20,18 +20,22 @@
  }
 
    bool PFCandConnector::isSecondary( const reco::PFCandidate& pf ) const {
+     
+     return false;
+     /*
        // nuclear
        if( pf.flag( reco::PFCandidate::T_FROM_NUCLINT ) ) return true;
       // conversion
        // || pf.flag( reco::PFCandidate::T_FROM_GAMMACONV ) ) return true;
        else return false;
+     */
    }
 
    void PFCandConnector::link( reco::PFCandidate& primPFC, reco::PFCandidate& secPFC ) const {
          // TODO: Add a flag in PFCandidate :GAMMA_TO_GAMMACONV
          // nuclear
-         if( primPFC.flag( reco::PFCandidate::T_TO_NUCLINT ) )
-                   secPFC.setFlag( reco::PFCandidate::T_FROM_NUCLINT, true );
+     // if( primPFC.flag( reco::PFCandidate::T_TO_NUCLINT ) )
+     //             secPFC.setFlag( reco::PFCandidate::T_FROM_NUCLINT, true );
          // conversion
          //else if( primPFC.flag( reco::PFCandidate::GAMMA_TO_GAMMACONV) )
          //               secPFC.setFlag( T_FROM_GAMMACONV, true );
@@ -43,9 +47,9 @@
                                           const reco::PFCandidate& secPFC ) const {
     // TODO : methods PFCandidate::conversionRef()
         // nuclear
-        if(primPFC.nuclearRef().isNonnull() && secPFC.nuclearRef().isNonnull() ) {
-         if( primPFC.nuclearRef() == secPFC.nuclearRef()) return true;
-        }
+      //       if(primPFC.nuclearRef().isNonnull() && secPFC.nuclearRef().isNonnull() ) {
+      //   if( primPFC.nuclearRef() == secPFC.nuclearRef()) return true;
+      //   }
         // conversion
         //else if( primPFC.conversionRef().isValid() && secPFC.conversionRef().isValid() ){
         // if( primPFC.conversionRef() == secPFC.conversionRef()) return true;

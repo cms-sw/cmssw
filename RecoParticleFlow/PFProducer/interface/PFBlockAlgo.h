@@ -15,7 +15,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h" // gouzevitch
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
@@ -68,7 +68,7 @@ class PFBlockAlgo {
 		   const T<reco::GsfPFRecTrackCollection>&    gsftrackh,
 		   const T<reco::GsfPFRecTrackCollection>&    convbremgsftrackh,
 		   const T<reco::MuonCollection>&    muonh,
-		   const T<reco::PFNuclearInteractionCollection>&  nuclh,
+		   const T<reco::PFDisplacedTrackerVertexCollection>&  nuclh,
 		   const T<reco::PFConversionCollection>&  conv,
 		   const T<reco::PFV0Collection>&  v0,
 		   const T<reco::PFClusterCollection>&  ecalh,
@@ -99,7 +99,7 @@ class PFBlockAlgo {
     T<reco::GsfPFRecTrackCollection> gsftrackh;
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     T<reco::MuonCollection> muonh;
-    T<reco::PFNuclearInteractionCollection> nuclh;
+    T<reco::PFDisplacedTrackerVertexCollection> nuclh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
     setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclh, convh, v0, 
@@ -121,7 +121,7 @@ class PFBlockAlgo {
 		  const Mask& psMask = dummyMask_ ) {
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
     T<reco::MuonCollection> muonh;
-    T<reco::PFNuclearInteractionCollection> nuclh;
+    T<reco::PFDisplacedTrackerVertexCollection>&  nuclh;
     T<reco::PFConversionCollection> convh;
     T<reco::PFV0Collection> v0;
     setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclh, convh, v0, ecalh, hcalh, psh, 
@@ -148,7 +148,6 @@ class PFBlockAlgo {
   typedef std::list< reco::PFBlockElement* >::iterator IE;
   typedef std::list< reco::PFBlockElement* >::const_iterator IEC;  
   typedef reco::PFBlockCollection::const_iterator IBC;
-  
   
  private:
   
@@ -237,12 +236,17 @@ class PFBlockAlgo {
   /// check the Pt resolution 
   bool goodPtResolution( const reco::TrackRef& trackref);
 
+  typedef std::pair<int, reco::PFBlockElement::TrackType> trackNuclLink;
+  /*
   /// find index of the nuclear interaction associated to primTkRef.
   /// if no nuclear interaction have been found then return -1.
-  int niAssocToTrack( const reco::TrackRef& primTkRef,
-       const edm::Handle<reco::PFNuclearInteractionCollection>& good_ni) const;
-  int niAssocToTrack( const reco::TrackRef& primTkRef,
-       const edm::OrphanHandle<reco::PFNuclearInteractionCollection>& good_ni) const;
+  trackNuclLink niAssocToTrack( const reco::TrackRef& primTkRef,
+		      //       const edm::Handle<reco::PFNuclearInteractionCollection>& good_ni) const;
+		      const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& good_ni) const;
+  trackNuclLink niAssocToTrack( const reco::TrackRef& primTkRef,
+		      //       const edm::OrphanHandle<reco::PFNuclearInteractionCollection>& good_ni) const;
+		      const edm::OrphanHandle<reco::PFDisplacedTrackerVertexCollection>& good_ni) const;
+  */
   /// find index of the muon associated to trackref.
   /// if no muon have been found then return -1.
   int muAssocToTrack( const reco::TrackRef& trackref,
@@ -251,13 +255,15 @@ class PFBlockAlgo {
        const edm::OrphanHandle<reco::MuonCollection>& muonh) const;
   /// find index of the V0 track associated to trackref.
   /// if no V0 tracks have been found then return -1.
+  /*
   int v0AssocToTrack( const reco::TrackRef& trackref,
        const edm::Handle<reco::PFV0Collection>& v0) const;
   int v0AssocToTrack( const reco::TrackRef& trackref,
        const edm::OrphanHandle<reco::PFV0Collection>& v0) const;
-
+  */
   // fill secondary tracks of a nuclear interaction
-  void fillSecondaries( const reco::PFNuclearInteractionRef& nuclref );
+  //  void fillSecondaries( const reco::PFNuclearInteractionRef& nuclref );//gouzevitch
+  //  void fillSecondaries( const reco::PFDisplacedTrackerVertexRef& nuclref );
 
   double testLinkByVertex(const reco::PFBlockElement* elt1,
 			  const reco::PFBlockElement* elt2) const;
@@ -303,7 +309,8 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		      const T<reco::GsfPFRecTrackCollection>&    gsftrackh, 
 		      const T<reco::GsfPFRecTrackCollection>&    convbremgsftrackh,
 		      const T<reco::MuonCollection>&    muonh,
-                      const T<reco::PFNuclearInteractionCollection>&  nuclh,
+		      //                      const T<reco::PFNuclearInteractionCollection>&  nuclh, gouzevitch
+		      const T<reco::PFDisplacedTrackerVertexCollection>&  nuclh, //gouzevitch
 		      const T<reco::PFConversionCollection>&  convh,
 		      const T<reco::PFV0Collection>&  v0,
                       const T<reco::PFClusterCollection>&  ecalh,
@@ -346,46 +353,185 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       unsigned int trackSize=(convRef->pfTracks()).size();
       if ( convRef->pfTracks().size() < 2) continue;
       for(unsigned iTk=0;iTk<trackSize; iTk++) {
-	if (debug_) 
-	  std::cout<<" PFBlockAlgo setInput building element for track charge" 
-		   <<convRef->pfTracks()[iTk]->charge() 
-		   <<" pt "<<convRef->pfTracks()[iTk]->trackRef()->pt()
-		   <<std::endl;
-       if (debug_) 
-	  std::cout<<" # of traj points "
-		   <<convRef->pfTracks()[iTk]->nTrajectoryPoints() 
-		   <<" # of traj measurements "
-		   <<convRef->pfTracks()[iTk]->nTrajectoryMeasurements()
-		   <<std::endl;
-	
-       for ( unsigned int iP=0; 
-	     iP<convRef->pfTracks()[iTk]->nTrajectoryPoints(); iP++) {
-	 if (debug_) 
-	   std::cout<<" Trajectory point "
-		    <<iP<<" x,y,z "
-		    <<convRef->pfTracks()[iTk]->trajectoryPoint(iP).position() 
-		    <<" r, eta, phi " 
-		    <<convRef->pfTracks()[iTk]->trajectoryPoint(iP).positionREP()<<std::endl;
-	 
-       }
 
        trkFromConversionElement = new reco::PFBlockElementTrack(convRef->pfTracks()[iTk]);
        trkFromConversionElement->setConversionRef( convRef->originalConversion(), reco::PFBlockElement::T_FROM_GAMMACONV);
        elements_.push_back( trkFromConversionElement );
+
+	  if (debug_){
+	    std::cout << "PF Block Element from Conversion electron " << 
+	      (*trkFromConversionElement).trackRef().key() << std::endl;
+	    std::cout << *trkFromConversionElement << std::endl;
+	  }
        
       }     
     }  
   }
   
+  
+  // -------------- V0 ---------------------
+  
+  if(v0.isValid() ) {
+    reco::PFBlockElement* trkFromV0Element;
+    for(unsigned i=0;i<v0->size(); i++) {
+      reco::PFV0Ref v0Ref( v0, i );
+      unsigned int trackSize=(v0Ref->pfTracks()).size();
+      for(unsigned iTk=0;iTk<trackSize; iTk++) {
+
+	reco::PFRecTrackRef newPFRecTrackRef = (v0Ref->pfTracks())[iTk]; 
+	reco::TrackBaseRef newTrackBaseRef(newPFRecTrackRef->trackRef());
+	bool bNew = true;
+	
+	for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	  reco::TrackBaseRef elemTrackBaseRef((*iel)->trackRef());
+	  if (newTrackBaseRef == elemTrackBaseRef){
+	    (*iel)->setV0Ref( v0Ref->originalV0(),
+				  reco::PFBlockElement::T_FROM_V0 );
+
+	    if(debug_){
+	      std::cout << "PF Block Element Track from Conversion with DisplacedTrackerVertex " 
+			<< (*iel)->trackRef().key() <<std::endl;
+	      std::cout << **iel << std::endl;
+	    }
+
+	    bNew = false;
+	    continue;
+	  }
+	}
+	if (bNew){
+
+	  trkFromV0Element = new reco::PFBlockElementTrack(v0Ref->pfTracks()[iTk]);
+	  trkFromV0Element->setV0Ref( v0Ref->originalV0(),
+				  reco::PFBlockElement::T_FROM_V0 );
+	  elements_.push_back( trkFromV0Element );
+
+	  if (debug_){
+	    std::cout << "PF Block Element from V0 track " << 
+	      (*trkFromV0Element).trackRef().key() << std::endl;
+	    std::cout << *trkFromV0Element << std::endl;
+	  }
+
+	}
+      }
+    }
+  }
+  
+  // -------------- Nuclear Interactions ---------------------
+
+  if(nuclh.isValid()) {
+    reco::PFBlockElement* trkFromNuclElement;
+    for(unsigned i=0;i<nuclh->size(); i++) {
+
+      const reco::PFDisplacedTrackerVertexRef nuclRef( nuclh, i );
+
+      unsigned int trackSize= nuclRef->pfRecTracks().size();
+      if (debug_){
+	std::cout << "" << std::endl;
+	std::cout << "Displaced Vertex " << i << std::endl;
+	//	nuclRef->displacedVertexRef()->Dump();
+      }
+      for(unsigned iTk=0;iTk < trackSize; iTk++) {
+
+	reco::PFRecTrackRef newPFRecTrackRef = nuclRef->pfRecTracks()[iTk]; 
+	reco::TrackBaseRef newTrackBaseRef(newPFRecTrackRef->trackRef());
+	bool bNew = true;
+	reco::PFBlockElement::TrackType blockType;
+
+	for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	  reco::TrackBaseRef elemTrackBaseRef((*iel)->trackRef());
+	  if (newTrackBaseRef == elemTrackBaseRef){
+	
+	    if (nuclRef->isIncomingTrack((*iel)->trackRefPF())) 
+	      blockType = reco::PFBlockElement::T_TO_NUCL;
+	    else if (nuclRef->isOutgoingTrack((*iel)->trackRefPF())) 
+	      blockType = reco::PFBlockElement::T_FROM_NUCL;
+	    else 
+	      blockType = reco::PFBlockElement::DEFAULT;
+
+	    (*iel)->setDisplacedVertexRef( nuclRef, blockType );
+
+	    if (debug_){
+	      std::cout << "PF Block Element Track from V0 or Conversion with DisplacedTrackerVertex " 
+			<< (*iel)->trackRef().key() <<std::endl;
+	      std::cout << **iel << std::endl;
+	    }
+
+	    bNew = false;
+	    continue;
+	  }
+	}
+	
+	if (bNew){
+
+	    if (nuclRef->isIncomingTrack(newPFRecTrackRef)) 
+	      blockType = reco::PFBlockElement::T_TO_NUCL;
+	    else if (nuclRef->isOutgoingTrack(newPFRecTrackRef)) 
+	      blockType = reco::PFBlockElement::T_FROM_NUCL;
+	    else 
+	      blockType = reco::PFBlockElement::DEFAULT;
+
+	  trkFromNuclElement = new reco::PFBlockElementTrack(newPFRecTrackRef);
+	  trkFromNuclElement->setDisplacedVertexRef( nuclRef, blockType );
+	  elements_.push_back( trkFromNuclElement );
+
+	  if (debug_){
+	    std::cout << "PF Block Element from DisplacedTrackingVertex track " << 
+	      (*trkFromNuclElement).trackRef().key() << std::endl;
+	    std::cout << *trkFromNuclElement << std::endl;
+	  }
+	}
+	
+      }
+    }
+  
+    if (debug_) std::cout << "" << std::endl;
+
+  }
+
   // -------------- tracks ---------------------
 
   if(trackh.isValid() ) {
+
+    if (debug_) std::cout << "Tracks already in from Displaced Vertices " << std::endl;
+
+    Mask trackMaskVertex;
+
+    for(unsigned i=0;i<trackh->size(); i++) {
+      reco::PFRecTrackRef pfRefTrack( trackh,i );
+      reco::TrackRef trackRef = pfRefTrack->trackRef();
+
+      bool bMask = true;
+      for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	reco::TrackRef elemTrackRef = (*iel)->trackRef();
+	if( trackRef == elemTrackRef ) {
+	  if (debug_) std::cout << " " << trackRef.key();
+	  bMask = false; continue;
+	}
+      }
+    
+      trackMaskVertex.push_back(bMask);
+
+
+
+    }
+
+    if (debug_) std::cout << "" << std::endl;
+
+    if (debug_) std::cout << "Additionnal tracks from main collection " << std::endl;
+
     for(unsigned i=0;i<trackh->size(); i++) {
 
+
       // this track has been disabled
-      if( !trackMask.empty() &&
-          !trackMask[i] ) continue;
+      if( (!trackMask.empty() && !trackMask[i]) 
+	  || 
+	  (!trackMaskVertex.empty() && !trackMaskVertex[i]) ) continue;
+      
+      
+      
       reco::PFRecTrackRef ref( trackh,i );
+
+      if (debug_) std::cout << " " << ref->trackRef().key();
 
       // Get the eventual muon associated to this track
       int muId_ = muAssocToTrack( ref->trackRef(), muonh );
@@ -399,36 +545,25 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       // Reject bad tracks (except if identified as muon
       if( !thisIsAPotentialMuon && !goodPtResolution( ref->trackRef() ) ) continue;
 
-      // get the eventual nuclear interaction associated to this track 
-      int niId_ = niAssocToTrack( ref->trackRef(), nuclh );
-
-      // get the eventual v0Track associated to this track
-      int v0Id_ = v0AssocToTrack( ref->trackRef(), v0 );
+      if (thisIsAPotentialMuon && debug_) std::cout << "Potential Muon P " <<  ref->trackRef()->p() 
+					       << " pt " << ref->trackRef()->p() << std::endl; 
 
       reco::PFBlockElement* primaryElement = new reco::PFBlockElementTrack( ref );
 
-      if( niId_ != -1 ) {
-	  // if a nuclear interaction has been found 
-          reco::PFNuclearInteractionRef ni_(nuclh, niId_);
-          primaryElement->setNuclearRef( ni_->nuclInterRef(), 
-					 reco::PFBlockElement::T_TO_NUCL );
-          fillSecondaries( ni_ );
-      }
       if( muId_ != -1 ) {
           // if a muon has been found
           reco::MuonRef muonref( muonh, muId_ );
           primaryElement->setMuonRef( muonref );
       }
-      if( v0Id_ != -1 ) {
-	// if a V0 has been found
-	reco::PFV0Ref v0ref( v0, v0Id_ );
-	primaryElement->setV0Ref( v0ref->originalV0(),
-				  reco::PFBlockElement::T_FROM_V0 );
-      }
 
       elements_.push_back( primaryElement );
     }
+
+    if (debug_) std::cout << " " << std::endl;
+
   }
+
+  //  std::cout << "Tracks end" << std::endl;
 
   // -------------- GSF tracks and brems ---------------------
 

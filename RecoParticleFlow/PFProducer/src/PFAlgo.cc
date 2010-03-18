@@ -28,6 +28,10 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+
+
 #include "Math/PxPyPzM4D.h"
 #include "Math/LorentzVector.h"
 #include "Math/DisplacementVector3D.h"
@@ -129,11 +133,18 @@ PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
   
 
 void 
-PFAlgo::setPFConversionParameters(bool usePFConversions ) {
+PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
+			       bool rejectTracks_Step45,
+			       bool usePFNuclearInteractions,
+			       bool usePFConversions,
+			       bool usePFDecays){
 
+  rejectTracks_Bad_ = rejectTracks_Bad;
+  rejectTracks_Step45_ = rejectTracks_Step45;
+  usePFNuclearInteractions_ = usePFNuclearInteractions;
   usePFConversions_ = usePFConversions;
   pfConversion_ = new PFConversionAlgo();
-
+  usePFDecays_ = usePFDecays;
 
 }
 
@@ -307,7 +318,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
   
   // usePFConversions_ is used to switch ON/OFF the use of the PFConversionAlgo
-  if (usePFConversions_) {
+  if (usePFConversions_ && 1==0) {
     if (pfConversion_->isConversionValidCandidate(blockref, active )){
       // if at least one conversion candidate is found ,it is fed to the final list of Pflow Candidates 
       std::vector<reco::PFCandidate> PFConversionCandidates = pfConversion_->conversionCandidates();
@@ -1534,7 +1545,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	  bool isTrack = elements[it->second.first].muonRef()->isTrackerMuon();
 	  double trackMomentum = elements[it->second.first].trackRef()->p();
-// 	  double trackPt = elements[it->second.first].trackRef()->pt();
+//	  double trackPt = elements[it->second.first].trackRef()->pt();
 	  /* // 20 GeV cut on loose muon selection, now in PFMuon Algo
 	  if(PFMuonAlgo::isGlobalLooseMuon( elements[it->second.first].muonRef() )) {
 	    double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
@@ -1589,14 +1600,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
 	    if (debug_) 
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
-			<< "PFAlgo: particle type set to muon (global, loose), pT = " <<elements[it->second.first].muonRef()->pt()<< std::endl; 
-	      //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
+			<< "PFAlgo: particle type set to muon (global, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
+	    //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
 	  }
 	  else{
 	    if (debug_)
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
-			<< "PFAlgo: particle type set to muon (tracker, loose), pT = " <<elements[it->second.first].muonRef()->pt()<< std::endl; 
-	    //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
+			<< "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
+	    //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
 	  }
 	  
 	  // Remove it from the block
@@ -1630,11 +1641,27 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
       }
     }
+    /*    
+    if(debug_){
+      cout<<"\tBefore Cleaning "<<endl;
+      cout<<"\tCompare Calo Energy to total charged momentum "<<endl;
+      cout<<"\t\tsum p    = "<<totalChargedMomentum<<" +- "<<sqrt(sumpError2)<<endl;
+      cout<<"\t\tsum ecal = "<<totalEcal<<endl;
+      cout<<"\t\tsum hcal = "<<totalHcal<<endl;
+      cout<<"\t\t => Calo Energy = "<<caloEnergy<<" +- "<<Caloresolution<<endl;
+      cout<<"\t\t => Calo Energy- total charged momentum = "
+	  <<caloEnergy-totalChargedMomentum<<" +- "<<TotalError<<endl;
+      cout<<endl;
+    }
+    */
 
     // Second consider bad tracks (if still needed after muon removal)
     unsigned corrTrack = 10000000;
     double corrFact = 1.;
-    if ( totalChargedMomentum - caloEnergy > nSigmaTRACK_*Caloresolution ) { 
+
+    if (rejectTracks_Bad_ && 
+	totalChargedMomentum - caloEnergy > nSigmaTRACK_*Caloresolution) { 
+      
       for ( IT it = associatedTracks.begin(); it != associatedTracks.end(); ++it ) { 
 	unsigned iTrack = it->second.first;
 	// Only active tracks
@@ -1680,7 +1707,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     // Check if the charged momentum is still very inconsistent with the calo measurement.
     // In this case, just drop all tracks from 4th and 5th iteration linked to this block
-    if ( sortedTracks.size() > 1 && 
+    
+    if ( rejectTracks_Step45_ &&
+	 sortedTracks.size() > 1 && 
 	 totalChargedMomentum - caloEnergy > nSigmaTRACK_*Caloresolution ) { 
       for ( IT it = associatedTracks.begin(); it != associatedTracks.end(); ++it ) { 
 	unsigned iTrack = it->second.first;
@@ -1748,7 +1777,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     // The total uncertainty of the difference Calo-Track
     TotalError = sqrt(sumpError2 + Caloresolution*Caloresolution);
 
-    if ( debug_ ) { 
+    if ( debug_ ) {
       cout<<"\tCompare Calo Energy to total charged momentum "<<endl;
       cout<<"\t\tsum p    = "<<totalChargedMomentum<<" +- "<<sqrt(sumpError2)<<endl;
       cout<<"\t\tsum ecal = "<<totalEcal<<endl;
@@ -2361,6 +2390,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
+  reco::PFBlockElement::TrackType T_TO_NUCL = reco::PFBlockElement::T_TO_NUCL;
+  reco::PFBlockElement::TrackType T_FROM_NUCL = reco::PFBlockElement::T_FROM_NUCL;
+  reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
+  reco::PFBlockElement::TrackType T_FROM_V0 = reco::PFBlockElement::T_FROM_V0;
+
   const reco::PFBlockElementTrack* eltTrack 
     = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
@@ -2383,6 +2417,10 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
   bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
 
+  // Or from nuclear inetraction then use the refitted momentum
+  bool isFromNucl  = usePFNuclearInteractions_ && eltTrack->trackType(T_FROM_NUCL);
+  //isFromNucl = false;
+
   if ( thisIsAMuon ) { 
     if(thisIsAGlobalTightMuon){
       if(sqrt(px*px+py*py) > 10){
@@ -2402,8 +2440,20 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     else{
       energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
     }
+  } else if (isFromNucl) {
+    if (debug_) cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+    //reco::TrackRef trackRef = eltTrack->trackRef();
+    reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(T_FROM_NUCL)->displacedVertexRef();
+    reco::Track trackRefit = vRef->refittedTrack(trackRef);
+    px = trackRefit.px();
+    py = trackRefit.py();
+    pz = trackRefit.pz();
+    energy = sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957);
+        if (debug_) cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
   }
-
+  
+  //  if (debug_) cout << "Final px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+  
   // Create a PF Candidate
   math::XYZTLorentzVector momentum(px,py,pz,energy);
   reco::PFCandidate::ParticleType particleType 
@@ -2436,19 +2486,22 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   }
 
   // nuclear
-  if( particleType != reco::PFCandidate::mu ) {
-    if( eltTrack->trackType(reco::PFBlockElement::T_FROM_NUCL)) {
-      pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_NUCLINT, true);
-      pfCandidates_->back().setNuclearRef( eltTrack->nuclearRef() );
-    }
-    else if( eltTrack->trackType(reco::PFBlockElement::T_TO_NUCL)) {
-      pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_NUCLINT, true);
-      pfCandidates_->back().setNuclearRef( eltTrack->nuclearRef() );
-    }
+
+
+    
+
+  
+  if( eltTrack->trackType(T_FROM_NUCL)) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_NUCLINT, true);
+    pfCandidates_->back().setNuclearRef( eltTrack->displacedVertexRef(T_FROM_NUCL)->displacedVertexRef());
+  }
+  if( eltTrack->trackType(T_TO_NUCL)) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_NUCLINT, true);
+    pfCandidates_->back().setNuclearRef( eltTrack->displacedVertexRef(T_TO_NUCL)->displacedVertexRef());
   }
 
   // conversion...
-  
+
   if(debug_) 
     cout<<"** candidate: "<<pfCandidates_->back()<<endl; 
   
