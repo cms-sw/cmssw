@@ -5,3 +5,7 @@
 <library   file="HcalSevLvlAnalyzer.cc" name="HcalSevLvlAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<library   file="HcalRecHitReflagger.cc" name="HcalRecHitReflagger">
+  <flags   EDM_PLUGIN="1"/>
+</library>
