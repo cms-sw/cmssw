@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.34 2010/03/03 20:17:47 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.1 2010/03/12 21:45:36 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -296,60 +296,60 @@ bool PVFitter::runFitter() {
     // LL function and fitter
     //
     FcnBeamSpotFitPV* fcn = new FcnBeamSpotFitPV(pvStore_);
-    TFitterMinuit* minuitx = new TFitterMinuit();
-    minuitx->SetMinuitFCN(fcn); 
+    TFitterMinuit minuitx;
+    minuitx.SetMinuitFCN(fcn); 
     //
     // fit parameters: positions, widths, x-y correlations, tilts in xz and yz
     //
-    minuitx->SetParameter(0,"x",0.,0.02,-10.,10.);
-    minuitx->SetParameter(1,"y",0.,0.02,-10.,10.);
-    minuitx->SetParameter(2,"z",0.,0.20,-30.,30.);
-    minuitx->SetParameter(3,"ex",0.015,0.01,0.,10.);
-    minuitx->SetParameter(4,"corrxy",0.,0.02,-1.,1.);
-    minuitx->SetParameter(5,"ey",0.015,0.01,0.,10.);
-    minuitx->SetParameter(6,"dxdz",0.,0.0002,-0.1,0.1);
-    minuitx->SetParameter(7,"dydz",0.,0.0002,-0.1,0.1);
-    minuitx->SetParameter(8,"ez",1.,0.1,0.,30.);
-    minuitx->SetParameter(9,"scale",0.9,0.1,0.5,2.);
+    minuitx.SetParameter(0,"x",0.,0.02,-10.,10.);
+    minuitx.SetParameter(1,"y",0.,0.02,-10.,10.);
+    minuitx.SetParameter(2,"z",0.,0.20,-30.,30.);
+    minuitx.SetParameter(3,"ex",0.015,0.01,0.,10.);
+    minuitx.SetParameter(4,"corrxy",0.,0.02,-1.,1.);
+    minuitx.SetParameter(5,"ey",0.015,0.01,0.,10.);
+    minuitx.SetParameter(6,"dxdz",0.,0.0002,-0.1,0.1);
+    minuitx.SetParameter(7,"dydz",0.,0.0002,-0.1,0.1);
+    minuitx.SetParameter(8,"ez",1.,0.1,0.,30.);
+    minuitx.SetParameter(9,"scale",0.9,0.1,0.5,2.);
     //
     // first iteration without correlations
     //
-    minuitx->FixParameter(4);
-    minuitx->FixParameter(6);
-    minuitx->FixParameter(7);
-    minuitx->FixParameter(9);
-    minuitx->SetMaxIterations(100);
-    minuitx->SetPrintLevel(3);
-    minuitx->CreateMinimizer();
-    minuitx->Minimize();
+    minuitx.FixParameter(4);
+    minuitx.FixParameter(6);
+    minuitx.FixParameter(7);
+    minuitx.FixParameter(9);
+    minuitx.SetMaxIterations(100);
+    minuitx.SetPrintLevel(3);
+    minuitx.CreateMinimizer();
+    minuitx.Minimize();
     //
     // refit with harder selection on vertices
     //
-    fcn->setLimits(minuitx->GetParameter(0)-sigmaCut_*minuitx->GetParameter(3),
-                   minuitx->GetParameter(0)+sigmaCut_*minuitx->GetParameter(3),
-                   minuitx->GetParameter(1)-sigmaCut_*minuitx->GetParameter(5),
-                   minuitx->GetParameter(1)+sigmaCut_*minuitx->GetParameter(5),
-                   minuitx->GetParameter(2)-sigmaCut_*minuitx->GetParameter(8),
-                   minuitx->GetParameter(2)+sigmaCut_*minuitx->GetParameter(8));
-    minuitx->Minimize();
+    fcn->setLimits(minuitx.GetParameter(0)-sigmaCut_*minuitx.GetParameter(3),
+                   minuitx.GetParameter(0)+sigmaCut_*minuitx.GetParameter(3),
+                   minuitx.GetParameter(1)-sigmaCut_*minuitx.GetParameter(5),
+                   minuitx.GetParameter(1)+sigmaCut_*minuitx.GetParameter(5),
+                   minuitx.GetParameter(2)-sigmaCut_*minuitx.GetParameter(8),
+                   minuitx.GetParameter(2)+sigmaCut_*minuitx.GetParameter(8));
+    minuitx.Minimize();
     //
     // refit with correlations
     //
-    minuitx->ReleaseParameter(4);
-    minuitx->ReleaseParameter(6);
-    minuitx->ReleaseParameter(7);
-    minuitx->Minimize();
+    minuitx.ReleaseParameter(4);
+    minuitx.ReleaseParameter(6);
+    minuitx.ReleaseParameter(7);
+    minuitx.Minimize();
     // refit with floating scale factor
-//   minuitx->ReleaseParameter(9);
-//   minuitx->Minimize();
+//   minuitx.ReleaseParameter(9);
+//   minuitx.Minimize();
 
     if ( do3DFit_ ) {
-      fwidthX = minuitx->GetParameter(0);
-      fwidthY = minuitx->GetParameter(1);
-      fwidthZ = minuitx->GetParameter(2);
-      fwidthXerr = minuitx->GetParError(0);
-      fwidthYerr = minuitx->GetParError(1);
-      fwidthZerr = minuitx->GetParError(2);
+      fwidthX = minuitx.GetParameter(3);
+      fwidthY = minuitx.GetParameter(5);
+      fwidthZ = minuitx.GetParameter(8);
+      fwidthXerr = minuitx.GetParError(3);
+      fwidthYerr = minuitx.GetParError(5);
+      fwidthZerr = minuitx.GetParError(8);
     }
     
     pvStore_.clear();
