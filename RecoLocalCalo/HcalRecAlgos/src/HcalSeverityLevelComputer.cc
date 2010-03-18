@@ -43,7 +43,7 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   // HF ++++++++++++++++++++
   else if (mybit == "HFLongShort")    setBit(HcalCaloFlagLabels::HFLongShort, mydef.HFFlagMask);
   else if (mybit == "HFDigiTime")    setBit(HcalCaloFlagLabels::HFDigiTime, mydef.HFFlagMask);
-  
+
   // ZDC ++++++++++++++++++++
   else if (mybit == "ZDCBit")     setBit(HcalCaloFlagLabels::ZDCBit, mydef.ZDCFlagMask);
   
@@ -52,10 +52,12 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
 
   // Common subdetector bits ++++++++++++++++++++++
   else if (mybit == "TimingSubtractedBit")  setBit(HcalCaloFlagLabels::TimingSubtractedBit, mydef.CalibFlagMask);
-  else if (mybit == "TimingAddedBit")       setBit(HcalCaloFlagLabels::TimingAddedBit, mydef.CalibFlagMask);
-  else if (mybit == "TimingErrorBit")       setBit(HcalCaloFlagLabels::TimingErrorBit, mydef.CalibFlagMask);
-  else if (mybit == "ADCSaturationBit")     setBit(HcalCaloFlagLabels::ADCSaturationBit, mydef.CalibFlagMask);
-
+  else if (mybit == "TimingAddedBit")       setBit(HcalCaloFlagLabels::TimingAddedBit,      mydef.CalibFlagMask);
+  else if (mybit == "TimingErrorBit")       setBit(HcalCaloFlagLabels::TimingErrorBit,      mydef.CalibFlagMask);
+  else if (mybit == "ADCSaturationBit")     setBit(HcalCaloFlagLabels::ADCSaturationBit,    mydef.CalibFlagMask);
+  else if (mybit == "UserDefinedBit0")      setBit(HcalCaloFlagLabels::UserDefinedBit0,     mydef.CalibFlagMask);
+  else if (mybit == "UserDefinedBit1")      setBit(HcalCaloFlagLabels::UserDefinedBit1,     mydef.CalibFlagMask);
+  else if (mybit == "UserDefinedBit2")      setBit(HcalCaloFlagLabels::UserDefinedBit2,     mydef.CalibFlagMask);
   // unknown -------------------
   else
     {
