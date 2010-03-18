@@ -13,8 +13,8 @@ particleFlow = cms.EDProducer("PFProducer",
     algoType = cms.uint32(0),
 
     # Verbose and debug flags
-    verbose = cms.untracked.bool(True),
-    debug = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
+    debug = cms.untracked.bool(False),
 
     # Use electron identification in PFAlgo
     usePFElectrons = cms.bool(True),
