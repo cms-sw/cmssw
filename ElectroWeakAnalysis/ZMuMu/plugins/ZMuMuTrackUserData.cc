@@ -52,10 +52,10 @@ double ZMuMuTrackUserData::isolation(const T & t, double alpha, double beta, boo
 
 ZMuMuTrackUserData::ZMuMuTrackUserData( const ParameterSet & cfg ):
   src_( cfg.getParameter<InputTag>( "src" ) ),
-  alpha_(cfg.getParameter<double>("alpha") ),
-  beta_(cfg.getParameter<double>("beta") ), 
   beamSpot_(cfg.getParameter<InputTag>( "beamSpot" ) ),
-  primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ){
+  primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ),
+  alpha_(cfg.getParameter<double>("alpha") ),
+    beta_(cfg.getParameter<double>("beta") ){
   produces<std::vector<pat::GenericParticle> >();
 }
 
@@ -64,15 +64,12 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
   evt.getByLabel(src_,tracks);
 
   Handle<BeamSpot> beamSpotHandle;
-  if (!evt.getByLabel(beamSpot_, beamSpotHandle)) {
-    std::cout << ">>> No beam spot found !!!"<<std::endl;
-  }
+  evt.getByLabel(beamSpot_, beamSpotHandle);
+  
 
   Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
-  if (!evt.getByLabel(primaryVertices_, primaryVertices)){
-    std::cout << ">>> No primary vertices  found !!!"<<std::endl;
-    }
-
+  evt.getByLabel(primaryVertices_, primaryVertices);
+  
   auto_ptr<vector<pat::GenericParticle> > tkColl( new vector<pat::GenericParticle> (*tracks) );
   for (unsigned int i = 0; i< tkColl->size();++i){
     pat::GenericParticle & tk = (*tkColl)[i];
@@ -80,11 +77,18 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
     float relIso = isolation(tk,alpha_, beta_, true);
     tk.setIsolation(pat::User1Iso, iso);
     tk.setIsolation(pat::User2Iso, relIso);
+    float zDaudxyFromBS = 10000 ;
+    float zDaudzFromBS = 10000;
+    float zDaudxyFromPV = 10000;
+    float zDaudzFromPV = 10000;	
+
     TrackRef muTrkRef = tk.track();
-    float zDaudxyFromBS = muTrkRef->dxy(beamSpotHandle->position());
-    float zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
-    float zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
-    float zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );	
+    if (muTrkRef.isNonnull()){ 
+      zDaudxyFromBS = muTrkRef->dxy(beamSpotHandle->position());
+      zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
+      zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
+      zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );	
+    }
     tk.addUserFloat("zDau_dxyFromBS", zDaudxyFromBS);
     tk.addUserFloat("zDau_dzFromBS", zDaudzFromBS);
     tk.addUserFloat("zDau_dxyFromPV", zDaudxyFromPV);
