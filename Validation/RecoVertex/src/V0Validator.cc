@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.5 2010/02/15 20:53:19 drell Exp $
+// $Id: V0Validator.cc,v 1.6 2010/02/25 20:15:43 drell Exp $
 //
 //
 
@@ -54,7 +54,7 @@ V0Validator::~V0Validator() {
 
 //void V0Validator::beginJob(const edm::EventSetup& iSetup) {
 void V0Validator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  std::cout << "Running V0Validator" << std::endl;
+  //std::cout << "Running V0Validator" << std::endl;
   //theDQMstore = edm::Service<DQMStore>().operator->();
   //std::cout << "In beginJob() at line 1" << std::endl;
   //edm::Service<TFileService> fs;
@@ -1175,7 +1175,7 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 void V0Validator::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  theDQMstore->showDirStructure();
+  //theDQMstore->showDirStructure();
   if(theDQMRootFileName.size() && theDQMstore) {
     theDQMstore->save(theDQMRootFileName);
   }

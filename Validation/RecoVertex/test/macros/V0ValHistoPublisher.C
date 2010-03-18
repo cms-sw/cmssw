@@ -21,18 +21,18 @@ void V0ValHistoPublisher(char* newFile="NEW_FILE", char* refFile="REF_FILE") {
   //char* refLabel2("");
 
   TFile* infile1 = new TFile(refFile);
-  infile1->cd("DQMData/V0V/EffFakes");
+  infile1->cd("DQMData/Vertexing/V0V/EffFakes");
   TDirectory* refdir = gDirectory;
   TList* hList1 = refdir->GetListOfKeys();
-  infile1->cd("DQMData/V0V/Other");
+  infile1->cd("DQMData/Vertexing/V0V/Other");
   TDirectory* refdir_1 = gDirectory;
   TList* hList1_1 = refdir_1->GetListOfKeys();
 
   TFile* infile2 = new TFile(newFile);
-  infile2->cd("DQMData/V0V/EffFakes");
+  infile2->cd("DQMData/Vertexing/V0V/EffFakes");
   TDirectory* newdir = gDirectory;
   TList* hList2 = newdir->GetListOfKeys();
-  infile2->cd("DQMData/V0V/Other");
+  infile2->cd("DQMData/Vertexing/V0V/Other");
   TDirectory* newdir_1 = gDirectory;
   TList* hList2_1 = newdir_1->GetListOfKeys();
 
