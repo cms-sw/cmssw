@@ -97,8 +97,8 @@ ecalHostEE    = 'srv-s2f19-27'.lower()
 cmsLiveHostEB = 'srv-c2c05-06'.lower()
 cmsLiveHostEE = 'srv-c2c05-07'.lower()
 
-cmsPlayHostEB = 'srv-c2d04-25'.lower()
-cmsPlayHostEE = 'srv-c2d04-26'.lower()
+cmsPlayHostEB = 'dqm-c2d07-13'.lower()
+cmsPlayHostEE = 'dqm-c2d07-14'.lower()
 
 host = socket.gethostname().split('.')[0].lower()
 
