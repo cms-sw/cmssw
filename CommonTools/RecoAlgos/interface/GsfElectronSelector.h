@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: GsfElectronSelector.h,v 1.2 2009/04/01 08:55:45 arizzi Exp $
+ * $Id: GsfElectronSelector.h,v 1.3 2009/09/02 14:09:13 arizzi Exp $
  *
  */
 
@@ -26,6 +26,7 @@ namespace helper {
     typedef reco::GsfElectronCollection collection;
     GsfElectronCollectionStoreManager(const edm::Handle<reco::GsfElectronCollection>&) :
       selElectrons_( new reco::GsfElectronCollection ),
+      selElectronCores_ (new reco::GsfElectronCoreCollection ) ,
       selSuperClusters_( new reco::SuperClusterCollection ),
       selTracks_( new reco::GsfTrackCollection ),
       selTrackExtras_( new reco::TrackExtraCollection ),
