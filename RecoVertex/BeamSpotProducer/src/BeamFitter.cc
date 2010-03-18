@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.40 2010/03/17 22:30:57 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.41 2010/03/18 16:14:08 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -53,6 +53,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   tracksLabel_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<edm::InputTag>("TrackCollection");
   writeTxt_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteAscii");
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
+  appendRunTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("AppendRunToFileName");
   writeDIPTxt_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteDIPAscii");
   outputDIPTxt_      = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
   saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveNtuple");
@@ -202,8 +203,10 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     if (writeTxt_) {
       std::string tmpname = outputTxt_;
       char index[15];
-      sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
-      tmpname.insert(outputTxt_.length()-4,index);
+      if (appendRunTxt_) {
+          sprintf(index,"%s%i","_Run", int(iEvent.id().run()));
+          tmpname.insert(outputTxt_.length()-4,index);
+      }
       fasciiFile.open(tmpname.c_str());
       outputTxt_ = tmpname;
     }

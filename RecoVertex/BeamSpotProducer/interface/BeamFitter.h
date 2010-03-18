@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.22 2010/03/17 20:31:23 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.23 2010/03/18 16:14:08 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -72,6 +72,7 @@ class BeamFitter {
   std::ofstream fasciiDIP;
 
   bool debug_;
+  bool appendRunTxt_;
   edm::InputTag tracksLabel_;
   bool writeTxt_;
   bool writeDIPTxt_;
