@@ -85,24 +85,24 @@ namespace reco {
 
     /// If a primary track was identified
     const bool isTherePrimaryTracks() const 
-      {return isThereKindTracks(T_TO_VERTEX);}
+    {return isThereKindTracks(T_TO_VERTEX);}
 
     /// If a merged track was identified
     const bool isThereMergedTracks() const
-      {return isThereKindTracks(T_MERGED);}
+    {return isThereKindTracks(T_MERGED);}
 
     /// If a secondary track was identified
     const bool isThereSecondaryTracks() const
-      {return isThereKindTracks(T_FROM_VERTEX);}
+    {return isThereKindTracks(T_FROM_VERTEX);}
 
     /// If there is a track which was not identified
     const bool isThereNotFromVertexTracks() const
-      {return isThereKindTracks(T_NOT_FROM_VERTEX);}
+    {return isThereKindTracks(T_NOT_FROM_VERTEX);}
 
 
 
 
-   /// Is a primary track was identified
+    /// Is a primary track was identified
     const bool isPrimaryTrack(const reco::TrackBaseRef& originalTrack) const 
     {
       size_t itrk = trackPosition(originalTrack);
@@ -143,19 +143,19 @@ namespace reco {
 
     /// Number of primary tracks was identified
     const int nPrimaryTracks() const
-      {return nKindTracks(T_TO_VERTEX);}
+    {return nKindTracks(T_TO_VERTEX);}
 
     /// Number of merged tracks was identified
     const int nMergedTracks() const
-      {return nKindTracks(T_MERGED);}
+    {return nKindTracks(T_MERGED);}
 
     /// Number of secondary tracks was identified
     const int nSecondaryTracks() const
-      {return nKindTracks(T_FROM_VERTEX);}
+    {return nKindTracks(T_FROM_VERTEX);}
 
     /// Number of tracks which was not identified
     const int nNotFromVertexTracks() const
-      {return nKindTracks(T_NOT_FROM_VERTEX);}
+    {return nKindTracks(T_NOT_FROM_VERTEX);}
 
     /// Number of tracks
     const int nTracks() const {return trackTypes_.size();}
@@ -165,15 +165,20 @@ namespace reco {
     /// Momentum of secondary tracks calculated with a mass hypothesis. Some of those
     /// hypothesis are default: "PI" , "KAON", "LAMBDA", "MASSLESS", "CUSTOM"
     /// the value of custom shall be then provided in mass variable
-    const math::XYZTLorentzVector secondaryMomentum(std::string massHypo, 
-						    bool useRefitted = true, double mass = 0.0) const 
+    const math::XYZTLorentzVector 
+      secondaryMomentum(std::string massHypo, 
+			bool useRefitted = true, double mass = 0.0) const 
       {return momentum(massHypo, T_FROM_VERTEX, useRefitted, mass);}
 
     /// Momentum of primary or merged track calculated with a mass hypothesis.
-    const math::XYZTLorentzVector primaryMomentum(std::string massHypo, 
-						  bool useRefitted = true, double mass = 0.0) const
+    const math::XYZTLorentzVector 
+      primaryMomentum(std::string massHypo, 
+		      bool useRefitted = true, double mass = 0.0) const
       {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
 
+
+    /// cout function
+    void Dump(std::ostream& out = std::cout) const;
 
   private:
 
@@ -200,18 +205,14 @@ namespace reco {
     }
 
     /*
-   class TrackEqual {
-   public:
-     TrackEqual( const Track & t) : track_( t ) { }
-       bool operator()( const Track & t ) const { return t.pt()==track_.pt();}
-   private:
-       const Track & track_;
-   };
+      class TrackEqual {
+      public:
+      TrackEqual( const Track & t) : track_( t ) { }
+      bool operator()( const Track & t ) const { return t.pt()==track_.pt();}
+      private:
+      const Track & track_;
+      };
     */
-
-
-    /// cout function
-    friend std::ostream& operator<<( std::ostream& out, const PFDisplacedVertex& co );
 
     /// -------- MEMBERS -------- ///
 

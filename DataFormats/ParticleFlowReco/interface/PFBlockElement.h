@@ -113,6 +113,7 @@ namespace reco {
 
 
     virtual bool isSecondary() const { return false; }
+    virtual bool isPrimary() const { return false; }
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );

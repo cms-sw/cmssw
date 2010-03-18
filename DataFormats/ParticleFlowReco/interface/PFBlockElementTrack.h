@@ -58,24 +58,32 @@ namespace reco {
 
     /// check if the track is secondary
     bool isSecondary() const { 
-      return trackType(T_FROM_NUCL) || trackType(T_FROM_GAMMACONV); 
+      return 
+	trackType(T_FROM_NUCL) || 
+	trackType(T_FROM_GAMMACONV) || 
+	trackType(T_FROM_V0); 
+    }
+
+    bool isPrimary() const{
+      return trackType(T_TO_NUCL); 
     }
 
     /// \return the nuclear interaction associated
     PFDisplacedTrackerVertexRef displacedVertexRef(TrackType trType) const {
       if (trType == T_TO_NUCL)
+	return displacedVertexDaughterRef_;
+      else if (trType == T_FROM_NUCL)
 	return displacedVertexMotherRef_;
-      
-      return displacedVertexDaughterRef_;
+      else return PFDisplacedTrackerVertexRef();
     }
 
     /// \set the ref to the nuclear interaction
     void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
 
       if (trType == T_TO_NUCL) {
-	displacedVertexMotherRef_ = niref; setTrackType(trType,true);}
+	displacedVertexDaughterRef_ = niref; setTrackType(trType,true);}
       else if (trType == T_FROM_NUCL) {
-      	displacedVertexDaughterRef_ = niref; setTrackType(trType,true);}
+      	displacedVertexMotherRef_ = niref; setTrackType(trType,true);}
     } 
     
     /// \return reference to the corresponding Muon
