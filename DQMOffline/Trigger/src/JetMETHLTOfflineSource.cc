@@ -285,7 +285,6 @@ void JetMETHLTOfflineSource::fillMEforTriggerNTfired(){
 
 
 void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
-
   int npath;
   if(&triggerResults_) {
     npath = triggerResults_->size();
@@ -393,7 +392,6 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
                         
                     
                     for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
-                      
                       double jetEta = jet->eta();
                       double jetPhi = jet->phi();
                       if(deltaR(hltTrigEta, hltTrigPhi, jetEta, jetPhi) < 0.4)
@@ -454,7 +452,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
            }// valid hlt trigger object
 
          }// Loop over L1 objects
-           if(v->getTriggerType() == "DiJet_Trigger")
+           if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() >1)
              {
                double AveJetPt = (jetPtVec[0] + jetPtVec[1])/2;
                double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
@@ -492,7 +490,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTrigger(){
               {
               double l1TrigEta = toc[*ki].eta();
               double l1TrigPhi = toc[*ki].phi();
-              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){
+              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger") ){
                    for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
                     double jetEta = jet->eta();
                     double jetPhi = jet->phi();
@@ -710,7 +708,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(){
            }// valid hlt trigger object
 
          }// Loop over L1 objects
-           if(v->getTriggerType() == "DiJet_Trigger")
+           if(v->getTriggerType() == "DiJet_Trigger" && jetPtVec.size() > 1)
              {                                       
                double AveJetPt = (jetPtVec[0] + jetPtVec[1])/2;
                double AveJetEta = (jetEtaVec[0] + jetEtaVec[1])/2;               
@@ -750,7 +748,7 @@ void JetMETHLTOfflineSource::fillMEforMonAllTriggerwrtMuonTrigger(){
               {                                                                                      
               double l1TrigEta = toc[*ki].eta();                                                     
               double l1TrigPhi = toc[*ki].phi();                                                     
-              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet)){             
+              if(calojetColl_.isValid() && (v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType() == "SingleJet_Trigger") ){             
                    for(CaloJetCollection::const_iterator jet = calojet.begin(); jet != calojet.end(); ++jet ) {
                     double jetEta = jet->eta();                                                                
                     double jetPhi = jet->phi();                                                                
@@ -1200,7 +1198,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
 
 
     histonm="JetMET_TriggerRate_Correlation";
-    histot="JetMET TriggerRate Correlation Summary";
+    histot="JetMET TriggerRate Correlation Summary;y&&!x;x&&y";
 
     correlation_All = dbe->book2D(histonm.c_str(),histot.c_str(),
                            hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5,hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
@@ -1214,7 +1212,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
 
 
     histonm="JetMET_TriggerRate_Correlation_WrtMuTrigger";
-    histot="JetMET TriggerRate Correlation Summary Wrt Muon Trigger";
+    histot="JetMET TriggerRate Correlation Summary Wrt Muon Trigger;y&&!x;x&&y";
 
     correlation_AllWrtMu = dbe->book2D(histonm.c_str(),histot.c_str(),
                            hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5,hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
@@ -1227,7 +1225,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
 
 
     histonm="JetMET_TriggerRate_Correlation_WrtMBTrigger";
-    histot="JetMET TriggerRate Correlation Wrt MB Trigger";
+    histot="JetMET TriggerRate Correlation Wrt MB Trigger;y&&!x;x&&y";
 
     correlation_AllWrtMB = dbe->book2D(histonm.c_str(),histot.c_str(),
                            hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5,hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
