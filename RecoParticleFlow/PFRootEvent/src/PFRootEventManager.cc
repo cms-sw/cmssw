@@ -1064,11 +1064,21 @@ void PFRootEventManager::readOptions(const char* file,
   }
 
 
+  bool rejectTracks_Bad = true;
+  bool rejectTracks_Step45 = true;
   bool usePFConversions = false;   // set true to use PFConversions
+  bool usePFNuclearInteractions = false;
+  bool usePFDecays = false;
+
+
   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions);
 
   try { 
-    pfAlgo_.setPFConversionParameters(usePFConversions);
+    pfAlgo_.setDisplacedVerticesParameters(rejectTracks_Bad,
+					  rejectTracks_Step45,
+					  usePFNuclearInteractions,
+ 					  usePFConversions,
+	 				  usePFDecays);
   }
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Conversions parameters: "
@@ -2646,7 +2656,7 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::MuonCollection > muonh( &muons_, 
 						   edm::ProductID(6) );
 
-  edm::OrphanHandle< reco::PFNuclearInteractionCollection > nuclh( &nuclear_, 
+  edm::OrphanHandle< reco::PFDisplacedTrackerVertexCollection > nuclh( &nuclear_, 
                                                           edm::ProductID(7) );
 
   edm::OrphanHandle< reco::PFConversionCollection > convh( &conversion_, 

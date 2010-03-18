@@ -33,7 +33,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
@@ -591,7 +591,7 @@ class PFRootEventManager {
     reco::MuonCollection  muons_;
 
   /// nuclear interactions
-  reco::PFNuclearInteractionCollection nuclear_;
+  reco::PFDisplacedTrackerVertexCollection nuclear_;
 
   /// conversions
   reco::PFConversionCollection conversion_;
