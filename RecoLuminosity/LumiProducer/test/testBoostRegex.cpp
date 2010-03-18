@@ -5,7 +5,7 @@ int main(){
   std::string input("TK_HV_ON&N/A&N/A%PIX_HV_ON&N/A&N/A%LHC_RAMPING&false&false%PHYSICS_DECLARED&false&false%");
   std::string nameinput("CMS.LVL0:RUNSECTION_DELIMITER_DCSLHCFLAGS_5");
   //const boost::regex e("TK_HV_ON&N/A&N/A%PIX_HV_ON&N/A&N/A%LHC_RAMPING&false&false%PHYSICS_DECLARED&(true|false|N/A)&(true|false|N/A)%$");
-  const boost::regex e(".%PHYSICS_DECLARED&(true|false|N/A)&(true|false|N/A)%$");
+  const boost::regex e("%PHYSICS_DECLARED&(true|false|N/A)&(true|false|N/A)%");
   const boost::regex ename("^CMS.LVL0:RUNSECTION_DELIMITER_DCSLHCFLAGS_([0-9]+)");
   boost::match_results<std::string::const_iterator> what;
   boost::regex_search(input,what,e,boost::match_default);

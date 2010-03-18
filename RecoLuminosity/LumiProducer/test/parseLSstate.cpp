@@ -79,6 +79,9 @@ int main(int argc,char** argv){
     std::cout<<"must specify the run number"<<std::endl;
     return 0;
   }
+  const boost::regex physicsE("%PHYSICS_DECLARED&(true|false|N/A)&(true|false|N/A)%");
+  const boost::regex nameE("^CMS.LVL0:RUNSECTION_DELIMITER_DCSLHCFLAGS_([0-9]+)");
+  boost::match_results<std::string::const_iterator> what;
   
   //
   //query runinfo db
@@ -132,7 +135,23 @@ int main(int argc,char** argv){
       std::string name=row["NAME"].data<std::string>();
       std::string value=row["STRING_VALUE"].data<std::string>();
       std::cout<<"name: "<<name<<", value: "<<value<<std::endl;
-      
+      boost::regex_match(name,what,nameE,boost::match_default);
+      std::string statChar;
+      if(what[0].matched){
+	if(value=="null"){
+	  statChar="P";//is a pause
+	}else{
+	  boost::regex_search(value,what,physicsE,boost::match_default);
+	  if(what[0].matched){
+	    std::string operatorBitValue=std::string(what[2].first,what[2].second);
+	    if(operatorBitValue=="true"){
+	      statChar="T";
+	    }else{
+	      statChar="F";
+	    }
+	  }
+	}
+      }
     }
     delete query;
     transaction.commit();
