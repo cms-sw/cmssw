@@ -214,8 +214,10 @@ namespace {
     //Used by ECAL Weights reconstruction
     math::Matrix<3,10>::type mw; 
     math::Matrix<10,10>::type mcw; 
+    math::Matrix<2,3>::type mw1; 
     ROOT::Math::MatRepStd<double, 3 ,10> smdw;
     ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
+    ROOT::Math::MatRepStd<double, 2 , 3> smdcw1;
 
     //Used by TauReco
     std::pair<ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>,float> calotti_ppf;
