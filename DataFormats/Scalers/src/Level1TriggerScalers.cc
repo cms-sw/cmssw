@@ -1,4 +1,3 @@
-
 /*
  *   File: DataFormats/Scalers/src/Level1TriggerScalers.cc   (W.Badgett)
  */
@@ -47,15 +46,15 @@ Level1TriggerScalers::Level1TriggerScalers():
   deadtimeBeamActiveTimeSlot_(0),
   gtAlgoCounts_(nLevel1Triggers),
   gtTechCounts_(nLevel1TestTriggers),
-  lastEventCounter0_(0),
+  lastOrbitCounter0_(0),
   lastTestEnable_(0),
   lastResync_(0),
   lastStart_(0),
+  lastEventCounter0_(0),
   lastHardReset_(0),
-  spare0_(0),
-  spare1_(0),
-  spare2_(0),
-  spare3_(0)
+  spare0_(0ULL),
+  spare1_(0ULL),
+  spare2_(0ULL)
 { 
 }
 
@@ -124,27 +123,27 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 
     if ( version_ >= 5 )
     {
-      lastEventCounter0_ = raw->lastEventCounter0;
+      lastOrbitCounter0_ = raw->lastOrbitCounter0;
       lastTestEnable_    = raw->lastTestEnable;
       lastResync_        = raw->lastResync;
       lastStart_         = raw->lastStart;
+      lastEventCounter0_ = raw->lastEventCounter0;
       lastHardReset_     = raw->lastHardReset;
-      spare0_            = raw->spare0;
-      spare1_            = raw->spare[0];
-      spare2_            = raw->spare[1];
-      spare3_            = raw->spare[2];
+      spare0_            = raw->spare[0];
+      spare1_            = raw->spare[1];
+      spare2_            = raw->spare[2];
     }
     else
     {
-      lastEventCounter0_ = 0UL;
+      lastOrbitCounter0_ = 0UL;
       lastTestEnable_    = 0UL;
       lastResync_        = 0UL;
       lastStart_         = 0UL;
+      lastEventCounter0_ = 0UL;
       lastHardReset_     = 0UL;
-      spare0_            = 0UL;
+      spare0_            = 0ULL;
       spare1_            = 0ULL;
       spare2_            = 0ULL;
-      spare3_            = 0ULL;
     }
   }
 }
@@ -376,23 +375,27 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 
   if ( c.version() >= 5 )
   {
-    sprintf(line," LastEventCounter0: %10u  0x%8.8X", c.lastEventCounter0(),
-	    c.lastEventCounter0()); 
+    sprintf(line," LastOrbitCounter0:  %10u  0x%8.8X", c.lastOrbitCounter0(),
+	    c.lastOrbitCounter0()); 
     s << line << std::endl;
     
-    sprintf(line," LastTestEnable:    %10u  0x%8.8X", c.lastTestEnable(),
+    sprintf(line," LastTestEnable:     %10u  0x%8.8X", c.lastTestEnable(),
 	    c.lastTestEnable()); 
     s << line << std::endl;
     
-    sprintf(line," LastResync:        %10u  0x%8.8X", c.lastResync(),
+    sprintf(line," LastResync:         %10u  0x%8.8X", c.lastResync(),
 	    c.lastResync()); 
     s << line << std::endl;
     
-    sprintf(line," LastStart:         %10u  0x%8.8X", c.lastStart(),
+    sprintf(line," LastStart:          %10u  0x%8.8X", c.lastStart(),
 	    c.lastStart()); 
     s << line << std::endl;
     
-    sprintf(line," LastHardReset:     %10u  0x%8.8X", c.lastHardReset(),
+    sprintf(line," LastEventCounter0:  %10u  0x%8.8X", c.lastEventCounter0(),
+	    c.lastEventCounter0()); 
+    s << line << std::endl;
+    
+    sprintf(line," LastHardReset:      %10u  0x%8.8X", c.lastHardReset(),
 	    c.lastHardReset()); 
     s << line << std::endl;
   }

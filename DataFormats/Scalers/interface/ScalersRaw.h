@@ -233,12 +233,12 @@ struct ScalersEventRecordRaw_v5
   struct LumiScalersRaw_v1    lumi;
   struct BeamSpotOnlineRaw_v4 beamSpotOnline;
   struct DcsStatusRaw_v4      dcsStatus;
-  unsigned int                lastEventCounter0;
+  unsigned int                lastOrbitCounter0;
   unsigned int                lastTestEnable;
   unsigned int                lastResync;
   unsigned int                lastStart;
+  unsigned int                lastEventCounter0;
   unsigned int                lastHardReset;
-  unsigned int                spare0;
   unsigned long long          spare[ScalersRaw::N_SPARE_v5];
   unsigned long long          bx[ScalersRaw::N_BX_v2];
   unsigned long long          trailer;
