@@ -292,41 +292,41 @@ ostream& reco::operator<<(  ostream& out,
       out<<endl;
     }
 
+    
+    out<<endl<<"\tlink data (distance x 1000) for tracking links : "<<endl;
+    out<<setiosflags(ios::right);
+    out<<"\t" << setw(width) << " ";
+    for(unsigned ie=0; ie<elid.size(); ie++) 
+      if ( toPrint[ie] && 
+	   ( block.elements_[ie].type() == PFBlockElement::TRACK ||
+	     block.elements_[ie].type() == PFBlockElement::GSF )) 
+	out <<setw(width)<< elid[ie];
+    out<<endl;  
+    out<<setiosflags(ios::fixed);
+    out<<setprecision(1);      
+  
+    for(unsigned i=0; i<block.elements_.size(); i++) {
+      if ( !toPrint[i] || 
+	   (block.elements_[i].type() != PFBlockElement::TRACK &&
+	    block.elements_[i].type() != PFBlockElement::GSF )) continue;
+      out<<"\t";
+      out <<setw(width) << elid[i];
+      for(unsigned j=0; j<block.elements_.size(); j++) {
+	if ( !toPrint[j] || 
+	     (block.elements_[j].type() != PFBlockElement::TRACK &&
+	      block.elements_[j].type() != PFBlockElement::GSF )) continue;
+	double Dist = block.dist(i,j, block.linkData());//,PFBlock::LINKTEST_ALL);
+
+	// out<<setw(width)<< Dist*1000.;
+	if (Dist > -0.5) out<<setw(width)<< Dist*1000.; 
+	else  out <<setw(width)<< " ";
+      }
+      out<<endl;
+    }
+
     out<<setprecision(3);  
     out<<resetiosflags(ios::right|ios::fixed);
 
-    if( !block.linkData().empty() ) {
-      out<<endl<<"\tlink data (distance x 1000) for tracking links : "<<endl;
-      out<<setiosflags(ios::right);
-      out<<"\t" << setw(width) << " ";
-      for(unsigned ie=0; ie<elid.size(); ie++) 
-	if ( toPrint[ie] && 
-	     ( block.elements_[ie].type() == PFBlockElement::TRACK ||
-	       block.elements_[ie].type() == PFBlockElement::GSF )) out <<setw(width)<< elid[ie];
-      out<<endl;  
-      out<<setiosflags(ios::fixed);
-      out<<setprecision(1);      
-  
-      for(unsigned i=0; i<block.elements_.size(); i++) {
-	if ( !toPrint[i] || 
-	     (block.elements_[i].type() != PFBlockElement::TRACK &&
-	      block.elements_[i].type() != PFBlockElement::GSF )) continue;
-	out<<"\t";
-	out <<setw(width) << elid[i];
-	for(unsigned j=0; j<block.elements_.size(); j++) {
-	  if ( !toPrint[j] || 
-	       (block.elements_[j].type() != PFBlockElement::TRACK &&
-	       block.elements_[j].type() != PFBlockElement::GSF )) continue;
-	  double Dist = block.dist(i,j, block.linkData());//,PFBlock::LINKTEST_ALL);
-
-	  // out<<setw(width)<< Dist*1000.;
-	  if (Dist > -0.5) out<<setw(width)<< Dist*1000.; 
-	  else  out <<setw(width)<< " ";
-	}
-	out<<endl;
-      }
-
-    }
   }
   else {
     out<<"\tno links."<<endl;
@@ -336,11 +336,11 @@ ostream& reco::operator<<(  ostream& out,
 }
  
  
-  unsigned PFBlock::linkDataSize() const {
-    unsigned n = elements_.size();
+unsigned PFBlock::linkDataSize() const {
+  unsigned n = elements_.size();
   
-    // number of possible undirected links between n elements.
-    // reflective links impossible.
+  // number of possible undirected links between n elements.
+  // reflective links impossible.
  
-    return n*(n-1)/2; 
-  }
+  return n*(n-1)/2; 
+}

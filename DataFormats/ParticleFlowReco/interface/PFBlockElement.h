@@ -43,8 +43,8 @@ namespace reco {
 
     enum TrackType {
       DEFAULT=0,
-      T_FROM_NUCL,
-      T_TO_NUCL,
+      T_FROM_DISP,
+      T_TO_DISP,
       T_FROM_GAMMACONV,
       MUON,
       T_FROM_V0
@@ -114,6 +114,7 @@ namespace reco {
 
     virtual bool isSecondary() const { return false; }
     virtual bool isPrimary() const { return false; }
+    virtual bool isLinkedToDisplacedVertex() const {return false;}
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );
