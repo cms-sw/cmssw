@@ -13,7 +13,7 @@
 //
 // Original Author:  Ingo Bloch
 //         Created:  Mon Mar 15 11:39:08 CDT 2010
-// $Id: HLTCSCAcceptBusyFilter.cc,v 1.1 2010/03/17 22:06:22 stoyan Exp $
+// $Id: HLTCSCAcceptBusyFilter.cc,v 1.1 2010/03/18 18:54:25 gruen Exp $
 //
 //
 
@@ -44,22 +44,21 @@
 //
 
 class HLTCSCAcceptBusyFilter : public HLTFilter {
+
    public:
       explicit HLTCSCAcceptBusyFilter(const edm::ParameterSet&);
       virtual ~HLTCSCAcceptBusyFilter();
 
-   private:
-  //      virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
-  //      virtual void endJob() ;
   
-  bool AcceptManyHitsInChamber(uint maxRecHitsPerChamber, edm::Handle<CSCRecHit2DCollection> recHits);
-  //, edm::ESHandle<CSCGeometry> cscGeom);
+   private:
+      bool AcceptManyHitsInChamber(unsigned int maxRecHitsPerChamber, const edm::Handle<CSCRecHit2DCollection>& recHits);
   
+  // ----------member data ---------------------------
   edm::InputTag cscrechitsTag;
-  bool          invertResult;
-  uint          maxRecHitsPerChamber;
-      // ----------member data ---------------------------
+  bool          invert;
+  unsigned int  maxRecHitsPerChamber;
+
 };
 
 //
@@ -76,9 +75,9 @@ class HLTCSCAcceptBusyFilter : public HLTFilter {
 HLTCSCAcceptBusyFilter::HLTCSCAcceptBusyFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-   cscrechitsTag         = iConfig.getParameter<edm::InputTag>("cscrechitsTag");
-   invertResult          = iConfig.getParameter<bool>("invertResult");
-   maxRecHitsPerChamber  = iConfig.getParameter<uint>("maxRecHitsPerChamber");
+   cscrechitsTag        = iConfig.getParameter<edm::InputTag>("cscrechitsTag");
+   invert               = iConfig.getParameter<bool>("invert");
+   maxRecHitsPerChamber = iConfig.getParameter<unsigned int>("maxRecHitsPerChamber");
 
 }
 
@@ -97,46 +96,44 @@ HLTCSCAcceptBusyFilter::~HLTCSCAcceptBusyFilter()
 //
 
 // ------------ method called on each new Event  ------------
-bool
-HLTCSCAcceptBusyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool HLTCSCAcceptBusyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
    using namespace edm;
 
   // Get the RecHits collection :
-  edm::Handle<CSCRecHit2DCollection> recHits; 
-  
-  
+  Handle<CSCRecHit2DCollection> recHits; 
   iEvent.getByLabel(cscrechitsTag,recHits);  
   
   if(  AcceptManyHitsInChamber(maxRecHitsPerChamber, recHits) ) {
-    return (!invertResult);
+    return (!invert);
   } else {
-    return ( invertResult);
+    return ( invert);
   }
 
 }
 
 
 // ------------ method to find chamber with nMax hits
-bool HLTCSCAcceptBusyFilter::AcceptManyHitsInChamber(uint maxRecHitsPerChamber, edm::Handle<CSCRecHit2DCollection> recHits) {
-  uint maxNRecHitsPerChamber = 0;
-  bool takeEvent = false;
-  const uint nEndcaps = 2;
-  const uint nStations = 4;
-  const uint nRings = 4;
-  const uint nChambers = 36;
-  uint allRechits[nEndcaps][nStations][nRings][nChambers];
-  for(uint iE = 0;iE<nEndcaps;++iE){
-    for(uint iS = 0;iS<nStations;++iS){
-      for(uint iR = 0;iR<nRings;++iR){
-	for(uint iC = 0;iC<nChambers;++iC){
+bool HLTCSCAcceptBusyFilter::AcceptManyHitsInChamber(unsigned int maxRecHitsPerChamber, const edm::Handle<CSCRecHit2DCollection>& recHits) {
+
+  unsigned int maxNRecHitsPerChamber(0);
+
+  const unsigned int nEndcaps(2);
+  const unsigned int nStations(4);
+  const unsigned int nRings(4);
+  const unsigned int nChambers(36);
+  unsigned int allRechits[nEndcaps][nStations][nRings][nChambers];
+  for(unsigned int iE = 0;iE<nEndcaps;++iE){
+    for(unsigned int iS = 0;iS<nStations;++iS){
+      for(unsigned int iR = 0;iR<nRings;++iR){
+	for(unsigned int iC = 0;iC<nChambers;++iC){
 	  allRechits[iE][iS][iR][iC] = 0;
 	}
       }
     }
   }
-  for(CSCRecHit2DCollection::const_iterator it = recHits->begin(); it != recHits->end(); it++) {
 
+  for(CSCRecHit2DCollection::const_iterator it = recHits->begin(); it != recHits->end(); it++) {
     ++allRechits
       [(*it).cscDetId().endcap()-1]
       [(*it).cscDetId().station()-1]
@@ -144,35 +141,24 @@ bool HLTCSCAcceptBusyFilter::AcceptManyHitsInChamber(uint maxRecHitsPerChamber, 
       [(*it).cscDetId().chamber()-1];
   }
 
-  for(uint iE = 0;iE<nEndcaps;++iE){
-    for(uint iS = 0;iS<nStations;++iS){
-      for(uint iR = 0;iR<nRings;++iR){
-	for(uint iC = 0;iC<nChambers;++iC){
+  for(unsigned int iE = 0;iE<nEndcaps;++iE){
+    for(unsigned int iS = 0;iS<nStations;++iS){
+      for(unsigned int iR = 0;iR<nRings;++iR){
+	for(unsigned int iC = 0;iC<nChambers;++iC){
 	  if(allRechits[iE][iS][iR][iC] > maxNRecHitsPerChamber) {
 	    maxNRecHitsPerChamber = allRechits[iE][iS][iR][iC];
 	  }
 	  if(maxNRecHitsPerChamber > maxRecHitsPerChamber) {
-	    takeEvent = true;
-	    return takeEvent;
+	    return true;
 	  }
 	}
       }
     }
   }
-  return takeEvent;
+
+  return false;
+
 }
-
-
-// // ------------ method called once each job just before starting event loop  ------------
-// void 
-// HLTCSCAcceptBusyFilter::beginJob()
-// {
-// }
-
-// // ------------ method called once each job just after ending the event loop  ------------
-// void 
-// HLTCSCAcceptBusyFilter::endJob() {
-// }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HLTCSCAcceptBusyFilter);
