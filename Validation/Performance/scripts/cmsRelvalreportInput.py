@@ -807,9 +807,9 @@ def writeCommands(simcandles,
                             if "conditions" in keywords[0]:
                                 # check if we are using the autoCond style of flexible conditions
                                 # if so, expand the condition here so that the file names contain the real conditions
-                                if "auto:" in fileOptionValue: 
+                                if "auto:" in keywords[1]:
                                     from Configuration.PyReleaseValidation.autoCond import autoCond
-                                    fileConditionsOption = autoCond[ fileOptionValue.split(':')[1] ]
+                                    fileConditionsOption = autoCond[ keywords[1].split(':')[1] ]
                                 else:
                                     # old style, hardcoded, conditions ...
                                     # Complicated expression, just to get rid of FrontierConditions_GlobalTag,
