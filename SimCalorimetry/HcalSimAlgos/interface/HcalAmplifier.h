@@ -7,6 +7,8 @@ class CaloVSimParameterMap;
 class CaloVNoiseSignalGenerator;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "CLHEP/Random/RandGaussQ.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+
 
 class HcalDbService;
 class HPDIonFeedbackSim;
@@ -35,7 +37,7 @@ private:
 
   void pe2fC(CaloSamples & frame) const;
   void addPedestals(CaloSamples & frame) const;
-  void makeNoise (const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const;
+  void makeNoise (HcalGenericDetId::HcalGenericSubdetector hcalSubDet, const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const;
 
   const HcalDbService * theDbService;
   CLHEP::RandGaussQ * theRandGaussQ;

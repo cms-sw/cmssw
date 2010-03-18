@@ -67,6 +67,7 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
 {
   assert(theDbService != 0);
   HcalGenericDetId hcalGenDetId(frame.id());
+  HcalGenericDetId::HcalGenericSubdetector hcalSubDet = hcalGenDetId.genericSubdet();
 
   const HcalCalibrationWidths & calibWidths =
     theDbService->getHcalCalibrationWidths(hcalGenDetId);
@@ -77,7 +78,7 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
   {
     double gauss [32]; //big enough
     for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
-    makeNoise(calibWidths, frame.size(), gauss, noise);
+    makeNoise(hcalSubDet, calibWidths, frame.size(), gauss, noise);
   }
 
   for (int tbin = 0; tbin < frame.size(); ++tbin) {
@@ -88,8 +89,8 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
 }
 
 
-void HcalAmplifier::makeNoise (const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const {
-
+void HcalAmplifier::makeNoise (HcalGenericDetId::HcalGenericSubdetector hcalSubDet, const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const 
+{
   // This is a simplified noise generation scheme using only the diagonal elements
   // (proposed by Salavat Abduline).
   // This is direct adaptation of the code in HcalPedestalWidth.cc
@@ -105,6 +106,9 @@ void HcalAmplifier::makeNoise (const HcalCalibrationWidths& width, int fFrames, 
   // In principle should come from averaging the values of elements (0.1), (1,2), (2,3), (3,0)
   // For now use the definition below (but keep structure of the code structure for development) 
   double s_xy_mean = -0.5 * s_xx_mean;
+  // Use different parameter for HF to reproduce the noise rate after zero suppression.
+  // Jim Hirschauer/Radek Ofierzynski 18.03.2010
+  if (hcalSubDet == HcalGenericDetId::HcalGenForward) s_xy_mean = 0.08 * s_xx_mean;
 
   double term  = s_xx_mean*s_xx_mean - 2.*s_xy_mean*s_xy_mean;
 
