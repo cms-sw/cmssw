@@ -164,9 +164,16 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   GlobalPoint superCluster(sCposition.x(),sCposition.y(),sCposition.z());
   double r0 = beamSpot.perp();
   double z0 = beamSpot.z();
-  int chargeHypothesis = 0;
-  if(phiDiff(superCluster.phi(),beamSpot.phi()) > 0) chargeHypothesis = -1;
-  if(phiDiff(superCluster.phi(),beamSpot.phi()) < 0) chargeHypothesis = 1;
+
+  //We need to pick a charge for the particle we want to reconstruct before hits can be retrieved
+  //Choosing both charges improves seeding efficiency by less than 0.5% for signal events
+  //If we pick a single charge, this reduces fake rate and CPU time
+  //So we pick a charge that is equally likely to be positive or negative
+   
+  int chargeHypothesis;
+  double chargeSelector = sCenergy - (int)sCenergy;
+  if(chargeSelector >= 0.5) chargeHypothesis = -1;
+  if(chargeSelector < 0.5) chargeHypothesis = 1;
 
   //Use BeamSpot and SC position to estimate 3rd point
   double rFake = 25.;
