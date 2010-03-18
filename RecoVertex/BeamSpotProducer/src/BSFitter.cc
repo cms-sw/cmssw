@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.14 2010/03/09 16:03:30 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.16 2010/03/17 20:31:29 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -208,7 +208,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
                                      tmp_d0phi.sigmaZ(), tmp_d0phi.dxdz(), tmp_d0phi.dydz(),0.0};
                 
                 double tmp_error_par[7];
-                for(int s=0;s<6;s++){ tmp_error_par[s] = pow(matrix(s,s),0.5);}
+                for(int s=0;s<6;s++){ tmp_error_par[s] = pow( tmp_d0phi.covariance()(s,s),0.5);}
                 tmp_error_par[6]=0.0;
                 
                 reco::BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par,tmp_error_par);

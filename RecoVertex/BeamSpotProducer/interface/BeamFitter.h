@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.21 2010/03/17 19:20:45 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.22 2010/03/17 20:31:23 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -46,6 +46,7 @@ class BeamFitter {
   void resetTotTrk() { ftotal_tracks=0; }
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
   void dumpTxtFile(std::string &,bool);
+  void dumpBWTxtFile(std::string &);
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }

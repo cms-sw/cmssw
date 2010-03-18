@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.39 2010/03/17 20:31:29 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.40 2010/03/17 22:30:57 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -492,18 +492,10 @@ bool BeamFitter::runBeamWidthFitter() {
    myalgo->SetFitType(std::string("likelihood"));
    fbeamWidthFit = myalgo->Fit();
 
- //Add to .txt file
-  if(writeTxt_){fasciiFile<<"------------------------------------------------   "<<std::endl;
-                fasciiFile<<"Beam width(in cm) from Log-likelihood fit (Here we assume a symmetric beam(SigmaX=SigmaY)!)"<<std::endl;
-                fasciiFile<<"   "<<std::endl;
-                if (inputBeamWidth_ > 0 ) {
-                fasciiFile<< "BeamWidth= " << inputBeamWidth_ << std::endl;
-                } else {
-                fasciiFile << "BeamWidth =  " <<fbeamWidthFit.BeamWidthX() <<" +/- "<<fbeamWidthFit.BeamWidthXError() << std::endl;
-                }
-            }
-
-  delete myalgo;
+   //Add to .txt file
+   if(writeTxt_   ) dumpBWTxtFile(outputTxt_);
+   
+   delete myalgo;
 
  if ( fbeamspot.type() != 0 ) // not Fake
       widthfit_ok = true;
@@ -513,6 +505,19 @@ bool BeamFitter::runBeamWidthFitter() {
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
   }
   return widthfit_ok;
+}
+
+void BeamFitter::dumpBWTxtFile(std::string & fileName ){
+    std::ofstream outFile;
+    outFile.open(fileName.c_str(),std::ios::app);
+    outFile<<"-------------------------------------------------------------------------------------------------------------------------------------------------------------"<<std::endl;
+    outFile<<"Beam width(in cm) from Log-likelihood fit (Here we assume a symmetric beam(SigmaX=SigmaY)!)"<<std::endl;
+    outFile<<"   "<<std::endl;
+    if (inputBeamWidth_ > 0 ) {
+        outFile<< "BeamWidth= " << inputBeamWidth_ << std::endl;
+    } else {
+        outFile << "BeamWidth =  " <<fbeamWidthFit.BeamWidthX() <<" +/- "<<fbeamWidthFit.BeamWidthXError() << std::endl;
+    }
 }
 
 void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
