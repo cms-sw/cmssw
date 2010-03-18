@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/03/04 09:15:37 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/03/08 17:49:34 $
+ *  $Revision: 1.29 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -212,7 +212,9 @@ double MuScleFitUtils::ResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 
 
 unsigned int MuScleFitUtils::loopCounter = 5;
 
-const unsigned int MuScleFitUtils::motherPdgIdArray[] = {23, 200553, 100553, 553, 100443, 443};
+// According to the pythia manual, there is only a code for the Upsilon and Upsilon'. It does not distinguish
+// between Upsilon(2S) and Upsilon(3S)
+const unsigned int MuScleFitUtils::motherPdgIdArray[] = {23, 100553, 100553, 553, 100443, 443};
 
 // double MuScleFitUtils::leftWindowFactor = 1.;
 // double MuScleFitUtils::rightWindowFactor = 1.;
@@ -402,12 +404,13 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
         }
         else {
           for( int ires = 0; ires < 6; ++ires ) {
-            if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+	    if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
           }
         }
       }
       if(fromRes){
 	if((*part)->pdg_id()==13)
+	  //   muFromRes.first = (*part)->momentum();
 	  muFromRes.first = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
 					   (*part)->momentum().pz(),(*part)->momentum().e()));
 	else
@@ -424,20 +427,30 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
   pair<lorentzVector,lorentzVector> muFromRes;
 
   //Loop on generated particles
+  if( MuScleFitUtils::debug>0 ) cout << "Starting loop on " << genParticles->size() << " genParticles" << endl;
   for( GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
     if (fabs(part->pdgId())==13 && part->status()==1) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
+      if( MuScleFitUtils::debug>0 ) {
+	cout << "Found a muon with mother: " << motherPdgId << endl;
+      }
       for( int ires = 0; ires < 6; ++ires ) {
 	if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
       }
       if(fromRes){
-	if(part->pdgId()==13)
-	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
-					   part->p4().pz(),part->p4().e()));
-	else
-	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
-					    part->p4().pz(),part->p4().e()));
+	if(part->pdgId()==13) {
+	  muFromRes.first = part->p4();
+	  if( MuScleFitUtils::debug>0 ) cout << "Found a genMuon + : " << muFromRes.first << endl;
+	  // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
+	  // 					   part->p4().pz(),part->p4().e()));
+	}
+	else {
+	  muFromRes.second = part->p4();
+	  if( MuScleFitUtils::debug>0 ) cout << "Found a genMuon - : " << muFromRes.second << endl;
+	  // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
+	  // 					    part->p4().pz(),part->p4().e()));
+	}
       }
     }
   }
@@ -464,12 +477,6 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const Hand
             for( int ires = 0; ires < 6; ++ires ) {
               if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
             }
-//  	  if( ((*mother)->pdg_id() == 23     && resfind[0]) ||
-//               ((*mother)->pdg_id() == 443    && resfind[1]) ||
-//               ((*mother)->pdg_id() == 100443 && resfind[2]) ||
-//  	      ((*mother)->pdg_id() == 553    && resfind[3]) ||
-//               ((*mother)->pdg_id() == 100553 && resfind[4]) ||
-//               ((*mother)->pdg_id() == 200553 && resfind[5]) {
             if( fromRes ) {
               if(gp->pdg_id() == 13)
                 simMuFromRes.first = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
@@ -1568,7 +1575,7 @@ void MuScleFitUtils::minimizeLikelihood()
 
     }
 
-    bool notWritten = true;
+    // bool notWritten = true;
     for (int ipar=0; ipar<parnumber; ipar++) {
 
       rmin.mnpout (ipar, name, pval, erro, pmin, pmax, ivar);

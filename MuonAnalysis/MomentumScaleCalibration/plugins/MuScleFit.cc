@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/03/15 12:19:42 $
-//  $Revision: 1.72 $
+//  $Date: 2010/03/16 12:02:29 $
+//  $Revision: 1.73 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -636,6 +636,11 @@ void MuScleFit::selectMuons(const Event & event)
         // Fill it in any case, otherwise it will not be in sync with the event number
         MuScleFitUtils::genPair.push_back( make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
       }
+    }
+
+    if(!(MuScleFitUtils::speedup) && debug_>0) {
+      cout << "genParticles:" << endl;
+      cout << MuScleFitUtils::genPair.back().first << " , " << MuScleFitUtils::genPair.back().second << endl;
     }
 
     if( compareToSimTracks_ ) {

@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/01/11 09:31:24 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/03/04 09:15:41 $
+ *  $Revision: 1.17 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -87,7 +87,6 @@ public:
   // static double massProb( const double & mass, const double & rapidity, const double & massResol, std::auto_ptr<double> parval );
   static double massProb( const double & mass, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false );
   static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
-
 
   static double deltaPhi( const double & phi1, const double & phi2 )
   {

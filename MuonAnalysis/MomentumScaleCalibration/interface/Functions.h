@@ -1395,7 +1395,7 @@ class resolutionFunctionType11 : public resolutionFunctionBase<T> {
       return (parval[0]+ parval[2]*1./pt + pt/(pt+parval[3]) + parval[4]*fabsEta + parval[5]*eta*eta);
     else
       return (parval[1]+ parval[2]*1./pt + pt/(pt+parval[3]) + parval[6]*fabs((fabsEta-1.6)) + parval[7]*(fabsEta-1.6)*(fabsEta-1.6));
-   }
+  }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
     return( 0.004 );

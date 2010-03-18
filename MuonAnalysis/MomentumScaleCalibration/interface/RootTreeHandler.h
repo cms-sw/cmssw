@@ -28,7 +28,7 @@ public:
     MuonPair * genMuonPair = new MuonPair;
     tree->Branch("event", "MuonPair", &muonPair);
     if( genPair != 0 ) {
-      tree->Branch("genEvent", "MuonPair", &genPair);
+      tree->Branch("genEvent", "MuonPair", &genMuonPair);
     }
 
     MuonPairVector::const_iterator muonPairIt = savedPair->begin();
@@ -38,7 +38,7 @@ public:
       muonPair->mu1 = (muonPairIt->first);
       muonPair->mu2 = (muonPairIt->second);
 
-      if( genPair != 0 ) {
+      if( genPair != 0 && genPair->size() != 0 ) {
         genMuonPair->mu1 = ((*genPair)[iev].first);
         genMuonPair->mu2 = ((*genPair)[iev].second);
       }

@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2010/01/21 15:18:11 $
-//  $Revision: 1.14 $
+//  $Date: 2010/03/16 12:01:29 $
+//  $Revision: 1.15 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -67,9 +67,10 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
         ( pdgId==23  || pdgId==443    || pdgId==100443 ||
           pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
       genRes = mcIter->p4();
+      // cout << "mother's mother = " << mcIter->mother()->pdgId() << endl;
       if( pdgId == 23 ) mapHisto["hGenResZ"]->Fill(genRes);
-      else if( pdgId == 443 ) mapHisto["hGenResJPsi"]->Fill(genRes);
-      else if( pdgId == 553 ) mapHisto["hGenResUpsilon1S"]->Fill(genRes);
+      else if( pdgId == 443 || pdgId == 100443 ) mapHisto["hGenResJPsi"]->Fill(genRes);
+      else if( pdgId == 553 || pdgId == 100553 || pdgId == 200553 ) mapHisto["hGenResUpsilon1S"]->Fill(genRes);
     }
     //Check if it's a muon from a resonance
     if( status==1 && pdgId==13 ) {
@@ -77,8 +78,8 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
       if( momPdgId==23  || momPdgId==443    || momPdgId==100443 || 
           momPdgId==553 || momPdgId==100553 || momPdgId==200553 ) {
         if( momPdgId == 23 ) mothersFound[0] = 1;
-        if( momPdgId == 443 ) mothersFound[5] = 1;
-        if( momPdgId == 553 ) mothersFound[3] = 1;
+        if( momPdgId == 443 || momPdgId == 100443 ) mothersFound[5] = 1;
+        if( momPdgId == 553 || momPdgId == 100553 || momPdgId == 200553 ) mothersFound[3] = 1;
 	mapHisto["hGenMu"]->Fill(mcIter->p4());
 	cout<<"genmu "<<mcIter->p4()<<endl;
 	if(mcIter->charge()>0){
