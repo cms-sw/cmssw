@@ -11,7 +11,7 @@
 //
 // Original Author:  Dinko Ferencek,8 R-004,+41227676479,  Jeff Temple, 6-1-027
 //         Created:  Thu Mar 11 13:42:11 CET 2010
-// $Id: HcalRecHitReflagger.cc,v 1.7 2010/03/14 15:36:35 temple Exp $
+// $Id: HcalRecHitReflagger.cc,v 1.1 2010/03/18 13:26:57 temple Exp $
 //
 //
 
@@ -437,7 +437,7 @@ double HcalRecHitReflagger::GetS9S1value(HFRecHit& hf)
 	{
 	  for (int depth=1;depth<=2;++depth)
 	    {
-	      HcalDetId pid(HcalForward,j,iphi-2,depth);
+	      HcalDetId pid(HcalForward,j,(iphi+2)%72,depth);
 	      HFRecHitCollection::const_iterator part=hfRecHits->find(pid);
 	      if (part!=hfRecHits->end())
 		S9S1value+=part->energy();
@@ -448,9 +448,9 @@ double HcalRecHitReflagger::GetS9S1value(HFRecHit& hf)
 	  // We don't want to count diagonal cells; make sure either iphi or ieta match cell in question
 	  if (i!=iphi && j!=ieta)  continue;
 	  testphi=i%72;  // -1%72 == -1, not 71!
-	  if (abs(ieta)==39 && abs(j)>39 && iphi%4==1) // shift up by 2 to deal with 39->40 boundary
-	    testphi+=2;
-	  while (testphi<0) testphi+=72;
+	  if (abs(ieta)==39 && abs(j)>39 && iphi%4==1) // shift down by 2 to deal with 39->40 boundary
+	    testphi-=2;
+	  while (testphi<0)  testphi+=72;
 	  while (testphi>72) testphi-=72;
 
 	  for (int depth=1;depth<=2;++depth)
