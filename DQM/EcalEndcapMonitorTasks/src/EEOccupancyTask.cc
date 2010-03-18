@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/02/16 11:01:50 $
- * $Revision: 1.70 $
+ * $Date: 2010/03/12 11:36:30 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -614,8 +614,10 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int ix = id.ix();
       int iy = id.iy();
-      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+
+      const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
+      float eta = pos.eta();
+      float phi = pos.phi();
 
       int ism = Numbers::iSM( id );
 
@@ -751,8 +753,10 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
       int eex = id.ix();
       int eey = id.iy();
-      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+
+      const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
+      float eta = pos.eta();
+      float phi = pos.phi();
 
       int ism = Numbers::iSM( id );
 
@@ -830,8 +834,10 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
         int eex = id.ix();
         int eey = id.iy();
-        float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-        float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+
+        const GlobalPoint pos = pGeometry_->getGeometry(id)->getPosition();
+        float eta = pos.eta();
+        float phi = pos.phi();
 
         float xeex = eex - 0.5;
         float xeey = eey - 0.5;
