@@ -54,10 +54,10 @@ double ZMuMuMuonUserData::isolation(const T & t, double alpha, double beta, bool
 
 ZMuMuMuonUserData::ZMuMuMuonUserData( const ParameterSet & cfg ):
   src_( cfg.getParameter<InputTag>( "src" ) ),
-  alpha_(cfg.getParameter<double>("alpha") ),
-  beta_(cfg.getParameter<double>("beta") ), 
   beamSpot_(cfg.getParameter<InputTag>( "beamSpot" ) ),
   primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ),
+  alpha_(cfg.getParameter<double>("alpha") ),
+  beta_(cfg.getParameter<double>("beta") ), 
   hltPath_(cfg.getParameter<std::string >("hltPath") ){
   produces<std::vector<pat::Muon> >();
 }
@@ -67,14 +67,10 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
   evt.getByLabel(src_,muons);
 
   Handle<BeamSpot> beamSpotHandle;
-  if (!evt.getByLabel(beamSpot_, beamSpotHandle)) {
-    std::cout << ">>> No beam spot found !!!"<<std::endl;
-  }
+  evt.getByLabel(beamSpot_, beamSpotHandle);
 
   Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
-  if (!evt.getByLabel(primaryVertices_, primaryVertices)){
-    std::cout << ">>> No primary vertices  found !!!"<<std::endl;
-    }
+  evt.getByLabel(primaryVertices_, primaryVertices);
 
   auto_ptr<vector<pat::Muon> > muonColl( new vector<pat::Muon> (*muons) );
   for (unsigned int i = 0; i< muonColl->size();++i){
@@ -84,10 +80,16 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     m.setIsolation(pat::User1Iso, iso);
     m.setIsolation(pat::User2Iso, relIso);
     TrackRef muTrkRef = m.innerTrack();
-    float zDaudxyFromBS = muTrkRef->dxy(beamSpotHandle->position());
-    float zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
-    float zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
-    float zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );	
+    float zDaudxyFromBS = 10000;
+    float zDaudzFromBS = 10000;
+    float zDaudxyFromPV = 10000;
+    float zDaudzFromPV = 10000;
+    if (muTrkRef.isNonnull()){
+      zDaudxyFromBS = muTrkRef->dxy(beamSpotHandle->position());
+      zDaudzFromBS = muTrkRef->dz(beamSpotHandle->position());
+      zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
+      zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );
+    }	
     const pat::TriggerObjectStandAloneCollection muHLTMatches =  m.triggerObjectMatchesByPath( hltPath_);
     float muHLTBit;
     int dimTrig = muHLTMatches.size();

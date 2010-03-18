@@ -45,12 +45,12 @@ private:
 
 ZMuMuUserDataOneTrack::ZMuMuUserDataOneTrack( const ParameterSet & cfg ):
   src_( cfg.getParameter<InputTag>( "src" ) ),
-  alpha_(cfg.getParameter<double>("alpha") ),
-  beta_(cfg.getParameter<double>("beta") ), 
   beamSpot_(cfg.getParameter<InputTag>( "beamSpot" ) ),
   primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ),
-  hltPath_(cfg.getParameter<std::string >("hltPath") ),
-  zGenParticlesMatch_(cfg.getParameter<InputTag>( "zGenParticlesMatch" ) ){
+  zGenParticlesMatch_(cfg.getParameter<InputTag>( "zGenParticlesMatch" ) ),
+  alpha_(cfg.getParameter<double>("alpha") ),
+  beta_(cfg.getParameter<double>("beta") ), 
+  hltPath_(cfg.getParameter<std::string >("hltPath") ){
   produces<vector<pat::CompositeCandidate> >();
 }
 
@@ -83,14 +83,11 @@ void ZMuMuUserDataOneTrack::produce( Event & evt, const EventSetup & ) {
     const CompositeCandidate & z = (*dimuons)[i];
     //CandidateBaseRef zRef = dimuons ->refAt(i);
     edm::Ref<std::vector<reco::CompositeCandidate> > zRef(dimuons, i);
-    cout<<"Ref "<<zRef.isNonnull()<<endl;	
     pat::CompositeCandidate dimuon(z);
     
     float trueMass,truePt,trueEta,truePhi,trueY;
     if (isMCMatchTrue){
-      cout<<"genParticleRef"<<endl;	
       GenParticleRef trueZRef  = (*zGenParticlesMatch)[zRef];
-      cout<<"genParticleRef"<<trueZRef.isNonnull()<<endl;	
       //CandidateRef trueZRef = trueZIter->val;
       if( trueZRef.isNonnull() ) {
 	const Candidate & z = * trueZRef;
