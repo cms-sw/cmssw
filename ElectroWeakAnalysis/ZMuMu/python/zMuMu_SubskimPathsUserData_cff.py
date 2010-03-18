@@ -3,12 +3,18 @@ import FWCore.ParameterSet.Config as cms
 from ElectroWeakAnalysis.Skimming.dimuonsHLTFilter_cfi import *
 from ElectroWeakAnalysis.Skimming.patCandidatesForZMuMuSubskim_cff import *
 from ElectroWeakAnalysis.ZMuMu.zMuMuMuonUserData import *
-from ElectroWeakAnalysis.ZMuMu.dimuonsUserData_cfi import *
-from ElectroWeakAnalysis.ZMuMu.dimuonsOneTrackUserData_cfi import *
-from ElectroWeakAnalysis.ZMuMu.dimuonsGlobal_cfi import *
-from ElectroWeakAnalysis.ZMuMu.dimuonsOneStandAloneMuonUserData_cfi import *
-from ElectroWeakAnalysis.ZMuMu.dimuonsFilter_cfi import *
-from ElectroWeakAnalysis.ZMuMu.dimuonsOneTrackFilterUserData_cfi import *
+from ElectroWeakAnalysis.Skimming.dimuons_cfi import *
+dimuons.decay = cms.string('userDataMuons@+ userDataMuons@-')
+from ElectroWeakAnalysis.Skimming.dimuonsOneTrack_cfi import *
+dimuonsOneTrack.decay = cms.string('userDataMuons@+ userDataTracks@-') 
+from ElectroWeakAnalysis.Skimming.dimuonsGlobal_cfi import *
+dimuonsGlobal.src = cms.InputTag("userDataDimuons")
+from ElectroWeakAnalysis.Skimming.dimuonsOneStandAloneMuon_cfi import *
+dimuonsOneStandAloneMuon.src = cms.InputTag("userDataDimuons") 
+from ElectroWeakAnalysis.Skimming.dimuonsFilter_cfi import *
+dimuonsFilter.src = cms.InputTag("userDataDimuons") 
+from ElectroWeakAnalysis.Skimming.dimuonsOneTrackFilter_cfi import *
+dimuonsOneTrackFilter.src = cms.InputTag("userDataDimuonsOneTrack")
 
 dimuonsPath = cms.Path(
     dimuonsHLTFilter *
