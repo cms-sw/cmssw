@@ -250,7 +250,8 @@
  <Trd1 name="RED4" dz="12.6*cm " dy1="1*mm " dy2="1*mm " dx1="35.106*cm " dx2="39.549*cm " />
  <!-- RE2/1 staged volumes-->
 
- <Tubs name="RTXU" rMin="3.29*m  " rMax="6.99*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
+ <Tubs name="RTXU" rMin="3.305*m  " rMax="6.99*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
+  
  <Trd1 name="RFEX" dz="82.8*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="29.089*cm " dx2="43.569*cm " />
  <Trd1 name="RHEX" dz="82.75*cm " dy1="5*mm " dy2="5*mm " dx1="29.039*cm " dx2="43.519*cm " />
  <Trd1 name="REE1" dz="30.85*cm " dy1="1*mm " dy2="1*mm " dx1="38.118*cm " dx2="43.516*cm " />
