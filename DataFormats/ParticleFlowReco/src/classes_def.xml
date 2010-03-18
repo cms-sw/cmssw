@@ -65,15 +65,23 @@
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
   <class name="reco::PFBlockElementTrack"> 
+<!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)   
     <field name="trackRefPF_" transient="true"/>
+-->
   </class>
 
   <class name="reco::PFBlockElementGsfTrack">   // Daniele
+<!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)
+   Florian
     <field name="GsftrackRefPF_" transient="true"/> // Daniele
+-->
   </class>
 
   <class name="reco::PFBlockElementBrem">   // Daniele
+<!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)
+   Florian
     <field name="BremtrackRefPF_" transient="true"/> // Daniele
+-->
   </class>
 
 
@@ -185,7 +193,13 @@
 
   <class name="std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> >"/>
 
-
+  <class name="reco::PreId"/>
+  <class name="std::vector<reco::PreId>"/>
+  <class name="edm::Wrapper<std::vector<reco::PreId> >"/>
+  <class name="edm::ValueMap<reco::PreIdRef>"/>
+  <class name="std::vector<reco::PreIdRef>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::PreIdRef> >"/>
+  <class name="edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> >" />
 
 </selection>
 <exclusion>

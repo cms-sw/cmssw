@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include <DataFormats/Common/interface/OwnVector.h>
 #include <DataFormats/Common/interface/ClonePolicy.h>
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "Math/Cartesian3D.h"
@@ -53,6 +54,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeedFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 
 #include <map>
 
@@ -190,5 +194,13 @@ namespace {
 
     std::pair<std::pair<unsigned int,unsigned int>,std::pair<unsigned int,unsigned int> > dummy1013;
 
+
+    /* For PreID */
+    reco::PreId dummy81;
+    std::vector<reco::PreId> dummy82;
+    edm::Ref< std::vector<reco::PreId> >  dummy85;
+    edm::Wrapper<std::vector<reco::PreId> > dummy83;
+    edm::Wrapper<edm::ValueMap<reco::PreIdRef> > dummy84;
+    edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> > dummy86;
   };
 }
