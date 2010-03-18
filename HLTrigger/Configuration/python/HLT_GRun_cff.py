@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/GRun/V8 (CMSSW_3_5_3_HLT5)
+# /dev/CMSSW_3_5_5/GRun/V9 (CMSSW_3_5_3_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V9')
 )
 
 streams = cms.PSet( 
@@ -19,12 +19,12 @@ streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'RandomTriggers',
-    'HcalHPDNoise',
-    'HcalNZS',
-    'ZeroBias',
+  A = cms.vstring( 'HcalNZS',
     'Cosmics',
-    'MinimumBias' ),
+    'MinimumBias',
+    'RandomTriggers',
+    'HcalHPDNoise',
+    'ZeroBias' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring(  )
 )
@@ -44,18 +44,12 @@ datasets = cms.PSet(
     'HLT_L1SingleEG2',
     'HLT_L1SingleEG5',
     'HLT_L1Tech_HCAL_HF_coincidence_PM',
-    'HLT_L1DoubleMuOpen' ),
+    'HLT_L1DoubleMuOpen',
+    'HLT_MinBiasBSC' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEta_8E29',
     'AlCa_EcalPi0_8E29' ),
-  RandomTriggers = cms.vstring( 'HLT_Random' ),
-  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
-    'HLT_GlobalRunHPDNoise' ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_8E29',
     'HLT_HcalPhiSym' ),
-  ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
-    'HLT_L1_BPTX_MinusOnly',
-    'HLT_L1_BPTX',
-    'HLT_ZeroBias' ),
   Cosmics = cms.vstring( 'HLT_TkMu3_NoVertex',
     'HLT_L2Mu0_NoVertex',
     'HLT_DoubleMu0',
@@ -172,6 +166,13 @@ datasets = cms.PSet(
     'HLT_MET100',
     'HLT_MET45',
     'HLT_L1MET20' ),
+  RandomTriggers = cms.vstring( 'HLT_Random' ),
+  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
+    'HLT_GlobalRunHPDNoise' ),
+  ZeroBias = cms.vstring( 'HLT_L1_BPTX_PlusOnly',
+    'HLT_L1_BPTX_MinusOnly',
+    'HLT_L1_BPTX',
+    'HLT_ZeroBias' ),
   OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
@@ -1281,8 +1282,8 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     invert = cms.bool( False ),
     bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x70000 ),
-    technicalBits = cms.uint64( 0x7f )
+    physicsHiBits = cms.uint64( 0x0 ),
+    technicalBits = cms.uint64( 0x11 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )

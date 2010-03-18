@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/1E31/V8 (CMSSW_3_5_3_HLT5)
+# /dev/CMSSW_3_5_5/1E31/V9 (CMSSW_3_5_3_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/1E31/V8')
+  tableName = cms.string('/dev/CMSSW_3_5_5/1E31/V9')
 )
 
 streams = cms.PSet( 
@@ -18,12 +18,12 @@ streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   DQM = cms.vstring(  ),
   EventDisplay = cms.vstring(  ),
-  A = cms.vstring( 'RandomTriggers',
-    'HcalHPDNoise',
-    'HcalNZS',
-    'ZeroBias',
+  A = cms.vstring( 'HcalNZS',
     'Cosmics',
-    'MinimumBias' ),
+    'MinimumBias',
+    'RandomTriggers',
+    'HcalHPDNoise',
+    'ZeroBias' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring(  ),
   Express = cms.vstring( 'ExpressPhysics' )
@@ -39,10 +39,7 @@ datasets = cms.PSet(
   FEDMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEta_1E31',
     'AlCa_EcalPi0_1E31' ),
-  RandomTriggers = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring( 'HLT_HcalPhiSym' ),
-  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   Cosmics = cms.vstring( 'HLT_DoubleMu0',
     'HLT_DoubleMu3',
     'HLT_Mu5',
@@ -75,6 +72,9 @@ datasets = cms.PSet(
     'HLT_L1SingleEG5',
     'HLT_MET100',
     'HLT_L1MET20' ),
+  RandomTriggers = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  ZeroBias = cms.vstring( 'HLT_ZeroBias' ),
   OfflineMonitor = cms.vstring( 'HLT_DoubleMu0',
     'HLT_Mu9',
     'HLT_Mu5',
@@ -1101,8 +1101,8 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     invert = cms.bool( False ),
     bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x70000 ),
-    technicalBits = cms.uint64( 0x7f )
+    physicsHiBits = cms.uint64( 0x0 ),
+    technicalBits = cms.uint64( 0x11 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )

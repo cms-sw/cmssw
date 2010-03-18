@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/HLT/V18 (CMSSW_3_5_3_HLT5)
+# /dev/CMSSW_3_5_5/HLT/V21 (CMSSW_3_5_3_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HLT/V18')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HLT/V21')
 )
 
 streams = cms.PSet( 
@@ -300,7 +300,8 @@ datasets = cms.PSet(
     'HLT_L1SingleEG2',
     'HLT_L1SingleEG5',
     'HLT_L1Tech_HCAL_HF_coincidence_PM',
-    'HLT_L1DoubleMuOpen' )
+    'HLT_L1DoubleMuOpen',
+    'HLT_MinBiasBSC' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1287,8 +1288,8 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     invert = cms.bool( False ),
     bunchCrossings = cms.vint32( 0, -1, 1, -2, 2 ),
     physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x70000 ),
-    technicalBits = cms.uint64( 0x7f )
+    physicsHiBits = cms.uint64( 0x0 ),
+    technicalBits = cms.uint64( 0x11 )
 )
 hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 hltPreFirstPath = cms.EDFilter( "HLTPrescaler" )
