@@ -58,6 +58,8 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
       for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); 
 	    it != PFRecHits.end(); ++it) {
 	const PFRecHitRef& RefPFRecHit = it->recHitRef(); 
+	if(!RefPFRecHit.isAvailable())
+	  return;
 	double energyHit = RefPFRecHit->energy();
 
 	//only for the first cluster (from GSF) find the seed
@@ -87,6 +89,8 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
     for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); 
 	  it != PFRecHits.end(); ++it) {
       const PFRecHitRef& RefPFRecHit = it->recHitRef(); 
+      if(!RefPFRecHit.isAvailable()) 
+	return;
       double energyHit = RefPFRecHit->energy();
       if (RefPFRecHit->detId() != SeedDetID) {
 	float diffEta =  RefPFRecHit->position().eta() - SeedEta;
