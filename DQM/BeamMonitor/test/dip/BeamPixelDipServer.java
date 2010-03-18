@@ -6,7 +6,6 @@ package cms.dip.tracker.beamspot;
 
 import cern.dip.*;
 import java.lang.Thread;
-import java.util.Random;
 import java.io.*;
 import java.text.*;
 import java.util.Date;
@@ -34,34 +33,33 @@ implements Runnable,DipPublicationErrorHandler
   DipData messageLHC;
   DipPublication publicationCMS;
   DipPublication publicationLHC;
-  int runnum;
-  String startTime;
-  String endTime;
-  String lumiRange;
-  String quality;
-  int type;
-  float x;
-  float y;
-  float z;
-  float dxdz;
-  float dydz;
-  float err_x;
-  float err_y;
-  float err_z;
-  float err_dxdz;
-  float err_dydz;
-  float width_x;
-  float width_y;
-  float sigma_z;
-  float err_width_x;
-  float err_width_y;
-  float err_sigma_z;
+  int runnum = 0;
+  String startTime = getDateTime();
+  String endTime = getDateTime();
+  String lumiRange = "0 - 0";
+  String quality = "Uncertain";
+  int type = -1;
+  float x = 0;
+  float y = 0;
+  float z = 0;
+  float dxdz = 0;
+  float dydz = 0;
+  float err_x = 0;
+  float err_y = 0;
+  float err_z = 0;
+  float err_dxdz = 0;
+  float err_dydz = 0;
+  float width_x = 0;
+  float width_y = 0;
+  float sigma_z = 0;
+  float err_width_x = 0;
+  float err_width_y = 0;
+  float err_sigma_z = 0;
   float Size[] = new float[3];
   float Centroid[] = new float[3];
   float Tilt[] = new float[2];
 
   boolean keepRunning;
-  Random random = new Random((long)0xadeadcdf);
   long lastFitTime = 0;
   long lastModTime = 0;
   BitSet alive = new BitSet(8);
@@ -133,13 +131,15 @@ implements Runnable,DipPublicationErrorHandler
 	    lastFitTime = lastModTime;
 	    if (logFile.length() > 0) {
 		if (verbose) System.out.println("Read record from " + sourceFile);
-		readRcd(br);
+		if (readRcd(br)) {
+		    trueRcd();
+		    alive.clear();
+		    alive.flip(7);
+		}
+		else fakeRcd();
 		if (verbose) System.out.println("Publish new record");
-		trueRcd();
 		lsCount = 0;
 		idleTime = 0;
-		alive.clear();
-		alive.flip(7);
 	    }
 	    br.close();
 	    fr.close();
@@ -196,10 +196,11 @@ implements Runnable,DipPublicationErrorHandler
     }
   }
 
-  private void readRcd(BufferedReader file_)
+  private boolean readRcd(BufferedReader file_)
   {
     int nthLnInRcd = 0;
     String record = new String();
+    boolean rcdQlty = false;
     try
     {
       while ((record = file_.readLine()) != null) {
@@ -209,11 +210,10 @@ implements Runnable,DipPublicationErrorHandler
 	tmp = record.split("\\s");
 	switch(nthLnInRcd) {
 	case 1:
-	    if (!record.startsWith("Run")){
-		System.out.println("BeamFitResults text file may be corrupted.");
-		System.out.println("Stopping BeamPixel DIP Server!");
-		System.exit(0);
-	    }
+ 	    if (!record.startsWith("Run")){
+ 		System.out.println("Reading of results text file interrupted. " + getDateTime());
+		return false;
+ 	    }
 	    runnum = new Integer(tmp[1]);
 	    System.out.println("Run: " + runnum);
 	    break;
@@ -290,8 +290,10 @@ implements Runnable,DipPublicationErrorHandler
 	case 20:
 	    err_width_x = new Float(Math.sqrt(Double.parseDouble(tmp[7])));
 	    err_width_y = err_width_x;
+	    rcdQlty = true;
+	    System.out.println("End of results");
 	    break;
-			
+
 	default:
 	    break;
 	}
@@ -302,6 +304,7 @@ implements Runnable,DipPublicationErrorHandler
 	System.err.println("IOException: " + getDateTime());
 	e.printStackTrace();
     }
+    return rcdQlty;
   }
 
   private void trueRcd()
@@ -387,7 +390,6 @@ implements Runnable,DipPublicationErrorHandler
       DipTimestamp zeit;
       if (fitTime_) {
 	  long epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zz").parse(endTime).getTime();
-	  //System.out.println(epoch);
 	  zeit = new DipTimestamp(epoch);
       }
       else zeit = new DipTimestamp();
@@ -417,14 +419,14 @@ implements Runnable,DipPublicationErrorHandler
 
   private String getDateTime()
   {
-    DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
     Date date = new Date();
     return dateFormat.format(date);
   }
 
   private String getDateTime(long epoch)
   {
-    DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
     Date date = new Date(epoch);
     return dateFormat.format(date);
   }
