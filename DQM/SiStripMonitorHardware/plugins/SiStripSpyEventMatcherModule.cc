@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <map>
 #include <memory>
 #include <vector>
 
@@ -62,13 +61,13 @@ namespace sistrip {
   {
     if (doMerge_) {
       produces<FEDRawDataCollection>("RawSpyData");
-      produces<std::map<uint32_t,uint32_t> >("SpyTotalEventCount");
-      produces<std::map<uint32_t,uint32_t> >("SpyL1ACount");
-      produces<std::map<uint32_t,uint32_t> >("SpyAPVAddress");
-      produces<edm::DetSetVector<SiStripRawDigi> >("SpyScope");
-      produces<edm::DetSetVector<SiStripRawDigi> >("SpyPayload");
-      produces<edm::DetSetVector<SiStripRawDigi> >("SpyReordered");
-      produces<edm::DetSetVector<SiStripRawDigi> >("SpyVirginRaw");
+      produces< std::vector<uint32_t> >("SpyTotalEventCount");
+      produces< std::vector<uint32_t> >("SpyL1ACount");
+      produces< std::vector<uint32_t> >("SpyAPVAddress");
+      produces< edm::DetSetVector<SiStripRawDigi> >("SpyScope");
+      produces< edm::DetSetVector<SiStripRawDigi> >("SpyPayload");
+      produces< edm::DetSetVector<SiStripRawDigi> >("SpyReordered");
+      produces< edm::DetSetVector<SiStripRawDigi> >("SpyVirginRaw");
     }
   }
   

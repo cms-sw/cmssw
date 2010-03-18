@@ -82,7 +82,10 @@ namespace sistrip {
          ( (iTotalEventCount != totalEventCounters.end()) && (iL1ACount != l1aCounters.end()) && (iAPVAddress != apvAddresses.end()) ); 
          (++iTotalEventCount, ++iL1ACount, ++iAPVAddress)
         ){
-      for (uint32_t eventId = *iTotalEventCount+1; eventId <= *iL1ACount+1; ++eventId) {
+      if (*iAPVAddress == 0) {
+        continue;
+      }
+      for (uint32_t eventId = (*iTotalEventCount)+1; eventId <= (*iL1ACount)+1; ++eventId) {
         EventKey key(eventId,*iAPVAddress);
         eventMatches_[key].insert(spyEventId);
         fedCounts[key]++;
@@ -229,8 +232,11 @@ namespace sistrip {
          ( (iTotalEventCount != totalEventCounters.end()) && (iL1ACount != l1aCounters.end()) && (iAPVAddress != apvAddresses.end()) );
          (++iTotalEventCount, ++iL1ACount, ++iAPVAddress)
         ){
-      if ( (eventId > *iTotalEventCount) && (eventId <= *iL1ACount+1) && (*iAPVAddress == apvAddress) ) {
-        matchingFeds.insert(matchingFeds.end(),*iTotalEventCount);
+      if (*iAPVAddress == 0) {
+        continue;
+      }
+      if ( (eventId > *iTotalEventCount) && (eventId <= (*iL1ACount)+1) && (*iAPVAddress == apvAddress) ) {
+        matchingFeds.insert(matchingFeds.end(),iTotalEventCount-totalEventCounters.begin());
       }
     }
   }
@@ -271,7 +277,10 @@ namespace sistrip {
     std::set<uint32_t> usedDetIds;
     for (std::set<uint16_t>::const_iterator iFedId = matchingFeds.begin(); iFedId != matchingFeds.end(); ++iFedId) {
       const uint32_t fedId = *iFedId;
-      outputRawData.FEDData(fedId) = inputRawData.FEDData(fedId);
+      LogDebug(mlLabel_) << "Copying data for FED " << fedId;
+      if (inputRawData.FEDData(fedId).size() && inputRawData.FEDData(fedId).data()) {
+        outputRawData.FEDData(fedId) = inputRawData.FEDData(fedId);
+      }
       outputTotalEventCounters[fedId] = inputTotalEventCounters[fedId];
       outputL1ACounters[fedId] = inputL1ACounters[fedId];
       outputAPVAddresses[fedId] = inputAPVAddresses[fedId];
