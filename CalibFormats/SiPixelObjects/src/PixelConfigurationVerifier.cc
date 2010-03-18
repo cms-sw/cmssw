@@ -52,7 +52,7 @@ void PixelConfigurationVerifier::checkChannelEnable(PixelFEDCard *theFEDCard,
     if (used) { 
       //            cout << "Channel="<<jChannel<<" is used"<<endl;
       //check that nROCs is the same from theNameTranslation and theFEDCard
-      if (int(nrocs[jChannel]) != theFEDCard->NRocs[jChannel-1]) {
+      if (nrocs[jChannel] != theFEDCard->NRocs[jChannel-1]) {
 	cout<<"[PixelConfigurationVerifier] Warning in FED#"<<fedid<<", channel#"<<jChannel
 	    <<": number of ROCs mismatch: theNameTranslation="<<nrocs[jChannel]<<"; theFEDCard="<<theFEDCard->NRocs[jChannel-1]<<endl;
       }
