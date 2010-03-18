@@ -129,8 +129,10 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	{
 	  testphi=iphi;
 	  // Special case when ieta=39, since ieta=40 only has phi values at 3,7,11,...
+	  // phi=3 covers 3,4,5,6
 	  if (abs(ieta)==39 && abs(i)>39 && testphi%4==1)
-	    testphi+=2;
+	    testphi-=2;
+	  while (testphi<0) testphi+=72;
 	  if (i==ieta && d==depth) continue;  // don't add the cell itself
 	  // Look to see if neighbor is in rechit collection
 	  HcalDetId neighbor(HcalForward, i,testphi,d);
@@ -163,7 +165,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   
   if (abs(ieta)==40) // add extra cell for 39/40 boundary due to increased phi size at ieta=40.
     {
-      HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,iphi-2,depth);  
+      HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,depth);  
       HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
       if (neigh!=rec.end())
 	S9S1+=neigh->energy();
@@ -184,7 +186,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   double S9S1cut = 0;
   // Protection in case intercept or energy are ever less than 0.  Do we have some other default value of S9S1cut we'd like touse in this case?
   if (intercept>0 && energy>0)  
-    S9S1cut=-1.*log(intercept) + slope*log(energy);
+    S9S1cut=-1.*slope*log(intercept) + slope*log(energy);
   if (S9S1>=S9S1cut)
     hf.setFlagField(0,HcalCaloFlagLabels::HFLongShort); // doesn't look like noise
   else
