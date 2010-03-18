@@ -44,6 +44,28 @@ namespace reco {
       egamma_HF    // HF tower identified as an EM particle
     };
 
+    enum Flags {
+      NORMAL=0,
+      E_PHI_SMODULES,
+      E_ETA_0,
+      E_ETA_MODULES,
+      E_BARREL_ENDCAP,
+      E_PRESHOWER_EDGE,
+      E_PRESHOWER,
+      E_ENDCAP_EDGE,
+      H_ETA_0,
+      H_BARREL_ENDCAP,
+      H_ENDCAP_VFCAL,
+      H_VFCAL_EDGE,  
+      T_TO_DISP,
+      T_FROM_DISP,
+      T_FROM_V0,
+      T_FROM_GAMMACONV,
+      GAMMA_TO_GAMMACONV
+    };
+    
+
+
     /// default constructor
     PFCandidate();
 
@@ -65,14 +87,14 @@ namespace reco {
     virtual PFCandidate * clone() const;
 
 
- /*    /// set source ref */
-/*     void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; } */
+    /*    /// set source ref */
+    /*     void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; } */
 
-/*     size_type numberOfSourceCandidateRefs() const {return 1;} */
+    /*     size_type numberOfSourceCandidateRefs() const {return 1;} */
 
-/*     CandidateBaseRef sourceCandidateRef( size_type i ) const { */
-/*       return  CandidateBaseRef(sourceRef_); */
-/*     } */
+    /*     CandidateBaseRef sourceCandidateRef( size_type i ) const { */
+    /*       return  CandidateBaseRef(sourceRef_); */
+    /*     } */
 
     void setSourceCandidatePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
 
@@ -121,12 +143,16 @@ namespace reco {
     /// otherwise, return a null reference
     reco::MuonRef muonRef() const { return muonRef_; }    
 
-    /// set nuclear interaction reference
-    void setNuclearRef(const reco::PFDisplacedVertexRef& ref);
+    /// set displaced vertex reference
+    void setDisplacedVertexRef(const reco::PFDisplacedVertexRef& ref, Flags flag);
 
-    /// return a reference to the corresponding nuclear interaction,
+    /// return a reference to the corresponding displaced vertex,
     /// otherwise, return a null reference
-    reco::PFDisplacedVertexRef nuclearRef() const { return nuclearRef_; }
+    reco::PFDisplacedVertexRef displacedVertexRef(Flags type) const { 
+      if (type == T_TO_DISP) return displacedVertexDaughterRef_; 
+      else if (type == T_FROM_DISP) return displacedVertexMotherRef_; 
+      return reco::PFDisplacedVertexRef();
+    }
 
     /// set ref to original reco conversion
     void setConversionRef(const reco::ConversionRef& ref);
@@ -135,10 +161,10 @@ namespace reco {
     reco::ConversionRef conversionRef() const { return conversionRef_; }
 
     /// set ref to original reco conversion
-    void setV0MotherRef(const reco::VertexCompositeCandidateRef& ref);
+    void setV0Ref(const reco::VertexCompositeCandidateRef& ref);
 
     /// return a reference to the original conversion
-    reco::VertexCompositeCandidateRef v0MotherRef() const { return v0MotherRef_; }
+    reco::VertexCompositeCandidateRef v0Ref() const { return v0Ref_; }
 
 
     /// set corrected Ecal energy 
@@ -180,26 +206,6 @@ namespace reco {
     /// particle momentum *= rescaleFactor
     void rescaleMomentum( double rescaleFactor );
 
-    enum Flags {
-      NORMAL=0,
-      E_PHI_SMODULES,
-      E_ETA_0,
-      E_ETA_MODULES,
-      E_BARREL_ENDCAP,
-      E_PRESHOWER_EDGE,
-      E_PRESHOWER,
-      E_ENDCAP_EDGE,
-      H_ETA_0,
-      H_BARREL_ENDCAP,
-      H_ENDCAP_VFCAL,
-      H_VFCAL_EDGE,  
-      T_TO_NUCLINT,
-      T_FROM_NUCLINT,
-      T_FROM_V0,
-      T_FROM_GAMMACONV,
-      GAMMA_TO_GAMMACONV
-    };
-    
     /// set a given flag
     void setFlag(Flags theFlag, bool value);
     
@@ -308,7 +314,7 @@ namespace reco {
     ElementsInBlocks elementsInBlocks_;
 
     /// reference to the source PFCandidate, if any
-/*     PFCandidateRef sourceRef_; */
+    /*     PFCandidateRef sourceRef_; */
     PFCandidatePtr sourcePtr_;
 
     reco::TrackRef trackRef_;
@@ -317,11 +323,17 @@ namespace reco {
 
     reco::MuonRef  muonRef_;
 
-    reco::PFDisplacedVertexRef nuclearRef_;
+    /// reference to the corresponding pf displaced vertex where this track was created
+    reco::PFDisplacedVertexRef displacedVertexMotherRef_;
 
+    /// reference to the corresponding pf displaced vertex which this track was created
+    reco::PFDisplacedVertexRef displacedVertexDaughterRef_;
+
+    // Reference to a mother conversion
     reco::ConversionRef conversionRef_;
-    
-    reco::VertexCompositeCandidateRef v0MotherRef_;
+
+    // Reference to a mother V0
+    reco::VertexCompositeCandidateRef v0Ref_;
 
     /// corrected ECAL energy
     float       ecalEnergy_;
