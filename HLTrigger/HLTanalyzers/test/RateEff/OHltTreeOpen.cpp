@@ -1,3 +1,5 @@
+
+
 //////////////////////////////////////////////////////////////////
 // OpenHLT definitions
 //////////////////////////////////////////////////////////////////
@@ -1517,6 +1519,17 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
     }
   }
+  else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu30_L1SingleJet15") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      for(int i=0;i<NL1Mu;i++) {
+        if(L1MuPt[i] > 30.0)
+	  rc++;
+      }
+      if(rc > 0)
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleJet20") == 0){ 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0;   
@@ -1524,8 +1537,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       for(int i=0;i<NL1ForJet;i++) if(L1ForJetEt[i] >= 20.0) rc++;   
       for(int i=0;i<NL1Tau   ;i++) if(L1TauEt   [i] >= 20.0) rc++;   
       if(rc > 0)
-				if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
-			
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
     } 
   } 
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1ETM30") == 0){ 
