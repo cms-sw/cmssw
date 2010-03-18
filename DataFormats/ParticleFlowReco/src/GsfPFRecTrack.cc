@@ -31,3 +31,8 @@ GsfPFRecTrack::calculateBremPositionREP() {
   for ( unsigned j=0; j<pfBremVec_.size(); ++j ) 
     pfBremVec_[j].calculatePositionREP();
 }
+
+void 
+GsfPFRecTrack::addConvBremPFRecTrackRef(const reco::PFRecTrackRef& pfrectracksref){
+  assoPFRecTrack_.push_back(pfrectracksref);
+}
