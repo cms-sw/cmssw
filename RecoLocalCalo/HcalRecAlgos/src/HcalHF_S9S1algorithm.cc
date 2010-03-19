@@ -125,7 +125,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
       return;
     }
-
+  //cout <<"PASSED:  ieta = "<<ieta<<"  iphi = "<<iphi<<"  depth = "<<depth<<"  energy = "<<energy<<endl;
   // Step 2:  Find all neighbors, and calculate S9/S1
   double S9S1=0;
   int testphi=-99;
@@ -146,9 +146,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  HcalDetId neighbor(HcalForward, i,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  if (neigh!=rec.end())
-	    {
-	      S9S1+=neigh->energy();
-	    }
+	    S9S1+=neigh->energy();
 	}
     }
 
@@ -169,19 +167,18 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  HcalDetId neighbor(HcalForward, ieta,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  if (neigh!=rec.end())
-	    {
-	      S9S1+=neigh->energy();
-	    }
+	    S9S1+=neigh->energy();
 	}
     }
   
-  if (abs(ieta)==40) // add extra cell for 39/40 boundary due to increased phi size at ieta=40.
+  if (abs(ieta)==40) // add extra cells for 39/40 boundary due to increased phi size at ieta=40.
     {
-      HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,depth);  
-      HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
-      if (neigh!=rec.end())
+      for (int d=1;d<=2;++d) // add cells from both depths!
 	{
-	  S9S1+=neigh->energy();
+	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d);  
+	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
+	  if (neigh!=rec.end())
+	      S9S1+=neigh->energy();
 	}
     }
     
@@ -201,7 +198,6 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   // Protection in case intercept or energy are ever less than 0.  Do we have some other default value of S9S1cut we'd like touse in this case?
   if (intercept>0 && energy>0)  
     S9S1cut=-1.*slope*log(intercept) + slope*log(energy);
-
   if (S9S1>=S9S1cut)
     hf.setFlagField(0,HcalCaloFlagLabels::HFLongShort); // doesn't look like noise
   else

@@ -135,5 +135,5 @@ double HcalHF_PETalgorithm::CalcThreshold(double abs_x,std::vector<double> param
       threshold+=params[i]*pow(abs_x, (int)i);
     }
   return threshold;
-} //double HcalHF_S9S1algorithm::CalcThreshold(double abs_x,std::vector<double> params)
+} //double HcalHF_PETalgorithm::CalcThreshold(double abs_x,std::vector<double> params)
 
