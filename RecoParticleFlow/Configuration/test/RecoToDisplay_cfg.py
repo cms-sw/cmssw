@@ -8,7 +8,8 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'MC_3XY_V25::All'
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 
-#process.Timing =cms.Service("Timing")
+# process.Timing =cms.Service("Timing")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -91,8 +92,8 @@ process.outpath = cms.EndPath(process.display)
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet(
-    makeTriggerResults = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True),
+    makeTriggerResults = cms.untracked.bool(False),
+    wantSummary = cms.untracked.bool(False),
     Rethrow = cms.untracked.vstring('Unknown', 
         'ProductNotFound', 
         'DictionaryNotFound', 
@@ -113,6 +114,6 @@ process.options = cms.untracked.PSet(
         'NotFound')
 )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 
