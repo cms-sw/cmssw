@@ -94,10 +94,14 @@ namespace cond {
     return (p!=iovs().begin()) ? p-1 : iovs().end(); 
   }
   
-  bool IOVSequence::exist(cond::Time_t time) const {
-    IOVSequence::const_iterator p = find(time);
-    return p!=iovs().end() && (*p).sinceTime()==time;
 
+  IOVSequence::const_iterator IOVSequence::findSince(cond::Time_t time) const {
+    IOVSequence::const_iterator p = find(time);
+    return (p!=iovs().end() && (*p).sinceTime()==time) ? p : iovs().end();
+  }
+  
+  bool IOVSequence::exist(cond::Time_t time) const {
+    return findSince(time)!=iovs().end();
   }
 
 

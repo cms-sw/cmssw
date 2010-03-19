@@ -1,7 +1,5 @@
 #include "CondCore/IOVService/interface/KeyList.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "DataSvc/RefException.h"
 
 
 
@@ -13,12 +11,15 @@ namespace cond {
     m_sequence.db().transaction().start(true);
     m_data.resize(keys.size());
     for (size_t i=0; i<keys.size(); ++i) {
+      m_data[i].clear();
       if (keys[i]!=0) {
-        IOVSequence::const_iterator p = m_sequence.iov().find(keys[i]);
-        pool::Ref<Wrapper> ref = m_sequence.db().getTypedObject<Wrapper>( (*p).wrapperToken() );
+        IOVSequence::const_iterator p = m_sequence.iov().findSince(keys[i]);
+	if (p!=iovs().end()) { 
+	  pool::Ref<Wrapper> ref = m_sequence.db().getTypedObject<Wrapper>( (*p).wrapperToken() );
         m_data[i].copyShallow(ref);
         m_data[i]->loadAll();
-      } else m_data[i].clear();
+	}
+      }
     }
     m_sequence.db().transaction().commit();
   }

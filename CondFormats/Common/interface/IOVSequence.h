@@ -51,6 +51,9 @@ namespace cond {
     // find IOV for which time is valid (this is not STANDARD std::find!)
     const_iterator find(cond::Time_t time) const;
 
+    // find IOV with a given since  (this is not STANDARD std::find!)
+    const_iterator findSince(cond::Time_t time) const;
+
     // true if an iov with since==time already exists
     bool exist(cond::Time_t time) const;
 
