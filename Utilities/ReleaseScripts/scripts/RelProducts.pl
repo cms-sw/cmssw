@@ -102,7 +102,7 @@ sub doSearchRev()
     {
       if (exists $data->{$pack}{TEST}{$file}){$found=1; last;}
     }
-    if (!$found){print "RMissing TEST: $file\n";}
+    if (!$found){print "Missing TEST: $file\n";}
   }
   foreach my $file (`find ${release}/bin/$ENV{SCRAM_ARCH} -maxdepth 1 -name "*" -type f | sed 's|${release}/bin/$ENV{SCRAM_ARCH}/||'`)
   {
@@ -134,10 +134,10 @@ sub updateProd ()
         my $type="LIBRARY";
         if (&isPlugin($class,$c)){$type="PLUGIN";}
         my $name=$projcache->{BUILDTREE}{$p}{NAME};
-        if (-f "${release}/src/${p}/iglet.cc"){$data->{$pack}{IGLET}{$name}=1;}
+        if (-f "${release}/src/${p}/iglet.cc"){$data->{$pack}{IGLET}{$name}=1;$type="LIBRARY";}
         elsif (($type eq "LIBRARY") && (-f "${release}/src/${p}/classes.h")  && (-f "${release}/src/${p}/classes_def.xml"))
         {$data->{$pack}{PLUGIN}{"${name}Capabilities"}=1;}
-        $data->{$pack}{$type}{$name}=1;
+	$data->{$pack}{$type}{$name}=1;
         if ((exists $c->{FLAGS}) && (exists $c->{FLAGS}{INSTALL_SCRIPTS}))
         {
           foreach my $file (@{$c->{FLAGS}{INSTALL_SCRIPTS}}){$data->{$pack}{SCRIPTS}{$file}=1;}
