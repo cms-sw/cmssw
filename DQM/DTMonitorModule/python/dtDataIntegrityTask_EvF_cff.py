@@ -2,8 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 dtunpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
-    useStandardFEDid = cms.untracked.bool(True),
-    fedbyType = cms.untracked.bool(True),
+    inputLabel = cms.InputTag('source'),
+    fedbyType = cms.bool(False),
+    useStandardFEDid = cms.bool(True),
+    dqmOnly = cms.bool(True),                       
     readOutParameters = cms.PSet(
         debug = cms.untracked.bool(False),
         rosParameters = cms.PSet(
