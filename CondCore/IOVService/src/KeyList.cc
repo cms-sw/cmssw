@@ -14,7 +14,7 @@ namespace cond {
       m_data[i].clear();
       if (keys[i]!=0) {
         IOVSequence::const_iterator p = m_sequence.iov().findSince(keys[i]);
-	if (p!=m_sequence.iovs().end()) { 
+	if (p!=m_sequence.iov().end()) { 
 	  pool::Ref<Wrapper> ref = m_sequence.db().getTypedObject<Wrapper>( (*p).wrapperToken() );
 	  m_data[i].copyShallow(ref);
 	  m_data[i]->loadAll();
