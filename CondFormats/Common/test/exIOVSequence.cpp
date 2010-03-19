@@ -26,6 +26,9 @@ int main() {
     if (iov.find(36)!=(v.begin()+2)) std::cerr << "error find 36" << std::endl;
     if (iov.find(40)!=v.end()-1) std::cerr << "error find 45" << std::endl;
     if (iov.find(45)!=v.end()-1) std::cerr << "error find 45" << std::endl;
+    if (iov.findSince(12)!=v.end()) std::cerr << "error findSince 12" << std::endl;
+    if (iov.findSince(20)!=(v.begin()+1)) std::cerr << "error findSince 20" << std::endl;
+
 
     if (iov.add(50,"f")!=4)  std::cerr << "error in add"  << std::endl;
     if (iov.find(45)!=v.end()-2) std::cerr << "error find 45" << std::endl;
