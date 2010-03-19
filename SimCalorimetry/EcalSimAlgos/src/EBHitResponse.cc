@@ -55,8 +55,8 @@ EBHitResponse::makeAnalogSignal( const PCaloHit& hit ) const
       const DetId detId  ( hit.id() ) ;
       CaloSamples result ( makeBlankSignal( detId ) );
 
-      if( 0 != depth ) std::cout<<"........found an apd simhit for "
-				<<EBDetId(detId) <<", depth="<<depth<<std::endl;
+//      if( 0 != depth ) std::cout<<"........found an apd simhit for "
+//				<<EBDetId(detId) <<", depth="<<depth<<std::endl;
       if( 0 != depth            &&
 	  0 != apdParameters()  &&
 	  0 != apdShape()       &&
@@ -119,8 +119,8 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const
       double fac ( 1 ) ;
       findIntercalibConstant( hit.id(), fac ) ;
       npe *= fac ;
-      std::cout<<".... number of photoelectrons for "
-	       <<EBDetId(hit.id())<<" after INTERCAL FACTOR is " << npe<<std::endl ;
+//      std::cout<<".... number of photoelectrons for "
+//	       <<EBDetId(hit.id())<<" after INTERCAL FACTOR is " << npe<<std::endl ;
    }
 
    return npe;
