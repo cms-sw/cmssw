@@ -94,8 +94,8 @@ ecalHostEC    = 'vmepcS2F19-25'.lower()
 ecalHostEB    = 'srv-s2f19-26'.lower()
 ecalHostEE    = 'srv-s2f19-27'.lower()
 
-cmsLiveHostEB = 'srv-c2c05-06'.lower()
-cmsLiveHostEE = 'srv-c2c05-07'.lower()
+cmsLiveHostEB = 'dqm-c2d07-03'.lower()
+cmsLiveHostEE = 'dqm-c2d07-04'.lower()
 
 cmsPlayHostEB = 'dqm-c2d07-13'.lower()
 cmsPlayHostEE = 'dqm-c2d07-14'.lower()
