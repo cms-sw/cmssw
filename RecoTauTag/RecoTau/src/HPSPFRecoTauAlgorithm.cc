@@ -565,8 +565,10 @@ bool
 HPSPFRecoTauAlgorithm::isNarrowTau(reco::PFTau& tau,double cone)
 {
 
-  PFTauElementsOperators myOperators(tau);
-  double allowedConeSize =myOperators.computeConeSize(coneSizeFormula,minSignalCone_,maxSignalCone_);
+  double allowedConeSize=coneSizeFormula.Eval(tau.energy(),tau.et());
+  if (allowedConeSize<minSignalCone_) allowedConeSize=minSignalCone_;
+  if (allowedConeSize>maxSignalCone_) allowedConeSize=maxSignalCone_;
+
   if(cone<allowedConeSize)
     return true;
   else
