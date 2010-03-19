@@ -11,7 +11,7 @@
 //
 // Original Author:  Dinko Ferencek,8 R-004,+41227676479,  Jeff Temple, 6-1-027
 //         Created:  Thu Mar 11 13:42:11 CET 2010
-// $Id: HcalRecHitReflagger.cc,v 1.1 2010/03/18 13:26:57 temple Exp $
+// $Id: HcalRecHitReflagger.cc,v 1.2 2010/03/18 18:33:26 temple Exp $
 //
 //
 
@@ -57,19 +57,19 @@ private:
   virtual void beginRun(const Run& r, const EventSetup& c);
 
   // Threshold function gets values from polynomial-parameterized functions
-  double GetThreshold(int base, std::vector<double> params);
-  double GetThreshold(double base, std::vector<double> params);
+  double GetThreshold(const int base, const std::vector<double>& params);
+  double GetThreshold(const double base, const std::vector<double>& params);
 
   // Perform a check of a rechit's S9/S1 value compared to a given threshold
-  bool   CheckS9S1(HFRecHit& hf); 
+  bool   CheckS9S1(const HFRecHit& hf); 
 
   // Perform a check of a rechit's |L-S|/|L+S| ratio, compared to a paremeterized threshold
-  bool   CheckPET(HFRecHit& hf);
+  bool   CheckPET(const HFRecHit& hf);
 
   // Get S9S1, PET values
-  double GetS9S1value(HFRecHit& hf);
-  double GetPETvalue(HFRecHit& hf);
-  double GetSlope(int ieta, std::vector<double> params); 
+  double GetS9S1value(const HFRecHit& hf);
+  double GetPETvalue(const HFRecHit& hf);
+  double GetSlope(const int ieta, const std::vector<double>& params); 
 
   // ----------member data ---------------------------
   edm::InputTag hfInputLabel_;
@@ -146,13 +146,6 @@ HcalRecHitReflagger::HcalRecHitReflagger(const edm::ParameterSet& ps)
    PET_EnergyThreshShort_               = PET.getUntrackedParameter<std::vector<double> >("PET_EnergyThreshShort"); 
    PET_ETThreshShort_                   = PET.getUntrackedParameter<std::vector<double> >("PET_ETThreshShort"); 
    PET_ratiocut_                   = PET.getParameter<std::vector<double> >("PET_ratiocut");
-
-   // If combination tests are true, force individual tags to be true
-   if (hf_Algo3_AND_Algo2_==true || hf_Algo3_OR_Algo2_==true)
-     {
-       hf_Algo3test_=true;
-       hf_Algo2test_=true;
-     }
 }
 
 
@@ -181,7 +174,7 @@ void HcalRecHitReflagger::beginRun(const Run& r, const EventSetup& c)
       if (i->det()!=DetId::Hcal) continue; // not an hcal cell
       HcalDetId id=HcalDetId(*i);
       int status=(chanquality_->getValues(id))->getValue();
-      if (status&&(1<<HcalChannelStatus::HcalCellDead)==0) continue;
+      if ( (status & (1<<HcalChannelStatus::HcalCellDead))==0 ) continue;
       badstatusmap[id]=status;
     }
 
@@ -220,8 +213,8 @@ HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 bool Algo3bool = false;  // Algorithm 3 is PET testing for short, S9S1 for long
 
 	 HcalDetId id(newhit.detid().rawId());
-	 int depth = id.depth();
-	 int ieta  = id.ieta();
+	 int depth = newhit.id().depth();
+	 int ieta  = newhit.id().ieta();
 
 	 // Code below performs Algo2 or Algo3 tests;  modify as you see fit
 	 
@@ -241,7 +234,7 @@ HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 // run through test combinations
 	 if (hf_Algo3_AND_Algo2_==true)
 	   (Algo2bool && Algo3bool)==true ? flagvalue=1 : flagvalue = 0;
-	 else if (hf_Algo3_AND_Algo2_==true)
+	 else if (hf_Algo3_OR_Algo2_==true)
 	   (Algo2bool || Algo3bool)==true ? flagvalue=1 : flagvalue = 0;
 	 else if (hf_Algo3test_ ==true)
 	     Algo3bool==true ? flagvalue = 1 : flagvalue = 0;
@@ -273,7 +266,7 @@ void
 HcalRecHitReflagger::endJob() {
 }
 
-bool HcalRecHitReflagger::CheckPET(HFRecHit& hf)
+bool HcalRecHitReflagger::CheckPET(const HFRecHit& hf)
 {
   /*
     Runs 'PET' test:  Computes ratio |L-S|/(L+S) for channel passing ieta-dependent energy and ET cuts.
@@ -306,7 +299,7 @@ bool HcalRecHitReflagger::CheckPET(HFRecHit& hf)
       double PETcut=GetThreshold(energy,PET_ratiocut_);
       double PETvalue=GetPETvalue(hf);
       if (debug_>1)
-	std::cout <<"  <HcalRecHitReflagger::CheckAlgo3>  ieta = "<<ieta<<"  energy threshold = "<<GetThreshold(ieta, PET_EnergyThreshLong_)<<"  ET threshold = "<<GetThreshold(ieta, PET_ETThreshLong_)<<"   ENERGY = "<<energy<<"   PET threshold = "<<PETcut<<std::endl;
+	std::cout <<"  <HcalRecHitReflagger::CheckPET>  ieta = "<<ieta<<"  energy threshold = "<<GetThreshold(ieta, PET_EnergyThreshLong_)<<"  ET threshold = "<<GetThreshold(ieta, PET_ETThreshLong_)<<"   ENERGY = "<<energy<<"   PET threshold = "<<PETcut<<std::endl;
 
       if (PETvalue>PETcut) 
 	{
@@ -328,7 +321,7 @@ bool HcalRecHitReflagger::CheckPET(HFRecHit& hf)
       double PETcut=GetThreshold(energy,PET_ratiocut_);
       double PETvalue=GetPETvalue(hf);
       if (debug_>1)
-	std::cout <<"  <HcalRecHitReflagger::CheckAlgo3>  ieta = "<<ieta<<"  energy threshold = "<<GetThreshold(ieta, PET_EnergyThreshShort_)<<"  ET threshold = "<<GetThreshold(ieta, PET_ETThreshShort_)<<"   ENERGY = "<<energy<<"   PET threshold = "<<PETcut<<endl;
+	std::cout <<"  <HcalRecHitReflagger::CheckPET>  ieta = "<<ieta<<"  energy threshold = "<<GetThreshold(ieta, PET_EnergyThreshShort_)<<"  ET threshold = "<<GetThreshold(ieta, PET_ETThreshShort_)<<"   ENERGY = "<<energy<<"   PET threshold = "<<PETcut<<endl;
 
       if (PETvalue>PETcut) 
 	{
@@ -343,7 +336,7 @@ bool HcalRecHitReflagger::CheckPET(HFRecHit& hf)
 
 
 
-bool HcalRecHitReflagger::CheckS9S1(HFRecHit& hf)
+bool HcalRecHitReflagger::CheckS9S1(const HFRecHit& hf)
 {
   // Apply S9/S1 test  -- only sensible for long fibers at the moment!
 
@@ -373,7 +366,7 @@ bool HcalRecHitReflagger::CheckS9S1(HFRecHit& hf)
 	return false;
 
       // S9S1 cut has form [0]+[1]*log[E], 
-      double S9S1cut = -1.*log(GetThreshold(ieta, PET_EnergyThreshLong_))+S9S1slope*(log(energy));
+      double S9S1cut = -1.*S9S1slope*log(GetThreshold(ieta, PET_EnergyThreshLong_))+S9S1slope*(log(energy));
 
       if (S9S1value<S9S1cut) 
 	{
@@ -395,7 +388,7 @@ bool HcalRecHitReflagger::CheckS9S1(HFRecHit& hf)
 	return false;
 
       // S9S1 cut has form [0]+[1]*log[E], 
-      double S9S1cut = -1.*log(GetThreshold(ieta, PET_EnergyThreshShort_))+S9S1slope*(log(energy));
+      double S9S1cut = -1.*S9S1slope*log(GetThreshold(ieta, PET_EnergyThreshShort_))+S9S1slope*(log(energy));
    
       if (S9S1value<S9S1cut) 
 	{
@@ -410,7 +403,7 @@ bool HcalRecHitReflagger::CheckS9S1(HFRecHit& hf)
 
 
 
-double HcalRecHitReflagger::GetS9S1value(HFRecHit& hf)
+double HcalRecHitReflagger::GetS9S1value(const HFRecHit& hf)
 {
   // sum all energies around cell hf (including hf itself)
   // Then subtract hf energy, and divide by this energy to form ratio S9/S1
@@ -469,7 +462,7 @@ double HcalRecHitReflagger::GetS9S1value(HFRecHit& hf)
 } // GetS9S1value
 
 
-double HcalRecHitReflagger::GetPETvalue(HFRecHit& hf)
+double HcalRecHitReflagger::GetPETvalue(const HFRecHit& hf)
 {
   HcalDetId id(hf.detid().rawId());
   int iphi = id.iphi();
@@ -491,7 +484,7 @@ double HcalRecHitReflagger::GetPETvalue(HFRecHit& hf)
 }
 
 
-double HcalRecHitReflagger::GetThreshold(int base, std::vector<double> params)
+double HcalRecHitReflagger::GetThreshold(const int base, const std::vector<double>& params)
 {
   double thresh=0;
   for (unsigned int i=0;i<params.size();++i)
@@ -501,7 +494,7 @@ double HcalRecHitReflagger::GetThreshold(int base, std::vector<double> params)
   return thresh;
 }
 
-double HcalRecHitReflagger::GetThreshold(double base, std::vector<double> params)
+double HcalRecHitReflagger::GetThreshold(const double base, const std::vector<double>& params)
 {
   double thresh=0;
   for (unsigned int i=0;i<params.size();++i)
@@ -511,7 +504,7 @@ double HcalRecHitReflagger::GetThreshold(double base, std::vector<double> params
   return thresh;
 }
 
-double HcalRecHitReflagger::GetSlope(int ieta, std::vector<double> params)
+double HcalRecHitReflagger::GetSlope(const int ieta, const std::vector<double>& params)
 {
   double slope=0;
   if (abs(ieta)==40 && params.size()>0)
