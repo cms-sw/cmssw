@@ -1,12 +1,13 @@
     var layer;
     var crate;
     var remotewin;
-    layer=1;crate=1; 
+    var loaded;
+	layer=1;crate=1; 
       var $layerp = {};
       var $layer = {};
       var $cratep = {};
       var $crate = {};
-      var $feccratep = {};
+	  var $feccratep = {};
       var $feccrate = {};
       var $psurackp = {};
       var $psurack = {};
@@ -157,13 +158,14 @@ $(document).ready(function(){
            })
           .appendTo('#icons');
         }
-        function createCPlaceHolder(src,x,y,w,h){
+        function createCPlaceHolder(src,x,y,w,h,title){
          var w1=Math.round(w)+'px';
          var h1=Math.round(h)+'px';
          //  alert(x+" "+y+" "+w1+" "+h1);
          return $('<img/>')
           .attr('src',src)
-          .addClass('cplace')
+		  .attr('title',title)
+		  .addClass('cplace')
           .css({
              'opacity' : 0.0, 
              'left': x,
@@ -193,13 +195,14 @@ $(document).ready(function(){
           .addClass('cicons')
           .appendTo('#cicons');
         }
-       function createFecPlaceHolder(src,x,y,w,h){
+       function createFecPlaceHolder(src,x,y,w,h,title){
          var w1=Math.round(w)+'px';
          var h1=Math.round(h)+'px';
          //  alert(x+" "+y+" "+w1+" "+h1);
          return $('<img/>')
           .attr('src',src)
-          .addClass('fecplace')
+		  .attr('title',title)
+		  .addClass('fecplace')
           .css({
              'opacity' : 0.0,
              'left': x,
@@ -230,13 +233,13 @@ $(document).ready(function(){
           .appendTo('#fecicons');
         }
 
-     function createRPPlaceHolder(src,x,y,w,h){
+     function createRPPlaceHolder(src,x,y,w,h,title){
          var w1=Math.round(w)+'px';
          var h1=Math.round(h)+'px';
-      //   alert("RPHolder"+x+" "+y+" "+w1+" "+h1);
          return $('<img/>')
           .attr('src',src)
-          .addClass('rpplace')
+		  .attr('title',title)
+		  .addClass('rpplace')
           .css({
              'opacity' : 0.0,
              'left': x,
@@ -267,13 +270,14 @@ $(document).ready(function(){
           .addClass('rpicons')
           .appendTo('#rpicons');
         }
-function createRHVPlaceHolder(src,x,y,w,h){
+        function createRHVPlaceHolder(src,x,y,w,h,title){
          var w1=Math.round(w)+'px';
          var h1=Math.round(h)+'px';
       //   alert("RHVHolder"+x+" "+y+" "+w1+" "+h1);
          return $('<img/>')
           .attr('src',src)
-          .addClass('rhvplace')
+		  .attr('title',title)
+		  .addClass('rhvplace')
           .css({
              'opacity' : 0.0, 
              'left': x,
@@ -455,13 +459,16 @@ $('.place').click(function(e){
        yoffset=imgheight/16; 
       // alert(imgwidth+" "+ imgheight+" "+imgleft+" "+imgtop+" "+iconwidth+" "+iconheight+" "+xoffset+" "+yoffset);
       for (var xpos=imgleft+xoffset; xpos < imgleft+imgwidth; xpos = xpos +iconwidth+iconxspacing){
-           $cratep[numl] = createCPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);
+           title='FED Crate '+ (numl+1);
+		   $cratep[numl] = createCPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight,title);
            $crate[numl] = createCIcon('images/fed.png',xpos,imgtop+yoffset+iconspacing,iconwidth,iconheight);
            numl++; if (numl==ncrates) break;
-           $cratep[numl] = createCPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight);
+           title='FED Crate '+ (numl+1);
+		   $cratep[numl] = createCPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight,title);
            $crate[numl] = createCIcon('images/fed.png',xpos,imgtop+iconheight+yoffset+iconspacing,iconwidth,iconheight);
            numl++; if (numl==ncrates) break;
-           $cratep[numl] = createCPlaceHolder('images/fed.png',xpos,imgtop+2*iconheight+2*iconspacing+yoffset,iconwidth,iconheight);
+           title='FED Crate '+ (numl+1);
+		   $cratep[numl] = createCPlaceHolder('images/fed.png',xpos,imgtop+2*iconheight+2*iconspacing+yoffset,iconwidth,iconheight,title);
            $crate[numl] = createCIcon('images/fed.png',xpos,imgtop+2*iconheight+yoffset+2*iconspacing,iconwidth,iconheight);
            numl++;
           }
@@ -533,10 +540,12 @@ function createFecImgCover(first)    {
        yoffset=imgheight/18;
        //alert(imgwidth+" "+ imgheight+" "+imgleft+" "+imgtop+" "+iconwidth+" "+iconheight+" "+xoffset+" "+yoffset);
       for (var xpos=imgleft+xoffset; xpos < imgleft+imgwidth; xpos = xpos +iconwidth){
-           $feccratep[numl] = createFecPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);
+           title='FEC Crate '+ (numl+1);
+		   $feccratep[numl] = createFecPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight,title);
            $feccrate[numl] = createFecIcon('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);
            numl++; if (numl==nfeccrates) break;
-           $feccratep[numl] = createFecPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight);
+           title='FEC Crate '+ (numl+1);
+		   $feccratep[numl] = createFecPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight,title);
            $feccrate[numl] = createFecIcon('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight);
            numl++; if (numl==nfeccrates) break;
           }
@@ -615,20 +624,24 @@ function createFecImgCover(first)    {
        xini=imgleft+xoffset;
 
           for (var xpos=imgleft+xoffset; xpos < imgleft+imgwidth; xpos = xpos +iconwidth+iconxspacing){
-
-                $psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);
-                $psurack[numl] = createRPIcon('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);
-                numl++; if (numl==npsuracks) break;
-        $psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight);
+          title='PSU Rack ' + (numl+1);
+          $psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight,title);
+          $psurack[numl] = createRPIcon('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);
+          numl++; if (numl==npsuracks) break;
+        title='PSU Rack ' + (numl+1);
+		$psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight,title);
         $psurack[numl] = createRPIcon('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
-        $psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+2*iconheight+yoffset,iconwidth,iconheight);
+        title='PSU Rack ' + (numl+1);
+		$psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+2*iconheight+yoffset,iconwidth,iconheight,title);
         $psurack[numl] = createRPIcon('images/fed.png',xpos,imgtop+2*iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
-            $psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+3*iconheight+yoffset,iconwidth,iconheight);
+            title='PSU Rack ' + (numl+1);
+			$psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+3*iconheight+yoffset,iconwidth,iconheight,title);
         $psurack[numl] = createRPIcon('images/fed.png',xpos,imgtop+3*iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
-            $psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+4*iconheight+yoffset,iconwidth,iconheight);
+            title='PSU Rack ' + (numl+1);
+			$psurackp[numl] = createRPPlaceHolder('images/fed.png',xpos,imgtop+4*iconheight+yoffset,iconwidth,iconheight,title);
         $psurack[numl] = createRPIcon('images/fed.png',xpos,imgtop+4*iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
            }
@@ -706,20 +719,24 @@ function createrhvImgCover(first)    {
        xini=imgleft+xoffset;
     	    
 	  for (var xpos=imgleft+xoffset; xpos < imgleft+imgwidth; xpos = xpos +iconwidth+iconxspacing){
-        
-		$hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);   
+        title='PSU Rack ' + (numl+1);
+		$hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight,title);   
 		$hvrack[numl] = createRHVIcon('images/fed.png',xpos,imgtop+yoffset,iconwidth,iconheight);
 		numl++; if (numl==npsuracks) break;
-        $hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight);
+        title='PSU Rack ' + (numl+1);
+		$hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight,title);
         $hvrack[numl] = createRHVIcon('images/fed.png',xpos,imgtop+iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
-        $hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+2*iconheight+yoffset,iconwidth,iconheight);
+        title='PSU Rack ' + (numl+1);
+		$hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+2*iconheight+yoffset,iconwidth,iconheight,title);
         $hvrack[numl] = createRHVIcon('images/fed.png',xpos,imgtop+2*iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
-	    $hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+3*iconheight+yoffset,iconwidth,iconheight);
+	    title='PSU Rack ' + (numl+1);
+		$hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+3*iconheight+yoffset,iconwidth,iconheight,title);
         $hvrack[numl] = createRHVIcon('images/fed.png',xpos,imgtop+3*iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
-	    $hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+4*iconheight+yoffset,iconwidth,iconheight);
+		title='PSU Rack ' + (numl+1);
+	    $hvrackp[numl] = createRHVPlaceHolder('images/fed.png',xpos,imgtop+4*iconheight+yoffset,iconwidth,iconheight,title);
         $hvrack[numl] = createRHVIcon('images/fed.png',xpos,imgtop+4*iconheight+yoffset,iconwidth,iconheight);
         numl++;if (numl==npsuracks) break;
 	   }

@@ -54,10 +54,17 @@ TrackerLayer.showData = function (evt) {
         var myMessage = myPoly.getAttribute("MESSAGE");
         var separator = myTracker.indexOf("connected");
         separator = separator + 15;
-		var fedchannel = myTracker.substring(separator);
-        fedchannel = fedchannel.substring(0,fedchannel.indexOf("/"));
-		var myTracker2 = "FED: "+fedchannel;
-		//var fec
+		var fed = myTracker.substring(separator);
+        fed = fed.substring(0,fed.indexOf("/"));
+		
+		var capvids = myPoly.getAttribute("capvids");
+		var comma = capvids.indexOf(',');
+		var apvaddr = parseInt(capvids.substring(1,comma));
+		var FedCrate = Math.floor(apvaddr/1000000);
+		
+		
+		var myTracker2 = "FED (C/F): "+ FedCrate + "/" + fed;
+		
 		var lvId = myPoly.getAttribute("lv");
 		var hvId = myPoly.getAttribute("hv");
 		var fecId = myPoly.getAttribute("fec");
