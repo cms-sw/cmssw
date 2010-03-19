@@ -574,7 +574,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get("Pixel/Tracks/PixelTracksCut");
   if(me) pixel_cuts_temp[0] = me->getIntValue();
 
-
+  //Combination of all:
   combinedCuts = 1.; numerator = 0; denominator = 0;
   for(int k=0; k!=5; k++){
     if(barrel_cuts_temp[k]>=0){
@@ -722,8 +722,10 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
   }
   }// end ONLINE
   
-  //cout<<"Loop over all modules is done, now I am in "<<bei->pwd()<<" and currDir is "<<currDir<<endl;
-  if(currDir=="Pixel/EventInfo/reportSummaryContents"){
+  //cout<<"Loop over all modules is done, now I am in    "<<bei->pwd()<<"     and currDir is    "<<currDir<<endl;
+  bei->cd("Pixel/EventInfo/reportSummaryContents");
+  //cout<<"Loop over all modules is done, now I am in    "<<bei->pwd()<<"     and currDir is    "<<currDir<<endl;
+  if(bei->pwd()=="Pixel/EventInfo/reportSummaryContents"){
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){ 
       float contents=0.;
@@ -778,6 +780,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
         for(int j=2; j!=7; j++){
           SummaryReportMap->setBinContent(1,j,barrel_cuts_temp[j-2]);
           SummaryReportMap->setBinContent(2,j,endcap_cuts_temp[j-2]);
+	  //cout<<"error cut values: "<<j<<" , "<<barrel_cuts_temp[j-2]<<" , "<<endcap_cuts_temp[j-2]<<endl;
         }
         me = bei->get("Pixel/Tracks/PixelTracksCut");
         if(me) pixel_cuts_temp[0] = me->getIntValue();  
