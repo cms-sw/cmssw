@@ -72,6 +72,12 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm(std::vector<double> short_optimumSlop
   ShortSlopes.push_back(short_optimumSlope40);
   ShortSlopes.push_back(short_optimumSlope41);
 
+  // Get parameterized energy/ET threshold coefficients
+  long_Energy_=long_Energy;
+  long_ET_=long_ET;
+  short_Energy_=short_Energy;
+  short_ET_=short_ET;
+
   // Compute energy and ET threshold for long and short fibers at each ieta
   LongEnergyThreshold.clear();
   LongETThreshold.clear();
@@ -119,7 +125,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
       return;
     }
-  
+
   // Step 2:  Find all neighbors, and calculate S9/S1
   double S9S1=0;
   int testphi=-99;
@@ -140,7 +146,9 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 	  HcalDetId neighbor(HcalForward, i,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  if (neigh!=rec.end())
-	    S9S1+=neigh->energy();
+	    {
+	      S9S1+=neigh->energy();
+	    }
 	}
     }
 
@@ -152,16 +160,18 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
     {
       for (int i=iphi-phiseg;i<=iphi+phiseg;i+=phiseg)
 	{
+	  if (i==iphi) continue;  // don't add the cell itself, or its depthwise partner (which is already counted above)
 	  testphi=i;
 	  // Our own modular function, since default produces results -1%72 = -1
 	  while (testphi<0) testphi+=72;
 	  while (testphi>72) testphi-=72;
-	  if (testphi==iphi && d==depth) continue;  // don't add the cell itself
 	  // Look to see if neighbor is in rechit collection
 	  HcalDetId neighbor(HcalForward, ieta,testphi,d);
 	  HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
 	  if (neigh!=rec.end())
-	    S9S1+=neigh->energy();
+	    {
+	      S9S1+=neigh->energy();
+	    }
 	}
     }
   
@@ -170,7 +180,9 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
       HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,depth);  
       HFRecHitCollection::const_iterator neigh=rec.find(neighbor);
       if (neigh!=rec.end())
-	S9S1+=neigh->energy();
+	{
+	  S9S1+=neigh->energy();
+	}
     }
     
   // So far, S9S1 is the sum of the neighbors; divide to form ratio
@@ -189,6 +201,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   // Protection in case intercept or energy are ever less than 0.  Do we have some other default value of S9S1cut we'd like touse in this case?
   if (intercept>0 && energy>0)  
     S9S1cut=-1.*slope*log(intercept) + slope*log(energy);
+
   if (S9S1>=S9S1cut)
     hf.setFlagField(0,HcalCaloFlagLabels::HFLongShort); // doesn't look like noise
   else
