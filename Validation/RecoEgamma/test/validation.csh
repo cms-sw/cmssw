@@ -17,20 +17,27 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_5_2
-setenv CMSSWver2 3_5_4
-setenv OLDRELEASE 352
-setenv NEWRELEASE 354
-
-setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
-
+setenv CMSSWver1 3_5_0
+setenv CMSSWver2 3_6_0
+setenv OLDRELEASE 350
+setenv NEWRELEASE 360
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE pre3
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -44,7 +51,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusionSTARTUP
+#setenv SAMPLE H130GGgluonfusionSTARTUP
+setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
@@ -77,6 +85,12 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 
 
+else if ($SAMPLE == PhotonJets_Pt_10) then
+
+setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_PhotonJets_Pt_10.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_PhotonJets_Pt_10.root
+
+
 else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
 
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
@@ -104,10 +118,17 @@ if (! -d $NEWRELEASE) then
 endif
 setenv OUTPATH $OUTPATH/$NEWRELEASE
 cd $OUTPATH
-if (! -d ${TYPE}_vs${OLDRELEASE}) then
-  mkdir ${TYPE}_vs${OLDRELEASE}
+
+if (! -d ${TYPE}) then
+  mkdir ${TYPE}
 endif
-setenv OUTPATH $OUTPATH/${TYPE}_vs${OLDRELEASE}
+setenv OUTPATH $OUTPATH/${TYPE}
+cd  $OUTPATH
+
+if (! -d vs${OLDRELEASE}) then
+  mkdir vs${OLDRELEASE}
+endif
+setenv OUTPATH $OUTPATH/vs${OLDRELEASE}
 
 setenv OUTDIR $OUTPATH/${SAMPLE}
 if (! -d $OUTDIR) then
@@ -393,9 +414,8 @@ $i->SetStats(0);
 if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
 $i->SetMinimum(0.);
 $i->SetMaximum(0.2);
-}
-else if (  $i==recoEffVsEt ) {
-$i->GetXaxis()->SetRangeUser(0.,100.);
+} else if (  $i==recoEffVsEt ) {
+$i->GetXaxis()->SetRangeUser(0.,200.);
 } else {
 $i->SetMinimum(0.);
 $i->SetMaximum(1.1);

@@ -18,18 +18,29 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
 setenv CMSSWver1 3_5_2
-setenv CMSSWver2 3_5_4
+setenv CMSSWver2 3_6_0
 setenv OLDRELEASE 352
-setenv NEWRELEASE 354
+setenv NEWRELEASE 360
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv NEWPRERELEASE pre3
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 
 
-setenv WorkDir1  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2  /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+
+
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+
+
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -64,10 +75,18 @@ if (! -d $NEWRELEASE) then
 endif
 setenv OUTPATH $OUTPATH/$NEWRELEASE
 cd $OUTPATH
-if (! -d ${TYPE}_vs${OLDRELEASE}) then
-  mkdir ${TYPE}_vs${OLDRELEASE}
+
+if (! -d ${TYPE}) then
+  mkdir ${TYPE}
 endif
-setenv OUTPATH $OUTPATH/${TYPE}_vs${OLDRELEASE}
+setenv OUTPATH $OUTPATH/${TYPE}
+cd  $OUTPATH
+
+if (! -d vs${OLDRELEASE}) then
+  mkdir vs${OLDRELEASE}
+endif
+setenv OUTPATH $OUTPATH/vs${OLDRELEASE}
+
 
 setenv OUTDIR $OUTPATH/${SAMPLE}
 if (! -d $OUTDIR) then
