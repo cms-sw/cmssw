@@ -28,6 +28,8 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 #include <vector>
 
 using namespace std;
@@ -94,9 +96,13 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
    unsigned int counter ( 0 ) ;
    for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )
    {
-      ++counter ;
       const DDSolid& solid ( fv.logicalPart().solid() ) ;
-      
+      if (boost::starts_with(solid.name().name(), "EA")) 
+      {
+	 continue;
+      }      
+      ++counter ;
+
       const ParmVec& parameters ( solid.parameters() ) ;
 
       DD3Vector x, y, z;
