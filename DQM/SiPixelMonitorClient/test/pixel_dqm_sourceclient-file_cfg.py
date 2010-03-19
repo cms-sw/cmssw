@@ -85,8 +85,8 @@ process.GlobalTag.globaltag = "CRAFT09_R_V9::All"
 
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.source = cms.Source("PoolSource",
-    debugFlag = cms.untracked.bool(True),
-    debugVebosity = cms.untracked.uint32(1),
+    #debugFlag = cms.untracked.bool(True),
+    #debugVebosity = cms.untracked.uint32(1),
     #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/c/chiochia/cmssw/Muon_FullValidation_150pre3.root')
     #fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/relval/2008/6/6/RelVal-RelValTTbar-1212531852-IDEAL_V1-2nd-02/0000/081018D5-EC33-DD11-A623-000423D6CA42.root')
     fileNames = cms.untracked.vstring(

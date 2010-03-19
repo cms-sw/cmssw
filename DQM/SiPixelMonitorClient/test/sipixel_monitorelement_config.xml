@@ -2,9 +2,14 @@
 <TkMap name="Summary Map" update_frequency="200">
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
-     <MonElement name="hitmap">            </MonElement> 
+     <MonElement name="nclusters">            </MonElement> 
+     <MonElement name="charge">            </MonElement> 
+     <MonElement name="size">            </MonElement> 
      <MonElement name="NErrors"></MonElement> 
      <MonElement name="ClustX"></MonElement>
+     <MonElement name="ClustY"></MonElement>
+     <MonElement name="ErrorX"></MonElement>
+     <MonElement name="ErrorY"></MonElement>
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
