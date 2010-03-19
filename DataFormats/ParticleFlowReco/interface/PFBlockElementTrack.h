@@ -129,9 +129,10 @@ namespace reco {
     /// position at ECAL entrance
     math::XYZPointF        positionAtECALEntrance_;
     
-    /// reference to the corresponding pf displaced vertex
+    /// reference to the corresponding pf displaced vertex where this track was created
     PFDisplacedTrackerVertexRef  displacedVertexMotherRef_;
 
+    /// reference to the corresponding pf displaced vertex which this track was created
     PFDisplacedTrackerVertexRef  displacedVertexDaughterRef_;
                                  
     /// reference to the corresponding muon
