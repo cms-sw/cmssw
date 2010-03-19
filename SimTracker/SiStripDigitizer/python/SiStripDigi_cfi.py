@@ -71,7 +71,19 @@ simSiStripDigis = cms.EDProducer("SiStripDigitizer",
                                electronPerAdcPeak         = cms.double(262.0), #https://twiki.cern.ch/twiki/bin/view/CMS/TRKTuningPeakMC
                                FedAlgorithm               = cms.int32(4),
                                Noise                      = cms.bool(True), ## NOTE : turning Noise ON/OFF will make a big change
+ 			       #Parameters valid only if Noise = True and ZeroSuppression = False
+			       RealPedestals              = cms.bool(True), #The pedestal for each stip is read from the Db. if False it is added to all the strips the cnetral strip pedestal value
+			       SingleStripNoise           = cms.bool(True), #The noise RMS is read from the Db. If false it is considered the central strip noise
+                               CommonModeNoise            = cms.bool(True),
+                               BaselineShift              = cms.bool(True),
+                               APVSaturationFromHIP       = cms.bool(True),
+                               APVSaturationProb          = cms.double(0.001),
+                               cmnRMStib                  = cms.double(5.92),
+                               cmnRMStob                  = cms.double(1.08),
+                               cmnRMStid                  = cms.double(3.08),
+                               cmnRMStec                  = cms.double(2.44),
+                               #
                                TOFCutForDeconvolution     = cms.double(50.0),
                                TOFCutForPeak              = cms.double(100.0),
-			       Inefficiency               = cms.double(0.0)
+                               Inefficiency               = cms.double(0.0)
                               )
