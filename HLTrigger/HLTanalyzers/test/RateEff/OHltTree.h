@@ -219,6 +219,24 @@ public :
   Float_t         ohMuL3Dr[1000];   //[NohMuL3]
   Float_t         ohMuL3Dz[1000];   //[NohMuL3]
   Int_t           ohMuL3L2idx[1000];   //[NohMuL3]
+  Int_t           NohOniaPixel;
+  Float_t         ohOniaPixelPt[200];   //[NohOniaPixel]
+  Float_t         ohOniaPixelPhi[200];   //[NohOniaPixel]
+  Float_t         ohOniaPixelEta[200];   //[NohOniaPixel]
+  Int_t           ohOniaPixelChg[200];   //[NohOniaPixel]
+  Float_t         ohOniaPixelDr[200];   //[NohOniaPixel]
+  Float_t         ohOniaPixelDz[200];   //[NohOniaPixel]
+  Int_t           ohOniaPixelHits[200];   //[NohOniaPixel]
+  Float_t         ohOniaPixelNormChi2[200];   //[NohOniaPixel]
+  Int_t           NohOniaTrack;
+  Float_t         ohOniaTrackPt[50];   //[NohOniaTrack]
+  Float_t         ohOniaTrackPhi[50];   //[NohOniaTrack]
+  Float_t         ohOniaTrackEta[50];   //[NohOniaTrack]
+  Int_t           ohOniaTrackChg[50];   //[NohOniaTrack]
+  Float_t         ohOniaTrackDr[50];   //[NohOniaTrack]
+  Float_t         ohOniaTrackDz[50];   //[NohOniaTrack]
+  Int_t           ohOniaTrackHits[50];   //[NohOniaTrack]
+  Float_t         ohOniaTrackNormChi2[50];   //[NohOniaTrack]
   Float_t         ohHighestEnergyEERecHit; 
   Float_t         ohHighestEnergyEBRecHit; 
   Float_t         ohHighestEnergyHBHERecHit; 
@@ -872,6 +890,24 @@ public :
   TBranch        *b_ohMuL3Dr;   //!
   TBranch        *b_ohMuL3Dz;   //!
   TBranch        *b_ohMuL3L2idx;   //!
+  TBranch        *b_NohOniaPixel;   //!
+  TBranch        *b_ohOniaPixelPt;   //!
+  TBranch        *b_ohOniaPixelPhi;   //!
+  TBranch        *b_ohOniaPixelEta;   //!
+  TBranch        *b_ohOniaPixelChg;   //!
+  TBranch        *b_ohOniaPixelDr;   //!
+  TBranch        *b_ohOniaPixelDz;   //!
+  TBranch        *b_ohOniaPixelHits;   //!
+  TBranch        *b_ohOniaPixelNormChi2;   //!
+  TBranch        *b_NohOniaTrack;   //!
+  TBranch        *b_ohOniaTrackPt;   //!
+  TBranch        *b_ohOniaTrackPhi;   //!
+  TBranch        *b_ohOniaTrackEta;   //!
+  TBranch        *b_ohOniaTrackChg;   //!
+  TBranch        *b_ohOniaTrackDr;   //!
+  TBranch        *b_ohOniaTrackDz;   //!
+  TBranch        *b_ohOniaTrackHits;   //!
+  TBranch        *b_ohOniaTrackNormChi2;   //!
   TBranch        *b_ohHighestEnergyEERecHit;   //! 
   TBranch        *b_ohHighestEnergyEBRecHit;   //! 
   TBranch        *b_ohHighestEnergyHBHERecHit;   //! 
@@ -1323,7 +1359,23 @@ public :
   Int_t           L1GoodDoubleMuRPC[10];   //[NL1GoodDoubleMu]
   Int_t           L1GoodDoubleMuQal[10];   //[NL1GoodDoubleMu]
 
+  TH1F *hEta[5][2][2]; //kNbInstances, kNbStages, kNbCuts
+  TH1F *hPt[5][2][2];
+  TH1F *hHits[5][2][2];
+  TH1F *hNormChi2[5][2][2];
+  TH1F *hDxy[5][2][2];
+  TH1F *hDz[5][2][2];
+  TH1F *hP[5][2][2];
 
+  TH1F *hOniaEta[5][2][4];
+  TH1F *hOniaRap[5][2][4];
+  TH1F *hOniaPt[5][2][4];
+  TH1F *hOniaP[5][2][4];
+  TH1F *hOniaMass[5][2][4];
+  TH2F *hOniaEtaPt[5][2][4];
+  TH2F *hOniaRapP[5][2][4];
+
+  TH1F *hNCand[5][2];
 
   OHltTree(TTree *tree=0, OHltMenu *menu=0);
   virtual ~OHltTree();
@@ -1370,6 +1422,12 @@ public :
   int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
   int OpenHlt1L2MuonPassed(double ptl1,double ptl2,double dr);  
+  int OpenHltMuTrackPassed(double ptTrack, double pTrack, double etaTrack, double DxyTrack, double DzTrack, int NHitsTrack, double normChi2Track, double *massMinTrack, double *massMaxTrack, double DzMuonTrack, bool checkChargeTrack);
+  int OpenHltMuPixelPassed(double ptPix, double pPix, double etaPix, double DxyPix, double DzPix, int NHitsPix, double normChi2Pix, double *massMinPix, double *massMaxPix, double DzMuonPix, bool checkChargePix);
+  int OpenHltMuTrackPassed_JPsi(double ptTrack, double pTrack, double etaTrack, double DxyTrack, double DzTrack, int NHitsTrack, double normChi2Track, double *massMinTrack, double *massMaxTrack, double DzMuonTrack, bool checkChargeTrack, int histIndex);
+  int OpenHltMuPixelPassed_JPsi(double ptPix, double pPix, double etaPix, double DxyPix, double DzPix, int NHitsPix, double normChi2Pix, double *massMinPix, double *massMaxPix, double DzMuonPix, bool checkChargePix, int histIndex);
+  int OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double etaTrack, double DxyTrack, double DzTrack, int NHitsTrack, double normChi2Track, double *massMinTrack, double *massMaxTrack, double DzMuonTrack, bool checkChargeTrack, int histIndex);
+  int OpenHltMuPixelPassed_Ups(double ptPix, double pPix, double etaPix, double DxyPix, double DzPix, int NHitsPix, double normChi2Pix, double *massMinPix, double *massMaxPix, double DzMuonPix, bool checkChargePix, int histIndex);
   int OpenHlt1JetPassed(double pt);
   int OpenHlt1CorJetPassed(double pt);
   int OpenHltFwdJetPassed(double esum);
@@ -1401,6 +1459,13 @@ private:
   std::vector<int> previousBitsFired;
   std::vector<int> allOtherBitsFired;
   std::vector<int> BitOfStandardHLTPath;
+  std::vector<int> L3MuCandIDForOnia;
+  std::vector<int> L3PixelCandIDForOnia;
+  std::vector<int> L3MuPixCandIDForOnia;
+  std::vector<int> L3PixelCandIDForJPsi;
+  std::vector<int> L3MuPixCandIDForJPsi;
+  std::vector<int> L3PixelCandIDForUps;
+  std::vector<int> L3MuPixCandIDForUps;
   std::map<TString,int> map_BitOfStandardHLTPath;
   std::map<TString,int> map_L1BitOfStandardHLTPath;
 
@@ -1449,12 +1514,28 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
   previousBitsFired.reserve(nTrig);
   allOtherBitsFired.reserve(nTrig);
   BitOfStandardHLTPath.reserve(nTrig);
+  L3MuCandIDForOnia.reserve(10);
+  L3PixelCandIDForOnia.reserve(10);
+  L3MuPixCandIDForOnia.reserve(10);
+  L3PixelCandIDForJPsi.reserve(10);
+  L3MuPixCandIDForJPsi.reserve(10);
+  L3PixelCandIDForUps.reserve(10);
+  L3MuPixCandIDForUps.reserve(10);
   
   for (int it = 0; it < nTrig; it++){
     triggerBit.push_back(false);
     previousBitsFired.push_back(false);
     allOtherBitsFired.push_back(false);
   }  
+  for (int ic = 0; ic < 10; ic++){
+    L3MuCandIDForOnia.push_back(-1);
+    L3PixelCandIDForOnia.push_back(-1);
+    L3MuPixCandIDForOnia.push_back(-1);
+    L3PixelCandIDForJPsi.push_back(-1);
+    L3MuPixCandIDForJPsi.push_back(-1);
+    L3PixelCandIDForUps.push_back(-1);
+    L3MuPixCandIDForUps.push_back(-1);
+  }
 
   for(int i=0;i<8000 ;i++) 
     { ohEleL1Dupl[i] = true;} 
@@ -1464,6 +1545,233 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
 
   for(int i=0;i<8000 ;i++)   
     { ohEleLWL1Dupl[i] = true;}
+
+  Int_t binEta = 120;
+  Double_t EtabinMin = -3.0, EtabinMax = 3.0;
+
+  Int_t binPt = 60;
+  Double_t PtbinMin = 0., PtbinMax = 30.;
+
+  Int_t binP = 100;
+  Double_t PbinMin = 0., PbinMax = 50.;
+
+  Int_t binRap = 120;
+  Double_t RapbinMin = -3.0;
+  Double_t RapbinMax = 3.0;
+
+  Int_t binMass = 160;
+  Double_t MassbinMin = 2.;
+  Double_t MassbinMax = 10.;
+
+  Char_t *Onia[5] = {"Mu0Track_JPsi","Mu3Track_JPsi", "Mu5Track_JPsi",
+                     "Mu3Track_JPsi_L1DoubleMOpen","Mu5Track_Ups"};
+  Char_t *Track[2] = {"Pixel","Track"};
+  Char_t *OniaCutP[4] = {"","_MassCut","_MassChgCut","_MassChgDzMuPixCut"};
+  Char_t *OniaCutT[4] = {"","_MassCut","_MassChgCut","_MassChgDzMuTrkCut"};
+  Char_t *OniaCutPix[4] = {"","2.6<M<3.6","2.6<M<3.6, checkChargePix = false","2.6<M<3.6, checkChargePix = false, DzMuouPix<999."};
+  Char_t *OniaCutTrk[4] = {"","2.9<M<3.3","2.9<M<3.3, checkChargeTrack = true","2.9<M<3.3, checkChargeTrack = true, DzMuonTrack = 0.5"};
+  Char_t *OniaL1DMT[4] = {"","2.8<M<3.4","2.8<M<3.4, checkChargeTrack = true","2.8<M<3.4, checkChargeTrack = true, DzMuonTrack = 0.5"};
+  Char_t name[100], title[300];
+
+  for(Int_t iOnia=0;iOnia<5;iOnia++){
+    for(Int_t iTrk=0;iTrk<2;iTrk++){
+
+      sprintf(name, "h%s%sEta", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s #eta",Onia[iOnia], Track[iTrk]);
+
+      hEta[iOnia][iTrk][0] = new TH1F(name, title, binEta,EtabinMin,EtabinMax);
+
+      sprintf(name, "h%s%sPt", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s P_{T}",Onia[iOnia], Track[iTrk]);
+
+      hPt[iOnia][iTrk][0] = new TH1F(name,title, binPt,PtbinMin,PtbinMax);
+
+      sprintf(name, "h%s%sHits", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: # of %s Hits",Onia[iOnia], Track[iTrk]);
+
+      hHits[iOnia][iTrk][0] = new TH1F(name,title, 11, -0.5, 10.5);
+
+      sprintf(name, "h%s%sNormChi2", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s NormChi2",Onia[iOnia], Track[iTrk]);
+
+      hNormChi2[iOnia][iTrk][0] = new TH1F(name,title,150,0.,150.);
+
+      sprintf(name, "h%s%sDxy", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s Dxy",Onia[iOnia], Track[iTrk]);
+
+      hDxy[iOnia][iTrk][0] = new TH1F(name,title,100,-0.5,0.5);
+
+      sprintf(name, "h%s%sDz", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s Dz",Onia[iOnia], Track[iTrk]);
+
+      hDz[iOnia][iTrk][0] = new TH1F(name,title,100,-20.,20.);
+
+      sprintf(name, "h%s%sP", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s P",Onia[iOnia], Track[iTrk]);
+
+      hP[iOnia][iTrk][0] = new TH1F(name,title,binPt,PtbinMin,PtbinMax);
+
+      sprintf(name, "h%s%sEtaAfterEtaCut", Onia[iOnia], Track[iTrk]);
+
+      if(iOnia==1 || iTrk==0){sprintf(title, "%s: %s |#eta|<999.",Onia[iOnia], Track[iTrk]);}
+      if(iTrk==1){sprintf(title, "%s: %s |#eta|<1.2",Onia[iOnia], Track[iTrk]); }
+
+      hEta[iOnia][iTrk][1] = new TH1F(name, title, binEta,EtabinMin,EtabinMax);
+
+      sprintf(name, "h%s%sPtAfterPtCut", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s P_{T}>0GeV/c",Onia[iOnia], Track[iTrk]);
+
+      hPt[iOnia][iTrk][1] = new TH1F(name,title, binPt,PtbinMin,PtbinMax);
+
+      sprintf(name, "h%s%sHitsAfterHitCut", Onia[iOnia], Track[iTrk]);
+
+      if(iTrk==0){sprintf(title, "%s: # of %s Hits>3",Onia[iOnia], Track[iTrk]);}
+      if(iTrk==1){sprintf(title, "%s: # of %s Hits>5",Onia[iOnia], Track[iTrk]);}
+
+      hHits[iOnia][iTrk][1] = new TH1F(name,title, 11, -0.5, 10.5);
+
+      sprintf(name, "h%s%sNormChi2AfterChi2Cut", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s NormChi2<99999999.",Onia[iOnia], Track[iTrk]);
+
+      hNormChi2[iOnia][iTrk][1] = new TH1F(name,title,300,0.,300.);
+
+      sprintf(name, "h%s%sDxyAfterDxyCut", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s Dxy<999.",Onia[iOnia], Track[iTrk]);
+
+      hDxy[iOnia][iTrk][1] = new TH1F(name,title,100,-0.5,0.5);
+
+      sprintf(name, "h%s%sDzAfterDzCut", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s Dz<999.",Onia[iOnia], Track[iTrk]);
+
+      hDz[iOnia][iTrk][1] = new TH1F(name,title,80,-20.,20.);
+
+      sprintf(name, "h%s%sPAfterPCut", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: %s P>3GeV/c",Onia[iOnia], Track[iTrk]);
+
+      hP[iOnia][iTrk][1] = new TH1F(name,title,binPt,PtbinMin,PtbinMax);
+
+      sprintf(name, "h%s%sNCand", Onia[iOnia], Track[iTrk]);
+      sprintf(title, "%s: # of %s Candidates",Onia[iOnia], Track[iTrk]);
+      hNCand[iOnia][iTrk] = new TH1F(name,title,12,-0.5,11.5);
+
+      for(Int_t iCut=0; iCut<4; iCut++){
+
+	if(iTrk==0){
+	  sprintf(name, "h%s%sMuEta%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
+	  sprintf(title, "%s:(%s+Mu) #eta %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
+	}
+	if(iTrk==1){
+	  sprintf(name, "h%s%sMuEta%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
+	  if(iOnia==1){
+	    sprintf(title, "%s:(%s+Mu) #eta %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
+	  }
+	  else{
+	    sprintf(title, "%s:(%s+Mu) #eta %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
+	  }
+	}
+
+	hOniaEta[iOnia][iTrk][iCut] = new TH1F(name,title,binEta,EtabinMin,EtabinMax);
+
+	if(iTrk==0){
+	  sprintf(name, "h%s%sMuRap%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
+	  sprintf(title, "%s:(%s+Mu) y %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
+	}
+	if(iTrk==1){
+	  sprintf(name, "h%s%sMuRap%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
+	  if(iOnia==1){
+	    sprintf(title, "%s:(%s+Mu) y %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
+	  }
+	  else{
+	    sprintf(title, "%s:(%s+Mu) y %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
+	  }
+	}
+
+	hOniaRap[iOnia][iTrk][iCut] = new TH1F(name,title,binRap,RapbinMin,RapbinMax);
+
+	if(iTrk==0){
+	  sprintf(name, "h%s%sMuPt%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
+	  sprintf(title, "%s:(%s+Mu) P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
+	}
+	if(iTrk==1){
+	  sprintf(name, "h%s%sMuPt%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
+	  if(iOnia==1){
+	    sprintf(title, "%s:(%s+Mu) P_{T} %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
+	  }
+	  else{
+	    sprintf(title, "%s:(%s+Mu) P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
+	  }
+	}
+
+	hOniaPt[iOnia][iTrk][iCut] = new TH1F(name,title,binPt,PtbinMin,PtbinMax);
+
+	if(iTrk==0){
+	  sprintf(name, "h%s%sMuP%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
+	  sprintf(title, "%s:(%s+Mu) P %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
+	}
+	if(iTrk==1){
+	  sprintf(name, "h%s%sMuP%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
+	  if(iOnia==1){
+	    sprintf(title, "%s:(%s+Mu) P %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
+	  }
+	  else{
+	    sprintf(title, "%s:(%s+Mu) P %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
+	  }
+	}
+
+	hOniaP[iOnia][iTrk][iCut] = new TH1F(name,title,binP,PbinMin,PbinMax);
+
+	if(iTrk==0){
+	  sprintf(name, "h%s%sMuMass%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
+	  sprintf(title, "%s:(%s+Mu) Mass %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
+	}
+	if(iTrk==1){
+	  sprintf(name, "h%s%sMuMass%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
+	  if(iOnia==1){
+	    sprintf(title, "%s:(%s+Mu) Mass %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
+	  }
+	  else{
+	    sprintf(title, "%s:(%s+Mu) Mass %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
+	  }
+	}
+
+	hOniaMass[iOnia][iTrk][iCut] = new TH1F(name,title,binMass,MassbinMin,MassbinMax);
+
+	if(iTrk==0){
+	  sprintf(name, "h%s%sMuEtaPt%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
+	  sprintf(title, "%s:(%s+Mu) #eta vs. P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
+	}
+	if(iTrk==1){
+	  sprintf(name, "h%s%sMuEtaPt%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
+	  if(iOnia==1){
+	    sprintf(title, "%s:(%s+Mu) #eta vs. P_{T} %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
+	  }
+	  else{
+	    sprintf(title, "%s:(%s+Mu) #eta vs. P_{T} %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
+	  }
+	}
+
+	hOniaEtaPt[iOnia][iTrk][iCut] = new TH2F(name,title,binEta,EtabinMin,EtabinMax,binPt,PtbinMin,PtbinMax);
+
+	if(iTrk==0){
+	  sprintf(name, "h%s%sMuRapP%s", Onia[iOnia], Track[iTrk], OniaCutP[iCut]);
+	  sprintf(title, "%s:(%s+Mu) y vs. P %s", Onia[iOnia], Track[iTrk], OniaCutPix[iCut]);
+	}
+	if(iTrk==1){
+	  sprintf(name, "h%s%sMuRapP%s", Onia[iOnia], Track[iTrk], OniaCutT[iCut]);
+	  if(iOnia==1){
+	    sprintf(title, "%s:(%s+Mu) y vs. P %s", Onia[iOnia], Track[iTrk], OniaL1DMT[iCut]);
+	  }
+	  else{
+	    sprintf(title, "%s:(%s+Mu) y vs. P %s", Onia[iOnia], Track[iTrk], OniaCutTrk[iCut]);
+	  }
+	}
+
+	hOniaRapP[iOnia][iTrk][iCut] = new TH2F(name,title,binRap,RapbinMin,RapbinMax,binP,PbinMin,PbinMax);
+      }
+    }
+  }
+
+
 
   //SetMapL1SeedsOfStandardHLTPath(menu);
 

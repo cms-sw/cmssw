@@ -74,6 +74,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     fChain->SetBranchStatus("*",kTRUE);
   }
 
+  //  TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
+  //  cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
   
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
@@ -239,7 +241,41 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     
   }
-  
+
+  /*
+  theHistFile->cd();
+
+  for(int iOnia=0;iOnia<5;iOnia++){
+    for(int iTrk=0;iTrk<2;iTrk++){
+
+      hNCand[iOnia][iTrk]->Write();
+
+      for(int i=0;i<2;i++){
+	hEta[iOnia][iTrk][i]->Write();
+	hPt[iOnia][iTrk][i]->Write();
+	hHits[iOnia][iTrk][i]->Write();
+	hNormChi2[iOnia][iTrk][i]->Write();
+	hDxy[iOnia][iTrk][i]->Write();
+	hDz[iOnia][iTrk][i]->Write();
+	hP[iOnia][iTrk][i]->Write();
+	hP[iOnia][iTrk][i]->Write();
+      }
+
+      for(int j=0;j<4;j++){
+
+	//if(iTrk==0) continue;
+	hOniaEta[iOnia][iTrk][j]->Write();
+	hOniaRap[iOnia][iTrk][j]->Write();
+	hOniaPt[iOnia][iTrk][j]->Write();
+	hOniaP[iOnia][iTrk][j]->Write();
+	hOniaMass[iOnia][iTrk][j]->Write();
+	hOniaEtaPt[iOnia][iTrk][j]->Write();
+	hOniaRapP[iOnia][iTrk][j]->Write();
+      }
+    }
+  }
+  theHistFile->Close();
+  */
 }
 
 void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
