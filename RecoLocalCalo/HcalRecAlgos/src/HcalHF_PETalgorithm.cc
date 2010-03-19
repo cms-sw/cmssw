@@ -47,10 +47,10 @@ HcalHF_PETalgorithm::HcalHF_PETalgorithm(std::vector<double> shortR,
   long_ET_Thresh.clear();
   for (int i=29;i<=41;++i)
     {
-      short_Energy_Thresh.push_back(CalcThreshold(1.*29,shortEnergyParams));
-      short_ET_Thresh.push_back(CalcThreshold(1.*29,shortETParams));
-      long_Energy_Thresh.push_back(CalcThreshold(1.*29,longEnergyParams));
-      long_ET_Thresh.push_back(CalcThreshold(1.*29,longETParams));
+      short_Energy_Thresh.push_back(CalcThreshold(1.*i,shortEnergyParams));
+      short_ET_Thresh.push_back(CalcThreshold(1.*i,shortETParams));
+      long_Energy_Thresh.push_back(CalcThreshold(1.*i,longEnergyParams));
+      long_ET_Thresh.push_back(CalcThreshold(1.*i,longETParams));
     }
 }
 
@@ -104,10 +104,12 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
   HFRecHitCollection::const_iterator part=rec.find(partner);
   if (part!=rec.end())
     Ratio=(energy-part->energy())/(energy+part->energy());
+
   double RatioThresh=0;
   // Allow for the ratio cut to be parameterized in terms of energy
   if (depth==1) RatioThresh=CalcThreshold(energy,long_R);
-  else if (depth==1) RatioThresh=CalcThreshold(energy,short_R);
+  else if (depth==2) RatioThresh=CalcThreshold(energy,short_R);
+
   if (Ratio<=RatioThresh)
     {
       hf.setFlagField(0, HcalCaloFlagLabels::HFLongShort); // shouldn't be necessary, but set bit to 0 just to be sure
