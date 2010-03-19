@@ -15,7 +15,8 @@ Description: <one line class summary>
 //
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-// $Id: CSCViewDigi.h,v 1.1 2009/05/13 15:20:23 asakharo Exp $
+//         Updated:  Mon March 15 
+// $Id: CSCViewDigi.h,v 1.2 2009/11/11 19:55:02 rpw Exp $
 //
 //
 
@@ -39,6 +40,7 @@ Description: <one line class summary>
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include <EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h>
 //#include <iostream> CSCCorrelatedLCTDigi
@@ -69,8 +71,10 @@ class CSCViewDigi : public edm::EDAnalyzer {
       edm::InputTag comparatorDigiTag_;
       edm::InputTag rpcDigiTag_;
       edm::InputTag statusDigiTag_;
+      edm::InputTag statusCFEBTag_;
       bool WiresDigiDump, AlctDigiDump, ClctDigiDump, CorrClctDigiDump;
       bool StripDigiDump, ComparatorDigiDump, RpcDigiDump, StatusDigiDump;
+      bool StatusCFEBDump;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
