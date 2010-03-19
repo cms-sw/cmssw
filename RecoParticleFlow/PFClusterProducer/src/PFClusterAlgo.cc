@@ -37,6 +37,7 @@ PFClusterAlgo::PFClusterAlgo() :
   posCalcP1_(-1),
   showerSigma_(5),
   useCornerCells_(false),
+  cleanRBXandHPDs_(false),
   debug_(false) 
 {
   file_ = 0;
@@ -101,7 +102,7 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
     usedInTopo_.push_back( false ); 
   }  
 
-  cleanRBXAndHPD( rechits);
+  if ( cleanRBXandHPDs_ ) cleanRBXAndHPD( rechits);
 
   // look for seeds.
   findSeeds( rechits );

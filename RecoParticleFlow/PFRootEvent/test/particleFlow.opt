@@ -259,6 +259,8 @@ clustering minS4S1_Clean_Hcal_Endcap    0.032 -0.045
 
 // build topo-cluster from cells with 1 common side or corner
 clustering useCornerCells_Hcal 1
+// enable cleaning of RBX's and HPD's
+clustering cleanRBXandHPDs_Hcal 1
 
 // number of neighbours to be considered for seed finding in HCAL. 
 // 4 means that it is checked that the 4 direct neighbours 

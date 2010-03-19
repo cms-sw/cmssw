@@ -70,6 +70,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   bool useCornerCells =
     iConfig.getParameter<bool>("useCornerCells");
 
+  bool cleanRBXandHPDs =
+    iConfig.getParameter<bool>("cleanRBXandHPDs");
+
 
   clusterAlgo_.setThreshBarrel( threshBarrel );
   clusterAlgo_.setThreshSeedBarrel( threshSeedBarrel );
@@ -98,7 +101,7 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusterAlgo_.setShowerSigma( showerSigma );
 
   clusterAlgo_.setUseCornerCells( useCornerCells  );
-
+  clusterAlgo_.setCleanRBXandHPDs( cleanRBXandHPDs);
 
   int dcormode = 
     iConfig.getParameter<int>("depthCor_Mode");

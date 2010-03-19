@@ -96,6 +96,9 @@ class PFClusterAlgo {
 
   /// activate use of cells with a common corner to build topo-clusters
   void setUseCornerCells( bool usecornercells ) { useCornerCells_ = usecornercells;}
+  
+  /// Activate cleaning of HCAL RBX's and HPD's
+  void setCleanRBXandHPDs( bool cleanRBXandHPDs) { cleanRBXandHPDs_ = cleanRBXandHPDs; }
 
   /// set rechit mask
   void setMask( const std::vector<bool>& mask );
@@ -303,6 +306,8 @@ class PFClusterAlgo {
   /// option to use cells with a common corner to build topo-clusters
   bool useCornerCells_;
 
+  /// option to clean HCAL RBX's and HPD's
+  bool cleanRBXandHPDs_;
 
   /// debugging on/off
   bool   debug_;

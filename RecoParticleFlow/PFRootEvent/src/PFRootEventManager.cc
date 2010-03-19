@@ -568,6 +568,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "useCornerCells_Hcal",
                    useCornerCellsHcal);
 
+  bool cleanRBXandHPDs = false;
+  options_->GetOpt("clustering", "cleanRBXandHPDs_Hcal",
+                   cleanRBXandHPDs);
+
   double posCalcP1Hcal 
     = threshHcalBarrel<threshHcalEndcap ? threshHcalBarrel:threshHcalEndcap;
 //   options_->GetOpt("clustering", "posCalc_p1_Hcal", 
@@ -602,6 +606,7 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoHCAL_.setPosCalcP1( posCalcP1Hcal );
 
   clusterAlgoHCAL_.setUseCornerCells( useCornerCellsHcal );
+  clusterAlgoHCAL_.setCleanRBXandHPDs( cleanRBXandHPDs );
 
   clusterAlgoHCAL_.enableDebugging( clusteringDebug ); 
 
