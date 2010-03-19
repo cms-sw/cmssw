@@ -50,8 +50,8 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
 
   int idx = 0;
 
-  cout << "Size of Displaced Vertices " 
-       <<  nuclColl.size() << endl;
+  //  cout << "Size of Displaced Vertices " 
+  //     <<  nuclColl.size() << endl;
 
   // loop on all NuclearInteraction 
   for( uint icoll=0; icoll < nuclColl.size(); icoll++) {
@@ -61,7 +61,7 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
     std::vector<reco::Track> refittedTracks = nuclColl[icoll].refittedTracks();
 
     // convert the secondary tracks
-    for(int it = 0; it < refittedTracks.size(); it++){
+    for(unsigned it = 0; it < refittedTracks.size(); it++){
 
       reco::TrackBaseRef trackBaseRef = nuclColl[icoll].originalTrack(refittedTracks[it]);
 

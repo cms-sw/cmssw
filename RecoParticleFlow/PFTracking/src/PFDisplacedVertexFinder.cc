@@ -254,12 +254,20 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   transTracksRef.reserve(tracksToFit.size());
   transTracksRefRaw.reserve(tracksToFit.size());
 
-  if (tracksToFit.size() < 2) return true;
+  if (tracksToFit.size() < 2) {
+    if (debug_) cout << "Only one to Fit Track" << endl;
+    return true;
+  }
 
   double rho = sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()*seedPoint.y());
   double z = seedPoint.z();
 
-  if (rho > tobCut_ || fabs(z) > tecCut_) return true;
+  if (rho > tobCut_ || fabs(z) > tecCut_) {
+    if (debug_) cout << "Seed Point out of the tracker rho = " << rho << " z = "<< z << " nTracks = " << tracksToFit.size() << endl;
+  return true;
+  }
+
+  if (debug_) cout << "Seed Point in the tracker rho = " << rho << " z = "<< z << " nTracks = " << tracksToFit.size() << endl;
 
   // Fill vectors of TransientTracks and TrackRefs after applying preselection cuts.
   for(IEset ie = tracksToFit.begin(); ie !=  tracksToFit.end(); ie++){
@@ -269,8 +277,10 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     transTracksRefRaw.push_back( *ie );
   }
 
-  if (transTracksRaw.size() < 2) return true;
-
+  if (transTracksRaw.size() < 2) {
+    if (debug_) cout << "Only one Transient Track" << endl;
+    return true;
+  }
   // ----------------------------------------------- //
   // ---- Prepare transient track list is ready ---- //
   // ----------------------------------------------- //
@@ -296,12 +306,17 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   try{
     theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, seedPoint);
   }catch( cms::Exception& exception ){
+    if(debug_) cout << "Fit Crashed" << endl;
     //    cout << exception.what() << endl;
     return true;
   }
 
-  if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) return true;
-  
+  if( !theVertexAdaptiveRaw.isValid() || theVertexAdaptiveRaw.totalChiSquared() < 0. ) {
+    if(debug_) cout << "Fit failed : valid? " << theVertexAdaptiveRaw.isValid() 
+	 << " totalChi2 = " << theVertexAdaptiveRaw.totalChiSquared() << endl;
+    return true;
+  }  
+
   // To save time: reject the Displaced vertex if it is too close to the beam pipe. 
   // Frequently it is very big vertices, with some dosens of tracks
 
@@ -476,13 +491,20 @@ PFDisplacedVertexFinder::selectVertices(const PFDisplacedVertexCollection& tempD
 
     unsigned nPrimary =  tempDisplacedVertices[idv].nPrimaryTracks();
     unsigned nMerged =  tempDisplacedVertices[idv].nMergedTracks();
-      
+    unsigned nSecondary =  tempDisplacedVertices[idv].nSecondaryTracks();      
+
     if (nPrimary + nMerged > 1) {
       bLocked[idv] = true;
       if (debug_) cout << "Vertex " << idv
 		       << " rejected because two primary or merged tracks" << endl;
       
 
+    }
+
+    if (nPrimary + nMerged + nSecondary < 2){
+      bLocked[idv] = true;
+      if (debug_) cout << "Vertex " << idv
+		       << " rejected because only one track related to the vertex" << endl;
     }
 
 
@@ -649,48 +671,9 @@ std::ostream& operator<<(std::ostream& out, const PFDisplacedVertexFinder& a) {
     out<<endl;
 
     for(PFDisplacedVertexFinder::IDV idv = displacedVertices_->begin(); 
-	idv != displacedVertices_->end(); idv++) {
+	idv != displacedVertices_->end(); idv++)
+      idv->Dump();
  
-      out << "" << endl;
-      out << "==================== This is a Displaced Vertex ===============" << endl;
-
-      out << " Vertex chi2 = " << (*idv).chi2() << " ndf = " << (*idv).ndof()<< " normalised chi2 = " << (*idv).normalizedChi2()<< endl;
-
-      out << " The vertex Fitted Position is: x = " << (*idv).position().x()
-	  << " y = " << (*idv).position().y()
-	  << " rho = " << (*idv).position().rho() 
-	  << " z = " << (*idv).position().z() 
-	  << endl;
-  
-      out<< "\t--- Structure ---  " << endl;
-      out<< "Number of tracks: "  << (*idv).nTracks() 
-	 << " nPrimary " << (*idv).nPrimaryTracks()
-	 << " nMerged " << (*idv).nMergedTracks()
-	 << " nSecondary " << (*idv).nSecondaryTracks() << endl;
-              
-      vector <PFDisplacedVertexFinder::PFTrackHitFullInfo> pattern = (*idv).trackHitFullInfos();
-      vector <PFDisplacedVertex::VertexTrackType> trackType = (*idv).trackTypes();
-      for (unsigned i = 0; i < pattern.size(); i++){
-	out << "track " << i 
-	     << " type = " << trackType[i]
-	     << " nHit BeforeVtx = " << pattern[i].first.first 
-	     << " AfterVtx = " << pattern[i].second.first
-	     << " MissHit BeforeVtx = " << pattern[i].first.second
-	     << " AfterVtx = " << pattern[i].second.second
-	     << endl;
-      }
-
-
-      out << "Primary P: E " << (*idv).primaryMomentum((string) "MASSLESS", false).E() 
-	   << " Pt = " << (*idv).primaryMomentum((string) "MASSLESS", false).Pt() 
-	   << " Pz = " << (*idv).primaryMomentum((string) "MASSLESS", false).Pz()
-	   << " M = "  << (*idv).primaryMomentum((string) "MASSLESS", false).M() << endl;
-
-      out << "Secondary P: E " << (*idv).secondaryMomentum((string) "PI", true).E() 
-	   << " Pt = " << (*idv).secondaryMomentum((string) "PI", true).Pt() 
-	   << " Pz = " << (*idv).secondaryMomentum((string) "PI", true).Pz()
-	   << " M = "  << (*idv).secondaryMomentum((string) "PI", true).M() << endl;
-    }
   }
  
   return out;

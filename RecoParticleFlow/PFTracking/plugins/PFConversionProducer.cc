@@ -48,8 +48,8 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   int idx = 0;
 
-  cout << "Size of Displaced Vertices " 
-       <<  convColl.size() << endl;
+  //  cout << "Size of Displaced Vertices " 
+  //     <<  convColl.size() << endl;
 
   // loop on all NuclearInteraction 
   for( uint icoll=0; icoll < convColl.size(); icoll++) {

@@ -444,38 +444,10 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
  
     
     for(PFDisplacedVertexCandidateFinder::IBC ib=vertexCandidates->begin(); 
-	ib != vertexCandidates->end(); ib++) {
+	ib != vertexCandidates->end(); ib++)
+      ib->Dump();
 
 
-
-  const vector < TrackBaseRef >& elements = (*ib).elements();
-  out<<"\t--- DisplacedVertexCandidate ---  "<<endl;
-  out<<"\tnumber of elements: "<<elements.size()<<endl;
-  
-  // Build element label (string) : elid from type, layer and occurence number
-  // use stringstream instead of sprintf to concatenate string and integer into string
-  for(unsigned ie=0; ie<elements.size(); ie++) {
-
-    math::XYZPoint Pi(elements[ie].get()->innerPosition());
-    math::XYZPoint Po(elements[ie].get()->outerPosition());
-
-    float innermost_radius = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y() + Pi.z()*Pi.z());
-    float outermost_radius = sqrt(Po.x()*Po.x() + Po.y()*Po.y() + Po.z()*Po.z());
-    float innermost_rho = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y());
-    float outermost_rho = sqrt(Po.x()*Po.x() + Po.y()*Po.y());
-    
-
-
-    out<<"ie = " << elements[ie].key() 
-       <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
-       <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
-       <<endl;
-  }
-   
-  out<<endl;
-
-
-    }
     
   }
  
