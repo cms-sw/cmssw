@@ -1,11 +1,13 @@
-#include "Fireworks/Core/interface/FW3DSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FW3DDataProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Calo/interface/CaloUtils.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TEveCompound.h"
+#include "TEveManager.h"
 
-class FWHORecHit3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<HORecHit>
+class FWHORecHit3DProxyBuilder : public FW3DDataProxyBuilder
 {
 public:
    FWHORecHit3DProxyBuilder(void) 
@@ -18,7 +20,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   void build(const HORecHit& iData, unsigned int iIndex, TEveElement& oItemHolder) const;
+   virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
    Float_t m_maxEnergy;
 
@@ -29,23 +31,55 @@ private:
 };
 
 void
-FWHORecHit3DProxyBuilder::build(const HORecHit& iData, unsigned int iIndex, TEveElement& oItemHolder) const
+FWHORecHit3DProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-   std::vector<TEveVector> corners = item()->getGeom()->getPoints(iData.detid().rawId());
-   if( corners.empty() ) {
-      return;
+   TEveElementList* tList = *product;
+
+   if(0 == tList) {
+      tList = new TEveElementList(iItem->name().c_str(), "hbheRechits", true);
+      *product = tList;
+      tList->SetMainColor(iItem->defaultDisplayProperties().color());
+      gEve->AddElement(tList);
+   } else {
+      tList->DestroyElements();
    }
 
-   Float_t maxEnergy = m_maxEnergy;
-   Float_t energy = iData.energy();
-   if(energy > maxEnergy)
+   const HORecHitCollection* collection = 0;
+   iItem->get(collection);
+
+   if(0 == collection)
    {
-     maxEnergy = energy;
+      return;
    }
+   std::vector<HORecHit>::const_iterator it = collection->begin();
+   std::vector<HORecHit>::const_iterator itEnd = collection->end();
+   for(; it != itEnd; ++it)
+   {
+      if ((*it).energy() > m_maxEnergy)
+	m_maxEnergy = (*it).energy();
+   }
+   Float_t maxEnergy = m_maxEnergy;
+
+   unsigned int index = 0;
+   for(it = collection->begin(); it != itEnd; ++it, ++index)
+   {
+      Float_t energy = (*it).energy();
+      Float_t scaleFraction = energy / maxEnergy;
    
-   Float_t scaleFraction = energy / maxEnergy;
-   
-   fireworks::drawCaloHit3D(corners, item(), oItemHolder, scaleFraction);
+      std::stringstream s;
+      s << "HO RecHit " << index << ", energy: " << energy << " GeV";
+
+      TEveCompound* compund = new TEveCompound("ho compound", s.str().c_str());
+      compund->OpenCompound();
+      tList->AddElement(compund);
+      
+      std::vector<TEveVector> corners = iItem->getGeom()->getPoints((*it).detid().rawId());
+      if( corners.empty() ) {
+	return;
+      }
+
+      fireworks::drawCaloHit3D(corners, iItem, *compund, scaleFraction);
+   }
 }
 
 REGISTER_FW3DDATAPROXYBUILDER(FWHORecHit3DProxyBuilder, HORecHit, "HO RecHit");
