@@ -47,6 +47,9 @@ namespace sistrip {
 
   uint32_t FEDSpyBuffer::globalRunNumber() const
   {
+    if (versionId_ < 0x02) {
+      return 0;
+    }
     const uint8_t * runNumberPointer = getPointerToDataAfterTrackerSpecialHeader()+4;
     uint32_t result = 0;
     result |= runNumberPointer[0];
