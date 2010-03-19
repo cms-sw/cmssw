@@ -10,6 +10,8 @@
 #include <cmath>
 #include <iostream>
 
+using namespace std;
+
 HcalHF_S9S1algorithm::HcalHF_S9S1algorithm()
 { 
   // Default settings:  Energy > 50 GeV, slope = 0, ET = 0
@@ -125,7 +127,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   // Part A:  Check fixed iphi, and vary ieta
   for (int d=1;d<=2;++d) // depth loop
     {
-      for (int i=ieta-1;i<=ieta+1;++ieta) // ieta loop
+      for (int i=ieta-1;i<=ieta+1;++i) // ieta loop
 	{
 	  testphi=iphi;
 	  // Special case when ieta=39, since ieta=40 only has phi values at 3,7,11,...
