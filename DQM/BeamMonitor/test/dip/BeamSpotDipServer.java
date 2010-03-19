@@ -15,18 +15,20 @@ public class BeamSpotDipServer
 extends Thread
 implements Runnable,DipPublicationErrorHandler
 {
-  public final static boolean verbose = false; 
-  public final static boolean overwriteQuality = true; //if true, change quality to qualities[0]
+  // Input parameters
+  public static boolean verbose = false;
+  public static boolean overwriteQuality = true; //if true, change quality to qualities[0]
+  public static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
+  public static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
+  public static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
+  public static int[] timeoutLS = {5,10}; //LumiSections
+
   public final static boolean publishStatErrors = true;
-  public final static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
-  public final static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
-  public final static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
   public final static int secPerLS = 23;
   public final static int rad2urad = 1000000;
   public final static int cm2um = 10000;
   public final static int cm2mm = 10;
   public final static String[] qualities = {"Uncertain","Bad","Good"};
-  public final static int[] timeoutLS = {5,10}; //LumiSections
 
   DipFactory dip;
   DipData messageCMS;
@@ -183,7 +185,7 @@ implements Runnable,DipPublicationErrorHandler
 	}
 	// Quality of the publish results
 	if (overwriteQuality) publishRcd(qualities[0],"Testing",true,true);
-	else if (quality == qualities[1]) publishRcd(quality,"BeamFit does not converge",true,true);
+	else if (quality == qualities[1]) publishRcd(quality,"No BeamFit or Fit Fails",true,true);
 	else publishRcd(quality,"",true,true);
 
 	br.close();
@@ -431,9 +433,20 @@ implements Runnable,DipPublicationErrorHandler
     return dateFormat.format(date);
   }
 
+  private BeamSpotDipServer(String args[])
+  {
+    this.verbose = args[0].matches("true");
+    this.overwriteQuality = args[1].matches("true");
+    this.subjectCMS = args[2];
+    this.subjectLHC = args[3];
+    this.sourceFile = args[4];
+    this.timeoutLS[0] = new Integer(args[5]);
+    this.timeoutLS[1] = new Integer(args[6]);
+  }
+
   public static void main(String args[])
   {
-    BeamSpotDipServer server = new BeamSpotDipServer();
+    BeamSpotDipServer server = new BeamSpotDipServer(args);
     server.start();
   }
 }
