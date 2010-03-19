@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.15 2010/02/08 11:57:59 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.16 2010/03/19 13:24:05 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -75,12 +75,11 @@ void StreamHandler::closeTimedOutFiles(utils::time_point_t currentTime)
 
 void StreamHandler::closeFilesForLumiSection
 (
-  const uint32_t& runNumber,
   const uint32_t& lumiSection,
   std::string& str
 )
 {
-  _streamRecord->reportLumiSectionInfo(runNumber, lumiSection, str);
+  _streamRecord->reportLumiSectionInfo(lumiSection, str);
   closeFilesForLumiSection(lumiSection);
 }
 

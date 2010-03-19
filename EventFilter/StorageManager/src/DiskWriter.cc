@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.20 2010/03/16 19:14:27 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.21 2010/03/19 13:24:05 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -279,9 +279,7 @@ void DiskWriter::reportRemainingLumiSections() const
   StreamsMonitorCollection& smc =
     _sharedResources->_statisticsReporter->getStreamsMonitorCollection();
   
-  std::string str;
-  smc.reportAllLumiSectionInfos(_runNumber, str);
-  _dbFileHandler->write(str);
+  smc.reportAllLumiSectionInfos(_dbFileHandler);
 }
 
 
@@ -298,11 +296,9 @@ void DiskWriter::writeEndOfRunMarker() const
   rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
 
   std::ostringstream str;
-  str << "Timestamp:" << static_cast<int>(utils::getCurrentTime())
-    << "\trun:" << _runNumber
-    << "\tLScount:" << lumiSectionsSeenStats.getSampleCount()
+  str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
     << "\tEoLScount:" << eolsSeenStats.getSampleCount()
-    << "\tEoR\n";
+    << "\tEoR";
   _dbFileHandler->write(str.str());
 }
 
@@ -318,9 +314,9 @@ void DiskWriter::processEndOfLumiSection(const I2OChain& msg)
   for (StreamHandlers::const_iterator it = _streamHandlers.begin(),
          itEnd = _streamHandlers.end(); it != itEnd; ++it)
   {
-    (*it)->closeFilesForLumiSection(_runNumber, lumiSection, fileCountStr);
+    (*it)->closeFilesForLumiSection(lumiSection, fileCountStr);
   }
-  _dbFileHandler->write(fileCountStr + "\n");
+  _dbFileHandler->write(fileCountStr);
 }
 
 

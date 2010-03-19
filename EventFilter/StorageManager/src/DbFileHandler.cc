@@ -1,37 +1,48 @@
-// $Id: DbFileHandler.cc,v 1.15 2010/02/18 10:16:23 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.1 2010/03/19 13:24:05 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/DbFileHandler.h>
 
-#include <fstream>
 #include <iomanip>
 
 using namespace stor;
 using namespace std;
 
 
-void DbFileHandler::write(const string& str) const
+DbFileHandler::DbFileHandler() :
+_runNumber(0)
+{}
+
+
+void DbFileHandler::writeOld(const string& str)
 {
-  ofstream of(dbFileName(), ios_base::ate | ios_base::out | ios_base::app );
-  of << str.c_str();
-  of.close();
+  openFile();
+  _outputFile << str.c_str();
+  _outputFile.close();
+}
+
+
+void DbFileHandler::write(const string& str)
+{
+  openFile();
+  addReportHeader(_outputFile);
+  _outputFile << str.c_str();
+  _outputFile << endl;
+  _outputFile.close();
 }
 
 
 void DbFileHandler::configure(const unsigned int runNumber, const DiskWritingParams& params)
 { 
   _dwParams = params;
+  _runNumber = runNumber;
 
-  std::ostringstream str;
-  str << "Timestamp:" << static_cast<int>(utils::getCurrentTime())
-    << "\trun:" << runNumber
-    << "\tBoR\n";
-  write(str.str());
+  write("BoR");
 }
 
 
 
-const char* DbFileHandler::dbFileName() const
+void DbFileHandler::openFile()
 {
   time_t rawtime = time(0);
   tm * ptm;
@@ -48,7 +59,15 @@ const char* DbFileHandler::dbFileName() const
              << "-" << _dwParams._hostName
              << "-" << _dwParams._smInstanceString
              << ".log";
-  return dbfilename.str().c_str();
+
+  _outputFile.open( dbfilename.str().c_str(), ios_base::ate | ios_base::out | ios_base::app );
+}
+
+
+void DbFileHandler::addReportHeader(std::ostream& msg) const
+{
+  msg << "Timestamp:" << static_cast<int>(utils::getCurrentTime())
+    << "\trun:" << _runNumber << "\t";
 }
 
 

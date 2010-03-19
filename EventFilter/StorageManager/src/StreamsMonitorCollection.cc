@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.9 2010/03/02 16:51:54 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.10 2010/03/19 13:24:05 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -52,13 +52,16 @@ void StreamsMonitorCollection::StreamRecord::addSizeInBytes(double size)
 
 void StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
 (
-  const uint32_t& runNumber,
   const uint32_t& lumiSection,
   std::string& str
 )
 {
-  if (str.empty()) addLumiSectionReportHeader(runNumber, lumiSection, str);
-
+  std::ostringstream msg;
+  if (str.empty())
+  {
+    msg << "LS:" << lumiSection;
+  }
+  
   unsigned int count = 0;
   FileCountPerLumiSectionMap::iterator pos = fileCountPerLS.find(lumiSection);
   if ( pos != fileCountPerLS.end() )
@@ -66,43 +69,12 @@ void StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
     count = pos->second;
     fileCountPerLS.erase(pos);
   }
-  addLumiSectionStreamCount(streamName, count, str);
-}
-
-
-void StreamsMonitorCollection::StreamRecord::addLumiSectionReportHeader
-(
-  const uint32_t& runNumber,
-  const uint32_t& lumiSection,
-  std::string& str
-)
-{
-  std::ostringstream msg;
-  msg << "Timestamp:" << static_cast<int>(utils::getCurrentTime())
-    << "\trun:" << runNumber
-    << "\tLS:" << lumiSection;
+  msg << "\t" << streamName << ":" << count;
   str += msg.str();
 }
 
 
-void StreamsMonitorCollection::StreamRecord::addLumiSectionStreamCount
-(
-  const std::string& streamName,
-  const unsigned int& fileCount,
-  std::string& str
-)
-{
-  std::ostringstream msg;
-  msg << "\t" << streamName << ":" << fileCount;
-  str += msg.str();
-}
-
-
-void StreamsMonitorCollection::reportAllLumiSectionInfos
-(
-  const uint32_t& runNumber,
-  std::string& str
-)
+void StreamsMonitorCollection::reportAllLumiSectionInfos(DbFileHandlerPtr dbFileHandler)
 {
   UnreportedLS unreportedLS;
   getListOfAllUnreportedLS(unreportedLS);
@@ -117,9 +89,9 @@ void StreamsMonitorCollection::reportAllLumiSectionInfos
          stream != streamEnd;
          ++stream)
     {
-      (*stream)->reportLumiSectionInfo(runNumber, (*it), lsEntry);
+      (*stream)->reportLumiSectionInfo((*it), lsEntry);
     }
-    str += lsEntry + "\n";
+    dbFileHandler->write(lsEntry);
   }
 }
 

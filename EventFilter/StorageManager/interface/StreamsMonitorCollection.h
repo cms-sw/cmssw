@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.8 2010/02/08 11:58:14 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.9 2010/03/19 13:24:31 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
@@ -17,6 +17,7 @@
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Vector.h"
 
+#include "EventFilter/StorageManager/interface/DbFileHandler.h"
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
@@ -27,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2010/02/08 11:58:14 $
+   * $Revision: 1.9 $
+   * $Date: 2010/03/19 13:24:31 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -52,20 +53,7 @@ namespace stor {
       void addSizeInBytes(double);
       void reportLumiSectionInfo
       (
-        const uint32_t& runNumber,
         const uint32_t& lumiSection,
-        std::string& str
-      );
-      static void addLumiSectionReportHeader
-      (
-        const uint32_t& runNumber,
-        const uint32_t& lumiSection,
-        std::string& str
-      );
-      static void addLumiSectionStreamCount
-      (
-        const std::string& streamName,
-        const unsigned int& fileCount,
         std::string& str
       );
       
@@ -116,11 +104,7 @@ namespace stor {
       return _allStreamsBandwidth;
     }
 
-    void reportAllLumiSectionInfos
-    (
-      const uint32_t& runNumber,
-      std::string& str
-    );
+    void reportAllLumiSectionInfos(DbFileHandlerPtr);
 
 
   private:

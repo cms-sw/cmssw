@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.9 2010/02/08 11:58:14 mommsen Exp $
+// $Id: StreamHandler.h,v 1.10 2010/03/19 13:24:30 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/02/08 11:58:14 $
+   * $Revision: 1.10 $
+   * $Date: 2010/03/19 13:24:30 $
    */
   
   class StreamHandler
@@ -56,14 +56,9 @@ namespace stor {
     /**
      * Close all files which belong to the given lumi section
      * and print number of files for this lumi section into
-     * the passed ostringstream
+     * the passed string.
      */    
-    void closeFilesForLumiSection
-    (
-      const uint32_t& runNumber,
-      const uint32_t& lumiSection,
-      std::string&
-    );
+    void closeFilesForLumiSection(const uint32_t& lumiSection, std::string&);
 
     /**
      * Write the event to the stream file
