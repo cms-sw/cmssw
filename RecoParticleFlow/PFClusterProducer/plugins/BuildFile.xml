@@ -1,5 +1,6 @@
 <library   name="RecoParticleFlowPFClusterProducerPlugins" file="*.cc">
   <use   name="CondFormats/HcalObjects"/>
+  <use   name="CondFormats/EcalObjects"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="DataFormats/CaloTowers"/>
   <use   name="DataFormats/DetId"/>

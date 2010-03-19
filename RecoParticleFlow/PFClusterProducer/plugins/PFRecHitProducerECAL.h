@@ -51,6 +51,7 @@ class PFRecHitProducerECAL : public PFRecHitProducer {
   /// gets ecal barrel and endcap rechits, 
   /// translate them to PFRecHits, which are stored in the rechits vector
   void createRecHits(std::vector<reco::PFRecHit>& rechits,
+		     std::vector<reco::PFRecHit>& rechitsCleaned,
 		     edm::Event&, const edm::EventSetup&);
 
 

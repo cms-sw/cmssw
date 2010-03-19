@@ -64,6 +64,7 @@ PFRecHitProducerECAL::~PFRecHitProducerECAL() {}
 
 void 
 PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
+				    vector<reco::PFRecHit>& rechitsCleaned,
 				    edm::Event& iEvent, 
 				    const edm::EventSetup& iSetup ) {
 

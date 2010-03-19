@@ -20,6 +20,8 @@
 // #include "CondFormats//HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats//HcalObjects/interface/HcalPFCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
 /**\class PFRecHitProducer 
 \brief Base producer for particle flow rechits (PFRecHit) 
@@ -48,6 +50,7 @@ class PFRecHitProducer : public edm::EDProducer {
   /// translate the standard rechits ( or calotowers) 
   /// them to PFRecHits, which are stored in the rechits vector
   virtual void createRecHits(std::vector<reco::PFRecHit>& rechits,
+			     std::vector<reco::PFRecHit>& rechitsCleaned,
 			     edm::Event&, const edm::EventSetup&) = 0;  
 
 
@@ -65,7 +68,8 @@ class PFRecHitProducer : public edm::EDProducer {
   // const HcalRespCorrs* myRespCorr;
   const HcalPFCorrs* myPFCorr;
   const HcalChannelQuality* theHcalChStatus;
-
+  const EcalChannelStatus* theEcalChStatus;
+  const CaloTowerConstituentsMap* theTowerConstituentsMap;
 };
 
 #endif

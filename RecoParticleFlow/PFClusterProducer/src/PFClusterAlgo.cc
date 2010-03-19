@@ -19,6 +19,7 @@ unsigned PFClusterAlgo::prodNum_ = 1;
 
 PFClusterAlgo::PFClusterAlgo() :
   pfClusters_( new vector<reco::PFCluster> ),
+  pfRecHitsCleaned_( new vector<reco::PFRecHit> ),
   threshBarrel_(0.),
   threshPtBarrel_(0.),
   threshSeedBarrel_(0.2),
@@ -66,6 +67,10 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
   if(pfClusters_.get() ) pfClusters_->clear();
   else 
     pfClusters_.reset( new std::vector<reco::PFCluster> );
+
+  if(pfRecHitsCleaned_.get() ) pfRecHitsCleaned_->clear();
+  else 
+    pfRecHitsCleaned_.reset( new std::vector<reco::PFRecHit> );
 
 
   eRecHits_.clear();
@@ -350,6 +355,11 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	    } else { 
 	      if ( itEn->first < threshold ) mask_[itEn->second] = false;
 	    }
+	    if ( !mask_[itEn->second] ) { 
+	      reco::PFRecHit theCleanedHit(rechit(itEn->second, rechits));
+	      theCleanedHit.setRescale(0.);
+	      pfRecHitsCleaned_->push_back(theCleanedHit);
+	    }
 	    /*
 	    if ( !mask_[itEn->second] ) 
 	      std::cout << "Hit Energies = " << itEn->first 
@@ -427,6 +437,11 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	    mask_[itEn->second] = false;
 	  } else { 
 	    if ( itEn->first < threshold ) mask_[itEn->second] = false;
+	  }
+	  if ( !mask_[itEn->second] ) { 
+	    reco::PFRecHit theCleanedHit(rechit(itEn->second, rechits));
+	    theCleanedHit.setRescale(0.);
+	    pfRecHitsCleaned_->push_back(theCleanedHit);
 	  }
 	  /*
 	  if ( !mask_[itEn->second] ) 
@@ -624,6 +639,9 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	      ) { 
 	    seedStates_[rhi] = CLEAN;
 	    mask_[rhi] = false;
+	    reco::PFRecHit theCleanedHit(wannaBeSeed);
+	    theCleanedHit.setRescale(0.);
+	    pfRecHitsCleaned_->push_back(theCleanedHit);
 	    /*
 	    std::cout << "A seed with E/pT/eta/phi = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
 		      << " " << sqrt(wannaBeSeed.pt2()) << " " << wannaBeSeed.position().eta() << " " << phi 

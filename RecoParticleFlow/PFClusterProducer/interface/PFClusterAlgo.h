@@ -157,7 +157,10 @@ class PFClusterAlgo {
   std::auto_ptr< std::vector< reco::PFCluster > >& clusters()  
     {return pfClusters_;}
 
-  
+  /// \return cleaned rechits
+  std::auto_ptr< std::vector< reco::PFRecHit > >& rechitsCleaned()  
+    {return pfRecHitsCleaned_;}
+
   /// \return threshold, seed threshold, (gaussian width, p1 ??)
   /// for a given zone (endcap, barrel, VFCAL ??)
 
@@ -257,6 +260,9 @@ class PFClusterAlgo {
 
   /// particle flow clusters
   std::auto_ptr< std::vector<reco::PFCluster> > pfClusters_;
+  
+  /// particle flow rechits cleaned
+  std::auto_ptr< std::vector<reco::PFRecHit> > pfRecHitsCleaned_;
   
   ///  barrel threshold
   double threshBarrel_;

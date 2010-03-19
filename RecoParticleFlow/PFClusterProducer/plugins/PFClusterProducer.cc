@@ -129,6 +129,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
  
   // produces<reco::PFClusterCollection>(inputTagClusterCollectionName_);
    produces<reco::PFClusterCollection>();
+   produces<reco::PFRecHitCollection>("Cleaned");
+
     //---ab
 }
 
@@ -169,9 +171,10 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
   // get clusters out of the clustering algorithm 
   // and put them in the event. There is no copy.
-  auto_ptr< vector<reco::PFCluster> > 
-    outClusters( clusterAlgo_.clusters() ); 
+  auto_ptr< vector<reco::PFCluster> > outClusters( clusterAlgo_.clusters() ); 
+  auto_ptr< vector<reco::PFRecHit> > recHitsCleaned ( clusterAlgo_.rechitsCleaned() ); 
   iEvent.put( outClusters );    
+  iEvent.put( recHitsCleaned, "Cleaned" );    
 
 }
   
