@@ -140,6 +140,8 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	ME["CSCHaloData_L1HaloTriggers"]  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
 	ME["CSCHaloData_HLHaloTriggers"]  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
 	ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
+	ME["CSCHaloData_NOutOfTimeTriggersMEPlus"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEPlus", "", 20, -0.5, 19.5);
+	ME["CSCHaloData_NOutOfTimeTriggersMEMinus"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEMinus", "", 20, -0.5, 19.5);
 	ME["CSCHaloData_NOutOfTimeTriggers"]  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
 	ME["CSCHaloData_NOutOfTimeHits"]  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
       }
@@ -293,7 +295,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     {
       for( reco::TrackCollection::const_iterator cosmic = TheCosmics ->begin() ; cosmic != TheCosmics->end() ; cosmic++ )
 	{
-	  if( !CSCTrackPlus || !CSCTrackMinus)
+	  if( !CSCTrackPlus || !CSCTrackMinus )
             {
               if( cosmic->eta() > 0 || cosmic->outerPosition().z() > 0  || cosmic->innerPosition().z() > 0 ) CSCTrackPlus = true ;
 	      else if( cosmic->eta() < 0 || cosmic->outerPosition().z() < 0 || cosmic->innerPosition().z() < 0) CSCTrackMinus = true;
@@ -448,8 +450,11 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if (TheCSCDataHandle.isValid())
     {
       const CSCHaloData CSCData = (*TheCSCDataHandle.product());
-      if( CSCData.NumberOfHaloTriggers(1) && !CSCData.NumberOfHaloTriggers(-1) ) TheHaloOrigin = 1;
-      else if ( CSCData.NumberOfHaloTriggers(-1) && !CSCData.NumberOfHaloTriggers(1) ) TheHaloOrigin = -1 ;
+      if( CSCData.NumberOfOutOfTimeTriggers(HaloData::plus) && !CSCData.NumberOfOutOfTimeTriggers(HaloData::minus) ) 
+	TheHaloOrigin = 1;
+      else if ( CSCData.NumberOfOutOfTimeTriggers(HaloData::minus) && !CSCData.NumberOfOutOfTimeTriggers(HaloData::plus))
+	TheHaloOrigin = -1 ;
+
       for( std::vector<GlobalPoint>::const_iterator i=CSCData.GetCSCTrackImpactPositions().begin();  i != CSCData.GetCSCTrackImpactPositions().end() ; i++ )   
 	{                          
 	  float r = TMath::Sqrt( i->x()*i->x() + i->y()*i->y() );
@@ -465,16 +470,18 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  ME["CSCHaloData_InnerMostTrackHitR"]  ->Fill(r);
 	  ME["CSCHaloData_InnerMostTrackHitPhi"]  ->Fill( i->phi()); 
 	}
-      ME["CSCHaloData_L1HaloTriggersMEPlus"]   -> Fill ( CSCData.NumberOfHaloTriggers(1) );
-      ME["CSCHaloData_L1HaloTriggersMEMinus"]  -> Fill ( CSCData.NumberOfHaloTriggers(-1));
-      ME["CSCHaloData_L1HaloTriggers"]  -> Fill ( CSCData.NumberOfHaloTriggers());
+      ME["CSCHaloData_L1HaloTriggersMEPlus"]   -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::plus) );
+      ME["CSCHaloData_L1HaloTriggersMEMinus"]  -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::minus));
+      ME["CSCHaloData_L1HaloTriggers"]  -> Fill ( CSCData.NumberOfHaloTriggers(HaloData::both));
       ME["CSCHaloData_HLHaloTriggers"]  -> Fill ( CSCData.CSCHaloHLTAccept());
-      ME["CSCHaloData_TrackMultiplicityMEPlus"] ->Fill ( CSCData.NumberOfHaloTracks(1) );
-      ME["CSCHaloData_TrackMultiplicityMEMinus"] ->Fill ( CSCData.NumberOfHaloTracks(-1) );
+      ME["CSCHaloData_TrackMultiplicityMEPlus"] ->Fill ( CSCData.NumberOfHaloTracks(HaloData::plus) );
+      ME["CSCHaloData_TrackMultiplicityMEMinus"] ->Fill ( CSCData.NumberOfHaloTracks(HaloData::minus) );
       ME["CSCHaloData_TrackMultiplicity"]->Fill( CSCData.GetTracks().size() );
-      ME["CSCHaloData_NOutOfTimeTriggers"]->Fill( CSCData.NOutOfTimeTriggers() );
+      ME["CSCHaloData_NOutOfTimeTriggersMEPlus"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::plus) );
+      ME["CSCHaloData_NOutOfTimeTriggersMEMinus"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::minus) );
+      ME["CSCHaloData_NOutOfTimeTriggers"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::both) );
       ME["CSCHaloData_NOutOfTimeHits"]->Fill( CSCData.NOutOfTimeHits() );
-      ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]->Fill( CSCData.NOutOfTimeTriggers(), CSCData.NumberOfHaloTriggers() >0 );
+      ME["CSCHaloData_NOutOfTimeTriggersvsL1HaloExists"]->Fill( CSCData.NOutOfTimeTriggers(HaloData::both), CSCData.NumberOfHaloTriggers(HaloData::both) >0 );
     }
 
   //Get EcalHaloData 
