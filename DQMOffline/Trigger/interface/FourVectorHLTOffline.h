@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.44 2010/03/12 20:47:35 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.45 2010/03/16 13:29:17 rekovic Exp $
 //
 //
 
@@ -129,9 +129,11 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void countHLTPathHitsEndLumiBlock(const int& lumi);
       void countHLTGroupHitsEndLumiBlock(const int& lumi);
       void countHLTGroupL1HitsEndLumiBlock(const int& lumi);
+      void countHLTGroupBXHitsEndLumiBlock(const int& lumi);
       int getTriggerTypeParsePathName(const string& pathname);
       const std::string getL1ConditionModuleName(const string& pathname);
-      bool hasL1Passed(const string& pathname);
+      bool hasL1Passed(const string& pathname, const edm::TriggerNames & triggerNames);
+      bool hasHLTPassed(const string& pathname, const edm::TriggerNames& triggerNames);
 
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
@@ -155,7 +157,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       */
 
       MonitorElement* ME_HLTAll_LS_;
-      MonitorElement* ME_HLT_bx_;
+      MonitorElement* ME_HLT_BX_;
+      MonitorElement* ME_HLT_CUSTOM_BX_;
       std::vector<MonitorElement*> v_ME_HLTAll_LS_;
 
       std::string pathsSummaryFolder_;
@@ -165,15 +168,17 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::string pathsSummaryHLTPathsPerLSFolder_;
       std::string pathsIndividualHLTPathsPerLSFolder_;
       std::string pathsSummaryHLTPathsPerBXFolder_;
+      std::string fCustomBXPath;
 
       std::vector<std::string> fGroupName;
 
       unsigned int nLS_; 
+      unsigned int referenceBX_; 
 
       bool plotAll_;
       bool resetMe_;
       int currentRun_;
- 
+      
       unsigned int nBins_; 
       unsigned int nBinsOneOverEt_; 
       double ptMin_ ;
@@ -213,6 +218,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector <std::vector <std::string> > triggerFilters_;
       std::vector <std::vector <uint> > triggerFilterIndices_;
       std::vector <std::pair<std::string, int> > fPathTempCountPair;
+      std::vector <std::pair<std::string, vector<int> > > fPathBxTempCountPair;
       std::vector <std::pair<std::string, int> > fGroupTempCountPair;
       std::vector <std::pair<std::string, int> > fGroupL1TempCountPair;
       std::vector <std::pair<std::string, std::vector<string> > > fGroupNamePathsPair;
@@ -239,6 +245,11 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         pathIndex_(-1), denomPathName_("unset"), pathName_("unset"), l1pathName_("unset"), filterName_("unset"), processName_("unset"), objectType_(-1) {};
 
        public:
+
+          void setFilterHistos(MonitorElement* const filters) 
+          {
+              filters_   =  filters;
+          }
 
           void setHistos(
 
@@ -272,8 +283,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
             MonitorElement* const offEtavsoffPhiOnOffUM,
             MonitorElement* const offDRL1Off, 
             MonitorElement* const offDROnOff, 
-            MonitorElement* const l1DRL1On,  
-            MonitorElement* const filters ) 
+            MonitorElement* const l1DRL1On)  
          {
 
               NOn_ = NOn;
@@ -307,7 +317,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
               offDRL1Off_ =  offDRL1Off; 
               offDROnOff_ =  offDROnOff; 
               l1DRL1On_   =  l1DRL1On;
-              filters_   =  filters;
 
          }
 
@@ -516,9 +525,14 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         {
         };
 
-        bool operator==(const std::string v) 
+        bool operator==(const std::string& v) 
         {
           return v==filterName_;
+        }
+
+        bool operator!=(const std::string& v) 
+        {
+          return v!=filterName_;
         }
 
         float getPtMin() const { return ptmin_; }
