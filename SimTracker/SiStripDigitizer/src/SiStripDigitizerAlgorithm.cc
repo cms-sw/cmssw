@@ -27,6 +27,16 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theTOFCutForDeconvolution = conf_.getParameter<double>("TOFCutForDeconvolution");
   cosmicShift               = conf_.getUntrackedParameter<double>("CosmicDelayShift");
   inefficiency              = conf_.getParameter<double>("Inefficiency");
+  RealPedestals             = conf_.getParameter<bool>("RealPedestals"); 
+  SingleStripNoise          = conf_.getParameter<bool>("SingleStripNoise");
+  CommonModeNoise           = conf_.getParameter<bool>("CommonModeNoise");
+  BaselineShift             = conf_.getParameter<bool>("BaselineShift");
+  APVSaturationFromHIP      = conf_.getParameter<bool>("APVSaturationFromHIP");
+  APVSaturationProb         = conf_.getParameter<double>("APVSaturationProb");
+  cmnRMStib                 = conf_.getParameter<double>("cmnRMStib");
+  cmnRMStob                 = conf_.getParameter<double>("cmnRMStob");
+  cmnRMStid                 = conf_.getParameter<double>("cmnRMStid");
+  cmnRMStec                 = conf_.getParameter<double>("cmnRMStec");
   
   if (peakMode) {
     tofCut=theTOFCutForPeak;
@@ -41,7 +51,6 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold,rndEngine);
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
   theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
-
   theFlatDistribution = new CLHEP::RandFlat(rndEngine, 0., 1.);    
 
   pedOffset = 128;
@@ -54,6 +63,8 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
   delete theSiDigitalConverter;
   delete theSiZeroSuppress;
   delete theFlatDistribution;
+  //delete particle;
+  //delete pdt;
 }
 
 //  Run the algorithm for a given module
@@ -67,21 +78,27 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				    edm::ESHandle<SiStripGain> & gainHandle,
 				    edm::ESHandle<SiStripThreshold> & thresholdHandle,
 				    edm::ESHandle<SiStripNoises> & noiseHandle,
-				    edm::ESHandle<SiStripPedestals> & pedestalHandle
+				    edm::ESHandle<SiStripPedestals> & pedestalHandle,
+					edm::ESHandle<SiStripBadStrip> & deadChannelHandle
 				   ) {  
   theSiPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
   SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
-  numStrips = (det->specificTopology()).nstrips();
-  strip = int(numStrips/2.);
-  // WARNING!!!
-  // here only the value for noise and pedestal from the central strip are taken
-  //    in case the noise RMS / pedestal values are not flat
-  //    the value strip-by-strip must be taken in SiGaussianTailNoiseAdded
-  noiseRMS = noiseHandle->getNoise(strip,detNoiseRange);
-  pedValue = pedestalHandle->getPed(strip,detPedestalRange);
+  SiStripBadStrip::Range detBadStripRange = deadChannelHandle->getRange(detID);
+  numStrips = (det->specificTopology()).nstrips();  
+  
+  //stroing the bad stip of the the module. the module is not removed but just signal put to 0
+  std::vector<bool> badChannels;
+  badChannels.clear();
+  badChannels.insert(badChannels.begin(),numStrips,false);
+  SiStripBadStrip::data fs;
+  for(SiStripBadStrip::ContainerIterator it=detBadStripRange.first;it!=detBadStripRange.second;++it){
+  	fs=deadChannelHandle->decode(*it);
+    for(int strip = fs.firstStrip; strip <fs.firstStrip+fs.range; ++strip )badChannels[strip] = true;
+  }
 
+     
   // local amplitude of detector channels (from processed PSimHit)
   locAmpl.clear();
   detAmpl.clear();
@@ -103,34 +120,77 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
         localLastChannel  = 0;
         // process the hit
         theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);
-        theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ((*simHitIter).first), (*simHitIter).second);
-        // sum signal on strips
+          
+		  //APV Killer to simulate HIP effect
+		  //------------------------------------------------------
+		  
+		  if(APVSaturationFromHIP&&!zeroSuppression){
+		    int pdg_id = ((*simHitIter).first)->particleType();
+			particle = pdt->particle(pdg_id);
+			if(particle != NULL){
+				float charge = particle->charge();
+				bool isHadron = particle->isHadron();
+			    if(charge!=0 && isHadron){
+			  		if(theFlatDistribution->fire()<APVSaturationProb){
+			 	   	 	int FirstAPV = localFirstChannel/128;
+				 		int LastAPV = localLastChannel/128;
+				 		cout << "-------------------HIP--------------" << endl;
+				 		cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<endl;
+				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) badChannels[strip] = true; //doing like that I remove the signal information only after the 
+																													//stip that got the HIP but it remains the signal of the previous
+																													//one. I'll make a further loop to remove all signal																										
+						//for(int strip =0; strip< numStrips; ++ strip) cout << strip << " " << badChannels[strip] << endl;
+			  		}
+				}
+			}
+	      }             
+		
+		
+		theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ((*simHitIter).first), (*simHitIter).second);
+        
+		
+		
+		
+		// sum signal on strips
         for (size_t iChannel=localFirstChannel; iChannel<localLastChannel; iChannel++) {
-          if(locAmpl[iChannel]>0.) {             
-            detAmpl[iChannel]+=locAmpl[iChannel];
-            locAmpl[iChannel]=0;
+          if(locAmpl[iChannel]>0.) {
+		    //if(!badChannels[iChannel]) detAmpl[iChannel]+=locAmpl[iChannel];
+			//locAmpl[iChannel]=0;
+			detAmpl[iChannel]+=locAmpl[iChannel];
            }
         }
         if(firstChannelWithSignal>localFirstChannel) firstChannelWithSignal=localFirstChannel;
         if(lastChannelWithSignal<localLastChannel) lastChannelWithSignal=localLastChannel;
       }
-    }
+	}
   }
+  
+  //removing signal from the dead (and HIP effected) strips
+  for(int strip =0; strip < numStrips; ++strip) if(badChannels[strip]) detAmpl[strip] =0;
   
   const SiPileUpSignals::HitToDigisMapType& theLink(theSiPileUpSignals->dumpLink());  
   const SiPileUpSignals::HitCounterToDigisMapType& theCounterLink(theSiPileUpSignals->dumpCounterLink());  
   
   if(zeroSuppression){
-    if(noise) 
-      theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC);
+    if(noise){
+	  int RefStrip = 0; //int(numStrips/2.);
+	  while(badChannels[RefStrip]&&RefStrip<=numStrips){ //if the refstrip is bad, I move up to when I don't find it
+	  	RefStrip++;
+	  }
+	  if(RefStrip<numStrips){
+	 	float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
+		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC);
+	  }
+	}
     digis.clear();
     theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID,noiseHandle,thresholdHandle);
     push_link(digis, theLink, theCounterLink, detAmpl,detID);
     outdigi.data = digis;
   }
   
+  
   if(!zeroSuppression){
-    if(noise){
+    //if(noise){
       // the constant pedestal offset is needed because
       //   negative adc counts are not allowed in case
       //   Pedestal and CMN subtraction is performed.
@@ -144,16 +204,104 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
       //   them has negative adc value. The pedOffset is
       //   treated as a constant component in the CMN
       //   estimation and subtracted as CMN.
-      pedValue += pedOffset;
-      theSiNoiseAdder->createRaw(detAmpl,firstChannelWithSignal,lastChannelWithSignal,
-                                 numStrips,noiseRMS*theElectronPerADC,pedValue*theElectronPerADC);
-    } else {
-      edm::LogWarning("SiStripDigitizer")<<"You are running the digitizer without Noise generation and without applying Zero Suppression. ARE YOU SURE???";
-    }
-    rawdigis.clear();
+      
+    
+			    	
+		
+		
+        
+		//calculating the charge deposited on each APV and subtracting the shift
+		//------------------------------------------------------
+		if(BaselineShift){
+		   //std::cout<< "Baseline Shift 22222" << std::endl;
+		   theSiNoiseAdder->addBaselineShift(detAmpl, badChannels);
+		}
+		
+		//Adding the strip noise
+		//------------------------------------------------------						 
+		if(noise){
+		    std::vector<float> noiseRMSv;
+			noiseRMSv.clear();
+		    noiseRMSv.insert(noiseRMSv.begin(),numStrips,0.);
+			
+		    if(SingleStripNoise){
+			    //std::cout<< "Adding Noise 33333" << std::endl;
+			    for(int strip=0; strip< numStrips; ++strip){
+			  		if(!badChannels[strip]) noiseRMSv[strip] = (noiseHandle->getNoise(strip,detNoiseRange))* theElectronPerADC;
+			  	}
+			
+	    	} else {
+			    //std::cout<< "Adding Noise 44444" << std::endl;
+		    	int RefStrip = 0; //int(numStrips/2.);
+		    	while(badChannels[RefStrip]&&RefStrip<=numStrips){ //if the refstrip is bad, I move up to when I don't find it
+					RefStrip++;
+				}
+				if(RefStrip<numStrips){
+					float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange) *theElectronPerADC;
+					for(int strip=0; strip< numStrips; ++strip){
+			       		if(!badChannels[strip]) noiseRMSv[strip] = noiseRMS;
+			  		}
+				}
+			}
+			
+			theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv);
+		}			
+		
+		//adding the CMN
+		//------------------------------------------------------
+        if(CommonModeNoise){
+		  //std::cout<< "Adding CMN 55555" << std::endl;
+		  
+		  float cmnRMS;
+		  DetId  detId(detID);
+		  uint32_t SubDet = detId.subdetId();
+		  if(SubDet==3){
+		    cmnRMS = cmnRMStib;
+		  }else if(SubDet==4){
+		    cmnRMS = cmnRMStid;
+		  }else if(SubDet==5){
+		    cmnRMS = cmnRMStob;
+		  }else if(SubDet==6){
+		    cmnRMS = cmnRMStec;
+		  }
+		  cmnRMS *= theElectronPerADC;
+          theSiNoiseAdder->addCMNoise(detAmpl, cmnRMS, badChannels);
+		}
+		
+        		
+		//Adding the pedestals
+		//------------------------------------------------------
+		
+		std::vector<float> vPeds;
+		vPeds.clear();
+		vPeds.insert(vPeds.begin(),numStrips,0.);
+		
+		if(RealPedestals){
+		    //std::cout<< "Adding Pedestals 66666" << std::endl;
+		    for(int strip=0; strip< numStrips; ++strip){
+			   if(!badChannels[strip]) vPeds[strip] = (pedestalHandle->getPed(strip,detPedestalRange)+pedOffset)* theElectronPerADC;
+		      
+			}
+        } else {
+		    //std::cout<< "Adding Pedestals 77777" << std::endl;
+		   	for(int strip=0; strip< numStrips; ++strip){
+			  if(!badChannels[strip]) vPeds[strip] = pedOffset* theElectronPerADC;
+			}
+		}
+		
+		theSiNoiseAdder->addPedestals(detAmpl, vPeds);	
+		
+		 
+	//if(!RealPedestals&&!CommonModeNoise&&!noise&&!BaselineShift&&!APVSaturationFromHIP){
+    //  edm::LogWarning("SiStripDigitizer")<<"You are running the digitizer without Noise generation and without applying Zero Suppression. ARE YOU SURE???";
+    //}else{							 
+    
+	rawdigis.clear();
     rawdigis = theSiDigitalConverter->convertRaw(detAmpl, gainHandle, detID);
     push_link_raw(rawdigis, theLink, theCounterLink, detAmpl,detID);
     outrawdigi.data = rawdigis;
+	
+	//}
   }
 }
 
