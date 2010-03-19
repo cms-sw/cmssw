@@ -68,7 +68,8 @@ void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
 }
 
 
-void CaloHitResponse::add(const PCaloHit & hit)
+void 
+CaloHitResponse::add( const PCaloHit& hit )
 {
   // check the hit time makes sense
   if ( isnan(hit.time()) ) { return; }
@@ -76,9 +77,22 @@ void CaloHitResponse::add(const PCaloHit & hit)
   // maybe it's not from this subdetector
   if(theHitFilter == 0 || theHitFilter->accepts(hit)) {
     LogDebug("CaloHitResponse") << hit;
-    CaloSamples signal(makeAnalogSignal(hit));
+    CaloSamples signal( makeAnalogSignal( hit ) ) ;
+
+    bool keep ( keepBlank() ) ;  // here we  check for blank signal if not keeping them
+    if( !keep )
+    {
+       const unsigned int size ( signal.size() ) ;
+       if( 0 != size )
+       {
+	  for( unsigned int i ( 0 ) ; i != size ; ++i )
+	  {
+	     keep = keep || signal[i] > 1.e-7 ;
+	  }
+       }
+    }
     LogDebug("CaloHitResponse") << signal;
-    add(signal);
+    if( keep ) add(signal);
   }
 }
 
