@@ -60,27 +60,27 @@ CSCHaloData::CSCHaloData()
   nOutOfTimeHits = 0 ;
 }
 
-int CSCHaloData::NumberOfHaloTriggers(int z) const
+int CSCHaloData::NumberOfHaloTriggers(HaloData::Endcap z) const
 {
-  if( z == 1 )
+  if( z == HaloData::plus )
     return nTriggers_PlusZ;
-  else if( z == -1 )
+  else if( z == HaloData::minus )
     return nTriggers_MinusZ;
   else 
     return nTriggers_MinusZ + nTriggers_PlusZ;
 }
 
-short int CSCHaloData::NumberOfOutOfTimeTriggers(int z ) const
+short int CSCHaloData::NumberOfOutOfTimeTriggers(HaloData::Endcap z ) const
 {
-  if( z == 1 ) 
+  if( z == HaloData::plus  ) 
     return nOutOfTimeTriggers_PlusZ;
-  else if( z == -1 ) 
+  else if( z == HaloData::minus ) 
     return nOutOfTimeTriggers_MinusZ;
   else
     return nOutOfTimeTriggers_PlusZ+nOutOfTimeTriggers_MinusZ;
 }
 
-int CSCHaloData::NumberOfHaloTracks(int z) const 
+int CSCHaloData::NumberOfHaloTracks(HaloData::Endcap z) const 
 {
   int n = 0 ;
   for(unsigned int i = 0 ; i < TheTrackRefs.size() ; i++ )
@@ -93,11 +93,11 @@ int CSCHaloData::NumberOfHaloTracks(int z) const
       // Does the track go through only -Z endcap ? 
       bool MinusZ = (iTrack->outerPosition().z()< 0 && iTrack->innerPosition().z() < 0) ;
 
-      if( (z == 1) && ( PlusZ || Traversing) ) 
+      if( (z == HaloData::plus) && ( PlusZ || Traversing) ) 
 	n++;
-      else if( (z == -1) && ( MinusZ || Traversing ) )
+      else if( (z == HaloData::minus) && ( MinusZ || Traversing ) )
 	n++;
-      else if( (TMath::Abs(z) != 1) && (PlusZ || MinusZ || Traversing) ) 
+      else if( (z == HaloData::both) && (PlusZ || MinusZ || Traversing) ) 
 	n++ ;
     }
   return n;

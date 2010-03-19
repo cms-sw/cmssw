@@ -15,6 +15,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/METReco/interface/HaloData.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -27,6 +28,7 @@
 */
 
 namespace reco {
+  
   class CSCHaloData{
     
   public:
@@ -36,18 +38,18 @@ namespace reco {
     virtual ~CSCHaloData(){}
 
     // Number of HaloTriggers in +/- endcap
-    int NumberOfHaloTriggers (int z=0) const ;
-    int NHaloTriggers(int z = 0 ) const { return NumberOfHaloTriggers(z);}
+    int NumberOfHaloTriggers (HaloData::Endcap z= HaloData::both) const ;
+    int NHaloTriggers(HaloData::Endcap z = HaloData::both ) const { return NumberOfHaloTriggers(z);}
     // Number of Halo Tracks in +/-  endcap
-    int NumberOfHaloTracks(int z=0) const ;
-    int NHaloTracks(int z=0) const { return NumberOfHaloTracks(z) ;}
+    int NumberOfHaloTracks(HaloData::Endcap z= HaloData::both) const ;
+    int NHaloTracks(HaloData::Endcap z = HaloData::both) const { return NumberOfHaloTracks(z) ;}
 
     // Halo trigger bit from the HLT  
     bool CSCHaloHLTAccept() const {return HLTAccept;}
 
     // Number of chamber-level triggers with non-collision timing
-    short int NumberOfOutOfTimeTriggers(int z = 0 ) const;
-    short int NOutOfTimeTriggers(int z = 0) const {return NumberOfOutOfTimeTriggers(z);}
+    short int NumberOfOutOfTimeTriggers(HaloData::Endcap z = HaloData::both ) const;
+    short int NOutOfTimeTriggers(HaloData::Endcap z = HaloData::both) const {return NumberOfOutOfTimeTriggers(z);}
     // Number of CSCRecHits with non-collision timing
     short int NumberOfOutTimeHits() const { return nOutOfTimeHits;}
     short int NOutOfTimeHits() const {return nOutOfTimeHits;}
@@ -93,6 +95,8 @@ namespace reco {
     short int nOutOfTimeHits;
 
   };
+
+
   
 }
   
