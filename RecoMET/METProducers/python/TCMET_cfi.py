@@ -43,9 +43,9 @@ tcMet = cms.EDProducer("METProducer",
                        d0cuta = cms.double(0.015),
                        d0cutb = cms.double(0.5),
                        maxd0cut = cms.double(0.3),
-                       chi2_tight_max = cms.double(3.0),
-                       nhits_tight_min = cms.double(11),
-                       ptErr_tight_max = cms.double(0.1),
+                       chi2_tight_max = cms.double(5.0),
+                       nhits_tight_min = cms.double(9),
+                       ptErr_tight_max = cms.double(0.2),
                        maxTrackAlgo = cms.int32(8)
                        )
 
