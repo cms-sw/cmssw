@@ -202,6 +202,11 @@ process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
+if (onlyEB == 1) :
+  process.ecalEBunpacker.FEDs = [ 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645 ]
+if (onlyEE == 1) :
+  process.ecalEBunpacker.FEDs = [ 601, 602, 603, 604, 605, 606, 607, 608, 609, 646, 647, 648, 649, 650, 651, 652, 653, 654 ]
+
 import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
 
