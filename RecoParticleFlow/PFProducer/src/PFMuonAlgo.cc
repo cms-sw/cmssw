@@ -73,9 +73,23 @@ PFMuonAlgo::isTrackerTightMuon( const reco::PFBlockElement& elt ) {
 }
 
 bool
+PFMuonAlgo::isIsolatedMuon( const reco::PFBlockElement& elt ) {
+
+  const reco::PFBlockElementTrack* eltTrack 
+    = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+
+  assert ( eltTrack );
+  reco::MuonRef muonRef = eltTrack->muonRef();
+
+  return isIsolatedMuon(muonRef);
+
+}
+
+
+bool
 PFMuonAlgo::isMuon(const reco::MuonRef& muonRef ){
 
-  return isGlobalTightMuon(muonRef) || isTrackerTightMuon(muonRef);
+  return isGlobalTightMuon(muonRef) || isTrackerTightMuon(muonRef) || isIsolatedMuon(muonRef);
 }
 
 bool
@@ -269,7 +283,6 @@ PFMuonAlgo::isGlobalLooseMuon( const reco::MuonRef& muonRef ) {
     
     //if(trackerMu->pt() < 20. || combinedMu->pt() < 20. || standAloneMu->pt() < 20.) return false;
     
-    
     quality = ((onestation && nMuonHits > 12) || (laststation && nTrackerHits > 12))  && combinedMu->normalizedChi2() < 100.;
     
   }
@@ -312,6 +325,7 @@ PFMuonAlgo::isGlobalLooseMuon( const reco::MuonRef& muonRef ) {
 
 }
 
+
 bool
 PFMuonAlgo::isTrackerLooseMuon( const reco::MuonRef& muonRef ) {
 
@@ -332,6 +346,46 @@ PFMuonAlgo::isTrackerLooseMuon( const reco::MuonRef& muonRef ) {
 
   return quality;
   
+}
+
+bool
+PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
+  if ( !muonRef.isNonnull() ) return false;
+  if ( !muonRef->isIsolationValid() ) return false;
+  
+  // Isolated Muons which are missed by standard cuts are nearly always global
+  if ( !muonRef->isGlobalMuon() ) return false;
+  
+
+  reco::TrackRef standAloneMu = muonRef->standAloneMuon();
+  reco::TrackRef combinedMu = muonRef->combinedMuon();
+  reco::TrackRef trackerMu = muonRef->track();
+
+  // for isolation, take the smallest pt available to reject fakes
+  double smallestMuPt = combinedMu->pt();
+  if(standAloneMu->pt()<smallestMuPt) smallestMuPt = standAloneMu->pt();
+  if(muonRef->isTrackerMuon() && trackerMu->pt() < smallestMuPt) smallestMuPt= trackerMu->pt();
+
+  double sumPtR03 = muonRef->isolationR03().sumPt;
+  double emEtR03 = muonRef->isolationR03().emEt;
+  double hadEtR03 = muonRef->isolationR03().hadEt;
+  
+  double relIso = (sumPtR03 + emEtR03 + hadEtR03)/smallestMuPt;
+  //double relIso = sumPtR03/muonRef->pt();
+
+  /*
+  // protection against fake tracks -- only needed for tracker only, which isn't found in signal sample
+  if(muonRef->isTrackerMuon() && !muonRef->isGlobalMuon() && !muonRef->isStandAloneMuon())
+    {
+      reco::TrackRef trackerMu = muonRef->track();
+      
+      if(trackerMu->ptError()/trackerMu->pt() > 0.20) return false;
+    }
+  //std::cout<<" relIso "<<relIso<<std::endl;
+  */
+
+  if(relIso<0.1) return true;
+  else return false;
 }
 
 void 
@@ -441,9 +495,20 @@ PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
     //if ( ratio > 2. && delta < 3. ) std::cout << "ALARM ! " << ratio << ", " << delta << std::endl;
     std::cout<<" ratio "<<ratio<<" combined mu pt "<<combinedMu->pt()<<std::endl;
     //bool quality3 =  ( combinedMu->pt() < 50. || ratio < 2. ) && delta <  3.;
+
+
   }
 
-
+    double sumPtR03 = muonRef->isolationR03().sumPt;
+    double emEtR03 = muonRef->isolationR03().emEt;
+    double hadEtR03 = muonRef->isolationR03().hadEt;    
+    double relIsoR03 = (sumPtR03 + emEtR03 + hadEtR03)/muonRef->pt();
+    double sumPtR05 = muonRef->isolationR05().sumPt;
+    double emEtR05 = muonRef->isolationR05().emEt;
+    double hadEtR05 = muonRef->isolationR05().hadEt;    
+    double relIsoR05 = (sumPtR05 + emEtR05 + hadEtR05)/muonRef->pt();
+    std::cout<<" 0.3 Radion Rel Iso: "<<relIsoR03<<" sumPt "<<sumPtR03<<" emEt "<<emEtR03<<" hadEt "<<hadEtR03<<std::endl;
+    std::cout<<" 0.5 Radion Rel Iso: "<<relIsoR05<<" sumPt "<<sumPtR05<<" emEt "<<emEtR05<<" hadEt "<<hadEtR05<<std::endl;
   return;
 
 }

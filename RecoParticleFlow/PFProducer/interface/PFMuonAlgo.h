@@ -27,7 +27,9 @@ class PFMuonAlgo {
 
   static bool isTrackerLooseMuon( const reco::PFBlockElement& elt );
 
-  static bool isMuon( const reco::MuonRef& muonRef );
+  static bool isIsolatedMuon( const reco::PFBlockElement& elt );
+
+  static bool isMuon( const reco::MuonRef& muonRef );  
 
   static bool isLooseMuon( const reco::MuonRef& muonRef );
 
@@ -39,6 +41,8 @@ class PFMuonAlgo {
   
   static bool isTrackerLooseMuon( const reco::MuonRef& muonRef );
   
+  static bool isIsolatedMuon( const reco::MuonRef& muonRef );
+
   static void printMuonProperties( const reco::MuonRef& muonRef );
   
  private:

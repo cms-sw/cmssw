@@ -375,7 +375,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   for(unsigned iEle=0; iEle<elements.size(); iEle++) {
 
     PFBlockElement::Type type = elements[iEle].type();
-        
+
     if(debug_ && type != PFBlockElement::BREM ) cout<<endl<<elements[iEle];   
 
     switch( type ) {
@@ -430,6 +430,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     // we're now dealing with a track
     unsigned iTrack = iEle;
+
     if(debug_) { 
       cout<<"TRACK"<<endl;
       if ( !active[iTrack] ) 
@@ -600,10 +601,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       if ( thisIsAMuon ) trackMomentum = 0.;
-       
+
       // Is it a fake track ?
       bool rejectFake = false;
-      if ( !thisIsAMuon && elements[iTrack].trackRef()->ptError() > ptError_ ) { 
+      if ( !thisIsAMuon  && elements[iTrack].trackRef()->ptError() > ptError_ ) { 
 
 	double deficit = trackMomentum; 
 	double resol = neutralHadronEnergyResolution(trackMomentum,
@@ -1243,7 +1244,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       bool thisIsALooseMuon = false;
 
-      if(!thisIsAMuon) {
+      if(!thisIsAMuon ) {
 	thisIsALooseMuon = PFMuonAlgo::isLooseMuon(elements[iTrack]);
       }
       if ( thisIsAMuon ) {
@@ -1606,8 +1607,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  else{
 	    if (debug_)
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
-			<< "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
+	                << "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
 	    //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
+	    
 	  }
 	  
 	  // Remove it from the block
@@ -2392,8 +2394,8 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
   reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
   reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
-  reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
-  reco::PFBlockElement::TrackType T_FROM_V0 = reco::PFBlockElement::T_FROM_V0;
+  //reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
+  //reco::PFBlockElement::TrackType T_FROM_V0 = reco::PFBlockElement::T_FROM_V0;
 
   const reco::PFBlockElementTrack* eltTrack 
     = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
@@ -2411,18 +2413,34 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   double pz = track.pz();
   double energy = sqrt(track.p()*track.p() + 0.13957*0.13957);
 
- 
 
-  // Except if it is a muon, of course !
+  // Except if it is a muon, of course ! 
+
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
+  bool thisIsAnIsolatedMuon = PFMuonAlgo::isIsolatedMuon(elt);
+
   bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
+  bool thisIsATrackerTightMuon = PFMuonAlgo::isTrackerTightMuon(elt);
 
   // Or from nuclear inetraction then use the refitted momentum
   bool isFromDisp  = usePFNuclearInteractions_ && eltTrack->trackType(T_FROM_DISP);
   //isFromNucl = false;
 
   if ( thisIsAMuon ) { 
-    if(thisIsAGlobalTightMuon){
+    //For Isolated muons, take the track pt if it's a tracker mu, and if not take the global, but never the stand-alone
+    if(thisIsAnIsolatedMuon){
+      if(!muonRef->isTrackerMuon()){
+	reco::TrackRef combinedMu = muonRef->combinedMuon();
+	px = combinedMu->px();
+	py = combinedMu->py();
+	pz = combinedMu->pz();
+	energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057); 
+      }
+      else{
+	energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
+      }       
+    }
+    else if(thisIsAGlobalTightMuon){    
       if(sqrt(px*px+py*py) > 10){
 	reco::TrackRef combinedMu = muonRef->isTrackerMuon() || 
 	  muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
@@ -2474,14 +2492,16 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     pfCandidates_->back().setMuonRef( muonRef );
 
     // setting the muon particle type if it is a global muon
-    if ( thisIsAMuon ) {
+    if ( thisIsAMuon) {
       particleType = reco::PFCandidate::mu;
       pfCandidates_->back().setParticleType( particleType );
       if (debug_) {
 	if(thisIsAGlobalTightMuon) cout << "PFAlgo: particle type set to muon (global, tight), pT = " <<muonRef->pt()<< endl; 
-	else	cout << "PFAlgo: particle type set to muon (tracker, tight), pT = " <<muonRef->pt()<< endl;
+	else if(thisIsATrackerTightMuon) cout << "PFAlgo: particle type set to muon (tracker, tight), pT = " <<muonRef->pt()<< endl;
+	else if(thisIsAnIsolatedMuon) cout << "PFAlgo: particle type set to muon (isolated), pT = " <<muonRef->pt()<< endl; 
+	else cout<<" problem with muon assignment "<<endl;
 	//PFMuonAlgo::printMuonProperties( muonRef );
-       }
+	}
     }
   }
 
