@@ -117,9 +117,10 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
 
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitInnerRadiusA_Endcap") );
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitOuterRadiusA_Endcap") );
+  ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitEtaSliceA_Endcap") );
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitThreshEA_Endcap") );
   ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitThreshEtA_Endcap") );
-  ecalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("EcalRecHitEtaSliceA_Endcap") );
+
 
   hcalIsoEndcapRadiusA_.push_back(  conf.getParameter<double>("HcalTowerInnerRadiusA_Endcap") );
   hcalIsoEndcapRadiusA_.push_back( conf.getParameter<double>("HcalTowerOuterRadiusA_Endcap") );
