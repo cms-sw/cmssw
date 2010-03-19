@@ -12,9 +12,7 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
+#include "RecoJets/JetAlgorithms/interface/PileUpSubtractor.h"
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -97,24 +95,12 @@ protected:
   // (Calo,PF,Basic, or Gen). 
   virtual void makeProduces( std::string s, std::string tag = "" );
 
-  // This method will set up a geometry tower map to be used in offset correction.
-  // Only runs if "doPUOffsetCorrection_" is true.
-  virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
-
   // This method inputs the constituents from "inputs" and modifies
   // fjInputs. 
   virtual void inputTowers();
 
   // This checks if the tower is anomalous (if a calo tower).
   virtual bool isAnomalousTower(reco::CandidatePtr input);
-
-  // Calculate mean E and sigma from fjInputs_.
-  // Only runs if "doPUOffsetCorrection_" is true.
-  virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
-
-  // Subtract mean E and sigma from fjInputs_.
-  // Only runs if "doPUOffsetCorrection_" is true.
-  virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
 
   // This will copy the fastjet constituents to the jet itself.
   virtual void copyConstituents(const std::vector<fastjet::PseudoJet>&fjConstituents,
@@ -124,18 +110,9 @@ protected:
   // has no default. 
   virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 
-  // Calculate the input towers that are not associated with any jet.
-  // Only runs if "doPUOffsetCorrection_" is true.  
-  void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
-  
   // Do the offset correction. 
   // Only runs if "doPUOffsetCorrection_" is true.  
   void offsetCorrectJets(std::vector<fastjet::PseudoJet> & orphanInput);
-
-  // for use in offset correction.
-  // Only runs if "doPUOffsetCorrection_" is true.  
-  int ieta(const reco::CandidatePtr & in);
-  int iphi(const reco::CandidatePtr & in);
 
   // This will write the jets to the event. 
   // The default is to write out the single jet collection in the default "produces"
@@ -182,16 +159,6 @@ protected:
   
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
-  double                nSigmaPU_;                  // number of sigma for pileup
-  double                radiusPU_;                  // pileup radius
-  CaloGeometry const *  geo_;                       // geometry
-  int                   ietamax_;                   // maximum eta in geometry
-  int                   ietamin_;                   // minimum eta in geometry
-  std::vector<HcalDetId> allgeomid_;                // all det ids in the geometry
-  std::map<int,int>     geomtowers_;                // map of geometry towers to det id
-  std::map<int,int>     ntowersWithJets_;           // number of towers with jets
-  std::map<int,double>  esigma_;                    // energy sigma
-  std::map<int,double>  emean_;                     // energy mean
 
   // anomalous cell cuts
   unsigned int          maxBadEcalCells_;           // maximum number of bad ECAL cells
@@ -211,7 +178,9 @@ protected:
   std::vector<fastjet::PseudoJet> fjInputs_;        // fastjet inputs
   std::vector<fastjet::PseudoJet> fjJets_;          // fastjet jets
 
-  std::string           jetCollInstanceName_;       // instance name for output jet collection
+  std::string                     jetCollInstanceName_;       // instance name for output jet collection
+  boost::shared_ptr<PileUpSubtractor>  subtractor_;
+
 };
 
 

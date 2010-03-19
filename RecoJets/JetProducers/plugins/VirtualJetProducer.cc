@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
-
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -16,7 +15,6 @@
 #include "FWCore/Utilities/interface/CodedException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -30,15 +28,10 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "RecoJets/JetProducers/interface/JetSpecific.h"
-
 #include "fastjet/SISConePlugin.hh"
 #include "fastjet/CMSIterativeConePlugin.hh"
 #include "fastjet/ATLASConePlugin.hh"
 #include "fastjet/CDFMidPointPlugin.hh"
-
 
 #include <iostream>
 #include <memory>
@@ -119,7 +112,6 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
   , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
   , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
-  , geo_(0)
   , maxBadEcalCells_        (iConfig.getParameter<unsigned>("maxBadEcalCells"))
   , maxRecoveredEcalCells_  (iConfig.getParameter<unsigned>("maxRecoveredEcalCells"))
   , maxProblematicEcalCells_(iConfig.getParameter<unsigned>("maxProblematicEcalCells"))
@@ -172,6 +164,13 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
     jetCollInstanceName_ = iConfig.getParameter<string>("jetCollInstanceName");
   }
 
+  if ( doPUOffsetCorr_ ) {
+     if ( jetTypeE != JetType::CaloJet ) {
+	throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
+     }
+     subtractor_ = boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig,inputs_,fjInputs_,fjJets_));
+  }
+
   // do fasjet area / rho calcluation? => accept corresponding parameters
   if ( doAreaFastjet_ || doRhoFastjet_ ) {
     // default Ghost_EtaMax should be 5
@@ -185,14 +184,6 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
 								   ghostArea));
     fjRangeDef_ = RangeDefPtr( new fastjet::RangeDefinition(ghostEtaMax) );
   } 
-
-  if ( doPUOffsetCorr_ ) {
-    nSigmaPU_ = iConfig.getParameter<double>("nSigmaPU");
-    radiusPU_ = iConfig.getParameter<double>("radiusPU");
-    if ( jetTypeE != JetType::CaloJet ) {
-      throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
-    }
-  }
 
   // restrict inputs to first "maxInputs" towers?
   if ( iConfig.exists("restrictInputs") ) {
@@ -236,7 +227,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // For Pileup subtraction using offset correction:
   // set up geometry map
   if ( doPUOffsetCorr_ ) {
-    setupGeometryMap(iEvent, iSetup);
+     subtractor_->setupGeometryMap(iEvent, iSetup);
   }
 
   // clear data
@@ -263,14 +254,18 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // For Pileup subtraction using offset correction:
   // Subtract pedestal. 
   if ( doPUOffsetCorr_ ) {
-    calculatePedestal(fjInputs_); 
-    subtractPedestal(fjInputs_);    
-    LogDebug("VirtualJetProducer") << "Subtracted pedestal\n";
+     subtractor_->calculatePedestal(fjInputs_); 
+     subtractor_->subtractPedestal(fjInputs_);    
+     LogDebug("VirtualJetProducer") << "Subtracted pedestal\n";
   }
 
   // Run algorithm. Will modify fjJets_ and allocate fjClusterSeq_. 
   // This will use fjInputs_
   runAlgorithm( iEvent, iSetup );
+  if ( doPUOffsetCorr_ ) {
+     subtractor_->setAlgorithm(fjClusterSeq_);
+  }
+
   LogDebug("VirtualJetProducer") << "Ran algorithm\n";
 
   // For Pileup subtraction using offset correction:
@@ -281,11 +276,10 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // and subtract from initial towers in jet recalculated mean and sigma of towers 
   if ( doPUOffsetCorr_ ) {
     vector<fastjet::PseudoJet> orphanInput;
-    calculateOrphanInput(orphanInput);
-    calculatePedestal(orphanInput);
-    offsetCorrectJets(orphanInput);
+    subtractor_->calculateOrphanInput(orphanInput);
+    subtractor_->calculatePedestal(orphanInput);
+    subtractor_->offsetCorrectJets();
   }
-
   
   // Write the output jets.
   // This will (by default) call the member function template
@@ -295,47 +289,6 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   LogDebug("VirtualJetProducer") << "Wrote jets\n";
   
   return;
-}
-
-
-
-
-//______________________________________________________________________________
-  
-void VirtualJetProducer::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup)    
-{
-  if(geo_ == 0) {
-    edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<CaloGeometryRecord>().get(pG);
-    geo_ = pG.product();
-    std::vector<DetId> alldid =  geo_->getValidDetIds();
-    
-    int ietaold = -10000;
-    ietamax_ = -10000;
-    ietamin_ = 10000;   
-    for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
-      if( (*did).det() == DetId::Hcal ){
-	HcalDetId hid = HcalDetId(*did);
-	if( (hid).depth() == 1 ) { 
-	  allgeomid_.push_back(*did);
-	  
-	  if((hid).ieta() != ietaold){
-	    ietaold = (hid).ieta();
-	    geomtowers_[(hid).ieta()] = 1;
-	    if((hid).ieta() > ietamax_) ietamax_ = (hid).ieta();
-	    if((hid).ieta() < ietamin_) ietamin_ = (hid).ieta();
-	  }
-	  else{
-	    geomtowers_[(hid).ieta()]++;
-	  } 
-	}
-      }
-    }       
-  }
-
-  for (int i = ietamin_; i<ietamax_+1; i++) {
-    ntowersWithJets_[i] = 0;
-  }
 }
 
 //______________________________________________________________________________
@@ -414,7 +367,6 @@ VirtualJetProducer::getConstituents(const vector<fastjet::PseudoJet>&fjConstitue
   return result;
 }
 
-
 void VirtualJetProducer::output(edm::Event & iEvent, edm::EventSetup const& iSetup)
 {
   // Write jets and constitutents. Will use fjJets_, inputs_
@@ -484,7 +436,12 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 		  constituents, iSetup);
     
     jet.setJetArea (jetArea);
-    jet.setPileup (0.0);
+
+    if(doPUOffsetCorr_){
+       jet.setPileup(subtractor_->getPileUpEnergy(ijet));
+   }else{
+       jet.setPileup (0.0);
+    }
 
     // add to the list
     jets->push_back(jet);	
@@ -501,258 +458,5 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     *rho = clusterSequenceWithArea->median_pt_per_unit_area(*fjRangeDef_);
   }
   iEvent.put(rho);
-}
-
-
-
-//
-// Calculate mean E and sigma from jet collection "coll".  
-//
-void VirtualJetProducer::calculatePedestal( vector<fastjet::PseudoJet> const & coll )
-{
-
-  map<int,double> emean2;
-  map<int,int> ntowers;
-    
-  int ietaold = -10000;
-  int ieta0 = -100;
-   
-  // Initial values for emean_, emean2, esigma_, ntowers
-
-  for(int i = ietamin_; i < ietamax_+1; i++)
-    {
-      emean_[i] = 0.;
-      emean2[i] = 0.;
-      esigma_[i] = 0.;
-      ntowers[i] = 0;
-    }
-    
-  for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin (),
-	 fjInputsEnd = coll.end();  
-       input_object != fjInputsEnd; ++input_object) {
-
-    const reco::CandidatePtr & originalTower=inputs_[input_object->user_index()];
-    ieta0 = ieta( inputs_[input_object->user_index()] );
-    double Original_Et = originalTower->et();
-
-    if( ieta0-ietaold != 0 )
-      {
-        emean_[ieta0] = emean_[ieta0]+Original_Et;
-        emean2[ieta0] = emean2[ieta0]+Original_Et*Original_Et;
-        ntowers[ieta0] = 1;
-        ietaold = ieta0;
-      }
-    else
-      {
-	emean_[ieta0] = emean_[ieta0]+Original_Et;
-	emean2[ieta0] = emean2[ieta0]+Original_Et*Original_Et;
-	ntowers[ieta0]++;
-      }
-  }
-
-  for(map<int,int>::const_iterator gt = geomtowers_.begin(); gt != geomtowers_.end(); gt++)    
-    {
-
-      int it = (*gt).first;
-       
-      double e1 = (*emean_.find(it)).second;
-      double e2 = (*emean2.find(it)).second;
-      int nt = (*gt).second - (*ntowersWithJets_.find(it)).second;
-        
-      if(nt > 0) {
-	emean_[it] = e1/nt;
-	double eee = e2/nt - e1*e1/(nt*nt);	    
-	if(eee<0.) eee = 0.;
-	esigma_[it] = nSigmaPU_*sqrt(eee);
-      }
-      else
-	{
-          emean_[it] = 0.;
-          esigma_[it] = 0.;
-	}
-    }
-
-}
-
-
-//
-// Subtract mean and sigma from fjInputs_
-//    
-void VirtualJetProducer::subtractPedestal(vector<fastjet::PseudoJet> & coll)
-{
-  int it = -100;
-  int ip = -100;
-        
-  for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin (),
-	 fjInputsEnd = coll.end(); 
-       input_object != fjInputsEnd; ++input_object) {
-    
-    reco::CandidatePtr const & itow =  inputs_[input_object->user_index()];
-    
-    it = ieta( itow );
-    ip = iphi( itow );
-
-    double etnew = itow->et() - (*emean_.find(it)).second - (*esigma_.find(it)).second;
-    float mScale = etnew/input_object->Et(); 
-    
-    if(etnew < 0.) mScale = 0.;
-
-    math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
-				   input_object->pz()*mScale, input_object->e()*mScale);
-    
-    int index = input_object->user_index();
-    input_object->reset ( towP4.px(),
-			  towP4.py(),
-			  towP4.pz(),
-			  towP4.energy() );
-    input_object->set_user_index(index);
-  }
-}
-
-
-
-void VirtualJetProducer::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanInput) 
-{
-  vector<int> jettowers; // vector of towers indexed by "user_index"
-  vector <fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_.begin (),
-    fjJetsEnd = fjJets_.end();
-    
-  for (; pseudojetTMP != fjJetsEnd ; ++pseudojetTMP) {
-      
-    vector<fastjet::PseudoJet> newtowers;
-      
-    // get eta, phi of this jet
-    double eta2 = pseudojetTMP->eta();
-    double phi2 = pseudojetTMP->phi();
-    // find towers within radiusPU_ of this jet
-    for(vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++)
-      {
-	double eta1 = geo_->getPosition((DetId)(*im)).eta();
-	double phi1 = geo_->getPosition((DetId)(*im)).phi();
-	double dphi = fabs(phi1-phi2);
-	double deta = eta1-eta2;
-	if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	double dr = sqrt(dphi*dphi+deta*deta);	  
-	if( dr < radiusPU_) {
-	  ntowersWithJets_[(*im).ieta()]++; 	    
-	}
-      }
-
-    vector<fastjet::PseudoJet>::const_iterator it = fjInputs_.begin(),
-      fjInputsBegin = fjInputs_.begin(),
-      fjInputsEnd = fjInputs_.end();
-      
-    // 
-    for (; it != fjInputsEnd; ++it ) {
-	
-      double eta1 = it->eta();
-      double phi1 = it->phi();
-	
-      double dphi = fabs(phi1-phi2);
-      double deta = eta1-eta2;
-      if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-      double dr = sqrt(dphi*dphi+deta*deta);
-	
-      if( dr < radiusPU_) {
-	newtowers.push_back(*it);
-	jettowers.push_back(it->user_index());
-      } //dr < 0.5
-
-    } // initial input collection  
-
-  } // pseudojets
-
-  //
-  // Create a new collections from the towers not included in jets 
-  //
-  for(vector<fastjet::PseudoJet>::const_iterator it = fjInputs_.begin(),
-	fjInputsEnd = fjInputs_.end(); it != fjInputsEnd; ++it ) {
-    vector<int>::const_iterator itjet = find(jettowers.begin(),jettowers.end(),it->user_index());
-    if( itjet == jettowers.end() ) orphanInput.push_back(*it); 
-  }
-
-}
-
-
-void VirtualJetProducer::offsetCorrectJets(vector<fastjet::PseudoJet> & orphanInput) 
-{
-
-  using namespace reco;
-
-  //    
-  // Reestimate energy of jet (energy of jet with initial map)
-  //
-  vector<fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_.begin (),
-    jetsEnd = fjJets_.end();
-  for (; pseudojetTMP != jetsEnd; ++pseudojetTMP) {
-
-    // get the constituents from fastjet
-    std::vector<fastjet::PseudoJet> towers =
-      sorted_by_pt(fjClusterSeq_->constituents(*pseudojetTMP));
-    
-    double offset = 0.;
-      
-    for(vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(),
-	  towEnd = towers.end(); 
-	ito != towEnd; 
-	++ito)
-      {
-	  
-	const reco::CandidatePtr& originalTower = inputs_[ito->user_index()];
-	int it = ieta( inputs_[ito->user_index()] );
-        double Original_Et = originalTower->et();
-	double etnew = Original_Et - (*emean_.find(it)).second - (*esigma_.find(it)).second; 
-	  
-	  
-	if( etnew <0.) etnew = 0.;
-	offset = offset + etnew;
-
-      }
-    //      double mScale = (pseudojetTMP->Et()-offset)/pseudojetTMP->Et();
-    // Temporarily for test only
-      
-    double mScale = offset/pseudojetTMP->Et();
-
-    ///
-    ///!!! Change towers to rescaled towers///
-    ///      
-
-    int cshist = pseudojetTMP->cluster_hist_index();
-    pseudojetTMP->reset(pseudojetTMP->px()*mScale, pseudojetTMP->py()*mScale,
-			pseudojetTMP->pz()*mScale, pseudojetTMP->e()*mScale);
-    pseudojetTMP->set_cluster_hist_index(cshist);
-
-  }    
-}
-
-int VirtualJetProducer::ieta(const reco::CandidatePtr & in)
-{
-  int it = 0;
-  const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
-     
-  if(ctc)
-    {
-      it = ctc->id().ieta(); 
-    } else
-    {
-      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
-    }
-   
-  return it;
-}
-
-int VirtualJetProducer::iphi(const reco::CandidatePtr & in)
-{
-  int it = 0;
-  const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
-  if(ctc)
-    {
-      it = ctc->id().iphi();
-    } else
-    {
-      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
-    }
-   
-  return it;
 }
 
