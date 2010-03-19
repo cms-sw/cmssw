@@ -5,14 +5,18 @@ from Modules import OutputModule, EDProducer, EDFilter, EDAnalyzer
 class PathValidator(object):
     def enter(self,visitee):
         if isinstance(visitee,OutputModule):
-            raise ValueError("Path cannot have an OutputModule, "+visitee.label_())
+            message = "Warning: Path cannot have an OutputModule, "+visitee.label_()
+            print message
+            #raise ValueError(message)
     def leave(self,visitee):
         pass
 
 class EndPathValidator(object):
     def enter(self,visitee):
         if isinstance(visitee,EDProducer) or isinstance(visitee,EDFilter):
-            raise ValueError("EndPath cannot have an EDProducer or an EDFilter, "+visitee.label_())
+            message = "Warning: EndPath cannot have an EDProducer or an EDFilter, "+visitee.label_()
+            print message
+            #raise ValueError(message)
     def leave(self,visitee):
         pass
 
@@ -42,10 +46,10 @@ if __name__=="__main__":
             pathValidator = PathValidator()
             endpathValidator = EndPathValidator()
             p1.visit(pathValidator)
-            self.assertRaises(ValueError, p2.visit, pathValidator) 
+            #self.assertRaises(ValueError, p2.visit, pathValidator) 
             ep1.visit(endpathValidator) 
-            self.assertRaises(ValueError, ep2.visit, endpathValidator)
-            self.assertRaises(ValueError, ep3.visit, endpathValidator)
+            #self.assertRaises(ValueError, ep2.visit, endpathValidator)
+            #self.assertRaises(ValueError, ep3.visit, endpathValidator)
 
     unittest.main()
 
