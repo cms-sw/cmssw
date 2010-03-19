@@ -13,15 +13,15 @@ namespace evf {
     CurlPoster(const std::string& url) : url_(url), active_(true){
       buf_=(struct utsname*)new char[sizeof(struct utsname)];
       uname(buf_);
-      check();
+      //      check();
     }
     virtual ~CurlPoster(){delete [] buf_;}
-    bool check();
-    void postBinary(unsigned char *, unsigned int, unsigned int); 
-    void postString(unsigned char *, unsigned int, unsigned int); 
+    bool check(int);
+    void postBinary(const char *, unsigned int, unsigned int); 
+    void postString(const char *, size_t, unsigned int); 
   private:
     enum mode{text,bin};  
-    void post(unsigned char *, unsigned int, unsigned int, mode);
+    void post(const char *, unsigned int, unsigned int, mode);
     std::string url_;
     bool active_;
     struct utsname* buf_; 

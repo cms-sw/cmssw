@@ -12,11 +12,15 @@
 
 namespace evf{
   //______________________________________________________________________________
-  void CurlPoster::post(unsigned char *content, unsigned int len, unsigned int run, mode m)
+  void CurlPoster::post(const char *content, 
+			unsigned int len, 
+			unsigned int run,
+			mode m)
   {
     std::string urlp = url_+"/postEntry";
     char srun[12];
     sprintf(srun,"%d",run);
+    std::string method;
     CURL* han = curl_easy_init();
     if(han==0)
       {
@@ -27,12 +31,15 @@ namespace evf{
     case text:
       {
 	headers = curl_slist_append(headers, "Content-Type: text/plain");
+	method = "stacktrace";
 	break;
       }
     case bin:
       {
 	headers = curl_slist_append(headers, "Content-Type: application/octet-stream");
-	headers = curl_slist_append(headers, "Content-Transfer-Encoding: base64");
+	headers = curl_slist_append(headers, "Content-Transfer-Encoding: base64")
+;
+	method = "trp";
 	break;
       }
     default:
@@ -55,7 +62,7 @@ namespace evf{
 		 CURLFORM_COPYNAME, "run",
 		 CURLFORM_COPYCONTENTS, srun, CURLFORM_END);
     curl_formadd(&post, &last,
-		 CURLFORM_COPYNAME, "trp",
+		 CURLFORM_COPYNAME, method.c_str(),
 		 CURLFORM_COPYCONTENTS, content,
 		 CURLFORM_CONTENTSLENGTH, len,
 		 CURLFORM_CONTENTHEADER, headers,
@@ -77,23 +84,26 @@ namespace evf{
       }
 
   }
-  void CurlPoster::postString(unsigned char *content, unsigned int len, unsigned int run)
+  void CurlPoster::postString(const char *content, size_t len, unsigned int run)
   {
     if(!active_) return;
     std::cout << "==============doing postString " << std::endl;
-    post(content,len,run,text)
+    post(content,(unsigned int)len,run,text);
   }
-  void CurlPoster::postBinary(unsigned char *content, unsigned int len, unsigned int run)
+  void CurlPoster::postBinary(const char *content, unsigned int len, unsigned int run)
   {
     if(!active_) return;
     std::cout << "==============doing postBinary " << std::endl;
     post(content,len,run,bin);
   }
 
-  bool CurlPoster::check()
+  bool CurlPoster::check(int run)
   {
+    std::cout << "curlposter checking address " << url_ << std::endl;
     bool retVal = true;
-    
+    char ps[14];
+    sprintf(ps,"run=%d",run);
+    std::cout << "sending run " << ps << std::endl;;
     CURL* han = curl_easy_init();
     if(han==0)
       {
@@ -103,22 +113,17 @@ namespace evf{
     std::string dummy;
 
     struct curl_slist *headers=NULL; /* init to NULL is important */
-
-    headers = curl_slist_append(headers, "Pragma:");
-
-    curl_easy_setopt(han, CURLOPT_HTTPHEADER, headers);
  
-    curl_easy_setopt(han, CURLOPT_URL, url_.c_str());
-    
-    curl_easy_setopt(han, CURLOPT_WRITEFUNCTION, &write_data);
-    curl_easy_setopt(han, CURLOPT_WRITEDATA, &dummy);
-    curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error);
+    curl_easy_setopt(han, CURLOPT_URL, url_.c_str()           );
+    curl_easy_setopt(han, CURLOPT_POSTFIELDS,ps               );    
+    curl_easy_setopt(han, CURLOPT_WRITEFUNCTION, &write_data  );
+    curl_easy_setopt(han, CURLOPT_WRITEDATA, &dummy           );
+    curl_easy_setopt(han, CURLOPT_ERRORBUFFER, error          );
     int success = curl_easy_perform(han);
-
-    curl_slist_free_all(headers); /* free the header list */
 
     curl_easy_cleanup(han);
     if(success != 0){
+      std::cout << "curlposter failed check" << std::endl;
       retVal = false;
       active_ = false;
     }
@@ -126,4 +131,4 @@ namespace evf{
 
   }
 
-} //end namespace evf
+} //end 
