@@ -1,5 +1,5 @@
 <export></export>
-   <library file="*.cc" name="RecoJetsJetProducers_plugins">
+   <library file="*.cc" name="RecoJetsJetPlusTracks_plugins">
    <use name=CondFormats/JetMETObjects>
    <use name=DataFormats/Common>
    <use name=DataFormats/EgammaCandidates>
