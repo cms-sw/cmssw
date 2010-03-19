@@ -667,15 +667,15 @@ class Process(object):
         p.addVString(True, "@trigger_paths", triggerPaths)
         processPSet.addPSet(True, "@trigger_paths", p)
         # add all these paths
-        #pathValidator = PathValidator()
-        #endpathValidator = EndPathValidator()
+        pathValidator = PathValidator()
+        endpathValidator = EndPathValidator()
         for triggername in triggerPaths:
             #self.paths_()[triggername].insertInto(processPSet, triggername, self.sequences_())
-            #self.paths_()[triggername].visit(pathValidator)
+            self.paths_()[triggername].visit(pathValidator)
             self.paths_()[triggername].insertInto(processPSet, triggername, self.__dict__)
         for endpathname in endpaths:
             #self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.sequences_())
-            #self.endpaths_()[endpathname].visit(endpathValidator)
+            self.endpaths_()[endpathname].visit(endpathValidator)
             self.endpaths_()[endpathname].insertInto(processPSet, endpathname, self.__dict__)
         # all the placeholders should be resolved now, so...
         if self.schedule_() != None:
