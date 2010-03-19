@@ -31,8 +31,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setHSCPFlags_(conf.getParameter<bool>("setHSCPFlags")),
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
-  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-  HFNoiseAlgo_(conf.getParameter<int>("HFNoiseAlgo"))
+  dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   hbheFlagSetter_=0;
@@ -95,6 +94,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
+    HFNoiseAlgo_=conf.getParameter<int>("HFNoiseAlgo"); // get noise algorithm type
 
     if (setTimingTrustFlags_) {
       
