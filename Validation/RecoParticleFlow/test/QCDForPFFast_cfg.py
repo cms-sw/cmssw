@@ -23,9 +23,10 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
-# Get frontier conditions    - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP_V5::All", "1PB::All", "10PB::All", "IDEAL_V5::All"
-process.GlobalTag.globaltag = "MC_3XY_V25::All"
+# Get frontier conditions 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
