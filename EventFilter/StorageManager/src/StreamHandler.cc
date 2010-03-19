@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.14 2010/01/29 15:45:47 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.15 2010/02/08 11:57:59 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -14,10 +14,14 @@
 using namespace stor;
 
 
-StreamHandler::StreamHandler(SharedResourcesPtr sharedResources) :
+StreamHandler::StreamHandler(
+  const SharedResourcesPtr sharedResources,
+  const DbFileHandlerPtr dbFileHandler
+) :
 _statReporter(sharedResources->_statisticsReporter),
 _streamRecord(_statReporter->getStreamsMonitorCollection().getNewStreamRecord()),
-_diskWritingParams(sharedResources->_configuration->getDiskWritingParams())
+_diskWritingParams(sharedResources->_configuration->getDiskWritingParams()),
+_dbFileHandler(dbFileHandler)
 {}
 
 
@@ -67,6 +71,17 @@ void StreamHandler::closeTimedOutFiles(utils::time_point_t currentTime)
                                      boost::bind(&FileHandler::tooOld,
                                                  _1, currentTime)),
                       _fileHandlers.end());
+}
+
+void StreamHandler::closeFilesForLumiSection
+(
+  const uint32_t& runNumber,
+  const uint32_t& lumiSection,
+  std::string& str
+)
+{
+  _streamRecord->reportLumiSectionInfo(runNumber, lumiSection, str);
+  closeFilesForLumiSection(lumiSection);
 }
 
 
@@ -129,7 +144,7 @@ StreamHandler::getNewFileRecord(const I2OChain& event)
   fileRecord->whyClosed = FilesMonitorCollection::FileRecord::notClosed;
   fileRecord->isOpen = true;
 
-  _streamRecord->incrementFileCount();
+  _streamRecord->incrementFileCount(fileRecord->lumiSection);
 
   return fileRecord;
 }
@@ -193,7 +208,6 @@ unsigned int StreamHandler::getFileCounter(const std::string& coreFileName)
     return pos->second;
   }
 }
-
 
 
 unsigned long long StreamHandler::getMaxFileSize() const

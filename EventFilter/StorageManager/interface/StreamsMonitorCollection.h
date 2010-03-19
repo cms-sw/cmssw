@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.7 2009/12/16 14:44:43 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.8 2010/02/08 11:58:14 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <set>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -26,8 +27,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/12/16 14:44:43 $
+   * $Revision: 1.8 $
+   * $Date: 2010/02/08 11:58:14 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -36,25 +37,48 @@ namespace stor {
 
     struct StreamRecord
     {
-      std::string streamName;       // name of the stream
-      double fractionToDisk;        // fraction of events written to disk
-      MonitoredQuantity fileCount;  // number of files written for this stream
-      MonitoredQuantity volume;     // data in MBytes stored in this stream
-      MonitoredQuantity bandwidth;  // bandwidth in MBytes for this stream
-      void incrementFileCount();
-      void addSizeInBytes(double);
-      StreamsMonitorCollection* parentCollection;
-
       StreamRecord
       (
         StreamsMonitorCollection* coll,
         const utils::duration_t& updateInterval,
         const utils::duration_t& timeWindowForRecentResults
       ) :
-        fileCount(updateInterval,timeWindowForRecentResults),
-        volume(updateInterval,timeWindowForRecentResults),
-        bandwidth(updateInterval,timeWindowForRecentResults),
-        parentCollection(coll) {}
+      fileCount(updateInterval,timeWindowForRecentResults),
+      volume(updateInterval,timeWindowForRecentResults),
+      bandwidth(updateInterval,timeWindowForRecentResults),
+      parentCollection(coll) {}
+      
+      void incrementFileCount(const uint32_t lumiSection);
+      void addSizeInBytes(double);
+      void reportLumiSectionInfo
+      (
+        const uint32_t& runNumber,
+        const uint32_t& lumiSection,
+        std::string& str
+      );
+      static void addLumiSectionReportHeader
+      (
+        const uint32_t& runNumber,
+        const uint32_t& lumiSection,
+        std::string& str
+      );
+      static void addLumiSectionStreamCount
+      (
+        const std::string& streamName,
+        const unsigned int& fileCount,
+        std::string& str
+      );
+      
+      std::string streamName;       // name of the stream
+      double fractionToDisk;        // fraction of events written to disk
+      MonitoredQuantity fileCount;  // number of files written for this stream
+      MonitoredQuantity volume;     // data in MBytes stored in this stream
+      MonitoredQuantity bandwidth;  // bandwidth in MBytes for this stream
+
+      StreamsMonitorCollection* parentCollection;
+
+      typedef std::map<uint32_t, unsigned int> FileCountPerLumiSectionMap;
+      FileCountPerLumiSectionMap fileCountPerLS;
     };
 
     // We do not know how many streams there will be.
@@ -92,6 +116,11 @@ namespace stor {
       return _allStreamsBandwidth;
     }
 
+    void reportAllLumiSectionInfos
+    (
+      const uint32_t& runNumber,
+      std::string& str
+    );
 
 
   private:
@@ -99,6 +128,9 @@ namespace stor {
     //Prevent copying of the StreamsMonitorCollection
     StreamsMonitorCollection(StreamsMonitorCollection const&);
     StreamsMonitorCollection& operator=(StreamsMonitorCollection const&);
+
+    typedef std::set<uint32_t> UnreportedLS;
+    void getListOfAllUnreportedLS(UnreportedLS&);
 
     virtual void do_calculateStatistics();
     virtual void do_reset();

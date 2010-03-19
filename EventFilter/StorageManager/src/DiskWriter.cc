@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.19 2010/02/11 13:35:41 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.20 2010/03/16 19:14:27 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -22,6 +22,8 @@ using namespace stor;
 DiskWriter::DiskWriter(xdaq::Application *app, SharedResourcesPtr sr) :
 _app(app),
 _sharedResources(sr),
+_dbFileHandler(new DbFileHandler()),
+_runNumber(0),
 _lastFileTimeoutCheckTime(utils::getCurrentTime()),
 _actionIsActive(true)
 {
@@ -131,7 +133,8 @@ void DiskWriter::writeNextEvent()
   else
   {
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
+    _sharedResources->_statisticsReporter->
+      getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
 
     checkStreamChangeRequest();
     checkForFileTimeOuts(true);
@@ -168,17 +171,22 @@ void DiskWriter::checkStreamChangeRequest()
 {
   EvtStrConfigListPtr evtCfgList;
   ErrStrConfigListPtr errCfgList;
+  DiskWritingParams newdwParams;
+  unsigned int newRunNumber;
   double newTimeoutValue;
   bool doConfig;
   if (_sharedResources->_diskWriterResources->
-    streamChangeRequested(doConfig, evtCfgList, errCfgList, newTimeoutValue))
+    streamChangeRequested(doConfig, evtCfgList, errCfgList, newdwParams, newRunNumber, newTimeoutValue))
   {
     destroyStreams();
     if (doConfig)
     {
       configureEventStreams(evtCfgList);
       configureErrorStreams(errCfgList);
+      _dwParams = newdwParams;
+      _runNumber = newRunNumber;
       _timeout = (unsigned int) newTimeoutValue;
+      _dbFileHandler->configure(_runNumber, _dwParams);
     }
     _sharedResources->_diskWriterResources->streamChangeDone();
   }
@@ -189,9 +197,7 @@ void DiskWriter::checkForFileTimeOuts(const bool doItNow)
 {
   utils::time_point_t now = utils::getCurrentTime();
 
-  const DiskWritingParams dwParams =
-    _sharedResources->_configuration->getDiskWritingParams();
-  if (doItNow || (now - _lastFileTimeoutCheckTime) > dwParams._fileClosingTestInterval)
+  if (doItNow || (now - _lastFileTimeoutCheckTime) > _dwParams._fileClosingTestInterval)
   {
     closeTimedOutFiles(now);
     _lastFileTimeoutCheckTime = now;
@@ -238,7 +244,7 @@ void DiskWriter::configureErrorStreams(ErrStrConfigListPtr cfgList)
 void DiskWriter::makeEventStream(EventStreamConfigurationInfo& streamCfg)
 {
   boost::shared_ptr<EventStreamHandler> newHandler(
-    new EventStreamHandler(streamCfg, _sharedResources)
+    new EventStreamHandler(streamCfg, _sharedResources, _dbFileHandler)
   );
   _streamHandlers.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
   streamCfg.setStreamId(_streamHandlers.size() - 1);
@@ -248,7 +254,7 @@ void DiskWriter::makeEventStream(EventStreamConfigurationInfo& streamCfg)
 void DiskWriter::makeErrorStream(ErrorStreamConfigurationInfo& streamCfg)
 {
   boost::shared_ptr<FRDStreamHandler> newHandler(
-    new FRDStreamHandler(streamCfg, _sharedResources)
+    new FRDStreamHandler(streamCfg, _sharedResources, _dbFileHandler)
   );
   _streamHandlers.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
   streamCfg.setStreamId(_streamHandlers.size() - 1);
@@ -257,17 +263,64 @@ void DiskWriter::makeErrorStream(ErrorStreamConfigurationInfo& streamCfg)
 
 void DiskWriter::destroyStreams()
 {
+  if (_streamHandlers.empty()) return;
+
   std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
     boost::bind(&StreamHandler::closeAllFiles, _1));
   _streamHandlers.clear();
+  
+  reportRemainingLumiSections();
+  writeEndOfRunMarker();
+}
+
+
+void DiskWriter::reportRemainingLumiSections() const
+{
+  StreamsMonitorCollection& smc =
+    _sharedResources->_statisticsReporter->getStreamsMonitorCollection();
+  
+  std::string str;
+  smc.reportAllLumiSectionInfos(_runNumber, str);
+  _dbFileHandler->write(str);
+}
+
+
+void DiskWriter::writeEndOfRunMarker() const
+{
+  RunMonitorCollection& rmc =
+    _sharedResources->_statisticsReporter->getRunMonitorCollection();
+  // Make sure we report the latest values
+  rmc.calculateStatistics(utils::getCurrentTime());
+
+  MonitoredQuantity::Stats lumiSectionsSeenStats;
+  rmc.getLumiSectionsSeenMQ().getStats(lumiSectionsSeenStats);
+  MonitoredQuantity::Stats eolsSeenStats;
+  rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
+
+  std::ostringstream str;
+  str << "Timestamp:" << static_cast<int>(utils::getCurrentTime())
+    << "\trun:" << _runNumber
+    << "\tLScount:" << lumiSectionsSeenStats.getSampleCount()
+    << "\tEoLScount:" << eolsSeenStats.getSampleCount()
+    << "\tEoR\n";
+  _dbFileHandler->write(str.str());
 }
 
 
 void DiskWriter::processEndOfLumiSection(const I2OChain& msg)
 {
-  const uint32_t ls = msg.lumiSection();
-  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
-    boost::bind(&StreamHandler::closeFilesForLumiSection, _1, ls));
+  if ( msg.runNumber() != _runNumber ) return;
+
+  const uint32_t lumiSection = msg.lumiSection();
+
+  std::string fileCountStr;
+
+  for (StreamHandlers::const_iterator it = _streamHandlers.begin(),
+         itEnd = _streamHandlers.end(); it != itEnd; ++it)
+  {
+    (*it)->closeFilesForLumiSection(_runNumber, lumiSection, fileCountStr);
+  }
+  _dbFileHandler->write(fileCountStr + "\n");
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: FRDStreamHandler.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: FRDStreamHandler.h,v 1.5 2010/02/08 11:58:14 mommsen Exp $
 /// @file: FRDStreamHandler.h 
 
 #ifndef StorageManager_FRDStreamHandler_h
@@ -18,8 +18,8 @@ namespace stor {
    * Handle one FED Raw Data (error) event stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.5 $
+   * $Date: 2010/02/08 11:58:14 $
    */
   
   class FRDStreamHandler : public StreamHandler
@@ -29,7 +29,8 @@ namespace stor {
     FRDStreamHandler
     (
       const ErrorStreamConfigurationInfo&,
-      SharedResourcesPtr
+      const SharedResourcesPtr,
+      const DbFileHandlerPtr
     );
 
 

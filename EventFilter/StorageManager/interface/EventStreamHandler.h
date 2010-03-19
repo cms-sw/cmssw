@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: EventStreamHandler.h,v 1.5 2010/02/08 11:58:14 mommsen Exp $
 /// @file: EventStreamHandler.h 
 
 #ifndef StorageManager_EventStreamHandler_h
@@ -22,8 +22,8 @@ namespace stor {
    * Handle one event stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.5 $
+   * $Date: 2010/02/08 11:58:14 $
    */
   
   class EventStreamHandler : public StreamHandler
@@ -33,7 +33,8 @@ namespace stor {
     EventStreamHandler
     (
       const EventStreamConfigurationInfo&,
-      SharedResourcesPtr
+      const SharedResourcesPtr,
+      const DbFileHandlerPtr
     );
 
 

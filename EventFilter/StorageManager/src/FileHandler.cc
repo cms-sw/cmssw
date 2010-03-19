@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.14 2010/02/01 14:08:31 mommsen Exp $
+// $Id: FileHandler.cc,v 1.15 2010/02/18 10:16:23 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -24,16 +24,16 @@ using namespace std;
 FileHandler::FileHandler
 (
   FilesMonitorCollection::FileRecordPtr fileRecord,
+  const DbFileHandlerPtr dbFileHandler,
   const DiskWritingParams& dwParams,
   const unsigned long long& maxFileSize
 ):
 _fileRecord(fileRecord),
+_dbFileHandler(dbFileHandler),
 _firstEntry(utils::getCurrentTime()),
 _lastEntry(0),
 _diskWritingParams(dwParams),
 _maxFileSize(maxFileSize),
-_logPath(dwParams._filePath+"/log"),
-_logFile(logFile(dwParams)),
 _cmsver(edm::getReleaseVersion()),
 _adlerstream(0),
 _adlerindex(0)
@@ -95,8 +95,8 @@ void FileHandler::updateDatabase() const
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()                          
-      << " --STARTTIME "    << (int) _firstEntry
-      << " --STOPTIME "     << (int) _lastEntry
+      << " --STARTTIME "    << static_cast<int>(_firstEntry)
+      << " --STOPTIME "     << static_cast<int>(_lastEntry)
       << " --STATUS "       << "closed"
       << " --RUNNUMBER "    << _fileRecord->runNumber
       << " --LUMISECTION "  << _fileRecord->lumiSection
@@ -114,9 +114,7 @@ void FileHandler::updateDatabase() const
       << " --CHECKSUMIND "  << hex << _adlerindex
       << "\n";
 
-  ofstream of(_logFile.c_str(), ios_base::ate | ios_base::out | ios_base::app );
-  of << oss.str().c_str();
-  of.close();
+  _dbFileHandler->write( oss.str() );
 }
 
 
@@ -128,7 +126,7 @@ void FileHandler::insertFileInDatabase() const
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()
-      << " --STARTTIME "    << (int) _firstEntry
+      << " --STARTTIME "    << static_cast<int>(_firstEntry)
       << " --STOPTIME 0"
       << " --STATUS open"
       << " --RUNNUMBER "    << _fileRecord->runNumber
@@ -146,9 +144,7 @@ void FileHandler::insertFileInDatabase() const
       << " --CHECKSUMIND 0"
       << "\n";
 
-  ofstream of(_logFile.c_str(), ios_base::ate | ios_base::out | ios_base::app );
-  of << oss.str().c_str();
-  of.close();
+  _dbFileHandler->write( oss.str() );
 }
 
 
@@ -283,31 +279,12 @@ void FileHandler::renameFile(const string& openFileName, const string& closedFil
 }
 
 
-string FileHandler::logFile(const DiskWritingParams& dwp) const
-{
-  time_t rawtime = time(0);
-  tm * ptm;
-  ptm = localtime(&rawtime);
-
-  ostringstream logfilename;
-  logfilename << _logPath << "/"
-              << setfill('0') << std::setw(4) << ptm->tm_year+1900
-              << setfill('0') << std::setw(2) << ptm->tm_mon+1
-              << setfill('0') << std::setw(2) << ptm->tm_mday
-              << "-" << dwp._hostName
-              << "-" << dwp._smInstanceString
-              << ".log";
-  return logfilename.str();
-}
-
-
 void FileHandler::checkDirectories() const
 {
   utils::checkDirectory(_diskWritingParams._filePath);
   utils::checkDirectory(_fileRecord->baseFilePath);
   utils::checkDirectory(_fileRecord->baseFilePath + "/open");
   utils::checkDirectory(_fileRecord->baseFilePath + "/closed");
-  utils::checkDirectory(_logPath);
 }
 
 
@@ -318,21 +295,6 @@ double FileHandler::calcPctDiff(const double& value1, const double& value2) cons
   double smallerValue = std::min(value1,value2);
   return ( largerValue > 0 ? (largerValue - smallerValue) / largerValue : 0 );
 }
-
-
-
-/////////////////////////////
-// File information dumper //
-/////////////////////////////
-
-void FileHandler::info(ostream& os) const
-{
-  os << _fileRecord->fileCounter << " "
-     << _fileRecord->completeFileName() << " " 
-     << events() << " "
-     << fileSize();
-}
-
 
 
 /// emacs configuration

@@ -1,10 +1,11 @@
-// $Id: DiskWriterResources.h,v 1.5 2009/10/13 15:08:33 mommsen Exp $
+// $Id: DiskWriterResources.h,v 1.6 2010/03/16 19:10:22 mommsen Exp $
 /// @file: DiskWriterResources.h 
 
 
 #ifndef EventFilter_StorageManager_DiskWriterResources_h
 #define EventFilter_StorageManager_DiskWriterResources_h
 
+#include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 
@@ -23,8 +24,8 @@ namespace stor
    * and need to be accessed from multiple threads.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.6 $
+   * $Date: 2010/03/16 19:10:22 $
    */
 
   class DiskWriterResources
@@ -43,14 +44,16 @@ namespace stor
 
     /**
      * Requests that the DiskWriter streams be configured with the
-     * specified configurations.  Also allows a new dequeue timeout
-     * value to be specified. Existing stream configurations will be
-     * discarded. 
+     * specified configurations.  Also allows new DiskWritingParams,
+     * run number and dequeue timeout values to be specified.
+     * Existing stream configurations will be discarded. 
      */
     void requestStreamConfiguration
     (
       EvtStrConfigListPtr,
       ErrStrConfigListPtr,
+      DiskWritingParams,
+      unsigned int runNumber,
       double timeoutValue
     );
 
@@ -64,14 +67,16 @@ namespace stor
      * Checks if a request has been made to change the stream configuration
      * in the DiskWriter streams *and* clears any pending request.
      * Existing streams are purged.
-     * If doConfig is true, the supplied new configurations and a new dequeue
-     * timeout value should be used to configure a new set of DiskWriter streams.
+     * If doConfig is true, the supplied new configurations, new run number, and
+     * dequeue timeout value should be used to configure a new set of DiskWriter streams.
      */
     bool streamChangeRequested
     (
       bool& doConfig,
       EvtStrConfigListPtr&,
       ErrStrConfigListPtr&,
+      DiskWritingParams& dwParams,
+      unsigned int& runNumber,
       double& timeoutValue
     );
 
@@ -109,6 +114,8 @@ namespace stor
 
     EvtStrConfigListPtr _requestedEventStreamConfig;
     ErrStrConfigListPtr _requestedErrorStreamConfig;
+    DiskWritingParams _requestedDiskWritingParams;
+    unsigned int _requestedRunNumber;
     double _requestedTimeout;
 
     bool _streamChangeInProgress;

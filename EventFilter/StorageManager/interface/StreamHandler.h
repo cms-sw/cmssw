@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.8 2009/10/13 15:08:33 mommsen Exp $
+// $Id: StreamHandler.h,v 1.9 2010/02/08 11:58:14 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -24,15 +24,15 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/10/13 15:08:33 $
+   * $Revision: 1.9 $
+   * $Date: 2010/02/08 11:58:14 $
    */
   
   class StreamHandler
   {
   public:
     
-    explicit StreamHandler(SharedResourcesPtr);
+    StreamHandler(const SharedResourcesPtr, const DbFileHandlerPtr);
 
     virtual ~StreamHandler() {};
 
@@ -52,6 +52,18 @@ namespace stor {
      * Close all files which belong to the given lumi section
      */    
     void closeFilesForLumiSection(const uint32_t lumiSection);
+
+    /**
+     * Close all files which belong to the given lumi section
+     * and print number of files for this lumi section into
+     * the passed ostringstream
+     */    
+    void closeFilesForLumiSection
+    (
+      const uint32_t& runNumber,
+      const uint32_t& lumiSection,
+      std::string&
+    );
 
     /**
      * Write the event to the stream file
@@ -133,6 +145,7 @@ namespace stor {
     const StatisticsReporterPtr _statReporter;
     const StreamsMonitorCollection::StreamRecordPtr _streamRecord;
     const DiskWritingParams _diskWritingParams;
+    const DbFileHandlerPtr _dbFileHandler;
 
     typedef std::vector<FileHandlerPtr> FileHandlers;
     FileHandlers _fileHandlers;

@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.cc,v 1.4 2009/08/28 16:41:26 mommsen Exp $
+// $Id: EventStreamHandler.cc,v 1.5 2010/02/08 11:57:59 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -13,9 +13,10 @@ using namespace stor;
 EventStreamHandler::EventStreamHandler
 (
   const EventStreamConfigurationInfo& streamConfig,
-  SharedResourcesPtr sharedResources
+  const SharedResourcesPtr sharedResources,
+  const DbFileHandlerPtr dbFileHandler
 ):
-StreamHandler(sharedResources),
+StreamHandler(sharedResources, dbFileHandler),
 _streamConfig(streamConfig),
 _initMsgCollection(sharedResources->_initMsgCollection)
 {
@@ -39,7 +40,8 @@ EventStreamHandler::newFileHandler(const I2OChain& event)
   FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
 
   FileHandlerPtr newFileHandler(
-    new EventFileHandler(_initMsgView, fileRecord, _diskWritingParams, getMaxFileSize())
+    new EventFileHandler(_initMsgView, fileRecord, _dbFileHandler,
+      _diskWritingParams, getMaxFileSize())
   );
   _fileHandlers.push_back(newFileHandler);
 

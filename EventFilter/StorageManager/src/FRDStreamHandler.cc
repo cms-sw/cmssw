@@ -1,4 +1,4 @@
-// $Id: FRDStreamHandler.cc,v 1.4 2009/08/28 16:41:26 mommsen Exp $
+// $Id: FRDStreamHandler.cc,v 1.5 2010/02/08 11:57:59 mommsen Exp $
 /// @file: FRDStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -13,9 +13,10 @@ using namespace stor;
 FRDStreamHandler::FRDStreamHandler
 (
   const ErrorStreamConfigurationInfo& streamConfig,
-  SharedResourcesPtr sharedResources
+  const SharedResourcesPtr sharedResources,
+  const DbFileHandlerPtr dbFileHandler
 ):
-StreamHandler(sharedResources),
+StreamHandler(sharedResources, dbFileHandler),
 _streamConfig(streamConfig)
 {
   _streamRecord->streamName = streamLabel();
@@ -29,7 +30,7 @@ FRDStreamHandler::newFileHandler(const I2OChain& event)
   FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
 
   FileHandlerPtr newFileHandler(
-    new FRDFileHandler(fileRecord, _diskWritingParams, getMaxFileSize())
+    new FRDFileHandler(fileRecord, _dbFileHandler, _diskWritingParams, getMaxFileSize())
   );
   _fileHandlers.push_back(newFileHandler);
 

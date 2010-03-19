@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.8 2010/03/02 10:47:28 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.9 2010/03/02 16:51:54 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -34,10 +34,11 @@ StreamsMonitorCollection::getNewStreamRecord()
 }
 
 
-void StreamsMonitorCollection::StreamRecord::incrementFileCount()
+void StreamsMonitorCollection::StreamRecord::incrementFileCount(const uint32_t lumiSection)
 {
   fileCount.addSample(1);
   parentCollection->_allStreamsFileCount.addSample(1);
+  ++fileCountPerLS[lumiSection];
 }
 
 
@@ -46,6 +47,101 @@ void StreamsMonitorCollection::StreamRecord::addSizeInBytes(double size)
   size = size / (1024 * 1024);
   volume.addSample(size);
   parentCollection->_allStreamsVolume.addSample(size);
+}
+
+
+void StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
+(
+  const uint32_t& runNumber,
+  const uint32_t& lumiSection,
+  std::string& str
+)
+{
+  if (str.empty()) addLumiSectionReportHeader(runNumber, lumiSection, str);
+
+  unsigned int count = 0;
+  FileCountPerLumiSectionMap::iterator pos = fileCountPerLS.find(lumiSection);
+  if ( pos != fileCountPerLS.end() )
+  {
+    count = pos->second;
+    fileCountPerLS.erase(pos);
+  }
+  addLumiSectionStreamCount(streamName, count, str);
+}
+
+
+void StreamsMonitorCollection::StreamRecord::addLumiSectionReportHeader
+(
+  const uint32_t& runNumber,
+  const uint32_t& lumiSection,
+  std::string& str
+)
+{
+  std::ostringstream msg;
+  msg << "Timestamp:" << static_cast<int>(utils::getCurrentTime())
+    << "\trun:" << runNumber
+    << "\tLS:" << lumiSection;
+  str += msg.str();
+}
+
+
+void StreamsMonitorCollection::StreamRecord::addLumiSectionStreamCount
+(
+  const std::string& streamName,
+  const unsigned int& fileCount,
+  std::string& str
+)
+{
+  std::ostringstream msg;
+  msg << "\t" << streamName << ":" << fileCount;
+  str += msg.str();
+}
+
+
+void StreamsMonitorCollection::reportAllLumiSectionInfos
+(
+  const uint32_t& runNumber,
+  std::string& str
+)
+{
+  UnreportedLS unreportedLS;
+  getListOfAllUnreportedLS(unreportedLS);
+
+  for (UnreportedLS::const_iterator it = unreportedLS.begin(),
+         itEnd = unreportedLS.end(); it != itEnd; ++it)
+  {
+    std::string lsEntry;
+    for (StreamRecordList::const_iterator 
+           stream = _streamRecords.begin(),
+           streamEnd = _streamRecords.end();
+         stream != streamEnd;
+         ++stream)
+    {
+      (*stream)->reportLumiSectionInfo(runNumber, (*it), lsEntry);
+    }
+    str += lsEntry + "\n";
+  }
+}
+
+
+void StreamsMonitorCollection::getListOfAllUnreportedLS(UnreportedLS& unreportedLS)
+{
+  // Have to loop over all streams as not every stream
+  // might have got an event for a given lumi section
+  for (StreamRecordList::const_iterator 
+         stream = _streamRecords.begin(),
+         streamEnd = _streamRecords.end();
+       stream != streamEnd;
+       ++stream)
+  {
+    for (StreamRecord::FileCountPerLumiSectionMap::const_iterator
+           lscount = (*stream)->fileCountPerLS.begin(),
+           lscountEnd = (*stream)->fileCountPerLS.end();
+         lscount != lscountEnd; ++lscount)
+    {
+      unreportedLS.insert(lscount->first);
+    }
+  }
 }
 
 

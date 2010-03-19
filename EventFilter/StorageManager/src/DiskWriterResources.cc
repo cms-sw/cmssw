@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.cc,v 1.4 2009/09/16 13:45:56 mommsen Exp $
+// $Id: DiskWriterResources.cc,v 1.5 2010/03/16 19:10:22 mommsen Exp $
 /// @file: DiskWriterResources.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
@@ -18,6 +18,8 @@ namespace stor
   (
     EvtStrConfigListPtr evtStrConfig,
     ErrStrConfigListPtr errStrConfig,
+    DiskWritingParams dwParams,
+    unsigned int runNumber,
     double timeoutValue
   )
   {
@@ -25,6 +27,8 @@ namespace stor
 
     _requestedEventStreamConfig = evtStrConfig;
     _requestedErrorStreamConfig = errStrConfig;
+    _requestedDiskWritingParams = dwParams;
+    _requestedRunNumber = runNumber;
     _requestedTimeout = timeoutValue;
     _configurationIsNeeded = true;
     _streamChangeIsNeeded = true;
@@ -42,6 +46,8 @@ namespace stor
     bool& doConfig,
     EvtStrConfigListPtr& evtStrConfig,
     ErrStrConfigListPtr& errStrConfig,
+    DiskWritingParams& dwParams,
+    unsigned int& runNumber,
     double& timeoutValue
   )
   {
@@ -57,6 +63,8 @@ namespace stor
       _configurationIsNeeded = false;
       evtStrConfig = _requestedEventStreamConfig;
       errStrConfig = _requestedErrorStreamConfig;
+      dwParams = _requestedDiskWritingParams;
+      runNumber = _requestedRunNumber;
       timeoutValue = _requestedTimeout;
     }
 
