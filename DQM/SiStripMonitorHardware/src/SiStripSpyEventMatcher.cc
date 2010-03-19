@@ -68,18 +68,18 @@ namespace sistrip {
       return false;
     }
     edm::EventID spyEventId = nextSpyEvent->id();
-    const std::vector<uint32_t>& totalEventCounters = *getProduct< std::vector<uint32_t> >(nextSpyEvent,totalEventCountersTag_);
-    const std::vector<uint32_t>& l1aCounters = *getProduct< std::vector<uint32_t> >(nextSpyEvent,l1aCountersTag_);
-    const std::vector<uint32_t>& apvAddresses = *getProduct< std::vector<uint32_t> >(nextSpyEvent,apvAddressesTag_);
+    CountersPtr totalEventCounters = getCounters(nextSpyEvent,totalEventCountersTag_);
+    CountersPtr l1aCounters = getCounters(nextSpyEvent,l1aCountersTag_);
+    CountersPtr apvAddresses = getCounters(nextSpyEvent,apvAddressesTag_);
     //loop over all FEDs. Maps should have same content and be in order so, avoid searches by iterating (and checking keys match)
     //add all possible event keys to the map
-    std::vector<uint32_t>::const_iterator iTotalEventCount = totalEventCounters.begin();
-    std::vector<uint32_t>::const_iterator iL1ACount = l1aCounters.begin();
-    std::vector<uint32_t>::const_iterator iAPVAddress = apvAddresses.begin();
+    std::vector<uint32_t>::const_iterator iTotalEventCount = totalEventCounters->begin();
+    std::vector<uint32_t>::const_iterator iL1ACount = l1aCounters->begin();
+    std::vector<uint32_t>::const_iterator iAPVAddress = apvAddresses->begin();
     //for debug
     std::map<EventKey,uint16_t> fedCounts;
     for (;
-         ( (iTotalEventCount != totalEventCounters.end()) && (iL1ACount != l1aCounters.end()) && (iAPVAddress != apvAddresses.end()) ); 
+         ( (iTotalEventCount != totalEventCounters->end()) && (iL1ACount != l1aCounters->end()) && (iAPVAddress != apvAddresses->end()) ); 
          (++iTotalEventCount, ++iL1ACount, ++iAPVAddress)
         ){
       if (*iAPVAddress == 0) {
@@ -167,10 +167,14 @@ namespace sistrip {
     for (SpyEventList::const_iterator iMatch = matchingEvents->begin(); iMatch != matchingEvents->end(); ++iMatch) {
       SpyEventPtr event = readSpecificEvent(*iMatch);
       //read the input collections from the event
-      const FEDRawDataCollection& inputRawData = *getProduct< FEDRawDataCollection >(event,rawDataTag_);
-      const std::vector<uint32_t>& inputTotalEventCounters = *getProduct< std::vector<uint32_t> >(event,totalEventCountersTag_);
-      const std::vector<uint32_t>& inputL1ACounters = *getProduct< std::vector<uint32_t> >(event,l1aCountersTag_);
-      const std::vector<uint32_t>& inputAPVAddresses = *getProduct< std::vector<uint32_t> >(event,apvAddressesTag_);
+      const FEDRawDataCollection* inputRawDataPtr = getProduct< FEDRawDataCollection >(event,rawDataTag_);
+      if (!inputRawDataPtr) {
+        throw cms::Exception(mlLabel_) << "Failed to get raw spy data with tag " << rawDataTag_ << " from spy event";
+      }
+      const FEDRawDataCollection& inputRawData = *inputRawDataPtr;
+      CountersPtr inputTotalEventCounters = getCounters(event,totalEventCountersTag_);
+      CountersPtr inputL1ACounters = getCounters(event,l1aCountersTag_);
+      CountersPtr inputAPVAddresses = getCounters(event,apvAddressesTag_);
       const edm::DetSetVector<SiStripRawDigi>* inputScopeDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,scopeDigisTag_);
       const edm::DetSetVector<SiStripRawDigi>* inputPayloadDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,payloadDigisTag_);
       const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,reorderedDigisTag_);
@@ -219,46 +223,46 @@ namespace sistrip {
   }
   
   void SpyEventMatcher::findMatchingFeds(const uint32_t eventId, const uint8_t apvAddress,
-                                         std::vector<uint32_t> totalEventCounters,
-                                         std::vector<uint32_t> l1aCounters,
-                                         std::vector<uint32_t> apvAddresses,
+                                         SpyEventMatcher::CountersPtr totalEventCounters,
+                                         SpyEventMatcher::CountersPtr l1aCounters,
+                                         SpyEventMatcher::CountersPtr apvAddresses,
                                          std::set<uint16_t>& matchingFeds)
   {
     //loop over all FEDs. Maps should have same content and be in order so, avoid searches by iterating (and checking keys match)
-    std::vector<uint32_t>::const_iterator iTotalEventCount = totalEventCounters.begin();
-    std::vector<uint32_t>::const_iterator iL1ACount = l1aCounters.begin();
-    std::vector<uint32_t>::const_iterator iAPVAddress = apvAddresses.begin();
+    std::vector<uint32_t>::const_iterator iTotalEventCount = totalEventCounters->begin();
+    std::vector<uint32_t>::const_iterator iL1ACount = l1aCounters->begin();
+    std::vector<uint32_t>::const_iterator iAPVAddress = apvAddresses->begin();
     for (;
-         ( (iTotalEventCount != totalEventCounters.end()) && (iL1ACount != l1aCounters.end()) && (iAPVAddress != apvAddresses.end()) );
+         ( (iTotalEventCount != totalEventCounters->end()) && (iL1ACount != l1aCounters->end()) && (iAPVAddress != apvAddresses->end()) );
          (++iTotalEventCount, ++iL1ACount, ++iAPVAddress)
         ){
       if (*iAPVAddress == 0) {
         continue;
       }
       if ( (eventId > *iTotalEventCount) && (eventId <= (*iL1ACount)+1) && (*iAPVAddress == apvAddress) ) {
-        matchingFeds.insert(matchingFeds.end(),iTotalEventCount-totalEventCounters.begin());
+        matchingFeds.insert(matchingFeds.end(),iTotalEventCount-totalEventCounters->begin());
       }
     }
   }
   
   void SpyEventMatcher::mergeMatchingData(const std::set<uint16_t>& matchingFeds,
-                                        const FEDRawDataCollection& inputRawData,
-                                        const std::vector<uint32_t>& inputTotalEventCounters,
-                                        const std::vector<uint32_t>& inputL1ACounters,
-                                        const std::vector<uint32_t>& inputAPVAddresses,
-                                        const edm::DetSetVector<SiStripRawDigi>* inputScopeDigis,
-                                        const edm::DetSetVector<SiStripRawDigi>* inputPayloadDigis,
-                                        const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis,
-                                        const edm::DetSetVector<SiStripRawDigi>* inputVirginRawDigis,
-                                        FEDRawDataCollection& outputRawData,
-                                        std::vector<uint32_t>& outputTotalEventCounters,
-                                        std::vector<uint32_t>& outputL1ACounters,
-                                        std::vector<uint32_t>& outputAPVAddresses,
-                                        std::vector< edm::DetSet<SiStripRawDigi> >* outputScopeDigisVector,
-                                        std::vector< edm::DetSet<SiStripRawDigi> >* outputPayloadDigisVector,
-                                        std::vector< edm::DetSet<SiStripRawDigi> >* outputReorderedDigisVector,
-                                        std::vector< edm::DetSet<SiStripRawDigi> >* outputVirginRawDigisVector,
-                                        const SiStripFedCabling& cabling)
+                                          const FEDRawDataCollection& inputRawData,
+                                          SpyEventMatcher::CountersPtr inputTotalEventCounters,
+                                          SpyEventMatcher::CountersPtr inputL1ACounters,
+                                          SpyEventMatcher::CountersPtr inputAPVAddresses,
+                                          const edm::DetSetVector<SiStripRawDigi>* inputScopeDigis,
+                                          const edm::DetSetVector<SiStripRawDigi>* inputPayloadDigis,
+                                          const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis,
+                                          const edm::DetSetVector<SiStripRawDigi>* inputVirginRawDigis,
+                                          FEDRawDataCollection& outputRawData,
+                                          std::vector<uint32_t>& outputTotalEventCounters,
+                                          std::vector<uint32_t>& outputL1ACounters,
+                                          std::vector<uint32_t>& outputAPVAddresses,
+                                          std::vector< edm::DetSet<SiStripRawDigi> >* outputScopeDigisVector,
+                                          std::vector< edm::DetSet<SiStripRawDigi> >* outputPayloadDigisVector,
+                                          std::vector< edm::DetSet<SiStripRawDigi> >* outputReorderedDigisVector,
+                                          std::vector< edm::DetSet<SiStripRawDigi> >* outputVirginRawDigisVector,
+                                          const SiStripFedCabling& cabling)
   {
     //reserve space in vectors
     if (inputScopeDigis) {
@@ -281,9 +285,9 @@ namespace sistrip {
       if (inputRawData.FEDData(fedId).size() && inputRawData.FEDData(fedId).data()) {
         outputRawData.FEDData(fedId) = inputRawData.FEDData(fedId);
       }
-      outputTotalEventCounters[fedId] = inputTotalEventCounters[fedId];
-      outputL1ACounters[fedId] = inputL1ACounters[fedId];
-      outputAPVAddresses[fedId] = inputAPVAddresses[fedId];
+      outputTotalEventCounters[fedId] = (*inputTotalEventCounters)[fedId];
+      outputL1ACounters[fedId] = (*inputL1ACounters)[fedId];
+      outputAPVAddresses[fedId] = (*inputAPVAddresses)[fedId];
       for (uint8_t chan = 0; chan < FEDCH_PER_FED; ++chan) {
         uint32_t fedIndex = SiStripFedKey::fedIndex(fedId,chan);
         if (inputScopeDigis) {
@@ -324,6 +328,28 @@ namespace sistrip {
             outputVirginRawDigisVector->push_back(*iVirginRawDigis);
           }
         }
+      }
+    }
+  }
+  
+  SpyEventMatcher::CountersPtr SpyEventMatcher::getCounters(const SpyEventMatcher::SpyEventPtr event, const edm::InputTag& tag)
+  {
+    const std::vector<uint32_t>* vectorFromEvent = getProduct< std::vector<uint32_t> >(event,tag);
+    if (vectorFromEvent) {
+      //vector is from event so, will be deleted when the event is destroyed (and not before)
+      return CountersPtr(vectorFromEvent, ConfigurableDeleter(false));
+    } else {
+      const std::map<uint32_t,uint32_t>* mapFromEvent = getProduct< std::map<uint32_t,uint32_t> >(event,tag);
+      if (mapFromEvent) {
+        std::vector<uint32_t>* newVector = new std::vector<uint32_t>(FED_ID_MAX+1,0);
+        for (std::map<uint32_t,uint32_t>::const_iterator iIdValue = mapFromEvent->begin(); iIdValue != mapFromEvent->end(); ++iIdValue) {
+          newVector->at(iIdValue->first) = iIdValue->second;
+        }
+        //vector was allocated here so, will need to be deleted when finished with
+        CountersPtr newCountersPtr(newVector, ConfigurableDeleter(true));
+        return newCountersPtr;
+      } else {
+        throw cms::Exception(mlLabel_) << "Unable to get product " << tag << " from spy event";
       }
     }
   }
