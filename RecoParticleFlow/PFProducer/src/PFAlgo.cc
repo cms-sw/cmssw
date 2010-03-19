@@ -2390,8 +2390,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
-  reco::PFBlockElement::TrackType T_TO_NUCL = reco::PFBlockElement::T_TO_NUCL;
-  reco::PFBlockElement::TrackType T_FROM_NUCL = reco::PFBlockElement::T_FROM_NUCL;
+  reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
+  reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
   reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;
   reco::PFBlockElement::TrackType T_FROM_V0 = reco::PFBlockElement::T_FROM_V0;
 
@@ -2418,7 +2418,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
 
   // Or from nuclear inetraction then use the refitted momentum
-  bool isFromNucl  = usePFNuclearInteractions_ && eltTrack->trackType(T_FROM_NUCL);
+  bool isFromDisp  = usePFNuclearInteractions_ && eltTrack->trackType(T_FROM_DISP);
   //isFromNucl = false;
 
   if ( thisIsAMuon ) { 
@@ -2440,10 +2440,10 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     else{
       energy = sqrt(track.p()*track.p() + 0.1057*0.1057);
     }
-  } else if (isFromNucl) {
+  } else if (isFromDisp) {
     if (debug_) cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
     //reco::TrackRef trackRef = eltTrack->trackRef();
-    reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(T_FROM_NUCL)->displacedVertexRef();
+    reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef();
     reco::Track trackRefit = vRef->refittedTrack(trackRef);
     px = trackRefit.px();
     py = trackRefit.py();
@@ -2485,19 +2485,19 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     }
   }
 
-  // nuclear
+  // displaced vertices 
 
 
     
 
   
-  if( eltTrack->trackType(T_FROM_NUCL)) {
-    pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_NUCLINT, true);
-    pfCandidates_->back().setNuclearRef( eltTrack->displacedVertexRef(T_FROM_NUCL)->displacedVertexRef());
+  if( eltTrack->trackType(T_FROM_DISP)) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_DISP, true);
+    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_FROM_DISP)->displacedVertexRef(), reco::PFCandidate::T_FROM_DISP);
   }
-  if( eltTrack->trackType(T_TO_NUCL)) {
-    pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_NUCLINT, true);
-    pfCandidates_->back().setNuclearRef( eltTrack->displacedVertexRef(T_TO_NUCL)->displacedVertexRef());
+  if( eltTrack->trackType(T_TO_DISP)) {
+    pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
+    pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
   }
 
   // conversion...

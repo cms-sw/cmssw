@@ -262,7 +262,7 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
     }
   }
 
-  checkNuclearLinks( block );
+  checkDisplacedVertexLinks( block );
 }
 
 
@@ -295,11 +295,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
     if( type1!=PFBlockElement::TRACK && type1!=PFBlockElement::GSF) return;
     // cannot link two primary tracks  (except if they come from a V0)
     if( type1 ==PFBlockElement::TRACK) {
-      if ( 
-	  !((el1->isSecondary() || el1->isPrimary()) 
-	    && 
-	    (el2->isSecondary() || el2->isPrimary())) 
-	  ) return;
+      if ( !el1->isLinkedToDisplacedVertex() || !el2->isLinkedToDisplacedVertex()) 
+      return;
     }
   }
 
@@ -410,9 +407,11 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
     }
   case PFBlockLink::TRACKandTRACK:
     {
-      if(debug_ ) cout<<"TRACKandTRACK"<<endl;
+      if(debug_ ) 
+	cout<<"TRACKandTRACK"<<endl;
       dist = testLinkByVertex(lowEl, highEl);
-      if(debug_ ) std::cout << " PFBlockLink::TRACKandTRACK dist " << dist << std::endl;
+      if(debug_ ) 
+	std::cout << " PFBlockLink::TRACKandTRACK dist " << dist << std::endl;
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
@@ -739,44 +738,27 @@ double
 PFBlockAlgo::testLinkByVertex( const reco::PFBlockElement* elt1, 
 			       const reco::PFBlockElement* elt2) const {
 
+  //  cout << "Test link by vertex between" << endl << *elt1 << endl << " and " << endl << *elt2 << endl;
+
   double result=-1.;
 
-  reco::PFBlockElement::TrackType T_TO_NUCL = reco::PFBlockElement::T_TO_NUCL;
-  reco::PFBlockElement::TrackType T_FROM_NUCL = reco::PFBlockElement::T_FROM_NUCL;
-  PFDisplacedTrackerVertexRef ni1_;
-  PFDisplacedTrackerVertexRef ni2_;
+  reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
+  reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
+  PFDisplacedTrackerVertexRef ni1_TO_DISP = elt1->displacedVertexRef(T_TO_DISP);
+  PFDisplacedTrackerVertexRef ni2_TO_DISP = elt2->displacedVertexRef(T_TO_DISP);
+  PFDisplacedTrackerVertexRef ni1_FROM_DISP = elt1->displacedVertexRef(T_FROM_DISP);
+  PFDisplacedTrackerVertexRef ni2_FROM_DISP = elt2->displacedVertexRef(T_FROM_DISP);
   
-  if( (elt1->trackType(T_TO_NUCL) &&
-       elt2->trackType(T_FROM_NUCL))){
+  if( ni1_TO_DISP.isNonnull() && ni2_FROM_DISP.isNonnull())
+    if( ni1_TO_DISP == ni2_FROM_DISP ) { result = 1.0; return result; }
 
-    ni1_ = elt1->displacedVertexRef(T_TO_NUCL); 
-    ni2_ = elt2->displacedVertexRef(T_FROM_NUCL); 
-    if( ni1_.isNonnull() && ni2_.isNonnull() ) {
-      if( ni1_ == ni2_ ) result= 1.0;
-    }
-  }
-  if ((elt1->trackType(T_FROM_NUCL) &&
-       elt2->trackType(T_TO_NUCL))){
+  if( ni1_FROM_DISP.isNonnull() && ni2_TO_DISP.isNonnull())
+    if( ni1_FROM_DISP == ni2_TO_DISP ) { result = 1.0; return result; }
 
-    ni1_ = elt1->displacedVertexRef(T_FROM_NUCL); 
-    ni2_ = elt2->displacedVertexRef(T_TO_NUCL); 
-    if( ni1_.isNonnull() && ni2_.isNonnull() ) {
-      if( ni1_ == ni2_ ) result= 1.0;
-    }
-
-  }
-  if ((elt1->trackType(T_FROM_NUCL) &&
-	    elt2->trackType(T_FROM_NUCL))) {
-
-    ni1_ = elt1->displacedVertexRef(T_FROM_NUCL); 
-    ni2_ = elt2->displacedVertexRef(T_FROM_NUCL); 
-    if( ni1_.isNonnull() && ni2_.isNonnull() ) {
-      if( ni1_ == ni2_ ) result= 1.0;
-    }
-
-  }
+  if( ni1_FROM_DISP.isNonnull() && ni2_FROM_DISP.isNonnull())
+    if( ni1_FROM_DISP == ni2_FROM_DISP ) { result = 1.0; return result; }
+    
   
-
   if (  elt1->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)  &&
 	     elt2->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)  ) {
     
@@ -786,7 +768,8 @@ PFBlockAlgo::testLinkByVertex( const reco::PFBlockElement* elt1,
       if(debug_ ) std::cout << " PFBlockAlgo.cc testLinkByVertex  Cconversion Refs are non null  " << std::endl;      
       if ( elt1->convRef() ==  elt2->convRef() ) {
 	result=1.0;
-	if(debug_ ) std::cout << " testLinkByVertex  Cconversion Refs are equal  " << std::endl;           
+	if(debug_ ) std::cout << " testLinkByVertex  Cconversion Refs are equal  " << std::endl;      
+	return result;
       }
     } 
     
@@ -800,6 +783,7 @@ PFBlockAlgo::testLinkByVertex( const reco::PFBlockElement* elt1,
       if ( elt1->V0Ref() ==  elt2->V0Ref() ) {
 	result=1.0;
 	if(debug_ ) std::cout << " testLinkByVertex  V0 Refs are equal  " << std::endl;
+	return result;
       }
     }
   }
@@ -1480,77 +1464,7 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
   return true;
 }
 
-/*
-PFBlockAlgo::trackNuclLink
-PFBlockAlgo::niAssocToTrack( const reco::TrackRef& tkRef,
-			     const edm::Handle<reco::PFDisplacedVertexCollection>& nuclh) const {
-
-  if( nuclh.isValid() ) {
-    // look for nuclear interaction associated to primTkRef
-    for( unsigned int k=0; k<nuclh->size(); ++k) {
-      
-      PFDisplacedVertexRef v(nuclh, k);
-      reco::Vertex::trackRef_iterator begin = v->tracks_begin();
-      reco::Vertex::trackRef_iterator end = v->tracks_end();
-      reco::TrackBaseRef tkBaseRef(tkRef);
-
-      reco::Vertex::trackRef_iterator tkIter = find(begin, end, tkBaseRef);
-
-      if (tkIter != end) {
-	int pos = tkIter-begin;
-	reco::PFDisplacedVertex::VertexTrackType type = v->trackTypes()[pos];
-
-	if (type == reco::PFDisplacedVertex::T_TO_VERTEX 
-	    ||
-	    type == reco::PFDisplacedVertex::T_MERGED ) 
-	  return make_pair(k, reco::PFBlockElement::T_TO_NUCL);
-	else if (type == reco::PFDisplacedVertex::T_FROM_VERTEX) 
-	  return make_pair(k, reco::PFBlockElement::T_FROM_NUCL);
-	else return make_pair(k, reco::PFBlockElement::DEFAULT);
-      }
-    }
-    return make_pair(-1, reco::PFBlockElement::DEFAULT);
-  }
-  return make_pair(-1, reco::PFBlockElement::DEFAULT);
-}
-
-// duplication due to limitation of LCG reflex dict from header file
-
-PFBlockAlgo::trackNuclLink
-PFBlockAlgo::niAssocToTrack( const reco::TrackRef& tkRef,
-			     const edm::OrphanHandle<reco::PFDisplacedVertexCollection>& nuclh) const {
-
-  if( nuclh.isValid() ) {
-    // look for nuclear interaction associated to primTkRef
-    for( unsigned int k=0; k<nuclh->size(); ++k) {
-      
-      PFDisplacedVertexRef v(nuclh, k);
-      reco::Vertex::trackRef_iterator begin = v->tracks_begin();
-      reco::Vertex::trackRef_iterator end = v->tracks_end();
-      reco::TrackBaseRef tkBaseRef(tkRef);
-
-      reco::Vertex::trackRef_iterator tkIter = find(begin, end, tkBaseRef);
-
-      if (tkIter != end) {
-	int pos = tkIter-begin;
-	reco::PFDisplacedVertex::VertexTrackType type = v->trackTypes()[pos];
-
-	if (type == reco::PFDisplacedVertex::T_TO_VERTEX 
-	    ||
-	    type == reco::PFDisplacedVertex::T_MERGED ) 
-	  return make_pair(k, reco::PFBlockElement::T_TO_NUCL);
-	else if (type == reco::PFDisplacedVertex::T_FROM_VERTEX) 
-	  return make_pair(k, reco::PFBlockElement::T_FROM_NUCL);
-	else return make_pair(k, reco::PFBlockElement::DEFAULT);
-      }
-    }
-    return make_pair(-1, reco::PFBlockElement::DEFAULT);
-  }
-  else return make_pair(-1, reco::PFBlockElement::DEFAULT);
-}
-*/
-
-int 
+int
 PFBlockAlgo::muAssocToTrack( const reco::TrackRef& trackref,
 			     const edm::Handle<reco::MuonCollection>& muonh) const {
   if(muonh.isValid() ) {
@@ -1562,39 +1476,6 @@ PFBlockAlgo::muAssocToTrack( const reco::TrackRef& trackref,
   }
   return -1; // not found
 }
-/*
-int 
-PFBlockAlgo::v0AssocToTrack( const reco::TrackRef& primTkRef,
-			     const edm::Handle<reco::PFV0Collection>& v0) const {
-  if( v0.isValid() ) {
-    // look for v0 associated to primTkRef
-    for( unsigned int k=0; k<v0->size(); ++k) {
-      for (uint itk=0;itk<(*v0)[k].Tracks().size();itk++){ 
-        if( (*v0)[k].Tracks()[itk] == primTkRef) return k;
-      }
-    }
-    return -1; // not found
-  }
-  else return -1;
-}
-
-// duplication due to limitation of LCG reflex dict from header file
-int 
-PFBlockAlgo::v0AssocToTrack( const reco::TrackRef& primTkRef,
-			     const edm::OrphanHandle<reco::PFV0Collection>& v0) const {
-  if( v0.isValid() ) {
-    // look for v0 associated to primTkRef
-    for( unsigned int k=0; k<v0->size(); ++k) {
-      for (uint itk=0;itk<(*v0)[k].Tracks().size();itk++){
-        if( (*v0)[k].Tracks()[itk] == primTkRef) return k;
-      }
-     
-    }
-    return -1; // not found
-  }
-  else return -1;
-}
-*/
 
 int 
 PFBlockAlgo::muAssocToTrack( const reco::TrackRef& trackref,
@@ -1611,11 +1492,11 @@ PFBlockAlgo::muAssocToTrack( const reco::TrackRef& trackref,
 
 
 void 
-PFBlockAlgo::checkNuclearLinks( reco::PFBlock& block ) const {
+PFBlockAlgo::checkDisplacedVertexLinks( reco::PFBlock& block ) const {
   // method which removes link between primary tracks and clusters
   // if at least one of the associated secondary tracks is closer 
   // to these same clusters
-
+  /*
   typedef std::multimap<double, unsigned>::iterator IE;
 
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();
@@ -1631,12 +1512,12 @@ PFBlockAlgo::checkNuclearLinks( reco::PFBlock& block ) const {
     for( IE ie = assocTracks.begin(); ie != assocTracks.end(); ++ie) {
       double   distprim  = ie->first;
       unsigned iprim     = ie->second;
-      // if this track a primary track (T_To_NUCL)
+      // if this track a primary track (T_TO_DISP)
       // the new strategy gouzevitch: remove all the links from primary track
-      if( els[iprim].trackType(PFBlockElement::T_TO_NUCL) )  {
+      if( els[iprim].trackType(PFBlockElement::T_TO_DISP) )  {
 	    block.setLink( i1, iprim, -1, block.linkData(),
 			   PFBlock::LINKTEST_RECHIT );
-	    /*
+	    
 	      // here the old startegy
 	std::multimap<double, unsigned> secTracks; 
 	// get associated secondary tracks
@@ -1660,11 +1541,12 @@ PFBlockAlgo::checkNuclearLinks( reco::PFBlock& block ) const {
 	    continue;
 	  }
 	} // loop on all associated secondary tracks
-	    */
-      } // test if track is T_TO_NUCL
+	    
+      } // test if track is T_TO_DISP
                              
     } // loop on all associated tracks
   } // loop on all elements
+  */
 }
 
 
