@@ -53,8 +53,8 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                 ),
         # March 2010:  HFLongShort now tested, and should be excluded from CaloTowers by default
         cms.PSet( Level = cms.int32(15),
-                  RecHitFlags = cms.vstring(''),
-                  ChannelStatus = cms.vstring('HcalCellHot','HFLongShort')
+                  RecHitFlags = cms.vstring('HFLongShort'),
+                  ChannelStatus = cms.vstring('HcalCellHot')
                 ),
         cms.PSet( Level = cms.int32(20),
                   RecHitFlags = cms.vstring(''),
