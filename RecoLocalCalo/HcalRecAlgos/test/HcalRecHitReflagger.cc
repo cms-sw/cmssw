@@ -11,7 +11,7 @@
 //
 // Original Author:  Dinko Ferencek,8 R-004,+41227676479,  Jeff Temple, 6-1-027
 //         Created:  Thu Mar 11 13:42:11 CET 2010
-// $Id: HcalRecHitReflagger.cc,v 1.2 2010/03/18 18:33:26 temple Exp $
+// $Id: HcalRecHitReflagger.cc,v 1.3 2010/03/19 20:17:08 temple Exp $
 //
 //
 
@@ -415,50 +415,64 @@ double HcalRecHitReflagger::GetS9S1value(const HFRecHit& hf)
   int depth = id.depth();
   if (debug_>0)  std::cout <<"\t<HcalRecHitReflagger::GetS9S1value>  Channel = ("<<iphi<<",  "<<ieta<<",  "<<depth<<")  :  Energy = "<<energy<<std::endl; 
 
-  double S9S1value=0; // starting value
-  
-  int testphi=-99; // need to keep track of phi due to loop from 72 -> 1, different segmentation in far-forward
-  int phiseg=2; // default segmentation:  2 units of iphi
-  
-  for (int j=ieta-1;j<ieta+1;++j)
+  double S9S1=0; // starting value
+
+  int testphi=-99;
+ 
+  // Part A:  Check fixed iphi, and vary ieta
+  for (int d=1;d<=2;++d) // depth loop
     {
-      phiseg=2;
-      if (abs(ieta)>39) phiseg=4; // |ieta|=40,41 cells span 4 units of iphi
-
-      // Add 'diagonal' cells for 39-40 overlap 
-      if (abs(ieta)==40 && abs(j)==39)
+      for (int i=ieta-1;i<=ieta+1;++i) // ieta loop
 	{
-	  for (int depth=1;depth<=2;++depth)
-	    {
-	      HcalDetId pid(HcalForward,j,(iphi+2)%72,depth);
-	      HFRecHitCollection::const_iterator part=hfRecHits->find(pid);
-	      if (part!=hfRecHits->end())
-		S9S1value+=part->energy();
-	    }
-	}
-      for (int i=(iphi-phiseg);i<=(iphi+phiseg);i+=2)
-	{
-	  // We don't want to count diagonal cells; make sure either iphi or ieta match cell in question
-	  if (i!=iphi && j!=ieta)  continue;
-	  testphi=i%72;  // -1%72 == -1, not 71!
-	  if (abs(ieta)==39 && abs(j)>39 && iphi%4==1) // shift down by 2 to deal with 39->40 boundary
+	  testphi=iphi;
+	  // Special case when ieta=39, since ieta=40 only has phi values at 3,7,11,...
+	  // phi=3 covers 3,4,5,6
+	  if (abs(ieta)==39 && abs(i)>39 && testphi%4==1)
 	    testphi-=2;
-	  while (testphi<0)  testphi+=72;
+	  while (testphi<0) testphi+=72;
+	  if (i==ieta && d==depth) continue;  // don't add the cell itself
+	  // Look to see if neighbor is in rechit collection
+	  HcalDetId neighbor(HcalForward, i,testphi,d);
+	  HFRecHitCollection::const_iterator neigh=hfRecHits->find(neighbor);
+	  if (neigh!=hfRecHits->end())
+	    S9S1+=neigh->energy();
+	}
+    }
+
+  // Part B: Fix ieta, and loop over iphi.  A bit more tricky, because of iphi wraparound and different segmentation at 40, 41
+  
+  int phiseg=2; // 10 degree segmentation for most of HF (1 iphi unit = 5 degrees)
+  if (abs(ieta)>39) phiseg=4; // 20 degree segmentation for |ieta|>39
+  for (int d=1;d<=2;++d)
+    {
+      for (int i=iphi-phiseg;i<=iphi+phiseg;i+=phiseg)
+	{
+	  if (i==iphi) continue;  // don't add the cell itself, or its depthwise partner (which is already counted above)
+	  testphi=i;
+	  // Our own modular function, since default produces results -1%72 = -1
+	  while (testphi<0) testphi+=72;
 	  while (testphi>72) testphi-=72;
-
-	  for (int depth=1;depth<=2;++depth)
-	    {
-	      HcalDetId pId(HcalForward, j, testphi,depth);
-	      HFRecHitCollection::const_iterator part=hfRecHits->find(pId);
-	      if ( part!=hfRecHits->end() )
-		S9S1value+=part->energy();
-	    } // depth loop
-	} // iphi loop
-    } // ieta loop
-
-  S9S1value-=energy; // subtract actual cell's energy from ratio
-  S9S1value/=energy;  // divide to form actual ratio
-  return S9S1value;
+	  // Look to see if neighbor is in rechit collection
+	  HcalDetId neighbor(HcalForward, ieta,testphi,d);
+	  HFRecHitCollection::const_iterator neigh=hfRecHits->find(neighbor);
+	  if (neigh!=hfRecHits->end())
+	    S9S1+=neigh->energy();
+	}
+    }
+  
+  if (abs(ieta)==40) // add extra cells for 39/40 boundary due to increased phi size at ieta=40.
+    {
+      for (int d=1;d<=2;++d) // add cells from both depths!
+	{
+	  HcalDetId neighbor(HcalForward, 39*abs(ieta)/ieta,(iphi+2)%72,d);  
+	  HFRecHitCollection::const_iterator neigh=hfRecHits->find(neighbor);
+	  if (neigh!=hfRecHits->end())
+	      S9S1+=neigh->energy();
+	}
+    }
+    
+  S9S1/=energy;  // divide to form actual ratio
+  return S9S1;
 } // GetS9S1value
 
 
