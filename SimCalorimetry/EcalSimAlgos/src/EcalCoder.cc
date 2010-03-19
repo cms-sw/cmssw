@@ -7,18 +7,26 @@
 #include <iostream>
 
 EcalCoder::EcalCoder( bool                                 addNoise    , 
-		      CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise ,
-		      CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise     ) :
+		      CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise0 ,
+		      CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise0 ,
+		      CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise1 ,
+		      CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise1 ,
+		      CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise2 ,
+		      CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise2   ) :
    m_peds        (           0 ) ,
    m_gainRatios  (           0 ) ,
    m_intercals   (           0 ) ,
    m_maxEneEB    (      1668.3 ) , // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)*0.97
    m_maxEneEE    (      2859.9 ) , // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)*0.97
-   m_addNoise    ( addNoise    ) ,
-   m_ebCorrNoise ( ebCorrNoise ) ,
-   m_eeCorrNoise ( eeCorrNoise ) 
+   m_addNoise    ( addNoise    )
 {
-   assert( 0 != m_ebCorrNoise ) ;
+   assert( 0 != m_ebCorrNoise[0] ) ;
+   m_ebCorrNoise[0] = ebCorrNoise0 ;
+   m_eeCorrNoise[0] = eeCorrNoise0 ;
+   m_ebCorrNoise[1] = ebCorrNoise1 ;
+   m_eeCorrNoise[1] = eeCorrNoise1 ;
+   m_ebCorrNoise[2] = ebCorrNoise2 ;
+   m_eeCorrNoise[2] = eeCorrNoise2 ;
 }  
 
 EcalCoder::~EcalCoder()
@@ -111,18 +119,19 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
    CaloSamples noiseframe ( detId , 
 			    caloSamples.size() ) ;        
 
+   unsigned int whichgain ( 0 ) ; //FIXME
+
    if( m_addNoise ) 
    { 
-      if( 0 == m_eeCorrNoise             ||
+      if( 0 == m_eeCorrNoise[0]             ||
 	  EcalBarrel == detId.subdetId()     )
       {
-	 m_ebCorrNoise->noisify( noiseframe ) ;
+	 m_ebCorrNoise[whichgain]->noisify( noiseframe ) ;
       }
       else
       {
-	 m_eeCorrNoise->noisify( noiseframe ) ;
+	 m_eeCorrNoise[whichgain]->noisify( noiseframe ) ;
       }
-      LogDebug("EcalCoder") << "Normalized correlated noise calo frame = " << noiseframe;
    }
 
    int wait = 0 ;
