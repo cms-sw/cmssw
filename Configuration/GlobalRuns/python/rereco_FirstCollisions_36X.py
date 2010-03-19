@@ -21,7 +21,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('rereco nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -56,7 +56,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR10_P_V3::All'
+process.GlobalTag.globaltag = 'GR09_R_36X_V1::All'
 
 
 
