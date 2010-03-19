@@ -460,6 +460,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       }
 
+    } // end if accept
   
     // Fill histogram of filter ocupancy for each HLT path
     // ---------------------------------
@@ -486,7 +487,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
     } // end for filt
 
-   } // end if accept
   } // end for diag paths
 
 
