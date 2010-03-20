@@ -77,7 +77,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     'keep *_rawDataCollector_*_*',
     'keep SiStripDigi*_*_*_*'
     ),
-    fileName = cms.untracked.string('SimRawDigi_RelValMuPt10_OnlyTRK_TRKinVR_onlyHIP.root')
+    fileName = cms.untracked.string('SimRawDigi_RelValMuPt10_OnlyTRK_TRKinVR.root')
 )
 
 
@@ -88,11 +88,11 @@ process.simSiStripDigis.Noise = cms.bool(True)
 process.simSiStripDigis.TrackerConfigurationFromDB = cms.bool(True)
 
 #VR generation blocks to be activated
-process.simSiStripDigis.SingleStripNoise = cms.bool(False) #if Noise = FALSE, no noise is applied
+process.simSiStripDigis.SingleStripNoise = cms.bool(True) #if Noise = FALSE, no noise is applied
 process.simSiStripDigis.RealPedestals = cms.bool(True)
-process.simSiStripDigis.CommonModeNoise = cms.bool(False)
-process.simSiStripDigis.APVSaturationFromHIP = cms.bool(False)
-process.simSiStripDigis.BaselineShift = cms.bool(False)
+process.simSiStripDigis.CommonModeNoise = cms.bool(True)
+process.simSiStripDigis.APVSaturationFromHIP = cms.bool(True)
+process.simSiStripDigis.BaselineShift = cms.bool(True)
 
 #CMN RMSs
 process.simSiStripDigis.cmnRMStib = cms.double(5.92)

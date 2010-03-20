@@ -82,6 +82,7 @@ simSiStripDigis = cms.EDProducer("SiStripDigitizer",
                                cmnRMStob                  = cms.double(1.08),
                                cmnRMStid                  = cms.double(3.08),
                                cmnRMStec                  = cms.double(2.44),
+							   PedestalsOffset            = cms.double(128),
                                #
                                TOFCutForDeconvolution     = cms.double(50.0),
                                TOFCutForPeak              = cms.double(100.0),

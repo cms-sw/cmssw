@@ -37,7 +37,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   cmnRMStob                 = conf_.getParameter<double>("cmnRMStob");
   cmnRMStid                 = conf_.getParameter<double>("cmnRMStid");
   cmnRMStec                 = conf_.getParameter<double>("cmnRMStec");
-  
+  pedOffset                 = (unsigned int)conf_.getParameter<double>("PedestalsOffset");
   if (peakMode) {
     tofCut=theTOFCutForPeak;
     LogDebug("StripDigiInfo")<<"APVs running in peak mode (poor time resolution)";
@@ -53,7 +53,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
   theFlatDistribution = new CLHEP::RandFlat(rndEngine, 0., 1.);    
 
-  pedOffset = 128;
+  
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -139,7 +139,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				 		for(int strip = FirstAPV*128; strip < LastAPV*128 +128; ++strip) badChannels[strip] = true; //doing like that I remove the signal information only after the 
 																													//stip that got the HIP but it remains the signal of the previous
 																													//one. I'll make a further loop to remove all signal																										
-						//for(int strip =0; strip< numStrips; ++ strip) cout << strip << " " << badChannels[strip] << endl;
+						
 			  		}
 				}
 			}
@@ -147,10 +147,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 		
 		
 		theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ((*simHitIter).first), (*simHitIter).second);
-        
-		
-		
-		
+    
 		// sum signal on strips
         for (size_t iChannel=localFirstChannel; iChannel<localLastChannel; iChannel++) {
           if(locAmpl[iChannel]>0.) {
@@ -205,15 +202,10 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
       //   treated as a constant component in the CMN
       //   estimation and subtracted as CMN.
       
-    
-			    	
-		
-		
-        
+         
 		//calculating the charge deposited on each APV and subtracting the shift
 		//------------------------------------------------------
 		if(BaselineShift){
-		   //std::cout<< "Baseline Shift 22222" << std::endl;
 		   theSiNoiseAdder->addBaselineShift(detAmpl, badChannels);
 		}
 		
@@ -225,14 +217,12 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 		    noiseRMSv.insert(noiseRMSv.begin(),numStrips,0.);
 			
 		    if(SingleStripNoise){
-			    //std::cout<< "Adding Noise 33333" << std::endl;
 			    for(int strip=0; strip< numStrips; ++strip){
 			  		if(!badChannels[strip]) noiseRMSv[strip] = (noiseHandle->getNoise(strip,detNoiseRange))* theElectronPerADC;
 			  	}
 			
 	    	} else {
-			    //std::cout<< "Adding Noise 44444" << std::endl;
-		    	int RefStrip = 0; //int(numStrips/2.);
+			    int RefStrip = 0; //int(numStrips/2.);
 		    	while(badChannels[RefStrip]&&RefStrip<=numStrips){ //if the refstrip is bad, I move up to when I don't find it
 					RefStrip++;
 				}
@@ -250,8 +240,6 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 		//adding the CMN
 		//------------------------------------------------------
         if(CommonModeNoise){
-		  //std::cout<< "Adding CMN 55555" << std::endl;
-		  
 		  float cmnRMS;
 		  DetId  detId(detID);
 		  uint32_t SubDet = detId.subdetId();
@@ -277,14 +265,11 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 		vPeds.insert(vPeds.begin(),numStrips,0.);
 		
 		if(RealPedestals){
-		    //std::cout<< "Adding Pedestals 66666" << std::endl;
 		    for(int strip=0; strip< numStrips; ++strip){
 			   if(!badChannels[strip]) vPeds[strip] = (pedestalHandle->getPed(strip,detPedestalRange)+pedOffset)* theElectronPerADC;
-		      
-			}
+		    }
         } else {
-		    //std::cout<< "Adding Pedestals 77777" << std::endl;
-		   	for(int strip=0; strip< numStrips; ++strip){
+		    for(int strip=0; strip< numStrips; ++strip){
 			  if(!badChannels[strip]) vPeds[strip] = pedOffset* theElectronPerADC;
 			}
 		}
