@@ -12,8 +12,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitSimAlgo.h"
+#include "CondFormats/ESObjects/interface/ESThresholds.h"
+#include "CondFormats/DataRecord/interface/ESThresholdsRcd.h"
 
 class ESZeroSuppressionProducer : public edm::EDProducer
 {
@@ -32,15 +32,7 @@ class ESZeroSuppressionProducer : public edm::EDProducer
   std::string ESdigiCollection_;
   std::string ESZSdigiCollection_;
 
-  ESRecHitSimAlgo *algo_;
-
-  int ESGain;
-  int ESBaseline;
-  double ESMIPADC;
-  double ESMIPkeV;
-  double ESNoiseSigma;
-  double ESThreshold;
-
+  edm::ESHandle<ESThresholds> esthresholds_;
 };
 
 #endif 

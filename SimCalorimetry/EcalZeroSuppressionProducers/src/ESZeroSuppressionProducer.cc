@@ -1,37 +1,27 @@
 #include "SimCalorimetry/EcalZeroSuppressionProducers/interface/ESZeroSuppressionProducer.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 
-ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps) 
-{
+ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps) {
+
   digiProducer_   = ps.getParameter<std::string>("digiProducer");
   ESdigiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
   ESZSdigiCollection_ = ps.getParameter<std::string>("ESZSdigiCollection");
  
-  ESGain = ps.getUntrackedParameter<int>("ESGain", 1);
-  ESBaseline = ps.getUntrackedParameter<int>("ESBaseline", 1000);
-  ESMIPADC = ps.getUntrackedParameter<double>("ESMIPADC", 9);
-  ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 81.08);
-  ESNoiseSigma = ps.getUntrackedParameter<double>("ESNoiseSigma", 3);
-
-  if (ESGain == 0)
-    ESThreshold = 3.*1.45*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
-  else if (ESGain == 1)
-    ESThreshold = 3.*0.9066*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
-  else if (ESGain == 2)
-    ESThreshold = 3.*0.8815*ESNoiseSigma*ESMIPkeV/ESMIPADC/1000000.;
-
-  algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
-
   produces<ESDigiCollection>(ESZSdigiCollection_);
 }
 
-ESZeroSuppressionProducer::~ESZeroSuppressionProducer() 
-{ 
-  delete algo_;
+ESZeroSuppressionProducer::~ESZeroSuppressionProducer() { 
+
 }
 
-void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
-{
+void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
+
+  eventSetup.get<ESThresholdsRcd>().get(esthresholds_);
+  const ESThresholds *thresholds = esthresholds_.product();
+
+  float ts2Threshold = thresholds->getTS2Threshold();
+
   edm::Handle<ESDigiCollection> ESDigis;
 
   bool fullESDigis = true;
@@ -45,8 +35,10 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
   
   if (fullESDigis) {
     ESDigiCollection::const_iterator i;
-    for (i=ESDigis->begin(); i!=ESDigis->end(); i++) {            
-      if (algo_->EvalAmplitude(*i) > ESThreshold) (*ESZSDigis).push_back(*i);
+    for (i=ESDigis->begin(); i!=ESDigis->end(); ++i) {            
+
+      ESDataFrame dataframe = (*i);
+      if (dataframe.sample(1).adc() > ts2Threshold) (*ESZSDigis).push_back(*i);
     }
   }     
   
