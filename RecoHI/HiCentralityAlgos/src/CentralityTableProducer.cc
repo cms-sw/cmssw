@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.5 2010/03/04 16:28:22 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.6 2010/03/20 12:23:00 yilmaz Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"

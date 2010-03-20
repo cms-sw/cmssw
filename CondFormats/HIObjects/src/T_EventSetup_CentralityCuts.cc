@@ -1,5 +1,6 @@
 #include "CondFormats/HIObjects/interface/CentralityTable.h" 
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "FWCore/Utilities/interface/typelookup.h"
 
-EVENTSETUP_DATA_REG(CentralityTable);
+TYPELOOKUP_DATA_REG(CentralityTable);
+
 

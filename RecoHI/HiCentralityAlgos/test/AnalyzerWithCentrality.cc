@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.1 2010/03/02 23:48:41 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.2 2010/03/03 20:39:29 yilmaz Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TH1D.h"
