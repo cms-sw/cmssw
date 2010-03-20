@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.9 2009/10/13 13:54:28 auterman Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.10 2010/02/20 21:00:17 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,7 +18,7 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.9 2009/10/13 13:54:28 auterman Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.10 2010/02/20 21:00:17 wmtan Exp $
 */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -31,8 +31,11 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
-#include "CondFormats/JetMETObjects/interface/CombinedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+
 
 #include <string>
 
@@ -63,7 +66,7 @@ namespace pat {
       /// configure the constructor strings for the CombinedJetCorrector
       void configure(std::string level, std::string tag);
       /// evaluate the jet correction factor according to level and corrector type
-      double evaluate(edm::View<reco::Jet>::const_iterator& jet, CombinedJetCorrector* corrector, int& idx);
+      double evaluate(edm::View<reco::Jet>::const_iterator& jet, FactorizedJetCorrector* corrector, int& idx);
       // create strings for parton and flavor dependend corrections
       std::string flavorTag(CorrType correction, SampleType sample, FlavorType flavor);
 
@@ -84,15 +87,15 @@ namespace pat {
 
 
       /// CombinedJetCorrector: common
-      CombinedJetCorrector* jetCorrector_;
+      FactorizedJetCorrector* jetCorrector_;
       /// CombinedJetCorrector: glu
-      CombinedJetCorrector* jetCorrectorGlu_;
+      FactorizedJetCorrector* jetCorrectorGlu_;
       /// CombinedJetCorrector: uds
-      CombinedJetCorrector* jetCorrectorUds_;
+      FactorizedJetCorrector* jetCorrectorUds_;
       /// CombinedJetCorrector: c
-      CombinedJetCorrector* jetCorrectorC_;
+      FactorizedJetCorrector* jetCorrectorC_;
       /// CombinedJetCorrector: b
-      CombinedJetCorrector* jetCorrectorB_;
+      FactorizedJetCorrector* jetCorrectorB_;
       
       /// JetCorrectionUncertainty: L1
       JetCorrectionUncertainty * jtuncrtl1_;
@@ -108,6 +111,10 @@ namespace pat {
       JetCorrectionUncertainty * jtuncrtl6_;
       /// JetCorrectionUncertainty: L1
       JetCorrectionUncertainty * jtuncrtl7_;
+
+      /// Watcher for JetCorrections
+      edm::ESWatcher<JetCorrectionsRecord> watchJetCorrectionsRecord_;
+
   };
 }
 

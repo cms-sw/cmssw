@@ -7,7 +7,7 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
      ## input collection of jets
      jetSource  = cms.InputTag("ak5CaloJets"),
      ## set of correction factors
-     corrSample = cms.string("Summer09"),
+     corrSample = cms.string("Summer09_7TeV_ReReco332"),
      ## correction levels
      corrLevels = cms.PSet(
        ## tags for the individual jet corrections; when
@@ -16,7 +16,7 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
        L2Relative = cms.string('L2Relative_AK5Calo'),
        L3Absolute = cms.string('L3Absolute_AK5Calo'),
        L4EMF      = cms.string('none'),
-       L5Flavor   = cms.string('L5Flavor_IC5'),       # to be changed to L5Flavor   = cms.string('L5Flavor_AK5'),
+       L5Flavor   = cms.string('L5Flavor_IC5Calo'),       # to be changed to L5Flavor   = cms.string('L5Flavor_AK5'),
        L6UE       = cms.string('none'),
        L7Parton   = cms.string('L7Parton_SC5'),       # to be changed to L7Parton   = cms.string('L7Parton_AK5'),
      ),
