@@ -5,7 +5,7 @@ from DQMOffline.PFTau.metBenchmark_cfi import matchMetBenchmark
 
 ########
 # Cor Calo MET
-from JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff import *
+from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 from JetMETCorrections.Type1MET.MetType1Corrections_cff import metJESCorAK5CaloJet
 
 metMuonJESCorAK5 = metJESCorAK5CaloJet.clone()
