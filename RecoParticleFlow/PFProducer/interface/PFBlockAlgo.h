@@ -352,7 +352,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   /// The tracks from V0 are filled into the elements collection
   
   if(v0.isValid() ) {
-    reco::PFBlockElement* trkFromV0Element;
+    reco::PFBlockElement* trkFromV0Element = 0;
     for(unsigned i=0;i<v0->size(); i++) {
       reco::PFV0Ref v0Ref( v0, i );
       unsigned int trackSize=(v0Ref->pfTracks()).size();
@@ -397,7 +397,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   /// The tracks from Displaced Vertices are filled into the elements collection
 
   if(displacedh.isValid()) {
-    reco::PFBlockElement* trkFromDisplacedVertexElement;
+    reco::PFBlockElement* trkFromDisplacedVertexElement = 0;
     for(unsigned i=0;i<displacedh->size(); i++) {
 
       const reco::PFDisplacedTrackerVertexRef dispacedVertexRef( displacedh, i );
