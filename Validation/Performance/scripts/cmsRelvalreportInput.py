@@ -810,6 +810,7 @@ def writeCommands(simcandles,
                                 if "auto:" in keywords[1]:
                                     from Configuration.PyReleaseValidation.autoCond import autoCond
                                     fileConditionsOption = autoCond[ keywords[1].split(':')[1] ]
+                                    Conditions = autoCond[keywords[1]].split("::")[0] 
                                 else:
                                     # old style, hardcoded, conditions ...
                                     # Complicated expression, just to get rid of FrontierConditions_GlobalTag,
