@@ -38,7 +38,7 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
    // Retrieving data
   int nFiles = 1;
   vector<string> fileNames;
-  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_2760GeV_d20100305/Hydjet_MinBias_2760GeV_runs1to1000.root");
+    TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_2760GeV_d20100305/Hydjet_MinBias_2760GeV_runs1to1000.root");
   //  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_4TeV_d20100305/Hydjet_MinBias_4TeV_runs1to500.root");
   fwlite::Event event(infile);
   vector<int> runnums;
@@ -227,11 +227,12 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
      hbSigma->Delete();
   }
   
-  for(int i = 0; i < runnums.size(); ++i){
-     CentralityBins* binsForRun = (CentralityBins*) bins->Clone();
-     binsForRun->SetName(Form("run%d",runnums[i]));
-     binsForRun->Write();
-  }
+  //  for(int i = 0; i < runnums.size(); ++i){
+  CentralityBins* binsForRun = (CentralityBins*) bins->Clone();
+  binsForRun->SetName(Form("run%d",1));
+  //  binsForRun->SetName(Form("run%d",runnums[i]));
+  binsForRun->Write();
+     //  }
   
   bins->Delete();
   outFile->Write();
