@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.2 2010/03/03 20:39:29 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.3 2010/03/20 14:42:44 yilmaz Exp $
 //
 //
 
@@ -107,16 +107,31 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    double eep = cent->EtEESumPlus();
    double eem = cent->EtEESumMinus();
 
+   hftp = hftp+hftm;
+   eb = eb/(eep+eem);
+ 
    int bin = cbins_->getBin(hf);
 
    double npartMean = cbins_->NpartMean(hf);
    double npartSigma = cbins_->NpartSigma(hf);
 
+   // or, alternatively,
+   npartMean = cbins_->NpartMeanOfBin(bin);
+   npartSigma = cbins_->NpartSigmaOfBin(bin);
+
    double ncollMean = cbins_->NcollMean(hf);
    double ncollSigma = cbins_->NcollSigma(hf);
 
+   // or, alternatively,
+   ncollMean = cbins_->NcollMeanOfBin(bin);
+   ncollSigma = cbins_->NcollSigmaOfBin(bin);
+
    double bMean = cbins_->bMean(hf);
    double bSigma = cbins_->bSigma(hf);
+
+   bMean = cbins_->bMeanOfBin(bin);
+   bSigma = cbins_->bSigmaOfBin(bin);
+
 
 }
 
