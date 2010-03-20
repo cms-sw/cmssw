@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.8 2010/03/14 11:30:45 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.9 2010/03/14 18:34:24 dinardo Exp $
 //
 //
 
@@ -43,9 +43,16 @@
 using namespace std;
 
 
-vector<double> xVxValues;
-vector<double> yVxValues;
-vector<double> zVxValues;
+#define DIM 3
+typedef struct
+{
+  double x;
+  double y;
+  double z;
+  double Covariance[DIM][DIM];
+} VertexType;
+vector<VertexType> Vertices;
+bool considerVxCovariance;
 int counterVx;         // Counts the number of vertices taken into account for the fit
 double maxTransRadius; // Max transverse radius in which the vertices must be [cm]
 double maxLongLength;  // Max longitudinal length in which the vertices must be [cm]
