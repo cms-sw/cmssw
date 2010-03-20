@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2010/03/10 22:35:20 $
- *  $Revision: 1.70 $
+ *  $Date: 2010/03/13 19:58:25 $
+ *  $Revision: 1.71 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.70 2010/03/10 22:35:20 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.71 2010/03/13 19:58:25 slava77 Exp $
 //
 //
 
@@ -1953,8 +1953,8 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 
   double distToFace[6] = {0,0,0,0,0,0};
   double tanDistToFace[6] = {0,0,0,0,0,0};
-  PropagationDirection refDirectionToFace[6];
-  Result resultToFace[6];
+  PropagationDirection refDirectionToFace[6] = {anyDirection, anyDirection, anyDirection, anyDirection, anyDirection, anyDirection};
+  Result resultToFace[6] = {result, result, result, result, result, result};
   int iFDest = -1;
   int iDistMin = -1;
   
@@ -2197,8 +2197,8 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 
   double distToFace[4] = {0,0,0,0};
   double tanDistToFace[4] = {0,0,0,0};
-  PropagationDirection refDirectionToFace[4];
-  Result resultToFace[4];
+  PropagationDirection refDirectionToFace[4] = {anyDirection, anyDirection, anyDirection, anyDirection};
+  Result resultToFace[4] = {result, result, result, result};
   int iFDest = -1;
   
   double curP = sv.p3.mag();
