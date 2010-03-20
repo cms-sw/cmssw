@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # Description : cff file for DQM offline vladation.
 
 
-from JetMETCorrections.Configuration.JetCorrectionsRecord_cfi import *
 from RecoJets.Configuration.RecoJetAssociations_cff import *
 
 from Validation.RecoJets.JetValidation_cfi import *
