@@ -27,7 +27,7 @@
 void fitSlices(TH2*, TF1*);
 
 static bool useFits = false;
-static bool onlySaveTable = false;
+static bool onlySaveTable = true;
 static const int nbinsMax = 40;
 
 using namespace std;
@@ -38,8 +38,8 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
    // Retrieving data
   int nFiles = 1;
   vector<string> fileNames;
-  // TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_2760GeV_d20100305/Hydjet_MinBias_2760GeV_runs1to1000.root");
-  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_4TeV_d20100305/Hydjet_MinBias_4TeV_runs1to500.root");
+  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_2760GeV_d20100305/Hydjet_MinBias_2760GeV_runs1to1000.root");
+  //  TFile* infile = new TFile("/net/hisrv0001/home/yetkin/pstore02/ana/Hydjet_MinBias_4TeV_d20100305/Hydjet_MinBias_4TeV_runs1to500.root");
   fwlite::Event event(infile);
   vector<int> runnums;
 
@@ -212,15 +212,6 @@ void makeMCCentralityTable(int nbins = 40, const string label = "hf", const char
   // Save the table in output file
 
   if(onlySaveTable){
-
-     TH1D* hh = (TH1D*)gDirectory->Get("hNpart_0");
-     hh->Delete();
-     hh = (TH1D*)gDirectory->Get("hNcoll_0");
-     hh->Delete();
-     hh = (TH1D*)gDirectory->Get("hNhard_0");
-     hh->Delete();
-     hh = (TH1D*)gDirectory->Get("hb_0");
-     hh->Delete();
 
      hNpart->Delete();
      hNpartMean->Delete();

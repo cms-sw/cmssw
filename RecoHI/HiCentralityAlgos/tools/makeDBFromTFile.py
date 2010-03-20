@@ -26,7 +26,7 @@ ivars.parseArguments()
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('DUMMY')
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(18))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string("runnumber"),
                             firstValue = cms.uint64(1),
