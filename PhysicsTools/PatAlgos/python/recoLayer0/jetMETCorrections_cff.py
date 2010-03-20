@@ -5,8 +5,7 @@ from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 
 # MET correction for JES
 from JetMETCorrections.Type1MET.MetType1Corrections_cff import *
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
-metJESCorAK5CaloJet.corrector = cms.string('L2L3JetCorrectorAK5Calo')
+from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 patJetCorrections = cms.Sequence(patJetCorrFactors)
 
 # MET correction for Muons
