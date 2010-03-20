@@ -58,9 +58,9 @@ HLT_L1Mu14_L1SingleEG10
 HLT_L1Mu14_L1SingleJet6U
 HLT_L1Mu14_L1ETM30
 HLT_ZeroBias
-HLT_MinBiasHcal
-HLT_MinBiasEcal
 HLT_ZeroBiasPixel_SingleTrack
+HLT_MinBiasEcal
+HLT_MinBiasHcal
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
@@ -71,8 +71,8 @@ HLT_HighMultiplicityBSC
 HLT_RPCBarrelCosmics
 HLT_TrackerCosmics
 HLT_StoppedHSCP_8E29
-HLT_IsoTrackHE_8E29
 HLT_IsoTrackHB_8E29
+HLT_IsoTrackHE_8E29
 HLT_HcalPhiSym
 HLT_HcalNZS_8E29
 AlCa_EcalPhiSym
