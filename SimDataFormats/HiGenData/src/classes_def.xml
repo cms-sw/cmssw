@@ -1,5 +1,5 @@
 <lcgdict>
  <class name="edm::GenHIEvent"/>
  <class name="edm::Wrapper<edm::GenHIEvent>"/>
- <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::GenParticle> > >"/>
+ <class name="std::vector<std::vector<reco::GenParticleRef> >"/>
 </lcgdict>

@@ -5,7 +5,7 @@ namespace {
   struct dictionary {
     edm::GenHIEvent dummy0;
     edm::Wrapper<edm::GenHIEvent> dummy1;
-    edm::helpers::Key<edm::RefProd<reco::GenParticleCollection> > dumdumy;
+    edm::Wrapper<std::vector<std::vector<reco::GenParticleRef> > > dummy4;
   };
 }
 
