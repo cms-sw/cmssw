@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.23 2010/03/18 16:14:08 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.24 2010/03/18 19:20:18 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -45,6 +45,7 @@ class BeamFitter {
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
+  void resetRefTime() { freftime[0] = freftime[1] = 0; }
   void dumpTxtFile(std::string &,bool);
   void dumpBWTxtFile(std::string &);
   void write2DB();
@@ -134,6 +135,7 @@ class BeamFitter {
   bool falgo;
   bool fpvValid;
   double fpvx, fpvy, fpvz;
+  time_t freftime[2];
   
   //beam fit results
   TTree* ftreeFit_;

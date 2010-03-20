@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.41 2010/03/18 16:14:08 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.42 2010/03/18 19:20:19 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -154,6 +154,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   fpvValid = true;
   fpvx = fpvy = fpvz = 0;
   fitted_ = false;
+  resetRefTime();
   
   //debug histograms
   h1ntrks = new TH1F("h1ntrks","number of tracks per event",50,0,50);
@@ -215,10 +216,15 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   edm::TimeValue_t ftimestamp = iEvent.time().value();
   edm::TimeValue_t fdenom = pow(2,32);
   time_t ftmptime = ftimestamp / fdenom;
-  char* fendTime = formatTime(ftmptime);
-  sprintf(fendTimeOfFit,"%s",fendTime);
 
-  if (fbeginLumiOfFit == -1) sprintf(fbeginTimeOfFit,"%s",fendTimeOfFit);
+  if (fbeginLumiOfFit == -1) freftime[0] = ftmptime;
+  if (freftime[0] == 0 || ftmptime < freftime[0]) freftime[0] = ftmptime;
+  char* fbeginTime = formatTime(freftime[0]);
+  sprintf(fbeginTimeOfFit,"%s",fbeginTime);
+
+  if (freftime[1] == 0 || ftmptime > freftime[1]) freftime[1] = ftmptime;
+  char* fendTime = formatTime(freftime[1]);
+  sprintf(fendTimeOfFit,"%s",fendTime);
 
   flumi = iEvent.luminosityBlock();
   frunFit = frun;
@@ -521,6 +527,7 @@ void BeamFitter::dumpBWTxtFile(std::string & fileName ){
     } else {
         outFile << "BeamWidth =  " <<fbeamWidthFit.BeamWidthX() <<" +/- "<<fbeamWidthFit.BeamWidthXError() << std::endl;
     }
+    outFile.close();
 }
 
 void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
