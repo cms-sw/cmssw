@@ -4,9 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatExamples.PatJetAnalyzer_cfi import *
 
 ## setup the jet energy corrections for the reco jet
-from JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_cff import *
-ak5CaloJetsL2   = L2L3CorJetAK5Calo.clone(correctors = ["L2RelativeJetCorrectorAK5Calo"])
-ak5CaloJetsL2L3 = L2L3CorJetAK5Calo.clone(correctors = ["L2L3JetCorrectorAK5Calo"])
+from JetMETCorrections.Configuration.JetCorrectionProducers_cff import *
 
 ###
 ## setup the configuration for Exercise 1 (c)
