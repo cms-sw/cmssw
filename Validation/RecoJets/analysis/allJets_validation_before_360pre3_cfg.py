@@ -82,16 +82,44 @@ process.JetAnalyzerIC5Cor = cms.EDAnalyzer("CaloJetTester",
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
+## IC5 JPT jets
+process.JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
+    src = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
+    srcGen = cms.InputTag("iterativeCone5GenJets"),
+#    TurnOnEverything = cms.untracked.string('yes'),
+#    TurnOnEverything = cms.untracked.string('no'),
+#    outputFile = cms.untracked.string('histo.root'),
+#    outputFile = cms.untracked.string('test.root'),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
+)
+
+## AntiKt5 JPT jets
+process.JetAnalyzerAk5JPT = cms.EDFilter("CaloJetTester",
+    src = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
+    srcGen = cms.InputTag("ak5GenJets"),
+#    TurnOnEverything = cms.untracked.string('yes'),
+#    TurnOnEverything = cms.untracked.string('no'),
+#    outputFile = cms.untracked.string('histo.root'),
+#    outputFile = cms.untracked.string('test.root'),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
+)
+
 process.p1 = cms.Path(process.fileSaver
                       #--- Non-Standard sequence (that involve Producers)
                       *process.L2L3CorJetIcone5
-                      #*process.ZSPJetCorrectionsIcone5
-                      #*process.ZSPJetCorrectionsAntiKt5
-                      #*process.JetPlusTrackCorrectionsIcone5
-                      #*process.JetPlusTrackCorrectionsAntiKt5
+                      *process.ZSPJetCorrectionsIcone5
+                      *process.ZSPJetCorrectionsAntiKt5
+                      *process.JetPlusTrackCorrectionsIcone5
+                      *process.JetPlusTrackCorrectionsAntiKt5
                       *process.JetAnalyzerIC5Cor
-                      #*process.JetAnalyzerIC5JPT
-                      #*process.JetAnalyzerAk5JPT
+                      *process.JetAnalyzerIC5JPT
+                      *process.JetAnalyzerAk5JPT
                       #--- Standard sequence
                       *process.JetValidation)
                       #--- DQM stats module
