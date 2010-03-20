@@ -13,10 +13,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// ESRecHitProducer author : Chia-Ming, Kuo
+ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) {
 
-ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
-{
   digiCollection_ = ps.getParameter<edm::InputTag>("ESdigiCollection");
   rechitCollection_ = ps.getParameter<std::string>("ESrechitCollection");
   produces<ESRecHitCollection>(rechitCollection_);
@@ -25,18 +23,15 @@ ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
   worker_ = ESRecHitWorkerFactory::get()->create( componentType, ps );
 }
 
-ESRecHitProducer::~ESRecHitProducer()
-{
-  //  delete algo_;
+ESRecHitProducer::~ESRecHitProducer() {
+
   delete worker_;
 }
 
-void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
-{
-  // Get input
+void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+
   edm::Handle<ESDigiCollection> digiHandle;  
   const ESDigiCollection* digi=0;
-  //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
   e.getByLabel( digiCollection_, digiHandle);
   if ( digiHandle.isValid() ) {
     digi = digiHandle.product();
@@ -51,16 +46,12 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
   if ( digi ) {
     rec->reserve(digi->size()); 
     
-    // when algo parameters will be taken from the DB
-    // the set will retrieve appropriate field from the EventSetup
     worker_->set( es );
     
     // run the algorithm
     ESDigiCollection::const_iterator i;
     for (i=digi->begin(); i!=digi->end(); i++) {    
-      //rec->push_back(algo_->reconstruct(*i));
       worker_->run( e, i, *rec );
-      
     }
   }
   

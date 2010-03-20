@@ -22,7 +22,6 @@
 ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
         ESRecHitWorkerBaseClass( ps )
 {
-  //These should be taken from a DB
   recoAlgo_ = ps.getParameter<int>("ESRecoAlgo");
 
   if (recoAlgo_ == 0)
@@ -48,7 +47,7 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
 
   double ESGain = gain->getESGain();
   double ESMIPToGeV = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
-
+  /*
   es.get<ESTBWeightsRcd>().get(esWeights_);
   const ESTBWeights *wgts = esWeights_.product();
 
@@ -63,6 +62,19 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
     w0 = mat(int(ESGain-1), 0);
     w1 = mat(int(ESGain-1), 1);
     w2 = mat(int(ESGain-1), 2);
+  }
+  */
+  double w0 = 0;
+  double w1 = 0;
+  double w2 = 0;
+  if (ESGain == 1) {
+    w0 = -0.0772417;
+    w1 = 0.8168024;
+    w2 = 0.3857636; 
+  } else if (ESGain == 2) {
+    w0 = 0.0;
+    w1 = 0.725;
+    w2 = 0.4525;
   }
 
   es.get<ESPedestalsRcd>().get(esPedestals_);
