@@ -1,10 +1,6 @@
 <use name=rootrflx> 
-<use name=hepmc>
-<use name=DataFormats/Common>
 <use name=DataFormats/HepMCCandidate>
-<use name=SimDataFormats/GeneratorProducts>
 <export>
   <lib name=SimDataFormatsHiGenData>
-  <use name=DataFormats/Common>
   <use name=hepmc>
 </export>
