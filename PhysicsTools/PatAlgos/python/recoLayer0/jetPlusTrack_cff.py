@@ -1,13 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
-from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
+# Moved to reco
 
-jptCaloJets = cms.Sequence(
-    ZSPJetCorrectionsIcone5 *
-    ZSPJetCorrectionsSisCone5 *
-    ZSPJetCorrectionsAntiKt5 *
-    JetPlusTrackCorrectionsIcone5 *
-    JetPlusTrackCorrectionsSisCone5 *
-    JetPlusTrackCorrectionsAntiKt5
-    )
+#from JetMETCorrections.Configuration.ZSPJetCorrections219_cff import *
+#from JetMETCorrections.Configuration.JetPlusTrackCorrections_cff import *
+
+#jptCaloJets = cms.Sequence(
+#    ZSPJetCorrectionsIcone5 *
+#    ZSPJetCorrectionsSisCone5 *
+#    ZSPJetCorrectionsAntiKt5 *
+#    JetPlusTrackCorrectionsIcone5 *
+#    JetPlusTrackCorrectionsSisCone5 *
+#    JetPlusTrackCorrectionsAntiKt5
+#    )
