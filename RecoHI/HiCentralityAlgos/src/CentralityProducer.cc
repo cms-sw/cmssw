@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.14 2010/02/23 13:31:25 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.15 2010/03/04 17:35:01 yilmaz Exp $
 //
 //
 
@@ -192,7 +192,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel(srcBasicClustersEB_, clusters);
      for( size_t i = 0; i<clusters->size(); ++ i){
 	const BasicCluster & cluster = (*clusters)[ i ];
-	double eta = cluster.eta();
 	double tg = cluster.position().rho()/cluster.position().r();
         double et = cluster.energy()*tg;
 	creco->etEBSum_ += et;

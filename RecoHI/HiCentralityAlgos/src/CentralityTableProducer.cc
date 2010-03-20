@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.4 2010/03/04 03:18:01 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.5 2010/03/04 16:28:22 yilmaz Exp $
 //
 //
 
@@ -181,12 +181,14 @@ CentralityTableProducer::endJob() {
   }
 
       edm::Service<cond::service::PoolDBOutputService> pool;
-      if( pool.isAvailable() )
-	 if( pool->isNewTagRequest( "HeavyIonRcd" ) )
+      if( pool.isAvailable() ){
+	 if( pool->isNewTagRequest( "HeavyIonRcd" ) ){
 	    pool->createNewIOV<CentralityTable>( CT, pool->beginOfTime(), pool->endOfTime(), "HeavyIonRcd" );
-	 else
+	 }else{
 	    pool->appendSinceTime<CentralityTable>( CT, pool->currentTime(), "HeavyIonRcd" );
-    }
+	 }
+      }
+   }
 }
 
 
