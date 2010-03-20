@@ -24,7 +24,6 @@ root -b -q makeMCCentralityTable.C+'(5,"ee", "EEbcs5_MC_Hydjet4TeV_MC_3XY_V24_v0
 
 mv tables.root $datadir/CentralityTables.root
 
-
 root -b -q pushHistogramIntoFile.C'("HFhits40_MC_Hydjet4TeV_MC_3XY_V24_v0")'
 root -b -q pushHistogramIntoFile.C'("EEbcs40_MC_Hydjet4TeV_MC_3XY_V24_v0")'
 root -b -q pushHistogramIntoFile.C'("HFhits20_MC_Hydjet4TeV_MC_3XY_V24_v0")'
