@@ -2,20 +2,32 @@
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 using namespace edm;
 
-SubEvent GenHIEvent::getSubEvent(int sub_id) const {
-   SubEvent evt = evts_[sub_id]; 
-   return evt;
+void GenHIEvent::setGenParticles(const reco::GenParticleCollection* input) const {
+  subevents_.reserve(nhard_);
+  for(int i = 0; i < nhard_; ++i){
+    std::vector<reco::GenParticleRef> refs;
+    subevents_.push_back(refs);
+  }
+
+  for(int i = 0; i < input->size(); ++i){
+    reco::GenParticleRef ref(input,i);
+    subevents_[ref->collisionId()].push_back(ref);
+  }
 }
 
-std::vector<HepMC::GenParticle*> GenHIEvent::getParticles(const HepMC::GenEvent& evt, int sub_id) const {
-   std::vector<HepMC::GenParticle*> particles = getSubEvent(sub_id).getParticles(evt);
-   return particles;
+const std::vector<reco::GenParticleRef> GenHIEvent::getSubEvent(int sub_id) const {
+
+  if(sub_id > subevents_.size() || sub_id < 0){
+
+  }
+
+  return subevents_[sub_id];
 }
 
-const HepMC::GenVertex* GenHIEvent::getVertex(const HepMC::GenEvent& evt, int sub_id) const {
-   const HepMC::GenVertex* vertex = getSubEvent(sub_id).getVertex(evt);
-   return vertex;
-}
+
+
+
+
 
 
 
