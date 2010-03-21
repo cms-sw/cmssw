@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: XHTMLMaker.h,v 1.6 2009/09/18 10:22:22 dshpakov Exp $
+// $Id: XHTMLMaker.h,v 1.7 2010/02/16 09:55:58 mommsen Exp $
 /// @file: XHTMLMaker.h 
 
 #ifndef XHTMLMAKER_H
@@ -13,14 +13,14 @@
 #include <map>
 #include <string>
 #include <iostream>
-
+#include <stdint.h>
 
 /**
    Helper class to build XHTML pages
 
-   $Author: dshpakov $
-   $Revision: 1.6 $
-   $Date: 2009/09/18 10:22:22 $
+   $Author: mommsen $
+   $Revision: 1.7 $
+   $Date: 2010/02/16 09:55:58 $
 */
 
 class XHTMLMaker
