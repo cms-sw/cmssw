@@ -35,8 +35,8 @@ metreco = cms.Sequence(
         calotoweroptmakerWithHO+
         metOptHO+
         metOptNoHFHO+
-        htMetSC5+
-        htMetSC7+
+#        htMetSC5+
+#        htMetSC7+
         htMetKT4+
         htMetKT6+
         htMetIC5+
