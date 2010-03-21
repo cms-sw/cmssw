@@ -9,13 +9,13 @@ void GenHIEvent::setGenParticles(const reco::GenParticleCollection* input) const
     subevents_.push_back(refs);
   }
 
-  for(int i = 0; i < input->size(); ++i){
+  for(unsigned int i = 0; i < input->size(); ++i){
     reco::GenParticleRef ref(input,i);
     subevents_[ref->collisionId()].push_back(ref);
   }
 }
 
-const std::vector<reco::GenParticleRef> GenHIEvent::getSubEvent(int sub_id) const {
+const std::vector<reco::GenParticleRef> GenHIEvent::getSubEvent(unsigned int sub_id) const {
 
   if(sub_id > subevents_.size() || sub_id < 0){
 

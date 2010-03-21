@@ -39,7 +39,7 @@ namespace edm {
       double evtPlane() const {return phi_;}
 
       void setGenParticles(const reco::GenParticleCollection*) const;
-      const std::vector<reco::GenParticleRef>    getSubEvent(int sub_id) const;
+      const std::vector<reco::GenParticleRef>    getSubEvent(unsigned int sub_id) const;
 
       int           getNsubs() const {return subevents_.size();}
 
