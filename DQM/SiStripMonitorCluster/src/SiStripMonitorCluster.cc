@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.67 2010/01/24 20:27:09 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.68 2010/02/21 21:19:54 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -131,6 +131,19 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 
   topFolderName_ = conf_.getParameter<string>("TopFolderName");
+
+
+  // Poducer name of input StripClusterCollection
+  clusterProducer_ = conf_.getParameter<edm::InputTag>("ClusterProducer");
+  // SiStrip Quality Label
+  qualityLabel_  = conf_.getParameter<std::string>("StripQualityLabel");
+  // cluster condition 
+  clusterCondition_ = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+
+  // Event History Producer
+  historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
+  // Apv Phase Producer
+  apvPhaseProducer_ = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
 } 
 
 
@@ -289,17 +302,15 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<SiStripGain> gainHandle;
   iSetup.get<SiStripGainRcd>().get(gainHandle);
 
-  std::string quality_label  = conf_.getParameter<std::string>("StripQualityLabel");
+
   edm::ESHandle<SiStripQuality> qualityHandle;
-  iSetup.get<SiStripQualityRcd>().get(quality_label,qualityHandle);
+  iSetup.get<SiStripQualityRcd>().get(qualityLabel_,qualityHandle);
 
   iSetup.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
 
-  // retrieve producer name of input StripClusterCollection
-  std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
-  iEvent.getByLabel(clusterProducer, cluster_detsetvektor);
+  iEvent.getByLabel(clusterProducer_, cluster_detsetvektor);
 
   //if (!cluster_detsetvektor.isValid()) std::cout<<" collection not valid"<<std::endl;
   if (!cluster_detsetvektor.isValid()) return;
@@ -316,7 +327,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     
     std::string layer_label = iterLayer->first;
     
-    std::vector< uint32_t > layer_dets = iterLayer->second;
     int ncluster_layer = 0;
     std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEMap.find(layer_label);
     
@@ -330,8 +340,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     bool found_module_me = false;
     uint16_t iDet = 0;
     // loop over all modules in the layer
-    for (std::vector< uint32_t >::const_iterator iterDets = layer_dets.begin() ; 
-	 iterDets != layer_dets.end() ; iterDets++) {
+    for (std::vector< uint32_t >::const_iterator iterDets = iterLayer->second.begin() ; 
+	 iterDets != iterLayer->second.end() ; iterDets++) {
       iDet++;
       // detid and type of ME
       uint32_t detid = (*iterDets);
@@ -379,7 +389,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       SiStripQuality::Range qualityRange = qualityHandle->getRange(detid);
       
       for(edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin(); clusterIter!= cluster_detset.end(); clusterIter++){
-	const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+
 	const std::vector<uint8_t>& ampls = clusterIter->amplitudes();
 	// cluster position
 	float cluster_position = clusterIter->barycenter();
@@ -414,11 +424,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	
 	if (nrnonzeroamplitudes > 0) cluster_noise = sqrt(noise2/nrnonzeroamplitudes);
 	
-	if( ps.getParameter<bool>("On") &&
-	    (cluster_signal/cluster_noise < ps.getParameter<double>("minStoN") ||
-	     cluster_signal/cluster_noise > ps.getParameter<double>("maxStoN") ||
-	     cluster_width < ps.getParameter<double>("minWidth") ||
-	     cluster_width  > ps.getParameter<double>("maxWidth")) ) continue;  
+	if( clusterCondition_.getParameter<bool>("On") &&
+	    (cluster_signal/cluster_noise < clusterCondition_.getParameter<double>("minStoN") ||
+	     cluster_signal/cluster_noise > clusterCondition_.getParameter<double>("maxStoN") ||
+	     cluster_width < clusterCondition_.getParameter<double>("minWidth") ||
+	     cluster_width  > clusterCondition_.getParameter<double>("maxWidth")) ) continue;  
 	
 	ClusterProperties cluster_properties;
 	cluster_properties.charge    = cluster_signal;
@@ -460,17 +470,14 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     else if (layer_label.find("TID") != std::string::npos) nTotClusterTID += ncluster_layer;        
   }
   
-  // get EventHistory 
-  InputTag historyProducer = conf_.getParameter<edm::InputTag>("HistoryProducer");
+  //  EventHistory 
   Handle<EventWithHistory> event_history;
+  iEvent.getByLabel(historyProducer_,event_history);
   
-
-  // get Phase of APV
-  InputTag apvPhaseProducer = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
+  // Phase of APV
   Handle<APVCyclePhaseCollection> apv_phase_collection;
+  iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
 
-  iEvent.getByLabel(historyProducer,event_history);
-  iEvent.getByLabel(apvPhaseProducer,apv_phase_collection);
   if (event_history.isValid() 
         && !event_history.failedToGet()
         && apv_phase_collection.isValid() 

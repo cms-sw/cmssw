@@ -4,8 +4,7 @@ import FWCore.ParameterSet.Config as cms
 SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     # by default do not write out any file with histograms
     # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
-    ClusterProducer = cms.string('siStripClusters'),
-                                     
+    ClusterProducer = cms.InputTag('siStripClusters'),
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('SiStripMonitorCluster.root'),
                                      
