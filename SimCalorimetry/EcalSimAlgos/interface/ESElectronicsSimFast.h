@@ -5,6 +5,8 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESSample.h"
 #include "CLHEP/Random/RandGeneral.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 
 #include <vector>
 #include "TFile.h"
@@ -16,13 +18,12 @@ class ESElectronicsSimFast
   enum {MAXADC = 4095};
   enum {MINADC = 0};
   
-  ESElectronicsSimFast (bool addNoise, double sigma, int gain, int baseline, double MIPADC, double MIPkeV);
+  ESElectronicsSimFast (bool addNoise, int gain, ESPedestals peds, ESIntercalibConstants mips, double MIPToGeV);
 
-  void setNoiseSigma (const double sigma);
-  void setGain (const int gain);
-  void setBaseline (const int baseline);
-  void setMIPADC (const double MIPADC);
-  void setMIPkeV (const double MIPkeV);
+  void setGain (const int gain) { gain_ = gain; } 
+  void setPedestals(const ESPedestals& peds) { peds_ = peds; }
+  void setMIPs(const ESIntercalibConstants& mips) { mips_ = mips; }
+  void setMIPToGeV (const double MIPToGeV) { MIPToGeV_ = MIPToGeV; }
 
   virtual void analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const;
   
@@ -34,11 +35,10 @@ class ESElectronicsSimFast
   private :
 
     bool addNoise_;
-    double sigma_;
     int gain_;
-    int baseline_;
-    double MIPADC_;
-    double MIPkeV_;
+    ESPedestals peds_;
+    ESIntercalibConstants mips_;
+    double MIPToGeV_;
 
     std::vector<ESSample> standEncode(const CaloSamples& timeframe) const;
     std::vector<ESSample> fastEncode(const CaloSamples& timeframe, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const;

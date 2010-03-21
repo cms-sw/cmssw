@@ -11,46 +11,13 @@
 
 using namespace std;
 
-ESElectronicsSimFast::ESElectronicsSimFast (bool addNoise, double sigma, int gain, int baseline, double MIPADC, double MIPkeV):
-  addNoise_(addNoise), sigma_ (sigma), gain_ (gain), baseline_(baseline), MIPADC_(MIPADC), MIPkeV_(MIPkeV)
+ESElectronicsSimFast::ESElectronicsSimFast (bool addNoise, int gain, ESPedestals peds, ESIntercalibConstants mips, double MIPToGeV):
+  addNoise_(addNoise), gain_(gain), peds_(peds), mips_(mips), MIPToGeV_(MIPToGeV)
 {
   // Preshower "Fast" Electronics Simulation
-  // The default pedestal baseline is 1000
-  // gain = 0 : old gain used in ORCA (1 ADC count = 1 keV in CMSSW)
-  //            In ORCA, preshower noise was 15 keV
-  // gain = 1 : low gain for data taking  (S =  9 ADC counts, N = 3 ADC counts)
-  // gain = 2 : high gain for calibration (S = 50 ADC counts, N = 7 ADC counts)
+  // gain = 1 : low gain for data taking 
+  // gain = 2 : high gain for calibration and low energy runs
   // For 300(310/320) um Si, the MIP is 78.47(81.08/83.7) keV
-}
-
-void ESElectronicsSimFast::setNoiseSigma (const double sigma)
-{
-  sigma_ = sigma ;
-  return ;
-}
-
-void ESElectronicsSimFast::setGain (const int gain)
-{
-  gain_ = gain ;
-  return ;
-}
-
-void ESElectronicsSimFast::setBaseline (const int baseline)
-{
-  baseline_ = baseline ;
-  return ;
-}
-
-void ESElectronicsSimFast::setMIPADC (const double MIPADC) 
-{
-  MIPADC_ = MIPADC ;
-  return ;
-}
-
-void ESElectronicsSimFast::setMIPkeV (const double MIPkeV) 
-{
-  MIPkeV_ = MIPkeV ;
-  return ;
 }
 
 void ESElectronicsSimFast::analogToDigital(const CaloSamples& cs, ESDataFrame& df, bool wasEmpty, CLHEP::RandGeneral *histoDistribution, double hInf, double hSup, double hBin) const 
@@ -86,8 +53,14 @@ ESElectronicsSimFast::standEncode(const CaloSamples& timeframe) const
   std::vector<ESSample> results;
   results.reserve(timeframe.size());
   
+  ESPedestals::const_iterator it_ped = peds_.find(timeframe.id());
+  ESIntercalibConstantMap::const_iterator it_mip = mips_.getMap().find(timeframe.id());
+  int baseline_  = (int) it_ped->getMean();
+  double sigma_  = (double) it_ped->getRms();
+  double MIPADC_ = (double) (*it_mip);
+
   int adc = 0; 
-  double ADCkeV = MIPADC_/MIPkeV_;
+  double ADCkeV = MIPADC_/MIPToGeV_;
   for (int i=0; i<timeframe.size(); i++) {
     
     double noi = 0;
