@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.33 2010/03/16 17:55:30 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.34 2010/03/20 17:47:06 dinardo Exp $
 //
 //
 
@@ -104,7 +104,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
 	
-	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false))
+	if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && (it3DVx->ndof() >= minVxDoF))
 	  {
 	    for (i = 0; i < DIM; i++)
 	      {
@@ -778,6 +778,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       endTimeOfFit = lumiBlock.endTime().value();
       endLumiOfFit = lumiBlock.luminosityBlock();
       vector<double> vals;
+      stringstream histTitle;
 
       hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), (int)(lumiCounter/nLumiReset)*nLumiReset);
 
@@ -872,6 +873,24 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	    }
 	}
 
+      // vals[0]  = X0
+      // vals[1]  = Y0
+      // vals[2]  = Z0
+      // vals[3]  = sigmaZ0
+      // vals[4]  = dxdz
+      // vals[5]  = dydz
+      // vals[6]  = BeamWidthX
+      // vals[7]  = BeamWidthY
+
+      // vals[8]  = err^2 X0
+      // vals[9]  = err^2 Y0
+      // vals[10] = err^2 Z0
+      // vals[11] = err^2 sigmaZ0
+      // vals[12] = err^2 dxdz
+      // vals[13] = err^2 dydz
+      // vals[14] = err^2 BeamWidthX
+      // vals[15] = err^2 BeamWidthY
+
       // "goodData" CODE:
       //  0 == OK --> Reset
       // -2 == NO OK - not enough "minNentries" --> Wait for more lumisections
@@ -881,6 +900,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
 // 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
+
+	  histTitle << "Fitted Beam Spot [cm] (Lumi start: " << beginLumiOfFit << " - Lumi end: " << endLumiOfFit << ")";
 
 	  reportSummary->Fill(1.0);
 	  reportSummaryMap->Fill(0.5, 0.5, 1.0);
@@ -895,20 +916,40 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
 
-	  if (goodData != -2) reset();
-	  else if (lumiCounter == maxLumiIntegration) reset();
+	  if (goodData != -2) { reset(); histTitle << "Fitted Beam Spot [cm] (not enough statistics)"; }
+	  else { histTitle << "Fitted Beam Spot [cm] (problems)"; if (lumiCounter == maxLumiIntegration) reset(); }
 	}
 
-      mXlumi->ShiftFillLast(vals[0], sqrt(vals[0+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mYlumi->ShiftFillLast(vals[1], sqrt(vals[1+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      mZlumi->ShiftFillLast(vals[2], sqrt(vals[2+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      fitResults->setAxisTitle(histTitle.str().c_str(), 1);
       
-      sXlumi->ShiftFillLast(vals[6], sqrt(vals[6+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sYlumi->ShiftFillLast(vals[7], sqrt(vals[7+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
-      sZlumi->ShiftFillLast(vals[3], sqrt(vals[3+nParams]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      fitResults->setBinContent(1, 8, vals[0]);
+      fitResults->setBinContent(1, 7, vals[1]);
+      fitResults->setBinContent(1, 6, vals[2]);
+      fitResults->setBinContent(1, 5, vals[3]);
+      fitResults->setBinContent(1, 4, vals[4]);
+      fitResults->setBinContent(1, 3, vals[5]);
+      fitResults->setBinContent(1, 2, vals[6]);
+      fitResults->setBinContent(1, 1, vals[7]);
       
-      dxdzlumi->ShiftFillLast(vals[4], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
-      dydzlumi->ShiftFillLast(vals[5], 0.0, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      fitResults->setBinContent(2, 8, sqrt(vals[8]));
+      fitResults->setBinContent(2, 7, sqrt(vals[9]));
+      fitResults->setBinContent(2, 6, sqrt(vals[10]));
+      fitResults->setBinContent(2, 5, sqrt(vals[11]));
+      fitResults->setBinContent(2, 4, sqrt(vals[12]));
+      fitResults->setBinContent(2, 3, sqrt(vals[13]));
+      fitResults->setBinContent(2, 2, sqrt(vals[14]));
+      fitResults->setBinContent(2, 1, sqrt(vals[15]));
+
+      mXlumi->ShiftFillLast(vals[0], sqrt(vals[8]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mYlumi->ShiftFillLast(vals[1], sqrt(vals[9]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      mZlumi->ShiftFillLast(vals[2], sqrt(vals[10]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      
+      sXlumi->ShiftFillLast(vals[6], sqrt(vals[14]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sYlumi->ShiftFillLast(vals[7], sqrt(vals[15]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      sZlumi->ShiftFillLast(vals[3], sqrt(vals[11]), (int)(lumiCounter/nLumiReset)*nLumiReset);
+      
+      dxdzlumi->ShiftFillLast(vals[4], 0.0005, (int)(lumiCounter/nLumiReset)*nLumiReset);
+      dydzlumi->ShiftFillLast(vals[5], 0.0005, (int)(lumiCounter/nLumiReset)*nLumiReset);
       
       vals.clear();
     }
@@ -931,10 +972,22 @@ void Vx3DHLTAnalyzer::beginJob()
 
       Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
       Vx_X->setAxisTitle("Entries [#]",2);
+      Vx_X->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_X->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_X->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_X->getTH1()->GetYaxis()->SetLabelSize(0.03);
       Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
       Vx_Y->setAxisTitle("Entries [#]",2);
+      Vx_Y->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_Y->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_Y->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_Y->getTH1()->GetYaxis()->SetLabelSize(0.03);
       Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_Z->setAxisTitle("Entries [#]",2);
+      Vx_Z->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_Z->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_Z->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_Z->getTH1()->GetYaxis()->SetLabelSize(0.03);
  
       mXlumi = dbe->book1D("muX vs lumi", "\\mu_{x} vs. Lumisection", 50, 0.5, 50.5);
       mYlumi = dbe->book1D("muY vs lumi", "\\mu_{y} vs. Lumisection", 50, 0.5, 50.5);
@@ -943,12 +996,24 @@ void Vx3DHLTAnalyzer::beginJob()
       mXlumi->setAxisTitle("Lumisection [#]",1);
       mXlumi->setAxisTitle("\\mu_{x} [cm]",2);
       mXlumi->getTH1()->SetOption("E1");
+      mXlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      mXlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      mXlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      mXlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
       mYlumi->setAxisTitle("Lumisection [#]",1);
       mYlumi->setAxisTitle("\\mu_{y} [cm]",2);
       mYlumi->getTH1()->SetOption("E1");
+      mYlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      mYlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      mYlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      mYlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
       mZlumi->setAxisTitle("Lumisection [#]",1);
       mZlumi->setAxisTitle("\\mu_{z} [cm]",2);
       mZlumi->getTH1()->SetOption("E1");
+      mZlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      mZlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      mZlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      mZlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
       sXlumi = dbe->book1D("sigmaX vs lumi", "\\sigma_{x} vs. Lumisection", 50, 0.5, 50.5);
       sYlumi = dbe->book1D("sigmaY vs lumi", "\\sigma_{y} vs. Lumisection", 50, 0.5, 50.5);
@@ -957,12 +1022,24 @@ void Vx3DHLTAnalyzer::beginJob()
       sXlumi->setAxisTitle("Lumisection [#]",1);
       sXlumi->setAxisTitle("\\sigma_{x} [cm]",2);
       sXlumi->getTH1()->SetOption("E1");
+      sXlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      sXlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      sXlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      sXlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
       sYlumi->setAxisTitle("Lumisection [#]",1);
       sYlumi->setAxisTitle("\\sigma_{y} [cm]",2);
       sYlumi->getTH1()->SetOption("E1");
+      sYlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      sYlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      sYlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      sYlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
       sZlumi->setAxisTitle("Lumisection [#]",1);
       sZlumi->setAxisTitle("\\sigma_{z} [cm]",2);
       sZlumi->getTH1()->SetOption("E1");
+      sZlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      sZlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      sZlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      sZlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
       dxdzlumi = dbe->book1D("dxdz vs lumi", "dxdz vs. Lumisection", 50, 0.5, 50.5);
       dydzlumi = dbe->book1D("dydz vs lumi", "dydz vs. Lumisection", 50, 0.5, 50.5);
@@ -970,9 +1047,17 @@ void Vx3DHLTAnalyzer::beginJob()
       dxdzlumi->setAxisTitle("Lumisection [#]",1);
       dxdzlumi->setAxisTitle("dxdz [deg]",2);
       dxdzlumi->getTH1()->SetOption("E1");
+      dxdzlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      dxdzlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      dxdzlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      dxdzlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
       dydzlumi->setAxisTitle("Lumisection [#]",1);
       dydzlumi->setAxisTitle("dydz [deg]",2);
       dydzlumi->getTH1()->SetOption("E1");
+      dydzlumi->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      dydzlumi->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      dydzlumi->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      dydzlumi->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
       Vx_ZX = dbe->book2D("Vertex_ZX", "Primary Vertex ZX Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(xRange/xStep/10.), -xRange/2., xRange/2.);
       Vx_ZY = dbe->book2D("Vertex_ZY", "Primary Vertex ZY Coordinate Distributions", (int)(zRange/zStep/10.), -zRange/2., zRange/2., (int)(yRange/yStep/10.), -yRange/2., yRange/2.);
@@ -981,26 +1066,68 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
       Vx_ZX->setAxisTitle("Entries [#]",3);
+      Vx_ZX->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_ZX->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_ZX->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_ZX->getTH1()->GetYaxis()->SetLabelSize(0.03);
       Vx_ZY->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_ZY->setAxisTitle("Entries [#]",3);
+      Vx_ZY->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_ZY->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_ZY->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_ZY->getTH1()->GetYaxis()->SetLabelSize(0.03);
       Vx_XY->setAxisTitle("Primary Vertices X [cm]",1);
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
+      Vx_XY->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_XY->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_XY->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_XY->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
       Vx_ZX_profile = dbe->bookProfile("ZX profile","ZX Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(xRange/xStep/20.), -xRange/2., xRange/2., "");
       Vx_ZX_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX_profile->setAxisTitle("Primary Vertices X [cm]",2);
+      Vx_ZX_profile->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_ZX_profile->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_ZX_profile->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_ZX_profile->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
       Vx_ZY_profile = dbe->bookProfile("ZY profile","ZY Profile", (int)(zRange/zStep/20.), -zRange/2., zRange/2., (int)(yRange/yStep/20.), -yRange/2., yRange/2., "");
       Vx_ZY_profile->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZY_profile->setAxisTitle("Primary Vertices Y [cm]",2);
+      Vx_ZY_profile->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      Vx_ZY_profile->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      Vx_ZY_profile->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      Vx_ZY_profile->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
       hitCounter = dbe->book1D("pixelHits vs lumi", "# pixel-hits vs. Lumisection", 50, 0.5, 50.5);
 
       hitCounter->setAxisTitle("Lumisection [#]",1);
       hitCounter->setAxisTitle("# pixel-hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
+      hitCounter->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      hitCounter->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      hitCounter->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      hitCounter->getTH1()->GetYaxis()->SetLabelSize(0.03);
+
+      fitResults = dbe->book2D("fitResults","Results of beam fit", 2, 0., 2., 8, 0., 8.);
+      fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
+      fitResults->setBinLabel(8, "X0", 2);
+      fitResults->setBinLabel(7, "Y0", 2);
+      fitResults->setBinLabel(6, "Z0", 2);
+      fitResults->setBinLabel(5, "sigmaZ0", 2);
+      fitResults->setBinLabel(4, "dxdz", 2);
+      fitResults->setBinLabel(3, "dydz", 2);
+      fitResults->setBinLabel(2, "BeamWidthX", 2);
+      fitResults->setBinLabel(1, "BeamWidthY", 2);
+      fitResults->setBinLabel(1, "Value", 1);
+      fitResults->setBinLabel(2, "Stat. Error", 1);
+      fitResults->getTH1()->SetOption("text");
+      fitResults->getTH1()->GetXaxis()->SetTitleSize(0.04);
+      fitResults->getTH1()->GetXaxis()->SetLabelSize(0.03);
+      fitResults->getTH1()->GetYaxis()->SetTitleSize(0.04);
+      fitResults->getTH1()->GetYaxis()->SetLabelSize(0.03);
 
       dbe->setCurrentFolder("BeamPixel/EventInfo");
       reportSummary = dbe->bookFloat("reportSummary");
@@ -1013,6 +1140,7 @@ void Vx3DHLTAnalyzer::beginJob()
   reset();
   runNumber = 0;
   maxLumiIntegration = 10;
+  minVxDoF = 4.;
   pi = 3.141592653589793238;
   internalDebug = false;
   considerVxCovariance = true;
