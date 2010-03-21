@@ -86,7 +86,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
    eCount_++;
 
    //Digis
-   int zside, plane;
+   int zside, plane, ix, iy, is;
    double adc[3], para[10];
    double tx[3] = {-5., 20., 45.};
    Handle<ESDigiCollection> digis;
@@ -99,7 +99,15 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
        
        zside = id.zside();
        plane = id.plane();
-       
+       ix = id.six();
+       iy = id.siy();
+       is = id.strip();
+
+       //if (zside==1 && plane==1 && ix==15 && iy==6) continue;       
+       if (zside==1 && plane==1 && ix==7 && iy==28) continue;       
+       if (zside==1 && plane==1 && ix==24 && iy==9 && is==21) continue;       
+       if (zside==-1 && plane==2 && ix==35 && iy==17 && is==23) continue;       
+
        int i = (zside==1)? 0:1;
        int j = plane-1;
 
@@ -119,7 +127,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 	 gr->Fit("fit", "MQ");
 	 fit_->GetParameters(para); 
 	 delete gr;
-
+	 //cout<<"ADC : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<is<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<" "<<para[1]<<endl;
 	 hTiming_[i][j]->Fill(para[1]);
        }
 
