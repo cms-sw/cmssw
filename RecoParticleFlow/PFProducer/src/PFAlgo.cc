@@ -1599,17 +1599,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
 	      globalCorr = staMomentum/trackMomentum;
 	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
-	    if (debug_) 
+	    if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 			<< "PFAlgo: particle type set to muon (global, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
-	    //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
+	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
+	    }
 	  }
 	  else{
-	    if (debug_)
+	    if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 	                << "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
-	    //PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
-	    
+	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
+	    }
 	  }
 	  
 	  // Remove it from the block
@@ -1878,6 +1879,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       //there is an excess of energy in the calos
       //create a neutral hadron or a photon
         
+      //If it's isolated don't create neutrals since the energy deposit is always coming from a showering muon
+      bool thisIsAnIsolatedMuon = false;
+      for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
+        unsigned iTrack = ie->second;
+	if(PFMuonAlgo::isIsolatedMuon(elements[iTrack].muonRef())) thisIsAnIsolatedMuon = true;	
+      }
+      
+      if(thisIsAnIsolatedMuon){
+	if(debug_)cout<<" Not looking for neutral b/c this is an isolated muon "<<endl;
+	break;
+      }
+
       double eNeutralHadron = caloEnergy - totalChargedMomentum;
       double ePhoton = (caloEnergy - totalChargedMomentum) / slopeEcal;
 
@@ -2500,10 +2513,10 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 	else if(thisIsATrackerTightMuon) cout << "PFAlgo: particle type set to muon (tracker, tight), pT = " <<muonRef->pt()<< endl;
 	else if(thisIsAnIsolatedMuon) cout << "PFAlgo: particle type set to muon (isolated), pT = " <<muonRef->pt()<< endl; 
 	else cout<<" problem with muon assignment "<<endl;
-	//PFMuonAlgo::printMuonProperties( muonRef );
-	}
+	PFMuonAlgo::printMuonProperties( muonRef );
+      }
     }
-  }
+  }  
 
   // displaced vertices 
 
