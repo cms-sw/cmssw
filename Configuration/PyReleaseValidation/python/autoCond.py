@@ -1,6 +1,6 @@
 
-autoCond = { 'mc'      : 'MC_36Y_V2::All',
-             'startup' : 'START36_V2::All',
-             'craft08' : 'CRAFT08_R_V11::All',
-             'craft09' : 'CRAFT09_R_V12::All',
+autoCond = { 'mc'      : 'MC_36Y_V3::All',
+             'startup' : 'START36_V3::All',
+             'craft08' : 'CRAFT08_R_V12::All',
+             'craft09' : 'CRFT9_36R_V01::All',
              }
