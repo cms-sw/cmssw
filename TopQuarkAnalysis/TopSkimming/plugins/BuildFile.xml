@@ -1,6 +1,7 @@
 <library   file="TopDiLeptonFilter.cc" name="TopSkimPlugins">
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
+  <use   name="clhepheader"/> 
 </library>
 <library   file="TopLeptonTauFilter.cc">
   <use   name="FWCore/Framework"/>
