@@ -47,7 +47,7 @@ public:
   T mag2() const { return theX*theX + theY*theY;}
 
   /// The vector magnitude. Equivalent to sqrt(vec.mag2())
-  T mag() const  { return sqrt( mag2());}
+  T mag() const  { return std::sqrt( mag2());}
 
   /// Radius, same as mag()
   T r() const    { return mag();}
@@ -56,7 +56,7 @@ public:
    *  Same precision as the system atan2(x,y) function.
    *  The return type is Geom::Phi<T>, see it's documentation.
    */ 
-  T barePhi() const {return atan2(theY,theX);}
+  T barePhi() const {return std::atan2(theY,theX);}
   Geom::Phi<T> phi() const {return Geom::Phi<T>(atan2(theY,theX));}
 
   /** Unit vector parallel to this.

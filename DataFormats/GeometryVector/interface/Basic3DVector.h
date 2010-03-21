@@ -77,13 +77,13 @@ public:
   T mag2() const { return theX*theX + theY*theY + theZ*theZ;}
 
   /// The vector magnitude. Equivalent to sqrt(vec.mag2())
-  T mag() const  { return sqrt( mag2());}
+  T mag() const  { return std::sqrt( mag2());}
 
   /// Squared magnitude of transverse component 
   T perp2() const { return x()*x() + y()*y();}
 
   /// Magnitude of transverse component 
-  T perp() const { return sqrt( perp2());}
+  T perp() const { return std::sqrt( perp2());}
 
   /// Another name for perp()
   T transverse() const { return perp();}
@@ -92,22 +92,22 @@ public:
    *  Same precision as the system atan2(x,y) function.
    *  The return type is Geom::Phi<T>, see it's documentation.
    */ 
-  T barePhi() const {return atan2(theY,theX);}
-  Geom::Phi<T> phi() const {return Geom::Phi<T>(atan2(theY,theX));}
+  T barePhi() const {return std::atan2(theY,theX);}
+  Geom::Phi<T> phi() const {return Geom::Phi<T>(std::atan2(theY,theX));}
 
   /** Polar angle. The value is returned in radians, in the range [0,pi]
    *  Same precision as the system atan2(x,y) function.
    *  The return type is Geom::Phi<T>, see it's documentation.
    */ 
-  T bareTheta() const {return atan2(perp(),z());}
-  Geom::Theta<T> theta() const {return Geom::Theta<T>(atan2(perp(),z()));}
+  T bareTheta() const {return std::atan2(perp(),z());}
+  Geom::Theta<T> theta() const {return Geom::Theta<T>(std::atan2(perp(),z()));}
 
   /** Pseudorapidity. 
    *  Does not check for zero transverse component; in this case the behavior 
    *  is as for divide-by zero, i.e. system-dependent.
    */
   // T eta() const { return -log( tan( theta()/2.));} 
-  T eta() const { T x(z()/perp()); return log(x+sqrt(x*x+1));} // faster 
+  T eta() const { T x(z()/perp()); return std::log(x+std::sqrt(x*x+T(1)));} // faster 
 
   /** Unit vector parallel to this.
    *  If mag() is zero, a zero vector is returned.
