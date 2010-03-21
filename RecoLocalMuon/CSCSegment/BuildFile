@@ -1,3 +1,4 @@
+<Flags CXXFLAGS="-Wno-error=strict-overflow">
 <use name=CommonTools/Statistics>
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/CSCRecHit>
