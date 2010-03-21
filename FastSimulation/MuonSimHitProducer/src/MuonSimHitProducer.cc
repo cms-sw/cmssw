@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.27 2010/03/12 10:21:08 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.28 2010/03/12 11:19:47 aperrott Exp $
 //
 //
 
@@ -149,6 +149,7 @@ MuonSimHitProducer::~MuonSimHitProducer()
   }
 
   if ( theMaterialEffects ) delete theMaterialEffects;
+  if ( propagatorWithoutMaterial) delete propagatorWithoutMaterial;
 }
 
 
