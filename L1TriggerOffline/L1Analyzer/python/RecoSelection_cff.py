@@ -2,7 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 # Jets
 # Correct Reco jets
-from JetMETCorrections.Configuration.JetCorrectionsHLT_cff import *
+from JetMETCorrections.Configuration.JetCorrectionServicesHLT_cff import *
+
+hltMCJetCorJetIcone5 = cms.EDProducer( "CaloJetCorrectionProducer",
+  src = cms.InputTag( "hltIterativeCone5CaloJets" ),
+  alias = cms.untracked.string( "MCJetCorJetIcone5" ),
+  correctors = cms.vstring( 'MCJetCorrectorIcone5' )
+)
 #Muons
 # Clone Reco muons
 CloneRecoMuons = cms.EDProducer("MuonShallowCloneProducer",
