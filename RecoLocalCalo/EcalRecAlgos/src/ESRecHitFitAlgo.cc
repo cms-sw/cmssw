@@ -102,9 +102,10 @@ EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   EcalRecHit rechit(digi.id(), energy, t0);
 
   if (it_status->getStatusCode() == 1) {
+      rechit.setRecoFlag(EcalRecHit::kESDead);
   } else {
     if (status == 0) 
-      rechit.setRecoFlag(EcalRecHit::kGood);
+      rechit.setRecoFlag(EcalRecHit::kESGood);
     else if (status == 5) 
       rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor12);
     else if (status == 6) 

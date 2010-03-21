@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <math.h>
 
 ESRecHitSimAlgo::ESRecHitSimAlgo() {
 
@@ -9,7 +10,7 @@ ESRecHitSimAlgo::ESRecHitSimAlgo() {
 
 double* ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, const double& ped, const double& w0, const double& w1, const double& w2) const {
   
-  double *results = new double[2];
+  double *results = new double[3];
   float energy = 0;
   double adc[3];
   float pw[3];
@@ -29,8 +30,8 @@ double* ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, const double& pe
   if (adc[1] < 0 || adc[2] < 0) status = 10;
   if (adc[0] > adc[1] || adc[0] > adc[2]) status = 8;
   if (adc[2] > adc[1] || adc[2] > adc[0]) status = 9;
-  double r12 = (adc[1] != 0) ? adc[0]/adc[1] : 99999;
-  double r23 = (adc[2] != 0) ? adc[1]/adc[2] : 99999;
+  double r12 = (adc[1] != 0) ? adc[0]/adc[1] : 99;
+  double r23 = (adc[2] != 0) ? adc[1]/adc[2] : 99;
   if (r12 > ratioCuts_.getR12High()) status = 5;
   if (r23 > ratioCuts_.getR23High()) status = 6;
   if (r23 < ratioCuts_.getR23Low()) status = 7;
@@ -39,8 +40,11 @@ double* ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, const double& pe
   else if (adc[1] > 2800) status = 12;
   else if (adc[2] > 2800) status = 13;
 
+  double t0 = 19.2787 - 18.2603*r23 + 8.30438*pow(r23,2) - 4.19468*pow(r23,3) + 0.561087*pow(r23,4);
+
   results[0] = energy;
-  results[1] = status;
+  results[1] = t0;
+  results[2] = status;
 
   return results;
 }
@@ -58,7 +62,8 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   results = EvalAmplitude(digi, it_ped->getMean(), w0_, w1_, w2_);
 
   double energy = results[0];
-  int status = (int) results[1];
+  double t0 = results[1];
+  int status = (int) results[2];
   delete results;
 
   energy *= MIPGeV_/(*it_mip);
@@ -67,12 +72,13 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
 
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
-  EcalRecHit rechit(digi.id(), energy, 0);
+  EcalRecHit rechit(digi.id(), energy, t0);
 
   if (it_status->getStatusCode() == 1) {
+    rechit.setRecoFlag(EcalRecHit::kESDead);
   } else {
     if (status == 0)
-      rechit.setRecoFlag(EcalRecHit::kGood);
+      rechit.setRecoFlag(EcalRecHit::kESGood);
     else if (status == 5)
       rechit.setRecoFlag(EcalRecHit::kESGoodRatioFor12);
     else if (status == 6)
