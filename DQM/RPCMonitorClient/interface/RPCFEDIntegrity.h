@@ -45,7 +45,7 @@ public:
  private:
   
   void labelBins( MonitorElement * myMe);
-
+  edm::InputTag rawCountsLabel_;
   void reset(void);
   void bookFEDMe(void);
 
