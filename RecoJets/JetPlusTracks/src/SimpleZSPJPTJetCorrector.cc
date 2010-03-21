@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJPTJetCorrector.cc,v 1.1 2010/03/04 13:12:02 kodolova Exp $
+// $Id: SimpleZSPJPTJetCorrector.cc,v 1.2 2010/03/08 10:35:37 kodolova Exp $
 //
 // ZSP Jet Corrector
 //
@@ -34,7 +34,7 @@ SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector (const std::string& fDataFile
 // Read parameters
  if (zspjpt::debug) {
   std::cout<<" Size of parameters as read by SimpleJetCorrectorParameters "<<mParameters->size()<<std::endl;
-  for(int i = 0; i<mParameters->size(); i++){
+  for(unsigned int i = 0; i<mParameters->size(); i++){
    const std::vector<float> p = mParameters->record (i).parameters ();
     for(std::vector<float>::const_iterator j=p.begin(); j<p.end(); j++) {
          std::cout<<" Parameter number "<<mParameters->record (i).xMin(0)<<" "<<mParameters->record (i).xMax(0)<<" "<<(*j)<<std::endl;
