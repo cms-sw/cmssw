@@ -1,4 +1,5 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateAccessor.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -29,6 +30,7 @@ int main() {
   cout << "ts.globalMomentum() " << ts.globalMomentum() << endl;
   cout << "ts.localMomentum()  " << ts.localMomentum() << endl;
   cout << "ts.transverseCurvature()  " << ts.transverseCurvature() << endl;
+  cout << "ts inversePtErr" << TrajectoryStateAccessor(*ts.freeState()).inversePtError() << std::endl;
 							   
 
   LocalPoint lp(0,0,0);
@@ -39,4 +41,5 @@ int main() {
   cout << "ts2.globalMomentum() " << ts2.globalMomentum() << endl;
   cout << "ts2.localMomentum()  " << ts2.localMomentum() << endl;
   cout << "ts2.transverseCurvature()  " << ts2.transverseCurvature() << endl;
+  cout << "ts2 inversePtErr" << TrajectoryStateAccessor(*ts2.freeState()).inversePtError() << std::endl; 
 }
