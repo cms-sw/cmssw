@@ -113,8 +113,10 @@ public:
    *  If mag() is zero, a zero vector is returned.
    */
   Basic3DVector unit() const {
-    T my_mag = mag();
-    return my_mag == 0 ? *this : *this / my_mag;
+    T my_mag = mag2();
+    if (my_mag==0) return *this;
+    my_mag = T(1)/std::sqrt(my_mag);
+    return *this * my_mag;
   }
 
   /** Operator += with a Basic3DVector of possibly different precision.
@@ -141,7 +143,7 @@ public:
   Basic3DVector operator-() const { return Basic3DVector(-x(),-y(),-z());}
 
   /// Scaling by a scalar value (multiplication)
-  Basic3DVector& operator*= ( const T& t) {
+  Basic3DVector& operator*= ( T t) {
     theX *= t;
     theY *= t;
     theZ *= t;
@@ -149,10 +151,11 @@ public:
   } 
 
   /// Scaling by a scalar value (division)
-  Basic3DVector& operator/= ( const T& t) {
-    theX /= t;
-    theY /= t;
-    theZ /= t;
+  Basic3DVector& operator/= ( T t) {
+    t = T(1)/t;
+    theX *= t;
+    theY *= t;   
+    theZ *= t;
     return *this;
   } 
 
@@ -241,14 +244,14 @@ inline typename PreciseFloatType<T,U>::Type operator*( const Basic3DVector<T>& v
  *  The return type is the same as the type of the vector argument.
  */
 template <class T, class Scalar>
-inline Basic3DVector<T> operator*( const Basic3DVector<T>& v, const Scalar& s) {
+inline Basic3DVector<T> operator*( const Basic3DVector<T>& v, Scalar s) {
   T t = static_cast<T>(s);
   return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
 }
 
 /// Same as operator*( Vector, Scalar)
 template <class T, class Scalar>
-inline Basic3DVector<T> operator*( const Scalar& s, const Basic3DVector<T>& v) {
+inline Basic3DVector<T> operator*( Scalar s, const Basic3DVector<T>& v) {
   T t = static_cast<T>(s);
   return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
 }
@@ -257,9 +260,9 @@ inline Basic3DVector<T> operator*( const Scalar& s, const Basic3DVector<T>& v) {
  *  The return type is the same as the type of the vector argument.
  */
 template <class T, class Scalar>
-inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, const Scalar& s) {
-  T t = static_cast<T>(s);
-  return Basic3DVector<T>(v.x()/t, v.y()/t, v.z()/t);
+inline Basic3DVector<T> operator/( const Basic3DVector<T>& v, Scalar s) {
+  T t = static_cast<T>(Scalar(1)/s);
+  return Basic3DVector<T>(v.x()*t, v.y()*t, v.z()*t);
 }
 
 #endif // GeometryVector_Basic3DVector_h
