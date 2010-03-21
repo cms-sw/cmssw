@@ -42,26 +42,24 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   //* Helper Methods *//
 
   //Creators of the Decay Modes
-  reco::PFTauCollection buildOneProng(const reco::PFTauTagInfoRef&);
-  reco::PFTauCollection buildOneProngStrip(const reco::PFTauTagInfoRef&,const std::vector<PFCandidateRefVector>&);
-  reco::PFTauCollection buildOneProngTwoStrips(const reco::PFTauTagInfoRef&,const std::vector<PFCandidateRefVector>&);
-  reco::PFTauCollection buildThreeProngs(const reco::PFTauTagInfoRef&);
+  void buildOneProng(const reco::PFTauTagInfoRef&,const reco::PFCandidateRefVector& );
+  void buildOneProngStrip(const reco::PFTauTagInfoRef&,const std::vector<PFCandidateRefVector>&,const reco::PFCandidateRefVector&);
+  void buildOneProngTwoStrips(const reco::PFTauTagInfoRef&,const std::vector<PFCandidateRefVector>&,const reco::PFCandidateRefVector&);
+  void buildThreeProngs(const reco::PFTauTagInfoRef&,const reco::PFCandidateRefVector&);
 
   //Narrowness selection
-  bool isNarrowTau(reco::PFTau&,double);
+  bool isNarrowTau(const reco::PFTau&,double);
 
   //Associate Isolation Candidates
   void associateIsolationCandidates(reco::PFTau&,double);
 
-  //Apply muon Rejection
+  reco::PFTau getBestTauCandidate(reco::PFTauCollection&); //get the best tau if we have overlap 
   void applyMuonRejection(reco::PFTau&);
 
   //Apply electron Rejection
   void applyElectronRejection(reco::PFTau&,double);
 
 
-  //Sort a reference vector(THIS NEEDS TO GO AWAY!)
-  void sortRefVector(reco::PFCandidateRefVector&);
 
   //Method to create a candidate from the merged EM Candidates vector;
   math::XYZTLorentzVector createMergedLorentzVector(const reco::PFCandidateRefVector&);
@@ -70,8 +68,6 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   void applyMassConstraint(math::XYZTLorentzVector&,double );
 
   bool refitThreeProng(reco::PFTau&); 
-
-
 
 
   //Configure the algorithm!
@@ -127,30 +123,43 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
 
   TFormula coneSizeFormula;
 
+  reco::PFTauCollection pfTaus_;
 
-  //SORTERS for overlap filtering
-  class HPSSorterByIsolation
-  {
+
+
+  class HPSTauPtSorter {
   public:
-    HPSSorterByIsolation() {}
-    bool operator()(reco::PFTau t1,reco::PFTau t2)
-    {
-      double iso1 =t1.isolationPFGammaCandsEtSum()+t1.isolationPFChargedHadrCandsPtSum();
-      double iso2 =t2.isolationPFGammaCandsEtSum()+t2.isolationPFChargedHadrCandsPtSum();
-      return iso1<iso2;
-    }
-  };
-  
-  class HPSSorterByPt
-  {
-  public:
-    HPSSorterByPt() {}
-    bool operator()(reco::PFTau t1,reco::PFTau t2)
-    {
-      return t1.pt()>t2.pt();
+
+    HPSTauPtSorter()
+      {
+      }
+
+
+    ~HPSTauPtSorter()
+      {}
+
+    bool operator()(reco::PFTau a , reco::PFTau b) {
+      return (a.pt() > b.pt());
     }
   };
 
+
+  class HPSTauIsolationSorter {
+  public:
+
+    HPSTauIsolationSorter()
+      {
+      }
+
+
+    ~HPSTauIsolationSorter()
+      {}
+
+    bool operator()(reco::PFTau a , reco::PFTau b) {
+      return (a.isolationPFGammaCandsEtSum()+a.isolationPFChargedHadrCandsPtSum())<
+	(b.isolationPFGammaCandsEtSum()+b.isolationPFChargedHadrCandsPtSum());
+    }
+  };
   
 };
 #endif

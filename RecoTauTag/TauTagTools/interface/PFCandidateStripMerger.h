@@ -1,3 +1,4 @@
+
 /** PFCandidateStripMerger
 
 Class that creates strips from Particle Flow Candidates
@@ -9,6 +10,7 @@ bachtis@cern.ch
 **/
 
 #include "RecoTauTag/TauTagTools/interface/PFCandidateMergerBase.h"
+#include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 class PFCandidateStripMerger : public PFCandidateMergerBase
 {
@@ -28,8 +30,6 @@ class PFCandidateStripMerger : public PFCandidateMergerBase
 
   //Private Methods
   bool candidateMatches(const reco::PFCandidateRef&);
-  void sortRefVector(reco::PFCandidateRefVector&);
-
 
 
 };

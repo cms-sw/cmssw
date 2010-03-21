@@ -232,6 +232,30 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     }
     return (propTrack_XYZPoint);
   }
+
+
+
+  void 
+  sortRefVectorByPt(PFCandidateRefVector& vec)
+  {
+
+    std::vector<size_t> indices;
+    indices.reserve(vec.size());
+    for(unsigned int i=0;i<vec.size();++i)
+      indices.push_back(i);
+    
+    refVectorPtSorter sorter(vec);
+    std::sort(indices.begin(),indices.end(),sorter);
+    
+    
+    reco::PFCandidateRefVector sorted;
+    sorted.reserve(vec.size());
+    
+    for(unsigned int i=0;i<indices.size();++i)
+      sorted.push_back(vec.at(indices.at(i)));
+
+    vec = sorted;
+  }
+
+
 }
-
-

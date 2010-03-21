@@ -23,59 +23,40 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
 {
   PFTau pfTau;
 
+  pfTaus_.clear();
   //make the strips globally.
   std::vector<PFCandidateRefVector> strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
+
+
+  //Sort the hadrons globally and once!
+  PFCandidateRefVector hadrons = tagInfo->PFChargedHadrCands();
+  if(hadrons.size()>1)
+    TauTagTools::sortRefVectorByPt(hadrons);
+
+
   //OK For this Tau Tag Info we should create all the possible taus 
 
   //One Prongs
-  PFTauCollection oneProngTaus;   
   if(doOneProngs_)         
-    oneProngTaus  = buildOneProng(tagInfo);
+    buildOneProng(tagInfo,hadrons);
   
   //One Prong Strips
-  PFTauCollection oneProngStripTaus;
   if(doOneProngStrips_)     
-    oneProngStripTaus =buildOneProngStrip(tagInfo,strips);
+    buildOneProngStrip(tagInfo,strips,hadrons);
 
   //One Prong TwoStrips
-  PFTauCollection oneProngTwoStripsTaus;
   if(doOneProngTwoStrips_) 
-    oneProngTwoStripsTaus =buildOneProngTwoStrips(tagInfo,strips);
+    buildOneProngTwoStrips(tagInfo,strips,hadrons);
 
   //Three Prong
-  PFTauCollection threeProngTaus;
   if(doThreeProngs_)       
-    threeProngTaus  = buildThreeProngs(tagInfo);
+    buildThreeProngs(tagInfo,hadrons);
   
-  //merge the above collections
-  PFTauCollection allTaus;
-
-  for(unsigned int tau=0;tau<oneProngTaus.size();++tau)
-    allTaus.push_back(oneProngTaus.at(tau));
-  for(unsigned int tau=0;tau<oneProngStripTaus.size();++tau)
-    allTaus.push_back(oneProngStripTaus.at(tau));
-  for(unsigned int tau=0;tau<oneProngTwoStripsTaus.size();++tau)
-    allTaus.push_back(oneProngTwoStripsTaus.at(tau));
-  for(unsigned int tau=0;tau<threeProngTaus.size();++tau)
-    allTaus.push_back(threeProngTaus.at(tau));
 
   //Lets see if we created any taus
-  if(allTaus.size()>0) {
-    //if more than one tau  correspond to this PF Jet select the best one!
-    if(allTaus.size()>1)  {
-      if(overlapCriterion_ =="Isolation"){
-	HPSSorterByIsolation sorter;
-	std::sort(allTaus.begin(),allTaus.end(),sorter);
-      }
-      else if(overlapCriterion_ =="Pt"){
-	HPSSorterByPt sorter;
-	std::sort(allTaus.begin(),allTaus.end(),sorter);
-      }
-    }
-    //Now we sorted.The best tau to this jet is the first one of this collection    
-    
-    //Associate the common TauTagInfo with the PFTau
-    pfTau = allTaus.at(0);
+  if(pfTaus_.size()>0) {
+
+    pfTau = getBestTauCandidate(pfTaus_);
 
     //Set the IP for the leading track
     if(TransientTrackBuilder_!=0 &&pfTau.leadPFChargedHadrCand()->trackRef().isNonnull()) {
@@ -102,18 +83,11 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
 
 
 //Create one prong tau
-PFTauCollection
-HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo)
+void
+HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const reco::PFCandidateRefVector& hadrons)
 {
   PFTauCollection  taus;
 
-  //Get Hadrons
-  PFCandidateRefVector hadrons = tagInfo->PFChargedHadrCands();
-
-  //Sort the hadrons if they are not sorted already
-  if(hadrons.size()>0)
-    sortRefVector(hadrons);
-  
   if(hadrons.size()>0)
     for(unsigned int h=0;h<hadrons.size();++h) {
       PFCandidateRef hadron = hadrons.at(h); 
@@ -151,43 +125,22 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo)
 	    taus.push_back(tau);
 	  }
     }
-
-  reco::PFTauCollection output;
-
   if(taus.size()>0) {
-    //if more than one tau  correspond to this PF Jet select the best one!
-    if(taus.size()>1)  {
-      if(overlapCriterion_ =="Isolation"){
-	HPSSorterByIsolation sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-      else if(overlapCriterion_ =="Pt"){
-	HPSSorterByPt sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-    }
-    output.push_back(taus.at(0));
+    pfTaus_.push_back(getBestTauCandidate(taus));
   }
-  taus.clear();
-  return output;
 
 }
 
 //Build one Prong + Strip
 
-PFTauCollection
-HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<PFCandidateRefVector>& strips)
+void
+HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<PFCandidateRefVector>& strips,const reco::PFCandidateRefVector & hadrons)
 
 {
   //Create output Collection
   PFTauCollection taus;
 
-  //get Hadrons
-  PFCandidateRefVector hadrons = tagInfo->PFChargedHadrCands();
 
-  //Sort them
-  if(hadrons.size()>0)
-    sortRefVector(hadrons);
 
 
   //make taus like this only if there is at least one hadron+ 1 strip
@@ -278,43 +231,18 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
       }
   }
 
-  reco::PFTauCollection output;
-
   if(taus.size()>0) {
-    //if more than one tau  correspond to this PF Jet select the best one!
-    if(taus.size()>1)  {
-      if(overlapCriterion_ =="Isolation"){
-	HPSSorterByIsolation sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-      else if(overlapCriterion_ =="Pt"){
-	HPSSorterByPt sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-    }
-    output.push_back(taus.at(0));
+    pfTaus_.push_back(getBestTauCandidate(taus));
   }
-  taus.clear();
-  return output;
-
-
 
 }
 
-PFTauCollection
-HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<PFCandidateRefVector>& strips)
+void
+HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagInfo,const  std::vector<PFCandidateRefVector>& strips,const reco::PFCandidateRefVector& hadrons)
 {
 
 
   PFTauCollection taus;
-
-  //get Tracks
-  PFCandidateRefVector hadrons = tagInfo->PFChargedHadrCands();
-
-  if(hadrons.size()>0)
-    sortRefVector(hadrons);
-
-
 
   //make taus like this only if there is at least one hadron+ 2 strips
   if(hadrons.size()>0&&strips.size()>1){
@@ -437,38 +365,18 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 	}
   }
 
-  reco::PFTauCollection output;
-
   if(taus.size()>0) {
-    //if more than one tau  correspond to this PF Jet select the best one!
-    if(taus.size()>1)  {
-      if(overlapCriterion_ =="Isolation"){
-	HPSSorterByIsolation sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-      else if(overlapCriterion_ =="Pt"){
-	HPSSorterByPt sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-    }
-    output.push_back(taus.at(0));
+    pfTaus_.push_back(getBestTauCandidate(taus));
   }
-  taus.clear();
-  return output;
 }
 
 
 
-PFTauCollection
-HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
+void
+HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,const reco::PFCandidateRefVector& hadrons)
 {
   PFTauCollection taus;
   //get Hadrons
-
-  PFCandidateRefVector hadrons = tagInfo->PFChargedHadrCands();
-
-  if(hadrons.size()>1)
-    sortRefVector(hadrons);
 
 
   //Require at least three hadrons
@@ -500,23 +408,20 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
 		      signal.push_back(h2);
 		      signal.push_back(h3);
 		      //calculate the tau cone by getting the maximum distance
-		      std::vector<double> tauCones;
+		      double tauCone = 10000.0;
 		      if(coneMetric_=="DR")
 			{  
-			  tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h1->p4()));
-			  tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h2->p4()));
-			  tauCones.push_back(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h3->p4()));
-			  std::sort(tauCones.begin(),tauCones.end());
+			  tauCone = min(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h1->p4()),
+					min(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h2->p4()),
+					    ROOT::Math::VectorUtil::DeltaR(tau.p4(),h3->p4())));
 			}
 		      else if(coneMetric_=="angle")
 			{  
-			  tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h1->p4())));
-			  tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h2->p4())));
-			  tauCones.push_back(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h3->p4())));
-			  std::sort(tauCones.begin(),tauCones.end());
+			  tauCone =min(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h1->p4())),
+				       min(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h2->p4())),
+					   fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h3->p4()))));
 			}
-		      double tauCone = tauCones.at(2);
-		      
+	      
 		      //Set The PFTau
 		      tau.setsignalPFChargedHadrCands(signal);
 		      tau.setsignalPFCands(signal);
@@ -535,34 +440,19 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo)
 	      }
 	}
 
-  reco::PFTauCollection output;
-
   if(taus.size()>0) {
-    //if more than one tau  correspond to this PF Jet select the best one!
-    if(taus.size()>1)  {
-      if(overlapCriterion_ =="Isolation"){
-	HPSSorterByIsolation sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-      else if(overlapCriterion_ =="Pt"){
-	HPSSorterByPt sorter;
-	std::sort(taus.begin(),taus.end(),sorter);
-      }
-    }
-    PFTau bestTau  = taus.at(0);
+    PFTau bestTau  = getBestTauCandidate(taus);
     if(refitThreeProng(bestTau))
       //Apply mass constraint
       if(bestTau.mass()>threeProngMassWindow_.at(0)&&bestTau.mass()<threeProngMassWindow_.at(1))//MassWindow
-        output.push_back(bestTau);
+	pfTaus_.push_back(bestTau);
   }
-  taus.clear();
-  return output;
 
 }
 
 
-bool 
-HPSPFRecoTauAlgorithm::isNarrowTau(reco::PFTau& tau,double cone)
+bool
+HPSPFRecoTauAlgorithm::isNarrowTau(const reco::PFTau& tau,double cone)
 {
 
   double allowedConeSize=coneSizeFormula.Eval(tau.energy(),tau.et());
@@ -813,43 +703,20 @@ void
 HPSPFRecoTauAlgorithm::removeCandidateFromRefVector(const reco::PFCandidateRef& cand,reco::PFCandidateRefVector& vec) 
 {
   PFCandidateRefVector newVec;
-  for(unsigned int i=0;i<vec.size();++i)
-    if(cand->p4() != vec.at(i)->p4())
-      newVec.push_back(vec.at(i));
-  vec = newVec;
+
+  PFCandidateRefVector::iterator it;
+  it = std::find(vec.begin(),vec.end(),cand);
+  if(it!=vec.end())
+    vec.erase(it);
 }
 
 void
 HPSPFRecoTauAlgorithm::applyMassConstraint(math::XYZTLorentzVector& vec,double mass)
 {
-  double momentum = sqrt(vec.energy()*vec.energy() - mass*mass);
-  math::PtEtaPhiMLorentzVector v(momentum*sin(vec.theta()),vec.eta(),vec.phi(),mass);
-  vec = math::XYZTLorentzVector(v.px(),v.py(),v.pz(),v.energy());
+  double factor = sqrt(vec.energy()*vec.energy()-mass*mass)/vec.P();
+  vec.SetCoordinates(vec.px()*factor,vec.py()*factor,vec.pz()*factor,vec.energy());
 }
 
-void 
-HPSPFRecoTauAlgorithm::sortRefVector(reco::PFCandidateRefVector& vec)
-{
-  std::vector<reco::PFCandidateRefVector::iterator> iters;
-  reco::PFCandidateRefVector sorted;
-
-  do{
-  double max=0;
-  reco::PFCandidateRefVector::iterator sel;
-
-  for(reco::PFCandidateRefVector::iterator i=vec.begin();i!=vec.end();++i)   {
-      if( (*i)->pt()>max)
-	{
-	  max = (*i)->pt();
-	  sel = i;
-	}
-    }
-  sorted.push_back(*sel);
-  vec.erase(sel);
-  }
-  while(vec.size()>0);
-  vec = sorted;
-}
 
 
 
@@ -905,4 +772,22 @@ HPSPFRecoTauAlgorithm::refitThreeProng(reco::PFTau& tau)
   return response;
 
 } 
+
+
+reco::PFTau 
+HPSPFRecoTauAlgorithm::getBestTauCandidate(reco::PFTauCollection& taus)
+{
+      reco::PFTauCollection::iterator it;
+      if(overlapCriterion_ =="Isolation"){
+	HPSTauIsolationSorter sorter;
+	it = std::min_element(taus.begin(),taus.end(),sorter);
+
+      }
+      else if(overlapCriterion_ =="Pt"){
+	HPSTauPtSorter sorter;
+	it = std::min_element(taus.begin(),taus.end(),sorter);
+      }
+
+      return *it;
+}
 

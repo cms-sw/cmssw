@@ -44,6 +44,11 @@ namespace TauTagTools{
 
   double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2);
   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
+
+  //MIKE: Sort a reference vector
+  void sortRefVectorByPt(reco::PFCandidateRefVector&);
+
+
   //binary predicate classes for sorting a list of indexes corresponding to PFRefVectors...(as they can't use STL??)
   class sortRefsByOpeningDistance
   {
@@ -81,6 +86,30 @@ namespace TauTagTools{
      double minChargedPt_;
      const PFCandidateRefVector& myVector;
   };
+
+  class refVectorPtSorter {
+  public:
+    refVectorPtSorter(const reco::PFCandidateRefVector vec)
+      {
+	vec_ = vec;
+      }
+
+    refVectorPtSorter()
+      {
+      }
+
+
+    ~refVectorPtSorter()
+      {}
+
+    bool operator()(size_t a , size_t b) {
+      return (vec_.at(a)->pt() > vec_.at(b)->pt());
+    }
+
+  private:
+    reco::PFCandidateRefVector vec_;
+  };
+
 
   //binary predicate classes for sorting vectors of candidates
   template <class T>

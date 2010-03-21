@@ -36,30 +36,7 @@ PFCandidateStripMerger::candidateMatches(const reco::PFCandidateRef& cand)
 }
 
 
-void 
-PFCandidateStripMerger::sortRefVector(reco::PFCandidateRefVector& vec)
-{
-  std::vector<reco::PFCandidateRefVector::iterator> iters;
-  reco::PFCandidateRefVector sorted;
 
-  do{
-  double max=0;
-  reco::PFCandidateRefVector::iterator sel;
-
-  for(reco::PFCandidateRefVector::iterator i=vec.begin();i!=vec.end();++i)
-    {
-      if( (*i)->pt()>max)
-	{
-	  max = (*i)->pt();
-	  sel = i;
-	}
-    }
-  sorted.push_back(*sel);
-  vec.erase(sel);
-  }
-  while(vec.size()>0);
-  vec = sorted;
-}
 
 
 vector<PFCandidateRefVector> 
@@ -73,7 +50,7 @@ PFCandidateStripMerger::mergeCandidates(const PFCandidateRefVector& candidates)
       cands.push_back(candidates.at(i));
  
     if(cands.size()>1)
-    sortRefVector(cands);
+    TauTagTools::sortRefVectorByPt(cands);
 
     vector<PFCandidateRefVector> strips;
 
