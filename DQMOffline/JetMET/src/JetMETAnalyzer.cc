@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/22 09:03:31 $
- *  $Revision: 1.55 $
+ *  $Date: 2010/03/22 09:11:47 $
+ *  $Revision: 1.56 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -131,13 +131,13 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   if(theJPTJetAnalyzerFlag) {
     //theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
     //theJPTJetAnalyzer->setSource("JPTJets");
-    //theJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
+    theJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
   }
   // --- do the analysis on JPT Cleaned Jets
   if(theJPTJetCleaningFlag) {
     //theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedJPTJetAnalysis"));
     //theJPTJetAnalyzer->setSource("JPTJets");
-    //theCleanedJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedJPTJetAnalysis"));
+    theCleanedJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedJPTJetAnalysis"));
   }
 
   // --- do the analysis on the PFJets
@@ -233,8 +233,8 @@ JetMETAnalyzer::~JetMETAnalyzer() {
     if(theIConeJetAnalyzerFlag) delete theCleanedPtICJetAnalyzer;
   }
 
-  //if(theJPTJetAnalyzerFlag)        delete theJPTJetAnalyzer;
-  //if(theJPTJetCleaningFlag)        delete theCleanedJPTJetAnalyzer;
+  if(theJPTJetAnalyzerFlag)        delete theJPTJetAnalyzer;
+  if(theJPTJetCleaningFlag)        delete theCleanedJPTJetAnalyzer;
 
   if(thePFJetAnalyzerFlag)         delete thePFJetAnalyzer;
   if(thePFJetCleaningFlag)         delete theCleanedPFJetAnalyzer;
@@ -284,8 +284,8 @@ void JetMETAnalyzer::beginJob(void) {
     if(theIConeJetAnalyzerFlag) theCleanedPtICJetAnalyzer->beginJob(dbe);
   }
 
-  //if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->beginJob(dbe);
-  //if(theJPTJetCleaningFlag) theCleanedJPTJetAnalyzer->beginJob(dbe);
+  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->beginJob(dbe);
+  if(theJPTJetCleaningFlag) theCleanedJPTJetAnalyzer->beginJob(dbe);
 
   if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(dbe);
   if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->beginJob(dbe);
@@ -657,7 +657,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //theCleanedJPTJetAnalyzer->setJetHiPass(JetHiPass);
     //theCleanedJPTJetAnalyzer->setJetLoPass(JetLoPass);
     theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets);
-    //theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
   }
   
   // **** Get the PFlow Jet container
@@ -776,8 +775,8 @@ void JetMETAnalyzer::endJob(void) {
     if(theIConeJetAnalyzerFlag) theCleanedPtICJetAnalyzer->endJob();
   }
 
-  //if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->endJob();
-  //if(theJPTJetCleaningFlag) theCleanedJPTJetAnalyzer->endJob();
+  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->endJob();
+  if(theJPTJetCleaningFlag) theCleanedJPTJetAnalyzer->endJob();
 
   if(outputMEsInRootFile){
     dbe->save(outputFileName);
