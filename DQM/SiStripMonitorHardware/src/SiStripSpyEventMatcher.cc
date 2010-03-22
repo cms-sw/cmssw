@@ -160,10 +160,10 @@ namespace sistrip {
     std::vector<uint32_t> outputTotalEventCounters(sistrip::FED_ID_MAX+1);
     std::vector<uint32_t> outputL1ACounters(sistrip::FED_ID_MAX+1);
     std::vector<uint32_t> outputAPVAddresses(sistrip::FED_ID_MAX+1);
-    std::vector< edm::DetSet<SiStripRawDigi> >* outputScopeDigisVector = NULL;
-    std::vector< edm::DetSet<SiStripRawDigi> >* outputPayloadDigisVector = NULL;
-    std::vector< edm::DetSet<SiStripRawDigi> >* outputReorderedDigisVector = NULL;
-    std::vector< edm::DetSet<SiStripRawDigi> >* outputVirginRawDigisVector = NULL;
+    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputScopeDigisVector;
+    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputPayloadDigisVector;
+    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputReorderedDigisVector;
+    std::auto_ptr< std::vector< edm::DetSet<SiStripRawDigi> > > outputVirginRawDigisVector;
     std::set<uint16_t> alreadyMergedFeds;
     for (SpyEventList::const_iterator iMatch = matchingEvents->begin(); iMatch != matchingEvents->end(); ++iMatch) {
       SpyEventPtr event = readSpecificEvent(*iMatch);
@@ -181,10 +181,10 @@ namespace sistrip {
       const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,reorderedDigisTag_);
       const edm::DetSetVector<SiStripRawDigi>* inputVirginRawDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,virginRawDigisTag_);
       //construct the output vectors if the digis were found and they do not exist
-      if (inputScopeDigis && !outputScopeDigisVector) outputScopeDigisVector = new std::vector< edm::DetSet<SiStripRawDigi> >;
-      if (inputPayloadDigis && !outputPayloadDigisVector) outputPayloadDigisVector = new std::vector< edm::DetSet<SiStripRawDigi> >;
-      if (inputReorderedDigis && !outputReorderedDigisVector) outputReorderedDigisVector = new std::vector< edm::DetSet<SiStripRawDigi> >;
-      if (inputVirginRawDigis && !outputVirginRawDigisVector) outputVirginRawDigisVector = new std::vector< edm::DetSet<SiStripRawDigi> >;
+      if (inputScopeDigis && !outputScopeDigisVector.get() ) outputScopeDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
+      if (inputPayloadDigis && !outputPayloadDigisVector.get() ) outputPayloadDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
+      if (inputReorderedDigis && !outputReorderedDigisVector.get() ) outputReorderedDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
+      if (inputVirginRawDigis && !outputVirginRawDigisVector.get() ) outputVirginRawDigisVector.reset(new std::vector< edm::DetSet<SiStripRawDigi> >);
       //find matching FEDs
       std::set<uint16_t> matchingFeds;
       findMatchingFeds(eventId,apvAddress,inputTotalEventCounters,inputL1ACounters,inputAPVAddresses,matchingFeds);
@@ -214,12 +214,13 @@ namespace sistrip {
       mergeMatchingData(matchingFeds,inputRawData,inputTotalEventCounters,inputL1ACounters,inputAPVAddresses,
                         inputScopeDigis,inputPayloadDigis,inputReorderedDigis,inputVirginRawDigis,
                         outputRawData,outputTotalEventCounters,outputL1ACounters,outputAPVAddresses,
-                        outputScopeDigisVector,outputPayloadDigisVector,outputReorderedDigisVector,outputVirginRawDigisVector,
+                        outputScopeDigisVector.get(),outputPayloadDigisVector.get(),outputReorderedDigisVector.get(),outputVirginRawDigisVector.get(),
                         cabling);
       alreadyMergedFeds.insert(matchingFeds.begin(),matchingFeds.end());
     }
     SpyDataCollections collections(outputRawData,outputTotalEventCounters,outputL1ACounters,outputAPVAddresses,
-                                   outputScopeDigisVector,outputPayloadDigisVector,outputReorderedDigisVector,outputVirginRawDigisVector);
+                                   outputScopeDigisVector.get(),outputPayloadDigisVector.get(),
+                                   outputReorderedDigisVector.get(),outputVirginRawDigisVector.get());
     collectionsToCreate = collections;
   }
   
