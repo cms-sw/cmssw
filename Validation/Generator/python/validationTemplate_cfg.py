@@ -2,12 +2,8 @@ import FWCore.ParameterSet.Config as cms
   
 process = cms.Process("TOPVAL")
 
-## Message Logger (see: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMessageLogger for more information)
-process.MessageLogger = cms.Service("MessageLogger",
-	categories = cms.untracked.vstring('MainResults'
-#					  ,'Debug'
-	)
-)
+## define MessageLogger
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ## DQM Services
 process.load("DQMServices.Core.DQM_cfg")
