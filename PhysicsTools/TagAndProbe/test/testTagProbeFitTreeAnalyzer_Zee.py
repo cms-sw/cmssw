@@ -20,7 +20,9 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # specifies wether to save the RooWorkspace containing the data for each bin and
     # the pdf object with the initial and final state snapshots
     SaveWorkspace = cms.bool(True),
-
+    floatShapeParameters = cms.bool(True),
+    fixVars = cms.vstring("mean"),
+                                                 
     # defines all the real variables of the probes available in the input tree and intended for use in the efficiencies
     Variables = cms.PSet(
         mass = cms.vstring("Tag-Probe Mass", "60.0", "120.0", "GeV/c^{2}"),
@@ -39,18 +41,11 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     PDFs = cms.PSet(
         gaussPlusLinear = cms.vstring(
             "Gaussian::signal(mass, mean[91.2, 89.0, 93.0], sigma[2.3, 0.5, 10.0])",
-            "Chebychev::backgroundPass(mass, cPass[0,-1,1])",
-            "Chebychev::backgroundFail(mass, cFail[0,-1,1])",
+            "RooExponential::backgroundPass(mass, cPass[0,-10,10])",
+            "RooExponential::backgroundFail(mass, cFail[0,-10,10])",
             "efficiency[0.9,0,1]",
             "signalFractionInPassing[0.9]"
         ),
-        gaussPlusQuadratic = cms.vstring(
-            "Gaussian::signal(mass, mean[91.2, 89.0, 93.0], sigma[2.3,0.5, 10.0])",
-            "Chebychev::backgroundPass(mass, {cPass1[0,-1,1], cPass2[0,-1,1]})",
-            "Chebychev::backgroundFail(mass, {cFail1[0,-1,1], cFail2[0,-1,1]})",
-            "efficiency[0.9,0,1]",
-            "signalFractionInPassing[0.9]"
-        )
     ),
 
     # defines a set of efficiency calculations, what PDF to use for fitting and how to bin the data;
@@ -67,7 +62,7 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                 pt = cms.vdouble(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120)
             ),
             #first string is the default followed by binRegExp - PDFname pairs
-            BinToPDFmap = cms.vstring("gaussPlusLinear", "*pt_bin0*", "gaussPlusQuadratic")
+            BinToPDFmap = cms.vstring("gaussPlusLinear")
         ),
         pt_mcTrue = cms.PSet(
             EfficiencyCategoryAndState = cms.vstring("passing","pass"),
@@ -86,7 +81,7 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                 pt = cms.vdouble(20, 30, 40, 50, 60, 70, 80, 90, 100, 110,120),
                 eta = cms.vdouble(-2.4,-1.2, 0.0, 1.2, 2.4)
             ),
-            BinToPDFmap = cms.vstring("gaussPlusLinear", "*pt_bin0*", "gaussPlusQuadratic")
+            BinToPDFmap = cms.vstring("gaussPlusLinear")
         ),
         pt_eta_mcTrue = cms.PSet(
             EfficiencyCategoryAndState = cms.vstring("passing","pass"),

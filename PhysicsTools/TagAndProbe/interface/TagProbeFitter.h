@@ -11,7 +11,7 @@
 class TagProbeFitter: public TGraphAsymmErrors{
   public:
   ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin 
-  TagProbeFitter(std::vector<std::string> inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false);
+  TagProbeFitter(std::vector<std::string> inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false, bool floatShapeParameters = true, std::vector<std::string> fixVars_ = std::vector<std::string>() );
 
   ///destructor closes the files
   ~TagProbeFitter();
@@ -25,6 +25,9 @@ class TagProbeFitter: public TGraphAsymmErrors{
   ///add a new PDF to the list of available PDFs; "pdfCommands" are parsed by factory().
   /// the user needs to define efficiency[0.9,0,1] for the initial value, "signal" PDF, "backgroundPass" PDF and "backgroundFail" PDF
   void addPdf(std::string pdfName, std::vector<std::string>& pdfCommands);
+
+  ///set a list of variables to fix during first fit iteration. If the list is empty, do one iteration.
+  void addFixedVariavles(std::vector<string>);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
   std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
@@ -51,8 +54,24 @@ class TagProbeFitter: public TGraphAsymmErrors{
   ///the set of variables describing the data in the input TTree
   RooArgSet variables;
 
+  ///list of variables fo fix (see below)
+  std::vector<std::string> fixVars;
+  std::vector<double> fixVarValues;
+
+  ///release some variables before the fit in each bin
+  ///if set to "false" will fit all dataset to get values of specified variables and then fit all bins having them fixed
+  ///if set to "true" (default) will not fit all dataset, just each bin with fixed and then released variables
+  bool floatShapeParameters;
+
   ///a RooWorkspace object to parse input parameters with ".factory()"
   RooWorkspace parameterParser;
+
+  ///fix or release variables selected by user
+  void varFixer(RooWorkspace* w, bool fix);
+  ///store values in the vector
+  void varSaver(RooWorkspace* w);
+  ///restore variables's values for fit starting point
+  void varRestorer(RooWorkspace* w);
 
   ///calculate the efficiecny with a simulataneous maximum likelihood fit in the dataset found in the workspace with PDF pdfName
   void doFitEfficiency(RooWorkspace* w, std::string pdfName, RooRealVar& efficiency);

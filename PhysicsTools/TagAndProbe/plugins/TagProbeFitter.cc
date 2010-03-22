@@ -27,7 +27,7 @@
 
 using namespace RooFit;
 
-TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirectoryName, string inputTreeName, string outputFileName, int numCPU_, bool saveWorkspace_){
+TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirectoryName, string inputTreeName, string outputFileName, int numCPU_, bool saveWorkspace_, bool floatShapeParameters_, std::vector<std::string> fixVars_){
   inputTree = new TChain((inputDirectoryName+"/"+inputTreeName).c_str());
   for(size_t i=0; i<inputFileNames.size(); i++){
     inputTree->Add(inputFileNames[i].c_str());
@@ -36,6 +36,11 @@ TagProbeFitter::TagProbeFitter(vector<string> inputFileNames, string inputDirect
   outputDirectory = outputFile->mkdir(inputDirectoryName.c_str());
   numCPU = numCPU_;
   saveWorkspace = saveWorkspace_;
+  floatShapeParameters = floatShapeParameters_;
+  fixVars = fixVars_;
+  
+  if(!floatShapeParameters && fixVars.empty()) std::cout << "TagProbeFitter: " << "You wnat to fix some variables but do not specify them!";
+
 }
 
 TagProbeFitter::~TagProbeFitter(){
@@ -82,7 +87,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
   for(map<string, vector<double> >::iterator v=binnedReals.begin(); v!=binnedReals.end(); v++){
     TString name = v->first;
     binnedVariables.addClone(variables[name]);
-    ((RooRealVar&)binnedVariables[name]).setBinning( RooBinning(v->second.size()-1, &v->second[0]) );
+   ((RooRealVar&)binnedVariables[name]).setBinning( RooBinning(v->second.size()-1, &v->second[0]) );
     binCategories.addClone( RooBinningCategory(name+"_bins", name+"_bins", (RooRealVar&)binnedVariables[name]) );
   }
   //collect the category variables and the corresponding mapped categories
@@ -96,7 +101,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
       ((RooMappedCategory&)mappedCategories[name+"_bins"]).map(v->second[i].c_str(), name+"_"+TString(v->second[i].c_str()).ReplaceAll(",","_"));
     }
   }
-
+  
   //now add the necessary mass and passing variables to make the unbinned RooDataSet
   RooDataSet data("data", "data", inputTree, RooArgSet( RooArgSet(binnedVariables, categories), RooArgSet(unbinnedVars, variables[effCat.c_str()]) ));
   //merge the bin categories to a MultiCategory for convenience
@@ -115,9 +120,22 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
 
   //create the empty efficiency datasets from the binned variables
   RooRealVar efficiency("efficiency", "Efficiency", 0, 1);
+
   RooDataSet fitEfficiency("fit_eff", "Efficiency from unbinned ML fit", RooArgSet(RooArgSet(binnedVariables, categories), efficiency), StoreAsymError(RooArgSet(binnedVariables, efficiency)));
   RooDataSet sbsEfficiency("sbs_eff", "Efficiency from side band substraction", RooArgSet(RooArgSet(binnedVariables, categories), efficiency), StoreAsymError(RooArgSet(binnedVariables, efficiency)));
   RooDataSet cntEfficiency("cnt_eff", "Efficiency from counting", RooArgSet(RooArgSet(binnedVariables, categories), efficiency), StoreAsymError(RooArgSet(binnedVariables, efficiency)));
+
+
+  if(!floatShapeParameters){
+    //fitting whole dataset to get initial values for some parameters
+    RooWorkspace* w = new RooWorkspace();
+    w->import(data);
+    efficiency.setVal(0);//reset
+    efficiency.setAsymError(0,0);
+    std::cout << "ALL dataset: calling doFitEfficiency with pdf: " << pdfCategory.getLabel() << std::endl;
+    doFitEfficiency(w, pdfCategory.getLabel(), efficiency);
+    delete w;
+  }
 
   //loop over all bins with the help of allCats
   TIterator* it = allCats.typeIterator();
@@ -131,14 +149,18 @@ string TagProbeFitter::calculateEfficiency(string dirName, string effCat, string
       Cut(TString::Format("allCats==%d",t->getVal())));
     //set the category variables by reading the first event
     const RooArgSet* row = data_bin->get();
+
     //get PDF name
     TString pdfName(((RooCategory*)row->find("_pdfCategory_"))->getLabel());
+
+
     //make directory name
     TString dirName = catName;
     dirName.ReplaceAll("{","").ReplaceAll("}","").ReplaceAll(";","__");
     if(pdfName.Length() > 0){
       dirName.Append("__").Append(pdfName);
     }
+    
     cout<<"Fitting bin:  "<<dirName<<endl;
     //make a directory for each bin
     gDirectory->mkdir(dirName)->cd();
@@ -214,18 +236,59 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   //create the simultaneous pdf of name pdfName
   createPdf(w, pdfs[pdfName]);
   //set the initial values for the yields of signal and background
-  setInitialValues(w);
-  //do the fit and get hold of the FitResults
-  //RooFitResult* res = w->pdf("simPdf")->fitTo(*w->data("data"), Save());
-  RooNLLVar nll("nll", "nll", *w->pdf("simPdf"), *w->data("data"), Extended(), NumCPU(numCPU));
-  RooMinuit m(nll);
-  m.setErrorLevel(0.5);
-  m.setStrategy(2);
-  m.hesse();
-  m.migrad();
-  m.hesse();
-  m.minos(*w->var("efficiency"));
-  RooFitResult* res = m.save();
+  setInitialValues(w);  
+  RooFitResult* res;
+
+  if(!fixVars.empty()){
+
+    if(!floatShapeParameters && fixVarValues.empty()){
+      //fix vars
+      varFixer(w,true);
+
+      //do fit
+      w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
+      
+      //release vars
+      varFixer(w,false);
+      
+      //do fit 
+      w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
+
+      //save vars
+      varSaver(w);
+    }
+    
+    if(!floatShapeParameters){
+      //restore vars
+      varRestorer(w);
+    }
+    
+    //fix vars
+    varFixer(w,true);
+    
+    //do fit
+    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
+  }  
+  
+  if(floatShapeParameters){
+    //release vars
+    varFixer(w,false);
+    
+    //do fit
+    res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
+  }
+
+//   res = w->pdf("simPdf")->fitTo(*w->data("data"), Save(true), Extended(true), NumCPU(numCPU));
+
+//   RooNLLVar nll("nll", "nll", *w->pdf("simPdf"), *w->data("data"), Extended(), NumCPU(numCPU));
+//   RooMinuit m(nll);
+//   m.setErrorLevel(0.5);
+//   m.setStrategy(2);
+//   m.hesse();
+//   m.migrad();
+//   m.hesse();
+//   m.minos(*w->var("efficiency"));
+//   RooFitResult* res = m.save();
   // save everything
   res->Write("fitresults");
   w->saveSnapshot("finalState",w->components());
@@ -246,8 +309,8 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands){
   // setup the simultaneous extended pdf
   w->factory("expr::numSignalPass('efficiency*numSignalAll', efficiency, numSignalAll[0.,1e10])");
   w->factory("expr::numSignalFail('(1-efficiency)*numSignalAll', efficiency, numSignalAll)");
-  w->factory("SUM::pdfPass(numSignalPass*signal, numBackgroundPass[0,1e10]*backgroundPass)");
-  w->factory("SUM::pdfFail(numSignalFail*signal, numBackgroundFail[0,1e10]*backgroundFail)");
+  w->factory("SUM::pdfPass(numSignalPass*signal, numBackgroundPass[0.,1e10]*backgroundPass)");
+  w->factory("SUM::pdfFail(numSignalFail*signal, numBackgroundFail[0.,1e10]*backgroundFail)");
   w->factory("SIMUL::simPdf(_efficiencyCategory_, Passed=pdfPass, Failed=pdfFail)");
   // signalFractionInPassing is not used in the fit just to set the initial values
   if(w->var("signalFractionInPassing") == 0)
@@ -393,6 +456,41 @@ void TagProbeFitter::doCntEfficiency(RooWorkspace* w, RooRealVar& efficiency){
   efficiency.setVal(e);
   efficiency.setAsymError(lo-e, hi-e);
 }
+
+void TagProbeFitter::varFixer(RooWorkspace* w, bool fix){
+  std::vector<std::string>::const_iterator it;
+  for(it=fixVars.begin(); it<fixVars.end(); it++){    
+    if(w->var((*it).c_str()))
+      w->var((*it).c_str())->setAttribute("Constant",fix);
+    else{
+      std::cout << "TagProbeFitter: " << "Can't find a variable to fix: " << *it;
+    }
+  }
+}
+
+void TagProbeFitter::varSaver(RooWorkspace* w){
+  if(!fixVarValues.empty()){
+    std::cout << "attempt to save variables more than once!" << std::endl;
+    return;
+  }
+  std::vector<std::string>::const_iterator it;
+  for(it=fixVars.begin(); it<fixVars.end(); it++){
+    fixVarValues.push_back(w->var((*it).c_str())->getVal());
+  }
+  
+}
+
+void TagProbeFitter::varRestorer(RooWorkspace* w){
+  if(fixVarValues.size()==fixVars.size())
+    for(unsigned int i=0; i< fixVars.size(); i++){
+      std::cout << "setting variable " << fixVars[i].c_str() << std::endl;
+      w->var(fixVars[i].c_str())->setVal(fixVarValues[i]);
+    }
+  else{
+    std::cout << "fixVars and fixVarValues are not of the same size!" << std::endl; 
+  }
+}
+
 
 int main(int argc, char* argv[]){
   vector<string> inputs;

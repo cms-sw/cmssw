@@ -105,7 +105,12 @@ process.GsfMatchedSuperClusterCands = cms.EDProducer("ElectronMatchedCandidatePr
 process.PassingIsolation = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string(process.PassingGsf.cut.value() +
-         " && (dr04TkSumPt/pt<0.2) && (dr04EcalRecHitSumEt/et<0.2) && (dr04HcalTowerSumEt/et<0.2)")  
+         " && (( isEB && (dr04TkSumPt<7.2) && (dr04EcalRecHitSumEt<5.7) && (dr04HcalTowerSumEt<8.1)"
+         " && (deltaEtaSuperClusterTrackAtVtx<0.0071) && (deltaPhiSuperClusterTrackAtVtx<1.0)"
+         " && (sigmaEtaEta<0.01))"
+         " || (isEE && (dr04TkSumPt<5.1) && (dr04EcalRecHitSumEt<5.0) && (dr04HcalTowerSumEt<3.4)"
+         " && (deltaEtaSuperClusterTrackAtVtx<0.0066) && (deltaPhiSuperClusterTrackAtVtx<1.0)"
+         " && (sigmaEtaEta<0.028)))")
 )
 
 ##    _____ _           _                     ___    _ 
@@ -325,7 +330,9 @@ recoCommonStuff = cms.PSet(
         py  = cms.string("py()"),
         pz  = cms.string("pz()"),
         theta  = cms.string("theta()"),
-    )
+    ),
+   ignoreExceptions =  cms.bool (True),
+   fillTagTree      =  cms.bool (True),  
 )
 
 mcTruthCommonStuff = cms.PSet(
