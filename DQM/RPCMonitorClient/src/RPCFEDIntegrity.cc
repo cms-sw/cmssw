@@ -52,6 +52,10 @@ void RPCFEDIntegrity::beginRun(const Run& r, const EventSetup& c){
  if (!init_) this->bookFEDMe();
  else if (!merge_) this->reset();
 
+ readoutErrors_.clear();
+ recordTypes_.clear();
+
+
 }
 
 void RPCFEDIntegrity::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
@@ -63,14 +67,67 @@ void RPCFEDIntegrity::analyze(const Event& iEvent, const EventSetup& c) {
   iEvent.getByLabel (rawCountsLabel_, rawCounts);
   if(!rawCounts.isValid()) return;
 
+  const RPCRawDataCounts  theCounts = (*rawCounts.product());
 
-  const RPCRawDataCounts  & counts = *rawCounts.product();
- 
-  for (int fed=minFEDNum_; fed <=maxFEDNum_; ++fed) {
-    if (counts.fedBxRecords(fed) ) fedMe_[Entries]->Fill(fed);
-    if (counts.fedFormatErrors(fed)) fedMe_[Fatal]->Fill(fed);
-    if (counts.fedErrorRecords(fed)) fedMe_[NonFatal]->Fill(fed);
+  RPCRawDataCountsHistoMaker histoMaker(theCounts);
+
+  map< pair<int,int>, int > myReadoutErrors = histoMaker.readoutErrors();
+  map< pair<int,int>, int > myRecordTypes = histoMaker.recordTypes();
+
+
+  vector<int> changedFEDs;
+  vector<int> fatalFEDs, nonfatalFEDs;
+
+  if ( myRecordTypes != recordTypes_ ){
+    map< pair<int,int>, int >::const_iterator itr;
+    map< pair<int,int>, int >::const_iterator  itr2;
+    for(itr = myRecordTypes.begin(); itr!= myRecordTypes.end(); itr++ ){
+      itr2= recordTypes_.find((*itr).first);
+      if( itr2 !=recordTypes_.end() ||  recordTypes_.size()!=0 || (*itr2).second !=(*itr).second) 
+	changedFEDs.push_back((*itr).first.first);
+	}
   }
+  recordTypes_ = myRecordTypes;
+
+  if ( myReadoutErrors != readoutErrors_ ){
+    map< pair<int,int>, int >::const_iterator itr;
+    map< pair<int,int>, int >::const_iterator  itr2;
+    for(itr = myReadoutErrors.begin(); itr!= myReadoutErrors.end(); itr++ ){
+      itr2= readoutErrors_.find((*itr).first);
+      if( itr2 !=readoutErrors_.end() ||  readoutErrors_.size()!=0 || (*itr2).second !=(*itr).second) {
+	if((*itr2).first.second > FATAL_LIMIT ) nonfatalFEDs.push_back((*itr2).first.first);
+	else fatalFEDs.push_back((*itr2).first.first);
+      }
+    }
+ }
+  readoutErrors_ = myReadoutErrors;
+ 
+  sort(changedFEDs.begin(),changedFEDs.end() );
+  changedFEDs.resize(   unique(changedFEDs.begin(),changedFEDs.end()) - changedFEDs.begin() );
+
+
+  for(unsigned int fed =  0 ; fed<changedFEDs.size(); fed++){
+    if(changedFEDs[fed]< minFEDNum_  || changedFEDs[fed]> maxFEDNum_ ) continue;
+    fedMe_[Entries] ->Fill(changedFEDs[fed]);
+  }
+
+  sort(fatalFEDs.begin(),fatalFEDs.end() );
+  fatalFEDs.resize(  unique(fatalFEDs.begin(),fatalFEDs.end())-fatalFEDs.begin());
+  
+  for(unsigned int fed =  0 ; fed<fatalFEDs.size(); fed++){
+    if(fatalFEDs[fed]< minFEDNum_  || fatalFEDs[fed]> maxFEDNum_ ) continue;
+    fedMe_[Fatal] ->Fill(fatalFEDs[fed]);
+  }
+	
+  sort(nonfatalFEDs.begin(),nonfatalFEDs.end() );
+  nonfatalFEDs.resize(  unique(nonfatalFEDs.begin(),nonfatalFEDs.end())-nonfatalFEDs.begin());
+  
+  for(unsigned int fed =  0 ; fed<nonfatalFEDs.size(); fed++){
+    if(nonfatalFEDs[fed]< minFEDNum_  || nonfatalFEDs[fed]> maxFEDNum_ ) continue;  
+    fedMe_[NonFatal] ->Fill(nonfatalFEDs[fed]);
+  }
+  
+
 }
 
 void RPCFEDIntegrity::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {}
