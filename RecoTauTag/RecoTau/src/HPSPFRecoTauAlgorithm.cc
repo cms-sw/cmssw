@@ -184,19 +184,12 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
 	      //calculate the cone size : For the strip use it as one candidate !
 	      double tauCone=0.0;
 	      if(coneMetric_ =="angle")
-		tauCone=fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4()));
+		tauCone=max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4())),
+			    fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip)));
 	      else if(coneMetric_ == "DR")
-		tauCone=ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4());
-	      
-	      //if the strip is further away from the hadron increase the cone
-	      if(coneMetric_ =="angle"){
-		if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip))>tauCone)
-		  tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip));
-	      }
-	      else if(coneMetric_ =="DR") {
-		if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip)>tauCone)
-		  tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip);
-	      }
+		tauCone=max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()),
+			    ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip));
+
 	      if(emConstituents.size()>0)
 		for(PFCandidateRefVector::const_iterator j=emConstituents.begin();j!=emConstituents.end();++j)  {
 		  signal.push_back(*j);
@@ -218,7 +211,6 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
 		
 	      //Apply the signal cone size formula 
 	      if(isNarrowTau(tau,tauCone)) {
-		
 		//calculate the isolation Deposits
 		associateIsolationCandidates(tau,tauCone);
 		//Set Muon Rejection
@@ -294,32 +286,17 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
 		  signal.push_back(*hadron);
 		  
 		  //calculate the cone size from the reconstructed Objects
-		  double tauCone=0.0;
+		  double tauCone=1000.0;
 		  if(coneMetric_ =="angle") {
-		    tauCone=fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4()));
+		    tauCone=max(max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),(*hadron)->p4())),
+				    fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1))),
+				fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2)));
 		  }
 		  else if(coneMetric_ =="DR") {
-		    tauCone=fabs(ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4()));
-		  }
-		  
-		  //if the strip is further away increase the cone
-		  if(coneMetric_ =="DR") {
-		    if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1)>tauCone)
-		      tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1);
-		  }
-		  else if(coneMetric_ =="angle") {
-		    if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1))>tauCone)
-		      tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip1));
-		  }
-		  
-		  //Now the second strip
-		  if(coneMetric_ =="DR"){
-		    if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2)>tauCone)
-		      tauCone = ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2);
-		  }
-		  else if(coneMetric_ =="angle"){
-		    if(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2))>tauCone)
-		      tauCone = fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),strip2));
+		    tauCone=max(max((ROOT::Math::VectorUtil::DeltaR(tau.p4(),(*hadron)->p4())),
+				    (ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip1))),
+				(ROOT::Math::VectorUtil::DeltaR(tau.p4(),strip2)));
+
 		  }
 		  
 		  for(PFCandidateRefVector::const_iterator j=emConstituents1.begin();j!=emConstituents1.end();++j)  {
@@ -411,14 +388,14 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
 		      double tauCone = 10000.0;
 		      if(coneMetric_=="DR")
 			{  
-			  tauCone = min(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h1->p4()),
-					min(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h2->p4()),
+			  tauCone = max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h1->p4()),
+					max(ROOT::Math::VectorUtil::DeltaR(tau.p4(),h2->p4()),
 					    ROOT::Math::VectorUtil::DeltaR(tau.p4(),h3->p4())));
 			}
 		      else if(coneMetric_=="angle")
 			{  
-			  tauCone =min(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h1->p4())),
-				       min(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h2->p4())),
+			  tauCone =max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h1->p4())),
+				       max(fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h2->p4())),
 					   fabs(ROOT::Math::VectorUtil::Angle(tau.p4(),h3->p4()))));
 			}
 	      
@@ -454,7 +431,6 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
 bool
 HPSPFRecoTauAlgorithm::isNarrowTau(const reco::PFTau& tau,double cone)
 {
-
   double allowedConeSize=coneSizeFormula.Eval(tau.energy(),tau.et());
   if (allowedConeSize<minSignalCone_) allowedConeSize=minSignalCone_;
   if (allowedConeSize>maxSignalCone_) allowedConeSize=maxSignalCone_;
@@ -470,8 +446,9 @@ void
 HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
 					      double tauCone)
 {
-  using namespace reco;
 
+
+  using namespace reco;
   //Information to get filled
     double sumPT=0;
     double sumET=0;
