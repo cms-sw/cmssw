@@ -9,8 +9,8 @@
 
 using namespace std;
 
-ESElectronicsSim::ESElectronicsSim (bool addNoise, int gain, ESPedestals peds, ESIntercalibConstants mips, double MIPToGeV):
-  addNoise_(addNoise), gain_(gain), peds_(peds), mips_(mips), MIPToGeV_(MIPToGeV)
+ESElectronicsSim::ESElectronicsSim (bool addNoise):
+  addNoise_(addNoise)
 {
   // Preshower Electronics Simulation
   // gain = 1 : low gain for data taking 

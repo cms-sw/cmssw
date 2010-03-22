@@ -16,7 +16,7 @@ class ESElectronicsSim
   enum {MAXADC = 4095};
   enum {MINADC = 0};
 
-  ESElectronicsSim (bool addNoise, int gain, ESPedestals peds, ESIntercalibConstants mips, double MIPToGeV);
+  ESElectronicsSim (bool addNoise);
 
   void setGain (const int gain) { gain_ = gain; } 
   void setPedestals(const ESPedestals& peds) { peds_ = peds; }

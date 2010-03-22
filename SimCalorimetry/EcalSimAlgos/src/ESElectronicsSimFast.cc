@@ -11,8 +11,8 @@
 
 using namespace std;
 
-ESElectronicsSimFast::ESElectronicsSimFast (bool addNoise, int gain, ESPedestals peds, ESIntercalibConstants mips, double MIPToGeV):
-  addNoise_(addNoise), gain_(gain), peds_(peds), mips_(mips), MIPToGeV_(MIPToGeV)
+ESElectronicsSimFast::ESElectronicsSimFast (bool addNoise) :
+  addNoise_(addNoise)
 {
   // Preshower "Fast" Electronics Simulation
   // gain = 1 : low gain for data taking 
