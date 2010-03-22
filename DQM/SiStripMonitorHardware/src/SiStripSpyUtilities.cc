@@ -491,7 +491,9 @@ namespace sistrip {
     uint32_t lChCount = 0;
 
     for ( ; lMapIter != channelValues.end(); ++lMapIter,++lChCount){
+
       uint16_t lFedId = static_cast<uint16_t>(lMapIter->first/sistrip::FEDCH_PER_FED);
+
       if (lPreviousFedId == 0) {
 	lPreviousFedId = lFedId;
       }
@@ -500,17 +502,21 @@ namespace sistrip {
       }
       if (lFedId != lPreviousFedId || (lChCount == channelValues.size()-1)) {
 	//extract majority address
+
 	uint32_t lMaj = sistrip::SpyUtilities::findMajorityValue(lAddrVec,lPreviousFedId).first;
 	fedMajoritiesToFill[lPreviousFedId] = lMaj;
+
 	lAddrVec.clear();
 	
 	//if new fed, fill the first channel
 	if (lFedId != lPreviousFedId) {
 	  lAddrVec.push_back(lMapIter->second);
+	  lPreviousFedId = lFedId;
 	}
 
       }
     }
+
   }
 
 }//namespace
