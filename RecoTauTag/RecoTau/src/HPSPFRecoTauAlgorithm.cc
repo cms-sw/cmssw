@@ -449,94 +449,96 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
 
 
   using namespace reco;
+
   //Information to get filled
     double sumPT=0;
     double sumET=0;
 
     if(tau.pfTauTagInfoRef().isNull()) return;
 
-    PFCandidateRefVector hadrons = tau.pfTauTagInfoRef()->PFChargedHadrCands();
-    PFCandidateRefVector gammas = tau.pfTauTagInfoRef()->PFGammaCands();
-    PFCandidateRefVector neutral = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
+    PFCandidateRefVector allhadrons = tau.pfTauTagInfoRef()->PFChargedHadrCands();
+    PFCandidateRefVector allgammas = tau.pfTauTagInfoRef()->PFGammaCands();
+    PFCandidateRefVector allneutral = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
 
-    PFCandidateRefVector isoHadrons;
-    PFCandidateRefVector isoGammas;
-    PFCandidateRefVector isoNeutral;
-    PFCandidateRefVector isoAll;
+    PFCandidateRefVector hadrons;
+    PFCandidateRefVector gammas;
+    PFCandidateRefVector neutral; 
 
-  if(hadrons.size()>0)
-    for(PFCandidateRefVector::const_iterator i=hadrons.begin();i!=hadrons.end();++i){
-      //calculate Delta R and Deta of the candidate
-      double DR   = ROOT::Math::VectorUtil::DeltaR((*i)->p4(),tau.p4());
-        
-      //Check if candidate is in isolation region
-      if(DR<chargeIsolationCone_)
-	if((useIsolationAnnulus_&&DR>tauCone)||(!useIsolationAnnulus_))
-	    {
-	      //Do not include the candidate if it is a signal candidate 
-	      bool veto=false;
-	      for(PFCandidateRefVector::const_iterator j = tau.signalPFCands().begin();
-		  j!= tau.signalPFCands().end();++j)
-		if((*i)->p4()==(*j)->p4())
-		  veto=true;
-	      
-	      if(!veto) {
-		//Apply track quality criteria 
-		  sumPT+=(*i)->pt();
-		  isoHadrons.push_back(*i);
-	      }
-	    }
-    }
+    //Remove candidates outside the cones
+    if(useIsolationAnnulus_)
+      {
+
+	for(unsigned int i=0;i<hadrons.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),hadrons.at(i)->p4())>tauCone &&
+	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),hadrons.at(i)->p4())<chargeIsolationCone_)
+	    hadrons.push_back(hadrons.at(i));
+
+	for(unsigned int i=0;i<gammas.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),gammas.at(i)->p4())>tauCone &&
+	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),gammas.at(i)->p4())<gammaIsolationCone_)
+	    gammas.push_back(gammas.at(i));
+
+	for(unsigned int i=0;i<neutral.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),neutral.at(i)->p4())>tauCone &&
+	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),neutral.at(i)->p4())<neutrHadrIsolationCone_)
+	    neutral.push_back(neutral.at(i));
+
+      }
+    else
+      {
+
+	for(unsigned int i=0;i<hadrons.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),hadrons.at(i)->p4())<chargeIsolationCone_)
+	    hadrons.push_back(hadrons.at(i));
+
+	for(unsigned int i=0;i<gammas.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),gammas.at(i)->p4())<gammaIsolationCone_)
+	    gammas.push_back(gammas.at(i));
+
+	for(unsigned int i=0;i<neutral.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),neutral.at(i)->p4())<neutrHadrIsolationCone_)
+	    neutral.push_back(neutral.at(i));
+      }
 
 
-  //photons
-  if(gammas.size()>0)
-    for(PFCandidateRefVector::const_iterator i=gammas.begin();i!=gammas.end();++i){
-      //calculate Delta R and Deta of the candidate
-      double DR   = ROOT::Math::VectorUtil::DeltaR((*i)->p4(),tau.p4());
-        
-      //Check if candidate is in isolation region
-      if(DR<gammaIsolationCone_)
-	if((useIsolationAnnulus_&&DR>tauCone)||(!useIsolationAnnulus_))
-	    {
-	      //Do not include the candidate if it is a signal candidate 
-	      bool veto=false;
-	      for(PFCandidateRefVector::const_iterator j = tau.signalPFCands().begin();
-		  j!= tau.signalPFCands().end();++j)
-		if((*i)->p4()==(*j)->p4())
-		  veto=true;
-	      
-	      if(!veto) {
-		  sumET+=(*i)->pt();
-		  isoGammas.push_back(*i);
-		  isoAll.push_back(*i);
-		}
+    //remove the signal Constituents from the collections
+    for(PFCandidateRefVector::const_iterator i=tau.signalPFChargedHadrCands().begin();i!=tau.signalPFChargedHadrCands().end();++i)
+      {
+	removeCandidateFromRefVector(*i,hadrons);
+      }
 
-	    }
-    }
+    for(PFCandidateRefVector::const_iterator i=tau.signalPFGammaCands().begin();i!=tau.signalPFGammaCands().end();++i)
+      {
+	removeCandidateFromRefVector(*i,gammas);
+	removeCandidateFromRefVector(*i,hadrons);//special case where we included a hadron if the strip!
+      }
 
-  //neutral hadrons
-  if(neutral.size()>0)
-    for(PFCandidateRefVector::const_iterator i=neutral.begin();i!=neutral.end();++i){
-      //calculate Delta R and Deta of the candidate
-      double DR   = ROOT::Math::VectorUtil::DeltaR((*i)->p4(),tau.p4());
-        
-      //Check if candidate is in isolation region
-      if(DR<neutrHadrIsolationCone_)
-	if((useIsolationAnnulus_&&DR>tauCone)||(!useIsolationAnnulus_))
-	    {
-	      //There is no veto for neutral hadrons since there is no way a  neutral hadron will make it 
-	      //in the signal cone!
-	      isoNeutral.push_back(*i);
-	      isoAll.push_back(*i);
-	    }
-    }
+
+    //calculate isolation deposits
+    for(unsigned int i=0;i<hadrons.size();++i)
+      {
+	sumPT+=hadrons.at(i)->pt();
+      }
+
+    for(unsigned int i=0;i<gammas.size();++i)
+      {
+	sumET+=gammas.at(i)->pt();
+      }
+
 
   tau.setisolationPFChargedHadrCandsPtSum(sumPT);
   tau.setisolationPFGammaCandsEtSum(sumET);
-  tau.setisolationPFChargedHadrCands(isoHadrons);
-  tau.setisolationPFNeutrHadrCands(isoNeutral);
-  tau.setisolationPFGammaCands(isoGammas);
+  tau.setisolationPFChargedHadrCands(hadrons);
+  tau.setisolationPFNeutrHadrCands(neutral);
+  tau.setisolationPFGammaCands(gammas);
+
+  PFCandidateRefVector isoAll = hadrons;
+  for(unsigned int i=0;i<gammas.size();++i)
+    isoAll.push_back(gammas.at(i));
+
+  for(unsigned int i=0;i<neutral.size();++i)
+    isoAll.push_back(neutral.at(i));
+
   tau.setisolationPFCands(isoAll);
 }
 

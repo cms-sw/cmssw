@@ -70,6 +70,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   bool refitThreeProng(reco::PFTau&); 
 
 
+
   //Configure the algorithm!
   void configure(const edm::ParameterSet&);
 
@@ -160,6 +161,7 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
 	(b.isolationPFGammaCandsEtSum()+b.isolationPFChargedHadrCandsPtSum());
     }
   };
+
   
 };
 #endif
