@@ -501,7 +501,10 @@ process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule
 process.load("DQM.EcalBarrelMonitorTasks.EBHltTask_cfi")
 process.load("DQM.EcalBarrelMonitorTasks.EBTrendTask_cfi")
 
-process.ecalBarrelMainSequence = cms.Sequence(process.ecalBarrelPedestalOnlineTask*process.ecalBarrelOccupancyTask*process.ecalBarrelIntegrityTask*process.ecalBarrelStatusFlagsTask*process.ecalBarrelRawDataTask*process.ecalBarrelHltTask*process.ecalBarrelTrendTask)
+process.load("DQM.EcalBarrelMonitorClient.EBTrendClient_cfi")
+process.load("DQM.EcalEndcapMonitorClient.EETrendClient_cfi")
+
+process.ecalBarrelMainSequence = cms.Sequence(process.ecalBarrelPedestalOnlineTask*process.ecalBarrelOccupancyTask*process.ecalBarrelIntegrityTask*process.ecalBarrelStatusFlagsTask*process.ecalBarrelRawDataTask*process.ecalBarrelHltTask*process.ecalBarrelTrendTask*process.ecalBarrelTrendClient*process.ecalEndcapTrendClient)
 
 process.load("DQM.EcalEndcapMonitorTasks.EEHltTask_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.EETrendTask_cfi")
