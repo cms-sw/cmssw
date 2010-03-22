@@ -41,6 +41,7 @@
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 
+REGISTER_PLUGIN(ESGainRcd,ESGain);
 REGISTER_PLUGIN(ESPedestalsRcd,ESPedestals);
 REGISTER_PLUGIN(ESWeightStripGroupsRcd,ESWeightStripGroups);
 REGISTER_PLUGIN(ESTBWeightsRcd,ESTBWeights);
