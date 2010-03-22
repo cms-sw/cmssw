@@ -1,8 +1,8 @@
 /*
  * \file EETrendClient.cc
  *
- * $Date: 2010/02/25 17:59:34 $
- * $Revision: 1.4 $
+ * $Date: 2010/03/02 00:02:08 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -97,19 +97,19 @@ void EETrendClient::beginJob(void){
   index++;
 
   moduleNames_[index] = "EEOccupancyTask"; // TH2
-  histTitles_[index]  = "EEOT TP digi thr occupancy EE -";
-  index++;
-
-  moduleNames_[index] = "EEOccupancyTask"; // TH2
-  histTitles_[index]  = "EEOT TP digi thr occupancy EE +";
-  index++;
-
-  moduleNames_[index] = "EEOccupancyTask"; // TH2
   histTitles_[index]  = "EEOT rec hit thr occupancy EE -";
   index++;
 
   moduleNames_[index] = "EEOccupancyTask"; // TH2
   histTitles_[index]  = "EEOT rec hit thr occupancy EE +";
+  index++;
+
+  moduleNames_[index] = "EEOccupancyTask"; // TH2
+  histTitles_[index]  = "EEOT TP digi thr occupancy EE -";
+  index++;
+
+  moduleNames_[index] = "EEOccupancyTask"; // TH2
+  histTitles_[index]  = "EEOT TP digi thr occupancy EE +";
   index++;
 
 }
