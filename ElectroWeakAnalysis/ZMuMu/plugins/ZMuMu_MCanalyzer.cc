@@ -27,6 +27,15 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+
+
+
 
 #include "TH1.h"
 #include "TH2.h"
@@ -35,6 +44,9 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
+using namespace reco;
+using namespace isodeposit;
+
 
 class ZMuMu_MCanalyzer : public edm::EDAnalyzer {
 public:
@@ -59,6 +71,10 @@ private:
 
   double etamin_, etamax_, ptmin_, massMin_, massMax_, isoMax_;
 
+  double ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_;
+ 
+  bool relativeIsolation_;
+  string hltPath_;
   reco::CandidateBaseRef globalMuonCandRef_, trackMuonCandRef_, standAloneMuonCandRef_;
   OverlapChecker overlap_;
 
@@ -79,6 +95,58 @@ private:
   int nZMuSta_matched;              // n  of events zMuSta macthed 
   int nZMuTrk_matched;              // n. of events zMuTrk mathced
 };
+
+
+template<typename T>
+double isolation(const T * t, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta, bool relativeIsolation) {
+  // on 34X: 
+  const pat::IsoDeposit * trkIso = t->isoDeposit(pat::TrackIso);
+  //  const pat::IsoDeposit * trkIso = t->trackerIsoDeposit();
+  // on 34X 
+  const pat::IsoDeposit * ecalIso = t->isoDeposit(pat::EcalIso);
+  //  const pat::IsoDeposit * ecalIso = t->ecalIsoDeposit();
+  //    on 34X 
+  const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);   
+  //    const pat::IsoDeposit * hcalIso = t->hcalIsoDeposit();
+
+  Direction dir = Direction(t->eta(), t->phi());
+   
+  pat::IsoDeposit::AbsVetos vetosTrk;
+  vetosTrk.push_back(new ConeVeto( dir, dRVetoTrk ));
+  vetosTrk.push_back(new ThresholdVeto( ptThreshold ));
+    
+  pat::IsoDeposit::AbsVetos vetosEcal;
+  vetosEcal.push_back(new ConeVeto( dir, 0.));
+  vetosEcal.push_back(new ThresholdVeto( etEcalThreshold ));
+    
+  pat::IsoDeposit::AbsVetos vetosHcal;
+  vetosHcal.push_back(new ConeVeto( dir, 0. ));
+  vetosHcal.push_back(new ThresholdVeto( etHcalThreshold ));
+
+  double isovalueTrk = (trkIso->sumWithin(dRTrk,vetosTrk));
+  double isovalueEcal = (ecalIso->sumWithin(dREcal,vetosEcal));
+  double isovalueHcal = (hcalIso->sumWithin(dRHcal,vetosHcal));
+    
+
+  double iso = alpha*( ((1+beta)/2*isovalueEcal) + ((1-beta)/2*isovalueHcal) ) + ((1-alpha)*isovalueTrk) ;
+  if(relativeIsolation) iso /= t->pt();
+  return iso;
+}
+
+
+double candidateIsolation( const reco::Candidate* c, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta, bool relativeIsolation) {
+  const pat::Muon * mu = dynamic_cast<const pat::Muon *>(&*c->masterClone());
+  if(mu != 0) return isolation(mu, ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal , dRHcal,  alpha, beta, relativeIsolation);
+  const pat::GenericParticle * trk = dynamic_cast<const pat::GenericParticle*>(&*c->masterClone());
+  if(trk != 0) return isolation(trk,  ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal ,
+				dRHcal,  alpha, beta, relativeIsolation);
+  throw edm::Exception(edm::errors::InvalidReference) 
+    << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";      
+  return -1;
+}
+
+
+
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -117,7 +185,18 @@ ZMuMu_MCanalyzer::ZMuMu_MCanalyzer(const ParameterSet& pset) :
   ptmin_(pset.getUntrackedParameter<double>("ptmin")), 
   massMin_(pset.getUntrackedParameter<double>("zMassMin")), 
   massMax_(pset.getUntrackedParameter<double>("zMassMax")), 
-  isoMax_(pset.getUntrackedParameter<double>("isomax")) { 
+  isoMax_(pset.getUntrackedParameter<double>("isomax")),
+  ptThreshold_(pset.getUntrackedParameter<double>("ptThreshold")),
+  etEcalThreshold_(pset.getUntrackedParameter<double>("etEcalThreshold")),
+  etHcalThreshold_(pset.getUntrackedParameter<double>("etHcalThreshold")),
+  dRVetoTrk_(pset.getUntrackedParameter<double>("deltaRVetoTrk")),
+  dRTrk_(pset.getUntrackedParameter<double>("deltaRTrk")),
+  dREcal_(pset.getUntrackedParameter<double>("deltaREcal")),
+  dRHcal_(pset.getUntrackedParameter<double>("deltaRHcal")),
+  alpha_(pset.getUntrackedParameter<double>("alpha")),
+  beta_(pset.getUntrackedParameter<double>("beta")),
+  relativeIsolation_(pset.getUntrackedParameter<bool>("relativeIsolation")),
+  hltPath_(pset.getUntrackedParameter<std::string >("hltPath")) { 
   Service<TFileService> fs;
 
   // binning of entries array (at moment defined by hand and not in cfg file)
@@ -188,9 +267,13 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       const Candidate * lep0 = zMuMuCand.daughter( 0 );
       const Candidate * lep1 = zMuMuCand.daughter( 1 );
       const pat::Muon & muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
-      double trkiso0 = muonDau0.trackIso();
+      //      double trkiso0 = muonDau0.trackIso();
       const pat::Muon & muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
-      double trkiso1 = muonDau1.trackIso();
+      //double trkiso1 = muonDau1.trackIso();
+
+      double iso0 = candidateIsolation(lep0,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
+      double iso1 = candidateIsolation(lep1,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
+
       double pt0 = zMuMuCand.daughter(0)->pt();
       double pt1 = zMuMuCand.daughter(1)->pt();
       double eta0 = zMuMuCand.daughter(0)->eta();
@@ -199,9 +282,9 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       // HLT match
       const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
-	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
+	muonDau0.triggerObjectMatchesByPath( hltPath_ );
       const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
-	muonDau1.triggerObjectMatchesByPath( "HLT_Mu9" );
+	muonDau1.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
       bool trig1found = false;
@@ -217,9 +300,9 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1) >etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && mass < massMax_ && (trig0found || trig1found)) { // kinematic and trigger cuts passed
 	  nGlobalMuonsMatched_passed++; // first global Muon passed kine cuts 
 	  nGlobalMuonsMatched_passed++; // second global muon passsed kine cuts
-	  if (trkiso0<isoMax_) nGlobalMuonsMatched_passedIso++;       // first global muon passed the iso cut
-	  if (trkiso1<isoMax_) nGlobalMuonsMatched_passedIso++;       // second global muon passed the iso cut
-	  if (trkiso0<isoMax_ && trkiso1<isoMax_) {
+	  if (iso0<isoMax_) nGlobalMuonsMatched_passedIso++;       // first global muon passed the iso cut
+	  if (iso1<isoMax_) nGlobalMuonsMatched_passedIso++;       // second global muon passed the iso cut
+	  if (iso0<isoMax_ && iso1<isoMax_) {
 	    n2GlobalMuonsMatched_passedIso++;  // both muons passed iso cut
 	    if (trig0found && trig1found) n2GlobalMuonsMatched_passedIso2Trg++;  // both muons have HLT
 	    if (trig0found && !trig1found) nMu0onlyTriggered++;
@@ -260,9 +343,13 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       const Candidate * lep0 = zMuStandAloneCand.daughter( 0 );
       const Candidate * lep1 = zMuStandAloneCand.daughter( 1 );
       const pat::Muon & muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
-      double trkiso0 = muonDau0.trackIso();
-      const pat::Muon & muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
-      double trkiso1 = muonDau1.trackIso();
+      //double trkiso0 = muonDau0.trackIso();
+      //      const pat::Muon & muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
+      //double trkiso1 = muonDau1.trackIso();
+     
+      double iso0 = candidateIsolation(lep0,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
+      double iso1 = candidateIsolation(lep1,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
+
       double pt0 = zMuStandAloneCand.daughter(0)->pt();
       double pt1 = zMuStandAloneCand.daughter(1)->pt();
       double eta0 = zMuStandAloneCand.daughter(0)->eta();
@@ -271,7 +358,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       // HLT match (check just dau0 the global)
       const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
-	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
+	muonDau0.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
       if( mu0HLTMatches.size()>0 )
@@ -281,7 +368,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	zMuSta_found = true;
 	nZMuSta_matched++;	
 	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1)>etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && 
-	    mass < massMax_ && trkiso0<isoMax_ && trkiso1 < isoMax_ && trig0found) { // all cuts and trigger passed
+	    mass < massMax_ && iso0<isoMax_ && iso1 < isoMax_ && trig0found) { // all cuts and trigger passed
 	  nStaMuonsMatched_passedIso++;
 	  // histograms vs eta and pt
 	  h_staProbe_eta->Fill(eta1);
@@ -302,9 +389,13 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       const Candidate * lep0 = zMuTrackCand.daughter( 0 );
       const Candidate * lep1 = zMuTrackCand.daughter( 1 );
       const pat::Muon & muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
-      double trkiso0 = muonDau0.trackIso();
-      const pat::GenericParticle & trackDau1 = dynamic_cast<const pat::GenericParticle &>(*lep1->masterClone());
-      double trkiso1 = trackDau1.trackIso();
+      //double trkiso0 = muonDau0.trackIso();
+      //const pat::GenericParticle & trackDau1 = dynamic_cast<const pat::GenericParticle &>(*lep1->masterClone());
+      //double trkiso1 = trackDau1.trackIso();
+      double iso0 = candidateIsolation(lep0,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
+      double iso1 = candidateIsolation(lep1,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
+
+
       double pt0 = zMuTrackCand.daughter(0)->pt();
       double pt1 = zMuTrackCand.daughter(1)->pt();
       double eta0 = zMuTrackCand.daughter(0)->eta();
@@ -313,7 +404,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
       // HLT match (check just dau0 the global)
       const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
-	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
+	muonDau0.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
       if( mu0HLTMatches.size()>0 )
@@ -324,7 +415,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	zMuTrack_found = true;
 	nZMuTrk_matched++;
 	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1)>etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && 
-	    mass < massMax_ && trkiso0<isoMax_ && trkiso1 < isoMax_ && trig0found) { // all cuts and trigger passed
+	    mass < massMax_ && iso0<isoMax_ && iso1 < isoMax_ && trig0found) { // all cuts and trigger passed
 	  nTracksMuonsMatched_passedIso++;
 	  // histograms vs eta and pt
 	  h_trackProbe_eta->Fill(eta1);
