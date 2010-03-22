@@ -1,9 +1,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include <cmath>
 
-ESShape::ESShape(int Gain):
-  theGain_(Gain)
-{
+ESShape::ESShape() {
 }
 
 double ESShape::operator () (double time_) const

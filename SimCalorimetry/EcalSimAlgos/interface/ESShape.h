@@ -19,13 +19,14 @@ class ESShape : public CaloVShape
  public:
   
   /// ctor
-  ESShape(int Gain);
+  ESShape();
   /// dtor
   ~ESShape(){}
   
-      virtual double operator () (double time) const;
-      virtual double timeToRise()              const ;
-
+  void setGain (const int gain) { theGain_ = gain; }
+  virtual double operator () (double time) const;
+  virtual double timeToRise()              const ;
+  
   void display () const {}
 
  private:
