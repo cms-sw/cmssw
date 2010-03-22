@@ -1,3 +1,6 @@
+#ifndef FWCore_PythonParameterSet_PythonModule_h
+#define FWCore_PythonParameterSet_PythonModule_h
+
 #include "FWCore/PythonParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
@@ -13,50 +16,46 @@
 
 #include <string>
 
-using namespace boost::python;
-
-
-
 BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 {
-  class_<edm::InputTag>("InputTag", init<std::string>())
-      .def(init<std::string, std::string, std::string>())
-     .def(init<std::string, std::string>())
-      .def("label",    &edm::InputTag::label, return_value_policy<copy_const_reference>())
-      .def("instance", &edm::InputTag::instance, return_value_policy<copy_const_reference>())
-      .def("process",  &edm::InputTag::process, return_value_policy<copy_const_reference>())
+  boost::python::class_<edm::InputTag>("InputTag", boost::python::init<std::string>())
+      .def(boost::python::init<std::string, std::string, std::string>())
+     .def(boost::python::init<std::string, std::string>())
+      .def("label",    &edm::InputTag::label, boost::python::return_value_policy<boost::python::copy_const_reference>())
+      .def("instance", &edm::InputTag::instance, boost::python::return_value_policy<boost::python::copy_const_reference>())
+      .def("process",  &edm::InputTag::process, boost::python::return_value_policy<boost::python::copy_const_reference>())
   ;
 
-   class_<edm::ESInputTag>("ESInputTag", init<std::string>())
-   .def(init<std::string, std::string>())
-   .def("module",    &edm::ESInputTag::module, return_value_policy<copy_const_reference>())
-   .def("data",  &edm::ESInputTag::data, return_value_policy<copy_const_reference>())
+   boost::python::class_<edm::ESInputTag>("ESInputTag", boost::python::init<std::string>())
+   .def(boost::python::init<std::string, std::string>())
+   .def("module",    &edm::ESInputTag::module, boost::python::return_value_policy<boost::python::copy_const_reference>())
+   .def("data",  &edm::ESInputTag::data, boost::python::return_value_policy<boost::python::copy_const_reference>())
    ;
    
-   class_<edm::MinimalEventID>("EventID", init<unsigned int, unsigned int>())
+   boost::python::class_<edm::MinimalEventID>("EventID", boost::python::init<unsigned int, unsigned int>())
       .def("run",   &edm::MinimalEventID::run)
       .def("event", &edm::MinimalEventID::event)
   ;
 
-  class_<edm::LuminosityBlockID>("LuminosityBlockID", init<unsigned int, unsigned int>())
+  boost::python::class_<edm::LuminosityBlockID>("LuminosityBlockID", boost::python::init<unsigned int, unsigned int>())
       .def("run",    &edm::LuminosityBlockID::run)
       .def("luminosityBlock", &edm::LuminosityBlockID::luminosityBlock)
   ;
 
-  class_<edm::FileInPath>("FileInPath", init<std::string>())
+  boost::python::class_<edm::FileInPath>("FileInPath", boost::python::init<std::string>())
       .def("fullPath",     &edm::FileInPath::fullPath)
       .def("relativePath", &edm::FileInPath::relativePath)
       .def("isLocal",      &edm::FileInPath::isLocal)
   ;
 
-  class_<edm::LuminosityBlockRange>("LuminosityBlockRange", init<unsigned int, unsigned int, unsigned int, unsigned int>())
+  boost::python::class_<edm::LuminosityBlockRange>("LuminosityBlockRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int>())
       .def("start",    &edm::LuminosityBlockRange::startRun)
       .def("startSub", &edm::LuminosityBlockRange::startLumi)
       .def("end",      &edm::LuminosityBlockRange::endRun)
       .def("endSub",   &edm::LuminosityBlockRange::endLumi)
   ;
 
-  class_<edm::EventRange>("EventRange", init<unsigned int, unsigned int, unsigned int, unsigned int>())
+  boost::python::class_<edm::EventRange>("EventRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int>())
       .def("start",    &edm::EventRange::startRun)
       .def("startSub", &edm::EventRange::startEvent)
       .def("end",      &edm::EventRange::endRun)
@@ -65,7 +64,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 
 
 
-  class_<PythonParameterSet>("ParameterSet")
+  boost::python::class_<PythonParameterSet>("ParameterSet")
     .def("addInt32", &PythonParameterSet::addParameter<int>)
     .def("getInt32", &PythonParameterSet::getParameter<int>)
     .def("addVInt32", &PythonParameterSet::addParameters<int>)
@@ -134,13 +133,12 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
   ;
 
 
-  class_<PythonProcessDesc>("ProcessDesc", init<>())
-    .def(init<std::string>())
+  boost::python::class_<PythonProcessDesc>("ProcessDesc", boost::python::init<>())
+    .def(boost::python::init<std::string>())
     .def("addService", &PythonProcessDesc::addService)
     .def("newPSet", &PythonProcessDesc::newPSet)
     .def("dump", &PythonProcessDesc::dump)
   ;
 
 }
-
-
+#endif
