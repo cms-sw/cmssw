@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2010/02/17 17:49:41 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/03/02 09:31:19 $
+ *  $Revision: 1.9 $
  *  \author N. Cripps - Imperial
  */
 
@@ -15,11 +15,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/JetReco/interface/JPTJet.h"
+#include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include <memory>
 // forward declare classes which do not need to be defined for interface
 class DQMStore;
 namespace reco {
-  class CaloJet;
   namespace helper {
     class JetIDHelper;
   }
@@ -50,8 +51,8 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   void beginJob(DQMStore * dbe);
   
   /// Do the analysis
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet, double& pt1, double& pt2, double& pt3);
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJet& jptJet, double& pt1, double& pt2, double& pt3);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJetCollection& jptJets);
   
   /// Finish up a job
   virtual void endJob();
@@ -113,8 +114,11 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   /// Fill all track histograms
   void fillTrackHistograms(TrackHistograms& allTracksHistos, TrackHistograms& inCaloInVertexHistos,
                            TrackHistograms& inCaloOutVertexHistos, TrackHistograms& outCaloInVertexHistos,
-                           const jpt::MatchedTracks& tracks, const reco::CaloJet& rawJet);
-  void fillTrackHistograms(TrackHistograms& histos, const reco::TrackRefVector& tracks, const reco::CaloJet& rawJet);
+                           const reco::TrackRefVector& inVertexInCalo,
+                           const reco::TrackRefVector& outVertexInCalo,
+                           const reco::TrackRefVector& inVertexOutCalo,
+                           const reco::Jet& rawJet);
+  void fillTrackHistograms(TrackHistograms& histos, const reco::TrackRefVector& tracks, const reco::Jet& rawJet);
   /// Fill the SoN hisotgram for hits on tracks
   void fillSiStripSoNForTracks(const reco::TrackRefVector& tracks);
   void fillSiStripHitSoN(const TrackingRecHit& hit);
@@ -130,17 +134,8 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   const std::string histogramPath_;
   /// Create verbose debug messages
   const bool verbose_;
-  /// JPT corrector name
-  const std::string jptCorrectorName_;
-  /// ZSP corrector name
-  const std::string zspCorrectorName_;
   /// Histogram configuration (nBins etc)
   std::map<std::string,HistogramConfig> histogramConfig_;
-  
-  /// JPT Corrector
-  const JetPlusTrackCorrector* jptCorrector_;
-  /// ZSP Corrector
-  const JetCorrector* zspCorrector_;
   
   /// Write DQM store to a file?
   const bool writeDQMStore_;

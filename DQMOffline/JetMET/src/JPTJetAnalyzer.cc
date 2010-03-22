@@ -1,17 +1,14 @@
 #include "DQMOffline/JetMET/interface/JPTJetAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -80,10 +77,6 @@ const char* JPTJetAnalyzer::messageLoggerCatregory = "JetPlusTrackDQM";
 JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
   : histogramPath_(config.getParameter<std::string>("HistogramPath")),
     verbose_(config.getUntrackedParameter<bool>("PrintDebugMessages",false)),
-    jptCorrectorName_(config.getParameter<std::string>("JPTCorrectorName")),
-    zspCorrectorName_(config.getParameter<std::string>("ZSPCorrectorName")),
-    jptCorrector_(NULL),
-    zspCorrector_(NULL),
     writeDQMStore_(config.getUntrackedParameter<bool>("WriteDQMStore")),
     dqmStoreFileName_(),
     n90HitsMin_(config.getParameter<int>("n90HitsMin")),
@@ -178,24 +171,12 @@ void JPTJetAnalyzer::beginJob(DQMStore* dqmStore)
 }
 
 
-void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJetCollection& rawJets)
+void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJetCollection& jptJets)
 {
-  //get jet correctors
-  if (!jptCorrector_) {
-    const JetCorrector* corrector = JetCorrector::getJetCorrector(jptCorrectorName_,eventSetup);
-    if (!corrector) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << jptCorrectorName_ << "from the EventSetup";
-    jptCorrector_ = dynamic_cast<const JetPlusTrackCorrector*>(corrector);
-    if (!jptCorrector_) edm::LogError(messageLoggerCatregory) << "Corrector with name " << jptCorrectorName_ << " is not a JetPlusTrackCorrector";
-  }
-  if (!zspCorrector_) {
-    zspCorrector_ = JetCorrector::getJetCorrector(zspCorrectorName_,eventSetup);
-    if (!zspCorrector_) edm::LogError(messageLoggerCatregory) << "Failed to get corrector with name " << zspCorrectorName_ << "from the EventSetup";
-  }
-  
   double pt1 = 0;
   double pt2 = 0;
   double pt3 = 0;
-  for (reco::CaloJetCollection::const_iterator iJet = rawJets.begin(); iJet != rawJets.end(); ++iJet) {
+  for (reco::JPTJetCollection::const_iterator iJet = jptJets.begin(); iJet != jptJets.end(); ++iJet) {
     analyze(event,eventSetup,*iJet,pt1,pt2,pt3);
   }
   if (pt1) fillHistogram(JetPt1_,pt1);
@@ -203,7 +184,7 @@ void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eve
   if (pt3) fillHistogram(JetPt3_,pt3);
 }
 
-void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::CaloJet& rawJet, double& pt1, double& pt2, double& pt3)
+void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJet& jptJet, double& pt1, double& pt2, double& pt3)
 {
   
   //update the track propagator and strip noise calculator
@@ -211,28 +192,26 @@ void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eve
   sOverNCalculator_->update(eventSetup);
   
   //make corrected jets
-  const double factorZSP = zspCorrector_->correction(rawJet,event,eventSetup);
-  JetPlusTrackCorrector::P4 correctedDirectionOnRaw;
-  const double factorJPTonRaw = jptCorrector_->correction(rawJet,event,eventSetup,correctedDirectionOnRaw);
-  const double factorZSPJPT = factorZSP + factorJPTonRaw - 1.0;
-  JetPlusTrackCorrector::P4 jptCorrectedVector(0,0,0,0);
-  if (correctedDirectionOnRaw.energy()) jptCorrectedVector = correctedDirectionOnRaw * ( (rawJet.energy()*factorZSPJPT) / correctedDirectionOnRaw.energy() );
-  assert((jptCorrectedVector.energy() - rawJet.energy()*factorZSPJPT) < 1e-6);
-  const reco::CaloJet jptCorrectedJet(jptCorrectedVector, rawJet.getSpecific(), rawJet.getJetConstituents() );
+  const double factorZSP = jptJet.getZSPCor();
+  const reco::Jet& rawJet = *jptJet.getCaloJetRef();
+  const double factorZSPJPT = jptJet.energy()/rawJet.energy();
   
   //check jet is correctable by JPT
-  if (!jptCorrector_->canCorrect(rawJet)) return;
+  if ( fabs(rawJet.eta()) > 2.1) return;
   
   //get consitiuents of jet
-  jpt::MatchedTracks pions;
-  jpt::MatchedTracks muons;
-  jpt::MatchedTracks electrons;
-  const bool particlesOK = true;
-  jptCorrector_->matchTracks(rawJet,event,eventSetup,pions,muons,electrons);
-  if (!particlesOK) return;
+  const reco::TrackRefVector& pionsInVertexInCalo = jptJet.getPionsInVertexInCalo();
+  const reco::TrackRefVector& pionsInVertexOutCalo = jptJet.getPionsInVertexOutCalo();
+  const reco::TrackRefVector& pionsOutVertexInCalo = jptJet.getPionsOutVertexInCalo();
+  const reco::TrackRefVector& muonsInVertexInCalo = jptJet.getMuonsInVertexInCalo();
+  const reco::TrackRefVector& muonsInVertexOutCalo = jptJet.getMuonsInVertexOutCalo();
+  const reco::TrackRefVector& muonsOutVertexInCalo = jptJet.getMuonsOutVertexInCalo();
+  const reco::TrackRefVector& electronsInVertexInCalo = jptJet.getElecsInVertexInCalo();
+  const reco::TrackRefVector& electronsInVertexOutCalo = jptJet.getElecsInVertexOutCalo();
+  const reco::TrackRefVector& electronsOutVertexInCalo = jptJet.getElecsOutVertexInCalo();
   
   //check pt against highest values
-  const double pt = jptCorrectedJet.pt();
+  const double pt = jptJet.pt();
   if (pt > pt1) {
     pt3 = pt2;
     pt2 = pt1;
@@ -245,32 +224,37 @@ void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eve
   }
   
   //fill histograms
-  jetID_->calculate(event,jptCorrectedJet);
+  try {
+    const reco::CaloJet& rawCaloJet = dynamic_cast<const reco::CaloJet&>(rawJet);
+    jetID_->calculate(event,rawCaloJet);
+  } catch (const std::bad_cast&) {
+    edm::LogError(messageLoggerCatregory) << "Failed to cast raw jet to CaloJet. JPT Jet does not appear to have been built from a CaloJet. "
+                                          << "Histograms not filled. ";
+    return;
+  }
   const bool idPassed = ( (jetID_->n90Hits() >= n90HitsMin_) && (jetID_->fHPD() < fHPDMax_) && (jetID_->restrictedEMF() >= resEMFMin_) );
   fillHistogram(JetN90Hits_,jetID_->n90Hits());
   fillHistogram(JetfHPD_,jetID_->fHPD());
   fillHistogram(JetResEMF_,jetID_->restrictedEMF());
   fillHistogram(JetfRBX_,jetID_->fRBX());
   if (idPassed) {
-    const double deltaEta = jptCorrectedJet.eta() - rawJet.eta();
-    const double deltaPhi = jptCorrectedJet.phi() - rawJet.phi();
-    fillHistogram(JetE_,jptCorrectedJet.energy());
-    fillHistogram(JetEt_,jptCorrectedJet.et());
-    fillHistogram(JetP_,jptCorrectedJet.p());
-    fillHistogram(JetMass_,jptCorrectedJet.mass());
-    fillHistogram(JetPt_,jptCorrectedJet.pt());
-    fillHistogram(JetPx_,jptCorrectedJet.px());
-    fillHistogram(JetPy_,jptCorrectedJet.py());
-    fillHistogram(JetPz_,jptCorrectedJet.pz());
-    if (jptCorrectedJet.pt() > correctedPtMin_) {
-      fillHistogram(JetEta_,jptCorrectedJet.eta());
-      fillHistogram(JetPhi_,jptCorrectedJet.phi());
+    const double deltaEta = jptJet.eta() - rawJet.eta();
+    const double deltaPhi = jptJet.phi() - rawJet.phi();
+    fillHistogram(JetE_,jptJet.energy());
+    fillHistogram(JetEt_,jptJet.et());
+    fillHistogram(JetP_,jptJet.p());
+    fillHistogram(JetMass_,jptJet.mass());
+    fillHistogram(JetPt_,jptJet.pt());
+    fillHistogram(JetPx_,jptJet.px());
+    fillHistogram(JetPy_,jptJet.py());
+    fillHistogram(JetPz_,jptJet.pz());
+    if (jptJet.pt() > correctedPtMin_) {
+      fillHistogram(JetEta_,jptJet.eta());
+      fillHistogram(JetPhi_,jptJet.phi());
       fillHistogram(JetDeltaEta_,deltaEta);
       fillHistogram(JetDeltaPhi_,deltaPhi);
-      fillHistogram(JetPhiVsEta_,jptCorrectedJet.phi(),jptCorrectedJet.eta());
-      const uint16_t totalTracks = pions.inVertexInCalo_.size() + pions.outOfVertexInCalo_.size() + pions.inVertexOutOfCalo_.size() +
-                                   muons.inVertexInCalo_.size() + muons.outOfVertexInCalo_.size() + muons.inVertexOutOfCalo_.size() +
-                                   electrons.inVertexInCalo_.size() + electrons.outOfVertexInCalo_.size() + electrons.inVertexOutOfCalo_.size();
+      fillHistogram(JetPhiVsEta_,jptJet.phi(),jptJet.eta());
+      const uint16_t totalTracks = jptJet.chargedMultiplicity();
       fillHistogram(NTracksPerJetHisto_,totalTracks);
       fillHistogram(NTracksPerJetVsJetEtHisto_,rawJet.et(),totalTracks);
       fillHistogram(NTracksPerJetVsJetEtaHisto_,rawJet.eta(),totalTracks);
@@ -284,15 +268,17 @@ void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eve
       fillHistogram(JPTCorrFactorHisto_,factorJPT);
       fillHistogram(JPTCorrFactorVsJetEtHisto_,rawJet.et(),factorJPT);
       fillHistogram(JPTCorrFactorVsJetEtaHisto_,rawJet.eta(),factorJPT);
-      const double ptFractionInCone = findPtFractionInCone(pions.inVertexInCalo_,pions.inVertexOutOfCalo_);
+      const double ptFractionInCone = findPtFractionInCone(pionsInVertexInCalo,pionsInVertexOutCalo);
       fillHistogram(PtFractionInConeHisto_,ptFractionInCone);
       fillHistogram(PtFractionInConeVsJetRawEtHisto_,rawJet.et(),ptFractionInCone);
       fillHistogram(PtFractionInConeVsJetEtaHisto_,rawJet.eta(),ptFractionInCone);
       //fill track level histograms
-      fillTrackHistograms(allPionHistograms_,inCaloInVertexPionHistograms_,inCaloOutVertexPionHistograms_,outCaloInVertexPionHistograms_,pions,rawJet);
-      fillTrackHistograms(allMuonHistograms_,inCaloInVertexMuonHistograms_,inCaloOutVertexMuonHistograms_,outCaloInVertexMuonHistograms_,muons,rawJet);
+      fillTrackHistograms(allPionHistograms_,inCaloInVertexPionHistograms_,inCaloOutVertexPionHistograms_,outCaloInVertexPionHistograms_,
+                          pionsInVertexInCalo,pionsOutVertexInCalo,pionsInVertexOutCalo,rawJet);
+      fillTrackHistograms(allMuonHistograms_,inCaloInVertexMuonHistograms_,inCaloOutVertexMuonHistograms_,outCaloInVertexMuonHistograms_,
+                          muonsInVertexInCalo,muonsOutVertexInCalo,muonsInVertexOutCalo,rawJet);
       fillTrackHistograms(allElectronHistograms_,inCaloInVertexElectronHistograms_,inCaloOutVertexElectronHistograms_,outCaloInVertexElectronHistograms_,
-                          electrons,rawJet);
+                          electronsInVertexInCalo,electronsOutVertexInCalo,electronsInVertexOutCalo,rawJet);
     }
   }
 }
@@ -518,24 +504,27 @@ void JPTJetAnalyzer::bookTrackHistograms(TrackHistograms* histos, const std::str
 
 void JPTJetAnalyzer::fillTrackHistograms(TrackHistograms& allTracksHistos, TrackHistograms& inCaloInVertexHistos,
                                          TrackHistograms& inCaloOutVertexHistos, TrackHistograms& outCaloInVertexHistos,
-                                         const jpt::MatchedTracks& tracks, const reco::CaloJet& rawJet)
+                                         const reco::TrackRefVector& inVertexInCalo,
+                                         const reco::TrackRefVector& outVertexInCalo,
+                                         const reco::TrackRefVector& inVertexOutCalo,
+                                         const reco::Jet& rawJet)
 {
-  fillTrackHistograms(allTracksHistos,tracks.inVertexInCalo_,rawJet);
-  fillTrackHistograms(allTracksHistos,tracks.outOfVertexInCalo_,rawJet);
-  fillTrackHistograms(allTracksHistos,tracks.inVertexOutOfCalo_,rawJet);
-  fillHistogram(allTracksHistos.nTracksHisto,tracks.inVertexInCalo_.size()+tracks.outOfVertexInCalo_.size()+tracks.inVertexOutOfCalo_.size());
-  fillSiStripSoNForTracks(tracks.inVertexInCalo_);
-  fillSiStripSoNForTracks(tracks.outOfVertexInCalo_);
-  fillSiStripSoNForTracks(tracks.inVertexOutOfCalo_);
-  fillTrackHistograms(inCaloInVertexHistos,tracks.inVertexInCalo_,rawJet);
-  fillHistogram(inCaloInVertexHistos.nTracksHisto,tracks.inVertexInCalo_.size());
-  fillTrackHistograms(inCaloOutVertexHistos,tracks.outOfVertexInCalo_,rawJet);
-  fillHistogram(inCaloOutVertexHistos.nTracksHisto,tracks.outOfVertexInCalo_.size());
-  fillTrackHistograms(outCaloInVertexHistos,tracks.inVertexOutOfCalo_,rawJet);
-  fillHistogram(outCaloInVertexHistos.nTracksHisto,tracks.inVertexOutOfCalo_.size());
+  fillTrackHistograms(allTracksHistos,inVertexInCalo,rawJet);
+  fillTrackHistograms(allTracksHistos,outVertexInCalo,rawJet);
+  fillTrackHistograms(allTracksHistos,inVertexOutCalo,rawJet);
+  fillHistogram(allTracksHistos.nTracksHisto,inVertexInCalo.size()+outVertexInCalo.size()+inVertexOutCalo.size());
+  fillSiStripSoNForTracks(inVertexInCalo);
+  fillSiStripSoNForTracks(outVertexInCalo);
+  fillSiStripSoNForTracks(inVertexOutCalo);
+  fillTrackHistograms(inCaloInVertexHistos,inVertexInCalo,rawJet);
+  fillHistogram(inCaloInVertexHistos.nTracksHisto,inVertexInCalo.size());
+  fillTrackHistograms(inCaloOutVertexHistos,outVertexInCalo,rawJet);
+  fillHistogram(inCaloOutVertexHistos.nTracksHisto,outVertexInCalo.size());
+  fillTrackHistograms(outCaloInVertexHistos,inVertexOutCalo,rawJet);
+  fillHistogram(outCaloInVertexHistos.nTracksHisto,inVertexOutCalo.size());
 }
 
-void JPTJetAnalyzer::fillTrackHistograms(TrackHistograms& histos, const reco::TrackRefVector& tracks, const reco::CaloJet& rawJet)
+void JPTJetAnalyzer::fillTrackHistograms(TrackHistograms& histos, const reco::TrackRefVector& tracks, const reco::Jet& rawJet)
 {
   const reco::TrackRefVector::const_iterator tracksEnd = tracks.end();
   for (reco::TrackRefVector::const_iterator iTrack = tracks.begin(); iTrack != tracksEnd; ++iTrack) {

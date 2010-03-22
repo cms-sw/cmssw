@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/22 08:29:26 $
- *  $Revision: 1.54 $
+ *  $Date: 2010/03/22 09:03:31 $
+ *  $Revision: 1.55 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -18,6 +18,7 @@
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
@@ -644,21 +645,19 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // **** Get the JPT Jet container
-  iEvent.getByLabel(theJPTJetCollectionLabel, caloJets);
-  if(caloJets.isValid()){
-  if(theJPTJetAnalyzerFlag) {
+  edm::Handle<reco::JPTJetCollection> jptJets;
+  iEvent.getByLabel(theJPTJetCollectionLabel, jptJets);
+  if(jptJets.isValid() && theJPTJetAnalyzerFlag){
     //theJPTJetAnalyzer->setJetHiPass(JetHiPass);
     //theJPTJetAnalyzer->setJetLoPass(JetLoPass);
-    //theJPTJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
-  }
+    theJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets);
   }
   
-  if(caloJets.isValid() && bJetCleanup){
-  if(theJPTJetCleaningFlag) {
+  if(jptJets.isValid() && bJetCleanup && theJPTJetCleaningFlag){
     //theCleanedJPTJetAnalyzer->setJetHiPass(JetHiPass);
     //theCleanedJPTJetAnalyzer->setJetLoPass(JetLoPass);
+    theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *jptJets);
     //theCleanedJPTJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
-  }
   }
   
   // **** Get the PFlow Jet container

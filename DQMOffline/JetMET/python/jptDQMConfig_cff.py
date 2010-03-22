@@ -88,10 +88,6 @@ jptDQMParameters = cms.PSet(
   HistogramPath = cms.string('JetMET/Jet/JPT/'),
   #Whether to dump buffer info and raw data if any error is found
   PrintDebugMessages = cms.untracked.bool(False),
-  #JPT corrector
-  JPTCorrectorName = cms.string('JetPlusTrackZSPCorrectorAntiKt5ForDQM'),
-  #ZSP corrector
-  ZSPCorrectorName = cms.string('ZSPJetCorrectorAntiKt5'),
   #Whether to write the DQM store to a file at the end of the run and the file name
   #KH WriteDQMStore = cms.untracked.bool(True), This has to be false by default
   WriteDQMStore = cms.untracked.bool(False),
