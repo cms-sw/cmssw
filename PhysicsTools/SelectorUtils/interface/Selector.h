@@ -15,7 +15,6 @@
 
 
 #include "PhysicsTools/SelectorUtils/interface/strbitset.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <functional>
 
@@ -39,6 +38,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     cutFlow_.clear();
     retInternal_ = getBitTemplate();
   }
+
   virtual ~Selector() {}
 
   /// This is the registration of an individual cut string
@@ -48,7 +48,6 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     // bits_ does that.
     cutFlow_.push_back( cut_flow_item(s,0) );
   }
-
 
   /// This is the registration of an individual cut string, with an int cut value
   virtual void push_back( std::string s, int cut) {
@@ -119,15 +118,6 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     return bits_[s] == false;
   }
 
-  /// set the bits to ignore from a vector
-  void setIgnoredCuts( std::vector<std::string> const & bitsToIgnore ) {
-    for ( std::vector<std::string>::const_iterator ignoreBegin = bitsToIgnore.begin(),
-	    ignoreEnd = bitsToIgnore.end(), ibit = ignoreBegin;
-	  ibit != ignoreEnd; ++ibit ) {
-      set(*ibit, false );
-    }
-  }
-
   /// Passing cuts
   void passCut( std::strbitset & ret, std::string const & s ) {
     ret[s] = true;
@@ -179,13 +169,13 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
 	  icut != cutsEnd; ++icut ) {
       char buff[1000];
       if ( considerCut( icut->first ) ) {
-	sprintf(buff, "%6d : %20s %10d", 
-		icut - cutsBegin,
+	sprintf(buff, "%6lu : %20s %10lu", 
+		static_cast<unsigned long>(icut - cutsBegin),
 		icut->first.c_str(),
-		icut->second );
+		static_cast<unsigned long>(icut->second) );
       } else {
-	sprintf(buff, "%6d : %20s %10s", 
-		icut - cutsBegin,
+	sprintf(buff, "%6lu : %20s %10s", 
+		static_cast<unsigned long>(icut - cutsBegin),
 		icut->first.c_str(),
 		"off" );
       }
