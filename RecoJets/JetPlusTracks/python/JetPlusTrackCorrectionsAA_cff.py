@@ -21,6 +21,7 @@ JetPlusTrackZSPCorJetIconePu5 = cms.EDProducer(
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
     FixedPU = cms.int32(0),
+    UseZSP = cms.bool(True),
     srcPVs  = cms.InputTag('offlinePrimaryVertices'),
     alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5')
     )
@@ -131,6 +132,7 @@ JPTAntiKtPu5JetExtender.jet2TracksAtVX = cms.InputTag("JPTAntiKtPu5JetTracksAsso
 # IC5
 
 JPTrecoJetAssociationsIconePu5 = cms.Sequence(
+    trackExtrapolator*
     JPTiterativeConePu5JetTracksAssociatorAtVertex*
     JPTiterativeConePu5JetTracksAssociatorAtCaloFace*
     JPTiterativeConePu5JetExtender
@@ -144,6 +146,7 @@ JetPlusTrackCorrectionsIconePu5 = cms.Sequence(
 # SC5
 
 JPTrecoJetAssociationsSisConePu5 = cms.Sequence(
+    trackExtrapolator*
     JPTSisConePu5JetTracksAssociatorAtVertex*
     JPTSisConePu5JetTracksAssociatorAtCaloFace*
     JPTSisConePu5JetExtender
@@ -157,6 +160,7 @@ JetPlusTrackCorrectionsSisConePu5 = cms.Sequence(
 # Anti-Kt
 
 JPTrecoJetAssociationsAntiKtPu5 = cms.Sequence(
+    trackExtrapolator*
     JPTAntiKtPu5JetTracksAssociatorAtVertex*
     JPTAntiKtPu5JetTracksAssociatorAtCaloFace*
     JPTAntiKtPu5JetExtender

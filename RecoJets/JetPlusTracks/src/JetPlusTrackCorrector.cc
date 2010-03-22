@@ -1171,7 +1171,9 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
          double pt = fabs( (**iBgtV).pt() );
          uint32_t ieta = response_.etaBin( eta );
          uint32_t ipt = response_.ptBin( pt );
-
+	 
+         if(fabs(fJet.eta() -(**iBgtV).eta()) > mConeSize) continue;
+	 
       // Check bins (not for mips)
          if ( ieta == response_.nEtaBins() || ipt == response_.nPtBins() ) { continue; }
          double echarBg=sqrt((**iBgtV).px()*(**iBgtV).px()+(**iBgtV).py()*(**iBgtV).py()+(**iBgtV).pz()*(**iBgtV).pz()+0.14*0.14);
