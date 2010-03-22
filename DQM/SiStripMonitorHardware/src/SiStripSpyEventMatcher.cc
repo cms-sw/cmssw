@@ -13,6 +13,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include <algorithm>
 
 using edm::LogInfo;
@@ -70,7 +71,7 @@ namespace sistrip {
     edm::EventID spyEventId = nextSpyEvent->id();
     CountersPtr totalEventCounters = getCounters(nextSpyEvent,totalEventCountersTag_);
     CountersPtr l1aCounters = getCounters(nextSpyEvent,l1aCountersTag_);
-    CountersPtr apvAddresses = getCounters(nextSpyEvent,apvAddressesTag_);
+    CountersPtr apvAddresses = getCounters(nextSpyEvent,apvAddressesTag_,false);
     //loop over all FEDs. Maps should have same content and be in order so, avoid searches by iterating (and checking keys match)
     //add all possible event keys to the map
     std::vector<uint32_t>::const_iterator iTotalEventCount = totalEventCounters->begin();
@@ -174,7 +175,7 @@ namespace sistrip {
       const FEDRawDataCollection& inputRawData = *inputRawDataPtr;
       CountersPtr inputTotalEventCounters = getCounters(event,totalEventCountersTag_);
       CountersPtr inputL1ACounters = getCounters(event,l1aCountersTag_);
-      CountersPtr inputAPVAddresses = getCounters(event,apvAddressesTag_);
+      CountersPtr inputAPVAddresses = getCounters(event,apvAddressesTag_,false);
       const edm::DetSetVector<SiStripRawDigi>* inputScopeDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,scopeDigisTag_);
       const edm::DetSetVector<SiStripRawDigi>* inputPayloadDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,payloadDigisTag_);
       const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis = getProduct< edm::DetSetVector<SiStripRawDigi> >(event,reorderedDigisTag_);
@@ -332,7 +333,7 @@ namespace sistrip {
     }
   }
   
-  SpyEventMatcher::CountersPtr SpyEventMatcher::getCounters(const SpyEventMatcher::SpyEventPtr event, const edm::InputTag& tag)
+  SpyEventMatcher::CountersPtr SpyEventMatcher::getCounters(const SpyEventMatcher::SpyEventPtr event, const edm::InputTag& tag, const bool mapKeyIsByFedID)
   {
     const std::vector<uint32_t>* vectorFromEvent = getProduct< std::vector<uint32_t> >(event,tag);
     if (vectorFromEvent) {
@@ -342,8 +343,12 @@ namespace sistrip {
       const std::map<uint32_t,uint32_t>* mapFromEvent = getProduct< std::map<uint32_t,uint32_t> >(event,tag);
       if (mapFromEvent) {
         std::vector<uint32_t>* newVector = new std::vector<uint32_t>(FED_ID_MAX+1,0);
-        for (std::map<uint32_t,uint32_t>::const_iterator iIdValue = mapFromEvent->begin(); iIdValue != mapFromEvent->end(); ++iIdValue) {
-          newVector->at(iIdValue->first) = iIdValue->second;
+        if (mapKeyIsByFedID) {
+          for (std::map<uint32_t,uint32_t>::const_iterator iIdValue = mapFromEvent->begin(); iIdValue != mapFromEvent->end(); ++iIdValue) {
+            newVector->at(iIdValue->first) = iIdValue->second;
+          }
+        } else {
+          SpyUtilities::fillFEDMajorities(*mapFromEvent,*newVector);
         }
         //vector was allocated here so, will need to be deleted when finished with
         CountersPtr newCountersPtr(newVector, ConfigurableDeleter(true));
