@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2010/03/04 09:15:41 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/03/18 15:10:49 $
+ *  $Revision: 1.18 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -242,6 +242,11 @@ public:
     double dmdcotgth1;
     double dmdcotgth2;
   } massResolComponents;
+
+  // Fit accuracy and debug parameters
+  static bool startWithSimplex_;
+  static bool computeMinosErrors_;
+  static bool minimumShapePlots_;
 
   /// Method to check if the mass value is within the mass window of the i-th resonance.
   static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );

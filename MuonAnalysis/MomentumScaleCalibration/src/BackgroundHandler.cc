@@ -191,6 +191,9 @@ void BackgroundHandler::rescale( vector<double> & parBgr, const double * ResMass
 
       double kNew = parBgr[parNumsResonances_[index]];
       cout << "For resonance = " << index << endl;
+      cout << "backgroundWindow.lowerBound = " << backgroundWindow.lowerBound() << endl;
+      cout << "backgroundWindow.upperBound = " << backgroundWindow.upperBound() << endl;
+      cout << "parNumsResonances_["<<index<<"] = " << parNumsResonances_[index] << endl;
       cout << "Nbw = " << Nbw << ", Ibw = " << Ibw << endl;
       cout << "Nrw = " << Nrw << ", Irw = " << Irw << endl;
       cout << "k = " << kOld << ", k' = " << parBgr[parNumsResonances_[index]] << endl;

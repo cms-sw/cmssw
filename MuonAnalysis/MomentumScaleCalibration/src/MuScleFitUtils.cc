@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/03/18 15:11:23 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/03/19 21:07:22 $
+ *  $Revision: 1.32 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -247,6 +247,10 @@ bool MuScleFitUtils::normalizeLikelihoodByEventNumber_ = true;
 TMinuit * MuScleFitUtils::rminPtr_ = 0;
 double MuScleFitUtils::oldNormalization_ = 0.;
 unsigned int MuScleFitUtils::normalizationChanged_ = 0;
+
+bool MuScleFitUtils::startWithSimplex_;
+bool MuScleFitUtils::computeMinosErrors_;
+bool MuScleFitUtils::minimumShapePlots_;
 
 int MuScleFitUtils::iev_ = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -718,11 +722,11 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
   			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
 
-  if( sigma_cotgth1 < 0 || sigma_cotgth2 < 0 ) {
-    cout << "WARNING: sigma_cotgth1 = " << sigma_cotgth1 << endl;
-    cout << "WARNING: sigma_cotgth2 = " << sigma_cotgth2 << endl;
-    cout << "mass_res = " << mass_res << endl;
-  }
+  // if( sigma_cotgth1 < 0 || sigma_cotgth2 < 0 ) {
+  //   cout << "WARNING: sigma_cotgth1 = " << sigma_cotgth1 << endl;
+  //   cout << "WARNING: sigma_cotgth2 = " << sigma_cotgth2 << endl;
+  //   cout << "mass_res = " << mass_res << endl;
+  // }
 
   // double mass_res = sqrt(pow(dmdpt1*sigma_pt1*pt1,2)+pow(dmdpt2*sigma_pt2*pt2,2));
 
@@ -1137,17 +1141,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
         PStot[ires] = (1-Bgrp1)*PS[ires] + Bgrp1*PB;
         if( MuScleFitUtils::debug>0 ) cout << "PStot["<<ires<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[ires]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[ires] << endl;
 
-        // PStot[ires] *= crossSectionHandler->crossSection(ires);
-        // PStot[ires] *= parval[crossSectionParShift+ires];
-        // cout << "relativeCrossSections["<<ires<<"] = " << relativeCrossSections[ires] << endl;
         PStot[ires] *= relativeCrossSections[ires];
-
-        //         // Test for the Upsilons
-        //         if( ires == 1 || ires == 2 || ires == 3 ) {
-        //           PStot[ires] *= crossSection[ires]/(crossSection[3]+crossSection[2]+crossSection[1]);
-        //         }
-
-
       }
     }
   }
@@ -1516,7 +1510,6 @@ void MuScleFitUtils::minimizeLikelihood()
       // events and hopefully the margin will avoid them to get a probability = 0 (which causes a discontinuity
       // in the likelihood function). The width of this smaller window must be optimized, but we can start using
       // an 90% of the normalization window.
-
       MuScleFitUtils::ReducedSavedPair.clear();
       for( unsigned int nev=0; nev<MuScleFitUtils::SavedPair.size(); ++nev ) {
         const lorentzVector * recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
@@ -1525,7 +1518,9 @@ void MuScleFitUtils::minimizeLikelihood()
         // Test all resonances to see if the mass is inside at least one of the windows
         bool check = false;
         for( int ires = 0; ires < 6; ++ires ) {
-          if( resfind[ires] && checkMassWindow( mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ), 0.9, 0.9 ) ) {
+	  pair<double, double> windowFactor = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], ires );
+          if( resfind[ires] && checkMassWindow( mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
+						0.9*windowFactor.first, 0.9*windowFactor.second ) ) {
             check = true;
           }
         }
@@ -1533,6 +1528,7 @@ void MuScleFitUtils::minimizeLikelihood()
           MuScleFitUtils::ReducedSavedPair.push_back(make_pair(*recMu1, *recMu2));
         }
       }
+      cout << "Fitting with " << MuScleFitUtils::ReducedSavedPair.size() << " events" << endl;
 
 
       // rmin.SetMaxIterations(500*parnumber);
@@ -1543,7 +1539,9 @@ void MuScleFitUtils::minimizeLikelihood()
       arglis[0] = 5000;
 
       // Run simplex first to get an initial estimate of the minimum
-      rmin.mnexcm( "simplex", arglis, 0, ierror );
+      if( startWithSimplex_ ) {
+	rmin.mnexcm( "simplex", arglis, 0, ierror );
+      }
 
       rmin.mnexcm( "mini", arglis, 0, ierror );
 
@@ -1565,14 +1563,15 @@ void MuScleFitUtils::minimizeLikelihood()
       rmin.mnexcm( "hesse", arglis, 0, ierror );
 
       // Peform minos error analysis.
-      duringMinos_ = true;
-      rmin.mnexcm( "minos", arglis, 0, ierror );
-      duringMinos_ = false;
+      if( computeMinosErrors_ ) {
+	duringMinos_ = true;
+	rmin.mnexcm( "minos", arglis, 0, ierror );
+	duringMinos_ = false;
+      }
 
       if( normalizationChanged_ > 1 ) {
         cout << "WARNING: normalization changed during fit meaning that events exited from the mass window. This causes a discontinuity in the likelihood function. Please check the scan of the likelihood as a function of the parameters to see if there are discontinuities around the minimum." << endl;
       }
-
     }
 
     // bool notWritten = true;
@@ -1642,47 +1641,49 @@ void MuScleFitUtils::minimizeLikelihood()
     rmin.mnstat (fmin, fdem, errdef, npari, nparx, istat); // NNBB Commented for a check!
     FitParametersFile << endl;
 
-    // Create plots of the minimum vs parameters
-    // -----------------------------------------
-    // Keep this after the parameters filling because it recomputes the values and it can compromise the fit results.
-    if( somethingtodo ) {
-      stringstream iorderString;
-      iorderString << iorder;
-      stringstream iLoopString;
-      iLoopString << loopCounter;
+    if( minimumShapePlots_ ) {
+      // Create plots of the minimum vs parameters
+      // -----------------------------------------
+      // Keep this after the parameters filling because it recomputes the values and it can compromise the fit results.
+      if( somethingtodo ) {
+	stringstream iorderString;
+	iorderString << iorder;
+	stringstream iLoopString;
+	iLoopString << loopCounter;
 
-      for (int ipar=0; ipar<parnumber; ipar++) {
-        if( parfix[ipar] == 1 ) continue;
-        cout << "plotting parameter = " << ipar+1 << endl;
-        stringstream iparString;
-        iparString << ipar+1;
-        rmin.mncomd( ("scan "+iparString.str()).c_str(), ierror );
-        if( ierror == 0 ) {
-          TCanvas * canvas = new TCanvas(("likelihoodCanvas_loop_"+iLoopString.str()+"_oder_"+iorderString.str()+"_par_"+iparString.str()).c_str(), ("likelihood_"+iparString.str()).c_str(), 1000, 800);
-          canvas->cd();
-          // arglis[0] = ipar;
-          // rmin.mnexcm( "sca", arglis, 0, ierror );
-          TGraph * graph = (TGraph*)rmin.GetPlot();
-          graph->Draw("AP");
-          // graph->SetTitle(("parvalue["+iparString.str()+"]").c_str());
-          graph->SetTitle(parname[ipar]);
-          // graph->Write();
+	for (int ipar=0; ipar<parnumber; ipar++) {
+	  if( parfix[ipar] == 1 ) continue;
+	  cout << "plotting parameter = " << ipar+1 << endl;
+	  stringstream iparString;
+	  iparString << ipar+1;
+	  rmin.mncomd( ("scan "+iparString.str()).c_str(), ierror );
+	  if( ierror == 0 ) {
+	    TCanvas * canvas = new TCanvas(("likelihoodCanvas_loop_"+iLoopString.str()+"_oder_"+iorderString.str()+"_par_"+iparString.str()).c_str(), ("likelihood_"+iparString.str()).c_str(), 1000, 800);
+	    canvas->cd();
+	    // arglis[0] = ipar;
+	    // rmin.mnexcm( "sca", arglis, 0, ierror );
+	    TGraph * graph = (TGraph*)rmin.GetPlot();
+	    graph->Draw("AP");
+	    // graph->SetTitle(("parvalue["+iparString.str()+"]").c_str());
+	    graph->SetTitle(parname[ipar]);
+	    // graph->Write();
 
-          canvas->Write();
-        }
+	    canvas->Write();
+	  }
+	}
+
+	//       // Draw contours of the fit
+	//       TCanvas * canvas = new TCanvas(("contourCanvas_oder_"+iorderString.str()).c_str(), "contour", 1000, 800);
+	//       canvas->cd();
+	//       TGraph * contourGraph = (TGraph*)rmin.Contour(4, 2, 4);
+	//       if( (rmin.GetStatus() == 0) || (rmin.GetStatus() >= 3) ) {
+	//         contourGraph->Draw("AP");
+	//       }
+	//       else {
+	//         cout << "Contour graph error: status = " << rmin.GetStatus() << endl;
+	//       }
+	//       canvas->Write();
       }
-
-      //       // Draw contours of the fit
-      //       TCanvas * canvas = new TCanvas(("contourCanvas_oder_"+iorderString.str()).c_str(), "contour", 1000, 800);
-      //       canvas->cd();
-      //       TGraph * contourGraph = (TGraph*)rmin.Contour(4, 2, 4);
-      //       if( (rmin.GetStatus() == 0) || (rmin.GetStatus() >= 3) ) {
-      //         contourGraph->Draw("AP");
-      //       }
-      //       else {
-      //         cout << "Contour graph error: status = " << rmin.GetStatus() << endl;
-      //       }
-      //       canvas->Write();
     }
 
   } // end loop on iorder
