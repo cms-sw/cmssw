@@ -1,5 +1,18 @@
 2010-03-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
+	* tag V05-09-00
+	* Add files per lumi section bookkeeping information to the database
+	  log file to be used by tier 0 to decide on repacking.
+	* Print output module name in addition to id for unwanted event 
+	  alarm message.
+
+2010-03-21 Peter Elmer <Peter.Elmer@cern.ch>
+
+	* tag V05-08-09
+	* Add missing #include <stdint.h>, flagged (and required) by gcc443
+	
+2010-03-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
 	* tag V05-08-08
 	* Serve DQM updates in time-order, i.e. do not let a newer
 	  update overtake an older one.
