@@ -1130,20 +1130,6 @@ protected:
    */
   double etaByPoints(const double & inEta, const double & border) {
     Double_t eta = fabs(inEta);
-//     if( 0. <= eta && eta <= 0.2 )      return 0.0120913;
-//     else if( 0.2 < eta && eta <= 0.4 ) return 0.0122204;
-//     else if( 0.4 < eta && eta <= 0.6 ) return 0.0136937;
-//     else if( 0.6 < eta && eta <= 0.8 ) return 0.0142069;
-//     else if( 0.8 < eta && eta <= 1.0 ) return 0.0177526;
-//     else if( 1.0 < eta && eta <= 1.2 ) return 0.0243587;
-//     else if( 1.2 < eta && eta <= 1.4 ) return 0.019994;
-//     else if( 1.4 < eta && eta <= 1.6 ) return 0.0185132;
-//     else if( 1.6 < eta && eta <= 1.8 ) return 0.0177141;
-//     else if( 1.8 < eta && eta <= 2.0 ) return 0.0211577;
-//     else if( 2.0 < eta && eta <= 2.2 ) return 0.0255051;
-//     else if( 2.2 < eta && eta <= 2.4 ) return 0.0338104;
-//     // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
-//     else if( 2.4 < eta && eta <= 2.6 ) return 0.31;
     if( 0. <= eta && eta <= 0.2 ) return 0.00942984;
     else if( 0.2 < eta && eta <= 0.4 ) return 0.0104489;
     else if( 0.4 < eta && eta <= 0.6 ) return 0.0110521;
@@ -1156,8 +1142,6 @@ protected:
     else if( 1.8 < eta && eta <= 2.0 ) return 0.0205821;
     else if( 2.0 < eta && eta <= 2.2 ) return 0.0250032;
     else if( 2.2 < eta && eta <= 2.4 ) return 0.0339477;
-    // ATTENTION: This point has a big error and it is very displaced from the rest of the distribution.
-    // else if( 2.4 < eta && eta <= 2.6 ) return 0.445473;
     else if( 2.4 < eta && eta <= 2.6 ) return border;
     return ( 0. );
   }
@@ -1171,15 +1155,6 @@ class resolutionFunctionType9 : public resolutionFunctionBase<T> {
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
     double ptPart = 0.;
-//     if( pt < 3 ) ptPart = parval[15] + parval[16]*0.01994255;
-//     else if( pt < 4 ) ptPart = parval[15] + parval[16]*0.01453992;
-//     else if( pt < 5 ) ptPart = parval[15] + parval[16]*0.01356919;
-//     else if( pt < 6 ) ptPart = parval[15] + parval[16]*0.0118939;
-//     else if( pt < 7 ) ptPart = parval[15] + parval[16]*0.01213474;
-//     else if( pt < 8 ) ptPart = parval[15] + parval[16]*0.01193847;
-//     else if( pt < 9 ) ptPart = parval[15] + parval[16]*0.01297834;
-//     else if( pt < 10 ) ptPart = parval[15] + parval[16]*0.02229455;
-
 
     if( pt < 3 ) ptPart = parval[15];
     else if( pt < 4 ) ptPart = parval[16];
@@ -1432,7 +1407,7 @@ class resolutionFunctionType11 : public resolutionFunctionBase<T> {
 template <class T>
 class resolutionFunctionType12 : public resolutionFunctionBase<T> {
  public:
-  resolutionFunctionType12() { this->parNum_ = 11; }
+  resolutionFunctionType12() { this->parNum_ = 15; }
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
     double fabsEta = fabs(eta);
@@ -1448,53 +1423,60 @@ class resolutionFunctionType12 : public resolutionFunctionBase<T> {
       return( parval[1]+ ptPart + parval[6]*fabs((fabsEta-parval[8])) + parval[7]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
     }
   }
-//   // 1/pt in pt and quadratic in eta
-//   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-//     return( parval[10]+parval[11]/pt + parval[12]*fabs(eta)+parval[13]*eta*eta );
-//   }
-//   // 1/pt in pt and quadratic in eta
-//   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-//     return( parval[14]+parval[15]/pt + parval[16]*fabs(eta)+parval[17]*eta*eta );
-//   }
+
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( 0.004 );
+    return( parval[11]+parval[12]/pt + parval[13]*fabs(eta)+parval[14]*eta*eta );
   }
-  // 1/pt in pt and quadratic in eta
+
+  // // 1/pt in pt and quadratic in eta
+  // virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+  //   return( parval[15]+parval[16]/pt + parval[17]*fabs(eta)+parval[18]*eta*eta );
+  // }
+
+  // constant sigmaCotgTh
+  // virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+  //   return( 0.004 );
+  // }
+
+  // constant sigmaPhi
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
     return( 0.001 );
   }
+
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
 
     double thisStep[] = { 0.001, 0.00001, 0.0000001, 0.00000001,
                           0.00000001, 0.00000001, 0.00000001, 0.00000001,
-                          0.001, 0.0001, 0.000001 };
-//                           0.00002, 0.0002, 0.0000002, 0.00002,
-//                           0.00002, 0.0002, 0.00000002, 0.000002 };
+                          0.001, 0.0001, 0.000001,
+			  0.00002, 0.0002, 0.0000002, 0.00002 };
+			  // 0.00002, 0.0002, 0.00000002, 0.000002 };
     TString thisParName[] = { "etaTransition", "offsetEtaHigh", "coeffOverPt", "coeffHighPt",
                               "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh",
-                              "secondParabolaCenter", "linearPt", "quadraticPt" };
-//                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc.",
-//                               "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
-    double thisMini[] = { -1.1, -1.1, -1.1, -1.1,
+                              "secondParabolaCenter", "linearPt", "quadraticPt",
+                              "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc." };
+			      // "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
+    double thisMini[] = { 0.8, -1.1, 0., -1.1,
                           0.0001, 0.0005, 0.0005, 0.001,
-                          -1.0, -1.0, -1.0 };
-//                           -0.001, 0.002, -0.0001, -0.0001,
-//                           -0.0001, 0.0005, -0.0001, -0.00001 };
+                          1.4, 0., 0.,
+                          // -0.001, 0.002, -0.0001, -0.0001 };
+                          -0.1, 0.0001, -0.1, -0.1 };
+			  // -0.0001, 0.0005, -0.0001, -0.00001 };
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1., 1.,
                             1., 1., 1., 1.,
-                            1., 1., 1. };
-//                             1., 1., 1., 1.,
-//                             1., 1., 1., 1. };
+                            1., 1., 1.,
+                            1., 1., 1., 1. };
+			    // 1., 1., 1., 1. };
 
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = { 1.8, -0.8, 0.1, 0.1,
+      double thisMaxi[] = { 1.8, 0.8, 0.1, 0.1,
                             0.005, 0.05, 0.05, 0.05,
-                            2.4, 2.0, 2.0 };
-//                             0.001, 0.005, 0.00004, 0.0007,
-//                             0.001, 0.01, -0.0000015, 0.0004 };
+                            2.4, 2.0, 2.0,
+                            // 0.001, 0.005, 0.00004, 0.0007 };
+			    0.1, 0.05, 0.1, 0.1 };
+			    // 0.001, 0.01, -0.0000015, 0.0004 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
