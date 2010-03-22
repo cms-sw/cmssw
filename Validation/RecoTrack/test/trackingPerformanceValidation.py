@@ -10,10 +10,10 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_5_0'
+RefRelease='CMSSW_3_6_0_pre2'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_5_3'
+NewRelease='CMSSW_3_6_0_pre3'
 
 ### startup and ideal sample list
 
@@ -24,10 +24,10 @@ startupsamples= [
     'RelValQCD_Pt_3000_3500'
 ]
 ### the list can be empty if you want to skip the validation for all the samples
-### startupsamples= []
+# startupsamples= []
 
 ### This is the list of startup relvals (with PileUP)
-### startupsamples= ['RelValTTbar_Tauola']
+# startupsamples= ['RelValTTbar_Tauola']
 
 
 ### This is the list of IDEAL-conditions relvals 
@@ -46,18 +46,28 @@ idealsamples= [
 #    
 ]
 
+### the list can be empty if you want to skip the validation for all the samples
+#idealsamples= []
+
+### This is the list of IDEAL-conditions relvals (with PileUP
+# idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
+
+
 ### Sample version: v1,v2,etc..
 Version='v1'
-
+#Version='LowLumiPileUp-v1'
+#Version='BX156-v1'
+#Version='BX2808-v1'
 
 ### Ideal and Statup tags
-IdealTag='MC_3XY_V24'
-StartupTag='START3X_V24'
+IdealTag='MC_36Y_V2'
+StartupTag='START36_V2'
 
-RefIdealTag='MC_3XY_V21'
-RefStartupTag='START3X_V21'
+RefIdealTag='MC_3XY_V24'
+RefStartupTag='START3X_V24'
 ### PileUp: "PU" . No PileUp: "noPU"
 PileUp='noPU'
+#PileUp='PU'
 
 
 
@@ -103,7 +113,8 @@ NewRepository = 'new' # copy output into a local folder
 
 
 ### AFS location of central harvesting output. It can be used to avoid running the harvesting by yourself
-castorHarvestedFilesDirectory='/castor/cern.ch/user/n/nuno/relval/harvest/'
+castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/'
+
 
 
 ### Default Nevents
@@ -206,7 +217,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     continue
             #search the primary dataset
             cmd='dbsql "find  dataset where dataset like /'
-            cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'-'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
+            cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
             cmd+='|grep '+sample+'|grep -v test|tail -1'
             print cmd
             dataset= os.popen(cmd).readline().strip()
