@@ -9,8 +9,8 @@
 #include <vector>
 /** \class CaloSubdetectorTopology
       
-$Date: 2006/03/30 14:43:28 $
-$Revision: 1.1 $
+$Date: 2006/09/07 09:43:39 $
+$Revision: 1.2 $
 \author P.Meridiani INFN Roma1
 \author J. Mans - Minnesota
 */
@@ -59,6 +59,7 @@ public:
         default:
 	  throw cms::Exception("getNeighboursError") << "Unsopported direction";
 	}
+      return aNullVector;
     }
 
   /** Get the neighbors of the given cell in a window of given size*/
