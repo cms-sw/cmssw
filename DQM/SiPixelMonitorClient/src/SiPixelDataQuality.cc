@@ -744,11 +744,9 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
           SummaryReportMap->setBinContent(i,j,contents);
         }
       }else{ // Offline
-        float pixelFlag = -1., barrelFlag = -1., endcapFlag = -1.;
         float barrel_errors_temp[1]={-1.}; int barrel_cuts_temp[6]={6*-1}; 
         float endcap_errors_temp[1]={-1.}; int endcap_cuts_temp[6]={6*-1}; 
         int pixel_cuts_temp[1]={-1};
-        float combinedCuts = 1.; int numerator = 0, denominator = 0;
         // Barrel results:
         MonitorElement * me;
 	me = bei->get("Pixel/Barrel/BarrelNErrorsCut");
