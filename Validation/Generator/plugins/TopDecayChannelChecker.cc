@@ -13,10 +13,9 @@ static const unsigned int kMAX=5;
 
 /// constructor
 TopDecayChannelChecker::TopDecayChannelChecker(const edm::ParameterSet& cfg):
-  outputFileName_( cfg.getParameter<std::string>( "outputFileName" ) ),
+  outputFile_( cfg.getParameter<std::string>( "outputFile" ) ),
   log_( cfg.getParameter<unsigned int>( "logEvents"  ) ),
-  src_( cfg.getParameter<edm::InputTag>( "src"  ) ),
-  saveDQMMEs_( cfg.getParameter<bool>("saveDQMMEs")),
+  src_( cfg.getParameter<edm::InputTag>( "src"  ) ), 
   evts_(0)
 {
   // register the DQM Service
@@ -38,14 +37,15 @@ TopDecayChannelChecker::showerType(const edm::View<reco::GenParticle>& parts) co
     if(top->pdgId()==6 && top->status()==3){
       // check for kHerwig type showers: here the status 3 top quark will 
       // have a single status 2 top quark as daughter, which has again 3 
-      // or more status 2 daughters
+      // or more status 2 daughters (top3 --> top2 --> X2).
       if( top->numberOfDaughters()==1){
 	if( top->begin()->pdgId ()==6 && top->begin()->status()==2 && top->begin()->numberOfDaughters()>1)
 	  return kHerwig;
       }
       // check for kPythia type showers: here the status 3 top quark will 
       // have all decay products and a status 2 top quark as daughters; 
-      // the status 2 top quark will be w/o further daughters
+      // the status 2 top quark will be w/o further daughters (top3 --> 
+      // top2, X2).
       if( top->numberOfDaughters() >1){
 	bool containsWBoson=false, containsQuarkDaughter=false;
 	for(reco::GenParticle::const_iterator td=top->begin(); td!=top->end(); ++td){
@@ -64,17 +64,23 @@ TopDecayChannelChecker::showerType(const edm::View<reco::GenParticle>& parts) co
 void
 TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  // recieve the generated 
+  // recieve particle listing
   edm::Handle<edm::View<reco::GenParticle> > src; 
   event.getByLabel(src_, src);
 
+  // do the event logging (i.e. print a full listing of all particles) as 
+  // long as evts_ is smaller then log_. For log_=0 this kind of logging
+  // is switched off.
   if(evts_<log_){ dumpDecayChain(*src); }
 
+  // check every event for corruption; in case throw an exception.
   if(showerType(*src)==kNone){
     throw edm::Exception( edm::errors::LogicError, "particle listing does not correspond to any of the supported listings \n\n");
   }
   bool herwig=(showerType(*src)==kHerwig);
 
+  // major loop in the event; all information about the particle
+  // listing that will be monitored is collected here.
   unsigned int iLep=0, iWBoson=0;
   unsigned int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   std::vector<unsigned int> tauDecayType, quarkDecayType;
@@ -84,7 +90,7 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
       for(reco::GenParticle::const_iterator td=(!herwig?top->begin():top->begin()->begin()); td!=(!herwig?top->end():top->begin()->end()); ++td){
 	if( abs(td->pdgId())<6 ){
 	  // keep flavor of the top daughter quark 
-	  // for later
+	  // for later.
 	  quarkDecayType.push_back(abs(td->pdgId()));
 	}
 	if( search(td,  5, src_.label()) ){
@@ -102,7 +108,7 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
 	    if( abs(wd->pdgId())==15  ){ 
 	      // count as iTau if it is leptonic, one-prong
 	      // or three-prong and ignore increasing iLep
-	      // though else
+	      // though else.
 	      tauDecayType.push_back(tauDecay(*wd));
 	      ++iTau; 
 	    }
@@ -131,17 +137,27 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
   */
 
   bool error=false;
-  // top decay channel
-  hists_.find("TopDecayChannel")->second->Fill(iLep);
-  // fill number of W bosons found in the decay chain
+  // *TopDecayChannel*: fill hadronic=0, single leptonic=1, dileptonic=2
+  // according to the number of leptons found in the event. If more than
+  // two leptons are found in the event the error bin is filled.
+  if(iLep<3){
+    hists_.find("TopDecayChannel")->second->Fill(iLep);
+  }
+  else{
+    hists_.find("TopDecayChannel")->second->Fill( 3. );
+  }
+  // *TopDecayWBosons*: fill the number of W bosons found in the decay 
+  // chain; no other but the bin for 2 W Bosons should be filled here.
   hists_.find("TopDecayWBosons")->second->Fill(iWBoson);
-  // lepton flavours in the semi-leptonic decay
+  // *SemiLeptonType*: fill the lepton flavors for events that decay 
+  // single leptonically. If the event is classified to be single lep-
+  // tonic but no lepton type found the error bin is filled.
   if(iLep == 1){
     if     ( iElec>0 ) hists_["SemiLeptonType"]->Fill( 0. );
     else if( iMuon>0 ) hists_["SemiLeptonType"]->Fill( 1. );
     else if( iTau >0 ) hists_["SemiLeptonType"]->Fill( 2. );
     else{
-      edm::LogWarning("TopDecayChannelChecker") 
+      edm::LogWarning("TopDecayWBosons") 
 	<< "\n error in checking single leptonic decay type:" 
 	<< "\n iLep  == " << iLep  
 	<< "\n iElec == " << iElec 
@@ -151,7 +167,9 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
       error=true;
     }
   }
-  // lepton flavours in the full-leptonic decay
+  // *FullLeptonType*: fill lepton flavors for events that decay di-
+  // leptonically. If the event is classified to be di-leptonic but 
+  // none of the given combinations is found the error bin is filled.
   if(iLep == 2){
     if     ( iElec==1 && iMuon==1 ) hists_["FullLeptonType"]->Fill( 0. );
     else if( iElec==1 && iTau ==1 ) hists_["FullLeptonType"]->Fill( 1. );
@@ -160,7 +178,7 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
     else if( iMuon==2             ) hists_["FullLeptonType"]->Fill( 4. );
     else if( iTau ==2             ) hists_["FullLeptonType"]->Fill( 5. );
     else{
-      edm::LogWarning("TopDecayChannelChecker") 
+      edm::LogWarning("FullLeptonType") 
 	<< "\n error in checking di leptonic decay type:" 
 	<< "\n iLep  == " << iLep  
 	<< "\n iElec == " << iElec 
@@ -170,7 +188,10 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
       error=true;
     }
   }
-  // lepton flavours in subsequent leptonic/hadronic tau decays
+  // *TauDecayMode*: fill decay mode of tau lepton for any events with 
+  // a tau lepton in the decay chain. One-prong, three-prong, leptonic
+  // (elec) and leptonic(muon) are checked. If other decay modes than
+  // those are found the error bin is filled.
   if(iTau >  0){
     for(unsigned int idx=0; idx<tauDecayType.size(); ++idx){
       if     ( tauDecayType[idx]== 1) hists_["TauDecayMode"]->Fill( 0. );
@@ -178,7 +199,7 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
       else if( tauDecayType[idx]==11) hists_["TauDecayMode"]->Fill( 2. );
       else if( tauDecayType[idx]==13) hists_["TauDecayMode"]->Fill( 3. );
       else{
-	edm::LogWarning("TopDecayChannelChecker") 
+	edm::LogWarning("TauDecayMode") 
 	  << "\n un-monitored decay mode found in checking tau decay mode:" 
 	  << "\n tauDecayType  == " << tauDecayType[idx]
 	  << "\n monitored: 3:3-prong ; 1:1-prong ; 11:electron ; 13:muon \n";
@@ -187,16 +208,21 @@ TopDecayChannelChecker::analyze(const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
-  // flavors of quarks originating from the top quark 
+  // *TopDecayQuark*: fill the flavor of the direct top daughter quark. The 
+  // first bins are filled if at least one b, s, d quark was found in the 
+  // decay chain. As Vtb may be smaller 1 also decays in the other down type
+  // quarks are allowed. It may also happen that other quark flavors are 
+  // found, when being produced in pairs. If no down type quark is found as 
+  // a direct daughter of the top quark the error bin is filled.
   bool containsBeauty=false, containsStrange=false, containsDown=false;
-  for(unsigned int idx=0; idx<tauDecayType.size(); ++idx){
+  for(unsigned int idx=0; idx<quarkDecayType.size(); ++idx){
     if     ( quarkDecayType[idx]==5){ containsBeauty =true, hists_["TopDecayQuark"]->Fill( 0. );}
     else if( quarkDecayType[idx]==3){ containsStrange=true, hists_["TopDecayQuark"]->Fill( 1. );}
     else if( quarkDecayType[idx]==1){ containsDown   =true, hists_["TopDecayQuark"]->Fill( 2. );}
     else{
-      edm::LogWarning("TopDecayChannelChecker") 
+      edm::LogWarning("TopDecayQuark") 
 	<< "\n checking top decay associated quark:" << "\n quarkDecayType  == " << quarkDecayType[idx];
-	error=true;
+      error=true;
     }
   }
   if( !(containsBeauty || containsStrange || containsDown) ){
@@ -233,7 +259,7 @@ TopDecayChannelChecker::tauDecay(const reco::Candidate& tau) const
   for(reco::Candidate::const_iterator daughter=tau.begin();daughter!=tau.end(); ++daughter){
     // if the tau daughter is again a tau, this means that the particle has 
     // still to be propagated; in that case, return the result of the same 
-    // method applied on the on that daughter
+    // method applied on the on that daughter.
     if(daughter->pdgId()==tau.pdgId()){
       return tauDecay(*daughter);
     }
@@ -275,7 +301,7 @@ TopDecayChannelChecker::search(reco::GenParticle::const_iterator& part, int pdgI
 void 
 TopDecayChannelChecker::dumpDecayChain(const edm::View<reco::GenParticle>& src) const
 {
-  edm::LogWarning log("TopDecayChannelChecker");
+  edm::LogWarning log("DumpDecayChain");
   log << "\n   idx   pdg   stat      px          py         pz             mass          daughter pdg's  "
       << "\n===========================================================================================\n";
 
@@ -309,7 +335,6 @@ TopDecayChannelChecker::dumpDecayChain(const edm::View<reco::GenParticle>& src) 
 	break;
       }
     }
-
     if(idx>0){
       log << std::setfill( ' ' ) << std::right << std::setw(15) << pdgIds; 
       log << "\n";
@@ -378,9 +403,7 @@ void
 TopDecayChannelChecker::endJob() 
 {
   // save files
-  if(saveDQMMEs_){
-    dqmStore_->save(outputFileName_);
-  }
+  dqmStore_->save(outputFile_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
