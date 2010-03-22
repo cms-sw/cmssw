@@ -60,7 +60,7 @@ ESElectronicsSimFast::standEncode(const CaloSamples& timeframe) const
   double MIPADC_ = (double) (*it_mip);
 
   int adc = 0; 
-  double ADCkeV = MIPADC_/MIPToGeV_;
+  double ADCGeV = MIPADC_/MIPToGeV_;
   for (int i=0; i<timeframe.size(); i++) {
     
     double noi = 0;
@@ -71,27 +71,15 @@ ESElectronicsSimFast::standEncode(const CaloSamples& timeframe) const
       noi = gaussQDistribution.fire();
     }
     
-    if (gain_ == 0) { 
-      signal = timeframe[i]*1000000. + noi + baseline_;     
-      
-      if (signal>0) 
-	signal += 0.5;
-      else if (signal<0)
-	signal -= 0.5;
-      
-      adc = int(signal);
-    }
-    else if (gain_ == 1 || gain_ == 2) {
-      signal = timeframe[i]*1000000.*ADCkeV + noi + baseline_;
-      
-      if (signal>0) 
-	signal += 0.5;
-      else if (signal<0)
-	signal -= 0.5;
-      
-      adc = int(signal);
-    }
-   
+    signal = timeframe[i]*ADCGeV + noi + baseline_;
+    
+    if (signal>0) 
+      signal += 0.5;
+    else if (signal<0)
+      signal -= 0.5;
+    
+    adc = int(signal);
+
     if (adc>MAXADC) adc = MAXADC;
     if (adc<MINADC) adc = MINADC;
     
