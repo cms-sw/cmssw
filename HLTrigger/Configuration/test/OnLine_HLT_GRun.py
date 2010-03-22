@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_5/GRun/V12 (CMSSW_3_5_3_HLT5)
+# /dev/CMSSW_3_5_5/GRun/V13 (CMSSW_3_5_3_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V13')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -8636,7 +8636,6 @@ process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_RPCBarrelCosmics',
       'HLT_SingleLooseIsoTau20',
       'HLT_SplashBSC',
-      'HLT_SplashEcalSumET',
       'HLT_StoppedHSCP_8E29',
       'HLT_TechTrigHCALNoise',
       'HLT_TkMu3_NoVertex',
@@ -8773,7 +8772,6 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_RPCBarrelCosmics',
       'HLT_SingleLooseIsoTau20',
       'HLT_SplashBSC',
-      'HLT_SplashEcalSumET',
       'HLT_StoppedHSCP_8E29',
       'HLT_TechTrigHCALNoise',
       'HLT_TkMu3_NoVertex',
@@ -8908,7 +8906,6 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_RPCBarrelCosmics',
       'HLT_SingleLooseIsoTau20',
       'HLT_SplashBSC',
-      'HLT_SplashEcalSumET',
       'HLT_StoppedHSCP_8E29',
       'HLT_TechTrigHCALNoise',
       'HLT_TkMu3_NoVertex',

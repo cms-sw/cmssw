@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_5/HIon/V12 (CMSSW_3_5_3_HLT5)
+# /dev/CMSSW_3_5_5/HIon/V13 (CMSSW_3_5_3_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V12')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V13')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
