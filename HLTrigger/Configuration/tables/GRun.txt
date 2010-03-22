@@ -5,11 +5,8 @@ HLT_Activity_Ecal
 HLT_Activity_EcalREM
 HLT_Activity_DT
 HLT_Activity_DT_Tuned
-<<<<<<< GRun.txt
 HLT_SelectEcalSpikes_L1R
 HLT_SelectEcalSpikesHighEt_L1R
-=======
->>>>>>> 1.43
 HLT_L1Jet6U
 HLT_L1Jet6U_NoBPTX
 HLT_L1Jet10U
