@@ -63,7 +63,15 @@ from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
 
+#Deactivate the recovery of dead towers since dead towers are not simulated
 particleFlowRecHitHCAL.ECAL_Compensate = cms.bool(False)
+#Similarly, deactivate HF cleaning for spikes
+particleFlowRecHitHCAL.ShortFibre_Cut = cms.double(1E5)
+particleFlowClusterHFEM.thresh_Clean_Barrel = cms.double(1E5)
+particleFlowClusterHFEM.thresh_Clean_Endcap = cms.double(1E5)
+particleFlowClusterHFHAD.thresh_Clean_Barrel = cms.double(1E5)
+particleFlowClusterHFHAD.thresh_Clean_Endcap = cms.double(1E5)
+
 #particleFlowBlock.useNuclear = cms.bool(True)
 #particleFlowBlock.useConversions = cms.bool(True)
 #particleFlowBlock.useV0 = cms.bool(True)
