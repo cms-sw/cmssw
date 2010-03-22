@@ -88,6 +88,32 @@ process.SiStripHistoryDQMService = cms.Service(
     #'landau' includes
     #'gauss' includes gaussMean, gaussSigma
     
+    
+
+    ####
+    ## For collisions we will want something like this
+    ####
+    #
+    #GenTk
+    #cms.PSet( keyName = cms.untracked.string("NumberOfTracks_GenTk"), quantitiesToExtract  = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("Chi2oNDF_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("NumberOfRecHitsPerTrack_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("TrackPt_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("TrackPz_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("TrackPx_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("TrackPy_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("TrackPhi_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("TrackEta_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
+    #,
+    #cms.PSet( keyName = cms.untracked.string("DistanceOfClosestApproach_GenTk"), quantitiesToExtract = cms.untracked.vstring("stat"))
 
     #CosmicTk
     cms.PSet( keyName = cms.untracked.string("NumberOfTracks_CosmicTk"), quantitiesToExtract  = cms.untracked.vstring("stat"))
