@@ -141,7 +141,7 @@ foreach my $prod (keys %{$data->{prod}})
 {
   my $p=$data->{paths}{$data->{prod}{$prod}{path}};
   my $f="${release}/${p}/${prod}";
-  if ((!-f $f) && ($releaseTop ne "")){"${releaseTop}/${p}/${prod}";}
+  if ((!-f $f) && ($releaseTop ne "")){$f="${releaseTop}/${p}/${prod}";}
   if ($prod=~/^lib.+\.so$/){$data->{PRODUCT_MAP}{$prod}=$data->{prod}{$prod}{pack};}
   if (-f $f)
   {
