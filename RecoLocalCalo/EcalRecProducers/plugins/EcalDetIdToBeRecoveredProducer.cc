@@ -146,8 +146,8 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
         edm::Handle<EEDetIdCollection> eeIntegrityChIdErrors;
         ev.getByLabel( eeIntegrityChIdErrorsCollection_, eeIntegrityChIdErrors );
         if ( eeIntegrityChIdErrors.isValid() ) {
-        } else {
                 eeDetIdColls.push_back( eeIntegrityChIdErrors );
+        } else {
                 edm::LogWarning("EcalDetIdToBeRecoveredProducer") << eeIntegrityChIdErrorsCollection_ << " not available";
         }
 
