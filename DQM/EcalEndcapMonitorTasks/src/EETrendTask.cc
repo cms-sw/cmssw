@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2010/02/08 21:35:07 $
- * $Revision: 1.5 $
+ * $Date: 2010/03/02 00:02:10 $
+ * $Revision: 1.6 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -63,29 +63,50 @@ EETrendTask::EETrendTask(const ParameterSet& ps){
 
   // parameters...
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
+  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
+  EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
-  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
+  EEDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection0");
+  EEDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection1");
+  EEDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection2");
+  EEDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection3");
+  EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
+  EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
+  EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
+  EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
+  EcalElectronicsIdCollection5_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection5");
+  EcalElectronicsIdCollection6_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection6");
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
+  EESRFlagCollection_ = ps.getParameter<edm::InputTag>("EESRFlagCollection");
 
   // histograms...
   nEEDigiMinutely_ = 0;
+  nEcalPnDiodeDigiMinutely_ = 0;
   nEcalRecHitMinutely_ = 0;
+  nEcalTrigPrimDigiMinutely_ = 0;
   nBasicClusterMinutely_ = 0;
   nBasicClusterSizeMinutely_ = 0;
   nSuperClusterMinutely_ = 0;
   nSuperClusterSizeMinutely_ = 0;
+  nIntegrityErrorMinutely_ = 0;
   nFEDEEminusRawDataMinutely_ = 0;
   nFEDEEplusRawDataMinutely_ = 0;
+  nEESRFlagMinutely_ = 0;
 
   nEEDigiHourly_ = 0;
+  nEcalPnDiodeDigiHourly_ = 0;
   nEcalRecHitHourly_ = 0;
+  nEcalTrigPrimDigiHourly_ = 0;
   nBasicClusterHourly_ = 0;
   nBasicClusterSizeHourly_ = 0;
   nSuperClusterHourly_ = 0;
   nSuperClusterSizeHourly_ = 0;
+  nIntegrityErrorHourly_ = 0;
   nFEDEEminusRawDataHourly_ = 0;
   nFEDEEplusRawDataHourly_ = 0;
+  nEESRFlagHourly_ = 0;
 }
 
 
@@ -124,22 +145,30 @@ void EETrendTask::endRun(const Run& r, const EventSetup& c) {
 void EETrendTask::reset(void) {
 
   if(nEEDigiMinutely_) nEEDigiMinutely_->Reset();
+  if(nEcalPnDiodeDigiMinutely_) nEcalPnDiodeDigiMinutely_->Reset();
   if(nEcalRecHitMinutely_) nEcalRecHitMinutely_->Reset();
+  if(nEcalTrigPrimDigiMinutely_) nEcalTrigPrimDigiMinutely_->Reset();
   if(nBasicClusterMinutely_) nBasicClusterMinutely_->Reset();
   if(nBasicClusterSizeMinutely_) nBasicClusterSizeMinutely_->Reset();
   if(nSuperClusterMinutely_) nSuperClusterMinutely_->Reset();
   if(nSuperClusterSizeMinutely_) nSuperClusterSizeMinutely_->Reset();
+  if(nIntegrityErrorMinutely_) nIntegrityErrorMinutely_->Reset();
   if(nFEDEEminusRawDataMinutely_) nFEDEEminusRawDataMinutely_->Reset();
   if(nFEDEEplusRawDataMinutely_) nFEDEEplusRawDataMinutely_->Reset();
+  if(nEESRFlagMinutely_) nEESRFlagMinutely_->Reset();
 
   if(nEEDigiHourly_) nEEDigiHourly_->Reset();
+  if(nEcalPnDiodeDigiHourly_) nEcalPnDiodeDigiHourly_->Reset();
   if(nEcalRecHitHourly_) nEcalRecHitHourly_->Reset();
+  if(nEcalTrigPrimDigiHourly_) nEcalTrigPrimDigiHourly_->Reset();
   if(nBasicClusterHourly_) nBasicClusterHourly_->Reset();
   if(nBasicClusterSizeHourly_) nBasicClusterSizeHourly_->Reset();
   if(nSuperClusterHourly_) nSuperClusterHourly_->Reset();
   if(nSuperClusterSizeHourly_) nSuperClusterSizeHourly_->Reset();
+  if(nIntegrityErrorHourly_) nIntegrityErrorHourly_->Reset();
   if(nFEDEEminusRawDataHourly_) nFEDEEminusRawDataHourly_->Reset();
   if(nFEDEEplusRawDataHourly_) nFEDEEplusRawDataHourly_->Reset();
+  if(nEESRFlagHourly_) nEESRFlagHourly_->Reset();
 
 }
 
@@ -160,10 +189,20 @@ void EETrendTask::setup(void){
     nEEDigiMinutely_->setAxisTitle("Minutes", 1);
     nEEDigiMinutely_->setAxisTitle("Average Number of EEDigi / 5 minutes", 2);
 
+    sprintf(histo, "AverageNumberOfEcalPnDiodeDigiVs5Minutes");
+    nEcalPnDiodeDigiMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nEcalPnDiodeDigiMinutely_->setAxisTitle("Minutes", 1);
+    nEcalPnDiodeDigiMinutely_->setAxisTitle("Average Number of EcalPnDiodeDigi / 5 minutes", 2);
+
     sprintf(histo, "AverageNumberOfEcalRecHitVs5Minutes");
     nEcalRecHitMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nEcalRecHitMinutely_->setAxisTitle("Minutes", 1);
     nEcalRecHitMinutely_->setAxisTitle("Average Number of EcalRecHit / 5 minutes", 2);
+
+    sprintf(histo, "AverageNumberOfEcalTrigPrimDigiVs5Minutes");
+    nEcalTrigPrimDigiMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nEcalTrigPrimDigiMinutely_->setAxisTitle("Minutes", 1);
+    nEcalTrigPrimDigiMinutely_->setAxisTitle("Average Number of EcalTrigPrimDigi / 5 minutes", 2);
 
     sprintf(histo, "AverageNumberOfBasicClusterVs5Minutes");
     nBasicClusterMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
@@ -185,6 +224,11 @@ void EETrendTask::setup(void){
     nSuperClusterSizeMinutely_->setAxisTitle("Minutes", 1);
     nSuperClusterSizeMinutely_->setAxisTitle("Average Size of SuperClusters / 5 minutes", 2);
 
+    sprintf(histo, "AverageNumberOfIntegrityErrorVs5Minutes");
+    nIntegrityErrorMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nIntegrityErrorMinutely_->setAxisTitle("Minutes", 1);
+    nIntegrityErrorMinutely_->setAxisTitle("Average IntegrityErrors / 5 minutes", 2);
+
     sprintf(histo, "AverageNumberOfFEDEEminusRawDataVs5Minutes");
     nFEDEEminusRawDataMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nFEDEEminusRawDataMinutely_->setAxisTitle("Minutes", 1);
@@ -195,6 +239,11 @@ void EETrendTask::setup(void){
     nFEDEEplusRawDataMinutely_->setAxisTitle("Minutes", 1);
     nFEDEEplusRawDataMinutely_->setAxisTitle("Average Number of FEDRawData in EE+ / 5 minutes", 2);
 
+    sprintf(histo, "AverageNumberOfEESRFlagVs5Minutes");
+    nEESRFlagMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nEESRFlagMinutely_->setAxisTitle("Minutes", 1);
+    nEESRFlagMinutely_->setAxisTitle("Average Number of EESRFlag / 5 minutes", 2);
+
 
     // hourly
 
@@ -203,10 +252,20 @@ void EETrendTask::setup(void){
     nEEDigiHourly_->setAxisTitle("Hours", 1);
     nEEDigiHourly_->setAxisTitle("Average Number of EEDigi / hour", 2);
 
+    sprintf(histo, "AverageNumberOfEcalPnDiodeDigiVs1Hour");
+    nEcalPnDiodeDigiHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    nEcalPnDiodeDigiHourly_->setAxisTitle("Hours", 1);
+    nEcalPnDiodeDigiHourly_->setAxisTitle("Average Number of EcalPnDiodeDigi / hour", 2);
+
     sprintf(histo, "AverageNumberOfEcalRecHitVs1Hour");
     nEcalRecHitHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nEcalRecHitHourly_->setAxisTitle("Hours", 1);
     nEcalRecHitHourly_->setAxisTitle("Average Number of EcalRecHit / hour", 2);
+
+    sprintf(histo, "AverageNumberOfEcalTrigPrimDigiVs1Hour");
+    nEcalTrigPrimDigiHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    nEcalTrigPrimDigiHourly_->setAxisTitle("Hours", 1);
+    nEcalTrigPrimDigiHourly_->setAxisTitle("Average Number of EcalTrigPrimDigi / hour", 2);
 
     sprintf(histo, "AverageNumberOfBasicClusterVs1Hour");
     nBasicClusterHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
@@ -228,6 +287,11 @@ void EETrendTask::setup(void){
     nSuperClusterSizeHourly_->setAxisTitle("Hours", 1);
     nSuperClusterSizeHourly_->setAxisTitle("Average Size of SuperClusters / hour", 2);
 
+    sprintf(histo, "AverageNumberOfIntegrityErrorVs1Hour");
+    nIntegrityErrorHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    nIntegrityErrorHourly_->setAxisTitle("Hours", 1);
+    nIntegrityErrorHourly_->setAxisTitle("Average IntegrityErrors / hour", 2);
+
     sprintf(histo, "AverageNumberOfFEDEEminusRawDataVs1Hour");
     nFEDEEminusRawDataHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nFEDEEminusRawDataHourly_->setAxisTitle("Hours", 1);
@@ -237,6 +301,11 @@ void EETrendTask::setup(void){
     nFEDEEplusRawDataHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nFEDEEplusRawDataHourly_->setAxisTitle("Hours", 1);
     nFEDEEplusRawDataHourly_->setAxisTitle("Average Number of FEDRawData in EE+ / hour", 2);
+
+    sprintf(histo, "AverageNumberOfEESRFlagVs5Hours");
+    nEESRFlagHourly_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    nEESRFlagHourly_->setAxisTitle("Hours", 1);
+    nEESRFlagHourly_->setAxisTitle("Average Number of EESRFlag / hour", 2);
 
   }
 
@@ -252,8 +321,12 @@ void EETrendTask::cleanup(void){
 
     if(nEEDigiMinutely_) dqmStore_->removeElement( nEEDigiMinutely_->getName());
     nEEDigiMinutely_ = 0;
+    if(nEcalPnDiodeDigiMinutely_) dqmStore_->removeElement( nEcalPnDiodeDigiMinutely_->getName());
+    nEcalPnDiodeDigiMinutely_ = 0;
     if(nEcalRecHitMinutely_) dqmStore_->removeElement( nEcalRecHitMinutely_->getName());
     nEcalRecHitMinutely_ = 0;
+    if(nEcalTrigPrimDigiMinutely_) dqmStore_->removeElement( nEcalTrigPrimDigiMinutely_->getName());
+    nEcalTrigPrimDigiMinutely_ = 0;
     if(nBasicClusterMinutely_) dqmStore_->removeElement( nBasicClusterMinutely_->getName());
     nBasicClusterMinutely_ = 0;
     if(nBasicClusterSizeMinutely_) dqmStore_->removeElement( nBasicClusterSizeMinutely_->getName());
@@ -262,15 +335,23 @@ void EETrendTask::cleanup(void){
     nSuperClusterMinutely_ = 0;
     if(nSuperClusterSizeMinutely_) dqmStore_->removeElement( nSuperClusterSizeMinutely_->getName());
     nSuperClusterSizeMinutely_ = 0;
+    if(nIntegrityErrorMinutely_) dqmStore_->removeElement( nIntegrityErrorMinutely_->getName());
+    nIntegrityErrorMinutely_ = 0;
     if(nFEDEEminusRawDataMinutely_) dqmStore_->removeElement( nFEDEEminusRawDataMinutely_->getName());
     nFEDEEminusRawDataMinutely_ = 0;
     if(nFEDEEplusRawDataMinutely_) dqmStore_->removeElement( nFEDEEplusRawDataMinutely_->getName());
     nFEDEEplusRawDataMinutely_ = 0;
+    if(nEESRFlagMinutely_) dqmStore_->removeElement( nEESRFlagMinutely_->getName());
+    nEESRFlagMinutely_ = 0;
 
     if(nEEDigiHourly_) dqmStore_->removeElement( nEEDigiHourly_->getName());
     nEEDigiHourly_ = 0;
+    if(nEcalPnDiodeDigiHourly_) dqmStore_->removeElement( nEcalPnDiodeDigiHourly_->getName());
+    nEcalPnDiodeDigiHourly_ = 0;
     if(nEcalRecHitHourly_) dqmStore_->removeElement( nEcalRecHitHourly_->getName());
     nEcalRecHitHourly_ = 0;
+    if(nEcalTrigPrimDigiHourly_) dqmStore_->removeElement( nEcalTrigPrimDigiHourly_->getName());
+    nEcalTrigPrimDigiHourly_ = 0;
     if(nBasicClusterHourly_) dqmStore_->removeElement( nBasicClusterHourly_->getName());
     nBasicClusterHourly_ = 0;
     if(nBasicClusterSizeHourly_) dqmStore_->removeElement( nBasicClusterSizeHourly_->getName());
@@ -279,10 +360,14 @@ void EETrendTask::cleanup(void){
     nSuperClusterHourly_ = 0;
     if(nSuperClusterSizeHourly_) dqmStore_->removeElement( nSuperClusterSizeHourly_->getName());
     nSuperClusterSizeHourly_ = 0;
+    if(nIntegrityErrorHourly_) dqmStore_->removeElement( nIntegrityErrorHourly_->getName());
+    nIntegrityErrorHourly_ = 0;
     if(nFEDEEminusRawDataHourly_) dqmStore_->removeElement( nFEDEEminusRawDataHourly_->getName());
     nFEDEEminusRawDataHourly_ = 0;
     if(nFEDEEplusRawDataHourly_) dqmStore_->removeElement( nFEDEEplusRawDataHourly_->getName());
     nFEDEEplusRawDataHourly_ = 0;
+    if(nEESRFlagHourly_) dqmStore_->removeElement( nEESRFlagHourly_->getName());
+    nEESRFlagHourly_ = 0;
 
   }
 
@@ -337,6 +422,21 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
 
 
   // --------------------------------------------------
+  // EcalPnDiodeDigiCollection
+  // --------------------------------------------------
+  int npdc = 0;
+  Handle<EcalPnDiodeDigiCollection> pns;
+  if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) npdc = pns->size();
+  else LogWarning("EETrendTask") << EcalPnDiodeDigiCollection_ << " is not available";
+
+  ecaldqm::shift2Right(nEcalPnDiodeDigiMinutely_->getTProfile(), minuteBinDiff);
+  nEcalPnDiodeDigiMinutely_->Fill(minuteDiff,npdc);
+  
+  ecaldqm::shift2Right(nEcalPnDiodeDigiHourly_->getTProfile(), hourBinDiff);
+  nEcalPnDiodeDigiHourly_->Fill(hourDiff,npdc);
+
+
+  // --------------------------------------------------
   // EcalRecHitCollection
   // --------------------------------------------------
   int nrhc = 0;
@@ -349,6 +449,21 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
   
   ecaldqm::shift2Right(nEcalRecHitHourly_->getTProfile(), hourBinDiff);
   nEcalRecHitHourly_->Fill(hourDiff,nrhc);
+
+
+  // --------------------------------------------------
+  // EcalTrigPrimDigiCollection
+  // --------------------------------------------------
+  int ntpdc = 0;
+  Handle<EcalTrigPrimDigiCollection> tpdigis;
+  if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) ntpdc = tpdigis->size();
+  else LogWarning("EETrendTask") << EcalTrigPrimDigiCollection_ << " is not available";
+
+  ecaldqm::shift2Right(nEcalTrigPrimDigiMinutely_->getTProfile(), minuteBinDiff);
+  nEcalTrigPrimDigiMinutely_->Fill(minuteDiff,ntpdc);
+  
+  ecaldqm::shift2Right(nEcalTrigPrimDigiHourly_->getTProfile(), hourBinDiff);
+  nEcalTrigPrimDigiHourly_->Fill(hourDiff,ntpdc);
 
 
   // --------------------------------------------------
@@ -411,6 +526,114 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
 
 
   // --------------------------------------------------
+  // Integrity errors (sum of collections' sizes)
+  // --------------------------------------------------
+  //  double errorSum = 0.0;
+
+  // --------------------------------------------------
+  // EEDetIdCollection0
+  // --------------------------------------------------
+  int ndic0 = 0;
+  Handle<EEDetIdCollection> ids0;
+  if ( e.getByLabel(EEDetIdCollection0_, ids0) ) ndic0 = ids0->size();
+  else LogWarning("EETrendTask") << EEDetIdCollection0_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EEDetIdCollection1
+  // --------------------------------------------------
+  int ndic1 = 0;
+  Handle<EEDetIdCollection> ids1;
+  if ( e.getByLabel(EEDetIdCollection1_, ids1) ) ndic1 = ids1->size();
+  else LogWarning("EETrendTask") << EEDetIdCollection1_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EEDetIdCollection2
+  // --------------------------------------------------
+  int ndic2 = 0;
+  Handle<EEDetIdCollection> ids2;
+  if ( e.getByLabel(EEDetIdCollection2_, ids2) ) ndic2 = ids2->size();
+  else LogWarning("EETrendTask") << EEDetIdCollection2_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EEDetIdCollection3
+  // --------------------------------------------------
+  int ndic3 = 0;
+  Handle<EEDetIdCollection> ids3;
+  if ( e.getByLabel(EEDetIdCollection3_, ids3) ) ndic3 = ids3->size();
+  else LogWarning("EETrendTask") << EEDetIdCollection3_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EcalElectronicsIdCollection1
+  // --------------------------------------------------
+  int neic1 = 0;
+  Handle<EcalElectronicsIdCollection> eids1;
+  if ( e.getByLabel(EcalElectronicsIdCollection1_, eids1) ) neic1 = eids1->size();
+  else LogWarning("EETrendTask") << EcalElectronicsIdCollection1_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EcalElectronicsIdCollection2
+  // --------------------------------------------------
+  int neic2 = 0;
+  Handle<EcalElectronicsIdCollection> eids2;
+  if ( e.getByLabel(EcalElectronicsIdCollection2_, eids2) ) neic2 = eids2->size();
+  else LogWarning("EETrendTask") << EcalElectronicsIdCollection2_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EcalElectronicsIdCollection3
+  // --------------------------------------------------
+  int neic3 = 0;
+  Handle<EcalElectronicsIdCollection> eids3;
+  if ( e.getByLabel(EcalElectronicsIdCollection3_, eids3) ) neic3 = eids3->size();
+  else LogWarning("EETrendTask") << EcalElectronicsIdCollection3_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EcalElectronicsIdCollection4
+  // --------------------------------------------------
+  int neic4 = 0;
+  Handle<EcalElectronicsIdCollection> eids4;
+  if ( e.getByLabel(EcalElectronicsIdCollection4_, eids4) ) neic4 = eids4->size();
+  else LogWarning("EETrendTask") << EcalElectronicsIdCollection4_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EcalElectronicsIdCollection5
+  // --------------------------------------------------
+  int neic5 = 0;
+  Handle<EcalElectronicsIdCollection> eids5;
+  if ( e.getByLabel(EcalElectronicsIdCollection5_, eids5) ) neic5 = eids5->size();
+  else LogWarning("EETrendTask") << EcalElectronicsIdCollection5_ << " is not available";
+
+
+  // --------------------------------------------------
+  // EcalElectronicsIdCollection6
+  // --------------------------------------------------
+  int neic6 = 0;
+  Handle<EcalElectronicsIdCollection> eids6;
+  if ( e.getByLabel(EcalElectronicsIdCollection6_, eids6) ) neic6 = eids6->size();
+  else LogWarning("EETrendTask") << EcalElectronicsIdCollection6_ << " is not available";
+
+
+  // --------------------------------------------------
+  // Integrity errors (sum of collections' sizes)
+  // --------------------------------------------------
+  double errorSum = ndic0 + ndic1 + ndic2 + ndic3 +
+    neic1 + neic2 + neic3 + neic4 + neic5 + neic6;
+
+  ecaldqm::shift2Right(nIntegrityErrorMinutely_->getTProfile(), minuteBinDiff);
+  nIntegrityErrorMinutely_->Fill(minuteDiff,errorSum);
+  
+  ecaldqm::shift2Right(nIntegrityErrorHourly_->getTProfile(), hourBinDiff);
+  nIntegrityErrorHourly_->Fill(hourDiff,errorSum);
+
+
+  // --------------------------------------------------
   // FEDRawDataCollection
   // --------------------------------------------------
   int nfedEEminus = 0;
@@ -445,6 +668,22 @@ void EETrendTask::analyze(const Event& e, const EventSetup& c){
 
   ecaldqm::shift2Right(nFEDEEplusRawDataHourly_->getTProfile(), hourBinDiff);
   nFEDEEplusRawDataHourly_->Fill(hourDiff,nfedEEplus);
+
+  // --------------------------------------------------
+  // EESRFlagCollection
+  // --------------------------------------------------
+  int nsfc = 0;
+  Handle<EESrFlagCollection> eeSrFlags;
+  if ( e.getByLabel(EESRFlagCollection_,eeSrFlags) ) nsfc = eeSrFlags->size();
+  else LogWarning("EETrendTask") << EESRFlagCollection_ << " is not available";
+
+  ecaldqm::shift2Right(nEESRFlagMinutely_->getTProfile(), minuteBinDiff);
+  nEESRFlagMinutely_->Fill(minuteDiff,nsfc);
+  
+  ecaldqm::shift2Right(nEESRFlagHourly_->getTProfile(), hourBinDiff);
+  nEESRFlagHourly_->Fill(hourDiff,nsfc);
+
+
 
 }
 

@@ -4,8 +4,8 @@
 /*
  * \file EETrendTask.h
  *
- * $Date: 2010/02/08 21:35:06 $
- * $Revision: 1.3 $
+ * $Date: 2010/03/02 00:01:59 $
+ * $Revision: 1.4 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
@@ -75,28 +75,50 @@ class EETrendTask: public edm::EDAnalyzer{
   bool verbose_;
 
   edm::InputTag EEDigiCollection_;
+  edm::InputTag EcalPnDiodeDigiCollection_;
   edm::InputTag EcalRecHitCollection_;
+  edm::InputTag EcalTrigPrimDigiCollection_;
   edm::InputTag BasicClusterCollection_;
   edm::InputTag SuperClusterCollection_;
+  edm::InputTag EEDetIdCollection0_;
+  edm::InputTag EEDetIdCollection1_;
+  edm::InputTag EEDetIdCollection2_;
+  edm::InputTag EEDetIdCollection3_;
+  edm::InputTag EEDetIdCollection4_;
+  edm::InputTag EcalElectronicsIdCollection1_;
+  edm::InputTag EcalElectronicsIdCollection2_;
+  edm::InputTag EcalElectronicsIdCollection3_;
+  edm::InputTag EcalElectronicsIdCollection4_;
+  edm::InputTag EcalElectronicsIdCollection5_;
+  edm::InputTag EcalElectronicsIdCollection6_;
   edm::InputTag FEDRawDataCollection_;
+  edm::InputTag EESRFlagCollection_;
 
   MonitorElement* nEEDigiMinutely_;
+  MonitorElement* nEcalPnDiodeDigiMinutely_;
   MonitorElement* nEcalRecHitMinutely_;
+  MonitorElement* nEcalTrigPrimDigiMinutely_;
   MonitorElement* nBasicClusterMinutely_;
   MonitorElement* nBasicClusterSizeMinutely_;
   MonitorElement* nSuperClusterMinutely_;
   MonitorElement* nSuperClusterSizeMinutely_;
+  MonitorElement* nIntegrityErrorMinutely_;
   MonitorElement* nFEDEEminusRawDataMinutely_;
   MonitorElement* nFEDEEplusRawDataMinutely_;
+  MonitorElement* nEESRFlagMinutely_;
 
   MonitorElement* nEEDigiHourly_;
+  MonitorElement* nEcalPnDiodeDigiHourly_;
   MonitorElement* nEcalRecHitHourly_;
+  MonitorElement* nEcalTrigPrimDigiHourly_;
   MonitorElement* nBasicClusterHourly_;
   MonitorElement* nBasicClusterSizeHourly_;
   MonitorElement* nSuperClusterHourly_;
   MonitorElement* nSuperClusterSizeHourly_;
+  MonitorElement* nIntegrityErrorHourly_;
   MonitorElement* nFEDEEminusRawDataHourly_;
   MonitorElement* nFEDEEplusRawDataHourly_;
+  MonitorElement* nEESRFlagHourly_;
 
   bool init_;
 
