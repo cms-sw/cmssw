@@ -158,49 +158,14 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_chi2mean_vs_phi.push_back( dbe_->bookProfile("chi2mean_vs_phi","mean of #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20) );
 
       nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nPXBhits_vs_eta.push_back( dbe_->book2D("nPXBhits_vs_eta","# PXB its vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nPXFhits_vs_eta.push_back( dbe_->book2D("nPXFhits_vs_eta","# PXF hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nTIBhits_vs_eta.push_back( dbe_->book2D("nTIBhits_vs_eta","# TIB hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nTIDhits_vs_eta.push_back( dbe_->book2D("nTIDhits_vs_eta","# TID hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nTOBhits_vs_eta.push_back( dbe_->book2D("nTOBhits_vs_eta","# TOB hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nTEChits_vs_eta.push_back( dbe_->book2D("nTEChits_vs_eta","# TEC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nDThits_vs_eta.push_back( dbe_->book2D("nDThits_vs_eta","# DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nCSChits_vs_eta.push_back( dbe_->book2D("nCSChits_vs_eta","# CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nRPChits_vs_eta.push_back( dbe_->book2D("nRPChits_vs_eta","# RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nLayersWithMeas_vs_eta.push_back(
-       dbe_->book2D("nLayersWithMeas_vs_eta","# Layers with measurement vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nPXLlayersWithMeas_vs_eta.push_back(
-       dbe_->book2D("nPXLlayersWithMeas_vs_eta","# PXL Layers with measurement vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nSTRIPlayersWithMeas_vs_eta.push_back( 
-       dbe_->book2D("nSTRIPlayersWithMeas_vs_eta","# STRIP Layers with measurement vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nSTRIPlayersWith1dMeas_vs_eta.push_back( 
-       dbe_->book2D("nSTRIPlayersWith1dMeas_vs_eta","# STRIP Layers with 1D measurement vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nSTRIPlayersWith2dMeas_vs_eta.push_back( 
-       dbe_->book2D("nSTRIPlayersWith2dMeas_vs_eta","# STRIP Layers with 2D measurement vs eta",nint,min,max,nintHit,minHit,maxHit) );
 
-
-      h_hits_eta.push_back( dbe_->bookProfile("hits_eta","mean #hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_PXBhits_eta.push_back( dbe_->bookProfile("PXBhits_eta","mean # PXB hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_PXFhits_eta.push_back( dbe_->bookProfile("PXFhits_eta","mean # PXF hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_TIBhits_eta.push_back( dbe_->bookProfile("TIBhits_eta","mean # TIB hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_TIDhits_eta.push_back( dbe_->bookProfile("TIDhits_eta","mean # TID hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_TOBhits_eta.push_back( dbe_->bookProfile("TOBhits_eta","mean # TOB hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_TEChits_eta.push_back( dbe_->bookProfile("TEChits_eta","mean # TEC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_DThits_eta.push_back( dbe_->bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_CSChits_eta.push_back( dbe_->bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_RPChits_eta.push_back( dbe_->bookProfile("RPChits_eta","mean # RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_LayersWithMeas_eta.push_back( 
-       dbe_->bookProfile("LayersWithMeas_eta","mean # LayersWithMeas vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_PXLlayersWithMeas_eta.push_back( 
-       dbe_->bookProfile("PXLlayersWith2dMeas_eta","mean # PXLlayersWithMeas vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_STRIPlayersWithMeas_eta.push_back( 
-       dbe_->bookProfile("STRIPlayersWithMeas_eta","mean # STRIPlayersWithMeas vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_STRIPlayersWith1dMeas_eta.push_back( 
-       dbe_->bookProfile("STRIPlayersWith1dMeas_eta","mean # STRIPlayersWith1dMeas vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_STRIPlayersWith2dMeas_eta.push_back( 
-       dbe_->bookProfile("STRIPlayersWith2dMeas_eta","mean # STRIPlayersWith2dMeas vs eta",nint,min,max,nintHit,minHit,maxHit) );
-
-
+      h_hits_eta.push_back( dbe_->bookProfile("hits_eta","mean #hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nhits_vs_phi.push_back( dbe_->book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
       h_hits_phi.push_back( dbe_->bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
 
@@ -788,23 +753,9 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  //chi2 and #hit vs eta: fill 2D histos
 	  chi2_vs_eta[w]->Fill(getEta(track->eta()),track->normalizedChi2());
 	  nhits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfValidHits());
-	  nPXBhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidPixelBarrelHits());
-	  nPXFhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidPixelEndcapHits());
-	  nTIBhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidStripTIBHits());
-	  nTIDhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidStripTIDHits());
-	  nTOBhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidStripTOBHits());
-	  nTEChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidStripTECHits());
 	  nDThits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonDTHits());
 	  nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonCSCHits());
 	  nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonRPCHits());
-	  nLayersWithMeas_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().trackerLayersWithMeasurement());
-	  nPXLlayersWithMeas_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().pixelLayersWithMeasurement());
-	  int LayersAll = track->hitPattern().stripLayersWithMeasurement();
-	  int Layers2D = track->hitPattern().numberOfValidStripLayersWithMonoAndStereo(); 
-	  int Layers1D = LayersAll - Layers2D;	
-	  nSTRIPlayersWithMeas_vs_eta[w]->Fill(getEta(track->eta()),LayersAll);
-	  nSTRIPlayersWith1dMeas_vs_eta[w]->Fill(getEta(track->eta()),Layers1D);
-	  nSTRIPlayersWith2dMeas_vs_eta[w]->Fill(getEta(track->eta()),Layers2D);
 
 	  nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
 
@@ -909,23 +860,9 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
-      doProfileX(nPXBhits_vs_eta[w],h_PXBhits_eta[w]);    
-      doProfileX(nPXFhits_vs_eta[w],h_PXFhits_eta[w]);    
-      doProfileX(nTIBhits_vs_eta[w],h_TIBhits_eta[w]);    
-      doProfileX(nTIDhits_vs_eta[w],h_TIDhits_eta[w]);    
-      doProfileX(nTOBhits_vs_eta[w],h_TOBhits_eta[w]);    
-      doProfileX(nTEChits_vs_eta[w],h_TEChits_eta[w]);    
       doProfileX(nDThits_vs_eta[w],h_DThits_eta[w]);    
       doProfileX(nCSChits_vs_eta[w],h_CSChits_eta[w]);    
       doProfileX(nRPChits_vs_eta[w],h_RPChits_eta[w]);    
-
-      doProfileX(nLayersWithMeas_vs_eta[w],h_LayersWithMeas_eta[w]);    
-      doProfileX(nPXLlayersWithMeas_vs_eta[w],h_PXLlayersWithMeas_eta[w]);    
-      doProfileX(nSTRIPlayersWithMeas_vs_eta[w],h_STRIPlayersWithMeas_eta[w]);    
-      doProfileX(nSTRIPlayersWith1dMeas_vs_eta[w],h_STRIPlayersWith1dMeas_eta[w]);    
-      doProfileX(nSTRIPlayersWith2dMeas_vs_eta[w],h_STRIPlayersWith2dMeas_eta[w]);    
-
-
 
       doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);    
       //vs phi
@@ -936,7 +873,7 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       doProfileX(nhits_vs_phi[w],h_hits_phi[w]);
 //       doProfileX(ptres_vs_phi[w],h_ptresmean_vs_phi[w]);
 //       doProfileX(phires_vs_phi[w],h_phiresmean_vs_phi[w]);
-      if(!skipHistoFit){
+      if(!skipHistoFit){      
       //pulls of track params vs eta: get sigma from 2D histos
       FitSlicesYTool fsyt_dxyp(dxypull_vs_eta[w]);
       fsyt_dxyp.getFittedSigmaWithError(h_dxypulleta[w]);
@@ -963,7 +900,6 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       FitSlicesYTool fsyt_thetapPhi(thetapull_vs_phi[w]);
       fsyt_thetapPhi.getFittedSigmaWithError(h_thetapullphi[w]);
       fsyt_thetapPhi.getFittedMeanWithError(h_thetapullphimean[w]);
-      
       //effic&fake
       fillPlotFromVectors(h_effic[w],totASSeta[w],totSIMeta[w],"effic");
       fillPlotFromVectors(h_fakerate[w],totASS2eta[w],totRECeta[w],"fakerate");

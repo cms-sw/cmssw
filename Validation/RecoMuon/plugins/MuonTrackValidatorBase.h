@@ -4,8 +4,8 @@
 /** \class MuonTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/10/01 15:02:55 $
- *  $Revision: 1.25 $
+ *  $Date: 2010/03/22 08:42:06 $
+ *  $Revision: 1.1 $
  *  \author cerati
  */
 
@@ -375,19 +375,10 @@ class MuonTrackValidatorBase {
 
   //#hit vs eta: to be used with doProfileX
   std::vector<MonitorElement*> nhits_vs_eta, 
-    nPXBhits_vs_eta, nPXFhits_vs_eta, 
-    nTIBhits_vs_eta,nTIDhits_vs_eta,
-    nTOBhits_vs_eta,nTEChits_vs_eta,
-    nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,
-    nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta, 
-    nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
-
+    nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta;
 
   std::vector<MonitorElement*> h_hits_eta,
-    h_PXBhits_eta, h_PXFhits_eta, h_TIBhits_eta,h_TIDhits_eta,
-    h_TOBhits_eta,h_TEChits_eta,h_DThits_eta,h_CSChits_eta,h_RPChits_eta,
-    h_LayersWithMeas_eta, h_PXLlayersWithMeas_eta, 
-    h_STRIPlayersWithMeas_eta, h_STRIPlayersWith1dMeas_eta, h_STRIPlayersWith2dMeas_eta;
+    h_DThits_eta,h_CSChits_eta,h_RPChits_eta;
     
 
   std::vector< std::vector<double> > etaintervals;
