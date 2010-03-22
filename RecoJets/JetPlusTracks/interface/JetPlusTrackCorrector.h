@@ -476,4 +476,4 @@ inline const jpt::Map& JetPlusTrackCorrector::responseMap() const { return respo
 inline const jpt::Map& JetPlusTrackCorrector::efficiencyMap() const { return efficiency_; }
 inline const jpt::Map& JetPlusTrackCorrector::leakageMap() const { return leakage_; }
 
-#endif // JetMETCorrections_Algorithms_JetPlusTrackCorrector_h
+#endif // RecoJets_JetPlusTracks_JetPlusTrackCorrector_h

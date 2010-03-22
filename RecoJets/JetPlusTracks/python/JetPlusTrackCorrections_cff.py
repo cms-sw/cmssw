@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoJets.Configuration.RecoJetAssociations_cff import *
-
 # ---------- Tight Electron ID
 
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import eidTight
