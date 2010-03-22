@@ -8,3 +8,6 @@
 <library   file="BasicGenTest.cc" name="BasicGenTest">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="TopDecayChannelChecker.cc" name="TopDecayChannelChecker">
+  <flags   EDM_PLUGIN="1"/>
+</library>
