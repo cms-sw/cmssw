@@ -188,7 +188,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   bool EventPasses = true;
 
   // Make sure handle is valid
-  if( TheHLTResults.isValid() )
+  if( TheHLTResults.isValid() && hltselection_ )
     {
       //Get HLT Names
       const edm::TriggerNames & TheTriggerNames = iEvent.triggerNames(*TheHLTResults);
@@ -221,7 +221,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 		    }
 		  */
 		  edm::LogInfo("OutputInfo") << "The HLT Trigger Name : " << HLTBitLabel_[index].label() << " is not valid for this trigger table " << endl;
-		  return;
+		  //return;
 		}
 	    }
 	}
