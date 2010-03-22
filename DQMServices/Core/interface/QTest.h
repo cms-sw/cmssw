@@ -12,8 +12,6 @@
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 
-
-using namespace std;
 class Comp2RefChi2;			typedef Comp2RefChi2 Comp2RefChi2ROOT;
 class Comp2RefKolmogorov;		typedef Comp2RefKolmogorov Comp2RefKolmogorovROOT;
 class Comp2RefEqualH;			typedef Comp2RefEqualH Comp2RefEqualHROOT;
@@ -635,7 +633,7 @@ private :
   int nBins; //Number of (non empty) bins
 
   //Vector contain bin values
-  vector<float> binValues;
+  std::vector<float> binValues;
 
   void reset(){binValues.clear();};
 
