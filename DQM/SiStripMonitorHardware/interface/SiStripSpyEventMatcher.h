@@ -143,6 +143,7 @@ namespace sistrip {
       edm::InputTag reorderedDigisTag_;
       edm::InputTag virginRawDigisTag_;
       std::auto_ptr<Source> source_;
+      uint32_t counterDiffMax_;
       static const char* mlLabel_;
   };
   

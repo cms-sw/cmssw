@@ -480,14 +480,14 @@ namespace sistrip {
   }
 
   void SpyUtilities::fillFEDMajorities(const std::map<uint32_t,uint32_t>& channelValues, 
-					      std::vector<uint32_t> & fedMajoritiesToFill)
+				       std::vector<uint32_t> & fedMajoritiesToFill)
   {
 
     std::map<uint32_t,uint32_t>::const_iterator lMapIter = channelValues.begin();
     uint16_t lPreviousFedId = 0;
     std::vector<uint16_t> lAddrVec;
     lAddrVec.reserve(sistrip::FEDCH_PER_FED);
-    fedMajoritiesToFill.resize(sistrip::FED_ID_MAX-sistrip::FED_ID_MIN+1);
+    fedMajoritiesToFill.resize(sistrip::FED_ID_MAX-sistrip::FED_ID_MIN+1,0);
     uint32_t lChCount = 0;
 
     for ( ; lMapIter != channelValues.end(); ++lMapIter,++lChCount){

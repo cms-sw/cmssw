@@ -18,6 +18,7 @@ SiStripSpyEventMatcher = cms.EDFilter(
       fileNames = cms.untracked.vstring(
         'SpyFileNameWhichNeedsToBeSet SiStripSpyEventMatcher.SpySource.fileNames'
         )
-      )
+      ),
+    CounterDiffMaxAllowed = cms.uint32(100)
     )
 

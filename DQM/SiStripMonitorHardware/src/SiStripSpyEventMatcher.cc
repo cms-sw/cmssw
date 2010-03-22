@@ -38,7 +38,8 @@ namespace sistrip {
       payloadDigisTag_(config.getParameter<edm::InputTag>("SpyPayloadDigisTag")),
       reorderedDigisTag_(config.getParameter<edm::InputTag>("SpyReorderedDigisTag")),
       virginRawDigisTag_(config.getParameter<edm::InputTag>("SpyVirginRawDigisTag")),
-      source_(constructSource(config.getParameter<edm::ParameterSet>("SpySource")))
+      source_(constructSource(config.getParameter<edm::ParameterSet>("SpySource"))),
+      counterDiffMax_(config.getParameter<uint32_t>("CounterDiffMaxAllowed"))
   {}
   
   std::auto_ptr<SpyEventMatcher::Source> SpyEventMatcher::constructSource(const edm::ParameterSet& sourceConfig)
@@ -69,6 +70,7 @@ namespace sistrip {
       return false;
     }
     edm::EventID spyEventId = nextSpyEvent->id();
+
     CountersPtr totalEventCounters = getCounters(nextSpyEvent,totalEventCountersTag_);
     CountersPtr l1aCounters = getCounters(nextSpyEvent,l1aCountersTag_);
     CountersPtr apvAddresses = getCounters(nextSpyEvent,apvAddressesTag_,false);
@@ -79,19 +81,34 @@ namespace sistrip {
     std::vector<uint32_t>::const_iterator iAPVAddress = apvAddresses->begin();
     //for debug
     std::map<EventKey,uint16_t> fedCounts;
+    unsigned int fedid = 0;
     for (;
          ( (iTotalEventCount != totalEventCounters->end()) && (iL1ACount != l1aCounters->end()) && (iAPVAddress != apvAddresses->end()) ); 
-         (++iTotalEventCount, ++iL1ACount, ++iAPVAddress)
+         (++iTotalEventCount, ++iL1ACount, ++iAPVAddress, ++fedid)
         ){
       if (*iAPVAddress == 0) {
         continue;
       }
+
+      if ( ((*iTotalEventCount) > (*iL1ACount) ) || 
+	   ((*iL1ACount)-(*iTotalEventCount) > counterDiffMax_) 
+	   ) {
+	LogWarning(mlLabel_) << "Spy event " << spyEventId.event() 
+			     << " error in counter values for FED " << fedid
+			     << ", totCount = " << *iTotalEventCount
+			     << ", L1Acount = " << *iL1ACount
+			     << std::endl;
+
+	continue;
+      }
+
       for (uint32_t eventId = (*iTotalEventCount)+1; eventId <= (*iL1ACount)+1; ++eventId) {
         EventKey key(eventId,*iAPVAddress);
         eventMatches_[key].insert(spyEventId);
         fedCounts[key]++;
       }
     }
+
     //for debug
     std::ostringstream ss;
     ss << "Spy event " << spyEventId.event() << " matches (eventID,apvAddress,nFEDs): ";
@@ -99,6 +116,7 @@ namespace sistrip {
       ss << "(" << iEventFEDCount->first.eventId() << "," << uint16_t(iEventFEDCount->first.apvAddress()) << "," << iEventFEDCount->second << ") ";
     }
     LogDebug(mlLabel_) << ss.str();
+
     return true;
   }
   
@@ -416,13 +434,16 @@ namespace sistrip {
     : pConst(theCounters),
       p(NULL),
       deleteP(false)
-  {}
+  {
+  }
   
   SpyEventMatcher::CountersWrapper::CountersWrapper(Counters* theCounters, const bool takeOwnership)
     : pConst(theCounters),
       p(theCounters),
       deleteP(takeOwnership)
-  {}
+  {
+
+  }
   
   SpyEventMatcher::CountersWrapper::~CountersWrapper()
   {
