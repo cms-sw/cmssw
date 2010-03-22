@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.9 2009/10/06 19:48:50 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.10 2009/11/17 16:02:32 xiezhen Exp $
  *
  ************************************************************/
  
@@ -24,17 +24,17 @@ class LumiSummary {
   public:
     L1():triggersource(""),ratecount(-99),scalingfactor(-99){}
     std::string triggersource;
-    int ratecount;
-    int deadtimecount;
-    int scalingfactor;
+    unsigned int ratecount;
+    unsigned long long deadtimecount;
+    unsigned int scalingfactor;
   };
   class HLT{
   public:
     HLT():pathname(""),ratecount(-99),inputcount(-99),scalingfactor(-99){}
     std::string pathname;
-    int ratecount;
-    int inputcount;
-    int scalingfactor;
+    unsigned int ratecount;
+    unsigned int inputcount;
+    unsigned int scalingfactor;
   };
 
  public:
@@ -94,7 +94,7 @@ class LumiSummary {
     float avginsdellumi_;
     //instant lumierror
     float avginsdellumierr_;
-    //detector quality flag use 7 bits PIXEL,STRIP,MUON,HCAL,ECAL,HF,HLX    
+    //detector quality flag use HF,HLX    
     short   lumisecqual_;
     float deadfrac_;
     int   lsnumber_;
@@ -103,7 +103,8 @@ class LumiSummary {
     //contains 128 + 64 triggers
     std::vector<L1> l1data_;
     //first orbit number of this LS
-    unsigned long long startorbit_;
+    unsigned int startorbit_;
+    unsigned int numorbit_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary);
