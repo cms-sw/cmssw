@@ -399,6 +399,7 @@ void TCTauAnalysis::fillTCTau(CaloTauRef theTau){
         TCTau_d_1      = d_trackIsolation;
 
         TCTau_pt_raw   = jptTCTauCorrected.caloTauTagInfoRef()->calojetRef()->et();
+	cout << "TCTau Raw Et         = " << TCTau_pt_raw << endl;
 
         if(leadingTrack.isNonnull()) {
                 const TrackRefVector signalTracks = op.tracksInCone(leadingTrack->momentum(),metric,signalConeSize,ptOtherTracksMin);
