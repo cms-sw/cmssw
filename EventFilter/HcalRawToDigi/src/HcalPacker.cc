@@ -17,9 +17,9 @@ HcalPacker::Collections::Collections() {
 
 template <class Coll, class DetIdClass> 
 int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples,bool& isUS, bool& isMP) {
+  isUS=false; isMP=false;
   if (pt==0) return 0;
   int size=0;
-  isUS=false; isMP=false;
   typename Coll::const_iterator i=pt->find(DetIdClass(did));
   if (i!=pt->end()) {
     isUS=i->zsUnsuppressed();
@@ -113,8 +113,8 @@ void HcalPacker::pack(int fedid, int dccnumber,
 
 	// next, see if there is a digi with this id
 	unsigned short* database=&(precdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
-	int mypresamples;
-	bool isUS, isMP;
+	int mypresamples=-1;
+	bool isUS=false, isMP=false;
 	int mysamples=findSamples(genId,inputs,database,mypresamples,isUS,isMP);
 	haveUnsuppressed=haveUnsuppressed || isUS;
 	channelIsMP[linear]=isMP;
