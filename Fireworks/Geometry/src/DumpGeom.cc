@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.22 2010/03/10 13:56:04 yana Exp $
+// $Id: DumpGeom.cc,v 1.23 2010/03/22 19:15:49 case Exp $
 //
 //
 
@@ -530,15 +530,9 @@ void DumpGeom::mapDTGeometry(const DDCompactView& cview,
  ** method mapCSCGeometry(...)
  ** date: 01-25-2008
  ** Description:
- **   This is a hack to do the following.  Assign layer det id's to 
- ** a DD "path" or "geo History".  Because the current loop in the analyze
- ** does not iterate below the Polycarb panel of the geometry, the detId
- ** for the layer is mapped to the chamber's path in the DD.  This means
- ** there is no way for the user of the produced root file to determine
- ** which hit is in which layer.  Any hit position will not be "translatable"
- ** to a position within the chamber, i.e. no local track segments can be 
- ** displayed if the user wants that level of detail.
- ** 
+ ** Assign layer det id's to a DD "path" or "geo History".
+ ** date: 03-22-2010, MEC
+ **      Added the layers last Nov.  Fixed a bug just now.
  **/
 void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
 			     const MuonDDDConstants& muonConstants) {
@@ -557,18 +551,8 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
  
   const std::vector<DetId>& did = rig.detIds();
   std::vector<double> trans, rot;
-  unsigned int rid;
-  std::cout << did.size() << " Number of CSC Chambers" << std::endl;
-  for ( size_t it = 0; it < did.size(); ++it ) {
-    trans = rig.translation(it);
-    rot = rig.rotation(it);
-    rid = did[it].rawId();
-//     std::cout << rid << " trans ";
-//     for ( size_t tr = 0; tr < 3 ; ++tr ) std::cout << trans[tr] << " ";
-//     std::cout << " rot " ;
-//     for ( size_t ri = 0; ri < 9 ; ++ri ) std::cout << rot[ri] << " ";
-//     std::cout << std::endl;
-  }
+  //  std::cout << did.size() << " Number of CSC Chambers" << std::endl;
+
   std::string myName="DumpCSCGeom";
   std::string attribute = "MuStructure"; 
   std::string value     = "MuonEndcapCSC";
@@ -587,10 +571,9 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
   //  std::cout << "****************about to skip firstChild() ONCE" << std::endl;   
   bool doSubDets = fview.firstChild();
 
-  std::cout << "****************** doSubDets is";
-  if (doSubDets) std::cout << " TRUE"; else std::cout << " FALSE";
-  std::cout << "*******************" << std::endl;
   //  Loop on chambers
+  //  Since we have the RIG (RecoIdealGeometry) detIds, we loop over this filter
+  //  then look up the detID.
   while (doSubDets){
 
     /// Naming block
@@ -612,119 +595,33 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
 
     DetId searchId (chamberId);
     std::vector<DetId>::const_iterator findIt = std::find(did.begin(), did.end(), searchId);
-    if ( findIt == did.end() ) std::cout << "DID NOT find chamber DetId in RecoIdealGeometry object." << std::endl;
-    else std::cout << "Found chamber DetID in RecoIdealGeometry object" << std::endl;
+
     // The above gives you the CHAMBER DetID but not the LAYER.
     // For CSCs the layers are built from specpars of the chamber.
-    // I will try to do the same here without actually building
-    // chamber geometry (i.e. won't copy whole of CSCGeometryBuilderFromDDD
-    // We don't need layers for now, till we get geometry for them fixed
+    // this code is from CSCGeometryBuilder package in Geometry subsystem.
     int jend   = chamberId.endcap();
     int jstat  = chamberId.station();
     int jring  = chamberId.ring();
     int jch    = chamberId.chamber();
 
-    /**
     int localZwrtGlobalZ = +1;
     if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
     int globalZ = +1;
     if ( jend == 2 ) globalZ = -1;
-//     int localZwrtGlobalZ = +1;
-//     if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
 
-
-    LogTrace(myName) << myName << ": layerSeparation=" << layerSeparation
-                     << ", zAF-zAverageAGV="  << zAverageAGVtoAF
-                     << ", localZwrtGlobalZ=" << localZwrtGlobalZ
-                     << ", gtran[2]=" << gtran[2] ;
-
-    for ( short j = 1; j <= 6; ++j ) {
-
-      CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
-
-      // extra-careful check that we haven't already built this layer
-      const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
-
-      if ( cLayer == 0 ) {
-
-      // build the layer - need the chamber's specs and an appropriate layer-geometry
-         const CSCChamberSpecs* aSpecs = chamber->specs();
-         const CSCLayerGeometry* geom = 
-                    (j%2 != 0) ? aSpecs->oddLayerGeometry( jend ) : 
-                                 aSpecs->evenLayerGeometry( jend );
-
-        // Build appropriate BoundPlane, based on parent chamber, with gas gap as thickness
-
-	// centre of chamber is at global z = gtran[2]
-        float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
-
-        BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
-        BoundPlane::PositionType layerPosition( gtran[0], gtran[1], zlayer );
-	//        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( *geom );
-	//std::vector<float> dims = bounds->parameters(); // returns hb, ht, d, a
-	std::vector<float> dims = geom->parameters(); // returns hb, ht, d, a
-        dims[2] = layerThickness/2.; // half-thickness required and note it is 3rd value in vector
-	//        delete bounds;        
-	//        bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
-        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
-        BoundPlane::BoundPlanePointer plane = BoundPlane::build(layerPosition, chamberRotation, bounds);
-	delete bounds;
-
-        CSCLayer* layer = new CSCLayer( plane, layerId, chamber, geom );
-
-        LogTrace(myName) << myName << ": Create layer E" << jend << " S" << jstat 
-	            << " R" << jring << " C" << jch << " L" << j
-                    << " z=" << zlayer
-		     << " t=" << layerThickness << " or " << layer->surface().bounds().thickness()
-		         << " adr=" << layer << " layerGeom adr=" << geom ;
-
-        chamber->addComponent(j, layer); 
-        theGeometry->addLayer( layer );
-      }
-      else {
-        edm::LogError(myName) << ": ERROR, layer " << j <<
-            " for chamber = " << ( chamber->id() ) <<
-            " already exists: layer address=" << cLayer <<
-            " chamber address=" << chamber << "\n";
-      }
-
-    } // layer construction within chamber
-
-     **/
-    // Create the component layers of this chamber   
-    // We're taking the z as the z of the wire plane within the layer (middle of gas gap)
-
-    // Specify global z of layer by offsetting from centre of chamber: since layer 1 
-    // is nearest to IP in stations 1/2 but layer 6 is nearest in stations 3/4, 
-    // we need to adjust sign of offset appropriately...
-    int localZwrtGlobalZ = +1;
-    if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
-    int globalZ = +1;
-    if ( jend == 2 ) globalZ = -1;
+    idToName_[chamberId.rawId()] = Info(name);
+    //    std::cout << "CSC chamber detID: " << chamberId<< " "<< chamberId.rawId() << " \tname: " << name << std::endl;
+    
     for ( short j = 1; j <= 6; ++j ) {
       std::string layerName = name;
       CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
-
+      
       DetId searchId2 (layerId);
       std::vector<DetId>::const_iterator findIt = std::find(did.begin(), did.end(), searchId2);
-      //      if ( findIt == did.end() ) std::cout << "DID NOT find layer DetId in RecoIdealGeometry object." << std::endl;
-      //      else std::cout << "Found layer DetID in RecoIdealGeometry object" << std::endl;
-
-      // centre of chamber is at global z = gtran[2]
-      // centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
-      // NOT USED RIGHT NOW float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
-
+      
       unsigned int rawid = layerId.rawId();
 
-      // COULD MODIFY name so that we have the "fake/hack" layer name since we don't know what it is at 
-      // this point.  THERE MAY BE A FIX to this by iterating separately over a different filter 
-      // which looks at the layers only.  Anyway, there is a real pain here in that we can not do this
-      // right now anyway because of the depth (level_) limit in root software the "Woops!!!" error.
-      // mf:ME11AlumFrame is the name of the chamber, then ME11 or ME1A is the layer... can not dist...
-      //   names are ?  ME1A_ActiveGasVol?
-      //   names are ?  ME11_ActiveGasVol?
-      //  OR ME11_Layer?  I choose the layer name.
-      //      std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
+      //  Go down to  ME11_Layer.
       std::string prefName = (fview.logicalPart().name().name()).substr(0,4);
       //ME21FR4Body 1
       //      10 mf:ME11PolycarbPanel 1 Trapezoid
@@ -733,68 +630,32 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
       ostr << j;
       layerName += ostr.str();
       idToName_[rawid] = layerName;
-      std::cout << "CSCDetID: " << layerId << " chamber id: " << rawid << " \tname: " << layerName << std::endl;
-
-      // same rotation as chamber
-      // same x and y as chamber
-      // layerPosition( gtran[0], gtran[1], zlayer );
-
+      //      std::cout << "CSC Layer   detID: " << layerId << " " << rawid << " \tname: " << layerName << std::endl;
 
     } // layer construction within chamber
-
-     idToName_[chamberId.rawId()] = Info(name);
-     //     std::cout << "CSC chamber: " << chamberId.rawId() << " \tname: " << name << std::endl;
      
      //  If it's ME11 you need to have two detId's per chamber. This is how to construct the detId
      //  copied from the CSCGeometryBuilder code.
-     int jstation = chamberId.station();
-     // int
-     jring    = chamberId.ring();
-     int jchamber = chamberId.chamber();
-     int jendcap  = chamberId.endcap();
-     if ( jstation==1 && jring==1 ) {
-       CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 );
-       std::cout << "CSC Chamber detID: " <<detid1a<<" "<< detid1a.rawId() << " \tname: " << name << std::endl;
+     if ( jstat==1 && jring==1 ) {
+       CSCDetId detid1a = CSCDetId( jend, 1, 4, jch, 0 );
+       // the chamber "name" is the same for both detId's, I believe.
+       //       std::cout << "CSC Chamber detID: " <<detid1a<<" "<< detid1a.rawId() << " \tname: " << name << std::endl;
        idToName_[detid1a.rawId()] = Info(name);
        for ( short j = 1; j <= 6; ++j ) {
 	 std::string layerName = name;
-	 CSCDetId layerId = CSCDetId( jend, 1, 4, jchamber, j );
-
+	 CSCDetId layerId = CSCDetId( jend, 1, 4, jch, j );
 	 DetId searchId2 (layerId);
 	 std::vector<DetId>::const_iterator findIt = std::find(did.begin(), did.end(), searchId2);
 	 //      if ( findIt == did.end() ) std::cout << "DID NOT find layer DetId in RecoIdealGeometry object." << std::endl;
 	 //      else std::cout << "Found layer DetID in RecoIdealGeometry object" << std::endl;
-	 
-	 // centre of chamber is at global z = gtran[2]
-	 // centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
-	 // NOT USED RIGHT NOW float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
-	 
 	 unsigned int rawid = layerId.rawId();
-	 
-	 // COULD MODIFY name so that we have the "fake/hack" layer name since we don't know what it is at 
-	 // this point.  THERE MAY BE A FIX to this by iterating separately over a different filter 
-	 // which looks at the layers only.  Anyway, there is a real pain here in that we can not do this
-	 // right now anyway because of the depth (level_) limit in root software the "Woops!!!" error.
-	 // mf:ME11AlumFrame is the name of the chamber, then ME11 or ME1A is the layer... can not dist...
-	 //   names are ?  ME1A_ActiveGasVol?
-	 //   names are ?  ME11_ActiveGasVol?
-	 //  OR ME11_Layer?  I choose the layer name.
-	 //      std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
 	 std::string prefName = (fview.logicalPart().name().name()).substr(0,4);
-	 //ME21FR4Body 1
-	 //      10 mf:ME11PolycarbPanel 1 Trapezoid
 	 layerName += "/mf:" + prefName + "FR4Body_1/mf:" + prefName + "PolycarbPanel_1/mf:" + prefName + "Layer_"; //"_ActiveGasVol_";
 	 std::ostringstream ostr;
 	 ostr << j;
 	 layerName += ostr.str();
 	 idToName_[rawid] = layerName;
-	 std::cout << "CSCDetID: " << layerId << " chamber id: " << rawid << " \tname: " << layerName << std::endl;
-	 
-	 // same rotation as chamber
-	 // same x and y as chamber
-	 // layerPosition( gtran[0], gtran[1], zlayer );
-	 
-	 
+	 //	 std::cout << "CSC Layer   detID: " << layerId << " " << rawid << " \tname: " << layerName << std::endl;
        } // layer construction within chamber
      }
     doSubDets = fview.nextSibling(); // go to next chamber
@@ -1245,21 +1106,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TGeoVolume* child = createVolume(info.first.name().fullname(),
 				       info.first.solid(),
 				       vacuum);
-      //mikes debug output
-//       std::cout << "done with " << info.first.name() << " about to mess w the stack" 
-// 		<< " child = " << child 
-// 		<< " childAlreadyExist = " << childAlreadyExists
-// 		<< " level_ = " << level_ << " parentStack.size() = " << parentStack.size();
-//       std::cout << " info.second " << info.second << std::endl;
-// end mikes debug output
-
       if(0!=child && info.second != 0) {
-	 //add to parent
-	//mikes debug output
-// 	std::cout << " info.second->copyno_ = " << info.second->copyno_
-// 		  << std::endl;
-// 	std::cout << "adding a node to the parent" << std::endl;
-	//end mikes debug output
 	 parentStack.back()->AddNode(child,
 				 info.second->copyno_,
 				 createPlacement(info.second->rotation(),
@@ -1267,16 +1114,9 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 child->SetLineColor(kBlue);
       }  else {
 	if ( info.second == 0 ) {
-//mikes debug output 	  std::cout << "OKAY! it IS 0" << std::endl;
 	  break;
  	}
-//mikes debug output
-// 	if ( parentStack.size() != 0 ) {
-//  	  std::cout << "huh?  have we popped back further than we should? and why?" << std::endl;
-//  	}
-//end mikes debug output
       }
-	//end mikes debug output
       if(0 == child || childAlreadyExists || level_ == int(parentStack.size()) ) {
 	 if(0!=child) {
 	    child->SetLineColor(kRed);
@@ -1306,39 +1146,6 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    } while(not parentStack.empty());
 
-/*
-   if(0==top) {
-      return;
-   }
-
-   do {
-      if(verbose_) {
-
-	 for(int i=0; i<ev.geoHistory().size();++i) {
-	    std::cout <<" ";
-	 }
-	 std::cout << ev.logicalPart().name()<<" "<<ev.copyno()<<" "
-		   << DDSolidShapesName::name(ev.logicalPart().solid().shape())<<std::endl;
-      }
-      if(level_==ev.geoHistory().size()) {
-	 TGeoVolume* v = createVolume(std::string(ev.logicalPart().name()),
-				      ev.logicalPart().solid(),
-				      geom.get(),
-				      vacuum);
-	 if(0 != v) {
-
-	    top->AddNode(v,ev.copyno(),createPlacement(ev.rotation(),ev.translation()));
-	    if(ev.logicalPart().solid().shape() == ddpolyhedra_rrz) {
-	       v->SetLineColor(kGreen);
-	    }
-	    if(ev.logicalPart().solid().shape() == ddbox) {
-	       v->SetLineColor(kBlue);
-	    }
-	 }
-      }
-
-   } while( ev.next() );
-*/
    geom->CloseGeometry();
    std::cout << "In the DumpGeom::analyze method...done with main geometry" << std::endl;
    mapDTGeometry(*viewH, *mdc);
