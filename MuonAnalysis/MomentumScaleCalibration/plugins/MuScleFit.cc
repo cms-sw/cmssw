@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/03/16 12:02:29 $
-//  $Revision: 1.73 $
+//  $Date: 2010/03/18 15:11:39 $
+//  $Revision: 1.74 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -326,6 +326,10 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   inputRootTreeFileName_ = pset.getParameter<string>("InputRootTreeFileName");
   outputRootTreeFileName_ = pset.getParameter<string>("OutputRootTreeFileName");
   maxEventsFromRootTree_ = pset.getParameter<int>("MaxEventsFromRootTree");
+
+  MuScleFitUtils::startWithSimplex_ = pset.getParameter<bool>("StartWithSimplex");
+  MuScleFitUtils::computeMinosErrors_ = pset.getParameter<bool>("ComputeMinosErrors");
+  MuScleFitUtils::minimumShapePlots_ = pset.getParameter<bool>("MinimumShapePlots");
 }
 
 // Destructor
