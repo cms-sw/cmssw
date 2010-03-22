@@ -338,7 +338,7 @@ namespace sistrip {
     const std::vector<uint32_t>* vectorFromEvent = getProduct< std::vector<uint32_t> >(event,tag);
     if (vectorFromEvent) {
       //vector is from event so, will be deleted when the event is destroyed (and not before)
-      return CountersPtr(vectorFromEvent, ConfigurableDeleter(false));
+      return CountersPtr(new CountersWrapper(vectorFromEvent) );
     } else {
       const std::map<uint32_t,uint32_t>* mapFromEvent = getProduct< std::map<uint32_t,uint32_t> >(event,tag);
       if (mapFromEvent) {
@@ -351,7 +351,7 @@ namespace sistrip {
           SpyUtilities::fillFEDMajorities(*mapFromEvent,*newVector);
         }
         //vector was allocated here so, will need to be deleted when finished with
-        CountersPtr newCountersPtr(newVector, ConfigurableDeleter(true));
+        CountersPtr newCountersPtr( new CountersWrapper(newVector,true) );
         return newCountersPtr;
       } else {
         throw cms::Exception(mlLabel_) << "Unable to get product " << tag << " from spy event";
@@ -403,6 +403,23 @@ namespace sistrip {
     payloadDigis = original.payloadDigis;
     virginRawDigis = original.virginRawDigis;
     return *this;
+  }
+  
+  SpyEventMatcher::CountersWrapper::CountersWrapper(const Counters* theCounters)
+    : pConst(theCounters),
+      p(NULL),
+      deleteP(false)
+  {}
+  
+  SpyEventMatcher::CountersWrapper::CountersWrapper(Counters* theCounters, const bool takeOwnership)
+    : pConst(theCounters),
+      p(theCounters),
+      deleteP(takeOwnership)
+  {}
+  
+  SpyEventMatcher::CountersWrapper::~CountersWrapper()
+  {
+    if (deleteP) delete p;
   }
   
 }

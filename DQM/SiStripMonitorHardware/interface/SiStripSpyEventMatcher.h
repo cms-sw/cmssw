@@ -78,23 +78,26 @@ namespace sistrip {
           uint32_t eventId_;
           uint8_t  apvAddress_;
       };
-      //A 'deleter' that can be configured to either delete something or not (used to make shared_ptrs that can be configured not to delete)
-      class ConfigurableDeleter
+      typedef std::vector<uint32_t> Counters;
+      //class to wrap counters that can take ownership of them or not.
+      //It behaves like the counters themself but, it actualy holds a pointer to them and dletes them if necessary
+      class CountersWrapper
       {
         public:
-          ConfigurableDeleter(const bool needsToBeDeleted) : doDelete_(needsToBeDeleted) {}
-          void operator () (std::vector<uint32_t>* p) { if (doDelete_) delete p; }
-          void operator () (const std::vector<uint32_t>* p)
-          {
-            if (doDelete_) throw cms::Exception(SpyEventMatcher::mlLabel_) << "Logic error: ConfigurableDeleter trying to delete const vector";
-          }
+          CountersWrapper(const Counters* theCounters);
+          CountersWrapper(Counters* theCounters, const bool takeOwnership);
+          ~CountersWrapper();
+          const Counters::value_type operator [] (const size_t i) const { return (*pConst)[i]; };
+          const Counters::value_type at(const size_t i) const { return pConst->at(i); };
+          Counters::const_iterator begin() const { return pConst->begin(); }
+          Counters::const_iterator end() const { return pConst->end(); }
         private:
-          bool doDelete_;
+          const Counters* pConst;
+          Counters* p;
+          bool deleteP;
       };
-      //A reference counted pointer to a vector of counters (L1A, total event count, APV address)
-      //that knows whether they should be deleted when it is destroyed
-      //Vectors from the event should not be (they are memory managed by the event) but, vecotors constructed from maps need to be deleted
-      typedef boost::shared_ptr< const std::vector<uint32_t> > CountersPtr;
+      typedef boost::shared_ptr<CountersWrapper> CountersPtr;
+      
       //source for spy events
       typedef edm::VectorInputSource Source;
       //reference counted pointer to an event
@@ -103,7 +106,7 @@ namespace sistrip {
       static std::auto_ptr<Source> constructSource(const edm::ParameterSet& sourceConfig);
       bool addNextEventToMap();
       template <class T> static const T* getProduct(const SpyEventPtr event, const edm::InputTag& tag);
-      static CountersPtr getCounters(const SpyEventPtr event, const edm::InputTag& tag);
+      static CountersPtr getCounters(const SpyEventPtr event, const edm::InputTag& tag, const bool mapKeyIsByFedID = true);
       SpyEventPtr readNextEvent();
       SpyEventPtr readSpecificEvent(const edm::EventID& id);
       static void findMatchingFeds(const uint32_t eventId, const uint8_t apvAddress,
