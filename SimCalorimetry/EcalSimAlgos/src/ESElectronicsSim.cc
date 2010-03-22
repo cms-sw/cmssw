@@ -6,11 +6,11 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include <iostream>
 using namespace std;
 
 ESElectronicsSim::ESElectronicsSim (bool addNoise):
-  addNoise_(addNoise)
+  addNoise_(addNoise), peds_(0), mips_(0)
 {
   // Preshower Electronics Simulation
   // gain = 1 : low gain for data taking 
@@ -54,8 +54,8 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
   std::vector<ESSample> results;
   results.reserve(timeframe.size());
 
-  ESPedestals::const_iterator it_ped = peds_.find(timeframe.id());
-  ESIntercalibConstantMap::const_iterator it_mip = mips_.getMap().find(timeframe.id());
+  ESPedestals::const_iterator it_ped = peds_->find(timeframe.id());
+  ESIntercalibConstantMap::const_iterator it_mip = mips_->getMap().find(timeframe.id());
   int baseline_  = (int) it_ped->getMean();
   double sigma_  = (double) it_ped->getRms();
   double MIPADC_ = (double) (*it_mip);

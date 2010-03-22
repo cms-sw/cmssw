@@ -18,9 +18,9 @@ class ESElectronicsSim
 
   ESElectronicsSim (bool addNoise);
 
-  void setGain (const int gain) { gain_ = gain; } 
-  void setPedestals(const ESPedestals& peds) { peds_ = peds; }
-  void setMIPs(const ESIntercalibConstants& mips) { mips_ = mips; }
+  void setGain (const int gain) { gain_ = gain; }
+  void setPedestals(const ESPedestals* peds) { peds_ = peds; }
+  void setMIPs(const ESIntercalibConstants* mips) { mips_ = mips; }
   void setMIPToGeV (const double MIPToGeV) { MIPToGeV_ = MIPToGeV; }
 
   virtual void analogToDigital(const CaloSamples& cs, ESDataFrame& df) const;
@@ -33,8 +33,8 @@ class ESElectronicsSim
 
     bool addNoise_;
     int gain_;
-    ESPedestals peds_;
-    ESIntercalibConstants mips_;
+    const ESPedestals *peds_;
+    const ESIntercalibConstants *mips_;
     double MIPToGeV_;
 
     std::vector<ESSample> encode(const CaloSamples& timeframe) const;
