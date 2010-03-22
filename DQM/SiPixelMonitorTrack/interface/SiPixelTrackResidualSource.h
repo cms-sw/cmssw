@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelTrackResidualSource.h,v 1.4 2010/01/07 17:11:44 merkelp Exp $
+// $Id: SiPixelTrackResidualSource.h,v 1.5 2010/01/11 16:53:36 merkelp Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
@@ -64,7 +64,9 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     bool ringOn, bladeOn, diskOn; 
 
     bool firstRun;
-
+    int NTotal;
+    int NLowProb;
+    
     std::map<uint32_t, SiPixelTrackResidualModule*> theSiPixelStructure; 
 
     MonitorElement* meSubdetResidualX[3];
@@ -193,6 +195,8 @@ class SiPixelTrackResidualSource : public edm::EDAnalyzer {
     MonitorElement* meClPosDisk2pzNotOnTrack; 
     MonitorElement* meClPosDisk1mzNotOnTrack; 
     MonitorElement* meClPosDisk2mzNotOnTrack; 
+    
+    MonitorElement* meHitProbability;
 };
 
 #endif
