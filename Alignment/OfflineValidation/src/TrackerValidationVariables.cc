@@ -316,6 +316,8 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
     trackStruct.charge = RecoTrack->charge();
     trackStruct.d0 = RecoTrack->d0();
     trackStruct.dz = RecoTrack->dz();
+    trackStruct.numberOfValidHits = RecoTrack->numberOfValidHits();
+    trackStruct.numberOfLostHits = RecoTrack->numberOfLostHits();
     v_avtrackout.push_back(trackStruct);
   }
 
