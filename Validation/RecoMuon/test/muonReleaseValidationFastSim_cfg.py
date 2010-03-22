@@ -18,7 +18,6 @@ else:
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'STARTUP_V1::All'
 process.GlobalTag.globaltag = 'GLOBALTAG::All'
 
 
@@ -28,10 +27,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
-process.load("Validation.RecoTrack.MultiTrackValidator_cff")
+process.load("Validation.RecoMuon.MuonTrackValidator_cff")
 if (FastSim):
     from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
     mergedtruth.simHitCollections =  cms.PSet(tracker = cms.vstring("famosSimHitsTrackerHits"))
@@ -56,20 +54,16 @@ process.load('Configuration.StandardSequences.EDMtoMEAtJobEnd_cff')
 process.load("Validation.Configuration.postValidation_cff")
 process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
 
-### configuration MultiTrackValidator ###
-#process.multiTrackValidator.outputFile = 'mtv.SAMPLE.root'
-
-
 process.cutsRecoTracks.algorithm = ['ALGORITHM']
 process.cutsRecoTracks.quality = ['QUALITY']
 
-process.multiTrackValidator.associators = ['TrackAssociatorByHits']
+process.muonTrackValidator.associators = ['TrackAssociatorByHits']
 
-process.multiTrackValidator.label = ['TRACKS']
-if (process.multiTrackValidator.label[0] == 'generalTracks'):
-    process.multiTrackValidator.UseAssociators = cms.bool(True)
+process.muonTrackValidator.label = ['TRACKS']
+if (process.muonTrackValidator.label[0] == 'generalTracks'):
+    process.muonTrackValidator.UseAssociators = cms.bool(True)
 else:
-    process.multiTrackValidator.UseAssociators = cms.bool(True)
+    process.muonTrackValidator.UseAssociators = cms.bool(True)
 ######
 
 
@@ -78,13 +72,13 @@ process.options = cms.untracked.PSet(
 )
 
 if (FastSim):
-    process.recoMuonValidationSequence = cms.Sequence(process.multiTrackValidator
+    process.recoMuonValidationSequence = cms.Sequence(process.muonTrackValidator
                                                       *process.recoMuonValidationFastSim
                                                       *process.recoMuonValidationHLTFastSim_seq)
 elif ('SAMPLE'=='RelValCosmics'):
     process.recoMuonValidationSequence = cms.Sequence(process.recoCosmicMuonValidation)
 else:
-    process.recoMuonValidationSequence = cms.Sequence(process.multiTrackValidator
+    process.recoMuonValidationSequence = cms.Sequence(process.muonTrackValidator
                                                       *process.recoMuonValidation
                                                       *process.recoMuonValidationHLT_seq)
 
@@ -128,7 +122,7 @@ process.re_tracking_and_TP = cms.Sequence(process.mix
                                           *process.recoMuonValidationSequence
                                           )
 
-if (process.multiTrackValidator.label[0] == 'generalTracks'):
+if (process.muonTrackValidator.label[0] == 'generalTracks'):
 
     process.only_validation = cms.Sequence(process.recoMuonValidationSequence)
 else:
@@ -136,7 +130,7 @@ else:
                                            *process.recoMuonValidationSequence
                                            )
     
-if (process.multiTrackValidator.label[0] == 'generalTracks'):
+if (process.muonTrackValidator.label[0] == 'generalTracks'):
     process.only_validation_and_TP = cms.Sequence(process.mix
                                                   *process.trackingParticles
                                                   *process.recoMuonValidationSequence

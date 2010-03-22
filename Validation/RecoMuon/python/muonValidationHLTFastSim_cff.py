@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.muonValidationHLT_cff import *
 
-# Configurations for MultiTrackValidators
+# Configurations for MuonTrackValidators
 
 l2MuonTrackFSV = Validation.RecoMuon.muonValidationHLT_cff.l2MuonTrackV.clone()
 l2MuonTrackFSV.associatormap = 'tpToL2TrackAssociationFS'

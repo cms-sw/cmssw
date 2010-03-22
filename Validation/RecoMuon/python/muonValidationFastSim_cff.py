@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.muonValidation_cff import *
 
-# Configurations for MultiTrackValidators
+# Configurations for MuonTrackValidators
 
 trkMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.trkMuonTrackVTrackAssoc.clone()
 trkMuonTrackVTrackAssocFS.associatormap = 'tpToTkmuTrackAssociationFS'
@@ -25,15 +25,11 @@ staUpdMuonTrackVMuonAssocFS.associatormap = 'tpToStaUpdMuonAssociationFS'
 glbMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.glbMuonTrackVMuonAssoc.clone()
 glbMuonTrackVMuonAssocFS.associatormap = 'tpToGlbMuonAssociationFS'
 
-tevMuonFirstTrackVTrackAssocFS = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+tevMuonFirstTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonFirstTrackVTrackAssoc.clone()
 tevMuonFirstTrackVTrackAssocFS.associatormap = 'tpToTevFirstTrackAssociationFS'
-tevMuonFirstTrackVTrackAssocFS.associators = ('TrackAssociatorByDeltaR',)
-tevMuonFirstTrackVTrackAssocFS.label = ('tevMuons:firstHit',)
 
-tevMuonPickyTrackVTrackAssocFS = Validation.RecoMuon.MultiTrackValidator_cfi.RMmultiTrackValidator.clone()
+tevMuonPickyTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonPickyTrackVTrackAssoc.clone()
 tevMuonPickyTrackVTrackAssocFS.associatormap = 'tpToTevPickyTrackAssociationFS'
-tevMuonPickyTrackVTrackAssocFS.associators = ('TrackAssociatorByDeltaR',)
-tevMuonPickyTrackVTrackAssocFS.label = ('tevMuons:picky',)
 
 # Configurations for RecoMuonValidators
 

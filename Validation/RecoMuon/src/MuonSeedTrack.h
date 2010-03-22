@@ -7,11 +7,10 @@
  * Make a (fake) reco::Track from a TrajectorySeed.  The (fake) track
  * can be associated to a TrackingParticle (SimTrack) using
  * SimTracker/TrackAssociation.  The association can then be used in
- * Validation packages, such as Validation/RecoTrack
- * MultiTrackValidator.cc
+ * Validation packages, such as Validation/RecoMuon/MuonTrackValidator.cc
  *
- *  $Date: 2007/09/27 18:04:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/05/08 09:56:38 $
+ *  $Revision: 1.2 $
  *
  *  \author Adam Everett        Purdue University
  */
