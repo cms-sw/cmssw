@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/22 09:11:47 $
- *  $Revision: 1.56 $
+ *  $Date: 2010/03/22 09:30:02 $
+ *  $Revision: 1.57 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -129,14 +129,10 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   // --- do the analysis on JPT Jets
   if(theJPTJetAnalyzerFlag) {
-    //theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
-    //theJPTJetAnalyzer->setSource("JPTJets");
     theJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
   }
   // --- do the analysis on JPT Cleaned Jets
   if(theJPTJetCleaningFlag) {
-    //theJPTJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedJPTJetAnalysis"));
-    //theJPTJetAnalyzer->setSource("JPTJets");
     theCleanedJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedJPTJetAnalysis"));
   }
 
