@@ -104,6 +104,9 @@ namespace sistrip {
     static std::pair<uint16_t,uint32_t> findMajorityValue(std::vector<uint16_t> & values,
 							  const uint16_t aFedId = 0);
 
+    static void fillFEDMajorities(const std::map<uint32_t,uint32_t>& channelValues, 
+				  std::vector<uint32_t> & fedMajoritiesToFill);
+
   private:
     // Cabling
     const SiStripFedCabling* cabling_;  //!< The cabling object.

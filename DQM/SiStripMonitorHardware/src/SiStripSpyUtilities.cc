@@ -479,5 +479,38 @@ namespace sistrip {
     
   }
 
+  void SpyUtilities::fillFEDMajorities(const std::map<uint32_t,uint32_t>& channelValues, 
+					      std::vector<uint32_t> & fedMajoritiesToFill)
+  {
+
+    std::map<uint32_t,uint32_t>::const_iterator lMapIter = channelValues.begin();
+    uint16_t lPreviousFedId = 0;
+    std::vector<uint16_t> lAddrVec;
+    lAddrVec.reserve(sistrip::FEDCH_PER_FED);
+    fedMajoritiesToFill.resize(sistrip::FED_ID_MAX-sistrip::FED_ID_MIN+1);
+    uint32_t lChCount = 0;
+
+    for ( ; lMapIter != channelValues.end(); ++lMapIter,++lChCount){
+      uint16_t lFedId = static_cast<uint16_t>(lMapIter->first/sistrip::FEDCH_PER_FED);
+      if (lPreviousFedId == 0) {
+	lPreviousFedId = lFedId;
+      }
+      if (lFedId == lPreviousFedId) {
+	lAddrVec.push_back(lMapIter->second);
+      }
+      if (lFedId != lPreviousFedId || (lChCount == channelValues.size()-1)) {
+	//extract majority address
+	uint32_t lMaj = sistrip::SpyUtilities::findMajorityValue(lAddrVec,lPreviousFedId).first;
+	fedMajoritiesToFill[lPreviousFedId] = lMaj;
+	lAddrVec.clear();
+	
+	//if new fed, fill the first channel
+	if (lFedId != lPreviousFedId) {
+	  lAddrVec.push_back(lMapIter->second);
+	}
+
+      }
+    }
+  }
 
 }//namespace

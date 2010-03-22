@@ -350,6 +350,12 @@ namespace sistrip {
         } else {
           SpyUtilities::fillFEDMajorities(*mapFromEvent,*newVector);
         }
+// 	std::cout << " -- Map " << tag << std::endl;
+// 	for (uint32_t lIt= 0;
+// 	     lIt < newVector->size();
+// 	     lIt++) {
+// 	  std::cout << lIt << " " << newVector->at(lIt) << std::endl;
+// 	}
         //vector was allocated here so, will need to be deleted when finished with
         CountersPtr newCountersPtr( new CountersWrapper(newVector,true) );
         return newCountersPtr;
