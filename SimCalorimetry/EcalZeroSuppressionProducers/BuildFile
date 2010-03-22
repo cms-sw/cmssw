@@ -5,6 +5,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
+<use name=CondFormats/ESObjects>
 <use name=RecoLocalCalo/EcalRecAlgos>
 
 <flags EDM_PLUGIN=1>
@@ -17,5 +18,6 @@
    <use name=DataFormats/EcalDetId>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/EcalObjects>
+   <use name=CondFormats/ESObjects>
    <use name=RecoLocalCalo/EcalRecAlgos>
 </export>
