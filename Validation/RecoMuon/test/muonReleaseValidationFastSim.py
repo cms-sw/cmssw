@@ -12,6 +12,9 @@ import string
 #Run on FastSim events if true
 FastSimUse="False"
 
+#(post) process only recoMuon related histos
+onlyRecoMuons="False"
+
 #Release to be validated:
 NewRelease='CMSSW_3_6_0_pre3'
 
@@ -22,12 +25,6 @@ if (FastSimUse=="True"):
 else:
     startupsamples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
     idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar']
-
-#startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-#startupsamples= ['RelValCosmics']
-#idealsamples= ['']
-
 
 
 # track algorithm name and quality. Can be a list.
@@ -232,7 +229,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     else:
                         Nevents=Events[sample]
                     print 'line 199'
-                    symbol_map = { 'PROCESSNAME':ProcessName, 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse}
+                    symbol_map = { 'PROCESSNAME':ProcessName, 'NEVENT':Nevents, 'GLOBALTAG':GlobalTagUse, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':trackalgorithm, 'QUALITY':trackquality, 'TRACKS':Tracks, 'FASTSIM':FastSimUse, 'ONLYRECOMUONS':onlyRecoMuons}
 
 
                     cfgFile = open(cfgFileName+'.py' , 'a' )

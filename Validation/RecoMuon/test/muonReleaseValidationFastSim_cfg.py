@@ -1,6 +1,7 @@
 #import FWCore.ParameterSet.Config as cms
 
 FastSim=FASTSIM
+onlyRecoMuons=ONLYRECOMUONS
 
 process = cms.Process("PROCESSNAME")
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -53,6 +54,13 @@ process.load('Configuration.StandardSequences.EDMtoMEAtJobEnd_cff')
 
 process.load("Validation.Configuration.postValidation_cff")
 process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
+if (onlyRecoMuons):
+    from Validation.Configuration.postValidation_cff import *
+    postValidation.remove(postProcessorTrack)
+    postValidation_fastsim.remove(postProcessorTrack)
+    from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
+    HLTMuonPostVal.remove(hltMuonPostProcessors)
+    HLTMuonPostVal_FastSim.remove(hltMuonPostProcessors)
 
 process.cutsRecoTracks.algorithm = ['ALGORITHM']
 process.cutsRecoTracks.quality = ['QUALITY']
