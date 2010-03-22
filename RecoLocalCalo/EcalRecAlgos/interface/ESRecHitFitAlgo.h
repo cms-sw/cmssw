@@ -19,10 +19,10 @@ class ESRecHitFitAlgo {
 
   void setESGain(const double& value) { gain_ = value; }
   void setMIPGeV(const double& value) { MIPGeV_ = value; } 
-  void setPedestals(const ESPedestals& peds) { peds_ = peds; }
-  void setIntercalibConstants(const ESIntercalibConstants& mips) { mips_ = mips; }
-  void setChannelStatus(const ESChannelStatus& status) { channelStatus_ = status; }
-  void setRatioCuts(const ESRecHitRatioCuts& ratioCuts) { ratioCuts_ = ratioCuts; }
+  void setPedestals(const ESPedestals* peds) { peds_ = peds; }
+  void setIntercalibConstants(const ESIntercalibConstants* mips) { mips_ = mips; }
+  void setChannelStatus(const ESChannelStatus* status) { channelStatus_ = status; }
+  void setRatioCuts(const ESRecHitRatioCuts* ratioCuts) { ratioCuts_ = ratioCuts; }
 
   double* EvalAmplitude(const ESDataFrame& digi, double ped) const;
   EcalRecHit reconstruct(const ESDataFrame& digi) const;
@@ -31,10 +31,10 @@ class ESRecHitFitAlgo {
 
   TF1 *fit_;
   double gain_;
-  ESPedestals peds_;
-  ESIntercalibConstants mips_;
-  ESChannelStatus channelStatus_;
-  ESRecHitRatioCuts ratioCuts_;
+  const ESPedestals *peds_;
+  const ESIntercalibConstants *mips_;
+  const ESChannelStatus *channelStatus_;
+  const ESRecHitRatioCuts *ratioCuts_;
   double MIPGeV_;
 
 };

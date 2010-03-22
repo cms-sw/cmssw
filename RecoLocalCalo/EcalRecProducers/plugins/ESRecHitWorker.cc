@@ -68,9 +68,9 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   double w1 = 0;
   double w2 = 0;
   if (ESGain == 1) {
-    w0 = -0.0772417;
-    w1 = 0.8168024;
-    w2 = 0.3857636; 
+    w0 = 0.0;
+    w1 = 0.725;
+    w2 = 0.4525;
   } else if (ESGain == 2) {
     w0 = 0.0;
     w1 = 0.725;
@@ -95,17 +95,17 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
     algoW_->setW0(w0);
     algoW_->setW1(w1);
     algoW_->setW2(w2);
-    algoW_->setPedestals(*peds);
-    algoW_->setIntercalibConstants(*mips);
-    algoW_->setChannelStatus(*channelStatus);
-    algoW_->setRatioCuts(*ratioCuts);
+    algoW_->setPedestals(peds);
+    algoW_->setIntercalibConstants(mips);
+    algoW_->setChannelStatus(channelStatus);
+    algoW_->setRatioCuts(ratioCuts);
   } else {
     algoF_->setESGain(ESGain);
     algoF_->setMIPGeV(ESMIPToGeV);
-    algoF_->setPedestals(*peds);
-    algoF_->setIntercalibConstants(*mips);
-    algoF_->setChannelStatus(*channelStatus);
-    algoF_->setRatioCuts(*ratioCuts);
+    algoF_->setPedestals(peds);
+    algoF_->setIntercalibConstants(mips);
+    algoF_->setChannelStatus(channelStatus);
+    algoF_->setRatioCuts(ratioCuts);
   }
 }
 

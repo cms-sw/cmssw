@@ -50,9 +50,9 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) cons
   if (adc[2] > adc[1] && adc[2] > adc[0]) status = 9;  
   double r12 = (adc[1] != 0) ? adc[0]/adc[1] : 99999;
   double r23 = (adc[2] != 0) ? adc[1]/adc[2] : 99999;
-  if (r12 > ratioCuts_.getR12High()) status = 5;
-  if (r23 > ratioCuts_.getR23High()) status = 6;
-  if (r23 < ratioCuts_.getR23Low()) status = 7;
+  if (r12 > ratioCuts_->getR12High()) status = 5;
+  if (r23 > ratioCuts_->getR23High()) status = 6;
+  if (r23 < ratioCuts_->getR23Low()) status = 7;
 
   if (int(status) == 0) {
     double para[10];
@@ -78,11 +78,11 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) cons
 
 EcalRecHit ESRecHitFitAlgo::reconstruct(const ESDataFrame& digi) const {
   
-  ESPedestals::const_iterator it_ped = peds_.find(digi.id());
+  ESPedestals::const_iterator it_ped = peds_->find(digi.id());
   
-  ESIntercalibConstantMap::const_iterator it_mip = mips_.getMap().find(digi.id());
+  ESIntercalibConstantMap::const_iterator it_mip = mips_->getMap().find(digi.id());
 
-  ESChannelStatusMap::const_iterator it_status = channelStatus_.getMap().find(digi.id());
+  ESChannelStatusMap::const_iterator it_status = channelStatus_->getMap().find(digi.id());
 
   double* results;
 
