@@ -2300,7 +2300,7 @@ int  OHltTree::OpenHlt1PhotonLooseEcalIsoPassed(float Et, int L1iso, float Tiso,
       if( TMath::Abs(ohPhotEta[i]) < 2.65 ) {
 	if ( ohPhotL1iso[i] >= L1iso ) { 
 	  if( ohPhotTiso[i]<Tiso ) { 
-	    if( ohPhotEiso[i] < Eiso || (ohPhotEiso[i]/ohPhotEt[i]) < 0.2 ) { 
+	    if( ohPhotEiso[i] < Eiso || (ohPhotEiso[i]/ohPhotEt[i]) < 0.1 ) { 
 	      if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR )  ||
 		  (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC ) || 
 		  (ohPhotHiso[i]/ohPhotEt[i] < 0.05) ) {
@@ -2351,7 +2351,7 @@ int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso,
     if ( ohPhotEt[i] > Et) { 
       if( TMath::Abs(ohPhotEta[i]) < 2.65 ) { 
 	if ( ohPhotL1iso[i] >= L1iso ) { 
-	  if( (ohPhotTiso[i]/ohPhotEt[i]) < Tiso ) {
+	  if( (ohPhotTiso[i]/ohPhotEt[i]) < Tiso && (ohPhotTiso[i] < 4.0)) {
 	    if( ohPhotEiso[i] < Eiso ) { 
 	      if( (TMath::Abs(ohPhotEta[i]) < 1.479 && ohPhotHiso[i] < HisoBR )  ||
 		  (1.479 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.65 && ohPhotHiso[i] < HisoEC ) || 
