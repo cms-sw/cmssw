@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.21.2.3 2010/03/03 10:08:28 yana Exp $
+// $Id: DumpGeom.cc,v 1.22 2010/03/10 13:56:04 yana Exp $
 //
 //
 
@@ -558,6 +558,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
   const std::vector<DetId>& did = rig.detIds();
   std::vector<double> trans, rot;
   unsigned int rid;
+  std::cout << did.size() << " Number of CSC Chambers" << std::endl;
   for ( size_t it = 0; it < did.size(); ++it ) {
     trans = rig.translation(it);
     rot = rig.rotation(it);
@@ -568,8 +569,6 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
 //     for ( size_t ri = 0; ri < 9 ; ++ri ) std::cout << rot[ri] << " ";
 //     std::cout << std::endl;
   }
-  std::cout << " size = " << did.size() << std::endl;
-
   std::string myName="DumpCSCGeom";
   std::string attribute = "MuStructure"; 
   std::string value     = "MuonEndcapCSC";
@@ -588,10 +587,10 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
   //  std::cout << "****************about to skip firstChild() ONCE" << std::endl;   
   bool doSubDets = fview.firstChild();
 
-  //  std::cout << "****************** doSubDets is";
-  //  if (doSubDets) std::cout << " TRUE"; else std::cout << " FALSE";
-  //  std::cout << "*******************" << std::endl;
-  // Loop on chambers
+  std::cout << "****************** doSubDets is";
+  if (doSubDets) std::cout << " TRUE"; else std::cout << " FALSE";
+  std::cout << "*******************" << std::endl;
+  //  Loop on chambers
   while (doSubDets){
 
     /// Naming block
@@ -708,8 +707,8 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
 
       DetId searchId2 (layerId);
       std::vector<DetId>::const_iterator findIt = std::find(did.begin(), did.end(), searchId2);
-      if ( findIt == did.end() ) std::cout << "DID NOT find layer DetId in RecoIdealGeometry object." << std::endl;
-      else std::cout << "Found layer DetID in RecoIdealGeometry object" << std::endl;
+      //      if ( findIt == did.end() ) std::cout << "DID NOT find layer DetId in RecoIdealGeometry object." << std::endl;
+      //      else std::cout << "Found layer DetID in RecoIdealGeometry object" << std::endl;
 
       // centre of chamber is at global z = gtran[2]
       // centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
@@ -725,7 +724,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
       //   names are ?  ME1A_ActiveGasVol?
       //   names are ?  ME11_ActiveGasVol?
       //  OR ME11_Layer?  I choose the layer name.
-      std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
+      //      std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
       std::string prefName = (fview.logicalPart().name().name()).substr(0,4);
       //ME21FR4Body 1
       //      10 mf:ME11PolycarbPanel 1 Trapezoid
@@ -734,7 +733,7 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
       ostr << j;
       layerName += ostr.str();
       idToName_[rawid] = layerName;
-      std::cout << "chamber id: " << rawid << " \tname: " << layerName << std::endl;
+      std::cout << "CSCDetID: " << layerId << " chamber id: " << rawid << " \tname: " << layerName << std::endl;
 
       // same rotation as chamber
       // same x and y as chamber
@@ -755,10 +754,49 @@ void DumpGeom::mapCSCGeometry(const DDCompactView& cview,
      int jendcap  = chamberId.endcap();
      if ( jstation==1 && jring==1 ) {
        CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 );
-       //       std::cout << "CSC chamber: " << detid1a.rawId() << " \tname: " << name << std::endl;
+       std::cout << "CSC Chamber detID: " <<detid1a<<" "<< detid1a.rawId() << " \tname: " << name << std::endl;
        idToName_[detid1a.rawId()] = Info(name);
+       for ( short j = 1; j <= 6; ++j ) {
+	 std::string layerName = name;
+	 CSCDetId layerId = CSCDetId( jend, 1, 4, jchamber, j );
+
+	 DetId searchId2 (layerId);
+	 std::vector<DetId>::const_iterator findIt = std::find(did.begin(), did.end(), searchId2);
+	 //      if ( findIt == did.end() ) std::cout << "DID NOT find layer DetId in RecoIdealGeometry object." << std::endl;
+	 //      else std::cout << "Found layer DetID in RecoIdealGeometry object" << std::endl;
+	 
+	 // centre of chamber is at global z = gtran[2]
+	 // centre of layer j=1 is 2.5 layerSeparations from average AGV, hence centre of layer w.r.t. AF
+	 // NOT USED RIGHT NOW float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
+	 
+	 unsigned int rawid = layerId.rawId();
+	 
+	 // COULD MODIFY name so that we have the "fake/hack" layer name since we don't know what it is at 
+	 // this point.  THERE MAY BE A FIX to this by iterating separately over a different filter 
+	 // which looks at the layers only.  Anyway, there is a real pain here in that we can not do this
+	 // right now anyway because of the depth (level_) limit in root software the "Woops!!!" error.
+	 // mf:ME11AlumFrame is the name of the chamber, then ME11 or ME1A is the layer... can not dist...
+	 //   names are ?  ME1A_ActiveGasVol?
+	 //   names are ?  ME11_ActiveGasVol?
+	 //  OR ME11_Layer?  I choose the layer name.
+	 //      std::cout << "fview.logicalPart().name();= " << fview.logicalPart().name() << "fview.logicalPart().name().name();" << fview.logicalPart().name().name() << std::endl;
+	 std::string prefName = (fview.logicalPart().name().name()).substr(0,4);
+	 //ME21FR4Body 1
+	 //      10 mf:ME11PolycarbPanel 1 Trapezoid
+	 layerName += "/mf:" + prefName + "FR4Body_1/mf:" + prefName + "PolycarbPanel_1/mf:" + prefName + "Layer_"; //"_ActiveGasVol_";
+	 std::ostringstream ostr;
+	 ostr << j;
+	 layerName += ostr.str();
+	 idToName_[rawid] = layerName;
+	 std::cout << "CSCDetID: " << layerId << " chamber id: " << rawid << " \tname: " << layerName << std::endl;
+	 
+	 // same rotation as chamber
+	 // same x and y as chamber
+	 // layerPosition( gtran[0], gtran[1], zlayer );
+	 
+	 
+       } // layer construction within chamber
      }
-     
     doSubDets = fview.nextSibling(); // go to next chamber
   }
 }
@@ -780,8 +818,8 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
   DDExpandedView expv(cview);
   int id;
   for ( ; git != egit; ++git ) {
-    //    expv.goTo( (*git)->navpos() );
-    expv.goTo( (*git)->navType() );
+    expv.goTo( (*git)->navpos() );
+    //    expv.goTo( (*git)->navType() );
 
     std::stringstream s;
     s << "/cms:World_1";
@@ -1307,6 +1345,11 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::cout << "In the DumpGeom::analyze method...done with DT" << std::endl;
    mapCSCGeometry(*viewH, *mdc);
    std::cout << "In the DumpGeom::analyze method...done with CSC" << std::endl;
+//    for ( std::map<unsigned int, Info>::const_iterator it = idToName_.begin();
+// 	 it != idToName_.end(); ++ it ) {
+//      CSCDetId cscdetid (it->first);
+//      std::cout << "CSCDetId: " << cscdetid << " " << it->first << " " << it->second.name <<  std::endl;
+//    }
    mapTrackerGeometry(*viewH, *rDD);
    std::cout << "In the DumpGeom::analyze method...done with Tracker" << std::endl;
    mapEcalGeometry(*viewH, *pG);
