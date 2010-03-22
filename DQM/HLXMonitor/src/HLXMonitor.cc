@@ -910,8 +910,8 @@ void HLXMonitor::FillHistograms(const LUMI_SECTION & section)
    HistAvgLumiEtSum->Fill(lsBin, section.lumiSummary.InstantETLumi);
    HistAvgLumiOccSet1->Fill(lsBin, section.lumiSummary.InstantOccLumi[0]);
    HistAvgLumiOccSet2->Fill(lsBin, section.lumiSummary.InstantOccLumi[1]);
-   std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
-       << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
+   //std::cout << "Lumi section count " << lumiSectionCount << " lsBin " << lsBin 
+    //   << " lsBinOld " << lsBinOld << " True section: " << section.hdr.sectionNumber << std::endl;
 
    //std::cout << "Instant Et sum: " << section.lumiSummary.InstantETLumi
    //     << " +/- " << section.lumiSummary.InstantETLumiErr << std::endl;
@@ -1387,14 +1387,14 @@ void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION & section)
 void HLXMonitor::FillEventInfo(const LUMI_SECTION & section, const edm::Event& e)
 {
    // New run .. set the run number and fill run summaries ...
-   std::cout << "Run number " << runNumber_ << " Section hdr run number " 
-	     << section.hdr.runNumber << std::endl;
+   //std::cout << "Run number " << runNumber_ << " Section hdr run number " 
+//	     << section.hdr.runNumber << std::endl;
 
    runId_->Fill( section.hdr.runNumber );
    lumisecId_->Fill( (int)(section.hdr.sectionNumber/num4NibblePerLS_) + 1 );
 
    // Update the total nibbles & the expected number
-   expectedNibbles_ += 4;
+   expectedNibbles_ += section.hdr.numOrbits/4096;
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
       unsigned int iWedge = HLXHFMap[iHLX] + 1;
       totalNibbles_[iWedge-1] += section.occupancy[iHLX].hdr.numNibbles; 
