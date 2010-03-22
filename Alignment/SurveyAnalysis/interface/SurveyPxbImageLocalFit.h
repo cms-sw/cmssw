@@ -60,6 +60,9 @@ public:
 	const pede_deriv_t getResiduum(count_t i) { return (pede_deriv_t) r(i); };
 	const pede_deriv_t getSigma(count_t i) { return i%2 ? sigma_u_ : sigma_v_ ; };
 
+	void setLocalDerivsToZero(count_t i);
+	void setGlobalDerivsToZero(count_t i);
+
 private:
 	//! Local parameters
 	localpars_t a_;
