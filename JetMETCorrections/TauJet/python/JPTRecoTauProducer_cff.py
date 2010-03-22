@@ -16,10 +16,12 @@ from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cff import *
 
 from Configuration.StandardSequences.Reconstruction_cff import *
 from RecoTauTag.RecoTau.CaloRecoTauTagInfoProducer_cfi import *
-caloRecoTauTagInfoProducer.CaloJetTracksAssociatorProducer = cms.InputTag('JPTiterativeCone5JetTracksAssociatorAtVertex')
+caloRecoTauTagInfoProducer.CaloJetTracksAssociatorProducer = cms.InputTag('JPTAntiKt5JetTracksAssociatorAtVertex')
+#caloRecoTauTagInfoProducer.CaloJetTracksAssociatorProducer = cms.InputTag('JPTiterativeCone5JetTracksAssociatorAtVertex')
 
 jptRecoTauProducer = cms.Sequence(
-	JetPlusTrackCorrectionsIcone5 *
+	JetPlusTrackCorrectionsAntiKt5 *
+#	JetPlusTrackCorrectionsIcone5 *
         caloRecoTauTagInfoProducer *
         caloRecoTauProducer
 )
