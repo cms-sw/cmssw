@@ -66,6 +66,7 @@ implements Runnable,DipPublicationErrorHandler
   long lastModTime = 0;
   BitSet alive = new BitSet(8);
   int idleTime = 0;
+  int lsCount = 0;
 
   public void handleException(DipPublication publication,
 			      DipException e)
@@ -102,7 +103,6 @@ implements Runnable,DipPublicationErrorHandler
       keepRunning = false;
     }
 
-    int lsCount = 0;
     quality = qualities[0];
 
     while (keepRunning)
@@ -110,91 +110,98 @@ implements Runnable,DipPublicationErrorHandler
       try
       {
         File logFile = new File(sourceFile);
-	logFile.createNewFile();
-	FileReader fr = new FileReader(logFile);
-	BufferedReader br = new BufferedReader(fr);		  
-	lastModTime = logFile.lastModified();
-	if (lastFitTime == 0)
-	    lastFitTime = lastModTime;
-	if (logFile.length() == 0) {
-	    lastFitTime = lastModTime;
-	    if (!alive.get(6)) {
-		System.out.println("New run starts");
-		if (verbose) System.out.println("Initial lastModTime = " + getDateTime(lastModTime));
-		alive.flip(6);
-	    }
-	}
-
-	if (lastModTime > lastFitTime) {
-	    if (verbose) {
-		System.out.println("Time of last fit    = " + getDateTime(lastFitTime));
-		System.out.println("Time of current fit = " + getDateTime(lastModTime));
-	    }
-	    lastFitTime = lastModTime;
-	    if (logFile.length() > 0) {
-		if (verbose) System.out.println("Read record from " + sourceFile);
-		if (readRcd(br)) {
-		    trueRcd();
-		    alive.clear();
-		    alive.flip(7);
-		}
-		else fakeRcd();
-		if (verbose) System.out.println("Publish new record");
-		lsCount = 0;
-		idleTime = 0;
-	    }
-	    br.close();
-	    fr.close();
+	
+	if (!logFile.exists()) {
+	    polling();
+	    continue;
 	}
 	else {
-	    br.close();
-	    fr.close();
+	  FileReader fr = new FileReader(logFile);
+	  BufferedReader br = new BufferedReader(fr);		  
+	  lastModTime = logFile.lastModified();
+	  if (lastFitTime == 0)
+	      lastFitTime = lastModTime;
+	  if (logFile.length() == 0) {
+	      lastFitTime = lastModTime;
+	      if (!alive.get(6)) {
+		  System.out.println("New run starts");
+		  if (verbose) System.out.println("Initial lastModTime = " + getDateTime(lastModTime));
+		  alive.flip(6);
+	      }
+	  }
 
-	    if (lsCount != 0 && lsCount%60 == 0) {
-		System.out.println("Waiting for data..." + getDateTime());
-	    }
-	    try { Thread.sleep(1000); }//every sec
-	    catch(InterruptedException e) {
-		System.err.println("InterruptedException: " + getDateTime());
-		e.printStackTrace();
-		keepRunning = false;
-	    }
-	    lsCount++;
-	    idleTime++;
-	    if ((lsCount%(timeoutLS[0]*secPerLS) == 0) 
-		&& (lsCount%(timeoutLS[1]*secPerLS) != 0)) {//fist time out
-		if (!alive.get(1)) alive.flip(1);
-		if (!alive.get(2)) {
-		    if (!alive.get(7)) fakeRcd();
-		    else trueRcd();
-		    publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
-		}
-		else {
-		    fakeRcd();
-		    publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
-		}
-	    }
-	    else if (lsCount%(timeoutLS[1]*secPerLS) == 0) {//second time out
-		if (!alive.get(2)) alive.flip(2);
-		//if(!alive.get(7))
-		fakeRcd();
-		//else trueRcd();
-		publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
-	    }
-	    continue;
+	  if (lastModTime > lastFitTime) {
+	      if (verbose) {
+		  System.out.println("Time of last fit    = " + getDateTime(lastFitTime));
+		  System.out.println("Time of current fit = " + getDateTime(lastModTime));
+	      }
+	      lastFitTime = lastModTime;
+	      if (logFile.length() > 0) {
+		  if (verbose) System.out.println("Read record from " + sourceFile);
+		  if (readRcd(br)) {
+		      trueRcd();
+		      alive.clear();
+		      alive.flip(7);
+		  }
+		  else fakeRcd();
+		  if (verbose) System.out.println("Publish new record");
+		  lsCount = 0;
+		  idleTime = 0;
+	      }
+	      br.close();
+	      fr.close();
+	  }
+	  else{
+	      br.close();
+	      fr.close();
+	      polling();
+	      continue;
+	  }
 	}
 	// Quality of the publish results
 	if (overwriteQuality) publishRcd(qualities[0],"Testing",true,true);
 	else if (quality == qualities[1]) publishRcd(quality,"No BeamFit or Fit Fails",true,true);
 	else publishRcd(quality,"",true,true);
 
-	br.close();
-	fr.close();
-
       } catch (IOException e) {
 	  System.err.println("IOException: " + getDateTime());
 	  e.printStackTrace();
       };
+    }
+  }
+
+  private void polling()
+  {
+    if (lsCount != 0 && lsCount%60 == 0) {
+	System.out.println("Waiting for data..." + getDateTime());
+    }
+    try { Thread.sleep(1000); }//every sec
+    catch(InterruptedException e) {
+	System.err.println("InterruptedException: " + getDateTime());
+	e.printStackTrace();
+	keepRunning = false;
+    }
+    lsCount++;
+    idleTime++;
+    if ((lsCount%(timeoutLS[0]*secPerLS) == 0) 
+	&& (lsCount%(timeoutLS[1]*secPerLS) != 0)) {//fist time out
+	if (!alive.get(1)) alive.flip(1);
+	if (!alive.get(2)) {
+	    if (!alive.get(7)) fakeRcd();
+	    else trueRcd();
+	    publishRcd("Uncertain","No new data for " + idleTime + " seconds",false,false);
+	}
+	else {
+	    fakeRcd();
+	    publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+	}
+    }
+    else if (lsCount%(timeoutLS[1]*secPerLS) == 0) {//second time out
+	if (!alive.get(2)) alive.flip(2);
+	//if(!alive.get(7))
+	fakeRcd();
+	//else trueRcd();
+	publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
     }
   }
 
