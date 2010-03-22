@@ -20,7 +20,8 @@ MIsoJetExtractorBlock = cms.PSet(
     #note: et from crossed towers and jet towers inside the veto cone are not counted
     Threshold = cms.double(5.0),
     #    InputTag JetCollectionLabel = midPointCone5CaloJets
-    JetCollectionLabel = cms.InputTag("sisCone5CaloJets")
+    #    JetCollectionLabel = cms.InputTag("sisCone5CaloJets")
+    JetCollectionLabel = cms.InputTag("ak5CaloJets") 
 )
 
 
