@@ -31,7 +31,7 @@ namespace gen {
       void disablePolarization() { fPolarization = 0; return; }
       void init( const edm::EventSetup& );
       const std::vector<int>& operatesOnParticles() { return fPDGs; }
-      HepMC::GenEvent* decay( const HepMC::GenEvent* );
+      HepMC::GenEvent* decay( HepMC::GenEvent* );
       void statistics() ;
       
       private: 
