@@ -328,68 +328,19 @@ PFDisplacedVertexCandidateFinder::getGlobalTrajectoryParameters
 bool 
 PFDisplacedVertexCandidateFinder::goodPtResolution( const TrackBaseRef& trackref) const {
 
-  // Track Quality Cut: Tracks are kept if DPt/Pt < sigma * Cut
-  // and if nHit >= cut
-  double p[] = {1.0,1.0,0.80,0.50,0.50};
-  vector< double > DPtovPtCut_(p, p+5); 
+  double nChi2 = trackref->normalizedChi2(); 
+  double pt = trackref->pt();
+  double dpt = trackref->ptError();
+  double pt_error = dpt/pt*100;
 
-  double r[] = {3,3,3,6,6};
-  vector< double > NHitCut_(r, r+5);
-
-  double P = trackref->p();
-  double Pt = trackref->pt();
-  double DPt = trackref->ptError();
-  unsigned int NHit = trackref->hitPattern().trackerLayersWithMeasurement();
-  unsigned int NLostHit = trackref->hitPattern().trackerLayersWithoutMeasurement();
-  unsigned int LostHits = trackref->numberOfLostHits();
-  double sigmaHad = sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
-
-  // iteration 1,2,3,4,5 correspond to algo = 1/4,5,6,7,8,9
-  unsigned int Algo = 0; 
-  switch (trackref->algo()) {
-  case TrackBase::ctf:
-  case TrackBase::iter0:
-  case TrackBase::iter1:
-    Algo = 0;
-    break;
-  case TrackBase::iter2:
-    Algo = 1;
-    break;
-  case TrackBase::iter3:
-    Algo = 2;
-    break;
-  case TrackBase::iter4:
-    Algo = 3;
-    break;
-  case TrackBase::iter5:
-    Algo = 4;
-    break;
-  default:
-    Algo = 5;
-    break;
-  }
-
-  // Protection against 0 momentum tracks
-  if ( P < 0.05 ) return false;
-
-  // Temporary : Reject all tracking iteration beyond 5th step. 
-  if ( Algo > 4 ) return false;
- 
   if (debug_) cout << " PFDisplacedVertexFinder: PFrecTrack->Track Pt= "
-		   << Pt << " DPt = " << DPt << endl;
-  if ( DPt/Pt > DPtovPtCut_[Algo]*sigmaHad || 
-       NHit < NHitCut_[Algo] || 
-       (Algo >= 3 && LostHits != 0) ) {
-    if (debug_) cout << " PFBlockAlgo: skip badly measured track"
-		     << ", P = " << P 
-		     << ", Pt = " << Pt 
-		     << " DPt = " << DPt 
-		     << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-		     << ", Algo = " << Algo
-		     << endl;
-    if (debug_) cout << " cut is DPt/Pt < " << DPtovPtCut_[Algo] * sigmaHad << endl;
-    if (debug_) cout << " cut is NHit >= " << NHitCut_[Algo] << endl;
+		   << pt << " dPt/Pt = " << pt_error << "% nChi2 = " << nChi2 << endl;
+  if (nChi2 > 5 || pt < 0.2 || pt_error > 15){
 
+    if (debug_) cout << " PFBlockAlgo: skip badly measured track"
+		     << " nChi2_cut = " << 5 
+		     << " pt_cut = " << 0.2 
+		     << " dpt/pt_cut = " << 15 << "%"<< endl;
     return false;
   }
 

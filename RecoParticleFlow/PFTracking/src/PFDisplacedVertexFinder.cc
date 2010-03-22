@@ -267,18 +267,26 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   return true;
   }
 
+
   if (debug_) cout << "Seed Point in the tracker rho = " << rho << " z = "<< z << " nTracks = " << tracksToFit.size() << endl;
+
+  int nStep45 = 0;
+  int nNotIterative = 0;
 
   // Fill vectors of TransientTracks and TrackRefs after applying preselection cuts.
   for(IEset ie = tracksToFit.begin(); ie !=  tracksToFit.end(); ie++){
-
     TransientTrack tmpTk( *((*ie).get()), magField_, globTkGeomHandle_);
     transTracksRaw.push_back( tmpTk );
     transTracksRefRaw.push_back( *ie );
+    if ( (*ie)->algo()-4 > 3 ) nStep45++;
+    if ( (*ie)->algo()-4 < 0 ||(*ie)->algo()-4 > 5 ) nNotIterative++;
   }
 
   if (transTracksRaw.size() < 2) {
     if (debug_) cout << "Only one Transient Track" << endl;
+    return true;
+  } else if (rho > 25 && nStep45 + nNotIterative < 1){
+    if (debug_) cout << "Seed point at rho > 25 cm but no step 4-5 tracks" << endl;
     return true;
   }
   // ----------------------------------------------- //
