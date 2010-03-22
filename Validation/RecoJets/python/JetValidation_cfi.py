@@ -60,36 +60,6 @@ JetAnalyzerKt6Calo = cms.EDAnalyzer("CaloJetTester",
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-# Sisc5 jets
-                                    
-JetAnalyzerSc5Calo = cms.EDAnalyzer("CaloJetTester",
-    src = cms.InputTag("sisCone5CaloJets"),                                 
-    srcGen = cms.InputTag("sisCone5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# Sisc7 jets
-                                    
-JetAnalyzerSc7Calo = cms.EDAnalyzer("CaloJetTester",
-    src = cms.InputTag("sisCone7CaloJets"),
-    srcGen = cms.InputTag("sisCone7GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
 # AntiKt5 jets
                                     
 JetAnalyzerAk5Calo = cms.EDAnalyzer("CaloJetTester",
