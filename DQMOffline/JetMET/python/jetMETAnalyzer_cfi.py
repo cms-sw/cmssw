@@ -27,8 +27,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoPFJetAnalysis            = cms.untracked.bool(True),#True
     DoPFJetCleaning            = cms.untracked.bool(True),#True
 
-    DoJPTJetAnalysis           = cms.untracked.bool(True),#True
-    DoJPTJetCleaning           = cms.untracked.bool(True),#True
+    DoJPTJetAnalysis           = cms.untracked.bool(False),#True
+    DoJPTJetCleaning           = cms.untracked.bool(False),#True
 
     DoJetAnalysis              = cms.untracked.bool(True),
     DoJetCleaning              = cms.untracked.bool(True),
