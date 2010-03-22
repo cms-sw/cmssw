@@ -6,6 +6,7 @@ SiPixelHLTSource = cms.EDAnalyzer("SiPixelHLTSource",
     outputFile = cms.string('Pixel_DQM_HLT.root'),
     saveFile = cms.untracked.bool(False),
     slowDown = cms.untracked.bool(False),
+    DirName = cms.untracked.string('Pixel/FEDIntegrity/')
 )
 
 
