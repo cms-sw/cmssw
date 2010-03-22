@@ -468,36 +468,36 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
     if(useIsolationAnnulus_)
       {
 
-	for(unsigned int i=0;i<hadrons.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),hadrons.at(i)->p4())>tauCone &&
-	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),hadrons.at(i)->p4())<chargeIsolationCone_)
-	    hadrons.push_back(hadrons.at(i));
+	for(unsigned int i=0;i<allhadrons.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allhadrons.at(i)->p4())>tauCone &&
+	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),allhadrons.at(i)->p4())<chargeIsolationCone_)
+	    hadrons.push_back(allhadrons.at(i));
 
-	for(unsigned int i=0;i<gammas.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),gammas.at(i)->p4())>tauCone &&
-	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),gammas.at(i)->p4())<gammaIsolationCone_)
-	    gammas.push_back(gammas.at(i));
+	for(unsigned int i=0;i<allgammas.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allgammas.at(i)->p4())>tauCone &&
+	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),allgammas.at(i)->p4())<gammaIsolationCone_)
+	    gammas.push_back(allgammas.at(i));
 
-	for(unsigned int i=0;i<neutral.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),neutral.at(i)->p4())>tauCone &&
-	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),neutral.at(i)->p4())<neutrHadrIsolationCone_)
-	    neutral.push_back(neutral.at(i));
+	for(unsigned int i=0;i<allneutral.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allneutral.at(i)->p4())>tauCone &&
+	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),allneutral.at(i)->p4())<neutrHadrIsolationCone_)
+	    neutral.push_back(allneutral.at(i));
 
       }
     else
       {
 
-	for(unsigned int i=0;i<hadrons.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),hadrons.at(i)->p4())<chargeIsolationCone_)
-	    hadrons.push_back(hadrons.at(i));
+	for(unsigned int i=0;i<allhadrons.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allhadrons.at(i)->p4())<chargeIsolationCone_)
+	    hadrons.push_back(allhadrons.at(i));
 
-	for(unsigned int i=0;i<gammas.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),gammas.at(i)->p4())<gammaIsolationCone_)
-	    gammas.push_back(gammas.at(i));
+	for(unsigned int i=0;i<allgammas.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allgammas.at(i)->p4())<gammaIsolationCone_)
+	    gammas.push_back(allgammas.at(i));
 
-	for(unsigned int i=0;i<neutral.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),neutral.at(i)->p4())<neutrHadrIsolationCone_)
-	    neutral.push_back(neutral.at(i));
+	for(unsigned int i=0;i<allneutral.size();++i)
+	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allneutral.at(i)->p4())<neutrHadrIsolationCone_)
+	    neutral.push_back(allneutral.at(i));
       }
 
 
