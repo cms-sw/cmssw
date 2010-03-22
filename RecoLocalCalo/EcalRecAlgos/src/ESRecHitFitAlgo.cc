@@ -46,8 +46,8 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) cons
   double status = 0;
   if (adc[0] > 20) status = 14;
   if (adc[1] < 0 || adc[2] < 0) status = 10;
-  if (adc[0] > adc[1] || adc[0] > adc[2]) status = 8;
-  if (adc[2] > adc[1] || adc[2] > adc[0]) status = 9;  
+  if (adc[0] > adc[1] && adc[0] > adc[2]) status = 8;
+  if (adc[2] > adc[1] && adc[2] > adc[0]) status = 9;  
   double r12 = (adc[1] != 0) ? adc[0]/adc[1] : 99999;
   double r23 = (adc[2] != 0) ? adc[1]/adc[2] : 99999;
   if (r12 > ratioCuts_.getR12High()) status = 5;
