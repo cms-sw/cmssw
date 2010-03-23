@@ -2,13 +2,14 @@
 UTILITIES in ElectroWeakAnalysis/Utilities:
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-IMPORTANT BEFORE COMPLIATION/LINK: From the 330 series on, full LHAPDF libraries are 
+IMPORTANT BEFORE COMPILATION/LINK: From the 330 series on, full LHAPDF libraries are 
 shipped with CMSSW. However, the default libraries used in the release are always
 the "light" ones, which are very slow for PDF reweighting. In order to run fast, 
 you should execute:
       1) scram setup lhapdffull
       2) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
-      3) scram b
+      3) cmsenv
+      4) scram b
 
 If you prefer to use your own LHAPDF library and files, assumed to be installed 
 under /usr/local, then do:
@@ -16,7 +17,8 @@ under /usr/local, then do:
       2) In that file, change the default for LHAPDF_BASE to "/usr/local"
       3) scram setup lhapdf (and check that environment variables point to /usr/local/...)
       4) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
-      5) scram b
+      5) cmsenv
+      6) scram b
 
 src/PdfWeightProducer.cc
 ===========================
@@ -28,6 +30,7 @@ src/PdfWeightProducer.cc
 
       # Produce PDF weights (maximum is 3)
       process.pdfWeights = cms.EDProducer("PdfWeightProducer",
+            FixPOWHEG = cms.untracked.bool(False), # fix buggy POWHEG
             PdfInfoTag = cms.untracked.InputTag("generator"),
             PdfSetNames = cms.untracked.vstring(
                     "cteq65.LHgrid"
@@ -176,7 +179,8 @@ src/DistortedMuonProducer.cc
         MuonTag = cms.untracked.InputTag("muons"),
         GenMatchTag = cms.untracked.InputTag("genMatchMap"),
         EtaBinEdges = cms.untracked.vdouble(-2.1,2.1), # one more entry than next vectors
-        MomentumScaleShift = cms.untracked.vdouble(1.e-3),
+        ShiftOnOneOverPt = cms.untracked.vdouble(1.e-4), #in [1/GeV]
+        RelativeShiftOnPt = cms.untracked.vdouble(0.),
         UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-4), #in [1/GeV]
         RelativeUncertaintyOnPt = cms.untracked.vdouble(1.e-3),
         EfficiencyRatioOverMC = cms.untracked.vdouble(0.99)

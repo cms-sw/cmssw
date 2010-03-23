@@ -38,7 +38,8 @@ process.distortedMuons = cms.EDFilter("DistortedMuonProducer",
 
       EtaBinEdges = cms.untracked.vdouble(-2.1,2.1), # one more entry than next vectors
 
-      MomentumScaleShift = cms.untracked.vdouble(1.e-3), # relative
+      ShiftOnOneOverPt = cms.untracked.vdouble(1.e-3), #in [1/GeV] units
+      RelativeShiftOnPt = cms.untracked.vdouble(0.), # relative
       UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-3), #in [1/GeV] units
       RelativeUncertaintyOnPt = cms.untracked.vdouble(5.e-3), # relative
 
