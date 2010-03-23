@@ -27,6 +27,7 @@
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
+class TkHistoMap;
 
 class FEDErrors {
 
@@ -160,11 +161,10 @@ public:
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
   //2--if aFillAll = true, add all channels anyway with 0 if no errors, so TkHistoMap is filled for all valid channels ...
-  void fillBadChannelList(std::map<unsigned int,std::pair<unsigned short,unsigned short> > & aMap,
-			  const SiStripFedCabling* aCabling,
+  void fillBadChannelList(const bool doTkHistoMap,
+			  TkHistoMap *aTkMapPointer,
 			  unsigned int & aNBadChannels,
-			  unsigned int & aNBadActiveChannels,
-			  const bool aFillAll);
+			  unsigned int & aNBadActiveChannels);
 
   //bool foundFEDErrors();
 
@@ -219,6 +219,12 @@ public:
 protected:
   
 private:
+
+  void processDet(const uint32_t aPrevId,
+		  const uint16_t aPrevTot,
+		  const bool doTkHistoMap,
+		  uint16_t & nBad,
+		  TkHistoMap *aTkMapPointer);
 
   unsigned int fedID_;
 

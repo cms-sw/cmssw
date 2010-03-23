@@ -7,7 +7,9 @@
 
 #include "EventFilter/SiStripRawToDigi/interface/PipeAddrToTimeLookupTable.h"
 
+#include "DQM/SiStripMonitorHardware/interface/HistogramBase.hh"
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 
 FEDErrors::FEDErrors()
@@ -639,22 +641,28 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
   return !foundError;
 }
 
-void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned short,unsigned short> > & aMap,
-				   const SiStripFedCabling* aCabling,
+void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
+				   TkHistoMap *aTkMapPointer,
 				   unsigned int & aNBadChannels,
-				   unsigned int & aNBadActiveChannels,
-				   const bool aFillAll)
+				   unsigned int & aNBadActiveChannels)
 {
 
-  std::pair<std::map<unsigned int,std::pair<unsigned short,unsigned short> >::iterator,bool> alreadyThere;
+  uint32_t lPrevId = 0;
+  uint16_t nBad = 0;
+  uint16_t lPrevTot = 0;
+  bool hasBeenProcessed = false;
 
-  //unsigned int nBadChans = 0;
   for (unsigned int iCh = 0; 
        iCh < sistrip::FEDCH_PER_FED; 
        iCh++) {//loop on channels
 
     if (!connected_[iCh]) continue;
     if (!detid_[iCh] || detid_[iCh] == sistrip::invalid32_) continue;
+
+    if (lPrevId==0) {
+      lPrevId = detid_[iCh];
+      lPrevTot = nChInModule_[iCh];
+    }
 
     unsigned int feNumber = static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT);
 	
@@ -678,25 +686,67 @@ void FEDErrors::fillBadChannelList(std::map<unsigned int,std::pair<unsigned shor
       }
     }
 
+    if (detid_[iCh] == lPrevId){
+      if (hasBeenProcessed) hasBeenProcessed = false;
+    }
+    //fill vector for previous detid
+    if (detid_[iCh] != lPrevId){
+      processDet(lPrevId,
+		 lPrevTot,
+		 doTkHistoMap,
+		 nBad,
+		 aTkMapPointer
+		 );
+      lPrevId = detid_[iCh];
+      lPrevTot = nChInModule_[iCh];
+      hasBeenProcessed = true;
+    }
 
     if (failMonitoringFEDCheck() || isBadFE || isBadChan) {
-      alreadyThere = aMap.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid_[iCh],std::pair<unsigned short,unsigned short>(nChInModule_[iCh],1)));
-      if (!alreadyThere.second) ((alreadyThere.first)->second).second += 1;
-      //nBadChans++;
+      nBad++;
       aNBadChannels++;
       //define as active channel if channel locked AND not from an unlocked FE.
       if ((isBadChan && isActiveChan) || failMonitoringFEDCheck() || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
     }
-    else {
-      if (aFillAll) alreadyThere = aMap.insert(std::pair<unsigned int,std::pair<unsigned short,unsigned short> >(detid_[iCh],std::pair<unsigned short,unsigned short>(nChInModule_[iCh],0)));
-    }
+
+
 
   }//loop on channels
 
+  if (!hasBeenProcessed){
+    processDet(lPrevId,
+	       lPrevTot,
+	       doTkHistoMap,
+	       nBad,
+	       aTkMapPointer
+	       );
+  }
 
-  //if (nBadChans>0) std::cout << "-------- FED " << fedID_ << ", " << nBadChans << " bad channels." << std::endl;
 
 }
+
+void FEDErrors::processDet(const uint32_t aPrevId,
+			   const uint16_t aPrevTot,
+			   const bool doTkHistoMap,
+			   uint16_t & nBad,
+			   TkHistoMap *aTkMapPointer
+			   )
+{
+  if (aPrevTot < nBad){
+    edm::LogError("SiStripMonitorHardware") << " -- Number of bad channels in det " << aPrevId
+					    << " = " << nBad
+					    << ", total number of pairs for this det = " << aPrevTot
+					    << std::endl;
+  }
+
+  //tkHistoMap takes a uint & as argument
+  uint32_t lDetid = aPrevId;
+  if (aPrevTot != 0 && doTkHistoMap && aTkMapPointer) 
+    HistogramBase::fillTkHistoMap(aTkMapPointer,lDetid,static_cast<float>(nBad)/aPrevTot);
+
+  nBad=0;
+}
+
 
 const bool FEDErrors::failMonitoringFEDCheck()
 {
