@@ -8,7 +8,6 @@
 #include <iostream>
 lumi::service::DBService::DBService(const edm::ParameterSet& iConfig,
 				    edm::ActivityRegistry& iAR){
-  std::cout<<"DBService constructor"<<std::endl;
   m_svc=new coral::ConnectionService;
   m_dbconfig= new lumi::DBConfig(*m_svc);
   std::string authpath=iConfig.getUntrackedParameter<std::string>("authPath","");

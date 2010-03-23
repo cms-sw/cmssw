@@ -64,12 +64,18 @@ namespace edmtest
 
     Handle<LumiSummary> lumiSummary;
     lumiBlock.getByLabel("lumiProducer", lumiSummary);
-    std::cout << *lumiSummary << "\n";
-
+    if(lumiSummary->isValid()){
+      std::cout << *lumiSummary << "\n";
+    }else{
+      std::cout << "no valid lumi summary data" <<std::endl;
+    }
     Handle<LumiDetails> lumiDetails;
     lumiBlock.getByLabel("lumiProducer", lumiDetails);
-    std::cout << *lumiDetails << "\n";
-
+    if(lumiDetails->isValid()){
+      std::cout << *lumiDetails << "\n";
+    }else{
+      std::cout << "no valid lumi detail data" <<std::endl;
+    }
     // We know the content we put into the objects in the
     // configuration, manually check to see that we can
     // retrieve the same values.

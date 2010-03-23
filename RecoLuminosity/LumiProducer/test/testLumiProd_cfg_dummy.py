@@ -1,10 +1,6 @@
-
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("standalonetest")
-#process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.load("CondCore.DBCommon.CondDBSetup_cfi")
-#process.load("RecoLuminosity.LumiProducer.nonGlobalTagLumiProducerPrep_cff")
+process = cms.Process("dbtest")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
@@ -13,42 +9,26 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(100)
+  input = cms.untracked.int32(20)
 )
 
 process.source = cms.Source("EmptySource",
      numberEventsInRun = cms.untracked.uint32(10),
-     firstRun = cms.untracked.uint32(1119983),
-     numberEventsInLuminosityBlock = cms.untracked.uint32(50),
+     firstRun = cms.untracked.uint32(124025),
+     numberEventsInLuminosityBlock = cms.untracked.uint32(1),
      firstLuminosityBlock = cms.untracked.uint32(1)
 )
 
-#process.source = cms.Source("EmptyIOVSource",
-#    timetype = cms.string('lumiid'),
-#    firstValue = cms.uint64(8589934590),
-#    lastValue = cms.uint64(8589934599),
-#    interval = cms.uint64(1)
-#)
-
-#process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-#process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-#process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
-#process.LumiESSource.toGet=cms.VPSet(
-#    cms.PSet(
-#      record = cms.string('LumiSectionDataRcd'),
-#      tag = cms.string('nolumi')
-#    )
-#)
-process.lumiDBService=cms.Service("DBService",
-                                  authPath=cms.untracked.string('/afs/cern.ch/user/x/xiezhen')
+process.DBService=cms.Service("DBService",
+           authPath=cms.untracked.string('/afs/cern.ch/user/x/xiezhen')
 )
-process.lumiProducer=cms.EDProducer("LumiProducer")
-#process.test = cms.EDAnalyzer("TestLumiProducer")
-
-#process.out = cms.OutputModule("PoolOutputModule",
-#  fileName = cms.untracked.string('testLumiProd.root')
-#)
-
+process.lumiProducer=cms.EDProducer("LumiProducer",
+           connect=cms.string('oracle://devdb10/cms_xiezhen_dev'),
+           lumiversion=cms.untracked.string('0001') 
+)
+process.test = cms.EDAnalyzer("TestLumiProducer")
+process.out = cms.OutputModule("PoolOutputModule",
+           fileName=cms.untracked.string("testLumiProd.root")
+)
 process.p1 = cms.Path(process.lumiProducer * process.test)
-
-#process.e = cms.EndPath(process.out)
+process.e = cms.EndPath(process.out)
