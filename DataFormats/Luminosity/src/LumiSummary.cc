@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.12 2010/03/23 10:54:58 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.13 2010/03/23 11:05:04 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -107,10 +107,48 @@ LumiSummary::isProductEqual(LumiSummary const& next) const {
           hltdata_.size() == next.hltdata_.size() &&
 	  lumiversion_ == next.lumiversion_ );
 }
-
 std::string 
 LumiSummary::lumiVersion()const{
   return lumiversion_;
+}
+void
+LumiSummary::setLumiVersion(const std::string& lumiversion){
+  lumiversion_=lumiversion;
+}
+void 
+LumiSummary::setLumiData(float instlumi,float instlumierr,short lumiquality){
+  avginsdellumi_=instlumi;
+  avginsdellumierr_=instlumierr;
+  lumisecqual_=lumiquality;
+}
+void 
+LumiSummary::setDeadtime(unsigned long long deadcount){
+  deadcount_=deadcount;
+}
+void 
+LumiSummary::setlsnumber(unsigned int lsnumber){
+  lsnumber_=lsnumber;
+}
+void 
+LumiSummary::setOrbitData(unsigned int startorbit,unsigned int numorbit){
+  startorbit_=startorbit;
+  numorbit_=numorbit;
+}
+void 
+LumiSummary::swapL1Data(std::vector<L1>& l1data){
+  l1data_.swap(l1data);
+}
+void 
+LumiSummary::swapHLTData(std::vector<HLT>& hltdata){
+  hltdata_.swap(hltdata);
+}
+void 
+LumiSummary::copyL1Data(const std::vector<L1>& l1data){
+  l1data_.assign(l1data.begin(),l1data.end());
+}
+void 
+LumiSummary::copyHLTData(const std::vector<HLT>& hltdata){
+  hltdata_.assign(hltdata.begin(),hltdata.end());
 }
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "\nDumping LumiSummary\n\n";

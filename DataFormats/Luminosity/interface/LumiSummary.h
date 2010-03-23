@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.13 2010/03/23 10:54:57 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.14 2010/03/23 11:05:04 xiezhen Exp $
  *
  ************************************************************/
  
@@ -100,6 +100,20 @@ class LumiSummary {
     float avgInsRecLumiErr() const;
     bool isProductEqual(LumiSummary const& next) const;
     std::string lumiVersion()const;
+
+    //
+    //setters
+    //
+    void setLumiVersion(const std::string& lumiversion);
+    void setLumiData(float instlumi,float instlumierr,short lumiquality);
+    void setDeadtime(unsigned long long deadcount);
+    void setlsnumber(unsigned int lsnumber);
+    void setOrbitData(unsigned int startorbit,unsigned int numorbit);
+    void swapL1Data(std::vector<L1>& l1data);
+    void swapHLTData(std::vector<HLT>& hltdata);
+    void copyL1Data(const std::vector<L1>& l1data);
+    void copyHLTData(const std::vector<HLT>& hltdata);
+
   private :
     std::string lumiversion_;
     //instant lumi , selected from best algorithm

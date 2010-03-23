@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id: LumiDetails.h,v 1.6 2008/11/22 05:39:42 wmtan Exp $
+ * $Id: LumiDetails.h,v 1.7 2010/03/22 18:58:08 xiezhen Exp $
  *
  ************************************************************/
  
@@ -27,6 +27,7 @@ class LumiDetails {
 
   /// default constructor
   LumiDetails();
+  explicit LumiDetails(const std::string& lumiversion);
   
   /// 
   void swapValueData(std::map<std::string,std::vector<float> >& data);
@@ -43,6 +44,7 @@ class LumiDetails {
   /// destructor
   ~LumiDetails();
   
+  std::string lumiVersion()const;
   float lumiValue(const std::string& algoname,unsigned int bx) const;
   float lumiError(const std::string& algoname,unsigned int bx) const;
   short lumiQuality(const std::string& algoname,unsigned int bx) const; 
@@ -64,6 +66,7 @@ class LumiDetails {
   //bool isProductEqual(LumiDetails const& next) const;??
   
  private :
+  std::string m_lumiversion;
   std::map< std::string,std::vector<float> > m_lumivalueMap; //algoname,vector of values in bx
   std::map< std::string,std::vector<float> > m_lumierrorMap; //algoname,vector of errors in bx
   std::map< std::string,std::vector<short> > m_lumiqualityMap; //algoname,vector of quality in bx

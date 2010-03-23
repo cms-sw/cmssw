@@ -1,5 +1,5 @@
 
-// $Id: LumiDetails.cc,v 1.5 2008/11/22 05:39:42 wmtan Exp $
+// $Id: LumiDetails.cc,v 1.6 2010/03/22 18:58:09 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
@@ -8,13 +8,17 @@
 //using namespace std;
 static std::vector<float> emptyFloatVec;
 static std::vector<short> emptyShortVec;
-
-LumiDetails::LumiDetails(){
+LumiDetails::LumiDetails():m_lumiversion("-1"){}
+LumiDetails::LumiDetails(const std::string& lumiversion):m_lumiversion(lumiversion){
 }
 LumiDetails::~LumiDetails(){
   m_lumivalueMap.clear();
   m_lumierrorMap.clear();
   m_lumiqualityMap.clear();
+}
+std::string 
+LumiDetails::lumiVersion()const{
+  return m_lumiversion;
 }
 void 
 LumiDetails::swapValueData(std::map<std::string,std::vector<float> >& data){
