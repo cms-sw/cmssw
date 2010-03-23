@@ -74,7 +74,7 @@ namespace {
 	      stata(res.first,ref.first);
 	      statr(res.second,ref.second);
 	    }
-    std::cout << typeid(T).name() << "times " << tf << " " << ts << std::endl;
+    std::cout << typeid(T).name() << " times " << tf << " " << ts << std::endl;
   }
 
  

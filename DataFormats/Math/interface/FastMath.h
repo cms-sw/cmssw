@@ -50,10 +50,10 @@ namespace  fastmath {
     if (x_ < 0 ) { flags |= 2; x_ = -x_; }
     if (y_ > x_) {
       flags |= 1;
-      yp.f += (rinv * x_); x = (rinv * y_); y = (rinv * x_);
+      x = rinv * y_; y = rinv * x_; yp.f += y;
     }
     else {
-      yp.f += (rinv * y_); x = (rinv * x_); y = (rinv * y_);
+      x = rinv * x_; y = rinv * y_; yp.f += y;
     }
     int ind = (yp.i & 0x01FF) * 2;
     
@@ -98,7 +98,7 @@ namespace  fastmath {
       x = rinv * y_; y = rinv * x_; yp.d += y;
     }
     else {
-      x = rinv * x_; y = rinv * y_;  yp.d += y;
+      x = rinv * x_; y = rinv * y_; yp.d += y;
     }
 
     int ind = (yp.i[0] & 0x03FF) * 2;  // 0 for little indian
@@ -115,7 +115,7 @@ namespace  fastmath {
     if (flags & 1) { th = (_2pi / 4) - th; }
     if (flags & 2) { th = (_2pi / 2) - th; }
     if (flags & 4) { th = -th; }
-    return std::pair<float,float>(th,overR ? rinv : r_);    
+    return std::pair<double,double>(th,overR ? rinv : r_);    
   }
  
   // return eta phi saving some computation
