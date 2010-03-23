@@ -6,6 +6,7 @@
 #include "EventFilter/Utilities/interface/Css.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/SquidNet.h"
+#include "EventFilter/Utilities/interface/Vulture.h"
 
 #include "MasterQueue.h"
 #include "SlaveQueue.h"
@@ -240,6 +241,8 @@ namespace evf
     xdata::Vector<xdata::Integer>    spmStates_;
     xdata::UnsignedInteger32         superSleepSec_; 
     std::list<std::string>           names_;
+    xdata::String                    iDieUrl_;
+    Vulture                         *vulture_; 
   };
   
 } // namespace evf

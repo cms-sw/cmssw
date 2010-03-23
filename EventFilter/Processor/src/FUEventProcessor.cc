@@ -105,6 +105,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , asSummarize_(0)
   , wlSummarizeActive_(false)
   , superSleepSec_(1)
+  , iDieUrl_("http://fuval-c2f12-14")
+  , vulture_(0)
 {
   names_.push_back("nbProcessed"    );
   names_.push_back("nbAccepted"     );
@@ -155,6 +157,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("superSleepSec",        &superSleepSec_               );
   ispace->fireItemAvailable("autoRestartSlaves",    &autoRestartSlaves_           );
   ispace->fireItemAvailable("slaveRestartDelaySecs",&slaveRestartDelaySecs_       );
+  ispace->fireItemAvailable("iDieUrl",              &iDieUrl_                     );
   
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
@@ -253,7 +256,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   pthread_mutex_init(&pickup_lock_,0);
 
   std::ostringstream ost;
-  ost  << "<div id=\"ve\">2.1.0 (" << edm::getReleaseVersion() <<")</div>"
+  ost  << "<div id=\"ve\">2.2.0 (" << edm::getReleaseVersion() <<")</div>"
        << "<div id=\"ou\">" << outPut_.toString() << "</div>"
        << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
        << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
@@ -360,6 +363,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
   catch(...) {
     fsm_.fireFailed("Unknown Exception",this);
   }
+  if(vulture_==0) vulture_ = new Vulture(iDieUrl_.value_,true);
   return false;
 }
 
@@ -418,6 +422,8 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     }
   
   startSummarizeWorkLoop();
+  pid_t vp = vulture_->start(runNumber_.value_);
+  if(vp==0) return false;
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
   fsm_.fireEvent("EnableDone",this);
   localLog("-I- Start completed");
@@ -430,6 +436,7 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 {
   if(nbSubProcesses_.value_!=0) 
     stopSlavesAndAcknowledge();
+  vulture_->stop();
   return stopClassic();
 }
 
@@ -531,6 +538,10 @@ void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
 	*out << "ERROR 404 : Process " << pid << " Not Found !" << std::endl;
 	return;
       } 
+      if(subs_[i].alive() != 1){
+	*out << "ERROR 405 : Process " << pid << " Not Alive !" << std::endl;
+	return;
+      }
       MsgBuf msg1(meth.length()+ost.str().length(),MSQM_MESSAGE_TYPE_WEB);
       strcpy(msg1->mtext,meth.c_str());
       strcpy(msg1->mtext+meth.length(),ost.str().c_str());
