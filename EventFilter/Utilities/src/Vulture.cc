@@ -55,20 +55,15 @@ namespace evf{
       catch (pt::exception::PeerTransportNotFound & e ){
 	//do nothing here since we don't know what to do... ?
       }
-      std::cout << "vulture is here 1" << std::endl;
       int success = prctl( PR_SET_DUMPABLE, 0 );
       if(success != 0) ::exit(-1);
       success = prctl( PR_SET_PDEATHSIG, SIGKILL );
       if(success != 0) ::exit(-1);
-      std::cout << "vulture is here 2" << std::endl;
-
-      if(success != 0) ::exit(-1);
-      std::cout << "vulture is here 3" << std::endl;
+      success = prctl( PR_SET_NAME, "Vulture" );
       tmp_ = opendir("/tmp");
       poster_ = new CurlPoster(iDieUrl_);
       if(poster_->check(run)){
 	try{
-	  std::cout << "vulture is here 4" << std::endl;
 	  startPreying();
 	}
 	catch(evf::Exception &e)
@@ -79,7 +74,6 @@ namespace evf{
       else{
 	::exit(0);
       }
-      std::cout << "vulture is running" << std::endl;
       success = prctl ( PR_SET_NAME , "vulture");
     }
     else
@@ -92,13 +86,9 @@ namespace evf{
   pid_t Vulture::stop()
   {
     preying_ = false;
-    std::cout << "Sending SIGKILL to vulture on pid " 
-	      << vulturePid_  << std::endl;
     int retval = kill (vulturePid_, SIGKILL);
-    std::cout << "trying to kill Vulture returned " << retval << std::endl;
     int sl;
     pid_t killedOrNot = waitpid(vulturePid_,&sl,WNOHANG);
-    std::cout << "waitpid on Vulture returned "  << killedOrNot << std::endl;
     vulturePid_ = 0;
     char messageDie[5];
     sprintf(messageDie,"Dead");
@@ -111,7 +101,6 @@ namespace evf{
     }
     delete poster_;
     poster_=0;
-    std::cout <<"Sending Dead Signal to iDie" << std::endl;
     return killedOrNot;
   }
   
@@ -139,7 +128,6 @@ namespace evf{
   }
   bool Vulture::preying(toolbox::task::WorkLoop*wl)
   {
-    std::cout << "Vulture::swoop" << std::endl;
 
     if(!preying_) return false;
     newCores_ = 0;
@@ -156,14 +144,9 @@ namespace evf{
     // examine /tmp looking for new coredumps
     dirent *dirp;
     while((dirp = readdir(tmp_))!=0){
-      std::cout << "found file " << dirp->d_name << std::endl;
       if(strncmp(dirp->d_name,"core",4)==0){
 	stat(dirp->d_name,&filestat);
-	std::cout << "Found corefile " <<  dirp->d_name << " lastmod " 
-		  << filestat.st_mtime << " lastup " << lastUpdate_
-		  << std::endl;
 	if(filestat.st_mtime > lastUpdate_){
-	  std::cout << "Found new corefile " << dirp->d_name << std::endl;
 	  currentCoreList_.push_back(dirp->d_name);
 	    newCores_++;
 	}
@@ -178,7 +161,6 @@ namespace evf{
       std::cout << "Vulture cannot send to iDie server, bail out " << std::endl;
       return false;
     }
-    std::cout << "Vulture::swoop completed" << std::endl;
     ::sleep(60);
     return true;
   }

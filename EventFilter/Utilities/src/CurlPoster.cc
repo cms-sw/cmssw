@@ -87,23 +87,19 @@ namespace evf{
   void CurlPoster::postString(const char *content, size_t len, unsigned int run)
   {
     if(!active_) return;
-    std::cout << "==============doing postString " << std::endl;
     post(content,(unsigned int)len,run,text);
   }
   void CurlPoster::postBinary(const char *content, unsigned int len, unsigned int run)
   {
     if(!active_) return;
-    std::cout << "==============doing postBinary " << std::endl;
     post(content,len,run,bin);
   }
 
   bool CurlPoster::check(int run)
   {
-    std::cout << "curlposter checking address " << url_ << std::endl;
     bool retVal = true;
     char ps[14];
     sprintf(ps,"run=%d",run);
-    std::cout << "sending run " << ps << std::endl;;
     CURL* han = curl_easy_init();
     if(han==0)
       {
