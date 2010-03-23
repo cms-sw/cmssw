@@ -2,6 +2,7 @@
 
 #include<iostream>
 // #include <pmmintrin.h>
+#include<typeinfo>
 
 #include "FWCore/Utilities/interface/HRRealTime.h"
 
@@ -73,7 +74,7 @@ namespace {
 	      stata(res.first,ref.first);
 	      statr(res.second,ref.second);
 	    }
-    std::cout << "times " << tf << " " << ts << std::endl;
+    std::cout << typeid(T).name() << "times " << tf << " " << ts << std::endl;
   }
 
  
