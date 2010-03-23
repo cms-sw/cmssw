@@ -15,6 +15,7 @@ zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
       'keep *_dimuonsOneTrack_*_*',
       'keep *_dimuonsGlobal_*_*',
       'keep *_dimuonsOneStandAloneMuon_*_*',
+      'keep *_dimuonsOneTrackerMuon_*_*',
       ### to access vertex information
       'keep *_offlineBeamSpot_*_*',
       'keep *_offlinePrimaryVerticesWithBS_*_*',

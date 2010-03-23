@@ -7,4 +7,12 @@ dimuonsMCTruth = cms.Path(dimuonsHLTFilter+
                           mcTruthForDimuons
 )
 
+mcEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+    ### MC matching infos
+    'keep *_genParticles_*_*',
+    'keep *_allDimuonsMCMatch_*_*',
+    )
+)
+
 
