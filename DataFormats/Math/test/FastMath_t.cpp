@@ -72,8 +72,8 @@ namespace {
 	      ts += (edm::hrRealTime() -ss);
 	      stata(res.first,ref.first);
 	      statr(res.second,ref.second);
-	      std::cout << "times " << tf << " " << ts << std::endl;
 	    }
+    std::cout << "times " << tf << " " << ts << std::endl;
   }
 
  
