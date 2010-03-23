@@ -80,11 +80,15 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
   ievt_=0;
   ////---- initialize the fraction of good channels
   fraction=0; 
+  overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
+  ////---- initialize status and number of good channels
+  status = -99; numOK = 0; 
+  ////---- initialize recHitPresent
+  iRecHit=false;
   
   if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup (end)" << endl;
 
   return;
-
 }
 
 
@@ -107,9 +111,10 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
      cout << "CastorChannelQualityMonitor: Dead Threshold is set to: " << dThreshold_ << endl;
     }
 
-  module = -1;  sector = -1; energy = -1.;
-  if(ievt_ ==0)  overallStatus->Fill(0); reportSummary->Fill(0); 
+  module = -1;  sector = -1; energy = -1.; 
   
+  if (castorHits.size()>0) iRecHit=true;
+  else iRecHit=false;
   
  ////---- loop over RecHits 
  for(CastorRecHitCollection::const_iterator recHit = castorHits.begin(); recHit != castorHits.end(); ++recHit){
@@ -122,6 +127,7 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
     sector = CastorID.sector();
     energy = rh->energy();
     //cout<< "energy= "<< energy << endl;
+    iRecHit=true;
 
    ////----  fill the arrays
     if(energy > nThreshold_){
@@ -140,9 +146,9 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
   ievt_++;
 
  ////---- update reportSummarymap every 500 events
- if( ievt_ == 25 || ievt_ % 500 == 0) {
+ if( (ievt_ == 25 || ievt_ % 500 == 0) && iRecHit ) {
    
-   int status = -99; int numOK = 0; 
+   status = -99;  numOK = 0; 
 
      ////---- reset the reportSummaryMap 
     // if(offline_) reportSummaryMap->Reset();
@@ -178,6 +184,8 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
   fraction=double(numOK)/224;
   overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   }
+  
+  
    return;
 } 
  
