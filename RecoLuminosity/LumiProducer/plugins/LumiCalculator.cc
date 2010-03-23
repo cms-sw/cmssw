@@ -28,6 +28,7 @@ struct MyPerLumiInfo{
   unsigned int lsnum;
   float livefraction;
   float intglumi;
+  unsigned long long deadcount;
 };
 
 class LumiCalculator : public edm::EDAnalyzer{
@@ -209,11 +210,13 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   //
   //collect lumi. 
   //
+  l.deadcount=lumiSummary->deadcount();
   l.intglumi=lumiSummary->avgInsDelLumi()*93.244;
   l.livefraction=lumiSummary->liveFrac();
   
   *log_<<"====== Lumi Section "<<lumiBlock.id().luminosityBlock()<<" ======\n";
   *log_<<"\t Luminosity "<<l.intglumi<<"\n";
+  *log_<<"\t Dead count "<<l.deadcount<<"\n";
   *log_<<"\t Deadtime corrected Luminosity "<<l.intglumi*l.livefraction<<"\n";
 
   //
@@ -238,11 +241,7 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
 	std::string l1name=mit->second;
 	*log_<<"    L1 name : "<<l1name;
 	LumiSummary::L1 l1result=lumiSummary->l1info(l1name);
-	if( l1result.ratecount!=-99 ){
-	  *log_<<" , count : "<<l1result.ratecount<<" , deadtime : "<<l1result.deadtimecount<<" , prescale : "<<l1result.scalingfactor<<"\n";
-	}else{
-	  *log_<<" , no match count \n";
-	}
+	*log_<<" , count : "<<l1result.ratecount<<" , prescale : "<<l1result.prescale<<"\n";
 	*log_<<"\n";
       }
       ++c;
@@ -261,11 +260,11 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   //
   size_t n=lumiSummary->nTriggerLine();
   for(size_t i=0;i<n;++i){
-    std::string l1bitname=lumiSummary->l1info(i).triggersource;
+    std::string l1bitname=lumiSummary->l1info(i).triggername;
     l1PerBitInfo t;
     if(currentlumi_==0){
       t.count=lumiSummary->l1info(i).ratecount;
-      t.prescale=lumiSummary->l1info(i).scalingfactor;
+      t.prescale=lumiSummary->l1info(i).prescale;
       l1map_.insert(std::make_pair(l1bitname,t));
     }else{
       std::map<std::string,l1PerBitInfo>::iterator it=l1map_.find(l1bitname);

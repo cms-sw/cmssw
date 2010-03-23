@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.1 2010/03/15 15:55:53 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.2 2010/03/22 17:29:27 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -79,7 +79,7 @@ private:
 				    edm::EventSetup const& iSetup);
   virtual void endLuminosityBlock(edm::LuminosityBlock& lumiBlock, 
 				  edm::EventSetup const& c);
-  void fillDefaultLumi(edm::LuminosityBlock & iLBlock);
+  //void fillDefaultLumi(edm::LuminosityBlock & iLBlock);
   bool fillLumi(edm::LuminosityBlock & iLBlock);
 
   //edm::ParameterSet pset_;
@@ -94,7 +94,6 @@ private:
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
 {
   // register your products
-  std::cout<<"LumiProducer constructor"<<std::endl;
   produces<LumiSummary, edm::InLumi>();
   produces<LumiDetails, edm::InLumi>();
   m_connectStr=iConfig.getParameter<std::string>("connect");
@@ -102,14 +101,13 @@ LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
 }
 
 LumiProducer::~LumiProducer(){ 
-  std::cout<<"LumiProducer destructor"<<std::endl;
 }
 //
 // member functions
 //
 void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup){ 
-  std::cout<<"LumiProducer produce"<<std::endl;
 }
+/**
 void LumiProducer::fillDefaultLumi(edm::LuminosityBlock &iLBlock){
   LumiSummary* pIn1=new LumiSummary;
   std::auto_ptr<LumiSummary> pOut1(pIn1);
@@ -118,16 +116,13 @@ void LumiProducer::fillDefaultLumi(edm::LuminosityBlock &iLBlock){
   std::auto_ptr<LumiDetails> pOut2(pIn2);
   iLBlock.put(pOut2);
 }
-void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
-  std::cout<<"LumiProducer::beginLuminosityBlock"<<std::endl;
-  std::auto_ptr<LumiSummary> pOut1;
-  std::auto_ptr<LumiDetails> pOut2;
-  
+**/
+void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {  
 }
-void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & lumiBlock, 
+void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, 
 				     edm::EventSetup const& c){
-  unsigned int runnumber=lumiBlock.run();
-  unsigned int luminum=lumiBlock.luminosityBlock();
+  unsigned int runnumber=iLBlock.run();
+  unsigned int luminum=iLBlock.luminosityBlock();
   edm::Service<lumi::service::DBService> mydbservice;
   if( !mydbservice.isAvailable() ){
     std::cout<<"Service is unavailable"<<std::endl;
@@ -254,11 +249,13 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & lumiBlock,
       delete [] bxquality;
     }
     delete detailQuery;
-    for( std::map<std::string,std::vector<float> >::iterator it=bxerrormap.begin(); it!=bxerrormap.end();++it){
-      std::cout<<"algo name "<<it->first<<std::endl;
-      std::cout<<"errorsize "<<(it->second).size()<<std::endl;
-      std::cout<<"first error value "<<*((it->second).begin())<<std::endl;
-    }
+    /**
+       for( std::map<std::string,std::vector<float> >::iterator it=bxerrormap.begin(); it!=bxerrormap.end();++it){
+       std::cout<<"algo name "<<it->first<<std::endl;
+       std::cout<<"errorsize "<<(it->second).size()<<std::endl;
+       std::cout<<"first error value "<<*((it->second).begin())<<std::endl;
+       }
+    **/
     //
     //select trgcount,deadtime,prescale,bitname from TRG where runnum=:runnumber  AND cmslsnum between :lsnum and :lsnum+4 order by cmslsnum,bitnum; 
     //
@@ -336,6 +333,18 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & lumiBlock,
       std::cout<<"hltpath : "<<hltpathname<<", inputcount : "<<hltinputcount<<", acceptcount : "<<hltacceptcount<<", prescale : "<<hltprescale<<std::endl;
     }
     delete hltQuery;
+
+    std::auto_ptr<LumiSummary> pOut1;
+    LumiSummary* pIn1=new LumiSummary;
+    
+    pOut1.reset(pIn1);
+    iLBlock.put(pOut1);
+
+    std::auto_ptr<LumiDetails> pOut2;
+    LumiDetails* pIn2=new LumiDetails;
+    pOut2.reset(pIn2);
+    iLBlock.put(pOut2);
+    
   }catch( const coral::Exception& er){
     session->transaction().rollback();
     mydbservice->disconnect(session);
