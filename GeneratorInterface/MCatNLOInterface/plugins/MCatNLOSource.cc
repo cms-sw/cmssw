@@ -193,4 +193,4 @@ bool MCatNLOSource::hwwarn(const std::string &fn, int code)
   return true;
 }
 
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(MCatNLOSource);
+DEFINE_FWK_INPUT_SOURCE(MCatNLOSource);
