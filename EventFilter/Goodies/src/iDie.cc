@@ -73,7 +73,7 @@ void iDie::defaultWeb(xgi::Input *in,xgi::Output *out)
   cgicc::Cgicc cgi(in);
   std::string method = cgi.getEnvironment().getRequestMethod();
   if(method == "POST"){
-    int run;
+    unsigned int run;
     std::vector<cgicc::FormEntry> el1 = cgi.getElements();
     std::cout << "dump of post to defaultWeb" << std::endl;
     for(unsigned int i = 0; i < el1.size(); i++)
@@ -82,7 +82,7 @@ void iDie::defaultWeb(xgi::Input *in,xgi::Output *out)
     if(el1.size()!=0){
       std::cout << "got runnumber " << el1[0].getIntegerValue() << std::endl;
       run = el1[0].getIntegerValue();
-      if(run>runNumber_.value_ || runNumber_.value_==0){
+      if(run > runNumber_.value_ || runNumber_.value_==0){
 	if(runNumber_.value_!=0) reset();
 	runNumber_.value_ = run;
       }
@@ -133,6 +133,7 @@ void iDie::detailsTable(xgi::Input *in,xgi::Output *out)
 	   << (*i).second.ccount << "</td>"
 	   << "<td onClick=loaddump(\'" << url_.value_ << "/dump?name="
 	   << (*i).first << "\')>" << (*i).second.cpids.back()
+	   << "</td><td>" <<(*i).second.signals.back() 
 	   << "</td></tr>" << std::endl;
     }
 }
@@ -209,6 +210,10 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
       else{
 	totalCores_++;
 	std::string st = el1[0].getValue();
+	std::string sig; 
+	size_t psig = st.find_first_of("signal");
+	if(psig != string::npos)
+	  sig = st.substr(psig,10);
 	std::cout << "postEntry string " << st << std::endl;
 	std::string host = cgi.getEnvironment().getRemoteHost();
 	std::transform(host.begin(), host.end(),
@@ -218,6 +223,7 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	  (*fi).second.tstamp = now;
 	  (*fi).second.ccount++;
 	  (*fi).second.cpids.push_back(cpid);
+	  (*fi).second.signals.push_back(sig);
 	  (*fi).second.stacktraces.push_back(st);
 	}
       }

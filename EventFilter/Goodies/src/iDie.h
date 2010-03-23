@@ -39,6 +39,7 @@ namespace evf {
       time_t tstamp;
       unsigned int ccount;
       std::vector<pid_t> cpids;
+      std::vector<std::string> signals;
       std::vector<std::string> stacktraces;
     };
   }
