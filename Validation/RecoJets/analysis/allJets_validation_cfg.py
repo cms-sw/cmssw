@@ -12,7 +12,7 @@ process = cms.Process("JETVALIDATION")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
+#
 #
 # DQM
 #
@@ -21,8 +21,8 @@ process.load("DQMServices.Core.DQM_cfg")
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
-process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
+#process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
+#process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff")
 
 # Validation module
