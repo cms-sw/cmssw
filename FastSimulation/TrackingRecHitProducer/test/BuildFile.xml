@@ -31,6 +31,12 @@
   <use   name="boost"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="SiPixelRecHitsInputDistributionsMakerNew.cc" name="SiPixelRecHitsInputDistributionsMakerNew">
+  <use   name="FWCore/Framework"/>
+  <use   name="DQMServices/Core"/>
+  <use   name="boost"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="FamosRecHitTest.cc" name="FamosRecHitTest">
   <use   name="FWCore/Framework"/>
   <use   name="DQMServices/Core"/>
