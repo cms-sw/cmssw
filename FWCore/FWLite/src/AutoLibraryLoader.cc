@@ -55,7 +55,6 @@ AutoLibraryLoader::enable()
 
    edmplugin::PluginManager::configure(edmplugin::standard::config());
    static BareRootProductGetter s_getter;
-   static edm::EDProductGetter::Operate s_op(&s_getter);
    edm::RootAutoLibraryLoader::enable();
    edm::setCacheStreamers();
    //this function must be called after enabling the autoloader

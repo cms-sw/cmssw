@@ -14,9 +14,8 @@
 class TestRef: public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(TestRef);
-  CPPUNIT_TEST(default_ctor_without_active_getter);
-  //CPPUNIT_TEST(default_ctor_without_active_getter_string_key);
-  CPPUNIT_TEST(default_ctor_with_active_getter);
+  CPPUNIT_TEST(default_ctor);
+  //CPPUNIT_TEST(default_ctor_string_key);
   CPPUNIT_TEST(nondefault_ctor);
   //CPPUNIT_TEST(nondefault_ctor_2);
   CPPUNIT_TEST(using_wrong_productid);
@@ -35,8 +34,8 @@ class TestRef: public CppUnit::TestFixture
   void setUp() {}
   void tearDown() {}
 
-  void default_ctor_without_active_getter();
-  //  void default_ctor_without_active_getter_string_key();
+  void default_ctor();
+  //  void default_ctor_string_key();
   void default_ctor_with_active_getter();
   void nondefault_ctor();
   //  void nondefault_ctor_2();
@@ -47,7 +46,7 @@ class TestRef: public CppUnit::TestFixture
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestRef);
 
-void TestRef::default_ctor_without_active_getter()
+void TestRef::default_ctor()
 {
   ref1_t  default_ref;
   CPPUNIT_ASSERT(default_ref.isNull());
@@ -58,7 +57,7 @@ void TestRef::default_ctor_without_active_getter()
   CPPUNIT_ASSERT(default_ref.isAvailable()==false);
 }
 
-// void TestRef::default_ctor_without_active_getter_string_key()
+// void TestRef::default_ctor_string_key()
 // {
 //   ref2_t  default_ref;
 //   CPPUNIT_ASSERT(default_ref.isNull());
@@ -69,26 +68,11 @@ void TestRef::default_ctor_without_active_getter()
 //   CPPUNIT_ASSERT(default_ref.id().isAvailable()==false);
 // }
 
-void TestRef::default_ctor_with_active_getter()
-{
-  SimpleEDProductGetter getter;
-  edm::EDProductGetter::Operate op(&getter);
-  ref1_t  default_ref;
-  CPPUNIT_ASSERT(default_ref.isNull());
-  CPPUNIT_ASSERT(default_ref.isNonnull()==false);
-  CPPUNIT_ASSERT(!default_ref);
-  CPPUNIT_ASSERT(default_ref.productGetter()==&getter);
-  CPPUNIT_ASSERT(default_ref.id().isValid()==false);
-  CPPUNIT_ASSERT(default_ref.isAvailable()==false);
-  CPPUNIT_ASSERT_THROW(default_ref.operator->(), edm::Exception);
-  CPPUNIT_ASSERT_THROW(*default_ref, edm::Exception);
-}
 
-void TestRef::nondefault_ctor()
+ void TestRef::nondefault_ctor()
 {
   SimpleEDProductGetter getter;
   
-  edm::EDProductGetter::Operate op(&getter);
   edm::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
@@ -149,7 +133,6 @@ void TestRef::using_wrong_productid()
 {
   SimpleEDProductGetter getter;
   
-  edm::EDProductGetter::Operate op(&getter);
   edm::ProductID id(1, 1U);
   CPPUNIT_ASSERT(id.isValid());
 

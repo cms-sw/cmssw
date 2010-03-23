@@ -222,17 +222,6 @@ void testRef::getTest() {
    CPPUNIT_ASSERT(1 == (*refProd0)[1].value_);
    CPPUNIT_ASSERT(1 == (*refProd2)[1].value_);
 
-   //get it via the 'singleton'
-   edm::EDProductGetter::Operate operate(&tester);
-   Ref<IntCollection> ref0b(handle, 0);
-   ref0b.ref().refCore().setProductPtr(0);
-   ref0b.ref().item().setPtr(0);
-   CPPUNIT_ASSERT(0 == ref0b->value_);
-
-   RefProd<IntCollection> refProd0b(handle);
-   refProd0b.refCore().setProductPtr(0);
-   CPPUNIT_ASSERT(1 == (*refProd0b)[1].value_);
-
    std::cerr << ">>> RefToBaseProd from RefProd" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd0(refProd0);
    std::cerr << ">>> RefToBaseProd from Ref" << std::endl;
