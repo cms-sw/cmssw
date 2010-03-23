@@ -2,9 +2,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("standalonetest")
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load("RecoLuminosity.LumiProducer.nonGlobalTagLumiProducerPrep_cff")
+#process.load("FWCore.MessageService.MessageLogger_cfi")
+#process.load("CondCore.DBCommon.CondDBSetup_cfi")
+#process.load("RecoLuminosity.LumiProducer.nonGlobalTagLumiProducerPrep_cff")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
@@ -30,23 +30,25 @@ process.source = cms.Source("EmptySource",
 #    interval = cms.uint64(1)
 #)
 
-process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
-process.LumiESSource.toGet=cms.VPSet(
-    cms.PSet(
-      record = cms.string('LumiSectionDataRcd'),
-      tag = cms.string('nolumi')
-    )
+#process.LumiESSource.DBParameters.authenticationPath=cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+#process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
+#process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
+#process.LumiESSource.toGet=cms.VPSet(
+#    cms.PSet(
+#      record = cms.string('LumiSectionDataRcd'),
+#      tag = cms.string('nolumi')
+#    )
+#)
+process.lumiDBService=cms.Service("DBService",
+                                  authPath=cms.untracked.string('/afs/cern.ch/user/x/xiezhen')
 )
-
 process.lumiProducer=cms.EDProducer("LumiProducer")
-process.test = cms.EDAnalyzer("TestLumiProducer")
+#process.test = cms.EDAnalyzer("TestLumiProducer")
 
-process.out = cms.OutputModule("PoolOutputModule",
-  fileName = cms.untracked.string('testLumiProd.root')
-)
+#process.out = cms.OutputModule("PoolOutputModule",
+#  fileName = cms.untracked.string('testLumiProd.root')
+#)
 
 process.p1 = cms.Path(process.lumiProducer * process.test)
 
-process.e = cms.EndPath(process.out)
+#process.e = cms.EndPath(process.out)
