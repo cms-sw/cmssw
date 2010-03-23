@@ -3,6 +3,7 @@
 #include<iostream>
 // #include <pmmintrin.h>
 
+#include "FWCore/Utilities/interface/HRRealTime.h"
 
 namespace {
   
@@ -50,6 +51,8 @@ namespace {
   
   template<typename T> 
   void sampleSquare() {
+    edm::HRTimeType tf=0;
+    edm::HRTimeType ts=0;
     Stat<T> stata("atan2");
     Stat<T> statr("r");
     T fac[8] = {-8, -5., -2., -1., 1.,2.,5.,8.};
@@ -60,11 +63,16 @@ namespace {
 	    for (int j=0;j!=8; ++j) {
 	      T xx = x*fac[i];
 	      T yy = y*fac[j];
+	      edm::HRTimeType sf = edm::hrRealTime();
 	      std::pair<T,T> res = fastmath::atan2r(xx,yy);
+	      tf += (edm::hrRealTime() -sf);
 	      for (int l=0; l<i+j; ++l) dummy+=yy; // add a bit of random instruction
+	      edm::HRTimeType ss = edm::hrRealTime();
 	      std::pair<T,T> ref = stdatan2r(xx,yy);
+	      ts += (edm::hrRealTime() -ss);
 	      stata(res.first,ref.first);
 	      statr(res.second,ref.second);
+	      std::cout << "times " << tf << " " << ts << std::endl;
 	    }
   }
 
