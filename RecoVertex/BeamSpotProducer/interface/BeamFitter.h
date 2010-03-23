@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.24 2010/03/18 19:20:18 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.25 2010/03/20 14:40:56 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -135,15 +135,15 @@ class BeamFitter {
   bool falgo;
   bool fpvValid;
   double fpvx, fpvy, fpvz;
-  time_t freftime[2];
+  std::time_t freftime[2];
   
   //beam fit results
   TTree* ftreeFit_;
   int frunFit;
   int fbeginLumiOfFit;
   int fendLumiOfFit;
-  char fbeginTimeOfFit[30];
-  char fendTimeOfFit[30];
+  char fbeginTimeOfFit[32];
+  char fendTimeOfFit[32];
   double fx;
   double fy;
   double fz;

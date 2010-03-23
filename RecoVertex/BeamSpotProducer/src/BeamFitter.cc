@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.42 2010/03/18 19:20:19 yumiceva Exp $
+   version $Id: BeamFitter.cc,v 1.43 2010/03/20 14:40:56 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -29,21 +29,12 @@ ________________________________________________________________**/
 // ----------------------------------------------------------------------
 // Useful function:
 // ----------------------------------------------------------------------
-
-static char * formatTime( const time_t t )  {
-
-  static  char ts[] = "yyyy.Mm.dd hh:mm:ss TZN     ";
-  strftime( ts, strlen(ts)+1, "%Y.%m.%d %H:%M:%S %Z", gmtime(&t) );
-
-#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
-  // strip trailing blanks that would come when the time zone is not as
-  // long as the maximum allowed - probably not worth the time 
-  unsigned int b = strlen(ts);
-  while (ts[--b] == ' ') {ts[b] = 0;}
-#endif 
-
+static char * formatTime(const std::time_t & t)  {
+  struct std::tm * ptm;
+  ptm = gmtime(&t);
+  static char ts[32];
+  strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
   return ts;
-
 }
 
 BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
@@ -214,16 +205,15 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   }
   frun = iEvent.id().run();
   edm::TimeValue_t ftimestamp = iEvent.time().value();
-  edm::TimeValue_t fdenom = pow(2,32);
-  time_t ftmptime = ftimestamp / fdenom;
+  std::time_t ftmptime = ftimestamp >> 32;
 
-  if (fbeginLumiOfFit == -1) freftime[0] = ftmptime;
+  if (fbeginLumiOfFit == -1) freftime[0] = freftime[1] = ftmptime;
   if (freftime[0] == 0 || ftmptime < freftime[0]) freftime[0] = ftmptime;
-  char* fbeginTime = formatTime(freftime[0]);
+  const char* fbeginTime = formatTime(freftime[0]);
   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
 
   if (freftime[1] == 0 || ftmptime > freftime[1]) freftime[1] = ftmptime;
-  char* fendTime = formatTime(freftime[1]);
+  const char* fendTime = formatTime(freftime[1]);
   sprintf(fendTimeOfFit,"%s",fendTime);
 
   flumi = iEvent.luminosityBlock();
