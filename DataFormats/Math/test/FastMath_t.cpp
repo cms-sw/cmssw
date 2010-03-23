@@ -40,7 +40,7 @@ namespace {
   
   volatile double dummy;
   template<typename T> 
-  inline T eta(T x, T y, T z) { T x(z/std::sqrt(x*x+y*y); return std::log(x+std::sqrt(x*x+T(1)));}
+  inline T eta(T x, T y, T z) { x = z/std::sqrt(x*x+y*y); return std::log(x+std::sqrt(x*x+T(1)));}
 
   
   template<typename T> 
