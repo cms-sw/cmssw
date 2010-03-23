@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.34 2010/03/20 17:47:06 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.35 2010/03/21 17:04:59 dinardo Exp $
 //
 //
 
@@ -41,14 +41,14 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig)
   vertexCollection = edm::InputTag("pixelVertices");
   debugMode        = false;
   nLumiReset       = 1;
-  dataFromFit      = false;
+  dataFromFit      = true;
   minNentries      = 100;
-  xRange           = 0.;
-  xStep            = 1.;
-  yRange           = 0.;
-  yStep            = 1.;
-  zRange           = 0.;
-  zStep            = 1.;
+  xRange           = 4.;
+  xStep            = 0.001;
+  yRange           = 4.;
+  yStep            = 0.001;
+  zRange           = 40.;
+  zStep            = 0.05;
   fileName         = "BeamPixelResults.txt";
 
   vertexCollection = iConfig.getParameter<InputTag>("vertexCollection");
@@ -157,13 +157,13 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
   unsigned int counter = 0;
   
   for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
-    for (edmNew::DetSet<SiPixelRecHit>::const_iterator h = j->begin(); h != j->end(); h++) counter = counter + h->cluster()->size();	  
+    for (edmNew::DetSet<SiPixelRecHit>::const_iterator h = j->begin(); h != j->end(); h++) counter += h->cluster()->size();	  
   
   return counter;
 }
 
 
-static char* formatTime(const time_t t)
+char* Vx3DHLTAnalyzer::formatTime(const time_t t)
 {
   static char ts[] = "yyyy.Mm.dd hh:mm:ss TZN     ";
   strftime(ts, strlen(ts)+1, "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
@@ -172,8 +172,8 @@ static char* formatTime(const time_t t)
   // Strip trailing blanks that would come when the time zone is not as
   // long as the maximum allowed
   unsigned int b = strlen(ts);
-  while (ts[--b] == ' ') {ts[b] = 0;}
-#endif 
+  while (ts[--b] == ' ') ts[b] = 0;
+#endif
   
   return ts;
 }
@@ -193,6 +193,9 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 //   par[3] = K(0,1) = K(1,0)
 //   par[4] = K(1,2) = K(2,1)
 //   par[5] = K(0,2) = K(2,0)
+//   par[6] = mean x
+//   par[7] = mean y
+//   par[8] = mean z
 
   counterVx = 0;
   for (unsigned int i = 0; i < Vertices.size(); i++)
@@ -241,18 +244,21 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 				    2.*M[0][1]*(Vertices[i].x-par[6])*(Vertices[i].y-par[7]) +
 				    2.*M[1][2]*(Vertices[i].y-par[7])*(Vertices[i].z-par[8]) +
 				    2.*M[0][2]*(Vertices[i].x-par[6])*(Vertices[i].z-par[8])))) >= precision)
-	    sumlog += log(coef) -1./2. * (M[0][0]*(Vertices[i].x-par[6])*(Vertices[i].x-par[6]) +
-					  M[1][1]*(Vertices[i].y-par[7])*(Vertices[i].y-par[7]) +
-					  M[2][2]*(Vertices[i].z-par[8])*(Vertices[i].z-par[8]) +
-					  2.*M[0][1]*(Vertices[i].x-par[6])*(Vertices[i].y-par[7]) +
-					  2.*M[1][2]*(Vertices[i].y-par[7])*(Vertices[i].z-par[8]) +
-					  2.*M[0][2]*(Vertices[i].x-par[6])*(Vertices[i].z-par[8]));
-	  else sumlog += log(precision);
+// 	    sumlog += double(DIM)*log(2.*pi) + log(fabs(det)) +
+	    sumlog += log(fabs(det)) +
+	      (M[0][0]*(Vertices[i].x-par[6])*(Vertices[i].x-par[6]) +
+	       M[1][1]*(Vertices[i].y-par[7])*(Vertices[i].y-par[7]) +
+	       M[2][2]*(Vertices[i].z-par[8])*(Vertices[i].z-par[8]) +
+	       2.*M[0][1]*(Vertices[i].x-par[6])*(Vertices[i].y-par[7]) +
+	       2.*M[1][2]*(Vertices[i].y-par[7])*(Vertices[i].z-par[8]) +
+	       2.*M[0][2]*(Vertices[i].x-par[6])*(Vertices[i].z-par[8]));
+	  else sumlog += -2.*log(precision);
+ 
 	  counterVx++;
 	}
     }
 
-  fval = -2.*sumlog;
+  fval = sumlog;
 }
 
 
@@ -266,9 +272,9 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
  
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigmaXY = 3.;
-      double nSigmaZ  = 3.;
-      double varFactor = 2./5.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
+      double nSigmaXY    = 3.;
+      double nSigmaZ     = 3.;
+      double varFactor   = 2./5.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
       double parDistance = 0.01;
       double det;
       double bestEdm = 1.;
@@ -315,13 +321,20 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(7,"mean y", *(it+7), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0., 0.);
 
-	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
+	  // Set the central positions of the centroid for vertex rejection
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
 
+	  // Set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+	  // Re-set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
@@ -364,13 +377,20 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+deltaMean, parDistance, 0., 0.);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8), parDistance, 0., 0.);
 
-	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
+	  // Set the central positions of the centroid for vertex rejection
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
 
+	  // Set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+	  // Re-set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
@@ -414,13 +434,20 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0., 0.);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8)+deltaMean, parDistance, 0., 0.);
 
-	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
+	  // Set the central positions of the centroid for vertex rejection
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
 
+	  // Set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+	  // Re-set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
@@ -452,14 +479,21 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance, 0., 0.);
       Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance, 0., 0.);
       Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance, 0., 0.);
-      
-      maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-      maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
+
+      // Set the central positions of the centroid for vertex rejection
       xPos = Gauss3D->GetParameter(6);
       yPos = Gauss3D->GetParameter(7);
       zPos = Gauss3D->GetParameter(8);
       
+      // Set dimensions of the centroid for vertex rejection
+      maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+      maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
       goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+      // Re-set dimensions of the centroid for vertex rejection
+      maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+      maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
+      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+      
       Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
       if (counterVx < minNentries) goodData = -2;
@@ -489,14 +523,21 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*5., 0, 0);
 	  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*50., 0, 0);
-      
-	  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
+
+	  // Set the central positions of the centroid for vertex rejection
 	  xPos = Gauss3D->GetParameter(6);
 	  yPos = Gauss3D->GetParameter(7);
 	  zPos = Gauss3D->GetParameter(8);
-      
+
+	  // Set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
 	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+	  // Re-set dimensions of the centroid for vertex rejection
+	  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
+	  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
 	  if (counterVx < minNentries) goodData = -2;
@@ -526,14 +567,21 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*10., 0, 0);
 	      Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*100., 0, 0);
- 	      
-	      maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-	      maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
+
+	      // Set the central positions of the centroid for vertex rejection
 	      xPos = Gauss3D->GetParameter(6);
 	      yPos = Gauss3D->GetParameter(7);
 	      zPos = Gauss3D->GetParameter(8);
-      
+	      
+	      // Set dimensions of the centroid for vertex rejection
+	      maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	      maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
 	      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+	      // Re-set dimensions of the centroid for vertex rejection
+	      maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+	      maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
+	      goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+	      
 	      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
 	      if (counterVx < minNentries) goodData = -2;
@@ -563,16 +611,23 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 		  Gauss3D->SetParameter(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*sqrt((*(it+0))*varFactor), parDistance*100., 0, 0);
 		  Gauss3D->SetParameter(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*sqrt((*(it+1))*varFactor), parDistance*100., 0, 0);
 		  Gauss3D->SetParameter(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*sqrt((*(it+2))*varFactor), parDistance*500., 0, 0);
- 		  
-		  maxTransRadius = nSigmaXY * sqrt(Gauss3D->GetParameter(0) + Gauss3D->GetParameter(1));
-		  maxLongLength  = nSigmaZ  * sqrt(Gauss3D->GetParameter(2));
+
+		  // Set the central positions of the centroid for vertex rejection
 		  xPos = Gauss3D->GetParameter(6);
 		  yPos = Gauss3D->GetParameter(7);
 		  zPos = Gauss3D->GetParameter(8);
-      
+		  
+		  // Set dimensions of the centroid for vertex rejection
+		  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+		  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
 		  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+		  // Re-set dimensions of the centroid for vertex rejection
+		  maxTransRadius = nSigmaXY * sqrt(fabs(Gauss3D->GetParameter(0)) + fabs(Gauss3D->GetParameter(1)));
+		  maxLongLength  = nSigmaZ  * sqrt(fabs(Gauss3D->GetParameter(2)));
+		  goodData = Gauss3D->ExecuteCommand("MIGRAD",arglist,2);
+
 		  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
-      
+
 		  if (counterVx < minNentries) goodData = -2;
 		  else if (isnan(edm) == true) goodData = -1;
 		  else for (unsigned int j = 0; j < nParams; j++) if (isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
@@ -899,7 +954,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       if (goodData == 0)
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
-// 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
+	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  histTitle << "Fitted Beam Spot [cm] (Lumi start: " << beginLumiOfFit << " - Lumi end: " << endLumiOfFit << ")";
 
@@ -911,7 +966,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       else
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, -1);
-// 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
+	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(.95);
 	  reportSummaryMap->Fill(0.5, 0.5, 0.95);

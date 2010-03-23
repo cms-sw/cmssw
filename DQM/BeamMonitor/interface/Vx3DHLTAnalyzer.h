@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.10 2010/03/20 17:47:17 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.11 2010/03/21 17:05:17 dinardo Exp $
 //
 //
 
@@ -35,6 +35,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <TF3.h>
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -44,6 +46,7 @@ using namespace std;
 
 
 #define DIM 3
+void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*iflag*/);
 typedef struct
 {
   double x;
@@ -70,6 +73,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual unsigned int HitCounter(const edm::Event& iEvent);
+      virtual char* formatTime(const time_t t);
       virtual int MyFit(vector<double>* vals);
       virtual void reset();
       virtual void writeToFile(vector<double>* vals,
