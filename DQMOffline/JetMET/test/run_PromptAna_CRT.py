@@ -4,27 +4,44 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
+#--- [read list of input files from a text file? or not (default=False)]
+read_from_file = (os.environ.get('READ_LIST_FROM_FILE','False'))
+print 'read list of input files from a text file (default=False) = '+str(read_from_file)
+#
 #
 # --- [do harvesting (default=True)? or read in histogram files]
 harvesting = (os.environ.get('HARVESTING',True))
 print 'harvesting (default=True) = '+str(harvesting)
 #
 # --- [reference histogram (default=jetMETMonitoring_test.root)]
-reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMonitoring_test.root'))
+reference_histogram_file = (os.environ.get('REFERENCE_HISTOGRAM_FILE','jetMETMonitoring_jan29_2360gev_mc.root'))
 print 'reference_histogram_file = '+str(reference_histogram_file)
 #
 # --- [input file(s) for harvesting/certification (default=reco_DQM_test.root)]
-input_root_files = os.environ.get('INPUTEDMFILES','file:reco_DQM_test.root').split(",")
-print 'input_root_files = '+str(input_root_files)
-print
-
 input_files = []
-if harvesting:
-  for file in input_root_files:        # Second Example
-     input_files.append(str(file))
+if read_from_file=="True":
+  #--- [name of the text file (default=inputfile_list_default.txt)]
+  filename = (os.environ.get('INPUTFILES_LIST','inputfile_list_default.txt'))
+  file=open(filename)
+  print file.read()
+  f = open(filename)
+  try:
+    for line in f:
+        input_files.append(line)
+  finally:
+    f.close()
 else:
-  test_histogram_file = os.environ.get('TEST_HISTOGRAM_FILE','jetMETMonitoring_test.root')
-  print 'test_histogram_file = '+str(test_histogram_file)
+  input_root_files = os.environ.get('INPUTEDMFILES','file:reco_DQM_jan29_2360gev_mc.root').split(",")
+  print 'input_root_files = '+str(input_root_files)
+  print
+  
+  if harvesting:
+    for file in input_root_files:        # Second Example
+      input_files.append(str(file))
+    else:
+      test_histogram_file = os.environ.get('TEST_HISTOGRAM_FILE','jetMETMonitoring_test.root')
+      print 'test_histogram_file = '+str(test_histogram_file)
+print
     
 
 
@@ -63,7 +80,7 @@ process.DQMStore.referenceFileName = reference_histogram_file
 #-----------------------------
 # Locate a directory in DQMStore
 #-----------------------------
-process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
+process.dqmInfoJetMET = cms.EDFilter("DQMEventInfo",
                 subSystemFolder = cms.untracked.string('JetMET')
                 )
 
@@ -78,11 +95,11 @@ process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
                               refFileName    = cms.untracked.string(""),
 #
 #--- 0: harvest EDM files, 1: read in DQM root file
-                              TestType       = cms.untracked.int32(0),
+                              TestType       = cms.untracked.int32(1),
 #
 #--- When read in RECO file including EDM from ME
-#                             fileName       = cms.untracked.string("jetMETMonitoring_cruzet98154.root"),
-                                fileName       = cms.untracked.string(""),
+#                              fileName       = cms.untracked.string("jetMETMonitoring_cruzet98154.root"),
+                              fileName       = cms.untracked.string(""),
 #
 #--- Do note save here. Save output by dqmSaver
                               OutputFile     = cms.untracked.bool(False),
