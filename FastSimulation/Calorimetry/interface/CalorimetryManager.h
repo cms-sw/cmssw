@@ -13,6 +13,7 @@
 // For the uint32_t
 //#include <boost/cstdint.hpp>
 #include <map>
+#include <algorithm>
 
 class FSimEvent;
 class FSimTrack;
@@ -113,6 +114,7 @@ class CalorimetryManager{
   // should make a es_producer of CaloGeometryTools 
   std::vector<DetId> theDetIds_;
   bool debug_;
+  std::vector<unsigned int> evtsToDebug_;
 
   bool unfoldedMode_;
 

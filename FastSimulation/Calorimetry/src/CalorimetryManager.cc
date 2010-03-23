@@ -194,6 +194,13 @@ CalorimetryManager::~CalorimetryManager()
 
 void CalorimetryManager::reconstruct()
 {
+  if(evtsToDebug_.size())
+    {
+      std::vector<unsigned int>::const_iterator itcheck=find(evtsToDebug_.begin(),evtsToDebug_.end(),mySimEvent->id().event());
+      debug_=(itcheck!=evtsToDebug_.end());
+      if(debug_)
+	mySimEvent->print();
+    }
   // Clear the content of the calorimeters 
   if(!initialized_)
     {
@@ -271,6 +278,9 @@ void CalorimetryManager::reconstruct()
 void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   std::vector<const RawParticle*> thePart;
   double X0depth;
+  if (debug_) {
+    LogDebug("FastCalorimetry") << " EMShowerSimulation "  <<myTrack << std::endl;      
+  }
   
   //  std::cout << " Simulating " << myTrack << std::endl;
 
@@ -573,6 +583,10 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 {
   int hit;
   int pid = abs(myTrack.type());
+  if (debug_) {
+    LogDebug("FastCalorimetry") << " reconstructHCAL "  << myTrack << std::endl;      
+  }
+
   //  FSimTrack myTrack = mySimEvent.track(fsimi);
 
   //  int pid=abs(myTrack.type());
@@ -644,7 +658,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 {
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
   XYZTLorentzVector moment = myTrack.momentum();
-
+  
   if(debug_)
     LogDebug("FastCalorimetry") 
       << "CalorimetryManager::HDShowerSimulation - track param."
@@ -653,6 +667,10 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       << "  phi = " << moment.phi() << std::endl
       << "   et = " << moment.Et()  << std::endl
       << "   e  = " << myTrack.hcalEntrance().e() << std::endl;
+
+  if (debug_) {
+      LogDebug("FastCalorimetry") << " HDShowerSimulation "  << myTrack << std::endl;      
+    }
 
 
   int hit;
@@ -1223,7 +1241,8 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   pulledPadSurvivalProbability_ = ECALparameters.getParameter<double>("FrontLeakageProbability");
   crackPadSurvivalProbability_ = ECALparameters.getParameter<double>("GapLossProbability");
   debug_ = ECALparameters.getUntrackedParameter<bool>("Debug");
-  
+  evtsToDebug_ = ECALparameters.getUntrackedParameter<std::vector<unsigned int> >("EvtsToDebug",std::vector<unsigned>());
+
   theCoreIntervals_ = ECALparameters.getParameter<std::vector<double> >("CoreIntervals");
   theTailIntervals_ = ECALparameters.getParameter<std::vector<double> >("TailIntervals");
   
