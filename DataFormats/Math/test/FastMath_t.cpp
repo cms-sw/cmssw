@@ -79,20 +79,20 @@ int main() {
   {
     std::pair<double, double> res = fastmath::etaphi(-3.,4.,5.);
     std::cout << res.first << " " << res.second << std::endl;
-    std::cout << eta(-3.,4.,5.) << std::endl;
+    std::cout << eta(-3.,4.,5.)  << " " << std::atan2(4.,-3.) << std::endl;
   }
   
   
   {
     std::pair<float, float> res = fastmath::atan2r(3.f,-4.f);
     std::cout << res.first << " " << res.second << std::endl;
-    std::cout << atan2f(3.f,-4.f)<< std::endl;
+    std::cout << atan2f(3.f,-4.f) << std::endl;
     
   }
   {
     std::pair<double, double> res = fastmath::etaphi(3.f,-4.f,-5.f);
     std::cout << res.first << " " << res.second << std::endl;
-    std::cout << eta(3.f,-4.f,-5.f) << std::endl;
+    std::cout << eta(3.f,-4.f,-5.f)   << " " << std::atan2(-4.f,3.f) << std::endl;
   }
 
  
