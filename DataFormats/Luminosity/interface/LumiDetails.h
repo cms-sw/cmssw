@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id: LumiDetails.h,v 1.8 2010/03/23 15:02:09 xiezhen Exp $
+ * $Id: LumiDetails.h,v 1.9 2010/03/23 15:56:03 xiezhen Exp $
  *
  ************************************************************/
  
@@ -46,6 +46,7 @@ class LumiDetails {
   ~LumiDetails();
   
   std::string lumiVersion()const;
+  bool isValid() const;
   float lumiValue(const std::string& algoname,unsigned int bx) const;
   float lumiError(const std::string& algoname,unsigned int bx) const;
   short lumiQuality(const std::string& algoname,unsigned int bx) const; 
@@ -62,7 +63,6 @@ class LumiDetails {
   std::vector<std::string> algoNames()const;
   
   unsigned int totalLumiAlgos()const;
-  
   
   //bool isProductEqual(LumiDetails const& next) const;??
   
