@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.10 2009/11/17 16:02:32 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.12 2010/03/23 10:54:58 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -32,7 +32,7 @@ LumiSummary::liveFrac() const {
   if(numorbit_==0) return -99.9;
   return (1.0f - deadcount_/(numorbit_*3564)); 
 }
-int 
+unsigned int 
 LumiSummary::lsNumber() const{
   return lsnumber_; 
 }
@@ -46,7 +46,7 @@ LumiSummary::numOrbit() const{
 }
 bool 
 LumiSummary::isValid() const {
-  return (lsnumber_ > 0); 
+  return (lumiversion_!="-1"); 
 }
 LumiSummary::L1   
 LumiSummary::l1info(const std::string& name) const{

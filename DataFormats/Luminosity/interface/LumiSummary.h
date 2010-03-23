@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.11 2010/03/22 18:58:08 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.13 2010/03/23 10:54:57 xiezhen Exp $
  *
  ************************************************************/
  
@@ -57,7 +57,7 @@ class LumiSummary {
 		float avginsdellumierr,
 	        short lumisecqual,
                 unsigned long long deadcount, 
-		int lsnumber,
+		unsigned int lsnumber,
                 const std::vector<L1>& l1in,
 		const std::vector<HLT>& hltin,
 		unsigned int startorbit,
@@ -81,7 +81,7 @@ class LumiSummary {
     unsigned long long deadcount() const;
     float deadFrac() const ;
     float liveFrac() const;
-    int lsNumber() const;
+    unsigned int lsNumber() const;
     unsigned int startOrbit() const;
     unsigned int numOrbit() const;
     bool isValid() const;
@@ -109,7 +109,7 @@ class LumiSummary {
     //detector quality flag use HF,HLX    
     short lumisecqual_;
     unsigned long long deadcount_;
-    int   lsnumber_;
+    unsigned int lsnumber_;
     //contains about 100 - 200 hlt paths
     std::vector<HLT> hltdata_;
     //contains 128 + 64 triggers
