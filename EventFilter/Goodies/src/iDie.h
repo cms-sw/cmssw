@@ -2,7 +2,9 @@
 #define EVENTFILTER_GOODIES_IDIE_H
 
 #include "EventFilter/Utilities/interface/Exception.h"
-#include "EventFilter/Utilities/interface/TriggerReportHelpers.h"
+
+#include "xdata/String.h"
+#include "xdata/UnsignedInteger32.h"
 
 #include "xgi/Utils.h"
 #include "xgi/Input.h"
@@ -98,7 +100,6 @@ namespace evf {
 
     unsigned int                    totalCores_;
 
-    fuep::TriggerReportHelpers      trh_;
   }; // class iDie
 
 

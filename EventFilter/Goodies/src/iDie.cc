@@ -171,7 +171,6 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   timeval tv;
   gettimeofday(&tv,0);
   time_t now = tv.tv_sec;
-  TriggerReportStatic *trp;
   cgicc::Cgicc cgi(in); 
   pid_t cpid = 0;
   /*  cgicc::CgiEnvironment cgie(in);
@@ -191,12 +190,6 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
       cpid =  el1[0].getIntegerValue();
     }
   el1.clear();
-  cgi.getElement("trp",el1);
-  if(el1.size()!=0)
-    {
-      trp = (TriggerReportStatic*)el1[0].getStrippedValue().c_str();
-      std::cout << " for lumisection " << trp->lumiSection << " total events " << trp->eventSummary.totalEvents << std::endl;
-    }
   cgi.getElement("stacktrace",el1);
   if(el1.size()!=0)
     {
