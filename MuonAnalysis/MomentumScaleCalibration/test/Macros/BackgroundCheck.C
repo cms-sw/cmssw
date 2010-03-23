@@ -83,8 +83,8 @@ TH1F * subRangeHisto( const double * resMass, const double * resHalfWidth,
 }
 
 TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const int xBins, const double & deltaX, const double & xMin, const double & xMax,
-                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor, const TH1F* allHisto,
-                      const double & b = 0);
+                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor,
+		      const TH1F* allHisto, const int backgroundType, const double & b = 0);
 
 void BackgroundCheck()
 {
@@ -111,8 +111,8 @@ void BackgroundCheck()
   // We multiply it by the integral to get the background value.
   int xBins = allHisto->GetNbinsX();
 
-  double OriginalResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 0.497614};
-  double ResMass[] = {91.1876, 0., 0., (10.3552 + 10.0233 + 9.4603)/3., 0., 0.497614};
+  double OriginalResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.096916};
+  double ResMass[] = {91.1876, 0., 0., (10.3552 + 10.0233 + 9.4603)/3., (3.68609 + 3.096916)/2., (3.68609 + 3.096916)/2.};
   double ResHalfWidth[] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
   TString ResName[] = {"Z", "Upsilon3S", "Upsilon2S", "Upsilon1S", "Psi2S", "J/Psi"};
 
@@ -121,22 +121,33 @@ void BackgroundCheck()
   vector<double> a;
   vector<double> leftWindowFactor;
   vector<double> rightWindowFactor;
+  int backgroundType = 0;
 
   // IMPORTANT: parameters to change
   // -------------------------------
   ires.push_back(5);
 
-  // Atan
-  Bgrp1.push_back(0.000547261);
-  a.push_back(10.0145);
-  a.push_back(-0.320232);
-  leftWindowFactor.push_back(1);
+  // Exponential
+  backgroundType = 0;
+  Bgrp1.push_back(0.397312);
+  a.push_back(0.562841);
+  a.push_back(0.);
+  leftWindowFactor.push_back(4);
   rightWindowFactor.push_back(1);
 
   // // Linear
+  // backgroundType.push_back(1);
   // Bgrp1.push_back(0.833);
   // a.push_back(0.00016);
   // a.push_back(-1.27329e-11);
+  // leftWindowFactor.push_back(1);
+  // rightWindowFactor.push_back(1);
+
+  // // Atan
+  // backgroundType.push_back(2);
+  // Bgrp1.push_back(0.000547261);
+  // a.push_back(10.0145);
+  // a.push_back(-0.320232);
   // leftWindowFactor.push_back(1);
   // rightWindowFactor.push_back(1);
 
@@ -146,7 +157,8 @@ void BackgroundCheck()
   vector<TH1F*> backgroundFunctionHisto;
   for( unsigned int i=0; i<ires.size(); ++i ) {
     backgroundFunctionHisto.push_back( buildHistogram(ResMass, ResHalfWidth, xBins, deltaX, xMin, xMax,
-                                                      ires[i], Bgrp1[i], a[i], leftWindowFactor[i], rightWindowFactor[i], allHisto, a[i+1]) );
+                                                      ires[i], Bgrp1[i], a[i], leftWindowFactor[i], rightWindowFactor[i],
+						      allHisto, backgroundType, a[i+1]) );
   }
 
   TLegend * legend = new TLegend( 0.55, 0.65, 0.76, 0.82 );
@@ -193,9 +205,11 @@ void BackgroundCheck()
   canvas->Print("BackgroundCheck.pdf");
 }
 
-TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const int xBins, const double & deltaX, const double & xMin, const double & xMax,
-                      const int ires, const double & Bgrp1, const double & a, const double & leftWindowFactor, const double & rightWindowFactor, const TH1F* allHisto,
-                      const double & b)
+TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const int xBins,
+		      const double & deltaX, const double & xMin, const double & xMax,
+                      const int ires, const double & Bgrp1, const double & a,
+		      const double & leftWindowFactor, const double & rightWindowFactor,
+		      const TH1F* allHisto, const int backgroundType, const double & b)
 {
   // For J/Psi exclude the Upsilon from the background normalization as the bin is not used by the fit.
   double lowWindowValue = ResMass[ires]-leftWindowFactor*ResHalfWidth[ires];
@@ -213,10 +227,7 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
   TF1 * backgroundFunction = 0;
   TH1F * backgroundFunctionHisto = 0;
 
-  bool exponential = false;
-  bool atan = true;
-
-  if( exponential ) {
+  if( backgroundType == 0 ) {
     // Exponential
     // -----------
     // backgroundFunction = new TF1("backgroundFunction", "[0]*([1]*exp(-[1]*x))", xMin, xMax );
@@ -234,18 +245,12 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
       backgroundFunctionHisto->SetBinContent(xBin+1, backgroundFunction->Integral(xBin*xWidth, (xBin+1)*xWidth));
     }
   }
-  else if( atan ) {
-    // Exponential
-    // -----------
-    // backgroundFunction = new TF1("backgroundFunction", "[0]*([1]*exp(-[1]*x))", xMin, xMax );
+  else if( backgroundType == 2 ) {
 
     stringstream ssUp;
     stringstream ssDown;
     ssUp << upWindowValue;
     ssDown << lowWindowValue;
-
-    // string functionString("[0]*TMath::ATan([1]*(x + [2]))/( [1]*("+ssUp.str()+" + [2])*TMath::ATan([1]*("+ssUp.str()+" + [2])) - 0.5*TMath::Log(1+[1]*("+ssUp.str()+" + [2])*[1]*("+ssUp.str()+" + [2])) - ([1]*("+ssDown.str()+" + [2])*TMath::ATan([1]*("+ssDown.str()+" + [2])) - 0.5*TMath::Log(1+[1]*("+ssDown.str()+" + [2])*[1]*("+ssDown.str()+" + [2]))) )");
-    // backgroundFunction = new TF1("backgroundFunction", functionString.c_str(), xMin, xMax );
 
     Atan * atanFunction = new Atan(lowWindowValue, upWindowValue);
     backgroundFunction = new TF1("backgroundFunction", atanFunction, 0, 1, 3, "atanFunction");
@@ -262,7 +267,6 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
     // Linear
     // ------
     Linear * linearFunction = new Linear(lowWindowValue, upWindowValue);
-    // backgroundFunction = new TF1("backgroundFunction", "[0]*([1]+[2]*x)");
     backgroundFunction = new TF1("backgroundFunction", linearFunction, 0, 1, 3, "linearFunction");
     backgroundFunction->SetParameter(0, 1);
     backgroundFunction->SetParameter(1, a);
