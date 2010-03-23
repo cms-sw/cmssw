@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.2 2010/03/22 17:29:27 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.3 2010/03/23 11:24:27 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -120,7 +120,12 @@ void LumiProducer::fillDefaultLumi(edm::LuminosityBlock &iLBlock){
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {  
 }
 void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock, 
-				     edm::EventSetup const& c){
+				      edm::EventSetup const& c){
+  std::auto_ptr<LumiSummary> pOut1;
+  std::auto_ptr<LumiDetails> pOut2;
+  LumiSummary* pIn1=new LumiSummary;
+  LumiDetails* pIn2=new LumiDetails;
+
   unsigned int runnumber=iLBlock.run();
   unsigned int luminum=iLBlock.luminosityBlock();
   edm::Service<lumi::service::DBService> mydbservice;
@@ -184,8 +189,9 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     float instlumi=0.0;
     float instlumierror=0.0;
     short lumisectionquality=0;
-    unsigned int startorbit, numorbit;
-    
+    unsigned int startorbit=0;
+    unsigned int numorbit=0;
+    unsigned int s=0;
     while( lumicursor.next() ){
       const coral::AttributeList& row=lumicursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
@@ -195,6 +201,12 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
       lumisectionquality=row["lumisectionquality"].data<short>();
       startorbit=row["startorbit"].data<unsigned int>();
       numorbit=row["numorbit"].data<unsigned int>();
+      ++s;
+    }
+    if(s!=0){
+      pIn1->setLumiVersion(m_lumiversion);
+      pIn1->setLumiData(instlumi,instlumierror,lumisectionquality);
+      pIn1->setOrbitData(startorbit,numorbit);
     }
     delete lumiQuery;
 
@@ -221,7 +233,8 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     unsigned int nValues=0;
     std::map< std::string,std::vector<float> > bxvaluemap;
     std::map< std::string,std::vector<float> > bxerrormap;
-    std::map< std::string,std::vector<short> > bxqualitymap;
+    std::map< std::string,std::vector<short> > bxqualitymap;	
+    s=0;
     while( detailcursor.next() ){
       const coral::AttributeList& row=detailcursor.currentRow();     
       std::string algoname=row["algoname"].data<std::string>();
@@ -247,15 +260,20 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
       std::memmove(bxquality,bxlumiqualityStartAddress,nValues);
       bxqualitymap.insert(std::make_pair(algoname,std::vector<short>(bxquality,bxquality+nValues)));
       delete [] bxquality;
+      ++s;
     }
     delete detailQuery;
-    /**
-       for( std::map<std::string,std::vector<float> >::iterator it=bxerrormap.begin(); it!=bxerrormap.end();++it){
-       std::cout<<"algo name "<<it->first<<std::endl;
-       std::cout<<"errorsize "<<(it->second).size()<<std::endl;
-       std::cout<<"first error value "<<*((it->second).begin())<<std::endl;
-       }
-    **/
+    //for( std::map<std::string,std::vector<float> >::iterator it=bxerrormap.begin(); it!=bxerrormap.end();++it){
+      //std::cout<<"algo name "<<it->first<<std::endl;
+      //std::cout<<"errorsize "<<(it->second).size()<<std::endl;
+      //std::cout<<"first error value "<<*((it->second).begin())<<std::endl;
+    //}
+    if(s!=0){
+      pIn2->setLumiVersion(m_lumiversion);
+      pIn2->swapValueData(bxvaluemap);
+      pIn2->swapErrorData(bxerrormap);
+      pIn2->swapQualData(bxqualitymap);
+    }
     //
     //select trgcount,deadtime,prescale,bitname from TRG where runnum=:runnumber  AND cmslsnum between :lsnum and :lsnum+4 order by cmslsnum,bitnum; 
     //
@@ -283,17 +301,22 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     trgQuery->defineOutput(trgOutput);
     coral::ICursor& trgcursor=trgQuery->execute();
     unsigned long long deadtime=0;
-    unsigned int trgcount,prescale;
+    //unsigned int trgcount,prescale;
     std::string bitname;
+    std::vector< LumiSummary::L1 > trgdata;
     while( trgcursor.next() ){
+      LumiSummary::L1 l1;
       const coral::AttributeList& row=trgcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
       deadtime=row["deadtime"].data<unsigned long long>();
-      trgcount=row["count"].data<unsigned int>();
-      prescale=row["prescale"].data<unsigned int>();
-      bitname=row["bitname"].data<std::string>();
-      std::cout<<"deadtime : "<<deadtime<<", trgcount : "<<trgcount<<", prescale : "<<prescale<<",bitname : "<<bitname<<std::endl;
+      l1.ratecount=row["count"].data<unsigned int>();
+      l1.prescale=row["prescale"].data<unsigned int>();
+      l1.triggername=row["bitname"].data<std::string>();
+      trgdata.push_back(l1);
+      //std::cout<<"deadtime : "<<deadtime<<", trgcount : "<<trgcount<<", prescale : "<<prescale<<",bitname : "<<bitname<<std::endl;
     }
+    pIn1->setDeadtime(deadtime);
+    pIn1->swapL1Data(trgdata);
     delete trgQuery;
     
     //
@@ -321,27 +344,26 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     hltQuery->addToOrderList("CMSLSNUM");
     hltQuery->defineOutput(hltOutput);
     coral::ICursor& hltcursor=hltQuery->execute();
-    std::string hltpathname;
-    unsigned int hltinputcount,hltacceptcount,hltprescale;
+    //std::string hltpathname;
+    //unsigned int hltinputcount,hltacceptcount,hltprescale;
+    std::vector< LumiSummary::HLT > hltdata;
     while( hltcursor.next() ){
+      LumiSummary::HLT hlt;
       const coral::AttributeList& row=hltcursor.currentRow();     
       //row.toOutputStream( std::cout ) << std::endl;
-      hltpathname=row["pathname"].data<std::string>();
-      hltinputcount=row["inputcount"].data<unsigned int>();
-      hltacceptcount=row["acceptcount"].data<unsigned int>();
-      hltprescale=row["prescale"].data<unsigned int>();
-      std::cout<<"hltpath : "<<hltpathname<<", inputcount : "<<hltinputcount<<", acceptcount : "<<hltacceptcount<<", prescale : "<<hltprescale<<std::endl;
+      hlt.pathname=row["pathname"].data<std::string>();
+      hlt.inputcount=row["inputcount"].data<unsigned int>();
+      hlt.ratecount=row["acceptcount"].data<unsigned int>();
+      hlt.prescale=row["prescale"].data<unsigned int>();
+      hltdata.push_back(hlt);
+      //std::cout<<"hltpath : "<<hltpathname<<", inputcount : "<<hltinputcount<<", acceptcount : "<<hltacceptcount<<", prescale : "<<hltprescale<<std::endl;
     }
+    pIn1->swapHLTData(hltdata);
     delete hltQuery;
 
-    std::auto_ptr<LumiSummary> pOut1;
-    LumiSummary* pIn1=new LumiSummary;
-    
     pOut1.reset(pIn1);
     iLBlock.put(pOut1);
 
-    std::auto_ptr<LumiDetails> pOut2;
-    LumiDetails* pIn2=new LumiDetails;
     pOut2.reset(pIn2);
     iLBlock.put(pOut2);
     
