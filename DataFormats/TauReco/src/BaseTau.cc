@@ -8,11 +8,6 @@ BaseTau::BaseTau() {
   alternatLorentzVect_.SetPz(NAN);
   alternatLorentzVect_.SetE(NAN);
     
-  TrackRefVector tmp;
-  TrackRef leadTk;
-  leadTrack_ = leadTk;
-  signalTracks_ =tmp ;
-  isolationTracks_= tmp;
 }
 
 BaseTau::BaseTau(Charge q,const LorentzVector& p4,const Point& vtx) : RecoCandidate(q,p4,vtx,-15*q){
@@ -21,11 +16,6 @@ BaseTau::BaseTau(Charge q,const LorentzVector& p4,const Point& vtx) : RecoCandid
   alternatLorentzVect_.SetPz(NAN);
   alternatLorentzVect_.SetE(NAN);
     
-  TrackRefVector tmp;
-  TrackRef leadTk;
-  leadTrack_ = leadTk;
-  signalTracks_ =tmp ;
-  isolationTracks_= tmp;
 }
 
 BaseTau* BaseTau::clone()const{return new BaseTau(*this);}
