@@ -43,7 +43,7 @@ FamosCalorimetryBlock = cms.PSet(
         ),
         UnfoldedMode = cms.untracked.bool(False),
         Debug = cms.untracked.bool(False),
-        EvtsToDebug = cms.untracked.vuint32(487),
+#        EvtsToDebug = cms.untracked.vuint32(487),
         HCAL = cms.PSet(
             SimMethod = cms.int32(0), ## 0 - use HDShower, 1 - use HDRShower, 2 - GFLASH
             GridSize = cms.int32(7),
