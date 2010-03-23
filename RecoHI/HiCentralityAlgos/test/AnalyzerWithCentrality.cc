@@ -13,13 +13,14 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.3 2010/03/20 14:42:44 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.4 2010/03/20 21:17:51 yilmaz Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -35,6 +36,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TH1D.h"
+using namespace std;
 
 //
 // class declaration
@@ -107,13 +109,21 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    double eep = cent->EtEESumPlus();
    double eem = cent->EtEESumMinus();
 
-   hftp = hftp+hftm;
-   eb = eb/(eep+eem);
- 
+   cout<<"Centrality variables in the event:"<<endl;
+   cout<<"Total energy in HF hits : "<<hf<<endl;
+   cout<<"Asymmetry of HF towers : "<<fabs(hftp-hftm)/(hftp+hftm)<<endl;
+   cout<<"Total energy in EE basic clusters : "<<eep+eem<<endl;
+   cout<<"Total energy in EB basic clusters : "<<eb<<endl;
+   
    int bin = cbins_->getBin(hf);
+   int nbins = cbins_->getNbins(); 
+   int binsize = 100/nbins;
+   char* binName = Form("%d to % d",bin*binsize,(bin+1)*binsize);
+   cout<<"The event falls into centrality bin : "<<binName<<" id : "<<bin<<endl;
 
    double npartMean = cbins_->NpartMean(hf);
    double npartSigma = cbins_->NpartSigma(hf);
+   cout<<"Npart Mean : "<<npartMean<<"   Variance : "<<npartSigma<<endl;
 
    // or, alternatively,
    npartMean = cbins_->NpartMeanOfBin(bin);
@@ -121,13 +131,20 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    double ncollMean = cbins_->NcollMean(hf);
    double ncollSigma = cbins_->NcollSigma(hf);
+   cout<<"Ncoll Mean : "<<ncollMean<<"   Variance : "<<ncollSigma<<endl;
 
    // or, alternatively,
    ncollMean = cbins_->NcollMeanOfBin(bin);
    ncollSigma = cbins_->NcollSigmaOfBin(bin);
 
+
+   double nhardMean = cbins_->NhardMean(hf);
+   double nhardSigma = cbins_->NhardSigma(hf);
+   cout<<"Nhard Mean : "<<nhardMean<<"   Variance : "<<nhardSigma<<endl;
+
    double bMean = cbins_->bMean(hf);
    double bSigma = cbins_->bSigma(hf);
+   cout<<"b Mean : "<<bMean<<"   Variance : "<<bSigma<<endl;
 
    bMean = cbins_->bMeanOfBin(bin);
    bSigma = cbins_->bSigmaOfBin(bin);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.7 2010/03/20 14:43:06 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.8 2010/03/23 12:40:53 yilmaz Exp $
 //
 //
 
@@ -98,7 +98,7 @@ class CentralityTableProducer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfig):
-   text_("results.txt"),
+   text_("bins.txt"),
    runnum_(-1)
 {
    //now do what ever initialization is needed
@@ -164,6 +164,7 @@ CentralityTableProducer::endJob() {
       CT = new CentralityTable();
       CT->m_table.reserve(CB->getNbins());
 
+      text_<<"# BinEdge NpartMean NpartVar NcollMean NcollVar NhardMean NhardVar bMean bVar"<<endl;
    for(int j=0; j<CB->getNbins(); j++){
        CentralityTable::CBin* thisBin = new CentralityTable::CBin();
        thisBin->bin_edge = CB->lowEdgeOfBin(j);
@@ -193,7 +194,7 @@ CentralityTableProducer::endJob() {
 
 
 void CentralityTableProducer::printBin(const CentralityTable::CBin* thisBin){
-   
+  
    cout<<"HF Cut = "<<thisBin->bin_edge<<endl;
    cout<<"Npart = "<<thisBin->n_part.mean<<endl;
    cout<<"sigma = "<<thisBin->n_part.var<<endl;
@@ -201,14 +202,16 @@ void CentralityTableProducer::printBin(const CentralityTable::CBin* thisBin){
    cout<<"sigma = "<<thisBin->n_coll.var<<endl;
    cout<<"B     = "<<thisBin->b.mean<<endl;
    cout<<"sigma = "<<thisBin->b.var<<endl;
-   text_<<Form("%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.1f",
+   text_<<Form("%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f",
+	       (Float_t)thisBin->bin_edge,
 	       (Float_t)thisBin->n_part.mean,
 	       (Float_t)thisBin->n_part.var,
 	       (Float_t)thisBin->n_coll.mean,
 	       (Float_t)thisBin->n_coll.var,
+	       (Float_t)thisBin->n_hard.mean,
+               (Float_t)thisBin->n_hard.var,
 	       (Float_t)thisBin->b.mean,
-	       (Float_t)thisBin->b.var,
-	       (Float_t)thisBin->bin_edge)
+	       (Float_t)thisBin->b.var)
 	<<endl;
    cout<<"__________________________________________________"<<endl;
    
