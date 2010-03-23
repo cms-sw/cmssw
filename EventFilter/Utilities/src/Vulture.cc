@@ -81,13 +81,12 @@ namespace evf{
       }
       std::cout << "vulture is running" << std::endl;
       success = prctl ( PR_SET_NAME , "vulture");
-      return 0;
     }
     else
       {
 	vulturePid_ = retval;
-	return vulturePid_;
       }
+    return retval;
   }
   
   pid_t Vulture::stop()
@@ -104,7 +103,12 @@ namespace evf{
     char messageDie[5];
     sprintf(messageDie,"Dead");
     poster_ = new CurlPoster(iDieUrl_);
-    poster_->postString(messageDie,5,0);
+    try{
+      poster_->postString(messageDie,5,0);
+    }
+    catch(evf::Exception &e){
+      //do nothing just swallow the exception
+    }
     delete poster_;
     poster_=0;
     std::cout <<"Sending Dead Signal to iDie" << std::endl;
@@ -167,7 +171,13 @@ namespace evf{
     }
     rewinddir(tmp_);
     lastUpdate_ = now.tv_sec;
-    analyze();
+    try{
+      analyze();
+    }
+    catch(evf::Exception &e){
+      std::cout << "Vulture cannot send to iDie server, bail out " << std::endl;
+      return false;
+    }
     std::cout << "Vulture::swoop completed" << std::endl;
     ::sleep(60);
     return true;
@@ -182,6 +192,8 @@ namespace evf{
       std::string command = "gdb /opt/xdaq/bin/xdaq.exe -batch -x /tmp/vulture.cmd -c /tmp/";
       std::string cmdout;
       command += currentCoreList_[i];
+      std::string filePathAndName = "/tmp";
+      filePathAndName += currentCoreList_[i];
       std::string pid = 
 	currentCoreList_[i].substr(currentCoreList_[i].find_first_of(".")+1,
 				   currentCoreList_[i].length());
@@ -196,12 +208,10 @@ namespace evf{
       }
       delete[] p;
       pclose(ps);
-      std::cout << cmdout << std::endl;
+      int rch = chmod(filePathAndName.c_str(),0777);
+      if(rch != 0)
+	std::cout << "ERROR: couldn't change corefile access privileges" << std::endl;
       unsigned int ipid = (unsigned int)atoi(pid.c_str());
-      std::cout << "going to post " << cmdout.length() 
-	        << " characters for pid " << ipid 
-		<< " spid " << pid << std::endl;
-
       poster_->postString(cmdout.c_str(),cmdout.length(),ipid); 
       
     }
