@@ -1,11 +1,11 @@
 
-// $Id: LumiSummary.cc,v 1.13 2010/03/23 11:05:04 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.14 2010/03/23 15:02:14 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 #include <iomanip>
 #include <ostream>
-
+#include <iostream>
 float
 LumiSummary::avgInsDelLumi()const{ 
   return avginsdellumi_;
@@ -25,12 +25,12 @@ LumiSummary::deadcount() const{
 float 
 LumiSummary::deadFrac() const { 
   if(numorbit_==0) return -99.9;
-  return deadcount_/(numorbit_*3564);
+  return float(deadcount_/(numorbit_*3564.0));
 }
 float 
 LumiSummary::liveFrac() const { 
   if(numorbit_==0) return -99.9;
-  return (1.0f - deadcount_/(numorbit_*3564)); 
+  return (1.0f - float(deadcount_/(numorbit_*3564.0))); 
 }
 unsigned int 
 LumiSummary::lsNumber() const{
