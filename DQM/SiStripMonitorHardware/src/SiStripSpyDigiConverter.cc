@@ -42,12 +42,14 @@ namespace sistrip {
 
     //local DSVRawDigis per FED
     std::vector<DSVRawDigis::const_iterator> lFedScopeDigis;
+    lFedScopeDigis.reserve(sistrip::FEDCH_PER_FED);
 
     // Loop over channels in input collection
     DSVRawDigis::const_iterator inputChannel = inputScopeDigis->begin();
     const DSVRawDigis::const_iterator endChannels = inputScopeDigis->end();
-    unsigned int lChCount = 0;
-    for (; inputChannel != endChannels; ++inputChannel,++lChCount) {
+    bool hasBeenProcessed = false;
+
+    for (; inputChannel != endChannels; ++inputChannel) {
             
       // Fill frame parameters. Second parameter is to print debug info (if logDebug enabled....)
       const sistrip::SpyUtilities::Frame lFrame = sistrip::SpyUtilities::extractFrameInfo(*inputChannel,true);
@@ -72,73 +74,109 @@ namespace sistrip {
 
       //fill local vectors per FED
       if (fedId == lPreviousFedId) {
-	lFedScopeDigis.push_back(inputChannel);
-	lAddrVec.push_back(lFrame.apvAddress.first);
-	lAddrVec.push_back(lFrame.apvAddress.second);
-	lHeaderBitVec.push_back(lFrame.firstHeaderBit);
+	if (hasBeenProcessed) hasBeenProcessed = false;
       }
-      //do it also for the last channel to fill the last fed
-      if (fedId != lPreviousFedId || (lChCount == inputScopeDigis->size()-1)) {
-	//extract majority address
-	uint32_t lMaj = sistrip::SpyUtilities::findMajorityValue(lAddrVec,lPreviousFedId).first;
-	if (pAPVAddresses) (*pAPVAddresses)[lPreviousFedId] = lMaj;
-
-	//loop over iterators and fill payload
-	std::vector<DSVRawDigis::const_iterator>::iterator lIter;
-	unsigned int lCh = 0;
-	for (lIter = lFedScopeDigis.begin(); lIter != lFedScopeDigis.end(); ++lIter,++lCh) {
-
-	  //discard if APV address different from majority. 
-	  //Keep if only one of them is wrong: the other APV might be alright ??
-
-	  if ( discardDigisWithAPVAddrErr && 
-	       lAddrVec[2*lCh] != lMaj && 
-	       lAddrVec[2*lCh+1] != lMaj ) {
-	    continue;
-	  }
-
-	  DetSetRawDigis::const_iterator iDigi = (*lIter)->begin();
-	  const DetSetRawDigis::const_iterator endOfChannel = (*lIter)->end();
-
-	  if (iDigi == endOfChannel) {
-	    continue;
-	  }
-
-	  //header starts in sample firstHeaderBit and is 18+6 samples long
-	  const DetSetRawDigis::const_iterator payloadBegin = iDigi+lHeaderBitVec[lCh]+24;
-	  const DetSetRawDigis::const_iterator payloadEnd = payloadBegin + STRIPS_PER_FEDCH;
-              
-              
-	  // Copy data into output collection
-	  // Create new detSet with same key (in this case it is the fedKey, not detId)
-	  outputData.push_back( DetSetRawDigis((*lIter)->detId()) );
-	  std::vector<SiStripRawDigi>& outputDetSetData = outputData.back().data;
-	  outputDetSetData.resize(STRIPS_PER_FEDCH);
-	  std::vector<SiStripRawDigi>::iterator outputBegin = outputDetSetData.begin();
-	  std::copy(payloadBegin, payloadEnd, outputBegin);
-
-	}
-
-	lFedScopeDigis.clear();
-	lAddrVec.clear();
-	lHeaderBitVec.clear();
-	//if new fed, fill the first channel
-	if (fedId != lPreviousFedId) {
-	  lFedScopeDigis.push_back(inputChannel);
-	  lAddrVec.push_back(lFrame.apvAddress.first);
-	  lAddrVec.push_back(lFrame.apvAddress.second);
-	  lHeaderBitVec.push_back(lFrame.firstHeaderBit);
-	  lPreviousFedId = fedId;
-	}
+      if (fedId != lPreviousFedId) {
+	SpyDigiConverter::processFED(lPreviousFedId,
+				     discardDigisWithAPVAddrErr,
+				     pAPVAddresses,
+				     outputData,
+				     lAddrVec,
+				     lHeaderBitVec,
+				     lFedScopeDigis
+				     );
+	lPreviousFedId = fedId;
+	hasBeenProcessed = true;
       }
+      lFedScopeDigis.push_back(inputChannel);
+      lAddrVec.push_back(lFrame.apvAddress.first);
+      lAddrVec.push_back(lFrame.apvAddress.second);
+      lHeaderBitVec.push_back(lFrame.firstHeaderBit);
 
 
     } // end of loop over channels.
+
+    //process the last one if not already done.
+    if (!hasBeenProcessed) {
+      SpyDigiConverter::processFED(lPreviousFedId,
+				   discardDigisWithAPVAddrErr,
+				   pAPVAddresses,
+				   outputData,
+				   lAddrVec,
+				   lHeaderBitVec,
+				   lFedScopeDigis
+				   );
+    }
 
     //return DSV of output
     return std::auto_ptr<DSVRawDigis>( new DSVRawDigis(outputData, true) );
     
   } // end of SpyDigiConverter::extractPayloadDigis method
+
+
+  void SpyDigiConverter::processFED(const uint16_t aPreviousFedId,
+				    const bool discardDigisWithAPVAddrErr,
+				    std::vector<uint32_t> * pAPVAddresses,
+				    std::vector<DetSetRawDigis> & outputData,
+				    std::vector<uint16_t> & aAddrVec,
+				    std::vector<uint16_t> & aHeaderBitVec,
+				    std::vector<DSVRawDigis::const_iterator> & aFedScopeDigis
+				    )
+  {
+
+    //extract majority address
+    uint32_t lMaj = sistrip::SpyUtilities::findMajorityValue(aAddrVec,aPreviousFedId).first;
+    if (pAPVAddresses) (*pAPVAddresses)[aPreviousFedId] = lMaj;
+
+    //loop over iterators and fill payload
+    std::vector<DSVRawDigis::const_iterator>::iterator lIter;
+    unsigned int lCh = 0;
+    for (lIter = aFedScopeDigis.begin(); lIter != aFedScopeDigis.end(); ++lIter,++lCh) {
+
+      //discard if APV address different from majority. 
+      //Keep if only one of them is wrong: the other APV might be alright ??
+
+      if ( discardDigisWithAPVAddrErr && 
+	   aAddrVec[2*lCh] != lMaj && 
+	   aAddrVec[2*lCh+1] != lMaj ) {
+	continue;
+      }
+
+      DetSetRawDigis::const_iterator iDigi = (*lIter)->begin();
+      const DetSetRawDigis::const_iterator endOfChannel = (*lIter)->end();
+
+      if (iDigi == endOfChannel) {
+	continue;
+      }
+
+      //header starts in sample firstHeaderBit and is 18+6 samples long
+      const DetSetRawDigis::const_iterator payloadBegin = iDigi+aHeaderBitVec[lCh]+24;
+      const DetSetRawDigis::const_iterator payloadEnd = payloadBegin + STRIPS_PER_FEDCH;
+              
+              
+      // Copy data into output collection
+      // Create new detSet with same key (in this case it is the fedKey, not detId)
+      outputData.push_back( DetSetRawDigis((*lIter)->detId()) );
+      std::vector<SiStripRawDigi>& outputDetSetData = outputData.back().data;
+      outputDetSetData.resize(STRIPS_PER_FEDCH);
+      std::vector<SiStripRawDigi>::iterator outputBegin = outputDetSetData.begin();
+      std::copy(payloadBegin, payloadEnd, outputBegin);
+
+    }
+
+    aFedScopeDigis.clear();
+    aAddrVec.clear();
+    aHeaderBitVec.clear();
+
+    aAddrVec.reserve(2*sistrip::FEDCH_PER_FED);
+    aHeaderBitVec.reserve(sistrip::FEDCH_PER_FED);
+    aFedScopeDigis.reserve(sistrip::FEDCH_PER_FED);
+
+
+  }
+
+
+
 
   std::auto_ptr<SpyDigiConverter::DSVRawDigis> SpyDigiConverter::reorderDigis(const DSVRawDigis* inputPayloadDigis)
   {

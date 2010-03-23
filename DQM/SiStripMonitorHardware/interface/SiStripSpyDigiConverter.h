@@ -47,10 +47,20 @@ namespace sistrip {
     
         /* \brief Merge channel digis into modules. */
         static std::auto_ptr<DSVRawDigis> mergeModuleChannels(const DSVRawDigis* inputPhysicalOrderChannelDigis, const SiStripFedCabling& cabling);
-    
+
+
       private:
         typedef DSVRawDigis::detset DetSetRawDigis;
-            
+
+	static void processFED(const uint16_t aPreviousFedId,
+			       const bool discardDigisWithAPVAddrErr,
+			       std::vector<uint32_t> * pAPVAddresses,
+			       std::vector<DetSetRawDigis> & outputData,
+			       std::vector<uint16_t> & aAddrVec,
+			       std::vector<uint16_t> & aHeaderBitVec,
+			       std::vector<DSVRawDigis::const_iterator> & aFedScopeDigis
+			       );
+
     }; // end of SpyDigiConverter class.
   
 } // end of sistrip namespace.
