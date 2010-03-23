@@ -34,6 +34,12 @@ void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::Eve
 /// EndLuminosityBlock
 void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
 /// Reset
 void reset(void);
 
@@ -57,14 +63,12 @@ TH2F *hDAQ_;
 TH2F *hDCS_;
 TH1F *hIntegrityByLumi_;
 TH1F *hFrontendByLumi_;
-TH1F *hDCSByLumi_;
 
 MonitorElement* meEEDataCertificationSummary_;
 MonitorElement* meEEDataCertification_[18];
 MonitorElement* meEEDataCertificationSummaryMap_;
-
-MonitorElement* meDataQualityByLumi_;
-MonitorElement* meDCSQualityByLumi_;
+MonitorElement* meEEReportSummary_;
+MonitorElement* meEEReportSummaryContents_[36];
 
 };
 

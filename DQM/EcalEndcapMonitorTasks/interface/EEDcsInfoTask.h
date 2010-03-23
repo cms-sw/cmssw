@@ -61,12 +61,9 @@ edm::InputTag dcsStatusCollection_;
 MonitorElement* meEEDcsFraction_;
 MonitorElement* meEEDcsActive_[18];
 MonitorElement* meEEDcsActiveMap_;
-MonitorElement* meDcsErrorsByLumi_;
 
 int readyRun[40][20];
 int readyLumi[40][20];
-
-int eventsInLumi_;
 
 };
 

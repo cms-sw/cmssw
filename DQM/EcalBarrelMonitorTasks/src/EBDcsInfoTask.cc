@@ -38,7 +38,6 @@ EBDcsInfoTask::EBDcsInfoTask(const ParameterSet& ps) {
   for (int i = 0; i < 36; i++) {
     meEBDcsActive_[i] = 0;
   }
-  meDcsErrorsByLumi_ = 0;
 
 }
 
@@ -62,16 +61,6 @@ void EBDcsInfoTask::beginJob(void){
     meEBDcsActiveMap_ = dqmStore_->book2D(histo,histo, 72, 0., 72., 34, 0., 34.);
     meEBDcsActiveMap_->setAxisTitle("jphi", 1);
     meEBDcsActiveMap_->setAxisTitle("jeta", 2);
-
-    // checking the number of DCS errors in each DCC for each lumi
-    // tower error is weighted by 1/68
-    // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "EB weighted DCS errors by lumi");
-    meDcsErrorsByLumi_ = dqmStore_->book1D(histo, histo, 36, 1., 37.);
-    meDcsErrorsByLumi_->setLumiFlag();
-    for (int i = 0; i < 36; i++) {
-      meDcsErrorsByLumi_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-    }
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
@@ -98,9 +87,6 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
       readyLumi[iptt][iett] = 1;
     }
   }
-
-  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
-  eventsInLumi_ = 0;
 
 }
 
@@ -137,8 +123,6 @@ void EBDcsInfoTask::reset(void) {
   }
 
   if ( meEBDcsActiveMap_ ) meEBDcsActiveMap_->Reset();
-  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Reset();
-  eventsInLumi_ = 0;
 
 }
 
@@ -153,8 +137,6 @@ void EBDcsInfoTask::cleanup(void){
 
     if ( meEBDcsActiveMap_ ) dqmStore_->removeElement( meEBDcsActiveMap_->getName() );
 
-    if ( meDcsErrorsByLumi_ ) dqmStore_->removeElement( meDcsErrorsByLumi_->getName() );
-
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
     for (int i = 0; i < 36; i++) {
@@ -166,8 +148,6 @@ void EBDcsInfoTask::cleanup(void){
 }
 
 void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
-
-  eventsInLumi_++;
 
   Handle<DcsStatusCollection> dcsh;
 
@@ -196,9 +176,6 @@ void EBDcsInfoTask::analyze(const Event& e, const EventSetup& c){
 
 void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
 
-  // fill bin 0 with number of processed events in the lumi section
-  if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(eventsInLumi_);
-
   float readySum[36];
   for ( int ism = 0; ism < 36; ism++ ) readySum[ism] = 0;
   float readySumTot = 0.;
@@ -209,12 +186,9 @@ void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
       if(meEBDcsActiveMap_) meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, ready[iptt][iett] );
 
       int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4; 
-      float xism = ism + 0.5;
       if(ready[iptt][iett]) {
         readySum[ism]++;
         readySumTot++;
-      } else {
-        if ( meDcsErrorsByLumi_ ) meDcsErrorsByLumi_->Fill(xism, 1./68.);
       }
 
     }

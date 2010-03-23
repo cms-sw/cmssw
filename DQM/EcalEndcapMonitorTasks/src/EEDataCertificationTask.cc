@@ -42,15 +42,11 @@ EEDataCertificationTask::EEDataCertificationTask(const ParameterSet& ps) {
   for (int i = 0; i < 18; i++) {
     meEEDataCertification_[i] = 0;
   }
-  meDataQualityByLumi_ = 0;
-  meDCSQualityByLumi_ = 0;
 
   hDQM_ = 0;
   hDAQ_ = 0;
-  hDCS_ = 0;
   hIntegrityByLumi_ = 0;
   hFrontendByLumi_ = 0;
-  hDCSByLumi_ = 0;
 
 }
 
@@ -68,7 +64,7 @@ void EEDataCertificationTask::beginJob(void){
     
     sprintf(histo, "CertificationSummary");
     meEEDataCertificationSummary_ = dqmStore_->bookFloat(histo);
-    meEEDataCertificationSummary_->Fill(0.0);
+    meEEDataCertificationSummary_->Fill(-1.0);
 
     sprintf(histo, "CertificationSummaryMap");
     meEEDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
@@ -80,20 +76,8 @@ void EEDataCertificationTask::beginJob(void){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
       meEEDataCertification_[i] = dqmStore_->bookFloat(histo);
-      meEEDataCertification_[i]->Fill(0.0);
+      meEEDataCertification_[i]->Fill(-1.0);
     }
-
-    sprintf(histo, "data quality by lumi");
-    meDataQualityByLumi_ = dqmStore_->bookFloat(histo);
-    meDataQualityByLumi_->setLumiFlag();
-    meDataQualityByLumi_->Fill(-1.0);
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
-
-    sprintf(histo, "DCS quality by lumi");
-    meDCSQualityByLumi_ = dqmStore_->bookFloat(histo);
-    meDCSQualityByLumi_->setLumiFlag();
-    meDCSQualityByLumi_->Fill(-1.0);
 
   }
 
@@ -110,6 +94,131 @@ void EEDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& l
 }
 
 void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+
+  this->reset();
+
+  char histo[200];
+
+  MonitorElement* me;
+
+  // evaluate the DQM quality of observables checked by lumi
+  float DQMVal[18];
+  for (int i = 0; i < 18; i++) {
+    DQMVal[i] = 0.;
+  }
+  // evaluate the quality of observables checked by lumi
+  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi").c_str());
+  me = dqmStore_->get(histo);
+  hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
+
+  sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi").c_str());
+  me = dqmStore_->get(histo);
+  hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
+  
+  float integrityErrSum, frontendErrSum;
+  integrityErrSum = frontendErrSum = 0.;
+  for ( int i=0; i<18; i++) {
+    float ismIntegrityQual, ismFrontendQual;
+    ismIntegrityQual = ismFrontendQual = 1.0;
+    if( hIntegrityByLumi_ ) {
+      float errors = hIntegrityByLumi_->GetBinContent(i+1);
+      ismIntegrityQual = 1.0 - errors/hIntegrityByLumi_->GetBinContent(0);
+      integrityErrSum += errors;
+    }
+    if( hFrontendByLumi_ ) {
+      float errors = hFrontendByLumi_->GetBinContent(i+1);
+      ismFrontendQual = 1.0 - errors/ hFrontendByLumi_->GetBinContent(0);
+      frontendErrSum += errors;
+    }
+    DQMVal[i] = min(ismIntegrityQual,ismFrontendQual);
+  }
+
+  // now combine reduced DQM with DCS and DAQ
+  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
+  me = dqmStore_->get(histo);
+  hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
+
+  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
+  me = dqmStore_->get(histo);
+  hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
+
+  float sumCert = 0.;
+  float sumCertEE[18];
+  int nValidChannels = 0;
+  int nValidChannelsEE[18];
+
+  for (int i = 0; i < 18; i++) {
+    sumCertEE[i] = 0;
+    nValidChannelsEE[i] = 0;
+  }
+
+  for ( int iz = -1; iz < 2; iz+=2 ) {
+    for ( int ix = 1; ix <= 100; ix++ ) {
+      for ( int iy = 1; iy <= 100; iy++ ) {
+        int jx = (iz==1) ? 100 + ix : ix;
+        int jy = iy;
+        if( EEDetId::validDetId(ix, iy, iz) ) {
+
+          // map the 1-18 index to the correct SM
+          int ism = 0;
+          int firstSec = ( iz < 0 ) ? 1 : 10;
+          int lastSec = ( iz < 0 ) ? 9 : 18;
+          for (int i = firstSec; i <= lastSec; i++) {
+            if ( Numbers::validEE(i, ix, iy) ) ism = i;
+          }
+
+          float xvalDQM = DQMVal[ism-1];
+
+          float xvalDAQ, xvalDCS;
+          xvalDAQ = xvalDCS = -1.;
+          float xcert = -1;
+          
+          if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
+          if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
+
+          // all white means problems: DAQ and DCS not available and DQM empty
+          if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) xcert = 0.0;
+          else {
+            // do not consider the white value of DAQ and DCS (problems with DB)
+            xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
+          }
+
+          if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, xcert );
+
+          sumCertEE[ism-1] += xcert;
+          nValidChannelsEE[ism-1]++;
+
+          sumCert += xcert;
+          nValidChannels++;
+
+        } else {
+          if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, -1.0 );
+        }
+      }
+    }
+  }
+
+  if( meEEDataCertificationSummary_ ) { 
+    if( nValidChannels>0 ) meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
+    else meEEDataCertificationSummary_->Fill( 0.0 );
+  }
+
+  for (int i = 0; i < 18; i++) {
+    if( meEEDataCertification_[i] ) {
+      if( nValidChannelsEE[i]>0 ) meEEDataCertification_[i]->Fill( sumCertEE[i]/nValidChannelsEE[i] );
+      else meEEDataCertification_[i]->Fill( 0.0 );
+    }
+  }
+
+}
+
+void EEDataCertificationTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEDataCertificationTask::endRun(const Run& r, const EventSetup& c) {
 
   this->reset();
 
@@ -195,37 +304,6 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     }
   }
 
-  // evaluate the quality of observables checked by lumi
-  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT weighted integrity errors by lumi").c_str());
-  me = dqmStore_->get(histo);
-  hIntegrityByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hIntegrityByLumi_ );
-
-  sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT weighted frontend errors by lumi").c_str());
-  me = dqmStore_->get(histo);
-  hFrontendByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFrontendByLumi_ );
-  
-  sprintf(histo, (prefixME_ + "/EventInfo/EE weighted DCS errors by lumi").c_str());
-  me = dqmStore_->get(histo);
-  hDCSByLumi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hDCSByLumi_ );
-
-  float integrityErrSum, frontendErrSum, dcsErrSum;
-  integrityErrSum = frontendErrSum = dcsErrSum = 0.;
-  for ( int i=0; i<18; i++) {
-    if( hIntegrityByLumi_ ) integrityErrSum += hIntegrityByLumi_->GetBinContent(i+1);
-    if( hFrontendByLumi_ ) frontendErrSum += hFrontendByLumi_->GetBinContent(i+1);
-    if ( hDCSByLumi_ ) dcsErrSum += hDCSByLumi_->GetBinContent(i+1);
-  }
-
-  float integrityQual = 1.0;
-  if ( hIntegrityByLumi_ ) integrityQual = 1.0 - integrityErrSum / 18. / hIntegrityByLumi_->GetBinContent(0);
-  float frontendQual = 1.0;
-  if ( hFrontendByLumi_ ) frontendQual = 1.0 - frontendErrSum / 18. / hFrontendByLumi_->GetBinContent(0);
-  float dcsQual = 1.0;
-  if ( hDCSByLumi_ ) dcsQual = 1.0 - dcsErrSum / 18.;
-
-  if( meDataQualityByLumi_ ) meDataQualityByLumi_->Fill(min(integrityQual,frontendQual));
-  if( meDCSQualityByLumi_ ) meDCSQualityByLumi_->Fill(dcsQual);
-
 }
 
 void EEDataCertificationTask::reset(void) {
@@ -238,8 +316,7 @@ void EEDataCertificationTask::reset(void) {
 
   if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->Reset();
 
-  if ( meDataQualityByLumi_ ) meDataQualityByLumi_->Reset();
-  if ( meDCSQualityByLumi_ ) meDCSQualityByLumi_->Reset();
+  if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->Reset();
   
 }
 
@@ -252,31 +329,22 @@ void EEDataCertificationTask::cleanup(void){
     if( hDCS_ ) delete hDCS_;
     if( hIntegrityByLumi_ ) delete hIntegrityByLumi_;
     if( hFrontendByLumi_ ) delete hFrontendByLumi_;
-    if( hDCSByLumi_ ) delete hDCSByLumi_;
   }
   hDQM_ = 0;
   hDAQ_ = 0;
   hDCS_ = 0;
   hIntegrityByLumi_ = 0;
   hFrontendByLumi_ = 0;
-  hDCSByLumi_  = 0;
 
   if ( dqmStore_ ) {
-
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
     if ( meEEDataCertificationSummary_ ) dqmStore_->removeElement( meEEDataCertificationSummary_->getName() );
     if ( meEEDataCertificationSummaryMap_ ) dqmStore_->removeElement( meEEDataCertificationSummaryMap_->getName() );
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
     for (int i = 0; i < 18; i++) {
       if ( meEEDataCertification_[i] ) dqmStore_->removeElement( meEEDataCertification_[i]->getName() );
-    }
-    if ( meDataQualityByLumi_ ) dqmStore_->removeElement( meDataQualityByLumi_->getName() );
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
-    if ( meDCSQualityByLumi_ ) dqmStore_->removeElement( meDCSQualityByLumi_->getName() );
-
+    }    
   }
 
 }
