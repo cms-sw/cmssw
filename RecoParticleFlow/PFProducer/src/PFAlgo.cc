@@ -1262,12 +1262,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// if muon is isolated, take the whole Hcal energy
 	if(thisIsAnIsolatedMuon) muonHcal = totalHcal;
 	double muonEcal =0.;
+	unsigned iEcal = 0;
 	if( !sortedEcals.empty() ) { 
-	  unsigned iEcal = sortedEcals.begin()->second; 
+	  iEcal = sortedEcals.begin()->second; 
 	  PFClusterRef eclusterref = elements[iEcal].clusterRef();
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal);
 	  muonEcal = std::min(muonECAL_[0]+muonECAL_[1],eclusterref->energy());
 	  if(thisIsAnIsolatedMuon) muonEcal = eclusterref->energy();
+	  // If the muon expected energy accounts for the whole ecal cluster energy, lock the ecal cluster
+	  if ( eclusterref->energy() - muonEcal  < 0.2 ) active[iEcal] = false;
 	  (*pfCandidates_)[tmpi].setEcalEnergy(muonEcal);
 	  (*pfCandidates_)[tmpi].setRawEcalEnergy(eclusterref->energy());
 	} 
@@ -1282,7 +1285,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  muonECALError += 0.;
 	  photonAtECAL -= muonEcal*chargedDirection;
 	  hadronAtECAL -= totalHcal*chargedDirection;
-	}
+	  active[iEcal] = false;
+	  active[iHcal] = false;	}
 	else{
 	// Estimate of the energy deposit & resolution in the calorimeters
 	  muonHCALEnergy += muonHCAL_[0];
@@ -1618,18 +1622,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
 	      globalCorr = staMomentum/trackMomentum;
 	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
-	    if (debug_){
+	    //if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 			<< "PFAlgo: particle type set to muon (global, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
-	      }
+	      //}
 	  }
 	  else{
-	    if (debug_){
+	    //if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 	                << "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
-	      }
+	      //}
 	  }
 	  
 	  // Remove it from the block
@@ -2528,13 +2532,13 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     if ( thisIsAMuon) {
       particleType = reco::PFCandidate::mu;
       pfCandidates_->back().setParticleType( particleType );
-      if (debug_) {
+      //if (debug_) {
 	if(thisIsAGlobalTightMuon) cout << "PFAlgo: particle type set to muon (global, tight), pT = " <<muonRef->pt()<< endl; 
 	else if(thisIsATrackerTightMuon) cout << "PFAlgo: particle type set to muon (tracker, tight), pT = " <<muonRef->pt()<< endl;
 	else if(thisIsAnIsolatedMuon) cout << "PFAlgo: particle type set to muon (isolated), pT = " <<muonRef->pt()<< endl; 
 	else cout<<" problem with muon assignment "<<endl;
 	PFMuonAlgo::printMuonProperties( muonRef );
-      }
+	//}
     }
   }  
 
