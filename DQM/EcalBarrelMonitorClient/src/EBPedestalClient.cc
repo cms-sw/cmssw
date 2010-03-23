@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2010/02/15 14:14:14 $
- * $Revision: 1.214 $
+ * $Date: 2010/02/16 07:55:32 $
+ * $Revision: 1.215 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -145,8 +145,8 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps) {
   discrepancyMeanPn_[0] = 100.0;
   discrepancyMeanPn_[1] = 100.0;
 
-  RMSThresholdPn_[0] = 1.0;
-  RMSThresholdPn_[1] = 3.0;
+  RMSThresholdPn_[0] = 10.;
+  RMSThresholdPn_[1] = 10.;
 
 }
 

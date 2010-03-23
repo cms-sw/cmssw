@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/02/16 07:57:30 $
- * $Revision: 1.103 $
+ * $Date: 2010/02/16 10:53:18 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -151,8 +151,8 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
   discrepancyMeanPn_[0] = 100.0;
   discrepancyMeanPn_[1] = 100.0;
 
-  RMSThresholdPn_[0] = 1.0;
-  RMSThresholdPn_[1] = 3.0;
+  RMSThresholdPn_[0] = 10.;
+  RMSThresholdPn_[1] = 10.;
 
 }
 

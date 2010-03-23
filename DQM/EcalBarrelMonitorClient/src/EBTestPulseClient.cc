@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/02/15 14:14:14 $
- * $Revision: 1.221 $
+ * $Date: 2010/02/16 07:55:32 $
+ * $Revision: 1.222 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -128,8 +128,8 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 1.0;
-  pedPnRMSThreshold_[1] = 3.0;
+  pedPnRMSThreshold_[0] = 10.;
+  pedPnRMSThreshold_[1] = 10.;
 
 }
 

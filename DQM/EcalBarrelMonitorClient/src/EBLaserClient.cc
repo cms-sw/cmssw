@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/03/03 09:47:08 $
- * $Revision: 1.258 $
+ * $Date: 2010/03/03 09:49:12 $
+ * $Revision: 1.259 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -192,8 +192,8 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps) {
 
   rmsThresholdRelative_ = 0.3;
 
-  amplitudeThresholdPnG01_ = 50.;
-  amplitudeThresholdPnG16_ = 50.;
+  amplitudeThresholdPnG01_ = 100.;
+  amplitudeThresholdPnG16_ = 100.;
 
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
@@ -201,8 +201,8 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps) {
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
 
-  pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
-  pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
+  pedPnRMSThreshold_[0] = 10.;
+  pedPnRMSThreshold_[1] = 10.;
 
 }
 
