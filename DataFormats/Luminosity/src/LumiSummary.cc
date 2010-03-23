@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.14 2010/03/23 15:02:14 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.15 2010/03/23 18:17:28 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -160,8 +160,8 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "  avgInsDelLumiErr = " << lumiSummary.avgInsDelLumiErr() << "\n";
   s << "  lumiSecQual = " << lumiSummary.lumiSecQual() << "\n";
   s << "  deadCount = " << lumiSummary.deadcount() << "\n";
-  s << "  deadFrac = " << lumiSummary.deadFrac() << "\n";
-  s << "  liveFrac = " << lumiSummary.liveFrac() << "\n";
+  s << "  deadFrac = " << (float)lumiSummary.deadFrac() << "\n";
+  s << "  liveFrac = " << (float)lumiSummary.liveFrac() << "\n";
   s << "  lsNumber = " << lumiSummary.lsNumber() << "\n";
   s << "  startOrbit = " << lumiSummary.startOrbit() <<"\n";
   s << "  numOrbit = " << lumiSummary.numOrbit() <<"\n";
