@@ -112,10 +112,6 @@ relevant at very high invariant mass.
             RhoParameter = cms.untracked.double(1.004)
       )
 
-- This weight information can be processed via the Analyzer
-  "src/SimpleMassShift.cc". A test example is 
-  "test/SimpleMassShift.py".
-
 src/FSRWeightProducer.cc (IN PROGRESS)
 ======================================
 - Writes into the data structure a product containing the event weight ("double")
