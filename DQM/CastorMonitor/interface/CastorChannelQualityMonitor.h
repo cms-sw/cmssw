@@ -49,6 +49,7 @@ private:
 
  int ievt_;
  int module ; int sector; double energy ;
+ int status; int numOK;
 
  std::string histo;
 
@@ -58,6 +59,7 @@ private:
  int     aboveDThreshold [14][16];
 
  bool offline_;
+ bool iRecHit;
  MonitorElement* reportSummary;
  MonitorElement* reportSummaryMap;  TH2F* h_reportSummaryMap;
  MonitorElement* overallStatus;
