@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.cc,v 1.6 2010/03/03 17:05:15 yilmaz Exp $
+// $Id: Centrality.cc,v 1.7 2010/03/03 18:42:48 yilmaz Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
@@ -49,14 +49,14 @@ const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup){
       const CentralityTable::CBin* thisBin;
       thisBin = &(inputDB_->m_table[j]);
       CB->table_[j].bin_edge = thisBin->bin_edge;
-      CB->table_[j].n_part_mean = thisBin->n_part_mean;
-      CB->table_[j].n_part_var  = thisBin->n_part_var;
-      CB->table_[j].n_coll_mean = thisBin->n_coll_mean;
-      CB->table_[j].n_coll_var  = thisBin->n_coll_var;
-      CB->table_[j].n_hard_mean = thisBin->n_hard_mean;
-      CB->table_[j].n_hard_var  = thisBin->n_hard_var;
-      CB->table_[j].b_mean = thisBin->b_mean;
-      CB->table_[j].b_var = thisBin->b_var;
+      CB->table_[j].n_part_mean = thisBin->n_part.mean;
+      CB->table_[j].n_part_var  = thisBin->n_part.var;
+      CB->table_[j].n_coll_mean = thisBin->n_coll.mean;
+      CB->table_[j].n_coll_var  = thisBin->n_coll.var;
+      CB->table_[j].n_hard_mean = thisBin->n_hard.mean;
+      CB->table_[j].n_hard_var  = thisBin->n_hard.var;
+      CB->table_[j].b_mean = thisBin->b.mean;
+      CB->table_[j].b_var = thisBin->b.var;
 
    }
 
