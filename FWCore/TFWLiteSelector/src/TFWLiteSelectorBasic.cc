@@ -54,6 +54,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Common/interface/RefCoreStreamer.h"
+
 namespace edm {
   namespace root {
     class FWLiteDelayedReader : public DelayedReader {
@@ -255,6 +257,17 @@ TFWLiteSelectorBasic::Notify() {
   return everythingOK_ ? kTRUE: kFALSE; 
 }
 
+namespace  {
+   struct Operate {
+      Operate(const edm::EDProductGetter* iGetter): old_(setRefCoreStreamer(iGetter)) {
+      }
+      
+      ~Operate() {setRefCoreStreamer(old_);}
+   private:
+      const edm::EDProductGetter* old_;
+   };
+}
+
 Bool_t
 TFWLiteSelectorBasic::Process(Long64_t iEntry) { 
    //std::cout <<"Process start"<<std::endl;
@@ -309,7 +322,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 edm::Event event(ep,md);
 	 
 	 //Make the event principal accessible to edm::Ref's
-	 edm::EDProductGetter::Operate sentry(ep.prodGetter());
+	 Operate sentry(ep.prodGetter());
 	 process(event);
       } catch( const std::exception& iEx ) {
 	 std::cout <<"While processing entry "<<iEntry<<" the following exception was caught \n"
