@@ -572,18 +572,12 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
     new SiPixelGaussianSmearingRecHitConverterAlgorithm(
         pset_,
 	GeomDetEnumerators::PixelBarrel,
-	theBarrelMultiplicityAlphaCumulativeProbabilities,
-	theBarrelMultiplicityBetaCumulativeProbabilities,
-	thePixelBarrelResolutionFile,
 	random);
   // Initialize and open relevant files for the pixel forward error parametrization 
   thePixelEndcapParametrization = 
     new SiPixelGaussianSmearingRecHitConverterAlgorithm(
         pset_,
 	GeomDetEnumerators::PixelEndcap,
-	theForwardMultiplicityAlphaCumulativeProbabilities,
-	theForwardMultiplicityBetaCumulativeProbabilities,
-	thePixelForwardResolutionFile,
 	random);
 }
 
