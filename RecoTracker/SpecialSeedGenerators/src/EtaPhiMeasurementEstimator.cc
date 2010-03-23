@@ -43,14 +43,6 @@ bool EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 MeasurementEstimator::Local2DVector EtaPhiMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
 					const BoundPlane& plane) const {
 
-  //double tsosR   = tsos.globalPosition().R();
-
-  //  double xDisplacement = sin(thedPhi)*tsosR;
-  //double yDisplacement = cos(theta)*tsosR;
-
-  //return Local2DVector(15., 15.);
   return  Local2DVector(30., 30.);
-  //return  Local2DVector(50., 50.);
-  //return  Local2DVector(150., 150.);
 }
 
