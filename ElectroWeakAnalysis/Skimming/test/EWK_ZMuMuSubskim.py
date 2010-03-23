@@ -28,13 +28,6 @@ process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim.root'
 
 # MC matching sequence
 process.load("ElectroWeakAnalysis.Skimming.zMuMu_MCTruth_cfi")
-process.mcEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring(
-    ### MC matching infos
-    'keep *_genParticles_*_*',
-    'keep *_allDimuonsMCMatch_*_*',
-    )
-)
 process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.outputCommands)
 ############
 
