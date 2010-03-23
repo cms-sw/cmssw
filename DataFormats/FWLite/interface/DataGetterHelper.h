@@ -16,7 +16,7 @@
 //
 // Original Author: Eric Vaandering
 //         Created:  Fri Jan 29 12:45:17 CST 2010
-// $Id: DataGetterHelper.h,v 1.3 2010/02/16 16:28:21 ewv Exp $
+// $Id: DataGetterHelper.h,v 1.4 2010/03/04 02:47:09 dsr Exp $
 //
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -71,8 +71,11 @@ namespace fwlite {
             // ---------- member functions ---------------------------
 
             void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ) {
-                std::cout << "resetting getter" << std::endl;
                 getter_ = getter;
+            }
+       
+            edm::EDProductGetter* getter() {
+               return getter_.get();
             }
 
         private:
