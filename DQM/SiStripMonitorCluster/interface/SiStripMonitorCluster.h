@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.32 2010/01/24 20:27:09 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.33 2010/03/21 20:01:39 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -166,11 +166,15 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
 
   std::string topFolderName_;
   std::string qualityLabel_;
-  edm::ParameterSet clusterCondition_;
 
   edm::InputTag clusterProducer_;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
-  
+
+  bool   applyClusterQuality_;
+  double sToNLowerLimit_;  
+  double sToNUpperLimit_;  
+  double widthLowerLimit_;
+  double widthUpperLimit_;
 };
 #endif

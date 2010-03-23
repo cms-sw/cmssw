@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.68 2010/02/21 21:19:54 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.69 2010/03/21 20:01:40 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -137,8 +137,13 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   clusterProducer_ = conf_.getParameter<edm::InputTag>("ClusterProducer");
   // SiStrip Quality Label
   qualityLabel_  = conf_.getParameter<std::string>("StripQualityLabel");
-  // cluster condition 
-  clusterCondition_ = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+  // cluster quality conditions 
+  edm::ParameterSet cluster_condition = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
+  applyClusterQuality_ = cluster_condition.getParameter<bool>("On");
+  sToNLowerLimit_      = cluster_condition.getParameter<double>("minStoN");
+  sToNUpperLimit_      = cluster_condition.getParameter<double>("maxStoN");
+  widthLowerLimit_     = cluster_condition.getParameter<double>("minWidth"); 
+  widthUpperLimit_     = cluster_condition.getParameter<double>("maxWidth"); 
 
   // Event History Producer
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
@@ -424,11 +429,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	
 	if (nrnonzeroamplitudes > 0) cluster_noise = sqrt(noise2/nrnonzeroamplitudes);
 	
-	if( clusterCondition_.getParameter<bool>("On") &&
-	    (cluster_signal/cluster_noise < clusterCondition_.getParameter<double>("minStoN") ||
-	     cluster_signal/cluster_noise > clusterCondition_.getParameter<double>("maxStoN") ||
-	     cluster_width < clusterCondition_.getParameter<double>("minWidth") ||
-	     cluster_width  > clusterCondition_.getParameter<double>("maxWidth")) ) continue;  
+	if( applyClusterQuality_ &&
+	    (cluster_signal/cluster_noise < sToNLowerLimit_ ||
+	     cluster_signal/cluster_noise > sToNUpperLimit_ ||
+	     cluster_width < widthLowerLimit_ ||
+	     cluster_width > widthUpperLimit_) ) continue;  
 	
 	ClusterProperties cluster_properties;
 	cluster_properties.charge    = cluster_signal;
