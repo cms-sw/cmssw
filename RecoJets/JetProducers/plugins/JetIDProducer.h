@@ -18,7 +18,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu Sep 17 12:18:18 CDT 2009
-// $Id: JetIDProducer.h,v 1.1 2009/09/17 19:43:07 srappocc Exp $
+// $Id: JetIDProducer.h,v 1.2 2009/11/03 15:40:04 srappocc Exp $
 //
 //
 
@@ -36,8 +36,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
-#include "RecoJets/JetAlgorithms/interface/JetMuonHitsIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
+#include "RecoJets/JetProducers/interface/JetMuonHitsIDHelper.h"
 
 //
 // class decleration

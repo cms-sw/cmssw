@@ -12,7 +12,7 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-#include "RecoJets/JetAlgorithms/interface/PileUpSubtractor.h"
+#include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
