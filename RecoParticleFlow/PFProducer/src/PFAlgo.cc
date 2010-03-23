@@ -1267,6 +1267,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  PFClusterRef eclusterref = elements[iEcal].clusterRef();
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal);
 	  muonEcal = std::min(muonECAL_[0]+muonECAL_[1],eclusterref->energy());
+	  if(thisIsAnIsolatedMuon) muonEcal = eclusterref->energy();
 	  (*pfCandidates_)[tmpi].setEcalEnergy(muonEcal);
 	  (*pfCandidates_)[tmpi].setRawEcalEnergy(eclusterref->energy());
 	} 
