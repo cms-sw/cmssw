@@ -2,7 +2,7 @@
 #define DataFormats_Math_FastMath_h
 // faster function will a limited precision
 
-
+#include<cmath>
 
 # include <emmintrin.h>
 namespace fastmath {
@@ -26,7 +26,7 @@ namespace fastmath_details {
   extern double datanbuf_[513 * 2];
 }
 
-namespace fastmath {
+namespace  {
 
   // =====================================================================
   // arctan, single-precision; returns phi and r (or 1/r if overR=true)

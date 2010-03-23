@@ -1,4 +1,4 @@
-#include "DataFormats/Math/FastMath.h"
+#include "DataFormats/Math/interface/FastMath.h"
 namespace fastmath {
   float atanbuf_[257 * 2];
   double datanbuf_[513 * 2];
