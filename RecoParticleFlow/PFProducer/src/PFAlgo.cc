@@ -647,11 +647,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	unsigned nHits =  elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
 	unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement();
 
-	std::cout << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum 
-		  << " / " << elements[iTrack].trackRef()->pt() << " +/- " << DPt 
-		  << " / " << elements[iTrack].trackRef()->eta() 
-		  << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit 
-		  << ") hits (lost hits) has been cleaned" << std::endl;
+	if ( debug_ ) 
+	  std::cout << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum 
+		    << " / " << elements[iTrack].trackRef()->pt() << " +/- " << DPt 
+		    << " / " << elements[iTrack].trackRef()->eta() 
+		    << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit 
+		    << ") hits (lost hits) has been cleaned" << std::endl;
 	active[iTrack] = false;
 	continue;
       }
@@ -1278,7 +1279,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	(*pfCandidates_)[tmpi].setRawHcalEnergy(totalHcal);
 
 	if(thisIsAnIsolatedMuon){
-	  cout<<" Setting muon energy to the total calo energy "<<elements[iTrack].muonRef()->pt()<<endl;
 	  muonHCALEnergy += totalHcal;
 	  muonHCALError += 0.;
 	  muonECALEnergy += muonEcal;
