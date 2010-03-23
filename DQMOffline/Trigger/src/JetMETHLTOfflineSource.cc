@@ -1108,7 +1108,7 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
     for (unsigned int i=0; i!=n; ++i) {
     std::string pathname = hltConfig_.triggerName(i);
     if(verbose_)cout<<"==pathname=="<<pathname<<endl;
-    std::string dpathname = "";
+    std::string dpathname = "HLT_L1MuOpen";
     std::string l1pathname = "dummy";
     std::string denompathname = "";
     unsigned int usedPrescale = 1;
@@ -1194,56 +1194,57 @@ For defining histos wrt muon trigger, denominator is always set "MuonTrigger". T
     std::string histot="JetMET TriggerRate Summary";
      
     rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_Correlation";
     histot="JetMET TriggerRate Correlation Summary;y&&!x;x&&y";
 
     correlation_All = dbe->book2D(histonm.c_str(),histot.c_str(),
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5,hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5,hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_WrtMuTrigger";
     histot="JetMET TriggerRate Summary Wrt Muon Trigger ";
     
     rate_AllWrtMu = dbe->book1D(histonm.c_str(),histot.c_str(),
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_Correlation_WrtMuTrigger";
     histot="JetMET TriggerRate Correlation Summary Wrt Muon Trigger;y&&!x;x&&y";
 
     correlation_AllWrtMu = dbe->book2D(histonm.c_str(),histot.c_str(),
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5,hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5,hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
     histonm="JetMET_TriggerRate_WrtMBTrigger";
     histot="JetMET TriggerRate Summary Wrt MB Trigger";
 
     rate_AllWrtMB = dbe->book1D(histonm.c_str(),histot.c_str(),
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
 
 
     histonm="JetMET_TriggerRate_Correlation_WrtMBTrigger";
     histot="JetMET TriggerRate Correlation Wrt MB Trigger;y&&!x;x&&y";
 
     correlation_AllWrtMB = dbe->book2D(histonm.c_str(),histot.c_str(),
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5,hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5,hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
    
 
     ME_Denominator_rate  = dbe->book1D("ME_Denominator_rate","rate Denominator Triggers",
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5);
     ME_Numerator_rate  = dbe->book1D("ME_Numerator_rate","rate of Numerator Triggers",
-                           hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5); 
+                           hltPathsAll_.size(),-0.5,hltPathsAll_.size()-0.5); 
 
     //---Set bin label
-    unsigned int nname=0;
+    int nname=0;
  
     for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
       std::string labelnm("dummy");
       std::string denomlabelnm("dummy");
       labelnm = v->getPath(); 
       denomlabelnm = v->getDenomPath();
+      
       rate_All->setBinLabel(nname+1,labelnm); 
       rate_AllWrtMu->setBinLabel(nname+1,labelnm);
       rate_AllWrtMB->setBinLabel(nname+1,labelnm);
@@ -3135,9 +3136,9 @@ for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffW
   
    histoname = labelname+"_TriggerSummary";
    title     = labelname+"Summary of trigger levels"; 
-   MonitorElement * TriggerSummary = dbe->book1D(histoname.c_str(),title.c_str(),8, -0.5,7.5);
+   MonitorElement * TriggerSummary = dbe->book1D(histoname.c_str(),title.c_str(),7, -0.5,6.5);
    std::string trigger[7] = {"Nevt","L1 failed", "L1 & HLT failed", "L1 failed but not HLT","L1 passed", "L1 & HLT passed","L1 passed but not HLT"};
-   for(int i =0; i < 8; i++)TriggerSummary->setBinLabel(i+1, trigger[i]);
+   for(int i =0; i < 7; i++)TriggerSummary->setBinLabel(i+1, trigger[i]);
   if((v->getTriggerType())=="SingleJet_Trigger")
    {
    histoname = labelname+"_JetPt"; 
@@ -3239,8 +3240,6 @@ void JetMETHLTOfflineSource::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 // - method called once each job just after ending the event loop  ------------
 void 
 JetMETHLTOfflineSource::endJob() {
-  LogInfo("JetMETHLTOfflineSource") << "analyzed " << nev_ << " events";
-  return;
 }
 
 /// EndRun
