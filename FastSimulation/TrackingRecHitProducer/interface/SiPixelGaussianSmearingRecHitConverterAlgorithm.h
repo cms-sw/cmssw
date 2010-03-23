@@ -18,6 +18,8 @@
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+// template object
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 
 // Vectors
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
@@ -28,8 +30,6 @@
 #include <string>
 
 class TFile;
-class TH1F;
-class PixelErrorParametrization;
 class RandomEngine;
 class SimpleHistogramGenerator;
 
@@ -39,9 +39,6 @@ public:
   explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(		   
    const edm::ParameterSet& pset,
    GeomDetType::SubDetector pixelPart,
-   std::vector<TH1F*>& alphaMultiplicityCumulativeProbabilities,
-   std::vector<TH1F*>& betaMultiplicityCumulativeProbabilities,
-   TFile* pixelResolutionFile,
    const RandomEngine* engine);
 
   // destructor
@@ -56,8 +53,8 @@ public:
   double       getErrorX()    {return theErrorX;}
   double       getErrorY()    {return theErrorY;}
   double       getErrorZ()    {return theErrorZ;}
-  unsigned int getPixelMultiplicityAlpha() {return thePixelMultiplicityAlpha;}
-  unsigned int getPixelMultiplicityBeta()  {return thePixelMultiplicityBeta;}
+  unsigned int getPixelMultiplicityAlpha() {return theClslenx;}
+  unsigned int getPixelMultiplicityBeta()  {return theClsleny;}
   //
   
   //
@@ -66,28 +63,34 @@ public:
 private:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   bool useCMSSWPixelParameterization;
+  // template object
+  SiPixelTemplate templ;
+  int tempId;
   //
   bool isFlipped(const PixelGeomDetUnit* theDet) const;
+  void initializeBarrel();
+  void initializeForward();
+  //isForward, true for forward, false for barrel
+  bool isForward;
   //
-  bool negativeErrorProtection; // in case it is true protect against PixelErrorParametrization negative variance
   //
   // resolution bins
-  double resAlpha_binMin , resAlpha_binWidth;
-  unsigned int resAlpha_binN;
-  double resBeta_binMin  , resBeta_binWidth;
-  unsigned int resBeta_binN;
+  double rescotAlpha_binMin , rescotAlpha_binWidth;
+  unsigned int rescotAlpha_binN;
+  double rescotBeta_binMin  , rescotBeta_binWidth;
+  unsigned int rescotBeta_binN;
+  int resqbin_binMin, resqbin_binWidth;
+  unsigned int resqbin_binN;
   //
   edm::ParameterSet pset_;
   // Useful private members
   GeomDetType::SubDetector thePixelPart;
 
-  std::vector<TH1F*> theAlphaMultiplicityCumulativeProbabilities;
-  std::vector<TH1F*> theBetaMultiplicityCumulativeProbabilities;
-
-  std::map<unsigned,const SimpleHistogramGenerator*> theAlphaHistos;
-  std::map<unsigned,const SimpleHistogramGenerator*> theBetaHistos;
+  std::map<unsigned,const SimpleHistogramGenerator*> theXHistos;
+  std::map<unsigned,const SimpleHistogramGenerator*> theYHistos;
 
   TFile* thePixelResolutionFile;
+  std::string thePixelResolutionFileName;
 
   unsigned int theLayer;
   // output
@@ -99,14 +102,12 @@ private:
   double       theErrorX;
   double       theErrorY;
   double       theErrorZ;
-  unsigned int thePixelMultiplicityAlpha;
-  unsigned int thePixelMultiplicityBeta;
+  unsigned int theClslenx;
+  unsigned int theClsleny;
   //
-  PixelErrorParametrization* pixelError;
-
   // The random engine
   const RandomEngine* random;
-  
+
 };
 
 #endif

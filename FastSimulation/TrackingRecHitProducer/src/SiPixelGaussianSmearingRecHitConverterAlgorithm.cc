@@ -3,19 +3,23 @@
  * Description:  see SiPixelGaussianSmearingRecHitConverterAlgorithm.h
  * Authors:  R. Ranieri (CERN), M. Galanti
  * History: Oct 11, 2006 -  initial version
+ * 
+ * New Pixel Resolution Parameterization 
+ * Introduce SiPixelTemplate Object to Assign Pixel Errors
+ * by G. Hu
  * ---------------------------------------------------------------------
  */
 
 // SiPixel Gaussian Smearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
-//#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
 // Geometry
 //#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 //#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
 // Famos
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -31,169 +35,68 @@
 //#define FAMOS_DEBUG
 
 const double PI = 3.14159265358979323;
+const double microntocm = 0.0001;
+using namespace std;
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitConverterAlgorithm(
   const edm::ParameterSet& pset,
   GeomDetType::SubDetector pixelPart,
-  std::vector<TH1F*>& alphaMultiplicityCumulativeProbabilities,
-  std::vector<TH1F*>& betaMultiplicityCumulativeProbabilities, 
-  TFile* pixelResolutionFile,
   const RandomEngine* engine)
 :
   pset_(pset),
   thePixelPart(pixelPart),
-  theAlphaMultiplicityCumulativeProbabilities(alphaMultiplicityCumulativeProbabilities),
-  theBetaMultiplicityCumulativeProbabilities(betaMultiplicityCumulativeProbabilities),
-  thePixelResolutionFile(pixelResolutionFile),
   random(engine)
 {
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = pset.getParameter<bool>("UseCMSSWPixelParametrization");
 
-  if(useCMSSWPixelParameterization) {
-    if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
-      // Resolution Barrel    
-      resAlpha_binMin   = 
-        pset.getParameter<double>("AlphaBarrel_BinMinNew"  );
-      resAlpha_binWidth = 
-        pset.getParameter<double>("AlphaBarrel_BinWidthNew");
-      resAlpha_binN     = 
-        pset.getParameter<int>("AlphaBarrel_BinNNew"       );
-      resBeta_binMin    = 
-        pset.getParameter<double>("BetaBarrel_BinMinNew"   );
-      resBeta_binWidth  = 
-        pset.getParameter<double>("BetaBarrel_BinWidthNew" );
-      resBeta_binN      = 
-        pset.getParameter<int>(   "BetaBarrel_BinNNew"     );
-      //
-    } else if( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
-      // Resolution Forward
-      resAlpha_binMin   = 
-        pset.getParameter<double>("AlphaForward_BinMinNew"  );
-      resAlpha_binWidth = 
-        pset.getParameter<double>("AlphaForward_BinWidthNew");
-      resAlpha_binN     = 
-        pset.getParameter<int>("AlphaBarrel_BinNNew"        );
-      resBeta_binMin    = 
-        pset.getParameter<double>("BetaForward_BinMinNew"   );
-      resBeta_binWidth  = 
-        pset.getParameter<double>("BetaForward_BinWidthNew" );
-      resBeta_binN      = 
-        pset.getParameter<int>(   "BetaBarrel_BinNNew"      );
-    }
-  } else {
-        if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
-      // Resolution Barrel    
-      resAlpha_binMin   = 
-        pset.getParameter<double>("AlphaBarrel_BinMin"  );
-      resAlpha_binWidth = 
-        pset.getParameter<double>("AlphaBarrel_BinWidth");
-      resAlpha_binN     = 
-        pset.getParameter<int>("AlphaBarrel_BinN"       );
-      resBeta_binMin    = 
-        pset.getParameter<double>("BetaBarrel_BinMin"   );
-      resBeta_binWidth  = 
-        pset.getParameter<double>("BetaBarrel_BinWidth" );
-      resBeta_binN      = 
-        pset.getParameter<int>(   "BetaBarrel_BinN"     );
-      //
-    } else if( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
-      // Resolution Forward
-      resAlpha_binMin   = 
-        pset.getParameter<double>("AlphaForward_BinMin"  );
-      resAlpha_binWidth = 
-        pset.getParameter<double>("AlphaForward_BinWidth");
-      resAlpha_binN     = 
-        pset.getParameter<int>("AlphaBarrel_BinN"        );
-      resBeta_binMin    = 
-        pset.getParameter<double>("BetaForward_BinMin"   );
-      resBeta_binWidth  = 
-        pset.getParameter<double>("BetaForward_BinWidth" );
-      resBeta_binN      = 
-        pset.getParameter<int>(   "BetaBarrel_BinN"      );
-    }
+  thePixelResolutionFileName = pset_.getParameter<string>( "PixelResolutionFile" );
+  thePixelResolutionFile = new
+    TFile( edm::FileInPath( thePixelResolutionFileName ).fullPath().c_str()  ,"READ");
+  if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
+     isForward = false;
+     initializeBarrel();
+     tempId = pset_.getParameter<int> ( "templateIdBarrel" );
+     if( ! templ.pushfile(tempId) )
+         throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
+	 	<<"SiPixel Barrel Template Not Loaded Correctly!"<<endl;
+#ifdef  FAMOS_DEBUG
+     cout<<"The Barrel map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
+#endif
   }
-  // Initialize PixelErrorParametrization (time consuming!)
-  pixelError = new PixelErrorParametrization(pset_);
-
-  // Initialize the histos once and for all, and prepare the random generation
-  for ( unsigned alphaHistBin=1; alphaHistBin<=resAlpha_binN; ++alphaHistBin ) {
-    unsigned int maxSize;
-    if(useCMSSWPixelParameterization)
-      maxSize = theAlphaMultiplicityCumulativeProbabilities.size() / 2;
-    else
-      maxSize = theAlphaMultiplicityCumulativeProbabilities.size();
-    for ( unsigned alphaMultiplicity=1; 
-	  alphaMultiplicity<=maxSize;
-	  ++alphaMultiplicity ) {
-      unsigned int alphaHistN = (resAlpha_binWidth != 0. ?
-				 100 * alphaHistBin
-				 + 10
-				 + alphaMultiplicity
-				 :
-				 1110
-				 + alphaMultiplicity);    //
-      theAlphaHistos[alphaHistN] = new SimpleHistogramGenerator(
-	(TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , alphaHistN ) ),
-        random);
-      // Fill also big pixels if new parametrization is used. Their code is 10000 + histogram number
-      if(useCMSSWPixelParameterization) {
-          theAlphaHistos[alphaHistN+10000] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile->Get(  Form( "h%ub" , alphaHistN ) ),
-	    random);
-      }
-    }
+  else
+  if ( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
+     isForward = true;
+     initializeForward();
+     tempId = pset_.getParameter<int> ( "templateIdForward" );
+     if( ! templ.pushfile(tempId) )
+         throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
+	        <<"SiPixel Forward Template Not Loaded Correctly!"<<endl;
+#ifdef  FAMOS_DEBUG
+     cout<<"The Forward map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
+#endif
   }
-
-
-  //
-  for ( unsigned betaHistBin=1; betaHistBin<=resBeta_binN; ++betaHistBin ) {
-    unsigned int maxSize;
-    if(useCMSSWPixelParameterization)
-      maxSize = theBetaMultiplicityCumulativeProbabilities.size() / 2;
-    else
-      maxSize = theBetaMultiplicityCumulativeProbabilities.size();
-    for ( unsigned betaMultiplicity=1; 
-	  betaMultiplicity<=maxSize;
-	  ++betaMultiplicity ) {
-      unsigned int betaHistN = (resBeta_binWidth != 0. ?
-				100 * betaHistBin
-				+ betaMultiplicity
-				:
-				1100 + betaMultiplicity);    //
-      theBetaHistos[betaHistN] = new SimpleHistogramGenerator(
-        (TH1F*) thePixelResolutionFile->Get(  Form( "h%u" , betaHistN  ) ),
-	random);
-      // Fill also big pixels if new parametrization is used. Their code is 10000 + histogram number
-      if(useCMSSWPixelParameterization) {
-	theBetaHistos[betaHistN+10000] = new SimpleHistogramGenerator(
-          (TH1F*) thePixelResolutionFile->Get(  Form( "h%ub" , betaHistN  ) ),
-	  random);
-      }
-    }
-  }
+  else
+     throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
+       <<"Not a pixel detector"<<endl;
 }
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitConverterAlgorithm()
 {
   
-  // Some cleaning
-  delete pixelError;
-
   std::map<unsigned,const SimpleHistogramGenerator*>::const_iterator it;
-  for ( it=theAlphaHistos.begin(); it!=theAlphaHistos.end(); ++it ) 
+  for ( it=theXHistos.begin(); it!=theXHistos.end(); ++it )
+    delete it->second;
+  for ( it=theYHistos.begin(); it!=theYHistos.end(); ++it )
     delete it->second;
 
-  for ( it=theBetaHistos.begin(); it!=theBetaHistos.end(); ++it ) 
-    delete it->second;
-
-  theAlphaHistos.clear();
-  theBetaHistos.clear();
+  theXHistos.clear();
+  theYHistos.clear();
 
 }
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
-  const PSimHit& simHit, 
+  const PSimHit& simHit,
   const PixelGeomDetUnit* detUnit,
   const double boundX,
   const double boundY)
@@ -211,185 +114,237 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   float locy = localDir.y();
   float locz = localDir.z();
 
-  //
-  bool hasBigPixelInX = false;
-  bool hasBigPixelInY = false;
-
-  if(useCMSSWPixelParameterization) {
-    // If the sim track crosses a region in which there are big pixels,
-    // then we set to true the variables above
-
-    // Get the topology of the pixel module
-    const PixelTopology* theSpecificTopology = &(detUnit->specificTopology());
-    RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(), 
-                                               theSpecificTopology->ncolumns(), 
-                                               theSpecificTopology->pitch().first, 
-                                               theSpecificTopology->pitch().second);
-    
-    // Get the rows and columns of entry and exit points
-    // FIXME - these are not guaranteed to be the same as the cluster limits (as they should be)
-    const int firstPixelInX = int(rectPixelTopology.pixel(simHit.entryPoint()).first);
-    const int firstPixelInY = int(rectPixelTopology.pixel(simHit.entryPoint()).second);
-    const int lastPixelInX = int(rectPixelTopology.pixel(simHit.exitPoint()).first);
-    const int lastPixelInY = int(rectPixelTopology.pixel(simHit.exitPoint()).second);
-    
-    // Check if there is a big pixel inside and set hasBigPixelInX and hasBigPixelInY accordingly
-    // This function only works if first <= last
-    if(rectPixelTopology.containsBigPixelInX(firstPixelInX < lastPixelInX ? firstPixelInX : lastPixelInX,
-                                             firstPixelInX > lastPixelInX ? firstPixelInX : lastPixelInX))
-      hasBigPixelInX = true;
-    if(rectPixelTopology.containsBigPixelInY(firstPixelInY < lastPixelInY ? firstPixelInY : lastPixelInY,
-                                             firstPixelInY > lastPixelInY ? firstPixelInY : lastPixelInY))
-      hasBigPixelInY = true;
-#ifdef FAMOS_DEBUG
-    std::cout << " Simhit first pixel in X = " << (firstPixelInX < lastPixelInX ? firstPixelInX : lastPixelInX)
-              << " last pixel in X = " << (firstPixelInX > lastPixelInX ? firstPixelInX : lastPixelInX)
-              << " has big pixel in X is " << (hasBigPixelInX ? " true" : " false")
-              << std::endl;
-    std::cout << " Simhit first pixel in Y = " << (firstPixelInY < lastPixelInY ? firstPixelInY : lastPixelInY)
-              << " last pixel in Y = " << (firstPixelInY > lastPixelInY ? firstPixelInY : lastPixelInY)
-              << " has big pixel in Y is " << (hasBigPixelInY ? " true" : " false")
-              << std::endl;
-#endif
-  }
-
   // alpha: angle with respect to local x axis in local (x,z) plane
-  float alpha = std::acos(locx/std::sqrt(locx*locx+locz*locz));
+  float cotalpha = locx/locz;
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
 #ifdef FAMOS_DEBUG
     std::cout << " isFlipped " << std::endl;
 #endif
-    alpha = PI - alpha ;
   }
   // beta: angle with respect to local y axis in local (y,z) plane
-  float beta = std::acos(locy/std::sqrt(locy*locy+locz*locz));
-  
-  // look old FAMOS: FamosGeneric/FamosTracker/src/FamosPixelErrorParametrization
-  float alphaToBeUsedForRootFiles = alpha;
-  float betaToBeUsedForRootFiles  = beta;
-  if( thePixelPart == GeomDetEnumerators::PixelBarrel ) { // BARREL
-    alphaToBeUsedForRootFiles = PI/2. - alpha;
-    betaToBeUsedForRootFiles  = fabs( PI/2. - beta );
-  } else { // FORWARD
-    betaToBeUsedForRootFiles = fabs( PI/2. - beta );
-    alphaToBeUsedForRootFiles  = fabs( PI/2. - alpha );    
+  float cotbeta = locy/locz;
+  float sign=1.;
+  if( isForward ) {
+    if( cotbeta < 0 ) sign=-1.;
+    cotbeta = sign*cotbeta;
   }
+  
+  
   //
 #ifdef FAMOS_DEBUG
   std::cout << " Local Direction " << simHit.localDirection()
-	    << " alpha(x) = " << alpha
-	    << " beta(y) = "  << beta
-	    << " alpha for root files = " << alphaToBeUsedForRootFiles
-	    << " beta for root files = "  << betaToBeUsedForRootFiles
+	    << " cotalpha(x) = " << cotalpha
+	    << " cotbeta(y) = "  << cotbeta
 	    << std::endl;
 #endif
-
-  // Generate alpha and beta multiplicity
-  unsigned int alphaMultiplicity = 0;
-  unsigned int betaMultiplicity  = 0;
-  // random multiplicity for alpha and beta
-  double alphaProbability = random->flatShoot();
-  double betaProbability  = random->flatShoot();
-
-  // search which multiplicity correspond
-  int alphaBin = 
-    theAlphaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(alphaToBeUsedForRootFiles);
-  int betaBin = 
-    theBetaMultiplicityCumulativeProbabilities.front()->GetXaxis()->FindFixBin(betaToBeUsedForRootFiles);
-
-  // protection against out-of-range (undeflows and overflows)
-  if( alphaBin == 0 ) alphaBin = 1;
-  if( alphaBin > theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX() ) 
-    alphaBin = theAlphaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
-  if( betaBin == 0 ) betaBin = 1;
-  if( betaBin > theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX() )   
-    betaBin = theBetaMultiplicityCumulativeProbabilities.front()->GetNbinsX();
   
-  unsigned int iMult, multSize;
-  const unsigned int maxMultX = theAlphaMultiplicityCumulativeProbabilities.size();
-  const unsigned int maxMultY = theBetaMultiplicityCumulativeProbabilities.size();
-  if(useCMSSWPixelParameterization) {
-    if(hasBigPixelInX) {     // Big pixels: second half of histograms vector
-      iMult = maxMultX / 2;
-      multSize = maxMultX;
-    } else {                 // Normal pixels: first half of histograms vector
-      iMult = 0;
-      multSize = maxMultX / 2;
-    }
-  } else {
-    iMult = 0;
-    multSize = maxMultX;
-  }
-  for(/* void */; iMult < multSize; iMult++) {
-    if(alphaProbability < theAlphaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(alphaBin) ) {
-      alphaMultiplicity = iMult+1;
-      break;
-    }
-  }
-  
-  if(useCMSSWPixelParameterization) {
-    if(hasBigPixelInY) {     // Big pixels: second half of histograms vector
-      iMult = maxMultY / 2;
-      multSize = maxMultY;
-    } else {                 // Normal pixels: first half of histograms vector
-      iMult = 0;
-      multSize = maxMultY / 2;
-    }
-  } else {
-    iMult = 0;
-    multSize = maxMultY;
-  }
-  for(/* void */; iMult < multSize; iMult++) {
-    if(betaProbability < theBetaMultiplicityCumulativeProbabilities[iMult]->GetBinContent(betaBin) ) {
-      betaMultiplicity = iMult+1;
-      break;
-    }
-  }
+  const PixelTopology* theSpecificTopology = &(detUnit->specificTopology());
+  RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
+  						theSpecificTopology->ncolumns(),
+						theSpecificTopology->pitch().first,
+						theSpecificTopology->pitch().second);
+  const int nrows = theSpecificTopology->nrows();
+  const int ncolumns = theSpecificTopology->ncolumns();
 
-  // Correct multiplicity for big pixels
-  if(hasBigPixelInX)
-    alphaMultiplicity -= maxMultX / 2;
-  if(hasBigPixelInY)
-    betaMultiplicity -= maxMultY / 2;
-
-  // protection against 0 or max multiplicity
-  if(useCMSSWPixelParameterization) {
-    if( alphaMultiplicity == 0 || alphaMultiplicity > maxMultX / 2 ) 
-      alphaMultiplicity = maxMultX / 2;
-    if( betaMultiplicity  == 0 || betaMultiplicity  > maxMultY / 2  ) 
-      betaMultiplicity  = maxMultY / 2;
-  } else {
-    if( alphaMultiplicity == 0 || alphaMultiplicity > maxMultX ) 
-      alphaMultiplicity = maxMultX;
-    if( betaMultiplicity  == 0 || betaMultiplicity  > maxMultY ) 
-      betaMultiplicity  = maxMultY;
-  }
-  //
-  
-//
+  const Local3DPoint lp = simHit.localPosition();
+  //Transform local position to measurement position
+  const MeasurementPoint mp = rectPixelTopology.measurementPosition( lp );
+  float mpy = mp.y();
+  float mpx = mp.x();
+  //Get the center of the struck pixel in measurement position
+  float pixelCenterY = 0.5 + (int)mpy;
+  float pixelCenterX = 0.5 + (int)mpx;
 #ifdef FAMOS_DEBUG
-  std::cout << " Multiplicity set to"
-	    << "\talpha = " << alphaMultiplicity
-	    << "\tbeta = "  << betaMultiplicity
-	    << "\n"
-	    << "  from random probability"
-	    << "\talpha = " << alphaProbability
-	    << "\tbeta = "  << betaProbability
-	    << "\n"
-	    << "  taken from bin         "
-	    << "\talpha = " << alphaBin
-	    << "\tbeta = "  << betaBin
-	    << std::endl;	
+  cout<<"Struck pixel center at pitch units x: "<<pixelCenterX<<" y: "<<pixelCenterY<<endl;
 #endif
+
+  const MeasurementPoint mpCenter(pixelCenterX, pixelCenterY);
+  //Transform the center of the struck pixel back into local position
+  const Local3DPoint lpCenter = rectPixelTopology.localPosition( mpCenter );
+#ifdef FAMOS_DEBUG
+  cout<<"Struck point at cm x: "<<lp.x()<<" y: "<<lp.y()<<endl;
+  cout<<"Struck pixel center at cm x: "<<lpCenter.x()<<" y: "<<lpCenter.y()<<endl;
+  cout<<"The boundX is "<<boundX<<" boundY is "<<boundY<<endl;
+#endif
+
+  //Get the relative position of struck point to the center of the struck pixel
+  float xtrk = lp.x() - lpCenter.x();
+  float ytrk = lp.y() - lpCenter.y();
+  //Pixel Y, X pitch
+  const float ysize={0.015}, xsize={0.01};
+  //Variables for SiPixelTemplate input, see SiPixelTemplate reco
+  float yhit = 20. + 8.*(ytrk/ysize);
+  float xhit = 20. + 8.*(xtrk/xsize);
+  int   ybin = (int)yhit;
+  int	xbin = (int)xhit;
+  float yfrac= yhit - (float)ybin;
+  float xfrac= xhit - (float)xbin;
+
+  //Variables for SiPixelTemplate output
+  //qBin -- normalized pixel charge deposition
+  float qbin_frac[4];
+  //Single pixel cluster projection possibility
+  float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
+  bool singlex = false, singley = false;
+  templ.qbin_dist(tempId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
+  //Obsolete functionality
+  templ.interpolate(tempId, cotalpha, cotbeta);
+  int  nqbin;
+
+  double xsizeProbability = random->flatShoot();
+  double ysizeProbability = random->flatShoot();
+  bool hitbigx = rectPixelTopology.isItBigPixelInX( (int)mpx );
+  bool hitbigy = rectPixelTopology.isItBigPixelInY( (int)mpy );
   
-  // Compute pixel errors
-  std::pair<float,float> theErrors = pixelError->getError( thePixelPart ,
-							  (int)alphaMultiplicity , (int)betaMultiplicity ,
-                                                           alpha                 , beta                  ,
-                                                           hasBigPixelInX        , hasBigPixelInY         );
+  if( hitbigx ) 
+    if( xsizeProbability < nx2_frac )  singlex = true;
+    else singlex = false;
+  else
+    if( xsizeProbability < nx1_frac )  singlex = true;
+    else singlex = false;
+
+  if( hitbigy )
+    if( ysizeProbability < ny2_frac )  singley = true;
+    else singley = false;
+  else
+    if( ysizeProbability < ny1_frac )  singley = true;
+    else singley = false;
+  
+
+
+  // random multiplicity for alpha and beta
+  double qbinProbability = random->flatShoot();
+  for(int i = 0; i<4; ++i) {
+     nqbin = i;
+     if(qbinProbability < qbin_frac[i]) break;
+  }
+
+  //Store interpolated pixel cluster profile
+  //BYSIZE, BXSIZE, const definition from SiPixelTemplate
+  float ytempl[41][BYSIZE], xtempl[41][BXSIZE];
+  templ.ytemp(0, 40, ytempl);
+  templ.xtemp(0, 40, xtempl);
+
+  std::vector<double> ytemp(BYSIZE);
+  for( int i=0; i<BYSIZE; ++i) {
+     ytemp[i]=(1.-yfrac)*ytempl[ybin][i]+yfrac*ytempl[ybin+1][i];
+  }
+
+  std::vector<double> xtemp(BXSIZE);
+  for(int i=0; i<BXSIZE; ++i) {
+     xtemp[i]=(1.-xfrac)*xtempl[xbin][i]+xfrac*xtempl[xbin+1][i];
+  }
+
+  //Pixel readout threshold
+  const float qThreshold = templ.s50()*2.0;
+
+  //Cut away pixels below readout threshold
+  std::vector<bool> xCluster( BXSIZE, false );
+  std::vector<bool> yCluster( BYSIZE, false );
+  for( int i=0; i<BYSIZE; ++i ){
+    if( ytemp[i] > qThreshold )
+      yCluster[i] = true;
+  }
+  for( int i=0; i<BXSIZE; ++i ){
+    if( xtemp[i] > qThreshold )
+      xCluster[i] = true;
+  }
+ 
+  //For cluster lengths calculation
+  int offsetX1=0, offsetX2=0, offsetY1=0, offsetY2=0;
+  int firstY, lastY, firstX, lastX;
+  for( firstY = 0; firstY < BYSIZE; ++firstY ) {
+    if( yCluster[firstY] )
+    {
+      offsetY1 = BHY -firstY;
+      break;
+    }
+  }
+  for( lastY = firstY; lastY < BYSIZE; ++lastY )
+  {
+    if( !yCluster[lastY] )
+    {
+      lastY = lastY - 1;
+      offsetY2 = lastY - BHY;
+      break;
+    }
+  }
+
+  for( firstX = 0; firstX < BXSIZE; ++firstX )  {
+    if( xCluster[firstX] ) {
+      offsetX1 = BHX - firstX;
+      break;
+    }
+  }
+  for( lastX = firstX; lastX < BXSIZE; ++ lastX ) {
+    if( !xCluster[lastX] ) {
+      lastX = lastX - 1;
+      offsetX2 = lastX - BHX;
+      break;
+    }
+  }
+
+  bool edge, edgex, edgey;
+  bool bigx, bigy;
+  unsigned int clslenx = offsetX1 + offsetX2 + 1;
+  unsigned int clsleny = offsetY1 + offsetY2 + 1;
+
+  theClslenx = clslenx;
+  theClsleny = clsleny;
+
+  int firstPixelInX = (int)mpx - offsetX1 ;
+  int firstPixelInY = (int)mpy - offsetY1 ;
+  int lastPixelInX  = (int)mpx + offsetX2 ;
+  int lastPixelInY  = (int)mpy + offsetY2 ;
+  firstPixelInX = (firstPixelInX >= 0) ? firstPixelInX : 0 ;
+  firstPixelInY = (firstPixelInY >= 0) ? firstPixelInY : 0 ;
+  lastPixelInX  = (lastPixelInX < nrows ) ? lastPixelInX : nrows-1 ;
+  lastPixelInY  = (lastPixelInY < ncolumns ) ? lastPixelInY : ncolumns-1;
+
+  edgex = rectPixelTopology.isItEdgePixelInX( firstPixelInX ) || rectPixelTopology.isItEdgePixelInX( lastPixelInX );
+  edgey = rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY );
+  edge = edgex || edgey;
+
+  bigx = rectPixelTopology.isItBigPixelInX( firstPixelInX ) || rectPixelTopology.isItBigPixelInX( lastPixelInX );
+  bigy = rectPixelTopology.isItBigPixelInY( firstPixelInY ) || rectPixelTopology.isItBigPixelInY( lastPixelInY );
+  bool hasBigPixelInX = rectPixelTopology.containsBigPixelInX( firstPixelInX, lastPixelInX );
+  bool hasBigPixelInY = rectPixelTopology.containsBigPixelInY( firstPixelInY, lastPixelInY );
+
+  //Variables for SiPixelTemplate pixel hit error output
+  float sigmay, sigmax, sy1, sy2, sx1, sx2;
+  templ.temperrors(tempId, cotalpha, cotbeta, nqbin, sigmay, sigmax, sy1, sy2, sx1, sx2 );
+
   // define private mebers --> Errors
-  theErrorX = theErrors.first;  // PixelErrorParametrization returns sigma, not sigma^2
-  theErrorY = theErrors.second; // PixelErrorParametrization returns sigma, not sigma^2
+  if( edge ) {
+    if( edgex && !edgey ) {
+      theErrorX = 23.0*microntocm;
+      theErrorY = 39.0*microntocm;
+    }
+    else if( !edgex && edgey ) {
+      theErrorX = 24.0*microntocm;
+      theErrorY = 96.0*microntocm;
+    }
+    else
+    {
+      theErrorX = 31.0*microntocm;
+      theErrorY = 90.0*microntocm;
+    }
+    
+  }  
+  else {
+    if( singlex )
+      if ( hitbigx )
+        theErrorX = sx2*microntocm;
+      else
+        theErrorX = sx1*microntocm;
+    else  theErrorX = sigmax*microntocm;
+    if( singley )
+      if( hitbigy )
+        theErrorY = sy2*microntocm;
+      else
+        theErrorY = sy1*microntocm;
+    else  theErrorY = sigmay*microntocm;
+  }
   theErrorZ = 1e-8; // 1 um means zero
   theError = LocalError( theErrorX*theErrorX, 0., theErrorY*theErrorY);
   // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
@@ -401,50 +356,84 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << "\tbeta(y) = "  << theErrorY
 	    << std::endl;	
 #endif
-  
-  // 
   // Generate position
   // get resolution histograms
-  int alphaHistBin = (int)( ( alphaToBeUsedForRootFiles - resAlpha_binMin ) / resAlpha_binWidth + 1 );
-  int betaHistBin  = (int)( ( betaToBeUsedForRootFiles  - resBeta_binMin )  / resBeta_binWidth + 1 );
+  int cotalphaHistBin = (int)( ( cotalpha - rescotAlpha_binMin ) / rescotAlpha_binWidth + 1 );
+  int cotbetaHistBin  = (int)( ( cotbeta  - rescotBeta_binMin )  / rescotBeta_binWidth + 1 );
   // protection against out-of-range (undeflows and overflows)
-  if( alphaHistBin < 1 ) alphaHistBin = 1; 
-  if( betaHistBin  < 1 ) betaHistBin  = 1; 
-  if( alphaHistBin > (int)resAlpha_binN ) alphaHistBin = (int)resAlpha_binN; 
-  if( betaHistBin  > (int)resBeta_binN  ) betaHistBin  = (int)resBeta_binN; 
-  //  
-  unsigned int alphaHistN = (resAlpha_binWidth != 0. ?
-			     100 * alphaHistBin
-			     + 10
-			     + alphaMultiplicity
-			     :
-			     1110
-			     + alphaMultiplicity);    //
+  if( cotalphaHistBin < 1 ) cotalphaHistBin = 1; 
+  if( cotbetaHistBin  < 1 ) cotbetaHistBin  = 1; 
+  if( cotalphaHistBin > (int)rescotAlpha_binN ) cotalphaHistBin = (int)rescotAlpha_binN; 
+  if( cotbetaHistBin  > (int)rescotBeta_binN  ) cotbetaHistBin  = (int)rescotBeta_binN; 
   //
-  unsigned int betaHistN = (resBeta_binWidth != 0. ?
-			    100 * betaHistBin
-			    + betaMultiplicity
-			    :
-			    1100 + betaMultiplicity);    //
-  //
-  if(hasBigPixelInX)
-    alphaHistN += 10000;
-  if(hasBigPixelInY)
-    betaHistN += 10000;
-#ifdef FAMOS_DEBUG
-  std::cout << " Resolution histograms chosen "
-	    << "\talpha = " << alphaHistN
-	    << "\tbeta = "  << betaHistN
-	    << std::endl;	
-#endif
-
+  unsigned int theXHistN;
+  unsigned int theYHistN;
+  if( !isForward ) {
+     if(edge)
+     {
+       theXHistN = cotalphaHistBin * 1000 + cotbetaHistBin * 10	 +  (nqbin+1);
+       theYHistN = theXHistN;	      
+     }
+     else
+     {
+       if(singlex)
+       {
+	 if(hitbigx)  theXHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	 else 	theXHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+       }
+       else
+       {
+	 if(hasBigPixelInX)  theXHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	 else 	theXHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+       }
+       if(singley)
+       {
+	 if(hitbigy)  theYHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	 else 	theYHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+       }
+       else
+       {
+	 if(hasBigPixelInY)  theYHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	 else 	theYHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+       }
+     }
+  }
+  else
+  {
+     if(edge)
+     {
+       theXHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+       theYHistN = theXHistN;
+     }
+     else
+     {
+       if( singlex )
+         if( hitbigx )
+	   theXHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	 else
+	   theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+       else
+         theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+       if( singley )
+         if( hitbigy )
+	   theYHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	 else
+	   theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+       else
+         theYHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+     }
+  }
   unsigned int counter = 0;
   do {
     //
     // Smear the hit Position
-    thePositionX = theAlphaHistos[alphaHistN]->generate();
-    thePositionY = theBetaHistos[betaHistN]->generate();
+    thePositionX = theXHistos[theXHistN]->generate();
+    thePositionY = theYHistos[theYHistN]->generate();
+    if( isForward ) thePositionY *= sign;
     thePositionZ = 0.0; // set at the centre of the active area
+    //protect from empty resolution histograms
+    //if( thePositionX > 0.0799 )  thePositionX = 0;
+    //if( thePositionY > 0.0799 )  thePositionY = 0;
     thePosition = 
       Local3DPoint(simHit.localPosition().x() + thePositionX , 
                    simHit.localPosition().y() + thePositionY , 
@@ -467,14 +456,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
       break;
     }
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
-  
 
-  
-  // define private mebers --> Multiplicities
-  thePixelMultiplicityAlpha = alphaMultiplicity;
-  thePixelMultiplicityBeta  = betaMultiplicity;
-  //
- 
 }
  
 //-----------------------------------------------------------------------------
@@ -498,4 +480,113 @@ bool SiPixelGaussianSmearingRecHitConverterAlgorithm::isFlipped(const PixelGeomD
   if ( tmp2<tmp1 ) return true;
   else return false;    
 }
- 
+
+void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
+{
+  //Hard coded at the moment, can easily be changed to be configurable
+  rescotAlpha_binMin = -0.2;
+  rescotAlpha_binWidth = 0.08 ;
+  rescotAlpha_binN = 5;
+  rescotBeta_binMin = -5.5;
+  rescotBeta_binWidth = 1.0;
+  rescotBeta_binN = 11;
+  resqbin_binMin = 0;
+  resqbin_binWidth = 1;
+  resqbin_binN = 4;
+
+  // Initialize the barrel histos once and for all, and prepare the random generation
+  for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
+     for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )  {
+         unsigned int singleBigPixelHistN = 1 * 100000
+                                        + cotalphaHistBin * 100
+                                        + cotbetaHistBin ;
+         theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hx%u" , singleBigPixelHistN ) ),
+              random);
+         theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hy%u" , singleBigPixelHistN ) ),
+              random);
+         unsigned int singlePixelHistN = 1 * 100000 + 1 * 1000
+                                        + cotalphaHistBin * 100
+                                        + cotbetaHistBin ;
+         theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hx%u" , singlePixelHistN ) ),
+              random);
+         theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hy%u" , singlePixelHistN ) ),
+              random);
+         for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
+             unsigned int edgePixelHistN = cotalphaHistBin * 1000
+                                        +  cotbetaHistBin * 10
+                                        +  qbinBin;
+             theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ), random );
+             theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hy0%u" ,edgePixelHistN ) ), random );
+             unsigned int multiPixelBigHistN = 1 * 1000000 + 1 * 100000
+                                           + cotalphaHistBin * 1000
+                                           + cotbetaHistBin * 10
+                                           + qbinBin;
+             theXHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hx%u" ,multiPixelBigHistN ) ), random );
+             theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
+              (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hy%u" ,multiPixelBigHistN ) ), random );
+             unsigned int multiPixelHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000
+                                           + cotalphaHistBin * 1000
+                                           + cotbetaHistBin * 10
+                                           + qbinBin;
+             theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+             (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hx%u" , multiPixelHistN ) ),
+             random);
+             theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+             (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustBPIX/hy%u" , multiPixelHistN ) ),
+             random);
+          } //end for qbinBin
+     }//end for cotalphaHistBin, cotbetaHistBin
+}
+
+void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
+{
+  //Hard coded at the moment, can easily be changed to be configurable
+  rescotAlpha_binMin = 0.1;
+  rescotAlpha_binWidth = 0.1 ;
+  rescotAlpha_binN = 4;
+  rescotBeta_binMin = 0.;
+  rescotBeta_binWidth = 0.15;
+  rescotBeta_binN = 4;
+  resqbin_binMin = 0;
+  resqbin_binWidth = 1;
+  resqbin_binN = 4;
+
+  // Initialize the forward histos once and for all, and prepare the random generation
+  for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
+     for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )  
+         for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
+	    unsigned int edgePixelHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
+	    theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+	    (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhx0%u" ,edgePixelHistN ) ), random );
+	    theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+	    (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhy0%u" ,edgePixelHistN ) ), random );
+	    unsigned int PixelHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
+	    theXHistos[PixelHistN] = new SimpleHistogramGenerator(
+	    (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhx%u" ,PixelHistN ) ), random );
+	    theYHistos[PixelHistN] = new SimpleHistogramGenerator(
+	    (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhy%u" ,PixelHistN ) ), random );	   	
+	 }//end cotalphaHistBin, cotbetaHistBin, qbinBin
+
+  for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
+    for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )
+    {
+      unsigned int SingleBigPixelHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+      theXHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
+      (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SingleBigPixelHistN ) ), random );
+      theYHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
+      (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SingleBigPixelHistN ) ), random );
+      unsigned int SinglePixelHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+      theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+      (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SinglePixelHistN ) ), random );
+      theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+      (TH1F*) thePixelResolutionFile->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SinglePixelHistN ) ), random );
+
+    }
+}
