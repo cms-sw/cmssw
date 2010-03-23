@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.6 2010/03/20 12:23:00 yilmaz Exp $
+// $Id: CentralityTableProducer.cc,v 1.7 2010/03/20 14:43:06 yilmaz Exp $
 //
 //
 
@@ -167,14 +167,14 @@ CentralityTableProducer::endJob() {
    for(int j=0; j<CB->getNbins(); j++){
        CentralityTable::CBin* thisBin = new CentralityTable::CBin();
        thisBin->bin_edge = CB->lowEdgeOfBin(j);
-       thisBin->n_part_mean = CB->NpartMeanOfBin(j);
-       thisBin->n_part_var  = CB->NpartSigmaOfBin(j);
-       thisBin->n_coll_mean = CB->NcollMeanOfBin(j);
-       thisBin->n_coll_var  = CB->NcollSigmaOfBin(j);
-       thisBin->n_hard_mean = CB->NhardMeanOfBin(j);
-       thisBin->n_hard_var  = CB->NhardSigmaOfBin(j);
-       thisBin->b_mean = CB->bMeanOfBin(j);
-       thisBin->b_var = CB->bSigmaOfBin(j);
+       thisBin->n_part.mean = CB->NpartMeanOfBin(j);
+       thisBin->n_part.var  = CB->NpartSigmaOfBin(j);
+       thisBin->n_coll.mean = CB->NcollMeanOfBin(j);
+       thisBin->n_coll.var  = CB->NcollSigmaOfBin(j);
+       thisBin->n_hard.mean = CB->NhardMeanOfBin(j);
+       thisBin->n_hard.var  = CB->NhardSigmaOfBin(j);
+       thisBin->b.mean = CB->bMeanOfBin(j);
+       thisBin->b.var = CB->bSigmaOfBin(j);
        printBin(thisBin);
        CT->m_table.push_back(*thisBin);
        if(thisBin) delete thisBin;
@@ -195,19 +195,19 @@ CentralityTableProducer::endJob() {
 void CentralityTableProducer::printBin(const CentralityTable::CBin* thisBin){
    
    cout<<"HF Cut = "<<thisBin->bin_edge<<endl;
-   cout<<"Npart = "<<thisBin->n_part_mean<<endl;
-   cout<<"sigma = "<<thisBin->n_part_var<<endl;
-   cout<<"Ncoll = "<<thisBin->n_coll_mean<<endl;
-   cout<<"sigma = "<<thisBin->n_coll_var<<endl;
-   cout<<"B     = "<<thisBin->b_mean<<endl;
-   cout<<"sigma = "<<thisBin->b_var<<endl;
+   cout<<"Npart = "<<thisBin->n_part.mean<<endl;
+   cout<<"sigma = "<<thisBin->n_part.var<<endl;
+   cout<<"Ncoll = "<<thisBin->n_coll.mean<<endl;
+   cout<<"sigma = "<<thisBin->n_coll.var<<endl;
+   cout<<"B     = "<<thisBin->b.mean<<endl;
+   cout<<"sigma = "<<thisBin->b.var<<endl;
    text_<<Form("%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.1f",
-	       (Float_t)thisBin->n_part_mean,
-	       (Float_t)thisBin->n_part_var,
-	       (Float_t)thisBin->n_coll_mean,
-	       (Float_t)thisBin->n_coll_var,
-	       (Float_t)thisBin->b_mean,
-	       (Float_t)thisBin->b_var,
+	       (Float_t)thisBin->n_part.mean,
+	       (Float_t)thisBin->n_part.var,
+	       (Float_t)thisBin->n_coll.mean,
+	       (Float_t)thisBin->n_coll.var,
+	       (Float_t)thisBin->b.mean,
+	       (Float_t)thisBin->b.var,
 	       (Float_t)thisBin->bin_edge)
 	<<endl;
    cout<<"__________________________________________________"<<endl;
