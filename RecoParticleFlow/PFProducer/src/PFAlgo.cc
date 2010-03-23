@@ -1622,18 +1622,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
 	      globalCorr = staMomentum/trackMomentum;
 	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
-	    //if (debug_){
+	    if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 			<< "PFAlgo: particle type set to muon (global, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
-	      //}
+	      }
 	  }
 	  else{
-	    //if (debug_){
+	    if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
 	                << "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
-	      //}
+	    }
 	  }
 	  
 	  // Remove it from the block
@@ -2532,13 +2532,13 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
     if ( thisIsAMuon) {
       particleType = reco::PFCandidate::mu;
       pfCandidates_->back().setParticleType( particleType );
-      //if (debug_) {
+      if (debug_) {
 	if(thisIsAGlobalTightMuon) cout << "PFAlgo: particle type set to muon (global, tight), pT = " <<muonRef->pt()<< endl; 
 	else if(thisIsATrackerTightMuon) cout << "PFAlgo: particle type set to muon (tracker, tight), pT = " <<muonRef->pt()<< endl;
 	else if(thisIsAnIsolatedMuon) cout << "PFAlgo: particle type set to muon (isolated), pT = " <<muonRef->pt()<< endl; 
 	else cout<<" problem with muon assignment "<<endl;
 	PFMuonAlgo::printMuonProperties( muonRef );
-	//}
+      }
     }
   }  
 
