@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.18 2010/03/05 17:21:34 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.29 2010/03/19 09:32:17 hlliu Exp $
 //
 //
 
@@ -123,10 +123,11 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 	deltaCotTheta_ = iConfig.getParameter<double>("DeltaCotTheta");
     if (allowDeltaPhi_)
 	deltaPhi_ = iConfig.getParameter<double>("DeltaPhi");
-    if (allowMinApproach_) {
+    if (allowMinApproach_){
 	minApproachLow_ = iConfig.getParameter<double>("MinApproachLow");
 	minApproachHigh_ = iConfig.getParameter<double>("MinApproachHigh");
     }
+
     // if allow single track collection, by default False
     allowSingleLeg_ = iConfig.getParameter<bool>("AllowSingleLeg");
     rightBC_ = iConfig.getParameter<bool>("AllowRightBC");
@@ -135,6 +136,7 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     dzCut_ = iConfig.getParameter<double>("dz");
     //track analytical cross cut
     r_cut = iConfig.getParameter<double>("rCut");
+    vtxChi2_ = iConfig.getParameter<double>("vtxChi2");
 
     //output
     ConvertedPhotonCollection_     = iConfig.getParameter<std::string>("convertedPhotonCollection");
@@ -398,7 +400,7 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
     if (allowMinApproach_){
 	const double distance = getMinApproach(tk_l, tk_r, magField);
 
-	if (distance < minApproachLow_ || distance > minApproachHigh_) return false;
+	if (distance < minApproachLow_ || distance >minApproachHigh_) return false;
 	else
 	    appDist = distance;
     }
@@ -487,9 +489,10 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
 	    gamma_dec_vertex = myTree->currentDecayVertex();                                                          
 	    if( gamma_dec_vertex->vertexIsValid() ){                                                                  
 		const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
-		if (chi2Prob>0.005){                                                                                  
+		if (chi2Prob>0.){// no longer cut here, only ask positive probability here 
 		    //const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
 		    the_vertex = transVertex(myTree, gamma_dec_vertex);
+		    //TODO should add refitted tracks
 		    the_vertex.add(reco::TrackBaseRef(tk_l));
 		    the_vertex.add(reco::TrackBaseRef(tk_r));
 		    found = true;
@@ -700,10 +703,15 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
 		reco::CaloClusterPtrVector scPtrVec;
 		reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
-		//if using kinematic fit
-		if (allowVertex_) 
+		//if using kinematic fit, check with chi2 post cut
+		if (allowVertex_) {
 		    theConversionVertex = vertex_candidates[ii];
-
+		    if (theConversionVertex.isValid()){
+			const float chi2Prob = ChiSquaredProbability(theConversionVertex.chi2(), theConversionVertex.ndof());
+			if (chi2Prob<vtxChi2_)
+			    continue;
+		    }
+		}
 		std::vector<math::XYZPoint> trkPositionAtEcal;
 		std::vector<reco::CaloClusterPtr> matchingBC;
 

@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/03/08 10:52:16 $
- **  $Revision: 1.10 $
+ **  $Date: 2010/03/19 09:32:15 $
+ **  $Revision: 1.12 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -163,6 +163,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       double maxDistance_, maxOfInitialValue_;
       int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex
       double r_cut;//cross_r cut
+      double vtxChi2_;//vertex chi2 probablity cut
 
       bool allowSingleLeg_;//if single track conversion ?
       bool rightBC_;//if right leg requires matching BC?
