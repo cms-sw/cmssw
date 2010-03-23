@@ -456,10 +456,6 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
 
     if(tau.pfTauTagInfoRef().isNull()) return;
 
-    PFCandidateRefVector allhadrons = tau.pfTauTagInfoRef()->PFChargedHadrCands();
-    PFCandidateRefVector allgammas = tau.pfTauTagInfoRef()->PFGammaCands();
-    PFCandidateRefVector allneutral = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
-
     PFCandidateRefVector hadrons;
     PFCandidateRefVector gammas;
     PFCandidateRefVector neutral; 
@@ -468,38 +464,48 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
     if(useIsolationAnnulus_)
       {
 
-	for(unsigned int i=0;i<allhadrons.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allhadrons.at(i)->p4())>tauCone &&
-	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),allhadrons.at(i)->p4())<chargeIsolationCone_)
-	    hadrons.push_back(allhadrons.at(i));
+	for(unsigned int i=0;i<tau.pfTauTagInfoRef()->PFChargedHadrCands().size();++i) {
+	  double DR = ROOT::Math::VectorUtil::DeltaR(tau.p4(),tau.pfTauTagInfoRef()->PFChargedHadrCands().at(i)->p4());
+	  
+	  if(DR>tauCone && DR<chargeIsolationCone_)
+	    hadrons.push_back(tau.pfTauTagInfoRef()->PFChargedHadrCands().at(i));
+	}
 
-	for(unsigned int i=0;i<allgammas.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allgammas.at(i)->p4())>tauCone &&
-	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),allgammas.at(i)->p4())<gammaIsolationCone_)
-	    gammas.push_back(allgammas.at(i));
-
-	for(unsigned int i=0;i<allneutral.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allneutral.at(i)->p4())>tauCone &&
-	     ROOT::Math::VectorUtil::DeltaR(tau.p4(),allneutral.at(i)->p4())<neutrHadrIsolationCone_)
-	    neutral.push_back(allneutral.at(i));
-
+	for(unsigned int i=0;i<tau.pfTauTagInfoRef()->PFGammaCands().size();++i) {
+	  double DR = ROOT::Math::VectorUtil::DeltaR(tau.p4(),tau.pfTauTagInfoRef()->PFGammaCands().at(i)->p4());
+	  
+	  if(DR>tauCone && DR<gammaIsolationCone_)
+	    gammas.push_back(tau.pfTauTagInfoRef()->PFGammaCands().at(i));
+	}
+	for(unsigned int i=0;i<tau.pfTauTagInfoRef()->PFNeutrHadrCands().size();++i) {
+	  double DR = ROOT::Math::VectorUtil::DeltaR(tau.p4(),tau.pfTauTagInfoRef()->PFNeutrHadrCands().at(i)->p4());
+	  if(DR>tauCone && DR <neutrHadrIsolationCone_)
+	    neutral.push_back(tau.pfTauTagInfoRef()->PFNeutrHadrCands().at(i));
+	}
       }
     else
       {
 
-	for(unsigned int i=0;i<allhadrons.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allhadrons.at(i)->p4())<chargeIsolationCone_)
-	    hadrons.push_back(allhadrons.at(i));
+	for(unsigned int i=0;i<tau.pfTauTagInfoRef()->PFChargedHadrCands().size();++i) {
+	  double DR = ROOT::Math::VectorUtil::DeltaR(tau.p4(),tau.pfTauTagInfoRef()->PFChargedHadrCands().at(i)->p4());
+	  
+	  if(DR<chargeIsolationCone_)
+	    hadrons.push_back(tau.pfTauTagInfoRef()->PFChargedHadrCands().at(i));
+	}
 
-	for(unsigned int i=0;i<allgammas.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allgammas.at(i)->p4())<gammaIsolationCone_)
-	    gammas.push_back(allgammas.at(i));
+	for(unsigned int i=0;i<tau.pfTauTagInfoRef()->PFGammaCands().size();++i) {
+	  double DR = ROOT::Math::VectorUtil::DeltaR(tau.p4(),tau.pfTauTagInfoRef()->PFGammaCands().at(i)->p4());
+	  
+	  if(DR<gammaIsolationCone_)
+	    gammas.push_back(tau.pfTauTagInfoRef()->PFGammaCands().at(i));
+	}
+	for(unsigned int i=0;i<tau.pfTauTagInfoRef()->PFNeutrHadrCands().size();++i) {
+	  double DR = ROOT::Math::VectorUtil::DeltaR(tau.p4(),tau.pfTauTagInfoRef()->PFNeutrHadrCands().at(i)->p4());
+	  if(DR <neutrHadrIsolationCone_)
+	    neutral.push_back(tau.pfTauTagInfoRef()->PFNeutrHadrCands().at(i));
+	}
 
-	for(unsigned int i=0;i<allneutral.size();++i)
-	  if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),allneutral.at(i)->p4())<neutrHadrIsolationCone_)
-	    neutral.push_back(allneutral.at(i));
       }
-
 
     //remove the signal Constituents from the collections
     for(PFCandidateRefVector::const_iterator i=tau.signalPFChargedHadrCands().begin();i!=tau.signalPFChargedHadrCands().end();++i)

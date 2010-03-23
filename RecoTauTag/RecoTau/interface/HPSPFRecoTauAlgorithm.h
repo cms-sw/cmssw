@@ -59,8 +59,6 @@ class HPSPFRecoTauAlgorithm : public PFRecoTauAlgorithmBase
   //Apply electron Rejection
   void applyElectronRejection(reco::PFTau&,double);
 
-
-
   //Method to create a candidate from the merged EM Candidates vector;
   math::XYZTLorentzVector createMergedLorentzVector(const reco::PFCandidateRefVector&);
 
