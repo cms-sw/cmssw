@@ -25,6 +25,7 @@ process.source = cms.Source("PoolSource",
 
 # Produce PDF weights (maximum is 3)
 process.pdfWeights = cms.EDProducer("PdfWeightProducer",
+      FixPOWHEG = cms.untracked.bool(False), # fix POWHEG (it requires cteq6m* PDFs in the list)
       PdfInfoTag = cms.untracked.InputTag("generator"),
       PdfSetNames = cms.untracked.vstring(
               "cteq65.LHgrid"
