@@ -89,8 +89,11 @@ private:
   std::map<unsigned,const SimpleHistogramGenerator*> theXHistos;
   std::map<unsigned,const SimpleHistogramGenerator*> theYHistos;
 
-  TFile* thePixelResolutionFile;
-  std::string thePixelResolutionFileName;
+  TFile* thePixelResolutionFile1;
+  std::string thePixelResolutionFileName1;
+  //Splite the resolution histograms for cvs uploading
+  TFile* thePixelResolutionFile2;
+  std::string thePixelResolutionFileName2;
 
   unsigned int theLayer;
   // output
