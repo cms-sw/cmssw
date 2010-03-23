@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.7 2008/12/18 04:53:07 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.8 2010/03/23 18:02:43 chrjones Exp $
 //
 
 // system include files
@@ -47,9 +47,6 @@ namespace edm {
       }
 private:
       virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
-      /**This does not take ownership of the argument, so it is up to the caller to be
-         sure that the object lifetime is greater than the time for which it is set*/
-      static EDProductGetter const* set(EDProductGetter const*);
       // ---------- member data --------------------------------
       
    };
