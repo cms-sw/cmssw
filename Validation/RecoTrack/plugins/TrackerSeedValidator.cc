@@ -1,3 +1,4 @@
+/*
 #include "Validation/RecoTrack/interface/TrackerSeedValidator.h"
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 
@@ -459,7 +460,7 @@ void TrackerSeedValidator::endRun(edm::Run const&, edm::EventSetup const&) {
   }
   if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
-
+*/
 
 
 

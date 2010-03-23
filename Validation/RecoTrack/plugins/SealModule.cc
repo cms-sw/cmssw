@@ -2,14 +2,20 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
+#include "Validation/RecoTrack/interface/MTVHistoProducerAlgoFactory.h"
+#include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
+
 #include "Validation/RecoTrack/interface/TrackerSeedValidator.h"
 #include "Validation/RecoTrack/interface/SiStripTrackingRecHitsValid.h"
 #include "Validation/RecoTrack/interface/SiPixelTrackingRecHitsValid.h"
 
 DEFINE_FWK_MODULE(MultiTrackValidator);
-DEFINE_FWK_MODULE(TrackerSeedValidator);
+//DEFINE_FWK_MODULE(TrackerSeedValidator);
 DEFINE_FWK_MODULE(SiStripTrackingRecHitsValid);
 DEFINE_FWK_MODULE(SiPixelTrackingRecHitsValid);
+
+DEFINE_EDM_PLUGIN(MTVHistoProducerAlgoFactory, MTVHistoProducerAlgoForTracker,  "MTVHistoProducerAlgoForTracker");
+
 
 // #include "Validation/RecoTrack/interface/RecoTrackSelector.h"
 // #include "Validation/RecoTrack/interface/TrackEfficiencySelector.h"
