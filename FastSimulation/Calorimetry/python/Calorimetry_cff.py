@@ -21,7 +21,6 @@ FamosCalorimetryBlock = cms.PSet(
             # change globally the Moliere radius 
             RadiusFactor = cms.double(1.096),
             RadiusFactorBehindPreshower = cms.double(1.26),
-            Debug = cms.untracked.bool(False),
             #SpotFraction < 0 <=> deactivated. In the case, CoreIntervals and 
             #TailIntervals are used   
             SpotFraction = cms.double(-1.0),
@@ -43,6 +42,8 @@ FamosCalorimetryBlock = cms.PSet(
             HCAL_PiOverE = cms.double(0.2)
         ),
         UnfoldedMode = cms.untracked.bool(False),
+        Debug = cms.untracked.bool(False),
+        EvtsToDebug = cms.untracked.vuint32(487),
         HCAL = cms.PSet(
             SimMethod = cms.int32(0), ## 0 - use HDShower, 1 - use HDRShower, 2 - GFLASH
             GridSize = cms.int32(7),

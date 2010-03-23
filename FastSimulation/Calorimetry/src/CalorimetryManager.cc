@@ -1236,13 +1236,14 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
 void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
 
   edm::ParameterSet ECALparameters = fastCalo.getParameter<edm::ParameterSet>("ECAL");
+
+  evtsToDebug_ = fastCalo.getUntrackedParameter<std::vector<unsigned int> >("EvtsToDebug",std::vector<unsigned>());
+  debug_ = fastCalo.getUntrackedParameter<bool>("Debug");
+
   gridSize_ = ECALparameters.getParameter<int>("GridSize");
   spotFraction_ = ECALparameters.getParameter<double>("SpotFraction");
   pulledPadSurvivalProbability_ = ECALparameters.getParameter<double>("FrontLeakageProbability");
   crackPadSurvivalProbability_ = ECALparameters.getParameter<double>("GapLossProbability");
-  debug_ = ECALparameters.getUntrackedParameter<bool>("Debug");
-  evtsToDebug_ = ECALparameters.getUntrackedParameter<std::vector<unsigned int> >("EvtsToDebug",std::vector<unsigned>());
-
   theCoreIntervals_ = ECALparameters.getParameter<std::vector<double> >("CoreIntervals");
   theTailIntervals_ = ECALparameters.getParameter<std::vector<double> >("TailIntervals");
   
