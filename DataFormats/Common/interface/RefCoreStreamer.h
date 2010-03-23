@@ -13,8 +13,10 @@ namespace edm {
   public:
     explicit RefCoreStreamer(EDProductGetter const* ep) : cl_("edm::RefCore"), prodGetter_(ep) {}
 
-    void setProductGetter(EDProductGetter const* ep) {
+    EDProductGetter const* setProductGetter(EDProductGetter const* ep) {
+        EDProductGetter const* old = prodGetter_;
 	prodGetter_ = ep;
+        return old;
     }
     void operator() (TBuffer &R__b, void *objp);
 
@@ -27,8 +29,10 @@ namespace edm {
   public:
     explicit RefCoreTransientStreamer(EDProductGetter const* ep) : cl_("edm::RefCore::RefCoreTransients"), prodGetter_(ep) {}
 
-    void setProductGetter(EDProductGetter const* ep) {
+    EDProductGetter const* setProductGetter(EDProductGetter const* ep) {
+        EDProductGetter const* old = prodGetter_;
 	prodGetter_ = ep;
+        return old;
     }
     void operator() (TBuffer &R__b, void *objp);
 
@@ -56,6 +60,6 @@ namespace edm {
   };
 
   void setRefCoreStreamer(bool resetAll = false);
-  void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat = false, bool productIDwasLong = false);
+  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat = false, bool productIDwasLong = false);
 } 
 #endif

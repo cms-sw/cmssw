@@ -82,7 +82,8 @@ namespace edm {
     }
   }
 
-  void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat, bool productIDwasLong) {
+  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat, bool productIDwasLong) {
+    EDProductGetter const* returnValue=0;
     if (ep != 0) {
       if (oldFormat) {
         TClass *cl = gROOT->GetClass("edm::RefCore");
@@ -90,7 +91,7 @@ namespace edm {
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreStreamer(ep));
         } else {
-          st->setProductGetter(ep);
+          returnValue = st->setProductGetter(ep);
         }
       } else {
         TClass *cl = gROOT->GetClass("edm::RefCore::RefCoreTransients");
@@ -98,7 +99,7 @@ namespace edm {
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreTransientStreamer(ep));
         } else {
-          st->setProductGetter(ep);
+          returnValue = st->setProductGetter(ep);
         }
       }
     }
@@ -111,5 +112,6 @@ namespace edm {
         st->setProductGetter(ep);
       }
     }
+    return returnValue;
   }
 }
