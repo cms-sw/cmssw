@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.6.4.2 2008/12/08 21:39:30 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.7 2008/12/18 04:53:07 wmtan Exp $
 //
 
 // system include files
@@ -39,24 +39,7 @@ namespace edm {
       // ---------- const member functions ---------------------
       virtual EDProduct const* getIt(ProductID const&) const = 0;
       
-      // ---------- static member functions --------------------
-      static EDProductGetter const* instance();
-      
       // ---------- member functions ---------------------------
-
-      ///Helper class to make the EDProductGetter accessible on at the proper times
-      class Operate {
-       public:
-         Operate(EDProductGetter const* iGet) : previous_(EDProductGetter::set(iGet)) {
-         }
-         ~Operate() {
-            EDProductGetter::set(previous_);
-         }
-       private:
-         EDProductGetter const* previous_;
-      };
-      
-      friend class Operate;
 
       ProductID oldToNewProductID(ProductID const& oldProductID) const {
 	if (oldProductID.oldID() == 0) return oldProductID;

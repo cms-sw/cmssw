@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:41 EST 2005
-// $Id: EDProductGetter.cc,v 1.4.4.2 2008/12/06 00:55:56 wmtan Exp $
+// $Id: EDProductGetter.cc,v 1.5 2008/12/18 04:53:08 wmtan Exp $
 //
 
 // system include files
@@ -66,34 +66,6 @@ namespace edm {
   //
   // static member functions
   //
-  
-  namespace {
-     struct Holder {
-        Holder(): held_(0) {}
-        edm::EDProductGetter const* held_;
-     };
-  }
-  EDProductGetter const* 
-  EDProductGetter::set(EDProductGetter const* iGetter)
-  {
-     //NOTE: I use a Holder so that when s_registry goes away it will not delete the last EDProductGetter it saw
-     static boost::thread_specific_ptr<Holder> s_registry;
-     if(0 == s_registry.get()){
-        s_registry.reset(new Holder);
-     }
-     EDProductGetter const* previous = s_registry->held_;
-     s_registry->held_= iGetter;
-     return previous;
-  }
-  
-  EDProductGetter const*
-  EDProductGetter::instance()
-  {
-     EDProductGetter const* returnValue = EDProductGetter::set(0);
-     EDProductGetter::set(returnValue);
-     return returnValue;
-  }
-
   ProductID
   EDProductGetter::oldToNewProductID_(ProductID const&) const {
     throw edm::Exception(errors::LogicError)
