@@ -35,10 +35,10 @@ namespace reco {
   }      
 
   template <typename T> 
-    T deltaPhi (T phi1, T phi2) { 
+    inline T deltaPhi (T phi1, T phi2) { 
     T result = phi1 - phi2;
-    while (result > M_PI) result -= 2*M_PI;
-    while (result <= -M_PI) result += 2*M_PI;
+    while (result > T(M_PI)) result -= T(2*M_PI);
+    while (result <= T(-M_PI)) result += T(2*M_PI);
     return result;
   }
 

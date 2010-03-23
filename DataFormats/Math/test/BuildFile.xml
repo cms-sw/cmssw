@@ -5,7 +5,10 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <use   name="rootmath"/>
+<use   name="DataFormats/Math"/>
 <bin   file="Matrices_t.cpp" name="DataFormatsMatrices_t">
 </bin>
 <bin   file="ProjectMatrix_t.cpp" name="DataFormatsProjectMatrix_t">
+</bin>
+<bin   file="FastMath_t.cpp" name="DataFormatsFastMath_t">
 </bin>
