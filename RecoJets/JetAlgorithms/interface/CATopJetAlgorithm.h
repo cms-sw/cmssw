@@ -34,8 +34,6 @@
 
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
@@ -111,35 +109,15 @@ class CATopJetAlgorithm{
   // Decide if the two jets are in adjacent cells    
   bool adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 
 		     const std::vector<fastjet::PseudoJet> & cell_particles,
-		     const CaloSubdetectorGeometry  * fTowerGeometry,
 		     const fastjet::ClusterSequence & theClusterSequence,
 		     double nCellMin ) const;
 
-  
-  // Get maximum pt tower
-  fastjet::PseudoJet getMaxTower( const fastjet::PseudoJet & jet,
-				  const std::vector<fastjet::PseudoJet> & cell_particles,
-				  const fastjet::ClusterSequence & theClusterSequence
-				  ) const;
 
-
-  // Find the calo tower associated with the jet
-  CaloTowerDetId getCaloTower( const fastjet::PseudoJet & jet,
-			       const std::vector<fastjet::PseudoJet> & cell_particles,
-			       const CaloSubdetectorGeometry  * fTowerGeometry,
-			       const fastjet::ClusterSequence & theClusterSequence ) const;
-
-
-  // Get number of calo towers away that the two calo towers are
-  int getDistance ( CaloTowerDetId const & t1, CaloTowerDetId const & t2, 
-		    const CaloSubdetectorGeometry  * fTowerGeometry ) const;
-    
   // Attempt to break up one "hard" jet into two "soft" jets
 
   bool decomposeJet(const fastjet::PseudoJet & theJet, 
 		    const fastjet::ClusterSequence & theClusterSequence, 
 		    const std::vector<fastjet::PseudoJet> & cell_particles,
-		    const CaloSubdetectorGeometry  * fTowerGeometry,
 		    double ptHard, double nCellMin, double deltarcut,
 		    fastjet::PseudoJet & ja, fastjet::PseudoJet & jb, 
 		    std::vector<fastjet::PseudoJet> & leftovers) const;
