@@ -21,15 +21,8 @@ namespace {
     T rms;
     T amax;
     Stat( std::string in): name(in), n(0),npos(0), bias(0),ave(0),rms(0), amax(0){}
-    void operator()(T x, T ref) {
-      n++;
-      if (x>ref) npos++;
-      T d = (x-ref)/std::abs(ref);
-      bias += d;
-      ave +=std::abs(d);
-      rms +=d*d;
-      amax = std::max(amax,std::abs(d));
-    }
+    void operator()(T x, T ref);
+
     ~Stat() {
       std::cout << name << " "
 		<< n << " " << npos << " " << bias/n << " " << ave/n 
@@ -38,6 +31,18 @@ namespace {
     }
   };
   
+ template<typename T>
+ void Stat::operator()(T x, T ref) {
+      n++;
+      if (x>ref) npos++;
+      T d = (x-ref)/std::abs(ref);
+      bias += d;
+      ave +=std::abs(d);
+      rms +=d*d;
+      amax = std::max(amax,std::abs(d));
+    }
+
+
   volatile double dummy;
   template<typename T> 
   inline T eta(T x, T y, T z) { x = z/std::sqrt(x*x+y*y); return std::log(x+std::sqrt(x*x+T(1)));}
@@ -62,7 +67,8 @@ namespace {
 	      statr(res.second,ref.second);
 	    }
   }
-  
+
+ 
 }
 
 
