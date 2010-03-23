@@ -41,20 +41,24 @@ namespace  fastmath {
     float rinv = invSqrt(mag2);
     unsigned int flags = 0;
     float x, y;
-    float yp = 32768.f;
+    union {
+      float f;
+      int i;
+    } yp;
+    yp.f = 32768.f;
     if (y_ < 0 ) { flags |= 4; y_ = -y_; }
     if (x_ < 0 ) { flags |= 2; x_ = -x_; }
     if (y_ > x_) {
       flags |= 1;
-      yp += (rinv * x_); x = (rinv * y_); y = (rinv * x_);
+      yp.f += (rinv * x_); x = (rinv * y_); y = (rinv * x_);
     }
     else {
-      yp += (rinv * y_); x = (rinv * x_); y = (rinv * y_);
+      yp.f += (rinv * y_); x = (rinv * x_); y = (rinv * y_);
     }
-    int ind = (((int*)(&yp))[0] & 0x01FF) * 2;
+    int ind = (yp.i & 0x01FF) * 2;
     
     float* asbuf = (float*)(atanbuf_ + ind);
-    float sv = yp - 32768.f;
+    float sv = yp.f - 32768.f;
     float cv = asbuf[0];
     float asv = asbuf[1];
     sv = y * cv - x * sv;    // delta sin value
@@ -81,22 +85,26 @@ namespace  fastmath {
     unsigned int flags = 0;
     double x, y;
     const double _2p43 = 65536.0 * 65536.0 * 2048.0;
-    double yp = _2p43;
+    union {
+      double d;
+      int i[2];
+    } yp;
+
+    yp.d = _2p43;
     if (y_ < 0) { flags |= 4; y_ = -y_; }
     if (x_ < 0) { flags |= 2; x_ = -x_; }
     if (y_ > x_) {
       flags |= 1;
-      x = rinv * y_; y = rinv * x_; yp += y; // rinv * x_;
+      x = rinv * y_; y = rinv * x_; yp.d += y;
     }
     else {
-      x = rinv * x_; y = rinv * y_;  yp += y; // rinv * y_;
+      x = rinv * x_; y = rinv * y_;  yp.d += y;
     }
-    // yp +=y;
-    // r_ = rinv * mag2;
-    int ind = (((int*)(&yp))[0] & 0x03FF) * 2;  // 0 for little indian
+
+    int ind = (yp.i[0] & 0x03FF) * 2;  // 0 for little indian
     
     double* dasbuf = (double*)(datanbuf_ + ind);
-    double sv = yp - _2p43; // index fraction
+    double sv = yp.d - _2p43; // index fraction
     double cv = dasbuf[0];
     double asv = dasbuf[1];
     sv = y * cv - x * sv;    // delta sin value
