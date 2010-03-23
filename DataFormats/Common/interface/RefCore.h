@@ -39,7 +39,6 @@ namespace edm {
     bool isAvailable() const;
 
     EDProductGetter const* productGetter() const {
-      if (!transients_.prodGetter_) setProductGetter(EDProductGetter::instance());
       return transients_.prodGetter_;
     }
 
