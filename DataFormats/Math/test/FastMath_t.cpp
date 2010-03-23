@@ -1,7 +1,7 @@
 #include "DataFormats/Math/interface/FastMath.h"
 
 #include<iostream>
-#include <pmmintrin.h>
+// #include <pmmintrin.h>
 
 
 namespace {
@@ -40,7 +40,7 @@ namespace {
   
   volatile double dummy;
   template<typename T> 
-  T eta(T x, T y, T z) const { T x(z/std::sqrt(x*x+y*y); return std::log(x+std::sqrt(x*x+T(1)));}
+  inline T eta(T x, T y, T z) { T x(z/std::sqrt(x*x+y*y); return std::log(x+std::sqrt(x*x+T(1)));}
 
   
   template<typename T> 
@@ -69,7 +69,7 @@ namespace {
 
 
 int main() {
-  _mm_setcsr (_mm_getcsr () | 0x8040);    // on Intel, treat denormals as zero for full speed
+  // _mm_setcsr (_mm_getcsr () | 0x8040);    // on Intel, treat denormals as zero for full speed
   
   {
     std::pair<double, double> res = fastmath::atan2r(-3.,4.);

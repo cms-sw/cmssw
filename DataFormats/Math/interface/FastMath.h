@@ -27,7 +27,7 @@ namespace fastmath_details {
   extern double datanbuf_[513 * 2];
 }
 
-namespace  {
+namespace  fastmath {
 
   // =====================================================================
   // arctan, single-precision; returns phi and r (or 1/r if overR=true)
@@ -107,7 +107,7 @@ namespace  {
     if (flags & 1) { th = (_2pi / 4) - th; }
     if (flags & 2) { th = (_2pi / 2) - th; }
     if (flags & 4) { th = -th; }
-    return std::pair<float,float>(th,overR ? rinv : r);    
+    return std::pair<float,float>(th,overR ? rinv : r_);    
   }
  
   // return eta phi saving some computation
