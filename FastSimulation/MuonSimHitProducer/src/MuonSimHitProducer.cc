@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.28 2010/03/12 11:19:47 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.29 2010/03/21 10:23:49 aperrott Exp $
 //
 //
 
@@ -75,7 +75,10 @@
 //
 // constructors and destructor
 //
-MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig): theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")) {
+MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
+  theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")),
+  propagatorWithoutMaterial(0)
+ {
 
   //
   //  Initialize the random number generator service
