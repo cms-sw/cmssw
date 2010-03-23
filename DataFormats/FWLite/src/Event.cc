@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.42 2010/02/18 20:45:56 ewv Exp $
+// $Id: Event.cc,v 1.43 2010/03/04 02:47:09 dsr Exp $
 //
 
 // system include files
@@ -244,6 +244,24 @@ Event::toBegin()
 //
 // const member functions
 //
+void       Event::draw(Option_t* opt) {
+   GetterOperate op(dataHelper_.getter());
+   branchMap_.getEventTree()->Draw(opt);   
+}
+Long64_t   Event::draw(const char* varexp, const TCut& selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+   GetterOperate op(dataHelper_.getter());
+   return branchMap_.getEventTree()->Draw(varexp,selection,option,nentries,firstentry);
+}
+Long64_t   Event::draw(const char* varexp, const char* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+   GetterOperate op(dataHelper_.getter());
+   return branchMap_.getEventTree()->Draw(varexp,selection,option,nentries,firstentry);
+}
+Long64_t   Event::scan(const char* varexp, const char* selection, Option_t* option, Long64_t nentries, Long64_t firstentry) {
+   GetterOperate op(dataHelper_.getter());
+   return branchMap_.getEventTree()->Scan(varexp,selection,option,nentries,firstentry);
+}
+   
+   
 Long64_t
 Event::size() const
 {
