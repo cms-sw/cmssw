@@ -104,14 +104,20 @@ LumiSummary::isProductEqual(LumiSummary const& next) const {
 	  startorbit_== next.startorbit_ &&
 	  numorbit_==next.numorbit_&&
           l1data_.size() == next.l1data_.size() &&
-          hltdata_.size() == next.hltdata_.size() );
+          hltdata_.size() == next.hltdata_.size() &&
+	  lumiversion_ == next.lumiversion_ );
 }
 
+std::string 
+LumiSummary::lumiVersion()const{
+  return lumiversion_;
+}
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "\nDumping LumiSummary\n\n";
   if(!lumiSummary.isValid()){
     s << " === Invalid Lumi values === \n";
   }
+  s << "  lumiVersion = " << lumiSummary.lumiVersion()  << "\n";
   s << "  avgInsDelLumi = " << lumiSummary.avgInsDelLumi() << "\n";
   s << "  avgInsDelLumiErr = " << lumiSummary.avgInsDelLumiErr() << "\n";
   s << "  lumiSecQual = " << lumiSummary.lumiSecQual() << "\n";

@@ -39,6 +39,7 @@ class LumiSummary {
  public:
     /// default constructor
     LumiSummary():
+      lumiversion_("-1"),
       avginsdellumi_(0.0),
       avginsdellumierr_(0.0),
       lumisecqual_(0),
@@ -60,11 +61,16 @@ class LumiSummary {
                 const std::vector<L1>& l1in,
 		const std::vector<HLT>& hltin,
 		unsigned int startorbit,
-                unsigned int numorbit):
-      avginsdellumi_(avginsdellumi), avginsdellumierr_(avginsdellumierr), 
+                unsigned int numorbit,
+		const std::string& lumiversion):
+      lumiversion_(lumiversion),
+      avginsdellumi_(avginsdellumi), 
+      avginsdellumierr_(avginsdellumierr), 
       lumisecqual_(lumisecqual),
       deadcount_(deadcount), lsnumber_(lsnumber),
-      hltdata_(hltin), l1data_(l1in),startorbit_(startorbit),numorbit_(numorbit){ }
+      hltdata_(hltin), l1data_(l1in),
+      startorbit_(startorbit),numorbit_(numorbit)
+      { }
 
     /// destructor
     ~LumiSummary(){}
@@ -93,14 +99,15 @@ class LumiSummary {
     float avgInsRecLumi() const;
     float avgInsRecLumiErr() const;
     bool isProductEqual(LumiSummary const& next) const;
-
+    std::string lumiVersion()const;
   private :
+    std::string lumiversion_;
     //instant lumi , selected from best algorithm
     float avginsdellumi_;
     //instant lumierror
     float avginsdellumierr_;
     //detector quality flag use HF,HLX    
-    short   lumisecqual_;
+    short lumisecqual_;
     unsigned long long deadcount_;
     int   lsnumber_;
     //contains about 100 - 200 hlt paths
