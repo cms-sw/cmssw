@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2010/03/02 23:08:09 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/03/03 21:28:13 $
+ *  $Revision: 1.17 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -130,10 +130,9 @@ class BeamMonitor : public edm::EDAnalyzer {
   // variables for beam fit
 
   //
-  time_t tmpTime;
-  time_t refTime;
+  std::time_t tmpTime;
+  std::time_t refTime;
   edm::TimeValue_t ftimestamp;
-  edm::TimeValue_t fdenom;
   int lastNZbin; // last non zero bin of time histos
 };
 

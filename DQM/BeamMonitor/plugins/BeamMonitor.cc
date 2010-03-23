@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/17 22:12:12 $
- * $Revision: 1.28 $
+ * $Date: 2010/03/20 13:42:26 $
+ * $Revision: 1.29 $
  *
  */
 
@@ -79,7 +79,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   if (fitNLumi_ <= 0) fitNLumi_ = 1;
   nFits_ = beginLumiOfPVFit_ = endLumiOfPVFit_ = 0;
   maxZ_ = fabs(maxZ_);
-  fdenom = pow(2,32);
+
 }
 
 
@@ -196,7 +196,7 @@ void BeamMonitor::beginJob() {
   h_sigmaZ0_lumi->getTH1()->SetOption("E1");
 
   h_sigmaZ0_time = dbe_->book1D("sigmaZ0_time","sigma z_{0} of beam spot vs time (Fit)",intervalInSec_,0.5,intervalInSec_+0.5);
-  h_sigmaZ0_time->setAxisTitle("Time",1);
+  h_sigmaZ0_time->setAxisTitle("Time [UTC]",1);
   h_sigmaZ0_time->setAxisTitle("sigma z_{0} (cm)",2);
   h_sigmaZ0_time->getTH1()->SetOption("E1");
   h_sigmaZ0_time->setAxisTimeDisplay(1);
@@ -357,7 +357,7 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
   if (debug_) cout << "Lumi: " << countLumi_ << endl;
 
   ftimestamp = lumiSeg.beginTime().value();
-  tmpTime = ftimestamp / fdenom;
+  tmpTime = ftimestamp >> 32;
   if (countLumi_ == 1) {
     refTime =  tmpTime;
     char* eventTime = formatTime(tmpTime);
@@ -452,7 +452,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 				     const EventSetup& iSetup) {
 
   ftimestamp = lumiSeg.endTime().value();
-  tmpTime = ftimestamp / fdenom;
+  tmpTime = ftimestamp >> 32;
   if (debug_) std::cout << "Time lapsed since last LS = " << tmpTime - refTime << std:: endl;
 
   if (testScroll(tmpTime,refTime)) {
