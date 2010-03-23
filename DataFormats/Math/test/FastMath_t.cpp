@@ -32,7 +32,7 @@ namespace {
   };
   
  template<typename T>
- void Stat::operator()(T x, T ref) {
+ void Stat<T>::operator()(T x, T ref) {
       n++;
       if (x>ref) npos++;
       T d = (x-ref)/std::abs(ref);
