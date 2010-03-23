@@ -8,10 +8,11 @@
 # include <emmintrin.h>
 namespace fastmath {
   inline float invSqrt( float in ) {
+    // return 1.f/std::sqrt(in);
     float out;
     _mm_store_ss( &out, _mm_rsqrt_ss( _mm_load_ss( &in ) ) ); // compiles to movss, rsqrtss, movss
     // return out; // already good enough!
-    return out * (1.5f - 0.5f * in * out * out); // One (more?) round of Newton's method 
+    return out * (1.5f - 0.5f * in * out * out); // One (more?) round of Newton's method
   }
 
   inline double invSqrt(double in ) {
