@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.23 2010/03/22 19:15:49 case Exp $
+// $Id: DumpGeom.cc,v 1.24 2010/03/22 20:08:19 case Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -100,13 +101,14 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 #include "TTree.h"
+#include "TError.h"
 
 //
 // class decleration
 //
 
-class DumpGeom : public edm::EDAnalyzer {
-
+class DumpGeom : public edm::EDAnalyzer
+{
    public:
       explicit DumpGeom(const edm::ParameterSet&);
       ~DumpGeom();
@@ -122,17 +124,20 @@ class DumpGeom : public edm::EDAnalyzer {
 			     const DDSolid& iSolid);
       TGeoVolume* createVolume(const std::string& iName,
 			       const DDSolid& iSolid,
-			       TGeoMedium* iMed);
+			       const DDMaterial& iMaterial);
+
+   TGeoMaterial* createMaterial(const DDMaterial& iMaterial);
+
       void mapDTGeometry(const DDCompactView& cview,
 			 const MuonDDDConstants& muonConstants);
       void mapCSCGeometry(const DDCompactView& cview,
-			 const MuonDDDConstants& muonConstants);
+			  const MuonDDDConstants& muonConstants);
       void mapTrackerGeometry(const DDCompactView& cview,
 			      const GeometricDet& gd);
       void mapEcalGeometry(const DDCompactView& cview,
-			      const CaloGeometry& cg);
+                           const CaloGeometry& cg);
       void mapRPCGeometry(const DDCompactView& cview,
-			 const MuonDDDConstants& muonConstants);
+                          const MuonDDDConstants& muonConstants);
 
       // ----------member data ---------------------------
       int level_;
@@ -163,9 +168,11 @@ class DumpGeom : public edm::EDAnalyzer {
 	}
       };
 
-      std::map<std::string, TGeoShape*> nameToShape_;
-      std::map<std::string, TGeoVolume*> nameToVolume_;
-      std::map<unsigned int, Info> idToName_;
+      std::map<std::string, TGeoShape*>    nameToShape_;
+      std::map<std::string, TGeoVolume*>   nameToVolume_;
+      std::map<std::string, TGeoMaterial*> nameToMaterial_;
+      std::map<std::string, TGeoMedium*>   nameToMedium_;
+      std::map<unsigned int, Info>         idToName_;
 };
 
 //
@@ -452,20 +459,62 @@ DumpGeom::createShape(const std::string& iName,
 TGeoVolume* 
 DumpGeom::createVolume(const std::string& iName,
 		       const DDSolid& iSolid,
-		       TGeoMedium* iMed) {
+		       const DDMaterial& iMaterial)
+{
    TGeoVolume* v=nameToVolume_[iName];
    if( 0==v) {
    
       TGeoShape* solid = createShape(iSolid.name().fullname(),
 				     iSolid);
-      if (solid) {
+      std::string mat_name = iMaterial.name().fullname();
+      TGeoMedium *geo_med  = nameToMedium_[mat_name];
+      if (geo_med == 0)
+      {
+         TGeoMaterial *geo_mat = createMaterial(iMaterial);
+         geo_med = new TGeoMedium(mat_name.c_str(), 0, geo_mat);
+         nameToMedium_[mat_name] = geo_med;
+      }
+      if (solid)
+      {
 	 v = new TGeoVolume(iName.c_str(),
 			    solid,
-			    iMed);
+			    geo_med);
       }
       nameToVolume_[iName]=v;
    }
    return v;
+}
+
+TGeoMaterial*
+DumpGeom::createMaterial(const DDMaterial& iMaterial)
+{
+   std::string   mat_name = iMaterial.name().fullname();
+   TGeoMaterial *mat      = nameToMaterial_[mat_name];
+
+   if (mat == 0)
+   {
+      if (iMaterial.noOfConstituents() > 0)
+      {
+         TGeoMixture *mix = new TGeoMixture(mat_name.c_str(),
+                                            iMaterial.noOfConstituents(),
+                                            iMaterial.density()*cm3/g);
+         for (int i = 0; i < iMaterial.noOfConstituents(); ++i)
+         {
+            mix->AddElement(createMaterial(iMaterial.constituent(i).first),
+                            iMaterial.constituent(i).second);
+         }
+         mat = mix;
+      }
+      else
+      {
+         mat = new TGeoMaterial(mat_name.c_str(),
+                                iMaterial.a()*mole/g, iMaterial.z(),
+                                iMaterial.density()*cm3/g);
+      }
+      nameToMaterial_[mat_name] = mat;
+   }
+
+   return mat;
 }
 
 void DumpGeom::mapDTGeometry(const DDCompactView& cview,
@@ -1061,10 +1110,6 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gGeoIdentity = new TGeoIdentity("Identity");
    }
 
-   //Who owns this stuff?
-   TGeoMaterial* matVacuum = new TGeoMaterial("Vacuum");
-   TGeoMedium* vacuum = new TGeoMedium("Vacuum",1,matVacuum);
-
    std::cout << "about to initialize the DDCompactView walker" << std::endl;
    DDCompactView::walker_type walker(viewH->graph());
    DDCompactView::walker_type::value_type info = 
@@ -1074,7 +1119,8 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    walker.firstChild();
 
    TGeoVolume* top = createVolume(info.first.name().fullname(),
-				  info.first.solid(),vacuum);
+				  info.first.solid(),
+                                  info.first.material());
 
    if(0==top) {
       return;
@@ -1090,7 +1136,12 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( not walker.firstChild() ) {
       return;
    }
-   
+
+   // Matevz, 23.3.2010
+   // This is needed to avoid errors from TGeo to cause process termination.
+   // The root patch will be submitted for integration in 3.6.0-pre4.
+   ErrorHandlerFunc_t old_eh = SetErrorHandler(DefaultErrorHandler);
+
    do {
       DDCompactView::walker_type::value_type info = 
 	 walker.current();
@@ -1105,7 +1156,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool childAlreadyExists = (0 != nameToVolume_[info.first.name().fullname()]);
       TGeoVolume* child = createVolume(info.first.name().fullname(),
 				       info.first.solid(),
-				       vacuum);
+				       info.first.material());
       if(0!=child && info.second != 0) {
 	 parentStack.back()->AddNode(child,
 				 info.second->copyno_,
@@ -1145,6 +1196,9 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
       }
    } while(not parentStack.empty());
+
+   // MT -- goes with the above work-around.
+   SetErrorHandler(old_eh);
 
    geom->CloseGeometry();
    std::cout << "In the DumpGeom::analyze method...done with main geometry" << std::endl;
@@ -1211,7 +1265,6 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    f.Close();
    // geom->Export(s2.str().c_str());
 }
-
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
