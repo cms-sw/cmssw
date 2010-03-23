@@ -159,7 +159,14 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     HitFindingProbability_TOB4 = cms.double(1.0),
     TOB4y = cms.double(5.2836), ## 2*9.1514/sqrt(12.)
 
-    HitFindingProbability_PXF = cms.double(1.0)
-)
+    HitFindingProbability_PXF = cms.double(1.0),
 
+    templateIdBarrel = cms.int32( 20 ),
+    templateIdForward  = cms.int32( 21 ),
+    NewPixelForwardResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionForward38T.root'),
+    NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
+    NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root')
+
+
+)
 
