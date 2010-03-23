@@ -11,15 +11,15 @@ class CBin : public TObject {
    CBin(){;}
    ~CBin(){;}
 
-   double bin_edge;
-   double n_part_mean;
-   double n_part_var;
-   double n_coll_mean;
-   double n_coll_var;
-   double n_hard_mean;
-   double n_hard_var;
-   double b_mean;
-   double b_var;
+   float bin_edge;
+   float n_part_mean;
+   float n_part_var;
+   float n_coll_mean;
+   float n_coll_var;
+   float n_hard_mean;
+   float n_hard_var;
+   float b_mean;
+   float b_var;
    ClassDef(CBin,1)
 };
 
@@ -39,24 +39,24 @@ class CentralityBins : public TNamed {
       ~CentralityBins() {;}
       int getBin(double value) const;
       int getNbins() const {return table_.size();}
-      double lowEdge(double value) const { return lowEdgeOfBin(getBin(value));}
-      double lowEdgeOfBin(int bin) const { return table_[bin].bin_edge;}
-      double NpartMean(double value) const { return NpartMeanOfBin(getBin(value));}
-      double NpartMeanOfBin(int bin) const { return table_[bin].n_part_mean;}
-      double NpartSigma(double value) const { return NpartSigmaOfBin(getBin(value));}
-      double NpartSigmaOfBin(int bin) const { return table_[bin].n_part_var;}
-      double NcollMean(double value) const { return NcollMeanOfBin(getBin(value));}
-      double NcollMeanOfBin(int bin) const { return table_[bin].n_coll_mean;}
-      double NcollSigma(double value) const { return NcollSigmaOfBin(getBin(value));}
-      double NcollSigmaOfBin(int bin) const { return table_[bin].n_coll_var;}
-      double NhardMean(double value) const { return NhardMeanOfBin(getBin(value));}
-      double NhardMeanOfBin(int bin) const { return table_[bin].n_hard_mean;}
-      double NhardSigma(double value) const { return NhardSigmaOfBin(getBin(value));}
-      double NhardSigmaOfBin(int bin) const { return table_[bin].n_hard_var;}
-      double bMean(double value) const { return bMeanOfBin(getBin(value));}
-      double bMeanOfBin(int bin) const { return table_[bin].b_mean;}
-      double bSigma(double value) const { return bSigmaOfBin(getBin(value));}
-      double bSigmaOfBin(int bin) const { return table_[bin].b_var;}
+      float lowEdge(double value) const { return lowEdgeOfBin(getBin(value));}
+      float lowEdgeOfBin(int bin) const { return table_[bin].bin_edge;}
+      float NpartMean(double value) const { return NpartMeanOfBin(getBin(value));}
+      float NpartMeanOfBin(int bin) const { return table_[bin].n_part_mean;}
+      float NpartSigma(double value) const { return NpartSigmaOfBin(getBin(value));}
+      float NpartSigmaOfBin(int bin) const { return table_[bin].n_part_var;}
+      float NcollMean(double value) const { return NcollMeanOfBin(getBin(value));}
+      float NcollMeanOfBin(int bin) const { return table_[bin].n_coll_mean;}
+      float NcollSigma(double value) const { return NcollSigmaOfBin(getBin(value));}
+      float NcollSigmaOfBin(int bin) const { return table_[bin].n_coll_var;}
+      float NhardMean(double value) const { return NhardMeanOfBin(getBin(value));}
+      float NhardMeanOfBin(int bin) const { return table_[bin].n_hard_mean;}
+      float NhardSigma(double value) const { return NhardSigmaOfBin(getBin(value));}
+      float NhardSigmaOfBin(int bin) const { return table_[bin].n_hard_var;}
+      float bMean(double value) const { return bMeanOfBin(getBin(value));}
+      float bMeanOfBin(int bin) const { return table_[bin].b_mean;}
+      float bSigma(double value) const { return bSigmaOfBin(getBin(value));}
+      float bSigmaOfBin(int bin) const { return table_[bin].b_var;}
 
       // private:
       std::vector<CBin> table_;
