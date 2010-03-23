@@ -1,6 +1,6 @@
 <use name=DataFormats/Provenance>
 <use name=DataFormats/FWLite>
-<use rootcore>
+<use name=rootcore>
 <export>
   <lib name=PhysicsToolsCondLiteIO>
 </export>
