@@ -4,11 +4,11 @@ process = cms.Process("TkVal")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### standard includes
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 ### conditions
