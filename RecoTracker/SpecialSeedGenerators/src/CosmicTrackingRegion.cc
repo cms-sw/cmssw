@@ -80,29 +80,28 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
     << "The state used to find measurement with the measurement tracker is:\n" << tsos;
 
   //propagator
-  //StraightLinePropagator prop( magField, alongMomentum);
   AnalyticalPropagator prop( magField, alongMomentum);
 
-  //propagation verification
-  //+++++++++++++++++++++++++
+  //propagation verification (debug)
+  //++++++++++++++++++++++++++++++++
 
-  //action
+  //creation of the state
   TrajectoryStateOnSurface stateOnLayer = prop.propagate( *tsos.freeState(),
 							  detLayer->surface());
   
-  //debug
+  //verification of the state
   if (stateOnLayer.isValid()){
     LogDebug("CosmicTrackingRegion") << "The initial state propagates to the layer surface: \n" << stateOnLayer
-    << "R   = " << stateOnLayer.globalPosition().perp() << "\n"
-    << "Eta = " << stateOnLayer.globalPosition().eta() << "\n"
-    << "Phi = " << stateOnLayer.globalPosition().phi();
+				     << "R   = " << stateOnLayer.globalPosition().perp() << "\n"
+				     << "Eta = " << stateOnLayer.globalPosition().eta() << "\n"
+				     << "Phi = " << stateOnLayer.globalPosition().phi();
 
   }
   else{
     LogDebug("CosmicTrackingRegion") << "The initial state does not propagate to the layer surface.";
   }
 
-  
+  //number of compatible dets
   typedef DetLayer::DetWithState DetWithState;
   vector<DetWithState> compatDets = detLayer->compatibleDets(tsos, prop, est);
   LogDebug("CosmicTrackingRegion") << "Compatible dets = " << compatDets.size();
@@ -123,12 +122,15 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
 
   //trajectory measurement
   typedef vector<TrajectoryMeasurement>::const_iterator IM;
+
   for (IM im = meas.begin(); im != meas.end(); im++) {//loop on measurement tracker
     TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
+
     if (ptrHit->isValid()) { 
       LogDebug("CosmicTrackingRegion") << "Hit found in the region at position: "<<ptrHit->globalPosition();
-	result.push_back(  ptrHit );
+      result.push_back(  ptrHit );
     }//end if isValid()
+
     else LogDebug("CosmicTrackingRegion") << "No valid hit";
   }//end loop on measurement tracker
 
