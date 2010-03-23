@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/03/18 15:11:39 $
-//  $Revision: 1.74 $
+//  $Date: 2010/03/22 18:34:48 $
+//  $Revision: 1.75 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -936,7 +936,10 @@ void MuScleFit::fillComparisonHistograms( const reco::Particle::LorentzVector & 
   mapHisto_["hResolEta"+name]->Fill(recMu, (-genMu.Eta()+recMu.Eta()),charge);
   mapHisto_["hResolPhi"+name]->Fill(recMu, MuScleFitUtils::deltaPhiNoFabs(recMu.Phi(), genMu.Phi()), charge);
 
-  mapHisto_["hPtRecoVsPt"+inputName]->Fill(genMu.Pt(), recMu.Pt());
+  // Fill only if it was matched to a genMu and this muon is valid
+  if( (genMu.Pt() != 0) && (recMu.Pt() != 0) ) {
+    mapHisto_["hPtRecoVsPt"+inputName]->Fill(genMu.Pt(), recMu.Pt());
+  }
 }
 
 void MuScleFit::applySmearing( reco::Particle::LorentzVector & mu )
