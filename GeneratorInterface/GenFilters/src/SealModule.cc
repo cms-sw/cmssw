@@ -33,9 +33,10 @@
 #include "GeneratorInterface/GenFilters/interface/ComphepSingletopFilter.h"
 #include "GeneratorInterface/GenFilters/interface/STFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterTTBar.h"
+#include "GeneratorInterface/GenFilters/interface/LQGenFilter.h"
 
 
-
+  DEFINE_FWK_MODULE(LQGenFilter);
   DEFINE_FWK_MODULE(PythiaFilter);
   DEFINE_FWK_MODULE(PythiaDauFilter);
   DEFINE_FWK_MODULE(PythiaFilterGammaJet);
