@@ -3,6 +3,7 @@
 // faster function will a limited precision
 
 #include<cmath>
+#include<utility>
 
 # include <emmintrin.h>
 namespace fastmath {
@@ -14,7 +15,7 @@ namespace fastmath {
   }
 
   inline double invSqrt(double in ) {
-    return 1./std::sqrt(x);
+    return 1./std::sqrt(in);
   }
   
 }

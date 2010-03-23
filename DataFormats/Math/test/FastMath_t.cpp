@@ -55,7 +55,7 @@ namespace {
 	    for (int j=0;j!=8; ++j) {
 	      T xx = x*fac[i];
 	      T yy = y*fac[j];
-	      std::pair<T,T> res = atan2r(xx,yy);
+	      std::pair<T,T> res = fastmath::atan2r(xx,yy);
 	      for (int l=0; l<i+j; ++l) dummy+=yy; // add a bit of random instruction
 	      std::pair<T,T> ref = stdatan2r(xx,yy);
 	      stata(res.first,ref.first);
