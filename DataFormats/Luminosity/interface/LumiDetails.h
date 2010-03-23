@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007>
- * $Id: LumiDetails.h,v 1.7 2010/03/22 18:58:08 xiezhen Exp $
+ * $Id: LumiDetails.h,v 1.8 2010/03/23 15:02:09 xiezhen Exp $
  *
  ************************************************************/
  
@@ -28,7 +28,8 @@ class LumiDetails {
   /// default constructor
   LumiDetails();
   explicit LumiDetails(const std::string& lumiversion);
-  
+  ///
+  void setLumiVersion(const std::string& lumiversion);
   /// 
   void swapValueData(std::map<std::string,std::vector<float> >& data);
   ///

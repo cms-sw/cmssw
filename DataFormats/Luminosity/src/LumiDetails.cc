@@ -1,5 +1,5 @@
 
-// $Id: LumiDetails.cc,v 1.6 2010/03/22 18:58:09 xiezhen Exp $
+// $Id: LumiDetails.cc,v 1.7 2010/03/23 15:02:14 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 
@@ -15,6 +15,10 @@ LumiDetails::~LumiDetails(){
   m_lumivalueMap.clear();
   m_lumierrorMap.clear();
   m_lumiqualityMap.clear();
+}
+void
+LumiDetails::setLumiVersion(const std::string& lumiversion){
+  m_lumiversion=lumiversion;
 }
 std::string 
 LumiDetails::lumiVersion()const{
