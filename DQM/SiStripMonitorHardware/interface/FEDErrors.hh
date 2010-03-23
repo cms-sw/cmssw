@@ -144,8 +144,9 @@ public:
 		     const unsigned int aPrintDebug,
 		     unsigned int & aCounterMonitoring,
 		     unsigned int & aCounterUnpacker,
-		     std::vector<uint16_t> & aMedians,
-		     const bool aDoMeds
+		     const bool aDoMeds,
+		     MonitorElement *aMedianHist0,
+		     MonitorElement *aMedianHist1
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
@@ -155,8 +156,9 @@ public:
 			 const unsigned int aPrintDebug,
 			 unsigned int & aCounterMonitoring,
 			 unsigned int & aCounterUnpacker,
-			 std::vector<uint16_t> & aMedians,
-			 const bool aDoMeds
+			 const bool aDoMeds,
+			 MonitorElement *aMedianHist0,
+			 MonitorElement *aMedianHist1
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer

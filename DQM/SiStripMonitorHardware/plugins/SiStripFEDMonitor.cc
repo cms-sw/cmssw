@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.32 2010/03/18 19:06:09 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.33 2010/03/23 13:13:05 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -207,16 +207,14 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
  
     //check for problems and fill detailed histograms
-    std::vector<uint16_t> lMedians;
-    bool lDoMeds = fedHists_.cmHistosEnabled();
-
     lFedErrors.fillFEDErrors(fedData,
 			     lFullDebug,
 			     printDebug_,
 			     lNChannelMonitoring,
 			     lNChannelUnpacker,
-			     lMedians,
-			     lDoMeds
+			     fedHists_.cmHistosEnabled(),
+			     fedHists_.cmHistPointer(false),
+			     fedHists_.cmHistPointer(true)
 			     );
 
     //check filled in previous method.
@@ -228,16 +226,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
     bool lFailMonitoringFEDcheck = lFedErrors.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
-
-    //fill CM histograms
-    if (lDoMeds && !lFailMonitoringFEDcheck) {
-
-      //get CM values
-      for (unsigned int iCh(0); iCh < static_cast<unsigned int>(lMedians.size()/2.); iCh++){
-	fedHists_.fillCMHistograms(lMedians.at(2*iCh),lMedians.at(2*iCh+1));
-
-      }
-    }//valid to fill medians
 
 
     //sanity check: if something changed in the unpacking code 

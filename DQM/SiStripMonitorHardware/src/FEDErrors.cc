@@ -288,8 +288,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 			      const unsigned int aPrintDebug,
 			      unsigned int & aCounterMonitoring,
 			      unsigned int & aCounterUnpacker,
-			      std::vector<uint16_t> & aMedians,
-			      const bool aDoMeds
+			      const bool aDoMeds,
+			      MonitorElement *aMedianHist0,
+			      MonitorElement *aMedianHist1
 			      )
 {
   //try to construct the basic buffer object (do not check payload)
@@ -332,8 +333,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 		      aPrintDebug,
 		      aCounterMonitoring,
 		      aCounterUnpacker,
-		      aMedians,
-		      aDoMeds
+		      aDoMeds,
+		      aMedianHist0,
+		      aMedianHist1
 		      );
 
   }
@@ -352,12 +354,12 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
         debugStream << "[FEDErrors] Cabled channels which had errors: ";
 	
         for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
-          print(lChVec.at(iBadCh),debugStream);
+          print(lChVec[iBadCh],debugStream);
         }
         debugStream << std::endl;
         debugStream << "[FEDErrors] Active (have been locked in at least one event) cabled channels which had errors: ";
 	for (unsigned int iBadCh(0); iBadCh < lChVec.size(); iBadCh++) {
-          if ((lChVec.at(iBadCh)).IsActive) print(lChVec.at(iBadCh),debugStream);
+          if ((lChVec[iBadCh]).IsActive) print(lChVec[iBadCh],debugStream);
         }
 
       }
@@ -505,8 +507,9 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 				  const unsigned int aPrintDebug,
 				  unsigned int & aCounterMonitoring,
 				  unsigned int & aCounterUnpacker,
-				  std::vector<uint16_t> & aMedians,
-				  const bool aDoMeds
+				  const bool aDoMeds,
+				  MonitorElement *aMedianHist0,
+				  MonitorElement *aMedianHist1
 				  )
 {
   bool foundError = false;
@@ -519,8 +522,6 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
   std::ostringstream lMode;
   lMode << aBuffer->readoutMode();
   bool lMedValid = lMode.str().find("Zero suppressed") != lMode.str().npos && lMode.str().find("lite") == lMode.str().npos;
-
-  if (lMedValid && aDoMeds) aMedians.reserve(2*sistrip::FEDCH_PER_FED);
 
   //this method is not called if there was anyFEDerrors(), 
   //so only corruptBuffer+FE check are useful.
@@ -542,10 +543,12 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
     if (!connected_[iCh]) {
       //to fill histo with unconnected channels
       addBadChannel(lChErr);
+      foundError = true;
     }
     else {//if channel connected
       if (!aBuffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT))) {
 	lFailMonitoringChannelCheck = true;
+	foundError = true;
       }
       else {//if FE good
 
@@ -628,11 +631,13 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
       if (lFailUnpackerChannelCheck) aCounterUnpacker++;
     }
 
-    if (lMedValid && !foundError && aDoMeds) {
+    if (lMedValid && !foundError && lPassedMonitoringFEDcheck && aDoMeds) {
       //get CM values
       const sistrip::FEDChannel & lChannel = aBuffer->channel(iCh);
-      aMedians.push_back(lChannel.cmMedian(0));
-      aMedians.push_back(lChannel.cmMedian(1));
+      HistogramBase::fillHistogram(aMedianHist0,
+				   lChannel.cmMedian(0));
+      HistogramBase::fillHistogram(aMedianHist1,
+				   lChannel.cmMedian(1));
 
     }
 
@@ -651,6 +656,7 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
   uint16_t nBad = 0;
   uint16_t lPrevTot = 0;
   bool hasBeenProcessed = false;
+  bool lFailFED = failMonitoringFEDCheck();
 
   for (unsigned int iCh = 0; 
        iCh < sistrip::FEDCH_PER_FED; 
@@ -669,9 +675,9 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
     bool isBadFE = false;
     bool isMissingFE = false;
     for (unsigned int badfe(0); badfe<feErrors_.size(); badfe++) {
-      if ((feErrors_.at(badfe)).FeID == feNumber) {
+      if ((feErrors_[badfe]).FeID == feNumber) {
 	isBadFE = true;
-	if ((feErrors_.at(badfe)).Missing) isMissingFE = true;
+	if ((feErrors_[badfe]).Missing) isMissingFE = true;
 	break;
       }
     }
@@ -679,8 +685,8 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
     bool isBadChan = false;
     bool isActiveChan = false;
     for (unsigned int badCh(0); badCh<chErrors_.size(); badCh++) {
-      if (chErrors_.at(badCh).first == iCh) {
-	if (chErrors_.at(badCh).second) isActiveChan = true;
+      if (chErrors_[badCh].first == iCh) {
+	if (chErrors_[badCh].second) isActiveChan = true;
 	isBadChan = true;
 	break;
       }
@@ -702,11 +708,11 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
       hasBeenProcessed = true;
     }
 
-    if (failMonitoringFEDCheck() || isBadFE || isBadChan) {
+    if ( lFailFED || isBadFE || isBadChan) {
       nBad++;
       aNBadChannels++;
       //define as active channel if channel locked AND not from an unlocked FE.
-      if ((isBadChan && isActiveChan) || failMonitoringFEDCheck() || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
+      if ((isBadChan && isActiveChan) || lFailFED || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
     }
 
 

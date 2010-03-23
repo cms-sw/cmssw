@@ -63,7 +63,7 @@ void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsig
 
   for (unsigned iEle(0); iEle<aVec.size(); iEle++){//loop on elements
 
-    CMvalues lVal = aVec.at(iEle);
+    CMvalues lVal = aVec[iEle];
 
     if (lVal.Medians.first >= 1024 || lVal.Medians.second >= 1024) {
       std::cout << "----- WARNING ! New max found: " << lVal.Medians.first << " " << lVal.Medians.second << " " << __FILE__ << " " << __LINE__ << std::endl;
@@ -78,8 +78,8 @@ void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsig
     if (doFed_[aFedId]) {
       fillHistogram(medianAPV1vsAPV0perFED_[aFedId],lVal.Medians.first,lVal.Medians.second);
       fillHistogram(medianAPV0minusAPV1perFED_[aFedId],lVal.Medians.first-lVal.Medians.second);
-      fillHistogram(medianperChannel_[aFedId].at(lVal.ChannelID),lVal.Medians.first);
-      fillHistogram(medianAPV0minusAPV1perChannel_[aFedId].at(lVal.ChannelID),lVal.Medians.first-lVal.Medians.second);
+      fillHistogram(medianperChannel_[aFedId][lVal.ChannelID],lVal.Medians.first);
+      fillHistogram(medianAPV0minusAPV1perChannel_[aFedId][lVal.ChannelID],lVal.Medians.first-lVal.Medians.second);
     }
 
   }//loop on elements
@@ -219,7 +219,7 @@ void CMHistograms::bookChannelsHistograms(unsigned int fedId)
 
   dqm_->setCurrentFolder(fedKey.path());
   
-  for (unsigned int iCh(0); iCh < 96; iCh++){
+  for (unsigned int iCh(0); iCh < sistrip::FEDCH_PER_FED; iCh++){
 
     std::ostringstream lName0,lTitle0,lName1,lTitle1,lName2,lTitle2;
     lName0 << "MedianForFed" << fedId << "Channel" << iCh;

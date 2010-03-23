@@ -168,17 +168,17 @@ void FEDHistograms::fillFEDHistograms(FEDErrors & aFedErr,
 
   std::vector<FEDErrors::FELevelErrors> & lFeVec = aFedErr.getFELevelErrors();
   for (unsigned int iFe(0); iFe<lFeVec.size(); iFe++){
-    fillFEHistograms(lFedId,lFeVec.at(iFe));
+    fillFEHistograms(lFedId,lFeVec[iFe]);
   }
 
   std::vector<FEDErrors::ChannelLevelErrors> & lChVec = aFedErr.getChannelLevelErrors();
   for (unsigned int iCh(0); iCh < lChVec.size(); iCh++){
-    fillChannelsHistograms(lFedId,lChVec.at(iCh),lFullDebug);
+    fillChannelsHistograms(lFedId,lChVec[iCh],lFullDebug);
   }
 
   std::vector<FEDErrors::APVLevelErrors> & lAPVVec = aFedErr.getAPVLevelErrors();
   for (unsigned int iApv(0); iApv < lAPVVec.size(); iApv++){
-    fillAPVsHistograms(lFedId,lAPVVec.at(iApv),lFullDebug);
+    fillAPVsHistograms(lFedId,lAPVVec[iApv],lFullDebug);
   }
 
 
@@ -251,13 +251,11 @@ bool FEDHistograms::cmHistosEnabled() {
   return (histogramConfig_["MedianAPV0"].enabled || histogramConfig_["MedianAPV1"].enabled);
 }
 
-void FEDHistograms::fillCMHistograms(const unsigned int aAPV0,
-				     const unsigned int aAPV1)
+MonitorElement * FEDHistograms::cmHistPointer(bool aApv1)
 {
-  fillHistogram(medianAPV0_,aAPV0);
-  fillHistogram(medianAPV1_,aAPV1);
+  if (!aApv1) return medianAPV0_;
+  else return medianAPV1_;
 }
-
 
 void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 {

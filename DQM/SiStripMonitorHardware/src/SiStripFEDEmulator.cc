@@ -157,7 +157,7 @@ namespace sistrip{
 
       //calculate common mode values
       for (uint32_t iapv(0); iapv<apvs.size(); iapv++){
-	std::vector<uint16_t> lVec = apvs.at(iapv);
+	std::vector<uint16_t> lVec = apvs[iapv];
 
 	std::vector<uint16_t>::iterator mid = lVec.begin() + (lVec.size()/2 - 1);
 	std::nth_element(lVec.begin(), mid, lVec.end());
@@ -259,7 +259,7 @@ namespace sistrip{
 	<< " ===== FEDEmulator::printPedestals =====" << std::endl;
     for (unsigned int i(0); i<pedestals_.size(); i++){
       if (i%32 == 0) aOs << std::endl;
-      aOs << pedestals_.at(i) << " " ;
+      aOs << pedestals_[i] << " " ;
     }
     aOs << "=========================================" << std::endl;
   }
@@ -269,7 +269,7 @@ namespace sistrip{
 	<< " ===== FEDEmulator::printNoises =====" << std::endl;
     for (unsigned int i(0); i<noises_.size(); i++){
       if (i%32 == 0) aOs << std::endl;
-      aOs << noises_.at(i) << " " ;
+      aOs << noises_[i] << " " ;
     }
     aOs << "=========================================" << std::endl;
   }
@@ -279,7 +279,7 @@ namespace sistrip{
 	<< " ===== FEDEmulator::printMedians =====" << std::endl;
     for (unsigned int i(0); i<medians_.size(); i++){
       if (i%32 == 0) aOs << std::endl;
-      aOs << medians_.at(i) << " " ;
+      aOs << medians_[i] << " " ;
     }
     aOs << "=========================================" << std::endl;
   }

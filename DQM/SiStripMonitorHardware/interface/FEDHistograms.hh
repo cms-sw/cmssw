@@ -65,10 +65,6 @@ public:
 
 
   bool cmHistosEnabled();
-  //to be filled for all channels...
-  void fillCMHistograms(const unsigned int aAPV0,
-			const unsigned int aAPV1);
-
 
    //book the top level histograms
   void bookTopLevelHistograms(DQMStore* dqm);
@@ -83,6 +79,8 @@ public:
   std::string tkHistoMapName(unsigned int aIndex=0);
 
   TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
+
+  MonitorElement *cmHistPointer(bool aApv1);
 
 protected:
   
