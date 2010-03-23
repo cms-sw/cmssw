@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.3 2010/03/23 11:24:27 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.4 2010/03/23 16:10:18 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -205,6 +205,7 @@ void LumiProducer::endLuminosityBlock(edm::LuminosityBlock & iLBlock,
     }
     if(s!=0){
       pIn1->setLumiVersion(m_lumiversion);
+      pIn1->setlsnumber(luminum);
       pIn1->setLumiData(instlumi,instlumierror,lumisectionquality);
       pIn1->setOrbitData(startorbit,numorbit);
     }
