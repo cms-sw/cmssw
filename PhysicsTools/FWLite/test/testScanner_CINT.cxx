@@ -20,7 +20,6 @@ void testScanner_CINT() {
     double ce = sc.countEvents();
     std::cout << "Found " << ce << " events." << std::endl;
 
-
     TH1 *heta = sc.draw("eta");
     heta->Sumw2(); heta->Scale(1.0/sc.countEvents());
     c1->Print("eta.png");
@@ -71,12 +70,11 @@ void testScanner_CINT() {
     c1->Print("pt_eta_2d_graph.png");
 
     // Now make dN/deta only for events that have two tracks with |eta|<1, pt > 500 MeV
-    fwlite::ObjectCountSelector<std::vector<reco::Track> > *ntracks;
-    ntracks = new fwlite::ObjectCountSelector<std::vector<reco::Track> >("generalTracks","","", "pt > 0.5 && abs(eta)<1", 2);
-    sc.addEventSelector(ntracks);
+    fwlite::ObjectCountSelector<vector<reco::Track> > ntracks("generalTracks","","", "pt > 0.5 && abs(eta)<1", 2);
+    sc.addEventSelector(&ntracks);
     TH1 *heta2 = sc.draw("eta",5,-2.5,2.5);
     heta2->Sumw2(); heta2->Scale(1.0/sc.countEvents()); heta2->SetLineColor(4);
-    ntracks->setMin(0);
+    ntracks.setMin(0);
     heta = sc.draw("eta","","SAME");
     heta->Sumw2(); heta->Scale(1.0/sc.countEvents());
     c1->Print("eta_twotracks.png");
