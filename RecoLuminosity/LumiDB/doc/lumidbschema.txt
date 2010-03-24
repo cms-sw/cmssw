@@ -25,7 +25,7 @@ columns:
           startorbit(uint32),        NOT NULL
           numorbit(uint32),          NOT NULL 
           lumisectionquality(short)  NOT NULL // use max 3 bits [HLX,HF,BRAN]
-
+	  
 ======
 table 3:  LUMIDETAIL (insert 1 rows per run+lumiLS+lumiversion+algorithm from LUMI_RAW file)
 columns: 
@@ -45,7 +45,7 @@ columns:
                                //lumi section id taken by cmsdaq,count from 1
           bitnum(uint32),       NOT NULL //range : 0-127 algo;128-192 tech
           bitname(string),      NOT NULL
-          count(uint32),        NOT NULL
+          trgcount(uint32),     NOT NULL
           deadtime(uint64),     NOT NULL
           prescale(uint32),     NOT NULL
 

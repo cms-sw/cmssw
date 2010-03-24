@@ -1,20 +1,27 @@
 #!/usr/bin/env python
-VERSION='1.01'
+VERSION='1.02'
 import os,sys
 import coral
 from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeedMapper
 
 class constants(object):
     def __init__(self):
-        self.LUMIUNIT='E27cm^-2'
+        self.LUMIUNIT='e27cm^-2'
         self.NORM=16400
         self.LUMIVERSION='0001'
         self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
+        self.LSLENGTH=0
+        
+def lslengthsec(numorbit,numbx):
+    print numorbit, numbx
+    l=numorbit*numbx*25e-09
+    return l
+
 def deliveredLumiForRun(dbsession,c,runnum):
     #
     #select sum(INSTLUMI) from lumisummary where runnum=124025 and lumiversion='0001';
-    #apply norm factor on the query result 
+    #apply norm factor and ls length in sec on the query result 
     #unit E27cm^-2 
     #
     if c.VERBOSE:
@@ -32,14 +39,17 @@ def deliveredLumiForRun(dbsession,c,runnum):
         queryBind["lumiversion"].setData(c.LUMIVERSION)
         result=coral.AttributeList()
         result.extend("totallumi","float")
+        result.extend("numorbit","unsigned int")
         query.defineOutput(result)
         query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
         cursor=query.execute()
+        #icount=0
         while cursor.next():
-            delivered=cursor.currentRow()['totallumi'].data()*c.NORM
+         #   if icount==0:
+         delivered=cursor.currentRow()['totallumi'].data()*c.NORM*c.LSLENGTH
         del query
         dbsession.transaction().commit()
-        print "Delivered Luminosity for Run "+str(runnum)+" (beam "+c.BEAMMODE+"): "+str(delivered)+c.LUMIUNIT
+        print "Delivered Luminosity for Run "+str(runnum)+" (beam "+c.BEAMMODE+"): "+'%.3f'%(delivered)+c.LUMIUNIT
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
@@ -73,6 +83,7 @@ def recordedLumiForRun(dbsession,c,runnum):
     #multiply query result by norm factor, attach unit
     #7.368e-5*16400.0=1.2083520000000001
     recorded=0.0
+    lslength=0
     try:
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
@@ -95,10 +106,10 @@ def recordedLumiForRun(dbsession,c,runnum):
         query.defineOutput(result)
         cursor=query.execute()
         while cursor.next():
-            recorded=cursor.currentRow()["recorded"].data()*c.NORM
+            recorded=cursor.currentRow()["recorded"].data()*c.NORM*c.LSLENGTH
         del query
         dbsession.transaction().commit()
-        print "Recorded Luminosity for Run "+str(runnum)+" : "+str(recorded)+c.LUMIUNIT
+        print "Recorded Luminosity for Run "+str(runnum)+" : "+'%.3f'%(recorded)+c.LUMIUNIT
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
@@ -149,7 +160,7 @@ def recordedLumiForRange(dbsession,c,inputfile):
         del query
         dbsession.transaction().commit()
         for run,recd in  recorded.items():
-            print "Recorded Luminosity for Run "+str(run)+" : "+str(recd*c.NORM)+c.LUMIUNIT
+            print "Recorded Luminosity for Run "+str(run)+" : "+'%.3f'%(recd*c.NORM*c.LSLENGTH)+c.LUMIUNIT
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
@@ -166,7 +177,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         collectedseeds=[]
         filteredbits=[]
         finalhltData={} #{hltpath:(l1bitname,hltprescale)}
-        hltTotrgMap={} #{hltpath:(l1bitname,hltprescale,l1prescale,[(lsnum,l1deadtime)])}
+        hltTotrgMap={} #{hltpath:(l1bitname,hltprescale,l1prescale,[(lsnum,l1deadfrac)])}
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         query=schema.newQuery()
@@ -252,7 +263,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
                 #print myhltpath,myl1bitname,myhltprescale,trgprescale
                 if counter==0:
                     hltTotrgMap[myhltpath]=(myl1bitname,myhltprescale,trgprescale,[])
-                hltTotrgMap[myhltpath][-1].append((trglsnum,trgdeadtime))
+                hltTotrgMap[myhltpath][-1].append((trglsnum,'%.3f'%(25.0e-09*trgdeadtime/c.LSLENGTH)))
                 counter=counter+1
             cursor.close()
             del trgQuery
@@ -280,7 +291,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         query.defineOutput(result)
         cursor=query.execute()
         while cursor.next():
-            recorded=cursor.currentRow()["recorded"].data()*c.NORM
+            recorded=cursor.currentRow()["recorded"].data()*c.NORM*c.LSLENGTH
         del query
         dbsession.transaction().commit()
 
@@ -289,17 +300,17 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         if hltpath=='all':
             for hltname in hltTotrgMap.keys():
                 effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
-                print '    '+hltname+' : '+str(effresult)+c.LUMIUNIT
+                print '    '+hltname+' : '+'%.3f'%(effresult)+c.LUMIUNIT
                 if c.VERBOSE:
-                    print '     ### L1 :'+str(hltTotrgMap[hltname][0])+', HLT Prescale : '+str(hltTotrgMap[hltname][1])+', L1 Prescale : '+str(hltTotrgMap[hltname][2])+', Deadtime : '+str(hltTotrgMap[hltname][3])
+                    print '     ### L1 :'+str(hltTotrgMap[hltname][0])+', HLT Prescale : '+str(hltTotrgMap[hltname][1])+', L1 Prescale : '+str(hltTotrgMap[hltname][2])+', Deadfrac : ',hltTotrgMap[hltname][3]
         else:
             if hltTotrgMap.has_key(hltpath) is False:
                 print 'Unable to calculate effective luminosity for HLTPath ',hltpath
                 return
             effresult=recorded/(hltTotrgMap[hltpath][1]*hltTotrgMap[hltpath][2])
-            print '    '+hltpath+' : '+str(effresult)+c.LUMIUNIT
+            print '    '+hltpath+' : '+'%.3f'%(effresult)+c.LUMIUNIT
             if c.VERBOSE:
-                print '     ### L1 :'+str(hltTotrgMap[hltpath][0])+', HLT Prescale : '+str(hltTotrgMap[hltpath][1])+', L1 Prescale : '+str(hltTotrgMap[hltpath][2])+', Deadtime : '+str(hltTotrgMap[hltpath][3])
+                print '     ### L1 :'+str(hltTotrgMap[hltpath][0])+', HLT Prescale : '+str(hltTotrgMap[hltpath][1])+', L1 Prescale : '+str(hltTotrgMap[hltpath][2])+', Deadfrac : '+str(hltTotrgMap[hltpath][3])
                 
     except Exception,e:
         print str(e)
@@ -347,7 +358,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
             query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
             cursor=query.execute()
             while cursor.next():
-                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()*c.NORM
+                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()*c.NORM*c.LSLENGTH
             del query
             dbsession.transaction().commit()
 
@@ -355,7 +366,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
             collectedseeds=[]
             filteredbits=[]
             finalhltData={} #{hltpath:(l1bitname,hltprescale)}
-            hltTotrgMap={} #{hltpath:(l1bitname,hltprescale,l1prescale,[(lsnum,l1deadtime)])}
+            hltTotrgMap={} #{hltpath:(l1bitname,hltprescale,l1prescale,[(lsnum,l1deadfrac)])}
             dbsession.transaction().start(True)
             schema=dbsession.nominalSchema()
             query=schema.newQuery()
@@ -436,7 +447,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
                     trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
                     if counter==0:
                         hltTotrgMap[myhltpath]=(myl1bitname,myhltprescale,trgprescale,[])
-                    hltTotrgMap[myhltpath][-1].append((trglsnum,trgdeadtime))
+                    hltTotrgMap[myhltpath][-1].append('%.3f'%(trglsnum,25.0e-09*trgdeadtime/c.LSLENGTH))
                     counter=counter+1
                 cursor.close()
                 del trgQuery
@@ -454,7 +465,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
              if hltpath=='all':
                  for hltname in hltTotrgMapAllRuns[run].keys():
                      effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltname][1]*hltTotrgMapAllRuns[run][hltname][2])
-                     print '    '+hltname+' : '+str(effresult)+c.LUMIUNIT
+                     print '    '+hltname+' : ','%.3f'%(effresult)+c.LUMIUNIT
                  if c.VERBOSE:
                      print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltname][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltname][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltname][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltname][3])
              else:
@@ -462,7 +473,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
                      print 'Unable to calculate effective luminosity for HLTPath ',hltpath
                      return
                  effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltpath][1]*hltTotrgMapAllRuns[run][hltpath][2])
-                 print '    '+hltpath+' : '+str(effresult)+c.LUMIUNIT
+                 print '    '+hltpath+' : ','%.3f'%(effresult)+c.LUMIUNIT
                  if c.VERBOSE:
                      print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltpath][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltpath][3])
                 
@@ -519,6 +530,40 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
+    
+    #
+    #one common query on the number of orbits and check if the run is available in db
+    #
+    try:
+        session.transaction().start(True)
+        schema=session.nominalSchema()
+        query=schema.tableHandle(nameDealer.lumisummaryTableName()).newQuery()
+        query.addToOutputList("NUMORBIT","numorbit")
+        queryBind=coral.AttributeList()
+        queryBind.extend("runnum","unsigned int")
+        queryBind.extend("lumiversion","string")
+        queryBind["runnum"].setData(int(runnumber))
+        queryBind["lumiversion"].setData(c.LUMIVERSION)
+        result=coral.AttributeList()
+        result.extend("numorbit","unsigned int")
+        query.defineOutput(result)
+        query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
+        query.limitReturnedRows(1)
+        cursor=query.execute()
+        icount=0
+        while cursor.next():
+            c.LSLENGTH=lslengthsec(cursor.currentRow()['numorbit'].data(),3564)
+            icount=icount+1
+        del query
+        session.transaction().commit()
+        if icount==0:
+            print 'Run ',runnumber,' does not exist in LumiDB, do nothing...'
+            return
+    except Exception,e:
+        print str(e)
+        session.transaction().rollback()
+        del session
+    
     if args.action == 'delivered':
         if runnumber!=0:
             deliveredLumiForRun(session,c,runnumber)
