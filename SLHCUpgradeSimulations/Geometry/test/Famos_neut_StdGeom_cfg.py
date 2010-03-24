@@ -55,8 +55,9 @@ process.famosSimHits.VertexGenerator.type = 'None'
 
 # Just Famos
 process.p0 = cms.Path(process.generator)
-process.p1 = cms.Path(process.offlineBeamSpot)
+#process.p1 = cms.Path(process.offlineBeamSpot)
 process.p2 = cms.Path(process.famosSimHits)
 process.p9 = cms.Path(process.NeutRad)
-process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p9)
+#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p9)
+process.schedule = cms.Schedule(process.p0,process.p2,process.p9)
 
