@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/20 13:42:26 $
- * $Revision: 1.29 $
+ * $Date: 2010/03/23 19:21:26 $
+ * $Revision: 1.30 $
  *
  */
 
@@ -307,7 +307,7 @@ void BeamMonitor::beginJob() {
   if (reportSummary) dbe_->removeElement(reportSummary->getName());
 
   reportSummary = dbe_->bookFloat("reportSummary");
-  if(reportSummary) reportSummary->Fill(-1.);
+  if(reportSummary) reportSummary->Fill(0./0.);
 
   char histo[20];
   dbe_->setCurrentFolder(monitorName_+"EventInfo/reportSummaryContents");
@@ -322,7 +322,7 @@ void BeamMonitor::beginJob() {
 
   for (int i = 0; i < nFitElements_; i++) {
     summaryContent_[i] = 0.;
-    reportSummaryContents[i]->Fill(-1.);
+    reportSummaryContents[i]->Fill(0./0.);
   }
   
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
@@ -571,7 +571,6 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   
   bool doFitting = false;
   if (theBSvector.size() > nthBSTrk_ && theBSvector.size() >= min_Ntrks_) {
-    nFits_++;
     doFitting = true;
   }
 
@@ -606,6 +605,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   if (debug_ && doFitting) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
 
   if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
+  if (doFitting) nFits_++;
 
   if (nthBSTrk_ >= min_Ntrks_) {
     TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.15,3.15);
