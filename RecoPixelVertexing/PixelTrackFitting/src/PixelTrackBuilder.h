@@ -5,6 +5,7 @@
 #include <string>
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 class TrackingRecHit;
 class MagneticField;
 class TrajectoryStateOnSurface;
@@ -21,10 +22,12 @@ public:
       float chi2,                             // chi2 
       int   charge,                           // chi2
       const std::vector<const TrackingRecHit* >& hits,
-      const MagneticField * mf) const;   
+      const MagneticField * mf,
+      const GlobalPoint   & reference = GlobalPoint(0,0,0) // reference point of a track for IP computation 
+  ) const;   
 
 private:
-  std::string print(const reco::Track & track) const; 
+  std::string print(const reco::Track & track, const GlobalPoint & origin) const; 
   std::string print(const TrajectoryStateOnSurface & state) const;
   std::string print( const Measurement1D & pt,
     const Measurement1D & phi,
@@ -34,7 +37,7 @@ private:
     float chi2,
     int   charge) const;
 
-  void checkState(const TrajectoryStateOnSurface & state, const MagneticField* mf) const;
+  void checkState(const TrajectoryStateOnSurface & state, const MagneticField* mf, const GlobalPoint & origin) const;
 
 };
 

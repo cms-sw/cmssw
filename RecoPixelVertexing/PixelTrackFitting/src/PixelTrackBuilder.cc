@@ -30,7 +30,8 @@ reco::Track * PixelTrackBuilder::build(
       float chi2,
       int   charge,
       const std::vector<const TrackingRecHit* >& hits,
-      const MagneticField * mf) const 
+      const MagneticField * mf,
+      const GlobalPoint   & origin) const 
 {
 
   LogDebug("PixelTrackBuilder::build");
@@ -59,14 +60,14 @@ reco::Track * PixelTrackBuilder::build(
     charge);
 
   Surface::RotationType rot(
-      sin(phi.value())*tipSign, -cos(phi.value())*tipSign,             0,
-                     0,                 0,     -1*tipSign,
-      cos(phi.value()),          sin(phi.value()),             0);
-  BoundPlane * impPointPlane = new BoundPlane(GlobalPoint(0.,0.,0.), rot);
+      sin(phi.value())*tipSign, -cos(phi.value())*tipSign,           0,
+                     0,                 0,                  -1*tipSign,
+      cos(phi.value()),          sin(phi.value()),                   0);
+  BoundPlane * impPointPlane = new BoundPlane(origin, rot);
 
   TrajectoryStateOnSurface impactPointState( lpar , error, *impPointPlane, mf, 1.0);
   
-//  checkState(impactPointState,mf);
+  //checkState(impactPointState,mf);
   LogTrace("")<<"constructed TSOS :\n"<<print(impactPointState);
 
   int ndof = 2*hits.size()-5;
@@ -78,7 +79,8 @@ reco::Track * PixelTrackBuilder::build(
   reco::Track * track = new reco::Track( chi2, ndof, pos, mom, 
         impactPointState.charge(), impactPointState.curvilinearError());
 
-  LogTrace("") <<"RECONSTRUCTED TRACK:\n"<< print(*track)<<std::endl;;
+  LogTrace("") <<"RECONSTRUCTED TRACK (0,0,0):\n"<< print(*track,GlobalPoint(0,0,0))<<std::endl;;
+  LogTrace("") <<"RECONSTRUCTED TRACK "<<origin<<"\n"<< print(*track,origin)<<std::endl;;
 
   return track;
 }
@@ -102,8 +104,10 @@ std::string PixelTrackBuilder::print(
     return str.str();
 }
 
-std::string PixelTrackBuilder::print(const reco::Track & track) const
+std::string PixelTrackBuilder::print(const reco::Track & track, const GlobalPoint & origin) const
 {
+
+  math::XYZPoint bs(origin.x(), origin.y(), origin.z());
 
   Measurement1D phi( track.phi(), track.phiError());
 
@@ -122,9 +126,9 @@ std::string PixelTrackBuilder::print(const reco::Track & track) const
                      ) / sqr(sinTheta);
   Measurement1D pt(pt_v, sqr(pt_v)*sqrt(errInvPt2));
 
-  Measurement1D tip(track.d0(), track.d0Error());
+  Measurement1D tip(track.dxy(bs), track.d0Error());
 
-  Measurement1D zip(track.dz(), track.dzError());
+  Measurement1D zip(track.dz(bs), track.dzError());
 
   return print(pt, phi, cotTheta, tip, zip, track.chi2(),  track.charge());
 }
@@ -163,20 +167,20 @@ std::string PixelTrackBuilder::print(const TrajectoryStateOnSurface & state) con
   return print(pt, phi, cotTheta, tip, zip, 0., state.charge());
 }
 
-void PixelTrackBuilder::checkState(const TrajectoryStateOnSurface & state, const MagneticField* mf) const
+void PixelTrackBuilder::checkState(const TrajectoryStateOnSurface & state, const MagneticField* mf, const GlobalPoint & origin) const
 {
   LogTrace("")<<" *** PixelTrackBuilder::checkState: ";
   LogTrace("")<<"INPUT,  ROTATION" << endl<<state.surface().rotation();
   LogTrace("")<<"INPUT,  TSOS:"<<endl<<state;
   
   TransverseImpactPointExtrapolator tipe(mf);
-  TrajectoryStateOnSurface test= tipe.extrapolate(state, GlobalPoint(0,0,0) );
+  TrajectoryStateOnSurface test= tipe.extrapolate(state, origin);
   LogTrace("")<<"CHECK-1 ROTATION" << endl<<"\n"<<test.surface().rotation();
   LogTrace("")<<"CHECK-1 TSOS" << endl<<test;
 
   TSCPBuilderNoMaterial tscpBuilder;
   TrajectoryStateClosestToPoint tscp =
-      tscpBuilder(*(state.freeState()), GlobalPoint(0,0,0) );
+      tscpBuilder(*(state.freeState()), origin);
   FreeTrajectoryState fs = tscp.theState();
   LogTrace("")<<"CHECK-2 FTS: " << fs;
 }

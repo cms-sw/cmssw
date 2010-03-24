@@ -81,7 +81,9 @@ reco::Track* PixelFitterByHelixProjections::run(
 //    GlobalPoint p = det->surface().toGlobal( (**ih).localPosition());
 
     TransientTrackingRecHit::RecHitPointer recHit = theTTRecHitBuilder->build(*ih);
-    points.push_back( recHit->globalPosition());
+    points.push_back( GlobalPoint( recHit->globalPosition().x()-region.origin().x(), 
+                                   recHit->globalPosition().y()-region.origin().y(),
+                                   recHit->globalPosition().z()-region.origin().z() ) );
     errors.push_back( recHit->globalPositionError());
     isBarrel.push_back( recHit->detUnit()->type().isBarrel() );
   }
@@ -126,7 +128,7 @@ reco::Track* PixelFitterByHelixProjections::run(
   Measurement1D tip(valTip, errTip);
   Measurement1D zip(valZip, errZip);
 
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, theField);
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, theField, region.origin() );
 }
 
 int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) const
