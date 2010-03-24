@@ -155,18 +155,33 @@ void L1Comparator::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup) {
     {
       edm::ESHandle< L1TriggerKey > pKey ;
       iSetup.get< L1TriggerKeyRcd >().get( pKey ) ;
-      std::string tscKey = pKey->tscKey(); 
-      m_doSys[ETP] &= (tscKey.find("ECAL" )!=std::string::npos);  
-      m_doSys[HTP] &= (tscKey.find("HCAL" )!=std::string::npos);  
-      m_doSys[RCT] &= (tscKey.find("RCT"  )!=std::string::npos);  
-      m_doSys[GCT] &= (tscKey.find("GCT"  )!=std::string::npos);  
-      m_doSys[DTP] &= (tscKey.find("DT"   )!=std::string::npos);  
-      m_doSys[DTF] &= (tscKey.find("DTTF" )!=std::string::npos);  
-      m_doSys[CTP] &= (tscKey.find("CSC"  )!=std::string::npos);  
-      m_doSys[CTF] &= (tscKey.find("CSCTF")!=std::string::npos);  
-      m_doSys[RPC] &= (tscKey.find("RPC"  )!=std::string::npos);  
-      if(verbose())
-	std::cout << "Current TSC key = " << tscKey << std::endl; 
+
+      m_doSys[RCT] &= (!(pKey->subsystemKey( L1TriggerKey::kRCT)  .empty()));
+      m_doSys[GCT] &= (!(pKey->subsystemKey( L1TriggerKey::kGCT)  .empty()));
+      m_doSys[DTF] &= (!(pKey->subsystemKey( L1TriggerKey::kDTTF) .empty()));
+      m_doSys[CTF] &= (!(pKey->subsystemKey( L1TriggerKey::kCSCTF).empty()));
+      m_doSys[RPC] &= (!(pKey->subsystemKey( L1TriggerKey::kRPC)  .empty()));
+      m_doSys[GMT] &= (!(pKey->subsystemKey( L1TriggerKey::kGMT)  .empty()));
+      m_doSys[GLT] &= (!(pKey->subsystemKey( L1TriggerKey::kGT)   .empty()));
+
+     if(verbose()) {
+	if ( pKey->subsystemKey( L1TriggerKey::kRCT  ).empty() )
+	  std::cout << "RCT   key is empty. Sub-systems is disabled ("<<m_doSys[RCT]<<")\n";
+	if ( pKey->subsystemKey( L1TriggerKey::kGCT  ).empty() )
+	  std::cout << "GCT   key is empty. Sub-systems is disabled ("<<m_doSys[GCT]<<")\n";
+	if ( pKey->subsystemKey( L1TriggerKey::kDTTF ).empty() )
+	  std::cout << "DTTF  key is empty. Sub-systems is disabled ("<<m_doSys[DTF]<<")\n";
+	if ( pKey->subsystemKey( L1TriggerKey::kCSCTF).empty() )
+	  std::cout << "CSCTF key is empty. Sub-systems is disabled ("<<m_doSys[CTF]<<")\n";
+	if ( pKey->subsystemKey( L1TriggerKey::kRPC  ).empty() )
+	  std::cout << "RPC   key is empty. Sub-systems is disabled ("<<m_doSys[RPC]<<")\n";
+	if ( pKey->subsystemKey( L1TriggerKey::kGMT  ).empty() )
+	  std::cout << "GMT   key is empty. Sub-systems is disabled ("<<m_doSys[GMT]<<")\n";
+	if ( pKey->subsystemKey( L1TriggerKey::kGT   ).empty() )
+	  std::cout << "GT    key is empty. Sub-systems is disabled ("<<m_doSys[GLT]<<")\n";
+	std::cout << "TSC key = " << pKey->tscKey() << std::endl; 
+      }
+
       //access subsystem key if needed, eg:
       //std::cout << "RCT key:" << pKey->subsystemKey( L1TriggerKey::kRCT ) << std::endl;
     } 
