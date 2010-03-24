@@ -5,26 +5,27 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
-
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+#include "CondFormats/ESObjects/interface/ESPedestals.h"
+#include "CondFormats/DataRecord/interface/ESPedestalsRcd.h"
 
-typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer  ;
-typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer  ;
-typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer  ;
-
-
-class APDSimParameters ;
 class CaloHitResponse ;
-class EBHitResponse ;
 class EcalSimParameterMap ;
 class EcalCoder ;
 class EcalElectronicsSim ;
@@ -54,31 +55,31 @@ class EcalDigiProducer : public edm::EDProducer
       void checkCalibrations(const edm::EventSetup & eventSetup) ;
 
       /** Reconstruction algorithm*/
+      typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer ;
+      typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer ;
+      typedef CaloTDigitizer<ESDigitizerTraits> ESDigitizer ;
 
-      EBDigitizer*      m_APDDigitizer ;
       EBDigitizer*      m_BarrelDigitizer ;
       EEDigitizer*      m_EndcapDigitizer ;
       ESDigitizer*      m_ESDigitizer ;
       ESFastTDigitizer* m_ESDigitizerFast ;
 
       const EcalSimParameterMap* m_ParameterMap ;
-      const APDShape             m_APDShape ;
       const EBShape              m_EBShape ;
       const EEShape              m_EEShape ;
-      const ESShape*             m_ESShape ;
+      ESShape*         m_ESShape ;
 
-      EBHitResponse*   m_APDResponse ;
-      EBHitResponse*   m_EBResponse ;
+      CaloHitResponse* m_EBResponse ;
       CaloHitResponse* m_EEResponse ;
       CaloHitResponse* m_ESResponse ;
+
+      CorrelatedNoisifier<EcalCorrMatrix>* m_EBCorrNoise ;
+      CorrelatedNoisifier<EcalCorrMatrix>* m_EECorrNoise ;
 
       EcalElectronicsSim*   m_ElectronicsSim ;
       ESElectronicsSim*     m_ESElectronicsSim ;
       ESElectronicsSimFast* m_ESElectronicsSimFast ;
       EcalCoder*            m_Coder ;
-
-      EcalElectronicsSim*   m_APDElectronicsSim ;
-      EcalCoder*            m_APDCoder ;
 
       const CaloGeometry* m_Geometry ;
 
@@ -92,10 +93,7 @@ class EcalDigiProducer : public edm::EDProducer
       double m_EEs25notCont ;
 
       bool   m_doFast ; 
-      APDSimParameters* m_apdParameters ;
 
-      CorrelatedNoisifier<EcalCorrMatrix>* m_EBCorrNoise[3] ;
-      CorrelatedNoisifier<EcalCorrMatrix>* m_EECorrNoise[3] ;
 };
 
 #endif 
