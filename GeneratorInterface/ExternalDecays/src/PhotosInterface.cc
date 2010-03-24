@@ -215,7 +215,8 @@ HepMC::GenEvent* PhotosInterface::apply( HepMC::GenEvent* evt )
 	 // at the same time, add photon(s) to the GenVertex
 	 //	 
 	 int largestBarcode = -1;
-	 for ( int ip=1; ip<barcodes.size(); ip++ )
+	 int Nbcodes = barcodes.size();
+	 for ( int ip=1; ip<Nbcodes; ip++ )
 	 {
 	    int bcode = barcodes[ip];
 	    HepMC::GenParticle* prt = evt->barcode_to_particle( bcode );
