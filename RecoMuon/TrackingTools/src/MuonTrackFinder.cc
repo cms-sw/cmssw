@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2008/02/13 13:54:26 $
- *  $Revision: 1.38 $
+ *  $Date: 2010/03/02 14:04:18 $
+ *  $Revision: 1.39 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -104,7 +104,7 @@ MuonTrackFinder::reconstruct(const edm::Handle<edm::View<TrajectorySeed> >& seed
   
   // clean the clone traj
   LogTrace(metname)<<"Clean the trajectories container"<<endl;
-  if(theTrajCleaner) theTrajCleaner->clean(muonTrajectories); //used by reference...
+  if(theTrajCleaner) theTrajCleaner->clean(muonTrajectories, event); //used by reference...
   
   // convert the trajectories into tracks and load them in to the event
   LogTrace(metname)
