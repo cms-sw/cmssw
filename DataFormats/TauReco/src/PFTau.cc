@@ -5,8 +5,8 @@ using namespace reco;
 using namespace std;
 
 
-PFTau::PFTau(){
-
+PFTau::PFTau()
+{
     leadPFChargedHadrCandsignedSipt_=NAN;
     isolationPFChargedHadrCandsPtSum_=NAN;
     isolationPFGammaCandsEtSum_=NAN;
@@ -25,9 +25,8 @@ PFTau::PFTau(){
     muonDecision_ = NAN;
 }
 
-PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx){
-
-
+PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx)
+{
     leadPFChargedHadrCandsignedSipt_=NAN;    
     isolationPFChargedHadrCandsPtSum_=NAN;
     isolationPFGammaCandsEtSum_=NAN;
@@ -48,8 +47,6 @@ PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,v
 }
 
 PFTau* PFTau::clone()const{return new PFTau(*this);}
-
-
 
 const PFTauTagInfoRef& PFTau::pfTauTagInfoRef()const{return PFTauTagInfoRef_;}
 void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) {PFTauTagInfoRef_=x;}
@@ -112,36 +109,6 @@ void PFTau::setelectronPreIDTrack(const reco::TrackRef& x) {electronPreIDTrack_ 
 void PFTau::setelectronPreIDOutput(const float& x) {electronPreIDOutput_ = x;}
 void PFTau::setelectronPreIDDecision(const bool& x) {electronPreIDDecision_ = x;}
 
-/// chargedHadronEnergy 
-float PFTau::chargedHadronEnergy () const {return signalConeJetParameters_.mChargedHadronEnergy;}
-///  chargedHadronEnergyFraction
-float PFTau::chargedHadronEnergyFraction () const {return (alternatLorentzVect().energy()) ? chargedHadronEnergy () / alternatLorentzVect().energy() : -1.0;}
-/// neutralHadronEnergy
-float PFTau::neutralHadronEnergy () const {return signalConeJetParameters_.mNeutralHadronEnergy;}
-/// neutralHadronEnergyFraction
-float PFTau::neutralHadronEnergyFraction () const {return (alternatLorentzVect().energy()) ? neutralHadronEnergy () / alternatLorentzVect().energy() : -1.0;}
-/// chargedEmEnergy
-float PFTau::chargedEmEnergy () const {return signalConeJetParameters_.mChargedEmEnergy;}
-/// chargedEmEnergyFraction
-float PFTau::chargedEmEnergyFraction () const {return (alternatLorentzVect().energy()) ? chargedEmEnergy () / alternatLorentzVect().energy() : -1.0;}
-/// chargedMuEnergy
-float PFTau::chargedMuEnergy () const {return signalConeJetParameters_.mChargedMuEnergy;}
-/// chargedMuEnergyFraction
-float PFTau::chargedMuEnergyFraction () const {return (alternatLorentzVect().energy()) ? chargedMuEnergy () / alternatLorentzVect().energy() : -1.0;}
-/// neutralEmEnergy
-float PFTau::neutralEmEnergy () const {return signalConeJetParameters_.mNeutralEmEnergy;}
-/// neutralEmEnergyFraction
-float PFTau::neutralEmEnergyFraction () const {return (alternatLorentzVect().energy()) ? neutralEmEnergy () / alternatLorentzVect().energy() : -1.0;}
-/// chargedMultiplicity
-int PFTau::chargedMultiplicity () const {return signalConeJetParameters_.mChargedMultiplicity;}
-/// neutralMultiplicity
-int PFTau::neutralMultiplicity () const {return signalConeJetParameters_.mNeutralMultiplicity;}
-/// muonMultiplicity
-int PFTau::muonMultiplicity () const {return signalConeJetParameters_.mMuonMultiplicity;}
-
-void PFTau::setSpecific(const PFJet::Specific& input) { signalConeJetParameters_ = input; }
-const PFJet::Specific& PFTau::getSpecific() const {return signalConeJetParameters_;}
-
 bool PFTau::hasMuonReference()const{ // check if muon ref exists
     if( leadPFChargedHadrCand_.isNull() ) return false;
     else if( leadPFChargedHadrCand_.isNonnull() ){
@@ -155,9 +122,10 @@ bool PFTau::hasMuonReference()const{ // check if muon ref exists
 float PFTau::caloComp() const {return caloComp_;}
 float PFTau::segComp() const {return segComp_;}
 bool  PFTau::muonDecision() const {return muonDecision_;}
-void  PFTau::setCaloComp(const float& x) {caloComp_ = x;}
-void  PFTau::setSegComp (const float& x) {segComp_  = x;}
-void  PFTau::setMuonDecision(const bool& x) {muonDecision_ = x;}
+void PFTau::setCaloComp(const float& x) {caloComp_ = x;}
+void PFTau::setSegComp (const float& x) {segComp_  = x;}
+void PFTau::setMuonDecision(const bool& x) {muonDecision_ = x;}
+//
 
 
 CandidatePtr PFTau::sourceCandidatePtr( size_type i ) const {
