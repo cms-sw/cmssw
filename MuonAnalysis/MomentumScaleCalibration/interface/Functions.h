@@ -1457,10 +1457,10 @@ class resolutionFunctionType12 : public resolutionFunctionBase<T> {
                               "Cth res. sc.", "Cth res. 1/Pt sc.", "Cth res. Eta sc.", "Cth res. Eta^2 sc." };
 			      // "Phi res. sc.", "Phi res. 1/Pt sc.", "Phi res. Eta sc.", "Phi res. Eta^2 sc." };
     double thisMini[] = { 0.8, -1.1, 0., -1.1,
-                          0.0001, 0.0005, 0.0005, 0.001,
+                          0., 0.0005, 0.0005, 0.001,
                           1.4, 0., 0.,
                           // -0.001, 0.002, -0.0001, -0.0001 };
-                          -0.1, 0.0001, -0.1, -0.1 };
+                          -0.1, 0., -0.1, -0.1 };
 			  // -0.0001, 0.0005, -0.0001, -0.00001 };
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1., 1.,
@@ -1593,63 +1593,64 @@ class resolutionFunctionType14 : public resolutionFunctionBase<T> {
 protected:
 };
 
+// par6,par7,par10
 // Resolution Type 15. For misaligned data. Linear in pt, parabolic in eta, regions separated: barrl+overlap, right endcap, left endcap.
 template <class T>
 class resolutionFunctionType15 : public resolutionFunctionBase<T> {
  public:
-  resolutionFunctionType15() { this->parNum_ = 14; }
+  resolutionFunctionType15() { this->parNum_ = 7; }
   // linear in pt and parabolic in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
     double fabsEta = fabs(eta);
-    double ptPart =  parval[0] + parval[1]*1./pt + pt*parval[2];
+    double ptPart = pt*parval[0];
 
-    if(fabsEta<=1.4) {//eta in barrel + overlap
-      return( ptPart + parval[3] + parval[4]*fabsEta + parval[5]*eta*eta );
+    if(fabsEta<=0.6) 
+      return (ptPart);
+    else if(fabsEta>0.6 && fabsEta<=1.3) {//eta in barrel + overlap
+      double par = - parval[1]*0.6*0.6;
+      return( par + ptPart + parval[1]*eta*eta );
     }
-    else if (eta>1.4){//eta in right endcap
-      double par = parval[3] + parval[4]*1.4 + parval[5]*1.4*1.4 - (parval[6] + parval[7]*(1.4-parval[8]) + parval[9]*(1.4-parval[8])*(1.4-parval[8]));
-      return( par +  ptPart + parval[6] + parval[7]*fabs((fabsEta-parval[8])) + parval[9]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
+    else if (eta>1.3){//eta in right endcap
+      double par =  parval[1]*1.3*1.3 - (parval[2]*(1.3-parval[3])*(1.3-parval[3]));
+      return( par + ptPart + parval[2]*(fabsEta-parval[3])*(fabsEta-parval[3]) );
     }
     else{//eta in left endcap
-      double par =  parval[3] + parval[4]*1.4 + parval[5]*1.4*1.4 - (parval[10] + parval[11]*(1.4-parval[12]) + parval[13]*(1.4-parval[12])*(1.4-parval[12]));
-      return( par + ptPart + parval[10] + parval[11]*fabs((fabsEta-parval[12])) + parval[13]*(fabsEta-parval[12])*(fabsEta-parval[12]) );
+      double par = parval[1]*1.3*1.3 - (parval[4]*(1.3-parval[5]) + parval[6]*(1.3-parval[5])*(1.3-parval[5]));
+      return( par + ptPart + parval[4]*fabs((fabsEta-parval[5])) + parval[6]*(fabsEta-parval[5])*(fabsEta-parval[5]) );
     }
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
-    return( 0.004 );
+     if (fabs(eta)<=1.2) return(0.000949148 );
+     else if(eta<-1.2) return(-0.00645458 + -0.00579458*eta);
+     else return(-0.00306283 + 0.00346136*eta);
   }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
-    return( 0.001 );
+    return( 0.000211 + 0.00001*fabs(eta) + 0.0000789*eta*eta);
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
-    double thisStep[] = { 0.0001, 0.0001, 0.00001,
-			  0.001, 0.0001, 0.00001,
-                          0.01, 0.001, 0.01, 0.001,
-			  0.01, 0.001, 0.01, 0.001};
-    TString thisParName[] = { "offsetPt", "hyperbolicPt", "linearPt",
-                              "offsetEtaCentral", "linaerEtaCentral", "parabEtaCentral",
-			      "offsetEtaEndcapRight", "linearEtaRight", "rightParabCenter", "parabolicEtaRight",
-                              "offsetEtaEndcapLeft", "linearEtaLeft", "leftParabCenter", "parabolicEtaLeft" };
-    double thisMini[] = { -0.5, -0.001, 0.00005,
-                          -0.05, -0.1, 0.00001,
-                          -0.6, -0.0009, 0., 0.0005,
-			  -0.6, -0.1, 1., 0.01
+    double thisStep[] = { 0.000001, 0.0000001,
+			  0.000001, 0.001, 
+			  0.00000001, 0.001, 0.0001};
+    TString thisParName[] = { "linearPt", "parabEtaCentral", 
+			      "parabolicEtaRight", "rightParabCenter",
+			      "linearEtaLeft", "leftParabCenter", "parabolicEtaLeft" };
+    double thisMini[] = { 0.00001, 0.0001,
+                          0.005, -5,
+			  -0.00006, 0.1, 0.002
                         };
 
     if( muonType == 1 ) {
-      double thisMaxi[] = { 1., 1., 1.,
-			    1., 1., 1.,
-                            1., 1. ,1., 1.,
-			    1., 1., 1., 1.
-                          };
+      double thisMaxi[] = { 1., 1., 
+			    1., 1., 
+                            1., 1. ,1.,
+      };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = { 0.5, 0.8, 0.005,
-			    0.05, 0.1, 0.08,
-                            0.9, 0.5, 1.99, 0.15,
-			    0.9, 0.5, 1.99, 0.15
+      double thisMaxi[] = { 0.0005, 0.05,
+			    0.15,  1.99,
+                            0.005, 1.99, 0.15, 
       };
 
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
