@@ -120,14 +120,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 						    psrechit.getParameter<double>("long_HFEnergythreshold")	
 						    );
 	const edm::ParameterSet& psS9S1   = conf.getParameter<edm::ParameterSet>("S9S1stat");
-	hfS9S1_   = new HcalHF_S9S1algorithm(psS9S1.getParameter<std::vector<double> >("short_optimumSlopeParams"),
-					     psS9S1.getParameter<double >("short_optimumSlope40"),
-					     psS9S1.getParameter<double >("short_optimumSlope41"),
+	hfS9S1_   = new HcalHF_S9S1algorithm(psS9S1.getParameter<std::vector<double> >("short_optimumSlope"),
 					     psS9S1.getParameter<std::vector<double> >("shortEnergyParams"),
 					     psS9S1.getParameter<std::vector<double> >("shortETParams"),
-					     psS9S1.getParameter<std::vector<double> >("long_optimumSlopeParams"),
-					     psS9S1.getParameter<double >("long_optimumSlope40"),
-					     psS9S1.getParameter<double >("long_optimumSlope41"),
+					     psS9S1.getParameter<std::vector<double> >("long_optimumSlope"),
 					     psS9S1.getParameter<std::vector<double> >("longEnergyParams"),
 					     psS9S1.getParameter<std::vector<double> >("longETParams")
 					     );

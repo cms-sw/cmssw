@@ -43,19 +43,19 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                             ), # rechitstat
 
                         # Parameters for Using S9S1 Test
-                        #     optimumSlopeParams are the coefficients for the slope function m = [0]+[1]*(ieta)+[2]*(ieta)^2...
-                        #     Slopes are given fixed values at ieta=40 and ieta=41
+                        #     optimumSlopes are slopes for each of the |ieta| values 29, 30, .... ,41  (although |ieta|=29 is not used in current S9S1 formulation)
+
                         #     energy and ET params are coefficients for energy/ET thresholds, parameterized in ieta
-                        S9S1stat = cms.PSet( long_optimumSlopeParams = cms.vdouble([0.3084,-0.02577, 0.0005351]),
-                                             long_optimumSlope40     = cms.double(0.0913756),
-                                             long_optimumSlope41     = cms.double(0.0589927),
+                        S9S1stat = cms.PSet( long_optimumSlope       = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,0.041296,
+                                                                                    0.0513428,0.0622789,0.0741041,0.0868186,
+                                                                                    0.100422,0.135313,0.136289,0.0589927]),
                                              longEnergyParams        = cms.vdouble([162.4,-10.19,0.21]),
                                              longETParams            = cms.vdouble([0]),
                                              # WARNING!  SHORT SLOPE PARAMETERS ARE NOT USED IN ANY OF THE AVAILABLE DEFAULT ALGORITHMS!
                                              # DEFAULT ALGO 3 USES PET RATIO TEST
-                                             short_optimumSlopeParams = cms.vdouble([0.3084,-0.02577, 0.0005351]),
-                                             short_optimumSlope40     = cms.double(0.0913756),
-                                             short_optimumSlope41     = cms.double(0.0589927),
+                                             short_optimumSlope       = cms.vdouble([-99999,0.0164905,0.0238698,0.0321383,0.041296,
+                                                                                     0.0513428,0.0622789,0.0741041,0.0868186,0.100422,
+                                                                                     0.135313,0.136289,0.0589927]),
                                              shortEnergyParams        = cms.vdouble([129.9,-6.61,0.1153]),
                                              shortETParams            = cms.vdouble([0]),
                                             ),

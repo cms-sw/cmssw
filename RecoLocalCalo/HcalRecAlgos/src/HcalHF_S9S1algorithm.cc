@@ -27,8 +27,8 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm()
   ShortSlopes.clear();
   for (int i=29;i<=41;++i)
     {
-      LongSlopes.push_back(CalcSlope(i,blank));
-      ShortSlopes.push_back(CalcSlope(i,blank));
+      LongSlopes.push_back(0);
+      ShortSlopes.push_back(0);
     }
   LongEnergyThreshold.clear();
   LongETThreshold.clear();
@@ -45,13 +45,9 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm()
 
 
 HcalHF_S9S1algorithm::HcalHF_S9S1algorithm(std::vector<double> short_optimumSlope, 
-					 double short_optimumSlope40,
-					 double short_optimumSlope41,
 					 std::vector<double> short_Energy, 
 					 std::vector<double> short_ET, 
 					 std::vector<double> long_optimumSlope, 
-					 double long_optimumSlope40,
-					 double long_optimumSlope41,
 					 std::vector<double> long_Energy, 
 					 std::vector<double> long_ET)
 
@@ -59,18 +55,14 @@ HcalHF_S9S1algorithm::HcalHF_S9S1algorithm(std::vector<double> short_optimumSlop
   // Constructor in the case where all parameters are provided by the user
 
   // Thresholds only need to be computed once, not every event!
-  LongSlopes.clear();
-  ShortSlopes.clear();
-  for (int i=29;i<=39;++i)
-    {
-      LongSlopes.push_back(CalcSlope(i,long_optimumSlope));
-      ShortSlopes.push_back(CalcSlope(i,short_optimumSlope));
-    }
-  // |ieta|=40 and 41 don't follow polynomial fit to slope, and must be specified separately
-  LongSlopes.push_back(long_optimumSlope40);
-  LongSlopes.push_back(long_optimumSlope41);
-  ShortSlopes.push_back(short_optimumSlope40);
-  ShortSlopes.push_back(short_optimumSlope41);
+
+  LongSlopes=long_optimumSlope;
+  ShortSlopes=short_optimumSlope;
+  
+  while (LongSlopes.size()<13)
+    LongSlopes.push_back(0); // should be unnecessary, but include this protection to avoid crashes
+  while (ShortSlopes.size()<13)
+    ShortSlopes.push_back(0);
 
   // Get parameterized energy/ET threshold coefficients
   long_Energy_=long_Energy;
@@ -209,10 +201,11 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 
 double HcalHF_S9S1algorithm::CalcSlope(int abs_ieta, std::vector<double> params)
 {
-  /* CalcIetaThreshold calculates the polynomial [0]+[1]*x + [2]*x^2 + ....,
+  /* CalcSlope calculates the polynomial [0]+[1]*x + [2]*x^2 + ....,
      where x is an integer provided by the first argument (int abs_ieta),
      and [0],[1],[2] is a vector of doubles provided by the second (std::vector<double> params).
      The output of the polynomial calculation (threshold) is returned by the function.
+     This function should no longer be needed, since we pass slopes for all ietas into the function via the parameter set.
   */
   double threshold=0;
   for (std::vector<double>::size_type i=0;i<params.size();++i)
