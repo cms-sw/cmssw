@@ -174,7 +174,7 @@ namespace evf{
       std::string command = "gdb /opt/xdaq/bin/xdaq.exe -batch -x /tmp/vulture.cmd -c /tmp/";
       std::string cmdout;
       command += currentCoreList_[i];
-      std::string filePathAndName = "/tmp";
+      std::string filePathAndName = "/tmp/";
       filePathAndName += currentCoreList_[i];
       std::string pid = 
 	currentCoreList_[i].substr(currentCoreList_[i].find_first_of(".")+1,
@@ -190,9 +190,13 @@ namespace evf{
       }
       delete[] p;
       pclose(ps);
+      int errsv = 0;
       int rch = chmod(filePathAndName.c_str(),0777);
-      if(rch != 0)
-	std::cout << "ERROR: couldn't change corefile access privileges" << std::endl;
+      if(rch != 0){
+	errsv = errno;
+	std::cout << "ERROR: couldn't change corefile access privileges -" 
+		  << strerror(errsv)<< std::endl;
+      }
       unsigned int ipid = (unsigned int)atoi(pid.c_str());
       poster_->postString(cmdout.c_str(),cmdout.length(),ipid); 
       
