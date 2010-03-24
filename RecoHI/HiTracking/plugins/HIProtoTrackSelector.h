@@ -14,9 +14,6 @@
 
 #include <algorithm>
 #include <iostream>
-using namespace std;
-using namespace edm;
-
 
 /**
  Selector to select prototracks that pass certain kinematic cuts based on fast vertex
@@ -30,15 +27,15 @@ class HIProtoTrackSelector
   typedef reco::TrackCollection collection;
   
   // output collection type
-  typedef vector<const reco::Track *> container;
+  typedef std::vector<const reco::Track *> container;
   
   // iterator over result collection type.
   typedef container::const_iterator const_iterator;
   
   // constructor from parameter set configurability
   HIProtoTrackSelector(const edm::ParameterSet & iConfig) : 
-    vertexCollection_(iConfig.getParameter<InputTag>("VertexCollection")),
-    beamSpotLabel_(iConfig.getParameter<InputTag>("beamSpotLabel")),
+    vertexCollection_(iConfig.getParameter<edm::InputTag>("VertexCollection")),
+    beamSpotLabel_(iConfig.getParameter<edm::InputTag>("beamSpotLabel")),
     ptMin_(iConfig.getParameter<double>("ptMin")), 	
     nSigmaZ_(iConfig.getParameter<double>("nSigmaZ")),
     minZCut_(iConfig.getParameter<double>("minZCut")),
@@ -63,12 +60,12 @@ class HIProtoTrackSelector
       if(vertices->size()>0) {
 	vtxPoint=vertices->begin()->position();
 	vzErr=vertices->begin()->zError();
-	LogInfo("HeavyIonVertexing") << "Select prototracks compatible with median vertex"
+	edm::LogInfo("HeavyIonVertexing") << "Select prototracks compatible with median vertex"
 				     << "\n   vz = " << vtxPoint.Z()  
 				     << "\n   " << nSigmaZ_ << " vz sigmas = " << vzErr*nSigmaZ_
-				     << "\n   cut at = " << max(vzErr*nSigmaZ_,minZCut_);
+				     << "\n   cut at = " << std::max(vzErr*nSigmaZ_,minZCut_);
       } else {
-	LogError("HeavyIonVertexing") << "No vertex found in collection '" << vertexCollection_ << "'";
+	edm::LogError("HeavyIonVertexing") << "No vertex found in collection '" << vertexCollection_ << "'";
       }
       
       // Get beamspot
@@ -83,12 +80,12 @@ class HIProtoTrackSelector
 	beamSpot = *beamSpotHandle;
 	bsPoint = beamSpot.position();
 	bsWidth = sqrt(beamSpot.BeamWidthX()*beamSpot.BeamWidthY());
-	LogInfo("HeavyIonVertexing") << "Select prototracks compatible with beamspot"
+	edm::LogInfo("HeavyIonVertexing") << "Select prototracks compatible with beamspot"
 				     << "\n   (x,y,z) = (" << bsPoint.X() << "," << bsPoint.Y() << "," << bsPoint.Z() << ")"  
 				     << "\n   width = " << bsWidth
 				     << "\n   cut at d0/d0sigma = " << maxD0Significance_;
       } else {
-	edm::LogError("HeavyIonVertexing") << "No beam spot available from '" << beamSpotLabel_ << "'\n";
+	edm::LogError("HeavyIonVertexing") << "No beam spot available from '" << beamSpotLabel_ << "\n";
       }
       
       
@@ -104,7 +101,7 @@ class HIProtoTrackSelector
 	  d0sigma = sqrt(trk->d0Error()*trk->d0Error() + bsWidth*bsWidth);
 	  if ( trk->pt() > ptMin_ // keep only tracks above ptMin
 	       && fabs(d0/d0sigma) < maxD0Significance_ // keep only tracks with D0 significance less than cut
-	       && fabs(trk->dz(vtxPoint)) <  max(vzErr*nSigmaZ_,minZCut_) // within minZCut, nSigmaZ of fast vertex
+	       && fabs(trk->dz(vtxPoint)) <  std::max(vzErr*nSigmaZ_,minZCut_) // within minZCut, nSigmaZ of fast vertex
 	       ) 
 	  {
 	    nSelected++;
@@ -114,7 +111,7 @@ class HIProtoTrackSelector
 	    nRejected++;
 	}
       
-      LogInfo("HeavyIonVertexing") << "selected " << nSelected << " prototracks out of " << nRejected+nSelected << endl;
+      edm::LogInfo("HeavyIonVertexing") << "selected " << nSelected << " prototracks out of " << nRejected+nSelected << "\n";
       
     }
   
@@ -130,8 +127,8 @@ class HIProtoTrackSelector
   
  private:
   container selected_;		
-  InputTag vertexCollection_; 
-  InputTag beamSpotLabel_;
+  edm::InputTag vertexCollection_; 
+  edm::InputTag beamSpotLabel_;
   double ptMin_; 
   double nSigmaZ_;
   double minZCut_; 

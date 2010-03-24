@@ -12,14 +12,12 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-using namespace reco;
-
 class HICaloUtil {
 public:
    HICaloUtil() {}
 
-   static double              EcalEta(const Candidate &p);
-   static double              EcalPhi(const Candidate &p);
+   static double              EcalEta(const reco::Candidate &p);
+   static double              EcalPhi(const reco::Candidate &p);
    static double              EcalEta(double EtaParticle, double Zvertex, double plane_Radius);
    static double              EcalPhi(double PtParticle, double EtaParticle, 
                                         double PhiParticle, int ChargeParticle, double Rstart);

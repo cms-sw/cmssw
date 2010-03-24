@@ -14,8 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
-using namespace std;
-
 class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
   
  public:
@@ -56,14 +54,14 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
     // loop over all muons and add a tracking region for each
     // that passes the requirements specified to theRegionBuilder
     uint nMuons = muonH->size();
-    cout << "there are " << nMuons << " muon(s)" << endl;
+    std::cout << "there are " << nMuons << " muon(s)" << std::endl;
 
     // TO DO: this can be extended further to a double-loop 
     // over all combinations of muons, returning tracking regions
     // for pairs that pass some loose invariant mass cuts
     for(uint imu=0; imu<nMuons; imu++) {
       reco::TrackRef muRef(muonH, imu);
-      cout << "muon #" << imu << ": pt=" << muRef->pt() << endl;
+      std::cout << "muon #" << imu << ": pt=" << muRef->pt() << std::endl;
       RectangularEtaPhiTrackingRegion *etaphiRegion = theRegionBuilder->region(muRef);
       result.push_back(etaphiRegion);
     }
