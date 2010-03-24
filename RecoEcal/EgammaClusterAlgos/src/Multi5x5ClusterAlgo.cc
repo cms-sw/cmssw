@@ -241,7 +241,6 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
    bool maxima = true;
    EcalRecHitCollection::const_iterator thisHit;
    EcalRecHitCollection::const_iterator seedHit = hits->find(navigator.pos());
-   double thisEnergy = 0.;
    double seedEnergy = seedHit->energy();
 
    std::vector<DetId> swissCrossVec;
@@ -259,20 +258,22 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
    std::vector<DetId>::const_iterator detItr;
    for (unsigned int i = 0; i < swissCrossVec.size(); ++i)
    {
+
+      // look for this hit
       thisHit = recHits_->find(swissCrossVec[i]);
-  
-      // skip comparison with anomalous channels (recoFlag based)
-      // to find local maxima
-      bool chToBeExcluded = false;
+
+      // continue if this hit was not found
+      if  ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end()) continue; 
+
+      // the recHit has to be skipped in the local maximum search if it was found
+      // in the map of channels to be excluded 
       uint32_t rhFlag = thisHit->recoFlag();
-      std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
-      if ( vit != v_chstatus_.end() ) chToBeExcluded = true; // the recHit has to be skipped in the local maximum search
+      std::vector<int>::const_iterator vit = std::find(v_chstatus_.begin(), v_chstatus_.end(), rhFlag);
+      if (vit != v_chstatus_.end()) continue;
 
-      if  ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end() || chToBeExcluded) thisEnergy = 0.0;
-      else thisEnergy = thisHit->energy();
-
-
-      if (thisEnergy > seedEnergy)
+      // if this crystal has more energy than the seed then we do 
+      // not have a local maxima
+      if (thisHit->energy() > seedEnergy)
       {
          maxima = false;
          break;
