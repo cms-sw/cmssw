@@ -55,17 +55,13 @@ def deliveredLumiForRun(dbsession,c,runnum):
         del dbsession
 
     
-def deliveredLumiForRange(dbsession,c,inputfile):
+def deliveredLumiForRange(dbsession,c,fileparsingResult):
     #
     #in this case,only take run numbers from theinput file
     #
     if c.VERBOSE:
-        print 'deliveredLumiForRange : norm : ',c.NORM,' : inputfile : ',inputfile
-    
-    f=open(inputfile,'r')
-    content=f.read()
-    s=selectionParser.selectionParser(content)
-    for run in s.runs():
+        print 'deliveredLumiForRange : norm : ',c.NORM,
+    for run in fileparsingResult.runs():
         deliveredLumiForRun(dbsession,c,run)
     
 def recordedLumiForRun(dbsession,c,runnum):
@@ -114,14 +110,11 @@ def recordedLumiForRun(dbsession,c,runnum):
         dbsession.transaction().rollback()
         del dbsession
     
-def recordedLumiForRange(dbsession,c,inputfile):
+def recordedLumiForRange(dbsession,c,fileparsingResult):
     if c.VERBOSE:
-        print 'recordedLumi : inputfile : ',inputfile,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-    f=open(inputfile,'r')
-    content=f.read()
-    s=selectionParser.selectionParser(content)
-    runsandLSStr=s.runsandlsStr()
-    runsandLS=s.runsandls()
+        print 'norm: ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    runsandLSStr=fileparsingResult.runsandlsStr()
+    runsandLS=fileparsingResult.runsandls()
     recorded={}
     if c.VERBOSE:
         print 'recordedLumi : selected runs and LS ',runsandLS
@@ -316,16 +309,13 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         dbsession.transaction().rollback()
         del dbsession
         
-def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
+def effectiveLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
     if len(hltpath)==0:
         hltpath='all'
     if c.VERBOSE:
-        print 'effectiveLumiForRange : inputfile : ',inputfile,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-    f=open(inputfile,'r')
-    content=f.read()
-    s=selectionParser.selectionParser(content)
-    runsandLSStr=s.runsandlsStr()
-    runsandLS=s.runsandls()
+        print 'effectiveLumiForRange : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+    runsandLSStr=fileparsingResult.runsandlsStr()
+    runsandLS=fileparsingResult.runsandls()
     recorded={}
     hltTotrgMapAllRuns={}
     try:
@@ -446,7 +436,7 @@ def effectiveLumiForRange(dbsession,c,inputfile,hltpath=''):
                     trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
                     if counter==0:
                         hltTotrgMap[myhltpath]=(myl1bitname,myhltprescale,trgprescale,[])
-                    hltTotrgMap[myhltpath][-1].append('%.3f'%(trglsnum,25.0e-09*trgdeadtime/c.LSLENGTH))
+                    hltTotrgMap[myhltpath][-1].append((trglsnum,'%.3f'%(25.0e-09*trgdeadtime/c.LSLENGTH)))
                     counter=counter+1
                 cursor.close()
                 del trgQuery
@@ -529,7 +519,12 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
-    
+    inputfilecontent=''
+    fileparsingResult=''
+    if runnumber==0 and len(ifilename)!=0 :
+        f=open(ifilename,'r')
+        inputfilecontent=f.read()
+        fileparsingResult=selectionParser.selectionParser(inputfilecontent)
     #
     #one common query on the number of orbits and check if the run is available in db
     #
@@ -541,7 +536,10 @@ def main():
         queryBind=coral.AttributeList()
         queryBind.extend("runnum","unsigned int")
         queryBind.extend("lumiversion","string")
-        queryBind["runnum"].setData(int(runnumber))
+        if not fileparsingResult:
+            queryBind["runnum"].setData(int(runnumber))
+        else:
+            queryBind["runnum"].setData(int(fileparsingResult.runs()[0]))
         queryBind["lumiversion"].setData(c.LUMIVERSION)
         result=coral.AttributeList()
         result.extend("numorbit","unsigned int")
@@ -556,7 +554,7 @@ def main():
         del query
         session.transaction().commit()
         if icount==0:
-            print 'Run ',runnumber,' does not exist in LumiDB, do nothing...'
+            print 'Requested run does not exist in LumiDB, do nothing...'
             return
     except Exception,e:
         print str(e)
@@ -567,19 +565,19 @@ def main():
         if runnumber!=0:
             deliveredLumiForRun(session,c,runnumber)
         else:
-            deliveredLumiForRange(session,c,ifilename);
+            deliveredLumiForRange(session,c,fileparsingResult);
     if args.action == 'recorded':
         if runnumber!=0:
             recordedLumiForRun(session,c,runnumber)
         else:
-            recordedLumiForRange(session,c,ifilename)
+            recordedLumiForRange(session,c,fileparsingResult)
     if args.action == 'effective':
         if args.hltpath and len(args.hltpath)!=0:
             hpath=args.hltpath
         if runnumber!=0:
             effectiveLumiForRun(session,c,runnumber,hpath)
         else:
-            effectiveLumiForRange(session,c,ifilename,hpath)
+            effectiveLumiForRange(session,c,fileparsingResult,hpath)
     del session
     del svc
 if __name__=='__main__':
