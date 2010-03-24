@@ -13,7 +13,7 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/EventContent/AlCaRecoOutput_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -29,12 +29,42 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:ALCACombined.root')
 )
 
+#### begin patch S.A. 
+
+
+process.patchedOutALCARECOEcalCalPi0Calib_noDrop = cms.PSet(
+    # put this if you have a filter
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOEcalCalPi0Calib')
+    ),
+    outputCommands = cms.untracked.vstring(
+        'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*',
+        'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*',
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaPi0RecHitsFilter_pi0EcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*')
+)
+
+process.patchedOutALCARECOEcalCalEtaCalib_noDrop = cms.PSet(
+    # put this if you have a filter
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('pathALCARECOEcalCalEtaCalib')
+    ),
+    outputCommands = cms.untracked.vstring(
+        'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*',
+        'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*',
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaEtaRecHitsFilter_etaEcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*')
+)
+
+
 # Additional output definition
 process.ALCARECOStreamEcalCalPi0Calib = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalPi0Calib:RECO')
     ),
-    outputCommands = process.OutALCARECOEcalCalPi0Calib_noDrop.outputCommands,
+    outputCommands = process.patchedOutALCARECOEcalCalPi0Calib_noDrop.outputCommands,
     fileName = cms.untracked.string('ALCARECOEcalCalPi0Calib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalPi0Calib'),
@@ -45,13 +75,15 @@ process.ALCARECOStreamEcalCalEtaCalib = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalEtaCalib:RECO')
     ),
-    outputCommands = process.OutALCARECOEcalCalEtaCalib_noDrop.outputCommands,
+    outputCommands = process.patchedOutALCARECOEcalCalEtaCalib_noDrop.outputCommands,
     fileName = cms.untracked.string('ALCARECOEcalCalEtaCalib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalEtaCalib'),
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
+
+####end patch
 
 # Path and EndPath definitions
 process.ALCARECOStreamEcalCalPi0CalibOutPath = cms.EndPath(process.ALCARECOStreamEcalCalPi0Calib)
