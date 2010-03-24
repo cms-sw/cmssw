@@ -1,18 +1,23 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2009/10/31 02:05:56 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/03/07 17:30:47 $
+ *  $Revision: 1.28 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 
 using namespace std; 
 
-void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){ 
+typedef edm::AssociationMap<edm::OneToMany<L2MuonTrajectorySeedCollection, L2MuonTrajectorySeedCollection> > L2SeedAssoc;
+
+void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC, edm::Event& event) {
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryCleaner";
 
   LogTrace(metname) << "Muon Trajectory Cleaner called" << endl;
@@ -20,12 +25,15 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   TrajectoryContainer::iterator iter, jter;
   Trajectory::DataContainer::const_iterator m1, m2;
 
-  if ( trajC.size() < 2 ) return;
+  if ( trajC.size() < 1 ) return;
   
   LogTrace(metname) << "Number of trajectories in the container: " <<trajC.size()<< endl;
 
   int i(0), j(0);
   int match(0);
+
+  // Map between chosen seed and ghost seeds (for trigger)
+  map<int, vector<int> > seedmap;
 
   // CAVEAT: vector<bool> is not a vector, its elements are not addressable!
   // This is fine as long as only operator [] is used as in this case.
@@ -33,16 +41,17 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
   vector<bool> mask(trajC.size(),true);
   
   TrajectoryContainer result;
-  //  result.reserve(trajC.size());
   
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
     if ( !mask[i] ) { i++; continue; }
     if ( !(*iter)->isValid() || (*iter)->empty() ) {mask[i] = false; i++; continue; }
+    if(seedmap.count(i)==0) seedmap[i].push_back(i);
     const Trajectory::DataContainer& meas1 = (*iter)->measurements();
     j = i+1;
     bool skipnext=false;
     for ( jter = iter+1; jter != trajC.end(); jter++ ) {
       if ( !mask[j] ) { j++; continue; }
+      if(seedmap.count(j)==0) seedmap[j].push_back(j);
       const Trajectory::DataContainer& meas2 = (*jter)->measurements();
       match = 0;
       for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
@@ -97,11 +106,15 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 	    if((*iter)->lastMeasurement().updatedState().globalMomentum().perp() < minPt){
 	      mask[i] = false;
 	      skipnext=true;
+	      seedmap[j].insert(seedmap[j].end(), seedmap[i].begin(), seedmap[i].end());
+	      seedmap.erase(i);
 	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() 
 				<< " GeV) rejected because it has too low pt";
 	    } 
 	    else {
 	      mask[j] = false;
+	      seedmap[i].insert(seedmap[i].end(), seedmap[j].begin(), seedmap[j].end());
+	      seedmap.erase(j);
 	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() 
 				<< " GeV) rejected because it has too low pt";
 	    }
@@ -110,10 +123,14 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
 	    if (chi2_dof_i  > chi2_dof_j) {
 	      mask[i] = false;
 	      skipnext=true;
+	      seedmap[j].insert(seedmap[j].end(), seedmap[i].begin(), seedmap[i].end());
+	      seedmap.erase(i);
 	      LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
 	    }
 	    else{
 	      mask[j] = false;
+	      seedmap[i].insert(seedmap[i].end(), seedmap[j].begin(), seedmap[j].end());
+	      seedmap.erase(j);
 	      LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
 	    }
 	  }
@@ -122,10 +139,14 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
           if ( hit_diff < 0 ) {
             mask[i] = false;
             skipnext=true;
+	    seedmap[j].insert(seedmap[j].end(), seedmap[i].begin(), seedmap[i].end());
+	    seedmap.erase(i);
 	    LogTrace(metname) << "Trajectory # " << i << " (pT="<<(*iter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
           }
           else { 
 	    mask[j] = false;
+	    seedmap[i].insert(seedmap[i].end(), seedmap[j].begin(), seedmap[j].end());
+	    seedmap.erase(j);
 	    LogTrace(metname) << "Trajectory # " << j << " (pT="<<(*jter)->lastMeasurement().updatedState().globalMomentum().perp() << " GeV) rejected";
 	  }
         } 
@@ -137,6 +158,30 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
     if(skipnext) continue;
   }
   
+
+  // Association map between the seed of the chosen trajectory and the seeds of the discarded trajectories
+  if(reportGhosts_) {
+    LogTrace(metname) << " Creating map between chosen seed and ghost seeds." << std::endl;
+
+    auto_ptr<L2SeedAssoc> seedToSeedsMap(new L2SeedAssoc);
+    int seedcnt(0);
+
+    for(map<int, vector<int> >::iterator itmap=seedmap.begin(); itmap!=seedmap.end(); ++itmap, ++seedcnt) {
+      edm::RefToBase<TrajectorySeed> tmpSeedRef1 = trajC[(*itmap).first]->seedRef();
+      edm::Ref<L2MuonTrajectorySeedCollection> tmpL2SeedRef1 = tmpSeedRef1.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
+
+      int tmpsize=(*itmap).second.size();
+      for(int cnt=0; cnt!=tmpsize; ++cnt) {
+	edm::RefToBase<TrajectorySeed> tmpSeedRef2 = trajC[(*itmap).second[cnt]]->seedRef();
+	edm::Ref<L2MuonTrajectorySeedCollection> tmpL2SeedRef2 = tmpSeedRef2.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
+	seedToSeedsMap->insert(tmpL2SeedRef1, tmpL2SeedRef2);
+      }
+    }
+
+    event.put(seedToSeedsMap, "");
+
+  } // end if(reportGhosts_)
+
   i = 0;
   for ( iter = trajC.begin(); iter != trajC.end(); iter++ ) {
     if ( mask[i] ){
@@ -146,7 +191,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC){
     else delete *iter;
     i++;
   }
-  
+
   trajC.clear();
   trajC = result;
 }
