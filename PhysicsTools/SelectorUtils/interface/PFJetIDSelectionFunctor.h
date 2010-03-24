@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.8.2.3 2010/01/12 22:28:24 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.1 2010/02/19 19:23:37 srappocc Exp $
 */
 
 
@@ -32,26 +32,33 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   enum Version_t { FIRSTDATA, N_VERSIONS };
   enum Quality_t { LOOSE, TIGHT, N_QUALITY};
   
- PFJetIDSelectionFunctor( Version_t version, Quality_t quality,
-			  double chf,
-			  double nhf,
-			  double nemf
-			  ) :
-  version_(version), quality_(quality)
-  {
+ PFJetIDSelectionFunctor( edm::ParameterSet const & params ) 
+ {
+
+   std::string versionStr = params.getParameter<std::string>("version");
+   std::string qualityStr = params.getParameter<std::string>("quality");
+
+   if ( versionStr == "FIRSTDATA" ) 
+     version_ = FIRSTDATA;
+   else
+     version_ = FIRSTDATA;  /// will have other options eventually, most likely
+
+   if      ( qualityStr == "LOOSE") quality_ = LOOSE;
+   else if ( qualityStr == "TIGHT") quality_ = TIGHT;
+   else quality_ = LOOSE;
 
     push_back("CHF" );
     push_back("NHF" );
-    push_back("NEMF" );
+    push_back("NEF" );
 
     // all on by default
-    set("CHF", chf );
-    set("NHF", nhf );
-    set("NEMF", nemf );
+    set("CHF", params.getParameter<double>("CHF") );
+    set("NHF", params.getParameter<double>("NHF") );
+    set("NEF", params.getParameter<double>("NEF") );
 
     if ( quality_ == LOOSE ) {
       set("NHF", false );
-      set("NEMF", false );
+      set("NEF", false );
     }
     
   }
@@ -90,7 +97,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     // cache some variables
     double chf = 0.0;
     double nhf = 0.0;
-    double nemf = 0.0;
+    double nef = 0.0;
 
     // Have to do this because pat::Jet inherits from reco::Jet but not reco::PFJet
     reco::PFJet const * pfJet = dynamic_cast<reco::PFJet const *>(&jet);
@@ -99,11 +106,11 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( patJet != 0 ) {
       chf = patJet->chargedHadronEnergyFraction();
       nhf = patJet->neutralHadronEnergyFraction();
-      nemf = patJet->neutralEmEnergyFraction();
+      nef = patJet->neutralEmEnergyFraction();
     } else if ( pfJet != 0 ) {
       chf = pfJet->chargedHadronEnergyFraction();
       nhf = pfJet->neutralHadronEnergyFraction();
-      nemf = pfJet->neutralEmEnergyFraction();
+      nef = pfJet->neutralEmEnergyFraction();
     }
 
     if ( ignoreCut("CHF") || chf > cut("CHF", double()) ) {
@@ -113,8 +120,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	passCut( ret, "NHF");
       }
 
-      if ( ignoreCut("NEMF") || nemf < cut("NEMF", double()) ) {
-	passCut( ret, "NEMF");
+      if ( ignoreCut("NEF") || nef < cut("NEF", double()) ) {
+	passCut( ret, "NEF");
       }
     }
 
