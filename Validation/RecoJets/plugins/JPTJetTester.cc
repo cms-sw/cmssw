@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.21 2010/01/29 17:53:44 hatake Exp $
+// $Id: JPTJetTester.cc,v 1.1 2010/03/20 14:28:07 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -129,7 +129,7 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mE_80             = dbe->book1D("E_80", "E_80", 100, 0, 4500); 
     mE_3000           = dbe->book1D("E_3000", "E_3000", 100, 0, 6000); 
     //
-    mP                = dbe->book1D("P", "P", 110000, 0, 500); 
+    mP                = dbe->book1D("P", "P", 100, 0, 500); 
     mP_80             = dbe->book1D("P_80", "P_80", 100, 0, 4500); 
     mP_3000           = dbe->book1D("P_3000", "P_3000", 100, 0, 6000); 
     //
