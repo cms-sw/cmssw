@@ -44,7 +44,7 @@ FIPConfiguration::~FIPConfiguration()
   //  parser_->getXMLParser()->setContentHandler(0);  
 }
 
-FIPConfiguration::FIPConfiguration(DDCompactView& cpv) : configHandler_(cpv), cpv_(cpv)
+FIPConfiguration::FIPConfiguration() : configHandler_() 
 { 
   //  parser_ = DDLParser::instance();
   //  std::cout << "Making a FIPConfiguration with configHandler_ at " << &configHandler_ << std::endl;
@@ -81,7 +81,8 @@ int FIPConfiguration::readConfig(const std::string& filename)
 
   // Set the parser to use the handler for the configuration file.
   // This makes sure the Parser is initialized and gets a handle to it.
-  DDLParser ddlp(cpv_);
+  DDCompactView cpv;
+  DDLParser ddlp(cpv);
   ddlp.getXMLParser()->setContentHandler(&configHandler_);
   edm::FileInPath fp(filename);
   // config file

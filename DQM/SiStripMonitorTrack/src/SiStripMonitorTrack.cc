@@ -78,9 +78,6 @@ void SiStripMonitorTrack::endJob(void)
 void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   
-  tracksCollection_in_EventTree=true;
-  trackAssociatorCollection_in_EventTree=true;
-  
   //initialization of global quantities
   edm::LogInfo("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;
   runNb   = e.id().run();
@@ -90,41 +87,14 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   countOff=0;
   
   iOrbitSec = e.orbitNumber()/11223.0;
-  e.getByLabel( Cluster_src_, dsv_SiStripCluster); 
-  
-  // track input  
-  std::string TrackProducer = conf_.getParameter<std::string>("TrackProducer");
-  std::string TrackLabel = conf_.getParameter<std::string>("TrackLabel");
-  
-  e.getByLabel(TrackProducer, TrackLabel, trackCollection);//takes the track collection
- 
-  if (trackCollection.isValid()){
-  }else{
-    edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !! " << TrackLabel<<std::endl;
-    tracksCollection_in_EventTree=false;
-  }
-  
-  // trajectory input
-  e.getByLabel(TrackProducer, TrackLabel, TrajectoryCollection);
-  e.getByLabel(TrackProducer, TrackLabel, TItkAssociatorCollection);
-  if( TItkAssociatorCollection.isValid()){
-  }else{
-    edm::LogError("SiStripMonitorTrack")<<"Association not found "<<std::endl;
-    trackAssociatorCollection_in_EventTree=false;
-  }
+
   
   //Perform track study
-  if (tracksCollection_in_EventTree && trackAssociatorCollection_in_EventTree) trackStudy(es);
+  trackStudy(e, es);
   
   //Perform Cluster Study (irrespectively to tracks)
 
-  if(OffHisto_On_){
-    if (dsv_SiStripCluster.isValid()){
-      AllClusters(es);//analyzes the off Track Clusters
-    }else{
-      edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
-    }
-  }
+  if(OffHisto_On_) AllClusters(e, es); //analyzes the off Track Clusters
 
   //Summary Counts of clusters
   std::map<TString, MonitorElement*>::iterator iME;
@@ -518,10 +488,29 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 }
 
 //------------------------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
-{
+ void SiStripMonitorTrack::trackStudy(const edm::Event& ev, const edm::EventSetup& es){
 
-  const reco::TrackCollection tC = *(trackCollection.product());
+  // track input  
+  std::string TrackProducer = conf_.getParameter<std::string>("TrackProducer");
+  std::string TrackLabel = conf_.getParameter<std::string>("TrackLabel");
+ 
+  edm::Handle<reco::TrackCollection > trackCollectionHandle;
+  ev.getByLabel(TrackProducer, TrackLabel, trackCollectionHandle);//takes the track collection
+  if (!trackCollectionHandle.isValid()){
+    edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !! " << TrackLabel<<std::endl;
+    return;
+  }
+  
+  // trajectory input
+  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
+  ev.getByLabel(TrackProducer, TrackLabel, TItkAssociatorCollection);
+  if( !TItkAssociatorCollection.isValid()){
+    edm::LogError("SiStripMonitorTrack")<<"Association not found "<<std::endl;
+    return;
+  }
+  
+  //Perform track study
+  const reco::TrackCollection tC = *(trackCollectionHandle.product());
   int i=0;
   std::vector<TrajectoryMeasurement> measurements;
   for(TrajTrackAssociationCollection::const_iterator it =  TItkAssociatorCollection->begin();it !=  TItkAssociatorCollection->end(); ++it){
@@ -656,11 +645,16 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
 
 //------------------------------------------------------------------------
 
-void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
+void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetup& es) 
 {
-
+  edm::Handle< edmNew::DetSetVector<SiStripCluster> > siStripClusterHandle;
+  ev.getByLabel( Cluster_src_, siStripClusterHandle); 
+  if (!siStripClusterHandle.isValid()){
+    edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+    return;
+  }
   //Loop on Dets
-  for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin(); DSViter!=dsv_SiStripCluster->end();DSViter++){
+  for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=siStripClusterHandle->begin(); DSViter!=siStripClusterHandle->end();DSViter++){
     uint32_t detid=DSViter->id();
     if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()) continue;
     //Loop on Clusters
@@ -668,7 +662,7 @@ void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
     edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
     for(; ClusIter!=DSViter->end(); ClusIter++) {
       SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(*ClusIter,es);
-	LogDebug("SiStripMonitorTrack") << "ClusIter " << &*ClusIter << "\t " 
+      LogDebug("SiStripMonitorTrack") << "ClusIter " << &*ClusIter << "\t " 
 	                                << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin();
 	if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
 	  if ( clusterInfos(SiStripClusterInfo_,detid,"OffTrack",LV) ) {

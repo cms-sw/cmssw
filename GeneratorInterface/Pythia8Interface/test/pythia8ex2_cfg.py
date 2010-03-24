@@ -11,11 +11,11 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    comEnergy = cms.double(10000.),
+    comEnergy = cms.double(7000.),
     PythiaParameters = cms.PSet(
-        pythia8_example01 = cms.vstring('HardQCD:all = on',
+        pythia8_example02 = cms.vstring('HardQCD:all = on',
                                         'PhaseSpace:pTHatMin = 20.'),
-        parameterSets = cms.vstring('pythia8_example01')
+        parameterSets = cms.vstring('pythia8_example02')
     )
 )
 

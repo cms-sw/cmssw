@@ -18,7 +18,7 @@ process.load("DQM.Integration.test.environment_cfi")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.hlxQualityTester = cms.EDFilter("QualityTester",
+process.hlxQualityTester = cms.EDAnalyzer("QualityTester",
     # default is 1
     prescaleFactor = cms.untracked.int32(10000),
     # use eventloop for testing only ! default is false
@@ -33,8 +33,9 @@ process.hlxQualityTester = cms.EDFilter("QualityTester",
 ##process.p = cms.Path(process.hlxdqmsource*process.hlxQualityTester*process.dqmEnv*process.dqmSaver)
 process.p = cms.Path(process.hlxdqmsource*process.hlxQualityTester)
 process.hlxdqmsource.outputDir = '/opt/dqm/data/live'
-process.hlxdqmsource.PrimaryHLXDAQIP = 'vmepcs2f17-18'
+process.hlxdqmsource.PrimaryHLXDAQIP = 'vmepcs2f17-22'
 process.hlxdqmsource.SecondaryHLXDAQIP = 'vmepcs2f17-19'
+process.hlxdqmsource.SourcePort = 51007
 process.DQM.collectorHost = 'localhost'
 process.DQM.collectorPort = 9190
 process.DQMStore.verbose = 0

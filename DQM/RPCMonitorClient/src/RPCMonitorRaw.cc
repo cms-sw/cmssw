@@ -35,7 +35,7 @@ using namespace edm;
 
 RPCMonitorRaw::~RPCMonitorRaw() { LogTrace("") << "RPCMonitorRaw destructor"; }
 
-void RPCMonitorRaw::beginJob( const edm::EventSetup& )
+void RPCMonitorRaw::beginJob()
 {
 
 // Get DQM interface

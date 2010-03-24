@@ -34,7 +34,7 @@ SiStripDigiValidator::~SiStripDigiValidator()
 {  
 }
 
-void SiStripDigiValidator::beginJob(const edm::EventSetup& setup)
+void SiStripDigiValidator::beginJob()
 {
 }
 

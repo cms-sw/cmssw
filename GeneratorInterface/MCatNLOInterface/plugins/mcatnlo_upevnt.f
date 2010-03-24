@@ -85,6 +85,9 @@ C---Colour flows for vector boson fusion
 C----- SANITY FOR CMSSW
       EXITCODE=0
       IERROR=0
+      ID=0
+      IG=0
+      ISCALE=0
       IF (IERROR.NE.0) RETURN
 C---CHECK PROCESS CODE
       JJPROC=MOD(ABS(IPROC),10000)

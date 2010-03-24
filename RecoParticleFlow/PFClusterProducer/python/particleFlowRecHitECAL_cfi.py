@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowRecHitECAL = cms.EDFilter("PFRecHitProducerECAL",
+particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducerECAL",
     # is navigation able to cross the barrel-endcap border?
     crossBarrelEndcapBorder = cms.bool(False),
     # verbosity 

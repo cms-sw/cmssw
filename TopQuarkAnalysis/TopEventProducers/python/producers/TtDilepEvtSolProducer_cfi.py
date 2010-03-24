@@ -6,11 +6,11 @@ import FWCore.ParameterSet.Config as cms
 #
 solutions = cms.EDProducer("TtDilepEvtSolutionMaker",
     evtSource      = cms.InputTag("genEvt"),
-    metSource      = cms.InputTag("layer1METs"),
-    tauSource      = cms.InputTag("selectedLayer1Taus"),
-    muonSource     = cms.InputTag("selectedLayer1Muons"),
-    electronSource = cms.InputTag("selectedLayer1Electrons"),
-    jetSource      = cms.InputTag("selectedLayer1Jets"),
+    metSource      = cms.InputTag("patMETs"),
+    tauSource      = cms.InputTag("selectedPatTaus"),
+    muonSource     = cms.InputTag("selectedPatMuons"),
+    electronSource = cms.InputTag("selectedPatElectrons"),
+    jetSource      = cms.InputTag("selectedPatJets"),
 
     ## considered channels                           
     mutauChannel   = cms.bool(True),

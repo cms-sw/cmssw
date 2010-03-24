@@ -178,11 +178,6 @@ std::ostream & operator<<(std::ostream & o, const DDValue & v)
   return o;
 }
 
-//FIXME move it elsewhere
-std::ostream & operator<<(std::ostream & o, const DDValuePair & v) {
-  return o << v.first << ':' << v.second;
-}
-
 
 DDValuePair DDValue::operator[](unsigned int i) const
   { 

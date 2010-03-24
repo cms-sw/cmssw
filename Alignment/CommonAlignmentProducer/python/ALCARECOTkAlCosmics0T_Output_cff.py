@@ -1,4 +1,4 @@
-# last update: $Date: 2010/02/04 12:27:11 $ by $Author: emiglior $
+# last update: $Date: 2010/02/04 21:03:13 $ by $Author: mussgill $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,6 +16,7 @@ OutALCARECOTkAlCosmics0T_noDrop = cms.PSet(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
         'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
+        'keep recoMuons_muons1Leg_*_*', # save muons as timing info is needed for BP corrections in deconvolution
         'keep *_MEtoEDMConverter_*_*')
 )
 

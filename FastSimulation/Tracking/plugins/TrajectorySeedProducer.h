@@ -2,7 +2,7 @@
 #define FastSimulation_Tracking_TrajectorySeedProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 

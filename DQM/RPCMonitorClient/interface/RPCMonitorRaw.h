@@ -20,7 +20,7 @@ public:
   explicit RPCMonitorRaw( const edm::ParameterSet& cfg) : theConfig(cfg) {}
   virtual ~RPCMonitorRaw();
 
-  virtual void beginJob( const edm::EventSetup& );
+  virtual void beginJob( );
   virtual void endJob();
 
   /// get data, convert to digis attach againe to Event

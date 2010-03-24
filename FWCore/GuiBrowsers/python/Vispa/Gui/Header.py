@@ -1,4 +1,4 @@
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import QHeaderView, QStandardItemModel, QToolButton, QFrame, QVBoxLayout, QSizePolicy
 
 

@@ -77,7 +77,7 @@ void DDTECAxialCableAlgo::initialize(const DDNumericArguments & nArgs,
 		      << idNameSpace << "\tMaterial " << matName;
 }
 
-void DDTECAxialCableAlgo::execute(DDCompactView& cpv) {
+void DDTECAxialCableAlgo::execute() {
 
   DDName mother = parent().name();
   double theta  = 90.*CLHEP::deg;
@@ -152,7 +152,7 @@ void DDTECAxialCableAlgo::execute(DDCompactView& cpv) {
       }
 	
       DDTranslation tran(0,0,0);
-     cpv.position(DDName(name, idNameSpace), mother, i+1, tran, rotation);
+      DDpos (DDName(name, idNameSpace), mother, i+1, tran, rotation);
       LogDebug("TECGeom") << "DDTECAxialCableAlgo test " 
 			  << DDName(name, idNameSpace) << " number " << i+1
 			  << " positioned in " << mother << " at " << tran

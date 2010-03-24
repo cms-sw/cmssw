@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2010/01/19 10:03:51 $
- * $Revision: 1.8 $
+ * $Date: 2010/01/26 17:46:03 $
+ * $Revision: 1.10 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -380,4 +380,4 @@ void DTBlockedROChannelsTest::DTRobBinsMap::readNewValues() {
 
 // FIXME: move to SealModule
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_ANOTHER_FWK_MODULE(DTBlockedROChannelsTest);
+DEFINE_FWK_MODULE(DTBlockedROChannelsTest);

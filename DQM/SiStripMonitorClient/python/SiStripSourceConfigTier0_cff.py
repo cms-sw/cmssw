@@ -41,7 +41,7 @@ TrackerCollisionTrackMon.FolderName          = 'Tracking/TrackParameters'
 TrackerCollisionTrackMon.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
 TrackerCollisionTrackMon
 # DQM Services
-dqmInfoSiStrip = cms.EDFilter("DQMEventInfo",
+dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
     subSystemFolder = cms.untracked.string('SiStrip')
 )
 

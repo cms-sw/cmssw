@@ -11,12 +11,12 @@
 
 #include "EventFilter/L1GlobalTriggerRawToDigi/interface/L1GlobalTriggerRecordProducer.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(L1GTDigiToRaw);
-DEFINE_ANOTHER_FWK_MODULE(L1GlobalTriggerRawToDigi);
 
-DEFINE_ANOTHER_FWK_MODULE(L1GtTextToRaw);
+DEFINE_FWK_MODULE(L1GTDigiToRaw);
+DEFINE_FWK_MODULE(L1GlobalTriggerRawToDigi);
 
-DEFINE_ANOTHER_FWK_MODULE(L1GTEvmDigiToRaw);
-DEFINE_ANOTHER_FWK_MODULE(L1GlobalTriggerEvmRawToDigi);
-DEFINE_ANOTHER_FWK_MODULE(L1GlobalTriggerRecordProducer);
+DEFINE_FWK_MODULE(L1GtTextToRaw);
+
+DEFINE_FWK_MODULE(L1GTEvmDigiToRaw);
+DEFINE_FWK_MODULE(L1GlobalTriggerEvmRawToDigi);
+DEFINE_FWK_MODULE(L1GlobalTriggerRecordProducer);

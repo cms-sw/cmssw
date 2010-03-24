@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.14 2010/02/04 00:45:21 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.16 2010/02/11 00:11:56 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -45,6 +45,17 @@ class BeamFitter {
   void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }
+  TH1F * getCutFlow() { return h1cutFlow; }
+  void resetCutFlow() {
+    h1cutFlow->Reset();
+    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++) countPass[i]=0;
+  };
+  int* getFitLSRange() {
+    int *tmp=new int[2];
+    tmp[0] = fbeginLumiOfFit;
+    tmp[1] = fendLumiOfFit;
+    return tmp;
+  }
   
  private:
 
@@ -135,7 +146,8 @@ class BeamFitter {
 
   TH1F *h1ntrks;
   TH1F *h1vz_event;
-  
+  TH1F *h1cutFlow;
+  int countPass[9];
 };
 
 #endif

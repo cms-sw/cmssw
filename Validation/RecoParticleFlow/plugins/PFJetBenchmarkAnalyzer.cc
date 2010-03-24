@@ -14,7 +14,7 @@
 //
 // Original Author:  Michel Della Negra
 //         Created:  Wed Jan 23 10:11:13 CET 2008
-// $Id: PFJetBenchmarkAnalyzer.cc,v 1.1 2009/03/02 16:22:55 cbern Exp $
+// $Id: PFJetBenchmarkAnalyzer.cc,v 1.2 2009/05/05 13:50:28 pjanot Exp $
 // Extensions by Joanna Weng
 //
 
@@ -39,7 +39,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 using namespace edm;
 using namespace reco;
 using namespace std;

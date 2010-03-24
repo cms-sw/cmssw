@@ -1,4 +1,4 @@
-// $Id: DrainingQueues.cc,v 1.8 2009/08/28 16:41:26 mommsen Exp $
+// $Id: DrainingQueues.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
 /// @file: DrainingQueues.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -88,7 +88,9 @@ DrainingQueues::allQueuesAndWorkersAreEmpty() const
 
   if ( sharedResources->_diskWriterResources->isBusy() ) return false;
   
-  if ( ! sharedResources->_dqmEventQueue->empty() ) return false;
+  //if ( ! sharedResources->_dqmEventQueue->empty() ) return false;
+  // Do not wait for dqmEventQueue to drain, just clear it
+  sharedResources->_dqmEventQueue->clear();
 
   return true;
 }

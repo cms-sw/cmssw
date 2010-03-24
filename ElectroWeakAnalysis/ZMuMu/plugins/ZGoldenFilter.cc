@@ -5,7 +5,7 @@
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -49,7 +49,7 @@ public:
   std::string hltPath_;
   std::string L3FilterName_;
   edm::Handle<edm::TriggerResults> triggerResults_;
-  edm::TriggerNames trigNames_;
+  edm::TriggerNames const* trigNames_;
   edm::Handle< trigger::TriggerEvent > handleTriggerEvent_;
   double maxDPtRel_, maxDeltaR_ ;
 }; 
@@ -71,7 +71,7 @@ void  ZGoldenFilter::newEvent(const edm::Event& ev, const edm::EventSetup& ){
     return ;
   }
   ev.getByLabel(trigTag_, triggerResults_);
-  trigNames_.init(*triggerResults_);
+  trigNames_ = &ev.triggerNames(*triggerResults_);
   if ( ! ev.getByLabel( trigEv_, handleTriggerEvent_ ) ) {
     edm::LogError( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << trigEv_.encode() << " not in event";
     return;
@@ -123,7 +123,7 @@ bool ZGoldenFilter::operator()(const reco::Candidate & z) const {
     
   bool trigger_fired = false;
   for (unsigned int i=0; i<triggerResults_->size(); i++) {
-    std::string trigName = trigNames_.triggerName(i);
+    std::string trigName = trigNames_->triggerName(i);
     if ( trigName == hltPath_ && triggerResults_->accept(i)) trigger_fired = true;
   }
   bool firstdismuon = (dau0->isGlobalMuon() ? true : false); 

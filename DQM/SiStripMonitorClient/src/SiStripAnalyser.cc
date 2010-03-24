@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/10/29 20:59:42 $
- * $Revision: 1.53 $
+ * $Date: 2009/11/05 21:06:21 $
+ * $Revision: 1.54 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -274,8 +274,8 @@ void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
   
   const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
   const FEDNumbering numbering;
-  const int siStripFedIdMin = numbering.getSiStripFEDIds().first;
-  const int siStripFedIdMax = numbering.getSiStripFEDIds().second; 
+  const int siStripFedIdMin = numbering.MINSiStripFEDID;
+  const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
     
   unsigned int nFed = 0;
   for (int i=siStripFedIdMin; i <= siStripFedIdMax; i++) {

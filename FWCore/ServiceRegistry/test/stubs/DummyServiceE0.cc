@@ -7,10 +7,12 @@
 //     <Notes on implementation>
 //
 // Original Author:  David Dagenhart
-// $Id: DummyServiceE0.cc,v 1.1 2007/02/14 20:45:13 wdd Exp $
+// $Id: DummyServiceE0.cc,v 1.2 2007/08/06 20:54:12 wmtan Exp $
 
 #include "FWCore/ServiceRegistry/test/stubs/DummyServiceE0.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <iostream>
 
@@ -21,6 +23,11 @@ namespace {
 }
 
 // ------------------------------------------------------
+
+void DummyServiceBase::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  descriptions.addDefault(desc);
+}
 
 DummyServiceE0::DummyServiceE0(const edm::ParameterSet& iPSet,
                              edm::ActivityRegistry&iAR)

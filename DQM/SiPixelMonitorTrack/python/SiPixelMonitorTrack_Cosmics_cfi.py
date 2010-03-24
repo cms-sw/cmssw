@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelTrackResidualSource_Cosmics = cms.EDFilter("SiPixelTrackResidualSource",
+SiPixelTrackResidualSource_Cosmics = cms.EDAnalyzer("SiPixelTrackResidualSource",
     src = cms.InputTag("siPixelTrackResiduals"),
     clustersrc = cms.InputTag("siPixelClusters"),                            
     debug = cms.untracked.bool(False),                          

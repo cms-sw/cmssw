@@ -74,7 +74,7 @@ void DDTrackerPhiAlgo::initialize(const DDNumericArguments & nArgs,
 			  << idNameSpace;
 }
 
-void DDTrackerPhiAlgo::execute(DDCompactView& cpv) {
+void DDTrackerPhiAlgo::execute() {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -101,7 +101,7 @@ void DDTrackerPhiAlgo::execute(DDCompactView& cpv) {
     double ypos = radius*sin(phi[i]);
     DDTranslation tran(xpos, ypos, zpos[i]);
   
-   cpv.position(child, mother, ci, tran, rotation);
+    DDpos (child, mother, ci, tran, rotation);
     LogDebug("TrackerGeom") << "DDTrackerPhiAlgo test: " << child << " number "
 			    << ci << " positioned in " << mother << " at "
 			    << tran  << " with " << rotation;

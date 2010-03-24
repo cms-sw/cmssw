@@ -39,7 +39,6 @@ class EcalErrorDictionary {
     {
       for (unsigned int i=0; i<DICTSIZE; i++) {
 	if (bitcode & getDef(i).bitmask) {
-	  std::cout << getDef(i).shortDesc << std::endl;
 	}
       }
     }
@@ -66,7 +65,7 @@ class EcalErrorDictionary {
   EcalErrorDictionary() {}; // Hidden to force static use
   ~EcalErrorDictionary() {};  // Hidden to force static use
 
-  const static unsigned int DICTSIZE = 51;
+  const static unsigned int DICTSIZE = 55;
   
   static errorDef_t getDef(unsigned int i) {
     const static errorDef_t ERRORDICT[DICTSIZE] =
@@ -135,9 +134,10 @@ class EcalErrorDictionary {
 	{ ((uint64_t)1<<50), "PHYSICS_BAD_CHANNEL_WARNING" , "Bad signal for physics events"},
 	{ ((uint64_t)1<<51), "PHYSICS_BAD_CHANNEL_ERROR" , "No signal for physics events"},
 
-	{ ((uint64_t)1<<52), "STATUS_FLAG_ERROR" , "Readout tower front end error (any type)"}
+	{ ((uint64_t)1<<52), "STATUS_FLAG_ERROR" , "Readout tower front end error (any type)"},
 
-
+	{ ((uint64_t)1<<53), "LED_MEAN_WARNING" , "Led mean amplitude outside range"},
+	{ ((uint64_t)1<<54), "LED_RMS_WARNING" , "Led rms amplitude outside range"}
 
       };
 

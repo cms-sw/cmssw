@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2009/12/11 16:13:18 $
- * $Revision: 1.90 $
+ * $Date: 2010/02/15 22:44:11 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  *
 */
@@ -30,6 +30,8 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
+
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
 
@@ -346,14 +348,6 @@ void EETimingClient::analyze(void) {
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_MEAN_TIMING_WARNING");
   bits01 |= EcalErrorDictionary::getMask("PHYSICS_RMS_TIMING_WARNING");
 
-#ifdef WITH_ECAL_COND_DB
-  map<EcalLogicID, RunCrystalErrorsDat> mask1;
-  map<EcalLogicID, RunTTErrorsDat> mask2;
-
-  EcalErrorMask::fetchDataSet(&mask1);
-  EcalErrorMask::fetchDataSet(&mask2);
-#endif
-
   char histo[200];
 
   MonitorElement* me;
@@ -426,61 +420,84 @@ void EETimingClient::analyze(void) {
 
         }
 
-        // masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask1.size() != 0 ) {
-          map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask1.begin(); m != mask1.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int jx = ix + Numbers::ix0EE(ism);
-            int jy = iy + Numbers::iy0EE(ism);
-
-            if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-            if ( ! Numbers::validEE(ism, jx, jy) ) continue;
-
-            int ic = Numbers::indexEE(ism, jx, jy);
-
-            if ( ic == -1 ) continue;
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
-              }
-            }
-
-          }
-        }
-#endif
-
-        // TT masking
-
-#ifdef WITH_ECAL_COND_DB
-        if ( mask2.size() != 0 ) {
-          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-          for (m = mask2.begin(); m != mask2.end(); m++) {
-
-            EcalLogicID ecid = m->first;
-
-            int itt = Numbers::iSC(ism, EcalEndcap, ix, iy);
-
-            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
-              if ( (m->second).getErrorBits() & bits01 ) {
-                UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
-              }
-            }
-
-          }
-        }
-#endif
-
       }
     }
 
   }
+
+#ifdef WITH_ECAL_COND_DB
+  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
+    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
+
+        int iz = ecid.getID1();
+        int ix = ecid.getID2();
+        int iy = ecid.getID3();
+
+        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+          int ism = superModules_[i];
+          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
+            int jx = 101 - ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+          }
+          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+          }
+        }
+
+      }
+
+    }
+  }
+
+  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
+    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
+
+      if ( (m->second).getErrorBits() & bits01 ) {
+        EcalLogicID ecid = m->first;
+
+        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
+
+        int idcc = ecid.getID1() - 600;
+        int itt = ecid.getID2();
+
+        int ism = -1;
+        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
+        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
+
+        if ( itt > 70 ) continue;
+
+        if ( itt >= 42 && itt <= 68 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+        if ( itt >= 1 && itt <= 68 ) {
+          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          for ( unsigned int i=0; i<crystals->size(); i++ ) {
+            EEDetId id = (*crystals)[i];
+            int ix = id.ix();
+            int iy = id.iy();
+            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+            int jx = ix - Numbers::ix0EE(ism);
+            int jy = iy - Numbers::iy0EE(ism);
+            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
+          }
+        }
+
+      }
+
+    }
+  }
+#endif
 
 }
 

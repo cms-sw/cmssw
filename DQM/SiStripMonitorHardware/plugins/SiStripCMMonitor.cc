@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.11 2010/01/08 14:14:47 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.13 2010/02/20 20:59:06 wmtan Exp $
 //
 
 #include <sstream>
@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -135,6 +135,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
+    dqm_(0),
     cablingCacheId_(0)
     
 {

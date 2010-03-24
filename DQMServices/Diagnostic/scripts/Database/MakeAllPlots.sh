@@ -34,9 +34,6 @@ function MakeAllPlots ()
 	local Macro="${SubDets[$k]}HDQMInspector"
 	echo Running on $Det
 
-	echo "RUNSTART = $RunStart"
-	echo "RUNEND = $RunEnd"
-
 	local ThisDir=`pwd`
 	cd ${LocalBaseDir}/scripts
 	if [ ${RunEnd} ]; then

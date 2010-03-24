@@ -1,4 +1,4 @@
-// $Id: FRDStreamHandler.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: FRDStreamHandler.cc,v 1.4 2009/08/28 16:41:26 mommsen Exp $
 /// @file: FRDStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -19,10 +19,11 @@ StreamHandler(sharedResources),
 _streamConfig(streamConfig)
 {
   _streamRecord->streamName = streamLabel();
+  _streamRecord->fractionToDisk = fractionToDisk();
 }
 
 
-const FRDStreamHandler::FileHandlerPtr
+FRDStreamHandler::FileHandlerPtr
 FRDStreamHandler::newFileHandler(const I2OChain& event)
 {
   FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);

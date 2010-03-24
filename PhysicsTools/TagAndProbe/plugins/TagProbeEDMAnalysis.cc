@@ -14,14 +14,18 @@
 //         Created:  Sun Apr 20 10:35:25 CDT 2008
 //
 
+#define private public
+// Sorry, I nead TFileDirectory::cd()
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#undef private
+
 #include "PhysicsTools/TagAndProbe/interface/TagProbeEDMAnalysis.h"
 
 // TP Utilities
 #include "PhysicsTools/RooStatsCms/interface/FeldmanCousinsBinomialInterval.h"
 #include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
-#include "PhysicsTools/TagAndProbe/interface/SideBandSubtraction.hh"
+//#include "PhysicsTools/TagAndProbe/interface/SideBandSubtraction.hh"
 #include "PhysicsTools/TagAndProbe/interface/TPRooSimultaneousFitter.hh"
-
 // Line Shapes
 #include "PhysicsTools/TagAndProbe/interface/ZLineShape.hh"
 #include "PhysicsTools/TagAndProbe/interface/CBLineShape.hh"
@@ -60,12 +64,9 @@
 #include <vector>
 #include <string>
 
-/// FIXME temporary workaround waiting for new version of TFileService
-namespace { inline void cd_(TFileDirectory &tf) { delete tf.make<TH1F>("dummy","dummy",1,0,1); }  }
-
 TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig): 
 
-  effBinsFromTxt_(0),SBS_(0),
+  effBinsFromTxt_(0), leftRegion_(), rightRegion_(), SBS_(0),
   zLineShape_(0), cbLineShape_(0), gaussLineShape_(0),
   polyBkgLineShape_(0),cmsBkgLineShape_(0), signalShapePdf_(0),
   var1Pass_(0), var1All_(0),
@@ -92,8 +93,15 @@ TagProbeEDMAnalysis::TagProbeEDMAnalysis (const edm::ParameterSet& iConfig):
 
 
   if (calcEffsSB_) {
-    SBS_ = new SideBandSubtraction();
-    SBS_->Configure(iConfig);
+    Double_t stanDev = iConfig.getUntrackedParameter< double >("SBSStanDev");
+    Double_t peak = iConfig.getUntrackedParameter< double >("SBSPeak");
+    rightRegion_.min = peak + 10*stanDev;
+    rightRegion_.max = peak + 10*stanDev + 3*stanDev;
+    rightRegion_.RegionName="rightRegion";
+    leftRegion_.min = peak - 10*stanDev - 3*stanDev;
+    leftRegion_.max = peak - 10*stanDev;
+    leftRegion_.RegionName="leftRegion";
+    SBS_ = new SideBandSubtract();
   }
   
   // Type of fit
@@ -309,7 +317,7 @@ void TagProbeEDMAnalysis::ReadMCHistograms(){
            iFile != readFiles_.end(); ++iFile) {
          TFile inputFile(iFile->c_str());
          TTree *tree = (TTree *) inputFile.Get(readDirectory_.empty() ? "fitter_tree" : (readDirectory_+"/fitter_tree").c_str());
-         var1Pass_->GetDirectory()->cd();
+         mcDetails_.cd();
          char basecut[255];
          if (hasWeights_) {
              sprintf(basecut,"mcTrue && (%f < %s) && (%s < %f)) * %s", massLow_, massName_.c_str(), massName_.c_str(), massHigh_, weightName_.c_str());
@@ -703,8 +711,8 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
     SBSFailProbes->Sumw2();
     
     // Perform side band subtraction
-    SBS_->Subtract(*PassProbes, *SBSPassProbes);
-    SBS_->Subtract(*FailProbes, *SBSFailProbes);
+    SBS_->doFastSubtraction(*PassProbes, *SBSPassProbes, leftRegion_, rightRegion_);
+    SBS_->doFastSubtraction(*FailProbes, *SBSFailProbes, leftRegion_, rightRegion_);
     
     // Count the number of passing and failing probes in the region
     double npassR = SBSPassProbes->Integral("");
@@ -738,9 +746,6 @@ void TagProbeEDMAnalysis::TPEffSBS (std::string &fileName, std::string &bvar,
     }
     
   }
-
-  cd_(*fs); 
-  effhist->Write(); // must call Write, as it's not a THs
 }
 
 
@@ -865,8 +870,8 @@ void TagProbeEDMAnalysis::TPEffSBS2D( std::string &fileName, std::string &bvar1,
 	 SBSFailProbes->Sumw2();
 
 	 // Perform side band subtraction
-	 SBS_->Subtract(*PassProbes, *SBSPassProbes);
-	 SBS_->Subtract(*FailProbes, *SBSFailProbes);
+	 SBS_->doFastSubtraction(*PassProbes, *SBSPassProbes, leftRegion_, rightRegion_);
+	 SBS_->doFastSubtraction(*FailProbes, *SBSFailProbes, leftRegion_, rightRegion_);
 
 	 // Count the number of passing and failing probes in the region
 	 double npassR = SBSPassProbes->Integral("");
@@ -958,14 +963,6 @@ void TagProbeEDMAnalysis::TPEffFitter( std::string &fileName, std::string &bvar,
      chi2hist->SetPoint(iBin, xval, chi2Val);
      qualityhist->SetPoint(iBin, xval, quality);
    }
-  
-   cd_(*fs); 
-   effhist->Write();     // must call Write
-   cd_(fitDetails_);
-   chi2hist->Write();    // as they're not
-   qualityhist->Write(); // THs or TTrees
-   
-   return;
 }
 
 
@@ -1007,12 +1004,6 @@ const std::string &bvar2, std::vector<double> &bins2 )
         qualityhist->SetBinContent( bin1+1, bin2+1, quality);
       }
    }
-
-   cd_(*fs);
-   effhist->Write();     // must call Write
-   cd_(fitDetails_);
-   chi2hist->Write();    // as they are not
-   qualityhist->Write(); // THs or TTrees
 }
 // ************************************** //
 

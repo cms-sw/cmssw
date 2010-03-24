@@ -213,8 +213,8 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     }
     
     // This is needed for plotting with the Pixel Expert GUI (interactive client):
-    //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
-    //sipixelWebInterface_->performAction();
+    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
+    sipixelWebInterface_->performAction();
   }
   
 }
@@ -319,7 +319,7 @@ void SiPixelEDAClient::endJob(){
 void SiPixelEDAClient::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {
 //  cout<<"Entering SiPixelEDAClient::defaultWebPage: "<<endl;
-/*      
+      
   bool isRequest = false;
   cgicc::Cgicc cgi(in);
   cgicc::CgiEnvironment cgie(in);
@@ -335,7 +335,7 @@ void SiPixelEDAClient::defaultWebPage(xgi::Input *in, xgi::Output *out)
     int iter = nEvents_/100;
     sipixelWebInterface_->handleEDARequest(in, out, iter);
   }
-*/
+
 //  cout<<"...leaving SiPixelEDAClient::defaultWebPage. "<<endl;
 }
 

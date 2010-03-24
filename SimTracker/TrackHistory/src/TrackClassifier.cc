@@ -19,7 +19,7 @@ TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) : TrackCategori
     tracer_.depth(-2);
 
     // Set the maximum d0pull for the bad category
-    badPull_ = pset.getUntrackedParameter<double>("badPull");
+    badD0Pull_ = pset.getUntrackedParameter<double>("badD0Pull");
 
     // Set the minimum decay length for detecting long decays
     longLivedDecayLength_ = pset.getUntrackedParameter<double>("longLivedDecayLength");
@@ -51,7 +51,11 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
     setup.getData(particleDataTable_);
 
     // get the beam spot
-    event.getByLabel(beamSpotLabel_, beamSpot_);
+    edm::Handle<reco::BeamSpot> beamSpot;
+    event.getByLabel(beamSpotLabel_, beamSpot);
+    beamSpot_ = reco::TrackBase::Point(
+                    beamSpot->x0(), beamSpot->y0(), beamSpot->z0()
+                );
 
     // Transient track builder
     setup.get<TransientTrackRecord>().get("TransientTrackBuilder", transientTrackBuilder_);
@@ -150,7 +154,6 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
     TrackingParticleRef tpr = tracer_.simParticle();
 
     // Compute tracking particle parameters at point of closest approach to the beamline
-    
     const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 
     FreeTrajectoryState ftsAtProduction(
@@ -170,33 +173,23 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
 
     TSCPBuilderNoMaterial tscpBuilder;
 
+    GlobalPoint theBS(beamSpot_.x(), beamSpot_.y(), beamSpot_.z());
+
     TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
-        ftsAtProduction,
-        GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0())
-    );
+                ftsAtProduction, theBS );
 
-    GlobalVector v = tsAtClosestApproach.theState().position() 
-                   - GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0());
+
+    GlobalVector v = tsAtClosestApproach.theState().position() - theBS;
     GlobalVector p = tsAtClosestApproach.theState().momentum();
-   
-    // Simulated dxy
-    double dxySim = -v.x()*sin(p.phi()) + v.y()*cos(p.phi());
 
-    // Simulated dz
-    double dzSim = v.z() - (v.x()*p.x() + v.y()*p.y())*p.z()/p.perp2();   
+    // Simulated d0
+    double d0Sim = - (-v.x()*sin(p.phi()) + v.y()*cos(p.phi()));
 
-    // Calculate the dxy pull
-    double dxyPull = std::abs(
-        track->dxy( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dxySim
-    ) / track->dxyError();
-
-    // Calculate the dx pull
-    double dzPull = std::abs(
-        track->dz( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dzSim
-    ) / track->dzError();
+    // Calculate the d0 pull
+    double d0Pull = std::abs(-track->dxy(beamSpot_) - d0Sim) / track->d0Error();
 
     // Return true if d0Pull > badD0Pull sigmas
-    flags_[Bad] = (dxyPull > badPull_ || dzPull > badPull_);
+    flags_[Bad] = (d0Pull > badD0Pull_);
 }
 
 
@@ -214,7 +207,8 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
     // run the hit-by-hit reconstruction quality analysis
     quality_.evaluate(tracer_.simParticleTrail(), track);
 
-    unsigned int maxLayers = std::min(numberOfInnerLayers_, quality_.numberOfLayers());
+    unsigned int maxLayers = std::min(numberOfInnerLayers_,
+                                      quality_.numberOfLayers());
 
     // check the innermost layers for bad hits
     for (unsigned int i = 0; i < maxLayers; i++)

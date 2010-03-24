@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MethodSetter.h,v 1.1 2009/02/24 14:10:21 llista Exp $
+ * \version $Id: MethodSetter.h,v 1.2 2009/07/09 10:47:24 gpetrucc Exp $
  */
 #include "CommonTools/Utils/src/MethodStack.h"
 #include "CommonTools/Utils/src/TypeStack.h"
@@ -19,11 +19,19 @@ namespace reco {
 	intStack_(intStack), lazy_(lazy) { }
       void operator()(const char *, const char *) const;
       /// Resolve the method, push a MethodInvoker on the MethodStack and it's return type to TypeStack (after stripping "*" and "&")
-      /// If the object is a Ref/Ptr/RefToBase and the method is not found in that class, it pushes a no-argument 'get()' method
-      /// and attempts to resolve and push the method on the object to which the edm ref points to. In that case, the MethodStack will 
-      /// contain two more items after this call instead of just one.
       /// This method is used also by the LazyInvoker to perform the fetch once the final type is known
-      void push(const std::string&, const std::vector<AnyMethodArgument>&,const char*) const;
+      /// If the object is a Ref/Ptr/RefToBase and the method is not found in that class:
+      ///  1)  it pushes a no-argument 'get()' method
+      ///  2)  if deep = true, it attempts to resolve and push the method on the object to which the edm ref points to. 
+      ///         In that case, the MethodStack will contain two more items after this call instead of just one.
+      ///         This behaviour is what you want for non-lazy parsing
+      ///  2b) if instead deep = false, it just pushes the 'get' on the stack.
+      ///      this will allow the LazyInvoker to then re-discover the runtime type of the pointee
+      ///  The method will:
+      ///     - throw exception, if the member can't be resolved
+      ///     - return 'false' if deep = false and it only pushed a 'get' on the stack
+      ///     - return true otherwise
+      bool push(const std::string&, const std::vector<AnyMethodArgument>&,const char*,bool deep=true) const;
     private:
       MethodStack & methStack_;
       LazyMethodStack & lazyMethStack_;

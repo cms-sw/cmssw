@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalEBunpacker = cms.EDFilter("EcalRawToDigi",
+ecalEBunpacker = cms.EDProducer("EcalRawToDigi",
     orderedDCCIdList = cms.vint32(1, 2, 3, 4, 5, 
         6, 7, 8, 9, 10, 
         11, 12, 13, 14, 15, 

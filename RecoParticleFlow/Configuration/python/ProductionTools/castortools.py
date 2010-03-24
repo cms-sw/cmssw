@@ -225,7 +225,7 @@ def cp( absDestDir, files ):
             else:
                 cp = 'cp'
         
-        cpfile = '%s %s %s' % (cp, file,absDestDir)
+        cpfile = '%s %s %s &' % (cp, file,absDestDir)
         print cpfile
         os.system(cpfile)
         

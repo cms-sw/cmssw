@@ -154,10 +154,12 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     //---- Calculate local position within the strip
     float xWithinChamber = lp11.x();
     quality = 0;
-    xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, 
-				xWithinChamber,
+    if(layergeom_->inside(lp11 )){// save time; this hit is to be discarded anyway - see isHitInFiducial(...)
+      xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, 
+                     		xWithinChamber,
 				stripWidth, tpeak, positionWithinTheStrip, 
 				sigmaWithinTheStrip, quality);
+    }				
     lp0 = LocalPoint( xWithinChamber, layergeom_->yOfWire(centerWire, xWithinChamber) );
   }
   
@@ -180,16 +182,15 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
 bool CSCMake2DRecHit::isHitInFiducial( const CSCLayer* layer, const CSCRecHit2D& rh ) {
 
   bool isInFiducial = true;
-  
-  // Allow extra margin for future tuning etc.
-  float marginAtEdge = 0.1; 
-  
-  const CSCLayerGeometry* layergeom = layer->geometry();
-  
-  float y = rh.localPosition().y();
-  float apothem = layergeom->length()/2.;
-  
-  if ( fabs(y) > (apothem+marginAtEdge) ) isInFiducial=false;
+  const CSCLayerGeometry* layergeom_ = layer->geometry();
+  LocalPoint rhPosition =  rh.localPosition();
+  // is the rechit within the chamber? 
+  //(the problem occurs in ME11a/b otherwise it is OK)
+  // we could use also 
+  //bool inside( const Local3DPoint&, const LocalError&, float scale=1.f ) const;
+  if(!layergeom_->inside(rhPosition)){
+    isInFiducial = false;
+  }
   
   return isInFiducial;
 }

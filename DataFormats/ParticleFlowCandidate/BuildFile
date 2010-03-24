@@ -5,6 +5,7 @@
 <use name="rootcore">
 <use name="rootmath">
 <use name="rootrflx">
+<use name=clhepheader>
 <export>
   <lib name="DataFormatsParticleFlowCandidate">
 </export>

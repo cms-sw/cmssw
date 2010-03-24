@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/11/29 23:10:28 $
- * $Revision: 1.81 $
+ * $Date: 2010/02/24 10:11:36 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -97,6 +97,7 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   meSCMapSingleCrystal_ = 0;
 
   mes1s9_  = 0;
+  mes1s9thr_  = 0;
   mes9s25_  = 0;
 
   meInvMassPi0_ = 0;
@@ -195,6 +196,8 @@ void EBClusterTask::reset(void) {
   if ( meSCMapSingleCrystal_ ) meSCMapSingleCrystal_->Reset();
 
   if ( mes1s9_ ) mes1s9_->Reset();
+
+  if ( mes1s9thr_ ) mes1s9thr_->Reset();
 
   if ( mes9s25_ ) mes9s25_->Reset();
 
@@ -344,6 +347,10 @@ void EBClusterTask::setup(void){
     mes1s9_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
+    sprintf(histo, "EBCLT s1s9 thr");
+    mes1s9thr_ = dqmStore_->book1D(histo, histo, 50, 0., 1.5);
+    mes1s9thr_->setAxisTitle("s1/s9", 1);
+
     sprintf(histo, "EBCLT s9s25");
     mes9s25_ = dqmStore_->book1D(histo, histo, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
@@ -468,6 +475,9 @@ void EBClusterTask::cleanup(void){
 
     if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
+
+    if ( mes1s9thr_ ) dqmStore_->removeElement( mes1s9thr_->getName() );
+    mes1s9thr_ = 0;
 
     if ( mes9s25_ ) dqmStore_->removeElement( mes9s25_->getName() );
     mes9s25_ = 0;
@@ -656,26 +666,15 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meSCEne_->Fill( sCluster->energy() );
       meSCSiz_->Fill( float(sCluster->clustersSize()) );
 
-      // <= CMSSW_3_0_X
-      //BasicClusterRef theSeed = sCluster->seed();
-      // >= CMSSW_3_1_X
       CaloClusterPtr theSeed = sCluster->seed();
       
       // Find the seed rec hit
-      // <= CMSSW_3_0_X
-      // std::vector<DetId> sIds = sCluster->getHitsByDetId();
-      // >= CMSSW_3_1_X
       std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
 
       float eMax, e2nd;
       EcalRecHitCollection::const_iterator seedItr = ebRecHits->begin();
       EcalRecHitCollection::const_iterator secondItr = ebRecHits->begin();
       
-      // <= CMSSW_3_0_X
-      // for(std::vector<DetId>::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
-      // if(idItr->det() != DetId::Ecal) { continue; }
-      // EcalRecHitCollection::const_iterator hitItr = ebRecHits->find((*idItr));
-      // <= CMSSW_3_1_X
       for(std::vector< std::pair<DetId,float> >::const_iterator idItr = sIds.begin(); idItr != sIds.end(); ++idItr) {
         DetId id = idItr->first;
         if(id.det() != DetId::Ecal) { continue; }
@@ -709,6 +708,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       if(sIds.size() == 1) meSCMapSingleCrystal_->Fill(xebphi,xebeta);
 
       mes1s9_->Fill( eMax/e3x3 );
+      if ( eMax > 3.0 ) mes1s9thr_->Fill( eMax/e3x3 );
       mes9s25_->Fill( e3x3/e5x5 );
 
       if ( nscc >= 2 ) {

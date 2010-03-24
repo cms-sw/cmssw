@@ -13,6 +13,11 @@ public:
     m_arg(arg)
   { }
 
+  // initialize the depending modules
+  void init(const Data & data) { 
+    m_arg->init(data);
+  }
+
 protected:
   boost::scoped_ptr<Evaluator> m_arg;
 };
@@ -24,6 +29,12 @@ public:
     m_arg1(arg1),
     m_arg2(arg2)
   { }
+
+  // initialize the depending modules
+  void init(const Data & data) { 
+    m_arg1->init(data);
+    m_arg2->init(data);
+  }
 
 protected:
   boost::scoped_ptr<Evaluator> m_arg1;
@@ -39,7 +50,7 @@ public:
     UnaryOperator(arg)
   { }
 
-  bool operator()(const Data & data) {
+  bool operator()(const Data & data) const {
     return not (*m_arg)(data);
   }
   
@@ -55,7 +66,7 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const Data & data) {
+  bool operator()(const Data & data) const {
     // force the execution af both arguments, otherwise precalers won't work properly
     bool r1 = (*m_arg1)(data);
     bool r2 = (*m_arg2)(data);
@@ -75,7 +86,7 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const Data & data) {
+  bool operator()(const Data & data) const {
     // force the execution af both arguments, otherwise precalers won't work properly
     bool r1 = (*m_arg1)(data);
     bool r2 = (*m_arg2)(data);
@@ -95,7 +106,7 @@ public:
     BinaryOperator(arg1, arg2)
   { }
 
-  bool operator()(const Data & data) {
+  bool operator()(const Data & data) const {
     // force the execution af both arguments, otherwise precalers won't work properly
     bool r1 = (*m_arg1)(data);
     bool r2 = (*m_arg2)(data);

@@ -5,23 +5,13 @@ import FWCore.ParameterSet.Config as cms
 #
 ttSemiLepHypGeom = cms.EDProducer("TtSemiLepHypGeom",
     ## met input 
-    mets  = cms.InputTag("layer1METs"),
+    mets  = cms.InputTag("patMETs"),
     ## jet input 
-    jets  = cms.InputTag("selectedLayer1Jets"),
+    jets  = cms.InputTag("selectedPatJets"),
     ## lepton input
-    leps  = cms.InputTag("selectedLayer1Muons"),
-    ## maximal number of jets to be considered
-    maxNJets  = cms.int32(4),
-    ## use deltaR or deltaTheta
-    useDeltaR = cms.bool(True),
-    ## use b-tagging two distinguish between light and b jets
-    useBTagging = cms.bool(False),
-    ## choose algorithm for b-tagging
-    bTagAlgorithm = cms.string("trackCountingHighEffBJetTags"),
-    ## minimum b discriminator value required for b jets and
-    ## maximum b discriminator value allowed for non-b jets
-    minBDiscBJets     = cms.double(1.0),
-    maxBDiscLightJets = cms.double(3.0),
+    leps  = cms.InputTag("selectedPatMuons"),
+    ## jet combination
+    match = cms.InputTag("findTtSemiLepJetCombGeom"),
     ## specify jet correction level as
     ## No Correction : raw                                     
     ## L1Offset      : off

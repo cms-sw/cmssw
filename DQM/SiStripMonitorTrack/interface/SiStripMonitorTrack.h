@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"  
@@ -73,8 +73,8 @@ private:
   MonitorElement * bookMEProfile(const char*, const char*);
   MonitorElement * bookMETrend(const char*, const char*);
   // internal evaluation of monitorables
-  void AllClusters(const edm::EventSetup& es);
-  void trackStudy(const edm::EventSetup& es);
+  void AllClusters(const edm::Event& ev, const edm::EventSetup& es); 
+  void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
   template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
@@ -160,11 +160,11 @@ private:
   std::map<TString, MonitorElement*> MEMap;
 
   
-  edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
+  //  edm::Handle< edmNew::DetSetVector<SiStripCluster> > dsv_SiStripCluster;
   
-  edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
-  edm::Handle<reco::TrackCollection > trackCollection;
-  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
+  //   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
+  //  edm::Handle<reco::TrackCollection > trackCollection;
+  //  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
   
   edm::ESHandle<TrackerGeometry> tkgeom;
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;

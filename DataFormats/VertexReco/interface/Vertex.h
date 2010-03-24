@@ -15,7 +15,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.32 2007/09/25 11:21:51 speer Exp $
+ * \version $Id: Vertex.h,v 1.33 2008/11/06 17:06:23 elmer Exp $
  *
  */
 #include <Rtypes.h>
@@ -84,7 +84,7 @@ namespace reco {
      */
     double ndof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
-    double normalizedChi2() const { return chi2_ / ndof_; }
+    double normalizedChi2() const { return ndof_ != 0 ? chi2_ / ndof_ : chi2_ * 1e6; }
     /// position 
     const Point & position() const { return position_; }
     /// x coordinate 

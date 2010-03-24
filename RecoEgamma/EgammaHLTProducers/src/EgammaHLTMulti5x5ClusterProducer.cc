@@ -86,12 +86,15 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
   providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
 
+  // exclude recHit flags from seeding
+  std::vector<int> v_chstatus = ps.getParameter<std::vector<int> >("RecHitFlagToBeExcluded");
+
   // Produces a collection of barrel and a collection of endcap clusters
 
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
 
-  Multi5x5_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
+  Multi5x5_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, v_chstatus, posCalculator_,verbosity);
   
   /*
   shapeAlgo_ = ClusterShapeAlgo(providedParameters);//new

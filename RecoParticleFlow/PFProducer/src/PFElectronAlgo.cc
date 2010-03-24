@@ -1269,6 +1269,11 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	  }
  	}
 		
+	// Reject Crazy E/p values... to be understood in the future how to train a 
+	// BDT in order to avoid to select this bad electron candidates. 
+	
+	if( EtotPinMode < 0.2 && EGsfPoutMode < 0.2 ) BDToutput_[cgsf] = mvaValue-6.;
+	
 
 
 	if (DebugIDOutputs) {

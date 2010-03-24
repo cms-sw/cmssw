@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CSCTPEmulator")
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(200000)
+  input = cms.untracked.int32(10000)
 )
 
 # Hack to add "test" directory to the python path.
@@ -24,29 +24,14 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 #        int32 max_queue_depth = 5
 #    }
 
-process.source = cms.Source("PoolSource",
+#process.source = cms.Source("PoolSource",
 ##    fileNames = cms.untracked.vstring('file:/data0/slava/data/run58731/4C6067C2-B972-DD11-9672-000423D996B4.root')
 #     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/v1/000/069/912/007F93B1-18AD-DD11-AB6D-000423D991D4.root'),
-     fileNames = cms.untracked.vstring(
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FE316E49-047F-DE11-AC0C-001D09F231B0.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FCEFF16D-F57E-DE11-B5D6-0030487A1FEC.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FC9CDB54-FF7E-DE11-B93F-001D09F24024.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F8DAC763-067F-DE11-8539-001D09F295A1.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F847EBEF-F87E-DE11-AAC5-000423D94A20.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F6240161-EC7E-DE11-B347-000423D952C0.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F4CCFBD1-077F-DE11-BAA9-0030487A18F2.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F405FCD9-077F-DE11-A59E-000423D944FC.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2FA627F-087F-DE11-8931-001D09F2AD4D.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2F426F5-1A7F-DE11-8930-001D09F24303.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2E6A530-F67E-DE11-8B19-001D09F248F8.root',
-       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2D0CA18-187F-DE11-B296-001D09F2545B.root'
-     )
-#     fileNames = cms.untracked.vstring('file:/data0/slava/data/run109562/FE316E49-047F-DE11-AC0C-001D09F231B0.root')
 ##        untracked uint32 debugVebosity = 10
 ##        untracked bool   debugFlag     = false
 ###	untracked uint32 skipEvents    = 2370
-)
-#process.load("localrun_cfi")
+#)
+process.load("localrun_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring("debug"),
@@ -77,8 +62,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'STARTUP_30X::All'
-process.GlobalTag.globaltag = 'MC_31X_V9::All'
+process.GlobalTag.globaltag = 'STARTUP_30X::All'
 #process.prefer("GlobalTag")
 
 # magnetic field (do I need it?)
@@ -92,30 +76,21 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # CSC raw --> digi unpacker
 # =========================
 process.cscunpacker = cms.EDFilter("CSCDCCUnpacker",
+    Debug = cms.untracked.bool(False),
+    PrintEventNumber = cms.untracked.bool(False),
+    UseExaminer = cms.untracked.bool(True),
+    # ExaminerMask = cms.untracked.uint32(0x7FF7BF6),
+    ExaminerMask = cms.untracked.uint32(0x1FEBF3F6),
+    UnpackStatusDigis = cms.untracked.bool(False),
+    # for run 566 and 2008 data
+    ErrorMask = cms.untracked.uint32(0),
+    # ErrorMask = cms.untracked.uint32(0xDFCFEFFF),
+    UseSelectiveUnpacking = cms.untracked.bool(True),
     # Define input to the unpacker
     # InputObjects = cms.InputTag("cscpacker","CSCRawData"),
     InputObjects = cms.InputTag("source"),
-    # Use CSC examiner to check for corrupt or semi-corrupt data &
-    # avoid unpacker crashes
-    UseExaminer = cms.bool(True),
-    # This mask is needed by the examiner
-    # ExaminerMask = cms.uint32(0x7FF7BF6),
-    ExaminerMask = cms.uint32(0x1FEBF3F6),
-    # Use Examiner to unpack good chambers and skip only bad ones
-    UseSelectiveUnpacking = cms.bool(True),
-    # This mask simply reduces error reporting
-    ErrorMask = cms.uint32(0),
-    # for run 566 and 2008 data
-    # ErrorMask = cms.untracked.uint32(0xDFCFEFFF),
-    # Unpack general status digis?
-    UnpackStatusDigis = cms.bool(False),
-    # Unpack FormatStatus digi?
-    UseFormatStatus = cms.bool(True),
-    # Zero suppression
-    SuppressZeroLCT = cms.untracked.bool(True),
-    # Turn on lots of output
-    Debug = cms.untracked.bool(False),
-    PrintEventNumber = cms.untracked.bool(False)
+    # MTCC data flag
+    isMTCCData = cms.untracked.bool(False)
 )
 
 # CSC Trigger Primitives configuration
@@ -156,7 +131,7 @@ process.lctreader.debug = True
 # ======
 process.out = cms.OutputModule("PoolOutputModule",
     #fileName = cms.untracked.string("/data0/slava/test/lcts_run62232.root"),
-    fileName = cms.untracked.string("/data0/slava/test/lcts_run109562.root"),
+    fileName = cms.untracked.string("/data0/slava/test/lcts_run80733.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )

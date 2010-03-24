@@ -64,6 +64,7 @@
        edm::ESHandle<TrackerGeometry> pDD;
        bool saveFile;
        bool slowDown;
+       std::string dirName_;
        int eventNo;
        DQMStore* theDMBE;
        MonitorElement* meRawWords_;

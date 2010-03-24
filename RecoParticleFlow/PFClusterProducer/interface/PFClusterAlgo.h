@@ -96,6 +96,9 @@ class PFClusterAlgo {
 
   /// activate use of cells with a common corner to build topo-clusters
   void setUseCornerCells( bool usecornercells ) { useCornerCells_ = usecornercells;}
+  
+  /// Activate cleaning of HCAL RBX's and HPD's
+  void setCleanRBXandHPDs( bool cleanRBXandHPDs) { cleanRBXandHPDs_ = cleanRBXandHPDs; }
 
   /// set rechit mask
   void setMask( const std::vector<bool>& mask );
@@ -157,7 +160,10 @@ class PFClusterAlgo {
   std::auto_ptr< std::vector< reco::PFCluster > >& clusters()  
     {return pfClusters_;}
 
-  
+  /// \return cleaned rechits
+  std::auto_ptr< std::vector< reco::PFRecHit > >& rechitsCleaned()  
+    {return pfRecHitsCleaned_;}
+
   /// \return threshold, seed threshold, (gaussian width, p1 ??)
   /// for a given zone (endcap, barrel, VFCAL ??)
 
@@ -258,6 +264,9 @@ class PFClusterAlgo {
   /// particle flow clusters
   std::auto_ptr< std::vector<reco::PFCluster> > pfClusters_;
   
+  /// particle flow rechits cleaned
+  std::auto_ptr< std::vector<reco::PFRecHit> > pfRecHitsCleaned_;
+  
   ///  barrel threshold
   double threshBarrel_;
   double threshPtBarrel_;
@@ -297,6 +306,8 @@ class PFClusterAlgo {
   /// option to use cells with a common corner to build topo-clusters
   bool useCornerCells_;
 
+  /// option to clean HCAL RBX's and HPD's
+  bool cleanRBXandHPDs_;
 
   /// debugging on/off
   bool   debug_;

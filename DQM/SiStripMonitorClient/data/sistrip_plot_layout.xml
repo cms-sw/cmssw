@@ -1,11 +1,11 @@
 <Layouts>
 <layout name="Tracks">
-  <monitorable name="Tracking/TrackParameters/NumberOfTracks_CKFTk"></monitorable>
-  <monitorable name="Tracking/TrackParameters/NumberOfRecHitsPerTrack_CKFTk"></monitorable>
-  <monitorable name="Tracking/TrackParameters/TrackPt_CKFTk"></monitorable>
-  <monitorable name="Tracking/TrackParameters/Chi2overDoF_CKFTk"></monitorable>
-  <monitorable name="Tracking/TrackParameters/TrackPhi_CKFTk"></monitorable>
-  <monitorable name="Tracking/TrackParameters/TrackEta_CKFTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/NumberOfTracks_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/HitProperties/NumberOfRecHitsPerTrack_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/TrackPt_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/Chi2oNDF_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/TrackPhi_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/TrackEta_GenTk"></monitorable>
 </layout>
 <layout name="FedMonitoringSummary">
   <monitorable name="SiStrip/ReadoutView/FedMonitoringSummary/BadActiveChannelStatusBits"></monitorable>
@@ -20,21 +20,21 @@
 </layout>
 <layout name="NumberOfDigiTrend">
   <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfDigiProfile__TIB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfDigiProfile__TOB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfDigiProfile__TID"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfDigiProfile__TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TOB/TotalNumberOfDigiProfile__TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/TotalNumberOfDigiProfile__TID"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/TotalNumberOfDigiProfile__TEC"></monitorable>
 </layout>
 <layout name="NumberOfClusterTrend">
   <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfClusterProfile__TIB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfClusterProfile__TOB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfClusterProfile__TID"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/TotalNumberOfClusterProfile__TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TOB/TotalNumberOfClusterProfile__TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/TotalNumberOfClusterProfile__TID"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/TotalNumberOfClusterProfile__TEC"></monitorable>
 </layout>
 <layout name="OffTrackCluster_Number">
   <monitorable name="SiStrip/MechanicalView/TIB/Summary_TotalNumberOfClusters_OffTrack_in_TIB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/Summary_TotalNumberOfClusters_OffTrack_in_TOB"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/Summary_TotalNumberOfClusters_OffTrack_in_TID"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TIB/Summary_TotalNumberOfClusters_OffTrack_in_TEC"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TOB/Summary_TotalNumberOfClusters_OffTrack_in_TOB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TID/Summary_TotalNumberOfClusters_OffTrack_in_TID"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TEC/Summary_TotalNumberOfClusters_OffTrack_in_TEC"></monitorable>
 </layout>
 
 <layout name="OnTrackCluster_Number">
@@ -44,8 +44,8 @@
   <monitorable name="SiStrip/MechanicalView/TID/Summary_TotalNumberOfClusters_OnTrack_in_TID"></monitorable>
 </layout>
 <layout name="OnTrackCluster_StoN">
-  <monitorable name="SiStrip/MechanicalView/TOB/Summary_ClusterStoNCorr_OnTrack_in_TOB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TIB/Summary_ClusterStoNCorr_OnTrack_in_TIB"></monitorable>
+  <monitorable name="SiStrip/MechanicalView/TOB/Summary_ClusterStoNCorr_OnTrack_in_TOB"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/Summary_ClusterStoNCorr_OnTrack_in_TEC"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TID/Summary_ClusterStoNCorr_OnTrack_in_TID"></monitorable>
 </layout>
@@ -72,7 +72,6 @@
 <layout name="TECFSummary">
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_MeanNumberOfDigis__side__2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_MeanNumberOfClusters__side__2"></monitorable>
-  <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_MeanClusterWidth__side__2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/Summary_MeanClusterWidth__side__2"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/wheel_1/Summary_ClusterStoNCorr__OnTrack__TEC__side__2__wheel__1"></monitorable>
   <monitorable name="SiStrip/MechanicalView/TEC/side_2/wheel_2/Summary_ClusterStoNCorr__OnTrack__TEC__side__2__wheel__2"></monitorable>

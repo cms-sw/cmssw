@@ -123,6 +123,7 @@ namespace evf
     // calculate scalers information in separate thread
     void startScalersWorkLoop() throw (evf::Exception);
     bool scalers(toolbox::task::WorkLoop* wl);
+    void startSummarizeWorkLoop() throw (evf::Exception);
     bool summarize(toolbox::task::WorkLoop* wl);
 
     bool receiving(toolbox::task::WorkLoop* wl);
@@ -197,6 +198,9 @@ namespace evf
     std::vector<int>                 alive_;
     unsigned int                     nblive_; 
     unsigned int                     nbdead_; 
+
+    unsigned int                     nbTotalDQM_;
+
     // workloop / action signature for message passing
     toolbox::task::WorkLoop         *wlReceiving_;      
     toolbox::task::ActionSignature  *asReceiveMsgAndExecute_;
@@ -225,6 +229,12 @@ namespace evf
     toolbox::task::WorkLoop         *wlScalers_;      
     toolbox::task::ActionSignature  *asScalers_;
     bool                             wlScalersActive_;
+    unsigned int                     scalersUpdates_;
+
+    //summarize workloop
+    toolbox::task::WorkLoop         *wlSummarize_;      
+    toolbox::task::ActionSignature  *asSummarize_;
+    bool                             wlSummarizeActive_;
     int                              anonymousPipe_[2];
     xdata::Vector<xdata::Integer>    spMStates_;
     xdata::Vector<xdata::Integer>    spmStates_;

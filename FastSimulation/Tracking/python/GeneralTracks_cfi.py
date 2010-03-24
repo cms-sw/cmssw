@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-generalTracks = cms.EDFilter("FastTrackMerger",
+generalTracks = cms.EDProducer("FastTrackMerger",
     # new quality setting
     newQuality = cms.untracked.string('confirmed'),
     # set new quality for confirmed tracks

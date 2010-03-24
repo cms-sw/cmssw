@@ -59,12 +59,18 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Selected " << trks.size() << " of these tracks for vertexing\n";
 
+  edm::Handle<reco::BeamSpot> bsHandle;
+  edm::InputTag bsName = conf_.getParameter<edm::InputTag>("beamSpot");
+  e.getByLabel(bsName,bsHandle);
+  math::XYZPoint myPoint(0.,0.,0.);
+  if (bsHandle.isValid()) myPoint = math::XYZPoint(bsHandle->x0(),bsHandle->y0(), 0. ); //FIXME: fix last coordinate with vertex.z() at same time
+
   // Third, ship these tracks off to be vertexed
   std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
   bool ok;
   if (conf_.getParameter<bool>("Method2")) {
     ok = dvf_->findVertexesAlt(trks,       // input
-			     *vertexes); // output
+			     *vertexes,myPoint); // output
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << "Method2 returned status of " << ok;
   }
   else {
@@ -80,9 +86,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
   }
 
-  edm::Handle<reco::BeamSpot> bsHandle;
-  edm::InputTag bsName = conf_.getParameter<edm::InputTag>("beamSpot");
-  e.getByLabel(bsName,bsHandle);
+
   if(bsHandle.isValid())
    {
     const reco::BeamSpot & bs = *bsHandle;

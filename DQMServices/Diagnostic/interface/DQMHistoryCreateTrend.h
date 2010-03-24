@@ -34,9 +34,6 @@ class DQMHistoryCreateTrend
   inline void setBlackList(const string & listItems) {
     inspector_->setBlackList(listItems);
   }
-  inline void setWhiteList(const string & listItems) {
-    inspector_->setWhiteList(listItems);
-  }
   inline void closeFile() {
     inspector_->closeFile();
   }
@@ -45,9 +42,6 @@ class DQMHistoryCreateTrend
   }
   inline void setSkip0s(bool const in) {
     inspector_->setSkip0s(in);
-  }
-  inline void setSeparator(std::string const in) {
-    inspector_->setSeparator(in);
   }
 
  protected:

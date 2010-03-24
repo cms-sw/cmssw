@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.11 2009/03/04 00:45:46 elmer Exp $
+// $Id: SiStripHistoId.cc,v 1.12 2009/03/08 17:59:46 dutta Exp $
 //
 
 #include<iostream>
@@ -89,46 +89,36 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
 }
 
 std::string SiStripHistoId::getSubdetid(uint32_t id,bool flag_ring){  std::string rest1;
-  std::ostringstream temp_str;
-  std::string subdet_id;
+  
+  const int buf_len = 50;
+  char temp_str[buf_len];
 
   StripSubdetector subdet(id);
   if( subdet.subdetId() == StripSubdetector::TIB){
     // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(id);
-    temp_str << "TIB__layer__"<< tib1.layer();
+    snprintf(temp_str, buf_len, "TIB__layer__%i", tib1.layer());
   }else if( subdet.subdetId() == StripSubdetector::TID){
     // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(id);
-    temp_str << "TID__side__" << tid1.side() <<"__wheel__"<< tid1.wheel(); 
+    if (flag_ring) snprintf(temp_str, buf_len, "TID__side__%i__ring__%i", tid1.side(), tid1.ring());
+    else snprintf(temp_str, buf_len, "TID__side__%i__wheel__%i", tid1.side(), tid1.wheel());
   }else if(subdet.subdetId() == StripSubdetector::TOB){ 
     // ---------------------------  TOB  --------------------------- //
     TOBDetId tob1 = TOBDetId(id);
-    temp_str << "TOB__layer__" << tob1.layer();
+    snprintf(temp_str, buf_len, "TOB__layer__%i",tob1.layer()); 
   }else if(subdet.subdetId() == StripSubdetector::TEC){
     // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(id);
-    temp_str << "TEC__side__" << tec1.side() <<"__wheel__" <<tec1.wheel();  
+    if (flag_ring) snprintf(temp_str, buf_len, "TEC__side__%i__ring__%i", tec1.side(), tec1.ring());
+    else snprintf(temp_str, buf_len, "TEC__side__%i__wheel__%i", tec1.side(), tec1.wheel()); 
   }else{
     // ---------------------------  ???  --------------------------- //
     edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;
-    temp_str << "";  
+    snprintf(temp_str,0,"%s","");  
   }
   
-  if(flag_ring){
-    if(subdet.subdetId() == StripSubdetector::TID){
-      // ---------------------------  TID  --------------------------- //
-      TIDDetId tid1 = TIDDetId(id);
-      temp_str << "TID__side__" << tid1.side() << "__ring__" << tid1.ring();
-    }else if( subdet.subdetId() == StripSubdetector::TEC){
-      // ---------------------------  TEC  --------------------------- //
-      TECDetId tec1 = TECDetId(id);
-      temp_str << "TEC__side__" << tec1.side() << "__ring__" << tec1.ring();
-    }
-  }
-
-  subdet_id = temp_str.str();
-  return subdet_id;
+  return string(temp_str);
 }
 
 uint32_t SiStripHistoId::getComponentId(std::string histoid){

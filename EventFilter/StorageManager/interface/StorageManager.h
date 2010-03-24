@@ -1,4 +1,4 @@
-// $Id: StorageManager.h,v 1.55 2009/08/28 16:41:50 mommsen Exp $
+// $Id: StorageManager.h,v 1.56 2009/10/19 14:38:12 mommsen Exp $
 /// @file: StorageManager.h 
 
 #ifndef StorageManager_StorageManager_h
@@ -8,6 +8,8 @@
 
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/WebPageHelper.h"
+
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 
 #include "xdaq/Application.h"
 #include "xgi/exception/Exception.h"
@@ -36,8 +38,8 @@ namespace stor {
    * Main class of the StorageManager XDAQ application
    *
    * $Author: mommsen $
-   * $Revision: 1.55 $
-   * $Date: 2009/08/28 16:41:50 $
+   * $Revision: 1.56 $
+   * $Date: 2009/10/19 14:38:12 $
    */
 
   class StorageManager: public xdaq::Application
