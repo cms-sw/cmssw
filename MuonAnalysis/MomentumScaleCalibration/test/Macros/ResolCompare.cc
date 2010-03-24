@@ -44,6 +44,7 @@ draw( const TString & resolName, TDirectory * resolDir,
   if( resolDirAfter != 0 ) {
     resolVSptAfter->SetLineColor(kGreen);
     legend->AddEntry(resolVSptAfter, resolVSptName + " after");
+    resolVSptAfter->SetName(TString(resolVSptAfter->GetName())+"_after");
     resolVSptAfter->Draw("SAME");
   }
 
