@@ -91,6 +91,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   TrackingParticleSelector* TpSelectorForEfficiencyVsPhi;
   TrackingParticleSelector* TpSelectorForEfficiencyVsPt;
   TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
+  TrackingParticleSelector* TpSelectorForEfficiencyVsVTXZ;
 
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;

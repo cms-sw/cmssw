@@ -85,6 +85,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   ParameterSet TpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPhi");
   ParameterSet TpSelectorForEfficiencyVsPtPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPt");
   ParameterSet TpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXR");
+  ParameterSet TpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXZ");
   
   using namespace reco::modules;
   generalTpSelector             = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet));
@@ -92,6 +93,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   TpSelectorForEfficiencyVsPhi  = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet));
   TpSelectorForEfficiencyVsPt   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet));
   TpSelectorForEfficiencyVsVTXR = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet));
+  TpSelectorForEfficiencyVsVTXZ = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet));
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -115,6 +117,7 @@ MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
   delete TpSelectorForEfficiencyVsPhi;
   delete TpSelectorForEfficiencyVsPt;
   delete TpSelectorForEfficiencyVsVTXR;
+  delete TpSelectorForEfficiencyVsVTXZ;
 }
 
 
@@ -624,17 +627,6 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	}
       }
     } // END for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
-  
-
-    for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
-      if (dzSim>dzintervals[count][f]&&
-	  dzSim<dzintervals[count][f+1]) {
-	totSIM_dz[count][f]++;
-	if (isMatched) {
-	  totASS_dz[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
 
     for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
       if (sqrt(vertexTP.perp2())>vertposintervals[count][f]&&
@@ -645,6 +637,19 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	}
       }
     } // END for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
+  }
+
+  if((*TpSelectorForEfficiencyVsVTXZ)(tp)){
+    for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
+      if (dzSim>dzintervals[count][f]&&
+	  dzSim<dzintervals[count][f+1]) {
+	totSIM_dz[count][f]++;
+	if (isMatched) {
+	  totASS_dz[count][f]++;
+	}
+      }
+    } // END for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
+
   
     for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
       if (vertexTP.z()>zposintervals[count][f]&&
