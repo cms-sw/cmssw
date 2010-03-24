@@ -77,6 +77,29 @@ class CSCL1TPParameters
   /** returns CLCT min_separation */
   inline unsigned int clctMinSeparation() const {return m_clct_min_separation;}
 
+  /** returns TMB mpc_block_me1a */
+  inline unsigned int tmbMpcBlockMe1a() const {return m_tmb_mpc_block_me1a;}
+
+  /** returns TMB alct_trig_enable */
+  inline unsigned int tmbAlctTrigEnable() const
+                                           {return m_tmb_alct_trig_enable;}
+
+  /** returns TMB clct_trig_enable */
+  inline unsigned int tmbClctTrigEnable() const
+                                           {return m_tmb_clct_trig_enable;}
+
+  /** returns TMB match_trig_enable */
+  inline unsigned int tmbMatchTrigEnable() const
+                                           {return m_tmb_match_trig_enable;}
+
+  /** returns TMB match_trig_window_size */
+  inline unsigned int tmbMatchTrigWindowSize() const
+                                         {return m_tmb_match_trig_window_size;}
+
+  /** returns TMB tmb_l1a_window_size */
+  inline unsigned int tmbTmbL1aWindowSize() const
+                                           {return m_tmb_tmb_l1a_window_size;}
+
   /** sets ALCT fifo_tbins */
   void setAlctFifoTbins(const unsigned int theValue) {
     m_alct_fifo_tbins = theValue;
@@ -167,6 +190,36 @@ class CSCL1TPParameters
     m_clct_min_separation = theValue;
   }
 
+  /** sets TMB mpc_block_me1a */
+  void setTmbMpcBlockMe1a(const unsigned int theValue) {
+    m_tmb_mpc_block_me1a = theValue;
+  }
+
+  /** sets TMB alct_trig_enable */
+  void setTmbAlctTrigEnable(const unsigned int theValue) {
+    m_tmb_alct_trig_enable = theValue;
+  }
+
+  /** sets TMB clct_trig_enable */
+  void setTmbClctTrigEnable(const unsigned int theValue) {
+    m_tmb_clct_trig_enable = theValue;
+  }
+
+  /** sets TMB match_trig_enable */
+  void setTmbMatchTrigEnable(const unsigned int theValue) {
+    m_tmb_match_trig_enable = theValue;
+  }
+
+  /** sets TMB match_trig_window_size */
+  void setTmbMatchTrigWindowSize(const unsigned int theValue) {
+    m_tmb_match_trig_window_size = theValue;
+  }
+
+  /** sets TMB tmb_l1a_window_size */
+  void setTmbTmbL1aWindowSize(const unsigned int theValue) {
+    m_tmb_tmb_l1a_window_size = theValue;
+  }
+
  private:
   /** ALCT configuration parameters. */
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
@@ -181,6 +234,12 @@ class CSCL1TPParameters
   unsigned int m_clct_nplanes_hit_pretrig, m_clct_nplanes_hit_pattern;
   unsigned int m_clct_pid_thresh_pretrig;
   unsigned int m_clct_min_separation;
+
+  /** TMB configuration parameters. */
+  unsigned int m_tmb_mpc_block_me1a;
+  unsigned int m_tmb_alct_trig_enable, m_tmb_clct_trig_enable;
+  unsigned int m_tmb_match_trig_enable;
+  unsigned int m_tmb_match_trig_window_size, m_tmb_tmb_l1a_window_size;
 };
 
 #endif
