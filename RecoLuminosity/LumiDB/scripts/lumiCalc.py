@@ -6,7 +6,7 @@ from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeed
 
 class constants(object):
     def __init__(self):
-        self.LUMIUNIT='e27cm^-2'
+        self.LUMIUNIT='e27 [cm^-2]'
         self.NORM=16700
         self.LUMIVERSION='0001'
         self.BEAMMODE='stable' #possible choices stable,quiet,either
@@ -14,7 +14,7 @@ class constants(object):
         self.LSLENGTH=0
         
 def lslengthsec(numorbit,numbx):
-    print numorbit, numbx
+    #print numorbit, numbx
     l=numorbit*numbx*25e-09
     return l
 
