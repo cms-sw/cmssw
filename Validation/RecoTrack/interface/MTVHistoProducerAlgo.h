@@ -35,6 +35,7 @@ class MTVHistoProducerAlgo{
   virtual void fill_generic_simTrack_histos(int counter,ParticleBase::Vector,ParticleBase::Point vertex)=0;
 
   virtual void fill_recoAssociated_simTrack_histos(int count,
+						   const TrackingParticle& tp,
 						   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
 						   double dxy, double dz, int nSimHits,
 						   const reco::Track* track)=0;
@@ -55,6 +56,10 @@ class MTVHistoProducerAlgo{
 						 math::XYZPoint bsPosition)=0;
 
   virtual void finalHistoFits(int counter)=0;
+
+
+  virtual void fillHistosFromVectors(int counter)=0;
+
 
  protected: 
   //protected functions 

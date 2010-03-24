@@ -12,7 +12,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
+#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <TH1F.h>
@@ -23,6 +23,7 @@
 class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
  public:
   MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset) ;
+  virtual ~MTVHistoProducerAlgoForTracker();
 
   void initialize(){setUpVectors();};
 
@@ -35,6 +36,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
 
   void fill_recoAssociated_simTrack_histos(int count,
+					   const TrackingParticle& tp,
 					   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
 					   double dxy, double dz, int nSimHits,
 					   const reco::Track* track);
@@ -59,6 +61,10 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   void finalHistoFits(int counter);
 
+
+  void fillHistosFromVectors(int counter);
+
+
  private:
 
   // private methods for internal usage
@@ -79,8 +85,13 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   double getPt(double pt); 
 
 
-  //private data members
-       
+  //private data members       
+  TrackingParticleSelector* generalTpSelector;
+  TrackingParticleSelector* TpSelectorForEfficiencyVsEta;
+  TrackingParticleSelector* TpSelectorForEfficiencyVsPhi;
+  TrackingParticleSelector* TpSelectorForEfficiencyVsPt;
+  TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
+
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;
   double minHit, maxHit;  int nintHit;

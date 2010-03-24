@@ -7,8 +7,8 @@ TrackingParticleSelectionForEfficiency = cms.PSet(
     signalOnlyTP = cms.bool(True),
     minRapidityTP = cms.double(-2.4),
     minHitTP = cms.int32(0),
-    ptMinTP = cms.double(0.9),
+    ptMinTP = cms.double(0.005),
     maxRapidityTP = cms.double(2.4),
-    tipTP = cms.double(3.5)
+    tipTP = cms.double(60)
 )
 

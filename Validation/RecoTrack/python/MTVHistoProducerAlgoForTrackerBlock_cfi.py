@@ -1,7 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+from Validation.RecoTrack.TrackingParticleSelectionsForEfficiency_cff import *
 
 MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     ComponentName = cms.string('MTVHistoProducerAlgoForTracker'),
+
+    ### tp selectors for efficiency
+    generalTpSelector             = generalTpSelectorBlock,
+    TpSelectorForEfficiencyVsEta  = TpSelectorForEfficiencyVsEtaBlock,
+    TpSelectorForEfficiencyVsPhi  = TpSelectorForEfficiencyVsPhiBlock,
+    TpSelectorForEfficiencyVsPt   = TpSelectorForEfficiencyVsPtBlock,
+    TpSelectorForEfficiencyVsVTXR = TpSelectorForEfficiencyVsVTXRBlock,
+
     # to be added here all the other histogram settings
 
     #
@@ -24,22 +33,22 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxPhi = cms.double(3.15),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(-3),
-    maxDxy = cms.double(3),
+    minDxy = cms.double(-10),
+    maxDxy = cms.double(10),
     nintDxy = cms.int32(100),
     #
-    minDz = cms.double(-10),
-    maxDz = cms.double(10),
+    minDz = cms.double(-20),
+    maxDz = cms.double(20),
     nintDz = cms.int32(100),
     #
     # TP originating vertical position
     minVertpos = cms.double(0),
-    maxVertpos = cms.double(5),
+    maxVertpos = cms.double(50),
     nintVertpos = cms.int32(100),
     #
     # TP originating z position
-    minZpos = cms.double(-10),
-    maxZpos = cms.double(10),
+    minZpos = cms.double(-20),
+    maxZpos = cms.double(20),
     nintZpos = cms.int32(100),                               
 
     #parameters for resolution plots

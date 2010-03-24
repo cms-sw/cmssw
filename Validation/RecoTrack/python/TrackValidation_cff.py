@@ -62,20 +62,20 @@ cutsRecoTracksFifthHp.quality=cms.vstring("highPurity")
 trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
-                                        cms.InputTag("cutsRecoTracksHp"),
-                                        cms.InputTag("cutsRecoTracksZero"),
-                                        cms.InputTag("cutsRecoTracksZeroHp"),
-                                        cms.InputTag("cutsRecoTracksFirst"),
-                                        cms.InputTag("cutsRecoTracksFirstHp"),
-                                        cms.InputTag("cutsRecoTracksSecond"),
-                                        cms.InputTag("cutsRecoTracksSecondHp"),
-                                        cms.InputTag("cutsRecoTracksThird"),
-                                        cms.InputTag("cutsRecoTracksThirdHp"),
-                                        cms.InputTag("cutsRecoTracksFourth"),
-                                        cms.InputTag("cutsRecoTracksFourthHp"),
-                                        cms.InputTag("cutsRecoTracksFifth"),
-                                        cms.InputTag("cutsRecoTracksFifthHp")
-                                        )
+                                   cms.InputTag("cutsRecoTracksHp"),
+                                   cms.InputTag("cutsRecoTracksZero"),
+                                   cms.InputTag("cutsRecoTracksZeroHp"),
+                                   cms.InputTag("cutsRecoTracksFirst"),
+                                   cms.InputTag("cutsRecoTracksFirstHp"),
+                                   cms.InputTag("cutsRecoTracksSecond"),
+                                   cms.InputTag("cutsRecoTracksSecondHp"),
+                                   cms.InputTag("cutsRecoTracksThird"),
+                                   cms.InputTag("cutsRecoTracksThirdHp"),
+                                   cms.InputTag("cutsRecoTracksFourth"),
+                                   cms.InputTag("cutsRecoTracksFourthHp"),
+                                   cms.InputTag("cutsRecoTracksFifth"),
+                                   cms.InputTag("cutsRecoTracksFifthHp")
+                                   )
 trackValidator.skipHistoFit=cms.untracked.bool(True)
 trackValidator.useLogPt=cms.untracked.bool(True)
 #trackValidator.minpT = cms.double(-1)

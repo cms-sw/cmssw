@@ -69,6 +69,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 }
 
 
+MultiTrackValidator::~MultiTrackValidator(){delete histoProducerAlgo_;}
+
 void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
   //  dbe_->showDirStructure();
 
@@ -200,9 +202,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 
 
-      // ##############################################
-      // fill simulation histograms
-      // ##############################################
+      // ########################################################
+      // fill simulation histograms (LOOP OVER TRACKINGPARTICLES)
+      // ########################################################
 
       //compute number of tracks per eta interval
       //
@@ -286,7 +288,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	std::vector<PSimHit> simhits=tp->trackPSimHit(DetId::Tracker);
         int nSimHits = simhits.end()-simhits.begin();
 
-	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer);
+	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer);
 
 
 
@@ -297,7 +299,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       
       
       // ##############################################
-      // fill recoTracks histograms
+      // fill recoTracks histograms (LOOP OVER TRACKS)
       // ##############################################
       edm::LogVerbatim("TrackValidator") << "\n# of reco::Tracks with "
 					 << label[www].process()<<":"
@@ -335,6 +337,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
  	//try{ //Is this really necessary ????
 
 	if (tp.size()==0) continue;	
+
+	histoProducerAlgo_->fill_simAssociated_recoTrack_histos(w,*track);
+
 	TrackingParticleRef tpr = tp.begin()->first;
 	
 	/* TO BE FIXED LATER
@@ -395,6 +400,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
       if(!skipHistoFit)	histoProducerAlgo_->finalHistoFits(w);
+      histoProducerAlgo_->fillHistosFromVectors(w);
       w++;
     }    
   }
