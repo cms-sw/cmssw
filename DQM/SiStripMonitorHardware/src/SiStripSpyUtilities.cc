@@ -21,6 +21,8 @@ namespace sistrip {
   SpyUtilities::SpyUtilities() :
     cabling_(0),
     cacheId_(0),
+    detCabling_(0),
+    cacheIdDet_(0),
     pedsCacheId_(0),
     pedsHandle_(0),
     noiseCacheId_(0),
@@ -32,6 +34,7 @@ namespace sistrip {
   SpyUtilities::~SpyUtilities()
   {
     if ( cabling_ ) cabling_ = 0;
+    if ( detCabling_ ) detCabling_ = 0;
   }
 
   const SiStripFedCabling*  SpyUtilities::getCabling( const edm::EventSetup& setup )
