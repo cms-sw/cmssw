@@ -44,14 +44,24 @@ namespace reco {
     /// Number of tracks, the invariant mass etc...
     enum VertexType {
       ANY = 0,
-      NUCL_VERTEX = 1,
-      PAIR_VERTEX = 2,
-      DECAY_VERTEX = 3,
-      K0_DECAY_VERTEX = 4,
-      LAMBDA_DECAY_VERTEX = 5,
-      KPLUS_DECAY_VERTEX = 6,
-      BSM_VERTEX = 7
+      FAKE = 1,
+      LOOPER = 2,
+      NUCL = 10,
+      NUCL_LOOSE = 11,
+      NUCL_KINK = 12,
+      CONVERSION = 20,
+      CONVERSION_LOOSE = 21,
+      K0_DECAY = 30,
+      LAMBDA_DECAY = 31,
+      LAMBDABAR_DECAY = 32,
+      KPLUS_DECAY = 40,
+      KMINUS_DECAY = 41,
+      KPLUS_DECAY_LOOSE = 42,
+      KMINUS_DECAY_LOOSE = 43,
+      BSM_VERTEX = 100
     };
+
+
 
 
     /// Default constructor
@@ -73,6 +83,8 @@ namespace reco {
 
     /// Get the type of this vertex
     VertexType vertexType(){return vertexType_;}
+    
+    std::string nameVertexType() const;
 
     const std::vector < PFTrackHitFullInfo > trackHitFullInfos() const
       {return trackHitFullInfos_;}
@@ -175,6 +187,23 @@ namespace reco {
       primaryMomentum(std::string massHypo, 
 		      bool useRefitted = true, double mass = 0.0) const
       {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
+
+
+    bool isFake() const { return vertexType_ == FAKE;}
+    bool isLooper() const { return vertexType_ ==  LOOPER;}
+    bool isNucl() const { return vertexType_ ==  NUCL;}
+    bool isNucl_Loose() const { return vertexType_ ==  NUCL_LOOSE;}
+    bool isNucl_Kink() const { return vertexType_ ==   NUCL_KINK;}
+    bool isConv() const { return vertexType_ ==   CONVERSION;}
+    bool isConv_Loose() const { return vertexType_ ==   CONVERSION_LOOSE;}
+    bool isK0() const { return vertexType_ ==   K0_DECAY;}
+    bool isLambda() const { return vertexType_ ==   LAMBDA_DECAY;}
+    bool isLambdaBar() const { return vertexType_ ==   LAMBDABAR_DECAY;}
+    bool isKplus() const { return vertexType_ ==   KPLUS_DECAY;}
+    bool isKminus() const { return vertexType_ ==   KMINUS_DECAY;}
+    bool isKplus_Loose() const { return vertexType_ ==   KPLUS_DECAY_LOOSE;}
+    bool isKminus_Loose() const { return vertexType_ ==   KMINUS_DECAY_LOOSE;}
+    bool isBSM() const { return vertexType_ ==   BSM_VERTEX;}
 
 
     /// cout function
