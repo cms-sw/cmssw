@@ -25,8 +25,22 @@ hcalrechitReflagger = cms.EDProducer('HcalRecHitReflagger',
                                                               # No explicit cuts on S9S1 energies?
                                                               S9S1_EnergyThreshShort=cms.untracked.vdouble([129.9,-6.61,0.1153]),
                                                               S9S1_ETThreshShort=cms.untracked.vdouble([0]),
-                                                              S9S1_optimumslope=cms.vdouble([0.0913756, 0.0589927, 0.3084,-0.02577, 0.0005351]) # this is the parameterization of optimum slope vs. ieta.  First two values are the slopes at |ieta| = 40 & 41, followed by the polynomial parameterization of slope with ieta
+                                                              S9S1_optimumslope=cms.vdouble([-9999,     # ieta=29
+                                                                                             0.0164905, # ieta=30
+                                                                                             0.0238698, # ieta=31
+                                                                                             0.0321383,
+                                                                                             0.041296,
+                                                                                             0.0513428, # ieta=34
+                                                                                             0.0622789,
+                                                                                             0.0741041,
+                                                                                             0.0868186, # ieta=37
+                                                                                             0.100422,
+                                                                                             0.135313,
+                                                                                             0.136289,  # ieta=40
+                                                                                             0.0589927  # ieta=41
+                                                                                             ]),
                                                               ),
-                                       
-                                   debug          = cms.untracked.int32(0)
+
+                                     
+                                     debug          = cms.untracked.int32(0)
 )

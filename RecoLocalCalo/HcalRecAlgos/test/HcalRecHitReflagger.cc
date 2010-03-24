@@ -11,7 +11,7 @@
 //
 // Original Author:  Dinko Ferencek,8 R-004,+41227676479,  Jeff Temple, 6-1-027
 //         Created:  Thu Mar 11 13:42:11 CET 2010
-// $Id: HcalRecHitReflagger.cc,v 1.3 2010/03/19 20:17:08 temple Exp $
+// $Id: HcalRecHitReflagger.cc,v 1.4 2010/03/19 21:13:01 temple Exp $
 //
 //
 
@@ -349,7 +349,8 @@ bool HcalRecHitReflagger::CheckS9S1(const HFRecHit& hf)
   double ET = energy/cosh(fEta);
   double threshold=0;
 
-  double S9S1slope=GetSlope(ieta,S9S1_optimumslope_ ); // get optimized slope for this ieta
+  //double S9S1slope=GetSlope(ieta,S9S1_optimumslope_ ); // get optimized slope for this ieta
+  double S9S1slope=S9S1_optimumslope_[abs(ieta)-29];
   double S9S1value=GetS9S1value(hf); // get the ratio S9/S1
 
   if (debug_>0) std::cout <<"<RechitReflagger::CheckS9S1>  energy = "<<energy<<"  ieta = "<<ieta<<"  S9S1slope = "<<S9S1slope<<"  S9S1value = "<<S9S1value<<std::endl;
