@@ -1,3 +1,47 @@
+V02-05-00
+---------
+
+2010-03-24  author  <author@lxplus302.cern.ch>
+
+	* python/ecalDigis_beamcom09_cfi.py, test/TpSrp_cfg.py, python/ecalDigis_beamcom09_cff.py:
+	moved to _cff scheme
+
+	* python/ecalDigis_cff.py:
+	_cff file for standard MC production. Currently use conditions of beam 2009 and early 2010
+
+	* python/ecalDigis_beamcom09_cfi.py: CMSSW>=3.4.0 version
+
+	* test/SimDigi_cfg.py, test/TpSrp_cfg.py:
+	made it work with 3.6.X release
+
+???
+----
+	
+2010-02-25  author  <author@lxplus302.cern.ch>
+
+	* src/SealModule.cc: convert to current macros from deprecated ones
+
+2010-01-13  author  <author@lxplus302.cern.ch>
+
+	* src/EcalSelectiveReadoutProducer.cc:
+	theElecMap pointer was not initialiazed
+
+2009-12-14  author  <author@lxplus302.cern.ch>
+
+	* python/ecalDigis_beamcom09_cfi.py: 2009 beam commissing ZS settings
+
+	* python/ecalDigis_beamcom09_cfi.py:
+	file ecalDigis_beamcom09_cfi.py was added on branch V02-01-07-branch00 on 2009-12-14 15:33:37 +0000
+
+	* python/ecalDigis_beamcom09_cfi.py:
+	zero suppression settings used during 2009 Beam commissioning
+
+2009-10-29  author  <author@lxplus302.cern.ch>
+
+	* ChangeLog: *** empty log message ***
+
+	* python/ecalDigis_craft_cfi.py: syntax error fix
+
 V02-04-01
 ---------
 
