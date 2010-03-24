@@ -18,6 +18,12 @@
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="RecoLocalTracker/SiStripClusterizer"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+
 <library   file="*.cc" name="DPGAnalysisSiStripToolsPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
