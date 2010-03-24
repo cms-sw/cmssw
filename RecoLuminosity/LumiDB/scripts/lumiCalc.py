@@ -7,7 +7,7 @@ from RecoLuminosity.LumiDB import argparse,nameDealer,selectionParser,hltTrgSeed
 class constants(object):
     def __init__(self):
         self.LUMIUNIT='e27cm^-2'
-        self.NORM=16400
+        self.NORM=16700
         self.LUMIVERSION='0001'
         self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
