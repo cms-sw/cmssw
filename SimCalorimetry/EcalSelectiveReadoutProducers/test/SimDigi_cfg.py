@@ -1,32 +1,65 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+
+
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+
+#Conditions:
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'MC_3XY_V18::All'
 
 # event vertex smearing - applies only once (internal check)
 # Note : all internal generators will always do (0,0,0) vertex
 #
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load('Configuration.StandardSequences.VtxSmearedEarly10TeVCollision_cff')
+
 
 #Geometry
 #
-#include "Geometry/CMSCommonData/data/cmsSimIdealGeometryXML.cfi"
-process.load("Geometry.EcalCommonData.EcalOnly_cfi")
+process.load('Configuration.StandardSequences.GeometryExtended_cff')
 
 # Calo geometry service model
-process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
+#process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
+#process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 
-process.load("Geometry.EcalMapping.EcalMapping_cfi")
+#process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
-process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+#process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 
 #Magnetic Field
 #
-process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+
+# Step 1: Event generator
+process.load('Configuration.StandardSequences.Generator_cff')
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
+  PGunParameters = cms.PSet(
+  # you can request more than 1 particle
+     PartID = cms.vint32(11),
+     MaxEta = cms.double(3.0),
+     MaxPhi = cms.double(3.141592653589793),
+     MinEta = cms.double(-3.0),
+     MinE = cms.double(99.99),
+     MinPhi = cms.double(-3.141592653589793), ## must be in radians
+
+     MaxE = cms.double(100.01)
+  ),
+  firstRun = cms.untracked.uint32(1),
+  AddAntiParticle = cms.bool(True),
+  Verbosity = cms.untracked.int32(0) ## set to 1 (or greater)  for printouts                                   
+)
+
 
 # Step 2 : CMS Detector Simulation
+#process.load('Configuration.StandardSequences.Sim_cff')
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 # Pile-up processing:
@@ -35,11 +68,6 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 #
 # Ecal digi production:
 process.load("SimCalorimetry.EcalSimProducers.ecaldigi_cfi")
-
-#
-#
-# Get hardcoded conditions the same used for standard digitization
-process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
 
 # TPG: defines the ecalTriggerPrimitiveDigis module
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
@@ -73,23 +101,6 @@ process.RandomNumberGeneratorService= cms.Service("RandomNumberGeneratorService"
 process.source = cms.Source("EmptySource")
 
 #process.load("Configuration.GenProduction.PythiaUESettings_cfi")
-
-process.generator = cms.EDProducer("FlatRandomEGunProducer",
-  PGunParameters = cms.PSet(
-  # you can request more than 1 particle
-     PartID = cms.vint32(11),
-     MaxEta = cms.double(3.0),
-     MaxPhi = cms.double(3.141592653589793),
-     MinEta = cms.double(-3.0),
-     MinE = cms.double(99.99),
-     MinPhi = cms.double(-3.141592653589793), ## must be in radians
-
-     MaxE = cms.double(100.01)
-  ),
-  firstRun = cms.untracked.uint32(1),
-  AddAntiParticle = cms.bool(True),
-  Verbosity = cms.untracked.int32(0) ## set to 1 (or greater)  for printouts                                   
-)
 
 process.detSim = cms.Sequence(process.VtxSmeared*process.g4SimHits)
 process.p = cms.Path(process.generator*process.detSim*process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis)
