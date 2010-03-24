@@ -63,4 +63,5 @@ process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
 
 #process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesNtuples_cff")
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisNtupler_cff")
+process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew.root')
 
