@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.10 2010/03/09 21:43:12 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.1 2010/03/24 13:45:17 delaer Exp $
 //
 //
 
@@ -967,14 +967,16 @@ TrackerDpgAnalysis::endJob() {
   for(size_t i = 0; i<tracks_.size();++i) {
     char buffer[256];
     sprintf(buffer,"trackid%d",i);
-    if(tracks_[i]->GetEntries()) tracks_[i]->BuildIndex(buffer);
+    if(tracks_[i]->GetEntries()) tracks_[i]->BuildIndex(buffer,"eventid");
   }
+  /* not needed: missing hits is a high-level quantity
   for(size_t i = 0; i<missingHits_.size();++i) {
     char buffer[256];
     sprintf(buffer,"trackid%d",i);
     if(missingHits_[i]->GetEntries()) missingHits_[i]->BuildIndex(buffer);
   }
-  if(vertices_->GetEntries()) vertices_->BuildIndex("vertexid");
+  */
+  if(vertices_->GetEntries()) vertices_->BuildIndex("vertexid","eventid");
   if(event_->GetEntries()) event_->BuildIndex("runid","eventid");
   if(psumap_->GetEntries()) psumap_->BuildIndex("dcuId");
   if(readoutmap_->GetEntries()) readoutmap_->BuildIndex("detid","lldChannel");
