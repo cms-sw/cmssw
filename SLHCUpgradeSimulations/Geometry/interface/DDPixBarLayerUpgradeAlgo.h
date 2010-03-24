@@ -38,6 +38,7 @@ private:
   std::string              ladder;      //Name  of ladder
   double                   ladderWidth; //Width of ladder 
   double                   ladderThick; //Thicknes of ladder 
+  int                      outerFirst;  //Controller of the placement of ladder
 };
 
 #endif

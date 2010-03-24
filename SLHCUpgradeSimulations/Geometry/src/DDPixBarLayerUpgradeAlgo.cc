@@ -46,6 +46,7 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
   coolMat   = sArgs["CoolMaterial"];
   tubeMat   = sArgs["CoolTubeMaterial"];
 
+
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Parent " << parentName 
 			<< " NameSpace " << idNameSpace << "\n"
 			<< "\tLadders " << number << "\tGeneral Material " 
@@ -59,7 +60,8 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
   ladder      = sArgs["LadderName"];
   ladderWidth = nArgs["LadderWidth"];
   ladderThick = nArgs["LadderThick"];
-  
+  outerFirst  = int(nArgs["OuterFirst"]);
+ 
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Full Ladder " 
 			<< ladder << " width/thickness " << ladderWidth
 			<< ", " << ladderThick;
@@ -128,9 +130,8 @@ void DDPixBarLayerUpgradeAlgo::execute() {
 			<< " at (0,0,0) with no rotation";
 
   DDName ladderFull(DDSplit(ladder).first, DDSplit(ladder).second);
-  int  copy=1, iup=-1;
+  int  copy=1, iup=(-1)*outerFirst;
   for (int i=1; i<number+1; i++) {
-	
     double phi = i*dphi;
     double phix, phiy, rrr;
     std::string rots;
