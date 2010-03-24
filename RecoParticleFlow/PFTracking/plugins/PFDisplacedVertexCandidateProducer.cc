@@ -47,13 +47,15 @@ PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm
   double dcaPInnerHitCut
     = iConfig.getParameter< double >("dcaPInnerHitCut");  
 
+  edm::ParameterSet ps_trk 
+    = iConfig.getParameter<edm::ParameterSet>("tracksSelectorParameters");
 
   // Collection to be produced
   produces<reco::PFDisplacedVertexCandidateCollection>();
 
   // Vertex Finder parameters  -----------------------------------
   pfDisplacedVertexCandidateFinder_.setDebug(debug);
-  pfDisplacedVertexCandidateFinder_.setParameters(dcaCut, primaryVertexCut, dcaPInnerHitCut);
+  pfDisplacedVertexCandidateFinder_.setParameters(dcaCut, primaryVertexCut, dcaPInnerHitCut, ps_trk);
      
 }
 

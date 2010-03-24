@@ -29,7 +29,13 @@ PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iC
   // --- Setup input collection names --- //
 
   inputTagVertexCandidates_ 
-    = iConfig.getParameter<InputTag>("vertexCandidates");
+    = iConfig.getParameter<InputTag>("vertexCandidatesLabel");
+
+  inputTagMainVertex_ 
+    = iConfig.getParameter<InputTag>("mainVertexLabel");
+
+  inputTagBeamSpot_ 
+    = iConfig.getParameter<InputTag>("offlineBeamSpotLabel");
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose");
@@ -71,6 +77,10 @@ PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iC
   double minAdaptWeight
     = iConfig.getParameter< double >("minAdaptWeight");
 
+  edm::ParameterSet ps_trk = iConfig.getParameter<edm::ParameterSet>("tracksSelectorParameters");
+  edm::ParameterSet ps_vtx = iConfig.getParameter<edm::ParameterSet>("vertexIdentifierParameters");
+  edm::ParameterSet ps_avf = iConfig.getParameter<edm::ParameterSet>("avfParameters");
+
   produces<reco::PFDisplacedVertexCollection>();
 
   // Vertex Finder parameters  -----------------------------------
@@ -78,7 +88,10 @@ PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iC
   pfDisplacedVertexFinder_.setParameters(transvSize, longSize,  
 					 primaryVertexCut, tobCut, 
 					 tecCut, minAdaptWeight);
-     
+  pfDisplacedVertexFinder_.setAVFParameters(ps_avf);
+  pfDisplacedVertexFinder_.setTracksSelector(ps_trk);
+  pfDisplacedVertexFinder_.setVertexIdentifier(ps_vtx);
+  
 }
 
 
@@ -116,9 +129,16 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
 
   Handle<reco::PFDisplacedVertexCandidateCollection> vertexCandidates;
   iEvent.getByLabel(inputTagVertexCandidates_, vertexCandidates);
-    
+
+  Handle< reco::VertexCollection > mainVertexHandle;
+  iEvent.getByLabel(inputTagMainVertex_, mainVertexHandle);
+
+  Handle< reco::BeamSpot > beamSpotHandle;
+  iEvent.getByLabel(inputTagBeamSpot_, beamSpotHandle);
+
   // Fill useful event information for the Finder
   pfDisplacedVertexFinder_.setEdmParameters(theMagField, globTkGeomHandle, tkerGeomHandle); 
+  pfDisplacedVertexFinder_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
   pfDisplacedVertexFinder_.setInput(vertexCandidates);
 
   // Run the finder
@@ -127,7 +147,7 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
 
   if(verbose_) {
     ostringstream  str;
-    str<<pfDisplacedVertexFinder_<<endl;
+    //str<<pfDisplacedVertexFinder_<<endl;
     cout << pfDisplacedVertexFinder_<<endl;
     LogInfo("PFDisplacedVertexProducer") << str.str()<<endl;
   }    

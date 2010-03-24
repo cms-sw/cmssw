@@ -10,6 +10,7 @@
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexCandidateProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexProducer.h"
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedTrackerVertexProducer.h"
+//#include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexSelector.cc"
 
 DEFINE_FWK_MODULE(GoodSeedProducer);
 DEFINE_FWK_MODULE(PFElecTkProducer);
@@ -21,3 +22,4 @@ DEFINE_FWK_MODULE(ElectronSeedMerger);
 DEFINE_FWK_MODULE(PFDisplacedVertexCandidateProducer);
 DEFINE_FWK_MODULE(PFDisplacedVertexProducer);
 DEFINE_FWK_MODULE(PFDisplacedTrackerVertexProducer);
+//DEFINE_FWK_MODULE(PFDisplacedVertexSelector);

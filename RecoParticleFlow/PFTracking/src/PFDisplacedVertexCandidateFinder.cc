@@ -324,23 +324,23 @@ PFDisplacedVertexCandidateFinder::getGlobalTrajectoryParameters
 }
 
 
-// This tool is a copy from PFBlockAlgo 
+// This tool allow to pre-select the track for the displaced vertex finder
 bool 
 PFDisplacedVertexCandidateFinder::goodPtResolution( const TrackBaseRef& trackref) const {
 
   double nChi2 = trackref->normalizedChi2(); 
   double pt = trackref->pt();
   double dpt = trackref->ptError();
+
   double pt_error = dpt/pt*100;
 
   if (debug_) cout << " PFDisplacedVertexFinder: PFrecTrack->Track Pt= "
 		   << pt << " dPt/Pt = " << pt_error << "% nChi2 = " << nChi2 << endl;
-  if (nChi2 > 5 || pt < 0.2 || pt_error > 15){
+  if (nChi2 > nChi2_max_ || pt < pt_min_){
 
-    if (debug_) cout << " PFBlockAlgo: skip badly measured track"
+    if (debug_) cout << " PFBlockAlgo: skip badly measured or low pt track"
 		     << " nChi2_cut = " << 5 
-		     << " pt_cut = " << 0.2 
-		     << " dpt/pt_cut = " << 15 << "%"<< endl;
+		     << " pt_cut = " << 0.2 << endl;
     return false;
   }
 
@@ -368,6 +368,8 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
   for(PFDisplacedVertexCandidateFinder::IEC ie = a.eventTracks_.begin(); 
       ie != a.eventTracks_.end(); ie++) {
 
+    double pt = (*ie).get()->pt(); 
+
     math::XYZPoint Pi = (*ie).get()->innerPosition(); 
     math::XYZPoint Po = (*ie).get()->outerPosition(); 
 
@@ -377,6 +379,7 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
     double outermost_rho = sqrt(Po.x()*Po.x() + Po.y()*Po.y());
     
     out<<"ie = " << (*ie).key() 
+       <<" pt = " << pt
        <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
        <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
        <<endl;

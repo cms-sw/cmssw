@@ -1,6 +1,7 @@
 #ifndef RecoParticleFlow_PFTracking_PFDisplacedVertexFinder_h
 #define RecoParticleFlow_PFTracking_PFDisplacedVertexFinder_h 
 
+#include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexHelper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidate.h"
@@ -9,6 +10,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexSeedFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
@@ -16,10 +18,11 @@
 
 #include "RecoParticleFlow/PFTracking/interface/PFCheckHitPattern.h"
 
+
 /// \brief Displaced Vertex Finder Algorithm
 /*!
-\author Maxime Gouzevitch
-\date October 2009
+  \author Maxime Gouzevitch
+  \date October 2009
 */
 
 class TrackingGeometry;
@@ -44,6 +47,7 @@ class PFDisplacedVertexFinder {
   typedef std::pair <unsigned int, unsigned int> PFTrackHitInfo;
   typedef std::pair <PFTrackHitInfo, PFTrackHitInfo> PFTrackHitFullInfo;
 
+
   /// -------- Set different algo parameters -------- ///
 
   /// Sets algo parameters for the vertex finder
@@ -63,13 +67,31 @@ class PFDisplacedVertexFinder {
 
   /// Sets parameters for track extrapolation and hits study
   void setEdmParameters( const MagneticField* magField,
-			    edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle,
-			    edm::ESHandle<TrackerGeometry> tkerGeomHandle){ 
+			 edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle,
+			 edm::ESHandle<TrackerGeometry> tkerGeomHandle){ 
     magField_ = magField; 
     globTkGeomHandle_ = globTkGeomHandle;
     tkerGeomHandle_ = tkerGeomHandle; 
   }
 
+  void setTracksSelector(edm::ParameterSet ps){
+    helper_.setTracksSelector(ps);
+  }
+
+  void setVertexIdentifier(edm::ParameterSet ps){
+    helper_.setVertexIdentifier(ps);
+  }
+
+  void setPrimaryVertex(edm::Handle< reco::VertexCollection > mainVertexHandle, 
+			edm::Handle< reco::BeamSpot > beamSpotHandle){
+    helper_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
+  }
+
+  void setAVFParameters(edm::ParameterSet ps){
+      sigmacut_ = ps.getParameter<double>("sigmacut");
+      t_ini_    = ps.getParameter<double>("Tini");
+      ratio_    = ps.getParameter<double>("ratio");
+  }
 
   /// Set input collections of tracks
   void  setInput(const edm::Handle< reco::PFDisplacedVertexCandidateCollection >&); 
@@ -103,6 +125,7 @@ class PFDisplacedVertexFinder {
   /// Remove potentially fakes displaced vertices
   void selectVertices(const reco::PFDisplacedVertexCollection&,  std::vector <bool>&);
 
+  void labelVertices();
 
   /// -------- Tools -------- ///
 
@@ -135,6 +158,13 @@ class PFDisplacedVertexFinder {
   double tecCut_;
   double minAdaptWeight_;
 
+  /// Adaptive Vertex Fitter parameters
+  
+  double sigmacut_; //= 6;
+  double t_ini_; //= 256.;
+  double ratio_; //= 0.25;
+
+
   /// If true, debug printouts activated
   bool   debug_;
   
@@ -149,6 +179,8 @@ class PFDisplacedVertexFinder {
 
   
   PFCheckHitPattern hitPattern_;
+
+  PFDisplacedVertexHelper helper_;
 
 };
 

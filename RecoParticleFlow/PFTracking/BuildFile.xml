@@ -11,6 +11,7 @@
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
+<use   name="DataFormats/BeamSpot"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>

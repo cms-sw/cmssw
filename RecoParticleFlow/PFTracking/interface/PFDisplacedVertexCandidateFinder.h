@@ -6,6 +6,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 
@@ -37,10 +39,13 @@ class PFDisplacedVertexCandidateFinder {
   /// --------- Set different algo parameters ------ ///
 
   /// Sets algo parameters for the vertex candidate finder
-  void setParameters(double dcaCut, double primaryVertexCut, double dcaPInnerHitCut) {
+  void setParameters(double dcaCut, double primaryVertexCut, double dcaPInnerHitCut,
+		     const edm::ParameterSet& ps_trk) {
     dcaCut_ = dcaCut;
     primaryVertexCut2_ = primaryVertexCut*primaryVertexCut;
     dcaPInnerHitCut2_ = dcaPInnerHitCut*dcaPInnerHitCut;
+    nChi2_max_ = ps_trk.getParameter<double>("nChi2_max");
+    pt_min_ = ps_trk.getParameter<double>("pt_min");
   }
 
   /// sets debug printout flag
@@ -126,8 +131,14 @@ class PFDisplacedVertexCandidateFinder {
   double dcaCut_;
   /// Do not reconstruct vertices wich are too close to the beam pipe
   double primaryVertexCut2_;
-  ///maximum distance between the DCA Point and the inner hit of the track
+  /// Maximum distance between the DCA Point and the inner hit of the track
   double dcaPInnerHitCut2_;
+
+  /// Tracks preselection to reduce the combinatorics in PFDisplacedVertexCandidates
+  /// this cuts are repeated then in a smarter way in the PFDisplacedVertexFinder
+  /// be sure you are consistent between them
+  double nChi2_max_;
+  double pt_min_;
 
   /// Max number of expected vertexCandidates in the event
   /// Used to allocate the memory and avoid multiple copy
@@ -135,6 +146,7 @@ class PFDisplacedVertexCandidateFinder {
   
   // Two track minimum distance algo
   TwoTrackMinimumDistance theMinimum_;
+
 
 
   /// if true, debug printouts activated

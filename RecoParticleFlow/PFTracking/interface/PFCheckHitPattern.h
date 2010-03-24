@@ -33,7 +33,7 @@ class DetId;
 
 class PFCheckHitPattern {
 
-public:
+ public:
 
   PFCheckHitPattern() : geomInitDone_(false) {}
   

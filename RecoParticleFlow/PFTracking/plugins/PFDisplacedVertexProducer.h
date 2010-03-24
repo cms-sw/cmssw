@@ -37,9 +37,13 @@ class PFDisplacedVertexProducer : public edm::EDProducer {
 
  private:
 
-  /// Collection of DisplacedVertex Candidates used as imput for
+  /// Collection of DisplacedVertex Candidates used as input for
   /// the Displaced VertexFinder.
   edm::InputTag   inputTagVertexCandidates_;
+
+  /// Input tag for main vertex to cut of dxy of secondary tracks
+  edm::InputTag   inputTagMainVertex_; 
+  edm::InputTag   inputTagBeamSpot_;
   
   /// verbose ?
   bool   verbose_;
