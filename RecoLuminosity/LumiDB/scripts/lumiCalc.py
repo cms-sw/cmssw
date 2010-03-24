@@ -39,7 +39,6 @@ def deliveredLumiForRun(dbsession,c,runnum):
         queryBind["lumiversion"].setData(c.LUMIVERSION)
         result=coral.AttributeList()
         result.extend("totallumi","float")
-        result.extend("numorbit","unsigned int")
         query.defineOutput(result)
         query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
         cursor=query.execute()
