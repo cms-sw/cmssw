@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.35 2010/03/21 17:04:59 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.36 2010/03/23 22:55:18 dinardo Exp $
 //
 //
 
@@ -208,12 +208,9 @@ void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int 
 	      K[0][0] = fabs(par[0]) + fabs(Vertices[i].Covariance[0][0]);
 	      K[1][1] = fabs(par[1]) + fabs(Vertices[i].Covariance[1][1]);
 	      K[2][2] = fabs(par[2]) + fabs(Vertices[i].Covariance[2][2]);
-// 	      K[0][1] = K[1][0] = par[3] + Vertices[i].Covariance[0][1];
-// 	      K[1][2] = K[2][1] = par[4] + Vertices[i].Covariance[1][2];
-// 	      K[0][2] = K[2][0] = par[5] + Vertices[i].Covariance[0][2];
-	      K[0][1] = K[1][0] = par[3];
-	      K[1][2] = K[2][1] = par[4];
-	      K[0][2] = K[2][0] = par[5];
+	      K[0][1] = K[1][0] = par[3] + Vertices[i].Covariance[0][1];
+	      K[1][2] = K[2][1] = par[4] + Vertices[i].Covariance[1][2];
+	      K[0][2] = K[2][0] = par[5] + Vertices[i].Covariance[0][2];
 	    }
 	  else
 	    {
@@ -272,8 +269,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
  
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigmaXY    = 3.;
-      double nSigmaZ     = 3.;
+      double nSigmaXY    = 4.;
+      double nSigmaZ     = 4.;
       double varFactor   = 2./5.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
       double parDistance = 0.01;
       double det;
@@ -884,14 +881,14 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	      vals.push_back(sqrt(fabs(fitResults[0])));
 	      vals.push_back(sqrt(fabs(fitResults[1])));
 
-	      vals.push_back(fitResults[6+nParams]*fitResults[6+nParams]);
-	      vals.push_back(fitResults[7+nParams]*fitResults[7+nParams]);
-	      vals.push_back(fitResults[8+nParams]*fitResults[8+nParams]);
-	      vals.push_back(fabs(fitResults[2+nParams]));
+	      vals.push_back(powf(fitResults[6+nParams],2.));
+	      vals.push_back(powf(fitResults[7+nParams],2.));
+	      vals.push_back(powf(fitResults[8+nParams],2.));
+	      vals.push_back(powf(fabs(fitResults[2+nParams]) / (2.*sqrt(fabs(fitResults[2]))),2.));
 	      vals.push_back(0.0);
 	      vals.push_back(0.0);
-	      vals.push_back(fabs(fitResults[0+nParams]));
-	      vals.push_back(fabs(fitResults[1+nParams]));
+	      vals.push_back(powf(fabs(fitResults[0+nParams]) / (2.*sqrt(fabs(fitResults[0]))),2.));
+	      vals.push_back(powf(fabs(fitResults[1+nParams]) / (2.*sqrt(fabs(fitResults[1]))),2.));
 	    }
 	  else for (unsigned int i = 0; i < 8*2; i++) vals.push_back(0.0);
 
@@ -912,14 +909,14 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	    vals.push_back(Vx_X->getTH1F()->GetRMS());
 	    vals.push_back(Vx_Y->getTH1F()->GetRMS());
 	    
-	    vals.push_back(Vx_X->getTH1F()->GetMeanError()*Vx_X->getTH1F()->GetMeanError());
-	    vals.push_back(Vx_Y->getTH1F()->GetMeanError()*Vx_Y->getTH1F()->GetMeanError());
-	    vals.push_back(Vx_Z->getTH1F()->GetMeanError()*Vx_Z->getTH1F()->GetMeanError());
-	    vals.push_back(Vx_Z->getTH1F()->GetRMSError()*Vx_Z->getTH1F()->GetRMSError());
+	    vals.push_back(powf(Vx_X->getTH1F()->GetMeanError(),2.));
+	    vals.push_back(powf(Vx_Y->getTH1F()->GetMeanError(),2.));
+	    vals.push_back(powf(Vx_Z->getTH1F()->GetMeanError(),2.));
+	    vals.push_back(powf(Vx_Z->getTH1F()->GetRMSError(),2.));
 	    vals.push_back(0.0);
 	    vals.push_back(0.0);
-	    vals.push_back(Vx_X->getTH1F()->GetRMSError()*Vx_X->getTH1F()->GetRMSError());
-	    vals.push_back(Vx_Y->getTH1F()->GetRMSError()*Vx_Y->getTH1F()->GetRMSError());
+	    vals.push_back(powf(Vx_X->getTH1F()->GetRMSError(),2.));
+	    vals.push_back(powf(Vx_Y->getTH1F()->GetRMSError(),2.));
 	    }
 	  else
 	    {
