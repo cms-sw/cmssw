@@ -519,9 +519,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
   aFullDebug = debugHeader;
 
-  std::ostringstream lMode;
-  lMode << aBuffer->readoutMode();
-  bool lMedValid = lMode.str().find("Zero suppressed") != lMode.str().npos && lMode.str().find("lite") == lMode.str().npos;
+  bool lMedValid = aBuffer->readoutMode() == sistrip::READOUT_MODE_ZERO_SUPPRESSED;
 
   //this method is not called if there was anyFEDerrors(), 
   //so only corruptBuffer+FE check are useful.
