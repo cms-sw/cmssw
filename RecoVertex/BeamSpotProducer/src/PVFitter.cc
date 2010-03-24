@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.1 2010/03/12 21:45:36 yumiceva Exp $
+   version $Id: PVFitter.cc,v 1.2 2010/03/18 12:13:27 adamwo Exp $
 
 ________________________________________________________________**/
 
@@ -37,21 +37,13 @@ ________________________________________________________________**/
 // Useful function:
 // ----------------------------------------------------------------------
 
-static char * formatTime( const time_t t )  {
-
-  static  char ts[] = "yyyy.Mm.dd hh:mm:ss TZN     ";
-  strftime( ts, strlen(ts)+1, "%Y.%m.%d %H:%M:%S %Z", gmtime(&t) );
-
-#ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
-  // strip trailing blanks that would come when the time zone is not as
-  // long as the maximum allowed - probably not worth the time 
-  unsigned int b = strlen(ts);
-  while (ts[--b] == ' ') {ts[b] = 0;}
-#endif 
-
-  return ts;
-
-}
+// static char * formatTime(const std::time_t & t)  {
+//   struct std::tm * ptm;
+//   ptm = gmtime(&t);
+//   static char ts[32];
+//   strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
+//   return ts;
+// }
 
 PVFitter::PVFitter(const edm::ParameterSet& iConfig)
 {
@@ -72,103 +64,6 @@ PVFitter::PVFitter(const edm::ParameterSet& iConfig)
   errorScale_        = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("errorScale");
   sigmaCut_          = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<double>("nSigmaCut");
 
-/*
-  saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("SaveNtuple");
-  saveBeamFit_       = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<bool>("SaveFitResults");
-
-
-  //dump to file
-  if (writeTxt_)
-    fasciiFile.open(outputTxt_.c_str());
-  
-  if (saveNtuple_ || saveBeamFit_) {
-    outputfilename_ = iConfig.getParameter<edm::ParameterSet>("PVFitter").getUntrackedParameter<std::string>("OutputFileName");
-    file_ = TFile::Open(outputfilename_.c_str(),"RECREATE");
-  }
-  if (saveNtuple_) {
-    ftree_ = new TTree("mytree","mytree");
-    ftree_->AutoSave();
-    
-    ftree_->Branch("pt",&fpt,"fpt/D");
-    ftree_->Branch("d0",&fd0,"fd0/D");
-    ftree_->Branch("d0bs",&fd0bs,"fd0bs/D");
-    ftree_->Branch("sigmad0",&fsigmad0,"fsigmad0/D");
-    ftree_->Branch("phi0",&fphi0,"fphi0/D");
-    ftree_->Branch("z0",&fz0,"fz0/D");
-    ftree_->Branch("sigmaz0",&fsigmaz0,"fsigmaz0/D");
-    ftree_->Branch("theta",&ftheta,"ftheta/D");
-    ftree_->Branch("eta",&feta,"feta/D");
-    ftree_->Branch("charge",&fcharge,"fcharge/I");
-    ftree_->Branch("normchi2",&fnormchi2,"fnormchi2/D");
-    ftree_->Branch("nTotLayerMeas",&fnTotLayerMeas,"fnTotLayerMeas/i");
-    ftree_->Branch("nStripLayerMeas",&fnStripLayerMeas,"fnStripLayerMeas/i");
-    ftree_->Branch("nPixelLayerMeas",&fnPixelLayerMeas,"fnPixelLayerMeas/i");
-    ftree_->Branch("nTIBLayerMeas",&fnTIBLayerMeas,"fnTIBLayerMeas/i");
-    ftree_->Branch("nTOBLayerMeas",&fnTOBLayerMeas,"fnTOBLayerMeas/i");
-    ftree_->Branch("nTIDLayerMeas",&fnTIDLayerMeas,"fnTIDLayerMeas/i");
-    ftree_->Branch("nTECLayerMeas",&fnTECLayerMeas,"fnTECLayerMeas/i");
-    ftree_->Branch("nPXBLayerMeas",&fnPXBLayerMeas,"fnPXBLayerMeas/i");
-    ftree_->Branch("nPXFLayerMeas",&fnPXFLayerMeas,"fnPXFLayerMeas/i");
-    ftree_->Branch("cov",&fcov,"fcov[7][7]/D");
-    ftree_->Branch("vx",&fvx,"fvx/D");
-    ftree_->Branch("vy",&fvy,"fvy/D");
-    ftree_->Branch("quality",&fquality,"fquality/O");
-    ftree_->Branch("algo",&falgo,"falgo/O");
-    ftree_->Branch("run",&frun,"frun/i");
-    ftree_->Branch("lumi",&flumi,"flumi/i");
-    ftree_->Branch("pvValid",&fpvValid,"fpvValid/O");
-    ftree_->Branch("pvx", &fpvx, "fpvx/D");
-    ftree_->Branch("pvy", &fpvy, "fpvy/D");
-    ftree_->Branch("pvz", &fpvz, "fpvz/D");
-  }
-  if (saveBeamFit_){
-    ftreeFit_ = new TTree("fitResults","fitResults");
-    ftreeFit_->AutoSave();
-    ftreeFit_->Branch("run",&frunFit,"frunFit/i");
-    ftreeFit_->Branch("beginLumi",&fbeginLumiOfFit,"fbeginLumiOfFit/i");
-    ftreeFit_->Branch("endLumi",&fendLumiOfFit,"fendLumiOfFit/i");
-    ftreeFit_->Branch("beginTime",fbeginTimeOfFit,"fbeginTimeOfFit/C");
-    ftreeFit_->Branch("endTime",fendTimeOfFit,"fendTimeOfFit/C");
-    ftreeFit_->Branch("x",&fx,"fx/D");
-    ftreeFit_->Branch("y",&fy,"fy/D");
-    ftreeFit_->Branch("z",&fz,"fz/D");
-    ftreeFit_->Branch("sigmaZ",&fsigmaZ,"fsigmaZ/D");
-    ftreeFit_->Branch("dxdz",&fdxdz,"fdxdz/D");
-    ftreeFit_->Branch("dydz",&fdydz,"fdydz/D");
-    ftreeFit_->Branch("xErr",&fxErr,"fxErr/D");
-    ftreeFit_->Branch("yErr",&fyErr,"fyErr/D");
-    ftreeFit_->Branch("zErr",&fzErr,"fzErr/D");
-    ftreeFit_->Branch("sigmaZErr",&fsigmaZErr,"fsigmaZErr/D");
-    ftreeFit_->Branch("dxdzErr",&fdxdzErr,"fdxdzErr/D");
-    ftreeFit_->Branch("dydzErr",&fdydzErr,"fdydzErr/D");
-  }
-  
-  fBSvector.clear();
-  ftotal_tracks = 0;
-  fnTotLayerMeas = fnPixelLayerMeas = fnStripLayerMeas = fnTIBLayerMeas = 0;
-  fnTIDLayerMeas = fnTOBLayerMeas = fnTECLayerMeas = fnPXBLayerMeas = fnPXFLayerMeas = 0;
-  frun = flumi = -1;
-  frunFit = fbeginLumiOfFit = fendLumiOfFit = -1;
-  fquality = falgo = true;
-  fpvValid = true;
-  fpvx = fpvy = fpvz = 0;
-  
-  //debug histograms
-  h1ntrks = new TH1F("h1ntrks","number of tracks per event",50,0,50);
-  h1vz_event = new TH1F("h1vz_event","track Vz", 50, -30, 30 );
-  h1cutFlow = new TH1F("h1cutFlow","Cut flow table of track selection", 9, 0, 9);
-  h1cutFlow->GetXaxis()->SetBinLabel(1,"No cut");
-  h1cutFlow->GetXaxis()->SetBinLabel(2,"Traker hits");
-  h1cutFlow->GetXaxis()->SetBinLabel(3,"Pixel hits");
-  h1cutFlow->GetXaxis()->SetBinLabel(4,"norm. #chi^{2}");
-  h1cutFlow->GetXaxis()->SetBinLabel(5,"algo");
-  h1cutFlow->GetXaxis()->SetBinLabel(6,"quality");
-  h1cutFlow->GetXaxis()->SetBinLabel(7,"d_{0}");
-  h1cutFlow->GetXaxis()->SetBinLabel(8,"z_{0}");
-  h1cutFlow->GetXaxis()->SetBinLabel(9,"p_{T}");
-  resetCutFlow();
-
-*/
 
   hPVx = new TH2F("hPVx","PVx vs PVz distribution",200,-maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
   hPVy = new TH2F("hPVy","PVy vs PVz distribution",200,-maxVtxR_, maxVtxR_, 200, -maxVtxZ_, maxVtxZ_);
@@ -183,21 +78,24 @@ PVFitter::~PVFitter() {
 void PVFitter::readEvent(const edm::Event& iEvent)
 {
 
-  frun = iEvent.id().run();
-  edm::TimeValue_t ftimestamp = iEvent.time().value();
-  edm::TimeValue_t fdenom = pow(2,32);
-  time_t ftmptime = ftimestamp / fdenom;
-  char* fendTime = formatTime(ftmptime);
-  sprintf(fendTimeOfFit,"%s",fendTime);
+//   frun = iEvent.id().run();
+//   const edm::TimeValue_t ftimestamp = iEvent.time().value();
+//   const std::time_t ftmptime = ftimestamp >> 32;
 
-  if (fbeginLumiOfFit == -1) sprintf(fbeginTimeOfFit,"%s",fendTimeOfFit);
+//   if (fbeginLumiOfFit == -1) freftime[0] = freftime[1] = ftmptime;
+//   if (freftime[0] == 0 || ftmptime < freftime[0]) freftime[0] = ftmptime;
+//   const char* fbeginTime = formatTime(freftime[0]);
+//   sprintf(fbeginTimeOfFit,"%s",fbeginTime);
 
+//   if (freftime[1] == 0 || ftmptime > freftime[1]) freftime[1] = ftmptime;
+//   const char* fendTime = formatTime(freftime[1]);
+//   sprintf(fendTimeOfFit,"%s",fendTime);
 
-  flumi = iEvent.luminosityBlock();
-  frunFit = frun;
+//   flumi = iEvent.luminosityBlock();
+//   frunFit = frun;
 
-  if (fbeginLumiOfFit == -1 || fbeginLumiOfFit > flumi) fbeginLumiOfFit = flumi;
-  if (fendLumiOfFit == -1 || fendLumiOfFit < flumi) fendLumiOfFit = flumi;
+//   if (fbeginLumiOfFit == -1 || fbeginLumiOfFit > flumi) fbeginLumiOfFit = flumi;
+//   if (fendLumiOfFit == -1 || fendLumiOfFit < flumi) fendLumiOfFit = flumi;
 //   std::cout << "flumi = " <<flumi<<"; fbeginLumiOfFit = " << fbeginLumiOfFit <<"; fendLumiOfFit = "<<fendLumiOfFit<<std::endl;
 
   //------ Primary Vertices

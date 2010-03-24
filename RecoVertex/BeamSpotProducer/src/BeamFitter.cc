@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.43 2010/03/20 14:40:56 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.44 2010/03/23 22:16:10 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -204,21 +204,14 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     }
   }
   frun = iEvent.id().run();
-  edm::TimeValue_t ftimestamp = iEvent.time().value();
-  std::time_t ftmptime = ftimestamp >> 32;
+  const edm::TimeValue_t ftimestamp = iEvent.time().value();
+  const std::time_t ftmptime = ftimestamp >> 32;
 
   if (fbeginLumiOfFit == -1) freftime[0] = freftime[1] = ftmptime;
   if (freftime[0] == 0 || ftmptime < freftime[0]) freftime[0] = ftmptime;
-  const char* fbeginTime = formatTime(freftime[0]);
-  sprintf(fbeginTimeOfFit,"%s",fbeginTime);
-
   if (freftime[1] == 0 || ftmptime > freftime[1]) freftime[1] = ftmptime;
-  const char* fendTime = formatTime(freftime[1]);
-  sprintf(fendTimeOfFit,"%s",fendTime);
-
   flumi = iEvent.luminosityBlock();
   frunFit = frun;
-
   if (fbeginLumiOfFit == -1 || fbeginLumiOfFit > flumi) fbeginLumiOfFit = flumi;
   if (fendLumiOfFit == -1 || fendLumiOfFit < flumi) fendLumiOfFit = flumi;
 
@@ -390,6 +383,11 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 }
 
 bool BeamFitter::runFitter() {
+  const char* fbeginTime = formatTime(freftime[0]);
+  sprintf(fbeginTimeOfFit,"%s",fbeginTime);
+  const char* fendTime = formatTime(freftime[1]);
+  sprintf(fendTimeOfFit,"%s",fendTime);
+
   bool fit_ok = false;
   // default fit to extract beam spot info
   if(fBSvector.size() > 1 ){

@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.17 2010/02/20 02:49:00 jengbou Exp $
+ version $Id: PVFitter.h,v 1.1 2010/03/12 21:45:35 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -48,6 +48,7 @@ class PVFitter {
   
   bool runFitter(); 
   void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
+  void resetRefTime() { freftime[0] = freftime[1] = 0; }
   void dumpTxtFile();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   int* getFitLSRange() {
@@ -80,22 +81,23 @@ class PVFitter {
   
   int frun;
   int flumi;
-    
+  std::time_t freftime[2];
+
   TH2F* hPVx; TH2F* hPVy; 
 
-  bool saveNtuple_;
-  bool saveBeamFit_;
-  std::string outputfilename_;
-  TFile* file_;
-  TTree* ftree_;
+  //bool saveNtuple_;
+  //bool saveBeamFit_;
+  //std::string outputfilename_;
+  //TFile* file_;
+  //TTree* ftree_;
 
-      //beam fit results
-  TTree* ftreeFit_;
+  //beam fit results
+  //TTree* ftreeFit_;
   int frunFit;
   int fbeginLumiOfFit;
   int fendLumiOfFit;
-  char fbeginTimeOfFit[30];
-  char fendTimeOfFit[30];
+  char fbeginTimeOfFit[32];
+  char fendTimeOfFit[32];
   double fwidthX;
   double fwidthY;
   double fwidthZ;
