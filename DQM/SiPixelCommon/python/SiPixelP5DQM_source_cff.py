@@ -109,6 +109,7 @@ dqmInfo = cms.EDAnalyzer("DQMEventInfo",
 
 #FED integrity
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *
+SiPixelHLTSource.DirName = cms.string('Pixel/FEDIntegrity/')
 
 siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + SiPixelHitEfficiencySource + dqmInfo)
 

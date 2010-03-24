@@ -9,7 +9,8 @@ sipixelEDAClientP5 = cms.EDAnalyzer("SiPixelEDAClient",
     NoiseRateCutValue = cms.untracked.double(-1.), ## set negative if no noisy pixel list should be produced
     NEventsForNoiseCalculation = cms.untracked.int32(500),
     UseOfflineXMLFile = cms.untracked.bool(False),
-    Tier0Flag = cms.untracked.bool(False)
+    Tier0Flag = cms.untracked.bool(False),
+    DoHitEfficiency = cms.untracked.bool(False)
 )
 
 #DataCertification:

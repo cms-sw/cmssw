@@ -9,7 +9,8 @@ sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
     NoiseRateCutValue = cms.untracked.double(-1.),
     NEventsForNoiseCalculation = cms.untracked.int32(100000),
     UseOfflineXMLFile = cms.untracked.bool(True),
-    Tier0Flag = cms.untracked.bool(True)
+    Tier0Flag = cms.untracked.bool(True),
+    DoHitEfficiency = cms.untracked.bool(True)
 )
 
 #DataCertification:
