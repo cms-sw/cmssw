@@ -14,7 +14,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DPGAnalysis/SiStripTools"/>
 <use   name="DQM/SiStripCommon"/>
-<use   name="DQM/SiStripMonitorHardware"/>
 <use   name="DQMServices/Core"/>
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CalibFormats/SiStripObjects"/>

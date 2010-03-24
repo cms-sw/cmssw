@@ -53,8 +53,8 @@
 
 //******** includes for the cabling *************
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 //***************************************************
 
@@ -64,17 +64,19 @@
 //
 
 class APVShotsAnalyzer : public edm::EDAnalyzer {
- public:
-    explicit APVShotsAnalyzer(const edm::ParameterSet&);
-    ~APVShotsAnalyzer();
+public:
+  explicit APVShotsAnalyzer(const edm::ParameterSet&);
+  ~APVShotsAnalyzer();
 
 
-   private:
-      virtual void beginJob() ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+private:
+  virtual void beginJob() ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+
+  void updateDetCabling( const edm::EventSetup& setup );
 
       // ----------member data ---------------------------
 
@@ -97,10 +99,11 @@ class APVShotsAnalyzer : public edm::EDAnalyzer {
 
   TkHistoMap *tkhisto,*tkhisto2; 
 
-  sistrip::SpyUtilities _utility;
-
+  // DetCabling
   bool _useCabling;
-
+  uint32_t _cacheIdDet;  //!< DB cache ID used to establish if the cabling has changed during the run.
+  const SiStripDetCabling* _detCabling;  //!< The cabling object.
+  
 };
 
 //
@@ -119,7 +122,9 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
   _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed",true)),
   _suffix(iConfig.getParameter<std::string>("mapSuffix")),
   _nevents(0),
-  _useCabling(iConfig.getUntrackedParameter<bool>("useCabling",true))
+  _useCabling(iConfig.getUntrackedParameter<bool>("useCabling",true)),
+  _cacheIdDet(0),
+  _detCabling(0)
 {
    //now do what ever initialization is needed
 
@@ -169,6 +174,7 @@ APVShotsAnalyzer::~APVShotsAnalyzer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  if ( _detCabling ) _detCabling = 0;
 
 }
 
@@ -182,13 +188,11 @@ void
 APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   const SiStripDetCabling* lCabling;
 
    if (_useCabling){
      //retrieve cabling
-     lCabling = _utility.getDetCabling( iSetup );
+     updateDetCabling( iSetup );
    }
-   else lCabling = 0;
 
    _nevents++;
 
@@ -215,7 +219,7 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
        uint32_t det=shot->detId();
        if (_useCabling){
-	 const std::vector<FedChannelConnection> & conns = lCabling->getConnections( det );
+	 const std::vector<FedChannelConnection> & conns = _detCabling->getConnections( det );
 
 	 if (!(conns.size())) continue;
 	 uint16_t lFedId = 0;
@@ -307,6 +311,24 @@ APVShotsAnalyzer::endJob() {
   tkhisto->save(rootmapname);
   tkhisto2->save(rootmapname);
 }
+
+
+void APVShotsAnalyzer::updateDetCabling( const edm::EventSetup& setup )
+{
+  if (_useCabling){
+    uint32_t cache_id = setup.get<SiStripDetCablingRcd>().cacheIdentifier();//.get( cabling_ );
+   
+    if ( _cacheIdDet != cache_id ) { // If the cache ID has changed since the last update...
+      // Update the cabling object
+      edm::ESHandle<SiStripDetCabling> c;
+      setup.get<SiStripDetCablingRcd>().get( c );
+      _detCabling = c.product();
+      _cacheIdDet = cache_id;
+    } // end of new cache ID check
+  }
+}
+
+
 
 
 //define this as a plug-in
