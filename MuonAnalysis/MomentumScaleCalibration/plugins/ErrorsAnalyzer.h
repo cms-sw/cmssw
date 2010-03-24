@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ErrorsAnalyzer.h,v 1.10 2010/03/04 09:15:47 demattia Exp $
+// $Id: ErrorsAnalyzer.h,v 1.1 2010/03/24 15:15:19 demattia Exp $
 //
 //
 
@@ -65,7 +65,11 @@ private:
   uint32_t maxEvents_;
   TString outputFileName_;
   int ptBins_;
+  double ptMin_;
+  double ptMax_;
   int etaBins_;
+  double etaMin_;
+  double etaMax_;
   bool debug_;
 
   vector<double> parameters_;

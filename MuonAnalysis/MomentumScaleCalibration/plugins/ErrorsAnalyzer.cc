@@ -9,7 +9,11 @@ ErrorsAnalyzer::ErrorsAnalyzer(const edm::ParameterSet& iConfig) :
   maxEvents_( iConfig.getParameter<int>("MaxEvents") ),
   outputFileName_( iConfig.getParameter<string>("OutputFileName") ),
   ptBins_( iConfig.getParameter<int>("PtBins") ),
+  ptMin_( iConfig.getParameter<double>("PtMin") ),
+  ptMax_( iConfig.getParameter<double>("PtMax") ),
   etaBins_( iConfig.getParameter<int>("EtaBins") ),
+  etaMin_( iConfig.getParameter<double>("EtaMin") ),
+  etaMax_( iConfig.getParameter<double>("EtaMax") ),
   debug_( iConfig.getParameter<bool>("Debug") )
 {
   parameters_ = iConfig.getParameter<vector<double> >("Parameters");
@@ -23,13 +27,13 @@ ErrorsAnalyzer::ErrorsAnalyzer(const edm::ParameterSet& iConfig) :
 
   fillValueError();
 
-  sigmaPtVsPt_ = new TProfile("sigmaPtVsPtProfile", "sigmaPtVsPt", ptBins_, 0., 20.);
-  sigmaPtVsPtPlusErr_ = new TProfile("sigmaPtVsPtPlusErrProfile", "sigmaPtVsPtPlusErr", ptBins_, 0., 20.);
-  sigmaPtVsPtMinusErr_ = new TProfile("sigmaPtVsPtMinusErrProfile", "sigmaPtVsPtMinusErr", ptBins_, 0., 20.);
+  sigmaPtVsPt_ = new TProfile("sigmaPtVsPtProfile", "sigmaPtVsPt", ptBins_, ptMin_, ptMax_);
+  sigmaPtVsPtPlusErr_ = new TProfile("sigmaPtVsPtPlusErrProfile", "sigmaPtVsPtPlusErr", ptBins_, ptMin_, ptMax_);
+  sigmaPtVsPtMinusErr_ = new TProfile("sigmaPtVsPtMinusErrProfile", "sigmaPtVsPtMinusErr", ptBins_, ptMin_, ptMax_);
 
-  sigmaPtVsEta_ = new TProfile("sigmaPtVsEtaProfile", "sigmaPtVsEta", etaBins_, -3., 3.);
-  sigmaPtVsEtaPlusErr_ = new TProfile("sigmaPtVsEtaPlusErrProfile", "sigmaPtVsEtaPlusErr", etaBins_, -3., 3.);
-  sigmaPtVsEtaMinusErr_ = new TProfile("sigmaPtVsEtaMinusErrProfile", "sigmaPtVsEtaMinusErr", etaBins_, -3., 3.);
+  sigmaPtVsEta_ = new TProfile("sigmaPtVsEtaProfile", "sigmaPtVsEta", etaBins_, etaMin_, etaMax_);
+  sigmaPtVsEtaPlusErr_ = new TProfile("sigmaPtVsEtaPlusErrProfile", "sigmaPtVsEtaPlusErr", etaBins_, etaMin_, etaMax_);
+  sigmaPtVsEtaMinusErr_ = new TProfile("sigmaPtVsEtaMinusErrProfile", "sigmaPtVsEtaMinusErr", etaBins_, etaMin_, etaMax_);
 }
 
 void ErrorsAnalyzer::fillValueError()
@@ -91,7 +95,7 @@ void ErrorsAnalyzer::drawHistograms(const TProfile * histo, const TProfile * his
   for( int i=1; i<=numBins; ++i ) {
     // cout << "filling " << i << endl;
     posErrors[i-1] = valuesPlus[i] - values[i];
-    if( valuesMinus[i-1] < 0 ) negErrors[i] = 0;
+    if( valuesMinus[i-1] < 0 ) negErrors[i-1] = values[i];
     else negErrors[i-1] = values[i] - valuesMinus[i];
 
     graphAsymmErrors->SetPointEYlow(i, negErrors[i-1]);
@@ -160,11 +164,12 @@ void ErrorsAnalyzer::fillHistograms()
   MuonPairVector::iterator it = savedPair.begin();
   cout << "Starting loop on " << savedPair.size() << " muons" << endl;
   for( ; it != savedPair.end(); ++it, ++i ) {
-    cout << "Muon pair number " << i << endl;
     double pt1 = it->first.pt();
     double eta1 = it->first.eta();
     double pt2 = it->second.pt();
     double eta2 = it->second.eta();
+
+    if( pt1 == 0 && pt2 == 0 && eta1 == 0 && eta2 == 0 ) continue;
 
     double sigmaPt1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,parameters_ );
     double sigmaPt2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,parameters_ );
@@ -172,6 +177,23 @@ void ErrorsAnalyzer::fillHistograms()
     double sigmaPtPlusErr2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,valuePlusError_ );
     double sigmaPtMinusErr1 = resolutionFunctionForVec->sigmaPt( pt1,eta1,valueMinusError_ );
     double sigmaPtMinusErr2 = resolutionFunctionForVec->sigmaPt( pt2,eta2,valueMinusError_ );
+
+    if( pt1 != pt1 ) continue;
+    if( pt2 != pt2 ) continue;
+    if( eta1 != eta1 ) continue;
+    if( eta2 != eta2 ) continue;
+    if( sigmaPt1 != sigmaPt1 ) continue;
+    if( sigmaPt2 != sigmaPt2 ) continue;
+    if( sigmaPtPlusErr1 != sigmaPtPlusErr1 ) continue;
+    if( sigmaPtPlusErr2 != sigmaPtPlusErr2 ) continue;
+    if( sigmaPtMinusErr1 != sigmaPtMinusErr1 ) continue;
+    if( sigmaPtMinusErr2 != sigmaPtMinusErr2 ) continue;
+
+    cout << "Muon pair number " << i << endl;
+
+    // cout << "sigmaPt1 = " << sigmaPt1 << ", sigmaPt2 = " << sigmaPt2 << endl;
+    // cout << "sigmaPtPlusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << endl;
+    // cout << "sigmaPtMinusErr1 = " << sigmaPtPlusErr1 << ", sigmaPtMinusErr2 = " << sigmaPtMinusErr2 << endl;
 
     sigmaPtVsPt_->Fill(pt1, sigmaPt1);
     sigmaPtVsPt_->Fill(pt2, sigmaPt2);
