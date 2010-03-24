@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.65 2010/03/17 01:03:43 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.67 2010/03/19 18:38:34 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -916,21 +916,14 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
     for(unsigned int g=0; g<fGroupName.size(); g++) {
 
-      fGroupTempCountPair.push_back(make_pair(fGroupName[g],0));
-      fGroupL1TempCountPair.push_back(make_pair(fGroupName[g],0));
+      //fGroupTempCountPair.push_back(make_pair(fGroupName[g],0));
+      //fGroupL1TempCountPair.push_back(make_pair(fGroupName[g],0));
 
     }
   
     dbe_->setCurrentFolder(pathsSummaryFolder_.c_str());
 
 
-    setupHltMatrix("All", allPaths);
-    setupHltMatrix("Muon", muonPaths);
-    setupHltMatrix("Egamma", egammaPaths);
-    setupHltMatrix("Tau", tauPaths);
-    setupHltMatrix("JetMET", jetmetPaths);
-    setupHltMatrix("Rest", restPaths);
-    setupHltMatrix("Special", specialPaths_);
 
     fGroupNamePathsPair.push_back(make_pair("All",allPaths));
 
@@ -945,6 +938,38 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     fGroupNamePathsPair.push_back(make_pair("Rest",restPaths));
 
     fGroupNamePathsPair.push_back(make_pair("Special",specialPaths_));
+
+    /// add dataset name and thier triggers to the list 
+    vector<string> datasetNames =  hltConfig_.datasetNames() ;
+    cout << "Number of datasets = " << datasetNames.size() <<endl;
+    for (unsigned int i=0;i<datasetNames.size();i++) {
+
+     cout << "Name of dataset = " << datasetNames[i] <<endl;
+      vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
+      fGroupNamePathsPair.push_back(make_pair(datasetNames[i],datasetPaths));
+      //setupHltMatrix(datasetNames[i],datasetPaths);
+
+    }
+
+    /*
+    setupHltMatrix("All", allPaths);
+    setupHltMatrix("Muon", muonPaths);
+    setupHltMatrix("Egamma", egammaPaths);
+    setupHltMatrix("Tau", tauPaths);
+    setupHltMatrix("JetMET", jetmetPaths);
+    setupHltMatrix("Rest", restPaths);
+    setupHltMatrix("Special", specialPaths_);
+    */
+
+    for (unsigned int g=0;g<fGroupNamePathsPair.size();g++) {
+
+      fGroupTempCountPair.push_back(make_pair(fGroupNamePathsPair[g].first,0));
+      fGroupL1TempCountPair.push_back(make_pair(fGroupNamePathsPair[g].first,0));
+      setupHltMatrix(fGroupNamePathsPair[g].first,fGroupNamePathsPair[g].second);
+
+    }
+    /*
+    */
 
     setupHltLsPlots();
 
@@ -1425,6 +1450,7 @@ void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string>
     h_title = label+" HLT paths count per LS ";
     MonitorElement* ME_Group_LS = dbe_->book2D(h_name.c_str(), h_title.c_str(), nLS_, 0, nLS_, paths.size(), -0.5, paths.size()-0.5);
     ME_Group_LS->setAxisTitle("LS");
+    v_ME_HLTAll_LS_.push_back(ME_Group_LS);
 
     h_name= "HLT_"+label+"_L1_Total_LS";
     h_title = label+" HLT paths total count combined per LS ";
@@ -1464,11 +1490,13 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
 
  string fullPathToME; 
 
- for (unsigned int mi=0;mi<fGroupName.size();mi++) {
+ //for (unsigned int mi=0;mi<fGroupName.size();mi++) {
+  for (unsigned int mi=0;mi<fGroupNamePathsPair.size();mi++) {
 
-  fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+fGroupName[mi]+"_PassPass";
+
+  fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+fGroupNamePathsPair[mi].first+"_PassPass";
   MonitorElement* ME_2d = dbe_->get(fullPathToME);
-  fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+fGroupName[mi]+"_Pass_Any";
+  fullPathToME = "HLT/FourVector/PathsSummary/HLT_"+fGroupNamePathsPair[mi].first+"_Pass_Any";
   MonitorElement* ME_1d = dbe_->get(fullPathToME);
   if(!ME_2d || !ME_1d) {  
 
@@ -1542,11 +1570,11 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
 
   } // end for i
 
-  string groupBinLabel = "HLT_"+fGroupName[mi]+"_Any";
+  string groupBinLabel = "HLT_"+fGroupNamePathsPair[mi].first+"_Any";
   int groupBinNumber = hist_2d->GetXaxis()->FindBin(groupBinLabel.c_str());      
   if(groupPassed) hist_1d->Fill(groupBinNumber-1);//binNumber1 = 0 = first filter
 
-  string groupL1BinLabel = "HLT_"+fGroupName[mi]+"_L1_Any";
+  string groupL1BinLabel = "HLT_"+fGroupNamePathsPair[mi].first+"_L1_Any";
   int groupL1BinNumber = hist_2d->GetXaxis()->FindBin(groupL1BinLabel.c_str());      
 
   if(groupL1Passed) hist_1d->Fill(groupL1BinNumber-1);//binNumber1 = 0 = first filter
@@ -1682,7 +1710,7 @@ void FourVectorHLTOffline::endLuminosityBlock(const edm::LuminosityBlock& lumiSe
 void FourVectorHLTOffline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
 {
 
- LogTrace("FourVectorHLTOffline") << " countHLTGroupL1HitsEndLumiBlock() lumiSection number " << lumi << endl;
+ LogTrace("FourVectorHLTOffline") << " countHLTGroupBXHitsEndLumiBlock() lumiSection number " << lumi << endl;
 
    TH2F * hist_2d_bx = ME_HLT_BX_->getTH2F();
 
@@ -1797,10 +1825,11 @@ void FourVectorHLTOffline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
 
  LogTrace("FourVectorHLTOffline") << " countHLTGroupL1HitsEndLumiBlock() lumiSection number " << lumi << endl;
 
- for(unsigned int i=0; i<fGroupName.size(); i++){
+ //for(unsigned int i=0; i<fGroupName.size(); i++){
+ for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
    // get the count of path up to now
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupName[i] + "_Pass_Any";
+   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first+ "_Pass_Any";
    MonitorElement* ME_1d = dbe_->get(fullPathToME);
 
    if(! ME_1d) {
@@ -1876,10 +1905,12 @@ void FourVectorHLTOffline::countHLTGroupHitsEndLumiBlock(const int& lumi)
 {
 
  LogTrace("FourVectorHLTOffline") << " countHLTGroupHitsEndLumiBlock() lumiSection number " << lumi << endl;
- for(unsigned int i=0; i<fGroupName.size(); i++){
+ //for(unsigned int i=0; i<fGroupName.size(); i++){
+ for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
     // get the count of path up to now
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupName[i] + "_Pass_Any";
+   //string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupName[i] + "_Pass_Any";
+   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first + "_Pass_Any";
    MonitorElement* ME_1d = dbe_->get(fullPathToME);
 
    if(! ME_1d) {
