@@ -10,6 +10,7 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     TpSelectorForEfficiencyVsPhi  = TpSelectorForEfficiencyVsPhiBlock,
     TpSelectorForEfficiencyVsPt   = TpSelectorForEfficiencyVsPtBlock,
     TpSelectorForEfficiencyVsVTXR = TpSelectorForEfficiencyVsVTXRBlock,
+    TpSelectorForEfficiencyVsVTXZ = TpSelectorForEfficiencyVsVTXZBlock,
 
     # to be added here all the other histogram settings
 
@@ -33,40 +34,40 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxPhi = cms.double(3.15),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(-10),
-    maxDxy = cms.double(10),
-    nintDxy = cms.int32(100),
+    minDxy = cms.double(-40),
+    maxDxy = cms.double(40),
+    nintDxy = cms.int32(80),
     #
-    minDz = cms.double(-20),
-    maxDz = cms.double(20),
-    nintDz = cms.int32(100),
+    minDz = cms.double(-30),
+    maxDz = cms.double(30),
+    nintDz = cms.int32(60),
     #
     # TP originating vertical position
     minVertpos = cms.double(0),
-    maxVertpos = cms.double(50),
-    nintVertpos = cms.int32(100),
+    maxVertpos = cms.double(80),
+    nintVertpos = cms.int32(40),
     #
     # TP originating z position
-    minZpos = cms.double(-20),
-    maxZpos = cms.double(20),
-    nintZpos = cms.int32(100),                               
+    minZpos = cms.double(-30),
+    maxZpos = cms.double(30),
+    nintZpos = cms.int32(60),                               
 
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),
     ptRes_rangeMax = cms.double(0.1),
     ptRes_nbin = cms.int32(100),                                   
 
-    phiRes_rangeMin = cms.double(-0.003),
-    phiRes_rangeMax = cms.double(0.003),
-    phiRes_nbin = cms.int32(100),                                   
+    phiRes_rangeMin = cms.double(-0.01),
+    phiRes_rangeMax = cms.double(0.01),
+    phiRes_nbin = cms.int32(300),                                   
 
-    cotThetaRes_rangeMin = cms.double(-0.01),
-    cotThetaRes_rangeMax = cms.double(+0.01),
-    cotThetaRes_nbin = cms.int32(120),                                   
+    cotThetaRes_rangeMin = cms.double(-0.02),
+    cotThetaRes_rangeMax = cms.double(+0.02),
+    cotThetaRes_nbin = cms.int32(300),                                   
 
-    dxyRes_rangeMin = cms.double(-0.01),
-    dxyRes_rangeMax = cms.double(0.01),
-    dxyRes_nbin = cms.int32(100),                                   
+    dxyRes_rangeMin = cms.double(-0.1),
+    dxyRes_rangeMax = cms.double(0.1),
+    dxyRes_nbin = cms.int32(500),                                   
 
     dzRes_rangeMin = cms.double(-0.05),
     dzRes_rangeMax = cms.double(+0.05),
