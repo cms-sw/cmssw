@@ -75,6 +75,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   noiseRate_             = ps.getUntrackedParameter<double>("NoiseRateCutValue",0.001); //client
   noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000); //client
   Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false); //client
+  doHitEfficiency_       = ps.getUntrackedParameter<bool>("DoHitEfficiency",true); //client
   
   if(!Tier0Flag_){
     string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
@@ -163,7 +164,7 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   // Creating Summary Histos:
   sipixelActionExecutor_->createSummary(bei_);
   // Booking Efficiency Histos:
-  sipixelActionExecutor_->bookEfficiency(bei_);
+  if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_);
   // Creating occupancy plots:
   sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
   // Booking noisy pixel ME's:
@@ -236,7 +237,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
      //cout << " Updating efficiency plots" << endl;
-    sipixelActionExecutor_->createEfficiency(bei_);
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();
@@ -275,7 +276,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
      //cout << " Updating efficiency plots" << endl;
-    sipixelActionExecutor_->createEfficiency(bei_);
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
     sipixelWebInterface_->performAction();

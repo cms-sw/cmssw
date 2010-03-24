@@ -158,18 +158,24 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     NErrorsBarrel = bei->bookFloat("BarrelNErrorsCut");
     NDigisBarrel = bei->bookInt("BarrelNDigisCut");
     DigiChargeBarrel = bei->bookInt("BarrelDigiChargeCut");
-    OnTrackClusterSizeBarrel = bei->bookInt("BarrelOnTrackClusterSizeCut");
-    OnTrackNClustersBarrel = bei->bookInt("BarrelOnTrackNClustersCut");
-    OnTrackClusterChargeBarrel = bei->bookInt("BarrelOnTrackClusterChargeCut");
+    if(Tier0Flag){
+      OnTrackClusterSizeBarrel = bei->bookInt("BarrelOnTrackClusterSizeCut");
+      OnTrackNClustersBarrel = bei->bookInt("BarrelOnTrackNClustersCut");
+      OnTrackClusterChargeBarrel = bei->bookInt("BarrelOnTrackClusterChargeCut");
+    }
   bei->setCurrentFolder("Pixel/Endcap");
     NErrorsEndcap = bei->bookFloat("EndcapNErrorsCut");
     NDigisEndcap = bei->bookInt("EndcapNDigisCut");
     DigiChargeEndcap = bei->bookInt("EndcapDigiChargeCut");
-    OnTrackClusterSizeEndcap = bei->bookInt("EndcapOnTrackClusterSizeCut");
-    OnTrackNClustersEndcap = bei->bookInt("EndcapOnTrackNClustersCut");
-    OnTrackClusterChargeEndcap = bei->bookInt("EndcapOnTrackClusterChargeCut");
-  bei->setCurrentFolder("Pixel/Tracks");
-    NPixelTracks = bei->bookInt("PixelTracksCut");
+    if(Tier0Flag){
+      OnTrackClusterSizeEndcap = bei->bookInt("EndcapOnTrackClusterSizeCut");
+      OnTrackNClustersEndcap = bei->bookInt("EndcapOnTrackNClustersCut");
+      OnTrackClusterChargeEndcap = bei->bookInt("EndcapOnTrackClusterChargeCut");
+    }
+  if(Tier0Flag){
+    bei->setCurrentFolder("Pixel/Tracks");
+      NPixelTracks = bei->bookInt("PixelTracksCut");
+  }
     
     // Init MonitoringElements:
     if(nFEDs>0){
@@ -201,20 +207,22 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     if(DigiChargeBarrel) DigiChargeBarrel->Fill(1);
     DigiChargeEndcap = bei->get("Pixel/Endcap/EndcapDigiChargeCut");
     if(DigiChargeEndcap) DigiChargeEndcap->Fill(1);
-    OnTrackClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterSizeCut");
-    if(OnTrackClusterSizeBarrel) OnTrackClusterSizeBarrel->Fill(1);
-    OnTrackClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterSizeCut");
-    if(OnTrackClusterSizeEndcap) OnTrackClusterSizeEndcap->Fill(1);
-    OnTrackClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterChargeCut");
-    if(OnTrackClusterChargeBarrel) OnTrackClusterChargeBarrel->Fill(1);
-    OnTrackClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterChargeCut");
-    if(OnTrackClusterChargeEndcap) OnTrackClusterChargeEndcap->Fill(1);
-    OnTrackNClustersBarrel = bei->get("Pixel/Barrel/BarrelOnTrackNClustersCut");
-    if(OnTrackNClustersBarrel) OnTrackNClustersBarrel->Fill(1);
-    OnTrackNClustersEndcap = bei->get("Pixel/Endcap/EndcapOnTrackNClustersCut");
-    if(OnTrackNClustersEndcap) OnTrackNClustersEndcap->Fill(1);
-    NPixelTracks = bei->get("Pixel/Tracks/PixelTracksCut");
-    if(NPixelTracks) NPixelTracks->Fill(1);
+    if(Tier0Flag){
+      OnTrackClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterSizeCut");
+      if(OnTrackClusterSizeBarrel) OnTrackClusterSizeBarrel->Fill(1);
+      OnTrackClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterSizeCut");
+      if(OnTrackClusterSizeEndcap) OnTrackClusterSizeEndcap->Fill(1);
+      OnTrackClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterChargeCut");
+      if(OnTrackClusterChargeBarrel) OnTrackClusterChargeBarrel->Fill(1);
+      OnTrackClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterChargeCut");
+      if(OnTrackClusterChargeEndcap) OnTrackClusterChargeEndcap->Fill(1);
+      OnTrackNClustersBarrel = bei->get("Pixel/Barrel/BarrelOnTrackNClustersCut");
+      if(OnTrackNClustersBarrel) OnTrackNClustersBarrel->Fill(1);
+      OnTrackNClustersEndcap = bei->get("Pixel/Endcap/EndcapOnTrackNClustersCut");
+      if(OnTrackNClustersEndcap) OnTrackNClustersEndcap->Fill(1);
+      NPixelTracks = bei->get("Pixel/Tracks/PixelTracksCut");
+      if(NPixelTracks) NPixelTracks->Fill(1);
+    }
    
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){
@@ -426,15 +434,16 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
      
      
     // Fill the OnTrack Cluster flags:
-  if(!Tier0Flag){
-    meName0 = "Pixel/Barrel/SUMTRK_size_OnTrack_Barrel";
+  if(Tier0Flag){  
+  //if(!Tier0Flag){
+  //  meName0 = "Pixel/Barrel/SUMTRK_size_OnTrack_Barrel";
     if(clusterOntrackCounterBarrel/768 > 0.5) clusterOntrackStatsBarrel = true;
     if(clusterOntrackCounterEndcap/672 > 0.5) clusterOntrackStatsEndcap = true;
-  }else{  
+  //}else{
     meName0 = "Pixel/Barrel/SUMOFF_size_OnTrack_Barrel"; 
     if(clusterOntrackCounterBarrel/192 > 0.5) clusterOntrackStatsBarrel = true;
     if(clusterOntrackCounterEndcap/96 > 0.5) clusterOntrackStatsEndcap = true;
-  }
+  //}
   me = bei->get(meName0);
   if(me){
     OnTrackClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterSizeCut");
@@ -443,8 +452,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       else OnTrackClusterSizeBarrel->Fill(1);
     }
   }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_size_OnTrack_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_size_OnTrack_Endcap"; 
+  //if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_size_OnTrack_Endcap";
+  //else 
+  meName0 = "Pixel/Endcap/SUMOFF_size_OnTrack_Endcap"; 
   me = bei->get(meName0);
   if(me){
     OnTrackClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterSizeCut");
@@ -453,8 +463,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       else OnTrackClusterSizeEndcap->Fill(1);
     }
   }
-  if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_charge_OnTrack_Barrel";
-  else meName0 = "Pixel/Barrel/SUMOFF_charge_OnTrack_Barrel"; 
+  //if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_charge_OnTrack_Barrel";
+  //else 
+  meName0 = "Pixel/Barrel/SUMOFF_charge_OnTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
     OnTrackClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterChargeCut");
@@ -463,8 +474,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       else OnTrackClusterChargeBarrel->Fill(1);
     }
   }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_charge_OnTrack_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_charge_OnTrack_Endcap"; 
+  //if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_charge_OnTrack_Endcap";
+  //else 
+  meName0 = "Pixel/Endcap/SUMOFF_charge_OnTrack_Endcap"; 
   me = bei->get(meName0);
   if(me){
     OnTrackClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterChargeCut");
@@ -473,8 +485,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       else OnTrackClusterChargeEndcap->Fill(1);
     }
   }
-  if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_nclusters_OnTrack_Barrel";
-  else meName0 = "Pixel/Barrel/SUMOFF_nclusters_OnTrack_Barrel"; 
+  //if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_nclusters_OnTrack_Barrel";
+  //else 
+  meName0 = "Pixel/Barrel/SUMOFF_nclusters_OnTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
     OnTrackNClustersBarrel = bei->get("Pixel/Barrel/BarrelOnTrackNClustersCut");
@@ -483,8 +496,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       else OnTrackNClustersBarrel->Fill(1);
     }
   }
-  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_nclusters_OnTrack_Endcap";
-  else meName0 = "Pixel/Endcap/SUMOFF_nclusters_OnTrack_Endcap"; 
+  //if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_nclusters_OnTrack_Endcap";
+  //else 
+  meName0 = "Pixel/Endcap/SUMOFF_nclusters_OnTrack_Endcap"; 
   me = bei->get(meName0);
   if(me){
     OnTrackNClustersEndcap = bei->get("Pixel/Endcap/EndcapOnTrackNClustersCut");
@@ -493,8 +507,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       else OnTrackNClustersEndcap->Fill(1);
     }
   }
-
-     
   // Pixel Track multiplicity / Pixel hit efficiency
   meName0 = "Pixel/Tracks/ntracks_generalTracks";
   me = bei->get(meName0);
@@ -508,6 +520,8 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       }
     }
   }
+  }// end Offline only (for tracks)
+  
   
 //********************************************************************************************************  
   

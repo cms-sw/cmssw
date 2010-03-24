@@ -19,17 +19,6 @@
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
      <MonElement name="size">	</MonElement>
-     <MonElement name="nclusters_OnTrack"></MonElement>
-     <MonElement name="charge_OnTrack"> </MonElement>
-     <MonElement name="size_OnTrack">	</MonElement>
-     <MonElement name="nclusters_OffTrack"></MonElement>
-     <MonElement name="charge_OffTrack"> </MonElement>
-     <MonElement name="size_OffTrack">	</MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="ErrorX"> </MonElement>
-     <MonElement name="ErrorY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
      <MonElement name="NErrors">	</MonElement> 
@@ -41,17 +30,6 @@
      <MonElement name="charge"> </MonElement>
      <MonElement name="chargeCOMB"></MonElement>
      <MonElement name="size">	</MonElement>
-     <MonElement name="nclusters_OnTrack"></MonElement>
-     <MonElement name="charge_OnTrack"> </MonElement>
-     <MonElement name="size_OnTrack">	</MonElement>
-     <MonElement name="nclusters_OffTrack"></MonElement>
-     <MonElement name="charge_OffTrack"> </MonElement>
-     <MonElement name="size_OffTrack">	</MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="ErrorX"> </MonElement>
-     <MonElement name="ErrorY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="NErrors">	</MonElement> 
@@ -60,17 +38,6 @@
      <MonElement name="nclusters"></MonElement>
      <MonElement name="charge"> </MonElement>
      <MonElement name="size">	</MonElement>
-     <MonElement name="nclusters_OnTrack"></MonElement>
-     <MonElement name="charge_OnTrack"> </MonElement>
-     <MonElement name="size_OnTrack">	</MonElement>
-     <MonElement name="nclusters_OffTrack"></MonElement>
-     <MonElement name="charge_OffTrack"> </MonElement>
-     <MonElement name="size_OffTrack">	</MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="ErrorX"> </MonElement>
-     <MonElement name="ErrorY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Disc_" update_frequency="300"> 
      <MonElement name="NErrors">	</MonElement> 
@@ -82,17 +49,6 @@
      <MonElement name="charge"> </MonElement>
      <MonElement name="chargeCOMB"></MonElement>
      <MonElement name="size">	</MonElement>
-     <MonElement name="nclusters_OnTrack"></MonElement>
-     <MonElement name="charge_OnTrack"> </MonElement>
-     <MonElement name="size_OnTrack">	</MonElement>
-     <MonElement name="nclusters_OffTrack"></MonElement>
-     <MonElement name="charge_OffTrack"> </MonElement>
-     <MonElement name="size_OffTrack">	</MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="ErrorX"> </MonElement>
-     <MonElement name="ErrorY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
 </SubStructureGrandEndcapLevel> 
 
 <SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 	 

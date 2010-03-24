@@ -76,6 +76,7 @@ private:
   int nFEDs_;
   bool Tier0Flag_;
   bool firstRun;
+  bool doHitEfficiency_;
   
   std::ostringstream html_out_;
 };
