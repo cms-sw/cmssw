@@ -18,6 +18,7 @@ jetContentExtended.outputCommands.extend(cms.untracked.vstring('keep *_caloTower
 #tracks
 trkContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
+      'keep *_offlineBeamSpot_*_*',
       'keep recoTracks_hiSelectedTracks_*_*',
       'keep recoTracks_hiPixel3PrimTracks_*_*' # low-fake selection to lower pt?
       )
