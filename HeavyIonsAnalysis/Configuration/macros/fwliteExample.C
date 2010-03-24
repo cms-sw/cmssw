@@ -23,6 +23,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -138,13 +139,15 @@ void fwliteExample(bool debug=false){
     hVtxTrks->Fill(vtx.tracksSize());
     hVtxZ->Fill(vtx.z());
 
-    // get beamspot and tracks
+    // get beamspot 
     fwlite::Handle<reco::BeamSpot> beamspot;
     beamspot.getByLabel(event, "offlineBeamSpot");
+
+    //----- loop over tracks -----
+
     fwlite::Handle<std::vector<reco::Track> > tracks;
     tracks.getByLabel(event, "hiSelectedTracks");
 
-    //----- loop over tracks -----
     for(unsigned it=0; it<tracks->size(); ++it){
       
       const reco::Track & trk = (*tracks)[it];
@@ -164,10 +167,13 @@ void fwliteExample(bool debug=false){
       if(debug && trk.pt() > ptDebug) // fill debug ntuple for selection of tracks
 	nt->Fill(trk.pt(),trk.eta(),trk.phi(),trk.numberOfValidHits(),trk.ptError(),
 		 dxybeam,trk.d0Error(),dzvtx,trk.dzError(),accept[1],accept[2],accept[3]);
-
+    
     }
 
     //----- loop over jets -----
+
+    fwlite::Handle<vector<reco::CaloJet> > jets;
+    jets.getByLabel(event, "iterativeConePu5CaloJets");
 
     //----- loop over muons -----
 

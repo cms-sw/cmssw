@@ -31,12 +31,18 @@ muonContent = cms.PSet(
       )
     )
 
+muonContentExtended = muonContent.clone()
+muonContentExtended.outputCommands.extend(RecoMuonAOD.outputCommands)
+
 #photons
 photonContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
       'keep patPhotons_selected*_*_*'
       )
     )
+
+photonContentExtended = photonContent.clone()
+photonContentExtended.outputCommands.extend(RecoEgammaAOD.outputCommands)
 
 #correlations
 corrContent = cms.PSet(
@@ -72,7 +78,7 @@ jetTrkSkimContent.outputCommands.extend(trkContent.outputCommands)
 
 # [dilepton] skim
 muonTrkSkimContent = hiCommon.clone()
-muonTrkSkimContent.outputCommands.extend(muonContent.outputCommands)
+muonTrkSkimContent.outputCommands.extend(muonContentExtended.outputCommands)
 muonTrkSkimContent.outputCommands.extend(trkContent.outputCommands)
 
 

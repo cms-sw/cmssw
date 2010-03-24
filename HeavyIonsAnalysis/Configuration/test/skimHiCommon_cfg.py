@@ -12,7 +12,9 @@ process.GlobalTag.globaltag = 'GR09_R_34X_V5::All'
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'rfio:/castor/cern.ch/user/e/edwenger/MBSkimHIRECO_900GeV_2k_v3.root'),
+    'rfio:/castor/cern.ch/user/e/edwenger/MBSkimHIRECO_900GeV_2k_v3.root'
+    #'file:/d100/data/MinimumBias-ReReco/Feb9ReReco_v2/BSCNOHALOSkim/HIRECO/MBSkimHIRECO_900GeV_2k_v3.root'
+    ),
     lumisToProcess = cms.untracked.VLuminosityBlockRange(
     '123596:2-123596:max','123615:70-123615:max','123732:62-123732:109',
     '123815:8-123815:max','123818:2-123818:42','123908:2-123908:12',
@@ -22,7 +24,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/HeavyIonsAnalysis/Configuration/test/skimHiCommon_cfg.py,v $'),
     annotation = cms.untracked.string('HI common skim')
 )

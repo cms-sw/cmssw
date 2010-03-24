@@ -46,4 +46,35 @@ hltPhoton = hltHighLevel.clone(
     andOr = cms.bool(True)
     )
 
+##### Analysis selections #####
 
+# jets
+dijets = cms.EDFilter("EtMinCaloJetCountFilter",
+    src = cms.InputTag("iterativeConePu5CaloJets"),
+    etMin = cms.double(10.0),
+    minNumber = cms.uint32(2)
+    )
+
+# muons
+goodSTAMuons = cms.EDFilter("MuonViewRefSelector",
+    src = cms.InputTag("muons"),
+    cut = cms.string('isStandAloneMuon = 1 & pt > 10 & abs(eta)<2.5'),
+    filter = cms.bool(True)                                
+)
+
+dimuonsSTA = cms.EDFilter("CandViewShallowCloneCombiner",
+    checkCharge = cms.bool(True),
+    cut = cms.string('mass > 70 & mass < 120 & charge=0'),
+    decay = cms.string("goodSTAMuons@+ goodSTAMuons@-")
+)
+ 
+dimuonsSTAFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("dimuonsSTA"),
+    minNumber = cms.uint32(1)
+)
+
+# photons
+goodPhotons = cms.EDFilter("PhotonSelector",
+    src = cms.InputTag("photons"),
+    cut = cms.string('et > 10.0')
+)
