@@ -13,6 +13,27 @@ class constants(object):
         self.VERBOSE=False
         self.LSLENGTH=0
         
+class resultPrinter(object):
+    def __init__(self):
+        self.total_width=80
+        self.number_width=12
+        self.column_width=self.total_width-self.number_width-12
+        self.header_format='%-*s%*s'
+        self.format='%-*s%*.3fe27 [cms^-2]'
+    def printOuterSeparator(self):
+        print '='* self.total_width
+    def printInnerSeparator(self):    
+        print '-'*self.total_width
+    def printHeader(self,column1,column2):
+        print self.header_format % (self.column_width,column1,self.number_width,column2)
+    def printLine(self,columnname,columnvalue):
+        print self.format % (self.column_width,columnname,self.number_width,columnvalue)
+    def headerFormat(self):
+        return self.header_format
+    def bodyFormat(self):
+        return self.format
+
+    
 def lslengthsec(numorbit,numbx):
     #print numorbit, numbx
     l=numorbit*numbx*25e-09
@@ -42,13 +63,19 @@ def deliveredLumiForRun(dbsession,c,runnum):
         query.defineOutput(result)
         query.setCondition("RUNNUM =:runnum AND LUMIVERSION =:lumiversion",queryBind)
         cursor=query.execute()
-        #icount=0
         while cursor.next():
-         #   if icount==0:
-         delivered=cursor.currentRow()['totallumi'].data()*c.NORM*c.LSLENGTH
+            delivereddata=cursor.currentRow()['totallumi'].data()
+            if delivereddata:
+                delivered=delivereddata*c.NORM*c.LSLENGTH
         del query
         dbsession.transaction().commit()
-        print "Delivered Luminosity for Run "+str(runnum)+" (beam "+c.BEAMMODE+"): "+'%.3f'%(delivered)+c.LUMIUNIT
+        rprint=resultPrinter()
+        rprint.printOuterSeparator()
+        if delivered==0.0:
+           print 'Requested run '+str(runnum)+' does not exist in LumiDB, do nothing...'
+        else:
+            rprint.printLine("Delivered Luminosity for Run "+str(runnum)+" (beam "+c.BEAMMODE+"):",delivered)
+        rprint.printOuterSeparator()
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
@@ -282,17 +309,24 @@ def recordedLumiForRun(dbsession,c,runnum,hltpath=''):
         query.defineOutput(result)
         cursor=query.execute()
         while cursor.next():
-            recorded=cursor.currentRow()["recorded"].data()*c.NORM*c.LSLENGTH
+            recordeddata=cursor.currentRow()["recorded"].data()
+            if recordeddata:
+                recorded=recordeddata*c.NORM*c.LSLENGTH
         del query
         dbsession.transaction().commit()
-
-        print 'Recorded Luminosity for Run '+str(runnum)+' : %.3f'%(recorded)+c.LUMIUNIT
-        #print 'requested hltpath ',hltpath
-        
+        rprint=resultPrinter()
+        if recorded==0.0:
+            print 'Requested run '+str(runnum)+' does not exist in LumiDB, do nothing...'
+        else:
+            rprint.printOuterSeparator()        
+            rprint.printLine('Recorded Luminosity for Run '+str(runnum)+':',recorded)
+        rprint.printInnerSeparator()
+        rprint.printHeader('  HLTPath','Recorded')
+        rprint.printInnerSeparator()
         if hltpath=='all':
             for hltname in hltTotrgMap.keys():
                 effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
-                print '    '+hltname+' : '+'%.3f'%(effresult)+c.LUMIUNIT
+                rprint.printLine('  '+hltname,effresult)
                 if c.VERBOSE:
                     print '     ### L1 :'+str(hltTotrgMap[hltname][0])+', HLT Prescale : '+str(hltTotrgMap[hltname][1])+', L1 Prescale : '+str(hltTotrgMap[hltname][2])+', Deadfrac : ',hltTotrgMap[hltname][3]
         else:
@@ -300,10 +334,10 @@ def recordedLumiForRun(dbsession,c,runnum,hltpath=''):
                 print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
                 return
             effresult=recorded/(hltTotrgMap[hltpath][1]*hltTotrgMap[hltpath][2])
-            print '    '+hltpath+' : '+'%.3f'%(effresult)+c.LUMIUNIT
+            rprint.printLine('  '+hltpath,effresult)
             if c.VERBOSE:
                 print '     ### L1 :'+str(hltTotrgMap[hltpath][0])+', HLT Prescale : '+str(hltTotrgMap[hltpath][1])+', L1 Prescale : '+str(hltTotrgMap[hltpath][2])+', Deadfrac : '+str(hltTotrgMap[hltpath][3])
-                
+        rprint.printOuterSeparator()
     except Exception,e:
         print str(e)
         dbsession.transaction().rollback()
@@ -347,7 +381,11 @@ def recordedLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
             query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
             cursor=query.execute()
             while cursor.next():
-                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()*c.NORM*c.LSLENGTH
+                recordeddata=cursor.currentRow()['recorded'].data()
+                if recordeddata:
+                    recorded[int(runnumstr)]=recordeddata*c.NORM*c.LSLENGTH
+                else:
+                    recorded[int(runnumstr)]=recordeddata
             del query
             dbsession.transaction().commit()
 
@@ -436,7 +474,7 @@ def recordedLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
                     trgdeadtime=cursor.currentRow()['trgdeadtime'].data()
                     if counter==0:
                         hltTotrgMap[myhltpath]=(myl1bitname,myhltprescale,trgprescale,[])
-                    hltTotrgMap[myhltpath][-1].append((trglsnum,'%.3f'%(25.0e-09*trgdeadtime/c.LSLENGTH)))
+                    hltTotrgMap[myhltpath][-1].append((trglsnum,(25.0e-09*trgdeadtime/c.LSLENGTH)))
                     counter=counter+1
                 cursor.close()
                 del trgQuery
@@ -449,22 +487,38 @@ def recordedLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
         if len(recorded)!=len(hltTotrgMapAllRuns):
             raise "inconsistent number of runs in recorded and hltTotrgMap result"
 
+        rprint=resultPrinter()
         for run in recorded.keys():
-             print 'Recorded Luminosity for Run '+str(run)
-             if hltpath=='all':
-                 for hltname in hltTotrgMapAllRuns[run].keys():
-                     effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltname][1]*hltTotrgMapAllRuns[run][hltname][2])
-                     print '    '+hltname+' : ','%.3f'%(effresult)+c.LUMIUNIT
-                 if c.VERBOSE:
+            rprint.printOuterSeparator()
+            if recorded[run] is None:
+                print 'Requested run '+str(run)+' does not exist in LumiDB, do nothing...'
+                continue
+            else:
+                rprint.printLine('Recorded Luminosity for Run '+str(run)+':',recorded[run])
+            rprint.printInnerSeparator()
+            rprint.printHeader('  HLTPath','Recorded')
+            rprint.printInnerSeparator()
+            if hltpath=='all':                
+                for hltname in hltTotrgMapAllRuns[run].keys():
+                    if recorded[run] is None:
+                        print 'Requested run '+str(run)+' does not exist in LumiDB, do nothing...'
+                    else:
+                        effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltname][1]*hltTotrgMapAllRuns[run][hltname][2])
+                        rprint.printLine('  '+hltname,effresult)
+                    if c.VERBOSE:
                      print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltname][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltname][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltname][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltname][3])
-             else:
-                 if hltTotrgMapAllRuns[run].has_key(hltpath) is False:
-                     print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
-                     return
-                 effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltpath][1]*hltTotrgMapAllRuns[run][hltpath][2])
-                 print '    '+hltpath+' : ','%.3f'%(effresult)+c.LUMIUNIT
-                 if c.VERBOSE:
-                     print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltpath][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltpath][3])
+            else:
+                if hltTotrgMapAllRuns[run].has_key(hltpath) is False:
+                    print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
+                    return
+                if not recorded[run]:
+                    print 'Requested run '+str(run)+' does not exist in LumiDB, do nothing...'
+                else:
+                    effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltpath][1]*hltTotrgMapAllRuns[run][hltpath][2])
+                    
+                    rprint.printLine('  '+hltpath,effresult)
+                if c.VERBOSE:
+                    print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltpath][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltpath][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltpath][3])
                 
     except Exception,e:
         print str(e)
