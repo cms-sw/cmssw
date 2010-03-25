@@ -17,12 +17,15 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-#include <vector>
 
 ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
         ESRecHitWorkerBaseClass( ps )
 {
   recoAlgo_ = ps.getUntrackedParameter<int>("ESRecoAlgo", 0);
+
+  std::vector<double> weights_;
+  weights_.push_back(0) ;
+  ESWeights_ = ps.getUntrackedParameter< std::vector<double> >("ESWeights", weights_);  
 
   if (recoAlgo_ == 0)
     algoW_ = new ESRecHitSimAlgo();
@@ -64,18 +67,6 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
     w2 = mat(int(ESGain-1), 2);
   }
   */
-  double w0 = 0;
-  double w1 = 0;
-  double w2 = 0;
-  if (ESGain == 1) {
-    w0 = 0.0;
-    w1 = 0.725;
-    w2 = 0.4525;
-  } else if (ESGain == 2) {
-    w0 = 0.0;
-    w1 = 0.725;
-    w2 = 0.4525;
-  }
 
   es.get<ESPedestalsRcd>().get(esPedestals_);
   const ESPedestals *peds = esPedestals_.product();
@@ -92,9 +83,9 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   if (recoAlgo_ == 0) {
     algoW_->setESGain(ESGain);
     algoW_->setMIPGeV(ESMIPToGeV);
-    algoW_->setW0(w0);
-    algoW_->setW1(w1);
-    algoW_->setW2(w2);
+    algoW_->setW0(ESWeights_[0]);
+    algoW_->setW1(ESWeights_[1]);
+    algoW_->setW2(ESWeights_[2]);
     algoW_->setPedestals(peds);
     algoW_->setIntercalibConstants(mips);
     algoW_->setChannelStatus(channelStatus);

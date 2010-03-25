@@ -16,6 +16,8 @@
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
 
+#include <vector>
+
 namespace edm {
   class ParameterSet;
   class EventSetup;
@@ -35,6 +37,7 @@ class ESRecHitWorker : public ESRecHitWorkerBaseClass {
  private:
 
   int recoAlgo_;  
+  std::vector<double> ESWeights_;
   ESRecHitSimAlgo *algoW_;
   ESRecHitFitAlgo *algoF_;
 
