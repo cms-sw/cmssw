@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.7.4.6 2010/03/25 10:43:21 temple Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.7.4.5 2010/03/20 20:56:46 temple Exp $
 //
 //
 
@@ -52,6 +52,9 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
+
+#include <iostream>
+#include <fstream>
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10.5,11.5,12.5,
@@ -190,7 +193,7 @@ public:
    float  ref_time;
    float  ref_time_rms;
    int    status;
-   int    nChecks,nBadTime,nBadEnergy;
+   float    nChecks,nBadTime,nBadEnergy;
 };
 
 class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
@@ -226,12 +229,11 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       std::string ReferenceData;
       std::string ReferenceRun;
       std::string OutputFilePath;
-      bool        enableHTML;
-      std::string BaseHTMLpath;
-
+      std::string XmlFilePath;
       std::string baseFolder_;
       std::string prefixME_;
       bool        Online_;
+      bool        Overwrite;
 
       MonitorElement *meEVT_,*meRUN_;
       MonitorElement *RefRun_;
@@ -278,7 +280,7 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
 };
 
 HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig){
-  ievt_=0;
+  ievt_=-1;
   emap=0;
   dataset_seq_number=1;
   run_number=-1;
@@ -289,9 +291,9 @@ HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfi
   inputLabelDigi_  = iConfig.getUntrackedParameter<edm::InputTag>("digiLabel");
   ReferenceData    = iConfig.getUntrackedParameter<std::string>("LaserReferenceData" ,"");
   OutputFilePath   = iConfig.getUntrackedParameter<std::string>("OutputFilePath", "");
-  enableHTML       = iConfig.getUntrackedParameter<bool>  ("enableHTML",false);
-  BaseHTMLpath     = iConfig.getUntrackedParameter<std::string>("BaseHTMLpath","");
+  XmlFilePath      = iConfig.getUntrackedParameter<std::string>("XmlFilePath", "");
   Online_          = iConfig.getUntrackedParameter<bool>  ("online",false);
+  Overwrite        = iConfig.getUntrackedParameter<bool>  ("Overwrite",true);
   prefixME_        = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.size()>0 && prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
@@ -420,7 +422,7 @@ void HcalDetDiagLaserMonitor::analyze(const edm::Event& iEvent, const edm::Event
 int  eta,phi,depth,nTS;
 static bool HBHEseq,HOseq,HFseq;
 static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksHF;
-   if(ievt_==0){ HBHEseq=HOseq=HFseq=false; lastHBHEorbit=lastHOorbit=lastHForbit=-1;nChecksHBHE=nChecksHO=nChecksHF=0; }
+   if(ievt_==-1){ ievt_=0;HBHEseq=HOseq=HFseq=false; lastHBHEorbit=lastHOorbit=lastHForbit=-1;nChecksHBHE=nChecksHO=nChecksHF=0; }
 
    if(!dbe_) return; 
    bool LaserEvent=false;
@@ -456,7 +458,7 @@ static int  lastHBHEorbit,lastHOorbit,lastHForbit,nChecksHBHE,nChecksHO,nChecksH
          fillHistos(HcalForward);
          fillProblems(HcalForward);
          nChecksHF++; 
-         if(nChecksHF==1 || (nChecksHF>1 && ((nChecksHF-1)%8)==0)){
+         if(nChecksHF==1 || (nChecksHF>1 && ((nChecksHF-1)%12)==0)){
              SaveReference();
          }
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) hf_data[i][j][k].reset();
@@ -707,48 +709,48 @@ float ave_t,ave_e,ave_t_r,ave_e_r;
      }catch(...){ continue; }
      if(detid.subdetId()==HcalBarrel){
         if(hb_data[eta+42][phi-1][depth-1].nBadTime>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalBarrel,eta,depth)+1; 
            double val=hb_data[eta+42][phi-1][depth-1].nBadTime/hb_data[eta+42][phi-1][depth-1].nChecks;
            ProblemCellsByDepth_timing->depth[depth-1]->setBinContent(e,phi,val);
         } 
         if(hb_data[eta+42][phi-1][depth-1].nBadEnergy>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalBarrel,eta,depth)+1; 
            double val=hb_data[eta+42][phi-1][depth-1].nBadEnergy/hb_data[eta+42][phi-1][depth-1].nChecks;
            ProblemCellsByDepth_energy->depth[depth-1]->setBinContent(e,phi,val);
         } 
      }
      if(detid.subdetId()==HcalEndcap){
         if(he_data[eta+42][phi-1][depth-1].nBadTime>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalEndcap,eta,depth)+1; 
            double val=he_data[eta+42][phi-1][depth-1].nBadTime/he_data[eta+42][phi-1][depth-1].nChecks;
            ProblemCellsByDepth_timing->depth[depth-1]->setBinContent(e,phi,val);
         } 
         if(he_data[eta+42][phi-1][depth-1].nBadEnergy>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalEndcap,eta,depth)+1; 
            double val=he_data[eta+42][phi-1][depth-1].nBadEnergy/he_data[eta+42][phi-1][depth-1].nChecks;
            ProblemCellsByDepth_energy->depth[depth-1]->setBinContent(e,phi,val);
         } 
      }
      if(detid.subdetId()==HcalOuter){
         if(ho_data[eta+42][phi-1][depth-1].nBadTime>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalOuter,eta,depth)+1; 
            double val=ho_data[eta+42][phi-1][depth-1].nBadTime/ho_data[eta+42][phi-1][depth-1].nChecks;
            ProblemCellsByDepth_timing->depth[depth-1]->setBinContent(e,phi,val);
         } 
         if(ho_data[eta+42][phi-1][depth-1].nBadEnergy>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalOuter,eta,depth)+1; 
            double val=ho_data[eta+42][phi-1][depth-1].nBadEnergy/ho_data[eta+42][phi-1][depth-1].nChecks;
-           ProblemCellsByDepth_energy->depth[depth-1]->setBinContent(e,phi,val);
+           ProblemCellsByDepth_energy->depth[depth-1]->setBinContent(e,phi,val); 
         } 
      }
      if(detid.subdetId()==HcalForward){
         if(hf_data[eta+42][phi-1][depth-1].nBadTime>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalForward,eta,depth)+1; 
            double val=hf_data[eta+42][phi-1][depth-1].nBadTime/hf_data[eta+42][phi-1][depth-1].nChecks;
            ProblemCellsByDepth_timing->depth[depth-1]->setBinContent(e,phi,val);
         } 
         if(hf_data[eta+42][phi-1][depth-1].nBadEnergy>0){
-           int e=CalcEtaBin(sd,eta,depth)+1; 
+           int e=CalcEtaBin(HcalForward,eta,depth)+1; 
            double val=hf_data[eta+42][phi-1][depth-1].nBadEnergy/hf_data[eta+42][phi-1][depth-1].nChecks;
            ProblemCellsByDepth_energy->depth[depth-1]->setBinContent(e,phi,val);
         } 
@@ -1199,17 +1201,23 @@ void HcalDetDiagLaserMonitor::fillHistos(int sd){
 } 
 
 void HcalDetDiagLaserMonitor::SaveReference(){
-double amp,rms,time,time_rms;
+double amp,rms,Time,time_rms;
 int    Eta,Phi,Depth,Statistic,Status=0;
 char   Subdet[10],str[500];
-       sprintf(str,"%sHcalDetDiagLaserData_run%06i_%i.root",OutputFilePath.c_str(),run_number,dataset_seq_number);
+   if(OutputFilePath.size()>0){
+       if(!Overwrite){
+          sprintf(str,"%sHcalDetDiagLaserData_run%06i_%i.root",OutputFilePath.c_str(),run_number,dataset_seq_number);
+       }else{
+          sprintf(str,"%sHcalDetDiagLaserData.root",OutputFilePath.c_str());
+       }
        TFile *theFile = new TFile(str, "RECREATE");
        if(!theFile->IsOpen()) return;
        theFile->cd();
-      
        sprintf(str,"%d",run_number); TObjString run(str);    run.Write("run number");
        sprintf(str,"%d",ievt_);      TObjString events(str); events.Write("Total events processed");
-       
+       sprintf(str,"%d",dataset_seq_number);      TObjString dsnum(str);  dsnum.Write("Dataset number");
+       Long_t t; t=time(0); strftime(str,30,"%F %T",localtime(&t)); TObjString tm(str);  tm.Write("Dataset creation time");
+
        TTree *tree   =new TTree("HCAL Laser data","HCAL Laser data");
        if(tree==0)   return;
        tree->Branch("Subdet",   &Subdet,         "Subdet/C");
@@ -1220,7 +1228,7 @@ char   Subdet[10],str[500];
        tree->Branch("status",   &Status,         "Status/I");
        tree->Branch("amp",      &amp,            "amp/D");
        tree->Branch("rms",      &rms,            "rms/D");
-       tree->Branch("time",     &time,           "time/D");
+       tree->Branch("time",     &Time,           "time/D");
        tree->Branch("time_rms", &time_rms,       "time_rms/D");
        sprintf(Subdet,"HB");
        for(int eta=-16;eta<=16;eta++) for(int phi=1;phi<=72;phi++) for(int depth=1;depth<=2;depth++){
@@ -1228,8 +1236,7 @@ char   Subdet[10],str[500];
              Eta=eta; Phi=phi; Depth=depth;
 	     Status=hb_data[eta+42][phi-1][depth-1].get_status();
 	     hb_data[eta+42][phi-1][depth-1].get_average_amp1(&amp,&rms);
-	     hb_data[eta+42][phi-1][depth-1].get_average_time1(&time,&time_rms);
-	     hb_data[eta+42][phi-1][depth-1].reset1();
+	     hb_data[eta+42][phi-1][depth-1].get_average_time1(&Time,&time_rms);
 	     tree->Fill();
           }
        } 
@@ -1239,8 +1246,7 @@ char   Subdet[10],str[500];
             Eta=eta; Phi=phi; Depth=depth;
 	    Status=he_data[eta+42][phi-1][depth-1].get_status();
 	    he_data[eta+42][phi-1][depth-1].get_average_amp1(&amp,&rms);
-	    he_data[eta+42][phi-1][depth-1].get_average_time1(&time,&time_rms);
-	    he_data[eta+42][phi-1][depth-1].reset1();
+	    he_data[eta+42][phi-1][depth-1].get_average_time1(&Time,&time_rms);
 	    tree->Fill();
          }
        } 
@@ -1250,8 +1256,7 @@ char   Subdet[10],str[500];
              Eta=eta; Phi=phi; Depth=depth;
 	     Status=ho_data[eta+42][phi-1][depth-1].get_status();
 	     ho_data[eta+42][phi-1][depth-1].get_average_amp1(&amp,&rms);
-	     ho_data[eta+42][phi-1][depth-1].get_average_time1(&time,&time_rms);
-	     ho_data[eta+42][phi-1][depth-1].reset1();
+	     ho_data[eta+42][phi-1][depth-1].get_average_time1(&Time,&time_rms);
 	     tree->Fill();
          }
        } 
@@ -1261,15 +1266,137 @@ char   Subdet[10],str[500];
              Eta=eta; Phi=phi; Depth=depth;
 	     Status=hf_data[eta+42][phi-1][depth-1].get_status();
 	     hf_data[eta+42][phi-1][depth-1].get_average_amp1(&amp,&rms);
-	     hf_data[eta+42][phi-1][depth-1].get_average_time1(&time,&time_rms);
-             hf_data[eta+42][phi-1][depth-1].reset1();
+	     hf_data[eta+42][phi-1][depth-1].get_average_time1(&Time,&time_rms);
 	     tree->Fill();
          }
        }
-
        theFile->Write();
        theFile->Close();
-       dataset_seq_number++;
+   }
+   if(XmlFilePath.size()>0){
+      //create XML file
+      if(!Overwrite){
+         sprintf(str,"HcalDetDiagLaser_%i_%i.xml",run_number,dataset_seq_number);
+      }else{
+         sprintf(str,"HcalDetDiagLaser.xml");
+      }
+      std::string xmlName=str;
+      ofstream xmlFile;
+      xmlFile.open(xmlName.c_str());
+
+      xmlFile<<"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
+      xmlFile<<"<ROOT>\n";
+      xmlFile<<"  <HEADER>\n";
+      xmlFile<<"    <HINTS mode='only-det-root'/>\n";
+      xmlFile<<"    <TYPE>\n";
+      xmlFile<<"      <EXTENSION_TABLE_NAME>HCAL_DETMON_LED_LASER_V1</EXTENSION_TABLE_NAME>\n";
+      xmlFile<<"      <NAME>HCAL Laser HBHE HPD [abort gap global]</NAME>\n";
+      xmlFile<<"    </TYPE>\n";
+      xmlFile<<"    <!-- run details -->\n";
+      xmlFile<<"    <RUN>\n";
+      xmlFile<<"      <RUN_TYPE>GLOBAL-RUN</RUN_TYPE>\n";
+      xmlFile<<"      <RUN_NUMBER>"<<run_number<<"</RUN_NUMBER>\n";
+      xmlFile<<"      <RUN_BEGIN_TIMESTAMP>2009-01-01 00:00:00</RUN_BEGIN_TIMESTAMP>\n";
+      xmlFile<<"      <COMMENT_DESCRIPTION>hcal laser data</COMMENT_DESCRIPTION>\n";
+      xmlFile<<"      <LOCATION>P5</LOCATION>\n";
+      xmlFile<<"      <INITIATED_BY_USER>dma</INITIATED_BY_USER>\n";
+      xmlFile<<"    </RUN>\n";
+      xmlFile<<"  </HEADER>\n";
+      xmlFile<<"  <DATA_SET>\n";
+      xmlFile<<"     <!-- optional dataset metadata -->\n\n";
+      xmlFile<<"     <SET_NUMBER>"<<dataset_seq_number<<"</SET_NUMBER>\n";
+      xmlFile<<"     <SET_BEGIN_TIMESTAMP>2009-01-01 00:00:00</SET_BEGIN_TIMESTAMP>\n";
+      xmlFile<<"     <SET_END_TIMESTAMP>2009-01-01 00:00:00</SET_END_TIMESTAMP>\n";
+      xmlFile<<"     <NUMBER_OF_EVENTS_IN_SET>"<<ievt_<<"</NUMBER_OF_EVENTS_IN_SET>\n";
+      xmlFile<<"     <COMMENT_DESCRIPTION>Automatic DQM output</COMMENT_DESCRIPTION>\n";
+      xmlFile<<"     <DATA_FILE_NAME>"<< xmlName <<"</DATA_FILE_NAME>\n";
+      xmlFile<<"     <IMAGE_FILE_NAME>data plot url or file path</IMAGE_FILE_NAME>\n";
+      xmlFile<<"     <!-- who and when created this dataset-->\n\n";
+      Long_t t; t=time(0); strftime(str,30,"%F %T",localtime(&t));
+      xmlFile<<"     <CREATE_TIMESTAMP>"<<str<<"</CREATE_TIMESTAMP>\n";
+      xmlFile<<"     <CREATED_BY_USER>dma</CREATED_BY_USER>\n";
+      xmlFile<<"     <!-- version (string) and subversion (number) -->\n";
+      xmlFile<<"     <!-- fields are used to read data back from the database -->\n\n";
+      xmlFile<<"     <VERSION>"<<run_number<<dataset_seq_number<<"</VERSION>\n";
+      xmlFile<<"     <SUBVERSION>1</SUBVERSION>\n";
+      xmlFile<<"     <!--  Assign predefined dataset attributes -->\n\n";
+      xmlFile<<"     <PREDEFINED_ATTRIBUTES>\n";
+      xmlFile<<"        <ATTRIBUTE>\n";
+      xmlFile<<"           <NAME>HCAL Dataset Status</NAME>\n";
+      xmlFile<<"           <VALUE>VALID</VALUE>\n";
+      xmlFile<<"        </ATTRIBUTE>\n";
+      xmlFile<<"     </PREDEFINED_ATTRIBUTES>\n";
+      xmlFile<<"     <!-- multiple data block records -->\n\n";
+
+      std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
+      for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
+         DetId detid=emap->lookup(*eid);
+         int eta,phi,depth; 
+         std::string subdet="";
+         try{
+           HcalDetId hid(detid);
+           eta=hid.ieta();
+           phi=hid.iphi();
+           depth=hid.depth(); 
+         }catch(...){ continue; } 
+         double e=0,e_rms=0,t=0,t_rms=0;
+         if(detid.subdetId()==HcalBarrel){
+             subdet="HB";
+             Statistic=hb_data[eta+42][phi-1][depth-1].get_statistics1();
+	     Status   =hb_data[eta+42][phi-1][depth-1].get_status();
+	     hb_data[eta+42][phi-1][depth-1].get_average_amp1(&e,&e_rms);
+	     hb_data[eta+42][phi-1][depth-1].get_average_time1(&t,&t_rms);
+         }else if(detid.subdetId()==HcalEndcap){
+             subdet="HE";
+             Statistic=he_data[eta+42][phi-1][depth-1].get_statistics1();
+	     Status   =he_data[eta+42][phi-1][depth-1].get_status();
+	     he_data[eta+42][phi-1][depth-1].get_average_amp1(&e,&e_rms);
+	     he_data[eta+42][phi-1][depth-1].get_average_time1(&t,&t_rms);
+	 }else if(detid.subdetId()==HcalForward){
+             subdet="HF";
+             Statistic=hf_data[eta+42][phi-1][depth-1].get_statistics1();
+	     Status   =hf_data[eta+42][phi-1][depth-1].get_status();
+	     hf_data[eta+42][phi-1][depth-1].get_average_amp1(&e,&e_rms);
+	     hf_data[eta+42][phi-1][depth-1].get_average_time1(&t,&t_rms);
+	 }else if(detid.subdetId()==HcalOuter){
+             subdet="HO";
+             Statistic=ho_data[eta+42][phi-1][depth-1].get_statistics1();
+	     Status   =ho_data[eta+42][phi-1][depth-1].get_status();
+	     ho_data[eta+42][phi-1][depth-1].get_average_amp1(&e,&e_rms);
+	     ho_data[eta+42][phi-1][depth-1].get_average_time1(&t,&t_rms);
+         }else continue;
+         xmlFile<<"       <DATA>\n";
+         xmlFile<<"          <NUMBER_OF_EVENTS_USED>"<<Statistic<<"</NUMBER_OF_EVENTS_USED>\n";
+         xmlFile<<"          <SIGNAL_MEAN>"<<e<<"</SIGNAL_MEAN>\n";
+         xmlFile<<"          <SIGNAL_RMS>"<<e_rms<<"</SIGNAL_RMS>\n";
+         xmlFile<<"          <TIME_MEAN>"<<t<<"</TIME_MEAN>\n";
+         xmlFile<<"          <TIME_RMS>"<<t_rms<<"</TIME_RMS>\n";
+         xmlFile<<"          <CHANNEL_STATUS_WORD>"<<Status<<"</CHANNEL_STATUS_WORD>\n";
+         xmlFile<<"          <CHANNEL_OBJECTNAME>HcalDetId</CHANNEL_OBJECTNAME>\n";
+         xmlFile<<"             <SUBDET>"<<subdet<<"</SUBDET>\n";
+         xmlFile<<"             <IETA>"<<eta<<"</IETA>\n";
+         xmlFile<<"             <IPHI>"<<phi<<"</IPHI>\n";
+         xmlFile<<"             <DEPTH>"<<depth<<"</DEPTH>\n";
+         xmlFile<<"             <TYPE>0</TYPE>\n";
+         xmlFile<<"       </DATA>\n";
+      }
+      /////////////////////////////////
+      xmlFile<<"  </DATA_SET>\n";
+      xmlFile<<"</ROOT>\n";
+      xmlFile.close();
+      sprintf(str,"zip %s.zip %s",xmlName.c_str(),xmlName.c_str());
+      system(str);
+      sprintf(str,"rm -f %s",xmlName.c_str());
+      system(str);
+      sprintf(str,"mv -f %s.zip %s",xmlName.c_str(),XmlFilePath.c_str());
+      system(str);
+   }
+   for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) hb_data[i][j][k].reset1();
+   for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) he_data[i][j][k].reset1();
+   for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) ho_data[i][j][k].reset1();
+   for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++) hf_data[i][j][k].reset1();
+   ievt_=0;
+   dataset_seq_number++;
 }
 void HcalDetDiagLaserMonitor::LoadReference(){
 double amp,rms,time,time_rms;

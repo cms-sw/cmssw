@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Tue Mar  9 12:59:18 CET 2010
-// $Id: HcalDetDiagPedestalMonitor.cc,v 1.9.4.8 2010/03/25 10:43:21 temple Exp $
+// $Id: HcalDetDiagPedestalMonitor.cc,v 1.9.4.6 2010/03/20 20:56:46 temple Exp $
 //
 //
 // user include files
@@ -30,7 +30,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include <math.h>
-
 // this is to retrieve HCAL digi's
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 // to retrive trigger information (local runs only)
@@ -52,11 +51,14 @@
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 
+#include <iostream>
+#include <fstream>
+
 class HcalDetDiagPedestalData{
 public: 
    HcalDetDiagPedestalData(){ 
              reset();
-	     IsRefetence=false;
+	     IsReference=false;
 	     status=0; 
              nChecks=nMissing=nBadPed=nBadRms=nUnstable=0;  
 	  }
@@ -69,7 +71,7 @@ public:
 	  }
    void   set_reference(float val,float rms){
              ref_ped=val; ref_rms=rms;
-	     IsRefetence=true;
+	     IsReference=true;
           }	  
    void   change_status(int val){
              status|=val;
@@ -79,7 +81,7 @@ public:
           }	  
    bool   get_reference(double *val,double *rms){
              *val=ref_ped; *rms=ref_rms;
-	     return IsRefetence;
+	     return IsReference;
           }	  
    bool   get_average(double *ave,double *rms){
              double Sum=0,nSum=0; 
@@ -104,15 +106,15 @@ public:
    int    get_overflow(){
              return overflow;
           }   
-   int   nChecks;
-   int   nMissing;
-   int   nUnstable;
-   int   nBadPed;
-   int   nBadRms;
+   float   nChecks;
+   float   nMissing;
+   float   nUnstable;
+   float   nBadPed;
+   float   nBadRms;
 private:   
    int   adc[128];
    int   overflow;
-   bool  IsRefetence;
+   bool  IsReference;
    float ref_ped;
    float ref_rms;
    int   status;
@@ -130,7 +132,6 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
       void LoadReference();
       void CheckStatus();
       void fillHistos();
-      void SaveHTML();
 
       const HcalElectronicsMap  *emap;
       edm::InputTag inputLabelDigi_;
@@ -160,11 +161,11 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
       std::string ReferenceData;
       std::string ReferenceRun;
       std::string OutputFilePath;
-      bool        enableHTML;
-      std::string BaseHTMLpath;
+      std::string XmlFilePath;
 
       std::string prefixME_;
       bool        Online_;
+      bool        Overwrite;
 
       MonitorElement *meEVT_,*meRUN_;
       MonitorElement *RefRun_;
@@ -214,7 +215,7 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
 };
 
 HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& iConfig){
-  ievt_=0;
+  ievt_=-1;
   emap=0;
   dataset_seq_number=1;
   run_number=-1;
@@ -223,11 +224,12 @@ HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& 
 
   inputLabelDigi_    = iConfig.getUntrackedParameter<edm::InputTag>("digiLabel");
   inputLabelRawData_ = iConfig.getUntrackedParameter<edm::InputTag>("rawDataLabel");
-  enableHTML       = iConfig.getUntrackedParameter<bool>  ("enableHTML",false);
-  BaseHTMLpath     = iConfig.getUntrackedParameter<std::string>("BaseHTMLpath","");
   ReferenceData    = iConfig.getUntrackedParameter<std::string>("PedestalReferenceData" ,"");
   OutputFilePath   = iConfig.getUntrackedParameter<std::string>("OutputFilePath", "");
+  XmlFilePath      = iConfig.getUntrackedParameter<std::string>("XmlFilePath", "");
   Online_          = iConfig.getUntrackedParameter<bool>  ("online",false);
+  Overwrite        = iConfig.getUntrackedParameter<bool>  ("Overwrite",true);
+
   prefixME_        = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.size()>0 && prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
@@ -366,7 +368,7 @@ void HcalDetDiagPedestalMonitor::analyze(const edm::Event& iEvent, const edm::Ev
 int  eta,phi,depth,nTS;
 static bool PEDseq;
 static int  lastPEDorbit,nChecksPED;
-   if(ievt_==0){ PEDseq=false; lastPEDorbit=-1;nChecksPED=0; }
+   if(ievt_==-1){ ievt_=0; PEDseq=false; lastPEDorbit=-1;nChecksPED=0; }
    int orbit=iEvent.orbitNumber();
    meRUN_->Fill(iEvent.id().run());
 
@@ -388,9 +390,8 @@ static int  lastPEDorbit,nChecksPED;
          fillHistos();
          CheckStatus();
          nChecksPED++;
-         if(nChecksPED==1 || (nChecksPED>1 && ((nChecksPED-1)%8)==0)){
+         if(nChecksPED==1 || (nChecksPED>1 && ((nChecksPED-1)%12)==0)){
              SaveReference();
-             SaveHTML();
          }
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++) hb_data[i][j][k][l].reset();
          for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++) he_data[i][j][k][l].reset();
@@ -849,24 +850,28 @@ void HcalDetDiagPedestalMonitor::endRun(const edm::Run& run, const edm::EventSet
     if((LocalRun || !Online_) && ievt_>=100){
        fillHistos();
        CheckStatus();
-       // Disabled by Jeff on 23 March 2010 -- cannot run in online DQM!
-       //SaveReference();
-       //SaveHTML();
+       SaveReference();
     }
 }
-
 
 void HcalDetDiagPedestalMonitor::SaveReference(){
 double ped[4],rms[4];
 int    Eta,Phi,Depth,Statistic,Status=0;
 char   Subdet[10],str[500];
-       sprintf(str,"%sHcalDetDiagPedestalData_run%06i_%i.root",OutputFilePath.c_str(),run_number,dataset_seq_number);
+   if(OutputFilePath.size()>0){
+       if(!Overwrite){
+          sprintf(str,"%sHcalDetDiagPedestalData_run%06i_%i.root",OutputFilePath.c_str(),run_number,dataset_seq_number);
+       }else{
+          sprintf(str,"%sHcalDetDiagPedestalData.root",OutputFilePath.c_str());
+       }
        TFile *theFile = new TFile(str, "RECREATE");
        if(!theFile->IsOpen()) return;
        theFile->cd();
-       sprintf(str,"%d",run_number); TObjString run(str);    run.Write("run number");
-       sprintf(str,"%d",ievt_);      TObjString events(str); events.Write("Total events processed");
-       
+       sprintf(str,"%d",run_number);              TObjString run(str);    run.Write("run number");
+       sprintf(str,"%d",ievt_);                   TObjString events(str); events.Write("Total events processed");
+       sprintf(str,"%d",dataset_seq_number);      TObjString dsnum(str);  dsnum.Write("Dataset number");
+       Long_t t; t=time(0); strftime(str,30,"%F %T",localtime(&t)); TObjString tm(str);  tm.Write("Dataset creation time");
+
        TTree *tree   =new TTree("HCAL Pedestal data","HCAL Pedestal data");
        if(tree==0)   return;
        tree->Branch("Subdet",   &Subdet,         "Subdet/C");
@@ -933,7 +938,138 @@ char   Subdet[10],str[500];
       }
       theFile->Write();
       theFile->Close();
-      dataset_seq_number++;
+   }
+   if(XmlFilePath.size()>0){
+      //create XML file
+      if(!Overwrite){
+         sprintf(str,"HcalDetDiagPedestals_%i_%i.xml",run_number,dataset_seq_number);
+      }else{
+         sprintf(str,"HcalDetDiagPedestals.xml");
+      }
+      std::string xmlName=str;
+      ofstream xmlFile;
+      xmlFile.open(xmlName.c_str());
+
+      xmlFile<<"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
+      xmlFile<<"<ROOT>\n";
+      xmlFile<<"  <HEADER>\n";
+      xmlFile<<"    <HINTS mode='only-det-root'/>\n";
+      xmlFile<<"    <TYPE>\n";
+      xmlFile<<"      <EXTENSION_TABLE_NAME>HCAL_DETMON_PEDESTALS_V1</EXTENSION_TABLE_NAME>\n";
+      xmlFile<<"      <NAME>HCAL Pedestals [abort gap global]</NAME>\n";
+      xmlFile<<"    </TYPE>\n";
+      xmlFile<<"    <!-- run details -->\n";
+      xmlFile<<"    <RUN>\n";
+      xmlFile<<"      <RUN_TYPE>GLOBAL-RUN</RUN_TYPE>\n";
+      xmlFile<<"      <RUN_NUMBER>"<<run_number<<"</RUN_NUMBER>\n";
+      xmlFile<<"      <RUN_BEGIN_TIMESTAMP>2009-01-01 00:00:00</RUN_BEGIN_TIMESTAMP>\n";
+      xmlFile<<"      <COMMENT_DESCRIPTION>hcal ped data</COMMENT_DESCRIPTION>\n";
+      xmlFile<<"      <LOCATION>P5</LOCATION>\n";
+      xmlFile<<"      <INITIATED_BY_USER>dma</INITIATED_BY_USER>\n";
+      xmlFile<<"    </RUN>\n";
+      xmlFile<<"  </HEADER>\n";
+      xmlFile<<"  <DATA_SET>\n";
+      xmlFile<<"     <!-- optional dataset metadata -->\n\n";
+      xmlFile<<"     <SET_NUMBER>"<<dataset_seq_number<<"</SET_NUMBER>\n";
+      xmlFile<<"     <SET_BEGIN_TIMESTAMP>2009-01-01 00:00:00</SET_BEGIN_TIMESTAMP>\n";
+      xmlFile<<"     <SET_END_TIMESTAMP>2009-01-01 00:00:00</SET_END_TIMESTAMP>\n";
+      xmlFile<<"     <NUMBER_OF_EVENTS_IN_SET>"<<ievt_<<"</NUMBER_OF_EVENTS_IN_SET>\n";
+      xmlFile<<"     <COMMENT_DESCRIPTION>Automatic DQM output</COMMENT_DESCRIPTION>\n";
+      xmlFile<<"     <DATA_FILE_NAME>"<< xmlName <<"</DATA_FILE_NAME>\n";
+      xmlFile<<"     <IMAGE_FILE_NAME>data plot url or file path</IMAGE_FILE_NAME>\n";
+      xmlFile<<"     <!-- who and when created this dataset-->\n\n";
+      Long_t t; t=time(0); strftime(str,30,"%F %T",localtime(&t));
+      xmlFile<<"     <CREATE_TIMESTAMP>"<<str<<"</CREATE_TIMESTAMP>\n";
+      xmlFile<<"     <CREATED_BY_USER>dma</CREATED_BY_USER>\n";
+      xmlFile<<"     <!-- version (string) and subversion (number) -->\n";
+      xmlFile<<"     <!-- fields are used to read data back from the database -->\n\n";
+      xmlFile<<"     <VERSION>"<<run_number<<dataset_seq_number<<"</VERSION>\n";
+      xmlFile<<"     <SUBVERSION>1</SUBVERSION>\n";
+      xmlFile<<"     <!--  Assign predefined dataset attributes -->\n\n";
+      xmlFile<<"     <PREDEFINED_ATTRIBUTES>\n";
+      xmlFile<<"        <ATTRIBUTE>\n";
+      xmlFile<<"           <NAME>HCAL Dataset Status</NAME>\n";
+      xmlFile<<"           <VALUE>VALID</VALUE>\n";
+      xmlFile<<"        </ATTRIBUTE>\n";
+      xmlFile<<"     </PREDEFINED_ATTRIBUTES>\n";
+      xmlFile<<"     <!-- multiple data block records -->\n\n";
+
+      std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
+      for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
+         DetId detid=emap->lookup(*eid);
+         int eta,phi,depth; 
+         std::string subdet="";
+         try{
+           HcalDetId hid(detid);
+           eta=hid.ieta();
+           phi=hid.iphi();
+           depth=hid.depth(); 
+         }catch(...){ continue; } 
+         double ped[4]={0,0,0,0},rms[4]={0,0,0,0};
+         if(detid.subdetId()==HcalBarrel){
+             subdet="HB";
+             Statistic=hb_data[eta+42][phi-1][depth-1][0].get_statistics();
+             Status   =hb_data[eta+42][phi-1][depth-1][0].get_status();
+             hb_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0]);
+             hb_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+             hb_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+             hb_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+         }else if(detid.subdetId()==HcalEndcap){
+             subdet="HE";
+             he_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0]);
+             he_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+             he_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+             he_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+             Statistic=he_data[eta+42][phi-1][depth-1][0].get_statistics();
+             Status   =he_data[eta+42][phi-1][depth-1][0].get_status();
+	 }else if(detid.subdetId()==HcalForward){
+             subdet="HF";
+             hf_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0]);
+             hf_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+             hf_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+             hf_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+             Statistic=hf_data[eta+42][phi-1][depth-1][0].get_statistics();
+             Status   =hf_data[eta+42][phi-1][depth-1][0].get_status();
+	 }else if(detid.subdetId()==HcalOuter){
+             subdet="HO";
+             ho_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0]);
+             ho_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+             ho_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+             ho_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+             Statistic=ho_data[eta+42][phi-1][depth-1][0].get_statistics();
+             Status   =ho_data[eta+42][phi-1][depth-1][0].get_status();
+         }else continue;
+         xmlFile<<"       <DATA>\n";
+         xmlFile<<"          <NUMBER_OF_EVENTS_USED>"<<Statistic<<"</NUMBER_OF_EVENTS_USED>\n";
+         xmlFile<<"          <MEAN0>"<<ped[0]<<"</MEAN0>\n";
+         xmlFile<<"          <MEAN1>"<<ped[1]<<"</MEAN1>\n";
+         xmlFile<<"          <MEAN2>"<<ped[2]<<"</MEAN2>\n";
+         xmlFile<<"          <MEAN3>"<<ped[3]<<"</MEAN3>\n";
+         xmlFile<<"          <RMS0>"<<rms[0]<<"</RMS0>\n";
+         xmlFile<<"          <RMS1>"<<rms[1]<<"</RMS1>\n";
+         xmlFile<<"          <RMS2>"<<rms[2]<<"</RMS2>\n";
+         xmlFile<<"          <RMS3>"<<rms[3]<<"</RMS3>\n";
+         xmlFile<<"          <CHANNEL_STATUS_WORD>"<<Status<<"</CHANNEL_STATUS_WORD>\n";
+         xmlFile<<"          <CHANNEL_OBJECTNAME>HcalDetId</CHANNEL_OBJECTNAME>\n";
+         xmlFile<<"             <SUBDET>"<<subdet<<"</SUBDET>\n";
+         xmlFile<<"             <IETA>"<<eta<<"</IETA>\n";
+         xmlFile<<"             <IPHI>"<<phi<<"</IPHI>\n";
+         xmlFile<<"             <DEPTH>"<<depth<<"</DEPTH>\n";
+         xmlFile<<"             <TYPE>0</TYPE>\n";
+         xmlFile<<"       </DATA>\n";
+      }
+      /////////////////////////////////
+      xmlFile<<"  </DATA_SET>\n";
+      xmlFile<<"</ROOT>\n";
+      xmlFile.close();
+      sprintf(str,"zip %s.zip %s",xmlName.c_str(),xmlName.c_str());
+      system(str);
+      sprintf(str,"rm -f %s",xmlName.c_str());
+      system(str);
+      sprintf(str,"mv -f %s.zip %s",xmlName.c_str(),XmlFilePath.c_str());
+      system(str);
+   }
+   dataset_seq_number++;
 }
 
 void HcalDetDiagPedestalMonitor::LoadReference(){
@@ -994,10 +1130,6 @@ TFile *f;
       IsReference=true;
 } 
 
-void HcalDetDiagPedestalMonitor::SaveHTML(){
-   if(!enableHTML) return;
-
-}
 void HcalDetDiagPedestalMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}
 void HcalDetDiagPedestalMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}
 

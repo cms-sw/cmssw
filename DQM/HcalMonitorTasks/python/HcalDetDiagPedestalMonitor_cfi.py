@@ -20,11 +20,12 @@ hcalDetDiagPedestalMonitor=cms.EDAnalyzer("HcalDetDiagPedestalMonitor",
                                           rawDataLabel           = cms.untracked.InputTag("source"),
                                           # reference dataset path + filename
                                           PedestalReferenceData  = cms.untracked.string(""),
+                                          # Save output to different files on same file
+                                          Overwrite              = cms.untracked.bool(True),
                                           # path to store datasets for current run
                                           OutputFilePath         = cms.untracked.string(""),
-                                          # path to store HTML output
-                                          BaseHTMLpath           = cms.untracked.string(""),
-                                          enableHTML             = cms.untracked.bool(False),
+                                          # path to store xmz.zip file to be uploaded into OMDG
+                                          XmlFilePath            = cms.untracked.string(""),
                                           # thresholds
                                           HBMeanTreshold         = cms.untracked.double(0.2),
                                           HBRmsTreshold          = cms.untracked.double(0.3),
