@@ -5,7 +5,8 @@ dqmFEDIntegrity = cms.EDAnalyzer("DQMFEDIntegrityClient",
    fillOnEndLumi = cms.untracked.bool(True),
    fillOnEndRun = cms.untracked.bool(True),
    fillOnEndJob = cms.untracked.bool(False),
-   moduleName = cms.untracked.string('FED')
+   moduleName = cms.untracked.string('FED'),
+   fedFolderName = cms.untracked.string('FEDIntegrity')
    )
 
 dqmQTestDQMFED = cms.EDAnalyzer("QualityTester",

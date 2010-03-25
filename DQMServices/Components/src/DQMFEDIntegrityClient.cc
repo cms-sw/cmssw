@@ -3,9 +3,9 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/12/09 23:08:55 $
- * $Revision: 1.16 $
- * $Author: ameyer $
+ * $Date: 2009/12/15 08:59:49 $
+ * $Revision: 1.17 $
+ * $Author: dellaric $
  *
  * Description: Summing up FED entries from all subdetectors.
  *
@@ -33,7 +33,8 @@ DQMFEDIntegrityClient::DQMFEDIntegrityClient( const edm::ParameterSet& ps ) {
   fillOnEndRun = ps.getUntrackedParameter<bool>("fillOnEndRun",false);
   fillOnEndJob = ps.getUntrackedParameter<bool>("fillOnEndJob",false);
   fillOnEndLumi = ps.getUntrackedParameter<bool>("fillOnEndLumi",true);
-  moduleName = ps.getUntrackedParameter<string>("moduleName", "FED") ;
+  moduleName = ps.getUntrackedParameter<string>("moduleName", "FED");
+  fedFolderName = ps.getUntrackedParameter<string>("fedFolderName", "FEDIntegrity");
 
 }
 
@@ -60,10 +61,7 @@ void DQMFEDIntegrityClient::beginJob() {
   dbe_ = Service<DQMStore>().operator->();
 
   // ----------------------------------------------------------------------------------
-  string subFolder = "/FEDIntegrity";
-  string currentFolder = moduleName + subFolder;
-
-  //  dbe_->setCurrentFolder("FED/FEDIntegrity");
+  string currentFolder = moduleName + "/" + fedFolderName ;
   dbe_->setCurrentFolder(currentFolder.c_str());
 
   FedEntries  = dbe_->book1D("FedEntries",  "FED Entries",          NBINS, XMIN, XMAX);
@@ -115,10 +113,7 @@ void DQMFEDIntegrityClient::beginJob() {
   FedNonFatal->setBinLabel(804, "L1T",   1);
 
   //-----------------------------------------------------------------------------------
-  subFolder = "/EventInfo";
-  currentFolder = moduleName + subFolder;
-
-  //  dbe_->setCurrentFolder("FED/EventInfo");
+  currentFolder = moduleName + "/EventInfo";
   dbe_->setCurrentFolder(currentFolder.c_str());
 
   reportSummary = dbe_->bookFloat("reportSummary");
@@ -127,10 +122,7 @@ void DQMFEDIntegrityClient::beginJob() {
 
   if(reportSummary) reportSummary->Fill(1.);
 
-  subFolder = "/EventInfo/reportSummaryContents";
-  currentFolder = moduleName + subFolder;
-
-  //  dbe_->setCurrentFolder("FED/EventInfo/reportSummaryContents");
+  currentFolder = moduleName + "/EventInfo/reportSummaryContents";
   dbe_->setCurrentFolder(currentFolder.c_str());
 
   reportSummaryContent[0]  = dbe_->bookFloat("CSC FEDs");
@@ -150,10 +142,7 @@ void DQMFEDIntegrityClient::beginJob() {
     reportSummaryContent[i]->Fill(1.);
   }
 
-  subFolder = "/EventInfo";
-  currentFolder = moduleName + subFolder;
-
-  //  dbe_->setCurrentFolder("FED/EventInfo");
+  currentFolder = moduleName + "/EventInfo";
   dbe_->setCurrentFolder(currentFolder.c_str());
 
   reportSummaryMap = dbe_->book2D("reportSummaryMap",
@@ -194,16 +183,16 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   // dbe_->showDirStructure();
 
   vector<string> entries;
-  entries.push_back("CSC/FEDIntegrity/FEDEntries");
-  entries.push_back("DT/FEDIntegrity/FEDEntries");
-  entries.push_back("EcalBarrel/FEDIntegrity/FEDEntries");
-  entries.push_back("EcalEndcap/FEDIntegrity/FEDEntries");
-  entries.push_back("EcalPreshower/FEDIntegrity/FEDEntries");
-  entries.push_back("Hcal/FEDIntegrity/FEDEntries");
-  entries.push_back("L1T/FEDIntegrity/FEDEntries");
-  entries.push_back("Pixel/FEDIntegrity/FEDEntries");
-  entries.push_back("RPC/FEDIntegrity/FEDEntries");
-  entries.push_back("SiStrip/FEDIntegrity/FEDEntries");
+  entries.push_back("CSC/" + fedFolderName + "/FEDEntries");
+  entries.push_back("DT/" + fedFolderName + "/FEDEntries");
+  entries.push_back("EcalBarrel/" + fedFolderName + "/FEDEntries");
+  entries.push_back("EcalEndcap/" + fedFolderName + "/FEDEntries");
+  entries.push_back("EcalPreshower/" + fedFolderName + "/FEDEntries");
+  entries.push_back("Hcal/" + fedFolderName + "/FEDEntries");
+  entries.push_back("L1T/" + fedFolderName + "/FEDEntries");
+  entries.push_back("Pixel/" + fedFolderName + "/FEDEntries");
+  entries.push_back("RPC/" + fedFolderName + "/FEDEntries");
+  entries.push_back("SiStrip/" + fedFolderName + "/FEDEntries");
 
   for(vector<string>::const_iterator ent = entries.begin();
                                       ent != entries.end(); ++ent) {
@@ -223,7 +212,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
       float entry = 0.;
 
       xmin = (int)rootHisto->GetXaxis()->GetXmin();
-      if(*ent == "L1T/FEDIntegrity/FEDEntries")  xmin = xmin + 800;
+      if(*ent == "L1T/" + fedFolderName +"/FEDEntries")  xmin = xmin + 800;
 
       for(int bin = 1; bin <= Nbins ; ++bin) {
 	int id = xmin+bin;
@@ -240,16 +229,16 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   int nSubsystems = 10;
 
   vector<string> fatal;
-  fatal.push_back("CSC/FEDIntegrity/FEDFatal");
-  fatal.push_back("DT/FEDIntegrity/FEDFatal");
-  fatal.push_back("EcalBarrel/FEDIntegrity/FEDFatal");
-  fatal.push_back("EcalEndcap/FEDIntegrity/FEDFatal");
-  fatal.push_back("EcalPreshower/FEDIntegrity/FEDFatal");
-  fatal.push_back("Hcal/FEDIntegrity/FEDFatal");
-  fatal.push_back("L1T/FEDIntegrity/FEDFatal");
-  fatal.push_back("Pixel/FEDIntegrity/FEDFatal");
-  fatal.push_back("RPC/FEDIntegrity/FEDFatal");
-  fatal.push_back("SiStrip/FEDIntegrity/FEDFatal");
+  fatal.push_back("CSC/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("DT/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("EcalBarrel/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("EcalEndcap/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("EcalPreshower/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("Hcal/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("L1T/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("Pixel/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("RPC/" + fedFolderName + "/FEDFatal");
+  fatal.push_back("SiStrip/" + fedFolderName + "/FEDFatal");
 
   int k = 0, count = 0;
 
@@ -284,10 +273,10 @@ void DQMFEDIntegrityClient::fillHistograms(void){
         int xmax   = 0;
 
         xmin = (int)rootHisto->GetXaxis()->GetXmin();
-        if(*fat == "L1T/FEDIntegrity/FEDFatal") xmin = xmin + 800;
+        if(*fat == "L1T/" + fedFolderName + "/FEDFatal") xmin = xmin + 800;
 
         xmax = (int)rootHisto->GetXaxis()->GetXmax();
-        if(*fat == "L1T/FEDIntegrity/FEDFatal") xmax = xmax + 800;
+        if(*fat == "L1T/" + fedFolderName + "/FEDFatal") xmax = xmax + 800;
 
         //      cout << "FED ID range : " << xmin << " - " << xmax << endl;
 
@@ -325,16 +314,16 @@ void DQMFEDIntegrityClient::fillHistograms(void){
   // FED Non Fatal
 
   vector<string> nonfatal;
-  nonfatal.push_back("CSC/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("DT/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("EcalBarrel/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("EcalEndcap/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("EcalPreshower/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("Hcal/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("L1T/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("Pixel/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("RPC/FEDIntegrity/FEDNonFatal");
-  nonfatal.push_back("SiStrip/FEDIntegrity/FEDNonFatal");
+  nonfatal.push_back("CSC/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("DT/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("EcalBarrel/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("EcalEndcap/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("EcalPreshower/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("Hcal/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("L1T/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("Pixel/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("RPC/" + fedFolderName + "/FEDNonFatal");
+  nonfatal.push_back("SiStrip/" + fedFolderName + "/FEDNonFatal");
 
   for(vector<string>::const_iterator non = nonfatal.begin(); 
                                       non != nonfatal.end(); ++non) {
@@ -354,7 +343,7 @@ void DQMFEDIntegrityClient::fillHistograms(void){
       float entry = 0.;
 
       xmin = (int)rootHisto->GetXaxis()->GetXmin();
-      if(*non == "L1T/FEDIntegrity/FEDNonFatal") xmin = xmin + 800;
+      if(*non == "L1T/" + fedFolderName + "/FEDNonFatal") xmin = xmin + 800;
 
       for(int bin = 1; bin <= Nbins ; ++bin) {
 	int id = xmin+bin;

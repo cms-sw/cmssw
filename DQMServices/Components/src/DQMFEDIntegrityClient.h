@@ -4,8 +4,8 @@
  *
  * DQM FED Client
  *
- * $Date: 2009/07/26 18:32:58 $
- * $Revision: 1.5 $
+ * $Date: 2009/12/15 08:59:49 $
+ * $Revision: 1.6 $
  * \author  M. Marienfeld
  *
 */
@@ -71,6 +71,7 @@ private:
   bool fillOnEndJob;
   bool fillOnEndLumi;
   std::string moduleName;
+  std::string fedFolderName;
 
 };
 
