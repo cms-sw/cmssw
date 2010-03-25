@@ -69,7 +69,7 @@ namespace ascii {
 using boost::spirit::unused_type;
 
 #include <boost/spirit/include/phoenix.hpp>
-using namespace boost::phoenix;
+using boost::phoenix::new_;
 
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionHLTReader.h"
 #include "HLTrigger/HLTfilters/interface/TriggerExpressionL1Reader.h"
