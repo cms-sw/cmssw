@@ -76,7 +76,7 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         )
 
 ''')
-    rnewfile.write('authenticationPath = cms.untracked.string(\"'+auth + '\")')
+    rnewfile.write('process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string(\"'+auth + '\")')
 
     rnewfile.write('''
 
