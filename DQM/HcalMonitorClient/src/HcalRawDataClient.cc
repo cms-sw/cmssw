@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.1.2.14 $
+ * $Date: 2010/03/25 11:02:26 $
+ * $Revision: 1.2 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -133,7 +133,7 @@ void HcalRawDataClient::calculateProblems()
 	      problemvalue=((uint64_t) problemcount[eta][phi][d] );
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
-	      problemvalue = min(1.,problemvalue);
+	      problemvalue = std::min(1.,problemvalue);
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
@@ -162,7 +162,7 @@ void HcalRawDataClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalRawDataClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalRawDataClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 
@@ -329,7 +329,7 @@ void HcalRawDataClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 void HcalRawDataClient::getHardwareSpaceHistos(void){
   MonitorElement* me;
   std::string s;
-  if (debug_>1) cout<<"\t<HcalRawDataClient>: getHardwareSpaceHistos()"<<endl;
+  if (debug_>1) std::cout<<"\t<HcalRawDataClient>: getHardwareSpaceHistos()"<<endl;
   s=subdir_+"Corruption/01 Common Data Format violations";
   me=dqmStore_->get(s.c_str());  
   meCDFErrorFound_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, meCDFErrorFound_, debug_);

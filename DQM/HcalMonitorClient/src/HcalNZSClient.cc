@@ -11,8 +11,8 @@
 /*
  * \file HcalNZSClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.1.2.5 $
+ * $Date: 2010/03/25 11:02:26 $
+ * $Revision: 1.2 $
  * \author J. Temple
  * \brief Hcal NZS Client class
  */
@@ -120,7 +120,7 @@ void HcalNZSClient::calculateProblems()
 	      //if (DigiPresentByDepth[d]!=0 && DigiPresentByDepth[d]->GetBinContent(eta+1,phi+1)==0) problemvalue=totalevents;
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
-	      problemvalue = min(1.,problemvalue);
+	      problemvalue = std::min(1.,problemvalue);
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
@@ -148,7 +148,7 @@ void HcalNZSClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalNZSClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalNZSClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

@@ -11,8 +11,8 @@
 /*
  * \file HcalRecHitClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.47.4.12 $
+ * $Date: 2010/03/25 11:02:26 $
+ * $Revision: 1.48 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -72,37 +72,37 @@ void HcalRecHitClient::analyze()
     {
       std::string s=subdir_+"Distributions_AllRecHits/"+name[i]+"RecHit Occupancy";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       OccupancyByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, OccupancyByDepth[i], debug_);
       s=subdir_+"Distributions_AllRecHits/sumplots/"+name[i]+"RecHit Summed Energy GeV";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumEnergyByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumEnergyByDepth[i], debug_);
       s=subdir_+"Distributions_AllRecHits/sumplots/"+name[i]+"RecHit Summed Time nS";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumTimeByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumTimeByDepth[i], debug_);
       s=subdir_+"Distributions_AllRecHits/sumplots/"+name[i]+"RecHit Sqrt Summed Energy2 GeV";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SqrtSumEnergy2ByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SqrtSumEnergy2ByDepth[i], debug_);
 
       // Threshold histograms
       s=subdir_+"Distributions_PassedMinBias/"+name[i]+"Above Threshold RecHit Occupancy";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       OccupancyThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, OccupancyThreshByDepth[i], debug_);
       s=subdir_+"Distributions_PassedMinBias/sumplots/"+name[i]+"Above Threshold RecHit Summed Energy GeV";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumEnergyThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumEnergyThreshByDepth[i], debug_);
       s=subdir_+"Distributions_PassedMinBias/sumplots/"+name[i]+"Above Threshold RecHit Summed Time nS";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SumTimeThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SumTimeThreshByDepth[i], debug_);
       s=subdir_+"Distributions_PassedMinBias/sumplots/"+name[i]+"Above Threshold RecHit Sqrt Summed Energy2 GeV";
       me=dqmStore_->get(s.c_str());
-      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<endl; gotHistos=false; break;}
+      if (me==0) {if (debug_>0) std::cout <<"Could not get histogram "<<s<<std::endl; gotHistos=false; break;}
       SqrtSumEnergy2ThreshByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, SqrtSumEnergy2ThreshByDepth[i], debug_);
     }
   if (gotHistos==false)
@@ -299,7 +299,7 @@ void HcalRecHitClient::calculateProblems()
 
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
-	      problemvalue = min(1.,problemvalue);
+	      problemvalue = std::min(1.,problemvalue);
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
@@ -328,7 +328,7 @@ void HcalRecHitClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalRecHitClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalRecHitClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

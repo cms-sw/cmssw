@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.89.2.9 $
+ * $Date: 2010/03/25 11:02:26 $
+ * $Revision: 1.91 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -81,7 +81,7 @@ void HcalSummaryClient::analyze(int LS)
   enoughevents_=true; // assume we have enough events for all tests to have run
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
     {
-      if (debug_>2) std::cout <<"<HcalSummaryClient::analyze>  CLIENT = "<<clients_[i]->name_<<"  ENOUGH = "<<clients_[i]->enoughevents_<<endl;
+      if (debug_>2) std::cout <<"<HcalSummaryClient::analyze>  CLIENT = "<<clients_[i]->name_<<"  ENOUGH = "<<clients_[i]->enoughevents_<<std::endl;
       enoughevents_&=clients_[i]->enoughevents_;
       EnoughEvents_->setBinContent(i+1,clients_[i]->enoughevents_);
       {
@@ -215,7 +215,7 @@ void HcalSummaryClient::analyze(int LS)
      it=subdetCells_.find("HB");
      totalcells+=it->second;
      status_HB_= 1-(status_HB_/it->second);
-     status_HB_=max(0.,status_HB_); // converts fraction of bad channels to good fraction
+     status_HB_=std::max(0.,status_HB_); // converts fraction of bad channels to good fraction
    }
  else status_HB_=-1;
 
@@ -225,7 +225,7 @@ void HcalSummaryClient::analyze(int LS)
      it=subdetCells_.find("HE");
      totalcells+=it->second;
      status_HE_= 1-(status_HE_/it->second);
-     status_HE_=max(0.,status_HE_); // converts fraction of bad channels to good fraction
+     status_HE_=std::max(0.,status_HE_); // converts fraction of bad channels to good fraction
    }
  else status_HE_=-1;
  
@@ -235,14 +235,14 @@ void HcalSummaryClient::analyze(int LS)
      it=subdetCells_.find("HO");
      totalcells+=it->second;
      status_HO_= 1-(status_HO_/it->second);
-     status_HO_=max(0.,status_HO_); // converts fraction of bad channels to good fraction
+     status_HO_=std::max(0.,status_HO_); // converts fraction of bad channels to good fraction
      
      it=subdetCells_.find("HO0");
      status_HO0_= 1-(status_HO0_/it->second);
-     status_HO0_=max(0.,status_HO0_); // converts fraction of bad channels to good fraction
+     status_HO0_=std::max(0.,status_HO0_); // converts fraction of bad channels to good fraction
      it=subdetCells_.find("HO12");
      status_HO12_= 1-(status_HO12_/it->second);
-     status_HO12_=max(0.,status_HO12_); // converts fraction of bad channels to good fraction
+     status_HO12_=std::max(0.,status_HO12_); // converts fraction of bad channels to good fraction
    }
  else
    {
@@ -256,10 +256,10 @@ void HcalSummaryClient::analyze(int LS)
       it=subdetCells_.find("HF");
       totalcells+=it->second;
       status_HF_= 1-(status_HF_/it->second);
-      status_HF_=max(0.,status_HF_); // converts fraction of bad channels to good fraction
+      status_HF_=std::max(0.,status_HF_); // converts fraction of bad channels to good fraction
       it=subdetCells_.find("HFlumi");
       status_HFlumi_= 1-(status_HFlumi_/it->second);
-      status_HFlumi_=max(0.,status_HFlumi_); // converts fraction of bad channels to good fraction
+      status_HFlumi_=std::max(0.,status_HFlumi_); // converts fraction of bad channels to good fraction
     }
   else
     {
@@ -272,7 +272,7 @@ void HcalSummaryClient::analyze(int LS)
   else
     {
       status_global_=1-status_global_/totalcells;
-      status_global_=max(0.,status_global_); // convert to good fraction
+      status_global_=std::max(0.,status_global_); // convert to good fraction
     }
   fillReportSummary(LS);
 } // analyze
@@ -286,14 +286,14 @@ void HcalSummaryClient::fillReportSummary(int LS)
 
   if (debug_>3) 
     {
-      std::cout <<"STATUS = "<<endl;
-      std:: cout <<"HB = "<<status_HB_<<endl;
-      std:: cout <<"HE = "<<status_HE_<<endl;
-      std:: cout <<"HO = "<<status_HO_<<endl;
-      std:: cout <<"HF = "<<status_HF_<<endl;
-      std:: cout <<"HO0 = "<<status_HO0_<<endl;
-      std:: cout <<"HO12 = "<<status_HO12_<<endl;
-      std:: cout <<"HFlumi = "<<status_HFlumi_<<endl;
+      std::cout <<"STATUS = "<<std::endl;
+      std:: cout <<"HB = "<<status_HB_<<std::endl;
+      std:: cout <<"HE = "<<status_HE_<<std::endl;
+      std:: cout <<"HO = "<<status_HO_<<std::endl;
+      std:: cout <<"HF = "<<status_HF_<<std::endl;
+      std:: cout <<"HO0 = "<<status_HO0_<<std::endl;
+      std:: cout <<"HO12 = "<<status_HO12_<<std::endl;
+      std:: cout <<"HFlumi = "<<status_HFlumi_<<std::endl;
     }
 
   // put the summary values into MonitorElements 
@@ -434,7 +434,7 @@ void HcalSummaryClient::beginRun(void)
     {
       MinEvents_->setBinLabel(i+1,clients_[i]->name());
       MinEvents_->setBinContent(i+1,clients_[i]->minevents_);
-      summin=max(summin,clients_[i]->minevents_);
+      summin=std::max(summin,clients_[i]->minevents_);
     }
   if (MinErrorRate_==0)
     MinErrorRate_=dqmStore_->book1D("MinErrorRate",
