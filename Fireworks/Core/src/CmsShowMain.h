@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.42 2009/12/13 12:27:10 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.43 2010/01/21 21:01:32 amraktad Exp $
 //
 
 // system include files
@@ -167,6 +167,7 @@ private:
    Int_t m_lastPointerPositionX;
    Int_t m_lastPointerPositionY;
    Int_t m_liveTimeout;
+   std::string m_autoSaveAllViewsFormat;
 
    std::auto_ptr<TMonitor> m_monitor;
 };

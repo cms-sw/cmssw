@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.97 2010/01/25 16:05:21 amraktad Exp $
+// $Id: FWGUIManager.h,v 1.98 2010/03/04 21:32:40 chrjones Exp $
 //
 
 // system include files
@@ -121,7 +121,8 @@ public:
    
    TGVerticalFrame* createList(TGSplitFrame *p);
    void createViews(TGTab *p);
-   
+   void exportAllViews(const std::string& format);
+
    void createEDIFrame();
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
@@ -218,6 +219,7 @@ private:
    void newItem(const FWEventItem*);
    
    void exportImageOfMainView();
+
    void promptForConfigurationFile();
    
    void delaySliderChanged(Int_t);

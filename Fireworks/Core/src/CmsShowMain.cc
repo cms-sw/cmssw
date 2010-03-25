@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.146 2010/01/30 18:53:40 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.147 2010/03/16 20:19:36 matevz Exp $
 //
 
 // system include files
@@ -106,6 +106,8 @@ static const char* const kChainCommandOpt = "chain";
 static const char* const kLiveCommandOpt  = "live";
 static const char* const kFieldCommandOpt = "field";
 static const char* const kFreePaletteCommandOpt = "free-palette";
+static const char* const kAutoSaveAllViews = "auto-save-all-views";
+
 
 //
 // constructors and destructor
@@ -173,6 +175,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
          (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
          (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
+         (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
          (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFilesOpt, -1);
@@ -338,6 +341,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_context->getField()->setAutodetect(false);
          m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
       }
+      if(vm.count(kAutoSaveAllViews)) {
+         m_autoSaveAllViewsFormat  = vm[kAutoSaveAllViews].as<std::string>();
+         m_autoSaveAllViewsFormat += "%d_%d_%d_%s.png";
+       }
       m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
@@ -423,10 +430,18 @@ void CmsShowMain::resetInitialization() {
 void CmsShowMain::draw()
 {
    m_guiManager->updateStatus("loading event ...");
+
    m_viewManager->eventBegin();
    m_eiManager->setGeom(&m_detIdToGeo);
    m_eiManager->newEvent(m_navigator->getCurrentEvent());
    m_viewManager->eventEnd();
+
+   if ( ! m_autoSaveAllViewsFormat.empty())
+   {
+      m_guiManager->updateStatus("auto saving images ...");
+      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat);
+   }
+
    m_guiManager->clearStatus();
 }
 

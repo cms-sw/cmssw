@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.189 2010/02/21 18:02:48 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.190 2010/03/14 20:46:58 amraktad Exp $
 
 //
 
@@ -333,9 +333,9 @@ FWGUIManager::loadEvent() {
       /// markup set run , event, time
    }
    
-   m_cmsShowMainFrame->loadEvent(*m_cmsShowMain->getCurrentEvent());
+   m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
    if(m_dataAdder) {
-      m_dataAdder->update(m_openFile, m_cmsShowMain->getCurrentEvent());
+      m_dataAdder->update(m_openFile, getCurrentEvent());
    }
 }
 
@@ -424,7 +424,7 @@ FWGUIManager::addData()
       m_dataAdder = new FWGUIEventDataAdder(100,100,
                                             m_eiManager,
                                             m_cmsShowMainFrame,
-                                            m_cmsShowMain->getCurrentEvent(),
+                                            getCurrentEvent(),
                                             m_openFile,
                                             m_viewManagerManager->supportedTypesAndRepresentations());
    }
@@ -766,6 +766,23 @@ FWGUIManager::exportImageOfMainView()
    m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
 }
 
+void
+FWGUIManager::exportAllViews(const std::string& format)
+{
+   const fwlite::Event *event = getCurrentEvent();
+   TString file;
+   for (ViewMap_i i = m_viewMap.begin(); i != m_viewMap.end(); ++i)
+   {
+      TEveViewer *ev = dynamic_cast<TEveViewer*>(i->first);
+      if (ev)
+      {
+         file.Form(format.c_str(), event->id().run(), event->id().event(),
+                   event->luminosityBlock(), ev->GetElementName());
+         file.ReplaceAll(" ", "");
+         ev->GetGLViewer()->SavePicture(file);
+      }
+   }
+}
 
 static const std::string kMainWindow("main window");
 static const std::string kViews("views");
