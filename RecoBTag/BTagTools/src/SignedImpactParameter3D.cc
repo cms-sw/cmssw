@@ -18,9 +18,9 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
                  const GlobalVector & direction, const  Vertex & vertex)
  const {
 
-  double theValue;
+  double theValue=0.;
   double theError=0.;
-  bool   theIsValid;
+  bool   theIsValid=false;
 
   TrajectoryStateOnSurface TSOS = transientTrack.impactPointState();
   
