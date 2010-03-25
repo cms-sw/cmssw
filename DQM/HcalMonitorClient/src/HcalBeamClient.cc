@@ -11,8 +11,8 @@
 /*
  * \file HcalBeamClient.cc
  * 
- * $Date: 2010/03/25 09:43:41 $
- * $Revision: 1.14.2.4 $
+ * $Date: 2010/03/25 11:02:25 $
+ * $Revision: 1.15 $
  * \author J. Temple
  * \brief Hcal Beam Monitor Client class
  */
@@ -27,10 +27,10 @@ HcalBeamClient::HcalBeamClient(std::string myname, const edm::ParameterSet& ps)
   name_=myname;
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
   debug_                 = ps.getUntrackedParameter<int>("debug",0);
-  prefixME_              = ps.getUntrackedParameter<string>("subSystemFolder","Hcal/");
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
-  subdir_                = ps.getUntrackedParameter<string>("BeamFolder","BeamMonitor_Hcal/"); // BeamMonitor_Hcal
+  subdir_                = ps.getUntrackedParameter<std::string>("BeamFolder","BeamMonitor_Hcal/"); // BeamMonitor_Hcal
   if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
@@ -158,7 +158,7 @@ void HcalBeamClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalBeamClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalBeamClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

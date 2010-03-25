@@ -44,7 +44,7 @@ void HcalBaseDQClient::setStatusMap(std::map<HcalDetId, unsigned int>& map)
        to form a new map
     */
 
-    if (debug_>1) std::cout <<"<HcalBaseDQClient::setStatusMap>  Input map size = "<<map.size()<<endl;
+    if (debug_>1) std::cout <<"<HcalBaseDQClient::setStatusMap>  Input map size = "<<map.size()<<std::endl;
     for (std::map<HcalDetId, unsigned int>::const_iterator iter = map.begin(); 
 	 iter!=map.end();++iter)
       {
@@ -52,7 +52,7 @@ void HcalBaseDQClient::setStatusMap(std::map<HcalDetId, unsigned int>& map)
 	badstatusmap[iter->first]=iter->second;
       }
     
-    if (debug_>1) std::cout <<"<HcalBaseDQClient::setStatusMap>  "<<name_<<" Output map size = "<<badstatusmap.size()<<endl;
+    if (debug_>1) std::cout <<"<HcalBaseDQClient::setStatusMap>  "<<name_<<" Output map size = "<<badstatusmap.size()<<std::endl;
   } // void HcalBaseDQClient::getStatusMap
 
 
@@ -115,8 +115,8 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
       htmlFile << "cellpadding=\"10\"> " << std::endl;
       htmlFile<<"<tr align=\"center\">"<<std::endl;
       htmlAnyHisto(-1,ProblemCells->getTH2F(),"ieta","iphi",92, htmlFile,htmlDir,debug_);
-      htmlFile<<"</tr>"<<endl;
-      htmlFile<<"</table>"<<endl;
+      htmlFile<<"</tr>"<<std::endl;
+      htmlFile<<"</table>"<<std::endl;
     }
   if (ProblemCellsByDepth!=0)
     {
@@ -134,9 +134,9 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
 	  htmlAnyHisto(-1,ProblemCellsByDepth->depth[2*i]->getTH2F(),"ieta","iphi",92, htmlFile,htmlDir,debug_);
 	  htmlAnyHisto(-1,ProblemCellsByDepth->depth[2*i+1]->getTH2F(),"ieta","iphi",92, htmlFile,htmlDir,debug_);
 	  
-	  htmlFile<<"</tr>"<<endl;
+	  htmlFile<<"</tr>"<<std::endl;
 	}
-      htmlFile<<"</table>"<<endl;
+      htmlFile<<"</table>"<<std::endl;
    }
     
   htmlFile << "<table align=\"center\" border=\"1\" cellspacing=\"0\" " << std::endl;
@@ -156,7 +156,7 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
 	    htmlFile << "<tr align=\"center\">" << std::endl;
 	  htmlAnyHisto(-1,(hists[i]->getTH1F()),"","", 92, htmlFile, htmlDir,debug_);
 	  if (counter%2==2)
-	    htmlFile <<"</tr>"<<endl;
+	    htmlFile <<"</tr>"<<std::endl;
 	}
 
       else if (hists[i]->kind()==MonitorElement::DQM_KIND_TH2F)
@@ -178,7 +178,7 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
 	    htmlFile << "<tr align=\"center\">" << std::endl;
 	  htmlAnyHisto(-1,(hists[i]->getTH2F()),"","", 92, htmlFile, htmlDir,debug_);
 	  if (counter%2==2)
-	    htmlFile <<"</tr>"<<endl;
+	    htmlFile <<"</tr>"<<std::endl;
 	}
 
       else if (hists[i]->kind()==MonitorElement::DQM_KIND_TPROFILE)
@@ -188,10 +188,10 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
 	    htmlFile << "<tr align=\"center\">" << std::endl;
 	  htmlAnyHisto(-1,(hists[i]->getTProfile()),"","", 92, htmlFile, htmlDir,debug_);
 	  if (counter%2==2)
-	    htmlFile <<"</tr>"<<endl;
+	    htmlFile <<"</tr>"<<std::endl;
 	}
     }
-  htmlFile<<"</table>"<<endl;
+  htmlFile<<"</table>"<<std::endl;
   htmlFile << "</body> " << std::endl;
   htmlFile << "</html> " << std::endl;
   htmlFile.close();

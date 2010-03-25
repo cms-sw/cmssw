@@ -224,7 +224,7 @@ TH2F* getHisto2(std::string name, std::string process, DQMStore* dbe_, bool verb
   MonitorElement* me = dbe_->get(title);
 
   if ( me ) {      
-    if ( verb) std::cout << "Found '" << title << "'" << endl;
+    if ( verb) std::cout << "Found '" << title << "'" << std::endl;
     if ( clone) {
       char histo[150];
       sprintf(histo, "ME %s",name.c_str());
@@ -245,7 +245,7 @@ TH1F* getHisto(std::string name, std::string process, DQMStore* dbe_, bool verb,
 
   const MonitorElement* me = dbe_->get(title);
   if (me){      
-    if ( verb ) std::cout << "Found '" << title << "'" << endl;
+    if ( verb ) std::cout << "Found '" << title << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",name.c_str());
@@ -264,7 +264,7 @@ TH2F* getHisto2(const MonitorElement* me, bool verb,bool clone){
   TH2F* out = NULL;
 
   if ( me ) {      
-    if ( verb) std::cout << "Found '" << me->getName() << "'" << endl;
+    if ( verb) std::cout << "Found '" << me->getName() << "'" << std::endl;
     //    MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
     if ( clone ) {
       char histo[150];
@@ -281,7 +281,7 @@ TH1F* getHisto(const MonitorElement* me, bool verb,bool clone){
   TH1F* out = NULL;
 
   if ( me ) {      
-    if ( verb ) std::cout << "Found '" << me->getName() << "'" << endl;
+    if ( verb ) std::cout << "Found '" << me->getName() << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",((std::string)(me->getName())).c_str());
@@ -303,11 +303,11 @@ void histoHTML(int runNo, TH1F* hist, const char* xlab, const char* ylab, int wi
     imgName = getIMG(runNo,hist,2,htmlDir,xlab,ylab);  
 
     if (imgName.size() != 0 )
-      htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
+      htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << std::endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << std::endl;
   }
-  else htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  else htmlFile << "<td><img src=\"" << " " << "\"></td>" << std::endl;
   return;
 }
 
@@ -318,11 +318,11 @@ void histoHTML2(int runNo, TH2F* hist, const char* xlab, const char* ylab, int w
     std::string imgName = "";
     imgName = getIMG2(runNo,hist,2,htmlDir,xlab,ylab,color);  
     if (imgName.size() != 0 )
-      htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
+      htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << std::endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << std::endl;
   }
-  else htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  else htmlFile << "<td><img src=\"" << " " << "\"></td>" << std::endl;
   return;
 }
 
@@ -452,130 +452,130 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
 
   ofstream errorFile;
   errorFile.open((htmlDir + client+ "Errors.html").c_str());
-  errorFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  errorFile << "<html>  " << endl;
-  errorFile << "<head>  " << endl;
-  errorFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  errorFile << " http-equiv=\"content-type\">  " << endl;
-  errorFile << "  <title>Monitor: Hcal " << client <<" Task Error Output</title> " << endl;
-  errorFile << "</head>  " << endl;
-  errorFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  errorFile << "<body>  " << endl;
-  errorFile << "<br>  " << endl;
-  errorFile << "<h2>" << client <<" Errors</h2> " << endl;
+  errorFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  errorFile << "<html>  " << std::endl;
+  errorFile << "<head>  " << std::endl;
+  errorFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  errorFile << " http-equiv=\"content-type\">  " << std::endl;
+  errorFile << "  <title>Monitor: Hcal " << client <<" Task Error Output</title> " << std::endl;
+  errorFile << "</head>  " << std::endl;
+  errorFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  errorFile << "<body>  " << std::endl;
+  errorFile << "<br>  " << std::endl;
+  errorFile << "<h2>" << client <<" Errors</h2> " << std::endl;
 
   for (mapIter=mapE.begin(); mapIter!=mapE.end();mapIter++){
     std::string meName = mapIter->first;
     std::vector<QReport*> errors = mapIter->second;
-    errorFile << "<br>" << endl;     
-    errorFile << "<hr>" << endl;
-    errorFile << "Monitorable '" << meName << "' has the following errors: <br>" << endl;
+    errorFile << "<br>" << std::endl;     
+    errorFile << "<hr>" << std::endl;
+    errorFile << "Monitorable '" << meName << "' has the following errors: <br>" << std::endl;
     for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
-      errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
+      errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << std::endl;
     }
     MonitorElement* me = dbe->get(meName);
-    errorFile << "<br>" << endl;
-    errorFile << "<br>" << endl;
+    errorFile << "<br>" << std::endl;
+    errorFile << "<br>" << std::endl;
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
       std::string save = getIMG(runNo,obj1f,1,htmlDir,"X1a","Y1a");
-      errorFile << "<img src=\"" <<  save << "\">" << endl;
+      errorFile << "<img src=\"" <<  save << "\">" << std::endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), dbe);
       std::string save = getIMG2(runNo,obj2f,1,htmlDir,"X2a","Y2a");
-      errorFile << "<img src=\"" <<  save << "\">" << endl;
+      errorFile << "<img src=\"" <<  save << "\">" << std::endl;
     }
-    errorFile << "<br>" << endl;
-    errorFile << endl;
+    errorFile << "<br>" << std::endl;
+    errorFile << std::endl;
   }
-  errorFile << "<hr>" << endl;
+  errorFile << "<hr>" << std::endl;
   errorFile.close();
 
 
   errorFile.open((htmlDir + client+ "Warnings.html").c_str());
-  errorFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  errorFile << "<html>  " << endl;
-  errorFile << "<head>  " << endl;
-  errorFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  errorFile << " http-equiv=\"content-type\">  " << endl;
-  errorFile << "  <title>Monitor: Hcal " << client <<" Task Warning Output</title> " << endl;
-  errorFile << "</head>  " << endl;
-  errorFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  errorFile << "<body>  " << endl;
-  errorFile << "<br>  " << endl;
-  errorFile << "<h2>" << client <<" Warnings</h2> " << endl;
+  errorFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  errorFile << "<html>  " << std::endl;
+  errorFile << "<head>  " << std::endl;
+  errorFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  errorFile << " http-equiv=\"content-type\">  " << std::endl;
+  errorFile << "  <title>Monitor: Hcal " << client <<" Task Warning Output</title> " << std::endl;
+  errorFile << "</head>  " << std::endl;
+  errorFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  errorFile << "<body>  " << std::endl;
+  errorFile << "<br>  " << std::endl;
+  errorFile << "<h2>" << client <<" Warnings</h2> " << std::endl;
 
   for (mapIter=mapW.begin(); mapIter!=mapW.end();mapIter++){
     std::string meName = mapIter->first;
     std::vector<QReport*> errors = mapIter->second;
-    errorFile << "<br>" << endl;     
-    errorFile << "<hr>" << endl;
-    errorFile << "Monitorable '" << meName << "' has the following warnings: <BR>" << endl;
+    errorFile << "<br>" << std::endl;     
+    errorFile << "<hr>" << std::endl;
+    errorFile << "Monitorable '" << meName << "' has the following warnings: <BR>" << std::endl;
     for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
-      errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
+      errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << std::endl;
     }
     MonitorElement* me = dbe->get(meName);
-    errorFile << "<br>" << endl;
-    errorFile << "<br>" << endl;
+    errorFile << "<br>" << std::endl;
+    errorFile << "<br>" << std::endl;
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
       std::string save = getIMG(runNo,obj1f,1,htmlDir,"X1b","Y1b");
-      errorFile << "<img src=\"" <<  save << "\">" << endl;
+      errorFile << "<img src=\"" <<  save << "\">" << std::endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), dbe);
       std::string save = getIMG2(runNo,obj2f,1,htmlDir,"X2b","Y2b");
-      errorFile << "<img src=\"" <<  save << "\">" << endl;
+      errorFile << "<img src=\"" <<  save << "\">" << std::endl;
     }
-    errorFile << "<br>" << endl;
-    errorFile << endl;  
+    errorFile << "<br>" << std::endl;
+    errorFile << std::endl;  
   }
-  errorFile << "<hr>" << endl;
+  errorFile << "<hr>" << std::endl;
   errorFile.close();
   
   errorFile.open((htmlDir + client+ "Messages.html").c_str());
-  errorFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  errorFile << "<html>  " << endl;
-  errorFile << "<head>  " << endl;
-  errorFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  errorFile << " http-equiv=\"content-type\">  " << endl;
-  errorFile << "  <title>Monitor: Hcal " << client <<" Task Message Output</title> " << endl;
-  errorFile << "</head>  " << endl;
-  errorFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  errorFile << "<body>  " << endl;
-  errorFile << "<br>  " << endl;
-  errorFile << "<h2>" << client <<" Messages</h2> " << endl;
+  errorFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  errorFile << "<html>  " << std::endl;
+  errorFile << "<head>  " << std::endl;
+  errorFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  errorFile << " http-equiv=\"content-type\">  " << std::endl;
+  errorFile << "  <title>Monitor: Hcal " << client <<" Task Message Output</title> " << std::endl;
+  errorFile << "</head>  " << std::endl;
+  errorFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  errorFile << "<body>  " << std::endl;
+  errorFile << "<br>  " << std::endl;
+  errorFile << "<h2>" << client <<" Messages</h2> " << std::endl;
 
   for (mapIter=mapO.begin(); mapIter!=mapO.end();mapIter++){
     std::string meName = mapIter->first;
     std::vector<QReport*> errors = mapIter->second;
-    errorFile << "<br>" << endl;     
-    errorFile << "<hr>" << endl;
-    errorFile << "Monitorable '" << meName << "' has the following messages: <br>" << endl;
+    errorFile << "<br>" << std::endl;     
+    errorFile << "<hr>" << std::endl;
+    errorFile << "Monitorable '" << meName << "' has the following messages: <br>" << std::endl;
     for(std::vector<QReport*>::iterator report=errors.begin(); report!=errors.end(); report++){
-      errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << endl;
+      errorFile << "     "<< (*report)->getQRName() << ": "<< (*report)->getMessage() << std::endl;
     }
-    errorFile << "<br>" << endl;
-    errorFile << "<br>" << endl;
+    errorFile << "<br>" << std::endl;
+    errorFile << "<br>" << std::endl;
     MonitorElement* me = dbe->get(meName);
     char* substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
       std::string save = getIMG(runNo,obj1f,1,htmlDir,"X1c","Y1c");
-      errorFile << "<img src=\"" <<  save << "\">" << endl;
+      errorFile << "<img src=\"" <<  save << "\">" << std::endl;
     }
     else{
       TH2F* obj2f = getHisto2(substr, process.c_str(), dbe);
       std::string save = getIMG2(runNo,obj2f,1,htmlDir,"X2c","Y2c");
-      errorFile << "<img src=\"" <<  save << "\">" << endl;
+      errorFile << "<img src=\"" <<  save << "\">" << std::endl;
     }
-    errorFile << "<br>" << endl;
-    errorFile << endl;
+    errorFile << "<br>" << std::endl;
+    errorFile << std::endl;
   }
-  errorFile << "<hr>" << endl;
+  errorFile << "<hr>" << std::endl;
   errorFile.close();
 
   return;
@@ -595,7 +595,7 @@ TProfile* getHistoTProfile(std::string name, std::string process, DQMStore* dbe_
 
   const MonitorElement* me = dbe_->get(title);
   if (me){      
-    if ( verb ) std::cout << "Found '" << title << "'" << endl;
+    if ( verb ) std::cout << "Found '" << title << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",name.c_str());
@@ -612,7 +612,7 @@ TProfile* getHistoTProfile(const MonitorElement* me, bool verb,bool clone){
   TProfile* out = NULL;
   
   if ( me ) {      
-    if ( verb ) std::cout << "Found '" << me->getName() << "'" << endl;
+    if ( verb ) std::cout << "Found '" << me->getName() << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",((std::string)(me->getName())).c_str());
@@ -670,11 +670,11 @@ void histoHTMLTProfile(int runNo, TProfile* hist, const char* xlab, const char* 
     imgName = getIMGTProfile(runNo,hist,2,htmlDir,xlab,ylab,opts);  
 
     if (imgName.size() != 0 )
-      htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
+      htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << std::endl;
     else
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << std::endl;
   }
-  else htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  else htmlFile << "<td><img src=\"" << " " << "\"></td>" << std::endl;
   return;
 }
 
@@ -690,7 +690,7 @@ TProfile2D* getHistoTProfile2D(std::string name, std::string process, DQMStore* 
 
   const MonitorElement* me = dbe_->get(title);
   if (me){      
-    if ( verb ) std::cout << "Found '" << title << "'" << endl;
+    if ( verb ) std::cout << "Found '" << title << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",name.c_str());
@@ -707,7 +707,7 @@ TProfile2D* getHistoTProfile2D(const MonitorElement* me, bool verb,bool clone){
   TProfile2D* out = NULL;
   
   if ( me ) {      
-    if ( verb ) std::cout << "Found '" << me->getName() << "'" << endl;
+    if ( verb ) std::cout << "Found '" << me->getName() << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",((std::string)(me->getName())).c_str());
@@ -729,7 +729,7 @@ TH3F* getHistoTH3F(std::string name, std::string process, DQMStore* dbe_, bool v
 
   const MonitorElement* me = dbe_->get(title);
   if (me){      
-    if ( verb ) std::cout << "Found '" << title << "'" << endl;
+    if ( verb ) std::cout << "Found '" << title << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",name.c_str());
@@ -746,7 +746,7 @@ TH3F* getHistoTH3F(const MonitorElement* me, bool verb,bool clone){
   TH3F* out = NULL;
   
   if ( me ) {      
-    if ( verb ) std::cout << "Found '" << me->getName() << "'" << endl;
+    if ( verb ) std::cout << "Found '" << me->getName() << "'" << std::endl;
     if ( clone ) {
       char histo[150];
       sprintf(histo, "ME %s",((std::string)(me->getName())).c_str());
