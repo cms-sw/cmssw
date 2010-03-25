@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagNoiseMonitorClient.cc
  * 
- * $Date: 2010/03/25 09:43:41 $
- * $Revision: 1.1.4.4 $
+ * $Date: 2010/03/25 11:02:25 $
+ * $Revision: 1.2 $
  * \author J. Temple
  * \brief Hcal DetDiagNoiseMonitor Client class
  */
@@ -135,7 +135,7 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
 	      */
 	      if (problemvalue==0) continue;
 	      // problem value is a rate; we can normalize it here
-	      problemvalue = min(1.,problemvalue);
+	      problemvalue = std::min(1.,problemvalue);
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
@@ -163,7 +163,7 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalDetDiagNoiseMonitorClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalDetDiagNoiseMonitorClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

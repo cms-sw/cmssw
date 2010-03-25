@@ -11,8 +11,8 @@
 /*
  * \file HcalDeadCellClient.cc
  * 
- * $Date: 2010/03/25 11:02:25 $
- * $Revision: 1.65 $
+ * $Date: 2010/03/25 20:53:48 $
+ * $Revision: 1.66 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -163,7 +163,7 @@ void HcalDeadCellClient::calculateProblems()
 		}
 	      if (problemvalue==0) continue;
 	      problemvalue/=totalevents; // problem value is a rate; should be between 0 and 1
-	      problemvalue = min(1.,problemvalue);
+	      problemvalue = std::min(1.,problemvalue);
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
@@ -192,7 +192,7 @@ void HcalDeadCellClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalDeadCellClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalDeadCellClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagPedestalClient.cc
  * 
- * $Date: 2010/03/20 20:55:44 $
- * $Revision: 1.5.4.4 $
+ * $Date: 2010/03/25 16:47:29 $
+ * $Revision: 1.7 $
  * \author J. Temple
  * \brief Hcal DetDiagPedestal Client class
  */
@@ -31,10 +31,10 @@ HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(std::string myname, const e
   name_=myname;
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
   debug_                 = ps.getUntrackedParameter<int>("debug",0);
-  prefixME_              = ps.getUntrackedParameter<string>("subSystemFolder","Hcal/");
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
-  subdir_                = ps.getUntrackedParameter<string>("DetDiagPedestalFolder","DetDiagPedestalMonitor_Hcal/"); // DetDiagPedestalMonitor_Hcal/
+  subdir_                = ps.getUntrackedParameter<std::string>("DetDiagPedestalFolder","DetDiagPedestalMonitor_Hcal/"); // DetDiagPedestalMonitor_Hcal/
   if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
@@ -101,7 +101,7 @@ void HcalDetDiagPedestalClient::calculateProblems()
       PedestalsUnstable[i]=0;
       PedestalsBadMean[i]=0;
       PedestalsBadRMS[i]=0;
-      string s=subdir_+name[i]+" Problem Missing Channels";
+      std::string s=subdir_+name[i]+" Problem Missing Channels";
       me=dqmStore_->get(s.c_str());
       if (me!=0) PedestalsMissing[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, PedestalsMissing[i], debug_);
       else 
@@ -374,18 +374,18 @@ static void printTableTail(ofstream& file){
 }
 
 bool HcalDetDiagPedestalClient::validHtmlOutput(){
-  string s=subdir_+"HcalDetDiagPedestalMonitor Event Number";
+  std::string s=subdir_+"HcalDetDiagPedestalMonitor Event Number";
   MonitorElement *me = dqmStore_->get(s.c_str());
   int n=0;
   if ( me ) {
-    s = me->valueString();
+    s = me->valueStd::String();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &n);
   }
   if(n<100) return false;
   return true;
 }
 
-void HcalDetDiagPedestalClient::htmlOutput(string htmlDir){
+void HcalDetDiagPedestalClient::htmlOutput(std::string htmlDir){
 int  MissingCnt=0,UnstableCnt=0,BadCnt=0; 
 int  HBP[4]={0,0,0,0},HBM[4]={0,0,0,0},HEP[4]={0,0,0,0},HEM[4]={0,0,0,0},HFP[4]={0,0,0,0},HFM[4]={0,0,0,0},HO[4] ={0,0,0,0}; 
 int  newHBP[4]={0,0,0,0},newHBM[4]={0,0,0,0},newHEP[4]={0,0,0,0},newHEM[4]={0,0,0,0};
@@ -428,7 +428,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   TH2F *Pedestals2DErrorHBHEHF=0;
   TH2F *Pedestals2DErrorHO=0;
 
-  string s=subdir_+"Summary Plots/HB Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str());
+  std::string s=subdir_+"Summary Plots/HB Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str());
   if(me!=0) PedestalsAve4HB=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HB, debug_); else return;
   s=subdir_+"Summary Plots/HE Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
   if(me!=0) PedestalsAve4HE=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HE, debug_);  else return; 
@@ -485,7 +485,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   std::vector<std::string> name = HcalEtaPhiHistNames();
   for(int i=0;i<4;++i){
       Missing_val[i]=Unstable_val[i]=BadPed_val[i]=BadRMS_val[i]=0;
-      string s=subdir_+"Plots for client/"+name[i]+" Missing channels";
+      std::string s=subdir_+"Plots for client/"+name[i]+" Missing channels";
       me=dqmStore_->get(s.c_str());
       if (me!=0) Missing_val[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Missing_val[i], debug_); else return;  
       s=subdir_+"Plots for client/"+name[i]+" Channel instability value";
@@ -614,7 +614,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
-          string s=" ";
+          std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -635,7 +635,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
-          string s=" ";
+          std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -656,7 +656,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
-          string s=" ";
+          std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -677,7 +677,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
-          string s=" ";
+          std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -700,7 +700,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val==0) continue;
           HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -722,7 +722,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val==0) continue;
           HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -744,7 +744,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val==0) continue;
           HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -766,7 +766,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val==0) continue;
           HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -793,7 +793,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -819,7 +819,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -845,7 +845,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -871,7 +871,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
 	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
-          string s=comment;
+          std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
 	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
@@ -888,23 +888,23 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   badPedRMS.close();
 
   int ievt_ = -1,runNo=-1;
-  string ref_run;
+  std::string ref_run;
   s=subdir_+"HcalDetDiagPedestalMonitor Event Number";
   me = dqmStore_->get(s.c_str());
   if ( me ) {
-    s = me->valueString();
+    s = me->valueStd::String();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
   s=subdir_+"HcalDetDiagPedestalMonitor Run Number";
   me = dqmStore_->get(s.c_str());
   if ( me ) {
-    s = me->valueString();
+    s = me->valueStd::String();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &runNo);
   } 
   s=subdir_+"HcalDetDiagLaserMonitor Reference Run";
   me = dqmStore_->get(s.c_str());
   if(me) {
-    string s=me->valueString();
+    std::string s=me->valueStd::String();
     char str[200]; 
     sscanf((s.substr(2,s.length()-2)).c_str(), "%s", str);
     ref_run=str;
@@ -920,7 +920,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   can->cd();
 
   ofstream htmlFile;
-  string outfile=htmlDir+name_+".html";
+  std::string outfile=htmlDir+name_+".html";
   htmlFile.open(outfile.c_str());
   // html page header
   htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
