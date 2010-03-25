@@ -21,9 +21,9 @@ const Candidate * mcMuDaughter(const Candidate * c) {
 }
 
 struct ZSelector {                  // modify this selector in order to return an integer (0: no eta cut, 1: eta cut only, 2 eta && pt cut, 3: eta, pt and Mass cut, 4: mass cut on the denominator Z MC)
-  ZSelector(double ptMin, double etaMin, double etaMax, double massMin, double massMax, double massMinZMC) :
-    ptMin_(ptMin), etaMin_(etaMin),etaMax_(etaMax), 
-    massMin_(massMin), massMax_(massMax), massMinZMC_(massMinZMC) { }
+  ZSelector(double ptMin, double etaDau0Min, double etaDau0Max,double etaDau1Min, double etaDau1Max, double massMin, double massMax, double massMinZMC, double massMaxZMC) :
+    ptMin_(ptMin), etaDau0Min_(etaDau0Min),etaDau0Max_(etaDau0Max),  etaDau1Min_(etaDau1Min),etaDau1Max_(etaDau1Max), 
+    massMin_(massMin), massMax_(massMax), massMinZMC_(massMinZMC), massMaxZMC_(massMaxZMC) { }
   int operator()(const Candidate& c) const {
     std::cout << "c.numberOfDaughters(): " << c.numberOfDaughters()<< std::endl;    if (c.numberOfDaughters()<2) return 0; 
     const Candidate * d0 = c.daughter(0);
@@ -34,19 +34,19 @@ struct ZSelector {                  // modify this selector in order to return a
     }
     int temp_cut= 0;
 
-    if( fabs(d0->eta()) > etaMin_ && fabs(d1->eta())>etaMin_ && fabs(d0->eta()) < etaMax_ && fabs(d1->eta()) <etaMax_ ) {
+    if( fabs(d0->eta()) > etaDau0Min_ && fabs(d1->eta())>etaDau1Min_ && fabs(d0->eta()) < etaDau0Max_ && fabs(d1->eta()) <etaDau1Max_ ) {
       temp_cut=1;
       if(d0->pt() > ptMin_ && d1->pt() > ptMin_) {
 	temp_cut=2;
 	double m = (d0->p4() + d1->p4()).mass();
 	if(m > massMin_ && m < massMax_) temp_cut=3; 
-        if (c.mass() > massMinZMC_) temp_cut =4;  
+        if (c.mass()> massMinZMC_ && c.mass() < massMaxZMC_) temp_cut =4;  
       }
     } 
     
     return temp_cut;
   }
-  double ptMin_, etaMin_, etaMax_, massMin_, massMax_, massMinZMC_;
+  double ptMin_, etaDau0Min_, etaDau0Max_, etaDau1Min_, etaDau1Max_,  massMin_, massMax_, massMinZMC_, massMaxZMC_;
 };
 
 class MCAcceptanceAnalyzer : public EDAnalyzer {
@@ -67,8 +67,8 @@ MCAcceptanceAnalyzer::MCAcceptanceAnalyzer(const ParameterSet& cfg) :
   nZToMuMu_(0), selZToMuMu_(0), 
   nZToMuMuMC_(0), selZToMuMuMC_(0),
   nZToMuMuMCMatched_(0), selZToMuMuMCMatched_(0),
-  select_(cfg.getParameter<double>("ptMin"), cfg.getParameter<double>("etaMin"), cfg.getParameter<double>("etaMax"),
-	  cfg.getParameter<double>("massMin"), cfg.getParameter<double>("massMax"), cfg.getParameter<double>("massMinZMC") ) {
+  select_(cfg.getParameter<double>("ptMin"), cfg.getParameter<double>("etaDau0Min"), cfg.getParameter<double>("etaDau0Max"), cfg.getParameter<double>("etaDau1Min"), cfg.getParameter<double>("etaDau1Max"),
+	  cfg.getParameter<double>("massMin"), cfg.getParameter<double>("massMax"), cfg.getParameter<double>("massMinZMC"), cfg.getParameter<double>("massMaxZMC")  ) {
 }
 
 void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
@@ -108,7 +108,7 @@ void MCAcceptanceAnalyzer::analyze(const Event& evt, const EventSetup&) {
       if(selectMC==4) ++selZToMuMuMCMatched_;
 
       if(selectZ != selectMC) {
-	cout << ">>> select reco: " << selectZ << ", select mc: " << selectMC << endl;
+	//cout << ">>> select reco: " << selectZ << ", select mc: " << selectMC << endl;
 	/*
 	if (z.numberOfDaughters()> 1){
 	const Candidate * d0 = z.daughter(0), * d1 = z.daughter(1);
