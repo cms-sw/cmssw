@@ -1,454 +1,390 @@
-#include <DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
+#include "DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
-HcalTrigPrimClient::HcalTrigPrimClient(){
-  // Summary
-  //histo1d["TrigPrimMonitor/Summary HBHE"] = 0;
-  //histo1d["TrigPrimMonitor/Summary HF"] = 0;
-  histo2d["TrigPrimMonitor/Summary"] = 0;
-  histo2d["TrigPrimMonitor/Summary for ZS run"] = 0;
-  histo2d["TrigPrimMonitor/Error Flag"] = 0;
-  histo2d["TrigPrimMonitor/Error Flag for ZS run"] = 0;
-  histo2d["TrigPrimMonitor/EtCorr HBHE"] = 0;
-  histo2d["TrigPrimMonitor/EtCorr HF"] = 0;
-  histo2d["TrigPrimMonitor/FGCorr HBHE"] = 0;
-  histo2d["TrigPrimMonitor/FGCorr HF"] = 0;
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
-  // TP Occupancy
-  histo2d["TrigPrimMonitor/TP Map/TP Occupancy"] = 0;
-  histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsEta"] = 0;
-  histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsPhi"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Non Zero TP"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Matched TP"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Mismatched Et"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Mismatched FG"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Data Only"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Emul Only"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Missing Data"] = 0;
-  histo2d["TrigPrimMonitor/TP Map/Missing Emul"] = 0;
+#include <iostream>
 
-  // TP Occupancy for ZS
-  histo2d["TrigPrimMonitor/TP Map for ZS/Mismatched Et ZS"] = 0;
-  histo2d["TrigPrimMonitor/TP Map for ZS/Missing Data ZS"] = 0;
-  histo2d["TrigPrimMonitor/TP Map for ZS/Missing Emul ZS"] = 0;
-  // Energy Plots
-  histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - All Data"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - All Emul"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Mismatched FG"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Data Only"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Emul Only"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Missing Emul"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Missing Data"] = 0;
+/*
+ * \file HcalTrigPrimClient.cc
+ * 
+ * $Date: 2010/03/25 09:43:42 $
+ * $Revision: 1.16.4.9 $
+ * \author J. Temple
+ * \brief Hcal Trigger Primitive Client class
+ */
 
-  histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - All Data"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - All Emul"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Mismatched FG"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Data Only"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Emul Only"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Missing Emul"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Missing Data"] = 0;
-
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Emul - ZS"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Data - ZS"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Emul - ZS"] = 0;
-  histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Data - ZS"] = 0;
-}
-
-void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName)
+HcalTrigPrimClient::HcalTrigPrimClient(std::string myname)
 {
-  //Call the base class first
-  HcalBaseClient::init(ps,dbe,clientName);
-
- if (showTiming_)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  if (debug_>0) std::cout <<"<HcalTrigPrimClient> init(const ParameterSet& ps, DQMStore* dbe, string clientName)"<<std::endl;
- 
- if (showTiming_)
-   {
-     cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient INIT  -> "<<cpu_timer.cpuTime()<<std::endl;
-    }
-  return;
-} // void HcalTrigPrimClient::init(...)
-
-HcalTrigPrimClient::~HcalTrigPrimClient(){
-  this->cleanup();  
+  name_=myname;
 }
 
-void HcalTrigPrimClient::beginJob(void){
-  if ( debug_ >0) std::cout << "HcalTrigPrimClient: beginJob" << std::endl;
-
-  ievt_ = 0; jevt_ = 0;
-  return;
-}
-
-void HcalTrigPrimClient::beginRun(void){
-  if ( debug_ >0) std::cout << "HcalTrigPrimClient: beginRun" << std::endl;
-
-  jevt_ = 0;
-  this->resetAllME();
-  return;
-}
-
-void HcalTrigPrimClient::endJob(void) {
-  if ( debug_ >0) std::cout << "HcalTrigPrimClient: endJob, ievt = " << ievt_ << std::endl;
-
-  this->cleanup();
-
-  return;
-} //void HcalTrigPrimClient::endJob(void)
-
-void HcalTrigPrimClient::endRun(void) {
-
-  if ( debug_ >0) std::cout << "HcalTrigPrimClient: endRun, jevt = " << jevt_ << std::endl;
-
-  this->cleanup();
-
-  return;
-} //void HcalTrigPrimClient::endRun(void)
-
-
-
-void HcalTrigPrimClient::cleanup(void) {
-
-  for (std::map< std::string, TH1* >::iterator h = histo1d.begin();
-                                               h != histo1d.end();
-                                               ++h){
-    if (cloneME_ && h->second != 0) delete h->second;
-    h->second = 0;
-  }
-  for (std::map< std::string, TH1* >::iterator h = histo2d.begin();
-                                               h != histo2d.end();
-                                               ++h){
-    if (cloneME_ && h->second != 0) delete h->second;
-    h->second = 0;
-  }
-
-  return;
-} //void HcalTrigPrimClient::cleanup(void)
-
-
-
-void HcalTrigPrimClient::analyze(void){
-  jevt_++;
-
-  int updates = 0;
-  if ( updates % 10 == 0 ) {
-    if ( debug_ >0) std::cout << "HcalTrigPrimClient: " << updates << " updates" << std::endl;
-  }
-
-  return;
-} // void HcalTrigPrimClient::analyze(void)
-
-
-void HcalTrigPrimClient::getHistograms()
+HcalTrigPrimClient::HcalTrigPrimClient(std::string myname, const edm::ParameterSet& ps)
 {
-  if(!dbe_) return;
+  name_=myname;
+  enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
+  debug_                 = ps.getUntrackedParameter<int>("debug",0);
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
+  if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
+    prefixME_.append("/");
+  subdir_                = ps.getUntrackedParameter<std::string>("TrigPrimFolder","TrigPrimMonitor_Hcal/"); // TrigPrimMonitor
+  if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
+    subdir_.append("/");
+  subdir_=prefixME_+subdir_;
 
-  if (showTiming_)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  if (debug_>0) std::cout <<"<HcalTrigPrimClient> getHistograms()"<<std::endl;
+  validHtmlOutput_       = ps.getUntrackedParameter<bool>("TrigPrim_validHtmlOutput",true);
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+  badChannelStatusMask_   = ps.getUntrackedParameter<int>("TrigPrim_BadChannelStatusMask",
+							  ps.getUntrackedParameter<int>("BadChannelStatusMask",0));
   
-  for (std::map< std::string, TH1* >::iterator h = histo1d.begin();
-                                               h != histo1d.end();
-                                               ++h){
-    h->second = getHisto(h->first.c_str(), process_, dbe_, debug_, cloneME_);
-  }
-  for (std::map< std::string, TH1* >::iterator h = histo2d.begin();
-                                               h != histo2d.end();
-                                               ++h){
-    h->second = getHisto2(h->first.c_str(), process_, dbe_, debug_, cloneME_);
-  }
+  minerrorrate_ = ps.getUntrackedParameter<double>("TrigPrim_minerrorrate",
+						   ps.getUntrackedParameter<double>("minerrorrate",0.001));
+  minevents_    = ps.getUntrackedParameter<int>("TrigPrim_minevents",
+						ps.getUntrackedParameter<int>("minevents",1));
+  ProblemCells=0;
+  ProblemCellsByDepth=0;
+}
 
-  if (showTiming_)
-   {
-     cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient GET HISTOGRAMS  -> "<<cpu_timer.cpuTime()<<std::endl;
-    }
-  return;
-} //void HcalTrigPrimClient::getHistograms()
-
-
-void HcalTrigPrimClient::report()
+void HcalTrigPrimClient::analyze()
 {
-  if(!dbe_) return;
+  if (debug_>2) std::cout <<"\tHcalTrigPrimClient::analyze()"<<std::endl;
+  calculateProblems();
+}
 
-  if (showTiming_)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-
-  if ( debug_ >0) std::cout << "<HcalTrigPrimClient> report()" << std::endl;
-   getHistograms();
-
-   stringstream name;
-   name<<process_.c_str()<<rootFolder_.c_str()<<"/TrigPrimMonitor/TrigPrim Total Events Processed";
-   MonitorElement* me = 0;
-   if(dbe_) me = dbe_->get(name.str().c_str());
-   if ( me ) 
-     {
-       string s = me->valueString();
-       ievt_ = -1;
-       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-       if ( debug_ ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
-     }
-   else
-     std::cout <<"Didn't find "<<name.str().c_str()<<endl;
-   name.str("");
-
-
-  if (showTiming_)
-    {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient REPORT -> "<<cpu_timer.cpuTime()<<std::endl;
-    }
-  return;
-} //void HcalTrigPrimClient::report()
-
-
-void HcalTrigPrimClient::resetAllME()
+void HcalTrigPrimClient::calculateProblems()
 {
-  if (showTiming_)
+ if (debug_>2) std::cout <<"\t\tHcalTrigPrimClient::calculateProblems()"<<std::endl;
+  if(!dqmStore_) return;
+  double totalevents=0;
+  int etabins=0, phibins=0;
+  double problemvalue=0;
+  enoughevents_=false;  // assume we lack sufficient events until proven otherwise
+
+  // Clear away old problems
+  if (ProblemCells!=0)
     {
-      cpu_timer.reset(); cpu_timer.start();
+      ProblemCells->Reset();
+      (ProblemCells->getTH2F())->SetMaximum(1.05);
+      (ProblemCells->getTH2F())->SetMinimum(0.);
+    }
+  for  (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+    {
+      if (ProblemCellsByDepth->depth[d]!=0) 
+	{
+	  ProblemCellsByDepth->depth[d]->Reset();
+	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMaximum(1.05);
+	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
+	}
     }
 
-  if(!dbe_) return;
-  if ( debug_ >0) std::cout << "<HcalTrigPrimClient> resetAllME()" << std::endl;
-  
+  for  (unsigned int d=0;d<ProblemsByDepthZS_->depth.size();++d)
+    {
+      if (ProblemsByDepthZS_->depth[d]!=0) 
+	{
+	  ProblemsByDepthZS_->depth[d]->Reset();
+	  (ProblemsByDepthZS_->depth[d]->getTH2F())->SetMaximum(1.05);
+	  (ProblemsByDepthZS_->depth[d]->getTH2F())->SetMinimum(0.);
+	}
+    }
+
+  for  (unsigned int d=0;d<ProblemsByDepthNZS_->depth.size();++d)
+    {
+      if (ProblemsByDepthNZS_->depth[d]!=0) 
+	{
+	  ProblemsByDepthNZS_->depth[d]->Reset();
+	  (ProblemsByDepthNZS_->depth[d]->getTH2F())->SetMaximum(1.05);
+	  (ProblemsByDepthNZS_->depth[d]->getTH2F())->SetMinimum(0.);
+	}
+    }
+
+  // Get histograms that are used in testing
+  // currently none used,
+
+  std::vector<std::string> name = HcalEtaPhiHistNames();
+
   /*
-  char name[150];
-  sprintf(name, "%sHcal/TRigPrimMonitor/Summary/Summary HBHE",process_.c_str());
-  resetME(name,dbe_);
-  sprintf(name, "%sHcal/TRigPrimMonitor/Summary/Summary HF",process_.c_str());
-  resetME(name,dbe_);
+    // This is a sample of how to get a histogram from the task that can then be used for evaluation purposes
   */
-  //sprintf(name,"%sHcal/TrigPrimMonitor/00 TP Occupancy",process_.c_str());
-  //resetME(name,dbe_);  
+  MonitorElement* me;
+  TH2F *goodZS=0;
+  TH2F *badZS=0;
+  TH2F* goodNZS=0;
+  TH2F* badNZS=0;
 
-  if (showTiming_)
-   {
-     cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient RESETALLME  -> "<<cpu_timer.cpuTime()<<std::endl;
+  me=dqmStore_->get(subdir_+"Good TPs_ZS");
+  if (!me && debug_>0)
+    std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"Good TPs_ZS'"<<std::endl;
+  else goodZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, goodZS, debug_);
+
+  me=dqmStore_->get(subdir_+"Bad TPs_ZS");
+  if (!me && debug_>0)
+    std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"Bad TPs_ZS'"<<std::endl;
+  else badZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, badZS, debug_);
+
+  me=dqmStore_->get(subdir_+"noZS/Good TPs_noZS");
+  if (!me && debug_>0)
+    std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"noZS/Good TPs_noZS'"<<std::endl;
+  else goodNZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, goodNZS, debug_);
+
+  me=dqmStore_->get(subdir_+"noZS/Bad TPs_noZS");
+  if (!me && debug_>0)
+    std::cout <<"<HcalTrigPrimClient::calculateProblems>  Could not get histogram named '"<<subdir_<<"noZS/Bad TPs_noZS'"<<std::endl;
+  else badNZS = HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, badNZS, debug_);
+
+  // get bin info from good histograms
+  if (goodZS!=0)
+    {
+      etabins=goodZS->GetNbinsX();
+      phibins=goodZS->GetNbinsY();
+      totalevents=goodNZS->GetBinContent(0);
     }
+  else if (goodNZS!=0)
+    {
+      etabins=goodNZS->GetNbinsX();
+      phibins=goodNZS->GetNbinsY();
+      totalevents=goodNZS->GetBinContent(0);
+    }
+
+  if (totalevents<minevents_) 
+    {
+      enoughevents_=false;
+      if (debug_>2) std::cout <<"<HcalTrigPrimClient::calculateProblems()>  Not enough events!  events = "<<totalevents<<"  minimum required = "<<minevents_<<std::endl;
+      return;
+    }
+  enoughevents_=true;
+
+  // got good and bad histograms; now let's loop over them
+
+  int ieta=-99, iphi=-99;
+  int badvalZS=0, goodvalZS=0;
+  int badvalNZS=0, goodvalNZS=0;
+  for (int eta=1;eta<=etabins;++eta)
+    {
+      ieta=eta-33; // Patrick's eta-phi maps starts at ieta=-32
+      for (int phi=1;phi<=phibins;++phi)
+	{
+	  badvalZS=0, goodvalZS=0;
+	  badvalNZS=0, goodvalNZS=0;
+	  iphi=phi;
+	  if (badZS!=0) badvalZS=badZS->GetBinContent(eta,phi);
+	  if (badNZS!=0) badvalNZS=badNZS->GetBinContent(eta,phi);
+	  if (badvalZS+badvalNZS==0) continue;
+	  if (goodZS!=0) goodvalZS=goodZS->GetBinContent(eta,phi);
+	  if (goodNZS!=0) goodvalNZS=goodNZS->GetBinContent(eta,phi);
+
+	  if (badvalNZS>0)
+	    {
+	      problemvalue=badvalNZS*1./(badvalNZS+goodvalNZS);
+	      if (abs(ieta)<29) // Make special case for ieta=16 (HB/HE overlap?)
+		{
+		  ProblemsByDepthNZS_->depth[0]->Fill(ieta,iphi,problemvalue);
+		  if (abs(ieta)==28) // TP 28 spans towers 28 and 29
+		    ProblemsByDepthNZS_->depth[0]->Fill(ieta+abs(ieta)/ieta,iphi,problemvalue);
+		}
+	      else
+		{
+		  int newieta=-99;
+		  for (int i=0;i<3;++i)
+		    {
+		      newieta=i+29+3*(abs(ieta)-29)+1; // shift values by 1 for HF in EtaPhiHistsplot
+		      if (ieta<0) newieta*=-1;
+		      ProblemsByDepthNZS_->depth[0]->Fill(newieta,iphi,problemvalue);
+		    }
+		  if (abs(ieta)==32)
+		    ProblemsByDepthNZS_->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		}
+	    } // errors found in NZS;
+	  if (badvalZS>0)
+	    {
+	      problemvalue=badvalZS*1./(badvalZS+goodvalZS);
+	      if (abs(ieta)<29) // Make special case for ieta=16 (HB/HE overlap?)
+		{
+		  ProblemsByDepthZS_->depth[0]->Fill(ieta,iphi,problemvalue);
+		  if (abs(ieta)==28) // TP 28 spans towers 28 and 29
+		    ProblemsByDepthZS_->depth[0]->Fill(ieta+abs(ieta)/ieta,iphi,problemvalue);
+		}
+	      else
+		{
+		  int newieta=-99;
+		  for (int i=0;i<3;++i)
+			{
+			  newieta=i+29+3*(abs(ieta)-29)+1; // shift values by 1 for HF in EtaPhiHistsplot
+			  if (ieta<0) newieta*=-1;
+			  ProblemsByDepthZS_->depth[0]->Fill(newieta,iphi,problemvalue);
+			}
+		  if (abs(ieta)==32)
+		    ProblemsByDepthZS_->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		}
+	    } // errors found in ZS
+	  if (badvalZS>0 || badvalNZS>0)
+	    {
+	      // Fill overall problem histograms with sum from both ZS & NZS, or ZS only?
+	      //problemvalue=(badvalZS+badvalNZS)*1./(badvalZS+badvalNZS+goodvalZS+goodvalNZS);
+	      
+	      // Update on 8 March -- NZS shows lots of errors; let's not include that in problem cells just yet
+	      if (badvalZS==0) continue;
+	      problemvalue=(badvalZS*1.)/(badvalZS+goodvalZS);
+	      if (abs(ieta)<29) // Make special case for ieta=16 (HB/HE overlap?)
+		{
+		  ProblemCellsByDepth->depth[0]->Fill(ieta,iphi,problemvalue);
+		  ProblemCells->Fill(ieta,iphi,problemvalue);
+		  if (abs(ieta)==28) // TP 28 spans towers 28 and 29
+		    {
+		      ProblemCellsByDepth->depth[0]->Fill(ieta+abs(ieta)/ieta,iphi,problemvalue);
+		      ProblemCells->Fill(ieta+abs(ieta)/ieta,iphi,problemvalue);
+		    }
+		}
+	      else
+		{
+		  int newieta=-99;
+		  int newiphi=(iphi+2+72)%72;  // forward triggers combine two HF cells; add 2 to the iphi, and allow wraparound
+		  // FIXME:
+		  // iphi seems to start at 1 in Patrick's plots, continues mod 4;
+		  // adjust in far-forward region, where cells start at iphi=3?  Check with Patrick.
+		  for (int i=0;i<3;++i)
+			{
+			  newieta=i+29+3*(abs(ieta)-29)+1; // shift values by 1 for HF in EtaPhiHistsplot
+			  if (ieta<0) newieta*=-1;
+			  ProblemCellsByDepth->depth[0]->Fill(newieta,iphi,problemvalue);
+			  ProblemCells->Fill(newieta,iphi,problemvalue);
+			  ProblemCellsByDepth->depth[0]->Fill(newieta,newiphi,problemvalue);
+			  ProblemCells->Fill(newieta,newiphi,problemvalue);
+			}
+		  if (abs(ieta)==32)
+		    {
+		      ProblemCellsByDepth->depth[0]->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		      ProblemCells->Fill(42*abs(ieta)/ieta,iphi,problemvalue);
+		      ProblemCellsByDepth->depth[0]->Fill(42*abs(ieta),newiphi,problemvalue);
+		      ProblemCells->Fill(42*abs(ieta),newiphi,problemvalue);
+		    }
+		}
+	    }
+	}
+    } // for (int eta=1;eta<etabins;++eta)
+    
+
+  if (ProblemCells==0)
+    {
+      if (debug_>0) std::cout <<"<HcalTrigPrimClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      return;
+    }
+
+  // Normalization of ProblemCell plot, in the case where there are errors in multiple depths
+  etabins=(ProblemCells->getTH2F())->GetNbinsX();
+  phibins=(ProblemCells->getTH2F())->GetNbinsY();
+  for (int eta=0;eta<etabins;++eta)
+    {
+      for (int phi=0;phi<phibins;++phi)
+	{
+	  if (ProblemCells->getBinContent(eta+1,phi+1)>1. && ProblemCells->getBinContent(eta+1,phi+1)<999)
+	    ProblemCells->setBinContent(eta+1,phi+1,1.);
+	}
+    }
+
+  FillUnphysicalHEHFBins(*ProblemCellsByDepth);
+  FillUnphysicalHEHFBins(*ProblemsByDepthZS_);
+  FillUnphysicalHEHFBins(*ProblemsByDepthNZS_);
+  FillUnphysicalHEHFBins(ProblemCells);
   return;
-} //void HcalTrigPrimClient::resetAllME()
+}
 
-
-void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName)
+void HcalTrigPrimClient::beginJob()
 {
-  if (showTiming_)
+  dqmStore_ = edm::Service<DQMStore>().operator->();
+  if (debug_>0) 
     {
-      cpu_timer.reset(); cpu_timer.start();
+      std::cout <<"<HcalTrigPrimClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
+      dqmStore_->showDirStructure();
     }
-  if (debug_>0) std::cout << "<HcalTrigPrimClient::htmlOutput> Preparing  html output ..." << std::endl;
-  string client = "TrigPrimMonitor";
-  htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+}
+void HcalTrigPrimClient::endJob(){}
 
-  ofstream htmlFile;
-  htmlFile.open((htmlDir + htmlName).c_str());
-
-  // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
-  htmlFile << "<html>  " << std::endl;
-  htmlFile << "<head>  " << std::endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
-  htmlFile << " http-equiv=\"content-type\">  " << std::endl;
-  htmlFile << "  <title>Monitor: TP Task output</title> " << std::endl;
-  htmlFile << "</head>  " << std::endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
-  htmlFile << "<body>  " << std::endl;
-  htmlFile << "<br>  " << std::endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << std::endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">TrigPrim Monitor</span></h2> " << std::endl;
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << std::endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << std::endl;
-  htmlFile << "<hr>" << std::endl;
-  htmlFile << "<table width=100% border=1><tr>" << std::endl;
-  if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"TrigPrimMonitorErrors.html\">Errors in this task</a></td>" << std::endl;
-  else htmlFile << "<td bgcolor=lime>No Errors</td>" << std::endl;
-  if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"TrigPrimMonitorWarnings.html\">Warnings in this task</a></td>" << std::endl;
-  else htmlFile << "<td bgcolor=lime>No Warnings</td>" << std::endl;
-  if(hasOther()) htmlFile << "<td bgcolor=aqua><a href=\"TrigPrimMonitorMessages.html\">Messages in this task</a></td>" << std::endl;
-  else htmlFile << "<td bgcolor=lime>No Messages</td>" << std::endl;
-  htmlFile << "</tr></table>" << std::endl;
-  htmlFile << "<hr>" << std::endl;
-
-  htmlFile << "<table width=100%>" << std::endl;
-
-  //------------ Summary ------------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>Summary</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/Summary"],"","", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/Summary for ZS run"],"","", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/Error Flag"],"","", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/Error Flag for ZS run"],"","", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/EtCorr HBHE"],"data","emul", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/EtCorr HF"],"data","emul", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/FGCorr HBHE"],"data","emul", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/FGCorr HF"],"data","emul", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  //----------------------------------------
-
-  //------------- TP Occupancy --------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>TP Map</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/TP Occupancy"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Non Zero TP"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsEta"],"ieta","Triggers", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsPhi"],"iphi", "Triggers",10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Matched TP"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Mismatched Et"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Mismatched FG"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Data Only"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Emul Only"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-  
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Missing Data"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Missing Emul"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  ///------------- TP Occupancy ZS--------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>TP Map for ZS</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map for ZS/Mismatched Et ZS"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map for ZS/Missing Data ZS"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map for ZS/Missing Emul ZS"],"ieta","iphi", 10, htmlFile,htmlDir);  
-  htmlFile << "</tr>" << std::endl;
-  //----------------------------------------
-
-  //------------- Energy (HBHE) --------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>Energy Plots (HBHE)</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - All Data"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - All Emul"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Data Only"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Emul Only"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Missing Data"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Missing Emul"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HBHE/Energy HBHE - Mismatched FG"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-  //----------------------------------------
-
-  //------------- Energy (HF) --------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>Energy Plots (HF)</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - All Data"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - All Emul"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Data Only"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Emul Only"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Missing Data"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Missing Emul"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots/HF/Energy HF - Mismatched FG"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  //----------------------------------------
-  //
-  //------------- Energy for ZS--------------
-  htmlFile << "<tr><td>&nbsp;&nbsp;&nbsp;<h3>Energy Plots for ZS</h3></td></tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Data - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HBHE - Missing Emul - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  htmlFile << "<tr align=\"left\">" << std::endl;
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Data - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/Energy Plots for ZS/Energy HF - Missing Emul - ZS"],"ieta","iphi", 10, htmlFile,htmlDir,true);  
-  htmlFile << "</tr>" << std::endl;
-
-  //----------------------------------------
-
-  htmlFile << "</table>" << std::endl;
-  htmlFile << "<br>" << std::endl;   
-  
-  // html page footer
-  htmlFile << "</body> " << std::endl;
-  htmlFile << "</html> " << std::endl;
-
-  htmlFile.close();
-
-  if (showTiming_)
+void HcalTrigPrimClient::beginRun(void)
+{
+  enoughevents_=false;
+  if (!dqmStore_) 
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient HTML OUTPUT -> "<<cpu_timer.cpuTime()<<std::endl;
+      if (debug_>0) std::cout <<"<HcalTrigPrimClient::beginRun> dqmStore does not exist!"<<std::endl;
+      return;
     }
-  return;
-} // void HcalTrigPrimClient::htmlOutput(...)
+  dqmStore_->setCurrentFolder(subdir_);
+  problemnames_.clear();
 
+  // Put the appropriate name of your problem summary here
+  ProblemCells=dqmStore_->book2D(" ProblemTriggerPrimitives",
+				 " Problem Trigger Primitive Rate for all HCAL;ieta;iphi",
+				 85,-42.5,42.5,
+				 72,0.5,72.5);
+  problemnames_.push_back(ProblemCells->getName());
+  if (debug_>1)
+    std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
+  dqmStore_->setCurrentFolder(subdir_+"problem_triggerprimitives");
+  ProblemCellsByDepth = new EtaPhiHists();
+  ProblemCellsByDepth->setup(dqmStore_," Problem Trigger Primitive Rate");
+  for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
+    problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+  nevts_=0;
 
-void HcalTrigPrimClient::createTests(){
-
-  if(debug_>0) std::cout << "HcalTrigPrimClient: creating tests" << std::endl;
-
-  if(!dbe_) return;
-
-  return;
+  dqmStore_->setCurrentFolder(subdir_+"problem_ZS");
+  ProblemsByDepthZS_  = new EtaPhiHists();
+  ProblemsByDepthZS_->setup(dqmStore_,"ZS Problem Trigger Primitive Rate");
+  dqmStore_->setCurrentFolder(subdir_+"problem_NZS");
+  ProblemsByDepthNZS_ = new EtaPhiHists();
+  ProblemsByDepthNZS_->setup(dqmStore_,"NZS Problem Trigger Primitive Rate");
 }
 
-void HcalTrigPrimClient::loadHistograms(TFile* infile){
+void HcalTrigPrimClient::endRun(void){analyze();}
 
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/TrigPrimMonitor/TrigPrim Event Number");
-  if(tnd){
-    string s =tnd->GetTitle();
-    ievt_ = -1;
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-  }
+void HcalTrigPrimClient::setup(void){}
+void HcalTrigPrimClient::cleanup(void){}
 
-  return;
+bool HcalTrigPrimClient::hasErrors_Temp(void)
+{
+  if (!ProblemCells)
+    {
+      if (debug_>1) std::cout <<"<HcalTrigPrimClient::hasErrors_Temp>  ProblemCells histogram does not exist!"<<std::endl;
+      return false;
+    }
+  int problemcount=0;
+  int ieta=-9999;
+
+  for (int depth=0;depth<4; ++depth)
+    {
+      int etabins  = (ProblemCells->getTH2F())->GetNbinsX();
+      int phibins  = (ProblemCells->getTH2F())->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+        {
+          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
+            {
+              ieta=CalcIeta(hist_eta,depth+1);
+	      if (ieta==-9999) continue;
+	      if (ProblemCellsByDepth->depth[depth]==0)
+		  continue;
+	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
+		++problemcount;
+
+	    } // for (int hist_phi=1;...)
+	} // for (int hist_eta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>0) return true;
+  return false;
 }
+
+bool HcalTrigPrimClient::hasWarnings_Temp(void){return false;}
+bool HcalTrigPrimClient::hasOther_Temp(void){return false;}
+bool HcalTrigPrimClient::test_enabled(void){return true;}
+
+
+void HcalTrigPrimClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual)
+{
+  // This gets called by HcalMonitorClient
+  // trigger primitives don't yet contribute to channel status (though they could...)
+  // see dead or hot cell code for an example
+
+} //void HcalTrigPrimClient::updateChannelStatus
+
+

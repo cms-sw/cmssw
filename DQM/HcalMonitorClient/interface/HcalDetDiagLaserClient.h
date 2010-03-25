@@ -1,68 +1,41 @@
-#ifndef DQM_HCALMONITORTASKS_HCALDETDIAGLASERCLIENT_H
-#define DQM_HCALMONITORTASKS_HCALDETDIAGLASERCLIENT_H
+#ifndef HcalDetDiagLaserClient_GUARD_H
+#define HcalDetDiagLaserClient_GUARD_H
 
-#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+class HcalDetDiagLaserClient : public HcalBaseDQClient {
 
-class HcalDetDiagLaserClient : public HcalBaseClient {
-public:
-  HcalDetDiagLaserClient();
-  ~HcalDetDiagLaserClient();
-  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);    
-  /// Analyze
+ public:
+
+  /// Constructors
+  HcalDetDiagLaserClient(){name_="";};
+  HcalDetDiagLaserClient(std::string myname);//{ name_=myname;};
+  HcalDetDiagLaserClient(std::string myname, const edm::ParameterSet& ps);
+
   void analyze(void);
-  /// BeginJob
+  void calculateProblems(void); // calculates problem histogram contents
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
   void beginJob(void);
-  /// EndJob
   void endJob(void);
-  /// BeginRun
   void beginRun(void);
-  /// EndRun
-  void endRun(void);
-  /// Setup
-  void setup(void);
-  /// Cleanup
+  void endRun(void); 
+  void setup(void);  
   void cleanup(void);
-  void report();
-  /// HtmlOutput
-  bool haveOutput();
-  int  SummaryStatus();
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  void getHistograms();
-  void loadHistograms(TFile* f);
+  bool hasErrors_Temp(void);  
+  bool hasWarnings_Temp(void);
+  bool hasOther_Temp(void);
+  bool test_enabled(void);
   
-  void resetAllME();
-  void createTests(); 
-private:
+  void htmlOutput(std::string);
+  bool validHtmlOutput();
+  /// Destructor
+  ~HcalDetDiagLaserClient();
+
+ private:
+  int nevts_;
   int status;
-  string ref_run;
-  
-  TH1F *hbheEnergy;
-  TH1F *hbheTiming;
-  TH1F *hbheEnergyRMS;
-  TH1F *hbheTimingRMS;
-  TH1F *hoEnergy;
-  TH1F *hoTiming;
-  TH1F *hoEnergyRMS;
-  TH1F *hoTimingRMS;
-  TH1F *hfEnergy;
-  TH1F *hfTiming;
-  TH1F *hfEnergyRMS;
-  TH1F *hfTimingRMS;
-  
-  TH2F *Time2Dhbhehf;
-  TH2F *Time2Dho;
-  TH2F *Energy2Dhbhehf;
-  TH2F *Energy2Dho;
-  TH2F *refTime2Dhbhehf;
-  TH2F *refTime2Dho;
-  TH2F *refEnergy2Dhbhehf;
-  TH2F *refEnergy2Dho;
-  
-  TH1F *Raddam[56];
 };
 
 #endif

@@ -1,112 +1,39 @@
-#ifndef HcalHotCellClient_H
-#define HcalHotCellClient_H
+#ifndef HcalHotCellClient_GUARD_H
+#define HcalHotCellClient_GUARD_H
 
-#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
-#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+class HcalHotCellClient : public HcalBaseDQClient {
 
-
-class HcalHotCellClient : public HcalBaseClient {
-  
  public:
+
+  /// Constructors
+  HcalHotCellClient(){name_="";};
+  HcalHotCellClient(std::string myname);//{ name_=myname;};
+  HcalHotCellClient(std::string myname, const edm::ParameterSet& ps);
+
+  void analyze(void);
+  void calculateProblems(void); // calculates problem histogram contents
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
+  void beginJob(void);
+  void endJob(void);
+  void beginRun(void);
+  void endRun(void); 
+  void setup(void);  
+  void cleanup(void);
+
+  bool hasErrors_Temp(void);  
+  bool hasWarnings_Temp(void);
+  bool hasOther_Temp(void);
+  bool test_enabled(void);
   
-  /// Constructor
-  HcalHotCellClient();
   /// Destructor
   ~HcalHotCellClient();
 
-  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);
-
-  /// Analyze
-  void analyze(void);
-  
-  /// BeginJob
-  void beginJob();
-  
-  /// EndJob
-  void endJob();
-  
-  /// BeginRun
-  void beginRun(const EventSetup& c);
-  
-  /// EndRun
-  void endRun(std::map<HcalDetId, unsigned int>& myqual);
-  
-  // Update Channel Status (called by EndRun)
-  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
-
-  /// Setup
-  void setup(void);
-  
-  /// Cleanup
-  void cleanup(void);
-  
-  /// HtmlOutput
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  void htmlExpertOutput(int run, string htmlDir, string htmlName);
-  void getHistograms();
-  void loadHistograms(TFile* f);
-  
-  ///process report
-  void report();
-  
-  void resetAllME();
-  void createTests();
-
-  void calculateProblems();
-
-  // Introduce temporary error/warning checks
-  bool hasErrors_Temp();
-  bool hasWarnings_Temp();
-  bool hasOther_Temp() {return false;}
-
-private:
-  
-  vector <std::string> subdets_;
-
-  double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
-  bool hotclient_makeDiagnostics_;
-
-  bool hotclient_test_persistent_;
-  bool hotclient_test_pedestal_;
-  bool hotclient_test_neighbor_;
-  bool hotclient_test_energy_;
-
-  int hotclient_checkNevents_;
-  
-  bool dump2database_;
-
-  // Histograms
-
-  TH2F* AboveNeighborsHotCellsByDepth[4];
-  TH2F* AboveEnergyThresholdCellsByDepth[4];
-  TH2F* AbovePersistentThresholdCellsByDepth[4];
-  TH2F* AbovePedestalHotCellsByDepth[4];
-
-  // diagnostic histograms
-  TH1F* d_HBnormped;
-  TH1F* d_HEnormped;
-  TH1F* d_HOnormped;
-  TH1F* d_HFnormped;
-  
-  TH1F* d_HBrechitenergy;
-  TH1F* d_HErechitenergy;
-  TH1F* d_HOrechitenergy;
-  TH1F* d_HFrechitenergy;
-
-  TH2F* d_HBenergyVsNeighbor;
-  TH2F* d_HEenergyVsNeighbor;
-  TH2F* d_HOenergyVsNeighbor;
-  TH2F* d_HFenergyVsNeighbor;
-
-  TH2F* d_avgrechitenergymap[4];
-  TH2F* d_avgrechitoccupancymap[4];
+ private:
+  int nevts_;
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "DQM/HcalMonitorClient/interface/HcalDetDiagNoiseMonitorClient.h"
+#include "DQM/HcalMonitorClient/interface/HcalDetDiagTimingClient.h"
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
@@ -9,20 +9,20 @@
 #include <iostream>
 
 /*
- * \file HcalDetDiagNoiseMonitorClient.cc
+ * \file HcalDetDiagTimingClient.cc
  * 
- * $Date: 2010/03/25 09:43:41 $
- * $Revision: 1.1.4.4 $
+ * $Date: 2010/03/25 09:43:42 $
+ * $Revision: 1.1.2.3 $
  * \author J. Temple
- * \brief Hcal DetDiagNoiseMonitor Client class
+ * \brief Hcal DetDiagTiming Client class
  */
 
-HcalDetDiagNoiseMonitorClient::HcalDetDiagNoiseMonitorClient(std::string myname)
+HcalDetDiagTimingClient::HcalDetDiagTimingClient(std::string myname)
 {
   name_=myname;
 }
 
-HcalDetDiagNoiseMonitorClient::HcalDetDiagNoiseMonitorClient(std::string myname, const edm::ParameterSet& ps)
+HcalDetDiagTimingClient::HcalDetDiagTimingClient(std::string myname, const edm::ParameterSet& ps)
 {
   name_=myname;
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
@@ -30,33 +30,33 @@ HcalDetDiagNoiseMonitorClient::HcalDetDiagNoiseMonitorClient(std::string myname,
   prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
-  subdir_                = ps.getUntrackedParameter<std::string>("DetDiagNoiseMonitorFolder","DetDiagNoiseMonitor_Hcal/"); // DetDiagNoiseMonitor_Hcal/
+  subdir_                = ps.getUntrackedParameter<std::string>("DetDiagTimingFolder","DetDiagTimingMonitor_Hcal/"); // DetDiagTiming_Hcal/
   if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
 
-  validHtmlOutput_       = ps.getUntrackedParameter<bool>("DetDiagNoiseMonitor_validHtmlOutput",true);
+  validHtmlOutput_       = ps.getUntrackedParameter<bool>("DetDiagTiming_validHtmlOutput",true);
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
-  badChannelStatusMask_   = ps.getUntrackedParameter<int>("DetDiagNoiseMonitor_BadChannelStatusMask",
+  badChannelStatusMask_   = ps.getUntrackedParameter<int>("DetDiagTiming_BadChannelStatusMask",
 							  ps.getUntrackedParameter<int>("BadChannelStatusMask",0));
   
-  minerrorrate_ = ps.getUntrackedParameter<double>("DetDiagNoiseMonitor_minerrorrate",
+  minerrorrate_ = ps.getUntrackedParameter<double>("DetDiagTiming_minerrorrate",
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
-  minevents_    = ps.getUntrackedParameter<int>("DetDiagNoiseMonitor_minevents",
+  minevents_    = ps.getUntrackedParameter<int>("DetDiagTiming_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
   ProblemCells=0;
   ProblemCellsByDepth=0;
 }
 
-void HcalDetDiagNoiseMonitorClient::analyze()
+void HcalDetDiagTimingClient::analyze()
 {
-  if (debug_>2) std::cout <<"\tHcalDetDiagNoiseMonitorClient::analyze()"<<std::endl;
+  if (debug_>2) std::cout <<"\tHcalDetDiagTimingClient::analyze()"<<std::endl;
   calculateProblems();
 }
 
-void HcalDetDiagNoiseMonitorClient::calculateProblems()
+void HcalDetDiagTimingClient::calculateProblems()
 {
- if (debug_>2) std::cout <<"\t\tHcalDetDiagNoiseMonitorClient::calculateProblems()"<<std::endl;
+ if (debug_>2) std::cout <<"\t\tHcalDetDiagTimingClient::calculateProblems()"<<std::endl;
   if(!dqmStore_) return;
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
@@ -94,11 +94,11 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
       std::string s=subdir_+name[i]+" Problem Bad Laser Timing";
       me=dqmStore_->get(s.c_str());
       if (me!=0) BadTiming[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadTiming[i], debug_);
-      else if (debug_>0) std::cout <<"<HcalDetDiagNoiseMonitorClient::analyze> could not get histogram '"<<s<<"'"<<std::endl;
+      else if (debug_>0) std::cout <<"<HcalDetDiagTimingClient::analyze> could not get histogram '"<<s<<"'"<<std::endl;
       s=subdir_+name[i]+" Problem Bad Laser Energy";
       me=dqmStore_->get(s.c_str());
       if (me!=0) BadEnergy[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadEnergy[i], debug_);
-      else if (debug_>0) std::cout <<"<HcalDetDiagNoiseMonitorClient::analyze> could not get histogram '"<<s<<"'"<<std::endl;
+      else if (debug_>0) std::cout <<"<HcalDetDiagTimingClient::analyze> could not get histogram '"<<s<<"'"<<std::endl;
     }      
   */
 
@@ -163,7 +163,7 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalDetDiagNoiseMonitorClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalDetDiagTimingClient::analyze> ProblemCells histogram does not exist!"<<endl;
       return;
     }
 
@@ -184,54 +184,54 @@ void HcalDetDiagNoiseMonitorClient::calculateProblems()
   return;
 }
 
-void HcalDetDiagNoiseMonitorClient::beginJob()
+void HcalDetDiagTimingClient::beginJob()
 {
   dqmStore_ = edm::Service<DQMStore>().operator->();
   if (debug_>0) 
     {
-      std::cout <<"<HcalDetDiagNoiseMonitorClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
+      std::cout <<"<HcalDetDiagTimingClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
       dqmStore_->showDirStructure();
     }
 }
-void HcalDetDiagNoiseMonitorClient::endJob(){}
+void HcalDetDiagTimingClient::endJob(){}
 
-void HcalDetDiagNoiseMonitorClient::beginRun(void)
+void HcalDetDiagTimingClient::beginRun(void)
 {
   enoughevents_=false;
   if (!dqmStore_) 
     {
-      if (debug_>0) std::cout <<"<HcalDetDiagNoiseMonitorClient::beginRun> dqmStore does not exist!"<<std::endl;
+      if (debug_>0) std::cout <<"<HcalDetDiagTimingClient::beginRun> dqmStore does not exist!"<<std::endl;
       return;
     }
   dqmStore_->setCurrentFolder(subdir_);
   problemnames_.clear();
 
   // Put the appropriate name of your problem summary here
-  ProblemCells=dqmStore_->book2D(" ProblemDetDiagNoiseMonitor",
-				 " Problem DetDiagNoiseMonitor Rate for all HCAL;ieta;iphi",
+  ProblemCells=dqmStore_->book2D(" ProblemDetDiagTiming",
+				 " Problem DetDiagTiming Rate for all HCAL;ieta;iphi",
 				 85,-42.5,42.5,
 				 72,0.5,72.5);
   problemnames_.push_back(ProblemCells->getName());
   if (debug_>1)
     std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_DetDiagNoiseMonitor");
+  dqmStore_->setCurrentFolder(subdir_+"problem_DetDiagTiming");
   ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem DetDiagNoiseMonitor Rate");
+  ProblemCellsByDepth->setup(dqmStore_," Problem DetDiagTiming Rate");
   for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
     problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
   nevts_=0;
 }
 
-void HcalDetDiagNoiseMonitorClient::endRun(void){analyze();}
+void HcalDetDiagTimingClient::endRun(void){analyze();}
 
-void HcalDetDiagNoiseMonitorClient::setup(void){}
-void HcalDetDiagNoiseMonitorClient::cleanup(void){}
+void HcalDetDiagTimingClient::setup(void){}
+void HcalDetDiagTimingClient::cleanup(void){}
 
-bool HcalDetDiagNoiseMonitorClient::hasErrors_Temp(void)
+bool HcalDetDiagTimingClient::hasErrors_Temp(void)
 {
   if (!ProblemCells)
     {
-      if (debug_>1) std::cout <<"<HcalDetDiagNoiseMonitorClient::hasErrors_Temp>  ProblemCells histogram does not exist!"<<std::endl;
+      if (debug_>1) std::cout <<"<HcalDetDiagTimingClient::hasErrors_Temp>  ProblemCells histogram does not exist!"<<std::endl;
       return false;
     }
   int problemcount=0;
@@ -260,17 +260,17 @@ bool HcalDetDiagNoiseMonitorClient::hasErrors_Temp(void)
   return false;
 }
 
-bool HcalDetDiagNoiseMonitorClient::hasWarnings_Temp(void){return false;}
-bool HcalDetDiagNoiseMonitorClient::hasOther_Temp(void){return false;}
-bool HcalDetDiagNoiseMonitorClient::test_enabled(void){return true;}
+bool HcalDetDiagTimingClient::hasWarnings_Temp(void){return false;}
+bool HcalDetDiagTimingClient::hasOther_Temp(void){return false;}
+bool HcalDetDiagTimingClient::test_enabled(void){return true;}
 
 
-void HcalDetDiagNoiseMonitorClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual)
+void HcalDetDiagTimingClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual)
 {
   // This gets called by HcalMonitorClient
   // trigger primitives don't yet contribute to channel status (though they could...)
   // see dead or hot cell code for an example
 
-} //void HcalDetDiagNoiseMonitorClient::updateChannelStatus
+} //void HcalDetDiagTimingClient::updateChannelStatus
 
 

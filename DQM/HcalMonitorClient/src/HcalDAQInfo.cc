@@ -45,10 +45,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 //
 // class declaration
 //
@@ -94,12 +90,12 @@ class HcalDAQInfo : public edm::EDAnalyzer {
 // constructors and destructor
 //
 
-HcalDAQInfo::HcalDAQInfo(const ParameterSet& iConfig)
+HcalDAQInfo::HcalDAQInfo(const edm::ParameterSet& iConfig)
 {
   // now do what ever initialization is needed
   debug_=iConfig.getUntrackedParameter<int>("debug",0);
   rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
-  dbe_ = Service<DQMStore>().operator->();  
+  dbe_ = edm::Service<DQMStore>().operator->();  
 }
 
 HcalDAQInfo::~HcalDAQInfo()

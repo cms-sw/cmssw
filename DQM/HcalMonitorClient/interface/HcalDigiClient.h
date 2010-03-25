@@ -1,123 +1,40 @@
-#ifndef HcalDigiClient_H
-#define HcalDigiClient_H
+#ifndef HcalDigiClient_GUARD_H
+#define HcalDigiClient_GUARD_H
 
-#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
-#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
-#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
-
-struct DigiClientHists
-{
-  // structures of histograms for each subdetector
-
-  TH1F* shape;
-  TH1F* shapeThresh;
-  TH1F* presample;
-  TH1F* BQ;
-  TH1F* BQFrac;
-  TH1F* DigiFirstCapID;
-  TH1F* DVerr;
-  TH1F* CapID;
-  TH1F* ADC;
-  TH1F* ADCsum;
-  TH1F* TS_sum_plus[9];
-  TH1F* TS_sum_minus[9];
-};
-
-class HcalDigiClient : public HcalBaseClient {
+class HcalDigiClient : public HcalBaseDQClient {
 
  public:
-  
-  /// Constructor
-  HcalDigiClient();
+
+  /// Constructors
+  HcalDigiClient(){name_="";};
+  HcalDigiClient(std::string myname);//{ name_=myname;};
+  HcalDigiClient(std::string myname, const edm::ParameterSet& ps);
+
+  void analyze(void);
+  void calculateProblems(void); // calculates problem histogram contents
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
+  void beginJob(void);
+  void endJob(void);
+  void beginRun(void);
+  void endRun(void); 
+  void setup(void);  
+  void cleanup(void);
+
+  bool hasErrors_Temp(void);  
+  bool hasWarnings_Temp(void);
+  bool hasOther_Temp(void);
+  bool test_enabled(void);
   
   /// Destructor
   ~HcalDigiClient();
 
-  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);    
-
-  /// Analyze
-  void analyze(void);
-  
-  /// BeginJob
-  void beginJob();
-  
-  /// EndJob
-  void endJob(void);
-  
-  /// BeginRun
-  void beginRun(void);
-  
-  /// EndRun
-  void endRun(void);
-  
-  /// Setup
-  void setup(void);
-  
-  /// Cleanup
-  void cleanup(void);
-  
-  ///process report
-  void report();
-
-  /// WriteDB
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  
-  void htmlExpertOutput(int run, string htmlDir, string htmlName);
-
-  void getHistograms();
-  void getProblemHistograms();
-  void loadHistograms(TFile* f);
-  
-  void getSubdetHists(DigiClientHists& h, std::string subdet);
-  void resetSubdetHists(DigiClientHists& h, std::string subdet);
-  void loadSubdetHists(TFile* infile,DigiClientHists& h, std::string subdet);
-
-  void resetAllME();
-  void calculateProblems();
-  void createTests();
-
-  // Introduce temporary error/warning checks
-  bool hasErrors_Temp();
-  bool hasWarnings_Temp();
-  bool hasOther_Temp() {return false;}
-private:
-
-  vector <std::string> subdets_;
-  bool digiclient_makeDiagnostics_;
-  int digiclient_checkNevents_;
-  
-
-  // Histograms
-
-  // 2-D eta-phi occupancy histograms for each error type
-  TH2F* BadDigisByDepth[4];
-  TH2F* DigiErrorsBadCapID[4];
-  TH2F* DigiErrorsBadDigiSize[4];
-  TH2F* DigiErrorsBadADCSum[4];
-  TH2F* DigiErrorsNoDigi[4];
-  TH2F* DigiErrorsDVErr[4];
-  TH2F* DigiErrorsBadFibBCNOff[4];
-  TH2F* DigiErrorsUnpacker[4];
-  TH2F* DigiOccupancyByDepth[4];
-
-  // 2-D occupancy plots in VME, spigot, & eta-phi space
-  TH2F* DigiOccupancyVME;
-  TH2F* DigiOccupancySpigot;
-  TH2F* DigiErrorEtaPhi;
-  TH2F* DigiErrorVME;
-  TH2F* DigiErrorSpigot;
-
-  TH2F* DigiSize;
-  TH1F* DigiOccupancyEta;
-  TH1F* DigiOccupancyPhi;
-  TH1F* DigiNum;
-  TH1F* DigiBQ;
-  TH1F* DigiBQFrac;
-
-  DigiClientHists hbHists, heHists, hoHists, hfHists;
+ private:
+  int nevts_;
+  MonitorElement* HFTiming_averageTime;
 };
 
 #endif

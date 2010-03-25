@@ -1,169 +1,304 @@
 #include "DQM/HcalMonitorClient/interface/HcalDetDiagPedestalClient.h"
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
-#include <TPaveStats.h>
+#include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
-static int IsKnownBadChannel(std::string subdet,int eta,int phi,int depth){
-  if(subdet.compare("HO")==0 && eta==5    && phi==35 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==6    && phi==35 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==5    && phi==36 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==6    && phi==36 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-4   && phi==37 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==5    && phi==37 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==6    && phi==37 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-10  && phi==38 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-9   && phi==38 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-4   && phi==38 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-10  && phi==39 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-9   && phi==39 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-10  && phi==40 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-9   && phi==40 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-10  && phi==41 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-10  && phi==42 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-10  && phi==43 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-3   && phi==59 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-2   && phi==59 && depth==4) return 1;
-  if(subdet.compare("HO")==0 && eta==-1   && phi==59 && depth==4) return 1;
-  
-  if(subdet.compare("HO")==0 && eta==1   && phi==4 && depth==4) return 3;
-  if(subdet.compare("HO")==0 && eta==3   && phi==4 && depth==4) return 3;
-  if(subdet.compare("HO")==0 && eta==15  && phi==24 && depth==4) return 3;
-  
-  if(subdet.compare("HF")==0 && eta==41  && phi==47 && depth==2) return 3;
-  if(subdet.compare("HF")==0 && eta==29  && phi==71 && depth==1) return 3;
-  return 0;
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+
+#include <iostream>
+
+/*
+ * \file HcalDetDiagPedestalClient.cc
+ * 
+ * $Date: 2010/03/25 09:43:41 $
+ * $Revision: 1.5.4.5 $
+ * \author J. Temple
+ * \brief Hcal DetDiagPedestal Client class
+ */
+
+HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(std::string myname)
+{
+  name_=myname;   status=0;
 }
 
-HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(){}
-HcalDetDiagPedestalClient::~HcalDetDiagPedestalClient(){}
-void HcalDetDiagPedestalClient::beginJob(){}
-void HcalDetDiagPedestalClient::beginRun(){}
-void HcalDetDiagPedestalClient::endJob(){} 
-void HcalDetDiagPedestalClient::endRun(){} 
-void HcalDetDiagPedestalClient::cleanup(){} 
-void HcalDetDiagPedestalClient::analyze(){} 
-void HcalDetDiagPedestalClient::report(){} 
-void HcalDetDiagPedestalClient::resetAllME(){} 
-void HcalDetDiagPedestalClient::createTests(){}
-void HcalDetDiagPedestalClient::loadHistograms(TFile* infile){}
+HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(std::string myname, const edm::ParameterSet& ps)
+{
+  name_=myname;
+  enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
+  debug_                 = ps.getUntrackedParameter<int>("debug",0);
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
+  if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
+    prefixME_.append("/");
+  subdir_                = ps.getUntrackedParameter<std::string>("DetDiagPedestalFolder","DetDiagPedestalMonitor_Hcal/"); // DetDiagPedestalMonitor_Hcal/
+  if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
+    subdir_.append("/");
+  subdir_=prefixME_+subdir_;
 
-void HcalDetDiagPedestalClient::init(const ParameterSet& ps, DQMStore* dbe, string clientName){
-  HcalBaseClient::init(ps,dbe,clientName);
-  status=0;
-} 
+  validHtmlOutput_       = ps.getUntrackedParameter<bool>("DetDiagPedestal_validHtmlOutput",true);
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
+  badChannelStatusMask_   = ps.getUntrackedParameter<int>("DetDiagPedestal_BadChannelStatusMask",
+							  ps.getUntrackedParameter<int>("BadChannelStatusMask",0));
+  
+  minerrorrate_ = ps.getUntrackedParameter<double>("DetDiagPedestal_minerrorrate",
+						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
+  minevents_    = ps.getUntrackedParameter<int>("DetDiagPedestal_minevents",
+						ps.getUntrackedParameter<int>("minevents",1));
+  ProblemCells=0;
+  ProblemCellsByDepth=0;
+}
 
-void HcalDetDiagPedestalClient::getHistograms(){
-  std::string folder="HcalDetDiagPedestalMonitor/Summary Plots/";
-  Pedestals2DRmsHBHEHF  =getHisto2(folder+"HBHEHF pedestal rms map",      process_, dbe_, debug_,cloneME_);
-  Pedestals2DRmsHO      =getHisto2(folder+"HO pedestal rms map",          process_, dbe_, debug_,cloneME_);
-  Pedestals2DHBHEHF     =getHisto2(folder+"HBHEHF pedestal mean map",     process_, dbe_, debug_,cloneME_);
-  Pedestals2DHO         =getHisto2(folder+"HO pedestal mean map",         process_, dbe_, debug_,cloneME_);
-  Pedestals2DErrorHBHEHF=getHisto2(folder+"HBHEHF pedestal problems map", process_, dbe_, debug_,cloneME_);
-  Pedestals2DErrorHO    =getHisto2(folder+"HO pedestal problems map",     process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HB  =getHisto(folder+"HB Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HE  =getHisto(folder+"HE Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HO  =getHisto(folder+"HO Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HF  =getHisto(folder+"HF Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4Simp=getHisto(folder+"SIPM Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4ZDC =getHisto(folder+"ZDC Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  
-  PedestalsRefAve4HB  =getHisto(folder+"HB Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4HE  =getHisto(folder+"HE Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4HO  =getHisto(folder+"HO Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4HF  =getHisto(folder+"HF Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4Simp=getHisto(folder+"SIPM Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsRefAve4ZDC =getHisto(folder+"ZDC Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
- 
-  PedestalsRefAve4HB->SetLineColor(kGreen);
-  PedestalsRefAve4HE->SetLineColor(kGreen);
-  PedestalsRefAve4HO->SetLineColor(kGreen);
-  PedestalsRefAve4HF->SetLineColor(kGreen);
-  PedestalsRefAve4Simp->SetLineColor(kGreen);
-  PedestalsRefAve4ZDC->SetLineColor(kGreen);
-  PedestalsRefAve4HB->SetLineWidth(3);
-  PedestalsRefAve4HE->SetLineWidth(3);
-  PedestalsRefAve4HO->SetLineWidth(3);
-  PedestalsRefAve4HF->SetLineWidth(3);
-  PedestalsRefAve4Simp->SetLineWidth(3);
-  PedestalsRefAve4ZDC->SetLineWidth(3);
- 
-  PedestalsAve4HBref=getHisto(folder+"HB Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HEref=getHisto(folder+"HE Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HOref=getHisto(folder+"HO Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HFref=getHisto(folder+"HF Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
-  
-  PedestalsRmsHB=getHisto(folder+"HB Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsHE=getHisto(folder+"HE Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsHO=getHisto(folder+"HO Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsHF=getHisto(folder+"HF Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsSimp=getHisto(folder+"SIPM Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsZDC =getHisto(folder+"ZDC Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  
-  PedestalsRmsRefHB=getHisto(folder+"HB Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsRefHE=getHisto(folder+"HE Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsRefHO=getHisto(folder+"HO Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsRefHF=getHisto(folder+"HF Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsRefSimp=getHisto(folder+"SIPM Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsRefZDC=getHisto(folder+"ZDC Pedestal Reference RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsRefHB->SetLineColor(kGreen);
-  PedestalsRmsRefHE->SetLineColor(kGreen);
-  PedestalsRmsRefHO->SetLineColor(kGreen);
-  PedestalsRmsRefHF->SetLineColor(kGreen);
-  PedestalsRmsRefSimp->SetLineColor(kGreen);
-  PedestalsRmsRefZDC->SetLineColor(kGreen);
-  PedestalsRmsRefHB->SetLineWidth(3);
-  PedestalsRmsRefHE->SetLineWidth(3);
-  PedestalsRmsRefHO->SetLineWidth(3);
-  PedestalsRmsRefHF->SetLineWidth(3);
-  PedestalsRmsRefSimp->SetLineWidth(3);
-  PedestalsRmsRefZDC->SetLineWidth(3);
- 
-  PedestalsRmsHBref=getHisto(folder+"HB Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsHEref=getHisto(folder+"HE Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsHOref=getHisto(folder+"HO Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
-  PedestalsRmsHFref=getHisto(folder+"HF Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
-   
-  getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Missing Channels", ChannelStatusMissingChannels);
-  getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Unstable Channels",ChannelStatusUnstableChannels);
-  getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Pedestal Mean",    ChannelStatusBadPedestalMean);
-  getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Pedestal RMS",     ChannelStatusBadPedestalRMS);
+void HcalDetDiagPedestalClient::analyze()
+{
+  if (debug_>2) std::cout <<"\tHcalDetDiagPedestalClient::analyze()"<<std::endl;
+  calculateProblems();
+}
 
-  MonitorElement* me = dbe_->get("Hcal/HcalDetDiagPedestalMonitor/HcalDetDiagPedestalMonitor Event Number");
-  if ( me ) {
-    string s = me->valueString();
-    ievt_ = -1;
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-  }
-  me = dbe_->get("Hcal/HcalDetDiagPedestalMonitor/HcalDetDiagPedestalMonitor Reference Run");
-  if(me) {
-    string s=me->valueString();
-    char str[200]; 
-    sscanf((s.substr(2,s.length()-2)).c_str(), "%s", str);
-    ref_run=str;
-  }
-} 
-bool HcalDetDiagPedestalClient::haveOutput(){
-    getHistograms();
-    if(ievt_>100) return true;
-    return false; 
+void HcalDetDiagPedestalClient::calculateProblems()
+{
+ if (debug_>2) std::cout <<"\t\tHcalDetDiagPedestalClient::calculateProblems()"<<std::endl;
+  if(!dqmStore_) return;
+  double totalevents=0;
+  int etabins=0, phibins=0, zside=0;
+  double problemvalue=0;
+
+  // Clear away old problems
+  if (ProblemCells!=0)
+    {
+      ProblemCells->Reset();
+      (ProblemCells->getTH2F())->SetMaximum(1.05);
+      (ProblemCells->getTH2F())->SetMinimum(0.);
+    }
+  for  (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+    {
+      if (ProblemCellsByDepth->depth[d]!=0) 
+	{
+	  ProblemCellsByDepth->depth[d]->Reset();
+	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMaximum(1.05);
+	  (ProblemCellsByDepth->depth[d]->getTH2F())->SetMinimum(0.);
+	}
+    }
+  enoughevents_=true;
+  // Get histograms that are used in testing
+  // currently none used,
+
+  std::vector<std::string> name = HcalEtaPhiHistNames();
+
+  // This is a sample of how to get a histogram from the task that can then be used for evaluation purposes
+  TH2F* PedestalsMissing[4];
+  TH2F* PedestalsUnstable[4];
+  TH2F* PedestalsBadMean[4];
+  TH2F* PedestalsBadRMS[4];
+  MonitorElement* me;
+  for (int i=0;i<4;++i)
+    {
+      // Assume that histograms aren't found
+      PedestalsMissing[i]=0;
+      PedestalsUnstable[i]=0;
+      PedestalsBadMean[i]=0;
+      PedestalsBadRMS[i]=0;
+      std::string s=subdir_+name[i]+" Problem Missing Channels";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) PedestalsMissing[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, PedestalsMissing[i], debug_);
+      else 
+	{
+	  if (debug_>0) 
+	    std::cout <<"<HcalDetDiagPedestalClient::calcluateProblems> could not get histogram '"<<s<<"'"<<std::endl;
+	}
+
+      s=subdir_+name[i]+" Problem Unstable Channels";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) PedestalsUnstable[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, PedestalsUnstable[i], debug_);
+      else if (debug_>0) std::cout <<"<HcalDetDiagPedestalClient::calculateProblems> could not get histogram '"<<s<<"'"<<std::endl;
+      s=subdir_+name[i]+" Problem Bad Pedestal Value";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) PedestalsBadMean[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, PedestalsBadMean[i], debug_);
+      else if (debug_>0) std::cout <<"<HcalDetDiagPedestalClient::calculateProblems> could not get histogram '"<<s<<"'"<<std::endl;
+      s=subdir_+name[i]+" Problem Bad Rms Value";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) PedestalsBadRMS[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, PedestalsBadRMS[i], debug_);
+      else if (debug_>0) std::cout <<"<HcalDetDiagPedestalClient::calculateProblems> could not get histogram '"<<s<<"'"<<std::endl;
+    }      
+
+  // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
+  // setting of the underflow bin to 0, and we can plot results as a raw rate between 0-1.
+  
+  for (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+    {
+      if (ProblemCellsByDepth->depth[d]==0) continue;
+    
+      //totalevents=DigiPresentByDepth[d]->GetBinContent(0);
+      totalevents=0;
+      // Check underflow bins for events processed
+      if (PedestalsMissing[d]!=0) totalevents = PedestalsMissing[d]->GetBinContent(0);
+      else if (PedestalsUnstable[d]!=0) totalevents = PedestalsUnstable[d]->GetBinContent(0);
+      else if (PedestalsBadMean[d]!=0) totalevents = PedestalsBadMean[d]->GetBinContent(0);
+      else if (PedestalsBadRMS[d]!=0) totalevents = PedestalsBadRMS[d]->GetBinContent(0);
+      //if (totalevents==0 || totalevents<minevents_) continue;
+      
+      totalevents=1; // temporary value pending removal of normalization from task
+      etabins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsX();
+      phibins=(ProblemCellsByDepth->depth[d]->getTH2F())->GetNbinsY();
+      for (int eta=0;eta<etabins;++eta)
+	{
+	  int ieta=CalcIeta(eta,d+1);
+	  if (ieta==-9999) continue;
+	  for (int phi=0;phi<phibins;++phi)
+	    {
+	      problemvalue=0;
+	      if (PedestalsMissing[d]!=0) problemvalue += PedestalsMissing[d]->GetBinContent(eta+1,phi+1)*1./totalevents;
+	      if (PedestalsUnstable[d]!=0) problemvalue += PedestalsUnstable[d]->GetBinContent(eta+1,phi+1)*1./totalevents;
+	      if (PedestalsBadMean[d]!=0) problemvalue += PedestalsBadMean[d]->GetBinContent(eta+1,phi+1)*1./totalevents;
+	      if (PedestalsBadRMS[d]!=0) problemvalue += PedestalsBadRMS[d]->GetBinContent(eta+1,phi+1)*1./totalevents;
+
+	      if (problemvalue==0) continue;
+	      // problem value is a rate; we can normalize it here
+	      problemvalue = min(1.,problemvalue);
+	      
+	      zside=0;
+	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
+		ieta<0 ? zside = -1 : zside = 1;
+
+	      // For problem cells that exceed our allowed rate,
+	      // set the values to -1 if the cells are already marked in the status database
+	      if (problemvalue>minerrorrate_)
+		{
+		  HcalSubdetector subdet=HcalEmpty;
+		  if (isHB(eta,d+1))subdet=HcalBarrel;
+		  else if (isHE(eta,d+1)) subdet=HcalEndcap;
+		  else if (isHF(eta,d+1)) subdet=HcalForward;
+		  else if (isHO(eta,d+1)) subdet=HcalOuter;
+		  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+		  if (badstatusmap.find(hcalid)!=badstatusmap.end())
+		    problemvalue=999; 		
+		}
+
+	      ProblemCellsByDepth->depth[d]->setBinContent(eta+1,phi+1,problemvalue);
+	      if (ProblemCells!=0) ProblemCells->Fill(ieta+zside,phi+1,problemvalue);
+	    } // loop on phi
+	} // loop on eta
+    } // loop on depth
+
+  if (ProblemCells==0)
+    {
+      if (debug_>0) std::cout <<"<HcalDetDiagPedestalClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      return;
+    }
+
+  // Normalization of ProblemCell plot, in the case where there are errors in multiple depths
+  etabins=(ProblemCells->getTH2F())->GetNbinsX();
+  phibins=(ProblemCells->getTH2F())->GetNbinsY();
+  for (int eta=0;eta<etabins;++eta)
+    {
+      for (int phi=0;phi<phibins;++phi)
+	{
+	  if (ProblemCells->getBinContent(eta+1,phi+1)>1. && ProblemCells->getBinContent(eta+1,phi+1)<999)
+	    ProblemCells->setBinContent(eta+1,phi+1,1.);
+	}
+    }
+
+  FillUnphysicalHEHFBins(*ProblemCellsByDepth);
+  FillUnphysicalHEHFBins(ProblemCells);
+  return;
 }
-int  HcalDetDiagPedestalClient::SummaryStatus(){
-    if(status==0) return 0;
-    if(status==1) return 1;
-    return 2;
+
+void HcalDetDiagPedestalClient::beginJob()
+{
+  dqmStore_ = edm::Service<DQMStore>().operator->();
+  if (debug_>0) 
+    {
+      std::cout <<"<HcalDetDiagPedestalClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
+      dqmStore_->showDirStructure();
+    }
 }
-double HcalDetDiagPedestalClient::get_channel_status(std::string subdet,int eta,int phi,int depth,int type){
-   int ind=-1;
-   if(subdet.compare("HB")==0 || subdet.compare("HF")==0) if(depth==1) ind=0; else ind=1;
-   else if(subdet.compare("HE")==0) if(depth==3) ind=2; else ind=3+depth;
-   else if(subdet.compare("HO")==0) ind=3; 
-   if(ind==-1) return -1.0;
-   if(type==1) return ChannelStatusMissingChannels[ind] ->GetBinContent(eta+42,phi+1);
-   if(type==2) return ChannelStatusUnstableChannels[ind]->GetBinContent(eta+42,phi+1);
-   if(type==3) return ChannelStatusBadPedestalMean[ind] ->GetBinContent(eta+42,phi+1);
-   if(type==4) return ChannelStatusBadPedestalRMS[ind]  ->GetBinContent(eta+42,phi+1);
-   return -1.0;
+void HcalDetDiagPedestalClient::endJob(){}
+
+void HcalDetDiagPedestalClient::beginRun(void)
+{
+  enoughevents_=false;
+  if (!dqmStore_) 
+    {
+      if (debug_>0) std::cout <<"<HcalDetDiagPedestalClient::beginRun> dqmStore does not exist!"<<std::endl;
+      return;
+    }
+  dqmStore_->setCurrentFolder(subdir_);
+  problemnames_.clear();
+
+  // Put the appropriate name of your problem summary here
+  ProblemCells=dqmStore_->book2D(" ProblemDetDiagPedestal",
+				 " Problem DetDiagPedestal Rate for all HCAL;ieta;iphi",
+				 85,-42.5,42.5,
+				 72,0.5,72.5);
+  problemnames_.push_back(ProblemCells->getName());
+  if (debug_>1)
+    std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
+  dqmStore_->setCurrentFolder(subdir_+"problem_DetDiagPedestal");
+  ProblemCellsByDepth = new EtaPhiHists();
+  ProblemCellsByDepth->setup(dqmStore_," Problem DetDiagPedestal Rate");
+  for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
+    problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+  nevts_=0;
 }
+
+void HcalDetDiagPedestalClient::endRun(void){analyze();}
+
+void HcalDetDiagPedestalClient::setup(void){}
+void HcalDetDiagPedestalClient::cleanup(void){}
+
+bool HcalDetDiagPedestalClient::hasErrors_Temp(void)
+{
+    if(status&2) return true;
+    return false;
+
+  if (!ProblemCells)
+    {
+      if (debug_>1) std::cout <<"<HcalDetDiagPedestalClient::hasErrors_Temp>  ProblemCells histogram does not exist!"<<std::endl;
+      return false;
+    }
+  int problemcount=0;
+  int ieta=-9999;
+
+  for (int depth=0;depth<4; ++depth)
+    {
+      int etabins  = (ProblemCells->getTH2F())->GetNbinsX();
+      int phibins  = (ProblemCells->getTH2F())->GetNbinsY();
+      for (int hist_eta=0;hist_eta<etabins;++hist_eta)
+        {
+          for (int hist_phi=0; hist_phi<phibins;++hist_phi)
+            {
+              ieta=CalcIeta(hist_eta,depth+1);
+	      if (ieta==-9999) continue;
+	      if (ProblemCellsByDepth->depth[depth]==0)
+		  continue;
+	      if (ProblemCellsByDepth->depth[depth]->getBinContent(hist_eta,hist_phi)>minerrorrate_)
+		++problemcount;
+
+	    } // for (int hist_phi=1;...)
+	} // for (int hist_eta=1;...)
+    } // for (int depth=0;...)
+
+  if (problemcount>0) return true;
+  return false;
+}
+
+bool HcalDetDiagPedestalClient::hasWarnings_Temp(void){
+   if(status&1) return true;
+   return false;
+}
+bool HcalDetDiagPedestalClient::hasOther_Temp(void){return false;}
+bool HcalDetDiagPedestalClient::test_enabled(void){return true;}
+
+
+void HcalDetDiagPedestalClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual)
+{
+  // This gets called by HcalMonitorClient
+  // trigger primitives don't yet contribute to channel status (though they could...)
+  // see dead or hot cell code for an example
+
+} //void HcalDetDiagPedestalClient::updateChannelStatus
 
 static void printTableHeader(ofstream& file,std::string  header){
      file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
@@ -181,6 +316,7 @@ static void printTableHeader(ofstream& file,std::string  header){
      file << "<body>"<< endl;
      file << "<table>"<< endl;
 }
+
 static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
    if(ind==0){
      file << "<tr>";
@@ -235,223 +371,556 @@ static void printTableTail(ofstream& file){
      file << "</body>"<< endl;
      file << "</html>"<< endl;
 }
-void HcalDetDiagPedestalClient::htmlOutput(int runNo, string htmlDir, string htmlName){
-int  MissingCnt=0;
-int  UnstableCnt=0;
-int  BadCnt=0; 
-int  HBP[4]={0,0,0,0}; 
-int  HBM[4]={0,0,0,0}; 
-int  HEP[4]={0,0,0,0}; 
-int  HEM[4]={0,0,0,0}; 
-int  HFP[4]={0,0,0,0}; 
-int  HFM[4]={0,0,0,0}; 
-int  HO[4] ={0,0,0,0}; 
-int  newHBP[4]={0,0,0,0}; 
-int  newHBM[4]={0,0,0,0}; 
-int  newHEP[4]={0,0,0,0}; 
-int  newHEM[4]={0,0,0,0}; 
-int  newHFP[4]={0,0,0,0}; 
-int  newHFM[4]={0,0,0,0}; 
-int  newHO[4] ={0,0,0,0}; 
-std::string subdet[4]={"HB","HE","HO","HF"};
+
+bool HcalDetDiagPedestalClient::validHtmlOutput(){
+  std::string s=subdir_+"HcalDetDiagPedestalMonitor Event Number";
+  MonitorElement *me = dqmStore_->get(s.c_str());
+  int n=0;
+  if ( me ) {
+    s = me->valueString();
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &n);
+  }
+  if(n<100) return false;
+  return true;
+}
+
+void HcalDetDiagPedestalClient::htmlOutput(std::string htmlDir){
+int  MissingCnt=0,UnstableCnt=0,BadCnt=0; 
+int  HBP[4]={0,0,0,0},HBM[4]={0,0,0,0},HEP[4]={0,0,0,0},HEM[4]={0,0,0,0},HFP[4]={0,0,0,0},HFM[4]={0,0,0,0},HO[4] ={0,0,0,0}; 
+int  newHBP[4]={0,0,0,0},newHBM[4]={0,0,0,0},newHEP[4]={0,0,0,0},newHEM[4]={0,0,0,0};
+int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0}; 
+  if (debug_>0) cout << "<HcalDetDiagPedestalClient::htmlOutput> Preparing  html output ..." << endl;
+  if(!dqmStore_) return;
 
   HcalLogicalMapGenerator gen;
   HcalLogicalMap lmap(gen.createMap());
   HcalElectronicsMap emap=lmap.generateHcalElectronicsMap();
-  
-  // check how many problems we have:
-  for(int sd=0;sd<4;sd++)
-    {
-      int feta=0,teta=0,fdepth=0,tdepth=0; 
-      if(sd==0){ feta=-16; teta=16 ;fdepth=1; tdepth=2; } 
-      if(sd==1){ feta=-29; teta=29 ;fdepth=1; tdepth=3; } 
-      if(sd==2){ feta=-15; teta=15 ;fdepth=4; tdepth=4; } 
-      if(sd==3){ feta=-42; teta=42 ;fdepth=1; tdepth=2; } 
-      for(int phi=1;phi<=72;phi++) 
-	{
-	  for(int depth=fdepth;depth<=tdepth;depth++) 
-	    {
-	      for(int eta=feta;eta<=teta;eta++)
-		{
-		  if(sd==3 && eta>-29 && eta<29) continue;
-		  double problem[4]={0,0,0,0};
-		  problem[0] =get_channel_status(subdet[sd],eta,phi,depth,1); 
-		  problem[1] =get_channel_status(subdet[sd],eta,phi,depth,2);
-		  problem[2] =get_channel_status(subdet[sd],eta,phi,depth,3);
-		  problem[3] =get_channel_status(subdet[sd],eta,phi,depth,4);
-		  for(int i=0;i<4;i++){
-		    if(problem[i]>0){
-		      if(sd==0){
-			if(eta>0)
-			  { 
-			    HBP[i]++; 
-			    if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBP[i]++;
-			  }
-			else
-			  {
-			    HBM[i]++; 
-			    if(IsKnownBadChannel("HB",eta,phi,depth)!=(i+1)) newHBM[i]++;
-			  } 
-		      } // if (sd==0)
-		      if(sd==1){
-			if(eta>0)
-			  { 
-			    HEP[i]++; 
-			    if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEP[i]++;
-			  }
-			else{
-			  HEM[i]++; 
-			  if(IsKnownBadChannel("HE",eta,phi,depth)!=(i+1)) newHEM[i]++;}
-		      } // if (sd==1)
-		      if(sd==2)         { HO[i]++;  if(IsKnownBadChannel("HO",eta,phi,depth)!=(i+1)) newHO[i]++; }
-		      if(sd==3){
-			if(eta>0){
-			  HFP[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFP[i]++;}
-			else{
-			  HFM[i]++; if(IsKnownBadChannel("HF",eta,phi,depth)!=(i+1)) newHFM[i]++;}
-		      } // if (sd==3)
-		    } // if (problem[i]>0)
-		  } //for (int i=0;i<4;i++)
-		} // for (int eta=feta;...)
-	    } // for (int depth=fdepth;...)
-	} // for (int phi = 1;...)
-    }//for (int sd=0;...
-  
-  // missing channels list
-  ofstream Missing;
-  Missing.open((htmlDir + "Missing_"+htmlName).c_str());
-  printTableHeader(Missing,"Missing Channels list");
-  for(int sd=0;sd<4;sd++){
-      int cnt=0;
-      if(sd==0 && ((HBM[0]+HBP[0])==0 || (HBM[0]+HBP[0])==(1296*2))) continue;
-      if(sd==1 && ((HEM[0]+HEP[0])==0 || (HEM[0]+HEP[0])==(1296*2))) continue;
-      if(sd==2 && ((HO[0])==0 || HO[0]==2160))                      continue;
-      if(sd==3 && ((HFM[0]+HFP[0])==0 || (HFM[0]+HFP[0])==(864*2))) continue;
-      Missing << "<tr><td align=\"center\"><h3>"<< subdet[sd] <<"</h3></td></tr>" << endl;
-      int feta=0,teta=0,fdepth=0,tdepth=0;
-      if(sd==0){ feta=-16; teta=16 ;fdepth=1; tdepth=2; if(HBM[0]==1296) feta=0; if(HBP[0]==1296) teta=0;}
-      if(sd==1){ feta=-29; teta=29 ;fdepth=1; tdepth=3; if(HEM[0]==1296) feta=0; if(HEP[0]==1296) teta=0;} 
-      if(sd==2){ feta=-15; teta=15 ;fdepth=4; tdepth=4; if(HO[0] ==2160) {feta=0; teta=0; }} 
-      if(sd==3){ feta=-42; teta=42 ;fdepth=1; tdepth=2; if(HFM[0]==864)  feta=0; if(HFP[0]==864)  teta=0; } 
-      for(int phi=1;phi<=72;phi++) for(int depth=fdepth;depth<=tdepth;depth++) for(int eta=feta;eta<=teta;eta++){
-         if(sd==3 && eta>-29 && eta<29) continue;
-         double missing =get_channel_status(subdet[sd],eta,phi,depth,1);
-	 std::string comm="   ";
-	 if(IsKnownBadChannel(subdet[sd],eta,phi,depth)==1) comm="KNOWN PROBLEM";
-         if(missing>0){
-            try{
-	       HcalDetId *detid=0;
-               if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
-               if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
-               if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
-               if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
-	       HcalElectronicsId emap_entry=emap.lookup(*detid);
-	       printTableLine(Missing,cnt++,*detid,lmap_entry,emap_entry,comm); MissingCnt++;
-	       delete detid;
-	    }catch(...){ continue;}
-         }
-      }	
-  }
-  printTableTail(Missing);
-  Missing.close();
+  TH2F *Missing_val[4],*Unstable_val[4],*BadPed_val[4],*BadRMS_val[4];
+  MonitorElement* me;
 
-  // unstable channels list
-  ofstream Unstable;
-  Unstable.open((htmlDir + "Unstable_"+htmlName).c_str());
-  printTableHeader(Unstable,"Unstable Channels list");
-  for(int sd=0;sd<4;sd++){
-      int cnt=0;
-      if(sd==0 && (HBM[1]+HBP[1])==0) continue;
-      if(sd==1 && (HEM[1]+HEP[1])==0) continue;
-      if(sd==2 && (HO[1])==0)         continue;
-      if(sd==3 && (HFM[1]+HFP[1])==0) continue;
-      Unstable << "<tr><td align=\"center\"><h3>"<< subdet[sd] <<"</h3></td></tr>" << endl;
-      int feta=0,teta=0,fdepth=0,tdepth=0;
-      if(sd==0){ feta=-16; teta=16 ;fdepth=1; tdepth=2;}
-      if(sd==1){ feta=-29; teta=29 ;fdepth=1; tdepth=3;} 
-      if(sd==2){ feta=-15; teta=15 ;fdepth=4; tdepth=4;} 
-      if(sd==3){ feta=-42; teta=42 ;fdepth=1; tdepth=2;} 
-      for(int phi=1;phi<=72;phi++) for(int depth=fdepth;depth<=tdepth;depth++) for(int eta=feta;eta<=teta;eta++){
-         if(sd==3 && eta>-29 && eta<29) continue;
-         double unstable =get_channel_status(subdet[sd],eta,phi,depth,2);
-         if(unstable>0){
-            try{
-	       char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-unstable)*100.0);
-	       HcalDetId *detid=0;
-               if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
-               if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
-               if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
-               if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
-	       HcalElectronicsId emap_entry=emap.lookup(*detid);
-	       printTableLine(Unstable,cnt++,*detid,lmap_entry,emap_entry,comment); UnstableCnt++;
-	       delete detid;
-	    }catch(...){ continue;}
-         }
-      }	
-  }
-  printTableTail(Unstable);
-  Unstable.close();
+
+  TH1F *PedestalsAve4HB=0;
+  TH1F *PedestalsAve4HE=0;
+  TH1F *PedestalsAve4HO=0;
+  TH1F *PedestalsAve4HF=0;
+  TH1F *PedestalsAve4Simp=0;
+ 
+  TH1F *PedestalsAve4HBref=0;
+  TH1F *PedestalsAve4HEref=0;
+  TH1F *PedestalsAve4HOref=0;
+  TH1F *PedestalsAve4HFref=0;
+  TH1F *PedestalsRmsHB=0;
+  TH1F *PedestalsRmsHE=0;
+  TH1F *PedestalsRmsHO=0;
+  TH1F *PedestalsRmsHF=0;
+  TH1F *PedestalsRmsSimp=0;
   
-  // bad pedestals channels list
-  ofstream Bad;
-  Bad.open((htmlDir + "Bad_"+htmlName).c_str());
-  printTableHeader(Bad,"Bad pedestal/rms Channels list");
-  for(int sd=0;sd<4;sd++){
-      int cnt=0;
-      if(sd==0 && (HBM[2]+HBP[2])==0 && (HBM[3]+HBP[3])==0) continue;
-      if(sd==1 && (HEM[2]+HEP[2])==0 && (HEM[3]+HEP[3])==0) continue;
-      if(sd==2 &&  (HO[2])==0 && (HO[3])==0)                continue;
-      if(sd==3 && (HFM[2]+HFP[2])==0 && (HFM[3]+HFP[3])==0) continue;
-      Bad << "<tr><td align=\"center\"><h3>"<< subdet[sd] <<"</h3></td></tr>" << endl;
-      int feta=0,teta=0,fdepth=0,tdepth=0;
-      if(sd==0){ feta=-16; teta=16 ;fdepth=1; tdepth=2;}
-      if(sd==1){ feta=-29; teta=29 ;fdepth=1; tdepth=3;} 
-      if(sd==2){ feta=-15; teta=15 ;fdepth=4; tdepth=4;} 
-      if(sd==3){ feta=-42; teta=42 ;fdepth=1; tdepth=2;} 
-      for(int phi=1;phi<=72;phi++) for(int depth=fdepth;depth<=tdepth;depth++) for(int eta=feta;eta<=teta;eta++){
-         if(sd==3 && eta>-29 && eta<29) continue;
-         double bad1 =get_channel_status(subdet[sd],eta,phi,depth,3);
-         double bad2 =get_channel_status(subdet[sd],eta,phi,depth,4);
-	 std::string comm="";
-	 if(IsKnownBadChannel(subdet[sd],eta,phi,depth)==2 || IsKnownBadChannel(subdet[sd],eta,phi,depth)==3) comm=", KNOWN PROBLEM";
-         if(bad1>0 || bad2>0){
-	   try{
-	     char comment[100]; 
-	       if(bad1>0) sprintf(comment,"|Ped-Ref|=%.2f%s\n",bad1,comm.c_str());
-	       if(bad2>0) sprintf(comment,"|Rms-Ref|=%.2f%s\n",bad2,comm.c_str());
-	       if(bad1>0 && bad2>0) sprintf(comment,"|Ped-Ref|=%.2f,|Rms-Ref|=%.2f%s\n",bad1,bad2,comm.c_str());
-	       HcalDetId *detid=0;
-               if(sd==0) detid=new HcalDetId(HcalBarrel,eta,phi,depth);
-               if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
-               if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
-               if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
-	       HcalElectronicsId emap_entry=emap.lookup(*detid);
-	       printTableLine(Bad,cnt++,*detid,lmap_entry,emap_entry,comment); BadCnt++;
-	       delete detid;
-	    }catch(...){ continue;}
-         }
-      }	
-  }
-  printTableTail(Bad);
-  Bad.close();
+  TH1F *PedestalsRmsHBref=0;
+  TH1F *PedestalsRmsHEref=0;
+  TH1F *PedestalsRmsHOref=0;
+  TH1F *PedestalsRmsHFref=0;
   
-  if (debug_>0) cout << "<HcalDetDiagPedestalClient::htmlOutput> Preparing  html output ..." << endl;
-  if(!dbe_) return;
-  string client = "HcalDetDiagPedestalClient";
-  htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  TH2F *Pedestals2DRmsHBHEHF=0;
+  TH2F *Pedestals2DRmsHO=0;
+  TH2F *Pedestals2DHBHEHF=0;
+  TH2F *Pedestals2DHO=0;
+  TH2F *Pedestals2DErrorHBHEHF=0;
+  TH2F *Pedestals2DErrorHO=0;
+
+  std::string s=subdir_+"Summary Plots/HB Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str());
+  if(me!=0) PedestalsAve4HB=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HB, debug_); else return;
+  s=subdir_+"Summary Plots/HE Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4HE=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HE, debug_);  else return; 
+  s=subdir_+"Summary Plots/HO Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4HO=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HO, debug_);  else return; 
+  s=subdir_+"Summary Plots/HF Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4HF=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HF, debug_);  else return; 
+  s=subdir_+"Summary Plots/SIPM Pedestal Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4Simp=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4Simp, debug_); else return; 
+ 
+  s=subdir_+"Summary Plots/HB Pedestal-Reference Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4HBref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HBref, debug_); else return;  
+  s=subdir_+"Summary Plots/HE Pedestal-Reference Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4HEref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HEref, debug_); else return; 
+  s=subdir_+"Summary Plots/HO Pedestal-Reference Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4HOref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HOref, debug_); else return;  
+  s=subdir_+"Summary Plots/HF Pedestal-Reference Distribution (average over 4 caps)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsAve4HFref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsAve4HFref, debug_); else return;  
+   
+  s=subdir_+"Summary Plots/HB Pedestal RMS Distribution (individual cap)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHB=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHB, debug_);  else return; 
+  s=subdir_+"Summary Plots/HE Pedestal RMS Distribution (individual cap)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHE=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHE, debug_);  else return; 
+  s=subdir_+"Summary Plots/HO Pedestal RMS Distribution (individual cap)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHO=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHO, debug_);  else return; 
+  s=subdir_+"Summary Plots/HF Pedestal RMS Distribution (individual cap)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHF=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHF, debug_);  else return; 
+  s=subdir_+"Summary Plots/SIPM Pedestal RMS Distribution (individual cap)"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsSimp=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsSimp, debug_);  else return; 
+   
+  s=subdir_+"Summary Plots/HB Pedestal_rms-Reference_rms Distribution"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHBref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHBref, debug_);  else return; 
+  s=subdir_+"Summary Plots/HE Pedestal_rms-Reference_rms Distribution"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHEref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHEref, debug_);  else return; 
+  s=subdir_+"Summary Plots/HO Pedestal_rms-Reference_rms Distribution"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHOref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHOref, debug_);  else return; 
+  s=subdir_+"Summary Plots/HF Pedestal_rms-Reference_rms Distribution"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) PedestalsRmsHFref=HcalUtilsClient::getHisto<TH1F*>(me, cloneME_, PedestalsRmsHFref, debug_);  else return; 
+     
+  s=subdir_+"Summary Plots/HBHEHF pedestal mean map"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) Pedestals2DHBHEHF=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Pedestals2DHBHEHF, debug_); else return;  
+  s=subdir_+"Summary Plots/HO pedestal mean map"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) Pedestals2DHO=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Pedestals2DHO, debug_);  else return; 
+  s=subdir_+"Summary Plots/HBHEHF pedestal rms map"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) Pedestals2DRmsHBHEHF=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Pedestals2DRmsHBHEHF, debug_); else return;  
+  s=subdir_+"Summary Plots/HO pedestal rms map"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) Pedestals2DRmsHO=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Pedestals2DRmsHO, debug_);  else return; 
+  s=subdir_+"Summary Plots/HBHEHF pedestal problems map"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) Pedestals2DErrorHBHEHF=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Pedestals2DErrorHBHEHF, debug_);  else return; 
+  s=subdir_+"Summary Plots/HO pedestal problems map"; me=dqmStore_->get(s.c_str()); 
+  if(me!=0) Pedestals2DErrorHO=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Pedestals2DErrorHO, debug_); else return;  
+
+
+  std::vector<std::string> name = HcalEtaPhiHistNames();
+  for(int i=0;i<4;++i){
+      Missing_val[i]=Unstable_val[i]=BadPed_val[i]=BadRMS_val[i]=0;
+      std::string s=subdir_+"Plots for client/"+name[i]+" Missing channels";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) Missing_val[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Missing_val[i], debug_); else return;  
+      s=subdir_+"Plots for client/"+name[i]+" Channel instability value";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) Unstable_val[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Unstable_val[i], debug_); else return;  
+      s=subdir_+"Plots for client/"+name[i]+" Bad Pedestal-Ref Value";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) BadPed_val[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadPed_val[i], debug_); else return;  
+      s=subdir_+"Plots for client/"+name[i]+" Bad Rms-ref Value";
+      me=dqmStore_->get(s.c_str());
+      if (me!=0) BadRMS_val[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, BadRMS_val[i], debug_); else return;  
+  }
+  // Calculate problems 
+  for(int d=0;d<4;++d){
+      int etabins=Missing_val[d]->GetNbinsX();
+      int phibins=Missing_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          HcalSubdetector subdet=HcalEmpty;
+          if(isHB(eta,d+1))subdet=HcalBarrel;
+	     else if (isHE(eta,d+1)) subdet=HcalEndcap;
+	     else if (isHF(eta,d+1)) subdet=HcalForward;
+	     else if (isHO(eta,d+1)) subdet=HcalOuter;
+	  HcalDetId hcalid(subdet, ieta, phi+1, (int)(d+1));
+          float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val!=0){
+            if(subdet==HcalBarrel){
+               if(ieta>0){ HBP[0]++;}else{ HBM[0]++;} MissingCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHBP[0]++;}else{ newHBM[0]++;}}
+            }	
+            if(subdet==HcalEndcap){
+               if(ieta>0){ HEP[0]++;}else{ HEM[0]++;} MissingCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHEP[0]++;}else{ newHEM[0]++;}}
+            }	
+            if(subdet==HcalForward){
+               if(ieta>0){ HFP[0]++;}else{ HFM[0]++;} MissingCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHFP[0]++;}else{ newHFM[0]++;}}
+            }	
+            if(subdet==HcalOuter){
+               HO[0]++;MissingCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){newHO[0]++;}
+            }	
+         }
+         val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
+	 if(val!=0){
+            if(subdet==HcalBarrel){
+               if(ieta>0){ HBP[1]++;}else{ HBM[1]++;} UnstableCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHBP[1]++;}else{ newHBM[1]++;}}
+            }	
+            if(subdet==HcalEndcap){
+               if(ieta>0){ HEP[1]++;}else{ HEM[1]++;} UnstableCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHEP[1]++;}else{ newHEM[1]++;}}
+            }	
+            if(subdet==HcalForward){
+               if(ieta>0){ HFP[1]++;}else{ HFM[1]++;} UnstableCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHFP[1]++;}else{ newHFM[1]++;}}
+            }	
+            if(subdet==HcalOuter){
+               HO[1]++;UnstableCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){newHO[1]++;}
+            }	
+         }
+         val=BadPed_val[d]->GetBinContent(eta+1,phi+1);
+	 if(val!=0){
+            if(subdet==HcalBarrel){
+               if(ieta>0){ HBP[2]++;}else{ HBM[2]++;} BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHBP[2]++;}else{ newHBM[2]++;}}
+            }	
+            if(subdet==HcalEndcap){
+               if(ieta>0){ HEP[2]++;}else{ HEM[2]++;} BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHEP[2]++;}else{ newHEM[2]++;}}
+            }	
+            if(subdet==HcalForward){
+               if(ieta>0){ HFP[2]++;}else{ HFM[2]++;} BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHFP[2]++;}else{ newHFM[2]++;}}
+            }	
+            if(subdet==HcalOuter){
+               HO[2]++;BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){newHO[2]++;}
+            }	
+         }
+         val=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
+	 if(val!=0){
+            if(subdet==HcalBarrel){
+               if(ieta>0){ HBP[3]++;}else{ HBM[3]++;} BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHBP[3]++;}else{ newHBM[3]++;}}
+            }	
+            if(subdet==HcalEndcap){
+               if(ieta>0){ HEP[3]++;}else{ HEM[3]++;} BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHEP[3]++;}else{ newHEM[3]++;}}
+            }	
+            if(subdet==HcalForward){
+               if(ieta>0){ HFP[3]++;}else{ HFM[3]++;} BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){if(ieta>0){ newHFP[3]++;}else{ newHFM[3]++;}}
+            }	
+            if(subdet==HcalOuter){
+               HO[3]++;BadCnt++;
+               if(badstatusmap.find(hcalid)==badstatusmap.end()){newHO[3]++;}
+            }	
+         }
+      } 
+  } 
+
+
+  ofstream badMissing; 
+  badMissing.open((htmlDir+"bad_missing_table.html").c_str());
+  printTableHeader(badMissing,"Missing Channels list");
+  ofstream badUnstable; 
+  badUnstable.open((htmlDir+"bad_unstable_table.html").c_str());
+  printTableHeader(badUnstable,"Unstable Channels list");
+  ofstream badPedRMS; 
+  badPedRMS.open((htmlDir+"bad_badpedrms_table.html").c_str());
+  printTableHeader(badPedRMS,"Missing Channels list");
+
+  int cnt=0;
+  if((HBP[0]+HBP[0])>0 && (HBM[0]+HBP[0])!=(1296*2)){
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Missing_val[d]->GetNbinsX();
+      int phibins=Missing_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHB(eta,d+1)) continue;
+          float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+          std::string s="";
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if((HEP[0]+HEP[0])>0 && (HEM[0]+HEP[0])!=(1296*2)){
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Missing_val[d]->GetNbinsX();
+      int phibins=Missing_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHE(eta,d+1)) continue;
+          float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+          std::string s="";
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if(HO[0]>0 && HO[0]!=2160){
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Missing_val[d]->GetNbinsX();
+      int phibins=Missing_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHO(eta,d+1)) continue;
+          float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+          std::string s="";
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if((HFP[0]+HFP[0])>0 && (HFM[0]+HFP[0])!=(864*2)){
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Missing_val[d]->GetNbinsX();
+      int phibins=Missing_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHF(eta,d+1)) continue;
+          float val=Missing_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+          std::string s="";
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+/////////////////////////////////////////////////////////////////////////////////////
+  cnt=0;
+  if((HBP[1]+HBP[1])>0){
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Unstable_val[d]->GetNbinsX();
+      int phibins=Unstable_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHB(eta,d+1)) continue;
+          float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+          char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if((HEP[1]+HEP[1])>0){
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Unstable_val[d]->GetNbinsX();
+      int phibins=Unstable_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHE(eta,d+1)) continue;
+          float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+          char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if(HO[1]>0){
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Unstable_val[d]->GetNbinsX();
+      int phibins=Unstable_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHO(eta,d+1)) continue;
+          float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+          char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if((HFP[1]+HFP[1])>0){
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=Unstable_val[d]->GetNbinsX();
+      int phibins=Unstable_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHF(eta,d+1)) continue;
+          float val=Unstable_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val==0) continue;
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+          char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+/////////////////////////////////////////////////////////////////////////////////////
+  cnt=0;
+  if((HBP[2]+HBP[2]+HBP[3]+HBP[3])>0){
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=BadPed_val[d]->GetNbinsX();
+      int phibins=BadPed_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHB(eta,d+1)) continue;
+          float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
+          float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val1==0 && val2==0) continue;
+          HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
+	  char comment[100]; 
+	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
+	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
+	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if((HEP[2]+HEP[2]+HEP[3]+HEP[3])>0){
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=BadPed_val[d]->GetNbinsX();
+      int phibins=BadPed_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHE(eta,d+1)) continue;
+          float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
+          float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val1==0 && val2==0) continue;
+          HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
+	  char comment[100]; 
+	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
+	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
+	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if((HO[2]+HO[3])>0){
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=BadPed_val[d]->GetNbinsX();
+      int phibins=BadPed_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHO(eta,d+1)) continue;
+          float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
+          float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val1==0 && val2==0) continue;
+          HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
+	  char comment[100]; 
+	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
+	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
+	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+  cnt=0;
+  if((HFP[2]+HFP[2]+HFP[3]+HFP[3])>0){
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << endl;
+    for(int d=0;d<4;++d){
+      int etabins=BadPed_val[d]->GetNbinsX();
+      int phibins=BadPed_val[d]->GetNbinsY();
+      for(int phi=0;phi<phibins;++phi)for(int eta=0;eta<etabins;++eta){
+	  int ieta=CalcIeta(eta,d+1);
+	  if(ieta==-9999) continue;
+          if(!isHF(eta,d+1)) continue;
+          float val1=BadPed_val[d]->GetBinContent(eta+1,phi+1);
+          float val2=BadRMS_val[d]->GetBinContent(eta+1,phi+1);
+	  if(val1==0 && val2==0) continue;
+          HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
+	  char comment[100]; 
+	  if(val1!=0) sprintf(comment,"Ped-Ref=%.2f",val1);
+	  if(val2!=0) sprintf(comment,"Rms-Ref=%.2f",val2);
+	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
+          std::string s=comment;
+          if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
+	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
+	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
+      } 
+    } 
+  }
+
+  printTableTail(badMissing);
+  badMissing.close();
+  printTableTail(badUnstable);
+  badUnstable.close();
+  printTableTail(badPedRMS);
+  badPedRMS.close();
+
+  int ievt_ = -1,runNo=-1;
+  std::string ref_run;
+  s=subdir_+"HcalDetDiagPedestalMonitor Event Number";
+  me = dqmStore_->get(s.c_str());
+  if ( me ) {
+    s = me->valueString();
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+  }
+  s=subdir_+"HcalDetDiagPedestalMonitor Run Number";
+  me = dqmStore_->get(s.c_str());
+  if ( me ) {
+    s = me->valueString();
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &runNo);
+  } 
+  s=subdir_+"HcalDetDiagLaserMonitor Reference Run";
+  me = dqmStore_->get(s.c_str());
+  if(me) {
+    std::string s=me->valueString();
+    char str[200]; 
+    sscanf((s.substr(2,s.length()-2)).c_str(), "%s", str);
+    ref_run=str;
+  }
+
   gROOT->SetBatch(true);
   gStyle->SetCanvasColor(0);
   gStyle->SetPadColor(0);
   gStyle->SetOptStat(111110);
   gStyle->SetPalette(1);
-  TPaveStats *ptstats;
+ 
   TCanvas *can=new TCanvas("HcalDetDiagPedestalClient","HcalDetDiagPedestalClient",0,0,500,350);
   can->cd();
+
   ofstream htmlFile;
-  htmlFile.open((htmlDir + htmlName).c_str());
+  std::string outfile=htmlDir+name_+".html";
+  htmlFile.open(outfile.c_str());
   // html page header
   htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
   htmlFile << "<html>  " << endl;
@@ -512,7 +981,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   ind3=3; if(newHBM[2]==0) ind3=2; if(newHBM[2]>0)  ind3=1; if(newHBM[2]>21)  ind3=0;
   ind4=3; if(newHBM[3]==0) ind4=2; if(newHBM[3]>0)  ind4=1; if(newHBM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
   htmlFile << state[ind1] << HBM[0] <<" (1296)</td>" << endl;
   htmlFile << state[ind2] << HBM[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HBM[2] <<"</td>" << endl;
@@ -525,7 +994,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   ind3=3; if(newHEP[2]==0) ind3=2; if(newHEP[2]>0)  ind3=1; if(newHEP[2]>21)  ind3=0;
   ind4=3; if(newHEP[3]==0) ind4=2; if(newHEP[3]>0)  ind4=1; if(newHEP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
   htmlFile << state[ind1] << HEP[0] <<" (1296)</td>" << endl;
   htmlFile << state[ind2] << HEP[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HEP[2] <<"</td>" << endl;
@@ -538,7 +1007,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   ind3=3; if(newHEM[2]==0) ind3=2; if(newHEM[2]>0)  ind3=1; if(newHEM[2]>21)  ind3=0;
   ind4=3; if(newHEM[3]==0) ind4=2; if(newHEM[3]>0)  ind4=1; if(newHEM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
   htmlFile << state[ind1] << HEM[0] <<" (1296)</td>" << endl;
   htmlFile << state[ind2] << HEM[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HEM[2] <<"</td>" << endl;
@@ -551,7 +1020,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   ind3=3; if(newHFP[2]==0) ind3=2; if(newHFP[2]>0)  ind3=1; if(newHFP[2]>21)  ind3=0;
   ind4=3; if(newHFP[3]==0) ind4=2; if(newHFP[3]>0)  ind4=1; if(newHFP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
   htmlFile << state[ind1] << HFP[0] <<" (864)</td>" << endl;
   htmlFile << state[ind2] << HFP[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HFP[2] <<"</td>" << endl;
@@ -564,7 +1033,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   ind3=3; if(newHFM[2]==0) ind3=2; if(newHFM[2]>0)  ind3=1; if(newHFM[2]>21)  ind3=0;
   ind4=3; if(newHFM[3]==0) ind4=2; if(newHFM[3]>0)  ind4=1; if(newHFM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
   htmlFile << state[ind1] << HFM[0] <<" (864)</td>" << endl;
   htmlFile << state[ind2] << HFM[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HFM[2] <<"</td>" << endl;
@@ -577,26 +1046,28 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   ind3=3; if(newHO[2]==0) ind3=2; if(newHO[2]>0)  ind3=1; if(newHO[2]>21)  ind3=0;
   ind4=3; if(newHO[3]==0) ind4=2; if(newHO[3]>0)  ind4=1; if(newHO[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
-  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1)status|=1; 
+  if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
   htmlFile << state[ind1] << HO[0] <<" (2160)</td>" << endl;
   htmlFile << state[ind2] << HO[1] <<"</td>" << endl;
   htmlFile << state[ind3] << HO[2] <<"</td>" << endl;
   htmlFile << state[ind4] << HO[3] <<"</td>" << endl;
-  
+
   htmlFile << "</tr></table>" << endl;
   htmlFile << "<hr>" << endl;
   /////////////////////////////////////////// 
   if((MissingCnt+UnstableCnt+BadCnt)>0){
       htmlFile << "<table width=100% border=1><tr>" << endl;
-      if(MissingCnt>0)  htmlFile << "<td><a href=\"" << ("Missing_"+htmlName).c_str() <<"\">list of missing channels</a></td>";
-      if(UnstableCnt>0) htmlFile << "<td><a href=\"" << ("Unstable_"+htmlName).c_str() <<"\">list of unstable channels</a></td>";
-      if(BadCnt>0)      htmlFile << "<td><a href=\"" << ("Bad_"+htmlName).c_str() <<"\">list of bad pedestal/rms channels</a></td>";
+      if(MissingCnt>0)  htmlFile << "<td><a href=\"" << "bad_missing_table.html" <<"\">list of missing channels</a></td>";
+      if(UnstableCnt>0) htmlFile << "<td><a href=\"" << "bad_unstable_table.html" <<"\">list of unstable channels</a></td>";
+      if(BadCnt>0)      htmlFile << "<td><a href=\"" << "bad_badpedrms_table.html" <<"\">list of bad pedestal/rms channels</a></td>";
       htmlFile << "</tr></table>" << endl;
   }
   can->SetGridy();
   can->SetGridx();
   can->SetLogy(0); 
-  
+
+
+
   /////////////////////////////////////////// 
   htmlFile << "<h2 align=\"center\">Summary plots</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
@@ -649,26 +1120,12 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<h2 align=\"center\">HB Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  if(PedestalsRefAve4HB->GetMaximum()>0 && PedestalsAve4HB->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsAve4HB->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRefAve4HB->GetListOfFunctions()->Add(ptstats);
-  PedestalsRefAve4HB->Draw();
-  PedestalsAve4HB->Draw("Sames");
+  if(PedestalsAve4HB->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsAve4HB->Draw();
   can->SaveAs((htmlDir + "hb_pedestal_distribution.gif").c_str());
   htmlFile << "<td><img src=\"hb_pedestal_distribution.gif\" alt=\"hb pedestal mean\">   </td>" << endl;
-  if(PedestalsRmsRefHB->GetMaximum()>0 && PedestalsRmsHB->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsRmsHB->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRmsRefHB->GetListOfFunctions()->Add(ptstats);
-  PedestalsRmsRefHB->Draw();
-  PedestalsRmsHB->Draw("Sames");
+  if(PedestalsRmsHB->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsRmsHB->Draw();
   can->SaveAs((htmlDir + "hb_pedestal_rms_distribution.gif").c_str());
   htmlFile << "<td><img src=\"hb_pedestal_rms_distribution.gif\" alt=\"hb pedestal rms mean\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
@@ -688,26 +1145,12 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<h2 align=\"center\">HE Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  if(PedestalsRefAve4HE->GetMaximum()>0 && PedestalsAve4HE->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0);  
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsAve4HE->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRefAve4HE->GetListOfFunctions()->Add(ptstats);
-  PedestalsRefAve4HE->Draw();
-  PedestalsAve4HE->Draw("Sames");
+  if(PedestalsAve4HE->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0);  
+  PedestalsAve4HE->Draw();
   can->SaveAs((htmlDir + "he_pedestal_distribution.gif").c_str());
   htmlFile << "<td><img src=\"he_pedestal_distribution.gif\" alt=\"he pedestal mean\">   </td>" << endl;
-  if(PedestalsRmsRefHE->GetMaximum()>0 && PedestalsRmsHE->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsRmsHE->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRmsRefHE->GetListOfFunctions()->Add(ptstats);
-  PedestalsRmsRefHE->Draw();
-  PedestalsRmsHE->Draw("Sames");
+  if(PedestalsRmsHE->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsRmsHE->Draw();
   can->SaveAs((htmlDir + "he_pedestal_rms_distribution.gif").c_str());
   htmlFile << "<td><img src=\"he_pedestal_rms_distribution.gif\" alt=\"he pedestal rms mean\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
@@ -727,50 +1170,23 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "<h2 align=\"center\">HO Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  if(PedestalsRefAve4HO->GetMaximum()>0 && PedestalsAve4HO->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsAve4HO->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRefAve4HO->GetListOfFunctions()->Add(ptstats);
-  PedestalsRefAve4HO->Draw();
-  PedestalsAve4HO->Draw("Sames");
+  if(PedestalsAve4HO->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsAve4HO->Draw();
   can->SaveAs((htmlDir + "ho_pedestal_distribution.gif").c_str());
   htmlFile << "<td><img src=\"ho_pedestal_distribution.gif\" alt=\"ho pedestal mean\">   </td>" << endl;
-  if(PedestalsRmsRefHO->GetMaximum()>0 && PedestalsRmsHO->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsRmsHO->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRmsRefHO->GetListOfFunctions()->Add(ptstats);  PedestalsRmsRefHO->Draw();
-  PedestalsRmsHO->Draw("Sames");
+  if(PedestalsRmsHO->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsRmsHO->Draw();
   can->SaveAs((htmlDir + "ho_pedestal_rms_distribution.gif").c_str());
   htmlFile << "<td><img src=\"ho_pedestal_rms_distribution.gif\" alt=\"ho pedestal rms mean\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
   // SIMP
-   htmlFile << "<tr align=\"left\">" << endl;
-  if(PedestalsRefAve4Simp->GetMaximum()>0 && PedestalsAve4Simp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsAve4Simp->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRefAve4Simp->GetListOfFunctions()->Add(ptstats);
-  PedestalsRefAve4Simp->Draw();
-  PedestalsAve4Simp->Draw("Sames");
+  htmlFile << "<tr align=\"left\">" << endl;
+  if(PedestalsAve4Simp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsAve4Simp->Draw();
   can->SaveAs((htmlDir + "sipm_pedestal_distribution.gif").c_str());
   htmlFile << "<td><img src=\"sipm_pedestal_distribution.gif\" alt=\"sipm pedestal mean\">   </td>" << endl;
-  if(PedestalsRmsRefSimp->GetMaximum()>0 && PedestalsRmsSimp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsRmsSimp->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRmsRefSimp->GetListOfFunctions()->Add(ptstats); 
-  PedestalsRmsRefSimp->Draw();
-  PedestalsRmsSimp->Draw("Sames");
+  if(PedestalsRmsSimp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsRmsSimp->Draw();
   can->SaveAs((htmlDir + "simp_pedestal_rms_distribution.gif").c_str());
   htmlFile << "<td><img src=\"simp_pedestal_rms_distribution.gif\" alt=\"sipm pedestal rms mean\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
@@ -787,29 +1203,16 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   /////////////////////////////////////////// 
+
   htmlFile << "<h2 align=\"center\">HF Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
   htmlFile << "<table width=100% border=0><tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  if(PedestalsRefAve4HF->GetMaximum()>0 && PedestalsAve4HF->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsAve4HF->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRefAve4HF->GetListOfFunctions()->Add(ptstats);
-  PedestalsRefAve4HF->Draw();
-  PedestalsAve4HF->Draw("Sames");
+  if(PedestalsAve4HF->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsAve4HF->Draw();
   can->SaveAs((htmlDir + "hf_pedestal_distribution.gif").c_str());
   htmlFile << "<td><img src=\"hf_pedestal_distribution.gif\" alt=\"hf pedestal mean\">   </td>" << endl;
-  if(PedestalsRmsRefHF->GetMaximum()>0 && PedestalsRmsHF->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-  ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  PedestalsRmsHF->GetListOfFunctions()->Add(ptstats);
-  ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-  ptstats->SetTextColor(kGreen);
-  PedestalsRmsRefHF->GetListOfFunctions()->Add(ptstats);  
-  PedestalsRmsRefHF->Draw();
-  PedestalsRmsHF->Draw("Sames");
+  if(PedestalsRmsHF->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
+  PedestalsRmsHF->Draw();
   can->SaveAs((htmlDir + "hf_pedestal_rms_distribution.gif").c_str());
   htmlFile << "<td><img src=\"hf_pedestal_rms_distribution.gif\" alt=\"hf pedestal rms mean\">   </td>" << endl;
   htmlFile << "</tr>" << endl;
@@ -826,41 +1229,9 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   
-  /////////////////////////////////////////// 
-  htmlFile << "<h2 align=\"center\">ZDC Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
-  htmlFile << "<table width=100% border=0><tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
-  
-  if(PedestalsRefAve4ZDC->GetMaximum()>0 && PedestalsAve4ZDC->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-//   ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-//   ptstats->SetTextColor(kBlack);
-//   PedestalsAve4ZDC->GetListOfFunctions()->Add(ptstats);
-//   ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-//   ptstats->SetTextColor(kGreen);
-//   PedestalsRefAve4ZDC->GetListOfFunctions()->Add(ptstats);
-//   PedestalsRefAve4ZDC->Draw();
-//   PedestalsAve4ZDC->Draw("Sames");
-  PedestalsAve4ZDC->Draw();
-  can->SaveAs((htmlDir + "zdc_pedestal_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"zdc_pedestal_distribution.gif\" alt=\"zdc pedestal mean\">   </td>" << endl;
-  if(PedestalsRmsRefZDC->GetMaximum()>0 && PedestalsRmsZDC->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
-//   ptstats = new TPaveStats(0.75,0.8,0.99,1.0,"brNDC");
-//   ptstats->SetTextColor(kBlack);
-//   PedestalsRmsZDC->GetListOfFunctions()->Add(ptstats);
-//   ptstats = new TPaveStats(0.75,0.58,0.99,0.78,"brNDC");
-//   ptstats->SetTextColor(kGreen);
-//   PedestalsRmsRefZDC->GetListOfFunctions()->Add(ptstats); 
-//   PedestalsRmsRefZDC->Draw();
-//   PedestalsRmsZDC->Draw("Sames");
-  PedestalsRmsZDC->Draw();
-  can->SaveAs((htmlDir + "zdc_pedestal_rms_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"zdc_pedestal_rms_distribution.gif\" alt=\"zdc pedestal rms mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  
+
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
-} 
-
-
+  can->Close();
+}

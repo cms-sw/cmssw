@@ -2,11 +2,39 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "TROOT.h"
+#include "TTree.h"
+#include "TGaxis.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TFile.h"
+
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <sys/time.h>
+
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
+#include <DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h>
+// Use to hold/get channel status
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+
+#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
+
+
 //--------------------------------------------------------
-ZDCMonitorClient::ZDCMonitorClient(const ParameterSet& ps){
+ZDCMonitorClient::ZDCMonitorClient(const edm::ParameterSet& ps){
   initialize(ps);
 }
 
@@ -19,7 +47,7 @@ ZDCMonitorClient::~ZDCMonitorClient(){
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::initialize(const ParameterSet& ps){
+void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
 
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
 
@@ -45,11 +73,11 @@ void ZDCMonitorClient::initialize(const ParameterSet& ps){
     }
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   if (debug_>1) dbe_->showDirStructure();   
 
   // DQM ROOT input
-  inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
+  inputFile_ = ps.getUntrackedParameter<std::string>("inputFile", "");
   if(inputFile_.size()!=0 && debug_>0) std::cout << "-->reading DQM input from " << inputFile_ << endl;
   
   if( ! enableMonitorDaemon_ ) {  
@@ -66,7 +94,7 @@ void ZDCMonitorClient::initialize(const ParameterSet& ps){
   if(resetLS_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetLS_ <<" lumi sections." << endl;
 
   // base Html output directory
-  baseHtmlDir_ = ps.getUntrackedParameter<string>("baseHtmlDir", "");
+  baseHtmlDir_ = ps.getUntrackedParameter<std::string>("baseHtmlDir", "");
   if (debug_>0)
     {
       if( baseHtmlDir_.size() != 0) 
@@ -90,7 +118,7 @@ void ZDCMonitorClient::initialize(const ParameterSet& ps){
   if (debug_>0) std::cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
 
   // Base folder for the contents of this job
-  string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "ZDC") ;
+  std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "ZDC") ;
   if (debug_>0) std::cout << "===>ZDCMonitor name = " << subsystemname << endl;
   rootFolder_ = subsystemname + "/";
 
@@ -133,7 +161,7 @@ void ZDCMonitorClient::beginJob(){
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+void ZDCMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if (debug_>0)
     std::cout << endl<<"ZDCMonitorClient: Standard beginRun() for run " << r.id().run() << endl<<endl;
@@ -145,7 +173,7 @@ void ZDCMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   chanquality_= new HcalChannelQuality(*p.product());
   */
 
-  string eventinfo="EventInfo";
+  std::string eventinfo="EventInfo";
   if (rootFolder_!="ZDC")
     eventinfo+="DUMMY";
 
@@ -274,7 +302,7 @@ void ZDCMonitorClient::endJob(void) {
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::endRun(const Run& r, const EventSetup& c) {
+void ZDCMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if (debug_>0)
     std::cout << endl<<"<ZDCMonitorClient> Standard endRun() for run " << r.id().run() << endl<<endl;
@@ -305,7 +333,7 @@ void ZDCMonitorClient::writeDBfile()
 } // ZDCMonitorClient::writeDBfile()
 
 //--------------------------------------------------------
-void ZDCMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) 
+void ZDCMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) 
 {
   // don't allow 'backsliding' across lumi blocks in online running
   // This still won't prevent some lumi blocks from being evaluated multiple times.  Need to think about this.
@@ -316,7 +344,7 @@ void ZDCMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const Even
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+void ZDCMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
 
   // don't allow backsliding in online running
   //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
@@ -331,7 +359,7 @@ void ZDCMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventS
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetup){
+void ZDCMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
 
   if (debug_>1)
     std::cout <<"Entered ZDCMonitorClient::analyze(const Evt...)"<<endl;
@@ -380,7 +408,7 @@ void ZDCMonitorClient::analyze(){
 
 
   return;
-}
+  }
 
 //--------------------------------------------------------
 void ZDCMonitorClient::createTests(void){
@@ -443,7 +471,7 @@ void ZDCMonitorClient::loadHistograms(TFile* infile, const char* fname)
 }
 
 
-void ZDCMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector<TH2F*> &hist2d)
+void ZDCMonitorClient::dumpHistograms(int& runNum, std::vector<TH1F*> &hist1d,std::vector<TH2F*> &hist2d)
 {
   hist1d.clear(); 
   hist2d.clear(); 

@@ -15,14 +15,11 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/03/03 20:02:52 $
- * $Revision: 1.64.2.4 $
+ * $Date: 2010/03/25 09:43:42 $
+ * $Revision: 1.89.2.9 $
  * \author J. Temple
  * \brief Summary Client class
  */
-
-using namespace std;
-using namespace edm;
 
 HcalSummaryClient::HcalSummaryClient(std::string myname)
 {
@@ -31,6 +28,8 @@ HcalSummaryClient::HcalSummaryClient(std::string myname)
   minevents_=0;
   minerrorrate_=0;
   badChannelStatusMask_=0;
+  ProblemCells=0;
+  ProblemCellsByDepth=0;
 }
 
 HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet& ps)
@@ -38,10 +37,10 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
   name_=myname;
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
   debug_                 = ps.getUntrackedParameter<int>("debug",0);
-  prefixME_              = ps.getUntrackedParameter<string>("subSystemFolder","Hcal/");
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
-  subdir_                = ps.getUntrackedParameter<string>("SummaryFolder","EventInfo/"); // SummaryMonitor_Hcal  
+  subdir_                = ps.getUntrackedParameter<std::string>("SummaryFolder","EventInfo/"); // SummaryMonitor_Hcal  
   if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
@@ -56,10 +55,12 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
   minevents_    = ps.getUntrackedParameter<int>("Summary_minevents",
 						ps.getUntrackedParameter<int>("minevents",0));
   SummaryMapByDepth=0;
+  ProblemCells=0;
+  ProblemCellsByDepth=0;
 }
 
 void HcalSummaryClient::analyze(int LS)
-{
+{ 
   if (debug_>2) std::cout <<"\tHcalSummaryClient::analyze()"<<std::endl;
 
   // 
@@ -80,7 +81,7 @@ void HcalSummaryClient::analyze(int LS)
   enoughevents_=true; // assume we have enough events for all tests to have run
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
     {
-      cout <<"CLIENT = "<<clients_[i]->name_<<"  ENOUGH = "<<clients_[i]->enoughevents_<<endl;
+      if (debug_>2) std::cout <<"<HcalSummaryClient::analyze>  CLIENT = "<<clients_[i]->name_<<"  ENOUGH = "<<clients_[i]->enoughevents_<<endl;
       enoughevents_&=clients_[i]->enoughevents_;
       EnoughEvents_->setBinContent(i+1,clients_[i]->enoughevents_);
       {
@@ -155,7 +156,15 @@ void HcalSummaryClient::analyze(int LS)
 	     int ieta=CalcIeta(eta-1,d+1);
 	     for (int phi=1;phi<=phibins;++phi)
 	       {
+		 // local phi counter is the same as iphi
+		 // for |ieta|>20, iphi%2==0 cells are unphysical; skip 'em
+		 // for |ieta|>39, iphi%4!=3 cells are unphysical
+		 if (abs(ieta)>20 && phi%2==0) continue;
+		 if (abs(ieta)>39 && phi%4!=3) continue;
 		 // loop over all client tests
+		 
+		 // SummaryMapByDepth is slightly different from previous version -- it now just shows cells
+		 // that contribute as "problems", rather than giving good channels a status of 1, and bad a status of 0
 		 for (unsigned int cl=0;cl<clients_.size();++cl)
 		   {
 		     // Best way to handle this?  
@@ -170,7 +179,7 @@ void HcalSummaryClient::analyze(int LS)
 			 if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)<999)
 			   SummaryMapByDepth->depth[d]->setBinContent(eta,phi,1);
 			 else 
-			   SummaryMapByDepth->depth[d]->setBinContent(eta,phi,2); // known problems filled with a value of 2
+			   SummaryMapByDepth->depth[d]->setBinContent(eta,phi,999); // known problems filled with a value of 999
 			 if (isHF(eta-1,d+1)) 
 			   {
 			     ++status_HF_;
@@ -192,7 +201,9 @@ void HcalSummaryClient::analyze(int LS)
 	       }
 	   }
        } // for (int d=0;d<4;++d)
-   } // else (SummaryMapByDepth exists)
+
+     FillUnphysicalHEHFBins(*SummaryMapByDepth);
+  } // else (SummaryMapByDepth exists)
 
  // We've checked all problems; now compute overall status
  int totalcells=0;
@@ -345,7 +356,7 @@ void HcalSummaryClient::fillReportSummary(int LS)
 
 void HcalSummaryClient::beginJob()
 {
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
   // set total number of cells in each subdetector
   subdetCells_.insert(make_pair("HB",2592));
   subdetCells_.insert(make_pair("HE",2592));
@@ -410,7 +421,7 @@ void HcalSummaryClient::beginRun(void)
   if (me) dqmStore_->removeElement(me->getName());
 
   if (EnoughEvents_==0)
-    EnoughEvents_=dqmStore_->book1D("EnoughEvents","Enough Events Passed From Each Task To Form Summary?",1+(int)clients_.size(),0,1+(int)clients_.size());
+    EnoughEvents_=dqmStore_->book1D("EnoughEvents","Enough Events Passed From Each Task To Form Summary",1+(int)clients_.size(),0,1+(int)clients_.size());
   for (std::vector<HcalBaseDQClient*>::size_type i=0;i<clients_.size();++i)
     EnoughEvents_->setBinLabel(i+1,clients_[i]->name());
   EnoughEvents_->setBinLabel(1+(int)clients_.size(),"Summary");
@@ -508,6 +519,8 @@ void HcalSummaryClient::beginRun(void)
   status_HO0_=-1;
   status_HO12_=-1;
   status_HFlumi_=-1;
+  for (int i=1;i<=(reportMap_->getTH2F())->GetNbinsX();++i)
+    reportMap_->setBinContent(i,1,-1);
 } // void HcalSummaryClient::beginRun(void)
 
 

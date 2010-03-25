@@ -1,18 +1,18 @@
-#ifndef HcalDeadCellClient_GUARD_H
-#define HcalDeadCellClient_GUARD_H
+#ifndef HcalDetDiagTimingClient_GUARD_H
+#define HcalDetDiagTimingClient_GUARD_H
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-class HcalDeadCellClient : public HcalBaseDQClient {
+class HcalDetDiagTimingClient : public HcalBaseDQClient {
 
  public:
 
   /// Constructors
-  HcalDeadCellClient(){name_="";};
-  HcalDeadCellClient(std::string myname);//{ name_=myname;};
-  HcalDeadCellClient(std::string myname, const edm::ParameterSet& ps);
+  HcalDetDiagTimingClient(){name_="";};
+  HcalDetDiagTimingClient(std::string myname);//{ name_=myname;};
+  HcalDetDiagTimingClient(std::string myname, const edm::ParameterSet& ps);
 
   void analyze(void);
   void calculateProblems(void); // calculates problem histogram contents
@@ -30,7 +30,7 @@ class HcalDeadCellClient : public HcalBaseDQClient {
   bool test_enabled(void);
   
   /// Destructor
-  ~HcalDeadCellClient();
+  ~HcalDetDiagTimingClient();
 
  private:
   int nevts_;

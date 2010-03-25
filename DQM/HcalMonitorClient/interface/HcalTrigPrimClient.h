@@ -1,55 +1,42 @@
-#ifndef HcalTrigPrimClient_H
-#define HcalTrigPrimClient_H
+#ifndef HcalTrigPrimClient_GUARD_H
+#define HcalTrigPrimClient_GUARD_H
 
-#include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-class HcalTrigPrimClient : public HcalBaseClient {
-  
+class HcalTrigPrimClient : public HcalBaseDQClient {
+
  public:
-  
-  /// Constructor
-  HcalTrigPrimClient();
+
+  /// Constructors
+  HcalTrigPrimClient(){name_="";};
+  HcalTrigPrimClient(std::string myname);//{ name_=myname;};
+  HcalTrigPrimClient(std::string myname, const edm::ParameterSet& ps);
+
+  void analyze(void);
+  void calculateProblems(void); // calculates problem histogram contents
+  void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
+  void beginJob(void);
+  void endJob(void);
+  void beginRun(void);
+  void endRun(void); 
+  void setup(void);  
+  void cleanup(void);
+
+  bool hasErrors_Temp(void);  
+  bool hasWarnings_Temp(void);
+  bool hasOther_Temp(void);
+  bool test_enabled(void);
   
   /// Destructor
   ~HcalTrigPrimClient();
 
-  void init(const edm::ParameterSet& ps, DQMStore* dbe, string clientName);    
-
-  /// Analyze
-  void analyze(void);
-  
-  /// BeginJob
-  void beginJob(void);
-  
-  /// EndJob
-  void endJob(void);
-  
-  /// BeginRun
-  void beginRun(void);
-  
-  /// EndRun
-  void endRun(void);
-  
-  /// Setup
-  void setup(void);
-  
-  /// Cleanup
-  void cleanup(void);
-  
-  void report();
-  
-  /// HtmlOutput
-  void htmlOutput(int run, string htmlDir, string htmlName);
-  void getHistograms();
-  void loadHistograms(TFile* f);
-  
-  void resetAllME();
-  void createTests();
-
  private:
-  std::map< std::string, TH1* > histo1d;
-  std::map< std::string, TH1* > histo2d;
+  int nevts_;
+
+  EtaPhiHists* ProblemsByDepthZS_;
+  EtaPhiHists* ProblemsByDepthNZS_;
 };
 
 #endif

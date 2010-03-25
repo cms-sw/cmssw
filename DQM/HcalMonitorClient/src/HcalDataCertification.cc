@@ -13,7 +13,7 @@
 //
 // Original Author:  "Igor Vodopiyanov"
 //         Created:  Nov-21 2008
-// $Id: HcalDataCertification.cc,v 1.9 2009/10/27 14:31:02 ivodop Exp $
+// $Id: HcalDataCertification.cc,v 1.10.2.1 2010/03/25 09:43:41 temple Exp $
 //
 //
 
@@ -39,10 +39,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-using namespace cms;
-using namespace edm;
-using namespace std;
 
 //
 // class declaration
@@ -74,7 +70,7 @@ class HcalDataCertification : public edm::EDAnalyzer {
    MonitorElement* Hcal_HO0;
    MonitorElement* Hcal_HO12;
    int debug_;
-  std::string rootFolder_;
+   std::string rootFolder_;
 };
 
 //
@@ -89,12 +85,12 @@ class HcalDataCertification : public edm::EDAnalyzer {
 // constructors and destructor
 //
 
-HcalDataCertification::HcalDataCertification(const ParameterSet& iConfig)
+HcalDataCertification::HcalDataCertification(const edm::ParameterSet& iConfig)
 {
   // now do what ever initialization is needed
   debug_ = iConfig.getUntrackedParameter<int>("debug",0);
   rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
-  dbe_ = Service<DQMStore>().operator->();  
+  dbe_ = edm::Service<DQMStore>().operator->();  
 }
 
 HcalDataCertification::~HcalDataCertification()

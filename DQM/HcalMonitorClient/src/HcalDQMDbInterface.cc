@@ -1,10 +1,8 @@
 #include "DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h"
 
-using namespace std;
-
 namespace {
   template <class T> XMLCh* transcode (const T& fInput) {
-    ostringstream ost;
+    std::ostringstream ost;
     ost << fInput;
     return XMLString::transcode(ost.str().c_str());
   } 

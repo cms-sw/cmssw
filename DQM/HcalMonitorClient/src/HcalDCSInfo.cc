@@ -14,14 +14,10 @@
 #include <sstream>
 #include <math.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 //
 // -- Constructor
 //
-HcalDCSInfo::HcalDCSInfo(const ParameterSet& pSet) {
+HcalDCSInfo::HcalDCSInfo(const edm::ParameterSet& pSet) {
 
   debug_ = pSet.getUntrackedParameter<int>("debug",0);
   rootFolder_ = pSet.getUntrackedParameter<std::string>("subSystemFolder","Hcal");

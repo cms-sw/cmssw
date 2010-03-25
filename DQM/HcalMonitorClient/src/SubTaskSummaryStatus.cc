@@ -43,7 +43,6 @@ void SubTaskSummaryStatus::Setup(std::string Dir,
 
 void SubTaskSummaryStatus::WriteThreshold(DQMStore* dbe, std::string basedir)
 {
-  using namespace std;
   if (onoff==false)
     return;
   MonitorElement* me;
