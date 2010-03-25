@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.9 2010/03/19 13:24:31 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.10 2010/03/19 17:34:06 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/03/19 13:24:31 $
+   * $Revision: 1.10 $
+   * $Date: 2010/03/19 17:34:06 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -48,7 +48,10 @@ namespace stor {
       volume(updateInterval,timeWindowForRecentResults),
       bandwidth(updateInterval,timeWindowForRecentResults),
       parentCollection(coll) {}
-      
+
+      ~StreamRecord()
+      { fileCountPerLS.clear(); }
+
       void incrementFileCount(const uint32_t lumiSection);
       void addSizeInBytes(double);
       void reportLumiSectionInfo
