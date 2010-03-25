@@ -1,6 +1,9 @@
 #include "OHltConfig.h"
 #include "HLTDatasets.h"
 
+using namespace std;
+using namespace libconfig;
+
 OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
 {
 

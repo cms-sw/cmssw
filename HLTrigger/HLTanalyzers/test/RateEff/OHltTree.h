@@ -1477,7 +1477,7 @@ private:
 
   bool prescaleResponse(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
   bool prescaleResponseL1(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
-  bool isInRunLumiblockList(int,int,vector < vector <int> >);
+  bool isInRunLumiblockList(int,int,std::vector < std::vector <int> >);
 
   int nMissingTriggerWarnings;
 
@@ -1490,13 +1490,13 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
 {
   random.SetSeed(0);
   
-  cout<<"Initialising OHltTree."<<endl;
+  std::cout<<"Initialising OHltTree."<<std::endl;
   if (tree == 0) {
-    cerr<<"Error initialising tree!"<<endl;
+    std::cerr<<"Error initialising tree!"<<std::endl;
     return;
   }
   if (menu == 0) {
-    cerr<<"Error: no menu!"<<endl;
+    std::cerr<<"Error: no menu!"<<std::endl;
     return;
   }
   Init(tree);
@@ -1775,7 +1775,7 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
 
   //SetMapL1SeedsOfStandardHLTPath(menu);
 
-  cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<endl;
+  std::cout<<"Succeeded initialising OHltTree. nEntries: "<<fChain->GetEntries()<<std::endl;
 }
 
 OHltTree::~OHltTree()
@@ -2753,7 +2753,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPath(OHltMenu *menu) {
   unsigned ts = menu->GetTriggerSize();
   for (unsigned int i=0;i<ts;i++) {
     st = menu->GetTriggerName(i);
-    map< TString, vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
+    std::map< TString, std::vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
     if (it != map_L1SeedsOfStandardHLTPath.end()) {
       tt = 0;
       unsigned ts2 = it->second.size();
@@ -2934,11 +2934,11 @@ void OHltTree::SetOpenL1Bits()
 
 
 void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int nentry) {
-  typedef vector<TString> myvec;
-  typedef pair< TString, vector<TString> > mypair;
-  typedef pair< TString, vector<int> > mypair2;
+  typedef std::vector<TString> myvec;
+  typedef std::pair< TString, std::vector<TString> > mypair;
+  typedef std::pair< TString, std::vector<int> > mypair2;
   myvec vtmp;  
-  vector<int> vtokentmp;
+  std::vector<int> vtokentmp;
   
   TString st, l1st, seeds;
   unsigned ts = menu->GetTriggerSize();
@@ -3011,7 +3011,7 @@ void OHltTree::SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int 
 
       //std::cout << "************** " << st << " " << nentry << std::endl;
       
-      map< TString, vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
+      std::map< TString, std::vector<TString> >::const_iterator it = map_L1SeedsOfStandardHLTPath.find(st);
 
       if (it != map_L1SeedsOfStandardHLTPath.end()) {
 	unsigned ts2 = it->second.size();
@@ -3049,7 +3049,7 @@ bool OHltTree::passPreFilterLogicParser(TString str, int nentry) {
     m_preFilterLogicParser = new L1GtLogicParser((std::string)str);
   }
 
-  //cout<<  map_BitOfStandardHLTPath["HLT_Activity_L1A"]<<endl;
+  //cout<<  map_BitOfStandardHLTPath["HLT_Activity_L1A"]<<std::endl;
   
   //std::cout << "Token string: " << (std::string)str << std::endl;
   

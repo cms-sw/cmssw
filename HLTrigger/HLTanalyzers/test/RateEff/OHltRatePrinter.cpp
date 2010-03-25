@@ -9,6 +9,8 @@
 #include "OHltRatePrinter.h"
 #include "OHltTree.h"
 
+using namespace std;
+
 void OHltRatePrinter::SetupAll(vector<float> tRate,vector<float> tRateErr,vector<float> tspureRate,
 			       vector<float> tspureRateErr,vector<float> tpureRate,
 			       vector<float> tpureRateErr,vector< vector<float> >tcoMa,
