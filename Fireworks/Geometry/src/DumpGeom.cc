@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.24 2010/03/22 20:08:19 case Exp $
+// $Id: DumpGeom.cc,v 1.25 2010/03/23 19:30:46 matevz Exp $
 //
 //
 
@@ -40,6 +40,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "TGeoManager.h"
 #include "TCanvas.h"
@@ -1087,7 +1088,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::cout << "In the DumpGeom::analyze method..." << std::endl;
    using namespace edm;
 
-   ESHandle<DDCompactView> viewH;
+   ESTransientHandle<DDCompactView> viewH;
    iSetup.get<IdealGeometryRecord>().get(viewH);
 
    edm::ESHandle<MuonDDDConstants> mdc;
