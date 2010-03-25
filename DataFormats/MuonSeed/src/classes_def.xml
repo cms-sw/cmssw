@@ -15,6 +15,9 @@
       <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
       <class name="edm::reftobase::Holder<L2MuonTrajectorySeed,edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
 
+      <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<L2MuonTrajectorySeed> >, edm::RefProd<std::vector<L2MuonTrajectorySeed> > >" persistent="false"/>
+      <class name="edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > >" persistent="false" />
+    
       <class name="L3MuonTrajectorySeed" />
       <class name="edm::RefToBase<L3MuonTrajectorySeed>"/>
       <class name="edm::reftobase::BaseHolder<L3MuonTrajectorySeed>" />
