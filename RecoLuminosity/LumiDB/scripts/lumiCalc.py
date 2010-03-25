@@ -19,7 +19,7 @@ class resultPrinter(object):
         self.number_width=12
         self.column_width=self.total_width-self.number_width-12
         self.header_format='%-*s%*s'
-        self.format='%-*s%*.3fe27 [cms^-2]'
+        self.format='%-*s%*.3fe27 [cm^-2]'
     def printOuterSeparator(self):
         print '='* self.total_width
     def printInnerSeparator(self):    
