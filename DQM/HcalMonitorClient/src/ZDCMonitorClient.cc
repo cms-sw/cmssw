@@ -344,7 +344,7 @@ void ZDCMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::endluminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void ZDCMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
 
   // don't allow backsliding in online running
   //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
