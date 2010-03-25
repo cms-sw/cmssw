@@ -73,6 +73,8 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) cons
     fitresults[1] = -999;
   }
 
+  fitresults[2] = status;
+
   return fitresults;
 }
 
