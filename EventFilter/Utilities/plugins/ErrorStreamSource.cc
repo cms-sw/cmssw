@@ -33,7 +33,7 @@
 
 namespace errorstreamsource{
   static unsigned int gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
-  static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
+  //static unsigned int gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID; // unused
 }
 
 

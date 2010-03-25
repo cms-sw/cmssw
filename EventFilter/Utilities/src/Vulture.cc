@@ -86,7 +86,8 @@ namespace evf{
   pid_t Vulture::stop()
   {
     preying_ = false;
-    int retval = kill (vulturePid_, SIGKILL);
+    // int retval = kill (vulturePid_, SIGKILL); // retval is unused
+    kill (vulturePid_, SIGKILL);
     int sl;
     pid_t killedOrNot = waitpid(vulturePid_,&sl,WNOHANG);
     vulturePid_ = 0;
