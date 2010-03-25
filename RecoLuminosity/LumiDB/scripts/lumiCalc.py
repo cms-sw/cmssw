@@ -64,106 +64,105 @@ def deliveredLumiForRange(dbsession,c,fileparsingResult):
     for run in fileparsingResult.runs():
         deliveredLumiForRun(dbsession,c,run)
     
-def recordedLumiForRun(dbsession,c,runnum):
-    if c.VERBOSE:
-        print 'recordedLumiForRun : run : ',runnum,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-    #
-    #LS_length=25e-9*numorbit*3564(sec)
-    #LS deadfraction=deadtimecount/(numorbit*3564) 
-    #select distinct lumisummary.instlumi*trg.deadtime/(lumisummary.numorbit*3564) as deadfraction from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=1 and trg.cmslsnum=1;
-    #
-    #let oracle do everything!
-    #
-    #select sum( lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmslsnum and lumisummary.cmsalive=1 and trg.bitnum=0;
-    #multiply query result by norm factor, attach unit
-    #7.368e-5*16400.0=1.2083520000000001
-    recorded=0.0
-    lslength=0
-    try:
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        query=schema.newQuery()
-        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
-        query.addToTableList(nameDealer.trgTableName(),'trg')
-        queryCondition=coral.AttributeList()
-        queryCondition.extend("runnumber","unsigned int")
-        queryCondition.extend("lumiversion","string")
-        queryCondition.extend("alive","bool")
-        queryCondition.extend("bitnum","unsigned int")
-        queryCondition["runnumber"].setData(int(runnum))
-        queryCondition["lumiversion"].setData(c.LUMIVERSION)
-        queryCondition["alive"].setData(True)
-        queryCondition["bitnum"].setData(0)
-        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
-        query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
-        result=coral.AttributeList()
-        result.extend("recorded","float")
-        query.defineOutput(result)
-        cursor=query.execute()
-        while cursor.next():
-            recorded=cursor.currentRow()["recorded"].data()*c.NORM*c.LSLENGTH
-        del query
-        dbsession.transaction().commit()
-        print "Recorded Luminosity for Run "+str(runnum)+" : "+'%.3f'%(recorded)+c.LUMIUNIT
-    except Exception,e:
-        print str(e)
-        dbsession.transaction().rollback()
-        del dbsession
+#def recordedLumiForRun(dbsession,c,runnum):
+#    if c.VERBOSE:
+#        print 'recordedLumiForRun : run : ',runnum,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+#    #
+#    #LS_length=25e-9*numorbit*3564(sec)
+#    #LS deadfraction=deadtimecount/(numorbit*3564) 
+#    #select distinct lumisummary.instlumi*trg.deadtime/(lumisummary.numorbit*3564) as deadfraction from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=1 and trg.cmslsnum=1;
+#    #
+#    #let oracle do everything!
+#    #
+#    #select sum( lumisummary.instlumi*(1-trg.deadtime/(lumisummary.numorbit*3564))) as recorded from trg,lumisummary where trg.runnum=124025 and lumisummary.runnum=124025 and lumisummary.lumiversion='0001' and lumisummary.cmslsnum=trg.cmslsnum and lumisummary.cmsalive=1 and trg.bitnum=0;
+#    #multiply query result by norm factor, attach unit
+#    #7.368e-5*16400.0=1.2083520000000001
+#    recorded=0.0
+#    lslength=0
+#    try:
+#        dbsession.transaction().start(True)
+#        schema=dbsession.nominalSchema()
+#        query=schema.newQuery()
+#        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
+#        query.addToTableList(nameDealer.trgTableName(),'trg')
+#        queryCondition=coral.AttributeList()
+#        queryCondition.extend("runnumber","unsigned int")
+#        queryCondition.extend("lumiversion","string")
+#        queryCondition.extend("alive","bool")
+#        queryCondition.extend("bitnum","unsigned int")
+#        queryCondition["runnumber"].setData(int(runnum))
+#        queryCondition["lumiversion"].setData(c.LUMIVERSION)
+#        queryCondition["alive"].setData(True)
+#        queryCondition["bitnum"].setData(0)
+#        query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum",queryCondition)
+#        query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+#        result=coral.AttributeList()
+#        result.extend("recorded","float")
+#        query.defineOutput(result)
+#        cursor=query.execute()
+#        while cursor.next():
+#            recorded=cursor.currentRow()["recorded"].data()*c.NORM*c.LSLENGTH
+#        del query
+#        dbsession.transaction().commit()
+#        print "Recorded Luminosity for Run "+str(runnum)+" : "+'%.3f'%(recorded)+c.LUMIUNIT
+#    except Exception,e:
+#        print str(e)
+#        dbsession.transaction().rollback()
+#        del dbsession
     
-def recordedLumiForRange(dbsession,c,fileparsingResult):
-    if c.VERBOSE:
-        print 'norm: ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
-    runsandLSStr=fileparsingResult.runsandlsStr()
-    runsandLS=fileparsingResult.runsandls()
-    recorded={}
-    if c.VERBOSE:
-        print 'recordedLumi : selected runs and LS ',runsandLS
-    try:
-        dbsession.transaction().start(True)
-        schema=dbsession.nominalSchema()
-        query=schema.newQuery()
-        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
-        query.addToTableList(nameDealer.trgTableName(),'trg')
-        for runnumstr,LSlistStr in runsandLSStr.items():
-            query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
-            result=coral.AttributeList()
-            result.extend("recorded","float")
-            query.defineOutput(result)
-            queryCondition=coral.AttributeList()
-            queryCondition.extend("runnumber","unsigned int")
-            queryCondition.extend("lumiversion","string")
-            queryCondition.extend("alive","bool")
-            queryCondition.extend("bitnum","unsigned int")
-            realLSlist=runsandLS[int(runnumstr)]
+#def recordedLumiForRange(dbsession,c,fileparsingResult):
+#    if c.VERBOSE:
+#        print 'norm: ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+#    runsandLSStr=fileparsingResult.runsandlsStr()
+#    runsandLS=fileparsingResult.runsandls()
+#    recorded={}
+#    if c.VERBOSE:
+#        print 'recordedLumi : selected runs and LS ',runsandLS
+#    try:
+#        dbsession.transaction().start(True)
+#        schema=dbsession.nominalSchema()
+#        query=schema.newQuery()
+#        query.addToTableList(nameDealer.lumisummaryTableName(),'lumisummary')
+#        query.addToTableList(nameDealer.trgTableName(),'trg')
+#        for runnumstr,LSlistStr in runsandLSStr.items():
+#            query.addToOutputList("sum(lumisummary.INSTLUMI*(1-trg.DEADTIME/(lumisummary.numorbit*3564)))","recorded")
+#            result=coral.AttributeList()
+#            result.extend("recorded","float")
+#            query.defineOutput(result)
+#            queryCondition=coral.AttributeList()
+#            queryCondition.extend("runnumber","unsigned int")
+#            queryCondition.extend("lumiversion","string")
+#            queryCondition.extend("alive","bool")
+#            queryCondition.extend("bitnum","unsigned int")
+#            realLSlist=runsandLS[int(runnumstr)]
 
-            queryCondition["runnumber"].setData(int(runnumstr))
-            queryCondition["lumiversion"].setData(c.LUMIVERSION)
-            queryCondition["alive"].setData(True)
-            queryCondition["bitnum"].setData(0)
-            for l in realLSlist:
-                queryCondition.extend(str(l),"unsigned int")
-                queryCondition[str(l)].setData(int(l))
-            o=[':'+x for x in LSlistStr]
-            inClause='('+','.join(o)+')'
-            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
-            cursor=query.execute()
-            while cursor.next():
-                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()
-        del query
-        dbsession.transaction().commit()
-        for run,recd in  recorded.items():
-            print "Recorded Luminosity for Run "+str(run)+" : "+'%.3f'%(recd*c.NORM*c.LSLENGTH)+c.LUMIUNIT
-    except Exception,e:
-        print str(e)
-        dbsession.transaction().rollback()
-        del dbsession
-        
-    
-def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
+#            queryCondition["runnumber"].setData(int(runnumstr))
+#            queryCondition["lumiversion"].setData(c.LUMIVERSION)
+#            queryCondition["alive"].setData(True)
+#            queryCondition["bitnum"].setData(0)
+#            for l in realLSlist:
+#                queryCondition.extend(str(l),"unsigned int")
+#                queryCondition[str(l)].setData(int(l))
+#            o=[':'+x for x in LSlistStr]
+#            inClause='('+','.join(o)+')'
+#            query.setCondition("trg.RUNNUM =:runnumber AND lumisummary.RUNNUM=:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM AND lumisummary.cmsalive =:alive AND trg.BITNUM=:bitnum AND lumisummary.CMSLSNUM in "+inClause,queryCondition)
+#            cursor=query.execute()
+#            while cursor.next():
+#                recorded[int(runnumstr)]=cursor.currentRow()['recorded'].data()
+#        del query
+#        dbsession.transaction().commit()
+#        for run,recd in  recorded.items():
+#            print "Recorded Luminosity for Run "+str(run)+" : "+'%.3f'%(recd*c.NORM*c.LSLENGTH)+c.LUMIUNIT
+#    except Exception,e:
+#        print str(e)
+#        dbsession.transaction().rollback()
+#        del dbsession
+           
+def recordedLumiForRun(dbsession,c,runnum,hltpath=''):
     if len(hltpath)==0:
         hltpath='all'
     if c.VERBOSE:
-        print 'effectiveLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+        print 'recordedLumiForRun : runnum : ',runnum,' : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
 
     try:
         collectedseeds=[]
@@ -287,8 +286,9 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         del query
         dbsession.transaction().commit()
 
-        print 'Effective Luminosity for Run '+str(runnum)
+        print 'Recorded Luminosity for Run '+str(runnum)+' : %.3f'%(recorded)+c.LUMIUNIT
         #print 'requested hltpath ',hltpath
+        
         if hltpath=='all':
             for hltname in hltTotrgMap.keys():
                 effresult=recorded/(hltTotrgMap[hltname][1]*hltTotrgMap[hltname][2])
@@ -297,7 +297,7 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
                     print '     ### L1 :'+str(hltTotrgMap[hltname][0])+', HLT Prescale : '+str(hltTotrgMap[hltname][1])+', L1 Prescale : '+str(hltTotrgMap[hltname][2])+', Deadfrac : ',hltTotrgMap[hltname][3]
         else:
             if hltTotrgMap.has_key(hltpath) is False:
-                print 'Unable to calculate effective luminosity for HLTPath ',hltpath
+                print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
                 return
             effresult=recorded/(hltTotrgMap[hltpath][1]*hltTotrgMap[hltpath][2])
             print '    '+hltpath+' : '+'%.3f'%(effresult)+c.LUMIUNIT
@@ -309,11 +309,11 @@ def effectiveLumiForRun(dbsession,c,runnum,hltpath=''):
         dbsession.transaction().rollback()
         del dbsession
         
-def effectiveLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
+def recordedLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
     if len(hltpath)==0:
         hltpath='all'
     if c.VERBOSE:
-        print 'effectiveLumiForRange : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
+        print 'recordedLumiForRange : hltpath : ',hltpath,' : norm : ',c.NORM,' : LUMIVERSION : ',c.LUMIVERSION
     runsandLSStr=fileparsingResult.runsandlsStr()
     runsandLS=fileparsingResult.runsandls()
     recorded={}
@@ -450,7 +450,7 @@ def effectiveLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
             raise "inconsistent number of runs in recorded and hltTotrgMap result"
 
         for run in recorded.keys():
-             print 'Effective Luminosity for Run '+str(run)
+             print 'Recorded Luminosity for Run '+str(run)
              if hltpath=='all':
                  for hltname in hltTotrgMapAllRuns[run].keys():
                      effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltname][1]*hltTotrgMapAllRuns[run][hltname][2])
@@ -459,7 +459,7 @@ def effectiveLumiForRange(dbsession,c,fileparsingResult,hltpath=''):
                      print '     ### L1 :'+str(hltTotrgMapAllRuns[run][hltname][0])+', HLT Prescale : '+str(hltTotrgMapAllRuns[run][hltname][1])+', L1 Prescale : '+str(hltTotrgMapAllRuns[run][hltname][2])+', Deadtime : '+str(hltTotrgMapAllRuns[run][hltname][3])
              else:
                  if hltTotrgMapAllRuns[run].has_key(hltpath) is False:
-                     print 'Unable to calculate effective luminosity for HLTPath ',hltpath
+                     print 'Unable to calculate recorded luminosity for HLTPath ',hltpath
                      return
                  effresult=recorded[run]/(hltTotrgMapAllRuns[run][hltpath][1]*hltTotrgMapAllRuns[run][hltpath][2])
                  print '    '+hltpath+' : ','%.3f'%(effresult)+c.LUMIUNIT
@@ -480,11 +480,11 @@ def main():
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor')
     parser.add_argument('-r',dest='runnumber',action='store',help='run number')
-    parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file, optional for recorded and effective actions, not taken by delivered action')
+    parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
     parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional for delivered action, default "stable", choices "stable","quiet","either"')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
-    parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the effective luminosity, default to all')
-    parser.add_argument('action',choices=['delivered','recorded','effective'],help='lumi calculation types')
+    parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity, default to all')
+    parser.add_argument('action',choices=['delivered','recorded'],help='lumi calculation types')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
@@ -560,24 +560,18 @@ def main():
         print str(e)
         session.transaction().rollback()
         del session
-    
     if args.action == 'delivered':
         if runnumber!=0:
             deliveredLumiForRun(session,c,runnumber)
         else:
             deliveredLumiForRange(session,c,fileparsingResult);
     if args.action == 'recorded':
-        if runnumber!=0:
-            recordedLumiForRun(session,c,runnumber)
-        else:
-            recordedLumiForRange(session,c,fileparsingResult)
-    if args.action == 'effective':
         if args.hltpath and len(args.hltpath)!=0:
             hpath=args.hltpath
         if runnumber!=0:
-            effectiveLumiForRun(session,c,runnumber,hpath)
+            recordedLumiForRun(session,c,runnumber,hpath)
         else:
-            effectiveLumiForRange(session,c,fileparsingResult,hpath)
+            recordedLumiForRange(session,c,fileparsingResult,hpath)
     del session
     del svc
 if __name__=='__main__':
