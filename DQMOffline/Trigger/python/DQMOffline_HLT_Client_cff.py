@@ -20,8 +20,5 @@ dqmEnv.subSystemFolder = 'HLT'
 
 
 
-#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert*dqmEnv)
-
-# remove jetMETHLTOfflineClient
-hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert*dqmEnv)
+hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hLTMuonPostVal*jetMETHLTOfflineClient*tagAndProbeEfficiencyPostProcessor*HLTTauPostAnalysis*dqmOfflineHLTCert*dqmEnv)
 

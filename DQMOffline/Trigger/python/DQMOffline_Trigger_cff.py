@@ -71,8 +71,7 @@ from DQMOffline.Trigger.TnPEfficiency_cff import *
 
 # Remove topElectronHLTOffDQMSource
 # remove quadJetAna
-# remove jetMETHLTOfflineSource
-offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*TnPEfficiency)
+offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency)
 
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource*l1temumonitor*l1tmonitor*onlineHLTSource)
  
