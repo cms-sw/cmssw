@@ -76,11 +76,13 @@ void HcalNZSMonitor::setup()
   
   if(debug_>1) std::cout << "<HcalNZSMonitor::setup> About to pushback fedUnpackList_" << std::endl;
 
+  selFEDs_.clear();
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
     {
       selFEDs_.push_back(i);
     }
 
+  nAcc.clear();
   for (unsigned int i=0; i<triggers_.size(); i++) nAcc.push_back(0);
 
   nAndAcc=0;
@@ -223,7 +225,7 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw,
       meFEDsizesNZS_->Fill(selFEDs_[k]+0.001,fedData.size()/1024);
 
       const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
-      if (dccHeader==0) continue;  // protection against bad data -- saw this happen in file /store/streamer/Data/A/000/131/540/Data.00131540.0200.A.storageManager.00.0000.dat; not yet sure why -- Jeff, 22 March 2010
+      if (dccHeader==0) continue;  // protection against bad data -- saw this happen in file /store/streamer/Data/A/000/131/540/Data.00131540.0200.A.storageManager.00.0000.dat; not yet sure why -- Jeff, 22 March 2010; this was due to empty (masked?) HO FEDs 724 and 727 -- Grigory, 25/03/2010 
 
       HcalHTRData htr;
       int nspigot =0; 
