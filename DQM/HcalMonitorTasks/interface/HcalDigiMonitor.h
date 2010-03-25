@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/03/25 11:00:57 $
-  * $Revision: 1.57 $
+  * $Date: 2010/03/25 17:54:56 $
+  * $Revision: 1.58 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -24,6 +24,7 @@ struct DigiHists
 
   MonitorElement* shape;
   MonitorElement* shapeThresh;
+  MonitorElement* ThreshCount;
   MonitorElement* presample;
   MonitorElement* BQ;
   MonitorElement* BQFrac;
@@ -194,7 +195,8 @@ private:  ///Methods, variables accessible only within class code
   edm::InputTag hfRechitLabel_; // used for calculating HF total ET
   double HT_HFP_, HT_HFM_;
 
-  std::map<HcalDetId, std::vector<int> > PedestalsByCapId_;
+  // Should be able to make this a vector of ints, right?
+  std::map<HcalDetId, std::vector<double> > PedestalsByCapId_;
 };
 
 float bins_cellcount_new[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5,

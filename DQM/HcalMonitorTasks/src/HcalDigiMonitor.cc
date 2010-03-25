@@ -306,16 +306,19 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   for (std::vector<DetId>::const_iterator chan = mydetids.begin();chan!=mydetids.end();++chan)
     {
       if (chan->det()!=DetId::Hcal) continue; // not hcal
-      std::vector <int> peds;
+      std::vector <double> peds;  // could be ints, right?
       peds.clear();
       HcalCalibrations calibs=conditions_->getHcalCalibrations(*chan);
       const HcalQIECoder* channelCoder = conditions_->getHcalCoder(*chan);
+      //double total=0; // use this is we want to calculate average pedestal value
       for (int capid=0;capid<4;++capid)
 	{
 	  // temp_ADC should be an int, right?
-	  int temp_ADC=channelCoder->adc(*shape,(float)calibs.pedestal(capid),capid);
+	  double temp_ADC=channelCoder->adc(*shape,(float)calibs.pedestal(capid),capid);
 	  peds.push_back(temp_ADC);
+	  //total=total+temp_ADC;
 	}
+      //for (int capid=0;capid<4;++capid) peds.push_back(total/4.); // use this if we just want to use average value
       PedestalsByCapId_[*chan]=peds;
     } // loop on DetIds
 
@@ -338,6 +341,9 @@ void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
   hist.shapeThresh = dbe_->book1D(subdet+" Digi Shape - over thresh",
 				  subdet+" Digi Shape - over thresh passing trigger and HF HT cuts;Time slice",
 				  10,-0.5,9.5);
+  hist.ThreshCount = dbe_->book1D(subdet+" Total Digis Over Threshold",
+				  subdet+" Total Digis Over Threshold",
+				  1,-0.5,0.5);
   // Create plots of sums of adjacent time slices
   for (int ts=0;ts<9;++ts)
     {
@@ -758,6 +764,8 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 
   bool digi_error=false;
 
+  std::vector<double>  pedSubtractedADC;
+  pedSubtractedADC.clear();
   for (int i=0;i<digi.size();++i)
     {
       int thisCapid = digi.sample(i).capid();
@@ -779,11 +787,17 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	      digi_error=true; // only count 1 error per digi in this plot
 	    }
 	  ++h.dverr[static_cast<int>(2*digi.sample(i).er()+digi.sample(i).dv())];
-	}
+	} // if (makeDiagnostics_)
       if (PedestalsByCapId_.find(digi.id())!=PedestalsByCapId_.end())
-	ADCcount+=digi.sample(i).adc()-PedestalsByCapId_[digi.id()][thisCapid];
+	{
+	  pedSubtractedADC.push_back(digi.sample(i).adc()-PedestalsByCapId_[digi.id()][thisCapid]);
+	  ADCcount+=digi.sample(i).adc()-PedestalsByCapId_[digi.id()][thisCapid];
+	}
       else
-	ADCcount+=digi.sample(i).adc()-3; // default pedestal subtraction of 3 ADC counts
+	{
+	  pedSubtractedADC.push_back(digi.sample(i).adc()-3);
+	  ADCcount+=digi.sample(i).adc()-3; // default pedestal subtraction of 3 ADC counts
+	}
       if (digi.sample(i).adc()<200) ++h.adc[digi.sample(i).adc()];
       h.count_shape[i]+=digi.sample(i).adc();
       
@@ -823,12 +837,15 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
     ++h.adcsum[199]; // effective overflow bin
 
   // require larger threshold to look at pulse shapes
-
+  
   if (ADCcount>shapeThresh && passedMinBiasHLT_  && HT_HFP_>1 && HT_HFM_>1)
     {
+      h.ThreshCount->Fill(0,1);
       if (digi.id().subdet()!=HcalOuter || isSiPM(iEta,iPhi, iDepth)==false)
-	for (int i=0;i<digi.size();++i)
-	  h.count_shapeThresh[i]+=digi.sample(i).adc();
+	{
+	  for (unsigned int i=0;i<pedSubtractedADC.size();++i)
+	    h.count_shapeThresh[i]+=pedSubtractedADC[i];
+	}
     }
 
   // occupancy plots are only filled for good histograms
