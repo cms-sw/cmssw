@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: FourVectorHLTClient.h,v 1.8 2009/12/11 02:49:15 rekovic Exp $
+//$Id: FourVectorHLTClient.h,v 1.9 2009/12/18 20:44:50 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -15,6 +15,7 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include <memory>
 #include <iostream>
@@ -73,10 +74,12 @@ private:
   TProfile * get1DProfile(std::string meName, DQMStore * dbi);
   edm::ParameterSet parameters_;
 
+  // -------- member data --------
   DQMStore* dbe_;  
   TString sourceDir_;
   TString clientDir_;
   TString customEffDir_;
+  std::string processname_;
 
   std::vector<TString> hltMEName; // names of all MEs (histos)
   std::vector<TString> hltPathName; // names of hlt paths from MEs (histos)
@@ -101,8 +104,8 @@ private:
   Float_t reportSummary;
   Float_t summarySum;
   Float_t summaryContent[20];
-  // -------- member data --------
 
+  HLTConfigProvider hltConfig_;
   MonitorElement * reportSummary_;
   MonitorElement * reportSummaryContent_[20];
   MonitorElement * reportSummaryMap_;
