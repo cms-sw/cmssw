@@ -11,8 +11,8 @@
 /*
  * \file HcalDeadCellClient.cc
  * 
- * $Date: 2010/03/25 09:43:41 $
- * $Revision: 1.64.2.10 $
+ * $Date: 2010/03/25 11:02:25 $
+ * $Revision: 1.65 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -58,7 +58,7 @@ void HcalDeadCellClient::analyze()
 
 void HcalDeadCellClient::calculateProblems()
 {
- if (debug_>2) std::cout <<"\t\tHcalDeadCellClient::calculateProblems()"<<std::endl;
+  if (debug_>2) std::cout <<"\t\tHcalDeadCellClient::calculateProblems()"<<std::endl;
   if(!dqmStore_) return;
   double totalevents=0;
   int etabins=0, phibins=0, zside=0;
@@ -114,7 +114,6 @@ void HcalDeadCellClient::calculateProblems()
       me=dqmStore_->get(s.c_str());
       if (me!=0)RecentMissingRecHitsByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, RecentMissingRecHitsByDepth[i], debug_);
     }
-
 
   // Because we're clearing and re-forming the problem cell histogram here, we don't need to do any cute
   // setting of the underflow bin to 0, and we can plot results as a raw rate between 0-1.
