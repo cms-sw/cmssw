@@ -19,10 +19,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
-using namespace std;
-
-
-
 ///////////////////////
 // Constants         //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,11 +62,9 @@ const  TString  JetCombPSfile     		= "../data/TtSemiLRJetCombAllObs.ps";
 //
 LRHelpFunctions *myLRhelper;
 void doEventloop();
-vector<int> obsNrs;
-vector<double> obsMin,obsMax;
-vector<const char*> obsFits;
-
-
+std::vector<int> obsNrs;
+std::vector<double> obsMin,obsMax;
+std::vector<const char*> obsFits;
 
 
 //
@@ -92,7 +86,7 @@ int main() {
   }
   myLRhelper = new LRHelpFunctions(obsNrs, nrJetCombHistBins, obsMin, obsMax, obsFits); 
   
-  vector<double> parsFobs6; 
+  std::vector<double> parsFobs6; 
   parsFobs6.push_back(0.8);
   parsFobs6.push_back(-0.1);
   parsFobs6.push_back(-0.8);
@@ -125,7 +119,7 @@ int main() {
 //
 
 void doEventloop(){ 
-  cout<<endl<<endl<<"**** STARTING EVENT LOOP ****"<<endl;
+  std::cout<<std::endl<<std::endl<<"**** STARTING EVENT LOOP ****"<<std::endl;
   int okEvents = 0, totNrEv = 0;
   for (int nr = 1; nr <= nrFiles; nr++) {
     TString ft = path; 
@@ -137,13 +131,13 @@ void doEventloop(){
       assert( events != 0 );
       TBranch * solsbranch = events->GetBranch( "TtSemiEvtSolutions_solutions__TtEventReco.obj" );
       assert( solsbranch != 0 );
-      vector<TtSemiEvtSolution> sols;
+      std::vector<TtSemiEvtSolution> sols;
       solsbranch->SetAddress( & sols );
     
       //loop over all events in a file 
       for( int ev = 0; ev < events->GetEntries(); ++ ev ) {
         ++totNrEv;
-        if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) cout<< "  Processing event "<< totNrEv<<endl; 
+        if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) std::cout<< "  Processing event "<< totNrEv<<std::endl; 
         solsbranch->GetEntry( ev );
         if(sols.size()== 12){
           // check if good matching solution exists
@@ -154,7 +148,7 @@ void doEventloop(){
           if(trueSolExists){
   	    for(int s=0; s<12; s++){
               // get observable values
-	      vector<double> obsVals;
+	      std::vector<double> obsVals;
 	      for(int j = 0; j < nrJetCombObs; j++){
 	        if( myLRhelper->obsFitIncluded((unsigned int)obsNrs[j]) ) obsVals.push_back(sols[s].getLRJetCombObsVal((unsigned int)obsNrs[j]));
 	      }
@@ -177,15 +171,15 @@ void doEventloop(){
     }
     else
     {
-      cout<<ft<<" doesn't exist"<<endl;
+      std::cout<<ft<<" doesn't exist"<<std::endl;
     }
   }
-  cout<<endl<<"***********************  STATISTICS  *************************"<<endl;
-  cout<<" Probability that a correct jet combination exists:"<<endl;
-  cout<<" (fraction events with ";
-  if(useSpaceAngle) cout<<"min SumAngle_jp < ";
-  if(!useSpaceAngle) cout<<"min DR_jp < ";
-  cout<<SumAlphaCut<<" )"<<endl;
-  cout<<endl<<"                 "<<(100.*okEvents)/(1.*totNrEv)<<" %"<<endl;
-  cout<<endl<<"******************************************************************"<<endl;
+  std::cout<<std::endl<<"***********************  STATISTICS  *************************"<<std::endl;
+  std::cout<<" Probability that a correct jet combination exists:"<<std::endl;
+  std::cout<<" (fraction events with ";
+  if(useSpaceAngle) std::cout<<"min SumAngle_jp < ";
+  if(!useSpaceAngle) std::cout<<"min DR_jp < ";
+  std::cout<<SumAlphaCut<<" )"<<std::endl;
+  std::cout<<std::endl<<"                 "<<(100.*okEvents)/(1.*totNrEv)<<" %"<<std::endl;
+  std::cout<<std::endl<<"******************************************************************"<<std::endl;
 }

@@ -26,8 +26,6 @@
 
 const double PI=3.14159265;
 
-using namespace std;
-
 class TtSemiLRSignalSelObservables{
   
  public:
@@ -39,7 +37,7 @@ class TtSemiLRSignalSelObservables{
   
  private:
   
-  vector<pair<unsigned int,double> > evtselectVarVal;
+  std::vector<std::pair<unsigned int,double> > evtselectVarVal;
   
   // compare two jets in ET
   struct CompareET {

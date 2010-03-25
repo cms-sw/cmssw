@@ -2,7 +2,7 @@
 #define TtFullLepKinSolutionProducer_h
 
 //
-// $Id: TtFullLepKinSolutionProducer.h,v 1.5 2009/12/18 15:24:59 snaumann Exp $
+// $Id: TtFullLepKinSolutionProducer.h,v 1.6 2010/02/15 13:41:07 snaumann Exp $
 //
 #include <memory>
 #include <string>
@@ -111,14 +111,13 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
   std::auto_ptr<std::vector<double> >              pWeight(new std::vector<double>);  
   std::auto_ptr<bool> pWrongCharge(new bool);  
     
-  using namespace edm;
-  Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
-  Handle<std::vector<pat::Electron> > electrons;
+  edm::Handle<std::vector<pat::Electron> > electrons;
   evt.getByLabel(electrons_, electrons);
-  Handle<std::vector<pat::Muon> > muons;
+  edm::Handle<std::vector<pat::Muon> > muons;
   evt.getByLabel(muons_, muons);
-  Handle<std::vector<pat::MET> > mets;
+  edm::Handle<std::vector<pat::MET> > mets;
   evt.getByLabel(mets_, mets);
   
   int selMuon1 = -1, selMuon2 = -1;

@@ -4,9 +4,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TopInitSubset.h"
 
-using namespace std;
-using namespace reco;
-
 TopInitSubset::TopInitSubset(const edm::ParameterSet& cfg):
   src_ ( cfg.getParameter<edm::InputTag>( "src" ) )
 {
@@ -34,14 +31,14 @@ TopInitSubset::produce(edm::Event& evt, const edm::EventSetup& setup)
 
 void TopInitSubset::fillOutput(const reco::GenParticleCollection& src, reco::GenParticleCollection& sel)
 {
-  GenParticleCollection::const_iterator t=src.begin();
+  reco::GenParticleCollection::const_iterator t=src.begin();
   for( ; t!=src.end(); ++t){
     if( t->status() == TopInitID::status && abs( t->pdgId() )==TopInitID::tID ){ //is top
       for(int idx=0; idx<(int)t->numberOfMothers(); ++idx){      
-	GenParticle* cand = new GenParticle( t->mother(idx)->threeCharge(), t->mother(idx)->p4(), 
+	reco::GenParticle* cand = new reco::GenParticle( t->mother(idx)->threeCharge(), t->mother(idx)->p4(), 
 							       t->mother(idx)->vertex(), t->mother(idx)->pdgId(), 
 							       t->mother(idx)->status(), false );
-	auto_ptr<reco::GenParticle> ptr( cand );
+	std::auto_ptr<reco::GenParticle> ptr( cand );
 	sel.push_back( *ptr );
       }
       break;

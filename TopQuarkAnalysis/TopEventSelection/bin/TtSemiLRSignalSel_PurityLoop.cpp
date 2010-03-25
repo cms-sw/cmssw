@@ -19,10 +19,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
-using namespace std;
-
-
-
 ///////////////////////
 // Constants         //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +74,7 @@ const  TString  SignalSelPSfile     		= "./TtSemiLRSignalSelSelObsAndPurity.ps";
 //
 LRHelpFunctions *myLRhelper;
 void doEventloop();
-vector<int> obsNrs;
+std::vector<int> obsNrs;
 
 //
 // Main analysis
@@ -122,14 +118,14 @@ int main() {
 //
 
 void doEventloop(){ 
-  cout<<endl<<endl<<"**** STARTING EVENT LOOP FOR SIGNAL ****"<<endl;
+  std::cout<<std::endl<<std::endl<<"**** STARTING EVENT LOOP FOR SIGNAL ****"<<std::endl;
 
   /********************************************** for the signal **********************************************/
 
   int okEvents = 0, totNrEv = 0;
 for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
 
-  cout<< " Signal : "<<signal_path[nrDir]<<endl;
+  std::cout<< " Signal : "<<signal_path[nrDir]<<std::endl;
 
   int Signal_totNrEv =0, Signal_okEvents =0;
   for (int nr = 1; nr <= signal_nrFiles[nrDir]; nr++) {
@@ -143,7 +139,7 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
 
       TBranch * signal_solsbranch  = signal_events->GetBranch( "TtSemiEvtSolutions_solutions__TEST.obj" );
       assert(   signal_solsbranch != 0 );
-      vector<TtSemiEvtSolution> signal_sols;
+      std::vector<TtSemiEvtSolution> signal_sols;
       signal_solsbranch->SetAddress( & signal_sols );
 
       //loop over all events in a file 
@@ -151,11 +147,11 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
         if(Signal_totNrEv>signal_NrEv[nrDir] && signal_NrEv[nrDir] != -1) continue;
 	++Signal_totNrEv;
         ++totNrEv;
-        if((double)((totNrEv*1.)/5000.) == (double) (totNrEv/5000)) cout<< "  Processing signal event "<< totNrEv<<endl; 
+        if((double)((totNrEv*1.)/5000.) == (double) (totNrEv/5000)) std::cout<< "  Processing signal event "<< totNrEv<<std::endl; 
         signal_solsbranch->GetEntry( ev );
         if(signal_sols.size()== 12){
           // get observable values
-	  vector<double> signal_obsVals;
+	  std::vector<double> signal_obsVals;
 	  for(int j = 0; j < nrSignalSelObs; j++){
 	    if( myLRhelper->obsFitIncluded(obsNrs[j]) ) signal_obsVals.push_back(signal_sols[0].getLRSignalEvtObsVal(obsNrs[j]));
 	  }
@@ -170,20 +166,20 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
     }
     else
     {
-      cout<<signal_ft<<" doesn't exist"<<endl;
+      std::cout<<signal_ft<<" doesn't exist"<<std::endl;
     }
   }
-  cout<<endl<<"********************  STATISTICS FOR SIGNAL "<<signal_path[nrDir]<<" ***********************"<<endl;
-  cout<<endl<<" Nb of processed events  :"<<(Signal_totNrEv)<<endl;
-  cout<<endl<<" Nb of events filled in the histo :"<<(Signal_okEvents)<<endl;
-  cout<<endl<<"******************************************************************"<<endl;
+  std::cout<<std::endl<<"********************  STATISTICS FOR SIGNAL "<<signal_path[nrDir]<<" ***********************"<<std::endl;
+  std::cout<<std::endl<<" Nb of processed events  :"<<(Signal_totNrEv)<<std::endl;
+  std::cout<<std::endl<<" Nb of events filled in the histo :"<<(Signal_okEvents)<<std::endl;
+  std::cout<<std::endl<<"******************************************************************"<<std::endl;
  }
-  cout<<endl<<"********************  STATISTICS FOR SIGNAL ***********************"<<endl;
-  cout<<endl<<" Nb of processed events  :"<<(totNrEv)<<endl;
-  cout<<endl<<" Nb of events filled in the histo :"<<(okEvents)<<endl;
-  cout<<endl<<"******************************************************************"<<endl;
+  std::cout<<std::endl<<"********************  STATISTICS FOR SIGNAL ***********************"<<std::endl;
+  std::cout<<std::endl<<" Nb of processed events  :"<<(totNrEv)<<std::endl;
+  std::cout<<std::endl<<" Nb of events filled in the histo :"<<(okEvents)<<std::endl;
+  std::cout<<std::endl<<"******************************************************************"<<std::endl;
 
-  cout<<endl<<endl<<"**** STARTING EVENT LOOP FOR BCKGD ****"<<endl;
+  std::cout<<std::endl<<std::endl<<"**** STARTING EVENT LOOP FOR BCKGD ****"<<std::endl;
 
 
   /********************************************** for the background **********************************************/
@@ -191,7 +187,7 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
   okEvents = 0, totNrEv = 0;
 for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
 
-  cout<< " Background : "<<bckgd_path[nrDir]<<endl;
+  std::cout<< " Background : "<<bckgd_path[nrDir]<<std::endl;
 
   int Bckgd_totNrEv =0, Bckgd_okEvents =0;
   for (int nr = 1; nr <= bckgd_nrFiles[nrDir]; nr++) {
@@ -205,7 +201,7 @@ for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
 
       TBranch * bckgd_solsbranch  = bckgd_events->GetBranch( "TtSemiEvtSolutions_solutions__TEST.obj" );
       assert(   bckgd_solsbranch != 0 );
-      vector<TtSemiEvtSolution> bckgd_sols;
+      std::vector<TtSemiEvtSolution> bckgd_sols;
       bckgd_solsbranch->SetAddress( & bckgd_sols );
     
       //loop over all events in a file 
@@ -213,11 +209,11 @@ for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
         if(Bckgd_totNrEv>bckgd_NrEv[nrDir]) continue;
 	++Bckgd_totNrEv;
         ++totNrEv;
-        if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) cout<< "  Processing bckgd event "<< totNrEv<<endl; 
+        if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) std::cout<< "  Processing bckgd event "<< totNrEv<<std::endl; 
         bckgd_solsbranch->GetEntry( ev );
         if(bckgd_sols.size()== 12){
           // get observable values
-	  vector<double> bckgd_obsVals;
+	  std::vector<double> bckgd_obsVals;
 	  for(int j = 0; j < nrSignalSelObs; j++){
 	    if( myLRhelper->obsFitIncluded(obsNrs[j]) ) bckgd_obsVals.push_back(bckgd_sols[0].getLRSignalEvtObsVal(obsNrs[j]));
 	  }
@@ -233,16 +229,16 @@ for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
     }
     else
     {
-      cout<<bckgd_ft<<" doesn't exist"<<endl;
+      std::cout<<bckgd_ft<<" doesn't exist"<<std::endl;
     }
   }
-    cout<<endl<<"********************  STATISTICS FOR BCKGD "<<bckgd_path[nrDir]<<" ***********************"<<endl;
-    cout<<endl<<" Nb of processed events  :"<<(Bckgd_totNrEv)<<endl;
-    cout<<endl<<" Nb of events filled in the histo :"<<(Bckgd_okEvents)<<endl;   
-    cout<<endl<<"******************************************************************"<<endl;
+    std::cout<<std::endl<<"********************  STATISTICS FOR BCKGD "<<bckgd_path[nrDir]<<" ***********************"<<std::endl;
+    std::cout<<std::endl<<" Nb of processed events  :"<<(Bckgd_totNrEv)<<std::endl;
+    std::cout<<std::endl<<" Nb of events filled in the histo :"<<(Bckgd_okEvents)<<std::endl;   
+    std::cout<<std::endl<<"******************************************************************"<<std::endl;
  }
-    cout<<endl<<"********************  STATISTICS FOR BCKGD ***********************"<<endl;
-    cout<<endl<<" Nb of processed events  :"<<(totNrEv)<<endl;
-    cout<<endl<<" Nb of events filled in the histo :"<<(okEvents)<<endl;   
-    cout<<endl<<"******************************************************************"<<endl;
+    std::cout<<std::endl<<"********************  STATISTICS FOR BCKGD ***********************"<<std::endl;
+    std::cout<<std::endl<<" Nb of processed events  :"<<(totNrEv)<<std::endl;
+    std::cout<<std::endl<<" Nb of events filled in the histo :"<<(okEvents)<<std::endl;   
+    std::cout<<std::endl<<"******************************************************************"<<std::endl;
 }

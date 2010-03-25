@@ -5,9 +5,6 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/StGenEventReco.h"
 
-using namespace std;
-using namespace reco;
-
 StGenEventReco::StGenEventReco(const edm::ParameterSet& cfg):
   src_ ( cfg.getParameter<edm::InputTag>( "src"  ) ),
   init_( cfg.getParameter<edm::InputTag>( "init" ) )

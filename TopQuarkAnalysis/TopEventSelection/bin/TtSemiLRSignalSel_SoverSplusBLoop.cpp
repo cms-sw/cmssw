@@ -19,10 +19,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
-using namespace std;
-
-
-
 ///////////////////////
 // Constants         //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,9 +128,9 @@ const  TString  SignalSelPSfile     		= "./TtSemiLRSignalSelAllObs.ps";
 //
 LRHelpFunctions *myLRhelper;
 void doEventloop();
-vector<int> obsNrs;
-vector<double> obsMin,obsMax;
-vector<const char*> obsFits;
+std::vector<int> obsNrs;
+std::vector<double> obsMin,obsMax;
+std::vector<const char*> obsFits;
 
 bool MuonIso = true;
 
@@ -158,58 +154,58 @@ int main() {
   myLRhelper = new LRHelpFunctions(obsNrs, nrSignalSelHistBins, obsMin, obsMax, obsFits);  
   
   // manually set some initial values for fit function parameters
-  vector<double> parsFobs1; parsFobs1.push_back(20); parsFobs1.push_back(0.04); parsFobs1.push_back(21); parsFobs1.push_back(0.04);
+  std::vector<double> parsFobs1; parsFobs1.push_back(20); parsFobs1.push_back(0.04); parsFobs1.push_back(21); parsFobs1.push_back(0.04);
   myLRhelper -> setObsFitParameters(1,parsFobs1);
 
-  vector<double> parsFobs2; parsFobs2.push_back(0.495); parsFobs2.push_back(-0.148); parsFobs2.push_back(60.33); parsFobs2.push_back(0.396); //parsFobs2.push_back(0.03);
+  std::vector<double> parsFobs2; parsFobs2.push_back(0.495); parsFobs2.push_back(-0.148); parsFobs2.push_back(60.33); parsFobs2.push_back(0.396); //parsFobs2.push_back(0.03);
   myLRhelper -> setObsFitParameters(2,parsFobs2);
 
-  vector<double> parsFobs3; parsFobs3.push_back(7.60418e-01); parsFobs3.push_back(-3.31635e-02); parsFobs3.push_back(1.57387e+02); parsFobs3.push_back(-1.23931e-08); parsFobs3.push_back(-1.90918e-04);
+  std::vector<double> parsFobs3; parsFobs3.push_back(7.60418e-01); parsFobs3.push_back(-3.31635e-02); parsFobs3.push_back(1.57387e+02); parsFobs3.push_back(-1.23931e-08); parsFobs3.push_back(-1.90918e-04);
   myLRhelper -> setObsFitParameters(3,parsFobs3);
 
-  vector<double> parsFobs4; parsFobs4.push_back(1.087); parsFobs4.push_back(-0.1978); parsFobs4.push_back(22.803); parsFobs4.push_back(-0.126); //parsFobs4.push_back(0.04);
+  std::vector<double> parsFobs4; parsFobs4.push_back(1.087); parsFobs4.push_back(-0.1978); parsFobs4.push_back(22.803); parsFobs4.push_back(-0.126); //parsFobs4.push_back(0.04);
   myLRhelper -> setObsFitParameters(4,parsFobs4);
 
-  vector<double> parsFobs7; parsFobs7.push_back(0.606878); parsFobs7.push_back(-1.52796e-02); parsFobs7.push_back(2.50574e+02); parsFobs7.push_back(-4.46936e-10); parsFobs7.push_back(-1.48804e-04);
+  std::vector<double> parsFobs7; parsFobs7.push_back(0.606878); parsFobs7.push_back(-1.52796e-02); parsFobs7.push_back(2.50574e+02); parsFobs7.push_back(-4.46936e-10); parsFobs7.push_back(-1.48804e-04);
   myLRhelper -> setObsFitParameters(7,parsFobs7);
 
-  vector<double> parsFobs8; parsFobs8.push_back(3.30611e-01); parsFobs8.push_back(-8.34406e+00); parsFobs8.push_back(1.04307e+00); parsFobs8.push_back(-1.75190e-03); parsFobs8.push_back(5.66972e-01);
+  std::vector<double> parsFobs8; parsFobs8.push_back(3.30611e-01); parsFobs8.push_back(-8.34406e+00); parsFobs8.push_back(1.04307e+00); parsFobs8.push_back(-1.75190e-03); parsFobs8.push_back(5.66972e-01);
   myLRhelper -> setObsFitParameters(8,parsFobs8);
 
-  vector<double> parsFobs9; parsFobs9.push_back(6.37793e-01); parsFobs9.push_back(-1.71768e+00); parsFobs9.push_back(1.88952e+00); parsFobs9.push_back(-1.03833e-03); parsFobs9.push_back(3.30284e-01);
+  std::vector<double> parsFobs9; parsFobs9.push_back(6.37793e-01); parsFobs9.push_back(-1.71768e+00); parsFobs9.push_back(1.88952e+00); parsFobs9.push_back(-1.03833e-03); parsFobs9.push_back(3.30284e-01);
   myLRhelper -> setObsFitParameters(9,parsFobs9);
 
-  vector<double> parsFobs10; parsFobs10.push_back(0.618); parsFobs10.push_back(-1.579); parsFobs10.push_back(-0.10812); parsFobs10.push_back(0.342);
+  std::vector<double> parsFobs10; parsFobs10.push_back(0.618); parsFobs10.push_back(-1.579); parsFobs10.push_back(-0.10812); parsFobs10.push_back(0.342);
   myLRhelper -> setObsFitParameters(10,parsFobs10);
 
-  vector<double> parsFobs11; parsFobs11.push_back(0.7624); parsFobs11.push_back(-0.64975); parsFobs11.push_back(3.1225); parsFobs11.push_back(0.218675);
+  std::vector<double> parsFobs11; parsFobs11.push_back(0.7624); parsFobs11.push_back(-0.64975); parsFobs11.push_back(3.1225); parsFobs11.push_back(0.218675);
   myLRhelper -> setObsFitParameters(11,parsFobs11);
 
-  vector<double> parsFobs12; parsFobs12.push_back(1.57736e-01); parsFobs12.push_back(-2.01467e+01); parsFobs12.push_back(5.97867e-01); parsFobs12.push_back(3.81101e-01);
+  std::vector<double> parsFobs12; parsFobs12.push_back(1.57736e-01); parsFobs12.push_back(-2.01467e+01); parsFobs12.push_back(5.97867e-01); parsFobs12.push_back(3.81101e-01);
   myLRhelper -> setObsFitParameters(12,parsFobs12);
 
-  vector<double> parsFobs13; parsFobs13.push_back(1.57736e-01); parsFobs13.push_back(-2.01467e+01); parsFobs13.push_back(5.97867e-01); parsFobs13.push_back(3.81101e-01);
+  std::vector<double> parsFobs13; parsFobs13.push_back(1.57736e-01); parsFobs13.push_back(-2.01467e+01); parsFobs13.push_back(5.97867e-01); parsFobs13.push_back(3.81101e-01);
   myLRhelper -> setObsFitParameters(13,parsFobs13);
 
-  vector<double> parsFobs15; parsFobs15.push_back(0.6672); parsFobs15.push_back(-9.3022); parsFobs15.push_back(0.03384); parsFobs15.push_back(0.00014967); parsFobs15.push_back(-4315.96);
+  std::vector<double> parsFobs15; parsFobs15.push_back(0.6672); parsFobs15.push_back(-9.3022); parsFobs15.push_back(0.03384); parsFobs15.push_back(0.00014967); parsFobs15.push_back(-4315.96);
   myLRhelper -> setObsFitParameters(15,parsFobs15);
 
-  vector<double> parsFobs16; parsFobs16.push_back(0.56855); parsFobs16.push_back(-165.768); parsFobs16.push_back(0.0021543); parsFobs16.push_back(0.0148839); parsFobs16.push_back(4391.8);
+  std::vector<double> parsFobs16; parsFobs16.push_back(0.56855); parsFobs16.push_back(-165.768); parsFobs16.push_back(0.0021543); parsFobs16.push_back(0.0148839); parsFobs16.push_back(4391.8);
   myLRhelper -> setObsFitParameters(16,parsFobs16);
 
-  vector<double> parsFobs17; parsFobs17.push_back(0.45862); parsFobs17.push_back(-42.3119); parsFobs17.push_back(0.0024431); parsFobs17.push_back(-0.0082168); parsFobs17.push_back(-41.3239);
+  std::vector<double> parsFobs17; parsFobs17.push_back(0.45862); parsFobs17.push_back(-42.3119); parsFobs17.push_back(0.0024431); parsFobs17.push_back(-0.0082168); parsFobs17.push_back(-41.3239);
   myLRhelper -> setObsFitParameters(17,parsFobs17);
 
-  vector<double> parsFobs18; parsFobs18.push_back(0.57713); parsFobs18.push_back(-88.4547); parsFobs18.push_back(-0.0079014); parsFobs18.push_back(-0.025394); parsFobs18.push_back(4512.33);
+  std::vector<double> parsFobs18; parsFobs18.push_back(0.57713); parsFobs18.push_back(-88.4547); parsFobs18.push_back(-0.0079014); parsFobs18.push_back(-0.025394); parsFobs18.push_back(4512.33);
   myLRhelper -> setObsFitParameters(18,parsFobs18);
 
-  vector<double> parsFobs33; parsFobs33.push_back(5.99882e-01); parsFobs33.push_back(-1.33575e+01); parsFobs33.push_back(1.24161e-01);
+  std::vector<double> parsFobs33; parsFobs33.push_back(5.99882e-01); parsFobs33.push_back(-1.33575e+01); parsFobs33.push_back(1.24161e-01);
   myLRhelper -> setObsFitParameters(33,parsFobs33);
 
-  vector<double> parsFobs35; parsFobs35.push_back(2.49026e-01); parsFobs35.push_back(1.08819e+00); parsFobs35.push_back(-7.26373e-01); parsFobs35.push_back(1.26367e-07); parsFobs35.push_back(5.51754e+02); parsFobs35.push_back(3.94562e-02);
+  std::vector<double> parsFobs35; parsFobs35.push_back(2.49026e-01); parsFobs35.push_back(1.08819e+00); parsFobs35.push_back(-7.26373e-01); parsFobs35.push_back(1.26367e-07); parsFobs35.push_back(5.51754e+02); parsFobs35.push_back(3.94562e-02);
   myLRhelper -> setObsFitParameters(35,parsFobs35);
 
-  vector<double> parsFobs37; parsFobs37.push_back(1.43676e-01); parsFobs37.push_back(2.44475e+00); parsFobs37.push_back(-4.56374e+00); parsFobs37.push_back(3.01449e+00); parsFobs37.push_back(4.65671e+01); parsFobs37.push_back(-4.40296e-02);
+  std::vector<double> parsFobs37; parsFobs37.push_back(1.43676e-01); parsFobs37.push_back(2.44475e+00); parsFobs37.push_back(-4.56374e+00); parsFobs37.push_back(3.01449e+00); parsFobs37.push_back(4.65671e+01); parsFobs37.push_back(-4.40296e-02);
   myLRhelper -> setObsFitParameters(37,parsFobs37);
 
   // fill signal and background contributions to S and B histograms
@@ -239,14 +235,14 @@ int main() {
 //
 
 void doEventloop(){ 
-  cout<<endl<<endl<<"**** STARTING EVENT LOOP FOR SIGNAL ****"<<endl;
+  std::cout<<std::endl<<std::endl<<"**** STARTING EVENT LOOP FOR SIGNAL ****"<<std::endl;
 
   /********************************************** for the signal **********************************************/
 
   int okEvents = 0, totNrEv = 0;
 for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
 
-  cout<< " Signal : "<<signal_path[nrDir]<<endl;
+  std::cout<< " Signal : "<<signal_path[nrDir]<<std::endl;
 
   int Signal_totNrEv =0, Signal_okEvents =0;
   for (int nr = 1; nr <= signal_nrFiles[nrDir]; nr++) {
@@ -260,7 +256,7 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
 
       TBranch * signal_solsbranch  = signal_events->GetBranch( "TtSemiEvtSolutions_solutions__TEST.obj" );
       assert(   signal_solsbranch != 0 );
-      vector<TtSemiEvtSolution> signal_sols;
+      std::vector<TtSemiEvtSolution> signal_sols;
       //signal_solsbranch->SetAddress( & signal_sols );
 
       //loop over all events in a file 
@@ -268,13 +264,13 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
         if(Signal_totNrEv>signal_NrEv[nrDir] && signal_NrEv[nrDir] != -1) continue;
 	++Signal_totNrEv;
         ++totNrEv;
-        if((double)((totNrEv*1.)/5000.) == (double) (totNrEv/5000)) cout<< "  Processing signal event "<< totNrEv<<endl; 
+        if((double)((totNrEv*1.)/5000.) == (double) (totNrEv/5000)) std::cout<< "  Processing signal event "<< totNrEv<<std::endl; 
         signal_solsbranch->SetAddress( & signal_sols );
 	signal_solsbranch->GetEntry( ev );
 	signal_events->GetEntry( ev , 0 );
         if(signal_sols.size()== 12){
           // get observable values
-	  vector<double> signal_obsVals;
+	  std::vector<double> signal_obsVals;
 	  for(int j = 0; j < nrSignalSelObs; j++){
 	    if( myLRhelper->obsFitIncluded(obsNrs[j]) ) signal_obsVals.push_back(signal_sols[0].getLRSignalEvtObsVal(obsNrs[j]));
 	  }
@@ -291,21 +287,21 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
     }
     else
     {
-      cout<<signal_ft<<" doesn't exist"<<endl;
+      std::cout<<signal_ft<<" doesn't exist"<<std::endl;
     }
   }
-  cout<<endl<<"********************  STATISTICS FOR SIGNAL "<<signal_path[nrDir]<<" ***********************"<<endl;
-  cout<<endl<<" Nb of requested events  :"<<(signal_NrEv[nrDir])<<endl;
-  cout<<endl<<" Nb of processed events  :"<<(Signal_totNrEv)<<endl;
-  cout<<endl<<" Nb of events filled in the histo :"<<(Signal_okEvents)<<endl;
-  cout<<endl<<"******************************************************************"<<endl;
+  std::cout<<std::endl<<"********************  STATISTICS FOR SIGNAL "<<signal_path[nrDir]<<" ***********************"<<std::endl;
+  std::cout<<std::endl<<" Nb of requested events  :"<<(signal_NrEv[nrDir])<<std::endl;
+  std::cout<<std::endl<<" Nb of processed events  :"<<(Signal_totNrEv)<<std::endl;
+  std::cout<<std::endl<<" Nb of events filled in the histo :"<<(Signal_okEvents)<<std::endl;
+  std::cout<<std::endl<<"******************************************************************"<<std::endl;
  }
-  cout<<endl<<"********************  STATISTICS FOR SIGNAL ***********************"<<endl;
-  cout<<endl<<" Nb of processed events  :"<<(totNrEv)<<endl;
-  cout<<endl<<" Nb of events filled in the histo :"<<(okEvents)<<endl;
-  cout<<endl<<"******************************************************************"<<endl;
+  std::cout<<std::endl<<"********************  STATISTICS FOR SIGNAL ***********************"<<std::endl;
+  std::cout<<std::endl<<" Nb of processed events  :"<<(totNrEv)<<std::endl;
+  std::cout<<std::endl<<" Nb of events filled in the histo :"<<(okEvents)<<std::endl;
+  std::cout<<std::endl<<"******************************************************************"<<std::endl;
 
-  cout<<endl<<endl<<"**** STARTING EVENT LOOP FOR BCKGD ****"<<endl;
+  std::cout<<std::endl<<std::endl<<"**** STARTING EVENT LOOP FOR BCKGD ****"<<std::endl;
 
 
   /********************************************** for the background **********************************************/
@@ -313,7 +309,7 @@ for (int nrDir =0; nrDir < signal_nrDir; nrDir++){
   okEvents = 0, totNrEv = 0;
 for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
 
-  cout<< " Background : "<<bckgd_path[nrDir]<<endl;
+  std::cout<< " Background : "<<bckgd_path[nrDir]<<std::endl;
 
   int Bckgd_totNrEv =0, Bckgd_okEvents =0;
   for (int nr = 1; nr <= bckgd_nrFiles[nrDir]; nr++) {
@@ -327,7 +323,7 @@ for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
 
       TBranch * bckgd_solsbranch  = bckgd_events->GetBranch( "TtSemiEvtSolutions_solutions__TEST.obj" );
       assert(   bckgd_solsbranch != 0 );
-      vector<TtSemiEvtSolution> bckgd_sols;
+      std::vector<TtSemiEvtSolution> bckgd_sols;
       //bckgd_solsbranch->SetAddress( & bckgd_sols );
 
       //loop over all events in a file 
@@ -335,13 +331,13 @@ for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
         if(Bckgd_totNrEv > bckgd_NrEv[nrDir] && bckgd_NrEv[nrDir] != -1) continue;
 	++Bckgd_totNrEv;
         ++totNrEv;
-        if((double)((totNrEv*1.)/5000.) == (double) (totNrEv/5000)) cout<< "  Processing bckgd event "<< totNrEv<<endl; 
+        if((double)((totNrEv*1.)/5000.) == (double) (totNrEv/5000)) std::cout<< "  Processing bckgd event "<< totNrEv<<std::endl; 
         bckgd_solsbranch->SetAddress( & bckgd_sols );
 	bckgd_solsbranch ->GetEntry( ev );
 	bckgd_events->GetEntry( ev , 0 );
         if(bckgd_sols.size()== 12){
           // get observable values
-	  vector<double> bckgd_obsVals;
+	  std::vector<double> bckgd_obsVals;
 	  for(int j = 0; j < nrSignalSelObs; j++){
 	    if( myLRhelper->obsFitIncluded(obsNrs[j]) ) bckgd_obsVals.push_back(bckgd_sols[0].getLRSignalEvtObsVal(obsNrs[j]));
 	  }
@@ -357,17 +353,17 @@ for (int nrDir =0; nrDir < bckgd_nrDir; nrDir++){
     }
     else
     {
-      cout<<bckgd_ft<<" doesn't exist"<<endl;
+      std::cout<<bckgd_ft<<" doesn't exist"<<std::endl;
     } 
   }
-    cout<<endl<<"********************  STATISTICS FOR BCKGD "<<bckgd_path[nrDir]<<" ***********************"<<endl;
-    cout<<endl<<" Nb of requested events  :"<<(bckgd_NrEv[nrDir])<<endl;
-    cout<<endl<<" Nb of processed events  :"<<(Bckgd_totNrEv)<<endl;
-    cout<<endl<<" Nb of events filled in the histo :"<<(Bckgd_okEvents)<<endl;   
-    cout<<endl<<"******************************************************************"<<endl;
+    std::cout<<std::endl<<"********************  STATISTICS FOR BCKGD "<<bckgd_path[nrDir]<<" ***********************"<<std::endl;
+    std::cout<<std::endl<<" Nb of requested events  :"<<(bckgd_NrEv[nrDir])<<std::endl;
+    std::cout<<std::endl<<" Nb of processed events  :"<<(Bckgd_totNrEv)<<std::endl;
+    std::cout<<std::endl<<" Nb of events filled in the histo :"<<(Bckgd_okEvents)<<std::endl;   
+    std::cout<<std::endl<<"******************************************************************"<<std::endl;
  }
-    cout<<endl<<"********************  STATISTICS FOR BCKGD ***********************"<<endl;
-    cout<<endl<<" Nb of processed events  :"<<(totNrEv)<<endl;
-    cout<<endl<<" Nb of events filled in the histo :"<<(okEvents)<<endl;   
-    cout<<endl<<"******************************************************************"<<endl;
+    std::cout<<std::endl<<"********************  STATISTICS FOR BCKGD ***********************"<<std::endl;
+    std::cout<<std::endl<<" Nb of processed events  :"<<(totNrEv)<<std::endl;
+    std::cout<<std::endl<<" Nb of events filled in the histo :"<<(okEvents)<<std::endl;   
+    std::cout<<std::endl<<"******************************************************************"<<std::endl;
 }

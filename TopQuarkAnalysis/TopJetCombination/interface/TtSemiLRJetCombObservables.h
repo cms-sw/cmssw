@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.h,v 1.4.8.1 2008/03/26 08:01:09 jmmaes Exp $
+// $Id: TtSemiLRJetCombObservables.h,v 1.6 2008/04/15 10:13:43 rwolf Exp $
 //
 
 #ifndef TtSemiLRJetCombObservables_h
@@ -20,7 +20,7 @@
   // ...
   
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRJetCombObservables.h,v 1.4.8.1 2008/03/26 08:01:09 jmmaes Exp $
+  \version  $Id: TtSemiLRJetCombObservables.h,v 1.6 2008/04/15 10:13:43 rwolf Exp $
 */
 
 
@@ -37,30 +37,28 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 
-using namespace std;
-
 class TtSemiLRJetCombObservables {
 
   public:
 
-  typedef pair<unsigned int,bool>   IntBoolPair;
+  typedef std::pair<unsigned int,bool>   IntBoolPair;
   
   TtSemiLRJetCombObservables();
   ~TtSemiLRJetCombObservables();	
    
-  vector< IntBoolPair > operator()(TtSemiEvtSolution&, const edm::Event & iEvent,bool matchOnly = false);
+  std::vector< IntBoolPair > operator()(TtSemiEvtSolution&, const edm::Event & iEvent,bool matchOnly = false);
   //void  operator()(TtSemiEvtSolution&);
   void jetSource(const edm::InputTag & jetSource) {jetSource_ = jetSource;}
  
 private:
 
-  typedef pair<unsigned int,double> IntDblPair;
+  typedef std::pair<unsigned int,double> IntDblPair;
   //std::vector<std::pair<unsigned int,double> > jetCombVarVal;
   
   edm::InputTag jetSource_;
   
-  vector< IntDblPair > evtselectVarVal;
-  vector< IntBoolPair > evtselectVarMatch;
+  std::vector< IntDblPair > evtselectVarVal;
+  std::vector< IntBoolPair > evtselectVarMatch;
 };
 
 #endif

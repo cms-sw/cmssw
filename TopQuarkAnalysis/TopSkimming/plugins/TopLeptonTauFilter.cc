@@ -5,8 +5,8 @@
  * default eta thresholds (lepton and jets) set to 3
  * At least two leptons and two jets present for each channel
  *
- * $Date: 2007/12/10 12:40:00 $
- * $Revision: 1.11 $
+ * $Date: 2010/03/09 13:18:20 $
+ * $Revision: 1.12 $
  *
  * \author Michele Gallinaro and Nuno Almeida - LIP
  *
@@ -40,10 +40,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-
 class PtSorter {
 public:
   template <class T> bool operator() ( const T& a, const T& b ) {
@@ -60,10 +56,10 @@ TopLeptonTauFilter::TopLeptonTauFilter( const edm::ParameterSet& iConfig ) :
   TauFilter_  = iConfig.getParameter<bool>( "TauFilter" );
   JetFilter_  = iConfig.getParameter<bool>( "JetFilter" );
    
-  Elecsrc_    = iConfig.getParameter<InputTag>( "Elecsrc" );
-  Muonsrc_    = iConfig.getParameter<InputTag>( "Muonsrc" );
-  Tausrc_     = iConfig.getParameter<InputTag>( "Tausrc" );
-  CaloJetsrc_ = iConfig.getParameter<InputTag>( "CaloJetsrc" );
+  Elecsrc_    = iConfig.getParameter<edm::InputTag>( "Elecsrc" );
+  Muonsrc_    = iConfig.getParameter<edm::InputTag>( "Muonsrc" );
+  Tausrc_     = iConfig.getParameter<edm::InputTag>( "Tausrc" );
+  CaloJetsrc_ = iConfig.getParameter<edm::InputTag>( "CaloJetsrc" );
   
   NminMuon_     = iConfig.getParameter<int>( "NminMuon" );
   NminTau_      = iConfig.getParameter<int>( "NminTau" );
@@ -106,7 +102,7 @@ bool TopLeptonTauFilter::electronFilter( edm::Event& iEvent, const edm::EventSet
 & iSetup ){
 
   // dealing with electrons
-  Handle<GsfElectronCollection> ElecHandle;
+  edm::Handle<GsfElectronCollection> ElecHandle;
   iEvent.getByLabel( Elecsrc_, ElecHandle );
   if ( ElecHandle->empty() && NminElec_!=0 ) return false;
   GsfElectronCollection TheElecs = *ElecHandle;
@@ -129,7 +125,7 @@ bool TopLeptonTauFilter::electronFilter( edm::Event& iEvent, const edm::EventSet
 bool TopLeptonTauFilter::muonFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-  Handle<MuonCollection> MuonHandle;
+  edm::Handle<MuonCollection> MuonHandle;
   iEvent.getByLabel( Muonsrc_, MuonHandle );
   if ( MuonHandle->empty() && NminMuon_!=0 ) return false;
   MuonCollection TheMuons = *MuonHandle;
@@ -158,7 +154,7 @@ bool TopLeptonTauFilter::muonFilter( edm::Event& iEvent, const edm::EventSetup
 bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-  Handle<BaseTauCollection> TauHandle;
+  edm::Handle<BaseTauCollection> TauHandle;
   iEvent.getByLabel(Tausrc_,TauHandle);
   const BaseTauCollection& myTauCollection=*(TauHandle.product());
   if ( myTauCollection.empty() && NminTau_!=0 ) return false;
@@ -189,7 +185,7 @@ bool TopLeptonTauFilter::tauFilter( edm::Event& iEvent, const edm::EventSetup
 bool TopLeptonTauFilter::jetFilter( edm::Event& iEvent, const edm::EventSetup
 & iSetup ){
 
-  Handle<CaloJetCollection> CaloJetsHandle;
+  edm::Handle<CaloJetCollection> CaloJetsHandle;
   iEvent.getByLabel( CaloJetsrc_, CaloJetsHandle );
   if ( CaloJetsHandle->empty() && NminCaloJet_!=0 ) return false;
 

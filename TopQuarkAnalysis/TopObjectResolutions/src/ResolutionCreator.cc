@@ -97,20 +97,17 @@ ResolutionCreator::~ResolutionCreator()
 void
 ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   using namespace std;
-   using namespace pat;
    
  // Get the gen and cal object fourvector
-   vector<reco::Particle *> p4gen, p4rec;
+   std::vector<reco::Particle *> p4gen, p4rec;
 	    
-   Handle<TtGenEvent> genEvt;
+   edm::Handle<TtGenEvent> genEvt;
    iEvent.getByLabel ("genEvt",genEvt);
 
    if(genEvt->particles().size()<10) return;
 
    if(objectType_ == "electron"){ 
-     Handle<std::vector<pat::Electron> >  electrons; //to calculate the ResolutionCreator for the electrons, i used the TopElectron instead of the AOD information
+     edm::Handle<std::vector<pat::Electron> >  electrons; //to calculate the ResolutionCreator for the electrons, i used the TopElectron instead of the AOD information
      iEvent.getByLabel(labelName_,electrons);
      for(size_t e=0; e<electrons->size(); e++) { 
        for(size_t p=0; p<genEvt->particles().size(); p++){
@@ -122,7 +119,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    }
    else if(objectType_ == "muon"){
-     Handle<std::vector<pat::Muon> >  muons;
+     edm::Handle<std::vector<pat::Muon> >  muons;
      iEvent.getByLabel(labelName_,muons);
      for(size_t m=0; m<muons->size(); m++) {      
        for(size_t p=0; p<genEvt->particles().size(); p++){
@@ -134,7 +131,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    }
    else if(objectType_ == "lJets" ){
-     Handle<std::vector<pat::Jet> > jets;
+     edm::Handle<std::vector<pat::Jet> > jets;
      iEvent.getByLabel(labelName_,jets);	 
      if(jets->size()>=4) { 
        for(unsigned int j = 0; j<4; j++){      
@@ -148,7 +145,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    }
    else if(objectType_ == "bJets" ){
-     Handle<std::vector<pat::Jet> > jets;
+     edm::Handle<std::vector<pat::Jet> > jets;
      iEvent.getByLabel(labelName_,jets);
      if(jets->size()>=4) { 
        for(unsigned int j = 0; j<4; j++){      
@@ -162,7 +159,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    }
    else if(objectType_ == "met"){
-     Handle<std::vector<pat::MET> >  mets;
+     edm::Handle<std::vector<pat::MET> >  mets;
      iEvent.getByLabel(labelName_,mets);
      if(mets->size()>=1) { 
        if( genEvt->isSemiLeptonic() && genEvt->singleNeutrino() != 0 && ROOT::Math::VectorUtil::DeltaR(genEvt->singleNeutrino()->p4(), (*mets)[0].p4()) < minDR_) {
@@ -172,7 +169,7 @@ ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    } 
    else if(objectType_ == "tau"){
-     Handle<std::vector<pat::Tau> > taus; 
+     edm::Handle<std::vector<pat::Tau> > taus; 
      iEvent.getByLabel(labelName_,taus);
      for(std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
        // find the tau (if any) that matches a MC tau from W

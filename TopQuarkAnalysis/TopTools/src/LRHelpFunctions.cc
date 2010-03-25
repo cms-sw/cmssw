@@ -1,8 +1,6 @@
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopTools/test/tdrstyle.C"
 
-using namespace std;
-
 // constructors
 LRHelpFunctions::LRHelpFunctions() {
   constructPurity = false;
@@ -122,7 +120,7 @@ void LRHelpFunctions::fillToSignalHists(int obsNbr, double obsVal, double weight
 // member function to add observable values to the signal histograms
 void LRHelpFunctions::fillToSignalCorrelation(int obsNbr1, double obsVal1, int obsNbr2,
 	double obsVal2, double weight){
-  TString hcorr  = "Corr_Obs"; hcorr  += min(obsNbr1,obsNbr2) ; hcorr += "_Obs";  hcorr  += max(obsNbr1, obsNbr2);
+  TString hcorr  = "Corr_Obs"; hcorr  += std::min(obsNbr1,obsNbr2) ; hcorr += "_Obs";  hcorr  += std::max(obsNbr1, obsNbr2);
   for(size_t i=0; i<hObsCorr.size(); i++) {
     if(((TString)(hObsCorr[i]->GetName())) == hcorr) {
       if (obsNbr1 < obsNbr2) {
@@ -384,7 +382,7 @@ double LRHelpFunctions::calcPtdrLRval(std::vector<double> vals, bool useCorrelat
       for(size_t j=0; j<fObsSoverSplusB.size(); j++){
         if (o==j) ++corr;
 	else {
-	  TString hcorr  = "Corr_Obs"; hcorr  += min(obsNumbers[o],obsNumbers[j]) ; hcorr += "_Obs";  hcorr  += max(obsNumbers[o],obsNumbers[j]);
+	  TString hcorr  = "Corr_Obs"; hcorr  += std::min(obsNumbers[o],obsNumbers[j]) ; hcorr += "_Obs";  hcorr  += std::max(obsNumbers[o],obsNumbers[j]);
 	  for(size_t i=0; i<hObsCorr.size(); i++) {
 	    if(((TString)(hObsCorr[i]->GetName())) == hcorr)
 	      corr += fabs(hObsCorr[i]->GetCorrelationFactor());
@@ -395,7 +393,7 @@ double LRHelpFunctions::calcPtdrLRval(std::vector<double> vals, bool useCorrelat
     }
     else logLR *= SoverSplusN/fObsSoverSplusB[o]->GetMaximum();
   }
-  //cout <<logLR<<endl;
+  //std::cout <<logLR<<std::endl;
   return logLR;
 }
 
@@ -491,7 +489,7 @@ bool 	LRHelpFunctions::obsFitIncluded(int o){
 void LRHelpFunctions::setXlabels(const std::vector<std::string> & xLabels)
 {
   if (hObsS.size() != xLabels.size()) {
-    cout << "LRHelpFunctions::setXlabels: Number of labels ("
+    std::cout << "LRHelpFunctions::setXlabels: Number of labels ("
          << xLabels.size()<< ") does not match number of obervables("
          << hObsS.size()<<").\n";
     return;
@@ -507,7 +505,7 @@ void LRHelpFunctions::setXlabels(const std::vector<std::string> & xLabels)
 void LRHelpFunctions::setYlabels(const std::vector<std::string> & yLabels)
 {
   if (hObsS.size() != yLabels.size()) {
-    cout << "LRHelpFunctions::setYlabels: Number of labels ("
+    std::cout << "LRHelpFunctions::setYlabels: Number of labels ("
 	 << yLabels.size()<< ") does not match number of obervables("
 	 << hObsS.size()<<").\n";
     return;
@@ -535,7 +533,7 @@ void  LRHelpFunctions::singlePlot(TString fname, int obsNbr, TString extension) 
   c2.SetBottomMargin(0.01);
   c2.SetLeftMargin(0.01);
   c2.SetRightMargin(0.01);
-  cout <<fname<<endl;
+  std::cout <<fname<<std::endl;
   c2.Divide(2,1);
 
   TString obs = "Obs"; obs += obsNbr; obs += "_";
@@ -558,7 +556,7 @@ void  LRHelpFunctions::singlePlot(TString fname, int obsNbr, TString extension) 
       fObsSoverSplusB[o] -> Draw("same");
     }
   }
-  cout << fname+"."+extension<<endl;
+  std::cout << fname+"."+extension<<std::endl;
   c2.Print(fname+"."+extension);
 }
 
@@ -578,7 +576,7 @@ void  LRHelpFunctions::purityPlot(TString fname, TString extension)
   c2.SetBottomMargin(0.01);
   c2.SetLeftMargin(0.01);
   c2.SetRightMargin(0.01);
-  cout <<fname<<endl;
+  std::cout <<fname<<std::endl;
   c2.Divide(2,1);
 
   c2.cd(1);

@@ -19,10 +19,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
-using namespace std;
-
-
-
 ///////////////////////
 // Constants         //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,9 +54,7 @@ const  TString  JetCombPSfile     		= "../data/TtSemiLRJetCombSelObsAndPurity.ps
 //
 LRHelpFunctions *myLRhelper;
 void doEventloop();
-vector<int> obsNrs;
-
-
+std::vector<int> obsNrs;
 
 
 //
@@ -104,7 +98,7 @@ int main() {
 //
 
 void doEventloop(){ 
-  cout<<endl<<endl<<"**** STARTING EVENT LOOP ****"<<endl;
+  std::cout<<std::endl<<std::endl<<"**** STARTING EVENT LOOP ****"<<std::endl;
   int totNrEv = 0;
   for (int nr = 1; nr <= nrFiles; nr++) {
    TString ft = path; 
@@ -117,13 +111,13 @@ void doEventloop(){
       TBranch * solsbranch = events->GetBranch( "TtSemiEvtSolutions_solutions__TtEventReco.obj" );
       //TBranch * solsbranch = events->GetBranch( "TtSemiEvtSolutions_solutions__CommonBranchSel.obj" );
       assert( solsbranch != 0 );
-      vector<TtSemiEvtSolution> sols;
+      std::vector<TtSemiEvtSolution> sols;
       solsbranch->SetAddress( & sols );
     
       //loop over all events in a file 
       for( int ev = 0; ev < events->GetEntries(); ++ ev ) {
         ++totNrEv;
-        if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) cout<< "  Processing event "<< totNrEv<<endl; 
+        if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) std::cout<< "  Processing event "<< totNrEv<<std::endl; 
         solsbranch->GetEntry( ev );
         if(sols.size()== 12){
           // check if good matching solution exists
@@ -137,7 +131,7 @@ void doEventloop(){
 	    //loop over solutions
 	    for(int s=0; s<12; s++){
               // get observable values
-	      vector<double> obsVals;
+	      std::vector<double> obsVals;
 	      for(int j = 0; j < nrJetCombObs; j++){
 	        if( myLRhelper->obsFitIncluded(obsNrs[j]) ) obsVals.push_back(sols[s].getLRJetCombObsVal(obsNrs[j]));
 	      }
@@ -146,12 +140,12 @@ void doEventloop(){
 	    }
 	    if(sols[maxLogLRSol].getMCBestSumAngles()<SumAlphaCut && sols[maxLogLRSol].getMCBestJetComb()==maxLogLRSol) {
 	      myLRhelper -> fillLRSignalHist(maxLogLRVal);
-	      //cout << "mxLR " << maxLogLRVal << endl;
+	      //std::cout << "mxLR " << maxLogLRVal << std::endl;
 	    }
 	    else
 	    {
 	      myLRhelper -> fillLRBackgroundHist(maxLogLRVal);
-	      //cout << "mxLR (bg) " << maxLogLRVal << endl;
+	      //std::cout << "mxLR (bg) " << maxLogLRVal << std::endl;
 	    }
           }
         }  
@@ -160,7 +154,7 @@ void doEventloop(){
     }
     else
     {
-      cout<<ft<<" doesn't exist"<<endl;
+      std::cout<<ft<<" doesn't exist"<<std::endl;
     }
   }
 }

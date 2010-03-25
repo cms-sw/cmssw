@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.23 2009/01/05 12:01:11 snaumann Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.24 2009/04/29 13:29:11 snaumann Exp $
 //
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -52,16 +52,15 @@ TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker()
 
 void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
-  using namespace edm;
-  Handle<std::vector<pat::Tau> > taus;
+  edm::Handle<std::vector<pat::Tau> > taus;
   iEvent.getByLabel(tauSource_, taus);
-  Handle<std::vector<pat::Muon> > muons;
+  edm::Handle<std::vector<pat::Muon> > muons;
   iEvent.getByLabel(muonSource_, muons);
-  Handle<std::vector<pat::Electron> > electrons;
+  edm::Handle<std::vector<pat::Electron> > electrons;
   iEvent.getByLabel(electronSource_, electrons);
-  Handle<std::vector<pat::MET> > mets;
+  edm::Handle<std::vector<pat::MET> > mets;
   iEvent.getByLabel(metSource_, mets);
-  Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   iEvent.getByLabel(jetSource_, jets);
   
   int selMuonp = -1, selMuonm = -1;
@@ -354,7 +353,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
         yconstraint += (*jets)[ib].py() + (*jets)[ibbar].py() + (*mets)[0].py();
 	// if asked for, match the event solutions to the gen Event
 	if(matchToGenEvt_){
-	  Handle<TtGenEvent> genEvt;
+	  edm::Handle<TtGenEvent> genEvt;
 	  iEvent.getByLabel (evtSource_,genEvt);
 	  asol.setGenEvt(genEvt);
 	} 

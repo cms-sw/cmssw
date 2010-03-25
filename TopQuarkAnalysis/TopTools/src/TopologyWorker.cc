@@ -1,9 +1,6 @@
 #include <iostream>
 #include "TopQuarkAnalysis/TopTools/interface/TopologyWorker.h"
 
-
-using namespace std;
-
 Int_t TopologyWorker::m_maxpart = 1000;
 
 TopologyWorker::TopologyWorker(bool boost):
@@ -80,7 +77,7 @@ void TopologyWorker::setPartList(TObjArray* e1, TObjArray* e2)
     }
     TObject* o = (TObject*) e1->At(elem);    
     if(m_verbose){
-      cerr << "TopologyWorker:SetPartList(): adding jet " << elem  << "." << endl; 
+      std::cerr << "TopologyWorker:SetPartList(): adding jet " << elem  << "." << std::endl; 
     }
     if (np >= m_maxpart) { 
 	printf("Too many particles input to TopologyWorker");

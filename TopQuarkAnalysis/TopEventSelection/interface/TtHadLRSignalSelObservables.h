@@ -23,8 +23,6 @@
 
 const double PI=3.14159265;
 
-using namespace std;
-
 class TtHadLRSignalSelObservables{
   
  public:
@@ -66,7 +64,7 @@ class TtHadLRSignalSelObservables{
   
   CompareDouble dComparator;
   
-  vector<pair<unsigned int,double> > evtselectVarVal;
+  std::vector<std::pair<unsigned int,double> > evtselectVarVal;
   
 };
 
