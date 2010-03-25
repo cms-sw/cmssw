@@ -368,7 +368,7 @@ bool CosmicMuonGenerator::nextMultiEvent() {
     double phi_rel_min = 0.; //phi_mu_min - phi_at
     double phi_rel_max = 0.; //phi_mu_max - phi_at
 
-    //cout << "SimTree->shower_Energy=" << SimTree->shower_Energy << endl;
+    //std::cout << "SimTree->shower_Energy=" << SimTree->shower_Energy <<std::endl;
 
     Theta_mu.resize(nmuons);
     for (int imu=0; imu<nmuons; ++imu) {
@@ -397,13 +397,13 @@ bool CosmicMuonGenerator::nextMultiEvent() {
     
     //chose random vertex Phi and Rxz weighted to speed up and smoothen
     double R_mu_max = (h_sf+Target3dRadius)*tan(theta_mu_max);
-    double R_max = min(SurfaceRadius, R_mu_max);
+    double R_max = std::min(SurfaceRadius, R_mu_max);
     double R_mu_min = (h_sf-Target3dRadius)*tan(theta_mu_min);
-    double R_min = max(0., R_mu_min);
+    double R_min = std::max(0., R_mu_min);
     
     if (R_at>SurfaceRadius) {
-      cout << "CosmicMuonGenerator.cc: Warning! R_at=" << R_at 
-	   << " > SurfaceRadius=" << SurfaceRadius << endl;
+      std::cout << "CosmicMuonGenerator.cc: Warning! R_at=" << R_at 
+	   << " > SurfaceRadius=" << SurfaceRadius <<std::endl;
     }
     
     //do phase space transformation for horizontal radius R
@@ -411,7 +411,7 @@ bool CosmicMuonGenerator::nextMultiEvent() {
     //determine first phase space limits
     
     double psR1min = R_min + 0.25*(R_max-R_min); 
-    double psR1max = min(SurfaceRadius,R_max-0.25*(R_max-R_min)); //no R's beyond R_max
+    double psR1max = std::min(SurfaceRadius,R_max-0.25*(R_max-R_min)); //no R's beyond R_max
     double psR1 = psR1max - psR1min;
 
     double psR2min = R_min;
@@ -502,7 +502,7 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 
       Vy_at = h_sf; // [mm] (SurfaceOfEarth + PlugWidth; Determine primary particle height below)
       //Vy_at = SimTree->shower_StartingAltitude*10. + h_sf; // [mm]
-      //cout << "SimTree->shower_StartingAltitude*10=" << SimTree->shower_StartingAltitude*10 << endl;
+      //std::cout << "SimTree->shower_StartingAltitude*10=" << SimTree->shower_StartingAltitude*10 <<std::endl;
       Vz_at = RxzV*cos(PhiV); // [mm]
       
       int NmuHitTargetSphere = 0;
@@ -616,8 +616,8 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 	else if (Id_sf_this == 18) Id_sf_this = 3122; //Lambda
 	
 	else {
-	  cout << "CosmicMuonGenerator.cc: Warning! Muon Id=" << Id_sf_this 
-	       << " from file read in" << endl;
+	  std::cout << "CosmicMuonGenerator.cc: Warning! Muon Id=" << Id_sf_this 
+	       << " from file read in" <<std::endl;
 	  Id_sf_this = 99999; //trouble
 	}
 	
@@ -742,18 +742,18 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 	if (NmuInTbox < MultiMuonNmin) continue; //EvtRejected while loop: get next event from file
 
 
-	if (Debug) cout << "initial T0_at=" << T0_at << " T0_min=" << T0_min << " T0_max=" << T0_max 
+	if (Debug) std::cout << "initial T0_at=" << T0_at << " T0_min=" << T0_min << " T0_max=" << T0_max 
 			<< " T0_offset=" << T0_offset;
 	T0_at += T0diff; //[mm]
-	if (Debug) cout << " T0diff=" << T0diff << endl;
+	if (Debug) std::cout << " T0diff=" << T0diff << std::endl;
 	for (unsigned int imu=0; imu<Id_ug.size(); ++imu) { //adjust @ surface + underground
-	  if (Debug) cout << "before: T0_sf[" << imu << "]=" << T0_sf[imu] << "  T0_ug=" <<  T0_ug[imu]; 
+	  if (Debug) std::cout << "before: T0_sf[" << imu << "]=" << T0_sf[imu] << "  T0_ug=" <<  T0_ug[imu]; 
 	  T0_sf[imu] += T0diff;
 	  T0_ug[imu] += T0diff;
 	  if (Debug) 
-	    cout << "   after: T0_sf[" << imu << "]=" << T0_sf[imu] << "  T0_ug=" <<  T0_ug[imu] << endl;
+	    std::cout << "   after: T0_sf[" << imu << "]=" << T0_sf[imu] << "  T0_ug=" <<  T0_ug[imu] << std::endl;
 	}	
-	if (Debug) cout << "T0diff=" << T0diff << " T0_at=" << T0_at << endl;
+	if (Debug) std::cout << "T0diff=" << T0diff << " T0_at=" << T0_at << std::endl;
 
 
 

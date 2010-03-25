@@ -27,10 +27,6 @@ namespace CLHEP {
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonParameters.h"
 #include "GeneratorInterface/CosmicMuonGenerator/interface/SingleParticleEvent.h"
 
-
-using namespace std;
-
-
 // class definitions
 class CosmicMuonGenerator{
 public:
@@ -126,25 +122,25 @@ public:
   double Theta_at;
 
 
-  vector<double> Px_mu; vector<double> Py_mu; vector<double> Pz_mu;
-  vector<double> P_mu;
-  vector<double> Vx_mu; vector<double> Vy_mu; vector<double> Vz_mu;
+  std::vector<double> Px_mu; std::vector<double> Py_mu; std::vector<double> Pz_mu;
+  std::vector<double> P_mu;
+  std::vector<double> Vx_mu; std::vector<double> Vy_mu; std::vector<double> Vz_mu;
   double Vxz_mu;
-  vector<double> Theta_mu;
+  std::vector<double> Theta_mu;
 
-  vector<int> Id_sf;
-  vector<double> Px_sf; vector<double> Py_sf; vector<double> Pz_sf; 
-  vector<double> E_sf; 
-  //vector<double> M_sf;
-  vector<double> Vx_sf; vector<double> Vy_sf; vector<double> Vz_sf; 
-  vector<double> T0_sf;
+  std::vector<int> Id_sf;
+  std::vector<double> Px_sf; std::vector<double> Py_sf; std::vector<double> Pz_sf; 
+  std::vector<double> E_sf; 
+  //std::vector<double> M_sf;
+  std::vector<double> Vx_sf; std::vector<double> Vy_sf; std::vector<double> Vz_sf; 
+  std::vector<double> T0_sf;
   
-  vector<int> Id_ug;
-  vector<double> Px_ug; vector<double> Py_ug; vector<double> Pz_ug;
-  vector<double> E_ug; 
-  //vector<double> M_ug;
-  vector<double> Vx_ug; vector<double> Vy_ug; vector<double> Vz_ug;
-  vector<double> T0_ug;
+  std::vector<int> Id_ug;
+  std::vector<double> Px_ug; std::vector<double> Py_ug; std::vector<double> Pz_ug;
+  std::vector<double> E_ug; 
+  //std::vector<double> M_ug;
+  std::vector<double> Vx_ug; std::vector<double> Vy_ug; std::vector<double> Vz_ug;
+  std::vector<double> T0_ug;
  
  
 
