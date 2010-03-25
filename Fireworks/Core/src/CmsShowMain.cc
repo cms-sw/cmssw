@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.147 2010/03/16 20:19:36 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.148 2010/03/25 14:57:22 matevz Exp $
 //
 
 // system include files
@@ -983,7 +983,7 @@ CmsShowMain::setupDataHandling()
       checkPosition();
       draw();
    }
-   else if (m_monitor.get() != 0)
+   else if (m_monitor.get() == 0)
    {
       openData();
    }
@@ -1069,7 +1069,7 @@ CmsShowMain::notified(TSocket* iSocket)
       }
       std::string fileName(buffer);
       std::string::size_type lastNonSpace = fileName.find_last_not_of(" \n\t");
-      if(lastNonSpace != std::string::npos)
+      if (lastNonSpace != std::string::npos)
       {
          fileName.erase(lastNonSpace+1);
       }
@@ -1080,21 +1080,38 @@ CmsShowMain::notified(TSocket* iSocket)
 
       bool appended = m_navigator->appendFile(fileName, true, m_live);
 
-      if (appended && m_live && m_isPlaying && m_forward)
+      if (appended)
       {
-         m_navigator->activateNewFileOnNextEvent();
-      }
+         if (m_live && m_isPlaying && m_forward)
+         {
+            m_navigator->activateNewFileOnNextEvent();
+         }
+         else if (!m_isPlaying)
+         {
+            checkPosition();
+         }
 
-      // bootstrap case: --port  and no input file
-      if (!m_loadedAnyInputFile)
+         // bootstrap case: --port  and no input file
+         if (!m_loadedAnyInputFile)
+         {
+            m_loadedAnyInputFile = true;
+            m_navigator->firstEvent();
+            if (!m_isPlaying)
+            {
+               draw();
+            }
+         }
+
+         std::stringstream sr;
+         sr <<"New file registered '"<<fileName<<"'";
+         m_guiManager->updateStatus(sr.str().c_str());
+      }
+      else
       {
-         m_navigator->firstEvent();
-         m_loadedAnyInputFile = true;
+         std::stringstream sr;
+         sr <<"New file NOT registered '"<<fileName<<"'";
+         m_guiManager->updateStatus(sr.str().c_str());
       }
-
-      std::stringstream sr;
-      sr <<"New file registered '"<<fileName<<"'";
-      m_guiManager->updateStatus(sr.str().c_str());
    }
 }
 
