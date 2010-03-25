@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/HIon/V14 (CMSSW_3_5_3_HLT7)
+# /dev/CMSSW_3_5_5/HIon/V16 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V16')
 )
 
 streams = cms.PSet( 
@@ -15,8 +15,8 @@ streams = cms.PSet(
     'FEDMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
     'HcalHPDNoise',
@@ -35,8 +35,8 @@ datasets = cms.PSet(
   FEDMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
@@ -1493,7 +1493,6 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( True ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFourPoleFit = cms.bool( True ),
     UseFivePoleFit = cms.bool( True )
 )
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",

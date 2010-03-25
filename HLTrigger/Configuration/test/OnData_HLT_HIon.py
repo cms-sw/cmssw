@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_5/HIon/V14 (CMSSW_3_5_3_HLT7)
+# /dev/CMSSW_3_5_5/HIon/V16 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V16')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -19,8 +19,8 @@ process.streams = cms.PSet(
     'FEDMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
     'HcalHPDNoise',
@@ -39,8 +39,8 @@ process.datasets = cms.PSet(
   FEDMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
@@ -2155,7 +2155,6 @@ process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     readBadChambers = cms.bool( True ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
-    UseFourPoleFit = cms.bool( True ),
     UseFivePoleFit = cms.bool( True )
 )
 process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
