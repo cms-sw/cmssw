@@ -67,8 +67,6 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
    const double rmsConstantTerm              = params.getParameter<double>     ("ConstantTerm");
    const bool addESNoise                     = params.getParameter<bool>       ("doESNoise");
    const int numESdetId                      = params.getParameter<int>        ("numESdetId");
-   const double zsThreshold                  = params.getParameter<double>     ("zsThreshold");
-   const std::string refFile                 = params.getParameter<std::string>("refHistosFile");
    m_doFast                                  = params.getParameter<bool>       ("doFast");
    m_EBs25notCont                            = params.getParameter<double>     ("EBs25notContainment");
    m_EEs25notCont                            = params.getParameter<double>     ("EEs25notContainment");
@@ -163,9 +161,7 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params ) :
       m_ESDigitizerFast = new ESFastTDigitizer( m_ESResponse,
 						m_ESElectronicsSimFast,
 						addESNoise,
-						numESdetId, 
-						zsThreshold, 
-						refFile);
+						numESdetId);
    }
 }
 
@@ -392,6 +388,7 @@ EcalDigiProducer::checkCalibrations( const edm::EventSetup& eventSetup )
      m_ESElectronicsSim->setMIPs(esmips);
      m_ESElectronicsSim->setMIPToGeV(ESMIPToGeV);
    } else {
+     m_ESDigitizerFast->setGain(ESGain);
      m_ESElectronicsSimFast->setGain(ESGain);
      m_ESElectronicsSimFast->setPedestals(espeds);
      m_ESElectronicsSimFast->setMIPs(esmips);
