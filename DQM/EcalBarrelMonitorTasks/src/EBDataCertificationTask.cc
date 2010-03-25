@@ -99,6 +99,8 @@ void EBDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& l
 
 void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 
+  this->reset();
+
   char histo[200];
   
   MonitorElement* me;
@@ -120,20 +122,37 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   float integrityErrSum, frontendErrSum;
   integrityErrSum = frontendErrSum = 0.;
   for ( int i=0; i<36; i++) {
-    float ismIntegrityQual, ismFrontendQual;
-    ismIntegrityQual = ismFrontendQual = 1.0;
-    if( hIntegrityByLumi_ ) {
+    float ismIntegrityQual = 1.0;
+    if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) {
       float errors = hIntegrityByLumi_->GetBinContent(i+1);
       ismIntegrityQual = 1.0 - errors/hIntegrityByLumi_->GetBinContent(0);
       integrityErrSum += errors;
     }
-    if( hFrontendByLumi_ ) {
+    float ismFrontendQual = 1.0;
+    if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) {
       float errors = hFrontendByLumi_->GetBinContent(i+1);
-      ismFrontendQual = 1.0 - errors/ hFrontendByLumi_->GetBinContent(0);
+      ismFrontendQual = 1.0 - errors/hFrontendByLumi_->GetBinContent(0);
       frontendErrSum += errors;
     }
     DQMVal[i] = min(ismIntegrityQual,ismFrontendQual);
+
+    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    me->Fill(DQMVal[i]);
   }
+
+  float totDQMVal = 0.;
+
+  float integrityQual = 1.0;
+  if( hIntegrityByLumi_ && hIntegrityByLumi_->GetBinContent(0) > 0 ) integrityQual = 1.0 - integrityErrSum/hIntegrityByLumi_->GetBinContent(0);
+  float frontendQual = 1.0;
+  if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
+
+  totDQMVal = min(integrityQual,frontendQual);
+
+  sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
+  me = dqmStore_->get(histo);
+  me->Fill(totDQMVal);
 
   // now combine reduced DQM with DCS and DAQ
   sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
