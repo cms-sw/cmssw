@@ -45,6 +45,9 @@ HLT_DoubleMu3
 HLT_Mu0_L1MuOpen
 HLT_Mu3_L1MuOpen
 HLT_Mu5_L1MuOpen
+HLT_Mu0_L2Mu0
+HLT_Mu3_L2Mu0
+HLT_Mu5_L2Mu0
 HLT_Mu0_Track0_Jpsi
 HLT_Mu3_Track0_Jpsi
 HLT_Mu5_Track0_Jpsi
@@ -70,6 +73,9 @@ HLT_Photon15_TrackIso_L1R
 HLT_Photon15_LooseEcalIso_L1R
 HLT_Photon20_L1R
 HLT_Photon30_L1R_8E29
+HLT_DoublePhoton4_eeRes_L1R
+HLT_DoublePhoton4_Jpsi_L1R
+HLT_DoublePhoton4_Upsilon_L1R
 HLT_DoublePhoton5_eeRes_L1R
 HLT_DoublePhoton5_Jpsi_L1R
 HLT_DoublePhoton5_Upsilon_L1R
