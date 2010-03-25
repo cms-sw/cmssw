@@ -1,12 +1,36 @@
 #include "DQM/HcalMonitorModule/interface/ZDCMonitorModule.h"
+#include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Utilities/interface/CPUTimer.h"
+
+#include "DataFormats/Provenance/interface/EventID.h"  
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
+
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include <DQM/HcalMonitorModule/interface/ZDCMonitorModule.h>
-#include "DQMServices/Core/interface/DQMStore.h"
-
-using namespace std;
-using namespace edm;
+#include <memory>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <sys/time.h>
 
 //--------------------------------------------------------
 ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps){
@@ -29,7 +53,7 @@ ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps){
   // Check Online running
   Online_                = ps.getUntrackedParameter<bool>("Online",false);
   checkZDC_=ps.getUntrackedParameter<bool>("checkZDC", true); 
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   //FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
 
@@ -47,7 +71,7 @@ ZDCMonitorModule::ZDCMonitorModule(const edm::ParameterSet& ps){
   if(debug_>1) std::cout << "===>ZDCMonitor lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< std::endl;
   
   // Base folder for the contents of this job
-  string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "ZDC") ;
+  std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "ZDC") ;
   if(debug_>0) std::cout << "===>ZDCMonitor name = " << subsystemname << std::endl;
   rootFolder_ = subsystemname + "/";
   
@@ -250,7 +274,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   if (!(e.getByLabel(inputLabelDigi_,report)))
     {
       rawOK_=false;
-      LogWarning("ZDCMonitorModule")<<" Unpacker Report Digi Collection "<<inputLabelDigi_<<" not available";
+      edm::LogWarning("ZDCMonitorModule")<<" Unpacker Report Digi Collection "<<inputLabelDigi_<<" not available";
     }
   if (rawOK_ && !report.isValid()) {
     rawOK_=false;
@@ -316,7 +340,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
     {
       digiOK_=false;
       if (debug_>1) std::cout <<"<ZDCMonitorModule> COULDN'T GET ZDC DIGI"<<endl;
-      //LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
+      //edm::LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
     }
   if (!zdc_digi.isValid()) {
     digiOK_=false;
@@ -333,7 +357,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
       zdchitOK_=false;
       // ZDC Warnings should be suppressed unless debugging is on (since we don't yet normally run zdcreco)
       if (debug_>0) 
-	LogWarning("ZDCMonitorModule")<< inputLabelRecHitZDC_<<" not available"; 
+	edm::LogWarning("ZDCMonitorModule")<< inputLabelRecHitZDC_<<" not available"; 
     }
   if (!zdc_hits.isValid()) 
         zdchitOK_ = false;

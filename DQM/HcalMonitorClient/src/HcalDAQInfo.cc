@@ -169,7 +169,7 @@ void
 HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& iSetup)
 {
   if (debug_>0) {
-    std::cout <<"<HcalDAQInfo::endLuminosityBlock> "<<endl;
+    std::cout <<"<HcalDAQInfo::endLuminosityBlock> "<<std::endl;
     dbe_->setCurrentFolder(rootFolder_);
     std::string currDir = dbe_->pwd();
     std::cout << "--- Current Directory " << currDir << std::endl;

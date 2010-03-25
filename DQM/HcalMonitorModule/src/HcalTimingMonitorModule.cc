@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy
 //         Created:  Thu Mar 27 08:12:02 CET 2008
-// $Id: HcalTimingMonitorModule.cc,v 1.6 2009/07/06 20:03:47 temple Exp $
+// $Id: HcalTimingMonitorModule.cc,v 1.7 2009/12/18 20:44:47 wmtan Exp $
 //
 //
 
@@ -35,7 +35,6 @@ static const int TRIG_CSC=8;
 #include <bitset>
 #include <memory>
 
-using namespace std;
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -43,7 +42,6 @@ using namespace std;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-using namespace edm;
 
 // this is to retrieve HCAL digi's
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -201,13 +199,13 @@ class HcalTimingMonitorModule : public edm::EDAnalyzer {
 };
 
 HcalTimingMonitorModule::HcalTimingMonitorModule(const edm::ParameterSet& iConfig){
-string str;   
+  std::string str;   
    parameters_ = iConfig;
-   dbe_ = Service<DQMStore>().operator->();
+   dbe_ = edm::Service<DQMStore>().operator->();
    // Base folder for the contents of this job
-   string subsystemname = parameters_.getUntrackedParameter<string>("subSystemFolder", "HcalTiming") ;
+   std::string subsystemname = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "HcalTiming") ;
    
-   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","HcalTiming");
+   monitorName_ = parameters_.getUntrackedParameter<std::string>("monitorName","HcalTiming");
    if (monitorName_ != "" ) monitorName_ =subsystemname+"/"+monitorName_+"/" ;
    counterEvt_=0;
    
@@ -304,7 +302,7 @@ int TRIGGER=0;
    run_number=iEvent.id().run();
    try{	
      // Check GCT trigger bits
-     Handle< L1GlobalTriggerReadoutRecord > gtRecord;
+     edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
      iEvent.getByLabel( L1ADataLabel, gtRecord);
      const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
      const DecisionWord         dWord = gtRecord->decisionWord();
@@ -335,12 +333,12 @@ int TRIGGER=0;
    	int nrpcf[5] = {0,0,0,0,0};
    	int N;
 		
-   	vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-   	vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
+   	std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+   	std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
         N=0;
    	for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
-     		vector<L1MuRegionalCand>::const_iterator iter1;
-     		vector<L1MuRegionalCand> rmc;
+     		std::vector<L1MuRegionalCand>::const_iterator iter1;
+     		std::vector<L1MuRegionalCand> rmc;
      		// DTBX Trigger
      		rmc = igmtrr->getDTBXCands(); 
 		for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {

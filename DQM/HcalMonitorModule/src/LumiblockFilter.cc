@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeff Temple
 //         Created:  Mon May 12 15:38:09 CEST 2008
-// $Id: LumiblockFilter.cc,v 1.1 2008/05/15 15:54:23 temple Exp $
+// $Id: LumiblockFilter.cc,v 1.2 2009/12/18 20:44:47 wmtan Exp $
 //
 //
 
@@ -111,7 +111,6 @@ LumiblockFilter::~LumiblockFilter()
 bool
 LumiblockFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
    int lumi = iEvent.luminosityBlock();
    /*
    if (debug)

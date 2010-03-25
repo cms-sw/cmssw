@@ -52,12 +52,10 @@
 
 */
 
-using namespace std;
-using namespace edm;
 
 //Constructor
 
-HcalMonitorModule::HcalMonitorModule(const ParameterSet& ps)
+HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps)
 {  // Set initial values
   init_=false; // first event sets up Monitor Elements and sets init_ to true
 
@@ -70,7 +68,7 @@ HcalMonitorModule::HcalMonitorModule(const ParameterSet& ps)
   FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
   inputLabelReport_      = ps.getUntrackedParameter<edm::InputTag>("UnpackerReport");
   
-  prefixME_              = ps.getUntrackedParameter<string>("subSystemFolder","Hcal/");
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
   
@@ -91,7 +89,7 @@ void HcalMonitorModule::beginJob(void)
 {
   if (debug_>0) std::cout <<"HcalMonitorModule::beginJob()"<<std::endl;
   // Get DQM service
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   // set default values
   ievt_=0;
   fedsListed_=false;
@@ -113,7 +111,7 @@ void HcalMonitorModule::beginJob(void)
   eMap_=0;
 }
 
-void HcalMonitorModule::beginRun(const Run& r, const EventSetup& c) 
+void HcalMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) 
 {
   if ( debug_>0 ) std::cout << "HcalMonitorModule: beginRun" << std::endl;
   // reset histograms & counters on a new run, unless merging allowed
@@ -132,7 +130,7 @@ void HcalMonitorModule::beginRun(const Run& r, const EventSetup& c)
 } //HcalMonitorModule::beginRun(....)
 
 
-void HcalMonitorModule::endRun(const Run& r, const EventSetup& c) {
+void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( debug_>0 ) std::cout << "HcalMonitorModule: endRun" << std::endl;
 
@@ -312,7 +310,7 @@ void HcalMonitorModule::endJob(void)
 
 
 
-void HcalMonitorModule::analyze(const Event& e, const EventSetup& c)
+void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
   if (!init_) this->setup();
   
@@ -343,7 +341,7 @@ void HcalMonitorModule::analyze(const Event& e, const EventSetup& c)
   edm::Handle<FEDRawDataCollection> rawraw;  
   if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
     {
-      LogWarning("HcalMonitorModule")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
+      edm::LogWarning("HcalMonitorModule")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
       return;
     }
   
@@ -370,15 +368,15 @@ void HcalMonitorModule::analyze(const Event& e, const EventSetup& c)
   }
   
   if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
-    edm::LogWarning("HcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type "
+    edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Conflicting calibration types found.  Assigning type "
 					   << calibType ;
-  LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType ;
+  LogDebug("HcalMonitorModule::CalibTypeFilter") << "Calibration type is: " << calibType ;
   // Fill histogram of calibration types, as well as integer to keep track of current value
   if (meCalibType_) meCalibType_->Fill(calibType);
   if (meCurrentCalibType_) meCurrentCalibType_->Fill(calibType);
   ////if (meCurrentCalibType_) meCurrentCalibType_->Fill(ievt_); // use for debugging check ONLY!
 
-  if (debug_>2) std::cout <<"\t<HcalMonitorModule>  ievt = "<<ievt_<<"  calibration type = "<<calibType<<endl;
+  if (debug_>2) std::cout <<"\t<HcalMonitorModule>  ievt = "<<ievt_<<"  calibration type = "<<calibType<<std::endl;
 
   // Check to see which subdetectors are present.
   // May only need to do this on first event?   Subdets don't appear during a run?
@@ -395,7 +393,7 @@ void HcalMonitorModule::analyze(const Event& e, const EventSetup& c)
   edm::Handle<HcalUnpackerReport> report;  
   if (!(e.getByLabel(inputLabelReport_,report)))
     {
-      LogWarning("HcalMonitorModule")<<" Unpacker Report "<<inputLabelReport_<<" not available";
+      edm::LogWarning("HcalMonitorModule")<<" Unpacker Report "<<inputLabelReport_<<" not available";
       return;
     }
 
@@ -416,14 +414,14 @@ void HcalMonitorModule::CheckSubdetectorStatus(const edm::Handle<FEDRawDataColle
 						  const HcalElectronicsMap& emap)
 {
 
-  vector<int> fedUnpackList;
+  std::vector<int> fedUnpackList;
   for (int i=FEDNumbering::MINHCALFEDID; 
        i<=FEDNumbering::MAXHCALFEDID; 
        i++) 
     fedUnpackList.push_back(i);
 
   if (debug_>1) std::cout <<"<HcalMonitorModule::CheckSubdetectorStatus>  Checking subdetector "<<subdet<<std::endl;
-  for (vector<int>::const_iterator i=fedUnpackList.begin();
+  for (std::vector<int>::const_iterator i=fedUnpackList.begin();
        i!=fedUnpackList.end(); 
        ++i) 
     {
