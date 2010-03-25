@@ -5,10 +5,10 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
     vertexCandidatesLabel = cms.InputTag("particleFlowDisplacedVertexCandidate"),
 
     # verbosity 
-    verbose = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(False),
                                    
     # Debug flag
-    debug = cms.untracked.bool(True),
+    debug = cms.untracked.bool(False),
 
     # maximum transverse distance between two points to be used in Seed                                   
     transvSize = cms.double(1.0),
