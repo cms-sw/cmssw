@@ -25,6 +25,7 @@
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 #include <memory>
@@ -137,7 +138,7 @@ void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
   // Called whenever the muon numbering (or ideal geometry) changes
   //
   if ( useDDD_ ) {
-    edm::ESHandle<DDCompactView> cpv;
+    edm::ESTransientHandle<DDCompactView> cpv;
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<IdealGeometryRecord>().get(cpv);
     record.get( mdc );

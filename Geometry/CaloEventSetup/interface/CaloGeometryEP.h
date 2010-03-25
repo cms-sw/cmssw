@@ -61,7 +61,7 @@ class CaloGeometryEP : public edm::ESProducer
 	    assert( globals.isValid() ) ;
 	    globalPtr = globals.product() ;
 	 }
-	 edm::ESHandle< DDCompactView > cpv ;
+	 edm::ESTransientHandle<DDCompactView> cpv ;
 	 iRecord.template getRecord<IdealGeometryRecord>().get( cpv ) ;
 
 	 LoaderType loader ;

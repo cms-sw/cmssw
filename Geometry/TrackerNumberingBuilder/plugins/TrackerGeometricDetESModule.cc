@@ -7,6 +7,7 @@
 #include "CondDBCmsTrackerConstruction.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -28,7 +29,7 @@ std::auto_ptr<GeometricDet>
 TrackerGeometricDetESModule::produce(const IdealGeometryRecord & iRecord){ 
   if(fromDDD_){
 
-    edm::ESHandle<DDCompactView> cpv;
+    edm::ESTransientHandle<DDCompactView> cpv;
     iRecord.get( cpv );
     
     DDDCmsTrackerContruction theDDDCmsTrackerContruction;

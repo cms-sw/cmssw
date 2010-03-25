@@ -13,7 +13,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu Oct 20 11:35:27 CDT 2006
-// $Id: HcalDDDGeometryEP.cc,v 1.4 2008/05/19 20:12:41 heltsley Exp $
+// $Id: HcalDDDGeometryEP.cc,v 1.5 2008/08/07 12:54:09 sunanda Exp $
 //
 //
 
@@ -92,7 +92,7 @@ HcalDDDGeometryEP::produceAligned(const HcalGeometryRecord& iRecord) {
 
 void
 HcalDDDGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord ) {
-   edm::ESHandle< DDCompactView > pDD;
+   edm::ESTransientHandle<DDCompactView> pDD;
    iRecord.get( pDD );
    m_cpv = &(*pDD) ;
 }

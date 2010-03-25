@@ -12,7 +12,7 @@
 */
 //
 
-// $Id: EcalTBHodoscopeGeometryEP.cc,v 1.1 2007/04/15 23:16:29 wmtan Exp $
+// $Id: EcalTBHodoscopeGeometryEP.cc,v 1.2 2008/01/22 21:31:59 muzaffar Exp $
 //
 //
 
@@ -57,7 +57,7 @@ EcalTBHodoscopeGeometryEP::produce(const IdealGeometryRecord& iRecord)
 {
    using namespace edm::es;
 
-   edm::ESHandle<DDCompactView> cpv;
+   edm::ESTransientHandle<DDCompactView> cpv;
    iRecord.get( cpv );
    
    std::cout << "[EcalTBHodoscopeGeometryEP]::Constructing EcalTBHodoscopeGeometry" <<  std::endl;

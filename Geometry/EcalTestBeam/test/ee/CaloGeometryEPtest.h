@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -60,7 +61,7 @@ class CaloGeometryEPtest : public edm::ESProducer
 	    assert( globals.isValid() ) ;
 	    globalPtr = globals.product() ;
 	 }
-	 edm::ESHandle< DDCompactView > cpv ;
+	 edm::ESTransientHandle<DDCompactView> cpv ;
 	 iRecord.template getRecord<IdealGeometryRecord>().get( cpv ) ;
 
 	 LoaderType loader ;

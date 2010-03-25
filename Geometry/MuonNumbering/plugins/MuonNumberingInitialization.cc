@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 28 16:40:29 PDT 2006
-// $Id: MuonNumberingInitialization.cc,v 1.1 2007/04/15 23:14:55 case Exp $
+// $Id: MuonNumberingInitialization.cc,v 1.2 2007/12/04 00:06:55 case Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 // user include files
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/ESTransientHandle.h>
 //#include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
@@ -77,7 +77,7 @@ MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
 
 void MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometryRecord& igr ) {
 
-   edm::ESHandle<DDCompactView> pDD;
+   edm::ESTransientHandle<DDCompactView> pDD;
    igr.get(label_, pDD );
    //   std::cout << "in MuonNumberingInitialization::initializeMuonDDDConstants" << std::endl;
    if ( muonDDDConst_ != 0 ) {

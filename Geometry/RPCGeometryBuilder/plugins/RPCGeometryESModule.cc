@@ -1,6 +1,6 @@
 /** \file
  *
- *  $Date: 2009/03/20 18:06:50 $
+ *  $Date: 2009/03/26 22:53:48 $
  *  \author M. Maggi - INFN Bari
  */
 
@@ -16,6 +16,7 @@
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 
 #include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/ModuleFactory.h>
 #include <FWCore/Framework/interface/ESProducer.h>
@@ -39,7 +40,7 @@ RPCGeometryESModule::~RPCGeometryESModule(){}
 boost::shared_ptr<RPCGeometry>
 RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
   if(useDDD){
-    edm::ESHandle<DDCompactView> cpv;
+    edm::ESTransientHandle<DDCompactView> cpv;
     record.getRecord<IdealGeometryRecord>().get(cpv);
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
