@@ -7,7 +7,6 @@
 #include <iostream>
 #include "TString.h"
 
-using namespace std;
 
 class NameScheme {
  public:
