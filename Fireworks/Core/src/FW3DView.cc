@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.29 2010/03/14 18:24:24 amraktad Exp $
+// $Id: FW3DView.cc,v 1.30 2010/03/16 11:51:54 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -71,7 +71,10 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_showWireFrame(this, "Show Wire Frame", true),
-   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
+   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l),
+
+   m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
+   m_caloAutoScale (this,"Calo auto scale",true)
 {
    scene()->SetElementName(staticTypeName().c_str());
    scene()->AddElement(list);
@@ -99,6 +102,9 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DView::showTrackerEndcap,this));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DView::showWireFrame,this));
    m_geomTransparency.changed_.connect(boost::bind(&FW3DView::setTransparency,this));
+
+   m_caloFixedScale.changed_.connect(boost::bind(&FW3DView::updateGlobalSceneScaleParameters, this));
+   m_caloAutoScale .changed_.connect(boost::bind(&FW3DView::updateGlobalSceneScaleParameters, this));
 }
 
 FW3DView::~FW3DView()
@@ -193,6 +199,45 @@ FW3DView::setFrom(const FWConfiguration& iFrom)
    gEve->Redraw3D();
 }
 
+//==============================================================================
+
+#include "TEveCalo.h"
+#include "Fireworks/Core/interface/fwLog.h"
+#include "TEveScalableStraightLineSet.h"
+
+void FW3DView::updateGlobalSceneScaleParameters()
+{
+   TEveElement *els = scene()->FirstChild();
+   TEveCalo3D  *c3d = 0;
+   for (TEveElement::List_i i = els->BeginChildren(); i != els->EndChildren(); ++i)
+   {
+      c3d = dynamic_cast<TEveCalo3D*>(*i);
+      if (c3d)
+      {
+         c3d->SetMaxValAbs( 150 / m_caloFixedScale.value() );
+         c3d->SetScaleAbs ( ! m_caloAutoScale.value() );
+         break;
+      }
+   }
+   if (c3d == 0)
+   {
+      fwLog(fwlog::kWarning) << "TEveCalo3D not found!" << std::endl;
+      return;
+   }
+   double scale = c3d->GetValToHeight();
+   TEveElementIter child(els);
+   while ( TEveElement* el = child.current() )
+   {
+      if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(el) )
+      {
+         line->SetScale( scale );
+         line->ElementChanged();
+      }
+      child.next();
+   }
+   c3d->ElementChanged();
+   gEve->Redraw3D();
+}
 
 //==============================================================================
 // GEOMETRY

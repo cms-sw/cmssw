@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DView.h,v 1.15 2010/03/14 18:24:24 amraktad Exp $
+// $Id: FW3DView.h,v 1.16 2010/03/16 11:51:53 amraktad Exp $
 //
 
 // system include files
@@ -51,6 +51,9 @@ public:
 
    // ---------- member functions ---------------------------
    void setGeometry( const DetIdToMatrix* geom );
+
+   // To be fixed.
+   void updateGlobalSceneScaleParameters();
 
 private:
    FW3DView(const FW3DView&);    // stop default
@@ -90,6 +93,9 @@ private:
    FWBoolParameter m_showTrackerEndcap;
    FWBoolParameter m_showWireFrame;
    FWLongParameter m_geomTransparency;
+
+   FWDoubleParameter  m_caloFixedScale;
+   FWBoolParameter    m_caloAutoScale;
 };
 
 

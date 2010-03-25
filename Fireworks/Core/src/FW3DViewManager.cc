@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DViewManager.cc,v 1.15 2010/01/21 21:01:36 amraktad Exp $
+// $Id: FW3DViewManager.cc,v 1.16 2010/03/08 12:34:52 amraktad Exp $
 //
 
 // system include files
@@ -238,16 +238,13 @@ FW3DViewManager::eventEnd()
 {
    if (m_calo3d)
    {
-      double scale = m_calo3d->GetValToHeight();
-      TEveElementIter child(m_elements.get());
-      while ( TEveElement* el = child.current() )
+      // Uber hack, use auto-scale settings from the first view.
+      // The problem is that the same scene is shared among all views anyway
+      // and we have a single calo_3d object.
+      // Alja says this will be fixed with the redesign.
+      if (!m_views.empty())
       {
-         if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(el) )
-         {
-            line->SetScale( scale );
-            line->ElementChanged();
-         }
-         child.next();
+         m_views.front()->updateGlobalSceneScaleParameters();
       }
    }
 
