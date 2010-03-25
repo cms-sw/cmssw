@@ -26,6 +26,9 @@
 #include <iostream>
 
 
+using namespace sipixelobjects;
+
+
       //////////////////////////////////////
       //  errortype "whole" = int 0 in DB //
       //  errortype "tbmA" = int 1 in DB  //
