@@ -2,11 +2,10 @@
 #define MuonTrackValidator_h
 
 /** \class MuonTrackValidator
- *  Class that prodecs histrograms to validate Track Reconstruction performances
+ *  Class that produces histograms to validate Muon Track Reconstruction performances
  *
- *  $Date: 2009/09/04 22:25:04 $
- *  $Revision: 1.48 $
- *  \author cerati
+ *  $Date: 2010/03/22 08:42:06 $
+ *  $Revision: 1.1 $
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -44,10 +43,19 @@ class MuonTrackValidator : public edm::EDAnalyzer, protected MuonTrackValidatorB
     maxPhi = pset.getParameter<double>("maxPhi");
     nintPhi = pset.getParameter<int>("nintPhi");
     useGsf = pset.getParameter<bool>("useGsf");
+    NewValidation = pset.getParameter<bool>("NewValidation");
+
+    // dump cfg parameters
+    edm::LogVerbatim("MuonTrackValidator") << "constructing  MuonTrackValidator: " << pset.dump();
     
+    MABH = false;
     if (!UseAssociators) {
+      // flag MuonAssociatorByHits
+      if (NewValidation && associators[0] == "MuonAssociationByHits") MABH = true;
+      // reset string associators to the map label
       associators.clear();
       associators.push_back(associatormap.label());
+      edm::LogVerbatim("MuonTrackValidator") << "--> associators reset to: " <<associators[0];
     }
   }
 
@@ -82,6 +90,12 @@ private:
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
+
+  // flag NEW validation
+  bool NewValidation;
+  // flag MuonAssociatorByHits
+  bool MABH;
+  
   //1D
   std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits;
 
