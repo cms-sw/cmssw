@@ -31,12 +31,8 @@ class EcalCoder
 
       /// ctor
       EcalCoder( bool                                 addNoise    , 
-		 CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise0 ,
-		 CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise0 = 0 ,
-		 CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise1 = 0 ,
-		 CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise1 = 0 ,
-		 CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise2 = 0 ,
-		 CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise2 = 0   ) ; // make EE version optional for tb compatibility
+		 CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise ,
+		 CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise = 0  ) ; // make EE version optional for tb compatibility
       /// dtor
       virtual ~EcalCoder() ;
 
@@ -93,8 +89,8 @@ class EcalCoder
       
       bool m_addNoise ;   // whether add noise to the pedestals and the gains
 
-      const CorrelatedNoisifier<EcalCorrMatrix>* m_ebCorrNoise[3] ;
-      const CorrelatedNoisifier<EcalCorrMatrix>* m_eeCorrNoise[3] ;
+      const CorrelatedNoisifier<EcalCorrMatrix>* m_ebCorrNoise ;
+      const CorrelatedNoisifier<EcalCorrMatrix>* m_eeCorrNoise ;
 };
 
 

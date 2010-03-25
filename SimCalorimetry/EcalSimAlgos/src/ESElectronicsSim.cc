@@ -7,7 +7,6 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
-using namespace std;
 
 ESElectronicsSim::ESElectronicsSim (bool addNoise):
   addNoise_(addNoise), peds_(0), mips_(0)

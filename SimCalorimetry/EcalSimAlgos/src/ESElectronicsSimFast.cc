@@ -9,7 +9,6 @@
 #include "CLHEP/Random/RandGeneral.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
-using namespace std;
 
 ESElectronicsSimFast::ESElectronicsSimFast (bool addNoise) :
   addNoise_(addNoise), peds_(0), mips_(0)

@@ -23,8 +23,6 @@
 #include <vector>
 #include <cstdlib>
 
-using namespace edm;
-
 class ESFastTDigitizer
 {
  public:
