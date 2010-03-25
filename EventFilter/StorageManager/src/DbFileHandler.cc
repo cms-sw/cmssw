@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.cc,v 1.1 2010/03/19 13:24:05 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.2 2010/03/19 17:33:54 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/DbFileHandler.h>
@@ -16,19 +16,21 @@ _runNumber(0)
 
 void DbFileHandler::writeOld(const string& str)
 {
-  openFile();
-  _outputFile << str.c_str();
-  _outputFile.close();
+  std::ofstream outputFile;
+  openFile(outputFile);
+  outputFile << str.c_str();
+  outputFile.close();
 }
 
 
 void DbFileHandler::write(const string& str)
 {
-  openFile();
-  addReportHeader(_outputFile);
-  _outputFile << str.c_str();
-  _outputFile << endl;
-  _outputFile.close();
+  std::ofstream outputFile;
+  openFile(outputFile);
+  addReportHeader(outputFile);
+  outputFile << str.c_str();
+  outputFile << endl;
+  outputFile.close();
 }
 
 
@@ -42,7 +44,7 @@ void DbFileHandler::configure(const unsigned int runNumber, const DiskWritingPar
 
 
 
-void DbFileHandler::openFile()
+void DbFileHandler::openFile(std::ofstream& outputFile) const
 {
   time_t rawtime = time(0);
   tm * ptm;
@@ -60,7 +62,7 @@ void DbFileHandler::openFile()
              << "-" << _dwParams._smInstanceString
              << ".log";
 
-  _outputFile.open( dbfilename.str().c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  outputFile.open( dbfilename.str().c_str(), ios_base::ate | ios_base::out | ios_base::app );
 }
 
 
