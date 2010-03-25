@@ -6,7 +6,18 @@
 #error "Boost 1.40 or later is needed, for Spirit 2.0 or later"
 #endif
 
+#include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
+
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionHLTReader.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionL1Reader.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionL1TechReader.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionPrescaler.h"
+#include "HLTrigger/HLTfilters/interface/TriggerExpressionConstant.h"
+
+namespace triggerExpression {
+
 namespace qi { 
   // Boost 1.41 has Spirit 2.1, with all the parser components available in the spirit::qi namespace
   using namespace boost::spirit::qi;
@@ -66,19 +77,8 @@ namespace ascii {
   using namespace boost::spirit::ascii; 
 }
 
-using boost::spirit::unused_type;
-
-#include <boost/spirit/include/phoenix.hpp>
 using boost::phoenix::new_;
-
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionHLTReader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionL1Reader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionL1TechReader.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionOperators.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionPrescaler.h"
-#include "HLTrigger/HLTfilters/interface/TriggerExpressionConstant.h"
-
-namespace triggerExpression {
+using boost::spirit::unused_type;
 
 template <typename Iterator>
 class Parser : public qi::grammar<Iterator, Evaluator*(), ascii::space_type>
