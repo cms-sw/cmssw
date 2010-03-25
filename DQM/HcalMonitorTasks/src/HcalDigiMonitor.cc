@@ -5,6 +5,9 @@
 #include "FWCore/Common/interface/TriggerNames.h" 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 // constructor
 HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps) 
@@ -24,9 +27,10 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS",true);
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
-  digiLabel_     = ps.getUntrackedParameter<edm::InputTag>("digiLabel");
-  shapeThresh_   = ps.getUntrackedParameter<int>("shapeThresh",50);
-  //shapeThresh_ is used for plotting pulse shapes for all digis with ADC sum > shapeThresh_;
+  digiLabel_             = ps.getUntrackedParameter<edm::InputTag>("digiLabel");
+  hfRechitLabel_        = ps.getUntrackedParameter<edm::InputTag>("hfRechitLabel");
+  shapeThresh_           = ps.getUntrackedParameter<int>("shapeThresh",20);
+  //shapeThresh_ is used for plotting pulse shapes for all digis with pedestal-subtracted ADC sum > shapeThresh_;
   shapeThreshHB_ = ps.getUntrackedParameter<int>("shapeThreshHB",shapeThresh_);
   shapeThreshHE_ = ps.getUntrackedParameter<int>("shapeThreshHE",shapeThresh_);
   shapeThreshHF_ = ps.getUntrackedParameter<int>("shapeThreshHF",shapeThresh_);
@@ -36,7 +40,7 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   MinBiasHLTBits_        = ps.getUntrackedParameter<std::vector<std::string> >("MinBiasHLTBits");
 
   if (debug_>0)
-    std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ << std::endl;
+    std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ <<" counts above nominal pedestal (3*10)"<< std::endl;
   
   // Specify which tests to run when looking for problem digis
   digi_checkoccupancy_ = ps.getUntrackedParameter<bool>("checkForMissingDigis",false); // off by default -- checked by dead cell monitor
@@ -291,6 +295,28 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   if (debug_>1) std::cout <<"\t<HcalDigiMonitor::setup> Getting conditions from DB!"<<std::endl;
   c.get<HcalDbRecord>().get(conditions_);
 
+  // Get all pedestals by Cap ID
+  edm::ESHandle<HcalChannelQuality> p;
+  c.get<HcalChannelQualityRcd>().get(p);
+  HcalChannelQuality *chanquality= new HcalChannelQuality(*p.product());
+  std::vector<DetId> mydetids = chanquality->getAllChannels();
+  PedestalsByCapId_.clear();
+  const HcalQIEShape* shape = conditions_->getHcalShape();
+  for (unsigned int chan=0;chan<mydetids.size();++chan)
+    {
+      std::vector <int> peds;
+      peds.clear();
+      HcalCalibrations calibs=conditions_->getHcalCalibrations(chan);
+      const HcalQIECoder* channelCoder = conditions_->getHcalCoder(chan);
+      for (int capid=0;capid<4;++capid)
+	{
+	  // temp_ADC should be an int, right?
+	  int temp_ADC=channelCoder->adc(*shape,(float)calibs.pedestal(capid),capid);
+	  peds.push_back(temp_ADC);
+	}
+      PedestalsByCapId_[chan]=peds;
+    }
+
   if (tevt_==0) this->setup(); // create all histograms; not necessary if merging runs together
   if (mergeRuns_==false) this->reset(); // call reset at start of all runs
 } // void HcalDigiMonitor::beginRun()
@@ -308,8 +334,8 @@ void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
   dbe_->setCurrentFolder(subdir_+"digi_info/"+subdet);
   hist.shape = dbe_->book1D(subdet+" Digi Shape",subdet+" Digi Shape;Time Slice",10,-0.5,9.5);
   hist.shapeThresh = dbe_->book1D(subdet+" Digi Shape - over thresh",
-				   subdet+" Digi Shape - over thresh;Time slice",
-				   10,-0.5,9.5);
+				  subdet+" Digi Shape - over thresh passing trigger and HF HT cuts;Time slice",
+				  10,-0.5,9.5);
   // Create plots of sums of adjacent time slices
   for (int ts=0;ts<9;++ts)
     {
@@ -369,6 +395,27 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
     } //else
   
   // Now get collections we need
+  HT_HFP_=0;
+  HT_HFM_=0;
+  bool rechitsFound=false;
+  edm::Handle<HFRecHitCollection> hf_rechit;
+  if (e.getByLabel(hfRechitLabel_,hf_rechit))
+    {
+      rechitsFound=true;
+      for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF)
+	{
+	  float en=HF->energy();
+	  double ieta=HF->id().ieta();
+	  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-1]+theHFEtaBounds[abs(ieta)]));
+	  ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
+	}
+    }
+  else
+    {
+      // if no rechits found, form above-threshold plots based only on digi comparison to ADC threshold 
+      HT_HFP_=999;
+      HT_HFM_=999;
+    }
 
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
@@ -731,7 +778,10 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	    }
 	  ++h.dverr[static_cast<int>(2*digi.sample(i).er()+digi.sample(i).dv())];
 	}
-      ADCcount+=digi.sample(i).adc();
+      if (PedestalsByCapId_.find(digi.id())!=PedestalsByCapId_.end())
+	ADCcount+=digi.sample(i).adc()-PedestalsByCapId_[digi.id()][thisCapid];
+      else
+	ADCcount+=digi.sample(i).adc()-3; // default pedestal subtraction of 3 ADC counts
       if (digi.sample(i).adc()<200) ++h.adc[digi.sample(i).adc()];
       h.count_shape[i]+=digi.sample(i).adc();
       
@@ -772,7 +822,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 
   // require larger threshold to look at pulse shapes
 
-  if (ADCcount>shapeThresh)
+  if (ADCcount>shapeThresh && passedMinBiasHLT_  && HT_HFP_>1 && HT_HFM_>1)
     {
       if (digi.id().subdet()!=HcalOuter || isSiPM(iEta,iPhi, iDepth)==false)
 	for (int i=0;i<digi.size();++i)

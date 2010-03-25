@@ -15,16 +15,20 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                
                                # Digi Monitor Info
                                digiLabel              = cms.untracked.InputTag("hcalDigis"),
-                               shapeThresh            = cms.untracked.int32(50),
-                               shapeThreshHB          = cms.untracked.int32(50),
-                               shapeThreshHE          = cms.untracked.int32(50),
-                               shapeThreshHO          = cms.untracked.int32(50),
-                               shapeThreshHF          = cms.untracked.int32(50),
+                               # Shape thresh are sum of ADC counts above nominal pedestal of 3*10=30
+                               shapeThresh            = cms.untracked.int32(20),
+                               shapeThreshHB          = cms.untracked.int32(20),
+                               shapeThreshHE          = cms.untracked.int32(20),
+                               shapeThreshHO          = cms.untracked.int32(20),
+                               shapeThreshHF          = cms.untracked.int32(20),
                                
                                HLTResultsLabel              = cms.untracked.InputTag("TriggerResults","","HLT"),
                                # triggers required to Min Bias conditions
                                MinBiasHLTBits               = cms.untracked.vstring("HLT_MinBiasBSC"),
-                               
+
+
+                               hfRechitLabel                = cms.untracked.InputTag("hfreco"),
+
                                # problem checks
                                checkForMissingDigis   = cms.untracked.bool(False),
                                checkCapID             = cms.untracked.bool(True),

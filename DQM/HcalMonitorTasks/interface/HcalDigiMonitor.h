@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/03/22 16:02:30 $
-  * $Revision: 1.56.2.6 $
+  * $Date: 2010/03/25 11:00:57 $
+  * $Revision: 1.57 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -114,9 +114,6 @@ private:  ///Methods, variables accessible only within class code
   int DigiMonitor_ExpectedOrbitMessageTime_;
   int hbcount_, hecount_, hocount_, hfcount_;  // Counter # of good digis each event
 
-  const HcalQIEShape* shape_;
-  const HcalQIECoder* channelCoder_;
-
   // Monitoring elements
 
   EtaPhiHists DigiErrorsByDepth;
@@ -193,6 +190,11 @@ private:  ///Methods, variables accessible only within class code
 
   edm::InputTag hltresultsLabel_;
   std::vector <std::string> MinBiasHLTBits_;
+
+  edm::InputTag hfRechitLabel_; // used for calculating HF total ET
+  double HT_HFP_, HT_HFM_;
+
+  std::map<HcalDetId, std::vector<int> > PedestalsByCapId_;
 };
 
 float bins_cellcount_new[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5,
