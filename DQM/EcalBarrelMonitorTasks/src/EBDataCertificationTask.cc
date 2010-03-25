@@ -138,7 +138,21 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
     sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    me->Fill(DQMVal[i]);
+    if( me ) me->Fill(DQMVal[i]);
+
+    sprintf(histo, "reportSummaryMap");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+
+    if( me ) {
+      for( int iett=0; iett<17; iett++ ) {
+        for( int iptt=0; iptt<4; iptt++ ) {
+          int iettx = (i-1)*17 + iett + 1;
+          int ipttx = (i-1)*4 + iptt + 1;
+          me->setBinContent( ipttx, iettx, DQMVal[i]);
+        }
+      }
+    }
+
   }
 
   float totDQMVal = 0.;
@@ -152,7 +166,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
   sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
   me = dqmStore_->get(histo);
-  me->Fill(totDQMVal);
+  if( me ) me->Fill(totDQMVal);
 
   // now combine reduced DQM with DCS and DAQ
   sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());

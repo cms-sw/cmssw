@@ -135,7 +135,24 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
     sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    me->Fill(DQMVal[i]);
+    if( me ) me->Fill(DQMVal[i]);
+
+    sprintf(histo, "reportSummaryMap");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo );
+
+    if( me ) {
+      for ( int iz = -1; iz < 2; iz+=2 ) {
+        for ( int ix = 1; ix <= 100; ix++ ) {
+          for ( int iy = 1; iy <= 100; iy++ ) {
+            int jx = (iz==1) ? 100 + ix : ix;
+            int jy = iy;
+            if( EEDetId::validDetId(ix, iy, iz) ) me->setBinContent( jx, jy, DQMVal[i] );
+            else me->setBinContent( jx, jy, -1.0 );
+          }
+        }
+      }
+    }
+
   }
 
   float totDQMVal = 0.;
@@ -149,7 +166,7 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
   sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
   me = dqmStore_->get(histo);
-  me->Fill(totDQMVal);
+  if( me ) me->Fill(totDQMVal);
 
   // now combine reduced DQM with DCS and DAQ
   sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
