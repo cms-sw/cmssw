@@ -82,7 +82,7 @@ ESElectronicsSimFast::standEncode(const CaloSamples& timeframe) const
 
     if (adc>MAXADC) adc = MAXADC;
     if (adc<MINADC) adc = MINADC;
-    
+
     results.push_back(ESSample(adc));
   }
   
@@ -107,6 +107,9 @@ ESElectronicsSimFast::fastEncode(const CaloSamples& timeframe, CLHEP::RandGenera
   bin[1] = (int)((thisRndCell - hBin2*bin[2])/hBin);              // sample1
   bin[0] = (int)(thisRndCell - hBin*(bin[1] + hBin*bin[2]));      // sample0
 
+  ESPedestals::const_iterator it_ped = peds_->find(timeframe.id());
+  int baseline_  = (int) it_ped->getMean();
+
   int adc[3];
   double noi[3];
   for(int ii=0; ii<3; ii++){
@@ -115,7 +118,8 @@ ESElectronicsSimFast::fastEncode(const CaloSamples& timeframe, CLHEP::RandGenera
     if (noi[ii]>0)      noi[ii] += 0.5;
     else if (noi[ii]<0) noi[ii] -= 0.5;
     
-    adc[ii] = int(noi[ii]);      
+    adc[ii] = int(noi[ii]) - 1000 + baseline_;      
+
     if (adc[ii]>MAXADC) adc[ii] = MAXADC;
     if (adc[ii]<MINADC) adc[ii] = MINADC;
     
