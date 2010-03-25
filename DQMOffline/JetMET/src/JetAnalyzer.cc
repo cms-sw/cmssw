@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/04 16:31:53 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/03/05 16:31:06 $
+ *  $Revision: 1.19 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -16,7 +16,6 @@
 
 
 #include <string>
-using namespace std;
 using namespace edm;
 
 // ***********************************************************

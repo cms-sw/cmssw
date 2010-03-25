@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/20 19:07:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/24 19:08:54 $
+ *  $Revision: 1.6 $
  *  \author K. Hatakeyama - Rockefeller University
  */
 
@@ -25,7 +25,6 @@
 #include "TVector2.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 
 // ***********************************************************

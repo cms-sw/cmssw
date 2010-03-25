@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 
 // ***********************************************************

@@ -57,7 +57,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace reco;
-using namespace std;
 
 CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {

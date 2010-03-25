@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/04 05:40:43 $
- *  $Revision: 1.34 $
+ *  $Date: 2010/03/10 13:25:31 $
+ *  $Revision: 1.35 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -27,7 +27,6 @@
 #include "TLorentzVector.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 
 // ***********************************************************

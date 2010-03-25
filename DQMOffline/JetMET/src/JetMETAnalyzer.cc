@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/22 09:30:02 $
- *  $Revision: 1.57 $
+ *  $Date: 2010/03/22 09:31:22 $
+ *  $Revision: 1.58 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -30,7 +30,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 
 #define DEBUG 0

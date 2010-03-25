@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/18 21:03:51 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/03/04 16:31:53 $
+ *  $Revision: 1.11 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -14,7 +14,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 
 

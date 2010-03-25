@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/02 02:12:27 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/03/10 13:25:31 $
+ *  $Revision: 1.20 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -29,7 +29,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace math;

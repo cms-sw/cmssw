@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/03/10 13:25:31 $
+ *  $Revision: 1.6 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -22,7 +22,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace math;

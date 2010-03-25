@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2010/03/04 16:31:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/03/05 16:31:05 $
+ *  $Revision: 1.9 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -33,7 +33,6 @@
 #include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 #include <string>
-using namespace std;
 using namespace edm;
 
 class JetAnalyzer : public JetAnalyzerBase {

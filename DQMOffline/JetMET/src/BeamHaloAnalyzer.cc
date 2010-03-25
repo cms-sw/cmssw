@@ -5,7 +5,6 @@
 //date : 11/11/09
 
 using namespace edm;
-using namespace std;
 using namespace reco;
 
 int Phi_To_iPhi(float phi) 
@@ -645,7 +644,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(1);
 	  if(!StandardDQM) ME["BeamHaloSummary_BXN"] -> Fill( 1, BXN );
-	  if(Dump)*out << setw(15) << "CSCLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump)*out << std::setw(15) << "CSCLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.CSCTightHaloId() ) 
 	{
@@ -656,7 +655,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(3);
 	  if(!StandardDQM) ME["BeamHaloSummary_BXN"] -> Fill( 3, BXN );
-	  if(Dump) *out << setw(15) << "EcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump) *out << std::setw(15) << "EcalLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.EcalTightHaloId() ) 
 	{
@@ -667,7 +666,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(5);
 	  if(!StandardDQM) ME["BeamHaloSummary_BXN"] -> Fill( 5, BXN );
-	  if(Dump) *out << setw(15) << "HcalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump) *out << std::setw(15) << "HcalLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.HcalTightHaloId() ) 
 	{
@@ -678,7 +677,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	{
 	  ME["BeamHaloSummary_Id"] ->Fill(7);
 	  if(!StandardDQM)ME["BeamHaloSummary_BXN"] -> Fill( 7, BXN );
-	  if(Dump) *out << setw(15) << "GlobalLoose" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	  if(Dump) *out << std::setw(15) << "GlobalLoose" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 	}
       if( TheSummary.GlobalTightHaloId() )
 	{
@@ -708,7 +707,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const CaloMET *calomet = &(calometcol->front());
       
       if( calomet->pt() > DumpMET )
-	if(Dump) *out << setw(15) << "HighMET" << setw(15) << Run << setw(15) << Lumi << setw(15) << TheEventNumber << endl;
+	if(Dump) *out << std::setw(15) << "HighMET" << std::setw(15) << Run << std::setw(15) << Lumi << std::setw(15) << TheEventNumber << std::endl;
 
       //Fill CSC Activity Plot 
       if( calomet->pt() > 15.0 ) 
