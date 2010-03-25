@@ -4,14 +4,15 @@ import os
 
 process = cms.Process("RERECO")
 
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
 #global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V21::All'
+process.GlobalTag.globaltag = 'MC_36Y_V3::All'
 
 ##################################################################################
 
@@ -20,7 +21,7 @@ options = VarParsing.VarParsing ('standard')
 
 # setup any defaults you want
 options.output = 'test_out.root'
-options.files= '/store/relval/CMSSW_3_5_2/RelValPyquen_DiJet_pt80to120_4TeV/GEN-SIM-RECO/MC_3XY_V21-v1/0001/FA961928-A01F-DF11-85F6-0030487CD7C0.root'
+options.files= '/store/relval/CMSSW_3_6_0_pre3/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RECO/MC_36Y_V2-v1/0005/E2A5F92F-2930-DF11-89F8-003048678FB4.root'
 options.maxEvents = 1 
 
 # get and parse the command line arguments
