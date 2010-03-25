@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_5/GRun/V16 (CMSSW_3_5_5)
+# /dev/CMSSW_3_5_5/GRun/V17 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V16')
+  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V17')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -21,13 +21,13 @@ process.streams = cms.PSet(
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
+  EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
     'HcalHPDNoise',
     'ZeroBias',
     'Cosmics',
     'HcalNZS',
     'MinimumBias' ),
-  EventDisplay = cms.vstring(  ),
   DQM = cms.vstring(  ),
   HLTDQM = cms.vstring(  ),
   HLTMON = cms.vstring( 'OfflineMonitor' )
@@ -7872,7 +7872,7 @@ process.hltL1sMinBiasEcal = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG1 OR L1_SingleEG2 OR L1_DoubleEG2" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG1 OR L1_SingleEG2 OR L1_DoubleEG1" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -8523,7 +8523,7 @@ process.hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_DoubleEG2 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_DoubleEG1 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -9991,11 +9991,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTDQM.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Mu5_L1MuOpen',
-  'HLT_Mu5_Track0_Jpsi',
-  'HLT_SelectEcalSpikes_L1R',
-  'HLT_SelectEcalSpikesHighEt_L1R',
-  'HLT_DoublePhoton5_Jpsi_L1R',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DoublePhoton5_Jpsi_L1R',
   'HLT_DoublePhoton5_Upsilon_L1R',
   'HLT_DoublePhoton5_eeRes_L1R',
   'HLT_EgammaSuperClusterOnly_L1R',
@@ -10120,7 +10116,11 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu0_L1MuOpen',
   'HLT_Mu0_Track0_Jpsi',
   'HLT_Mu3_L1MuOpen',
-  'HLT_Mu3_Track0_Jpsi' ) ),
+  'HLT_Mu3_Track0_Jpsi',
+  'HLT_Mu5_L1MuOpen',
+  'HLT_Mu5_Track0_Jpsi',
+  'HLT_SelectEcalSpikes_L1R',
+  'HLT_SelectEcalSpikesHighEt_L1R' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*',

@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/HLT/V45 (CMSSW_3_5_5)
+# /dev/CMSSW_3_5_5/HLT/V46 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HLT/V45')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HLT/V46')
 )
 
 streams = cms.PSet( 
@@ -8861,12 +8861,12 @@ hltL1NonIsoHLTNonIsoSinglePhotonEt30EtFilterESet70 = cms.EDFilter( "HLTEgammaEtF
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
-hltL1DoubleEG2 = cms.EDFilter( "HLTLevel1GTSeed",
+hltL1DoubleEG1 = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG2" ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG1" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -8878,7 +8878,7 @@ hltL1NonIsoDoublePhotonEt4eeResL1MatchFilterRegional = cms.EDFilter( "HLTEgammaL
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     candNonIsolatedTag = cms.InputTag( "hltL1NonIsoRecoEcalCandidateLowPt" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-    L1SeedFilterTag = cms.InputTag( "hltL1DoubleEG2" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1DoubleEG1" ),
     ncandcut = cms.int32( 2 ),
     doIsolated = cms.bool( False ),
     region_eta_size = cms.double( 0.522 ),
@@ -9043,7 +9043,7 @@ hltL1NonIsoDoublePhotonEt4JpsiL1MatchFilterRegional = cms.EDFilter( "HLTEgammaL1
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     candNonIsolatedTag = cms.InputTag( "hltL1NonIsoRecoEcalCandidateLowPt" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-    L1SeedFilterTag = cms.InputTag( "hltL1DoubleEG2" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1DoubleEG1" ),
     ncandcut = cms.int32( 2 ),
     doIsolated = cms.bool( False ),
     region_eta_size = cms.double( 0.522 ),
@@ -9146,7 +9146,7 @@ hltL1NonIsoDoublePhotonEt4UpsL1MatchFilterRegional = cms.EDFilter( "HLTEgammaL1M
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
     candNonIsolatedTag = cms.InputTag( "hltL1NonIsoRecoEcalCandidateLowPt" ),
     l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' ),
-    L1SeedFilterTag = cms.InputTag( "hltL1DoubleEG2" ),
+    L1SeedFilterTag = cms.InputTag( "hltL1DoubleEG1" ),
     ncandcut = cms.int32( 2 ),
     doIsolated = cms.bool( False ),
     region_eta_size = cms.double( 0.522 ),
@@ -12658,7 +12658,7 @@ hltL1sMinBiasEcal = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleEG1 OR L1_SingleEG2 OR L1_DoubleEG2" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG1 OR L1_SingleEG2 OR L1_DoubleEG1" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -13584,7 +13584,7 @@ hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 5 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_DoubleEG2 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleEG1 OR L1_SingleEG2 OR L1_SingleEG5 OR L1_DoubleEG1 OR L1_SingleHfBitCountsRing1_1 OR L1_DoubleHfBitCountsRing1_P1N1 OR L1_SingleHfRingEtSumsRing1_4 OR L1_DoubleHfRingEtSumsRing1_P4N4 OR L1_SingleHfRingEtSumsRing2_4 OR L1_DoubleHfRingEtSumsRing2_P4N4" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -15037,9 +15037,9 @@ HLT_Photon25_LooseEcalIso_TrackIso_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1s
 HLT_Photon30_L1R_8E29 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG8 + hltPrePhoton30L1R8E29 + HLTSinglePhoton15L1NonIsolatedHLTNonIsoSequence + hltL1NonIsoHLTNonIsoSinglePhotonEt15EtFilterESet308E29 + HLTEndSequence )
 HLT_Photon30_L1R_1E31 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG8 + hltPrePhoton30L1R1E31 + HLTSinglePhoton30L1NonIsolatedHLTNonIsoSequence + HLTEndSequence )
 HLT_Photon70_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG8 + hltPrePhoton70L1R + HLTSinglePhoton30L1NonIsolatedHLTNonIsoSequence + hltL1NonIsoHLTNonIsoSinglePhotonEt30EtFilterESet70 + HLTEndSequence )
-HLT_DoublePhoton4_eeRes_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1DoubleEG2 + hltPreDoublePhoton4eeResL1R + HLTDoublePhotonEt4eeResSequence + HLTEndSequence )
-HLT_DoublePhoton4_Jpsi_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1DoubleEG2 + hltPreDoublePhoton4JpsiL1R + HLTDoublePhotonEt4JpsiSequence + HLTEndSequence )
-HLT_DoublePhoton4_Upsilon_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1DoubleEG2 + hltPreDoublePhoton4UpsL1R + HLTDoublePhotonEt4UpsSequence + HLTEndSequence )
+HLT_DoublePhoton4_eeRes_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1DoubleEG1 + hltPreDoublePhoton4eeResL1R + HLTDoublePhotonEt4eeResSequence + HLTEndSequence )
+HLT_DoublePhoton4_Jpsi_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1DoubleEG1 + hltPreDoublePhoton4JpsiL1R + HLTDoublePhotonEt4JpsiSequence + HLTEndSequence )
+HLT_DoublePhoton4_Upsilon_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1DoubleEG1 + hltPreDoublePhoton4UpsL1R + HLTDoublePhotonEt4UpsSequence + HLTEndSequence )
 HLT_DoublePhoton5_eeRes_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG8orL1DoubleEG5 + hltPreDoublePhoton5eeResL1R + HLTDoublePhotonEt5eeResSequence + HLTEndSequence )
 HLT_DoublePhoton5_Jpsi_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG8orL1DoubleEG5 + hltPreDoublePhoton5JpsiL1R + HLTDoublePhotonEt5JpsiSequence + HLTEndSequence )
 HLT_DoublePhoton5_Upsilon_L1R = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleEG8orL1DoubleEG5 + hltPreDoublePhoton5UpsL1R + HLTDoublePhotonEt5UpsSequence + HLTEndSequence )
