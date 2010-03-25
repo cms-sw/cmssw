@@ -82,7 +82,7 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
   //location in the barrel (up or bottom)
   //+++++++++++++++++++++++++++++++++++++
   //simple check, probably nees to be more precise FIXME
-  bool bottomSeed = (usedHit->globalPosition().y()<0);
+  // bool bottomSeed = (usedHit->globalPosition().y()<0); // unused
 	  
 
   //apply corrections
