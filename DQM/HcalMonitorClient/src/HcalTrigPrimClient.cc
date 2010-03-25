@@ -11,8 +11,8 @@
 /*
  * \file HcalTrigPrimClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.16.4.9 $
+ * $Date: 2010/03/25 11:02:26 $
+ * $Revision: 1.17 $
  * \author J. Temple
  * \brief Hcal Trigger Primitive Client class
  */
@@ -268,7 +268,7 @@ void HcalTrigPrimClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalTrigPrimClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalTrigPrimClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

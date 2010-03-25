@@ -43,7 +43,7 @@ ZDCMonitorClient::ZDCMonitorClient(){}
 //--------------------------------------------------------
 ZDCMonitorClient::~ZDCMonitorClient(){
 
-  if (debug_>0) std::cout << "ZDCMonitorClient: Exit ..." << endl;
+  if (debug_>0) std::cout << "ZDCMonitorClient: Exit ..." << std::endl;
 }
 
 //--------------------------------------------------------
@@ -56,9 +56,9 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
 
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   if (debug_>0)
-    std::cout << endl<<" *** ZDC Monitor Client ***" << endl<<endl;
+    std::cout << std::endl<<" *** ZDC Monitor Client ***" << std::endl<<std::endl;
 
-  if(debug_>1) std::cout << "ZDCMonitorClient: constructor...." << endl;
+  if(debug_>1) std::cout << "ZDCMonitorClient: constructor...." << std::endl;
 
   Online_ = ps.getUntrackedParameter<bool>("Online",false);
   // timing switch 
@@ -68,8 +68,8 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
   if (debug_>0)
     {
-      if ( enableMonitorDaemon_ ) std::cout << "-->enableMonitorDaemon switch is ON" << endl;
-      else std::cout << "-->enableMonitorDaemon switch is OFF" << endl;
+      if ( enableMonitorDaemon_ ) std::cout << "-->enableMonitorDaemon switch is ON" << std::endl;
+      else std::cout << "-->enableMonitorDaemon switch is OFF" << std::endl;
     }
 
   // get hold of back-end interface
@@ -78,7 +78,7 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
 
   // DQM ROOT input
   inputFile_ = ps.getUntrackedParameter<std::string>("inputFile", "");
-  if(inputFile_.size()!=0 && debug_>0) std::cout << "-->reading DQM input from " << inputFile_ << endl;
+  if(inputFile_.size()!=0 && debug_>0) std::cout << "-->reading DQM input from " << inputFile_ << std::endl;
   
   if( ! enableMonitorDaemon_ ) {  
     if( inputFile_.size() != 0 && dbe_!=NULL){
@@ -89,37 +89,37 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
 
   //histogram reset freqency, update frequency, timeout
   resetEvents_ = ps.getUntrackedParameter<int>("resetFreqEvents",-1);   //number of real events
-  if(resetEvents_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetEvents_ <<" events." << endl;
+  if(resetEvents_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetEvents_ <<" events." << std::endl;
   resetLS_ = ps.getUntrackedParameter<int>("resetFreqLS",-1);       //number of lumisections
-  if(resetLS_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetLS_ <<" lumi sections." << endl;
+  if(resetLS_!=-1 && debug_>0) std::cout << "-->Will reset histograms every " << resetLS_ <<" lumi sections." << std::endl;
 
   // base Html output directory
   baseHtmlDir_ = ps.getUntrackedParameter<std::string>("baseHtmlDir", "");
   if (debug_>0)
     {
       if( baseHtmlDir_.size() != 0) 
-	std::cout << "-->HTML output will go to baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
-      else std::cout << "-->HTML output is disabled" << endl;
+	std::cout << "-->HTML output will go to baseHtmlDir = '" << baseHtmlDir_ << "'" << std::endl;
+      else std::cout << "-->HTML output is disabled" << std::endl;
     }
   
   runningStandalone_ = ps.getUntrackedParameter<bool>("runningStandalone", false); // unnecessary? Or use for offline client processing?
   if (debug_>1)
     {
-      if( runningStandalone_ ) std::cout << "-->standAlone switch is ON" << endl;
-      else std::cout << "-->standAlone switch is OFF" << endl;
+      if( runningStandalone_ ) std::cout << "-->standAlone switch is ON" << std::endl;
+      else std::cout << "-->standAlone switch is OFF" << std::endl;
     }
 
   // set parameters   
   prescaleEvt_ = ps.getUntrackedParameter<int>("diagnosticPrescaleEvt", -1);
   if (debug_>0) 
-    std::cout << "===>DQM event prescale = " << prescaleEvt_ << " event(s)"<< endl;
+    std::cout << "===>DQM event prescale = " << prescaleEvt_ << " event(s)"<< std::endl;
 
   prescaleLS_ = ps.getUntrackedParameter<int>("diagnosticPrescaleLS", -1);
-  if (debug_>0) std::cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  if (debug_>0) std::cout << "===>DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< std::endl;
 
   // Base folder for the contents of this job
   std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "ZDC") ;
-  if (debug_>0) std::cout << "===>ZDCMonitor name = " << subsystemname << endl;
+  if (debug_>0) std::cout << "===>ZDCMonitor name = " << subsystemname << std::endl;
   rootFolder_ = subsystemname + "/";
 
   return;
@@ -128,7 +128,7 @@ void ZDCMonitorClient::initialize(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 // remove all MonitorElements and directories
 void ZDCMonitorClient::removeAllME(){
-  if (debug_>0) std::cout <<"<ZDCMonitorClient>removeAllME()"<<endl;
+  if (debug_>0) std::cout <<"<ZDCMonitorClient>removeAllME()"<<std::endl;
   if(dbe_==NULL) return;
 
   // go to top directory
@@ -146,14 +146,14 @@ void ZDCMonitorClient::removeAllME(){
 //--------------------------------------------------------
 ///do a reset of all monitor elements...
 void ZDCMonitorClient::resetAllME() {
-  if (debug_>0) std::cout <<"<ZDCMonitorClient> resetAllME()"<<endl;
+  if (debug_>0) std::cout <<"<ZDCMonitorClient> resetAllME()"<<std::endl;
    return;
 }
 
 //--------------------------------------------------------
 void ZDCMonitorClient::beginJob(){
 
-  if( debug_>0 ) std::cout << "ZDCMonitorClient: beginJob" << endl;
+  if( debug_>0 ) std::cout << "ZDCMonitorClient: beginJob" << std::endl;
   
   ievt_ = 0;
  
@@ -164,7 +164,7 @@ void ZDCMonitorClient::beginJob(){
 void ZDCMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if (debug_>0)
-    std::cout << endl<<"ZDCMonitorClient: Standard beginRun() for run " << r.id().run() << endl<<endl;
+    std::cout << std::endl<<"ZDCMonitorClient: Standard beginRun() for run " << r.id().run() << std::endl<<std::endl;
  
   // Get current channel quality 
   /*
@@ -296,7 +296,7 @@ void ZDCMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 void ZDCMonitorClient::endJob(void) {
 
   if( debug_>0 ) 
-    std::cout << "ZDCMonitorClient: endJob, ievt = " << ievt_ << endl;
+    std::cout << "ZDCMonitorClient: endJob, ievt = " << ievt_ << std::endl;
 
   return;
 }
@@ -305,14 +305,14 @@ void ZDCMonitorClient::endJob(void) {
 void ZDCMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if (debug_>0)
-    std::cout << endl<<"<ZDCMonitorClient> Standard endRun() for run " << r.id().run() << endl<<endl;
+    std::cout << std::endl<<"<ZDCMonitorClient> Standard endRun() for run " << r.id().run() << std::endl<<std::endl;
 
   if (!Online_)
     analyze();
 
-  if( debug_ >0) std::cout <<"ZDCMonitorClient: processed events: "<<ievt_<<endl;
+  if( debug_ >0) std::cout <<"ZDCMonitorClient: processed events: "<<ievt_<<std::endl;
 
-  if (debug_>0) std::cout <<"==>Creating report after run end condition"<<endl;
+  if (debug_>0) std::cout <<"==>Creating report after run end condition"<<std::endl;
   if(irun_>1){
     if(inputFile_.size()!=0) report(true);
     else report(false);
@@ -338,17 +338,17 @@ void ZDCMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const
   // don't allow 'backsliding' across lumi blocks in online running
   // This still won't prevent some lumi blocks from being evaluated multiple times.  Need to think about this.
   //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
-  if (debug_>0) std::cout <<"Entered Monitor Client beginLuminosityBlock for LS = "<<l.luminosityBlock()<<endl;
+  if (debug_>0) std::cout <<"Entered Monitor Client beginLuminosityBlock for LS = "<<l.luminosityBlock()<<std::endl;
   ilumisec_ = l.luminosityBlock();
-  if( debug_>0 ) std::cout << "ZDCMonitorClient: beginLuminosityBlock" << endl;
+  if( debug_>0 ) std::cout << "ZDCMonitorClient: beginLuminosityBlock" << std::endl;
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void ZDCMonitorClient::std::endluminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
 
   // don't allow backsliding in online running
   //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
-  if( debug_>0 ) std::cout << "ZDCMonitorClient: endLuminosityBlock" << endl;
+  if( debug_>0 ) std::cout << "ZDCMonitorClient: std::endluminosityBlock" << std::endl;
   if(prescaleLS_>0 && !prescale()){
     // do scheduled tasks...
     if (Online_)
@@ -362,7 +362,7 @@ void ZDCMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const e
 void ZDCMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& eventSetup){
 
   if (debug_>1)
-    std::cout <<"Entered ZDCMonitorClient::analyze(const Evt...)"<<endl;
+    std::cout <<"Entered ZDCMonitorClient::analyze(const Evt...)"<<std::endl;
   
   if(resetEvents_>0 && (ievt_%resetEvents_)==0) resetAllME(); // use ievt_ here, not ievent_, since ievent is the event #, not the # of events processed
   if(resetLS_>0 && (ilumisec_%resetLS_)==0) resetAllME();
@@ -383,7 +383,7 @@ void ZDCMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& event
   maxlumisec_=max(maxlumisec_,ilumisec_);
 
   if (debug_>1) 
-    std::cout << "ZDCMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
+    std::cout << "ZDCMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << std::endl; 
   
   ievt_++; 
 
@@ -398,8 +398,8 @@ void ZDCMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& event
 //--------------------------------------------------------
 void ZDCMonitorClient::analyze(){
   if (debug_>0) 
-    std::cout <<"<ZDCMonitorClient> Entered ZDCMonitorClient::analyze()"<<endl;
-  if(debug_>1) std::cout<<"\nZDC Monitor Client heartbeat...."<<endl;
+    std::cout <<"<ZDCMonitorClient> Entered ZDCMonitorClient::analyze()"<<std::endl;
+  if(debug_>1) std::cout<<"\nZDC Monitor Client heartbeat...."<<std::endl;
   
   createTests();  
   //mui_->doMonitoring();
@@ -413,7 +413,7 @@ void ZDCMonitorClient::analyze(){
 //--------------------------------------------------------
 void ZDCMonitorClient::createTests(void){
   
-  if( debug_>0 ) std::cout << "ZDCMonitorClient: creating all tests" << endl;
+  if( debug_>0 ) std::cout << "ZDCMonitorClient: creating all tests" << std::endl;
   return;
 }
 
@@ -421,7 +421,7 @@ void ZDCMonitorClient::createTests(void){
 void ZDCMonitorClient::report(bool doUpdate) {
   
   if( debug_>0 ) 
-    std::cout << "ZDCMonitorClient: creating report, ievt = " << ievt_ << endl;
+    std::cout << "ZDCMonitorClient: creating report, ievt = " << ievt_ << std::endl;
   
   if(doUpdate){
     createTests();  
@@ -454,9 +454,9 @@ void ZDCMonitorClient::htmlOutput(void){
 }
 
 void ZDCMonitorClient::offlineSetup(){
-  //  std::cout << endl;
-  //  std::cout << " *** Hcal Generic Monitor Client, for offline operation***" << endl;
-  //  std::cout << endl;
+  //  std::cout << std::endl;
+  //  std::cout << " *** Hcal Generic Monitor Client, for offline operation***" << std::endl;
+  //  std::cout << std::endl;
   return;
 }
 
@@ -464,7 +464,7 @@ void ZDCMonitorClient::loadHistograms(TFile* infile, const char* fname)
 {
   if(!infile){
     throw cms::Exception("Incomplete configuration") << 
-      "ZDCMonitorClient: this histogram file is bad! " <<endl;
+      "ZDCMonitorClient: this histogram file is bad! " <<std::endl;
     return;
   }
   return;
@@ -483,7 +483,7 @@ bool ZDCMonitorClient::prescale(){
   ///Return true if this event should be skipped according to the prescale condition...
 
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_>1) std::cout <<"ZDCMonitorClient::prescale"<<endl;
+  if (debug_>1) std::cout <<"ZDCMonitorClient::prescale"<<std::endl;
   
   // If no prescales are set, return 'false'.  (This means that we should process the event.)
   if(prescaleEvt_<=0 && prescaleLS_<=0) return false;

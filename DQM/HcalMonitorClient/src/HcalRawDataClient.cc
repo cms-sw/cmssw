@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2010/03/25 21:26:02 $
- * $Revision: 1.3 $
+ * $Date: 2010/03/25 21:28:38 $
+ * $Revision: 1.4 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -541,7 +541,7 @@ void HcalRawDataClient::mapDCCproblem(int dcc, float n) {
       if (problemcount[myeta][myphi-1][mydepth-1]< n)
 	problemcount[myeta][myphi-1][mydepth-1]=n;
       if (debug_>0)
-	cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
+	std::cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
   }
 }
@@ -569,7 +569,7 @@ void HcalRawDataClient::mapHTRproblem(int dcc, int spigot, float n) {
       if (problemcount[myeta][myphi-1][mydepth-1]< n)
 	problemcount[myeta][myphi-1][mydepth-1]=n;
       if (debug_>0)
-	cout<<" mapHTRproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
+	std::cout<<" mapHTRproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }    
   }
 }   // void HcalRawDataClient::mapHTRproblem(...)
