@@ -5,8 +5,8 @@
  * \file ZDCMonitorModule.h
  *
 
- * $Date: 2010/02/04 04:57:10 $
- * $Revision: 1.1.1.1 $
+ * $Date: 2010/02/05 18:52:10 $
+ * $Revision: 1.1 $
  * \author 
  *
 */
@@ -20,42 +20,19 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
-#include "DataFormats/Provenance/interface/EventID.h"  
-#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
-#include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DQM/HcalMonitorTasks/interface/HcalZDCMonitor.h"
+class MonitorElement;
+class DQMStore;
+class  HcalZDCMonitor;
 
-#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
-
-// Use to hold/get channel status
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
-
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
-#include <memory>
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <string>
-#include <sys/time.h>
 
-using namespace edm;
-
-class ZDCMonitorModule : public EDAnalyzer{
+class ZDCMonitorModule : public edm::EDAnalyzer{
 
 public:
   
@@ -181,7 +158,7 @@ public:
   edm::ESHandle<HcalDbService> conditions_;
   const HcalElectronicsMap*    readoutMap_;
 
-  ofstream m_logFile;
+  std::ofstream m_logFile;
 
   // Determine whether the ZDC in the run (using FED info)
   int ZDCpresent_;
