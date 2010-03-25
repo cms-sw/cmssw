@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.21 2009/12/11 02:49:15 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.22 2009/12/18 20:44:53 wmtan Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -62,6 +62,8 @@ void FourVectorHLTClient::initialize(){
   
   // get back-end interface
   dbe_ = Service<DQMStore>().operator->();
+
+  processname_ = parameters_.getParameter<std::string>("processname");
   
 
   // base folder for the contents of this job
@@ -123,6 +125,23 @@ void FourVectorHLTClient::beginJob(){
 void FourVectorHLTClient::beginRun(const Run& r, const EventSetup& context) {
 
   LogDebug("FourVectorHLTClient")<<"[FourVectorHLTClient]: beginRun" << endl;
+  // HLT config does not change within runs!
+  bool changed=false;
+ 
+  if (!hltConfig_.init(r, context, processname_, changed)) {
+
+    processname_ = "FU";
+
+    if (!hltConfig_.init(r, context, processname_, changed)){
+
+      LogDebug("FourVectorHLTOffline") << "HLTConfigProvider failed to initialize.";
+
+    }
+
+    // check if trigger name in (new) config
+    //  cout << "Available TriggerNames are: " << endl;
+    //  hltConfig_.dump("Triggers");
+  }
 
 }
 
@@ -212,9 +231,19 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
   name.push_back("All");
   name.push_back("Muon");
   name.push_back("Egamma");
+  name.push_back("Tau");
   name.push_back("JetMET");
   name.push_back("Rest");
   name.push_back("Special");
+
+  /// add dataset name and thier triggers to the list 
+  vector<string> datasetNames =  hltConfig_.datasetNames() ;
+
+  for (unsigned int i=0;i<datasetNames.size();i++) {
+
+    name.push_back(datasetNames[i]);
+
+  }
 
   string fullPathToME; 
 
