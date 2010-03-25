@@ -7,7 +7,7 @@
 class ClusterData
 {
  public:
-   bool isStraight,isComplete; 
+   bool isStraight,isComplete, hasBigPixelsOnlyInside; 
    std::vector<std::pair<int,int> > size;
 };
 

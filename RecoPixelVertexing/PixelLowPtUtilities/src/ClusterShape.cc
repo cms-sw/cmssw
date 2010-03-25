@@ -129,18 +129,18 @@ void ClusterShape::determineShape
     // Check if at the edge or big 
     if(theTopology->isItEdgePixelInX(pos.first) ||
        theTopology->isItEdgePixelInY(pos.second))
-    { data.isComplete = false; break; }
+    { data.isComplete = false; } // break; }
  
     // Check if straight
     if(pos.first > x[1])
     { // column ready
       if(processColumn(pos, true) == false)
-      { data.isStraight = false; break; }
+      { data.isStraight = false; } // break; }
     }
     else
     { // increasing column
       if(pos.second > hig+1) // at least a pixel is missing
-      { data.isStraight = false; break; }
+      { data.isStraight = false; } // break; }
  
       hig = pos.second;
     }
@@ -159,7 +159,7 @@ void ClusterShape::determineShape
           iy < recHit.cluster()->maxPixelCol(); iy++)
     if(theTopology->isItBigPixelInY(iy)) y[1]++;
 
-  // Treat clusters with bix pixel(s) outside
+  // Treat clusters with bix pixel(s) outside, FIXME FIXME
   int px = 0;
   if(theTopology->isItBigPixelInX(recHit.cluster()->minPixelRow())) px++;
   if(theTopology->isItBigPixelInX(recHit.cluster()->maxPixelRow())) px++;
@@ -168,13 +168,18 @@ void ClusterShape::determineShape
   if(theTopology->isItBigPixelInY(recHit.cluster()->minPixelCol())) py++;
   if(theTopology->isItBigPixelInY(recHit.cluster()->maxPixelCol())) py++;
 
+  if(px > 0 || py > 0)
+    data.hasBigPixelsOnlyInside = false;
+  else
+    data.hasBigPixelsOnlyInside = true;
+
   if( (px > 0 || py > 0) && odir == 0)
   {
-    // if outside and don't know the direction
+    // if outside and don't know the direction FIXME?
     data.isComplete = false;
   }
-  else 
-  { 
+  // else
+  { // FIXME do it
     for(int ax = 0; ax <= px; ax++)
     for(int ay = 0; ay <= py; ay++)
     {
