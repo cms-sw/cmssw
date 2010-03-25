@@ -6,7 +6,8 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 #process.load("SimG4CMS.Calo.testGeometryPMTXML_cfi")
-process.load("Geometry.CMSCommonData.cmsHFPMTXML_cfi")
+process.load("Geometry.CMSCommonData.cmsHFPMTAverageXML_cfi")
+#process.load("SimG4CMS.Calo.cmsHFPMTXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
