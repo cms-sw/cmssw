@@ -5,7 +5,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = 'MC_31X_V5::All'
+process.GlobalTag.globaltag = 'MC_36Y_V3::All'
 
 process.load("RecoMuon.MuonIdentification.links_cfi")
 process.maxEvents = cms.untracked.PSet(
@@ -39,12 +39,13 @@ options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/relval/CMSSW_3_2_5/RelValSingleMuPt10/GEN-SIM-RECO/MC_31X_V5-v1/0011/E014EF8B-588E-DE11-8D06-001617E30E28.root'
+    #'/store/relval/CMSSW_3_2_5/RelValSingleMuPt10/GEN-SIM-RECO/MC_31X_V5-v1/0011/E014EF8B-588E-DE11-8D06-001617E30E28.root'
+    'file:/tmp/jribnik/12D588B7-8D37-DF11-83E5-0030487A1884.root'
     )
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/mc-muonid3.root'),
+    fileName = cms.untracked.string('mc-muonid3.root'),
     outputCommands = cms.untracked.vstring("drop *",
         "keep *_genParticleCandidates_*_*",
 	"keep recoTracks_*_*_*",

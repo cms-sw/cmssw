@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingProducer.cc,v 1.3 2009/03/27 02:23:58 ptraczyk Exp $
+// $Id: MuonTimingProducer.cc,v 1.4 2009/09/18 15:02:58 ptraczyk Exp $
 //
 //
 
@@ -93,9 +93,9 @@ MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   unsigned int nMuons = muons->size();
   if (!nMuons) return;
   
-  vector<reco::MuonTimeExtra> dtTimeColl(nMuons);
-  vector<reco::MuonTimeExtra> cscTimeColl(nMuons);
-  vector<reco::MuonTimeExtra> combinedTimeColl(nMuons);
+  std::vector<reco::MuonTimeExtra> dtTimeColl(nMuons);
+  std::vector<reco::MuonTimeExtra> cscTimeColl(nMuons);
+  std::vector<reco::MuonTimeExtra> combinedTimeColl(nMuons);
 
   for ( unsigned int i=0; i<nMuons; ++i ) {
 

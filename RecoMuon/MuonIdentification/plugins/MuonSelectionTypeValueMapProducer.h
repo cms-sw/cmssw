@@ -19,7 +19,7 @@ class MuonSelectionTypeValueMapProducer : public edm::EDProducer {
     public:
         explicit MuonSelectionTypeValueMapProducer(const edm::ParameterSet& iConfig) :
             inputMuonCollection_(iConfig.getParameter<edm::InputTag>("inputMuonCollection")),
-            selectionTypeLabel_(iConfig.getParameter<string>("selectionType"))
+            selectionTypeLabel_(iConfig.getParameter<std::string>("selectionType"))
         {
             selectionType_ = muon::selectionTypeFromString(selectionTypeLabel_);
             produces<edm::ValueMap<bool> >().setBranchAlias("muid"+selectionTypeLabel_);

@@ -1,7 +1,7 @@
 /** \class MuonProducer
  *  No description available.
  *
- *  $Date: 2007/05/04 18:14:34 $
+ *  $Date: 2007/05/12 22:14:39 $
  *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -25,12 +25,10 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 
-using namespace edm;
-
 /// Constructor
-MuonProducer::MuonProducer(const ParameterSet& pSet){
+MuonProducer::MuonProducer(const edm::ParameterSet& pSet){
 
-  theLinksCollectionLabel = pSet.getParameter<InputTag>("InputObjects");
+  theLinksCollectionLabel = pSet.getParameter<edm::InputTag>("InputObjects");
 
   setAlias(pSet.getParameter<std::string>("@module_label"));
   produces<reco::MuonCollection>().setBranchAlias(theAlias + "s");
@@ -42,7 +40,7 @@ MuonProducer::~MuonProducer(){
 }
 
 void MuonProducer::printTrackRecHits(const reco::Track &track, 
-				     ESHandle<GlobalTrackingGeometry> trackingGeometry) const{
+				     edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const{
 
   const std::string metname = "Muon|RecoMuon|MuonIdentification|MuonProducer";
 
@@ -62,7 +60,7 @@ void MuonProducer::printTrackRecHits(const reco::Track &track,
 
 
 /// reconstruct muons
-void MuonProducer::produce(Event& event, const EventSetup& eventSetup){
+void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
 
    const std::string metname = "Muon|RecoMuon|MuonIdentification|MuonProducer";
 
@@ -70,7 +68,7 @@ void MuonProducer::produce(Event& event, const EventSetup& eventSetup){
    std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
    
 
-   Handle<reco::MuonTrackLinksCollection> linksCollection; 
+   edm::Handle<reco::MuonTrackLinksCollection> linksCollection; 
    event.getByLabel(theLinksCollectionLabel,linksCollection);
 
    if(linksCollection->empty()) {
@@ -80,7 +78,7 @@ void MuonProducer::produce(Event& event, const EventSetup& eventSetup){
    
 
    // Global Tracking Geometry
-   ESHandle<GlobalTrackingGeometry> trackingGeometry; 
+   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry; 
    eventSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry); 
    
    for(reco::MuonTrackLinksCollection::const_iterator links = linksCollection->begin();

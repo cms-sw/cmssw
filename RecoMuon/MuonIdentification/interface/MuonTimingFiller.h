@@ -16,7 +16,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.h,v 1.3 2009/10/16 09:04:41 ptraczyk Exp $
+// $Id: MuonTimingFiller.h,v 1.4 2009/10/19 13:00:45 ptraczyk Exp $
 //
 //
 
@@ -51,7 +51,7 @@ class MuonTimingFiller {
    private:
       void fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco::MuonTimeExtra &muTime );
       void rawFit(double &a, double &da, double &b, double &db, 
-                  const vector<double> hitsx, const vector<double> hitsy);
+                  const std::vector<double> hitsx, const std::vector<double> hitsy);
       void addEcalTime( const reco::Muon& muon, TimeMeasurementSequence &cmbSeq );
       void combineTMSequences( const reco::Muon& muon, TimeMeasurementSequence dtSeq, 
                                TimeMeasurementSequence cscSeq, TimeMeasurementSequence &cmbSeq );

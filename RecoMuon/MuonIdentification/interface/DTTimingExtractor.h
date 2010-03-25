@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.h,v 1.1 2009/03/27 02:26:41 ptraczyk Exp $
+// $Id: DTTimingExtractor.h,v 1.2 2009/12/03 08:40:21 ptraczyk Exp $
 //
 //
 
@@ -52,8 +52,6 @@ namespace edm {
 
 class MuonServiceProxy;
 
-using namespace std;
-
 class DTTimingExtractor {
 
 public:
@@ -79,7 +77,7 @@ public:
   void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
-  double fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr );
+  double fitT0(double &a, double &b, std::vector<double> xl, std::vector<double> yl, std::vector<double> xr, std::vector<double> yr );
 
   edm::InputTag DTSegmentTags_; 
   unsigned int theHitsMin_;

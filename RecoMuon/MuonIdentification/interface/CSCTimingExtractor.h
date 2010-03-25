@@ -9,7 +9,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.h,v 1.1 2009/03/27 02:26:41 ptraczyk Exp $
+// $Id: CSCTimingExtractor.h,v 1.1 2009/07/30 09:59:56 ptraczyk Exp $
 //
 //
 
@@ -51,8 +51,6 @@ namespace edm {
 }
 
 class MuonServiceProxy;
-
-using namespace std;
 
 class CSCTimingExtractor {
 

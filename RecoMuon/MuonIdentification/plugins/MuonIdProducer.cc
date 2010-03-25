@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.50 2010/01/11 20:28:45 jribnik Exp $
+// $Id: MuonIdProducer.cc,v 1.51 2010/03/12 13:53:44 gpetrucc Exp $
 //
 //
 
@@ -330,8 +330,6 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 
 void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   
    // TimerStack timers;
    // timers.push("MuonIdProducer::produce");
    
@@ -506,14 +504,14 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int nMuons=outputMuons->size();
 
-   vector<reco::MuonTimeExtra> dtTimeColl(nMuons);
-   vector<reco::MuonTimeExtra> cscTimeColl(nMuons);
-   vector<reco::MuonTimeExtra> combinedTimeColl(nMuons);
-   vector<reco::IsoDeposit> trackDepColl(nMuons);
-   vector<reco::IsoDeposit> ecalDepColl(nMuons);
-   vector<reco::IsoDeposit> hcalDepColl(nMuons);
-   vector<reco::IsoDeposit> hoDepColl(nMuons);
-   vector<reco::IsoDeposit> jetDepColl(nMuons);
+   std::vector<reco::MuonTimeExtra> dtTimeColl(nMuons);
+   std::vector<reco::MuonTimeExtra> cscTimeColl(nMuons);
+   std::vector<reco::MuonTimeExtra> combinedTimeColl(nMuons);
+   std::vector<reco::IsoDeposit> trackDepColl(nMuons);
+   std::vector<reco::IsoDeposit> ecalDepColl(nMuons);
+   std::vector<reco::IsoDeposit> hcalDepColl(nMuons);
+   std::vector<reco::IsoDeposit> hoDepColl(nMuons);
+   std::vector<reco::IsoDeposit> jetDepColl(nMuons);
 
    // Fill various information
    unsigned int i=0;
@@ -579,7 +577,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // timers.push("MuonIdProducer::produce::fillArbitration");
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
    // timers.pop();
-   OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
+   edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
 
    filler.insert(muonHandle, combinedTimeColl.begin(), combinedTimeColl.end());
    filler.fill();

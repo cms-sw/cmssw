@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonRefProducer.cc,v 1.3 2007/09/06 00:54:25 dmytro Exp $
+// $Id: MuonRefProducer.cc,v 1.4 2008/10/17 20:43:06 dmytro Exp $
 //
 //
 
@@ -63,8 +63,6 @@ MuonRefProducer::~MuonRefProducer(){}
 
 void MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   
    std::auto_ptr<edm::RefVector<std::vector<reco::Muon> > > outputCollection(new edm::RefVector<std::vector<reco::Muon> >);
 
    edm::Handle<reco::MuonCollection> muons;

@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingFiller.cc,v 1.7 2009/10/20 13:00:16 ptraczyk Exp $
+// $Id: MuonTimingFiller.cc,v 1.8 2010/03/09 08:19:03 ptraczyk Exp $
 //
 //
 
@@ -113,7 +113,7 @@ MuonTimingFiller::fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTim
 void 
 MuonTimingFiller::fillTimeFromMeasurements( TimeMeasurementSequence tmSeq, reco::MuonTimeExtra &muTime ) {
 
-  vector <double> x,y;
+  std::vector <double> x,y;
   double invbeta=0, invbetaerr=0;
   double vertexTime=0, vertexTimeErr=0, vertexTimeR=0, vertexTimeRErr=0;    
   double freeBeta, freeBetaErr, freeTime, freeTimeErr;
@@ -217,7 +217,7 @@ MuonTimingFiller::addEcalTime( const reco::Muon& muon,
 
 
 void 
-MuonTimingFiller::rawFit(double &a, double &da, double &b, double &db, const vector<double> hitsx, const vector<double> hitsy) {
+MuonTimingFiller::rawFit(double &a, double &da, double &b, double &db, const std::vector<double> hitsx, const std::vector<double> hitsy) {
 
   double s=0,sx=0,sy=0,x,y;
   double sxx=0,sxy=0;
