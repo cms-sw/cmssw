@@ -154,8 +154,8 @@ muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc+staMuonTrackVTrackAsso
 muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVTrackAssoc+tevMuonPickyTrackVTrackAssoc
                                     +tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc)
 
-muonValidationSET_seq = cms.Sequence(staSETMuonTrackVTrackAssoc+staSETUpdMuonTrackVTrackAssoc+glbSETMuonTrackVTrackAssoc)
-#                                     +staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
+muonValidationSET_seq = cms.Sequence(staSETMuonTrackVTrackAssoc+staSETUpdMuonTrackVTrackAssoc+glbSETMuonTrackVTrackAssoc
+                                     +staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
 
 muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc+staCosmicMuonTrackVTrackAssoc+glbCosmicMuonTrackVTrackAssoc
                                  +staCosmicMuonTrackVMuonAssoc+glbCosmicMuonTrackVMuonAssoc)
