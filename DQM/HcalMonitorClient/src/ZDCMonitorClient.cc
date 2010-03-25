@@ -344,7 +344,7 @@ void ZDCMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const
 }
 
 //--------------------------------------------------------
-void ZDCMonitorClient::std::endluminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void ZDCMonitorClient::endluminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
 
   // don't allow backsliding in online running
   //if (Online_ && (int)l.luminosityBlock()<ilumisec_) return;
@@ -379,8 +379,8 @@ void ZDCMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& event
 
   if (minlumisec_==0)
     minlumisec_=ilumisec_;
-  minlumisec_=min(minlumisec_,ilumisec_);
-  maxlumisec_=max(maxlumisec_,ilumisec_);
+  minlumisec_=std::min(minlumisec_,ilumisec_);
+  maxlumisec_=std::max(maxlumisec_,ilumisec_);
 
   if (debug_>1) 
     std::cout << "ZDCMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << std::endl; 
