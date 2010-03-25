@@ -12,9 +12,6 @@
 
 inline void evaluateTtSemiLepJetComb(PhysicsTools::Variable::ValueList& values, const TtSemiLepJetComb& jetComb)
 {
-  // namespace for enums
-  using namespace JetComb;
-  
   // ----------------------------------------------------------------------
   // mass, pt, eta, phi and theta of single candidates of the ttbar system
   // ----------------------------------------------------------------------
