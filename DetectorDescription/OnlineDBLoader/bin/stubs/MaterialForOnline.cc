@@ -1,6 +1,6 @@
 // Original Author:  Jie Chen
 //         Created:  Thu Apr  5 10:36:22 CDT 2007
-// $Id: MaterialForOnline.cc,v 1.5.2.2 2009/12/21 23:22:57 case Exp $
+// $Id: MaterialForOnline.cc,v 1.7 2009/12/21 23:29:28 case Exp $
 //
 //
 
@@ -11,6 +11,7 @@
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -101,7 +102,7 @@ MaterialForOnline::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 
 
   std::cout << "MaterialForOnline Analyzer..." << std::endl;
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
 
   iSetup.get<IdealGeometryRecord>().get( "", pDD );
 

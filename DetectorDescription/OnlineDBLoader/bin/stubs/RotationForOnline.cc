@@ -1,7 +1,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Mon Apr  9 11:36:53 CDT 2007
-// $Id: RotationForOnline.cc,v 1.4.2.2 2009/12/21 23:22:58 case Exp $
+// $Id: RotationForOnline.cc,v 1.6 2009/12/21 23:29:28 case Exp $
 //
 //
 
@@ -12,6 +12,7 @@
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -96,7 +97,7 @@ RotationForOnline::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
   std::cout << "RotationForOnline Analyzer..." << std::endl;
 
 
-  edm::ESHandle<DDCompactView> pDD;
+  edm::ESTransientHandle<DDCompactView> pDD;
 
   iSetup.get<IdealGeometryRecord>().get( "", pDD );
   DDRotationMatrix ident;
