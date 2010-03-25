@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.10 2010/03/19 13:24:05 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.11 2010/03/19 17:33:54 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -76,6 +76,8 @@ void StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
 
 void StreamsMonitorCollection::reportAllLumiSectionInfos(DbFileHandlerPtr dbFileHandler)
 {
+  boost::mutex::scoped_lock sl(_streamRecordsMutex);
+
   UnreportedLS unreportedLS;
   getListOfAllUnreportedLS(unreportedLS);
 
