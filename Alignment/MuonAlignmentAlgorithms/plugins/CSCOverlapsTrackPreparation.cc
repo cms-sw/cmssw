@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: CSCOverlapsTrackPreparation.cc,v 1.3 2009/03/27 09:20:48 flucke Exp $
+// $Id: CSCOverlapsTrackPreparation.cc,v 1.5 2010/03/25 00:59:12 pivarski Exp $
 //
 //
 
@@ -67,7 +67,7 @@ class CSCOverlapsTrackPreparation : public edm::EDProducer {
    private:
       enum {kNothing, kSimpleFit, kAllButOne, kExtrapolate};
 
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -300,7 +300,7 @@ CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSetup& 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void CSCOverlapsTrackPreparation::beginJob(const edm::EventSetup&) {}
+void CSCOverlapsTrackPreparation::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CSCOverlapsTrackPreparation::endJob() {}
