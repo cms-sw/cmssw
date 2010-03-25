@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2009/10/11 21:12:58 $
- * $Revision: 1.10 $
+ * $Date: 2009/11/19 14:35:32 $
+ * $Revision: 1.11 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.10 2009/10/11 21:12:58 asavin Exp $
+ * $Id: L1TdeRCT.h,v 1.11 2009/11/19 14:35:32 puigh Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.11  2009/11/19 14:35:32  puigh
+ * modify beginJob
+ *
  * Revision 1.10  2009/10/11 21:12:58  asavin
  * *** empty log message ***
  *
@@ -179,9 +182,10 @@ private:
   MonitorElement *rctBitMatchedQuiet2D_;
   MonitorElement *rctBitUnmatchedEmulQuiet2D_;
   MonitorElement *rctBitUnmatchedDataQuiet2D_;
-  MonitorElement *rctBitQuietEff2D_;
-  MonitorElement *rctBitQuietIneff2D_;
-  MonitorElement *rctBitQuietOvereff2D_;
+  // QUIETBIT: To add quiet bit information, uncomment following 3 lines:
+  // MonitorElement *rctBitQuietEff2D_;
+  // MonitorElement *rctBitQuietIneff2D_;
+  // MonitorElement *rctBitQuietOvereff2D_;
   MonitorElement *rctBitEmulHfPlusTau2D_;
   MonitorElement *rctBitDataHfPlusTau2D_;
   MonitorElement *rctBitMatchedHfPlusTau2D_;
@@ -205,7 +209,7 @@ private:
   MonitorElement* rctIsoEmEff2Occ_ ;
   MonitorElement* rctIsoEmIneff2Occ_ ;
   MonitorElement* rctIsoEmIneffOcc_ ;
-  MonitorElement* rctIsoEmOvereffOcc_ ; 
+  MonitorElement* rctIsoEmOvereffOcc_ ;
   MonitorElement* rctIsoEmEff1_ ;
   MonitorElement* rctIsoEmEff2_ ;
   MonitorElement* rctIsoEmIneff2_ ;
@@ -218,7 +222,7 @@ private:
   MonitorElement* rctIsoEmEff2Occ1D_ ;
   MonitorElement* rctIsoEmIneff2Occ1D_ ;
   MonitorElement* rctIsoEmIneffOcc1D_ ;
-  MonitorElement* rctIsoEmOvereffOcc1D_ ; 
+  MonitorElement* rctIsoEmOvereffOcc1D_ ;
   MonitorElement* rctIsoEmEff1oneD_ ;
   MonitorElement* rctIsoEmEff2oneD_ ;
   MonitorElement* rctIsoEmIneff2oneD_ ;
@@ -263,7 +267,7 @@ private:
   MonitorElement* rctRegEffChannel_[396];
   MonitorElement* rctRegIneffChannel_[396];
   MonitorElement* rctRegOvereffChannel_[396];
-  
+
   //efficiency
   MonitorElement* trigEffThresh_;
   MonitorElement* trigEffThreshOcc_;
