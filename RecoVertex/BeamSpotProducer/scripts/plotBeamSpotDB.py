@@ -17,9 +17,11 @@
    A very simple script to plot the beam spot data stored in condDB
 
    usage: %prog -t <tag name>
+   -a, --auth    = AUTH: DB authorization path. online(/nfshome0/popcondev/conddb).
    -b, --batch : Run ROOT in batch mode.
    -c, --create  = CREATE: name for beam spot data file.
    -d, --data    = DATA: input beam spot data file.
+   -D, --destDB  = DESTDB: destination DB string. online(oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT).
    -i, --initial = INITIAL: First run.
    -f, --final   = FINAL: Last run.
    -n, --noplot : Only extract beam spot data, plots are not created..
@@ -273,6 +275,12 @@ if __name__ == '__main__':
         #  GET DATA
         ################################
 
+        otherArgs = ''
+        if option.destDB:
+            otherArgs = option.destDB
+            if option.auth:
+                otherArgs = otherArgs + option.auth
+        
         print " get beam spot data from DB for IOVs. This can take a few minutes ..."
 
         tmpfile = open(datafilename,'w')
@@ -287,7 +295,7 @@ if __name__ == '__main__':
                 print " IOV: " + str(iIOV.since) + " to " + str(iIOV.till)
                 passiov = True
             if passiov:
-                acommand = 'getBeamSpotDB.py '+ tag + " " + str(iIOV.since)
+                acommand = 'getBeamSpotDB.py '+ tag + " " + str(iIOV.since) +otherArgs
                 status = commands.getstatusoutput( acommand )
                 tmpfile.write(status[1])
     
