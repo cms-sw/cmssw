@@ -20,10 +20,11 @@ import commands
 def main():
 
     if len(sys.argv) < 2:
-	print "\n [usage] getBeamSpotDB <tag name> <run number = 1> <destDB = frontier://PromptProd/CMS_COND_31X_BEAMSPOT >\n"
+	print "\n [usage] getBeamSpotDB <tag name> <run number = 1> <destDB = frontier://PromptProd/CMS_COND_31X_BEAMSPOT > <authorization = /afs/cern.ch/cms/DB/conddb> \n"
 	print " e.g. getBeamSpotDB First900GeVCollision_3p9cm_v3_mc_STARTUP \n\n"
         print "      destDB options \"oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT\""
         print "                     \"sqlite_file:mysqlitefile.db\" \n"
+        print "      auth options \"/nfshome0/popcondev/conddb\" \n"
 	sys.exit()
 
     
@@ -31,7 +32,10 @@ def main():
     iov_since = ''
     iov_till = ''
     destDB = 'frontier://PromptProd/CMS_COND_31X_BEAMSPOT'
+    auth = '/afs/cern.ch/cms/DB/conddb'
     run = '1'
+    if len(sys.argv) > 4:
+        auth = sys.argv[4]
     if len(sys.argv) > 3:
         destDB = sys.argv[3]
     if len(sys.argv) > 2:
@@ -70,6 +74,11 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
     #connect = cms.string('frontier://PromptProd/CMS_COND_31X_BEAMSPOT')
     rnewfile.write('''
                                         )
+
+''')
+    rnewfile.write('authenticationPath = cms.untracked.string(\"'+auth + '\")')
+
+    rnewfile.write('''
 
 process.source = cms.Source("EmptySource",
         numberEventsInRun = cms.untracked.uint32(1),

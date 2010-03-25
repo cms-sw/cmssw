@@ -19,9 +19,8 @@
 
    usage: %prog -d <data file/directory> -t <tag name>
    -d, --data    = DATA: data file, or directory with data files.
-   -n, --nodropbox : Do not upload files to the drop box.
    -t, --tag     = TAG: tag name.
-   
+   -u, --upload : Upload files to offline drop box via scp.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
    Fermilab 2010
@@ -169,7 +168,7 @@ if __name__ == '__main__':
 
     for key in keys:
 	
-	iov_since = ''
+	iov_since = '1'
 	iov_till = ''
 	iov_comment = ''
 	destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
@@ -252,32 +251,34 @@ if __name__ == '__main__':
 	print outtext
 
     #### CREATE payload files for dropbox
+            
+        print " create payload card for dropbox ..."
+        sqlitefile = sqlite_file.strip("sqlite_file")
+        sqlitefile = sqlitefile.replace(":","")
+        sqlitefile = sqlitefile.strip(".db")
+        dropbox_file = sqlitefile+".txt"
+        dfile = open(dropbox_file,'w')
+        
+        dfile.write('destDB '+ destDB +'\n')
+        dfile.write('inputtag' +'\n')
+        dfile.write('tag '+ tagname +'\n')
+        dfile.write('since ' + iov_since +'\n')
+        dfile.write('till ' + iov_till +'\n')
+        dfile.write('usertext ' + "\""+ iov_comment +"\"" +'\n')
+        
+        dfile.close()
+        
+        uuid = commands.getstatusoutput('uuidgen -t')[1]
+        
+        
+        commands.getstatusoutput('mv '+sqlitefile+".db "+sqlitefile+"@"+uuid+".db")
+        commands.getstatusoutput('mv '+sqlitefile+".txt "+sqlitefile+"@"+uuid+".txt")
 
-        if not option.nodropbox:
-            
-            print " create payload card for dropbox ..."
-            sqlitefile = sqlite_file.strip("sqlite_file")
-            sqlitefile = sqlitefile.replace(":","")
-            sqlitefile = sqlitefile.strip(".db")
-            dropbox_file = sqlitefile+".txt"
-            dfile = open(dropbox_file,'w')
-            
-            dfile.write('destDB '+ destDB +'\n')
-            dfile.write('inputtag' +'\n')
-            dfile.write('tag '+ tagname +'\n')
-            dfile.write('since ' + iov_since +'\n')
-            dfile.write('till ' + iov_till +'\n')
-            dfile.write('usertext ' + "\""+ iov_comment +"\"" +'\n')
-            
-            dfile.close()
-            
-            uuid = commands.getstatusoutput('uuidgen -t')[1]
-            
-            
-            commands.getstatusoutput('mv '+sqlitefile+".db "+sqlitefile+"@"+uuid+".db")
-            commands.getstatusoutput('mv '+sqlitefile+".txt "+sqlitefile+"@"+uuid+".txt")
-            
-            print " scp files to Drop Box"
+        print sqlitefile+"@"+uuid+".db"
+        print sqlitefile+"@"+uuid+".txt"
+        
+        if option.upload:
+            print " scp files to offline Drop Box"
             commands.getstatusoutput("scp " + sqlitefile+"@"+uuid+".db  webcondvm.cern.ch:/DropBox")
             commands.getstatusoutput("scp " + sqlitefile+"@"+uuid+".txt webcondvm.cern.ch:/DropBox")
         
