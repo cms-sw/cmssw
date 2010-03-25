@@ -29,26 +29,39 @@ class ESFastTDigitizer
 {
  public:
   
-  ESFastTDigitizer(CaloHitResponse * hitResponse, ESElectronicsSimFast * electronicsSim, bool addNoise, int numESdetId, double zsThreshold, std::string refFile)
+  ESFastTDigitizer(CaloHitResponse * hitResponse, ESElectronicsSimFast * electronicsSim, bool addNoise, int numESdetId)
     :  theHitResponse(hitResponse),
     theNoiseHitGenerator(0),              
     theElectronicsSim(electronicsSim),
     theDetIds(0),
     addNoise_(addNoise),
     numESdetId_(numESdetId),  
-    zsThreshold_(zsThreshold),
-    refFile_(refFile),
     histoDistribution_(0)
   {        
-    
-    // reference distributions
-    if (addNoise_) readHistosFromFile () ;  
+  
+
   }
   
   /// doesn't delete the pointers passed in 
   // ~ESFastTDigitizer() { delete refHistos_; }
   ~ESFastTDigitizer() { delete histoDistribution_; }
-  
+
+  /// set ES Gain
+  void setGain (const int gain) { 
+
+    ESGain_ = gain; 
+
+    if (ESGain_ == 1) {
+      zsThreshold_ = 3;
+      refFile_ = "SimCalorimetry/EcalSimProducers/data/esRefHistosFile_LG.txt";
+    } else if (ESGain_ == 2) {
+      zsThreshold_ = 4;
+      refFile_ = "SimCalorimetry/EcalSimProducers/data/esRefHistosFile_HG.txt";
+    }
+
+    if (addNoise_) readHistosFromFile () ;  
+  }
+
   /// taking reference histos
   void readHistosFromFile( ) {
 
@@ -224,6 +237,7 @@ class ESFastTDigitizer
   const std::vector<DetId>* theDetIds;
   bool addNoise_;
   int numESdetId_;
+  int ESGain_;
   double zsThreshold_;
 
   std::string refFile_;
