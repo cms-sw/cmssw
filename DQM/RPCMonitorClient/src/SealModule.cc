@@ -1,47 +1,44 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_SEAL_MODULE();
-
-
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCEventSummary);
+DEFINE_FWK_MODULE(RPCEventSummary);
 
 #include <DQM/RPCMonitorClient/interface/RPCMon_SS_Dbx_Global.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCMon_SS_Dbx_Global);
+DEFINE_FWK_MODULE(RPCMon_SS_Dbx_Global);
 
 #include <DQM/RPCMonitorClient/interface/RPCFEDIntegrity.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCFEDIntegrity);
+DEFINE_FWK_MODULE(RPCFEDIntegrity);
 
 #include <DQM/RPCMonitorClient/interface/RPCMonitorRaw.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCMonitorRaw);
+DEFINE_FWK_MODULE(RPCMonitorRaw);
 
 #include <DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCMonitorLinkSynchro);
+DEFINE_FWK_MODULE(RPCMonitorLinkSynchro);
 
 #include <DQM/RPCMonitorClient/interface/RPCDaqInfo.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCDaqInfo);
+DEFINE_FWK_MODULE(RPCDaqInfo);
 
 #include <DQM/RPCMonitorClient/interface/RPCDCSSummary.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCDCSSummary);
+DEFINE_FWK_MODULE(RPCDCSSummary);
 
 #include <DQM/RPCMonitorClient/interface/RPCDataCertification.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCDataCertification);
+DEFINE_FWK_MODULE(RPCDataCertification);
 
 //Used to read ME from ROOT files
 #include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
-DEFINE_ANOTHER_FWK_MODULE(ReadMeFromFile);
+DEFINE_FWK_MODULE(ReadMeFromFile);
 
 //General Client
 #include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCDqmClient);
+DEFINE_FWK_MODULE(RPCDqmClient);
 
 
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCChamberQuality);
+DEFINE_FWK_MODULE(RPCChamberQuality);
 
 
 #include <DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h>
-DEFINE_ANOTHER_FWK_MODULE(RPCEfficiencySecond);
+DEFINE_FWK_MODULE(RPCEfficiencySecond);
 
 
