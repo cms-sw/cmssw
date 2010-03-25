@@ -10,13 +10,13 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class SiStripDetVOffBuilder : public edm::EDAnalyzer {
+class SiStripDetVOffFakeBuilder : public edm::EDAnalyzer {
 
 public:
 
-  explicit SiStripDetVOffBuilder( const edm::ParameterSet& iConfig);
+  explicit SiStripDetVOffFakeBuilder( const edm::ParameterSet& iConfig);
 
-  ~SiStripDetVOffBuilder();
+  ~SiStripDetVOffFakeBuilder();
 
   virtual void initialize( const edm::EventSetup& );
 

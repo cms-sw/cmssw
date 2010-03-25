@@ -15,22 +15,22 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 
-#include "CondTools/SiStrip/plugins/SiStripDetVOffBuilder.h"
+#include "CondTools/SiStrip/plugins/SiStripDetVOffFakeBuilder.h"
 
 using namespace std;
 using namespace cms;
 
-SiStripDetVOffBuilder::SiStripDetVOffBuilder( const edm::ParameterSet& iConfig ):
+SiStripDetVOffFakeBuilder::SiStripDetVOffFakeBuilder( const edm::ParameterSet& iConfig ):
   printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false)){}
 
-SiStripDetVOffBuilder::~SiStripDetVOffBuilder(){}
+SiStripDetVOffFakeBuilder::~SiStripDetVOffFakeBuilder(){}
 
 
-void SiStripDetVOffBuilder::initialize( const edm::EventSetup& iSetup ) {
+void SiStripDetVOffFakeBuilder::initialize( const edm::EventSetup& iSetup ) {
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-  edm::LogInfo("SiStripDetVOffBuilder") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
+  edm::LogInfo("SiStripDetVOffFakeBuilder") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
   
   for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
   
@@ -39,23 +39,23 @@ void SiStripDetVOffBuilder::initialize( const edm::EventSetup& iSetup ) {
       const StripTopology& p = dynamic_cast<StripGeomDetUnit*>((*it))->specificTopology();
       unsigned short Nstrips = p.nstrips();
       if(Nstrips<1 || Nstrips>768 ) {
-	edm::LogError("SiStripDetVOffBuilder")<<" Problem with Number of strips in detector.. "<< p.nstrips() <<" Exiting program"<<endl;
+	edm::LogError("SiStripDetVOffFakeBuilder")<<" Problem with Number of strips in detector.. "<< p.nstrips() <<" Exiting program"<<endl;
 	exit(1);
       }
       detids.push_back(detid);
       if (printdebug_)
-	edm::LogInfo("SiStripDetVOffBuilder")<< "detid " << detid;
+	edm::LogInfo("SiStripDetVOffFakeBuilder")<< "detid " << detid;
     }
   }
 }
 
-void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup)
+void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup)
 {
   initialize(iSetup);
 
   unsigned int run=evt.id().run();
 
-  edm::LogInfo("SiStripDetVOffBuilder") << "... creating dummy SiStripDetVOff Data for Run " << run << "\n " << std::endl;
+  edm::LogInfo("SiStripDetVOffFakeBuilder") << "... creating dummy SiStripDetVOff Data for Run " << run << "\n " << std::endl;
 
 
 
@@ -69,16 +69,16 @@ void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup
     int hv=rand() % 20;
     int lv=rand() % 20;
     if( hv<=2 ) {
-      edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " HV\t OFF" << std::endl;
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " <<  *it << " HV\t OFF" << std::endl;
       SiStripDetVOff_->put( *it, 1, -1 );
       // TheDetIdHVVector.push_back(*it);
     }
     if( lv<=2 ) {
-      edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " LV\t OFF" << std::endl;
+      edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " <<  *it << " LV\t OFF" << std::endl;
       SiStripDetVOff_->put( *it, -1, 1 );
       // TheDetIdHVVector.push_back(*it);
     }
-    if( lv<=2 || hv<=2 ) edm::LogInfo("SiStripDetVOffBuilder") << "detid: " <<  *it << " V\t OFF" << std::endl;
+    if( lv<=2 || hv<=2 ) edm::LogInfo("SiStripDetVOffFakeBuilder") << "detid: " <<  *it << " V\t OFF" << std::endl;
   }
 
   // SiStripDetVOff_->put(TheDetIdHVVector);
@@ -96,13 +96,13 @@ void SiStripDetVOffBuilder::analyze(const edm::Event& evt, const edm::EventSetup
 	mydbservice->appendSinceTime<SiStripDetVOff>(SiStripDetVOff_,mydbservice->currentTime(),"SiStripDetVOffRcd");      
       }
     }catch(const cond::Exception& er){
-      edm::LogError("SiStripDetVOffBuilder")<<er.what()<<std::endl;
+      edm::LogError("SiStripDetVOffFakeBuilder")<<er.what()<<std::endl;
     }catch(const std::exception& er){
-      edm::LogError("SiStripDetVOffBuilder")<<"caught std::exception "<<er.what()<<std::endl;
+      edm::LogError("SiStripDetVOffFakeBuilder")<<"caught std::exception "<<er.what()<<std::endl;
     }catch(...){
-      edm::LogError("SiStripDetVOffBuilder")<<"Funny error"<<std::endl;
+      edm::LogError("SiStripDetVOffFakeBuilder")<<"Funny error"<<std::endl;
     }
   }else{
-    edm::LogError("SiStripDetVOffBuilder")<<"Service is unavailable"<<std::endl;
+    edm::LogError("SiStripDetVOffFakeBuilder")<<"Service is unavailable"<<std::endl;
   }
 }

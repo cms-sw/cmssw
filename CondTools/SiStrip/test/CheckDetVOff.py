@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-This script checks the outputs from SiStripDetVOffBuilder and reader. It compares the status of all detIds
+This script checks the outputs from SiStripDetVOffFakeBuilder and reader. It compares the status of all detIds
 both for low and high voltage and it checks that the values written in the database are correctly read back.
 '''
 
@@ -12,8 +12,8 @@ def getDetIds(fileName, vType):
 
 
 def compare(vType):
-    #builderChild = os.popen("cat SiStripDetVOffBuilder.log | grep \"detid\" | grep \"HV\" | awk \'{print $2}\' ", "r")
-    builderChild = getDetIds("SiStripDetVOffBuilder.log", vType)
+    #builderChild = os.popen("cat SiStripDetVOffFakeBuilder.log | grep \"detid\" | grep \"HV\" | awk \'{print $2}\' ", "r")
+    builderChild = getDetIds("SiStripDetVOffFakeBuilder.log", vType)
     builderOutput = builderChild.read()
 
     #readerChild = os.popen("cat SiStripDetVOffReader.log | grep \"detid\" | grep \"HV\" | grep \"OFF\" | awk \'{print $2}\' ", "r")
@@ -51,7 +51,7 @@ def compare(vType):
     print
 
 
-builderFile = open("SiStripDetVOffBuilder.log")
+builderFile = open("SiStripDetVOffFakeBuilder.log")
 readerFile = open("SiStripDetVOffReader.log")
 
 compare("HV")
