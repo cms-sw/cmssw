@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/03/25 11:02:26 $
- * $Revision: 1.91 $
+ * $Date: 2010/03/25 21:27:42 $
+ * $Revision: 1.92 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -287,13 +287,13 @@ void HcalSummaryClient::fillReportSummary(int LS)
   if (debug_>3) 
     {
       std::cout <<"STATUS = "<<std::endl;
-      std:: cout <<"HB = "<<status_HB_<<std::endl;
-      std:: cout <<"HE = "<<status_HE_<<std::endl;
-      std:: cout <<"HO = "<<status_HO_<<std::endl;
-      std:: cout <<"HF = "<<status_HF_<<std::endl;
-      std:: cout <<"HO0 = "<<status_HO0_<<std::endl;
-      std:: cout <<"HO12 = "<<status_HO12_<<std::endl;
-      std:: cout <<"HFlumi = "<<status_HFlumi_<<std::endl;
+      std::cout <<"HB = "<<status_HB_<<std::endl;
+      std::cout <<"HE = "<<status_HE_<<std::endl;
+      std::cout <<"HO = "<<status_HO_<<std::endl;
+      std::cout <<"HF = "<<status_HF_<<std::endl;
+      std::cout <<"HO0 = "<<status_HO0_<<std::endl;
+      std::cout <<"HO12 = "<<status_HO12_<<std::endl;
+      std::cout <<"HFlumi = "<<status_HFlumi_<<std::endl;
     }
 
   // put the summary values into MonitorElements 
@@ -339,7 +339,7 @@ void HcalSummaryClient::fillReportSummary(int LS)
       me=dqmStore_->get(subdir_+"reportSummaryContents/Hcal_"+subdets[i]);
       if (me==0)
 	{
-	  if (debug_>0) cout <<"<HcalSummaryClient::analyze()>  Could not get Monitor Element named 'Hcal_"<<subdets[i]<<"'"<<std::endl;
+	  if (debug_>0) std::cout <<"<HcalSummaryClient::analyze()>  Could not get Monitor Element named 'Hcal_"<<subdets[i]<<"'"<<std::endl;
 	  continue;
 	}
       if (subdets[i]=="HB") me->Fill(status_HB_);
@@ -358,13 +358,13 @@ void HcalSummaryClient::beginJob()
 {
   dqmStore_ = edm::Service<DQMStore>().operator->();
   // set total number of cells in each subdetector
-  subdetCells_.insert(make_pair("HB",2592));
-  subdetCells_.insert(make_pair("HE",2592));
-  subdetCells_.insert(make_pair("HO",2160));
-  subdetCells_.insert(make_pair("HF",1728));
-  subdetCells_.insert(make_pair("HO0",576));
-  subdetCells_.insert(make_pair("HO12",1584));
-  subdetCells_.insert(make_pair("HFlumi",288));  // 8 rings, 36 cells/ring
+  subdetCells_.insert(std::make_pair("HB",2592));
+  subdetCells_.insert(std::make_pair("HE",2592));
+  subdetCells_.insert(std::make_pair("HO",2160));
+  subdetCells_.insert(std::make_pair("HF",1728));
+  subdetCells_.insert(std::make_pair("HO0",576));
+  subdetCells_.insert(std::make_pair("HO12",1584));
+  subdetCells_.insert(std::make_pair("HFlumi",288));  // 8 rings, 36 cells/ring
   // Assume subdetectors are 'unknown'
   HBpresent_=-1;
   HEpresent_=-1;

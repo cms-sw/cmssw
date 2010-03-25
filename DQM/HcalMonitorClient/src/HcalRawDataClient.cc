@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2010/03/25 11:02:26 $
- * $Revision: 1.2 $
+ * $Date: 2010/03/25 21:26:02 $
+ * $Revision: 1.3 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -329,46 +329,46 @@ void HcalRawDataClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 void HcalRawDataClient::getHardwareSpaceHistos(void){
   MonitorElement* me;
   std::string s;
-  if (debug_>1) std::cout<<"\t<HcalRawDataClient>: getHardwareSpaceHistos()"<<endl;
+  if (debug_>1) std::cout<<"\t<HcalRawDataClient>: getHardwareSpaceHistos()"<<std::endl;
   s=subdir_+"Corruption/01 Common Data Format violations";
   me=dqmStore_->get(s.c_str());  
   meCDFErrorFound_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, meCDFErrorFound_, debug_);
-  if (!meCDFErrorFound_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!meCDFErrorFound_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
 
   s=subdir_+"Corruption/02 DCC Event Format violation";
   me=dqmStore_->get(s.c_str());  
   meDCCEventFormatError_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, meDCCEventFormatError_, debug_);
-  if (!meDCCEventFormatError_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!meDCCEventFormatError_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
 
   s=subdir_+"Corruption/03 OrN Inconsistent - HTR vs DCC";
   me=dqmStore_->get(s.c_str());  
   meOrNSynch_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, meOrNSynch_, debug_);
-  if (!meOrNSynch_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!meOrNSynch_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
 
   s=subdir_+"Corruption/05 BCN Inconsistent - HTR vs DCC";
   me=dqmStore_->get(s.c_str());  
   meBCNSynch_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, meBCNSynch_, debug_);
-  if (!meBCNSynch_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!meBCNSynch_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
 
   s=subdir_+"Corruption/06 EvN Inconsistent - HTR vs DCC";
   me=dqmStore_->get(s.c_str());  
   meEvtNumberSynch_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, meEvtNumberSynch_, debug_);
-  if (!meEvtNumberSynch_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!meEvtNumberSynch_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
 
   s=subdir_+"Corruption/07 LRB Data Corruption Indicators";
   me=dqmStore_->get(s.c_str());  
   LRBDataCorruptionIndicators_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, LRBDataCorruptionIndicators_, debug_);
-  if (!LRBDataCorruptionIndicators_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!LRBDataCorruptionIndicators_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
 
   s=subdir_+"Corruption/08 Half-HTR Data Corruption Indicators";
   me=dqmStore_->get(s.c_str());  
   HalfHTRDataCorruptionIndicators_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, HalfHTRDataCorruptionIndicators_, debug_);
-  if (!HalfHTRDataCorruptionIndicators_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!HalfHTRDataCorruptionIndicators_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
 
   s=subdir_+"Corruption/09 Channel Integrity Summarized by Spigot";
   me=dqmStore_->get(s.c_str());  
   ChannSumm_DataIntegrityCheck_=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, ChannSumm_DataIntegrityCheck_, debug_);
-  if (!ChannSumm_DataIntegrityCheck_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+  if (!ChannSumm_DataIntegrityCheck_ & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
   if (ChannSumm_DataIntegrityCheck_)
     ChannSumm_DataIntegrityCheck_->SetMinimum(0);
 
@@ -378,7 +378,7 @@ void HcalRawDataClient::getHardwareSpaceHistos(void){
     s=subdir_+std::string(chararray);
     me=dqmStore_->get(s.c_str());  
     Chann_DataIntegrityCheck_[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, Chann_DataIntegrityCheck_[i], debug_);
-    if (!Chann_DataIntegrityCheck_[i] & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<endl;
+    if (!Chann_DataIntegrityCheck_[i] & (debug_>0)) std::cout <<"<HcalRawDataClient::analyze> "<<s<<" histogram does not exist!"<<std::endl;
     if (Chann_DataIntegrityCheck_[i])
       Chann_DataIntegrityCheck_[i]->SetMinimum(0);
   }
@@ -541,7 +541,7 @@ void HcalRawDataClient::mapDCCproblem(int dcc, float n) {
       if (problemcount[myeta][myphi-1][mydepth-1]< n)
 	problemcount[myeta][myphi-1][mydepth-1]=n;
       if (debug_>0)
-	cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<endl;
+	cout<<" mapDCCproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
   }
 }
@@ -569,7 +569,7 @@ void HcalRawDataClient::mapHTRproblem(int dcc, int spigot, float n) {
       if (problemcount[myeta][myphi-1][mydepth-1]< n)
 	problemcount[myeta][myphi-1][mydepth-1]=n;
       if (debug_>0)
-	cout<<" mapHTRproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<endl;
+	cout<<" mapHTRproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }    
   }
 }   // void HcalRawDataClient::mapHTRproblem(...)
@@ -596,7 +596,7 @@ void HcalRawDataClient::mapChannproblem(int dcc, int spigot, int htrchan, float 
     if (problemcount[myeta][myphi-1][mydepth-1]< n) {
       problemcount[myeta][myphi-1][mydepth-1]=n;
       if (debug_>0)
-	cout<<" mapChannproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<endl;
+	std::cout<<" mapChannproblem found error! "<<HDI.subdet()<<"("<<HDI.ieta()<<", "<<HDI.iphi()<<", "<<HDI.depth()<<")"<<std::endl;
     }
   }
 }   // void HcalRawDataClient::mapChannproblem(...)
