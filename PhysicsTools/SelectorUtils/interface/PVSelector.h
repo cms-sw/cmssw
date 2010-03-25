@@ -16,7 +16,7 @@ public:
  PVSelector( edm::ParameterSet const & params ) :
   pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ) {
     push_back("PV NDOF", params.getParameter<double>("minNdof") );
-    push_back("PV Z", params.getParameter<double>("maxPVZ") );
+    push_back("PV Z", params.getParameter<double>("maxZ") );
     set("PV NDOF");
     set("PV Z");
   }

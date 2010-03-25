@@ -49,16 +49,19 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
     push_back("CHF" );
     push_back("NHF" );
+    push_back("CEF" );
     push_back("NEF" );
 
     // all on by default
     set("CHF", params.getParameter<double>("CHF") );
     set("NHF", params.getParameter<double>("NHF") );
+    set("CEF", params.getParameter<double>("CEF") );
     set("NEF", params.getParameter<double>("NEF") );
 
     if ( quality_ == LOOSE ) {
       set("NHF", false );
       set("NEF", false );
+      set("CEF", false );
     }
     
   }
@@ -97,6 +100,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     // cache some variables
     double chf = 0.0;
     double nhf = 0.0;
+    double cef = 0.0;
     double nef = 0.0;
 
     // Have to do this because pat::Jet inherits from reco::Jet but not reco::PFJet
@@ -106,18 +110,24 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( patJet != 0 ) {
       chf = patJet->chargedHadronEnergyFraction();
       nhf = patJet->neutralHadronEnergyFraction();
+      cef = patJet->chargedEmEnergyFraction();
       nef = patJet->neutralEmEnergyFraction();
     } else if ( pfJet != 0 ) {
       chf = pfJet->chargedHadronEnergyFraction();
       nhf = pfJet->neutralHadronEnergyFraction();
+      cef = pfJet->chargedEmEnergyFraction();
       nef = pfJet->neutralEmEnergyFraction();
     }
 
-    if ( ignoreCut("CHF") || chf > cut("CHF", double()) ) {
+    if ( ignoreCut("CHF") || (std::abs(jet.eta()) < 2.4 && chf > cut("CHF", double())) ) {
       passCut( ret, "CHF");
 
       if ( ignoreCut("NHF") || nhf < cut("NHF", double()) ) {
 	passCut( ret, "NHF");
+      }
+
+      if ( ignoreCut("CEF") || cef < cut("CEF", double()) ) {
+	passCut( ret, "CEF");
       }
 
       if ( ignoreCut("NEF") || nef < cut("NEF", double()) ) {
