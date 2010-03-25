@@ -1,16 +1,24 @@
+2010-03-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-09-01
+	* Use local ofstream to assure that it is destroyed after each use.
+	* Explicitly clear the file counter per luminosity section map when
+	  streams are destroyed.
+	* Add a missing lock on the stream records.
+
 2010-03-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-09-00
-	* Add files per lumi section bookkeeping information to the database
-	  log file to be used by tier 0 to decide on repacking.
-	* Print output module name in addition to id for unwanted event 
+	* Add files per luminosity section bookkeeping information to the
+	  database log file to be used by tier 0 to decide on repacking.
+	* Print output module name in addition to id for unwanted event
 	  alarm message.
 
 2010-03-21 Peter Elmer <Peter.Elmer@cern.ch>
 
 	* tag V05-08-09
 	* Add missing #include <stdint.h>, flagged (and required) by gcc443
-	
+
 2010-03-16 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-08-08
