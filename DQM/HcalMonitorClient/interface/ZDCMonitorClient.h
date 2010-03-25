@@ -1,94 +1,42 @@
 #ifndef ZDCMonitorClient_H
 #define ZDCMonitorClient_H
 
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/CPUTimer.h" 
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+class DQMStore;
+class TH2F;
+class TH1F;
+class TFile;
 
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-          
-#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include <DQM/HcalMonitorClient/interface/HcalSummaryClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
-
-// ############################################################
-#include <DQM/HcalMonitorClient/interface/HcalDetDiagNoiseMonitorClient.h>
-// ############################################################
-
-#include <DQM/HcalMonitorClient/interface/HcalPedestalClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalLEDClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalLaserClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalDeadCellClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalTrigPrimClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalCaloTowerClient.h>
-#include <DQM/HcalMonitorClient/interface/HcalBeamClient.h>
-
-/////////////////////////////////////////////////////////////////
-#include "DQM/HcalMonitorClient/interface/HcalDetDiagPedestalClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalDetDiagLEDClient.h"
-#include "DQM/HcalMonitorClient/interface/HcalDetDiagLaserClient.h"
-/////////////////////////////////////////////////////////////////
-
-//#include <DQM/HcalMonitorModule/interface/HcalMonitorSelector.h>
-
-#include <DQM/HcalMonitorClient/interface/HcalDQMDbInterface.h>
-// Use to hold/get channel status
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-
-
-
-#include "TROOT.h"
-#include "TTree.h"
-#include "TGaxis.h"
-
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <sys/time.h>
-
-using namespace std;
-
-class ZDCMonitorClient : public EDAnalyzer{
+class ZDCMonitorClient : public edm::EDAnalyzer{
   
 public:
   
   /// Constructors
   ZDCMonitorClient();
-  ZDCMonitorClient(const ParameterSet& ps);
+  ZDCMonitorClient(const edm::ParameterSet& ps);
   
   /// Destructor
   ~ZDCMonitorClient();
   
   // Initialize
-  void initialize(const ParameterSet& ps);
+  void initialize(const edm::ParameterSet& ps);
   void offlineSetup();
 
   /// Analyze
   void analyze(void);
-  void analyze(const Event& evt, const EventSetup& es);
+  void analyze(const edm::Event& evt, const edm::EventSetup& es);
   
   /// BeginJob
   void beginJob();
   /// BeginRun
-  void beginRun(const Run& r, const edm::EventSetup & c);
+  void beginRun(const edm::Run& r, const edm::EventSetup & c);
   /// BeginLumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
 
@@ -116,7 +64,7 @@ public:
 
   //Offline output functions
   void loadHistograms(TFile* infile, const char* fname);
-  void dumpHistograms(int& runNum, vector<TH1F*> &hist1d, vector<TH2F*> &hist2d);
+  void dumpHistograms(int& runNum, std::vector<TH1F*> &hist1d, std::vector<TH2F*> &hist2d);
 
   /// Boolean prescale test for this event
   bool prescale();
@@ -180,8 +128,8 @@ public:
   bool runningStandalone_;
   bool enableMonitorDaemon_;
 
-  string inputFile_;
-  string baseHtmlDir_;
+  std::string inputFile_;
+  std::string baseHtmlDir_;
 
 };
 
