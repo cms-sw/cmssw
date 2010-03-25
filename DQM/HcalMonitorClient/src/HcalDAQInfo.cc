@@ -37,7 +37,6 @@
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 
-#include "DQM/HcalMonitorTasks/interface/HcalDataFormatMonitor.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DQMServices/Core/interface/DQMStore.h"

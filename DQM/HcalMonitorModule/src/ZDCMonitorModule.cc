@@ -213,7 +213,7 @@ void ZDCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
 {
   if (!checkZDC_) return;
   if (debug_>0)  
-    std::cout <<"ZDCMonitorModule::endRun(...) ievt = "<<ievt_<<endl;
+    std::cout <<"ZDCMonitorModule::endRun(...) ievt = "<<ievt_<<std::endl;
 
   // These should be unnecessary; call them just in case, so that
   // we're sure we get at least one fill per run
@@ -259,7 +259,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   if (Online_ && e.luminosityBlock()<ilumisec)
     return;
 
-  if (debug_>1) std::cout << "ZDCMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << e.luminosityBlock() << ", evt: " << ievent_ << ", time: " << itime_ << std::endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
+  if (debug_>1) std::cout << "ZDCMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << e.luminosityBlock() << ", evt: " << ievent_ << ", time: " << itime_ << std::endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<std::endl; 
 
   if ( meStatus_ ) meStatus_->Fill(1);
   meLatency_->Fill(psTime_.elapsedTime);
@@ -339,12 +339,12 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   if (!(e.getByLabel(inputLabelDigi_,zdc_digi)))
     {
       digiOK_=false;
-      if (debug_>1) std::cout <<"<ZDCMonitorModule> COULDN'T GET ZDC DIGI"<<endl;
+      if (debug_>1) std::cout <<"<ZDCMonitorModule> COULDN'T GET ZDC DIGI"<<std::endl;
       //edm::LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" zdc_digi not available";
     }
   if (!zdc_digi.isValid()) {
     digiOK_=false;
-    if (debug_>1) std::cout <<"<ZDCMonitorModule> DIGI OK FAILED FOR ZDC"<<endl;
+    if (debug_>1) std::cout <<"<ZDCMonitorModule> DIGI OK FAILED FOR ZDC"<<std::endl;
   }
   if (digiOK_) ++ievt_digi_;
 
@@ -390,7 +390,7 @@ void ZDCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& event
   if (showTiming_)
     {
       cpu_timer.stop();
-      if (zdcMon_ !=NULL) std::cout <<"TIMER:: ZDC MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      if (zdcMon_ !=NULL) std::cout <<"TIMER:: ZDC MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
 
@@ -417,7 +417,7 @@ bool ZDCMonitorModule::prescale()
 
   ///Return true if this event should be skipped according to the prescale condition...
   ///    Accommodate a logical "OR" of the possible tests
-  if (debug_>1) std::cout <<"ZDCMonitorModule::prescale:  ievt = "<<ievt_<<endl;
+  if (debug_>1) std::cout <<"ZDCMonitorModule::prescale:  ievt = "<<ievt_<<std::endl;
   // If no prescales are set, return 'false'.  (This means that we should process the event.)
   if(prescaleEvt_<=0 && prescaleLS_<=0) return false;
 
