@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.45 2010/03/16 13:29:17 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.46 2010/03/19 18:16:03 rekovic Exp $
 //
 //
 
@@ -103,6 +103,7 @@ typedef std::multimap<float,int> fimmap ;
 typedef std::set<fimmap , less<fimmap> > mmset;
 
 class FourVectorHLTOffline : public edm::EDAnalyzer {
+
    public:
       explicit FourVectorHLTOffline(const edm::ParameterSet&);
       ~FourVectorHLTOffline();
@@ -122,7 +123,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
       void fillHltMatrix(const edm::TriggerNames & triggerNames);
-      void setupHltMatrix(std::string label, vector<std::string>  paths);
+      void setupHltMatrix(std::string label, std::vector<std::string>  paths);
 
       void setupHltLsPlots();
       void setupHltBxPlots();
@@ -130,10 +131,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void countHLTGroupHitsEndLumiBlock(const int& lumi);
       void countHLTGroupL1HitsEndLumiBlock(const int& lumi);
       void countHLTGroupBXHitsEndLumiBlock(const int& lumi);
-      int getTriggerTypeParsePathName(const string& pathname);
-      const std::string getL1ConditionModuleName(const string& pathname);
-      bool hasL1Passed(const string& pathname, const edm::TriggerNames & triggerNames);
-      bool hasHLTPassed(const string& pathname, const edm::TriggerNames& triggerNames);
+      int getTriggerTypeParsePathName(const std::string& pathname);
+      const std::string getL1ConditionModuleName(const std::string& pathname);
+      bool hasL1Passed(const std::string& pathname, const edm::TriggerNames & triggerNames);
+      bool hasHLTPassed(const std::string& pathname, const edm::TriggerNames& triggerNames);
 
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
@@ -174,6 +175,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       unsigned int nLS_; 
       unsigned int referenceBX_; 
+      unsigned int Nbx_; 
 
       bool plotAll_;
       bool resetMe_;
@@ -218,10 +220,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector <std::vector <std::string> > triggerFilters_;
       std::vector <std::vector <uint> > triggerFilterIndices_;
       std::vector <std::pair<std::string, int> > fPathTempCountPair;
-      std::vector <std::pair<std::string, vector<int> > > fPathBxTempCountPair;
+      std::vector <std::pair<std::string, std::vector<int> > > fPathBxTempCountPair;
       std::vector <std::pair<std::string, int> > fGroupTempCountPair;
       std::vector <std::pair<std::string, int> > fGroupL1TempCountPair;
-      std::vector <std::pair<std::string, std::vector<string> > > fGroupNamePathsPair;
+      std::vector <std::pair<std::string, std::vector<std::string> > > fGroupNamePathsPair;
 
       std::vector<std::string> specialPaths_;
 
@@ -1136,7 +1138,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
   if(L1OffDRMatchSet.size() > 1) {
   
-    LogDebug("FourVectorHLTOffline") << " Cleaning L1Off mmset" << endl;
+    LogDebug("FourVectorHLTOffline") << " Cleaning L1Off mmset" << std::endl;
     fv->cleanDRMatchSet(L1OffDRMatchSet);
 
   }
@@ -1195,7 +1197,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
   // clean the set L1-Off
   if(OnOffDRMatchSet.size() > 1){
   
-    LogDebug("FourVectorHLTOffline") << " Cleaning OnOff mmset" << endl;
+    LogDebug("FourVectorHLTOffline") << " Cleaning OnOff mmset" << std::endl;
     fv->cleanDRMatchSet(OnOffDRMatchSet);
 
   }
@@ -1258,7 +1260,7 @@ void objMonData<T>::fillOnL1Match(const int l1Index, FourVectorHLTOffline* fv)
   // clean the set On-L1
   if(OnL1DRMatchSet.size() > 1) {
   
-    LogDebug("FourVectorHLTOffline") << " Cleaning L1On mmset" << endl;
+    LogDebug("FourVectorHLTOffline") << " Cleaning L1On mmset" << std::endl;
     fv->cleanDRMatchSet(OnL1DRMatchSet);
 
   }

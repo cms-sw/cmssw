@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOnline.h,v 1.46 2010/03/19 18:16:03 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.16 2010/03/25 12:17:33 rekovic Exp $
 //
 //
 
@@ -146,6 +146,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 
       unsigned int nLS_; 
       unsigned int referenceBX_; 
+      unsigned int Nbx_; 
 
       bool plotAll_;
       bool resetMe_;

@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.69 2010/03/25 08:41:02 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.32 2010/03/25 12:17:33 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -37,6 +37,7 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   fCustomBXPath = iConfig.getUntrackedParameter<std::string>("customBXPath", std::string("HLT_MinBiasBSC"));
 
   referenceBX_ = iConfig.getUntrackedParameter<unsigned int>("referenceBX",51);
+  Nbx_ = iConfig.getUntrackedParameter<unsigned int>("Nbx",3564);
 
   // plotting paramters
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
@@ -1557,15 +1558,14 @@ void FourVectorHLTOnline::setupHltBxPlots()
   dbe_->setCurrentFolder(pathsSummaryFolder_);
 
   // setup HLT bx plot
-  int Nbx = 3600;
   unsigned int npaths = hltPathsDiagonal_.size();
 
   ME_HLT_BX_ = dbe_->book2D("HLT_bx",
                          "HLT counts vs Event bx",
-                         Nbx, -0.5, Nbx-0.5, npaths, -0.5, npaths-0.5);
+                         Nbx_+1, -0.5, Nbx_+1-0.5, npaths, -0.5, npaths-0.5);
   ME_HLT_CUSTOM_BX_ = dbe_->book2D("HLT_Custom_bx",
                          "HLT counts vs Event bx",
-                         Nbx, -0.5, Nbx-0.5, npaths, -0.5, npaths-0.5);
+                         Nbx_+1, -0.5, Nbx_+1-0.5, npaths, -0.5, npaths-0.5);
   ME_HLT_BX_->setAxisTitle("Bunch Crossing");
   ME_HLT_CUSTOM_BX_->setAxisTitle("Bunch Crossing");
 
@@ -1704,7 +1704,10 @@ void FourVectorHLTOnline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
     for (unsigned int j =0;j<currCount.size();j++) { 
 
       int bxOffset = j-2;
-      int bxBin = referenceBX_+bxOffset+1; // add one to get the right bin
+      int bunch = referenceBX_+bxOffset;
+      if(bunch < 1) bunch += Nbx_ ;
+      int bxBin = bunch +1; // add one to get the right bin
+
       
       currCount[j] = int(hist_2d_bx->GetBinContent(bxBin, pathBin));  // add one to get the right bin
 
