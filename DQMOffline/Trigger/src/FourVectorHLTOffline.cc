@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.67 2010/03/19 18:38:34 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.68 2010/03/24 15:16:00 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -941,10 +941,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
     /// add dataset name and thier triggers to the list 
     vector<string> datasetNames =  hltConfig_.datasetNames() ;
-    cout << "Number of datasets = " << datasetNames.size() <<endl;
     for (unsigned int i=0;i<datasetNames.size();i++) {
 
-     cout << "Name of dataset = " << datasetNames[i] <<endl;
       vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
       fGroupNamePathsPair.push_back(make_pair(datasetNames[i],datasetPaths));
       //setupHltMatrix(datasetNames[i],datasetPaths);
@@ -1450,6 +1448,7 @@ void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string>
     h_title = label+" HLT paths count per LS ";
     MonitorElement* ME_Group_LS = dbe_->book2D(h_name.c_str(), h_title.c_str(), nLS_, 0, nLS_, paths.size(), -0.5, paths.size()-0.5);
     ME_Group_LS->setAxisTitle("LS");
+    /// add this path to the vector of 2D LS paths
     v_ME_HLTAll_LS_.push_back(ME_Group_LS);
 
     h_name= "HLT_"+label+"_L1_Total_LS";
@@ -1481,9 +1480,6 @@ void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string>
 
     }
     
-    string lastBinLabel = "HLT_"+label+"_Any";
-    ME_Group_LS->getTH2F()->GetYaxis()->SetBinLabel(paths.size(), lastBinLabel.c_str());
-
 }
 
 void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames) {
