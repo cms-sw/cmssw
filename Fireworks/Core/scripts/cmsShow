@@ -41,15 +41,23 @@ if [ "$softflag" != "off" ] ; then
 fi
 
 if [ "$debugflag" != "off" ] ; then
-   echo "set args $originalOptions" > gdb.cmd
-   echo "run"        >> gdb.cmd
-   echo "bt"         >> gdb.cmd
-   echo "quit"       >> gdb.cmd
-   gdb -x gdb.cmd $SHELLDIR/cmsShow.exe 2>&1 | tee crash.report
-   echo "" >> crash.report
-   echo "System Info" >> crash.report
-   uname -a  >> crash.report
-   glxinfo >> crash.report
+   tmpfile=`mktemp /tmp/cmsshow-gdb-XXXXXXXX`
+   if [ -w . ]; then
+      creport=./crash.report
+   else
+      creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
+   fi
+   echo "set args $originalOptions" > $tmpfile
+   echo "run"        >> $tmpfile
+   echo "bt"         >> $tmpfile
+   echo "quit"       >> $tmpfile
+   gdb -x $tmpfile $SHELLDIR/cmsShow.exe 2>&1 | tee $creport
+   echo "" >> $creport
+   echo "System Info" >> $creport
+   uname -a  >> $creport
+   glxinfo >> $creport
+   rm -f $tmpfile
+   echo "Crash report saved to '$creport'."
 else
    $SHELLDIR/cmsShow.exe $originalOptions
    if [ $? != "0" ] ; then
@@ -62,7 +70,7 @@ else
          echo "  #  We regret that this happened and we would appreciate your help      #"
          echo "  #  in debugging and reporting this problem. Please try to reproduce    #"
          echo "  #  the problem by running the program with --debug flag to get         #"
-         echo "  #  a crash report and send its content (saved in ./crash.report file)  #" 
+         echo "  #  a crash report and send its content (file name reported on screen)  #"
          echo "  #  to hn-cms-visualization@cern.ch with brief instructions how to      #"
          echo "  #  reproduce the problem.                                              #"
          echo "  #                                                                      #"
