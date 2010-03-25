@@ -39,6 +39,7 @@ class ESFastTDigitizer
     histoDistribution_(0)
   {        
   
+    setRefFile_ = true;
 
   }
   
@@ -59,7 +60,10 @@ class ESFastTDigitizer
       refFile_ = "SimCalorimetry/EcalSimProducers/data/esRefHistosFile_HG.txt";
     }
 
-    if (addNoise_) readHistosFromFile () ;  
+    if (addNoise_ && setRefFile_) {
+      readHistosFromFile();
+      setRefFile_ = false;  
+    }
   }
 
   /// taking reference histos
@@ -236,6 +240,7 @@ class ESFastTDigitizer
   ESElectronicsSimFast * theElectronicsSim;
   const std::vector<DetId>* theDetIds;
   bool addNoise_;
+  bool setRefFile_;
   int numESdetId_;
   int ESGain_;
   double zsThreshold_;
