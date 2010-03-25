@@ -11,8 +11,8 @@
 /*
  * \file HcalDigiClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.61.4.6 $
+ * $Date: 2010/03/25 11:02:25 $
+ * $Revision: 1.62 $
  * \author J. Temple
  * \brief DigiClient class
  */
@@ -185,7 +185,7 @@ void HcalDigiClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalDigiClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalDigiClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

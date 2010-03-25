@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagTimingClient.cc
  * 
- * $Date: 2010/03/25 09:43:42 $
- * $Revision: 1.1.2.3 $
+ * $Date: 2010/03/25 11:02:25 $
+ * $Revision: 1.2 $
  * \author J. Temple
  * \brief Hcal DetDiagTiming Client class
  */
@@ -135,7 +135,7 @@ void HcalDetDiagTimingClient::calculateProblems()
 	      */
 	      if (problemvalue==0) continue;
 	      // problem value is a rate; we can normalize it here
-	      problemvalue = min(1.,problemvalue);
+	      problemvalue = std::min(1.,problemvalue);
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
@@ -163,7 +163,7 @@ void HcalDetDiagTimingClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalDetDiagTimingClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalDetDiagTimingClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 

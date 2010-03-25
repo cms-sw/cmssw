@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagPedestalClient.cc
  * 
- * $Date: 2010/03/25 21:21:45 $
- * $Revision: 1.8 $
+ * $Date: 2010/03/25 21:23:47 $
+ * $Revision: 1.9 $
  * \author J. Temple
  * \brief Hcal DetDiagPedestal Client class
  */
@@ -390,7 +390,7 @@ int  MissingCnt=0,UnstableCnt=0,BadCnt=0;
 int  HBP[4]={0,0,0,0},HBM[4]={0,0,0,0},HEP[4]={0,0,0,0},HEM[4]={0,0,0,0},HFP[4]={0,0,0,0},HFM[4]={0,0,0,0},HO[4] ={0,0,0,0}; 
 int  newHBP[4]={0,0,0,0},newHBM[4]={0,0,0,0},newHEP[4]={0,0,0,0},newHEM[4]={0,0,0,0};
 int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0}; 
-  if (debug_>0) cout << "<HcalDetDiagPedestalClient::htmlOutput> Preparing  html output ..." << std::endl;
+ if (debug_>0) std::cout << "<HcalDetDiagPedestalClient::htmlOutput> Preparing  html output ..." << std::endl;
   if(!dqmStore_) return;
 
   HcalLogicalMapGenerator gen;
