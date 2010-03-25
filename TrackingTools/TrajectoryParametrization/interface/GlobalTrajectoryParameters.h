@@ -16,7 +16,9 @@ class MagneticField;
 class GlobalTrajectoryParameters {
 public:
 // construct
-  GlobalTrajectoryParameters() {}
+  GlobalTrajectoryParameters() : 
+    theX(), theP(), theCharge(0), theField(0),
+    hasCurvature_(false), cachedCurvature_(1.0) {} // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, global momentum and charge.
    */
