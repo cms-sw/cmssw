@@ -29,8 +29,13 @@ process.ErrorsAnalyzerModule = cms.EDAnalyzer(
     OutputFileName = cms.string("test.root"),
 
     PtBins = cms.int32(50),
+    PtMin = cms.double(0.),
+    PtMax = cms.double(60.),
+    
     EtaBins = cms.int32(100),
-
+    EtaMin = cms.double(-3.),
+    EtaMax = cms.double(3.),
+    
     Debug = cms.bool(False),
 )
 

@@ -138,6 +138,12 @@ process.load("MagneticField.Engine.uniformMagneticField_cfi")
 #    ))
 #)
 
+# process.source = cms.Source("EmptySource")
+# 
+# process.maxEvents = cms.untracked.PSet(
+#     input = cms.untracked.int32(0)
+# )
+
 process.maxEvents = cms.untracked.PSet(
     # This are the total background events from InclusivePPmuX (89150) +
     # the number of Upsilon1S events.
@@ -335,6 +341,11 @@ process.looper = cms.Looper(
     # Specify the file name where you want to save a root tree with the muon pairs.
     # Leave empty if no file should be written.
     OutputRootTreeFileName = cms.string(""),
+
+    # Fit accuracy and debug parameters
+    StartWithSimplex = cms.bool(True),
+    ComputeMinosErrors = cms.bool(False),
+    MinimumShapePlots = cms.bool(False),
 )
 
 # Timing information
