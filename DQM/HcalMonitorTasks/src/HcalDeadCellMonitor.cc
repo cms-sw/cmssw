@@ -416,7 +416,7 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   // Not enough events
   if (deadevt_<minDeadEventCount_)
       return;
-
+  endLumiProcessed_=true;
   // fillNevents_problemCells checks for never-present cells
   fillNevents_problemCells();
   fillNevents_recentdigis();
@@ -432,7 +432,7 @@ void HcalDeadCellMonitor::endRun(const edm::Run& run, const edm::EventSetup& c)
   // Always carry out overall occupancy test at endRun, regardless minimum number of events?  
   // Or should we require an absolute lower bound?
   // We can always run this test; we'll use the summary client to implement a lower bound before calculating reportSummary values
-  fillNevents_problemCells(); // always check for never-present cells
+  if (endLumiProcessed_==false) fillNevents_problemCells(); // always check for never-present cells
   return;
 }
 
@@ -444,8 +444,8 @@ void HcalDeadCellMonitor::endJob()
 
 void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
-
   if (!IsAllowedCalibType()) return;
+  endLumiProcessed_=false;
   Nevents->Fill(0,1); // count all events of allowed calibration type, even if their lumi block is not in the right order
   if (LumiInOrder(e.luminosityBlock())==false) return;
   // try to get rechits and digis
