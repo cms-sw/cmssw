@@ -31,7 +31,12 @@ using namespace std;
 L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
   dbe_(0),
   scalersSource_( ps.getParameter< edm::InputTag >("scalersResults")),
-  verbose_(ps.getUntrackedParameter <bool> ("verbose", false))
+  verbose_(ps.getUntrackedParameter <bool> ("verbose", false)),
+  denomIsTech_(ps.getUntrackedParameter <bool> ("denomIsTech", true)),
+  denomBit_(ps.getUntrackedParameter <unsigned int> ("denomBit", 40)),
+  muonBit_(ps.getUntrackedParameter <unsigned int> ("muonBit", 55)),
+  egammaBit_(ps.getUntrackedParameter <unsigned int> ("egammaBit", 46)),
+  jetBit_(ps.getUntrackedParameter <unsigned int> ("jetBit", 15))
 {
   LogDebug("Status") << "constructor" ;
 
@@ -61,10 +66,10 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
     eventNum = dbe_->book1D("Number of Events","Number of Events", 1000,0,1E7);
 
     physTrig = dbe_->book1D("Physics Triggers","Physics Triggers", maxNbins,-0.5,double(maxNbins)-0.5);
-    physTrig->setAxisTitle("Lumisection", 1);
+    physTrig->setAxisTitle("Lumi Section", 1);
 
     randTrig = dbe_->book1D("Random Triggers","Random Triggers", maxNbins,-0.5,double(maxNbins)-0.5);
-    randTrig->setAxisTitle("Lumisection", 1);
+    randTrig->setAxisTitle("Lumi Section", 1);
 
     numberResets = dbe_->book1D("Number Resets","Number Resets", 1000,0,1000);
     deadTime = dbe_->book1D("DeadTime","DeadTime", 1000,0,1E9);
@@ -75,24 +80,24 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
     physRate = dbe_->book1D("Physics Trigger Rate","Physics Trigger Rate", 
 			    maxNbins,-0.5,double(maxNbins)-0.5);
-    physRate->setAxisTitle("Lumisection", 1);
+    physRate->setAxisTitle("Lumi Section", 1);
 
     randRate = dbe_->book1D("Random Trigger Rate","Random Trigger Rate", 
 			    maxNbins,-0.5,double(maxNbins)-0.5);
-    randRate->setAxisTitle("Lumisection", 1);
+    randRate->setAxisTitle("Lumi Section", 1);
 
     deadTimePercent = dbe_->book1D("Deadtime Percent","Deadtime Percent", 
     				   maxNbins,-0.5,double(maxNbins)-0.5);
-    deadTimePercent->setAxisTitle("Lumisection", 1);
+    deadTimePercent->setAxisTitle("Lumi Section", 1);
 
     lostPhysRate = dbe_->book1D("Lost Physics Trigger Rate","Lost Physics Trigger Rate", 
 				maxNbins,-0.5,double(maxNbins)-0.5);
-    lostPhysRate->setAxisTitle("Lumisection", 1);
+    lostPhysRate->setAxisTitle("Lumi Section", 1);
 
     lostPhysRateBeamActive = dbe_->book1D("Lost Physics Trigger Rate - Beam Active",
 					  "Lost Physics Trigger Rate - Beam Active", 
 					  maxNbins,-0.5,double(maxNbins)-0.5);
-    lostPhysRateBeamActive->setAxisTitle("Lumisection", 1);
+    lostPhysRateBeamActive->setAxisTitle("Lumi Section", 1);
 
     
     instTrigRate = dbe_->book1D("instTrigRate","Instantaneous Trigger Rate",1000,0,3E4);
@@ -114,6 +119,8 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
       algoRate[i]->setAxisTitle("Lumi Section" ,1);
     }    
     				     
+    dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/AlgorithmRates/Integrated");
+
     for(int i=0; i<Level1TriggerScalers::nLevel1Triggers; i++) {
       sprintf(hname, "Integral_AlgoBit_%03d", i);
       sprintf(mename, "Integral_AlgoBit _%03d", i);
@@ -121,6 +128,7 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
       integralAlgo[i] = dbe_->book1D(hname, mename,maxNbins,-0.5,double(maxNbins)-0.5);
       integralAlgo[i]->setAxisTitle("Lumi Section" ,1);
     }    				     
+
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/TechnicalRates");
 
     for(int i=0; i<Level1TriggerScalers::nLevel1TestTriggers; i++) {
@@ -130,11 +138,8 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
       techRate[i] = dbe_->book1D(hname, mename,maxNbins,-0.5,double(maxNbins)-0.5);
       techRate[i]->setAxisTitle("Lumi Section" ,1);
     }
-    techRateRatio_33_over_32 = dbe_->book1D("Rate_TechBit_Ratio_33_over_32", "Rate_TechBit_Ratio_33_over_32",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_41_over_40 = dbe_->book1D("Rate_TechBit_Ratio_41_over_40", "Rate_TechBit_Ratio_41_over_40",maxNbins,-0.5,double(maxNbins)-0.5);
-    techRateRatio_33_over_32->setAxisTitle("Lumi Section" ,1);
-    techRateRatio_41_over_40->setAxisTitle("Lumi Section" ,1);
 
+    dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/TechnicalRates/Integrated");
 
     for(int i=0; i<Level1TriggerScalers::nLevel1TestTriggers; i++) {
       sprintf(hname, "Integral_TechBit_%03d", i);
@@ -145,6 +150,42 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
     }    				     
     integralTech_42_OR_43 = dbe_->book1D("Integral_TechBit_042_OR_043","Integral_TechBit _042_OR_043",maxNbins,-0.5,double(maxNbins)-0.5);
     integralTech_42_OR_43->setAxisTitle("Lumi Section" ,1);
+
+
+    dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/Ratios");
+
+    std::stringstream smu,seg,sjet;
+    //Muon ratio
+    smu << muonBit_;
+    rateRatio_mu = dbe_->book1D("Rate_Ratio_mu_PhysBit_"+ smu.str(), "Rate_Ratio_mu_PhysBit_" + smu.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_mu->setAxisTitle("Lumi Section" , 1);
+    //Egamma ratio
+    seg << egammaBit_;
+    rateRatio_egamma = dbe_->book1D("Rate_Ratio_egamma_PhysBit_"+ seg.str(), "Rate_Ratio_egamma_PhysBit_" + seg.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_egamma->setAxisTitle("Lumi Section" , 1);
+    //Jet ratio
+    sjet << jetBit_;
+    rateRatio_jet = dbe_->book1D("Rate_Ratio_jet_PhysBit_" + sjet.str(), "Rate_Ratio_jet_PhysBit_" + sjet.str(),maxNbins,-0.5,double(maxNbins)-0.5);
+    rateRatio_jet->setAxisTitle("Lumi Section" , 1);
+
+    //HF bit ratios
+    techRateRatio_8 = dbe_->book1D("Rate_Ratio_TechBit_8", "Rate_Ratio_TechBit_8",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_8->setAxisTitle("Lumi Section" ,1);
+    techRateRatio_9 = dbe_->book1D("Rate_Ratio_TechBit_9", "Rate_Ratio_TechBit_9",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_9->setAxisTitle("Lumi Section" ,1);
+    techRateRatio_10 = dbe_->book1D("Rate_Ratio_TechBit_10", "Rate_Ratio_TechBit_10",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_10->setAxisTitle("Lumi Section" ,1);
+
+    //Other tech bit ratios
+    techRateRatio_33_over_32 = dbe_->book1D("Rate_Ratio_TechBits_33_over_32", "Rate_Ratio_TechBits_33_over_32",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_36 = dbe_->book1D("Rate_Ratio_TechBit_36", "Rate_Ratio_TechBit_36",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_37 = dbe_->book1D("Rate_Ratio_TechBit_37", "Rate_Ratio_TechBit_37",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_38 = dbe_->book1D("Rate_Ratio_TechBit_38", "Rate_Ratio_TechBit_38",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_39 = dbe_->book1D("Rate_Ratio_TechBit_39", "Rate_Ratio_TechBit_39",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_40 = dbe_->book1D("Rate_Ratio_TechBit_40", "Rate_Ratio_TechBit_40",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_41 = dbe_->book1D("Rate_Ratio_TechBit_41", "Rate_Ratio_TechBit_41",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_42 = dbe_->book1D("Rate_Ratio_TechBit_42", "Rate_Ratio_TechBit_42",maxNbins,-0.5,double(maxNbins)-0.5);
+    techRateRatio_43 = dbe_->book1D("Rate_Ratio_TechBit_43", "Rate_Ratio_TechBit_43",maxNbins,-0.5,double(maxNbins)-0.5);
 
     				
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/LumiScalers");
@@ -237,7 +278,7 @@ void
 L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nev_++;
-  
+
   //access SCAL info
   edm::Handle<Level1TriggerScalersCollection> triggerScalers;
   bool a = iEvent.getByLabel(scalersSource_, triggerScalers);
@@ -350,9 +391,37 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		integralTech[i]->setBinContent(lumisection+1, integral_tech_[i]); 
 		if( (i==42 || i==43) ) integral_tech_42_OR_43_+=(technicalRates_[i]*SECS_PER_LUMI);
 	      } 
-	      if( technicalRates_[40]!=0 ) techRateRatio_41_over_40->setBinContent(lumisection+1, technicalRates_[41]/technicalRates_[40]);
+
+	      //fill rate ratio plots
+	      if(denomIsTech_){
+		if( denomBit_ < technicalRates_.size() ){
+		  if(technicalRates_[denomBit_]){
+
+		    if( muonBit_ < algorithmRates_.size() )
+		      rateRatio_mu->setBinContent(lumisection+1, algorithmRates_[muonBit_]/technicalRates_[denomBit_]);
+		    if( egammaBit_ < algorithmRates_.size() )
+		      rateRatio_egamma->setBinContent(lumisection+1, algorithmRates_[egammaBit_]/technicalRates_[denomBit_]);
+		    if( jetBit_ < algorithmRates_.size() )
+		      rateRatio_jet->setBinContent(lumisection+1, algorithmRates_[jetBit_]/technicalRates_[denomBit_]);
+
+		    techRateRatio_8->setBinContent(lumisection+1, technicalRates_[8]/technicalRates_[denomBit_]);
+		    techRateRatio_9->setBinContent(lumisection+1, technicalRates_[9]/technicalRates_[denomBit_]);
+		    techRateRatio_10->setBinContent(lumisection+1, technicalRates_[10]/technicalRates_[denomBit_]);
+
+		    techRateRatio_36->setBinContent(lumisection+1, technicalRates_[36]/technicalRates_[denomBit_]);
+		    techRateRatio_37->setBinContent(lumisection+1, technicalRates_[37]/technicalRates_[denomBit_]);
+		    techRateRatio_38->setBinContent(lumisection+1, technicalRates_[38]/technicalRates_[denomBit_]);
+		    techRateRatio_39->setBinContent(lumisection+1, technicalRates_[39]/technicalRates_[denomBit_]);
+		    techRateRatio_40->setBinContent(lumisection+1, technicalRates_[40]/technicalRates_[denomBit_]);
+		    techRateRatio_41->setBinContent(lumisection+1, technicalRates_[41]/technicalRates_[denomBit_]);
+		    techRateRatio_42->setBinContent(lumisection+1, technicalRates_[42]/technicalRates_[denomBit_]);
+		    techRateRatio_43->setBinContent(lumisection+1, technicalRates_[43]/technicalRates_[denomBit_]);
+		  }
+		}
+	      }
 	      if( technicalRates_[32]!=0 ) techRateRatio_33_over_32->setBinContent(lumisection+1, technicalRates_[33]/technicalRates_[32]);
 	      integralTech_42_OR_43->setBinContent(lumisection+1, integral_tech_42_OR_43_);	   
+
 	    }
 
 	    physRate->setBinContent(lumisection+1, 

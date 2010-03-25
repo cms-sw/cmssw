@@ -52,7 +52,8 @@ private:
   edm::InputTag scalersSource_;
                                                                      
   std::string outputFile_;	//file name for ROOT ouput
-  bool verbose_, monitorDaemon_;
+  bool verbose_, denomIsTech_, monitorDaemon_;
+  unsigned int denomBit_, muonBit_,egammaBit_,jetBit_;
   int nev_; // Number of events processed
   long reftime_,buffertime_;
   std::vector<double> algorithmRates_;
@@ -78,7 +79,21 @@ private:
   MonitorElement * integralTech[64];
   MonitorElement * integralTech_42_OR_43;
   MonitorElement * techRateRatio_33_over_32;
-  MonitorElement * techRateRatio_41_over_40;
+  MonitorElement * techRateRatio_8;
+  MonitorElement * techRateRatio_9;
+  MonitorElement * techRateRatio_10;
+  MonitorElement * techRateRatio_36;
+  MonitorElement * techRateRatio_37;
+  MonitorElement * techRateRatio_38;
+  MonitorElement * techRateRatio_39;
+  MonitorElement * techRateRatio_40;
+  MonitorElement * techRateRatio_41;
+  MonitorElement * techRateRatio_42;
+  MonitorElement * techRateRatio_43;
+  MonitorElement * rateRatio_mu;
+  MonitorElement * rateRatio_egamma;
+  MonitorElement * rateRatio_jet;
+
 
   MonitorElement * physRate;
   MonitorElement * randRate;
