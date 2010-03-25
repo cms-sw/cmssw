@@ -42,7 +42,7 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
 
     # Parameters used to apply cuts
     tracksSelectorParameters = cms.PSet(
-        bSelectTracks = cms.bool(False),
+        bSelectTracks = cms.bool(True),
         # If a track is high purity it is always kept
         quality = cms.string("HighPurity"),
         # Following cuts are applyed to non high purity tracks
