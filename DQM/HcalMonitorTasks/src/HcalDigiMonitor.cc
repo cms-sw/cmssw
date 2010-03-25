@@ -301,21 +301,23 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   HcalChannelQuality *chanquality= new HcalChannelQuality(*p.product());
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   PedestalsByCapId_.clear();
+
   const HcalQIEShape* shape = conditions_->getHcalShape();
-  for (unsigned int chan=0;chan<mydetids.size();++chan)
+  for (std::vector<DetId>::const_iterator chan = mydetids.begin();chan!=mydetids.end();++chan)
     {
+      if (chan->det()!=DetId::Hcal) continue; // not hcal
       std::vector <int> peds;
       peds.clear();
-      HcalCalibrations calibs=conditions_->getHcalCalibrations(chan);
-      const HcalQIECoder* channelCoder = conditions_->getHcalCoder(chan);
+      HcalCalibrations calibs=conditions_->getHcalCalibrations(*chan);
+      const HcalQIECoder* channelCoder = conditions_->getHcalCoder(*chan);
       for (int capid=0;capid<4;++capid)
 	{
 	  // temp_ADC should be an int, right?
 	  int temp_ADC=channelCoder->adc(*shape,(float)calibs.pedestal(capid),capid);
 	  peds.push_back(temp_ADC);
 	}
-      PedestalsByCapId_[chan]=peds;
-    }
+      PedestalsByCapId_[*chan]=peds;
+    } // loop on DetIds
 
   if (tevt_==0) this->setup(); // create all histograms; not necessary if merging runs together
   if (mergeRuns_==false) this->reset(); // call reset at start of all runs
