@@ -24,5 +24,6 @@ hcalBeamMonitor=cms.EDAnalyzer("HcalBeamMonitor",
                                lumiqualitydir         = cms.untracked.string(""),
                                occupancyThresh        = cms.untracked.double(0.0625),
                                hotrate                = cms.untracked.double(0.25),
-                               minBadCells            = cms.untracked.int32(10)
+                               minBadCells            = cms.untracked.int32(10),
+                               Overwrite              = cms.untracked.bool(False),
                                )

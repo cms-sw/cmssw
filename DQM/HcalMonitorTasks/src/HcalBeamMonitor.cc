@@ -63,6 +63,7 @@ HcalBeamMonitor::HcalBeamMonitor(const edm::ParameterSet& ps):
   occThresh_ = ps.getUntrackedParameter<double>("occupancyThresh",0.0625);  // energy required to be counted by dead/hot checks
   hotrate_        = ps.getUntrackedParameter<double>("hotrate",0.25);
   minBadCells_    = ps.getUntrackedParameter<int>("minBadCells",10);
+  Overwrite_      = ps.getUntrackedParameter<bool>("Overwrite",false);
 }
 
 
@@ -395,8 +396,11 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   runNumber_=run.id().run();
   if (lumiqualitydir_.size()>0 && Online_==true)
     {
-      outfile_ <<lumiqualitydir_<<"HcalHFLumistatus_"<<runNumber_<<".txt";
-      std::ofstream outStream(outfile_.str().c_str(),std::ios::app);
+      if (Overwrite_==false)
+	outfile_ <<lumiqualitydir_<<"HcalHFLumistatus_"<<runNumber_<<".txt";
+      else
+	outfile_ <<lumiqualitydir_<<"HcalHFLumistatus.txt";
+      std::ofstream outStream(outfile_.str().c_str()); // recreate the file, rather than appending to it
       outStream<<"## Run "<<runNumber_<<std::endl;
       outStream<<"## LumiBlock\tRing1Status\t\tRing2Status\t\tGlobalStatus\tNentries"<<std::endl;
       outStream.close();
