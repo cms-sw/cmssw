@@ -1,7 +1,7 @@
-                                  CaloTowersTask_MET_HB   1	           HB_CaloTowers_MET_HB.gif	2	0	800	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo MET (GeV)
-                                  CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	2	0	2200	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo SET (GeV)	
-                          CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	5	0	1500	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
-                          CaloTowersTask_energy_HCAL_HB   1	HB_CaloTowers_Energy_in_HCAL_HB.gif	5	0	2000	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers HCAL energy (GeV)
+                                  CaloTowersTask_MET_HB   1	           HB_CaloTowers_MET_HB.gif	8	0	800	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo MET (GeV)
+                                  CaloTowersTask_SET_HB   1	           HB_CaloTowers_SET_HB.gif	20	0	2200	0	-1	1D	Stat	Chi2	Log	2	1	       HB Calo SET (GeV)	
+                          CaloTowersTask_energy_ECAL_HB   1	HB_CaloTowers_Energy_in_ECAL_HB.gif	10	0	1500	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers ECAL energy (GeV)
+                          CaloTowersTask_energy_HCAL_HB   1	HB_CaloTowers_Energy_in_HCAL_HB.gif	10	0	2000	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HB   0
                          CaloTowersTask_energy_OUTER_HB   0
     CaloTowersTask_energy_of_ECAL_component_of_tower_HB   0
@@ -9,7 +9,7 @@
                            CaloTowersTask_map_energy_HB   0
                       CaloTowersTask_map_energy_ECAL_HB   0
                       CaloTowersTask_map_energy_HCAL_HB   0
-               CaloTowersTask_number_of_fired_towers_HB   1	       HB_CaloTowers_Ntowers_HB.gif	1	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HB CaloTowers number
+               CaloTowersTask_number_of_fired_towers_HB   1	       HB_CaloTowers_Ntowers_HB.gif	2	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HB CaloTowers number
                               CaloTowersTask_phi_MET_HB   0
            CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB   0
                             CaloTowersTask_EM_Timing_HB   1	     HB_CaloTowers_EM_Timing_HB.gif	4	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HB CaloTowers EM Timing
@@ -19,7 +19,7 @@
                     CaloTowersTask_HAD_Energy_Timing_HB   1  HB_CaloTowers_HAD_Energy_Timing_HB.gif	1	0	600	0	-1	TM	noStat	noChi2	NoLog	53	42	       HB CaloTowers HAD Timing vs Energy
             CaloTowersTask_HAD_Energy_Timing_profile_HB
                                   CaloTowersTask_MET_HE   1	           HE_CaloTowers_MET_HE.gif	5	0	700	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo MET (GeV)
-                                  CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	2	0	1000	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo SET (GeV)
+                                  CaloTowersTask_SET_HE   1	           HE_CaloTowers_SET_HE.gif	20	0	1000	0	-1	1D	Stat	Chi2	Log	2	1	       HE Calo SET (GeV)
                           CaloTowersTask_energy_ECAL_HE   1	HE_CaloTowers_Energy_in_ECAL_HE.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers ECAL energy (GeV)
                           CaloTowersTask_energy_HCAL_HE   1	HE_CaloTowers_Energy_in_HCAL_HE.gif	5	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers HCAL energy (GeV)
             CaloTowersTask_energy_HcalPlusEcalPlusHO_HE   0
@@ -29,7 +29,7 @@
                            CaloTowersTask_map_energy_HE   0
                       CaloTowersTask_map_energy_ECAL_HE   0
                       CaloTowersTask_map_energy_HCAL_HE   0
-               CaloTowersTask_number_of_fired_towers_HE   1	       HE_CaloTowers_Ntowers_HE.gif	1	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HE CaloTowers number
+               CaloTowersTask_number_of_fired_towers_HE   1	       HE_CaloTowers_Ntowers_HE.gif	2	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HE CaloTowers number
                               CaloTowersTask_phi_MET_HE   0
            CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE   0
                             CaloTowersTask_EM_Timing_HE   1	     HE_CaloTowers_EM_Timing_HE.gif	4	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HE CaloTowers EM Timing
@@ -49,7 +49,7 @@
                            CaloTowersTask_map_energy_HF   0
                       CaloTowersTask_map_energy_ECAL_HF   0
                       CaloTowersTask_map_energy_HCAL_HF   0
-               CaloTowersTask_number_of_fired_towers_HF   1	       HF_CaloTowers_Ntowers_HF.gif	1	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HF CaloTowers number
+               CaloTowersTask_number_of_fired_towers_HF   1	       HF_CaloTowers_Ntowers_HF.gif	2	0	500	0	-1	1D	Stat	Chi2	NoLog	2	1	       HF CaloTowers number
                               CaloTowersTask_phi_MET_HF   0
            CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF   0
                             CaloTowersTask_EM_Timing_HF   1	     HF_CaloTowers_EM_Timing_HF.gif	4	0	-1	0	-1	1D	Stat	Chi2	Log	2	1	       HF CaloTowers EM Timing
@@ -157,6 +157,6 @@
                                         hLumiBlockCount   0
                                              hRBXEnergy   1	                     RBX_energy.gif	1	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy (GeV)
                                         hRBXEnergyType1   1	               RBX_energy_type1.gif	1	0	400	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 1 (GeV)
-                                        hRBXEnergyType2   1	               RBX_energy_type2.gif	1	0	-1	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 2 (GeV)
-                                        hRBXEnergyType3   1	               RBX_energy_type3.gif	5	0	-1	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 3 (GeV)
+                                        hRBXEnergyType2   1	               RBX_energy_type2.gif	4	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 2 (GeV)
+                                        hRBXEnergyType3   1	               RBX_energy_type3.gif	4	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX energy type 3 (GeV)
                                               hRBXNHits   1	                      RBX_Nhits.gif	1	0	40	0	-1	1D	Statrv	Chi2	NoLog	2	1	      RBX number of hits
