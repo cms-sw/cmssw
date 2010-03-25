@@ -1,5 +1,6 @@
 #include "Fireworks/Muons/interface/CSCUtils.h"
 #include <iostream>
+#include <cassert>
 
 namespace fireworks
 {
