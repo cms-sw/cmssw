@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2008/02/13 13:53:53 $
- *   $Revision: 1.23 $
+ *   $Date: 2010/03/02 14:04:18 $
+ *   $Revision: 1.24 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -28,6 +28,7 @@
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -38,6 +39,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+#include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 
 #include <string>
 
@@ -63,10 +65,10 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
-  // instantiate the concrete trajectory builder in the Track Finder,
-  // with NO cleaner ("0" pointer)
+  // instantiate the concrete trajectory builder in the Track Finder
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
-				       new MuonTrackLoader(trackLoaderParameters, theService),0);
+				       new MuonTrackLoader(trackLoaderParameters, theService),
+				       new MuonTrajectoryCleaner(true));
   
   produces<reco::TrackCollection>();
   produces<reco::TrackCollection>("UpdatedAtVtx");
@@ -76,6 +78,8 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
+
+  produces<edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>, std::vector<L2MuonTrajectorySeed> > > >();
 }
   
 /// destructor
