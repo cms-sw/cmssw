@@ -105,6 +105,10 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   double ECAL_Compensation_;
   unsigned int ECAL_Dead_Code_;
 
+  // Depth correction for EM and HAD rechits in the HF
+  double EM_Depth_;
+  double HAD_Depth_;
+
 };
 
 #endif

@@ -73,6 +73,9 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
   ECAL_Compensation_ = iConfig.getParameter<double>("ECAL_Compensation");
   ECAL_Dead_Code_ = iConfig.getParameter<unsigned int>("ECAL_Dead_Code");
 
+  EM_Depth_ = iConfig.getParameter<double>("EM_Depth");
+  HAD_Depth_ = iConfig.getParameter<double>("HAD_Depth");
+
   //--ab
   produces<reco::PFRecHitCollection>("HFHAD").setBranchAlias("HFHADRecHits");
   produces<reco::PFRecHitCollection>("HFEM").setBranchAlias("HFEMRecHits");
@@ -528,12 +531,23 @@ PFRecHitProducerHCAL::createHcalRecHit( const DetId& detid,
   
   const GlobalPoint& position = thisCell->getPosition();
   
-  
+  double depth_correction = 0.;
+  switch ( layer ) { 
+  case PFLayer::HF_EM:
+    depth_correction = position.z() > 0. ? EM_Depth_ : -EM_Depth_;
+    break;
+  case PFLayer::HF_HAD:
+    depth_correction = position.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
+    break;
+  default:
+    break;
+  }
+
   unsigned id = detid;
   if(newDetId) id = newDetId;
   reco::PFRecHit *rh = 
     new reco::PFRecHit( id,  layer, energy, 
-			position.x(), position.y(), position.z(), 
+			position.x(), position.y(), position.z()+depth_correction, 
 			0,0,0 );
  
   
@@ -544,10 +558,10 @@ PFRecHitProducerHCAL::createHcalRecHit( const DetId& detid,
 
   assert( corners.size() == 8 );
 
-  rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
-  rh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z() );
-  rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
-  rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
+  rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z()+depth_correction );
+  rh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z()+depth_correction );
+  rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z()+depth_correction );
+  rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z()+depth_correction );
  
   return rh;
 }

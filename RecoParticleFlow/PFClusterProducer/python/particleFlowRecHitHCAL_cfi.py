@@ -33,9 +33,11 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
     ECAL_Compensate = cms.bool(True),
     ECAL_Threshold = cms.double(10.),
     ECAL_Compensation = cms.double(0.5),
-    ECAL_Dead_Code = cms.uint32(10)                                        
+    ECAL_Dead_Code = cms.uint32(10),
 
-                                  
+# Depth correction (in cm) for hadronic and electromagnetic rechits
+    EM_Depth = cms.double(22.),
+    HAD_Depth = cms.double(47.)                              
                                   
 )
 
