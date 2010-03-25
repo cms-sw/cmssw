@@ -1,37 +1,29 @@
 #ifndef DQM_HCALMONITORTASKS_HCALNZSMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALNZSMONITOR_H
 
-#include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-#include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
+#include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"  // need for emap
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include <math.h>
 
-namespace edm {
-  class TriggerNames;
-}
-
-class HcalNZSMonitor: public HcalBaseMonitor {
+class HcalNZSMonitor: public HcalBaseDQMonitor 
+{
  public:
-  HcalNZSMonitor();
+  HcalNZSMonitor(const edm::ParameterSet& ps);
   ~HcalNZSMonitor();
-  
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
 
-  void processEvent(const FEDRawDataCollection& rawraw,
-                    const edm::TriggerResults&,
-                    int bxNum,
-                    const edm::TriggerNames & triggerNames);
+
+  void setup();
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void analyze(edm::Event const&e, edm::EventSetup const&s);
+  void processEvent(const FEDRawDataCollection& rawraw, edm::TriggerResults, int bxNum,const edm::TriggerNames & triggerNames);
+
+
 
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
-  void clearME();
+  void cleanup();
   void reset();
-  //void beginRun();
-  void endLuminosityBlock();
-  void UpdateMEs ();  
 
  private: 
   // Data accessors
@@ -56,6 +48,9 @@ class HcalNZSMonitor: public HcalBaseMonitor {
   int nAndAcc;
   int nAcc_Total;
   std::vector<int> nAcc;
+
+  edm::InputTag rawdataLabel_;
+  edm::InputTag hltresultsLabel_;
 };
 
 

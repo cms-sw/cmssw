@@ -8,8 +8,59 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include <TVector2.h>
+#include <TVector3.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
+// this is to retrieve HCAL LogicalMap
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+
+#include <math.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10.5,11.5,12.5,
@@ -36,36 +87,122 @@ static std::string HO_RBX[36]={
 "HO1P02","HO1P04","HO1P06","HO1P08","HO1P10","HO1P12","HO2P02","HO2P04","HO2P06","HO2P08","HO2P10","HO2P12",
 };
 
-HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor() {
+
+class HcalDetDiagNoiseRMData{
+public:
+  HcalDetDiagNoiseRMData(){
+    n_th_hi=n_th_lo=0;
+    energy=0;
+  };
+  int    n_th_hi;
+  int    n_th_lo;
+  double energy; 
+};
+
+class HcalDetDiagNoiseRMSummary{
+public:
+  HcalDetDiagNoiseRMSummary(){ 
+     std::string subdets[11]={"HBM","HBP","HEM","HEP","HO2M","HO1M","HO0","HO1P","HO2P","HFM","HFP"};
+     reset(); 
+     for(int sd=0;sd<11;sd++) for(int sect=1;sect<=18;sect++) for(int rm=1;rm<=4;rm++){
+        std::stringstream tempss;
+        tempss << std::setw(2) << std::setfill('0') << sect;
+        std::string rbx= subdets[sd]+tempss.str();
+        HcalFrontEndId id(rbx,rm,1,1,1,1,1);
+        if(id.rawId()==0) continue;
+        SubDetIndex[id.rmIndex()]=sd; 
+     }
+     for(int i=0;i<HcalFrontEndId::maxRmIndex;i++) Ref[i]=0;
+  }
+  void reset(int subdet=-1){
+     if(subdet==-1){
+       for(int i=0;i<HcalFrontEndId::maxRmIndex;i++) AboveThHi[i]=0; 
+       for(int i=0;i<11;i++) events[i]=0;
+     }else{
+        std::string subdets[11]={"HBM","HBP","HEM","HEP","HO2M","HO1M","HO0","HO1P","HO2P","HFM","HFP"};
+        for(int sect=1;sect<=18;sect++) for(int rm=1;rm<=4;rm++){
+	   std::stringstream tempss;
+           tempss << std::setw(2) << std::setfill('0') << sect;
+           std::string rbx= subdets[subdet]+tempss.str();
+           HcalFrontEndId id(rbx,rm,1,1,1,1,1);
+           if(id.rawId()==0) continue;
+           AboveThHi[id.rmIndex()]=0; 
+	   events[subdet]=0;
+	}
+     }
+  }
+  void SetReference(int index,double val){
+     if(index<0 || index>=HcalFrontEndId::maxRmIndex) return;
+     Ref[index]=val;
+  } 
+  double GetReference(int index){
+     if(index<0 || index>=HcalFrontEndId::maxRmIndex) return 0;
+     return Ref[index];
+  } 
+  bool GetRMStatusValue(const std::string& rbx,int rm,double *val){
+     int index=GetRMindex(rbx,rm);
+     if(index<0 || index>=HcalFrontEndId::maxRmIndex) return false;
+     if(events[SubDetIndex[index]]>10){ *val=(double)AboveThHi[index]/(double)events[SubDetIndex[index]]; return true; }
+     *val=0; return true; 
+  }
+  void AddNoiseStat(int rm_index){
+     AboveThHi[rm_index]++;
+     events[SubDetIndex[rm_index]]++;
+  }
+  int GetSubDetIndex(const std::string& rbx){
+      return SubDetIndex[GetRMindex(rbx,2)];
+  }
+  
+  int GetRMindex(const std::string& rbx,int rm){
+      if(rbx.substr(0,3)=="HO0"){
+         int sect=atoi(rbx.substr(3,2).c_str());
+         if(sect>12) return -1;
+	 if(rm==1 && (sect==2  || sect==3 || sect==6 || sect==7 || sect==10 || sect==11)) return -1;
+         if(rm==4 && (sect==12 || sect==1 || sect==4 || sect==5 || sect==8  || sect==9 )) return -1;
+      }
+      if(rbx.substr(0,3)=="HO1" || rbx.substr(0,3)=="HO2"){ 
+         int sect=atoi(rbx.substr(4,2).c_str());
+	 if(sect>12) return -1;
+         if(sect==1 || sect==3 || sect==5 || sect==7 || sect==9 || sect==11) return -1;
+      }
+      HcalFrontEndId id(rbx,rm,1,1,1,1,1);
+      if(id.rawId()==0) return -1;
+      return id.rmIndex(); 
+  }
+  int GetStat(int subdet){ return events[subdet]; }
+private:  
+  int    AboveThHi  [HcalFrontEndId::maxRmIndex];
+  int    SubDetIndex[HcalFrontEndId::maxRmIndex];
+  double Ref[HcalFrontEndId::maxRmIndex];
+  int    events[11];
+};
+
+
+
+
+HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) 
+{
   ievt_=0;
   run_number=-1;
   NoisyEvents=0;
+  
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+  mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
+  enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
+  debug_                 = ps.getUntrackedParameter<int>("debug",0);
+  prefixME_              = ps.getUntrackedParameter<string>("subSystemFolder","Hcal/");
+  if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
+    prefixME_.append("/");
+  subdir_                = ps.getUntrackedParameter<string>("TaskFolder","DetDiagNoiseMonitor_Hcal"); 
+  if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
+    subdir_.append("/");
+  subdir_=prefixME_+subdir_;
+  AllowedCalibTypes_     = ps.getUntrackedParameter<vector<int> > ("AllowedCalibTypes");
+  skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS","false");
+  NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
+  makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
 
-// ####################################
 
-  lumi.clear();
-
-// ####################################
-
-}
-
-HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor(){}
-
-void HcalDetDiagNoiseMonitor::clearME(){
-  if(m_dbe){
-    m_dbe->setCurrentFolder(baseFolder_);
-    m_dbe->removeContents();
-    m_dbe = 0;
-  }
-} 
-void HcalDetDiagNoiseMonitor::reset(){}
-
-void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-  m_dbe=NULL;
-  ievt_=0;
-  if(dbe!=NULL) m_dbe=dbe;
-  clearME();
- 
   UseDB            = ps.getUntrackedParameter<bool>  ("UseDB"  , false);
   ReferenceData    = ps.getUntrackedParameter<string>("NoiseReferenceData" ,"");
   OutputFilePath   = ps.getUntrackedParameter<string>("OutputFilePath", "");
@@ -75,20 +212,20 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   SpikeThreshold   = ps.getUntrackedParameter<double>("NoiseThresholdSpike",0.06);
   UpdateEvents     = ps.getUntrackedParameter<int>   ("NoiseUpdateEvents",200);
   
-  FEDRawDataCollection_ = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection",edm::InputTag("source",""));
-  inputLabelDigi_       = ps.getParameter<edm::InputTag>         ("digiLabel");
-
-// ###################################################################################################################
-
+  rawDataLabel_ = ps.getUntrackedParameter<edm::InputTag>("RawDataLabel",edm::InputTag("source",""));
+  digiLabel_     = ps.getUntrackedParameter<edm::InputTag>("digiLabel",edm::InputTag("hcalDigis"));
+  
   hlTriggerResults_				= ps.getUntrackedParameter<edm::InputTag>("HLTriggerResults",edm::InputTag("TriggerResults","","HLT"));
   MetSource_					= ps.getUntrackedParameter<edm::InputTag>("MetSource",edm::InputTag("met"));
   JetSource_          				= ps.getUntrackedParameter<edm::InputTag>("JetSource",edm::InputTag("iterativeCone5CaloJets"));
   TrackSource_          			= ps.getUntrackedParameter<edm::InputTag>("TrackSource",edm::InputTag("generalTracks"));
+  VertexSource_          			= ps.getUntrackedParameter<edm::InputTag>("VertexSource",edm::InputTag("offlinePrimaryVertices"));
+  UseVertexCuts_         			= ps.getUntrackedParameter<bool>("UseVertexCuts",true);
   rbxCollName_    				= ps.getUntrackedParameter<std::string>("rbxCollName","hcalnoise");
-  TriggerRequirement_ 				= ps.getUntrackedParameter<string>("TriggerRequirement","HLT_MET100");
-  UseMetCutInsteadOfTrigger_			= ps.getUntrackedParameter<bool>("UseMetCutInsteadOfTrigger",true);
-  MetCut_					= ps.getUntrackedParameter<double>("MetCut",0.0);
-  JetMinEt_ 					= ps.getUntrackedParameter<double>("JetMinEt",20.0);
+  PhysDeclaredRequirement_ 			= ps.getUntrackedParameter<string>("PhysDeclaredRequirement","HLT_PhysicsDeclared");
+  MonitoringTriggerRequirement_			= ps.getUntrackedParameter<string>("MonitoringTriggerRequirement","HLT_MET100");
+  UseMonitoringTrigger_				= ps.getUntrackedParameter<bool>("UseMonitoringTrigger",false);
+  JetMinEt_ 					= ps.getUntrackedParameter<double>("JetMinEt",10.0);
   JetMaxEta_ 					= ps.getUntrackedParameter<double>("JetMaxEta",2.0);
   ConstituentsToJetMatchingDeltaR_ 		= ps.getUntrackedParameter<double>("ConstituentsToJetMatchingDeltaR",0.5);
   TrackMaxIp_ 					= ps.getUntrackedParameter<double>("TrackMaxIp",0.1);
@@ -97,40 +234,74 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   MaxJetHadronicEnergyFraction_ 		= ps.getUntrackedParameter<double>("MaxJetHadronicEnergyFraction",0.98);
   caloTowerCollName_				= ps.getParameter<edm::InputTag>("caloTowerCollName");
 
-// ###################################################################################################################
+// ####################################
 
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
-  
-  HcalBaseMonitor::setup(ps,dbe);
+  lumi.clear();
+  RBXSummary = 0;
+  RBXCurrentSummary = 0;
+// ####################################
 
-  baseFolder_ = rootFolder_+"HcalNoiseMonitor";
+}
+
+HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor(){}
+
+void HcalDetDiagNoiseMonitor::cleanup(){
+  if(dbe_){
+    dbe_->setCurrentFolder(subdir_);
+    dbe_->removeContents();
+    dbe_ = 0;
+  }
+} 
+void HcalDetDiagNoiseMonitor::reset(){}
+
+
+void HcalDetDiagNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+{
+  if (debug_>1) std::cout <<"HcalDetDiagNoiseMonitor::beginRun"<<std::endl;
+  HcalBaseDQMonitor::beginRun(run,c);
+
+  if (tevt_==0) this->setup(); // set up histograms if they have not been created before
+  if (mergeRuns_==false)
+    this->reset();
+
+  return;
+
+} // void HcalNDetDiagNoiseMonitor::beginRun(...)
+
+void HcalDetDiagNoiseMonitor::setup()
+{
+
+  // Call base class setup
+  HcalBaseDQMonitor::setup();
+  if (!dbe_) return;
+
+  RBXSummary = new HcalDetDiagNoiseRMSummary();
+  RBXCurrentSummary = new HcalDetDiagNoiseRMSummary();
+
   //char *name;
   std::string name;
-  if(m_dbe!=NULL){    
-     m_dbe->setCurrentFolder(baseFolder_);   
-     meEVT_ = m_dbe->bookInt("HcalNoiseMonitor Event Number");
-     m_dbe->setCurrentFolder(baseFolder_+"/Summary Plots");
+  if(dbe_!=NULL){    
+     dbe_->setCurrentFolder(subdir_);   
+     meEVT_ = dbe_->bookInt("HcalNoiseMonitor Event Number");
+     dbe_->setCurrentFolder(subdir_+"Summary Plots");
      
-     name="RBX Pixel multiplicity";   PixelMult        = m_dbe->book1D(name,name,73,0,73);
-     name="HPD energy";               HPDEnergy        = m_dbe->book1D(name,name,200,0,2500);
-     name="RBX energy";               RBXEnergy        = m_dbe->book1D(name,name,200,0,3500);
-     name="HB RM Noise Fraction Map"; HB_RBXmapRatio   = m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HB RM Spike Map";          HB_RBXmapSpikeCnt= m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HB RM Spike Amplitude Map";HB_RBXmapSpikeAmp= m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HE RM Noise Fraction Map"; HE_RBXmapRatio   = m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HE RM Spike Map";          HE_RBXmapSpikeCnt= m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HE RM Spike Amplitude Map";HE_RBXmapSpikeAmp= m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HO RM Noise Fraction Map"; HO_RBXmapRatio   = m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HO RM Spike Map";          HO_RBXmapSpikeCnt= m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HO RM Spike Amplitude Map";HO_RBXmapSpikeAmp= m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="RBX Pixel multiplicity";   PixelMult        = dbe_->book1D(name,name,73,0,73);
+     name="HPD energy";               HPDEnergy        = dbe_->book1D(name,name,200,0,2500);
+     name="RBX energy";               RBXEnergy        = dbe_->book1D(name,name,200,0,3500);
+     name="HB RM Noise Fraction Map"; HB_RBXmapRatio   = dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HB RM Spike Map";          HB_RBXmapSpikeCnt= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HB RM Spike Amplitude Map";HB_RBXmapSpikeAmp= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HE RM Noise Fraction Map"; HE_RBXmapRatio   = dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HE RM Spike Map";          HE_RBXmapSpikeCnt= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HE RM Spike Amplitude Map";HE_RBXmapSpikeAmp= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HO RM Noise Fraction Map"; HO_RBXmapRatio   = dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HO RM Spike Map";          HO_RBXmapSpikeCnt= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HO RM Spike Amplitude Map";HO_RBXmapSpikeAmp= dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
  
-     m_dbe->setCurrentFolder(baseFolder_+"/Current Plots");
-     name="HB RM Noise Fraction Map (current status)"; HB_RBXmapRatioCur = m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HE RM Noise Fraction Map (current status)"; HE_RBXmapRatioCur = m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
-     name="HO RM Noise Fraction Map (current status)"; HO_RBXmapRatioCur = m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     dbe_->setCurrentFolder(subdir_+"Current Plots");
+     name="HB RM Noise Fraction Map (current status)"; HB_RBXmapRatioCur = dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HE RM Noise Fraction Map (current status)"; HE_RBXmapRatioCur = dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
+     name="HO RM Noise Fraction Map (current status)"; HO_RBXmapRatioCur = dbe_->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
      
      std::string title="RM";
      HB_RBXmapRatio->setAxisTitle(title);
@@ -165,149 +336,126 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
      if(!Online_) {
 
-       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring");
-       title="MET (GeV) All Events";
-       name="MET_All_Events";				Met_AllEvents        = m_dbe->book1D(name,name,200,0,2000);
-       Met_AllEvents->setAxisTitle(title);
-       title="MET #phi All Events";
-       name="METphi_All_Events";				Mephi_AllEvents        = m_dbe->book1D(name,name,70,-3.5,3.5);
-       Mephi_AllEvents->setAxisTitle(title);
-       title="MEx (GeV) All Events";
-       name="MEx_All_Events";				Mex_AllEvents        = m_dbe->book1D(name,name,200,-1000,1000);
-       Mex_AllEvents->setAxisTitle(title);
-       title="MEy (GeV) All Events";
-       name="MEy_All_Events";				Mey_AllEvents        = m_dbe->book1D(name,name,200,-1000,1000);
-       Mey_AllEvents->setAxisTitle(title);
-       title="SumET (GeV) All Events";
-       name="SumEt_All_Events";				SumEt_AllEvents        = m_dbe->book1D(name,name,200,0,2000);
-       SumEt_AllEvents->setAxisTitle(title);
-       title="Number of LumiSections";
-       name="NLumiSections";				NLumiSections        = m_dbe->book1D(name,name,1,0,1);
-       NLumiSections->setAxisTitle(title);
+       dbe_->setCurrentFolder(subdir_+"MetExpressStreamNoiseMonitoring");
 
-       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring"+"/SelectedForNoiseMonitoring");
-       title="MET (GeV) passing selections";
-       name="MET_pass_selections";			Met_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
-       Met_passingTrigger->setAxisTitle(title);
-       title="MET #phi passing selections";
-       name="METphi_pass_selections";			Mephi_passingTrigger   = m_dbe->book1D(name,name,70,-3.5,3.5);
-       Mephi_passingTrigger->setAxisTitle(title);
-       title="MEx (GeV) passing selections";
-       name="MEx_pass_selections";			Mex_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
-       Mex_passingTrigger->setAxisTitle(title);
-       title="MEy (GeV) passing selections";
-       name="MEy_pass_selections";			Mey_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
-       Mey_passingTrigger->setAxisTitle(title);
-       title="SumET (GeV) passing selections";
-       name="SumEt_pass_selections";			SumEt_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
-       SumEt_passingTrigger->setAxisTitle(title);
-       title="MET (GeV) corrected for noise";
-       name="MET_pass_selections_correctfornoise";	CorrectedMet_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
-       CorrectedMet_passingTrigger->setAxisTitle(title);
-       title="MET #phi corrected for noise";
-       name="METphi_pass_selections_correctfornoise";	CorrectedMephi_passingTrigger   = m_dbe->book1D(name,name,70,-3.5,3.5);
-       CorrectedMephi_passingTrigger->setAxisTitle(title);
-       title="MEx (GeV) corrected for noise";
-       name="MEx_pass_selections_correctfornoise";	CorrectedMex_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
-       CorrectedMex_passingTrigger->setAxisTitle(title);
-       title="MEy (GeV) corrected for noise";
-       name="MEy_pass_selections_correctfornoise";	CorrectedMey_passingTrigger   = m_dbe->book1D(name,name,200,-1000,1000);
-       CorrectedMey_passingTrigger->setAxisTitle(title);
-       title="SumET (GeV) corrected for noise";
-       name="SumEt_pass_selections_correctfornoise";	CorrectedSumEt_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
-       CorrectedSumEt_passingTrigger->setAxisTitle(title);
-       title="Jet Hadronic Energy Fraction - passing selections";
-       name="Jets_passing_selections_HadF";		HCALFraction_passingTrigger   = m_dbe->book1D(name,name,55,0,1.1);
-       HCALFraction_passingTrigger->setAxisTitle(title);
-       title="Jet Charge Fraction - passing selections";
-       name="Jets_passing_selections_CHF";		chargeFraction_passingTrigger   = m_dbe->book1D(name,name,30,0,1.5);
-       chargeFraction_passingTrigger->setAxisTitle(title);
-       title="Jet E_{T} (GeV) - passing selections";
-       name="Jets_Et_passing_selections";		JetEt_passingTrigger   = m_dbe->book1D(name,name,200,0,2000);
-       JetEt_passingTrigger->setAxisTitle(title);
-       title="Jet #eta - passing selections";
-       name="Jets_Eta_passing_selections";		JetEta_passingTrigger   = m_dbe->book1D(name,name,100,-5,5);
-       JetEta_passingTrigger->setAxisTitle(title);
-       title="Jet #phi - passing selections";
-       name="Jets_Phi_passing_selections";		JetPhi_passingTrigger   = m_dbe->book1D(name,name,70,-3.5,3.5);
-       JetPhi_passingTrigger->setAxisTitle(title);
-       title="Jet HadF vs CHF - passing selections";
-       name="Jets_passing_selections_HadF_vs_CHF"; 	HCALFractionVSchargeFraction_passingTrigger   = m_dbe->book2D(name,name,55,0,1.1,30,0,1.5);
-       HCALFractionVSchargeFraction_passingTrigger->setAxisTitle("HadF",1);
-       HCALFractionVSchargeFraction_passingTrigger->setAxisTitle("CHF",2);
+  Met	= dbe_->book1D("Met","Met",200,0,2000);
+  Mephi= dbe_->book1D(" Mephi"," Mephi",70,-3.5,3.5);
+  Mex= dbe_->book1D("Mex","Mex",200,-1000,1000);
+  SumEt= dbe_->book1D("SumEt","SumEt",200,0,2000);
+  HaEtHB= dbe_->book1D("HaEtHB","HaEtHB",200,0,2000);
+  HaEtHE= dbe_->book1D("HaEtHE","HaEtHE",200,0,2000);
+  HaEtHF= dbe_->book1D("HaEtHF","HaEtHF",200,0,2000);
+  EmEtHF= dbe_->book1D("EmEtHF","EmEtHF",200,0,2000);
+  NLumiSections   = dbe_->book1D("NLumiSections","NLumiSections",1,0,1);
+  Met_PhysicsCategory= dbe_->book1D("Met_PhysicsCategory","Met_PhysicsCategory",200,0,2000);
+  Mephi_PhysicsCategory= dbe_->book1D("Mephi_PhysicsCategory","Mephi_PhysicsCategory",70,-3.5,3.5);
+  Mex_PhysicsCategory= dbe_->book1D("Mex_PhysicsCategory","Mex_PhysicsCategory",200,-1000,1000);
+  SumEt_PhysicsCategory= dbe_->book1D("SumEt_PhysicsCategory","SumEt_PhysicsCategory",200,0,2000);
+  HaEtHB_PhysicsCategory= dbe_->book1D("HaEtHB_PhysicsCategory","HaEtHB_PhysicsCategory",200,0,2000);
+  HaEtHE_PhysicsCategory= dbe_->book1D("HaEtHE_PhysicsCategory","HaEtHE_PhysicsCategory",200,0,2000);
+  HaEtHF_PhysicsCategory= dbe_->book1D("HaEtHF_PhysicsCategory","HaEtHF_PhysicsCategory",200,0,2000);
+  EmEtHF_PhysicsCategory= dbe_->book1D("EmEtHF_PhysicsCategory","EmEtHF_PhysicsCategory",200,0,2000);
+  HCALFraction= dbe_->book1D("HCALFraction","HCALFraction",55,0,1.1);
+  chargeFraction= dbe_->book1D("chargeFraction","chargeFraction",30,0,1.5);
+  HCALFractionVSchargeFraction= dbe_->book2D("HCALFractionVSchargeFraction","HCALFractionVSchargeFraction",55,0,1.1,30,0,1.5);
+  JetEt= dbe_->book1D("JetEt","JetEt",200,0,2000);
+  JetEta= dbe_->book1D("JetEta","JetEta",200,-10,10);
+  JetPhi= dbe_->book1D("JetPhi","JetPhi",70,-3.5,3.5);
+  HCALFraction_PhysicsCategory= dbe_->book1D("HCALFraction_PhysicsCategory","HCALFraction_PhysicsCategory",55,0,1.1);
+  chargeFraction_PhysicsCategory= dbe_->book1D("chargeFraction_PhysicsCategory","chargeFraction_PhysicsCategory",30,0,1.5);
+  HCALFractionVSchargeFraction_PhysicsCategory= dbe_->book2D("HCALFractionVSchargeFraction_PhysicsCategory","HCALFractionVSchargeFraction_PhysicsCategory",55,0,1.1,30,0,1.5);
+  JetEt_PhysicsCategory= dbe_->book1D("JetEt_PhysicsCategory","JetEt_PhysicsCategory",200,0,2000);
+  JetEta_PhysicsCategory= dbe_->book1D("JetEta_PhysicsCategory","JetEta_PhysicsCategory",200,-10,10);
+  JetPhi_PhysicsCategory= dbe_->book1D("JetPhi_PhysicsCategory","JetPhi_PhysicsCategory",70,-3.5,3.5);
+  JetEt_TaggedAnomalous= dbe_->book1D("JetEt_TaggedAnomalous","JetEt_TaggedAnomalous",200,0,2000);
+  JetEta_TaggedAnomalous= dbe_->book1D("JetEta_TaggedAnomalous","JetEta_TaggedAnomalous",200,-10,10);
+  JetPhi_TaggedAnomalous= dbe_->book1D("JetPhi_TaggedAnomalous","JetPhi_TaggedAnomalous",70,-3.5,3.5);
+  JetEt_TaggedAnomalous_PhysicsCategory= dbe_->book1D("JetEt_TaggedAnomalous_PhysicsCategory","JetEt_TaggedAnomalous_PhysicsCategory",200,0,2000);
+  JetEta_TaggedAnomalous_PhysicsCategory= dbe_->book1D("JetEta_TaggedAnomalous_PhysicsCategory","JetEta_TaggedAnomalous_PhysicsCategory",200,-10,10);
+  JetPhi_TaggedAnomalous_PhysicsCategory= dbe_->book1D("JetPhi_TaggedAnomalous_PhysicsCategory","JetPhi_TaggedAnomalous_PhysicsCategory",70,-3.5,3.5);
+  HFtowerRatio= dbe_->book1D("HFtowerRatio","HFtowerRatio",30,-1.9,1.1);
+  HFtowerPt= dbe_->book1D("HFtowerPt","HFtowerPt",200,0,2000);
+  HFtowerEta= dbe_->book1D("HFtowerEta","HFtowerEta",200,-10,10);
+  HFtowerPhi= dbe_->book1D("HFtowerPhi","HFtowerPhi",70,-3.5,3.5);
+  HFtowerRatio_PhysicsCategory= dbe_->book1D("HFtowerRatio_PhysicsCategory","HFtowerRatio_PhysicsCategory",30,-1.9,1.1);;
+  HFtowerPt_PhysicsCategory= dbe_->book1D("HFtowerPt_PhysicsCategory","HFtowerPt_PhysicsCategory",200,0,2000);
+  HFtowerEta_PhysicsCategory= dbe_->book1D("HFtowerEta_PhysicsCategory","HFtowerEta_PhysicsCategory",200,-10,10);
+  HFtowerPhi_PhysicsCategory= dbe_->book1D("HFtowerPhi_PhysicsCategory","HFtowerPhi_PhysicsCategory",70,-3.5,3.5);
+  HFtowerPt_TaggedAnomalous= dbe_->book1D("HFtowerPt_TaggedAnomalous","HFtowerPt_TaggedAnomalous",200,0,2000);
+  HFtowerEta_TaggedAnomalous= dbe_->book1D("HFtowerEta_TaggedAnomalous","HFtowerEta_TaggedAnomalous",200,-10,10);
+  HFtowerPhi_TaggedAnomalous= dbe_->book1D("HFtowerPhi_TaggedAnomalous","HFtowerPhi_TaggedAnomalous",70,-3.5,3.5);
+  HFtowerPt_TaggedAnomalous_PhysicsCategory= dbe_->book1D("HFtowerPt_TaggedAnomalous_PhysicsCategory","HFtowerPt_TaggedAnomalous_PhysicsCategory",200,0,2000);
+  HFtowerEta_TaggedAnomalous_PhysicsCategory= dbe_->book1D("HFtowerEta_TaggedAnomalous_PhysicsCategory","HFtowerEta_TaggedAnomalous_PhysicsCategory",200,-10,10);
+  HFtowerPhi_TaggedAnomalous_PhysicsCategory= dbe_->book1D("HFtowerPhi_TaggedAnomalous_PhysicsCategory","HFtowerPhi_TaggedAnomalous_PhysicsCategory",70,-3.5,3.5);
+  RBXMaxZeros= dbe_->book1D("RBXMaxZeros","RBXMaxZeros",30,0,30);
+  RBXHitsHighest= dbe_->book1D("RBXHitsHighest","RBXHitsHighest",80,0,80);
+  RBXE2tsOverE10ts= dbe_->book1D("RBXE2tsOverE10ts","RBXE2tsOverE10ts",50,0,2);
+  HPDHitsHighest= dbe_->book1D("HPDHitsHighest","HPDHitsHighest",20,0,20);
+  HPDE2tsOverE10ts= dbe_->book1D("HPDE2tsOverE10ts","HPDE2tsOverE10ts",50,0,2);
+  RBXMaxZeros_PhysicsCategory= dbe_->book1D("RBXMaxZeros_PhysicsCategory","RBXMaxZeros_PhysicsCategory",30,0,30);
+  RBXHitsHighest_PhysicsCategory= dbe_->book1D("RBXHitsHighest_PhysicsCategory","RBXHitsHighest_PhysicsCategory",80,0,80);
+  RBXE2tsOverE10ts_PhysicsCategory= dbe_->book1D("RBXE2tsOverE10ts_PhysicsCategory","RBXE2tsOverE10ts_PhysicsCategory",50,0,2);
+  HPDHitsHighest_PhysicsCategory= dbe_->book1D("HPDHitsHighest_PhysicsCategory","HPDHitsHighest_PhysicsCategory",20,0,20);
+  HPDE2tsOverE10ts_PhysicsCategory= dbe_->book1D("HPDE2tsOverE10ts_PhysicsCategory","HPDE2tsOverE10ts_PhysicsCategory",50,0,2);
+  Met_TaggedHBHEAnomalous= dbe_->book1D("Met_TaggedHBHEAnomalous","Met_TaggedHBHEAnomalous",200,0,2000);
+  Mephi_TaggedHBHEAnomalous= dbe_->book1D("Mephi_TaggedHBHEAnomalous","Mephi_TaggedHBHEAnomalous",70,-3.5,3.5);
+  Mex_TaggedHBHEAnomalous= dbe_->book1D("Mex_TaggedHBHEAnomalous","Mex_TaggedHBHEAnomalous",200,-1000,1000);
+  SumEt_TaggedHBHEAnomalous= dbe_->book1D("SumEt_TaggedHBHEAnomalous","SumEt_TaggedHBHEAnomalous",200,0,2000);
+  HaEtHB_TaggedHBHEAnomalous= dbe_->book1D("HaEtHB_TaggedHBHEAnomalous","HaEtHB_TaggedHBHEAnomalous",200,0,2000);
+  HaEtHE_TaggedHBHEAnomalous= dbe_->book1D("HaEtHE_TaggedHBHEAnomalous","HaEtHE_TaggedHBHEAnomalous",200,0,2000);
+  HaEtHF_TaggedHBHEAnomalous= dbe_->book1D("HaEtHF_TaggedHBHEAnomalous","HaEtHF_TaggedHBHEAnomalous",200,0,2000);
+  EmEtHF_TaggedHBHEAnomalous= dbe_->book1D("EmEtHF_TaggedHBHEAnomalous","EmEtHF_TaggedHBHEAnomalous",200,0,2000);
+  RBXMaxZeros_TaggedHBHEAnomalous= dbe_->book1D("RBXMaxZeros_TaggedHBHEAnomalous","RBXMaxZeros_TaggedHBHEAnomalous",30,0,30);
+  RBXHitsHighest_TaggedHBHEAnomalous= dbe_->book1D("RBXHitsHighest_TaggedHBHEAnomalous","TaggedHBHEAnomalous",80,0,80);
+  RBXE2tsOverE10ts_TaggedHBHEAnomalous= dbe_->book1D("RBXE2tsOverE10ts_TaggedHBHEAnomalous","RBXE2tsOverE10ts_TaggedHBHEAnomalous",50,0,2);
+  HPDHitsHighest_TaggedHBHEAnomalous= dbe_->book1D("HPDHitsHighest_TaggedHBHEAnomalous","HPDHitsHighest_TaggedHBHEAnomalous",20,0,20);
+  HPDE2tsOverE10ts_TaggedHBHEAnomalous= dbe_->book1D("HPDE2tsOverE10ts_TaggedHBHEAnomalous","HPDE2tsOverE10ts_TaggedHBHEAnomalous",50,0,2);
+  Met_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("Met_TaggedHBHEAnomalous_PhysicsCategory","Met_TaggedHBHEAnomalous_PhysicsCategory",200,0,2000);
+  Mephi_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("Mephi_TaggedHBHEAnomalous_PhysicsCategory","Mephi_TaggedHBHEAnomalous_PhysicsCategory",70,-3.5,3.5);
+  Mex_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("Mex_TaggedHBHEAnomalous_PhysicsCategory","Mex_TaggedHBHEAnomalous_PhysicsCategory",200,-1000,1000);
+  SumEt_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("SumEt_TaggedHBHEAnomalous_PhysicsCategory","SumEt_TaggedHBHEAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHB_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("HaEtHB_TaggedHBHEAnomalous_PhysicsCategory","HaEtHB_TaggedHBHEAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHE_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("HaEtHE_TaggedHBHEAnomalous_PhysicsCategory","HaEtHE_TaggedHBHEAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHF_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("HaEtHF_TaggedHBHEAnomalous_PhysicsCategory","HaEtHF_TaggedHBHEAnomalous_PhysicsCategory",200,0,2000);
+  EmEtHF_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("EmEtHF_TaggedHBHEAnomalous_PhysicsCategory","EmEtHF_TaggedHBHEAnomalous_PhysicsCategory",200,0,2000);
+  RBXMaxZeros_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("RBXMaxZeros_TaggedHBHEAnomalous_PhysicsCategory","RBXMaxZeros_TaggedHBHEAnomalous_PhysicsCategory",30,0,30);
+  RBXHitsHighest_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("RBXHitsHighest_TaggedHBHEAnomalous_PhysicsCategory","RBXHitsHighest_TaggedHBHEAnomalous_PhysicsCategory",80,0,80);
+  RBXE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("RBXE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory","RBXE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory",50,0,2);
+  HPDHitsHighest_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("HPDHitsHighest_TaggedHBHEAnomalous_PhysicsCategory","HPDHitsHighest_TaggedHBHEAnomalous_PhysicsCategory",20,0,20);
+  HPDE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory= dbe_->book1D("HPDE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory","HPDE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory",50,0,2);
+  Met_TaggedHFAnomalous= dbe_->book1D("Met_TaggedHFAnomalous","Met_TaggedHFAnomalous",200,0,2000);
+  Mephi_TaggedHFAnomalous= dbe_->book1D("Mephi_TaggedHFAnomalous","Mephi_TaggedHFAnomalous",70,-3.5,3.5);
+  Mex_TaggedHFAnomalous= dbe_->book1D("Mex_TaggedHFAnomalous","Mex_TaggedHFAnomalous",200,-1000,1000);
+  SumEt_TaggedHFAnomalous= dbe_->book1D("SumEt_TaggedHFAnomalous","SumEt_TaggedHFAnomalous",200,0,2000);
+  HaEtHB_TaggedHFAnomalous= dbe_->book1D("HaEtHB_TaggedHFAnomalous","HaEtHB_TaggedHFAnomalous",200,0,2000);
+  HaEtHE_TaggedHFAnomalous= dbe_->book1D("HaEtHE_TaggedHFAnomalous","HaEtHE_TaggedHFAnomalous",200,0,2000);
+  HaEtHF_TaggedHFAnomalous= dbe_->book1D("HaEtHF_TaggedHFAnomalous","HaEtHF_TaggedHFAnomalous",200,0,2000);
+  EmEtHF_TaggedHFAnomalous= dbe_->book1D("EmEtHF_TaggedHFAnomalous","EmEtHF_TaggedHFAnomalous",200,0,2000);
+  Met_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("Met_TaggedHFAnomalous_PhysicsCategory","Met_TaggedHFAnomalous_PhysicsCategory",200,0,2000);
+  Mephi_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("Mephi_TaggedHFAnomalous_PhysicsCategory","Mephi_TaggedHFAnomalous_PhysicsCategory",70,-3.5,3.5);
+  Mex_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("Mex_TaggedHFAnomalous_PhysicsCategory","Mex_TaggedHFAnomalous_PhysicsCategory",200,-1000,1000);
+  SumEt_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("SumEt_TaggedHFAnomalous_PhysicsCategory","SumEt_TaggedHFAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHB_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("HaEtHB_TaggedHFAnomalous_PhysicsCategory","HaEtHB_TaggedHFAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHE_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("HaEtHE_TaggedHFAnomalous_PhysicsCategory","HaEtHE_TaggedHFAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHF_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("HaEtHF_TaggedHFAnomalous_PhysicsCategory","HaEtHF_TaggedHFAnomalous_PhysicsCategory",200,0,2000);
+  EmEtHF_TaggedHFAnomalous_PhysicsCategory= dbe_->book1D("EmEtHF_TaggedHFAnomalous_PhysicsCategory","EmEtHF_TaggedHFAnomalous_PhysicsCategory",200,0,2000);
+  Met_TaggedHBHEHFAnomalous= dbe_->book1D("Met_TaggedHBHEHFAnomalous","Met_TaggedHBHEHFAnomalous",200,0,2000);
+  Mephi_TaggedHBHEHFAnomalous= dbe_->book1D("Mephi_TaggedHBHEHFAnomalous","Mephi_TaggedHBHEHFAnomalous",70,-3.5,3.5);
+  Mex_TaggedHBHEHFAnomalous= dbe_->book1D("Mex_TaggedHBHEHFAnomalous","Mex_TaggedHBHEHFAnomalous",200,-1000,1000);
+  SumEt_TaggedHBHEHFAnomalous= dbe_->book1D("SumEt_TaggedHBHEHFAnomalous","SumEt_TaggedHBHEHFAnomalous",200,0,2000);
+  HaEtHB_TaggedHBHEHFAnomalous= dbe_->book1D("HaEtHB_TaggedHBHEHFAnomalous","HaEtHB_TaggedHBHEHFAnomalous",200,0,2000);
+  HaEtHE_TaggedHBHEHFAnomalous= dbe_->book1D("HaEtHE_TaggedHBHEHFAnomalous","HaEtHE_TaggedHBHEHFAnomalous",200,0,2000);
+  HaEtHF_TaggedHBHEHFAnomalous= dbe_->book1D("HaEtHF_TaggedHBHEHFAnomalous","HaEtHF_TaggedHBHEHFAnomalous",200,0,2000);
+  EmEtHF_TaggedHBHEHFAnomalous= dbe_->book1D("EmEtHF_TaggedHBHEHFAnomalous","EmEtHF_TaggedHBHEHFAnomalous",200,0,2000);
+  Met_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("Met_TaggedHBHEHFAnomalous_PhysicsCategory","Met_TaggedHBHEHFAnomalous_PhysicsCategory",200,0,2000);
+  Mephi_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("Mephi_TaggedHBHEHFAnomalous_PhysicsCategory","Mephi_TaggedHBHEHFAnomalous_PhysicsCategory",70,-3.5,3.5);
+  Mex_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("Mex_TaggedHBHEHFAnomalous_PhysicsCategory","Mex_TaggedHBHEHFAnomalous_PhysicsCategory",200,-1000,1000);
+  SumEt_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("SumEt_TaggedHBHEHFAnomalous_PhysicsCategory","SumEt_TaggedHBHEHFAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHB_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("HaEtHB_TaggedHBHEHFAnomalous_PhysicsCategory","HaEtHB_TaggedHBHEHFAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHE_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("HaEtHE_TaggedHBHEHFAnomalous_PhysicsCategory","HaEtHE_TaggedHBHEHFAnomalous_PhysicsCategory",200,0,2000);
+  HaEtHF_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("HaEtHF_TaggedHBHEHFAnomalous_PhysicsCategory","HaEtHF_TaggedHBHEHFAnomalous_PhysicsCategory",200,0,2000);
+  EmEtHF_TaggedHBHEHFAnomalous_PhysicsCategory= dbe_->book1D("EmEtHF_TaggedHBHEHFAnomalous_PhysicsCategory","EmEtHF_TaggedHBHEHFAnomalous_PhysicsCategory",200,0,2000);
 
-       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring"+"/SelectedForNoiseMonitoring"+"/HcalNoiseCategory");
-       title="'Noise' Jets E_{T} (GeV)";
-       name="Noise_Jets_Et_passing_selections";		JetEt_passingTrigger_TaggedAnomalous   = m_dbe->book1D(name,name,200,0,2000);
-       JetEt_passingTrigger_TaggedAnomalous->setAxisTitle(title);
-       title="'Noise' Jets #eta";
-       name="Noise_Jets_Eta_passing_selections";		JetEta_passingTrigger_TaggedAnomalous   = m_dbe->book1D(name,name,100,-5,5);
-       JetEta_passingTrigger_TaggedAnomalous->setAxisTitle(title);
-       title="'Noise' Jets #phi";
-       name="Noise_Jets_Phi_passing_selections";		JetPhi_passingTrigger_TaggedAnomalous   = m_dbe->book1D(name,name,70,-3.5,3.5);
-       JetPhi_passingTrigger_TaggedAnomalous->setAxisTitle(title);
-       title="MET (GeV) passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_MET_pass_selections";		Met_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,0,2000);
-       Met_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="MET #phi passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_METphi_pass_selections";		Mephi_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,70,-3.5,3.5);
-       Mephi_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="MEx (GeV) passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_MEx_pass_selections";		Mex_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,-1000,1000);
-       Mex_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="MEy (GeV) passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_MEy_pass_selections";		Mey_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,-1000,1000);
-       Mey_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="SumET (GeV) passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_SumEt_pass_selections";		SumEt_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,200,0,2000);
-       SumEt_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="RBX Max Zeros - passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_RBX_Max_Zeros_pass_selections";	RBXMaxZeros_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,30,0,30);
-       RBXMaxZeros_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="RBX E(2ts)/E(10ts) - passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_RBX_E2tsOverE10ts_pass_selections";	RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,50,0,2);
-       RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="RBX N RecHits - passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_RBX_Nhits_pass_selections";	RBXHitsHighest_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,80,0,80);
-       RBXHitsHighest_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="HPD E(2ts)/E(10ts) - passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_HPD_E2tsOverE10ts_pass_selections";	HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,50,0,2);
-       HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-       title="HPD N RecHits - passing selections & Categorized as 'Hcal Noise'";
-       name="Hcal_Noise_HPD_Nhits_pass_selections";	HPDHitsHighest_passingTrigger_HcalNoiseCategory   = m_dbe->book1D(name,name,30,0,30);
-       HPDHitsHighest_passingTrigger_HcalNoiseCategory->setAxisTitle(title);
-
-       m_dbe->setCurrentFolder(baseFolder_+"/MetExpressStreamNoiseMonitoring"+"/SelectedForNoiseMonitoring"+"/PhysicsCategory");
-       title="MET (GeV) passing selections & Categorized as 'Physics'";
-       name="Physics_MET_pass_selections";		Met_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,0,2000);
-       Met_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="MET #phi passing selections & Categorized as 'Physics'";
-       name="Physics_METphi_pass_selections";           Mephi_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,70,-3.5,3.5);
-       Mephi_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="MEx (GeV) passing selections & Categorized as 'Physics'";
-       name="Physics_MEx_pass_selections";           Mex_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,-1000,1000);
-       Mex_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="MEy (GeV) passing selections & Categorized as 'Physics'";
-       name="Physics_MEy_pass_selections";           Mey_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,-1000,1000);
-       Mey_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="SumET (GeV) passing selections & Categorized as 'Physics'";
-       name="Physics_SumEt_pass_selections";         SumEt_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,200,0,2000);
-       SumEt_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="RBX Max Zeros - passing selections & Categorized as 'Physics'";
-       name="Physics_RBX_Max_Zeros_pass_selections";   RBXMaxZeros_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,30,0,30);
-       RBXMaxZeros_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="RBX E(2ts)/E(10ts) - passing selections & Categorized as 'Physics'";
-       name="Physics_RBX_E2tsOverE10ts_pass_selections";       RBXE2tsOverE10ts_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,50,0,2);
-       RBXE2tsOverE10ts_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="RBX N RecHits - passing selections & Categorized as 'Physics'";
-       name="Physics_RBX_Nhits_pass_selections";       RBXHitsHighest_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,80,0,80);
-       RBXHitsHighest_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="HPD E(2ts)/E(10ts) - passing selections & Categorized as 'Physics'";
-       name="Physics_HPD_E2tsOverE10ts_pass_selections";       HPDE2tsOverE10ts_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,50,0,2);
-       HPDE2tsOverE10ts_passingTrigger_PhysicsCategory->setAxisTitle(title);
-       title="HPD N RecHits - passing selections & Categorized as 'Physics'";
-       name="Physics_HPD_Nhits_pass_selections";       HPDHitsHighest_passingTrigger_PhysicsCategory   = m_dbe->book1D(name,name,30,0,30);
-       HPDHitsHighest_passingTrigger_PhysicsCategory->setAxisTitle(title);
 
      }
 
@@ -317,33 +465,27 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   ReferenceRun="UNKNOWN";
   IsReference=false;
   //LoadReference();
-  lmap =new HcalLogicalMap(gen.createMap());
-
-  if (showTiming)
-    {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalDetDiagNoiseMonitor Setup -> "<<cpu_timer.cpuTime()<<std::endl;
-    }
+  gen =new HcalLogicalMapGenerator();
+  lmap =new HcalLogicalMap(gen->createMap());
 
   return;
 } 
 
-void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HcalDbService& cond){
+void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+
+  if (!IsAllowedCalibType()) return;
+  if (LumiInOrder(iEvent.luminosityBlock())==false) return;
+  HcalBaseDQMonitor::analyze(iEvent, iSetup);
+
   bool isNoiseEvent=false;   
-  if(!m_dbe) return;
-   
-  if (showTiming)
-    {
-      cpu_timer.reset(); cpu_timer.start();
-    }
+  if(!dbe_) return;
 
-
-   ievt_++;
-   meEVT_->Fill(ievt_);
    run_number=iEvent.id().run();
 
    // We do not want to look at Abort Gap events
    edm::Handle<FEDRawDataCollection> rawdata;
-   iEvent.getByLabel(FEDRawDataCollection_,rawdata);
+   iEvent.getByLabel(rawDataLabel_,rawdata);
    //checking FEDs for calibration information
    for(int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++) {
        const FEDRawData& fedData = rawdata->FEDData(i) ;
@@ -353,107 +495,148 @@ void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::
   
    HcalDetDiagNoiseRMData RMs[HcalFrontEndId::maxRmIndex];
    
-   try{
-         edm::Handle<HBHEDigiCollection> hbhe; 
-         iEvent.getByLabel(inputLabelDigi_,hbhe);
-         for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
-	     double max=-100,sum,energy=0;
-	     for(int i=0;i<digi->size()-1;i++){
-	        sum=adc2fC[digi->sample(i).adc()&0xff]+adc2fC[digi->sample(i+1).adc()&0xff]; 
-		if(max<sum) max=sum;
-             }
-	     if(max>HPDthresholdLo){
-	        for(int i=0;i<digi->size();i++) energy+=adc2fC[digi->sample(i).adc()&0xff]-2.5;
-	        HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
-	        int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
-	        RMs[index].n_th_lo++;
-	        if(max>HPDthresholdHi){ RMs[index].n_th_hi++; isNoiseEvent=true;}
-		RMs[index].energy+=energy;
-	     }
-         }   
-   }catch(...){}      
-   try{
-         edm::Handle<HODigiCollection> ho; 
-         iEvent.getByLabel(inputLabelDigi_,ho);
-         for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
- 	     double max=-100,energy=0; int Eta=digi->id().ieta(); int Phi=digi->id().iphi();
-	     for(int i=0;i<digi->size()-1;i++){
-		if(max<adc2fC[digi->sample(i).adc()&0xff]) max=adc2fC[digi->sample(i).adc()&0xff];
-             }
-	     if((Eta>=11 && Eta<=15 && Phi>=59 && Phi<=70) || (Eta>=5 && Eta<=10 && Phi>=47 && Phi<=58)){
-  	        if(max>SiPMthreshold){
-	          for(int i=0;i<digi->size();i++) energy+=adc2fC[digi->sample(i).adc()&0xff]-11.0;
-	          HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
-	          int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
-	          RMs[index].n_th_hi++; isNoiseEvent=true;
-	          RMs[index].energy+=energy;
+   edm::Handle<HBHEDigiCollection> hbhe; 
+   iEvent.getByLabel(digiLabel_,hbhe);
+   for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
+     double max=-100,sum,energy=0;
+     for(int i=0;i<digi->size()-1;i++){
+       sum=adc2fC[digi->sample(i).adc()&0xff]+adc2fC[digi->sample(i+1).adc()&0xff]; 
+       if(max<sum) max=sum;
+     }
+     if(max>HPDthresholdLo){
+       for(int i=0;i<digi->size();i++) energy+=adc2fC[digi->sample(i).adc()&0xff]-2.5;
+       HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
+       int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
+       RMs[index].n_th_lo++;
+       if(max>HPDthresholdHi){ RMs[index].n_th_hi++; isNoiseEvent=true;}
+       RMs[index].energy+=energy;
+     }
+   }
+   edm::Handle<HODigiCollection> ho; 
+   iEvent.getByLabel(digiLabel_,ho);
+   for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
+     double max=-100,energy=0; int Eta=digi->id().ieta(); int Phi=digi->id().iphi();
+     for(int i=0;i<digi->size()-1;i++){
+       if(max<adc2fC[digi->sample(i).adc()&0xff]) max=adc2fC[digi->sample(i).adc()&0xff];
+     }
+     if((Eta>=11 && Eta<=15 && Phi>=59 && Phi<=70) || (Eta>=5 && Eta<=10 && Phi>=47 && Phi<=58)){
+       if(max>SiPMthreshold){
+	 for(int i=0;i<digi->size();i++) energy+=adc2fC[digi->sample(i).adc()&0xff]-11.0;
+	 HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
+	 int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
+	 RMs[index].n_th_hi++; isNoiseEvent=true;
+	 RMs[index].energy+=energy;
 	        }	          
-	     }else{
-	        if(max>HPDthresholdLo){
-	          for(int i=0;i<digi->size();i++) energy+=adc2fC[digi->sample(i).adc()&0xff]-2.5;
-	          HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
-	          int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
-	          RMs[index].n_th_lo++;
-	          if(max>HPDthresholdHi){ RMs[index].n_th_hi++; isNoiseEvent=true;}
-		  RMs[index].energy+=energy;
-	        }
-	     }		          
-         }   
-   }catch(...){}  
-//    try{ //curently we don't want to look at PMTs
-//          edm::Handle<HFDigiCollection> hf;
-//          iEvent.getByType(hf);
-//          for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
-//             
-// 	     for(int i=0;i<digi->size();i++); 
-// 	     
-//          }   
-//    }catch(...){}    
+     }else{
+       if(max>HPDthresholdLo){
+	 for(int i=0;i<digi->size();i++) energy+=adc2fC[digi->sample(i).adc()&0xff]-2.5;
+	 HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
+	 int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
+	 RMs[index].n_th_lo++;
+	 if(max>HPDthresholdHi){ RMs[index].n_th_hi++; isNoiseEvent=true;}
+	 RMs[index].energy+=energy;
+       }
+     }		          
+   }   
+
    if(isNoiseEvent){
-      NoisyEvents++;
-      
-      // RMs loop
-      for(int i=0;i<HcalFrontEndId::maxRmIndex;i++){
-        if(RMs[i].n_th_hi>0){
-	   RBXCurrentSummary.AddNoiseStat(i);
-	   RBXSummary.AddNoiseStat(i);
-	   HPDEnergy->Fill(RMs[i].energy);
-	}
-      }
-    }  
-    // RBX loop
-    for(int sd=0;sd<9;sd++) for(int sect=1;sect<=18;sect++){
-       std::stringstream tempss;
-       tempss << std::setw(2) << std::setfill('0') << sect;
-       std::string rbx= subdets[sd]+tempss.str();
-	 
-       double rbx_energy=0;int pix_mult=0; bool isValidRBX=false;
-       for(int rm=1;rm<=4;rm++){
-         int index=RBXSummary.GetRMindex(rbx,rm);
-	 if(index>0 && index<HcalFrontEndId::maxRmIndex){
-	    rbx_energy+=RMs[index].energy;
-            pix_mult+=RMs[index].n_th_lo; 
-	    isValidRBX=true;
-         }
+     NoisyEvents++;
+     
+     // RMs loop
+     for(int i=0;i<HcalFrontEndId::maxRmIndex;i++){
+       if(RMs[i].n_th_hi>0){
+	 RBXCurrentSummary->AddNoiseStat(i);
+	 RBXSummary->AddNoiseStat(i);
+	 HPDEnergy->Fill(RMs[i].energy);
        }
-       if(isValidRBX){
-         PixelMult->Fill(pix_mult);
-         RBXEnergy->Fill(rbx_energy);
+     }
+   }  
+   // RBX loop
+   for(int sd=0;sd<9;sd++) for(int sect=1;sect<=18;sect++){
+     std::stringstream tempss;
+     tempss << std::setw(2) << std::setfill('0') << sect;
+     std::string rbx= subdets[sd]+tempss.str();
+     
+     double rbx_energy=0;int pix_mult=0; bool isValidRBX=false;
+     for(int rm=1;rm<=4;rm++){
+       int index=RBXSummary->GetRMindex(rbx,rm);
+       if(index>0 && index<HcalFrontEndId::maxRmIndex){
+	 rbx_energy+=RMs[index].energy;
+	 pix_mult+=RMs[index].n_th_lo; 
+	 isValidRBX=true;
        }
+     }
+     if(isValidRBX){
+       PixelMult->Fill(pix_mult);
+       RBXEnergy->Fill(rbx_energy);
+     }
    }
    
    UpdateHistos();
 
-// ###################################################################################################################
+   // ###################################################################################################################
 
    if(!Online_) {
+
+     // hlt trigger results
+     edm::Handle<edm::TriggerResults> hltTriggerResultHandle;
+
+     if (!iEvent.getByLabel(hlTriggerResults_, hltTriggerResultHandle))
+       {
+	 if (debug_>0) edm::LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  Trigger results handle "<<hlTriggerResults_<<" not found!";
+	 return;
+       }
+
+     bool useEventForMonitoring = false;
+     bool passedPhysDeclared = false;
+     // Require a valid handle
+     if(!hltTriggerResultHandle.isValid()) { std::cout << "invalid handle for HLT TriggerResults" << std::endl; }
+     else {
+       // # of triggers
+       int ntrigs = hltTriggerResultHandle->size();
+
+       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltTriggerResultHandle);
+
+//       triggerNames_.init(* hltTriggerResultHandle);
+       for (int itrig = 0; itrig != ntrigs; ++itrig){
+         // obtain the trigger name
+//         string trigName = triggerNames_.triggerName(itrig);
+         string trigName = triggerNames.triggerName(itrig);
+         // did the trigger fire?
+         bool accept = hltTriggerResultHandle->accept(itrig);
+         if(UseMonitoringTrigger_) {
+           if((trigName == MonitoringTriggerRequirement_) && (accept)) {useEventForMonitoring = true;}
+         } else {
+           useEventForMonitoring = true;
+         }
+         if( ((trigName == PhysDeclaredRequirement_) && (accept)) ) {passedPhysDeclared = true;}
+       }
+     }
+     if(!(useEventForMonitoring)) {return;}
+
+     bool passedVertexCuts = true;
+     if(UseVertexCuts_) {
+       // vertex collection
+       edm::Handle<VertexCollection> _primaryEventVertexCollection;
+       iEvent.getByLabel(VertexSource_, _primaryEventVertexCollection);
+       if(_primaryEventVertexCollection.isValid()) {
+         const reco::Vertex& thePrimaryEventVertex = (*(_primaryEventVertexCollection)->begin());
+         if( (!(thePrimaryEventVertex.isFake())) && (thePrimaryEventVertex.ndof() > 4) && (fabs(thePrimaryEventVertex.z()) < 20) && (fabs(thePrimaryEventVertex.position().rho()) <= 2) ) {
+           passedVertexCuts = true;
+         } else {
+           passedVertexCuts = false;
+         }
+       } else {
+         passedVertexCuts = false;
+       }
+     }
 
      // met collection
      edm::Handle<CaloMETCollection> metHandle;
 
      if (!iEvent.getByLabel(MetSource_, metHandle))
        {
-	 if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloMET collection with handle "<<MetSource_<<" not found!";
+	 if (debug_>0) edm::LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloMET collection with handle "<<MetSource_<<" not found!";
 	 return;
        }
 
@@ -461,353 +644,481 @@ void HcalDetDiagNoiseMonitor::processEvent(const edm::Event& iEvent, const edm::
      const CaloMET met = metCol->front();
 
      // Fill a histogram with the met for all events
-     Met_AllEvents->Fill(met.pt());
-     Mephi_AllEvents->Fill(met.phi());
-     Mex_AllEvents->Fill(met.px());
-     Mey_AllEvents->Fill(met.py());
-     SumEt_AllEvents->Fill(met.sumEt());
+     Met->Fill(met.pt());
+     Mephi->Fill(met.phi());
+     Mex->Fill(met.px());
+     SumEt->Fill(met.sumEt());
+     HaEtHB->Fill(met.hadEtInHB());
+     HaEtHE->Fill(met.hadEtInHE());
+     HaEtHF->Fill(met.hadEtInHF());
+     EmEtHF->Fill(met.emEtInHF());
+     if((passedPhysDeclared) && (passedVertexCuts)) {
+       Met_PhysicsCategory->Fill(met.pt());
+       Mephi_PhysicsCategory->Fill(met.phi());
+       Mex_PhysicsCategory->Fill(met.px());
+       SumEt_PhysicsCategory->Fill(met.sumEt());
+       HaEtHB_PhysicsCategory->Fill(met.hadEtInHB());
+       HaEtHE_PhysicsCategory->Fill(met.hadEtInHE());
+       HaEtHF_PhysicsCategory->Fill(met.hadEtInHF());
+       EmEtHF_PhysicsCategory->Fill(met.emEtInHF());
+     }
 
      bool found = false;
      for(unsigned int i=0; i!=lumi.size(); ++i) { if(lumi.at(i) == iEvent.luminosityBlock()) {found = true; break;} }
      if(!found) {lumi.push_back(iEvent.luminosityBlock()); NLumiSections->Fill(0.5);}
 
-     bool passedTrigger = false;
-     if(!UseMetCutInsteadOfTrigger_) {
-       // trigger results
-       edm::Handle<edm::TriggerResults> hltTriggerResultHandle;
-       iEvent.getByLabel(hlTriggerResults_, hltTriggerResultHandle);
-       // Require a valid handle
-       if(!hltTriggerResultHandle.isValid()) { std::cout << "invalid handle for HLT TriggerResults" << std::endl; }
-       else {
-         // # of triggers
-         int ntrigs = hltTriggerResultHandle->size();
-/*
-         if (ntrigs==0) {std::cout << "%HLTInfo -- No trigger name given in TriggerResults of the input " << std::endl;}
-         else {std::cout << "%HLTInfo --  Number of HLT Triggers: " << ntrigs << std::endl;}
-*/
-         const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltTriggerResultHandle);
-         for (int itrig = 0; itrig != ntrigs; ++itrig){
-           // obtain the trigger name
-           string trigName = triggerNames.triggerName(itrig);
-           // did the trigger fire?
-           bool accept = hltTriggerResultHandle->accept(itrig);
-/*
-           std::cout << "%HLTInfo --  HLTTrigger(" << itrig << "): " << trigName << " = " << accept << std::endl;
-*/
-           if((trigName == TriggerRequirement_) && (accept)) {passedTrigger = true;}
+     // jet collection
+     edm::Handle<CaloJetCollection> calojetHandle;
+     if (!iEvent.getByLabel(JetSource_, calojetHandle))
+       {
+        if (debug_>0) edm::LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloJet collection with handle "<<JetSource_<<" not found!";
+         return;
+       }
+     // track collection
+     edm::Handle<TrackCollection> trackHandle;
+     if (!iEvent.getByLabel(TrackSource_, trackHandle))
+       {
+         if (debug_>0) edm::LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  Track collection with handle "<<TrackSource_<<" not found!";
+         return;
+       }
+     // HcalNoise RBX collection
+     edm::Handle<HcalNoiseRBXCollection> rbxnoisehandle;
+     if (!iEvent.getByLabel(rbxCollName_, rbxnoisehandle))
+       {
+         if (debug_>0) edm::LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  HcalNoiseRBX collection with handle "<<rbxCollName_<<" not found!";
+         return;
+       }
+
+     bool isAnomalous_BasedOnHCALFraction = false;
+     bool isAnomalous_BasedOnCF = false;
+     HcalNoisyJetContainer.clear();
+     for(CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();calojetIter != calojetHandle->end();++calojetIter) {
+       if( (calojetIter->et() > JetMinEt_) && (fabs(calojetIter->eta()) < JetMaxEta_) ) {
+         math::XYZTLorentzVector result (0,0,0,0);
+         for(TrackCollection::const_iterator trackIter = trackHandle->begin(); trackIter != trackHandle->end(); ++trackIter) {
+           double dR = deltaR2((*trackIter).eta(),(*trackIter).phi(),(*calojetIter).eta(),(*calojetIter).phi());
+           if(sqrt(dR) <= ConstituentsToJetMatchingDeltaR_) {
+             if( (fabs(trackIter->d0()) <= TrackMaxIp_) && (trackIter->pt() >= TrackMinThreshold_) ) {
+               result += math::XYZTLorentzVector (trackIter->px(), trackIter->py(), trackIter->pz(), trackIter->p());
+             }
+           }
+         }
+         HCALFraction->Fill(calojetIter->energyFractionHadronic());
+         chargeFraction->Fill(result.pt() / calojetIter->pt());
+         HCALFractionVSchargeFraction->Fill(calojetIter->energyFractionHadronic(), result.pt() / calojetIter->pt());
+         JetEt->Fill(calojetIter->et());
+         JetEta->Fill(calojetIter->eta());
+         JetPhi->Fill(calojetIter->phi());
+         if((passedPhysDeclared) && (passedVertexCuts)) {
+           HCALFraction_PhysicsCategory->Fill(calojetIter->energyFractionHadronic());
+           chargeFraction_PhysicsCategory->Fill(result.pt() / calojetIter->pt());
+           HCALFractionVSchargeFraction_PhysicsCategory->Fill(calojetIter->energyFractionHadronic(), result.pt() / calojetIter->pt());
+           JetEt_PhysicsCategory->Fill(calojetIter->et());
+           JetEta_PhysicsCategory->Fill(calojetIter->eta());
+           JetPhi_PhysicsCategory->Fill(calojetIter->phi());
+         }
+         if((result.pt() / calojetIter->pt()) <= MinJetChargeFraction_) {isAnomalous_BasedOnCF = true;}
+         if(calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) {isAnomalous_BasedOnHCALFraction = true;}
+         if( ((result.pt() / calojetIter->pt()) <= MinJetChargeFraction_) && (calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) ) {
+           JetEt_TaggedAnomalous->Fill(calojetIter->et());
+           JetEta_TaggedAnomalous->Fill(calojetIter->eta());
+           JetPhi_TaggedAnomalous->Fill(calojetIter->phi());
+           if((passedPhysDeclared) && (passedVertexCuts)) {
+             JetEt_TaggedAnomalous_PhysicsCategory->Fill(calojetIter->et());
+             JetEta_TaggedAnomalous_PhysicsCategory->Fill(calojetIter->eta());
+             JetPhi_TaggedAnomalous_PhysicsCategory->Fill(calojetIter->phi());
+           }
+           HcalNoisyJetContainer.push_back(*calojetIter);
          }
        }
      }
 
-     // fill histograms for events that passed the user defined criteria (HLT_MET100 or Met>X for noise studies)
-     if( ((passedTrigger) && (!UseMetCutInsteadOfTrigger_)) || ((UseMetCutInsteadOfTrigger_) && (met.pt() >= MetCut_)) ) {
+     // CaloTower collection
+     edm::Handle<CaloTowerCollection> towerhandle;
+     if (!iEvent.getByLabel(caloTowerCollName_, towerhandle))
+       {
+         if (debug_>0) edm::LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloTower collection with handle "<<caloTowerCollName_<<" not found!";
+         return;
+       }
 
-       // jet collection
-       Handle<CaloJetCollection> calojetHandle;
-       if (!iEvent.getByLabel(JetSource_, calojetHandle))
-	 {
-	  if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloJet collection with handle "<<JetSource_<<" not found!";
-	   return;
-	 }
-       // track collection
-       Handle<TrackCollection> trackHandle;
-       if (!iEvent.getByLabel(TrackSource_, trackHandle))
-	 {
-	   if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  Track collection with handle "<<TrackSource_<<" not found!";
-	   return;
-	 }
-       // HcalNoise RBX collection
-       Handle<HcalNoiseRBXCollection> rbxnoisehandle;
-       if (!iEvent.getByLabel(rbxCollName_, rbxnoisehandle))
-	 {
-	   if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  HcalNoiseRBX collection with handle "<<rbxCollName_<<" not found!";
-	   return;
-	 }
-       // CaloTower collection
-       edm::Handle<CaloTowerCollection> towerhandle;
-       if (!iEvent.getByLabel(caloTowerCollName_, towerhandle))
-	 {
-	   if (fVerbosity) LogWarning("HcalMonitorTasks")<<" HcalDetDiagNoiseMonitor:  CaloTower collection with handle "<<caloTowerCollName_<<" not found!";
-	   return;
-	 }
-
-       Met_passingTrigger->Fill(met.pt());
-       Mephi_passingTrigger->Fill(met.phi());
-       Mex_passingTrigger->Fill(met.px());
-       Mey_passingTrigger->Fill(met.py());
-       SumEt_passingTrigger->Fill(met.sumEt());
-       bool isAnomalous_BasedOnHCALFraction = false;
-       bool isAnomalous_BasedOnCF = false;
-       double deltapx = 0;
-       double deltapy = 0;
-       double deltaet = 0;
-       HcalNoisyJetContainer.clear();
-       for(CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();calojetIter != calojetHandle->end();++calojetIter) {
-         if( (calojetIter->et() > JetMinEt_) && (fabs(calojetIter->eta()) < JetMaxEta_) ) {
-           math::XYZTLorentzVector result (0,0,0,0);
-           for(TrackCollection::const_iterator trackIter = trackHandle->begin(); trackIter != trackHandle->end(); ++trackIter) {
-             double dR = deltaR2((*trackIter).eta(),(*trackIter).phi(),(*calojetIter).eta(),(*calojetIter).phi());
-             if(sqrt(dR) <= ConstituentsToJetMatchingDeltaR_) {
-               if( (fabs(trackIter->d0()) <= TrackMaxIp_) && (trackIter->pt() >= TrackMinThreshold_) ) {
-                 result += math::XYZTLorentzVector (trackIter->px(), trackIter->py(), trackIter->pz(), trackIter->p());
-               }
-             }
-           }
-           HCALFraction_passingTrigger->Fill(calojetIter->energyFractionHadronic());
-           chargeFraction_passingTrigger->Fill(result.pt() / calojetIter->pt());
-           HCALFractionVSchargeFraction_passingTrigger->Fill(calojetIter->energyFractionHadronic(), result.pt() / calojetIter->pt());
-           JetEt_passingTrigger->Fill(calojetIter->et());
-           JetEta_passingTrigger->Fill(calojetIter->eta());
-           JetPhi_passingTrigger->Fill(calojetIter->phi());
-           if((result.pt() / calojetIter->pt()) <= MinJetChargeFraction_) {isAnomalous_BasedOnCF = true;}
-           if(calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) {isAnomalous_BasedOnHCALFraction = true;}
-           if( ((result.pt() / calojetIter->pt()) <= MinJetChargeFraction_) && (calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) ) {
-             JetEt_passingTrigger_TaggedAnomalous->Fill(calojetIter->et());
-             JetEta_passingTrigger_TaggedAnomalous->Fill(calojetIter->eta());
-             JetPhi_passingTrigger_TaggedAnomalous->Fill(calojetIter->phi());
-             deltapx = deltapx + calojetIter->px();
-             deltapy = deltapy + calojetIter->py();
-             deltaet = deltaet + calojetIter->et();
-             if(calojetIter->energyFractionHadronic() >= MaxJetHadronicEnergyFraction_) { HcalNoisyJetContainer.push_back(*calojetIter); }
-           }
+     CaloTowerCollection::const_iterator ihighesttower;
+     HcalNoiseRBXArray thearray;
+     double HighestEnergyTower = 0;
+     bool foundTowerMatch = false;
+     for(std::vector<CaloJet>::iterator itjet = HcalNoisyJetContainer.begin(); itjet != HcalNoisyJetContainer.end(); ++itjet) {
+       for(CaloTowerCollection::const_iterator itower = towerhandle->begin(); itower!=towerhandle->end(); ++itower) {
+         double dR = deltaR2((*itower).eta(),(*itower).phi(),(*itjet).eta(),(*itjet).phi());
+         if((sqrt(dR) <= ConstituentsToJetMatchingDeltaR_) && ((*itower).energy() > HighestEnergyTower)) {
+           HighestEnergyTower = (*itower).energy();
+           ihighesttower = itower;
+           foundTowerMatch = true;
          }
        }
-       CaloTowerCollection::const_iterator ihighesttower;
-       HcalNoiseRBXArray thearray;
-       double HighestEnergyTower = 0;
-       bool foundTowerMatch = false;
-       for(std::vector<CaloJet>::iterator itjet = HcalNoisyJetContainer.begin(); itjet != HcalNoisyJetContainer.end(); ++itjet) {
-         for(CaloTowerCollection::const_iterator itower = towerhandle->begin(); itower!=towerhandle->end(); ++itower) {
-           double dR = deltaR2((*itower).eta(),(*itower).phi(),(*itjet).eta(),(*itjet).phi());
-           if((sqrt(dR) <= ConstituentsToJetMatchingDeltaR_) && ((*itower).energy() > HighestEnergyTower)) {
-             HighestEnergyTower = (*itower).energy();
-             ihighesttower = itower;
-             foundTowerMatch = true;
-           }
-         }
-       }
-       std::vector<std::vector<HcalNoiseHPD>::iterator> hpditervec;
-       hpditervec.clear();
-       std::vector<int> nid;
-       nid.clear();
-       std::vector<int> nidd;
-       nidd.clear();
-       if(foundTowerMatch) {
-         const CaloTower& twr=(*ihighesttower); 
-         thearray.findHPD(twr, hpditervec);
-         for(std::vector<std::vector<HcalNoiseHPD>::iterator>::iterator itofit=hpditervec.begin();itofit!=hpditervec.end(); ++itofit) {nid.push_back((*itofit)->idnumber());}
-         if(nid.size() > 0) {
-           double HighestEnergyMatch = 0;
-           for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
-             HcalNoiseRBX rbx = (*rit);
-             std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
-             for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
-               HcalNoiseHPD hpd=(*hit);
-               for(int iii=0; iii < (int)(nid.size()); iii++) {
-                 if((nid.at(iii) == (int)(hpd.idnumber())) && (hpd.recHitEnergy(1.0) > HighestEnergyMatch)) {
-                   HighestEnergyMatch = hpd.recHitEnergy(1.0);
-                   nidd.clear();
-                   nidd.push_back(hpd.idnumber());
-                 }
-               }
-             }
-           }
-         }
-       }
-       if( (isAnomalous_BasedOnCF) ) {
-         if(!isAnomalous_BasedOnHCALFraction) {
-           Met_passingTrigger_PhysicsCategory->Fill(met.pt());
-           Mephi_passingTrigger_PhysicsCategory->Fill(met.phi());
-           Mex_passingTrigger_PhysicsCategory->Fill(met.px());
-           Mey_passingTrigger_PhysicsCategory->Fill(met.py());
-           SumEt_passingTrigger_PhysicsCategory->Fill(met.sumEt());
-           for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
-             HcalNoiseRBX rbx = (*rit);
-             numRBXhits = rbx.numRecHits(1.0);
-             rbxenergy = rbx.recHitEnergy(1.0);
-             hpdEnergyHighest = 0.;
-             nHitsHighest = 0.;
-             totale2ts=rbx.allChargeHighest2TS();
-             totale10ts=rbx.allChargeTotal();
-             std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
-             for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
-               HcalNoiseHPD hpd=(*hit);
-               if ( hpd.recHitEnergy(1.0) > hpdEnergyHighest ) {
-                 hpdEnergyHighest = hpd.recHitEnergy(1.0);
-                 nHitsHighest     = hpd.numRecHits(1.0);
-                 e2ts=hpd.bigChargeHighest2TS();
-                 e10ts=hpd.bigChargeTotal();
-               }
-             }
-             RBXMaxZeros_passingTrigger_PhysicsCategory->Fill(rbx.maxZeros());
-             RBXHitsHighest_passingTrigger_PhysicsCategory->Fill(numRBXhits);
-             RBXE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
-             HPDHitsHighest_passingTrigger_PhysicsCategory->Fill(nHitsHighest);
-             HPDE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(e10ts ? e2ts/e10ts : -999);
-           }
-         }
-         if(isAnomalous_BasedOnHCALFraction) {
-           Met_passingTrigger_HcalNoiseCategory->Fill(met.pt());
-           Mephi_passingTrigger_HcalNoiseCategory->Fill(met.phi());
-           Mex_passingTrigger_HcalNoiseCategory->Fill(met.px());
-           Mey_passingTrigger_HcalNoiseCategory->Fill(met.py());
-           SumEt_passingTrigger_HcalNoiseCategory->Fill(met.sumEt());
-           if(nidd.size() > 0) {
-             for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
-               HcalNoiseRBX rbx = (*rit);
-               numRBXhits = rbx.numRecHits(1.0);
-               totale2ts=rbx.allChargeHighest2TS();
-               totale10ts=rbx.allChargeTotal();
-               bool isNoisyRBX = false;
-               std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
-               for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
-                 HcalNoiseHPD hpd=(*hit);
-                 if((int)(hpd.idnumber()) == nidd.at(0)) {
-                   isNoisyRBX = true;
-                   nHitsHighest     = hpd.numRecHits(1.0);
-                   e2ts=hpd.bigChargeHighest2TS();
-                   e10ts=hpd.bigChargeTotal();
-                 }
-               }
-               if(isNoisyRBX) {
-                 RBXMaxZeros_passingTrigger_HcalNoiseCategory->Fill(rbx.maxZeros());
-                 RBXHitsHighest_passingTrigger_HcalNoiseCategory->Fill(numRBXhits);
-                 RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
-                 HPDHitsHighest_passingTrigger_HcalNoiseCategory->Fill(nHitsHighest);
-                 HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory->Fill(e10ts ? e2ts/e10ts : -999);
-               }
-             }
-           }
-         }
-       } else {
-         Met_passingTrigger_PhysicsCategory->Fill(met.pt());
-         Mephi_passingTrigger_PhysicsCategory->Fill(met.phi());
-         Mex_passingTrigger_PhysicsCategory->Fill(met.px());
-         Mey_passingTrigger_PhysicsCategory->Fill(met.py());
-         SumEt_passingTrigger_PhysicsCategory->Fill(met.sumEt());
+     }
+     std::vector<std::vector<HcalNoiseHPD>::iterator> hpditervec;
+     hpditervec.clear();
+     std::vector<int> nid;
+     nid.clear();
+     std::vector<int> nidd;
+     nidd.clear();
+     if(foundTowerMatch) {
+       const CaloTower& twr=(*ihighesttower);
+       thearray.findHPD(twr, hpditervec);
+       for(std::vector<std::vector<HcalNoiseHPD>::iterator>::iterator itofit=hpditervec.begin();itofit!=hpditervec.end(); ++itofit) {nid.push_back((*itofit)->idnumber());}
+       if(nid.size() > 0) {
+         double HighestEnergyMatch = 0;
          for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
            HcalNoiseRBX rbx = (*rit);
-           numRBXhits = rbx.numRecHits(1.0);
-           rbxenergy = rbx.recHitEnergy(1.0);
-           hpdEnergyHighest = 0.;
-           nHitsHighest = 0.;
-           totale2ts=rbx.allChargeHighest2TS();
-           totale10ts=rbx.allChargeTotal();
            std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
            for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
              HcalNoiseHPD hpd=(*hit);
-             if ( hpd.recHitEnergy(1.0) > hpdEnergyHighest ) {
-               hpdEnergyHighest = hpd.recHitEnergy(1.0);
+             for(int iii=0; iii < (int)(nid.size()); iii++) {
+               if((nid.at(iii) == (int)(hpd.idnumber())) && (hpd.recHitEnergy(1.0) > HighestEnergyMatch)) {
+                 HighestEnergyMatch = hpd.recHitEnergy(1.0);
+                 nidd.clear();
+                 nidd.push_back(hpd.idnumber());
+               }
+             }
+           }
+         }
+       }
+     }
+
+     bool isHFAnomalous = false;
+     for(CaloTowerCollection::const_iterator itower = towerhandle->begin(); itower!=towerhandle->end(); ++itower) {
+       if( fabs((*itower).ieta()) > 29 ) {
+         TVector3 * towerL = new TVector3;
+         TVector3 * towerS = new TVector3;
+         towerL->SetPtEtaPhi(itower->emEt() + 0.5 * itower->hadEt(), (*itower).eta(), (*itower).phi());
+         towerS->SetPtEtaPhi(0.5 * itower->hadEt(), (*itower).eta(), (*itower).phi());
+         //tower masked
+         int isLongMasked=0;
+         int isShortMasked=0;
+         if( (*itower).ieta() == 37 && (*itower).iphi() == 67) {isLongMasked = 1;}
+         if( (*itower).ieta() == 29 && (*itower).iphi() == 67) {isLongMasked = 1;}
+         if( (*itower).ieta() == 35 && (*itower).iphi() == 67) {isLongMasked = 1;}
+         if( (*itower).ieta() == 29 && (*itower).iphi() == 67) {isShortMasked = 1;}
+         if( (*itower).ieta() == 30 && (*itower).iphi() == 67) {isShortMasked = 1;}
+         if( (*itower).ieta() == 32 && (*itower).iphi() == 67) {isShortMasked = 1;}
+         if( (*itower).ieta() == 36 && (*itower).iphi() == 67) {isShortMasked = 1;}
+         if( (*itower).ieta() == 38 && (*itower).iphi() == 67) {isShortMasked = 1;}
+         float towerPt = itower->emEt() + itower->hadEt();
+         float towerEta = (*itower).eta();
+         float towerPhi = (*itower).phi();
+         float ET_cut_tcMET      = 5;
+         float Rplus_cut_tcMET   = 0.99;
+         float Rminus_cut_tcMET  = 0.8;
+         Float_t ratio_tcMET     = -1.5;
+         if( (itower->emEt() + itower->hadEt()) > ET_cut_tcMET && isShortMasked==0 && isLongMasked==0 ) {
+           ratio_tcMET = (fabs(towerL->Mag()) - fabs(towerS->Mag())) / (fabs(towerL->Mag()) + fabs(towerS->Mag()));
+           HFtowerRatio->Fill(ratio_tcMET);
+           HFtowerPt->Fill(towerPt);
+           HFtowerEta->Fill(towerEta);
+           HFtowerPhi->Fill(towerPhi);
+           if((passedPhysDeclared) && (passedVertexCuts)) {
+             HFtowerRatio_PhysicsCategory->Fill(ratio_tcMET);
+             HFtowerPt_PhysicsCategory->Fill(towerPt);
+             HFtowerEta_PhysicsCategory->Fill(towerEta);
+             HFtowerPhi_PhysicsCategory->Fill(towerPhi);
+           }
+           if( ratio_tcMET < -Rminus_cut_tcMET || ratio_tcMET > Rplus_cut_tcMET ) {
+             isHFAnomalous = true;
+             HFtowerPt_TaggedAnomalous->Fill(towerPt);
+             HFtowerEta_TaggedAnomalous->Fill(towerEta);
+             HFtowerPhi_TaggedAnomalous->Fill(towerPhi);
+             if((passedPhysDeclared) && (passedVertexCuts)) {
+               HFtowerPt_TaggedAnomalous_PhysicsCategory->Fill(towerPt);
+               HFtowerEta_TaggedAnomalous_PhysicsCategory->Fill(towerEta);
+               HFtowerPhi_TaggedAnomalous_PhysicsCategory->Fill(towerPhi);
+             }
+           }
+         }
+         delete towerL;
+         delete towerS;
+       }
+     }
+
+     bool isHbHeAnomalous = false;
+     if((isAnomalous_BasedOnCF) && (isAnomalous_BasedOnHCALFraction)) {isHbHeAnomalous = true;}
+
+     for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+       HcalNoiseRBX rbx = (*rit);
+       numRBXhits = rbx.numRecHits(1.0);
+       rbxenergy = rbx.recHitEnergy(1.0);
+       hpdEnergyHighest = 0.;
+       nHitsHighest = 0.;
+       totale2ts=rbx.allChargeHighest2TS();
+       totale10ts=rbx.allChargeTotal();
+       std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+       for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+         HcalNoiseHPD hpd=(*hit);
+         if ( hpd.recHitEnergy(1.0) > hpdEnergyHighest ) {
+           hpdEnergyHighest = hpd.recHitEnergy(1.0);
+           nHitsHighest     = hpd.numRecHits(1.0);
+           e2ts=hpd.bigChargeHighest2TS();
+           e10ts=hpd.bigChargeTotal();
+         }
+       }
+       RBXMaxZeros->Fill(rbx.maxZeros());
+       RBXHitsHighest->Fill(numRBXhits);
+       RBXE2tsOverE10ts->Fill(totale10ts ? totale2ts/totale10ts : -999);
+       HPDHitsHighest->Fill(nHitsHighest);
+       HPDE2tsOverE10ts->Fill(e10ts ? e2ts/e10ts : -999);
+       if((passedPhysDeclared) && (passedVertexCuts)) {
+         RBXMaxZeros_PhysicsCategory->Fill(rbx.maxZeros());
+         RBXHitsHighest_PhysicsCategory->Fill(numRBXhits);
+         RBXE2tsOverE10ts_PhysicsCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
+         HPDHitsHighest_PhysicsCategory->Fill(nHitsHighest);
+         HPDE2tsOverE10ts_PhysicsCategory->Fill(e10ts ? e2ts/e10ts : -999);
+       }
+     }
+     if( (isHbHeAnomalous) && (!(isHFAnomalous)) ) {
+       Met_TaggedHBHEAnomalous->Fill(met.pt());
+       Mephi_TaggedHBHEAnomalous->Fill(met.phi());
+       Mex_TaggedHBHEAnomalous->Fill(met.px());
+       SumEt_TaggedHBHEAnomalous->Fill(met.sumEt());
+       HaEtHB_TaggedHBHEAnomalous->Fill(met.hadEtInHB());
+       HaEtHE_TaggedHBHEAnomalous->Fill(met.hadEtInHE());
+       HaEtHF_TaggedHBHEAnomalous->Fill(met.hadEtInHF());
+       EmEtHF_TaggedHBHEAnomalous->Fill(met.emEtInHF());
+       if(nidd.size() > 0) {
+         for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+           HcalNoiseRBX rbx = (*rit);
+           numRBXhits = rbx.numRecHits(1.0);
+           totale2ts=rbx.allChargeHighest2TS();
+           totale10ts=rbx.allChargeTotal();
+           bool isNoisyRBX = false;
+           std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+           for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+             HcalNoiseHPD hpd=(*hit);
+             if((int)(hpd.idnumber()) == nidd.at(0)) {
+               isNoisyRBX = true;
                nHitsHighest     = hpd.numRecHits(1.0);
                e2ts=hpd.bigChargeHighest2TS();
                e10ts=hpd.bigChargeTotal();
              }
            }
-           RBXMaxZeros_passingTrigger_PhysicsCategory->Fill(rbx.maxZeros());
-           RBXHitsHighest_passingTrigger_PhysicsCategory->Fill(numRBXhits);
-           RBXE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
-           HPDHitsHighest_passingTrigger_PhysicsCategory->Fill(nHitsHighest);
-           HPDE2tsOverE10ts_passingTrigger_PhysicsCategory->Fill(e10ts ? e2ts/e10ts : -999);
+           if(isNoisyRBX) {
+             RBXMaxZeros_TaggedHBHEAnomalous->Fill(rbx.maxZeros());
+             RBXHitsHighest_TaggedHBHEAnomalous->Fill(numRBXhits);
+             RBXE2tsOverE10ts_TaggedHBHEAnomalous->Fill(totale10ts ? totale2ts/totale10ts : -999);
+             HPDHitsHighest_TaggedHBHEAnomalous->Fill(nHitsHighest);
+             HPDE2tsOverE10ts_TaggedHBHEAnomalous->Fill(e10ts ? e2ts/e10ts : -999);
+           }
          }
        }
-       double correctedMEx = met.px() + deltapx;
-       double correctedMEy = met.py() + deltapy;
-       double correctedMEphi = (correctedMEx==0 && correctedMEy==0) ? 0 : atan2(correctedMEy,correctedMEx);
-       double correctedMET = sqrt((correctedMEx * correctedMEx) + (correctedMEy * correctedMEy));
-       double correctedSumET = met.sumEt() - deltaet;
-       CorrectedMet_passingTrigger->Fill(correctedMET);
-       CorrectedMephi_passingTrigger->Fill(correctedMEphi);
-       CorrectedMex_passingTrigger->Fill(correctedMEx);
-       CorrectedMey_passingTrigger->Fill(correctedMEy);
-       CorrectedSumEt_passingTrigger->Fill(correctedSumET);
+       if((passedPhysDeclared) && (passedVertexCuts)) {
+         Met_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.pt());
+         Mephi_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.phi());
+         Mex_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.px());
+         SumEt_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.sumEt());
+         HaEtHB_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.hadEtInHB());
+         HaEtHE_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.hadEtInHE());
+         HaEtHF_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.hadEtInHF());
+         EmEtHF_TaggedHBHEAnomalous_PhysicsCategory->Fill(met.emEtInHF());
+         if(nidd.size() > 0) {
+           for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+             HcalNoiseRBX rbx = (*rit);
+             numRBXhits = rbx.numRecHits(1.0);
+             totale2ts=rbx.allChargeHighest2TS();
+             totale10ts=rbx.allChargeTotal();
+             bool isNoisyRBX = false;
+             std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+             for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+               HcalNoiseHPD hpd=(*hit);
+               if((int)(hpd.idnumber()) == nidd.at(0)) {
+                 isNoisyRBX = true;
+                 nHitsHighest     = hpd.numRecHits(1.0);
+                 e2ts=hpd.bigChargeHighest2TS();
+                 e10ts=hpd.bigChargeTotal();
+               }
+             }
+             if(isNoisyRBX) {
+               RBXMaxZeros_TaggedHBHEAnomalous_PhysicsCategory->Fill(rbx.maxZeros());
+               RBXHitsHighest_TaggedHBHEAnomalous_PhysicsCategory->Fill(numRBXhits);
+               RBXE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
+               HPDHitsHighest_TaggedHBHEAnomalous_PhysicsCategory->Fill(nHitsHighest);
+               HPDE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory->Fill(e10ts ? e2ts/e10ts : -999);
+             }
+           }
+         }
+       }
+     }
+     if( (!(isHbHeAnomalous)) && ((isHFAnomalous)) ) {
+       Met_TaggedHFAnomalous->Fill(met.pt());
+       Mephi_TaggedHFAnomalous->Fill(met.phi());
+       Mex_TaggedHFAnomalous->Fill(met.px());
+       SumEt_TaggedHFAnomalous->Fill(met.sumEt());
+       HaEtHB_TaggedHFAnomalous->Fill(met.hadEtInHB());
+       HaEtHE_TaggedHFAnomalous->Fill(met.hadEtInHE());
+       HaEtHF_TaggedHFAnomalous->Fill(met.hadEtInHF());
+       EmEtHF_TaggedHFAnomalous->Fill(met.emEtInHF());
+       if((passedPhysDeclared) && (passedVertexCuts)) {
+         Met_TaggedHFAnomalous_PhysicsCategory->Fill(met.pt());
+         Mephi_TaggedHFAnomalous_PhysicsCategory->Fill(met.phi());
+         Mex_TaggedHFAnomalous_PhysicsCategory->Fill(met.px());
+         SumEt_TaggedHFAnomalous_PhysicsCategory->Fill(met.sumEt());
+         HaEtHB_TaggedHFAnomalous_PhysicsCategory->Fill(met.hadEtInHB());
+         HaEtHE_TaggedHFAnomalous_PhysicsCategory->Fill(met.hadEtInHE());
+         HaEtHF_TaggedHFAnomalous_PhysicsCategory->Fill(met.hadEtInHF());
+         EmEtHF_TaggedHFAnomalous_PhysicsCategory->Fill(met.emEtInHF());
+       }
+     }
+     if( ((isHbHeAnomalous)) && ((isHFAnomalous)) ) {
+       Met_TaggedHBHEHFAnomalous->Fill(met.pt());
+       Mephi_TaggedHBHEHFAnomalous->Fill(met.phi());
+       Mex_TaggedHBHEHFAnomalous->Fill(met.px());
+       SumEt_TaggedHBHEHFAnomalous->Fill(met.sumEt());
+       HaEtHB_TaggedHBHEHFAnomalous->Fill(met.hadEtInHB());
+       HaEtHE_TaggedHBHEHFAnomalous->Fill(met.hadEtInHE());
+       HaEtHF_TaggedHBHEHFAnomalous->Fill(met.hadEtInHF());
+       EmEtHF_TaggedHBHEHFAnomalous->Fill(met.emEtInHF());
+       if(nidd.size() > 0) {
+         for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+           HcalNoiseRBX rbx = (*rit);
+           numRBXhits = rbx.numRecHits(1.0);
+           totale2ts=rbx.allChargeHighest2TS();
+           totale10ts=rbx.allChargeTotal();
+           bool isNoisyRBX = false;
+           std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+           for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+             HcalNoiseHPD hpd=(*hit);
+             if((int)(hpd.idnumber()) == nidd.at(0)) {
+               isNoisyRBX = true;
+               nHitsHighest     = hpd.numRecHits(1.0);
+               e2ts=hpd.bigChargeHighest2TS();
+               e10ts=hpd.bigChargeTotal();
+             }
+           }
+           if(isNoisyRBX) {
+             RBXMaxZeros_TaggedHBHEAnomalous->Fill(rbx.maxZeros());
+             RBXHitsHighest_TaggedHBHEAnomalous->Fill(numRBXhits);
+             RBXE2tsOverE10ts_TaggedHBHEAnomalous->Fill(totale10ts ? totale2ts/totale10ts : -999);
+             HPDHitsHighest_TaggedHBHEAnomalous->Fill(nHitsHighest);
+             HPDE2tsOverE10ts_TaggedHBHEAnomalous->Fill(e10ts ? e2ts/e10ts : -999);
+           }
+         }
+       }
+       if((passedPhysDeclared) && (passedVertexCuts)) {
+         Met_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.pt());
+         Mephi_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.phi());
+         Mex_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.px());
+         SumEt_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.sumEt());
+         HaEtHB_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.hadEtInHB());
+         HaEtHE_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.hadEtInHE());
+         HaEtHF_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.hadEtInHF());
+         EmEtHF_TaggedHBHEHFAnomalous_PhysicsCategory->Fill(met.emEtInHF());
+         if(nidd.size() > 0) {
+           for(HcalNoiseRBXCollection::const_iterator rit=rbxnoisehandle->begin(); rit!=rbxnoisehandle->end(); ++rit) {
+             HcalNoiseRBX rbx = (*rit);
+             numRBXhits = rbx.numRecHits(1.0);
+             totale2ts=rbx.allChargeHighest2TS();
+             totale10ts=rbx.allChargeTotal();
+             bool isNoisyRBX = false;
+             std::vector<HcalNoiseHPD> theHPDs = rbx.HPDs();
+             for(std::vector<HcalNoiseHPD>::const_iterator hit=theHPDs.begin(); hit!=theHPDs.end(); ++hit) {
+               HcalNoiseHPD hpd=(*hit);
+               if((int)(hpd.idnumber()) == nidd.at(0)) {
+                 isNoisyRBX = true;
+                 nHitsHighest     = hpd.numRecHits(1.0);
+                 e2ts=hpd.bigChargeHighest2TS();
+                 e10ts=hpd.bigChargeTotal();
+               }
+             }
+             if(isNoisyRBX) {
+               RBXMaxZeros_TaggedHBHEAnomalous_PhysicsCategory->Fill(rbx.maxZeros());
+               RBXHitsHighest_TaggedHBHEAnomalous_PhysicsCategory->Fill(numRBXhits);
+               RBXE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory->Fill(totale10ts ? totale2ts/totale10ts : -999);
+               HPDHitsHighest_TaggedHBHEAnomalous_PhysicsCategory->Fill(nHitsHighest);
+               HPDE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory->Fill(e10ts ? e2ts/e10ts : -999);
+             }
+           }
+         }
+       }
      }
 
    } //if (!Online_)
 
 // ###################################################################################################################
        
-   if((ievt_%100)==0 && fVerbosity)
+   if((ievt_%100)==0 && debug_>0)
      std::cout <<ievt_<<"\t"<<NoisyEvents<<std::endl;
-
-   if (showTiming)
-    {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalDetDiagNoiseMonitor PROCESSEVENT -> "<<cpu_timer.cpuTime()<<std::endl;
-    }
 
    return;
 }
 
-void HcalDetDiagNoiseMonitor::UpdateHistos(){
-int first_rbx=0,last_rbx=0;  
-  for(int sd=0;sd<9;sd++){
-     if(RBXCurrentSummary.GetStat(sd)>=UpdateEvents){
-        if(sd==0){ first_rbx=0;  last_rbx=18;} //HBM
-        if(sd==1){ first_rbx=18; last_rbx=36;} //HBP
-        if(sd==0 || sd==1){  // update HB plots
-           for(int rbx=first_rbx;rbx<last_rbx;rbx++)for(int rm=1;rm<=4;rm++){
-              double val1=0,val2=0;
-              if(RBXSummary.GetRMStatusValue(HB_RBX[rbx],rm,&val1)){
-	        HB_RBXmapRatio->setBinContent(rm,rbx+1,val1);
-                if(RBXCurrentSummary.GetRMStatusValue(HB_RBX[rbx],rm,&val2)){
-	           HB_RBXmapRatioCur->setBinContent(rm,rbx+1,val2);
-		   if((val2-val1)>SpikeThreshold){
-		      double n=HB_RBXmapSpikeCnt->getBinContent(rm,rbx+1);
-		      double a=HB_RBXmapSpikeAmp->getBinContent(rm,rbx+1);
-		      HB_RBXmapSpikeCnt->Fill(rm,rbx+1,1);
-		      HB_RBXmapSpikeAmp->setBinContent(rm,rbx+1,((val2-val1)+a*n)/(n+1));
-	           }
+void HcalDetDiagNoiseMonitor::UpdateHistos()
+{
+  int first_rbx=0,last_rbx=0;  
+  for(int sd=0;sd<9;sd++)
+    {
+      if(RBXCurrentSummary->GetStat(sd)>=UpdateEvents)
+	{
+	  if(sd==0){ first_rbx=0;  last_rbx=18;} //HBM
+	  if(sd==1){ first_rbx=18; last_rbx=36;} //HBP
+	  if(sd==0 || sd==1){  // update HB plots
+	    for(int rbx=first_rbx;rbx<last_rbx;rbx++)for(int rm=1;rm<=4;rm++){
+	      double val1=0,val2=0;
+	      if(RBXSummary->GetRMStatusValue(HB_RBX[rbx],rm,&val1)){
+		HB_RBXmapRatio->setBinContent(rm,rbx+1,val1);
+		if(RBXCurrentSummary->GetRMStatusValue(HB_RBX[rbx],rm,&val2)){
+		  HB_RBXmapRatioCur->setBinContent(rm,rbx+1,val2);
+		  if((val2-val1)>SpikeThreshold){
+		    double n=HB_RBXmapSpikeCnt->getBinContent(rm,rbx+1);
+		    double a=HB_RBXmapSpikeAmp->getBinContent(rm,rbx+1);
+		    HB_RBXmapSpikeCnt->Fill(rm,rbx+1,1);
+		    HB_RBXmapSpikeAmp->setBinContent(rm,rbx+1,((val2-val1)+a*n)/(n+1));
+		  }
 		}
 	      }
-           }	
-	}
-	if(sd==2){ first_rbx=0;  last_rbx=18;} //HEM
-        if(sd==3){ first_rbx=18; last_rbx=36;} //HEP
-        if(sd==2 || sd==3){  // update HB plots
-           for(int rbx=first_rbx;rbx<last_rbx;rbx++)for(int rm=1;rm<=4;rm++){
+	    }	
+	  }
+	  if(sd==2){ first_rbx=0;  last_rbx=18;} //HEM
+	  if(sd==3){ first_rbx=18; last_rbx=36;} //HEP
+	  if(sd==2 || sd==3){  // update HB plots
+	    for(int rbx=first_rbx;rbx<last_rbx;rbx++)for(int rm=1;rm<=4;rm++){
               double val1=0,val2=0;
-              if(RBXSummary.GetRMStatusValue(HE_RBX[rbx],rm,&val1)){
+              if(RBXSummary->GetRMStatusValue(HE_RBX[rbx],rm,&val1)){
 	        HE_RBXmapRatio->setBinContent(rm,rbx+1,val1);
-                if(RBXCurrentSummary.GetRMStatusValue(HE_RBX[rbx],rm,&val2)){
-		   HE_RBXmapRatioCur->setBinContent(rm,rbx+1,val2);
-	           if((val2-val1)>SpikeThreshold){
-		      double n=HE_RBXmapSpikeCnt->getBinContent(rm,rbx+1);
-		      double a=HE_RBXmapSpikeAmp->getBinContent(rm,rbx+1);
-		      HE_RBXmapSpikeCnt->Fill(rm,rbx+1,1);
-		      HE_RBXmapSpikeAmp->setBinContent(rm,rbx+1,((val2-val1)+a*n)/(n+1));
-	           }
+                if(RBXCurrentSummary->GetRMStatusValue(HE_RBX[rbx],rm,&val2)){
+		  HE_RBXmapRatioCur->setBinContent(rm,rbx+1,val2);
+		  if((val2-val1)>SpikeThreshold){
+		    double n=HE_RBXmapSpikeCnt->getBinContent(rm,rbx+1);
+		    double a=HE_RBXmapSpikeAmp->getBinContent(rm,rbx+1);
+		    HE_RBXmapSpikeCnt->Fill(rm,rbx+1,1);
+		    HE_RBXmapSpikeAmp->setBinContent(rm,rbx+1,((val2-val1)+a*n)/(n+1));
+		  }
 	        }
 	      }
-           }	
-	}
-        if(sd==4){ first_rbx=0;  last_rbx=6;}   //HO2M
-	if(sd==5){ first_rbx=6;  last_rbx=12;}  //HO1M
-	if(sd==6){ first_rbx=12;  last_rbx=24;} //HO0
-	if(sd==7){ first_rbx=24;  last_rbx=30;} //HO1P
-	if(sd==8){ first_rbx=30;  last_rbx=36;} //HO2P
-	if(sd>3){ // update HO plots
-           for(int rbx=first_rbx;rbx<last_rbx;rbx++)for(int rm=1;rm<=4;rm++){
+	    }	
+	  }
+	  if(sd==4){ first_rbx=0;  last_rbx=6;}   //HO2M
+	  if(sd==5){ first_rbx=6;  last_rbx=12;}  //HO1M
+	  if(sd==6){ first_rbx=12;  last_rbx=24;} //HO0
+	  if(sd==7){ first_rbx=24;  last_rbx=30;} //HO1P
+	  if(sd==8){ first_rbx=30;  last_rbx=36;} //HO2P
+	  if(sd>3){ // update HO plots
+	    for(int rbx=first_rbx;rbx<last_rbx;rbx++)for(int rm=1;rm<=4;rm++){
               double val1=0,val2=0;
-              if(RBXSummary.GetRMStatusValue(HO_RBX[rbx],rm,&val1)){
+              if(RBXSummary->GetRMStatusValue(HO_RBX[rbx],rm,&val1)){
 	        HO_RBXmapRatio->setBinContent(rm,rbx+1,val1);
-                if(RBXCurrentSummary.GetRMStatusValue(HO_RBX[rbx],rm,&val2)){
-		   HO_RBXmapRatioCur->setBinContent(rm,rbx+1,val2);
-	           if((val2-val1)>SpikeThreshold){
-		      double n=HO_RBXmapSpikeCnt->getBinContent(rm,rbx+1);
-		      double a=HO_RBXmapSpikeAmp->getBinContent(rm,rbx+1);
-		      HO_RBXmapSpikeCnt->Fill(rm,rbx+1,1);
-		      HO_RBXmapSpikeAmp->setBinContent(rm,rbx+1,((val2-val1)+a*n)/(n+1));
-	           }
+                if(RBXCurrentSummary->GetRMStatusValue(HO_RBX[rbx],rm,&val2)){
+		  HO_RBXmapRatioCur->setBinContent(rm,rbx+1,val2);
+		  if((val2-val1)>SpikeThreshold){
+		    double n=HO_RBXmapSpikeCnt->getBinContent(rm,rbx+1);
+		    double a=HO_RBXmapSpikeAmp->getBinContent(rm,rbx+1);
+		    HO_RBXmapSpikeCnt->Fill(rm,rbx+1,1);
+		    HO_RBXmapSpikeAmp->setBinContent(rm,rbx+1,((val2-val1)+a*n)/(n+1));
+		  }
 	        }
 	      }
-           }		
-	}
-	
-        RBXCurrentSummary.reset(sd); 
-	// disabled output statement
-        //printf("update %i\n",sd); 
-     }
-  } 
-} 
+	    }		
+	  }
+	  
+	  RBXCurrentSummary->reset(sd); 
+	}  //if(RBXCurrentSummary->GetStat(sd)>=UpdateEvents)
+    } //sd=0;sd<9
+} // UpdateHistos
 
 void HcalDetDiagNoiseMonitor::SaveReference(){
 char   RBX[20];
@@ -833,10 +1144,10 @@ double VAL;
            tempss << std::setw(2) << std::setfill('0') << sect;
            std::string rbx= subdets[sd]+tempss.str();
            double val;
-           if(RBXCurrentSummary.GetRMStatusValue(rbx,rm,&val)){
+           if(RBXCurrentSummary->GetRMStatusValue(rbx,rm,&val)){
 	       sprintf(RBX,"%s",(char *)rbx.c_str());
 	       RM=rm;
-	       RM_INDEX=RBXCurrentSummary.GetRMindex(rbx,rm);
+	       RM_INDEX=RBXCurrentSummary->GetRMindex(rbx,rm);
 	       val=VAL;
                tree->Fill();
            }
@@ -865,8 +1176,8 @@ double VAL;
       t->SetBranchAddress("relative_noise", &VAL);
       for(int ievt=0;ievt<t->GetEntries();ievt++){
          t->GetEntry(ievt);
-	 RBXCurrentSummary.SetReference(RM_INDEX,VAL);
-	 RBXSummary.SetReference(RM_INDEX,VAL);
+	 RBXCurrentSummary->SetReference(RM_INDEX,VAL);
+	 RBXSummary->SetReference(RM_INDEX,VAL);
       }
       f->Close();
       IsReference=true;
@@ -874,3 +1185,5 @@ double VAL;
 } 
 
 void HcalDetDiagNoiseMonitor::done(){   /*SaveReference();*/ } 
+
+DEFINE_ANOTHER_FWK_MODULE (HcalDetDiagNoiseMonitor);

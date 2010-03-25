@@ -1,51 +1,43 @@
 #ifndef DQM_HCALMONITORTASKS_HCALRECHITMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALRECHITMONITOR_H
 
-#include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <cmath>
 
 #define RECHITMON_TIME_MIN -250
 #define RECHITMON_TIME_MAX 250
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2010/02/18 20:42:07 $
-  * $Revision: 1.45 $
+  * $Date: 2010/03/20 20:56:11 $
+  * $Revision: 1.46.2.7 $
   * \author J. Temple - Univ. of Maryland
   */
 
-
-class HcalRecHitMonitor: public HcalBaseMonitor {
+class HcalRecHitMonitor: public HcalBaseDQMonitor {
 
  public:
-  HcalRecHitMonitor();
+  HcalRecHitMonitor(const edm::ParameterSet& ps);
+
 
   ~HcalRecHitMonitor();
 
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun();
-  void done();
-  void clearME(); // overrides base class function
+  void setup();
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void endRun(const edm::Run& run, const edm::EventSetup& c);
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+			  const edm::EventSetup& c);
+  void endJob();
+  void cleanup();
   void reset();
   void zeroCounters();
  
+ void analyze(const edm::Event&, const edm::EventSetup&);
+
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits,
-		    int CalibType,
 		    int BCN,
 		    const edm::Event& iEvent
 		    );
@@ -53,17 +45,13 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   void processEvent_rechit( const HBHERecHitCollection& hbheHits,
 			    const HORecHitCollection& hoHits,
 			    const HFRecHitCollection& hfHits,
-			    bool passedHLT,
-			    bool BPTX,
+			    bool passedHcalHLT,
+			    bool passedMinBiasHLT,
 			    int BCN);
-			    
 
-  void endLuminosityBlock();
  private:
   
   void fill_Nevents();
-
-  int rechit_checkNevents_;  // specify how often to fill histograms
 
   double energyThreshold_;
   double HBenergyThreshold_;
@@ -71,7 +59,11 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double HOenergyThreshold_;
   double HFenergyThreshold_;
 
-  double rechit_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
+  double ETThreshold_;
+  double HBETThreshold_;
+  double HEETThreshold_;
+  double HOETThreshold_;
+  double HFETThreshold_;
 
   HcalLogicalMap* logicalMap;
 
@@ -82,6 +74,7 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   EtaPhiHists SumEnergyByDepth;
   EtaPhiHists SqrtSumEnergy2ByDepth;
   EtaPhiHists SumEnergyThreshByDepth;
+  EtaPhiHists SqrtSumEnergy2ThreshByDepth;
   EtaPhiHists SumTimeByDepth;
   EtaPhiHists SumTimeThreshByDepth;
 
@@ -91,6 +84,7 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   double energy_[85][72][4]; // will get filled when rechit found
   double energy2_[85][72][4]; // will get filled when rechit found
   double energy_thresh_[85][72][4]; // filled when above given  
+  double energy2_thresh_[85][72][4]; // filled when above given
   double time_[85][72][4]; // will get filled when rechit found
   double time_thresh_[85][72][4]; // filled when above given energy
 
@@ -129,6 +123,11 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   int HFflagcounter_[32];
 
   // Diagnostic plots
+
+  MonitorElement* h_rechitieta;
+  MonitorElement* h_rechitiphi;
+  MonitorElement* h_rechitieta_thresh;
+  MonitorElement* h_rechitiphi_thresh;
 
   MonitorElement* h_HBsizeVsLS;
   MonitorElement* h_HEsizeVsLS;
@@ -171,30 +170,24 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HF_FlagCorr;
   MonitorElement* h_HBHE_FlagCorr;
 
-  double collisionHFthresh_;
-  double collisionHEthresh_;
+  double timediffThresh_;
 
   MonitorElement* h_HFtimedifference;
   MonitorElement* h_HFenergydifference;
   MonitorElement* h_HEtimedifference;
   MonitorElement* h_HEenergydifference;
-  MonitorElement* h_HFrawenergydifference;
-  MonitorElement* h_HErawenergydifference;
-  MonitorElement* h_HFrawtimedifference;
-  MonitorElement* h_HErawtimedifference;
 
-  MonitorElement* h_HFnotBPTXtimedifference;
-  MonitorElement* h_HFnotBPTXenergydifference;
-  MonitorElement* h_HEnotBPTXtimedifference;
-  MonitorElement* h_HEnotBPTXenergydifference;
-  MonitorElement* h_HFnotBPTXrawenergydifference;
-  MonitorElement* h_HEnotBPTXrawenergydifference;
-  MonitorElement* h_HFnotBPTXrawtimedifference;
-  MonitorElement* h_HEnotBPTXrawtimedifference;
+  MonitorElement* h_HF_HcalHLT_weightedtimedifference;
+  MonitorElement* h_HF_HcalHLT_energydifference;
+  MonitorElement* h_HE_HcalHLT_weightedtimedifference;
+  MonitorElement* h_HE_HcalHLT_energydifference;
 
   MonitorElement* h_LumiPlot_LS_allevents;
-  MonitorElement* h_LumiPlot_EventsPerLS;
-  MonitorElement* h_LumiPlot_EventsPerLS_notimecut;
+  MonitorElement* h_LumiPlot_LS_MinBiasEvents;
+  MonitorElement* h_LumiPlot_LS_MinBiasEvents_notimecut;
+  MonitorElement* h_LumiPlot_LS_HcalHLTEvents;
+  MonitorElement* h_LumiPlot_LS_HcalHLTEvents_notimecut;
+
 
   MonitorElement* h_LumiPlot_SumHT_HFPlus_vs_HFMinus;
   MonitorElement* h_LumiPlot_timeHFPlus_vs_timeHFMinus;
@@ -202,11 +195,36 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus;
   
   MonitorElement* h_LumiPlot_BX_allevents;
-  MonitorElement* h_LumiPlot_BX_goodevents;
-  MonitorElement* h_LumiPlot_BX_goodevents_notimecut;
+  MonitorElement* h_LumiPlot_BX_MinBiasEvents;
+  MonitorElement* h_LumiPlot_BX_MinBiasEvents_notimecut;
+  MonitorElement* h_LumiPlot_BX_HcalHLTEvents;
+  MonitorElement* h_LumiPlot_BX_HcalHLTEvents_notimecut;
 
   MonitorElement* h_LumiPlot_MinTime_vs_MinHT;
+  MonitorElement* h_LumiPlot_timeHT_HFM;
+  MonitorElement* h_LumiPlot_timeHT_HFP;
+
+  MonitorElement* h_TriggeredEvents;
+  MonitorElement* h_HFP_weightedTime;
+  MonitorElement* h_HFM_weightedTime;
+  MonitorElement* h_HEP_weightedTime;
+  MonitorElement* h_HEM_weightedTime;
+  MonitorElement* h_HBP_weightedTime;
+  MonitorElement* h_HBM_weightedTime;
+
+  MonitorElement* h_HBTimeVsEnergy;
+  MonitorElement* h_HETimeVsEnergy;
+  MonitorElement* h_HOTimeVsEnergy;
+  MonitorElement* h_HFTimeVsEnergy;
+
+
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
+
+  edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
+  edm::InputTag l1gtLabel_;
+  edm::InputTag hltresultsLabel_;
+  std::vector <std::string> HcalHLTBits_;
+  std::vector <std::string> MinBiasHLTBits_;
 };
 
 #endif

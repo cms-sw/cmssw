@@ -3,9 +3,6 @@
 
 #define PI        3.1415926535897932
 
-using namespace std;
-using namespace edm;
-
 /*  
 
     v1.0
@@ -25,7 +22,7 @@ HcalEEUSMonitor::HcalEEUSMonitor()
 	  consecutiveTriggers[f][s]   = 0;
 	  prevWasEE[f][s]             = 0;}}
 
-//  cout << (int)sizeof(UScount) << endl;
+//  std::cout << (int)sizeof(UScount) << std::endl;
   for (int f=0; f<NUMFEDS; f++) {
     for (int s=0; s<NUMSPIGS; s++) {
       UScount[f][s] = 0;
@@ -33,28 +30,28 @@ HcalEEUSMonitor::HcalEEUSMonitor()
   }
 
   //Francesco
-//  cout << (int)sizeof(US0EE0count) << endl;
+//  std::cout << (int)sizeof(US0EE0count) << std::endl;
   for (int f=0; f<NUMFEDS; f++) {
     for (int s=0; s<NUMSPIGS; s++) {
       US0EE0count[f][s] = 0;
     }
   }
 
-//  cout << (int)sizeof(US0EE1count) << endl;
+//  std::cout << (int)sizeof(US0EE1count) << std::endl;
   for (int f=0; f<NUMFEDS; f++) {
     for (int s=0; s<NUMSPIGS; s++) {
       US0EE1count[f][s] = 0;
     }
   }
 
-//  cout << (int)sizeof(US1EE0count) << endl;
+//  std::cout << (int)sizeof(US1EE0count) << std::endl;
   for (int f=0; f<NUMFEDS; f++) {
     for (int s=0; s<NUMSPIGS; s++) {
       US1EE0count[f][s] = 0;
     }
   }
 
-//  cout << (int)sizeof(US1EE1count) << endl;
+//  std::cout << (int)sizeof(US1EE1count) << std::endl;
   for (int f=0; f<NUMFEDS; f++) {
     for (int s=0; s<NUMSPIGS; s++) {
       US1EE1count[f][s] = 0;
@@ -86,17 +83,17 @@ void HcalEEUSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   ievt_=0; // event counter
   baseFolder_ = rootFolder_ + "EEUSMonitor"; // Will create an "EEUSMonitor" subfolder in .root output
-  if (fVerbosity) cout <<"<HcalEEUSMonitor::setup> Setup in progress"<<endl;
+  if (fVerbosity) std::cout <<"<HcalEEUSMonitor::setup> Setup in progress"<<std::endl;
   
   
-  if(fVerbosity) cout << "About to pushback fedUnpackList_" << endl;
+  if(fVerbosity) std::cout << "About to pushback fedUnpackList_" << std::endl;
   firstFED_ = FEDNumbering::MINHCALFEDID;
-  if (fVerbosity>0) cout <<"FIRST FED = "<<firstFED_<<endl;
+  if (fVerbosity>0) std::cout <<"FIRST FED = "<<firstFED_<<std::endl;
 
   for (int i=FEDNumbering::MINHCALFEDID;
        i<=FEDNumbering::MAXHCALFEDID; ++i) 
     {
-      if(fVerbosity) cout << "<HcalEEUSMonitor::setup>:Pushback for fedUnpackList_: " << i <<endl;
+      if(fVerbosity) std::cout << "<HcalEEUSMonitor::setup>:Pushback for fedUnpackList_: " << i <<std::endl;
       fedUnpackList_.push_back(i);
     } // for (int i=FEDNumbering::MINHCALFEDID
   
@@ -244,7 +241,7 @@ void HcalEEUSMonitor::processEvent( const FEDRawDataCollection& rawraw,
 {
   if (!m_dbe)
     {
-      if (fVerbosity) cout <<"HcalEEUSMonitor::processEvent   DQMStore not instantiated!!!"<<endl;
+      if (fVerbosity) std::cout <<"HcalEEUSMonitor::processEvent   DQMStore not instantiated!!!"<<std::endl;
       return;
     }
 
@@ -277,17 +274,17 @@ void HcalEEUSMonitor::processEvent_RawData(const FEDRawDataCollection& rawraw,
   // Should not see this error
   if(!m_dbe) 
     {
-      cout <<"HcalEEUSMonitor::processEvent_RawData:  DQMStore not instantiated!!!\n"<<endl;
+      std::cout <<"HcalEEUSMonitor::processEvent_RawData:  DQMStore not instantiated!!!\n"<<std::endl;
       return;
     }
   numEEthisEvent = 0;
   // Loop over all FEDs reporting the event, unpacking if good.
-  for (vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) 
+  for (std::vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) 
     {
       const FEDRawData& fed = rawraw.FEDData(*i);
       if (fed.size()<12) continue; // Was 16.
       unpack(fed,emap);
-    } // for (vector<int>::const_iterator i=fedUnpackList_.begin();...
+    } // for (std::vector<int>::const_iterator i=fedUnpackList_.begin();...
 
   prevOrN=dccOrN;
   meEEThisEvent_->Fill(numEEthisEvent);
@@ -341,7 +338,7 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
   for(int j=0; j<HcalDCCHeader::SPIGOT_COUNT; j++) {
     WholeErrorList=dccHeader->getSpigotErrorBits((unsigned int) j);
     //EECorrels :Record EE for cross-correlation plotting.
-    if ((WholeErrorList>>2)&0x01) EEthisEvent[(NUMSPIGS *max(0,dccid-700))+j] = true;
+    if ((WholeErrorList>>2)&0x01) EEthisEvent[(NUMSPIGS *std::max(0,dccid-700))+j] = true;
   }
 
   //
@@ -440,7 +437,7 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
   
   //Francesco
   
-    //cout << "HTRwdcount: " << HTRwdcount << endl;
+    //std::cout << "HTRwdcount: " << HTRwdcount << std::endl;
 
     if (htrUnSuppressed==false && htrEmpty==false){
       US0EE0count[dccid-700][spigot]++;
@@ -475,15 +472,15 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
   }//end of HTRdata
 
     // Dump out some raw data info
-//  cout <<"RAWSIZE = "<<rawsize<<endl;
-//  cout <<"dcc id = "<<dccid<<endl;
-//  cout <<"dccBCN = "<<dccBCN<<endl;
-//  cout <<"dccEvtNum = "<<dccEvtNum<<endl;
-//  cout <<"EvFragLength = "<<EvFragLength<<endl;
+//  std::cout <<"RAWSIZE = "<<rawsize<<std::endl;
+//  std::cout <<"dcc id = "<<dccid<<std::endl;
+//  std::cout <<"dccBCN = "<<dccBCN<<std::endl;
+//  std::cout <<"dccEvtNum = "<<dccEvtNum<<std::endl;
+//  std::cout <<"EvFragLength = "<<EvFragLength<<std::endl;
   /* 1 */ //There should always be a second CDF header word indicated.
   if (!dccHeader->thereIsASecondCDFHeaderWord()) 
     {
-    cout <<"No second CDF header found!"<<endl;
+    std::cout <<"No second CDF header found!"<<std::endl;
     }
 
   return;

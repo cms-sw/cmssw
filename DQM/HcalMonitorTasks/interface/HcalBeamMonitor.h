@@ -1,58 +1,54 @@
 #ifndef GUARD_DQM_HCALMONITORTASKS_HCALBEAMMONITOR_H
 #define GUARD_DQM_HCALMONITORTASKS_HCALBEAMMONITOR_H
 
-#include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
+
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 // Use for stringstream
 #include <iostream>
 #include <fstream>
 
-#include <iomanip>
-#include <cmath>
-
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/11/19 12:49:22 $
-  * $Revision: 1.15 $
+  * $Date: 2010/03/21 15:37:49 $
+  * $Revision: 1.16.4.4 $
   * \author J. Temple - Univ. of Maryland
   */
 
-class HcalBeamMonitor:  public HcalBaseMonitor {
+class HcalBeamMonitor:  public HcalBaseDQMonitor {
  public:
-  HcalBeamMonitor();
+  HcalBeamMonitor(const edm::ParameterSet& ps);
   ~HcalBeamMonitor();
   
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun(const edm::EventSetup& c, int run);
+  void setup();
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+			    const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
   void processEvent(const  HBHERecHitCollection& hbHits,
 		    const  HORecHitCollection& hoHits, 
 		    const  HFRecHitCollection& hfHits,
 		    const  HFDigiCollection& hf,
-		    int    CalibType,
 		    int    bunchCrossing
 		    );
+
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+			  const edm::EventSetup& c);
   void reset();
-  void clearME();
-  void beginLuminosityBlock(int lb);
-  void endLuminosityBlock();
+  void cleanup();
 
  private:
   void SetEtaLabels(MonitorElement* h);
-  float occThresh_;  
-  int ievt_;
-  MonitorElement* meEVT_;
+  double occThresh_;  
+  double hotrate_;
+  int minEvents_;
+  std::string lumiqualitydir_;
 
-  bool     beammon_makeDiagnostics_;
-  int      beammon_checkNevents_;
-  double   beammon_minErrorFlag_;
-  int      beammon_minEvents_;
-  int      beammon_BX;
   std::map<int,MonitorElement* > HB_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HE_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HF_CenterOfEnergyRadius;
@@ -111,6 +107,8 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   MonitorElement* HFlumi_occ_LS;
   MonitorElement* HFlumi_total_hotcells;
   MonitorElement* HFlumi_total_deadcells;
+  MonitorElement* HFlumi_diag_hotcells;
+  MonitorElement* HFlumi_diag_deadcells;
 
   MonitorElement* HFlumi_Ring1Status_vs_LS;
   MonitorElement* HFlumi_Ring2Status_vs_LS;
@@ -118,23 +116,25 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
 
   int ring1totalchannels_;
   int ring2totalchannels_;
-  const int ETA_OFFSET_HB;
 
+  const int ETA_OFFSET_HB;
   const int ETA_OFFSET_HE;
   const int ETA_BOUND_HE;
-  
   const int ETA_OFFSET_HO;
-  
   const int ETA_OFFSET_HF;
   const int ETA_BOUND_HF;
 
-  static const float etaBounds[];
   static const float area[];
   static const float radius[];
 
-  std::string beammon_lumiqualitydir_;
   std::ostringstream outfile_;
-  int irun_;
+  unsigned int lastProcessedLS_;
+  int runNumber_;
+ 
+
+  int minBadCells_;  // number of channels that must be bad to be included in problem summary
+  edm::InputTag digiLabel_;
+  edm::InputTag hbheRechitLabel_, hfRechitLabel_, hoRechitLabel_;
 }; // class HcalBeamMonitor
 
 #endif  

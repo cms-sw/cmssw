@@ -5,179 +5,51 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-
-#include <math.h>
-using namespace edm;
-using namespace std;
-// this is to retrieve HCAL digi's
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-// this is to retrieve HCAL LogicalMap
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-
-// #########################################################################################
-
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSums.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCounts.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-// #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+// forward declarations
+class HcalDetDiagNoiseRMSummary; 
+class DQMStore;
+class MonitorElement;
+class HcalDbService;
+class HcalLogicalMap;
+class HcalLogicalMapGenerator;
 
 // #########################################################################################
 
 /** \class HcalDetDiagNoiseMonitor
   *  
-  * $Date: 2010/02/22 18:07:49 $
-  * $Revision: 1.3 $
+  * $Date: 2010/03/11 08:15:08 $
+  * $Revision: 1.4.2.4 $
   * \author D. Vishnevskiy
   */
 
-class HcalDetDiagNoiseRMData{
-public:
-  HcalDetDiagNoiseRMData(){
-    n_th_hi=n_th_lo=0;
-    energy=0;
-  };
-  int    n_th_hi;
-  int    n_th_lo;
-  double energy; 
-};
 
-class HcalDetDiagNoiseRMSummary{
+class HcalDetDiagNoiseMonitor:public HcalBaseDQMonitor {
 public:
-  HcalDetDiagNoiseRMSummary(){ 
-     std::string subdets[11]={"HBM","HBP","HEM","HEP","HO2M","HO1M","HO0","HO1P","HO2P","HFM","HFP"};
-     reset(); 
-     for(int sd=0;sd<11;sd++) for(int sect=1;sect<=18;sect++) for(int rm=1;rm<=4;rm++){
-        std::stringstream tempss;
-        tempss << std::setw(2) << std::setfill('0') << sect;
-        std::string rbx= subdets[sd]+tempss.str();
-        HcalFrontEndId id(rbx,rm,1,1,1,1,1);
-        if(id.rawId()==0) continue;
-        SubDetIndex[id.rmIndex()]=sd; 
-     }
-     for(int i=0;i<HcalFrontEndId::maxRmIndex;i++) Ref[i]=0;
-  }
-  void reset(int subdet=-1){
-     if(subdet==-1){
-       for(int i=0;i<HcalFrontEndId::maxRmIndex;i++) AboveThHi[i]=0; 
-       for(int i=0;i<11;i++) events[i]=0;
-     }else{
-        std::string subdets[11]={"HBM","HBP","HEM","HEP","HO2M","HO1M","HO0","HO1P","HO2P","HFM","HFP"};
-        for(int sect=1;sect<=18;sect++) for(int rm=1;rm<=4;rm++){
-	   std::stringstream tempss;
-           tempss << std::setw(2) << std::setfill('0') << sect;
-           std::string rbx= subdets[subdet]+tempss.str();
-           HcalFrontEndId id(rbx,rm,1,1,1,1,1);
-           if(id.rawId()==0) continue;
-           AboveThHi[id.rmIndex()]=0; 
-	   events[subdet]=0;
-	}
-     }
-  }
-  void SetReference(int index,double val){
-     if(index<0 || index>=HcalFrontEndId::maxRmIndex) return;
-     Ref[index]=val;
-  } 
-  double GetReference(int index){
-     if(index<0 || index>=HcalFrontEndId::maxRmIndex) return 0;
-     return Ref[index];
-  } 
-  bool GetRMStatusValue(const std::string& rbx,int rm,double *val){
-     int index=GetRMindex(rbx,rm);
-     if(index<0 || index>=HcalFrontEndId::maxRmIndex) return false;
-     if(events[SubDetIndex[index]]>10){ *val=(double)AboveThHi[index]/(double)events[SubDetIndex[index]]; return true; }
-     *val=0; return true; 
-  }
-  void AddNoiseStat(int rm_index){
-     AboveThHi[rm_index]++;
-     events[SubDetIndex[rm_index]]++;
-  }
-  int GetSubDetIndex(const std::string& rbx){
-      return SubDetIndex[GetRMindex(rbx,2)];
-  }
-  
-  int GetRMindex(const std::string& rbx,int rm){
-      if(rbx.substr(0,3)=="HO0"){
-         int sect=atoi(rbx.substr(3,2).c_str());
-         if(sect>12) return -1;
-	 if(rm==1 && (sect==2  || sect==3 || sect==6 || sect==7 || sect==10 || sect==11)) return -1;
-         if(rm==4 && (sect==12 || sect==1 || sect==4 || sect==5 || sect==8  || sect==9 )) return -1;
-      }
-      if(rbx.substr(0,3)=="HO1" || rbx.substr(0,3)=="HO2"){ 
-         int sect=atoi(rbx.substr(4,2).c_str());
-	 if(sect>12) return -1;
-         if(sect==1 || sect==3 || sect==5 || sect==7 || sect==9 || sect==11) return -1;
-      }
-      HcalFrontEndId id(rbx,rm,1,1,1,1,1);
-      if(id.rawId()==0) return -1;
-      return id.rmIndex(); 
-  }
-  int GetStat(int subdet){ return events[subdet]; }
-private:  
-  int    AboveThHi  [HcalFrontEndId::maxRmIndex];
-  int    SubDetIndex[HcalFrontEndId::maxRmIndex];
-  double Ref[HcalFrontEndId::maxRmIndex];
-  int    events[11];
-};
-
-
-class HcalDetDiagNoiseMonitor:public HcalBaseMonitor {
-public:
-  HcalDetDiagNoiseMonitor(); 
+  HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps); 
   ~HcalDetDiagNoiseMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void processEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HcalDbService& cond);
+  void setup();
+  void analyze(edm::Event const&e, edm::EventSetup const&s);
   void done();
   void reset();
-  void clearME(); 
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void cleanup(); 
   void UpdateHistos();
   int  GetStatistics(){ return ievt_; }
 private:
-  edm::InputTag inputLabelDigi_;
-  edm::InputTag FEDRawDataCollection_;
+  edm::InputTag digiLabel_;
+  edm::InputTag rawDataLabel_;
   
-  HcalLogicalMapGenerator gen;
   HcalLogicalMap          *lmap;
+  HcalLogicalMapGenerator *gen;
+  const HcalDbService* cond_; // cond isn't used for anything!  Remove it?
  
   std::string ReferenceData;
   std::string ReferenceRun;
@@ -215,65 +87,139 @@ private:
   MonitorElement *HPDEnergy;
   MonitorElement *RBXEnergy;
   
-  HcalDetDiagNoiseRMSummary RBXSummary;
-  HcalDetDiagNoiseRMSummary RBXCurrentSummary;
+  HcalDetDiagNoiseRMSummary* RBXSummary;
+  HcalDetDiagNoiseRMSummary* RBXCurrentSummary;
 
 // #########################################################################################
 
-  MonitorElement *Met_AllEvents;
-  MonitorElement *Mephi_AllEvents;
-  MonitorElement *Mex_AllEvents;
-  MonitorElement *Mey_AllEvents;
-  MonitorElement *SumEt_AllEvents;
-  MonitorElement *Met_passingTrigger;
-  MonitorElement *Mephi_passingTrigger;
-  MonitorElement *Mex_passingTrigger;
-  MonitorElement *Mey_passingTrigger;
-  MonitorElement *SumEt_passingTrigger;
-  MonitorElement *CorrectedMet_passingTrigger;
-  MonitorElement *CorrectedMephi_passingTrigger;
-  MonitorElement *CorrectedMex_passingTrigger;
-  MonitorElement *CorrectedMey_passingTrigger;
-  MonitorElement *CorrectedSumEt_passingTrigger;
-  MonitorElement *HCALFraction_passingTrigger;
-  MonitorElement *chargeFraction_passingTrigger;
-  MonitorElement *JetEt_passingTrigger;
-  MonitorElement *JetEta_passingTrigger;
-  MonitorElement *JetPhi_passingTrigger;
-  MonitorElement *JetEt_passingTrigger_TaggedAnomalous;
-  MonitorElement *JetEta_passingTrigger_TaggedAnomalous;
-  MonitorElement *JetPhi_passingTrigger_TaggedAnomalous;
-  MonitorElement *Met_passingTrigger_HcalNoiseCategory;
-  MonitorElement *Mephi_passingTrigger_HcalNoiseCategory;
-  MonitorElement *Mex_passingTrigger_HcalNoiseCategory;
-  MonitorElement *Mey_passingTrigger_HcalNoiseCategory;
-  MonitorElement *SumEt_passingTrigger_HcalNoiseCategory;
-  MonitorElement *Met_passingTrigger_PhysicsCategory;
-  MonitorElement *Mephi_passingTrigger_PhysicsCategory;
-  MonitorElement *Mex_passingTrigger_PhysicsCategory;
-  MonitorElement *Mey_passingTrigger_PhysicsCategory;
-  MonitorElement *SumEt_passingTrigger_PhysicsCategory;
-  MonitorElement *HCALFractionVSchargeFraction_passingTrigger;
-  MonitorElement *RBXMaxZeros_passingTrigger_HcalNoiseCategory;
-  MonitorElement *RBXE2tsOverE10ts_passingTrigger_HcalNoiseCategory;
-  MonitorElement *RBXHitsHighest_passingTrigger_HcalNoiseCategory;
-  MonitorElement *HPDE2tsOverE10ts_passingTrigger_HcalNoiseCategory;
-  MonitorElement *HPDHitsHighest_passingTrigger_HcalNoiseCategory;
-  MonitorElement *RBXMaxZeros_passingTrigger_PhysicsCategory;
-  MonitorElement *RBXHitsHighest_passingTrigger_PhysicsCategory;
-  MonitorElement *RBXE2tsOverE10ts_passingTrigger_PhysicsCategory;
-  MonitorElement *HPDHitsHighest_passingTrigger_PhysicsCategory;
-  MonitorElement *HPDE2tsOverE10ts_passingTrigger_PhysicsCategory;
-  MonitorElement *NLumiSections;
+      MonitorElement *Met;
+      MonitorElement *Mephi;
+      MonitorElement *Mex;
+      MonitorElement *SumEt;
+      MonitorElement *HaEtHB;
+      MonitorElement *HaEtHE;
+      MonitorElement *HaEtHF;
+      MonitorElement *EmEtHF;
+      MonitorElement *Met_PhysicsCategory;
+      MonitorElement *Mephi_PhysicsCategory;
+      MonitorElement *Mex_PhysicsCategory;
+      MonitorElement *SumEt_PhysicsCategory;
+      MonitorElement *HaEtHB_PhysicsCategory;
+      MonitorElement *HaEtHE_PhysicsCategory;
+      MonitorElement *HaEtHF_PhysicsCategory;
+      MonitorElement *EmEtHF_PhysicsCategory;
+      MonitorElement *HCALFraction;
+      MonitorElement *chargeFraction;
+      MonitorElement *HCALFractionVSchargeFraction;
+      MonitorElement *JetEt;
+      MonitorElement *JetEta;
+      MonitorElement *JetPhi;
+      MonitorElement *HCALFraction_PhysicsCategory;
+      MonitorElement *chargeFraction_PhysicsCategory;
+      MonitorElement *HCALFractionVSchargeFraction_PhysicsCategory;
+      MonitorElement *JetEt_PhysicsCategory;
+      MonitorElement *JetEta_PhysicsCategory;
+      MonitorElement *JetPhi_PhysicsCategory;
+      MonitorElement *JetEt_TaggedAnomalous;
+      MonitorElement *JetEta_TaggedAnomalous;
+      MonitorElement *JetPhi_TaggedAnomalous;
+      MonitorElement *JetEt_TaggedAnomalous_PhysicsCategory;
+      MonitorElement *JetEta_TaggedAnomalous_PhysicsCategory;
+      MonitorElement *JetPhi_TaggedAnomalous_PhysicsCategory;
+      MonitorElement *HFtowerRatio;
+      MonitorElement *HFtowerPt;
+      MonitorElement *HFtowerEta;
+      MonitorElement *HFtowerPhi;
+      MonitorElement *HFtowerRatio_PhysicsCategory;
+      MonitorElement *HFtowerPt_PhysicsCategory;
+      MonitorElement *HFtowerEta_PhysicsCategory;
+      MonitorElement *HFtowerPhi_PhysicsCategory;
+      MonitorElement *HFtowerPt_TaggedAnomalous;
+      MonitorElement *HFtowerEta_TaggedAnomalous;
+      MonitorElement *HFtowerPhi_TaggedAnomalous;
+      MonitorElement *HFtowerPt_TaggedAnomalous_PhysicsCategory;
+      MonitorElement *HFtowerEta_TaggedAnomalous_PhysicsCategory;
+      MonitorElement *HFtowerPhi_TaggedAnomalous_PhysicsCategory;
+      MonitorElement *RBXMaxZeros;
+      MonitorElement *RBXHitsHighest;
+      MonitorElement *RBXE2tsOverE10ts;
+      MonitorElement *HPDHitsHighest;
+      MonitorElement *HPDE2tsOverE10ts;
+      MonitorElement *RBXMaxZeros_PhysicsCategory;
+      MonitorElement *RBXHitsHighest_PhysicsCategory;
+      MonitorElement *RBXE2tsOverE10ts_PhysicsCategory;
+      MonitorElement *HPDHitsHighest_PhysicsCategory;
+      MonitorElement *HPDE2tsOverE10ts_PhysicsCategory;
+      MonitorElement *Met_TaggedHBHEAnomalous;
+      MonitorElement *Mephi_TaggedHBHEAnomalous;
+      MonitorElement *Mex_TaggedHBHEAnomalous;
+      MonitorElement *SumEt_TaggedHBHEAnomalous;
+      MonitorElement *HaEtHB_TaggedHBHEAnomalous;
+      MonitorElement *HaEtHE_TaggedHBHEAnomalous;
+      MonitorElement *HaEtHF_TaggedHBHEAnomalous;
+      MonitorElement *EmEtHF_TaggedHBHEAnomalous;
+      MonitorElement *RBXMaxZeros_TaggedHBHEAnomalous;
+      MonitorElement *RBXHitsHighest_TaggedHBHEAnomalous;
+      MonitorElement *RBXE2tsOverE10ts_TaggedHBHEAnomalous;
+      MonitorElement *HPDHitsHighest_TaggedHBHEAnomalous;
+      MonitorElement *HPDE2tsOverE10ts_TaggedHBHEAnomalous;
+      MonitorElement *Met_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *Mephi_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *Mex_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *SumEt_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHB_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHE_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHF_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *EmEtHF_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *RBXMaxZeros_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *RBXHitsHighest_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *RBXE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *HPDHitsHighest_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *HPDE2tsOverE10ts_TaggedHBHEAnomalous_PhysicsCategory;
+      MonitorElement *Met_TaggedHFAnomalous;
+      MonitorElement *Mephi_TaggedHFAnomalous;
+      MonitorElement *Mex_TaggedHFAnomalous;
+      MonitorElement *SumEt_TaggedHFAnomalous;
+      MonitorElement *HaEtHB_TaggedHFAnomalous;
+      MonitorElement *HaEtHE_TaggedHFAnomalous;
+      MonitorElement *HaEtHF_TaggedHFAnomalous;
+      MonitorElement *EmEtHF_TaggedHFAnomalous;
+      MonitorElement *Met_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *Mephi_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *Mex_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *SumEt_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHB_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHE_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHF_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *EmEtHF_TaggedHFAnomalous_PhysicsCategory;
+      MonitorElement *Met_TaggedHBHEHFAnomalous;
+      MonitorElement *Mephi_TaggedHBHEHFAnomalous;
+      MonitorElement *Mex_TaggedHBHEHFAnomalous;
+      MonitorElement *SumEt_TaggedHBHEHFAnomalous;
+      MonitorElement *HaEtHB_TaggedHBHEHFAnomalous;
+      MonitorElement *HaEtHE_TaggedHBHEHFAnomalous;
+      MonitorElement *HaEtHF_TaggedHBHEHFAnomalous;
+      MonitorElement *EmEtHF_TaggedHBHEHFAnomalous;
+      MonitorElement *Met_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *Mephi_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *Mex_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *SumEt_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHB_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHE_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *HaEtHF_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *EmEtHF_TaggedHBHEHFAnomalous_PhysicsCategory;
+      MonitorElement *NLumiSections;
 
   edm::InputTag hlTriggerResults_;
   edm::InputTag MetSource_;
   edm::InputTag JetSource_;
   edm::InputTag TrackSource_;
+  edm::InputTag VertexSource_;
   std::string rbxCollName_;
-  string TriggerRequirement_;
-  bool UseMetCutInsteadOfTrigger_;
-  double MetCut_;
+  std::string PhysDeclaredRequirement_;
+  std::string MonitoringTriggerRequirement_;
+  bool UseMonitoringTrigger_;
+  bool UseVertexCuts_;
   double JetMinEt_;
   double JetMaxEta_;
   double ConstituentsToJetMatchingDeltaR_;
@@ -281,11 +227,10 @@ private:
   double TrackMinThreshold_;
   double MinJetChargeFraction_;
   double MaxJetHadronicEnergyFraction_;
-
   edm::InputTag caloTowerCollName_;
 
   std::vector<unsigned int> lumi;
-  std::vector<CaloJet> HcalNoisyJetContainer;
+  std::vector<reco::CaloJet> HcalNoisyJetContainer;
 
   int numRBXhits;
   double rbxenergy;

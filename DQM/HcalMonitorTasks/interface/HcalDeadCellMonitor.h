@@ -1,12 +1,9 @@
 #ifndef DQM_HCALMONITORTASKS_HCALDEADCELLMONITOR_H
 #define DQM_HCALMONITORTASKS_HCALDEADCELLMONITOR_H
 
-#include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-//#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include <cmath>
 #include <iostream>
@@ -14,21 +11,26 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2010/02/05 18:54:18 $
-  * $Revision: 1.41 $
+  * $Date: 2010/03/04 23:45:08 $
+  * $Revision: 1.42.2.3 $
   * \author J. Temple - Univ. of Maryland
   */
 
-class HcalDeadCellMonitor: public HcalBaseMonitor {
+class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
  public:
-  HcalDeadCellMonitor();
+  HcalDeadCellMonitor(const edm::ParameterSet& ps);
 
   ~HcalDeadCellMonitor();
 
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void beginRun();
-  void clearME(); // overrides base class function
+  void setup();
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void analyze(edm::Event const&e, edm::EventSetup const&s);
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+			  const edm::EventSetup& c);
+  void endRun(const edm::Run& run, const edm::EventSetup& c);
+  void endJob();
+  void cleanup(); // overrides base class function
   void reset();
   
   void processEvent(const HBHERecHitCollection& hbHits,
@@ -36,14 +38,9 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
                     const HFRecHitCollection& hfHits,
 		    const HBHEDigiCollection& hbhedigi,
                     const HODigiCollection& hodigi,
-                    const HFDigiCollection& hfdigi,
-		    int calibType
+                    const HFDigiCollection& hfdigi
 		    );
 
-  void periodicReset();
-  void beginLuminosityBlock(int lb);
-  void endLuminosityBlock();
-  void endRun();
  private:
   void zeroCounters(bool resetpresent=false);
 
@@ -51,12 +48,8 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   template<class T> void process_Digi(T& digi);
   template<class T> void process_RecHit(T& rechit);
 
-  int deadmon_checkNevents_;  // specify how often to check is cell is dead
-  int deadmon_minEvents_; // minimum number of events needed to perform checks on recent digis/rechits
   bool deadmon_makeDiagnostics_;
-  
-  int deadmon_lumiblockcount_;
-  int deadmon_prescale_;
+  int minDeadEventCount_;
 
   // Booleans to control which of the dead cell checking routines are used
   bool deadmon_test_digis_;
@@ -73,8 +66,6 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   double HOenergyThreshold_;
   double HFenergyThreshold_;
 
-  double deadmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
-
   EtaPhiHists  RecentMissingDigisByDepth;
   EtaPhiHists  DigiPresentByDepth;
   EtaPhiHists  RecentMissingRecHitsByDepth;
@@ -88,13 +79,20 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   MonitorElement *NumberOfNeverPresentRecHits, *NumberOfNeverPresentRecHitsHB, *NumberOfNeverPresentRecHitsHE, *NumberOfNeverPresentRecHitsHO, *NumberOfNeverPresentRecHitsHF;
 
   MonitorElement *Nevents;
+
+  MonitorElement *HBDeadVsEvent, *HEDeadVsEvent, *HODeadVsEvent, *HFDeadVsEvent;
+
   bool present_digi[85][72][4]; // tests that a good digi was present at least once
   bool present_rechit[85][72][4]; // tests that rechit with energy > threshold at least once
   unsigned int recentoccupancy_digi[85][72][4]; // tests that cells haven't gone missing for long periods
   unsigned int recentoccupancy_rechit[85][72][4]; // tests that cells haven't dropped below threshold for long periods
   
+  int deadevt_; // running count of events processed since last dead cell check
+  int NumBadHB, NumBadHE, NumBadHO, NumBadHF;
 
-  bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
+  edm::InputTag digiLabel_;
+  edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
+
 };
 
 #endif

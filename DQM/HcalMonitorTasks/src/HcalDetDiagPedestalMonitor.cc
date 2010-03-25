@@ -1,206 +1,430 @@
-#include "DQM/HcalMonitorTasks/interface/HcalDetDiagPedestalMonitor.h"
+// -*- C++ -*-
+//
+// Package:    HcalDetDiagPedestalMonitor
+// Class:      HcalDetDiagPedestalMonitor
+// 
+/**\class HcalDetDiagPedestalMonitor HcalDetDiagPedestalMonitor.cc DQM/HcalDetDiagPedestalMonitor/src/HcalDetDiagPedestalMonitor.cc
+
+ Description: [one line class summary]
+
+ Implementation:
+     [Notes on implementation]
+*/
+//
+// Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
+//         Created:  Tue Mar  9 12:59:18 CET 2010
+// $Id: HcalDetDiagPedestalMonitor.cc,v 1.9.4.8 2010/03/25 10:43:21 temple Exp $
+//
+//
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
+#include <math.h>
+
+// this is to retrieve HCAL digi's
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+// to retrive trigger information (local runs only)
+#include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
+
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+
+#include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
+
 #include "TFile.h"
 #include "TTree.h"
-
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
-                                                                                                                                                  
 
-HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor() {
+class HcalDetDiagPedestalData{
+public: 
+   HcalDetDiagPedestalData(){ 
+             reset();
+	     IsRefetence=false;
+	     status=0; 
+             nChecks=nMissing=nBadPed=nBadRms=nUnstable=0;  
+	  }
+   void   reset(){
+             for(int i=0;i<128;i++) adc[i]=0; 
+	     overflow=0;
+          }	  
+   void   add_statistics(unsigned int val){
+             if(val<25) adc[val&0x7F]++; else overflow++;    
+	  }
+   void   set_reference(float val,float rms){
+             ref_ped=val; ref_rms=rms;
+	     IsRefetence=true;
+          }	  
+   void   change_status(int val){
+             status|=val;
+          }	  
+   int    get_status(){
+             return status;
+          }	  
+   bool   get_reference(double *val,double *rms){
+             *val=ref_ped; *rms=ref_rms;
+	     return IsRefetence;
+          }	  
+   bool   get_average(double *ave,double *rms){
+             double Sum=0,nSum=0; 
+	     int from,to,max=adc[0],maxi=0;
+	     for(int i=1;i<25;i++) if(adc[i]>max){ max=adc[i]; maxi=i;} 
+	     from=0; to=maxi+6;
+             for(int i=from;i<=to;i++){
+                Sum+=i*adc[i];
+	        nSum+=adc[i];
+             } 
+             if(nSum>0) *ave=Sum/nSum; else return false;
+             Sum=0;
+             for(int i=from;i<=to;i++) Sum+=adc[i]*(i-*ave)*(i-*ave);
+             *rms=sqrt(Sum/nSum);
+             return true; 
+          }
+   int    get_statistics(){
+             int nSum=0;  
+             for(int i=0;i<25;i++) nSum+=adc[i];
+	     return nSum;
+	  } 
+   int    get_overflow(){
+             return overflow;
+          }   
+   int   nChecks;
+   int   nMissing;
+   int   nUnstable;
+   int   nBadPed;
+   int   nBadRms;
+private:   
+   int   adc[128];
+   int   overflow;
+   bool  IsRefetence;
+   float ref_ped;
+   float ref_rms;
+   int   status;
+};
+
+
+class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
+   public:
+      explicit HcalDetDiagPedestalMonitor(const edm::ParameterSet&);
+      ~HcalDetDiagPedestalMonitor();
+
+
+   private:
+      void SaveReference();
+      void LoadReference();
+      void CheckStatus();
+      void fillHistos();
+      void SaveHTML();
+
+      const HcalElectronicsMap  *emap;
+      edm::InputTag inputLabelDigi_;
+      edm::InputTag  inputLabelRawData_;
+
+      void beginRun(const edm::Run& run, const edm::EventSetup& c);  
+      void endRun(const edm::Run& run, const edm::EventSetup& c);
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c) ;
+      void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
+      void analyze(const edm::Event&, const edm::EventSetup&);
+
+      int         ievt_;
+      int         run_number;
+      int         dataset_seq_number;
+      bool        IsReference;
+      bool        LocalRun;
+
+      double      HBMeanTreshold;
+      double      HBRmsTreshold;
+      double      HEMeanTreshold;
+      double      HERmsTreshold;
+      double      HOMeanTreshold;
+      double      HORmsTreshold;
+      double      HFMeanTreshold;
+      double      HFRmsTreshold;
+
+      std::string ReferenceData;
+      std::string ReferenceRun;
+      std::string OutputFilePath;
+      bool        enableHTML;
+      std::string BaseHTMLpath;
+
+      std::string prefixME_;
+      bool        Online_;
+
+      MonitorElement *meEVT_,*meRUN_;
+      MonitorElement *RefRun_;
+      MonitorElement *PedestalsAve4HB;
+      MonitorElement *PedestalsAve4HE;
+      MonitorElement *PedestalsAve4HO;
+      MonitorElement *PedestalsAve4HF;
+      MonitorElement *PedestalsAve4Simp;
+ 
+      MonitorElement *PedestalsAve4HBref;
+      MonitorElement *PedestalsAve4HEref;
+      MonitorElement *PedestalsAve4HOref;
+      MonitorElement *PedestalsAve4HFref;
+      MonitorElement *PedestalsRmsHB;
+      MonitorElement *PedestalsRmsHE;
+      MonitorElement *PedestalsRmsHO;
+      MonitorElement *PedestalsRmsHF;
+      MonitorElement *PedestalsRmsSimp;
+  
+      MonitorElement *PedestalsRmsHBref;
+      MonitorElement *PedestalsRmsHEref;
+      MonitorElement *PedestalsRmsHOref;
+      MonitorElement *PedestalsRmsHFref;
+  
+      MonitorElement *Pedestals2DRmsHBHEHF;
+      MonitorElement *Pedestals2DRmsHO;
+      MonitorElement *Pedestals2DHBHEHF;
+      MonitorElement *Pedestals2DHO;
+      MonitorElement *Pedestals2DErrorHBHEHF;
+      MonitorElement *Pedestals2DErrorHO;
+ 
+      EtaPhiHists* ProblemCellsByDepth_missing;
+      EtaPhiHists* ProblemCellsByDepth_unstable;
+      EtaPhiHists* ProblemCellsByDepth_badped;
+      EtaPhiHists* ProblemCellsByDepth_badrms;
+
+      EtaPhiHists* ProblemCellsByDepth_missing_val;
+      EtaPhiHists* ProblemCellsByDepth_unstable_val;
+      EtaPhiHists* ProblemCellsByDepth_badped_val;
+      EtaPhiHists* ProblemCellsByDepth_badrms_val;
+      std::vector<std::string> problemnames_;
+ 
+      HcalDetDiagPedestalData hb_data[85][72][4][4];
+      HcalDetDiagPedestalData he_data[85][72][4][4];
+      HcalDetDiagPedestalData ho_data[85][72][4][4];
+      HcalDetDiagPedestalData hf_data[85][72][4][4];
+};
+
+HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& iConfig){
   ievt_=0;
-  time_min=time_max=edm::Timestamp(0);
+  emap=0;
   dataset_seq_number=1;
   run_number=-1;
   IsReference=false;
-}
+  LocalRun=false;
 
+  inputLabelDigi_    = iConfig.getUntrackedParameter<edm::InputTag>("digiLabel");
+  inputLabelRawData_ = iConfig.getUntrackedParameter<edm::InputTag>("rawDataLabel");
+  enableHTML       = iConfig.getUntrackedParameter<bool>  ("enableHTML",false);
+  BaseHTMLpath     = iConfig.getUntrackedParameter<std::string>("BaseHTMLpath","");
+  ReferenceData    = iConfig.getUntrackedParameter<std::string>("PedestalReferenceData" ,"");
+  OutputFilePath   = iConfig.getUntrackedParameter<std::string>("OutputFilePath", "");
+  Online_          = iConfig.getUntrackedParameter<bool>  ("online",false);
+  prefixME_        = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
+  if (prefixME_.size()>0 && prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
+    prefixME_.append("/");
+  subdir_          = iConfig.getUntrackedParameter<std::string>("TaskFolder","DetDiagPedestalMonitor_Hcal/");
+  if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
+    subdir_.append("/");
+  subdir_=prefixME_+subdir_;
+
+  HBMeanTreshold   = iConfig.getUntrackedParameter<double>("HBMeanPedestalTreshold" , 0.2);
+  HBRmsTreshold    = iConfig.getUntrackedParameter<double>("HBRmsPedestalTreshold"  , 0.3);
+  HEMeanTreshold   = iConfig.getUntrackedParameter<double>("HEMeanPedestalTreshold" , 0.2);
+  HERmsTreshold    = iConfig.getUntrackedParameter<double>("HERmsPedestalTreshold"  , 0.3);
+  HOMeanTreshold   = iConfig.getUntrackedParameter<double>("HOMeanPedestalTreshold" , 0.2);
+  HORmsTreshold    = iConfig.getUntrackedParameter<double>("HORmsPedestalTreshold"  , 0.3);
+  HFMeanTreshold   = iConfig.getUntrackedParameter<double>("HFMeanPedestalTreshold" , 0.2);
+  HFRmsTreshold    = iConfig.getUntrackedParameter<double>("HFRmsPedestalTreshold"  , 0.3);
+}
 HcalDetDiagPedestalMonitor::~HcalDetDiagPedestalMonitor(){}
 
-void HcalDetDiagPedestalMonitor::clearME(){
-  if(m_dbe){
-    m_dbe->setCurrentFolder(baseFolder_);
-    m_dbe->removeContents();
-    m_dbe = 0;
-  }
-} 
-void HcalDetDiagPedestalMonitor::reset(){}
+void HcalDetDiagPedestalMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c){
+  edm::ESHandle<HcalDbService> conditions_;
+  c.get<HcalDbRecord>().get(conditions_);
+  emap=conditions_->getHcalMapping();
 
-void HcalDetDiagPedestalMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-  m_dbe=NULL;
-  ievt_=0;
-  if(dbe!=NULL) m_dbe=dbe;
-  clearME();
-  inputLabelDigi_  = ps.getParameter<edm::InputTag>("digiLabel");
-  
-  HBMeanTreshold   = ps.getUntrackedParameter<double>("HBMeanPedestalTreshold" , 0.1);
-  HBRmsTreshold    = ps.getUntrackedParameter<double>("HBRmsPedestalTreshold"  , 0.1);
-  HEMeanTreshold   = ps.getUntrackedParameter<double>("HEMeanPedestalTreshold" , 0.1);
-  HERmsTreshold    = ps.getUntrackedParameter<double>("HERmsPedestalTreshold"  , 0.1);
-  HOMeanTreshold   = ps.getUntrackedParameter<double>("HOMeanPedestalTreshold" , 0.1);
-  HORmsTreshold    = ps.getUntrackedParameter<double>("HORmsPedestalTreshold"  , 0.1);
-  HFMeanTreshold   = ps.getUntrackedParameter<double>("HFMeanPedestalTreshold" , 0.1);
-  HFRmsTreshold    = ps.getUntrackedParameter<double>("HFRmsPedestalTreshold"  , 0.1);
-  UseDB            = ps.getUntrackedParameter<bool>  ("UseDB"  , false);
-
-  ReferenceData    = ps.getUntrackedParameter<string>("PedReferenceData" , "");
-  OutputFilePath   = ps.getUntrackedParameter<string>("OutputFilePath", "");
- 
-  HcalBaseMonitor::setup(ps,dbe);
-  baseFolder_ = rootFolder_+"HcalDetDiagPedestalMonitor";
+  HcalBaseDQMonitor::setup();
+  if (!dbe_) return;
   std::string name;
-  if(m_dbe!=NULL){    
-     m_dbe->setCurrentFolder(baseFolder_);   
-     meEVT_ = m_dbe->bookInt("HcalDetDiagPedestalMonitor Event Number");
+
+  dbe_->setCurrentFolder(subdir_);   
+  meEVT_ = dbe_->bookInt("HcalDetDiagPedestalMonitor Event Number");
+  meRUN_ = dbe_->bookInt("HcalDetDiagPedestalMonitor Run Number");
+
+  ProblemCellsByDepth_missing = new EtaPhiHists();
+  ProblemCellsByDepth_missing->setup(dbe_," Problem Missing Channels");
+  for(unsigned int i=0;i<ProblemCellsByDepth_missing->depth.size();i++)
+          problemnames_.push_back(ProblemCellsByDepth_missing->depth[i]->getName());
+  ProblemCellsByDepth_unstable = new EtaPhiHists();
+  ProblemCellsByDepth_unstable->setup(dbe_," Problem Unstable Channels");
+  for(unsigned int i=0;i<ProblemCellsByDepth_unstable->depth.size();i++)
+          problemnames_.push_back(ProblemCellsByDepth_unstable->depth[i]->getName());
+  ProblemCellsByDepth_badped = new EtaPhiHists();
+  ProblemCellsByDepth_badped->setup(dbe_," Problem Bad Pedestal Value");
+  for(unsigned int i=0;i<ProblemCellsByDepth_badped->depth.size();i++)
+          problemnames_.push_back(ProblemCellsByDepth_badped->depth[i]->getName());
+  ProblemCellsByDepth_badrms = new EtaPhiHists();
+  ProblemCellsByDepth_badrms->setup(dbe_," Problem Bad Rms Value");
+  for(unsigned int i=0;i<ProblemCellsByDepth_badrms->depth.size();i++)
+          problemnames_.push_back(ProblemCellsByDepth_badrms->depth[i]->getName());
+
+  dbe_->setCurrentFolder(subdir_+"Summary Plots");
+  name="HB Pedestal Distribution (average over 4 caps)";           PedestalsAve4HB = dbe_->book1D(name,name,200,0,6);
+  name="HE Pedestal Distribution (average over 4 caps)";           PedestalsAve4HE = dbe_->book1D(name,name,200,0,6);
+  name="HO Pedestal Distribution (average over 4 caps)";           PedestalsAve4HO = dbe_->book1D(name,name,200,0,6);
+  name="HF Pedestal Distribution (average over 4 caps)";           PedestalsAve4HF = dbe_->book1D(name,name,200,0,6);
+  name="SIPM Pedestal Distribution (average over 4 caps)";         PedestalsAve4Simp = dbe_->book1D(name,name,200,5,15);
      
-     m_dbe->setCurrentFolder(baseFolder_+"/Summary Plots");
-     name="HB Pedestal Distribution (average over 4 caps)";           PedestalsAve4HB = m_dbe->book1D(name,name,200,0,6);
-     name="HE Pedestal Distribution (average over 4 caps)";           PedestalsAve4HE = m_dbe->book1D(name,name,200,0,6);
-     name="HO Pedestal Distribution (average over 4 caps)";           PedestalsAve4HO = m_dbe->book1D(name,name,200,0,6);
-     name="HF Pedestal Distribution (average over 4 caps)";           PedestalsAve4HF = m_dbe->book1D(name,name,200,0,6);
-     name="SIPM Pedestal Distribution (average over 4 caps)";         PedestalsAve4Simp = m_dbe->book1D(name,name,200,5,15);
-     name="ZDC Pedestal Distribution (average over 4 caps)";          PedestalsAve4ZDC  = m_dbe->book1D(name,name,200,0,15);
-     name="HB Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HB = m_dbe->book1D(name,name,200,0,6);
-     name="HE Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HE = m_dbe->book1D(name,name,200,0,6);
-     name="HO Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HO = m_dbe->book1D(name,name,200,0,6);
-     name="HF Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4HF = m_dbe->book1D(name,name,200,0,6);
-     name="SIPM Pedestal Reference Distribution (average over 4 caps)"; PedestalsRefAve4Simp = m_dbe->book1D(name,name,200,5,15);
-     name="ZDC Pedestal Reference Distribution (average over 4 caps)";  PedestalsRefAve4ZDC  = m_dbe->book1D(name,name,200,0,15);
-     
-     name="HB Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HBref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HE Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HEref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HO Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HOref= m_dbe->book1D(name,name,1500,-3,3);
-     name="HF Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HFref= m_dbe->book1D(name,name,1500,-3,3);
+  name="HB Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HBref= dbe_->book1D(name,name,1500,-3,3);
+  name="HE Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HEref= dbe_->book1D(name,name,1500,-3,3);
+  name="HO Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HOref= dbe_->book1D(name,name,1500,-3,3);
+  name="HF Pedestal-Reference Distribution (average over 4 caps)"; PedestalsAve4HFref= dbe_->book1D(name,name,1500,-3,3);
     
-     name="HB Pedestal RMS Distribution (individual cap)";            PedestalsRmsHB = m_dbe->book1D(name,name,200,0,2);
-     name="HE Pedestal RMS Distribution (individual cap)";            PedestalsRmsHE = m_dbe->book1D(name,name,200,0,2);
-     name="HO Pedestal RMS Distribution (individual cap)";            PedestalsRmsHO = m_dbe->book1D(name,name,200,0,2);
-     name="HF Pedestal RMS Distribution (individual cap)";            PedestalsRmsHF = m_dbe->book1D(name,name,200,0,2);
-     name="SIPM Pedestal RMS Distribution (individual cap)";          PedestalsRmsSimp = m_dbe->book1D(name,name,200,0,4);
-     name="ZDC Pedestal RMS Distribution (individual cap)";           PedestalsRmsZDC = m_dbe->book1D(name,name,200,0,3);
+  name="HB Pedestal RMS Distribution (individual cap)";            PedestalsRmsHB = dbe_->book1D(name,name,200,0,2);
+  name="HE Pedestal RMS Distribution (individual cap)";            PedestalsRmsHE = dbe_->book1D(name,name,200,0,2);
+  name="HO Pedestal RMS Distribution (individual cap)";            PedestalsRmsHO = dbe_->book1D(name,name,200,0,2);
+  name="HF Pedestal RMS Distribution (individual cap)";            PedestalsRmsHF = dbe_->book1D(name,name,200,0,2);
+  name="SIPM Pedestal RMS Distribution (individual cap)";          PedestalsRmsSimp = dbe_->book1D(name,name,200,0,4);
      
-     name="HB Pedestal Reference RMS Distribution (individual cap)";  PedestalsRmsRefHB = m_dbe->book1D(name,name,200,0,2);
-     name="HE Pedestal Reference RMS Distribution (individual cap)";  PedestalsRmsRefHE = m_dbe->book1D(name,name,200,0,2);
-     name="HO Pedestal Reference RMS Distribution (individual cap)";  PedestalsRmsRefHO = m_dbe->book1D(name,name,200,0,2);
-     name="HF Pedestal Reference RMS Distribution (individual cap)";  PedestalsRmsRefHF = m_dbe->book1D(name,name,200,0,2);
-     name="SIPM Pedestal Reference RMS Distribution (individual cap)";PedestalsRmsRefSimp = m_dbe->book1D(name,name,200,0,4);
-     name="ZDC Pedestal Reference RMS Distribution (individual cap)"; PedestalsRmsRefZDC = m_dbe->book1D(name,name,200,0,3);
-     name="HB Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHBref = m_dbe->book1D(name,name,1500,-3,3);
-     name="HE Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHEref = m_dbe->book1D(name,name,1500,-3,3);
-     name="HO Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHOref = m_dbe->book1D(name,name,1500,-3,3);
-     name="HF Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHFref = m_dbe->book1D(name,name,1500,-3,3);
+  name="HB Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHBref = dbe_->book1D(name,name,1500,-3,3);
+  name="HE Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHEref = dbe_->book1D(name,name,1500,-3,3);
+  name="HO Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHOref = dbe_->book1D(name,name,1500,-3,3);
+  name="HF Pedestal_rms-Reference_rms Distribution";               PedestalsRmsHFref = dbe_->book1D(name,name,1500,-3,3);
      
-     name="HBHEHF pedestal mean map";       Pedestals2DHBHEHF      = m_dbe->book2D(name,name,87,-43,43,74,0,73);
-     name="HO pedestal mean map";           Pedestals2DHO          = m_dbe->book2D(name,name,33,-16,16,74,0,73);
-     name="HBHEHF pedestal rms map";        Pedestals2DRmsHBHEHF   = m_dbe->book2D(name,name,87,-43,43,74,0,73);
-     name="HO pedestal rms map";            Pedestals2DRmsHO       = m_dbe->book2D(name,name,33,-16,16,74,0,73);
-     name="HBHEHF pedestal problems map";   Pedestals2DErrorHBHEHF = m_dbe->book2D(name,name,87,-43,43,74,0,73);
-     name="HO pedestal problems map";       Pedestals2DErrorHO     = m_dbe->book2D(name,name,33,-16,16,74,0,73);
+  name="HBHEHF pedestal mean map";       Pedestals2DHBHEHF      = dbe_->book2D(name,name,87,-43,43,74,0,73);
+  name="HO pedestal mean map";           Pedestals2DHO          = dbe_->book2D(name,name,33,-16,16,74,0,73);
+  name="HBHEHF pedestal rms map";        Pedestals2DRmsHBHEHF   = dbe_->book2D(name,name,87,-43,43,74,0,73);
+  name="HO pedestal rms map";            Pedestals2DRmsHO       = dbe_->book2D(name,name,33,-16,16,74,0,73);
+  name="HBHEHF pedestal problems map";   Pedestals2DErrorHBHEHF = dbe_->book2D(name,name,87,-43,43,74,0,73);
+  name="HO pedestal problems map";       Pedestals2DErrorHO     = dbe_->book2D(name,name,33,-16,16,74,0,73);
 
-     Pedestals2DHBHEHF->setAxisTitle("i#eta",1);
-     Pedestals2DHBHEHF->setAxisTitle("i#phi",2);
-     Pedestals2DHO->setAxisTitle("i#eta",1);
-     Pedestals2DHO->setAxisTitle("i#phi",2);
-     Pedestals2DRmsHBHEHF->setAxisTitle("i#eta",1);
-     Pedestals2DRmsHBHEHF->setAxisTitle("i#phi",2);
-     Pedestals2DRmsHO->setAxisTitle("i#eta",1);
-     Pedestals2DRmsHO->setAxisTitle("i#phi",2);
-     Pedestals2DErrorHBHEHF->setAxisTitle("i#eta",1);
-     Pedestals2DErrorHBHEHF->setAxisTitle("i#phi",2);
-     Pedestals2DErrorHO->setAxisTitle("i#eta",1);
-     Pedestals2DErrorHO->setAxisTitle("i#phi",2);
-     PedestalsAve4HB->setAxisTitle("ADC counts",1);
-     PedestalsAve4HE->setAxisTitle("ADC counts",1);
-     PedestalsAve4HO->setAxisTitle("ADC counts",1);
-     PedestalsAve4HF->setAxisTitle("ADC counts",1);
-     PedestalsAve4Simp->setAxisTitle("ADC counts",1);
-     PedestalsAve4ZDC->setAxisTitle("ADC counts",1);
-     PedestalsRefAve4HB->setAxisTitle("ADC counts",1);
-     PedestalsRefAve4HE->setAxisTitle("ADC counts",1);
-     PedestalsRefAve4HO->setAxisTitle("ADC counts",1);
-     PedestalsRefAve4HF->setAxisTitle("ADC counts",1);
-     PedestalsRefAve4Simp->setAxisTitle("ADC counts",1);
-     PedestalsRefAve4ZDC->setAxisTitle("ADC counts",1);
-     PedestalsAve4HBref->setAxisTitle("ADC counts",1);
-     PedestalsAve4HEref->setAxisTitle("ADC counts",1);
-     PedestalsAve4HOref->setAxisTitle("ADC counts",1);
-     PedestalsAve4HFref->setAxisTitle("ADC counts",1);
-     PedestalsRmsHB->setAxisTitle("ADC counts",1);
-     PedestalsRmsHE->setAxisTitle("ADC counts",1);
-     PedestalsRmsHO->setAxisTitle("ADC counts",1);
-     PedestalsRmsHF->setAxisTitle("ADC counts",1);
-     PedestalsRmsSimp->setAxisTitle("ADC counts",1);
-     PedestalsRmsZDC->setAxisTitle("ADC counts",1);
-     PedestalsRmsRefHB->setAxisTitle("ADC counts",1);
-     PedestalsRmsRefHE->setAxisTitle("ADC counts",1);
-     PedestalsRmsRefHO->setAxisTitle("ADC counts",1);
-     PedestalsRmsRefHF->setAxisTitle("ADC counts",1);
-     PedestalsRmsRefSimp->setAxisTitle("ADC counts",1);
-     PedestalsRmsRefZDC->setAxisTitle("ADC counts",1);
-     PedestalsRmsHBref->setAxisTitle("ADC counts",1);
-     PedestalsRmsHEref->setAxisTitle("ADC counts",1);
-     PedestalsRmsHOref->setAxisTitle("ADC counts",1);
-     PedestalsRmsHFref->setAxisTitle("ADC counts",1);
-  
-     m_dbe->setCurrentFolder(baseFolder_+"/channel status");
-     setupDepthHists2D(ChannelStatusMissingChannels,  "Channel Status Missing Channels","");
-     setupDepthHists2D(ChannelStatusUnstableChannels, "Channel Status Unstable Channels","");
-     setupDepthHists2D(ChannelStatusBadPedestalMean,  "Channel Status Pedestal Mean","");
-     setupDepthHists2D(ChannelStatusBadPedestalRMS,   "Channel Status Pedestal RMS","");
-     
-     ReferenceRun="UNKNOWN";
-     LoadReference();
-     m_dbe->setCurrentFolder(baseFolder_);
-     RefRun_= m_dbe->bookString("HcalDetDiagPedestalMonitor Reference Run",ReferenceRun);
-  }
-  emap=0;
-  return;
-} 
+  Pedestals2DHBHEHF->setAxisRange(1,5,3);
+  Pedestals2DHO->setAxisRange(1,5,3);
+  Pedestals2DRmsHBHEHF->setAxisRange(0,2,3);
+  Pedestals2DRmsHO->setAxisRange(0,2,3);
 
-void HcalDetDiagPedestalMonitor::processEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HcalDbService& cond){
-int  eta,phi,depth,side,chan,nTS;
-   if(emap==0) emap=cond.getHcalMapping();
-   if(!m_dbe) return; 
+  Pedestals2DHBHEHF->setAxisTitle("i#eta",1);
+  Pedestals2DHBHEHF->setAxisTitle("i#phi",2);
+  Pedestals2DHO->setAxisTitle("i#eta",1);
+  Pedestals2DHO->setAxisTitle("i#phi",2);
+  Pedestals2DRmsHBHEHF->setAxisTitle("i#eta",1);
+  Pedestals2DRmsHBHEHF->setAxisTitle("i#phi",2);
+  Pedestals2DRmsHO->setAxisTitle("i#eta",1);
+  Pedestals2DRmsHO->setAxisTitle("i#phi",2);
+  Pedestals2DErrorHBHEHF->setAxisTitle("i#eta",1);
+  Pedestals2DErrorHBHEHF->setAxisTitle("i#phi",2);
+  Pedestals2DErrorHO->setAxisTitle("i#eta",1);
+  Pedestals2DErrorHO->setAxisTitle("i#phi",2);
+  PedestalsAve4HB->setAxisTitle("ADC counts",1);
+  PedestalsAve4HE->setAxisTitle("ADC counts",1);
+  PedestalsAve4HO->setAxisTitle("ADC counts",1);
+  PedestalsAve4HF->setAxisTitle("ADC counts",1);
+  PedestalsAve4Simp->setAxisTitle("ADC counts",1);
+  PedestalsAve4HBref->setAxisTitle("ADC counts",1);
+  PedestalsAve4HEref->setAxisTitle("ADC counts",1);
+  PedestalsAve4HOref->setAxisTitle("ADC counts",1);
+  PedestalsAve4HFref->setAxisTitle("ADC counts",1);
+  PedestalsRmsHB->setAxisTitle("ADC counts",1);
+  PedestalsRmsHE->setAxisTitle("ADC counts",1);
+  PedestalsRmsHO->setAxisTitle("ADC counts",1);
+  PedestalsRmsHF->setAxisTitle("ADC counts",1);
+  PedestalsRmsSimp->setAxisTitle("ADC counts",1);
+  PedestalsRmsHBref->setAxisTitle("ADC counts",1);
+  PedestalsRmsHEref->setAxisTitle("ADC counts",1);
+  PedestalsRmsHOref->setAxisTitle("ADC counts",1);
+  PedestalsRmsHFref->setAxisTitle("ADC counts",1);
+
+  ReferenceRun="UNKNOWN";
+  LoadReference();
+  dbe_->setCurrentFolder(subdir_);
+  RefRun_= dbe_->bookString("HcalDetDiagLaserMonitor Reference Run",ReferenceRun);
+
+  dbe_->setCurrentFolder(subdir_+"Plots for client");
+  ProblemCellsByDepth_missing_val = new EtaPhiHists();
+  ProblemCellsByDepth_missing_val->setup(dbe_," Missing channels");
+  ProblemCellsByDepth_unstable_val = new EtaPhiHists();
+  ProblemCellsByDepth_unstable_val->setup(dbe_," Channel instability value");
+  ProblemCellsByDepth_badped_val = new EtaPhiHists();
+  ProblemCellsByDepth_badped_val->setup(dbe_," Bad Pedestal-Ref Value");
+  ProblemCellsByDepth_badrms_val = new EtaPhiHists();
+  ProblemCellsByDepth_badrms_val->setup(dbe_," Bad Rms-ref Value");
+}
+
+
+
+void HcalDetDiagPedestalMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+  HcalBaseDQMonitor::analyze(iEvent, iSetup); // increments counters
+int  eta,phi,depth,nTS;
+static bool PEDseq;
+static int  lastPEDorbit,nChecksPED;
+   if(ievt_==0){ PEDseq=false; lastPEDorbit=-1;nChecksPED=0; }
+   int orbit=iEvent.orbitNumber();
+   meRUN_->Fill(iEvent.id().run());
+
    bool PedestalEvent=false;
-   bool LocalRun=false;
-    
+
    // for local runs 
-   try{
-       edm::Handle<HcalTBTriggerData> trigger_data;
-       iEvent.getByType(trigger_data);
+   edm::Handle<HcalTBTriggerData> trigger_data;
+   iEvent.getByType(trigger_data);
+   if(trigger_data.isValid()){
        if(trigger_data->triggerWord()==5) PedestalEvent=true;
        LocalRun=true;
-   }catch(...){}
+   }
    if(LocalRun && !PedestalEvent) return; 
+
+
+  if(!LocalRun && Online_){
+      if(PEDseq && (orbit-lastPEDorbit)>(11223*10)){
+         PEDseq=false;
+         fillHistos();
+         CheckStatus();
+         nChecksPED++;
+         if(nChecksPED==1 || (nChecksPED>1 && ((nChecksPED-1)%8)==0)){
+             SaveReference();
+             SaveHTML();
+         }
+         for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++) hb_data[i][j][k][l].reset();
+         for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++) he_data[i][j][k][l].reset();
+         for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++) ho_data[i][j][k][l].reset();
+         for(int i=0;i<85;i++)for(int j=0;j<72;j++)for(int k=0;k<4;k++)for(int l=0;l<4;l++) hf_data[i][j][k][l].reset();
+         ievt_=0;
+      }
+   }
+
   
    // Abort Gap pedestals 
    int calibType = -1 ;
    if(LocalRun==false){
        edm::Handle<FEDRawDataCollection> rawdata;
-       iEvent.getByType(rawdata);
+       iEvent.getByLabel(inputLabelRawData_,rawdata);
        //checking FEDs for calibration information
        for (int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++){
          const FEDRawData& fedData = rawdata->FEDData(i) ;
 	 if ( fedData.size() < 24 ) continue ;
 	 int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
 	 if ( calibType < 0 )  calibType = value ;
-       } // for (int i=FEDNumbering::MINHCALFEDID;...)
-       if(calibType!=1) return; 
+         if(value==hc_Pedestal){   PEDseq=true;  lastPEDorbit=orbit; break;} 
+       }
    }
-   if(iEvent.time()>time_max) time_max=iEvent.time();
-   if(iEvent.time()<time_min) time_min=iEvent.time();
-   
+   if(!LocalRun && calibType!=hc_Pedestal) return; 
+
    ievt_++;
    meEVT_->Fill(ievt_);
    run_number=iEvent.id().run();
-  
-   try{
-         edm::Handle<HBHEDigiCollection> hbhe; 
-         iEvent.getByLabel(inputLabelDigi_,hbhe);
-	 if(hbhe->size()<10 && calibType==1){
+
+   edm::Handle<HBHEDigiCollection> hbhe; 
+   iEvent.getByLabel(inputLabelDigi_,hbhe);
+   if(hbhe.isValid()){
+	 if(hbhe->size()<30 && calibType==hc_Pedestal){
              ievt_--;
              meEVT_->Fill(ievt_);
              return;	 
@@ -216,52 +440,28 @@ int  eta,phi,depth,side,chan,nTS;
 		for(int i=0;i<nTS;i++) he_data[eta+42][phi-1][depth-1][digi->sample(i).capid()].add_statistics(digi->sample(i).adc());
 	     }
          }   
-   }catch(...){}      
-   try{
-         edm::Handle<HODigiCollection> ho; 
-         iEvent.getByLabel(inputLabelDigi_,ho);
+   }
+   edm::Handle<HODigiCollection> ho; 
+   iEvent.getByLabel(inputLabelDigi_,ho);
+   if(ho.isValid()){
          for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	     if(nTS>8) nTS=8;
 	     if(nTS<8) continue;
              for(int i=0;i<nTS;i++) ho_data[eta+42][phi-1][depth-1][digi->sample(i).capid()].add_statistics(digi->sample(i).adc());
          }   
-   }catch(...){}  
-   try{
-         edm::Handle<HFDigiCollection> hf;
-         iEvent.getByLabel(inputLabelDigi_,hf);
+   }
+   edm::Handle<HFDigiCollection> hf;
+   iEvent.getByLabel(inputLabelDigi_,hf);
+   if(hf.isValid()){
          for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
              eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
 	     if(nTS>8) nTS=8;
 	     if(nTS<8) continue;
 	     for(int i=0;i<nTS;i++) hf_data[eta+42][phi-1][depth-1][digi->sample(i).capid()].add_statistics(digi->sample(i).adc());
          }   
-   }catch(...){}    
-//    try{
-//          edm::Handle<HcalCalibDigiCollection> calib;
-//          iEvent.getByType(calib);
-//          //for(HcalCalibDigiCollection::const_iterator digi=calib->begin();digi!=calib->end();digi++){}   
-//    }catch(...){} 
-   try{
-         edm::Handle<ZDCDigiCollection> zdc;
-         iEvent.getByLabel(inputLabelDigi_,zdc);
-         for(ZDCDigiCollection::const_iterator digi=zdc->begin();digi!=zdc->end();digi++){
-             side=digi->id().zside(); depth=digi->id().depth(); chan=digi->id().channel(); nTS=digi->size();
-	     if(nTS>8) nTS=8;
-	     if(nTS<8) continue;
-	     if(side<-1 || side>1 || chan<1 || chan>5 || depth<1 || depth>5) continue;
-	     for(int i=0;i<nTS;i++) zdc_data[side+1][chan][depth][digi->sample(i).capid()].add_statistics(digi->sample(i).adc());
-         }   
-   }catch(...){}    
-   
-   
-   if(((ievt_)%100)==0){
-       fillHistos();
-       CheckStatus(); 
    }
-   return;
 }
-
 
 void HcalDetDiagPedestalMonitor::fillHistos(){
    PedestalsRmsHB->Reset();
@@ -274,9 +474,6 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
    PedestalsAve4HF->Reset();
    PedestalsRmsSimp->Reset();
    PedestalsAve4Simp->Reset();
-   PedestalsRmsZDC->Reset();
-   PedestalsAve4ZDC->Reset();
-   
    Pedestals2DRmsHBHEHF->Reset();
    Pedestals2DRmsHO->Reset();
    Pedestals2DHBHEHF->Reset();
@@ -373,29 +570,300 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
 	  PedestalsAve4HF->Fill(sum/4.0);
       }
    } 
-   // ZDC histograms
-   for(int side=-1;side<=1;side++) for(int chan=1;chan<=5;chan++) for(int depth=1;depth<=5;depth++){
-      if(zdc_data[side+1][chan][depth][0].get_statistics()>100){
-          double ave,rms,sum=0;
-	  zdc_data[side+1][chan][depth][0].get_average(&ave,&rms); sum+=ave; PedestalsRmsZDC->Fill(rms);
-	  zdc_data[side+1][chan][depth][1].get_average(&ave,&rms); sum+=ave; PedestalsRmsZDC->Fill(rms);
-	  zdc_data[side+1][chan][depth][2].get_average(&ave,&rms); sum+=ave; PedestalsRmsZDC->Fill(rms);
-	  zdc_data[side+1][chan][depth][3].get_average(&ave,&rms); sum+=ave; PedestalsRmsZDC->Fill(rms);
-	  PedestalsAve4ZDC->Fill(sum/4.0);
-      }
-   } 
 } 
+void HcalDetDiagPedestalMonitor::CheckStatus(){
+   for(int i=0;i<4;i++){
+      ProblemCellsByDepth_missing->depth[i]->Reset();
+      ProblemCellsByDepth_unstable->depth[i]->Reset();
+      ProblemCellsByDepth_badped->depth[i]->Reset();
+      ProblemCellsByDepth_badrms->depth[i]->Reset();
+   }
+   PedestalsRmsHBref->Reset();
+   PedestalsAve4HBref->Reset();
+   PedestalsRmsHEref->Reset();
+   PedestalsAve4HEref->Reset();
+   PedestalsRmsHOref->Reset();
+   PedestalsAve4HOref->Reset();
+   PedestalsRmsHFref->Reset();
+   PedestalsAve4HFref->Reset();
+     
+   Pedestals2DErrorHBHEHF->Reset();
+   Pedestals2DErrorHO->Reset();
+
+   if(emap==0) return;
+   
+   std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
+   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++) {
+     DetId detid=emap->lookup(*eid);
+     int eta=0,phi=0,depth=0;
+     try{
+       HcalDetId hid(detid);
+       eta=hid.ieta();
+       phi=hid.iphi();
+       depth=hid.depth(); 
+     }catch(...){ continue; } 
+     int sd=detid.subdetId();
+     if(sd==HcalBarrel){
+          int ovf=hb_data[eta+42][phi-1][depth-1][0].get_overflow();
+	  int stat=hb_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
+	  double status=0;
+	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
+          hb_data[eta+42][phi-1][depth-1][0].nChecks++;
+	  if(stat==0){ 
+              status=1;
+              int e=CalcEtaBin(sd,eta,depth)+1; 
+              hb_data[eta+42][phi-1][depth-1][0].nMissing++;
+              double val=hb_data[eta+42][phi-1][depth-1][0].nMissing/hb_data[eta+42][phi-1][depth-1][0].nChecks;
+              ProblemCellsByDepth_missing->depth[depth-1]->setBinContent(e,phi,val);
+              ProblemCellsByDepth_missing_val->depth[depth-1]->setBinContent(e,phi,1);
+          }
+          if(status) hb_data[eta+42][phi-1][depth-1][0].change_status(1); 
+	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2); 
+	      if(status<0.995){ 
+                int e=CalcEtaBin(sd,eta,depth)+1; 
+                hb_data[eta+42][phi-1][depth-1][0].nUnstable++;
+                double val=hb_data[eta+42][phi-1][depth-1][0].nUnstable/hb_data[eta+42][phi-1][depth-1][0].nChecks;
+                ProblemCellsByDepth_unstable->depth[depth-1]->setBinContent(e,phi,val);
+                ProblemCellsByDepth_unstable_val->depth[depth-1]->setBinContent(e,phi,status);
+	        hb_data[eta+42][phi-1][depth-1][0].change_status(2);
+	      }
+	  }
+	  if(hb_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
+	                                                 && hb_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
+	     hb_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
+	     hb_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
+	     hb_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
+	     hb_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+	     hb_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+	     hb_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
+	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
+	     double deltaPed=ave-ave_ref; PedestalsAve4HBref->Fill(deltaPed); if(deltaPed<0) deltaPed=-deltaPed;
+	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHBref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
+	     for(int i=1;i<4;i++){
+	        double tmp=rms[i]-rms_ref[i]; PedestalsRmsHBref->Fill(tmp); 
+		if(fabs(tmp)>fabs(deltaRms)) deltaRms=tmp;
+	     }
+	     if(deltaPed>HBMeanTreshold){ 
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 hb_data[eta+42][phi-1][depth-1][0].nBadPed++;
+                 double val=hb_data[eta+42][phi-1][depth-1][0].nBadPed/hb_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badped_val->depth[depth-1]->setBinContent(e,phi,ave-ave_ref);
+                 ProblemCellsByDepth_badped->depth[depth-1]->setBinContent(e,phi,val);
+                 Pedestals2DErrorHBHEHF->Fill(eta,phi,1);
+             }
+	     if(deltaRms>HBRmsTreshold){  
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 hb_data[eta+42][phi-1][depth-1][0].nBadRms++;
+                 double val=hb_data[eta+42][phi-1][depth-1][0].nBadRms/hb_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badrms->depth[depth-1]->setBinContent(e,phi,val);
+                 ProblemCellsByDepth_badrms_val->depth[depth-1]->setBinContent(e,phi,deltaRms);
+                 Pedestals2DErrorHBHEHF->Fill(eta,phi,1);
+             }
+	  } 
+      }
+      if(sd==HcalEndcap){
+          int ovf=he_data[eta+42][phi-1][depth-1][0].get_overflow();
+	  int stat=he_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
+	  double status=0; 
+	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
+          he_data[eta+42][phi-1][depth-1][0].nChecks++;
+	  if(stat==0){ 
+              status=1;
+              int e=CalcEtaBin(sd,eta,depth)+1; 
+              he_data[eta+42][phi-1][depth-1][0].nMissing++;
+              double val=he_data[eta+42][phi-1][depth-1][0].nMissing/he_data[eta+42][phi-1][depth-1][0].nChecks;
+              ProblemCellsByDepth_missing->depth[depth-1]->setBinContent(e,phi,val);
+              ProblemCellsByDepth_missing_val->depth[depth-1]->setBinContent(e,phi,1);
+          }
+	  if(status) he_data[eta+42][phi-1][depth-1][0].change_status(1); 
+	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2);
+	     if(status<0.995){ 
+                int e=CalcEtaBin(sd,eta,depth)+1; 
+                he_data[eta+42][phi-1][depth-1][0].nUnstable++;
+                double val=he_data[eta+42][phi-1][depth-1][0].nUnstable/he_data[eta+42][phi-1][depth-1][0].nChecks;
+                ProblemCellsByDepth_unstable->depth[depth-1]->setBinContent(e,phi,val);
+                ProblemCellsByDepth_unstable_val->depth[depth-1]->setBinContent(e,phi,status);
+	        he_data[eta+42][phi-1][depth-1][0].change_status(2); 
+	     }
+	  }
+	  if(he_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
+	                                                 && he_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
+	     he_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
+	     he_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
+	     he_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
+	     he_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+	     he_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+	     he_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
+	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
+	     double deltaPed=ave-ave_ref; PedestalsAve4HEref->Fill(deltaPed); if(deltaPed<0) deltaPed=-deltaPed;
+	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHEref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
+	     for(int i=1;i<4;i++){
+	        double tmp=rms[i]-rms_ref[i]; PedestalsRmsHEref->Fill(tmp); 
+		if(fabs(tmp)>fabs(deltaRms)) deltaRms=tmp;
+	     }
+	     if(deltaPed>HEMeanTreshold){
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 he_data[eta+42][phi-1][depth-1][0].nBadPed++;
+                 double val=he_data[eta+42][phi-1][depth-1][0].nBadPed/he_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badped->depth[depth-1]->setBinContent(e,phi,val);
+                 ProblemCellsByDepth_badped_val->depth[depth-1]->setBinContent(e,phi,ave-ave_ref);
+                 Pedestals2DErrorHBHEHF->Fill(eta,phi,1);
+             }
+	     if(deltaRms>HERmsTreshold){ 
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 he_data[eta+42][phi-1][depth-1][0].nBadRms++;
+                 double val=he_data[eta+42][phi-1][depth-1][0].nBadRms/he_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badrms->depth[depth-1]->setBinContent(e,phi,val);
+                 ProblemCellsByDepth_badrms_val->depth[depth-1]->setBinContent(e,phi,deltaRms);
+                 Pedestals2DErrorHBHEHF->Fill(eta,phi,1);
+             }
+	  } 
+      }
+      if(sd==HcalOuter){
+          int ovf=ho_data[eta+42][phi-1][depth-1][0].get_overflow(); 
+	  int stat=ho_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
+	  double status=0; 
+	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
+          ho_data[eta+42][phi-1][depth-1][0].nChecks++;
+	  if(stat==0){ 
+              status=1; 
+              int e=CalcEtaBin(sd,eta,depth)+1; 
+              ho_data[eta+42][phi-1][depth-1][0].nMissing++;
+              double val=ho_data[eta+42][phi-1][depth-1][0].nMissing/ho_data[eta+42][phi-1][depth-1][0].nChecks;
+              ProblemCellsByDepth_missing->depth[depth-1]->setBinContent(e,phi,val);
+              ProblemCellsByDepth_missing_val->depth[depth-1]->setBinContent(e,phi,1);
+          }
+	  if(status) ho_data[eta+42][phi-1][depth-1][0].change_status(1); 
+	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2); 
+	     if(status<0.995){ 
+                int e=CalcEtaBin(sd,eta,depth)+1; 
+                ho_data[eta+42][phi-1][depth-1][0].nUnstable++;
+                double val=ho_data[eta+42][phi-1][depth-1][0].nUnstable/ho_data[eta+42][phi-1][depth-1][0].nChecks;
+                ProblemCellsByDepth_unstable->depth[depth-1]->setBinContent(e,phi,val);
+                ProblemCellsByDepth_unstable_val->depth[depth-1]->setBinContent(e,phi,status);
+	        ho_data[eta+42][phi-1][depth-1][0].change_status(2); 
+	     }
+	  }
+	  if(ho_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
+	                                                 && ho_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
+	     ho_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
+	     ho_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
+	     ho_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
+	     ho_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+	     ho_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+	     ho_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+	     
+	     double THRESTHOLD=HORmsTreshold;
+	     if((eta>=11 && eta<=15 && phi>=59 && phi<=70) || (eta>=5 && eta<=10 && phi>=47 && phi<=58))THRESTHOLD*=2; 
+	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
+	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
+	     double deltaPed=ave-ave_ref; PedestalsAve4HOref->Fill(deltaPed);if(deltaPed<0) deltaPed=-deltaPed;
+	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHOref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
+	     for(int i=1;i<4;i++){
+	        double tmp=rms[i]-rms_ref[i]; PedestalsRmsHOref->Fill(tmp); 
+		if(fabs(tmp)>fabs(deltaRms)) deltaRms=tmp;
+	     }
+	     if(deltaPed>HOMeanTreshold){ 
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 ho_data[eta+42][phi-1][depth-1][0].nBadPed++;
+                 double val=ho_data[eta+42][phi-1][depth-1][0].nBadPed/ho_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badped->depth[depth-1]->setBinContent(e,phi,val);
+                 ProblemCellsByDepth_badped_val->depth[depth-1]->setBinContent(e,phi,ave-ave_ref);
+                 Pedestals2DErrorHO->Fill(eta,phi,1);
+             }
+	     if(deltaRms>THRESTHOLD){ 
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 ho_data[eta+42][phi-1][depth-1][0].nBadRms++;
+                 double val=ho_data[eta+42][phi-1][depth-1][0].nBadRms/ho_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badrms->depth[depth-1]->setBinContent(e,phi,val);
+                 ProblemCellsByDepth_badrms_val->depth[depth-1]->setBinContent(e,phi,deltaRms);
+                 Pedestals2DErrorHO->Fill(eta,phi,1);
+             }
+	  } 
+      }
+      if(sd==HcalForward){
+          int ovf=hf_data[eta+42][phi-1][depth-1][0].get_overflow();
+	  int stat=hf_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
+	  double status=0; 
+	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
+          hf_data[eta+42][phi-1][depth-1][0].nChecks++;
+	  if(stat==0){ 
+             status=1;                    
+             int e=CalcEtaBin(sd,eta,depth)+1; 
+             hf_data[eta+42][phi-1][depth-1][0].nMissing++;
+             double val=hf_data[eta+42][phi-1][depth-1][0].nMissing/hf_data[eta+42][phi-1][depth-1][0].nChecks;
+             ProblemCellsByDepth_missing->depth[depth-1]->setBinContent(e,phi,val);
+             ProblemCellsByDepth_missing_val->depth[depth-1]->setBinContent(e,phi,1);
+          }
+	  if(status) hf_data[eta+42][phi-1][depth-1][0].change_status(1); 
+	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2); 
+	     if(status<0.995){ 
+                int e=CalcEtaBin(sd,eta,depth)+1; 
+                hf_data[eta+42][phi-1][depth-1][0].nUnstable++;
+                double val=hf_data[eta+42][phi-1][depth-1][0].nUnstable/hf_data[eta+42][phi-1][depth-1][0].nChecks;
+                ProblemCellsByDepth_unstable->depth[depth-1]->setBinContent(e,phi,val);
+                ProblemCellsByDepth_unstable_val->depth[depth-1]->setBinContent(e,phi,status);
+	        hf_data[eta+42][phi-1][depth-1][0].change_status(2); 
+	     }
+	  }
+	  if(hf_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
+	                                                 && hf_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
+	     hf_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
+	     hf_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
+	     hf_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
+	     hf_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
+	     hf_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
+	     hf_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
+	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
+	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
+	     double deltaPed=ave-ave_ref; PedestalsAve4HFref->Fill(deltaPed); if(deltaPed<0) deltaPed=-deltaPed;
+	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHFref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
+	     for(int i=1;i<4;i++){
+	        double tmp=rms[i]-rms_ref[i]; PedestalsRmsHFref->Fill(tmp); 
+		if(fabs(tmp)>fabs(deltaRms)) deltaRms=tmp;
+	     }
+	     if(deltaPed>HFMeanTreshold){ 
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 hf_data[eta+42][phi-1][depth-1][0].nBadPed++;
+                 double val=hf_data[eta+42][phi-1][depth-1][0].nBadPed/hf_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badped->depth[depth-1]->setBinContent(e,phi,val);
+                 ProblemCellsByDepth_badped_val->depth[depth-1]->setBinContent(e,phi,ave-ave_ref);
+                 Pedestals2DErrorHBHEHF->Fill(eta,phi,1);
+             }
+	     if(deltaRms>HFRmsTreshold){ 
+                 int e=CalcEtaBin(sd,eta,depth)+1; 
+                 hf_data[eta+42][phi-1][depth-1][0].nBadRms++;
+                 double val=hf_data[eta+42][phi-1][depth-1][0].nBadRms/hf_data[eta+42][phi-1][depth-1][0].nChecks;
+                 ProblemCellsByDepth_badrms->depth[depth-1]->setBinContent(e,phi,val);
+                 ProblemCellsByDepth_badrms_val->depth[depth-1]->setBinContent(e,phi,deltaRms);
+                 Pedestals2DErrorHBHEHF->Fill(eta,phi,1);
+             }
+	  } 
+      }
+   }
+}
+
+void HcalDetDiagPedestalMonitor::endRun(const edm::Run& run, const edm::EventSetup& c){
+    if((LocalRun || !Online_) && ievt_>=100){
+       fillHistos();
+       CheckStatus();
+       // Disabled by Jeff on 23 March 2010 -- cannot run in online DQM!
+       //SaveReference();
+       //SaveHTML();
+    }
+}
+
 
 void HcalDetDiagPedestalMonitor::SaveReference(){
 double ped[4],rms[4];
 int    Eta,Phi,Depth,Statistic,Status=0;
 char   Subdet[10],str[500];
-    if(UseDB==false){
        sprintf(str,"%sHcalDetDiagPedestalData_run%06i_%i.root",OutputFilePath.c_str(),run_number,dataset_seq_number);
        TFile *theFile = new TFile(str, "RECREATE");
        if(!theFile->IsOpen()) return;
        theFile->cd();
-       char str[100]; 
        sprintf(str,"%d",run_number); TObjString run(str);    run.Write("run number");
        sprintf(str,"%d",ievt_);      TObjString events(str); events.Write("Total events processed");
        
@@ -463,22 +931,9 @@ char   Subdet[10],str[500];
 	     tree->Fill();
          }
       }
-      sprintf(Subdet,"ZDC");
-      for(int side=-1;side<=1;side++) for(int chan=1;chan<=5;chan++) for(int depth=1;depth<=5;depth++){
-         if((Statistic=zdc_data[side+1][chan][depth][0].get_statistics())>100){
-             Eta=side; Phi=chan; Depth=depth;
-	     Status=zdc_data[side+1][chan][depth][0].get_status();
-	     zdc_data[side+1][chan][depth][0].get_average(&ped[0],&rms[0]);
-	     zdc_data[side+1][chan][depth][1].get_average(&ped[1],&rms[1]);
-	     zdc_data[side+1][chan][depth][2].get_average(&ped[2],&rms[2]);
-	     zdc_data[side+1][chan][depth][3].get_average(&ped[3],&rms[3]);
-	     tree->Fill();
-         }
-      }     
       theFile->Write();
       theFile->Close();
-   }
-   dataset_seq_number++;
+      dataset_seq_number++;
 }
 
 void HcalDetDiagPedestalMonitor::LoadReference(){
@@ -486,14 +941,13 @@ double ped[4],rms[4];
 int Eta,Phi,Depth;
 char subdet[10];
 TFile *f;
-   if(UseDB==false){
       try{ 
          f = new TFile(ReferenceData.c_str(),"READ");
       }catch(...){ return ;}
       if(!f->IsOpen()) return ;
       TObjString *STR=(TObjString *)f->Get("run number");
       
-      if(STR){ string Ref(STR->String()); ReferenceRun=Ref;}
+      if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
       
       TTree*  t=(TTree*)f->Get("HCAL Pedestal data");
       if(!t) return;
@@ -512,260 +966,40 @@ TFile *f;
       for(int ievt=0;ievt<t->GetEntries();ievt++){
          t->GetEntry(ievt);
 	 if(strcmp(subdet,"HB")==0){
-	    PedestalsRefAve4HB->Fill((ped[0]+ped[1]+ped[2]+ped[3])/4.0);
-	    PedestalsRmsRefHB->Fill(rms[0]);
-	    PedestalsRmsRefHB->Fill(rms[1]);
-	    PedestalsRmsRefHB->Fill(rms[2]);
-	    PedestalsRmsRefHB->Fill(rms[3]);
 	    hb_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
 	    hb_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
 	    hb_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
 	    hb_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
 	 }
 	 if(strcmp(subdet,"HE")==0){
-	    PedestalsRefAve4HE->Fill((ped[0]+ped[1]+ped[2]+ped[3])/4.0);
-	    PedestalsRmsRefHE->Fill(rms[0]);
-	    PedestalsRmsRefHE->Fill(rms[1]);
-	    PedestalsRmsRefHE->Fill(rms[2]);
-	    PedestalsRmsRefHE->Fill(rms[3]);
 	    he_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
 	    he_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
 	    he_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
 	    he_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
 	 }
 	 if(strcmp(subdet,"HO")==0){
-	    if((Eta>=11 && Eta<=15 && Phi>=59 && Phi<=70) || (Eta>=5 && Eta<=10 && Phi>=47 && Phi<=58)){
-	       PedestalsRefAve4Simp->Fill((ped[0]+ped[1]+ped[2]+ped[3])/4.0);
-	       PedestalsRmsRefSimp->Fill(rms[0]);
-	       PedestalsRmsRefSimp->Fill(rms[1]);
-	       PedestalsRmsRefSimp->Fill(rms[2]);
-	       PedestalsRmsRefSimp->Fill(rms[3]);
-	    }else{
-	       PedestalsRefAve4HO->Fill((ped[0]+ped[1]+ped[2]+ped[3])/4.0);
-	       PedestalsRmsRefHO->Fill(rms[0]);
-	       PedestalsRmsRefHO->Fill(rms[1]);
-	       PedestalsRmsRefHO->Fill(rms[2]);
-	       PedestalsRmsRefHO->Fill(rms[3]);	    
-	    }
 	    ho_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
 	    ho_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
 	    ho_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
 	    ho_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
 	 }
 	 if(strcmp(subdet,"HF")==0){
-	    PedestalsRefAve4HF->Fill((ped[0]+ped[1]+ped[2]+ped[3])/4.0);
-	    PedestalsRmsRefHF->Fill(rms[0]);
-	    PedestalsRmsRefHF->Fill(rms[1]);
-	    PedestalsRmsRefHF->Fill(rms[2]);
-	    PedestalsRmsRefHF->Fill(rms[3]);
 	    hf_data[Eta+42][Phi-1][Depth-1][0].set_reference(ped[0],rms[0]);
 	    hf_data[Eta+42][Phi-1][Depth-1][1].set_reference(ped[1],rms[1]);
 	    hf_data[Eta+42][Phi-1][Depth-1][2].set_reference(ped[2],rms[2]);
 	    hf_data[Eta+42][Phi-1][Depth-1][3].set_reference(ped[3],rms[3]);
 	 }
-	 if(strcmp(subdet,"ZDC")==0){
-	    if(Eta<-1 || Eta>1 || Phi<1 || Phi>5 || Depth<1 || Depth>5) continue;
-	    PedestalsRefAve4ZDC->Fill((ped[0]+ped[1]+ped[2]+ped[3])/4.0);
-	    PedestalsRmsRefZDC->Fill(rms[0]);
-	    PedestalsRmsRefZDC->Fill(rms[1]);
-	    PedestalsRmsRefZDC->Fill(rms[2]);
-	    PedestalsRmsRefZDC->Fill(rms[3]);
-	    zdc_data[Eta+1][Phi][Depth][0].set_reference(ped[0],rms[0]);
-	    zdc_data[Eta+1][Phi][Depth][1].set_reference(ped[1],rms[1]);
-	    zdc_data[Eta+1][Phi][Depth][2].set_reference(ped[2],rms[2]);
-	    zdc_data[Eta+1][Phi][Depth][3].set_reference(ped[3],rms[3]);
-	 }
       }
       f->Close();
       IsReference=true;
-   }//if (UseDB==false)
 } 
 
-void HcalDetDiagPedestalMonitor::CheckStatus(){
-   for(int i=0;i<6;i++){
-      ChannelStatusMissingChannels[i]->Reset();
-      ChannelStatusUnstableChannels[i]->Reset();
-      ChannelStatusBadPedestalMean[i]->Reset();
-      ChannelStatusBadPedestalRMS[i]->Reset();
-   }
-   PedestalsRmsHBref->Reset();
-   PedestalsAve4HBref->Reset();
-   PedestalsRmsHEref->Reset();
-   PedestalsAve4HEref->Reset();
-   PedestalsRmsHOref->Reset();
-   PedestalsAve4HOref->Reset();
-   PedestalsRmsHFref->Reset();
-   PedestalsAve4HFref->Reset();
-     
-   Pedestals2DErrorHBHEHF->Reset();
-   Pedestals2DErrorHO->Reset();
+void HcalDetDiagPedestalMonitor::SaveHTML(){
+   if(!enableHTML) return;
 
-   if(emap==0) return;
-   
-   std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
-   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++) {
-     DetId detid=emap->lookup(*eid);
-     int eta=0,phi=0,depth=0;
-     try{
-       HcalDetId hid(detid);
-       eta=hid.ieta();
-       phi=hid.iphi();
-       depth=hid.depth(); 
-     }catch(...){ continue; } 
-   
-     if(detid.subdetId()==HcalBarrel){
-          int ovf=hb_data[eta+42][phi-1][depth-1][0].get_overflow();
-	  int stat=hb_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
-	  double status=0;
-	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
-	  if(stat==0){ status=1;                                                fill_channel_status("HB",eta,phi,depth,1,status); }
-	  if(status) hb_data[eta+42][phi-1][depth-1][0].change_status(1); 
-	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2); 
-	      if(status<0.995){ 
-	        fill_channel_status("HB",eta,phi,depth,2,status); 
-	        hb_data[eta+42][phi-1][depth-1][0].change_status(2);
-	      }
-	  }
-	  if(hb_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
-	                                                 && hb_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
-	     hb_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
-	     hb_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
-	     hb_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
-	     hb_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
-	     hb_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
-	     hb_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
-	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
-	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
-	     double deltaPed=ave-ave_ref; PedestalsAve4HBref->Fill(deltaPed); if(deltaPed<0) deltaPed=-deltaPed;
-	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHBref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
-	     for(int i=1;i<4;i++){
-	        double tmp=rms[0]-rms_ref[0]; PedestalsRmsHBref->Fill(tmp); if(tmp<0) tmp=-tmp;
-		if(tmp>deltaRms) deltaRms=tmp;
-	     }
-	     if(deltaPed>HBMeanTreshold){ fill_channel_status("HB",eta,phi,depth,3,deltaPed); Pedestals2DErrorHBHEHF->Fill(eta,phi,1);}
-	     if(deltaRms>HBRmsTreshold){  fill_channel_status("HB",eta,phi,depth,4,deltaRms); Pedestals2DErrorHBHEHF->Fill(eta,phi,1);}
-	  } 
-      }
-      if(detid.subdetId()==HcalEndcap){
-          int ovf=he_data[eta+42][phi-1][depth-1][0].get_overflow();
-	  int stat=he_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
-	  double status=0; 
-	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
-	  if(stat==0){ status=1;                                                fill_channel_status("HE",eta,phi,depth,1,status); }
-	  if(status) he_data[eta+42][phi-1][depth-1][0].change_status(1); 
-	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2);
-	     if(status<0.995){ 
-	        fill_channel_status("HE",eta,phi,depth,2,status); 
-	        he_data[eta+42][phi-1][depth-1][0].change_status(2); 
-	     }
-	  }
-	  if(he_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
-	                                                 && he_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
-	     he_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
-	     he_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
-	     he_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
-	     he_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
-	     he_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
-	     he_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
-	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
-	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
-	     double deltaPed=ave-ave_ref; PedestalsAve4HEref->Fill(deltaPed); if(deltaPed<0) deltaPed=-deltaPed;
-	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHEref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
-	     for(int i=1;i<4;i++){
-	        double tmp=rms[0]-rms_ref[0]; PedestalsRmsHEref->Fill(tmp); if(tmp<0) tmp=-tmp;
-		if(tmp>deltaRms) deltaRms=tmp;
-	     }
-	     if(deltaPed>HEMeanTreshold){ fill_channel_status("HE",eta,phi,depth,3,deltaPed); Pedestals2DErrorHBHEHF->Fill(eta,phi,1);}
-	     if(deltaRms>HERmsTreshold){  fill_channel_status("HE",eta,phi,depth,4,deltaRms); Pedestals2DErrorHBHEHF->Fill(eta,phi,1);}
-	  } 
-      }
-      if(detid.subdetId()==HcalOuter){
-          int ovf=ho_data[eta+42][phi-1][depth-1][0].get_overflow(); 
-	  int stat=ho_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
-	  double status=0; 
-	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
-	  if(stat==0){ status=1;                                                fill_channel_status("HO",eta,phi,depth,1,status); }
-	  if(status) ho_data[eta+42][phi-1][depth-1][0].change_status(1); 
-	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2); 
-	     if(status<0.995){ 
-	       fill_channel_status("HO",eta,phi,depth,2,status); 
-	       ho_data[eta+42][phi-1][depth-1][0].change_status(2); 
-	     }
-	  }
-	  if(ho_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
-	                                                 && ho_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
-	     ho_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
-	     ho_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
-	     ho_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
-	     ho_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
-	     ho_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
-	     ho_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
-	     
-	     double THRESTHOLD=HORmsTreshold;
-	     if((eta>=11 && eta<=15 && phi>=59 && phi<=70) || (eta>=5 && eta<=10 && phi>=47 && phi<=58))THRESTHOLD*=2; 
-	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
-	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
-	     double deltaPed=ave-ave_ref; PedestalsAve4HOref->Fill(deltaPed);if(deltaPed<0) deltaPed=-deltaPed;
-	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHOref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
-	     for(int i=1;i<4;i++){
-	        double tmp=rms[0]-rms_ref[0]; PedestalsRmsHOref->Fill(tmp); if(tmp<0) tmp=-tmp;
-		if(tmp>deltaRms) deltaRms=tmp;
-	     }
-	     if(deltaPed>HOMeanTreshold){ fill_channel_status("HO",eta,phi,depth,3,deltaPed); Pedestals2DErrorHO->Fill(eta,phi,1);}
-	     if(deltaRms>THRESTHOLD){  fill_channel_status("HO",eta,phi,depth,4,deltaRms); Pedestals2DErrorHO->Fill(eta,phi,1);}
-	  } 
-      }
-      if(detid.subdetId()==HcalForward){
-          int ovf=hf_data[eta+42][phi-1][depth-1][0].get_overflow();
-	  int stat=hf_data[eta+42][phi-1][depth-1][0].get_statistics()+ovf;
-	  double status=0; 
-	  double ped[4],rms[4],ped_ref[4],rms_ref[4]; 
-	  if(stat==0){ status=1;                                                fill_channel_status("HF",eta,phi,depth,1,status); }
-	  if(status) hf_data[eta+42][phi-1][depth-1][0].change_status(1); 
-	  if(stat>0 && stat!=(ievt_*2)){ status=(double)stat/(double)(ievt_*2); 
-	     if(status<0.995){ 
-	        fill_channel_status("HF",eta,phi,depth,2,status); 
-	        hf_data[eta+42][phi-1][depth-1][0].change_status(2); 
-	     }
-	  }
-	  if(hf_data[eta+42][phi-1][depth-1][0].get_reference(&ped_ref[0],&rms_ref[0]) 
-	                                                 && hf_data[eta+42][phi-1][depth-1][0].get_average(&ped[0],&rms[0])){
-	     hf_data[eta+42][phi-1][depth-1][1].get_reference(&ped_ref[1],&rms_ref[1]);
-	     hf_data[eta+42][phi-1][depth-1][2].get_reference(&ped_ref[2],&rms_ref[2]);
-	     hf_data[eta+42][phi-1][depth-1][3].get_reference(&ped_ref[3],&rms_ref[3]);
-	     hf_data[eta+42][phi-1][depth-1][1].get_average(&ped[1],&rms[1]);
-	     hf_data[eta+42][phi-1][depth-1][2].get_average(&ped[2],&rms[2]);
-	     hf_data[eta+42][phi-1][depth-1][3].get_average(&ped[3],&rms[3]);
-	     double ave=(ped[0]+ped[1]+ped[2]+ped[3])/4.0; 
-	     double ave_ref=(ped_ref[0]+ped_ref[1]+ped_ref[2]+ped_ref[3])/4.0; 
-	     double deltaPed=ave-ave_ref; PedestalsAve4HFref->Fill(deltaPed); if(deltaPed<0) deltaPed=-deltaPed;
-	     double deltaRms=rms[0]-rms_ref[0]; PedestalsRmsHFref->Fill(deltaRms); if(deltaRms<0) deltaRms=-deltaRms;
-	     for(int i=1;i<4;i++){
-	        double tmp=rms[0]-rms_ref[0]; PedestalsRmsHFref->Fill(tmp); if(tmp<0) tmp=-tmp;
-		if(tmp>deltaRms) deltaRms=tmp;
-	     }
-	     if(deltaPed>HFMeanTreshold){ fill_channel_status("HF",eta,phi,depth,3,deltaPed); Pedestals2DErrorHBHEHF->Fill(eta,phi,1);}
-	     if(deltaRms>HFRmsTreshold){  fill_channel_status("HF",eta,phi,depth,4,deltaRms); Pedestals2DErrorHBHEHF->Fill(eta,phi,1);}
-	  } 
-      }
-   }
 }
+void HcalDetDiagPedestalMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}
+void HcalDetDiagPedestalMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}
 
-void HcalDetDiagPedestalMonitor::fill_channel_status(std::string subdet,int eta,int phi,int depth,int type,double status){
-   int ind=-1;
-   if(eta>42 || eta<-42 || eta==0) return;
-   if(subdet.compare("HB")==0 || subdet.compare("HF")==0) if(depth==1) ind=0; else ind=1;
-   else if(subdet.compare("HE")==0) if(depth==3) ind=2; else ind=3+depth;
-   else if(subdet.compare("HO")==0) ind=3; 
-   if(ind==-1) return;
-   if(type==1) ChannelStatusMissingChannels[ind] ->setBinContent(eta+42,phi+1,status);
-   if(type==2) ChannelStatusUnstableChannels[ind]->setBinContent(eta+42,phi+1,status);
-   if(type==3) ChannelStatusBadPedestalMean[ind] ->setBinContent(eta+42,phi+1,status);
-   if(type==4) ChannelStatusBadPedestalRMS[ind]  ->setBinContent(eta+42,phi+1,status);
-}
-void HcalDetDiagPedestalMonitor::done(){   
-   if(ievt_>=500){
-      CheckStatus();
-      SaveReference();
-   }   
-} 
+//define this as a plug-in
+DEFINE_ANOTHER_FWK_MODULE(HcalDetDiagPedestalMonitor);

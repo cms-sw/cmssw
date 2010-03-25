@@ -25,6 +25,8 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="RecoMET/METAlgorithms"/>
+<use   name="CondFormats/RunInfo"/>
+
 <export>
   <lib   name="1"/>
 </export>

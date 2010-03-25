@@ -9,33 +9,22 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-#include <math.h>
-using namespace edm;
-using namespace std;
-// this is to retrieve HCAL digi's
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-// this is to retrieve GT digi's 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
 /** \class HcalDetDiagTimingMonitor
   *  
-  * $Date: 2009/08/06 10:14:30 $
-  * $Revision: 1.1 $
+  * $Date: 2010/03/11 09:02:49 $
+  * $Revision: 1.1.4.1 $
   * \author D. Vishnevskiy
   */
 
-class HcalDetDiagTimingMonitor:public HcalBaseMonitor {
+class HcalDetDiagTimingMonitor:public HcalBaseDQMonitor {
 public:
-  HcalDetDiagTimingMonitor(); 
+  HcalDetDiagTimingMonitor(const edm::ParameterSet& ps); 
   ~HcalDetDiagTimingMonitor(); 
 
   double GetTime(double *data,int n){
@@ -111,11 +100,12 @@ public:
   double occSum;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void processEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HcalDbService& cond);
+  void setup();
+  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void done();
   void reset();
-  void clearME(); 
+  void cleanup(); 
   
 private:
   edm::InputTag inputLabelDigi_;
@@ -144,8 +134,6 @@ private:
   MonitorElement *HFTimeCSCp; 
   MonitorElement *HFTimeCSCm;
   MonitorElement *Summary;  
-  int            ievt_;
-  MonitorElement *meEVT_;
   
   void CheckTiming();
 };

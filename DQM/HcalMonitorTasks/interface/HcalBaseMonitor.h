@@ -16,10 +16,6 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
-#include <map>
-
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
@@ -31,16 +27,19 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
+#include "TH1F.h"
+#include "TH2F.h"
+#include <map>
+
 #include <iostream>
 
 // Temporary fix:  Add this into base class until I figure why multiple inclusions are a problem -- Jeff, 23 May 2008
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 
-using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/11/11 20:54:29 $
-  * $Revision: 1.37 $
+  * $Date: 2010/03/25 10:43:31 $
+  * $Revision: 1.38.2.2 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -114,11 +113,11 @@ protected:
   
   DQMStore* m_dbe;
   bool Online_; // tracks whether code is run online or offline 
-  vector<string> badCells_; // keeps list of bad cells that should be ignored
-  string rootFolder_;
-  string baseFolder_;
+  std::vector<std::string> badCells_; // keeps list of bad cells that should be ignored
+  std::string rootFolder_;
+  std::string baseFolder_;
 
-  vector<int> AllowedCalibTypes_;
+  std::vector<int> AllowedCalibTypes_;
   // Eventually, remove these -- problem cells get processed in client
   MonitorElement* ProblemCells;
   EtaPhiHists ProblemCellsByDepth;

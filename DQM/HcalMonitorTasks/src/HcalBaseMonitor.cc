@@ -25,12 +25,12 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   std::vector<std::string> dummy;
   dummy.clear();
   Online_   =  ps.getUntrackedParameter<bool>("Online",false);
-  badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" , dummy);
-  AllowedCalibTypes_ = ps.getUntrackedParameter<vector<int> > ("AllowedCalibTypes");
+  badCells_ =  ps.getUntrackedParameter<std::vector<std::string> >( "BadCells" , dummy);
+  AllowedCalibTypes_ = ps.getUntrackedParameter<std::vector<int> > ("AllowedCalibTypes");
   
 
   // Base folder for the contents of this job
-  string subsystemname = ps.getUntrackedParameter<string>("subSystemFolder", "Hcal") ;
+  std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder", "Hcal") ;
   rootFolder_ = subsystemname + "/";
 
   // Global cfgs
@@ -60,17 +60,17 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     
   if (etaMax_ > 44.5)
     {
-      std::cout <<"<HcalBaseMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<endl;
-      std::cout <<"                      Value being set back to 44.5."<<endl;
-      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMax_<<endl;
+      std::cout <<"<HcalBaseMonitor> WARNING:  etaMax_ value of "<<etaMax_<<" exceeds maximum allowed value of 44.5"<<std::endl;
+      std::cout <<"                      Value being set back to 44.5."<<std::endl;
+      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMax_<<std::endl;
       etaMax_ = 44.5;
     }
 
   if (etaMin_ < ETAMIN)
     {
-      std::cout <<"<HcalBaseMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<endl;
-      std::cout <<"                      Value being set back to -44.5."<<endl;
-      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMin_<<endl;
+      std::cout <<"<HcalBaseMonitor> WARNING:  etaMin_ value of "<<etaMin_<<" exceeds minimum allowed value of 44.5"<<std::endl;
+      std::cout <<"                      Value being set back to -44.5."<<std::endl;
+      std::cout <<"                      Additional code changes are necessary to allow value of "<<etaMin_<<std::endl;
       etaMin_ = -44.5;
     }
 
@@ -244,10 +244,10 @@ void HcalBaseMonitor::hideKnownBadCells()
 
 void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, std::string Name, std::string Units)
 {
-  stringstream name;
+  std::stringstream name;
   name<<Name;
-  stringstream unitname;
-  stringstream unittitle;
+  std::stringstream unitname;
+  std::stringstream unittitle;
   if (Units.empty())
     {
       unitname<<Units;
@@ -291,10 +291,10 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
       cpu_timer.reset(); cpu_timer.start();
     }
   */
-  stringstream name;
+  std::stringstream name;
   name<<Name;
-  stringstream unitname;
-  stringstream unittitle;
+  std::stringstream unitname;
+  std::stringstream unittitle;
   if (Units.empty())
     {
       unitname<<Units;
@@ -317,7 +317,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
   /*
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   */
   return;
@@ -340,11 +340,11 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
       cpu_timer.reset(); cpu_timer.start();
     }
   */
-  stringstream name;
+  std::stringstream name;
   name<<Name;
 
-  stringstream unitname;
-  stringstream unittitle;
+  std::stringstream unitname;
+  std::stringstream unittitle;
   if (Units.empty())
     {
       unitname<<Units;
@@ -389,7 +389,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
   /* 
   if (showTiming)
     {
-     cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+     cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   */
   return;
@@ -413,10 +413,10 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  stringstream name;
+  std::stringstream name;
   name<<Name;
-  stringstream unitname;
-  stringstream unittitle;
+  std::stringstream unitname;
+  std::stringstream unittitle;
   if (Units.empty())
     {
       unitname<<Units;
@@ -440,7 +440,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
 
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<std::endl;
     }
   return;
 } // void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int nbinsx...)
@@ -465,11 +465,11 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  stringstream name;
+  std::stringstream name;
   name<<Name;
 
-  stringstream unitname;
-  stringstream unittitle;
+  std::stringstream unitname;
+  std::stringstream unittitle;
   if (Units.empty())
     {
       unitname<<Units;
@@ -509,7 +509,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
  
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS2D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;
@@ -525,11 +525,11 @@ void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorE
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  stringstream name;
+  std::stringstream name;
   name<<Name;
 
-  stringstream unitname;
-  stringstream unittitle;
+  std::stringstream unitname;
+  std::stringstream unittitle;
   if (Units.empty())
     {
       unitname<<Units;
@@ -552,7 +552,7 @@ void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorE
 
    if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D_OVERALL "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<std::endl;
     }
    return;
 
@@ -568,10 +568,10 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, std::s
       cpu_timer.reset(); cpu_timer.start();
     }
   
-  stringstream name;
+  std::stringstream name;
   name<<Name;
-  stringstream unitname;
-  stringstream unittitle;
+  std::stringstream unitname;
+  std::stringstream unittitle;
   if (Units.empty())
     {
       unitname<<Units;
@@ -604,7 +604,7 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, std::s
  
   if (showTiming)
     {
-      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.stop();  std::cout <<"TIMER:: HcalBaseMonitor SETUPDEPTHHISTS1D "<<name.str().c_str()<<" -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
   return;

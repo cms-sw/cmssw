@@ -13,12 +13,12 @@ void HcalCaloTowerMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", -41.5);
   etaBins_ = (int)(etaMax_ - etaMin_);
-  cout << "CaloTower Monitor eta min/max set to " << etaMin_ << "/" << etaMax_ << endl;
+  std::cout << "CaloTower Monitor eta min/max set to " << etaMin_ << "/" << etaMax_ << std::endl;
 
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", 0);
   phiBins_ = (int)(phiMax_ - phiMin_);
-  cout << "CaloTower Monitor phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
+  std::cout << "CaloTower Monitor phi min/max set to " << phiMin_ << "/" << phiMax_ << std::endl;
 
   ievt_=0;
   // book histograms
@@ -112,11 +112,11 @@ void HcalCaloTowerMonitor::processEvent(const CaloTowerCollection& calotower)
   // fill histograms for each event
   if(!m_dbe)  
     { 
-      if(fVerbosity) cout <<"<HcalCaloTowerMonitor::processEvent>    DQMStore not instantiated!!!\n"; 
+      if(fVerbosity) std::cout <<"<HcalCaloTowerMonitor::processEvent>    DQMStore not instantiated!!!\n"; 
       return; 
     }  // if(!m_dbe)
   
-  cout <<"Processing calotower"<<endl;
+  if (fVerbosity) std::cout <<"Processing calotower"<<std::endl;
 
 
   // Store values of hcal, energy for forming averages at each eta
@@ -158,8 +158,8 @@ void HcalCaloTowerMonitor::processEvent(const CaloTowerCollection& calotower)
       etacounts[ieta+42]++;
 
       /*
-      cout <<"CALOTOWER eta = \t"<<eta<<"\tphi = "<<it->phi()<<endl;
-      cout <<"\t ieta = \t"<<ieta<<"\tiphi = "<<iphi<<endl;
+      std::cout <<"CALOTOWER eta = \t"<<eta<<"\tphi = "<<it->phi()<<std::endl;
+      std::cout <<"\t ieta = \t"<<ieta<<"\tiphi = "<<iphi<<std::endl;
       */
 
       // Fill histograms
@@ -169,7 +169,7 @@ void HcalCaloTowerMonitor::processEvent(const CaloTowerCollection& calotower)
       caloTowerEnergyMap->Fill(ieta,iphi,it->energy());
       caloTowerTime->Fill((it->ecalTime()+it->hcalTime())/2.);
       caloTowerEnergy->Fill(it->energy());
-      cout <<"calotower times: "<<it->ecalTime()<<"  "<<it->hcalTime()<<endl;
+      //std::cout <<"calotower times: "<<it->ecalTime()<<"  "<<it->hcalTime()<<std::endlx;
 
       //hcal
       hcalOccMap->Fill(ieta,iphi);

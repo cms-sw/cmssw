@@ -6,6 +6,9 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 
@@ -390,6 +393,17 @@ inline int CalcIeta(int eta, int depth)
 
 // Functions to check whether a given (eta,depth) value is valid for a given subdetector
 
+inline std::vector<std::string> HcalEtaPhiHistNames()
+{
+  std::vector<std::string> name;
+  name.push_back("HB HE HF Depth 1 ");
+  name.push_back("HB HE HF Depth 2 ");
+  name.push_back("HE Depth 3 ");
+  name.push_back("HO Depth 4 ");
+  return name;
+}
+
+
 inline bool isHB(int etabin, int depth)
 {
   if (depth>2) return false;
@@ -592,6 +606,7 @@ inline void FillUnphysicalHEHFBins(EtaPhiHists &hh)
 	      // Fill the phi cell above iphi, and the 2 below it
 	      else  if (abs(ieta)>39 && iphi%4==3 && iphi<73)
 		{
+		  //ieta=40, iphi=3 covers iphi 3,4,5,6
 		  hh.depth[d]->setBinContent(eta+1,(iphi)%72+1, hh.depth[d]->getBinContent(eta+1,iphi));
 		  hh.depth[d]->setBinContent(eta+1,(iphi+1)%72+1, hh.depth[d]->getBinContent(eta+1,iphi));
 		  hh.depth[d]->setBinContent(eta+1,(iphi+2)%72+1, hh.depth[d]->getBinContent(eta+1,iphi));
@@ -641,5 +656,8 @@ inline void FillUnphysicalHEHFBins(MonitorElement* hh)
 
   return;
 } // FillUnphysicalHEHFBins(std::vector<MonitorElement*> &hh)
+
+
+
 
 #endif
