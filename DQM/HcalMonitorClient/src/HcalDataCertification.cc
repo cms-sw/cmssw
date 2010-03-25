@@ -13,7 +13,7 @@
 //
 // Original Author:  "Igor Vodopiyanov"
 //         Created:  Nov-21 2008
-// $Id: HcalDataCertification.cc,v 1.10.2.1 2010/03/25 09:43:41 temple Exp $
+// $Id: HcalDataCertification.cc,v 1.11 2010/03/25 11:02:25 temple Exp $
 //
 //
 
@@ -55,6 +55,8 @@ class HcalDataCertification : public edm::EDAnalyzer {
       virtual void endJob() ;
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
       virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) ;
+      void endRun(const edm::Run & r, const edm::EventSetup & c);
+  void CertifyHcal();
 
    // ----------member data ---------------------------
 
@@ -162,6 +164,16 @@ HcalDataCertification::beginLuminosityBlock(const edm::LuminosityBlock& run, con
 // ------------ method called right after a run ends ------------
 void 
 HcalDataCertification::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& c)
+{
+  CertifyHcal();
+}
+
+void HcalDataCertification::endRun(const edm::Run & r, const edm::EventSetup & c)
+{
+  CertifyHcal();
+}
+
+void HcalDataCertification::CertifyHcal()
 {
 
   float hcalFrac,reportFrac,dcsFrac,daqFrac;
