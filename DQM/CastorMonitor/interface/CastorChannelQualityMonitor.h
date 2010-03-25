@@ -50,6 +50,8 @@ private:
  int ievt_;
  int module ; int sector; double energy ;
  int status; int numOK;
+ int counter1; int counter2;
+ double counter1_; double counter2_;
 
  std::string histo;
 

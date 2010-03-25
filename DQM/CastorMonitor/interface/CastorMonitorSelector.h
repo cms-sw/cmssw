@@ -9,7 +9,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
 
 static const int CASTOR_BEAM_TRIGGER       = 0x0001;
 static const int DO_CASTOR_RECHITMON       = 0x0008;
