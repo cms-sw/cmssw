@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagPedestalClient.cc
  * 
- * $Date: 2010/03/25 16:47:29 $
- * $Revision: 1.7 $
+ * $Date: 2010/03/25 21:21:45 $
+ * $Revision: 1.8 $
  * \author J. Temple
  * \brief Hcal DetDiagPedestal Client class
  */
@@ -157,7 +157,7 @@ void HcalDetDiagPedestalClient::calculateProblems()
 
 	      if (problemvalue==0) continue;
 	      // problem value is a rate; we can normalize it here
-	      problemvalue = min(1.,problemvalue);
+	      problemvalue = std::min(1.,problemvalue);
 	      
 	      zside=0;
 	      if (isHF(eta,d+1)) // shift ieta by 1 for HF
@@ -185,7 +185,7 @@ void HcalDetDiagPedestalClient::calculateProblems()
 
   if (ProblemCells==0)
     {
-      if (debug_>0) std::cout <<"<HcalDetDiagPedestalClient::analyze> ProblemCells histogram does not exist!"<<endl;
+      if (debug_>0) std::cout <<"<HcalDetDiagPedestalClient::analyze> ProblemCells histogram does not exist!"<<std::endl;
       return;
     }
 
@@ -302,75 +302,75 @@ void HcalDetDiagPedestalClient::updateChannelStatus(std::map<HcalDetId, unsigned
 } //void HcalDetDiagPedestalClient::updateChannelStatus
 
 static void printTableHeader(ofstream& file,std::string  header){
-     file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< endl;
-     file << "<head>"<< endl;
-     file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< endl;
-     file << "<title>"<< header <<"</title>"<< endl;
-     file << "<style type=\"text/css\">"<< endl;
-     file << " body,td{ background-color: #FFFFCC; font-family: arial, arial ce, helvetica; font-size: 12px; }"<< endl;
-     file << "   td.s0 { font-family: arial, arial ce, helvetica; }"<< endl;
-     file << "   td.s1 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FFC169; text-align: center;}"<< endl;
-     file << "   td.s2 { font-family: arial, arial ce, helvetica; background-color: #eeeeee; }"<< endl;
-     file << "   td.s3 { font-family: arial, arial ce, helvetica; background-color: #d0d0d0; }"<< endl;
-     file << "   td.s4 { font-family: arial, arial ce, helvetica; background-color: #FFC169; }"<< endl;
-     file << "</style>"<< endl;
-     file << "<body>"<< endl;
-     file << "<table>"<< endl;
+  file << "</html><html xmlns=\"http://www.w3.org/1999/xhtml\">"<< std::endl;
+     file << "<head>"<< std::endl;
+     file << "<meta http-equiv=\"Content-Type\" content=\"text/html\"/>"<< std::endl;
+     file << "<title>"<< header <<"</title>"<< std::endl;
+     file << "<style type=\"text/css\">"<< std::endl;
+     file << " body,td{ background-color: #FFFFCC; font-family: arial, arial ce, helvetica; font-size: 12px; }"<< std::endl;
+     file << "   td.s0 { font-family: arial, arial ce, helvetica; }"<< std::endl;
+     file << "   td.s1 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FFC169; text-align: center;}"<< std::endl;
+     file << "   td.s2 { font-family: arial, arial ce, helvetica; background-color: #eeeeee; }"<< std::endl;
+     file << "   td.s3 { font-family: arial, arial ce, helvetica; background-color: #d0d0d0; }"<< std::endl;
+     file << "   td.s4 { font-family: arial, arial ce, helvetica; background-color: #FFC169; }"<< std::endl;
+     file << "</style>"<< std::endl;
+     file << "<body>"<< std::endl;
+     file << "<table>"<< std::endl;
 }
 
 static void printTableLine(ofstream& file,int ind,HcalDetId& detid,HcalFrontEndId& lmap_entry,HcalElectronicsId &emap_entry,std::string comment=""){
    if(ind==0){
      file << "<tr>";
-     file << "<td class=\"s4\" align=\"center\">#</td>"    << endl;
-     file << "<td class=\"s1\" align=\"center\">ETA</td>"  << endl;
-     file << "<td class=\"s1\" align=\"center\">PHI</td>"  << endl;
-     file << "<td class=\"s1\" align=\"center\">DEPTH</td>"<< endl;
-     file << "<td class=\"s1\" align=\"center\">RBX</td>"  << endl;
-     file << "<td class=\"s1\" align=\"center\">RM</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">PIXEL</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">RM_FIBER</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">FIBER_CH</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">QIE</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">ADC</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">CRATE</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">DCC</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">SPIGOT</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">HTR_FIBER</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">HTR_SLOT</td>"   << endl;
-     file << "<td class=\"s1\" align=\"center\">HTR_FPGA</td>"   << endl;
-     if(comment[0]!=0) file << "<td class=\"s1\" align=\"center\">Comment</td>"   << endl;
-     file << "</tr>"   << endl;
+     file << "<td class=\"s4\" align=\"center\">#</td>"    << std::endl;
+     file << "<td class=\"s1\" align=\"center\">ETA</td>"  << std::endl;
+     file << "<td class=\"s1\" align=\"center\">PHI</td>"  << std::endl;
+     file << "<td class=\"s1\" align=\"center\">DEPTH</td>"<< std::endl;
+     file << "<td class=\"s1\" align=\"center\">RBX</td>"  << std::endl;
+     file << "<td class=\"s1\" align=\"center\">RM</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">PIXEL</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">RM_FIBER</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">FIBER_CH</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">QIE</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">ADC</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">CRATE</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">DCC</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">SPIGOT</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">HTR_FIBER</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">HTR_SLOT</td>"   << std::endl;
+     file << "<td class=\"s1\" align=\"center\">HTR_FPGA</td>"   << std::endl;
+     if(comment[0]!=0) file << "<td class=\"s1\" align=\"center\">Comment</td>"   << std::endl;
+     file << "</tr>"   << std::endl;
    }
    std::string raw_class;
-   file << "<tr>"<< endl;
+   file << "<tr>"<< std::endl;
    if((ind%2)==1){
       raw_class="<td class=\"s2\" align=\"center\">";
    }else{
       raw_class="<td class=\"s3\" align=\"center\">";
    }
-   file << "<td class=\"s4\" align=\"center\">" << ind+1 <<"</td>"<< endl;
-   file << raw_class<< detid.ieta()<<"</td>"<< endl;
-   file << raw_class<< detid.iphi()<<"</td>"<< endl;
-   file << raw_class<< detid.depth() <<"</td>"<< endl;
-   file << raw_class<< lmap_entry.rbx()<<"</td>"<< endl;
-   file << raw_class<< lmap_entry.rm() <<"</td>"<< endl;
-   file << raw_class<< lmap_entry.pixel()<<"</td>"<< endl;
-   file << raw_class<< lmap_entry.rmFiber() <<"</td>"<< endl;
-   file << raw_class<< lmap_entry.fiberChannel()<<"</td>"<< endl;
-   file << raw_class<< lmap_entry.qieCard() <<"</td>"<< endl;
-   file << raw_class<< lmap_entry.adc()<<"</td>"<< endl;
-   file << raw_class<< emap_entry.readoutVMECrateId()<<"</td>"<< endl;
-   file << raw_class<< emap_entry.dccid()<<"</td>"<< endl;
-   file << raw_class<< emap_entry.spigot()<<"</td>"<< endl;
-   file << raw_class<< emap_entry.fiberIndex()<<"</td>"<< endl;
-   file << raw_class<< emap_entry.htrSlot()<<"</td>"<< endl;
-   file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< endl;
-   if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< endl;
+   file << "<td class=\"s4\" align=\"center\">" << ind+1 <<"</td>"<< std::endl;
+   file << raw_class<< detid.ieta()<<"</td>"<< std::endl;
+   file << raw_class<< detid.iphi()<<"</td>"<< std::endl;
+   file << raw_class<< detid.depth() <<"</td>"<< std::endl;
+   file << raw_class<< lmap_entry.rbx()<<"</td>"<< std::endl;
+   file << raw_class<< lmap_entry.rm() <<"</td>"<< std::endl;
+   file << raw_class<< lmap_entry.pixel()<<"</td>"<< std::endl;
+   file << raw_class<< lmap_entry.rmFiber() <<"</td>"<< std::endl;
+   file << raw_class<< lmap_entry.fiberChannel()<<"</td>"<< std::endl;
+   file << raw_class<< lmap_entry.qieCard() <<"</td>"<< std::endl;
+   file << raw_class<< lmap_entry.adc()<<"</td>"<< std::endl;
+   file << raw_class<< emap_entry.readoutVMECrateId()<<"</td>"<< std::endl;
+   file << raw_class<< emap_entry.dccid()<<"</td>"<< std::endl;
+   file << raw_class<< emap_entry.spigot()<<"</td>"<< std::endl;
+   file << raw_class<< emap_entry.fiberIndex()<<"</td>"<< std::endl;
+   file << raw_class<< emap_entry.htrSlot()<<"</td>"<< std::endl;
+   file << raw_class<< emap_entry.htrTopBottom()<<"</td>"<< std::endl;
+   if(comment[0]!=0) file << raw_class<< comment<<"</td>"<< std::endl;
 }
 static void printTableTail(ofstream& file){
-     file << "</table>"<< endl;
-     file << "</body>"<< endl;
-     file << "</html>"<< endl;
+     file << "</table>"<< std::endl;
+     file << "</body>"<< std::endl;
+     file << "</html>"<< std::endl;
 }
 
 bool HcalDetDiagPedestalClient::validHtmlOutput(){
@@ -378,7 +378,7 @@ bool HcalDetDiagPedestalClient::validHtmlOutput(){
   MonitorElement *me = dqmStore_->get(s.c_str());
   int n=0;
   if ( me ) {
-    s = me->valueStd::String();
+    s = me->valueString();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &n);
   }
   if(n<100) return false;
@@ -390,7 +390,7 @@ int  MissingCnt=0,UnstableCnt=0,BadCnt=0;
 int  HBP[4]={0,0,0,0},HBM[4]={0,0,0,0},HEP[4]={0,0,0,0},HEM[4]={0,0,0,0},HFP[4]={0,0,0,0},HFM[4]={0,0,0,0},HO[4] ={0,0,0,0}; 
 int  newHBP[4]={0,0,0,0},newHBM[4]={0,0,0,0},newHEP[4]={0,0,0,0},newHEM[4]={0,0,0,0};
 int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0}; 
-  if (debug_>0) cout << "<HcalDetDiagPedestalClient::htmlOutput> Preparing  html output ..." << endl;
+  if (debug_>0) cout << "<HcalDetDiagPedestalClient::htmlOutput> Preparing  html output ..." << std::endl;
   if(!dqmStore_) return;
 
   HcalLogicalMapGenerator gen;
@@ -603,7 +603,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 
   int cnt=0;
   if((HBP[0]+HBP[0])>0 && (HBM[0]+HBP[0])!=(1296*2)){
-    badMissing << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << endl;
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Missing_val[d]->GetNbinsX();
       int phibins=Missing_val[d]->GetNbinsY();
@@ -624,7 +624,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if((HEP[0]+HEP[0])>0 && (HEM[0]+HEP[0])!=(1296*2)){
-    badMissing << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << endl;
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Missing_val[d]->GetNbinsX();
       int phibins=Missing_val[d]->GetNbinsY();
@@ -645,7 +645,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if(HO[0]>0 && HO[0]!=2160){
-    badMissing << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << endl;
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Missing_val[d]->GetNbinsX();
       int phibins=Missing_val[d]->GetNbinsY();
@@ -666,7 +666,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if((HFP[0]+HFP[0])>0 && (HFM[0]+HFP[0])!=(864*2)){
-    badMissing << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << endl;
+    badMissing << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Missing_val[d]->GetNbinsX();
       int phibins=Missing_val[d]->GetNbinsY();
@@ -688,7 +688,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 /////////////////////////////////////////////////////////////////////////////////////
   cnt=0;
   if((HBP[1]+HBP[1])>0){
-    badUnstable << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << endl;
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Unstable_val[d]->GetNbinsX();
       int phibins=Unstable_val[d]->GetNbinsY();
@@ -710,7 +710,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if((HEP[1]+HEP[1])>0){
-    badUnstable << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << endl;
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Unstable_val[d]->GetNbinsX();
       int phibins=Unstable_val[d]->GetNbinsY();
@@ -732,7 +732,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if(HO[1]>0){
-    badUnstable << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << endl;
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Unstable_val[d]->GetNbinsX();
       int phibins=Unstable_val[d]->GetNbinsY();
@@ -754,7 +754,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if((HFP[1]+HFP[1])>0){
-    badUnstable << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << endl;
+    badUnstable << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=Unstable_val[d]->GetNbinsX();
       int phibins=Unstable_val[d]->GetNbinsY();
@@ -777,7 +777,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 /////////////////////////////////////////////////////////////////////////////////////
   cnt=0;
   if((HBP[2]+HBP[2]+HBP[3]+HBP[3])>0){
-    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << endl;
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HB" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=BadPed_val[d]->GetNbinsX();
       int phibins=BadPed_val[d]->GetNbinsY();
@@ -803,7 +803,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if((HEP[2]+HEP[2]+HEP[3]+HEP[3])>0){
-    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << endl;
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HE" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=BadPed_val[d]->GetNbinsX();
       int phibins=BadPed_val[d]->GetNbinsY();
@@ -829,7 +829,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if((HO[2]+HO[3])>0){
-    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << endl;
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HO" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=BadPed_val[d]->GetNbinsX();
       int phibins=BadPed_val[d]->GetNbinsY();
@@ -855,7 +855,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   }
   cnt=0;
   if((HFP[2]+HFP[2]+HFP[3]+HFP[3])>0){
-    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << endl;
+    badPedRMS << "<tr><td align=\"center\"><h3>"<< "HF" <<"</h3></td></tr>" << std::endl;
     for(int d=0;d<4;++d){
       int etabins=BadPed_val[d]->GetNbinsX();
       int phibins=BadPed_val[d]->GetNbinsY();
@@ -892,19 +892,19 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   s=subdir_+"HcalDetDiagPedestalMonitor Event Number";
   me = dqmStore_->get(s.c_str());
   if ( me ) {
-    s = me->valueStd::String();
+    s = me->valueString();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
   s=subdir_+"HcalDetDiagPedestalMonitor Run Number";
   me = dqmStore_->get(s.c_str());
   if ( me ) {
-    s = me->valueStd::String();
+    s = me->valueString();
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &runNo);
   } 
   s=subdir_+"HcalDetDiagLaserMonitor Reference Run";
   me = dqmStore_->get(s.c_str());
   if(me) {
-    std::string s=me->valueStd::String();
+    std::string s=me->valueString();
     char str[200]; 
     sscanf((s.substr(2,s.length()-2)).c_str(), "%s", str);
     ref_run=str;
@@ -923,145 +923,145 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   std::string outfile=htmlDir+name_+".html";
   htmlFile.open(outfile.c_str());
   // html page header
-  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
-  htmlFile << "<html>  " << endl;
-  htmlFile << "<head>  " << endl;
-  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
-  htmlFile << " http-equiv=\"content-type\">  " << endl;
-  htmlFile << "  <title>Detector Diagnostics Pedestal Monitor</title> " << endl;
-  htmlFile << "</head>  " << endl;
-  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
-  htmlFile << "<style type=\"text/css\">"<< endl;
-  htmlFile << "   td.s0 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FF7700; text-align: center;}"<< endl;
-  htmlFile << "   td.s1 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FFC169; text-align: center;}"<< endl;
-  htmlFile << "   td.s2 { font-family: arial, arial ce, helvetica; background-color: red; }"<< endl;
-  htmlFile << "   td.s3 { font-family: arial, arial ce, helvetica; background-color: yellow; }"<< endl;
-  htmlFile << "   td.s4 { font-family: arial, arial ce, helvetica; background-color: green; }"<< endl;
-  htmlFile << "   td.s5 { font-family: arial, arial ce, helvetica; background-color: silver; }"<< endl;
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << std::endl;
+  htmlFile << "<html>  " << std::endl;
+  htmlFile << "<head>  " << std::endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << std::endl;
+  htmlFile << " http-equiv=\"content-type\">  " << std::endl;
+  htmlFile << "  <title>Detector Diagnostics Pedestal Monitor</title> " << std::endl;
+  htmlFile << "</head>  " << std::endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << std::endl;
+  htmlFile << "<style type=\"text/css\">"<< std::endl;
+  htmlFile << "   td.s0 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FF7700; text-align: center;}"<< std::endl;
+  htmlFile << "   td.s1 { font-family: arial, arial ce, helvetica; font-weight: bold; background-color: #FFC169; text-align: center;}"<< std::endl;
+  htmlFile << "   td.s2 { font-family: arial, arial ce, helvetica; background-color: red; }"<< std::endl;
+  htmlFile << "   td.s3 { font-family: arial, arial ce, helvetica; background-color: yellow; }"<< std::endl;
+  htmlFile << "   td.s4 { font-family: arial, arial ce, helvetica; background-color: green; }"<< std::endl;
+  htmlFile << "   td.s5 { font-family: arial, arial ce, helvetica; background-color: silver; }"<< std::endl;
   std::string state[4]={"<td class=\"s2\" align=\"center\">",
 			"<td class=\"s3\" align=\"center\">",
 			"<td class=\"s4\" align=\"center\">",
 			"<td class=\"s5\" align=\"center\">"};
-  htmlFile << "</style>"<< endl;
-  htmlFile << "<body>  " << endl;
-  htmlFile << "<br>  " << endl;
-  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
-  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">Detector Diagnostics Pedestal Monitor</span></h2> " << endl;
-  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "</style>"<< std::endl;
+  htmlFile << "<body>  " << std::endl;
+  htmlFile << "<br>  " << std::endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << std::endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << std::endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Detector Diagnostics Pedestal Monitor</span></h2> " << std::endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;<span " << std::endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
   /////////////////////////////////////////// 
-  htmlFile << "<table width=100% border=1>" << endl;
-  htmlFile << "<tr>" << endl;
-  htmlFile << "<td class=\"s0\" width=20% align=\"center\">SebDet</td>" << endl;
-  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Missing</td>" << endl;
-  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Unstable</td>" << endl;
-  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Bad |Ped-Ref|</td>" << endl;
-  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Bad |Rms-Ref|</td>" << endl;
-  htmlFile << "</tr><tr>" << endl;
+  htmlFile << "<table width=100% border=1>" << std::endl;
+  htmlFile << "<tr>" << std::endl;
+  htmlFile << "<td class=\"s0\" width=20% align=\"center\">SebDet</td>" << std::endl;
+  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Missing</td>" << std::endl;
+  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Unstable</td>" << std::endl;
+  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Bad |Ped-Ref|</td>" << std::endl;
+  htmlFile << "<td class=\"s0\" width=20% align=\"center\">Bad |Rms-Ref|</td>" << std::endl;
+  htmlFile << "</tr><tr>" << std::endl;
   int ind1=0,ind2=0,ind3=0,ind4=0;
-  htmlFile << "<td class=\"s1\" align=\"center\">HB+</td>" << endl;
+  htmlFile << "<td class=\"s1\" align=\"center\">HB+</td>" << std::endl;
   ind1=3; if(newHBP[0]==0) ind1=2; if(newHBP[0]>0 && newHBP[0]<=12) ind1=1; if(newHBP[0]>=12 && newHBP[0]<1296) ind1=0; 
   ind2=3; if(newHBP[1]==0) ind2=2; if(newHBP[1]>0)  ind2=1; if(newHBP[1]>21)  ind2=0; 
   ind3=3; if(newHBP[2]==0) ind3=2; if(newHBP[2]>0)  ind3=1; if(newHBP[2]>21)  ind3=0;
   ind4=3; if(newHBP[3]==0) ind4=2; if(newHBP[3]>0)  ind4=1; if(newHBP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;  
   if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
-  htmlFile << state[ind1] << HBP[0] <<" (1296)</td>" << endl;
-  htmlFile << state[ind2] << HBP[1] <<"</td>" << endl;
-  htmlFile << state[ind3] << HBP[2] <<"</td>" << endl;
-  htmlFile << state[ind4] << HBP[3] <<"</td>" << endl;
+  htmlFile << state[ind1] << HBP[0] <<" (1296)</td>" << std::endl;
+  htmlFile << state[ind2] << HBP[1] <<"</td>" << std::endl;
+  htmlFile << state[ind3] << HBP[2] <<"</td>" << std::endl;
+  htmlFile << state[ind4] << HBP[3] <<"</td>" << std::endl;
   
-  htmlFile << "</tr><tr>" << endl;
-  htmlFile << "<td class=\"s1\" align=\"center\">HB-</td>" << endl;
+  htmlFile << "</tr><tr>" << std::endl;
+  htmlFile << "<td class=\"s1\" align=\"center\">HB-</td>" << std::endl;
   ind1=3; if(newHBM[0]==0) ind1=2; if(newHBM[0]>0 && newHBM[0]<=12) ind1=1; if(newHBM[0]>=12 && newHBM[0]<1296) ind1=0; 
   ind2=3; if(newHBM[1]==0) ind2=2; if(newHBM[1]>0)  ind2=1; if(newHBM[1]>21)  ind2=0; 
   ind3=3; if(newHBM[2]==0) ind3=2; if(newHBM[2]>0)  ind3=1; if(newHBM[2]>21)  ind3=0;
   ind4=3; if(newHBM[3]==0) ind4=2; if(newHBM[3]>0)  ind4=1; if(newHBM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
   if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
-  htmlFile << state[ind1] << HBM[0] <<" (1296)</td>" << endl;
-  htmlFile << state[ind2] << HBM[1] <<"</td>" << endl;
-  htmlFile << state[ind3] << HBM[2] <<"</td>" << endl;
-  htmlFile << state[ind4] << HBM[3] <<"</td>" << endl;
+  htmlFile << state[ind1] << HBM[0] <<" (1296)</td>" << std::endl;
+  htmlFile << state[ind2] << HBM[1] <<"</td>" << std::endl;
+  htmlFile << state[ind3] << HBM[2] <<"</td>" << std::endl;
+  htmlFile << state[ind4] << HBM[3] <<"</td>" << std::endl;
   
-  htmlFile << "</tr><tr>" << endl;
-  htmlFile << "<td class=\"s1\" align=\"center\">HE+</td>" << endl;
+  htmlFile << "</tr><tr>" << std::endl;
+  htmlFile << "<td class=\"s1\" align=\"center\">HE+</td>" << std::endl;
   ind1=3; if(newHEP[0]==0) ind1=2; if(newHEP[0]>0 && newHEP[0]<=12) ind1=1; if(newHEP[0]>=12 && newHEP[0]<1296) ind1=0; 
   ind2=3; if(newHEP[1]==0) ind2=2; if(newHEP[1]>0)  ind2=1; if(newHEP[1]>21)  ind2=0; 
   ind3=3; if(newHEP[2]==0) ind3=2; if(newHEP[2]>0)  ind3=1; if(newHEP[2]>21)  ind3=0;
   ind4=3; if(newHEP[3]==0) ind4=2; if(newHEP[3]>0)  ind4=1; if(newHEP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
   if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
-  htmlFile << state[ind1] << HEP[0] <<" (1296)</td>" << endl;
-  htmlFile << state[ind2] << HEP[1] <<"</td>" << endl;
-  htmlFile << state[ind3] << HEP[2] <<"</td>" << endl;
-  htmlFile << state[ind4] << HEP[3] <<"</td>" << endl;
+  htmlFile << state[ind1] << HEP[0] <<" (1296)</td>" << std::endl;
+  htmlFile << state[ind2] << HEP[1] <<"</td>" << std::endl;
+  htmlFile << state[ind3] << HEP[2] <<"</td>" << std::endl;
+  htmlFile << state[ind4] << HEP[3] <<"</td>" << std::endl;
   
-  htmlFile << "</tr><tr>" << endl;
-  htmlFile << "<td class=\"s1\" align=\"center\">HE-</td>" << endl;
+  htmlFile << "</tr><tr>" << std::endl;
+  htmlFile << "<td class=\"s1\" align=\"center\">HE-</td>" << std::endl;
   ind1=3; if(newHEM[0]==0) ind1=2; if(newHEM[0]>0 && newHEM[0]<=12) ind1=1; if(newHEM[0]>=12 && newHEM[0]<1296) ind1=0; 
   ind2=3; if(newHEM[1]==0) ind2=2; if(newHEM[1]>0)  ind2=1; if(newHEM[1]>21)  ind2=0; 
   ind3=3; if(newHEM[2]==0) ind3=2; if(newHEM[2]>0)  ind3=1; if(newHEM[2]>21)  ind3=0;
   ind4=3; if(newHEM[3]==0) ind4=2; if(newHEM[3]>0)  ind4=1; if(newHEM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
   if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
-  htmlFile << state[ind1] << HEM[0] <<" (1296)</td>" << endl;
-  htmlFile << state[ind2] << HEM[1] <<"</td>" << endl;
-  htmlFile << state[ind3] << HEM[2] <<"</td>" << endl;
-  htmlFile << state[ind4] << HEM[3] <<"</td>" << endl;
+  htmlFile << state[ind1] << HEM[0] <<" (1296)</td>" << std::endl;
+  htmlFile << state[ind2] << HEM[1] <<"</td>" << std::endl;
+  htmlFile << state[ind3] << HEM[2] <<"</td>" << std::endl;
+  htmlFile << state[ind4] << HEM[3] <<"</td>" << std::endl;
   
-  htmlFile << "</tr><tr>" << endl;
-  htmlFile << "<td class=\"s1\" align=\"center\">HF+</td>" << endl;
+  htmlFile << "</tr><tr>" << std::endl;
+  htmlFile << "<td class=\"s1\" align=\"center\">HF+</td>" << std::endl;
   ind1=3; if(newHFP[0]==0) ind1=2; if(newHFP[0]>0 && newHFP[0]<=12) ind1=1; if(newHFP[0]>=12 && newHFP[0]<864) ind1=0; 
   ind2=3; if(newHFP[1]==0) ind2=2; if(newHFP[1]>0)  ind2=1; if(newHFP[1]>21)  ind2=0; 
   ind3=3; if(newHFP[2]==0) ind3=2; if(newHFP[2]>0)  ind3=1; if(newHFP[2]>21)  ind3=0;
   ind4=3; if(newHFP[3]==0) ind4=2; if(newHFP[3]>0)  ind4=1; if(newHFP[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
   if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
-  htmlFile << state[ind1] << HFP[0] <<" (864)</td>" << endl;
-  htmlFile << state[ind2] << HFP[1] <<"</td>" << endl;
-  htmlFile << state[ind3] << HFP[2] <<"</td>" << endl;
-  htmlFile << state[ind4] << HFP[3] <<"</td>" << endl;
+  htmlFile << state[ind1] << HFP[0] <<" (864)</td>" << std::endl;
+  htmlFile << state[ind2] << HFP[1] <<"</td>" << std::endl;
+  htmlFile << state[ind3] << HFP[2] <<"</td>" << std::endl;
+  htmlFile << state[ind4] << HFP[3] <<"</td>" << std::endl;
   
-  htmlFile << "</tr><tr>" << endl;
-  htmlFile << "<td class=\"s1\" align=\"center\">HF-</td>" << endl;
+  htmlFile << "</tr><tr>" << std::endl;
+  htmlFile << "<td class=\"s1\" align=\"center\">HF-</td>" << std::endl;
   ind1=3; if(newHFM[0]==0) ind1=2; if(newHFM[0]>0 && newHFM[0]<=12) ind1=1; if(newHFM[0]>=12 && newHFM[0]<864) ind1=0; 
   ind2=3; if(newHFM[1]==0) ind2=2; if(newHFM[1]>0)  ind2=1; if(newHFM[1]>21)  ind2=0; 
   ind3=3; if(newHFM[2]==0) ind3=2; if(newHFM[2]>0)  ind3=1; if(newHFM[2]>21)  ind3=0;
   ind4=3; if(newHFM[3]==0) ind4=2; if(newHFM[3]>0)  ind4=1; if(newHFM[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
   if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
-  htmlFile << state[ind1] << HFM[0] <<" (864)</td>" << endl;
-  htmlFile << state[ind2] << HFM[1] <<"</td>" << endl;
-  htmlFile << state[ind3] << HFM[2] <<"</td>" << endl;
-  htmlFile << state[ind4] << HFM[3] <<"</td>" << endl;
+  htmlFile << state[ind1] << HFM[0] <<" (864)</td>" << std::endl;
+  htmlFile << state[ind2] << HFM[1] <<"</td>" << std::endl;
+  htmlFile << state[ind3] << HFM[2] <<"</td>" << std::endl;
+  htmlFile << state[ind4] << HFM[3] <<"</td>" << std::endl;
   
-  htmlFile << "</tr><tr>" << endl;
-  htmlFile << "<td class=\"s1\" align=\"center\">HO</td>" << endl;
+  htmlFile << "</tr><tr>" << std::endl;
+  htmlFile << "<td class=\"s1\" align=\"center\">HO</td>" << std::endl;
   ind1=3; if(newHO[0]==0) ind1=2; if(newHO[0]>0 && newHO[0]<=12) ind1=1; if(newHO[0]>=12 && newHO[0]<2160) ind1=0; 
   ind2=3; if(newHO[1]==0) ind2=2; if(newHO[1]>0)  ind2=1; if(newHO[1]>21)  ind2=0; 
   ind3=3; if(newHO[2]==0) ind3=2; if(newHO[2]>0)  ind3=1; if(newHO[2]>21)  ind3=0;
   ind4=3; if(newHO[3]==0) ind4=2; if(newHO[3]>0)  ind4=1; if(newHO[3]>21)  ind4=0;
   if(ind1==3) ind2=ind3=ind4=3;
   if(ind1==0 || ind2==0 || ind3==0 || ind4==0) status|=2; else if(ind1==1 || ind2==1 || ind3==1 || ind4==1) status|=1; 
-  htmlFile << state[ind1] << HO[0] <<" (2160)</td>" << endl;
-  htmlFile << state[ind2] << HO[1] <<"</td>" << endl;
-  htmlFile << state[ind3] << HO[2] <<"</td>" << endl;
-  htmlFile << state[ind4] << HO[3] <<"</td>" << endl;
+  htmlFile << state[ind1] << HO[0] <<" (2160)</td>" << std::endl;
+  htmlFile << state[ind2] << HO[1] <<"</td>" << std::endl;
+  htmlFile << state[ind3] << HO[2] <<"</td>" << std::endl;
+  htmlFile << state[ind4] << HO[3] <<"</td>" << std::endl;
 
-  htmlFile << "</tr></table>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "</tr></table>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
   /////////////////////////////////////////// 
   if((MissingCnt+UnstableCnt+BadCnt)>0){
-      htmlFile << "<table width=100% border=1><tr>" << endl;
+      htmlFile << "<table width=100% border=1><tr>" << std::endl;
       if(MissingCnt>0)  htmlFile << "<td><a href=\"" << "bad_missing_table.html" <<"\">list of missing channels</a></td>";
       if(UnstableCnt>0) htmlFile << "<td><a href=\"" << "bad_unstable_table.html" <<"\">list of unstable channels</a></td>";
       if(BadCnt>0)      htmlFile << "<td><a href=\"" << "bad_badpedrms_table.html" <<"\">list of bad pedestal/rms channels</a></td>";
-      htmlFile << "</tr></table>" << endl;
+      htmlFile << "</tr></table>" << std::endl;
   }
   can->SetGridy();
   can->SetGridx();
@@ -1070,169 +1070,169 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 
 
   /////////////////////////////////////////// 
-  htmlFile << "<h2 align=\"center\">Summary plots</h2>" << endl;
-  htmlFile << "<table width=100% border=0><tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<h2 align=\"center\">Summary plots</h2>" << std::endl;
+  htmlFile << "<table width=100% border=0><tr>" << std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   Pedestals2DHBHEHF->SetStats(0);
   Pedestals2DHBHEHF->SetMaximum(5);
   Pedestals2DHBHEHF->SetNdivisions(36,"Y");
   Pedestals2DHBHEHF->Draw("COLZ");
   can->SaveAs((htmlDir + "hbhehf_pedestal_map.gif").c_str());
-  htmlFile << "<td><img src=\"hbhehf_pedestal_map.gif\" alt=\"hbhehf pedestal mean map\">   </td>" << endl;
+  htmlFile << "<td><img src=\"hbhehf_pedestal_map.gif\" alt=\"hbhehf pedestal mean map\">   </td>" << std::endl;
   Pedestals2DHO->SetStats(0);
   Pedestals2DHO->SetMaximum(5);
   Pedestals2DHO->SetNdivisions(36,"Y");
   Pedestals2DHO->Draw("COLZ");
   can->SaveAs((htmlDir + "ho_pedestal_map.gif").c_str());
-  htmlFile << "<td><img src=\"ho_pedestal_map.gif\" alt=\"ho pedestal mean map\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
+  htmlFile << "<td><img src=\"ho_pedestal_map.gif\" alt=\"ho pedestal mean map\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   Pedestals2DRmsHBHEHF->SetStats(0);
   Pedestals2DRmsHBHEHF->SetMaximum(2);
   Pedestals2DRmsHBHEHF->SetNdivisions(36,"Y");
   Pedestals2DRmsHBHEHF->Draw("COLZ");
   can->SaveAs((htmlDir + "hbhehf_rms_map.gif").c_str());
-  htmlFile << "<td><img src=\"hbhehf_rms_map.gif\" alt=\"hbhehf pedestal rms map\">   </td>" << endl;
+  htmlFile << "<td><img src=\"hbhehf_rms_map.gif\" alt=\"hbhehf pedestal rms map\">   </td>" << std::endl;
   Pedestals2DRmsHO->SetStats(0);
   Pedestals2DRmsHO->SetMaximum(2);
   Pedestals2DRmsHO->SetNdivisions(36,"Y");
   Pedestals2DRmsHO->Draw("COLZ");
   can->SaveAs((htmlDir + "ho_rms_map.gif").c_str());
-  htmlFile << "<td><img src=\"ho_rms_map.gif\" alt=\"ho pedestal rms map\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
+  htmlFile << "<td><img src=\"ho_rms_map.gif\" alt=\"ho pedestal rms map\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   Pedestals2DErrorHBHEHF->SetStats(0);
   Pedestals2DErrorHBHEHF->SetNdivisions(36,"Y");
   Pedestals2DErrorHBHEHF->Draw("COLZ");
   can->SaveAs((htmlDir + "hbhehf_error_map.gif").c_str());
-  htmlFile << "<td><img src=\"hbhehf_error_map.gif\" alt=\"hbhehf pedestal error map\">   </td>" << endl;
+  htmlFile << "<td><img src=\"hbhehf_error_map.gif\" alt=\"hbhehf pedestal error map\">   </td>" << std::endl;
   Pedestals2DErrorHO->SetStats(0);
   Pedestals2DErrorHO->SetNdivisions(36,"Y");
   Pedestals2DErrorHO->Draw("COLZ");
   can->SaveAs((htmlDir + "ho_error_map.gif").c_str());
-  htmlFile << "<td><img src=\"ho_error_map.gif\" alt=\"ho pedestal error map\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
-  htmlFile << "<hr>" << endl;
+  htmlFile << "<td><img src=\"ho_error_map.gif\" alt=\"ho pedestal error map\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
+  htmlFile << "</table>" << std::endl;
+  htmlFile << "<hr>" << std::endl;
   
   ///////////////////////////////////////////   
-  htmlFile << "<h2 align=\"center\">HB Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
-  htmlFile << "<table width=100% border=0><tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<h2 align=\"center\">HB Pedestal plots (Reference run "<<ref_run<<")</h2>" << std::endl;
+  htmlFile << "<table width=100% border=0><tr>" << std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HB->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HB->Draw();
   can->SaveAs((htmlDir + "hb_pedestal_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hb_pedestal_distribution.gif\" alt=\"hb pedestal mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"hb_pedestal_distribution.gif\" alt=\"hb pedestal mean\">   </td>" << std::endl;
   if(PedestalsRmsHB->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHB->Draw();
   can->SaveAs((htmlDir + "hb_pedestal_rms_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hb_pedestal_rms_distribution.gif\" alt=\"hb pedestal rms mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
+  htmlFile << "<td><img src=\"hb_pedestal_rms_distribution.gif\" alt=\"hb pedestal rms mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HBref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HBref->Draw();
   can->SaveAs((htmlDir + "hb_pedestal_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hb_pedestal_ref_distribution.gif\" alt=\"hb pedestal-reference mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"hb_pedestal_ref_distribution.gif\" alt=\"hb pedestal-reference mean\">   </td>" << std::endl;
   if(PedestalsRmsHBref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHBref->Draw();
   can->SaveAs((htmlDir + "hb_pedestal_rms_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hb_pedestal_rms_ref_distribution.gif\" alt=\"hb pedestal rms-reference mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
+  htmlFile << "<td><img src=\"hb_pedestal_rms_ref_distribution.gif\" alt=\"hb pedestal rms-reference mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
+  htmlFile << "</table>" << std::endl;
   /////////////////////////////////////////// 
-  htmlFile << "<h2 align=\"center\">HE Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
-  htmlFile << "<table width=100% border=0><tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<h2 align=\"center\">HE Pedestal plots (Reference run "<<ref_run<<")</h2>" << std::endl;
+  htmlFile << "<table width=100% border=0><tr>" << std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HE->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0);  
   PedestalsAve4HE->Draw();
   can->SaveAs((htmlDir + "he_pedestal_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"he_pedestal_distribution.gif\" alt=\"he pedestal mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"he_pedestal_distribution.gif\" alt=\"he pedestal mean\">   </td>" << std::endl;
   if(PedestalsRmsHE->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHE->Draw();
   can->SaveAs((htmlDir + "he_pedestal_rms_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"he_pedestal_rms_distribution.gif\" alt=\"he pedestal rms mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
+  htmlFile << "<td><img src=\"he_pedestal_rms_distribution.gif\" alt=\"he pedestal rms mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HEref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HEref->Draw();
   can->SaveAs((htmlDir + "he_pedestal_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"he_pedestal_ref_distribution.gif\" alt=\"he pedestal-reference mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"he_pedestal_ref_distribution.gif\" alt=\"he pedestal-reference mean\">   </td>" << std::endl;
   if(PedestalsRmsHEref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHEref->Draw();
   can->SaveAs((htmlDir + "he_pedestal_rms_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"he_pedestal_rms_ref_distribution.gif\" alt=\"he pedestal rms-reference mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
+  htmlFile << "<td><img src=\"he_pedestal_rms_ref_distribution.gif\" alt=\"he pedestal rms-reference mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
+  htmlFile << "</table>" << std::endl;
   /////////////////////////////////////////// 
-  htmlFile << "<h2 align=\"center\">HO Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
-  htmlFile << "<table width=100% border=0><tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<h2 align=\"center\">HO Pedestal plots (Reference run "<<ref_run<<")</h2>" << std::endl;
+  htmlFile << "<table width=100% border=0><tr>" << std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HO->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HO->Draw();
   can->SaveAs((htmlDir + "ho_pedestal_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"ho_pedestal_distribution.gif\" alt=\"ho pedestal mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"ho_pedestal_distribution.gif\" alt=\"ho pedestal mean\">   </td>" << std::endl;
   if(PedestalsRmsHO->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHO->Draw();
   can->SaveAs((htmlDir + "ho_pedestal_rms_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"ho_pedestal_rms_distribution.gif\" alt=\"ho pedestal rms mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
+  htmlFile << "<td><img src=\"ho_pedestal_rms_distribution.gif\" alt=\"ho pedestal rms mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
   // SIMP
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4Simp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4Simp->Draw();
   can->SaveAs((htmlDir + "sipm_pedestal_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"sipm_pedestal_distribution.gif\" alt=\"sipm pedestal mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"sipm_pedestal_distribution.gif\" alt=\"sipm pedestal mean\">   </td>" << std::endl;
   if(PedestalsRmsSimp->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsSimp->Draw();
   can->SaveAs((htmlDir + "simp_pedestal_rms_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"simp_pedestal_rms_distribution.gif\" alt=\"sipm pedestal rms mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
+  htmlFile << "<td><img src=\"simp_pedestal_rms_distribution.gif\" alt=\"sipm pedestal rms mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
   // SIMP
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HOref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HOref->Draw();
   can->SaveAs((htmlDir + "ho_pedestal_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"ho_pedestal_ref_distribution.gif\" alt=\"ho pedestal-reference mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"ho_pedestal_ref_distribution.gif\" alt=\"ho pedestal-reference mean\">   </td>" << std::endl;
   if(PedestalsRmsHOref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHOref->Draw();
   can->SaveAs((htmlDir + "ho_pedestal_rms_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"ho_pedestal_rms_ref_distribution.gif\" alt=\"ho pedestal rms-reference mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
+  htmlFile << "<td><img src=\"ho_pedestal_rms_ref_distribution.gif\" alt=\"ho pedestal rms-reference mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
+  htmlFile << "</table>" << std::endl;
   /////////////////////////////////////////// 
 
-  htmlFile << "<h2 align=\"center\">HF Pedestal plots (Reference run "<<ref_run<<")</h2>" << endl;
-  htmlFile << "<table width=100% border=0><tr>" << endl;
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<h2 align=\"center\">HF Pedestal plots (Reference run "<<ref_run<<")</h2>" << std::endl;
+  htmlFile << "<table width=100% border=0><tr>" << std::endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HF->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HF->Draw();
   can->SaveAs((htmlDir + "hf_pedestal_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hf_pedestal_distribution.gif\" alt=\"hf pedestal mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"hf_pedestal_distribution.gif\" alt=\"hf pedestal mean\">   </td>" << std::endl;
   if(PedestalsRmsHF->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHF->Draw();
   can->SaveAs((htmlDir + "hf_pedestal_rms_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hf_pedestal_rms_distribution.gif\" alt=\"hf pedestal rms mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
+  htmlFile << "<td><img src=\"hf_pedestal_rms_distribution.gif\" alt=\"hf pedestal rms mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
   
-  htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << std::endl;
   if(PedestalsAve4HFref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsAve4HFref->Draw();
   can->SaveAs((htmlDir + "hf_pedestal_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hf_pedestal_ref_distribution.gif\" alt=\"hf pedestal-reference mean\">   </td>" << endl;
+  htmlFile << "<td><img src=\"hf_pedestal_ref_distribution.gif\" alt=\"hf pedestal-reference mean\">   </td>" << std::endl;
   if(PedestalsRmsHFref->GetMaximum()>0) can->SetLogy(1); else can->SetLogy(0); 
   PedestalsRmsHFref->Draw();
   can->SaveAs((htmlDir + "hf_pedestal_rms_ref_distribution.gif").c_str());
-  htmlFile << "<td><img src=\"hf_pedestal_rms_ref_distribution.gif\" alt=\"hf pedestal rms-reference mean\">   </td>" << endl;
-  htmlFile << "</tr>" << endl;
-  htmlFile << "</table>" << endl;
+  htmlFile << "<td><img src=\"hf_pedestal_rms_ref_distribution.gif\" alt=\"hf pedestal rms-reference mean\">   </td>" << std::endl;
+  htmlFile << "</tr>" << std::endl;
+  htmlFile << "</table>" << std::endl;
   
 
-  htmlFile << "</body> " << endl;
-  htmlFile << "</html> " << endl;
+  htmlFile << "</body> " << std::endl;
+  htmlFile << "</html> " << std::endl;
   htmlFile.close();
   can->Close();
 }
