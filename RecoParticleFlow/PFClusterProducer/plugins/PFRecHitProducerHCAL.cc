@@ -724,12 +724,18 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   // all the following detids will be CaloTowerDetId
   CaloTowerDetId north;
   CaloTowerDetId northwest;
+  CaloTowerDetId northwest2;
   CaloTowerDetId west;
+  CaloTowerDetId west2;
   CaloTowerDetId southwest;
+  CaloTowerDetId southwest2;
   CaloTowerDetId south;
   CaloTowerDetId southeast;
+  CaloTowerDetId southeast2;
   CaloTowerDetId east;
+  CaloTowerDetId east2;
   CaloTowerDetId northeast;
+  CaloTowerDetId northeast2;
   
   // for north and south, there is no ambiguity : 1 or 0 neighbours
   stringstream err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours "); 
@@ -770,8 +776,11 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   case 2:  
     // in this case, 0 is more on the north than 1
     east = eastids[0];
+    east2 = eastids[1];
     northeast = getNorth(east, topology );
-    southeast = getSouth(eastids[1], topology);    
+    southeast = getSouth(east2, topology);    
+    northeast2 = getNorth(northeast, topology );
+    southeast2 = getSouth(southeast, topology);    
     break;
   default:
     err<<"eastids: "<<eastids.size();
@@ -790,8 +799,11 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   case 2:  
     // in this case, 0 is more on the north than 1
     west = westids[0];
+    west2 = westids[1];
     northwest = getNorth(west, topology );
-    southwest = getSouth(westids[1], topology );    
+    southwest = getSouth(west2, topology );    
+    northwest2 = getNorth(northwest, topology );
+    southwest2 = getSouth(southwest, topology );    
     break;
   default:
     err<<"westids: "<< westids.size();
@@ -811,6 +823,10 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
   
+  i = sortedHits.find( northeast2.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+  
   i = sortedHits.find( south.rawId() );
   if(i != sortedHits.end() ) 
     rh.add4Neighbour( i->second );
@@ -819,7 +835,15 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
     
+  i = sortedHits.find( southwest2.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+    
   i = sortedHits.find( east.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
+    
+  i = sortedHits.find( east2.rawId() );
   if(i != sortedHits.end() ) 
     rh.add4Neighbour( i->second );
     
@@ -827,11 +851,23 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
     
+  i = sortedHits.find( southeast2.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+    
   i = sortedHits.find( west.rawId() );
   if(i != sortedHits.end() ) 
      rh.add4Neighbour( i->second );
    
+  i = sortedHits.find( west2.rawId() );
+  if(i != sortedHits.end() ) 
+     rh.add4Neighbour( i->second );
+   
   i = sortedHits.find( northwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+
+  i = sortedHits.find( northwest2.rawId() );
   if(i != sortedHits.end() ) 
     rh.add8Neighbour( i->second );
 
