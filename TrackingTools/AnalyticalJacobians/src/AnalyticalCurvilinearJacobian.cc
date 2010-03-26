@@ -263,6 +263,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double sinl = tn.z(); 
   double cosl = std::sqrt(1.-sinl*sinl); 
   double cosl1 = 1./cosl;
+  double tgl=sinl*cosl1;
   double sinp = tn.y()*cosl1;
   double cosp = tn.x()*cosl1;
 
@@ -271,7 +272,6 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double b0= h.x()*cosp+h.y()*sinp;
   double b2=-h.x()*sinp+h.y()*cosp;
   double b3=-b0*sinl+h.z()*cosl;
-  double tgl=sinl*cosl1;
 
   theJacobian(3,2)=absS*cosl;
   theJacobian(4,1)=absS;
