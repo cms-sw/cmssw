@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.1 2010/03/24 13:45:17 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.2 2010/03/24 19:05:47 delaer Exp $
 //
 //
 
@@ -42,7 +42,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
