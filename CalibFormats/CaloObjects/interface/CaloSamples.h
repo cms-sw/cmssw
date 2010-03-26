@@ -9,8 +9,8 @@
 Class which represents the charge/voltage measurements of an event/channel
 with the ADC decoding performed.
 
-$Date: 2005/10/07 03:56:13 $
-$Revision: 1.2 $
+$Date: 2006/01/05 16:26:05 $
+$Revision: 1.3 $
 */
 class CaloSamples {
 public:
@@ -39,6 +39,14 @@ public:
 
   /// add a value to all samples
   CaloSamples& operator+=(double value);
+
+  void setDetId( DetId detId ) { id_ = detId ; }
+
+  void setSize( unsigned int size ) { size_ = size ; }
+
+  bool isBlank() const ; // are the samples blank (zero?)
+
+  void setBlank() ; // keep id, presamples, size but zero out data
 
   static const int MAXSAMPLES=10;
 private:

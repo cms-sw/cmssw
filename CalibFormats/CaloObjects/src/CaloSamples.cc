@@ -22,6 +22,27 @@ CaloSamples& CaloSamples::operator+=(double value) {
   return (*this);
 }
 
+bool 
+CaloSamples::isBlank() const // are the samples blank (zero?)
+{
+   return ( 0.0 != data_[5] ||
+	    0.0 != data_[6] ||
+	    0.0 != data_[4] ||
+	    0.0 != data_[7] ||
+	    0.0 != data_[3] ||
+	    0.0 != data_[8] ||
+	    0.0 != data_[2] ||
+	    0.0 != data_[9] ||
+	    0.0 != data_[1] ||
+	    0.0 != data_[0]    ) ;
+}
+
+void 
+CaloSamples::setBlank() // keep id, presamples, size but zero out data
+{
+   std::fill( data_ , data_ + MAXSAMPLES, (double)0.0 ) ;
+}
+
 std::ostream& operator<<(std::ostream& s, const CaloSamples& samples) {
   s << "DetId=" << samples.id().rawId();
   s << ", "<<  samples.size() << "samples" << std::endl;
