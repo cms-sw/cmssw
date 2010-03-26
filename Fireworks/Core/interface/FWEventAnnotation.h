@@ -30,7 +30,6 @@ private:
 
    void updateOverlayText();
 
-   const fwlite::Event* m_event;
    int  m_level;
 };
 

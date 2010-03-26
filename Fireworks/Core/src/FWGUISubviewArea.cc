@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.33 2009/10/07 19:02:31 amraktad Exp $
+// $Id: FWGUISubviewArea.cc,v 1.34 2010/01/25 13:33:37 amraktad Exp $
 //
 
 // system include files
@@ -28,6 +28,36 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
+
+//==============================================================================
+// Workaround around bloody squeaking TGPictureButton.
+// Want to get signal when pressed and released.
+// This is needed for "info" button which "stays down".
+//------------------------------------------------------------------------------
+namespace
+{
+   class XXXButton : public TGPictureButton
+   {
+      Int_t fXState;
+   public:
+      XXXButton(const TGWindow* p, const TGPicture* pic) :
+         TGPictureButton(p, pic), fXState(kButtonUp) {}
+
+      virtual void SetState(EButtonState state, Bool_t emit=kFALSE)
+      {
+         TGPictureButton::SetState(state, kFALSE);
+         if ((fXState == kButtonUp && fState  == kButtonEngaged) ||
+             (fState  == kButtonUp && fXState == kButtonEngaged))
+         {
+            fXState = fState;
+            Clicked();
+         }
+      }      
+   };
+}
+//==============================================================================
+
+
 //
 // constructors and destructor
 //
@@ -42,13 +72,12 @@ FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* par
    UInt_t lh = kLHintsNormal | kLHintsExpandX | kLHintsExpandY;
 
    // info
-   m_infoButton = new TGPictureButton(this,infoIcon());
+   m_infoButton = new XXXButton(this,infoIcon());
    m_infoButton->ChangeOptions(kRaisedFrame);
    m_infoButton->SetDisabledPicture(infoDisabledIcon());
    AddFrame(m_infoButton, new TGLayoutHints(lh));
    m_infoButton->AllowStayDown(kTRUE);
-   m_infoButton->Connect("Pressed()","FWGUISubviewArea",this,"selectButtonDown()");
-   m_infoButton->Connect("Released()","FWGUISubviewArea",this,"selectButtonUp()");
+   m_infoButton->Connect("Clicked()","FWGUISubviewArea",this,"selectButtonToggle()");
    m_infoButton->SetToolTipText("Edit View");
 
    //swap
@@ -97,8 +126,7 @@ FWGUISubviewArea::~FWGUISubviewArea()
 {
    //std::cout <<"IN dstr FWGUISubviewArea"<<std::endl;
    m_closeButton->Disconnect("Clicked()", this,"destroy()");
-   m_infoButton->Disconnect("Pressed()",this,"selectButtonDown()");
-   m_infoButton->Disconnect("Released()",this,"selectButtonUp()");
+   m_infoButton->Disconnect("Clicked()",this,"selectButtonToggle()");
 }
 
 //______________________________________________________________________________
@@ -107,15 +135,12 @@ FWGUISubviewArea::~FWGUISubviewArea()
 //
 
 void
-FWGUISubviewArea::selectButtonDown()
+FWGUISubviewArea::selectButtonToggle()
 {
-   selected_(this);
-}
-
-void
-FWGUISubviewArea::selectButtonUp()
-{
-   unselected_(this);
+   if (isSelected())
+      selected_(this);
+   else
+      unselected_(this);
 }
 
 void

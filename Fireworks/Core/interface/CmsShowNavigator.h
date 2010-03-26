@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.47 2009/12/13 12:27:10 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.48 2009/12/17 19:31:10 amraktad Exp $
 //
 
 // system include files
@@ -45,10 +45,14 @@ private:
    {
       struct iterator : public FQBase_i
       {
+      private:
          bool m_isSet;
 
+      public:
          iterator() : m_isSet(false) {}
          iterator(FQBase_i i) : FQBase_i(i), m_isSet(true) {}
+
+         bool isSet() const { return m_isSet; }
 
          iterator& previous(FileQueue_t& cont)
          {
@@ -106,7 +110,7 @@ public:
    void withdrawFilter();
    void resumeFilter();
    
-   const fwlite::Event* getCurrentEvent() const { return (*m_currentFile)->event();}
+   const fwlite::Event* getCurrentEvent() const { return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; }
    const char* filterStatusMessage();
    int  getNSelectedEvents();
    int  getNTotalEvents();

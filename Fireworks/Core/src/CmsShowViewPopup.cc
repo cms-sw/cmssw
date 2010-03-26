@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.21 2010/01/25 17:00:37 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.22 2010/03/14 18:22:35 amraktad Exp $
 //
 
 // system include files
@@ -79,10 +79,8 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    m_viewContentFrame = new TGCompositeFrame(this);
    AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   reset(vb, ew);
 
    SetWindowName("View Controller");
-   MapWindow();
 }
 
 // CmsShowViewPopup::CmsShowViewPopup(const CmsShowViewPopup& rhs)
@@ -123,8 +121,10 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
          m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
          m_setters.push_back(ptr);
       }
+      fMain = m_eveWindow->GetEveFrame();
    }
    else {
+      fMain = 0;
       m_viewLabel->SetText("No view selected");
       m_saveImageButton->SetEnabled(kFALSE);
    }
@@ -132,6 +132,10 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
    MapSubwindows();
    Resize(GetDefaultSize());
    Layout();
+   if (fMain)
+   {
+      CenterOnParent(kTRUE, TGTransientFrame::kTopRight);
+   }
 }
 
 //

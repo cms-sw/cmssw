@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.23 2009/10/07 19:02:31 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.24 2010/01/25 13:33:37 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -58,8 +58,7 @@ public:
    void undock();
    void dock();
 
-   void selectButtonDown();
-   void selectButtonUp();
+   void selectButtonToggle();
 
    sigc::signal<void, FWGUISubviewArea*> swap_;
    sigc::signal<void, FWGUISubviewArea*> goingToBeDestroyed_;

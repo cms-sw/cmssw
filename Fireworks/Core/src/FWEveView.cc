@@ -65,9 +65,11 @@ FWEveView::FWEveView(TEveWindowSlot* iParent) :
    m_viewContextMenu.reset(ctxHand);
    
    m_overlayEventInfo = new FWEventAnnotation(embeddedViewer);
+   m_overlayEventInfo->setLevel(0);
    m_eventInfoLevel.changed_.connect(boost::bind(&FWEventAnnotation::setLevel,m_overlayEventInfo, _1));
    
    m_overlayLogo = new CmsAnnotation(embeddedViewer, 0.02, 0.98);
+   m_overlayLogo->setVisible(false);
    m_drawCMSLogo.changed_.connect(boost::bind(&CmsAnnotation::setVisible,m_overlayLogo, _1));
  
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)  

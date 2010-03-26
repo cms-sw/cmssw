@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.85 2010/01/13 11:37:12 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.86 2010/01/13 11:53:33 amraktad Exp $
 //
 #define private public
 #include "DataFormats/FWLite/interface/Event.h"
@@ -140,7 +140,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
       m_files.push_back(newFile);
 
       // Needed for proper handling of first registered file when -port option is in effect.
-      if (!m_currentFile.m_isSet)
+      if (!m_currentFile.isSet())
          setCurrentFile(m_files.begin());
 
       // set filters

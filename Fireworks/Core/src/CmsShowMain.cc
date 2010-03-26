@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.148 2010/03/25 14:57:22 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.149 2010/03/25 18:20:25 matevz Exp $
 //
 
 // system include files
@@ -420,7 +420,11 @@ void CmsShowMain::doExit()
 
 const fwlite::Event* CmsShowMain::getCurrentEvent() const
 {
-   return m_navigator->getCurrentEvent();
+   if (m_navigator)
+   {
+      return m_navigator->getCurrentEvent();
+   }
+   return 0;
 }
 
 void CmsShowMain::resetInitialization() {

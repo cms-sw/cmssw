@@ -21,7 +21,6 @@
 
 FWEventAnnotation::FWEventAnnotation(TGLViewerBase *view):
    TGLAnnotation(view, "Event Info", 0.05, 0.95),
-   m_event(0),
    m_level(1)
 {
    SetRole(TGLOverlayElement::kViewer);
@@ -46,7 +45,6 @@ FWEventAnnotation::setLevel(long x)
 void
 FWEventAnnotation::setEvent()
 {
-   m_event = FWGUIManager::getGUIManager()->getCurrentEvent();
    updateOverlayText();
 }
 
@@ -55,25 +53,27 @@ FWEventAnnotation::updateOverlayText()
 {
    fText = "CMS Experiment at LHC, CERN";
 
-   if (m_event && m_level)
+   const fwlite::Event* event = FWGUIManager::getGUIManager()->getCurrentEvent();
+
+   if (event && m_level)
    {
       fText += "\nData recorded: ";
-      fText += fw::getLocalTime( *m_event );
+      fText += fw::getLocalTime( *event );
       fText += "\nRun/Event: ";
-      fText += m_event->id().run();
+      fText += event->id().run();
       fText += " / ";
-      fText += m_event->id().event();
+      fText += event->id().event();
       if ( m_level > 1)
       {
          fText += "\nLumi section: ";
-	 fText += m_event->luminosityBlock();
+	 fText += event->luminosityBlock();
       }
       if ( m_level > 2)
       {
          fText += "\nOrbit/Crossing: ";
-	 fText += m_event->orbitNumber();
+	 fText += event->orbitNumber();
 	 fText += " / ";
-	 fText += m_event->bunchCrossing();
+	 fText += event->bunchCrossing();
       }
    }
    fParent->RequestDraw();

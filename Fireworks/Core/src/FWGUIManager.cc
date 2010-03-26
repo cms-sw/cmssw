@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.190 2010/03/14 20:46:58 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.191 2010/03/25 14:57:22 matevz Exp $
 
 //
 
@@ -519,10 +519,10 @@ FWGUIManager::subviewIsBeingDestroyed(FWGUISubviewArea* sva)
 void
 FWGUIManager::subviewDestroy(FWGUISubviewArea* sva)
 {  
-   TEveWindow* ew       = sva->getEveWindow(); 
+   TEveWindow* ew       = sva->getEveWindow();
    FWViewBase* viewBase = m_viewMap[ew];
-   viewBase->destroy();
    m_viewMap.erase(ew);
+   viewBase->destroy();
 }
 
 void
@@ -659,15 +659,14 @@ FWGUIManager::setViewPopup(TEveWindow* ew) {
    FWViewBase* vb = ew ? m_viewMap[ew] : 0;
    if (m_viewPopup == 0)
    {
-      m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_colorManager, vb, ew);
+      m_viewPopup = new CmsShowViewPopup(0, 200, 200, m_colorManager, vb, ew);
       m_viewPopup->closed_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::popupViewClosed));
-      m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
    }
    else
    {
-      m_viewPopup->reset(vb, ew);
+      m_viewPopup->UnmapWindow();
    }
-
+   m_viewPopup->reset(vb, ew);
    m_viewPopup->MapRaised();
 }
 
@@ -769,17 +768,53 @@ FWGUIManager::exportImageOfMainView()
 void
 FWGUIManager::exportAllViews(const std::string& format)
 {
-   const fwlite::Event *event = getCurrentEvent();
-   TString file;
+   // Save all GL views.
+   // Expects format to have "%d %d %d %s" which are replaced with
+   //   run-number, event number, lumi block and view-name.
+   // Blanks in view-name are removed.
+   // If several views shave the same name, they are post-fixed
+   // with "_%d". They are sorted by view diagonal.
+
+   typedef std::list<TEveViewer*>           viewer_list_t;
+   typedef viewer_list_t::iterator          viewer_list_i;
+
+   typedef std::map<TString, viewer_list_t> name_map_t;
+   typedef name_map_t::iterator             name_map_i;
+
+   name_map_t vls;
+
    for (ViewMap_i i = m_viewMap.begin(); i != m_viewMap.end(); ++i)
    {
       TEveViewer *ev = dynamic_cast<TEveViewer*>(i->first);
       if (ev)
       {
+         TString name(ev->GetElementName());
+         name.ReplaceAll(" ", "");
+         viewer_list_t &l  = vls[name];
+         viewer_list_i  li = l.begin();
+         while (li != l.end() && (*li)->GetGLViewer()->ViewportDiagonal() < ev->GetGLViewer()->ViewportDiagonal())
+            ++li;
+         l.insert(li, ev);
+      }
+   }
+
+   const fwlite::Event *event = getCurrentEvent();
+   for (name_map_i i = vls.begin(); i != vls.end(); ++i)
+   {
+      bool multi_p    = (i->second.size() > 1);
+      int  view_count = 1;
+      for (viewer_list_i j = i->second.begin(); j != i->second.end(); ++j, ++view_count)
+      {
+         TString view_name(i->first);
+         if (multi_p)
+         {
+            view_name += "_";
+            view_name += view_count;
+         }
+         TString file;
          file.Form(format.c_str(), event->id().run(), event->id().event(),
-                   event->luminosityBlock(), ev->GetElementName());
-         file.ReplaceAll(" ", "");
-         ev->GetGLViewer()->SavePicture(file);
+                   event->luminosityBlock(), view_name.Data());
+         (*j)->GetGLViewer()->SavePicture(file);
       }
    }
 }
