@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Wed Feb 18 17:21:04 MST 2009
-// $Id: V0Validator.cc,v 1.6 2010/02/25 20:15:43 drell Exp $
+// $Id: V0Validator.cc,v 1.7 2010/03/18 13:30:11 drell Exp $
 //
 //
 
@@ -463,16 +463,16 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iSetup.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
 
   // Make matching collections
-  reco::RecoToSimCollection recSimColl;
-  reco::SimToRecoCollection simRecColl;
+  //reco::RecoToSimCollection recSimColl;
+  //reco::SimToRecoCollection simRecColl;
    
   Handle<reco::RecoToSimCollection > recotosimCollectionH;
   iEvent.getByLabel("trackingParticleRecoTrackAsssociation", recotosimCollectionH);
-  recSimColl= *( recotosimCollectionH.product() ); 
+  //recSimColl= *( recotosimCollectionH.product() ); 
   
   Handle<reco::SimToRecoCollection> simtorecoCollectionH;
   iEvent.getByLabel("trackingParticleRecoTrackAsssociation", simtorecoCollectionH);
-  simRecColl= *( simtorecoCollectionH.product() );
+  //simRecColl= *( simtorecoCollectionH.product() );
 
   edm::Handle<TrackingParticleCollection>  TPCollectionEff ;
   iEvent.getByLabel("mergedtruth", "MergedTrackTruth", TPCollectionEff);
@@ -531,8 +531,8 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //cout << "Done with collections, associating reco and sim..." << endl;
  
 
-  reco::RecoToSimCollection r2s = associatorByHits->associateRecoToSim(trackCollectionH,TPCollectionH,&iEvent );
-  reco::SimToRecoCollection s2r = associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&iEvent );
+  //reco::RecoToSimCollection r2s = associatorByHits->associateRecoToSim(trackCollectionH,TPCollectionH,&iEvent );
+  //reco::SimToRecoCollection s2r = associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&iEvent );
 
 //  reco::VertexRecoToSimCollection vr2s = associatorByTracks->associateRecoToSim(primaryVtxCollectionH, TVCollectionH, iEvent, r2s);
 //  reco::VertexSimToRecoCollection vs2r = associatorByTracks->associateSimToReco(primaryVtxCollectionH, TVCollectionH, iEvent, s2r);
@@ -625,13 +625,16 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	// Found track from theDaughterTracks
 	RefToBase<reco::Track> track( theDaughterTracks.at(i) );
         
-	if(recSimColl.find(track) != recSimColl.end()) {
-	  tp = recSimColl[track];
+	//if(recSimColl.find(track) != recSimColl.end()) {
+	if(recotosimCollectionH->find(track) != recotosimCollectionH->end()) {
+	  //tp = recSimColl[track];
+	  tp = (*recotosimCollectionH)[track];
 	  if (tp.size() != 0) {
 	    K0sPiCandStatus[i] = 1;
 	    tpref = tp.begin()->first;
 
-	    if( simRecColl.find(tpref) == simRecColl.end() ) {
+	    //if( simRecColl.find(tpref) == simRecColl.end() ) {
+	    if( simtorecoCollectionH->find(tpref) == simtorecoCollectionH->end() ) {
 	      K0sPiCandStatus[i] = 3;
 	    }
 	    //cout << "3" << endl;
@@ -763,13 +766,16 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	//cout << "Looping over lam daughters" << endl;
 	RefToBase<reco::Track> track( theDaughterTracks.at(i) );
 	
-	if(recSimColl.find(track) != recSimColl.end()) {
-	  tp = recSimColl[track];
+	//if(recSimColl.find(track) != recSimColl.end()) {
+	if(recotosimCollectionH->find(track) != recotosimCollectionH->end()) {
+	  //tp = recSimColl[track];
+	  tp = (*recotosimCollectionH)[track];
 	  if (tp.size() != 0) {
 	    LamPiCandStatus[i] = 1;
 	    tpref = tp.begin()->first;
 
-	    if( simRecColl.find(tpref) == simRecColl.end() ) {
+	    //if( simRecColl.find(tpref) == simRecColl.end() ) {
+	    if( simtorecoCollectionH->find(tpref) == simtorecoCollectionH->end() ) {
 	      LamPiCandStatus[i] = 3;
 	    }
 	    TrackingVertexRef parentVertex = tpref->parentVertex();
@@ -954,8 +960,10 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      std::vector< std::pair<RefToBase<reco::Track>, double> > rt1;
 		      std::vector< std::pair<RefToBase<reco::Track>, double> > rt2;
 		      
-		      if( simRecColl.find(tpr1) != simRecColl.end() ) {
-			rt1 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) simRecColl[tpr1];
+		      //if( simRecColl.find(tpr1) != simRecColl.end() ) {
+		      if( simtorecoCollectionH->find(tpr1) != simtorecoCollectionH->end() ) {
+			//rt1 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) simRecColl[tpr1];
+			rt1 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) (*simtorecoCollectionH)[tpr1];
 			if(rt1.size() != 0) {
 			  LamPiEff[0] = 1; //Found the first daughter track
 			  edm::RefToBase<reco::Track> t1 = rt1.begin()->first;
@@ -964,8 +972,10 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      else {
 			LamPiEff[0] = 2;//First daughter not found
 		      }
-		      if( (simRecColl.find(tpr2) != simRecColl.end()) ) {
-			rt2 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) simRecColl[tpr2];
+		      //if( (simRecColl.find(tpr2) != simRecColl.end()) ) {
+		      if( (simtorecoCollectionH->find(tpr2) != simtorecoCollectionH->end()) ) {
+			//rt2 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) simRecColl[tpr2];
+			rt2 = (std::vector<std::pair<RefToBase<reco::Track>, double> >) (*simtorecoCollectionH)[tpr2];
 			if(rt2.size() != 0) {
 			  LamPiEff[1] = 1;//Found the second daughter track
 			  edm::RefToBase<reco::Track> t2 = rt2.begin()->first;
@@ -1095,8 +1105,10 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      std::vector<std::pair<RefToBase<reco::Track>, double> > rt1;
 		      std::vector<std::pair<RefToBase<reco::Track>, double> > rt2;
 		      
-		      if( simRecColl.find(tpr1) != simRecColl.end() ) {
-			rt1 = (std::vector< std::pair<RefToBase<reco::Track>, double> >) simRecColl[tpr1];
+		      //if( simRecColl.find(tpr1) != simRecColl.end() ) {
+		      if( simtorecoCollectionH->find(tpr1) != simtorecoCollectionH->end() ) {
+			rt1 = (std::vector< std::pair<RefToBase<reco::Track>, double> >) (*simtorecoCollectionH)[tpr1];
+//simRecColl[tpr1];
 			if(rt1.size() != 0) {
 			  //First pion found
 			  K0sPiEff[0] = 1;
@@ -1108,8 +1120,10 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 			K0sPiEff[0] = 2;
 		      }
 		      
-		      if( simRecColl.find(tpr2) != simRecColl.end() ) {
-			rt2 = (std::vector< std::pair<RefToBase<reco::Track>, double> >) simRecColl[tpr2];
+		      //if( simRecColl.find(tpr2) != simRecColl.end() ) {
+		      if( simtorecoCollectionH->find(tpr2) != simtorecoCollectionH->end() ) {
+			rt2 = (std::vector< std::pair<RefToBase<reco::Track>, double> >) (*simtorecoCollectionH)[tpr2];
+//simRecColl[tpr2];
 			if(rt2.size() != 0) {
 			  //Second pion found
 			  K0sPiEff[1] = 1;
