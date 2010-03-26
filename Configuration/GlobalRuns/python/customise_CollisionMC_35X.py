@@ -18,7 +18,6 @@ def customise(process):
     ### pixelTracks
     #---- replaces ----
     process.pixelTracks.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
-    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
     #---- new parameters ----
     process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06) # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
     process.pixelTracks.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
@@ -26,7 +25,6 @@ def customise(process):
     ### 0th step of iterative tracking
     #---- replaces ----
     process.newSeedFromTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
-    process.newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
     #---- new parameters ----
     process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  # was originHalfLength = 15.9; translated assuming sigmaZ ~ 3.8
     process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
@@ -34,7 +32,6 @@ def customise(process):
     ### 2nd step of iterative tracking
     #---- replaces ----
     process.secTriplets.RegionFactoryPSet.ComponentName = 'GlobalRegionProducerFromBeamSpot' # was GlobalRegionProducer
-    process.secTriplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = True     # was False
     #---- new parameters ----
     process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  # was originHalfLength = 17.5; translated assuming sigmaZ ~ 3.8
     process.secTriplets.RegionFactoryPSet.RegionPSet.beamSpot = cms.InputTag("offlineBeamSpot")
@@ -65,21 +62,10 @@ def customise(process):
     process.zdcreco.samplesToAdd = 3
     
     ## EGAMMA
-    process.ecalDrivenElectronSeeds.SCEtCut = cms.double(1.0)
-    process.ecalDrivenElectronSeeds.applyHOverECut = cms.bool(False)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.z2MinB = cms.double(-0.9)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.z2MaxB = cms.double(0.9)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.r2MinF = cms.double(-1.5)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.r2MaxF = cms.double(1.5)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.rMinI = cms.double(-2.)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.rMaxI = cms.double(2.)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
-    process.ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
     process.gsfElectrons.applyPreselection = cms.bool(False)
-    process.photons.minSCEtBarrel = 1.
-    process.photons.minSCEtEndcap =1.
-    process.photonCore.minSCEt = 1.
+    process.photons.minSCEtBarrel = 2.
+    process.photons.minSCEtEndcap =2.
+    process.photonCore.minSCEt = 2.
     process.conversionTrackCandidates.minSCEt =1.
     process.conversions.minSCEt =1.
     process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
