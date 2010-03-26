@@ -25,16 +25,16 @@ CaloSamples& CaloSamples::operator+=(double value) {
 bool 
 CaloSamples::isBlank() const // are the samples blank (zero?)
 {
-   return ( 0.0 != data_[5] ||
-	    0.0 != data_[6] ||
-	    0.0 != data_[4] ||
-	    0.0 != data_[7] ||
-	    0.0 != data_[3] ||
-	    0.0 != data_[8] ||
-	    0.0 != data_[2] ||
-	    0.0 != data_[9] ||
-	    0.0 != data_[1] ||
-	    0.0 != data_[0]    ) ;
+   return ( 0.0 == data_[5] &&
+	    0.0 == data_[6] &&
+	    0.0 == data_[4] &&
+	    0.0 == data_[7] &&
+	    0.0 == data_[3] &&
+	    0.0 == data_[8] &&
+	    0.0 == data_[2] &&
+	    0.0 == data_[9] &&
+	    0.0 == data_[1] &&
+	    0.0 == data_[0]    ) ;
 }
 
 void 
