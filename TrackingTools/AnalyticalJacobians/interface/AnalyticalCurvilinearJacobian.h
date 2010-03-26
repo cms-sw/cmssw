@@ -20,7 +20,9 @@ class GlobalTrajectoryParameters;
 
 class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
  public:
- 
+  /// default constructor (for tests)
+  AnalyticalCurvilinearJacobian(){}
+
   /// get Field at starting state (internally)
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,
 				const GlobalPoint& x, 
@@ -37,9 +39,13 @@ class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
   
   virtual const AlgebraicMatrix55& jacobian() const {return theJacobian;}
   virtual const AlgebraicMatrix jacobian_old() const {return asHepMatrix(theJacobian);}
-private:
+public:
   /// result for non-vanishing curvature
   void computeFullJacobian (const GlobalTrajectoryParameters&,
+			    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
+			    const double& s);
+  /// result for non-vanishing curvature and "small" step
+  void computeInfinitesimalJacobian (const GlobalTrajectoryParameters&,
 			    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
 			    const double& s);
   /// straight line approximation

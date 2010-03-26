@@ -235,6 +235,60 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   // end of TRPRFN
 }
 
+
+ void computeInfinitesimalJacobian (const GlobalTrajectoryParameters&,
+				    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
+				    const double& s) {
+   /*
+    * origin  TRPROP
+    *
+     C *** ERROR PROPAGATION ALONG A PARTICLE TRAJECTORY IN A MAGNETIC FIELD
+     C     ROUTINE ASSUMES THAT IN THE INTERVAL (X1,X2) THE QUANTITIES 1/P
+     C     AND (HX,HY,HZ) ARE RATHER CONSTANT. DELTA(PHI) MUST NOT BE TOO LARGE
+     C
+     C     Authors: A. Haas and W. Wittek
+     C
+
+    */
+   
+
+  double qbp = globalParameters.signedInverseMomentum();
+  double absS = s;
+
+  // average momentum
+  GlobalVector tn = (globalParameters.momentum()+p).unit(); 
+  sinl = tn.z(); 
+  cosl = std::sqrt(1.-sinl*sinl); 
+  cosl1 = 1./cosl;
+  sinp = tn.y()*cosl1;
+  cosp = tn.x()*cosl1;
+
+  // define average magnetic field and gradient 
+  // at initial point - inlike TRPROP
+  b0= h.x()*cosp+h.y()*sinp;
+  b2=-h.x()*sinp+h.y()*cosp;
+  b3=-b0*sinl+h.z()*cosl;
+  tgl=sinl*cosl1;
+
+
+  theJacobian(1,0) =  absS*b2;
+  if ( qbp<0) theJacobian(1,0) = -theJacobian(1,0);
+  theJacobian(1,2) = -b0*(absS*qbp);
+  theJacobian(1,3) =  b3*(b2*qbp*(absS*qbp));
+  theJacobian(1,4) = -b2*(b2*qbp*(absS*qbp));
+  
+  theJacobian(2,0) = -absS*b3*cosl1;
+  if ( qbp<0) theJacobian(2,0) = -theJacobian(2,0);
+  theJacobian(2,1) = b0*(absS*qbp)*cosl1*cosl1;
+  theJacobian(2,2) = 1.+tgl*b2*(absS*qbp);
+  theJacobian(2,3) = -b3*(b3*qbp*(absS*qbp)*cosl1);
+  theJacobian(2,4) =  b2*(b3*qbp*(absS*qbp)*cosl1);
+  
+  theJacobian(3,4) = -b3*tgl*(absS*qbp);
+  theJacobian(4,3) =  b3*tgl*(absS*qbp);
+
+
+ }
 void
 AnalyticalCurvilinearJacobian::computeStraightLineJacobian
 (const GlobalTrajectoryParameters& globalParameters,
