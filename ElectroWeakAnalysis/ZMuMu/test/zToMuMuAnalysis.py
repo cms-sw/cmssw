@@ -23,22 +23,57 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+process.MessageLogger.cerr.threshold = ''
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
+
+
 #process.load("ElectroWeakAnalysis/ZMuMu/OCTSUBSKIM_cff")
 
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-"file:../../Skimming/test/testZMuMuSubskim.root")
-)
+"file:/tmp/degrutto/testZMuMuSubskim_doubleMu3.root",
+## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_1.root',
+## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_2.root',
+## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_3.root',
+## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_4.root',
+## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_5.root',
+## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_6.root',
+## 'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/wmn/zMuMuSubskim_7.root',
 
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_1.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_2.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_3.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_5.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_6.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_7.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_8.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_9.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_10.root',
+#'rfio:/castor/cern.ch/user/d/degrutto/eta2p4/qcd/zMuMuSubskim_11.root',
+
+
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/zmm/testZMuMuSubSkim_1.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/zmm/testZMuMuSubSkim_2.root",
+#    "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_1.root",
+#    "rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_2.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_3.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_4.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_5.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/wmn/testZMuMuSubSkim_6.root",
+#"rfio:/dpm/na.infn.it/home/cms/store/user/degrutto/EWK_ZMM_OCT_EX_7TeV/TTbar/testZMuMuSubSkim_1.root",
+
+    )
+)
 
 process.TFileService = cms.Service(
     "TFileService",
-    fileName = cms.string("Analysis_zmm.root")
+    fileName = cms.string("Analysis_zmmAllWithTrkMuon_2_4.root")
 )
 
 zSelection = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 0"),
+    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.1 & mass > 20"),
     isoCut = cms.double(3.),
     ptThreshold = cms.untracked.double("1.5"),
     etEcalThreshold = cms.untracked.double("0.2"),
@@ -71,6 +106,45 @@ process.goodZToMuMu = cms.EDFilter(
     zSelection,
     src = cms.InputTag("dimuonsGlobal"),
     filter = cms.bool(True) 
+)
+
+
+
+##### enlarging the eta cut for gaining statistics
+### one muon with eta <2.4
+
+process.zToMuMuOnlyOneMuonWithEtaLessThan2p1 = cms.EDFilter(
+    "ZToMuMuIsolatedIDSelector",
+    zSelection,
+    src = cms.InputTag("dimuonsGlobal"),
+    filter = cms.bool(True) 
+)
+
+process.zToMuMuOnlyOneMuonWithEtaLessThan2p1.cut= cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & ((abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.4) | (abs(daughter(0).eta)<2.4 & abs(daughter(1).eta)<2.1))  & mass > 20")
+
+
+
+
+
+### two muon with 2.1< eta < 2.4
+process.zToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p4 = cms.EDFilter(
+    "ZToMuMuIsolatedIDSelector",
+    zSelection,
+    src = cms.InputTag("dimuonsGlobal"),
+    filter = cms.bool(True) 
+)
+
+process.zToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p4.cut= cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & ( (2.1 < abs(daughter(0).eta)<2.4) & (2.1< abs(daughter(1).eta)<2.4))  & mass > 20")
+
+
+
+
+
+process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p1 = cms.EDFilter(
+    "ZMuMuOverlapExclusionSelector",    
+    src = cms.InputTag("zToMuMuOnlyOneMuonWithEtaLessThan2p1"),
+    overlap = cms.InputTag("goodZToMuMu"),
+    filter = cms.bool(True)
 )
 
 
@@ -119,6 +193,28 @@ process.goodZToMuMu1HLT = cms.EDFilter(
     hltPath = cms.string("HLT_Mu9"),
     filter = cms.bool(True) 
 )
+
+
+
+
+process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p11HLT = cms.EDFilter(
+    "ZHLTMatchFilter",
+    src = cms.InputTag("goodZToMuMuOnlyOneMuonWithEtaLessThan2p1"),
+    condition =cms.string("exactlyOneMatched"),
+    hltPath = cms.string("HLT_Mu9"),
+    filter = cms.bool(True) 
+)
+
+process.goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLT = cms.EDFilter(
+    "ZHLTMatchFilter",
+    src = cms.InputTag("zToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p4"),
+    condition =cms.string("bothMatched"),
+    hltPath = cms.string("HLT_DoubleMu3"),
+    filter = cms.bool(True) 
+)
+
+
+
 
 #ZMuMu:at least one muon is not isolated 
 process.nonIsolatedZToMuMu = cms.EDFilter(
@@ -174,7 +270,6 @@ process.twoNonIsolatedZToMuMuAtLeast1HLT = cms.EDFilter(
 )
 
 
-
 process.zToMuGlobalMuOneTrack = cms.EDFilter(
     "CandViewRefSelector",
     cut = cms.string("daughter(0).isGlobalMuon = 1"),
@@ -196,12 +291,43 @@ process.zToMuMuOneStandAloneMuon = cms.EDFilter(
     filter = cms.bool(True)
 )
 
+### already into the subskim
+
+## process.dimuonsOneTrackerMuon = cms.EDFilter("CandViewRefSelector",
+##     src = cms.InputTag("dimuons"),
+##     cut = cms.string('charge = 0 & mass > 20 & ( (daughter(0).isTrackerMuon = 1 & daughter(0).isGlobalMuon = 0 &  daughter(1).isGlobalMuon = 1) | (daughter(1).isTrackerMuon = 1 & daughter(1).isGlobalMuon = 0 & daughter(0).isGlobalMuon = 1) )')
+## )
+
+
+
+## setting the filter to false, the HLT filter will be enable finally.. taht is needed for not losong events when looking at the 2.1<eta<2.4 regions
+process.zToMuMuOneTrackerMuon = cms.EDFilter(
+    "ZToMuMuIsolatedIDSelector",
+    zSelection,
+    src = cms.InputTag("dimuonsOneTrackerMuon"),
+    filter = cms.bool(False)
+)
+
+
+
 process.goodZToMuMuOneTrack = cms.EDFilter(
     "ZMuMuOverlapExclusionSelector",
     src = cms.InputTag("zToMuMuOneTrack"),
     overlap = cms.InputTag("goodZToMuMu"),
     filter = cms.bool(True)
 )
+
+process.zToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1 = cms.EDFilter(
+    "ZToMuMuIsolatedIDSelector",
+    zSelection,
+    src = cms.InputTag("dimuonsOneTrackerMuon"),
+    filter = cms.bool(False) 
+)
+
+process.zToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1.cut= cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & ((abs(daughter(0).eta)<2.1 & abs(daughter(1).eta)<2.4) | (abs(daughter(0).eta)<2.4 & abs(daughter(1).eta)<2.1))  & mass > 20")
+
+
+
 
 #ZMuTk:requiring that the GlobalMuon 'First' has HLT match
 process.goodZToMuMuOneTrackFirstHLT = cms.EDFilter(
@@ -212,12 +338,30 @@ process.goodZToMuMuOneTrackFirstHLT = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
+
 process.goodZToMuMuOneStandAloneMuon = cms.EDFilter(
     "ZMuMuOverlapExclusionSelector",    
     src = cms.InputTag("zToMuMuOneStandAloneMuon"),
     overlap = cms.InputTag("goodZToMuMu"),
     filter = cms.bool(True)
 )
+
+process.goodZToMuMuOneTrackerMuon = cms.EDFilter(
+    "ZMuMuOverlapExclusionSelector",    
+    src = cms.InputTag("zToMuMuOneTrackerMuon"),
+    overlap = cms.InputTag("goodZToMuMu"),
+    filter = cms.bool(False)
+)
+
+######## requiring non overlap with the 2.1 eta region
+process.goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1 = cms.EDFilter(
+    "ZMuMuOverlapExclusionSelector",
+    src = cms.InputTag("zToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1"),
+    overlap = cms.InputTag("goodZToMuMuOneTrackerMuon"),
+    filter = cms.bool(True)
+)
+
+
 
 #ZMuSta:requiring that the GlobalMuon has HLT match
 process.goodZToMuMuOneStandAloneMuonFirstHLT = cms.EDFilter(
@@ -227,6 +371,26 @@ process.goodZToMuMuOneStandAloneMuonFirstHLT = cms.EDFilter(
     hltPath = cms.string("HLT_Mu9"),
     filter = cms.bool(True) 
 )
+
+#ZMuTrkMuon:requiring that the GlobalMuon has HLT match
+process.goodZToMuMuOneTrackerMuonFirstHLT = cms.EDFilter(
+    "ZHLTMatchFilter",
+    src = cms.InputTag("goodZToMuMuOneTrackerMuon"),
+    condition =cms.string("globalisMatched"),
+    hltPath = cms.string("HLT_Mu9"),
+    filter = cms.bool(True) 
+)
+
+
+process.goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1FirstHLT = cms.EDFilter(
+    "ZHLTMatchFilter",
+    src = cms.InputTag("goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1"),
+    condition =cms.string("globalisMatched"),
+    hltPath = cms.string("HLT_Mu9"),
+    filter = cms.bool(True) 
+)
+
+
 
 process.zmumuSaMassHistogram = cms.EDAnalyzer(
     "ZMuMuSaMassHistogram",
@@ -492,6 +656,14 @@ process.goodZToMuMu2HLTPlots.src = cms.InputTag("goodZToMuMu2HLT")
 process.goodZToMuMuOneStandAloneMuonPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMuOneStandAloneMuonPlots.src = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLT")
 
+#ZMuTrkMuon First HLT + 2  track-iso
+process.goodZToMuMuOneTrackerMuonPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+process.goodZToMuMuOneTrackerMuonPlots.src = cms.InputTag("goodZToMuMuOneTrackerMuonFirstHLT")
+
+process.goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1Plots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+process.goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1Plots.src = cms.InputTag("goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1FirstHLT")
+
+
 #ZMuTk First HLT + 2  track-iso
 process.goodZToMuMuOneTrackPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMuOneTrackPlots.src = cms.InputTag("goodZToMuMuOneTrackFirstHLT")
@@ -514,6 +686,17 @@ process.goodZToMuMuSameCharge1HLT.src= cms.InputTag("goodZToMuMuSameCharge")
 
 process.goodZToMuMuSameCharge1HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMuSameCharge1HLTPlots.src = cms.InputTag("goodZToMuMuSameCharge1HLT")
+
+
+process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p11HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p11HLTPlots.src = cms.InputTag("goodZToMuMuOnlyOneMuonWithEtaLessThan2p11HLT")
+
+process.goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
+process.goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLTPlots.src = cms.InputTag("goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLT")
+
+
+
+
 
 
 process.globalMuQualityCutsAnalysis= cms.EDAnalyzer(
@@ -558,6 +741,24 @@ addModulesFromTemplate(
 
 
 addModulesFromTemplate(
+    process.zToMuMuOnlyOneMuonWithEtaLessThan2p1+
+    process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p1+
+    process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p11HLT+
+    process.goodZToMuMuOnlyOneMuonWithEtaLessThan2p11HLTPlots,
+    "goodZToMuMuOnlyOneMuonWithEtaLessThan2p1", "goodZToMuMuOnlyOneMuonWithEtaLessThan2p1",
+    "double")
+
+addModulesFromTemplate(
+    process.zToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p4 +
+    process.goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLT +
+    process.goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLTPlots,
+    "goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLT", "goodZToMuMuTwoMuonWithEtaGreaterThan2p1LessThan2p42HLT",
+    "double")
+
+
+
+
+addModulesFromTemplate(
     process.goodZToMuMu +
     process.goodZToMuMu2HLT +
     process.goodZToMuMu2HLTPlots,
@@ -578,8 +779,8 @@ addModulesFromTemplate(
     process.dimuonsGlobalSameCharge+
     process.goodZToMuMuSameCharge +
     process.goodZToMuMuSameChargeAtLeast1HLT+
-    process.goodZToMuMuSameChargeAtLeast1HLTPlots ,
-#    process.globalMuQualityCutsAnalysisSameCharge,
+    process.goodZToMuMuSameChargeAtLeast1HLTPlots,
+   # process.globalMuQualityCutsAnalysisSameCharge,
     "goodZToMuMuSameCharge", "goodZToMuMuSameCharge",
     "double")
 
@@ -631,6 +832,31 @@ addModulesFromTemplate(
     process.goodZToMuMuOneStandAloneMuonPlots, 
     "goodZToMuMuOneStandAloneMuon", "goodZToMuMuOneStandAloneMuon",
     "single")
+
+addModulesFromTemplate(
+    ~process.goodZToMuMu +
+#    process.dimuonsOneTrackerMuon +
+    process.zToMuMuOneTrackerMuon + 
+    process.goodZToMuMuOneTrackerMuon +
+    process.goodZToMuMuOneTrackerMuonFirstHLT +
+    process.goodZToMuMuOneTrackerMuonPlots, 
+    "goodZToMuMuOneTrackerMuon", "goodZToMuMuOneTrackerMuon",
+    "single")
+
+
+addModulesFromTemplate(
+    ~process.goodZToMuMu +
+#    process.dimuonsOneTrackerMuon +
+    process.zToMuMuOneTrackerMuon + 
+    process.goodZToMuMuOneTrackerMuon +
+    process.zToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1 + 
+    process.goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1+ 
+    process.goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1FirstHLT +
+    process.goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1Plots, 
+    "goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1", "goodZToMuMuOneTrackerMuonOnlyOneMuonWithEtaLessThan2p1",
+    "single")
+
+
 
 addModulesFromTemplate(
     ~process.goodZToMuMu +
