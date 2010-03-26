@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.22 2009/12/18 20:44:53 wmtan Exp $
+//$Id: FourVectorHLTClient.cc,v 1.23 2010/03/25 08:38:49 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -63,7 +63,7 @@ void FourVectorHLTClient::initialize(){
   // get back-end interface
   dbe_ = Service<DQMStore>().operator->();
 
-  processname_ = parameters_.getParameter<std::string>("processname");
+  processname_ = parameters_.getUntrackedParameter<std::string>("processname","HLT");
   
 
   // base folder for the contents of this job
