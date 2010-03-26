@@ -61,18 +61,21 @@ int main ( int argc, char ** argv )
        ! ev.atEnd();
        ++ev) {
     ret.set(false);
-    bool passed = wPlusJets(ev, ret);
-    std::vector<reco::ShallowClonePtrCandidate> const & electrons = wPlusJets.selectedElectrons();
-    std::vector<reco::ShallowClonePtrCandidate> const & muons     = wPlusJets.selectedMuons();
-    std::vector<reco::ShallowClonePtrCandidate> const & jets      = wPlusJets.cleanedJets();
-    std::vector<reco::ShallowClonePtrCandidate> const & jetsBeforeClean = wPlusJets.selectedJets();
+    
+    // Unused variables commented out to avoid compiler warnings
+    // The right hand expressions were left in place in case of side effects.
+    /* bool passed = */ wPlusJets(ev, ret);
+    /* std::vector<reco::ShallowClonePtrCandidate> const & electrons = */ wPlusJets.selectedElectrons();
+    /* std::vector<reco::ShallowClonePtrCandidate> const & muons     = */ wPlusJets.selectedMuons();
+    /* std::vector<reco::ShallowClonePtrCandidate> const & jets      = */ wPlusJets.cleanedJets();
+    /* std::vector<reco::ShallowClonePtrCandidate> const & jetsBeforeClean = */ wPlusJets.selectedJets();
 
     string bit_;
     
     bit_ = "Trigger" ;
-    bool passTrigger = ret[ bit_ ];
+    /* bool passTrigger = */ ret[ bit_ ];
     bit_ = "== 1 Lepton";
-    bool passOneLepton = ret[ bit_ ];
+    /* bool passOneLepton = */ ret[ bit_ ];
    
   } //end event loop
   
