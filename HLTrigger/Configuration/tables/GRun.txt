@@ -5,6 +5,8 @@ HLT_Activity_Ecal
 HLT_Activity_EcalREM
 HLT_Activity_DT
 HLT_Activity_DT_Tuned
+HLT_Activity_HFT3
+HLT_Activity_HFT10
 HLT_SelectEcalSpikes_L1R
 HLT_SelectEcalSpikesHighEt_L1R
 HLT_L1Jet6U
@@ -125,8 +127,6 @@ HLT_Calibration
 HLT_EcalCalibration
 HLT_HcalCalibration
 HLT_Random
-HLT_HFThreshold3
-HLT_HFThreshold10
 HLT_GlobalRunHPDNoise
 HLT_TechTrigHCALNoise
 HLT_L1_BPTX
