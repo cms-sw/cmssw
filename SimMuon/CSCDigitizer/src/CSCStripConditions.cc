@@ -6,7 +6,9 @@ template class CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix
 
 template
 void
-CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix >::noisify(CSCAnalogSignal&) const ;
+CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix
+		     >::noisify(CSCAnalogSignal&,
+				const std::vector<double>* rangau) const ;
 
 
 CSCStripConditions::CSCStripConditions()
