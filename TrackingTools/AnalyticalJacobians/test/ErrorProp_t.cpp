@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
     Surface::RotationType rot(Basic3DVector<float>(h),0);
     Plane lplane(zero,rot);
-    HelixForwardPlaneCrossing::PoistionType  a(lplane.toLocal(tpg.position()));
+    HelixForwardPlaneCrossing::PositionType  a(lplane.toLocal(tpg.position()));
     HelixForwardPlaneCrossing::DirectionType p(lplane.toLocal(tpg.momentum()));
     curv =  -2.99792458e-3 * h.mag()/p.perp()*tpg.charge();
     std::cout << curv << " " <<  p.mag() << std::endl;
