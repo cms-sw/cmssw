@@ -46,7 +46,7 @@ int main() {
 
   Plane plane(pos,rot);
 
-  LocalTrajectoryParameters tpl(1., 1.,1., 0.,0.,1.);
+  LocalTrajectoryParameters tpl(2.5, 1.,1., 0.,0.,1.);
   GlobalVector mg = plane.toGlobal(tpl.momentum());
   GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
   std::cout << tpl.position() << " " << tpl.momentum() << std::endl;
@@ -75,7 +75,7 @@ int main() {
     LocalVector p(prop.direction(s));
     std::cout <<  p.mag() << std::endl;
 
-    GlobalTrajectoryParameters tpg2( plane.toGlobal(x), dir.mag()*plane.toGlobal(p), tpg.charge(), &m);
+    GlobalTrajectoryParameters tpg2( plane.toGlobal(x), (dir.mag()/p.mag())*plane.toGlobal(p), tpg.charge(), &m);
 
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
