@@ -1,7 +1,7 @@
 #! /bin/bash
 
 HLT='/online/collisions/2010/week13/HLT'
-L1T='L1GtTriggerMenu_L1Menu_Commissioning2010_v0_mc'
+L1T='L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc'
 
 rm -f OnData_HLT_TEST.py
 rm -f OnLine_HLT_TEST.py
