@@ -158,20 +158,16 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     NErrorsBarrel = bei->bookFloat("BarrelNErrorsCut");
     NDigisBarrel = bei->bookInt("BarrelNDigisCut");
     DigiChargeBarrel = bei->bookInt("BarrelDigiChargeCut");
-    if(Tier0Flag){
-      OnTrackClusterSizeBarrel = bei->bookInt("BarrelOnTrackClusterSizeCut");
-      OnTrackNClustersBarrel = bei->bookInt("BarrelOnTrackNClustersCut");
-      OnTrackClusterChargeBarrel = bei->bookInt("BarrelOnTrackClusterChargeCut");
-    }
+    ClusterSizeBarrel = bei->bookInt("BarrelClusterSizeCut");
+    NClustersBarrel = bei->bookInt("BarrelNClustersCut");
+    ClusterChargeBarrel = bei->bookInt("BarrelClusterChargeCut");
   bei->setCurrentFolder("Pixel/Endcap");
     NErrorsEndcap = bei->bookFloat("EndcapNErrorsCut");
     NDigisEndcap = bei->bookInt("EndcapNDigisCut");
     DigiChargeEndcap = bei->bookInt("EndcapDigiChargeCut");
-    if(Tier0Flag){
-      OnTrackClusterSizeEndcap = bei->bookInt("EndcapOnTrackClusterSizeCut");
-      OnTrackNClustersEndcap = bei->bookInt("EndcapOnTrackNClustersCut");
-      OnTrackClusterChargeEndcap = bei->bookInt("EndcapOnTrackClusterChargeCut");
-    }
+    ClusterSizeEndcap = bei->bookInt("EndcapClusterSizeCut");
+    NClustersEndcap = bei->bookInt("EndcapNClustersCut");
+    ClusterChargeEndcap = bei->bookInt("EndcapClusterChargeCut");
   if(Tier0Flag){
     bei->setCurrentFolder("Pixel/Tracks");
       NPixelTracks = bei->bookInt("PixelTracksCut");
@@ -207,19 +203,19 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     if(DigiChargeBarrel) DigiChargeBarrel->Fill(1);
     DigiChargeEndcap = bei->get("Pixel/Endcap/EndcapDigiChargeCut");
     if(DigiChargeEndcap) DigiChargeEndcap->Fill(1);
+    ClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelClusterSizeCut");
+    if(ClusterSizeBarrel) ClusterSizeBarrel->Fill(1);
+    ClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapClusterSizeCut");
+    if(ClusterSizeEndcap) ClusterSizeEndcap->Fill(1);
+    ClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelClusterChargeCut");
+    if(ClusterChargeBarrel) ClusterChargeBarrel->Fill(1);
+    ClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapClusterChargeCut");
+    if(ClusterChargeEndcap) ClusterChargeEndcap->Fill(1);
+    NClustersBarrel = bei->get("Pixel/Barrel/BarrelNClustersCut");
+    if(NClustersBarrel) NClustersBarrel->Fill(1);
+    NClustersEndcap = bei->get("Pixel/Endcap/EndcapNClustersCut");
+    if(NClustersEndcap) NClustersEndcap->Fill(1);
     if(Tier0Flag){
-      OnTrackClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterSizeCut");
-      if(OnTrackClusterSizeBarrel) OnTrackClusterSizeBarrel->Fill(1);
-      OnTrackClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterSizeCut");
-      if(OnTrackClusterSizeEndcap) OnTrackClusterSizeEndcap->Fill(1);
-      OnTrackClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterChargeCut");
-      if(OnTrackClusterChargeBarrel) OnTrackClusterChargeBarrel->Fill(1);
-      OnTrackClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterChargeCut");
-      if(OnTrackClusterChargeEndcap) OnTrackClusterChargeEndcap->Fill(1);
-      OnTrackNClustersBarrel = bei->get("Pixel/Barrel/BarrelOnTrackNClustersCut");
-      if(OnTrackNClustersBarrel) OnTrackNClustersBarrel->Fill(1);
-      OnTrackNClustersEndcap = bei->get("Pixel/Endcap/EndcapOnTrackNClustersCut");
-      if(OnTrackNClustersEndcap) OnTrackNClustersEndcap->Fill(1);
       NPixelTracks = bei->get("Pixel/Tracks/PixelTracksCut");
       if(NPixelTracks) NPixelTracks->Fill(1);
     }
@@ -271,10 +267,10 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     n_errors_barrel_=0; barrel_error_flag_=0.;
     n_errors_endcap_=0; endcap_error_flag_=0.;
     n_errors_feds_=0; feds_error_flag_=0.;
-    digiStatsBarrel = false, clusterOntrackStatsBarrel = false, trackStatsBarrel = false;
-    digiCounterBarrel = 0, clusterOntrackCounterBarrel = 0, trackCounterBarrel = 0;
-    digiStatsEndcap = false, clusterOntrackStatsEndcap = false, trackStatsEndcap = false;
-    digiCounterEndcap = 0, clusterOntrackCounterEndcap = 0, trackCounterEndcap = 0;
+    digiStatsBarrel = false, clusterStatsBarrel = false, trackStatsBarrel = false;
+    digiCounterBarrel = 0, clusterCounterBarrel = 0, trackCounterBarrel = 0;
+    digiStatsEndcap = false, clusterStatsEndcap = false, trackStatsEndcap = false;
+    digiCounterEndcap = 0, clusterCounterEndcap = 0, trackCounterEndcap = 0;
     init=false;
   }
   if(nFEDs==0) return;  
@@ -340,12 +336,19 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
 	  if(full_path.find("Endcap")!=string::npos) digiCounterEndcap++;
 	  //cout<<"counter are now: "<<digiCounterBarrel<<","<<digiCounterBarrelL1<<endl;
         }
-      }else if(full_path.find("nclusters_OnTrack_")!=string::npos){
+      }else if(Tier0Flag && full_path.find("nclusters_OnTrack_")!=string::npos){
         MonitorElement * me = bei->get(full_path);
         if(!me) continue;
         if(me->getEntries()>25){
-	  if(full_path.find("Barrel")!=string::npos) clusterOntrackCounterBarrel++;
-	  if(full_path.find("Endcap")!=string::npos) clusterOntrackCounterEndcap++;
+	  if(full_path.find("Barrel")!=string::npos) clusterCounterBarrel++;
+	  if(full_path.find("Endcap")!=string::npos) clusterCounterEndcap++;
+        }
+      }else if(!Tier0Flag && full_path.find("nclusters_")!=string::npos){
+        MonitorElement * me = bei->get(full_path);
+        if(!me) continue;
+        if(me->getEntries()>25){
+	  if(full_path.find("Barrel")!=string::npos) clusterCounterBarrel++;
+	  if(full_path.find("Endcap")!=string::npos) clusterCounterEndcap++;
         }
       }
     }
@@ -433,78 +436,72 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   }
      
      
-    // Fill the OnTrack Cluster flags:
-  if(Tier0Flag){  
-  //if(!Tier0Flag){
-  //  meName0 = "Pixel/Barrel/SUMTRK_size_OnTrack_Barrel";
-    if(clusterOntrackCounterBarrel/768 > 0.5) clusterOntrackStatsBarrel = true;
-    if(clusterOntrackCounterEndcap/672 > 0.5) clusterOntrackStatsEndcap = true;
-  //}else{
+    // Fill the Cluster flags:
+  if(!Tier0Flag){
+    meName0 = "Pixel/Barrel/SUMCLU_size_Barrel";
+    if(clusterCounterBarrel/768 > 0.5) clusterStatsBarrel = true;
+    if(clusterCounterEndcap/672 > 0.5) clusterStatsEndcap = true;
+  }else{
     meName0 = "Pixel/Barrel/SUMOFF_size_OnTrack_Barrel"; 
-    if(clusterOntrackCounterBarrel/192 > 0.5) clusterOntrackStatsBarrel = true;
-    if(clusterOntrackCounterEndcap/96 > 0.5) clusterOntrackStatsEndcap = true;
-  //}
+    if(clusterCounterBarrel/192 > 0.5) clusterStatsBarrel = true;
+    if(clusterCounterEndcap/96 > 0.5) clusterStatsEndcap = true;
+  }
   me = bei->get(meName0);
   if(me){
-    OnTrackClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterSizeCut");
-    if(OnTrackClusterSizeBarrel && clusterOntrackStatsBarrel){
-      if(me->hasError()) OnTrackClusterSizeBarrel->Fill(0);
-      else OnTrackClusterSizeBarrel->Fill(1);
+    ClusterSizeBarrel = bei->get("Pixel/Barrel/BarrelClusterSizeCut");
+    if(ClusterSizeBarrel && clusterStatsBarrel){
+      if(me->hasError()) ClusterSizeBarrel->Fill(0);
+      else ClusterSizeBarrel->Fill(1);
     }
   }
-  //if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_size_OnTrack_Endcap";
-  //else 
-  meName0 = "Pixel/Endcap/SUMOFF_size_OnTrack_Endcap"; 
+  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMCLU_size_Endcap";
+  else meName0 = "Pixel/Endcap/SUMOFF_size_OnTrack_Endcap"; 
   me = bei->get(meName0);
   if(me){
-    OnTrackClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterSizeCut");
-    if(OnTrackClusterSizeEndcap && clusterOntrackStatsEndcap){
-      if(me->hasError()) OnTrackClusterSizeEndcap->Fill(0);
-      else OnTrackClusterSizeEndcap->Fill(1);
+    ClusterSizeEndcap = bei->get("Pixel/Endcap/EndcapClusterSizeCut");
+    if(ClusterSizeEndcap && clusterStatsEndcap){
+      if(me->hasError()) ClusterSizeEndcap->Fill(0);
+      else ClusterSizeEndcap->Fill(1);
     }
   }
-  //if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_charge_OnTrack_Barrel";
-  //else 
-  meName0 = "Pixel/Barrel/SUMOFF_charge_OnTrack_Barrel"; 
+  if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMCLU_charge_Barrel";
+  else meName0 = "Pixel/Barrel/SUMOFF_charge_OnTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
-    OnTrackClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelOnTrackClusterChargeCut");
-    if(OnTrackClusterChargeBarrel && clusterOntrackStatsBarrel){
-      if(me->hasError()) OnTrackClusterChargeBarrel->Fill(0);
-      else OnTrackClusterChargeBarrel->Fill(1);
+    ClusterChargeBarrel = bei->get("Pixel/Barrel/BarrelClusterChargeCut");
+    if(ClusterChargeBarrel && clusterStatsBarrel){
+      if(me->hasError()) ClusterChargeBarrel->Fill(0);
+      else ClusterChargeBarrel->Fill(1);
     }
   }
-  //if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_charge_OnTrack_Endcap";
-  //else 
-  meName0 = "Pixel/Endcap/SUMOFF_charge_OnTrack_Endcap"; 
+  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMCLU_charge_Endcap";
+  else meName0 = "Pixel/Endcap/SUMOFF_charge_OnTrack_Endcap"; 
   me = bei->get(meName0);
   if(me){
-    OnTrackClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapOnTrackClusterChargeCut");
-    if(OnTrackClusterChargeEndcap && clusterOntrackStatsEndcap){
-      if(me->hasError()) OnTrackClusterChargeEndcap->Fill(0);
-      else OnTrackClusterChargeEndcap->Fill(1);
+    ClusterChargeEndcap = bei->get("Pixel/Endcap/EndcapClusterChargeCut");
+    if(ClusterChargeEndcap && clusterStatsEndcap){
+      if(me->hasError()) ClusterChargeEndcap->Fill(0);
+      else ClusterChargeEndcap->Fill(1);
     }
   }
-  //if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMTRK_nclusters_OnTrack_Barrel";
-  //else 
-  meName0 = "Pixel/Barrel/SUMOFF_nclusters_OnTrack_Barrel"; 
+  if(!Tier0Flag) meName0 = "Pixel/Barrel/SUMCLU_nclusters_Barrel";
+  else meName0 = "Pixel/Barrel/SUMOFF_nclusters_OnTrack_Barrel"; 
   me = bei->get(meName0);
   if(me){
-    OnTrackNClustersBarrel = bei->get("Pixel/Barrel/BarrelOnTrackNClustersCut");
-    if(OnTrackNClustersBarrel && clusterOntrackStatsBarrel){
-      if(me->hasError()) OnTrackNClustersBarrel->Fill(0);
-      else OnTrackNClustersBarrel->Fill(1);
+    NClustersBarrel = bei->get("Pixel/Barrel/BarrelNClustersCut");
+    if(NClustersBarrel && clusterStatsBarrel){
+      if(me->hasError()) NClustersBarrel->Fill(0);
+      else NClustersBarrel->Fill(1);
     }
   }
-  //if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMTRK_nclusters_OnTrack_Endcap";
-  //else 
-  meName0 = "Pixel/Endcap/SUMOFF_nclusters_OnTrack_Endcap"; 
+  if(!Tier0Flag) meName0 = "Pixel/Endcap/SUMCLU_nclusters_Endcap";
+  else meName0 = "Pixel/Endcap/SUMOFF_nclusters_OnTrack_Endcap"; 
   me = bei->get(meName0);
   if(me){
-    OnTrackNClustersEndcap = bei->get("Pixel/Endcap/EndcapOnTrackNClustersCut");
-    if(OnTrackNClustersEndcap && clusterOntrackStatsEndcap){
-      if(me->hasError()) OnTrackNClustersEndcap->Fill(0);
-      else OnTrackNClustersEndcap->Fill(1);
+    NClustersEndcap = bei->get("Pixel/Endcap/EndcapNClustersCut");
+    if(NClustersEndcap && clusterStatsEndcap){
+      if(me->hasError()) NClustersEndcap->Fill(0);
+      else NClustersEndcap->Fill(1);
     }
   }
   // Pixel Track multiplicity / Pixel hit efficiency
@@ -520,7 +517,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       }
     }
   }
-  }// end Offline only (for tracks)
   
   
 //********************************************************************************************************  
@@ -539,11 +535,11 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   if(me) barrel_cuts_temp[0] = me->getIntValue();
   me = bei->get("Pixel/Barrel/BarrelDigiChargeCut");
   if(me) barrel_cuts_temp[1] = me->getIntValue();
-  me = bei->get("Pixel/Barrel/BarrelOnTrackClusterSizeCut");
+  me = bei->get("Pixel/Barrel/BarrelClusterSizeCut");
   if(me) barrel_cuts_temp[2] = me->getIntValue();
-  me = bei->get("Pixel/Barrel/BarrelOnTrackNClustersCut");
+  me = bei->get("Pixel/Barrel/BarrelNClustersCut");
   if(me) barrel_cuts_temp[3] = me->getIntValue();
-  me = bei->get("Pixel/Barrel/BarrelOnTrackClusterChargeCut");
+  me = bei->get("Pixel/Barrel/BarrelClusterChargeCut");
   if(me) barrel_cuts_temp[4] = me->getIntValue();
   for(int k=0; k!=5; k++){
     if(barrel_cuts_temp[k]>=0){
@@ -566,11 +562,11 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   if(me) endcap_cuts_temp[0] = me->getIntValue();
   me = bei->get("Pixel/Endcap/EndcapDigiChargeCut");
   if(me) endcap_cuts_temp[1] = me->getIntValue();
-  me = bei->get("Pixel/Endcap/EndcapOnTrackClusterSizeCut");
+  me = bei->get("Pixel/Endcap/EndcapClusterSizeCut");
   if(me) endcap_cuts_temp[2] = me->getIntValue();
-  me = bei->get("Pixel/Endcap/EndcapOnTrackNClustersCut");
+  me = bei->get("Pixel/Endcap/EndcapNClustersCut");
   if(me) endcap_cuts_temp[3] = me->getIntValue();
-  me = bei->get("Pixel/Endcap/EndcapOnTrackClusterChargeCut");
+  me = bei->get("Pixel/Endcap/EndcapClusterChargeCut");
   if(me) endcap_cuts_temp[4] = me->getIntValue();
   for(int k=0; k!=5; k++){
     if(endcap_cuts_temp[k]>=0){
@@ -773,21 +769,21 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
         if(me) barrel_cuts_temp[0] = me->getIntValue();
         me = bei->get("Pixel/Barrel/BarrelDigiChargeCut");
         if(me) barrel_cuts_temp[1] = me->getIntValue();
-        me = bei->get("Pixel/Barrel/BarrelOnTrackClusterSizeCut");
+        me = bei->get("Pixel/Barrel/BarrelClusterSizeCut");
         if(me) barrel_cuts_temp[2] = me->getIntValue();
-        me = bei->get("Pixel/Barrel/BarrelOnTrackNClustersCut");
+        me = bei->get("Pixel/Barrel/BarrelNClustersCut");
         if(me) barrel_cuts_temp[3] = me->getIntValue();
-        me = bei->get("Pixel/Barrel/BarrelOnTrackClusterChargeCut");
+        me = bei->get("Pixel/Barrel/BarrelClusterChargeCut");
         if(me) barrel_cuts_temp[4] = me->getIntValue();  
         me = bei->get("Pixel/Endcap/EndcapNDigisCut");
         if(me) endcap_cuts_temp[0] = me->getIntValue();
         me = bei->get("Pixel/Endcap/EndcapDigiChargeCut");
         if(me) endcap_cuts_temp[1] = me->getIntValue();
-        me = bei->get("Pixel/Endcap/EndcapOnTrackClusterSizeCut");
+        me = bei->get("Pixel/Endcap/EndcapClusterSizeCut");
         if(me) endcap_cuts_temp[2] = me->getIntValue();
-        me = bei->get("Pixel/Endcap/EndcapOnTrackNClustersCut");
+        me = bei->get("Pixel/Endcap/EndcapNClustersCut");
         if(me) endcap_cuts_temp[3] = me->getIntValue();
-        me = bei->get("Pixel/Endcap/EndcapOnTrackClusterChargeCut");
+        me = bei->get("Pixel/Endcap/EndcapClusterChargeCut");
         if(me) endcap_cuts_temp[4] = me->getIntValue();  
         for(int j=2; j!=7; j++){
           SummaryReportMap->setBinContent(1,j,barrel_cuts_temp[j-2]);

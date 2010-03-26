@@ -103,7 +103,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(2000)
 )
 
 ##----## Sequences and Paths:
@@ -116,8 +116,8 @@ process.DQMmodules = cms.Sequence(process.qTester*process.dqmEnv*process.dqmSave
 
 process.p = cms.Path(
 		     process.LocalReco*
-		     process.TrackReco*
+		     #process.TrackReco*
 		     process.DQMmodules*
-		     process.siPixelP5DQM_source*
+		     process.siPixelP5DQM_source_woTrack*
 		     process.PixelP5DQMClientWithDataCertification
 		    )
