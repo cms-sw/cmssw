@@ -187,8 +187,8 @@ void HcalDigiMonitor::setup()
       // Special histograms for Pawel's timing study
       dbe_->setCurrentFolder(subdir_+"HFTimingStudy");
       HFtiming_etaProfile=dbe_->bookProfile("HFTiming_etaProfile","HFTiming Eta Profile;ieta;average time (time slice)",83,-41.5,41.5,200,0,10);
-      HFP_shape=dbe_->book1D("HFP signal shape","HFP signal shape",10,-0.5,9.5);
-      HFM_shape=dbe_->book1D("HFM signal shape","HFM signal shape",10,-0.5,9.5);
+      HFP_shape=dbe_->book1D("HFP_signal_shape","HFP signal shape",10,-0.5,9.5);
+      HFM_shape=dbe_->book1D("HFM_signal_shape","HFM signal shape",10,-0.5,9.5);
       dbe_->setCurrentFolder(subdir_+"HFTimingStudy/sumplots");
       HFtiming_totaltime2D=dbe_->book2D("HFTiming_Total_Time","HFTiming Total Time",83,-41.5,41.5,72,0.5,72.5);
       HFtiming_occupancy2D=dbe_->book2D("HFTiming_Occupancy","HFTiming Occupancy",83,-41.5,41.5,72,0.5,72.5);
