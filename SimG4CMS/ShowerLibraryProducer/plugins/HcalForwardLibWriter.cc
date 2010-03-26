@@ -3,9 +3,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-using namespace edm;
-using namespace std;
-
 HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   edm::ParameterSet theParms = iConfig.getParameter<edm::ParameterSet> ("HcalForwardLibWriterParameters");
   edm::FileInPath fp = theParms.getParameter<edm::FileInPath> ("FileName");
@@ -25,14 +22,14 @@ HcalForwardLibWriter::~HcalForwardLibWriter() {
 }
 
 void HcalForwardLibWriter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  auto_ptr<HFShowerPhotonCollection> product_em(new HFShowerPhotonCollection);
-  auto_ptr<HFShowerPhotonCollection> product_had(new HFShowerPhotonCollection);
+  std::auto_ptr<HFShowerPhotonCollection> product_em(new HFShowerPhotonCollection);
+  std::auto_ptr<HFShowerPhotonCollection> product_had(new HFShowerPhotonCollection);
   
   //EventInfo
-  auto_ptr<HFShowerLibraryEventInfo> product_evtInfo(new HFShowerLibraryEventInfo);
+  std::auto_ptr<HFShowerLibraryEventInfo> product_evtInfo(new HFShowerLibraryEventInfo);
   float hfShowerLibV = 1.1;
   float phyListV = 3.6;
-  vector<double> en;
+  std::vector<double> en;
   double momBin[12] = { 10., 15., 20., 35., 50., 80., 100., 150., 250., 350., 500., 1000. };
   for (int i = 0; i < 12; ++i)
     en.push_back(momBin[i]);
@@ -47,8 +44,8 @@ void HcalForwardLibWriter::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   int n = theFileHandle.size();
   for (int i = 0; i < n; ++i) {
-    string fn = theFileHandle[i].name;
-    string particle = theFileHandle[i].id;
+    std::string fn = theFileHandle[i].name;
+    std::string particle = theFileHandle[i].id;
     //    int momBin = theFileHandle[i].momentum;
     TFile* theFile = new TFile(fn.c_str(), "READ");
     TTree* theTree = (TTree*) theFile->FindObjectAny("CherenkovPhotons");
@@ -110,8 +107,8 @@ void HcalForwardLibWriter::beginJob() {
 //
 //	int n = theFileHandle.size();
 //	for (int i = 0; i < n; ++i) {
-//		string fn = theFileHandle[i].name;
-//		string particle = theFileHandle[i].id;
+//		std::string fn = theFileHandle[i].name;
+//		std::string particle = theFileHandle[i].id;
 //		int momBin = theFileHandle[i].momentum;
 //		TFile* theFile = new TFile(fn.c_str(), "READ");
 //		TTree* theTree = (TTree*) theFile->FindObjectAny("CherenkovPhotons");
@@ -162,11 +159,11 @@ void HcalForwardLibWriter::beginJob() {
 void HcalForwardLibWriter::endJob() {
 }
 int HcalForwardLibWriter::readUserData(void) {
-  ifstream input(theDataFile.c_str());
+  std::ifstream input(theDataFile.c_str());
   if (input.fail()) {
     return 0;
   }
-  string theFileName, thePID;
+  std::string theFileName, thePID;
   int mom;
   int k = 0;
   while (!input.eof()) {

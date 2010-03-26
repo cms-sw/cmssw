@@ -25,8 +25,6 @@
 
 #define debug 0
 
-using namespace std;
-
 DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet &p) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("DoCastorAnalysis");
@@ -36,19 +34,19 @@ DoCastorAnalysis::DoCastorAnalysis(const edm::ParameterSet &p) {
 
   if (verbosity > 0) {
 
-    cout<<endl;
-    cout<<"============================================================================"<<endl;
-    cout << "DoCastorAnalysis:: Initialized as observer"<< endl;
+    std::cout<<std::endl;
+    std::cout<<"============================================================================"<<std::endl;
+    std::cout << "DoCastorAnalysis:: Initialized as observer"<< std::endl;
     
-    cout <<" Castor Tree will be created"<< endl;
-    cout <<" Castor Tree will be in file: "<<TreeFileName<<endl;
+    std::cout <<" Castor Tree will be created"<< std::endl;
+    std::cout <<" Castor Tree will be in file: "<<TreeFileName<<std::endl;
     if(debug) getchar();
   
-    cout<<"============================================================================"<<endl;
-    cout<<endl;
+    std::cout<<"============================================================================"<<std::endl;
+    std::cout<<std::endl;
   }
 
-  cout << "DoCastorAnalysis: output event root file created"<< endl;
+  std::cout << "DoCastorAnalysis: output event root file created"<< std::endl;
   TString treefilename = TreeFileName;
   CastorOutputEventFile = new TFile(treefilename,"RECREATE");
 
@@ -76,14 +74,14 @@ DoCastorAnalysis::~DoCastorAnalysis() {
   CastorOutputEventFile->cd();
   //-- CastorOutputEventFile->Write();
   CastorTree->Write("",TObject::kOverwrite);
-  cout << "DoCastorAnalysis: Ntuple event written" << endl;
+  std::cout << "DoCastorAnalysis: Ntuple event written" << std::endl;
   if(debug) getchar();
   CastorOutputEventFile->Close();
-  cout << "DoCastorAnalysis: Event file closed" << endl;
+  std::cout << "DoCastorAnalysis: Event file closed" << std::endl;
   if(debug) getchar();
 
   if (verbosity > 0) {
-    cout<<endl<<"DoCastorAnalysis: end of process"<<endl; 
+    std::cout<<std::endl<<"DoCastorAnalysis: end of process"<<std::endl; 
     if(debug) getchar();
   }
 
@@ -93,16 +91,16 @@ DoCastorAnalysis::~DoCastorAnalysis() {
 
 void DoCastorAnalysis::update(const BeginOfJob * job) {
 
-  cout << " Starting new job " << endl;
+  std::cout << " Starting new job " << std::endl;
 }
 
 //==================================================================== per RUN
 
 void DoCastorAnalysis::update(const BeginOfRun * run) {
 
-  cout << endl << "DoCastorAnalysis: Starting Run"<< endl; 
+  std::cout << std::endl << "DoCastorAnalysis: Starting Run"<< std::endl; 
 
-  // cout << "DoCastorAnalysis: output event root file created"<< endl;
+  // std::cout << "DoCastorAnalysis: output event root file created"<< std::endl;
   // TString treefilename = TreeFileName;
   // CastorOutputEventFile = new TFile(treefilename,"RECREATE");
   
@@ -110,7 +108,7 @@ void DoCastorAnalysis::update(const BeginOfRun * run) {
 }
 
 void DoCastorAnalysis::update(const BeginOfEvent * evt) {
-  cout << "DoCastorAnalysis: Processing Event Number: "<<eventIndex<< endl;
+  std::cout << "DoCastorAnalysis: Processing Event Number: "<<eventIndex<< std::endl;
   eventIndex++;
 }
 
@@ -133,7 +131,7 @@ void DoCastorAnalysis::update(const EndOfEvent * evt) {
   // std::map<int,float,std::less<int> > themap;
   
   int nentries = theCAFI->entries();
-  if(debug) cout<<"nentries in CAFI: "<<nentries<<endl;
+  if(debug) std::cout<<"nentries in CAFI: "<<nentries<<std::endl;
   if(debug) getchar();
 
   psimhit_x=&simhit_x;
@@ -207,11 +205,11 @@ void DoCastorAnalysis::update(const EndOfEvent * evt) {
 
       simhit_etot+=energy;
        
-      if(debug) cout<<"hit "<<ihit+1<<" : x = "<<(*psimhit_x)[ihit]<<" , eta =  "<<(*psimhit_eta)[ihit]
-		    <<" , phi = "<<(*psimhit_phi)[ihit]<<" , energy = "<<(*psimhit_energy)[ihit]<<endl;
+      if(debug) std::cout<<"hit "<<ihit+1<<" : x = "<<(*psimhit_x)[ihit]<<" , eta =  "<<(*psimhit_eta)[ihit]
+		    <<" , phi = "<<(*psimhit_phi)[ihit]<<" , energy = "<<(*psimhit_energy)[ihit]<<std::endl;
     }
 
-    //if(debug) cout<<" total energy = "<<simhit_etot<<endl;
+    //if(debug) std::cout<<" total energy = "<<simhit_etot<<std::endl;
     if(debug) getchar();
     CastorTree->Fill();
 	

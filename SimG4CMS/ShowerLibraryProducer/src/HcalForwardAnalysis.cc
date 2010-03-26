@@ -24,27 +24,25 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-using namespace edm;
-
 HcalForwardAnalysis::HcalForwardAnalysis(const edm::ParameterSet &p) {
 
-	ParameterSet m_SLP = p.getParameter<edm::ParameterSet> ("HFShowerLibraryProducer");
-	theNames = m_SLP.getParameter<std::vector<std::string> > ("Names");
-	//LibVer = m_HS.getParameter<std::string> ("LibVer");
-	//produces<HFShowerPhotonCollection> ();
-	init();
-	theEventCounter = 0;
-	nphot = 0;
-	for (int i = 0; i < 10000; ++i) {
-		x[i] = 0.;
-		y[i] = 0.;
-		z[i] = 0.;
-		t[i] = 0.;
-		lambda[i] = 0.;
-		fiberId[i] = 0;
-	}
-	primX = primY = primZ = primT = 0.;
-	primMomX = primMomY = primMomZ = 0.;
+  edm::ParameterSet m_SLP = p.getParameter<edm::ParameterSet> ("HFShowerLibraryProducer");
+  theNames = m_SLP.getParameter<std::vector<std::string> > ("Names");
+  //LibVer = m_HS.getParameter<std::string> ("LibVer");
+  //produces<HFShowerPhotonCollection> ();
+  init();
+  theEventCounter = 0;
+  nphot = 0;
+  for (int i = 0; i < 10000; ++i) {
+    x[i] = 0.;
+    y[i] = 0.;
+    z[i] = 0.;
+    t[i] = 0.;
+    lambda[i] = 0.;
+    fiberId[i] = 0;
+  }
+  primX = primY = primZ = primT = 0.;
+  primMomX = primMomY = primMomZ = 0.;
 
 }
 

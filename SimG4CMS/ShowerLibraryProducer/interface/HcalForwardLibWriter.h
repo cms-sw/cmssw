@@ -20,29 +20,28 @@
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 
-using namespace edm;
-using namespace std;
-
 class HcalForwardLibWriter : public edm::EDProducer {
-   public:
-      struct FileHandle{
-          string name;
-	  string id;
-	  int momentum;
-      };
 
-      explicit HcalForwardLibWriter(const edm::ParameterSet&);
-      ~HcalForwardLibWriter();
+public:
 
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      //void fillEvent(HFShowerPhotonCollection& em, HFShowerPhotonCollection& had);
-      int readUserData();
+  struct FileHandle{
+    std::string name;
+    std::string id;
+    int momentum;
+  };
 
-      string theDataFile;
-      std::vector<FileHandle> theFileHandle;
+  explicit HcalForwardLibWriter(const edm::ParameterSet&);
+  ~HcalForwardLibWriter();
+
+private:
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  //void fillEvent(HFShowerPhotonCollection& em, HFShowerPhotonCollection& had);
+  int readUserData();
+
+  std::string theDataFile;
+  std::vector<FileHandle> theFileHandle;
 
 };
 #endif

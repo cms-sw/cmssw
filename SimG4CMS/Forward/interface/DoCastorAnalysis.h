@@ -59,15 +59,13 @@ class EndOfRun;
 class BeginOfEvent;
 class EndOfEvent;
 
-using namespace std;
-
 class DoCastorAnalysis : public SimWatcher,
-			   public Observer<const BeginOfJob *>, 
-			   public Observer<const BeginOfRun *>,
-			   public Observer<const EndOfRun *>,
-			   public Observer<const BeginOfEvent *>, 
-			   public Observer<const EndOfEvent *>,  
-			   public Observer<const G4Step *> {  
+			 public Observer<const BeginOfJob *>, 
+			 public Observer<const BeginOfRun *>,
+			 public Observer<const EndOfRun *>,
+			 public Observer<const BeginOfEvent *>, 
+			 public Observer<const EndOfEvent *>,  
+			 public Observer<const G4Step *> {  
 
 public:
   DoCastorAnalysis(const edm::ParameterSet &p);
@@ -93,15 +91,15 @@ private:
   
   int eventIndex;
 
-  vector<double> simhit_x, simhit_y, simhit_z;
-  vector<double> simhit_eta, simhit_phi, simhit_energy;
-  vector<int> simhit_sector, simhit_module;
-  //vector<double> simhit_time;
+  std::vector<double> simhit_x, simhit_y, simhit_z;
+  std::vector<double> simhit_eta, simhit_phi, simhit_energy;
+  std::vector<int> simhit_sector, simhit_module;
+  //std::vector<double> simhit_time;
 
-  vector<double> *psimhit_x, *psimhit_y, *psimhit_z;
-  vector<double> *psimhit_eta, *psimhit_phi,  *psimhit_energy;
-  vector<int> *psimhit_sector, *psimhit_module;
-  //vector<double> *psimhit_time;
+  std::vector<double> *psimhit_x, *psimhit_y, *psimhit_z;
+  std::vector<double> *psimhit_eta, *psimhit_phi,  *psimhit_energy;
+  std::vector<int> *psimhit_sector, *psimhit_module;
+  //std::vector<double> *psimhit_time;
 
   double simhit_etot;
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris D. Jones
 //         Created:  Mon Nov 28 16:02:21 EST 2005
-// $Id$
+// $Id: SimProducer.h,v 1.1 2005/11/29 18:40:25 chrjones Exp $
 //
 
 // system include files
@@ -83,9 +83,8 @@ class SimProducer : public SimWatcher
 
       template<class T>
       void produces(const std::string& instanceName) {
-	 using namespace simproducer;
 	 m_info.push_back( 
-	    boost::shared_ptr<ProductInfo<T> >(new ProductInfo<T>(instanceName) ));
+			  boost::shared_ptr<simproducer::ProductInfo<T> >(new simproducer::ProductInfo<T>(instanceName) ));
       }
 
    private:

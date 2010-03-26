@@ -28,9 +28,6 @@
 #include <iostream>
 #include <iomanip>
 
-using std::cout;
-using std::endl;
-
 CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) : 
                              NPGParticle(0),DoHadSL(false),DoEmSL(false),
                              emShower(NULL) , hadShower(NULL) {
@@ -295,7 +292,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
      int ebin = FindEnergyBin(pInit);
      int etabin= FindEtaBin(eta);
      int phibin = FindPhiBin(phi);
-     cout << SLType << endl;
+     std::cout << SLType << std::endl;
      printSLstatus(ebin,etabin,phibin);
      if (!SLacceptEvent(ebin,etabin,phibin)) {
         edm::LogInfo("CastorShowerLibraryMaker") << "Event not accepted for ebin="
@@ -313,9 +310,9 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
   // access to the G4 hit collections 
      G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
 /*
-     cout << "Number of collections : " << allHC->GetNumberOfCollections() << std::endl;
+     std::cout << "Number of collections : " << allHC->GetNumberOfCollections() << std::endl;
      for(int ii = 0;ii<allHC->GetNumberOfCollections();ii++) 
-        cout << "Name of collection " << ii << " : " << allHC->GetHC(ii)->GetName() << std::endl;
+        std::cout << "Name of collection " << ii << " : " << allHC->GetHC(ii)->GetName() << std::endl;
 */
      edm::LogInfo("CastorShowerLibraryMaker") << " update(*evt) --> accessed all HC ";
 
@@ -560,30 +557,30 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin,int etabin,int phibin)
   int nBinsEta=SLShowerptr->SLEtaBins.size();
   int nBinsPhi=SLShowerptr->SLPhiBins.size();
   std::vector<double> SLenergies = SLShowerptr->SLEnergyBins;
-  for(int n=0;n<11+(nBinsEta*nBinsPhi);n++) cout << "=";
-  cout << endl;
+  for(int n=0;n<11+(nBinsEta*nBinsPhi);n++) std::cout << "=";
+  std::cout << std::endl;
   for(int i=0;i<nBinsE;i++) {
-     cout << "E bin " << SLenergies.at(i) << " : ";
+     std::cout << "E bin " << SLenergies.at(i) << " : ";
      for(int j=0;j<nBinsEta;j++) {
         for(int k=0;k<nBinsPhi;k++) {
-           (SLisPhiBinFilled(i,j,k))?cout << "1":cout << "-";
+           (SLisPhiBinFilled(i,j,k))?std::cout << "1":std::cout << "-";
         }
-        if (j<nBinsEta-1) cout << "|";
+        if (j<nBinsEta-1) std::cout << "|";
      }
-     cout << " (" << SLnEvtInBinE(i) << " events)";
-     cout << endl;
+     std::cout << " (" << SLnEvtInBinE(i) << " events)";
+     std::cout << std::endl;
      if (ebin!=i) continue;
-     cout << "          ";
+     std::cout << "          ";
      for(int j=0;j<nBinsEta;j++) {
         for(int k=0;k<nBinsPhi;k++) {
-           (ebin==i&&etabin==j&&phibin==k)?cout <<  "^":cout << " ";
+           (ebin==i&&etabin==j&&phibin==k)?std::cout <<  "^":std::cout << " ";
         }
-        if (j<nBinsEta-1) cout << " ";
+        if (j<nBinsEta-1) std::cout << " ";
      }
-     cout << endl;
+     std::cout << std::endl;
   }
-  for(int n=0;n<11+(nBinsEta*nBinsPhi);n++) cout << "=";
-  cout << endl;
+  for(int n=0;n<11+(nBinsEta*nBinsPhi);n++) std::cout << "=";
+  std::cout << std::endl;
 }
 bool CastorShowerLibraryMaker::SLacceptEvent(int ebin, int etabin, int phibin)
 {

@@ -191,7 +191,7 @@ std::vector<DetId> EcalTrigTowerConstituentsMap::constituentsOf(const EcalTrigTo
       //DetId myId=wrapEcalTrigTowerDetId(id);  
       EcalTowerMap_by_towerDetId::const_iterator lb,ub;
       //boost::tuples::tie(lb,ub)=get<1>(m_items).equal_range(myId);
-      boost::tuples::tie(lb,ub)=get<1>(m_items).equal_range(id);
+      boost::tuples::tie(lb,ub)=boost::get<1>(m_items).equal_range(id);
       while (lb!=ub)
 	{
 	  //EEDetId mappedId((*lb).cell);

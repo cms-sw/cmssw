@@ -47,8 +47,6 @@
 // the standard header <assert.h> within the std namespace.
 #include <cassert>
 
-using namespace edm;
-using namespace std;
 //================================================================
 
 //UserVerbosity BscTest::std::cout("BscTest","info","BscTest");
@@ -697,11 +695,11 @@ void BscTest::update(const EndOfEvent * evt) {
     // hit map for Bsc
     // ==================================
 
-    map<int,float,less<int> > themap;
-    map<int,float,less<int> > themap1;
+    std::map<int,float,std::less<int> > themap;
+    std::map<int,float,std::less<int> > themap1;
 
-    map<int,float,less<int> > themapxy;
-    map<int,float,less<int> > themapz;
+    std::map<int,float,std::less<int> > themapxy;
+    std::map<int,float,std::less<int> > themapz;
     // access to the G4 hit collections:  -----> this work OK:
 
     //  edm::LogInfo("BscTest") << "1";

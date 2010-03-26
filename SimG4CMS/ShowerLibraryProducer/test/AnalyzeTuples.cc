@@ -1,9 +1,6 @@
 
 #include "AnalyzeTuples.h"
 
-using namespace edm;
-using namespace std;
-
 AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet & iConfig)
 {
 
