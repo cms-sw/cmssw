@@ -47,8 +47,8 @@ int main(int argc, char** argv) {
   Surface::PositionType pos( 0., 0., 0.);
 
   Plane plane(pos,rot);
-
-  GlobalVector mg(2.,3.,1.);
+  LocalTrajectoryParameters tpl(-1./3.5, 1.,1.5, 0.,0.,1.);
+  GlobalVector mg = plane.toGlobal(tp.momentum())
   GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
   double curv =   tpg.transverseCurvature();
   std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
