@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_5/HIon/V19 (CMSSW_3_5_5)
+# /dev/CMSSW_3_5_5/HIon/V20 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V19')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V20')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2577,36 +2577,6 @@ process.maxEvents = cms.untracked.PSet(
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True )
 )
-
-process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
-    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_L1T" ),
-    label = cms.untracked.string( "" ),
-    globaltag = cms.string( "" ),
-    tag = cms.untracked.string( "" ),
-    RefreshEachRun = cms.untracked.bool( True ),
-    appendToDataLabel = cms.string( "" ),
-    DBParameters = cms.PSet(
-      authenticationPath = cms.untracked.string( "." ),
-      connectionRetrialPeriod = cms.untracked.int32( 10 ),
-      idleConnectionCleanupPeriod = cms.untracked.int32( 10 ),
-      messageLevel = cms.untracked.int32( 0 ),
-      enablePoolAutomaticCleanUp = cms.untracked.bool( False ),
-      enableConnectionSharing = cms.untracked.bool( True ),
-      enableReadOnlySessionOnUpdateConnection = cms.untracked.bool( False ),
-      connectionTimeOut = cms.untracked.int32( 0 ),
-      connectionRetrialTimeOut = cms.untracked.int32( 60 )
-    ),
-    toGet = cms.VPSet(
-      cms.PSet(  record = cms.string( "L1GtTriggerMenuRcd" ),
-        tag = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc" )
-      )
-    ),
-    timetype = cms.string( "runnumber" ),
-    siteLocalConfig = cms.untracked.bool( False ),
-    messagelevel = cms.untracked.uint32( 0 )
-)
-process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
 
 if 'GlobalTag' in process.__dict__:
     from Configuration.PyReleaseValidation.autoCond import autoCond

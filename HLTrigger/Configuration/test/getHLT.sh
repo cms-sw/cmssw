@@ -52,9 +52,11 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
   if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
-   $GETHLT --full --offline --mc --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+   $GETHLT --full --offline --data --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+   $GETHLT --full --offline --mc   --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
   else
    $GETHLT --full --offline --data $CONFIG $NAME
+   $GETHLT --full --offline --mc   $CONFIG $NAME
   fi
 }
 

@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_5_5/GRun/V19 (CMSSW_3_5_5)
+# /dev/CMSSW_3_5_5/GRun/V20 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V19')
+  tableName = cms.string('/dev/CMSSW_3_5_5/GRun/V20')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1992,6 +1992,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_TkMu3_NoVertex" ),
         prescales = cms.vuint32( 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "DQM_FEDIntegrity" ),
+        prescales = cms.vuint32( 2 )
       ),
       cms.PSet(  pathName = cms.string( "HLTMONOutput" ),
         prescales = cms.vuint32( 40 )
@@ -9555,6 +9558,87 @@ process.hltLogMonitorFilter = cms.EDFilter( "HLTLogMonitorFilter",
     categories = cms.VPSet( 
     )
 )
+process.hltPreFEDIntegrity = cms.EDFilter( "HLTPrescaler" )
+process.hltDTDQMEvF = cms.EDProducer( "DTUnpackingModule",
+    dataType = cms.string( "DDU" ),
+    fedbyType = cms.bool( True ),
+    inputLabel = cms.InputTag( "source" ),
+    useStandardFEDid = cms.bool( True ),
+    dqmOnly = cms.bool( False ),
+    rosParameters = cms.PSet( 
+    ),
+    readOutParameters = cms.PSet( 
+      debug = cms.untracked.bool( False ),
+      rosParameters = cms.PSet( 
+        writeSC = cms.untracked.bool( True ),
+        readingDDU = cms.untracked.bool( True ),
+        performDataIntegrityMonitor = cms.untracked.bool( True ),
+        readDDUIDfromDDU = cms.untracked.bool( True ),
+        debug = cms.untracked.bool( False ),
+        localDAQ = cms.untracked.bool( False )
+      ),
+      performDataIntegrityMonitor = cms.untracked.bool( True ),
+      localDAQ = cms.untracked.bool( False )
+    )
+)
+process.hltEBHltTask = cms.EDAnalyzer( "EBHltTask",
+    prefixME = cms.untracked.string( "EcalBarrel" ),
+    EBDetIdCollection0 = cms.InputTag( 'hltEcalDigis','EcalIntegrityDCCSizeErrors' ),
+    EBDetIdCollection1 = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
+    EBDetIdCollection2 = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
+    EBDetIdCollection3 = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
+    EcalElectronicsIdCollection1 = cms.InputTag( 'hltEcalDigis','EcalIntegrityTTIdErrors' ),
+    EcalElectronicsIdCollection2 = cms.InputTag( 'hltEcalDigis','EcalIntegrityBlockSizeErrors' ),
+    EcalElectronicsIdCollection3 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemTtIdErrors' ),
+    EcalElectronicsIdCollection4 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemBlockSizeErrors' ),
+    EcalElectronicsIdCollection5 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemChIdErrors' ),
+    EcalElectronicsIdCollection6 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemGainErrors' ),
+    FEDRawDataCollection = cms.InputTag( "source" )
+)
+process.hltEEHltTask = cms.EDAnalyzer( "EEHltTask",
+    prefixME = cms.untracked.string( "EcalEndcap" ),
+    EEDetIdCollection0 = cms.InputTag( 'hltEcalDigis','EcalIntegrityDCCSizeErrors' ),
+    EEDetIdCollection1 = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
+    EEDetIdCollection2 = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
+    EEDetIdCollection3 = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
+    EcalElectronicsIdCollection1 = cms.InputTag( 'hltEcalDigis','EcalIntegrityTTIdErrors' ),
+    EcalElectronicsIdCollection2 = cms.InputTag( 'hltEcalDigis','EcalIntegrityBlockSizeErrors' ),
+    EcalElectronicsIdCollection3 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemTtIdErrors' ),
+    EcalElectronicsIdCollection4 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemBlockSizeErrors' ),
+    EcalElectronicsIdCollection5 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemChIdErrors' ),
+    EcalElectronicsIdCollection6 = cms.InputTag( 'hltEcalDigis','EcalIntegrityMemGainErrors' ),
+    FEDRawDataCollection = cms.InputTag( "source" )
+)
+process.hltL1tfed = cms.EDAnalyzer( "L1TFED",
+    rawTag = cms.InputTag( "source" ),
+    DQMStore = cms.untracked.bool( True ),
+    disableROOToutput = cms.untracked.bool( True ),
+    L1FEDS = cms.vint32( 745, 760, 780, 812, 813 )
+)
+process.hltSiPixelDigisWithErrors = cms.EDProducer( "SiPixelRawToDigi",
+    IncludeErrors = cms.bool( False ),
+    InputLabel = cms.InputTag( "source" )
+)
+process.hltSiPixelHLTSource = cms.EDAnalyzer( "SiPixelHLTSource",
+    RawInput = cms.InputTag( "source" ),
+    ErrorInput = cms.InputTag( "hltSiPixelDigisWithErrors" ),
+    outputFile = cms.string( "Pixel_DQM_HLT.root" )
+)
+process.hltSiStripFEDCheck = cms.EDAnalyzer( "SiStripFEDCheckPlugin",
+    RawDataTag = cms.untracked.InputTag( "source" ),
+    HistogramUpdateFrequency = cms.untracked.uint32( 1000 ),
+    DoPayloadChecks = cms.untracked.bool( False ),
+    CheckChannelLengths = cms.untracked.bool( False ),
+    CheckChannelPacketCodes = cms.untracked.bool( False ),
+    CheckFELengths = cms.untracked.bool( False ),
+    CheckChannelStatus = cms.untracked.bool( False )
+)
+process.hltRPCFEDIntegrity = cms.EDAnalyzer( "RPCFEDIntegrity",
+    RPCRawCountsInputTag = cms.untracked.InputTag( "hltMuonRPCDigis" )
+)
+process.hltBoolDQMPath = cms.EDFilter( "HLTBool",
+    result = cms.bool( False )
+)
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     processName = cms.string( "@" )
 )
@@ -11134,6 +11218,7 @@ process.HLT_L2Mu0_NoVertex = cms.Path( process.HLTBeginSequence + process.hltL1s
 process.HLT_TkMu3_NoVertex = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleMu0 + process.hltPreTkMu3NoVertex + process.hltSingleMu0L1Filtered + process.HLTL2muonrecoSequenceNoVtx + process.hltSingleMu3L2PreFilteredNoVtx + process.HLTL3muonrecoSequenceNoVtx + process.hltSingleMu3L3PreFilterNoVtx + process.HLTEndSequence )
 process.HLT_PhysicsDeclared = cms.Path( process.HLTBeginSequence + process.hltPhysicsDeclared + process.HLTEndSequence )
 process.HLT_LogMonitor = cms.Path( process.hltPreLogMonitor + process.hltLogMonitorFilter + process.HLTEndSequence )
+process.DQM_FEDIntegrity = cms.Path( process.HLTBeginSequenceBPTX + process.hltPreFEDIntegrity + process.hltDTDQMEvF + process.hltEcalDigis + process.hltEBHltTask + process.hltEEHltTask + process.hltL1tfed + process.hltSiPixelDigisWithErrors + process.hltSiPixelHLTSource + process.hltSiStripFEDCheck + process.hltMuonRPCDigis + process.hltRPCFEDIntegrity + process.hltBoolDQMPath )
 process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltPreTriggerSummaryRAW + process.hltTriggerSummaryRAW + process.hltBoolFinalPath )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.HLTOutput = cms.EndPath( process.hltOutputA )
