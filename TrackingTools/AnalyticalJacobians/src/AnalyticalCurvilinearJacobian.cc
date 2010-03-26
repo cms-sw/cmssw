@@ -273,6 +273,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double b3=-b0*sinl+h.z()*cosl;
   double tgl=sinl*cosl1;
 
+  theJacobian(3,2)=absS*cosl;
+  theJacobian(4,1)=absS;
+
 
   theJacobian(1,0) =  absS*b2;
   if ( qbp<0) theJacobian(1,0) = -theJacobian(1,0);
