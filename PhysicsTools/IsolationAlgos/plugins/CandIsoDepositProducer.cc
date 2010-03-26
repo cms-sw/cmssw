@@ -25,7 +25,6 @@
 #include <string>
 
 using namespace edm;
-using namespace std;
 using namespace reco;
 using namespace muonisolation;
 
