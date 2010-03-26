@@ -49,14 +49,17 @@ int main() {
   LocalTrajectoryParameters tpl(1., 1.,1., 0.,0.,1.);
   GlobalVector mg = plane.toGlobal(tpl.momentum());
   GlobalTrajectoryParameters tpg(pos,mg,1., &m);
-  std::cout << tpl << std::endl;
-  std::cout << tpg << std::endl;
+  std::cout << tpl.position() << " " << tpl.momentum() << std::endl;
+  std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
 
+  double curv =   tpg.transverseCurvature();
 
-  HelixForwardPlaneCrossing prop(tpg.position(), tpg.momentum(), tpg.transverseCurvature());
+  HelixForwardPlaneCrossing prop(tpg.position(), tpg.momentum(), curv);
   double s = 0.1;
-  GlobalPoint x = prop.position(s);
-  GlobalVector p = prop.direction(s);
+  GlobalPoint x(prop.position(s));
+  GlobalVector p(prop.direction(s));
+  GlobalTrajectoryParameters tpg2(x,p, curv 0, &m);
+  std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
 
 
 

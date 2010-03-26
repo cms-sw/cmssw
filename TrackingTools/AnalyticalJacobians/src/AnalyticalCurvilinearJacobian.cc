@@ -236,9 +236,12 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 }
 
 
- void computeInfinitesimalJacobian (const GlobalTrajectoryParameters&,
-				    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
-				    const double& s) {
+ void computeInfinitesimalJacobian 
+ (const GlobalTrajectoryParameters& globalParameters,
+  const GlobalPoint&, 
+  const GlobalVector& p, 
+  const GlobalVector& h, 
+  const double& s) {
    /*
     * origin  TRPROP
     *
@@ -257,18 +260,18 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   // average momentum
   GlobalVector tn = (globalParameters.momentum()+p).unit(); 
-  sinl = tn.z(); 
-  cosl = std::sqrt(1.-sinl*sinl); 
-  cosl1 = 1./cosl;
-  sinp = tn.y()*cosl1;
-  cosp = tn.x()*cosl1;
+  double sinl = tn.z(); 
+  double cosl = std::sqrt(1.-sinl*sinl); 
+  double cosl1 = 1./cosl;
+  double sinp = tn.y()*cosl1;
+  double cosp = tn.x()*cosl1;
 
   // define average magnetic field and gradient 
   // at initial point - inlike TRPROP
-  b0= h.x()*cosp+h.y()*sinp;
-  b2=-h.x()*sinp+h.y()*cosp;
-  b3=-b0*sinl+h.z()*cosl;
-  tgl=sinl*cosl1;
+  double b0= h.x()*cosp+h.y()*sinp;
+  double b2=-h.x()*sinp+h.y()*cosp;
+  double b3=-b0*sinl+h.z()*cosl;
+  double tgl=sinl*cosl1;
 
 
   theJacobian(1,0) =  absS*b2;
