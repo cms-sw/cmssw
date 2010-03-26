@@ -11,8 +11,6 @@
 #include <iostream>
 #include <cstdlib>
 
-using namespace std;
-
 int main(int argc,char** argv) 
 {  
   gStyle->SetOptStat(0);
@@ -46,7 +44,7 @@ int main(int argc,char** argv)
   endcapDump.open("ee.C");
   if (!endcapDump)
     {
-      cout << "ERROR: file ee.C not found" << endl;
+      std::cout << "ERROR: file ee.C not found" << std::endl;
       exit(-1);
     }
   TText* t=new TText();
@@ -79,7 +77,7 @@ int main(int argc,char** argv)
 	  char text[10];
 	  sprintf(text,"%d,%d",ix,iy);
 	  t->DrawText(x,y,text);
-	  cout << "Volume " << ++i <<  " ix " << ix  <<  " iy " << iy << " Position (" << x << "," << y << ")" << endl;   
+	  std::cout << "Volume " << ++i <<  " ix " << ix  <<  " iy " << iy << " Position (" << x << "," << y << ")" << std::endl;   
 	}
     }
   myCanvas->SaveAs("eeIndices.eps");

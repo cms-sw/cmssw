@@ -12,7 +12,7 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: EcalTrigTowerConstituentsMapBuilder.cc,v 1.2 2007/05/29 17:44:01 meridian Exp $
+// $Id: EcalTrigTowerConstituentsMapBuilder.cc,v 1.3 2009/04/08 20:36:57 heltsley Exp $
 //
 //
 
@@ -54,7 +54,6 @@ EcalTrigTowerConstituentsMapBuilder::~EcalTrigTowerConstituentsMapBuilder()
 EcalTrigTowerConstituentsMapBuilder::ReturnType
 EcalTrigTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
 {
-   using namespace edm::es;
    std::auto_ptr<EcalTrigTowerConstituentsMap> prod(new EcalTrigTowerConstituentsMap());
 
    if (!mapFile_.empty()) {

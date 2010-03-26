@@ -226,7 +226,6 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
 void
 dumpEcalTrigTowerMapping::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
    
    std::cout << "Here I am " << std::endl;
 

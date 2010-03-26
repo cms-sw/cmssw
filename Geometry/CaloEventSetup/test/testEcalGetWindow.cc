@@ -226,7 +226,6 @@ void testEcalGetWindow::build(const CaloGeometry& cg, const CaloTopology& ct, De
 void
 testEcalGetWindow::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
    
    std::cout << "Here I am " << std::endl;
 

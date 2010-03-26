@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.2 2009/05/09 20:30:11 elmer Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.3 2009/11/05 16:42:17 elmer Exp $
 //
 //
 
@@ -56,7 +56,6 @@ CaloTowerConstituentsMapBuilder::~CaloTowerConstituentsMapBuilder()
 CaloTowerConstituentsMapBuilder::ReturnType
 CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
 {
-   using namespace edm::es;
    std::auto_ptr<CaloTowerConstituentsMap> prod(new CaloTowerConstituentsMap());
    prod->useStandardHB(true);
    prod->useStandardHE(true);

@@ -50,7 +50,6 @@
 //
 // class decleration
 
-using namespace CLHEP;
 
 class CaloGeometryAnalyzer : public edm::EDAnalyzer 
 {
@@ -950,7 +949,6 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 void
 CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
 
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);     
