@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.33 2010/03/23 13:13:05 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.34 2010/03/23 16:25:29 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -91,6 +91,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
   //add parameter to save computing time if TkHistoMap are not filled
   bool doTkHistoMap_;
+  bool doMedHists_;
 
   unsigned int nEvt_;
 
@@ -133,6 +134,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 
   doTkHistoMap_ = fedHists_.isTkHistoMapEnabled(fedHists_.tkHistoMapName());
 
+  doMedHists_ = fedHists_.cmHistosEnabled();
 
   if (printDebug_) {
     LogTrace("SiStripMonitorHardware") << debugStream.str();
@@ -212,7 +214,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 			     printDebug_,
 			     lNChannelMonitoring,
 			     lNChannelUnpacker,
-			     fedHists_.cmHistosEnabled(),
+			     doMedHists_,
 			     fedHists_.cmHistPointer(false),
 			     fedHists_.cmHistPointer(true)
 			     );
