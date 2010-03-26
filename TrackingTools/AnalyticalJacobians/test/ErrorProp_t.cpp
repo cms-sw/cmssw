@@ -54,22 +54,42 @@ int main() {
 
   double curv =   tpg.transverseCurvature();
 
-  HelixForwardPlaneCrossing prop(HelixForwardPlaneCrossing::PositionType(tpg.position()), 
+  AlgebraicMatrix55 fullJacobian(AlgebraicMatrixID());
+  AlgebraicMatrix55 deltaJacobian(AlgebraicMatrixID());
+  GlobalTrajectoryParameters tpg0(pos,mg,1., &m);
+  for (int i=0; i<10;++i) {
+    HelixForwardPlaneCrossing prop(HelixForwardPlaneCrossing::PositionType(tpg.position()), 
                                  HelixForwardPlaneCrossing::DirectionType(tpg.momentum()), curv);
-  GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
-  double s = 0.1;
-  GlobalPoint x(prop.position(s));
-  GlobalVector p(prop.direction(s));
-  GlobalTrajectoryParameters tpg2(x,p, curv, 0, &m);
-  std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
+    GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
+    double s = 0.1;
+    GlobalPoint x(prop.position(s));
+    GlobalVector p(prop.direction(s));
+    GlobalTrajectoryParameters tpg2(x,p, curv, 0, &m);
+    std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
+    AnalyticalCurvilinearJacobian full;
+    AnalyticalCurvilinearJacobian delta;
+    full.computeFullJacobian(tpg,x,p,h,s);
+    std::cout <<  full.jacobian() << std::endl;
+    std::cout << std::endl;
+    delta.computeInfinitesimalJacobian(tpg,x,p,h,s);
+    std::cout << delta.jacobian() << std::endl;
+    std::cout << std::endl;
+    tpg = tpg2;
+    fullJacobian *=full.jacobian();
+    deltaJacobian *=delta.jacobian();
+  }
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout <<  fullJacobian << std::endl;
+  std::cout << std::endl;
+  std::cout << deltaJacobian << std::endl;
+  std::cout << std::endl;
   AnalyticalCurvilinearJacobian full;
-  AnalyticalCurvilinearJacobian delta;
-  full.computeFullJacobian(tpg,x,p,h,s);
+  full.computeFullJacobian(tpg0,tpg.position(),tpg.momentum(),h,1.);
   std::cout <<  full.jacobian() << std::endl;
   std::cout << std::endl;
-  delta.computeInfinitesimalJacobian(tpg,x,p,h,s);
-  std::cout << delta.jacobian() << std::endl;
-  std::cout << std::endl;
+
+
 
   return 0;
 }
