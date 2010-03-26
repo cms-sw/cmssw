@@ -136,9 +136,7 @@ if __name__ == '__main__':
 	listoffiles.append( option.data )
 	
 
-    if option.copy:
-	sys.exit()
-    
+   
     # sort list of data files in chronological order
     sortedlist = {}
 
@@ -169,11 +167,14 @@ if __name__ == '__main__':
     keys = sortedlist.keys()
     keys.sort()
 
+    # write combined data file
     allbeam_file = workflowdir + tagname + "_all_IOVs.txt"
     allfile = open( allbeam_file, 'w')
     
+    if option.copy:
+	sys.exit()
+    
     nfile = 0
-
     for key in keys:
 	
 	iov_since = '1'
