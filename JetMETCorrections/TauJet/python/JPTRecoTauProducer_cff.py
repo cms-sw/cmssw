@@ -1,18 +1,41 @@
 import FWCore.ParameterSet.Config as cms
+import copy
 
 from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cfi import *
 JPTZSPCorrectorICone5.ResponseMap   = 'CondFormats/JetMETObjects/data/CMSSW_31X_resptowers.txt'
 JPTZSPCorrectorICone5.UseEfficiency = cms.bool(False)
 
 from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cff import *
-JetPlusTrackZSPCorJetAntiKt5.UseZSP = cms.bool(False)
+TCTauJetPlusTrackZSPCorJetAntiKt5 = copy.deepcopy(JetPlusTrackZSPCorJetAntiKt5)
+TCTauJetPlusTrackZSPCorJetAntiKt5.UseZSP = cms.bool(False)
 
-from Configuration.StandardSequences.Reconstruction_cff import *
 from RecoTauTag.RecoTau.CaloRecoTauTagInfoProducer_cfi import *
+from RecoTauTag.RecoTau.CaloRecoTauProducer_cfi import *
 caloRecoTauTagInfoProducer.CaloJetTracksAssociatorProducer = cms.InputTag('JPTAntiKt5JetTracksAssociatorAtVertex')
+JPTCaloRecoTauProducer = copy.deepcopy(caloRecoTauProducer)
+
+# Anti-Kt
+from RecoJets.JetAssociationProducers.ak5JTA_cff import*
+
+JPTAntiKt5JetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone()
+JPTAntiKt5JetTracksAssociatorAtVertex.jets = cms.InputTag("ak5CaloJets")
+
+JPTAntiKt5JetTracksAssociatorAtCaloFace = ak5JetTracksAssociatorAtCaloFace.clone()
+JPTAntiKt5JetTracksAssociatorAtCaloFace.jets = cms.InputTag("ak5CaloJets")
+
+JPTAntiKt5JetExtender = ak5JetExtender.clone()
+JPTAntiKt5JetExtender.jets = cms.InputTag("ak5CaloJets")
+JPTAntiKt5JetExtender.jet2TracksAtCALO = cms.InputTag("JPTAntiKt5JetTracksAssociatorAtCaloFace")
+JPTAntiKt5JetExtender.jet2TracksAtVX = cms.InputTag("JPTAntiKt5JetTracksAssociatorAtVertex")
+
 
 jptRecoTauProducer = cms.Sequence(
-	JetPlusTrackCorrectionsAntiKt5 *
+        JPTeidTight *
+        JPTAntiKt5JetTracksAssociatorAtVertex *
+#        JPTAntiKt5JetTracksAssociatorAtCaloFace *
+        JPTAntiKt5JetExtender *
+        TCTauJetPlusTrackZSPCorJetAntiKt5 *
         caloRecoTauTagInfoProducer *
-        caloRecoTauProducer
+        JPTCaloRecoTauProducer
 )
+
