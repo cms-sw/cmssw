@@ -60,7 +60,7 @@ int main() {
   for (int i=0; i<10;++i) {
 
     GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
-    Surface::RotationType rot(h,0);
+    Surface::RotationType rot(Basic3DVector<float>(h),0);
     Plane plane(tpg.position(),rot);
     HelixForwardPlaneCrossing prop(HelixForwardPlaneCrossing::PositionType(tpg.position()), 
 				   HelixForwardPlaneCrossing::DirectionType(plane.toLocal(tpg.momentum())), 
@@ -68,7 +68,7 @@ int main() {
     
     double s = 0.1;
     LocalPoint x(prop.position(s));
-    localVector p(prop.direction(s));
+    LocalVector p(prop.direction(s));
     GlobalTrajectoryParameters tpg2( plane.toGlobal(x), plane.toGlobal(p), curv, 0, &m);
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
