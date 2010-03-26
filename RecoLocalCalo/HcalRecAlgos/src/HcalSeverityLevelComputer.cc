@@ -51,13 +51,13 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "CalibrationBit")     setBit(HcalCaloFlagLabels::CalibrationBit, mydef.CalibFlagMask);
 
   // Common subdetector bits ++++++++++++++++++++++
-  else if (mybit == "TimingSubtractedBit")  setBit(HcalCaloFlagLabels::TimingSubtractedBit, mydef.CalibFlagMask);
-  else if (mybit == "TimingAddedBit")       setBit(HcalCaloFlagLabels::TimingAddedBit,      mydef.CalibFlagMask);
-  else if (mybit == "TimingErrorBit")       setBit(HcalCaloFlagLabels::TimingErrorBit,      mydef.CalibFlagMask);
-  else if (mybit == "ADCSaturationBit")     setBit(HcalCaloFlagLabels::ADCSaturationBit,    mydef.CalibFlagMask);
-  else if (mybit == "UserDefinedBit0")      setBit(HcalCaloFlagLabels::UserDefinedBit0,     mydef.CalibFlagMask);
-  else if (mybit == "UserDefinedBit1")      setBit(HcalCaloFlagLabels::UserDefinedBit1,     mydef.CalibFlagMask);
-  else if (mybit == "UserDefinedBit2")      setBit(HcalCaloFlagLabels::UserDefinedBit2,     mydef.CalibFlagMask);
+  else if (mybit == "TimingSubtractedBit")  setAllRHMasks(HcalCaloFlagLabels::TimingSubtractedBit, mydef);
+  else if (mybit == "TimingAddedBit")       setAllRHMasks(HcalCaloFlagLabels::TimingAddedBit,      mydef);
+  else if (mybit == "TimingErrorBit")       setAllRHMasks(HcalCaloFlagLabels::TimingErrorBit,      mydef);
+  else if (mybit == "ADCSaturationBit")     setAllRHMasks(HcalCaloFlagLabels::ADCSaturationBit,    mydef);
+  else if (mybit == "UserDefinedBit0")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit0,     mydef);
+  else if (mybit == "UserDefinedBit1")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit1,     mydef);
+  else if (mybit == "UserDefinedBit2")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit2,     mydef);
   // unknown -------------------
   else
     {
@@ -217,7 +217,10 @@ int HcalSeverityLevelComputer::getSeverityLevel(const DetId& myid, const uint32_
       // rechitmask&myflag true OR chstatusmask&mychstat true
 
 
-      if ( ( ( (!myRecHitMask) || (myRecHitMask & myflag) ) &&
+      //      if ( ( ( (!myRecHitMask) || (myRecHitMask & myflag) ) &&
+      if ( ( ( ( !SevDef[i].HBHEFlagMask && !SevDef[i].HOFlagMask && !SevDef[i].HFFlagMask && !SevDef[i].ZDCFlagMask 
+		 && !SevDef[i].CalibFlagMask ) 
+	       || (myRecHitMask & myflag) ) &&
 	   ( (!SevDef[i].chStatusMask) || (SevDef[i].chStatusMask & mystatus) ) )
 	   || ( (myRecHitMask & myflag) || (SevDef[i].chStatusMask & mystatus) ) )
 	return SevDef[i].sevLevel;
@@ -262,6 +265,15 @@ void HcalSeverityLevelComputer::setBit(const unsigned bitnumber, uint32_t& where
 {
   uint32_t statadd = 0x1<<(bitnumber);
   where = where|statadd;
+}
+
+void HcalSeverityLevelComputer::setAllRHMasks(const unsigned bitnumber, HcalSeverityDefinition& mydef)
+{
+  setBit(bitnumber, mydef.HBHEFlagMask);
+  setBit(bitnumber, mydef.HOFlagMask);
+  setBit(bitnumber, mydef.HFFlagMask);
+  setBit(bitnumber, mydef.ZDCFlagMask);
+  setBit(bitnumber, mydef.CalibFlagMask);
 }
 
 std::ostream& operator<<(std::ostream& s, const HcalSeverityLevelComputer::HcalSeverityDefinition& def)
