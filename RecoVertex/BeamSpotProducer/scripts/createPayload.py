@@ -173,10 +173,8 @@ if __name__ == '__main__':
     # write combined data file
     allbeam_file = workflowdir + tagname + "_all_IOVs.txt"
     allfile = open( allbeam_file, 'w')
-    print " all results save in file: " + allbeam_file
+    print " merging all results into file: " + allbeam_file
 
-    if option.copy:
-	sys.exit()
     
     nfile = 0
     for key in keys:
@@ -210,6 +208,9 @@ if __name__ == '__main__':
         
 	tmpfile.close()
 	newtmpfile.close()
+        if option.copy:
+            continue
+        
 	beam_file = beam_file_tmp
 
 	writedb_out = workflowdir+"write2DB_"+tagname+suffix+".py"
