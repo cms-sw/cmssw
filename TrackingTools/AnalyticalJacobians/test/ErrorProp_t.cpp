@@ -73,10 +73,10 @@ int main() {
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
     AnalyticalCurvilinearJacobian delta;
-    full.computeFullJacobian(tpg,x,p,h,s);
+    full.computeFullJacobian(tpg,tpg2.position(),tpg.momentum(),h,s);
     std::cout <<  full.jacobian() << std::endl;
     std::cout << std::endl;
-    delta.computeInfinitesimalJacobian(tpg,x,p,h,s);
+    delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg.momentum(),h,s);
     std::cout << delta.jacobian() << std::endl;
     std::cout << std::endl;
     tpg = tpg2;
