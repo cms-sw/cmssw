@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: BeamFitter.cc,v 1.44 2010/03/23 22:16:10 jengbou Exp $
+   version $Id: BeamFitter.cc,v 1.45 2010/03/24 22:36:42 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -415,9 +415,14 @@ bool BeamFitter::runFitter() {
           }
       }
       matrix(6,6) = MyPVFitter->getWidthXerr() * MyPVFitter->getWidthXerr();
+
+      // get Z and sigmaZ from PV fit
+      matrix(2,2) = MyPVFitter->getBeamSpot().covariance(2,2);
+      matrix(3,3) = MyPVFitter->getBeamSpot().covariance(3,3);
       
-      reco::BeamSpot tmpbs(reco::BeamSpot::Point(fbeamspot.x0(), fbeamspot.y0(), fbeamspot.z0()),
-                     fbeamspot.sigmaZ(),
+      reco::BeamSpot tmpbs(reco::BeamSpot::Point(fbeamspot.x0(), fbeamspot.y0(),
+                                                 MyPVFitter->getBeamSpot().z0() ),
+                           MyPVFitter->getBeamSpot().sigmaZ() ,
                      fbeamspot.dxdz(),
                      fbeamspot.dydz(),
                      fbeamspot.BeamWidthX(),

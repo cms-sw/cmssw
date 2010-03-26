@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
-   version $Id: PVFitter.cc,v 1.2 2010/03/18 12:13:27 adamwo Exp $
+   version $Id: PVFitter.cc,v 1.3 2010/03/24 22:36:42 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -185,7 +185,21 @@ bool PVFitter::runFitter() {
       fwidthXerr = gausx->GetParError(2);
       fwidthYerr = gausy->GetParError(2);
       fwidthZerr = gausz->GetParError(2);
-    
+
+      reco::BeamSpot::CovarianceMatrix matrix;
+      matrix(2,2) = gausz->GetParError(1) * gausz->GetParError(1);
+      matrix(3,3) = fwidthZerr * fwidthZerr;
+      matrix(6,6) = fwidthXerr * fwidthXerr;
+      
+      fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(gausx->GetParameter(1),
+                                                        gausy->GetParameter(1),
+                                                        gausz->GetParameter(1) ),
+                                  fwidthZ,
+                                  0., 0.,
+                                  fwidthX,
+                                  matrix );
+      fbeamspot.setBeamWidthX( fwidthX );
+      fbeamspot.setBeamWidthY( fwidthY );
     }
 
     if ( pvStore_.size() <= minNrVertices_ ) return false;
@@ -248,6 +262,25 @@ bool PVFitter::runFitter() {
       fwidthXerr = minuitx.GetParError(3);
       fwidthYerr = minuitx.GetParError(5);
       fwidthZerr = minuitx.GetParError(8);
+
+      reco::BeamSpot::CovarianceMatrix matrix;
+      // need to get the full cov matrix
+      matrix(0,0) = pow( minuitx.GetParError(0), 2);
+      matrix(1,1) = pow( minuitx.GetParError(1), 2);
+      matrix(2,2) = pow( minuitx.GetParError(2), 2);
+      matrix(3,3) = fwidthZerr * fwidthZerr;
+      matrix(6,6) = fwidthXerr * fwidthXerr;
+      
+      fbeamspot = reco::BeamSpot( reco::BeamSpot::Point(minuitx.GetParameter(0),
+                                                        minuitx.GetParameter(1),
+                                                        minuitx.GetParameter(2) ),
+                                  fwidthZ,
+                                  minuitx.GetParameter(6), minuitx.GetParameter(7),
+                                  fwidthX,
+                                  matrix );
+      fbeamspot.setBeamWidthX( fwidthX );
+      fbeamspot.setBeamWidthY( fwidthY );
+      
     }
     
     pvStore_.clear();

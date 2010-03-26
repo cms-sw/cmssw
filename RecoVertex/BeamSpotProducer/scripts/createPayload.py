@@ -18,6 +18,7 @@
    A very simple script to handle payload for beam spot results
 
    usage: %prog -d <data file/directory> -t <tag name>
+   -c, --copy : Only copy files from input directory to test/workflow/
    -d, --data    = DATA: data file, or directory with data files.
    -t, --tag     = TAG: tag name.
    -u, --upload : Upload files to offline drop box via scp.
@@ -129,8 +130,11 @@ if __name__ == '__main__':
 		listoffiles.append( dir + ifile )
     else:
 	listoffiles.append( option.data )
+	
 
-
+    if option.copy:
+	sys.exit()
+    
     # sort list of data files in chronological order
     sortedlist = {}
 
