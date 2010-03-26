@@ -909,4 +909,4 @@ void HcalHotCellMonitor::periodicReset()
 
   return;
 }
-DEFINE_ANOTHER_FWK_MODULE(HcalHotCellMonitor);
+DEFINE_FWK_MODULE(HcalHotCellMonitor);

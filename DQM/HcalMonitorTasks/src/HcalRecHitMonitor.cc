@@ -1372,4 +1372,4 @@ void HcalRecHitMonitor::zeroCounters(void)
   return;
 } //void HcalRecHitMonitor::zeroCounters(void)
 
-DEFINE_ANOTHER_FWK_MODULE(HcalRecHitMonitor);
+DEFINE_FWK_MODULE(HcalRecHitMonitor);

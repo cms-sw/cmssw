@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Wed Mar  3 12:14:16 CET 2010
-// $Id: HcalDetDiagLaserMonitor.cc,v 1.7.4.5 2010/03/20 20:56:46 temple Exp $
+// $Id: HcalDetDiagLaserMonitor.cc,v 1.9 2010/03/25 16:47:28 temple Exp $
 //
 //
 
@@ -1450,4 +1450,4 @@ void HcalDetDiagLaserMonitor::beginLuminosityBlock(const edm::LuminosityBlock& l
 void HcalDetDiagLaserMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(HcalDetDiagLaserMonitor);
+DEFINE_FWK_MODULE(HcalDetDiagLaserMonitor);

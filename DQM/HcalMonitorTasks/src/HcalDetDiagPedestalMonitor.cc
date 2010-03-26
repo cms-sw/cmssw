@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Tue Mar  9 12:59:18 CET 2010
-// $Id: HcalDetDiagPedestalMonitor.cc,v 1.9.4.6 2010/03/20 20:56:46 temple Exp $
+// $Id: HcalDetDiagPedestalMonitor.cc,v 1.11 2010/03/25 16:47:28 temple Exp $
 //
 //
 // user include files
@@ -1134,4 +1134,4 @@ void HcalDetDiagPedestalMonitor::beginLuminosityBlock(const edm::LuminosityBlock
 void HcalDetDiagPedestalMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}
 
 //define this as a plug-in
-DEFINE_ANOTHER_FWK_MODULE(HcalDetDiagPedestalMonitor);
+DEFINE_FWK_MODULE(HcalDetDiagPedestalMonitor);

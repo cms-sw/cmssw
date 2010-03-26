@@ -1186,4 +1186,4 @@ double VAL;
 
 void HcalDetDiagNoiseMonitor::done(){   /*SaveReference();*/ } 
 
-DEFINE_ANOTHER_FWK_MODULE (HcalDetDiagNoiseMonitor);
+DEFINE_FWK_MODULE (HcalDetDiagNoiseMonitor);

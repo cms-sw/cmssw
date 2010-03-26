@@ -372,4 +372,4 @@ HcalTrigPrimMonitor::create_et_histogram(const std::string& folder, const std::s
    return dbe_->book1D(name, name, 256, 0, 256);
 }
 
-DEFINE_ANOTHER_FWK_MODULE (HcalTrigPrimMonitor);
+DEFINE_FWK_MODULE (HcalTrigPrimMonitor);

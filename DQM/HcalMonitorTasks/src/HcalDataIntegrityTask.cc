@@ -306,5 +306,5 @@ void HcalDataIntegrityTask::unpack(const FEDRawData& raw,
   return;
 } // void HcalDataIntegrityTask::unpack()
 
-DEFINE_ANOTHER_FWK_MODULE(HcalDataIntegrityTask);
+DEFINE_FWK_MODULE(HcalDataIntegrityTask);
 

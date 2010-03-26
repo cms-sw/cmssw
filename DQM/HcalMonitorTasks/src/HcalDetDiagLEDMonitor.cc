@@ -874,5 +874,5 @@ void HcalDetDiagLEDMonitor::done(){
       //SaveReference(); // disabled by Jeff on 23 March 2010 -- cannot run within online DQM!
    }   
 } 
-DEFINE_ANOTHER_FWK_MODULE (HcalDetDiagLEDMonitor);
+DEFINE_FWK_MODULE (HcalDetDiagLEDMonitor);
 

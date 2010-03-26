@@ -1176,5 +1176,5 @@ void HcalRawDataMonitor::UpdateMEs (void ) {
 	meDataFlowInd_->setBinContent(x+1,y+1,DataFlowInd_[x][y]);
 } //UpdateMEs
 
-DEFINE_ANOTHER_FWK_MODULE(HcalRawDataMonitor);
+DEFINE_FWK_MODULE(HcalRawDataMonitor);
 

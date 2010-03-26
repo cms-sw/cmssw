@@ -1488,5 +1488,5 @@ void HcalDigiMonitor::reset()
 
   return;
 }
-DEFINE_ANOTHER_FWK_MODULE(HcalDigiMonitor);
+DEFINE_FWK_MODULE(HcalDigiMonitor);
                

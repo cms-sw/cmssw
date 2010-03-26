@@ -267,4 +267,4 @@ void HcalNZSMonitor::processEvent(const FEDRawDataCollection& rawraw,
 
 } //void HcalNZSMonitor::processEvent(...)
 
-DEFINE_ANOTHER_FWK_MODULE(HcalNZSMonitor);
+DEFINE_FWK_MODULE(HcalNZSMonitor);

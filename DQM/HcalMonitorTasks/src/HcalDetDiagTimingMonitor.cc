@@ -402,4 +402,4 @@ void HcalDetDiagTimingMonitor::CheckTiming(){
 }
 
 void HcalDetDiagTimingMonitor::done(){   } 
-DEFINE_ANOTHER_FWK_MODULE (HcalDetDiagTimingMonitor);
+DEFINE_FWK_MODULE (HcalDetDiagTimingMonitor);

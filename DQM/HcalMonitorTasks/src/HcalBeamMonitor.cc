@@ -1291,5 +1291,5 @@ void HcalBeamMonitor::SetEtaLabels(MonitorElement * h)
   return;
 }
 
-DEFINE_ANOTHER_FWK_MODULE(HcalBeamMonitor);
+DEFINE_FWK_MODULE(HcalBeamMonitor);
 

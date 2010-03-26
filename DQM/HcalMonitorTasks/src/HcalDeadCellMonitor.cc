@@ -1049,4 +1049,4 @@ void HcalDeadCellMonitor::zeroCounters(bool resetpresent)
   return;
 } // void HcalDeadCellMonitor::zeroCounters(bool resetpresent)
 
-DEFINE_ANOTHER_FWK_MODULE(HcalDeadCellMonitor);
+DEFINE_FWK_MODULE(HcalDeadCellMonitor);
