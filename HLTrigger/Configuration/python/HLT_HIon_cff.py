@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/HIon/V17 (CMSSW_3_5_5)
+# /dev/CMSSW_3_5_5/HIon/V18 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V18')
 )
 
 streams = cms.PSet( 
@@ -13,10 +13,10 @@ streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   EventDisplay = cms.vstring(  ),
   A = cms.vstring( 'RandomTriggers',
     'HcalHPDNoise',
@@ -33,10 +33,10 @@ datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   ZeroBias = cms.vstring(  ),
