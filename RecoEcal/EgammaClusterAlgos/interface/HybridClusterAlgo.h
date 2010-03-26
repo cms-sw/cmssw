@@ -16,6 +16,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -99,6 +100,12 @@ class HybridClusterAlgo
   // channels not to be used for seeding 
   std::vector<int> v_chstatus_; 
 
+  // severity levels to discriminate against
+  std::vector<int> v_severitylevel_;
+  float severityRecHitThreshold_;
+  EcalSeverityLevelAlgo::SpikeId spId_;
+  float severitySpikeThreshold_;
+
  public:
    enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
   
@@ -113,11 +120,14 @@ class HybridClusterAlgo
                     double ewing,
 		    std::vector<int> v_chstatus,
                     const PositionCalc& posCalculator,
-//                    bool dynamicPhiRoad = false,
                     DebugLevel debugLevel = pINFO,
 		    bool dynamicEThres = false,
                     double eThresA = 0,
-                    double eThresB = 0.1
+                    double eThresB = 0.1,
+		    std::vector<int> severityToExclude=std::vector<int>(999),
+		    double severityRecHitThreshold=0.08,
+		    int severitySpikeId=1,
+		    double severitySpikeThreshold=0
 		    );
 //                    const edm::ParameterSet &bremRecoveryPset,
 
@@ -140,7 +150,8 @@ class HybridClusterAlgo
 		    const CaloSubdetectorGeometry * geometry,
 		    reco::BasicClusterCollection &basicClusters,
 		    bool regional = false,
-		    const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
+		    const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>(),
+		    const EcalChannelStatus *chStatus = new EcalChannelStatus());
 
   //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(const reco::CaloClusterPtrVector&);

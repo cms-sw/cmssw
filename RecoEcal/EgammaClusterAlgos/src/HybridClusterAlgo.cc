@@ -10,151 +10,172 @@
 
 //The real constructor
 HybridClusterAlgo::HybridClusterAlgo(double eb_str, 
-		int step, 
-		double ethres,
-		double eseed,
-		double ewing,
-		std::vector<int> v_chstatus,
-		const PositionCalc& posCalculator,
-		//				     bool dynamicPhiRoad,
-		DebugLevel debugLevel,
-		bool dynamicEThres,
-		double eThresA,
-		double eThresB
-		) :
-	//                                   const edm::ParameterSet &bremRecoveryPset,
-	eb_st(eb_str), phiSteps_(step), 
-	eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
-	Eseed(eseed),  Ewing(ewing), 
-	dynamicEThres_(dynamicEThres), debugLevel_(debugLevel),
-	v_chstatus_(v_chstatus)
-
-
+				     int step, 
+				     double ethres,
+				     double eseed,
+				     double ewing,
+				     std::vector<int> v_chstatus,
+				     const PositionCalc& posCalculator,
+				     DebugLevel debugLevel,
+				     bool dynamicEThres,
+				     double eThresA,
+				     double eThresB,
+				     std::vector<int> severityToExclude,
+				     double severityRecHitThreshold,
+				     int severitySpikeId,
+				     double severitySpikeThreshold
+				     ) :
+  
+  eb_st(eb_str), phiSteps_(step), 
+  eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
+  Eseed(eseed),  Ewing(ewing), 
+  dynamicEThres_(dynamicEThres), debugLevel_(debugLevel),
+  v_chstatus_(v_chstatus), v_severitylevel_(severityToExclude),severityRecHitThreshold_(severityRecHitThreshold), severitySpikeThreshold_(severitySpikeThreshold)
+  
+  
 {
-
-	dynamicPhiRoad_ = false;
-	if ( debugLevel_ == pDEBUG ) {
-		//std::cout << "dynamicEThres: " << dynamicEThres_ 
-		//          << " : A,B " << eThresA_ << ", " << eThresB_ << std::endl;
-	}
-
-	//if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
-	posCalculator_ = posCalculator;
-	topo_ = new EcalBarrelHardcodedTopology();
-
-	std::sort( v_chstatus_.begin(), v_chstatus_.end() );
-
-
+  spId_ = EcalSeverityLevelAlgo::SpikeId(severitySpikeId);
+  dynamicPhiRoad_ = false;
+  if ( debugLevel_ == pDEBUG ) {
+    //std::cout << "dynamicEThres: " << dynamicEThres_ 
+    //          << " : A,B " << eThresA_ << ", " << eThresB_ << std::endl;
+  }
+  
+  //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
+  posCalculator_ = posCalculator;
+  topo_ = new EcalBarrelHardcodedTopology();
+  
+  std::sort( v_chstatus_.begin(), v_chstatus_.end() );
+  
+  
 }
 
 // Return a vector of clusters from a collection of EcalRecHits:
 void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl, 
-		const CaloSubdetectorGeometry*geometry,
-		reco::BasicClusterCollection &basicClusters,
-		bool regional,
-		const std::vector<EcalEtaPhiRegion>& regions)
+				     const CaloSubdetectorGeometry*geometry,
+				     reco::BasicClusterCollection &basicClusters,
+				     bool regional,
+				     const std::vector<EcalEtaPhiRegion>& regions,
+				     const EcalChannelStatus*chStatus
+				     )
 {
-	//clear vector of seeds
-	seeds.clear();
-	//clear map of supercluster/basiccluster association
-	clustered_.clear();
-	//clear set of used detids
-	useddetids.clear();
-	//clear vector of seed clusters
-	seedClus_.clear();
-	//Pass in a pointer to the collection.
-	recHits_ = recColl;
-
-	//
-	//  SCShape_ = new SuperClusterShapeAlgo(recHits_, geometry);
-
-	if ( debugLevel_ == pDEBUG ) {
-		std::cout << "Cleared vectors, starting clusterization..." << std::endl;
+  //clear vector of seeds
+  seeds.clear();
+  //clear map of supercluster/basiccluster association
+  clustered_.clear();
+  //clear set of used detids
+  useddetids.clear();
+  //clear vector of seed clusters
+  seedClus_.clear();
+  //Pass in a pointer to the collection.
+  recHits_ = recColl;
+  
+  //
+  //  SCShape_ = new SuperClusterShapeAlgo(recHits_, geometry);
+  
+  if ( debugLevel_ == pDEBUG ) {
+    std::cout << "Cleared vectors, starting clusterization..." << std::endl;
+    std::cout << "Purple monkey aardvark." << std::endl;
+  }
+  
+  int nregions=0;
+  if(regional) nregions=regions.size();
+  
+  if(!regional || nregions) {
+    
+    EcalRecHitCollection::const_iterator it;
+    
+    for (it = recHits_->begin(); it != recHits_->end(); it++){
+      
+      //Make the vector of seeds that we're going to use.
+      //One of the few places position is used, needed for ET calculation.    
+      const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
+      GlobalPoint position = this_cell->getPosition();
+      
+      
+      // Require that RecHit is within clustering region in case
+      // of regional reconstruction
+      bool withinRegion = false;
+      if (regional) {
+	std::vector<EcalEtaPhiRegion>::const_iterator region;
+	for (region=regions.begin(); region!=regions.end(); region++) {
+	  if (region->inRegion(position)) {
+	    withinRegion =  true;
+	    break;
+	  }
 	}
+      }
+      
+      if (!regional || withinRegion) {
 
-	int nregions=0;
-	if(regional) nregions=regions.size();
+	//Must pass seed threshold
+	float ET = it->energy() * sin(position.theta());
 
-	if(!regional || nregions) {
+	if (ET > eb_st) {
+	  if (debugLevel_==pDEBUG) std::cout << "Seed crystal: " << std::endl;
+	  // avoid seeding for anomalous channels (recoFlag based)
+	  uint32_t rhFlag = (*it).recoFlag();
+	  if (debugLevel_==pDEBUG) std::cout << "rhFlag: " << rhFlag << std::endl;
+	  std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
+	  if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from seeding
 
-		EcalRecHitCollection::const_iterator it;
-
-		for (it = recHits_->begin(); it != recHits_->end(); it++){
-
-			//Make the vector of seeds that we're going to use.
-			//One of the few places position is used, needed for ET calculation.    
-			const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
-			GlobalPoint position = this_cell->getPosition();
-
-
-			// Require that RecHit is within clustering region in case
-			// of regional reconstruction
-			bool withinRegion = false;
-			if (regional) {
-				std::vector<EcalEtaPhiRegion>::const_iterator region;
-				for (region=regions.begin(); region!=regions.end(); region++) {
-					if (region->inRegion(position)) {
-						withinRegion =  true;
-						break;
-					}
-				}
-			}
-
-			if (!regional || withinRegion) {
-
-				//Must pass seed threshold
-				float ET = it->energy() * sin(position.theta());
-				if (ET > eb_st) {
-
-					// avoid seeding for anomalous channels (recoFlag based)
-					uint32_t rhFlag = (*it).recoFlag();
-					std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
-					if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from seeding
-
-					seeds.push_back(*it);
-					if ( debugLevel_ == pDEBUG ){
-						std::cout << "Seed ET: " << ET << std::endl;
-						std::cout << "Seed E: " << it->energy() << std::endl;
-					}
-				}
-			}
-		}
-
+	  int severityFlag =  EcalSeverityLevelAlgo::severityLevel( it->id(), 
+								  (*recHits_), 
+								  (*chStatus),
+								  severityRecHitThreshold_,
+								  spId_,
+								  severitySpikeThreshold_);
+	  std::vector<int>::const_iterator sit = std::find( v_severitylevel_.begin(), v_severitylevel_.end(), severityFlag);
+	  if (debugLevel_ == pDEBUG){
+	    std::cout << "found flag: " << severityFlag << std::endl;
+	  }
+	  
+	  
+	  if (sit!=v_severitylevel_.end()) continue;
+	  seeds.push_back(*it);
+	  if ( debugLevel_ == pDEBUG ){
+	    std::cout << "Seed ET: " << ET << std::endl;
+	    std::cout << "Seed E: " << it->energy() << std::endl;
+	  }
 	}
-
-
-	//Yay sorting.
-	if ( debugLevel_ == pDEBUG )
-		std::cout << "Built vector of seeds, about to sort them...";
-
-	//Needs three argument sort with seed comparison operator
-	sort(seeds.begin(), seeds.end(), less_mag());
-
-	if ( debugLevel_ == pDEBUG )
-		std::cout << "done" << std::endl;
-
-	//Now to do the work.
-	if ( debugLevel_ ==pDEBUG ) 
-		std::cout << "About to call mainSearch...";
-	mainSearch(recColl,geometry);
-	if ( debugLevel_ == pDEBUG ) 
-		std::cout << "done" << std::endl;
-
-	//Hand the basicclusters back to the producer.  It has to 
-	//put them in the event.  Then we can make superclusters.
-	std::map<int, reco::BasicClusterCollection>::iterator bic; 
-	for (bic= clustered_.begin();bic!=clustered_.end();bic++){
-		reco::BasicClusterCollection bl = bic->second;
-		for (int j=0;j<int(bl.size());++j){
-			basicClusters.push_back(bl[j]);
-		}
-	}
-
-	//Yay more sorting.
-	sort(basicClusters.rbegin(), basicClusters.rend(), ClusterEtLess() );
-	//Done!
-	if ( debugLevel_ == pDEBUG )
-		std::cout << "returning to producer. " << std::endl;
+      }
+    }
+    
+  }
+  
+  
+  //Yay sorting.
+  if ( debugLevel_ == pDEBUG )
+    std::cout << "Built vector of seeds, about to sort them...";
+  
+  //Needs three argument sort with seed comparison operator
+  sort(seeds.begin(), seeds.end(), less_mag());
+  
+  if ( debugLevel_ == pDEBUG )
+    std::cout << "done" << std::endl;
+  
+  //Now to do the work.
+  if ( debugLevel_ ==pDEBUG ) 
+    std::cout << "About to call mainSearch...";
+  mainSearch(recColl,geometry);
+  if ( debugLevel_ == pDEBUG ) 
+    std::cout << "done" << std::endl;
+  
+  //Hand the basicclusters back to the producer.  It has to 
+  //put them in the event.  Then we can make superclusters.
+  std::map<int, reco::BasicClusterCollection>::iterator bic; 
+  for (bic= clustered_.begin();bic!=clustered_.end();bic++){
+    reco::BasicClusterCollection bl = bic->second;
+    for (int j=0;j<int(bl.size());++j){
+      basicClusters.push_back(bl[j]);
+    }
+  }
+  
+  //Yay more sorting.
+  sort(basicClusters.rbegin(), basicClusters.rend(), ClusterEtLess() );
+  //Done!
+  if ( debugLevel_ == pDEBUG )
+    std::cout << "returning to producer. " << std::endl;
 }
 
 
