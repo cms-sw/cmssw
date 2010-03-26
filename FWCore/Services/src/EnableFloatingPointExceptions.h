@@ -97,6 +97,7 @@ namespace edm {
 
       class EnableFloatingPointExceptions {
       public:
+	typedef int fpu_flags_type;
          EnableFloatingPointExceptions(ParameterSet const& pset,
                                        ActivityRegistry & registry);
 
@@ -132,18 +133,19 @@ namespace edm {
 
          void controlFpe(bool divByZero, bool invalid, bool overFlow,
                          bool underFlow, bool precisionDouble,
-                         fenv_t & result) const;
+                         fpu_flags_type & result) const;
 
          void echoState() const;
          void establishDefaultEnvironment(bool precisionDouble);
          void establishModuleEnvironments(PSet const& pset, bool precisionDouble);
 
-	 fenv_t fpuState_;
-	 fenv_t defaultState_;
-	 fenv_t OSdefault_;
-         std::map<String, fenv_t> stateMap_;
-	 std::stack<fenv_t> stateStack_;
-	 bool reportSettings_;
+
+	fpu_flags_type fpuState_;
+	fpu_flags_type defaultState_;
+	fpu_flags_type OSdefault_;
+	std::map<String, fpu_flags_type> stateMap_;
+	std::stack<fpu_flags_type> stateStack_;
+	bool reportSettings_;
       };
    }
 }

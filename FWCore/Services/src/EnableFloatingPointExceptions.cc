@@ -18,20 +18,20 @@
 
 #include <vector>
 
-#ifdef __linux__
-#ifdef __i386__
-#include <fpu_control.h>
-#endif
-#endif
+// #ifdef __linux__
+// #ifdef __i386__
+// #include <fpu_control.h>
+// #endif
+// #endif
 
 using namespace edm::service;
 
 EnableFloatingPointExceptions::
 EnableFloatingPointExceptions(ParameterSet const& pset,
                               ActivityRegistry & registry):
-  fpuState_(),
-  defaultState_(),
-  OSdefault_(),
+  fpuState_(0),
+  defaultState_(0),
+  OSdefault_(0),
   stateMap_(),
   stateStack_(),
   reportSettings_(false) {
@@ -46,7 +46,7 @@ EnableFloatingPointExceptions(ParameterSet const& pset,
   // a state for modules not appearing in the module list.  Generally,
   // "OSdefault" and "default" are the same but are not required to be so.
 
-  fegetenv(&fpuState_);
+  fpuState_ = fegetexcept();
   OSdefault_ = fpuState_;
   if(reportSettings_)  {
     edm::LogVerbatim("FPE_Enable") << "\nSettings for OSdefault";
@@ -58,7 +58,7 @@ EnableFloatingPointExceptions(ParameterSet const& pset,
 
   stateStack_.push(defaultState_);
   fpuState_ = defaultState_;
-  fesetenv(&fpuState_);
+  fpuState_ = fegetexcept();
 
   // Note that we must watch all of the transitions even if there are no module specific settings.
   // This is because the floating point environment may be modified by code outside of this service.
@@ -89,7 +89,7 @@ EnableFloatingPointExceptions::postEndJob() {
   // At EndJob, put the state of the fpu back to "OSdefault"
 
   fpuState_ = OSdefault_;
-  fesetenv(&OSdefault_);
+  feenableexcept(OSdefault_);
   if(reportSettings_) {
     edm::LogVerbatim("FPE_Enable") << "\nSettings after endJob ";
     echoState();
@@ -181,14 +181,11 @@ postModule(ModuleDescription const& description) {
 }
 
 namespace {
-  bool stateNeedsChanging(fenv_t const& current, fenv_t const& target) {
-    if (current.__control_word == target.__control_word) {
-      // It looks like we don't need to change the state, but we read the actual value
-      // to be sure it matches what we believe the current value is.
-      // This protects against the state being set or reset external to this service.
-      fenv_t actual;
-      fegetenv(&actual);
-      return actual.__control_word != target.__control_word;
+  bool stateNeedsChanging(edm::service::EnableFloatingPointExceptions::fpu_flags_type current, 
+			  edm::service::EnableFloatingPointExceptions::fpu_flags_type target) {
+    if (current == target) {
+      edm::service::EnableFloatingPointExceptions::fpu_flags_type actual = fegetexcept();
+      return actual != target;
     }
     return true;
   }
@@ -204,9 +201,9 @@ preActions(ModuleDescription const& description,
   // our list gets the default settings.
 
   String const& moduleLabel = description.moduleLabel();
-  std::map<String, fenv_t>::const_iterator iModule = stateMap_.find(moduleLabel);
+  std::map<String, fpu_flags_type>::const_iterator iModule = stateMap_.find(moduleLabel);
 
-  fenv_t target;
+  fpu_flags_type target;
   if(iModule == stateMap_.end())  {
     target = defaultState_;
   } else {
@@ -215,7 +212,7 @@ preActions(ModuleDescription const& description,
 
   if (stateNeedsChanging(fpuState_, target)) {
       fpuState_ = target;
-      fesetenv(&fpuState_);
+      feenableexcept(fpuState_);
   }
   stateStack_.push(fpuState_);
 
@@ -237,7 +234,7 @@ postActions(ModuleDescription const& description, char const* debugInfo) {
   stateStack_.pop();
   if (stateNeedsChanging(fpuState_, stateStack_.top())) { 
       fpuState_ = stateStack_.top();
-      fesetenv(&fpuState_);
+      feenableexcept(fpuState_);
   }
 
   if(reportSettings_) {
@@ -254,7 +251,7 @@ void
 EnableFloatingPointExceptions::
 controlFpe(bool divByZero, bool invalid, bool overFlow, 
            bool underFlow, bool precisionDouble,
-           fenv_t & result) const {
+           fpu_flags_type & result) const {
 
   unsigned short int FE_PRECISION = 1<<5;
   unsigned short int suppress;
@@ -265,13 +262,13 @@ controlFpe(bool divByZero, bool invalid, bool overFlow,
  * NB: We are not letting users control signaling inexact (FE_INEXACT).
  */
 
-  suppress = FE_PRECISION;
-  if (!divByZero) suppress |= FE_DIVBYZERO;
-  if (!invalid)   suppress |= FE_INVALID;
-  if (!overFlow)  suppress |= FE_OVERFLOW;
-  if (!underFlow) suppress |= FE_UNDERFLOW;
-  fegetenv(&result);
-  result.__control_word = suppress;
+  // suppress = FE_PRECISION;
+  // if (!divByZero) suppress |= FE_DIVBYZERO;
+  // if (!invalid)   suppress |= FE_INVALID;
+  // if (!overFlow)  suppress |= FE_OVERFLOW;
+  // if (!underFlow) suppress |= FE_UNDERFLOW;
+  // fegetenv(&result);
+  // result.__control_word = suppress;
 
 #ifdef __i386__
 
@@ -284,6 +281,13 @@ controlFpe(bool divByZero, bool invalid, bool overFlow,
   }
 #endif
 #endif
+
+  int flags = 0;
+  if (!divByZero) flags |= FE_DIVBYZERO;
+  if (!invalid)   flags |= FE_INVALID;
+  if (!overFlow)  flags |= FE_OVERFLOW;
+  if (!underFlow) flags |= FE_UNDERFLOW;
+  feenableexcept(flags);
 }
 
 void
@@ -317,7 +321,7 @@ EnableFloatingPointExceptions::echoState() const {
 void EnableFloatingPointExceptions::
 establishDefaultEnvironment(bool precisionDouble) {
   controlFpe(false, false, false, false, precisionDouble, fpuState_);
-  fesetenv(&fpuState_);
+  fpuState_  = fegetexcept();
   if(reportSettings_) {
     edm::LogVerbatim("FPE_Enable") << "\nSettings for default";
     echoState();
@@ -347,7 +351,7 @@ establishModuleEnvironments(PSet const& pset, bool precisionDouble) {
     bool enableOverFlowEx   = secondary.getUntrackedParameter<bool>("enableOverFlowEx",  false);
     bool enableUnderFlowEx  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
     controlFpe(enableDivByZeroEx, enableInvalidEx, enableOverFlowEx, enableUnderFlowEx, precisionDouble, fpuState_);
-    fesetenv(&fpuState_);
+    fpuState_ = fegetexcept();
     if(reportSettings_) {
       edm::LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
       echoState();
