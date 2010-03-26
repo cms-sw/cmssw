@@ -66,14 +66,14 @@ int main() {
     totalStep += singleStep;
     GlobalPoint x(prop.position(s));
     GlobalVector p(prop.direction(s));
-    GlobalTrajectoryParameters tpg2(x,p, curv, 0, &m);
+    GlobalTrajectoryParameters tpg2(x,p.unit(), curv, 0, &m);
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
     AnalyticalCurvilinearJacobian delta;
-    full.computeFullJacobian(tpg,x,p,h,s);
+    full.computeFullJacobian(tpg,x, tpg2.momentum(),h,s);
     std::cout <<  full.jacobian() << std::endl;
     std::cout << std::endl;
-    delta.computeInfinitesimalJacobian(tpg,x,p,h,s);
+    delta.computeInfinitesimalJacobian(tpg,x, tpg2.momentum(),h,s);
     std::cout << delta.jacobian() << std::endl;
     std::cout << std::endl;
     tpg = tpg2;
