@@ -58,7 +58,7 @@ PixelVertexProducerClusters::~PixelVertexProducerClusters()
 
 /*****************************************************************************/
 void PixelVertexProducerClusters::beginRun
-  (edm::Run & run, const edm::EventSetup& es)
+  (edm::Run const & run, edm::EventSetup const & es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> trackerHandle;

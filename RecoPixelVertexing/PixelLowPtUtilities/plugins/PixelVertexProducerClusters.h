@@ -18,7 +18,7 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
  
 private:
-  void beginRun(edm::Run & run, const edm::EventSetup& es);
+  void beginRun(edm::Run const & run, edm::EventSetup const & es);
 
   edm::ParameterSet theConfig;
 
