@@ -46,11 +46,8 @@ int main() {
 
   Plane plane(pos,rot);
 
-  LocalTrajectoryParameters tpl(2.5, 1.,1., 0.,0.,1.);
-  GlobalVector mg = plane.toGlobal(tpl.momentum());
+  GlobalVector mg(2.,3.,1.);
   GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
-  std::cout << tpl.position() << " " << tpl.momentum() << std::endl;
-  std::cout << std::endl;
   std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
 
   double curv =   tpg.transverseCurvature();
