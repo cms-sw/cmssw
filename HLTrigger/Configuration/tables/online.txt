@@ -4,8 +4,8 @@ HLT_Activity_Ecal
 HLT_Activity_EcalREM
 HLT_Activity_DT
 HLT_Activity_DT_Tuned
-HLT_Activity_HFT3
-HLT_Activity_HFT10
+HLT_Activity_HF3
+HLT_Activity_HF10
 HLT_SelectEcalSpikes_L1R
 HLT_SelectEcalSpikesHighEt_L1R
 HLT_L1Jet6U
