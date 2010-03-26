@@ -4,8 +4,8 @@
 /** \class MuonTrackValidatorBase
  *  Base class for analyzers that produces histograms to validate Muon Track Reconstruction performances
  *
- *  $Date: 2010/03/22 15:48:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/03/25 10:25:31 $
+ *  $Revision: 1.3 $
  */
 
 #include <memory>
@@ -37,8 +37,9 @@ class MuonTrackValidatorBase {
  public:
   /// Constructor
   MuonTrackValidatorBase(const edm::ParameterSet& pset):
-  sim(pset.getParameter<std::string>("sim")),
     label(pset.getParameter< std::vector<edm::InputTag> >("label")),
+    usetracker(pset.getParameter<bool>("usetracker")),
+    usemuon(pset.getParameter<bool>("usemuon")),
     bsSrc(pset.getParameter< edm::InputTag >("beamSpot")),
     label_tp_effic(pset.getParameter< edm::InputTag >("label_tp_effic")),
     label_tp_fake(pset.getParameter< edm::InputTag >("label_tp_fake")),
@@ -334,8 +335,9 @@ class MuonTrackValidatorBase {
 
   DQMStore* dbe_;
 
-  std::string sim;
   std::vector<edm::InputTag> label;
+  bool usetracker;
+  bool usemuon;
   edm::InputTag bsSrc;
   edm::InputTag label_tp_effic;
   edm::InputTag label_tp_fake;
