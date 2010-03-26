@@ -37,7 +37,16 @@ int main() {
 
   M5T const m;
 
-  GlobalVector mg(2.,3.,1.);
+  Basic3DVector<float>  axis(0.5,1.,1);
+  
+  Surface::RotationType rot(axis,0.5*M_PI);
+  std::cout << rot << std::endl;
+
+  Surface::PositionType pos( 0., 0., 0.);
+
+  Plane plane(pos,rot);
+  LocalTrajectoryParameters tpl(1./3.5, 1.,1., 0.,0.,1.);
+  GlobalVector mg = plane.toGlobal(tpl.momentum());
   GlobalTrajectoryParameters tpg(pos,mg,1., &m);
   std::cout << tpl.position() << " " << tpl.momentum() << std::endl;
   std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
