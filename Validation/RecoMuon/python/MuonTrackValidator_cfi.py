@@ -7,9 +7,12 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     # input TrackingParticle collections
     label_tp_effic = cms.InputTag("mergedtruth","MergedTrackTruth"),
     label_tp_fake = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    sim = cms.string('g4SimHits'),
     # input reco::Track collection
-    label = cms.VInputTag(cms.InputTag("generalTracks")),
+    label = cms.VInputTag(cms.InputTag("globalMuons")),
+    # switches to be set according to the input Track collection to properly count SimHits
+    usetracker = cms.bool(True),
+    usemuon = cms.bool(True),
+    #
     useGsf=cms.bool(False),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     # set true if you do not want that MTV launch an exception
@@ -36,8 +39,10 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     associators = cms.vstring('a_MuonAssociator'),
     associatormap = cms.InputTag("tpToMuonTrackAssociation"),
     #
-    # New Validation Logic corrects the Fake rates (includes ghosts)
-    NewValidation = cms.bool(True),
+    # BiDirectional Logic for RecoToSim association corrects the Fake rates (counting ghosts and split tracks as fakes)
+    #  setting it to False the ghost and split tracks are counted as good ones (old setting of Muon Validation up to CMSSW_3_6_0_pre4)
+    #  the default setting is True: should NOT be changed !
+    BiDirectional_RecoToSim_association = cms.bool(True),
     #
     # set true if you do not want efficiency fakes and resolution fit
     # to be calculated in the end run (for automated validation):

@@ -4,8 +4,8 @@
 /** \class MuonTrackValidator
  *  Class that produces histograms to validate Muon Track Reconstruction performances
  *
- *  $Date: 2010/03/22 08:42:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/03/25 10:27:54 $
+ *  $Revision: 1.2 $
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -43,7 +43,7 @@ class MuonTrackValidator : public edm::EDAnalyzer, protected MuonTrackValidatorB
     maxPhi = pset.getParameter<double>("maxPhi");
     nintPhi = pset.getParameter<int>("nintPhi");
     useGsf = pset.getParameter<bool>("useGsf");
-    NewValidation = pset.getParameter<bool>("NewValidation");
+    BiDirectional_RecoToSim_association = pset.getParameter<bool>("BiDirectional_RecoToSim_association");
 
     // dump cfg parameters
     edm::LogVerbatim("MuonTrackValidator") << "constructing  MuonTrackValidator: " << pset.dump();
@@ -51,14 +51,68 @@ class MuonTrackValidator : public edm::EDAnalyzer, protected MuonTrackValidatorB
     MABH = false;
     if (!UseAssociators) {
       // flag MuonAssociatorByHits
-      if (NewValidation && associators[0] == "MuonAssociationByHits") MABH = true;
+      if (associators[0] == "MuonAssociationByHits") MABH = true;
       // reset string associators to the map label
       associators.clear();
       associators.push_back(associatormap.label());
       edm::LogVerbatim("MuonTrackValidator") << "--> associators reset to: " <<associators[0];
     }
+    
+    // inform on which SimHits will be counted 
+    if (usetracker) edm::LogVerbatim("MuonTrackValidator")
+      <<"\n usetracker = TRUE  : Tracker SimHits WILL be counted";
+    else edm::LogVerbatim("MuonTrackValidator") 
+      <<"\n usetracker = FALSE : Tracker SimHits WILL NOT be counted";    
+    if (usemuon) edm::LogVerbatim("MuonTrackValidator")
+      <<" usemuon = TRUE  : Muon SimHits WILL be counted";
+    else edm::LogVerbatim("MuonTrackValidator") 
+      <<" usemuon = FALSE : Muon SimHits WILL NOT be counted"<<std::endl;
+    
+    // loop over the reco::Track collections to validate: check for inconsistent input settings
+    for (unsigned int www=0;www<label.size();www++) {
+      std::string recoTracksLabel = label[www].label();  
+      std::string recoTracksInstance = label[www].instance();
+      
+      // tracks with hits only on tracker
+      if (recoTracksLabel=="generalTracks"                                  ||
+	  (recoTracksLabel.find("cutsRecoTracks") != std::string::npos)     ||
+	  recoTracksLabel=="ctfWithMaterialTracksP5LHCNavigation"           ||
+	  recoTracksLabel=="hltL3TkTracksFromL2"                            ||
+	  (recoTracksLabel=="hltL3Muons" && recoTracksInstance=="L2Seeded")) 
+	{
+	  if (usemuon) {
+	    edm::LogWarning("MuonTrackValidator") 
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usemuon == true"<<"\n ---> please change to usemuon == false ";
+	  }
+	  if (!usetracker) {
+	    edm::LogWarning("MuonTrackValidator") 
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usetracker == false"<<"\n ---> please change to usetracker == true ";
+	  }	  
+	}
+      
+      // tracks with hits only on muon detectors
+      else if (recoTracksLabel=="standAloneMuons"    || 
+	       recoTracksLabel=="standAloneSETMuons" ||
+	       recoTracksLabel=="cosmicMuons"        ||
+	       recoTracksLabel=="hltL2Muons")         
+	{
+	  if (usetracker) {
+	    edm::LogWarning("MuonTrackValidator") 
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usetracker == true"<<"\n ---> please change to usetracker == false ";
+	  }
+	  if (!usemuon) {
+	    edm::LogWarning("MuonTrackValidator") 
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usemuon == false"<<"\n ---> please change to usemuon == true ";
+	  }
+	}
+      
+    } //  for (unsigned int www=0;www<label.size();www++)
   }
-
+    
   /// Destructor
   virtual ~MuonTrackValidator(){ }
 
@@ -91,8 +145,8 @@ private:
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
 
-  // flag NEW validation
-  bool NewValidation;
+  // flag new validation logic (bidirectional RecoToSim association)
+  bool BiDirectional_RecoToSim_association;
   // flag MuonAssociatorByHits
   bool MABH;
   

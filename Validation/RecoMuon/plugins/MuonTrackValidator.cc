@@ -333,8 +333,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   using namespace reco;
   
   edm::LogInfo("MuonTrackValidator") << "\n====================================================" << "\n"
-				 << "Analyzing new event" << "\n"
-				 << "====================================================\n" << "\n";
+				     << "Analyzing new event" << "\n"
+				     << "====================================================\n" << "\n";
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP; 
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);    
   
@@ -395,40 +395,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	event.getByLabel(associatormap,recotosimCollectionH);
 	recSimColl= *(recotosimCollectionH.product()); 
       }
-
-      // defaults for Track validation
-      bool useTracker = true;
-      bool useMuon = false;
       
-      // setting for New validation (for Tracks & Muons)
-      if (NewValidation) {
-	string recoTracksLabel = label[www].label();  
-	string recoTracksInstance = label[www].instance();
-	
-	if (recoTracksLabel=="generalTracks"                                  ||
-	    (recoTracksLabel.find("cutsRecoTracks") != string::npos)          ||
-	    recoTracksLabel=="ctfWithMaterialTracksP5LHCNavigation"           ||
-	    recoTracksLabel=="hltL3TkTracksFromL2"                            ||
-	    (recoTracksLabel=="hltL3Muons" && recoTracksInstance=="L2Seeded")) {
-	  useTracker = true;
-	  useMuon = false;
-	}
-	else if (recoTracksLabel=="standAloneMuons"    || 
-		 recoTracksLabel=="standAloneSETMuons" ||
-		 recoTracksLabel=="cosmicMuons"        ||
-		 recoTracksLabel=="hltL2Muons")         {
-	  useTracker = false;
-	  useMuon = true;
-	}
-	else if (recoTracksLabel=="globalMuons"                            ||
-		 recoTracksLabel=="globalSETMuons"                         ||
-		 recoTracksLabel=="tevMuons"                               ||
-		 recoTracksLabel=="globalCosmicMuons"                      ||
-		 (recoTracksLabel=="hltL3Muons"&& recoTracksInstance==""))  {
-	  useTracker = true;
-	  useMuon = true;
-	}
-      }
       //
       //fill simulation histograms
       //compute number of tracks per eta interval
@@ -609,21 +576,19 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
  	    }
  	  }
  	} // END for (unsigned int f=0; f<zposintervals[w].size()-1; f++){
-
-	std::vector<PSimHit> simhits=tp->trackPSimHit(DetId::Tracker);
 	
-	if (NewValidation) {
-	  if (useTracker && useMuon) {
-	    simhits=tp->trackPSimHit();
-	  } 
-	  else if (!useTracker && useMuon) {
-	    simhits=tp->trackPSimHit(DetId::Muon);
-	  }
-	  else if (useTracker && !useMuon) {
-	    simhits=tp->trackPSimHit(DetId::Tracker);
-	  }
+	std::vector<PSimHit> simhits;
+	
+	if (usetracker && usemuon) {
+	  simhits=tp->trackPSimHit();
+	} 
+	else if (!usetracker && usemuon) {
+	  simhits=tp->trackPSimHit(DetId::Muon);
 	}
-
+	else if (usetracker && !usemuon) {
+	  simhits=tp->trackPSimHit(DetId::Tracker);
+	}
+	
         int tmp = std::min((int)(simhits.end()-simhits.begin()),int(maxHit-1));
 	edm::LogVerbatim("MuonTrackValidator") << "\t N simhits = "<< (int)(simhits.end()-simhits.begin())<<"\n";
 
@@ -657,8 +622,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
 	TrackingParticleRef tpr;
 
-	// new validation
-	if (NewValidation) {	  
+	// new logic (bidirectional)
+	if (BiDirectional_RecoToSim_association) {	  
 	  edm::LogVerbatim("MuonTrackValidator")<<"----------------------------------------Track #"<< track.key();
 
 	  if(recSimColl.find(track) != recSimColl.end()) {
@@ -688,8 +653,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  if (!Track_is_matched) edm::LogVerbatim("MuonTrackValidator") 
 	    << "reco::Track #" << track.key() << " with pt=" << track->pt() << " NOT associated to any TrackingParticle" << "\n";
 	}
-
-	// tracker track validation
+	// old logic (bugged)
 	else {
 	  if(recSimColl.find(track) != recSimColl.end()){
 	    tp = recSimColl[track];
@@ -940,24 +904,19 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  ptpull_vs_phi[w]->Fill(phiRec,ptres/ptError);
 	  phipull_vs_phi[w]->Fill(phiRec,phiPull); 
 	  thetapull_vs_phi[w]->Fill(phiRec,thetaPull); 
-
+	  
 	  std::vector<PSimHit> simhits;
 	  
-	  if (NewValidation) {
-	    if (useTracker && useMuon) {
-	      simhits=tpr.get()->trackPSimHit();
-	    } 
-	    else if (!useTracker && useMuon) {
-	      simhits=tpr.get()->trackPSimHit(DetId::Muon);
-	    }
-	    else if (useTracker && !useMuon) {
-	      simhits=tpr.get()->trackPSimHit(DetId::Tracker);
-	    }
+	  if (usetracker && usemuon) {
+	    simhits=tpr.get()->trackPSimHit();
+	  } 
+	  else if (!usetracker && usemuon) {
+	    simhits=tpr.get()->trackPSimHit(DetId::Muon);
 	  }
-	  else {
+	  else if (usetracker && !usemuon) {
 	    simhits=tpr.get()->trackPSimHit(DetId::Tracker);
 	  }
-
+	  
 	  nrecHit_vs_nsimHit_rec2sim[w]->Fill(track->numberOfValidHits(), (int)(simhits.end()-simhits.begin() ));
 	  
 	} // End of try{
