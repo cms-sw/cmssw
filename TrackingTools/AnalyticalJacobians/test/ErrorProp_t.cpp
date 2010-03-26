@@ -14,7 +14,7 @@
 namespace {
 
   struct M5T : public  MagneticField {
-    M5T() :  m(0.,0.,5.){}
+    M5T() :  m(0.1,0.1,5.){}
     virtual GlobalVector inTesla (const GlobalPoint&) const {
       return m;
     }
