@@ -110,11 +110,15 @@ if __name__ == '__main__':
 	acommand = 'nsls '+ option.data
 	tmpstatus = commands.getstatusoutput( acommand )
 	tmplistoffiles = tmpstatus[1].split('\n')
+	dir = ''
+	if len(tmplistoffiles) > 1:
+	    dir = '/'
 	for ifile in tmplistoffiles:
 	    if ifile.find('.txt') != -1:
 		listoffiles.append( workflowdir + ifile )
 		# copy to local disk
-		acommand = 'rfcp '+ option.data + ifile + " "+ workflowdir+"/."
+		acommand = 'rfcp '+ option.data + dir + ifile + " "+ workflowdir+"/."
+		print " >> "+ acommand
 		tmpstatus = commands.getstatusoutput( acommand )
 
     elif os.path.isdir( option.data ):
