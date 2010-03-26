@@ -50,6 +50,7 @@ int main() {
   GlobalVector mg = plane.toGlobal(tpl.momentum());
   GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
   std::cout << tpl.position() << " " << tpl.momentum() << std::endl;
+  std::cout << std::endl;
   std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
 
   double curv =   tpg.transverseCurvature();
@@ -57,6 +58,8 @@ int main() {
   AlgebraicMatrix55 fullJacobian = AlgebraicMatrixID();
   AlgebraicMatrix55 deltaJacobian = AlgebraicMatrixID();
   GlobalTrajectoryParameters tpg0(pos,mg,1., &m);
+
+  std::cout << std::endl;
   for (int i=0; i<10;++i) {
 
     GlobalVector h = tpg.magneticFieldInInverseGeV(tpg.position());
@@ -73,10 +76,10 @@ int main() {
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
     AnalyticalCurvilinearJacobian delta;
-    full.computeFullJacobian(tpg,tpg2.position(),tpg.momentum(),h,s);
+    full.computeFullJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
     std::cout <<  full.jacobian() << std::endl;
     std::cout << std::endl;
-    delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg.momentum(),h,s);
+    delta.computeInfinitesimalJacobian(tpg,tpg2.position(),tpg2.momentum(),h,s);
     std::cout << delta.jacobian() << std::endl;
     std::cout << std::endl;
     tpg = tpg2;
