@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2010/03/02 00:02:10 $
- * $Revision: 1.6 $
+ * $Date: 2010/03/22 04:45:45 $
+ * $Revision: 1.7 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -302,7 +302,7 @@ void EETrendTask::setup(void){
     nFEDEEplusRawDataHourly_->setAxisTitle("Hours", 1);
     nFEDEEplusRawDataHourly_->setAxisTitle("Average Number of FEDRawData in EE+ / hour", 2);
 
-    sprintf(histo, "AverageNumberOfEESRFlagVs5Hours");
+    sprintf(histo, "AverageNumberOfEESRFlagVs1Hour");
     nEESRFlagHourly_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nEESRFlagHourly_->setAxisTitle("Hours", 1);
     nEESRFlagHourly_->setAxisTitle("Average Number of EESRFlag / hour", 2);
