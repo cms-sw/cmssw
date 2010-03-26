@@ -9,12 +9,12 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(20)
+  input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("EmptySource",
      numberEventsInRun = cms.untracked.uint32(10),
-     firstRun = cms.untracked.uint32(124025),
+     firstRun = cms.untracked.uint32(124020),
      numberEventsInLuminosityBlock = cms.untracked.uint32(1),
      firstLuminosityBlock = cms.untracked.uint32(1)
 )
@@ -23,7 +23,8 @@ process.DBService=cms.Service("DBService",
            authPath=cms.untracked.string('/afs/cern.ch/user/x/xiezhen')
 )
 process.lumiProducer=cms.EDProducer("LumiProducer",
-           connect=cms.string('oracle://devdb10/cms_xiezhen_dev'),
+#           connect=cms.string('oracle://devdb10/cms_xiezhen_dev'),
+           connect=cms.string('frontier://cmsfrontier.cern.ch:8000/LumiPrep/CMS_LUMI_DEV_OFFLINE'),
            lumiversion=cms.untracked.string('0001') 
 )
 process.test = cms.EDAnalyzer("TestLumiProducer")
