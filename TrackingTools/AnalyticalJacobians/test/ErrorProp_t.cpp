@@ -70,10 +70,11 @@ int main() {
     curv =  -2.99792458e-3 * h.mag()/dir.perp()*tpg.charge();
     std::cout << curv << " " <<  dir.mag() << std::endl;
     HelixForwardPlaneCrossing prop(zero, dir, curv);
-    
     double s = 0.1;
     LocalPoint x(prop.position(s));
     LocalVector p(prop.direction(s));
+    std::cout <<  p.mag() << std::endl;
+
     GlobalTrajectoryParameters tpg2( plane.toGlobal(x), dir.mag()*plane.toGlobal(p), tpg.charge(), &m);
 
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
