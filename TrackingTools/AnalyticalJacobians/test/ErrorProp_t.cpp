@@ -67,7 +67,7 @@ int main() {
   full.computeFullJacobian(tpg,x,p,h,s);
   std::cout <<  full.jacobian() << std::endl;
   std::cout << std::endl;
-  std::cout << delta.computeInfinitesimalJacobian(tpg,x,p,h,s);
+  delta.computeInfinitesimalJacobian(tpg,x,p,h,s);
   std::cout << delta.jacobian() << std::endl;
   std::cout << std::endl;
 
