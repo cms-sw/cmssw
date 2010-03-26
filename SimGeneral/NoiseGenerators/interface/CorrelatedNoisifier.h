@@ -22,11 +22,14 @@ trivial cases of a purely diagonal or identity correlation matrix.
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/Math/interface/Error.h"
+#include<vector>
 
 template<class M> 
 class CorrelatedNoisifier
 {
    public:
+
+      typedef std::vector<double> VecDou ;
 
       CorrelatedNoisifier( const M&                symCorMat , //correlation matrix
 			   CLHEP::HepRandomEngine* engine      = 0 ) ;
@@ -41,9 +44,12 @@ class CorrelatedNoisifier
       void resetCholDecompMatrix( const M& cholMat ) ;
 
       template<class T>
-      void noisify( T& frame ) const ; // applies random noise to frame
+      void noisify( T& frame ,  // applies random noise to frame
+		    const VecDou* rangau = 0 ) const ; // use these 
 
       const M& cholMat() const ; // return decomposition
+
+      const VecDou& vecgau() const ;
 
    private:
 
@@ -59,6 +65,8 @@ class CorrelatedNoisifier
 			       M&       HHtDiff     ) const ;
 
       void checkOffDiagonal( const M& symCorMat ) ;
+
+      mutable VecDou m_vecgau ;
 
       CLHEP::RandGaussQ* m_rangau ;
 

@@ -9,7 +9,8 @@ template class CorrelatedNoisifier< MyMat > ;
 
 template
 void
-CorrelatedNoisifier< MyMat >::noisify(std::vector<double>&) const ;
+CorrelatedNoisifier< MyMat >::noisify(std::vector<double>&,
+				      const std::vector<double>*) const ;
 
 int main()
 {
