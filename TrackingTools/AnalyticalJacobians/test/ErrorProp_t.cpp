@@ -68,6 +68,7 @@ int main() {
     Plane plane(tpg.position(),rot);
     HelixForwardPlaneCrossing::DirectionType dir (plane.toLocal(tpg.momentum()));
     curv =  -2.99792458e-3 * h.mag()/dir.perp()*tpg.charge();
+    std::cout << curv << " " <<  dir.mag() << std::endl;
     HelixForwardPlaneCrossing prop(zero, dir, curv);
     
     double s = 0.1;
