@@ -14,7 +14,12 @@ GamIsoEcalFromHitsExtractorBlock = cms.PSet(
     energyMin = cms.double(0.08),
     subtractSuperClusterEnergy = cms.bool(False),
     tryBoth = cms.bool(True),
-    vetoClustered = cms.bool(False)
+    vetoClustered = cms.bool(False),
+
+    severityLevelCut = cms.int32(3),
+    severityRecHitThreshold = cms.double(5.0),
+    spikeIdString = cms.string('kSwissCross'),
+    spikeIdThreshold = cms.double(0.95)
 
 )
 

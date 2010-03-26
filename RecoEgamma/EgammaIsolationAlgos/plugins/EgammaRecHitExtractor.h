@@ -30,6 +30,10 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
 namespace egammaisolation {
 
    class EgammaRecHitExtractor : public reco::isodeposit::IsoDepositExtractor {
@@ -46,7 +50,9 @@ namespace egammaisolation {
          void collect(reco::IsoDeposit &deposit, 
                   const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet,
                   const CaloGeometry* caloGeom,
-                  const EcalRecHitCollection &hits) const;
+                  const EcalRecHitCollection &hits,
+                  const EcalChannelStatus* chStatus,
+                  bool barrel) const;
 
          double etMin_ ;
          double energyMin_ ;
@@ -59,7 +65,12 @@ namespace egammaisolation {
          bool  tryBoth_;
          bool  useEt_;
          bool  vetoClustered_;
-	     bool  sameTag_;
+         bool  sameTag_;
+         int   severityLevelCut_;
+         float severityRecHitThreshold_;
+         std::string spIdString_;
+         float spIdThreshold_;
+         EcalSeverityLevelAlgo::SpikeId spId_;
 
    };
 }

@@ -14,6 +14,9 @@
 <use name=RecoCaloTools/Selectors>
 <use name=CommonTools/Statistics>
 <use name=RecoEgamma/EgammaIsolationAlgos>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
+<use name=RecoLocalCalo/EcalRecAlgos>
 <export>
   <use name=RecoCaloTools/MetaCollections>
   <use name=DataFormats/RecoCandidate>

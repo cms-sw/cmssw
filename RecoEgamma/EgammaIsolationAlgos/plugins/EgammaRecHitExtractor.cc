@@ -46,10 +46,17 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
     fakeNegativeDeposit_(par.getParameter<bool>("subtractSuperClusterEnergy")),
     tryBoth_(par.getParameter<bool>("tryBoth")),
     vetoClustered_(par.getParameter<bool>("vetoClustered")),
-    sameTag_(false)
+    sameTag_(false),
+    severityLevelCut_(par.getParameter<int>("severityLevelCut")),
+    severityRecHitThreshold_(par.getParameter<double>("severityRecHitThreshold")),
+    spIdString_(par.getParameter<std::string>("spikeIdString")),
+    spIdThreshold_(par.getParameter<double>("spikeIdThreshold"))
 { 
 
- 
+    if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+    else if( !spIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
+    else                                           spId_ = EcalSeverityLevelAlgo::kSwissCross;
+
     if ((intRadius_ != 0.0) && (fakeNegativeDeposit_)) {
         throw cms::Exception("Configuration Error") << "EgammaRecHitExtractor: " << 
             "If you use 'subtractSuperClusterEnergy', you *must* set 'intRadius' to ZERO; it does not make sense, otherwise.";
@@ -70,14 +77,20 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
             tryBoth_ = false;
         }
     }
+
 }
 
 EgammaRecHitExtractor::~EgammaRecHitExtractor() { }
 
 reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent, 
-						const edm::EventSetup & iSetup, const reco::Candidate &emObject ) const {
+        const edm::EventSetup & iSetup, const reco::Candidate &emObject ) const {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
+
+    //Get the channel status from the db
+    edm::ESHandle<EcalChannelStatus> chStatus;
+    iSetup.get<EcalChannelStatusRcd>().get(chStatus);
+
     const CaloGeometry* caloGeom = pG.product(); 
     const CaloSubdetectorGeometry* barrelgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     const CaloSubdetectorGeometry* endcapgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
@@ -114,19 +127,21 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
     // fill rechits
     bool inBarrel = sameTag_ || ( abs(sc->eta()) < 1.479 ); //check for barrel. If only one collection is used, use barrel
     if (inBarrel || tryBoth_) {
-      collect(deposit, sc, barrelgeom, caloGeom, *barrelEcalRecHitsH);
+        collect(deposit, sc, barrelgeom, caloGeom, *barrelEcalRecHitsH, chStatus.product(), true);
     } 
     if ((!inBarrel) || tryBoth_) {
-      collect(deposit, sc, endcapgeom, caloGeom, *endcapEcalRecHitsH);
+        collect(deposit, sc, endcapgeom, caloGeom, *endcapEcalRecHitsH, chStatus.product(), false);
     }
-    
+
     return deposit;
 }
 
 void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit, 
-				    const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet, 
-				    const CaloGeometry* caloGeom,
-				    const EcalRecHitCollection &hits) const 
+        const reco::SuperClusterRef& sc, const CaloSubdetectorGeometry* subdet, 
+        const CaloGeometry* caloGeom,
+        const EcalRecHitCollection &hits, 
+        const EcalChannelStatus* chStatus,
+        bool barrel) const 
 {
 
     GlobalPoint caloPosition(sc->position().x(), sc->position().y() , sc->position().z());
@@ -164,12 +179,22 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
 
                 if(isClustered) continue;
             }  //end if removeClustered
- 
 
-            if ( fabs(et) > etMin_ 
+
+            if(barrel &&                                 //make sure we have a barrel rechit
+               EcalSeverityLevelAlgo::severityLevel(     //call the severity level method
+                   EBDetId(j->id()),                     //passing the EBDetId
+                   hits,                                 //the rechit collection in order to calculate the swiss crss
+                   *chStatus,                            //and the EcalChannelRecHitRcd
+                   severityRecHitThreshold_,             //only consider rechits with ET >
+                   spId_,                                //the SpikeId method (currently kE1OverE9 or kSwissCross)
+                   spIdThreshold_                        //cut value for above
+               ) >= severityLevelCut_) continue;         //then if the severity level is too high, we continue to the next rechit
+
+            if(   fabs(et) > etMin_ 
                     && fabs(energy) > energyMin_  //Changed to fabs
                     && fabs(eta-caloeta) > intStrip_ 
-                    && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2) {
+                    && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2 ) {
 
                 deposit.addDeposit( Direction(eta, phi), (useEt_ ? et : energy) );
 

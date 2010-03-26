@@ -14,7 +14,12 @@ EleIsoEcalFromHitsExtractorBlock = cms.PSet(
     vetoClustered = cms.bool(False),
 
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+
+    severityLevelCut = cms.int32(3),
+    severityRecHitThreshold = cms.double(5.0),
+    spikeIdString = cms.string('kSwissCross'),
+    spikeIdThreshold = cms.double(0.95)
 
 )
 

@@ -19,7 +19,9 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 class EgammaRecHitIsolation {
  public:
@@ -34,10 +36,23 @@ class EgammaRecHitIsolation {
 			 CaloRecHitMetaCollectionV* ,
 			 DetId::Detector detector);
   
-  double getEtSum (const reco::Candidate * emObject) const {return getSum_(emObject,true);}
-  double getEnergySum (const reco::Candidate * emObject) const{ return  getSum_(emObject,false);}
-  void setUseNumCrystals (bool b=true) { useNumCrystals_ = b; }
-  void setVetoClustered (bool b=true) { vetoClustered_ = b; }
+  double getEtSum(const reco::Candidate * emObject) const {return getSum_(emObject,true);}
+  double getEnergySum(const reco::Candidate * emObject) const{ return  getSum_(emObject,false);}
+  void setUseNumCrystals(bool b=true) { useNumCrystals_ = b; }
+  void setVetoClustered(bool b=true) { vetoClustered_ = b; }
+  void doSpikeRemoval(const EcalRecHitCollection *const recHits, 
+                      const EcalChannelStatus *const chStatus,
+                      const int &severityLevelCut = 3, /*0 - 4*/
+                      const float &sevRecHitThresh = 5.0, /*GeV*/
+                      const EcalSeverityLevelAlgo::SpikeId &id = EcalSeverityLevelAlgo::kSwissCross, /*kE1OverE9=0 or kSwissCross=1*/
+                      const float &spIdThresh = 0.95) { 
+    ecalBarHits_ = recHits; 
+    chStatus_ = chStatus;
+    severityLevelCut_ = severityLevelCut;
+    severityRecHitThreshold_ = sevRecHitThresh;
+    spId_ = id;
+    spIdThreshold_ = spIdThresh;
+  }
 
   //destructor 
   ~EgammaRecHitIsolation() ;
@@ -57,6 +72,13 @@ class EgammaRecHitIsolation {
 
   bool useNumCrystals_;
   bool vetoClustered_;
+  const EcalRecHitCollection *ecalBarHits_;
+  const EcalChannelStatus *chStatus_;
+  int severityLevelCut_;
+  float severityRecHitThreshold_;
+  EcalSeverityLevelAlgo::SpikeId spId_;
+  float spIdThreshold_;
+
 
   const CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap
 

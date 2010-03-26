@@ -45,7 +45,13 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
     theCaloGeom_(theCaloGeom) ,  
     caloHits_(caloHits),
     useNumCrystals_(false),
-    vetoClustered_(false)
+    vetoClustered_(false),
+    ecalBarHits_(0),
+    chStatus_(0),
+    severityLevelCut_(-1),
+    severityRecHitThreshold_(0),
+    spId_(EcalSeverityLevelAlgo::kSwissCross),
+    spIdThreshold_(0)
 {
     //set up the geometry and selector
     const CaloGeometry* caloGeom = theCaloGeom_.product();
@@ -118,6 +124,17 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 
                         if(isClustered) continue;
                     }  //end if removeClustered
+
+                    if( severityLevelCut_!=-1 && ecalBarHits_ &&  //make sure we have a barrel rechit
+                        EcalSeverityLevelAlgo::severityLevel(     //call the severity level method
+                            EBDetId(j->detid()),                  //passing the EBDetId
+                            *ecalBarHits_,                        //the rechit collection in order to calculate the swiss crss
+                            *chStatus_,                           //and the EcalChannelRecHitRcd
+                            severityRecHitThreshold_,             //only consider rechits with ET > 
+                            spId_,                                //the SpikeId method (currently kE1OverE9 or kSwissCross)
+                            spIdThreshold_                        //cut value for above
+                        ) >= severityLevelCut_) continue;         //then if the severity level is too high, we continue to the next rechit
+
 
                     double et = energy*position.perp()/position.mag();
                     if ( fabs(et) > etLow_ && fabs(energy) > eLow_){ //Changed energy --> fabs(energy)

@@ -22,16 +22,26 @@
 
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
-EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig) {
-    recHitsLabel_ = iConfig.getParameter< edm::InputTag > ("recHitsLabel");
-    emObjectLabel_ = iConfig.getParameter< edm::InputTag > ("emObjectLabel");
-    etCandCut_ = iConfig.getParameter<double> ("etCandCut");
-    energyCut_ = iConfig.getParameter<double>("energyCut");
-    etCut_ = iConfig.getParameter<double>("etCut");
-    outerRadius_ = iConfig.getParameter<double>("outerRadius");
-    innerRadius_ = iConfig.getParameter<double>("innerRadius");
-    interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
+EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig) :
+            recHitsLabel_(iConfig.getParameter< edm::InputTag > ("recHitsLabel")),
+            emObjectLabel_(iConfig.getParameter< edm::InputTag > ("emObjectLabel")),
+            energyCut_(iConfig.getParameter<double>("energyCut")),
+            etCut_(iConfig.getParameter<double>("etCut")),
+            etCandCut_(iConfig.getParameter<double> ("etCandCut")),
+            outerRadius_(iConfig.getParameter<double>("outerRadius")),
+            innerRadius_(iConfig.getParameter<double>("innerRadius")),
+            interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection")),
+            severityLevelCut_(iConfig.getParameter<int>("severityLevelCut")),
+            severityRecHitThreshold_(iConfig.getParameter<double>("severityRecHitThreshold")),
+            spIdString_(iConfig.getParameter<std::string>("spikeIdString")),
+            spIdThreshold_(iConfig.getParameter<double>("spikeIdThreshold")) {
+
+    if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+    else if( !spIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
+    else                                           spId_ = EcalSeverityLevelAlgo::kSwissCross;
     
     //register your products
     produces< DetIdCollection > (interestingDetIdCollection_) ;
@@ -64,6 +74,10 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     iSetup.get<CaloGeometryRecord>().get(pG);    
     const CaloGeometry* caloGeom = pG.product();
 
+    //Get the channel status from the db
+    edm::ESHandle<EcalChannelStatus> chStatus;
+    iSetup.get<EcalChannelStatusRcd>().get(chStatus);
+
     CaloDualConeSelector *doubleConeSel_ = 0;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
         doubleConeSel_= new CaloDualConeSelector(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
@@ -93,6 +107,16 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
                             caloGeom->getPosition(recIt->detid()).mag();
 
                 if ( fabs(et) < etCut_) continue;  //dont fill if below ET noise value
+
+                if(recHitsLabel_.instance() == "EcalRecHitsEB" && //make sure we have a barrel rechit
+                   EcalSeverityLevelAlgo::severityLevel(          //call the severity level method
+                       EBDetId(recIt->detid()),                   //passing the EBDetId
+                       *recHitsH,                                 //the rechit collection in order to calculate the swiss crss
+                       *chStatus,                                 //and the EcalChannelRecHitRcd
+                        severityRecHitThreshold_,                 //only consider rechits with ET >
+                        spId_,                                    //the SpikeId method (currently kE1OverE9 or kSwissCross)
+                        spIdThreshold_                            //cut value for above
+                   ) >= severityLevelCut_) continue;              //then if the severity level is too high, we continue to the next rechit
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
 		            detIdCollection->push_back(recIt->detid()); 

@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.91 2010/02/25 22:23:33 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.93 2010/03/12 12:30:01 chamont Exp $
 //
 //
 
@@ -60,6 +60,8 @@
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -129,7 +131,8 @@ GsfElectronAlgo::GsfElectronAlgo
    double intRadiusHcal, double etMinHcal,
    double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
    double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-   bool vetoClustered, bool useNumCrystals
+   bool vetoClustered, bool useNumCrystals, int severityLevelCut, float severityRecHitThreshold, 
+   float spIdThreshold, std::string spIdString
  )
  : minSCEtBarrel_(minSCEtBarrel), minSCEtEndcaps_(minSCEtEndcaps), maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
@@ -158,9 +161,10 @@ GsfElectronAlgo::GsfElectronAlgo
    intRadiusBarrelTk_(intRadiusBarrelTk), intRadiusEndcapTk_(intRadiusEndcapTk), stripBarrelTk_(stripBarrelTk), stripEndcapTk_(stripEndcapTk),
    ptMinTk_(ptMinTk),  maxVtxDistTk_(maxVtxDistTk),  maxDrbTk_(maxDrbTk),
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
-   etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
-   vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals), ctfTracksCheck_(false),
-   cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),
+   etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps), 
+   vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals), severityLevelCut_(severityLevelCut), 
+   severityRecHitThreshold_(severityRecHitThreshold), spikeIdThreshold_(spIdThreshold), spikeIdString_(spIdString),
+   ctfTracksCheck_(false), cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),cacheChStatus_(0),
    superClusterErrorFunction_(0),
    pfTranslatorParametersChecked_(false), ecalSeedingParametersChecked_(false)
  {
@@ -213,6 +217,11 @@ GsfElectronAlgo::GsfElectronAlgo
     superClusterErrorFunction_
      = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,conf) ;
    }
+
+  if     ( !spikeIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+  else if( !spikeIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
+  else                                              spId_ = EcalSeverityLevelAlgo::kSwissCross;
+
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
@@ -266,6 +275,11 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
 //   }
   if (superClusterErrorFunction_)
    { superClusterErrorFunction_->init(es) ; }
+
+   if(cacheChStatus_!=es.get<EcalChannelStatusRcd>().cacheIdentifier()){
+     cacheChStatus_=es.get<EcalChannelStatusRcd>().cacheIdentifier();
+     es.get<EcalChannelStatusRcd>().get(theChStatus);
+   }
  }
 
 void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
@@ -418,8 +432,10 @@ void GsfElectronAlgo::process(
   EgammaRecHitIsolation ecalEndcapIsol04(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,theCaloGeom,&ecalEndcapHits,DetId::Ecal);
   ecalBarrelIsol03.setUseNumCrystals(useNumCrystals_);
   ecalBarrelIsol03.setVetoClustered(vetoClustered_);
-  ecalBarrelIsol04.setUseNumCrystals(useNumCrystals_);
-  ecalBarrelIsol04.setVetoClustered(vetoClustered_);
+  ecalBarrelIsol03.doSpikeRemoval(reducedEBRecHits.product(),theChStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_); 
+  ecalBarrelIsol04.setUseNumCrystals(useNumCrystals_);                                                                                            
+  ecalBarrelIsol04.setVetoClustered(vetoClustered_);                                                                                              
+  ecalBarrelIsol04.doSpikeRemoval(reducedEBRecHits.product(),theChStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
   ecalEndcapIsol03.setUseNumCrystals(useNumCrystals_);
   ecalEndcapIsol03.setVetoClustered(vetoClustered_);
   ecalEndcapIsol04.setUseNumCrystals(useNumCrystals_);

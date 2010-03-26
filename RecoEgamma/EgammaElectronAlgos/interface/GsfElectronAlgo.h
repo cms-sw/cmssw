@@ -49,7 +49,11 @@ class EcalClusterFunctionBaseClass ;
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
 #include <list>
+#include <string>
 
 class GsfElectronAlgo {
 
@@ -88,7 +92,8 @@ class GsfElectronAlgo {
       double intRadiusHcal, double etMinHcal,
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
       double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-      bool vetoClustered, bool useNumCrystals
+      bool vetoClustered, bool useNumCrystals, int severityLevelCut_,
+      float severityRecHitThreshold_, float spikeIdThreshold_, std::string spikeIdString_
      ) ;
 
     ~GsfElectronAlgo() ;
@@ -285,8 +290,16 @@ class GsfElectronAlgo {
     double eMinBarrel_;
     double etMinEndcaps_;
     double eMinEndcaps_;
+
     bool vetoClustered_;
     bool useNumCrystals_;
+
+    int    severityLevelCut_;
+    float  severityRecHitThreshold_;
+    float spikeIdThreshold_;
+    std::string spikeIdString_;
+    EcalSeverityLevelAlgo::SpikeId spId_;
+
 
     // input configuration
     edm::InputTag barrelSuperClusters_;
@@ -305,6 +318,7 @@ class GsfElectronAlgo {
     edm::ESHandle<CaloGeometry>                 theCaloGeom;
     edm::ESHandle<CaloTopology>                 theCaloTopo;
     edm::ESHandle<TrackerGeometry>              trackerHandle_;
+    edm::ESHandle<EcalChannelStatus>            theChStatus;
 
     const MultiTrajectoryStateTransform *mtsTransform_;
     const MultiTrajectoryStateMode *mtsMode_;
@@ -326,6 +340,7 @@ class GsfElectronAlgo {
     unsigned long long cacheIDTopo_;
     unsigned long long cacheIDTDGeom_;
     unsigned long long cacheIDMagField_;
+    unsigned long long cacheChStatus_;
 
     EcalClusterFunctionBaseClass * superClusterErrorFunction_ ;
 
