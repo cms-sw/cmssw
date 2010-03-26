@@ -109,6 +109,10 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     eMinEndcaps = cms.double(0.0),  
     vetoClustered  = cms.bool(False),  
     useNumCrystals = cms.bool(True),  
+    severityLevelCut = cms.int32(3),
+    severityRecHitThreshold = cms.double(5.0),
+    spikeIdThreshold = cms.double(0.95),
+    spikeIdString = cms.string('kSwissCross'),
     
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),

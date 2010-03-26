@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronProducer.cc,v 1.25 2009/10/29 23:13:36 chamont Exp $
+// $Id: GsfElectronProducer.cc,v 1.26 2010/01/15 13:01:00 chamont Exp $
 //
 //
 
@@ -111,7 +111,11 @@ GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet& iConfig )
 		    iConfig.getParameter<double>("etMinEndcaps"),
 		    iConfig.getParameter<double>("eMinEndcaps"),
 		    iConfig.getParameter<bool>("vetoClustered"),
-		    iConfig.getParameter<bool>("useNumCrystals")
+		    iConfig.getParameter<bool>("useNumCrystals"),
+        iConfig.getParameter<int>("severityLevelCut"),
+        iConfig.getParameter<double>("severityRecHitThreshold"),
+        iConfig.getParameter<double>("spikeIdThreshold"),
+        iConfig.getParameter<std::string>("spikeIdString")
 		    );
 
 }
