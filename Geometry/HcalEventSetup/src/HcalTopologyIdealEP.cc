@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalTopologyIdealEP.cc,v 1.2 2007/05/11 14:16:12 mansj Exp $
+// $Id: HcalTopologyIdealEP.cc,v 1.3 2008/04/21 22:18:19 heltsley Exp $
 //
 //
 
@@ -55,7 +55,6 @@ HcalTopologyIdealEP::~HcalTopologyIdealEP()
 HcalTopologyIdealEP::ReturnType
 HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
 {
-   using namespace edm::es;
    if (m_h2mode) edm::LogInfo("HCAL") << "Using H2 Topology";
 
    ReturnType myTopo(new HcalTopology(m_h2mode));

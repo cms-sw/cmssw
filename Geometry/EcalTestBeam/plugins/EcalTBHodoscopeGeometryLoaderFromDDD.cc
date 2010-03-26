@@ -19,8 +19,6 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
 EcalTBHodoscopeGeometryLoaderFromDDD::EcalTBHodoscopeGeometryLoaderFromDDD(): _scheme(0) 
 {
   _scheme=new EcalHodoscopeNumberingScheme();
@@ -63,7 +61,7 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
         edm::LogWarning("EcalTBHodoscopeGeometry") << "Wrong shape for sensitive volume!" << solid;
       }
        
-       vector<double> pv = solid.parameters();      
+      std::vector<double> pv = solid.parameters();      
 
       // use preshower strip as box in space representation
 

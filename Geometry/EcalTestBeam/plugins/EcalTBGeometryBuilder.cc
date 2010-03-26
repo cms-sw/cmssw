@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: EcalTBGeometryBuilder.cc,v 1.1 2007/04/15 23:16:29 wmtan Exp $
+// $Id: EcalTBGeometryBuilder.cc,v 1.2 2008/01/22 21:31:58 muzaffar Exp $
 //
 //
 
@@ -50,7 +50,6 @@ EcalTBGeometryBuilder::~EcalTBGeometryBuilder()
 EcalTBGeometryBuilder::ReturnType
 EcalTBGeometryBuilder::produce(const IdealGeometryRecord& iRecord)
 {
-   using namespace edm::es;
    edm::ESHandle<CaloSubdetectorGeometry> pG;
 
    std::auto_ptr<CaloGeometry> pCaloGeom(new CaloGeometry());

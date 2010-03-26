@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.1 2005/10/06 00:43:58 mansj Exp $
+// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.2 2009/01/29 22:29:34 heltsley Exp $
 //
 //
 
@@ -55,7 +55,6 @@ CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP()
 CaloTowerHardcodeGeometryEP::ReturnType
 CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord)
 {
-   using namespace edm::es;
    std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
 
    return pCaloSubdetectorGeometry ;

@@ -4,12 +4,9 @@
 
 #include <string>
 
-
-using namespace std;
-
 int main() {
 
-  const string MapFileName = "BarrelSM1CrystalCenterElectron120GeV.dat";
+  const std::string MapFileName = "BarrelSM1CrystalCenterElectron120GeV.dat";
 
   EcalTBCrystalMap theTestMap(MapFileName);
 
@@ -23,11 +20,11 @@ int main() {
 
     theTestMap.findCrystalAngles(thisCrystal, thisEta, thisPhi);
 
-    cout << "Crystal number " << thisCrystal << " eta = " << thisEta << " phi = " << thisPhi << endl;
+    std::cout << "Crystal number " << thisCrystal << " eta = " << thisEta << " phi = " << thisPhi << std::endl;
 
     int checkThisCrystal = theTestMap.CrystalIndex(thisEta, thisPhi);
 
-    cout << "(eta,phi) = " << thisEta << " , " << thisPhi << " corresponds to crystal n. = " << checkThisCrystal << endl;
+    std::cout << "(eta,phi) = " << thisEta << " , " << thisPhi << " corresponds to crystal n. = " << checkThisCrystal << std::endl;
 
   }
 

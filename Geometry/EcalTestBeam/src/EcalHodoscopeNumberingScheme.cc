@@ -7,12 +7,10 @@
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
 #include <iostream>
-using namespace std;
 
 EcalHodoscopeNumberingScheme::EcalHodoscopeNumberingScheme() : 
   EcalNumberingScheme() {
 
-  
   edm::LogInfo("EcalTBGeom") << "Creating EcalHodoscopeNumberingScheme";
 }
 

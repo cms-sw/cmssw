@@ -145,7 +145,6 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
 void
 CrystalCenterDump::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
    
    std::cout << "Writing the center (eta,phi) for crystals in barrel SM 1 " << std::endl;
 

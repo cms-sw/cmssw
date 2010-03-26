@@ -6,7 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -77,7 +76,7 @@ DDTBH4Algo::ddmat( const std::string& s ) const
 DDName
 DDTBH4Algo::ddname( const std::string& s ) const
 { 
-   const pair<std::string,std::string> temp ( DDSplit(s) ) ;
+   const std::pair<std::string,std::string> temp ( DDSplit(s) ) ;
    return DDName( temp.first,
 		  temp.second ) ; 
 }  
