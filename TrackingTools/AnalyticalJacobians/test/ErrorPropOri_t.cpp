@@ -45,9 +45,9 @@ int main() {
   Surface::PositionType pos( 0., 0., 0.);
 
   Plane plane(pos,rot);
-  LocalTrajectoryParameters tpl(1./3.5, 1.,1., 0.,0.,1.);
+  LocalTrajectoryParameters tpl(-1./3.5, 1.,1., 0.,0.,1.);
   GlobalVector mg = plane.toGlobal(tpl.momentum());
-  GlobalTrajectoryParameters tpg(pos,mg,1., &m);
+  GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
   std::cout << tpl.position() << " " << tpl.momentum() << std::endl;
   std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
 
@@ -55,7 +55,7 @@ int main() {
 
   AlgebraicMatrix55 fullJacobian = AlgebraicMatrixID();
   AlgebraicMatrix55 deltaJacobian = AlgebraicMatrixID();
-  GlobalTrajectoryParameters tpg0(pos,mg,1., &m);
+  GlobalTrajectoryParameters tpg0(pos,mg,-1., &m);
   double totalStep(0.);
   double singleStep(1.);
   for (int i=0; i<10;++i) {
@@ -67,10 +67,11 @@ int main() {
     GlobalPoint x(prop.position(s));
     GlobalVector p(prop.direction(s));
     GlobalTrajectoryParameters tpg2(x,p.unit(), curv, 0, &m);
+    std::cout << x << " " << p  << std::endl;
     std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
     AnalyticalCurvilinearJacobian full;
     AnalyticalCurvilinearJacobian delta;
-    full.computeFullJacobian(tpg,x, tpg2.momentum(),h,s);
+    full.computeFullJacobian(tpg,tpg2.position(), tpg2.momentum(),h,s);
     std::cout <<  full.jacobian() << std::endl;
     std::cout << std::endl;
     delta.computeInfinitesimalJacobian(tpg,x, tpg2.momentum(),h,s);

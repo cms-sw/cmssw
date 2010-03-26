@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   Surface::PositionType pos( 0., 0., 0.);
 
   Plane plane(pos,rot);
-  LocalTrajectoryParameters tpl(-1./3.5, 1.,1., 0.,0.,1.);
+  LocalTrajectoryParameters tpl(-1., 1.,1., 0.,0.,1.);
   GlobalVector mg = plane.toGlobal(tpl.momentum());
   GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
   double curv =   tpg.transverseCurvature();
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
   std::cout << std::endl;
 
   double totalStep(0.);
-  double singleStep(1.);
+  double singleStep(.1);
   for (int i=0; i<10;++i) {
     double s = singleStep;
     totalStep += singleStep;
