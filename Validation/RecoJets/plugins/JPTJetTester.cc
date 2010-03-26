@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.1 2010/03/20 14:28:07 hatake Exp $
+// $Id: JPTJetTester.cc,v 1.2 2010/03/24 01:20:26 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -421,6 +421,7 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
 
   edm::Handle<HepMCProduct> evt;
   mEvent.getByLabel("generator", evt);
+  if (evt.isValid()) {
   HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
   
   double pthat = myGenEvent->event_scale();
@@ -429,7 +430,7 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   mPthat_3000->Fill(pthat);
 
   delete myGenEvent; 
-
+  }
 
   // ***********************************
   // *** Get CaloMET
@@ -470,6 +471,7 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   // ***********************************
   Handle<CaloTowerCollection> caloTowers;
   mEvent.getByLabel( "towerMaker", caloTowers );
+  if (caloTowers.isValid()) {
   for( CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++ cal ){
 
     //To compensate for the index
@@ -482,6 +484,7 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
 
     mHadTiming->Fill (cal->hcalTime());
     mEmTiming->Fill (cal->ecalTime());    
+  }
   }
   
   // ***********************************
@@ -502,7 +505,6 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
           mHEEne->Fill(j->energy()); 
           mHETime->Fill(j->time()); 
         }
-	
       }
     }
   } catch (...) {
@@ -582,6 +584,7 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   math::XYZTLorentzVector p4tmp[2];
   Handle<JPTJetCollection> jptJets;
   mEvent.getByLabel(mInputCollection, jptJets);
+  if (!jptJets.isValid()) return;
   JPTJetCollection::const_iterator jet = jptJets->begin ();
   int jetIndex = 0;
   int nJet = 0;
@@ -758,6 +761,7 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   // Gen jet analysis
   Handle<GenJetCollection> genJets;
   mEvent.getByLabel(mInputGenCollection, genJets);
+  if (!genJets.isValid()) return;
   GenJetCollection::const_iterator gjet = genJets->begin ();
   int gjetIndex = 0;
   for (; gjet != genJets->end (); gjet++, gjetIndex++) {

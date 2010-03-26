@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: PFJetTester.cc,v 1.9 2010/02/03 16:39:48 chjeong Exp $
+// $Id: PFJetTester.cc,v 1.10 2010/02/13 03:06:52 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -401,6 +401,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
 
   edm::Handle<HepMCProduct> evt;
   mEvent.getByLabel("generator", evt);
+  if (evt.isValid()) {
   HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
   
   double pthat = myGenEvent->event_scale();
@@ -409,7 +410,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
   mPthat_3000->Fill(pthat);
 
   delete myGenEvent; 
-
+  }
 
   // ***********************************
   // *** Get CaloMET
@@ -450,6 +451,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
   // ***********************************
   Handle<CaloTowerCollection> caloTowers;
   mEvent.getByLabel( "towerMaker", caloTowers );
+  if (caloTowers.isValid()) {
   for( CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++ cal ){
 
     //To compensate for the index
@@ -463,7 +465,8 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
     mHadTiming->Fill (cal->hcalTime());
     mEmTiming->Fill (cal->ecalTime());    
   }
-  
+  }  
+
   // ***********************************
   // *** Get the RecHits collection
   // ***********************************
@@ -563,6 +566,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
   math::XYZTLorentzVector p4tmp[2];
   Handle<PFJetCollection> pfJets;
   mEvent.getByLabel(mInputCollection, pfJets);
+  if (!pfJets.isValid()) return;
   PFJetCollection::const_iterator jet = pfJets->begin ();
   int jetIndex = 0;
   int nJet = 0;
@@ -708,6 +712,7 @@ void PFJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetu
   // Gen jet analysis
   Handle<GenJetCollection> genJets;
   mEvent.getByLabel(mInputGenCollection, genJets);
+  if (!genJets.isValid()) return;
   GenJetCollection::const_iterator gjet = genJets->begin ();
   int gjetIndex = 0;
   for (; gjet != genJets->end (); gjet++, gjetIndex++) {

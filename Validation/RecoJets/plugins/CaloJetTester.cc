@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.20 2009/12/18 20:45:13 wmtan Exp $
+// $Id: CaloJetTester.cc,v 1.21 2010/01/29 17:53:44 hatake Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -381,6 +381,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
   edm::Handle<HepMCProduct> evt;
   mEvent.getByLabel("generator", evt);
+  if (evt.isValid()) {
   HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
   
   double pthat = myGenEvent->event_scale();
@@ -389,7 +390,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   mPthat_3000->Fill(pthat);
 
   delete myGenEvent; 
-
+  }
 
   // ***********************************
   // *** Get CaloMET
@@ -430,6 +431,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   // ***********************************
   Handle<CaloTowerCollection> caloTowers;
   mEvent.getByLabel( "towerMaker", caloTowers );
+  if (caloTowers.isValid()) {
   for( CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++ cal ){
 
     //To compensate for the index
@@ -442,6 +444,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
     mHadTiming->Fill (cal->hcalTime());
     mEmTiming->Fill (cal->ecalTime());    
+  }
   }
   
   // ***********************************
@@ -543,6 +546,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   math::XYZTLorentzVector p4tmp[2];
   Handle<CaloJetCollection> caloJets;
   mEvent.getByLabel(mInputCollection, caloJets);
+  if (!caloJets.isValid()) return;
   CaloJetCollection::const_iterator jet = caloJets->begin ();
   int jetIndex = 0;
   int nJet = 0;
@@ -643,7 +647,6 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
 
 
 
-
   if (mNJetsEtaC) mNJetsEtaC->Fill( nJetC );
   if (mNJetsEtaF) mNJetsEtaF->Fill( nJetF );
 
@@ -675,6 +678,7 @@ void CaloJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSe
   // Gen jet analysis
   Handle<GenJetCollection> genJets;
   mEvent.getByLabel(mInputGenCollection, genJets);
+  if (!genJets.isValid()) return;
   GenJetCollection::const_iterator gjet = genJets->begin ();
   int gjetIndex = 0;
   for (; gjet != genJets->end (); gjet++, gjetIndex++) {
