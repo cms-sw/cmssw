@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/01/13 01:55:37 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/15 19:57:20 $
+ *  $Revision: 1.10 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -459,20 +459,17 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
 
   GlobalPoint ptg2 = first->globalPosition(); // its global pos +v
 
-  int nr=0; // count rechits we have checked against seed
-
-  for (MuonRecHitContainer::const_iterator iter=recHits.begin(); iter!=recHits.end(); iter++){
-
-    GlobalPoint ptg1 = (*iter)->globalPosition();  //+v global pos of rechit
+  for (unsigned nr = 0; nr < recHits.size(); ++nr ){
+    MuonRecHitPointer recHit(recHits[nr]);
+    GlobalPoint ptg1(recHit->globalPosition());
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
     float dphi = fabs (ptg1.phi()-ptg2.phi());
     float eta2 = fabs( ptg2.eta() );
     // be a little more lenient in cracks
-    bool crack = isCrack(*iter) || isCrack(first);
+    bool crack = isCrack(recHit) || isCrack(first);
     float detaWindow = crack ? 0.25 : 0.2;
     if ( deta > detaWindow || dphi > .1 ) {
-      nr++;
       continue;
     }   // +vvp!!!
 
@@ -496,8 +493,8 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
       //@@ Tim asks: what is the motivation for this cut?
       //@@ It requires (xpred-xrechit)< 0.1 * distance between rechit and seed in xz plane
       if ( dist < d_cut ) {
-	good_rhit.push_back(*iter);
-	if (used) used[nr]=true;
+	good_rhit.push_back(recHit);
+	if (used) markAsUsed(nr, recHits, used);
       }
 
     }  // eta  < 1.0
@@ -507,18 +504,14 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
       // watch out for ghosts from ME1/A, below 2.0.
       float dphicut = (eta2 > 1.6 && eta2 < 2.0) ? 0.1 : 0.07;
       // segments at the edge of the barrel may not have a good eta measurement
-      float detacut = (first->isDT() || (*iter)->isDT()) ? 0.2 : 0.1;
+      float detacut = (first->isDT() || recHit->isDT()) ? 0.2 : 0.1;
 
       if ( deta < detacut && dphi < dphicut ) {
-	good_rhit.push_back(*iter);
-	if (used) used[nr]=true;
+	good_rhit.push_back(recHit);
+	if (used) markAsUsed(nr, recHits, used);
       }
 
     }  // eta > 1.0
-
-
-    nr++;
-
   }  // recHits iter
 
   // select the best rhit among the compatible ones (based on Dphi Glob & Dir)
@@ -617,6 +610,35 @@ bool MuonSeedOrcaPatternRecognition::check(const MuonRecHitContainer & segments)
 }
 
 
+void MuonSeedOrcaPatternRecognition::markAsUsed(int nr, const MuonRecHitContainer &recHits, bool* used) const
+{
+  used[nr] = true;
+  // if it's ME1A with two other segments in the container, mark the ghosts as used, too.
+  if(recHits[nr]->isCSC())
+  {
+    CSCDetId detId(recHits[nr]->geographicalId().rawId());
+    if(detId.ring() == 4)
+    {
+      std::vector<unsigned> chamberHitNs;
+      for(unsigned i = 0; i < recHits.size(); ++i)
+      {
+        if(recHits[i]->geographicalId().rawId() == detId.rawId())
+        {
+          chamberHitNs.push_back(i);
+        }
+      }
+      if(chamberHitNs.size() == 3)
+      {
+        for(unsigned i = 0; i < 3; ++i)
+        {
+          used[chamberHitNs[i]] = true;
+        }
+      }
+    }
+  }
+}
+
+
 bool MuonSeedOrcaPatternRecognition::isCrack(const ConstMuonRecHitPointer & segment) const
 {
   bool result = false;
@@ -655,7 +677,7 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
   for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
       segmentItr != segments.end(); ++segmentItr)
   {
-    LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
+    std::cout << theDumper.dumpMuonId((**segmentItr).geographicalId()) << std::endl;
   }
 }
 
