@@ -164,7 +164,7 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   
   totDQMVal = min(integrityQual,frontendQual);
 
-  sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
+  sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
   me = dqmStore_->get(histo);
   if( me ) me->Fill(totDQMVal);
 
