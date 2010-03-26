@@ -236,7 +236,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 }
 
 
- void computeInfinitesimalJacobian 
+ void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian 
  (const GlobalTrajectoryParameters& globalParameters,
   const GlobalPoint&, 
   const GlobalVector& p, 

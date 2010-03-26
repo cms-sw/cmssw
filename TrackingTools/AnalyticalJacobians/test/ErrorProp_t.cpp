@@ -28,7 +28,7 @@ namespace {
 void st(){}
 void en(){}
 
-
+#include<iostream>
 
 int main() {
 
@@ -54,11 +54,12 @@ int main() {
 
   double curv =   tpg.transverseCurvature();
 
-  HelixForwardPlaneCrossing prop(tpg.position(), tpg.momentum(), curv);
+  HelixForwardPlaneCrossing prop(HelixForwardPlaneCrossing::PositionType(tpg.position()), 
+                                 HelixForwardPlaneCrossing::DirectionType(tpg.momentum()), curv);
   double s = 0.1;
   GlobalPoint x(prop.position(s));
   GlobalVector p(prop.direction(s));
-  GlobalTrajectoryParameters tpg2(x,p, curv 0, &m);
+  GlobalTrajectoryParameters tpg2(x,p, curv, 0, &m);
   std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
 
 
