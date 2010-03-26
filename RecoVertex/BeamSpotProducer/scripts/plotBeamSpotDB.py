@@ -27,6 +27,7 @@
    -n, --noplot : Only extract beam spot data, plots are not created..
    -o, --output  = OUTPUT: filename of ROOT file with plots.
    -t, --tag     = TAG: tag name.
+   -I, --IOVbase = IOVBASE: options: runbase(default), lumibase
    -w, --wait : Pause script after plotting a new histograms.
    
    Francisco Yumiceva (yumiceva@fnal.gov)
@@ -36,7 +37,7 @@
 
 
 import os, string, re, sys, math
-import commands
+import commands, time
 
 try:
     import ROOT
@@ -239,7 +240,13 @@ if __name__ == '__main__':
     if option.final:
         lastRun = int(option.final)
     
-                                                
+    IOVbase = 'runbase'
+    if option.IOVbase:
+        if option.IOVbase != "runbase" and option.IOVbase != "lumibase" and option.IOVbase != "timebase":
+            print "\n\n unknown iov base option: "+ option.IOVbase +" \n\n\n"
+            exit()
+        IOVbase = option.IOVbase
+    
     # GET IOVs
     ################################
 
@@ -333,8 +340,6 @@ if __name__ == '__main__':
 
     if inputfiletype ==1:
 	
-	print "i am here"
-
 	for line in tmpfile:
 	
 	    if line.find('X0') != -1:
@@ -367,12 +372,20 @@ if __name__ == '__main__':
 	    if line.find('Cov(3,j)') != -1:
 		tmpbeam.sigmaZerr = str(math.sqrt( float( line.split()[4] ) ) )
 		tmpbeamsize += 1
-	    if line.find('LumiRange')  != -1:
+	    if line.find('LumiRange')  != -1 and IOVbase=="lumibase":
 	    #tmpbeam.IOVfirst = line.split()[6].strip(',')
 		tmpbeam.IOVfirst = line.split()[1]
 		tmpbeam.IOVlast = line.split()[3]
 		tmpbeamsize += 1
-
+            if line.find('Runnumber') != -1 and IOVbase =="runbase":
+                tmpbeam.IOVfirst = line.split()[1]
+		tmpbeam.IOVlast = line.split()[1]
+		tmpbeamsize += 1
+            if line.find('BeginTimeOfFit') != -1 and IOVbase =="timebase":
+                tmpbeam.IOVfirst =  time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
+            if line.find('EndTimeOfFit') != -1 and IOVbase =="timebase":
+		tmpbeam.IOVlast = time.mktime( time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z") )
+		tmpbeamsize += 1
 	    if tmpbeamsize == 9:
 		if int(tmpbeam.IOVfirst) >= firstRun and int(tmpbeam.IOVlast) <= lastRun:
 		    listbeam.append(tmpbeam)
@@ -440,14 +453,21 @@ if __name__ == '__main__':
     TGaxis.SetMaxDigits(8)
 
     graphlist = []
-    graphnamelist = ['X','Y','Z','SigmaZ','dxdz','dydz']
-    graphtitlelist = ['beam spot X','beam spot Y','beam spot Z','beam spot #sigma_Z','beam spot dX/dZ','beam spot dY/dZ']
+    graphnamelist = ['X','Y','Z','SigmaZ','dxdz','dydz','beamWidthX', 'beamWidthY']
+    graphtitlelist = ['beam spot X','beam spot Y','beam spot Z','beam spot #sigma_Z','beam spot dX/dZ','beam spot dY/dZ','beam width X','beam width Y']
     graphXaxis = 'Run number'
-    graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_{Z} [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ']
+    if IOVbase == 'runbase':
+        graphXaxis = "Run number"
+    if IOVbase == 'lumibase':
+        graphXaxis = 'Lumi section'
+    if IOVbase == 'timebase':
+        graphXaxis = "Time"
+    
+    graphYaxis = ['beam spot X [cm]','beam spot Y [cm]','beam spot Z [cm]', 'beam spot #sigma_{Z} [cm]', 'beam spot dX/dZ', 'beam spot dY/dZ','beam width X [cm]', 'beam width Y [cm]']
 
     cvlist = []
 
-    for ig in range(0,6):
+    for ig in range(0,8):
 	cvlist.append( TCanvas(graphnamelist[ig],graphtitlelist[ig], 800, 600) )
 	graphlist.append( TGraphErrors( len(listbeam) ) )
 	graphlist[ig].SetName(graphnamelist[ig])
@@ -476,8 +496,15 @@ if __name__ == '__main__':
 	    if graphnamelist[ig] == 'dydz':
 		datay = ibeam.dydz
 		datayerr = ibeam.dydzerr
-	    
-	    datax = ibeam.IOVfirst
+	    if graphnamelist[ig] == 'beamWidthX':
+		datay = ibeam.beamWidthX
+		datayerr = ibeam.beamWidthXerr
+	    if graphnamelist[ig] == 'beamWidthY':
+		datay = ibeam.beamWidthY
+		datayerr = ibeam.beamWidthYerr
+
+            datax = ibeam.IOVfirst
+
 	    if datax == '1':
 		print " skip in plot IOV = "+ str(ibeam.IOVfirst) + " to " + str(ibeam.IOVlast)
 		graphlist[ig].Set( len(listbeam) -1 )
@@ -487,7 +514,10 @@ if __name__ == '__main__':
 	    graphlist[ig].SetPointError(ipoint, float(dataxerr), float(datayerr) )
 	    ipoint += 1
 
-	
+
+	if IOVbase=="timebase":
+            graphlist[ig].GetXaxis().SetTimeDisplay(1);
+            graphlist[ig].GetXaxis().SetTimeFormat("%Y.%m.%d %H:%M:%S")
 	graphlist[ig].Draw('AP')
 	graphlist[ig].GetXaxis().SetTitle(graphXaxis)
 	graphlist[ig].GetYaxis().SetTitle(graphYaxis[ig])
