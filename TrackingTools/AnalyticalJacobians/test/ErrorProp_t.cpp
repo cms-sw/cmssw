@@ -57,7 +57,8 @@ int main(int argc, char** argv) {
   AlgebraicMatrix55 deltaJacobian = AlgebraicMatrixID();
   GlobalTrajectoryParameters tpg0(tpg);
 
-  HelixForwardPlaneCrossing::PositionType zero(0.,0.,0.); 
+  //HelixForwardPlaneCrossing::PositionType zero(0.,0.,0.); 
+  GlobalPoint zero(0.,0.,0.); 
   std::cout << std::endl;
 
   double totalStep(0.);
