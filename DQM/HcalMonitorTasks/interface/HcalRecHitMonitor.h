@@ -10,8 +10,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2010/03/20 20:56:11 $
-  * $Revision: 1.46.2.7 $
+  * $Date: 2010/03/25 11:00:58 $
+  * $Revision: 1.47 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -19,7 +19,6 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
 
  public:
   HcalRecHitMonitor(const edm::ParameterSet& ps);
-
 
   ~HcalRecHitMonitor();
 
@@ -33,7 +32,7 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
   void reset();
   void zeroCounters();
  
- void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
@@ -48,7 +47,6 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
 			    bool passedHcalHLT,
 			    bool passedMinBiasHLT,
 			    int BCN);
-
  private:
   
   void fill_Nevents();
@@ -77,7 +75,6 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
   EtaPhiHists SqrtSumEnergy2ThreshByDepth;
   EtaPhiHists SumTimeByDepth;
   EtaPhiHists SumTimeThreshByDepth;
-
 
   unsigned int occupancy_[85][72][4]; // will get filled when rechit found
   unsigned int occupancy_thresh_[85][72][4]; // filled when above given energy
@@ -166,6 +163,11 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
   MonitorElement* h_FlagMap_TIMEADD;
   MonitorElement* h_FlagMap_TIMESUBTRACT;
   MonitorElement* h_FlagMap_TIMEERROR;
+                 
+  MonitorElement* h_HFLongShort_vs_LS;
+  MonitorElement* h_HFDigiTime_vs_LS;
+  MonitorElement* h_HBHEHPDMult_vs_LS;
+  MonitorElement* h_HBHEPulseShape_vs_LS;
 
   MonitorElement* h_HF_FlagCorr;
   MonitorElement* h_HBHE_FlagCorr;
@@ -187,7 +189,6 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
   MonitorElement* h_LumiPlot_LS_MinBiasEvents_notimecut;
   MonitorElement* h_LumiPlot_LS_HcalHLTEvents;
   MonitorElement* h_LumiPlot_LS_HcalHLTEvents_notimecut;
-
 
   MonitorElement* h_LumiPlot_SumHT_HFPlus_vs_HFMinus;
   MonitorElement* h_LumiPlot_timeHFPlus_vs_timeHFMinus;
@@ -216,7 +217,6 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
   MonitorElement* h_HETimeVsEnergy;
   MonitorElement* h_HOTimeVsEnergy;
   MonitorElement* h_HFTimeVsEnergy;
-
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 

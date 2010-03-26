@@ -268,6 +268,20 @@ void HcalRecHitMonitor::setup()
   // Do we want separate directories for Minbias, other flags at some point?
   dbe_->setCurrentFolder(subdir_+"AnomalousCellFlags");// HB Flag Histograms
 
+
+  h_HFLongShort_vs_LS=dbe_->book1D("HFLongShort_vs_LS",
+				   "HFLongShort Flags vs Lumi Section",
+				   NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+  h_HFDigiTime_vs_LS=dbe_->book1D("HFDigiTime_vs_LS",
+				  "HFDigiTime Flags vs Lumi Section",
+				  NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+  h_HBHEHPDMult_vs_LS=dbe_->book1D("HBHEHPDMult_vs_LS",
+				   "HBHEHPDMult Flags vs Lumi Section",
+				   NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+  h_HBHEPulseShape_vs_LS=dbe_->book1D("HBHEPulseShape_vs_LS",
+				      "HBHEPulseShape Flags vs Lumi Section",
+				      NLumiBlocks_,0.5,0.5+NLumiBlocks_);
+
   h_HF_FlagCorr=dbe_->book2D("HF_FlagCorrelation",
 			     "HF LongShort vs. DigiTime flags; DigiTime; LongShort", 
 			     2,-0.5,1.5,2,-0.5,1.5);
@@ -689,8 +703,26 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int rbxindex=logicalMap->getHcalFrontEndId(HBHEiter->detid()).rbxIndex();
       int rm= logicalMap->getHcalFrontEndId(HBHEiter->detid()).rm();
 
+      // Fill HBHE flag plots
+      h_HBHE_FlagCorr->Fill(HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape),
+			    HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity)); 
 
-      h_HBHE_FlagCorr->Fill(HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape),HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity)); 
+      if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity))
+	{
+	  h_FlagMap_HPDMULT->Fill(rbxindex,rm);
+	  h_HBHEHPDMult_vs_LS->Fill(currentLS,1);
+	}
+      if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape))
+	{
+	  h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
+	  h_HBHEPulseShape_vs_LS->Fill(currentLS,1);
+	}
+      if (HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
+	h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
+      else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
+	h_FlagMap_TIMEADD->Fill(rbxindex,rm);
+      else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
+	h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
       if (subdet==HcalBarrel)
 	{
@@ -708,17 +740,6 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	      if (HBHEiter->flagField(f))
 		++HBflagcounter_[f];
 	    }
-
-	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity))
-	    h_FlagMap_HPDMULT->Fill(rbxindex,rm);
-	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape))
-	    h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
-	  if (HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
-	    h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
-	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
-	    h_FlagMap_TIMEADD->Fill(rbxindex,rm);
-	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
-	    h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 	  ++occupancy_[calcEta][iphi-1][depth-1];
 	  energy_[calcEta][iphi-1][depth-1]+=en;
           energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
@@ -773,16 +794,6 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
               if (HBHEiter->flagField(f))
                 ++HEflagcounter_[f];
             }
-	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity))
-	    h_FlagMap_HPDMULT->Fill(rbxindex,rm);
-	  if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape))
-	    h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
-	  if (HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
-	    h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
-	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
-	    h_FlagMap_TIMEADD->Fill(rbxindex,rm);
-	  else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
-	    h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
 	  ++occupancy_[calcEta][iphi-1][depth-1];
 	  energy_[calcEta][iphi-1][depth-1]+=en;
@@ -948,10 +959,15 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 	h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
       if (HFiter->flagField(HcalCaloFlagLabels::HFDigiTime))
-	h_FlagMap_DIGITIME->Fill(rbxindex,rm);
+	{
+	  h_FlagMap_DIGITIME->Fill(rbxindex,rm);
+	  h_HFDigiTime_vs_LS->Fill(currentLS,1);
+	}
       if (HFiter->flagField(HcalCaloFlagLabels::HFLongShort))
-	h_FlagMap_LONGSHORT->Fill(rbxindex,rm);
-
+	{
+	  h_FlagMap_LONGSHORT->Fill(rbxindex,rm);
+	  h_HFLongShort_vs_LS->Fill(currentLS,1);
+	}
       //Looping over HF searching for flags --- cris
       for (int f=0;f<32;f++)
 	{
