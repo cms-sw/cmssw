@@ -69,9 +69,9 @@ def customise(process):
 
     ## EGAMMA
     process.gsfElectrons.applyPreselection = cms.bool(False)
-    process.photons.minSCEtBarrel = 1.
-    process.photons.minSCEtEndcap =1.
-    process.photonCore.minSCEt = 1.
+    process.photons.minSCEtBarrel = 2.
+    process.photons.minSCEtEndcap =2.
+    process.photonCore.minSCEt = 2.
     process.conversionTrackCandidates.minSCEt =1.
     process.conversions.minSCEt =1.
     process.trackerOnlyConversions.AllowTrackBC = cms.bool(False)
