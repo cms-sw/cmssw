@@ -7994,3 +7994,6 @@ Level1MenuOverride = cms.ESSource( "PoolDBESSource",
     )
 )
 es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
+Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
+Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+
