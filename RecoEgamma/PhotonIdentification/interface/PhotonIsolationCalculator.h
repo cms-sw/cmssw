@@ -6,6 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include <string>
 
@@ -99,8 +101,6 @@ public:
   std::vector<double>  ecalIsoEndcapRadiusB_;
   std::vector<double>  hcalIsoEndcapRadiusB_;
 
-  
-
   //Isolation parameters variables
   double photonEcalRecHitConeInnerRadiusA_;
   double photonEcalRecHitConeOuterRadiusA_;
@@ -123,6 +123,10 @@ public:
   double trackLipRadiusA_;
   double trackD0RadiusA_;
 
+  int    severityLevelCut_;
+  float  severityRecHitThreshold_;
+  float  spikeIdThreshold_;
+  EcalSeverityLevelAlgo::SpikeId spId_;
 
   double photonEcalRecHitConeInnerRadiusB_;
   double photonEcalRecHitConeOuterRadiusB_;
