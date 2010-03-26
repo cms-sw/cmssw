@@ -93,7 +93,10 @@ if __name__ == '__main__':
 	print " need to provide DB tag name and beam spot data"
 	exit()
 
-    tagname = option.tag
+    tagname = ''
+    if option.tag:
+	tagname = option.tag
+
     workflowdir = 'test/workflow/'
     if not os.path.isdir(workflowdir):
 	print " make directory to store temporal files in "+ workflowdir
@@ -170,7 +173,8 @@ if __name__ == '__main__':
     # write combined data file
     allbeam_file = workflowdir + tagname + "_all_IOVs.txt"
     allfile = open( allbeam_file, 'w')
-    
+    print " all results save in file: " + allbeam_file
+
     if option.copy:
 	sys.exit()
     
