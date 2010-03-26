@@ -66,6 +66,8 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   HFtiming_totaltime2D=0;
   HFtiming_occupancy2D=0;
   HFtiming_etaProfile=0;
+  HFP_shape=0;
+  HFM_shape=0;
 }
 
 // destructor
@@ -185,6 +187,8 @@ void HcalDigiMonitor::setup()
       // Special histograms for Pawel's timing study
       dbe_->setCurrentFolder(subdir_+"HFTimingStudy");
       HFtiming_etaProfile=dbe_->bookProfile("HFTiming_etaProfile","HFTiming Eta Profile;ieta;average time (time slice)",83,-41.5,41.5,200,0,10);
+      HFP_shape=dbe_->book1D("HFP signal shape","HFP signal shape",10,-0.5,9.5);
+      HFM_shape=dbe_->book1D("HFM signal shape","HFM signal shape",10,-0.5,9.5);
       dbe_->setCurrentFolder(subdir_+"HFTimingStudy/sumplots");
       HFtiming_totaltime2D=dbe_->book2D("HFTiming_Total_Time","HFTiming Total Time",83,-41.5,41.5,72,0.5,72.5);
       HFtiming_occupancy2D=dbe_->book2D("HFTiming_Occupancy","HFTiming Occupancy",83,-41.5,41.5,72,0.5,72.5);
@@ -865,10 +869,11 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       )
     {
       int maxtime=-1;
-      double maxenergy=-1;
+      double maxenergy=-1, fullenergy=0;
       int digisize=digi.size();
       for (int ff=0;ff<digisize;++ff)
 	{
+	  fullenergy+=digi.sample(ff).nominal_fC()-2.5;
 	  if (digi.sample(ff).nominal_fC()-2.5>maxenergy)
 	    {
 	      maxenergy=digi.sample(ff).nominal_fC()-2.5;
@@ -878,6 +883,13 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       
       if (maxtime>=2 && maxtime<=5 && maxenergy>20 && maxenergy<100)  // only look between time slices 2-5; anything else should be nonsense
 	{
+	  for (int ff=0;ff<digisize;++ff){
+	    if(fullenergy>0){
+	      if(digi.id().ieta()>0)HFP_shape->Fill(ff,(digi.sample(ff).nominal_fC()-2.5)/fullenergy);
+	      if(digi.id().ieta()<0)HFM_shape->Fill(ff,(digi.sample(ff).nominal_fC()-2.5)/fullenergy);
+	    }
+          }
+
 	  double time_den=0, time_num=0;
 	  // form weighted time sum
 	  int startslice=std::max(0,maxtime-1);

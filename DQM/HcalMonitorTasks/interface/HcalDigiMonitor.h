@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/03/25 17:54:56 $
-  * $Revision: 1.58 $
+  * $Date: 2010/03/25 20:53:27 $
+  * $Revision: 1.59 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -182,6 +182,8 @@ private:  ///Methods, variables accessible only within class code
   MonitorElement* HFtiming_totaltime2D;
   MonitorElement* HFtiming_occupancy2D;
   MonitorElement* HFtiming_etaProfile;
+  MonitorElement* HFP_shape;
+  MonitorElement* HFM_shape;
 
   DigiHists hbHists, heHists, hfHists, hoHists;
 
