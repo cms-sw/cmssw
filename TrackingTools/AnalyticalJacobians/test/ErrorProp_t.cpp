@@ -48,7 +48,7 @@ int main() {
 
   LocalTrajectoryParameters tpl(1., 1.,1., 0.,0.,1.);
   GlobalVector mg = plane.toGlobal(tpl.momentum());
-  GlobalTrajectoryParameters tpg(pos,mg,1., &m);
+  GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
   std::cout << tpl.position() << " " << tpl.momentum() << std::endl;
   std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
 
