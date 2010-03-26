@@ -4,8 +4,8 @@
 /*
  * \file EBHltTask.h
  *
- * $Date: 2009/05/29 18:37:27 $
- * $Revision: 1.4 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -78,6 +78,7 @@ int ievt_;
 DQMStore* dqmStore_;
 
 std::string prefixME_;
+std::string folderName_;
 
 bool enableCleanup_;
 

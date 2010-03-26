@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2009/05/29 18:37:27 $
- * $Revision: 1.11 $
+ * $Date: 2009/10/26 17:33:48 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -44,6 +44,8 @@ EBHltTask::EBHltTask(const ParameterSet& ps){
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
+  folderName_ = ps.getUntrackedParameter<string>("folderName", "FEDIntegrity");
+
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
@@ -77,8 +79,8 @@ void EBHltTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
-    dqmStore_->rmdir(prefixME_ + "/FEDIntegrity");
+    dqmStore_->setCurrentFolder(prefixME_ + "/" + folderName_);
+    dqmStore_->rmdir(prefixME_ + "/" + folderName_);
   }
 
 }
@@ -110,7 +112,7 @@ void EBHltTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
+    dqmStore_->setCurrentFolder(prefixME_ + "/" + folderName_);
 
     sprintf(histo, "FEDEntries");
     meEBFedsOccupancy_ = dqmStore_->book1D(histo, histo, 36, 610, 646);
@@ -130,7 +132,7 @@ void EBHltTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
+    dqmStore_->setCurrentFolder(prefixME_ + "/" + folderName_);
 
     if ( meEBFedsOccupancy_ ) dqmStore_->removeElement( meEBFedsOccupancy_->getName() );
     meEBFedsOccupancy_ = 0;
