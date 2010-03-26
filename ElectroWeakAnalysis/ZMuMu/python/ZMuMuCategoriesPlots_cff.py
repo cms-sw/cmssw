@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequencesUserData_cff import *
+from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 import copy
 
 
@@ -140,6 +140,17 @@ goodZToMuMu1HLTPlots.src = cms.InputTag("goodZToMuMu1HLT")
 goodZToMuMu1HLTPath.__iadd__(goodZToMuMu1HLTPlots)
 
 
+##### plot for AB and BB region
+goodZToMuMuAB1HLTPlots= copy.deepcopy(goodZToMuMuPlots)
+goodZToMuMuAB1HLTPlots.src = cms.InputTag("goodZToMuMuAB1HLT")
+goodZToMuMuAB1HLTPath.__iadd__(goodZToMuMuAB1HLTPlots)
+
+goodZToMuMuBB2HLTPlots= copy.deepcopy(goodZToMuMuPlots)
+goodZToMuMuBB2HLTPlots.src = cms.InputTag("goodZToMuMuBB2HLT")
+goodZToMuMuBB2HLTPath.__iadd__(goodZToMuMuBB2HLTPlots)
+
+
+
 #ZMuMu at least 1 HLT + at least 1 NON track-iso
 nonIsolatedZToMuMuPlots = copy.deepcopy(goodZToMuMuPlots)
 nonIsolatedZToMuMuPlots.src = cms.InputTag("nonIsolatedZToMuMuAtLeast1HLT")
@@ -159,7 +170,7 @@ twoNonIsolatedZToMuMuPlots.src = cms.InputTag("twoNonIsolatedZToMuMuAtLeast1HLT"
 
 twoNonIsolatedZToMuMuPath.__iadd__(twoNonIsolatedZToMuMuPlots) 
 
-#ZMuSta First HLT + 2  track-iso
+#ZMuSta global HLT + 2  track-iso
 goodZToMuMuOneStandAloneMuonPlots = copy.deepcopy(goodZToMuMuPlots)
 goodZToMuMuOneStandAloneMuonPlots.src = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLT")
 
@@ -171,6 +182,18 @@ goodZToMuMuOneTrackPlots = copy.deepcopy(goodZToMuMuPlots)
 goodZToMuMuOneTrackPlots.src = cms.InputTag("goodZToMuMuOneTrackFirstHLT")
 
 goodZToMuMuOneTrackPath.__iadd__(goodZToMuMuOneTrackPlots)
+
+
+#ZMuTkMu global HLT + 2  track-iso
+goodZToMuMuOneTrackerMuonPlots = copy.deepcopy(goodZToMuMuPlots)
+goodZToMuMuOneTrackerMuonPlots.src = cms.InputTag("goodZToMuMuOneTrackerMuonFirstHLT")
+
+goodZToMuMuOneTrackerMuonPath.__iadd__(goodZToMuMuOneTrackerMuonPlots)
+
+
+
+
+
 
 #ZMuMu same charge
 goodZToMuMuSameChargeAtLeast1HLTPlots = copy.deepcopy(goodZToMuMuPlots)

@@ -4,7 +4,7 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
 
 
-### controll by hand that all the path are in ... :-(
+### controll by hand that all the path are in ... :-( :-( :-(
 
 ## dimuonsSeq = cms.Sequence(
 ##     dimuonsHLTFilter *
@@ -30,11 +30,19 @@ from ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff import *
 goodZToMuMuPathLoose._seq = dimuonsPath._seq + goodZToMuMuPathLoose._seq
 
 goodZToMuMu2HLTPathLoose._seq = dimuonsPath._seq + goodZToMuMu2HLTPathLoose._seq
+
+
 #goodZToMuMu2HLTPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
 
 #goodZToMuMu1HLTPathLoose.replace(goodZToMuMuLoose, dimuonsSeq *  goodZToMuMuLoose)
 
 goodZToMuMu1HLTPathLoose._seq= dimuonsPath._seq + goodZToMuMu1HLTPathLoose._seq 
+
+
+goodZToMuMuAB1HLTPathLoose._seq = dimuonsPath._seq + goodZToMuMuAB1HLTPathLoose._seq
+
+goodZToMuMuBB2HLTPathLoose._seq = dimuonsPath._seq + goodZToMuMuBB2HLTPathLoose._seq
+
 
 #goodZToMuMuSameChargePathLoose.replace(dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
 goodZToMuMuSameChargePathLoose._seq = dimuonsPath._seq + goodZToMuMuSameChargePathLoose._seq
@@ -62,6 +70,7 @@ goodZToMuMuOneStandAloneMuonPathLoose._seq = dimuonsPath._seq  + goodZToMuMuOneS
 ##     zToMuGlobalMuOneTrack 
 ##     )
 
+goodZToMuMuOneTrackerMuonPathLoose._seq = dimuonsPath._seq + goodZToMuMuOneTrackerMuonPathLoose._seq
 
 
 ## notGoodZToMuMuSeq.setLabel("notGoodZToMuMuSeq")
@@ -88,6 +97,10 @@ goodZToMuMu1HLTPath._seq = dimuonsPath._seq + goodZToMuMu1HLTPath._seq
 
 #goodZToMuMu1HLTPath.replace(goodZToMuMu, dimuonsSeq *  goodZToMuMu)
 goodZToMuMu2HLTPath._seq = dimuonsPath._seq + goodZToMuMu2HLTPath._seq
+
+goodZToMuMuAB1HLTPath._seq = dimuonsPath._seq + goodZToMuMuAB1HLTPath._seq
+
+goodZToMuMuBB2HLTPath._seq = dimuonsPath._seq + goodZToMuMuBB2HLTPath._seq
 
 
 #goodZToMuMuSameChargePath.replace( dimuonsGlobalSameCharge, dimuonsSeq * dimuonsGlobalSameCharge)
@@ -140,6 +153,10 @@ goodZToMuMuOneStandAloneMuonPath._seq = dimuonsPath._seq + goodZToMuMuOneStandAl
 ## goodZToMuMuOneTrackPath.remove(zToMuMuOneStandAloneMuon )
     
 ## goodZToMuMuOneTrackPath.replace(zToMuGlobalMuOneTrack, notGoodZToMuMuSeq *  zToMuGlobalMuOneTrack )
+
+
+goodZToMuMuOneTrackerMuonPath._seq = dimuonsPath._seq + goodZToMuMuOneTrackerMuonPath._seq
+
 
 goodZToMuMuOneTrackPath._seq = dimuonsPath._seq + dimuonsOneTrackPath._seq + goodZToMuMuOneTrackPath._seq
 goodZToMuMuOneTrackPath.remove(dimuonsFilter)

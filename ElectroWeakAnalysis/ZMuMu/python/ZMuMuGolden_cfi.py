@@ -29,6 +29,9 @@ dimuonsFilter = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(1)
 )
 
+### trigger filter: selection of the events which have fired the HLT trigger path given. You may want to add a trigger match or not....
+
+
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 
 dimuonsHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
