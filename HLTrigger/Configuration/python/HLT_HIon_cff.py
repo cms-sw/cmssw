@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_5_5/HIon/V19 (CMSSW_3_5_5)
+# /dev/CMSSW_3_5_5/HIon/V20 (CMSSW_3_5_5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V19')
+  tableName = cms.string('/dev/CMSSW_3_5_5/HIon/V20')
 )
 
 streams = cms.PSet( 
@@ -1836,34 +1836,3 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMinBiasCalo, HLT_HIJet35U, HLT_HIPhoton15, HLT_HIDoubleMu, HLTriggerFinalPath, HLTAnalyzerEndpath ))
-
-Level1MenuOverride = cms.ESSource( "PoolDBESSource",
-    appendToDataLabel = cms.string( "" ),
-    timetype = cms.string( "runnumber" ),
-    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
-    DumpStat = cms.untracked.bool( False ),
-    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "" ),
-    RefreshEachRun = cms.untracked.bool( True ),
-    DBParameters = cms.PSet( 
-      authenticationPath = cms.untracked.string( "." ),
-      connectionRetrialPeriod = cms.untracked.int32( 10 ),
-      idleConnectionCleanupPeriod = cms.untracked.int32( 10 ),
-      messageLevel = cms.untracked.int32( 0 ),
-      enablePoolAutomaticCleanUp = cms.untracked.bool( False ),
-      enableConnectionSharing = cms.untracked.bool( True ),
-      enableReadOnlySessionOnUpdateConnection = cms.untracked.bool( False ),
-      connectionTimeOut = cms.untracked.int32( 0 ),
-      connectionRetrialTimeOut = cms.untracked.int32( 60 )
-    ),
-    toGet = cms.VPSet( 
-      cms.PSet(  
-        record = cms.string( "L1GtTriggerMenuRcd" ),
-        tag = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc" )
-      )
-    )
-)
-es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
-Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
-Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-

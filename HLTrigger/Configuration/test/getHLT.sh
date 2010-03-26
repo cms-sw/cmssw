@@ -33,7 +33,11 @@ function getConfigForCVS() {
   # for things in CMSSW CVS
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT --cff --mc $CONFIG $NAME
+  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
+   $GETHLT --cff --mc --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+  else
+   $GETHLT --cff --mc $CONFIG $NAME
+  fi
 }
 
 function getContentForCVS() {
@@ -47,8 +51,11 @@ function getConfigForOnline() {
   # for things NOT in CMSSW CVS:
   local CONFIG="$1"
   local NAME="$2"
-  $GETHLT --full --offline --data $CONFIG $NAME
-  $GETHLT --full --offline --mc   $CONFIG $NAME
+  if [ "${NAME}" == "8E29" ] || [ "${NAME}" == "GRun" ]; then
+   $GETHLT --full --offline --mc --l1 L1GtTriggerMenu_L1Menu_Commissioning2010_v1_mc $CONFIG $NAME
+  else
+   $GETHLT --full --offline --data $CONFIG $NAME
+  fi
 }
 
 # make sure we're using *this* working area
