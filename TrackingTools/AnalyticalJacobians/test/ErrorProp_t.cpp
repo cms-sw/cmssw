@@ -56,13 +56,18 @@ int main() {
 
   HelixForwardPlaneCrossing prop(HelixForwardPlaneCrossing::PositionType(tpg.position()), 
                                  HelixForwardPlaneCrossing::DirectionType(tpg.momentum()), curv);
+  GlobalVector h = m.magneticFieldInInverseGeV(tpg.position());
   double s = 0.1;
   GlobalPoint x(prop.position(s));
   GlobalVector p(prop.direction(s));
   GlobalTrajectoryParameters tpg2(x,p, curv, 0, &m);
   std::cout << tpg2.position() << " " << tpg2.momentum() << std::endl;
-
-
+  AnalyticalCurvilinearJacobian full;
+  AnalyticalCurvilinearJacobian delta;
+  std::cout << full(tpg,x,p,h,s).jacobian() << std::endl;
+  std::cout << std::endl;
+  std::cout << delta(tpg,x,p,h,s).jacobian() << std::endl;
+  std::cout << std::endl;
 
   return 0;
 }

@@ -46,8 +46,8 @@ public:
 			    const double& s);
   /// result for non-vanishing curvature and "small" step
   void computeInfinitesimalJacobian (const GlobalTrajectoryParameters&,
-			    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
-			    const double& s);
+				     const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
+				     const double& s);
   /// straight line approximation
   void computeStraightLineJacobian (const GlobalTrajectoryParameters&,
 				    const GlobalPoint&, const GlobalVector&, 
