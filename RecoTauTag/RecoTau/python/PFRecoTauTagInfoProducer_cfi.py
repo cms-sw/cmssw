@@ -14,7 +14,7 @@ pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
     ChargedHadrCand_AssociationCone   = cms.double(0.8),
 
     PVProducer                    = cms.InputTag('offlinePrimaryVertices'),
-    UsePVconstraint               = cms.bool(False),
+    UsePVconstraint               = cms.bool(True),
     PFCandidateProducer           = cms.InputTag('particleFlow'),
     PFJetTracksAssociatorProducer = cms.InputTag('ic5PFJetTracksAssociatorAtVertex'),
 

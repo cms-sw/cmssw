@@ -9,11 +9,11 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     tkminPixelHitsn	= cms.int32(0),
     tkminTrackerHitsn = cms.int32(3),	
     tkmaxChi2 = cms.double(100.0),	
-    UsePVconstraint = cms.bool(False),
+    UsePVconstraint = cms.bool(True),
 
     UseTrackQuality = cms.bool(True),
     #only used if UseTrackQuality is True
-    tkQuality = cms.string('goodIterative'),
+    tkQuality = cms.string('highPurity'),
     
     BarrelBasicClustersSource = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     EndcapBasicClustersSource = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
