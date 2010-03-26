@@ -39,8 +39,14 @@ int main(int argc, char** argv) {
   if (argc>1) br=0.1;
   M5T const m(br);
 
+  Basic3DVector<float>  axis(0.5,1.,1);
+  
+  Surface::RotationType rot(axis,0.5*M_PI);
+  std::cout << rot << std::endl;
 
   Surface::PositionType pos( 0., 0., 0.);
+
+  Plane plane(pos,rot);
 
   GlobalVector mg(2.,3.,1.);
   GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
