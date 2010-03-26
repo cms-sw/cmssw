@@ -278,13 +278,13 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
 
   theJacobian(1,0) =  absS*b2;
-  if ( qbp<0) theJacobian(1,0) = -theJacobian(1,0);
+  //if ( qbp<0) theJacobian(1,0) = -theJacobian(1,0);
   theJacobian(1,2) = -b0*(absS*qbp);
   theJacobian(1,3) =  b3*(b2*qbp*(absS*qbp));
   theJacobian(1,4) = -b2*(b2*qbp*(absS*qbp));
   
   theJacobian(2,0) = -absS*b3*cosl1;
-  if ( qbp<0) theJacobian(2,0) = -theJacobian(2,0);
+  // if ( qbp<0) theJacobian(2,0) = -theJacobian(2,0);
   theJacobian(2,1) = b0*(absS*qbp)*cosl1*cosl1;
   theJacobian(2,2) = 1.+tgl*b2*(absS*qbp);
   theJacobian(2,3) = -b3*(b3*qbp*(absS*qbp)*cosl1);
