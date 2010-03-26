@@ -12,8 +12,6 @@
 #include <iomanip>
 #include <iostream>
 
-using namespace std;
-
 EcalBarrelGeometry::EcalBarrelGeometry() :
    _nnxtalEta     ( 85 ) ,
    _nnxtalPhi     ( 360 ) ,

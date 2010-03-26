@@ -14,8 +14,6 @@ template class CaloGeometryLoader< EcalEndcapGeometry > ;
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
 typedef CaloGeometryLoader< EcalEndcapGeometry > EcalEGL ;
 
 template <>
@@ -60,7 +58,7 @@ EcalEGL::fillNamedParams( DDFilteredView      fv,
       DDValue valNcrys("ncrys");
       if( DDfetch( &sv, valNcrys ) ) 
       {
-	 const vector<double>& fvec = valNcrys.doubles();
+	 const std::vector<double>& fvec = valNcrys.doubles();
 
 	 // this parameter can only appear once
 	 assert(fvec.size() == 1);
@@ -73,7 +71,7 @@ EcalEGL::fillNamedParams( DDFilteredView      fv,
       DDValue valNmods("nmods");
       if( DDfetch( &sv, valNmods ) ) 
       {
-	 const vector<double>& fmvec = valNmods.doubles() ;
+	 const std::vector<double>& fmvec = valNmods.doubles() ;
 
 	 // there can only be one such value
 	 assert(fmvec.size() == 1);

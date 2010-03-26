@@ -11,12 +11,9 @@
 
 #include <vector>
 
-using boost::multi_index_container;
-using namespace boost::multi_index;
-
 /** \class EcalTrigTowerConstituentsMap
   *  
-  * $Id: $
+  * $Id: EcalTrigTowerConstituentsMap.h,v 1.1 2006/05/25 15:44:47 meridian Exp $
   * \author P.Meridiani
   */
 
@@ -52,11 +49,11 @@ class EcalTrigTowerConstituentsMap {
 
   };
 
-  typedef multi_index_container<
+  typedef boost::multi_index_container<
     MapItem,
-    indexed_by<
-    ordered_unique< member < MapItem,DetId,&MapItem::cell > >,
-    ordered_non_unique< member < MapItem,EcalTrigTowerDetId,&MapItem::tower> >
+    boost::multi_index::indexed_by<
+    boost::multi_index::ordered_unique< boost::multi_index::member < MapItem,DetId,&MapItem::cell > >,
+    boost::multi_index::ordered_non_unique< boost::multi_index::member < MapItem,EcalTrigTowerDetId,&MapItem::tower> >
     >
     > EcalTowerMap;
   

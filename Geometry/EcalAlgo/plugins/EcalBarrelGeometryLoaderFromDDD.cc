@@ -10,9 +10,6 @@ template class CaloGeometryLoader< EcalBarrelGeometry > ;
 //#include "DetectorDescription/Core/interface/DDInit.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-
-using namespace std;
-
 typedef CaloGeometryLoader< EcalBarrelGeometry > EcalBGL ;
 
 template <>
@@ -59,7 +56,7 @@ EcalBGL::fillNamedParams( DDFilteredView      fv,
       DDValue valnPhi("nxtalPhi");
       if( DDfetch( &sv, valnPhi ) )
       {
-	 const vector<double>& fvec = valnPhi.doubles();
+	 const std::vector<double>& fvec = valnPhi.doubles();
 
 	 // this parameter can only appear once
 	 assert(fvec.size() == 1);
@@ -72,7 +69,7 @@ EcalBGL::fillNamedParams( DDFilteredView      fv,
       DDValue valnEta("nxtalEta");
       if( DDfetch( &sv, valnEta ) ) 
       {
-	 const vector<double>& fmvec = valnEta.doubles();
+	 const std::vector<double>& fmvec = valnEta.doubles();
 
 	 // there can only be one such value
 	 assert(fmvec.size() == 1);
@@ -87,9 +84,9 @@ EcalBGL::fillNamedParams( DDFilteredView      fv,
       DDValue valEtaB("EtaBaskets");
       if( DDfetch( &sv, valEtaB ) ) 
       {
-	 const vector<double>& ebvec = valEtaB.doubles();
+	 const std::vector<double>& ebvec = valEtaB.doubles();
 	 assert(ebvec.size() > 0);
-	 vector<int> EtaBaskets;
+	 std::vector<int> EtaBaskets;
 	 EtaBaskets.resize(ebvec.size());
 	 for (unsigned i = 0; i<ebvec.size(); ++i) 
 	    EtaBaskets[i] = (int) ebvec[i];
@@ -103,7 +100,7 @@ EcalBGL::fillNamedParams( DDFilteredView      fv,
       DDValue valPhi("PhiBaskets");
       if (DDfetch(&sv,valPhi)) 
       {
-	 const vector<double> & pvec = valPhi.doubles();
+	 const std::vector<double> & pvec = valPhi.doubles();
 	 assert(pvec.size() > 0);
 	 geom->setBasketSizeInPhi((int)pvec[0]);
       }

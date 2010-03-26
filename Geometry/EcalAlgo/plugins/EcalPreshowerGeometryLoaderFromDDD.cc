@@ -15,8 +15,6 @@ template class CaloGeometryLoader< EcalPreshowerGeometry > ;
 #include <iostream>
 #include <vector>
 
-using namespace std;
-
 typedef CaloGeometryLoader< EcalPreshowerGeometry > EcalPGL ;
 
 
