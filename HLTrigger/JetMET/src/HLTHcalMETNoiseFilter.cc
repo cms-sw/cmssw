@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.5 2009/09/26 18:13:42 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.6 2010/03/25 21:15:26 johnpaul Exp $
 //
 //
 
@@ -89,64 +89,18 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
       it!=data.end() && cntr<numRBXsToConsider_;
       ++it, ++cntr) {
 
-    /*    bool passFilter=true;
+    bool passFilter=true;
     if(useLooseRatioFilter_ && !noisealgo_.passLooseRatio(*it)) passFilter=false;
-    if(useLooseHitsFilter_ && !noisealgo_.passLooseHits(*it)) passFilter=false;
-    if(useLooseZerosFilter_ && !noisealgo_.passLooseZeros(*it)) passFilter=false;
-    if(useLooseTimingFilter_ && !noisealgo_.passLooseTiming(*it)) passFilter=false;
-
-    if(useTightRatioFilter_ && !noisealgo_.passTightRatio(*it)) passFilter=false;
-    if(useTightHitsFilter_ && !noisealgo_.passTightHits(*it)) passFilter=false;
-    if(useTightZerosFilter_ && !noisealgo_.passTightZeros(*it)) passFilter=false;
-    if(useTightTimingFilter_ && !noisealgo_.passTightTiming(*it)) passFilter=false;
+    else if(useLooseHitsFilter_ && !noisealgo_.passLooseHits(*it)) passFilter=false;
+    else if(useLooseZerosFilter_ && !noisealgo_.passLooseZeros(*it)) passFilter=false;
+    else if(useLooseTimingFilter_ && !noisealgo_.passLooseTiming(*it)) passFilter=false;
+    else if(useTightRatioFilter_ && !noisealgo_.passTightRatio(*it)) passFilter=false;
+    else if(useTightHitsFilter_ && !noisealgo_.passTightHits(*it)) passFilter=false;
+    else if(useTightZerosFilter_ && !noisealgo_.passTightZeros(*it)) passFilter=false;
+    else if(useTightTimingFilter_ && !noisealgo_.passTightTiming(*it)) passFilter=false;
 
     if(needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && passFilter) return false;
     if(!needHighLevelCoincidence_ && passFilter) return false;
-    */
-
-    bool passFilter=true;
-    if(useLooseRatioFilter_ && !noisealgo_.passLooseRatio(*it)) {
-      std::cout << "Failed LooseRatioFilter.  Energy=" << it->energy() << "; Ratio=" << it->ratio() << std::endl;
-      passFilter=false;
-    }
-    if(useLooseHitsFilter_ && !noisealgo_.passLooseHits(*it)) {
-      std::cout << "Failed LooseHitsFilter.  Energy=" << it->energy() << "; Hits=" << it->numHPDHits() << std::endl;
-      passFilter=false;
-    }
-    if(useLooseZerosFilter_ && !noisealgo_.passLooseZeros(*it)) {
-      std::cout << "Failed LooseZerosFilter.  Energy=" << it->energy() << "; Zeros=" << it->numZeros() << std::endl;
-      passFilter=false;
-    }
-    if(useLooseTimingFilter_ && !noisealgo_.passLooseTiming(*it)) {
-      std::cout << "Failed LooseTimingFilter.  Energy=" << it->energy() << "; MinTime=" << it->minHighEHitTime() << "; MaxTime=" << it->maxHighEHitTime() << std::endl;
-      passFilter=false;
-    }
-
-    if(useTightRatioFilter_ && !noisealgo_.passTightRatio(*it)) {
-      std::cout << "Failed TightRatioFilter.  Energy=" << it->energy() << "; Ratio=" << it->ratio() << std::endl;
-      passFilter=false;
-    }
-    if(useTightHitsFilter_ && !noisealgo_.passTightHits(*it)) {
-      std::cout << "Failed TightHitsFilter.  Energy=" << it->energy() << "; Hits=" << it->numHPDHits() << std::endl;
-      passFilter=false;
-    }
-    if(useTightZerosFilter_ && !noisealgo_.passTightZeros(*it)) {
-      std::cout << "Failed TightZerosFilter.  Energy=" << it->energy() << "; Zeros=" << it->numZeros() << std::endl;
-      passFilter=false;
-    }
-    if(useTightTimingFilter_ && !noisealgo_.passTightTiming(*it)) {
-      std::cout << "Failed TightTimingFilter.  Energy=" << it->energy() << "; MinTime=" << it->minHighEHitTime() << "; MaxTime=" << it->maxHighEHitTime() << std::endl;
-      passFilter=false;
-    }
-
-    if(needHighLevelCoincidence_ && !noisealgo_.passHighLevelNoiseFilter(*it) && !passFilter) {
-      std::cout << "Requiring coincidence with low EMF. EMF=" << it->RBXEMF() << std::endl;
-      return false;
-    }
-    if(!needHighLevelCoincidence_ && !passFilter) {
-      std::cout << "No coincidence required." << std::endl;
-      return false;
-    }
   }
 
   // no problems found
