@@ -16,6 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include <fpu_control.h>
 #include <vector>
 
 // #ifdef __linux__
@@ -253,8 +254,8 @@ controlFpe(bool divByZero, bool invalid, bool overFlow,
            bool underFlow, bool precisionDouble,
            fpu_flags_type & result) const {
 
-  unsigned short int FE_PRECISION = 1<<5;
-  unsigned short int suppress;
+  //unsigned short int FE_PRECISION = 1<<5;
+  //unsigned short int suppress;
 
 #ifdef __linux__
 
