@@ -54,8 +54,8 @@ int main() {
 
   double curv =   tpg.transverseCurvature();
 
-  AlgebraicMatrix55 fullJacobian(AlgebraicMatrixID());
-  AlgebraicMatrix55 deltaJacobian(AlgebraicMatrixID());
+  AlgebraicMatrix55 fullJacobian = AlgebraicMatrixID();
+  AlgebraicMatrix55 deltaJacobian = AlgebraicMatrixID();
   GlobalTrajectoryParameters tpg0(pos,mg,1., &m);
   for (int i=0; i<10;++i) {
     HelixForwardPlaneCrossing prop(HelixForwardPlaneCrossing::PositionType(tpg.position()), 
@@ -85,6 +85,7 @@ int main() {
   std::cout << deltaJacobian << std::endl;
   std::cout << std::endl;
   AnalyticalCurvilinearJacobian full;
+  GlobalVector h = tpg0.magneticFieldInInverseGeV(tpg0.position());
   full.computeFullJacobian(tpg0,tpg.position(),tpg.momentum(),h,1.);
   std::cout <<  full.jacobian() << std::endl;
   std::cout << std::endl;
