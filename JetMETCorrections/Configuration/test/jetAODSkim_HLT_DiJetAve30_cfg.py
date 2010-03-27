@@ -18,27 +18,37 @@ process.skimPath = cms.Path(process.HLTDiJetAve30U8E29)
 #############   output module ########################
 process.compress = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
-        'drop *',
-        'keep *_sisCone5CaloJets_*_*',
-        'keep *_sisCone7CaloJets_*_*',
+    'drop *',
+        #------- CaloJet collections ------
         'keep *_kt4CaloJets_*_*',
         'keep *_kt6CaloJets_*_*',
-        'keep *_antikt5CaloJets_*_*',
-        'keep *_iterativeCone5CaloJets_*_*',  
-        'keep *_sisCone5PFJets_*_*',
-        'keep *_sisCone7PFJets_*_*',
+        'keep *_ak5CaloJets_*_*',
+        'keep *_ak7CaloJets_*_*',
+        'keep *_iterativeCone5CaloJets_*_*',
+        #------- PFJet collections ------  
         'keep *_kt4PFJets_*_*',
         'keep *_kt6PFJets_*_*',
-        'keep *_antikt5PFJets_*_*',
-        'keep *_iterativeCone5CaloJets_*_*',
-        'keep *_iterativeCone5JetExtender_*_*',
-        'keep *_sisCone5JetExtender_*_*',
-        'keep *_kt4JetExtender_*_*',
-        'keep *_TriggerResults_*_*',
-        'keep *_hltTriggerSummaryAOD_*_*', 
+        'keep *_ak5PFJets_*_*',
+        'keep *_ak7PFJets_*_*',
+        'keep *_iterativeCone5PFJets_*_*',
+        #------- JPTJet collections ------
+        'keep *_ak5JPTJets_*_*',
+        'keep *_iterativeCone5JPTJets_*_*',
+        #------- Trigger collections ------
+        'keep edmTriggerResults_TriggerResults_*_*',
+        'keep *_hltTriggerSummaryAOD_*_*',
+        'keep L1GlobalTriggerObjectMapRecord_*_*_*',
+        'keep L1GlobalTriggerReadoutRecord_*_*_*',
+        #------- Tracks collection --------
+        'keep *_generalTracks_*_*',
+        #------- CaloTower collection -----
         'keep *_towerMaker_*_*',
+        #------- Various collections ------
         'keep *_EventAuxilary_*_*',
         'keep *_pixelVertices_*_*',
+        'keep *_offlinePrimaryVertices_*_*',
+        'keep *_hcalnoise_*_*',
+        #------- MET collections ----------
         'keep *_metHO_*_*',
         'keep *_metNoHF_*_*',
         'keep *_metNoHFHO_*_*', 
