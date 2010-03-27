@@ -5,9 +5,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace std;
 
-WebInterface::WebInterface(string _exeURL, string _appURL) 
+WebInterface::WebInterface(std::string _exeURL, std::string _appURL) 
 {
   exeURL = _exeURL;
   appURL = _appURL;
@@ -135,17 +134,17 @@ void WebInterface::printNavigatorXML(std::string current, xgi::Output * out)
 {
   if (!dqmStore_) 
     {
-      cout << "NO GUI!!!" << endl;
+     std::cout << "NO GUI!!!" << std::endl;
       return;
     }
   
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   
-  *out << "<?xml version=\"1.0\" ?>" << endl;
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
    
-  *out << "<navigator>" << endl;
+  *out << "<navigator>" << std::endl;
   
-  *out << "<current>" << current << "</current>" << endl;
+  *out << "<current>" << current << "</current>" << std::endl;
   
   ContentReader reader(dqmStore_);
   
@@ -154,37 +153,37 @@ void WebInterface::printNavigatorXML(std::string current, xgi::Output * out)
   std::list<std::string> open_l;
   reader.give_subdirs(current, open_l, "SuperUser");
   for (it = open_l.begin(); it != open_l.end(); it++)
-    *out << "<open>" << *it << "</open>" << endl;
+    *out << "<open>" << *it << "</open>" << std::endl;
   
   std::list<std::string> subscribe_l;
   reader.give_files(current, subscribe_l, false);
   for (it = subscribe_l.begin(); it != subscribe_l.end(); it++)
-    *out << "<subscribe>" << *it << "</subscribe>" << endl;
+    *out << "<subscribe>" << *it << "</subscribe>" << std::endl;
   
   std::list<std::string> unsubscribe_l;
   reader.give_files(current, unsubscribe_l, true);
   for (it = unsubscribe_l.begin(); it != unsubscribe_l.end(); it++)
-    *out << "<unsubscribe>" << *it << "</unsubscribe>" << endl;
+    *out << "<unsubscribe>" << *it << "</unsubscribe>" << std::endl;
   
-  *out << "</navigator>" << endl;
+  *out << "</navigator>" << std::endl;
   
 
-    std::cout << "<?xml version=\"1.0\" ?>" << endl;
+    std::cout << "<?xml version=\"1.0\" ?>" << std::endl;
     
-    std::cout << "<navigator>" << endl;
+    std::cout << "<navigator>" << std::endl;
     
-    std::cout << "<current>" << current << "</current>" << endl;
+    std::cout << "<current>" << current << "</current>" << std::endl;
     
     for (it = open_l.begin(); it != open_l.end(); it++)
-    std::cout << "<open>" << *it << "</open>" << endl;
+    std::cout << "<open>" << *it << "</open>" << std::endl;
     
     for (it = subscribe_l.begin(); it != subscribe_l.end(); it++)
-    std::cout << "<subscribe>" << *it << "</subscribe>" << endl;
+    std::cout << "<subscribe>" << *it << "</subscribe>" << std::endl;
     
     for (it = unsubscribe_l.begin(); it != unsubscribe_l.end(); it++)
-    std::cout << "<unsubscribe>" << *it << "</unsubscribe>" << endl;
+    std::cout << "<unsubscribe>" << *it << "</unsubscribe>" << std::endl;
     
-    std::cout << "</navigator>" << endl;
+    std::cout << "</navigator>" << std::endl;
 
 }
 
@@ -241,17 +240,17 @@ void WebInterface::printContentViewerXML(std::string current, xgi::Output * out)
 {
   if (!(dqmStore_)) 
     {
-      cout << "NO GUI!!!" << endl;
+     std::cout << "NO GUI!!!" << std::endl;
       return;
     }
   
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   
-  *out << "<?xml version=\"1.0\" ?>" << endl;
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
    
-  *out << "<contentViewer>" << endl;
+  *out << "<contentViewer>" << std::endl;
   
-  *out << "<current>" << current << "</current>" << endl;
+  *out << "<current>" << current << "</current>" << std::endl;
   
   ContentReader reader(dqmStore_);
   
@@ -260,14 +259,14 @@ void WebInterface::printContentViewerXML(std::string current, xgi::Output * out)
   std::list<std::string> open_l;
   reader.give_subdirs(current, open_l, "SuperUser");
   for (it = open_l.begin(); it != open_l.end(); it++)
-    *out << "<open>" << *it << "</open>" << endl;
+    *out << "<open>" << *it << "</open>" << std::endl;
   
   std::list<std::string> view_l;
   reader.give_files(current, view_l, true);
   for (it = view_l.begin(); it != view_l.end(); it++)
-    *out << "<view>" << *it << "</view>" << endl;
+    *out << "<view>" << *it << "</view>" << std::endl;
   
-  *out << "</contentViewer>" << endl;
+  *out << "</contentViewer>" << std::endl;
 }
 
 
@@ -289,9 +288,9 @@ void WebInterface::DrawGif(xgi::Input * in, xgi::Output * out) throw (xgi::excep
     }
 
   ContentReader con_reader(dqmStore_);  
-  multimap<string,string>::iterator lower = view_multimap.lower_bound("View");
-  multimap<string,string>::iterator upper = view_multimap.upper_bound("View");
-  multimap<string,string>::iterator it;
+  std::multimap<std::string,std::string>::iterator lower = view_multimap.lower_bound("View");
+  std::multimap<std::string,std::string>::iterator upper = view_multimap.upper_bound("View");
+  std::multimap<std::string,std::string>::iterator it;
   for (it = lower; it != upper; it++)
     {
       std::string name = it->second;

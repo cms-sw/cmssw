@@ -1,7 +1,6 @@
 #include "DQM/TrackerCommon/interface/SimpleEventFilter.h" 
 #include <iostream>
  
-using namespace std;
 //
 // -- Constructor
 //
@@ -20,7 +19,7 @@ bool SimpleEventFilter::filter( edm::Event &, edm::EventSetup const& ) {
   nEvent_++;
   bool ret = true;
   if (nEvent_ % nInterval_ != 0) ret = false; 
-  if ( verbose_ && !ret) cout << ">>> filtering event" << nEvent_ << endl; 
+  if ( verbose_ && !ret) std::cout << ">>> filtering event" << nEvent_ << std::endl; 
   return ret;
 }
 
