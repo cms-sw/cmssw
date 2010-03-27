@@ -162,7 +162,7 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
 // -- Select Histograms for a given module
 //
 void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store, 
-      const multimap<std::string, std::string>& req_map, xgi::Output * out){
+    const std::multimap<std::string, std::string>& req_map, xgi::Output * out){
 
   std::vector<std::string> hlist;
   getItemList(req_map,"histo", hlist);
@@ -203,7 +203,7 @@ void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store,
 //
 // -- Select Histograms from Global folder
 //
-void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const multimap<std::string, std::string>& req_map, xgi::Output * out) {
+void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out) {
  
   std::vector<std::string> hlist;  
   getItemList(req_map,"histo", hlist);
@@ -278,7 +278,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
   for (std::map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     unsigned int ival = 0;
     std::string image_list = "images/" + it->first +".lis";
-    image_file.open(image_list.c_str(), ios::out);
+    image_file.open(image_list.c_str(), std::ios::out);
     if (!image_file) return;
 
     image_file << "[";
@@ -402,7 +402,7 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
 //
 // -- Get a tagged image 
 //
-void SiStripInformationExtractor::getImage(const multimap<std::string, std::string>& req_map, xgi::Output * out){
+void SiStripInformationExtractor::getImage(const std::multimap<std::string, std::string>& req_map, xgi::Output * out){
   
   std::string path = getItemValue(req_map,"Path");
   std::string image;
@@ -570,7 +570,7 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
 //
 // Get elements from multi map
 //
-void SiStripInformationExtractor::getItemList(const multimap<std::string, std::string>& req_map, std::string item_name,std::vector<std::string>& items) {
+void SiStripInformationExtractor::getItemList(const std::multimap<std::string, std::string>& req_map, std::string item_name,std::vector<std::string>& items) {
   items.clear();
   for (multimap<std::string, std::string>::const_iterator it = req_map.begin();
        it != req_map.end(); it++) {
@@ -583,18 +583,18 @@ void SiStripInformationExtractor::getItemList(const multimap<std::string, std::s
 //
 //  check a specific item in the map
 //
-bool SiStripInformationExtractor::hasItem(const multimap<std::string,std::string>& req_map,
+bool SiStripInformationExtractor::hasItem(const std::multimap<std::string,std::string>& req_map,
 					  std::string item_name){
-  multimap<std::string,std::string>::const_iterator pos = req_map.find(item_name);
+  std::multimap<std::string,std::string>::const_iterator pos = req_map.find(item_name);
   if (pos != req_map.end()) return true;
   return false;  
 }
 //
 // check the value of an item in the map
 //  
-std::string SiStripInformationExtractor::getItemValue(const multimap<std::string,std::string>& req_map,
+std::string SiStripInformationExtractor::getItemValue(const std::multimap<std::string,std::string>& req_map,
 						 std::string item_name){
-  multimap<std::string,std::string>::const_iterator pos = req_map.find(item_name);
+  std::multimap<std::string,std::string>::const_iterator pos = req_map.find(item_name);
   std::string value = " ";
   if (pos != req_map.end()) {
     value = pos->second;

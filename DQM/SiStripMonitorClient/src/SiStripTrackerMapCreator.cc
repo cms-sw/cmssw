@@ -94,7 +94,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
 //
 void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, DQMStore* dqm_store) {
   
-  ostringstream comment;
+  std::ostringstream comment;
   uint16_t flag = 0; 
   flag = getDetectorFlagAndComment(dqm_store, det_id, comment);
 
@@ -226,7 +226,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
   }
   if (!dqm_store->dirExists(badmodule_folder)) return flag;
 
-  ostringstream badmodule_path;
+  std::ostringstream badmodule_path;
   badmodule_path << badmodule_folder << "/" << det_id;
 
   MonitorElement* bad_module_me = dqm_store->get(badmodule_path.str());
