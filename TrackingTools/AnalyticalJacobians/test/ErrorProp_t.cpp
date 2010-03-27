@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     Plane lplane(zero,rot);
     HelixForwardPlaneCrossing::PositionType  a(lplane.toLocal(tpg.position()));
     HelixForwardPlaneCrossing::DirectionType p(lplane.toLocal(tpg.momentum()));
-    double lcurv =   h.mag()/p.perp()*tpg.charge();
+    double lcurv =   -h.mag()/p.perp()*tpg.charge();
     std::cout << lcurv << " " <<  p.mag() << std::endl;
     HelixForwardPlaneCrossing prop(a, p, lcurv);
     LocalPoint x(prop.position(s));
