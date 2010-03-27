@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TF1.h"
+#include "TH1F.h"
 
 class MonitorElement;
 class DQMStore;
@@ -30,8 +31,11 @@ class ESTimingTask : public edm::EDAnalyzer {
   
   DQMStore* dqmStore_;
   MonitorElement* hTiming_[2][2];
+  MonitorElement* h2DTiming_;
 
   TF1 *fit_;
+  TH1F *htESP_;
+  TH1F *htESM_;
 
   int runNum_, eCount_; 
   
