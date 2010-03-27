@@ -41,6 +41,35 @@ void xPlotES(Int_t run) {
   sprintf(hname, "ES_Occupancy_2D_ESmR_%06d.gif", run);
   c1->Print(hname);
 
+  // ES Energy Density
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density Z 1 P 1", run);
+  sprintf(tname, "ES Energy Density ES+F");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_2D_ESpF_%06d.gif", run);
+  c1->Print(hname);
+
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density Z 1 P 2", run);
+  sprintf(tname, "ES Energy Density ES+R");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_2D_ESpR_%06d.gif", run);
+  c1->Print(hname);
+
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density Z -1 P 1", run);
+  sprintf(tname, "ES Energy Density ES-F");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_2D_ESmF_%06d.gif", run);
+  c1->Print(hname);
+
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density Z -1 P 2", run);
+  sprintf(tname, "ES Energy Density ES-R");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_2D_ESmR_%06d.gif", run);
+  c1->Print(hname);
+
   // ES Occupancy with selected hits
   c1->Clear();
   sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Occupancy with selected hits Z 1 P 1", run);
@@ -68,6 +97,35 @@ void xPlotES(Int_t run) {
   sprintf(tname, "ES Occupancy with selected hits ES-R");
   draw2dOcc(f, hname, tname, c1);
   sprintf(hname, "ES_Occupancy_SelHits_2D_ESmR_%06d.gif", run);
+  c1->Print(hname);
+
+  // ES Energy Density
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density with selected hits Z 1 P 1", run);
+  sprintf(tname, "ES Energy Density with selected hits ES+F");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_SelHits_2D_ESpF_%06d.gif", run);
+  c1->Print(hname);
+
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density with selected hits Z 1 P 2", run);
+  sprintf(tname, "ES Energy Density with selected hits ES+R");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_SelHits_2D_ESpR_%06d.gif", run);
+  c1->Print(hname);
+
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density with selected hits Z -1 P 1", run);
+  sprintf(tname, "ES Energy Density with selected hits ES-F");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_SelHits_2D_ESmF_%06d.gif", run);
+  c1->Print(hname);
+
+  c1->Clear();
+  sprintf(hname, "DQMData/Run %06d/EcalPreshower/Run summary/ESOccupancyTask/ES Energy Density with selected hits Z -1 P 2", run);
+  sprintf(tname, "ES Energy Density with selected hits ES-R");
+  draw2dEn(f, hname, tname, c1);
+  sprintf(hname, "ES_EnergyDensity_SelHits_2D_ESmR_%06d.gif", run);
   c1->Print(hname);
 
   // ES Occupancy 1D
@@ -223,3 +281,21 @@ void draw2dOcc(TFile *f, Char_t *hname, Char_t *tname, TCanvas *c) {
 
   return;
 }
+
+void draw2dEn(TFile *f, Char_t *hname, Char_t *tname, TCanvas *c) {
+
+  TH2F *h2 = (TH2F*) f->Get(hname);
+
+  float NEntries = (float) h2->GetBinContent(40,40);
+  h2->SetBinContent(40,40,0.);
+  h2->Scale(1/NEntries);
+
+  gStyle->SetOptStat(0);
+  c->cd();
+  gPad->SetLogy(0);
+  h2->SetTitle(tname);
+  h2->Draw("colz");
+
+  return;
+}
+

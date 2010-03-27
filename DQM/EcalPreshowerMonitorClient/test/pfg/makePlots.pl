@@ -30,6 +30,15 @@ system("cat > test/index.html<<EOF
 <img width=\"400\" src=\"ES_Occupancy_SelHits_2D_ESmR_$ARGV[0].gif\">
 <br>
 
+<h2><FONT color=\"Red\"> ES Energy Map with selected hits </FONT></h2>
+
+<img width=\"400\" src=\"ES_EnergyDensity_SelHits_2D_ESpF_$ARGV[0].gif\">
+<img width=\"400\" src=\"ES_EnergyDensity_SelHits_2D_ESpR_$ARGV[0].gif\">
+<br>
+<img width=\"400\" src=\"ES_EnergyDensity_SelHits_2D_ESmF_$ARGV[0].gif\">
+<img width=\"400\" src=\"ES_EnergyDensity_SelHits_2D_ESmR_$ARGV[0].gif\">
+<br>
+
 <h2><FONT color=\"Red\"> ES Occupancy with all readout hits </FONT></h2>
 
 <img width=\"400\" src=\"ES_Occupancy_1D_ESpF_$ARGV[0].gif\">
@@ -44,6 +53,15 @@ system("cat > test/index.html<<EOF
 <br>
 <img width=\"400\" src=\"ES_Occupancy_2D_ESmF_$ARGV[0].gif\">
 <img width=\"400\" src=\"ES_Occupancy_2D_ESmR_$ARGV[0].gif\">
+<br>
+
+<h2><FONT color=\"Red\"> ES Energy Map with all readout hits </FONT></h2>
+
+<img width=\"400\" src=\"ES_EnergyDensity_2D_ESpF_$ARGV[0].gif\">
+<img width=\"400\" src=\"ES_EnergyDensity_2D_ESpR_$ARGV[0].gif\">
+<br>
+<img width=\"400\" src=\"ES_EnergyDensity_2D_ESmF_$ARGV[0].gif\">
+<img width=\"400\" src=\"ES_EnergyDensity_2D_ESmR_$ARGV[0].gif\">
 <br>
 
 <h2><FONT color=\"Red\"> ES Timing </FONT></h2>
