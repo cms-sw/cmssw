@@ -572,7 +572,7 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
 //
 void SiStripInformationExtractor::getItemList(const std::multimap<std::string, std::string>& req_map, std::string item_name,std::vector<std::string>& items) {
   items.clear();
-  for (multimap<std::string, std::string>::const_iterator it = req_map.begin();
+  for (std::multimap<std::string, std::string>::const_iterator it = req_map.begin();
        it != req_map.end(); it++) {
     
     if (it->first == item_name) {
