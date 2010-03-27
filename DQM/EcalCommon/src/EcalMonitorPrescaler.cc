@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.12 2009/11/06 10:43:13 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.13 2010/03/27 20:07:59 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.12 $
-  \date $Date: 2009/11/06 10:43:13 $
+  \version $Revision: 1.13 $
+  \date $Date: 2010/03/27 20:07:59 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +14,7 @@
 
 #include <DQM/EcalCommon/interface/EcalMonitorPrescaler.h>
 
-EcalMonitorPrescaler::EcalMonitorPrescaler(edm::ParameterSet const& ps) {
+EcalMonitorPrescaler::EcalMonitorPrescaler(const edm::ParameterSet& ps) {
 
   count_ = 0;
 
@@ -46,7 +46,7 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(edm::ParameterSet const& ps) {
     
 EcalMonitorPrescaler::~EcalMonitorPrescaler() { }
 
-bool EcalMonitorPrescaler::filter(edm::Event &e, edm::EventSetup const &c) {
+bool EcalMonitorPrescaler::filter(edm::Event &e, const edm::EventSetup &c) {
 
   count_++;
 
@@ -150,6 +150,4 @@ bool EcalMonitorPrescaler::filter(edm::Event &e, edm::EventSetup const &c) {
   return status;
 
 }
-
-void EcalMonitorPrescaler::endJob() { }
 
