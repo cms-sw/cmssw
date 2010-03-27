@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/03/05 18:22:18 $
- * $Revision: 1.28 $
+ * $Date: 2010/03/12 11:34:35 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -26,17 +26,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEStatusFlagsTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEStatusFlagsTask::EEStatusFlagsTask(const ParameterSet& ps){
+EEStatusFlagsTask::EEStatusFlagsTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -80,7 +76,7 @@ void EEStatusFlagsTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlo
 void EEStatusFlagsTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
-void EEStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+void EEStatusFlagsTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -88,7 +84,7 @@ void EEStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEStatusFlagsTask::endRun(const Run& r, const EventSetup& c) {
+void EEStatusFlagsTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -239,13 +235,13 @@ void EEStatusFlagsTask::cleanup(void){
 
 void EEStatusFlagsTask::endJob(void){
 
-  LogInfo("EEStatusFlagsTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEStatusFlagsTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
+void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
@@ -254,7 +250,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
   // fill bin 0 with number of events in the lumi
   if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(0.);
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -267,7 +263,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
-      const vector<short> status = dcchItr->getFEStatus();
+      const std::vector<short> status = dcchItr->getFEStatus();
 
       for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 
@@ -279,7 +275,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
         if ( itt >= 1 && itt <= 41 ) {
 
-          vector<DetId>* crystals = Numbers::crystals( dcchItr->id(), itt );
+          std::vector<DetId>* crystals = Numbers::crystals( dcchItr->id(), itt );
 
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
@@ -328,7 +324,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEStatusFlagsTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EEStatusFlagsTask") << EcalRawDataCollection_ << " not available";
 
   }
 

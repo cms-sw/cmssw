@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/02/15 17:15:17 $
- * $Revision: 1.34 $
+ * $Date: 2010/02/15 22:40:46 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -29,11 +29,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
+EBStatusFlagsClient::EBStatusFlagsClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -45,7 +41,7 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -53,7 +49,7 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -81,9 +77,9 @@ EBStatusFlagsClient::~EBStatusFlagsClient() {
 
 void EBStatusFlagsClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -92,7 +88,7 @@ void EBStatusFlagsClient::beginJob(void) {
 
 void EBStatusFlagsClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -102,7 +98,7 @@ void EBStatusFlagsClient::beginRun(void) {
 
 void EBStatusFlagsClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -110,7 +106,7 @@ void EBStatusFlagsClient::endJob(void) {
 
 void EBStatusFlagsClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBStatusFlagsClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBStatusFlagsClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -160,8 +156,8 @@ bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
     }
 
@@ -181,7 +177,7 @@ void EBStatusFlagsClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

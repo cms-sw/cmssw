@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2010/02/12 21:45:19 $
- * $Revision: 1.128 $
+ * $Date: 2010/02/14 11:23:20 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  *
 */
@@ -30,17 +30,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBLaserTask::EBLaserTask(const ParameterSet& ps){
+EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -111,7 +107,7 @@ void EBLaserTask::beginJob(void){
 
 }
 
-void EBLaserTask::beginRun(const Run& r, const EventSetup& c) {
+void EBLaserTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -119,7 +115,7 @@ void EBLaserTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBLaserTask::endRun(const Run& r, const EventSetup& c) {
+void EBLaserTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -606,13 +602,13 @@ void EBLaserTask::cleanup(void){
 
 void EBLaserTask::endJob(void){
 
-  LogInfo("EBLaserTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBLaserTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBLaserTask::analyze(const Event& e, const EventSetup& c){
+void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
   int runType[36];
@@ -622,7 +618,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   int waveLength[36];
   for (int i=0; i<36; i++) waveLength[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -643,7 +639,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBLaserTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -653,7 +649,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
@@ -695,7 +691,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
         } else {
 
-          LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
+          edm::LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
 
         }
 
@@ -710,7 +706,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBLaserTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << EBDigiCollection_ << " not available";
 
   }
 
@@ -722,7 +718,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     adcB[i] = 0.;
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
@@ -809,11 +805,11 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBLaserTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
   if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
@@ -867,7 +863,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       } else {
 
-        LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
+        edm::LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
 
       }
 
@@ -896,7 +892,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       } else {
 
-        LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
+        edm::LogWarning("EBLaserTask") << " RtHalf = " << rtHalf[ism-1];
 
       }
 
@@ -906,7 +902,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBLaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EBLaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 

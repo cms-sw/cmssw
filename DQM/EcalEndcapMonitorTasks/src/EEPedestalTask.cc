@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.50 $
+ * $Date: 2010/02/12 21:37:58 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  *
 */
@@ -27,19 +27,15 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEPedestalTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 // #define COMMON_NOISE_ANALYSIS
 
-EEPedestalTask::EEPedestalTask(const ParameterSet& ps){
+EEPedestalTask::EEPedestalTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -90,7 +86,7 @@ void EEPedestalTask::beginJob(void){
 
 }
 
-void EEPedestalTask::beginRun(const Run& r, const EventSetup& c) {
+void EEPedestalTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -98,7 +94,7 @@ void EEPedestalTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEPedestalTask::endRun(const Run& r, const EventSetup& c) {
+void EEPedestalTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -333,19 +329,19 @@ void EEPedestalTask::cleanup(void){
 
 void EEPedestalTask::endJob(void){
 
-  LogInfo("EEPedestalTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EEPedestalTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
+void EEPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
   int runType[18];
   for (int i=0; i<18; i++) runType[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -364,7 +360,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEPedestalTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EEPedestalTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -374,7 +370,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EEDigiCollection> digis;
+  edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
@@ -520,11 +516,11 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEPedestalTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EEPedestalTask") << EEDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
@@ -561,7 +557,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EEPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 

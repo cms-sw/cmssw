@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2010/03/05 18:22:18 $
- * $Revision: 1.24 $
+ * $Date: 2010/03/12 11:34:36 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -24,17 +24,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBStatusFlagsTask::EBStatusFlagsTask(const ParameterSet& ps){
+EBStatusFlagsTask::EBStatusFlagsTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -78,7 +74,7 @@ void EBStatusFlagsTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlo
 void EBStatusFlagsTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
-void EBStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+void EBStatusFlagsTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -86,7 +82,7 @@ void EBStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBStatusFlagsTask::endRun(const Run& r, const EventSetup& c) {
+void EBStatusFlagsTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -236,13 +232,13 @@ void EBStatusFlagsTask::cleanup(void){
 
 void EBStatusFlagsTask::endJob(void){
 
-  LogInfo("EBStatusFlagsTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBStatusFlagsTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
+void EBStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
@@ -251,7 +247,7 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
   // fill bin 0 with number of events in the lumi
   if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(0.);
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -264,7 +260,7 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
-      const vector<short> status = dcchItr->getFEStatus();
+      const std::vector<short> status = dcchItr->getFEStatus();
 
       for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 
@@ -311,7 +307,7 @@ void EBStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBStatusFlagsTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBStatusFlagsTask") << EcalRawDataCollection_ << " not available";
 
   }
 

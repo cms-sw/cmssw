@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/03/03 09:49:12 $
- * $Revision: 1.259 $
+ * $Date: 2010/03/23 14:19:08 $
+ * $Revision: 1.260 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -46,11 +46,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBLaserClient::EBLaserClient(const ParameterSet& ps) {
+EBLaserClient::EBLaserClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -62,7 +58,7 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -70,18 +66,18 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
   laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
 
   if ( verbose_ ) {
-    cout << " Laser wavelengths:" << endl;
+    std::cout << " Laser wavelengths:" << std::endl;
     for ( unsigned int i = 0; i < laserWavelengths_.size(); i++ ) {
-      cout << " " << laserWavelengths_[i];
+      std::cout << " " << laserWavelengths_[i];
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -212,9 +208,9 @@ EBLaserClient::~EBLaserClient() {
 
 void EBLaserClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBLaserClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBLaserClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -223,7 +219,7 @@ void EBLaserClient::beginJob(void) {
 
 void EBLaserClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBLaserClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBLaserClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -233,7 +229,7 @@ void EBLaserClient::beginRun(void) {
 
 void EBLaserClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBLaserClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -241,7 +237,7 @@ void EBLaserClient::endJob(void) {
 
 void EBLaserClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBLaserClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -858,8 +854,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
       }
@@ -904,9 +900,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L1 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -939,9 +935,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L2 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -974,9 +970,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L3 (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1009,9 +1005,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L4 (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1046,18 +1042,18 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonLaserDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonLaserDat ..." << std::endl;
       if ( dataset1_bl.size() != 0 ) econn->insertDataArraySet(&dataset1_bl, moniov);
       if ( dataset1_ir.size() != 0 ) econn->insertDataArraySet(&dataset1_ir, moniov);
       if ( dataset1_gr.size() != 0 ) econn->insertDataArraySet(&dataset1_gr, moniov);
       if ( dataset1_rd.size() != 0 ) econn->insertDataArraySet(&dataset1_rd, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonPNBlueDat pn_bl;
   map<EcalLogicID, MonPNBlueDat> dataset2_bl;
@@ -1073,8 +1069,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
         UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
         UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
@@ -1157,10 +1153,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << std::endl;
+            std::cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1199,10 +1195,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
-            cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << std::endl;
+            std::cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1241,10 +1237,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
-            cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << std::endl;
+            std::cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1283,10 +1279,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
-            cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << std::endl;
+            std::cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -1326,18 +1322,18 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonPnDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonPnDat ..." << std::endl;
       if ( dataset2_bl.size() != 0 ) econn->insertDataArraySet(&dataset2_bl, moniov);
       if ( dataset2_ir.size() != 0 ) econn->insertDataArraySet(&dataset2_ir, moniov);
       if ( dataset2_gr.size() != 0 ) econn->insertDataArraySet(&dataset2_gr, moniov);
       if ( dataset2_rd.size() != 0 ) econn->insertDataArraySet(&dataset2_rd, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonTimingLaserBlueCrystalDat t_bl;
   map<EcalLogicID, MonTimingLaserBlueCrystalDat> dataset3_bl;
@@ -1353,8 +1349,8 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
     }
 
     for ( int ie = 1; ie <= 85; ie++ ) {
@@ -1379,9 +1375,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1 crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L1 crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1411,9 +1407,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2 crystal (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L2 crystal (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1443,9 +1439,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3 crystal (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L3 crystal (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1475,9 +1471,9 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4 crystal (" << ie << "," << ip << ") " << num04  << " " << mean04 << " " << rms04  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "L4 crystal (" << ie << "," << ip << ") " << num04  << " " << mean04 << " " << rms04  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -1509,14 +1505,14 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonTimingLaserCrystalDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonTimingLaserCrystalDat ..." << std::endl;
       if ( dataset3_bl.size() != 0 ) econn->insertDataArraySet(&dataset3_bl, moniov);
       if ( dataset3_ir.size() != 0 ) econn->insertDataArraySet(&dataset3_ir, moniov);
       if ( dataset3_gr.size() != 0 ) econn->insertDataArraySet(&dataset3_gr, moniov);
       if ( dataset3_rd.size() != 0 ) econn->insertDataArraySet(&dataset3_rd, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -1530,7 +1526,7 @@ void EBLaserClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

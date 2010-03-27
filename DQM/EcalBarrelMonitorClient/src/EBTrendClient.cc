@@ -1,15 +1,14 @@
 /*
  * \file EBTrendClient.cc
  *
- * $Date: 2010/02/24 23:23:10 $
- * $Revision: 1.4 $
+ * $Date: 2010/03/02 00:02:06 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -22,19 +21,13 @@
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 
-
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-
-EBTrendClient::EBTrendClient(const ParameterSet& ps){
+EBTrendClient::EBTrendClient(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -107,7 +100,7 @@ void EBTrendClient::beginJob(void){
 }
 
 
-void EBTrendClient::beginRun(const Run& r, const EventSetup& c) {
+void EBTrendClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -116,7 +109,7 @@ void EBTrendClient::beginRun(const Run& r, const EventSetup& c) {
 }
 
 
-void EBTrendClient::endRun(const Run& r, const EventSetup& c) {
+void EBTrendClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -215,14 +208,14 @@ void EBTrendClient::cleanup(void){
 
 void EBTrendClient::endJob(void){
 
-  LogInfo("EBTrendClient") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTrendClient") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
 
-void EBTrendClient::analyze(const Event& e, const EventSetup& c){
+void EBTrendClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 

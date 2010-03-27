@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2010/01/25 21:12:25 $
- * $Revision: 1.123 $
+ * $Date: 2010/02/15 18:00:24 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,11 +22,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
+EBTriggerTowerClient::EBTriggerTowerClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -38,7 +34,7 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -46,7 +42,7 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -77,9 +73,9 @@ EBTriggerTowerClient::~EBTriggerTowerClient() {
 
 void EBTriggerTowerClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBTriggerTowerClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBTriggerTowerClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -88,7 +84,7 @@ void EBTriggerTowerClient::beginJob(void) {
 
 void EBTriggerTowerClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBTriggerTowerClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBTriggerTowerClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -98,7 +94,7 @@ void EBTriggerTowerClient::beginRun(void) {
 
 void EBTriggerTowerClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBTriggerTowerClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBTriggerTowerClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -106,7 +102,7 @@ void EBTriggerTowerClient::endJob(void) {
 
 void EBTriggerTowerClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBTriggerTowerClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBTriggerTowerClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -194,8 +190,8 @@ bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
     }
 
@@ -211,7 +207,7 @@ void EBTriggerTowerClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBTriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBTriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   char histo[200];

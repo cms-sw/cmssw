@@ -1,15 +1,14 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2009/10/26 17:33:48 $
- * $Revision: 1.43 $
+ * $Date: 2010/02/12 21:34:02 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,17 +25,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
+EBPedestalOnlineTask::EBPedestalOnlineTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -65,7 +60,7 @@ void EBPedestalOnlineTask::beginJob(void){
 
 }
 
-void EBPedestalOnlineTask::beginRun(const Run& r, const EventSetup& c) {
+void EBPedestalOnlineTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -73,7 +68,7 @@ void EBPedestalOnlineTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBPedestalOnlineTask::endRun(const Run& r, const EventSetup& c) {
+void EBPedestalOnlineTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -128,19 +123,19 @@ void EBPedestalOnlineTask::cleanup(void){
 
 void EBPedestalOnlineTask::endJob(void){
 
-  LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
+void EBPedestalOnlineTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
@@ -182,7 +177,7 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBPedestalOnlineTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBPedestalOnlineTask") << EBDigiCollection_ << " not available";
 
   }
 

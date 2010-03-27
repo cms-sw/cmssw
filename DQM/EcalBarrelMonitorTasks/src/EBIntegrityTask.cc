@@ -1,15 +1,14 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2010/03/05 18:22:18 $
- * $Revision: 1.80 $
+ * $Date: 2010/03/12 11:34:36 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
  */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,17 +25,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
+EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -94,7 +89,7 @@ void EBIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock
 void EBIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
-void EBIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+void EBIntegrityTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -102,7 +97,7 @@ void EBIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBIntegrityTask::endRun(const Run& r, const EventSetup& c) {
+void EBIntegrityTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -323,13 +318,13 @@ void EBIntegrityTask::cleanup(void){
 
 void EBIntegrityTask::endJob(void){
 
-  LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
+void EBIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
@@ -338,7 +333,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   // fill bin 0 with number of events in the lumi
   if ( meIntegrityErrorsByLumi ) meIntegrityErrorsByLumi->Fill(0.);
 
-  Handle<EBDetIdCollection> ids0;
+  edm::Handle<EBDetIdCollection> ids0;
 
   if ( e.getByLabel(EBDetIdCollection0_, ids0) ) {
 
@@ -354,11 +349,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-//    LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
+//    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids1;
+  edm::Handle<EBDetIdCollection> ids1;
 
   if ( e.getByLabel(EBDetIdCollection1_, ids1) ) {
 
@@ -383,11 +378,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection1_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection1_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids2;
+  edm::Handle<EBDetIdCollection> ids2;
 
   if ( e.getByLabel(EBDetIdCollection2_, ids2) ) {
 
@@ -412,11 +407,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection2_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection2_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids3;
+  edm::Handle<EBDetIdCollection> ids3;
 
   if ( e.getByLabel(EBDetIdCollection3_, ids3) ) {
 
@@ -441,11 +436,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection3_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EBDetIdCollection3_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids4;
+  edm::Handle<EcalElectronicsIdCollection> ids4;
 
   if ( e.getByLabel(EcalElectronicsIdCollection1_, ids4) ) {
 
@@ -471,11 +466,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids5;
+  edm::Handle<EcalElectronicsIdCollection> ids5;
 
   if ( e.getByLabel(EcalElectronicsIdCollection2_, ids5) ) {
 
@@ -501,11 +496,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids6;
+  edm::Handle<EcalElectronicsIdCollection> ids6;
 
   if ( e.getByLabel(EcalElectronicsIdCollection3_, ids6) ) {
 
@@ -524,11 +519,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids7;
+  edm::Handle<EcalElectronicsIdCollection> ids7;
 
   if ( e.getByLabel(EcalElectronicsIdCollection4_, ids7) ) {
 
@@ -547,11 +542,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids8;
+  edm::Handle<EcalElectronicsIdCollection> ids8;
 
   if ( e.getByLabel(EcalElectronicsIdCollection5_, ids8) ) {
 
@@ -577,11 +572,11 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection5_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids9;
+  edm::Handle<EcalElectronicsIdCollection> ids9;
 
   if ( e.getByLabel(EcalElectronicsIdCollection6_, ids9) ) {
 
@@ -607,7 +602,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
+    edm::LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection6_ << " not available";
 
   }
 

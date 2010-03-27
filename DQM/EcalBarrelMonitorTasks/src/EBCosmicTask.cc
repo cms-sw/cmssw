@@ -1,15 +1,14 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2009/11/29 12:30:10 $
- * $Revision: 1.114 $
+ * $Date: 2010/02/12 21:57:30 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,17 +26,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
+EBCosmicTask::EBCosmicTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -75,7 +70,7 @@ void EBCosmicTask::beginJob(void){
 
 }
 
-void EBCosmicTask::beginRun(const Run& r, const EventSetup& c) {
+void EBCosmicTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -83,7 +78,7 @@ void EBCosmicTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBCosmicTask::endRun(const Run& r, const EventSetup& c) {
+void EBCosmicTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -164,20 +159,20 @@ void EBCosmicTask::cleanup(void){
 
 void EBCosmicTask::endJob(void){
 
-  LogInfo("EBCosmicTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBCosmicTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
+void EBCosmicTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool isData = true;
   bool enable = false;
   int runType[36];
   for (int i=0; i<36; i++) runType[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -201,7 +196,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     isData = false; enable = true;
-    LogWarning("EBCosmicTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBCosmicTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -211,17 +206,17 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
     int nebh = hits->size();
     LogDebug("EBCosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
 
-    Handle<EcalUncalibratedRecHitCollection> uhits;
+    edm::Handle<EcalUncalibratedRecHitCollection> uhits;
 
     if ( ! e.getByLabel(EcalUncalibratedRecHitCollection_, uhits) ) {
-      LogWarning("EBCosmicTask") << EcalUncalibratedRecHitCollection_ << " not available";
+      edm::LogWarning("EBCosmicTask") << EcalUncalibratedRecHitCollection_ << " not available";
     }
 
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
@@ -295,7 +290,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBCosmicTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EBCosmicTask") << EcalRecHitCollection_ << " not available";
 
   }
 

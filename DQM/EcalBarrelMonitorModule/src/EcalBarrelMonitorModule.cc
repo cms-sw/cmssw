@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2010/02/14 11:11:10 $
- * $Revision: 1.194 $
+ * $Date: 2010/02/15 20:59:16 $
+ * $Revision: 1.195 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -29,15 +29,10 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include <DQM/EcalBarrelMonitorModule/interface/EcalBarrelMonitorModule.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
+EcalBarrelMonitorModule::EcalBarrelMonitorModule(const edm::ParameterSet& ps){
 
   // verbose switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -148,7 +143,7 @@ void EcalBarrelMonitorModule::beginJob(void){
 
   ievt_ = 0;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
@@ -161,7 +156,7 @@ void EcalBarrelMonitorModule::beginJob(void){
 
 }
 
-void EcalBarrelMonitorModule::beginRun(const Run& r, const EventSetup& c) {
+void EcalBarrelMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( debug_ ) cout << "EcalBarrelMonitorModule: beginRun" << endl;
 
@@ -169,7 +164,7 @@ void EcalBarrelMonitorModule::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EcalBarrelMonitorModule::endRun(const Run& r, const EventSetup& c) {
+void EcalBarrelMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( debug_ ) cout << "EcalBarrelMonitorModule: endRun" << endl;
 
@@ -377,7 +372,7 @@ void EcalBarrelMonitorModule::endJob(void) {
 
 }
 
-void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
+void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   Numbers::initGeometry(c, verbose_);
 
@@ -391,7 +386,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   evtNumber_ = e.id().event();
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -439,7 +434,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./36.);
 
-    LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -465,7 +460,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
@@ -498,11 +493,11 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalBarrelMonitorModule") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << EBDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
@@ -553,11 +548,11 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalBarrelMonitorModule") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << EcalRecHitCollection_ << " not available";
 
   }
 
-  Handle<EcalTrigPrimDigiCollection> tpdigis;
+  edm::Handle<EcalTrigPrimDigiCollection> tpdigis;
 
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) {
 
@@ -594,7 +589,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalBarrelMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EcalBarrelMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
 

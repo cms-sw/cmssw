@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2010/02/12 21:57:31 $
- * $Revision: 1.96 $
+ * $Date: 2010/02/17 22:44:16 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -20,21 +20,17 @@
 #include "DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 const int EBTriggerTowerTask::nTTEta = 17;
 const int EBTriggerTowerTask::nTTPhi = 4;
 const int EBTriggerTowerTask::nSM = 36;
 
-EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
+EBTriggerTowerTask::EBTriggerTowerTask(const edm::ParameterSet& ps) {
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -58,15 +54,15 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
 
-  realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
-  emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
-  EBDigiCollection_ = ps.getParameter<InputTag>("EBDigiCollection");
-  HLTResultsCollection_ = ps.getParameter<InputTag>("HLTResultsCollection");
+  realCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionReal");
+  emulCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionEmul");
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  HLTResultsCollection_ = ps.getParameter<edm::InputTag>("HLTResultsCollection");
 
   HLTCaloHLTBit_ = ps.getUntrackedParameter<std::string>("HLTCaloHLTBit", "");
   HLTMuonHLTBit_ = ps.getUntrackedParameter<std::string>("HLTMuonHLTBit", "");
 
-  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("OutputRootFile", "");
 
   LogDebug("EBTriggerTowerTask") << "REAL     digis: " << realCollection_;
   LogDebug("EBTriggerTowerTask") << "EMULATED digis: " << emulCollection_;
@@ -95,7 +91,7 @@ void EBTriggerTowerTask::beginJob(void){
 
 }
 
-void EBTriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+void EBTriggerTowerTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -103,7 +99,7 @@ void EBTriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+void EBTriggerTowerTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -145,7 +141,7 @@ void EBTriggerTowerTask::setup(void){
            (prefixME_ + "/EBTriggerTowerTask/Emulated").c_str(), true);
   }
   else {
-    LogError("EBTriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
+    edm::LogError("EBTriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
   }
 }
 
@@ -273,19 +269,19 @@ void EBTriggerTowerTask::cleanup(void) {
 
 void EBTriggerTowerTask::endJob(void){
 
-  LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
+void EBTriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EcalTrigPrimDigiCollection> realDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> realDigis;
 
   if ( e.getByLabel(realCollection_, realDigis) ) {
 
@@ -298,21 +294,21 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meVetoReal_);
 
   } else {
-    LogWarning("EBTriggerTowerTask") << realCollection_ << " not available";
+    edm::LogWarning("EBTriggerTowerTask") << realCollection_ << " not available";
   }
 
-  Handle<EcalTrigPrimDigiCollection> emulDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> emulDigis;
 
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
-    Handle<TriggerResults> hltResults;
+    edm::Handle<edm::TriggerResults> hltResults;
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
     }
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
     }
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
@@ -325,21 +321,21 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                     hltResults);
 
     } else {
-      LogWarning("EBTriggerTowerTask") << HLTResultsCollection_ << " not available";
+      edm::LogWarning("EBTriggerTowerTask") << HLTResultsCollection_ << " not available";
     }
 
   } else {
-    LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
+    edm::LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }
 
 void
-EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
+EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTrigPrimDigiCollection>& digis,
                                   array1& meEtMap,
                                   array1& meVeto,
-                                  const Handle<EcalTrigPrimDigiCollection>& compDigis,
-                                  const Handle<TriggerResults> & hltResults) {
+                                  const edm::Handle<EcalTrigPrimDigiCollection>& compDigis,
+                                  const edm::Handle<edm::TriggerResults> & hltResults) {
 
   int bx = e.bunchCrossing();
   int nTP = 0;
@@ -352,7 +348,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
   if ( compDigis.isValid() ) {
 
-    Handle<EBDigiCollection> crystalDigis;
+    edm::Handle<EBDigiCollection> crystalDigis;
 
     if ( e.getByLabel(EBDigiCollection_, crystalDigis) ) {
 
@@ -369,7 +365,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EBTriggerTowerTask") << EBDigiCollection_ << " not available";
+      edm::LogWarning("EBTriggerTowerTask") << EBDigiCollection_ << " not available";
     }
 
   }
@@ -395,7 +391,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
+      edm::LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
     }
 
   }

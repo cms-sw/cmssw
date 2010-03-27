@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2010/02/15 17:51:59 $
- * $Revision: 1.223 $
+ * $Date: 2010/02/16 07:52:51 $
+ * $Revision: 1.224 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,11 +42,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps) {
+EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -58,7 +54,7 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -66,7 +62,7 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   h00_ = 0;
 
@@ -109,9 +105,9 @@ EBIntegrityClient::~EBIntegrityClient() {
 
 void EBIntegrityClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBIntegrityClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBIntegrityClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -120,7 +116,7 @@ void EBIntegrityClient::beginJob(void) {
 
 void EBIntegrityClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBIntegrityClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBIntegrityClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -130,7 +126,7 @@ void EBIntegrityClient::beginRun(void) {
 
 void EBIntegrityClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBIntegrityClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBIntegrityClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -138,7 +134,7 @@ void EBIntegrityClient::endJob(void) {
 
 void EBIntegrityClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBIntegrityClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -276,13 +272,13 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     int ism = superModules_[i];
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
-      cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
-      cerr << endl;
+      cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << std::endl;
+      cerr << std::endl;
     }
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
       UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
       UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
@@ -339,9 +335,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "(" << ie << "," << ip << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -419,9 +415,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( Numbers::iSC(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1)) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "(" << iet << "," << ipt << ") " << num00 << " " << num04 << " " << num05 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "(" << iet << "," << ipt << ") " << num00 << " " << num04 << " " << num05 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -493,9 +489,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( ie ==1 && ip == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for mem of SM=" << ism << endl;
-              cout << "(" << ie << "," << ip << ") " << num06 << " " << num07 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for mem of SM=" << ism << std::endl;
+              std::cout << "(" << ie << "," << ip << ") " << num06 << " " << num07 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -572,9 +568,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         if ( iet == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-            cout << "(" << iet <<  ") " << num08 << " " << num09 << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "(" << iet <<  ") " << num08 << " " << num09 << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -621,14 +617,14 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonConsistencyDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonConsistencyDat ..." << std::endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       if ( dataset4.size() != 0 ) econn->insertDataArraySet(&dataset4, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -642,7 +638,7 @@ void EBIntegrityClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

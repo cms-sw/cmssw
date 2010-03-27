@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/02/16 10:53:18 $
- * $Revision: 1.110 $
+ * $Date: 2010/03/23 14:19:09 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -39,11 +39,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EETestPulseClient::EETestPulseClient(const ParameterSet& ps) {
+EETestPulseClient::EETestPulseClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -55,7 +51,7 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -63,7 +59,7 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
@@ -140,9 +136,9 @@ EETestPulseClient::~EETestPulseClient() {
 
 void EETestPulseClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EETestPulseClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EETestPulseClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -151,7 +147,7 @@ void EETestPulseClient::beginJob(void) {
 
 void EETestPulseClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EETestPulseClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EETestPulseClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -161,7 +157,7 @@ void EETestPulseClient::beginRun(void) {
 
 void EETestPulseClient::endJob(void) {
 
-  if ( debug_ ) cout << "EETestPulseClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EETestPulseClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -169,7 +165,7 @@ void EETestPulseClient::endJob(void) {
 
 void EETestPulseClient::endRun(void) {
 
-  if ( debug_ ) cout << "EETestPulseClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EETestPulseClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -438,8 +434,8 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
         UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
       }
@@ -478,11 +474,11 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-              cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-              cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << std::endl;
+              std::cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02 << " " << mean02 << " " << rms02 << std::endl;
+              std::cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -541,26 +537,26 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             }
 
             if ( verbose_ ) {
-              cout << "sample01 = " << flush;
+              std::cout << "sample01 = " << flush;
               for ( unsigned int i = 0; i < sample01.size(); i++ ) {
-                cout << sample01[i] << " " << flush;
+                std::cout << sample01[i] << " " << flush;
               }
-              cout << endl;
+              std::cout << std::endl;
 
-              cout << "sample02 = " << flush;
+              std::cout << "sample02 = " << flush;
               for ( unsigned int i = 0; i < sample02.size(); i++ ) {
-                cout << sample02[i] << " " << flush;
+                std::cout << sample02[i] << " " << flush;
               }
-              cout << endl;
+              std::cout << std::endl;
 
-              cout << "sample03 = " << flush;
+              std::cout << "sample03 = " << flush;
               for ( unsigned int i = 0; i < sample03.size(); i++ ) {
-                cout << sample03[i] << " " << flush;
+                std::cout << sample03[i] << " " << flush;
               }
-              cout << endl;
+              std::cout << std::endl;
             }
 
-            if ( verbose_ ) cout << endl;
+            if ( verbose_ ) std::cout << std::endl;
 
             shape.setSamples(sample01,  1);
             shape.setSamples(sample02,  6);
@@ -587,16 +583,16 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonTestPulseDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonTestPulseDat ..." << std::endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
@@ -606,8 +602,8 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
         UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
         UtilsClient::printBadChannels(meg04_[ism-1], i03_[ism-1]);
@@ -639,10 +635,10 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
-            cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << std::endl;
+            std::cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -682,11 +678,11 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonPNMGPADat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonPNMGPADat ..." << std::endl;
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -700,7 +696,7 @@ void EETestPulseClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EETestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EETestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

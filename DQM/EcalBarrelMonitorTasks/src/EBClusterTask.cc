@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2010/02/24 10:11:36 $
- * $Revision: 1.83 $
+ * $Date: 2010/02/24 12:13:16 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -41,18 +41,13 @@
 
 #include "TLorentzVector.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-EBClusterTask::EBClusterTask(const ParameterSet& ps){
+EBClusterTask::EBClusterTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -131,7 +126,7 @@ void EBClusterTask::beginJob(void){
 
 }
 
-void EBClusterTask::beginRun(const Run& r, const EventSetup& c) {
+void EBClusterTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -139,7 +134,7 @@ void EBClusterTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBClusterTask::endRun(const Run& r, const EventSetup& c) {
+void EBClusterTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -514,17 +509,17 @@ void EBClusterTask::cleanup(void){
 
 void EBClusterTask::endJob(void){
 
-  LogInfo("EBClusterTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBClusterTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBClusterTask::analyze(const Event& e, const EventSetup& c){
+void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   
   bool enable = false;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -549,7 +544,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     enable = true;
-    LogWarning("EBClusterTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBClusterTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -563,7 +558,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   edm::ESHandle<CaloTopology> pTopology;
   c.get<CaloTopologyRecord>().get(pTopology);
   if ( !pTopology.isValid() ) {
-    LogWarning("EBClusterTask") << "Topology not valid"; 
+    edm::LogWarning("EBClusterTask") << "Topology not valid"; 
     return;
   }
   const CaloTopology *topology = pTopology.product();
@@ -572,21 +567,21 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   edm::Handle< EcalRecHitCollection > pEBRecHits;
   e.getByLabel( EcalRecHitCollection_, pEBRecHits );
   if ( !pEBRecHits.isValid() ) {
-    LogWarning("EBClusterTask") << "RecHit collection " << EcalRecHitCollection_ << " not available.";
+    edm::LogWarning("EBClusterTask") << "RecHit collection " << EcalRecHitCollection_ << " not available.";
     return;
   }
   const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
 
-  BasicClusterCollection bcSel;
+  reco::BasicClusterCollection bcSel;
 
   // --- Barrel Basic Clusters ---
-  Handle<BasicClusterCollection> pBasicClusters;
+  edm::Handle<reco::BasicClusterCollection> pBasicClusters;
   if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
 
     int nbcc = pBasicClusters->size();
     if ( nbcc > 0 ) meBCNum_->Fill(float(nbcc));
 
-    for ( BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
+    for ( reco::BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
       meBCEne_->Fill(bCluster->energy());
       meBCSiz_->Fill(float(bCluster->size()));
@@ -619,14 +614,14 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBClusterTask") << BasicClusterCollection_ << " not available";
+    edm::LogWarning("EBClusterTask") << BasicClusterCollection_ << " not available";
   }
 
-  for ( BasicClusterCollection::const_iterator bc1 = bcSel.begin(); bc1 != bcSel.end(); ++bc1 ) {
+  for ( reco::BasicClusterCollection::const_iterator bc1 = bcSel.begin(); bc1 != bcSel.end(); ++bc1 ) {
     TLorentzVector bc1P;
     bc1P.SetPtEtaPhiE(fabs(bc1->energy()*sin(bc1->position().theta())),
                       bc1->eta(), bc1->phi(), bc1->energy());
-    for ( BasicClusterCollection::const_iterator bc2 = bc1+1; bc2 != bcSel.end(); ++bc2 ) {
+    for ( reco::BasicClusterCollection::const_iterator bc2 = bc1+1; bc2 != bcSel.end(); ++bc2 ) {
       TLorentzVector bc2P;
       bc2P.SetPtEtaPhiE(fabs(bc2->energy()*sin(bc2->position().theta())),
                         bc2->eta(), bc2->phi(), bc2->energy());
@@ -651,7 +646,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   }
 
   // --- Barrel Super Clusters ---
-  Handle<SuperClusterCollection> pSuperClusters;
+  edm::Handle<reco::SuperClusterCollection> pSuperClusters;
   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
 
     int nscc = pSuperClusters->size();
@@ -660,13 +655,13 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     TLorentzVector sc1_p(0,0,0,0);
     TLorentzVector sc2_p(0,0,0,0);
 
-    for ( SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); ++sCluster ) {
+    for ( reco::SuperClusterCollection::const_iterator sCluster = pSuperClusters->begin(); sCluster != pSuperClusters->end(); ++sCluster ) {
 
       // energy, size
       meSCEne_->Fill( sCluster->energy() );
       meSCSiz_->Fill( float(sCluster->clustersSize()) );
 
-      CaloClusterPtr theSeed = sCluster->seed();
+      reco::CaloClusterPtr theSeed = sCluster->seed();
       
       // Find the seed rec hit
       std::vector< std::pair<DetId,float> > sIds = sCluster->hitsAndFractions();
@@ -741,7 +736,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBClusterTask") << SuperClusterCollection_ << " not available";
+    edm::LogWarning("EBClusterTask") << SuperClusterCollection_ << " not available";
 
   }
 

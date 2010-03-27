@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/02/16 10:53:18 $
- * $Revision: 1.104 $
+ * $Date: 2010/03/23 14:19:09 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,13 +38,9 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 // #define COMMON_NOISE_ANALYSIS
 
-EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
+EEPedestalClient::EEPedestalClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -56,7 +52,7 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -64,7 +60,7 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
@@ -162,9 +158,9 @@ EEPedestalClient::~EEPedestalClient() {
 
 void EEPedestalClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EEPedestalClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EEPedestalClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -173,7 +169,7 @@ void EEPedestalClient::beginJob(void) {
 
 void EEPedestalClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EEPedestalClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EEPedestalClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -183,7 +179,7 @@ void EEPedestalClient::beginRun(void) {
 
 void EEPedestalClient::endJob(void) {
 
-  if ( debug_ ) cout << "EEPedestalClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EEPedestalClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -191,7 +187,7 @@ void EEPedestalClient::endJob(void) {
 
 void EEPedestalClient::endRun(void) {
 
-  if ( debug_ ) cout << "EEPedestalClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EEPedestalClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -542,8 +538,8 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
         UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
       }
@@ -582,11 +578,11 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-              cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-              cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << std::endl;
+              std::cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << std::endl;
+              std::cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -630,15 +626,15 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonPedestalsDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonPedestalsDat ..." << std::endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
@@ -648,8 +644,8 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
         UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
       }
@@ -675,10 +671,10 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         if ( i == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << std::endl;
+            std::cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -712,11 +708,11 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonPNPedDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonPNPedDat ..." << std::endl;
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -730,7 +726,7 @@ void EEPedestalClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EEPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EEPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

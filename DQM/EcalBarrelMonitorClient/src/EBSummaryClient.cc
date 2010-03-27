@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/01/25 21:12:24 $
- * $Revision: 1.203 $
+ * $Date: 2010/03/15 16:38:08 $
+ * $Revision: 1.204 $
  * \author G. Della Ricca
  *
 */
@@ -38,11 +38,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
+EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -54,7 +50,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -62,7 +58,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
@@ -170,9 +166,9 @@ EBSummaryClient::~EBSummaryClient() {
 
 void EBSummaryClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBSummaryClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBSummaryClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -225,7 +221,7 @@ void EBSummaryClient::beginJob(void) {
 
 void EBSummaryClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBSummaryClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBSummaryClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -235,7 +231,7 @@ void EBSummaryClient::beginRun(void) {
 
 void EBSummaryClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBSummaryClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBSummaryClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -243,7 +239,7 @@ void EBSummaryClient::endJob(void) {
 
 void EBSummaryClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBSummaryClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBSummaryClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -971,7 +967,7 @@ void EBSummaryClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   for ( int iex = 1; iex <= 170; iex++ ) {

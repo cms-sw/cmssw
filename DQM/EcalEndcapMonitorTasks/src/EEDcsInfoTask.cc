@@ -19,15 +19,11 @@
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EEDcsInfoTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+EEDcsInfoTask::EEDcsInfoTask(const edm::ParameterSet& ps) {
 
-EEDcsInfoTask::EEDcsInfoTask(const ParameterSet& ps) {
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  dqmStore_ = Service<DQMStore>().operator->();
-
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -98,7 +94,7 @@ void EEDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, c
 
 }
 
-void EEDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
+void EEDcsInfoTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -110,7 +106,7 @@ void EEDcsInfoTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EEDcsInfoTask::endRun(const Run& r, const EventSetup& c) {
+void EEDcsInfoTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   this->fillMonitorElements(readyRun);
 
@@ -149,9 +145,9 @@ void EEDcsInfoTask::cleanup(void){
 
 }
 
-void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){ 
+void EEDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
-  Handle<DcsStatusCollection> dcsh;
+  edm::Handle<DcsStatusCollection> dcsh;
 
   if ( e.getByLabel(dcsStatusCollection_, dcsh) ) {
 
@@ -174,7 +170,7 @@ void EEDcsInfoTask::analyze(const Event& e, const EventSetup& c){
     }
     
   } else {
-    LogWarning("EEDcsInfoTask") << dcsStatusCollection_ << " not available";
+    edm::LogWarning("EEDcsInfoTask") << dcsStatusCollection_ << " not available";
   }
 
 }

@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.54 $
+ * $Date: 2010/02/12 21:45:20 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -30,17 +30,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EELedTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EELedTask::EELedTask(const ParameterSet& ps){
+EELedTask::EELedTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -93,7 +89,7 @@ void EELedTask::beginJob(void){
 
 }
 
-void EELedTask::beginRun(const Run& r, const EventSetup& c) {
+void EELedTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -101,7 +97,7 @@ void EELedTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EELedTask::endRun(const Run& r, const EventSetup& c) {
+void EELedTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   for (int i = 0; i < 18; i++) {
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
@@ -371,13 +367,13 @@ void EELedTask::cleanup(void){
 
 void EELedTask::endJob(void){
 
-  LogInfo("EELedTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EELedTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EELedTask::analyze(const Event& e, const EventSetup& c){
+void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
   int runType[18];
@@ -387,7 +383,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
   int waveLength[18];
   for (int i=0; i<18; i++) waveLength[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -408,7 +404,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EELedTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EELedTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -418,7 +414,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EEDigiCollection> digis;
+  edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
@@ -462,7 +458,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
         } else {
 
-          LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
+          edm::LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
 
         }
 
@@ -477,7 +473,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EELedTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EELedTask") << EEDigiCollection_ << " not available";
 
   }
 
@@ -486,7 +482,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
     adcPN[i] = 0.;
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
@@ -566,11 +562,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EELedTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EELedTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
   if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
@@ -616,7 +612,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       } else {
 
-        LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
+        edm::LogWarning("EELedTask") << " RtHalf = " << Numbers::RtHalf(id);
 
       }
 
@@ -646,7 +642,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EELedTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EELedTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 

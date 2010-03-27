@@ -1,15 +1,14 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2009/11/19 18:14:42 $
- * $Revision: 1.3 $
+ * $Date: 2010/02/08 21:35:04 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -45,18 +44,13 @@
 
 #include "TLorentzVector.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-EBTrendTask::EBTrendTask(const ParameterSet& ps){
+EBTrendTask::EBTrendTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -124,7 +118,7 @@ void EBTrendTask::beginJob(void){
 }
 
 
-void EBTrendTask::beginRun(const Run& r, const EventSetup& c) {
+void EBTrendTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -135,7 +129,7 @@ void EBTrendTask::beginRun(const Run& r, const EventSetup& c) {
 }
 
 
-void EBTrendTask::endRun(const Run& r, const EventSetup& c) {
+void EBTrendTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -359,14 +353,14 @@ void EBTrendTask::cleanup(void){
 
 void EBTrendTask::endJob(void){
 
-  LogInfo("EBTrendTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTrendTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
 
-void EBTrendTask::analyze(const Event& e, const EventSetup& c){
+void EBTrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
@@ -391,9 +385,9 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // EBDigiCollection
   // --------------------------------------------------
   int ndc = 0;
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
   if ( e.getByLabel(EBDigiCollection_, digis) ) ndc = digis->size();
-  else LogWarning("EBTrendTask") << EBDigiCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EBDigiCollection_ << " is not available";
 
   ecaldqm::shift2Right(nEBDigiMinutely_->getTProfile(), minuteBinDiff);
   nEBDigiMinutely_->Fill(minuteDiff,ndc);
@@ -406,9 +400,9 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // EcalPnDiodeDigiCollection
   // --------------------------------------------------
   int npdc = 0;
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) npdc = pns->size();
-  else LogWarning("EBTrendTask") << EcalPnDiodeDigiCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalPnDiodeDigiCollection_ << " is not available";
 
   ecaldqm::shift2Right(nEcalPnDiodeDigiMinutely_->getTProfile(), minuteBinDiff);
   nEcalPnDiodeDigiMinutely_->Fill(minuteDiff,npdc);
@@ -421,9 +415,9 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // EcalRecHitCollection
   // --------------------------------------------------
   int nrhc = 0;
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) nrhc = hits->size();
-  else LogWarning("EBTrendTask") << EcalRecHitCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalRecHitCollection_ << " is not available";
 
   ecaldqm::shift2Right(nEcalRecHitMinutely_->getTProfile(), minuteBinDiff);
   nEcalRecHitMinutely_->Fill(minuteDiff,nrhc);
@@ -435,9 +429,9 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // EcalTrigPrimDigiCollection
   // --------------------------------------------------
   int ntpdc = 0;
-  Handle<EcalTrigPrimDigiCollection> tpdigis;
+  edm::Handle<EcalTrigPrimDigiCollection> tpdigis;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) ntpdc = tpdigis->size();
-  else LogWarning("EBTrendTask") << EcalTrigPrimDigiCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalTrigPrimDigiCollection_ << " is not available";
 
   ecaldqm::shift2Right(nEcalTrigPrimDigiMinutely_->getTProfile(), minuteBinDiff);
   nEcalTrigPrimDigiMinutely_->Fill(minuteDiff,ntpdc);
@@ -450,7 +444,7 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // --------------------------------------------------
   int nbcc = 0;
   float nbcc_size = 0.0;
-  Handle<BasicClusterCollection> pBasicClusters;
+  edm::Handle<reco::BasicClusterCollection> pBasicClusters;
   if ( e.getByLabel(BasicClusterCollection_, pBasicClusters) ) {
     nbcc = pBasicClusters->size();
     for(reco::BasicClusterCollection::const_iterator it = pBasicClusters->begin();
@@ -460,7 +454,7 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
     if(nbcc == 0) nbcc_size = 0;
     else nbcc_size = nbcc_size / nbcc;
   }
-  else LogWarning("EBTrendTask") << BasicClusterCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << BasicClusterCollection_ << " is not available";
 
   ecaldqm::shift2Right(nBasicClusterMinutely_->getTProfile(), minuteBinDiff);
   nBasicClusterMinutely_->Fill(minuteDiff,nbcc);
@@ -479,7 +473,7 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // --------------------------------------------------
   int nscc = 0;
   float nscc_size = 0.0;
-  Handle<SuperClusterCollection> pSuperClusters;
+  edm::Handle<reco::SuperClusterCollection> pSuperClusters;
   if ( e.getByLabel(SuperClusterCollection_, pSuperClusters) ) {
     nscc = pSuperClusters->size();
     for(reco::SuperClusterCollection::const_iterator it = pSuperClusters->begin();
@@ -489,7 +483,7 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
     if(nscc == 0) nscc_size = 0;
     else nscc_size = nscc_size / nscc;
   }
-  else LogWarning("EBTrendTask") << SuperClusterCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << SuperClusterCollection_ << " is not available";
 
   ecaldqm::shift2Right(nSuperClusterMinutely_->getTProfile(), minuteBinDiff);
   nSuperClusterMinutely_->Fill(minuteDiff,nscc);
@@ -513,90 +507,90 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // EBDetIdCollection0
   // --------------------------------------------------
   int ndic0 = 0;
-  Handle<EBDetIdCollection> ids0;
+  edm::Handle<EBDetIdCollection> ids0;
   if ( e.getByLabel(EBDetIdCollection0_, ids0) ) ndic0 = ids0->size();
-  else LogWarning("EBTrendTask") << EBDetIdCollection0_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EBDetIdCollection0_ << " is not available";
 
 
   // --------------------------------------------------
   // EBDetIdCollection1
   // --------------------------------------------------
   int ndic1 = 0;
-  Handle<EBDetIdCollection> ids1;
+  edm::Handle<EBDetIdCollection> ids1;
   if ( e.getByLabel(EBDetIdCollection1_, ids1) ) ndic1 = ids1->size();
-  else LogWarning("EBTrendTask") << EBDetIdCollection1_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EBDetIdCollection1_ << " is not available";
 
 
   // --------------------------------------------------
   // EBDetIdCollection2
   // --------------------------------------------------
   int ndic2 = 0;
-  Handle<EBDetIdCollection> ids2;
+  edm::Handle<EBDetIdCollection> ids2;
   if ( e.getByLabel(EBDetIdCollection2_, ids2) ) ndic2 = ids2->size();
-  else LogWarning("EBTrendTask") << EBDetIdCollection2_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EBDetIdCollection2_ << " is not available";
 
 
   // --------------------------------------------------
   // EBDetIdCollection3
   // --------------------------------------------------
   int ndic3 = 0;
-  Handle<EBDetIdCollection> ids3;
+  edm::Handle<EBDetIdCollection> ids3;
   if ( e.getByLabel(EBDetIdCollection3_, ids3) ) ndic3 = ids3->size();
-  else LogWarning("EBTrendTask") << EBDetIdCollection3_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EBDetIdCollection3_ << " is not available";
 
 
   // --------------------------------------------------
   // EcalElectronicsIdCollection1
   // --------------------------------------------------
   int neic1 = 0;
-  Handle<EcalElectronicsIdCollection> eids1;
+  edm::Handle<EcalElectronicsIdCollection> eids1;
   if ( e.getByLabel(EcalElectronicsIdCollection1_, eids1) ) neic1 = eids1->size();
-  else LogWarning("EBTrendTask") << EcalElectronicsIdCollection1_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalElectronicsIdCollection1_ << " is not available";
 
 
   // --------------------------------------------------
   // EcalElectronicsIdCollection2
   // --------------------------------------------------
   int neic2 = 0;
-  Handle<EcalElectronicsIdCollection> eids2;
+  edm::Handle<EcalElectronicsIdCollection> eids2;
   if ( e.getByLabel(EcalElectronicsIdCollection2_, eids2) ) neic2 = eids2->size();
-  else LogWarning("EBTrendTask") << EcalElectronicsIdCollection2_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalElectronicsIdCollection2_ << " is not available";
 
 
   // --------------------------------------------------
   // EcalElectronicsIdCollection3
   // --------------------------------------------------
   int neic3 = 0;
-  Handle<EcalElectronicsIdCollection> eids3;
+  edm::Handle<EcalElectronicsIdCollection> eids3;
   if ( e.getByLabel(EcalElectronicsIdCollection3_, eids3) ) neic3 = eids3->size();
-  else LogWarning("EBTrendTask") << EcalElectronicsIdCollection3_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalElectronicsIdCollection3_ << " is not available";
 
 
   // --------------------------------------------------
   // EcalElectronicsIdCollection4
   // --------------------------------------------------
   int neic4 = 0;
-  Handle<EcalElectronicsIdCollection> eids4;
+  edm::Handle<EcalElectronicsIdCollection> eids4;
   if ( e.getByLabel(EcalElectronicsIdCollection4_, eids4) ) neic4 = eids4->size();
-  else LogWarning("EBTrendTask") << EcalElectronicsIdCollection4_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalElectronicsIdCollection4_ << " is not available";
 
 
   // --------------------------------------------------
   // EcalElectronicsIdCollection5
   // --------------------------------------------------
   int neic5 = 0;
-  Handle<EcalElectronicsIdCollection> eids5;
+  edm::Handle<EcalElectronicsIdCollection> eids5;
   if ( e.getByLabel(EcalElectronicsIdCollection5_, eids5) ) neic5 = eids5->size();
-  else LogWarning("EBTrendTask") << EcalElectronicsIdCollection5_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalElectronicsIdCollection5_ << " is not available";
 
 
   // --------------------------------------------------
   // EcalElectronicsIdCollection6
   // --------------------------------------------------
   int neic6 = 0;
-  Handle<EcalElectronicsIdCollection> eids6;
+  edm::Handle<EcalElectronicsIdCollection> eids6;
   if ( e.getByLabel(EcalElectronicsIdCollection6_, eids6) ) neic6 = eids6->size();
-  else LogWarning("EBTrendTask") << EcalElectronicsIdCollection6_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EcalElectronicsIdCollection6_ << " is not available";
 
 
   // --------------------------------------------------
@@ -629,7 +623,7 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
       if(iDcc >= eb1  && iDcc <= eb2)  nfedEB += sizeInKB;
     }
   }
-  else LogWarning("EBTrendTask") << FEDRawDataCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << FEDRawDataCollection_ << " is not available";
 
   ecaldqm::shift2Right(nFEDEBRawDataMinutely_->getTProfile(), minuteBinDiff);
   nFEDEBRawDataMinutely_->Fill(minuteDiff,nfedEB);
@@ -642,9 +636,9 @@ void EBTrendTask::analyze(const Event& e, const EventSetup& c){
   // EBSRFlagCollection
   // --------------------------------------------------
   int nsfc = 0;
-  Handle<EBSrFlagCollection> ebSrFlags;
+  edm::Handle<EBSrFlagCollection> ebSrFlags;
   if ( e.getByLabel(EBSRFlagCollection_,ebSrFlags) ) nsfc = ebSrFlags->size();
-  else LogWarning("EBTrendTask") << EBSRFlagCollection_ << " is not available";
+  else edm::LogWarning("EBTrendTask") << EBSRFlagCollection_ << " is not available";
 
   ecaldqm::shift2Right(nEBSRFlagMinutely_->getTProfile(), minuteBinDiff);
   nEBSRFlagMinutely_->Fill(minuteDiff,nsfc);

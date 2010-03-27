@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/02/16 09:45:25 $
- * $Revision: 1.477 $
+ * $Date: 2010/03/12 11:38:28 $
+ * $Revision: 1.478 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -56,20 +56,16 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
+EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
   // verbose switch
 
   verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << " *** Ecal Barrel Generic Monitor Client ***" << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << " *** Ecal Barrel Generic Monitor Client ***" << std::endl;
+    std::cout << std::endl;
   }
 
   // DQM ROOT input file
@@ -78,7 +74,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( inputFile_.size() != 0 ) {
-      cout << " Reading DQM data from inputFile '" << inputFile_ << "'" << endl;
+      std::cout << " Reading DQM data from inputFile '" << inputFile_ << "'" << std::endl;
     }
   }
 
@@ -94,21 +90,21 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( dbName_.size() != 0 ) {
-      cout << " Ecal Cond DB: " << endl;
-      cout << "   dbName = '" << dbName_ << "'" << endl;
-      cout << "   dbUserName = '" << dbUserName_ << "'" << endl;
+      std::cout << " Ecal Cond DB: " << std::endl;
+      std::cout << "   dbName = '" << dbName_ << "'" << std::endl;
+      std::cout << "   dbUserName = '" << dbUserName_ << "'" << std::endl;
       if ( dbHostName_.size() != 0 ) {
-        cout << "   dbHostName = '" << dbHostName_ << "'" << endl;
-        cout << "   dbHostPort = '" << dbHostPort_ << "'" << endl;
+        std::cout << "   dbHostName = '" << dbHostName_ << "'" << std::endl;
+        std::cout << "   dbHostPort = '" << dbHostPort_ << "'" << std::endl;
       }
-      cout << "   dbTagName = '" << dbTagName_ << "'" << endl;
+      std::cout << "   dbTagName = '" << dbTagName_ << "'" << std::endl;
 #ifndef WITH_ECAL_COND_DB
-      cout << endl;
-      cout << "WARNING: DB access is NOT available" << endl;
-      cout << endl;
+      std::cout << std::endl;
+      std::cout << "WARNING: DB access is NOT available" << std::endl;
+      std::cout << std::endl;
 #endif
     } else {
-      cout << " Ecal Cond DB is OFF" << endl;
+      std::cout << " Ecal Cond DB is OFF" << std::endl;
     }
   }
 
@@ -118,7 +114,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( maskFile_.size() != 0 ) {
-      cout << " maskFile is '" << maskFile_ << "'" << endl;
+      std::cout << " maskFile is '" << maskFile_ << "'" << std::endl;
     }
   }
 
@@ -128,9 +124,9 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( mergeRuns_ ) {
-      cout << " mergeRuns switch is ON" << endl;
+      std::cout << " mergeRuns switch is ON" << std::endl;
     } else {
-      cout << " mergeRuns switch is OFF" << endl;
+      std::cout << " mergeRuns switch is OFF" << std::endl;
     }
   }
 
@@ -139,7 +135,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   updateTime_ = ps.getUntrackedParameter<int>("updateTime", 0);
 
   if ( verbose_ ) {
-    cout << " updateTime is " << updateTime_ << " minute(s)" << endl;
+    std::cout << " updateTime is " << updateTime_ << " minute(s)" << std::endl;
   }
 
   // dbUpdateTime
@@ -147,7 +143,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   dbUpdateTime_  = ps.getUntrackedParameter<int>("dbUpdateTime", 0);
 
   if ( verbose_ ) {
-    cout << " dbUpdateTime is " << dbUpdateTime_ << " minute(s)" << endl;
+    std::cout << " dbUpdateTime is " << dbUpdateTime_ << " minute(s)" << std::endl;
   }
 
   // location
@@ -155,7 +151,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   location_ =  ps.getUntrackedParameter<string>("location", "H4");
 
   if ( verbose_ ) {
-    cout << " location is '" << location_ << "'" << endl;
+    std::cout << " location is '" << location_ << "'" << std::endl;
   }
 
   // cloneME switch
@@ -164,9 +160,9 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( cloneME_ ) {
-      cout << " cloneME switch is ON" << endl;
+      std::cout << " cloneME switch is ON" << std::endl;
     } else {
-      cout << " cloneME switch is OFF" << endl;
+      std::cout << " cloneME switch is OFF" << std::endl;
     }
   }
 
@@ -176,9 +172,9 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( debug_ ) {
-      cout << " debug switch is ON" << endl;
+      std::cout << " debug switch is ON" << std::endl;
     } else {
-      cout << " debug switch is OFF" << endl;
+      std::cout << " debug switch is OFF" << std::endl;
     }
   }
 
@@ -187,7 +183,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor", 1);
 
   if ( verbose_ ) {
-    cout << " prescaleFactor is " << prescaleFactor_ << endl;
+    std::cout << " prescaleFactor is " << prescaleFactor_ << std::endl;
   }
 
   // prefixME path
@@ -195,7 +191,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   if ( verbose_ ) {
-    cout << " prefixME path is '" << prefixME_ << "'" << endl;
+    std::cout << " prefixME path is '" << prefixME_ << "'" << std::endl;
   }
 
   // enableCleanup switch
@@ -204,9 +200,9 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     if ( enableCleanup_ ) {
-      cout << " enableCleanup switch is ON" << endl;
+      std::cout << " enableCleanup switch is ON" << std::endl;
     } else {
-      cout << " enableCleanup switch is OFF" << endl;
+      std::cout << " enableCleanup switch is OFF" << std::endl;
     }
   }
 
@@ -218,11 +214,11 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   if ( verbose_ ) {
-    cout << " Selected SMs:" << endl;
+    std::cout << " Selected SMs:" << std::endl;
     for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
-      cout << " " << setw(2) << setfill('0') << superModules_[i];
+      std::cout << " " << setw(2) << setfill('0') << superModules_[i];
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   // vector of enabled Clients (defaults)
@@ -235,11 +231,11 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
   enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
 
   if ( verbose_ ) {
-    cout << " Enabled Clients:" << endl;
+    std::cout << " Enabled Clients:" << std::endl;
     for ( unsigned int i = 0; i < enabledClients_.size(); i++ ) {
-      cout << " " << enabledClients_[i];
+      std::cout << " " << enabledClients_[i];
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   // set runTypes (use resize() on purpose!)
@@ -564,13 +560,13 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( summaryClient_ ) summaryClient_->setFriends(clients_);
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
 }
 
 EcalBarrelMonitorClient::~EcalBarrelMonitorClient() {
 
-  if ( verbose_ ) cout << "Exit ..." << endl;
+  if ( verbose_ ) std::cout << "Exit ..." << std::endl;
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     delete clients_[i];
@@ -602,7 +598,7 @@ void EcalBarrelMonitorClient::beginJob(void) {
 
   subrun_  = -1;
 
-  if ( debug_ ) cout << "EcalBarrelMonitorClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -613,7 +609,7 @@ void EcalBarrelMonitorClient::beginJob(void) {
 
   // get hold of back-end interface
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if ( inputFile_.size() != 0 ) {
     if ( dqmStore_ ) {
@@ -636,7 +632,7 @@ void EcalBarrelMonitorClient::beginRun(void) {
 
   last_run_  = run_;
 
-  if ( debug_ ) cout << "EcalBarrelMonitorClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -663,14 +659,14 @@ void EcalBarrelMonitorClient::beginRun(void) {
 
 }
 
-void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+void EcalBarrelMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, verbose_);
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << "Standard beginRun() for run " << r.id().run() << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "Standard beginRun() for run " << r.id().run() << std::endl;
+    std::cout << std::endl;
   }
 
   run_ = r.id().run();
@@ -685,9 +681,9 @@ void EcalBarrelMonitorClient::endJob(void) {
   if ( ! end_run_ ) {
 
     if ( verbose_ ) {
-      cout << endl;
-      cout << "Checking last event at endJob() ... " << endl;
-      cout << endl;
+      std::cout << std::endl;
+      std::cout << "Checking last event at endJob() ... " << std::endl;
+      std::cout << std::endl;
     }
 
     forced_update_ = true;
@@ -696,9 +692,9 @@ void EcalBarrelMonitorClient::endJob(void) {
     if ( begin_run_ && ! end_run_ ) {
 
       if ( verbose_ ) {
-        cout << endl;
-        cout << "Forcing endRun() ... " << endl;
-        cout << endl;
+        std::cout << std::endl;
+        std::cout << "Forcing endRun() ... " << std::endl;
+        std::cout << std::endl;
       }
 
       forced_status_ = true;
@@ -709,7 +705,7 @@ void EcalBarrelMonitorClient::endJob(void) {
 
   }
 
-  if ( debug_ ) cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -726,7 +722,7 @@ void EcalBarrelMonitorClient::endRun(void) {
   begin_run_ = false;
   end_run_   = true;
 
-  if ( debug_ ) cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << std::endl;
 
   if ( subrun_ != -1 ) {
 
@@ -780,12 +776,12 @@ void EcalBarrelMonitorClient::endRun(void) {
 
 }
 
-void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
+void EcalBarrelMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << "Standard endRun() for run " << r.id().run() << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "Standard endRun() for run " << r.id().run() << std::endl;
+    std::cout << std::endl;
   }
 
   this->analyze();
@@ -810,24 +806,24 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << "Standard beginLuminosityBlock() for run " << l.id().run() << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "Standard beginLuminosityBlock() for run " << l.id().run() << std::endl;
+    std::cout << std::endl;
   }
 
 }
 
-void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
 
   current_time_ = time(NULL);
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << "Standard endLuminosityBlock() for run " << l.id().run() << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "Standard std::endluminosityBlock() for run " << l.id().run() << std::endl;
+    std::cout << std::endl;
   }
 
   if ( updateTime_ > 0 ) {
@@ -877,18 +873,18 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      if ( verbose_ ) cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      if ( verbose_ ) std::cout << "Opening DB connection with TNS_ADMIN ..." << std::endl;
       econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
       if ( dbHostName_.size() != 0 ) {
         try {
-          if ( verbose_ ) cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+          if ( verbose_ ) std::cout << "Opening DB connection without TNS_ADMIN ..." << std::endl;
           econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-          if ( verbose_ ) cout << "done." << endl;
+          if ( verbose_ ) std::cout << "done." << std::endl;
         } catch (runtime_error &e) {
-          cerr << e.what() << endl;
+          cerr << e.what() << std::endl;
         }
       }
     }
@@ -917,13 +913,13 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Fetching RunIOV ..." << endl;
+      if ( verbose_ ) std::cout << "Fetching RunIOV ..." << std::endl;
 //      runiov_ = econn->fetchRunIOV(&runtag, run_);
       runiov_ = econn->fetchRunIOV(location_, run_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
       foundRunIOV = true;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
       foundRunIOV = false;
     }
   }
@@ -942,21 +938,21 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
     if ( econn ) {
       try {
-        if ( verbose_ ) cout << "Inserting RunIOV ..." << endl;
+        if ( verbose_ ) std::cout << "Inserting RunIOV ..." << std::endl;
         econn->insertRunIOV(&runiov_);
 //        runiov_ = econn->fetchRunIOV(&runtag, run_);
         runiov_ = econn->fetchRunIOV(location_, run_);
-        if ( verbose_ ) cout << "done." << endl;
+        if ( verbose_ ) std::cout << "done." << std::endl;
       } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        cerr << e.what() << std::endl;
         try {
-          if ( verbose_ ) cout << "Fetching RunIOV (again) ..." << endl;
+          if ( verbose_ ) std::cout << "Fetching RunIOV (again) ..." << std::endl;
 //          runiov_ = econn->fetchRunIOV(&runtag, run_);
           runiov_ = econn->fetchRunIOV(location_, run_);
-          if ( verbose_ ) cout << "done." << endl;
+          if ( verbose_ ) std::cout << "done." << std::endl;
           foundRunIOV = true;
         } catch (runtime_error &e) {
-          cerr << e.what() << endl;
+          cerr << e.what() << std::endl;
           foundRunIOV = false;
         }
       }
@@ -967,19 +963,19 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   // end - setup the RunIOV (on behalf of the DAQ)
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << "=============RunIOV:" << endl;
-    cout << "Run Number:         " << runiov_.getRunNumber() << endl;
-    cout << "Run Start:          " << runiov_.getRunStart().str() << endl;
-    cout << "Run End:            " << runiov_.getRunEnd().str() << endl;
-    cout << "====================" << endl;
-    cout << endl;
-    cout << "=============RunTag:" << endl;
-    cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << endl;
-    cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << endl;
-    cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << endl;
-    cout << "====================" << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "=============RunIOV:" << std::endl;
+    std::cout << "Run Number:         " << runiov_.getRunNumber() << std::endl;
+    std::cout << "Run Start:          " << runiov_.getRunStart().str() << std::endl;
+    std::cout << "Run End:            " << runiov_.getRunEnd().str() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
+    std::cout << "=============RunTag:" << std::endl;
+    std::cout << "GeneralTag:         " << runiov_.getRunTag().getGeneralTag() << std::endl;
+    std::cout << "Location:           " << runiov_.getRunTag().getLocationDef().getLocation() << std::endl;
+    std::cout << "Run Type:           " << runiov_.getRunTag().getRunTypeDef().getRunType() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
   }
 
   string rt = runiov_.getRunTag().getRunTypeDef().getRunType();
@@ -990,9 +986,9 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
       if ( strcmp(rt.c_str(), runTypes_[i].c_str()) == 0 ) {
         if ( runType_ != int(i) ) {
           if ( verbose_ ) {
-            cout << endl;
-            cout << "Fixing Run Type to: " << runTypes_[i] << endl;
-            cout << endl;
+            std::cout << std::endl;
+            std::cout << "Fixing Run Type to: " << runTypes_[i] << std::endl;
+            std::cout << std::endl;
           }
           runType_ = i;
         }
@@ -1003,39 +999,39 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
   if ( maskFile_.size() != 0 ) {
     try {
-      if ( verbose_ ) cout << "Fetching masked channels from file ..." << endl;
+      if ( verbose_ ) std::cout << "Fetching masked channels from file ..." << std::endl;
       EcalErrorMask::readFile(maskFile_, debug_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   } else {
     if ( econn ) {
       try {
-        if ( verbose_ ) cout << "Fetching masked channels from DB ..." << endl;
+        if ( verbose_ ) std::cout << "Fetching masked channels from DB ..." << std::endl;
         EcalErrorMask::readDB(econn, &runiov_);
-        if ( verbose_ ) cout << "done." << endl;
+        if ( verbose_ ) std::cout << "done." << std::endl;
       } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        cerr << e.what() << std::endl;
       }
     }
   }
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) std::cout << "Closing DB connection ..." << std::endl;
       delete econn;
       econn = 0;
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 #endif
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
 }
 
@@ -1050,18 +1046,18 @@ void EcalBarrelMonitorClient::writeDb() {
 
   if ( dbName_.size() != 0 ) {
     try {
-      if ( verbose_ ) cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      if ( verbose_ ) std::cout << "Opening DB connection with TNS_ADMIN ..." << std::endl;
       econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
       if ( dbHostName_.size() != 0 ) {
         try {
-          if ( verbose_ ) cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+          if ( verbose_ ) std::cout << "Opening DB connection without TNS_ADMIN ..." << std::endl;
           econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-          if ( verbose_ ) cout << "done." << endl;
+          if ( verbose_ ) std::cout << "done." << std::endl;
         } catch (runtime_error &e) {
-          cerr << e.what() << endl;
+          cerr << e.what() << std::endl;
         }
       }
     }
@@ -1086,13 +1082,13 @@ void EcalBarrelMonitorClient::writeDb() {
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Fetching MonIOV ..." << endl;
+      if ( verbose_ ) std::cout << "Fetching MonIOV ..." << std::endl;
       RunTag runtag = runiov_.getRunTag();
       moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
       foundMonIOV = true;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
       foundMonIOV = false;
     }
   }
@@ -1114,21 +1110,21 @@ void EcalBarrelMonitorClient::writeDb() {
 
     if ( econn ) {
       try {
-        if ( verbose_ ) cout << "Inserting MonIOV ..." << endl;
+        if ( verbose_ ) std::cout << "Inserting MonIOV ..." << std::endl;
         econn->insertMonRunIOV(&moniov_);
         RunTag runtag = runiov_.getRunTag();
         moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-        if ( verbose_ ) cout << "done." << endl;
+        if ( verbose_ ) std::cout << "done." << std::endl;
       } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        cerr << e.what() << std::endl;
         try {
-          if ( verbose_ ) cout << "Fetching MonIOV (again) ..." << endl;
+          if ( verbose_ ) std::cout << "Fetching MonIOV (again) ..." << std::endl;
           RunTag runtag = runiov_.getRunTag();
           moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
-          if ( verbose_ ) cout << "done." << endl;
+          if ( verbose_ ) std::cout << "done." << std::endl;
           foundMonIOV = true;
         } catch (runtime_error &e) {
-          cerr << e.what() << endl;
+          cerr << e.what() << std::endl;
           foundMonIOV = false;
         }
       }
@@ -1139,18 +1135,18 @@ void EcalBarrelMonitorClient::writeDb() {
   // end - setup the MonIOV
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << "==========MonRunIOV:" << endl;
-    cout << "SubRun Number:      " << moniov_.getSubRunNumber() << endl;
-    cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << endl;
-    cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << endl;
-    cout << "====================" << endl;
-    cout << endl;
-    cout << "==========MonRunTag:" << endl;
-    cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << endl;
-    cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << endl;
-    cout << "====================" << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "==========MonRunIOV:" << std::endl;
+    std::cout << "SubRun Number:      " << moniov_.getSubRunNumber() << std::endl;
+    std::cout << "SubRun Start:       " << moniov_.getSubRunStart().str() << std::endl;
+    std::cout << "SubRun End:         " << moniov_.getSubRunEnd().str() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
+    std::cout << "==========MonRunTag:" << std::endl;
+    std::cout << "GeneralTag:         " << moniov_.getMonRunTag().getGeneralTag() << std::endl;
+    std::cout << "Monitoring Ver:     " << moniov_.getMonRunTag().getMonVersionDef().getMonitoringVersion() << std::endl;
+    std::cout << "====================" << std::endl;
+    std::cout << std::endl;
   }
 
   int taskl = 0x0;
@@ -1167,8 +1163,8 @@ void EcalBarrelMonitorClient::writeDb() {
         done = true;
         if ( verbose_ ) {
           if ( econn ) {
-            cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
-            cout << endl;
+            std::cout << " Writing " << clientsNames_[i] << " results to DB " << std::endl;
+            std::cout << std::endl;
           }
         }
         bool status;
@@ -1184,9 +1180,9 @@ void EcalBarrelMonitorClient::writeDb() {
     }
     if ( ((taskl >> clientsStatus_[clientsNames_[i]]) & 0x1) ) {
       if ( verbose_ ) {
-        cout << " Task output for " << clientsNames_[i] << " = "
-             << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << endl;
-        cout << endl;
+        std::cout << " Task output for " << clientsNames_[i] << " = "
+             << ((tasko >> clientsStatus_[clientsNames_[i]]) & 0x1) << std::endl;
+        std::cout << std::endl;
       }
     }
   }
@@ -1220,33 +1216,33 @@ void EcalBarrelMonitorClient::writeDb() {
       ecid = LogicID::getEcalLogicID("EB");
       dataset[ecid] = md;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonRunDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonRunDat ..." << std::endl;
       econn->insertDataSet(&dataset, &moniov_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) std::cout << "Closing DB connection ..." << std::endl;
       delete econn;
       econn = 0;
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 #endif
 
-  if ( verbose_ ) cout << endl;
+  if ( verbose_ ) std::cout << std::endl;
 
 }
 
@@ -1259,18 +1255,18 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( dbName_.size() != 0 ) {
     try {
-      if ( verbose_ ) cout << "Opening DB connection with TNS_ADMIN ..." << endl;
+      if ( verbose_ ) std::cout << "Opening DB connection with TNS_ADMIN ..." << std::endl;
       econn = new EcalCondDBInterface(dbName_, dbUserName_, dbPassword_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
       if ( dbHostName_.size() != 0 ) {
         try {
-          if ( verbose_ ) cout << "Opening DB connection without TNS_ADMIN ..." << endl;
+          if ( verbose_ ) std::cout << "Opening DB connection without TNS_ADMIN ..." << std::endl;
           econn = new EcalCondDBInterface(dbHostName_, dbName_, dbUserName_, dbPassword_, dbHostPort_);
-          if ( verbose_ ) cout << "done." << endl;
+          if ( verbose_ ) std::cout << "done." << std::endl;
         } catch (runtime_error &e) {
-          cerr << e.what() << endl;
+          cerr << e.what() << std::endl;
         }
       }
     }
@@ -1292,12 +1288,12 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Fetching RunDat ..." << endl;
+      if ( verbose_ ) std::cout << "Fetching RunDat ..." << std::endl;
       econn->fetchDataSet(&dataset, &runiov_);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
       foundRunDat = true;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
       foundRunDat = false;
     }
   }
@@ -1311,17 +1307,17 @@ void EcalBarrelMonitorClient::endRunDb(void) {
         ecid = LogicID::getEcalLogicID("EB");
         dataset[ecid] = rd;
       } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        cerr << e.what() << std::endl;
       }
     }
 
     if ( econn ) {
       try {
-        if ( verbose_ ) cout << "Inserting RunDat ..." << endl;
+        if ( verbose_ ) std::cout << "Inserting RunDat ..." << std::endl;
         econn->insertDataSet(&dataset, &runiov_);
-        if ( verbose_ ) cout << "done." << endl;
+        if ( verbose_ ) std::cout << "done." << std::endl;
       } catch (runtime_error &e) {
-        cerr << e.what() << endl;
+        cerr << e.what() << std::endl;
       }
     }
 
@@ -1331,12 +1327,12 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Closing DB connection ..." << endl;
+      if ( verbose_ ) std::cout << "Closing DB connection ..." << std::endl;
       delete econn;
       econn = 0;
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 #endif
@@ -1350,7 +1346,7 @@ void EcalBarrelMonitorClient::analyze(void) {
   ievt_++;
   jevt_++;
 
-  if ( debug_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+  if ( debug_ ) std::cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
 
   MonitorElement* me;
   string s;
@@ -1362,15 +1358,15 @@ void EcalBarrelMonitorClient::analyze(void) {
     if ( strcmp(s.c_str(), "i=0") == 0 ) status_ = "begin-of-run";
     if ( strcmp(s.c_str(), "i=1") == 0 ) status_ = "running";
     if ( strcmp(s.c_str(), "i=2") == 0 ) status_ = "end-of-run";
-    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/STATUS'" << endl;
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/STATUS'" << std::endl;
   }
 
   if ( inputFile_.size() != 0 ) {
     if ( ievt_ == 1 ) {
       if ( verbose_ ) {
-        cout << endl;
-        cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
-        cout << endl;
+        std::cout << std::endl;
+        std::cout << " Reading DQM from file, forcing 'begin-of-run'" << std::endl;
+        std::cout << std::endl;
       }
       status_ = "begin-of-run";
     }
@@ -1381,7 +1377,7 @@ void EcalBarrelMonitorClient::analyze(void) {
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_run);
-    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/RUN'" << endl;
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/RUN'" << std::endl;
   }
 
   int ecal_evt = -1;
@@ -1389,7 +1385,7 @@ void EcalBarrelMonitorClient::analyze(void) {
   if ( me ) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &ecal_evt);
-    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/EVT'" << endl;
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/EVT'" << std::endl;
   }
 
   me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
@@ -1400,7 +1396,7 @@ void EcalBarrelMonitorClient::analyze(void) {
     s = me->valueString();
     sscanf(s.c_str(), "i=%d", &evtType_);
     if ( runType_ == -1 ) runType_ = evtType_;
-    if ( debug_ ) cout << "Found '" << prefixME_ << "/EcalInfo/RUNTYPE'" << endl;
+    if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/RUNTYPE'" << std::endl;
   }
 
   // if the run number from the Event is less than zero,
@@ -1421,26 +1417,26 @@ void EcalBarrelMonitorClient::analyze(void) {
   if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
     if ( verbose_ ) {
-      cout << " RUN status = \"" << status_ << "\"" << endl;
-      cout << "   CMS run/event number = " << run_ << "/" << evt_ << endl;
-      cout << "   EB run/event number = " << ecal_run << "/" << ecal_evt << endl;
-      cout << "   EB location = " << location_ << endl;
-      cout << "   EB run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
+      std::cout << " RUN status = \"" << status_ << "\"" << std::endl;
+      std::cout << "   CMS run/event number = " << run_ << "/" << evt_ << std::endl;
+      std::cout << "   EB run/event number = " << ecal_run << "/" << ecal_evt << std::endl;
+      std::cout << "   EB location = " << location_ << std::endl;
+      std::cout << "   EB run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
       if ( h_ ) {
         if ( h_->GetSumOfWeights() != 0 ) {
-          cout << " ( " << flush;
+          std::cout << " ( " << flush;
           for ( unsigned int i = 0; i < runTypes_.size(); i++ ) {
             if ( strcmp(runTypes_[i].c_str(), "UNKNOWN") != 0 && h_->GetBinContent(2+i) != 0 ) {
               string s = runTypes_[i];
               transform( s.begin(), s.end(), s.begin(), (int(*)(int))tolower );
-              cout << s << " ";
+              std::cout << s << " ";
             }
           }
-          cout << ")" << flush;
+          std::cout << ")" << flush;
         }
       }
-      cout << endl;
+      std::cout << std::endl;
     }
 
   }
@@ -1542,9 +1538,9 @@ void EcalBarrelMonitorClient::analyze(void) {
           if ( begin_run_ && ! end_run_ ) {
 
             if ( verbose_ ) {
-              cout << endl;
-              cout << " Old run has finished, issuing endRun() ... " << endl;
-              cout << endl;
+              std::cout << std::endl;
+              std::cout << " Old run has finished, issuing endRun() ... " << std::endl;
+              std::cout << std::endl;
             }
 
             // end old_run_
@@ -1558,9 +1554,9 @@ void EcalBarrelMonitorClient::analyze(void) {
           if ( ! begin_run_ ) {
 
             if ( verbose_ ) {
-              cout << endl;
-              cout << " New run has started, issuing beginRun() ... " << endl;
-              cout << endl;
+              std::cout << std::endl;
+              std::cout << " New run has started, issuing beginRun() ... " << std::endl;
+              std::cout << std::endl;
             }
 
             // start new_run_
@@ -1590,9 +1586,9 @@ void EcalBarrelMonitorClient::analyze(void) {
         if ( ! begin_run_ ) {
 
           if ( verbose_ ) {
-            cout << endl;
-            cout << "Forcing beginRun() ... NOW !" << endl;
-            cout << endl;
+            std::cout << std::endl;
+            std::cout << "Forcing beginRun() ... NOW !" << std::endl;
+            std::cout << std::endl;
           }
 
           forced_status_ = true;
@@ -1617,9 +1613,9 @@ void EcalBarrelMonitorClient::analyze(void) {
         if ( ! begin_run_ ) {
 
           if ( verbose_ ) {
-            cout << endl;
-            cout << "Forcing beginRun() ... NOW !" << endl;
-            cout << endl;
+            std::cout << std::endl;
+            std::cout << "Forcing beginRun() ... NOW !" << std::endl;
+            std::cout << std::endl;
           }
 
           forced_status_ = true;
@@ -1637,7 +1633,7 @@ void EcalBarrelMonitorClient::analyze(void) {
 
 }
 
-void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
+void EcalBarrelMonitorClient::analyze(const edm::Event &e, const edm::EventSetup &c) {
 
   run_ = e.id().run();
   evt_ = e.id().event();

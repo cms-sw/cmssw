@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/02/15 22:41:44 $
- * $Revision: 1.36 $
+ * $Date: 2010/02/16 10:53:18 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -31,11 +31,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps) {
+EEStatusFlagsClient::EEStatusFlagsClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -47,7 +43,7 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -55,7 +51,7 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -83,9 +79,9 @@ EEStatusFlagsClient::~EEStatusFlagsClient() {
 
 void EEStatusFlagsClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EEStatusFlagsClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EEStatusFlagsClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -94,7 +90,7 @@ void EEStatusFlagsClient::beginJob(void) {
 
 void EEStatusFlagsClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EEStatusFlagsClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EEStatusFlagsClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -104,7 +100,7 @@ void EEStatusFlagsClient::beginRun(void) {
 
 void EEStatusFlagsClient::endJob(void) {
 
-  if ( debug_ ) cout << "EEStatusFlagsClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EEStatusFlagsClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -112,7 +108,7 @@ void EEStatusFlagsClient::endJob(void) {
 
 void EEStatusFlagsClient::endRun(void) {
 
-  if ( debug_ ) cout << "EEStatusFlagsClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EEStatusFlagsClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -162,8 +158,8 @@ bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
     }
 
@@ -183,7 +179,7 @@ void EEStatusFlagsClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

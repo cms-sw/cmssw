@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2010/02/12 21:57:30 $
- * $Revision: 1.112 $
+ * $Date: 2010/02/14 11:23:22 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -30,17 +30,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
+EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -90,7 +86,7 @@ void EBTestPulseTask::beginJob(void){
 
 }
 
-void EBTestPulseTask::beginRun(const Run& r, const EventSetup& c) {
+void EBTestPulseTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -98,7 +94,7 @@ void EBTestPulseTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBTestPulseTask::endRun(const Run& r, const EventSetup& c) {
+void EBTestPulseTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -315,13 +311,13 @@ void EBTestPulseTask::cleanup(void){
 
 void EBTestPulseTask::endJob(void){
 
-  LogInfo("EBTestPulseTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTestPulseTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
+void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool enable = false;
   int runType[36];
@@ -329,7 +325,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
   int mgpaGain[36];
   for (int i=0; i<36; i++) mgpaGain[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -349,7 +345,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBTestPulseTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -359,7 +355,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
+  edm::Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
 
@@ -405,11 +401,11 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBTestPulseTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << EBDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  edm::Handle<EcalUncalibratedRecHitCollection> hits;
 
   if ( e.getByLabel(EcalUncalibratedRecHitCollection_, hits) ) {
 
@@ -451,11 +447,11 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBTestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
+  edm::Handle<EcalPnDiodeDigiCollection> pns;
 
   if ( e.getByLabel(EcalPnDiodeDigiCollection_, pns) ) {
 
@@ -519,7 +515,7 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBTestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
+    edm::LogWarning("EBTestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 

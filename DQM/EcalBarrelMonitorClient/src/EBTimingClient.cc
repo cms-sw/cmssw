@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2010/02/15 11:08:47 $
- * $Revision: 1.100 $
+ * $Date: 2010/02/15 14:14:14 $
+ * $Revision: 1.101 $
  * \author G. Della Ricca
  *
 */
@@ -33,11 +33,7 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBTimingClient::EBTimingClient(const ParameterSet& ps) {
+EBTimingClient::EBTimingClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -49,7 +45,7 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -57,7 +53,7 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -97,9 +93,9 @@ EBTimingClient::~EBTimingClient() {
 
 void EBTimingClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EBTimingClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -108,7 +104,7 @@ void EBTimingClient::beginJob(void) {
 
 void EBTimingClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EBTimingClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -118,7 +114,7 @@ void EBTimingClient::beginRun(void) {
 
 void EBTimingClient::endJob(void) {
 
-  if ( debug_ ) cout << "EBTimingClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -126,7 +122,7 @@ void EBTimingClient::endJob(void) {
 
 void EBTimingClient::endRun(void) {
 
-  if ( debug_ ) cout << "EBTimingClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBTimingClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -246,8 +242,8 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
     }
 
@@ -269,9 +265,9 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -303,11 +299,11 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonTimingCrystalDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonTimingCrystalDat ..." << std::endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -321,7 +317,7 @@ void EBTimingClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EBTimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EBTimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

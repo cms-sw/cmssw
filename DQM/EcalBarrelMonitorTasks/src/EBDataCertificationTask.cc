@@ -20,18 +20,14 @@
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBDataCertificationTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+EBDataCertificationTask::EBDataCertificationTask(const edm::ParameterSet& ps) {
 
-EBDataCertificationTask::EBDataCertificationTask(const ParameterSet& ps) {
-
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -134,7 +130,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       ismFrontendQual = 1.0 - errors/hFrontendByLumi_->GetBinContent(0);
       frontendErrSum += errors;
     }
-    DQMVal[i] = min(ismIntegrityQual,ismFrontendQual);
+    DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
 
     sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
@@ -162,7 +158,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   float frontendQual = 1.0;
   if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
 
-  totDQMVal = min(integrityQual,frontendQual);
+  totDQMVal = std::min(integrityQual,frontendQual);
 
   sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
   me = dqmStore_->get(histo);
@@ -233,13 +229,13 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
 }
 
-void EBDataCertificationTask::beginRun(const Run& r, const EventSetup& c) {
+void EBDataCertificationTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
 }
 
-void EBDataCertificationTask::endRun(const Run& r, const EventSetup& c) {
+void EBDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   this->reset();
 
@@ -355,6 +351,6 @@ void EBDataCertificationTask::cleanup(void){
 
 }
 
-void EBDataCertificationTask::analyze(const Event& e, const EventSetup& c){ 
+void EBDataCertificationTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
 }

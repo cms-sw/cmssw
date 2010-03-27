@@ -1,15 +1,14 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2010/02/16 11:01:43 $
- * $Revision: 1.55 $
+ * $Date: 2010/03/04 10:44:20 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,17 +31,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBTimingTask::EBTimingTask(const ParameterSet& ps){
+EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -80,7 +75,7 @@ void EBTimingTask::beginJob(void){
 
 }
 
-void EBTimingTask::beginRun(const Run& r, const EventSetup& c) {
+void EBTimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -88,7 +83,7 @@ void EBTimingTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBTimingTask::endRun(const Run& r, const EventSetup& c) {
+void EBTimingTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -207,20 +202,20 @@ void EBTimingTask::cleanup(void){
 
 void EBTimingTask::endJob(void){
 
-  LogInfo("EBTimingTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBTimingTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBTimingTask::analyze(const Event& e, const EventSetup& c){
+void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool isData = true;
   bool enable = false;
   int runType[36];
   for (int i=0; i<36; i++) runType[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -244,7 +239,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     isData = false; enable = true;
-    LogWarning("EBTimingTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EBTimingTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -259,7 +254,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
   const EcalChannelStatus *chStatus = pChannelStatus.product();
 
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
@@ -328,7 +323,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBTimingTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EBTimingTask") << EcalRecHitCollection_ << " not available";
 
   }
 

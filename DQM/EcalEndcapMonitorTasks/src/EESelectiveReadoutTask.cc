@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 12:56:36 $
- * $Revision: 1.45 $
+ * $Date: 2010/02/16 10:53:19 $
+ * $Revision: 1.46 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -33,17 +33,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EESelectiveReadoutTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
+EESelectiveReadoutTask::EESelectiveReadoutTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -57,7 +53,7 @@ EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
   firstFIRSample_ = ps.getParameter<int>("ecalDccZs1stSample");
 
-  configFirWeights(ps.getParameter<vector<double> >("dccWeights"));
+  configFirWeights(ps.getParameter<std::vector<double> >("dccWeights"));
 
   // histograms...
   EEDccEventSize_ = 0;
@@ -111,7 +107,7 @@ void EESelectiveReadoutTask::beginJob(void) {
 
 }
 
-void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
+void EESelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -138,7 +134,7 @@ void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
+void EESelectiveReadoutTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -406,19 +402,19 @@ void EESelectiveReadoutTask::cleanup(void){
 
 void EESelectiveReadoutTask::endJob(void){
 
-  LogInfo("EESelectiveReadoutTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EESelectiveReadoutTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
+void EESelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<FEDRawDataCollection> raw;
+  edm::Handle<FEDRawDataCollection> raw;
   if ( e.getByLabel(FEDRawDataCollection_, raw) ) {
 
     int EEFirstFED[2];
@@ -441,11 +437,11 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EESelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
+    edm::LogWarning("EESelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
   }
 
   // Selective Readout Flags
-  Handle<EESrFlagCollection> eeSrFlags;
+  edm::Handle<EESrFlagCollection> eeSrFlags;
   if ( e.getByLabel(EESRFlagCollection_,eeSrFlags) ) {
 
     for ( EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it ) {
@@ -473,7 +469,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     }
   } else {
-    LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
+    edm::LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
   }
 
   for(int ix = 0; ix < 20; ix++ ) {
@@ -536,7 +532,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   aHighInterest[1]=0;
   aAnyInterest[1]=0;
 
-  Handle<EEDigiCollection> eeDigis;
+  edm::Handle<EEDigiCollection> eeDigis;
   if ( e.getByLabel(EEDigiCollection_ , eeDigis) ) {
 
     anaDigiInit();
@@ -584,10 +580,10 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
   }
 
-  Handle<EcalTrigPrimDigiCollection> TPCollection;
+  edm::Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
 
     // Trigger Primitives
@@ -598,7 +594,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       int ismt = Numbers::iSM( TPdigi->id() );
 
-      vector<DetId>* crystals = Numbers::crystals( TPdigi->id() );
+      std::vector<DetId>* crystals = Numbers::crystals( TPdigi->id() );
 
       for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
@@ -632,7 +628,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     }
   } else {
-    LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
   for(int ix = 0; ix < 100; ix++ ) {
@@ -849,7 +845,7 @@ EESelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
                                  bool* saturated){
   const int nFIRTaps = 6;
   //FIR filter weights:
-  const vector<int>& w = firWeights;
+  const std::vector<int>& w = firWeights;
 
   //accumulator used to compute weighted sum of samples
   int acc = 0;
@@ -888,16 +884,16 @@ EESelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
     *saturated = gain12saturated;
   }
 
-  return gain12saturated?numeric_limits<int>::max():acc;
+  return gain12saturated?std::numeric_limits<int>::max():acc;
 }
 
 std::vector<int>
 EESelectiveReadoutTask::getFIRWeights(const std::vector<double>&
                                       normalizedWeights){
   const int nFIRTaps = 6;
-  vector<int> firWeights(nFIRTaps, 0); //default weight: 0;
+  std::vector<int> firWeights(nFIRTaps, 0); //default weight: 0;
   const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
-  for(unsigned i=0; i < min((size_t)nFIRTaps,normalizedWeights.size()); ++i){
+  for(unsigned i=0; i < std::min((size_t)nFIRTaps,normalizedWeights.size()); ++i){
     firWeights[i] = lround(normalizedWeights[i] * (1<<10));
     if(abs(firWeights[i])>maxWeight){//overflow
       firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
@@ -907,7 +903,7 @@ EESelectiveReadoutTask::getFIRWeights(const std::vector<double>&
 }
 
 void
-EESelectiveReadoutTask::configFirWeights(vector<double> weightsForZsFIR){
+EESelectiveReadoutTask::configFirWeights(std::vector<double> weightsForZsFIR){
   bool notNormalized  = false;
   bool notInt = false;
   for(unsigned i=0; i < weightsForZsFIR.size(); ++i){
@@ -921,9 +917,9 @@ EESelectiveReadoutTask::configFirWeights(vector<double> weightsForZsFIR){
       << "of the weights or less or equal than 1 and used the normalized "
       << "representation.";
   }
-  LogInfo log("DccFir");
+  edm::LogInfo log("DccFir");
   if(notNormalized){
-    firWeights_ = vector<int>(weightsForZsFIR.size());
+    firWeights_ = std::vector<int>(weightsForZsFIR.size());
     for(unsigned i = 0; i< weightsForZsFIR.size(); ++i){
       firWeights_[i] = (int)weightsForZsFIR[i];
     }

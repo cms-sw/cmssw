@@ -1,15 +1,14 @@
 /*
  * \file EETrendClient.cc
  *
- * $Date: 2010/03/02 00:02:08 $
- * $Revision: 1.5 $
+ * $Date: 2010/03/22 04:49:10 $
+ * $Revision: 1.6 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -22,19 +21,13 @@
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 
-
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-
-EETrendClient::EETrendClient(const ParameterSet& ps){
+EETrendClient::EETrendClient(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -115,7 +108,7 @@ void EETrendClient::beginJob(void){
 }
 
 
-void EETrendClient::beginRun(const Run& r, const EventSetup& c) {
+void EETrendClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -124,7 +117,7 @@ void EETrendClient::beginRun(const Run& r, const EventSetup& c) {
 }
 
 
-void EETrendClient::endRun(const Run& r, const EventSetup& c) {
+void EETrendClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -223,14 +216,14 @@ void EETrendClient::cleanup(void){
 
 void EETrendClient::endJob(void){
 
-  LogInfo("EETrendClient") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EETrendClient") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
 
-void EETrendClient::analyze(const Event& e, const EventSetup& c){
+void EETrendClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 

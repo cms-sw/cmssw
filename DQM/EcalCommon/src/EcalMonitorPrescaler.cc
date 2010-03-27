@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.11 2008/10/29 13:27:05 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.12 2009/11/06 10:43:13 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.11 $
-  \date $Date: 2008/10/29 13:27:05 $
+  \version $Revision: 1.12 $
+  \date $Date: 2009/11/06 10:43:13 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,15 +14,11 @@
 
 #include <DQM/EcalCommon/interface/EcalMonitorPrescaler.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
+EcalMonitorPrescaler::EcalMonitorPrescaler(edm::ParameterSet const& ps) {
 
   count_ = 0;
 
-  EcalRawDataCollection_ = ps.getParameter<InputTag>("EcalRawDataCollection");
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   occupancyPrescaleFactor_ = ps.getUntrackedParameter<int>("occupancyPrescaleFactor" , 0);
   integrityPrescaleFactor_ = ps.getUntrackedParameter<int>("integrityPrescaleFactor", 0);
@@ -50,7 +46,7 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
     
 EcalMonitorPrescaler::~EcalMonitorPrescaler() { }
 
-bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
+bool EcalMonitorPrescaler::filter(edm::Event &e, edm::EventSetup const &c) {
 
   count_++;
 
@@ -77,7 +73,7 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
     if ( count_ % timingPrescaleFactor_ == 0 ) status = true;
   }
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -147,7 +143,7 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
 
   } else {
 
-    LogWarning("EcalMonitorPrescaler") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EcalMonitorPrescaler") << EcalRawDataCollection_ << " not available";
 
   }
 

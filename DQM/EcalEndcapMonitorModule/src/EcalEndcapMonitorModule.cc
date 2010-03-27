@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2010/02/14 11:11:10 $
- * $Revision: 1.71 $
+ * $Date: 2010/02/15 20:59:16 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -29,23 +29,18 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include <DQM/EcalEndcapMonitorModule/interface/EcalEndcapMonitorModule.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
+EcalEndcapMonitorModule::EcalEndcapMonitorModule(const edm::ParameterSet& ps){
 
   // verbose switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   if ( verbose_ ) {
-    cout << endl;
-    cout << " *** Ecal Endcap Generic Monitor ***" << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << " *** Ecal Endcap Generic Monitor ***" << std::endl;
+    std::cout << std::endl;
   }
 
   init_ = false;
@@ -63,7 +58,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   if ( fixedRunNumber_ ) {
     if ( verbose_ ) {
-      cout << " fixed Run Number = " << runNumber_ << endl;
+      std::cout << " fixed Run Number = " << runNumber_ << std::endl;
     }
   }
 
@@ -79,7 +74,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   if ( fixedRunType_) {
     if ( verbose_ ) { 
-      cout << " fixed Run Type = " << runType_ << endl;
+      std::cout << " fixed Run Type = " << runType_ << std::endl;
     }
   }
 
@@ -88,16 +83,16 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   if ( debug_ ) {
     if ( verbose_ ) { 
-      cout << " debug switch is ON" << endl;
+      std::cout << " debug switch is ON" << std::endl;
     }
   } else {
     if ( verbose_ ) { 
-      cout << " debug switch is OFF" << endl;
+      std::cout << " debug switch is OFF" << std::endl;
     }
   }
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -107,11 +102,11 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
   if ( enableCleanup_ ) {
     if ( verbose_ ) { 
-      cout << " enableCleanup switch is ON" << endl;
+      std::cout << " enableCleanup switch is ON" << std::endl;
     }
   } else {
     if ( verbose_ ) { 
-      cout << " enableCleanup switch is OFF" << endl;
+      std::cout << " enableCleanup switch is OFF" << std::endl;
     }
   }
 
@@ -144,11 +139,11 @@ EcalEndcapMonitorModule::~EcalEndcapMonitorModule(){
 
 void EcalEndcapMonitorModule::beginJob(void){
 
-  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginJob" << endl;
+  if ( debug_ ) std::cout << "EcalEndcapMonitorModule: beginJob" << std::endl;
 
   ievt_ = 0;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
@@ -161,17 +156,17 @@ void EcalEndcapMonitorModule::beginJob(void){
 
 }
 
-void EcalEndcapMonitorModule::beginRun(const Run& r, const EventSetup& c) {
+void EcalEndcapMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginRun" << endl;
+  if ( debug_ ) std::cout << "EcalEndcapMonitorModule: beginRun" << std::endl;
 
   if ( ! mergeRuns_ ) this->reset();
   
 }
   
-void EcalEndcapMonitorModule::endRun(const Run& r, const EventSetup& c) {
+void EcalEndcapMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if ( debug_ ) cout << "EcalEndcapMonitorModule: endRun" << endl;
+  if ( debug_ ) std::cout << "EcalEndcapMonitorModule: endRun" << std::endl;
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
@@ -359,7 +354,7 @@ void EcalEndcapMonitorModule::cleanup(void){
 
 void EcalEndcapMonitorModule::endJob(void) {
 
-  if ( debug_ ) cout << "EcalEndcapMonitorModule: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EcalEndcapMonitorModule: endJob, ievt = " << ievt_ << std::endl;
 
   if ( dqmStore_ ) {
     meStatus_ = dqmStore_->get(prefixME_ + "/EventInfo/STATUS");
@@ -377,7 +372,7 @@ void EcalEndcapMonitorModule::endJob(void) {
 
 }
 
-void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
+void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   Numbers::initGeometry(c, verbose_);
 
@@ -391,7 +386,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   evtNumber_ = e.id().event();
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -439,7 +434,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./18.);
 
-    LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -465,7 +460,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
-  Handle<EEDigiCollection> digis;
+  edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
 
@@ -503,11 +498,11 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalEndcapMonitorModule") << EEDigiCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << EEDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
@@ -559,11 +554,11 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalEndcapMonitorModule") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << EcalRecHitCollection_ << " not available";
 
   }
 
-  Handle<EcalTrigPrimDigiCollection> tpdigis;
+  edm::Handle<EcalTrigPrimDigiCollection> tpdigis;
 
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis) ) {
 
@@ -600,7 +595,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EcalEndcapMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EcalEndcapMonitorModule") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
 

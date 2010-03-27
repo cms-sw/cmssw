@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/02/16 07:52:51 $
- * $Revision: 1.102 $
+ * $Date: 2010/02/16 10:53:18 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,11 +44,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps) {
+EEIntegrityClient::EEIntegrityClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -60,7 +56,7 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -68,7 +64,7 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   h00_ = 0;
 
@@ -111,9 +107,9 @@ EEIntegrityClient::~EEIntegrityClient() {
 
 void EEIntegrityClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EEIntegrityClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EEIntegrityClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -122,7 +118,7 @@ void EEIntegrityClient::beginJob(void) {
 
 void EEIntegrityClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EEIntegrityClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EEIntegrityClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -132,7 +128,7 @@ void EEIntegrityClient::beginRun(void) {
 
 void EEIntegrityClient::endJob(void) {
 
-  if ( debug_ ) cout << "EEIntegrityClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EEIntegrityClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -140,7 +136,7 @@ void EEIntegrityClient::endJob(void) {
 
 void EEIntegrityClient::endRun(void) {
 
-  if ( debug_ ) cout << "EEIntegrityClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EEIntegrityClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -293,14 +289,14 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     int ism = superModules_[i];
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
-      cerr << endl;
-      cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
-      cerr << endl;
+      cerr << std::endl;
+      cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << std::endl;
+      cerr << std::endl;
     }
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
       UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
       UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
@@ -364,9 +360,9 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "(" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "(" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -471,9 +467,9 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( Numbers::iSC(ism, EcalEndcap, jxt, jyt) == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-              cout << "(" << 1+(Numbers::ix0EE(ism)+1+5*(ixt-1))/5 << "," << 1+(Numbers::iy0EE(ism)+1+5*(iyt-1))/5 << ") " << num00 << " " << num04 << " " << num05 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+              std::cout << "(" << 1+(Numbers::ix0EE(ism)+1+5*(ixt-1))/5 << "," << 1+(Numbers::iy0EE(ism)+1+5*(iyt-1))/5 << ") " << num00 << " " << num04 << " " << num05 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -547,9 +543,9 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           if ( ix ==1 && iy == 1 ) {
 
             if ( verbose_ ) {
-              cout << "Preparing dataset for mem of SM=" << ism << endl;
-              cout << "(" << ix << "," << iy << ") " << num06 << " " << num07 << endl;
-              cout << endl;
+              std::cout << "Preparing dataset for mem of SM=" << ism << std::endl;
+              std::cout << "(" << ix << "," << iy << ") " << num06 << " " << num07 << std::endl;
+              std::cout << std::endl;
             }
 
           }
@@ -626,9 +622,9 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         if ( ixt == 1 ) {
 
           if ( verbose_ ) {
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-            cout << "(" << ixt <<  ") " << num08 << " " << num09 << endl;
-            cout << endl;
+            std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+            std::cout << "(" << ixt <<  ") " << num08 << " " << num09 << std::endl;
+            std::cout << std::endl;
           }
 
         }
@@ -675,14 +671,14 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      if ( verbose_ ) cout << "Inserting MonConsistencyDat ..." << endl;
+      if ( verbose_ ) std::cout << "Inserting MonConsistencyDat ..." << std::endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       if ( dataset4.size() != 0 ) econn->insertDataArraySet(&dataset4, moniov);
-      if ( verbose_ ) cout << "done." << endl;
+      if ( verbose_ ) std::cout << "done." << std::endl;
     } catch (runtime_error &e) {
-      cerr << e.what() << endl;
+      cerr << e.what() << std::endl;
     }
   }
 
@@ -696,7 +692,7 @@ void EEIntegrityClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   uint64_t bits01 = 0;

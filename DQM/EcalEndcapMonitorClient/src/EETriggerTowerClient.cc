@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2010/01/25 21:12:26 $
- * $Revision: 1.92 $
+ * $Date: 2010/02/15 18:01:26 $
+ * $Revision: 1.93 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,11 +22,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
+EETriggerTowerClient::EETriggerTowerClient(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -38,7 +34,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
   // prefixME path
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -46,7 +42,7 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -77,9 +73,9 @@ EETriggerTowerClient::~EETriggerTowerClient() {
 
 void EETriggerTowerClient::beginJob(void) {
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  if ( debug_ ) cout << "EETriggerTowerClient: beginJob" << endl;
+  if ( debug_ ) std::cout << "EETriggerTowerClient: beginJob" << std::endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -88,7 +84,7 @@ void EETriggerTowerClient::beginJob(void) {
 
 void EETriggerTowerClient::beginRun(void) {
 
-  if ( debug_ ) cout << "EETriggerTowerClient: beginRun" << endl;
+  if ( debug_ ) std::cout << "EETriggerTowerClient: beginRun" << std::endl;
 
   jevt_ = 0;
 
@@ -98,7 +94,7 @@ void EETriggerTowerClient::beginRun(void) {
 
 void EETriggerTowerClient::endJob(void) {
 
-  if ( debug_ ) cout << "EETriggerTowerClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EETriggerTowerClient: endJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -106,7 +102,7 @@ void EETriggerTowerClient::endJob(void) {
 
 void EETriggerTowerClient::endRun(void) {
 
-  if ( debug_ ) cout << "EETriggerTowerClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EETriggerTowerClient: endRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 
@@ -194,8 +190,8 @@ bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
     int ism = superModules_[i];
 
     if ( verbose_ ) {
-      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-      cout << endl;
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
       UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
     }
 
@@ -211,7 +207,7 @@ void EETriggerTowerClient::analyze(void) {
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( debug_ ) cout << "EETriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) std::cout << "EETriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
   char histo[200];

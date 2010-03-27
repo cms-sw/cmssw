@@ -1,12 +1,14 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/02/16 10:53:19 $
- * $Revision: 1.65 $
+ * $Date: 2010/02/17 22:46:52 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
 */
+
+#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,21 +23,17 @@
 #include "DQM/EcalEndcapMonitorTasks/interface/EETriggerTowerTask.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
 const int EETriggerTowerTask::nTTEta = 20;
 const int EETriggerTowerTask::nTTPhi = 20;
 const int EETriggerTowerTask::nSM = 18;
 
-EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
+EETriggerTowerTask::EETriggerTowerTask(const edm::ParameterSet& ps) {
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
@@ -68,15 +66,15 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
 
-  realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
-  emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
-  EEDigiCollection_ = ps.getParameter<InputTag>("EEDigiCollection");
-  HLTResultsCollection_ = ps.getParameter<InputTag>("HLTResultsCollection");
+  realCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionReal");
+  emulCollection_ =  ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollectionEmul");
+  EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
+  HLTResultsCollection_ = ps.getParameter<edm::InputTag>("HLTResultsCollection");
 
   HLTCaloHLTBit_ = ps.getUntrackedParameter<std::string>("HLTCaloHLTBit", "");
   HLTMuonHLTBit_ = ps.getUntrackedParameter<std::string>("HLTMuonHLTBit", "");
 
-  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
+  outputFile_ = ps.getUntrackedParameter<std::string>("OutputRootFile", "");
 
   LogDebug("EETriggerTowerTask") << "REAL     digis: " << realCollection_;
   LogDebug("EETriggerTowerTask") << "EMULATED digis: " << emulCollection_;
@@ -105,7 +103,7 @@ void EETriggerTowerTask::beginJob(void){
 
 }
 
-void EETriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+void EETriggerTowerTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -113,7 +111,7 @@ void EETriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EETriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+void EETriggerTowerTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -157,7 +155,7 @@ void EETriggerTowerTask::setup(void){
            (prefixME_ + "/EETriggerTowerTask/Emulated").c_str(), true);
   }
   else {
-    LogError("EETriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
+    edm::LogError("EETriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
   }
 }
 
@@ -334,19 +332,19 @@ void EETriggerTowerTask::cleanup(void) {
 
 void EETriggerTowerTask::endJob(void){
 
-  LogInfo("EETriggerTowerTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EETriggerTowerTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
+void EETriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EcalTrigPrimDigiCollection> realDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> realDigis;
 
   if ( e.getByLabel(realCollection_, realDigis) ) {
 
@@ -359,21 +357,21 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meVetoReal_);
 
   } else {
-    LogWarning("EETriggerTowerTask") << realCollection_ << " not available";
+    edm::LogWarning("EETriggerTowerTask") << realCollection_ << " not available";
   }
 
-  Handle<EcalTrigPrimDigiCollection> emulDigis;
+  edm::Handle<EcalTrigPrimDigiCollection> emulDigis;
 
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
-    Handle<TriggerResults> hltResults;
+    edm::Handle<edm::TriggerResults> hltResults;
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
     }
 
     if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
+      HLTResultsCollection_ = edm::InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
     }
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
@@ -386,21 +384,21 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                     hltResults);
 
     } else {
-      LogWarning("EETriggerTowerTask") << HLTResultsCollection_ << " not available";
+      edm::LogWarning("EETriggerTowerTask") << HLTResultsCollection_ << " not available";
     }
 
   } else {
-    LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
+    edm::LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }
 
 void
-EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiCollection>& digis,
+EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTrigPrimDigiCollection>& digis,
                                   array1& meEtMap,
                                   array1& meVeto,
-                                  const Handle<EcalTrigPrimDigiCollection>& compDigis,
-                                  const Handle<TriggerResults> & hltResults ) {
+                                  const edm::Handle<EcalTrigPrimDigiCollection>& compDigis,
+                                  const edm::Handle<edm::TriggerResults> & hltResults ) {
 
   int bx = e.bunchCrossing();
   int nTP[2];
@@ -417,7 +415,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
   if ( validCompDigis ) {
 
-    Handle<EEDigiCollection> crystalDigis;
+    edm::Handle<EEDigiCollection> crystalDigis;
 
     if ( e.getByLabel(EEDigiCollection_, crystalDigis) ) {
 
@@ -436,7 +434,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EETriggerTowerTask") << EEDigiCollection_ << " not available";
+      edm::LogWarning("EETriggerTowerTask") << EEDigiCollection_ << " not available";
     }
 
   }
@@ -462,7 +460,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
     } else {
-      LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
+      edm::LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
     }
 
   }
@@ -554,7 +552,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
     }
 
-    vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
+    std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
 
     int crystalsInTower = crystals->size();
 

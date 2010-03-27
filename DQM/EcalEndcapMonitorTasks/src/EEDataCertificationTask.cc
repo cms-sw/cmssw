@@ -20,18 +20,14 @@
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EEDataCertificationTask.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EEDataCertificationTask::EEDataCertificationTask(const ParameterSet& ps) {
+EEDataCertificationTask::EEDataCertificationTask(const edm::ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -131,7 +127,7 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
       ismFrontendQual = 1.0 - errors/hFrontendByLumi_->GetBinContent(0);
       frontendErrSum += errors;
     }
-    DQMVal[i] = min(ismIntegrityQual,ismFrontendQual);
+    DQMVal[i] = std::min(ismIntegrityQual,ismFrontendQual);
 
     sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
@@ -162,7 +158,7 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   float frontendQual = 1.0;
   if( hFrontendByLumi_ && hFrontendByLumi_->GetBinContent(0) > 0 ) frontendQual = 1.0 - frontendErrSum/hFrontendByLumi_->GetBinContent(0);
   
-  totDQMVal = min(integrityQual,frontendQual);
+  totDQMVal = std::min(integrityQual,frontendQual);
 
   sprintf(histo, (prefixME_ + "/EventInfo/reportSummary").c_str());
   me = dqmStore_->get(histo);
@@ -247,13 +243,13 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
 }
 
-void EEDataCertificationTask::beginRun(const Run& r, const EventSetup& c) {
+void EEDataCertificationTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
 }
 
-void EEDataCertificationTask::endRun(const Run& r, const EventSetup& c) {
+void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   this->reset();
 
@@ -384,6 +380,6 @@ void EEDataCertificationTask::cleanup(void){
 
 }
 
-void EEDataCertificationTask::analyze(const Event& e, const EventSetup& c){ 
+void EEDataCertificationTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
 
 }

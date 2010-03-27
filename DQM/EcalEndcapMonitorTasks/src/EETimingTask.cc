@@ -1,15 +1,14 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/03/04 10:44:20 $
- * $Revision: 1.58 $
+ * $Date: 2010/03/12 11:37:47 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,19 +31,15 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EETimingTask::EETimingTask(const ParameterSet& ps){
+EETimingTask::EETimingTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
   initGeometry_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -87,7 +82,7 @@ void EETimingTask::beginJob(void){
 
 }
 
-void EETimingTask::beginRun(const Run& r, const EventSetup& c) {
+void EETimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if( !initGeometry_ ) { 
     // ideal
@@ -101,7 +96,7 @@ void EETimingTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EETimingTask::endRun(const Run& r, const EventSetup& c) {
+void EETimingTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -267,20 +262,20 @@ void EETimingTask::cleanup(void){
 
 void EETimingTask::endJob(void){
 
-  LogInfo("EETimingTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EETimingTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EETimingTask::analyze(const Event& e, const EventSetup& c){
+void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   bool isData = true;
   bool enable = false;
   int runType[18];
   for (int i=0; i<18; i++) runType[i] = -1;
 
-  Handle<EcalRawDataCollection> dcchs;
+  edm::Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
@@ -304,7 +299,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
   } else {
 
     isData = false; enable = true;
-    LogWarning("EETimingTask") << EcalRawDataCollection_ << " not available";
+    edm::LogWarning("EETimingTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -325,7 +320,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
   int n_hithr[2] = {0,0};
   int n_lowthr[2] = {0,0};
 
-  Handle<EcalRecHitCollection> hits;
+  edm::Handle<EcalRecHitCollection> hits;
 
   if ( e.getByLabel(EcalRecHitCollection_, hits) ) {
 
@@ -423,7 +418,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EETimingTask") << EcalRecHitCollection_ << " not available";
+    edm::LogWarning("EETimingTask") << EcalRecHitCollection_ << " not available";
 
   }
 

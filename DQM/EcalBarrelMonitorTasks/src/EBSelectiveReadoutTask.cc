@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/11/15 11:00:17 $
- * $Revision: 1.43 $
+ * $Date: 2010/02/16 09:51:25 $
+ * $Revision: 1.44 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -32,17 +32,13 @@
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
+EBSelectiveReadoutTask::EBSelectiveReadoutTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
-  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
@@ -56,7 +52,7 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
   firstFIRSample_ = ps.getParameter<int>("ecalDccZs1stSample");
 
-  configFirWeights(ps.getParameter<vector<double> >("dccWeights"));
+  configFirWeights(ps.getParameter<std::vector<double> >("dccWeights"));
 
   // histograms...
   EBTowerSize_ = 0;
@@ -97,7 +93,7 @@ void EBSelectiveReadoutTask::beginJob(void) {
 
 }
 
-void EBSelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
+void EBSelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
@@ -116,7 +112,7 @@ void EBSelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
+void EBSelectiveReadoutTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
@@ -287,19 +283,19 @@ void EBSelectiveReadoutTask::cleanup(void){
 
 void EBSelectiveReadoutTask::endJob(void){
 
-  LogInfo("EBSelectiveReadoutTask") << "analyzed " << ievt_ << " events";
+  edm::LogInfo("EBSelectiveReadoutTask") << "analyzed " << ievt_ << " events";
 
   if ( enableCleanup_ ) this->cleanup();
 
 }
 
-void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
+void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<FEDRawDataCollection> raw;
+  edm::Handle<FEDRawDataCollection> raw;
   if ( e.getByLabel(FEDRawDataCollection_, raw) ) {
 
     for ( int iDcc = 0; iDcc < nEBDcc; ++iDcc ) {
@@ -310,11 +306,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    LogWarning("EBSelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
+    edm::LogWarning("EBSelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
   }
 
   // Selective Readout Flags
-  Handle<EBSrFlagCollection> ebSrFlags;
+  edm::Handle<EBSrFlagCollection> ebSrFlags;
   if ( e.getByLabel(EBSRFlagCollection_,ebSrFlags) ) {
 
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
@@ -341,7 +337,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     }
   } else {
-    LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
+    edm::LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
   }
 
   for(int ietindex = 0; ietindex < 34; ietindex++ ) {
@@ -392,7 +388,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   double aHighInterest=0;
   double aAnyInterest=0;
 
-  Handle<EBDigiCollection> ebDigis;
+  edm::Handle<EBDigiCollection> ebDigis;
   if ( e.getByLabel(EBDigiCollection_ , ebDigis) ) {
 
     anaDigiInit();
@@ -427,10 +423,10 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       }
     }
   } else {
-    LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
+    edm::LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
   }
 
-  Handle<EcalTrigPrimDigiCollection> TPCollection;
+  edm::Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
 
     // Trigger Primitives
@@ -461,7 +457,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
     }
   } else {
-    LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+    edm::LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
   for(int ietindex = 0; ietindex < 34; ietindex++ ) {
@@ -641,7 +637,7 @@ EBSelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
                                  bool* saturated){
   const int nFIRTaps = 6;
   //FIR filter weights:
-  const vector<int>& w = firWeights;
+  const std::vector<int>& w = firWeights;
 
   //accumulator used to compute weighted sum of samples
   int acc = 0;
@@ -680,16 +676,16 @@ EBSelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
     *saturated = gain12saturated;
   }
 
-  return gain12saturated?numeric_limits<int>::max():acc;
+  return gain12saturated?std::numeric_limits<int>::max():acc;
 }
 
 std::vector<int>
 EBSelectiveReadoutTask::getFIRWeights(const std::vector<double>&
                                       normalizedWeights){
   const int nFIRTaps = 6;
-  vector<int> firWeights(nFIRTaps, 0); //default weight: 0;
+  std::vector<int> firWeights(nFIRTaps, 0); //default weight: 0;
   const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
-  for(unsigned i=0; i < min((size_t)nFIRTaps,normalizedWeights.size()); ++i){
+  for(unsigned i=0; i < std::min((size_t)nFIRTaps,normalizedWeights.size()); ++i){
     firWeights[i] = lround(normalizedWeights[i] * (1<<10));
     if(abs(firWeights[i])>maxWeight){//overflow
       firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
@@ -699,7 +695,7 @@ EBSelectiveReadoutTask::getFIRWeights(const std::vector<double>&
 }
 
 void
-EBSelectiveReadoutTask::configFirWeights(vector<double> weightsForZsFIR){
+EBSelectiveReadoutTask::configFirWeights(std::vector<double> weightsForZsFIR){
   bool notNormalized  = false;
   bool notInt = false;
   for(unsigned i=0; i < weightsForZsFIR.size(); ++i){
@@ -713,9 +709,9 @@ EBSelectiveReadoutTask::configFirWeights(vector<double> weightsForZsFIR){
       << "of the weights or less or equal than 1 and used the normalized "
       << "representation.";
   }
-  LogInfo log("DccFir");
+  edm::LogInfo log("DccFir");
   if(notNormalized){
-    firWeights_ = vector<int>(weightsForZsFIR.size());
+    firWeights_ = std::vector<int>(weightsForZsFIR.size());
     for(unsigned i = 0; i< weightsForZsFIR.size(); ++i){
       firWeights_[i] = (int)weightsForZsFIR[i];
     }
