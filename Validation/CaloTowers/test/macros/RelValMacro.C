@@ -131,8 +131,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
       if (xAxisMax <  0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
 
-      if (xAxisMax > 0 || xAxisMin != 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
-
+      if (xAxisMax > 0 || xAxisMin != 0){
+	ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+	val_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+      }
       //yAxis
       if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
       if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
@@ -353,8 +355,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       if (xAxisMin == 0) xAxisMin = ref_hist2[nh2]->GetXaxis()->GetXmin();
       if (xAxisMax <  0) xAxisMax = ref_hist2[nh2]->GetXaxis()->GetXmax();
 
-      if (xAxisMax > 0 || xAxisMin != 0) ref_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
-
+      if (xAxisMax > 0 || xAxisMin != 0){
+	ref_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+	val_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+      }
       //yAxis
       if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);   
       if (yAxisMax  > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);  
