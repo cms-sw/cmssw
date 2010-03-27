@@ -13,14 +13,10 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.8 2009/11/18 12:12:04 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.9 2010/02/27 00:23:42 dutta Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
-
-using namespace edm;
-using namespace reco;
-using namespace std;
 
 
 //
@@ -42,9 +38,9 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
   runOnTracks_ = parameters_.getUntrackedParameter<bool>("runOnTracks",true);
 
   //tags
-  clusterCollectionTag_ = parameters_.getUntrackedParameter < InputTag > ("clusterCollectionTag",edm::InputTag("hltSiStripRawToClustersFacility"));
-  l3collectionTag_ = parameters_.getUntrackedParameter < InputTag > ("l3MuonTag",edm::InputTag("hltL3MuonCandidates"));
-  TrackCollectionTag_ = parameters_.getUntrackedParameter < InputTag > ("trackCollectionTag",edm::InputTag("hltL3TkTracksFromL2"));
+  clusterCollectionTag_ = parameters_.getUntrackedParameter < edm::InputTag > ("clusterCollectionTag",edm::InputTag("hltSiStripRawToClustersFacility"));
+  l3collectionTag_ = parameters_.getUntrackedParameter < edm::InputTag > ("l3MuonTag",edm::InputTag("hltL3MuonCandidates"));
+  TrackCollectionTag_ = parameters_.getUntrackedParameter < edm::InputTag > ("trackCollectionTag",edm::InputTag("hltL3TkTracksFromL2"));
   //////////////////////////
 
   HistoNumber = 35;
@@ -71,7 +67,7 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
   //////////////////////////
 
   outputFile_ = parameters_.getUntrackedParameter < std::string > ("outputFile","");
-  if (outputFile_.size () != 0) LogWarning ("HLTMuonDQMSource") << "Muon HLT Monitoring histograms will be saved to " << outputFile_ << std::endl;
+  if (outputFile_.size () != 0) edm::LogWarning ("HLTMuonDQMSource") << "Muon HLT Monitoring histograms will be saved to " << outputFile_ << std::endl;
   else outputFile_ = "MuonHLTDQM.root";
 
   bool disable = parameters_.getUntrackedParameter < bool > ("disableROOToutput",false);
@@ -94,7 +90,7 @@ SiStripMonitorMuonHLT::~SiStripMonitorMuonHLT ()
 // member functions
 //
 
-float SiStripMonitorMuonHLT::GetEtaWeight(string label, GlobalPoint clustgp){
+float SiStripMonitorMuonHLT::GetEtaWeight(std::string label, GlobalPoint clustgp){
         float etaWeight = 1.;
 	for (unsigned int i = 0; i < m_BinEta[label].size() - 1; i++){                      
         	if (m_BinEta[label][i] < clustgp.eta() && clustgp.eta() < m_BinEta[label][i+1]){
@@ -105,7 +101,7 @@ float SiStripMonitorMuonHLT::GetEtaWeight(string label, GlobalPoint clustgp){
 	return etaWeight; 
 }
 
-float SiStripMonitorMuonHLT::GetPhiWeight(string label, GlobalPoint clustgp){
+float SiStripMonitorMuonHLT::GetPhiWeight(std::string label, GlobalPoint clustgp){
         float phiWeight = 1.;
 	for (unsigned int i = 0; i < m_BinPhi[label].size() - 1; i++){                      
         	if (m_BinPhi[label][i] < clustgp.phi() && clustgp.phi() < m_BinPhi[label][i+1]){
@@ -149,7 +145,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   ///////////////////  Access to data   /////////////////////
 
   //Access to L3MuonCand
-  Handle < RecoChargedCandidateCollection > l3mucands;
+  edm::Handle < reco::RecoChargedCandidateCollection > l3mucands;
   bool accessToL3Muons = true;
   try
      {
@@ -160,10 +156,10 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
         LogDebug ("SiStripMonitorHLTMuon") <<  "   ===> no access to L3MuonCandidates, cannot run on the event: "<<iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
         accessToL3Muons = false;
      }
-  RecoChargedCandidateCollection::const_iterator cand;
+  reco::RecoChargedCandidateCollection::const_iterator cand;
 
   //Access to clusters
-  Handle < edm::LazyGetter < SiStripCluster > >clusters;
+  edm::Handle < edm::LazyGetter < SiStripCluster > >clusters;
   bool accessToClusters = true;
   try
      {
@@ -200,7 +196,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	  uint detID = clust->geographicalId ();
 	  std::stringstream ss;
 	  int layer = tkdetmap_->FindLayer (detID);
-	  string label = tkdetmap_->getLayerName (layer);
+	  std::string label = tkdetmap_->getLayerName (layer);
 	  const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 	  const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
 	  // get the cluster position in local coordinates (cm) 
@@ -226,7 +222,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
       for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand)
 	{
 	  //TrackRef l3tk = cand->get < TrackRef > ();
-	  const Track* l3tk = cand->get < TrackRef > ().get();
+	  const reco::Track* l3tk = cand->get < reco::TrackRef > ().get();
 	  analyzeOnTrackClusters(l3tk, theTracker, true);	
 	}			//loop over l3mucands
     }				//if l3seed
@@ -234,14 +230,14 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   if (runOnTracks_ && accessToTracks && !trackCollection.failedToGet() && trackCollection.isValid()){
 	for (track = trackCollection->begin (); track != trackCollection->end() ; ++ track)
 	  {
-	    const Track* tk =  &(*track);
+	    const reco::Track* tk =  &(*track);
 	    analyzeOnTrackClusters(tk, theTracker, false);	
 	  }
   }
 
 }
 
-void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const Track* l3tk, const TrackerGeometry & theTracker,  bool isL3MuTrack ){
+void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, const TrackerGeometry & theTracker,  bool isL3MuTrack ){
 
 	  for (size_t hit = 0; hit < l3tk->recHitsSize (); hit++)
 	    {
@@ -267,7 +263,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const Track* l3tk, const Tra
 			    }
 			}
 		      int layer = tkdetmap_->FindLayer (detID);
-		      string label = tkdetmap_->getLayerName (layer);
+		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
 			{
@@ -310,7 +306,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const Track* l3tk, const Tra
 			    }
 			}
 		      int layer = tkdetmap_->FindLayer (detID);
-		      string label = tkdetmap_->getLayerName (layer);
+		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
 			{
@@ -355,7 +351,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const Track* l3tk, const Tra
 			    }
 			}
 		      int layer = tkdetmap_->FindLayer (detID);
-		      string label = tkdetmap_->getLayerName (layer);
+		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
 			{
@@ -441,7 +437,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const Track* l3tk, const Tra
 			    }
 			}
 		      int layer = tkdetmap_->FindLayer (detID);
-		      string label = tkdetmap_->getLayerName (layer);
+		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
 			{
@@ -483,12 +479,12 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
 {
 
   // vector used 
-  vector <float *> tgraphEta;
-  vector <float *> tgraphPhi;
-  vector <int> tgraphSize;
+  std::vector <float *> tgraphEta;
+  std::vector <float *> tgraphPhi;
+  std::vector <int> tgraphSize;
 
-  vector <std::vector<float> > binningEta;
-  vector <std::vector<float> > binningPhi;
+  std::vector <std::vector<float> > binningEta;
+  std::vector <std::vector<float> > binningPhi;
 
   for (int p = 0; p < 34; p++){
     tgraphEta.push_back (new float[1000]);
@@ -496,9 +492,9 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
   }
 
   // FOR COMPUTING BINNING
-  std::map< string,std::vector<float> > m_BinEta_Prel ;
-  std::map< string,std::vector<float> > m_PhiStripMod_Eta;
-  std::map< string,std::vector<float> > m_PhiStripMod_Nb;
+  std::map< std::string,std::vector<float> > m_BinEta_Prel ;
+  std::map< std::string,std::vector<float> > m_PhiStripMod_Eta;
+  std::map< std::string,std::vector<float> > m_PhiStripMod_Nb;
   
   //----------------
 
@@ -548,11 +544,11 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       layerMEs.EtaDistribL3MuTrackClustersMap = 0;
       layerMEs.PhiDistribL3MuTrackClustersMap = 0;
 
-      string histoname;
-      string title;
-      string labelHisto = tkdetmap_->getLayerName (layer);
+      std::string histoname;
+      std::string title;
+      std::string labelHisto = tkdetmap_->getLayerName (layer);
 
-      string labelHisto_ID = labelHisto;
+      std::string labelHisto_ID = labelHisto;
       labelHisto_ID.erase(3);
 
       //
@@ -579,7 +575,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
         }
 
         //ETA BINNING
-        vector <float > v_BinEta_Prel;
+        std::vector <float > v_BinEta_Prel;
         // LOOPING ON RINGS
         for (unsigned int i = 0; i < 12; i++){
           // COMPUTE BARYCENTER IF NON NULL
@@ -680,10 +676,10 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
 
 void
 SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker,
-                                              std::map< string,std::vector<float> > & m_PhiStripMod_Eta,std::map< string,std::vector<float> > & m_PhiStripMod_Nb){
+                                              std::map< std::string,std::vector<float> > & m_PhiStripMod_Eta,std::map< std::string,std::vector<float> > & m_PhiStripMod_Nb){
 
 
-  std::vector<string> v_LabelHisto;
+  std::vector<std::string> v_LabelHisto;
 
   //Loop over DetIds
   //-----------------------------------------
@@ -698,7 +694,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const Trac
     const GeomDet::SubDetector detector = GeomDet->subDetector();
 
     int mylayer;
-    string mylabelHisto;
+    std::string mylabelHisto;
 
     // SELECT SISTRIP DETECTORS
     if (detector == GeomDetEnumerators::TEC
@@ -868,7 +864,7 @@ void
 SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry & theTracker){
   
   
-  std::vector<string> v_LabelHisto;
+  std::vector<std::string> v_LabelHisto;
 
   //Loop over DetIds
   //-----------------------------------------
@@ -883,7 +879,7 @@ SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry
     const GeomDet::SubDetector detector = GeomDet->subDetector();
 
     int mylayer;
-    string mylabelHisto;
+    std::string mylabelHisto;
     
     // SELECT SISTRIP DETECTORS
     if (detector == GeomDetEnumerators::TEC 
@@ -943,13 +939,13 @@ SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry
       const BoundPlane& GeomDetSurface = GeomDet->surface();
       const Bounds& bound = GeomDetSurface.bounds();        
                                                     
-      string labelHisto_ID = mylabelHisto;
+      std::string labelHisto_ID = mylabelHisto;
       labelHisto_ID.erase(3);             
                              
       float length = 0.;
       float width = 0.; 
 
-      vector <GlobalPoint> v_Edge_G;
+      std::vector <GlobalPoint> v_Edge_G;
                                     
       float ratio = 0.;
       float factor = 1.;
@@ -996,7 +992,7 @@ SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry
       GlobalPoint bot_left_G;
       GlobalPoint bot_rightG;
 
-      vector <bool> v_Fill;
+      std::vector <bool> v_Fill;
       v_Fill.push_back(false);
       v_Fill.push_back(false);
       v_Fill.push_back(false);
@@ -1276,17 +1272,17 @@ SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry
 
 
 void
-SiStripMonitorMuonHLT::PrintNormalization (std::vector<string> v_LabelHisto)
+SiStripMonitorMuonHLT::PrintNormalization (std::vector<std::string> v_LabelHisto)
 {
-  vector <TH1F *> h_ModNorm_Eta;
-  vector <TH1F *> h_ModNorm_Phi;
+  std::vector <TH1F *> h_ModNorm_Eta;
+  std::vector <TH1F *> h_ModNorm_Phi;
 
   for (unsigned int p = 0; p < v_LabelHisto.size(); p++){
    
-    string titleHistoEta = v_LabelHisto[p] + "_eta" ;    
-    string titleHistoPhi = v_LabelHisto[p] + "_phi" ;  
+    std::string titleHistoEta = v_LabelHisto[p] + "_eta" ;    
+    std::string titleHistoPhi = v_LabelHisto[p] + "_phi" ;  
 
-    string labelHisto = v_LabelHisto[p];
+    std::string labelHisto = v_LabelHisto[p];
     
     float * xbinsPhi = new float[100];
     float * xbinsEta = new float[100];
@@ -1327,7 +1323,7 @@ SiStripMonitorMuonHLT::beginRun (const edm::Run& run, const edm::EventSetup & es
     {
       if (monitorName_ != "")
 	monitorName_ = monitorName_ + "/";
-      LogInfo ("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events " << endl;
+      edm::LogInfo ("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events " << endl;
       createMEs (es);
       //create TKHistoMap
       if(runOnClusters_)
@@ -1343,7 +1339,7 @@ SiStripMonitorMuonHLT::beginRun (const edm::Run& run, const edm::EventSetup & es
 void
 SiStripMonitorMuonHLT::endJob ()
 {
-  LogInfo ("SiStripMonitorHLTMuon") << "analyzed " << counterEvt_ << " events";
+  edm::LogInfo ("SiStripMonitorHLTMuon") << "analyzed " << counterEvt_ << " events";
   return;
 }
 

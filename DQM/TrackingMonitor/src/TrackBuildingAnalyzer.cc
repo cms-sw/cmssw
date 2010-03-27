@@ -214,8 +214,6 @@ void TrackBuildingAnalyzer::analyze
     const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
 )
 {
-    using namespace edm;
-    using std::string;
 
     TrajectoryStateTransform tsTransform;
     TSCBLBuilderNoMaterial tscblBuilder;
@@ -270,8 +268,6 @@ void TrackBuildingAnalyzer::analyze
     const edm::ESHandle<TransientTrackingRecHitBuilder>& theTTRHBuilder
 )
 {
-    using namespace edm;
-    using std::string;
 
     TrajectoryStateTransform tsTransform;
     TSCBLBuilderNoMaterial tscblBuilder;
