@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.167 $"
+__version__ = "$Revision: 1.168 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -163,14 +163,14 @@ class ConfigBuilder(object):
                                  )
 	
 	# check if a second (parallel to RECO) output was requested via the eventcontent option
-	# this can (for now) onluy be of type "AOD" or "AODSIM" and will use the datatier of the same name
-	aodOutput = None
-	for evtContent in ['AOD', 'AODSIM']:
+	# this can (for now) only be of type "AOD","AODSIM" or "ALCARECO" and will use the datatier of the same name
+	secondOutput = None
+	for evtContent in ['AOD', 'AODSIM','ALCARECO']:
 	    if evtContent in self.eventcontent.split(',') :
-	        theEventContentAOD = getattr(self.process, evtContent+"EventContent")
-	        aodOutput = cms.OutputModule("PoolOutputModule",
-					   theEventContentAOD,
-					   fileName = cms.untracked.string(self._options.outfile_name.replace('.root','_AOD.root')),
+	        theSecondEventContent = getattr(self.process, evtContent+"EventContent")
+	        secondOutput = cms.OutputModule("PoolOutputModule",
+					   theSecondEventContent,
+					   fileName = cms.untracked.string(self._options.outfile_name.replace('.root','_secondary.root')),
 					   dataset = cms.untracked.PSet(dataTier = cms.untracked.string(evtContent))
 					   ) 
 
@@ -195,11 +195,11 @@ class ConfigBuilder(object):
             self.process.output.outputCommands.__dict__["dumpPython"] = dummy
 	    result = "\n"+self.process.output.dumpPython()
 
-	    # now do the same for the AOD output, if required
-	    if aodOutput:
-	        self.process.aodOutput = aodOutput
-		self.process.out_stepAOD = cms.EndPath(self.process.aodOutput)
-		self.schedule.append(self.process.out_stepAOD)
+	    # now do the same for the second output, if required
+	    if secondOutput:
+	        self.process.secondOutput = secondOutput
+		self.process.out_stepSecond = cms.EndPath(self.process.secondOutput)
+		self.schedule.append(self.process.out_stepSecond)
 		# ATTENTION: major tweaking to avoid inlining of event content
 		# should we do that?
 		# Note: we need to return the _second_ arg from the list of eventcontents ...
@@ -207,8 +207,8 @@ class ConfigBuilder(object):
 		    def dummy2(instance,label = "process."+self.eventcontent.split(',')[1]+"EventContent.outputCommands"):
 		        return label
 
-		    self.process.aodOutput.outputCommands.__dict__["dumpPython"] = dummy2
-		    result += "\n"+self.process.aodOutput.dumpPython()
+		    self.process.secondOutput.outputCommands.__dict__["dumpPython"] = dummy2
+		    result += "\n"+self.process.secondOutput.dumpPython()
 
             return result
         
@@ -844,7 +844,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.167 $"),
+              (version=cms.untracked.string("$Revision: 1.168 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -896,9 +896,9 @@ class ConfigBuilder(object):
 	if hasattr(self.process,"output"):
             self.pythonCfgCode += "\n# Output definition\n"
             self.pythonCfgCode += "process.output = "+self.process.output.dumpPython()
-	if hasattr(self.process,"aodOutput"):
-            self.pythonCfgCode += "\n# AodOutput definition\n"
-            self.pythonCfgCode += "process.aodOutput = "+self.process.aodOutput.dumpPython()
+	if hasattr(self.process,"secondOutput"):
+            self.pythonCfgCode += "\n# Second Output definition\n"
+            self.pythonCfgCode += "process.secondOutput = "+self.process.secondOutput.dumpPython()
 
         # dump all additional outputs (e.g. alca or skim streams)
 	self.pythonCfgCode += "\n# Additional output definition\n"
