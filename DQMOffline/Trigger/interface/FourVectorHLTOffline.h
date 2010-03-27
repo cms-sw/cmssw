@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.46 2010/03/19 18:16:03 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.47 2010/03/25 15:03:38 rekovic Exp $
 //
 //
 
@@ -123,7 +123,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
       void fillHltMatrix(const edm::TriggerNames & triggerNames);
-      void setupHltMatrix(std::string label, std::vector<std::string>  paths);
+      void setupHltMatrix(const std::string& label, std::vector<std::string>&  paths);
 
       void setupHltLsPlots();
       void setupHltBxPlots();
@@ -157,10 +157,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any_;
       */
 
-      MonitorElement* ME_HLTAll_LS_;
-      MonitorElement* ME_HLT_BX_;
-      MonitorElement* ME_HLT_CUSTOM_BX_;
-      std::vector<MonitorElement*> v_ME_HLTAll_LS_;
+      MonitorElement* ME_HLTAll_LS;
+      MonitorElement* ME_HLT_BX;
+      MonitorElement* ME_HLT_CUSTOM_BX;
+      std::vector<MonitorElement*> v_ME_HLTAll_LS;
+      std::vector<MonitorElement*> v_ME_Total_BX;
+      std::vector<MonitorElement*> v_ME_Total_BX_Norm;
 
       std::string pathsSummaryFolder_;
       std::string pathsSummaryHLTCorrelationsFolder_;
@@ -174,6 +176,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::vector<std::string> fGroupName;
 
       unsigned int nLS_; 
+      double LSsize_ ;
       unsigned int referenceBX_; 
       unsigned int Nbx_; 
 
@@ -219,10 +222,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       std::vector <std::vector <std::string> > triggerFilters_;
       std::vector <std::vector <uint> > triggerFilterIndices_;
-      std::vector <std::pair<std::string, int> > fPathTempCountPair;
+      std::vector <std::pair<std::string, float> > fPathTempCountPair;
       std::vector <std::pair<std::string, std::vector<int> > > fPathBxTempCountPair;
-      std::vector <std::pair<std::string, int> > fGroupTempCountPair;
-      std::vector <std::pair<std::string, int> > fGroupL1TempCountPair;
+      std::vector <std::pair<std::string, float> > fGroupTempCountPair;
+      std::vector <std::pair<std::string, float> > fGroupL1TempCountPair;
       std::vector <std::pair<std::string, std::vector<std::string> > > fGroupNamePathsPair;
 
       std::vector<std::string> specialPaths_;
@@ -431,6 +434,9 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
          const std::string getl1Path(void ) const {
            return l1pathName_;
          }
+         const int getL1ModuleIndex(void ) const {
+           return l1ModuleIndex_;
+         }
          const std::string getDenomPath(void ) const {
            return denomPathName_;
          }
@@ -448,11 +454,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
         ~PathInfo() {};
 
-        PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, std::string filterName, std::string processName, size_t type, float ptmin, float ptmax):
+        PathInfo(std::string denomPathName, std::string pathName, std::string l1pathName, int l1ModuleIndex, std::string filterName, std::string processName, size_t type, float ptmin, float ptmax):
 
           denomPathName_(denomPathName), 
           pathName_(pathName), 
           l1pathName_(l1pathName), 
+          l1ModuleIndex_(l1ModuleIndex), 
           filterName_(filterName), 
           processName_(processName), 
           objectType_(type),
@@ -549,6 +556,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
         std::string denomPathName_;
         std::string pathName_;
         std::string l1pathName_;
+        int l1ModuleIndex_;
         std::string filterName_;
         std::string processName_;
         int objectType_;

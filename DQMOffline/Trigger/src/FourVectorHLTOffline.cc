@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.69 2010/03/25 08:41:02 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.70 2010/03/25 15:03:38 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -45,6 +45,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
   nBinsOneOverEt_ = iConfig.getUntrackedParameter<unsigned int>("NbinsOneOverEt",10000);
   nLS_   = iConfig.getUntrackedParameter<unsigned int>("NLuminositySegments",10);
+  LSsize_   = iConfig.getUntrackedParameter<double>("LuminositySegmentSize",23);
 
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
@@ -127,9 +128,9 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   pathsSummaryHLTPathsPerBXFolder_ = iConfig.getUntrackedParameter ("individualPathsPerBXFolder",std::string("HLT/FourVector/PathsSummary/HLT BX/"));
 
   fLumiFlag = true;
-  ME_HLTAll_LS_ = NULL;
-  ME_HLT_BX_ = NULL;
-  ME_HLT_CUSTOM_BX_ = NULL;
+  ME_HLTAll_LS = NULL;
+  ME_HLT_BX = NULL;
+  ME_HLT_CUSTOM_BX = NULL;
   
 }
 
@@ -452,14 +453,14 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     if(triggerResults->accept(pathByIndex)){
   
-      int pathBinNumber = ME_HLT_BX_->getTH2F()->GetYaxis()->FindBin(v->getPath().c_str());      
-      ME_HLT_BX_->Fill(bx,pathBinNumber-1);
+      int pathBinNumber = ME_HLT_BX->getTH2F()->GetYaxis()->FindBin(v->getPath().c_str());      
+      ME_HLT_BX->Fill(bx,pathBinNumber-1);
 
-      if(hasHLTPassed(fCustomBXPath,triggerNames)) {
+      //if(hasHLTPassed(fCustomBXPath,triggerNames)) {
 
-        ME_HLT_CUSTOM_BX_->Fill(bx,pathBinNumber-1);
+        ME_HLT_CUSTOM_BX->Fill(bx,pathBinNumber-1);
 
-      }
+      //}
 
     } // end if accept
   
@@ -716,6 +717,8 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
         std::string pathname = hltConfig_.triggerName(j);  
 
         string l1pathname = getL1ConditionModuleName(pathname);
+
+        int l1ModuleIndex = hltConfig_.moduleIndex(pathname, l1pathname);
       
         int objectType =  getTriggerTypeParsePathName(pathname);
   
@@ -731,7 +734,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
           float ptMax = 100.0;
           if (plotAll_ && denomobjectType == objectType && objectType != 0)
           
-            hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+            hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, l1ModuleIndex, filtername, processname_, objectType, ptMin, ptMax));
 
         }
       }
@@ -748,6 +751,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
          int objectType =  getTriggerTypeParsePathName(pathname);
 
         string l1pathname = getL1ConditionModuleName(pathname);
+        int l1ModuleIndex = hltConfig_.moduleIndex(pathname, l1pathname);
   
         std::string filtername("dummy");
         float ptMin = 0.0;
@@ -766,9 +770,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
         // keep track of all paths, except for FinalPath
         if (objectType != -1 && pathname.find("FinalPath") == std::string::npos){
   
-          hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+          hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, l1ModuleIndex, filtername, processname_, objectType, ptMin, ptMax));
 
-          hltPathsDiagonal_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+          hltPathsDiagonal_.push_back(PathInfo(denompathname, pathname, l1pathname, l1ModuleIndex, filtername, processname_, objectType, ptMin, ptMax));
   
         }
 
@@ -833,6 +837,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
   
   
             string l1pathname = getL1ConditionModuleName(pathname);
+            int l1ModuleIndex = hltConfig_.moduleIndex(pathname, l1pathname);
             int objectType =  getTriggerTypeParsePathName(pathname);
   
           std::string filtername("dummy");
@@ -850,7 +855,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
   
           // monitor regardless of the objectType of the path
           if (objectType != 0)
-            hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, filtername, processname_, objectType, ptMin, ptMax));
+            hltPaths_.push_back(PathInfo(denompathname, pathname, l1pathname, l1ModuleIndex, filtername, processname_, objectType, ptMin, ptMax));
       
         } // end for j, loop over paths
 
@@ -946,19 +951,9 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
       vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
       fGroupNamePathsPair.push_back(make_pair(datasetNames[i],datasetPaths));
-      //setupHltMatrix(datasetNames[i],datasetPaths);
 
     }
 
-    /*
-    setupHltMatrix("All", allPaths);
-    setupHltMatrix("Muon", muonPaths);
-    setupHltMatrix("Egamma", egammaPaths);
-    setupHltMatrix("Tau", tauPaths);
-    setupHltMatrix("JetMET", jetmetPaths);
-    setupHltMatrix("Rest", restPaths);
-    setupHltMatrix("Special", specialPaths_);
-    */
 
     for (unsigned int g=0;g<fGroupNamePathsPair.size();g++) {
 
@@ -967,8 +962,6 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
       setupHltMatrix(fGroupNamePathsPair[g].first,fGroupNamePathsPair[g].second);
 
     }
-    /*
-    */
 
     setupHltLsPlots();
 
@@ -1406,7 +1399,7 @@ void FourVectorHLTOffline::cleanDRMatchSet(mmset& tempSet)
 
 }
 
-void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string> paths) {
+void FourVectorHLTOffline::setupHltMatrix(const std::string& label, vector<std::string>& paths) {
 
     //string groupLabelAny = "HLT_"+label+"_Any";
     //paths.push_back(groupLabelAny.c_str());
@@ -1450,7 +1443,7 @@ void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string>
     MonitorElement* ME_Group_LS = dbe_->book2D(h_name.c_str(), h_title.c_str(), nLS_, 0, nLS_, paths.size(), -0.5, paths.size()-0.5);
     ME_Group_LS->setAxisTitle("LS");
     /// add this path to the vector of 2D LS paths
-    v_ME_HLTAll_LS_.push_back(ME_Group_LS);
+    v_ME_HLTAll_LS.push_back(ME_Group_LS);
 
     h_name= "HLT_"+label+"_L1_Total_LS";
     h_title = label+" HLT paths total count combined per LS ";
@@ -1467,6 +1460,13 @@ void FourVectorHLTOffline::setupHltMatrix(std::string label, vector<std::string>
     h_title = label+" HLT paths total count combined per BX ";
     MonitorElement* ME_Total_BX = dbe_->book2D(h_name.c_str(), h_title.c_str(),  nLS_, 0, nLS_, 5, -2.5, 2.5);
     ME_Total_BX->setAxisTitle("LS",1);
+    v_ME_Total_BX.push_back(ME_Total_BX);
+
+    h_name= "HLT_"+label+"_BX_LS_Norm";
+    h_title = label+" HLT paths total count combined per BX Normalized to LS";
+    MonitorElement* ME_Total_BX_Norm = dbe_->book2D(h_name.c_str(), h_title.c_str(),  nLS_, 0, nLS_, 5, -2.5, 2.5);
+    ME_Total_BX_Norm->setAxisTitle("LS",1);
+    v_ME_Total_BX_Norm.push_back(ME_Total_BX_Norm);
 
     for(unsigned int i = 0; i < paths.size(); i++){
 
@@ -1589,21 +1589,21 @@ void FourVectorHLTOffline::setupHltBxPlots()
   // setup HLT bx plot
   unsigned int npaths = hltPathsDiagonal_.size();
 
-  ME_HLT_BX_ = dbe_->book2D("HLT_bx",
+  ME_HLT_BX = dbe_->book2D("HLT_bx",
                          "HLT counts vs Event bx",
                          Nbx_+1, -0.5, Nbx_+1-0.5, npaths, -0.5, npaths-0.5);
-  ME_HLT_CUSTOM_BX_ = dbe_->book2D("HLT_Custom_bx",
+  ME_HLT_CUSTOM_BX = dbe_->book2D("HLT_Custom_bx",
                          "HLT counts vs Event bx",
                          Nbx_+1, -0.5, Nbx_+1-0.5, npaths, -0.5, npaths-0.5);
-  ME_HLT_BX_->setAxisTitle("Bunch Crossing");
-  ME_HLT_CUSTOM_BX_->setAxisTitle("Bunch Crossing");
+  ME_HLT_BX->setAxisTitle("Bunch Crossing");
+  ME_HLT_CUSTOM_BX->setAxisTitle("Bunch Crossing");
 
 
   // Set up bin labels on Y axis continuing to cover all npaths
   for(unsigned int i = 0; i < npaths; i++){
 
-    ME_HLT_BX_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
-    ME_HLT_CUSTOM_BX_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
+    ME_HLT_BX->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
+    ME_HLT_CUSTOM_BX->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
 
   }
 
@@ -1619,20 +1619,20 @@ void FourVectorHLTOffline::setupHltLsPlots()
   //dbe_->setCurrentFolder(pathsSummaryHLTPathsPerLSFolder_.c_str());
   dbe_->setCurrentFolder(pathsSummaryHLTPathsPerLSFolder_);
 
-  ME_HLTAll_LS_  = dbe_->book2D("All_count_LS",
+  ME_HLTAll_LS  = dbe_->book2D("All_count_LS",
                     "All paths per LS ",
                          nLS_, 0, nLS_, npaths+1, -0.5, npaths+1-0.5);
-  ME_HLTAll_LS_->setAxisTitle("Luminosity Section");
+  ME_HLTAll_LS->setAxisTitle("Luminosity Section");
 
   // Set up bin labels on Y axis continuing to cover all npaths
   for(unsigned int i = 0; i < npaths; i++){
 
-    ME_HLTAll_LS_->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
+    ME_HLTAll_LS->getTH2F()->GetYaxis()->SetBinLabel(i+1, (hltPathsDiagonal_[i]).getPath().c_str());
 
   }
 
   unsigned int i = npaths;
-  ME_HLTAll_LS_->getTH2F()->GetYaxis()->SetBinLabel(i+1, "HLT_Any");
+  ME_HLTAll_LS->getTH2F()->GetYaxis()->SetBinLabel(i+1, "HLT_Any");
 
   int nBinsPerLSHisto = 20;
   int nLSHistos = npaths/nBinsPerLSHisto;
@@ -1673,7 +1673,7 @@ void FourVectorHLTOffline::setupHltLsPlots()
     tempME->setBinLabel(nBinsPerLSHisto+3, "HLT_Any", 2);
     tempME->setBinLabel(nBinsPerLSHisto+2, "HLT_PhysicsDeclared", 2);
 
-    v_ME_HLTAll_LS_.push_back(tempME);
+    v_ME_HLTAll_LS.push_back(tempME);
 
   }
 
@@ -1708,7 +1708,7 @@ void FourVectorHLTOffline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
 
  LogTrace("FourVectorHLTOffline") << " countHLTGroupBXHitsEndLumiBlock() lumiSection number " << lumi << endl;
 
-   TH2F * hist_2d_bx = ME_HLT_BX_->getTH2F();
+   TH2F * hist_2d_bx = ME_HLT_BX->getTH2F();
 
    for (std::vector<std::pair<std::string, vector<int> > >::iterator ip = fPathBxTempCountPair.begin(); ip != fPathBxTempCountPair.end(); ++ip) {
   
@@ -1730,41 +1730,41 @@ void FourVectorHLTOffline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
 
     }
 
-    for (unsigned int j =0;j<currCount.size();j++) { 
+    for (unsigned int b =0;b<currCount.size();b++) { 
 
-      int bxOffset = j-2;
+      int bxOffset = b-2;
       int bunch = referenceBX_+bxOffset;
       if(bunch < 1) bunch += Nbx_ ;
       int bxBin = bunch +1; // add one to get the right bin
 
       
-      currCount[j] = int(hist_2d_bx->GetBinContent(bxBin, pathBin));  // add one to get the right bin
+      currCount[b] = int(hist_2d_bx->GetBinContent(bxBin, pathBin));  // add one to get the right bin
 
-      LogTrace("FourVectorHLTOffline") << "currCount = " << currCount[j] << endl;
+      LogTrace("FourVectorHLTOffline") << "currCount = " << currCount[b] << endl;
 
       // count due to prev lumi sec is a difference bw current and previous
-      diffCount[j] = currCount[j] - prevCount[j];
+      diffCount[b] = currCount[b] - prevCount[b];
 
-      LogTrace("FourVectorHLTOffline") << " lumi = " << lumi << "  path " << pathname << "bxOffset = " << bxOffset << "  count = " << diffCount[j] <<  endl;
+      LogTrace("FourVectorHLTOffline") << " lumi = " << lumi << "  path " << pathname << "bxOffset = " << bxOffset << "  count = " << diffCount[b] <<  endl;
 
-      // set the counter in the pair to current count
-      ip->second = currCount;  
+    } // end for bx b
 
-    } // end for bx j
+    // set the counter in the pair to current count
+    ip->second = currCount;  
 
-   //////////////////////////////////////
-   // fill the 2D Group paths'  BX count per LS
-   //////////////////////////////////////
+   ////////////////////////////////////////////////////////////
+   // fill the 2D Group paths' BX count per LS, using currCount
+   ////////////////////////////////////////////////////////////
    LogTrace("FourVectorHLTOffline")  << "Find " << pathname << endl;
-   for(unsigned int i=0; i<fGroupName.size(); i++){
 
-    bool isMember = false;
-    //check if the path is in this group
-    for (unsigned int j=0;j<fGroupNamePathsPair.size();j++) { 
+   //check if the path is in this group
+   for (unsigned int j=0;j<fGroupNamePathsPair.size();j++) { 
+
+      bool isMember = false;
 
       LogTrace("FourVectorHLTOffline")  << " ---- Group " << fGroupNamePathsPair[j].first << endl;
-      if(fGroupNamePathsPair[j].first != fGroupName[i]) continue;
 
+      // decide if pathname is member of this group
       for (unsigned int k = 0; k<(fGroupNamePathsPair[j].second).size();k++) {
 
         LogTrace("FourVectorHLTOffline")  << " comparing to " <<  fGroupNamePathsPair[j].second[k] << endl; 
@@ -1777,44 +1777,66 @@ void FourVectorHLTOffline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
         }
 
       } // end for k
-    } // end for j
 
-
-    if(!isMember) {
+      if(!isMember) {
       
-      LogTrace("FourVectorHLTOffline")  << "Could not find a group to which the path belongs, path = " << pathname << "    group = " << fGroupName[i] << endl;
+      LogTrace("FourVectorHLTOffline")  << "Could not find a group to which the path belongs, path = " << pathname << "    group = " << fGroupNamePathsPair[j].first << endl;
       continue;
 
-    }
+      }
 
-    string fullPathToME = pathsSummaryHLTPathsPerBXFolder_ + "HLT_"+fGroupName[i] + "_BX_LS";
-    MonitorElement* ME_2d = dbe_->get(fullPathToME);
+      MonitorElement* ME_2d = v_ME_Total_BX[j];
 
-    if ( ME_2d) {
+      if (! ME_2d) {
 
+        LogDebug("FourVectorHLTOffline") << " cannot find ME_2d for group " << fGroupNamePathsPair[j].first  <<  endl;
+        continue;
+
+      }
+
+      vector<int> updatedLumiCount(5,0);
+
+      float entireBXWindowUpdatedLumiCount = 0;
+      
       TH2F* hist_All = ME_2d->getTH2F();
 
-      for (unsigned int j = 0; j<diffCount.size();j++) {
+      for (unsigned int b = 0; b<diffCount.size();b++) {
 
         // find the bin
-        int binNumber = j+1; // add one to get right bin
+        int binNumber = b+1; // add one to get right bin
 
         // update  the bin content  (must do that since events don't ncessarily come in the order
         int currentLumiCount = int(hist_All->GetBinContent(lumi+1,binNumber));
-        int updatedLumiCount = currentLumiCount + diffCount[j];
-        hist_All->SetBinContent(lumi+1,binNumber,updatedLumiCount);
-      } // end for bx j
+        updatedLumiCount[b] = currentLumiCount + diffCount[b];
+        hist_All->SetBinContent(lumi+1,binNumber,updatedLumiCount[b]);
+
+        entireBXWindowUpdatedLumiCount += updatedLumiCount[b];
+        
+      } // end for bx b
+
+      MonitorElement* ME_2d_Norm = v_ME_Total_BX_Norm[j];
+
+      if (! ME_2d_Norm) {
+
+        LogDebug("FourVectorHLTOffline") << " cannot find ME_2d_Norm for group " << fGroupNamePathsPair[j].first  <<  endl;
+        continue;
+
+      }
+
+      TH2F* hist_All_Norm = ME_2d_Norm->getTH2F();
+
+      for (unsigned int b = 0; b<diffCount.size();b++) {
+
+        // find the bin
+        int binNumber = b+1; // add one to get right bin
+
+        // update  the bin content  but normalized to the whole columb (BX windw +/- 2)
+        hist_All_Norm->SetBinContent(lumi+1,binNumber,float(updatedLumiCount[b])/entireBXWindowUpdatedLumiCount);
+
+      } // end for bx b
     
-    }
-    else {
-
-      LogDebug("FourVectorHLTOffline") << " cannot find ME_2d" << ME_2d->getName() <<  endl;
-
-    }
+    } // end for group j
     
-
-   } // end for group i
-
   } // end for ip
 
 }
@@ -1824,7 +1846,6 @@ void FourVectorHLTOffline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
 
  LogTrace("FourVectorHLTOffline") << " countHLTGroupL1HitsEndLumiBlock() lumiSection number " << lumi << endl;
 
- //for(unsigned int i=0; i<fGroupName.size(); i++){
  for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
    // get the count of path up to now
@@ -1843,11 +1864,11 @@ void FourVectorHLTOffline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
 
    TH1F * hist_1d = ME_1d->getTH1F();
 
-   for (std::vector<std::pair<std::string, int> >::iterator ip = fGroupL1TempCountPair.begin(); ip != fGroupL1TempCountPair.end(); ++ip) {
+   for (std::vector<std::pair<std::string, float> >::iterator ip = fGroupL1TempCountPair.begin(); ip != fGroupL1TempCountPair.end(); ++ip) {
   
     // get the path and its previous count
     string pathname = ip->first;  
-    int prevCount = ip->second;  
+    float prevCount = ip->second;  
 
     string binLabel = "HLT_"+pathname+"_L1_Any";
     
@@ -1863,10 +1884,10 @@ void FourVectorHLTOffline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
 
     }
 
-    int currCount = int(hist_1d->GetBinContent(pathBin));
+    float currCount = hist_1d->GetBinContent(pathBin)/LSsize_;
 
     // count due to prev lumi sec is a difference bw current and previous
-    int diffCount = currCount - prevCount;
+    float diffCount = currCount - prevCount;
 
     LogTrace("FourVectorHLTOffline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
 
@@ -1882,8 +1903,8 @@ void FourVectorHLTOffline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
     if ( ME_1d) { 
 
       // update  the bin content  (must do that since events don't ncessarily come in the order
-      int currentLumiCount = int(ME_1d->getTH1()->GetBinContent(lumi+1));
-      int updatedLumiCount = currentLumiCount + diffCount;
+      float currentLumiCount = ME_1d->getTH1()->GetBinContent(lumi+1);
+      float updatedLumiCount = currentLumiCount + diffCount;
       ME_1d->getTH1()->SetBinContent(lumi+1,updatedLumiCount);
 
     }
@@ -1904,11 +1925,9 @@ void FourVectorHLTOffline::countHLTGroupHitsEndLumiBlock(const int& lumi)
 {
 
  LogTrace("FourVectorHLTOffline") << " countHLTGroupHitsEndLumiBlock() lumiSection number " << lumi << endl;
- //for(unsigned int i=0; i<fGroupName.size(); i++){
  for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
-    // get the count of path up to now
-   //string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupName[i] + "_Pass_Any";
+   // get the count of path up to now
    string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first + "_Pass_Any";
    MonitorElement* ME_1d = dbe_->get(fullPathToME);
 
@@ -1924,11 +1943,11 @@ void FourVectorHLTOffline::countHLTGroupHitsEndLumiBlock(const int& lumi)
 
    TH1F * hist_1d = ME_1d->getTH1F();
 
-   for (std::vector<std::pair<std::string, int> >::iterator ip = fGroupTempCountPair.begin(); ip != fGroupTempCountPair.end(); ++ip) {
+   for (std::vector<std::pair<std::string, float> >::iterator ip = fGroupTempCountPair.begin(); ip != fGroupTempCountPair.end(); ++ip) {
   
     // get the path and its previous count
     string pathname = ip->first;  
-    int prevCount = ip->second;  
+    float prevCount = ip->second;  
 
     string binLabel = "HLT_"+pathname+"_Any";
     
@@ -1944,10 +1963,10 @@ void FourVectorHLTOffline::countHLTGroupHitsEndLumiBlock(const int& lumi)
 
     }
 
-    int currCount = int(hist_1d->GetBinContent(pathBin));
+    float currCount = hist_1d->GetBinContent(pathBin)/LSsize_;
 
     // count due to prev lumi sec is a difference bw current and previous
-    int diffCount = currCount - prevCount;
+    float diffCount = currCount - prevCount;
 
     LogTrace("FourVectorHLTOffline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
 
@@ -1963,8 +1982,8 @@ void FourVectorHLTOffline::countHLTGroupHitsEndLumiBlock(const int& lumi)
     if ( ME_1d) { 
 
       // update  the bin content  (must do that since events don't ncessarily come in the order
-      int currentLumiCount = int(ME_1d->getTH1()->GetBinContent(lumi+1));
-      int updatedLumiCount = currentLumiCount + diffCount;
+      float currentLumiCount = ME_1d->getTH1()->GetBinContent(lumi+1);
+      float updatedLumiCount = currentLumiCount + diffCount;
       ME_1d->getTH1()->SetBinContent(lumi+1,updatedLumiCount);
 
     }
@@ -1999,14 +2018,14 @@ void FourVectorHLTOffline::countHLTPathHitsEndLumiBlock(const int& lumi)
 
    TH2F * hist_2d = ME_2d->getTH2F();
 
-   for (std::vector<std::pair<std::string, int> >::iterator ip = fPathTempCountPair.begin(); ip != fPathTempCountPair.end(); ++ip) {
+   for (std::vector<std::pair<std::string, float> >::iterator ip = fPathTempCountPair.begin(); ip != fPathTempCountPair.end(); ++ip) {
   
     // get the path and its previous count
     std::string pathname = ip->first;  
-    int prevCount = ip->second;  
+    float prevCount = ip->second;  
     
     // get the current count of path up to now
-    int pathBin = hist_2d->GetXaxis()->FindBin(pathname.c_str());      
+    float pathBin = hist_2d->GetXaxis()->FindBin(pathname.c_str());      
 
     if(pathBin > hist_2d->GetNbinsX()) {
       
@@ -2015,10 +2034,10 @@ void FourVectorHLTOffline::countHLTPathHitsEndLumiBlock(const int& lumi)
 
     }
 
-    int currCount = int(hist_2d->GetBinContent(pathBin, pathBin));
+    float currCount = hist_2d->GetBinContent(pathBin, pathBin)/LSsize_;
 
     // count due to prev lumi sec is a difference bw current and previous
-    int diffCount = currCount - prevCount;
+    float diffCount = currCount - prevCount;
 
     LogTrace("FourVectorHLTOffline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
 
@@ -2028,28 +2047,28 @@ void FourVectorHLTOffline::countHLTPathHitsEndLumiBlock(const int& lumi)
     //////////////////////////////////////
     // fill the 2D All paths' count per LS
     //////////////////////////////////////
-    if ( ME_HLTAll_LS_) {
+    if ( ME_HLTAll_LS) {
 
-      TH2F* hist_All = ME_HLTAll_LS_->getTH2F();
+      TH2F* hist_All = ME_HLTAll_LS->getTH2F();
 
       // find the bin
       int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
       
       // update  the bin content  (must do that since events don't ncessarily come in the order
-      int currentLumiCount = int(hist_All->GetBinContent(lumi+1,pathBinNumber));
-      int updatedLumiCount = currentLumiCount + diffCount;
+      float currentLumiCount = hist_All->GetBinContent(lumi+1,pathBinNumber);
+      float updatedLumiCount = currentLumiCount + diffCount;
       hist_All->SetBinContent(lumi+1,pathBinNumber,updatedLumiCount);
     
     }
     else {
 
-      LogDebug("FourVectorHLTOffline") << " cannot find ME_HLTAll_LS_" <<  endl;
+      LogDebug("FourVectorHLTOffline") << " cannot find ME_HLTAll_LS" <<  endl;
 
     }
     
-    for (unsigned int i=0 ; i< v_ME_HLTAll_LS_.size(); i++) {  
+    for (unsigned int i=0 ; i< v_ME_HLTAll_LS.size(); i++) {  
       
-      MonitorElement* tempME = v_ME_HLTAll_LS_[i];
+      MonitorElement* tempME = v_ME_HLTAll_LS[i];
 
       if ( tempME ) {
   
@@ -2058,8 +2077,8 @@ void FourVectorHLTOffline::countHLTPathHitsEndLumiBlock(const int& lumi)
         // find the bin
         int pathBinNumber = hist_All->GetYaxis()->FindBin(pathname.c_str());
         // update  the bin content  (must do that since events don't ncessarily come in the order
-        int currentLumiCount = int(hist_All->GetBinContent(lumi+1,pathBinNumber));
-        int updatedLumiCount = currentLumiCount + diffCount;
+        float currentLumiCount = hist_All->GetBinContent(lumi+1,pathBinNumber);
+        float updatedLumiCount = currentLumiCount + diffCount;
         hist_All->SetBinContent(lumi+1,pathBinNumber,updatedLumiCount);
       
       }
@@ -2080,8 +2099,8 @@ void FourVectorHLTOffline::countHLTPathHitsEndLumiBlock(const int& lumi)
     if ( ME_1d) { 
 
       // update  the bin content  (must do that since events don't ncessarily come in the order
-      int currentLumiCount = int(ME_1d->getTH1()->GetBinContent(lumi+1));
-      int updatedLumiCount = currentLumiCount + diffCount;
+      float currentLumiCount = ME_1d->getTH1()->GetBinContent(lumi+1);
+      float updatedLumiCount = currentLumiCount + diffCount;
       ME_1d->getTH1()->SetBinContent(lumi+1,updatedLumiCount);
 
     }
@@ -2155,9 +2174,13 @@ bool FourVectorHLTOffline::hasL1Passed(const string& pathname, const edm::Trigge
 {
   
   bool rc = false;
+  int l1ModuleIndex = 999;
+  // --------------------
+  for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) { 
 
-  string l1ModuleName = getL1ConditionModuleName(pathname);
-  int l1ModuleIndex = hltConfig_.moduleIndex(pathname, l1ModuleName);
+    if(v->getPath() == pathname ) l1ModuleIndex = v->getL1ModuleIndex();
+
+  }
 
   unsigned int pathByIndex = triggerNames.triggerIndex(pathname);
   if(pathByIndex >= triggerResults_->size() ) return rc; // path is not in the menu
