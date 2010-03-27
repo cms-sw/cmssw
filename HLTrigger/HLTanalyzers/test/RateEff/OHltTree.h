@@ -409,6 +409,7 @@ public :
   Int_t           L1_SingleTauJet80; 
   Int_t           L1_TripleJet30; 
   Int_t           L1_ZeroBias;  
+  Int_t           L1_ZeroBias_Ext;  
 
   // ccla - L1 Technical bits (06Dec09)
   Int_t           L1Tech_BPTX_minus_v0;
@@ -563,6 +564,7 @@ public :
   Int_t           HLT_MinBiasEcal; 
   Int_t           HLT_MinBiasPixel; 
   Int_t           HLT_MinBiasPixel_Trk5; 
+  Int_t           HLT_ZeroBiasPixel_SingleTrack; 
   Int_t           HLT_CSCBeamHalo; 
   Int_t           HLT_CSCBeamHaloOverlapRing1; 
   Int_t           HLT_CSCBeamHaloOverlapRing2; 
@@ -656,6 +658,8 @@ public :
   Int_t  HLT_TkMu3_NoVertex;
   Int_t  HLT_IsoTrackHB_8E29;
   Int_t  HLT_IsoTrackHE_8E29;
+  Int_t  HLT_IsoTrackHB_1E31; 
+  Int_t  HLT_IsoTrackHE_1E31; 
   Int_t  HLT_MinBiasPixel_DoubleIsoTrack5;
   Int_t  HLT_MinBiasPixel_DoubleTrack;
   Int_t  HLT_MinBiasPixel_SingleTrack;
@@ -1076,6 +1080,7 @@ public :
   TBranch        *b_L1_SingleTauJet80;   //! 
   TBranch        *b_L1_TripleJet30;   //! 
   TBranch        *b_L1_ZeroBias;   //!
+  TBranch        *b_L1_ZeroBias_Ext;   //!
 
   // ccla - L1 Technical bits  (06Dec09)
   TBranch        *b_L1Tech_BPTX_minus_v0;   //!
@@ -1223,6 +1228,7 @@ public :
   TBranch        *b_HLT_MinBiasEcal;   //! 
   TBranch        *b_HLT_MinBiasPixel;   //! 
   TBranch        *b_HLT_MinBiasPixel_Trk5;   //! 
+  TBranch        *b_HLT_ZeroBiasPixel_SingleTrack;   //!
   TBranch        *b_HLT_CSCBeamHalo;   //! 
   TBranch        *b_HLT_CSCBeamHaloOverlapRing1;   //! 
   TBranch        *b_HLT_CSCBeamHaloOverlapRing2;   //! 
@@ -2176,6 +2182,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet80", &L1_SingleTauJet80, &b_L1_SingleTauJet80); 
   fChain->SetBranchAddress("L1_TripleJet30", &L1_TripleJet30, &b_L1_TripleJet30); 
   fChain->SetBranchAddress("L1_ZeroBias", &L1_ZeroBias, &b_L1_ZeroBias);
+  fChain->SetBranchAddress("L1_ZeroBias_Ext", &L1_ZeroBias_Ext, &b_L1_ZeroBias_Ext);
 
   // ccla - L1 Technical bits  (06Dec09)
   fChain->SetBranchAddress("L1Tech_BPTX_minus.v0", &L1Tech_BPTX_minus_v0, &b_L1Tech_BPTX_minus_v0);
@@ -2323,6 +2330,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MinBiasEcal", &HLT_MinBiasEcal, &b_HLT_MinBiasEcal); 
   fChain->SetBranchAddress("HLT_MinBiasPixel", &HLT_MinBiasPixel, &b_HLT_MinBiasPixel); 
   fChain->SetBranchAddress("HLT_MinBiasPixel_Trk5", &HLT_MinBiasPixel_Trk5, &b_HLT_MinBiasPixel_Trk5); 
+  fChain->SetBranchAddress("HLT_ZeroBiasPixel_SingleTrack", &HLT_ZeroBiasPixel_SingleTrack, &b_HLT_ZeroBiasPixel_SingleTrack); 
   fChain->SetBranchAddress("HLT_CSCBeamHalo", &HLT_CSCBeamHalo, &b_HLT_CSCBeamHalo); 
   fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing1", &HLT_CSCBeamHaloOverlapRing1, &b_HLT_CSCBeamHaloOverlapRing1); 
   fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing2", &HLT_CSCBeamHaloOverlapRing2, &b_HLT_CSCBeamHaloOverlapRing2); 
@@ -2497,6 +2505,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet80", &map_BitOfStandardHLTPath["L1_SingleTauJet80"], &b_L1_SingleTauJet80); 
   fChain->SetBranchAddress("L1_TripleJet30", &map_BitOfStandardHLTPath["L1_TripleJet30"], &b_L1_TripleJet30); 
   fChain->SetBranchAddress("L1_ZeroBias", &map_BitOfStandardHLTPath["L1_ZeroBias"], &b_L1_ZeroBias);
+  fChain->SetBranchAddress("L1_ZeroBias_Ext", &map_BitOfStandardHLTPath["L1_ZeroBias_Ext"], &b_L1_ZeroBias_Ext);
 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
@@ -2587,6 +2596,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_MinBiasEcal", &map_BitOfStandardHLTPath["HLT_MinBiasEcal"], &b_HLT_MinBiasEcal);
   fChain->SetBranchAddress("HLT_MinBiasPixel", &map_BitOfStandardHLTPath["HLT_MinBiasPixel"], &b_HLT_MinBiasPixel);
   fChain->SetBranchAddress("HLT_MinBiasPixel_Trk5", &map_BitOfStandardHLTPath["HLT_MinBiasPixel_Trk5"], &b_HLT_MinBiasPixel_Trk5);
+  fChain->SetBranchAddress("HLT_ZeroBiasPixel_SingleTrack", &map_BitOfStandardHLTPath["HLT_ZeroBiasPixel_SingleTrack"], &b_HLT_ZeroBiasPixel_SingleTrack);
   fChain->SetBranchAddress("HLT_CSCBeamHalo", &map_BitOfStandardHLTPath["HLT_CSCBeamHalo"], &b_HLT_CSCBeamHalo);
   fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing1", &map_BitOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing1"], &b_HLT_CSCBeamHaloOverlapRing1);
   fChain->SetBranchAddress("HLT_CSCBeamHaloOverlapRing2", &map_BitOfStandardHLTPath["HLT_CSCBeamHaloOverlapRing2"], &b_HLT_CSCBeamHaloOverlapRing2);
