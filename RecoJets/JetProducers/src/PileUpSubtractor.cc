@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -13,8 +14,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <map>
-#include <iostream>
-
 using namespace std;
 
 int ieta(const reco::CandidatePtr & in);
@@ -41,7 +40,7 @@ void PileUpSubtractor::setAlgorithm(ClusterSequencePtr& algorithm){
 void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
 
-  cout<<"The subtractor setting up geometry..."<<endl;
+  LogDebug("PileUpSubtractor")<<"The subtractor setting up geometry...\n";
 
   if(geo_ == 0) {
     edm::ESHandle<CaloGeometry> pG;
@@ -82,7 +81,7 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup
 //
 void PileUpSubtractor::calculatePedestal( vector<fastjet::PseudoJet> const & coll )
 {
-  cout<<"The subtractor calculating pedestals..."<<endl;
+  LogDebug("PileUpSubtractor")<<"The subtractor calculating pedestals...\n";
 
   map<int,double> emean2;
   map<int,int> ntowers;
@@ -144,7 +143,7 @@ void PileUpSubtractor::calculatePedestal( vector<fastjet::PseudoJet> const & col
           emean_[it] = 0.;
           esigma_[it] = 0.;
 	}
-      cout<<"Pedestals : "<<emean_[it]<<"  "<<esigma_[it]<<endl;
+      LogDebug("PileUpSubtractor")<<"Pedestals : "<<emean_[it]<<"  "<<esigma_[it]<<"\n";
     }
 }
 
@@ -155,7 +154,7 @@ void PileUpSubtractor::calculatePedestal( vector<fastjet::PseudoJet> const & col
 void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 {
 
-  cout<<"The subtractor subtracting pedestals..."<<endl;
+  LogDebug("PileUpSubtractor")<<"The subtractor subtracting pedestals...\n";
 
   int it = -100;
   int ip = -100;
@@ -191,7 +190,7 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanInput) 
 {
 
-  cout<<"The subtractor calculating orphan input..."<<endl;
+  LogDebug("PileUpSubtractor")<<"The subtractor calculating orphan input...\n";
 
   vector<int> jettowers; // vector of towers indexed by "user_index"
   vector <fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_->begin (),
@@ -256,7 +255,7 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanI
 void PileUpSubtractor::offsetCorrectJets() 
 {
 
-  cout<<"The subtractor correcting jets..."<<endl;
+  LogDebug("PileUpSubtractor")<<"The subtractor correcting jets...\n";
 
   jetOffset_.clear();
 
@@ -302,11 +301,11 @@ void PileUpSubtractor::offsetCorrectJets()
 
 	if(!reRunAlgo_){
 	  double mScale = newjetet/pseudojetTMP->Et();
-          cout<<"pseudojetTMP->Et() : "<<pseudojetTMP->Et()<<endl;
-          cout<<"newjetet : "<<newjetet<<endl;
-          cout<<"jetOffset_[ijet] : "<<jetOffset_[ijet]<<endl;
-          cout<<"pseudojetTMP->Et() - jetOffset_[ijet] : "<<pseudojetTMP->Et() - jetOffset_[ijet]<<endl;
-	  cout<<"Scale is : "<<mScale<<endl;
+	  LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() : "<<pseudojetTMP->Et()<<"\n";
+	  LogDebug("PileUpSubtractor")<<"newjetet : "<<newjetet<<"\n";
+	  LogDebug("PileUpSubtractor")<<"jetOffset_[ijet] : "<<jetOffset_[ijet]<<"\n";
+	  LogDebug("PileUpSubtractor")<<"pseudojetTMP->Et() - jetOffset_[ijet] : "<<pseudojetTMP->Et() - jetOffset_[ijet]<<"\n";
+	  LogDebug("PileUpSubtractor")<<"Scale is : "<<mScale<<"\n";
 
 	   int cshist = pseudojetTMP->cluster_hist_index();
 	   pseudojetTMP->reset(pseudojetTMP->px()*mScale, pseudojetTMP->py()*mScale,
@@ -325,7 +324,6 @@ double PileUpSubtractor::getPileUpAtTower(const reco::CandidatePtr & in){
 
 int ieta(const reco::CandidatePtr & in)
 {
-  //   std::cout<<" Start BasePilupSubtractionJetProducer::ieta "<<std::endl;
   int it = 0;
   const CaloTower* ctc = dynamic_cast<const CaloTower*>(in.get());
 
