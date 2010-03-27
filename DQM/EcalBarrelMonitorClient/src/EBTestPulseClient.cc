@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/03/27 20:07:57 $
- * $Revision: 1.224 $
+ * $Date: 2010/03/27 20:17:49 $
+ * $Revision: 1.225 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -156,7 +156,7 @@ void EBTestPulseClient::beginRun(void) {
 
 void EBTestPulseClient::endJob(void) {
 
-  if ( debug_ ) std::cout << "EBTestPulseClient: std::endlJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) std::cout << "EBTestPulseClient: std::endlJob, ievt = " << ievt_ << std::endl;
 
   this->cleanup();
 
@@ -164,7 +164,7 @@ void EBTestPulseClient::endJob(void) {
 
 void EBTestPulseClient::endRun(void) {
 
-  if ( debug_ ) std::cout << "EBTestPulseClient: std::endlRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) std::cout << "EBTestPulseClient: std::endlRun, jevt = " << jevt_ << std::endl;
 
   this->cleanup();
 

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/03/15 16:38:08 $
- * $Revision: 1.204 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.205 $
  * \author G. Della Ricca
  *
 */
@@ -62,15 +62,15 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   // summary maps
   meIntegrity_            = 0;
@@ -1956,7 +1956,7 @@ void EBSummaryClient::analyze(void) {
         int ism = (ipx-1)/20 + 1 ;
         if ( iex>85 ) ism+=18;
 
-        vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter != superModules_.end()) {
           for ( unsigned int i=0; i<clients_.size(); i++ ) {
             EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);

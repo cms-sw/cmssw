@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/03/20 19:58:45 $
- * $Revision: 1.193 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.194 $
  * \author G. Della Ricca
  *
 */
@@ -66,19 +66,19 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   ledWavelengths_.reserve(2);
   for ( unsigned int i = 1; i <= 2; i++ ) ledWavelengths_.push_back(i);
-  ledWavelengths_ = ps.getUntrackedParameter<vector<int> >("ledWavelengths", ledWavelengths_);
+  ledWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("ledWavelengths", ledWavelengths_);
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   // summary maps
   meIntegrity_[0]      = 0;
@@ -2699,7 +2699,7 @@ void EESummaryClient::analyze(void) {
         float iEntries=0;
 
         for(int ism = 1; ism <= 9; ism++) {
-          vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
           if (iter != superModules_.end()) {
             if ( Numbers::validEE(ism, jx, jy) ) {
               validCry = true;

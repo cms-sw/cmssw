@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorXdaqClient.cc
  *
- * $Date: 2010/01/25 21:12:23 $
- * $Revision: 1.2 $
+ * $Date: 2010/03/27 20:07:56 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -44,8 +44,8 @@ virtual ~EcalBarrelMonitorXdaqClient() {};
 /// XDAQ web page
 void defaultWebPage(xgi::Input *in, xgi::Output *out) {
 
-  string path;
-  string mname;
+  std::string path;
+  std::string mname;
 
   static bool autorefresh_ = false;
 
@@ -64,9 +64,9 @@ void defaultWebPage(xgi::Input *in, xgi::Output *out) {
     cgicc::CgiEnvironment cgie(in);
     path = cgie.getPathInfo() + "?" + cgie.getQueryString();
 
-  } catch (exception &e) {
+  } catch (std::exception &e) {
 
-    cerr << "Standard C++ exception : " << e.what() << std::endl;
+    std::cerr << "Standard C++ exception : " << e.what() << std::endl;
 
   }
 
