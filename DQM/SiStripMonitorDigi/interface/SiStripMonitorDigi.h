@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.22 2010/03/07 18:56:17 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.23 2010/03/14 15:32:05 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -134,6 +134,9 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
 
   bool digitkhistomapon;
   bool createTrendMEs;
+
+  edm::InputTag historyProducer_;  
+  edm::InputTag apvPhaseProducer_;
 };
 #endif
 

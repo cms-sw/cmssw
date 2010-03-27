@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.57 2010/03/07 18:56:17 dutta Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.58 2010/03/14 15:32:06 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -94,6 +94,10 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 
+  // Event History Producer
+  historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
+  // Apv Phase Producer
+  apvPhaseProducer_ = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
 }
 //------------------------------------------------------------------------------------------
 SiStripMonitorDigi::~SiStripMonitorDigi() { }
@@ -229,8 +233,6 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-
-  using namespace edm;
 
   runNb   = iEvent.id().run();
   eventNb++;
@@ -376,16 +378,12 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   // get EventHistory 
-  InputTag historyProducer = conf_.getParameter<edm::InputTag>("HistoryProducer");
-  Handle<EventWithHistory> event_history;
-  
+  edm::Handle<EventWithHistory> event_history;
+  iEvent.getByLabel(historyProducer_,event_history);  
 
   // get Phase of APV
-  InputTag apvPhaseProducer = conf_.getParameter<edm::InputTag>("ApvPhaseProducer");
-  Handle<APVCyclePhaseCollection> apv_phase_collection;
-
-  iEvent.getByLabel(historyProducer,event_history);
-  iEvent.getByLabel(apvPhaseProducer,apv_phase_collection);
+  edm::Handle<APVCyclePhaseCollection> apv_phase_collection;
+  iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
 
   if (event_history.isValid() 
       && !event_history.failedToGet()
