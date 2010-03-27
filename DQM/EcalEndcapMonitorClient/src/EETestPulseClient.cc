@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/03/23 14:19:09 $
- * $Revision: 1.111 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -63,11 +63,11 @@ EETestPulseClient::EETestPulseClient(const edm::ParameterSet& ps) {
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -506,7 +506,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            vector<float> sample01, sample02, sample03;
+            std::vector<float> sample01, sample02, sample03;
 
             sample01.clear();
             sample02.clear();
@@ -1176,7 +1176,7 @@ void EETestPulseClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
             EEDetId id = (*crystals)[i];
             int ix = id.ix();
@@ -1209,7 +1209,7 @@ void EETestPulseClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
             EEDetId id = (*crystals)[i];
             int ix = id.ix();
@@ -1242,7 +1242,7 @@ void EETestPulseClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
             EEDetId id = (*crystals)[i];
             int ix = id.ix();

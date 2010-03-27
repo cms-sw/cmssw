@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/03/12 11:38:28 $
- * $Revision: 1.240 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.241 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -212,7 +212,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
 
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+  superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
   if ( verbose_ ) {
     std::cout << " Selected SMs:" << std::endl;
@@ -229,7 +229,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
   enabledClients_.push_back("PedestalOnline");
   enabledClients_.push_back("Summary");
 
-  enabledClients_ = ps.getUntrackedParameter<vector<string> >("enabledClients", enabledClients_);
+  enabledClients_ = ps.getUntrackedParameter<std::vector<string> >("enabledClients", enabledClients_);
 
   if ( verbose_ ) {
     std::cout << " Enabled Clients:" << std::endl;
@@ -1689,8 +1689,8 @@ void EcalEndcapMonitorClient::analyze(const edm::Event &e, const edm::EventSetup
 
 void EcalEndcapMonitorClient::softReset(bool flag) {
 
-  vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
-  vector<MonitorElement*>::const_iterator meitr;
+  std::vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
+  std::vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
     if ( !strncmp((*meitr)->getName().c_str(), "EE", 2) 
          && strncmp((*meitr)->getName().c_str(), "EETrend", 7) 

@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2010/02/16 10:53:18 $
- * $Revision: 1.96 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  *
 */
@@ -477,7 +477,7 @@ void EETimingClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
             EEDetId id = (*crystals)[i];
             int ix = id.ix();

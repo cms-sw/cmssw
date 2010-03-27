@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/03/23 14:19:08 $
- * $Revision: 1.223 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.224 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -61,11 +61,11 @@ EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps) {
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -480,7 +480,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            vector<float> sample01, sample02, sample03;
+            std::vector<float> sample01, sample02, sample03;
 
             sample01.clear();
             sample02.clear();
