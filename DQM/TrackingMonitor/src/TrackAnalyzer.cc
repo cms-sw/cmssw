@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/19 10:06:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/11 00:11:03 $
+ *  $Revision: 1.11 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -95,17 +95,15 @@ TrackAnalyzer::~TrackAnalyzer()
 
 void TrackAnalyzer::beginJob(DQMStore * dqmStore_) 
 {
-    using namespace edm;
-    using std::string;
 
     // parameters from the configuration
-    string QualName       = conf_.getParameter<string>("Quality");
-    string AlgoName       = conf_.getParameter<string>("AlgoName");
-    string MEFolderName   = conf_.getParameter<string>("FolderName"); 
-    string MEBSFolderName = conf_.getParameter<string>("BSFolderName"); 
+    std::string QualName       = conf_.getParameter<std::string>("Quality");
+    std::string AlgoName       = conf_.getParameter<std::string>("AlgoName");
+    std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
+    std::string MEBSFolderName = conf_.getParameter<std::string>("BSFolderName"); 
 
     // use the AlgoName and Quality Name 
-    string CatagoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CatagoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
 
     // get binning from the configuration
     int    TKHitBin     = conf_.getParameter<int>(   "RecHitBin");
@@ -296,7 +294,7 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 
     // book state related histograms
     // ---------------------------------------------------------------------------------//
-    string StateName = conf_.getParameter<string>("MeasurementState");
+    std::string StateName = conf_.getParameter<std::string>("MeasurementState");
 
     if (StateName == "All") 
     {
@@ -324,8 +322,6 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 // ---------------------------------------------------------------------------------//
 void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track)
 {
-    using namespace edm;
-    using std::string;
 
     // rec hits
     NumberOfRecHitsPerTrack->Fill(track.recHitsSize());
@@ -349,9 +345,9 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     if(doBSPlots_)
     {
-        InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
+      edm::InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
 
-        Handle<reco::BeamSpot> recoBeamSpotHandle;
+      edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
         iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
         reco::BeamSpot bs = *recoBeamSpotHandle;      
 
@@ -373,7 +369,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         doTrackerSpecificFillHists(track);
     }
 
-    string StateName = conf_.getParameter<std::string>("MeasurementState");
+    std::string StateName = conf_.getParameter<std::string>("MeasurementState");
     if (StateName == "All") 
     {
         fillHistosForState(iSetup, track, std::string("OuterSurface"));
@@ -402,16 +398,14 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
 {
 
-    using namespace edm;
-    using std::string;
 
     // parameters from the configuration
-    string QualName       = conf_.getParameter<string>("Quality");
-    string AlgoName       = conf_.getParameter<string>("AlgoName");
-    string MEFolderName   = conf_.getParameter<string>("FolderName"); 
+    std::string QualName       = conf_.getParameter<std::string>("Quality");
+    std::string AlgoName       = conf_.getParameter<std::string>("AlgoName");
+    std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
 
     // use the AlgoName and Quality Name 
-    string CatagoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CatagoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
 
     // get binning from the configuration
     double Chi2NDFMin = conf_.getParameter<double>("Chi2NDFMin");
@@ -495,7 +489,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
 
     TkParameterMEs tkmes;
 
-    string histTag = (sname == "default") ? CatagoryName : sname + "_" + CatagoryName;
+    std::string histTag = (sname == "default") ? CatagoryName : sname + "_" + CatagoryName;
 
     if(doAllPlots_)
     {
@@ -797,15 +791,14 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 
 void TrackAnalyzer::doTrackerSpecificInitialization(DQMStore * dqmStore_) 
 {
-    using std::string;
 
     // parameters from the configuration
-    string QualName     = conf_.getParameter<string>("Quality");
-    string AlgoName     = conf_.getParameter<string>("AlgoName");
-    string MEFolderName = conf_.getParameter<string>("FolderName"); 
+    std::string QualName     = conf_.getParameter<std::string>("Quality");
+    std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
+    std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
 
     // use the AlgoName and Quality Name 
-    string CatagoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
+    std::string CatagoryName = QualName != "" ? AlgoName + "_" + QualName : AlgoName;
 
     // get binning from the configuration
     int    TOBHitBin = conf_.getParameter<int>(   "TOBHitBin");

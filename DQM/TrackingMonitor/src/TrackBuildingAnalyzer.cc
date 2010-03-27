@@ -16,7 +16,6 @@
 #include "TMath.h"
 
 #include <iostream>
-using namespace std;
 
 TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig) 
     : conf_( iConfig )
@@ -43,11 +42,11 @@ void TrackBuildingAnalyzer::beginJob(DQMStore * dqmStore_)
     using std::string;
 
     // parameters from the configuration
-    string AlgoName       = conf_.getParameter<string>("AlgoName");
-    string MEFolderName   = conf_.getParameter<string>("FolderName"); 
+    std::string AlgoName       = conf_.getParameter<std::string>("AlgoName");
+    std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
 
     // use the AlgoName and Quality Name 
-    string CatagoryName = AlgoName;
+    std::string CatagoryName = AlgoName;
 
     // get binning from the configuration
     int    TrackPtBin = conf_.getParameter<int>(   "TrackPtBin");

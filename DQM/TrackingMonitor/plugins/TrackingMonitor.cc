@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/17 20:00:42 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/11 00:11:02 $
+ *  $Revision: 1.11 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -60,9 +60,6 @@ TrackingMonitor::~TrackingMonitor()
 
 void TrackingMonitor::beginJob(void) 
 {
-    using namespace edm;
-    using std::string;
-    using namespace std; 
 
     // parameters from the configuration
     std::string Quality      = conf_.getParameter<std::string>("Quality");
@@ -80,7 +77,7 @@ void TrackingMonitor::beginJob(void)
     }
 
     // use the AlgoName and Quality Name
-    string CatagoryName = Quality != "" ? AlgoName + "_" + Quality : AlgoName;
+    std::string CatagoryName = Quality != "" ? AlgoName + "_" + Quality : AlgoName;
 
     // get binning from the configuration
     int    TKNoBin     = conf_.getParameter<int>(   "TkSizeBin");
@@ -103,7 +100,7 @@ void TrackingMonitor::beginJob(void)
     double MeanLayMin  = conf_.getParameter<double>("MeanLayMin");
     double MeanLayMax  = conf_.getParameter<double>("MeanLayMax");
 
-    string StateName = conf_.getParameter<string>("MeasurementState");
+    std::string StateName = conf_.getParameter<std::string>("MeasurementState");
     if
     (
         StateName != "OuterSurface" &&
@@ -164,13 +161,12 @@ void TrackingMonitor::beginJob(void)
 // ---------------------------------------------------------------------------------//
 void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
-    using namespace edm;
 
     // input tags for collections from the configuration
-    InputTag trackProducer  = conf_.getParameter<edm::InputTag>("TrackProducer");
-    InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
-    InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
-    InputTag bsSrc          = conf_.getParameter<edm::InputTag>("beamSpot");
+    edm::InputTag trackProducer  = conf_.getParameter<edm::InputTag>("TrackProducer");
+    edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
+    edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
+    edm::InputTag bsSrc          = conf_.getParameter<edm::InputTag>("beamSpot");
     std::string Quality     = conf_.getParameter<std::string>("Quality");
     std::string Algo        = conf_.getParameter<std::string>("AlgoName");
 
@@ -179,7 +175,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     // ---------------------------------------------------------------------------------//
 
     // get the track collection
-    Handle<reco::TrackCollection> trackHandle;
+    edm::Handle<reco::TrackCollection> trackHandle;
     iEvent.getByLabel(trackProducer, trackHandle);
 
     if (trackHandle.isValid()) 
@@ -238,12 +234,12 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
 	    
 	    // get the beam spot
-	    Handle<reco::BeamSpot> recoBeamSpotHandle;
+	    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 	    iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
 	    const reco::BeamSpot& bs = *recoBeamSpotHandle;      
 	    
 	    // get the candidate collection
-	    Handle<TrackCandidateCollection> theTCHandle;
+	    edm::Handle<TrackCandidateCollection> theTCHandle;
 	    iEvent.getByLabel(tcProducer, theTCHandle ); 
 	    const TrackCandidateCollection& theTCCollection = *theTCHandle;
 	    
@@ -259,11 +255,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      }
 	    else
 	      {
-		LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
+		edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
 	      }
 
 	    // get the seed collection
-	    Handle<edm::View<TrajectorySeed> > seedHandle;
+	    edm::Handle<edm::View<TrajectorySeed> > seedHandle;
 	    iEvent.getByLabel(seedProducer, seedHandle);
 	    const edm::View<TrajectorySeed>& seedCollection = *seedHandle;
 	    
@@ -281,7 +277,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      }
 	    else
 	      {
-		LogWarning("TrackingMonitor") << "No Trajectory seeds in the event.  Not filling associated histograms";
+		edm::LogWarning("TrackingMonitor") << "No Trajectory seeds in the event.  Not filling associated histograms";
 	      }
 	  }
     }

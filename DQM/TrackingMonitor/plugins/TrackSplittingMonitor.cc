@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/05 17:07:51 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/11 00:11:01 $
+ *  $Revision: 1.4 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -44,9 +44,6 @@ TrackSplittingMonitor::~TrackSplittingMonitor() {
 
 void TrackSplittingMonitor::beginJob(void) {
 	
-  using namespace edm;
-  
-  
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
   dqmStore_->setCurrentFolder(MEFolderName);
   
@@ -161,7 +158,6 @@ void TrackSplittingMonitor::beginJob(void) {
 //
 void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
-  using namespace edm;
   
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);   
   iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
