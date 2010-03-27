@@ -38,8 +38,6 @@ TrackBuildingAnalyzer::~TrackBuildingAnalyzer()
 
 void TrackBuildingAnalyzer::beginJob(DQMStore * dqmStore_) 
 {
-    using namespace edm;
-    using std::string;
 
     // parameters from the configuration
     std::string AlgoName       = conf_.getParameter<std::string>("AlgoName");
