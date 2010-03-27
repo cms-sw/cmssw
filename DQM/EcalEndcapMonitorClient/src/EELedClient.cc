@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/03/23 14:19:09 $
- * $Revision: 1.113 $
+ * $Date: 2010/03/27 20:07:59 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -66,7 +66,7 @@ EELedClient::EELedClient(const edm::ParameterSet& ps) {
 
   ledWavelengths_.reserve(2);
   for ( unsigned int i = 1; i <= 2; i++ ) ledWavelengths_.push_back(i);
-  ledWavelengths_ = ps.getUntrackedParameter<vector<int> >("ledWavelengths", ledWavelengths_);
+  ledWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("ledWavelengths", ledWavelengths_);
 
   if ( verbose_ ) {
     std::cout << " Led wavelengths:" << std::endl;
@@ -1615,7 +1615,7 @@ void EELedClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
             EEDetId id = (*crystals)[i];
             int ix = id.ix();

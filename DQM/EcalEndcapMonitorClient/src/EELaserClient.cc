@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/03/23 14:19:09 $
- * $Revision: 1.124 $
+ * $Date: 2010/03/27 20:07:59 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -72,7 +72,7 @@ EELaserClient::EELaserClient(const edm::ParameterSet& ps) {
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   if ( verbose_ ) {
     std::cout << " Laser wavelengths:" << std::endl;
@@ -2583,7 +2583,7 @@ void EELaserClient::analyze(void) {
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
+          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
           for ( unsigned int i=0; i<crystals->size(); i++ ) {
             EEDetId id = (*crystals)[i];
             int ix = id.ix();

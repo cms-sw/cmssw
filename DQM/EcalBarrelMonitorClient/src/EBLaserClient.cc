@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/03/23 14:19:08 $
- * $Revision: 1.260 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.261 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -70,7 +70,7 @@ EBLaserClient::EBLaserClient(const edm::ParameterSet& ps) {
 
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   if ( verbose_ ) {
     std::cout << " Laser wavelengths:" << std::endl;
