@@ -71,8 +71,8 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
 
   sprintf(histo, "ES 2D Timing");
   h2DTiming_ = dqmStore_->book2D(histo, histo, 81, -20.5, 20.5, 81, -20.5, 20.5);
-  h2DTiming_->setAxisTitle("ES- Timing (ns)", 1);
-  h2DTiming_->setAxisTitle("ES+ Timing (ns)", 2);
+  h2DTiming_->setAxisTitle("ES+ Timing (ns)", 1);
+  h2DTiming_->setAxisTitle("ES- Timing (ns)", 2);
 
   htESP_ = new TH1F("htESP", "Timing ES+", 81, -20.5, 20.5);
   htESM_ = new TH1F("htESM", "Timing ES-", 81, -20.5, 20.5);
@@ -127,7 +127,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 	 adc[k] = dataframe.sample(k).adc();
 
        double status = 0;
-       if (adc[1] < 150) status = 1;
+       if (adc[1] < 200) status = 1;
        if (adc[0] > 20) status = 1;
        if (adc[1] < 0 || adc[2] < 0) status = 1;
        if (adc[0] > adc[1] || adc[0] > adc[2]) status = 1;
@@ -140,7 +140,7 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 	 fit_->GetParameters(para); 
 	 delete gr;
 	 //cout<<"ADC : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<is<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<" "<<para[1]<<endl;
-	 if (adc[1] > 200) hTiming_[i][j]->Fill(para[1]);
+	 hTiming_[i][j]->Fill(para[1]);
 
 	 if (zside == 1) htESP_->Fill(para[1]);
 	 else if (zside == -1) htESM_->Fill(para[1]);
@@ -151,8 +151,9 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
      LogWarning("ESTimingTask") << digilabel_ << " not available";
    }
 
-   if (htESP_->GetEntries() > 0 && htESM_->GetEntries() > 0) 
-     h2DTiming_->Fill(htESM_->GetMean(), htESP_->GetMean());
+   float espT = (htESP_->GetEntries() == 0) ? 99 : htESP_->GetMean();
+   float esmT = (htESM_->GetEntries() == 0) ? 99 : htESM_->GetMean();
+   h2DTiming_->Fill(espT, esmT);
 
 }
 
