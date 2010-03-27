@@ -23,6 +23,8 @@ class EcalCoder
 {
    public:
       
+      typedef CorrelatedNoisifier<EcalCorrMatrix> Noisifier ;
+
       enum { NBITS         =   12 , // number of available bits
 	     MAXADC        = 4095 , // 2^12 -1,  adc max range
 	     ADCGAINSWITCH = 4079 , // adc gain switch
@@ -30,9 +32,13 @@ class EcalCoder
       };
 
       /// ctor
-      EcalCoder( bool                                 addNoise    , 
-		 CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise ,
-		 CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise = 0  ) ; // make EE version optional for tb compatibility
+      EcalCoder( bool        addNoise        , 
+		 Noisifier* ebCorrNoise0     ,
+		 Noisifier* eeCorrNoise0 = 0 ,
+		 Noisifier* ebCorrNoise1 = 0 ,
+		 Noisifier* eeCorrNoise1 = 0 ,
+		 Noisifier* ebCorrNoise2 = 0 ,
+		 Noisifier* eeCorrNoise2 = 0   ) ; // make EE version optional for tb compatibility
       /// dtor
       virtual ~EcalCoder() ;
 
@@ -89,9 +95,8 @@ class EcalCoder
       
       bool m_addNoise ;   // whether add noise to the pedestals and the gains
 
-      const CorrelatedNoisifier<EcalCorrMatrix>* m_ebCorrNoise ;
-      const CorrelatedNoisifier<EcalCorrMatrix>* m_eeCorrNoise ;
+      const Noisifier* m_ebCorrNoise[3] ;
+      const Noisifier* m_eeCorrNoise[3] ;
 };
-
 
 #endif

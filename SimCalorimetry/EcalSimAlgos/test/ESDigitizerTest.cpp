@@ -11,8 +11,6 @@
 #include <vector>
 #include <iostream>
 #include <iterator>
-using namespace std;
-using namespace cms;
 
 int main() {
 

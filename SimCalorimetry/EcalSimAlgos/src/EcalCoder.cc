@@ -6,19 +6,27 @@
 //#include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
-EcalCoder::EcalCoder( bool                                 addNoise    , 
-		      CorrelatedNoisifier<EcalCorrMatrix>* ebCorrNoise ,
-		      CorrelatedNoisifier<EcalCorrMatrix>* eeCorrNoise     ) :
+EcalCoder::EcalCoder( bool                  addNoise     , 
+		      EcalCoder::Noisifier* ebCorrNoise0 ,
+		      EcalCoder::Noisifier* eeCorrNoise0 ,
+		      EcalCoder::Noisifier* ebCorrNoise1 ,
+		      EcalCoder::Noisifier* eeCorrNoise1 ,
+		      EcalCoder::Noisifier* ebCorrNoise2 ,
+		      EcalCoder::Noisifier* eeCorrNoise2   ) :
    m_peds        (           0 ) ,
    m_gainRatios  (           0 ) ,
    m_intercals   (           0 ) ,
    m_maxEneEB    (      1668.3 ) , // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)*0.97
    m_maxEneEE    (      2859.9 ) , // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)*0.97
-   m_addNoise    ( addNoise    ) ,
-   m_ebCorrNoise ( ebCorrNoise ) ,
-   m_eeCorrNoise ( eeCorrNoise ) 
+   m_addNoise    ( addNoise    )
 {
-   assert( 0 != m_ebCorrNoise ) ;
+   m_ebCorrNoise[0] = ebCorrNoise0 ;
+   assert( 0 != m_ebCorrNoise[0] ) ;
+   m_eeCorrNoise[0] = eeCorrNoise0 ;
+   m_ebCorrNoise[1] = ebCorrNoise1 ;
+   m_eeCorrNoise[1] = eeCorrNoise1 ;
+   m_ebCorrNoise[2] = ebCorrNoise2 ;
+   m_eeCorrNoise[2] = eeCorrNoise2 ;
 }  
 
 EcalCoder::~EcalCoder()
@@ -70,7 +78,10 @@ void
 EcalCoder::encode( const CaloSamples& caloSamples , 
 		   EcalDataFrame&     df            ) const
 {
-   assert(m_peds != 0);
+   assert( 0 != m_peds ) ;
+
+   const unsigned int csize ( caloSamples.size() ) ;
+
   
    DetId detId = caloSamples.id();             
    double Emax = fullScaleEnergy(detId);       
@@ -82,8 +93,8 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
    double pedestals[NGAINS+1];
    double widths[NGAINS+1];
    double gains[NGAINS+1];
-   double threeSigmaADCNoise[NGAINS+1];
    int    maxADC[NGAINS+1];
+   double trueRMS[NGAINS+1];
 
    double icalconst = 1. ;
    findIntercalibConstant( detId, icalconst );
@@ -96,73 +107,94 @@ EcalCoder::encode( const CaloSamples& caloSamples ,
 		    pedestals[igain] , 
 		    widths[igain]      ) ;
 
+      if( 0 < igain ) 
+	 trueRMS[igain] = std::sqrt( widths[igain]*widths[igain] - 1./12. ) ;
+
       // set nominal value first
       findGains( detId , 
 		 gains  );               
 
       LSB[igain] = 0.;
       if ( igain > 0 ) LSB[igain]= Emax/(MAXADC*gains[igain]);
-      threeSigmaADCNoise[igain] = 0.;
-      if ( igain > 0 ) threeSigmaADCNoise[igain] = widths[igain] * 3.;
       maxADC[igain] = ADCGAINSWITCH;                   // saturation at 4080 for middle and high gains x6 & x12
       if ( igain == NGAINS ) maxADC[igain] = MAXADC;   // saturation at 4095 for low gain x1 
    }
 
-   CaloSamples noiseframe ( detId , 
-			    caloSamples.size() ) ;        
+   CaloSamples noiseframe[] = { CaloSamples( detId , csize ) ,
+				CaloSamples( detId , csize ) ,
+				CaloSamples( detId , csize )   } ;
 
-   if( m_addNoise ) 
-   { 
-      if( 0 == m_eeCorrNoise             ||
-	  EcalBarrel == detId.subdetId()     )
-      {
-	 m_ebCorrNoise->noisify( noiseframe ) ;
-      }
-      else
-      {
-	 m_eeCorrNoise->noisify( noiseframe ) ;
-      }
-      LogDebug("EcalCoder") << "Normalized correlated noise calo frame = " << noiseframe;
+   const Noisifier* noisy[3] = { ( 0 == m_eeCorrNoise[0]          ||
+				   EcalBarrel == detId.subdetId()    ?
+				   m_ebCorrNoise[0] :
+				   m_eeCorrNoise[0]                  ) ,
+				 ( EcalBarrel == detId.subdetId() ?
+				   m_ebCorrNoise[1] :
+				   m_eeCorrNoise[1]                  ) ,
+				 ( EcalBarrel == detId.subdetId() ?
+				   m_ebCorrNoise[2] :
+				   m_eeCorrNoise[2]                  )   } ;
+
+   if( m_addNoise )
+   {
+      noisy[0]->noisify( noiseframe[0] ) ; // high gain
+      if( 0 == noisy[1] ) noisy[0]->noisify( noiseframe[1] ,
+					     &noisy[0]->vecgau() ) ; // med 
+      if( 0 == noisy[2] ) noisy[0]->noisify( noiseframe[2] ,
+					     &noisy[0]->vecgau() ) ; // low
    }
 
    int wait = 0 ;
    int gainId = 0 ;
    bool isSaturated = 0;
-   for( unsigned int i ( 0 ) ; i < (unsigned int) caloSamples.size() ; ++i )
+
+   for( unsigned int i ( 0 ) ; i != csize ; ++i )
    {    
-      int adc = MAXADC;
-      if (wait == 0) gainId = 1;
+      bool done ( false ) ;
+      int adc = MAXADC ;
+      if( 0 == wait ) gainId = 1 ;
 
       // see which gain bin it fits in
-      int igain = gainId-1 ;
-      while (igain != 3) 
+      int igain ( gainId - 1 ) ;
+      do
       {
-	 ++igain;
+	 ++igain ;
 
-	 double ped = pedestals[igain];
-	 double signal = ped + caloSamples[i] / LSB[igain] / icalconst;
-	 
-	 // see if it's close enough to the boundary that we have to throw noise
-	 if( m_addNoise && (signal <= maxADC[igain]+threeSigmaADCNoise[igain]) ) 
+	 if( igain != gainId ) std::cout <<"$$$$ Gain switch from " << gainId
+					 <<" to "<< igain << std::endl ;
+
+	 if( 1 != igain                    &&   // not high gain
+	     m_addNoise                    &&   // want to add noise
+	     0 != noisy[igain-1]           &&   // exists
+	     noiseframe[igain-1].isBlank()    ) // not already done
 	 {
-	    // width is the actual final noise, subtract the additional one from the trivial quantization
-	    double trueRMS = std::sqrt(widths[igain]*widths[igain]-1./12.);
-	    ped = ped + trueRMS*noiseframe[i];
-	    signal = ped + caloSamples[i] / LSB[igain] / icalconst;
+	    noisy[igain-1]->noisify( noiseframe[igain-1] ,
+				     &noisy[0]->vecgau()   ) ;
+	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }
-	 int tmpadc = (signal-(int)signal <= 0.5 ? (int)signal : (int)signal + 1);
+	
+	 // noiseframe filled with zeros if !m_addNoise
+	 const double signal ( pedestals[igain] +
+			       caloSamples[i] /( LSB[igain]*icalconst ) +
+			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
+	 
+	 const int isignal ( signal ) ;
+	 const int tmpadc ( signal - (double)isignal < 0.5 ?
+			    isignal : isignal + 1 ) ;
 	 // LogDebug("EcalCoder") << "DetId " << detId.rawId() << " gain " << igain << " caloSample " 
 	 //                       <<  caloSamples[i] << " pededstal " << pedestals[igain] 
 	 //                       << " noise " << widths[igain] << " conversion factor " << LSB[igain] 
 	 //                       << " result (ped,tmpadc)= " << ped << " " << tmpadc;
          
-	 if(tmpadc <= maxADC[igain] ) 
+	 if( tmpadc <= maxADC[igain] ) 
 	 {
 	    adc = tmpadc;
-	    break ;
+	    done = true ;
 	 }
       }
-     
+      while( !done       &&
+	     igain < 3    ) ;
+
       if (igain == 1 ) 
       {
          wait = 0 ;

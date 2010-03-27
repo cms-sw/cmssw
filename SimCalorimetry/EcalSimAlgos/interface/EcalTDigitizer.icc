@@ -1,0 +1,46 @@
+#ifndef EcalSimAlgos_EcalTDigitizer_icc
+#define EcalSimAlgos_EcalTDigitizer_icc
+
+template <class Traits>
+EcalTDigitizer<Traits>::EcalTDigitizer( CaloHitResponse* hitResponse    ,
+					ElectronicsSim*  electronicsSim ,
+					bool             addNoise         ) :
+   m_hitResponse    ( hitResponse    ) ,
+   m_electronicsSim ( electronicsSim ) ,
+   m_addNoise       ( addNoise       )
+{
+}
+
+template <class Traits>
+EcalTDigitizer<Traits>::~EcalTDigitizer()
+{
+}
+
+template <class Traits>
+void 
+EcalTDigitizer<Traits>::run( MixCollection<PCaloHit>& input  ,
+			     DigiCollection&          output   )
+{
+   m_hitResponse->run( input );
+
+   m_electronicsSim->newEvent();
+
+   CaloHitResponse::VecSam& samples ( m_hitResponse->samples() ) ;
+   output.reserve( samples.size() ) ;
+
+   for( CaloHitResponse::VecSam::iterator it ( samples.begin() ) ;
+	it != samples.end() ; ++it )
+   {
+      CaloSamples* analogSignal ( &*it ) ;
+      if( m_addNoise               ||    // digitize if real or adding noise
+	  !analogSignal->isBlank()    )
+      {
+	 output.push_back( analogSignal->id() ) ;
+	 Digi digi ( output.back() ) ;  // why does this work without &
+	 m_electronicsSim->analogToDigital( *analogSignal , digi ) ;
+      }
+   }
+}
+
+#endif
+
