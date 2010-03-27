@@ -196,7 +196,7 @@ calomuons.inputTracks = 'generalTracks'
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 
 famosMuonIdAndIsolationSequence = cms.Sequence(
-    sisCone5CaloJets+
+    ak5CaloJets+
     muonIdProducerSequence+
     muIsolation
 )
@@ -417,7 +417,7 @@ famosWithMuons = cms.Sequence(
 famosWithMuonsAndIsolation = cms.Sequence(
     famosWithTracksAndCaloTowers+
     paramMuons+
-    sisCone5CaloJets+
+    ak5CaloJets+
     muIsolation_ParamGlobalMuons
 )
 
