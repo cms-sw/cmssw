@@ -1,7 +1,6 @@
 #include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
 #include <iostream>
 
-using namespace std;
 
 bool
 PreshowerStrip::inside( const GlobalPoint& p ) const

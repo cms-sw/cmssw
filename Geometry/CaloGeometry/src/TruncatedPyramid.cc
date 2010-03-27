@@ -101,7 +101,7 @@ std::vector<HepGeom::Point3D<double> >
 TruncatedPyramid::localCornersReflection( const double* pv,
 					  HepGeom::Point3D<double> &   ref )
 {
-   using namespace truncPyr ;
+//   using namespace truncPyr ;
 
    std::vector<HepGeom::Point3D<double> > lc ( localCorners( pv, ref ) ) ;
    HepGeom::Point3D<double>  tmp ;
@@ -119,14 +119,14 @@ TruncatedPyramid::localCornersReflection( const double* pv,
    lc[5] = refl( lc[7] ) ;
    lc[7] = refl( tmp   ) ;
 */
-   lc[0] = refl( lc[0] ) ;
-   lc[1] = refl( lc[1] ) ;
-   lc[2] = refl( lc[2] ) ;
-   lc[3] = refl( lc[3] ) ;
-   lc[4] = refl( lc[4] ) ;
-   lc[5] = refl( lc[5] ) ;
-   lc[6] = refl( lc[6] ) ;
-   lc[7] = refl( lc[7] ) ;
+   lc[0] = truncPyr::refl( lc[0] ) ;
+   lc[1] = truncPyr::refl( lc[1] ) ;
+   lc[2] = truncPyr::refl( lc[2] ) ;
+   lc[3] = truncPyr::refl( lc[3] ) ;
+   lc[4] = truncPyr::refl( lc[4] ) ;
+   lc[5] = truncPyr::refl( lc[5] ) ;
+   lc[6] = truncPyr::refl( lc[6] ) ;
+   lc[7] = truncPyr::refl( lc[7] ) ;
 
 
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
