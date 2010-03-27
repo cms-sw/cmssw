@@ -8,11 +8,12 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.12 2009/03/08 17:59:46 dutta Exp $
+// $Id: SiStripHistoId.cc,v 1.13 2010/03/14 10:50:17 dutta Exp $
 //
 
 #include<iostream>
 #include<sstream>
+#include<cstdio>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"

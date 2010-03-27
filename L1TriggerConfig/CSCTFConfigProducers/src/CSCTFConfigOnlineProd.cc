@@ -1,4 +1,5 @@
 #include "L1TriggerConfig/CSCTFConfigProducers/interface/CSCTFConfigOnlineProd.h"
+#include <cstdio>
 
 boost::shared_ptr< L1MuCSCTFConfiguration >
 CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
