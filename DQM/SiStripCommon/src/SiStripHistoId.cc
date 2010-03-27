@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.13 2010/03/14 10:50:17 dutta Exp $
+// $Id: SiStripHistoId.cc,v 1.14 2010/03/27 00:08:22 elmer Exp $
 //
 
 #include<iostream>
@@ -22,9 +22,6 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-
-using namespace std;
-using namespace edm;
 
 SiStripHistoId::SiStripHistoId()
 {
@@ -50,13 +47,13 @@ std::string SiStripHistoId::createHistoId(std::string description, std::string i
       local_histo_id = description + separator1 + id_type + separator2 + compid.str();
     }else{
       local_histo_id = description + separator1 + "dummy" + separator2 + compid.str();
-      LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+      edm::LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
 				 <<" no such type of component accepted: "<<id_type
 				 <<" id_type can be: fed, det, or fec.";      
     }
   }else{
     local_histo_id = description + "_dummy_" + separator1 + id_type + separator2 + compid.str();
-    LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+    edm::LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
 			       <<" histogram description cannot contain: "<<separator1<<" or: "<<separator2
 			       <<" histogram description = "<<description;
   }
@@ -76,13 +73,13 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
       LogTrace("SiStripHistoId") << "Local_histo_ID " << local_histo_id << std::endl;
     }else{
       local_histo_id = description + separator2 + "_dummy_" + path;
-      LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+      edm::LogError("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
 				 <<" no such type of component accepted: "<<id_type
 				 <<" id_type can be: fed, det, fec or layer ";
     }
   }else{
     local_histo_id = description + "_dummy_" + separator2 +  path;
-    LogWarning("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
+    edm::LogWarning("SiStripHistoId") <<" SiStripHistoId::WrongInput " 
                                  <<" histogram description cannot contain: "<<separator1<<" or: "<<separator2
 				 <<" histogram description = "<<description;
   }
@@ -119,7 +116,7 @@ std::string SiStripHistoId::getSubdetid(uint32_t id,bool flag_ring){  std::strin
     snprintf(temp_str,0,"%s","");  
   }
   
-  return string(temp_str);
+  return std::string(temp_str);
 }
 
 uint32_t SiStripHistoId::getComponentId(std::string histoid){
@@ -137,7 +134,7 @@ std::string SiStripHistoId::getComponentType(std::string histoid){
 std::string SiStripHistoId::returnIdPart(std::string histoid, uint32_t whichpart){
   size_t length1=histoid.find(separator1,0);
   if(length1==std::string::npos){ // no separator1 found
-    LogWarning("SiStripTkDQM|UnregularInput")<<"no regular histoid. Returning 0";
+    edm::LogWarning("SiStripTkDQM|UnregularInput")<<"no regular histoid. Returning 0";
     return "0";
   }
   std::string part1 = histoid.substr(0,length1); // part of 'histoid' up to 'separator1'
@@ -145,14 +142,14 @@ std::string SiStripHistoId::returnIdPart(std::string histoid, uint32_t whichpart
   std::string remain1 = histoid.substr(length1+separator1.size()); // rest of 'histoid' starting at end of 'separator1'
   size_t length2=remain1.find(separator2,0);
   if(length2==std::string::npos){ // no separator2 found
-    LogWarning("SiStripTkDQM|UnregularInput")<<"no regular histoid. Returning 0";
+    edm::LogWarning("SiStripTkDQM|UnregularInput")<<"no regular histoid. Returning 0";
     return "0";
   }
   std::string part2 = remain1.substr(0,length2); // part of 'remain1' up to 'separator2'
   if(whichpart==2) return part2;
   std::string part3 = remain1.substr(length2+separator2.size()); // rest of remain1 starting at end of 'separator2'
   if(whichpart==3) return part3;
-  LogWarning("SiStripTkDQM|UnregularInput")<<"no such whichpart="<<whichpart<<" returning 0";
+  edm::LogWarning("SiStripTkDQM|UnregularInput")<<"no such whichpart="<<whichpart<<" returning 0";
   return "0";
 }
 
