@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.69 2010/03/21 20:01:40 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.70 2010/03/23 22:18:07 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -130,7 +130,7 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
 
-  topFolderName_ = conf_.getParameter<string>("TopFolderName");
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
 
   // Poducer name of input StripClusterCollection
@@ -273,7 +273,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     if (globalswitchapvcycledbxth2on) {
       dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
       edm::ParameterSet GlobalTH2Parameters =  conf_.getParameter<edm::ParameterSet>("TH2ApvCycleVsDBxGlobal");
-      string HistoName = "DeltaBx_vs_ApvCycle";
+      std::string HistoName = "DeltaBx_vs_ApvCycle";
       GlobalApvCycleDBxTH2 = dqmStore_->book2D(HistoName,HistoName,
 						GlobalTH2Parameters.getParameter<int32_t>("Nbinsx"),
 						GlobalTH2Parameters.getParameter<double>("xmin"),
@@ -293,9 +293,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  using namespace edm;
-
 
   runNb   = iEvent.id().run();
   eventNb++;
@@ -476,11 +473,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   }
   
   //  EventHistory 
-  Handle<EventWithHistory> event_history;
+  edm::Handle<EventWithHistory> event_history;
   iEvent.getByLabel(historyProducer_,event_history);
   
   // Phase of APV
-  Handle<APVCyclePhaseCollection> apv_phase_collection;
+  edm::Handle<APVCyclePhaseCollection> apv_phase_collection;
   iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
 
   if (event_history.isValid() 
@@ -497,7 +494,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
        it != SubDetMEsMap.end(); it++) {
 
       SubDetMEs subdetmes;
-      string subdet = it->first;
+      std::string subdet = it->first;
       subdetmes = it->second;
 
       int the_phase = APVCyclePhaseCollection::invalid;

@@ -1,8 +1,10 @@
+
+
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/11/05 21:06:21 $
- * $Revision: 1.54 $
+ * $Date: 2010/03/12 20:10:34 $
+ * $Revision: 1.55 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -60,8 +62,6 @@
 
 #define BUF_SIZE 256
 
-using namespace edm;
-using namespace std;
 //
 // -- Constructor
 //
@@ -71,12 +71,12 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   // Get TkMap ParameterSet 
   tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
 
-  string localPath = string("DQM/SiStripMonitorClient/test/loader.html");
-  ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), ios::in);
+  std::string localPath = std::string("DQM/SiStripMonitorClient/test/loader.html");
+  ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), std::ios::in);
   char buf[BUF_SIZE];
   
   if (!fin) {
-    cerr << "Input File: loader.html"<< " could not be opened!" << endl;
+    std::cerr << "Input File: loader.html"<< " could not be opened!" << std::endl;
     return;
   }
 
@@ -97,7 +97,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   printFaultyModuleList_ = ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true);
 
   // get back-end interface
-  dqmStore_ = Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 
 
   // instantiate web interface
@@ -139,7 +139,7 @@ void SiStripAnalyser::beginJob(){
 //
 // -- Begin Run
 //
-void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
+void SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
@@ -185,7 +185,7 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   if (nval > 0) {
     for (unsigned int ival = 0; ival < nval; ival++) {
       uint32_t det_id;
-      string   subdet_type;
+      std::string   subdet_type;
       uint32_t subdet_side;
       uint32_t layer_number;
       sistripWebInterface_->getConDBPlotParameters(ival, det_id, subdet_type, subdet_side, layer_number);
@@ -215,13 +215,13 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   //  sistripWebInterface_->setCabling(detCabling_);
  
-  cout << "====================================================== " << endl;
-  cout << " ===> Iteration # " << nLumiSecs_ << " " 
-                               << lumiSeg.luminosityBlock() << endl;
-  cout << "====================================================== " << endl;
+  std::cout << "====================================================== " <<std:: endl;
+  std::cout << " ===> Iteration # " << nLumiSecs_ << " " 
+	    << lumiSeg.luminosityBlock() << std::endl;
+  std::cout << "====================================================== " << std::endl;
   // Create predefined plots
   if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
-    cout << " Creating predefined plots " << endl;
+    std::cout << " Creating predefined plots " << std::endl;
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
@@ -231,13 +231,13 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   }
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {
-    cout << " Creating Summary " << endl;
+    std::cout << " Creating Summary " << std::endl;
     actionExecutor_->createSummary(dqmStore_);
   }
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
-    cout << " Creating Tracker Map " << endl;
-    string tkmap_type =  sistripWebInterface_->getTkMapType();
+    std::cout << " Creating Tracker Map " << std::endl;
+    std::string tkmap_type =  sistripWebInterface_->getTkMapType();
     actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, dqmStore_, tkmap_type);
   }
   // Create Shift Report
@@ -296,8 +296,8 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
   //  edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: defaultWebPage "
   //             << " query string : " << cgie.getQueryString();
   //  if ( xgi::Utils::hasFormElement(cgi,"ClientRequest") ) isRequest = true;
-  string q_string = cgie.getQueryString();
-  if (q_string.find("RequestID") != string::npos) isRequest = true;
+  std::string q_string = cgie.getQueryString();
+  if (q_string.find("RequestID") != std::string::npos) isRequest = true;
   if (!isRequest) {    
     *out << html_out_.str() << std::endl;
   }  else {

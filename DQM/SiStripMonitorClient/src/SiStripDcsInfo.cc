@@ -25,7 +25,6 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-using namespace std;
 
 //
 // -- Contructor
@@ -57,7 +56,7 @@ void SiStripDcsInfo::beginJob() {
 void SiStripDcsInfo::bookStatus() {
 
   if (!bookedStatus_) {
-    string strip_dir = "";
+    std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
     if (strip_dir.size() > 0) {
       dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
@@ -66,7 +65,7 @@ void SiStripDcsInfo::bookStatus() {
       DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
       
       dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
-      vector<string> det_type;
+      std::vector<std::string> det_type;
       det_type.push_back("TIB");
       det_type.push_back("TOB");
       det_type.push_back("TIDF");
@@ -74,10 +73,10 @@ void SiStripDcsInfo::bookStatus() {
       det_type.push_back("TECF");
       det_type.push_back("TECB");
       
-      for ( vector<string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
+      for ( std::vector<std::string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
 	SubDetMEs local_mes;	
-	string me_name;
-	string det = (*it);
+	std::string me_name;
+	std::string det = (*it);
 	me_name = "SiStrip_" + det;    
 	local_mes.DcsFractionME = dqmStore_->bookFloat(me_name);  	
 	local_mes.TotalDetectors = 0;
@@ -95,7 +94,7 @@ void SiStripDcsInfo::bookStatus() {
 void SiStripDcsInfo::fillDummyStatus() {
   if (!bookedStatus_) bookStatus();
   if (bookedStatus_) {
-    for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       it->second.DcsFractionME->Reset();
       it->second.DcsFractionME->Fill(-1.0);
     }
@@ -130,7 +129,7 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
     eSetup.get<RunInfoRcd>().get(sumFED);    
     
     if ( sumFED.isValid() ) {
-      vector<int> FedsInIds= sumFED->m_fed_in;   
+      std::vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
 	int fedID = FedsInIds[it];     
 	
@@ -195,10 +194,10 @@ void SiStripDcsInfo::readStatus() {
         break;
       }
     }
-    string subdet_tag;
+    std::string subdet_tag;
     SiStripUtility::getSubDetectorTag(detId,subdet_tag);         
 
-    map<string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(subdet_tag);
+    std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(subdet_tag);
     if (iPos != SubDetMEsMap.end()){    
       iPos->second.TotalDetectors++;
       if (hv_error) {
@@ -215,7 +214,7 @@ void SiStripDcsInfo::fillStatus(){
   
   readStatus();
   if (!bookedStatus_) bookStatus();
-  for (map<string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+  for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
     int total_det  = it->second.TotalDetectors;
     int faulty_det = it->second.FaultyDetectors; 
     if  (total_det > 0) {
@@ -223,7 +222,7 @@ void SiStripDcsInfo::fillStatus(){
       it->second.DcsFractionME->Reset();
       it->second.DcsFractionME->Fill(fraction);
       edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus : Sub Detector "
-                  << it->first << "  " << total_det  << " " << faulty_det << endl;
+				      << it->first << "  " << total_det  << " " << faulty_det << std::endl;
     }
   } 
 }
@@ -233,23 +232,23 @@ void SiStripDcsInfo::fillStatus(){
 void SiStripDcsInfo::addBadModules(uint32_t det_id) {
   
   dqmStore_->cd();
-  string mdir = "MechanicalView";
+  std::string mdir = "MechanicalView";
   if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
-  string mechanical_dir = dqmStore_->pwd();
-  string tag = "DCSError";
-  string subdet_folder ;
+  std::string mechanical_dir = dqmStore_->pwd();
+  std::string tag = "DCSError";
+  std::string subdet_folder ;
   SiStripFolderOrganizer folder_organizer;
   folder_organizer.getSubDetFolder(det_id,subdet_folder);
   if (!dqmStore_->dirExists(subdet_folder)) {
     subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find("MechanicalView")+14);
     if (!dqmStore_->dirExists(subdet_folder)) return;
   }
-  string bad_module_folder = subdet_folder + "/" + "BadModuleList";
+  std::string bad_module_folder = subdet_folder + "/" + "BadModuleList";
   dqmStore_->setCurrentFolder(bad_module_folder);
 
-  ostringstream detid_str;
+  std::ostringstream detid_str;
   detid_str << det_id;
-  string full_path = bad_module_folder + "/" + detid_str.str();
+  std::string full_path = bad_module_folder + "/" + detid_str.str();
   MonitorElement* me = dqmStore_->get(full_path);
   uint16_t flag = 0; 
   if (me) {

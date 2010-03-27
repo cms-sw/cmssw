@@ -8,7 +8,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-using namespace std;
+
 //
 // -- Constructor
 // 
@@ -37,7 +37,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 
   if (trackerMap_) delete trackerMap_;
   trackerMap_ = new TrackerMap(tkmapPset, fedcabling);
-  string tmap_title = " Tracker Map from  " + map_type;
+  std::string tmap_title = " Tracker Map from  " + map_type;
   trackerMap_->setTitle(tmap_title);
  
   nDet     = 0;
@@ -46,9 +46,9 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 
   if (map_type == "QTestAlarm") {
     trackerMap_->fillc_all_blank();
-    const vector<uint16_t>& feds = fedcabling->feds(); 
+    const std::vector<uint16_t>& feds = fedcabling->feds(); 
     uint32_t detId_save = 0;
-    for(vector<unsigned short>::const_iterator ifed = feds.begin(); 
+    for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); 
 	ifed < feds.end(); ifed++){
       const std::vector<FedChannelConnection> fedChannels = fedcabling->connections( *ifed );
       for(std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
@@ -78,7 +78,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   if (trackerMap_) delete trackerMap_;
   trackerMap_ = new TrackerMap(tkmapPset);
  
-  string tmap_title = " Tracker Map from  " + map_type;
+  std::string tmap_title = " Tracker Map from  " + map_type;
   trackerMap_->setTitle(tmap_title);
 
   setTkMapFromHistogram(dqm_store, map_type);
@@ -106,14 +106,14 @@ void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, DQMStore* dq
 
 //
 // --  Paint Tracker Map from TkHistoMap Histograms
-void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, string& htype) {
+void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype) {
   dqm_store->cd();
 
-  string mdir = "MechanicalView";
+  std::string mdir = "MechanicalView";
   if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
-  string mechanicalview_dir = dqm_store->pwd();
+  std::string mechanicalview_dir = dqm_store->pwd();
 
-  vector<string> subdet_folder;
+  std::vector<std::string> subdet_folder;
   subdet_folder.push_back("TIB");
   subdet_folder.push_back("TOB");
   subdet_folder.push_back("TEC/side_1");
@@ -125,23 +125,23 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, string
   tkMapMax = 0.0; 
   tkMapMin = 0.0; 
 
-  for (vector<string>::const_iterator it = subdet_folder.begin(); it != subdet_folder.end(); it++) {
-    string dname = mechanicalview_dir + "/" + (*it);
+  for (std::vector<std::string>::const_iterator it = subdet_folder.begin(); it != subdet_folder.end(); it++) {
+    std::string dname = mechanicalview_dir + "/" + (*it);
     if (!dqm_store->dirExists(dname)) continue;
     dqm_store->cd(dname);  
-    vector<string> layerVec = dqm_store->getSubdirs();
-    for (vector<string>::const_iterator iLayer = layerVec.begin(); iLayer != layerVec.end(); iLayer++) { 
-      if ((*iLayer).find("BadModuleList") !=string::npos) continue;
-      vector<MonitorElement*> meVec = dqm_store->getContents((*iLayer));
+    std::vector<std::string> layerVec = dqm_store->getSubdirs();
+    for (std::vector<std::string>::const_iterator iLayer = layerVec.begin(); iLayer != layerVec.end(); iLayer++) { 
+      if ((*iLayer).find("BadModuleList") !=std::string::npos) continue;
+      std::vector<MonitorElement*> meVec = dqm_store->getContents((*iLayer));
       MonitorElement* tkhmap_me = 0;
-      string name;
-      for (vector<MonitorElement*>::const_iterator itkh = meVec.begin();  itkh != meVec.end(); itkh++) {
+      std::string name;
+      for (std::vector<MonitorElement*>::const_iterator itkh = meVec.begin();  itkh != meVec.end(); itkh++) {
 	name = (*itkh)->getName();
-	if (name.find("TkHMap") == string::npos) continue;
+	if (name.find("TkHMap") == std::string::npos) continue;
 	if (htype == "QTestAlarm" ){
 	  tkhmap_me = (*itkh);
 	  break;
-	} else if (name.find(htype) != string::npos) {
+	} else if (name.find(htype) != std::string::npos) {
 	  tkhmap_me = (*itkh);
 	  break; 
 	} 
@@ -154,24 +154,24 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, string
   }
   dqm_store->cd();
 }
-void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, string& htype) {
-  string name  = me->getName();
-  string lname = name.substr(name.find("TkHMap_")+7);  
+void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype) {
+  std::string name  = me->getName();
+  std::string lname = name.substr(name.find("TkHMap_")+7);  
   lname = lname.substr(lname.find("_T")+1);
-  vector<uint32_t> layer_detids;
+  std::vector<uint32_t> layer_detids;
   tkDetMap_->getDetsForLayer(tkDetMap_->getLayerNum(lname), layer_detids);
-  for (vector<uint32_t>::const_iterator idet = layer_detids.begin(); idet != layer_detids.end(); idet++) {
+  for (std::vector<uint32_t>::const_iterator idet = layer_detids.begin(); idet != layer_detids.end(); idet++) {
     uint32_t det_id= (*idet);
     if (det_id <= 0) continue;
     nDet++;
-    ostringstream comment;
+    std::ostringstream comment;
     uint32_t flag = 0;
     flag = getDetectorFlagAndComment(dqm_store, det_id, comment);
     trackerMap_->setText(det_id, comment.str());
     const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id);
     float fval = 0.0;
-    if ( (name.find("NumberOfOfffTrackCluster") != string::npos) || 
-         (name.find("NumberOfOnTrackCluster") != string::npos) ) {
+    if ( (name.find("NumberOfOfffTrackCluster") != std::string::npos) || 
+         (name.find("NumberOfOnTrackCluster") != std::string::npos) ) {
       if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {   
 	TProfile2D* tp = me->getTProfile2D() ;
 	fval =  tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)) * tp->GetBinContent(xyval.ix, xyval.iy);
@@ -196,12 +196,12 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
 void SiStripTrackerMapCreator::setTkMapRange(std::string& map_type) {
   tkMapMin = 0.0;
   if (tkMapMax == 0.0) { 
-    if (map_type.find("FractionOfBadChannels") != string::npos)        tkMapMax = 1.0;
-    else if (map_type.find("NumberOfCluster") != string::npos)         tkMapMax = 0.01;
-    else if (map_type.find("NumberOfDigi") != string::npos)            tkMapMax = 0.6;
-    else if (map_type.find("NumberOfOffTrackCluster") != string::npos) tkMapMax = 100.0;
-    else if (map_type.find("NumberOfOnTrackCluster") != string::npos)  tkMapMax = 50.0;
-    else if (map_type.find("StoNCorrOnTrack") != string::npos)         tkMapMax = 200.0;
+    if (map_type.find("FractionOfBadChannels") != std::string::npos)        tkMapMax = 1.0;
+    else if (map_type.find("NumberOfCluster") != std::string::npos)         tkMapMax = 0.01;
+    else if (map_type.find("NumberOfDigi") != std::string::npos)            tkMapMax = 0.6;
+    else if (map_type.find("NumberOfOffTrackCluster") != std::string::npos) tkMapMax = 100.0;
+    else if (map_type.find("NumberOfOnTrackCluster") != std::string::npos)  tkMapMax = 50.0;
+    else if (map_type.find("StoNCorrOnTrack") != std::string::npos)         tkMapMax = 200.0;
   } else {
     tkMapMax = tkMapMax/nDet*1.0;
     tkMapMax = tkMapMax * 2.5;
@@ -211,12 +211,12 @@ void SiStripTrackerMapCreator::setTkMapRange(std::string& map_type) {
 //
 // -- Get Flag and status Comment
 //
-uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id, ostringstream& comment) {
+uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id, std::ostringstream& comment) {
   comment << " DetId " << det_id << " : ";
   uint16_t flag = 0;
 
   SiStripFolderOrganizer folder_organizer;
-  string subdet_folder, badmodule_folder;
+  std::string subdet_folder, badmodule_folder;
 
   folder_organizer.getSubDetFolder(det_id, subdet_folder);
   if (dqm_store->dirExists(subdet_folder)){ 
@@ -232,7 +232,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
   MonitorElement* bad_module_me = dqm_store->get(badmodule_path.str());
   if (bad_module_me && bad_module_me->kind() == MonitorElement::DQM_KIND_INT) {
     flag = bad_module_me->getIntValue();
-    string message;
+    std::string message;
     SiStripUtility::getBadModuleStatus(flag, message);
     comment << message.c_str();
   }

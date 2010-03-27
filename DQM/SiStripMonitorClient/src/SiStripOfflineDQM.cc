@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.33 2010/01/13 11:09:53 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.34 2010/03/12 20:10:35 dutta Exp $
 //
 //
 
@@ -49,7 +49,6 @@
 #include <sstream>
 #include <math.h>
 
-using namespace std;
 
 /** 
 * @brief 
@@ -70,8 +69,8 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_
 
   usedWithEDMtoMEConverter_= configPar_.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter",false); 
   createSummary_           = configPar_.getUntrackedParameter<bool>("CreateSummary",false);
-  inputFileName_           = configPar_.getUntrackedParameter<string>("InputFileName","");
-  outputFileName_          = configPar_.getUntrackedParameter<string>("OutputFileName","");
+  inputFileName_           = configPar_.getUntrackedParameter<std::string>("InputFileName","");
+  outputFileName_          = configPar_.getUntrackedParameter<std::string>("OutputFileName","");
   globalStatusFilling_     = configPar_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   printFaultyModuleList_   = configPar_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
 
@@ -129,7 +128,7 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
       const int siStripFedIdMin = numbering.MINSiStripFEDID;
       const int siStripFedIdMax = numbering.MAXSiStripFEDID; 
       
-      vector<int> FedsInIds= sumFED->m_fed_in;   
+      std::vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
 	int fedID = FedsInIds[it];     
 	
@@ -198,11 +197,11 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
     bool create_tkmap    = configPar_.getUntrackedParameter<bool>("CreateTkMap",false); 
     if (create_tkmap) {
       edm::ParameterSet tkMapPSet = configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters");
-      vector<string> tkMapOptions = configPar_.getUntrackedParameter< vector<string> >("TkMapOptions" );
+      std::vector<std::string> tkMapOptions = configPar_.getUntrackedParameter< std::vector<std::string> >("TkMapOptions" );
       if (actionExecutor_->readTkMapConfiguration()) {
 	
-	for(vector<string>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
-	  string map_type = (*it);
+	for(std::vector<std::string>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
+	  std::string map_type = (*it);
 	  actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type); 
 	}
       }
@@ -220,9 +219,9 @@ void SiStripOfflineDQM::endJob() {
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endJob";
   if (!usedWithEDMtoMEConverter_) {
     if (printFaultyModuleList_) {
-      ostringstream str_val;
+      std::ostringstream str_val;
       actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
-      cout << str_val.str() << endl;
+      std::cout << str_val.str() << std::endl;
     }  
     // Save Output file
     dqmStore_->cd();

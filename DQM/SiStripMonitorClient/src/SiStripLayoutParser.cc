@@ -3,9 +3,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-using namespace xercesc;
-using namespace std;
-
 //
 // -- Constructor
 // 
@@ -23,37 +20,37 @@ SiStripLayoutParser::~SiStripLayoutParser() {
 //
 // -- Get list of Layouts for ME groups
 //
-bool SiStripLayoutParser::getAllLayouts(map<string, vector< string > >& layouts){
+bool SiStripLayoutParser::getAllLayouts(std::map<std::string, std::vector< std::string > >& layouts){
   if (!doc) {
-    cout << " SiStripLayoutParser::Configuration File is not set!!! " << endl;
+    std::cout << " SiStripLayoutParser::Configuration File is not set!!! " << std::endl;
     return false;
   }
 
   layouts.clear();
 
-  DOMNodeList * layoutList 
+  xercesc::DOMNodeList * layoutList 
 		  = doc->getElementsByTagName(qtxml::_toDOMS("layout"));
 
   unsigned int nlayout = layoutList->getLength();
   if (nlayout == 0) return false;
 
   for (unsigned int k = 0; k < layoutList->getLength(); k++) {
-    DOMNode* layoutNode = layoutList->item(k);
+    xercesc::DOMNode* layoutNode = layoutList->item(k);
     if (!layoutNode) return false;
     
-    DOMElement* layoutElement = static_cast<DOMElement *>(layoutNode);          
+    xercesc::DOMElement* layoutElement = static_cast<xercesc::DOMElement *>(layoutNode);          
     if (!layoutElement) return false;
-    string layoutName = qtxml::_toString(layoutElement->getAttribute (qtxml::_toDOMS ("name"))); 
+    std::string layoutName = qtxml::_toString(layoutElement->getAttribute (qtxml::_toDOMS ("name"))); 
 
-    DOMNodeList * meList 
+    xercesc::DOMNodeList * meList 
 		  = layoutElement->getElementsByTagName(qtxml::_toDOMS("monitorable"));
-    vector<string> me_names;
+    std::vector<std::string> me_names;
     for (unsigned int l = 0; l < meList->getLength(); l++) {
-      DOMNode* meNode = meList->item(l);
+      xercesc::DOMNode* meNode = meList->item(l);
       if (!meNode) return false;
-      DOMElement* meElement = static_cast<DOMElement *>(meNode);          
+      xercesc::DOMElement* meElement = static_cast<xercesc::DOMElement *>(meNode);          
       if (!meElement) return false;
-      string meName = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
+      std::string meName = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
       me_names.push_back(meName);    
     }
     if (me_names.size() > 0) layouts[layoutName] = me_names;
