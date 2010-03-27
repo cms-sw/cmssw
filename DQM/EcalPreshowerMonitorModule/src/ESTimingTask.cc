@@ -71,8 +71,8 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
 
   sprintf(histo, "ES 2D Timing");
   h2DTiming_ = dqmStore_->book2D(histo, histo, 81, -20.5, 20.5, 81, -20.5, 20.5);
-  h2DTiming_->setAxisTitle("ES+ Timing (ns)", 1);
-  h2DTiming_->setAxisTitle("ES- Timing (ns)", 2);
+  h2DTiming_->setAxisTitle("ES- Timing (ns)", 1);
+  h2DTiming_->setAxisTitle("ES+ Timing (ns)", 2);
 
   htESP_ = new TH1F("htESP", "Timing ES+", 81, -20.5, 20.5);
   htESM_ = new TH1F("htESM", "Timing ES-", 81, -20.5, 20.5);
@@ -151,9 +151,8 @@ void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
      LogWarning("ESTimingTask") << digilabel_ << " not available";
    }
 
-   float espT = (htESP_->GetEntries() == 0) ? 99 : htESP_->GetMean();
-   float esmT = (htESM_->GetEntries() == 0) ? 99 : htESM_->GetMean();
-   h2DTiming_->Fill(espT, esmT);
+   if (htESP_->GetEntries() > 0 && htESM_->GetEntries() > 0)
+     h2DTiming_->Fill(htESM_->GetMean(), htESP_->GetMean());
 
 }
 
