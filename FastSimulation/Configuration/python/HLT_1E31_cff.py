@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_5_5/1E31/V21 (CMSSW_3_5_5)
+# /dev/CMSSW_3_6_0/pre4/1E31/V3 (CMSSW_3_6_X_2010-03-20-0900_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,35 +30,43 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_5_5/1E31/V21')
+  tableName = cms.string('/dev/CMSSW_3_6_0/pre4/1E31/V3')
 )
 
 
-L2RelativeCorrectionService = cms.ESSource( "L2RelativeCorrectionService",
+MCJetCorrectorIcone5Unit = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
-  tagName = cms.string( "Summer09_7TeV_L2Relative_IC5Calo" ),
-  label = cms.string( "L2RelativeJetCorrector" )
+  level = cms.string( "L2RelativeFlat" ),
+  algorithm = cms.string( "" ),
+  section = cms.string( "" ),
+  era = cms.string( "HLT" )
 )
-L3AbsoluteCorrectionService = cms.ESSource( "L3AbsoluteCorrectionService",
+MCJetCorrectorIcone5HF07 = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
-  tagName = cms.string( "Summer09_7TeV_L3Absolute_IC5Calo" ),
-  label = cms.string( "L3AbsoluteJetCorrector" )
+  level = cms.string( "L2Relative" ),
+  algorithm = cms.string( "" ),
+  section = cms.string( "" ),
+  era = cms.string( "HLT" )
+)
+L3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  level = cms.string( "L3Absolute" ),
+  algorithm = cms.string( "IC5Calo" ),
+  section = cms.string( "" ),
+  era = cms.string( "Summer09_7TeV_ReReco332" )
+)
+L2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
+  appendToDataLabel = cms.string( "" ),
+  level = cms.string( "L2Relative" ),
+  algorithm = cms.string( "IC5Calo" ),
+  section = cms.string( "" ),
+  era = cms.string( "Summer09_7TeV_ReReco332" )
 )
 MCJetCorrectorIcone5 = cms.ESSource( "JetCorrectionServiceChain",
-  label = cms.string( "MCJetCorrectorIcone5" ),
   appendToDataLabel = cms.string( "" ),
-  correctors = cms.vstring( 'L2RelativeJetCorrector',
-    'L3AbsoluteJetCorrector' )
-)
-MCJetCorrectorIcone5HF07 = cms.ESSource( "L2RelativeCorrectionService",
-  appendToDataLabel = cms.string( "" ),
-  tagName = cms.string( "HLT_L2Relative" ),
-  label = cms.string( "MCJetCorrectorIcone5HF07" )
-)
-MCJetCorrectorIcone5Unit = cms.ESSource( "L2RelativeCorrectionService",
-  appendToDataLabel = cms.string( "" ),
-  tagName = cms.string( "HLT_L2RelativeFlat" ),
-  label = cms.string( "MCJetCorrectorIcone5Unit" )
+  correctors = cms.vstring( 'L2RelativeCorrectionService',
+    'L3AbsoluteCorrectionService' ),
+  label = cms.string( "MCJetCorrectorIcone5" )
 )
 essourceSev = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
@@ -851,6 +859,7 @@ hltIterativeCone5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
 )
 hltMCJetCorJetIcone5Regional = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5CaloJetsRegional" ),
+    verbose = cms.untracked.bool( False ),
     alias = cms.untracked.string( "corJetIcone5" ),
     correctors = cms.vstring( 'MCJetCorrectorIcone5' )
 )
@@ -1073,6 +1082,7 @@ hltMet = cms.EDProducer( "METProducer",
     calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
     rf_type = cms.int32( 0 ),
+    correctShowerTracks = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
     HB_PhiResPar = cms.vdouble( 0.02511 ),
@@ -1185,6 +1195,7 @@ hltJet30Ht = cms.EDProducer( "METProducer",
     calculateSignificance = cms.bool( False ),
     onlyFiducialParticles = cms.bool( False ),
     rf_type = cms.int32( 0 ),
+    correctShowerTracks = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),
     HB_PhiResPar = cms.vdouble( 0.02511 ),
@@ -1441,10 +1452,10 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
 )
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
+    CSCUseStaticPedestals = cms.bool( False ),
     stripDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCStripDigi' ),
     wireDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCWireDigi' ),
     CSCstripWireDeltaTime = cms.int32( 8 ),
-    CSCUseStaticPedestals = cms.bool( False ),
     CSCNoOfTimeBinsForDynamicPedestal = cms.int32( 2 ),
     CSCStripPeakThreshold = cms.double( 10.0 ),
     CSCStripClusterChargeCut = cms.double( 25.0 ),
@@ -2400,7 +2411,7 @@ hltCorrectedHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaSCCorrectionM
     rawSuperClusterProducer = cms.InputTag( "hltHybridSuperClustersL1Isolated" ),
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
-    sigmaElectronicNoise = cms.double( 0.03 ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 
@@ -2535,7 +2546,7 @@ hltCorrectedHybridSuperClustersL1NonIsolatedTemp = cms.EDProducer( "EgammaSCCorr
     rawSuperClusterProducer = cms.InputTag( "hltHybridSuperClustersL1NonIsolated" ),
     superClusterAlgo = cms.string( "Hybrid" ),
     applyEnergyCorrection = cms.bool( True ),
-    sigmaElectronicNoise = cms.double( 0.03 ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
     etThresh = cms.double( 1.0 ),
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 
@@ -4958,10 +4969,11 @@ hltBSoftMuonL25TagInfos = cms.EDProducer( "SoftLepton",
     jets = cms.InputTag( "hltBSoftMuonL25Jets" ),
     primaryVertex = cms.InputTag( "nominal" ),
     leptons = cms.InputTag( "hltL2Muons" ),
+    leptonCands = cms.InputTag( "" ),
+    leptonId = cms.InputTag( "" ),
     refineJetAxis = cms.uint32( 0 ),
     leptonDeltaRCut = cms.double( 0.4 ),
     leptonChi2Cut = cms.double( 0.0 ),
-    leptonQualityCut = cms.double( 0.0 ),
     muonSelection = cms.uint32( 0 )
 )
 hltBSoftMuonL25BJetTagsByDR = cms.EDProducer( "JetTagProducer",
@@ -4979,10 +4991,11 @@ hltBSoftMuonL3TagInfos = cms.EDProducer( "SoftLepton",
     jets = cms.InputTag( "hltBSoftMuonL25Jets" ),
     primaryVertex = cms.InputTag( "nominal" ),
     leptons = cms.InputTag( "hltL3Muons" ),
+    leptonCands = cms.InputTag( "" ),
+    leptonId = cms.InputTag( "" ),
     refineJetAxis = cms.uint32( 0 ),
     leptonDeltaRCut = cms.double( 0.4 ),
     leptonChi2Cut = cms.double( 0.0 ),
-    leptonQualityCut = cms.double( 0.0 ),
     muonSelection = cms.uint32( 0 )
 )
 hltBSoftMuonL3BJetTagsByPt = cms.EDProducer( "JetTagProducer",
