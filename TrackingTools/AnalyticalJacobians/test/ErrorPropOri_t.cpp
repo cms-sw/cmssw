@@ -53,6 +53,8 @@ int main() {
 
   double curv =   tpg.transverseCurvature();
 
+  std::cout << curv << " " <<  mg.mag() << std::endl;
+
   AlgebraicMatrix55 fullJacobian = AlgebraicMatrixID();
   AlgebraicMatrix55 deltaJacobian = AlgebraicMatrixID();
   GlobalTrajectoryParameters tpg0(pos,mg,-1., &m);

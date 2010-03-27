@@ -51,6 +51,7 @@ int main(int argc, char** argv) {
   GlobalVector mg = plane.toGlobal(tpl.momentum());
   GlobalTrajectoryParameters tpg(pos,mg,-1., &m);
   double curv =   tpg.transverseCurvature();
+  std::cout << curv << " " <<  mg.mag() << std::endl;
   std::cout << tpg.position() << " " << tpg.momentum() << std::endl;
 
   AlgebraicMatrix55 fullJacobian = AlgebraicMatrixID();
@@ -72,9 +73,9 @@ int main(int argc, char** argv) {
     Plane lplane(zero,rot);
     HelixForwardPlaneCrossing::PositionType  a(lplane.toLocal(tpg.position()));
     HelixForwardPlaneCrossing::DirectionType p(lplane.toLocal(tpg.momentum()));
-    curv =  -2.99792458e-3 * h.mag()/p.perp()*tpg.charge();
-    std::cout << curv << " " <<  p.mag() << std::endl;
-    HelixForwardPlaneCrossing prop(a, p, curv);
+    double lcurv =   h.mag()/p.perp()*tpg.charge();
+    std::cout << lcurv << " " <<  p.mag() << std::endl;
+    HelixForwardPlaneCrossing prop(a, p, lcurv);
     LocalPoint x(prop.position(s));
     LocalVector dir(prop.direction(s));
     std::cout <<  dir.mag() << std::endl;
