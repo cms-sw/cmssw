@@ -144,7 +144,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        ix    = id.six();
        iy    = id.siy();
        strip = id.strip();
-       
+ 
        int i = (zside==1)? 0:1;
        int j = plane-1;
        
@@ -189,8 +189,8 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 	     dataframe.sample(1).adc() > dataframe.sample(2).adc()) {
 	   
 	   sum_DigiHits[i][j]++;
-	   
-	   Float_t tmpRH = -0.01687177*dataframe.sample(0).adc() + 0.77676196*dataframe.sample(1).adc() + 0.416363*dataframe.sample(2).adc();
+
+	   Float_t tmpRH = 0.725*dataframe.sample(1).adc() + 0.4525*dataframe.sample(2).adc();
 	   if (tmpRH/55. > 10) {
 	     hSelEnDensity_[i][j]->Fill(ix, iy, tmpRH/55.);
 	     hSelOCC_[i][j]->Fill(ix, iy);
@@ -222,7 +222,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
      }
 
    hE1E2_[0]->Fill(sum_Energy[0][0], sum_Energy[0][1]);
-   hE1E2_[1]->Fill(sum_Energy[1][0], sum_Energy[1][2]);
+   hE1E2_[1]->Fill(sum_Energy[1][0], sum_Energy[1][1]);
 
 }
 
