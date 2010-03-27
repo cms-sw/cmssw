@@ -8,6 +8,7 @@
 
 #include <sys/types.h>
 #include <dirent.h>
+#include <stdint.h>
 
 #include <toolbox/lang/Class.h>
 
