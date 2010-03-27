@@ -3,8 +3,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2010/03/12 20:10:34 $
- * $Revision: 1.55 $
+ * $Date: 2010/03/27 11:21:55 $
+ * $Revision: 1.56 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -215,7 +215,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
 
   //  sistripWebInterface_->setCabling(detCabling_);
  
-  std::cout << "====================================================== " <<std:: endl;
+  std::cout << "====================================================== " << std::endl;
   std::cout << " ===> Iteration # " << nLumiSecs_ << " " 
 	    << lumiSeg.luminosityBlock() << std::endl;
   std::cout << "====================================================== " << std::endl;

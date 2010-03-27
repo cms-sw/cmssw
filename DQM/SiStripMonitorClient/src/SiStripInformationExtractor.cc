@@ -71,15 +71,15 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
   std::string currDir = dqm_store->pwd();
   std::string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("module_") ==0) return;
-  //  str_val << "<li><a href=\"#\" id=\"" << currDir << "\">" << dname << "</a>" << endl;
-  str_val << "<li><span class=\"folder\">" << dname << "</span>" << endl;
+  //  str_val << "<li><a href=\"#\" id=\"" << currDir << "\">" << dname << "</a>" << std::endl;
+  str_val << "<li><span class=\"folder\">" << dname << "</span>" << std::endl;
   std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << "</li> "<< endl;    
+    str_val << "</li> "<< std::endl;    
     return;
   }
-  str_val << "<ul>" << endl;      
+  str_val << "<ul>" << std::endl;      
   for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
          it != meVec.end(); it++) {
     MonitorElement* me = (*it);
@@ -87,7 +87,7 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
     std::string name = (*it)->getName();
     str_val << "<li> <span class=\"file\"><a href=\"javascript:RequestHistos.DrawSummaryHistogram('" 
             << currDir
-	    << "')\">" << name << "</a></span></li>" << endl;
+	    << "')\">" << name << "</a></span></li>" << std::endl;
   }
 
   std::string mtag ="Modules: ";  
@@ -103,11 +103,11 @@ void SiStripInformationExtractor::printSummaryHistoList(DQMStore * dqm_store, st
     dqm_store->goUp();
   }
   if (mtag.size() > 10) {
-    //    str_val << "<li class=\"note.gif\"><a href=\"#\">" << mtag << "</a></li>" << endl;
-    str_val << "<li> <span class=\"file\"><a href=\"#\">" << mtag << "</a></span></li>" << endl;
+    //    str_val << "<li class=\"note.gif\"><a href=\"#\">" << mtag << "</a></li>" << std::endl;
+    str_val << "<li> <span class=\"file\"><a href=\"#\">" << mtag << "</a></span></li>" << std::endl;
   }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
+  str_val << "</ul> "<< std::endl;  
+  str_val << "</li> "<< std::endl;  
 }
 //
 // --  Fill Alarm List
@@ -121,15 +121,15 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
   selectImage(image_name,dqm_store->getStatus(currDir));
   str_val << "<li><span class=\"folder\">" 
           << dname << "<img src=\""
-          << image_name << "\"></span>" << endl;
+          << image_name << "\"></span>" << std::endl;
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
   std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   
   if (subDirVec.size() == 0 && meVec.size() == 0) {
-    str_val << "</li> "<< endl;    
+    str_val << "</li> "<< std::endl;    
     return;
   }
-  str_val << "<ul>" << endl;
+  str_val << "<ul>" << std::endl;
   if (dname.find("module_") != std::string::npos) {
     if (meVec.size() > 0) {
       for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
@@ -144,7 +144,7 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
                   << currDir << "')\">"<<me->getName()
                   << "</a><img src=\""
                   << image_name1 << "\">" 
-                  << "</span></li>" << endl;
+                  << "</span></li>" << std::endl;
         }
       }
     }
@@ -155,8 +155,8 @@ void SiStripInformationExtractor::printAlarmList(DQMStore * dqm_store, std::ostr
     printAlarmList(dqm_store, str_val);
     dqm_store->goUp();
   }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
+  str_val << "</ul> "<< std::endl;  
+  str_val << "</li> "<< std::endl;  
 }
 //
 // -- Select Histograms for a given module
@@ -180,8 +180,8 @@ void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store,
 
   std::vector<MonitorElement*> all_mes = dqm_store->getContents(path);
   setXMLHeader(out);
-  *out << "<HPathAndHNameList>" << endl;
-  *out << "<HPath>" << path << "</HPath>" << endl;
+  *out << "<HPathAndHNameList>" << std::endl;
+  *out << "<HPath>" << path << "</HPath>" << std::endl;
 
   for (std::vector<std::string>::const_iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {
@@ -194,11 +194,11 @@ void SiStripInformationExtractor::getSingleModuleHistos(DQMStore * dqm_store,
       if (name == (*ih)) {
 	std::string full_path = path + "/" + hname;
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << "<HName>" << hname << "</HName>" << endl;
+	*out << "<HName>" << hname << "</HName>" << std::endl;
       }
     }
   }
-  *out << "</HPathAndHNameList>" << endl;
+  *out << "</HPathAndHNameList>" << std::endl;
 }
 //
 // -- Select Histograms from Global folder
@@ -218,8 +218,8 @@ void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const mul
   std::vector<MonitorElement *> all_mes = dqm_store->getContents(path);
 
   setXMLHeader(out);
-  *out << "<HPathAndHNameList>" << endl;
-  *out << "<HPath>" << path << "</HPath>" << endl;
+  *out << "<HPathAndHNameList>" << std::endl;
+  *out << "<HPath>" << path << "</HPath>" << std::endl;
 
   for (std::vector<std::string>::const_iterator ih = hlist.begin();
        ih != hlist.end(); ih++) {      
@@ -232,11 +232,11 @@ void SiStripInformationExtractor::getGlobalHistos(DQMStore* dqm_store, const mul
       if (name == (*ih)) {
 	std::string full_path = path + "/" + hname;
 	histoPlotter_->setNewPlot(full_path, opt, width, height);
-	*out << "<HName>" << name << "</HName>" << endl;
+	*out << "<HName>" << name << "</HName>" << std::endl;
       }
     }
   }
-  *out << "</HPathAndHNameList>" << endl;
+  *out << "</HPathAndHNameList>" << std::endl;
 }
 //
 // -- Get All histograms from a Path
@@ -253,8 +253,8 @@ void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const 
   std::string opt =" ";
 
   setXMLHeader(out);
-  *out << "<HPathAndHNameList>" << endl;
-  *out << "<HPath>" << path << "</HPath>" << endl;
+  *out << "<HPathAndHNameList>" << std::endl;
+  *out << "<HPath>" << path << "</HPath>" << std::endl;
 
   std::vector<MonitorElement*> all_mes = dqm_store->getContents(path);
   for(std::vector<MonitorElement*>::iterator it=all_mes.begin(); it!=all_mes.end(); it++){
@@ -263,9 +263,9 @@ void SiStripInformationExtractor::getHistosFromPath(DQMStore * dqm_store, const 
     std::string name = me->getName();
     std::string full_path = path + "/" + name;
     histoPlotter_->setNewPlot(full_path, opt, width, height);
-    *out << "<HName>" << name << "</HName>" << endl;
+    *out << "<HName>" << name << "</HName>" << std::endl;
   }
-  *out << "</HPathAndHNameList>" << endl;
+  *out << "</HPathAndHNameList>" << std::endl;
 }
 //
 // plot Histograms from Layout
@@ -298,9 +298,9 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
         histoPlotter_->createStaticPlot(me, fname.str());
       }
       image_file << "["<< "\"" << fname.str() << "\",\"" << path_name << "\"]";
-      if (ival != it->second.size()) image_file << ","<< endl;
+      if (ival != it->second.size()) image_file << ","<< std::endl;
     }
-    image_file << "]" << endl;
+    image_file << "]" << std::endl;
     image_file.close();
   }
 }
@@ -322,8 +322,8 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
 
   std::vector<MonitorElement*> all_mes = dqm_store->getContents(path);
   setXMLHeader(out);
-  *out << "<HPathAndHNameList>" << endl;
-  *out << "<HPath>" << path << "</HPath>" << endl;
+  *out << "<HPathAndHNameList>" << std::endl;
+  *out << "<HPath>" << path << "</HPath>" << std::endl;
   for (std::vector<MonitorElement *>::const_iterator it = all_mes.begin();
        it!= all_mes.end(); it++) {
     MonitorElement * me = (*it);
@@ -332,9 +332,9 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
     std::string full_path;
     full_path = path + "/" + hname;
     histoPlotter_->setNewPlot(full_path, opt, width, height);
-    *out << "<HName>" << hname << "</HName>" << endl;
+    *out << "<HName>" << hname << "</HName>" << std::endl;
   }
-  *out << "</HPathAndHNameList>" << endl;   
+  *out << "</HPathAndHNameList>" << std::endl;   
 
 }
 //
@@ -361,11 +361,11 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
   if (path.size() == 0) path = "dummy_path";
 
   setXMLHeader(out);
-  *out << "<HPathAndHNameList>" << endl;
-  *out << "<HPath>" << path << "</HPath>" << endl;
+  *out << "<HPathAndHNameList>" << std::endl;
+  *out << "<HPath>" << path << "</HPath>" << std::endl;
   
   if (path == "dummy_path") {
-    *out << "<HName>" << "Dummy" << "</HName>" << endl;
+    *out << "<HName>" << "Dummy" << "</HName>" << std::endl;
     plot_flag = false;
   } else {
     std::string opt = getItemValue(req_map,"option");
@@ -393,11 +393,11 @@ void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, bool& pl
     for (std::vector<std::string>::const_iterator ih = htypes.begin();
 	 ih != htypes.end(); ih++) {
       if ((*ih).size() > 0) {
-	*out << "<HName>" << (*ih)  << "</HName>" << endl;
+	*out << "<HName>" << (*ih)  << "</HName>" << std::endl;
       }
     }
   }
-  *out << "</HPathAndHNameList>" << endl;
+  *out << "</HPathAndHNameList>" << std::endl;
 }
 //
 // -- Get a tagged image 
@@ -419,18 +419,18 @@ void SiStripInformationExtractor::getImage(const multimap<std::string, std::stri
 //
 void SiStripInformationExtractor::readLayoutNames(DQMStore* dqm_store, xgi::Output * out){
   setXMLHeader(out);
-  *out << "<LayoutAndTKMapList>" << endl;
+  *out << "<LayoutAndTKMapList>" << std::endl;
   if (layoutMap.size() > 0) {
-    *out << "<LayoutList>" << endl;
+    *out << "<LayoutList>" << std::endl;
     for (std::map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin();
 	it != layoutMap.end(); it++) {
-     *out << "<LName>" << it->first << "</LName>" << endl;  
+     *out << "<LName>" << it->first << "</LName>" << std::endl;  
    }
-   *out << "</LayoutList>" << endl;
+   *out << "</LayoutList>" << std::endl;
   }
   dqm_store->cd();
-  *out << "<TKMapOptionList>" << endl;
-  *out << "<TkMapOption>" << "QTestAlarm" << "</TkMapOption>" << endl;
+  *out << "<TKMapOptionList>" << std::endl;
+  *out << "<TkMapOption>" << "QTestAlarm" << "</TkMapOption>" << std::endl;
 
   for (std::vector<std::string>::const_iterator isubdet = subdetVec.begin(); isubdet != subdetVec.end(); isubdet++) {
     std::string dname = (*isubdet);
@@ -451,13 +451,13 @@ void SiStripInformationExtractor::readLayoutNames(DQMStore* dqm_store, xgi::Outp
       if (hname.find("TkHMap_") != std::string::npos) {
 	std::string name = hname.substr(hname.find("TkHMap_")+7);
 	name = name.substr(0,name.find_first_of("_")); 
-	*out << "<TkMapOption>" << name << "</TkMapOption>" << endl;
+	*out << "<TkMapOption>" << name << "</TkMapOption>" << std::endl;
       }
     }
     break;
   }
-  *out << "</TKMapOptionList>" << endl;      
-  *out << "</LayoutAndTKMapList>" << endl;
+  *out << "</TKMapOptionList>" << std::endl;      
+  *out << "</LayoutAndTKMapList>" << std::endl;
    dqm_store->cd();
 }
 //
@@ -474,21 +474,21 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, st
   dqm_store->cd();
 
   setXMLHeader(out);
-  *out << "<ModuleAndHistoList>" << endl;
+  *out << "<ModuleAndHistoList>" << std::endl;
   
   // Fill Module List
-  *out << "<ModuleList>" << endl;
+  *out << "<ModuleList>" << std::endl;
   uint32_t aDetId  = 0;
   for (std::vector<std::string>::const_iterator it=mids.begin(); it != mids.end(); it++){    
     std::string moduleId = (*it);
     moduleId = moduleId.substr(moduleId.find("module_")+7); 
-    *out << "<ModuleNum>" << moduleId << "</ModuleNum>" << endl;     
+    *out << "<ModuleNum>" << moduleId << "</ModuleNum>" << std::endl;     
     if (aDetId == 0) aDetId = atoi(moduleId.c_str());
   }
   
-  *out << "</ModuleList>" << endl;
+  *out << "</ModuleList>" << std::endl;
   // Fill Histo list
-  *out << "<HistoList>" << endl;
+  *out << "<HistoList>" << std::endl;
   
   std::vector<MonitorElement*> detector_mes = dqm_store->getContents(mids[0]);
   for (std::vector<MonitorElement *>::const_iterator it = detector_mes.begin();
@@ -497,10 +497,10 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, st
     if (!me) continue;
     std::string hname_full = me->getName();
     std::string hname = hname_full.substr(0, hname_full.find("__det__"));
-    *out << "<Histo>" << hname << "</Histo>" << endl;     
+    *out << "<Histo>" << hname << "</Histo>" << std::endl;     
   }
-  *out << "</HistoList>" << endl;
-  *out << "</ModuleAndHistoList>" << endl;
+  *out << "</HistoList>" << std::endl;
+  *out << "</ModuleAndHistoList>" << std::endl;
 }
 //
 // Global Histogram List
@@ -510,21 +510,21 @@ void SiStripInformationExtractor::readGlobalHistoList(DQMStore* dqm_store, std::
    std::string dname = str_name;
   
    setXMLHeader(out);
-   *out << "<GlobalHistoList>" << endl;
+   *out << "<GlobalHistoList>" << std::endl;
    if (dqm_store->dirExists(dname)) {
      std::vector<MonitorElement*> meVec = dqm_store->getContents(dname);
      for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
 	  it != meVec.end(); it++) {
        MonitorElement* me = (*it);
        if (!me) continue;
-       *out << "<GHisto>" << (*it)->getName() << "</GHisto>" << endl;           
+       *out << "<GHisto>" << (*it)->getName() << "</GHisto>" << std::endl;           
      }
    } else {   
-     *out << "<GHisto>" << " Desired directory : " << "</GHisto>" << endl;
-     *out << "<GHisto>" <<       dname             << "</GHisto>" << endl;
-     *out << "<GHisto>" << " does not exist!!!!  " << "</GHisto>" << endl;      
+     *out << "<GHisto>" << " Desired directory : " << "</GHisto>" << std::endl;
+     *out << "<GHisto>" <<       dname             << "</GHisto>" << std::endl;
+     *out << "<GHisto>" << " does not exist!!!!  " << "</GHisto>" << std::endl;      
    }
-   *out << "</GlobalHistoList>" << endl;
+   *out << "</GlobalHistoList>" << std::endl;
 }
 //
 // read the Structure And SummaryHistogram List
@@ -534,13 +534,13 @@ void SiStripInformationExtractor::readSummaryHistoTree(DQMStore* dqm_store, std:
   std::string dname = "SiStrip/" + str_name;
   if (dqm_store->dirExists(dname)) {    
     dqm_store->cd(dname);
-    sumtree << "<ul id=\"summary_histo_tree\" class=\"filetree\">" << endl;
+    sumtree << "<ul id=\"summary_histo_tree\" class=\"filetree\">" << std::endl;
     printSummaryHistoList(dqm_store,sumtree);
-    sumtree <<"</ul>" << endl;   
+    sumtree <<"</ul>" << std::endl;   
   } else {
-    sumtree << " Desired Directory :  " << endl;
-    sumtree <<       dname              << endl;
-    sumtree <<  " does not exist !!!! " << endl;
+    sumtree << " Desired Directory :  " << std::endl;
+    sumtree <<       dname              << std::endl;
+    sumtree <<  " does not exist !!!! " << std::endl;
   }
   setPlainHeader(out);
   *out << sumtree.str();
@@ -555,13 +555,13 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
   std::string dname = "SiStrip/" + str_name;
   if (dqm_store->dirExists(dname)) {    
     dqm_store->cd(dname);
-    alarmtree << "<ul id=\"alarm_tree\" class=\"filetree\">" << endl;
+    alarmtree << "<ul id=\"alarm_tree\" class=\"filetree\">" << std::endl;
     printAlarmList(dqm_store,alarmtree);
-    alarmtree <<"</ul>" << endl; 
+    alarmtree <<"</ul>" << std::endl; 
   } else {
-    alarmtree << "Desired Directory :   " << endl;
-    alarmtree <<       dname              << endl;
-    alarmtree <<  " does not exist !!!! " << endl;
+    alarmtree << "Desired Directory :   " << std::endl;
+    alarmtree <<       dname              << std::endl;
+    alarmtree <<  " does not exist !!!! " << std::endl;
   }
   setPlainHeader(out);
   *out << alarmtree.str();
@@ -662,14 +662,14 @@ void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::mu
   std::ostringstream test_status;
   
   setXMLHeader(out);
-  *out << "<StatusAndPath>" << endl;
-  *out << "<PathList>" << endl;
+  *out << "<StatusAndPath>" << std::endl;
+  *out << "<PathList>" << std::endl;
   if (path.size() == 0) {
-    *out << "<HPath>" << "NONE" << "</HPath>" << endl;     
-    test_status << " ME Does not exist ! " << endl;
+    *out << "<HPath>" << "NONE" << "</HPath>" << std::endl;     
+    test_status << " ME Does not exist ! " << std::endl;
   } else {
     std::vector<MonitorElement*> all_mes = dqm_store->getContents(path);
-    *out << "<HPath>" << path << "</HPath>" << endl;     
+    *out << "<HPath>" << path << "</HPath>" << std::endl;     
     for(std::vector<MonitorElement*>::iterator it=all_mes.begin(); it!=all_mes.end(); it++){
       MonitorElement* me = (*it);
       if (!me) continue;
@@ -681,8 +681,8 @@ void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::mu
       histoPlotter_->setNewPlot(full_path, opt, width, height);
 
       if (q_reports.size() != 0) {
-        test_status << " QTest Status for " << name << " : " << endl;
-        test_status << " ======================================================== " << endl; 
+        test_status << " QTest Status for " << name << " : " << std::endl;
+        test_status << " ======================================================== " << std::endl; 
         for (std::vector<QReport*>::const_iterator it = q_reports.begin(); it != q_reports.end();
 	     it++) {
 	  int status = (*it)->getStatus();
@@ -693,20 +693,20 @@ void SiStripInformationExtractor::readStatusMessage(DQMStore* dqm_store, std::mu
 	  std::string mess_str = (*it)->getMessage();
 	  test_status <<  " &lt;br/&gt;";
 	  mess_str = mess_str.substr(mess_str.find(" Test")+5);
-	  test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
+	  test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << std::endl;
 	  test_status << " &lt;br/&gt;";
-	  test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;
+	  test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << std::endl;
 	} 
-	test_status << " ======================================================== " << endl;
+	test_status << " ======================================================== " << std::endl;
       }
-      *out << "<HName>" << name << "</HName>" << endl;         
+      *out << "<HName>" << name << "</HName>" << std::endl;         
     }    
   }
-  *out << "</PathList>" << endl;
-  *out << "<StatusList>" << endl;
-  *out << "<Status>" << test_status.str() << "</Status>" << endl;      
-  *out << "</StatusList>" << endl;
-  *out << "</StatusAndPath>" << endl;
+  *out << "</PathList>" << std::endl;
+  *out << "<StatusList>" << std::endl;
+  *out << "<Status>" << test_status.str() << "</Status>" << std::endl;      
+  *out << "</StatusList>" << std::endl;
+  *out << "</StatusAndPath>" << std::endl;
 }
 //
 // -- Read the text Summary of QTest result
@@ -816,13 +816,13 @@ void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, std:
   std::string dname = "SiStrip/" + fld_name;
   if (dqm_store->dirExists(dname)) {    
     dqm_store->cd(dname);
-    sumtree << "<ul id=\"non_geo_tree\" class=\"filetree\">" << endl;
+    sumtree << "<ul id=\"non_geo_tree\" class=\"filetree\">" << std::endl;
     printNonGeomHistoList(dqm_store,sumtree);
-    sumtree <<"</ul>" << endl;   
+    sumtree <<"</ul>" << std::endl;   
   } else {
-    sumtree << " Desired Directory :  " << endl;
-    sumtree <<       dname              << endl;
-    sumtree <<  " does not exist !!!! " << endl;
+    sumtree << " Desired Directory :  " << std::endl;
+    sumtree <<       dname              << std::endl;
+    sumtree <<  " does not exist !!!! " << std::endl;
   }
   setPlainHeader(out);
   *out << sumtree.str();
@@ -836,14 +836,14 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
 
   std::string currDir = dqm_store->pwd();
   std::string dname = currDir.substr(currDir.find_last_of("/")+1);
-  str_val << "<li><span class=\"folder\">" << dname << "</span>" << endl;
+  str_val << "<li><span class=\"folder\">" << dname << "</span>" << std::endl;
   std::vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
   std::vector<std::string> subDirVec = dqm_store->getSubdirs();
   if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << "</li> "<< endl;    
+    str_val << "</li> "<< std::endl;    
     return;
   }
-  str_val << "<ul>" << endl;      
+  str_val << "<ul>" << std::endl;      
   for (std::vector<MonitorElement *>::const_iterator it = meVec.begin();
          it != meVec.end(); it++) {
     MonitorElement* me = (*it);
@@ -851,7 +851,7 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
     std::string name = (*it)->getName();
     str_val << "<li> <span class=\"file\"><a href=\"javascript:RequestHistos.DrawSummaryHistogram('" 
             << currDir
-	    << "')\">" << name << "</a></span></li>" << endl;
+	    << "')\">" << name << "</a></span></li>" << std::endl;
   }
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
@@ -859,6 +859,6 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
     printNonGeomHistoList(dqm_store, str_val);
     dqm_store->goUp();
   }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
+  str_val << "</ul> "<< std::endl;  
+  str_val << "</li> "<< std::endl;  
 }
