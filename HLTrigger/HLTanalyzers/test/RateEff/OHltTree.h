@@ -1552,6 +1552,7 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
   for(int i=0;i<8000 ;i++)   
     { ohEleLWL1Dupl[i] = true;}
 
+  /*
   Int_t binEta = 120;
   Double_t EtabinMin = -3.0, EtabinMax = 3.0;
 
@@ -1776,8 +1777,7 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
       }
     }
   }
-
-
+  */
 
   //SetMapL1SeedsOfStandardHLTPath(menu);
 
