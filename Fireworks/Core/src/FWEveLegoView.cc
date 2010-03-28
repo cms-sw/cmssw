@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.70 2010/01/31 20:19:49 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.71 2010/03/16 11:51:54 amraktad Exp $
 //
 
 // system include files
@@ -59,6 +59,8 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_autoRebin(this,"Auto rebin on zoom",true),
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_showScales(this,"Show scales", true),
+   m_legoFixedScale(this,"Lego scale GeV)",100.,1.,1000.),
+   m_legoAutoScale (this,"Lego auto scale",true),
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
    m_cameraMatrixRef(0),
@@ -111,6 +113,8 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_pixelsPerBin.changed_.connect(boost::bind(&FWEveLegoView::setPixelsPerBin,this));
    m_plotEt.changed_.connect(boost::bind(&FWEveLegoView::plotEt,this));
    m_showScales.changed_.connect(boost::bind(&FWEveLegoView::showScales,this));
+   m_legoFixedScale.changed_.connect(boost::bind(&FWEveLegoView::updateLegoScale, this));
+   m_legoAutoScale .changed_.connect(boost::bind(&FWEveLegoView::updateLegoScale, this));
 }
 
 FWEveLegoView::~FWEveLegoView()
@@ -252,6 +256,18 @@ FWEveLegoView::showScales()
    viewerGL()->RequestDraw();
 }
 
+void
+FWEveLegoView::updateLegoScale()
+{
+  if (m_lego)
+   {
+      m_lego->SetMaxValAbs( m_legoFixedScale.value() );
+      m_lego->SetScaleAbs ( ! m_legoAutoScale.value() );
+      m_lego->ElementChanged(kTRUE,kTRUE);
+      //m_lego->ElementChanged();
+      //gEve->Redraw3D();
+   } 
+}
 
 //
 // const member functions

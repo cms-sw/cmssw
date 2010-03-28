@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.20 2010/01/31 20:19:49 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.21 2010/03/16 11:51:53 amraktad Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ private:
    void setPixelsPerBin();
    void plotEt();
    void showScales();
-   
+   void updateLegoScale();
    
    // ---------- member data --------------------------------
    TEveCaloLego* m_lego;
@@ -79,7 +79,9 @@ private:
    FWBoolParameter   m_autoRebin;
    FWDoubleParameter m_pixelsPerBin;
    FWBoolParameter   m_showScales;
-   
+   FWDoubleParameter m_legoFixedScale;
+   FWBoolParameter   m_legoAutoScale;
+
    TGLMatrix*  m_cameraMatrix;
    TGLMatrix*  m_cameraMatrixBase;
    TGLMatrix*  m_cameraMatrixRef;
