@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2009/10/02 12:12:27 $
- * $Revision: 1.23 $
+ * $Date: 2010/01/04 15:10:59 $
+ * $Revision: 1.24 $
  * \author F. Cossutti
  *
 */
@@ -58,7 +58,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
   double ESMIPADC = ps.getParameter<double>("ESMIPADC");
   double ESMIPkeV = ps.getParameter<double>("ESMIPkeV");
 
-  theESShape = new ESShape(ESGain);
+  theESShape = new ESShape();
   theEBShape = new EBShape(); 
   theEEShape = new EEShape(); 
 
