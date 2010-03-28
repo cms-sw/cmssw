@@ -70,7 +70,11 @@ def read_ConfigurationFromSimulationCandles(path, step, is_pileup):
 
 		info, missing_fields = parsingRulesHelper.rulesParser(simCandlesRules, [line], compileRules = False)
 		#Massaging the info dictionary conditions entry to allow for new cmsDriver.py --conditions option:
-		if 'FrontierConditions_GlobalTag' in info['conditions']:
+		if 'auto:' in info['conditions']:
+			from Configuration.PyReleaseValidation.autoCond import autoCond
+			Conditions = autoCond[ info['conditions'].split(':')[1] ].split("::")[0] 
+		else:
+			if 'FrontierConditions_GlobalTag' in info['conditions']:
 				info['conditions']=info['conditions'].split(",")[1]
 		#print (info, missing_fields)
 		#if we successfully parsed the line of simulation candles:
