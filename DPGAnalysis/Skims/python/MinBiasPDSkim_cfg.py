@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
+    version = cms.untracked.string('$Revision: 1.12 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
@@ -66,6 +66,12 @@ process.load('Configuration/EventContent/EventContent_cff')
 
 process.FEVTEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 
+#
+#  Load common sequences
+#
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff')
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 
 ###########################################################################################
 #------------------------------------------
@@ -103,32 +109,13 @@ process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cscHaloSkim'))
 )
 
-##################################################DT skim###############################################
-process.muonDTDigis = cms.EDProducer("DTUnpackingModule",
-    dataType = cms.string('DDU'),
-    inputLabel = cms.InputTag('source'),
-#    fedbyType = cms.untracked.bool(True),
-# fedbytype is tracked in 353
-    fedbyType = cms.bool(True),
-    useStandardFEDid = cms.bool(True),
-    dqmOnly = cms.bool(False),                       
-    readOutParameters = cms.PSet(
-        debug = cms.untracked.bool(False),
-        rosParameters = cms.PSet(
-            writeSC = cms.untracked.bool(True),
-            readingDDU = cms.untracked.bool(True),
-            performDataIntegrityMonitor = cms.untracked.bool(False),
-            readDDUIDfromDDU = cms.untracked.bool(True),
-            debug = cms.untracked.bool(False),
-            localDAQ = cms.untracked.bool(False)
-        ),
-        localDAQ = cms.untracked.bool(False),
-        performDataIntegrityMonitor = cms.untracked.bool(False)
-    )
-)
+###################### DT Activity Filter ######################
 
+from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import dtunpacker
 
-process.hltDTActivityFilter = cms.EDFilter("HLTDTActivityFilter",
+process.muonDTDigis = dtunpacker.clone()
+
+process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
  inputDCC         = cms.InputTag( "dttfDigis" ),   
  inputDDU         = cms.InputTag( "muonDTDigis" ),   
  inputDigis       = cms.InputTag( "muonDTDigis" ),   
@@ -148,6 +135,7 @@ process.hltDTActivityFilter = cms.EDFilter("HLTDTActivityFilter",
  activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
 )
 
+# this is for filtering on HLT path
 process.HLTDT =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
      HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT'),           # provide list of HLT paths (or patterns) you want
@@ -156,23 +144,67 @@ process.HLTDT =cms.EDFilter("HLTHighLevel",
      throw = cms.bool(False)    # throw exception on unknown path names
  )
 
-process.HLTDTpath = cms.Path(process.HLTDT)
-process.DTskim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
+process.dtHLTSkim = cms.Path(process.HLTDT)
 
-process.DTskimout = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/DTSkim.root'),
+process.dtSkim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
+
+
+
+############################ L1 Muon bits #################################
+
+process.l1RequestPhAlgos = process.hltLevel1GTSeed.clone()
+
+# Request the or of the following bits: from 54 to 62 and 106-107
+
+process.l1RequestPhAlgos.L1SeedsLogicalExpression = cms.string(
+    'L1_SingleMuBeamHalo OR L1_SingleMuOpen OR L1_SingleMu0 OR L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu14 OR L1_SingleMu20 OR L1_DoubleMuOpen OR L1_DoubleMu3')
+
+process.l1MuBitsSkim = cms.Path(process.l1RequestPhAlgos)
+
+###########################################################################
+
+
+########################## RPC Filters ############################
+
+process.l1RequestTecAlgos = process.hltLevel1GTSeed.clone()
+
+process.l1RequestTecAlgos.L1TechTriggerSeeding = cms.bool(True)
+process.l1RequestTecAlgos.L1SeedsLogicalExpression = cms.string('31')
+
+process.rpcTecSkim = cms.Path(process.l1RequestTecAlgos)
+
+process.load("DPGAnalysis.Skims.RPCRecHitFilter_cfi")
+process.rpcRHSkim = cms.Path(process.RPCRecHitsFilter)
+###########################################################################
+
+
+########################## CSC Filter ############################
+# path already defined above
+#### the paths (single paths wrt combined paths above)
+process.cscHLTSkim = cms.Path(process.hltBeamHalo)
+process.cscSkimAlone = cms.Path(process.cscSkim)
+###########################################################################
+
+########################## Muon tracks Filter ############################
+process.muonSkim=cms.EDFilter("CandViewCountFilter", 
+                 src =cms.InputTag("muons"), minNumber = cms.uint32(1))
+process.muonTracksSkim = cms.Path(process.muonSkim)
+
+
+###########################################################################
+
+
+
+process.outputMuonSkim = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('/tmp/malgeri/MuonSkim.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
-    	      filterName = cms.untracked.string('DT_skim')),
+    	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('DTskim','HLTDTpath')
-       )
+        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkimAlone","rpcRHSkim","rpcTecSkim","muonTracksSkim")
+    )
 )
-
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-
 ####################################################################################
 ##################################good collisions############################################
 
@@ -285,7 +317,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.DTskimout+process.collout+process.bkgout+process.outHSCP+process.ecalrechitfilter_out)
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.collout+process.bkgout+process.outHSCP+process.ecalrechitfilter_out)
 
 
 
