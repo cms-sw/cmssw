@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2009/12/15 23:07:13 $
- * $Revision: 1.11 $
+ * $Date: 2010/02/25 19:05:23 $
+ * $Revision: 1.12 $
  * $Author: ameyer $
  *
  */
@@ -128,10 +128,6 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
     reportSummaryMap_->setBinContent(nlumi+1,i+1,-1.);
     dcs24[i]=true;
   }
-
-  // set DT0 and CASTOR to -1  
-  reportSummaryMap_->setBinContent(nlumi,2+1,-1.);
-  reportSummaryMap_->setBinContent(nlumi,23+1,-1.);
 
   // fill physics decl. bit in y bin 10.
   if (physDecl_) 
@@ -280,6 +276,7 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
   else
   {
     cout << "DQMProvInfo: phys decl. bit not accessible !!!"  << endl;
+    physDecl_=false;
     return;
   }
 
