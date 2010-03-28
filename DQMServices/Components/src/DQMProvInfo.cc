@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/03/28 15:27:36 $
- * $Revision: 1.13 $
+ * $Date: 2010/03/28 15:42:32 $
+ * $Revision: 1.14 $
  * $Author: ameyer $
  *
  */
@@ -187,7 +187,7 @@ DQMProvInfo::getShowTags(void)
    size_t found=str.find_first_not_of(safestr);
    if (found!=std::string::npos)
    {
-     LogWarning("DQMProvInfo::ShowTags") Illegal character found: " 
+     edm::LogWarning("DQMProvInfo::ShowTags") << " Illegal character found: " 
                << str[found] 
                << " at position " 
                << int(found) ;
