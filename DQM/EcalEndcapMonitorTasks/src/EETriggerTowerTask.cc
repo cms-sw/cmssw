@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/03/28 13:17:43 $
- * $Revision: 1.69 $
+ * $Date: 2010/03/28 14:00:03 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -470,6 +470,8 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
     int itt = Numbers::iTT( tpdigiItr->id() );
     int itcc = Numbers::iTCC( tpdigiItr->id() );
 
+    std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
+
     float xvalEt = tpdigiItr->compressedEt();
     float xvalVeto = 0.5 + tpdigiItr->fineGrain();
 
@@ -538,8 +540,6 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
         if (!matchedAny) matchSample[0]=true;
 
-        std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
-
         // check if the tower has been readout completely and if it is medium or high interest
         if (readoutCrystalsInTower[itcc-1][itt-1] == int(crystals->size()) &&
             (compDigiInterest == 1 || compDigiInterest == 3) ) {
@@ -595,8 +595,6 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
         goodVeto = false;
       }
 
-      std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
-
       for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
         EEDetId id = (*crystals)[i];
@@ -619,8 +617,6 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
       } // loop on crystals
 
     } // compDigis.isValid
-
-    std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
 
     for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
