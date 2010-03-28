@@ -4,17 +4,16 @@
 /*
  * \file EETrendTask.h
  *
- * $Date: 2010/03/02 00:01:59 $
- * $Revision: 1.4 $
+ * $Date: 2010/03/22 04:45:45 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "TProfile.h"
 
 class MonitorElement;
 class DQMStore;

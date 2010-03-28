@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2010/03/26 13:25:16 $
- * $Revision: 1.8 $
+ * $Date: 2010/03/27 20:08:02 $
+ * $Revision: 1.9 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -38,11 +38,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
-
 #include "DQM/EcalEndcapMonitorTasks/interface/EETrendTask.h"
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
 
-#include "TLorentzVector.h"
+#include "TProfile.h"
 
 EETrendTask::EETrendTask(const edm::ParameterSet& ps){
 

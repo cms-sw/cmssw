@@ -1,8 +1,8 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2010/02/08 21:35:04 $
- * $Revision: 1.5 $
+ * $Date: 2010/03/27 20:07:58 $
+ * $Revision: 1.6 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -38,11 +38,10 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
-
 #include "DQM/EcalBarrelMonitorTasks/interface/EBTrendTask.h"
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
 
-#include "TLorentzVector.h"
+#include "TProfile.h"
 
 EBTrendTask::EBTrendTask(const edm::ParameterSet& ps){
 
