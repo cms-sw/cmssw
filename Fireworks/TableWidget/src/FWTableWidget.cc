@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.12 2009/05/20 02:08:51 jmuelmen Exp $
+// $Id: FWTableWidget.cc,v 1.13 2009/09/23 20:24:19 chrjones Exp $
 //
 
 // system include files
@@ -273,13 +273,6 @@ FWTableWidget::handleResize(UInt_t w, UInt_t h)
    if(redoLayout) {
       Layout();
    }
-}
-
-void 
-FWTableWidget::SetSize(const TGDimension &s)
-{
-   //std::cout <<"SetSize"<<std::endl;
-   TGCompositeFrame::SetSize(s);
 }
 
 void    
