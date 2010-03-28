@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2010/03/28 13:01:55 $
- * $Revision: 1.99 $
+ * $Date: 2010/03/28 13:17:43 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -487,11 +487,11 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
           for (int j=0; j<6; j++) {
             if (matchSample[j]) {
 
-              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
-
               int index = ( j==0 ) ? -1 : j;
 
               meEmulMatchIndex1D_->Fill(index+0.5);
+
+              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
               if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
               if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );
 

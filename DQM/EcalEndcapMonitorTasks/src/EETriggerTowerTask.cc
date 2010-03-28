@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/03/28 13:01:55 $
- * $Revision: 1.68 $
+ * $Date: 2010/03/28 13:17:43 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -551,12 +551,72 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
             goodVeto = false;
           }
 
+          for (int j=0; j<6; j++) {
+            if (matchSample[j]) {
+
+              int index = ( j==0 ) ? -1 : j;
+
+              if ( ismt >= 1 && ismt <= 9 ) {
+                meEmulMatchIndex1D_[0]->Fill(index+0.5);
+              } else {
+                meEmulMatchIndex1D_[1]->Fill(index+0.5);
+              }
+
+              for ( unsigned int i=0; i<crystals->size(); i++ ) {
+
+                EEDetId id = (*crystals)[i];
+
+                int ix = id.ix();
+                int iy = id.iy();
+
+                if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+                float xix = ix-0.5;
+                float xiy = iy-0.5;
+
+                meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
+                if ( ismt >= 1 && ismt <= 9 ) {
+                  if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
+                  if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
+                } else {
+                  if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
+                  if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
+                }
+
+              } // loop on crystals
+
+            }
+          }
+
         } // check readout
 
       } else {
         good = false;
         goodVeto = false;
       }
+
+      std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
+
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
+
+        EEDetId id = (*crystals)[i];
+
+        int ix = id.ix();
+        int iy = id.iy();
+
+        if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+        float xix = ix-0.5;
+        float xiy = iy-0.5;
+
+        if (!good ) {
+          if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+        if (!goodVeto) {
+          if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+
+      } // loop on crystals
 
     } // compDigis.isValid
 
@@ -573,43 +633,6 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
       float xix = ix-0.5;
       float xiy = iy-0.5;
-
-      if ( compDigis.isValid() ) {
-
-        // check if the tower has been readout completely and if it is medium or high interest
-        if (readoutCrystalsInTower[itcc-1][itt-1] == int(crystals->size()) &&
-            (compDigiInterest == 1 || compDigiInterest == 3) ) {
-
-          for (int j=0; j<6; j++) {
-            if (matchSample[j]) {
-
-              meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
-
-              int index = ( j==0 ) ? -1 : j;
-
-              if ( ismt >= 1 && ismt <= 9 ) {
-                meEmulMatchIndex1D_[0]->Fill(index+0.5);
-                if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
-                if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
-              } else {
-                meEmulMatchIndex1D_[1]->Fill(index+0.5);
-                if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
-                if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
-              }
-
-            }
-          }
-
-        } // check readout
-
-        if (!good ) {
-          if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
-        }
-        if (!goodVeto) {
-          if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
-        }
-
-      } // compDigis.isValid
 
       if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xix, xiy, xvalEt);
       if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xix, xiy, xvalVeto);
