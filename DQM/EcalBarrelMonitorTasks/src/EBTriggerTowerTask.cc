@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2010/03/27 20:07:58 $
- * $Revision: 1.98 $
+ * $Date: 2010/03/28 13:01:55 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -429,6 +429,7 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
     int compDigiInterest = -1;
 
     bool matchSample[6];
+    for (int j=0; j<6; j++) matchSample[j]=false;
 
     if ( compDigis.isValid() ) {
 
@@ -458,13 +459,15 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
-        for (int j=0; j<6; j++) matchSample[j] = false;
+        matchSample[0]=false;
         bool matchedAny=false;
 
         for (int j=0; j<5; j++) {
           if ((*tpdigiItr)[j].compressedEt() == compDigiEt ) {
             matchSample[j+1]=true;
             matchedAny=true;
+          } else {
+            matchSample[j+1]=false;
           }
         }
 
