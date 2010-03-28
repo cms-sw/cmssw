@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2010/02/17 22:44:16 $
- * $Revision: 1.97 $
+ * $Date: 2010/03/27 20:07:58 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -421,14 +421,19 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
     int itcc = Numbers::iTCC( tpdigiItr->id() );
 
     float xvalEt = tpdigiItr->compressedEt();
-    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xvalEt);
-
     float xvalVeto = 0.5 + tpdigiItr->fineGrain();
-    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xvalVeto);
+
+    bool good = true;
+    bool goodVeto = true;
+
+    int compDigiInterest = -1;
+
+    bool matchSample[6];
 
     if ( compDigis.isValid() ) {
 
       if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Fill( xvalEt );
+
       float maxEt = 0;
       int maxTPIndex = -1;
       for (int j=0; j<5; j++) {
@@ -438,80 +443,78 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
           maxTPIndex = j+1;
         }
       }
+
       if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Fill( maxEt );
       if ( meEmulMatchMaxIndex1D_ && maxEt > 0 ) meEmulMatchMaxIndex1D_->Fill( maxTPIndex );
 
-      bool good = true;
-      bool goodVeto = true;
-
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if ( compDigiItr != compDigis->end() ) {
+        int compDigiEt = compDigiItr->compressedEt();
+        compDigiInterest = (compDigiItr->ttFlag() & 0x3);
 
-        if ( compDigiItr->compressedEt() > 0 ) nTP++;
-
-        if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Fill( compDigiItr->compressedEt() );
-
-        if ( meEtBxReal_ && compDigiItr->compressedEt() > 0 ) meEtBxReal_->Fill( bx, compDigiItr->compressedEt() );
+        if ( compDigiEt > 0 ) nTP++;
+        if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Fill( compDigiEt );
+        if ( meEtBxReal_ && compDigiEt > 0 ) meEtBxReal_->Fill( bx, compDigiEt );
 
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
-        bool matchSample[6];
         for (int j=0; j<6; j++) matchSample[j] = false;
         bool matchedAny=false;
 
         for (int j=0; j<5; j++) {
-          if ((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
+          if ((*tpdigiItr)[j].compressedEt() == compDigiEt ) {
             matchSample[j+1]=true;
             matchedAny=true;
           }
         }
+
         if (!matchedAny) matchSample[0]=true;
 
-        //        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
-
         // check if the tower has been readout completely and if it is medium or high interest
-        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && 
-            ((compDigiItr->ttFlag() & 0x3) == 1 || (compDigiItr->ttFlag() & 0x3) == 3) ) {
+        if (readoutCrystalsInTower[itcc-1][itt-1] == 25 &&
+            (compDigiInterest == 1 || compDigiInterest == 3) ) {
 
-          for (int j=0; j<6; j++) {
-            if (matchSample[j]) {
-              
-              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
-              
-              int index = ( j==0 ) ? -1 : j;
-
-              meEmulMatchIndex1D_->Fill(index+0.5);
-              
-              if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
-              
-              if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );
-              
-            }
-          }
-
-          if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
+          if ( tpdigiItr->compressedEt() != compDigiEt ) {
             good = false;
           }
-          
           if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
             goodVeto = false;
           }
 
-        }
+          for (int j=0; j<6; j++) {
+            if (matchSample[j]) {
+
+              meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
+
+              int index = ( j==0 ) ? -1 : j;
+
+              meEmulMatchIndex1D_->Fill(index+0.5);
+              if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
+              if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );
+
+            }
+          }
+
+        } // check readout
 
       } else {
         good = false;
         goodVeto = false;
       }
+
       if (!good ) {
         if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet, xipt);
       }
       if (!goodVeto) {
         if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt);
       }
-    }
 
-  }
+    } // compDigis.isValid
+
+    if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xvalEt);
+    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xvalVeto);
+
+  } // loop on TP
 
   if ( meOccupancyBxReal_ ) meOccupancyBxReal_->Fill( bx, nTP );
 
