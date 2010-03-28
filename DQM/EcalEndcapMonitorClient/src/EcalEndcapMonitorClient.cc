@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/03/27 20:17:50 $
- * $Revision: 1.242 $
+ * $Date: 2010/03/27 20:30:37 $
+ * $Revision: 1.243 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -864,7 +864,7 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, 
 
   if ( verbose_ ) {
     std::cout << std::endl;
-    std::cout << "Standard std::endluminosityBlock() for run " << l.id().run() << std::endl;
+    std::cout << "Standard endluminosityBlock() for run " << l.id().run() << std::endl;
     std::cout << std::endl;
   }
 
