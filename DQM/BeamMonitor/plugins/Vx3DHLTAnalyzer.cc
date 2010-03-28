@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.37 2010/03/24 13:57:28 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.38 2010/03/28 15:56:07 dinardo Exp $
 //
 //
 
@@ -82,6 +82,8 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
   if (runNumber != iEvent.id().run())
     {
+      numberGoodFits = 0;
+      numberFits     = 0;
       reset();
       runNumber = iEvent.id().run();
 
@@ -1208,9 +1210,9 @@ void Vx3DHLTAnalyzer::beginJob()
 
   reset();
   runNumber            = 0;
-  maxLumiIntegration   = 10;
   numberGoodFits       = 0;
   numberFits           = 0;
+  maxLumiIntegration   = 10;
   minVxDoF             = 4.;
   internalDebug        = false;
   considerVxCovariance = true;
