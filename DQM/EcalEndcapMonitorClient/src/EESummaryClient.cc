@@ -1,16 +1,16 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/03/27 20:08:00 $
- * $Revision: 1.194 $
+ * $Date: 2010/03/27 20:30:37 $
+ * $Revision: 1.195 $
  * \author G. Della Ricca
  *
 */
 
 #include <memory>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
-#include <map>
 #include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
