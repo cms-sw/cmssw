@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/02/25 19:05:23 $
- * $Revision: 1.12 $
+ * $Date: 2010/03/28 15:27:36 $
+ * $Revision: 1.13 $
  * $Author: ameyer $
  *
  */
@@ -22,19 +22,16 @@
 #include <sstream>
 #include <math.h>
 
-using namespace edm;
-using namespace std;
-
 const static int XBINS=2000;
 
-DQMProvInfo::DQMProvInfo(const ParameterSet& ps){
+DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   
   parameters_ = ps;
 
   dbe_ = edm::Service<DQMStore>().operator->();
 
-  provinfofolder_ = parameters_.getUntrackedParameter<string>("provInfoFolder", "ProvInfo") ;
-  subsystemname_ = parameters_.getUntrackedParameter<string>("subSystemFolder", "Info") ;
+  provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
+  subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
   
   // initialize
   physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
@@ -89,7 +86,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   lastlumi_=0;
 } 
 
-void DQMProvInfo::analyze(const Event& e, const EventSetup& c){
+void DQMProvInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
  
   makeDcsInfo(e);
   makeGtInfo(e);
@@ -104,11 +101,11 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   int nlumi = l.id().luminosityBlock();
   if (nlumi > XBINS) 
   {
-    cout << "DQMProvInfo: lumi " << nlumi << " exceeds histogram boundaries " << endl;
+    edm::LogWarning("DQMProvInfo") 
+         << " lumi " << nlumi << " exceeds histogram boundaries " ;
     return;
   }
   if (nlumi <= lastlumi_ ) return;
-  
 
   // set to -1 in case there was a jump or no previous fill
   reportSummaryMap_->setBinContent(nlumi,25+1,1.);
@@ -190,10 +187,10 @@ DQMProvInfo::getShowTags(void)
    size_t found=str.find_first_not_of(safestr);
    if (found!=std::string::npos)
    {
-     std::cout << "DQMProvInfo::ShowTags: Illegal character found: " 
+     LogWarning("DQMProvInfo::ShowTags") Illegal character found: " 
                << str[found] 
                << " at position " 
-               << int(found) << std::endl;
+               << int(found) ;
      return "notags";
    }   
    return str;
@@ -233,7 +230,7 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
                             dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
   {
-      cout << "DCS status: 0x" << hex << dcsStatusItr->ready() << dec << endl;
+      // std::cout << "DCS status: 0x" << std::hex << dcsStatusItr->ready() << std::dec << std::endl;
       if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs24[0]=false;
       if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs24[1]=false;   
       if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs24[2]=false;
@@ -275,7 +272,7 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
     fdlWord = gtrr->gtFdlWord();
   else
   {
-    cout << "DQMProvInfo: phys decl. bit not accessible !!!"  << endl;
+    edm::LogWarning("DQMProvInfo") << " phys decl. bit not accessible !!!" ;
     physDecl_=false;
     return;
   }
