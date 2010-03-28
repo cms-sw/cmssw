@@ -4,10 +4,10 @@ use strict;
 
 system("cp $ARGV[0]/crab_0_*/res/DQM_V0001_EcalPreshower_$ARGV[0].root .");
 system(". /afs/cern.ch/cms/sw/cmsset_default.sh; eval `scramv1 runtime -sh`; root -l -b -q xPlotES.C\\($ARGV[0]\\)");
-system("mv *$ARGV[0]*.gif test");
+system("mkdir results/$ARGV[0]; mv *$ARGV[0]*.gif results/$ARGV[0]");
 
 # make HTML file
-system("cat > test/index.html<<EOF
+system("cat > results/$ARGV[0]/index.html<<EOF
 
 <HTML>
 <Center>
@@ -78,3 +78,5 @@ system("cat > test/index.html<<EOF
 
 EOF
 ");
+
+
