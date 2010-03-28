@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.36 2010/03/23 22:55:18 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.37 2010/03/24 13:57:28 dinardo Exp $
 //
 //
 
@@ -815,7 +815,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock,
       beginTimeOfFit = lumiBlock.beginTime().value();
       beginLumiOfFit = lumiBlock.luminosityBlock();
     }
-  lumiCounter++;
+  else if (lumiBlock.luminosityBlock() > beginLumiOfFit) lumiCounter++;
 }
 
 
@@ -948,15 +948,16 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       // -2 == NO OK - not enough "minNentries" --> Wait for more lumisections
       // Any other number == NO OK --> Reset
 
+      numberFits++;
       if (goodData == 0)
 	{
 	  writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
-	  histTitle << "Fitted Beam Spot [cm] (Lumi start: " << beginLumiOfFit << " - Lumi end: " << endLumiOfFit << ")";
-
 	  reportSummary->Fill(1.0);
-	  reportSummaryMap->Fill(0.5, 0.5, 1.0);
+	  numberGoodFits++;
+
+	  histTitle << "Fitted Beam Spot [cm] (Lumi start: " << beginLumiOfFit << " - Lumi end: " << endLumiOfFit << ")";
 
 	  reset();
 	}
@@ -966,11 +967,12 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 	  if ((internalDebug == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Used vertices: " << counterVx << endl;
 
 	  reportSummary->Fill(.95);
-	  reportSummaryMap->Fill(0.5, 0.5, 0.95);
 
 	  if (goodData != -2) { reset(); histTitle << "Fitted Beam Spot [cm] (not enough statistics)"; }
 	  else { histTitle << "Fitted Beam Spot [cm] (problems)"; if (lumiCounter == maxLumiIntegration) reset(); }
 	}
+
+      reportSummaryMap->Fill(0.5, 0.5, (double)numberGoodFits/(double)numberFits);
 
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
       
@@ -1005,7 +1007,13 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       
       vals.clear();
     }
-  else if (nLumiReset == 0) { lumiCounter = 0; hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), 1); totalHits = 0; }
+  else if (nLumiReset == 0)
+    {
+      reportSummaryMap->Fill(0.5, 0.5, 1.0);
+      lumiCounter = 0;
+      hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), 1);
+      totalHits = 0;
+    }
 }
 
 
@@ -1187,15 +1195,27 @@ void Vx3DHLTAnalyzer::beginJob()
       reportSummaryMap = dbe->book2D("reportSummaryMap","Beam Pixel Summary Map", 1, 0., 1., 1, 0., 1.);
       reportSummaryMap->Fill(0.5, 0.5, 0.);
       dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
+
+      // Convention for reportSummary:
+      // -   0% at the moment of creation of the histogram
+      // -  95% if iether not not enough "minNentries" or bad fit
+      // - 100% if good fit
+
+      // Convention for reportSummaryMap:
+      // - 0%  at the moment of creation of the histogram
+      // - n%  numberGoodFits / numberFits
     }
 
   reset();
-  runNumber = 0;
-  maxLumiIntegration = 10;
-  minVxDoF = 4.;
-  pi = 3.141592653589793238;
-  internalDebug = false;
+  runNumber            = 0;
+  maxLumiIntegration   = 10;
+  numberGoodFits       = 0;
+  numberFits           = 0;
+  minVxDoF             = 4.;
+  internalDebug        = false;
   considerVxCovariance = true;
+
+  pi = 3.141592653589793238;
 }
 
 
