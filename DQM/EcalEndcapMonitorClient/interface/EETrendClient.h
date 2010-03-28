@@ -4,14 +4,15 @@
 /*
  * \file EETrendClient.h
  *
- * $Date: 2010/02/18 23:19:04 $
- * $Revision: 1.1 $
+ * $Date: 2010/03/02 00:01:57 $
+ * $Revision: 1.2 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TProfile.h"

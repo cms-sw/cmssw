@@ -1,17 +1,16 @@
-// $Id: UtilsClient.h,v 1.16 2009/08/10 15:53:46 emanuele Exp $
+// $Id: UtilsClient.h,v 1.17 2010/02/14 12:47:00 dellaric Exp $
 
 /*!
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.16 $
-  \date $Date: 2009/08/10 15:53:46 $
+  \version $Revision: 1.17 $
+  \date $Date: 2010/02/14 12:47:00 $
 */
 
 #ifndef UtilsClient_H
 #define UtilsClient_H
 
-#include <vector>
 #include <string>
 
 #include "DQMServices/Core/interface/MonitorElement.h"
