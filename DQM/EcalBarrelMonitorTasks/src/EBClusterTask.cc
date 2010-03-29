@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2010/02/24 12:13:16 $
- * $Revision: 1.84 $
+ * $Date: 2010/03/27 20:07:58 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -561,7 +561,7 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     edm::LogWarning("EBClusterTask") << "Topology not valid"; 
     return;
   }
-  const CaloTopology *topology = pTopology.product();
+  const CaloTopology* topology = pTopology.product();
 
   // recHits
   edm::Handle< EcalRecHitCollection > pEBRecHits;
@@ -570,7 +570,7 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     edm::LogWarning("EBClusterTask") << "RecHit collection " << EcalRecHitCollection_ << " not available.";
     return;
   }
-  const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
+  const EcalRecHitCollection* ebRecHits = pEBRecHits.product();
 
   reco::BasicClusterCollection bcSel;
 
