@@ -6,7 +6,6 @@
 #include "boost/cstdint.hpp"
 #include <iostream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -18,7 +17,7 @@ SiStripGainESSource::SiStripGainESSource( const edm::ParameterSet& pset ) {
 
 // -----------------------------------------------------------------------------
 //
-auto_ptr<SiStripApvGain> SiStripGainESSource::produce( const SiStripApvGainRcd& ) { 
+std::auto_ptr<SiStripApvGain> SiStripGainESSource::produce( const SiStripApvGainRcd& ) { 
   
   SiStripApvGain* gain = makeGain();
   
@@ -28,7 +27,7 @@ auto_ptr<SiStripApvGain> SiStripGainESSource::produce( const SiStripApvGainRcd& 
       << " Null pointer to SiStripApvGain object!";
   }
   
-  auto_ptr<SiStripApvGain> ptr(gain);
+  std::auto_ptr<SiStripApvGain> ptr(gain);
   return ptr;
 
 }

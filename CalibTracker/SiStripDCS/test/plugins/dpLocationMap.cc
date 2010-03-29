@@ -12,7 +12,6 @@
 #include <sstream>
 #include <string>
 
-using namespace std;
 using namespace sistrip;
 
 dpLocationMap::dpLocationMap(const edm::ParameterSet& pset) :

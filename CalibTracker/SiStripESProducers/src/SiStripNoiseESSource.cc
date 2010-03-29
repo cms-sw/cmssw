@@ -5,7 +5,6 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include <iostream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -17,7 +16,7 @@ SiStripNoiseESSource::SiStripNoiseESSource( const edm::ParameterSet& pset ) {
 
 // -----------------------------------------------------------------------------
 //
-auto_ptr<SiStripNoises> SiStripNoiseESSource::produce( const SiStripNoisesRcd& ) { 
+std::auto_ptr<SiStripNoises> SiStripNoiseESSource::produce( const SiStripNoisesRcd& ) { 
   
   SiStripNoises* noise = makeNoise();
   
@@ -27,7 +26,7 @@ auto_ptr<SiStripNoises> SiStripNoiseESSource::produce( const SiStripNoisesRcd& )
       << " Null pointer to SiStripNoises object!";
   }
   
-  auto_ptr<SiStripNoises> ptr(noise);
+  std::auto_ptr<SiStripNoises> ptr(noise);
   return ptr;
 
 }

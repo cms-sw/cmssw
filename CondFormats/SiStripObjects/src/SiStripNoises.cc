@@ -244,7 +244,7 @@ void SiStripNoises::printSummary(std::stringstream& ss) const{
 
   SiStripDetSummary summary;
 
-  stringstream tempss;
+  std::stringstream tempss;
 
   RegistryIterator rit=getRegistryVectorBegin(), erit=getRegistryVectorEnd();
   uint16_t Nstrips;
@@ -273,9 +273,9 @@ void SiStripNoises::printSummary(std::stringstream& ss) const{
 
     tempss << "Nstrips " << Nstrips << " \t; mean " << mean << " \t; rms " << rms << " \t; min " << min << " \t; max " << max << "\t " ; 
   }
-  ss << endl << "Summary:" << endl;
+  ss << std::endl << "Summary:" << std::endl;
   summary.print(ss);
-  ss << endl;
+  ss << std::endl;
   ss << tempss.str();
 }
 

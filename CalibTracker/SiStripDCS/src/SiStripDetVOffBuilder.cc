@@ -1,5 +1,4 @@
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
-using namespace std;
 #include "boost/foreach.hpp"
 
 // constructor
@@ -178,12 +177,12 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
         // Careful: if a module is in the exclusion list it must be ignored and the initial status is set to ON.
         // These modules are expected to not be in the PSU-DetId map, so they will never get any status change from the query.
         SiStripPsuDetIdMap map;
-        vector< pair<uint32_t, string> > excludedDetIdMap;
+	std::vector< std::pair<uint32_t, std::string> > excludedDetIdMap;
         if( excludedDetIdListFile_ != "" ) {
           map.BuildMap(excludedDetIdListFile_, excludedDetIdMap);
         }
         for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = detInfos.begin(); it != detInfos.end(); ++it) {
-          vector< pair<uint32_t, string> >::const_iterator exclIt = excludedDetIdMap.begin();
+	  std::vector< std::pair<uint32_t, std::string> >::const_iterator exclIt = excludedDetIdMap.begin();
           bool excluded = false;
           for( ; exclIt != excludedDetIdMap.end(); ++exclIt ) {
             if( it->first == exclIt->first ) {
@@ -209,7 +208,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
     std::vector<uint32_t> beforeV;
     modV->getDetIds(beforeV);
 
-    pair<int, int> hvlv = extractDetIdVector(i, modV, dStruct);
+    std::pair<int, int> hvlv = extractDetIdVector(i, modV, dStruct);
 
     for (unsigned int j = 0; j < detids->size(); j++) {
       if( debug_ ) cout << "at time = " << iovtime << " detid["<<j<<"] = " << (*detids)[j] << " has hv = " << hvlv.first << " and lv = " << hvlv.second << endl;

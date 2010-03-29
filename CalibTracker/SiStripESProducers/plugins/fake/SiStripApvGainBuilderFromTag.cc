@@ -6,8 +6,6 @@
 #include <vector>
 #include <algorithm>
 
-using namespace std;
-
 SiStripApvGainBuilderFromTag::SiStripApvGainBuilderFromTag( const edm::ParameterSet& iConfig ):
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)),
@@ -29,7 +27,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
   // Read the gain from the given tag
   edm::ESHandle<SiStripApvGain> inputApvGain;
   iSetup.get<SiStripApvGainRcd>().get( inputApvGain );
-  vector<uint32_t> inputDetIds;
+  std::vector<uint32_t> inputDetIds;
   inputApvGain->getDetIds(inputDetIds);
 
   // Prepare the new object

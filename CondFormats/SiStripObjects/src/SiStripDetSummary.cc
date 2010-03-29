@@ -50,20 +50,20 @@ void SiStripDetSummary::add(const DetId & detid, const float & value)
   countMap_[detNum] += 1;
 }
 
-void SiStripDetSummary::print(stringstream & ss, const bool mean) const
+void SiStripDetSummary::print(std::stringstream & ss, const bool mean) const
 {
   // Compute the mean for each detector and for each layer.
   // The maps have the same key and therefore are ordered in the same way.
-  map<int, int>::const_iterator countIt = countMap_.begin();
-  map<int, double>::const_iterator meanIt = meanMap_.begin();
-  map<int, double>::const_iterator rmsIt = rmsMap_.begin();
+  std::map<int, int>::const_iterator countIt = countMap_.begin();
+  std::map<int, double>::const_iterator meanIt = meanMap_.begin();
+  std::map<int, double>::const_iterator rmsIt = rmsMap_.begin();
 
-  ss << "subDet" << setw(15) << "layer" << setw(16) << "mono/stereo" << setw(20);
-  if( mean ) ss << "mean +- rms" << endl;
-  else ss << "count" << endl;
+  ss << "subDet" << std::setw(15) << "layer" << std::setw(16) << "mono/stereo" << std::setw(20);
+  if( mean ) ss << "mean +- rms" << std::endl;
+  else ss << "count" << std::endl;
 
-  string detector;
-  string oldDetector;
+  std::string detector;
+  std::string oldDetector;
 
   for( ; countIt != countMap_.end(); ++countIt, ++meanIt, ++rmsIt ) {
     int count = countIt->second;
@@ -93,7 +93,7 @@ void SiStripDetSummary::print(stringstream & ss, const bool mean) const
       break;
     }
     if( detector != oldDetector ) {
-      ss << endl << detector;
+      ss << std::endl << detector;
       oldDetector = detector;
     }
     else ss << "    ";
@@ -101,8 +101,8 @@ void SiStripDetSummary::print(stringstream & ss, const bool mean) const
     int layer = (countIt->first)/10 - (countIt->first)/1000*100;
     int stereo = countIt->first - layer*10 -(countIt->first)/1000*1000;
 
-    ss << setw(15) << layer << setw(13) << stereo << setw(18);
-    if( computeMean_ ) ss << mean << " +- " << rms << endl;
-    else ss << countIt->second << endl;
+    ss << std::setw(15) << layer << std::setw(13) << stereo << std::setw(18);
+    if( computeMean_ ) ss << mean << " +- " << rms << std::endl;
+    else ss << countIt->second << std::endl;
   }
 }

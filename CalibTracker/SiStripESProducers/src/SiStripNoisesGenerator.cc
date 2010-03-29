@@ -33,16 +33,16 @@ void SiStripNoisesGenerator::createObject()
   stripLengthMode_ = _pset.getParameter<bool>("StripLengthMode");
   
   //parameters for random noise generation. not used if Strip length mode is chosen
-  map<int, vector<double> > meanNoise;
+  std::map<int, std::vector<double> > meanNoise;
   fillParameters(meanNoise, "MeanNoise");
-  map<int, vector<double> > sigmaNoise;
+  std::map<int, std::vector<double> > sigmaNoise;
   fillParameters(sigmaNoise, "SigmaNoise");
   minimumPosValue_ = _pset.getParameter<double>("MinPositiveNoise");
 
   //parameters for strip length proportional noise generation. not used if random mode is chosen
-  map<int, vector<double> > noiseStripLengthLinearSlope;
+  std::map<int, std::vector<double> > noiseStripLengthLinearSlope;
   fillParameters(noiseStripLengthLinearSlope, "NoiseStripLengthSlope");
-  map<int, vector<double> > noiseStripLengthLinearQuote;
+  std::map<int, std::vector<double> > noiseStripLengthLinearQuote;
   fillParameters(noiseStripLengthLinearQuote, "NoiseStripLengthQuote");
   electronsPerADC_ = _pset.getParameter<double>("electronPerAdc");        
 
@@ -59,7 +59,7 @@ void SiStripNoisesGenerator::createObject()
     SiStripNoises::InputVector theSiStripVector;
     float noise = 0.;
     uint32_t detId = it->first;
-    pair<int, int> sl = subDetAndLayer(detId);
+    std::pair<int, int> sl = subDetAndLayer(detId);
     unsigned short nApvs = it->second.nApvs;
 
 
@@ -93,7 +93,7 @@ void SiStripNoisesGenerator::createObject()
   }
 }
 
-pair<int, int> SiStripNoisesGenerator::subDetAndLayer( const uint32_t detId ) const
+std::pair<int, int> SiStripNoisesGenerator::subDetAndLayer( const uint32_t detId ) const
 {
   int layerId = 0;
 
@@ -116,32 +116,32 @@ pair<int, int> SiStripNoisesGenerator::subDetAndLayer( const uint32_t detId ) co
     TECDetId theTECDetId = TECDetId(detId); 
     layerId = theTECDetId.ring() - 1;
   }
-  return make_pair(subId, layerId);
+  return std::make_pair(subId, layerId);
 }
 
-void SiStripNoisesGenerator::fillParameters(map<int, vector<double> > & mapToFill, const string & parameterName) const
+void SiStripNoisesGenerator::fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const
 {
   int layersTIB = 4;
   int ringsTID = 3;
   int layersTOB = 6;
   int ringsTEC = 7;
 
-  fillSubDetParameter( mapToFill, _pset.getParameter<vector<double> >(parameterName+"TIB"), int(StripSubdetector::TIB), layersTIB );
-  fillSubDetParameter( mapToFill, _pset.getParameter<vector<double> >(parameterName+"TID"), int(StripSubdetector::TID), ringsTID );
-  fillSubDetParameter( mapToFill, _pset.getParameter<vector<double> >(parameterName+"TOB"), int(StripSubdetector::TOB), layersTOB );
-  fillSubDetParameter( mapToFill, _pset.getParameter<vector<double> >(parameterName+"TEC"), int(StripSubdetector::TEC), ringsTEC );
+  fillSubDetParameter( mapToFill, _pset.getParameter<std::vector<double> >(parameterName+"TIB"), int(StripSubdetector::TIB), layersTIB );
+  fillSubDetParameter( mapToFill, _pset.getParameter<std::vector<double> >(parameterName+"TID"), int(StripSubdetector::TID), ringsTID );
+  fillSubDetParameter( mapToFill, _pset.getParameter<std::vector<double> >(parameterName+"TOB"), int(StripSubdetector::TOB), layersTOB );
+  fillSubDetParameter( mapToFill, _pset.getParameter<std::vector<double> >(parameterName+"TEC"), int(StripSubdetector::TEC), ringsTEC );
 }
 
-void SiStripNoisesGenerator::fillSubDetParameter(map<int, vector<double> > & mapToFill, const vector<double> & v, const int subDet, const unsigned short layers) const
+void SiStripNoisesGenerator::fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const
 {
   if( v.size() == layers ) {
-    mapToFill.insert(make_pair( subDet, v ));
+    mapToFill.insert(std::make_pair( subDet, v ));
   }
   else if( v.size() == 1 ) {
-    vector<double> parV(layers, v[0]);
-    mapToFill.insert(make_pair( subDet, parV ));
+    std::vector<double> parV(layers, v[0]);
+    mapToFill.insert(std::make_pair( subDet, parV ));
   }
   else {
-    throw cms::Exception("Configuration") << "ERROR: number of parameters for subDet " << subDet << " are " << v.size() << ". They must be either 1 or " << layers << endl;
+    throw cms::Exception("Configuration") << "ERROR: number of parameters for subDet " << subDet << " are " << v.size() << ". They must be either 1 or " << layers << std::endl;
   }
 }

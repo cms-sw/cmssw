@@ -19,8 +19,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-using namespace std;
-
 /**
  * Produces a noise tag using the same settings as the service used in the DummyDBWriter, but
  * it receives a SiStripApvGain tag from the EventSetup and uses the gain values (per apv) to
@@ -39,9 +37,9 @@ class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer
 
  private:
   /// Given the map and the detid it returns the corresponding layer/ring
-  pair<int, int> subDetAndLayer(const uint32_t detit) const;
+  std::pair<int, int> subDetAndLayer(const uint32_t detit) const;
   /// Fills the parameters read from cfg and matching the name in the given map
-  void fillParameters(map<int, vector<double> > & mapToFill, const string & parameterName) const;
+  void fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const;
   /**
    * Fills the map with the paramters for the given subdetector. <br>
    * Each vector "v" holds the parameters for the layers/rings, if the vector has only one parameter
@@ -49,7 +47,7 @@ class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer
    * The only other possibility is that the number of parameters equals the number of layers, otherwise
    * an exception of type "Configuration" will be thrown.
    */
-  void fillSubDetParameter(map<int, vector<double> > & mapToFill, const vector<double> & v, const int subDet, const unsigned short layers) const;
+  void fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const;
 
   inline void printLog(const uint32_t detId, const unsigned short strip, const double & noise) const
   {

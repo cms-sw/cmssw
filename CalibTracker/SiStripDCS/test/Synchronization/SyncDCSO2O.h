@@ -11,7 +11,7 @@
 //
 // Original Author:  Marco DE MATTIA
 //         Created:  Tue Feb  9 15:38:18 CET 2010
-// $Id$
+// $Id: SyncDCSO2O.h,v 1.1 2010/02/17 11:53:40 demattia Exp $
 //
 //
 
@@ -37,8 +37,6 @@
 
 #include "TH1F.h"
 #include "TGraph.h"
-
-using namespace std;
 
 class SyncDCSO2O : public edm::EDAnalyzer {
 public:
@@ -79,5 +77,5 @@ private:
     }
   };
 
-  vector<TimeInfo> timeInfo_;
+  std::vector<TimeInfo> timeInfo_;
 };

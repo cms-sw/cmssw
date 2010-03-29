@@ -172,7 +172,7 @@ void SiStripPedestals::printSummary(std::stringstream& ss) const
       summary.add( detid[id], getPed(it,range) );
     }
   }
-  ss << "Summary of pedestals:" << endl;
+  ss << "Summary of pedestals:" << std::endl;
   summary.print(ss);
 }
 
@@ -188,7 +188,7 @@ void SiStripPedestals::printDebug(std::stringstream& ss) const
     SiStripPedestals::Range range = getRange(detid[id]);
 
     int strip = 0;
-    ss << "detid" << setw(15) << "strip" << setw(10) << "pedestal" << std::endl;
+    ss << "detid" << std::setw(15) << "strip" << std::setw(10) << "pedestal" << std::endl;
     int detId = 0;
     int oldDetId = 0;
     for( int it=0; it < (range.second-range.first)*8/10; ++it ){
@@ -198,7 +198,7 @@ void SiStripPedestals::printDebug(std::stringstream& ss) const
         ss << detid[id];
       }
       else ss << "   ";
-      ss << setw(15) << strip++ << setw(10) << getPed(it,range) << std::endl;
+      ss << std::setw(15) << strip++ << std::setw(10) << getPed(it,range) << std::endl;
     }
   }
 }

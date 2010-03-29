@@ -39,7 +39,7 @@ class SiStripLorentzAngleGenerator : public SiStripCondObjBuilderBase<SiStripLor
    */
   void setHallMobility(const double & meanMin, const double & meanMax, const double & sigma, const bool uniform);
   /// Method used to determine whether to generate with a uniform distribution for each layer
-  void setUniform(const vector<double> & TIB_EstimatedValuesMin, const vector<double> & TIB_EstimatedValuesMax, vector<bool> & uniformTIB);
+  void setUniform(const std::vector<double> & TIB_EstimatedValuesMin, const std::vector<double> & TIB_EstimatedValuesMax, std::vector<bool> & uniformTIB);
 };
 
 #endif 

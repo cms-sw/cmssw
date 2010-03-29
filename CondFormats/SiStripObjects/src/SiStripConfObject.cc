@@ -1,19 +1,17 @@
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 
-using namespace std;
-
-bool SiStripConfObject::put( const string & name, const int & value )
+bool SiStripConfObject::put( const std::string & name, const int & value )
 {
   names.push_back(name);
   values.push_back(value);
   return true;
 }
 
-int SiStripConfObject::get( const string & name )
+int SiStripConfObject::get( const std::string & name )
 {
-  vector<string>::iterator it = find(names.begin(), names.end(), name);
+  std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), name);
   if( it == names.end() ) {
-    edm::LogError("SiStripConfObject::get") << "Error: no parameter associated to " << name << " returning -1" << endl;
+    edm::LogError("SiStripConfObject::get") << "Error: no parameter associated to " << name << " returning -1" << std::endl;
     return( -1 );
   }
   return values[distance( names.begin(), it )];
@@ -21,10 +19,10 @@ int SiStripConfObject::get( const string & name )
 
 void SiStripConfObject::printSummary(std::stringstream & ss) const
 {
-  vector<string>::const_iterator namesIt = names.begin();
-  vector<int>::const_iterator valuesIt = values.begin();
+  std::vector<std::string>::const_iterator namesIt = names.begin();
+  std::vector<int>::const_iterator valuesIt = values.begin();
   for( ; namesIt != names.end(); ++namesIt, ++valuesIt ) {
-    ss << "parameter name = " << *namesIt << " value = " << *valuesIt << endl;
+    ss << "parameter name = " << *namesIt << " value = " << *valuesIt << std::endl;
   }
 }
 

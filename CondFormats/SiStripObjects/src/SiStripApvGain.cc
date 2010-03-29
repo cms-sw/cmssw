@@ -95,6 +95,6 @@ void SiStripApvGain::printSummary(std::stringstream & ss) const
       summaryGain.add(*detid, getApvGain(it, range));
     } 
   }
-  ss << "Summary of gain values:" << endl;
+  ss << "Summary of gain values:" << std::endl;
   summaryGain.print(ss, true);
 }

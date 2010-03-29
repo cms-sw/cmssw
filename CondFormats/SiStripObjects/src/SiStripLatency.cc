@@ -7,17 +7,15 @@
 #include <iostream>
 #include <sstream>
 
-using namespace std;
-
 bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const uint16_t latency, const uint16_t mode )
 {
   if( detId > 536870911 ) {
-    stringstream error;
-    error << "ERROR: the detId = " << detId << " is bigger than the maximum acceptable value = 2^(29) - 1 = " << 536870911 << endl;
-    error << "Since we are using 29 bits for the detId and 3 bits for the apv value. The maximum tracker detId at the moment" << endl;
-    error << "of the writing of this class was 47017836 as defined in CalibTracker/SiStripCommon/data/SiStripDetInfo.dat." << endl;
-    error << "If the maximum value has changed a revision of this calss is needed, possibly changing the detIdAndApv value from" << endl;
-    error << "from uint32_t to uint64_t." << endl;
+    std::stringstream error;
+    error << "ERROR: the detId = " << detId << " is bigger than the maximum acceptable value = 2^(29) - 1 = " << 536870911 << std::endl;
+    error << "Since we are using 29 bits for the detId and 3 bits for the apv value. The maximum tracker detId at the moment" << std::endl;
+    error << "of the writing of this class was 47017836 as defined in CalibTracker/SiStripCommon/data/SiStripDetInfo.dat." << std::endl;
+    error << "If the maximum value has changed a revision of this calss is needed, possibly changing the detIdAndApv value from" << std::endl;
+    error << "from uint32_t to uint64_t." << std::endl;
     edm::LogError("SiStripLatency::put") << error;
     throw cms::Exception("InsertFailure");
   }
@@ -27,10 +25,10 @@ bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const uint16
   latIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
 
   if( pos != latencies_.end() && pos->detIdAndApv == detIdAndApv ) {
-    cout << "Value already inserted, skipping insertion" << endl;
+    std::cout << "Value already inserted, skipping insertion" << std::endl;
     return false;
   }
-  // cout << "Filling with: latency = " << latency << ", mode = " << mode << endl;
+  // std::cout << "Filling with: latency = " << latency << ", mode = " << mode << std::endl;
   latencies_.insert(pos, Latency(detIdAndApv, latency, mode));
 
   return true;
@@ -38,12 +36,12 @@ bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const uint16
 
 void SiStripLatency::compress()
 {
-  // cout << "Starting compression" << endl;
-  // cout << "Total number of elements before compression = " << latencies_.size() << endl;
+  // std::cout << "Starting compression" << std::endl;
+  // std::cout << "Total number of elements before compression = " << latencies_.size() << std::endl;
 
   // int i = 0;
   // for( latIt it = latencies_.begin(); it != latencies_.end(); ++it, ++i ) {
-  //   cout << "latency["<<i<<"] = " << it->latency << ", mode["<<i<<"] = " << (int)it->mode << " for detIdAndApv = " << it->detIdAndApv << endl;;
+  //   std::cout << "latency["<<i<<"] = " << it->latency << ", mode["<<i<<"] = " << (int)it->mode << " for detIdAndApv = " << it->detIdAndApv << std::endl;;
   // }
   // Remove latency duplicates. Note that unique is stable.
   // CANNOT USE THIS: it will leave one element, but you do not know which one.
@@ -63,17 +61,17 @@ void SiStripLatency::compress()
       ++lat;
     }
   }
-  // cout << "Total number of elements after compression = " << latencies_.size() << endl;
+  // std::cout << "Total number of elements after compression = " << latencies_.size() << std::endl;
   // i = 0;
   // for( latIt it = latencies_.begin(); it != latencies_.end(); ++it, ++i ) {
-  //   cout << "latency["<<i<<"] = " << it->latency << ", mode["<<i<<"] = " << (int)it->mode  << ", for detIdAndApv = " << it->detIdAndApv << endl;;
+  //   std::cout << "latency["<<i<<"] = " << it->latency << ", mode["<<i<<"] = " << (int)it->mode  << ", for detIdAndApv = " << it->detIdAndApv << std::endl;;
   // }
 }
 
 // const latConstIt SiStripLatency::position(const uint32_t detId, const uint16_t apv) const
 // {
 //   if( latencies_.empty() ) {
-//     // cout << "SiStripLatency: Error, range is empty" << endl;
+//     // std::cout << "SiStripLatency: Error, range is empty" << std::endl;
 //     return latencies_.end();
 //   }
 //   uint32_t detIdAndApv = (detId << 2) | apv;
@@ -99,13 +97,13 @@ uint16_t SiStripLatency::mode(const uint32_t detId, const uint16_t apv) const
   return pos->mode;
 }
 
-pair<uint16_t, uint16_t> SiStripLatency::latencyAndMode(const uint32_t detId, const uint16_t apv) const
+std::pair<uint16_t, uint16_t> SiStripLatency::latencyAndMode(const uint32_t detId, const uint16_t apv) const
 {
   const latConstIt & pos = position(detId, apv);
   if( pos == latencies_.end() ) {
-    return make_pair(255, 0);
+    return std::make_pair(255, 0);
   }
-  return make_pair(pos->latency, pos->mode);
+  return std::make_pair(pos->latency, pos->mode);
 }
 
 uint16_t SiStripLatency::singleLatency() const
@@ -144,7 +142,7 @@ uint16_t SiStripLatency::singleMode() const
   return 0;
 }
 
-void SiStripLatency::allModes(vector<uint16_t> & allModesVector) const
+void SiStripLatency::allModes(std::vector<uint16_t> & allModesVector) const
 {
   for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
     allModesVector.push_back(it->mode);
@@ -154,7 +152,7 @@ void SiStripLatency::allModes(vector<uint16_t> & allModesVector) const
   allModesVector.erase( unique( allModesVector.begin(), allModesVector.end() ), allModesVector.end() );
 }
 
-void SiStripLatency::allLatencies(vector<uint16_t> & allLatenciesVector) const
+void SiStripLatency::allLatencies(std::vector<uint16_t> & allLatenciesVector) const
 {
 //   if( !(latencies_.empty()) ) {
 //     allLatenciesVector.push_back(latencies_[0].latency);
@@ -162,11 +160,11 @@ void SiStripLatency::allLatencies(vector<uint16_t> & allLatenciesVector) const
 //       for( latConstIt it = latencies_.begin()+1; it != latencies_.end(); ++it ) {
 //         if( it->latency != (it-1)->latency) {
 //           allLatenciesVector.push_back(it->latency);
-//           cout << "Saved latency = " << short(it->latency) << endl;
+//           std::cout << "Saved latency = " << short(it->latency) << std::endl;
 //         }
 //       }
 //       // The Latencies are sorted by DetIdAndApv, we need to sort the latencies again
-//       sort( allLatenciesVector.begin(), allLatenciesVector.end() );
+//       std::sort( allLatenciesVector.begin(), allLatenciesVector.end() );
 //       allLatenciesVector.erase( unique( allLatenciesVector.begin(), allLatenciesVector.end() ) );
 //     }
 //   }
@@ -187,9 +185,9 @@ void SiStripLatency::allLatencies(vector<uint16_t> & allLatenciesVector) const
 //   return make_pair(-1, 0);
 // }
 
-vector<SiStripLatency::Latency> SiStripLatency::allUniqueLatencyAndModes()
+std::vector<SiStripLatency::Latency> SiStripLatency::allUniqueLatencyAndModes()
 {
-  vector<Latency> latencyCopy(latencies_);
+  std::vector<Latency> latencyCopy(latencies_);
   sort( latencyCopy.begin(), latencyCopy.end(), OrderByLatencyAndMode() );
   latencyCopy.erase( unique( latencyCopy.begin(), latencyCopy.end(), SiStripLatency::EqualByLatencyAndMode() ), latencyCopy.end() );
   return latencyCopy;
@@ -200,42 +198,42 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
   uint16_t lat = singleLatency();
   uint16_t mode = singleMode();
   if( lat != 255 ) {
-    ss << "All the Tracker has the same latency = " << lat << endl;
+    ss << "All the Tracker has the same latency = " << lat << std::endl;
   }
   else {
-    vector<uint16_t> allLatenciesVector;
+    std::vector<uint16_t> allLatenciesVector;
     allLatencies(allLatenciesVector);
     if( allLatenciesVector.size() > 1 ) {
-      ss << "There is more than one latency value in the Tracker" << endl;
+      ss << "There is more than one latency value in the Tracker" << std::endl;
     }
     else {
-      ss << "Latency value is " << lat << " that means invalid" << endl;
+      ss << "Latency value is " << lat << " that means invalid" << std::endl;
     }
   }
 
   if( mode != 0 ) {
-    ss << "All the Tracker has the same mode = " << mode << endl;
+    ss << "All the Tracker has the same mode = " << mode << std::endl;
   }
   else {
-    vector<uint16_t> allModesVector;
+    std::vector<uint16_t> allModesVector;
     allModes(allModesVector);
     if( allModesVector.size() > 1 ) {
-      ss << "There is more than one mode in the Tracker" << endl;
+      ss << "There is more than one mode in the Tracker" << std::endl;
     }
     else {
-      ss << "Mode value is " << mode << " that means invalid" << endl;
+      ss << "Mode value is " << mode << " that means invalid" << std::endl;
     }
   }
 
-  ss << "Total number of ranges = " << latencies_.size() << endl;
+  ss << "Total number of ranges = " << latencies_.size() << std::endl;
 }
 
 void SiStripLatency::printDebug(std::stringstream & ss) const
 {
-  ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << endl;
+  ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << std::endl;
   for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
     int detId = it->detIdAndApv >> 3;
     int apv = it->detIdAndApv & 7; // 7 is 0...0111
-    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(it->latency) << " and mode = " << int(it->mode) << endl;
+    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(it->latency) << " and mode = " << int(it->mode) << std::endl;
   }
 }

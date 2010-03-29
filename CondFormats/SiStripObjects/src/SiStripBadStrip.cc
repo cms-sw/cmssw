@@ -51,9 +51,9 @@ void SiStripBadStrip::printSummary(std::stringstream & ss) const {
     summaryBadModules.add(it->detid);
     summaryBadStrips.add(it->iend - it->ibegin);
   }
-  ss << "Summary of bad modules in detector:" << endl;
+  ss << "Summary of bad modules in detector:" << std::endl;
   summaryBadModules.print(ss, false);
-  ss << "Summary of bad strip in detectors:" << endl;
+  ss << "Summary of bad strip in detectors:" << std::endl;
   summaryBadStrips.print(ss, false);
 }
 

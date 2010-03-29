@@ -98,13 +98,13 @@ void SiStripDetVOff::printDebug(std::stringstream & ss) const
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
   constVoffIterator it = detIds.begin();
-  ss << "DetId    \t HV \t LV" << endl;
+  ss << "DetId    \t HV \t LV" << std::endl;
   for( ; it!=detIds.end(); ++it ) {
     ss << *it << "\t";
     if( IsModuleHVOff(*it)) ss << "OFF\t";
     else ss << "ON \t";
-    if( IsModuleLVOff(*it)) ss << "OFF" << endl;
-    else ss << "ON" << endl;
+    if( IsModuleLVOff(*it)) ss << "OFF" << std::endl;
+    else ss << "ON" << std::endl;
   }
 }
 
@@ -118,8 +118,8 @@ int SiStripDetVOff::getLVoffCounts() const
     if( IsModuleLVOff(*it)) summaryLV.add(*it);
   }
   int totalCount = 0;
-  map<int, int> counts = summaryLV.getCounts();
-  map<int, int>::const_iterator mapIt = counts.begin();
+  std::map<int, int> counts = summaryLV.getCounts();
+  std::map<int, int>::const_iterator mapIt = counts.begin();
   for( ; mapIt != counts.end(); ++mapIt ) {
     totalCount += mapIt->second;
   }
@@ -136,8 +136,8 @@ int SiStripDetVOff::getHVoffCounts() const
     if( IsModuleHVOff(*it)) summaryHV.add(*it);
   }
   int totalCount = 0;
-  map<int, int> counts = summaryHV.getCounts();
-  map<int, int>::const_iterator mapIt = counts.begin();
+  std::map<int, int> counts = summaryHV.getCounts();
+  std::map<int, int>::const_iterator mapIt = counts.begin();
   for( ; mapIt != counts.end(); ++mapIt ) {
     totalCount += mapIt->second;
   }
@@ -155,8 +155,8 @@ void SiStripDetVOff::printSummary(std::stringstream & ss) const
     if( IsModuleHVOff(*it)) summaryHV.add(*it);
     if( IsModuleLVOff(*it)) summaryLV.add(*it);
   }
-  ss << "Summary of detectors with HV off:" << endl;
+  ss << "Summary of detectors with HV off:" << std::endl;
   summaryHV.print(ss, false);
-  ss << "Summary of detectors with LV off:" << endl;
+  ss << "Summary of detectors with LV off:" << std::endl;
   summaryLV.print(ss, false);
 }

@@ -14,7 +14,6 @@
 #include <sstream>
 #include <string>
 
-using namespace std;
 using namespace sistrip;
 
 // only one constructor

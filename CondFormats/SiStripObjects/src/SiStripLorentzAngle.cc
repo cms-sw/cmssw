@@ -46,7 +46,7 @@ void SiStripLorentzAngle::printSummary(std::stringstream& ss) const
     float value = it->second;
     summary.add(detid, value);
   }
-  ss << "Summary of lorentz angles:" << endl;
+  ss << "Summary of lorentz angles:" << std::endl;
   summary.print(ss);
 
 }

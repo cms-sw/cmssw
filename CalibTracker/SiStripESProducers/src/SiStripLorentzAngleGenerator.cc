@@ -36,11 +36,11 @@ void SiStripLorentzAngleGenerator::setHallMobility(const double & meanMin, const
   else hallMobility_ = meanMin;
 }
 
-void SiStripLorentzAngleGenerator::setUniform(const vector<double> & estimatedValuesMin, const vector<double> & estimatedValuesMax, vector<bool> & uniform) {
+void SiStripLorentzAngleGenerator::setUniform(const std::vector<double> & estimatedValuesMin, const std::vector<double> & estimatedValuesMax, std::vector<bool> & uniform) {
   if( estimatedValuesMax.size() != 0 ) {
-    vector<double>::const_iterator min = estimatedValuesMin.begin();
-    vector<double>::const_iterator max = estimatedValuesMax.begin();
-    vector<bool>::iterator uniformIt = uniform.begin();
+    std::vector<double>::const_iterator min = estimatedValuesMin.begin();
+    std:: vector<double>::const_iterator max = estimatedValuesMax.begin();
+    std::vector<bool>::iterator uniformIt = uniform.begin();
     for( ; min != estimatedValuesMin.end(); ++min, ++max, ++uniformIt ) {
       if( *min != *max ) *uniformIt = true;
     }
@@ -53,22 +53,22 @@ void SiStripLorentzAngleGenerator::createObject()
 
   edm::FileInPath fp_                 = _pset.getParameter<edm::FileInPath>("file");
 
-  vector<double> TIB_EstimatedValuesMin(_pset.getParameter<vector<double> >("TIB_EstimatedValuesMin"));
-  vector<double> TIB_EstimatedValuesMax(_pset.getParameter<vector<double> >("TIB_EstimatedValuesMax"));
-  vector<double> TOB_EstimatedValuesMin(_pset.getParameter<vector<double> >("TOB_EstimatedValuesMin"));
-  vector<double> TOB_EstimatedValuesMax(_pset.getParameter<vector<double> >("TOB_EstimatedValuesMax"));
-  vector<double> TIB_PerCent_Errs(_pset.getParameter<vector<double> >("TIB_PerCent_Errs"));
-  vector<double> TOB_PerCent_Errs(_pset.getParameter<vector<double> >("TOB_PerCent_Errs"));
+  std::vector<double> TIB_EstimatedValuesMin(_pset.getParameter<std::vector<double> >("TIB_EstimatedValuesMin"));
+  std::vector<double> TIB_EstimatedValuesMax(_pset.getParameter<std::vector<double> >("TIB_EstimatedValuesMax"));
+  std::vector<double> TOB_EstimatedValuesMin(_pset.getParameter<std::vector<double> >("TOB_EstimatedValuesMin"));
+  std::vector<double> TOB_EstimatedValuesMax(_pset.getParameter<std::vector<double> >("TOB_EstimatedValuesMax"));
+  std::vector<double> TIB_PerCent_Errs(_pset.getParameter<std::vector<double> >("TIB_PerCent_Errs"));
+  std::vector<double> TOB_PerCent_Errs(_pset.getParameter<std::vector<double> >("TOB_PerCent_Errs"));
 
   // If max values are passed they must be equal in number to the min values.
   if( (TIB_EstimatedValuesMax.size() != 0 && (TIB_EstimatedValuesMin.size() != TIB_EstimatedValuesMax.size())) ||
       (TOB_EstimatedValuesMax.size() != 0 && (TOB_EstimatedValuesMin.size() != TOB_EstimatedValuesMax.size())) ) {
-    cout << "ERROR: size of min and max values is different" << endl;
-    cout << "TIB_EstimatedValuesMin.size() = " << TIB_EstimatedValuesMin.size() << ", TIB_EstimatedValuesMax.size() " << TIB_EstimatedValuesMax.size() << endl;
-    cout << "TOB_EstimatedValuesMin.size() = " << TOB_EstimatedValuesMin.size() << ", TOB_EstimatedValuesMax.size() " << TOB_EstimatedValuesMax.size() << endl;
+    std::cout << "ERROR: size of min and max values is different" << std::endl;
+    std::cout << "TIB_EstimatedValuesMin.size() = " << TIB_EstimatedValuesMin.size() << ", TIB_EstimatedValuesMax.size() " << TIB_EstimatedValuesMax.size() << std::endl;
+    std::cout << "TOB_EstimatedValuesMin.size() = " << TOB_EstimatedValuesMin.size() << ", TOB_EstimatedValuesMax.size() " << TOB_EstimatedValuesMax.size() << std::endl;
   }
-  vector<bool> uniformTIB(TIB_EstimatedValuesMin.size(), false);
-  vector<bool> uniformTOB(TOB_EstimatedValuesMin.size(), false);
+  std::vector<bool> uniformTIB(TIB_EstimatedValuesMin.size(), false);
+  std::vector<bool> uniformTOB(TOB_EstimatedValuesMin.size(), false);
 
   setUniform(TIB_EstimatedValuesMin, TIB_EstimatedValuesMax, uniformTIB);
   setUniform(TOB_EstimatedValuesMin, TOB_EstimatedValuesMax, uniformTOB);
@@ -76,18 +76,18 @@ void SiStripLorentzAngleGenerator::createObject()
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
   // Compute standard deviations
-  vector<double> StdDevs_TIB(TIB_EstimatedValuesMin.size(), 0);
-  vector<double> StdDevs_TOB(TOB_EstimatedValuesMin.size(), 0);
+  std::vector<double> StdDevs_TIB(TIB_EstimatedValuesMin.size(), 0);
+  std::vector<double> StdDevs_TOB(TOB_EstimatedValuesMin.size(), 0);
   transform(TIB_EstimatedValuesMin.begin(), TIB_EstimatedValuesMin.end(), TIB_PerCent_Errs.begin(), StdDevs_TIB.begin(), computeSigma);
   transform(TOB_EstimatedValuesMin.begin(), TOB_EstimatedValuesMin.end(), TOB_PerCent_Errs.begin(), StdDevs_TOB.begin(), computeSigma);
 
   // Compute mean values to be used with TID and TEC
-  double TIBmeanValueMin = accumulate( TIB_EstimatedValuesMin.begin(), TIB_EstimatedValuesMin.end(), 0.)/double(TIB_EstimatedValuesMin.size());
-  double TIBmeanValueMax = accumulate( TIB_EstimatedValuesMax.begin(), TIB_EstimatedValuesMax.end(), 0.)/double(TIB_EstimatedValuesMax.size());
-  double TOBmeanValueMin = accumulate( TOB_EstimatedValuesMin.begin(), TOB_EstimatedValuesMin.end(), 0.)/double(TOB_EstimatedValuesMin.size());
-  double TOBmeanValueMax = accumulate( TOB_EstimatedValuesMax.begin(), TOB_EstimatedValuesMax.end(), 0.)/double(TOB_EstimatedValuesMax.size());
-  double TIBmeanPerCentError = accumulate( TIB_PerCent_Errs.begin(), TIB_PerCent_Errs.end(), 0.)/double(TIB_PerCent_Errs.size());
-  double TOBmeanPerCentError = accumulate( TOB_PerCent_Errs.begin(), TOB_PerCent_Errs.end(), 0.)/double(TOB_PerCent_Errs.size());
+  double TIBmeanValueMin = std::accumulate( TIB_EstimatedValuesMin.begin(), TIB_EstimatedValuesMin.end(), 0.)/double(TIB_EstimatedValuesMin.size());
+  double TIBmeanValueMax = std::accumulate( TIB_EstimatedValuesMax.begin(), TIB_EstimatedValuesMax.end(), 0.)/double(TIB_EstimatedValuesMax.size());
+  double TOBmeanValueMin = std::accumulate( TOB_EstimatedValuesMin.begin(), TOB_EstimatedValuesMin.end(), 0.)/double(TOB_EstimatedValuesMin.size());
+  double TOBmeanValueMax = std::accumulate( TOB_EstimatedValuesMax.begin(), TOB_EstimatedValuesMax.end(), 0.)/double(TOB_EstimatedValuesMax.size());
+  double TIBmeanPerCentError = std::accumulate( TIB_PerCent_Errs.begin(), TIB_PerCent_Errs.end(), 0.)/double(TIB_PerCent_Errs.size());
+  double TOBmeanPerCentError = std::accumulate( TOB_PerCent_Errs.begin(), TOB_PerCent_Errs.end(), 0.)/double(TOB_PerCent_Errs.size());
   double TIBmeanStdDev = (TIBmeanPerCentError/100)*TIBmeanValueMin;
   double TOBmeanStdDev = (TOBmeanPerCentError/100)*TOBmeanValueMin;
 

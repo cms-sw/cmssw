@@ -6,8 +6,6 @@
 #include <stdint.h>
 #include <sstream>
 
-using namespace std;
-
 /**
  * Holds the latency and the mode of the run. <br>
  * The latency is stored per apv and the information is compressed by reducing
@@ -81,8 +79,8 @@ class SiStripLatency
     unsigned char latency;
     unsigned char mode;
   };
-  typedef vector<Latency>::iterator latIt;
-  typedef vector<Latency>::const_iterator latConstIt;
+  typedef std::vector<Latency>::iterator latIt;
+  typedef std::vector<Latency>::const_iterator latConstIt;
 
   /** Saves the detIdAndApv and latency values in the vector of Latency objects.
    * At the end of the filling phase, the compress method should be called to
@@ -93,15 +91,15 @@ class SiStripLatency
   bool put( const uint32_t detId, const uint16_t apv, const uint16_t latency, const uint16_t mode );
   uint16_t latency(const uint32_t detId, const uint16_t apv) const;
   uint16_t mode(const uint32_t detId, const uint16_t apv) const;
-  pair<uint16_t, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
-  inline vector<Latency> allLatencyAndModes() const { return latencies_; }
+  std::pair<uint16_t, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
+  inline std::vector<Latency> allLatencyAndModes() const { return latencies_; }
 
   /// Fills the passed vector with all the possible latencies in the Tracker
-  void allLatencies(vector<uint16_t> & allLatenciesVector) const;
+  void allLatencies(std::vector<uint16_t> & allLatenciesVector) const;
   /// Fills the passed vector with all the possible modes in the Tracker
-  void allModes(vector<uint16_t> & allModesVector) const;
+  void allModes(std::vector<uint16_t> & allModesVector) const;
 
-  vector<Latency> allUniqueLatencyAndModes();
+  std::vector<Latency> allUniqueLatencyAndModes();
   //   {
   //     vector<Latency> latencyCopy(latencies_);
   //     sort( latencyCopy.begin(), latencyCopy.end(), OrderByLatencyAndMode() );
@@ -162,14 +160,14 @@ class SiStripLatency
   const latConstIt position(const uint32_t detId, const uint16_t apv) const
   {
     if( latencies_.empty() ) {
-      // cout << "SiStripLatency: Error, range is empty" << endl;
+      // std::cout << "SiStripLatency: Error, range is empty" << std::endl;
       return latencies_.end();
     }
     uint32_t detIdAndApv = (detId << 3) | apv;
     latConstIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
     return pos;
   }
-  vector<Latency> latencies_;
+  std::vector<Latency> latencies_;
 };
 
 #endif

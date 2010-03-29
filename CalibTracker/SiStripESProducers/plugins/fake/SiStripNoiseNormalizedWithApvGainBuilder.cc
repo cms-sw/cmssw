@@ -11,8 +11,6 @@
 #include <vector>
 #include <algorithm>
 
-using namespace std;
-
 SiStripNoiseNormalizedWithApvGainBuilder::SiStripNoiseNormalizedWithApvGainBuilder( const edm::ParameterSet& iConfig ):
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)),
@@ -28,7 +26,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   // Read the gain from the given tag
   edm::ESHandle<SiStripApvGain> inputApvGain;
   iSetup.get<SiStripApvGainRcd>().get( inputApvGain );
-  vector<uint32_t> inputDetIds;
+  std::vector<uint32_t> inputDetIds;
   inputApvGain->getDetIds(inputDetIds);
 
   // Prepare the new object
@@ -41,16 +39,16 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   stripLengthMode_ = pset_.getParameter<bool>("StripLengthMode");
   
   //parameters for random noise generation. not used if Strip length mode is chosen
-  map<int, vector<double> > meanNoise;
+  std::map<int, std::vector<double> > meanNoise;
   fillParameters(meanNoise, "MeanNoise");
-  map<int, vector<double> > sigmaNoise;
+  std::map<int, std::vector<double> > sigmaNoise;
   fillParameters(sigmaNoise, "SigmaNoise");
   minimumPosValue_ = pset_.getParameter<double>("MinPositiveNoise");
 
   //parameters for strip length proportional noise generation. not used if random mode is chosen
-  map<int, vector<double> > noiseStripLengthLinearSlope;
+  std::map<int, std::vector<double> > noiseStripLengthLinearSlope;
   fillParameters(noiseStripLengthLinearSlope, "NoiseStripLengthSlope");
-  map<int, vector<double> > noiseStripLengthLinearQuote;
+  std::map<int, std::vector<double> > noiseStripLengthLinearQuote;
   fillParameters(noiseStripLengthLinearQuote, "NoiseStripLengthQuote");
   electronsPerADC_ = pset_.getParameter<double>("electronPerAdc");        
 
@@ -67,7 +65,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
     SiStripNoises::InputVector theSiStripVector;
     float noise = 0.;
     uint32_t detId = it->first;
-    pair<int, int> sl = subDetAndLayer(detId);
+    std::pair<int, int> sl = subDetAndLayer(detId);
     unsigned short nApvs = it->second.nApvs;
 
     if(stripLengthMode_) {
@@ -125,7 +123,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   }
 }
 
-pair<int, int> SiStripNoiseNormalizedWithApvGainBuilder::subDetAndLayer( const uint32_t detId ) const
+std::pair<int, int> SiStripNoiseNormalizedWithApvGainBuilder::subDetAndLayer( const uint32_t detId ) const
 {
   int layerId = 0;
 
@@ -148,32 +146,32 @@ pair<int, int> SiStripNoiseNormalizedWithApvGainBuilder::subDetAndLayer( const u
     TECDetId theTECDetId = TECDetId(detId); 
     layerId = theTECDetId.ring() - 1;
   }
-  return make_pair(subId, layerId);
+  return std::make_pair(subId, layerId);
 }
 
-void SiStripNoiseNormalizedWithApvGainBuilder::fillParameters(map<int, vector<double> > & mapToFill, const string & parameterName) const
+void SiStripNoiseNormalizedWithApvGainBuilder::fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const
 {
   int layersTIB = 4;
   int ringsTID = 3;
   int layersTOB = 6;
   int ringsTEC = 7;
 
-  fillSubDetParameter( mapToFill, pset_.getParameter<vector<double> >(parameterName+"TIB"), int(StripSubdetector::TIB), layersTIB );
-  fillSubDetParameter( mapToFill, pset_.getParameter<vector<double> >(parameterName+"TID"), int(StripSubdetector::TID), ringsTID );
-  fillSubDetParameter( mapToFill, pset_.getParameter<vector<double> >(parameterName+"TOB"), int(StripSubdetector::TOB), layersTOB );
-  fillSubDetParameter( mapToFill, pset_.getParameter<vector<double> >(parameterName+"TEC"), int(StripSubdetector::TEC), ringsTEC );
+  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TIB"), int(StripSubdetector::TIB), layersTIB );
+  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TID"), int(StripSubdetector::TID), ringsTID );
+  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TOB"), int(StripSubdetector::TOB), layersTOB );
+  fillSubDetParameter( mapToFill, pset_.getParameter<std::vector<double> >(parameterName+"TEC"), int(StripSubdetector::TEC), ringsTEC );
 }
 
-void SiStripNoiseNormalizedWithApvGainBuilder::fillSubDetParameter(map<int, vector<double> > & mapToFill, const vector<double> & v, const int subDet, const unsigned short layers) const
+void SiStripNoiseNormalizedWithApvGainBuilder::fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const
 {
   if( v.size() == layers ) {
-    mapToFill.insert(make_pair( subDet, v ));
+    mapToFill.insert(std::make_pair( subDet, v ));
   }
   else if( v.size() == 1 ) {
-    vector<double> parV(layers, v[0]);
-    mapToFill.insert(make_pair( subDet, parV ));
+    std::vector<double> parV(layers, v[0]);
+    mapToFill.insert(std::make_pair( subDet, parV ));
   }
   else {
-    throw cms::Exception("Configuration") << "ERROR: number of parameters for subDet " << subDet << " are " << v.size() << ". They must be either 1 or " << layers << endl;
+    throw cms::Exception("Configuration") << "ERROR: number of parameters for subDet " << subDet << " are " << v.size() << ". They must be either 1 or " << layers << std::endl;
   }
 }

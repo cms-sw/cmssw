@@ -13,8 +13,6 @@
 #include "TFile.h"
 #include "TCanvas.h"
 
-using namespace std;
-
 SyncDCSO2O::SyncDCSO2O(const edm::ParameterSet& iConfig)
 {
   // get all digi collections
@@ -23,10 +21,10 @@ SyncDCSO2O::SyncDCSO2O(const edm::ParameterSet& iConfig)
 
 SyncDCSO2O::~SyncDCSO2O()
 {
-  cout << "Analyzed events with digis = " << timeInfo_.size() << endl;
+  std::cout << "Analyzed events with digis = " << timeInfo_.size() << std::endl;
 
   // First sort the timeInfo vector by time
-  sort(timeInfo_.begin(), timeInfo_.end(), SortByTime());
+  std::sort(timeInfo_.begin(), timeInfo_.end(), SortByTime());
 
   TFile * outputFile = new TFile("digisAndHVvsTime.root", "RECREATE");
   outputFile->cd();
@@ -35,7 +33,7 @@ SyncDCSO2O::~SyncDCSO2O()
   TH1F * digisWithMasking = new TH1F("digisWithMasking", "digisWithMasking", timeInfo_.size(), 0, timeInfo_.size());
   TH1F * HVoff            = new TH1F("HVoff",            "HVoff",            timeInfo_.size(), 0, timeInfo_.size());
   TH1F * time             = new TH1F("time",             "time",             timeInfo_.size(), 0, timeInfo_.size());
-  vector<TimeInfo>::const_iterator it = timeInfo_.begin();
+  std::vector<TimeInfo>::const_iterator it = timeInfo_.begin();
   // Float_t * timeArray = new Float_t[timeInfo_.size()];
   unsigned int i=1;
   for( ; it != timeInfo_.end(); ++it, ++i ) {
@@ -90,28 +88,28 @@ void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   ESHandle<SiStripDetVOff> detVOff;
   iSetup.get<SiStripDetVOffRcd>().get( detVOff );
 
-  vector<uint32_t> detIds;
+  std::vector<uint32_t> detIds;
   detVOff->getDetIds(detIds);
-  cout << "Number of DetIds with HV off = " << detIds.size() << endl;
+  std::cout << "Number of DetIds with HV off = " << detIds.size() << std::endl;
 
   // stringstream ss;
   // detVOff->printSummary(ss);
-  // cout << ss.str() << endl;
+  // std::cout << ss.str() << std::endl;
 
   // double seconds = (iEvent.time().value() >> 32);
-  cout << "event time = "  << iEvent.time().value() << endl;
-  // cout << "event time in seconds = "  << seconds << endl;
+  std::cout << "event time = "  << iEvent.time().value() << std::endl;
+  // std::cout << "event time in seconds = "  << seconds << std::endl;
 
   coral::TimeStamp coralTime(cond::time::to_boost(iEvent.time().value()));
 
-  cout << "year = " << coralTime.year() << ", month = " << coralTime.month() << ", day = " << coralTime.day();
+  std::cout << "year = " << coralTime.year() << ", month = " << coralTime.month() << ", day = " << coralTime.day();
   // N.B. we add 1 hour to the coralTime because it is the conversion from posix_time which is non-adjusted.
   // The shift of +1 gives the CERN time zone.
-  cout << ", hour = " << coralTime.hour()+1 << ", minute = " << coralTime.minute() << ", second = " << coralTime.second();
-  cout << ", nanosecond = " << coralTime.nanosecond() << endl;
+  std::cout << ", hour = " << coralTime.hour()+1 << ", minute = " << coralTime.minute() << ", second = " << coralTime.second();
+  std::cout << ", nanosecond = " << coralTime.nanosecond() << std::endl;
 
   getDigis(iEvent);
-  if( !(digiDetsetVector_[0].isValid()) ) cout << "NOT VALID DIGI COLLECTION 0" << endl;
+  if( !(digiDetsetVector_[0].isValid()) ) std::cout << "NOT VALID DIGI COLLECTION 0" << std::endl;
   else {
     edm::DetSetVector<SiStripDigi>::const_iterator it = digiDetsetVector_[0]->begin();
     unsigned int totDigis = 0;
@@ -123,7 +121,7 @@ void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         totDigisWithMasking += it->size();
       }
     }
-    cout << "digis = " << totDigis << endl;
+    std::cout << "digis = " << totDigis << std::endl;
     timeInfo_.push_back( TimeInfo(iEvent.time().value(), totDigis, totDigisWithMasking, detVOff->getHVoffCounts()) );
   }
 }
@@ -137,7 +135,7 @@ void SyncDCSO2O::getDigis(const edm::Event& iEvent)
   for(; itDigiProducersList != digiProducersList_.end(); ++itDigiProducersList ) {
     std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
     std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
-    // cout << "Reading digi for " << digiProducer << " with label: " << digiLabel << endl;
+    // std::cout << "Reading digi for " << digiProducer << " with label: " << digiLabel << std::endl;
     iEvent.getByLabel(digiProducer,digiLabel,digiDetsetVector_[icoll]);
     icoll++;
   }

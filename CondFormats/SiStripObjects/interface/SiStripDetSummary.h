@@ -13,8 +13,6 @@
 #include <iomanip>
 #include <iostream>
 
-using namespace std;
-
 /**
  * @class SiStripDetSummary
  * @author M. De Mattia
@@ -65,17 +63,17 @@ public:
    * Method used to write the output. By default mean == true and it writes the mean value. If mean == false
    * it will write the count.
    */
-  void print(stringstream& ss, const bool mean = true) const;
+  void print(std::stringstream& ss, const bool mean = true) const;
 
-  map<int, int> getCounts()
+  std::map<int, int> getCounts()
   {
     return countMap_;
   }
 protected:
   // Maps to store the value and the counts
-  map<int, double> meanMap_;
-  map<int, double> rmsMap_;
-  map<int, int> countMap_;
+  std::map<int, double> meanMap_;
+  std::map<int, double> rmsMap_;
+  std::map<int, int> countMap_;
   bool computeMean_;
 };
 

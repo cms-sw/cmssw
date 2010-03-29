@@ -8,8 +8,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
-
 /**
  * Author M. De Mattia - 16/11/2009
  *
@@ -27,16 +25,16 @@ class SiStripConfObject
  public:
   SiStripConfObject() {}
 
-  bool put( const string & name, const int & value );
-  int get( const string & name );
+  bool put( const std::string & name, const int & value );
+  int get( const std::string & name );
 
   /// Prints the full list of parameters
   void printSummary(std::stringstream & ss) const;
   /// Prints the full list of parameters
   void printDebug(std::stringstream & ss) const;
 
-  vector<string> names;
-  vector<int> values;
+  std::vector<std::string> names;
+  std::vector<int> values;
 };
 
 #endif

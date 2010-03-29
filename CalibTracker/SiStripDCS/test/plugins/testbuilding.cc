@@ -12,7 +12,6 @@
 #include <sstream>
 #include <string>
 
-using namespace std;
 using namespace sistrip;
 
 testbuilding::testbuilding(const edm::ParameterSet&) {}

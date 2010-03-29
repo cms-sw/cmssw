@@ -7,8 +7,6 @@
 #include <iostream>
 #include <algorithm>
 
-using namespace std;
-
 FilterTrackerOn::FilterTrackerOn(const edm::ParameterSet& iConfig) :
   minModulesWithHVoff_(iConfig.getParameter<int>("MinModulesWithHVoff"))
 {
@@ -25,9 +23,9 @@ bool FilterTrackerOn::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ESHandle<SiStripDetVOff> detVOff;
   iSetup.get<SiStripDetVOffRcd>().get( detVOff );
 
-  // cout << "detVOff->getHVoffCounts() = " << detVOff->getHVoffCounts() << " < " << minModulesWithHVoff_;
+  // std::cout << "detVOff->getHVoffCounts() = " << detVOff->getHVoffCounts() << " < " << minModulesWithHVoff_;
   if( detVOff->getHVoffCounts() > minModulesWithHVoff_ ) {
-    // cout << " skipping event" << endl;
+    // std::cout << " skipping event" << std::endl;
     return false;
   }
   // cout << " keeping event" << endl;

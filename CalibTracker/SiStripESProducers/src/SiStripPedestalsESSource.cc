@@ -5,7 +5,6 @@
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include <iostream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -17,7 +16,7 @@ SiStripPedestalsESSource::SiStripPedestalsESSource( const edm::ParameterSet& pse
 
 // -----------------------------------------------------------------------------
 //
-auto_ptr<SiStripPedestals> SiStripPedestalsESSource::produce( const SiStripPedestalsRcd& ) { 
+std::auto_ptr<SiStripPedestals> SiStripPedestalsESSource::produce( const SiStripPedestalsRcd& ) { 
   
   SiStripPedestals* peds = makePedestals();
   
@@ -27,7 +26,7 @@ auto_ptr<SiStripPedestals> SiStripPedestalsESSource::produce( const SiStripPedes
       << " Null pointer to SiStripPedestals object!";
   }
   
-  auto_ptr<SiStripPedestals> ptr(peds);
+  std::auto_ptr<SiStripPedestals> ptr(peds);
   return ptr;
 
 }

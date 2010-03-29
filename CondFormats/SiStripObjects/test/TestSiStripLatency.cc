@@ -4,28 +4,26 @@
 #include <iostream>
 #include <iterator>
 
-using namespace std;
-
 struct DetIdAndApvs
 {
   uint32_t detId;
-  vector<uint16_t> apvs;
+  std::vector<uint16_t> apvs;
 };
 
-void test( const vector<DetIdAndApvs> & detIdAndApvs,
-           const vector<int> & latencyIndexes, vector<uint16_t> & latencies,
-           const vector<int> & modeIndexes, vector<uint16_t> & modes,
+void test( const std::vector<DetIdAndApvs> & detIdAndApvs,
+           const std::vector<int> & latencyIndexes, std::vector<uint16_t> & latencies,
+           const std::vector<int> & modeIndexes, std::vector<uint16_t> & modes,
            SiStripLatency & latency )
 {
   int i = 0;
   int flip = 0;
   int modeFlip = 0;
-  vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
+  std::vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
   for( ; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv ) {
-    vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
+    std::vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
     for( ; apv != detIdAndApv->apvs.end(); ++apv, ++i ) {
 
-      // cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << compactValue << endl;
+      // std::cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << compactValue << std::endl;
 
       if( find(latencyIndexes.begin(), latencyIndexes.end(), i) != latencyIndexes.end() ){
         if( flip == 0 ) {
@@ -47,82 +45,82 @@ void test( const vector<DetIdAndApvs> & detIdAndApvs,
       }
 
 
-      // cout << "For i = " << i << " flip = " << flip << endl;
+      // std::cout << "For i = " << i << " flip = " << flip << std::endl;
       latency.put(detIdAndApv->detId, *apv, 14+flip, 37+modeFlip);
 
-//       cout << "latency stored is = " << latency.latency(detIdAndApv->detId, *apv) << endl;
+//       std::cout << "latency stored is = " << latency.latency(detIdAndApv->detId, *apv) << std::endl;
       latencies.push_back(latency.latency(detIdAndApv->detId, *apv));
       modes.push_back(latency.mode(detIdAndApv->detId, *apv));
-//       cout << endl;
+//       std::cout << std::endl;
     }
   }
   // Finished filling, now compress the ranges
-  vector<SiStripLatency::Latency> latenciesBeforeCompression = latency.allLatencyAndModes();
-  cout << "Ranges before compression = " << latenciesBeforeCompression.size() << endl;
+  std::vector<SiStripLatency::Latency> latenciesBeforeCompression = latency.allLatencyAndModes();
+  std::cout << "Ranges before compression = " << latenciesBeforeCompression.size() << std::endl;
   latency.compress();
-  vector<SiStripLatency::Latency> latenciesAfterCompression = latency.allLatencyAndModes();
-  cout << "Ranges after compression = " << latenciesAfterCompression.size() << endl;
+  std::vector<SiStripLatency::Latency> latenciesAfterCompression = latency.allLatencyAndModes();
+  std::cout << "Ranges after compression = " << latenciesAfterCompression.size() << std::endl;
 }
 
-void check( const vector<uint16_t> & latencies, const vector<uint16_t> & modes, const vector<DetIdAndApvs> & detIdAndApvs, SiStripLatency & latency )
+void check( const std::vector<uint16_t> & latencies, const std::vector<uint16_t> & modes, const std::vector<DetIdAndApvs> & detIdAndApvs, SiStripLatency & latency )
 {
   if( latencies.size() != modes.size() ) {
-    cout << "Error: different size for latencies = " << latencies.size() << " and modes = " << modes.size() << endl;
+    std::cout << "Error: different size for latencies = " << latencies.size() << " and modes = " << modes.size() << std::endl;
     exit(1);
   }
-  vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
-  vector<uint16_t>::const_iterator it = latencies.begin();
-  vector<uint16_t>::const_iterator modeIt = modes.begin();
+  std::vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
+  std::vector<uint16_t>::const_iterator it = latencies.begin();
+  std::vector<uint16_t>::const_iterator modeIt = modes.begin();
   detIdAndApv = detIdAndApvs.begin();
   int latencyErrorCount = 0;
   int modeErrorCount = 0;
   for( ; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv ) {
-    vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
+    std::vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
     for( ; apv != detIdAndApv->apvs.end(); ++apv, ++it, ++modeIt ) {
       uint32_t detId = detIdAndApv->detId;
       uint32_t detIdAndApvValue = (detId<<2)|(*apv);
-      cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << detIdAndApvValue << endl;
-      cout << "latency passed = " << *it << ", latency saved = " << latency.latency(detIdAndApv->detId, *apv) << endl;
-      cout << "mode passed = " << *modeIt << ", mode saved = " << latency.mode(detIdAndApv->detId, *apv) << endl;
+      std::cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << detIdAndApvValue << std::endl;
+      std::cout << "latency passed = " << *it << ", latency saved = " << latency.latency(detIdAndApv->detId, *apv) << std::endl;
+      std::cout << "mode passed = " << *modeIt << ", mode saved = " << latency.mode(detIdAndApv->detId, *apv) << std::endl;
       if( *it != latency.latency(detIdAndApv->detId, *apv) ) {
-        cout << "ERROR: the latency values are different" << endl;
+        std::cout << "ERROR: the latency values are different" << std::endl;
         ++latencyErrorCount;
       }
       if( *modeIt != latency.mode(detIdAndApv->detId, *apv) ) {
-        cout << "ERROR: the mode values are different" << endl;
+        std::cout << "ERROR: the mode values are different" << std::endl;
         ++modeErrorCount;
       }
     }
   }
-  cout << endl;
-  cout << "Single latency value = " << latency.singleLatency() << endl;
-  cout << "Single mode value = " << latency.singleMode() << endl;
+  std::cout << std::endl;
+  std::cout << "Single latency value = " << latency.singleLatency() << std::endl;
+  std::cout << "Single mode value = " << latency.singleMode() << std::endl;
 
-  ostream_iterator<uint16_t> output( cout, ", " );
+  std::ostream_iterator<uint16_t> output( std::cout, ", " );
   // Print all latencies
-  vector<uint16_t> allLatenciesVector;
+  std::vector<uint16_t> allLatenciesVector;
   latency.allLatencies(allLatenciesVector);
-  cout << "All latencies in the Tracker = " << allLatenciesVector.size() << ", and are:" << endl;
+  std::cout << "All latencies in the Tracker = " << allLatenciesVector.size() << ", and are:" << std::endl;
   copy( allLatenciesVector.begin(), allLatenciesVector.end(), output );
-  cout << endl;
+  std::cout << std::endl;
   // Print all modes
-  vector<uint16_t> allModesVector;
+  std::vector<uint16_t> allModesVector;
   latency.allModes(allModesVector);
-  cout << "All modes in the Tracker = " << allModesVector.size() << ", and are:" << endl;
+  std::cout << "All modes in the Tracker = " << allModesVector.size() << ", and are:" << std::endl;
   copy( allModesVector.begin(), allModesVector.end(), output );
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << endl;
-  cout << "Latency errors = " << latencyErrorCount << endl;
-  cout << "Mode errors = " << modeErrorCount << endl;
-  cout << endl;
-  cout << "############################" << endl;
-  cout << endl;
+  std::cout << std::endl;
+  std::cout << "Latency errors = " << latencyErrorCount << std::endl;
+  std::cout << "Mode errors = " << modeErrorCount << std::endl;
+  std::cout << std::endl;
+  std::cout << "############################" << std::endl;
+  std::cout << std::endl;
 }
 
 int main()
 {
-  vector<DetIdAndApvs> detIdAndApvs;
+  std::vector<DetIdAndApvs> detIdAndApvs;
   DetIdAndApvs element1;
   element1.detId = 100000;
   element1.apvs.push_back(0);
@@ -167,27 +165,27 @@ int main()
   element5.apvs.push_back(5);
   detIdAndApvs.push_back(element5);
 
-  cout << "---------------------------------" << endl;
-  cout << "Testing the SiStripLatency object" << endl;
-  cout << "---------------------------------" << endl << endl;
+  std::cout << "---------------------------------" << std::endl;
+  std::cout << "Testing the SiStripLatency object" << std::endl;
+  std::cout << "---------------------------------" << std::endl << std::endl;
 
-  cout << "Testing the empty case" << endl;
-  cout << "----------------------" << endl;
+  std::cout << "Testing the empty case" << std::endl;
+  std::cout << "----------------------" << std::endl;
   // Testing with all the same values. Expected final size of internal ranges and latencies = 1
-  vector<int> latencyIndexes;
-  vector<uint16_t> latencies;
-  vector<int> modeIndexes;
-  vector<uint16_t> modes;
+  std::vector<int> latencyIndexes;
+  std::vector<uint16_t> latencies;
+  std::vector<int> modeIndexes;
+  std::vector<uint16_t> modes;
   SiStripLatency latency1;
   test(detIdAndApvs, latencyIndexes, latencies, modeIndexes, modes, latency1);
-  cout << endl;
-  cout << "Filling complete, starting check" << endl;
-  cout << endl;
+  std::cout << std::endl;
+  std::cout << "Filling complete, starting check" << std::endl;
+  std::cout << std::endl;
   check(latencies, modes, detIdAndApvs, latency1);
 
-  cout << endl;
-  cout << "Testing a case with several ranges" << endl;
-  cout << "----------------------------------" << endl;
+  std::cout << std::endl;
+  std::cout << "Testing a case with several ranges" << std::endl;
+  std::cout << "----------------------------------" << std::endl;
   SiStripLatency latency2;
   latencyIndexes.push_back(3);
   latencyIndexes.push_back(5);
@@ -197,32 +195,32 @@ int main()
   modeIndexes.push_back(4);
   modes.clear();
   test(detIdAndApvs, latencyIndexes, latencies, modeIndexes, modes, latency2);
-  cout << endl;
-  cout << "Filling complete, starting check" << endl;
-  cout << endl;
+  std::cout << std::endl;
+  std::cout << "Filling complete, starting check" << std::endl;
+  std::cout << std::endl;
   check(latencies, modes, detIdAndApvs, latency2);
 
   // Checking the method to retrieve all the unique (latencies,modes) pairs
   // Create a latency object with three combinations of latency and mode: (14, 37), (15, 37) and (15, 47)
-  cout << "Checking the method to retrieve all the unique combinations of latency and mode" << endl;
+  std::cout << "Checking the method to retrieve all the unique combinations of latency and mode" << std::endl;
   SiStripLatency latency3;
   latency3.put(1, 0, 14, 37);
   latency3.put(2, 0, 14, 37);
   latency3.put(3, 0, 15, 37);
   latency3.put(4, 0, 15, 47);
-  cout << "Stored three combinations of latency and mode: (14, 37), (15, 37) and (15, 47)" << endl;
+  std::cout << "Stored three combinations of latency and mode: (14, 37), (15, 37) and (15, 47)" << std::endl;
 
-  vector<SiStripLatency::Latency> uniqueLatenciesAndModes(latency3.allUniqueLatencyAndModes());
-  vector<SiStripLatency::Latency>::const_iterator it = uniqueLatenciesAndModes.begin();
-  cout << "Reading back what is returned by the allUniqueLatencyAndModes method" << endl;
+  std::vector<SiStripLatency::Latency> uniqueLatenciesAndModes(latency3.allUniqueLatencyAndModes());
+  std::vector<SiStripLatency::Latency>::const_iterator it = uniqueLatenciesAndModes.begin();
+  std::cout << "Reading back what is returned by the allUniqueLatencyAndModes method" << std::endl;
   for( ; it != uniqueLatenciesAndModes.end(); ++it ) {
-    cout << "latency = " << int(it->latency) << ", mode = " << int(it->mode) << endl;
+    std::cout << "latency = " << int(it->latency) << ", mode = " << int(it->mode) << std::endl;
   }
   if( uniqueLatenciesAndModes.size() == 3 ) {
-    cout << "Test passed" << endl;
+    std::cout << "Test passed" << std::endl;
   }
   else {
-    cout << "ERROR: test not passed" << endl;
+    std::cout << "ERROR: test not passed" << std::endl;
   }
 
   return 0;
