@@ -21,6 +21,7 @@ implements Runnable,DipPublicationErrorHandler
   public static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
   public static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
+  public static String sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults_TkStatus.txt";
   public static int[] timeoutLS = {5,10}; //LumiSections
 
   public final static boolean publishStatErrors = true;
@@ -72,8 +73,8 @@ implements Runnable,DipPublicationErrorHandler
 			      DipException e)
   {
     System.out.println("handleException: " + getDateTime());
-    System.out.println("Error handler for " + 
-		       publication.getTopicName() + 
+    System.out.println("Error handler for " +
+		       publication.getTopicName() +
 		       " called because " + e.getMessage());
     e.printStackTrace();
   }
@@ -99,7 +100,7 @@ implements Runnable,DipPublicationErrorHandler
     }
     catch ( DipException e )
     {
-      System.err.println("DipException: " + getDateTime());
+      System.err.println("DipException [start up]: " + getDateTime());
       keepRunning = false;
     }
 
@@ -117,7 +118,7 @@ implements Runnable,DipPublicationErrorHandler
 	}
 	else {
 	  FileReader fr = new FileReader(logFile);
-	  BufferedReader br = new BufferedReader(fr);		  
+	  BufferedReader br = new BufferedReader(fr);
 	  lastModTime = logFile.lastModified();
 	  if (lastFitTime == 0)
 	      lastFitTime = lastModTime;
@@ -141,6 +142,7 @@ implements Runnable,DipPublicationErrorHandler
 		  if (readRcd(br)) {
 		      trueRcd();
 		      alive.clear();
+		      alive.flip(6);
 		      alive.flip(7);
 		  }
 		  else fakeRcd();
@@ -164,7 +166,7 @@ implements Runnable,DipPublicationErrorHandler
 	else publishRcd(quality,"",true,true);
 
       } catch (IOException e) {
-	  System.err.println("IOException: " + getDateTime());
+	  System.err.println("IOException [Loop]: " + getDateTime());
 	  e.printStackTrace();
       };
     }
@@ -177,13 +179,13 @@ implements Runnable,DipPublicationErrorHandler
     }
     try { Thread.sleep(1000); }//every sec
     catch(InterruptedException e) {
-	System.err.println("InterruptedException: " + getDateTime());
+	System.err.println("InterruptedException [polling]: " + getDateTime());
 	e.printStackTrace();
 	keepRunning = false;
     }
     lsCount++;
     idleTime++;
-    if ((lsCount%(timeoutLS[0]*secPerLS) == 0) 
+    if ((lsCount%(timeoutLS[0]*secPerLS) == 0)
 	&& (lsCount%(timeoutLS[1]*secPerLS) != 0)) {//fist time out
 	if (!alive.get(1)) alive.flip(1);
 	if (!alive.get(2)) {
@@ -193,7 +195,9 @@ implements Runnable,DipPublicationErrorHandler
 	}
 	else {
 	    fakeRcd();
-	    publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+	    String warnMsg = "No new data for " + idleTime + "seconds: ";
+	    warnMsg += tkStatus();
+	    publishRcd("Bad",warnMsg,false,false);
 	}
     }
     else if (lsCount%(timeoutLS[1]*secPerLS) == 0) {//second time out
@@ -201,7 +205,50 @@ implements Runnable,DipPublicationErrorHandler
 	//if(!alive.get(7))
 	fakeRcd();
 	//else trueRcd();
-	publishRcd("Bad","No new data for " + idleTime + " seconds",false,false);
+	String warnMsg = "No new data for " + idleTime + "seconds: ";
+	warnMsg += tkStatus();
+	publishRcd("Bad",warnMsg,false,false);
+    }
+  }
+
+  String tkStatus()
+  {
+    File logFile = new File(sourceFile1);
+    if (!logFile.exists() || logFile.length() == 0) {
+	return "No CMS Tracker status available. No DAQ/DQM.";
+    }
+    else {
+      int nthLnInRcd = 0;
+      String record = new String();
+      String outstr = new String();
+      try
+	{
+	  FileReader fr = new FileReader(logFile);
+	  BufferedReader br = new BufferedReader(fr);
+	  while ((record = br.readLine()) != null) {
+	    //System.out.println(record);
+	    nthLnInRcd ++;
+	    String[] tmp;
+	    tmp = record.split("\\s");
+	    switch(nthLnInRcd) {
+	    case 7:
+		if (!tmp[1].contains("Yes"))
+		    outstr = "CMS Tracker OFF.";
+		else
+		    outstr = "CMS not taking data.";
+		break;
+	    default:
+		break;
+	    }
+	  }
+	  br.close();
+	  fr.close();
+	}
+	catch (Exception e) {
+	    System.err.println("Exception [tkStatus]: " + getDateTime());
+	    e.printStackTrace();
+	}
+      return outstr;
     }
   }
 
@@ -310,7 +357,7 @@ implements Runnable,DipPublicationErrorHandler
       file_.close();
     }
     catch (IOException e) {
-	System.err.println("IOException: " + getDateTime());
+	System.err.println("IOException [readRcd]: " + getDateTime());
 	e.printStackTrace();
     }
     return rcdQlty;
@@ -323,14 +370,14 @@ implements Runnable,DipPublicationErrorHandler
      Centroid[0] = x*-1*cm2um;
      Centroid[1] = y*cm2um;
      Centroid[2] = z*-1*cm2mm;
-	  
+
      Size[0] = width_x*cm2um;
      Size[1] = width_y*cm2um;
      Size[2] = sigma_z*cm2mm;
-	  
+
      Tilt[0] = dxdz*rad2urad;
      Tilt[1] = dydz*-1*rad2urad;
-	  
+
      messageCMS.insert("runnum",runnum);
      messageCMS.insert("startTime",startTime);
      messageCMS.insert("endTime",endTime);
@@ -359,7 +406,7 @@ implements Runnable,DipPublicationErrorHandler
      messageLHC.insert("Centroid",Centroid);
      messageLHC.insert("Tilt",Tilt);
    } catch (DipException e){
-       System.err.println("DipException: " + getDateTime());
+       System.err.println("DipException [trueRcd]: " + getDateTime());
        System.err.println("Failed to send data because " + e.getMessage());
        e.printStackTrace();
    }
@@ -384,7 +431,7 @@ implements Runnable,DipPublicationErrorHandler
      messageLHC.insert("Centroid",Centroid);
      messageLHC.insert("Tilt",Tilt);
    } catch (DipException e){
-       System.err.println("DipException: " + getDateTime());
+       System.err.println("DipException [fakeRcd]: " + getDateTime());
        System.err.println("Failed to send data because " + e.getMessage());
        e.printStackTrace();
    }
@@ -406,7 +453,7 @@ implements Runnable,DipPublicationErrorHandler
       if(pubCMS_) publicationCMS.send(messageCMS, zeit);
       publicationLHC.send(messageLHC, zeit);
      } catch (ParseException e) {
-	 System.err.println("ParseException: " + getDateTime());
+	 System.err.println("ParseException [publishRcd]: " + getDateTime());
 	 System.err.println("Publishing failed due to time parsing because " + e.getMessage());
 	 e.printStackTrace();
      }
@@ -420,7 +467,7 @@ implements Runnable,DipPublicationErrorHandler
 	  publicationLHC.setQualityBad(err_);
       }
    } catch (DipException e){
-       System.err.println("DipException: " + getDateTime());
+       System.err.println("DipException [publishRcd]: " + getDateTime());
        System.err.println("Failed to send data because " + e.getMessage());
        e.printStackTrace();
    }
@@ -449,6 +496,7 @@ implements Runnable,DipPublicationErrorHandler
     this.sourceFile = args[4];
     this.timeoutLS[0] = new Integer(args[5]);
     this.timeoutLS[1] = new Integer(args[6]);
+    this.sourceFile1 = args[7];
   }
 
   public static void main(String args[])
