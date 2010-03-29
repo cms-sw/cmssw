@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/03/24 22:42:14 $
- * $Revision: 1.31 $
+ * $Date: 2010/03/29 03:00:09 $
+ * $Revision: 1.32 $
  *
  */
 
@@ -488,24 +488,17 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
     if (LSgap_bs >=1) { // filling previous fits if LS gap ever exists
       for (int ig = 0; ig < LSgap_bs; ig++) {
-	hs["x0_lumi"]->ShiftFillLast( preBS.x0(), preBS.x0Error(), fitNLumi_ );
-	hs["y0_lumi"]->ShiftFillLast( preBS.y0(), preBS.y0Error(), fitNLumi_ );
-	hs["z0_lumi"]->ShiftFillLast( preBS.z0(), preBS.z0Error(), fitNLumi_ );
-	h_sigmaZ0_lumi->ShiftFillLast( preBS.sigmaZ(), preBS.sigmaZ0Error(), fitNLumi_ );
+	hs["x0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+	hs["y0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+	hs["z0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+	h_sigmaZ0_lumi->ShiftFillLast( 0., 0., fitNLumi_ );
       }
     }
     if (LSgap_pv >= 1) {
       for (int ig = 0; ig < LSgap_pv; ig++) {
-	if (pvResults->getTH1()->GetEntries() > 0 ) {
-	  hs["PVx_lumi"]->ShiftFillLast( pvResults->getBinContent(1,6), pvResults->getBinContent(1,3), fitPVNLumi_ );
-	  hs["PVy_lumi"]->ShiftFillLast( pvResults->getBinContent(1,5), pvResults->getBinContent(1,2), fitPVNLumi_ );
-	  hs["PVz_lumi"]->ShiftFillLast( pvResults->getBinContent(1,4), pvResults->getBinContent(1,1), fitPVNLumi_ );
-	}
-	else {
-	  hs["PVx_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
-	  hs["PVy_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
-	  hs["PVz_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
-	}
+	hs["PVx_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+	hs["PVy_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
+	hs["PVz_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
       }
     }
   }
