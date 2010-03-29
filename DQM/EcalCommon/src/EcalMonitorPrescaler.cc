@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.13 2010/03/27 20:07:59 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.14 2010/03/27 20:44:49 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.13 $
-  \date $Date: 2010/03/27 20:07:59 $
+  \version $Revision: 1.14 $
+  \date $Date: 2010/03/27 20:44:49 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -79,61 +79,59 @@ bool EcalMonitorPrescaler::filter(edm::Event &e, const edm::EventSetup &c) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-      EcalDCCHeaderBlock dcch = (*dcchItr);
-
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
         if ( laserPrescaleFactor_ ) { 
           if ( count_ % laserPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LED_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::LED_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
         if ( ledPrescaleFactor_ ) {
           if ( count_ % ledPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
         if ( pedestalPrescaleFactor_ ) { 
           if ( count_ % pedestalPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-           dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
         if ( testpulsePrescaleFactor_ ) { 
           if ( count_ % testpulsePrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN ) {
         if ( pedestaloffsetPrescaleFactor_ ) {
           if ( count_ % pedestaloffsetPrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ) {
         if ( cosmicPrescaleFactor_ ) {
           if ( count_ % cosmicPrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
         if ( physicsPrescaleFactor_ ) {
           if ( count_ % physicsPrescaleFactor_ == 0 ) status = true;
         }
       }
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcchItr->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
         if ( clusterPrescaleFactor_ ) {
           if ( count_ % clusterPrescaleFactor_ == 0 ) status = true;
         }
