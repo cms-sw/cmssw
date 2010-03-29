@@ -60,6 +60,8 @@ class QcdUeDQM : public edm::EDAnalyzer
                                                      const edm::EventSetup &iSetup);
 
   private:
+    bool isHltConfigSuccessful_; // to prevent processing in case of problems
+
     void                          book1D(std::vector<MonitorElement*> &mes, 
                                          const std::string &name, const std::string &title, 
                                          int nx, double x1, double x2, bool sumw2=1, bool sbox=1);

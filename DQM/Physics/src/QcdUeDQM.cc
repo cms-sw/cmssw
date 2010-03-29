@@ -92,6 +92,10 @@ QcdUeDQM::~QcdUeDQM()
 //--------------------------------------------------------------------------------------------------
 void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) 
 {
+
+  if( ! isHltConfigSuccessful_ ) return;
+
+
   // Analyze the given event.
 
    edm::Handle<reco::TrackCollection>tracks ;
@@ -140,8 +144,8 @@ void QcdUeDQM::beginJob()
 
   theDbe_ = Service<DQMStore>().operator->();
   if (!theDbe_)return;
-
-  theDbe_->setCurrentFolder("Physics/QcdUe");
+  
+  //  theDbe_->setCurrentFolder("Physics/QcdUe");
   
 }
 
@@ -155,6 +159,9 @@ void QcdUeDQM::beginLuminosityBlock(const LuminosityBlock &l,
 //--------------------------------------------------------------------------------------------------
 void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
 {
+
+  isHltConfigSuccessful_ = false; // init
+
   // Begin run, get or create needed structures.  TODO: can this be called several times in DQM???
 
   //--- htlConfig_
@@ -216,10 +223,10 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
     }
   }
  
- 
-
   // book monitoring histograms
   createHistos();
+  isHltConfigSuccessful_ = true;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,17 +311,17 @@ void QcdUeDQM::createHistos()
       h->SetStats(0);
   }
 
- if(1) {
- const int Nx = 5;
- const double x1 = 0;
- const double x2 = 5;
- book1D(hEvtSel_pTMax_,"hEvtSel_pTMax","Number of events at each stage of selection",Nx,x1,x2);
- book1D(hEvtSel_ChargedJet_,"hEvtSel_ChargedJet","Number of events at each stage of selection",Nx,x1,x2);   
- book1D(hEvtSel_CaloJet_,"hEvtSel_CaloJet","Number of events at each stage of selection",Nx,x1,x2);
- setLabel1D(hEvtSel_pTMax_);
- setLabel1D(hEvtSel_ChargedJet_);
- setLabel1D(hEvtSel_CaloJet_);
-}
+  if(1) {
+    const int Nx = 5;
+    const double x1 = 0;
+    const double x2 = 5;
+    book1D(hEvtSel_pTMax_,"hEvtSel_pTMax","Number of events at each stage of selection",Nx,x1,x2);
+    book1D(hEvtSel_ChargedJet_,"hEvtSel_ChargedJet","Number of events at each stage of selection",Nx,x1,x2);   
+    book1D(hEvtSel_CaloJet_,"hEvtSel_CaloJet","Number of events at each stage of selection",Nx,x1,x2);
+    setLabel1D(hEvtSel_pTMax_);
+    setLabel1D(hEvtSel_ChargedJet_);
+    setLabel1D(hEvtSel_CaloJet_);
+  }
  
   if (1) {
     const int Nx = 50;
