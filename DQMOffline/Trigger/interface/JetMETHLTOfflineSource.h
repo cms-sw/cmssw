@@ -80,6 +80,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
         virtual bool validPathHLT(std::string path);
         virtual bool isHLTPathAccepted(std::string pathName);
         virtual bool isTriggerObjectFound(std::string objectName);
+        virtual double TriggerPosition(std::string trigName);
         virtual void fillMEforMonTriggerSummary();
         virtual void fillMEforMonAllTrigger();
         virtual void fillMEforMonAllTriggerwrtMuonTrigger();
@@ -106,6 +107,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
       bool plotAll_;
       bool plotAllwrtMu_;
       bool plotEff_ ; 
+      bool isSetup_;
       
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
@@ -539,8 +541,6 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
       MonitorElement* correlation_AllWrtMB;
      
 
-      MonitorElement* ME_Denominator_rate;
-      MonitorElement* ME_Numerator_rate;
 	
 	
 };
