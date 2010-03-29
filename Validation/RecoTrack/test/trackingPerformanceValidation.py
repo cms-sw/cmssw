@@ -10,18 +10,18 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_6_0_pre3'
+RefRelease='CMSSW_3_5_4'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_6_0_pre3'
+NewRelease='CMSSW_3_5_5'
 
 ### startup and ideal sample list
 
 ### This is the list of STARTUP-conditions relvals 
 startupsamples= [
     'RelValTTbar', 
-#    'RelValMinBias', 
-#    'RelValQCD_Pt_3000_3500'
+    'RelValMinBias', 
+    'RelValQCD_Pt_3000_3500'
 ]
 ### the list can be empty if you want to skip the validation for all the samples
 # startupsamples= []
@@ -31,20 +31,20 @@ startupsamples= [
 
 
 ### This is the list of IDEAL-conditions relvals 
-#idealsamples= [
-#'RelValMinBias',   ### list of samples to be validated for each pre-release  
-#'RelValQCD_Pt_3000_3500',
-#'RelValSingleElectronPt35', 
-#'RelValTTbar', 
-#'RelValSingleMuPt10', 
-#'RelValSingleMuPt100', 
+idealsamples= [
+'RelValMinBias',   ### list of samples to be validated for each pre-release  
+'RelValQCD_Pt_3000_3500',
+'RelValSingleElectronPt35', 
+'RelValTTbar', 
+'RelValSingleMuPt10', 
+'RelValSingleMuPt100',
 ### additional samples to be validated for each mayor release
 # 'RelValSingleMuPt1', 
 # 'RelValSinglePiPt1', 
 # 'RelValSinglePiPt10', 
 # 'RelValSinglePiPt100', 
 #    
-#]
+]
 
 ### the list can be empty if you want to skip the validation for all the samples
 idealsamples= []
@@ -60,11 +60,11 @@ Version='v1'
 #Version='BX2808-v1'
 
 ### Ideal and Statup tags
-IdealTag='MC_36Y_V2'
-StartupTag='START36_V2'
+IdealTag='MC_3XY_V25'
+StartupTag='START3X_V25'
 
-RefIdealTag='MC_36Y_V2'
-RefStartupTag='START36_V2'
+RefIdealTag='MC_3XY_V24'
+RefStartupTag='START3X_V24'
 ### PileUp: "PU" . No PileUp: "noPU"
 PileUp='noPU'
 #PileUp='PU'
@@ -72,10 +72,10 @@ PileUp='noPU'
 
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb']
-#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
-Qualities=['']
-#Qualities=['', 'highPurity']
+#Algos= ['ootb']
+Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
+#Qualities=['']
+Qualities=['', 'highPurity']
 
 ### Leave unchanged unless the track collection name changes
 Tracksname=''
@@ -91,22 +91,23 @@ Tracksname=''
 #   -preproduction
 #   -comparison_only
 
-#Sequence='re_tracking'
-Sequence='only_validation'
+
+Sequence='comparison_only'
+#Sequence='harvesting'
 
 
 
 ### Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
-NewSelectionLabel='reTracking'
+NewSelectionLabel=''
 
 
 ### Reference and new repository
-RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/test/lowerPtPlots'
+RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
 #NewRepository = 'new' # copy output into a local folder
-NewRepository = '/afs/cern.ch/user/m/mangano/www/dropBox' # copy output into a local folder
+
 
 ### use the following repository only if you have AFS privileges and you know what you are doing
-#NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/test/lowerPtPlots'
+NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
 
 ### for preproduction samples:
 ### RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
@@ -115,7 +116,7 @@ NewRepository = '/afs/cern.ch/user/m/mangano/www/dropBox' # copy output into a l
 
 
 ### AFS location of central harvesting output. It can be used to avoid running the harvesting by yourself
-castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/'
+castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_5_x'
 
 
 
@@ -124,8 +125,8 @@ defaultNevents ='-1'
 
 ### Put here the number of event to be processed for specific samples (numbers must be strings) 
 ### if not specified is defaultNevents:
-#Events={}
-Events={'RelValTTbar':'4000'}
+Events={}
+#Events={'RelValTTbar':'4000'}
 
 ### template file names. Usually should not be changed.
 cfg='trackingPerformanceValidation_cfg.py'
@@ -212,7 +213,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
             elif( Sequence=="comparison_only"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-v1__GEN-SIM-RECO.root'
-                cpcmd='rfcp '+ castorHarvestedFilesDirectory+ NewRelease +'/' + harvestedfile + ' .'
+                cpcmd='rfcp '+ castorHarvestedFilesDirectory +'/' + harvestedfile + ' .'
                 returncode=os.system(cpcmd)
                 if (returncode!=0):
                     print 'copy of harvested file from castor for sample ' + sample + ' failed'
