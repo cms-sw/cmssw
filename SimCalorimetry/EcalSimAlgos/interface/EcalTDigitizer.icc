@@ -30,7 +30,7 @@ EcalTDigitizer<Traits>::run( MixCollection<PCaloHit>& input  ,
 
    for( unsigned int i ( 0 ) ; i != ssize ; ++i )
    {
-      CaloSamples& analogSignal ( (*m_hitResponse)[i] ) ;
+      CaloSamples analogSignal ( (*m_hitResponse)[i] ) ;
       if( m_addNoise              ||    // digitize if real or adding noise
 	  !analogSignal.isBlank()    )
       {
