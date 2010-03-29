@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2010/03/27 20:08:00 $
- * $Revision: 1.73 $
+ * $Date: 2010/03/29 14:21:40 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -11,8 +11,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
