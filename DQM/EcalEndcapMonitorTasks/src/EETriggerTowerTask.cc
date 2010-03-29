@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/03/28 14:00:03 $
- * $Revision: 1.70 $
+ * $Date: 2010/03/28 17:41:13 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -22,6 +22,8 @@
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EETriggerTowerTask.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+
+#include <iostream>
 
 const int EETriggerTowerTask::nTTEta = 20;
 const int EETriggerTowerTask::nTTPhi = 20;
@@ -542,7 +544,7 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
         // check if the tower has been readout completely and if it is medium or high interest
         if (readoutCrystalsInTower[itcc-1][itt-1] == int(crystals->size()) &&
-            (compDigiInterest == 1 || compDigiInterest == 3) ) {
+            (compDigiInterest == 1 || compDigiInterest == 3) && compDigiEt > 0) {
 
           if ( tpdigiItr->compressedEt() != compDigiEt ) {
             good = false;
