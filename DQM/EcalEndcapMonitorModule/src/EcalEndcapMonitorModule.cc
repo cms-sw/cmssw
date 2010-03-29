@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2010/02/15 20:59:16 $
- * $Revision: 1.72 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -11,9 +11,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -475,16 +474,11 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EEDataFrame dataframe = (*digiItr);
-      EEDetId id = dataframe.id();
-
-      int ix = id.ix();
+      EEDetId id = digiItr->id();
 
       int ism = Numbers::iSM( id );
 
       counter[ism-1]++;
-
-      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
 
     }
 
@@ -517,8 +511,7 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalRecHit hit = (*hitItr);
-      EEDetId id = hit.id();
+      EEDetId id = hitItr->id();
 
       int ix = id.ix();
       int iy = id.iy();
@@ -532,7 +525,7 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
 
-      float xval = hit.energy();
+      float xval = hitItr->energy();
 
       if ( enableEventDisplay_ ) {
 
@@ -565,11 +558,9 @@ void EcalEndcapMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
     int neetpd = 0;
     int counter[18] = { 0 };
 
-    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = tpdigis->begin();
-          tpdigiItr != tpdigis->end(); ++tpdigiItr ) {
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = tpdigis->begin(); tpdigiItr != tpdigis->end(); ++tpdigiItr ) {
 
-      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
-      EcalTrigTowerDetId idt = data.id();
+      EcalTrigTowerDetId idt = tpdigiItr->id();
 
       if ( Numbers::subDet( idt ) != EcalEndcap ) continue;
 

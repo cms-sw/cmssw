@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2010/02/15 20:59:16 $
- * $Revision: 1.195 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.196 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -11,9 +11,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -475,8 +474,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
+      EBDetId id = digiItr->id();
 
       int ism = Numbers::iSM( id );
 
@@ -512,8 +510,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
 
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-      EcalRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EBDetId id = hitItr->id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -526,7 +523,7 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
       float xie = ie - 0.5;
       float xip = ip - 0.5;
 
-      float xval = hit.energy();
+      float xval = hitItr->energy();
 
       if ( enableEventDisplay_ ) {
 
@@ -559,11 +556,9 @@ void EcalBarrelMonitorModule::analyze(const edm::Event& e, const edm::EventSetup
     int nebtpd = 0;
     int counter[36] = { 0 };
 
-    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = tpdigis->begin();
-          tpdigiItr != tpdigis->end(); ++tpdigiItr ) {
+    for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = tpdigis->begin(); tpdigiItr != tpdigis->end(); ++tpdigiItr ) {
 
-      EcalTriggerPrimitiveDigi data = (*tpdigiItr);
-      EcalTrigTowerDetId idt = data.id();
+      EcalTrigTowerDetId idt = tpdigiItr->id();
 
       if ( Numbers::subDet( idt ) != EcalBarrel ) continue;
 
