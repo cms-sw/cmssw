@@ -29,13 +29,13 @@ SurveyPxbDicer::SurveyPxbDicer(std::vector<edm::ParameterSet> pars, unsigned int
 	sigma_scale = getParByName("scale", "sigma", pars);
 	mean_phi = getParByName("phi", "mean", pars);
 	sigma_phi = getParByName("phi", "sigma", pars);
-	mean_u = getParByName("u", "mean", pars);
-	sigma_u = getParByName("u", "sigma", pars);
-	mean_v = getParByName("v", "mean", pars);
-	sigma_v = getParByName("v", "sigma", pars);
+	mean_x = getParByName("x", "mean", pars);
+	sigma_x = getParByName("x", "sigma", pars);
+	mean_y = getParByName("y", "mean", pars);
+	sigma_y = getParByName("y", "sigma", pars);
 }
 
-std::string SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t &id)
+std::string SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t &id, const bool rotate)
 {
 	// Dice the local parameters
 	const value_t a0 = ranGauss(mean_a0, sigma_a0);
@@ -48,15 +48,16 @@ std::string SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t
 	const coord_t p1 = transform(fidpointvec[1],a0,a1,a2,a3);
 	const coord_t p2 = transform(fidpointvec[2],a0,a1,a2,a3);
 	const coord_t p3 = transform(fidpointvec[3],a0,a1,a2,a3);
+	const value_t sign = rotate ? -1 : 1;
 	std::ostringstream oss;
-	// Observe sign flip from CMS coordinate system to photo
 	oss << id.first << " " 
-		 << ranGauss(-p2.y(),sigma_v) << " " << ranGauss(p2.x(),sigma_u) << " "
-		 << ranGauss(-p3.y(),sigma_v) << " " << ranGauss(p3.x(),sigma_u) << " "
+		 << sign*ranGauss(p0.x(),sigma_x) << " " << -sign*ranGauss(p0.y(),sigma_y) << " "
+		 << sign*ranGauss(p1.x(),sigma_x) << " " << -sign*ranGauss(p1.y(),sigma_y) << " "
 		 << id.second << " "
-		 << ranGauss(-p1.y(),sigma_v) << " " << ranGauss(p1.x(),sigma_u) << " "
-		 << ranGauss(-p0.y(),sigma_v) << " " << ranGauss(p0.x(),sigma_u) << " "
-		 << sigma_u << " " << sigma_v
+		 << sign*ranGauss(p2.x(),sigma_x) << " " << -sign*ranGauss(p2.y(),sigma_y) << " "
+		 << sign*ranGauss(p3.x(),sigma_x) << " " << -sign*ranGauss(p3.y(),sigma_y) << " "
+		 << sigma_x << " " << sigma_y << " "
+		 << rotate
 		 << " # MC-truth:"
 		 << " a0-a3: " << a0 << " " << a1 << " " << a2 << " " << a3
 		 << " S: " << scale
@@ -69,15 +70,14 @@ std::string SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t
 	return oss.str();
 }
 
-void SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t &id, std::ofstream &outfile)
+void SurveyPxbDicer::doDice(const fidpoint_t &fidpointvec, const idPair_t &id, std::ofstream &outfile, const bool rotate)
 {
-	outfile << doDice(fidpointvec, id);
+	outfile << doDice(fidpointvec, id, rotate);
 }
 
 SurveyPxbDicer::coord_t SurveyPxbDicer::transform(const coord_t &x, const value_t &a0, const value_t &a1, const value_t &a2, const value_t &a3)
 {
-	return coord_t(a0+a2*x.x()+a3*x.y(),
-			       a1-a3*x.x()+a2*x.y());
+	return coord_t(a0+a2*x.x()+a3*x.y(), a1-a3*x.x()+a2*x.y());
 }
 
 SurveyPxbDicer::value_t SurveyPxbDicer::getParByName(const std::string &name, const std::string &par, const std::vector<edm::ParameterSet>& pars)

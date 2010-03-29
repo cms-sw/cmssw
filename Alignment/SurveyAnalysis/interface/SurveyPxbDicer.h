@@ -36,8 +36,8 @@ public:
 	//! Invoke the dicer
 	//! \param fidpointvec vector with fiducial points where values need to be diced for and transformed to the photo fram
 	//! \param idPair pair of the id values
-	std::string doDice(const fidpoint_t &fidpointvec, const idPair_t &id);
-	void doDice(const fidpoint_t &fidpointvec, const idPair_t &id, std::ofstream &outfile);
+	std::string doDice(const fidpoint_t &fidpointvec, const idPair_t &id, const bool rotate=false);
+	void doDice(const fidpoint_t &fidpointvec, const idPair_t &id, std::ofstream &outfile, const bool rotate=false);
 
 private:
 	//! invoke the RNG to geat a gaussian smeared value
@@ -49,8 +49,8 @@ private:
 	value_t mean_a1, sigma_a1;
 	value_t mean_scale, sigma_scale;
 	value_t mean_phi, sigma_phi;
-	value_t mean_u, sigma_u;
-	value_t mean_v, sigma_v;
+	value_t mean_x, sigma_x;
+	value_t mean_y, sigma_y;
 
 	//! Gets parameter by name from the VPSet
 	//! \param name name of the parameter to be searched for in field 'name' of the VPSet
@@ -60,10 +60,10 @@ private:
 
 	//! Transform the diced values to the frame of a toy photograph
 	//! \param x coordinate to be transformed from local frame to photo frame
-	//! \param a1 Transformation parameter, shift in u
-	//! \param a2 Transformation parameter, shift in v
-	//! \param a3 Transformation parameter, scale*cos(phi)
-	//! \param a4 Transformation parameter, scale*sin(phi)
+	//! \param a0 Transformation parameter, shift in x
+	//! \param a1 Transformation parameter, shift in y
+	//! \param a2 Transformation parameter, scale*cos(phi)
+	//! \param a3 Transformation parameter, scale*sin(phi)
 	coord_t transform(const coord_t &x, const value_t &a0, const value_t &a1, const value_t &a2, const value_t &a3);
 
 	//! Function object for searching for a parameter in the VPSet
