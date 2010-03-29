@@ -3,8 +3,8 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2010/03/28 15:27:36 $
- * $Revision: 1.1 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.2 $
  * $Author: ameyer $
  *
 */
@@ -59,18 +59,23 @@ DQMDcsInfoClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::E
   MonitorElement* DCSbyLS_ = 
             dbe_->get(subsystemname_ + "/" + dcsinfofolder_ + "/DCSbyLS" ); 
 
-  if (TH1F * h1 = DCSbyLS_->getTH1F()) 
+  if ( DCSbyLS_ ) 
   {
-     int word = 0;
-     for (int i = 0; i < 25 ; i++) 
-     {
-       if ( h1->GetBinContent(i+1) != 0 ) 
-          word |= (0x0 << i); // set to 0 because HV was off (!)
-       else 
-          word |= (0x1 << i); // set to 1 because HV was on (!)
-     }
-     DCS[nlumi] = word;
+    if ( TH1F * h1 = DCSbyLS_->getTH1F()) 
+    {
+      int word = 0;
+      for (int i = 0; i < 25 ; i++) 
+      {
+
+	if ( h1->GetBinContent(i+1) != 0 ) 
+           word |= (0x0 << i); // set to 0 because HV was off (!)
+	else 
+           word |= (0x1 << i); // set to 1 because HV was on (!)
+      }
+      DCS[nlumi] = word;
+    }
   }
+  return; 
 }
 
 void 
