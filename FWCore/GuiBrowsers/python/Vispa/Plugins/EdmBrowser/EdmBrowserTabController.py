@@ -17,7 +17,7 @@ class EdmBrowserTabController(EventBrowserTabController):
     def staticSupportedFileTypes():
         """ Returns supported file type: root.
         """
-        return [('root', 'EDM root file'), ('txt', 'Dataformat file')]
+        return [('root', 'EDM root file')]
     staticSupportedFileTypes = staticmethod(staticSupportedFileTypes)
     
     def updateViewMenu(self):
